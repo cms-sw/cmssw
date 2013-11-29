@@ -31,9 +31,9 @@ public:
 
 private:  
   // member data
-  edm::InputTag  src_        ;
-  double         coneRadius_ ;
-  double         threshold_  ;
+  double                                         coneRadius_      ;
+  double                                         threshold_       ;
+  edm::EDGetTokenT< std::vector<reco::Track> >   v_recoTrackToken_;
 
 };
 
@@ -44,9 +44,9 @@ private:
 
 //______________________________________________________________________________
 IsoTracks::IsoTracks(const edm::ParameterSet& iConfig)
-  : src_       (iConfig.getParameter<edm::InputTag>("src"))
-  , coneRadius_(iConfig.getParameter<double>("radius"))
-  , threshold_ (iConfig.getParameter<double>("SumPtFraction"))
+  : coneRadius_      ( iConfig.getParameter<double>( "radius" ) )
+  , threshold_       ( iConfig.getParameter<double>( "SumPtFraction" ) )
+  , v_recoTrackToken_( consumes< std::vector<reco::Track> >( iConfig.getParameter<edm::InputTag>( "src" ) ) )
 {
   produces<std::vector<reco::Track> >();
 }
@@ -65,7 +65,7 @@ void IsoTracks::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
   std::auto_ptr<std::vector<reco::Track> > IsoTracks(new std::vector<reco::Track >);
   
   edm::Handle< std::vector<reco::Track> > dirtyTracks;
-  iEvent.getByLabel(src_,dirtyTracks);
+  iEvent.getByToken( v_recoTrackToken_, dirtyTracks );
   
   if( dirtyTracks->size() == 0 ) 
   {

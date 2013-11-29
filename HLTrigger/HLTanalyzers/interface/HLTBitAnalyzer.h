@@ -80,6 +80,6 @@ private:
   std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;
   TFile* m_file; // pointer to Histogram file
-	bool _UseTFileService;
+  bool _UseTFileService;
 
 };

@@ -46,12 +46,12 @@ class L2TauAnalyzer : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       //Parameters to read
-      edm::InputTag  l2TauInfoAssoc_; //Path to analyze
-      edm::InputTag  l1Taus_; //Path to analyze
-      edm::InputTag  l1Jets_; //Path to analyze
+      edm::EDGetTokenT<reco::L2TauInfoAssociation>  l2TauInfoAssoc_; //Path to analyze
+      edm::EDGetTokenT<l1extra::L1JetParticleCollection>  l1Taus_; //Path to analyze
+      edm::EDGetTokenT<l1extra::L1JetParticleCollection>  l1Jets_; //Path to analyze
       std::string rootFile_;          //Output File Name
       bool IsSignal_;                 //Flag to tell the analyzer if it is signal OR QCD
-      edm::InputTag mcColl_;          // input products from HLTMcInfo
+      edm::EDGetTokenT<LVColl> mcColl_;          // input products from HLTMcInfo
 
       
       double matchDR_;

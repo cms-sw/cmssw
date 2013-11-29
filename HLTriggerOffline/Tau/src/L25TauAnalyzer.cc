@@ -30,12 +30,12 @@ using namespace std;
 L25TauAnalyzer::L25TauAnalyzer(const edm::ParameterSet& iConfig){
    //now do what ever initialization is needed
 
-  _l25JetSource = iConfig.getParameter<InputTag>("L25JetSource");
-  _l2TauInfoAssoc = iConfig.getParameter<InputTag>("L2TauSource");
-  _pfTauSource = iConfig.getParameter<InputTag>("PFTauSource");
-  _pfTauIsoSource = iConfig.getParameter<InputTag>("PFTauIsoSource");
-  _pfTauMuonDiscSource = iConfig.getParameter<InputTag>("PFTauMuonDiscSource");
-  _pVtxSource = iConfig.getParameter<InputTag>("PrimaryVtxSource");
+  _l25JetSource = consumes<IsolatedTauTagInfoCollection>(iConfig.getParameter<InputTag>("L25JetSource"));
+  _l2TauInfoAssoc = consumes<L2TauInfoAssociation>(iConfig.getParameter<InputTag>("L2TauSource"));
+  _pfTauSource = consumes<PFTauCollection>(iConfig.getParameter<InputTag>("PFTauSource"));
+  _pfTauIsoSource = consumes<PFTauDiscriminator>(iConfig.getParameter<InputTag>("PFTauIsoSource"));
+  _pfTauMuonDiscSource = consumes<PFTauDiscriminator>(iConfig.getParameter<InputTag>("PFTauMuonDiscSource"));
+  _pVtxSource = consumes<VertexCollection>(iConfig.getParameter<InputTag>("PrimaryVtxSource"));
   _l2l25MatchingCone = iConfig.getParameter<double>("L2L25MatchingCone");
   
   _l25JetLeadTkMacthingCone =  iConfig.getParameter<double>("L25JetLeadTkMatchingCone");
@@ -177,16 +177,16 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   //get l2 jet; match to pftau
   Handle<PFTauCollection> thePFTaus;
-  iEvent.getByLabel(_pfTauSource,thePFTaus);
+  iEvent.getByToken(_pfTauSource,thePFTaus);
   
   Handle<PFTauDiscriminator> thePFTauDiscriminatorByIsolation;
-  iEvent.getByLabel(_pfTauIsoSource,thePFTauDiscriminatorByIsolation);  
+  iEvent.getByToken(_pfTauIsoSource,thePFTauDiscriminatorByIsolation);  
   
   Handle<PFTauDiscriminator> thePFTauDiscriminatorAgainstMuon;
-  iEvent.getByLabel(_pfTauMuonDiscSource, thePFTauDiscriminatorAgainstMuon); 
+  iEvent.getByToken(_pfTauMuonDiscSource, thePFTauDiscriminatorAgainstMuon); 
   
   Handle<VertexCollection> thePrimaryVertices;
-  iEvent.getByLabel(_pVtxSource, thePrimaryVertices);
+  iEvent.getByToken(_pVtxSource, thePrimaryVertices);
   const reco::Vertex& theHltPrimaryVertex = (*thePrimaryVertices->begin());
   theVertexPosition = math::XYZPoint(0.,0.,0.);
   if(thePrimaryVertices->size() > 0) theVertexPosition = math::XYZPoint(theHltPrimaryVertex.position().x(), 
@@ -249,10 +249,10 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       
       // matched PFtau to l2 Jet with Et > 5 ... originially 15 but to strong for min bias
       Handle<L2TauInfoAssociation> l2TauInfoAssoc; //Handle to the input (L2 Tau Info Association) 
-      iEvent.getByLabel(_l2TauInfoAssoc,l2TauInfoAssoc);					   
+      iEvent.getByToken(_l2TauInfoAssoc,l2TauInfoAssoc);					   
       reco::CaloJet theMatchedL2Jet;
       IsolatedTauTagInfo theMatchedL25TauTagInfo;
-      if(iEvent.getByLabel(_l2TauInfoAssoc,l2TauInfoAssoc) && l2TauInfoAssoc->size()>0){
+      if(iEvent.getByToken(_l2TauInfoAssoc,l2TauInfoAssoc) && l2TauInfoAssoc->size()>0){
       	double matchDr = _l2l25MatchingCone;
       	for(L2TauInfoAssociation::const_iterator it = l2TauInfoAssoc->begin(); it != l2TauInfoAssoc->end(); ++it){
       	  const reco::CaloJet& l2Jet =*(it->key);
@@ -272,7 +272,7 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         l2JetEt = theMatchedL2Jet.et();
         l2JetEta = theMatchedL2Jet.eta();
         l2JetPhi = theMatchedL2Jet.phi();
-        if(iEvent.getByLabel(_l25JetSource, tauTagInfo) && tauTagInfo->size()>0){
+        if(iEvent.getByToken(_l25JetSource, tauTagInfo) && tauTagInfo->size()>0){
 	  L25MatchedToL2 = false;									       
 	  double minDeltaR = _l2l25MatchingCone;								       
 	  //declare l25 tauTagInfo ...									       

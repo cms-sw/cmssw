@@ -47,16 +47,6 @@ EmDQMFeeder::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (unsigned i = 0; i < emDQMmodules.size(); ++i) {
       emDQMmodules[i]->analyze(iEvent, iSetup);
    }
-
-// #ifdef THIS_IS_AN_EVENT_EXAMPLE
-//    Handle<ExampleData> pIn;
-//    iEvent.getByLabel("example",pIn);
-// #endif
-//    
-// #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-//    ESHandle<SetupData> pSetup;
-//    iSetup.get<SetupRecord>().get(pSetup);
-// #endif
 }
 
 
