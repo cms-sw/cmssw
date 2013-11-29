@@ -9,7 +9,7 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet& mc)
  
   //One Parameter Set per Collection
 
-  MC_      = mc.getUntrackedParameter<edm::InputTag>("GenParticles");
+  MC_      = consumes<GenParticleCollection>(mc.getUntrackedParameter<edm::InputTag>("GenParticles"));
   ptMinMCTau_ = mc.getUntrackedParameter<double>("ptMinTau",5.);
   ptMinMCMuon_ = mc.getUntrackedParameter<double>("ptMinMuon",2.);
   ptMinMCElectron_ = mc.getUntrackedParameter<double>("ptMinElectron",5.);
@@ -45,7 +45,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   auto_ptr<std::vector<int> > product_Mothers(new std::vector<int>);
   
   edm::Handle<GenParticleCollection> genParticles;
-  iEvent.getByLabel(MC_, genParticles);
+  iEvent.getByToken(MC_, genParticles);
 
   GenParticleCollection::const_iterator p = genParticles->begin();
   

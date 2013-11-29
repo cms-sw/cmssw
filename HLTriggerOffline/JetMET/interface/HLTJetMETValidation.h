@@ -54,6 +54,11 @@ Extensions from Len Apanasevich.
 #include <string>
 #include "TPRegexp.h"
 
+using namespace std;
+using namespace edm;
+using namespace reco;
+using namespace l1extra;
+using namespace trigger;
 
 namespace edm {
   class TriggerNames;
@@ -73,8 +78,12 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
                      const edm::TriggerNames & triggerNames);
 
   /// InputTag of TriggerEventWithRefs to analyze
-  edm::InputTag triggerEventObject_;
-  edm::InputTag CaloJetAlgorithm, GenJetAlgorithm, CaloMETColl, GenMETColl, HLTriggerResults;
+  edm::EDGetTokenT<TriggerEventWithRefs> triggerEventObject_;
+  edm::EDGetTokenT<PFJetCollection> CaloJetAlgorithm;
+  edm::EDGetTokenT<GenJetCollection> GenJetAlgorithm;
+  edm::EDGetTokenT<CaloMETCollection> CaloMETColl;
+  edm::EDGetTokenT<GenMETCollection> GenMETColl;
+  edm::EDGetTokenT<edm::TriggerResults> HLTriggerResults;
 
   //Just a tag for better file organization
   std::string triggerTag_, MyTrigger, patternJetTrg_, patternMetTrg_, patternMuTrg_;
