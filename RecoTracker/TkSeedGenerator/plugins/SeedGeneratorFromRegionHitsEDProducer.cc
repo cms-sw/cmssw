@@ -43,6 +43,11 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     theMerger_->setLayerListName( mergerPSet.getParameter<std::string>( "layerListName" ) );
   }
 
+  edm::ParameterSet regfactoryPSet = 
+      theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
+
   produces<TrajectorySeedCollection>();
 }
 
@@ -57,11 +62,6 @@ void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm
 
 void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const edm::EventSetup& es)
 {
-  edm::ParameterSet regfactoryPSet = 
-      theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
-  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
-
   edm::ParameterSet hitsfactoryPSet = 
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
