@@ -19,6 +19,7 @@
 
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <memory>
 #include <iostream>
@@ -28,7 +29,7 @@
 #include <map>
 #include <sys/time.h>
 
-class DQMEventInfo: public edm::EDAnalyzer{
+class DQMEventInfo: public DQMEDAnalyzer{
 
 public:
 
@@ -42,7 +43,8 @@ protected:
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginRun(const edm::Run& r, const edm::EventSetup& c) ;
+  void bookHistograms(DQMStore::IBooker &) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
   void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
 
 private:
@@ -53,7 +55,8 @@ private:
 
   edm::ParameterSet parameters_;
   std::string eventInfoFolder_;
-  
+  std::string subsystemname_;
+
 //  timeval currentTime_, lastUpdateTime_, lastAvgTime_;
 //  timeval runStartTime_;
 //  float evtRateWindow_;
