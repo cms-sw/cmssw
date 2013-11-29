@@ -12,8 +12,8 @@
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 //#include "CommonDet/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
-#include "RecoTracker/TkTrackingRegions/interface/OuterHitPhiPrediction.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+class OuterHitPhiPrediction;
 class OuterEstimator;
 class BarrelDetLayer;
 class ForwardDetLayer;
