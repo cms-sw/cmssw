@@ -3,34 +3,35 @@
 	<ConstantsSection label="hgcal.xml" eval="true">
 		<Constant name="zHGCal1" value="317.0*cm"/>
 		<Constant name="zHGCal2" value="341.4*cm"/>
-		<Constant name="zHGCal3" value="449.127*cm"/>
-		<Constant name="zHGCal4" value="531.4*cm"/>
+		<Constant name="zHGCal3" value="390*cm"/>
+		<Constant name="zHGCal4" value="449.127*cm"/>
+		<Constant name="zHGCal5" value="531.4*cm"/>
 		<Constant name="rMinHGCal1" value="31.641*cm"/>
 		<Constant name="rMinHGCal2" value="34.076*cm"/>
-		<Constant name="rMinHGCal22" value="44.84*cm"/>
-		<Constant name="rMinHGCal3" value="53.041*cm"/>
+		<Constant name="rMinHGCal3" value="38.93*cm"/>		
+		<Constant name="rMinHGCal4" value="44.84*cm"/>
+		<Constant name="rMinHGCal5" value="53.041*cm"/>
 		<Constant name="rMaxHGCal1" value="159.0*cm"/>
-		<!-- 359.0/174.0 -->
-		<!-- 390.0/176.6 -->
-		<!-- 390.0/186.156 -->
-		<!-- 531.4/263.8 -->
-		<Constant name="rMaxHGCal2" value="174.0*cm"/>
-		<Constant name="rMaxHGCal3" value="273.76*cm"/>		
+		<Constant name="rMaxHGCal2" value="169.68*cm"/>
+		<Constant name="rMaxHGCal3" value="191.156*cm"/>
+		<Constant name="rMaxHGCal4" value="273.76*cm"/>		
 	</ConstantsSection>
 	<SolidSection label="hgcal.xml">
 		<Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>
-			<ZSection z="390*cm" rMin="38.93*cm" rMax="191.156*cm"/>
-			<ZSection z="[zHGCal3]" rMin="[rMinHGCal22]" rMax="[rMaxHGCal3]"/>
-			<ZSection z="[zHGCal4]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+			<ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+			<ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
+			<ZSection z="[zHGCal5]" rMin="[rMinHGCal5]" rMax="[rMaxHGCal4]"/>
 		</Polycone>
 		<Polycone name="HGCalEE" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>
 			<ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]"/>
 		</Polycone>
 		<Polycone name="HGCalHE" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]"/>
 			<ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
-			<ZSection z="[zHGCal4]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+			<ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
+			<ZSection z="[zHGCal5]" rMin="[rMinHGCal5]" rMax="[rMaxHGCal4]"/>
 		</Polycone>
 	</SolidSection>
 	<LogicalPartSection label="hgcal.xml">
@@ -51,6 +52,21 @@
 		<PosPart copyNumber="1">
 			<rParent name="caloBase:CALO"/>
 			<rChild name="HGCal"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="caloBase:CALO"/>
+			<rChild name="HGCal"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="HGCal"/>
+			<rChild name="HGCalEE"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="HGCal"/>
+			<rChild name="HGCalHE"/>
 			<rRotation name="rotations:000D"/>
 		</PosPart>
 	</PosPartSection>
