@@ -1559,7 +1559,7 @@
   <ParE name="center" value="5.179*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_29"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1579,7 +1579,7 @@
   <ParE name="center" value="5.119*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_28"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1599,7 +1599,7 @@
   <ParE name="center" value="5.059*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_27"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1619,7 +1619,7 @@
   <ParE name="center" value="4.999*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_26"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1639,7 +1639,7 @@
   <ParE name="center" value="4.939*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_25"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1659,7 +1659,7 @@
   <ParE name="center" value="4.879*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_24"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1679,7 +1679,7 @@
   <ParE name="center" value="4.819*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_23"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1699,7 +1699,7 @@
   <ParE name="center" value="4.759*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_22"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1719,7 +1719,7 @@
   <ParE name="center" value="4.699*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_21"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1739,7 +1739,7 @@
   <ParE name="center" value="4.639*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_20"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1759,7 +1759,7 @@
   <ParE name="center" value="4.579*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_19"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1779,7 +1779,7 @@
   <ParE name="center" value="4.519*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_18"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1799,7 +1799,7 @@
   <ParE name="center" value="4.459*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_17"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1819,7 +1819,7 @@
   <ParE name="center" value="4.399*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_16"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1839,7 +1839,7 @@
   <ParE name="center" value="4.339*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_15"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1859,7 +1859,7 @@
   <ParE name="center" value="4.279*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_14"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1879,7 +1879,7 @@
   <ParE name="center" value="4.219*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_13"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1899,7 +1899,7 @@
   <ParE name="center" value="4.159*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_12"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1919,7 +1919,7 @@
   <ParE name="center" value="4.099*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_11"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1939,7 +1939,7 @@
   <ParE name="center" value="4.039*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_10"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1959,7 +1959,7 @@
   <ParE name="center" value="3.979*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_9"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1979,7 +1979,7 @@
   <ParE name="center" value="3.919*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_8"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -1999,7 +1999,7 @@
   <ParE name="center" value="3.859*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_7"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2019,7 +2019,7 @@
   <ParE name="center" value="3.799*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_6"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2039,7 +2039,7 @@
   <ParE name="center" value="3.739*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_5"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2059,7 +2059,7 @@
   <ParE name="center" value="3.679*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_4"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2079,7 +2079,7 @@
   <ParE name="center" value="3.619*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_3"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2099,7 +2099,7 @@
   <ParE name="center" value="3.559*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_2"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2119,7 +2119,7 @@
   <ParE name="center" value="3.499*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_1"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2139,7 +2139,7 @@
   <ParE name="center" value="3.439*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_60"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2159,7 +2159,7 @@
   <ParE name="center" value="5.209*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_59"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2179,7 +2179,7 @@
   <ParE name="center" value="5.149*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_58"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2199,7 +2199,7 @@
   <ParE name="center" value="5.089*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_57"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2219,7 +2219,7 @@
   <ParE name="center" value="5.029*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_56"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2239,7 +2239,7 @@
   <ParE name="center" value="4.969*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_55"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2259,7 +2259,7 @@
   <ParE name="center" value="4.909*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_54"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2279,7 +2279,7 @@
   <ParE name="center" value="4.849*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_53"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2299,7 +2299,7 @@
   <ParE name="center" value="4.789*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_52"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2319,7 +2319,7 @@
   <ParE name="center" value="4.729*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_51"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2339,7 +2339,7 @@
   <ParE name="center" value="4.669*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_50"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2359,7 +2359,7 @@
   <ParE name="center" value="4.609*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_49"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2379,7 +2379,7 @@
   <ParE name="center" value="4.549*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_48"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2399,7 +2399,7 @@
   <ParE name="center" value="4.489*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_47"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2419,7 +2419,7 @@
   <ParE name="center" value="4.429*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_46"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2439,7 +2439,7 @@
   <ParE name="center" value="4.369*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_45"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2459,7 +2459,7 @@
   <ParE name="center" value="4.309*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_44"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2479,7 +2479,7 @@
   <ParE name="center" value="4.249*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_43"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2499,7 +2499,7 @@
   <ParE name="center" value="4.189*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_42"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2519,7 +2519,7 @@
   <ParE name="center" value="4.129*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_41"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2539,7 +2539,7 @@
   <ParE name="center" value="4.069*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_40"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -2559,7 +2559,7 @@
   <ParE name="center" value="4.009*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_39"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2579,7 +2579,7 @@
   <ParE name="center" value="3.949*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_38"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50478*deg"/>
@@ -2599,7 +2599,7 @@
   <ParE name="center" value="3.889*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_37"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2619,7 +2619,7 @@
   <ParE name="center" value="3.829*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_36"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2639,7 +2639,7 @@
   <ParE name="center" value="3.769*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_35"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2659,7 +2659,7 @@
   <ParE name="center" value="3.709*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_34"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50478*deg"/>
@@ -2679,7 +2679,7 @@
   <ParE name="center" value="3.649*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_33"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2699,7 +2699,7 @@
   <ParE name="center" value="3.589*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_32"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -2719,7 +2719,7 @@
   <ParE name="center" value="3.529*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_31"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -2739,7 +2739,7 @@
   <ParE name="center" value="3.469*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_90"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2759,7 +2759,7 @@
   <ParE name="center" value="3.331*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_89"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2779,7 +2779,7 @@
   <ParE name="center" value="3.3255*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_88"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2799,7 +2799,7 @@
   <ParE name="center" value="3.32*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_87"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2819,7 +2819,7 @@
   <ParE name="center" value="3.3145*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_86"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2839,7 +2839,7 @@
   <ParE name="center" value="3.309*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_85"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2859,7 +2859,7 @@
   <ParE name="center" value="3.3035*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_84"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2879,7 +2879,7 @@
   <ParE name="center" value="3.298*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_83"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2899,7 +2899,7 @@
   <ParE name="center" value="3.2925*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_82"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2919,7 +2919,7 @@
   <ParE name="center" value="3.287*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_81"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2939,7 +2939,7 @@
   <ParE name="center" value="3.2815*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_80"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2959,7 +2959,7 @@
   <ParE name="center" value="3.276*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_79"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2979,7 +2979,7 @@
   <ParE name="center" value="3.2705*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_78"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -2999,7 +2999,7 @@
   <ParE name="center" value="3.265*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_77"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3019,7 +3019,7 @@
   <ParE name="center" value="3.2595*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_76"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3039,7 +3039,7 @@
   <ParE name="center" value="3.254*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_75"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3059,7 +3059,7 @@
   <ParE name="center" value="3.2485*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_74"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3079,7 +3079,7 @@
   <ParE name="center" value="3.243*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_73"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3099,7 +3099,7 @@
   <ParE name="center" value="3.2375*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_72"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3119,7 +3119,7 @@
   <ParE name="center" value="3.232*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_71"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3139,7 +3139,7 @@
   <ParE name="center" value="3.2265*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_70"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3159,7 +3159,7 @@
   <ParE name="center" value="3.221*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_69"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3179,7 +3179,7 @@
   <ParE name="center" value="3.2155*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_68"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3199,7 +3199,7 @@
   <ParE name="center" value="3.21*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_67"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3219,7 +3219,7 @@
   <ParE name="center" value="3.2045*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_66"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3239,7 +3239,7 @@
   <ParE name="center" value="3.199*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_65"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3259,7 +3259,7 @@
   <ParE name="center" value="3.1935*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_64"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3279,7 +3279,7 @@
   <ParE name="center" value="3.188*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_63"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3299,7 +3299,7 @@
   <ParE name="center" value="3.1825*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_62"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3319,7 +3319,7 @@
   <ParE name="center" value="3.177*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_61"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -3339,7 +3339,7 @@
   <ParE name="center" value="3.1715*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_120"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3359,7 +3359,7 @@
   <ParE name="center" value="5.206*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_119"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3379,7 +3379,7 @@
   <ParE name="center" value="5.146*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_118"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3399,7 +3399,7 @@
   <ParE name="center" value="5.086*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_117"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3419,7 +3419,7 @@
   <ParE name="center" value="5.026*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_116"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3439,7 +3439,7 @@
   <ParE name="center" value="4.966*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_115"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3459,7 +3459,7 @@
   <ParE name="center" value="4.906*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_114"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3479,7 +3479,7 @@
   <ParE name="center" value="4.846*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_113"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3499,7 +3499,7 @@
   <ParE name="center" value="4.786*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_112"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3519,7 +3519,7 @@
   <ParE name="center" value="4.726*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_111"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3539,7 +3539,7 @@
   <ParE name="center" value="4.666*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_110"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3559,7 +3559,7 @@
   <ParE name="center" value="4.606*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_109"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3579,7 +3579,7 @@
   <ParE name="center" value="4.546*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_108"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3599,7 +3599,7 @@
   <ParE name="center" value="4.486*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_107"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3619,7 +3619,7 @@
   <ParE name="center" value="4.426*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_106"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3639,7 +3639,7 @@
   <ParE name="center" value="4.366*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_105"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3659,7 +3659,7 @@
   <ParE name="center" value="4.306*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_104"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3679,7 +3679,7 @@
   <ParE name="center" value="4.246*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_103"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3699,7 +3699,7 @@
   <ParE name="center" value="4.186*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_102"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3719,7 +3719,7 @@
   <ParE name="center" value="4.126*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_101"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -3739,7 +3739,7 @@
   <ParE name="center" value="4.066*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_100"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3759,7 +3759,7 @@
   <ParE name="center" value="4.006*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_99"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3779,7 +3779,7 @@
   <ParE name="center" value="3.946*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_98"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3799,7 +3799,7 @@
   <ParE name="center" value="3.886*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_97"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3819,7 +3819,7 @@
   <ParE name="center" value="3.826*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_96"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3839,7 +3839,7 @@
   <ParE name="center" value="3.766*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_95"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3859,7 +3859,7 @@
   <ParE name="center" value="3.706*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_94"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3879,7 +3879,7 @@
   <ParE name="center" value="3.646*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_93"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -3899,7 +3899,7 @@
   <ParE name="center" value="3.586*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_92"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3919,7 +3919,7 @@
   <ParE name="center" value="3.526*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_91"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3939,7 +3939,7 @@
   <ParE name="center" value="3.466*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_150"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3959,7 +3959,7 @@
   <ParE name="center" value="5.21003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_149"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -3979,7 +3979,7 @@
   <ParE name="center" value="5.15003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_148"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -3999,7 +3999,7 @@
   <ParE name="center" value="5.09003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_147"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4019,7 +4019,7 @@
   <ParE name="center" value="5.03003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_146"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4039,7 +4039,7 @@
   <ParE name="center" value="4.97003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_145"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4059,7 +4059,7 @@
   <ParE name="center" value="4.91003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_144"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4079,7 +4079,7 @@
   <ParE name="center" value="4.85003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_143"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4099,7 +4099,7 @@
   <ParE name="center" value="4.79003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_142"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4119,7 +4119,7 @@
   <ParE name="center" value="4.73003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_141"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4139,7 +4139,7 @@
   <ParE name="center" value="4.67003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_140"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4159,7 +4159,7 @@
   <ParE name="center" value="4.61003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_139"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4179,7 +4179,7 @@
   <ParE name="center" value="4.55003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_138"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4199,7 +4199,7 @@
   <ParE name="center" value="4.49003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_137"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4219,7 +4219,7 @@
   <ParE name="center" value="4.43003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_136"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4239,7 +4239,7 @@
   <ParE name="center" value="4.37003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_135"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4259,7 +4259,7 @@
   <ParE name="center" value="4.31003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_134"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4279,7 +4279,7 @@
   <ParE name="center" value="4.25003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_133"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4299,7 +4299,7 @@
   <ParE name="center" value="4.19003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_132"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4319,7 +4319,7 @@
   <ParE name="center" value="4.13003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_131"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -4339,7 +4339,7 @@
   <ParE name="center" value="4.07003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_130"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4359,7 +4359,7 @@
   <ParE name="center" value="4.01003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_129"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4379,7 +4379,7 @@
   <ParE name="center" value="3.95003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_128"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4399,7 +4399,7 @@
   <ParE name="center" value="3.89003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_127"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4419,7 +4419,7 @@
   <ParE name="center" value="3.83003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_126"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4439,7 +4439,7 @@
   <ParE name="center" value="3.77003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_125"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -4459,7 +4459,7 @@
   <ParE name="center" value="3.71003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_124"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4479,7 +4479,7 @@
   <ParE name="center" value="3.65003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_123"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50478*deg"/>
@@ -4499,7 +4499,7 @@
   <ParE name="center" value="3.59003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_122"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4519,7 +4519,7 @@
   <ParE name="center" value="3.53003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_121"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4539,7 +4539,7 @@
   <ParE name="center" value="3.47003*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_180"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4559,7 +4559,7 @@
   <ParE name="center" value="5.21056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_179"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4579,7 +4579,7 @@
   <ParE name="center" value="5.15056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_178"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4599,7 +4599,7 @@
   <ParE name="center" value="5.09056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_177"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4619,7 +4619,7 @@
   <ParE name="center" value="5.03056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_176"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4639,7 +4639,7 @@
   <ParE name="center" value="4.97056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_175"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4659,7 +4659,7 @@
   <ParE name="center" value="4.91056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_174"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4679,7 +4679,7 @@
   <ParE name="center" value="4.85056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_173"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4699,7 +4699,7 @@
   <ParE name="center" value="4.79056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_172"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4719,7 +4719,7 @@
   <ParE name="center" value="4.73056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_171"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4739,7 +4739,7 @@
   <ParE name="center" value="4.67056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_170"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4759,7 +4759,7 @@
   <ParE name="center" value="4.61056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_169"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4779,7 +4779,7 @@
   <ParE name="center" value="4.55056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_168"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4799,7 +4799,7 @@
   <ParE name="center" value="4.49056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_167"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50478*deg"/>
@@ -4819,7 +4819,7 @@
   <ParE name="center" value="4.43056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_166"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4839,7 +4839,7 @@
   <ParE name="center" value="4.37056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_165"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4859,7 +4859,7 @@
   <ParE name="center" value="4.31056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_164"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4879,7 +4879,7 @@
   <ParE name="center" value="4.25056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_163"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4899,7 +4899,7 @@
   <ParE name="center" value="4.19056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_162"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4919,7 +4919,7 @@
   <ParE name="center" value="4.13056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_161"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -4939,7 +4939,7 @@
   <ParE name="center" value="4.07056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_160"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4959,7 +4959,7 @@
   <ParE name="center" value="4.01056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_159"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -4979,7 +4979,7 @@
   <ParE name="center" value="3.95056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_158"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -4999,7 +4999,7 @@
   <ParE name="center" value="3.89056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_157"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -5019,7 +5019,7 @@
   <ParE name="center" value="3.83056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_156"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5039,7 +5039,7 @@
   <ParE name="center" value="3.77056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_155"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50478*deg"/>
@@ -5059,7 +5059,7 @@
   <ParE name="center" value="3.71056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_154"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5079,7 +5079,7 @@
   <ParE name="center" value="3.65056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_153"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5099,7 +5099,7 @@
   <ParE name="center" value="3.59056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_152"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5119,7 +5119,7 @@
   <ParE name="center" value="3.53056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_151"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5139,7 +5139,7 @@
   <ParE name="center" value="3.47056*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_210"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5159,7 +5159,7 @@
   <ParE name="center" value="5.21203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_209"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5179,7 +5179,7 @@
   <ParE name="center" value="5.15203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_208"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5199,7 +5199,7 @@
   <ParE name="center" value="5.09203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_207"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5219,7 +5219,7 @@
   <ParE name="center" value="5.03203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_206"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5239,7 +5239,7 @@
   <ParE name="center" value="4.97203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_205"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5259,7 +5259,7 @@
   <ParE name="center" value="4.91203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_204"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5279,7 +5279,7 @@
   <ParE name="center" value="4.85203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_203"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5299,7 +5299,7 @@
   <ParE name="center" value="4.79203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_202"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5319,7 +5319,7 @@
   <ParE name="center" value="4.73203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_201"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5339,7 +5339,7 @@
   <ParE name="center" value="4.67203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_200"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5359,7 +5359,7 @@
   <ParE name="center" value="4.61203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_199"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5379,7 +5379,7 @@
   <ParE name="center" value="4.55203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_198"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5399,7 +5399,7 @@
   <ParE name="center" value="4.49203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_197"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5419,7 +5419,7 @@
   <ParE name="center" value="4.43203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_196"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5439,7 +5439,7 @@
   <ParE name="center" value="4.37203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_195"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5459,7 +5459,7 @@
   <ParE name="center" value="4.31203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_194"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5479,7 +5479,7 @@
   <ParE name="center" value="4.25203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_193"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5499,7 +5499,7 @@
   <ParE name="center" value="4.19203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_192"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5519,7 +5519,7 @@
   <ParE name="center" value="4.13203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_191"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -5539,7 +5539,7 @@
   <ParE name="center" value="4.07203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_190"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5559,7 +5559,7 @@
   <ParE name="center" value="4.01203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_189"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5579,7 +5579,7 @@
   <ParE name="center" value="3.95203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_188"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5599,7 +5599,7 @@
   <ParE name="center" value="3.89203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_187"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50476*deg"/>
@@ -5619,7 +5619,7 @@
   <ParE name="center" value="3.83203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_186"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5639,7 +5639,7 @@
   <ParE name="center" value="3.77203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_185"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50478*deg"/>
@@ -5659,7 +5659,7 @@
   <ParE name="center" value="3.71203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_184"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5679,7 +5679,7 @@
   <ParE name="center" value="3.65203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_183"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5699,7 +5699,7 @@
   <ParE name="center" value="3.59203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_182"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="357.495*deg"/>
@@ -5719,7 +5719,7 @@
   <ParE name="center" value="3.53203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalHE"/>
   <rChild name="V_ZP_181"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="2.50477*deg"/>
@@ -5739,7 +5739,7 @@
   <ParE name="center" value="3.47203*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_270"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5759,7 +5759,7 @@
   <ParE name="center" value="3.33282*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_269"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5779,7 +5779,7 @@
   <ParE name="center" value="3.32733*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_268"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5799,7 +5799,7 @@
   <ParE name="center" value="3.32183*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_267"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5819,7 +5819,7 @@
   <ParE name="center" value="3.31632*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_266"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5839,7 +5839,7 @@
   <ParE name="center" value="3.31083*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_265"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5859,7 +5859,7 @@
   <ParE name="center" value="3.30532*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_264"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5879,7 +5879,7 @@
   <ParE name="center" value="3.29983*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_263"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5899,7 +5899,7 @@
   <ParE name="center" value="3.29432*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_262"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5919,7 +5919,7 @@
   <ParE name="center" value="3.28883*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_261"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5939,7 +5939,7 @@
   <ParE name="center" value="3.28333*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_260"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5959,7 +5959,7 @@
   <ParE name="center" value="3.27782*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_259"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5979,7 +5979,7 @@
   <ParE name="center" value="3.27232*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_258"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -5999,7 +5999,7 @@
   <ParE name="center" value="3.26682*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_257"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6019,7 +6019,7 @@
   <ParE name="center" value="3.26133*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_256"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6039,7 +6039,7 @@
   <ParE name="center" value="3.25582*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_255"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6059,7 +6059,7 @@
   <ParE name="center" value="3.25033*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_254"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6079,7 +6079,7 @@
   <ParE name="center" value="3.24483*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_253"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6099,7 +6099,7 @@
   <ParE name="center" value="3.23933*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_252"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6119,7 +6119,7 @@
   <ParE name="center" value="3.23382*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_251"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6139,7 +6139,7 @@
   <ParE name="center" value="3.22832*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_250"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6159,7 +6159,7 @@
   <ParE name="center" value="3.22283*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_249"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6179,7 +6179,7 @@
   <ParE name="center" value="3.21732*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_248"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6199,7 +6199,7 @@
   <ParE name="center" value="3.21183*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_247"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6219,7 +6219,7 @@
   <ParE name="center" value="3.20632*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_246"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6239,7 +6239,7 @@
   <ParE name="center" value="3.20083*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_245"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6259,7 +6259,7 @@
   <ParE name="center" value="3.19532*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_244"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6279,7 +6279,7 @@
   <ParE name="center" value="3.18982*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_243"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6299,7 +6299,7 @@
   <ParE name="center" value="3.18433*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_242"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6319,7 +6319,7 @@
   <ParE name="center" value="3.17882*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_241"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6339,7 +6339,7 @@
   <ParE name="center" value="3.17333*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_300"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6359,7 +6359,7 @@
   <ParE name="center" value="3.33332*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_299"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6379,7 +6379,7 @@
   <ParE name="center" value="3.32782*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_298"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6399,7 +6399,7 @@
   <ParE name="center" value="3.32233*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_297"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6419,7 +6419,7 @@
   <ParE name="center" value="3.31683*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_296"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6439,7 +6439,7 @@
   <ParE name="center" value="3.31133*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_295"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6459,7 +6459,7 @@
   <ParE name="center" value="3.30583*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_294"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6479,7 +6479,7 @@
   <ParE name="center" value="3.30032*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_293"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6499,7 +6499,7 @@
   <ParE name="center" value="3.29482*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_292"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6519,7 +6519,7 @@
   <ParE name="center" value="3.28932*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_291"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6539,7 +6539,7 @@
   <ParE name="center" value="3.28383*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_290"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6559,7 +6559,7 @@
   <ParE name="center" value="3.27833*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_289"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6579,7 +6579,7 @@
   <ParE name="center" value="3.27283*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_288"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6599,7 +6599,7 @@
   <ParE name="center" value="3.26733*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_287"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6619,7 +6619,7 @@
   <ParE name="center" value="3.26182*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_286"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6639,7 +6639,7 @@
   <ParE name="center" value="3.25632*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_285"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6659,7 +6659,7 @@
   <ParE name="center" value="3.25082*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_284"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6679,7 +6679,7 @@
   <ParE name="center" value="3.24533*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_283"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6699,7 +6699,7 @@
   <ParE name="center" value="3.23983*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_282"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6719,7 +6719,7 @@
   <ParE name="center" value="3.23433*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_281"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6739,7 +6739,7 @@
   <ParE name="center" value="3.22883*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_280"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6759,7 +6759,7 @@
   <ParE name="center" value="3.22332*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_279"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6779,7 +6779,7 @@
   <ParE name="center" value="3.21782*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_278"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6799,7 +6799,7 @@
   <ParE name="center" value="3.21232*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_277"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6819,7 +6819,7 @@
   <ParE name="center" value="3.20682*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_276"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6839,7 +6839,7 @@
   <ParE name="center" value="3.20132*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_275"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6859,7 +6859,7 @@
   <ParE name="center" value="3.19583*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_274"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6879,7 +6879,7 @@
   <ParE name="center" value="3.19033*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_273"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6899,7 +6899,7 @@
   <ParE name="center" value="3.18483*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_272"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6919,7 +6919,7 @@
   <ParE name="center" value="3.17932*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_271"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6939,7 +6939,7 @@
   <ParE name="center" value="3.17382*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_330"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6959,7 +6959,7 @@
   <ParE name="center" value="3.33425*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_329"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6979,7 +6979,7 @@
   <ParE name="center" value="3.32875*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_328"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -6999,7 +6999,7 @@
   <ParE name="center" value="3.32325*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_327"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7019,7 +7019,7 @@
   <ParE name="center" value="3.31775*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_326"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7039,7 +7039,7 @@
   <ParE name="center" value="3.31225*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_325"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7059,7 +7059,7 @@
   <ParE name="center" value="3.30675*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_324"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7079,7 +7079,7 @@
   <ParE name="center" value="3.30125*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_323"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7099,7 +7099,7 @@
   <ParE name="center" value="3.29575*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_322"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7119,7 +7119,7 @@
   <ParE name="center" value="3.29025*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_321"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7139,7 +7139,7 @@
   <ParE name="center" value="3.28475*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_320"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7159,7 +7159,7 @@
   <ParE name="center" value="3.27925*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_319"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7179,7 +7179,7 @@
   <ParE name="center" value="3.27375*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_318"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7199,7 +7199,7 @@
   <ParE name="center" value="3.26825*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_317"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7219,7 +7219,7 @@
   <ParE name="center" value="3.26275*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_316"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7239,7 +7239,7 @@
   <ParE name="center" value="3.25725*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_315"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7259,7 +7259,7 @@
   <ParE name="center" value="3.25175*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_314"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7279,7 +7279,7 @@
   <ParE name="center" value="3.24625*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_313"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7299,7 +7299,7 @@
   <ParE name="center" value="3.24075*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_312"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7319,7 +7319,7 @@
   <ParE name="center" value="3.23525*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_311"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7339,7 +7339,7 @@
   <ParE name="center" value="3.22975*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_310"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7359,7 +7359,7 @@
   <ParE name="center" value="3.22425*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_309"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7379,7 +7379,7 @@
   <ParE name="center" value="3.21875*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_308"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7399,7 +7399,7 @@
   <ParE name="center" value="3.21325*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_307"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7419,7 +7419,7 @@
   <ParE name="center" value="3.20775*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_306"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7439,7 +7439,7 @@
   <ParE name="center" value="3.20225*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_305"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7459,7 +7459,7 @@
   <ParE name="center" value="3.19675*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_304"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7479,7 +7479,7 @@
   <ParE name="center" value="3.19125*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_303"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7499,7 +7499,7 @@
   <ParE name="center" value="3.18575*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_302"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7519,7 +7519,7 @@
   <ParE name="center" value="3.18025*m"/>
  </AlgoPosPart>
  <AlgoPosPart algo="global:angular">
-  <rParent name="caloBase:CALO"/>
+  <rParent name="hgcal:HGCalEE"/>
   <rChild name="V_ZP_301"/>
   <ParE name="n" value="18"/>
   <ParE name="startAngle" value="0*deg"/>
@@ -7542,1203 +7542,1203 @@
 
 <SpecParSection>
  <SpecPar name="PFCAL readout map of Volume_ZP_30">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_30"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_30"/>
    <Parameter name="PFCAL_V_ZP_30" value="grid.300.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_29">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_29"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_29"/>
    <Parameter name="PFCAL_V_ZP_29" value="grid.290.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_28">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_28"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_28"/>
    <Parameter name="PFCAL_V_ZP_28" value="grid.280.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_27">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_27"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_27"/>
    <Parameter name="PFCAL_V_ZP_27" value="grid.270.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_26">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_26"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_26"/>
    <Parameter name="PFCAL_V_ZP_26" value="grid.260.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_25">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_25"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_25"/>
    <Parameter name="PFCAL_V_ZP_25" value="grid.250.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_24">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_24"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_24"/>
    <Parameter name="PFCAL_V_ZP_24" value="grid.240.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_23">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_23"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_23"/>
    <Parameter name="PFCAL_V_ZP_23" value="grid.230.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_22">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_22"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_22"/>
    <Parameter name="PFCAL_V_ZP_22" value="grid.220.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_21">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_21"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_21"/>
    <Parameter name="PFCAL_V_ZP_21" value="grid.210.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_20">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_20"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_20"/>
    <Parameter name="PFCAL_V_ZP_20" value="grid.200.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_19">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_19"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_19"/>
    <Parameter name="PFCAL_V_ZP_19" value="grid.190.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_18">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_18"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_18"/>
    <Parameter name="PFCAL_V_ZP_18" value="grid.180.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_17">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_17"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_17"/>
    <Parameter name="PFCAL_V_ZP_17" value="grid.170.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_16">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_16"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_16"/>
    <Parameter name="PFCAL_V_ZP_16" value="grid.160.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_15">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_15"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_15"/>
    <Parameter name="PFCAL_V_ZP_15" value="grid.150.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_14">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_14"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_14"/>
    <Parameter name="PFCAL_V_ZP_14" value="grid.140.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_13">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_13"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_13"/>
    <Parameter name="PFCAL_V_ZP_13" value="grid.130.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_12">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_12"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_12"/>
    <Parameter name="PFCAL_V_ZP_12" value="grid.120.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_11">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_11"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_11"/>
    <Parameter name="PFCAL_V_ZP_11" value="grid.110.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_10">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_10"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_10"/>
    <Parameter name="PFCAL_V_ZP_10" value="grid.100.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_9">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_9"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_9"/>
    <Parameter name="PFCAL_V_ZP_9" value="grid.900.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_8">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_8"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_8"/>
    <Parameter name="PFCAL_V_ZP_8" value="grid.800.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_7">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_7"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_7"/>
    <Parameter name="PFCAL_V_ZP_7" value="grid.700.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_6">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_6"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_6"/>
    <Parameter name="PFCAL_V_ZP_6" value="grid.600.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_5">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_5"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_5"/>
    <Parameter name="PFCAL_V_ZP_5" value="grid.500.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_4">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_4"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_4"/>
    <Parameter name="PFCAL_V_ZP_4" value="grid.400.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_3">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_3"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_3"/>
    <Parameter name="PFCAL_V_ZP_3" value="grid.300.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_2">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_2"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_2"/>
    <Parameter name="PFCAL_V_ZP_2" value="grid.200.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_1">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_1"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_1"/>
    <Parameter name="PFCAL_V_ZP_1" value="grid.100.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_60">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_60"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_60"/>
    <Parameter name="PFCAL_V_ZP_60" value="grid.600.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_59">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_59"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_59"/>
    <Parameter name="PFCAL_V_ZP_59" value="grid.590.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_58">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_58"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_58"/>
    <Parameter name="PFCAL_V_ZP_58" value="grid.580.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_57">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_57"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_57"/>
    <Parameter name="PFCAL_V_ZP_57" value="grid.570.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_56">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_56"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_56"/>
    <Parameter name="PFCAL_V_ZP_56" value="grid.560.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_55">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_55"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_55"/>
    <Parameter name="PFCAL_V_ZP_55" value="grid.550.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_54">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_54"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_54"/>
    <Parameter name="PFCAL_V_ZP_54" value="grid.540.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_53">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_53"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_53"/>
    <Parameter name="PFCAL_V_ZP_53" value="grid.530.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_52">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_52"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_52"/>
    <Parameter name="PFCAL_V_ZP_52" value="grid.520.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_51">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_51"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_51"/>
    <Parameter name="PFCAL_V_ZP_51" value="grid.510.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_50">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_50"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_50"/>
    <Parameter name="PFCAL_V_ZP_50" value="grid.500.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_49">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_49"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_49"/>
    <Parameter name="PFCAL_V_ZP_49" value="grid.490.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_48">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_48"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_48"/>
    <Parameter name="PFCAL_V_ZP_48" value="grid.480.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_47">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_47"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_47"/>
    <Parameter name="PFCAL_V_ZP_47" value="grid.470.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_46">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_46"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_46"/>
    <Parameter name="PFCAL_V_ZP_46" value="grid.460.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_45">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_45"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_45"/>
    <Parameter name="PFCAL_V_ZP_45" value="grid.450.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_44">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_44"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_44"/>
    <Parameter name="PFCAL_V_ZP_44" value="grid.440.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_43">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_43"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_43"/>
    <Parameter name="PFCAL_V_ZP_43" value="grid.430.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_42">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_42"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_42"/>
    <Parameter name="PFCAL_V_ZP_42" value="grid.420.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_41">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_41"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_41"/>
    <Parameter name="PFCAL_V_ZP_41" value="grid.410.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_40">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_40"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_40"/>
    <Parameter name="PFCAL_V_ZP_40" value="grid.400.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_39">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_39"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_39"/>
    <Parameter name="PFCAL_V_ZP_39" value="grid.390.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_38">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_38"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_38"/>
    <Parameter name="PFCAL_V_ZP_38" value="grid.380.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_37">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_37"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_37"/>
    <Parameter name="PFCAL_V_ZP_37" value="grid.370.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_36">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_36"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_36"/>
    <Parameter name="PFCAL_V_ZP_36" value="grid.360.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_35">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_35"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_35"/>
    <Parameter name="PFCAL_V_ZP_35" value="grid.350.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_34">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_34"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_34"/>
    <Parameter name="PFCAL_V_ZP_34" value="grid.340.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_33">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_33"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_33"/>
    <Parameter name="PFCAL_V_ZP_33" value="grid.330.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_32">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_32"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_32"/>
    <Parameter name="PFCAL_V_ZP_32" value="grid.320.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_31">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_31"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_31"/>
    <Parameter name="PFCAL_V_ZP_31" value="grid.310.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_90">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_90"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_90"/>
    <Parameter name="PFCAL_V_ZP_90" value="grid.900.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_89">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_89"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_89"/>
    <Parameter name="PFCAL_V_ZP_89" value="grid.890.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_88">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_88"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_88"/>
    <Parameter name="PFCAL_V_ZP_88" value="grid.880.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_87">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_87"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_87"/>
    <Parameter name="PFCAL_V_ZP_87" value="grid.870.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_86">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_86"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_86"/>
    <Parameter name="PFCAL_V_ZP_86" value="grid.860.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_85">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_85"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_85"/>
    <Parameter name="PFCAL_V_ZP_85" value="grid.850.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_84">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_84"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_84"/>
    <Parameter name="PFCAL_V_ZP_84" value="grid.840.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_83">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_83"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_83"/>
    <Parameter name="PFCAL_V_ZP_83" value="grid.830.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_82">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_82"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_82"/>
    <Parameter name="PFCAL_V_ZP_82" value="grid.820.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_81">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_81"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_81"/>
    <Parameter name="PFCAL_V_ZP_81" value="grid.810.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_80">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_80"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_80"/>
    <Parameter name="PFCAL_V_ZP_80" value="grid.800.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_79">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_79"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_79"/>
    <Parameter name="PFCAL_V_ZP_79" value="grid.790.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_78">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_78"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_78"/>
    <Parameter name="PFCAL_V_ZP_78" value="grid.780.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_77">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_77"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_77"/>
    <Parameter name="PFCAL_V_ZP_77" value="grid.770.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_76">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_76"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_76"/>
    <Parameter name="PFCAL_V_ZP_76" value="grid.760.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_75">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_75"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_75"/>
    <Parameter name="PFCAL_V_ZP_75" value="grid.750.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_74">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_74"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_74"/>
    <Parameter name="PFCAL_V_ZP_74" value="grid.740.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_73">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_73"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_73"/>
    <Parameter name="PFCAL_V_ZP_73" value="grid.730.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_72">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_72"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_72"/>
    <Parameter name="PFCAL_V_ZP_72" value="grid.720.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_71">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_71"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_71"/>
    <Parameter name="PFCAL_V_ZP_71" value="grid.710.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_70">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_70"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_70"/>
    <Parameter name="PFCAL_V_ZP_70" value="grid.700.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_69">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_69"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_69"/>
    <Parameter name="PFCAL_V_ZP_69" value="grid.690.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_68">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_68"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_68"/>
    <Parameter name="PFCAL_V_ZP_68" value="grid.680.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_67">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_67"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_67"/>
    <Parameter name="PFCAL_V_ZP_67" value="grid.670.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_66">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_66"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_66"/>
    <Parameter name="PFCAL_V_ZP_66" value="grid.660.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_65">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_65"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_65"/>
    <Parameter name="PFCAL_V_ZP_65" value="grid.650.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_64">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_64"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_64"/>
    <Parameter name="PFCAL_V_ZP_64" value="grid.640.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_63">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_63"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_63"/>
    <Parameter name="PFCAL_V_ZP_63" value="grid.630.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_62">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_62"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_62"/>
    <Parameter name="PFCAL_V_ZP_62" value="grid.620.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_61">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_61"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_61"/>
    <Parameter name="PFCAL_V_ZP_61" value="grid.610.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_120">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_120"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_120"/>
    <Parameter name="PFCAL_V_ZP_120" value="grid.120.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_119">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_119"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_119"/>
    <Parameter name="PFCAL_V_ZP_119" value="grid.119.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_118">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_118"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_118"/>
    <Parameter name="PFCAL_V_ZP_118" value="grid.118.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_117">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_117"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_117"/>
    <Parameter name="PFCAL_V_ZP_117" value="grid.117.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_116">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_116"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_116"/>
    <Parameter name="PFCAL_V_ZP_116" value="grid.116.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_115">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_115"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_115"/>
    <Parameter name="PFCAL_V_ZP_115" value="grid.115.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_114">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_114"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_114"/>
    <Parameter name="PFCAL_V_ZP_114" value="grid.114.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_113">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_113"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_113"/>
    <Parameter name="PFCAL_V_ZP_113" value="grid.113.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_112">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_112"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_112"/>
    <Parameter name="PFCAL_V_ZP_112" value="grid.112.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_111">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_111"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_111"/>
    <Parameter name="PFCAL_V_ZP_111" value="grid.111.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_110">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_110"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_110"/>
    <Parameter name="PFCAL_V_ZP_110" value="grid.110.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_109">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_109"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_109"/>
    <Parameter name="PFCAL_V_ZP_109" value="grid.109.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_108">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_108"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_108"/>
    <Parameter name="PFCAL_V_ZP_108" value="grid.108.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_107">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_107"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_107"/>
    <Parameter name="PFCAL_V_ZP_107" value="grid.107.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_106">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_106"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_106"/>
    <Parameter name="PFCAL_V_ZP_106" value="grid.106.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_105">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_105"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_105"/>
    <Parameter name="PFCAL_V_ZP_105" value="grid.105.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_104">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_104"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_104"/>
    <Parameter name="PFCAL_V_ZP_104" value="grid.104.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_103">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_103"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_103"/>
    <Parameter name="PFCAL_V_ZP_103" value="grid.103.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_102">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_102"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_102"/>
    <Parameter name="PFCAL_V_ZP_102" value="grid.102.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_101">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_101"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_101"/>
    <Parameter name="PFCAL_V_ZP_101" value="grid.101.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_100">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_100"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_100"/>
    <Parameter name="PFCAL_V_ZP_100" value="grid.100.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_99">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_99"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_99"/>
    <Parameter name="PFCAL_V_ZP_99" value="grid.990.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_98">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_98"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_98"/>
    <Parameter name="PFCAL_V_ZP_98" value="grid.980.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_97">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_97"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_97"/>
    <Parameter name="PFCAL_V_ZP_97" value="grid.970.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_96">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_96"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_96"/>
    <Parameter name="PFCAL_V_ZP_96" value="grid.960.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_95">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_95"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_95"/>
    <Parameter name="PFCAL_V_ZP_95" value="grid.950.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_94">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_94"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_94"/>
    <Parameter name="PFCAL_V_ZP_94" value="grid.940.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_93">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_93"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_93"/>
    <Parameter name="PFCAL_V_ZP_93" value="grid.930.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_92">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_92"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_92"/>
    <Parameter name="PFCAL_V_ZP_92" value="grid.920.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_91">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_91"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_91"/>
    <Parameter name="PFCAL_V_ZP_91" value="grid.910.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_150">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_150"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_150"/>
    <Parameter name="PFCAL_V_ZP_150" value="grid.150.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_149">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_149"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_149"/>
    <Parameter name="PFCAL_V_ZP_149" value="grid.149.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_148">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_148"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_148"/>
    <Parameter name="PFCAL_V_ZP_148" value="grid.148.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_147">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_147"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_147"/>
    <Parameter name="PFCAL_V_ZP_147" value="grid.147.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_146">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_146"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_146"/>
    <Parameter name="PFCAL_V_ZP_146" value="grid.146.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_145">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_145"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_145"/>
    <Parameter name="PFCAL_V_ZP_145" value="grid.145.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_144">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_144"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_144"/>
    <Parameter name="PFCAL_V_ZP_144" value="grid.144.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_143">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_143"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_143"/>
    <Parameter name="PFCAL_V_ZP_143" value="grid.143.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_142">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_142"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_142"/>
    <Parameter name="PFCAL_V_ZP_142" value="grid.142.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_141">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_141"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_141"/>
    <Parameter name="PFCAL_V_ZP_141" value="grid.141.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_140">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_140"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_140"/>
    <Parameter name="PFCAL_V_ZP_140" value="grid.140.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_139">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_139"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_139"/>
    <Parameter name="PFCAL_V_ZP_139" value="grid.139.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_138">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_138"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_138"/>
    <Parameter name="PFCAL_V_ZP_138" value="grid.138.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_137">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_137"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_137"/>
    <Parameter name="PFCAL_V_ZP_137" value="grid.137.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_136">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_136"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_136"/>
    <Parameter name="PFCAL_V_ZP_136" value="grid.136.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_135">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_135"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_135"/>
    <Parameter name="PFCAL_V_ZP_135" value="grid.135.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_134">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_134"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_134"/>
    <Parameter name="PFCAL_V_ZP_134" value="grid.134.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_133">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_133"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_133"/>
    <Parameter name="PFCAL_V_ZP_133" value="grid.133.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_132">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_132"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_132"/>
    <Parameter name="PFCAL_V_ZP_132" value="grid.132.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_131">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_131"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_131"/>
    <Parameter name="PFCAL_V_ZP_131" value="grid.131.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_130">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_130"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_130"/>
    <Parameter name="PFCAL_V_ZP_130" value="grid.130.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_129">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_129"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_129"/>
    <Parameter name="PFCAL_V_ZP_129" value="grid.129.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_128">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_128"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_128"/>
    <Parameter name="PFCAL_V_ZP_128" value="grid.128.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_127">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_127"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_127"/>
    <Parameter name="PFCAL_V_ZP_127" value="grid.127.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_126">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_126"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_126"/>
    <Parameter name="PFCAL_V_ZP_126" value="grid.126.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_125">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_125"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_125"/>
    <Parameter name="PFCAL_V_ZP_125" value="grid.125.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_124">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_124"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_124"/>
    <Parameter name="PFCAL_V_ZP_124" value="grid.124.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_123">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_123"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_123"/>
    <Parameter name="PFCAL_V_ZP_123" value="grid.123.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_122">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_122"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_122"/>
    <Parameter name="PFCAL_V_ZP_122" value="grid.122.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_121">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_121"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_121"/>
    <Parameter name="PFCAL_V_ZP_121" value="grid.121.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_180">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_180"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_180"/>
    <Parameter name="PFCAL_V_ZP_180" value="grid.180.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_179">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_179"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_179"/>
    <Parameter name="PFCAL_V_ZP_179" value="grid.179.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_178">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_178"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_178"/>
    <Parameter name="PFCAL_V_ZP_178" value="grid.178.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_177">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_177"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_177"/>
    <Parameter name="PFCAL_V_ZP_177" value="grid.177.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_176">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_176"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_176"/>
    <Parameter name="PFCAL_V_ZP_176" value="grid.176.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_175">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_175"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_175"/>
    <Parameter name="PFCAL_V_ZP_175" value="grid.175.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_174">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_174"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_174"/>
    <Parameter name="PFCAL_V_ZP_174" value="grid.174.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_173">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_173"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_173"/>
    <Parameter name="PFCAL_V_ZP_173" value="grid.173.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_172">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_172"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_172"/>
    <Parameter name="PFCAL_V_ZP_172" value="grid.172.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_171">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_171"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_171"/>
    <Parameter name="PFCAL_V_ZP_171" value="grid.171.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_170">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_170"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_170"/>
    <Parameter name="PFCAL_V_ZP_170" value="grid.170.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_169">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_169"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_169"/>
    <Parameter name="PFCAL_V_ZP_169" value="grid.169.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_168">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_168"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_168"/>
    <Parameter name="PFCAL_V_ZP_168" value="grid.168.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_167">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_167"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_167"/>
    <Parameter name="PFCAL_V_ZP_167" value="grid.167.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_166">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_166"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_166"/>
    <Parameter name="PFCAL_V_ZP_166" value="grid.166.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_165">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_165"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_165"/>
    <Parameter name="PFCAL_V_ZP_165" value="grid.165.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_164">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_164"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_164"/>
    <Parameter name="PFCAL_V_ZP_164" value="grid.164.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_163">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_163"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_163"/>
    <Parameter name="PFCAL_V_ZP_163" value="grid.163.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_162">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_162"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_162"/>
    <Parameter name="PFCAL_V_ZP_162" value="grid.162.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_161">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_161"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_161"/>
    <Parameter name="PFCAL_V_ZP_161" value="grid.161.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_160">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_160"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_160"/>
    <Parameter name="PFCAL_V_ZP_160" value="grid.160.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_159">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_159"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_159"/>
    <Parameter name="PFCAL_V_ZP_159" value="grid.159.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_158">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_158"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_158"/>
    <Parameter name="PFCAL_V_ZP_158" value="grid.158.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_157">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_157"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_157"/>
    <Parameter name="PFCAL_V_ZP_157" value="grid.157.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_156">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_156"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_156"/>
    <Parameter name="PFCAL_V_ZP_156" value="grid.156.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_155">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_155"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_155"/>
    <Parameter name="PFCAL_V_ZP_155" value="grid.155.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_154">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_154"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_154"/>
    <Parameter name="PFCAL_V_ZP_154" value="grid.154.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_153">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_153"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_153"/>
    <Parameter name="PFCAL_V_ZP_153" value="grid.153.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_152">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_152"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_152"/>
    <Parameter name="PFCAL_V_ZP_152" value="grid.152.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_151">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_151"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_151"/>
    <Parameter name="PFCAL_V_ZP_151" value="grid.151.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_210">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_210"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_210"/>
    <Parameter name="PFCAL_V_ZP_210" value="grid.210.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_209">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_209"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_209"/>
    <Parameter name="PFCAL_V_ZP_209" value="grid.209.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_208">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_208"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_208"/>
    <Parameter name="PFCAL_V_ZP_208" value="grid.208.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_207">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_207"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_207"/>
    <Parameter name="PFCAL_V_ZP_207" value="grid.207.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_206">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_206"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_206"/>
    <Parameter name="PFCAL_V_ZP_206" value="grid.206.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_205">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_205"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_205"/>
    <Parameter name="PFCAL_V_ZP_205" value="grid.205.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_204">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_204"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_204"/>
    <Parameter name="PFCAL_V_ZP_204" value="grid.204.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_203">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_203"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_203"/>
    <Parameter name="PFCAL_V_ZP_203" value="grid.203.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_202">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_202"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_202"/>
    <Parameter name="PFCAL_V_ZP_202" value="grid.202.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_201">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_201"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_201"/>
    <Parameter name="PFCAL_V_ZP_201" value="grid.201.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_200">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_200"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_200"/>
    <Parameter name="PFCAL_V_ZP_200" value="grid.200.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_199">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_199"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_199"/>
    <Parameter name="PFCAL_V_ZP_199" value="grid.199.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_198">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_198"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_198"/>
    <Parameter name="PFCAL_V_ZP_198" value="grid.198.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_197">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_197"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_197"/>
    <Parameter name="PFCAL_V_ZP_197" value="grid.197.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_196">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_196"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_196"/>
    <Parameter name="PFCAL_V_ZP_196" value="grid.196.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_195">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_195"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_195"/>
    <Parameter name="PFCAL_V_ZP_195" value="grid.195.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_194">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_194"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_194"/>
    <Parameter name="PFCAL_V_ZP_194" value="grid.194.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_193">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_193"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_193"/>
    <Parameter name="PFCAL_V_ZP_193" value="grid.193.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_192">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_192"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_192"/>
    <Parameter name="PFCAL_V_ZP_192" value="grid.192.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_191">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_191"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_191"/>
    <Parameter name="PFCAL_V_ZP_191" value="grid.191.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_190">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_190"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_190"/>
    <Parameter name="PFCAL_V_ZP_190" value="grid.190.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_189">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_189"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_189"/>
    <Parameter name="PFCAL_V_ZP_189" value="grid.189.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_188">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_188"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_188"/>
    <Parameter name="PFCAL_V_ZP_188" value="grid.188.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_187">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_187"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_187"/>
    <Parameter name="PFCAL_V_ZP_187" value="grid.187.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_186">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_186"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_186"/>
    <Parameter name="PFCAL_V_ZP_186" value="grid.186.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_185">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_185"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_185"/>
    <Parameter name="PFCAL_V_ZP_185" value="grid.185.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_184">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_184"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_184"/>
    <Parameter name="PFCAL_V_ZP_184" value="grid.184.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_183">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_183"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_183"/>
    <Parameter name="PFCAL_V_ZP_183" value="grid.183.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_182">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_182"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_182"/>
    <Parameter name="PFCAL_V_ZP_182" value="grid.182.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_181">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_181"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalHE/V_ZP_181"/>
    <Parameter name="PFCAL_V_ZP_181" value="grid.181.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_270">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_270"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_270"/>
    <Parameter name="PFCAL_V_ZP_270" value="grid.270.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_269">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_269"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_269"/>
    <Parameter name="PFCAL_V_ZP_269" value="grid.269.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_268">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_268"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_268"/>
    <Parameter name="PFCAL_V_ZP_268" value="grid.268.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_267">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_267"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_267"/>
    <Parameter name="PFCAL_V_ZP_267" value="grid.267.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_266">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_266"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_266"/>
    <Parameter name="PFCAL_V_ZP_266" value="grid.266.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_265">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_265"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_265"/>
    <Parameter name="PFCAL_V_ZP_265" value="grid.265.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_264">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_264"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_264"/>
    <Parameter name="PFCAL_V_ZP_264" value="grid.264.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_263">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_263"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_263"/>
    <Parameter name="PFCAL_V_ZP_263" value="grid.263.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_262">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_262"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_262"/>
    <Parameter name="PFCAL_V_ZP_262" value="grid.262.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_261">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_261"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_261"/>
    <Parameter name="PFCAL_V_ZP_261" value="grid.261.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_260">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_260"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_260"/>
    <Parameter name="PFCAL_V_ZP_260" value="grid.260.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_259">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_259"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_259"/>
    <Parameter name="PFCAL_V_ZP_259" value="grid.259.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_258">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_258"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_258"/>
    <Parameter name="PFCAL_V_ZP_258" value="grid.258.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_257">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_257"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_257"/>
    <Parameter name="PFCAL_V_ZP_257" value="grid.257.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_256">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_256"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_256"/>
    <Parameter name="PFCAL_V_ZP_256" value="grid.256.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_255">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_255"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_255"/>
    <Parameter name="PFCAL_V_ZP_255" value="grid.255.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_254">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_254"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_254"/>
    <Parameter name="PFCAL_V_ZP_254" value="grid.254.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_253">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_253"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_253"/>
    <Parameter name="PFCAL_V_ZP_253" value="grid.253.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_252">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_252"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_252"/>
    <Parameter name="PFCAL_V_ZP_252" value="grid.252.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_251">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_251"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_251"/>
    <Parameter name="PFCAL_V_ZP_251" value="grid.251.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_250">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_250"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_250"/>
    <Parameter name="PFCAL_V_ZP_250" value="grid.250.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_249">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_249"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_249"/>
    <Parameter name="PFCAL_V_ZP_249" value="grid.249.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_248">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_248"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_248"/>
    <Parameter name="PFCAL_V_ZP_248" value="grid.248.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_247">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_247"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_247"/>
    <Parameter name="PFCAL_V_ZP_247" value="grid.247.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_246">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_246"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_246"/>
    <Parameter name="PFCAL_V_ZP_246" value="grid.246.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_245">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_245"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_245"/>
    <Parameter name="PFCAL_V_ZP_245" value="grid.245.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_244">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_244"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_244"/>
    <Parameter name="PFCAL_V_ZP_244" value="grid.244.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_243">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_243"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_243"/>
    <Parameter name="PFCAL_V_ZP_243" value="grid.243.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_242">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_242"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_242"/>
    <Parameter name="PFCAL_V_ZP_242" value="grid.242.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_241">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_241"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_241"/>
    <Parameter name="PFCAL_V_ZP_241" value="grid.241.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_300">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_300"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_300"/>
    <Parameter name="PFCAL_V_ZP_300" value="grid.300.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_299">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_299"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_299"/>
    <Parameter name="PFCAL_V_ZP_299" value="grid.299.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_298">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_298"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_298"/>
    <Parameter name="PFCAL_V_ZP_298" value="grid.298.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_297">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_297"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_297"/>
    <Parameter name="PFCAL_V_ZP_297" value="grid.297.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_296">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_296"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_296"/>
    <Parameter name="PFCAL_V_ZP_296" value="grid.296.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_295">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_295"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_295"/>
    <Parameter name="PFCAL_V_ZP_295" value="grid.295.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_294">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_294"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_294"/>
    <Parameter name="PFCAL_V_ZP_294" value="grid.294.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_293">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_293"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_293"/>
    <Parameter name="PFCAL_V_ZP_293" value="grid.293.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_292">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_292"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_292"/>
    <Parameter name="PFCAL_V_ZP_292" value="grid.292.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_291">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_291"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_291"/>
    <Parameter name="PFCAL_V_ZP_291" value="grid.291.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_290">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_290"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_290"/>
    <Parameter name="PFCAL_V_ZP_290" value="grid.290.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_289">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_289"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_289"/>
    <Parameter name="PFCAL_V_ZP_289" value="grid.289.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_288">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_288"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_288"/>
    <Parameter name="PFCAL_V_ZP_288" value="grid.288.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_287">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_287"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_287"/>
    <Parameter name="PFCAL_V_ZP_287" value="grid.287.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_286">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_286"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_286"/>
    <Parameter name="PFCAL_V_ZP_286" value="grid.286.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_285">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_285"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_285"/>
    <Parameter name="PFCAL_V_ZP_285" value="grid.285.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_284">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_284"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_284"/>
    <Parameter name="PFCAL_V_ZP_284" value="grid.284.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_283">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_283"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_283"/>
    <Parameter name="PFCAL_V_ZP_283" value="grid.283.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_282">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_282"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_282"/>
    <Parameter name="PFCAL_V_ZP_282" value="grid.282.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_281">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_281"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_281"/>
    <Parameter name="PFCAL_V_ZP_281" value="grid.281.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_280">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_280"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_280"/>
    <Parameter name="PFCAL_V_ZP_280" value="grid.280.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_279">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_279"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_279"/>
    <Parameter name="PFCAL_V_ZP_279" value="grid.279.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_278">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_278"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_278"/>
    <Parameter name="PFCAL_V_ZP_278" value="grid.278.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_277">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_277"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_277"/>
    <Parameter name="PFCAL_V_ZP_277" value="grid.277.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_276">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_276"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_276"/>
    <Parameter name="PFCAL_V_ZP_276" value="grid.276.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_275">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_275"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_275"/>
    <Parameter name="PFCAL_V_ZP_275" value="grid.275.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_274">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_274"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_274"/>
    <Parameter name="PFCAL_V_ZP_274" value="grid.274.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_273">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_273"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_273"/>
    <Parameter name="PFCAL_V_ZP_273" value="grid.273.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_272">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_272"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_272"/>
    <Parameter name="PFCAL_V_ZP_272" value="grid.272.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_271">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_271"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_271"/>
    <Parameter name="PFCAL_V_ZP_271" value="grid.271.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_330">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_330"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_330"/>
    <Parameter name="PFCAL_V_ZP_330" value="grid.330.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_329">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_329"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_329"/>
    <Parameter name="PFCAL_V_ZP_329" value="grid.329.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_328">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_328"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_328"/>
    <Parameter name="PFCAL_V_ZP_328" value="grid.328.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_327">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_327"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_327"/>
    <Parameter name="PFCAL_V_ZP_327" value="grid.327.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_326">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_326"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_326"/>
    <Parameter name="PFCAL_V_ZP_326" value="grid.326.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_325">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_325"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_325"/>
    <Parameter name="PFCAL_V_ZP_325" value="grid.325.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_324">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_324"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_324"/>
    <Parameter name="PFCAL_V_ZP_324" value="grid.324.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_323">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_323"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_323"/>
    <Parameter name="PFCAL_V_ZP_323" value="grid.323.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_322">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_322"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_322"/>
    <Parameter name="PFCAL_V_ZP_322" value="grid.322.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_321">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_321"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_321"/>
    <Parameter name="PFCAL_V_ZP_321" value="grid.321.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_320">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_320"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_320"/>
    <Parameter name="PFCAL_V_ZP_320" value="grid.320.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_319">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_319"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_319"/>
    <Parameter name="PFCAL_V_ZP_319" value="grid.319.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_318">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_318"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_318"/>
    <Parameter name="PFCAL_V_ZP_318" value="grid.318.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_317">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_317"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_317"/>
    <Parameter name="PFCAL_V_ZP_317" value="grid.317.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_316">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_316"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_316"/>
    <Parameter name="PFCAL_V_ZP_316" value="grid.316.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_315">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_315"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_315"/>
    <Parameter name="PFCAL_V_ZP_315" value="grid.315.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_314">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_314"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_314"/>
    <Parameter name="PFCAL_V_ZP_314" value="grid.314.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_313">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_313"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_313"/>
    <Parameter name="PFCAL_V_ZP_313" value="grid.313.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_312">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_312"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_312"/>
    <Parameter name="PFCAL_V_ZP_312" value="grid.312.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_311">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_311"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_311"/>
    <Parameter name="PFCAL_V_ZP_311" value="grid.311.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_310">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_310"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_310"/>
    <Parameter name="PFCAL_V_ZP_310" value="grid.310.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_309">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_309"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_309"/>
    <Parameter name="PFCAL_V_ZP_309" value="grid.309.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_308">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_308"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_308"/>
    <Parameter name="PFCAL_V_ZP_308" value="grid.308.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_307">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_307"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_307"/>
    <Parameter name="PFCAL_V_ZP_307" value="grid.307.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_306">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_306"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_306"/>
    <Parameter name="PFCAL_V_ZP_306" value="grid.306.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_305">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_305"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_305"/>
    <Parameter name="PFCAL_V_ZP_305" value="grid.305.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_304">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_304"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_304"/>
    <Parameter name="PFCAL_V_ZP_304" value="grid.304.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_303">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_303"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_303"/>
    <Parameter name="PFCAL_V_ZP_303" value="grid.303.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_302">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_302"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_302"/>
    <Parameter name="PFCAL_V_ZP_302" value="grid.302.bin"/>
  </SpecPar>
  <SpecPar name="PFCAL readout map of Volume_ZP_301">
-   <PartSelector path="//cms:CMSE/caloBase:CALO/V_ZP_301"/>
+   <PartSelector path="//cms:CMSE/caloBase:CALO/hgcal:HGCal/hgcal:HGCalEE/V_ZP_301"/>
    <Parameter name="PFCAL_V_ZP_301" value="grid.301.bin"/>
  </SpecPar>
 </SpecParSection> 
