@@ -19,10 +19,10 @@ DEFINE_FWK_MODULE(HIBestVertexProducer);
 #include "HITrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITrackingRegionProducer, "HITrackingRegionProducer");
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactoryNoConsumes, HITrackingRegionProducer, "HITrackingRegionProducer");
 
 #include "HITrackingRegionForPrimaryVtxProducer.h"
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITrackingRegionForPrimaryVtxProducer, "HITrackingRegionForPrimaryVtxProducer");
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactoryNoConsumes, HITrackingRegionForPrimaryVtxProducer, "HITrackingRegionForPrimaryVtxProducer");
 
 // Pixel track filter
 #include "RecoHI/HiTracking/interface/HIPixelTrackFilter.h"
