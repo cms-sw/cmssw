@@ -15,11 +15,7 @@ template <class T>
 static inline
 bool getCollection(const edm::Event & event, std::vector<MissingCollectionInfo> & missing, edm::Handle<T> & handle, const edm::InputTag & name, const edm::EDGetTokenT<T> token, const char * description) 
 {
-  if (token.isUnitialized()) {
-    event.getByLabel(name, handle);
-    std::cout << "*** HLTAnalyzer/getCollection: Token corresponding to label " << name << "is not initialized" << std::endl;
-    }
-  else  event.getByToken(token, handle);
+  event.getByToken(token, handle);
   bool valid = handle.isValid();
   if (not valid) {
     missing.push_back( std::make_pair(description, & name) );
@@ -97,7 +93,7 @@ HLTBitAnalyzer::HLTBitAnalyzer(edm::ParameterSet const& conf) {
 
   // Setup the different analysis
   hlt_analysis_.setup(conf, HltTree);
-  evt_header_.setup(HltTree);
+  evt_header_.setup(consumesCollector(), HltTree);
 }
 
 // Boiler-plate "analyze" method declaration for an analyzer module.
