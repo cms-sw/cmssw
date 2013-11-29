@@ -15,7 +15,7 @@ class HLTTauRelvalQTester : public QualityTester
   void endJob();
 
  private:
-  edm::InputTag refMothers_;
+  edm::EDGetTokenT<std::vector<int> > refMothers_;
   std::vector<int> mothers_;
   bool runQTests;
 };

@@ -25,17 +25,17 @@
 L1TauAnalyzer::L1TauAnalyzer(const edm::ParameterSet& iConfig)
 
 {
-  _GenParticleSource = iConfig.getParameter<edm::InputTag>("GenParticleSource");
-  _PFTauSource = iConfig.getParameter<edm::InputTag>("PFTauSource");
-  _PFTauDiscriminatorSource = iConfig.getParameter<edm::InputTag>("PFTauDiscriminatorSource");
+  _GenParticleSource = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("GenParticleSource"));
+  _PFTauSource = consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("PFTauSource"));
+  _PFTauDiscriminatorSource = consumes<reco::PFTauDiscriminatorByIsolation>(iConfig.getParameter<edm::InputTag>("PFTauDiscriminatorSource"));
 
-  _L1extraTauJetSource = iConfig.getParameter<edm::InputTag>("L1extraTauJetSource");
-  _L1extraCenJetSource = iConfig.getParameter<edm::InputTag>("L1extraCenJetSource");
-  _L1extraForJetSource = iConfig.getParameter<edm::InputTag>("L1extraForJetSource");
-  _L1extraMuonSource = iConfig.getParameter<edm::InputTag>("L1extraMuonSource");
-  _L1extraMETSource = iConfig.getParameter<edm::InputTag>("L1extraMETSource");
-  _L1extraNonIsoEgammaSource = iConfig.getParameter<edm::InputTag>("L1extraNonIsoEgammaSource");
-  _L1extraIsoEgammaSource = iConfig.getParameter<edm::InputTag>("L1extraIsoEgammaSource");
+  _L1extraTauJetSource = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraTauJetSource"));
+  _L1extraCenJetSource = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraCenJetSource"));
+  _L1extraForJetSource = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraForJetSource"));
+  _L1extraMuonSource = consumes<l1extra::L1MuonParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraMuonSource"));
+  _L1extraMETSource = consumes<l1extra::L1EtMissParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraMETSource"));
+  _L1extraNonIsoEgammaSource = consumes<l1extra::L1EmParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraNonIsoEgammaSource"));
+  _L1extraIsoEgammaSource = consumes<l1extra::L1EmParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraIsoEgammaSource"));
 
   _DoMCMatching = iConfig.getParameter<bool>("DoMCMatching");
   _DoPFTauMatching = iConfig.getParameter<bool>("DoPFTauMatching");
@@ -54,8 +54,8 @@ L1TauAnalyzer::L1TauAnalyzer(const edm::ParameterSet& iConfig)
   _MuTauThresholds = iConfig.getParameter< std::vector<double> >("MuTauThresholds");
   _IsoEgTauThresholds = iConfig.getParameter< std::vector<double> >("IsoEgTauThresholds");
 
-  _L1GtReadoutRecord = iConfig.getParameter<edm::InputTag>("L1GtReadoutRecord");
-  _L1GtObjectMap = iConfig.getParameter<edm::InputTag>("L1GtObjectMap");
+  _L1GtReadoutRecord = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("L1GtReadoutRecord"));
+  _L1GtObjectMap = consumes<L1GlobalTriggerObjectMapRecord>(iConfig.getParameter<edm::InputTag>("L1GtObjectMap"));
   
   _L1SingleTauName = iConfig.getParameter<std::string>("L1SingleTauName");
   _L1DoubleTauName = iConfig.getParameter<std::string>("L1DoubleTauName");
@@ -314,7 +314,7 @@ L1TauAnalyzer::getL1extraObjects(const edm::Event& iEvent, const edm::EventSetup
   //
   _L1Taus.clear();
   Handle<L1JetParticleCollection> l1TauHandle;
-  iEvent.getByLabel(_L1extraTauJetSource,l1TauHandle);
+  iEvent.getByToken(_L1extraTauJetSource,l1TauHandle);
   for( L1JetParticleCollection::const_iterator itr = l1TauHandle->begin() ;
        itr != l1TauHandle->end() ; ++itr ) {
     TLorentzVector p(itr->px(),itr->py(),itr->pz(),itr->energy());
@@ -324,7 +324,7 @@ L1TauAnalyzer::getL1extraObjects(const edm::Event& iEvent, const edm::EventSetup
   //
   _L1CenJets.clear();
   Handle<L1JetParticleCollection> l1CenJetHandle;
-  iEvent.getByLabel(_L1extraCenJetSource,l1CenJetHandle);
+  iEvent.getByToken(_L1extraCenJetSource,l1CenJetHandle);
   for( L1JetParticleCollection::const_iterator itr = l1CenJetHandle->begin() ;
        itr != l1CenJetHandle->end() ; ++itr ) {
     TLorentzVector p(itr->px(),itr->py(),itr->pz(),itr->energy());
@@ -334,7 +334,7 @@ L1TauAnalyzer::getL1extraObjects(const edm::Event& iEvent, const edm::EventSetup
   //
   _L1ForJets.clear();
   Handle<L1JetParticleCollection> l1ForJetHandle;
-  iEvent.getByLabel(_L1extraForJetSource,l1ForJetHandle);
+  iEvent.getByToken(_L1extraForJetSource,l1ForJetHandle);
   for( L1JetParticleCollection::const_iterator itr = l1ForJetHandle->begin() ;
        itr != l1ForJetHandle->end() ; ++itr ) {
     TLorentzVector p(itr->px(),itr->py(),itr->pz(),itr->energy());
@@ -344,7 +344,7 @@ L1TauAnalyzer::getL1extraObjects(const edm::Event& iEvent, const edm::EventSetup
   //
   _L1IsoEgammas.clear();
   Handle<L1EmParticleCollection> l1IsoEgammaHandle;
-  iEvent.getByLabel(_L1extraIsoEgammaSource,l1IsoEgammaHandle);
+  iEvent.getByToken(_L1extraIsoEgammaSource,l1IsoEgammaHandle);
   for( L1EmParticleCollection::const_iterator itr = l1IsoEgammaHandle->begin() ;
        itr != l1IsoEgammaHandle->end() ; ++itr ) {
     TLorentzVector p(itr->px(),itr->py(),itr->pz(),itr->energy());
@@ -354,7 +354,7 @@ L1TauAnalyzer::getL1extraObjects(const edm::Event& iEvent, const edm::EventSetup
   //
   _L1NonIsoEgammas.clear();
   Handle<L1EmParticleCollection> l1NonIsoEgammaHandle;
-  iEvent.getByLabel(_L1extraNonIsoEgammaSource,l1NonIsoEgammaHandle);
+  iEvent.getByToken(_L1extraNonIsoEgammaSource,l1NonIsoEgammaHandle);
   for( L1EmParticleCollection::const_iterator itr = l1NonIsoEgammaHandle->begin() ;
        itr != l1NonIsoEgammaHandle->end() ; ++itr ) {
     TLorentzVector p(itr->px(),itr->py(),itr->pz(),itr->energy());
@@ -365,7 +365,7 @@ L1TauAnalyzer::getL1extraObjects(const edm::Event& iEvent, const edm::EventSetup
   _L1Muons.clear();
   _L1MuQuals.clear();
   Handle<L1MuonParticleCollection> l1MuonHandle;
-  iEvent.getByLabel(_L1extraMuonSource,l1MuonHandle);
+  iEvent.getByToken(_L1extraMuonSource,l1MuonHandle);
   for( L1MuonParticleCollection::const_iterator itr = l1MuonHandle->begin() ;
        itr != l1MuonHandle->end() ; ++itr ) {
     TLorentzVector p(itr->px(),itr->py(),itr->pz(),itr->energy());
@@ -377,7 +377,7 @@ L1TauAnalyzer::getL1extraObjects(const edm::Event& iEvent, const edm::EventSetup
   //
   _L1METs.clear();
   Handle<L1EtMissParticleCollection> l1MetHandle;
-  iEvent.getByLabel(_L1extraMETSource,l1MetHandle);
+  iEvent.getByToken(_L1extraMETSource,l1MetHandle);
   for( L1EtMissParticleCollection::const_iterator itr = l1MetHandle->begin() ;
        itr != l1MetHandle->end() ; ++itr ) {
     TLorentzVector p(itr->px(),itr->py(),itr->pz(),itr->energy());
@@ -393,9 +393,9 @@ L1TauAnalyzer::getPFTauObjects(const edm::Event& iEvent, const edm::EventSetup& 
 
   _PFTaus.clear();
   Handle<PFTauCollection> thePFTauHandle; 
-  iEvent.getByLabel(_PFTauSource,thePFTauHandle); 
+  iEvent.getByToken(_PFTauSource,thePFTauHandle); 
   Handle<PFTauDiscriminatorByIsolation> thePFTauDiscriminatorByIsolation; 
-  iEvent.getByLabel(_PFTauDiscriminatorSource,thePFTauDiscriminatorByIsolation); 
+  iEvent.getByToken(_PFTauDiscriminatorSource,thePFTauDiscriminatorByIsolation); 
   for (PFTauCollection::size_type iPFTau=0;iPFTau<thePFTauHandle->size();iPFTau++) { 
     PFTauRef thePFTau(thePFTauHandle,iPFTau); 
     if ((*thePFTauDiscriminatorByIsolation)[thePFTau] == 1) {
@@ -413,7 +413,7 @@ L1TauAnalyzer::getGenObjects(const edm::Event& iEvent, const edm::EventSetup& iS
   ////////////////////////////////////////////////////////  
   // MC Truth based on RecoTauTag/HLTAnalyzers/src/TauJetMCFilter.cc
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(_GenParticleSource, evt);
+  iEvent.getByToken(_GenParticleSource, evt);
   GenEvent * generated_event = new GenEvent(*(evt->GetEvent()));
 
   //init
@@ -536,9 +536,9 @@ L1TauAnalyzer::evalL1Decisions(const edm::Event& iEvent) {
   using namespace std;
 
   Handle<L1GlobalTriggerReadoutRecord> l1GtRR;
-  iEvent.getByLabel(_L1GtReadoutRecord,l1GtRR);
+  iEvent.getByToken(_L1GtReadoutRecord,l1GtRR);
   Handle<L1GlobalTriggerObjectMapRecord> l1GtOMRec;
-  iEvent.getByLabel(_L1GtObjectMap,l1GtOMRec);
+  iEvent.getByToken(_L1GtObjectMap,l1GtOMRec);
 
   L1GlobalTriggerReadoutRecord L1GTRR = *l1GtRR.product();		
   L1GlobalTriggerObjectMapRecord L1GTOMRec = *l1GtOMRec.product();
