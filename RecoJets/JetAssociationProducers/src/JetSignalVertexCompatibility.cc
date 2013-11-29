@@ -25,10 +25,10 @@ using namespace reco;
 JetSignalVertexCompatibility::JetSignalVertexCompatibility(
 					const edm::ParameterSet &params) :
 	algo(params.getParameter<double>("cut"),
-	     params.getParameter<double>("temperature")),
-	jetTracksAssocLabel(params.getParameter<edm::InputTag>("jetTracksAssoc")),
-	primaryVerticesLabel(params.getParameter<edm::InputTag>("primaryVertices"))
+	     params.getParameter<double>("temperature"))
 {
+	jetTracksAssocToken = consumes<JetTracksAssociationCollection>(params.getParameter<edm::InputTag>("jetTracksAssoc"));
+	primaryVerticesToken = consumes<VertexCollection>(params.getParameter<edm::InputTag>("primaryVertices"));
 	produces<JetFloatAssociation::Container>();
 }
 
@@ -46,10 +46,10 @@ void JetSignalVertexCompatibility::produce(edm::Event &event,
 	algo.resetEvent(trackBuilder.product());
 
 	edm::Handle<JetTracksAssociationCollection> jetTracksAssoc;
-	event.getByLabel(jetTracksAssocLabel, jetTracksAssoc);
+	event.getByToken(jetTracksAssocToken, jetTracksAssoc);
 
 	edm::Handle<VertexCollection> primaryVertices;
-	event.getByLabel(primaryVerticesLabel, primaryVertices);
+	event.getByToken(primaryVerticesToken, primaryVertices);
 
 	std::auto_ptr<JetFloatAssociation::Container> result(
 		new JetFloatAssociation::Container(jetTracksAssoc->keyProduct()));

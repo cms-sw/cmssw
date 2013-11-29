@@ -15,6 +15,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 class JetTracksAssociatorAtCaloFace : public edm::EDProducer {
    public:
@@ -27,8 +29,8 @@ class JetTracksAssociatorAtCaloFace : public edm::EDProducer {
       
      JetTracksAssociatorAtCaloFace(){}
       
-     edm::InputTag mJets;
-     edm::InputTag mExtrapolations;
+     edm::EDGetTokenT<edm::View <reco::Jet>> mJets;
+     edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > mExtrapolations;
      JetTracksAssociationXtrpCalo mAssociator;
      edm::ESHandle<CaloGeometry> pGeo;
      bool firstRun;
