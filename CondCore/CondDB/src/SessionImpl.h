@@ -1,7 +1,6 @@
 #ifndef CondCore_CondDB_SessionImpl_h
 #define CondCore_CondDB_SessionImpl_h
 
-#include "CondCore/CondDB/interface/Configuration.h"
 #include "IOVSchema.h"
 #include "GTSchema.h"
 //
