@@ -12,6 +12,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 //#include "FWCore/Framework/interface/ESWatcher.h"
 //#include "UserCode/konec/test/R2DTimerObserver.h"
@@ -63,7 +64,7 @@ void HitTripletProducer::init(const edm::EventSetup& es)
   edm::ParameterSet regfactoryPSet =
       theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet,consumesCollector());
 
 }
 
