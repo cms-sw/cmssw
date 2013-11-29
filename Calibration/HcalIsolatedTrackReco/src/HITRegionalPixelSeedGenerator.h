@@ -59,10 +59,10 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
     if (usetracks_) token_trks = iC.consumes<reco::TrackCollection>(regionPSet.getParameter<edm::InputTag>("trackSrc"));
     if (usetracks_ || useIsoTracks_ || fixedReg_ || usejets_) 
 	token_vertex = iC.consumes<reco::VertexCollection>(edm::InputTag(regionPSet.getParameter<std::string>("vertexSrc")));
-    if (useIsoTracks_) token_isoTrack = iC.consumes<trigger::TriggerFilterObjectWithRefs>(regionPSet.getParameter<edm::InputTag>("vertexCollection"));
-    if (usejets_) token_l1jet = iC.consumes<l1extra::L1JetParticleCollection>(regionPSet.getParameter<edm::InputTag>("vertexCollection"));
+    if (useIsoTracks_) token_isoTrack = iC.consumes<trigger::TriggerFilterObjectWithRefs>(regionPSet.getParameter<edm::InputTag>("isoTrackSrc"));
+    if (usejets_) token_l1jet = iC.consumes<l1extra::L1JetParticleCollection>(regionPSet.getParameter<edm::InputTag>("l1tjetSrc"));
   }
-  
+
   virtual ~HITRegionalPixelSeedGenerator() {}
   
   
