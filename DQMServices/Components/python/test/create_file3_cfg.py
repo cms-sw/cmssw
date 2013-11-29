@@ -41,11 +41,13 @@ process.out = cms.OutputModule("DQMRootOutputModule",
 process.p = cms.Path(process.filler)
 process.o = cms.EndPath(process.out+process.reader)
 
+process.add_(cms.Service("DQMStore"))
+
 if b.multithread():
     process.out.enableMultiThread = cms.untracked.bool(True)
+    process.DQMStore.enableMultiThread = cms.untracked.bool(True)
     process.o.remove(process.reader)
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
-process.add_(cms.Service("DQMStore"))
 

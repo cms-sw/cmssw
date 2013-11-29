@@ -33,15 +33,17 @@ process.out = cms.OutputModule("DQMRootOutputModule",
 process.p = cms.Path(process.filler)
 process.o = cms.EndPath(process.out)
 
+process.add_(cms.Service("DQMStore"))
+
 if b.multithread():
     process.out.enableMultiThread = cms.untracked.bool(True)
+    process.DQMStore.enableMultiThread = cms.untracked.bool(True)
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
-process.add_(cms.Service("DQMStore"))
 
 if len(sys.argv) > 3:
-    if sys.argv[3] == "ForceReset": 
+    if sys.argv[3] == "ForceReset":
         print "Forcing Reset of histograms at every Run Transition."
         process.DQMStore.forceResetOnBeginRun = cms.untracked.bool(True)
 

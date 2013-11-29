@@ -40,18 +40,20 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.filler)
 process.o = cms.EndPath(process.endOfProcess+process.out)
 
+process.add_(cms.Service("DQMStore"))
+
 if b.multithread():
     process.MEtoEDMConverter.enableMultiThread = cms.untracked.bool(True)
+    process.DQMStore.enableMultiThread = cms.untracked.bool(True)
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
-process.add_(cms.Service("DQMStore"))
 
 if b.forceReset():
     print "Forcing Reset of histograms at every Run Transition."
     process.DQMStore.forceResetOnBeginRun = cms.untracked.bool(True)
 
-        
+
 #process.DQMStore.verbose = cms.untracked.int32(3)
 #process.add_(cms.Service("Tracer"))
 
