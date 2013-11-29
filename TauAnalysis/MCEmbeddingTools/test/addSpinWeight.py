@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:../emb/embedded_RH.root')
+    fileNames = cms.untracked.vstring('file:embedded.root')
 )
 
 # Set up random number generator
