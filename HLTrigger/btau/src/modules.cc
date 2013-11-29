@@ -3,7 +3,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "L3MumuTrackingRegion.h"
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactoryNoConsumes, L3MumuTrackingRegion, "L3MumuTrackingRegion");
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, L3MumuTrackingRegion, "L3MumuTrackingRegion");
 
 
 #include "HLTDisplacedmumuFilter.h"

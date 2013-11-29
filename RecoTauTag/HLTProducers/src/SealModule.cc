@@ -29,9 +29,9 @@
 #include "HLTPFTauPairLeadTrackDzMatchFilter.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelIsoTagProducer.h"
 
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactoryNoConsumes, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator"); 	 
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactoryNoConsumes, TrackingRegionsFromBeamSpotAndL2Tau, "TrackingRegionsFromBeamSpotAndL2Tau");
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactoryNoConsumes, CandidateSeededTrackingRegionsProducer, "CandidateSeededTrackingRegionsProducer");
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator");      
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TrackingRegionsFromBeamSpotAndL2Tau, "TrackingRegionsFromBeamSpotAndL2Tau");
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, CandidateSeededTrackingRegionsProducer, "CandidateSeededTrackingRegionsProducer");
 //
 DEFINE_FWK_MODULE(IsolatedTauJetsSelector);
 DEFINE_FWK_MODULE(EMIsolatedTauJetsSelector);
