@@ -24,13 +24,14 @@ class JetTracksAssociatorAtVertex : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
-     edm::InputTag mJets;
-     edm::InputTag mTracks;
+     edm::EDGetTokenT<edm::View <reco::Jet>> mJets;
+     edm::EDGetTokenT<reco::TrackCollection> mTracks;
+
      int mTrackQuality;
      JetTracksAssociationDRVertex mAssociator;
      JetTracksAssociationDRVertexAssigned mAssociatorAssigned;
      bool useAssigned;   /// if true, use the track/jet association with vertex assignment to tracks
-     edm::InputTag pvSrc; /// if useAssigned, will read this PV collection. 
+     edm::EDGetTokenT<reco::VertexCollection> pvSrc; /// if useAssigned, will read this PV collection. 
 };
 
 #endif
