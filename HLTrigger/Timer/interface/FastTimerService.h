@@ -111,8 +111,8 @@ public:
 
   /* FIXME not yet implemented
   // try to assess the overhead which may not be included in the source, paths and event timers
-  double queryPreSourceOverhead() const;    // time spent after the previous event's postProcessEvent and this event's preSource
-  double queryPreEventOverhead() const;     // time spent after this event's postSource and preProcessEvent
+  double queryPreSourceOverhead() const;    // time spent after the previous event's postProcessEvent and this event's preSourceEvent
+  double queryPreEventOverhead() const;     // time spent after this event's postSourceEvent and preProcessEvent
   double queryPreEndPathsOverhead() const;  // time spent after the last path's postProcessPath and the first endpath's preProcessPath
   */
 
@@ -125,8 +125,8 @@ private:
   void preModuleBeginJob( edm::ModuleDescription const & );
   void preProcessEvent( edm::EventID const &, edm::Timestamp const & );
   void postProcessEvent( edm::Event const &, edm::EventSetup const & );
-  void preSource();
-  void postSource();
+  void preSourceEvent(  edm::StreamID );
+  void postSourceEvent( edm::StreamID );
   void prePathBeginRun( std::string const & );
   void preProcessPath(  std::string const & );
   void postProcessPath( std::string const &, edm::HLTPathStatus const & );

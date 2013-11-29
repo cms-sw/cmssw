@@ -59,7 +59,6 @@ typedef std::vector<std::string> MyStrings;
 class HLTHeavyIon {
 public:
   HLTHeavyIon(edm::ConsumesCollector && iC); 
-  HLTHeavyIon(); 
 
   void setup(const edm::ParameterSet& pSet, TTree* tree);
   void beginRun(const edm::Run& , const edm::EventSetup& );

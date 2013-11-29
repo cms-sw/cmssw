@@ -3,12 +3,12 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 
 HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) : 
-  triggerEventObject_(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject")),
-  CaloJetAlgorithm( ps.getUntrackedParameter<edm::InputTag>( "CaloJetAlgorithm" ) ),
-  GenJetAlgorithm( ps.getUntrackedParameter<edm::InputTag>( "GenJetAlgorithm" ) ),
-  CaloMETColl( ps.getUntrackedParameter<edm::InputTag>( "CaloMETCollection" ) ),
-  GenMETColl( ps.getUntrackedParameter<edm::InputTag>( "GenMETCollection" ) ),
-  HLTriggerResults( ps.getParameter<edm::InputTag>( "HLTriggerResults" ) ),
+  triggerEventObject_(consumes<TriggerEventWithRefs>(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject"))),
+  CaloJetAlgorithm( consumes<PFJetCollection>(ps.getUntrackedParameter<edm::InputTag>( "CaloJetAlgorithm" ) )),
+  GenJetAlgorithm( consumes<GenJetCollection>(ps.getUntrackedParameter<edm::InputTag>( "GenJetAlgorithm" ) )),
+  CaloMETColl( consumes<CaloMETCollection>(ps.getUntrackedParameter<edm::InputTag>( "CaloMETCollection" ) )),
+  GenMETColl( consumes<GenMETCollection>(ps.getUntrackedParameter<edm::InputTag>( "GenMETCollection" ) )),
+  HLTriggerResults(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>( "HLTriggerResults" ) )),
   triggerTag_(ps.getUntrackedParameter<std::string>("DQMFolder","SingleJet")),
   patternJetTrg_(ps.getUntrackedParameter<std::string>("PatternJetTrg","")),
   patternMetTrg_(ps.getUntrackedParameter<std::string>("PatternMetTrg","")),
@@ -202,7 +202,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //get The triggerEvent
 
   Handle<TriggerEventWithRefs> trigEv;
-  iEvent.getByLabel(triggerEventObject_,trigEv);
+  iEvent.getByToken(triggerEventObject_,trigEv);
 
 // get TriggerResults object
 
@@ -220,7 +220,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
   Handle<TriggerResults> hltresults,hltresultsDummy;
-  iEvent.getByLabel(HLTriggerResults,hltresults);
+  iEvent.getByToken(HLTriggerResults,hltresults);
   if (! hltresults.isValid() ) { 
     //std::cout << "  -- No HLTRESULTS"; 
     //if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No HLTRESULTS";    
@@ -278,7 +278,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   Handle<PFJetCollection> caloJets,caloJetsDummy;
-  iEvent.getByLabel( CaloJetAlgorithm, caloJets );
+  iEvent.getByToken( CaloJetAlgorithm, caloJets );
   double calJetPt=-1.;
   double calJetEta=-999.;
   double calJetPhi=-999.;
@@ -325,7 +325,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   Handle<GenJetCollection> genJets,genJetsDummy;
-  iEvent.getByLabel( GenJetAlgorithm, genJets );
+  iEvent.getByToken( GenJetAlgorithm, genJets );
   double genJetPt=-1.;
   double genJetEta=-999.;
   double genJetPhi=-999.;
@@ -373,7 +373,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
 
   edm::Handle<CaloMETCollection> recmet, recmetDummy;
-  iEvent.getByLabel(CaloMETColl,recmet);
+  iEvent.getByToken(CaloMETColl,recmet);
 
   double calMet=-1;
   if (recmet.isValid()) { 
@@ -394,7 +394,7 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   
   edm::Handle<GenMETCollection> genmet, genmetDummy;
-  iEvent.getByLabel(GenMETColl,genmet);
+  iEvent.getByToken(GenMETColl,genmet);
 
   double genMet=-1;
   if (genmet.isValid()) { 

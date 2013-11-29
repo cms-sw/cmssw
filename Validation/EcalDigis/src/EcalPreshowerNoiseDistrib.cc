@@ -4,13 +4,9 @@
 */
 
 #include <Validation/EcalDigis/interface/EcalPreshowerNoiseDistrib.h>
-#include "DQMServices/Core/interface/DQMStore.h"
-using namespace cms;
-using namespace edm;
-using namespace std;
 
-EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const ParameterSet& ps):
-  ESdigiCollection_(ps.getParameter<edm::InputTag>("ESdigiCollection"))
+EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps):
+  ESdigiCollectionToken_( consumes<ESDigiCollection>( ps.getParameter<edm::InputTag>( "ESdigiCollection" ) ) )
 {
   
   // verbosity switch
@@ -19,7 +15,7 @@ EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const ParameterSet& ps):
   dbe_ = 0;
   
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   
   if ( dbe_ ) {
     if ( verbose_ ) {
@@ -57,11 +53,11 @@ EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const ParameterSet& ps):
 }
 
 
-void EcalPreshowerNoiseDistrib::analyze(const Event& e, const EventSetup& c){
+void EcalPreshowerNoiseDistrib::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  Handle<ESDigiCollection> EcalDigiES;
+  edm::Handle<ESDigiCollection> EcalDigiES;
   
-  e.getByLabel( ESdigiCollection_ , EcalDigiES );
+  e.getByToken( ESdigiCollectionToken_ , EcalDigiES );
 
   // retrun if no data
   if( !EcalDigiES.isValid() ) return;

@@ -17,11 +17,10 @@
   */
 class EventHeader {
 public:
-  EventHeader(edm::ConsumesCollector && iC);
-  EventHeader(); 
+  EventHeader();
   ~EventHeader();
 
-  void setup(TTree* tree);
+  void setup(edm::ConsumesCollector && iC, TTree* tree);
 
   /** Analyze the Data */
   void analyze(edm::Event const& iEvent, TTree* tree);
