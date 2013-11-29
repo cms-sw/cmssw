@@ -1,4 +1,4 @@
-#if !defined(__arm__)
+#if !defined(__arm__) && !defined(__MIC__) 
 #include "DataFormats/Math/interface/SSEVec.h"
 #include "DataFormats/Math/interface/SSERot.h"
 using namespace mathSSE;
