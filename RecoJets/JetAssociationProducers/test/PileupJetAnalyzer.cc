@@ -44,8 +44,10 @@ class PileupJetAnalyzer : public edm::EDAnalyzer {
     private:
 	TNtuple			*ntuple;
 
-	const edm::InputTag	jetTracksAssocLabel;
-	const edm::InputTag	jetTagLabel;
+	edm::EDGetTokenT<JetTracksAssociationCollection>  jetTracksAssocToken;
+	edm::EDGetTokenT<JetFloatAssociation::Container>  jetTagToken;
+	edm::EDGetTokenT<edm::SimTrackContainer>  tokenSimTrack;
+	edm::EDGetTokenT<edm::SimVertexContainer> tokenSimVertex;
 	const double		signalFraction;
 	const double		jetMinE;
 	const double		jetMinEt;
@@ -54,14 +56,17 @@ class PileupJetAnalyzer : public edm::EDAnalyzer {
 };
 
 PileupJetAnalyzer::PileupJetAnalyzer(const edm::ParameterSet &params) :
-	jetTracksAssocLabel(params.getParameter<edm::InputTag>("jetTracksAssoc")),
-	jetTagLabel(params.getParameter<edm::InputTag>("jetTagLabel")),
 	signalFraction(params.getParameter<double>("signalFraction")),
 	jetMinE(params.getParameter<double>("jetMinE")),
 	jetMinEt(params.getParameter<double>("jetMinEt")),
 	jetMaxEta(params.getParameter<double>("jetMaxEta")),
 	trackPtLimit(params.getParameter<double>("trackPtLimit"))
 {
+	jetTracksAssocToken = consumes<JetTracksAssociationCollection>(params.getParameter<edm::InputTag>("jetTracksAssoc"));
+	jetTagToken = consumes<JetFloatAssociation::Container>(params.getParameter<edm::InputTag>("jetTagLabel"));
+	tokenSimTrack = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
+	tokenSimVertex = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
+
 	edm::Service<TFileService> fs;
 	ntuple = fs->make<TNtuple>("jets", "", "mc:tag:et:eta");
 }
@@ -74,16 +79,16 @@ void PileupJetAnalyzer::analyze(const edm::Event &event,
                               const edm::EventSetup &es)
 {
 	edm::Handle<JetTracksAssociationCollection> jetTracksAssoc;
-	event.getByLabel(jetTracksAssocLabel, jetTracksAssoc);
+	event.getByToken(jetTracksAssocToken, jetTracksAssoc);
 
 	edm::Handle<JetFloatAssociation::Container> jetTags;
-	event.getByLabel(jetTagLabel, jetTags);
+	event.getByToken(jetTagToken, jetTags);
 
 	edm::Handle<edm::SimTrackContainer> simTracks;
-	event.getByLabel("famosSimHits", simTracks);
+	event.getByToken(tokenSimTrack, simTracks);
 
 	edm::Handle<edm::SimVertexContainer> simVertices;
-	event.getByLabel("famosSimHits", simVertices);
+	event.getByToken(tokenSimVertex, simVertices);
 
 	// find vertices in all jets
 	for(JetTracksAssociationCollection::const_iterator iter =
