@@ -61,6 +61,22 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     sample_                  =iConfig.getUntrackedParameter<std::string>("sample");
   }
 
+  pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
+  if (isCaloMET)  caloMETsToken_ = consumes<reco::CaloMETCollection> (inputMETLabel_);
+  if (isTcMET)    tcMETsToken_ = consumes<reco::METCollection> (inputMETLabel_);  
+  if (isPFMET)    pfMETsToken_ = consumes<reco::PFMETCollection> (inputMETLabel_); 
+  if (isGenMET)   genMETsToken_ = consumes<reco::GenMETCollection> (inputMETLabel_); 
+  if (isTcMET) {
+    caloMETsToken_ = consumes<reco::CaloMETCollection> (inputCaloMETLabel_);  
+    muonToken_  = consumes<reco::MuonCollection>(inputMuonLabel_); 
+    trackToken_ = consumes<reco::TrackCollection>(inputTrackLabel_); 
+    electronToken_ = consumes<edm::View<reco::GsfElectron > >(inputElectronLabel_); 
+    beamSpotToken_ = consumes<reco::BeamSpot>(inputBeamSpotLabel_);
+    tcMet_ValueMap_Token_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(edm::InputTag("muonTCMETValueMapProducer" , "muCorrData")); 
+    met_ValueMap_Token_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(edm::InputTag("muonMETValueMapProducer" , "muCorrData")); 
+  }
+  genMETsTrueToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetTrue"));
+  genMETsCaloToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetCalo"));
   //Events variables
   mNvertex               = 0;
 
@@ -305,14 +321,14 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Handle<reco::VertexCollection> vertexHandle;
-  iEvent.getByLabel("offlinePrimaryVertices", vertexHandle);
-   if (! vertexHandle.isValid())
+  edm::Handle<reco::VertexCollection> pvHandle;
+  iEvent.getByToken(pvToken_, pvHandle);
+   if (! pvHandle.isValid())
   {
-    std::cout << __FUNCTION__ << ":" << __LINE__ << ":vertexHandle handle not found!" << std::endl;
+    std::cout << __FUNCTION__ << ":" << __LINE__ << ":pvHandle handle not found!" << std::endl;
     assert(false);
   }
-  const int nvtx = vertexHandle->size();
+  const int nvtx = pvHandle->size();
   mNvertex->Fill(nvtx);
   //Collections for all MET collections
 
@@ -322,13 +338,12 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<PFMETCollection> pfMETs;
   edm::Handle<GenMETCollection> genMETs;
 
-  if (isCaloMET) iEvent.getByLabel(inputMETLabel_, caloMETs);
-  if (isTcMET)   iEvent.getByLabel(inputMETLabel_,   tcMETs);
-//  if (isCorMET)  iEvent.getByLabel(inputMETLabel_,  caloMETs);
-  if (isPFMET)   iEvent.getByLabel(inputMETLabel_,   pfMETs);
-  if (isGenMET)  iEvent.getByLabel(inputMETLabel_,  genMETs);
+  if (isCaloMET or isTcMET) iEvent.getByToken(caloMETsToken_, caloMETs);
+  if (isTcMET)   iEvent.getByToken(tcMETsToken_,   tcMETs);
+  if (isPFMET)   iEvent.getByToken(pfMETsToken_,   pfMETs);
+  if (isGenMET)  iEvent.getByToken(genMETsToken_,  genMETs);
 
-  if ((isCaloMET) and !caloMETs.isValid()) return;
+  if ((isCaloMET or isTcMET) and !caloMETs.isValid()) return;
   if ((isTcMET)   and !tcMETs.isValid())   return;
 //  if ((isCorMET)  and !caloMETs.isValid()) return;
   if ((isPFMET)   and !pfMETs.isValid())   return;
@@ -340,13 +355,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  if (isCorMET)  { met = caloMETs->front();}
   if (isPFMET)   { met = pfMETs->front()  ;}
   if (isGenMET)  { met = genMETs->front() ;}
-
-//  edm::Handle<METCollection> metH;
-//  iEvent.getByLabel(inputMETLabel_, metH);
-//  cout<<"type "<<METType_<<" label:"<<inputMETLabel_<<" isCaloMET "<<boolalpha<<isCaloMET<<" isGenMET "<<isPFMET<<" isTcMET "<<isTcMET<<" isPFMET "<<isPFMET<<endl;
-//  const MET * met;
-//  const METCollection *metcol = metH.product();
-//  met = &(metcol->front());
 
   const double SumET = met.sumEt();
   const double METSig = met.mEtSig();
@@ -365,7 +373,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  cout<<"isCaloMET "<<boolalpha<<isCaloMET<<" isGenMET "<<isPFMET<<" isTcMET "<<isTcMET<<" isPFMET "<<isPFMET<<" met:"<<MET<<endl;
   // Get Generated MET for Resolution plots
   edm::Handle<GenMETCollection> genTrue;
-  iEvent.getByLabel("genMetTrue", genTrue);
+  iEvent.getByToken(genMETsTrueToken_, genTrue);
   if (genTrue.isValid()) {
     const GenMETCollection *genmetcol = genTrue.product();
     const GenMET *genMetTrue = &(genmetcol->front());
@@ -391,7 +399,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetTrue";
   }    
   edm::Handle<GenMETCollection> genCalo;
-  iEvent.getByLabel("genMetCalo", genCalo);
+  iEvent.getByToken(genMETsCaloToken_, genCalo);
   if (genCalo.isValid()) {
     const GenMETCollection *genmetcol = genCalo.product();
     const GenMET  *genMetCalo = &(genmetcol->front());
@@ -485,20 +493,20 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     const CaloMET *caloMet;
     edm::Handle<CaloMETCollection> hcaloMetcol;
-    iEvent.getByLabel(inputCaloMETLabel_, hcaloMetcol);
+    iEvent.getByToken(caloMETsToken_, hcaloMetcol);
 
     edm::Handle< reco::MuonCollection > muon_h;
-    iEvent.getByLabel(inputMuonLabel_, muon_h);
+    iEvent.getByToken(muonToken_, muon_h);
 
     //      edm::Handle< edm::View<reco::Track> > track_h;
     edm::Handle<reco::TrackCollection> track_h;
-    iEvent.getByLabel(inputTrackLabel_, track_h);
+    iEvent.getByToken(trackToken_, track_h);
 
     edm::Handle< edm::View<reco::GsfElectron > > electron_h;
-    iEvent.getByLabel(inputElectronLabel_, electron_h);
+    iEvent.getByToken(electronToken_, electron_h);
 
     edm::Handle< reco::BeamSpot > beamSpot_h;
-    iEvent.getByLabel(inputBeamSpotLabel_, beamSpot_h);
+    iEvent.getByToken(beamSpotToken_, beamSpot_h);
 
     const reco::MET * tcMet = &(tcMETs->front());
 
@@ -536,7 +544,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     //Event selection-----------------------------------------------------------------------
 
     edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
-    iEvent.getByLabel("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
+    iEvent.getByToken(tcMet_ValueMap_Token_, tcMet_ValueMap_Handle);
 
     //count muons
     int nM = 0;
@@ -632,10 +640,10 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     //edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
-    //iEvent.getByLabel("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
+    //iEvent.getByToken("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
 
     edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > muon_ValueMap_Handle;
-    iEvent.getByLabel("muonMETValueMapProducer" , "muCorrData", muon_ValueMap_Handle);
+    iEvent.getByToken(met_ValueMap_Token_, muon_ValueMap_Handle);
 
     const unsigned int nMuons = muon_h->size();      
 
@@ -685,7 +693,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  {
 //////    const CaloMET *corMetGlobalMuons = 0;
 ////    edm::Handle<CaloMETCollection> hcorMetGlobalMuonscol;
-////    iEvent.getByLabel(inputMETLabel_, hcorMetGlobalMuonscol );
+////    iEvent.getByToken(inputMETLabel_, hcorMetGlobalMuonscol );
 ////    if(! hcorMetGlobalMuonscol.isValid()){
 ////      edm::LogInfo("OutputInfo") << "hcorMetGlobalMuonscol is NOT Valid";
 ////      edm::LogInfo("OutputInfo") << "MET Taks continues anyway...!";
@@ -697,13 +705,13 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 ////    }
 //
 //    edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > corMetGlobalMuons_ValueMap_Handle;
-//    iEvent.getByLabel("muonMETValueMapProducer" , "muCorrData", corMetGlobalMuons_ValueMap_Handle);
+//    iEvent.getByToken("muonMETValueMapProducer" , "muCorrData", corMetGlobalMuons_ValueMap_Handle);
 //
 //    edm::Handle< reco::MuonCollection > muon_Handle;
-//    iEvent.getByLabel("muons", muon_Handle);
+//    iEvent.getByToken("muons", muon_Handle);
 //
 //    edm::Handle< reco::BeamSpot > beamSpot_h;
-//    iEvent.getByLabel(inputBeamSpotLabel_, beamSpot_h);
+//    iEvent.getByToken(inputBeamSpotLabel_, beamSpot_h);
 //
 //    if(!beamSpot_h.isValid()){
 //      edm::LogInfo("OutputInfo") << "beamSpot is NOT Valid";

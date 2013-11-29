@@ -32,9 +32,15 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   isJPTJet  = (std::string("jpt") ==JetType);
   isPFJet   = (std::string("pf")  ==JetType);
 
-//  isCaloJet = (foundCaloCollection != string::npos) ? true : false;
-//  isJPTJet  = (foundJPTCollection  != string::npos) ? true : false;
-//  isPFJet   = (foundPFCollection   != string::npos) ? true : false;
+  //consumes
+   pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
+   caloTowersToken_ = consumes<CaloTowerCollection>(edm::InputTag("towerMaker"));
+   if (isCaloJet) caloJetsToken_  = consumes<reco::CaloJetCollection>(mInputCollection);
+   if (isJPTJet)  jptJetsToken_   = consumes<reco::JPTJetCollection>(mInputCollection);
+   if (isPFJet)   pfJetsToken_    = consumes<reco::PFJetCollection>(mInputCollection);
+   genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
+   evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+
 
   // Events variables
   mNvtx           = 0;
@@ -267,7 +273,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
     mConstituents = dbe->book1D("Constituents", "Constituents", 100,    0,  100); 
     mHadTiming    = dbe->book1D("HadTiming",    "HadTiming",     75,  -50,  100);
     mEmTiming     = dbe->book1D("EmTiming",     "EmTiming",      75,  -50,  100);
-    mJetArea      = dbe->book1D("JetArea",      "JetArea",       26, -0.5, 12.5);
+    mJetArea      = dbe->book1D("JetArea",      "JetArea",       100,   0, 4);
 //    mRho          = dbe->book1D("Rho",          "Rho",           100,    0,   5);
 
     // Corrected jets
@@ -465,7 +471,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   // Get the primary vertices
   //----------------------------------------------------------------------------
   edm::Handle<vector<reco::Vertex> > pvHandle;
-  mEvent.getByLabel("offlinePrimaryVertices", pvHandle);
+  mEvent.getByToken(pvToken_, pvHandle);
 
   int nGoodVertices = 0;
 
@@ -486,7 +492,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   // Get the CaloTower collection
   //----------------------------------------------------------------------------
   edm::Handle<CaloTowerCollection> caloTowers;
-  mEvent.getByLabel("towerMaker", caloTowers);
+  mEvent.getByToken(caloTowersToken_, caloTowers);
 
   if (caloTowers.isValid())
     {
@@ -502,7 +508,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 //  // Get the jet rho
 //  //----------------------------------------------------------------------------
 //  edm::Handle<double> pRho;
-//  mEvent.getByLabel(rhoTag, pRho);
+//  mEvent.getByToken(rhoTag, pRho);
 //
 //  if (pRho.isValid())
 //    {
@@ -523,9 +529,9 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   edm::Handle<JPTJetCollection>  jptJets;
   edm::Handle<PFJetCollection>   pfJets;
 
-  if (isCaloJet) mEvent.getByLabel(mInputCollection, caloJets);
-  if (isJPTJet)  mEvent.getByLabel(mInputCollection, jptJets);
-  if (isPFJet)   mEvent.getByLabel(mInputCollection, pfJets);
+  if (isCaloJet) mEvent.getByToken(caloJetsToken_, caloJets);
+  if (isJPTJet)  mEvent.getByToken(jptJetsToken_, jptJets);
+  if (isPFJet)   mEvent.getByToken(pfJetsToken_, pfJets);
 
   if (isCaloJet && !caloJets.isValid()) return;
   if (isJPTJet  && !jptJets.isValid())  return;
@@ -753,7 +759,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       // Get ptHat
       //------------------------------------------------------------------------
       edm::Handle<HepMCProduct> evt;
-      mEvent.getByLabel("generator", evt);
+      mEvent.getByToken(evtToken_, evt);
 
       if (evt.isValid()) {
         HepMC::GenEvent* myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
@@ -764,7 +770,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       // Gen jets
       //------------------------------------------------------------------------
       edm::Handle<GenJetCollection> genJets;
-      mEvent.getByLabel(mInputGenCollection, genJets);
+      mEvent.getByToken(genJetsToken_, genJets);
 
       if (!genJets.isValid()) return;
       

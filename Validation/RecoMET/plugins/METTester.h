@@ -37,7 +37,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -77,7 +78,22 @@ public:
   edm::InputTag inputMuonLabel_;
   edm::InputTag inputElectronLabel_;
   edm::InputTag inputBeamSpotLabel_;
- 
+
+  //Tokens
+  edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> caloMETsToken_;
+  edm::EDGetTokenT<reco::PFMETCollection> pfMETsToken_;
+  edm::EDGetTokenT<reco::METCollection> tcMETsToken_;
+  edm::EDGetTokenT<reco::GenMETCollection> genMETsToken_;
+  edm::EDGetTokenT<reco::GenMETCollection> genMETsTrueToken_;
+  edm::EDGetTokenT<reco::GenMETCollection> genMETsCaloToken_;
+  //for tcmet
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  edm::EDGetTokenT<edm::View<reco::GsfElectron > > electronToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Token_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > met_ValueMap_Token_;
 
   bool isGoodTrack( const reco::TrackRef, float d0corr );
 

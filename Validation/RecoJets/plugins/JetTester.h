@@ -33,10 +33,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "RecoJets/JetProducers/interface/JetMatchingTools.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
 class MonitorElement;
 
 class JetTester : public edm::EDAnalyzer {
@@ -59,6 +59,15 @@ class JetTester : public edm::EDAnalyzer {
 //  edm::InputTag   rhoTag;
   std::string     mOutputFile;
   std::string     JetType;
+
+  //Tokens
+  edm::EDGetTokenT<std::vector<reco::Vertex> > pvToken_;
+  edm::EDGetTokenT<CaloTowerCollection > caloTowersToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
+  edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
+  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
+  edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
+  edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
 
   // Event variables
   MonitorElement* mNvtx;
