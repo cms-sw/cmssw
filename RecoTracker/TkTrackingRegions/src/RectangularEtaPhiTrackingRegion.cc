@@ -381,7 +381,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     }
   }
   
-  std::cout << "RectangularEtaPhiTrackingRegion hits "  << result.size() << std::endl;
+  // std::cout << "RectangularEtaPhiTrackingRegion hits "  << result.size() << std::endl;
   delete est;
   return result;
 }
