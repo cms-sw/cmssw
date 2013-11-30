@@ -123,6 +123,29 @@ void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<ch
   ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
 }
 
+
+std::pair<float,float> SiPixelGainCalibrationForHLT::getPedAndGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const {
+  // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
+  unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;
+  unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block 
+  unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
+
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first+col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
+
+  if ((s.ped & 0xFF) == deadFlag_)
+     isDeadColumn = true;
+  else if ((s.ped & 0xFF) == noisyFlag_)
+     isNoisyColumn = true;
+
+  int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
+  if (col >= nCols || row > maxRow){
+    throw cms::Exception("CorruptedData")
+      << "[SiPixelGainCalibrationForHLT::getPed] Pixel out of range: col " << col << " row: " << row;
+  }  
+  return std::make_pair(decodePed(s.ped & 0xFF),decodeGain(s.gain & 0xFF));
+
+
+}
 float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const {
    // TODO MERGE THIS FUNCTION WITH GET GAIN, then provide wrappers
 

@@ -72,6 +72,9 @@ class SiPixelGainCalibrationForHLT {
   void  setDeadColumn(const int& nRows, std::vector<char>& vped)  { setData(0, 0 /*dummy values, not used*/, vped, true, false); }
   void  setNoisyColumn(const int& nRows, std::vector<char>& vped) { setData(0, 0 /*dummy values, not used*/, vped, false, true); }
 
+
+  std::pair<float,float> getPedAndGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
+
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
   float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
 

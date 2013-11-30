@@ -187,20 +187,52 @@ void PixelThresholdClusterizer::clear_buffer( DigiIterator begin, DigiIterator e
 //----------------------------------------------------------------------------
 void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator end ) 
 {
-  for(DigiIterator di = begin; di != end; ++di) 
-    {
-      int row = di->row();
-      int col = di->column();
-      int adc = calibrate(di->adc(),col,row); // convert ADC -> electrons
-      if ( adc >= thePixelThreshold) 
-	{
-	  theBuffer.set_adc( row, col, adc);
-	  if ( adc >= theSeedThreshold) 
-	    { 
-	      theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
-	    }
+  static int ic=0;
+  if (ic==0) {
+    std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
+  }
+  ic++;
+  int electron[end-begin];
+  if ( doMissCalibrate ) {
+    (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor, theOffset,electron);
+  } else {
+    int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
+    int i=0;
+    for(DigiIterator di = begin; di != end; ++di) {
+      auto adc = di->adc();
+      const float gain = 135.; // 1 ADC = 135 electrons
+      const float pedestal = 0.; //
+      electron[i] = int(adc * gain + pedestal);
+      if (layer>=theFirstStack_) {
+	if (theStackADC_==1&&adc==1) {
+	  electron[i] = int(255*135); // Arbitrarily use overflow value.
 	}
+	if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
+	  const float gain = 135.; // 1 ADC = 135 electrons
+	  electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
+	}
+      }
+      ++i;
     }
+    assert(i==(end-begin));
+  }
+
+  int i=0;
+  static int eqD=0;
+  for(DigiIterator di = begin; di != end; ++di) {
+    int row = di->row();
+    int col = di->column();
+    int adc = electron[i++];
+    int adcOld = calibrate(di->adc(),col,row);
+    //assert(adc==adcOld);
+    if (adc!=adcOld) std::cout << "VI " << eqD  <<' '<< ic  <<' '<< end-begin <<' '<< i <<' '<< di->adc() <<' ' << adc <<' '<< adcOld << std::endl; else ++eqD;
+    if ( adc >= thePixelThreshold) {
+      theBuffer.set_adc( row, col, adc);
+      if ( adc >= theSeedThreshold) theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
+    }
+  }
+  assert(i==(end-begin));
+
 }
 
 //----------------------------------------------------------------------------
