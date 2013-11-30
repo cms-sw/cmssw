@@ -1,0 +1,142 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("STEP1")
+
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff') #!!!!!!!!!!!!!!!!!!!!!!!!!!
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load("DQMServices.Components.MEtoEDMConverter_cfi")
+process.load("DQMServices.Core.DQM_cfg")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+
+process.load("DQMAnalyzer.DQMAnalyzerSTEP1.CfiFile_cfi")
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+
+process.source = cms.Source("PoolSource",
+    # replace 'myfile.root' with the source file you want to use
+    fileNames = cms.untracked.vstring(
+
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_100_1_cSy.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_10_1_i1F.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_11_1_f2Z.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_1_1_XxZ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_12_1_Zqa.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_13_1_71N.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_14_1_dx0.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_15_1_a3L.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_16_1_mw8.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_17_1_OmO.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_18_1_J32.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_19_1_Z45.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_20_1_PMG.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_21_1_BG4.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_2_1_GrM.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_22_1_SVK.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_23_1_raB.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_24_1_LEo.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_25_1_I2W.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_26_1_sg0.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_27_1_JOD.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_28_1_XRY.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_29_1_8wO.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_30_1_Hye.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_31_1_ylZ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_3_1_HXf.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_32_1_0zW.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_33_1_q3a.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_34_1_hMQ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_35_1_fAp.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_36_1_VYA.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_37_1_ipv.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_38_1_jAg.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_39_1_jYd.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_40_1_0kP.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_41_1_vtr.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_4_1_bQ5.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_42_1_XJL.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_43_1_sbJ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_44_1_F9u.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_45_1_Oz8.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_46_1_RPH.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_47_1_DDW.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_48_1_qGS.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_49_1_msp.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_50_1_plB.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_51_1_hNN.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_5_1_esD.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_52_1_XTg.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_53_1_RDw.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_54_1_rPG.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_55_1_PJk.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_56_1_Qow.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_57_1_prh.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_58_1_tiQ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_59_1_pYv.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_60_1_hCw.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_61_1_A0k.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_6_1_eOp.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_62_1_MPq.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_63_1_KNb.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_64_1_M8U.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_65_1_Oj8.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_66_1_g1F.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_67_1_Lkp.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_68_1_BZ1.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_69_1_uIC.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_70_1_5mL.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_71_1_5ZJ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_7_1_WdY.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_72_1_YFD.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_73_1_XE8.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_74_1_mSl.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_75_1_dOL.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_76_1_OKJ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_77_1_sNi.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_78_1_0Vz.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_79_1_Ozl.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_80_1_rNX.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_81_1_19l.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_8_1_PZr.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_82_1_fjh.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_83_1_6ty.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_84_1_Q72.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_85_1_tfb.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_86_1_jtS.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_87_1_VYd.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_88_1_gwA.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_89_1_WP9.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_90_1_IzD.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_91_1_qHn.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_9_1_bjZ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_92_1_mAR.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_93_1_kpE.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_94_1_lor.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_95_1_m8i.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_96_1_cTl.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_97_1_KqN.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_98_1_YuJ.root',
+	'file:/lustre/cms/store/user/calabria/calabria_SingleMuPt200_GEN-SIM-DIGI-RECO_CMSSW_6_2_0_SLHC1_v2/calabria_SingleMuPt200_RECOGEM_STDRECO_CMSSW_6_2_0_SLHC1/9d4158c7f7160e8742c9656b5dc7afdf/out_reco_std_99_1_yVU.root',
+
+    )
+)
+
+process.FEVT = cms.OutputModule("PoolOutputModule",
+    outputCommands = cms.untracked.vstring('keep *_MEtoEDMConverter_*_*'),
+    fileName = cms.untracked.string('first_200GeV.root')
+)
+
+process.p = cms.Path(process.GLBMuonAnalyzerWithGEMs * process.MEtoEDMConverter)
+process.outpath = cms.EndPath(process.FEVT)
+
+process.DQM.collectorHost = ''
+process.DQM.collectorPort = 9090
+process.DQM.debug = False
