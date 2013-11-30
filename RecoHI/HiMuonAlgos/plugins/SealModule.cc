@@ -8,4 +8,4 @@ using namespace cms;
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "HIMuonTrackingRegionProducer.h"
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactoryNoConsumes, HIMuonTrackingRegionProducer, "HIMuonTrackingRegionProducer");
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HIMuonTrackingRegionProducer, "HIMuonTrackingRegionProducer");
