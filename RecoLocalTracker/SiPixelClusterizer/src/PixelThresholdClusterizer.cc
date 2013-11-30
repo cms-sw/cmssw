@@ -358,18 +358,20 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
   //The only difference between dead/noisy pixels and standard ones is that for dead/noisy pixels,
   //We consider the charge of the pixel to always be zero.
 
+  /*  this is not possible as dead and noisy pixel cannot make it into a seed...
   if ( doMissCalibrate &&
        (theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row()) || 
 	theSiPixelGainCalibrationService_->isNoisy(detid_,pix.col(),pix.row())) )
     {
+      std::cout << "IMPOSSIBLE" << std::endl;
       seed_adc = 0;
       theBuffer.set_adc(pix, 1);
     }
-  else
-    {
-      seed_adc = theBuffer(pix.row(), pix.col());
-      theBuffer.set_adc( pix, 1);
-    }
+  else {
+  */
+  seed_adc = theBuffer(pix.row(), pix.col());
+  theBuffer.set_adc( pix, 1);
+      //  }
   
   AccretionCluster acluster;
   acluster.add(pix, seed_adc);
