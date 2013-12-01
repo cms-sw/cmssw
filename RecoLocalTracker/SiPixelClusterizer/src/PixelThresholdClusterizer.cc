@@ -145,14 +145,14 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
       if ( theBuffer(theSeeds[i]) >= theSeedThreshold ) 
 	{  // Is this seed still valid?
 	  //  Make a cluster around this seed
-	  SiPixelCluster cluster = make_cluster( theSeeds[i] , output);
+	  SiPixelCluster && cluster = make_cluster( theSeeds[i] , output);
 	  
 	  //  Check if the cluster is above threshold  
 	  // (TO DO: one is signed, other unsigned, gcc warns...)
 	  if ( cluster.charge() >= theClusterThreshold) 
 	    {
-	      //	cout << "putting in this cluster" << endl;
-	      output.push_back( cluster );
+	      //	cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.amplitudes().size() << endl;
+	      output.push_back( std::move(cluster) );
 	    }
 	}
     }
@@ -371,7 +371,7 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
       seed_adc = 0;
       theBuffer.set_adc(pix, 1);
     }
-  else {
+    else {
   */
   seed_adc = theBuffer(pix.row(), pix.col());
   theBuffer.set_adc( pix, 1);
@@ -386,17 +386,13 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
     {
       //This is the standard algorithm to find and add a pixel
       auto curInd = acluster.top(); acluster.pop();
-      for ( auto r = acluster.x[curInd]-1; r <= acluster.x[curInd]+1; ++r) 
-	{
-	  for ( auto c = acluster.y[curInd]-1; c <= acluster.y[curInd]+1; ++c) 
-	    {
-	      if ( theBuffer(r,c) >= thePixelThreshold) 
-		{
-		  
-		  SiPixelCluster::PixelPos newpix(r,c);
-		  if (!acluster.add( newpix, theBuffer(r,c))) goto endClus;
-		  theBuffer.set_adc( newpix, 1);
-		}
+      for ( auto c = std::max(0,int(acluster.y[curInd])-1); c < std::min(int(acluster.y[curInd])+2,theBuffer.columns()) ; ++c) {
+	for ( auto r = std::max(0,int(acluster.x[curInd])-1); r < std::min(int(acluster.x[curInd])+2,theBuffer.rows()); ++r)  {
+	  if ( theBuffer(r,c) >= thePixelThreshold) {
+	    SiPixelCluster::PixelPos newpix(r,c);
+	    if (!acluster.add( newpix, theBuffer(r,c))) goto endClus;
+	    theBuffer.set_adc( newpix, 1);
+	  }
 	     
 
 	      /* //Commenting out the addition of dead pixels to the cluster until further testing -- dfehling 06/09
