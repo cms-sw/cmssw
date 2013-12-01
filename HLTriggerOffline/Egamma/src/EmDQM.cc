@@ -20,6 +20,11 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
 
   genParticles_token = consumes<edm::View<reco::Candidate> >(edm::InputTag("genParticles", "", "SIM"));
   triggerObject_token = consumes<trigger::TriggerEventWithRefs>(triggerObject_);
+  hltResults_token = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", triggerObject_.process()));
+  gencutColl_fidWenu_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialWenu"));
+  gencutColl_fidZee_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialZee"));
+  gencutColl_fidGammaJet_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialGammaJet"));
+  gencutColl_fidDiGamma_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialDiGamma"));
 }
 
 
@@ -654,7 +659,20 @@ bool EmDQM::checkRecoParticlesRequirement(const edm::Event & event)
   // and hopefully can be merged with it at some point in the future
 
   edm::Handle< edm::View<reco::Candidate> > referenceParticles;
-  event.getByLabel(gencutCollection_,referenceParticles);
+  // get the right data according to the trigger path currently looked at
+  switch(reqNum) {
+     case 1:
+        if (pdgGen == 11) event.getByToken(gencutColl_fidWenu_token, referenceParticles);
+        else event.getByToken(gencutColl_fidGammaJet_token, referenceParticles);
+        break;
+     case 2:
+        if (pdgGen == 11) event.getByToken(gencutColl_fidZee_token, referenceParticles);
+        else event.getByToken(gencutColl_fidDiGamma_token, referenceParticles);
+        break;
+     case 3:
+        event.getByToken(gencutColl_fidZee_token, referenceParticles);
+        break;
+  }
   if(!referenceParticles.isValid()) {
      if (verbosity_ >= OUTPUT_WARNINGS)
         edm::LogWarning("EmDQM") << "referenceParticles invalid.";
@@ -704,8 +722,21 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     //           Check if there's enough gen particles        //
     //             of interest                                //
     ////////////////////////////////////////////////////////////
+    // get the right data according to the trigger path currently looked at
     edm::Handle< edm::View<reco::Candidate> > cutCounter;
-    event.getByLabel(gencutCollection_,cutCounter);
+    switch(reqNum) {
+       case 1:
+          if (pdgGen == 11) event.getByToken(gencutColl_fidWenu_token, cutCounter);
+          else event.getByToken(gencutColl_fidGammaJet_token, cutCounter);
+          break;
+       case 2:
+          if (pdgGen == 11) event.getByToken(gencutColl_fidZee_token, cutCounter);
+          else event.getByToken(gencutColl_fidDiGamma_token, cutCounter);
+          break;
+       case 3:
+          event.getByToken(gencutColl_fidZee_token, cutCounter);
+          break;
+    }
     if (cutCounter->size() < (unsigned int)gencut_) {
       //edm::LogWarning("EmDQM") << "Less than "<< gencut_ <<" gen particles with pdgId=" << pdgGen;
       continue;
@@ -785,7 +816,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
             
     bool accepted = true;  // flags that the event has been accepted by all filters before
     edm::Handle<edm::TriggerResults> hltResults;
-    event.getByLabel(edm::InputTag("TriggerResults","", triggerObject_.process()), hltResults);
+    event.getByToken(hltResults_token, hltResults);
     ////////////////////////////////////////////////////////////
     //            Loop over filter modules                    //
     ////////////////////////////////////////////////////////////

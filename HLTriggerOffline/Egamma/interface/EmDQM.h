@@ -209,6 +209,10 @@ private:
   // tokens for data access
   edm::EDGetTokenT<edm::View<reco::Candidate> > genParticles_token;
   edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerObject_token;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutCollection_token;
+  edm::EDGetTokenT<edm::TriggerResults> hltResults_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidWenu_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidZee_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidGammaJet_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidDiGamma_token;
 };
 #endif
