@@ -239,7 +239,7 @@ class GlobalDigisAnalyzer : public edm::EDAnalyzer
   edm::EDGetTokenT<CSCWireDigiCollection> MuCSCWireSrc_Token_;
   edm::EDGetTokenT<RPCDigiCollection> MuRPCSrc_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
-  edm::EDGetTokenT<CrossingFrame<PCaloHit>> ECHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
   edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
   edm::EDGetTokenT<edm::PSimHitContainer> RPCSimHit_Token_;
 

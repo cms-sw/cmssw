@@ -60,7 +60,7 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
   const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
   EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("barrelHitsName")));
-  ECHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
   ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
 
   RPCSimHit_Token_ = consumes<edm::PSimHitContainer>(edm::InputTag(std::string("g4SimHits"), std::string("MuonRPCHits")));
@@ -709,7 +709,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
       
       // loop over simhits
       MapType eeSimMap;
-      iEvent.getByToken(ECHits_Token_,crossingFrame);
+      iEvent.getByToken(EEHits_Token_,crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
 	LogDebug(MsgLoggerCat)
