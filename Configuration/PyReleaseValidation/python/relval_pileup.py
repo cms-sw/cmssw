@@ -9,6 +9,7 @@ workflows = Matrix()
 # if no explicit name/label given for the workflow (first arg),
 # the name of step1 will be used
 
+# 50 ns at 8 TeV
 workflows[200]=['',['ZEE','DIGIPU1','RECOPU1','HARVEST']]
 workflows[201]=['',['ZmumuJets_Pt_20_300','DIGIPU1','RECOPU1','HARVEST']]
 workflows[202]=['',['TTbar','DIGIPU1','RECOPU1','HARVEST']]
@@ -24,3 +25,7 @@ workflows[302]=['Pyquen_ZeemumuJets_pt10_2760GeV',['HydjetQ_MinBias_2760GeVINPUT
 #fastsim
 workflows[400]=['TTbar',['TTbarFSPU','HARVESTFS']]
 workflows[401]=['TTbarNewMix',['TTbarFSPU2','HARVESTFS']]
+
+# 50 ns at 13 TeV and POSTLS1
+
+# 25 ns at 13 TeV and POSTLS1
