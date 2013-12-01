@@ -151,7 +151,7 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
 	  // (TO DO: one is signed, other unsigned, gcc warns...)
 	  if ( cluster.charge() >= theClusterThreshold) 
 	    {
-	      //	cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.amplitudes().size() << endl;
+	      // std::cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
 	      output.push_back( std::move(cluster) );
 	    }
 	}
@@ -189,7 +189,7 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
 {
   static int ic=0;
   if (ic==0) {
-    std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
+    // std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
   }
   ic++;
   int electron[end-begin];
