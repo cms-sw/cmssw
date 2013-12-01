@@ -57,6 +57,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "striptrackingrechitshisto.root");
   //src_ = ps.getUntrackedParameter<std::string>( "src" );
   //builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
+  v_TrajectoryToken_ = consumes< std::vector<Trajectory> >( edm::InputTag( ps.getParameter<std::string>( "trajectoryInput" ) ) );
 
   // Book histograms
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -1259,7 +1260,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   // Mangano's
 
   edm::Handle<vector<Trajectory> > trajCollectionHandle;
-  e.getByLabel(conf_.getParameter<string>("trajectoryInput"),trajCollectionHandle);
+  e.getByToken( v_TrajectoryToken_, trajCollectionHandle );
 
   edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() ;
 
