@@ -238,18 +238,18 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   }
   
   // Retrieve FED ids from cabling
-  std::vector<uint16_t> ids = cabling()->feds() ;
+  auto ids = cabling()->fedIds() ;
 
   // loop over the FED ids to determine min and max values of coarse delay
   uint16_t minDelay = 256;
   uint16_t maxDelay = 0;
   uint16_t fedDelayCoarse = 0;
-  for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  for ( auto ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     // If FED id not found in list (from cabling), then continue
     if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
-    const std::vector<FedChannelConnection>& conns = cabling()->connections((*ifed)->getFedId());
+    auto conns = cabling()->fedConnections((*ifed)->getFedId());
     // loop over the connections for that FED
-    for ( std::vector<FedChannelConnection>::const_iterator iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
+    for ( auto iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
       // check that this is a tracker module
       if(DetId(iconn->detId()).det()!=DetId::Tracker) continue;
       // build the Fed9UAddress for that channel. Used to update the description.
@@ -270,9 +270,9 @@ bool LatencyHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange devi
   for ( SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     // If FED id not found in list (from cabling), then continue
     if ( find( ids.begin(), ids.end(), (*ifed)->getFedId() ) == ids.end() ) { continue; }
-    const std::vector<FedChannelConnection>& conns = cabling()->connections((*ifed)->getFedId());
+    auto conns = cabling()->fedConnections((*ifed)->getFedId());
     // loop over the connections for that FED
-    for ( std::vector<FedChannelConnection>::const_iterator iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
+    for ( auto iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
       // check that this is a tracker module
       if(DetId(iconn->detId()).det()!=DetId::Tracker) continue;
       // build the Fed9UAddress for that channel. Used to update the description.

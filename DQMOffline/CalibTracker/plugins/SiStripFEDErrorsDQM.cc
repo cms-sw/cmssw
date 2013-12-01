@@ -115,15 +115,15 @@ bool SiStripFEDErrorsDQM::readBadAPVs(){
     edm::LogError("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] cabling not filled, return false " << std::endl;
     return false;
   }
-  const std::vector<uint16_t>& lFedVec = cabling_->feds();
+  auto lFedVec = cabling_->fedIds();
   for (unsigned int iFed(0);iFed<lFedVec.size();iFed++){
-    if (lFedVec.at(iFed) < sistrip::FED_ID_MIN || lFedVec.at(iFed) > sistrip::FED_ID_MAX) {
-      edm::LogError("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] Invalid fedid : " << lFedVec.at(iFed) << std::endl;
+    if (*(lFedVec.begin() + iFed) < sistrip::FED_ID_MIN || *(lFedVec.begin() + iFed) > sistrip::FED_ID_MAX) {
+      edm::LogError("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] Invalid fedid : " << *(lFedVec.begin() + iFed) << std::endl;
       continue;
     }
-    const std::vector<FedChannelConnection>& lConnVec = cabling_->connections(lFedVec.at(iFed));
+    auto lConnVec = cabling_->fedConnections(*(lFedVec.begin() + iFed));
     for (unsigned int iConn(0); iConn<lConnVec.size();iConn++){
-      const FedChannelConnection & lConnection = lConnVec.at(iConn);
+      const FedChannelConnection & lConnection = *(lConnVec.begin() + iConn);
       if (!lConnection.isConnected()) continue;
       unsigned int lDetid = lConnection.detId();
       if (!lDetid || lDetid == sistrip::invalid32_) continue;
@@ -298,7 +298,7 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
 	for (unsigned int iChId = 0; 
 	     iChId < sistrip::FEDCH_PER_FED; 
 	     iChId++) {//loop on channels
-	  const FedChannelConnection & lConnection = cabling_->connection(lFedId,iChId);
+	  const FedChannelConnection & lConnection = cabling_->fedConnection(lFedId,iChId);
 	  if (!lConnection.isConnected()) continue;
     	  addBadAPV(lConnection,0,lFlag,aCounter);
 	}
@@ -311,7 +311,7 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
 	     iFeCh < sistrip::FEDCH_PER_FEUNIT; 
 	     iFeCh++) {//loop on channels
 	    unsigned int iChId = sistrip::FEDCH_PER_FEUNIT*iFeId+iFeCh;
-	    const FedChannelConnection & lConnection = cabling_->connection(aFedId,iChId);
+	    const FedChannelConnection & lConnection = cabling_->fedConnection(aFedId,iChId);
 	    if (!lConnection.isConnected()) continue;
 	    addBadAPV(lConnection,0,lFlag,aCounter);
 	  }
@@ -321,12 +321,12 @@ void SiStripFEDErrorsDQM::readHistogram(MonitorElement* aMe,
 	  if (lIsAPVHist) {
 	    unsigned int iAPVid = iChId%2+1;
 	    iChId = static_cast<unsigned int>(iChId/2.);
-	    const FedChannelConnection & lConnection = cabling_->connection(aFedId,iChId);
+	    const FedChannelConnection & lConnection = cabling_->fedConnection(aFedId,iChId);
 	    addBadAPV(lConnection,iAPVid,lFlag,aCounter);
 
 	  }//ifAPVhists
 	  else {
-	    const FedChannelConnection & lConnection = cabling_->connection(aFedId,iChId);
+	    const FedChannelConnection & lConnection = cabling_->fedConnection(aFedId,iChId);
 	    addBadAPV(lConnection,0,lFlag,aCounter);
 	  }
 	}//if not FE hist
