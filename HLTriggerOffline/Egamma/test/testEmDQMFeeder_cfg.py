@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("dqmFeeder")
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START52_V1::All'
+process.GlobalTag.globaltag = 'START70_V1::All'
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 # suppress printout of error messages on every event when a collection is missing in the event
@@ -11,13 +11,11 @@ process.MessageLogger.categories.append("EmDQMInvalidRefs")
 process.MessageLogger.cerr.EmDQMInvalidRefs = cms.untracked.PSet(limit = cms.untracked.int32(5))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+#process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'/store/relval/CMSSW_4_4_0_pre2/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START43_V4-v1/0126/D0D7EB8D-8CA1-E011-910D-0018F3D0960E.root'
-        '/store/relval/CMSSW_4_4_0_pre2/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START43_V4-v1/0128/7A69572D-A0A1-E011-8B9B-001BFCDBD19E.root'
-        #'/store/relval/CMSSW_4_4_0_pre2/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START43_V4-v1/0125/7EFB2404-7AA1-E011-A05F-00304867908C.root'
-        #'/store/relval/CMSSW_4_4_0_pre2/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/START43_V4-v1/0120/EC41EA85-39A0-E011-AA76-00304867D836.root'
+        '/store/relval/CMSSW_7_0_0_pre8/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/PU_START70_V1-v1/00000/1C634144-E94A-E311-964E-002618943866.root',
     )
 )
 
