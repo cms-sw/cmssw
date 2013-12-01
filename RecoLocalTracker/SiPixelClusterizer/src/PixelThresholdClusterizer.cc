@@ -218,14 +218,18 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
   }
 
   int i=0;
+#ifdef PIXELREGRESSION
   static int eqD=0;
+#endif
   for(DigiIterator di = begin; di != end; ++di) {
     int row = di->row();
     int col = di->column();
     int adc = electron[i++];
+#ifdef PIXELREGRESSION
     int adcOld = calibrate(di->adc(),col,row);
     //assert(adc==adcOld);
     if (adc!=adcOld) std::cout << "VI " << eqD  <<' '<< ic  <<' '<< end-begin <<' '<< i <<' '<< di->adc() <<' ' << adc <<' '<< adcOld << std::endl; else ++eqD;
+#endif
     if ( adc >= thePixelThreshold) {
       theBuffer.set_adc( row, col, adc);
       if ( adc >= theSeedThreshold) theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
