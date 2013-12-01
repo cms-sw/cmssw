@@ -75,17 +75,14 @@ namespace sistrip {
       //set the L1ID to use in the buffers
       bufferGenerator_.setL1ID(0xFFFFFF & event.id().event());
       
-      const std::vector<uint16_t>& fed_ids = cabling->feds();
-      std::vector<uint16_t>::const_iterator ifed;
-      
-      for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
+      auto fed_ids = cabling->fedIds();
+      for ( auto ifed = fed_ids.begin(); ifed != fed_ids.end(); ++ifed ) {
         
-        const std::vector<FedChannelConnection>& conns = cabling->connections(*ifed);
-	std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+        auto conns = cabling->fedConnections(*ifed);
         
         FEDStripData fedData(zeroSuppressed);
         
-	for ( ; iconn != conns.end(); iconn++ ) {
+	for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
           
 	  // Determine FED key from cabling
 	  uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
