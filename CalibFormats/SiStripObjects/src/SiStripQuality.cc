@@ -156,8 +156,9 @@ void SiStripQuality::add(const RunInfo *runInfo)
 
   if( !allFedsEmpty || useEmptyRunInfo_ ) {
     // Take the list of active feds from fedCabling
-    std::vector<uint16_t> activeFedsFromCabling = SiStripDetCabling_->fedCabling()->feds();
+    auto ids = SiStripDetCabling_->fedCabling()->fedIds();
 
+    std::vector<uint16_t> activeFedsFromCabling(ids.begin(), ids.end());
     // Take the list of active feds from RunInfo
     std::vector<int> activeFedsFromRunInfo;
     // Take only Tracker feds (remove all non Tracker)
@@ -180,7 +181,8 @@ void SiStripQuality::add(const RunInfo *runInfo)
                         activeFedsFromRunInfo.begin(), activeFedsFromRunInfo.end(),
                         std::back_inserter(differentFeds));
 
-    printActiveFedsInfo(activeFedsFromCabling, activeFedsFromRunInfo, differentFeds, printDebug_);
+    // IGNORE for time being.
+    //printActiveFedsInfo(activeFedsFromCabling, activeFedsFromRunInfo, differentFeds, printDebug_);
 
     // Feds in the differentFeds vector are now to be turned off as they are off according to RunInfo
     // but were not off in cabling and thus are still active for the SiStripQuality.
@@ -767,8 +769,8 @@ void SiStripQuality::turnOffFeds(const std::vector<int> & fedsList, const bool t
 
   std::vector<int>::const_iterator fedIdIt = fedsList.begin();
   for( ; fedIdIt != fedsList.end(); ++fedIdIt ) {
-    std::vector<FedChannelConnection>::const_iterator fedChIt = SiStripDetCabling_->fedCabling()->connections( *fedIdIt ).begin();
-    for( ; fedChIt != SiStripDetCabling_->fedCabling()->connections( *fedIdIt ).end(); ++fedChIt ) {
+    std::vector<FedChannelConnection>::const_iterator fedChIt = SiStripDetCabling_->fedCabling()->fedConnections( *fedIdIt ).begin();
+    for( ; fedChIt != SiStripDetCabling_->fedCabling()->fedConnections( *fedIdIt ).end(); ++fedChIt ) {
       uint32_t detId = fedChIt->detId();
       if (detId == 0 || detId == 0xFFFFFFFF) continue;
       uint16_t apvPairNumber = fedChIt->apvPairNumber();

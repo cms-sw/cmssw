@@ -257,7 +257,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 	 iCh < sistrip::FEDCH_PER_FED; 
 	 iCh++) {//loop on channels
 
-      const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
+      const FedChannelConnection & lConnection = cabling_->fedConnection(fedId,iCh);
       bool connected = lConnection.isConnected();
 
       //std::cout << "FedID " << fedId << ", ch " << iCh << ", nAPVPairs " << lConnection.nApvPairs() << " apvPairNumber " << lConnection.apvPairNumber() << std::endl;
