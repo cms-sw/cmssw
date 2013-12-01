@@ -197,6 +197,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
         std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
 	old_range = rangeAndNCols.first;
 	old_cols  = rangeAndNCols.second;
+	oldColumnIndexGain_ = -1;
       }
       //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
       return  ped->getPed(col, row, old_range, old_cols, isDead, isNoisy);
@@ -216,6 +217,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
       std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
       old_range = rangeAndNCols.first;
       old_cols  = rangeAndNCols.second;
+      return oldColumnValuePed_;
     }
     return ped->getGain(col, row, old_range, old_cols, isDead, isNoisy);
   } else throw cms::Exception("NullPointer")
