@@ -207,8 +207,8 @@ void CommissioningHistosUsingDb::addDcuDetIds() {
     SiStripFedKey fed_key = anal->fedKey();
     SiStripFecKey fec_key = anal->fecKey();
     
-    FedChannelConnection conn = cabling_->connection( fed_key.fedId(),
-						      fed_key.fedChannel() );
+    FedChannelConnection conn = cabling_->fedConnection( fed_key.fedId(),
+                                                         fed_key.fedChannel() );
   
     SiStripFedKey fed( conn.fedId(),
 		       SiStripFedKey::feUnit( conn.fedCh() ),

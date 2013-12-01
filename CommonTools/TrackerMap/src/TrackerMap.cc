@@ -66,14 +66,14 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
  init();
 // Now load fed cabling information
  if(enableFedProcessing){
- const std::vector<unsigned short> feds = tkFed->feds();
+  auto feds = tkFed->fedIds();
   std::cout<<"SiStripFedCabling has "<< feds.size()<<" active FEDS"<<std::endl;
   //    int num_board=0;
     //    int num_crate=0;
   for(std::vector<unsigned short>::const_iterator ifed = feds.begin();ifed<feds.end();ifed++){
-    const std::vector<FedChannelConnection> theconn = tkFed->connections( *ifed );
+    auto theconn = tkFed->fedConnections( *ifed );
     int num_conn=0;
-    for(std::vector<FedChannelConnection>::const_iterator iconn = theconn.begin();iconn<theconn.end();iconn++){
+    for(auto iconn = theconn.begin();iconn<theconn.end();iconn++){
 
       if( iconn->fedId()== sistrip::invalid_    ||  
 	  iconn->detId() == sistrip::invalid_   ||  

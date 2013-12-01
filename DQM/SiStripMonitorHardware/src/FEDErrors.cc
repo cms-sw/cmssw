@@ -120,7 +120,7 @@ void FEDErrors::initialiseFED(const unsigned int aFedID,
 	 iCh < sistrip::FEDCH_PER_FED; 
 	 iCh++) {
     
-      const FedChannelConnection & lConnection = aCabling->connection(fedID_,iCh);
+      const FedChannelConnection & lConnection = aCabling->fedConnection(fedID_,iCh);
       connected_[iCh] = lConnection.isConnected();
       detid_[iCh] = lConnection.detId();
       nChInModule_[iCh] = lConnection.nApvPairs();
@@ -318,7 +318,7 @@ float FEDErrors::fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
   for (unsigned int iCh = 0; iCh < sistrip::FEDCH_PER_FED; iCh++) {//loop on channels
     bool lIsConnected = false;
     if (aCabling) {
-      const FedChannelConnection & lConnection = aCabling->connection(fedID_,iCh);
+      const FedChannelConnection & lConnection = aCabling->fedConnection(fedID_,iCh);
       lIsConnected = lConnection.isConnected();
     }
     else lIsConnected = connected_[iCh];
