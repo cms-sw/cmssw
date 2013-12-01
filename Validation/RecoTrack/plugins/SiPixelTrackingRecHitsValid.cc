@@ -21,7 +21,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -33,8 +32,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
@@ -120,7 +117,8 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   //Read config file
   MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixeltrackingrechitshisto.root");
-  src_ = ps.getUntrackedParameter<std::string>( "src" );
+  siPixelRecHitCollectionToken_ = consumes<SiPixelRecHitCollection>( edm::InputTag( "siPixelRecHits" ) );
+  recoTrackCollectionToken_ = consumes<reco::TrackCollection>( edm::InputTag( ps.getUntrackedParameter<std::string>( "src" ) ) );
   builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
   checkType_ = ps.getParameter<bool>("checkType");
   genType_ = ps.getParameter<int>("genType");
@@ -1103,7 +1101,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       // --------------------------------------- all hits -----------------------------------------------------------
       //--- Fetch Pixel RecHits
       edm::Handle<SiPixelRecHitCollection> recHitColl;
-      e.getByLabel( "siPixelRecHits", recHitColl);
+      e.getByToken( siPixelRecHitCollectionToken_, recHitColl );
       
       //cout <<" ----- Found " 
       //   << const_cast<SiPixelRecHitCollection*>(recHitColl.product())->size()
@@ -1189,7 +1187,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
        
       // Get tracks
       edm::Handle<reco::TrackCollection> trackCollection;
-      e.getByLabel(src_, trackCollection);
+      e.getByToken( recoTrackCollectionToken_, trackCollection );
       const reco::TrackCollection *tracks = trackCollection.product();
       reco::TrackCollection::const_iterator tciter;
 
