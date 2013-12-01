@@ -134,8 +134,8 @@ void SiStripDigiAnalyzer::analyze( const edm::Event& event, const edm::EventSetu
   pr_r.events_++;
   sm_r.events_++;
   zs_r.events_++;
-  vector<uint16_t>::const_iterator ifed = fed_cabling->feds().begin();
-  for ( ; ifed != fed_cabling->feds().end(); ifed++ ) {
+  auto ifed = fed_cabling->fedIds().begin();
+  for ( ; ifed != fed_cabling->fedIds().end(); ++ifed ) {
     anal_.feds_++;
     vr_r.feds_++;
     pr_r.feds_++;

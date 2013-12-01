@@ -104,7 +104,7 @@ void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eS
 
   edm::ESHandle< SiStripFedCabling > fedCabling_;
   eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
-  const std::vector<uint16_t>& connectedFEDs = fedCabling_->feds();
+  auto connectedFEDs = fedCabling_->fedIds();
 
   edm::Handle<FEDRawDataCollection> rawDataHandle;
   e.getByLabel("source", rawDataHandle);
@@ -117,7 +117,7 @@ void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eS
   rawdataAbsent = false;
   const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
   for(std::vector<unsigned short>::const_iterator ifed = connectedFEDs.begin(); ifed != connectedFEDs.end(); ifed++){
-    const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections( *ifed );
+    auto fedChannels = fedCabling_->fedConnections( *ifed );
     if (!(rawDataCollection.FEDData(*ifed).size()) || !(rawDataCollection.FEDData(*ifed).data()) ) continue;
     // Check Modules Connected
     for (std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin();
