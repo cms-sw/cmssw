@@ -238,6 +238,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
         std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
 	old_range = rangeAndNCols.first;
 	old_cols  = rangeAndNCols.second;
+	oldColumnIndexGain_ = -1;
       } 
       else if (col == oldColumnIndexPed_ && inTheSameAveragedDataBlock) // same DetID, same column, same data block
       {
@@ -274,6 +275,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
       std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
       old_range = rangeAndNCols.first;
       old_cols  = rangeAndNCols.second;
+      oldColumnIndexPed_ = -1;
     }
     else if (col == oldColumnIndexGain_ && inTheSameAveragedDataBlock) // same DetID, same column
     {
