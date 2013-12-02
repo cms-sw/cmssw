@@ -130,7 +130,7 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   for (auto region : pDD->regions()) {
     ofos << "  GEMRegion " << region->region() << " has " << region->nStations() << " stations." << endl;
     for (auto station : region->stations()) {
-      ofos << "  GEMStation " << station->region() << " " << station->station() << " has " << station->nRings() << " rings." << endl;
+      ofos << "  GEMStation " << station->getName() << " has " << station->nRings() << " rings." << endl;
       for (auto ring : station->rings()) {
 	ofos << "  GEMRing " << ring->region() << " " << ring->station() << " " << ring->ring() << " has " << ring->nSuperChambers() << " super chambers." << endl;
 	for (auto sch : ring->superChambers()) {

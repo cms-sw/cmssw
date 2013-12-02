@@ -8,7 +8,6 @@
 
 class StripTopology;
 class GEMEtaPartitionSpecs;
-//class GEMChamber;
 
 class GEMEtaPartition : public GeomDetUnit
 {
@@ -27,9 +26,6 @@ public:
   const StripTopology& specificPadTopology() const;
 
   const GeomDetType& type() const; 
- 
-  /// Return the chamber this roll belongs to 
-  //const GEMChamber* chamber() const;
  
   // strip-related methods:
 
