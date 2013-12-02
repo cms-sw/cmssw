@@ -15,9 +15,30 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   dbe = edm::Service<DQMStore>().operator->();
   dbe->setVerbose(0);
 
-   triggerObject_ = pset_.getParameter<edm::InputTag>("triggerobject");
-   verbosity_ = pset_.getUntrackedParameter<unsigned int>("verbosity",0);
+  // set global parameters
+  triggerObject_ = pset_.getParameter<edm::InputTag>("triggerobject");
+  verbosity_ = pset_.getUntrackedParameter<unsigned int>("verbosity",0);
+  genEtaAcc_ = pset.getParameter<double>("genEtaAcc");
+  genEtAcc_ = pset.getParameter<double>("genEtAcc");
+  isData_ = pset.getParameter<bool>("isData");
+  ptMax_ = pset.getUntrackedParameter<double>("PtMax",1000.);
+  ptMin_ = pset.getUntrackedParameter<double>("PtMin",0.);
+  etaMax_ = pset.getUntrackedParameter<double>("EtaMax", 2.7);
+  phiMax_ = pset.getUntrackedParameter<double>("PhiMax", 3.15);
+  nbins_ = pset.getUntrackedParameter<unsigned int>("Nbins",40);
+  minEtForEtaEffPlot_ = pset.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15);
+  useHumanReadableHistTitles_ = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
+  mcMatchedOnly_ = pset.getUntrackedParameter<bool>("mcMatchedOnly", true);
+  noPhiPlots_ = pset.getUntrackedParameter<bool>("noPhiPlots", true);
+  noIsolationPlots_ = pset.getUntrackedParameter<bool>("noIsolationPlots", true);
 
+  histoFillerEle      = new HistoFiller<reco::ElectronCollection>(this);
+  histoFillerPho      = new HistoFiller<reco::RecoEcalCandidateCollection>(this);
+  histoFillerClu      = new HistoFiller<reco::RecoEcalCandidateCollection>(this);
+  histoFillerL1Iso    = new HistoFiller<l1extra::L1EmParticleCollection>(this);
+  histoFillerL1NonIso = new HistoFiller<l1extra::L1EmParticleCollection>(this);
+
+  // consumes
   genParticles_token = consumes<edm::View<reco::Candidate> >(edm::InputTag("genParticles", "", "SIM"));
   triggerObject_token = consumes<trigger::TriggerEventWithRefs>(triggerObject_);
   hltResults_token = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", triggerObject_.process()));
@@ -26,7 +47,6 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   gencutColl_fidGammaJet_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialGammaJet"));
   gencutColl_fidDiGamma_token = mayConsume<edm::View<reco::Candidate> >(edm::InputTag("fiducialDiGamma"));
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //       method called once each job just before starting event loop          //
@@ -81,8 +101,6 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 	    paramSet.addUntrackedParameter("pathIndex", hltConfig_.triggerIndex(pathName));
 	    paramSet.addParameter("@module_label", hltConfig_.removeVersion(pathName) + "_DQM");
 	    //paramSet.addParameter("@module_label", pathName + "_DQM");
-	    paramSet.addParameter("genEtaAcc", pset.getParameter<double>("genEtaAcc"));
-	    paramSet.addParameter("genEtAcc", pset.getParameter<double>("genEtAcc"));
 
 	    // plotting parameters (untracked because they don't affect the physics)
             double genEtMin = getPrimaryEtCut(pathName);
@@ -96,8 +114,8 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 
             // set the x axis of the et plots to some reasonable value based
             // on the primary et cut determined from the path name
-            double ptMax = pset.getUntrackedParameter<double>("PtMax",1000.);
-            double ptMin = pset.getUntrackedParameter<double>("PtMin",0.);
+            double ptMax = ptMax_;
+            double ptMin = ptMin_;
             if (ptMax < (1.2*genEtMin)) {
                paramSet.addUntrackedParameter<double>("PtMax", (10*ceil(0.12 * genEtMin)));
                paramSet.addUntrackedParameter<double>("PtMin", (10*ceil(0.12 * genEtMin) - ptMax + ptMin));
@@ -106,15 +124,6 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
                paramSet.addUntrackedParameter<double>("PtMax", ptMax);
                paramSet.addUntrackedParameter<double>("PtMin", ptMin);
             }
-
-	    paramSet.addUntrackedParameter("EtaMax", pset.getUntrackedParameter<double>("EtaMax", 2.7));
-	    paramSet.addUntrackedParameter("PhiMax", pset.getUntrackedParameter<double>("PhiMax", 3.15));
-	    paramSet.addUntrackedParameter("Nbins", pset.getUntrackedParameter<unsigned int>("Nbins",40));
-	    paramSet.addUntrackedParameter("minEtForEtaEffPlot", pset.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15));
-	    paramSet.addUntrackedParameter("useHumanReadableHistTitles", pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false));
-            paramSet.addUntrackedParameter("mcMatchedOnly", pset.getUntrackedParameter<bool>("mcMatchedOnly", true));
-            paramSet.addUntrackedParameter("noPhiPlots", pset.getUntrackedParameter<bool>("noPhiPlots", true));
-            paramSet.addUntrackedParameter("noIsolationPlots", pset.getUntrackedParameter<bool>("noIsolationPlots", true));
 
 	    //preselction cuts 
             switch (j) {
@@ -151,7 +160,7 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 	    //--------------------
 
             // TODO: extend this
-            if (pset.getParameter<bool>("isData")) paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("gsfElectrons"));
+            if (isData_) paramSet.addParameter<edm::InputTag>("cutcollection", edm::InputTag("gsfElectrons"));
 
             std::vector<edm::ParameterSet> filterVPSet;
             edm::ParameterSet filterPSet;
@@ -318,37 +327,37 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
          //   theHLTCollectionLabels is a vector of InputTags      //
          //    from the configuration file.                        //
          ////////////////////////////////////////////////////////////
-  // Et & eta distributions
-  std::vector<MonitorElement*> etahist;
-  std::vector<MonitorElement*> phihist;
-  std::vector<MonitorElement*> ethist;
-  std::vector<MonitorElement*> etahistmatch;
-  std::vector<MonitorElement*> phihistmatch;
-  std::vector<MonitorElement*> ethistmatch;
-  std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
-  std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
-  std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
-  // Isolation distributions
-  std::vector<MonitorElement*> etahistiso;
-  std::vector<MonitorElement*> phihistiso;
-  std::vector<MonitorElement*> ethistiso;
-  std::vector<MonitorElement*> etahistisomatch;
-  std::vector<MonitorElement*> phihistisomatch;
-  std::vector<MonitorElement*> ethistisomatch;
-  std::vector<MonitorElement*> histEtIsoOfHltObjMatchToGen; 
-  std::vector<MonitorElement*> histEtaIsoOfHltObjMatchToGen;
-  std::vector<MonitorElement*> histPhiIsoOfHltObjMatchToGen;
-  // Plots of efficiency per step
-  MonitorElement* total;
-  MonitorElement* totalmatch;
-  //generator histograms
-  MonitorElement* etgen;
-  MonitorElement* etagen;
-  MonitorElement* phigen;
+         // Et & eta distributions
+         std::vector<MonitorElement*> etahist;
+         std::vector<MonitorElement*> phihist;
+         std::vector<MonitorElement*> ethist;
+         std::vector<MonitorElement*> etahistmatch;
+         std::vector<MonitorElement*> phihistmatch;
+         std::vector<MonitorElement*> ethistmatch;
+         std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
+         std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
+         std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
+         // Isolation distributions
+         std::vector<MonitorElement*> etahistiso;
+         std::vector<MonitorElement*> phihistiso;
+         std::vector<MonitorElement*> ethistiso;
+         std::vector<MonitorElement*> etahistisomatch;
+         std::vector<MonitorElement*> phihistisomatch;
+         std::vector<MonitorElement*> ethistisomatch;
+         std::vector<MonitorElement*> histEtIsoOfHltObjMatchToGen; 
+         std::vector<MonitorElement*> histEtaIsoOfHltObjMatchToGen;
+         std::vector<MonitorElement*> histPhiIsoOfHltObjMatchToGen;
+         // Plots of efficiency per step
+         MonitorElement* total;
+         MonitorElement* totalmatch;
+         //generator histograms
+         MonitorElement* etgen;
+         MonitorElement* etagen;
+         MonitorElement* phigen;
       
          std::string histName="total_eff";
          std::string histTitle = "total events passing";
-         if (!mcMatchedOnly) {
+         if (!mcMatchedOnly_) {
             // This plot will have bins equal to 2+(number of
             //        HLTCollectionLabels in the config file)
             total = dbe->book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
@@ -382,13 +391,13 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
        
          histName = "gen_et";
          histTitle= "E_{T} of " + pdgIdString + "s" ;
-         etgen =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+         etgen =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
          histName = "gen_eta";
          histTitle= "#eta of "+ pdgIdString +"s " ;
-         etagen = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+         etagen = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
          histName = "gen_phi";
          histTitle= "#phi of "+ pdgIdString +"s " ;
-         if (!noPhiPlots) phigen = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+         if (!noPhiPlots_) phigen = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
        
          
        
@@ -398,7 +407,7 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
        
          // Determine what strings to use for histogram titles
          std::vector<std::string> HltHistTitle;
-         if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles ) {
+         if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles_ ) {
            HltHistTitle = theHLTCollectionHumanNames;
          } else {
            for (unsigned int i =0; i < numOfHLTCollectionLabels; i++) {
@@ -407,24 +416,24 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
          }
         
          for(unsigned int i = 0; i< numOfHLTCollectionLabels ; i++){
-           if (!mcMatchedOnly) {
+           if (!mcMatchedOnly_) {
               // Et distribution of HLT objects passing filter i
               histName = theHLTCollectionLabels[i].label()+"et_all";
               histTitle = HltHistTitle[i]+" Et (ALL)";
-              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
               ethist.push_back(tmphisto);
               
               // Eta distribution of HLT objects passing filter i
               histName = theHLTCollectionLabels[i].label()+"eta_all";
               histTitle = HltHistTitle[i]+" #eta (ALL)";
-              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+              tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
               etahist.push_back(tmphisto);          
 
-              if (!noPhiPlots) {
+              if (!noPhiPlots_) {
                 // Phi distribution of HLT objects passing filter i
                 histName = theHLTCollectionLabels[i].label()+"phi_all";
                 histTitle = HltHistTitle[i]+" #phi (ALL)";
-                tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+                tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
                 phihist.push_back(tmphisto);
               }
        
@@ -432,20 +441,20 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
               // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
               histName  = theHLTCollectionLabels[i].label()+"et";
               histTitle = HltHistTitle[i]+" Et";
-              tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+              tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
               histEtOfHltObjMatchToGen.push_back(tmphisto);
        
               // eta distribution of HLT object that is closest delta-R match to sorted gen particle(s)
               histName  = theHLTCollectionLabels[i].label()+"eta";
               histTitle = HltHistTitle[i]+" eta";
-              tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+              tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
               histEtaOfHltObjMatchToGen.push_back(tmphisto);
        
-              if (!noPhiPlots) {
+              if (!noPhiPlots_) {
                 // phi distribution of HLT object that is closest delta-R match to sorted gen particle(s)
                 histName  = theHLTCollectionLabels[i].label()+"phi";
                 histTitle = HltHistTitle[i]+" phi";
-                tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+                tmphisto  = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
                 histPhiOfHltObjMatchToGen.push_back(tmphisto);
               }
           }
@@ -453,27 +462,27 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
            // Et distribution of gen object matching HLT object passing filter i
            histName = theHLTCollectionLabels[i].label()+"et_MC_matched";
            histTitle = HltHistTitle[i]+" Et (MC matched)";
-           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax);
+           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax);
            ethistmatch.push_back(tmphisto);
            
            // Eta distribution of gen object matching HLT object passing filter i
            histName = theHLTCollectionLabels[i].label()+"eta_MC_matched";
            histTitle = HltHistTitle[i]+" #eta (MC matched)";
-           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax);
+           tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_);
            etahistmatch.push_back(tmphisto);
        
-           if (!noPhiPlots) {
+           if (!noPhiPlots_) {
              // Phi distribution of gen object matching HLT object passing filter i
              histName = theHLTCollectionLabels[i].label()+"phi_MC_matched";
              histTitle = HltHistTitle[i]+" #phi (MC matched)";
-             tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax);
+             tmphisto =  dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
              phihistmatch.push_back(tmphisto);
            }
        
        
            if (!plotiso[i]) {
              tmpiso = NULL;
-             if (!mcMatchedOnly) {
+             if (!mcMatchedOnly_) {
                 etahistiso.push_back(tmpiso);
                 phihistiso.push_back(tmpiso);
                 ethistiso.push_back(tmpiso);
@@ -485,64 +494,64 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
              phihistisomatch.push_back(tmpiso);
              ethistisomatch.push_back(tmpiso);
            } else {
-             if (!mcMatchedOnly) {
+             if (!mcMatchedOnly_) {
                 // 2D plot: Isolation values vs eta for all objects
                 histName  = theHLTCollectionLabels[i].label()+"eta_isolation_all";
                 histTitle = HltHistTitle[i]+" isolation vs #eta (all)";
-                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
                 etahistiso.push_back(tmpiso);
        
                 // 2D plot: Isolation values vs phi for all objects
                 histName  = theHLTCollectionLabels[i].label()+"phi_isolation_all";
                 histTitle = HltHistTitle[i]+" isolation vs #phi (all)";
-                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
                 phihistiso.push_back(tmpiso);
        
                 // 2D plot: Isolation values vs et for all objects
                 histName  = theHLTCollectionLabels[i].label()+"et_isolation_all";
                 histTitle = HltHistTitle[i]+" isolation vs Et (all)";
-                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
                 ethistiso.push_back(tmpiso);
         
                 // 2D plot: Isolation values vs eta for HLT object that 
                 // is closest delta-R match to sorted gen particle(s)
                 histName  = theHLTCollectionLabels[i].label()+"eta_isolation";
                 histTitle = HltHistTitle[i]+" isolation vs #eta";
-                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
                 histEtaIsoOfHltObjMatchToGen.push_back(tmpiso);
        
                 // 2D plot: Isolation values vs phi for HLT object that
                 // is closest delta-R match to sorted gen particle(s)
                 histName  = theHLTCollectionLabels[i].label()+"phi_isolation";
                 histTitle = HltHistTitle[i]+" isolation vs #phi";
-                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
                 histPhiIsoOfHltObjMatchToGen.push_back(tmpiso);
        
                 // 2D plot: Isolation values vs et for HLT object that 
                 // is closest delta-R match to sorted gen particle(s)
                 histName  = theHLTCollectionLabels[i].label()+"et_isolation";
                 histTitle = HltHistTitle[i]+" isolation vs Et";
-                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+                tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
                 histEtIsoOfHltObjMatchToGen.push_back(tmpiso);
              }
        
              // 2D plot: Isolation values vs eta for matched objects
              histName  = theHLTCollectionLabels[i].label()+"eta_isolation_MC_matched";
              histTitle = HltHistTitle[i]+" isolation vs #eta (mc matched)";
-             tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotEtaMax,plotEtaMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+             tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-etaMax_, etaMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
              etahistisomatch.push_back(tmpiso);
        
              // 2D plot: Isolation values vs phi for matched objects
              histName  = theHLTCollectionLabels[i].label()+"phi_isolation_MC_matched";
              histTitle = HltHistTitle[i]+" isolation vs #phi (mc matched)";
-             tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,-plotPhiMax,plotPhiMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+             tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_,nbins_,plotBounds[i].first,plotBounds[i].second);
              phihistisomatch.push_back(tmpiso);
        
        
              // 2D plot: Isolation values vs et for matched objects
              histName  = theHLTCollectionLabels[i].label()+"et_isolation_MC_matched";
              histTitle = HltHistTitle[i]+" isolation vs Et (mc matched)";
-             tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),plotBins,plotPtMin,plotPtMax,plotBins,plotBounds[i].first,plotBounds[i].second);
+             tmpiso    = dbe->book2D(histName.c_str(),histTitle.c_str(),nbins_,plotPtMin,plotPtMax,nbins_,plotBounds[i].first,plotBounds[i].second);
              ethistisomatch.push_back(tmpiso);
        
            } // END of HLT histograms
@@ -553,32 +562,32 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
             // The HLT config has actually changed wrt the previous Run, hence rebook your
             // histograms or do anything else dependent on the revised HLT config
          }
-  // Et & eta distributions
-  etahists.push_back(etahist);
-  phihists.push_back(phihist);
-  ethists.push_back(ethist);
-  etahistmatchs.push_back(etahistmatch);
-  phihistmatchs.push_back(phihistmatch);
-  ethistmatchs.push_back(ethistmatch);
-  histEtOfHltObjMatchToGens.push_back(histEtOfHltObjMatchToGen);
-  histEtaOfHltObjMatchToGens.push_back(histEtaOfHltObjMatchToGen);
-  histPhiOfHltObjMatchToGens.push_back(histPhiOfHltObjMatchToGen);
-  // Isolation distributions
-  etahistisos.push_back(etahistiso);
-  phihistisos.push_back(phihistiso);
-  ethistisos.push_back(ethistiso);
-  etahistisomatchs.push_back(etahistisomatch);
-  phihistisomatchs.push_back(phihistisomatch);
-  ethistisomatchs.push_back(ethistisomatch);
-  histEtIsoOfHltObjMatchToGens.push_back(histEtIsoOfHltObjMatchToGen); 
-  histEtaIsoOfHltObjMatchToGens.push_back(histEtaIsoOfHltObjMatchToGen);
-  histPhiIsoOfHltObjMatchToGens.push_back(histPhiIsoOfHltObjMatchToGen);
+         // Et & eta distributions
+         etahists.push_back(etahist);
+         phihists.push_back(phihist);
+         ethists.push_back(ethist);
+         etahistmatchs.push_back(etahistmatch);
+         phihistmatchs.push_back(phihistmatch);
+         ethistmatchs.push_back(ethistmatch);
+         histEtOfHltObjMatchToGens.push_back(histEtOfHltObjMatchToGen);
+         histEtaOfHltObjMatchToGens.push_back(histEtaOfHltObjMatchToGen);
+         histPhiOfHltObjMatchToGens.push_back(histPhiOfHltObjMatchToGen);
+         // Isolation distributions
+         etahistisos.push_back(etahistiso);
+         phihistisos.push_back(phihistiso);
+         ethistisos.push_back(ethistiso);
+         etahistisomatchs.push_back(etahistisomatch);
+         phihistisomatchs.push_back(phihistisomatch);
+         ethistisomatchs.push_back(ethistisomatch);
+         histEtIsoOfHltObjMatchToGens.push_back(histEtIsoOfHltObjMatchToGen); 
+         histEtaIsoOfHltObjMatchToGens.push_back(histEtaIsoOfHltObjMatchToGen);
+         histPhiIsoOfHltObjMatchToGens.push_back(histPhiIsoOfHltObjMatchToGen);
 
-  totals.push_back(total);
-  totalmatchs.push_back(totalmatch);
-  etgens.push_back(etgen);
-  etagens.push_back(etagen);
-  phigens.push_back(phigen);
+         totals.push_back(total);
+         totalmatchs.push_back(totalmatch);
+         etgens.push_back(etgen);
+         etagens.push_back(etagen);
+         phigens.push_back(phigen);
       } else {
          // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
          // with the file and/or code and needs to be investigated!
@@ -642,7 +651,7 @@ bool EmDQM::checkGeneratedParticlesRequirement(const edm::Event & event)
   // bool keepEvent = true;
    for (unsigned int i = 0 ; i < gencut_ ; i++ ) {
      bool inECALgap = fabs(allSortedGenParticles[i].eta()) > 1.4442 && fabs(allSortedGenParticles[i].eta()) < 1.556;
-     if ( (fabs(allSortedGenParticles[i].eta()) > genEtaAcc) || inECALgap ) {
+     if ( (fabs(allSortedGenParticles[i].eta()) > genEtaAcc_) || inECALgap ) {
        //edm::LogWarning("EmDQM") << "Throwing event away. Gen particle with pdgId="<< allSortedGenParticles[i].pdgId() <<"; et="<< allSortedGenParticles[i].et() <<"; and eta="<< allSortedGenParticles[i].eta() <<" beyond acceptance.";
        return false;
      }
@@ -706,7 +715,6 @@ bool EmDQM::checkRecoParticlesRequirement(const edm::Event & event)
    return allSortedReferenceParticles.size() >= gencut_;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                     method called to for each event                        //
 ////////////////////////////////////////////////////////////////////////////////
@@ -742,7 +750,6 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
       continue;
     }
 
-
     // fill L1 and HLT info
     // get objects possed by each filter
     edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
@@ -754,24 +761,20 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     }
 
     // Were enough high energy gen particles found?
-    if (event.isRealData())
-      {
-        // running validation on data.
-        // TODO: we should check that the entire
-        //       run is on the same type (all data or
-        //       all MC). Otherwise one gets
-        //       uninterpretable results...
-        if (!checkRecoParticlesRequirement(event))
-          continue;
-      }
-    else
-      {
-        // MC
-        if (!checkGeneratedParticlesRequirement(event))
-          // if no, throw event away
-          continue;
-      }
-
+    if (event.isRealData()) {
+      // running validation on data.
+      // TODO: we should check that the entire
+      //       run is on the same type (all data or
+      //       all MC). Otherwise one gets
+      //       uninterpretable results...
+      if (!checkRecoParticlesRequirement(event))
+        continue;
+    }
+    else { // MC
+      // if no, throw event away
+      if (!checkGeneratedParticlesRequirement(event))
+        continue;
+    }
 
     // It was an event worth keeping. Continue.
 
@@ -779,7 +782,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     //  Fill the bin labeled "Total"                          //
     //   This will be the number of events looked at.         //
     ////////////////////////////////////////////////////////////
-    if (!mcMatchedOnly) totals.at(vPos)->Fill(numOfHLTCollectionLabels+0.5);
+    if (!mcMatchedOnly_) totals.at(vPos)->Fill(numOfHLTCollectionLabels+0.5);
     totalmatchs.at(vPos)->Fill(numOfHLTCollectionLabels+0.5);
 
     ////////////////////////////////////////////////////////////
@@ -806,12 +809,12 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
 
     for (unsigned int i = 0 ; i < gencut_ ; i++ ) {
       etgens.at(vPos)->Fill( sortedGen[i].et()  ); //validity has been implicitily checked by the cut on gencut_ above
-      if (sortedGen[i].et() > plotMinEtForEtaEffPlot) {
+      if (sortedGen[i].et() > minEtForEtaEffPlot_) {
         etagens.at(vPos)->Fill( sortedGen[i].eta() );
-        if (!noPhiPlots) phigens.at(vPos)->Fill( sortedGen[i].phi() );
+        if (!noPhiPlots_) phigens.at(vPos)->Fill( sortedGen[i].phi() );
       }
     } // END of loop over Generated particles
-    if (gencut_ >= reqNum && !mcMatchedOnly) totals.at(vPos)->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
+    if (gencut_ >= reqNum && !mcMatchedOnly_) totals.at(vPos)->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
     if (gencut_ >= reqNum) totalmatchs.at(vPos)->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
             
     bool accepted = true;  // flags that the event has been accepted by all filters before
@@ -837,15 +840,20 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
       switch(theHLTOutputTypes[n]) 
       {
         case trigger::TriggerL1NoIsoEG: // Non-isolated Level 1
-          fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,vPos,n,sortedGenForFilter,accepted);break;
+          histoFillerL1NonIso->fillHistos(triggerObj,event,vPos,n,sortedGenForFilter,accepted);
+          break;
         case trigger::TriggerL1IsoEG: // Isolated Level 1
-          fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,vPos,n,sortedGenForFilter,accepted);break;
+          histoFillerL1Iso->fillHistos(triggerObj,event,vPos,n,sortedGenForFilter,accepted);
+          break;
         case trigger::TriggerPhoton: // Photon 
-          fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,vPos,n,sortedGenForFilter,accepted);break;
+          histoFillerPho->fillHistos(triggerObj,event,vPos,n,sortedGenForFilter,accepted);
+          break;
         case trigger::TriggerElectron: // Electron 
-          fillHistos<reco::ElectronCollection>(triggerObj,event,vPos,n,sortedGenForFilter,accepted);break;
+          histoFillerEle->fillHistos(triggerObj,event,vPos,n,sortedGenForFilter,accepted);
+          break;
         case trigger::TriggerCluster: // TriggerCluster
-          fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,vPos,n,sortedGenForFilter,accepted);break;
+          histoFillerClu->fillHistos(triggerObj,event,vPos,n,sortedGenForFilter,accepted);
+          break;
         default: 
           throw(cms::Exception("Release Validation Error") << "HLT output type not implemented: theHLTOutputTypes[n]" );
       }
@@ -857,31 +865,30 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // fillHistos                                                                 //
 //   Called by analyze method.                                                //
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int vPos, unsigned int n,std::vector<reco::Particle>& sortedGen, bool &accepted)
+template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int vPos, unsigned int n,std::vector<reco::Particle>& sortedGen, bool &accepted)
 {
   std::vector<edm::Ref<T> > recoecalcands;
-  if ( ( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if available
-    hltCollectionLabelsMissed.insert(theHLTCollectionLabels[n].encode());
+  if ( ( triggerObj->filterIndex(dqm->theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if available
+    dqm->hltCollectionLabelsMissed.insert(dqm->theHLTCollectionLabels[n].encode());
     accepted = false;
     return;
   }
 
-  hltCollectionLabelsFound.insert(theHLTCollectionLabels[n].encode());
+  dqm->hltCollectionLabelsFound.insert(dqm->theHLTCollectionLabels[n].encode());
 
   ////////////////////////////////////////////////////////////
   //      Retrieve saved filter objects                     //
   ////////////////////////////////////////////////////////////
-  triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),theHLTOutputTypes[n],recoecalcands);
+  triggerObj->getObjects(triggerObj->filterIndex(dqm->theHLTCollectionLabels[n]),dqm->theHLTOutputTypes[n],recoecalcands);
   //Danger: special case, L1 non-isolated
   // needs to be merged with L1 iso
-  if (theHLTOutputTypes[n] == trigger::TriggerL1NoIsoEG){
+  if (dqm->theHLTOutputTypes[n] == trigger::TriggerL1NoIsoEG){
     std::vector<edm::Ref<T> > isocands;
-    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),trigger::TriggerL1IsoEG,isocands);
+    triggerObj->getObjects(triggerObj->filterIndex(dqm->theHLTCollectionLabels[n]),trigger::TriggerL1IsoEG,isocands);
     if (isocands.size()>0) 
       {
         for (unsigned int i=0; i < isocands.size(); i++)
@@ -896,8 +903,8 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   }
 
   //if (recoecalcands.size() >= reqNum ) 
-  if (recoecalcands.size() >= nCandCuts.at(n) && !mcMatchedOnly) 
-    totals.at(vPos)->Fill(n+0.5);
+  if (recoecalcands.size() >= dqm->nCandCuts.at(n) && !dqm->mcMatchedOnly_) 
+    dqm->totals.at(vPos)->Fill(n+0.5);
 
   ///////////////////////////////////////////////////
   // check for validity                            //
@@ -905,19 +912,19 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   ///////////////////////////////////////////////////
   for (unsigned int j=0; j<recoecalcands.size(); j++){
     if(!( recoecalcands.at(j).isAvailable())){
-      if (verbosity_ >= OUTPUT_ERRORS)
-         edm::LogError("EmDQMInvalidRefs") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs. Invalid refs for: " << theHLTCollectionLabels[n].label() << ". The collection that this module uses may has been dropped in the event.";
+      if (dqm->verbosity_ >= dqm->OUTPUT_ERRORS)
+         edm::LogError("EmDQMInvalidRefs") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs. Invalid refs for: " << dqm->theHLTCollectionLabels[n].label() << ". The collection that this module uses may has been dropped in the event.";
       return;
     }
   }
 
-  if (!mcMatchedOnly) {
+  if (!dqm->mcMatchedOnly_) {
     ////////////////////////////////////////////////////////////
     // Loop over the Generated Particles, and find the        //
     // closest HLT object match.                              //
     ////////////////////////////////////////////////////////////
     //for (unsigned int i=0; i < gencut_; i++) {
-    for (unsigned int i=0; i < nCandCuts.at(n); i++) {
+    for (unsigned int i=0; i < dqm->nCandCuts.at(n); i++) {
       math::XYZVector currentGenParticleMomentum = sortedGen[i].momentum();
 
       float closestDeltaR = 0.5;
@@ -934,22 +941,22 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       // If an HLT object was found within some delta-R
       // of this gen particle, store it in a histogram
       if ( closestEcalCandIndex >= 0 ) {
-        histEtOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->et()  );
-        histEtaOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->eta() );
-        if (!noPhiPlots) histPhiOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->phi() );
+        dqm->histEtOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->et()  );
+        dqm->histEtaOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->eta() );
+        if (!dqm->noPhiPlots_) dqm->histPhiOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->phi() );
         
         // Also store isolation info
-        if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
-          if (plotiso[n+1] ){  // only plot if requested in config
-            for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+        if (n+1 < dqm->numOfHLTCollectionLabels){ // can't plot beyond last
+          if (dqm->plotiso[n+1] ){  // only plot if requested in config
+            for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
               edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-              iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+              iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
               if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
                 typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestEcalCandIndex]);
                 if (mapi!=depMap->end()) {  // found candidate in isolation map! 
-                  histEtaIsoOfHltObjMatchToGens.at(vPos).at(n+1)->Fill( recoecalcands[closestEcalCandIndex]->eta(),mapi->val);
-                  histPhiIsoOfHltObjMatchToGens.at(vPos).at(n+1)->Fill( recoecalcands[closestEcalCandIndex]->phi(),mapi->val);
-                  histEtIsoOfHltObjMatchToGens.at(vPos).at(n+1) ->Fill( recoecalcands[closestEcalCandIndex]->et(), mapi->val);
+                  dqm->histEtaIsoOfHltObjMatchToGens.at(vPos).at(n+1)->Fill( recoecalcands[closestEcalCandIndex]->eta(),mapi->val);
+                  dqm->histPhiIsoOfHltObjMatchToGens.at(vPos).at(n+1)->Fill( recoecalcands[closestEcalCandIndex]->phi(),mapi->val);
+                  dqm->histEtIsoOfHltObjMatchToGens.at(vPos).at(n+1) ->Fill( recoecalcands[closestEcalCandIndex]->et(), mapi->val);
                 }
               }
             }
@@ -982,25 +989,25 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       //if (numOfHLTobjectsMatched >= gencut_) foundAllMatches=true;
 
       // Fill HLT object histograms
-      ethists.at(vPos).at(n) ->Fill(recoecalcands[i]->et() );
-      etahists.at(vPos).at(n)->Fill(recoecalcands[i]->eta() );
-      if (!noPhiPlots) phihists.at(vPos).at(n)->Fill(recoecalcands[i]->phi() );
+      dqm->ethists.at(vPos).at(n) ->Fill(recoecalcands[i]->et() );
+      dqm->etahists.at(vPos).at(n)->Fill(recoecalcands[i]->eta() );
+      if (!dqm->noPhiPlots_) dqm->phihists.at(vPos).at(n)->Fill(recoecalcands[i]->phi() );
 
       ////////////////////////////////////////////////////////////
       //  Plot isolation variables (show the not-yet-cut        //
       //  isolation, i.e. associated to next filter)            //
       ////////////////////////////////////////////////////////////
-      if ( n+1 < numOfHLTCollectionLabels ) { // can't plot beyond last
-        if (plotiso[n+1]) {
-          for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+      if ( n+1 < dqm->numOfHLTCollectionLabels ) { // can't plot beyond last
+        if (dqm->plotiso[n+1]) {
+          for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
             edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-            iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+            iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
             if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
               typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
               if (mapi!=depMap->end()){  // found candidate in isolation map! 
-                etahistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->eta(),mapi->val);
-                phihistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->phi(),mapi->val);
-                ethistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->et(),mapi->val);
+                dqm->etahistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->eta(),mapi->val);
+                dqm->phihistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->phi(),mapi->val);
+                dqm->ethistisos.at(vPos).at(n+1)->Fill(recoecalcands[i]->et(),mapi->val);
               }
             }
           }
@@ -1009,14 +1016,13 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
     }
   }
 
-
   ////////////////////////////////////////////////////////////
   //        Fill mc matched objects into histograms         //
   ////////////////////////////////////////////////////////////
-  unsigned int mtachedMcParts = 0;
+  unsigned int matchedMcParts = 0;
   float mindist=0.3;
   if(n==0) mindist=0.5; //low L1-resolution => allow wider matching 
-  for(unsigned int i =0; i < nCandCuts.at(n); ++i){
+  for(unsigned int i =0; i < dqm->nCandCuts.at(n); ++i){
     //match generator candidate
     bool matchThis= false;
     math::XYZVector candDir=sortedGen[i].momentum();
@@ -1031,7 +1037,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       if (closestDr > mindist) { // it's not really a "match" if it's that far away
         closest = -1;
       } else {
-        mtachedMcParts++;
+        matchedMcParts++;
         matchThis = true;
       }
     }
@@ -1040,27 +1046,27 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
       continue; // only plot matched candidates
     }
     // fill coordinates of mc particle matching trigger object
-    ethistmatchs.at(vPos).at(n) ->Fill( sortedGen[i].et()  );
-    if (sortedGen[i].et() > plotMinEtForEtaEffPlot) {
-      etahistmatchs.at(vPos).at(n)->Fill( sortedGen[i].eta() );
-      if (!noPhiPlots) phihistmatchs.at(vPos).at(n)->Fill( sortedGen[i].phi() );
+    dqm->ethistmatchs.at(vPos).at(n) ->Fill( sortedGen[i].et()  );
+    if (sortedGen[i].et() > dqm->minEtForEtaEffPlot_) {
+      dqm->etahistmatchs.at(vPos).at(n)->Fill( sortedGen[i].eta() );
+      if (!dqm->noPhiPlots_) dqm->phihistmatchs.at(vPos).at(n)->Fill( sortedGen[i].phi() );
     }
     ////////////////////////////////////////////////////////////
     //  Plot isolation variables (show the not-yet-cut        //
     //  isolation, i.e. associated to next filter)            //
     ////////////////////////////////////////////////////////////
-    if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
-      if (plotiso[n+1] ){  // only plot if requested in config
-        for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+    if (n+1 < dqm->numOfHLTCollectionLabels){ // can't plot beyond last
+      if (dqm->plotiso[n+1] ){  // only plot if requested in config
+        for (unsigned int j =  0 ; j < dqm->isoNames[n+1].size() ;j++  ){
           edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap; 
-          iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+          iEvent.getByLabel(dqm->isoNames[n+1].at(j),depMap);
           if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
             typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closest]);
             if (mapi!=depMap->end()){  // found candidate in isolation map!
               // Only make efficiency plot using photons with some min Et
-              etahistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].eta(),mapi->val);
-              phihistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].phi(),mapi->val);
-              ethistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].et(),mapi->val);
+              dqm->etahistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].eta(),mapi->val);
+              dqm->phihistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].phi(),mapi->val);
+              dqm->ethistisomatchs.at(vPos).at(n+1)->Fill(sortedGen[i].et(),mapi->val);
             }
           }
         }
@@ -1069,8 +1075,8 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
   }
   // fill total mc matched efficiency
 
-  if (mtachedMcParts >= nCandCuts.at(n) && accepted == true)
-    totalmatchs.at(vPos)->Fill(n+0.5);
+  if (matchedMcParts >= dqm->nCandCuts.at(n) && accepted == true)
+    dqm->totalmatchs.at(vPos)->Fill(n+0.5);
 }
 
 void 
@@ -1114,18 +1120,16 @@ EmDQM::endRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
    }
 }
 
+//////////////////////////////////////////////////////////////////////////////// 
+//      method called once each job just after ending the event loop          //
+//////////////////////////////////////////////////////////////////////////////// 
+void EmDQM::endJob()
+{
 
-
-
-
-
-
-
-
-
+}
 
 //----------------------------------------------------------------------
-
+// find egamma trigger paths from trigger name
 std::vector<std::vector<std::string> >
 EmDQM::findEgammaPaths()
 {
@@ -1188,7 +1192,7 @@ EmDQM::findEgammaPaths()
 }
 
 //----------------------------------------------------------------------
-
+// get the names of filters of a given path
 std::vector<std::string>
 EmDQM::getFilterModules(const std::string& path)
 {
@@ -1213,7 +1217,7 @@ EmDQM::getFilterModules(const std::string& path)
 }
 
 //----------------------------------------------------------------------
-
+// get the primary Et cut from the trigger name
 double
 EmDQM::getPrimaryEtCut(const std::string& path)
 {
@@ -1498,7 +1502,6 @@ EmDQM::makePSetForEgammaGenericQuadraticFilter(const std::string& moduleName)
   return edm::ParameterSet();
 }
 
-
 //----------------------------------------------------------------------
 
 edm::ParameterSet
@@ -1577,20 +1580,10 @@ void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt)
   // parameters for generator study
   reqNum    = psetIt->getParameter<unsigned int>("reqNum");
   pdgGen    = psetIt->getParameter<int>("pdgGen");
-  genEtaAcc = psetIt->getParameter<double>("genEtaAcc");
-  genEtAcc  = psetIt->getParameter<double>("genEtAcc");
   // plotting parameters (untracked because they don't affect the physics)
   plotEtMin  = psetIt->getUntrackedParameter<double>("genEtMin",0.);
   plotPtMin  = psetIt->getUntrackedParameter<double>("PtMin",0.);
   plotPtMax  = psetIt->getUntrackedParameter<double>("PtMax",1000.);
-  plotEtaMax = psetIt->getUntrackedParameter<double>("EtaMax", 2.7);
-  plotPhiMax = psetIt->getUntrackedParameter<double>("PhiMax", 3.15);
-  plotBins   = psetIt->getUntrackedParameter<unsigned int>("Nbins",40);
-  plotMinEtForEtaEffPlot = psetIt->getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15);
-  useHumanReadableHistTitles = psetIt->getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
-  mcMatchedOnly = psetIt->getUntrackedParameter<bool>("mcMatchedOnly", true);
-  noPhiPlots = psetIt->getUntrackedParameter<bool>("noPhiPlots", true);
-  noIsolationPlots = psetIt->getUntrackedParameter<bool>("noIsolationPlots", true);
  
   //preselction cuts 
   gencutCollection_= psetIt->getParameter<edm::InputTag>("cutcollection");
@@ -1626,12 +1619,35 @@ void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt)
     assert(bounds.size() == 2);
     plotBounds.push_back(std::pair<double,double>(bounds[0],bounds[1]));
     isoNames.push_back(filterconf->getParameter<std::vector<edm::InputTag> >("IsoCollections"));
+
+    //for (unsigned int i=0; i<isoNames.back().size(); i++) {
+    //  switch(theHLTOutputTypes.back())  {
+    //  case trigger::TriggerL1NoIsoEG:
+    //    histoFillerL1NonIso->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<l1extra::L1EmParticleCollection , float>>>(isoNames.back()[i]));
+    //    break;
+    //  case trigger::TriggerL1IsoEG: // Isolated Level 1
+    //    histoFillerL1Iso->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<l1extra::L1EmParticleCollection , float>>>(isoNames.back()[i]));
+    //    break;
+    //  case trigger::TriggerPhoton: // Photon 
+    //    histoFillerPho->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<reco::RecoEcalCandidateCollection , float>>>(isoNames.back()[i]));
+    //    break;
+    //  case trigger::TriggerElectron: // Electron 
+    //    histoFillerEle->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<reco::ElectronCollection , float>>>(isoNames.back()[i]));
+    //    break;
+    //  case trigger::TriggerCluster: // TriggerCluster
+    //    histoFillerClu->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<reco::RecoEcalCandidateCollection , float>>>(isoNames.back()[i]));
+    //    break;
+    //  default:
+    //    throw(cms::Exception("Release Validation Error") << "HLT output type not implemented: theHLTOutputTypes[n]" );
+    //  }
+    //}
+
     // If the size of the isoNames vector is not greater than zero, abort
     assert(isoNames.back().size()>0);
     if (isoNames.back().at(0).label()=="none") {
       plotiso.push_back(false);
     } else {
-      if (!noIsolationPlots) plotiso.push_back(true);
+      if (!noIsolationPlots_) plotiso.push_back(true);
       else plotiso.push_back(false);
     }
     nCandCuts.push_back(filterconf->getParameter<int>("ncandcut"));
@@ -1640,19 +1656,6 @@ void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt)
  
   // Record number of HLTCollectionLabels
   numOfHLTCollectionLabels = theHLTCollectionLabels.size();
-}
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////// 
-//      method called once each job just after ending the event loop          //
-//////////////////////////////////////////////////////////////////////////////// 
-void EmDQM::endJob()
-{
-
 }
 
 //----------------------------------------------------------------------

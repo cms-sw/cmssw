@@ -44,8 +44,28 @@
 #include <vector>
 #include <Math/VectorUtil.h>
 
+class EmDQM;
+
+template <class T>
+class HistoFiller {
+ public:
+  HistoFiller(EmDQM* d):dqm(d) {};
+  ~HistoFiller() {};
+
+  void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& ,const edm::Event& ,unsigned int, unsigned int, std::vector<reco::Particle>&, bool & );
+  //std::vector<edm::EDGetTokenT<edm::AssociationMap<edm::OneToValue< T , float>>>> isoNameTokens_;
+
+ private:
+  EmDQM* dqm;
+};
+
 class EmDQM : public edm::EDAnalyzer{
 public:
+
+  friend class HistoFiller<reco::ElectronCollection>;
+  friend class HistoFiller<reco::RecoEcalCandidateCollection>;
+  friend class HistoFiller<l1extra::L1EmParticleCollection>;
+
   /// Constructor
   explicit EmDQM(const edm::ParameterSet& pset);
 
@@ -62,8 +82,34 @@ public:
   void endRun(edm::Run const&, edm::EventSetup const&);
 
 private:
+  // interface to DQM framework
+  DQMStore * dbe;
+  std::string dirname_;
+
+  HistoFiller<reco::ElectronCollection>* histoFillerEle;
+  HistoFiller<reco::RecoEcalCandidateCollection>* histoFillerClu;
+  HistoFiller<l1extra::L1EmParticleCollection>* histoFillerL1NonIso;
+  HistoFiller<reco::RecoEcalCandidateCollection>* histoFillerPho;
+  HistoFiller<l1extra::L1EmParticleCollection>* histoFillerL1Iso;
+
+  // parameter set from config file
   const edm::ParameterSet& pset;
-  std::vector<edm::ParameterSet> paramSets;
+  // global parameters
+  edm::InputTag triggerObject_;
+  unsigned int verbosity_;
+  double genEtaAcc_;
+  double genEtAcc_;
+  bool isData_;
+  double ptMax_;
+  double ptMin_;
+  double etaMax_;
+  double phiMax_;
+  unsigned int nbins_;
+  unsigned int minEtForEtaEffPlot_;
+  bool useHumanReadableHistTitles_;
+  bool mcMatchedOnly_;
+  bool noPhiPlots_;
+  bool noIsolationPlots_;
 
   /** helper to check whether there were enough generator level
    *  electrons/photons (MC) or enough reco level electrons/photons
@@ -79,35 +125,33 @@ private:
    */
   bool checkRecoParticlesRequirement(const edm::Event & event);
 
-  edm::InputTag triggerObject_;
   /// The instance of the HLTConfigProvider as a data member
   HLTConfigProvider hltConfig_;
   HLTConfigProvider hltConf_;
 
-      std::vector<std::vector<std::string> > findEgammaPaths();
-      std::vector<std::string> getFilterModules(const std::string&);
-      double getPrimaryEtCut(const std::string&);
+  // routines to build validation configuration from HLTConfiguration
+  std::vector<std::vector<std::string> > findEgammaPaths();
+  std::vector<std::string> getFilterModules(const std::string&);
+  double getPrimaryEtCut(const std::string&);
+  edm::ParameterSet makePSetForL1SeedFilter(const std::string&);
+  edm::ParameterSet makePSetForL1SeedToSuperClusterMatchFilter(const std::string&);
+  edm::ParameterSet makePSetForEtFilter(const std::string&);
+  edm::ParameterSet makePSetForOneOEMinusOneOPFilter(const std::string&);
+  edm::ParameterSet makePSetForPixelMatchFilter(const std::string&);
+  edm::ParameterSet makePSetForEgammaGenericFilter(const std::string&);
+  edm::ParameterSet makePSetForEgammaGenericQuadraticFilter(const std::string&);
+  edm::ParameterSet makePSetForElectronGenericFilter(const std::string&);
+  edm::ParameterSet makePSetForEgammaDoubleEtDeltaPhiFilter(const std::string&);
 
-      edm::ParameterSet makePSetForL1SeedFilter(const std::string&);
-      edm::ParameterSet makePSetForL1SeedToSuperClusterMatchFilter(const std::string&);
-      edm::ParameterSet makePSetForEtFilter(const std::string&);
-      edm::ParameterSet makePSetForOneOEMinusOneOPFilter(const std::string&);
-      edm::ParameterSet makePSetForPixelMatchFilter(const std::string&);
-      edm::ParameterSet makePSetForEgammaGenericFilter(const std::string&);
-      edm::ParameterSet makePSetForEgammaGenericQuadraticFilter(const std::string&);
-      edm::ParameterSet makePSetForElectronGenericFilter(const std::string&);
-      edm::ParameterSet makePSetForEgammaDoubleEtDeltaPhiFilter(const std::string&);
+  // set validation configuration parameters for a trigger path
+  void SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator);
 
-      void SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator);
-
-  // Input from cfg file
+  // generated parameter set for trigger path
+  std::vector<edm::ParameterSet> paramSets;
+  // input from generated parameter set
   unsigned int pathIndex;
   std::vector<edm::InputTag> theHLTCollectionLabels;  
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
-  bool useHumanReadableHistTitles;
-  bool mcMatchedOnly;
-  bool noPhiPlots;
-  bool noIsolationPlots;
   std::vector<std::string> theHLTCollectionHumanNames; // Human-readable names for the collections
   edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;
@@ -115,37 +159,13 @@ private:
   std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
   std::vector<std::pair<double,double> > plotBounds; 
   std::vector<unsigned int> nCandCuts;
-
-  static const unsigned TYPE_SINGLE_ELE = 0;
-  static const unsigned TYPE_DOUBLE_ELE = 1;
-  static const unsigned TYPE_SINGLE_PHOTON = 2;
-  static const unsigned TYPE_DOUBLE_PHOTON = 3;
-  static const unsigned TYPE_TRIPLE_ELE = 4;
-
-  unsigned verbosity_;
-  // verbosity levels
-  static const unsigned OUTPUT_SILENT = 0;
-  static const unsigned OUTPUT_ERRORS = 1;
-  static const unsigned OUTPUT_WARNINGS = 2;
-  static const unsigned OUTPUT_ALL = 3;
-
-  ////////////////////////////////////////////////////////////
-  //          Read from configuration file                  //
-  ////////////////////////////////////////////////////////////
   // paramters for generator study
   unsigned int reqNum;
   int   pdgGen;
-  double genEtaAcc;
-  double genEtAcc;
-  // plotting paramters
+  // plotting parameters
   double plotEtMin;
-  double plotEtaMax;
-  double plotPhiMax;
   double plotPtMin ;
   double plotPtMax ;
-  unsigned int plotBins ;
-  unsigned int plotMinEtForEtaEffPlot;
-  // preselction cuts
 
   /** collection which should be used for generator particles (MC)
    *  or reconstructed particles (data).
@@ -168,7 +188,7 @@ private:
 
 
   ////////////////////////////////////////////////////////////
-  //          Create Histograms                             //
+  //          Create Histogram containers
   ////////////////////////////////////////////////////////////
   // Et & eta distributions
   std::vector<std::vector<MonitorElement*> > etahists;
@@ -198,11 +218,6 @@ private:
   std::vector<MonitorElement*> etagens;
   std::vector<MonitorElement*> phigens;
 
-  // interface to DQM framework
-  DQMStore * dbe;
-  std::string dirname_;
-
-  template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& ,const edm::Event& ,unsigned int, unsigned int, std::vector<reco::Particle>&, bool & );
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GenParticle> pTGenComparator_;
 
@@ -214,5 +229,20 @@ private:
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidZee_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidGammaJet_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > gencutColl_fidDiGamma_token;
+
+  // static variables
+  //
+  // trigger types considered
+  static const unsigned TYPE_SINGLE_ELE = 0;
+  static const unsigned TYPE_DOUBLE_ELE = 1;
+  static const unsigned TYPE_SINGLE_PHOTON = 2;
+  static const unsigned TYPE_DOUBLE_PHOTON = 3;
+  static const unsigned TYPE_TRIPLE_ELE = 4;
+
+  // verbosity levels
+  static const unsigned OUTPUT_SILENT = 0;
+  static const unsigned OUTPUT_ERRORS = 1;
+  static const unsigned OUTPUT_WARNINGS = 2;
+  static const unsigned OUTPUT_ALL = 3;
 };
 #endif
