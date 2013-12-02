@@ -90,13 +90,11 @@ process.emenrichingfilter = cms.EDFilter("EMEnrichingFilter",
 
 
 if (gtDigisExist):
-    process.analyzeA = cms.Path((process.genParticlesForFilter + ~process.emenrichingfilter + process.bctoefilter) * process.hltbitanalysis)
-    process.analyzeB = cms.Path((process.genParticlesForFilter + process.emenrichingfilter + process.bctoefilter) * process.hltbitanalysis)
-    process.analyzeC = cms.Path((process.genParticlesForFilter + ~process.emenrichingfilter + ~process.bctoefilter) * process.hltbitanalysis)
+    process.analyzeA = cms.Path((process.genParticlesForFilter + process.bctoefilter) * process.hltbitanalysis)
+    process.analyzeB = cms.Path((process.genParticlesForFilter + ~process.emenrichingfilter) * process.hltbitanalysis)
 else:
-    process.analyzeA = cms.Path(process.HLTBeginSequence * (process.genParticlesForFilter + ~process.emenrichingfilter + process.bctoefilter) * process.hltbitanalysis)
-    process.analyzeB = cms.Path(process.HLTBeginSequence * (process.genParticlesForFilter + process.emenrichingfilter + process.bctoefilter) * process.hltbitanalysis)
-    process.analyzeC = cms.Path(process.HLTBeginSequence * (process.genParticlesForFilter + ~process.emenrichingfilter + ~process.bctoefilter) * process.hltbitanalysis)
+    process.analyzeA = cms.Path(process.HLTBeginSequence * (process.genParticlesForFilter + process.bctoefilter) * process.hltbitanalysis)
+    process.analyzeB = cms.Path(process.HLTBeginSequence * (process.genParticlesForFilter + ~process.emenrichingfilter) * process.hltbitanalysis)
     process.hltbitanalysis.l1GtReadoutRecord = cms.InputTag( 'hltGtDigis','',process.name_() )
     
 # pdt
@@ -105,8 +103,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 # Schedule the whole thing
 process.schedule = cms.Schedule( 
     process.analyzeA,
-    process.analyzeB,
-    process.analyzeC)
+    process.analyzeB)
 
 #########################################################################################
 #
