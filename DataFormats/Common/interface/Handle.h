@@ -24,7 +24,6 @@ If failedToGet() returns false but isValid() is also false then no attempt
   to get data has occurred
 
 ----------------------------------------------------------------------*/
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <typeinfo>
 
 #include "DataFormats/Common/interface/HandleBase.h"
@@ -41,10 +40,12 @@ namespace edm {
 
     Handle(T const* prod, Provenance const* prov);
     
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     Handle(std::function<std::shared_ptr<cms::Exception>()> &&);
     Handle(Handle const&) = default;
     
     Handle& operator=(Handle&&) = default;
+#endif
     
     ~Handle();
 
@@ -63,11 +64,12 @@ namespace edm {
   Handle<T>::Handle(T const* prod, Provenance const* prov) : HandleBase(prod, prov) { 
   }
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template <class T>
   Handle<T>::Handle(std::function<std::shared_ptr<cms::Exception>()> && iWhyFailed) :
   HandleBase(std::move(iWhyFailed))
   { }
- 
+#endif
 
   template <class T>
   Handle<T>::~Handle() {}
@@ -90,9 +92,4 @@ namespace edm {
     return *product();
   }
 }
-#else
-namespace edm {
-  template<typename T> class Handle;
-}
-#endif
 #endif
