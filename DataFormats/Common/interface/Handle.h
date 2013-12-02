@@ -45,6 +45,7 @@ namespace edm {
     Handle(Handle const&) = default;
     
     Handle& operator=(Handle&&) = default;
+    Handle& operator=(Handle const&) = default;
 #endif
     
     ~Handle();
