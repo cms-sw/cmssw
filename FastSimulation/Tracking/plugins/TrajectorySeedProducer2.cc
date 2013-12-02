@@ -327,15 +327,15 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				*/
 				if (foundSeed)
 				{
-					//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
+					std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
 
 
 					for (unsigned int i=0;i<hitNumbers[seedLayerSet].size();++i)
 					{
 						seedHit_new[currentID].push_back(hitNumbers[seedLayerSet][i]);
-						//std::cout<<hitNumbers[seedLayerSet][i]<<",";
+						std::cout<<hitNumbers[seedLayerSet][i]<<",";
 					}
-					//std::cout<<std::endl;
+					std::cout<<std::endl;
 				}
 			}
 
@@ -345,8 +345,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 
 
-	//std::cout<<std::endl;
-    //std::cout<<"old result:"<<std::endl;
+	std::cout<<std::endl;
+    std::cout<<"old result:"<<std::endl;
 
   
 #ifdef FAMOS_DEBUG
@@ -710,7 +710,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       // Create a new Trajectory Seed    
 
 
-      //std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
+      std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
       seedHit_old[simTrackId].push_back(hit1);
       seedHit_old[simTrackId].push_back(hit2);
       seedHit_old[simTrackId].push_back(hit3);
