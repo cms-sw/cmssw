@@ -220,6 +220,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     GEMRegion* region = new GEMRegion(re); 
     for (int st=1; st<=1; ++st) {
       GEMStation* station = new GEMStation(re, st); 
+      station->setName("GE" + std::to_string(re) + "/" + std::to_string(st)); 
       for (int ri=1; ri<=1; ++ri) {
 	GEMRing* ring = new GEMRing(re, st, ri); 
 	for (unsigned sch=0; sch<superChambers.size(); ++sch){

@@ -64,17 +64,26 @@ const std::vector<const GEMEtaPartition*>& GEMGeometry::etaPartitions() const{
 }
 
 const GEMRegion* GEMGeometry::region(int re) const{
-  //   return dynamic_cast<const GEMSuperChamber*>(idToDet(id));
+  for (auto region : allRegions) {
+    if (re != region->region()) continue;
+    return region;
+  }
   return 0;
 }
 
 const GEMStation* GEMGeometry::station(int re, int st) const{ 
-  //  return dynamic_cast<const GEMChamber*>(idToDet(id.chamberId()));
+  for (auto station : allStations) {
+    if (re != station->region() || st != station->station()) continue;
+    return station;
+  }
   return 0;
 }
 
 const GEMRing* GEMGeometry::ring(int re, int st, int ri) const{
-  //  return dynamic_cast<const GEMEtaPartition*>(idToDetUnit(id));
+  for (auto ring : allRings) {
+    if (re != ring->region() || st != ring->station() || ri != ring->ring()) continue;	
+    return ring;
+  }
   return 0;
 }
 
