@@ -26,6 +26,24 @@ workflows[302]=['Pyquen_ZeemumuJets_pt10_2760GeV',['HydjetQ_MinBias_2760GeVINPUT
 workflows[400]=['TTbar',['TTbarFSPU','HARVESTFS']]
 workflows[401]=['TTbarNewMix',['TTbarFSPU2','HARVESTFS']]
 
+
 # 50 ns at 13 TeV and POSTLS1
+workflows[50200]=['',['ZEE_13','DIGIPU1','RECOPU1','HARVEST']]
+#
+workflows[50201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
+# cannot be recycled => GEN SIM NEEDED!
+workflows[50202]=['',['TTbar_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
+workflows[50203]=['',['H130GGgluonfusion_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
+workflows[50204]=['',['QQH1352T_Tauola_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
+workflows[50205]=['',['ZTT_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
+
 
 # 25 ns at 13 TeV and POSTLS1
+workflows[25200]=['',['ZEE_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+#
+workflows[25201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+# cannot be recycled => GEN SIM NEEDED!
+workflows[25202]=['',['TTbar_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+workflows[25203]=['',['H130GGgluonfusion_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+workflows[25204]=['',['QQH1352T_Tauola_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+workflows[25205]=['',['ZTT_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]

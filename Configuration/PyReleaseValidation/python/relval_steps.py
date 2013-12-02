@@ -452,6 +452,7 @@ steps['H130GGgluonfusion_13']=gen2015('H130GGgluonfusion_13TeV_cfi',Kby(9,100))
 steps['PhotonJets_Pt_10_13']=gen2015('PhotonJet_Pt_10_13TeV_cfi',Kby(9,150))
 steps['QQH1352T_Tauola_13']=gen2015('QQH1352T_Tauola_13TeV_cfi',Kby(9,100))
 steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',Kby(25,100))
+steps['ZmumuJets_Pt_20_300_13']=gen('ZmumuJets_Pt_20_300_GEN_13TeV_cfg',Kby(25,100)) # GEN-SIM needed
 steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
 steps['ADDMonoJet_d3MD3_13']=gen2015('ADDMonoJet_13TeV_d3MD3_cfi',Kby(9,100))
 
@@ -875,6 +876,8 @@ steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
 PU={'-n':10,'--pileup':'default','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
+PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
+PU50={'-n':10,'--pileup':'AVE_40_BX_50ns','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
 PUFS={'--pileup':'default'}
 PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
 steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
@@ -899,7 +902,9 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2
                  '--geometry'    :'Extended2015',
                  '-n'            :'10'
                   }
-steps['DIGIUP15']=merge([step2Upg2015Defaults]) # todo: remove UP from label
+steps['DIGIUP15']=merge([step2Upg2015Defaults])      # todo: remove UP from label
+steps['DIGIUP15_PU25']=merge([PU50,step2Upg2015Defaults]) # todo: remove UP from label
+steps['DIGIUP15_PU50']=merge([PU25,step2Upg2015Defaults]) # todo: remove UP from label
 
 steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
@@ -1062,6 +1067,8 @@ steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBi
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
 
 steps['RECOPU1']=merge([PU,steps['RECO']])
+steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
+steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults])
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
