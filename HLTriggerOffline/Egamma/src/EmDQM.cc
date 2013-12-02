@@ -280,42 +280,11 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 
       } // loop over analysis types (single ele etc.)
 
-      if (changed) {
-         // The HLT config has actually changed wrt the previous Run, hence rebook your
-         // histograms or do anything else dependent on the revised HLT config
-      }
-   } else {
-      // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
-      // with the file and/or code and needs to be investigated!
-      if (verbosity_ >= OUTPUT_ERRORS)
-         edm::LogError("EmDQM") << " HLT config extraction failure with process name '" << triggerObject_.process() << "'.";
-      // In this case, all access methods will return empty values!
-   }
-
-
-
-
-
-
-
-
-
-   // loop over all the trigger path parameter sets
-   for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
-      SetVarsFromPSet(psetIt);
-
-
-
-
-
-
-
-
-
-
-
-  
-      if (hltConf_.init(iRun, iSetup, triggerObject_.process(), changed)) {
+      ////////////////////////////////////////////////////////////
+      // loop over all the trigger path parameter sets
+      ////////////////////////////////////////////////////////////
+      for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
+         SetVarsFromPSet(psetIt);
 
          // if init returns TRUE, initialisation has succeeded!
       
@@ -399,12 +368,9 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
          histTitle= "#phi of "+ pdgIdString +"s " ;
          if (!noPhiPlots_) phigen = dbe->book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
        
-         
-       
          ////////////////////////////////////////////////////////////
          //  Set up histograms of HLT objects                      //
          ////////////////////////////////////////////////////////////
-       
          // Determine what strings to use for histogram titles
          std::vector<std::string> HltHistTitle;
          if ( theHLTCollectionHumanNames.size() == numOfHLTCollectionLabels && useHumanReadableHistTitles_ ) {
@@ -555,13 +521,8 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
              ethistisomatch.push_back(tmpiso);
        
            } // END of HLT histograms
-       
          }
 
-         if (changed) {
-            // The HLT config has actually changed wrt the previous Run, hence rebook your
-            // histograms or do anything else dependent on the revised HLT config
-         }
          // Et & eta distributions
          etahists.push_back(etahist);
          phihists.push_back(phihist);
@@ -588,13 +549,18 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
          etgens.push_back(etgen);
          etagens.push_back(etagen);
          phigens.push_back(phigen);
-      } else {
-         // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
-         // with the file and/or code and needs to be investigated!
-         if (verbosity_ >= OUTPUT_ERRORS)
-            edm::LogError("EmDQM") << " HLT config extraction failure with process name '" << triggerObject_.process() << "'.";
-         // In this case, all access methods will return empty values!
       }
+
+      if (changed) {
+         // The HLT config has actually changed wrt the previous Run, hence rebook your
+         // histograms or do anything else dependent on the revised HLT config
+      }
+   } else {
+      // if init returns FALSE, initialisation has NOT succeeded, which indicates a problem
+      // with the file and/or code and needs to be investigated!
+      if (verbosity_ >= OUTPUT_ERRORS)
+         edm::LogError("EmDQM") << " HLT config extraction failure with process name '" << triggerObject_.process() << "'.";
+      // In this case, all access methods will return empty values!
    }
 }
 
@@ -834,7 +800,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
       sortedGenForFilter.erase(sortedGenForFilter.begin() + nCandCuts.at(n), sortedGenForFilter.end());
 
       // Fill only if this filter was run.
-      if (pathIndex != 0 && hltConf_.moduleIndex(pathIndex, theHLTCollectionLabels[n].label()) > hltResults->index(pathIndex)) break;
+      if (pathIndex != 0 && hltConfig_.moduleIndex(pathIndex, theHLTCollectionLabels[n].label()) > hltResults->index(pathIndex)) break;
       // These numbers are from the Parameter Set, such as:
       //   theHLTOutputTypes = cms.uint32(100)
       switch(theHLTOutputTypes[n]) 

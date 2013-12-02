@@ -127,7 +127,6 @@ private:
 
   /// The instance of the HLTConfigProvider as a data member
   HLTConfigProvider hltConfig_;
-  HLTConfigProvider hltConf_;
 
   // routines to build validation configuration from HLTConfiguration
   std::vector<std::vector<std::string> > findEgammaPaths();
