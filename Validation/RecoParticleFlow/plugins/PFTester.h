@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include <string>
 #include <map>
@@ -33,7 +34,7 @@ public:
 
   // Inputs from Configuration File
   std::string outputFile_;
-  std::string inputPFlowLabel_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> inputPFlowLabel_tok_ ;
 
 };
 
