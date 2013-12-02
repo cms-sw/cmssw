@@ -48,7 +48,7 @@ bool GEMRecHitStandardAlgo::compute(const GEMEtaPartition& roll,
  
   Point = loctemp2;
   //error = roll.localError((cluster.firstStrip()+cluster.lastStrip())/2.);
-  error = roll.localError_cls((cluster.firstStrip()+cluster.lastStrip())/2., cluster.clusterSize());
+  error = roll.localError((cluster.firstStrip()+cluster.lastStrip())/2., cluster.clusterSize());
   return true;
 }
 
