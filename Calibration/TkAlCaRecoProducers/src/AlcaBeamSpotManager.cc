@@ -27,7 +27,7 @@ AlcaBeamSpotManager::AlcaBeamSpotManager(const ParameterSet& iConfig, edm::Consu
   beamSpotLabel_     (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("BeamSpotLabel"))
 {
   edm::InputTag beamSpotTag_(beamSpotModuleName_, beamSpotLabel_);
-  beamSpotToken_ = iC.consumes<reco::BeamSpot>(beamSpotTag_);
+  beamSpotToken_ = iC.consumes<reco::BeamSpot,edm::InLumi>(beamSpotTag_);
   LogInfo("AlcaBeamSpotManager") 
     << "Output base: " << beamSpotOutputBase_ 
     << std::endl;
