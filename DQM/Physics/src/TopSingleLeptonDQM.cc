@@ -292,7 +292,7 @@ namespace TopSingleLepton {
     // fetch trigger event if configured such
     edm::Handle<edm::TriggerResults> triggerTable;
      
-    if(!triggerTable_.isUnitialized()) {
+    if(!triggerTable_.isUninitialized()) {
             if( !event.getByToken(triggerTable_, triggerTable) ) return;
     }
 
@@ -341,7 +341,7 @@ namespace TopSingleLepton {
 
     // check availability of electron id
     edm::Handle<edm::ValueMap<float> > electronId; 
-    if(!electronId_.isUnitialized()) {
+    if(!electronId_.isUninitialized()) {
       if( !event.getByToken(electronId_, electronId) ) return;
     }
 
@@ -351,7 +351,7 @@ namespace TopSingleLepton {
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       unsigned int idx = elec-elecs->begin();
       // restrict to electrons with good electronId
-      if( electronId_.isUnitialized() ? true : ((int)(*electronId)[elecs->refAt(idx)] & eidPattern_) ){
+      if( electronId_.isUninitialized() ? true : ((int)(*electronId)[elecs->refAt(idx)] & eidPattern_) ){
 	if(!elecSelect_ || (*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
 	  double isolationCal = elec->pt()/(elec->pt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt());
@@ -571,7 +571,7 @@ namespace TopSingleLepton {
     
     // fill plots for trigger monitoring
     if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<wMass && wMass<upperEdge_) ){
-      if(!triggerTable_.isUnitialized()) fill(event, *triggerTable, "trigger", triggerPaths_);
+      if(!triggerTable_.isUninitialized()) fill(event, *triggerTable, "trigger", triggerPaths_);
       if(logged_<=hists_.find("eventLogger_")->second->getNbinsY()){
 	// log runnumber, lumi block, event number & some
 	// more pysics infomation for interesting events
@@ -654,12 +654,12 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): vertexSele
 void
 TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setup)
 { 
-  if(!triggerTable__.isUnitialized() ){
+  if(!triggerTable__.isUninitialized() ){
     edm::Handle<edm::TriggerResults> triggerTable;
     if(!event.getByToken(triggerTable__, triggerTable)) return;	
     if(!accept(event, *triggerTable, triggerPaths_)) return;
   }
-  if(!beamspot__.isUnitialized()){
+  if(!beamspot__.isUninitialized()){
     edm::Handle<reco::BeamSpot> beamspot;
     if( !event.getByToken(beamspot__, beamspot) ) return;
     if(!(*beamspotSelect_)(*beamspot)) return;
