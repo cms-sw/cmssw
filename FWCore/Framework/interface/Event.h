@@ -323,10 +323,12 @@ namespace edm {
       BasicHandle bh = this->getByProductID_(oid);
 
       if(bh.failedToGet()) {
-          boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
-          *whyFailed
-              << "get View by ID failed: no product with ID = " << oid <<"\n";
-          Handle<View<ELEMENT> > temp(whyFailed);
+          Handle<View<ELEMENT> > temp([oid]()->std::shared_ptr<cms::Exception> {
+            std::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
+            *whyFailed
+            << "get View by ID failed: no product with ID = " << oid <<"\n";
+            return whyFailed;
+          });
           result.swap(temp);
           return false;
       }
