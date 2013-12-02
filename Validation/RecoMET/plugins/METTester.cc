@@ -90,9 +90,9 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mMETPhi                      = 0;
   mSumET                       = 0;
   mMETDifference_GenMETTrue    = 0;
-  mMETDeltaPhi_GenMETTrue = 0;
+  mMETDeltaPhi_GenMETTrue      = 0;
   mMETDifference_GenMETCalo    = 0;
-  mMETDeltaPhi_GenMETCalo = 0;
+  mMETDeltaPhi_GenMETCalo      = 0;
 
   //CaloMET variables
   mCaloMaxEtInEmTowers             = 0;
@@ -172,7 +172,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
  
     dbe_->setCurrentFolder("JetMET/METValidation/"+inputMETLabel_.label());
 
-    mNvertex                         = dbe_->book1D("Nvertex","Nvertex",80,0,80);
+    mNvertex                     = dbe_->book1D("Nvertex","Nvertex",80,0,80);
     mMEx                         = dbe_->book1D("MEx","MEx",160,-800,800); 
     mMEy                         = dbe_->book1D("MEy","MEy",160,-800,800);
     mMETSig                      = dbe_->book1D("METSig","METSig",25,0,24.5);
@@ -182,9 +182,9 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     mMETPhi                      = dbe_->book1D("METPhi","METPhi",80,-4,4);
     mSumET                       = dbe_->book1D("SumET"            , "SumET"            , 200,0,4000);   //10GeV
     mMETDifference_GenMETTrue    = dbe_->book1D("METDifference_GenMETTrue","METDifference_GenMETTrue", 500,-500,500); 
-    mMETDeltaPhi_GenMETTrue = dbe_->book1D("METDeltaPhi_GenMETTrue","METDeltaPhi_GenMETTrue", 80,0,4); 
-    mMETDifference_GenMETCalo        = dbe_->book1D("METDifference_GenMETCalo","METDifference_GenMETCalo", 500,-500,500); 
-    mMETDeltaPhi_GenMETCalo     = dbe_->book1D("METDeltaPhi_GenMETCalo","METDeltaPhi_GenMETCalo", 80,0,4); 
+    mMETDeltaPhi_GenMETTrue      = dbe_->book1D("METDeltaPhi_GenMETTrue","METDeltaPhi_GenMETTrue", 80,0,4); 
+    mMETDifference_GenMETCalo    = dbe_->book1D("METDifference_GenMETCalo","METDifference_GenMETCalo", 500,-500,500); 
+    mMETDeltaPhi_GenMETCalo      = dbe_->book1D("METDeltaPhi_GenMETCalo","METDeltaPhi_GenMETCalo", 80,0,4); 
 
     mMETDifference_GenMETTrue_MET0to20    = dbe_->book1D("METResolution_GenMETTrue_MET0to20"   , "METResolution_GenMETTrue_MET0to20"   , 500,-500,500); 
     mMETDifference_GenMETTrue_MET20to40   = dbe_->book1D("METResolution_GenMETTrue_MET20to40"  , "METResolution_GenMETTrue_MET20to40"  , 500,-500,500); 
@@ -320,7 +320,7 @@ void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 }
 
 void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+{ //int counter(0);
   edm::Handle<reco::VertexCollection> pvHandle;
   iEvent.getByToken(pvToken_, pvHandle);
    if (! pvHandle.isValid())
@@ -342,7 +342,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (isTcMET)   iEvent.getByToken(tcMETsToken_,   tcMETs);
   if (isPFMET)   iEvent.getByToken(pfMETsToken_,   pfMETs);
   if (isGenMET)  iEvent.getByToken(genMETsToken_,  genMETs);
-
   if ((isCaloMET or isTcMET) and !caloMETs.isValid()) return;
   if ((isTcMET)   and !tcMETs.isValid())   return;
 //  if ((isCorMET)  and !caloMETs.isValid()) return;
@@ -411,10 +410,6 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   } else {
     edm::LogInfo("OutputInfo") << " failed to retrieve data required by MET Task:  genMetCalo";
   }    
-
-
-
-
 
   if ( isCaloMET) { 
     const reco::CaloMET * calomet = &(caloMETs->front());
@@ -750,11 +745,12 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //    }
 //  }
 
+  //This is so dirty I could cry. It should be called only ONCE in endJob. But the MonitorElements don't exist then any more.
+  FillMETRes();
 }
 
 void METTester::endJob() 
 { 
-  FillMETRes();
   if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
   {
     edm::Service<DQMStore>()->save(mOutputFile);
