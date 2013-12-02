@@ -141,7 +141,7 @@ namespace HcalSimpleRecAlgoImpl {
     }
 
 
-    // Temoprary hack to apply energy-dependent corrections to some HB- cells
+    // Temporary hack to apply energy-dependent corrections to some HB- cells
     if(runnum_ > 0) {
       HcalDetId cell(digi.id());
       int ieta  = cell.ieta();
