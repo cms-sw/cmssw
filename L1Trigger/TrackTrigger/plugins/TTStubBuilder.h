@@ -189,7 +189,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
     const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
     const int chipSize = 2 * top0->rowsperroc();             /// Need to find ASIC size in half-strip units
-    std::map< int, std::vector< TTStub< T >* > > moduleStubs; /// Temporary storage for stubs before max check
+    std::map< int, std::vector< TTStub< T > > > moduleStubs; /// Temporary storage for stubs before max check
 
     /// Loop over pairs of Clusters
     for ( innerClusterIter = innerClusters.begin();
@@ -201,7 +201,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
             ++outerClusterIter )
       {
         /// Build a temporary Stub
-        TTStub< T > tempTTStub = new TTStub< T >( Id );
+        TTStub< T > tempTTStub( Id );
         tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, innerClusterIter ) );
         tempTTStub.addClusterRef( edmNew::makeRefTo( TTClusterHandle, outerClusterIter ) );
 
@@ -230,7 +230,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           {
             /// This means that only some of them do
             /// Put in the temporary output
-            int chip = tempTTStub->getTriggerPosition() / chipSize; /// Find out which ASIC
+            int chip = tempTTStub.getTriggerPosition() / chipSize; /// Find out which ASIC
             if ( moduleStubs.find( chip ) == moduleStubs.end() )   /// Already a stub for this ASIC?
             {
               /// No, so new entry
@@ -277,7 +277,7 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
         std::vector< std::pair< unsigned int, double > > bendMap;
         for ( unsigned int i = 0; i < is.second.size(); ++i )
         {
-          bendMap.push_back( std::pair< unsigned int, double >( i, is.second[i]->getTriggerBend() ) );
+          bendMap.push_back( std::pair< unsigned int, double >( i, is.second[i].getTriggerBend() ) );
         }
         std::sort( bendMap.begin(), bendMap.end(), TTStubBuilder< T >::SortStubBendPairs );
 
