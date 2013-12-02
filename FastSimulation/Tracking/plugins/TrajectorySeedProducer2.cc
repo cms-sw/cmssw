@@ -183,7 +183,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				std::vector<std::vector<std::string>> layerNames;
 				layerNames.resize(theLayersInSets.size());
 
-				for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
+				bool foundSeed = false;
+				for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second && !foundSeed; ++itRecHit)
 				{
 					const SiTrackerGSMatchedRecHit2D vec = *itRecHit;
 					previousTrackerHit=currentTrackerHit;
@@ -193,32 +194,30 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 						//TODO: perform check with SiTrackerGSMatchedRecHit2D directly -> saves the unnecessary creation of TrackerRecHit
 						continue;
 					}
+					//std::cout<<"\thit="<<itRecHit-recHitRange.first<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<std::endl;
 
 					for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
 					{
 						unsigned int currentlayer = hitNumbers[ilayerset].size();
+						/*
 						if (theLayersInSets[ilayerset].size()<=currentlayer)
 						{
 							continue;
-							//break;
 						}
+						*/
 						if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
 						{
 							hitNumbers[ilayerset].push_back(itRecHit-recHitRange.first);
 							layerNames[ilayerset].push_back(theLayersInSets[ilayerset][currentlayer].name);
+
+							if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
+							{
+								//continue;
+								foundSeed=true;
+								break;
+							}
 						}
 					}
-					/*
-					//TODO: if already enough hits have been found break this loop
-					if (!TrackerRecHit::isOnRequestedDet(theLayersInSets,validTrackerRecHitList))
-					{
-						//TODO: bad to push and pop so often
-						validTrackerRecHitList.pop_back();
-						continue;
-					}
-					//std::cout<< itRecHit-recHitRange.first<<" (hit "<<validTrackerRecHitList.size()<<")"<<std::endl;
-					hitNumbers.push_back(itRecHit-recHitRange.first);
-					*/
 				}
 				std::cout<<"ialgo="<<ialgo<<std::endl;
 				for (unsigned int i=0;i<hitNumbers.size(); ++i)
