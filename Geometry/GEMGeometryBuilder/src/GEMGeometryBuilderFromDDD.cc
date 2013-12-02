@@ -212,5 +212,34 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding the super chamber to the geometry.";
     geometry->add(sch);
   }
+  
+  auto& superChambers(geometry->superChambers());
+	  
+  // construct the regions, stations and rings. 
+  for (int re = -1; re <= 1; re = re+2) {
+    GEMRegion* region = new GEMRegion(re); 
+    for (int st=1; st<=1; ++st) {
+      GEMStation* station = new GEMStation(re, st); 
+      for (int ri=1; ri<=1; ++ri) {
+	GEMRing* ring = new GEMRing(re, st, ri); 
+	for (unsigned sch=0; sch<superChambers.size(); ++sch){
+	  const GEMDetId detId(superChambers.at(sch)->id());
+	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
+	  ring->add(superChambers.at(sch));
+	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " 
+						<< "re " << re << " st " << st << " ri " << ri << std::endl;
+ 	}
+	LogDebug("GEMGeometryBuilderFromDDD") << "Adding ring " <<  ri << " to station " << "re " << re << " st " << st << std::endl;
+	station->add(ring);
+	geometry->add(ring);
+      }
+      LogDebug("GEMGeometryBuilderFromDDD") << "Adding station " << st << " to region " << re << std::endl;
+      region->add(station);
+      geometry->add(station);
+    }
+    LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
+    geometry->add(region);
+  }
+
   return geometry;
 }
