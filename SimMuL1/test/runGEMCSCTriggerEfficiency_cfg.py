@@ -23,7 +23,7 @@ globalTag = 'upgrade2019'
 
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
-suffix = '_gem_dphi_pat2_PU0'
+suffix = '_gem98_pt2-50_PU0_pt40_new'
 inputDir = files[suffix]
 theInputFiles = []
 import os
@@ -55,8 +55,8 @@ if w==61:
     readout_windows = [ [5,10],[1,11],[1,11],[1,11] ]
  
 ## output
-outputFileName = 'hp_' + sample + "_" + cmssw + "_" + globalTag + "_pu%s"%(pileup) + '_w%d'%(w) + suffix + '_eff.root'
-outputFileName = 'gem_trigger_eff_ana.root'
+outputFileName = 'hp_' + sample + "_" + cmssw + "_" + globalTag + "_pu%s"%(pileup) + '_w%d'%(w) + suffix + '_eff.test.root'
+#outputFileName = 'gem_trigger_eff_ana.root'
 print "outputFile:", outputFileName
 
 # import of standard configurations
