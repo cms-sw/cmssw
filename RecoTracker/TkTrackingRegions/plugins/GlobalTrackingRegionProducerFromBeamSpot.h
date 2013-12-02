@@ -7,12 +7,14 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class GlobalTrackingRegionProducerFromBeamSpot : public TrackingRegionProducer {
 
 public:
 
-  GlobalTrackingRegionProducerFromBeamSpot(const edm::ParameterSet& cfg) {
+  GlobalTrackingRegionProducerFromBeamSpot(const edm::ParameterSet& cfg,
+	   edm::ConsumesCollector && iC) {
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
     thePtMin            = regionPSet.getParameter<double>("ptMin");
@@ -22,7 +24,7 @@ public:
     }
     theNSigmaZ          = (regionPSet.existsAs<double>("nSigmaZ")          ? regionPSet.getParameter<double>("nSigmaZ")          : 0.0);
     theOriginHalfLength = (regionPSet.existsAs<double>("originHalfLength") ? regionPSet.getParameter<double>("originHalfLength") : 0.0);
-    theBeamSpotTag      = regionPSet.getParameter<edm::InputTag>("beamSpot");
+    token_beamSpot      = iC.consumes<reco::BeamSpot>(regionPSet.getParameter<edm::InputTag>("beamSpot"));
     thePrecise          = regionPSet.getParameter<bool>("precise");
   }
 
@@ -31,7 +33,7 @@ public:
   virtual std::vector<TrackingRegion* > regions(const edm::Event&ev, const edm::EventSetup&) const {
     std::vector<TrackingRegion* > result;
     edm::Handle<reco::BeamSpot> bsHandle;
-    ev.getByLabel( theBeamSpotTag, bsHandle);
+    ev.getByToken( token_beamSpot, bsHandle);
     if(bsHandle.isValid()) {
 
       const reco::BeamSpot & bs = *bsHandle; 
@@ -50,7 +52,7 @@ private:
   double theOriginRadius;
   double theOriginHalfLength; 
   double theNSigmaZ;
-  edm::InputTag theBeamSpotTag;
+  edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
   bool thePrecise;
 };
 

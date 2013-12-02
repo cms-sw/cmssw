@@ -13,7 +13,8 @@
 inline double sqr(double a){return a*a;}
 
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet & conf)
+PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet & conf,
+	edm::ConsumesCollector && iC)
   :_conf(conf),seedCollection(0),seedCollectionOfSourceTracks(0),
    hitsfactoryPSet(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet")),   
    creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
@@ -28,7 +29,11 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
    _primaryVtxInputTag(conf.getParameter<edm::InputTag>("primaryVerticesTag")),
    _beamSpotInputTag(conf.getParameter<edm::InputTag>("beamSpotInputTag"))
 {
-   init();  
+  token_vertex      = iC.consumes<reco::VertexCollection>(_primaryVtxInputTag);
+  token_bs          = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
+  token_refitter    = iC.consumes<reco::TrackCollection>(_conf.getParameter<edm::InputTag>("TrackRefitter"));
+  theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, std::move(iC));
+  init();  
 }
      
 void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
@@ -45,7 +50,6 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 init(){
   theHitsGenerator  = new CombinedHitPairGeneratorForPhotonConversion(hitsfactoryPSet);
   theSeedCreator    = new SeedForPhotonConversion1Leg(creatorPSet);
-  theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet);
 }
 
 void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
@@ -79,13 +83,13 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
   _IdealHelixParameters.setMagnField(magField);
 
 
-  event.getByLabel(_primaryVtxInputTag, vertexHandle);
+  event.getByToken(token_vertex, vertexHandle);
   if (!vertexHandle.isValid() || vertexHandle->empty()){
       edm::LogError("PhotonConversionFinderFromTracks") << "Error! Can't get the product primary Vertex Collection "<< _primaryVtxInputTag <<  "\n";
       return;
   }
 
-  event.getByLabel(_beamSpotInputTag,recoBeamSpotHandle);
+  event.getByToken(token_bs,recoBeamSpotHandle);
   
 
   regions = theRegionProducer->regions(event,setup);
@@ -117,7 +121,7 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 loopOnTracks(){
 
   //--- Get Tracks
-  myEvent->getByLabel(_conf.getParameter<edm::InputTag>("TrackRefitter"),trackCollectionH);
+  myEvent->getByToken(token_refitter, trackCollectionH);
 
   if(trackCollectionH.isValid()==0){
     edm::LogError("MissingInput")<<" could not find track collecion:"<<_conf.getParameter<edm::InputTag>("TrackRefitter");
