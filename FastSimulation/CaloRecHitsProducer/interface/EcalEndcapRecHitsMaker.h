@@ -7,7 +7,7 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 //#include <boost/cstdint.hpp>
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 class EcalTrigTowerConstituentsMap;
 class GaussianTail;
 
@@ -20,15 +20,16 @@ namespace edm {
 class EcalEndcapRecHitsMaker
 {
  public:
-  EcalEndcapRecHitsMaker(edm::ParameterSet const & p,const RandomEngine* random);
+  EcalEndcapRecHitsMaker(edm::ParameterSet const & p);
   ~EcalEndcapRecHitsMaker();
 
-  void loadEcalEndcapRecHits(edm::Event &iEvent, EERecHitCollection & ecalHits,EEDigiCollection & ecalDigis);
+  void loadEcalEndcapRecHits(edm::Event &iEvent, EERecHitCollection & ecalHits,EEDigiCollection & ecalDigis,
+                             RandomEngineAndDistribution const*);
   void init(const edm::EventSetup &es,bool dodigis,bool domiscalib);
 
  private:
   void clean();
-  void loadPCaloHits(const edm::Event & iEvent);
+  void loadPCaloHits(const edm::Event & iEvent, RandomEngineAndDistribution const*);
   void geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const;
   // there are 2448 TT in the barrel. 
   inline int TThashedIndexforEE(int originalhi) const {return originalhi-2448;}
@@ -41,9 +42,9 @@ class EcalEndcapRecHitsMaker
     return detid.isc()+(detid.zside()+1)*158;}
   inline int towerOf(const EEDetId& detid) const {return towerOf_[detid.hashedIndex()];}
   inline int towerOf(int hid) const {return towerOf_[hid];}
-  void noisifyTriggerTowers();
-  void noisifySuperCrystals(int tthi);
-  void randomNoisifier();
+  void noisifyTriggerTowers(RandomEngineAndDistribution const*);
+  void noisifySuperCrystals(int tthi, RandomEngineAndDistribution const*);
+  void randomNoisifier(RandomEngineAndDistribution const*);
   bool isHighInterest(const EEDetId & icell);
 
  private:
@@ -57,7 +58,6 @@ class EcalEndcapRecHitsMaker
   double noise_;
   double calibfactor_;
   double EEHotFraction_ ;
-  const RandomEngine* random_;
   const GaussianTail * myGaussianTailGenerator_;
   bool noisified_;
 

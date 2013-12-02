@@ -42,7 +42,7 @@ class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
 //class Histos;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class TrajectoryStateOnSurface;
 class DetLayer;
 class GeomDet;
@@ -71,14 +71,13 @@ class TrajectoryManager
   TrajectoryManager(FSimEvent* aSimEvent, 
 		    const edm::ParameterSet& matEff,
 		    const edm::ParameterSet& simHits,
-		    const edm::ParameterSet& decays,
-		    const RandomEngine* engine);
+		    const edm::ParameterSet& decays);
 
   /// Default Destructor
   ~TrajectoryManager();
   
   /// Does the real job
-  void reconstruct(const TrackerTopology *tTopo);
+  void reconstruct(const TrackerTopology *tTopo, RandomEngineAndDistribution const*);
 
   /// Create a vector of PSimHits 
   void createPSimHits(const TrackerLayer& layer,
@@ -160,8 +159,6 @@ class TrajectoryManager
   int                                         theNegLayerOffset;
 
   //  Histos* myHistos;
-
-  const RandomEngine* random;
 
   bool use_hardcoded;
 

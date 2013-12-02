@@ -1,7 +1,7 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalEndcapRecHitsMaker.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
@@ -27,10 +27,7 @@
 
 #include <algorithm>
 
-EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p, 
-
-					       const RandomEngine * myrandom) 
-  : random_(myrandom)
+EcalEndcapRecHitsMaker::EcalEndcapRecHitsMaker(edm::ParameterSet const & p)
 {
   edm::ParameterSet RecHitsParameters=p.getParameter<edm::ParameterSet>("ECALEndcap");
   inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
@@ -107,10 +104,11 @@ void EcalEndcapRecHitsMaker::clean()
 }
 
 
-void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCollection & ecalHits,EEDigiCollection & ecalDigis)
+void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCollection & ecalHits,EEDigiCollection & ecalDigis,
+                                                   RandomEngineAndDistribution const* random)
 {
   clean();
-  loadPCaloHits(iEvent);
+  loadPCaloHits(iEvent, random);
 
   unsigned nhit=theFiredCells_.size();
   unsigned gain, adc;
@@ -159,7 +157,7 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 
 }
 
-void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
+void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, RandomEngineAndDistribution const* random)
 {
   //  std::cout << " loadPCaloHits " << std::endl;
   edm::Handle<CrossingFrame<PCaloHit> > cf;
@@ -180,7 +178,7 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 	  theFiredCells_.push_back(hashedindex); 
 	  float noise=(noise_==-1.) ? noisesigma_[hashedindex] : noise_ ;
 	  if (!noisified_ ) {
-	    theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise*calib); 
+	    theCalorimeterHits_[hashedindex] += random->gaussShoot(0.,noise*calib);
 	  }
 	}
       // the famous 1/0.97 calibration factor is applied here ! 
@@ -204,11 +202,11 @@ void EcalEndcapRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 
     }
   //  std::cout << " Noisifying the TT " << std::endl;
-  noisifyTriggerTowers();
-  randomNoisifier();
+  noisifyTriggerTowers(random);
+  randomNoisifier(random);
 }
 
-void EcalEndcapRecHitsMaker::noisifyTriggerTowers()
+void EcalEndcapRecHitsMaker::noisifyTriggerTowers(RandomEngineAndDistribution const* random)
 {
   if(noise_==0.) return;
 
@@ -218,12 +216,12 @@ void EcalEndcapRecHitsMaker::noisifyTriggerTowers()
     {      
       // shoot noise in the trigger tower 
       //      std::cout << " Treating " << theFiredTTs_[itt] << " " << theTTDetIds_[theFiredTTs_[itt]] << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;       
-	noisifySuperCrystals(theFiredTTs_[itt]);
+      noisifySuperCrystals(theFiredTTs_[itt], random);
     }
 }
 
 // inject noise in all the supercrystals of a given trigger tower
-void EcalEndcapRecHitsMaker::noisifySuperCrystals(int tthi)
+void EcalEndcapRecHitsMaker::noisifySuperCrystals(int tthi, RandomEngineAndDistribution const* random)
 {
   unsigned size=SCofTT_[tthi].size();
   // get the list of Supercrytals
@@ -249,7 +247,7 @@ void EcalEndcapRecHitsMaker::noisifySuperCrystals(int tthi)
 	    {
 	      float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
 	      float noise = (noise_==-1.) ? noisesigma_[hashedindex]:noise_;
-	      float energy = calib*random_->gaussShoot(0.,noise);
+	      float energy = calib*random->gaussShoot(0.,noise);
 	      theCalorimeterHits_[hashedindex]=energy;
 	      theFiredCells_.push_back(hashedindex);
 	      // the corresponding trigger tower should be updated 
@@ -273,11 +271,11 @@ void EcalEndcapRecHitsMaker::noisifySuperCrystals(int tthi)
 // Two different cases:
 // 1) noise flat in energy -> use a GaussianTail generator
 // 2) noise from database (~flat in pT) -> inject noise everywhere
-void EcalEndcapRecHitsMaker::randomNoisifier()
+void EcalEndcapRecHitsMaker::randomNoisifier(RandomEngineAndDistribution const* random)
 {
   // first of cells where some noise will be injected
   double mean = (double)(EEDetId::kSizeForDenseIndexing-theFiredCells_.size())*EEHotFraction_;
-  unsigned ncells= random_->poissonShoot(mean);
+  unsigned ncells= random->poissonShoot(mean);
 
   // for debugging
   //  std::vector<int> listofNewTowers;
@@ -289,14 +287,14 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
   while(icell < ncells)
     {
       unsigned cellindex= (noise_!=-1. || doCustomHighNoise_) ? 
-	(unsigned)(floor(random_->flatShoot()*EEDetId::kSizeForDenseIndexing)): icell ;
+	(unsigned)(floor(random->flatShoot()*EEDetId::kSizeForDenseIndexing)): icell ;
       
       if(theCalorimeterHits_[cellindex]==0.)
 	{
 	  // if noise_>0 the following is really an energy, if -1. it is a transverse energy
 	  double energy=0.;
 	  if(noise_>0.) 
-	    energy=myGaussianTailGenerator_->shoot();
+	    energy=myGaussianTailGenerator_->shoot(random);
 	  if(noise_==-1.) 
 	    {
 	      // in this case the generated noise might be below the threshold but it 
@@ -304,7 +302,7 @@ void EcalEndcapRecHitsMaker::randomNoisifier()
 	      //	      energy/=sinTheta_[(cellindex<EEDetId::kEEhalf)?cellindex : cellindex-EEDetId::kEEhalf];	 
 	      float noisemean  = (doCustomHighNoise_)? highNoiseParameters_[0]*(*ICMC_)[cellindex]*adcToGeV_: 0.;
 	      float noisesigma = (doCustomHighNoise_)? highNoiseParameters_[1]*(*ICMC_)[cellindex]*adcToGeV_ : noisesigma_[cellindex]; 
-	      energy=random_->gaussShoot(noisemean,noisesigma); 
+	      energy=random->gaussShoot(noisemean,noisesigma);
 
 	      // in the case of high noise fluctuation, the ZS should not be applied later 
 	      if(doCustomHighNoise_) applyZSCells_[cellindex]=false;
@@ -503,7 +501,7 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   Genfun::Erf myErf; 
   if(  noise_>0. ) {
     EEHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
-    myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+    myGaussianTailGenerator_ = new GaussianTail(noise_, threshold_);
     edm::LogInfo("CaloRecHitsProducer") <<"Uniform noise simulation selected";
   }
   else  if( noise_==-1 && doCustomHighNoise_)
