@@ -193,9 +193,9 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
 	e.getByLabel(hitProducer, theGSRecHits);
 
-	std::cout<<"event contains: "<<theSimTracks->size()<<" simtracks"<<std::endl;
-	std::cout<<"event contains: "<<theGSRecHits->ids().size()<<" simtracks associated to hits"<<std::endl;
-	std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
+	//std::cout<<"event contains: "<<theSimTracks->size()<<" simtracks"<<std::endl;
+	//std::cout<<"event contains: "<<theGSRecHits->ids().size()<<" simtracks associated to hits"<<std::endl;
+	//std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
 
 	//if no hits -> directly write empty collection
 	if(theGSRecHits->size() == 0)
@@ -218,12 +218,17 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	    vertices[ialgo] = &(*aHandle);
 	}
 
+	//for comparison
+	std::vector<std::vector<int>> seedHit_new;
+	seedHit_new.resize(theSimTracks->size());
+	std::vector<std::vector<int>> seedHit_old;
+	seedHit_old.resize(theSimTracks->size());
 
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
 		const unsigned int currentID = *itSimTrackId;
 		//if (currentID!=55) continue;
-		std::cout<<"processing simtrack with id: "<<currentID<<std::endl;
+		//std::cout<<"processing simtrack with id: "<<currentID<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[*itSimTrackId];
 
 		int vertexIndex = theSimTrack.vertIndex();
@@ -257,6 +262,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				layerNames.resize(theLayersInSets.size());
 
 				bool foundSeed = false;
+				unsigned int seedLayerSet=0;
 				for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second && !foundSeed; ++itRecHit)
 				{
 
@@ -293,6 +299,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 								if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
 								{
 									//TODO: check if all valid seeds should be saved to perform additional quality checks
+									seedLayerSet=ilayerset;
 									foundSeed=true;
 									break;
 								}
@@ -300,7 +307,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 						}
 					}
 				}
-
+				/*
 				std::cout<<"ialgo="<<ialgo<<std::endl;
 				for (unsigned int i=0;i<hitNumbers.size(); ++i)
 				{
@@ -315,20 +322,21 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 						std::cout<<"\tseed!"<<std::endl;
 					}
-
 				}
 
-
-
-				//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
-
-
-			    /*for (unsigned int i=0;i<hitNumbers.size();++i)
+				*/
+				if (foundSeed)
 				{
-			    	std::cout<<hitNumbers[i]<<",";
-				}*/
-			    std::cout<<std::endl;
+					//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
 
+
+					for (unsigned int i=0;i<hitNumbers[seedLayerSet].size();++i)
+					{
+						seedHit_new[currentID].push_back(hitNumbers[seedLayerSet][i]);
+						//std::cout<<hitNumbers[seedLayerSet][i]<<",";
+					}
+					//std::cout<<std::endl;
+				}
 			}
 
 		}
@@ -337,8 +345,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 
 
-	std::cout<<std::endl;
-    std::cout<<"old result:"<<std::endl;
+	//std::cout<<std::endl;
+    //std::cout<<"old result:"<<std::endl;
 
   
 #ifdef FAMOS_DEBUG
@@ -400,7 +408,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit2;
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit3;
 
-    unsigned int hit1,hit2,hit3;
+    unsigned int hit1,hit2,hit3 =0;
 
 
     // Check the number of layers crossed
@@ -702,8 +710,10 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       // Create a new Trajectory Seed    
 
 
-      std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
-
+      //std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
+      seedHit_old[simTrackId].push_back(hit1);
+      seedHit_old[simTrackId].push_back(hit2);
+      seedHit_old[simTrackId].push_back(hit3);
 
       output[ialgo]->push_back(TrajectorySeed(initialState, recHits, alongMomentum));
 #ifdef FAMOS_DEBUG
@@ -719,8 +729,30 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
     std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
     e.put(p,seedingAlgo[ialgo]);
   }
-  std::cout<<"-------------------"<<std::endl;
-  std::cout<<"-------------------"<<std::endl;
+
+
+  for (unsigned int isimtrack=0; isimtrack<seedHit_old.size(); ++isimtrack)
+  {
+	  if (seedHit_old[isimtrack].size()==seedHit_new[isimtrack].size())
+	  {
+	  	  for (unsigned int ihit=0; ihit<seedHit_old[isimtrack].size();++ihit)
+	  	  {
+
+			  if (seedHit_old[isimtrack][ihit]!=seedHit_new[isimtrack][ihit])
+			  {
+				  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", hit="<<ihit<<" number is different!"<<std::endl;
+			  }
+		  }
+	  }
+	  else
+	  {
+		  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", number of hits differ!"<<std::endl;
+
+	  }
+  }
+
+  //std::cout<<"-------------------"<<std::endl;
+  //std::cout<<"-------------------"<<std::endl;
 }
 
 
