@@ -31,13 +31,13 @@
 //                          //
 //////////////////////////////
 
-class PrintStackInfo : public edm::EDAnalyzer
+class AnalyzerPrintGeomInfo : public edm::EDAnalyzer
 {
   /// Public methods
   public:
     /// Constructor/destructor
-    explicit PrintStackInfo(const edm::ParameterSet& iConfig);
-    virtual ~PrintStackInfo();
+    explicit AnalyzerPrintGeomInfo(const edm::ParameterSet& iConfig);
+    virtual ~AnalyzerPrintGeomInfo();
     // Typical methods used on Loops over events
     virtual void beginJob();
     virtual void endJob();
@@ -97,7 +97,7 @@ class PrintStackInfo : public edm::EDAnalyzer
 
 //////////////
 // CONSTRUCTOR
-PrintStackInfo::PrintStackInfo(edm::ParameterSet const& iConfig) : 
+AnalyzerPrintGeomInfo::AnalyzerPrintGeomInfo(edm::ParameterSet const& iConfig) : 
   config(iConfig)
 {
   /// Insert here what you need to initialize
@@ -110,7 +110,7 @@ PrintStackInfo::PrintStackInfo(edm::ParameterSet const& iConfig) :
 
 /////////////
 // DESTRUCTOR
-PrintStackInfo::~PrintStackInfo()
+AnalyzerPrintGeomInfo::~AnalyzerPrintGeomInfo()
 {
   /// Insert here what you need to delete
   /// when you close the class instance
@@ -118,24 +118,24 @@ PrintStackInfo::~PrintStackInfo()
 
 //////////
 // END JOB
-void PrintStackInfo::endJob()//edm::Run& run, const edm::EventSetup& iSetup
+void AnalyzerPrintGeomInfo::endJob()//edm::Run& run, const edm::EventSetup& iSetup
 {
   /// Things to be done at the exit of the event Loop
   outputFile.close();
 
-  std::cerr << " PrintStackInfo::endJob" << std::endl;
+  std::cerr << " AnalyzerPrintGeomInfo::endJob" << std::endl;
   /// End of things to be done at the exit from the event Loop
 }
 
 ////////////
 // BEGIN JOB
-void PrintStackInfo::beginJob()
+void AnalyzerPrintGeomInfo::beginJob()
 {
   std::ostringstream histoName;
   std::ostringstream histoTitle;
 
   /// Things to be done before entering the event Loop
-  std::cerr << " PrintStackInfo::beginJob" << std::endl;
+  std::cerr << " AnalyzerPrintGeomInfo::beginJob" << std::endl;
 
   edm::Service<TFileService> fs;
 
@@ -282,7 +282,7 @@ void PrintStackInfo::beginJob()
 
 //////////
 // ANALYZE
-void PrintStackInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void AnalyzerPrintGeomInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Geometry handles etc
   edm::ESHandle<TrackerGeometry>                               geometryHandle;
@@ -1370,5 +1370,5 @@ void PrintStackInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 ///////////////////////////
 // DEFINE THIS AS A PLUG-IN
-DEFINE_FWK_MODULE(PrintStackInfo);
+DEFINE_FWK_MODULE(AnalyzerPrintGeomInfo);
 

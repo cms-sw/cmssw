@@ -14,7 +14,7 @@
 #################################################################################################
 import FWCore.ParameterSet.Config as cms
 import os
-process = cms.Process('ValidateSimHitMaps')
+process = cms.Process('AnalyzerSimHitMaps')
 
 #################################################################################################
 # global tag
@@ -51,17 +51,17 @@ process.maxEvents = cms.untracked.PSet(
 #################################################################################################
 # load the analyzer
 #################################################################################################
-process.ValidateSimHitMaps = cms.EDAnalyzer("ValidateSimHitMaps")
+process.AnalyzerSimHitMaps = cms.EDAnalyzer("AnalyzerSimHitMaps")
 
 #################################################################################################
 # define output file and message logger
 #################################################################################################
 process.TFileService = cms.Service("TFileService",
-  fileName = cms.string('file:ValidateSimHitMaps_ExtendedPhase2TkBE5D.root')
+  fileName = cms.string('file:AnalyzerSimHitMaps_ExtendedPhase2TkBE5D.root')
 )
 
 #################################################################################################
 # define the final path to be fed to cmsRun
 #################################################################################################
-process.p = cms.Path( process.ValidateSimHitMaps )
+process.p = cms.Path( process.AnalyzerSimHitMaps )
 

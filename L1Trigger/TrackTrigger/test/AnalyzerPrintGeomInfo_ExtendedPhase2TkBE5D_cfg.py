@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.MyModule = cms.EDAnalyzer("PrintStackInfo",
+process.MyModule = cms.EDAnalyzer("AnalyzerPrintGeomInfo",
     TextOutput = cms.string('GeometrySummary_ExtendedPhase2TkBE5D.log'),
     DebugMode = cms.bool(False)
 )

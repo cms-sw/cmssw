@@ -31,13 +31,13 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-class ValidateClusterStub : public edm::EDAnalyzer
+class AnalyzerClusterStub : public edm::EDAnalyzer
 {
   /// Public methods
   public:
     /// Constructor/destructor
-    explicit ValidateClusterStub(const edm::ParameterSet& iConfig);
-    virtual ~ValidateClusterStub();
+    explicit AnalyzerClusterStub(const edm::ParameterSet& iConfig);
+    virtual ~AnalyzerClusterStub();
     // Typical methods used on Loops over events
     virtual void beginJob();
     virtual void endJob();
@@ -182,7 +182,7 @@ class ValidateClusterStub : public edm::EDAnalyzer
 
 //////////////
 // CONSTRUCTOR
-ValidateClusterStub::ValidateClusterStub(edm::ParameterSet const& iConfig) : 
+AnalyzerClusterStub::AnalyzerClusterStub(edm::ParameterSet const& iConfig) : 
   config(iConfig)
 {
   /// Insert here what you need to initialize
@@ -191,7 +191,7 @@ ValidateClusterStub::ValidateClusterStub(edm::ParameterSet const& iConfig) :
 
 /////////////
 // DESTRUCTOR
-ValidateClusterStub::~ValidateClusterStub()
+AnalyzerClusterStub::~AnalyzerClusterStub()
 {
   /// Insert here what you need to delete
   /// when you close the class instance
@@ -199,16 +199,16 @@ ValidateClusterStub::~ValidateClusterStub()
 
 //////////
 // END JOB
-void ValidateClusterStub::endJob()//edm::Run& run, const edm::EventSetup& iSetup
+void AnalyzerClusterStub::endJob()//edm::Run& run, const edm::EventSetup& iSetup
 {
   /// Things to be done at the exit of the event Loop
-  std::cerr << " ValidateClusterStub::endJob" << std::endl;
+  std::cerr << " AnalyzerClusterStub::endJob" << std::endl;
   /// End of things to be done at the exit from the event Loop
 }
 
 ////////////
 // BEGIN JOB
-void ValidateClusterStub::beginJob()
+void AnalyzerClusterStub::beginJob()
 {
   /// Initialize all slave variables
   /// mainly histogram ranges and resolution
@@ -218,7 +218,7 @@ void ValidateClusterStub::beginJob()
   std::ostringstream histoTitle;
 
   /// Things to be done before entering the event Loop
-  std::cerr << " ValidateClusterStub::beginJob" << std::endl;
+  std::cerr << " AnalyzerClusterStub::beginJob" << std::endl;
 
   /// Book histograms etc
   edm::Service<TFileService> fs;
@@ -609,7 +609,7 @@ void ValidateClusterStub::beginJob()
 
 //////////
 // ANALYZE
-void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Geometry handles etc
   edm::ESHandle< TrackerGeometry >                GeometryHandle;
@@ -639,17 +639,18 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   /// Track Trigger
   edm::Handle< std::vector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
+  edm::Handle< std::vector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterInclusiveHandle;
   edm::Handle< std::vector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
-  edm::Handle< std::vector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTFailedStubHandle;
-  iEvent.getByLabel( "TTClustersFromPixelDigis",             PixelDigiTTClusterHandle );
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubsPass",   PixelDigiTTStubHandle );
-  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubsFail",   PixelDigiTTFailedStubHandle );
+  /// NOTE: the InputTag for the "Accepted" clusters is different from the "Inclusive" one
+  iEvent.getByLabel( "TTStubsFromPixelDigis", "ClusterAccepted",     PixelDigiTTClusterHandle );
+  iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterInclusiveHandle ); 
+  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted",        PixelDigiTTStubHandle );
 
   /// Track Trigger MC Truth
   edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
   edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > >    MCTruthTTStubHandle;
-  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", MCTruthTTClusterHandle );
-  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis",    MCTruthTTStubHandle );
+  iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterAccepted", MCTruthTTClusterHandle );
+  iEvent.getByLabel( "TTStubAssociatorFromPixelDigis", "StubAccepted",       MCTruthTTStubHandle );
 
   ////////////////////////////////
   /// COLLECT STUB INFORMATION ///
@@ -1278,5 +1279,5 @@ void ValidateClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 ///////////////////////////
 // DEFINE THIS AS A PLUG-IN
-DEFINE_FWK_MODULE(ValidateClusterStub);
+DEFINE_FWK_MODULE(AnalyzerClusterStub);
 

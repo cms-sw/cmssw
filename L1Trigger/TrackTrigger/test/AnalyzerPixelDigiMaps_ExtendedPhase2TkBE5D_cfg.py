@@ -14,7 +14,7 @@
 #################################################################################################
 import FWCore.ParameterSet.Config as cms
 import os
-process = cms.Process('ValidatePixelDigiMaps')
+process = cms.Process('AnalyzerPixelDigiMaps')
 
 #################################################################################################
 # global tag
@@ -52,7 +52,7 @@ process.maxEvents = cms.untracked.PSet(
 #################################################################################################
 # load the analyzer
 #################################################################################################
-process.ValidatePixelDigiMaps = cms.EDAnalyzer("ValidatePixelDigiMaps",
+process.AnalyzerPixelDigiMaps = cms.EDAnalyzer("AnalyzerPixelDigiMaps",
 #    DebugMode = cms.bool(True)
 )
 
@@ -60,7 +60,7 @@ process.ValidatePixelDigiMaps = cms.EDAnalyzer("ValidatePixelDigiMaps",
 # define output file and message logger
 #################################################################################################
 process.TFileService = cms.Service("TFileService",
-  fileName = cms.string('file:ValidatePixelDigiMaps_ExtendedPhase2TkBE5D.root')
+  fileName = cms.string('file:AnalyzerPixelDigiMaps_ExtendedPhase2TkBE5D.root')
 )
 
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")
@@ -70,7 +70,7 @@ process.eca_step = cms.Path(process.eca)
 #################################################################################################
 # define the final path to be fed to cmsRun
 #################################################################################################
-process.p = cms.Path( process.ValidatePixelDigiMaps )
+process.p = cms.Path( process.AnalyzerPixelDigiMaps )
 
 process.schedule = cms.Schedule(process.eca_step,process.p)
 

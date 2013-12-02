@@ -37,13 +37,13 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-class ValidateL1Track : public edm::EDAnalyzer
+class AnalyzerL1Track : public edm::EDAnalyzer
 {
   /// Public methods
   public:
     /// Constructor/destructor
-    explicit ValidateL1Track(const edm::ParameterSet& iConfig);
-    virtual ~ValidateL1Track();
+    explicit AnalyzerL1Track(const edm::ParameterSet& iConfig);
+    virtual ~AnalyzerL1Track();
     // Typical methods used on Loops over events
     virtual void beginJob();
     virtual void endJob();
@@ -208,7 +208,7 @@ class ValidateL1Track : public edm::EDAnalyzer
 
 //////////////
 // CONSTRUCTOR
-ValidateL1Track::ValidateL1Track(edm::ParameterSet const& iConfig) 
+AnalyzerL1Track::AnalyzerL1Track(edm::ParameterSet const& iConfig) 
 {
   /// Insert here what you need to initialize
   vLimitsPt = iConfig.getParameter< std::vector< double > >("vLimitsPt");
@@ -246,7 +246,7 @@ ValidateL1Track::ValidateL1Track(edm::ParameterSet const& iConfig)
 
 /////////////
 // DESTRUCTOR
-ValidateL1Track::~ValidateL1Track()
+AnalyzerL1Track::~AnalyzerL1Track()
 {
   /// Insert here what you need to delete
   /// when you close the class instance
@@ -254,10 +254,10 @@ ValidateL1Track::~ValidateL1Track()
 
 //////////
 // END JOB
-void ValidateL1Track::endJob()
+void AnalyzerL1Track::endJob()
 {
   /// Things to be done at the exit of the event Loop
-  std::cerr << " ValidateL1Track::endJob" << std::endl;
+  std::cerr << " AnalyzerL1Track::endJob" << std::endl;
   /// End of things to be done at the exit from the event Loop
 
   std::cerr<<"DeltaRhoPhi BB"<<std::endl;
@@ -356,7 +356,7 @@ void ValidateL1Track::endJob()
 
 ////////////
 // BEGIN JOB
-void ValidateL1Track::beginJob()
+void AnalyzerL1Track::beginJob()
 {
   /// Initialize all slave variables
   /// mainly histogram ranges and resolution
@@ -364,7 +364,7 @@ void ValidateL1Track::beginJob()
   std::ostringstream histoTitle;
 
   /// Things to be done before entering the event Loop
-  std::cerr << " ValidateL1Track::beginJob" << std::endl;
+  std::cerr << " AnalyzerL1Track::beginJob" << std::endl;
 
   /// Book histograms etc
   edm::Service<TFileService> fs;
@@ -772,7 +772,7 @@ void ValidateL1Track::beginJob()
 
 //////////
 // ANALYZE
-void ValidateL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void AnalyzerL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Get geometry
   edm::ESHandle< StackedTrackerGeometry >  StackedGeometryHandle;
@@ -1337,5 +1337,5 @@ if ( hasBL1 )
 
 ///////////////////////////
 // DEFINE THIS AS A PLUG-IN
-DEFINE_FWK_MODULE(ValidateL1Track);
+DEFINE_FWK_MODULE(AnalyzerL1Track);
 

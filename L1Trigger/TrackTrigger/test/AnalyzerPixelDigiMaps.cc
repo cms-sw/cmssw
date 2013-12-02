@@ -29,13 +29,13 @@
 //                          //
 //////////////////////////////
 
-class ValidatePixelDigiMaps : public edm::EDAnalyzer
+class AnalyzerPixelDigiMaps : public edm::EDAnalyzer
 {
   /// Public methods
   public:
     /// Constructor/destructor
-    explicit ValidatePixelDigiMaps(const edm::ParameterSet& iConfig);
-    virtual ~ValidatePixelDigiMaps();
+    explicit AnalyzerPixelDigiMaps(const edm::ParameterSet& iConfig);
+    virtual ~AnalyzerPixelDigiMaps();
     // Typical methods used on Loops over events
     virtual void beginJob();
     virtual void endJob();
@@ -64,14 +64,14 @@ class ValidatePixelDigiMaps : public edm::EDAnalyzer
 
 //////////////
 // CONSTRUCTOR
-ValidatePixelDigiMaps::ValidatePixelDigiMaps(edm::ParameterSet const& iConfig) 
+AnalyzerPixelDigiMaps::AnalyzerPixelDigiMaps(edm::ParameterSet const& iConfig) 
 {
   /// Insert here what you need to initialize
 }
 
 /////////////
 // DESTRUCTOR
-ValidatePixelDigiMaps::~ValidatePixelDigiMaps()
+AnalyzerPixelDigiMaps::~AnalyzerPixelDigiMaps()
 {
   /// Insert here what you need to delete
   /// when you close the class instance
@@ -79,16 +79,16 @@ ValidatePixelDigiMaps::~ValidatePixelDigiMaps()
 
 //////////
 // END JOB
-void ValidatePixelDigiMaps::endJob()
+void AnalyzerPixelDigiMaps::endJob()
 {
   /// Things to be done at the exit of the event Loop
-  std::cerr << " ValidatePixelDigiMaps::endJob" << std::endl;
+  std::cerr << " AnalyzerPixelDigiMaps::endJob" << std::endl;
   /// End of things to be done at the exit from the event Loop
 }
 
 ////////////
 // BEGIN JOB
-void ValidatePixelDigiMaps::beginJob()
+void AnalyzerPixelDigiMaps::beginJob()
 {
   /// Initialize all slave variables
   /// mainly histogram ranges and resolution
@@ -96,7 +96,7 @@ void ValidatePixelDigiMaps::beginJob()
   std::ostringstream histoTitle;
 
   /// Things to be done before entering the event Loop
-  std::cerr << " ValidatePixelDigiMaps::beginJob" << std::endl;
+  std::cerr << " AnalyzerPixelDigiMaps::beginJob" << std::endl;
 
   /// Book histograms etc
   edm::Service<TFileService> fs;
@@ -148,7 +148,7 @@ void ValidatePixelDigiMaps::beginJob()
 
 //////////
 // ANALYZE
-void ValidatePixelDigiMaps::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void AnalyzerPixelDigiMaps::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Geometry handles etc
   edm::ESHandle< TrackerGeometry >         geometryHandle;
@@ -227,5 +227,5 @@ std::cerr<<PixelDigiHandle.id() << " ////// " << PixelDigiSimLinkHandle.id() <<s
 
 ///////////////////////////
 // DEFINE THIS AS A PLUG-IN
-DEFINE_FWK_MODULE(ValidatePixelDigiMaps);
+DEFINE_FWK_MODULE(AnalyzerPixelDigiMaps);
 

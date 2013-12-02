@@ -26,13 +26,13 @@
 //                          //
 //////////////////////////////
 
-class ValidateSimHitMaps : public edm::EDAnalyzer
+class AnalyzerSimHitMaps : public edm::EDAnalyzer
 {
   /// Public methods
   public:
     /// Constructor/destructor
-    explicit ValidateSimHitMaps(const edm::ParameterSet& iConfig);
-    virtual ~ValidateSimHitMaps();
+    explicit AnalyzerSimHitMaps(const edm::ParameterSet& iConfig);
+    virtual ~AnalyzerSimHitMaps();
     // Typical methods used on Loops over events
     virtual void beginJob();
     virtual void endJob();
@@ -61,14 +61,14 @@ class ValidateSimHitMaps : public edm::EDAnalyzer
 
 //////////////
 // CONSTRUCTOR
-ValidateSimHitMaps::ValidateSimHitMaps(edm::ParameterSet const& iConfig) 
+AnalyzerSimHitMaps::AnalyzerSimHitMaps(edm::ParameterSet const& iConfig) 
 {
   /// Insert here what you need to initialize
 }
 
 /////////////
 // DESTRUCTOR
-ValidateSimHitMaps::~ValidateSimHitMaps()
+AnalyzerSimHitMaps::~AnalyzerSimHitMaps()
 {
   /// Insert here what you need to delete
   /// when you close the class instance
@@ -76,16 +76,16 @@ ValidateSimHitMaps::~ValidateSimHitMaps()
 
 //////////
 // END JOB
-void ValidateSimHitMaps::endJob()
+void AnalyzerSimHitMaps::endJob()
 {
   /// Things to be done at the exit of the event Loop
-  std::cerr << " ValidateSimHitMaps::endJob" << std::endl;
+  std::cerr << " AnalyzerSimHitMaps::endJob" << std::endl;
   /// End of things to be done at the exit from the event Loop
 }
 
 ////////////
 // BEGIN JOB
-void ValidateSimHitMaps::beginJob()
+void AnalyzerSimHitMaps::beginJob()
 {
   /// Initialize all slave variables
   /// mainly histogram ranges and resolution
@@ -93,7 +93,7 @@ void ValidateSimHitMaps::beginJob()
   std::ostringstream histoTitle;
 
   /// Things to be done before entering the event Loop
-  std::cerr << " ValidateSimHitMaps::beginJob" << std::endl;
+  std::cerr << " AnalyzerSimHitMaps::beginJob" << std::endl;
 
   /// Book histograms etc
   edm::Service<TFileService> fs;
@@ -145,7 +145,7 @@ void ValidateSimHitMaps::beginJob()
 
 //////////
 // ANALYZE
-void ValidateSimHitMaps::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void AnalyzerSimHitMaps::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   /// Geometry handles etc
   edm::ESHandle< TrackerGeometry >         geometryHandle;
@@ -322,5 +322,5 @@ void ValidateSimHitMaps::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 ///////////////////////////
 // DEFINE THIS AS A PLUG-IN
-DEFINE_FWK_MODULE(ValidateSimHitMaps);
+DEFINE_FWK_MODULE(AnalyzerSimHitMaps);
 

@@ -14,7 +14,7 @@
 #################################################################################################
 import FWCore.ParameterSet.Config as cms
 #--------------------import os
-process = cms.Process('ValidateL1Track')
+process = cms.Process('AnalyzerL1Track')
 
 #################################################################################################
 # global tag
@@ -79,7 +79,7 @@ process.L1TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 #################################################################################################
 # load the analyzer
 #################################################################################################
-process.ValidateL1Track = cms.EDAnalyzer("ValidateL1Track",
+process.AnalyzerL1Track = cms.EDAnalyzer("AnalyzerL1Track",
     DebugMode = cms.bool(True),
     vLimitsPt  = cms.vdouble( 5.0,
                               15.0,
@@ -110,16 +110,16 @@ process.ValidateL1Track = cms.EDAnalyzer("ValidateL1Track",
 # define output file and message logger
 #################################################################################################
 process.TFileService = cms.Service("TFileService",
-  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_Muon0100GeVNEWFIT.root')
+  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_Muon0100GeVNEWFIT.root')
 
-#  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_Pion050GeV.root')
-#  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_Ele.root')
-
-
-#  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_Muon210100L1.root')
+#  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_Pion050GeV.root')
+#  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_Ele.root')
 
 
-#  fileName = cms.string('file:ValidateL1Track_ExtendedPhase2TkBE5D_DYTauTau.root')
+#  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_Muon210100L1.root')
+
+
+#  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_DYTauTau.root')
 
 #fileName = cms.string('file:TEST.root')
 )
@@ -127,7 +127,7 @@ process.TFileService = cms.Service("TFileService",
 #################################################################################################
 # define the final path to be fed to cmsRun
 #################################################################################################
-process.p = cms.Path( process.ValidateL1Track )
+process.p = cms.Path( process.AnalyzerL1Track )
 
 process.schedule = cms.Schedule( process.L1TrackTrigger_step,process.L1TTAssociator_step,process.p )
 

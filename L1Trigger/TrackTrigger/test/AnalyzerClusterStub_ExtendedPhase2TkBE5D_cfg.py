@@ -14,7 +14,7 @@
 #################################################################################################
 import FWCore.ParameterSet.Config as cms
 #--------------import os
-process = cms.Process('ValidateClusterStub')
+process = cms.Process('AnalyzerClusterStub')
 
 #################################################################################################
 # global tag
@@ -64,7 +64,7 @@ process.maxEvents = cms.untracked.PSet(
 #################################################################################################
 # load the analyzer
 #################################################################################################
-process.ValidateClusterStub = cms.EDAnalyzer("ValidateClusterStub",
+process.AnalyzerClusterStub = cms.EDAnalyzer("AnalyzerClusterStub",
     DebugMode = cms.bool(True)
 )
 
@@ -72,16 +72,16 @@ process.ValidateClusterStub = cms.EDAnalyzer("ValidateClusterStub",
 # define output file and message logger
 #################################################################################################
 process.TFileService = cms.Service("TFileService",
-#  fileName = cms.string('file:ValidateClusterStub_ExtendedPhase2TkBE5D_MuonPU140.root')
-#  fileName = cms.string('file:ValidateClusterStub_ExtendedPhase2TkBE5D_Pion.root')
-  fileName = cms.string('file:ValidateClusterStub_ExtendedPhase2TkBE5D_Ele.root')
-#  fileName = cms.string('file:ValidateClusterStub_ExtendedPhase2TkBE5D_DYTauTau.root')
+#  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_MuonPU140.root')
+#  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_Pion.root')
+  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_Ele.root')
+#  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_DYTauTau.root')
 )
 
 #################################################################################################
 # define the final path to be fed to cmsRun
 #################################################################################################
-process.p = cms.Path( process.ValidateClusterStub )
+process.p = cms.Path( process.AnalyzerClusterStub )
 
 
 

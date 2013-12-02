@@ -31,7 +31,8 @@ class TTCluster
     TTCluster();
     TTCluster( std::vector< T > aHits,
                DetId aDetId,
-               unsigned int aStackMember );
+               unsigned int aStackMember,
+               bool storeLocal );
 
     /// Destructor
     ~TTCluster();
@@ -49,6 +50,13 @@ class TTCluster
     unsigned int getStackMember() const                      { return theStackMember; }
     void         setStackMember( unsigned int aStackMember ) { theStackMember = aStackMember; }
 
+    /// Rows and columns to get rid of Digi collection
+    std::vector< int > findRows() const;
+    std::vector< int > findCols() const;
+    void setCoordinates( std::vector< int > a, std::vector< int > b ) { theRows = a; theCols = b; }
+    std::vector< int > getRows() const { return theRows; }
+    std::vector< int > getCols() const { return theCols; }
+
     /// Cluster width
     unsigned int findWidth() const;
 
@@ -65,6 +73,9 @@ class TTCluster
     std::vector< T >  theHits;
     DetId             theDetId;
     unsigned int      theStackMember;
+
+    std::vector< int > theRows;
+    std::vector< int > theCols;
 
 }; /// Close class
 
@@ -84,18 +95,29 @@ TTCluster< T >::TTCluster()
   theHits.clear();
   theDetId = 0;
   theStackMember = 0;
+
+  theRows.clear();
+  theCols.clear();
 }
 
 /// Another Constructor
 template< typename T >
 TTCluster< T >::TTCluster( std::vector< T > aHits,
                            DetId aDetId,
-                           unsigned int aStackMember )
+                           unsigned int aStackMember,
+                           bool storeLocal )
 {
   /// Set data members
   this->setHits( aHits );
   this->setDetId( aDetId );
   this->setStackMember( aStackMember );    
+
+  theRows.clear();
+  theCols.clear();
+  if ( storeLocal )
+  {
+    this->setCoordinates( this->findRows(), this->findCols() );
+  }
 }
 
 /// Destructor
@@ -104,15 +126,36 @@ TTCluster< T >::~TTCluster(){}
 
 /// Cluster width
 template< >
-unsigned int TTCluster< edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi > >::findWidth() const;
+unsigned int TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findWidth() const;
 
 /// Single hit coordinates
 /// Average cluster coordinates
 template< >
-MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi > >::findHitLocalCoordinates( unsigned int hitIdx ) const;
+MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findHitLocalCoordinates( unsigned int hitIdx ) const;
 
 template< >
-MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector<PixelDigi> , PixelDigi > >::findAverageLocalCoordinates() const;
+MeasurementPoint TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findAverageLocalCoordinates() const;
+
+/// Operations with coordinates stored locally
+template< typename T > 
+std::vector< int > TTCluster< T >::findRows() const
+{
+  std::vector< int > temp;
+  return temp;
+}
+
+template< typename T > 
+std::vector< int > TTCluster< T >::findCols() const
+{
+  std::vector< int > temp;
+  return temp;
+}
+
+template< >
+std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findRows() const;
+
+template< >
+std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findCols() const;
 
 /// Information
 template< typename T >
