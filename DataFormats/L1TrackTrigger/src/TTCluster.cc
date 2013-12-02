@@ -12,7 +12,7 @@
 
 /// Cluster width
 template< >
-unsigned int TTCluster<edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findWidth() const
+unsigned int TTCluster< edm::Ref< edm::DetSetVector< PixelDigi >, PixelDigi > >::findWidth() const
 {
   int rowMin = 99999999;
   int rowMax = 0;
