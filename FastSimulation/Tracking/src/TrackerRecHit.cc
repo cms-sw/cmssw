@@ -108,36 +108,6 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProd
 }
 
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const std::vector<TrackerRecHit>& seedHits)
-{
-
-	for (unsigned int ilayerSet=0; ilayerSet<theLayersInSets.size(); ++ilayerSet)
-	{
-		bool accept=true;
-		if (seedHits.size()>theLayersInSets[ilayerSet].size())
-		{
-			//does not allow more hits to be accepted than requested!
-			//TODO: should not be called here in the first place -> break loop in TrajectorySeedProducer instead
-			continue;
-		}
-		for (unsigned int ilayer=0; ilayer<theLayersInSets[ilayerSet].size(); ++ilayer)
-		{
-			if (ilayer>=seedHits.size())
-			{
-				break;
-			}
-			accept = accept && theLayersInSets[ilayerSet][ilayer].subDet==seedHits[ilayer].subDetId() && theLayersInSets[ilayerSet][ilayer].idLayer==seedHits[ilayer].layerNumber();
-		}
-		if (accept)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
-bool
 //TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet) const { 
 TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet, const std::string& seedingAlgo) const { 
   
