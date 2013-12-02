@@ -39,6 +39,18 @@ const GeomDet* GEMGeometry::idToDet(DetId id) const{
   return (i != theMap.end()) ? i->second : 0 ;
 }
 
+const std::vector<const GEMRegion*>& GEMGeometry::regions() const {
+  return allRegions;
+}
+
+const std::vector<const GEMStation*>& GEMGeometry::stations() const {
+  return allStations;
+}
+
+const std::vector<const GEMRing*>& GEMGeometry::rings() const{
+  return allRings;
+}
+
 const std::vector<const GEMSuperChamber*>& GEMGeometry::superChambers() const {
   return allSuperChambers;
 }
@@ -51,6 +63,21 @@ const std::vector<const GEMEtaPartition*>& GEMGeometry::etaPartitions() const{
   return allEtaPartitions;
 }
 
+const GEMRegion* GEMGeometry::region(int re) const{
+  //   return dynamic_cast<const GEMSuperChamber*>(idToDet(id));
+  return 0;
+}
+
+const GEMStation* GEMGeometry::station(int re, int st) const{ 
+  //  return dynamic_cast<const GEMChamber*>(idToDet(id.chamberId()));
+  return 0;
+}
+
+const GEMRing* GEMGeometry::ring(int re, int st, int ri) const{
+  //  return dynamic_cast<const GEMEtaPartition*>(idToDetUnit(id));
+  return 0;
+}
+
 const GEMSuperChamber* GEMGeometry::superChamber(GEMDetId id) const{
    return dynamic_cast<const GEMSuperChamber*>(idToDet(id));
 }
@@ -59,11 +86,33 @@ const GEMChamber* GEMGeometry::chamber(GEMDetId id) const{
   return dynamic_cast<const GEMChamber*>(idToDet(id.chamberId()));
 }
 
-
 const GEMEtaPartition* GEMGeometry::etaPartition(GEMDetId id) const{
   return dynamic_cast<const GEMEtaPartition*>(idToDetUnit(id));
 }
 
+void
+GEMGeometry::add(GEMRegion* region){
+  allRegions.push_back(region);
+}
+
+void
+GEMGeometry::add(GEMStation* station){
+  allStations.push_back(station);
+}
+
+void
+GEMGeometry::add(GEMRing* ring){
+  allRings.push_back(ring);
+}
+
+void
+GEMGeometry::add(GEMSuperChamber* superChamber){
+  allSuperChambers.push_back(superChamber);
+  theDets.push_back(superChamber);
+  theDetIds.push_back(superChamber->geographicalId());
+  theMap.insert(std::pair<DetId,GeomDet*>
+  		(superChamber->geographicalId(),superChamber));
+}
 
 void
 GEMGeometry::add(GEMEtaPartition* etaPartition){
@@ -88,11 +137,3 @@ GEMGeometry::add(GEMChamber* chamber){
 		(chamber->geographicalId(),chamber));
 }
 
-void
-GEMGeometry::add(GEMSuperChamber* superChamber){
-  allSuperChambers.push_back(superChamber);
-  theDets.push_back(superChamber);
-  theDetIds.push_back(superChamber->geographicalId());
-  theMap.insert(std::pair<DetId,GeomDet*>
-  		(superChamber->geographicalId(),superChamber));
-}

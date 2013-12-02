@@ -7,68 +7,46 @@ GEMSuperChamber::GEMSuperChamber(GEMDetId id, const ReferenceCountingPointer<Bou
   setDetId(id);
 }
 
-GEMSuperChamber::~GEMSuperChamber() 
-{
-}
+GEMSuperChamber::~GEMSuperChamber() {}
 
-GEMDetId
-GEMSuperChamber::id() const
-{
+GEMDetId GEMSuperChamber::id() const {
   return detId_;
 }
 
-const std::vector<GEMDetId>&
-GEMSuperChamber::ids() const
-{
+const std::vector<GEMDetId>& GEMSuperChamber::ids() const {
   return detIds_;
 }
 
-bool 
-GEMSuperChamber::operator==(const GEMSuperChamber& sch) const 
-{
+bool GEMSuperChamber::operator==(const GEMSuperChamber& sch) const {
   return this->id()==sch.id();
 }
 
-void 
-GEMSuperChamber::add(GEMChamber* ch) 
-{
+void GEMSuperChamber::add(GEMChamber* ch) {
   chambers_.push_back(ch);
 }
 
-std::vector<const GeomDet*>
-GEMSuperChamber::components() const 
-{
+std::vector<const GeomDet*> GEMSuperChamber::components() const {
   return std::vector<const GeomDet*>(chambers_.begin(), chambers_.end());
 }
 
-const GeomDet* 
-GEMSuperChamber::component(DetId id) const 
-{
+const GeomDet* GEMSuperChamber::component(DetId id) const {
   return chamber(GEMDetId(id.rawId()));
 }
 
-const std::vector<const GEMChamber*>& 
-GEMSuperChamber::chambers() const 
-{
+const std::vector<const GEMChamber*>& GEMSuperChamber::chambers() const {
   return chambers_;
 }
 
-int
-GEMSuperChamber::nChambers() const
-{
+int GEMSuperChamber::nChambers() const {
   return chambers_.size();
 }
 
-const GEMChamber* 
-GEMSuperChamber::chamber(GEMDetId id) const
-{
+const GEMChamber* GEMSuperChamber::chamber(GEMDetId id) const {
   if (id.chamber()!=detId_.chamber()) return 0; // not in this super chamber!
   return chamber(id.layer());
 }
 
-const GEMChamber* 
-GEMSuperChamber::chamber(int isl) const 
-{
+const GEMChamber* GEMSuperChamber::chamber(int isl) const {
   for (auto ch : chambers_){
     if (ch->id().layer()==isl) 
       return ch;
