@@ -119,7 +119,6 @@ AnotherPrimaryVertexAnalyzer::~AnotherPrimaryVertexAnalyzer()
 void
 AnotherPrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
 
   // compute event weigth
 
@@ -129,7 +128,7 @@ AnotherPrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   // get PV
 
-  Handle<reco::VertexCollection> pvcoll;
+  edm::Handle<reco::VertexCollection> pvcoll;
   iEvent.getByToken(_recoVertexCollectionToken,pvcoll);
 
   if(_firstOnly) {
