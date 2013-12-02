@@ -27,11 +27,16 @@ StackedTrackerGeometry::StackedTrackerGeometry( const TrackerGeometry *i,
 StackedTrackerGeometry::~StackedTrackerGeometry() {}
 
 /// Methods for data members
-void StackedTrackerGeometry::addStack(StackedTrackerDetUnit* aStack)
+void StackedTrackerGeometry::addStack( StackedTrackerDetUnit* aStack )
 {
   theStacks.push_back( aStack );
   theStackIds.push_back( aStack->Id() );
-  theMap.insert( std::make_pair(aStack->Id(),aStack) );
+  theMap.insert( std::make_pair( aStack->Id(), aStack ) );
+
+  mapDetectorsToPartner.insert( std::make_pair( aStack->stackMember(0), aStack->stackMember(1) ) );
+  mapDetectorsToPartner.insert( std::make_pair( aStack->stackMember(1), aStack->stackMember(0) ) );
+  mapDetectorsToStack.insert( std::make_pair( aStack->stackMember(0), aStack->Id() ) );
+  mapDetectorsToStack.insert( std::make_pair( aStack->stackMember(1), aStack->Id() ) );
 }
 
 const StackedTrackerDetUnit* StackedTrackerGeometry::idToStack( StackedTrackerDetId anId ) const
@@ -41,6 +46,25 @@ const StackedTrackerDetUnit* StackedTrackerGeometry::idToStack( StackedTrackerDe
     return theMap.find(anId)->second;
   }
   return NULL;
+}
+
+/// Association Detector/Module/Stack
+DetId StackedTrackerGeometry::findPairedDetector( DetId anId ) const
+{
+  if ( mapDetectorsToPartner.find( anId ) != mapDetectorsToPartner.end() )
+  {
+    return mapDetectorsToPartner.find( anId )->second;
+  }
+  return DetId( 0x00000000 );
+}
+
+DetId StackedTrackerGeometry::findStackFromDetector( DetId anId ) const
+{
+  if ( mapDetectorsToStack.find( anId ) != mapDetectorsToStack.end() )
+  {
+    return mapDetectorsToStack.find( anId )->second;
+  }
+  return DetId( 0x00000000 );
 }
 
 /// CBC3 stuff
