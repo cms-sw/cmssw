@@ -126,103 +126,115 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   ofos << myName() << "Begin GEMGeometry structure TEST" << endl;
   
   int j = 1;
-
-
-  // checking the dimensions of each partition & chamber
-  for (auto ch : pDD->chambers()){
-    GEMDetId chId(ch->id());
-    int nRolls(ch->nEtaPartitions());
-    ofos << "  GEMChamber " << j << ", GEMDetId = " << chId.rawId() << ", " << chId << " has " << nRolls << " eta partitions." << endl;
-
-    int k = 1;
-    auto& rolls(ch->etaPartitions());
-    
-    /*
-     * possible checklist for an eta partition:
-     *   base_bottom, base_top, height, strips, pads
-     *   cx, cy, cz, ceta, cphi
-     *   tx, ty, tz, teta, tphi
-     *   bx, by, bz, beta, bphi
-     *   pitch center, pitch bottom, pitch top
-     *   deta, dphi
-     *   gap thickness
-     *   sum of all dx + gap = chamber height
-     */      
-
-    for (auto roll : rolls){
-      GEMDetId rId(roll->id());
-      ofos<<"    GEMEtaPartition " << k << ", GEMDetId = " << rId.rawId() << ", " << rId << endl;
-      
-      const BoundPlane& bSurface(roll->surface());
-      const StripTopology* topology(&(roll->specificTopology()));
-      
-      // base_bottom, base_top, height, strips, pads (all half length)
-      auto& parameters(roll->specs()->parameters());
-      float bottomEdge(parameters[0]);
-      float topEdge(parameters[1]);
-      float height(parameters[2]);
-      float nStrips(parameters[3]);
-      float nPads(parameters[4]);
-      
-      LocalPoint  lCentre( 0., 0., 0. );
-      GlobalPoint gCentre(bSurface.toGlobal(lCentre));
-      
-      LocalPoint  lTop( 0., height, 0.);
-      GlobalPoint gTop(bSurface.toGlobal(lTop));
-      
-      LocalPoint  lBottom( 0., -height, 0.);
-      GlobalPoint gBottom(bSurface.toGlobal(lBottom));
-      
-      //   gx, gy, gz, geta, gphi (center)
-      double cx(gCentre.x());
-      double cy(gCentre.y());
-      double cz(gCentre.z());
-      double ceta(gCentre.eta());
-      int cphi(static_cast<int>(gCentre.phi().degrees()));
-      if (cphi < 0) cphi += 360;
-      
-      double tx(gTop.x());
-      double ty(gTop.y());
-      double tz(gTop.z());
-      double teta(gTop.eta());
-      int tphi(static_cast<int>(gTop.phi().degrees()));
-      if (tphi < 0) tphi += 360;
-      
-      double bx(gBottom.x());
-      double by(gBottom.y());
-      double bz(gBottom.z());
-      double beta(gBottom.eta());
-      int bphi(static_cast<int>(gBottom.phi().degrees()));
-      if (bphi < 0) bphi += 360;
-      
-      // pitch bottom, pitch top, pitch centre
-      float pitch(roll->pitch());
-      float topPitch(roll->localPitch(lTop));
-      float bottomPitch(roll->localPitch(lBottom));
-      
-      // Type - should be GHA[1-nRolls]
-      string type(roll->type().name());
-      
-      // print info about edges
-      LocalPoint lEdge1(topology->localPosition(0.));
-      LocalPoint lEdgeN(topology->localPosition((float)nStrips));
-      
-      double cstrip1(roll->toGlobal(lEdge1).phi().degrees());
-      double cstripN(roll->toGlobal(lEdgeN).phi().degrees());
-      double dphi(cstripN - cstrip1);
-      if (dphi < 0.) dphi += 360.;
-      double deta(abs(beta - teta));
-      ofos << "    \tType: " << type << endl
-		<< "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
-		<< "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
-		<< "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
-		<< "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
-		<< "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
-		<< "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << endl;
-      
-      ++k;
+  
+  for (auto region : pDD->regions()) {
+    ofos << "  GEMRegion " << region->region() << " has " << region->nStations() << " stations." << endl;
+    for (auto station : region->stations()) {
+      ofos << "  GEMStation " << station->region() << " " << station->station() << " has " << station->nRings() << " rings." << endl;
+      for (auto ring : station->rings()) {
+	ofos << "  GEMRing " << ring->region() << " " << ring->station() << " " << ring->ring() << " has " << ring->nSuperChambers() << " super chambers." << endl;
+	for (auto sch : ring->superChambers()) {
+	  GEMDetId schId(sch->id());
+	  ofos << "  GEMSuperChamber " << j << ", GEMDetId = " << schId.rawId() << ", " << schId << " has " << sch->nChambers() << " chambers." << endl;
+	  // checking the dimensions of each partition & chamber
+	  for (auto ch : sch->chambers()){
+	    GEMDetId chId(ch->id());
+	    int nRolls(ch->nEtaPartitions());
+	    ofos << "  GEMChamber " << j << ", GEMDetId = " << chId.rawId() << ", " << chId << " has " << nRolls << " eta partitions." << endl;
+	    
+	    int k = 1;
+	    auto& rolls(ch->etaPartitions());
+	    
+	    /*
+	     * possible checklist for an eta partition:
+	     *   base_bottom, base_top, height, strips, pads
+	     *   cx, cy, cz, ceta, cphi
+	     *   tx, ty, tz, teta, tphi
+	     *   bx, by, bz, beta, bphi
+	     *   pitch center, pitch bottom, pitch top
+	     *   deta, dphi
+	     *   gap thickness
+	     *   sum of all dx + gap = chamber height
+	     */      
+	    
+	    for (auto roll : rolls){
+	      GEMDetId rId(roll->id());
+	      ofos<<"    GEMEtaPartition " << k << ", GEMDetId = " << rId.rawId() << ", " << rId << endl;
+	      
+	      const BoundPlane& bSurface(roll->surface());
+	      const StripTopology* topology(&(roll->specificTopology()));
+	      
+	      // base_bottom, base_top, height, strips, pads (all half length)
+	      auto& parameters(roll->specs()->parameters());
+	      float bottomEdge(parameters[0]);
+	      float topEdge(parameters[1]);
+	      float height(parameters[2]);
+	      float nStrips(parameters[3]);
+	      float nPads(parameters[4]);
+	      
+	      LocalPoint  lCentre( 0., 0., 0. );
+	      GlobalPoint gCentre(bSurface.toGlobal(lCentre));
+	      
+	      LocalPoint  lTop( 0., height, 0.);
+	      GlobalPoint gTop(bSurface.toGlobal(lTop));
+	      
+	      LocalPoint  lBottom( 0., -height, 0.);
+	      GlobalPoint gBottom(bSurface.toGlobal(lBottom));
+	      
+	      //   gx, gy, gz, geta, gphi (center)
+	      double cx(gCentre.x());
+	      double cy(gCentre.y());
+	      double cz(gCentre.z());
+	      double ceta(gCentre.eta());
+	      int cphi(static_cast<int>(gCentre.phi().degrees()));
+	      if (cphi < 0) cphi += 360;
+	      
+	      double tx(gTop.x());
+	      double ty(gTop.y());
+	      double tz(gTop.z());
+	      double teta(gTop.eta());
+	      int tphi(static_cast<int>(gTop.phi().degrees()));
+	      if (tphi < 0) tphi += 360;
+	      
+	      double bx(gBottom.x());
+	      double by(gBottom.y());
+	      double bz(gBottom.z());
+	      double beta(gBottom.eta());
+	      int bphi(static_cast<int>(gBottom.phi().degrees()));
+	      if (bphi < 0) bphi += 360;
+	      
+	      // pitch bottom, pitch top, pitch centre
+	      float pitch(roll->pitch());
+	      float topPitch(roll->localPitch(lTop));
+	      float bottomPitch(roll->localPitch(lBottom));
+	      
+	      // Type - should be GHA[1-nRolls]
+	      string type(roll->type().name());
+	      
+	      // print info about edges
+	      LocalPoint lEdge1(topology->localPosition(0.));
+	      LocalPoint lEdgeN(topology->localPosition((float)nStrips));
+	      
+	      double cstrip1(roll->toGlobal(lEdge1).phi().degrees());
+	      double cstripN(roll->toGlobal(lEdgeN).phi().degrees());
+	      double dphi(cstripN - cstrip1);
+	      if (dphi < 0.) dphi += 360.;
+	      double deta(abs(beta - teta));
+	      ofos << "    \tType: " << type << endl
+		   << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
+		   << "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
+		   << "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
+		   << "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
+		   << "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
+		   << "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << endl;
+	      
+	      ++k;
+	    }
+	    ++j;
+	  }
+	}
+      }
     }
-    ++j;
   }
 
   ofos << dashedLine_ << " end" << endl;
