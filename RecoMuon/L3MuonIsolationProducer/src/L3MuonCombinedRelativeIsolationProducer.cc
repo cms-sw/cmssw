@@ -58,7 +58,6 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   caloDepToken_ = consumes<edm::ValueMap<float> > (theCaloDepsLabel);
 
   produces<edm::ValueMap<bool> >();
-
   edm::ConsumesCollector iC = consumesCollector();
   //
   // Extractor
@@ -116,6 +115,10 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> d063ff6fef6301c2915be5aa2713f31f42aa21f0
 }
   
 /// destructor

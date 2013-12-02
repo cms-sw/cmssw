@@ -100,6 +100,7 @@ L3MuonIsolationProducer::~L3MuonIsolationProducer(){
 void L3MuonIsolationProducer::beginJob()
 {
 
+
 }
 
 /// destructor

@@ -28,7 +28,11 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   thePt_Min(par.getParameter<double>("Pt_Min"))
 {
 
+}
 
+void TrackExtractor::registerProducts(edm::ConsumesCollector & iC) {
+  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
+  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
 }
 
 void TrackExtractor::registerProducts(edm::ConsumesCollector & iC) {

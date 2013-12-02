@@ -105,12 +105,7 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
 	  << " phi " << muon.phi();
 
   Handle<CaloTowerCollection> towers;
-<<<<<<< HEAD
-  event.getByToken(theCaloTowerCollectionToken,towers);
-=======
   event.getByToken(caloTowerToken_,towers);
->>>>>>> Adding everyhting
-
   edm::ESHandle<CaloGeometry> caloGeom;
   eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 

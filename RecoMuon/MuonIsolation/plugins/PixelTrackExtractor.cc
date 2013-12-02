@@ -39,6 +39,7 @@ PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par,edm::ConsumesC
   theDR_VetoPt(par.getParameter<double>("DR_VetoPt"))              //!.. and is inside this cone
 {
  
+
 }
 
 
@@ -47,6 +48,15 @@ void PixelTrackExtractor::registerProducts(edm::ConsumesCollector& iC) {
   beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
 
 }
+
+
+
+void PixelTrackExtractor::registerProducts(edm::ConsumesCollector& iC) {
+  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
+  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
+
+}
+
 
 
 reco::IsoDeposit::Vetos PixelTrackExtractor::vetos(const edm::Event & ev,

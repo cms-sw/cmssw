@@ -39,6 +39,7 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theMuonTrackRefType = ioPSet.getParameter<std::string>("MuonTrackRefType");
   theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
   theMultipleDepositsFlag = ioPSet.getParameter<bool>("MultipleDepositsFlag");
+
   bool readFromRecoTrack = theInputType == "TrackCollection";
   bool readFromRecoMuon = theInputType == "MuonCollection";
   bool readFromCandidateView = theInputType == "CandidateView";
@@ -86,7 +87,6 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 
   LogDebug(metname)<<" Muon Deposit producing..."
 		   <<" BEGINING OF EVENT " <<"================================";
-
 
   unsigned int nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
 
