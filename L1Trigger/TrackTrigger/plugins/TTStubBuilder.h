@@ -78,8 +78,6 @@ TTStubBuilder< T >::TTStubBuilder( const edm::ParameterSet& iConfig )
   produces< edmNew::DetSetVector< TTCluster< T > > >( "ClusterAccepted" );
   produces< edmNew::DetSetVector< TTStub< T > > >( "StubAccepted" );
   produces< edmNew::DetSetVector< TTStub< T > > >( "StubRejected" );
-
-produces< edmNew::DetSetVector< double > >("Estiqaatsi");
 }
 
 /// Destructor
