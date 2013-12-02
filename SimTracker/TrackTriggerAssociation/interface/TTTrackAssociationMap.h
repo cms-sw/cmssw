@@ -147,7 +147,7 @@ template< typename T >
 bool TTTrackAssociationMap< T >::isUnknown( edm::Ptr< TTTrack< T > > aTrack ) const
 {
   /// UNKNOWN means that all stubs are unknown
-  std::vector< edm::Ptr< TTStub< T > > > theseStubs = aTrack->getStubPtrs();
+  std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > theseStubs = aTrack->getStubRefs();
   for ( unsigned int i = 0; i < theseStubs.size(); i++ )
   {
     if ( theStubAssociationMap->isUnknown( theseStubs.at(i) ) == false )
