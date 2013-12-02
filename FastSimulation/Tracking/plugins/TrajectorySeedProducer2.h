@@ -9,6 +9,7 @@
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
 #include <vector>
 #include <string>
@@ -29,6 +30,7 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
 
   virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId);
 
+  virtual bool passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId);
 };
 
 #endif

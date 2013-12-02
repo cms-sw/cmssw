@@ -19,7 +19,7 @@
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer2.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+
 
 
 
@@ -87,6 +87,55 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
     return true;
 }
 
+bool
+TrajectorySeedProducer2::passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId)
+{
+	//return true;
+	if (previousHits.size()==1)
+	{
+		TrackerRecHit& theSeedHits0 = previousHits[0];
+		TrackerRecHit& theSeedHits1 = currentHit;
+		GlobalPoint gpos1 = theSeedHits0.globalPosition();
+		GlobalPoint gpos2 = theSeedHits1.globalPosition();
+		bool forward = theSeedHits0.isForward();
+		double error = std::sqrt(theSeedHits0.largerError()+theSeedHits1.largerError());
+		//	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
+		//added out of desperation
+		bool compatible=false;
+		if(seedingAlgo[trackingAlgorithmId] == "PixelLess" ||  seedingAlgo[trackingAlgorithmId] ==  "TobTecLayerPairs")
+		{
+			compatible = true;
+		} else {
+			compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,trackingAlgorithmId);
+		}
+		// Check if the pair is on the requested dets
+		if ( numberOfHits[trackingAlgorithmId] == 2 )
+		{
+
+			if ( seedingAlgo[trackingAlgorithmId] ==  "ThirdMixedPairs" )
+			{
+				//may not be necessary anymore
+				compatible = compatible && theSeedHits0.makesAPairWith3rd(theSeedHits1);
+			}
+			else
+			{
+				//may not be necessary anymore
+				compatible = compatible && theSeedHits0.makesAPairWith(theSeedHits1);
+			}
+		}
+		return compatible;
+	}
+	else if (previousHits.size()==2)
+	{
+		TrackerRecHit& theSeedHits0 = previousHits[0];
+		TrackerRecHit& theSeedHits1 = previousHits[1];
+		TrackerRecHit& theSeedHits2 = currentHit;
+		//may not be necessary anymore
+		return theSeedHits0.makesATripletWith(theSeedHits1,theSeedHits2);
+	}
+	return true;
+}
+
 void 
 TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {        
 
@@ -98,51 +147,47 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
   std::cout << " TrajectorySeedProducer produce init " << std::endl;
 #endif
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<IdealGeometryRecord>().get(tTopoHand);
-  const TrackerTopology *tTopo=tTopoHand.product();
+	//Retrieve tracker topology from geometry
+	edm::ESHandle<TrackerTopology> tTopoHand;
+	es.get<IdealGeometryRecord>().get(tTopoHand);
+	const TrackerTopology *tTopo=tTopoHand.product();
 
 
-  unsigned nSimTracks = 0;
-  unsigned nTracksWithHits = 0;
-  unsigned nTracksWithPT = 0;
-  unsigned nTracksWithD0Z0 = 0;
-  //  unsigned nTrackCandidates = 0;
-  PTrajectoryStateOnDet initialState;
-  
-  // Output
-  std::vector<TrajectorySeedCollection*>
-    output(seedingAlgo.size(),static_cast<TrajectorySeedCollection*>(0));
-  for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) { 
-    //    std::auto_ptr<TrajectorySeedCollection> p(new TrajectorySeedCollection );
-    output[ialgo] = new TrajectorySeedCollection;
-  }
-  
-  // Beam spot
-  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  e.getByLabel(theBeamSpot,recoBeamSpotHandle); 
-  math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
+	unsigned nSimTracks = 0;
+	unsigned nTracksWithHits = 0;
+	unsigned nTracksWithPT = 0;
+	unsigned nTracksWithD0Z0 = 0;
+	//  unsigned nTrackCandidates = 0;
+	PTrajectoryStateOnDet initialState;
 
-  //not used anymore. take the value from the py
+	// Output
+	std::vector<TrajectorySeedCollection*>
+	output(seedingAlgo.size(),static_cast<TrajectorySeedCollection*>(0));
+	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) {
+	//    std::auto_ptr<TrajectorySeedCollection> p(new TrajectorySeedCollection );
+	output[ialgo] = new TrajectorySeedCollection;
+	}
 
-  //double sigmaZ=recoBeamSpotHandle->sigmaZ();
-  //double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
-  //double sigmaz0=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
-  x0 = BSPosition_.X();
-  y0 = BSPosition_.Y();
-  z0 = BSPosition_.Z();
+	// Beam spot
+	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+	e.getByLabel(theBeamSpot,recoBeamSpotHandle);
+	math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
 
-  // SimTracks and SimVertices
-  edm::Handle<edm::SimTrackContainer> theSimTracks;
-  e.getByLabel("famosSimHits",theSimTracks);
-  
-  edm::Handle<edm::SimVertexContainer> theSimVtx;
-  e.getByLabel("famosSimHits",theSimVtx);
+	//not used anymore. take the value from the py
 
-#ifdef FAMOS_DEBUG
-  std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
-#endif
+	//double sigmaZ=recoBeamSpotHandle->sigmaZ();
+	//double sigmaZ0Error=recoBeamSpotHandle->sigmaZ0Error();
+	//double sigmaz0=sqrt(sigmaZ*sigmaZ+sigmaZ0Error*sigmaZ0Error);
+	x0 = BSPosition_.X();
+	y0 = BSPosition_.Y();
+	z0 = BSPosition_.Z();
+
+	// SimTracks and SimVertices
+	edm::Handle<edm::SimTrackContainer> theSimTracks;
+	e.getByLabel("famosSimHits",theSimTracks);
+
+	edm::Handle<edm::SimVertexContainer> theSimVtx;
+	e.getByLabel("famosSimHits",theSimVtx);
   
 	//  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
 	edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
@@ -152,10 +197,32 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	std::cout<<"event contains: "<<theGSRecHits->ids().size()<<" simtracks associated to hits"<<std::endl;
 	std::cout<<"event contains: "<<theGSRecHits->size()<<" hits"<<std::endl;
 
+	//if no hits -> directly write empty collection
+	if(theGSRecHits->size() == 0)
+	{
+		for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
+		{
+			std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
+			e.put(p,seedingAlgo[ialgo]);
+		}
+		return;
+	}
+
+	  // Primary vertices
+	vertices = std::vector<const reco::VertexCollection*>(seedingAlgo.size(),static_cast<const reco::VertexCollection*>(0));
+	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
+	{
+	    edm::Handle<reco::VertexCollection> aHandle;
+	    bool isVertexCollection = e.getByLabel(primaryVertices[ialgo],aHandle);
+	    if (!isVertexCollection ) continue;
+	    vertices[ialgo] = &(*aHandle);
+	}
+
 
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
 		const unsigned int currentID = *itSimTrackId;
+		//if (currentID!=55) continue;
 		std::cout<<"processing simtrack with id: "<<currentID<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[*itSimTrackId];
 
@@ -180,13 +247,20 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				std::vector<std::vector<unsigned int>> hitNumbers;
 				hitNumbers.resize(theLayersInSets.size());
 
+				//TODO: store the created valid hits here - later create them from the numbers above as needed
+				// -> saves the unnecessary creation of the objects
+				std::vector<std::vector<TrackerRecHit>> seedHitCandiates;
+				seedHitCandiates.resize(theLayersInSets.size());
+
+				//Just for debugging
 				std::vector<std::vector<std::string>> layerNames;
 				layerNames.resize(theLayersInSets.size());
 
 				bool foundSeed = false;
 				for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second && !foundSeed; ++itRecHit)
 				{
-					const SiTrackerGSMatchedRecHit2D vec = *itRecHit;
+
+					const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
 					previousTrackerHit=currentTrackerHit;
 					currentTrackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
 					if (currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
@@ -194,46 +268,56 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 						//TODO: perform check with SiTrackerGSMatchedRecHit2D directly -> saves the unnecessary creation of TrackerRecHit
 						continue;
 					}
-					//std::cout<<"\thit="<<itRecHit-recHitRange.first<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<std::endl;
-
+					//std::cout<<"\thit="<<itRecHit-recHitRange.first<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<", globalX="<<currentTrackerHit.globalPosition().x()<<std::endl;
 					for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
 					{
 						unsigned int currentlayer = hitNumbers[ilayerset].size();
+
 						/*
 						if (theLayersInSets[ilayerset].size()<=currentlayer)
 						{
 							continue;
 						}
 						*/
+						//TODO: speed things up by testing if the current hit is already further outside than the current layer
+						//-> faster rejection of invalid hits if there is no seed possible at all for a given simtrack
 						if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
 						{
-							hitNumbers[ilayerset].push_back(itRecHit-recHitRange.first);
-							layerNames[ilayerset].push_back(theLayersInSets[ilayerset][currentlayer].name);
-
-							if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
+							//TODO: it seems that currently only a PV compatibility check for the first 2 hits is really important
+							if (this->passTrackerRecHitQualityCuts(seedHitCandiates[ilayerset],currentTrackerHit,ialgo))
 							{
-								//continue;
-								foundSeed=true;
-								break;
+								hitNumbers[ilayerset].push_back(itRecHit-recHitRange.first);
+								seedHitCandiates[ilayerset].push_back(currentTrackerHit);
+								layerNames[ilayerset].push_back(theLayersInSets[ilayerset][currentlayer].name);
+
+								if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
+								{
+									//TODO: check if all valid seeds should be saved to perform additional quality checks
+									foundSeed=true;
+									break;
+								}
 							}
 						}
 					}
 				}
+
 				std::cout<<"ialgo="<<ialgo<<std::endl;
 				for (unsigned int i=0;i<hitNumbers.size(); ++i)
 				{
-					std::cout<<"layerset="<<i<<std::endl;
-					std::cout<<"\thits=";
-					for (unsigned int j=0; j<hitNumbers[i].size();++j)
-					{
-						std::cout<<hitNumbers[i][j]<<"("<<layerNames[i][j]<<"),";
-					}
 					if (theLayersInSets[i].size()==hitNumbers[i].size())
 					{
-						std::cout<<"\tseed!";
+						std::cout<<"layerset="<<i<<std::endl;
+						std::cout<<"\thits=";
+						for (unsigned int j=0; j<hitNumbers[i].size();++j)
+						{
+							std::cout<<hitNumbers[i][j]<<"("<<layerNames[i][j]<<"),";
+						}
+
+						std::cout<<"\tseed!"<<std::endl;
 					}
-					std::cout<<std::endl;
+
 				}
+
 
 
 				//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
@@ -256,29 +340,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	std::cout<<std::endl;
     std::cout<<"old result:"<<std::endl;
 
-  // No tracking attempted if no hits (but put an empty collection in the event)!
-#ifdef FAMOS_DEBUG
-  std::cout << " Step B: Full GS RecHits found " << theGSRecHits->size() << std::endl;
-#endif
-  if(theGSRecHits->size() == 0) {
-    for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) {
-      std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
-      e.put(p,seedingAlgo[ialgo]);
-    }
-    return;
-  }
-  
-  // Primary vertices
-  vertices = std::vector<const reco::VertexCollection*>
-    (seedingAlgo.size(),static_cast<const reco::VertexCollection*>(0)); 
-  for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) { 
-    //PAT Attempt!!!! 
-   //originHalfLength[ialgo] = 3.*sigmaz0; // Overrides the configuration
-    edm::Handle<reco::VertexCollection> aHandle;
-    bool isVertexCollection = e.getByLabel(primaryVertices[ialgo],aHandle);
-    if (!isVertexCollection ) continue;
-    vertices[ialgo] = &(*aHandle);
-  }
   
 #ifdef FAMOS_DEBUG
   std::cout << " Step C: Loop over the RecHits, track by track " << std::endl;
@@ -297,6 +358,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
+    //if (simTrackId!=55) continue;
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId];
 
 #ifdef FAMOS_DEBUG
@@ -384,6 +446,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
     	  hit1=iterRecHit1-theRecHitRangeIteratorBegin;
 	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry,tTopo);
+	//std::cout<<"old hit 1 - "<<hit1<<" subDet="<<theSeedHits0.subDetId()<<", layer="<<theSeedHits0.layerNumber()<<", globalX="<<theSeedHits0.globalPosition().x()<<std::endl;
+
 #ifdef FAMOS_DEBUG
 	std::cout << "The first hit position = " << theSeedHits0.globalPosition() << std::endl;
 	std::cout << "The first hit subDetId = " << theSeedHits0.subDetId() << std::endl;
@@ -422,6 +486,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	for ( iterRecHit2 = iterRecHit1+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
 		hit2=iterRecHit2-theRecHitRangeIteratorBegin;
 		theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry,tTopo);
+		//std::cout<<"old hit 2 - "<<hit2<<" subDet="<<theSeedHits1.subDetId()<<", layer="<<theSeedHits1.layerNumber()<<", globalX="<<theSeedHits1.globalPosition().x()<<std::endl;
 #ifdef FAMOS_DEBUG
 	  std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
 	  std::cout << "The second hit subDetId = " << theSeedHits1.subDetId() << std::endl;
@@ -456,13 +521,13 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	  double error = std::sqrt(theSeedHits0.largerError()+theSeedHits1.largerError());
 	  //	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
 	  //added out of desperation	
-	  if(seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs"){
+	  if(seedingAlgo[ialgo] == "PixelLess" ||  seedingAlgo[ialgo] ==  "TobTecLayerPairs"){
 	    compatible = true;
 	    //std::cout << "Algo " << seedingAlgo[0] << "Det/layer = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << std::endl;
 	  } else {
 	    compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,ialgo);
 	  }
-	  
+
 #ifdef FAMOS_DEBUG
 	  std::cout << "Algo" << seedingAlgo[0] << "\t Are the two hits compatible with the PV? " << compatible << std::endl;
 #endif
@@ -471,7 +536,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	    // Check if the pair is on the requested dets
 	    if ( numberOfHits[ialgo] == 2 ) {
 	      
-	      if ( seedingAlgo[0] ==  "ThirdMixedPairs" ){
+	      if ( seedingAlgo[ialgo] ==  "ThirdMixedPairs" ){
 		compatible = compatible && theSeedHits[0].makesAPairWith3rd(theSeedHits[1]);
 	      } else {
 		compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
