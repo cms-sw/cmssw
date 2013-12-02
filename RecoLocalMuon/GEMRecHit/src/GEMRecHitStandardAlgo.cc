@@ -20,18 +20,13 @@ GEMRecHitStandardAlgo::GEMRecHitStandardAlgo(const edm::ParameterSet& config) :
 {
 }
 
-
-
-GEMRecHitStandardAlgo::~GEMRecHitStandardAlgo()
+GEMRecHitStandardAlgo::~GEMRecHitStandardAlgo() 
 {
 }
 
-
-
-void GEMRecHitStandardAlgo::setES(const edm::EventSetup& setup) {
+void GEMRecHitStandardAlgo::setES(const edm::EventSetup& setup) 
+{
 }
-
-
 
 // First Step
 bool GEMRecHitStandardAlgo::compute(const GEMEtaPartition& roll,
