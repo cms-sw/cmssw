@@ -55,7 +55,6 @@ class GEMGeometry : public TrackingGeometry {
 
   //---- Extension of the interface
 
-<<<<<<< HEAD
   /// Return a vector of all GEM regions
   const std::vector<const GEMRegion*>& regions() const;
 
@@ -73,6 +72,15 @@ class GEMGeometry : public TrackingGeometry {
 
   /// Return a vector of all GEM eta partitions
   const std::vector<const GEMEtaPartition*>& etaPartitions() const;
+
+  // Return a GEMRegion 
+  const GEMRegion* region(int region) const;
+
+  // Return a GEMStation
+  const GEMStation* station(int region, int station) const;
+
+  /// Return a GEMRing
+  const GEMRing* ring(int region, int station, int ring) const;
 
   // Return a GEMRegion 
   const GEMRegion* region(int region) const;
