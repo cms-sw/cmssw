@@ -225,7 +225,7 @@ void HcalSimpleReconstructor::processUpgrade(edm::Event& e, const edm::EventSetu
 void HcalSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
   // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData();
+  if(e.isRealData()) reco_.setForData(e.run());
  
   // What to produce, better to avoid the same subdet Upgrade and regular 
   // rechits "clashes"

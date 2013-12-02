@@ -279,7 +279,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData();    
+  if(e.isRealData()) reco_.setForData(e.run());    
   if(useLeakCorrection_) reco_.setLeakCorrection();
 
   edm::ESHandle<HcalChannelQuality> p;
