@@ -144,7 +144,7 @@ public:
   }
   
   // The larger local error
-  double largerError() { 
+  double largerError() {
 
     // Check if it has been already computed
     if ( theLargerError != 0. ) return theLargerError;

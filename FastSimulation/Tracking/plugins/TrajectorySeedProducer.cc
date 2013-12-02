@@ -848,7 +848,6 @@ TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1,
 					       unsigned algo) const {
 
   if ( !seedCleaning ) return true;
-
   // The hits 1 and 2 positions, in HepLorentzVector's
   XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
   XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
@@ -856,7 +855,6 @@ TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1,
   std::cout << "ThePos1 = " << thePos1 << std::endl;
   std::cout << "ThePos2 = " << thePos2 << std::endl;
 #endif
-
 
   // Create new particles that pass through the second hit with pT = ptMin 
   // and charge = +/-1
