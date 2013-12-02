@@ -20,18 +20,13 @@ GEMRecHitStandardAlgo::GEMRecHitStandardAlgo(const edm::ParameterSet& config) :
 {
 }
 
-
-
-GEMRecHitStandardAlgo::~GEMRecHitStandardAlgo()
+GEMRecHitStandardAlgo::~GEMRecHitStandardAlgo() 
 {
 }
 
-
-
-void GEMRecHitStandardAlgo::setES(const edm::EventSetup& setup) {
+void GEMRecHitStandardAlgo::setES(const edm::EventSetup& setup) 
+{
 }
-
-
 
 // First Step
 bool GEMRecHitStandardAlgo::compute(const GEMEtaPartition& roll,
@@ -47,12 +42,7 @@ bool GEMRecHitStandardAlgo::compute(const GEMEtaPartition& roll,
   LocalPoint loctemp2(centreOfCluster,0.,0.);
  
   Point = loctemp2;
-<<<<<<< HEAD
-  error = roll.localError((cluster.firstStrip()+cluster.lastStrip())/2.);
-=======
-  //error = roll.localError((cluster.firstStrip()+cluster.lastStrip())/2.);
   error = roll.localError((cluster.firstStrip()+cluster.lastStrip())/2., cluster.clusterSize());
->>>>>>> 25d1a75... local error with cluster size
   return true;
 }
 
