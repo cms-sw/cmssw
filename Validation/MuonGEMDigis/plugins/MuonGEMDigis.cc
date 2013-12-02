@@ -32,6 +32,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TTree.h"
 #include "TFile.h"
+#include "TGraphAsymmErrors.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -87,8 +88,6 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
-  minPt_= ps.getUntrackedParameter<double>("minPt", 5.);
-  //cfg_= ps.getParameterSet("simTrackMatching");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
    //now do what ever initialization is needed
@@ -97,7 +96,8 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
   theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripLabel"));
   theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscPadLabel"));
   theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscCopadLabel"));
-  theGEMTrackMatch = new GEMTrackMatch(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits")   ,ps.getParameterSet("simTrackMatching"));
+  theGEMTrackMatch = new GEMTrackMatch(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"), 
+                                       ps.getParameterSet("simTrackMatching") );
   
 
 
@@ -174,30 +174,11 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
    theGEMStripDigiValidation->setGeometry(gem_geometry_);
   theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
   theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
+
+
   theGEMTrackMatch->setGeometry(gem_geometry_);
 
 
-  const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
-   // TODO: it's really bad to hardcode max partition number!
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,6)));
-  const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
-  const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
-  const LocalPoint lp_top(0., top_half_striplength, 0.);
-  const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
-  const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
-  const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
-
-  radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
-  chamberHeight_ = gp_top.perp() - gp_bottom.perp();
-
-  using namespace std;
-  cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
-  cout<<"r  top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
-  LocalPoint p0(0.,0.,0.);
-  cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
-  cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
-
-  buildLUT();
 
 
 }
@@ -208,8 +189,102 @@ void
 MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
 {
 //    if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
-  dbe_->book1D( "dg_eta_l1",theGEMTrackMatch->GetDgEta()[0] );
+  for ( int i =0 ; i< 4 ; i++) {
+      TH1F* dg = theGEMTrackMatch->GetDgEta()[i];
+      TH1F* temp1 = (TH1F*)dg->Clone("temp1");
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgEta()[i]->GetName(),"_origin").Data(), temp1 );
+      temp1->Divide( theGEMTrackMatch->GetTrackEta()); 
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgEta()[i]->GetName(),"_divided").Data(), temp1 );
+      TH1F* temp2 = (TH1F*)dg->Clone("temp2");
+      temp2->Divide( theGEMTrackMatch->GetShEta()[i]); 
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShEta()[i]->GetName(),"_origin").Data(), theGEMTrackMatch->GetShEta()[i] );
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShEta()[i]->GetName(),"_divided").Data(), temp2 );
+  }
+  for ( int i =0 ; i< 4 ; i++) {
+      TH1F* pad = (TH1F*)theGEMTrackMatch->GetPadEta()[i];
+      TH1F* temp1 = (TH1F*)pad->Clone("temp1");
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_origin").Data(), temp1 );
+      temp1->Divide( theGEMTrackMatch->GetTrackEta());
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_divided").Data(), temp1 );
+      
+      TH1F* temp2 = (TH1F*)pad->Clone("temp2");
+      temp2->Divide( theGEMTrackMatch->GetShEta()[i]);
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_sh_divided").Data(), temp1 );
+  
+  }
+  for ( int i=0 ; i<4 ; i++) {
+      TH1F* dgphi = theGEMTrackMatch->GetDgPhi()[i];
+      TH1F* temp1 = (TH1F*)dgphi->Clone("temp1");
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgPhi()[i]->GetName(),"_origin").Data(), temp1 );
+      temp1->Divide( theGEMTrackMatch->GetTrackPhi()); 
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgPhi()[i]->GetName(),"_divided").Data(), temp1 );
+      TH1F* temp2 = (TH1F*)dgphi->Clone("temp2");
+      temp2->Divide( theGEMTrackMatch->GetShPhi()[i]); 
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShPhi()[i]->GetName(),"_origin").Data(), theGEMTrackMatch->GetShPhi()[i] );
+      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShPhi()[i]->GetName(),"_divided").Data(), temp2 );
+  }
 
+
+  TH1F* gem_dg_lx_even[5];
+  gem_dg_lx_even[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even")->getTH1F()->Clone(); 
+  gem_dg_lx_even[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l1")->getTH1F()->Clone();
+  gem_dg_lx_even[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l2")->getTH1F()->Clone();
+  gem_dg_lx_even[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l1or2")->getTH1F()->Clone();
+  gem_dg_lx_even[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l1and2")->getTH1F()->Clone();
+
+
+  TH1F* gem_dg_ly_even[5];
+  gem_dg_ly_even[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even")->getTH1F()->Clone(); 
+  gem_dg_ly_even[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even_l1")->getTH1F()->Clone();
+  gem_dg_ly_even[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even_l2")->getTH1F()->Clone();
+  gem_dg_ly_even[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even_l1or2")->getTH1F()->Clone();
+  gem_dg_ly_even[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even_l1and2")->getTH1F()->Clone();
+
+
+  TH1F* gem_dg_lx_odd[5];
+  gem_dg_lx_odd[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd")->getTH1F()->Clone(); 
+  gem_dg_lx_odd[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd_l1")->getTH1F()->Clone();
+  gem_dg_lx_odd[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd_l2")->getTH1F()->Clone();
+  gem_dg_lx_odd[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd_l1or2")->getTH1F()->Clone();
+  gem_dg_lx_odd[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd_l1and2")->getTH1F()->Clone();
+
+
+  TH1F* gem_dg_ly_odd[5];
+  gem_dg_ly_odd[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd")->getTH1F()->Clone(); 
+  gem_dg_ly_odd[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l1")->getTH1F()->Clone();
+  gem_dg_ly_odd[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l2")->getTH1F()->Clone();
+  gem_dg_ly_odd[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l1or2")->getTH1F()->Clone();
+  gem_dg_ly_odd[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l1and2")->getTH1F()->Clone();
+
+
+
+
+
+  for ( int i= 0; i<5 ; i++) {
+    gem_dg_lx_even[i]->Sumw2(); 
+    gem_dg_ly_even[i]->Sumw2(); 
+
+
+    gem_dg_lx_odd[i]->Sumw2(); 
+    gem_dg_ly_odd[i]->Sumw2(); 
+
+  }
+
+
+  for( int i=1 ; i<5 ; i++) {
+    gem_dg_lx_even[i]->Divide( gem_dg_lx_even[0]);
+    gem_dg_ly_even[i]->Divide( gem_dg_ly_even[0]);
+    gem_dg_lx_odd[i]->Divide( gem_dg_lx_odd[0]);
+    gem_dg_ly_odd[i]->Divide( gem_dg_ly_odd[0]);
+    
+    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_lx_even[i]->GetName()),gem_dg_lx_even[i] ); 
+    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_even[i]->GetName()),gem_dg_ly_even[i] ); 
+    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_lx_odd[i]->GetName()),gem_dg_lx_odd[i] ); 
+    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_odd[i]->GetName()),gem_dg_ly_odd[i] ); 
+  }
+
+
+  //printf(" Call endRun!!\n");
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
@@ -230,27 +305,6 @@ MuonGEMDigis::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup co
 }
 */
 
-void MuonGEMDigis::buildLUT()
-{
-  std::vector<int> pos_ids;
-  pos_ids.push_back(GEMDetId(1,1,1,1,36,1).rawId());
-
-  std::vector<int> neg_ids;
-  neg_ids.push_back(GEMDetId(-1,1,1,1,36,1).rawId());
-
-  // VK: I would really suggest getting phis from GEMGeometry
-  
-  std::vector<float> phis;
-  phis.push_back(0.);
-  for(int i=1; i<37; ++i)
-  {
-    pos_ids.push_back(GEMDetId(1,1,1,1,i,1).rawId());
-    neg_ids.push_back(GEMDetId(-1,1,1,1,i,1).rawId());
-    phis.push_back(i*10.);
-  }
-  positiveLUT_ = std::make_pair(phis,pos_ids);
-  negativeLUT_ = std::make_pair(phis,neg_ids);
-}
 
 
 

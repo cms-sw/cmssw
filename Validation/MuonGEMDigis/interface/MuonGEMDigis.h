@@ -64,8 +64,7 @@ private:
 
 
   //edm::ParameterSet cfg_;
-  float minPt_;
-  float   radiusCenter_, chamberHeight_;
+  //float minPt_;
 
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;

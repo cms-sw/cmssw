@@ -191,30 +191,26 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     }
   }
 
-  /*
-  FIXME - the super chamber detId needs to be defined!!!
   auto& chambers(geometry->chambers());
-  for (unsigned i=1; i<=chambers.size(); ++i){
-    GEMDetId detIdL1(chambers.at(i-1)->id());
-    if (detIdL1.layer()==2) continue;
-    LogDebug("GEMGeometryBuilderFromDDD") << "First chamber for super chamber" << detIdL1;
-    GEMDetId detIdL2(detIdL1.region(),detIdL1.ring(),detIdL1.station(),2,detIdL1.chamber(),0);
-    LogDebug("GEMGeometryBuilderFromDDD") << "Second chamber for super chamber" << detIdL2;
-    GEMDetId schId(detIdL1.region(),detIdL1.ring(),detIdL1.station(),0,detIdL1.chamber(),0);
-    LogDebug("GEMGeometryBuilderFromDDD") << "Proposed detId for the super chamber" << schId;
-    
-    // Bound plane for a super chambers is the bound plane for the first chamber
-    auto chL1(geometry->chamber(detIdL1));
-    const BoundPlane& bps = chL1->specificSurface();
+  for (unsigned i=0; i<chambers.size(); ++i){
+    const BoundPlane& bps = chambers.at(i)->surface();
     BoundPlane* bp = const_cast<BoundPlane*>(&bps);
     ReferenceCountingPointer<BoundPlane> surf(bp);
-    
-    GEMSuperChamber* sch = new GEMSuperChamber(schId,surf); 
-    sch->add(const_cast<GEMChamber*>(geometry->chamber(detIdL1)));
-    sch->add(const_cast<GEMChamber*>(geometry->chamber(detIdL2)));
+    GEMDetId detIdL1(chambers.at(i)->id());
+    LogDebug("GEMGeometryBuilderFromDDD") << "First chamber for super chamber: " << detIdL1;
+
+    if (detIdL1.layer()==2) continue;
+    GEMDetId detIdL2(detIdL1.region(),detIdL1.ring(),detIdL1.station(),2,detIdL1.chamber(),0);
+    LogDebug("GEMGeometryBuilderFromDDD") << "Second chamber for super chamber: " << detIdL2;
+    auto ch2 = geometry->chamber(detIdL2);
+
+    LogDebug("GEMGeometryBuilderFromDDD") << "Creating new GEM super chamber out of chambers.";
+    GEMSuperChamber* sch = new GEMSuperChamber(detIdL1, surf); 
+    sch->add(const_cast<GEMChamber*>(chambers.at(i)));
+    sch->add(const_cast<GEMChamber*>(ch2));
+
+    LogDebug("GEMGeometryBuilderFromDDD") << "Adding the super chamber to the geometry.";
     geometry->add(sch);
   }
-  */
-  
   return geometry;
 }

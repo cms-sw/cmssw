@@ -10,8 +10,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789)
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(456789)
     )
 )
 
