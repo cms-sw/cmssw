@@ -159,7 +159,7 @@ namespace edm {
   BasicHandle
   PrincipalGetAdapter::getByToken_(TypeID const& id, KindOfType kindOfType, EDGetToken token,
                                    ModuleCallingContext const* mcc) const {
-    ProductHolderIndexAndSkipBit indexAndBit = consumer_->indexFrom(token,InEvent,id);
+    ProductHolderIndexAndSkipBit indexAndBit = consumer_->indexFrom(token,branchType(),id);
     ProductHolderIndex index = indexAndBit.productHolderIndex();
     bool skipCurrentProcess = indexAndBit.skipCurrentProcess();
     if( unlikely(index == ProductHolderIndexInvalid)) {
