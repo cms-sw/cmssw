@@ -13,6 +13,8 @@
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
 
 namespace reco {
   
@@ -65,19 +67,28 @@ namespace reco {
     LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) {
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ), p4Cartesian_(p4),
+      cachePolarFixed_( false ), cacheCartesianFixed_( true ) {
       if ( integerCharge ) qx3_ *= 3;
     }
     /// constructor from values                                                           
     LeafCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ){
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ), p4Polar_(p4),
+      cachePolarFixed_( true ), cacheCartesianFixed_( false ){
       if ( integerCharge ) qx3_ *= 3;
     }
     
+    /// constructor from values  
+    LeafCandidate( Charge q, const GlobalVector & p3, float iEnergy, const Point & vtx = Point( 0, 0, 0 ),
+		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      qx3_( q ), pt_( p3.perp() ), eta_( p3.eta() ), phi_( p3.phi() ), mass_( std::sqrt(std::abs(iEnergy*iEnergy-p3.mag2()))),
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ), p4Cartesian_(p3.x(),p3.y(),p3.z(),iEnergy),
+      cachePolarFixed_( false ), cacheCartesianFixed_( true ) {
+      if ( integerCharge ) qx3_ *= 3;
+    }
+
     /// destructor
     virtual ~LeafCandidate();
     /// first daughter const_iterator
