@@ -28,8 +28,8 @@ void TTStubAlgorithm_globalgeometry< Ref_PixelDigi_ >::PatternHitCorrelation( bo
   }
 
   /// Get average position of Clusters composing the Stub
-  GlobalPoint innerHitPosition = (*TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker).findAverageGlobalPosition( aTTStub.getClusterPtr(0).get() );
-  GlobalPoint outerHitPosition = (*TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker).findAverageGlobalPosition( aTTStub.getClusterPtr(1).get() );
+  GlobalPoint innerHitPosition = (*TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker).findAverageGlobalPosition( aTTStub.getClusterRef(0).get() );
+  GlobalPoint outerHitPosition = (*TTStubAlgorithm< Ref_PixelDigi_ >::theStackedTracker).findAverageGlobalPosition( aTTStub.getClusterRef(1).get() );
 
   /// Get useful quantities
   double outerPointRadius = outerHitPosition.perp();
@@ -65,8 +65,8 @@ void TTStubAlgorithm_globalgeometry< Ref_PixelDigi_ >::PatternHitCorrelation( bo
 
       /// Calculate output
       /// NOTE this assumes equal pitch in both sensors!
-      MeasurementPoint mp0 = aTTStub.getClusterPtr(0)->findAverageLocalCoordinates();
-      MeasurementPoint mp1 = aTTStub.getClusterPtr(1)->findAverageLocalCoordinates();
+      MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+      MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
       aDisplacement = 2*(mp1.x() - mp0.x()); /// In HALF-STRIP units!
 
       /// By default, assigned as ZERO

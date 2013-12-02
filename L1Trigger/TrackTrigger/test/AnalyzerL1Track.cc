@@ -823,7 +823,7 @@ void AnalyzerL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
          continue;
 
       /// Check if this TP produced any clusters
-      if ( MCTruthTTClusterHandle->findTTClusterPtrs( tempTPPtr ).size() > 0 )
+      if ( MCTruthTTClusterHandle->findTTClusterRefs( tempTPPtr ).size() > 0 )
       {
         hTPart_Cluster_Pt->Fill( tempTPPtr->p4().pt() );
         if ( tempTPPtr->p4().pt() > 5.0 )
@@ -833,7 +833,7 @@ void AnalyzerL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         }
 
         /// Check if the TP produced any stubs
-        if ( MCTruthTTStubHandle->findTTStubPtrs( tempTPPtr ).size() > 0 )
+        if ( MCTruthTTStubHandle->findTTStubRefs( tempTPPtr ).size() > 0 )
         {
           hTPart_Stub_Pt->Fill( tempTPPtr->p4().pt() );
           if ( tempTPPtr->p4().pt() > 5.0 )
@@ -867,11 +867,11 @@ void AnalyzerL1Track::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                   continue;
                 }
 
-                if ( theseTracks.at(it)->getStubPtrs().size() == 2 )
+                if ( theseTracks.at(it)->getStubRefs().size() == 2 )
                 {
                   found2stubs = true;
                 }
-                else if ( theseTracks.at(it)->getStubPtrs().size() > 2 )
+                else if ( theseTracks.at(it)->getStubRefs().size() > 2 )
                 {
 
 
@@ -929,7 +929,7 @@ if ( hasBL1 )
       edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( PixelDigiTTTrackHandle, tkCnt++ );
 
       /// Get everything is relevant
-      unsigned int nStubs     = tempTrackPtr->getStubPtrs().size();
+      unsigned int nStubs     = tempTrackPtr->getStubRefs().size();
       unsigned int seedSector = tempTrackPtr->getSector();
       unsigned int seedWedge  = tempTrackPtr->getWedge();
 
@@ -941,7 +941,7 @@ if ( hasBL1 )
       double trackPhi   = tempTrackPtr->getMomentum().phi();
       double trackEta   = tempTrackPtr->getMomentum().eta();
       double trackTheta = tempTrackPtr->getMomentum().theta();
-      double trackVtxZ0 = tempTrackPtr->getVertex().z();
+      double trackVtxZ0 = tempTrackPtr->getPOCA().z();
       double trackChi2  = tempTrackPtr->getChi2();
       double trackChi2R = tempTrackPtr->getChi2Red();
 
@@ -1084,7 +1084,7 @@ if ( hasBL1 )
           double seedPt    = iterSeed->getMomentum().perp();
           double seedPhi   = iterSeed->getMomentum().phi();
           double seedEta   = iterSeed->getMomentum().eta();
-          double seedVtxZ0 = iterSeed->getVertex().z();
+          double seedVtxZ0 = iterSeed->getPOCA().z();
 
           hTrack_RInv_Seed_RInv->Fill( seedRInv, trackRInv );
           hTrack_RInvRes_Track_Eta->Fill( trackEta, trackRInv - seedRInv );
@@ -1100,7 +1100,7 @@ if ( hasBL1 )
           hTrack_VtxZ0Res_Track_Eta->Fill( trackEta, trackVtxZ0 - seedVtxZ0 );
 
           /// Propagate seed and check distances
-          StackedTrackerDetId detIdInner( iterSeed->getStubPtrs().at(0)->getDetId() );
+          StackedTrackerDetId detIdInner( iterSeed->getStubRefs().at(0)->getDetId() );
 //          unsigned int seedSL = (unsigned int)((detIdInner.iLayer() + 1)/2);
 //          seedSL = ( seedSL > 3 ) ? 3 : seedSL; /// Renormalize 1-3
 
@@ -1110,19 +1110,19 @@ if ( hasBL1 )
           else if ( detIdInner.isEndcap() ) seedEndcap0 = detIdInner.iDisk();
 
           /// Loop over track stubs
-          for ( unsigned int js = 0; js < iterTTTrack->getStubPtrs().size(); js++ )
+          for ( unsigned int js = 0; js < iterTTTrack->getStubRefs().size(); js++ )
           {
             /// Skip Stubs in the Seed
             bool isInSeed = false;
-            for ( unsigned int ks = 0; ks < iterSeed->getStubPtrs().size(); ks++ )
+            for ( unsigned int ks = 0; ks < iterSeed->getStubRefs().size(); ks++ )
             {
-              if ( iterTTTrack->getStubPtrs().at(js) == iterSeed->getStubPtrs().at(ks) )
+              if ( iterTTTrack->getStubRefs().at(js) == iterSeed->getStubRefs().at(ks) )
                 isInSeed = true;
             }
             if ( isInSeed ) continue;
 
             /// Candidate SL
-            StackedTrackerDetId detIdCand( iterTTTrack->getStubPtrs().at(js)->getDetId() );
+            StackedTrackerDetId detIdCand( iterTTTrack->getStubRefs().at(js)->getDetId() );
 //            unsigned int candSL = (unsigned int)((detIdCand.iLayer() + 1)/2);
 //            candSL = ( candSL > 3 ) ? 3 : candSL; /// Renormalize 1-3
 
@@ -1133,7 +1133,7 @@ if ( hasBL1 )
 
 //            if ( candSL == seedSL ) continue;
 
-            GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*iterTTTrack->getStubPtrs().at(js)) );
+            GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*iterTTTrack->getStubRefs().at(js)) );
 
             if ( candBarrel )
             {
@@ -1211,7 +1211,7 @@ if ( hasBL1 )
               const PixelGeomDetUnit* pix0 = dynamic_cast< const PixelGeomDetUnit* >( det0 );
               const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
               std::pair< float, float > pitch0 = top0->pitch();
-              MeasurementPoint stubCoord = iterTTTrack->getStubPtrs().at(js)->getClusterPtr(0)->findAverageLocalCoordinates();
+              MeasurementPoint stubCoord = iterTTTrack->getStubRefs().at(js)->getClusterRef(0)->findAverageLocalCoordinates();
               double stubTransvDispl = pitch0.first * ( stubCoord.x() - (top0->nrows()/2 - 0.5) ); /// Difference in coordinates is the same as difference in position
               if ( posStub.z() > 0 )
               {
@@ -1269,7 +1269,7 @@ if ( hasBL1 )
       double seedPt    = tempSeedPtr->getMomentum().perp();
       double seedPhi   = tempSeedPtr->getMomentum().phi();
       double seedEta   = tempSeedPtr->getMomentum().eta();
-      double seedVtxZ0 = tempSeedPtr->getVertex().z();
+      double seedVtxZ0 = tempSeedPtr->getPOCA().z();
       double seedChi2  = tempSeedPtr->getChi2();
       double seedChi2R = tempSeedPtr->getChi2Red();
 
@@ -1300,9 +1300,9 @@ if ( hasBL1 )
       hSeed_EtaRes_TPart_Eta->Fill( tpEta, seedEta - tpEta);
       hSeed_VtxZ0_TPart_VtxZ0->Fill( tpVtxZ0, seedVtxZ0);
       hSeed_VtxZ0Res_TPart_Eta->Fill( tpEta, seedVtxZ0 - tpVtxZ0 );
-      hSeed_Chi2_NStubs->Fill( iterSeed->getStubPtrs().size(), seedChi2 );
+      hSeed_Chi2_NStubs->Fill( iterSeed->getStubRefs().size(), seedChi2 );
       hSeed_Chi2_TPart_Eta->Fill( tpEta, seedChi2 );
-      hSeed_Chi2Red_NStubs->Fill( iterSeed->getStubPtrs().size(), seedChi2R );
+      hSeed_Chi2Red_NStubs->Fill( iterSeed->getStubRefs().size(), seedChi2R );
       hSeed_Chi2Red_TPart_Eta->Fill( tpEta, seedChi2R );
 
       unsigned int q = 0;
@@ -1314,7 +1314,7 @@ if ( hasBL1 )
               iterTTTrack != PixelDigiTTTrackHandle->end();
               ++iterTTTrack )
         {
-          unsigned int nStubs = iterTTTrack->getStubPtrs().size();
+          unsigned int nStubs = iterTTTrack->getStubRefs().size();
           if ( nStubs < 3 ) continue;
 
           bool dontSkip = iterTTTrack->isTheSameAs( *iterSeed );

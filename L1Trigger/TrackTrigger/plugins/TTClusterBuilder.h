@@ -29,6 +29,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+
 #include <memory>
 #include <map>
 #include <vector>
@@ -78,7 +80,7 @@ TTClusterBuilder< T >::TTClusterBuilder( const edm::ParameterSet& iConfig )
   rawHitInputTags  = iConfig.getParameter< std::vector< edm::InputTag > >("rawHits");
   ADCThreshold     = iConfig.getParameter< unsigned int >("ADCThreshold");
   storeLocalCoord  = iConfig.getParameter< bool >("storeLocalCoord");
-  produces< std::vector< TTCluster< T > > >( "ClusterInclusive" );
+  produces< edmNew::DetSetVector< TTCluster< T > > >( "ClusterInclusive" );
 }
 
 /// Destructor

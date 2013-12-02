@@ -638,9 +638,9 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
   iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingVertexHandle );
 
   /// Track Trigger
-  edm::Handle< std::vector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
-  edm::Handle< std::vector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterInclusiveHandle;
-  edm::Handle< std::vector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
+  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
+  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterInclusiveHandle;
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
   /// NOTE: the InputTag for the "Accepted" clusters is different from the "Inclusive" one
   iEvent.getByLabel( "TTStubsFromPixelDigis", "ClusterAccepted",     PixelDigiTTClusterHandle );
   iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterInclusiveHandle ); 
@@ -671,7 +671,7 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       edm::Ptr< TrackingParticle > tempTPPtr( TrackingParticleHandle, tpCnt++ );
 
       /// Search the cluster MC map
-      std::vector< edm::Ptr< TTCluster< Ref_PixelDigi_ > > > theseClusters = MCTruthTTClusterHandle->findTTClusterPtrs( tempTPPtr );
+      std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > > theseClusters = MCTruthTTClusterHandle->findTTClusterRefs( tempTPPtr );
 
       if ( theseClusters.size() > 0 )
       {
@@ -735,7 +735,7 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       }
 
       /// Search the stub MC truth map
-      std::vector< edm::Ptr< TTStub< Ref_PixelDigi_ > > > theseStubs = MCTruthTTStubHandle->findTTStubPtrs( tempTPPtr );
+      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > theseStubs = MCTruthTTStubHandle->findTTStubRefs( tempTPPtr );
 
       if ( tempTPPtr->p4().pt() <= 10 )
         continue; 
@@ -789,32 +789,33 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::map< unsigned int, std::vector< edm::Ptr< TrackingParticle > > > tpPerLayer;
   std::map< unsigned int, std::vector< edm::Ptr< TrackingParticle > > > tpPerDisk;
 
-  /// Go on only if there are TTCluster from PixelDigis
-  if ( PixelDigiTTClusterHandle->size() > 0 )
+  /// Loop over the input Clusters
+  typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
+  typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
+  for ( inputIter = PixelDigiTTClusterHandle->begin();
+        inputIter != PixelDigiTTClusterHandle->end();
+        ++inputIter )
   {
-    /// Loop over TTClusters
-    unsigned int cluCnt = 0;
-    std::vector< TTCluster< Ref_PixelDigi_ > >::const_iterator iterTTCluster;
-    for ( iterTTCluster = PixelDigiTTClusterHandle->begin();
-          iterTTCluster != PixelDigiTTClusterHandle->end();
-          ++iterTTCluster )
+    for ( contentIter = inputIter->begin();
+          contentIter != inputIter->end();
+          ++contentIter )
     {
-      /// Make the pointer
-      edm::Ptr< TTCluster< Ref_PixelDigi_ > > tempCluPtr( PixelDigiTTClusterHandle, cluCnt++ );
+      /// Make the reference to be put in the map
+      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
 
-      StackedTrackerDetId detIdClu( tempCluPtr->getDetId() );
-      unsigned int memberClu = tempCluPtr->getStackMember();
-      bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluPtr );
-      bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluPtr );
-      //bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluPtr );
+      StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
+      unsigned int memberClu = tempCluRef->getStackMember();
+      bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
+      bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
+      //bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
       int partClu         = 999999999;
       if ( genuineClu )
       {
-        edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluPtr );
+        edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluRef );
         partClu = thisTP->pdgId();
       }
-      unsigned int widClu = tempCluPtr->findWidth();
-      GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*tempCluPtr) );
+      unsigned int widClu = tempCluRef->findWidth();
+      GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*tempCluRef) );
       
       hCluster_RZ->Fill( posClu.z(), posClu.perp() );
 
@@ -901,7 +902,7 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       /// Store Track information in maps, skip if the Cluster is not good
       if ( !genuineClu && !combinClu ) continue;
 
-      std::vector< edm::Ptr< TrackingParticle > > theseTPs = MCTruthTTClusterHandle->findTrackingParticlePtrs( tempCluPtr );
+      std::vector< edm::Ptr< TrackingParticle > > theseTPs = MCTruthTTClusterHandle->findTrackingParticlePtrs( tempCluRef );
 
       for ( unsigned int i = 0; i < theseTPs.size(); i++ )
       {
@@ -934,8 +935,8 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
           tpPerDisk[detIdClu.iDisk()].push_back( tpPtr );
         }
       }
-    } /// End of Loop over TTClusters
-  } /// End of if ( PixelDigiTTClusterHandle->size() > 0 )
+    }
+  } /// End of Loop over TTClusters
 
   /// Clean the maps for TrackingParticles and fill histograms
   std::map< unsigned int, std::vector< edm::Ptr< TrackingParticle > > >::iterator iterTPPerLayer;
@@ -999,33 +1000,34 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::map< unsigned int, std::vector< edm::Ptr< TrackingParticle > > > tpPerStubLayer;
   std::map< unsigned int, std::vector< edm::Ptr< TrackingParticle > > > tpPerStubDisk;
 
-  /// Go on only if there are TTStub from PixelDigis
-  if ( PixelDigiTTStubHandle->size() > 0 )
+  /// Loop over the input Stubs
+  typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator otherInputIter;
+  typename edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator otherContentIter;
+  for ( otherInputIter = PixelDigiTTStubHandle->begin();
+        otherInputIter != PixelDigiTTStubHandle->end();
+        ++otherInputIter )
   {
-    /// Loop over TTStubs
-    unsigned int cntStub = 0;
-    std::vector< TTStub< Ref_PixelDigi_ > >::const_iterator iterTTStub;
-    for ( iterTTStub = PixelDigiTTStubHandle->begin();
-          iterTTStub != PixelDigiTTStubHandle->end();
-          ++iterTTStub )
+    for ( otherContentIter = otherInputIter->begin();
+          otherContentIter != otherInputIter->end();
+          ++otherContentIter )
     {
-      /// Make the pointer
-      edm::Ptr< TTStub< Ref_PixelDigi_ > > tempStubPtr( PixelDigiTTStubHandle, cntStub++ );
+      /// Make the reference to be put in the map
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( PixelDigiTTStubHandle, otherContentIter );
 
-      StackedTrackerDetId detIdStub( tempStubPtr->getDetId() );
+      StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
 
-      bool genuineStub    = MCTruthTTStubHandle->isGenuine( tempStubPtr );
-      bool combinStub     = MCTruthTTStubHandle->isCombinatoric( tempStubPtr );
-      //bool unknownStub    = MCTruthTTStubHandle->isUnknown( tempStubPtr );
+      bool genuineStub    = MCTruthTTStubHandle->isGenuine( tempStubRef );
+      bool combinStub     = MCTruthTTStubHandle->isCombinatoric( tempStubRef );
+      //bool unknownStub    = MCTruthTTStubHandle->isUnknown( tempStubRef );
       int partStub         = 999999999;
       if ( genuineStub )
       {
-        edm::Ptr< TrackingParticle > thisTP = MCTruthTTStubHandle->findTrackingParticlePtr( tempStubPtr );
+        edm::Ptr< TrackingParticle > thisTP = MCTruthTTStubHandle->findTrackingParticlePtr( tempStubRef );
         partStub = thisTP->pdgId();
       }
-      double displStub    = tempStubPtr->getTriggerDisplacement();
-      double offsetStub   = tempStubPtr->getTriggerOffset();
-      GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*tempStubPtr) );
+      double displStub    = tempStubRef->getTriggerDisplacement();
+      double offsetStub   = tempStubRef->getTriggerOffset();
+      GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*tempStubRef) );
 
       hStub_RZ->Fill( posStub.z(), posStub.perp() );
 
@@ -1097,7 +1099,7 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       /// Store Track information in maps, skip if the Cluster is not good
       if ( !genuineStub ) continue;
 
-      edm::Ptr< TrackingParticle > tpPtr = MCTruthTTStubHandle->findTrackingParticlePtr( tempStubPtr );
+      edm::Ptr< TrackingParticle > tpPtr = MCTruthTTStubHandle->findTrackingParticlePtr( tempStubRef );
 
       /// Get the corresponding vertex and reject the track
       /// if its vertex is outside the beampipe
@@ -1137,9 +1139,9 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
       double simPt = thisTP.p4().pt();
       double simEta = thisTP.momentum().eta();
       double simPhi = thisTP.momentum().phi();
-      double recPt = theStackedGeometry->findRoughPt( mMagneticFieldStrength, &(*tempStubPtr) );
-      double recEta = theStackedGeometry->findGlobalDirection( &(*tempStubPtr) ).eta();
-      double recPhi = theStackedGeometry->findGlobalDirection( &(*tempStubPtr) ).phi();
+      double recPt = theStackedGeometry->findRoughPt( mMagneticFieldStrength, &(*tempStubRef) );
+      double recEta = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).eta();
+      double recPhi = theStackedGeometry->findGlobalDirection( &(*tempStubRef) ).phi();
 
       if ( simPhi > M_PI )
       {
@@ -1180,8 +1182,8 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
         mapStubDisk_hStub_W_TPart_Pt[ detIdStub.iDisk() ]->Fill( simPt, displStub - offsetStub );
         mapStubDisk_hStub_W_TPart_InvPt[ detIdStub.iDisk() ]->Fill( 1./simPt, displStub - offsetStub );
       }
-    } /// End of loop over TTStubs
-  } /// End of if ( PixelDigiTTStubHandle->size() > 0 )
+    }
+  } /// End of loop over TTStubs
 
   /// Clean the maps for TrackingParticles and fill histograms
   std::map< unsigned int, std::vector< edm::Ptr< TrackingParticle > > >::iterator iterTPPerStubLayer;
