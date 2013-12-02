@@ -70,7 +70,6 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   ofos << myName() << ": Analyzer..." << std::endl;
   ofos << "start " << dashedLine_ << std::endl;
 
-<<<<<<< HEAD
   ofos << " Geometry node for GEMGeom is  " << &(*pDD) << endl;   
   ofos << " detTypes       \t"              <<pDD->detTypes().size() << endl;
   ofos << " GeomDetUnit       \t"           <<pDD->detUnits().size() << endl;
@@ -82,18 +81,6 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   ofos << " rings  \t\t"                    <<pDD->rings().size() << endl;
   ofos << " stations  \t\t"                 <<pDD->stations().size() << endl;
   ofos << " regions  \t\t"                  <<pDD->regions().size() << endl;
-=======
-  ofos << " Geometry node for GEMGeom is  " << &(*pDD) << std::endl;   
-  ofos << " detTypes       \t"<<pDD->detTypes().size() << std::endl;
-  ofos << " GeomDetUnit       \t"<<pDD->detUnits().size() << std::endl;
-  ofos << " GeomDet           \t"<<pDD->dets().size() << std::endl;
-  ofos << " GeomDetUnit DetIds\t"<<pDD->detUnitIds().size() << std::endl;
-  ofos << " eta partitions \t"<<pDD->etaPartitions().size() << std::endl;
-  ofos << " chambers       \t"<<pDD->chambers().size() << std::endl;
-  ofos << " no. eta partitions \t"<< pDD->etaPartitions().size()/pDD->chambers().size() << std::endl;
-
-  //ofos << " super chambers  "<<pDD->superChambers().size() << std::endl;
->>>>>>> 078f1f2... removed using namespace std
 
   // checking uniqueness of roll detIds 
   bool flagNonUniqueRollID = false;
