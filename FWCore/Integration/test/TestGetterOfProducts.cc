@@ -56,21 +56,23 @@ namespace edmtest {
     // These are the InputTag's of the products the getter will look for.
     // These are the matching products in the ProductRegistry, but they
     // may or may not be in a particular Event.
-    std::vector<edm::InputTag> const& inputTags = getterOfProducts_.inputTags();
+    auto const& tokens = getterOfProducts_.tokens();
 
-    if (expectedInputTagLabels_.size() != inputTags.size()) {
+    if (expectedInputTagLabels_.size() != tokens.size()) {
       std::cerr << "Expected number of InputTag's differs from actual number.\n"
                 << "In function TestGetterOfProducts::filter\n"
-                << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << inputTags.size() << std::endl;
+                << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << tokens.size() << std::endl;
       abort();
     }
 
     std::vector<std::string>::const_iterator iter = expectedInputTagLabels_.begin();
-    for (auto const& inputTag : inputTags) {
-      if (inputTag.label() != *iter) {
+    for (auto const& token : tokens) {
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(token,labels);
+      if ( *iter != labels.module ) {
         std::cerr << "Expected InputTag differs from actual InputTag.\n"
                   << "In function TestGetterOfProducts::filter\n"
-                  << "Expected value = " << *iter << " actual value = " << inputTag.label() << std::endl;
+                  << "Expected value = " << *iter << " actual value = " << labels.module << std::endl;
         abort();
       }
       ++iter;
@@ -166,21 +168,23 @@ namespace edmtest {
 
     if (branchType_ != edm::InEvent) return;
 
-    std::vector<edm::InputTag> const& inputTags = getterOfProducts_.inputTags();
+    auto const& tokens = getterOfProducts_.tokens();
 
-    if (expectedInputTagLabels_.size() != inputTags.size()) {
+    if (expectedInputTagLabels_.size() != tokens.size()) {
       std::cerr << "Expected number of InputTag's differs from actual number.\n"
                 << "In function TestGetterOfProducts::filter\n"
-                << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << inputTags.size() << std::endl;
+                << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << tokens.size() << std::endl;
       abort();
     }
 
     std::vector<std::string>::const_iterator iter = expectedInputTagLabels_.begin();
-    for (auto const& inputTag : inputTags) {
-      if (inputTag.label() != *iter) {
+    for (auto const& token : tokens) {
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(token,labels);
+      if (*iter != labels.module) {
         std::cerr << "Expected InputTag differs from actual InputTag.\n"
                   << "In function TestGetterOfProducts::filter\n"
-                  << "Expected value = " << *iter << " actual value = " << inputTag.label() << std::endl;
+                  << "Expected value = " << *iter << " actual value = " << labels.module << std::endl;
         abort();
       }
       ++iter;
@@ -235,21 +239,24 @@ namespace edmtest {
 
     if (branchType_ != edm::InLumi) return;
 
-    std::vector<edm::InputTag> const& inputTags = getterOfProducts_.inputTags();
+    auto const& tokens = getterOfProducts_.tokens();
 
-    if (expectedInputTagLabels_.size() != inputTags.size()) {
+    if (expectedInputTagLabels_.size() != tokens.size()) {
       std::cerr << "Expected number of InputTag's differs from actual number.\n"
                 << "In function TestGetterOfProducts::endLuminosityBlock\n"
-                << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << inputTags.size() << std::endl;
+                << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << tokens.size() << std::endl;
       abort();
     }
 
     std::vector<std::string>::const_iterator iter = expectedInputTagLabels_.begin();
-    for (auto const& inputTag : inputTags) {
-      if (inputTag.label() != *iter) {
+    for (auto const& token : tokens) {
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(token,labels);
+
+      if (*iter != labels.module) {
         std::cerr << "Expected InputTag differs from actual InputTag.\n"
                   << "In function TestGetterOfProducts::endLuminosityBlock\n"
-                  << "Expected value = " << *iter << " actual value = " << inputTag.label() << std::endl;
+                  << "Expected value = " << *iter << " actual value = " << labels.module << std::endl;
         abort();
       }
       ++iter;
@@ -304,21 +311,23 @@ namespace edmtest {
 
     if (branchType_ != edm::InRun) return;
 
-    std::vector<edm::InputTag> const& inputTags = getterOfProducts_.inputTags();
+    auto const& tokens = getterOfProducts_.tokens();
 
-    if (expectedInputTagLabels_.size() != inputTags.size()) {
+    if (expectedInputTagLabels_.size() != tokens.size()) {
       std::cerr << "Expected number of InputTag's differs from actual number.\n"
                 << "In function TestGetterOfProducts::endRun\n"
-                << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << inputTags.size() << std::endl;
+                << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << tokens.size() << std::endl;
       abort();
     }
 
     std::vector<std::string>::const_iterator iter = expectedInputTagLabels_.begin();
-    for (auto const& inputTag : inputTags) {
-      if (inputTag.label() != *iter) {
+    for (auto const& token : tokens) {
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(token,labels);
+      if (*iter != labels.module) {
         std::cerr << "Expected InputTag differs from actual InputTag.\n"
                   << "In function TestGetterOfProducts::endRun\n"
-                  << "Expected value = " << *iter << " actual value = " << inputTag.label() << std::endl;
+                  << "Expected value = " << *iter << " actual value = " << labels.module << std::endl;
         abort();
       }
       ++iter;

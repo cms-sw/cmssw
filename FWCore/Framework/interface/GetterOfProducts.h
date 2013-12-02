@@ -107,7 +107,7 @@ There are some variants for special cases
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/WillGetIfMatch.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include <functional>
@@ -126,67 +126,73 @@ namespace edm {
       template <typename U, typename M>
       GetterOfProducts(U const& match, M* module, edm::BranchType branchType = edm::InEvent) : 
         matcher_(WillGetIfMatch<T>(match, module)),
-        inputTags_(new std::vector<edm::InputTag>),
+        tokens_(new std::vector<edm::EDGetTokenT<T>>),
         branchType_(branchType) {
       }
 
       void operator()(edm::BranchDescription const& branchDescription) {
 
          if (branchDescription.unwrappedTypeID() == edm::TypeID(typeid(T)) &&
-             branchDescription.branchType() == branchType_ &&
-             matcher_(branchDescription)) {
+             branchDescription.branchType() == branchType_) {
 
-            inputTags_->emplace_back(branchDescription.moduleLabel(),
-                                     branchDescription.productInstanceName(),
-                                     branchDescription.processName());
+            auto const& token =matcher_(branchDescription);
+            if (not token.isUninitialized()) {
+               tokens_->push_back(token);
+           }
          }
       }
 
       void fillHandles(edm::Event const& event, std::vector<edm::Handle<T> >& handles) const {
          handles.clear();
-         handles.reserve(inputTags_->size());
-         edm::Handle<T> handle;
-         for (auto const& inputTag : *inputTags_) {
-            event.getByLabel(inputTag, handle);
-            if (handle.isValid()) {
-               handles.push_back(handle);
+         if(branchType_ == edm::InEvent) {
+            handles.reserve(tokens_->size());
+            edm::Handle<T> handle;
+            for (auto const& token : *tokens_) {
+               event.getByToken(token, handle);
+               if (handle.isValid()) {
+                  handles.push_back(handle);
+               }
             }
          }
       }
 
       void fillHandles(edm::LuminosityBlock const& lumi, std::vector<edm::Handle<T> >& handles) const {
          handles.clear();
-         handles.reserve(inputTags_->size());
-         edm::Handle<T> handle;
-         for (auto const& inputTag : *inputTags_) {
-            lumi.getByLabel(inputTag, handle);
-            if (handle.isValid()) {
-               handles.push_back(handle);
+         if(branchType_ == edm::InLumi ) {
+            handles.reserve(tokens_->size());
+            edm::Handle<T> handle;
+            for (auto const& token : *tokens_) {
+               lumi.getByToken(token, handle);
+               if (handle.isValid()) {
+                  handles.push_back(handle);
+               }
             }
          }
       }
 
       void fillHandles(edm::Run const& run, std::vector<edm::Handle<T> >& handles) const {
          handles.clear();
-         handles.reserve(inputTags_->size());
-         edm::Handle<T> handle;
-         for (auto const& inputTag : *inputTags_) {
-            run.getByLabel(inputTag, handle);
-            if (handle.isValid()) {
-               handles.push_back(handle);
+         if(branchType_ == edm::InRun) {
+            handles.reserve(tokens_->size());
+            edm::Handle<T> handle;
+            for (auto const& token : *tokens_) {
+               run.getByToken(token, handle);
+               if (handle.isValid()) {
+                  handles.push_back(handle);
+               }
             }
          }
       }
 
-      std::vector<edm::InputTag> const& inputTags() const { return *inputTags_; }
+      std::vector<edm::EDGetTokenT<T>> const& tokens() const { return *tokens_; }
       edm::BranchType branchType() const { return branchType_; }
 
    private:
 
-      std::function<bool (edm::BranchDescription const& branchDescription)> matcher_;
+      std::function<EDGetTokenT<T> (BranchDescription const&)> matcher_;
       // A shared pointer is needed because objects of this type get assigned
       // to std::function's and we want the copies in those to share the same vector.
-      std::shared_ptr<std::vector<edm::InputTag> > inputTags_;
+      std::shared_ptr<std::vector<edm::EDGetTokenT<T>> > tokens_;
       edm::BranchType branchType_;
    };
 }
