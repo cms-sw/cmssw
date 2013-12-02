@@ -69,12 +69,6 @@ GEMEtaPartition::localError(float strip, float cluster_size) const
   return this->specificTopology().localError(strip, cluster_size*cluster_size/12.);
 }
 
-LocalError
-GEMEtaPartition::localError_cls(float strip, float cluster_size) const
-{
-  return this->specificTopology().localError(strip, cluster_size*cluster_size/12.);
-}
-
 float
 GEMEtaPartition::strip(const LocalPoint& lp) const
 { 
