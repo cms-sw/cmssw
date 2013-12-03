@@ -84,7 +84,6 @@ class TTStubAssociationMap
 template< typename T >
 TTStubAssociationMap< T >::TTStubAssociationMap()
 {
-std::cerr<<" inside constructor"<<std::endl;
   /// Set default data members
   stubToTrackingParticleMap.clear();
   trackingParticleToStubVectorMap.clear();
