@@ -29,7 +29,7 @@
 #include "HLTPFTauPairLeadTrackDzMatchFilter.h"
 #include "RecoTauTag/HLTProducers/interface/L2TauPixelIsoTagProducer.h"
 
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator"); 	 
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TauRegionalPixelSeedGenerator, "TauRegionalPixelSeedGenerator");      
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, TrackingRegionsFromBeamSpotAndL2Tau, "TrackingRegionsFromBeamSpotAndL2Tau");
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, CandidateSeededTrackingRegionsProducer, "CandidateSeededTrackingRegionsProducer");
 //
