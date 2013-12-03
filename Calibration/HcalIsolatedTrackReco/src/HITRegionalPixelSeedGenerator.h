@@ -43,7 +43,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
     ptmin=regionPSet.getParameter<double>("ptMin");
     originradius=regionPSet.getParameter<double>("originRadius");
     halflength=regionPSet.getParameter<double>("originHalfLength");
-    vertexSrc=regionPSet.getParameter<std::string>("vertexSrc");
+    vertexSrc=regionPSet.getParameter<edm::InputTag>("vertexSrc");
     etaCenter_=regionPSet.getParameter<double>("etaCenter");
     phiCenter_=regionPSet.getParameter<double>("phiCenter");
     deltaTrackEta = regionPSet.getParameter<double>("deltaEtaTrackRegion");
@@ -237,7 +237,7 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
   float deltaL1JetPhi;
   edm::InputTag tracksrc_;
   edm::InputTag isoTracksrc_;
-  std::string vertexSrc;
+  edm::InputTag vertexSrc;
   edm::InputTag l1jetsrc_;
   bool usejets_;
   bool usetracks_;

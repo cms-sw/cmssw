@@ -19,7 +19,7 @@ public:
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
-    theVertexSrc   = regionPSet.getParameter<std::string>("vertexSrc");
+    theVertexSrc   = regionPSet.getParameter<edm::InputTag>("vertexSrc");
     theInputTrkSrc = regionPSet.getParameter<edm::InputTag>("TrkSrc");
 
     thePtMin              = regionPSet.getParameter<double>("ptMin");
@@ -44,7 +44,7 @@ public:
     // get highest Pt pixel vertex (if existing)
     double deltaZVertex =  theOriginHalfLength;
     double originz = theOriginZPos;
-    if (theVertexSrc.length()>1) {
+    if (theVertexSrc.label().length()>1) {
       edm::Handle<reco::VertexCollection> vertices;
       ev.getByLabel(theVertexSrc,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
@@ -74,7 +74,7 @@ public:
 
 private:
 
-  std::string theVertexSrc;
+  edm::InputTag theVertexSrc;
   edm::InputTag theInputTrkSrc;
 
   double thePtMin; 
