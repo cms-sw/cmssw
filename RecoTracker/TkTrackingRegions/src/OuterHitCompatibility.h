@@ -9,11 +9,15 @@
     The r-z checking is done with a help of HitRZCompatibility checker */ 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "RecoTracker/TkTrackingRegions/interface/OuterHitPhiPrediction.h"
+#include "OuterHitPhiPrediction.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-class OuterHitCompatibility {
+
+#include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "FWCore/Utilities/interface/Visibility.h"
+
+class dso_internal OuterHitCompatibility {
 public:
 
   OuterHitCompatibility(
@@ -33,7 +37,12 @@ public:
   bool operator() (const TransientTrackingRecHit * hit) const;
   bool operator() (const TrackingRecHit* hit,  const edm::EventSetup& iSetup) const;
 
-  bool checkPhi(const float & phi, const float & r) const;
+  bool checkPhi(float phi, float r) const {
+    OuterHitPhiPrediction::Range hitPhiRange = thePhiPrediction(r);
+    PhiLess less;
+    bool phiOK = less(hitPhiRange.min(),phi) && less(phi,hitPhiRange.max());
+    return phiOK;
+  }
 
   OuterHitCompatibility* clone() const { 
     return new OuterHitCompatibility(*this);
