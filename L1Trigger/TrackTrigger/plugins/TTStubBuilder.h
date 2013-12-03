@@ -447,9 +447,6 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
 
   } /// End of loop over stub DetSetVector
 
-std::cerr<<" accepted size " << TTStubDSVForOutputAccepted->size() << " ( " << TTStubDSVForOutputAccepted->dataSize();
-std::cerr<<" )       rejected size " << TTStubDSVForOutputRejected->size() << " ( " << TTStubDSVForOutputRejected->dataSize() << ")"<< std::endl;
-
   /// Put output in the event (2)
   iEvent.put( TTStubDSVForOutputAccepted, "StubAccepted" );
   iEvent.put( TTStubDSVForOutputRejected, "StubRejected" );
