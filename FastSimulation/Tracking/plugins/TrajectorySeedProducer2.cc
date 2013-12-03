@@ -42,7 +42,7 @@
 //
 
 //for debug only 
-#define FAMOS_DEBUG
+//#define FAMOS_DEBUG
 
 TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
     TrajectorySeedProducer(conf)
@@ -107,7 +107,7 @@ TrajectorySeedProducer2::passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>
 			compatible = true;
 		} else {
 			compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,trackingAlgorithmId);
-			if (!compatible) std::cout<<"reject beam axis"<<std::endl;
+			//if (!compatible) std::cout<<"reject beam axis"<<std::endl;
 		}
 
 		// Check if the pair is on the requested dets
@@ -230,7 +230,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	{
 		const unsigned int currentID = *itSimTrackId;
 		if (currentID!=4) continue;
-		std::cout<<"processing simtrack with id: "<<currentID<<std::endl;
+		//std::cout<<"processing simtrack with id: "<<currentID<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[*itSimTrackId];
 
 		int vertexIndex = theSimTrack.vertIndex();
@@ -248,7 +248,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				continue;
 			}
 			SiTrackerGSMatchedRecHit2DCollection::range recHitRange = theGSRecHits->get(*itSimTrackId);
-			std::cout<<"\ttotal produced: "<<recHitRange.second-recHitRange.first<<" hits"<<std::endl;
+			//std::cout<<"\ttotal produced: "<<recHitRange.second-recHitRange.first<<" hits"<<std::endl;
 
 			TrackerRecHit previousTrackerHit;
 			TrackerRecHit currentTrackerHit;
@@ -283,19 +283,24 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			}
 			if ( numberOfNonEqualHits < minRecHits[ialgo] ) continue;
 
+			numberOfNonEqualHits=0;
 			for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second && !foundSeed; ++itRecHit)
 			{
 
 				const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
 				previousTrackerHit=currentTrackerHit;
+
 				currentTrackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
+
 				if (currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
 				{
-					//TODO: perform check with SiTrackerGSMatchedRecHit2D directly -> saves the unnecessary creation of TrackerRecHit
-					continue;
+					//continue; //allow to select another hit on same layer if the previous one has been rejected
+					++numberOfNonEqualHits;
 				}
+				//speed things up by only running over the max number of requested hits
+				if ( numberOfNonEqualHits >= absMinRecHits ) break;
 
-				std::cout<<"\thit="<<itRecHit-recHitRange.first<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<", globalX="<<currentTrackerHit.globalPosition().x()<<std::endl;
+				//std::cout<<"\thit="<<itRecHit-recHitRange.first<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<", globalX="<<currentTrackerHit.globalPosition().x()<<std::endl;
 				for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
 				{
 					unsigned int currentlayer = hitNumbers[ilayerset].size();
@@ -329,6 +334,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				}
 			} //end loop over hits associated to current simtrack
 
+			/*
 			std::cout<<"ialgo="<<ialgo<<std::endl;
 			for (unsigned int i=0;i<hitNumbers.size(); ++i)
 			{
@@ -349,18 +355,19 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				}
 			}
 
-
+			*/
 			if (foundSeed)
 			{
-				std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
+
+				//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
 
 
 				for (unsigned int i=0;i<hitNumbers[seedLayerSet].size();++i)
 				{
 					seedHit_new[currentID].push_back(hitNumbers[seedLayerSet][i]);
-					std::cout<<hitNumbers[seedLayerSet][i]<<",";
+					//std::cout<<hitNumbers[seedLayerSet][i]<<",";
 				}
-				std::cout<<std::endl;
+				//std::cout<<std::endl;
 
 				edm::OwnVector<TrackingRecHit> recHits;
 				for ( unsigned ihit=0; ihit<seedHitCandiates[seedLayerSet].size(); ++ihit )
@@ -403,7 +410,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
 				//TODO: what is the meaning of continue in this case?
 				if (!initialTSOS.isValid()) continue;
-				//TODO: rewrite this very ugly method
+				//TODO: rewrite this very ugly method - the 'initialState' is create here
 				stateOnDet(initialTSOS,recHits.front().geographicalId().rawId(),initialState);
 				//output[ialgo]->push_back(TrajectorySeed(initialState, recHits, alongMomentum));
 			}
@@ -418,8 +425,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	}
 	*/
 
-	std::cout<<std::endl;
-    std::cout<<"old result:"<<std::endl;
+	//std::cout<<std::endl;
+    //std::cout<<"old result:"<<std::endl;
 
   
 #ifdef FAMOS_DEBUG
@@ -527,7 +534,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
     	  hit1=iterRecHit1-theRecHitRangeIteratorBegin;
 	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry,tTopo);
-	std::cout<<"old hit 1 - "<<hit1<<" subDet="<<theSeedHits0.subDetId()<<", layer="<<theSeedHits0.layerNumber()<<", globalX="<<theSeedHits0.globalPosition().x()<<std::endl;
+	//std::cout<<"old hit 1 - "<<hit1<<" subDet="<<theSeedHits0.subDetId()<<", layer="<<theSeedHits0.layerNumber()<<", globalX="<<theSeedHits0.globalPosition().x()<<std::endl;
 
 #ifdef FAMOS_DEBUG
 	std::cout << "The first hit position = " << theSeedHits0.globalPosition() << std::endl;
@@ -567,7 +574,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	for ( iterRecHit2 = iterRecHit1+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
 		hit2=iterRecHit2-theRecHitRangeIteratorBegin;
 		theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry,tTopo);
-		std::cout<<"old hit 2 - "<<hit2<<" subDet="<<theSeedHits1.subDetId()<<", layer="<<theSeedHits1.layerNumber()<<", globalX="<<theSeedHits1.globalPosition().x()<<std::endl;
+		//std::cout<<"old hit 2 - "<<hit2<<" subDet="<<theSeedHits1.subDetId()<<", layer="<<theSeedHits1.layerNumber()<<", globalX="<<theSeedHits1.globalPosition().x()<<std::endl;
 #ifdef FAMOS_DEBUG
 	  std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
 	  std::cout << "The second hit subDetId = " << theSeedHits1.subDetId() << std::endl;
@@ -783,7 +790,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       // Create a new Trajectory Seed    
 
 
-      std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
+      //std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
       seedHit_old[simTrackId].push_back(hit1);
       seedHit_old[simTrackId].push_back(hit2);
       seedHit_old[simTrackId].push_back(hit3);
@@ -814,18 +821,19 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			  if (seedHit_old[isimtrack][ihit]!=seedHit_new[isimtrack][ihit])
 			  {
 				  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", hit="<<ihit<<" number is different!"<<std::endl;
+				  assert(true);
 			  }
 		  }
 	  }
 	  else
 	  {
 		  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", number of hits differ!"<<std::endl;
-
+		  assert(true);
 	  }
   }
 
-  std::cout<<"-------------------"<<std::endl;
-  std::cout<<"-------------------"<<std::endl;
+  //std::cout<<"-------------------"<<std::endl;
+  //std::cout<<"-------------------"<<std::endl;
 }
 
 
