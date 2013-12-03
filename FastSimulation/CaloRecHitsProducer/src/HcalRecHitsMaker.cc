@@ -33,24 +33,6 @@
 
 class RandomEngine;
 
-bool HcalRecHitsMaker::initialized_ = false; 
-bool HcalRecHitsMaker::initializedHB_ = false; 
-bool HcalRecHitsMaker::initializedHE_ = false; 
-bool HcalRecHitsMaker::initializedHO_ = false; 
-bool HcalRecHitsMaker::initializedHF_ = false; 
-std::vector<float> HcalRecHitsMaker::peds_;
-std::vector<int> HcalRecHitsMaker::fctoadc_;
-std::vector<float> HcalRecHitsMaker::sat_;
-std::vector<float> HcalRecHitsMaker::gains_;
-std::vector<float> HcalRecHitsMaker::noisesigma_;
-std::vector<float> HcalRecHitsMaker::TPGFactor_;
-std::vector<float> HcalRecHitsMaker::miscalib_;
-std::vector<HcalDetId> HcalRecHitsMaker::theDetIds_;
-std::vector<int> HcalRecHitsMaker::hbhi_;
-std::vector<int> HcalRecHitsMaker::hehi_;
-std::vector<int> HcalRecHitsMaker::hohi_;
-std::vector<int> HcalRecHitsMaker::hfhi_;
-unsigned HcalRecHitsMaker::maxIndex_  = 0 ; 
 
 HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
 				   const RandomEngine * myrandom)
@@ -70,6 +52,13 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
   hcalfileinpath_= RecHitsParameters.getParameter<std::string> ("fileNameHcal");  
   inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
   nhbcells_=nhecells_=nhocells_=nhfcells_=0;
+
+  initialized_ = false;
+  initializedHB_ = false;
+  initializedHE_ = false;
+  initializedHO_ = false;
+  initializedHF_ = false;
+  maxIndex_  = 0 ;
 
   if(det_==4)
     {
