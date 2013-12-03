@@ -13,9 +13,10 @@ skipDeltaSuppr = True # Skip DRR (only when reReco=True)
 doAngleCorr = False
 
 #SAMPLE = "536"
-SAMPLE = "5312"
+#SAMPLE = "5312"
 #SAMPLE = "620p6"
 #SAMPLE = "700p4"
+SAMPLE = "700p7"
 
 
 ####
@@ -134,6 +135,23 @@ elif SAMPLE == "700p4" :
        '/store/relval/CMSSW_7_0_0_pre4/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/8E337AD2-FB24-E311-8208-00261894397E.root',
        '/store/relval/CMSSW_7_0_0_pre4/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/E47362B8-0025-E311-AA6C-003048FFCBA4.root'
                                 )
+    )
+
+elif SAMPLE == "700p7" :
+    #RelValZMM/CMSSW_7_0_0_pre7-PRE_ST62_V8-v2
+    process.GlobalTag.globaltag = "PRE_ST62_V8::All"
+    process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring(
+       '/store/relval/CMSSW_7_0_0_pre7/RelValZMM/GEN-SIM-RECO/PRE_ST62_V8-v2/00000/1A18DD97-1946-E311-9689-003048FFD7A2.root',
+       '/store/relval/CMSSW_7_0_0_pre7/RelValZMM/GEN-SIM-RECO/PRE_ST62_V8-v2/00000/7CEB59F4-0F46-E311-BE5C-0025905964B2.root'
+                                ),
+                            secondaryFileNames = cms.untracked.vstring(
+       '/store/relval/CMSSW_7_0_0_pre7/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v2/00000/022794E1-0346-E311-8A49-0026189438FD.root',
+       '/store/relval/CMSSW_7_0_0_pre7/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v2/00000/4C9B84CF-0246-E311-BBAD-003048FFCB84.root',
+       '/store/relval/CMSSW_7_0_0_pre7/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v2/00000/BE8B527A-0E46-E311-92DC-0026189438F7.root',
+       '/store/relval/CMSSW_7_0_0_pre7/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v2/00000/C65E52BB-FC45-E311-B207-00304867916E.root'
+                                )
+
     )
 
 process.source.inputCommands = cms.untracked.vstring("drop *",
