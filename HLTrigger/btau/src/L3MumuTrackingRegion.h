@@ -92,7 +92,7 @@ public:
     }
 
     edm::Handle<reco::TrackCollection> trks;
-    if (!theInputTrkToken.isUnitialized()) ev.getByToken(theInputTrkToken, trks);
+    if (!theInputTrkToken.isUninitialized()) ev.getByToken(theInputTrkToken, trks);
   
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
