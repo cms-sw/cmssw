@@ -284,6 +284,9 @@ namespace edm {
     getProductByTag(Principal const& ep, InputTag const& tag, ModuleCallingContext const* mcc) {
     TypeID tid = TypeID(typeid(PROD));
     ProductData const* result = ep.findProductByTag(tid, tag, mcc);
+    if(result == nullptr) {
+      return boost::shared_ptr<Wrapper<PROD> const>(); 
+    }
 
     if(result->getInterface() &&
        (!(result->getInterface()->dynamicTypeInfo() == typeid(PROD)))) {
