@@ -19,6 +19,8 @@ def customise(process):
         process=customise_DigiPreValidation(process)
     if hasattr(process,'validation_step') and not hasattr(process,'reconstruction'):
         process=customise_DigiValidation(process)
+    elif hasattr(process,'validation_step') :
+        process=customise_Validation(process)
     return process
 
 def customise_DigiToRaw(process):
@@ -72,6 +74,14 @@ def customise_DigiValidation(process):
     process.validation_step = cms.EndPath(process.validation)
     process = scheduleOrdering(process)
     return process
+
+def customise_Validation(process):
+    process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
+    process.validation += cms.Sequence( process.gemDigiValidation )
+    process.validation_step = cms.EndPath( process.validation )
+    process = scheduleOrdering(process)
+    return process
+
 
 def customise_harvesting(process):
     return (process)        
