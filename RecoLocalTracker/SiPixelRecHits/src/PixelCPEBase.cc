@@ -35,8 +35,12 @@
 
 using namespace std;
 
-const float PI = 3.141593;
-const float degsPerRad = 57.29578;
+
+namespace {
+  constexpr float degsPerRad = 57.29578;
+  constexpr float HALF_PI = 1.57079632679489656;
+  constexpr float PI = 2*HALF_PI;
+}
 
 //-----------------------------------------------------------------------------
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
@@ -220,32 +224,27 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 {
   loc_traj_param_ = ltp;
 
-  LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
+  LocalVector localDir = ltp.momentum();
   
-  // &&& Or, maybe we need to move to the local frame ???
-  //  LocalVector localDir( theDet->toLocal(theState.globalDirection()));
-  //thePart = theDet->type().part();
   
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
-
+  
   /*
-    // Danek's definition 
-    alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
-    if ( isFlipped() )                    // &&& check for FPIX !!!
-    alpha_ = PI - alpha_ ;
-    beta_ = acos(locy/sqrt(locy*locy+locz*locz));
+  // Danek's definition 
+  alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
+  if ( isFlipped() )                    // &&& check for FPIX !!!
+  alpha_ = PI - alpha_ ;
+  beta_ = acos(locy/sqrt(locy*locy+locz*locz));
   */
-
-  // &&& In the above, why not use atan2() ?
-  // ggiurgiu@fnal.gov, 01/24/09 :  Use it now.
-  alpha_ = atan2( locz, locx );
-  beta_  = atan2( locz, locy );
-
+  
+  
   cotalpha_ = locx/locz;
   cotbeta_  = locy/locz;
-
+  zneg = (locz < 0);
+  
+  
   LocalPoint trk_lp = ltp.position();
   trk_lp_x = trk_lp.x();
   trk_lp_y = trk_lp.y();
@@ -255,7 +254,6 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 
   // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
   AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-  //loc_trk_pred = &Topology::LocalTrackPred( vec_trk_parameters );
   loc_trk_pred_ = Topology::LocalTrackPred( vec_trk_parameters );
   
 }
@@ -394,8 +392,8 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   float gv_dot_gvx = gv.x()*gvx.x() + gv.y()*gvx.y() + gv.z()*gvx.z();
   float gv_dot_gvy = gv.x()*gvy.x() + gv.y()*gvy.y() + gv.z()*gvy.z();
   float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
-
-
+  
+  
   /* all the above is equivalent to  
      const Local3DPoint origin =   theDet->surface().toLocal(GlobalPoint(0,0,0)); // can be computed once...
      auto gvx = lp.x()-origin.x();
@@ -404,15 +402,29 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   *  normalization not required as only ratio used... 
   */
 
+  zneg = (gv_dot_gvz < 0);
 
   // calculate angles
-  alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
-  beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
-
   cotalpha_ = gv_dot_gvx / gv_dot_gvz;
   cotbeta_  = gv_dot_gvy / gv_dot_gvz;
 
   with_track_angle = false;
+
+
+  /*
+  // used only in dberror param...
+  auto alpha = HALF_PI - std::atan(cotalpha_);
+  auto beta = HALF_PI - std::atan(cotbeta_); 
+  if (zneg) { beta -=PI; alpha -=PI;}
+
+  auto alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
+  auto beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
+
+  std::cout << "alpha/beta " << alpha_ <<','<<alpha <<' '<< beta_<<','<<beta <<','<< HALF_PI-beta << std::endl;
+  assert(std::abs(std::round(alpha*10000.f)-std::round(alpha_*10000.f))<2);
+  assert(std::abs(std::round(beta*10000.f)-std::round(beta_*10000.f))<2);
+  */
+
 }
 
 
@@ -505,16 +517,11 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const {
 LocalVector 
 PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   
-  if(lorentzAngle_ == 0){
-    throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
-  }
-  double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
-  float alpha2;
-  if (alpha2Order) {
-    alpha2 = langle*langle;
-  } else {
-    alpha2 = 0.0;
-  }
+  
+  auto langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+  float alpha2 = alpha2Order ?  langle*langle : 0;
+
+
   // &&& dir_x should have a "-" and dir_y a "+"
   // **********************************************************************
   // Our convention is the following:
@@ -526,11 +533,10 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   float dir_x =  ( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
   float dir_y = -( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
   float dir_z = -( 1.f + alpha2* Bfield.z()*Bfield.z() );
-  double scale = 1.f/std::abs( dir_z );  // same as 1 + alpha2*Bfield.z()*Bfield.z()
+  auto scale = 1.f/std::abs( dir_z );  // same as 1 + alpha2*Bfield.z()*Bfield.z()
   LocalVector  dd(dir_x*scale, dir_y*scale, -1.f );  // last is -1 !
-  if ( theVerboseLevel > 9 ) 
-    LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			     << dd   ;
+
+  LogDebug("PixelCPEBase") << " The drift direction in local coordinate is "  << dd   ;
 	
   return dd;
 }
@@ -539,27 +545,23 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
 //  One-shot computation of the driftDirection and both lorentz shifts
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::computeLorentzShifts() const 
-{
+PixelCPEBase::computeLorentzShifts() const {
   // this "has wrong sign..."  so "corrected below
-   driftDirection_ = getDrift();
- 
- // Max shift (at the other side of the sensor) in cm 
+  driftDirection_ = getDrift();
+  
+  // Max shift (at the other side of the sensor) in cm 
   lorentzShiftInCmX_ = -driftDirection_.x()/driftDirection_.z() * theThickness;  // &&& redundant
   // Express the shift in units of pitch, 
   lorentzShiftX_ = lorentzShiftInCmX_ / thePitchX ; 
-   
+  
   // Max shift (at the other side of the sensor) in cm 
   lorentzShiftInCmY_ = -driftDirection_.y()/driftDirection_.z() * theThickness;  // &&& redundant
   // Express the shift in units of pitch, 
   lorentzShiftY_ = lorentzShiftInCmY_ / thePitchY;
-
-
-  if ( theVerboseLevel > 9 ) {
-    LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			     << driftDirection_    ;
-    
-  }
+  
+  
+  LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
+			   << driftDirection_    ;
 }
 
 //-----------------------------------------------------------------------------

@@ -95,27 +95,6 @@ public:
     return std::make_pair( lp, le );
   } 
   
-  //--------------------------------------------------------------------------
-  // The third one, with the user-supplied alpha and beta
-  //--------------------------------------------------------------------------
-  LocalValues localParameters( const SiPixelCluster & cl,
-			       const GeomDetUnit    & det, 
-			       float alpha, float beta) const 
-  {
-    nRecHitsTotal_++ ;
-    alpha_ = alpha;
-    beta_  = beta;
-    double HalfPi = 0.5*TMath::Pi();
-    cotalpha_ = tan(HalfPi - alpha_);
-    cotbeta_  = tan(HalfPi - beta_ );
-      setTheDet( det, cl );
-      
-      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition( cl, det ); 
-      LocalError le = localError( cl, det );        
-      
-      return std::make_pair( lp, le );
-  }
   
   
   void computeAnglesFromDetPosition(const SiPixelCluster & cl, 
@@ -207,12 +186,9 @@ public:
   mutable float theSign;
 
   //--- Cluster-level quantities (may need more)
-  mutable float alpha_;
-  mutable float beta_;
-
-  // G.Giurgiu (12/13/06)-----
   mutable float cotalpha_;
   mutable float cotbeta_;
+  mutable bool  zneg;
 
   // G.Giurgiu (05/14/08) track local coordinates
   mutable float trk_lp_x;
@@ -250,10 +226,10 @@ public:
   // be computed *incorrectly* (i.e. there's a bug) we add new variables
   // so that we can study the effect of the bug.
   mutable LocalVector driftDirection_;  // drift direction cached // &&&
-  mutable double lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
-  mutable double lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
-  mutable double lorentzShiftInCmX_;   // a FULL shift, in cm
-  mutable double lorentzShiftInCmY_;   // a FULL shift, in cm
+  mutable float lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
+  mutable float lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
+  mutable float lorentzShiftInCmX_;   // a FULL shift, in cm
+  mutable float lorentzShiftInCmY_;   // a FULL shift, in cm
 
 
   //--- Global quantities

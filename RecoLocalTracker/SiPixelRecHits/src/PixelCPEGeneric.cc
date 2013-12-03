@@ -18,7 +18,12 @@
 #include <iostream>
 using namespace std;
 
-const double HALF_PI = 1.57079632679489656;
+namespace {
+  constexpr float HALF_PI = 1.57079632679489656;
+  constexpr float PI = 2*HALF_PI;
+
+}
+
 
 //-----------------------------------------------------------------------------
 //!  The constructor.
@@ -728,9 +733,14 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	    } 
 	  else 
 	    { 	 
+
+	      auto alpha = HALF_PI - std::atan(cotalpha_);
+	      auto beta = HALF_PI - std::atan(cotbeta_); 
+	      if (zneg) { beta -=PI; alpha -=PI;}
+
 	      pair<float,float> errPair = 	 
 		genErrorsFromDB_->getError( genErrorParm_, thePart, sizex, sizey, 	 
-					    alpha_, beta_, bigInX, bigInY ); 
+					    alpha, beta, bigInX, bigInY ); 
 	      if ( !edgex ) 
 		xerr = errPair.first; 	 
 	      if ( !edgey ) 
