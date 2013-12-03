@@ -112,7 +112,12 @@ namespace edm{
 	    std::auto_ptr<CrossingFrame<T> > crFrame(new CrossingFrame<T>() );	    
 	    crFrame->addSignals(handles[0].product(),e.id());
 	    for(size_t itag = 1; itag < tags_.size(); ++itag){
-	       crFrame->addPileups(0,const_cast< std::vector<T> * >(handles[itag].product()),itag);	 
+               std::vector<T>* product = const_cast<std::vector<T>*>(handles[itag].product());
+               EncodedEventId id(0,itag);
+               for(auto& item : *product) {
+                 item.setEventId(id);
+               }
+	       crFrame->addPileups(*product);	 
 	    }
 	    e.put(crFrame,label_);
 	 }
@@ -139,7 +144,8 @@ void HiMixingWorker<HepMCProduct>::addSignals(edm::Event &e){
       std::auto_ptr<CrossingFrame<HepMCProduct> > crFrame(new CrossingFrame<HepMCProduct>() );
       crFrame->addSignals(handles[0].product(),e.id());
       for(size_t itag = 1; itag < tags_.size(); ++itag){
-	 crFrame->addPileups(0, const_cast<HepMCProduct *>(handles[itag].product()),itag);
+         HepMCProduct* product = const_cast<HepMCProduct*>(handles[itag].product());
+         crFrame->addPileups(*product);	 
       }
       e.put(crFrame,label_);
    }
@@ -306,3 +312,4 @@ bool HiMixingModule::verifyRegistry(std::string object, std::string subdet, Inpu
 DEFINE_FWK_MODULE(HiMixingModule);                                                                               
 
 }
+
