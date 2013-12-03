@@ -79,7 +79,10 @@ namespace edm {
     }
     
     std::shared_ptr<cms::Exception> whyFailed() const {
-      return whyFailedFactory_();
+      if(whyFailedFactory_) {
+        return whyFailedFactory_();
+      }
+      return std::shared_ptr<cms::Exception>{};
     }
 
     std::function<std::shared_ptr<cms::Exception>()> const&
