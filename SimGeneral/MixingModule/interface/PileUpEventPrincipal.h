@@ -55,7 +55,7 @@ public:
     typedef typename T::value_type ItemType;
     typedef typename T::iterator iterator;
     edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag, nullptr, mcc_);
-    convert_handle(bh, result);
+    convert_handle(std::move(bh), result);
     if(result.isValid() && addLabel(edm::TypeID(typeid(T)), tag.label())) {
       T& product = const_cast<T&>(*result.product());
       for(iterator i = product.begin(), iEnd = product.end(); i != iEnd; ++i) {
