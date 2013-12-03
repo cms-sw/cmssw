@@ -7,6 +7,7 @@
  */
 
 #include<cmath>
+#include<iostream>
 
 namespace condex {
 
@@ -19,7 +20,7 @@ namespace condex {
   public:
     Efficiency(){}
     virtual ~Efficiency(){}
-    virtual void initialize(){}
+    virtual void initialize(){ std::cout << "initializing base class Efficiency" <<std::endl;}
     float operator()(float pt, float eta) const {
       return value(pt,eta);
     }
