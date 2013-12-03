@@ -2,6 +2,7 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include <cmath>
+#include <vdt/vdtMath.h>
 #include <cfloat>
 
 HelixForwardPlaneCrossing::HelixForwardPlaneCrossing(const PositionType& point,
@@ -64,8 +65,7 @@ HelixForwardPlaneCrossing::position (double s) const {
   if ( s!=theCachedS ) {
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
-    theCachedSDPhi = sin(theCachedDPhi);
-    theCachedCDPhi = cos(theCachedDPhi);
+    vdt::fast_sincos(theCachedDPhi,theCachedSDPhi,theCachedCDPhi);
   }
   //
   // Calculate with appropriate formulation of full helix formula or with 
