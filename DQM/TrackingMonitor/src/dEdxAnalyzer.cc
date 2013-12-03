@@ -1,7 +1,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  \author Loic Quertenmont
+ *  \author Loic Quertenmont 
  */
 #include "DQM/TrackingMonitor/interface/dEdxAnalyzer.h"
 
@@ -19,13 +19,13 @@
 #include <string>
 #include "TMath.h"
 
-dEdxAnalyzer::dEdxAnalyzer(const edm::ParameterSet& iConfig)
+dEdxAnalyzer::dEdxAnalyzer(const edm::ParameterSet& iConfig) 
   : dqmStore_( edm::Service<DQMStore>().operator->() )
   , fullconf_( iConfig )
   , conf_    (fullconf_.getParameter<edm::ParameterSet>("dEdxParameters") )
   , doAllPlots_  ( conf_.getParameter<bool>("doAllPlots") )
-  , doDeDxPlots_ ( conf_.getParameter<bool>("doDeDxPlots") )
-  , genTriggerEventFlag_( new GenericTriggerEventFlag(conf_, consumesCollector()) )
+  , doDeDxPlots_ ( conf_.getParameter<bool>("doDeDxPlots") )    
+  , genTriggerEventFlag_( new GenericTriggerEventFlag(conf_,consumesCollector()) )
 {
 
   trackInputTag_ = edm::InputTag(conf_.getParameter<std::string>("TracksForDeDx") );
@@ -37,15 +37,15 @@ dEdxAnalyzer::dEdxAnalyzer(const edm::ParameterSet& iConfig)
   }
 }
 
-dEdxAnalyzer::~dEdxAnalyzer()
-{
+dEdxAnalyzer::~dEdxAnalyzer() 
+{ 
 
   if (genTriggerEventFlag_)      delete genTriggerEventFlag_;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-dEdxAnalyzer::endJob()
+void 
+dEdxAnalyzer::endJob() 
 {
     bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
     std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
@@ -60,7 +60,7 @@ dEdxAnalyzer::endJob()
 //---------------------------------------------------------------------------------//
 void dEdxAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
+ 
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
@@ -69,7 +69,7 @@ void dEdxAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 void dEdxAnalyzer::beginJob()
 {
     // parameters from the configuration
-    std::string MEFolderName   = conf_.getParameter<std::string>("FolderName");
+    std::string MEFolderName   = conf_.getParameter<std::string>("FolderName"); 
 
     // get binning from the configuration
     TrackHitMin  = conf_.getParameter<double>("TrackHitMin");
@@ -88,11 +88,11 @@ void dEdxAnalyzer::beginJob()
     double dEdxMax      = conf_.getParameter<double>("dEdxMax");
 
     int    dEdxHIPmassBin  = conf_.getParameter<int>(   "dEdxHIPmassBin");
-    double dEdxHIPmassMin  = conf_.getParameter<double>("dEdxHIPmassMin");
+    double dEdxHIPmassMin  = conf_.getParameter<double>("dEdxHIPmassMin"); 
     double dEdxHIPmassMax  = conf_.getParameter<double>("dEdxHIPmassMax");
 
     int    dEdxMIPmassBin  = conf_.getParameter<int>(   "dEdxMIPmassBin");
-    double dEdxMIPmassMin  = conf_.getParameter<double>("dEdxMIPmassMin");
+    double dEdxMIPmassMin  = conf_.getParameter<double>("dEdxMIPmassMin"); 
     double dEdxMIPmassMax  = conf_.getParameter<double>("dEdxMIPmassMax");
 
     dqmStore_->setCurrentFolder(MEFolderName);
@@ -105,7 +105,7 @@ void dEdxAnalyzer::beginJob()
          dqmStore_->setCurrentFolder(MEFolderName+"/"+ dEdxInputList_[i]);
          dEdxMEsVector.push_back(dEdxMEs() );
 
-         histname = "MIP_dEdxPerTrack_";
+         histname = "MIP_dEdxPerTrack_"; 
          dEdxMEsVector[i].ME_MipDeDx = dqmStore_->book1D(histname, histname, dEdxBin, dEdxMin, dEdxMax);
          dEdxMEsVector[i].ME_MipDeDx->setAxisTitle("dEdx of each MIP Track (MeV/cm)");
          dEdxMEsVector[i].ME_MipDeDx->setAxisTitle("Number of Tracks", 2);
@@ -115,7 +115,7 @@ void dEdxAnalyzer::beginJob()
          dEdxMEsVector[i].ME_MipDeDxNHits->setAxisTitle("Number of dEdxHits of each MIP Track");
          dEdxMEsVector[i].ME_MipDeDxNHits->setAxisTitle("Number of Tracks", 2);
 
-         histname =  "MIP_FractionOfSaturateddEdxHitsPerTrack_";
+         histname =  "MIP_FractionOfSaturateddEdxHitsPerTrack_"; 
          dEdxMEsVector[i].ME_MipDeDxNSatHits = dqmStore_->book1D(histname, histname,2*dEdxNHitBin, 0, 1);
          dEdxMEsVector[i].ME_MipDeDxNSatHits->setAxisTitle("Fraction of Saturated dEdxHits of each MIP Track");
          dEdxMEsVector[i].ME_MipDeDxNSatHits->setAxisTitle("Number of Tracks", 2);
@@ -161,14 +161,14 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 iEvent.getByToken(dEdxTokenList_[i], dEdxObjectHandle );
          if(!dEdxObjectHandle.isValid())continue;
          const edm::ValueMap<reco::DeDxData> dEdxColl = *dEdxObjectHandle.product();
-
-
+ 
+              
          for(unsigned int t=0; t<trackCollectionHandle->size(); t++){
             reco::TrackRef track = reco::TrackRef( trackCollectionHandle, t );
 
 
             if(track->quality(reco::TrackBase::highPurity) ) {
-              //MIPs
+              //MIPs  
               if( track->pt() >= 5.0 && track->numberOfValidHits()>TrackHitMin){
                  dEdxMEsVector[i].ME_MipDeDx        ->Fill(dEdxColl[track].dEdx());
                  dEdxMEsVector[i].ME_MipDeDxNHits   ->Fill(dEdxColl[track].numberOfMeasurements());
@@ -186,15 +186,15 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    }
 }
 
+ 
 
-
-void
+void 
 dEdxAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void
+void 
 dEdxAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }

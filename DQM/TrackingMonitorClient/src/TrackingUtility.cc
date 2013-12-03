@@ -1,4 +1,4 @@
-#include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "DQM/TrackingMonitorClient/interface/TrackingUtility.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
@@ -8,7 +8,7 @@
 //
 // Get a list of MEs in a folder
 //
-int SiStripUtility::getMEList(std::string name, std::vector<std::string>& values) {
+int TrackingUtility::getMEList(std::string name, std::vector<std::string>& values) {
   values.clear();
   std::string prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
@@ -21,7 +21,7 @@ int SiStripUtility::getMEList(std::string name, std::vector<std::string>& values
 //
 // Get a list of MEs in a folder and the path name
 //
-int SiStripUtility::getMEList(std::string name, std::string& dir_path, std::vector<std::string>& values) {
+int TrackingUtility::getMEList(std::string name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
   dir_path = name.substr(0,(name.find(":")));
   dir_path += "/"; 
@@ -31,7 +31,7 @@ int SiStripUtility::getMEList(std::string name, std::string& dir_path, std::vect
 }
 
 // Check if the requested ME exists in a folder
-bool SiStripUtility::checkME(std::string name, std::string me_name, std::string& full_path) {
+bool TrackingUtility::checkME(std::string name, std::string me_name, std::string& full_path) {
   if (name.find(name) == std::string::npos) return false;
   std::string prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
@@ -51,7 +51,7 @@ bool SiStripUtility::checkME(std::string name, std::string me_name, std::string&
 // -- Split a given string into a number of strings using given
 //    delimiters and fill a vector with splitted strings
 //
-void SiStripUtility::split(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) {
+void TrackingUtility::split(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters) {
   // Skip delimiters at beginning.
   std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
 
@@ -72,7 +72,7 @@ void SiStripUtility::split(const std::string& str, std::vector<std::string>& tok
 //
 // -- Get Color code from Status
 //
-void SiStripUtility::getMEStatusColor(int status, int& rval, int&gval, int& bval) {
+void TrackingUtility::getMEStatusColor(int status, int& rval, int&gval, int& bval) {
   if (status == dqm::qstatus::STATUS_OK) { 
     rval = 0;   gval = 255;   bval = 0; 
   } else if (status == dqm::qstatus::WARNING) { 
@@ -88,7 +88,7 @@ void SiStripUtility::getMEStatusColor(int status, int& rval, int&gval, int& bval
 //
 // -- Get Color code from Status
 //
-void SiStripUtility::getMEStatusColor(int status, int& icol, std::string& tag) {
+void TrackingUtility::getMEStatusColor(int status, int& icol, std::string& tag) {
   if (status == dqm::qstatus::STATUS_OK) { 
     tag = "Ok";
     icol = 3;
@@ -106,44 +106,11 @@ void SiStripUtility::getMEStatusColor(int status, int& icol, std::string& tag) {
     icol = 1;
   }     
 }
-//
-// -- Get Color code from Status
-//
-void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int& bval) {
-  // No Error
-  if (status == 0) {
-    rval = 0; gval = 255;bval = 0;
-    return;
-  }
-  // Error detected in FED Channel
-  if (((status >> 0) & 0x1) > 0) { 
-    rval = 150; gval = 0; bval = 0; 
-    return;
-  }
-  // Excluded FED Channel 
-  if (((status >> 3) & 0x1) > 0) {
-    rval = 100; gval = 100; bval = 255; 
-    return;
-  }
-  // DCS Error
-  if (((status >> 4) & 0x1) > 0) {
-    rval = 200; gval = 20; bval = 255; 
-    return;
-  } 
-  // Digi and Cluster Problem   
-  if (((status >> 1) & 0x1) > 0) {
-    rval = 255; bval = 0;
-    if (((status >> 2) & 0x1) > 0) gval = 0;
-    else gval = 100;
-  } else {
-    rval = 251; gval = 0; bval = 100;   
-  }
-}
 
 //
 // -- Get Status of Monitor Element
 //
-int SiStripUtility::getMEStatus(MonitorElement* me) {
+int TrackingUtility::getMEStatus(MonitorElement* me) {
   int status = 0; 
   if (me->getQReports().size() == 0) {
     status = 0;
@@ -161,7 +128,7 @@ int SiStripUtility::getMEStatus(MonitorElement* me) {
 //
 // --  Fill Module Names
 // 
-void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, std::vector<std::string>& mfolders){
+void TrackingUtility::getModuleFolderList(DQMStore * dqm_store, std::vector<std::string>& mfolders){
   std::string currDir = dqm_store->pwd();
   if (currDir.find("module_") != std::string::npos)  {
     //    std::string mId = currDir.substr(currDir.find("module_")+7, 9);
@@ -179,7 +146,7 @@ void SiStripUtility::getModuleFolderList(DQMStore * dqm_store, std::vector<std::
 //
 // -- Get Status of Monitor Element
 //
-int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
+int TrackingUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
   int status = 0; 
   if (me->getQReports().size() == 0) {
     status       = 0;
@@ -202,7 +169,7 @@ int SiStripUtility::getMEStatus(MonitorElement* me, int& bad_channels) {
 //
 // -- Get Status of Monitor Element
 //
-void SiStripUtility::getMEValue(MonitorElement* me, std::string & val){
+void TrackingUtility::getMEValue(MonitorElement* me, std::string & val){
   val = "";
   if ( me && ( me->kind()==MonitorElement::DQM_KIND_REAL || me->kind()==MonitorElement::DQM_KIND_INT ) ) {
     val = me->valueString();
@@ -212,7 +179,7 @@ void SiStripUtility::getMEValue(MonitorElement* me, std::string & val){
 //
 // -- go to a given Directory
 //
-bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
+bool TrackingUtility::goToDir(DQMStore * dqm_store, std::string name) {
   std::string currDir = dqm_store->pwd();
   std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
   if (dirName.find(name) == 0) {
@@ -234,49 +201,9 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
   return false;  
 }
 //
-// -- Get Sub Detector tag from DetId
-//
-void SiStripUtility::getSubDetectorTag(uint32_t det_id, std::string& subdet_tag, const TrackerTopology* tTopo) {
-  StripSubdetector subdet(det_id);
-  subdet_tag = "";
-  switch (subdet.subdetId()) 
-    {
-    case StripSubdetector::TIB:
-      {
-	subdet_tag = "TIB";
-	break;
-      }
-    case StripSubdetector::TID:
-      {
-	
-	if (tTopo->tidSide(det_id) == 2) {
-	  subdet_tag = "TIDF";
-	}  else if (tTopo->tidSide(det_id) == 1) {
-	  subdet_tag = "TIDB";
-	}
-	break;       
-      }
-    case StripSubdetector::TOB:
-      {
-	subdet_tag = "TOB";
-	break;
-      }
-    case StripSubdetector::TEC:
-      {
-	
-	if (tTopo->tecSide(det_id) == 2) {
-	  subdet_tag = "TECF";
-	}  else if (tTopo->tecSide(det_id) == 1) {
-	  subdet_tag = "TECB";	
-	}
-	break;       
-      }
-    }
-}
-//
 // -- Set Bad Channel Flag from hname
 // 
-void SiStripUtility::setBadModuleFlag(std::string & hname, uint16_t& flg){
+void TrackingUtility::setBadModuleFlag(std::string & hname, uint16_t& flg){
   
   if (hname.find("FractionOfBadChannels")   != std::string::npos) flg |= (1<<0);
   else if (hname.find("NumberOfDigi")       != std::string::npos) flg |= (1<<1);
@@ -287,7 +214,7 @@ void SiStripUtility::setBadModuleFlag(std::string & hname, uint16_t& flg){
 //
 // -- Get the Status Message from Bad Module Flag
 //
-void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
+void TrackingUtility::getBadModuleStatus(uint16_t flag, std::string & message){
   if (flag == 0) message += " No Error";
   else {
     //    message += " Error from :: "; 
@@ -301,20 +228,19 @@ void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
 //
 // -- Set Event Info Folder
 //
-void SiStripUtility::getTopFolderPath(DQMStore * dqm_store, std::string top_dir, std::string& path) {
-
+void TrackingUtility::getTopFolderPath(DQMStore * dqm_store, std::string top_dir, std::string& path) {
   path = ""; 
   dqm_store->cd();
   if (dqm_store->dirExists(top_dir)) {
     dqm_store->cd(top_dir);
     path = dqm_store->pwd();
   } else {
-    if (SiStripUtility::goToDir(dqm_store, top_dir)) {
-      std::string mdir = "MechanicalView";
-      if (SiStripUtility::goToDir(dqm_store, mdir)) {
+    if (TrackingUtility::goToDir(dqm_store, top_dir)) {
+      std::string tdir = "TrackParameters";
+      if (TrackingUtility::goToDir(dqm_store, tdir)) {
 	path = dqm_store->pwd(); 
-	path = path.substr(0, path.find(mdir)-1);
+	path = path.substr(0, path.find(tdir)-1);
       }
-    }
+    }	
   }
 } 
