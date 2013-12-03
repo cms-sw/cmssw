@@ -59,6 +59,13 @@ public:
 	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
 	       const SiPixelTemplateDBObject * templateDBobject = 0);
   
+
+ //--------------------------------------------------------------------------
+  // Allow the magnetic field to be set/updated later.
+  //--------------------------------------------------------------------------
+  inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
+ 
+
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
@@ -68,7 +75,7 @@ public:
     {
       nRecHitsTotal_++ ;
       setTheDet( det, cl );
-      computeAnglesFromDetPosition(cl, det);
+      computeAnglesFromDetPosition(cl);
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
       LocalPoint lp = localPosition( cl, det );
@@ -86,7 +93,7 @@ public:
   {
     nRecHitsTotal_++ ;
     setTheDet( det, cl );
-    computeAnglesFromTrajectory(cl, det, ltp);
+    computeAnglesFromTrajectory(cl, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
     LocalPoint lp = localPosition( cl, det ); 
@@ -97,13 +104,6 @@ public:
   
   
   
-  void computeAnglesFromDetPosition(const SiPixelCluster & cl, 
-				    const GeomDetUnit    & det ) const;
-  
-  //--------------------------------------------------------------------------
-  // Allow the magnetic field to be set/updated later.
-  //--------------------------------------------------------------------------
-  inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
   
   //--------------------------------------------------------------------------
   // This is where the action happens.
@@ -171,6 +171,7 @@ public:
   mutable Param const * theParam;
 
   mutable GeomDetType::SubDetector thePart;
+  mutable  Local3DPoint theOrigin;
   //mutable EtaCorrection theEtaFunc;
   mutable float theThickness;
   mutable float thePitchX;
@@ -266,10 +267,14 @@ public:
   //---------------------------------------------------------------------------
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------
+private:
+  void computeAnglesFromDetPosition(const SiPixelCluster & cl ) const;
+  
 
-  void computeAnglesFromTrajectory (const SiPixelCluster & cl,
-				    const GeomDetUnit    & det, 
+  void computeAnglesFromTrajectory (const SiPixelCluster & cl, 
 				    const LocalTrajectoryParameters & ltp) const;
+
+protected:
   LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
   LocalVector driftDirection       ( LocalVector bfield ) const ; //wrong sign
   LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;

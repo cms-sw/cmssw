@@ -104,6 +104,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
             << " Wrong pointer to PixelGeomDetUnit object !!!";
     }
 
+  theOrigin =   theDet->surface().toLocal(GlobalPoint(0,0,0));
+
   //--- theDet->type() returns a GeomDetType, which implements subDetector()
   thePart = theDet->type().subDetector();
   switch ( thePart ) 
@@ -219,7 +221,6 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
 //-----------------------------------------------------------------------------
 void PixelCPEBase::
 computeAnglesFromTrajectory( const SiPixelCluster & cl,
-			     const GeomDetUnit    & det, 
 			     const LocalTrajectoryParameters & ltp) const
 {
   loc_traj_param_ = ltp;
@@ -332,18 +333,11 @@ PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit
 //-----------------------------------------------------------------------------
 // G. Giurgiu, 12/01/06 : implement the function
 void PixelCPEBase::
-computeAnglesFromDetPosition(const SiPixelCluster & cl, 
-			     const GeomDetUnit    & det ) const
+computeAnglesFromDetPosition(const SiPixelCluster & cl ) const
 {
-  //--- This is a new det unit, so cache it
-  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-  if ( ! theDet ) 
-    {
-      throw cms::Exception("PixelCPEBase::computeAngleFromDetPosition")
-	<< " Wrong pointer to pixel detector !!!" << endl;
-    
-    }
-
+ 
+  
+  /*
   // get cluster center of gravity (of charge)
   float xcenter = cl.x();
   float ycenter = cl.y();
@@ -392,21 +386,21 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   float gv_dot_gvx = gv.x()*gvx.x() + gv.y()*gvx.y() + gv.z()*gvx.z();
   float gv_dot_gvy = gv.x()*gvy.x() + gv.y()*gvy.y() + gv.z()*gvy.z();
   float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
-  
-  
-  /* all the above is equivalent to  
-     const Local3DPoint origin =   theDet->surface().toLocal(GlobalPoint(0,0,0)); // can be computed once...
-     auto gvx = lp.x()-origin.x();
-     auto gvy = lp.y()-origin.y();
-     auto gvz = -origin.z();
-  *  normalization not required as only ratio used... 
   */
+  
+  // all the above is equivalent to 
+  LocalPoint lp = theTopol->localPosition( MeasurementPoint(cl.x(), cl.y()) );
+  auto gvx = lp.x()-theOrigin.x();
+  auto gvy = lp.y()-theOrigin.y();
+  auto gvz = -1.f/theOrigin.z();
+  //  normalization not required as only ratio used... 
+  
 
-  zneg = (gv_dot_gvz < 0);
+  zneg = (gvz < 0);
 
   // calculate angles
-  cotalpha_ = gv_dot_gvx / gv_dot_gvz;
-  cotbeta_  = gv_dot_gvy / gv_dot_gvz;
+  cotalpha_ = gvx*gvz;
+  cotbeta_  = gvy*gvz;
 
   with_track_angle = false;
 
