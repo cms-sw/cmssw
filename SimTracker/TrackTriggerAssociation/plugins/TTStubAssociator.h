@@ -71,16 +71,10 @@ TTStubAssociator< T >::TTStubAssociator( const edm::ParameterSet& iConfig )
   TTStubsInputTags = iConfig.getParameter< std::vector< edm::InputTag > >( "TTStubs" );
   TTClusterTruthInputTags = iConfig.getParameter< std::vector< edm::InputTag > >( "TTClusterTruth" );
 
-std::cerr<<" inside constructor of associator"<<std::endl;
-
   for ( unsigned int iTag = 0; iTag < TTStubsInputTags.size(); iTag++ )
   {
-std::cerr<<" inside constructor  loop "<< TTStubsInputTags.at(iTag).instance()<<std::endl;
-
     produces< TTStubAssociationMap< T > >( TTStubsInputTags.at(iTag).instance() );
   }
-std::cerr<<" inside constructor end of loop"<<std::endl;
-
 }
 
 /// Destructor
@@ -106,7 +100,6 @@ void TTStubAssociator< T >::endRun( const edm::Run& run, const edm::EventSetup& 
 template< typename T >
 void TTStubAssociator< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-std::cerr<<" inside produce"<<std::endl;
   /// Exit if real data
   if ( iEvent.isRealData() )
     return;
@@ -123,7 +116,6 @@ std::cerr<<" inside produce"<<std::endl;
   {
     /// Prepare output
     std::auto_ptr< TTStubAssociationMap< T > > AssociationMapForOutput( new TTStubAssociationMap< T > );
-std::cerr<<" inside loop, already created the autopointer"<<std::endl;
 
     /// Get the Stubs already stored away
     edm::Handle< edmNew::DetSetVector< TTStub< T > > > TTStubHandle;

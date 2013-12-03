@@ -30,7 +30,7 @@ namespace
     TTStubAssociationMap< Ref_PixelDigi_ >                   SAM_PD;
     edm::Wrapper< TTStubAssociationMap< Ref_PixelDigi_ > > W_SAM_PD;
 
-//    std::map< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > >, edm::Ptr< TrackingParticle > >                M_SAM_S_TP_PD;
+    std::map< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > >, edm::Ptr< TrackingParticle > >                M_SAM_S_TP_PD;
     std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > > M_SAM_TP_S_PD;
     edm::RefProd< TTStubAssociationMap< Ref_PixelDigi_ > >                                                                                               R_SAM_PD;
 
