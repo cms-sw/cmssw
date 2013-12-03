@@ -58,9 +58,9 @@ class EcalPreshowerRecHitsValidation: public edm::EDAnalyzer{
   
   DQMStore* dbe_;
 
-  edm::InputTag EEuncalibrechitCollection_;
-  edm::InputTag EErechitCollection_;
-  edm::InputTag ESrechitCollection_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> EEuncalibrechitCollection_;
+  edm::EDGetTokenT<EERecHitCollection> EErechitCollection_;
+  edm::EDGetTokenT<ESRecHitCollection> ESrechitCollection_;
   
   MonitorElement* meESRecHitsEnergy_;    
   MonitorElement* meESRecHitsEnergy_zp1st_;
