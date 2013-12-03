@@ -8,7 +8,7 @@
  *
  * \author Sven Dildick
  * \modified by Roumyana Hadjiiska
-*/
+ */
 
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
 
@@ -62,6 +62,8 @@ private:
   std::vector<double> neutronGammaRoll_;
   bool doNoiseCLS_;
   double minPabsNoiseCLS_;
+  bool simulateIntrinsicNoise_;
+  double scaleLumi_;
 
   CLHEP::RandFlat* flat1_;
   CLHEP::RandFlat* flat2_;
@@ -72,4 +74,6 @@ private:
 
 };
 #endif
+
+
 
