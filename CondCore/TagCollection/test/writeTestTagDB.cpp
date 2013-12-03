@@ -11,8 +11,12 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include <iostream>
 int main(){
+  edmplugin::PluginManager::Config config;
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
   const std::string tagTreeTable("TAGTREE_TABLE_MYTREE1");
   const std::string tagInventoryTable("TAGINVENTORY_TABLE");
   try{
