@@ -2,12 +2,12 @@
 //
 // Package:    LogMessageMonitor
 // Class:      LogMessageMonitor
-//
+// 
 /**\class LogMessageMonitor LogMessageMonitor.cc DQM/LogMonitor/src/LogMessageMonitor.cc
 
  Description: [one line class summary]
   from https://twiki.cern.ch/twiki/bin/view/CMS/TrackingPOGFilters#Filters
-   Events with (partly) aborted track reconstruction
+   Events with (partly) aborted track reconstruction 
    The track reconstruction code is protected against events with too large occupancy which can cause an excessive use of CPU time and memory.
    Each iteration of the track reconstruction can be aborted if:
      - too many strip and/or pixel clusters are present as input to the seeding step (*TooManyClusters* error).
@@ -16,9 +16,9 @@
        => All the pairs/triplets found are discarded and the iteration continue (to be checked!)
        NB: Despite the thrshold is the same,
            similar iterations may have a different rate of errors depending on the CMSSW release,
-	   because the requirement to accept a triplet/pair has been modified (cluster shape filters,...)
+	   because the requirement to accept a triplet/pair has been modified (cluster shape filters,...) 
      - too many seeds are produced as input to the track building step (*TooManySeeds*).
-	=> No track is reconstructed from that iteration.
+	=> No track is reconstructed from that iteration. 
 
    # ELSeverityLevel
       http://cmssdt.cern.ch/SDT/lxr/source/FWCore/MessageLogger/interface/ELseverityLevel.h?v=CMSSW_5_3_4
@@ -83,11 +83,11 @@ LogMessageMonitor::LogMessageMonitor(const edm::ParameterSet& iConfig)
   , modules_vector_    ( iConfig.getParameter<std::vector<std::string> >("modules")         )
   , categories_vector_ ( iConfig.getParameter<std::vector<std::string> >("categories")      )
   , doWarningsPlots_   ( iConfig.getParameter<bool>                     ("doWarningsPlots") )
-  , doPUmonitoring_    ( iConfig.getParameter<bool>                     ("doPUmonitoring")  )
+  , doPUmonitoring_    ( iConfig.getParameter<bool>                     ("doPUmonitoring")  ) 
 {
-
+  
   errorToken_ = consumes<std::vector<edm::ErrorSummaryEntry> >(edm::InputTag("logErrorHarvester") );
-
+  
   edm::ConsumesCollector c{ consumesCollector() };
    //now do what ever initialization is needed
   lumiDetails_         = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
@@ -97,7 +97,7 @@ LogMessageMonitor::LogMessageMonitor(const edm::ParameterSet& iConfig)
 
 LogMessageMonitor::~LogMessageMonitor()
 {
-
+ 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   //  if ( lumiDetails_         ) delete lumiDetails_;
@@ -121,16 +121,16 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   double BXlumi = -1.;
   if ( doPUmonitoring_ )
     lumiDetails_->getValue(iEvent);
-
+  
     // Take the ErrorSummaryEntry container
   edm::Handle<std::vector<edm::ErrorSummaryEntry> >  errors;
   //  iEvent.getByLabel("logErrorHarvester",errors);
   iEvent.getByToken(errorToken_,errors);
   // Check that errors is valid
-  if(!errors.isValid()) return;
+  if(!errors.isValid()) return; 
   // Compare severity level of error with ELseveritylevel instance el : "-e" should be the lowest error
   edm::ELseverityLevel el("-e");
-
+  
   // Find the total number of errors in iEvent
   if(errors->size()==0){
     if ( doPUmonitoring_ ) {
@@ -144,8 +144,8 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     size_t nCategories = categories_vector_.size();
 
-    for( size_t i = 0, n = errors->size(); i < n ; i++){
-
+    for( size_t i = 0, n = errors->size(); i < n ; i++){    
+      
       //      std::cout << "LogMessageMonitor::analyze] Severity for error/warning: " << (*errors)[i].severity << " " <<(*errors)[i].module  << std::endl;
       // remove the first part of the module string, what is before ":"
       std::string s = (*errors)[i].module;
@@ -185,11 +185,11 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	    CategoriesVsModules->getTH1()->SetBinContent(ibinX,ibinY,ncount);
 	  } else {
 	    int ncount = CategoriesVsModules->getTH1()->GetBinContent(ibinX,nCategories)+1;
-	    CategoriesVsModules->getTH1()->SetBinContent(ibinX,nCategories,ncount);
+	    CategoriesVsModules->getTH1()->SetBinContent(ibinX,nCategories,ncount);		  
 	  }
 	} else {
 	  // IF ONLY WARNING, FILL WARNING HISTS
-	  if ( doWarningsPlots_ )
+	  if ( doWarningsPlots_ ) 
 	    if ( doPUmonitoring_ )
 	      ModulesWarningsVsBXlumi[it->second]->Fill(BXlumi, (*errors)[i].count);
 	}
@@ -200,10 +200,10 @@ LogMessageMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void
+void 
 LogMessageMonitor::beginJob()
 {
-   std::string MEFolderName = conf_.getParameter<std::string>("LogFolderName");
+   std::string MEFolderName = conf_.getParameter<std::string>("LogFolderName"); 
 
    dqmStore_->setCurrentFolder(MEFolderName);
 
@@ -220,7 +220,7 @@ LogMessageMonitor::beginJob()
    //   CategoriesVsModules->getTH1()->GetXaxis()->LabelsOption("v");
    for (size_t icategories = 0; icategories < nCategories; icategories++)
      CategoriesVsModules->setBinLabel(icategories+1,categories_vector_[icategories],2);
-
+   
    // MAKE MODULEMAP USING INPUT FROM CFG FILE
    for (size_t i = 0; i < modules_vector_.size(); i++){
      modulesMap.insert( std::pair<std::string,int>(modules_vector_[i],i) );
@@ -233,34 +233,34 @@ LogMessageMonitor::beginJob()
      int    BXlumiBin   = BXlumiParameters.getParameter<int>("BXlumiBin");
      double BXlumiMin   = BXlumiParameters.getParameter<double>("BXlumiMin");
      double BXlumiMax   = BXlumiParameters.getParameter<double>("BXlumiMax");
-
+   
      size_t i = 0;
      for(std::map<std::string,int>::const_iterator it = modulesMap.begin();
-	 it != modulesMap.end(); ++it, i++){
-
-       dqmStore_->setCurrentFolder(MEFolderName + "/PUmonitoring/Errors");
-
+	 it != modulesMap.end(); ++it, i++){ 
+       
+       dqmStore_->setCurrentFolder(MEFolderName + "/PUmonitoring/Errors");      
+       
        histname = "errorsVsBXlumi_" + it->first;
        ModulesErrorsVsBXlumi.push_back( dynamic_cast<MonitorElement*>(dqmStore_->bookProfile( histname, histname, BXlumiBin, BXlumiMin, BXlumiMax, 0.,100, "")) );
        ModulesErrorsVsBXlumi[i] -> setAxisTitle("BXlumi [10^{30} Hz cm^{-2}]", 1);
        ModulesErrorsVsBXlumi[i] -> setAxisTitle("Mean number of errors", 2);
-
+       
        if ( doWarningsPlots_ ) {
-	 dqmStore_->setCurrentFolder(MEFolderName + "/PUmonitoring/Warnings");
-
+	 dqmStore_->setCurrentFolder(MEFolderName + "/PUmonitoring/Warnings");      
+	 
 	 histname = "warningVsBXlumi_" + it->first;
 	 ModulesWarningsVsBXlumi.push_back( dynamic_cast<MonitorElement*>(dqmStore_->bookProfile( histname, histname, BXlumiBin, BXlumiMin, BXlumiMax, 0.,100, "")) );
 	 ModulesWarningsVsBXlumi[i] -> setAxisTitle("BXlumi [10^{30} Hz cm^{-2}]", 1);
 	 ModulesWarningsVsBXlumi[i] -> setAxisTitle("Mean number of warnings", 2);
        }
-     }
+     }   
    }
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void
-LogMessageMonitor::endJob()
+void 
+LogMessageMonitor::endJob() 
 {
     bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
     std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
@@ -272,26 +272,26 @@ LogMessageMonitor::endJob()
 }
 
 // ------------ method called when starting to processes a run  ------------
-void
+void 
 LogMessageMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
 
 // ------------ method called when ending the processing of a run  ------------
-void
+void 
 LogMessageMonitor::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void
+void 
 LogMessageMonitor::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void
+void 
 LogMessageMonitor::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
