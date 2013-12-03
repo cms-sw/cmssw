@@ -97,13 +97,6 @@ namespace edm {
     
   }
 
-  static
-  void
-  throwNotFoundException(char const* where, TypeID const& productType, InputTag const& tag) {
-    boost::shared_ptr<cms::Exception> exception = makeNotFoundException(where, PRODUCT_TYPE, productType, tag.label(), tag.instance(), tag.process());
-    throw *exception;
-  }
-
   namespace {
     void failedToRegisterConsumesMany(edm::TypeID const& iType) {
       LogInfo("GetManyWithoutRegistration")<<"::getManyByType called for "<<iType<<" without a corresponding consumesMany being called for this module. \n";
@@ -738,9 +731,6 @@ namespace edm {
                          tag,
                          nullptr,
                          mcc);
-    if(productData == nullptr) {
-      throwNotFoundException("findProductByTag", typeID, tag);
-    }
     return productData;
   }
 
