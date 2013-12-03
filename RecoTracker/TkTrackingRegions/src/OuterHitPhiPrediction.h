@@ -6,8 +6,9 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 
+#include "FWCore/Utilities/interface/Visibility.h"
 
-class OuterHitPhiPrediction {
+class dso_internal OuterHitPhiPrediction {
 public:
 
   typedef PixelRecoRange<float> Range;
