@@ -79,6 +79,14 @@ class HRes1DHit{
     hPullVsPos     = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsPos");
     hPullVsAngle   = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsAngle");
     hPullVsDistFE  = (TH2F *) file->Get("DQMData/Run 1/DT/Run summary/1DRecHits/Pull/1D_"+name+"_hPullVsDistFE");
+
+    if (hRes) {
+      hRes->SetXTitle("|d_{hit}|-|d_{true}| (cm)");
+      hResVsPos->SetXTitle("|d_{true}| (cm)");
+      hResVsPos->SetYTitle("|d_{hit}|-|d_{true}| (cm)");
+      hResVsAngle->SetXTitle("#alpha_{true} (rad)");
+      hResVsAngle->SetYTitle("|d_{hit}|-|d_{true}| (cm)");
+    }
   }
 
 
