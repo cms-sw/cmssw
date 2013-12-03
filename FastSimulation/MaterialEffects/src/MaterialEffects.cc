@@ -22,12 +22,11 @@
 #include <map>
 #include <string>
 
-MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
-				 const RandomEngine* engine)
+MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff)
   : PairProduction(0), Bremsstrahlung(0),MuonBremsstrahlung(0),
     MultipleScattering(0), EnergyLoss(0), 
     NuclearInteraction(0),
-    pTmin(999.), random(engine), use_hardcoded(1)
+    pTmin(999.), use_hardcoded(1)
 {
   // Set the minimal photon energy for a Brem from e+/-
 
@@ -50,9 +49,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   if ( doPairProduction ) { 
 
     double photonEnergy = matEff.getParameter<double>("photonEnergy");
-    PairProduction = new PairProductionSimulator(photonEnergy,
-						 random);
-
+    PairProduction = new PairProductionSimulator(photonEnergy);
   }
 
   if ( doBremsstrahlung ) { 
@@ -60,16 +57,14 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     double bremEnergy = matEff.getParameter<double>("bremEnergy");
     double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
     Bremsstrahlung = new BremsstrahlungSimulator(bremEnergy,
-						 bremEnergyFraction,
-						 random);
-
+						 bremEnergyFraction);
   }
 //muon Brem+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  if ( doMuonBremsstrahlung ) {
 
     double bremEnergy = matEff.getParameter<double>("bremEnergy");
     double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
-    MuonBremsstrahlung = new MuonBremsstrahlungSimulator(random,A,Z,density,radLen,bremEnergy,
+    MuonBremsstrahlung = new MuonBremsstrahlungSimulator(A,Z,density,radLen,bremEnergy,
                                                  bremEnergyFraction);
 
   }
@@ -80,13 +75,13 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   if ( doEnergyLoss ) { 
 
     pTmin = matEff.getParameter<double>("pTmin");
-    EnergyLoss = new EnergyLossSimulator(random,A,Z,density,radLen);
+    EnergyLoss = new EnergyLossSimulator(A,Z,density,radLen);
 
   }
 
   if ( doMultipleScattering ) { 
     
-    MultipleScattering = new MultipleScatteringSimulator(random,A,Z,density,radLen);
+    MultipleScattering = new MultipleScatteringSimulator(A,Z,density,radLen);
 
   }
 
@@ -209,11 +204,9 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
       new NuclearInteractionSimulator(pionEnergies, pionTypes, pionNames, 
 				      pionMasses, pionPMin, pionEnergy, 
 				      lengthRatio, ratios, idMap, 
-				      inputFile, distAlgo, distCut, random);
+				      inputFile, distAlgo, distCut);
   }
-
 }
-
 
 MaterialEffects::~MaterialEffects() {
 
@@ -229,7 +222,8 @@ MaterialEffects::~MaterialEffects() {
 void MaterialEffects::interact(FSimEvent& mySimEvent, 
 			       const TrackerLayer& layer,
 			       ParticlePropagator& myTrack,
-			       unsigned itrack) {
+			       unsigned itrack,
+                               RandomEngineAndDistribution const* random) {
 
   MaterialEffectsSimulator::RHEP_const_iter DaughterIter;
   double radlen;
@@ -244,7 +238,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   if ( PairProduction && myTrack.pid()==22 ) {
     
     //
-    PairProduction->updateState(myTrack,radlen);
+    PairProduction->updateState(myTrack, radlen, random);
 
     if ( PairProduction->nDaughters() ) {	
       //add a vertex to the mother particle
@@ -287,7 +281,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
       if (layer.layerNumber() >= 19 && layer.layerNumber() <= 27 ) 
 	factor = theTECFudgeFactor;
     }
-    NuclearInteraction->updateState(myTrack,radlen*factor);
+    NuclearInteraction->updateState(myTrack, radlen*factor, random);
 
     if ( NuclearInteraction->nDaughters() ) { 
 
@@ -334,7 +328,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   if ( Bremsstrahlung && abs(myTrack.pid())==11 ) {
         
-    Bremsstrahlung->updateState(myTrack,radlen);
+    Bremsstrahlung->updateState(myTrack,radlen, random);
 
     if ( Bremsstrahlung->nDaughters() ) {
       
@@ -365,7 +359,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   if (  MuonBremsstrahlung && abs(myTrack.pid())==13 ) {
        
-    MuonBremsstrahlung->updateState(myTrack,radlen);
+    MuonBremsstrahlung->updateState(myTrack, radlen, random);
 
     if ( MuonBremsstrahlung->nDaughters() ) {
 
@@ -397,7 +391,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   if ( EnergyLoss )
   {
     theEnergyLoss = myTrack.E();
-    EnergyLoss->updateState(myTrack,radlen);
+    EnergyLoss->updateState(myTrack, radlen, random);
     theEnergyLoss -= myTrack.E();
   }
   
@@ -409,7 +403,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   if ( MultipleScattering && myTrack.Pt() > pTmin ) {
     //    MultipleScattering->setNormalVector(normalVector(layer,myTrack));
     MultipleScattering->setNormalVector(theNormalVector);
-    MultipleScattering->updateState(myTrack,radlen);
+    MultipleScattering->updateState(myTrack,radlen, random);
   }
     
 }

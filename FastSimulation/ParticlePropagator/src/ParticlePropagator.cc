@@ -8,7 +8,7 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 ParticlePropagator::ParticlePropagator() : 
   BaseParticlePropagator(), random(0) {;}
@@ -16,7 +16,7 @@ ParticlePropagator::ParticlePropagator() :
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 				       double RCyl, double ZCyl, 
 				       const MagneticFieldMap* aFieldMap,
-				       const RandomEngine* engine) :
+				       const RandomEngineAndDistribution* engine) :
   BaseParticlePropagator(myPart,RCyl,ZCyl,0.),
   theFieldMap(aFieldMap),
   random(engine)
@@ -27,7 +27,7 @@ ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 
 ParticlePropagator::ParticlePropagator( const RawParticle& myPart,
 					const MagneticFieldMap* aFieldMap,
-					const RandomEngine* engine) : 
+					const RandomEngineAndDistribution* engine) :
   BaseParticlePropagator(myPart,0.,0.,0.),
   theFieldMap(aFieldMap),
   random(engine)
@@ -62,7 +62,7 @@ ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom,
 
 ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
 				       const MagneticFieldMap* aFieldMap,
-				       const RandomEngine* engine) : 
+				       const RandomEngineAndDistribution* engine) :
   BaseParticlePropagator(RawParticle(simTrack.type(),simTrack.momentum()),
 			 0.,0.,0.),
   theFieldMap(aFieldMap),
