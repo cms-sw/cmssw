@@ -56,14 +56,11 @@ namespace edm {
     RefProd() : product_() {}
 
     /// General purpose constructor from handle.
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     explicit RefProd(Handle<C> const& handle) :
     product_(handle.id(), handle.product(), 0, false) {
       checkTypeAtCompileTime(handle.product());
     }
-#else
-    explicit RefProd(Handle<C> const& handle);
-#endif
+
     /// General purpose constructor from orphan handle.
     explicit RefProd(OrphanHandle<C> const& handle) :
     product_(handle.id(), handle.product(), 0, false) {
