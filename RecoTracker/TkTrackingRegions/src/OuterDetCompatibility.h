@@ -4,14 +4,18 @@
 /** check det compatibility by comparistion of det BoundPlane ranges
     with phi,r,z ranges (given at construction). */
 
-#include "RecoTracker/TkTrackingRegions/interface/OuterHitPhiPrediction.h"
+#include "OuterHitPhiPrediction.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
-class OuterDetCompatibility  {
+
+#include "FWCore/Utilities/interface/Visibility.h"
+
+
+class dso_internal OuterDetCompatibility  {
 public:
   typedef PixelRecoRange<float> Range;
 
