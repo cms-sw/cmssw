@@ -59,11 +59,11 @@ class HcalRecHitsMaker
 
   //  edm::ESHandle<CaloTowerConstituentsMap> calotowerMap_;
   edm::InputTag inputCol_;
-  static bool initialized_;
-  static bool initializedHB_;
-  static bool initializedHE_;
-  static bool initializedHO_;
-  static bool initializedHF_;
+  bool initialized_;
+  bool initializedHB_;
+  bool initializedHE_;
+  bool initializedHO_;
+  bool initializedHF_;
   bool doDigis_;
   bool doMiscalib_;
   bool doSaturation_;
@@ -76,24 +76,24 @@ class HcalRecHitsMaker
 
   std::vector<int> firedCells_;
 
-  static std::vector<HcalDetId> theDetIds_;
-  static std::vector<float> miscalib_;
+  std::vector<HcalDetId> theDetIds_;
+  std::vector<float> miscalib_;
 
   // coefficients for fC to ADC conversion
-  static std::vector<int> fctoadc_;
+  std::vector<int> fctoadc_;
 
-  static std::vector<float> peds_;
-  static std::vector<float> gains_;
-  static std::vector<float> sat_;
-  static std::vector<float> noisesigma_;
-  static std::vector<float> TPGFactor_;
+  std::vector<float> peds_;
+  std::vector<float> gains_;
+  std::vector<float> sat_;
+  std::vector<float> noisesigma_;
+  std::vector<float> TPGFactor_;
  
   // the hashed indices
-  static unsigned maxIndex_;
-  static std::vector<int> hbhi_;
-  static std::vector<int> hehi_;
-  static std::vector<int> hohi_;
-  static std::vector<int> hfhi_;
+  unsigned maxIndex_;
+  std::vector<int> hbhi_;
+  std::vector<int> hehi_;
+  std::vector<int> hohi_;
+  std::vector<int> hfhi_;
   unsigned nhbcells_,nhecells_,nhocells_,nhfcells_;
 
   const RandomEngine* random_;
