@@ -42,7 +42,6 @@ const GeomDet* GEMRegion::component(DetId id) const {
 
 const GEMSuperChamber* GEMRegion::superChamber(GEMDetId id) const {
   if (id.region()!=region_ ) return 0; // not in this region
-  //return 0;
   return station(id.station())->ring(id.ring())->superChamber(id);
 }
 
