@@ -145,17 +145,25 @@ namespace cms
 	// Now save it =================
 	recHitsOnDetUnit.push_back(hit);
 	// =============================
+
+	std::cout << "SiPixelRecHitConverterVI " << numberOfClusters << ' '<< lp << " " << le << std::endl;
       } //  <-- End loop on Clusters
 	
-      LogDebug("SiPixelRecHitConverter") << " Found " 
-					 << recHitsOnDetUnit.size() << " RecHits on " << detid;	
+
+      // LogDebug("SiPixelRecHitConverter")
+      std::cout << "SiPixelRecHitConverterVI "
+	<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
+	<< std::endl;
       
       
     } //    <-- End loop on DetUnits
     
-    LogDebug ("SiPixelRecHitConverter") 
+    //    LogDebug ("SiPixelRecHitConverter") 
+      std::cout << "SiPixelRecHitConverterVI "
       << cpeName_ << " converted " << numberOfClusters 
       << " SiPixelClusters into SiPixelRecHits, in " 
-      << numberOfDetUnits << " DetUnits."; 	
+      << numberOfDetUnits << " DetUnits." //; 
+      << std::endl;
+	
   }
 }  // end of namespace cms
