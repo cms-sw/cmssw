@@ -7,8 +7,26 @@
 #include "GeneratorInterface/ExternalDecays/interface/read_particles_from_HepMC.h"
 #include "TLorentzVector.h"
 
+#include "CLHEP/Random/RandomEngine.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 using namespace edm;
 using namespace TauSpinner;
+
+CLHEP::HepRandomEngine* decayRandomEngine;
+extern "C" {
+  void ranmar_( float *rvec, int *lenv ){
+    for(int i = 0; i < *lenv; i++)
+      *rvec++ = decayRandomEngine->flat();
+    return;
+  }
+  
+  void rmarin_( int*, int*, int* ){
+    return;
+  }
+}
 
 bool TauSpinnerCMS::isTauSpinnerConfigure=false;
 
@@ -31,8 +49,18 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   produces<double>("TauSpinnerWThplus").setBranchAlias("TauSpinnerWThplus");
   produces<double>("TauSpinnerWThminus").setBranchAlias("TauSpinnerWThminus");
 
-  if(isReco_) EvtHandleToken_ = consumes<HepMCProduct>(gensrc_);
+  if(!isReco_) EvtHandleToken_ = consumes<HepMCProduct>(gensrc_);
   if(isReco_) gensrcToken_= consumes<reco::GenParticleCollection>(gensrc_);
+
+  Service<RandomNumberGenerator> rng;
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+          "which appears to be absent.  Please add that service to your configuration\n"
+      "or remove the modules that require it." << std::endl;
+  }
+  decayRandomEngine = &rng->getEngine();
+  
 }
 
 void TauSpinnerCMS::beginJob()
