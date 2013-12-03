@@ -40,9 +40,9 @@ namespace edm
       virtual bool checkSignal(const edm::Event &e)=0;
       virtual void createnewEDProduct()=0; 
       virtual void addSignals(const edm::Event &e) =0;
-      virtual void addPileups(const int bcr, const edm::EventPrincipal&,
+      virtual void addPileups(const edm::EventPrincipal&,
                               ModuleCallingContext const*,
-                              unsigned int EventNr, int vertexOffset=0)=0;
+                              unsigned int EventNr)=0;
       virtual void setBcrOffset()=0;
       virtual void setSourceOffset(const unsigned int s)=0;
       virtual void setTof()=0;
