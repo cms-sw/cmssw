@@ -52,6 +52,7 @@ namespace edm {
       //
       // member data
       //
+      const bool            forceDefault_;
       const VString_t       lvl1Labels_; 
       const unsigned int    lvl1Default_;
       const std::vector<ParameterSet> vpsetPrescales_;

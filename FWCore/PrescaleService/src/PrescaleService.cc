@@ -23,7 +23,8 @@ namespace edm {
 
     // constructor
     PrescaleService::PrescaleService(ParameterSet const& iPS,ActivityRegistry& iReg)
-      : lvl1Labels_(iPS.getParameter<std::vector<std::string> >("lvl1Labels"))
+      : forceDefault_(iPS.getParameter<bool>("forceDefault"))
+      , lvl1Labels_(iPS.getParameter<std::vector<std::string> >("lvl1Labels"))
       , lvl1Default_(findDefaultIndex(iPS.getParameter<std::string>("lvl1DefaultLabel"), lvl1Labels_))
       , vpsetPrescales_(iPS.getParameterSetVector("prescaleTable"))
       , prescaleTable_()
@@ -133,6 +134,8 @@ namespace edm {
     // const method
     unsigned int PrescaleService::getPrescale(unsigned int lvl1Index, std::string const& prescaledPath) const
     {
+      if (forceDefault_) lvl1Index = lvl1Default_;
+
       if (lvl1Index >= lvl1Labels_.size()) {
         throw cms::Exception("InvalidLvl1Index")
           << "lvl1Index '" << lvl1Index << "' exceeds number of prescale columns " << lvl1Labels_.size() << "!";
