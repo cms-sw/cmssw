@@ -11,12 +11,17 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "RecoTracker/TkTrackingRegions/interface/OuterDetCompatibility.h"
-#include "RecoTracker/TkTrackingRegions/interface/OuterHitCompatibility.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-//#include <utility>
 
-class OuterEstimator : public MeasurementEstimator {
+#include "OuterDetCompatibility.h"
+#include "OuterHitCompatibility.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+
+
+#include "FWCore/Utilities/interface/Visibility.h"
+
+
+class dso_internal OuterEstimator final : public MeasurementEstimator {
 
 public:
   OuterEstimator(
