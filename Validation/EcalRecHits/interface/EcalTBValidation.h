@@ -10,6 +10,9 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRecInfo.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRecInfo.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -45,7 +48,12 @@ class EcalTBValidation : public edm::EDAnalyzer {
   std::string tdcRecInfoProducer_;
   std::string eventHeaderCollection_;
   std::string eventHeaderProducer_;
-  
+  // fix for consumes
+  edm::EDGetTokenT<EBDigiCollection> digi_Token_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> hit_Token_;
+  edm::EDGetTokenT<EcalTBHodoscopeRecInfo> hodoRec_Token_;
+  edm::EDGetTokenT<EcalTBTDCRecInfo> tdcRec_Token_;
+  edm::EDGetTokenT<EcalTBEventHeader> eventHeader_Token_;
   // histos
   //TH2F *h_xib,   *h_ampltdc, *h_Shape;
   //TH1F *h_hodoX, *h_hodoY;
