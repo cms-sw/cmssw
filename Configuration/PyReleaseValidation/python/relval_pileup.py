@@ -28,7 +28,7 @@ workflows[401]=['TTbarNewMix',['TTbarFSPU2','HARVESTFS']]
 
 
 # 50 ns at 13 TeV and POSTLS1
-workflows[50200]=['',['ZEE_13','DIGIPU1','RECOPU1','HARVEST']]
+workflows[50200]=['',['ZEE_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
 #
 workflows[50201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
 # cannot be recycled => GEN SIM NEEDED!

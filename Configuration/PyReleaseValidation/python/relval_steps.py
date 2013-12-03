@@ -876,7 +876,8 @@ steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
 PU={'-n':10,'--pileup':'default','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
-PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
+PU25={'-n':10,'--pileup':'AVE_20_BX_25ns','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
+#PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
 PU50={'-n':10,'--pileup':'AVE_40_BX_50ns','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
 PUFS={'--pileup':'default'}
 PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
@@ -903,8 +904,8 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2
                  '-n'            :'10'
                   }
 steps['DIGIUP15']=merge([step2Upg2015Defaults])      # todo: remove UP from label
-steps['DIGIUP15_PU25']=merge([PU50,step2Upg2015Defaults]) # todo: remove UP from label
-steps['DIGIUP15_PU50']=merge([PU25,step2Upg2015Defaults]) # todo: remove UP from label
+steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults]) # todo: remove UP from label
+steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults]) # todo: remove UP from label
 
 steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
