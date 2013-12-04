@@ -61,7 +61,7 @@ private:
       // ----------member data ---------------------------
 
   BeamSpotHistogramMaker _bshm;
-  edm::InputTag _bscollection;
+  edm::EDGetTokenT<reco::BeamSpot> _recoBeamSpotToken;
 
 
 };
@@ -77,9 +77,9 @@ private:
 //
 // constructors and destructor
 //
-AnotherBeamSpotAnalyzer::AnotherBeamSpotAnalyzer(const edm::ParameterSet& iConfig):
-  _bshm(iConfig.getParameter<edm::ParameterSet>("bsHistogramMakerPSet")),
-  _bscollection(iConfig.getParameter<edm::InputTag>("bsCollection"))
+AnotherBeamSpotAnalyzer::AnotherBeamSpotAnalyzer(const edm::ParameterSet& iConfig)
+  : _bshm(iConfig.getParameter<edm::ParameterSet>("bsHistogramMakerPSet"))
+  , _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection")))
 {
    //now do what ever initialization is needed
 
@@ -112,7 +112,7 @@ AnotherBeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   // get BS
 
   Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(_bscollection,bs);
+  iEvent.getByToken(_recoBeamSpotToken,bs);
   _bshm.fill(iEvent.orbitNumber(),*bs);
 
 }
