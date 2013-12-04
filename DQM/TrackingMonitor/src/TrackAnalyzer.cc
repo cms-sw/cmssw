@@ -694,15 +694,6 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
   
   if ( doAllPlots_ ) {
-    Chi2oNDFVsPhi -> Fill(phi,chi2oNDF);
-    Chi2oNDFVsEta -> Fill(eta,chi2oNDF);
-    Chi2ProbVsPhi -> Fill(phi,chi2prob);
-    Chi2ProbVsEta -> Fill(eta,chi2prob);
-
-    NumberOfValidRecHitsPerTrackVsPhi -> Fill(phi,nValidRecHits);
-    NumberOfValidRecHitsPerTrackVsEta -> Fill(eta,nValidRecHits);
-    NumberOfRecHitsPerTrackVsPhi      -> Fill(phi,nRecHits);
-    NumberOfRecHitsPerTrackVsEta      -> Fill(eta,nRecHits);
   }
 
 }
