@@ -3,6 +3,7 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="TrackingTools/AnalyticalJacobians"/>
 <use   name="TrackingTools/TrajectoryState"/>
+<use   name="vdt"/>
 <export>
   <lib   name="1"/>
 </export>
