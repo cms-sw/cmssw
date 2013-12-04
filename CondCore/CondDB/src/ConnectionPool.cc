@@ -1,12 +1,13 @@
-#include "CondCore/CondDB/interface/Configuration.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
+#include "DbConnectionString.h"
 //
 #include "CondCore/DBCommon/interface/CoralServiceManager.h"
-#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
 #include "CondCore/DBCommon/interface/Auth.h"
 // CMSSW includes
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // coral includes
+#include "RelationalAccess/ConnectionService.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
 #include "CoralKernel/Context.h"
 #include "CoralKernel/IProperty.h"
@@ -17,40 +18,32 @@
 namespace cond {
 
   namespace persistency {
-
-    SessionConfiguration::SessionConfiguration():
+   
+    ConnectionPool::ConnectionPool():
       m_authPath(),
       m_authSys(0),
       m_messageLevel( coral::Error ),
-      m_logging( false ),
+      m_loggingEnabled( false ),
       m_pluginManager( new cond::CoralServiceManager ){
     }
  
-    SessionConfiguration::~SessionConfiguration(){
+    ConnectionPool::~ConnectionPool(){
       delete m_pluginManager;
     }
     
-    void SessionConfiguration::setMessageVerbosity( coral::MsgLevel level ){
-      m_messageLevel = level;
-      m_configured = false;
-    }
-    
-    void SessionConfiguration::setAuthenticationPath( const std::string& p ){
+    void ConnectionPool::setAuthenticationPath( const std::string& p ){
       m_authPath = p;
-      m_configured = false;
     }
     
-    void SessionConfiguration::setAuthenticationSystem( int authSysCode ){
+    void ConnectionPool::setAuthenticationSystem( int authSysCode ){
       m_authSys = authSysCode;
-      m_configured = false;
     }
     
-    void SessionConfiguration::setLogging( bool flag ){
-      m_logging = flag;
-      m_configured = false;
+    void ConnectionPool::setLogging( bool flag ){
+      m_loggingEnabled = flag;
     }
     
-    void SessionConfiguration::setParameters( const edm::ParameterSet& connectionPset ){
+    void ConnectionPool::setParameters( const edm::ParameterSet& connectionPset ){
       setAuthenticationPath( connectionPset.getUntrackedParameter<std::string>("authenticationPath","") );
       setAuthenticationSystem( connectionPset.getUntrackedParameter<int>("authenticationSystem",0) );
       int messageLevel = connectionPset.getUntrackedParameter<int>("messageLevel",0);
@@ -73,14 +66,13 @@ namespace cond {
       }
       setMessageVerbosity(level);
       setLogging( connectionPset.getUntrackedParameter<bool>("logging",false) );
-      m_configured = false;
     }
 
-    bool SessionConfiguration::isLoggingEnabled() const {
-      return m_logging;
+    bool ConnectionPool::isLoggingEnabled() const {
+      return m_loggingEnabled;
     }
     
-    void SessionConfiguration::configure( coral::IConnectionServiceConfiguration& coralConfig){
+    void ConnectionPool::configure( coral::IConnectionServiceConfiguration& coralConfig){
       
       coralConfig.disablePoolAutomaticCleanUp();
       coralConfig.disableConnectionSharing();
@@ -115,13 +107,11 @@ namespace cond {
 	  } 
 	}
 	servName = "COND/Services/RelationalAuthenticationService";     
-	//edm::LogInfo("DbSessionInfo") << "Authentication using Keys";  
       } else if( authSys == CoralXMLFile ){
 	if( authPath.empty() ){
 	  authPath = ".";
 	}
 	servName = "COND/Services/XMLAuthenticationService";  
-	//edm::LogInfo("DbSessionInfo") << "Authentication using XML File";  
       }
       if( !authPath.empty() ){
 	authServiceName = servName;    
@@ -129,21 +119,32 @@ namespace cond {
 	coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
       }
       coralConfig.setAuthenticationService( authServiceName );
-      m_configured = true;
     }
     
-    void SessionConfiguration::configure(  cond::DbConnectionConfiguration& oraConfiguration ) {
-      oraConfiguration.setPoolAutomaticCleanUp( false );
-      oraConfiguration.setConnectionSharing( false );
-      oraConfiguration.setMessageLevel( m_messageLevel );
-      oraConfiguration.setAuthenticationPath( m_authPath );
-      oraConfiguration.setAuthenticationSystem( m_authSys );
-      m_configured = true;
+    void ConnectionPool::configure() {
+      coral::ConnectionService connServ;
+      configure( connServ.configuration() );
+    }
+
+    Session ConnectionPool::createSession( const std::string& connectionString, const std::string& transactionId, bool writeCapable ){
+      coral::ConnectionService connServ;
+      boost::shared_ptr<coral::ISessionProxy> coralSession( connServ.connect( getRealConnectionString( connectionString, transactionId ), 
+									      writeCapable?coral::Update:coral::ReadOnly ) );
+      return Session( coralSession );
+    }
+
+    Session ConnectionPool::createSession( const std::string& connectionString, bool writeCapable ){
+      return createSession( connectionString, "", writeCapable );
+    }
+      
+    Session ConnectionPool::createReadOnlySession( const std::string& connectionString, const std::string& transactionId ){
+      return createSession( connectionString, transactionId );
+    }
+    void ConnectionPool::setMessageVerbosity( coral::MsgLevel level ){
+      m_messageLevel = level;
     }
     
-    bool SessionConfiguration::isConfigured() const {
-      return m_configured;
-    }
+
 
   }
 }

@@ -1,6 +1,5 @@
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "SessionImpl.h"
-#include "IOVSchema.h"
 //
 
 namespace cond {
@@ -69,7 +68,7 @@ namespace cond {
     void IOVEditor::load( const std::string& tag ){
       checkSession( "IOVEditor::load" );
       // loads the current header data in memory
-      if( !TAG::select( tag, m_data->timeType, m_data->payloadType, m_data->endOfValidity, m_data->description, m_data->lastValidatedTime, *m_session ) ){
+      if( !m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, m_data->endOfValidity, m_data->description, m_data->lastValidatedTime ) ){
 	cond::throwException( "Tag \""+tag+"\" has not been found in the database.","IOVEditor::load");
       }
       m_data->tag = tag;
@@ -145,12 +144,14 @@ namespace cond {
       if( m_data->change ){
 	if( m_data->description.empty() ) throwException( "A non-empty description string is mandatory.","IOVEditor::flush" );
 	if( !m_data->exists ){
-	  TAG::insert( m_data->tag, m_data->timeType, m_data->payloadType, m_data->synchronizationType, m_data->endOfValidity, 
-		       m_data->description, m_data->lastValidatedTime, operationTime, *m_session );
+	  m_session->iovSchema().tagTable().insert( m_data->tag, m_data->timeType, m_data->payloadType, 
+						    m_data->synchronizationType, m_data->endOfValidity, 
+						    m_data->description, m_data->lastValidatedTime, operationTime );
 	  m_data->exists = true;
 	  ret = true;
 	} else {
-	  TAG::update( m_data->tag, m_data->endOfValidity, m_data->description, m_data->lastValidatedTime, operationTime, *m_session );   
+	  m_session->iovSchema().tagTable().update( m_data->tag, m_data->endOfValidity, m_data->description, 
+						    m_data->lastValidatedTime, operationTime );   
 	  ret = true;
 	}
 	m_data->change = false;
@@ -158,7 +159,7 @@ namespace cond {
       if( m_data->iovBuffer.size() ) {
 	
 	// insert the new iovs
-	IOV::insertMany( m_data->tag, m_data->iovBuffer, *m_session );
+	m_session->iovSchema().iovTable().insertMany( m_data->tag, m_data->iovBuffer );
 	m_data->iovBuffer.clear();
 	ret = true;
       }

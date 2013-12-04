@@ -82,12 +82,22 @@ namespace cond {
     OutputArchive oa( buffer );
     oa << payload;
     Binary ret;
-    //TODO: avoid (2!!) copies
-    ret.copy( buffer.str() );
+    if( !packingOnly ){
+      // save data to buffer
+      std::ostringstream buffer;
+      CondOutputArchive oa( buffer );
+      oa << payload;
+      //TODO: avoid (2!!) copies
+      ret.copy( buffer.str() );
+    } else {
+      ret = Binary( payload );
+    }
     return ret;
   }
 
-  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, const Binary& payloadData){
+  // generates an instance of T from the binary serialized data. With unpackingOnly = true the memory is already storing the object in the final 
+  // format. Only a cast is required in this case - Used by the ORA backed, will be dropped in the future.
+  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, const Binary& payloadData, bool unpackingOnly = false){
     // for the moment we fail if types don't match... later we will check for base types...
     if( demangledName( typeid(T) )!= payloadType ) throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"",
 								  "deserialize" );
