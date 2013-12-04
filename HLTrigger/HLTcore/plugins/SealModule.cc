@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
+// #include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerAOD.h"
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerRAW.h"
 #include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerAOD.h"
@@ -12,7 +12,7 @@
 #include "HLTrigger/HLTcore/interface/TriggerSummaryProducerRAW.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaleRecorder.h"
 
-DEFINE_FWK_MODULE(HLTPrescaler);
+// DEFINE_FWK_MODULE(HLTPrescaler);
 DEFINE_FWK_MODULE(HLTEventAnalyzerAOD);
 DEFINE_FWK_MODULE(HLTEventAnalyzerRAW);
 DEFINE_FWK_MODULE(TriggerSummaryAnalyzerAOD);
