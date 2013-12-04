@@ -23,6 +23,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
@@ -323,12 +324,12 @@ namespace edm {
       BasicHandle bh = this->getByProductID_(oid);
 
       if(bh.failedToGet()) {
-          Handle<View<ELEMENT> > temp([oid]()->std::shared_ptr<cms::Exception> {
+          Handle<View<ELEMENT> > temp(makeHandleExceptionFactory([oid]()->std::shared_ptr<cms::Exception> {
             std::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
             *whyFailed
             << "get View by ID failed: no product with ID = " << oid <<"\n";
             return whyFailed;
-          });
+          }));
           result.swap(temp);
           return false;
       }
