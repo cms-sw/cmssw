@@ -20,8 +20,24 @@
 #include "HepMC/GenParticle.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 
 #include <boost/ptr_container/ptr_vector.hpp>
+
+class EmDQMReco;
+
+template <class T> 
+class HistoFillerReco {
+ public:
+  HistoFillerReco(EmDQMReco* d):dqm(d) {};
+  ~HistoFillerReco() {};
+    
+  void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int n, std::vector<reco::Particle>& sortedReco, bool plotReco, bool plotMonpath);
+  std::vector<edm::EDGetTokenT<edm::AssociationMap<edm::OneToValue< T , float>>>> isoNameTokens_;
+
+ private:
+  EmDQMReco* dqm;
+};
 
 class EmDQMReco : public edm::EDAnalyzer{
 
@@ -60,6 +76,9 @@ class EmDQMReco : public edm::EDAnalyzer{
 
 public:
 
+  friend class HistoFillerReco<reco::ElectronCollection>;
+  friend class HistoFillerReco<reco::RecoEcalCandidateCollection>;
+  friend class HistoFillerReco<l1extra::L1EmParticleCollection>;
 
   /// Constructor
   explicit EmDQMReco(const edm::ParameterSet& pset);
@@ -84,7 +103,7 @@ private:
 
   bool useHumanReadableHistTitles;
   std::vector<std::string> theHLTCollectionHumanNames; // Human-readable names for the collections
-  edm::InputTag theL1Seed;
+  //edm::InputTag theL1Seed;
   std::vector<int> theHLTOutputTypes;
   std::vector<bool> plotiso;
   std::vector<std::vector<edm::InputTag> > isoNames; // there has to be a better solution
@@ -111,7 +130,7 @@ private:
   unsigned int plotBins ;
 
   // preselction cuts
-  edm::InputTag recocutCollection_;
+  //edm::InputTag recocutCollection_;
   unsigned int recocut_;
 
   /** events which fire this trigger are filled into {et,eta,phi}recomonpath
@@ -126,8 +145,11 @@ private:
   /** input tag for the reconstructed electron collection
    *  (with respect to which the HLT efficiencies are calculated ?)
    */
-  edm::InputTag recoElectronsInputTag;
-
+  edm::EDGetTokenT<reco::GsfElectronCollection> recoElectronsInput;
+  edm::EDGetTokenT<std::vector<reco::SuperCluster>> recoObjectsEBT;
+  edm::EDGetTokenT<std::vector<reco::SuperCluster>> recoObjectsEET;
+  edm::EDGetTokenT<edm::TriggerResults> hltResultsT;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerObjT;
   ////////////////////////////////////////////////////////////
   //          Create Histograms                             //
   ////////////////////////////////////////////////////////////
@@ -203,7 +225,13 @@ private:
   DQMStore * dbe;
   std::string dirname_;
 
-  template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>&,const edm::Event& ,unsigned int, std::vector<reco::Particle>&, bool, bool);
+  HistoFillerReco<reco::ElectronCollection>* histoFillerEle;
+  HistoFillerReco<reco::RecoEcalCandidateCollection>* histoFillerClu;
+  HistoFillerReco<l1extra::L1EmParticleCollection>* histoFillerL1NonIso;
+  HistoFillerReco<reco::RecoEcalCandidateCollection>* histoFillerPho;
+  HistoFillerReco<l1extra::L1EmParticleCollection>* histoFillerL1Iso;
+  
+  //template <class T> void fillHistos(edm::Handle<trigger::TriggerEventWithRefs>&,const edm::Event& ,unsigned int, std::vector<reco::Particle>&, bool, bool);
   GreaterByPt<reco::Particle> pTComparator_;
   GreaterByPt<reco::GsfElectron> pTRecoComparator_;
 
