@@ -9,7 +9,7 @@
 #include <vector>
 
 class CaloGeometry;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class HcalSimParameterMap;
 class HcalDbService;
 class HcalRespCorrs;
@@ -24,24 +24,28 @@ namespace edm {
 class HcalRecHitsMaker
 {
  public:
-  HcalRecHitsMaker(edm::ParameterSet const & p,int,const RandomEngine* random);
+  HcalRecHitsMaker(edm::ParameterSet const & p,int);
   ~HcalRecHitsMaker();
 
-  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HBHERecHitCollection& hbheHits, HBHEDigiCollection& hbheDigis);
-  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HORecHitCollection &ho, HODigiCollection & hoDigis);
-  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HFRecHitCollection &hfHits, HFDigiCollection& hfDigis);
+  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HBHERecHitCollection& hbheHits, HBHEDigiCollection& hbheDigis,
+                       RandomEngineAndDistribution const*);
+  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HORecHitCollection &ho, HODigiCollection & hoDigis,
+                       RandomEngineAndDistribution const*);
+  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HFRecHitCollection &hfHits, HFDigiCollection& hfDigis,
+                       RandomEngineAndDistribution const*);
   void init(const edm::EventSetup &es,bool dodigis,bool domiscalib);
 
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
   unsigned createVectorOfSubdetectorCells( const CaloGeometry&,const HcalTopology&, int subdetn,std::vector<int>&);
-  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *,double sigma,double threshold,double correctionfactor); 
+  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *,double sigma,double threshold,double correctionfactor,
+                         RandomEngineAndDistribution const*);
   // Not currently used. Will probably be removed soon.
   //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
-  void noisify();
+  void noisify(RandomEngineAndDistribution const*);
   double noiseInfCfromDB(const HcalDbService * conditions,const HcalDetId & detId);
-  void Fill(int id,float energy, std::vector<int> & myHits,float noise,float correctionfactor);
-  void loadPCaloHits(const edm::Event & iEvent, const HcalTopology&);
+  void Fill(int id,float energy, std::vector<int> & myHits,float noise,float correctionfactor, RandomEngineAndDistribution const*);
+  void loadPCaloHits(const edm::Event & iEvent, const HcalTopology&, RandomEngineAndDistribution const*);
   
   void clean();
   void cleanSubDet(std::vector<float>& hits,std::vector<int>& cells);
@@ -96,7 +100,6 @@ class HcalRecHitsMaker
   std::vector<int> hfhi_;
   unsigned nhbcells_,nhecells_,nhocells_,nhfcells_;
 
-  const RandomEngine* random_;
   std::vector<GaussianTail*> myGaussianTailGenerators_;
 
   //  const HcalTPGCoder * myCoder_;

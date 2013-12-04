@@ -3,11 +3,10 @@
 
 //Famos Headers
 #include "FastSimulation/Event/interface/BetaFuncPrimaryVertexGenerator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 BetaFuncPrimaryVertexGenerator::BetaFuncPrimaryVertexGenerator(
-  const edm::ParameterSet& vtx, const RandomEngine* engine) : 
-  PrimaryVertexGenerator(engine),
+  const edm::ParameterSet& vtx) :
   fX0(vtx.getParameter<double>("X0")),
   fY0(vtx.getParameter<double>("Y0")),
   fZ0(vtx.getParameter<double>("Z0")),
@@ -24,8 +23,8 @@ BetaFuncPrimaryVertexGenerator::BetaFuncPrimaryVertexGenerator(
 } 
   
 
-void BetaFuncPrimaryVertexGenerator::generate() {	
-  
+void BetaFuncPrimaryVertexGenerator::generate(RandomEngineAndDistribution const* random) {
+
   double tmp_sigz = random->gaussShoot(0., fSigmaZ);
   this->SetZ(tmp_sigz + fZ0);
 
