@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_0_0/GRun/V25 (CMSSW_7_0_0_pre9)
+# /dev/CMSSW_7_0_0/GRun/V26 (CMSSW_7_0_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_0_0/GRun/V25')
+  tableName = cms.string('/dev/CMSSW_7_0_0/GRun/V26')
 )
 
 process.streams = cms.PSet( 
@@ -4456,7 +4456,7 @@ process.hltIter3Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBui
 )
 process.hltIter4ESPPixelLessLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   layerList = cms.vstring( 'TIB1+TIB2' ),
-  ComponentName = cms.string( "hltIter4ESPPixelLayerLessPairs" ),
+  ComponentName = cms.string( "hltIter4ESPPixelLessLayerPairs" ),
   TEC = cms.PSet(  ),
   FPix = cms.PSet(  ),
   TID = cms.PSet(  ),
