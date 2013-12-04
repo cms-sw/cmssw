@@ -70,10 +70,11 @@ private:
 
   
 
-  edm::InputTag m_pileupcollection;
-  edm::InputTag m_mctruthcollection;
   const bool m_useweight;
-  edm::InputTag m_weight;
+
+  edm::EDGetTokenT< double > m_doubleToken;
+  edm::EDGetTokenT< std::vector<PileupSummaryInfo> > m_vecPileupSummaryInfoToken;
+  edm::EDGetTokenT< edm::HepMCProduct > m_hepMCProductToken;
 
   TH1F* m_hnvtx;
   TH1F* m_hlumi;
@@ -98,13 +99,11 @@ private:
 //
 // constructors and destructor
 //
-MCVerticesAnalyzer::MCVerticesAnalyzer(const edm::ParameterSet& iConfig):
-  m_pileupcollection(iConfig.getParameter<edm::InputTag>("pileupSummaryCollection")),
-  m_mctruthcollection(iConfig.getParameter<edm::InputTag>("mcTruthCollection")),
-  m_useweight(iConfig.getParameter<bool>("useWeight")),
-  m_weight(iConfig.getParameter<edm::InputTag>("weightProduct"))
-
-
+MCVerticesAnalyzer::MCVerticesAnalyzer(const edm::ParameterSet& iConfig)
+  : m_useweight( iConfig.getParameter< bool >( "useWeight" ) )
+  , m_doubleToken( consumes< double >( iConfig.getParameter< edm::InputTag >( "weightProduct" ) ) )
+  , m_vecPileupSummaryInfoToken( consumes< std::vector<PileupSummaryInfo> >( iConfig.getParameter< edm::InputTag >( "pileupSummaryCollection" ) ) )
+  , m_hepMCProductToken( consumes< edm::HepMCProduct >( iConfig.getParameter< edm::InputTag >( "mcTruthCollection" ) ) )
 {
    //now do what ever initialization is needed
 
@@ -163,7 +162,7 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    if(m_useweight) {
      Handle<double> weightprod;
-     iEvent.getByLabel(m_weight,weightprod);
+     iEvent.getByToken( m_doubleToken, weightprod );
 
      weight = *weightprod;
 
@@ -171,7 +170,7 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
    Handle<std::vector<PileupSummaryInfo> >  pileupinfos;
-   iEvent.getByLabel(m_pileupcollection,pileupinfos);
+   iEvent.getByToken( m_vecPileupSummaryInfoToken, pileupinfos );
 
    //
 
@@ -212,7 +211,7 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    // main interaction part
 
    Handle< HepMCProduct > EvtHandle ;
-   iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
+   iEvent.getByToken( m_hepMCProductToken, EvtHandle );
 
    if(EvtHandle.isValid()) {
 
