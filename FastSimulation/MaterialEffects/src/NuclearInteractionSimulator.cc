@@ -3,7 +3,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
@@ -29,10 +29,9 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::map<int,int >& idMap,
   std::string inputFile,
   unsigned int distAlgo,
-  double distCut,
-  const RandomEngine* engine) 
+  double distCut)
   :
-  MaterialEffectsSimulator(engine),
+  MaterialEffectsSimulator(),
   thePionEN(pionEnergies),
   thePionID(pionTypes),
   thePionNA(pionNames),
@@ -134,16 +133,24 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
       theNumberOfEntries[iname][iene] = theTrees[iname][iene]->GetEntries();
 
       // Add some randomness (if there was no input file)
-      if ( !input )
-	theCurrentEntry[iname][iene] = (unsigned) (theNumberOfEntries[iname][iene] * random->flatShoot());
-
+      if ( !input ) {
+        // RANDOM_NUMBER_ERROR
+        // Random numbers should only be generated in the beginLuminosityBlock method
+        // or event methods of a module
+        RandomEngineAndDistribution random;
+	theCurrentEntry[iname][iene] = (unsigned) (theNumberOfEntries[iname][iene] * random.flatShoot());
+      }
       theTrees[iname][iene]->GetEntry(theCurrentEntry[iname][iene]);
       unsigned NInteractions = theNUEvents[iname][iene]->nInteractions();
       theNumberOfInteractions[iname][iene] = NInteractions;
       // Add some randomness (if there was no input file)
-      if ( !input )
-	theCurrentInteraction[iname][iene] = (unsigned) (theNumberOfInteractions[iname][iene] * random->flatShoot());
-
+      if ( !input ) {
+        // RANDOM_NUMBER_ERROR
+        // Random numbers should only be generated in the beginLuminosityBlock method
+        // or event methods of a module
+        RandomEngineAndDistribution random;
+	theCurrentInteraction[iname][iene] = (unsigned) (theNumberOfInteractions[iname][iene] * random.flatShoot());
+      }
       /*
       std::cout << "File " << theFileNames[iname][iene]
 		<< " is opened with " << theNumberOfEntries[iname][iene] 
@@ -212,7 +219,7 @@ NuclearInteractionSimulator::~NuclearInteractionSimulator() {
 
 }
 
-void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
+void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDistribution const* random)
 {
 
   // Read a Nuclear Interaction in a random manner
