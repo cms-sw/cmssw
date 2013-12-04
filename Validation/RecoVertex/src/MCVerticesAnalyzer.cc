@@ -156,12 +156,11 @@ MCVerticesAnalyzer::~MCVerticesAnalyzer()
 void
 MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
 
    double weight = 1.;
 
    if(m_useweight) {
-     Handle<double> weightprod;
+     edm::Handle<double> weightprod;
      iEvent.getByToken( m_doubleToken, weightprod );
 
      weight = *weightprod;
@@ -169,7 +168,7 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
 
 
-   Handle<std::vector<PileupSummaryInfo> >  pileupinfos;
+   edm::Handle<std::vector<PileupSummaryInfo> >  pileupinfos;
    iEvent.getByToken( m_vecPileupSummaryInfoToken, pileupinfos );
 
    //
@@ -210,7 +209,7 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
    // main interaction part
 
-   Handle< HepMCProduct > EvtHandle ;
+   edm::Handle< edm::HepMCProduct > EvtHandle ;
    iEvent.getByToken( m_hepMCProductToken, EvtHandle );
 
    if(EvtHandle.isValid()) {
