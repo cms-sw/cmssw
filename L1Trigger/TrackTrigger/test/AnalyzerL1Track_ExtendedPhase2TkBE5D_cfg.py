@@ -59,10 +59,15 @@ process.maxEvents = cms.untracked.PSet(
 ################################################################################################
 # produce the L1 Tracks
 ################################################################################################
-process.load('L1Trigger.TrackFindingTracklet.L1TTrack_cfi')
-process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
+
 process.BeamSpotFromSim = cms.EDProducer("BeamSpotFromSimProducer")
+process.load('L1Trigger.TrackFindingTracklet.L1TTrack_cfi')
 process.TrackFindingTracklet_step = cms.Path(process.BeamSpotFromSim*process.TTTracksFromPixelDigisTracklet)
+
+process.load('L1Trigger.TrackFindingAM.L1AMTrack_cfi')
+process.TrackFindingAM_step = cms.Path(process.TTTracksFromPixelDigisAM)
+
+process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
 process.L1TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 
 
@@ -76,8 +81,11 @@ process.AnalyzerL1Track = cms.EDAnalyzer("AnalyzerL1Track",
     TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
     TTStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
     TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
-    TTTracks       = cms.InputTag("TTTracksFromPixelDigisTracklet", "TrackletBasedL1Tracks"),
-    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "TrackletBasedL1Tracks"),
+    #TTTracks       = cms.InputTag("TTTracksFromPixelDigisTracklet", "TrackletBasedL1Tracks"),
+    #TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "TrackletBasedL1Tracks"),
+
+    TTTracks       = cms.InputTag("TTTracksFromPixelDigisAM", "AML1Tracks"),
+    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "AML1Tracks"),
 
     vLimitsPt  = cms.vdouble( 5.0,
                               15.0,
@@ -116,10 +124,14 @@ process.TFileService = cms.Service("TFileService",
 #################################################################################################
 process.p = cms.Path( process.AnalyzerL1Track )
 
-
 process.eca = cms.EDAnalyzer("EventContentAnalyzer")
 process.eca_step = cms.Path(process.eca)
 
+process.schedule = cms.Schedule(
+process.TrackFindingTracklet_step,
+process.TrackFindingAM_step,
+process.L1TTAssociator_step,
+#process.eca_step,
+process.p
+)
 
-process.schedule = cms.Schedule( process.TrackFindingTracklet_step,process.L1TTAssociator_step,#process.eca_step,
-process.p)
