@@ -16,6 +16,11 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+
+
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
 /*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 
 /**
@@ -56,7 +61,8 @@ namespace TopDiLeptonOffline {
     /// book histograms in subdirectory _directory_
     void book(std::string directory);
     /// fill monitor histograms with electronId and jetCorrections
-    void fill(const edm::Event& event, const edm::EventSetup& setup);
+    //void fill(const edm::Event& event, const edm::EventSetup& setup);
+    void fill(const edm::Event& event, const edm::EventSetup& setup, edm::Handle<edm::TriggerResults> triggerTable, edm::Handle<edm::View<reco::Muon> > muons, edm::Handle<edm::ValueMap<float> > electronId, edm::Handle<edm::View<reco::GsfElectron> > elecs, edm::Handle<edm::View<reco::Jet> > jets, edm::Handle<reco::JetIDValueMap> jetID, std::vector< edm::Handle<edm::View<reco::MET> > > mets);
 
   private:
     /// deduce monitorPath from label, the label is expected
@@ -91,6 +97,7 @@ namespace TopDiLeptonOffline {
     std::string label_;
     /// input sources for monitoring
     edm::InputTag elecs_, muons_, jets_; 
+
     /// considers a vector of METs
     std::vector<edm::InputTag> mets_;
 
@@ -288,7 +295,22 @@ class TopHLTDiLeptonOfflineDQM : public edm::EDAnalyzer  {
   /// the configuration of the selection for the SelectionStep class, 
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
-    std::map<std::string, std::pair<edm::ParameterSet, TopDiLeptonOffline::MonitorEnsemble*> > selection_;
+  std::map<std::string, std::pair<edm::ParameterSet, TopDiLeptonOffline::MonitorEnsemble*> > selection_;
+
+  std::vector<edm::InputTag> metsTemp_;
+
+  edm::EDGetTokenT< edm::View<reco::Muon> > muonsToken_;
+  edm::EDGetTokenT< edm::View<reco::GsfElectron> > elecsToken_;
+  edm::EDGetTokenT< edm::View<reco::Jet> > jetsToken_;
+
+  edm::EDGetTokenT< edm::ValueMap<float> > electronIdToken_;
+  edm::EDGetTokenT<reco::JetIDValueMap> jetIDToken_;
+
+  edm::EDGetTokenT<edm::TriggerResults> triggerTableToken_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> > vertexToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+
+  std::vector< edm::EDGetTokenT< edm::View<reco::MET> > > metsTokens_;
 };
 
 #endif

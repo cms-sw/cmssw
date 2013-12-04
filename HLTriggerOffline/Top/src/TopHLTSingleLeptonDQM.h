@@ -51,7 +51,7 @@ namespace TopHLTSingleLepton {
     /// book histograms in subdirectory _directory_
     void book(std::string directory);
     /// fill monitor histograms with electronId and jetCorrections
-    void fill(const edm::Event& event, const edm::EventSetup& setup);
+    void fill(const edm::Event& event, const edm::EventSetup& setup, edm::Handle<edm::TriggerResults> triggerTable, edm::Handle<edm::View<reco::Vertex> > pvs, edm::Handle<edm::View<reco::Muon> > muons, edm::Handle<edm::ValueMap<float> > electronId, edm::Handle<edm::View<reco::GsfElectron> > elecs, edm::Handle<edm::View<reco::Jet> > jets, edm::Handle<reco::JetIDValueMap> jetID, edm::Handle<reco::JetTagCollection> btagEff, edm::Handle<reco::JetTagCollection> btagPur, edm::Handle<reco::JetTagCollection> btagVtx, std::vector< edm::Handle<edm::View<reco::MET> > > mets);
 
   private:
     /// deduce monitorPath from label, the label is expected
@@ -255,6 +255,24 @@ class TopHLTSingleLeptonDQM : public edm::EDAnalyzer  {
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
   std::map<std::string, std::pair<edm::ParameterSet, TopHLTSingleLepton::MonitorEnsemble*> > selection_;
+
+  std::vector<edm::InputTag> metsTemp_;
+
+  edm::EDGetTokenT< edm::View<reco::Muon> > muonsToken_;
+  edm::EDGetTokenT< edm::View<reco::GsfElectron> > elecsToken_;
+  edm::EDGetTokenT< edm::View<reco::Jet> > jetsToken_;
+
+  edm::EDGetTokenT< edm::ValueMap<float> > electronIdToken_;
+  edm::EDGetTokenT<reco::JetIDValueMap> jetIDToken_;
+
+  edm::EDGetTokenT<edm::TriggerResults> triggerTableToken_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> > vertexToken_;
+  edm::EDGetTokenT< edm::View<reco::Vertex> > pvsToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+
+  edm::EDGetTokenT<reco::JetTagCollection> btagEffToken_, btagPurToken_, btagVtxToken_;
+
+  std::vector< edm::EDGetTokenT< edm::View<reco::MET> > > metsTokens_;
 };
 
 #endif
