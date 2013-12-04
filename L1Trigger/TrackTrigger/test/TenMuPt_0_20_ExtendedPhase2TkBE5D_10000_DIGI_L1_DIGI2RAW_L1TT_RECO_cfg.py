@@ -94,7 +94,7 @@ process.eca_step = cms.Path(process.eca)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,
-process.L1TrackTrigger_step,#process.L1TTAssociator_step,
+process.L1TrackTrigger_step,process.L1TTAssociator_step,
 process.reconstruction_step,
 process.endjob_step,process.FEVTDEBUGoutput_step)#,process.eca_step)
 

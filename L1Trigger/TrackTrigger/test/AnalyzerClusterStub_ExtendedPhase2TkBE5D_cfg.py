@@ -42,7 +42,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #################################################################################################
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-     fileNames = cms.untracked.vstring('file:TenElePt_0_20_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
+     fileNames = cms.untracked.vstring('file:TenMuPt_0_20_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
 #     fileNames = cms.untracked.vstring('file:TenMuPt_0_20_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO_140PU.root')
 #     fileNames = cms.untracked.vstring('file:test.root')
 
@@ -74,7 +74,7 @@ process.AnalyzerClusterStub = cms.EDAnalyzer("AnalyzerClusterStub",
 process.TFileService = cms.Service("TFileService",
 #  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_MuonPU140.root')
 #  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_Pion.root')
-  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_Ele.root')
+  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_Muon.root')
 #  fileName = cms.string('file:AnalyzerClusterStub_ExtendedPhase2TkBE5D_DYTauTau.root')
 )
 

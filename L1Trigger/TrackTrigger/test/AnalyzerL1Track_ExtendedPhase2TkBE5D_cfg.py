@@ -42,22 +42,11 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #################################################################################################
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-     fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/p/pozzo/workspace0/CMSSW_6_2_0_SLHC1/src/L1Trigger/TrackTrigger/test/TenMuPt_0_100_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
-#     fileNames = cms.untracked.vstring('file:TenMuPt_0_20_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
-#     fileNames = cms.untracked.vstring('file:TenPiPt_0_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
-#     fileNames = cms.untracked.vstring('file:TenElePt_0_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
-
-#     fileNames = cms.untracked.vstring('file:TenMuPt_0_100_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
-
-#     fileNames = cms.untracked.vstring('file:DYTauTau_ExtendedPhase2TkBE5D_750_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
-
-
+     fileNames = cms.untracked.vstring('file:TenMuPt_0_20_ExtendedPhase2TkBE5D_10000_DIGI_L1_DIGI2RAW_L1TT_RECO.root')
 #     fileNames = cms.untracked.vstring('file:TenMuPt_2_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root',
 #                                       'file:TenMuPt_10_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root',
 #                                       'file:TenMuPt_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root'
 #     )
-
-
 #     fileNames = cms.untracked.vstring( 'file:TenMuPt_0_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root',
 #                                        'file:TenPiPt_0_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root',
 #                                        'file:TenElePt_0_50_ExtendedPhase2TkBE5D_5000_DIGI_L1_DIGI2RAW_L1TT_RECO.root' )
@@ -70,9 +59,10 @@ process.maxEvents = cms.untracked.PSet(
 ################################################################################################
 # produce the L1 Tracks
 ################################################################################################
-process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
+process.load('L1Trigger.TrackFindingTracklet.L1TTrack_cfi')
 process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
-process.L1TrackTrigger_step = cms.Path(process.TrackTriggerTracks)
+process.BeamSpotFromSim = cms.EDProducer("BeamSpotFromSimProducer")
+process.TrackFindingTracklet_step = cms.Path(process.BeamSpotFromSim*process.TTTracksFromPixelDigisTracklet)
 process.L1TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 
 
@@ -81,6 +71,14 @@ process.L1TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 #################################################################################################
 process.AnalyzerL1Track = cms.EDAnalyzer("AnalyzerL1Track",
     DebugMode = cms.bool(True),
+
+    TTClusters       = cms.InputTag("TTStubsFromPixelDigis", "ClusterAccepted"),
+    TTClusterMCTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
+    TTStubs       = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+    TTStubMCTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
+    TTTracks       = cms.InputTag("TTTracksFromPixelDigisTracklet", "TrackletBasedL1Tracks"),
+    TTTrackMCTruth = cms.InputTag("TTTrackAssociatorFromPixelDigis", "TrackletBasedL1Tracks"),
+
     vLimitsPt  = cms.vdouble( 5.0,
                               15.0,
                               9999.99
@@ -111,17 +109,6 @@ process.AnalyzerL1Track = cms.EDAnalyzer("AnalyzerL1Track",
 #################################################################################################
 process.TFileService = cms.Service("TFileService",
   fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_Muon0100GeVNEWFIT.root')
-
-#  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_Pion050GeV.root')
-#  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_Ele.root')
-
-
-#  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_Muon210100L1.root')
-
-
-#  fileName = cms.string('file:AnalyzerL1Track_ExtendedPhase2TkBE5D_DYTauTau.root')
-
-#fileName = cms.string('file:TEST.root')
 )
 
 #################################################################################################
@@ -129,6 +116,10 @@ process.TFileService = cms.Service("TFileService",
 #################################################################################################
 process.p = cms.Path( process.AnalyzerL1Track )
 
-process.schedule = cms.Schedule( process.L1TrackTrigger_step,process.L1TTAssociator_step,process.p )
+
+process.eca = cms.EDAnalyzer("EventContentAnalyzer")
+process.eca_step = cms.Path(process.eca)
 
 
+process.schedule = cms.Schedule( process.TrackFindingTracklet_step,process.L1TTAssociator_step,#process.eca_step,
+process.p)
