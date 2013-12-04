@@ -1046,56 +1046,13 @@ class HEff4DHit{
                                 100, -2, 2);
       hEffVsBeta     = 0;
 
+      hNSeg =0; hNSeg            = dbe_->book1D(pre+"_hNSeg", "Number of rec segment per sim seg",
+                                 20, 0, 20);
+
     }
-/*
-     HEff4DHit (TString name_, TFile* file){
-      name=name_;
-      hEtaSimSegm = (TH1F *) file->Get("DQMData/4D_"+name+"_hEtaSimSegm");
-      hEtaRecHit = (TH1F *) file->Get("DQMData/4D_"+name+"_hEtaRecHit");
-      hEffVsEta = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsEta");
-
-      hPhiSimSegm = (TH1F *) file->Get("DQMData/4D_"+name+"_hPhiSimSegm");
-      hPhiRecHit = (TH1F *) file->Get("DQMData/4D_"+name+"_hPhiRecHit");
-      hEffVsPhi = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsPhi");
-
-      hXSimSegm  = (TH1F *) file->Get("DQMData/4D_"+name+"_hXSimSegm");
-      hXRecHit  = (TH1F *) file->Get("DQMData/4D_"+name+"_hXRecHit");
-      hEffVsX  = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsX");
-
-      hYSimSegm  = (TH1F *) file->Get("DQMData/4D_"+name+"_hYSimSegm");
-      hYRecHit  = (TH1F *) file->Get("DQMData/4D_"+name+"_hYRecHit");
-      hEffVsY  = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsY");
-
-      hAlphaSimSegm  = (TH1F *) file->Get("DQMData/4D_"+name+"_hAlphaSimSegm");
-      hAlphaRecHit  = (TH1F *) file->Get("DQMData/4D_"+name+"_hAlphaRecHit");
-      hEffVsAlpha  = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsAlpha");
-
-      hBetaSimSegm  = (TH1F *) file->Get("DQMData/4D_"+name+"_hBetaSimSegm");
-      hBetaRecHit  = (TH1F *) file->Get("DQMData/4D_"+name+"_hBetaRecHit");
-      hEffVsBeta  = (TH1F *) file->Get("DQMData/4D_"+name+"_hEffVsBeta");
-      }
-*/
 
     ~HEff4DHit(){
 
-      /*delete hEtaSimSegm;   
-        delete hEtaRecHit;    
-        delete hEffVsEta;     
-        delete hPhiSimSegm;   
-        delete hPhiRecHit;    
-        delete hEffVsPhi;     
-        delete hXSimSegm;     
-        delete hXRecHit;      
-        delete hEffVsX;       
-        delete hYSimSegm;     
-        delete hYRecHit;      
-        delete hEffVsY;       
-        delete hAlphaSimSegm; 
-        delete hAlphaRecHit;  
-        delete hEffVsAlpha;   
-        delete hBetaSimSegm;  
-        delete hBetaRecHit;   
-        delete hEffVsBeta;*/    
     }
     
     void Fill(float etaSimSegm,
@@ -1104,7 +1061,8 @@ class HEff4DHit{
               float ySimSegm,
               float alphaSimSegm,
               float betaSimSegm,
-              bool fillRecHit) {
+              bool fillRecHit,
+              int nSeg) {
 
       hEtaSimSegm->Fill(etaSimSegm);
       hPhiSimSegm->Fill(phiSimSegm);
@@ -1112,6 +1070,7 @@ class HEff4DHit{
       hYSimSegm->Fill(ySimSegm);
       hAlphaSimSegm->Fill(alphaSimSegm);
       hBetaSimSegm->Fill(betaSimSegm);
+      hNSeg->Fill(nSeg);
 
       if(fillRecHit) {
         hEtaRecHit->Fill(etaSimSegm);  
@@ -1232,34 +1191,6 @@ class HEff4DHit{
       }
     }
 
-    /*    void Write() {
-      hEtaSimSegm->Write();   
-      hEtaRecHit->Write();
-      if(hEffVsEta != 0)
-        hEffVsEta->Write();     
-      hPhiSimSegm->Write();   
-      hPhiRecHit->Write();    
-      if(hEffVsPhi != 0)
-        hEffVsPhi->Write();     
-      hXSimSegm->Write();     
-      hXRecHit->Write();      
-      if(hEffVsX != 0)
-        hEffVsX->Write();       
-      hYSimSegm->Write();     
-      hYRecHit->Write();      
-      if(hEffVsY != 0)
-        hEffVsY->Write();       
-      hAlphaSimSegm->Write(); 
-      hAlphaRecHit->Write();  
-      if(hEffVsAlpha != 0)
-        hEffVsAlpha->Write();   
-      hBetaSimSegm->Write();  
-      hBetaRecHit->Write();   
-      if(hEffVsBeta != 0)
-        hEffVsBeta->Write();    
-
-	}*/
-
   public:
     MonitorElement *hEtaSimSegm;   
     MonitorElement *hEtaRecHit;    
@@ -1279,6 +1210,7 @@ class HEff4DHit{
     MonitorElement *hBetaSimSegm;  
     MonitorElement *hBetaRecHit;   
     TH1F *hEffVsBeta;    
+    MonitorElement *hNSeg;    
 
     TString name;
 

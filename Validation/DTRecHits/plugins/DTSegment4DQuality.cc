@@ -225,6 +225,8 @@ void DTSegment4DQuality::endJob() {
       //Position (in eta,phi coordinates) in lobal RF
       float etaSimSeg = simSegmGlobalPos.eta(); 
       float phiSimSeg = simSegmGlobalPos.phi();
+	
+      double count_seg = 0;
 
       if(debug)
         cout<<"  Simulated segment:  local direction "<<simSegmLocalDir<<endl
@@ -284,6 +286,7 @@ void DTSegment4DQuality::endJob() {
 	  
           if ((fabs(recSegPosition.x()-simSegmLocalPos.x())<4)       // require rec and sim segments to be ~in the same cell in x
 	      && ((fabs(recSegPosition.y()-simSegmLocalPos.y())<4)||(*segment4D).dimension()<4)) { // ~in the same cell in y, if segment has the theta view
+	    ++count_seg;
 
 	    if (fabs(dAlphaRecSim-deltaAlpha) < epsilon) { // Numerically equivalent alphas, choose based on beta	      
 	      if (dBetaRecSim < deltaBeta) {
@@ -486,9 +489,9 @@ void DTSegment4DQuality::endJob() {
 	  heff = hEff_W1;
 	else if(abs(wheel) == 2)
 	  heff = hEff_W2;
-	heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-	hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-	if (local) hEffWS[abs(wheel)][station-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+	heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound,count_seg);
+	hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound,count_seg);
+	if (local) hEffWS[abs(wheel)][station-1]->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound,count_seg);
 
       }
     } // End of loop over chambers

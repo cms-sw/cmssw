@@ -699,7 +699,10 @@ class HEff4DHit{
     hBetaRecHit    = new TH1F("4D_"+N+"_hBetaRecHit", "Beta of SimHit segment with 4D RecHit (rad)",
 			      100, -2, 2);
     hEffVsBeta     = 0;
-    
+
+    hNSeg          = new TH1F(" 4D_"+N+"_hNSeg", "Number of rec segment per sim seg",
+                                 20, 0, 20);
+
   }
   
   void initFromFile (TString name_, TFile* file){
@@ -729,6 +732,8 @@ class HEff4DHit{
       hBetaRecHit  = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hBetaRecHit");
       hEffVsBeta  = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hEffVsBeta");
 
+      hNSeg  = (TH1F *) file->Get("DQMData/Run 1/DT/Run summary/4DSegments/4D_"+name+"_hNSeg");
+
       ComputeEfficiency();
 
     }
@@ -742,7 +747,8 @@ class HEff4DHit{
               float ySimSegm,
               float alphaSimSegm,
               float betaSimSegm,
-              bool fillRecHit) {
+              bool fillRecHit,
+              int nSeg) {
 
       hEtaSimSegm->Fill(etaSimSegm);
       hPhiSimSegm->Fill(phiSimSegm);
@@ -750,6 +756,7 @@ class HEff4DHit{
       hYSimSegm->Fill(ySimSegm);
       hAlphaSimSegm->Fill(alphaSimSegm);
       hBetaSimSegm->Fill(betaSimSegm);
+      hNSeg->Fill(nSeg);
 
       if(fillRecHit) {
         hEtaRecHit->Fill(etaSimSegm);  
@@ -884,7 +891,8 @@ class HEff4DHit{
     TH1F *hBetaSimSegm;  
     TH1F *hBetaRecHit;   
     TH1F *hEffVsBeta;    
-
+    TH1F *hNSeg;    
+ 
     TString name;
 
 };
