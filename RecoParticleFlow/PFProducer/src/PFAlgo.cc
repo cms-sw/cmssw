@@ -222,6 +222,8 @@ void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
 				 double ph_MinEt,
 				 double ph_combIso,
 				 double ph_HoE,
+				 double ph_sietaieta_eb,
+				 double ph_sietaieta_ee,
 				 const edm::ParameterSet& ph_protectionsForJetMET
 				 )
 {
@@ -246,6 +248,8 @@ void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
   pfegamma_ =  new PFEGammaFilters(ph_MinEt,
 				   ph_combIso,
 				   ph_HoE,
+				   ph_sietaieta_eb,
+				   ph_sietaieta_ee,
 				   ph_protectionsForJetMET,
 				   ele_iso_pt,
 				   ele_iso_mva_barrel,
