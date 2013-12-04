@@ -4,7 +4,7 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Auth.h"
 
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "CondCore/CondDB/interface/IOVProxy.h"
 
@@ -76,9 +76,9 @@ int cond::MigrateUtilities::execute(){
     metadata.listAllTags( tagToProcess );
   }
 
-  persistency::Session session;
+  persistency::ConnectionPool connPool;
   std::cout <<"# Opening session on destination database..."<<std::endl;
-  session.open( destConnect );
+  persistency::Session session = connPool.createSession( destConnect, true );
     
   session.transaction().start( false );
   if( !session.existsDatabase() ) session.createDatabase();
@@ -127,7 +127,7 @@ int cond::MigrateUtilities::execute(){
       int tt = (int) sourceIov.timetype();
       std::string payloadType = *(sourceIov.payloadClasses().begin());
       std::cout <<"    Importing tag. Size:"<<sourceIov.size()<<" timeType:"<<cond::timeTypeNames(tt)<<" payloadObjectType=\""<<payloadType<<"\""<<std::endl;
-      editor = session.createIov( destTag, (cond::TimeType)tt, payloadType );
+      editor = session.createIov( payloadType, destTag, (cond::TimeType)tt );
       editor.setDescription( "Tag "+t+" migrated from "+sourceConnect  );
       for(  auto iov : sourceIov ){
 	Time_t s = iov.since();
