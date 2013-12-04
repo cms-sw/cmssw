@@ -39,7 +39,6 @@ class TH1F;
 class TrackerGeometry;
 class SiPixelGaussianSmearingRecHitConverterAlgorithm;
 class SiStripGaussianSmearingRecHitConverterAlgorithm;
-class RandomEngine;
 
 namespace edm { 
   class ParameterSet;
@@ -47,6 +46,7 @@ namespace edm {
   class EventSetup;
 }
 
+class RandomEngineAndDistribution;
 class TrackerTopology;
 
 class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
@@ -67,7 +67,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //  void smearHits(edm::Handle<std::vector<PSimHit> >& input,
                  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits,
                  std::map<unsigned, edm::OwnVector<FastTrackerCluster> >& theClusters,
-		 const TrackerTopology *tTopo);
+		 const TrackerTopology *tTopo,
+                 RandomEngineAndDistribution const*);
 
  void  matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		  std::map<unsigned, edm::OwnVector<SiTrackerGSMatchedRecHit2D> >& matchedMap);//,
@@ -92,7 +93,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 			LocalError& error, 
 			unsigned& alphaMult, 
 			unsigned& betaMult,
-			const TrackerTopology *tTopo);
+			const TrackerTopology *tTopo,
+                        RandomEngineAndDistribution const*);
   //
   void loadPixelData();
   //
@@ -245,9 +247,6 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   typedef edm::PSimHitContainer::const_iterator SimHiterator;
   std::vector<SimHiterator> correspondingSimHit;
 
-  // The random engine
-  const RandomEngine* random;
-  
   typedef SiTrackerGSRecHit2D::ClusterRef ClusterRef;
   typedef SiTrackerGSRecHit2D::ClusterRefProd ClusterRefProd;
   // Added for cluster reference

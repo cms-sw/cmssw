@@ -21,15 +21,14 @@
  */ 
 
 class ParticlePropagator;
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class MultipleScatteringSimulator : public MaterialEffectsSimulator
 {
  public:
 
   /// Default Constructor
-  MultipleScatteringSimulator(const RandomEngine* engine, 
-			      double A, double Z, double density, double radLen);
+  MultipleScatteringSimulator(double A, double Z, double density, double radLen);
 
   /// Default Destructor
   ~MultipleScatteringSimulator() {} ;
@@ -37,7 +36,7 @@ class MultipleScatteringSimulator : public MaterialEffectsSimulator
  private:
 
   /// The real dE/dx generation and particle update
-  void compute(ParticlePropagator &Particle);
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*);
 
  private: 
   

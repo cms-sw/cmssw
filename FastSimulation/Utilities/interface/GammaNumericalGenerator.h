@@ -7,16 +7,15 @@
  *  Copy of LandauFluctuations
  */
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class GammaNumericalGenerator : public BaseNumericalRandomGenerator
 {
  public:
 
   /// Constructor : initialization of the Random Generator
-   GammaNumericalGenerator(const RandomEngine* engine, 
-			   double a=0,double b=0,double x1=0,double x2=0) : 
-     BaseNumericalRandomGenerator(engine,x1,x2,1000),
+   GammaNumericalGenerator(double a=0,double b=0,double x1=0,double x2=0) :
+     BaseNumericalRandomGenerator(x1,x2,1000),
      a_(a),b_(b),valid(false) {
 
     if(a>0&&b>0) 
@@ -30,11 +29,11 @@ class GammaNumericalGenerator : public BaseNumericalRandomGenerator
   virtual ~GammaNumericalGenerator() {}
 
   /// Random generator 
-  double gamma() const { return generate(); }
+  double gamma(RandomEngineAndDistribution const* random) const { return generate(random); }
   
-  double gamma_exp() const {return generateExp();}
+  double gamma_exp(RandomEngineAndDistribution const* random) const {return generateExp(random);}
 
-  double gamma_lin() const {return generateLin();}
+  double gamma_lin(RandomEngineAndDistribution const* random) const {return generateLin(random);}
 
   /// The probability density function implementation
   virtual double function(double x) { return ersatzt(x); }

@@ -1,13 +1,11 @@
 #include "FastSimulation/Utilities/interface/BaseNumericalRandomGenerator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <cmath>
 // #include <iostream>
 
 BaseNumericalRandomGenerator::BaseNumericalRandomGenerator(
-			      const RandomEngine* engine,
 			      double xmin, double xmax, int n, int iter ) :
-  random(engine),
   xmin(xmin), xmax(xmax), n(n), iter(iter) 
 {
   f.resize(n);
@@ -81,7 +79,7 @@ BaseNumericalRandomGenerator::initialize() {
 }
 
 double 
-BaseNumericalRandomGenerator::generate() const {
+BaseNumericalRandomGenerator::generate(RandomEngineAndDistribution const* random) const {
 
   double r=rmin+deltar*random->flatShoot();
   int i=(int)r;
@@ -92,7 +90,7 @@ BaseNumericalRandomGenerator::generate() const {
 }
 
 double 
-BaseNumericalRandomGenerator::generateExp() const {
+BaseNumericalRandomGenerator::generateExp(RandomEngineAndDistribution const* random) const {
 
   double r=rmin+deltar*random->flatShoot();
   int i=(int)r;
@@ -110,7 +108,7 @@ BaseNumericalRandomGenerator::generateExp() const {
 }
 
 double 
-BaseNumericalRandomGenerator::generateLin() const {
+BaseNumericalRandomGenerator::generateLin(RandomEngineAndDistribution const* random) const {
 
   double r=rmin+deltar*random->flatShoot();
   int i=(int)r;
