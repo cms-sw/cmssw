@@ -105,7 +105,7 @@ public:
    }
    ObjectWithDict const* product() const { 
      if(this->failedToGet()) {
-       whyFailedFactory_()->raise();
+       whyFailedFactory_->make()->raise();
      } 
      return &prod_;
    }
@@ -119,14 +119,14 @@ public:
 
    void clear() { prov_ = 0; whyFailedFactory_=nullptr;}
       
-  void setWhyFailedFactory(std::function<std::shared_ptr<cms::Exception>()> const& iWhyFailed) {
+  void setWhyFailedFactory(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) {
     whyFailedFactory_=iWhyFailed;
   }
 private:
    TypeWithDict type_;
    ObjectWithDict prod_;
    Provenance const* prov_;    
-  std::function<std::shared_ptr<cms::Exception>()> whyFailedFactory_;
+  std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
 
 };
 

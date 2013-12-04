@@ -6,6 +6,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
@@ -457,9 +458,9 @@ namespace edm {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, mcc);
     if(result == 0) {
-      return BasicHandle([=]()->std::shared_ptr<cms::Exception> {
+      return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
         return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
-      });
+      }));
     }
     return BasicHandle(*result);
   }
@@ -475,9 +476,9 @@ namespace edm {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer, mcc);
     if(result == 0) {
-      return BasicHandle([=]()->std::shared_ptr<cms::Exception> {
+      return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
         return makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
-      });
+      }));
     }
     return BasicHandle(*result);
   }

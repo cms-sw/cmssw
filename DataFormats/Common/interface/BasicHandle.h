@@ -30,11 +30,12 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
+#include "DataFormats/Common/interface/HandleExceptionFactory.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 
 #include <memory>
-#include <functional>
+#include "DataFormats/Common/interface/HideStdSharedPtrFromRoot.h"
 
 namespace cms {
   class Exception;
@@ -54,8 +55,10 @@ namespace edm {
       prov_(h.prov_),
       whyFailedFactory_(h.whyFailedFactory_){}
 
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     BasicHandle(BasicHandle &&h) = default;
-
+#endif
+    
     BasicHandle(void const* iProd, WrapperInterfaceBase const* iInterface, Provenance const* iProv) :
       product_(WrapperHolder(iProd, iInterface)),
       prov_(iProv) {
@@ -72,7 +75,7 @@ namespace edm {
     }
 
     ///Used when the attempt to get the data failed
-    BasicHandle(std::function<std::shared_ptr<cms::Exception>()> const& iWhyFailed):
+    BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed):
     product_(),
     prov_(0),
     whyFailedFactory_(iWhyFailed) {}
@@ -121,21 +124,21 @@ namespace edm {
     }
 
     std::shared_ptr<cms::Exception> whyFailed() const {
-      return whyFailedFactory_();
+      return whyFailedFactory_->make();
     }
     
-    std::function<std::shared_ptr<cms::Exception>()> const& whyFailedFactory() const {
+    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const {
       return whyFailedFactory_;
     }
     
-    std::function<std::shared_ptr<cms::Exception>()>& whyFailedFactory()  {
+    std::shared_ptr<HandleExceptionFactory>& whyFailedFactory()  {
       return whyFailedFactory_;
     }
 
   private:
     WrapperHolder product_;
     Provenance const* prov_;
-    std::function<std::shared_ptr<cms::Exception>()> whyFailedFactory_;
+    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };
 
   // Free swap function
@@ -145,10 +148,5 @@ namespace edm {
     a.swap(b);
   }
 }
-#else
-namespace edm {
-  class BasicHandle;
-}
-#endif
 
 #endif

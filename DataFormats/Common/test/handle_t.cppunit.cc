@@ -1,6 +1,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 class testHandle : public CppUnit::TestFixture {
@@ -67,9 +68,9 @@ testHandle::check()
   }
   
   {
-    Handle<int> hFail([]()->std::shared_ptr<cms::Exception> {
-      return std::shared_ptr<cms::Exception>(new cms::Exception("DUMMY"));
-    });
+    Handle<int> hFail(makeHandleExceptionFactory([]()->std::shared_ptr<cms::Exception> {
+      return std::make_shared<cms::Exception>("DUMMY");
+    }));
     
     CPPUNIT_ASSERT(not hFail.isValid());
     CPPUNIT_ASSERT(hFail.failedToGet());

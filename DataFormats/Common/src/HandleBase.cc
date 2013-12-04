@@ -6,7 +6,7 @@ namespace edm {
   void const*
   HandleBase::productStorage() const {
     if (whyFailedFactory_) {
-      throw *whyFailedFactory_();
+      throw *whyFailedFactory_->make();
     }
     return product_;
   }
@@ -14,7 +14,7 @@ namespace edm {
   ProductID
   HandleBase::id() const {
     if (whyFailedFactory_) {
-      throw *whyFailedFactory_();
+      throw *whyFailedFactory_->make();
     }
     return prov_->productID();
   }

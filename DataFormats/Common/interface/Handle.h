@@ -27,6 +27,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include <typeinfo>
 
 #include "DataFormats/Common/interface/HandleBase.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
 
@@ -40,8 +41,8 @@ namespace edm {
 
     Handle(T const* prod, Provenance const* prov);
     
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    Handle(std::function<std::shared_ptr<cms::Exception>()> &&);
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+    Handle(std::shared_ptr<HandleExceptionFactory> &&);
     Handle(Handle const&) = default;
     
     Handle& operator=(Handle&&) = default;
@@ -65,9 +66,9 @@ namespace edm {
   Handle<T>::Handle(T const* prod, Provenance const* prov) : HandleBase(prod, prov) { 
   }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   template <class T>
-  Handle<T>::Handle(std::function<std::shared_ptr<cms::Exception>()> && iWhyFailed) :
+  Handle<T>::Handle(std::shared_ptr<edm::HandleExceptionFactory> && iWhyFailed) :
   HandleBase(std::move(iWhyFailed))
   { }
 #endif

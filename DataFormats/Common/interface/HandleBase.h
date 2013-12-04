@@ -28,9 +28,13 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include <cassert>
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Common/interface/HandleExceptionFactory.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 
 #include <functional>
 #include <memory>
+#include "DataFormats/Common/interface/HideStdSharedPtrFromRoot.h"
 
 namespace cms {
   class Exception;
@@ -38,19 +42,45 @@ namespace cms {
 namespace edm {
   class HandleBase {
   public:
-    HandleBase();
-    HandleBase(void const* prod, Provenance const* prov);
-    ~HandleBase();
-    void clear();
+    HandleBase() :
+    product_(0),
+    prov_(0) {}
     
-    void swap(HandleBase& other);
-    HandleBase& operator=(HandleBase const& rhs);
+    HandleBase(void const* prod, Provenance const* prov) :
+    product_(prod), prov_(prov) {
+      assert(prod);
+      assert(prov);
+    }
+    
+    ~HandleBase() {}
+    
+    void clear() {
+      product_ = 0;
+      prov_ = 0;
+      whyFailedFactory_.reset();
+    }
+    
+    
+    void swap(HandleBase& other) {
+      using std::swap;
+      swap(product_, other.product_);
+      std::swap(prov_, other.prov_);
+      swap(whyFailedFactory_, other.whyFailedFactory_);
+    }
+    
+    HandleBase& operator=(HandleBase const& rhs) {
+      HandleBase temp(rhs);
+      this->swap(temp);
+      return *this;
+    }
     
     bool isValid() const {
       return product_ && prov_;
     }
     
-    bool failedToGet() const;
+    bool failedToGet() const {
+      return bool(whyFailedFactory_);
+    }
 
     
     Provenance const* provenance() const {
@@ -60,12 +90,12 @@ namespace edm {
     ProductID id() const;
     
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     HandleBase(HandleBase const&) = default;
     
 
     ///Used when the attempt to get the data failed
-    HandleBase(std::function<std::shared_ptr<cms::Exception>()>&& iWhyFailed) :
+    HandleBase(std::shared_ptr<HandleExceptionFactory>&& iWhyFailed) :
     product_(),
     prov_(0),
     whyFailedFactory_(iWhyFailed) {}
@@ -77,18 +107,18 @@ namespace edm {
       whyFailedFactory_ = std::move(rhs.whyFailedFactory_);
       return *this;
     }
-    
-    std::shared_ptr<cms::Exception> whyFailed() const {
-      if(whyFailedFactory_) {
-        return whyFailedFactory_();
-      }
-      return std::shared_ptr<cms::Exception>{};
-    }
-
-    std::function<std::shared_ptr<cms::Exception>()> const&
-    whyFailedFactory() const { return whyFailedFactory_;}
 #endif
+
+    std::shared_ptr<cms::Exception> whyFailed() const {
+      if(whyFailedFactory_.get()) {
+        return whyFailedFactory_->make();
+      }
+      return std::shared_ptr<cms::Exception>();
+    }
     
+    std::shared_ptr<HandleExceptionFactory> const&
+    whyFailedFactory() const { return whyFailedFactory_;}
+
   protected:
 
     void const* productStorage() const;
@@ -96,50 +126,8 @@ namespace edm {
   private:
     void const* product_;
     Provenance const* prov_;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    std::function<std::shared_ptr<cms::Exception>()> whyFailedFactory_;
-#else
-    void* whyFailedFactory_[4];
-#endif
+    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };
-
-
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-  inline HandleBase::HandleBase() :
-  product_(0),
-  prov_(0) {}
-
-  inline HandleBase::HandleBase(void const* prod, Provenance const* prov) :
-  product_(prod), prov_(prov) {
-    assert(prod);
-    assert(prov);
-  }
-  
-  inline  HandleBase::~HandleBase() {}
-
-  inline void HandleBase::clear() {
-    product_ = 0;
-    prov_ = 0;
-    whyFailedFactory_ =nullptr;
-  }
-  
-  inline void HandleBase::swap(HandleBase& other) {
-    using std::swap;
-    swap(product_, other.product_);
-    std::swap(prov_, other.prov_);
-    swap(whyFailedFactory_, other.whyFailedFactory_);
-  }
-  
-  inline HandleBase& HandleBase::operator=(HandleBase const& rhs) {
-    HandleBase temp(rhs);
-    this->swap(temp);
-    return *this;
-  }
-
-  inline bool HandleBase::failedToGet() const {
-    return bool(whyFailedFactory_);
-  }
-#endif
 
   // Free swap function
   inline
