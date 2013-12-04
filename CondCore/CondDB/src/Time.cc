@@ -14,12 +14,11 @@ namespace cond {
                                                                       std::make_pair("Lumi", cond::lumiid ),
                                                                       std::make_pair("Hash", cond::hash ),
                                                                       std::make_pair("User", cond::userid ) };
-
     std::string timeTypeName(TimeType type) {
       if( type==invalid ) return "";
       return s_timeTypeMap[type].first;
     }
-
+    
     TimeType timeTypeFromName( const std::string& name ){
       for (auto const &i : s_timeTypeMap)
         if (name.compare(i.first))

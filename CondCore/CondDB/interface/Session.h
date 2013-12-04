@@ -60,6 +60,9 @@ namespace cond {
       // default constructor
       Session();
       
+      // constructor
+      explicit Session( boost::shared_ptr<coral::ISessionProxy>& session );
+
       // 
       Session( const Session& rhs );
       
@@ -69,25 +72,15 @@ namespace cond {
       //
       Session& operator=( const Session& rhs );
       
-      // explicit connection. 
-      // an implicit connection with a string specified in the configuration could be added.
-      void open( const std::string& connectionString, bool readOnly=false );
-      
-      // TO BE REMOVED AFTER THE TRANSITION
-      // required for the transition, allow to share the underlying session with the ORA implementation 
-      void open( boost::shared_ptr<coral::ISessionProxy> coralSession );
-      
       // 
       void close();
-      
-      //
-      SessionConfiguration& configuration();
       
       //
       Transaction& transaction();
       
       //
       bool existsDatabase();
+
       //
       void createDatabase();
       
@@ -105,7 +98,7 @@ namespace cond {
       template <typename T>
       IOVEditor createIov( const std::string& tag, cond::TimeType timeType, 
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
-      IOVEditor createIov( const std::string& tag, cond::TimeType timeType, const std::string& payloadType, 
+      IOVEditor createIov(  const std::string& payloadType, const std::string& tag, cond::TimeType timeType,
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
       
       // update an existing iov sequence with the specified tag.
@@ -132,10 +125,8 @@ namespace cond {
       void addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destinationTag );
       
     private:
-      typedef enum { THROW, DO_NOT_THROW, CREATE } OpenFailurePolicy;
-      void openIovDb( OpenFailurePolicy policy = THROW );
-      void openGTDb();
-      cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime ); 
+      cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime );
+      bool isOraSession(); 
       
     private:
       
@@ -144,13 +135,13 @@ namespace cond {
     };
     
     template <typename T> inline IOVEditor Session::createIov( const std::string& tag, cond::TimeType timeType, cond::SynchronizationType synchronizationType ){
-      return createIov( tag, timeType, cond::demangledName( typeid(T) ), synchronizationType );
+      return createIov( cond::demangledName( typeid(T) ), tag, timeType, synchronizationType );
     }
     
     template <typename T> inline cond::Hash Session::storePayload( const T& payload, const boost::posix_time::ptime& creationTime ){
       
       std::string payloadObjectType = cond::demangledName(typeid(payload));
-      return storePayloadData( payloadObjectType, serialize( payload ), creationTime ); 
+      return storePayloadData( payloadObjectType, serialize( payload, isOraSession() ), creationTime ); 
     }
     
     template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
@@ -159,7 +150,7 @@ namespace cond {
       if(! fetchPayloadData( payloadHash, payloadType, payloadData ) ) 
 	throwException( "Payload with id="+payloadHash+" has not been found in the database.",
 			"Session::fetchPayload" );
-      return deserialize<T>(  payloadType, payloadData );
+      return deserialize<T>(  payloadType, payloadData, isOraSession() );
     }
 
   }

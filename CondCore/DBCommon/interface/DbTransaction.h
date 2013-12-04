@@ -19,7 +19,7 @@ namespace cond{
   class DbTransaction {
 
     public:
-    DbTransaction( ora::Transaction& dbTrans );   
+    DbTransaction( ora::Transaction& dbTrans, bool owned=true );   
     
     ~DbTransaction();
     /// start transaction
@@ -38,6 +38,7 @@ namespace cond{
     ora::Transaction& m_dbTrans;
     bool m_readOnly;
     int m_clients;
+    bool m_owned;
 
   };
 }

@@ -1,5 +1,4 @@
 #include "CondCore/CondDB/interface/IOVProxy.h"
-#include "IOVSchema.h"
 #include "SessionImpl.h"
 
 namespace cond {
@@ -121,7 +120,8 @@ namespace cond {
       
       checkSession( "IOVProxy::load" );
       std::string dummy;
-      if(!TAG::select( tag, m_data->timeType, m_data->payloadType, m_data->endOfValidity, dummy, m_data->lastValidatedTime, *m_session ) ){
+      if(!m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, 
+						    m_data->endOfValidity, dummy, m_data->lastValidatedTime ) ){
 	throwException( "Tag \""+tag+"\" has not been found in the database.","IOVProxy::load");
       }
       m_data->tag = tag;
@@ -130,11 +130,11 @@ namespace cond {
       if( full ) {
 	
 	// load the full iov sequence in this case!
-	IOV::selectLast( m_data->tag, m_data->iovSequence, *m_session );
+	m_session->iovSchema().iovTable().selectLast( m_data->tag, m_data->iovSequence );
 	m_data->lowerGroup = cond::time::MIN_VAL;
 	m_data->higherGroup = cond::time::MAX_VAL;
       } else {
-	IOV::selectGroups( m_data->tag, m_data->sinceGroups, *m_session );
+	m_session->iovSchema().iovTable().selectGroups( m_data->tag, m_data->sinceGroups );
       }
     }
     
@@ -178,7 +178,7 @@ namespace cond {
     
     void IOVProxy::fetchSequence( cond::Time_t lowerGroup, cond::Time_t higherGroup ){
       m_data->iovSequence.clear();
-      IOV::selectLastByGroup( m_data->tag, lowerGroup, higherGroup, m_data->iovSequence, *m_session );
+      m_session->iovSchema().iovTable().selectLastByGroup( m_data->tag, lowerGroup, higherGroup, m_data->iovSequence );
       
       m_data->lowerGroup = lowerGroup;
       m_data->higherGroup = higherGroup;
