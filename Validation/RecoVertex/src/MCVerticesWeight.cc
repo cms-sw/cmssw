@@ -58,8 +58,8 @@ class MCVerticesWeight : public edm::EDFilter {
       
       // ----------member data ---------------------------
 
-  edm::InputTag m_pileupcollection;
-  edm::InputTag m_mctruthcollection;
+  edm::EDGetTokenT< std::vector<PileupSummaryInfo> > m_vecPileupSummaryInfoToken;
+  edm::EDGetTokenT< edm::HepMCProduct > m_hepMCProductToken;
   const VertexWeighter m_weighter;
 
 };
@@ -75,10 +75,10 @@ class MCVerticesWeight : public edm::EDFilter {
 //
 // constructors and destructor
 //
-MCVerticesWeight::MCVerticesWeight(const edm::ParameterSet& iConfig):
-  m_pileupcollection(iConfig.getParameter<edm::InputTag>("pileupSummaryCollection")),
-  m_mctruthcollection(iConfig.getParameter<edm::InputTag>("mcTruthCollection")),
-  m_weighter(iConfig.getParameter<edm::ParameterSet>("weighterConfig"))
+MCVerticesWeight::MCVerticesWeight(const edm::ParameterSet& iConfig)
+  : m_vecPileupSummaryInfoToken( consumes< std::vector<PileupSummaryInfo> >( iConfig.getParameter< edm::InputTag >( "pileupSummaryCollection" ) ) )
+  , m_hepMCProductToken( consumes< edm::HepMCProduct >( iConfig.getParameter< edm::InputTag >( "mcTruthCollection" ) ) )
+  , m_weighter( iConfig.getParameter<edm::ParameterSet>( "weighterConfig" ) )
 {
 
   produces<double>();
@@ -109,7 +109,7 @@ MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double computed_weight(1);
 
   Handle<std::vector<PileupSummaryInfo> > pileupinfos;
-   iEvent.getByLabel(m_pileupcollection,pileupinfos);
+   iEvent.getByToken( m_vecPileupSummaryInfoToken, pileupinfos );
 
 
   // look for the intime PileupSummaryInfo
@@ -136,7 +136,7 @@ MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // main interaction part
      
      Handle< HepMCProduct > EvtHandle ;
-     iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
+     iEvent.getByToken( m_hepMCProductToken, EvtHandle );
      
      const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
      
