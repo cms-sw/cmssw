@@ -171,7 +171,7 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   iSetup.get<MuonGeometryRecord>().get(gem_geo_);
   gem_geometry_ = &*gem_geo_;
 
-   theGEMStripDigiValidation->setGeometry(gem_geometry_);
+  theGEMStripDigiValidation->setGeometry(gem_geometry_);
   theGEMCSCPadDigiValidation->setGeometry(gem_geometry_);
   theGEMCSCCoPadDigiValidation->setGeometry(gem_geometry_);
 
@@ -225,6 +225,8 @@ MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
   }
 
 
+  if( dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even") != nullptr) { 
+
   TH1F* gem_dg_lx_even[5];
   gem_dg_lx_even[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even")->getTH1F()->Clone(); 
   gem_dg_lx_even[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l1")->getTH1F()->Clone();
@@ -257,9 +259,6 @@ MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
   gem_dg_ly_odd[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l1and2")->getTH1F()->Clone();
 
 
-
-
-
   for ( int i= 0; i<5 ; i++) {
     gem_dg_lx_even[i]->Sumw2(); 
     gem_dg_ly_even[i]->Sumw2(); 
@@ -283,6 +282,7 @@ MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
     dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_odd[i]->GetName()),gem_dg_ly_odd[i] ); 
   }
 
+  } //
 
   //printf(" Call endRun!!\n");
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
