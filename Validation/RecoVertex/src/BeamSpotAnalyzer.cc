@@ -107,11 +107,10 @@ AnotherBeamSpotAnalyzer::~AnotherBeamSpotAnalyzer()
 void
 AnotherBeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
   
   // get BS
 
-  Handle<reco::BeamSpot> bs;
+  edm::Handle<reco::BeamSpot> bs;
   iEvent.getByToken(_recoBeamSpotToken,bs);
   _bshm.fill(iEvent.orbitNumber(),*bs);
 
