@@ -1,0 +1,10 @@
+<use   name="xerces-c"/>
+<use   name="boost"/>
+<lib   name="boost_serialization"/>
+<lib   name="boost_program_options"/>
+<use   name="root"/>
+<use   name="rootrflx"/>
+<export>
+  <flags   SEALPLUGIN="1"/>
+  <lib   name="1"/>
+</export>
