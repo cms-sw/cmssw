@@ -1,6 +1,8 @@
-#ifndef ConditionDatabase_Configuration_h
-#define ConditionDatabase_Configuration_h
+#ifndef ConditionDatabase_ConnectionPool_h
+#define ConditionDatabase_ConnectionPool_h
 
+#include "CondCore/CondDB/interface/Session.h"
+//
 #include <string>
 #include <memory>
 //
@@ -16,7 +18,6 @@ namespace coral {
 
 namespace cond {
   class CoralServiceManager;
-  class DbConnectionConfiguration;
 }
 
 namespace cond {
@@ -25,29 +26,31 @@ namespace cond {
     // 
     enum DbAuthenticationSystem { UndefinedAuthentication=0,CondDbKey, CoralXMLFile };
 
-    class SessionConfiguration {
+    class ConnectionPool {
     public:
-      SessionConfiguration();
-      ~SessionConfiguration();
-      
+      ConnectionPool();
+      ~ConnectionPool();
+
       void setMessageVerbosity( coral::MsgLevel level );
       void setAuthenticationPath( const std::string& p );
       void setAuthenticationSystem( int authSysCode );
       void setLogging( bool flag );   
       bool isLoggingEnabled() const;
       void setParameters( const edm::ParameterSet& connectionPset );
+      void configure();
+      Session createSession( const std::string& connectionString, bool writeCapable=false );
+      Session createReadOnlySession( const std::string& connectionString, const std::string& transactionId );
+      
+    private:
+      Session createSession( const std::string& connectionString, const std::string& transactionId, bool writeCapable=false );
       void configure( coral::IConnectionServiceConfiguration& coralConfig);
-      // to be removed after the transition
-      void configure( cond::DbConnectionConfiguration& oraConfiguration );
-      bool isConfigured() const;
     private:
       std::string m_authPath;
-      int m_authSys;
-      coral::MsgLevel m_messageLevel;
-      bool m_logging;
+      int m_authSys = 0;
+      coral::MsgLevel m_messageLevel = coral::Info;
+      bool m_loggingEnabled = false;
       // this one has to be moved!
-      cond::CoralServiceManager* m_pluginManager; 
-      bool m_configured = false;   
+      cond::CoralServiceManager* m_pluginManager = 0; 
     };
   }
 }

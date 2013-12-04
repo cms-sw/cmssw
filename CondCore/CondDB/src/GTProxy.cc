@@ -1,5 +1,4 @@
 #include "CondCore/CondDB/interface/GTProxy.h"
-#include "GTSchema.h"
 #include "SessionImpl.h"
 
 namespace cond {
@@ -92,13 +91,13 @@ namespace cond {
       
       checkSession( "GTProxy::load" );
       
-      if(!GLOBAL_TAG::select( gtName, m_data->validity, m_data->snapshotTime, *m_session ) ){
+      if(!m_session->gtSchema().gtTable().select( gtName, m_data->validity, m_data->snapshotTime ) ){
 	throwException( "Global Tag \""+gtName+"\" has not been found in the database.","GTProxy::load");
       }
       m_data->name = gtName;
       
       // load the full iov sequence in this case!
-      GLOBAL_TAG_MAP::select( m_data->name, m_data->tagList, *m_session );
+      m_session->gtSchema().gtMapTable().select( m_data->name, m_data->tagList );
       
     }
     

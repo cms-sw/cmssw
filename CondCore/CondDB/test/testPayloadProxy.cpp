@@ -4,7 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //
-#include "CondCore/CondDB/interface/CondDB.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
+#include "CondCore/CondDB/interface/PayloadProxy.h"
 //
 #include "MyTestData.h"
 //
@@ -13,21 +14,21 @@
 #include <cstdlib>
 #include <iostream>
 
-using namespace cond::db;
+using namespace cond::persistency;
 
 int main (int argc, char** argv)
 {
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-  std::string connectionString("sqlite_file:cms_conditions.db");
+  std::string connectionString("sqlite_file:cms_conditions_2.db");
   std::cout <<"# Connecting with db in "<<connectionString<<std::endl;
   try{
 
     //*************
-    Session session;
-    session.configuration().setMessageVerbosity( coral::Debug );
-    session.open( connectionString );
+    ConnectionPool connPool;
+    connPool.setMessageVerbosity( coral::Debug );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
     MyTestData d0( 20000 );
     MyTestData d1( 30000 );
@@ -39,7 +40,7 @@ int main (int argc, char** argv)
     std::string d3("abcd1234");
     cond::Hash p3 = session.storePayload( d3, boost::posix_time::microsec_clock::universal_time() );
 
-    IOVEditor editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber ); 
+    IOVEditor editor = session.createIov<MyTestData>( "MyNewIOV2", cond::runnumber ); 
     editor.setDescription("Test with MyTestData class");
     editor.insert( 1, p0 );
     editor.insert( 100, p1 );
@@ -47,7 +48,7 @@ int main (int argc, char** argv)
     editor.flush();
     std::cout <<"# iov changes flushed..."<<std::endl;
 
-    editor = session.createIov<std::string>( "StringData", cond::timestamp );
+    editor = session.createIov<std::string>( "StringData2", cond::timestamp );
     editor.setDescription("Test with std::string class");
     editor.insert( 1000000, p2 );
     editor.insert( 2000000, p3 );
@@ -60,7 +61,7 @@ int main (int argc, char** argv)
     PayloadProxy<MyTestData> pp0( session );
     PayloadProxy<std::string> pp1( session );
 
-    pp0.loadTag( "MyNewIOV" );
+    pp0.loadTag( "MyNewIOV2" );
     cond::ValidityInterval v1 = pp0.setIntervalFor( 25 );
     const MyTestData& rd0 = pp0();
     if( rd0 != d0 ){
@@ -83,10 +84,10 @@ int main (int argc, char** argv)
       std::cout << "MyTestData instance valid from "<< v3.first<<" to "<<v3.second<<std::endl; 
     }
 
-    pp1.loadTag( "StringData" );
+    pp1.loadTag( "StringData2" );
     try{
       pp1.setIntervalFor( 345 );
-    } catch ( cond::Exception& e ){
+    } catch ( cond::persistency::Exception& e ){
       std::cout <<"Expected error: "<<e.what()<<std::endl;
     }
     cond::ValidityInterval vs1 = pp1.setIntervalFor( 1000000 );
