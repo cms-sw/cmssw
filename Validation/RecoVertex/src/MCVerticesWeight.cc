@@ -102,13 +102,12 @@ MCVerticesWeight::~MCVerticesWeight()
 bool
 MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
   
-  bool selected = true;
-  
-  double computed_weight(1);
-
-  Handle<std::vector<PileupSummaryInfo> > pileupinfos;
+   bool selected = true;
+   
+   double computed_weight(1);
+   
+   edm::Handle<std::vector<PileupSummaryInfo> > pileupinfos;
    iEvent.getByToken( m_vecPileupSummaryInfoToken, pileupinfos );
 
 
@@ -135,7 +134,7 @@ MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      // main interaction part
      
-     Handle< HepMCProduct > EvtHandle ;
+     edm::Handle< edm::HepMCProduct > EvtHandle ;
      iEvent.getByToken( m_hepMCProductToken, EvtHandle );
      
      const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
