@@ -122,14 +122,14 @@ public:
   // Return the BIG pixel information for a given pixel
   //
   virtual bool isItBigPixelInX( const int ixbin ) const {
-    return (( m_upgradeGeometry )?(false):(( ixbin == 79 ) || ( ixbin == 80 )));
+    return (( m_upgradeGeometry )?(false):(( ixbin == 79 ) | ( ixbin == 80 )));
   } 
+
   virtual bool isItBigPixelInY( const int iybin ) const {
-      if( m_upgradeGeometry ) return false;
-      else
-      {
+      if unlikely( m_upgradeGeometry ) return false;
+      else {
 	int iybin0 = iybin%52;
- 	return(( iybin0 == 0 ) || ( iybin0 == 51 ));
+ 	return(( iybin0 == 0 ) | ( iybin0 == 51 ));
 	// constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
 	// return *std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),iybin) == iybin;
      }
@@ -138,21 +138,27 @@ public:
   //-------------------------------------------------------------
   // Return BIG pixel flag in a given pixel range
   //
-  bool containsBigPixelInX( const int& ixmin, const int& ixmax ) const;
-  bool containsBigPixelInY( const int& iymin, const int& iymax ) const;
+  bool containsBigPixelInX(int ixmin, int ixmax ) const {
+    return m_upgradeGeometry ? false :( (ixmin<=80) & (ixmax>=79) );
+  }
+  bool containsBigPixelInY(int iymin, int iymax ) const {
+    return  m_upgradeGeometry ? false :
+      ( isItBigPixelInY( iymin ) || isItBigPixelInY( iymax ) ||  (iymin/52) != (iymax/52) )
+      ;  
+  }
 
 
   //-------------------------------------------------------------
   // Check whether the pixel is at the edge of the module
   //
   bool isItEdgePixelInX (int ixbin) const {
-    return ( (ixbin == 0) || (ixbin == (m_nrows-1)) );
+    return ( (ixbin == 0) | (ixbin == (m_nrows-1)) );
   } 
   bool isItEdgePixelInY (int iybin) const {
-    return ( (iybin == 0) || (iybin == (m_ncols-1)) );
+    return ( (iybin == 0) | (iybin == (m_ncols-1)) );
   } 
   bool isItEdgePixel (int ixbin, int iybin) const {
-    return ( isItEdgePixelInX( ixbin ) || isItEdgePixelInY( iybin ) );
+    return ( isItEdgePixelInX( ixbin ) | isItEdgePixelInY( iybin ) );
   } 
 
   //------------------------------------------------------------------

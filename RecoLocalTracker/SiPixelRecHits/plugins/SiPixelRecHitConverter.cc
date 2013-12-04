@@ -150,10 +150,10 @@ namespace cms
       } //  <-- End loop on Clusters
 	
 
-      // LogDebug("SiPixelRecHitConverter")
+      //  LogDebug("SiPixelRecHitConverter")
       std::cout << "SiPixelRecHitConverterVI "
-	<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
-	<< std::endl;
+		<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
+		<< std::endl;
       
       
     } //    <-- End loop on DetUnits

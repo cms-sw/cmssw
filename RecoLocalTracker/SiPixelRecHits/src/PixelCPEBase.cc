@@ -98,18 +98,18 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   //--- This is a new det unit, so cache it
   theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
 
-  if ( !theDet ) 
-    {
+  if unlikely( !theDet ) {
       throw cms::Exception(" PixelCPEBase::setTheDet : ")
-            << " Wrong pointer to PixelGeomDetUnit object !!!";
+	<< " Wrong pointer to PixelGeomDetUnit object !!!";
     }
 
   theOrigin =   theDet->surface().toLocal(GlobalPoint(0,0,0));
 
   //--- theDet->type() returns a GeomDetType, which implements subDetector()
   thePart = theDet->type().subDetector();
-  switch ( thePart ) 
-    {
+
+#ifdef EDM_ML_DEBUG
+  switch ( thePart ) {
     case GeomDetEnumerators::PixelBarrel:
       // A barrel!  A barrel!
       break;
@@ -119,7 +119,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     default:
       throw cms::Exception("PixelCPEBase::setTheDet :")
       	<< "PixelCPEBase: A non-pixel detector type in here?" ;
-    }
+  }
+#endif
 
   //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
   //--- The call goes via BoundSurface, returned by theDet->surface(), but
@@ -181,36 +182,27 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   maxInX = cluster.maxPixelRow();
   maxInY = cluster.maxPixelCol();
   
-  if(theRecTopol->isItEdgePixelInX(minInX) || theRecTopol->isItEdgePixelInX(maxInX) ||
-     theRecTopol->isItEdgePixelInY(minInY) || theRecTopol->isItEdgePixelInY(maxInY) )  {
-    isOnEdge_ = true;
-  }
-  else isOnEdge_ = false;
+  isOnEdge_ = theRecTopol->isItEdgePixelInX(minInX) | theRecTopol->isItEdgePixelInX(maxInX) |
+	       theRecTopol->isItEdgePixelInY(minInY) | theRecTopol->isItEdgePixelInY(maxInY) ;
   
   // Bad Pixels have their charge set to 0 in the clusterizer 
   hasBadPixels_ = false;
   for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
-    if(cluster.pixelADC()[i] == 0) hasBadPixels_ = true;
+    if(cluster.pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   }
   
-  if(theRecTopol->containsBigPixelInX(minInX,maxInX) ||
-     theRecTopol->containsBigPixelInY(minInY,maxInY) )  {
-    spansTwoROCs_ = true;
-  }
-  else spansTwoROCs_ = false;
+  spansTwoROCs_ = theRecTopol->containsBigPixelInX(minInX,maxInX) |
+     theRecTopol->containsBigPixelInY(minInY,maxInY);
   
   
-  if (theVerboseLevel > 1) 
-    {
-      LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
-			       << " thePart = " << thePart
-			       << " theThickness = " << theThickness
-			       << " thePitchX  = " << thePitchX 
-			       << " thePitchY  = " << thePitchY 
-	// << " theOffsetX = " << theOffsetX 
-	// << " theOffsetY = " << theOffsetY 
-			       << " theLShiftX  = " << theLShiftX;
-    }
+  LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
+			   << " thePart = " << thePart
+			   << " theThickness = " << theThickness
+			   << " thePitchX  = " << thePitchX 
+			   << " thePitchY  = " << thePitchY 
+    // << " theOffsetX = " << theOffsetX 
+    // << " theOffsetY = " << theOffsetY 
+			   << " theLShiftX  = " << theLShiftX;
   
 }
 
@@ -446,7 +438,9 @@ bool PixelCPEBase::isFlipped() const
 }
 
 PixelCPEBase::Param const & PixelCPEBase::param() const {
-  Param & p = m_Params[ theDet->geographicalId().rawId() ];
+  auto i = theDet->index();
+  if (i>=int(m_Params.size())) m_Params.resize(i+1);  // should never happen!
+  Param & p = m_Params[i];
   if unlikely ( p.bz<-1.e10f  ) { 
       LocalVector Bfield = theDet->surface().toLocal(magfield_->inTesla(theDet->surface().position()));
       p.drift = driftDirection(Bfield );
