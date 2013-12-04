@@ -1,11 +1,11 @@
-# /dev/CMSSW_6_2_0/PIon/V22 (CMSSW_6_2_0_pre6_HLT2)
+# /dev/CMSSW_6_2_0/PIon/V24 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_6_2_0/PIon/V22')
+  tableName = cms.string('/dev/CMSSW_6_2_0/PIon/V24')
 )
 
 process.streams = cms.PSet( 
@@ -766,7 +766,7 @@ process.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "GR_H_V32::All" ),
+    globaltag = cms.string( "GR_H_V33::All" ),
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
