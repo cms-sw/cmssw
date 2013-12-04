@@ -78,8 +78,8 @@ public:
       computeAnglesFromDetPosition(cl);
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition( cl, det );
-      LocalError le = localError( cl, det );        
+      LocalPoint lp = localPosition( cl);
+      LocalError le = localError( cl);        
       
       return std::make_pair( lp, le );
     }
@@ -96,23 +96,23 @@ public:
     computeAnglesFromTrajectory(cl, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition( cl, det ); 
-    LocalError le = localError( cl, det );        
+    LocalPoint lp = localPosition( cl); 
+    LocalError le = localError( cl);        
     
     return std::make_pair( lp, le );
   } 
   
   
   
-  
+private:
   //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
-  virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const;  // = 0, take out dk 8/06
-  virtual LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
+  virtual LocalPoint localPosition(const SiPixelCluster& cl) const = 0;
+  virtual LocalError localError   (const SiPixelCluster& cl) const = 0;
   
   
-  
+public:  
   //--------------------------------------------------------------------------
   //--- Accessors of other auxiliary quantities
   inline float probabilityX()  const { return probabilityX_ ;  }
@@ -253,16 +253,6 @@ public:
   mutable Topology::LocalTrackPred loc_trk_pred_;
 
   mutable LocalTrajectoryParameters loc_traj_param_;
-  
-  //---------------------------------------------------------------------------
-  //  Methods.
-  //---------------------------------------------------------------------------
-  void       setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
-
-  MeasurementPoint measurementPosition( const SiPixelCluster& cluster, 
-					const GeomDetUnit & det) const;
-  MeasurementError measurementError   ( const SiPixelCluster&, 
-					const GeomDetUnit & det) const ;
 
   //---------------------------------------------------------------------------
   //  Geometrical services to subclasses.
@@ -275,6 +265,8 @@ private:
 				    const LocalTrajectoryParameters & ltp) const;
 
 protected:
+  void  setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
+
   LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
   LocalVector driftDirection       ( LocalVector bfield ) const ; //wrong sign
   LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
@@ -292,10 +284,6 @@ protected:
   float lorentzShiftX() const;
   float lorentzShiftY() const;
  
-  //--- Position in X and Y
-  virtual float xpos( const SiPixelCluster& ) const = 0;
-  virtual float ypos( const SiPixelCluster& ) const = 0;
-  
   
   LocalVector const & getDrift() const {return  driftDirection_ ;}
  

@@ -153,10 +153,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 //! into the local frame (in centimeters).  
 //-----------------------------------------------------------------------------
 LocalPoint
-PixelCPEGeneric::localPosition(const SiPixelCluster& cluster, 
-			       const GeomDetUnit & det) const 
+PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const 
 {
-  setTheDet( det, cluster );  //!< Initialize this det unit
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
   if ( UseErrorsFromTemplates_ )
     {
@@ -548,12 +546,8 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 //  Hit error in the local frame
 //-------------------------------------------------------------------------
 LocalError 
-PixelCPEGeneric::localError( const SiPixelCluster& cluster, 
-			     const GeomDetUnit & det) const 
+PixelCPEGeneric::localError( const SiPixelCluster& cluster) const 
 {
-  setTheDet( det, cluster );
-
-
    
   // Default errors are the maximum error used for edge clusters.
   /*
@@ -598,7 +592,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
       
       if ( thePart == GeomDetEnumerators::PixelBarrel ) 
 	{
-	  DetId id = (det.geographicalId());
+	  DetId id = (theDet->geographicalId());
 	  int layer=PXBDetId(id).layer();
 	  if ( layer==1 ) {
 	    if ( !edgex )

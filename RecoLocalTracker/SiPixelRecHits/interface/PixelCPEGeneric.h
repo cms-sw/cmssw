@@ -58,12 +58,12 @@ class PixelCPEGeneric : public PixelCPEBase
   PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, const SiPixelTemplateDBObject *);
   ~PixelCPEGeneric() {;}
 
-  LocalPoint localPosition (const SiPixelCluster& cluster, const GeomDetUnit & det) const; 
-  
-  // However, we do need to implement localError().
-  LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const;
+
  
- private:
+private:
+  LocalPoint localPosition (const SiPixelCluster& cluster) const; 
+  LocalError localError   (const SiPixelCluster& cl) const;
+
   //--------------------------------------------------------------------
   //  Methods.
   //------------------------------------------------------------------
@@ -152,11 +152,6 @@ class PixelCPEGeneric : public PixelCPEBase
   mutable float dx2   ; // CPE Generic x-bias for single double-pixel cluster
 
 	 
- protected:
-  //--- These functions are no longer needed, yet they are declared 
-  //--- pure virtual in the base class.
-  float xpos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
-  float ypos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
 
 };
 

@@ -92,24 +92,23 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 void
 PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const 
 {
-  if ( theDet == &det )
-    return;       // we have already seen this det unit
-  
-  //--- This is a new det unit, so cache it
-  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-
-  if unlikely( !theDet ) {
-      throw cms::Exception(" PixelCPEBase::setTheDet : ")
-	<< " Wrong pointer to PixelGeomDetUnit object !!!";
-    }
-
-  theOrigin =   theDet->surface().toLocal(GlobalPoint(0,0,0));
-
-  //--- theDet->type() returns a GeomDetType, which implements subDetector()
-  thePart = theDet->type().subDetector();
-
+  if ( theDet != &det ) {
+    
+    //--- This is a new det unit, so cache it
+    theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
+    
+    if unlikely( !theDet ) {
+	throw cms::Exception(" PixelCPEBase::setTheDet : ")
+	  << " Wrong pointer to PixelGeomDetUnit object !!!";
+      }
+    
+    theOrigin =   theDet->surface().toLocal(GlobalPoint(0,0,0));
+    
+    //--- theDet->type() returns a GeomDetType, which implements subDetector()
+    thePart = theDet->type().subDetector();
+    
 #ifdef EDM_ML_DEBUG
-  switch ( thePart ) {
+    switch ( thePart ) {
     case GeomDetEnumerators::PixelBarrel:
       // A barrel!  A barrel!
       break;
@@ -119,61 +118,72 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     default:
       throw cms::Exception("PixelCPEBase::setTheDet :")
       	<< "PixelCPEBase: A non-pixel detector type in here?" ;
-  }
-#endif
-
-  //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
-  //--- The call goes via BoundSurface, returned by theDet->surface(), but
-  //--- position() is implemented in GloballyPositioned<> template
-  //--- ( BoundSurface : Surface : GloballyPositioned<float> )
-  theDetR = theDet->surface().position().perp();
-  theDetZ = theDet->surface().position().z();
-  //--- Define parameters for chargewidth calculation
-
-  //--- bounds() is implemented in BoundSurface itself.
-  theThickness = theDet->surface().bounds().thickness();
-
-  //--- Cache the topology.
-  // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
-  //theTopol
-  //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
-
-  auto topol = &(theDet->specificTopology());
-  if unlikely(topol!=theTopol) { // there is ONE topology!)
-      theTopol=topol;
-      auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
-      if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-      else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
-      assert(theRecTopol);
-      
-      //---- The geometrical description of one module/plaquette
-      theNumOfRow = theRecTopol->nrows();      // rows in x
-      theNumOfCol = theRecTopol->ncolumns();   // cols in y
-      std::pair<float,float> pitchxy = theRecTopol->pitch();
-      thePitchX = pitchxy.first;            // pitch along x
-      thePitchY = pitchxy.second;           // pitch along y
     }
-  
-  theSign = isFlipped() ? -1 : 1;
-
-
-  // will cache if not yest there (need some of the above)
-  theParam = &param();
-
-  // this "has wrong sign..."
-  driftDirection_ = (*theParam).drift;
- 
-
-  //--- The Lorentz shift.
-  theLShiftX = lorentzShiftX();
-
-  theLShiftY = lorentzShiftY();
-
-  // testing 
-  if(thePart == GeomDetEnumerators::PixelBarrel) {
-    //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
-    theLShiftY=0.;
+#endif
+    
+    //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
+    //--- The call goes via BoundSurface, returned by theDet->surface(), but
+    //--- position() is implemented in GloballyPositioned<> template
+    //--- ( BoundSurface : Surface : GloballyPositioned<float> )
+    theDetR = theDet->surface().position().perp();
+    theDetZ = theDet->surface().position().z();
+    //--- Define parameters for chargewidth calculation
+    
+    //--- bounds() is implemented in BoundSurface itself.
+    theThickness = theDet->surface().bounds().thickness();
+    
+    //--- Cache the topology.
+    // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
+    //theTopol
+    //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
+    
+    auto topol = &(theDet->specificTopology());
+    if unlikely(topol!=theTopol) { // there is ONE topology!)
+	theTopol=topol;
+	auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
+	if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
+	else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
+	assert(theRecTopol);
+	
+	//---- The geometrical description of one module/plaquette
+	theNumOfRow = theRecTopol->nrows();      // rows in x
+	theNumOfCol = theRecTopol->ncolumns();   // cols in y
+	std::pair<float,float> pitchxy = theRecTopol->pitch();
+	thePitchX = pitchxy.first;            // pitch along x
+	thePitchY = pitchxy.second;           // pitch along y
+      }
+    
+    theSign = isFlipped() ? -1 : 1;
+    
+    
+    // will cache if not yest there (need some of the above)
+    theParam = &param();
+    
+    // this "has wrong sign..."
+    driftDirection_ = (*theParam).drift;
+    
+    
+    //--- The Lorentz shift.
+    theLShiftX = lorentzShiftX();
+    
+    theLShiftY = lorentzShiftY();
+    
+    // testing 
+    if(thePart == GeomDetEnumerators::PixelBarrel) {
+      //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
+      theLShiftY=0.;
+    }
+    
+    LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
+			     << " thePart = " << thePart
+			     << " theThickness = " << theThickness
+			     << " thePitchX  = " << thePitchX 
+			     << " thePitchY  = " << thePitchY 
+			     << " theLShiftX  = " << theLShiftX;
+    
+    
   }
+    
 
   //--- Geometric Quality Information
   int minInX,minInY,maxInX,maxInY=0;
@@ -183,7 +193,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   maxInY = cluster.maxPixelCol();
   
   isOnEdge_ = theRecTopol->isItEdgePixelInX(minInX) | theRecTopol->isItEdgePixelInX(maxInX) |
-	       theRecTopol->isItEdgePixelInY(minInY) | theRecTopol->isItEdgePixelInY(maxInY) ;
+    theRecTopol->isItEdgePixelInY(minInY) | theRecTopol->isItEdgePixelInY(maxInY) ;
   
   // Bad Pixels have their charge set to 0 in the clusterizer 
   hasBadPixels_ = false;
@@ -192,18 +202,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   }
   
   spansTwoROCs_ = theRecTopol->containsBigPixelInX(minInX,maxInX) |
-     theRecTopol->containsBigPixelInY(minInY,maxInY);
-  
-  
-  LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
-			   << " thePart = " << thePart
-			   << " theThickness = " << theThickness
-			   << " thePitchX  = " << thePitchX 
-			   << " thePitchY  = " << thePitchY 
-    // << " theOffsetX = " << theOffsetX 
-    // << " theOffsetY = " << theOffsetY 
-			   << " theLShiftX  = " << theLShiftX;
-  
+    theRecTopol->containsBigPixelInY(minInY,maxInY);
+
 }
 
 
@@ -263,60 +263,7 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 //}
 
 
-//-----------------------------------------------------------------------------
-//  The local position.
-// Should do correctly the big pixels.
-// who is using this version????
-//-----------------------------------------------------------------------------
-LocalPoint
-PixelCPEBase::localPosition( const SiPixelCluster& cluster, 
-			     const GeomDetUnit & det) const {
-  setTheDet( det, cluster );
-  
-  float lpx = xpos(cluster);
-  float lpy = ypos(cluster);
-  float lxshift = theLShiftX * thePitchX;  // shift in cm
-  float lyshift = theLShiftY * thePitchY;
-  LocalPoint cdfsfs(lpx-lxshift, lpy-lyshift);
-  return cdfsfs;
-}
 
-//-----------------------------------------------------------------------------
-//  Seems never used?
-//-----------------------------------------------------------------------------
-MeasurementPoint 
-PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, 
-				   const GeomDetUnit & det) const {
-
-  LocalPoint lp = localPosition(cluster,det);
-
-  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
-
-  if ( with_track_angle )
-    return theTopol->measurementPosition( lp, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
-  else 
-    return theTopol->measurementPosition( lp );
-
-}
-
-
-//-----------------------------------------------------------------------------
-//  Once we have the position, feed it to the topology to give us
-//  the error.  
-//  &&& APPARENTLY THIS METHOD IS NOT BEING USED ??? (Delete it?)
-//-----------------------------------------------------------------------------
-MeasurementError  
-PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
-{
-  LocalPoint lp( localPosition(cluster, det) );
-  LocalError le( localError(   cluster, det) );
-
-  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
-  if ( with_track_angle )
-    return theTopol->measurementError( lp, le, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
-  else 
-    return theTopol->measurementError( lp, le );
-}
 
 //-----------------------------------------------------------------------------
 //  Compute alpha_ and beta_ from the position of this DetUnit.
