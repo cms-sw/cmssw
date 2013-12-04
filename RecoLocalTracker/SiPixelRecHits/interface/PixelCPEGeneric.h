@@ -87,10 +87,8 @@ class PixelCPEGeneric : public PixelCPEBase
     collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 			 float & Q_f_X,              //!< output, Q first  in X 
 			 float & Q_l_X,              //!< output, Q last   in X
-			 float & Q_m_X,              //!< output, Q middle in X
 			 float & Q_f_Y,              //!< output, Q first  in Y 
-			 float & Q_l_Y,              //!< output, Q last   in Y
-			 float & Q_m_Y               //!< output, Q middle in Y
+			 float & Q_l_Y               //!< output, Q last   in Y
 			 ) const;
   
   
@@ -131,27 +129,27 @@ class PixelCPEGeneric : public PixelCPEBase
   mutable SiPixelTemplate templ_;
   mutable int templID_; 
 
-	// The truncation value pix_maximum is an angle-dependent cutoff on the
-	// individual pixel signals. It should be applied to all pixels in the
-	// cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
-	// sums are made. Morris
-	mutable float pixmx;
-
-	// These are errors predicted by PIXELAV
-	mutable float sigmay; // CPE Generic y-error for multi-pixel cluster
-	mutable float sigmax; // CPE Generic x-error for multi-pixel cluster
-	mutable float sy1   ; // CPE Generic y-error for single single-pixel
-	mutable float sy2   ; // CPE Generic y-error for single double-pixel cluster
-	mutable float sx1   ; // CPE Generic x-error for single single-pixel cluster
-	mutable float sx2   ; // CPE Generic x-error for single double-pixel cluster
-
-	// These are irradiation bias corrections
-	mutable float deltay; // CPE Generic y-bias for multi-pixel cluster
-	mutable float deltax; // CPE Generic x-bias for multi-pixel cluster
-	mutable float dy1   ; // CPE Generic y-bias for single single-pixel cluster
-	mutable float dy2   ; // CPE Generic y-bias for single double-pixel cluster
-	mutable float dx1   ; // CPE Generic x-bias for single single-pixel cluster
-	mutable float dx2   ; // CPE Generic x-bias for single double-pixel cluster
+  // The truncation value pix_maximum is an angle-dependent cutoff on the
+  // individual pixel signals. It should be applied to all pixels in the
+  // cluster [signal_i = fminf(signal_i, pixmax)] before the column and row
+  // sums are made. Morris
+  mutable float pixmx;
+  
+  // These are errors predicted by PIXELAV
+  mutable float sigmay; // CPE Generic y-error for multi-pixel cluster
+  mutable float sigmax; // CPE Generic x-error for multi-pixel cluster
+  mutable float sy1   ; // CPE Generic y-error for single single-pixel
+  mutable float sy2   ; // CPE Generic y-error for single double-pixel cluster
+  mutable float sx1   ; // CPE Generic x-error for single single-pixel cluster
+  mutable float sx2   ; // CPE Generic x-error for single double-pixel cluster
+  
+  // These are irradiation bias corrections
+  mutable float deltay; // CPE Generic y-bias for multi-pixel cluster
+  mutable float deltax; // CPE Generic x-bias for multi-pixel cluster
+  mutable float dy1   ; // CPE Generic y-bias for single single-pixel cluster
+  mutable float dy2   ; // CPE Generic y-bias for single double-pixel cluster
+  mutable float dx1   ; // CPE Generic x-bias for single single-pixel cluster
+  mutable float dx2   ; // CPE Generic x-bias for single double-pixel cluster
 
 	 
  protected:

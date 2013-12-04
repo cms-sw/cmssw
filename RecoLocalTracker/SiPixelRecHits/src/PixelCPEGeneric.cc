@@ -216,13 +216,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   
   float Q_f_X = 0.0;        //!< Q of the first  pixel  in X 
   float Q_l_X = 0.0;        //!< Q of the last   pixel  in X
-  float Q_m_X = 0.0;        //!< Q of the middle pixels in X
   float Q_f_Y = 0.0;        //!< Q of the first  pixel  in Y 
   float Q_l_Y = 0.0;        //!< Q of the last   pixel  in Y
-  float Q_m_Y = 0.0;        //!< Q of the middle pixels in Y
   collect_edge_charges( cluster, 
-			Q_f_X, Q_l_X, Q_m_X, 
-			Q_f_Y, Q_l_Y, Q_m_Y );
+			Q_f_X, Q_l_X, 
+			Q_f_Y, Q_l_Y );
 
   //--- Find the inner widths along X and Y in one shot.  We
   //--- compute the upper right corner of the inner pixels
@@ -502,15 +500,13 @@ PixelCPEGeneric::
 collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 		     float & Q_f_X,              //!< output, Q first  in X 
 		     float & Q_l_X,              //!< output, Q last   in X
-		     float & Q_m_X,              //!< output, Q middle in X
 		     float & Q_f_Y,              //!< output, Q first  in Y 
-		     float & Q_l_Y,              //!< output, Q last   in Y
-		     float & Q_m_Y               //!< output, Q middle in Y
+		     float & Q_l_Y               //!< output, Q last   in Y
 		     ) const
 {
   // Initialize return variables.
-  Q_f_X = Q_l_X = Q_m_X = 0.0;
-  Q_f_Y = Q_l_Y = Q_m_Y = 0.0;
+  Q_f_X = Q_l_X = 0.0;
+  Q_f_Y = Q_l_Y = 0.0;
 
 
   // Obtain boundaries in index units
@@ -534,20 +530,12 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 
       //
       // X projection
-      if      ( pixel.x == xmin )       // need to match with tolerance!!! &&&
-	Q_f_X += pix_adc;
-      else if ( pixel.x == xmax ) 
-	Q_l_X += pix_adc;
-      else 
-	Q_m_X += pix_adc;
+      if ( pixel.x == xmin ) Q_f_X += pix_adc;
+      if ( pixel.x == xmax ) Q_l_X += pix_adc;
       //
       // Y projection
-      if      ( pixel.y == ymin ) 
-	Q_f_Y += pix_adc;
-      else if ( pixel.y == ymax ) 
-	Q_l_Y += pix_adc;
-      else 
-	Q_m_Y += pix_adc;
+      if ( pixel.y == ymin ) Q_f_Y += pix_adc;
+      if ( pixel.y == ymax ) Q_l_Y += pix_adc;
     }
   
   return;
@@ -565,9 +553,6 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 {
   setTheDet( det, cluster );
 
-  // The squared errors
-  float xerr_sq = -99999.9f;
-  float yerr_sq = -99999.9f;
 
    
   // Default errors are the maximum error used for edge clusters.
@@ -684,8 +669,8 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		    ++n_bigy;
 		}
 	      
-	      xerr = (float)(sizex + n_bigx) * thePitchX / sqrt( 12.0f );
-	      yerr = (float)(sizey + n_bigy) * thePitchY / sqrt( 12.0f );
+	      xerr = (float)(sizex + n_bigx) * thePitchX / std::sqrt( 12.0f );
+	      yerr = (float)(sizey + n_bigy) * thePitchY / std::sqrt( 12.0f );
 	      
 	    } // if ( qbin == 0 && inflate_errors )
 	  else
@@ -747,28 +732,28 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		yerr = errPair.second; 	 
 	    } 	 
 	  
-	  if (theVerboseLevel > 9) 
-	    { 	 
-	      LogDebug("PixelCPEGeneric") << 	 
-		" Sizex = " << cluster.sizeX() << " Sizey = " << cluster.sizeY() << 	 
-		" Edgex = " << edgex           << " Edgey = " << edgey           << 	 
-		" ErrX  = " << xerr            << " ErrY  = " << yerr; 	 
-	    }
+	  LogDebug("PixelCPEGeneric") << 	 
+	    " Sizex = " << cluster.sizeX() << " Sizey = " << cluster.sizeY() << 	 
+	    " Edgex = " << edgex           << " Edgey = " << edgey           << 	 
+	    " ErrX  = " << xerr            << " ErrY  = " << yerr; 	 
+
 	  
 	} //if ( UseErrorsFromTemplates_ ) else 
       
     } // if ( !with_track_angle ) else
-  
-  if ( !(xerr > 0.0) )
+
+#ifdef EDM_ML_DEBUG
+    if ( !(xerr > 0.0) )
     throw cms::Exception("PixelCPEGeneric::localError") 
       << "\nERROR: Negative pixel error xerr = " << xerr << "\n\n";
   
   if ( !(yerr > 0.0) )
     throw cms::Exception("PixelCPEGeneric::localError") 
       << "\nERROR: Negative pixel error yerr = " << yerr << "\n\n";
+#endif
  
-  xerr_sq = xerr*xerr; 
-  yerr_sq = yerr*yerr;
+  auto xerr_sq = xerr*xerr; 
+  auto yerr_sq = yerr*yerr;
  
   return LocalError( xerr_sq, 0, yerr_sq );
 
