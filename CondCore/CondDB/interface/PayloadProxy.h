@@ -1,15 +1,12 @@
 #ifndef CondCore_CondDB_PayloadProxy_h
 #define CondCore_CondDB_PayloadProxy_h
 
-#include "CondCore/CondDB/interface/ORAWrapper.h"
+#include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/Time.h"
 
 namespace cond {
 
-  namespace db {
-    // TO BE CHANGED AFTER THE TRANSITION
-    using Session = cond::ora_wrapper::Session;
-    using IOVProxy = cond::ora_wrapper::IOVProxy;
+  namespace persistency {
 
     // still needed??
     /* get iov by name (key, tag, ...)
