@@ -100,6 +100,7 @@ class GlobalHitsHistogrammer : public edm::EDAnalyzer
   bool doOutput;
 
   edm::InputTag GlobalHitSrc_;
+  edm::EDGetTokenT<PGlobalSimHit> GlobalHitSrc_Token_;
 
   // G4MC info
   MonitorElement *meMCRGP[2];
