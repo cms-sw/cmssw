@@ -249,7 +249,7 @@ namespace fwlite {
                 newData->pProd_ = 0;
                 branch->SetAddress(&(newData->pObj_));
                 newData->interface_ = 0;
-                edm::invokeByName(newData->interface_, std::string("getInterface"));
+                edm::invokeByName(newData->interface_, type, std::string("getInterface"));
                 theData = newData;
             }
             itFind = data_.insert(std::make_pair(newKey, theData)).first;
