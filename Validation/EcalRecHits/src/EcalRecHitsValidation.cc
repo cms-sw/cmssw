@@ -37,12 +37,9 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   ESrechitCollection_Token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
   EBuncalibrechitCollection_Token_ = consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"));
   EEuncalibrechitCollection_Token_ = consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));  
-  const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
-  const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
-  const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
-  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("barrelHitsName")));
-  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
-  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
 
   // ---------------------- 
   // DQM ROOT output 
