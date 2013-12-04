@@ -36,8 +36,8 @@ public:
 
   void init_histograms();
   double muIso(const reco::Muon &);
-  double tkIso(reco::Track, edm::Handle<reco::TrackCollection>, edm::Handle<CaloTowerCollection>);
-  bool IsMuMatchedToHLTMu ( const reco::Muon & , std::vector<reco::Particle> ,double ,double );
+  double tkIso(const reco::Track&, edm::Handle<reco::TrackCollection>, edm::Handle<CaloTowerCollection>);
+  bool IsMuMatchedToHLTMu ( const reco::Muon & , const std::vector<reco::Particle>& ,double ,double );
 
 private:
 

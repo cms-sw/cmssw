@@ -10,7 +10,7 @@
 #include "DetectorDescription/Parser/src/DDLMap.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 using namespace boost::spirit::classic;
 
@@ -130,7 +130,7 @@ DDLMap::processElement( const std::string& name, const std::string& nmspace, DDC
 
   std::string nEntries = atts.find("nEntries")->second;
   if (pMap.size() != 
-      size_t(ExprEvalSingleton::instance().eval(pNameSpace, nEntries)))
+      size_t(myRegistry_->evaluator().eval(pNameSpace, nEntries)))
   {
     errorOut("Number of entries found in Map text does not match number in attribute nEntries.");
   }
@@ -155,7 +155,7 @@ void
 DDLMap::do_makeDouble( char const* str, char const* end )
 {
   std::string ts(str, end);
-  pDouble = ExprEvalSingleton::instance().eval(pNameSpace, ts);
+  pDouble = myRegistry_->evaluator().eval(pNameSpace, ts);
 }
 
 void

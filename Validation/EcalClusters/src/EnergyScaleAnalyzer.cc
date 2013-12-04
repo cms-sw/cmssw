@@ -16,7 +16,6 @@
 
 //#include "RecoEcal/EnergyScaleAnalyzer/interface/EnergyScaleAnalyzer.h"
 #include "Validation/EcalClusters/interface/EnergyScaleAnalyzer.h"
-#include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerClusterProducer.h"
 
 //Framework

@@ -19,7 +19,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
+#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
 
 #include <sstream>
 
@@ -164,7 +164,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     if ((atts.find("eval") != atts.end() && atts.find("eval")->second !="false")
 	|| (atts.find("eval") == atts.end() && !doNotEval))
     { 
-      tval = ExprEvalSingleton::instance().eval(ns, atts.find("value")->second);
+      tval = myRegistry_->evaluator().eval(ns, atts.find("value")->second);
       isEvaluated=true;
       DCOUT_V('P', std::string("EVALUATED"));
     }
@@ -201,7 +201,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     if (itv != vvvp.end())
       vvp = itv->second.second;
     DCOUT_V('P', std::string("about to process String ") << (atts.find("name")->second) << " = " << (atts.find("value")->second));
-    double tval = ExprEvalSingleton::instance().eval(ns, atts.find("value")->second);
+    double tval = myRegistry_->evaluator().eval(ns, atts.find("value")->second);
     DCOUT_V('P', std::string("EVALUATED"));
     DDValuePair vp(atts.find("value")->second, tval);
     vvp.push_back(vp);

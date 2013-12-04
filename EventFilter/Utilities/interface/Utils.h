@@ -20,13 +20,13 @@ public:
 	 * Convenience method to convert a vector of doubles into a vector of strings
 	 */
 	static std::vector<std::string> vectorDoubleToString(
-			std::vector<double> doubleVector);
+			const std::vector<double>& doubleVector);
 
 	/**
 	 * Convenience method to convert a vector of strings into a vector of doubles
 	 */
 	static std::vector<double> vectorStringToDouble(
-			std::vector<std::string> stringVector);
+			const std::vector<std::string>& stringVector);
 
 	/**
 	 * Returns true if the strings match exactly

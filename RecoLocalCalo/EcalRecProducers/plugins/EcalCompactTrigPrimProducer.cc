@@ -8,14 +8,14 @@
  **/
 
 #include "RecoLocalCalo/EcalRecProducers/plugins/EcalCompactTrigPrimProducer.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 
 
 EcalCompactTrigPrimProducer::EcalCompactTrigPrimProducer(const edm::ParameterSet& ps):
-  inCollection_(ps.getParameter<edm::InputTag>("inColl")),
   outCollection_(ps.getParameter<std::string>("outColl"))
 {
 
+  inCollectionToken_=consumes<EcalTrigPrimDigiCollection>((ps.getParameter<edm::InputTag>("inColl")));
   produces<EcalTrigPrimCompactColl>(outCollection_);
 }
 
@@ -23,7 +23,7 @@ void EcalCompactTrigPrimProducer::produce(edm::Event& event, const edm::EventSet
 {
   std::auto_ptr<EcalTrigPrimCompactColl> outColl(new EcalTrigPrimCompactColl);
   edm::Handle<EcalTrigPrimDigiCollection> hTPDigis;
-  event.getByLabel(inCollection_, hTPDigis);
+  event.getByToken(inCollectionToken_, hTPDigis);
   
   const EcalTrigPrimDigiCollection* trigPrims =  hTPDigis.product();
   

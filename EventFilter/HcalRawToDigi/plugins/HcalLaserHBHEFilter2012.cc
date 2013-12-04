@@ -65,6 +65,8 @@ private:
   int minCalibChannelsHBHELaser_; // set minimum number of HBHE Calib events that causes an event to be considered a bad (i.e., HBHE laser) event
   double minFracDiffHBHELaser_;  // minimum difference in fractional occupancies between 'good' and 'bad' HBHE regions (i.e., regions whose RBXes receive laser signals and those whose RBXes see no laser) necessary to declare an event as a laser event.  In laser events, good fractional occupancy is generally near 1, while bad fractional occupancy is considerably less
   edm::InputTag     digiLabel_;
+  edm::EDGetTokenT<HcalCalibDigiCollection>  tok_calib_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   
   double HBHEcalibThreshold_; // minimum integrated charge needed for a hit to count as an occupied calib channel  
   std::vector <int> CalibTS_; // time slices used when integrating calib charges
@@ -93,6 +95,10 @@ HcalLaserHBHEFilter2012::HcalLaserHBHEFilter2012(const edm::ParameterSet& ps)
   minFracDiffHBHELaser_      = ps.getUntrackedParameter<double>("minFracDiffHBHELaser",0.3);
   edm::InputTag digi_default("hcalDigis");
   digiLabel_                 = ps.getUntrackedParameter<edm::InputTag>("digiLabel",digi_default);
+
+  tok_calib_ = consumes<HcalCalibDigiCollection>(digiLabel_);
+  tok_hbhe_ = consumes<HBHEDigiCollection>(digiLabel_);
+
   HBHEcalibThreshold_        = ps.getUntrackedParameter<double>("HBHEcalibThreshold",15);
   std::vector <int> dummyTS;
   for (int i=3;i<=6;++i)
@@ -125,7 +131,7 @@ HcalLaserHBHEFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   // Step 1:: try to get calib digi and HBHE collections.
   // Return true if collection not found?  Or false?  What should default behavior be?
   edm::Handle<HcalCalibDigiCollection> calib_digi;
-   if (!(iEvent.getByLabel(digiLabel_,calib_digi)))
+   if (!(iEvent.getByToken(tok_calib_,calib_digi)))
     {
       edm::LogWarning("HcalLaserHBHEFilter2012")<< digiLabel_<<" calib_digi not available";
       return true;
@@ -138,7 +144,7 @@ HcalLaserHBHEFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
    edm::Handle<HBHEDigiCollection> hbhe_digi;
-   if (!(iEvent.getByLabel(digiLabel_,hbhe_digi)))
+   if (!(iEvent.getByToken(tok_hbhe_,hbhe_digi)))
     {
       edm::LogWarning("HcalLaserHBHEFilter2012")<< digiLabel_<<" hbhe_digi not available";
       return true;

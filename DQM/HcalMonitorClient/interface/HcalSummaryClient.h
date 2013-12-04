@@ -35,7 +35,7 @@ class HcalSummaryClient : public HcalBaseDQClient {
   bool hasOther_Temp(void);
   bool test_enabled(void);
 
-  void getFriends(std::vector<HcalBaseDQClient*> clients){clients_=clients;};
+  void getFriends(const std::vector<HcalBaseDQClient*>& clients){clients_=clients;};
 
   /// Destructor
   ~HcalSummaryClient();

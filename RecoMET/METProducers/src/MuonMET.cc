@@ -25,9 +25,7 @@ Implementation:
 #include "RecoMET/METProducers/interface/MuonMET.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
-#include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -36,7 +34,6 @@ Implementation:
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 //using namespace std;
@@ -51,9 +48,15 @@ namespace cms
     muonsInputTag_               = iConfig.getParameter<edm::InputTag>("muonsInputTag");
     muonDepValueMap_             = iConfig.getParameter<edm::InputTag>("muonMETDepositValueMapInputTag");
 
+
+    inputMuonToken_ = consumes<edm::View<reco::Muon> >(muonsInputTag_);
+    inputValueMapMuonMetCorrToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(muonDepValueMap_);
+
     if( metTypeInputTag_.label() == "CaloMET" ) {
+      inputCaloMETToken_ = consumes<edm::View<reco::CaloMET> >(uncorMETInputTag_);
       produces<reco::CaloMETCollection>();
     } else 
+      inputMETToken_ = consumes<edm::View<reco::MET> >(uncorMETInputTag_);
       produces<reco::METCollection>();
     
   }
@@ -68,16 +71,16 @@ namespace cms
     
     //get the muons
     Handle<View<reco::Muon> > inputMuons;
-    iEvent.getByLabel( muonsInputTag_, inputMuons );
+    iEvent.getByToken(inputMuonToken_, inputMuons );
 
     Handle<ValueMap<reco::MuonMETCorrectionData> > vm_muCorrData_h;
     
-    iEvent.getByLabel( muonDepValueMap_, vm_muCorrData_h);
+    iEvent.getByToken(inputValueMapMuonMetCorrToken_, vm_muCorrData_h);
     
     if( metTypeInputTag_.label() == "CaloMET")
       {
 	Handle<View<reco::CaloMET> > inputUncorMet;
-	iEvent.getByLabel( uncorMETInputTag_, inputUncorMet  );     //Get Inputs
+	iEvent.getByToken(inputCaloMETToken_, inputUncorMet);     //Get Inputs
 	std::auto_ptr<reco::CaloMETCollection> output( new reco::CaloMETCollection() );  //Create empty output
 	
 	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()),
@@ -88,7 +91,7 @@ namespace cms
     else
       {
 	Handle<View<reco::MET> > inputUncorMet;                     //Define Inputs
-	iEvent.getByLabel( uncorMETInputTag_,  inputUncorMet );     //Get Inputs
+	iEvent.getByToken(inputMETToken_, inputUncorMet);     //Get Inputs
 	std::auto_ptr<reco::METCollection> output( new reco::METCollection() );  //Create empty output
 	
 

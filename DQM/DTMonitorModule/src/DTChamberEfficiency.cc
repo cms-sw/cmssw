@@ -287,7 +287,7 @@ bool DTChamberEfficiency::chamberSelection(const DetId& idDetLay, reco::Transien
 
 //riempi una per ogni segmento e una per segmento sopra 12 hit
 
-MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContainer seg_list) const
+MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContainer& seg_list) const
 {
 
   MeasurementContainer result;

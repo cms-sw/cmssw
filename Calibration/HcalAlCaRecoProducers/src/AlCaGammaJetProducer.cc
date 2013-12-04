@@ -2,12 +2,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 using namespace edm;
 using namespace std;
@@ -20,16 +14,35 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
 {
    // Take input 
    
-   hbheLabel_= iConfig.getParameter<edm::InputTag>("hbheInput");
-   hoLabel_=iConfig.getParameter<edm::InputTag>("hoInput");
-   hfLabel_=iConfig.getParameter<edm::InputTag>("hfInput");
+   tok_hbhe_= consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+   tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+   tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
+
    mInputCalo = iConfig.getParameter<std::vector<edm::InputTag> >("srcCalo");
    ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
-   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","generalTracks");
+
+   unsigned nLabels = mInputCalo.size();
+   for ( unsigned i=0; i != nLabels; i++ ) 
+      toks_calo_.push_back( consumes<reco::CaloJetCollection>( mInputCalo[i] ) );
+
+   nLabels = ecalLabels_.size();
+   for ( unsigned i=0; i != nLabels; i++ )
+      toks_ecal_.push_back( consumes<EcalRecHitCollection>( ecalLabels_[i] ) );
+
+
+   tok_inputTrack_ =  consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<std::string>("inputTrackLabel","generalTracks"));
    correctedIslandBarrelSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterCollection");
    correctedIslandBarrelSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterProducer");
+    tok_EBSC_ = consumes<reco::SuperClusterCollection>(
+    	edm::InputTag(correctedIslandBarrelSuperClusterProducer_,
+	correctedIslandBarrelSuperClusterCollection_)); 
+
    correctedIslandEndcapSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterCollection");
    correctedIslandEndcapSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterProducer");  
+   tok_EESC_ = consumes<reco::SuperClusterCollection>(
+	edm::InputTag(correctedIslandEndcapSuperClusterProducer_,
+	correctedIslandEndcapSuperClusterCollection_));
+
    allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",true);
    
     
@@ -86,8 +99,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   double vetmax = -100.;
   Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
-  iEvent.getByLabel(correctedIslandBarrelSuperClusterProducer_, 
-                    correctedIslandBarrelSuperClusterCollection_, 
+  iEvent.getByToken(tok_EBSC_,
 		    pCorrectedIslandBarrelSuperClusters);  
   if (!pCorrectedIslandBarrelSuperClusters.isValid()) {
     // can't find it!
@@ -116,8 +128,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   Handle<reco::SuperClusterCollection> pCorrectedIslandEndcapSuperClusters;
-  iEvent.getByLabel(correctedIslandEndcapSuperClusterProducer_, 
-                    correctedIslandEndcapSuperClusterCollection_, 
+  iEvent.getByToken(tok_EESC_,
 		    pCorrectedIslandEndcapSuperClusters);  
   if (!pCorrectedIslandEndcapSuperClusters.isValid()) {
     // can't find it!
@@ -187,11 +198,11 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double phijet0 =  -100.;
     double etajet0 = -100.;
     
-    std::vector<edm::InputTag>::const_iterator ic;
-    for (ic=mInputCalo.begin(); ic!=mInputCalo.end(); ic++) {
+    std::vector<edm::EDGetTokenT<reco::CaloJetCollection> >::const_iterator ic;
+    for (ic=toks_calo_.begin(); ic!=toks_calo_.end(); ic++) {
 
       edm::Handle<reco::CaloJetCollection> jets;
-      iEvent.getByLabel(*ic, jets);
+      iEvent.getByToken(*ic, jets);
       if (!jets.isValid()) {
 	// can't find it!
 	if (!allowMissingInputs_) {
@@ -260,10 +271,10 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // Load EcalRecHits
 
     
-    std::vector<edm::InputTag>::const_iterator i;
-    for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
+    std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
+    for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) {
       edm::Handle<EcalRecHitCollection> ec;
-      iEvent.getByLabel(*i,ec);
+      iEvent.getByToken(*i,ec);
       if (!ec.isValid()) {
 	// can't find it!
 	if (!allowMissingInputs_) { 
@@ -298,7 +309,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //   cout<<" Ecal is done "<<endl; 
 
       edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbheLabel_,hbhe);
+      iEvent.getByToken(tok_hbhe_,hbhe);
       if (!hbhe.isValid()) {
 	// can't find it!
 	if (!allowMissingInputs_) {
@@ -330,7 +341,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //   cout<<" HBHE is done "<<endl; 
 	
       edm::Handle<HORecHitCollection> ho;
-      iEvent.getByLabel(hoLabel_,ho);
+      iEvent.getByToken(tok_ho_,ho);
       if (!ho.isValid()) {
 	// can't find it!
 	if (!allowMissingInputs_) {
@@ -362,7 +373,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  //  cout<<" HO is done "<<endl; 
    
       edm::Handle<HFRecHitCollection> hf;
-      iEvent.getByLabel(hfLabel_,hf);
+      iEvent.getByToken(tok_hf_,hf);
       if (!hf.isValid()) {
 	// can't find it!
 	if (!allowMissingInputs_) {
@@ -398,7 +409,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // Track Collection   
       edm::Handle<reco::TrackCollection> trackCollection;
-      iEvent.getByLabel(m_inputTrackLabel,trackCollection);
+      iEvent.getByToken(tok_inputTrack_,trackCollection);
       if (!trackCollection.isValid()) {
 	// can't find it!
 	if (!allowMissingInputs_) {

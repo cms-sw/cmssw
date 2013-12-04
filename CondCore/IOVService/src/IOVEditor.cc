@@ -165,6 +165,11 @@ namespace cond {
     return total;
   }
     
+  IOVEditor::IOVEditor():
+    m_isLoaded(false),
+    m_iov(){
+  }
+
   IOVEditor::~IOVEditor(){}
 
   IOVEditor::IOVEditor( cond::DbSession& dbSess):
@@ -176,6 +181,17 @@ namespace cond {
 			const std::string& token ):
     m_isLoaded(false),
     m_iov( new IOVProxyData( dbSess, token )){
+  }
+
+  IOVEditor::IOVEditor( const IOVEditor& rhs ):
+    m_isLoaded( rhs.m_isLoaded ),
+    m_iov( rhs.m_iov ){
+  }
+
+  IOVEditor& IOVEditor::operator=( const IOVEditor& rhs ){
+    m_isLoaded = rhs.m_isLoaded;
+    m_iov = rhs.m_iov;
+    return *this;
   }
 
   void IOVEditor::reload(){
@@ -527,7 +543,7 @@ namespace cond {
     return m_iov->token;
   }
 
-  IOVProxy IOVEditor::proxy(){
+  IOVProxy IOVEditor::proxy() const{
     return IOVProxy( m_iov );
   }
 

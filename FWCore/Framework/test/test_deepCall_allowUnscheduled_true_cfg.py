@@ -16,7 +16,9 @@ process.source = cms.Source("EmptySource",
     firstTime = cms.untracked.uint64(1000000)
 )
 
-process.Tracer = cms.Service("Tracer")
+process.Tracer = cms.Service('Tracer',
+                             dumpContextForLabel = cms.untracked.string('one')
+)
 
 process.one = cms.EDProducer("IntProducer",
     ivalue = cms.int32(1)

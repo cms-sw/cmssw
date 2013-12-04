@@ -54,7 +54,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
  private:
   void zeroCounters(bool resetpresent=false);
 
-  void processEvent_HBHEdigi(const HBHEDataFrame digi);
+  void processEvent_HBHEdigi(HBHEDataFrame digi);
   template<class T> void process_Digi(T& digi);
   template<class T> void process_RecHit(T& rechit);
 
@@ -112,6 +112,15 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHO01, NumBadHO2, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
   edm::InputTag digiLabel_;
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;
+
+  edm::EDGetTokenT<DcsStatusCollection> tok_dcs_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhedigi_;
+  edm::EDGetTokenT<HODigiCollection> tok_hodigi_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hfdigi_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> tok_gtEvm_;
 
   bool endLumiProcessed_;
 

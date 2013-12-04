@@ -363,7 +363,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
     // function to set the paths and
     // create zeroed counts per path
     
-    void setPaths (std::vector<std::string> inputPaths){
+    void setPaths (const std::vector<std::string>& inputPaths){
       pathNames = inputPaths;
       for (std::vector<std::string>::const_iterator iPath = pathNames.begin();
            iPath != pathNames.end();
@@ -461,7 +461,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
       }
     }// end fill RawCountsForPath
 
-    void setMaskedPaths (std::vector<std::string> inputPaths) {
+    void setMaskedPaths (const std::vector<std::string>& inputPaths) {
       for (unsigned i=0; i < inputPaths.size(); i++) {
         std::string maskSubString = inputPaths[i];
         for (unsigned j=0; j < pathNames.size(); j++) {

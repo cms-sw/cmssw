@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 /** \class EcalCompactTrigPrimProducerTest
  *
@@ -18,9 +19,9 @@ class EcalCompactTrigPrimProducerTest: public edm::EDAnalyzer {
 public:
 /// Constructor
   EcalCompactTrigPrimProducerTest(const edm::ParameterSet& ps):
-    tpDigiColl_(ps.getParameter<edm::InputTag>("tpDigiColl")),
-    tpRecColl_(ps.getParameter<edm::InputTag>("tpRecColl")),
-    tpSkimColl_(ps.getParameter<edm::InputTag>("tpSkimColl")),
+    tpDigiToken_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpDigiColl"))),
+    tpRecToken_ (consumes<EcalTrigPrimCompactColl>(ps.getParameter<edm::InputTag>("tpRecColl"))),
+    tpSkimToken_(consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("tpSkimColl"))),
     nCompressEt_(0),
     nFineGrain_(0),
     nTTF_(0),
@@ -39,9 +40,9 @@ private:
   
 private:
   
-  edm::InputTag tpDigiColl_;
-  edm::InputTag tpRecColl_;
-  edm::InputTag tpSkimColl_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpDigiToken_;
+  edm::EDGetTokenT<EcalTrigPrimCompactColl>    tpRecToken_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpSkimToken_;
   int nCompressEt_;
   int nFineGrain_;
   int nTTF_;

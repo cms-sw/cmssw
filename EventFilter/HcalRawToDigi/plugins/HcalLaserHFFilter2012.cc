@@ -65,6 +65,7 @@ private:
   std::string prefix_;  // prefix will be printed before any event if verbose mode is true, in order to make searching for events easier
   int minCalibChannelsHFLaser_; // set minimum number of HF Calib events that causes an event to be considered a bad (i.e., HF laser) event
   edm::InputTag     digiLabel_;
+  edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
 
   bool WriteBadToFile_;
   bool forceFilterTrue_;
@@ -90,6 +91,7 @@ HcalLaserHFFilter2012::HcalLaserHFFilter2012(const edm::ParameterSet& ps)
   minCalibChannelsHFLaser_=ps.getUntrackedParameter<int>("minCalibChannelsHFLaser",10);
   edm::InputTag digi_default("hcalDigis");
   digiLabel_     = ps.getUntrackedParameter<edm::InputTag>("digiLabel",digi_default);
+  tok_calib_ = consumes<HcalCalibDigiCollection>(digiLabel_);
   WriteBadToFile_=ps.getUntrackedParameter<bool>("WriteBadToFile",false);
   if (WriteBadToFile_)
     outfile_.open("badHcalLaserList_hffilter.txt");
@@ -118,7 +120,7 @@ HcalLaserHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Step 1:: try to get calib digi collection.
   // Return true if collection not found?  Or false?  What should default behavior be?
   edm::Handle<HcalCalibDigiCollection> calib_digi;
-   if (!(iEvent.getByLabel(digiLabel_,calib_digi)))
+   if (!(iEvent.getByToken(tok_calib_,calib_digi)))
     {
       edm::LogWarning("HcalLaserHFFilter2012")<< digiLabel_<<" calib_digi not available";
       return true;

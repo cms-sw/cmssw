@@ -67,7 +67,7 @@ class HLTMuonMatchAndPlot {
 
   /// Constructor
   HLTMuonMatchAndPlot(const edm::ParameterSet &, std::string,
-                      std::vector<std::string>);
+                      const std::vector<std::string>&);
 
   // Analyzer Methods
   void beginRun(const edm::Run &, const edm::EventSetup &);
@@ -75,9 +75,9 @@ class HLTMuonMatchAndPlot {
   void endRun(const edm::Run &, const edm::EventSetup &);
 
   // Helper Methods
-  void fillEdges(size_t & nBins, float * & edges, std::vector<double> binning);
+  void fillEdges(size_t & nBins, float * & edges, const std::vector<double>& binning);
   template <class T> void 
-    fillMapFromPSet(std::map<std::string, T> &, edm::ParameterSet, std::string);
+    fillMapFromPSet(std::map<std::string, T> &, const edm::ParameterSet&, std::string);
   template <class T1, class T2> std::vector<size_t> 
     matchByDeltaR(const std::vector<T1> &, const std::vector<T2> &, 
                   const double maxDeltaR = NOMATCH);

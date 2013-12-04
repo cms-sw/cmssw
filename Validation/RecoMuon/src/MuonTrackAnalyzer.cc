@@ -15,9 +15,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -31,10 +28,6 @@
 
 #include "Validation/RecoMuon/src/Histograms.h"
 #include "Validation/RecoMuon/src/HTrack.h"
-
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -51,12 +44,17 @@ MuonTrackAnalyzer::MuonTrackAnalyzer(const ParameterSet& pset){
   // the services
   theService = new MuonServiceProxy(serviceParameters);
   
+  theSimTracksLabel = edm::InputTag("g4SimHits");
+  theSimTracksToken = consumes<edm::SimTrackContainer>(theSimTracksLabel);
+
   theTracksLabel = pset.getParameter<InputTag>("Tracks");
+  theTracksToken = consumes<reco::TrackCollection>(theTracksLabel);
   doTracksAnalysis = pset.getUntrackedParameter<bool>("DoTracksAnalysis",true);
 
   doSeedsAnalysis = pset.getUntrackedParameter<bool>("DoSeedsAnalysis",false);
   if(doSeedsAnalysis){
     theSeedsLabel = pset.getParameter<InputTag>("MuonSeed");
+    theSeedsToken =  consumes<TrajectorySeedCollection>(theSeedsLabel);
     ParameterSet updatorPar = pset.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters");
     theSeedPropagatorName = updatorPar.getParameter<string>("Propagator");
 
@@ -66,6 +64,9 @@ MuonTrackAnalyzer::MuonTrackAnalyzer(const ParameterSet& pset){
   theCSCSimHitLabel = pset.getParameter<InputTag>("CSCSimHit");
   theDTSimHitLabel = pset.getParameter<InputTag>("DTSimHit");
   theRPCSimHitLabel = pset.getParameter<InputTag>("RPCSimHit");
+  theCSCSimHitToken = consumes<std::vector<PSimHit> >(theCSCSimHitLabel);
+  theDTSimHitToken = consumes<std::vector<PSimHit> >(theDTSimHitLabel);
+  theRPCSimHitToken = consumes<std::vector<PSimHit> >(theRPCSimHitLabel);
 
   theEtaRange = (EtaRange) pset.getParameter<int>("EtaRange");
   
@@ -193,7 +194,7 @@ void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetu
   theService->update(eventSetup);
 
   Handle<SimTrackContainer> simTracks;
-  event.getByLabel("g4SimHits",simTracks);  
+  event.getByToken(theSimTracksToken,simTracks);  
   fillPlots(event,simTracks);
 
   
@@ -213,7 +214,7 @@ void MuonTrackAnalyzer::seedsAnalysis(const Event & event, const EventSetup& eve
 
   // Get the RecTrack collection from the event
   Handle<TrajectorySeedCollection> seeds;
-  event.getByLabel(theSeedsLabel, seeds);
+  event.getByToken(theSeedsToken, seeds);
   
   LogTrace("MuonTrackAnalyzer")<<"Number of reconstructed seeds: " << seeds->size()<<endl;
 
@@ -243,7 +244,7 @@ void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& ev
   
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> tracks;
-  event.getByLabel(theTracksLabel, tracks);
+  event.getByToken(theTracksToken, tracks);
 
   LogTrace("MuonTrackAnalyzer")<<"Reconstructed tracks: " << tracks->size() << endl;
   hNumberOfTracks->Fill(tracks->size());
@@ -432,13 +433,14 @@ bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event & event,
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> dtSimHits;
-  event.getByLabel(theDTSimHitLabel.instance(),theDTSimHitLabel.label(), dtSimHits);
+  event.getByToken(theDTSimHitToken, dtSimHits);
+  //  event.getByToken(theDTSimHitLabel.instance(),theDTSimHitLabel.label(), dtSimHits);
   
   Handle<PSimHitContainer> cscSimHits;
-  event.getByLabel(theCSCSimHitLabel.instance(),theCSCSimHitLabel.label(), cscSimHits);
+  event.getByToken(theCSCSimHitToken, cscSimHits);
   
   Handle<PSimHitContainer> rpcSimHits;
-  event.getByLabel(theRPCSimHitLabel.instance(),theRPCSimHitLabel.label(), rpcSimHits);  
+  event.getByToken(theRPCSimHitToken, rpcSimHits);  
   
   map<unsigned int, vector<const PSimHit*> > mapOfMuonSimHits;
   

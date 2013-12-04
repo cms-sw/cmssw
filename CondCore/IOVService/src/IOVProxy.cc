@@ -181,7 +181,7 @@ cond::IOVProxy::IOVProxy(cond::DbSession& dbSession,
   m_iov(new IOVProxyData(dbSession,token)){
 }
 
-cond::IOVProxy::IOVProxy( boost::shared_ptr<IOVProxyData>& data ):
+cond::IOVProxy::IOVProxy( const boost::shared_ptr<IOVProxyData>& data ):
   m_iov( data ){
 }
 

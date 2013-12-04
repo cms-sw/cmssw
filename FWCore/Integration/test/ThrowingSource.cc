@@ -132,7 +132,7 @@ namespace edm {
     assert(eventCached() || processingMode() != RunsLumisAndEvents);
     EventSourceSentry sentry(*this);
     EventAuxiliary aux(eventID(), processGUID(), Timestamp(presentTime()), false, EventAuxiliary::Undefined);
-    eventPrincipal.fillEventPrincipal(aux, processHistoryRegistryForUpdate());
+    eventPrincipal.fillEventPrincipal(aux, processHistoryRegistry());
   }
 }
 

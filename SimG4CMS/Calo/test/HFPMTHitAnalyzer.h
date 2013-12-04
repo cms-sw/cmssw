@@ -1,6 +1,10 @@
 #ifndef SimG4CMS_Calo_HFPMTHitAnalyzer_H
 #define SimG4CMS_Calo_HFPMTHitAnalyzer_H
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -23,7 +27,10 @@ private:
   void analyzeHits  (std::vector<PCaloHit> &,const std::vector<SimTrack> &);
 
   //user parameters
-  std::string sourceLabel, g4Label, hcalHits;
+  std::string g4Label, hcalHits;
+  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
+  edm::EDGetTokenT<edm::SimTrackContainer> tok_track_;
 
   int event_no;
 

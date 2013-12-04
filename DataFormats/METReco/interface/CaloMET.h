@@ -24,10 +24,10 @@ namespace reco
     public:
       /* Constructors*/
       CaloMET() ;
-      CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
+      CaloMET( const SpecificCaloMETData& calo_data_, double sumet_, 
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, fP4, fVertex ), calo_data( calo_data_ ) {}
-      CaloMET( SpecificCaloMETData calo_data_, double sumet_, 
+      CaloMET( const SpecificCaloMETData& calo_data_, double sumet_, 
 	       const std::vector<CorrMETData>& corr_,
 	       const LorentzVector& fP4, const Point& fVertex ) 
 	: MET( sumet_, corr_, fP4, fVertex ), calo_data( calo_data_ ) {}

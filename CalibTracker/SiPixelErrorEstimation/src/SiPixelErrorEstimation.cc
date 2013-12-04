@@ -45,6 +45,12 @@ SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfil
   checkType_ = ps.getParameter<bool>( "checkType" );
   genType_ = ps.getParameter<int>( "genType" );
   include_trk_hits_ = ps.getParameter<bool>( "include_trk_hits" );
+
+  tTrajectory = consumes<std::vector<Trajectory>> (src_);
+  tPixRecHitCollection = consumes<SiPixelRecHitCollection>(edm::InputTag( "siPixelRecHits"));
+  tSimTrackContainer = consumes <edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  tTrackCollection = consumes<reco::TrackCollection>(src_);
+
 }
 
 SiPixelErrorEstimation::~SiPixelErrorEstimation()
@@ -407,7 +413,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 
   edm::Handle<vector<Trajectory> > trajCollectionHandle;
   
-  e.getByLabel( src_, trajCollectionHandle);
+  e.getByToken( tTrajectory, trajCollectionHandle);
   //e.getByLabel( "generalTracks", trajCollectionHandle);
 
   for ( vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end(); ++it )
@@ -909,10 +915,10 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 
   // --------------------------------------- all hits -----------------------------------------------------------
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  e.getByLabel( "siPixelRecHits", recHitColl);
+  e.getByToken(tPixRecHitCollection, recHitColl);
 
   Handle<edm::SimTrackContainer> simtracks;
-  e.getByLabel("g4SimHits", simtracks);
+  e.getByToken(tSimTrackContainer, simtracks);
 
   //-----Iterate over detunits
   for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
@@ -1354,7 +1360,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
     {
       // Get tracks
       edm::Handle<reco::TrackCollection> trackCollection;
-      e.getByLabel(src_, trackCollection);
+      e.getByToken(tTrackCollection, trackCollection);
       const reco::TrackCollection *tracks = trackCollection.product();
       reco::TrackCollection::const_iterator tciter;
       

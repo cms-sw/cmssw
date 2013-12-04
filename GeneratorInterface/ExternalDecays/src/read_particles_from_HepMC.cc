@@ -1,6 +1,7 @@
 #include "GeneratorInterface/ExternalDecays/interface/read_particles_from_HepMC.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace TauSpinner;
 /*******************************************************************************
   Get daughters of HepMC::GenParticle
 

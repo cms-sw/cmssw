@@ -63,6 +63,10 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
   meChann_DataIntegrityCheck_[29]=meCh_DataIntegrityFED29_;
   meChann_DataIntegrityCheck_[30]=meCh_DataIntegrityFED30_;
   meChann_DataIntegrityCheck_[31]=meCh_DataIntegrityFED31_;
+
+  // register for data access
+  tok_raw_ = consumes<FEDRawDataCollection>(FEDRawDataCollection_);
+  tok_unpack_ = consumes<HcalUnpackerReport>(digiLabel_);
   
   this->reset();
 } // HcalRawDataMonitor::HcalRawDataMonitor()
@@ -529,14 +533,14 @@ void HcalRawDataMonitor::analyze(const edm::Event& e, const edm::EventSetup& s){
   
   // try to get die Data
   edm::Handle<FEDRawDataCollection> rawraw;
-  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
+  if (!(e.getByToken(tok_raw_,rawraw)))
   //  if (!(e.getByType(rawraw)))
     {
       edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_ <<" not available";
       return;
     }
   edm::Handle<HcalUnpackerReport> report;  
-  if (!(e.getByLabel(digiLabel_,report)))
+  if (!(e.getByToken(tok_unpack_,report)))
     {
       edm::LogWarning("HcalRawDataMonitor")<<" Unpacker Report "<<digiLabel_<<" not available";
       return;

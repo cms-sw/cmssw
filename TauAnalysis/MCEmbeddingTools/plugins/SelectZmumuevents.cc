@@ -13,7 +13,6 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Dec 18 14:29:14 CET 2009
-// $Id$
 //
 //
 

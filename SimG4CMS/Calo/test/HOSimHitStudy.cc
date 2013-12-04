@@ -3,7 +3,6 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -13,10 +12,14 @@
 
 HOSimHitStudy::HOSimHitStudy(const edm::ParameterSet& ps) {
 
-  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","generator");
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel","generator")));
   g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLab[0] = ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLab[1] = ps.getUntrackedParameter<std::string>("HCCollection","HcalHits");
+
+  for ( unsigned i=0; i != 2; i++ )
+    toks_calo_[i] = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLab[i]));
+
   maxEnergy = ps.getUntrackedParameter<double>("MaxEnergy", 200.0);
   scaleEB   = ps.getUntrackedParameter<double>("ScaleEB", 1.0);
   scaleHB   = ps.getUntrackedParameter<double>("ScaleHB", 100.0);
@@ -277,7 +280,7 @@ void HOSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 		       << e.id().event();
 
   edm::Handle<edm::HepMCProduct > EvtHandle;
-  e.getByLabel(sourceLabel, EvtHandle);
+  e.getByToken(tok_evt_, EvtHandle);
   const  HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
 
   eInc = etaInc = phiInc = 0;
@@ -296,7 +299,7 @@ void HOSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
     if (i == 0) ecalHits.clear();
     else        hcalHits.clear();
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
-    e.getByLabel(g4Label,hitLab[i],hitsCalo); 
+    e.getByToken(toks_calo_[i],hitsCalo); 
     if (hitsCalo.isValid()) getHits = true;
     LogDebug("HitStudy") << "HcalValidation: Input flag " << hitLab[i] 
 			 << " getHits flag " << getHits;

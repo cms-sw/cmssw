@@ -67,7 +67,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   std::auto_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->setFrozen();
   boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
-  branchIDListHelper->updateRegistries(*preg);
+  branchIDListHelper->updateFromRegistry(*preg);
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -139,7 +139,7 @@ void testEventGetRefBeforePut::getRefTest() {
   preg->addProduct(product);
   preg->setFrozen();
   boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
-  branchIDListHelper->updateRegistries(*preg);
+  branchIDListHelper->updateFromRegistry(*preg);
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;

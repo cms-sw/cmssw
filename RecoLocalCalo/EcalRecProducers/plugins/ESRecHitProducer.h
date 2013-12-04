@@ -12,6 +12,8 @@
 
 // ESRecHitProducer author : Chia-Ming, Kuo
 
+class ESDigiCollection;
+
 class ESRecHitProducer : public edm::EDProducer {
 
  public:
@@ -22,7 +24,8 @@ class ESRecHitProducer : public edm::EDProducer {
 
  private:
 
-  edm::InputTag digiCollection_; // secondary name given to collection of digis
+
+  edm::EDGetTokenT<ESDigiCollection> digiToken_;
   std::string rechitCollection_; // secondary name to be given to collection of hits
 
   ESRecHitWorkerBaseClass * worker_;

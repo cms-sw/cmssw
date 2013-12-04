@@ -23,6 +23,8 @@
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
 //
 // class declaration
 //
@@ -47,9 +49,10 @@ class HitReCalibrator : public edm::EDProducer {
       // ----------member data ---------------------------
 
      bool allowMissingInputs_;
-     edm::InputTag hbheInput_;
-     edm::InputTag hoInput_;
-     edm::InputTag hfInput_;
+
+    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
 
 };
 }// end namespace cms

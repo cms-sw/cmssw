@@ -16,6 +16,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <algorithm>
 #include <iterator>
@@ -37,13 +38,16 @@ std::ostream& operator<<(std::ostream& s, const PixelUnpackingRegions::Module& m
 
 
 
-PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf)
+PixelUnpackingRegions::PixelUnpackingRegions(const edm::ParameterSet& conf, edm::ConsumesCollector &&iC)
 {
   edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("Regions");
   beamSpotTag_ = regPSet.getParameter<edm::InputTag>("beamSpot");
   inputs_      = regPSet.getParameter<std::vector<edm::InputTag> >("inputs");
   dPhi_ = regPSet.getParameter<std::vector<double> >("deltaPhi");
   maxZ_ = regPSet.getParameter<std::vector<double> >("maxZ");
+
+  tBeamSpot = iC.consumes<reco::BeamSpot>(beamSpotTag_);
+  for (unsigned int t=0; t<inputs_.size(); t++ ) tCandidateView.push_back(iC.consumes< reco::CandidateView >(inputs_[t]));
 
   if (inputs_.size() != dPhi_.size() || dPhi_.size() != maxZ_.size() )
   {
@@ -62,7 +66,7 @@ void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es)
   initialize(es);
 
   edm::Handle<reco::BeamSpot> beamSpot;
-  e.getByLabel(beamSpotTag_, beamSpot);
+  e.getByToken(tBeamSpot, beamSpot);
   beamSpot_ = beamSpot->position();
   //beamSpot_ = math::XYZPoint(0.,0.,0.);
 
@@ -70,7 +74,7 @@ void PixelUnpackingRegions::run(const edm::Event& e, const edm::EventSetup& es)
   for(size_t input = 0; input < ninputs; ++input)
   {
     edm::Handle< reco::CandidateView > h;
-    e.getByLabel(inputs_[input], h);
+    e.getByToken(tCandidateView[input], h);
 
     size_t n = h->size();
     for(size_t i = 0; i < n; ++i )

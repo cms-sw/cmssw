@@ -207,6 +207,8 @@ namespace edm {
       ItemType newState = nextItemType_();
       if(newState == IsStop) {
         state_ = IsStop;
+      } else if(newState == IsSynchronize) {
+        state_ = IsSynchronize;
       } else if(newState == IsFile || oldState == IsInvalid) {
         state_ = IsFile;
       } else if(newState == IsRun || oldState == IsFile) {
@@ -318,12 +320,12 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
-    runPrincipal.fillRunPrincipal(processHistoryRegistryForUpdate());
+    runPrincipal.fillRunPrincipal(processHistoryRegistry());
   }
 
   void
   InputSource::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
-    lumiPrincipal.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
+    lumiPrincipal.fillLuminosityBlockPrincipal(processHistoryRegistry());
   }
 
   void

@@ -8,6 +8,12 @@
 
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 
+
+EventHeader::EventHeader(edm::ConsumesCollector && iC) : EventHeader::EventHeader()
+{
+  lumi_Token = iC.consumes<LumiSummary>(edm::InputTag("lumiProducer")); 
+}
+
 EventHeader::EventHeader() :
   fRun( -1 ),
   fEvent( -1 ),
@@ -16,7 +22,9 @@ EventHeader::EventHeader() :
   fOrbit( -1 ),
   fAvgInstDelLumi( -999. ),
   _Debug( false )
-{ }
+{
+  //  lumi_Token = consumes<LumiSummary>(edm::InputTag("lumiProducer")); 
+}
 
 EventHeader::~EventHeader() {
 
@@ -54,7 +62,8 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
   const edm::LuminosityBlock& iLumi = iEvent.getLuminosityBlock(); 
   edm::Handle<LumiSummary> lumiSummary; 
   try{
-    iLumi.getByLabel("lumiProducer", lumiSummary); 
+    if (!lumi_Token.isUnitialized() ) iLumi.getByToken(lumi_Token, lumiSummary);
+    else iLumi.getByLabel(edm::InputTag("lumiProducer"), lumiSummary);
     lumiSummary->isValid();
   }
   catch(cms::Exception&){

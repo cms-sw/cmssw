@@ -4,11 +4,10 @@
 
 #include <vector>
 #include <string>
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalInterface.h"
 #include "CLHEP/Evaluator/Evaluator.h"
 
 
-class ClhepEvaluator : public ExprEvalInterface
+class ClhepEvaluator
 {
 public:
  ClhepEvaluator();

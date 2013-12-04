@@ -10,7 +10,6 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrivialExample.cc,v 1.6 2007/04/13 03:09:28 dmytro Exp $
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

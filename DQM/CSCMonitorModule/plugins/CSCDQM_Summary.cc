@@ -396,7 +396,7 @@ namespace cscdqm {
    * @param  adr Address to be updated
    * @param  bit Status bit to set
    */
-  void Summary::ReSetValue(Address adr, const HWStatusBit bit) {
+  void Summary::ReSetValue(const Address& adr, const HWStatusBit bit) {
     SetValue(adr, bit, 0);
   }
   
@@ -418,7 +418,6 @@ namespace cscdqm {
    * @param  value Value to be set
    */
   void Summary::SetValue(Address adr, const HWStatusBit bit, const int value) {
-  
     if (!adr.mask.side) {
       adr.mask.side = true;
       for (adr.side = 1; adr.side <= N_SIDES; adr.side++) SetValue(adr, bit, value);
@@ -551,7 +550,6 @@ namespace cscdqm {
    */
   const double Summary::GetEfficiencyHW(Address adr) const { 
     double sum = 0.0;
-  
     if (!adr.mask.side) {
       adr.mask.side = true;
       for (adr.side = 1; adr.side <= N_SIDES; adr.side++) sum += GetEfficiencyHW(adr);
@@ -622,7 +620,7 @@ namespace cscdqm {
    * @param  adr Address
    * @return Area in eta/phi space
    */
-  const double Summary::GetEfficiencyArea(Address adr) const {
+  const double Summary::GetEfficiencyArea(const Address& adr) const {
     double all_area = 1;
   
     if (adr.mask.side == false &&
@@ -647,7 +645,6 @@ namespace cscdqm {
    */
   const double Summary::GetReportingArea(Address adr) const { 
     double sum = 0.0;
-  
     if (!adr.mask.side) {
       adr.mask.side = true;
       for (adr.side = 1; adr.side <= N_SIDES; adr.side++) sum += GetReportingArea(adr);
@@ -733,7 +730,6 @@ namespace cscdqm {
    * @return Value of the requested element
    */
   const HWStatusBitSet Summary::GetValue(Address adr) const {
-  
     HWStatusBitSet state;
     state.reset();
   

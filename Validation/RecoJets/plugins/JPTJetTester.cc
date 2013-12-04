@@ -727,7 +727,7 @@ if (!mEvent.isRealData()){
 
 }////Gen Close
 
-void JPTJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJet& fJPTJet,std::vector<reco::Vertex> goodVertices) {
+void JPTJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJet& fJPTJet,const std::vector<reco::Vertex>& goodVertices) {
   double logPtGen = log10 (fGenJet.pt());
   double PtGen = fGenJet.pt();
   double PtJpt = fJPTJet.pt();

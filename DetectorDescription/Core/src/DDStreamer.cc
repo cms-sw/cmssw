@@ -887,7 +887,7 @@ void DDStreamer::specs_read()
 void DDStreamer::vars_write()
 {
   std::ostream & os = *o_;
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
   if (eval){
     const std::vector<std::string> & vars = eval->variables();
@@ -912,7 +912,7 @@ void DDStreamer::vars_read()
 {
   DCOUT('Y', "DDStreamer::vars_read()");
   std::istream & is = *i_;
-  ExprEvalInterface & ev = ExprEvalSingleton::instance();
+  ClhepEvaluator & ev = ExprEvalSingleton::instance();
   ClhepEvaluator * eval = dynamic_cast<ClhepEvaluator*>(&ev);
   if (eval){
     size_t n(0);

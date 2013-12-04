@@ -7,16 +7,15 @@ RootInputFileSequence: This is an InputSource
 
 ----------------------------------------------------------------------*/
 
-#include "InputType.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
+#include "FWCore/Utilities/interface/InputType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
 #include <memory>
 #include <string>
@@ -41,7 +40,7 @@ namespace edm {
                                    PoolSource& input,
                                    InputFileCatalog const& catalog,
                                    unsigned int nStreams,
-                                   InputType::InputType inputType);
+                                   InputType inputType);
     virtual ~RootInputFileSequence();
 
     RootInputFileSequence(RootInputFileSequence const&) = delete; // Disallow copying and moving
@@ -56,7 +55,8 @@ namespace edm {
     std::unique_ptr<FileBlock> readFile_();
     void closeFile_();
     void endJob();
-    InputSource::ItemType getNextItemType();
+    InputSource::ItemType getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event);
+    bool containedInCurrentFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const;
     bool skipEvents(int offset);
     bool goToEvent(EventID const& eventID);
     bool skipToItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, bool currentFileFirst = true);
@@ -71,12 +71,8 @@ namespace edm {
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;
     boost::shared_ptr<BranchIDListHelper const> fileBranchIDListHelper() const;
-    ProcessHistoryRegistry const& processHistoryRegistry() const {
-      return input_.processHistoryRegistry();
-    }
-    ProcessHistoryRegistry& processHistoryRegistryForUpdate() {
-      return input_.processHistoryRegistryForUpdate();
-    }
+    ProcessHistoryRegistry const& processHistoryRegistry() const;
+    ProcessHistoryRegistry& processHistoryRegistryForUpdate();
     static void fillDescription(ParameterSetDescription & desc);
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
@@ -94,7 +90,7 @@ namespace edm {
     int remainingLuminosityBlocks() const;
 
     PoolSource& input_;
-    InputType::InputType inputType_;
+    InputType inputType_;
     InputFileCatalog const& catalog_;
     bool firstFile_;
     std::string lfn_;

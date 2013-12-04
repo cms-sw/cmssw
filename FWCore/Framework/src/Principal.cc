@@ -29,7 +29,7 @@
 
 namespace edm {
 
-  ProcessHistory const Principal::emptyProcessHistory_;
+  static ProcessHistory const s_emptyProcessHistory;
 
   static
   void
@@ -128,7 +128,7 @@ namespace edm {
                        BranchType bt,
                        HistoryAppender* historyAppender) :
     EDProductGetter(),
-    processHistoryPtr_(nullptr),
+    processHistoryPtr_(),
     processHistoryID_(),
     processConfiguration_(&pc),
     productHolders_(reg->getNextIndexValue(bt), SharedProductPtr()),
@@ -300,7 +300,7 @@ namespace edm {
   // "Zero" the principal so it can be reused for another Event.
   void
   Principal::clearPrincipal() {
-    processHistoryPtr_ = nullptr;
+    processHistoryPtr_.reset();
     processHistoryID_ = ProcessHistoryID();
     reader_ = nullptr;
     for(auto const& prod : *this) {
@@ -323,33 +323,35 @@ namespace edm {
   // Set the principal for the Event, Lumi, or Run.
   void
   Principal::fillPrincipal(ProcessHistoryID const& hist,
-                           ProcessHistoryRegistry& processHistoryRegistry,
+                           ProcessHistoryRegistry const& processHistoryRegistry,
                            DelayedReader* reader) {
     if(reader) {
       reader_ = reader;
     }
 
-    ProcessHistory const* inputProcessHistory = nullptr;
     if (historyAppender_ && productRegistry().anyProductProduced()) {
-      CachedHistory const& cachedHistory = 
+      processHistoryPtr_ =
         historyAppender_->appendToProcessHistory(hist,
-                                                *processConfiguration_,
-                                                processHistoryRegistry);
-      processHistoryPtr_ = cachedHistory.processHistory();
-      processHistoryID_ = cachedHistory.processHistoryID();
-      inputProcessHistory = cachedHistory.inputProcessHistory();
+                                                 processHistoryRegistry.getMapped(hist),
+                                                 *processConfiguration_);
+      processHistoryID_ = processHistoryPtr_->id();
     }
     else {
+      boost::shared_ptr<ProcessHistory const> inputProcessHistory;
       if (hist.isValid()) {
-        inputProcessHistory = processHistoryRegistry.getMapped(hist);
-        if (inputProcessHistory == 0) {
+        //does not own the pointer
+        auto noDel =[](void const*){};
+        inputProcessHistory =
+        boost::shared_ptr<ProcessHistory const>(processHistoryRegistry.getMapped(hist),noDel);
+        if (inputProcessHistory.get() == nullptr) {
           throw Exception(errors::LogicError)
             << "Principal::fillPrincipal\n"
             << "Input ProcessHistory not found in registry\n"
             << "Contact a Framework developer\n";
         }
       } else {
-        inputProcessHistory = &emptyProcessHistory_;
+        //Since this is static we don't want it deleted
+        inputProcessHistory = boost::shared_ptr<ProcessHistory const>(&s_emptyProcessHistory,[](void const*){});
       }
       processHistoryID_ = hist;
       processHistoryPtr_ = inputProcessHistory;        
@@ -497,6 +499,16 @@ namespace edm {
       return BasicHandle();
     }
     return BasicHandle(*productData);    
+  }
+
+  void
+  Principal::prefetch(ProductHolderIndex index,
+                      bool skipCurrentProcess,
+                      ModuleCallingContext const* mcc) const {
+    boost::shared_ptr<ProductHolderBase> const& productHolder = productHolders_.at(index);
+    assert(0!=productHolder.get());
+    ProductHolderBase::ResolveStatus resolveStatus;
+    productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
   }
 
   void
@@ -652,7 +664,7 @@ namespace edm {
       }
       inputTag.tryToCacheIndex(index, typeID, branchType(), &productRegistry());
     }
-    if(unlikely( consumer and (not consumer->registeredToConsume(index,branchType())))) {
+    if(unlikely( consumer and (not consumer->registeredToConsume(index, skipCurrentProcess, branchType())))) {
       failedToRegisterConsumes(kindOfType,typeID,inputTag.label(),inputTag.instance(),inputTag.process());
     }
 
@@ -694,7 +706,7 @@ namespace edm {
       return 0;
     }
     
-    if(unlikely( consumer and (not consumer->registeredToConsume(index,branchType())))) {
+    if(unlikely( consumer and (not consumer->registeredToConsume(index, false, branchType())))) {
       failedToRegisterConsumes(kindOfType,typeID,label,instance,process);
     }
     

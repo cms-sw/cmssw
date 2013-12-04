@@ -184,28 +184,28 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostCloseFile)
 
-      typedef signalslot::Signal<void(StreamContext const&, ModuleDescription const&)> PreModuleBeginStream;
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleBeginStream;
       PreModuleBeginStream preModuleBeginStreamSignal_;
       void watchPreModuleBeginStream(PreModuleBeginStream::slot_type const& iSlot) {
          preModuleBeginStreamSignal_.connect(iSlot);
       }
       AR_WATCH_USING_METHOD_2(watchPreModuleBeginStream)
         
-      typedef signalslot::Signal<void(StreamContext const&, ModuleDescription const&)> PostModuleBeginStream;
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PostModuleBeginStream;
       PostModuleBeginStream postModuleBeginStreamSignal_;
       void watchPostModuleBeginStream(PostModuleBeginStream::slot_type const& iSlot) {
          postModuleBeginStreamSignal_.connect_front(iSlot);
       }
       AR_WATCH_USING_METHOD_2(watchPostModuleBeginStream)
         
-      typedef signalslot::Signal<void(StreamContext const&, ModuleDescription const&)> PreModuleEndStream;
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEndStream;
       PreModuleEndStream preModuleEndStreamSignal_;
       void watchPreModuleEndStream(PreModuleEndStream::slot_type const& iSlot) {
          preModuleEndStreamSignal_.connect(iSlot);
       }
       AR_WATCH_USING_METHOD_2(watchPreModuleEndStream)
         
-      typedef signalslot::Signal<void(StreamContext const&, ModuleDescription const&)> PostModuleEndStream;
+      typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PostModuleEndStream;
       PostModuleEndStream postModuleEndStreamSignal_;
       void watchPostModuleEndStream(PostModuleEndStream::slot_type const& iSlot) {
          postModuleEndStreamSignal_.connect_front(iSlot);

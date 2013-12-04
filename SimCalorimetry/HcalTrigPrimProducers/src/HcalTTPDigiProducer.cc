@@ -2,7 +2,6 @@
 
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -23,7 +22,7 @@ const int HcalTTPDigiProducer::inputs_[] = { 30,66,4,44,4,44,0,68,
 
 HcalTTPDigiProducer::HcalTTPDigiProducer(const edm::ParameterSet& ps) 
 {
-    hfDigis_        = ps.getParameter<edm::InputTag>("HFDigiCollection") ; 
+    tok_hf_ = consumes<HFDigiCollection>(ps.getParameter<edm::InputTag>("HFDigiCollection")); 
     maskedChannels_ = ps.getParameter< std::vector<unsigned int> >("maskedChannels") ;
     bit_[0] = ps.getParameter<std::string>("defTT8") ; 
     bit_[1] = ps.getParameter<std::string>("defTT9") ; 
@@ -115,7 +114,7 @@ void HcalTTPDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSet
     
     // Step A: Get Inputs
     edm::Handle<HFDigiCollection> hfDigiCollection ; 
-    e.getByLabel(hfDigis_,hfDigiCollection) ;
+    e.getByToken(tok_hf_,hfDigiCollection) ;
     edm::ESHandle<HcalTPGCoder> inputCoder ;
     eventSetup.get<HcalTPGRecord>().get(inputCoder) ;
 

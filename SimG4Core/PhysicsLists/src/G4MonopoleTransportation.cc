@@ -54,6 +54,10 @@ class G4VSensitiveDetector;
 //
 // Constructor
 
+namespace {
+  static const G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
+}
+
 G4MonopoleTransportation::G4MonopoleTransportation(const G4Monopole* mpl,
 						   sim::FieldBuilder* fieldBuilder,
 						   G4int verb)
@@ -93,7 +97,6 @@ G4MonopoleTransportation::G4MonopoleTransportation(const G4Monopole* mpl,
   //  is constructed.
   // Instead later the method DoesGlobalFieldExist() is called
 
-  static G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
   fCurrentTouchableHandle = nullTouchableHandle; 
 
   fEndGlobalTimeComputed  = false;
@@ -455,11 +458,13 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
 G4VParticleChange* G4MonopoleTransportation::AlongStepDoIt( const G4Track& track,
                                                     const G4Step&  stepData )
 {
-  static G4int noCalls=0;
   static const G4ParticleDefinition* fOpticalPhoton =
            G4ParticleTable::GetParticleTable()->FindParticle("opticalphoton");
 
+#ifdef G4VERBOSE
+  static G4int noCalls=0;
   noCalls++;
+#endif
 
   fParticleChange.Initialize(track) ;
 

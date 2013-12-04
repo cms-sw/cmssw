@@ -37,10 +37,8 @@ from DQM.Physics.DQMPhysics_cff import *
 
 egammaDQMOffline.remove(electronAnalyzerSequence)
 photonAnalysis.isHeavyIon = True
-photonAnalysis.barrelRecHitProducer = 'ecalRecHit'
-photonAnalysis. barrelRecHitCollection = 'EcalRecHitsEB'
-photonAnalysis.endcapRecHitProducer = 'ecalRecHit'
-photonAnalysis. endcapRecHitCollection = 'EcalRecHitsEE'
+photonAnalysis.barrelRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEB")
+photonAnalysis.endcapRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
 hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
 hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
 

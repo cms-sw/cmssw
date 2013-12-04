@@ -2,7 +2,6 @@
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "InputFile.h"
-#include "InputType.h"
 #include "RootInputFileSequence.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -15,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputType.h"
 
 #include <set>
 
@@ -204,7 +204,7 @@ namespace edm {
         checkConsistency(eventPrincipal, secondaryEventPrincipal);
         checkHistoryConsistency(eventPrincipal, secondaryEventPrincipal);
         eventPrincipal.recombine(secondaryEventPrincipal, branchIDsToReplace_[InEvent]);
-        eventPrincipal.mergeMappers(secondaryEventPrincipal);
+        eventPrincipal.mergeProvenanceRetrievers(secondaryEventPrincipal);
         secondaryEventPrincipal.clearPrincipal();
       } else {
         throw Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<
@@ -223,7 +223,18 @@ namespace edm {
 
   InputSource::ItemType
   PoolSource::getNextItemType() {
-    return primaryFileSequence_->getNextItemType();;
+    RunNumber_t run = IndexIntoFile::invalidRun;
+    LuminosityBlockNumber_t lumi = IndexIntoFile::invalidLumi;
+    EventNumber_t event = IndexIntoFile::invalidEvent;
+    InputSource::ItemType itemType = primaryFileSequence_->getNextItemType(run, lumi, event);
+    if(secondaryFileSequence_ && (IsSynchronize != state())) {
+      if(itemType == IsRun || itemType == IsLumi || itemType == IsEvent) {
+        if(!secondaryFileSequence_->containedInCurrentFile(run, lumi, event)) {
+          return IsSynchronize;
+        }
+      }
+    }
+    return itemType;
   }
 
   void

@@ -3,7 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -58,7 +58,7 @@ namespace edm {
       //  << "Xerces-c initialization Number "
       //   << s_numberOfInstances <<
       if (s_numberOfInstances == 0) {
-        XMLPlatformUtils::Initialize();
+        cms::concurrency::xercesInitialize();
       }
     }
     catch (XMLException const& e) {

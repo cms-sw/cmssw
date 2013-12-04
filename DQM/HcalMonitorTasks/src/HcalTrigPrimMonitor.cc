@@ -23,6 +23,9 @@ HcalTrigPrimMonitor::HcalTrigPrimMonitor (const edm::ParameterSet& ps) :
    NLumiBlocks_           = ps.getUntrackedParameter<int>("NLumiBlocks",4000);
    makeDiagnostics_       = ps.getUntrackedParameter<bool>("makeDiagnostics",false);
 
+  // register for data access
+  tok_data_ = consumes<HcalTrigPrimDigiCollection>(dataLabel_);
+  tok_emu_ = consumes<HcalTrigPrimDigiCollection>(emulLabel_);
 }
 
 
@@ -174,13 +177,13 @@ HcalTrigPrimMonitor::analyze (edm::Event const &e, edm::EventSetup const &s) {
    if (LumiInOrder(e.luminosityBlock())==false) return;
 
    edm::Handle<HcalTrigPrimDigiCollection> data_tp_col;
-   if (!e.getByLabel(dataLabel_, data_tp_col)) {
+   if (!e.getByToken(tok_data_, data_tp_col)) {
       edm::LogWarning("HcalTrigPrimMonitor")<< dataLabel_<< " data TP not available";
       return;
    }
 
    edm::Handle<HcalTrigPrimDigiCollection> emul_tp_col;
-   if (!e.getByLabel(emulLabel_, emul_tp_col)) {
+   if (!e.getByToken(tok_emu_, emul_tp_col)) {
       edm::LogWarning("HcalTrigPrimMonitor")<< emulLabel_<< " emul TP not available";
       return;
    }

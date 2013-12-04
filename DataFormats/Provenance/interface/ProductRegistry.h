@@ -108,11 +108,6 @@ namespace edm {
 
     bool productProduced(BranchType branchType) const {return transient_.productProduced_[branchType];}
     bool anyProductProduced() const {return transient_.anyProductProduced_;}
-    BranchListIndex producedBranchListIndex() const {return transient_.producedBranchListIndex_;}
-
-    void setProducedBranchListIndex(BranchListIndex blix) {
-      transient_.producedBranchListIndex_ = blix;
-    }
 
     std::vector<std::string> const& missingDictionaries() const {
       return transient_.missingDictionaries_;
@@ -146,8 +141,6 @@ namespace edm {
       ProductHolderIndex runNextIndexValue_;
 
       std::map<BranchID, ProductHolderIndex> branchIDToIndex_;
-
-      BranchListIndex producedBranchListIndex_;
 
       std::vector<std::string> missingDictionaries_;
     };

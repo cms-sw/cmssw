@@ -16,15 +16,16 @@ HITSiStripRawToClustersRoI::HITSiStripRawToClustersRoI(const edm::ParameterSet& 
   random_(conf.getUntrackedParameter<bool>("random",false)),
   taujets_(conf.getUntrackedParameter<bool>("useTauJets",false)),
   ptrack_(conf.getUntrackedParameter<bool>("usePixelTracks",true)),
-  siStripLazyGetter_(conf.getParameter<edm::InputTag>("siStripLazyGetter")),
-  taujetL1_(conf.getParameter<edm::InputTag>("l1tauJetLabel")),
-  ptrackLabel_(conf.getParameter<edm::InputTag>("pixelTrackLabel")),
   taujetdeta_(conf.getUntrackedParameter<double>("tjetEtaWindow",0.2)),
   taujetdphi_(conf.getUntrackedParameter<double>("tjetPhiWindow",0.2)),
   ptrackEta_(conf.getUntrackedParameter<double>("ptrackEtaWindow",0.3)),
   ptrackPhi_(conf.getUntrackedParameter<double>("ptrackPhiWindow",0.3))
 	   
 {
+  tok_siStrip_ = consumes<LazyGetter>(conf.getParameter<edm::InputTag>("siStripLazyGetter"));
+  tok_tauL1_ = consumes<l1extra::L1JetParticleCollection>(conf.getParameter<edm::InputTag>("l1tauJetLabel"));
+  tok_ptrack_ = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("pixelTrackLabel"));
+
   produces< RefGetter >();
 }
 
@@ -49,7 +50,7 @@ void HITSiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetu
 
   
   edm::Handle< LazyGetter > lazygetter;
-  event.getByLabel(siStripLazyGetter_,lazygetter);
+  event.getByToken(tok_siStrip_,lazygetter);
 
   /// All regions 
   
@@ -72,7 +73,7 @@ void HITSiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetu
 
   if (taujets_) {
 	edm::Handle<l1extra::L1JetParticleCollection> collection;
-	event.getByLabel(taujetL1_,collection);
+	event.getByToken(tok_tauL1_,collection);
 	taujets(*collection,*refgetter,lazygetter);
     }
 
@@ -80,7 +81,7 @@ void HITSiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetu
   ///seeded by isol tracks
   if (ptrack_) {
       edm::Handle<trigger::TriggerFilterObjectWithRefs> collection;
-      event.getByLabel(ptrackLabel_,collection);
+      event.getByToken(tok_ptrack_,collection);
       ptracks(*collection,*refgetter,lazygetter);
     }
   

@@ -56,7 +56,7 @@ Direct inquiries to 30 Frost Street, Cambridge, MA 02140
 #include "vdt/vdtMath.h"
 
 
-static float SN[] = {
+static const float SN[] = {
 -8.39167827910303881427E-11,
  4.62591714427012837309E-8,
 -9.75759303843632795789E-6,
@@ -64,7 +64,7 @@ static float SN[] = {
 -4.13470316229406538752E-2,
  1.00000000000000000302E0,
 };
-static float SD[] = {
+static const float SD[] = {
   2.03269266195951942049E-12,
   1.27997891179943299903E-9,
   4.41827842801218905784E-7,
@@ -73,7 +73,7 @@ static float SD[] = {
   9.99999999999999996984E-1,
 };
 
-static float CN[] = {
+static const float CN[] = {
  2.02524002389102268789E-11,
 -1.35249504915790756375E-8,
  3.59325051419993077021E-6,
@@ -81,7 +81,7 @@ static float CN[] = {
  2.89159652607555242092E-2,
 -1.00000000000000000080E0,
 };
-static float CD[] = {
+static const float CD[] = {
   4.07746040061880559506E-12,
   3.06780997581887812692E-9,
   1.23210355685883423679E-6,
@@ -91,7 +91,7 @@ static float CD[] = {
 };
 
 
-static float FN4[] = {
+static const float FN4[] = {
   4.23612862892216586994E0,
   5.45937717161812843388E0,
   1.62083287701538329132E0,
@@ -100,7 +100,7 @@ static float FN4[] = {
   1.08936580650328664411E-4,
   5.48900223421373614008E-7,
 };
-static float FD4[] = {
+static const float FD4[] = {
 /*  1.00000000000000000000E0,*/
   8.16496634205391016773E0,
   7.30828822505564552187E0,
@@ -112,7 +112,7 @@ static float FD4[] = {
 };
 
 
-static float FN8[] = {
+static const float FN8[] = {
   4.55880873470465315206E-1,
   7.13715274100146711374E-1,
   1.60300158222319456320E-1,
@@ -123,7 +123,7 @@ static float FN8[] = {
   9.41779576128512936592E-11,
   9.70507110881952024631E-14,
 };
-static float FD8[] = {
+static const float FD8[] = {
 /*  1.00000000000000000000E0,*/
   9.17463611873684053703E-1,
   1.78685545332074536321E-1,
@@ -135,7 +135,7 @@ static float FD8[] = {
   9.70507110881952025725E-14,
 };
 
-static float GN4[] = {
+static const float GN4[] = {
   8.71001698973114191777E-2,
   6.11379109952219284151E-1,
   3.97180296392337498885E-1,
@@ -145,7 +145,7 @@ static float GN4[] = {
   1.97963874140963632189E-6,
   7.82579040744090311069E-9,
 };
-static float GD4[] = {
+static const float GD4[] = {
 /*  1.00000000000000000000E0,*/
   1.64402202413355338886E0,
   6.66296701268987968381E-1,
@@ -156,7 +156,7 @@ static float GD4[] = {
   7.82579218933534490868E-9,
 };
 
-static float GN8[] = {
+static const float GN8[] = {
   6.97359953443276214934E-1,
   3.30410979305632063225E-1,
   3.84878767649974295920E-2,
@@ -167,7 +167,7 @@ static float GN8[] = {
   3.85945925430276600453E-12,
   3.14040098946363334640E-15,
 };
-static float GD8[] = {
+static const float GD8[] = {
 /*  1.00000000000000000000E0,*/
   1.68548898811011640017E0,
   4.87852258695304967486E-1,
@@ -181,9 +181,9 @@ static float GD8[] = {
 };
 
 inline
-float polevlf( float xx, float *coef, int N ) {
+float polevlf( float xx, const float *coef, int N ) {
 float ans, x;
-float *p;
+const float *p;
 int i;
 
 x = xx;
@@ -204,9 +204,9 @@ return( ans );
  * Otherwise same as polevl.
  */
 inline
-float p1evlf( float xx, float *coef, int N ){
+float p1evlf( float xx, const float *coef, int N ){
 float ans, x;
-float *p;
+const float *p;
 int i;
 
 x = xx;

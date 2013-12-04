@@ -59,6 +59,7 @@ class InterestingTrackEcalDetIdProducer : public edm::EDProducer {
 
       
       // ----------member data ---------------------------
+	  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
       edm::InputTag trackCollection_;
       edm::ParameterSet trackAssociatorPS_;
 
@@ -84,11 +85,13 @@ class InterestingTrackEcalDetIdProducer : public edm::EDProducer {
 // constructors and destructor
 //
 InterestingTrackEcalDetIdProducer::InterestingTrackEcalDetIdProducer(const edm::ParameterSet& iConfig) :
-  trackCollection_ (iConfig.getParameter<edm::InputTag>("TrackCollection")),
+
   trackAssociatorPS_ (iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters")),
   minTrackPt_ (iConfig.getParameter<double>("MinTrackPt"))
 
 {
+  trackCollectionToken_=
+	  consumes<reco::TrackCollection> (iConfig.getParameter<edm::InputTag>("TrackCollection"));	 
   trackAssociator_.useDefaultPropagator();
   trackAssociatorParameters_.loadParameters(trackAssociatorPS_);
 
@@ -119,7 +122,7 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 
    // Get tracks from event
    edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(trackCollection_,tracks);
+   iEvent.getByToken(trackCollectionToken_,tracks);
 
    // Loop over tracks
    for(reco::TrackCollection::const_iterator tkItr = tracks->begin(); tkItr != tracks->end(); ++tkItr)

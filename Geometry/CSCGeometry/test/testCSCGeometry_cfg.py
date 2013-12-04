@@ -1,6 +1,4 @@
 # Configuration file to run CSCGeometryAnalyzer
-# I hope this builds geometry from xml
-# Tim Cox 18.10.2012
 
 import FWCore.ParameterSet.Config as cms
 
@@ -14,10 +12,7 @@ process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
 # Fake alignment is/should be ideal geometry
 # ==========================================
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
-process.fake2 = process.FakeAlignmentSource
-del process.FakeAlignmentSource
-process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource", "fake2")
-
+process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource")
 
 # flags for modelling of CSC layer & strip geometry
 # =================================================

@@ -72,6 +72,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
   
   //--------Initialize tags-------
   Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
+  Muon_Token = consumes<edm::View<reco::Muon> >(Muon_Tag);
   
   //-------Initialize counters----------------
   nEvents = 0;
@@ -298,7 +299,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   // Get Muon Collection 
   edm::Handle<edm::View<reco::Muon> > muonsHandle; // 
-  iEvent.getByLabel(Muon_Tag, muonsHandle);
+  iEvent.getByToken(Muon_Token, muonsHandle);
   
   //Fill event entry in histogram of number of muons
   edm::LogInfo("Tutorial") << "Number of Muons: " << muonsHandle->size();

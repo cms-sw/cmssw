@@ -24,10 +24,11 @@
 /* #include "Geometry/Vector/interface/GlobalPoint.h" */
 /* #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h" */
 /* #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h" */
-/* #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h" */
-/* #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h" */
-/* #include "DataFormats/JetReco/interface/CaloJetCollection.h" */
+ #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h" 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h" 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h" 
 /* #include "DataFormats/JetReco/interface/CaloJet.h" */
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include <fstream>
 
@@ -70,6 +71,13 @@ class GammaJetAnalysis : public edm::EDAnalyzer {
   std::string Tracks_;
   std::string myName; 
       double CutOnEgammaEnergy_;
+
+  edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> tok_egamma_;
+  edm::EDGetTokenT<EcalRecHitCollection> tok_ecal_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
      
   // stuff for histogramms
   //  output file name with histograms

@@ -466,7 +466,7 @@ namespace edm {
   template <typename T>
   WrapperInterface<T> const*
   Wrapper<T>::getInterface() {
-    static WrapperInterface<T> instance;
+    static const WrapperInterface<T> instance;
     return &instance;
   }
 }

@@ -1,5 +1,4 @@
 //
-// $Id: Top_Fit.h,v 1.12 2011/04/29 15:04:48 haryo Exp $
 //
 // File: hitfit/Top_Fit.h
 // Purpose: Handle jet permutations.

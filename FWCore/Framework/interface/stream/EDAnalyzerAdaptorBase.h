@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <vector>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -38,6 +39,7 @@ namespace edm {
   class ProductHolderIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
+  class ProductHolderIndexAndSkipBit;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -45,6 +47,7 @@ namespace edm {
   
   namespace stream {
     class EDAnalyzerBase;
+
     class EDAnalyzerAdaptorBase
     {
       
@@ -73,8 +76,10 @@ namespace edm {
       }
       
       //Same interface as EDConsumerBase
-      void itemsToGet(BranchType, std::vector<ProductHolderIndex>&) const;
-      void itemsMayGet(BranchType, std::vector<ProductHolderIndex>&) const;
+      void itemsToGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
+      void itemsMayGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
+      std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const;
+
       void updateLookup(BranchType iBranchType,
                         ProductHolderIndexHelper const&);
       

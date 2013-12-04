@@ -1,5 +1,5 @@
-#ifndef JetObjects_classes_h
-#define JetObjects_classes_h
+#ifndef JetObjects2_classes_h
+#define JetObjects2_classes_h
 
 #include "DataFormats/JetReco/interface/BasicJetCollection.h"
 #include "DataFormats/JetReco/interface/BasicJet.h" 

@@ -58,6 +58,8 @@ class CaloTowersMerger : public edm::EDProducer {
       // ----------member data ---------------------------
 
   edm::InputTag regularTowerTag,extraTowerTag;
+  edm::EDGetTokenT<CaloTowerCollection> tok_reg_;
+  edm::EDGetTokenT<CaloTowerCollection> tok_ext_;
 };
 
 //
@@ -76,6 +78,10 @@ CaloTowersMerger::CaloTowersMerger(const edm::ParameterSet& iConfig)
 {
   regularTowerTag=iConfig.getParameter<edm::InputTag>("regularTowerTag");
   extraTowerTag=iConfig.getParameter<edm::InputTag>("extraTowerTag");
+
+  // register for data access
+  tok_reg_ = consumes<CaloTowerCollection>(regularTowerTag);
+  tok_ext_ = consumes<CaloTowerCollection>(extraTowerTag);
 
    //register your products
    produces<CaloTowerCollection>();
@@ -101,8 +107,8 @@ CaloTowersMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle<CaloTowerCollection> regTower,extraTower;
 
-  iEvent.getByLabel(regularTowerTag,regTower);
-  iEvent.getByLabel(extraTowerTag,extraTower);
+  iEvent.getByToken(tok_reg_,regTower);
+  iEvent.getByToken(tok_ext_,extraTower);
 
   std::auto_ptr<CaloTowerCollection> output;
 

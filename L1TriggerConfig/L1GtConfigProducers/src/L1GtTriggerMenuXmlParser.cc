@@ -34,6 +34,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 
 // constructor
 L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser() :
@@ -343,7 +344,7 @@ XERCES_CPP_NAMESPACE::XercesDOMParser* L1GtTriggerMenuXmlParser::initXML(const s
 
     // try to initialize
     try {
-        XMLPlatformUtils::Initialize();
+        cms::concurrency::xercesInitialize();
     }
     catch (const XMLException& toCatch) {
         char* message = XMLString::transcode(toCatch.getMessage());
@@ -909,7 +910,7 @@ void L1GtTriggerMenuXmlParser::cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser*
         m_xmlErrHandler = 0;
     }
 
-    XMLPlatformUtils::Terminate();
+    cms::concurrency::xercesTerminate();
 
 }
 

@@ -7,6 +7,7 @@
 
 #include <sstream>
 #include <cstdlib>
+#include <atomic>
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,12 +43,13 @@ std::ostream & operator<<(std::ostream & os, const DDRotation & r)
 
 DDRotation::DDRotation() : DDBase<DDName,DDRotationMatrix*>()
 {
-  //static bool onlyOnce=true;
-  //if (onlyOnce) {
-  //  static DDRotationMatrix* rm_ = new DDRotationMatrix;
-  //  prep_ = StoreT::instance().create(DDName("",""), rm_ );
   constexpr char const* baseName = "DdBlNa";
-  static int countBlank;
+  // In this particular case, we do not really care about multiple threads
+  // using the same counter, we simply need to have a unique id for the 
+  // blank matrix being created, so just making this static an atomic should do
+  // the trick. In order to ensure repeatibility one should also include some 
+  // some run specific Id, I guess. Not sure it really matters.
+  static std::atomic<int> countBlank;
   char buf[64];
   snprintf(buf, 64, "%s%i", baseName, countBlank++);
   prep_ = StoreT::instance().create(DDName(buf,baseName), new DDRotationMatrix );
@@ -73,14 +75,11 @@ DDRotation::DDRotation(const DDName & name, DDRotationMatrix * rot)
 DDRotation::DDRotation(DDRotationMatrix * rot)
  : DDBase<DDName,DDRotationMatrix*>()
 {
-  static std::string baseNoName("DdNoNa");
-  static int countNN;
-  static std::ostringstream ostr2;
-  ostr2 << countNN++;
-  prep_ = StoreT::instance().create(DDName(baseNoName+ostr2.str(), baseNoName), rot);
-  //  std::cout << "making a NO-NAME " << baseNoName+ostr2.str() << " named rotation, " << prep_->second << std::endl;
-  ostr2.clear();
-  ostr2.str("");
+  static std::atomic<int> countNN;
+  char buf[64];
+  snprintf(buf, 64, "DdNoNa%i", countNN++);
+  prep_ = StoreT::instance().create(DDName(buf, "DdNoNa"), rot);
+  //  std::cout << "making a NO-NAME " << buf << " named rotation, " << prep_->second << std::endl;
 }
 
 // void DDRotation::clear()

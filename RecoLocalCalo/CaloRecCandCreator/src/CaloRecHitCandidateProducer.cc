@@ -21,8 +21,6 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 using namespace edm;
 using namespace reco;
@@ -65,10 +63,7 @@ namespace {
 
 
 CaloRecHitCandidateProducer::CaloRecHitCandidateProducer ( const edm::ParameterSet & fConfig ) 
-  :  mHBHELabel (fConfig.getParameter<edm::InputTag>("hbheInput")),
-     mHOLabel (fConfig.getParameter<edm::InputTag>("hoInput")),
-     mHFLabel (fConfig.getParameter<edm::InputTag>("hfInput")),
-     mEcalLabels (fConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
+  :  mEcalLabels (fConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
      mAllowMissingInputs (fConfig.getUntrackedParameter<bool>("AllowMissingInputs",false)),
      mUseHO (fConfig.getParameter<bool>("UseHO")),
 
@@ -89,6 +84,15 @@ CaloRecHitCandidateProducer::CaloRecHitCandidateProducer ( const edm::ParameterS
      mHF1weight (fConfig.getParameter<double>("HF1Weight")),
      mHF2weight (fConfig.getParameter<double>("HF2Weight"))
 {
+
+  tok_hbhe_ = consumes<HBHERecHitCollection>(fConfig.getParameter<edm::InputTag>("hbheInput"));
+     tok_ho_ = consumes<HORecHitCollection> (fConfig.getParameter<edm::InputTag>("hoInput"));
+     tok_hf_ = consumes<HFRecHitCollection> (fConfig.getParameter<edm::InputTag>("hfInput"));
+
+  const unsigned nLabels = mEcalLabels.size();
+  for ( unsigned i=0; i != nLabels; i++ )
+    toks_ecal_.push_back(consumes<EcalRecHitCollection>(mEcalLabels[i]));
+
   produces<CandidateCollection>();
 }
 
@@ -105,7 +109,7 @@ void CaloRecHitCandidateProducer::produce( edm::Event & fEvent, const edm::Event
   auto_ptr<CandidateCollection> output ( new CandidateCollection );
   // get and process Inputs
   edm::Handle<HBHERecHitCollection> hbhe;
-  fEvent.getByLabel(mHBHELabel,hbhe);
+  fEvent.getByToken(tok_hbhe_,hbhe);
   if (!hbhe.isValid()) {
     // can't find it!
     if (!mAllowMissingInputs) {
@@ -117,7 +121,7 @@ void CaloRecHitCandidateProducer::produce( edm::Event & fEvent, const edm::Event
 
   if (mUseHO) {
     edm::Handle<HORecHitCollection> ho;
-    fEvent.getByLabel(mHOLabel,ho);
+    fEvent.getByToken(tok_ho_,ho);
     if (!ho.isValid()) {
       // can't find it!
       if (!mAllowMissingInputs) {
@@ -129,7 +133,7 @@ void CaloRecHitCandidateProducer::produce( edm::Event & fEvent, const edm::Event
   }
 
   edm::Handle<HFRecHitCollection> hf;
-  fEvent.getByLabel(mHFLabel,hf);
+  fEvent.getByToken(tok_hf_,hf);
   if (!hf.isValid()) {
     // can't find it!
     if (!mAllowMissingInputs) {
@@ -139,10 +143,10 @@ void CaloRecHitCandidateProducer::produce( edm::Event & fEvent, const edm::Event
     processHits (hf, *this, *geometry, *topology, &*output);
   }
 
-  std::vector<edm::InputTag>::const_iterator i;
-  for (i=mEcalLabels.begin(); i!=mEcalLabels.end(); i++) {
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> >::const_iterator i;
+  for (i=toks_ecal_.begin(); i!=toks_ecal_.end(); i++) {
     edm::Handle<EcalRecHitCollection> ec;
-    fEvent.getByLabel(*i,ec);
+    fEvent.getByToken(*i,ec);
     if (!ec.isValid()) {
       // can't find it!
       if (!mAllowMissingInputs) {

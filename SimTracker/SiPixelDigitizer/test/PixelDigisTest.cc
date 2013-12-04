@@ -119,6 +119,11 @@ public:
 private:
   // ----------member data ---------------------------
   bool PRINT;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi;
+#ifdef USE_SIM_LINKS
+  edm::EDGetTokenT< edm::DetSetVector<PixelDigiSimLink> > tPixelDigiSimLink;
+#endif
+
 
 #ifdef HISTOS
 
@@ -174,6 +179,11 @@ PixelDigisTest::PixelDigisTest(const edm::ParameterSet& iConfig) {
 
   PRINT = iConfig.getUntrackedParameter<bool>("Verbosity",false);
   src_ =  iConfig.getParameter<edm::InputTag>( "src" );
+  tPixelDigi = consumes <edm::DetSetVector<PixelDigi>> (src_);
+#ifdef USE_SIM_LINKS
+  tPixelDigiSimLink = consumes < edm::DetSetVector<PixelDigiSimLink> > ( src_);
+#endif
+
   cout<<" Construct PixelDigisTest "<<endl;
 }
 
@@ -389,12 +399,12 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 
     // Get digis
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
-  iEvent.getByLabel( src_ , pixelDigis);
+  iEvent.getByToken( tPixelDigi , pixelDigis);
 
 #ifdef USE_SIM_LINKS
   // Get simlink data
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> > pixelSimLinks;
-  iEvent.getByLabel( src_ ,   pixelSimLinks);
+  iEvent.getByToken( tPixelDigiSimLink,   pixelSimLinks);
 #endif
 
   // Get event setup (to get global transformation)

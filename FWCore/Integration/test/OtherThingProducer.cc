@@ -1,10 +1,35 @@
-#include "FWCore/Integration/test/OtherThingProducer.h"
+#include <string>
+
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+
+#include "FWCore/Integration/test/OtherThingAlgorithm.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+
 namespace edmtest {
+  class OtherThingProducer : public edm::EDProducer {
+  public:
+    explicit OtherThingProducer(edm::ParameterSet const& ps);
+    
+    virtual ~OtherThingProducer();
+    
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    
+  private:
+    OtherThingAlgorithm alg_;
+    edm::EDGetToken thingToken_;
+    bool useRefs_;
+    bool refsAreTransient_;
+  };
+
+  
   OtherThingProducer::OtherThingProducer(edm::ParameterSet const& pset): alg_(), refsAreTransient_(false) {
     produces<OtherThingCollection>("testUserTag");
     useRefs_ = pset.getUntrackedParameter<bool>("useRefs");
@@ -24,10 +49,19 @@ namespace edmtest {
     // Step B: Create empty output 
     std::auto_ptr<OtherThingCollection> result(new OtherThingCollection);  //Empty
 
-    // Step C: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
-    alg_.run(e, *result, thingToken_, useRefs_, refsAreTransient_);
+    // Step C: Get data for algorithm
+    edm::Handle<ThingCollection> parentHandle;
+    if(useRefs_) {
+      bool succeeded = e.getByToken(thingToken_, parentHandle);
+      assert(succeeded);
+      assert(parentHandle.isValid());
+    }
 
-    // Step D: Put outputs into event
+    
+    // Step D: Invoke the algorithm, passing in inputs (NONE) and getting back outputs.
+    alg_.run(parentHandle, *result, useRefs_, refsAreTransient_);
+
+    // Step E: Put outputs into event
     e.put(result, std::string("testUserTag"));
   }
   

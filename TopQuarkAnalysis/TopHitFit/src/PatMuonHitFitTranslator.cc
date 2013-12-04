@@ -1,5 +1,4 @@
 //
-//     $Id: PatMuonHitFitTranslator.cc,v 1.8 2010/08/06 22:03:03 haryo Exp $
 //
 /**
     @file PatMuonHitFitTranslator.cc

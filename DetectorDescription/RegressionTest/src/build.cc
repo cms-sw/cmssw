@@ -6,7 +6,6 @@ using namespace std;
 #include <vector>
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
@@ -35,7 +34,7 @@ File elements.xml:
   Material(elem) Oxygen  
 */
 void regressionTest_setup() {
-   ExprEvalInterface & eval = ExprEval::instance();
+   ClhepEvaluator & eval = ExprEval::instance();
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -110,14 +109,13 @@ void regressionTest_setup() {
 */ 
 void regressionTest_first( ) {
   ///load the new cpv
-  AlgoInit();
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
   DDLParser myP(cpv);// = DDLParser::instance();
   
   cout << "main::about to set configuration" << endl;
   
-  ExprEvalInterface & eval = ExprEval::instance();
+  ClhepEvaluator & eval = ExprEval::instance();
   string ns("first");
   DDSolid support = DDSolidFactory::box(DDName("support",ns),
 					eval.eval(ns,"[setup:corner]/4."),
@@ -184,7 +182,6 @@ void output(string filename)
 
   os << "Starting Regressiontest Output" << endl;
   ///load the new cpv
-  AlgoInit();
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
   DDLParser myP(cpv);// = DDLParser::instance();
@@ -226,7 +223,6 @@ void testParser()
 {
   try {
     cout << "main:: initialize" << endl;
-    AlgoInit();
     DDCompactView cpv;
     cout << "main::initialize DDL parser" << endl;
     DDLParser myP(cpv);// = DDLParser::instance();
@@ -280,7 +276,6 @@ void printRot(const DDRotationMatrix & rot) {
 
 void testrot()
 {
-  //  ExprEvalInterface & eval = ExprEval::instance();
   {
     ROOT::Math::AxisAngle aa(DD3Vector(1.,1.,1.), 20.*deg);
     DDRotationMatrix rm(aa); 

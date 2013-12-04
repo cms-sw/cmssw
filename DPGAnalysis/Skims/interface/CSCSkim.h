@@ -8,7 +8,6 @@
  * Michael Schmitt, Northwestern University, July 2008
  */
 
-// system include files
 #include <memory>
 #include <iostream>
 #include <vector>
@@ -17,7 +16,7 @@
 #include <iomanip>
 #include <fstream>
 
-// user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -141,12 +140,17 @@ private:
   std::string outputFileName;
   std::string histogramFileName;
 
-  // tag names
-  edm::InputTag cscRecHitTag;
-  edm::InputTag cscSegmentTag;
-  edm::InputTag SAMuonTag;
-  edm::InputTag GLBMuonTag;
-  edm::InputTag trackTag;
+  // token names
+  edm::EDGetTokenT<CSCWireDigiCollection> wds_token;
+  edm::EDGetTokenT<CSCStripDigiCollection> sds_token;
+  edm::EDGetTokenT<CSCWireDigiCollection> wdr_token;
+  edm::EDGetTokenT<CSCStripDigiCollection> sdr_token;
+
+  edm::EDGetTokenT<CSCRecHit2DCollection> rh_token;
+  edm::EDGetTokenT<CSCSegmentCollection> seg_token;
+  edm::EDGetTokenT<reco::TrackCollection> sam_token;
+  edm::EDGetTokenT<reco::TrackCollection> trk_token;
+  edm::EDGetTokenT<reco::MuonCollection> glm_token;
 
   // parameters for the selection
   bool isSimulation;

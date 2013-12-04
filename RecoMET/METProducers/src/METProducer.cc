@@ -23,12 +23,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -56,10 +55,13 @@ namespace cms
     , inputType(iConfig.getParameter<std::string>("InputType"))
     , METtype(iConfig.getParameter<std::string>("METType"))
     , alias(iConfig.getParameter<std::string>("alias"))
+    , inputToken_(consumes<edm::View<reco::Candidate> >(inputLabel))
     , calculateSignificance_(false)
     , resolutions_(0)
     , globalThreshold(iConfig.getParameter<double>("globalThreshold"))
   {
+
+
     if( METtype == "CaloMET" ) 
       {
 	noHF = iConfig.getParameter<bool>("noHF");
@@ -82,6 +84,7 @@ namespace cms
 	if(calculateSignificance_)
 	  {
 	    jetsLabel_ = iConfig.getParameter<edm::InputTag>("jets");
+	    jetToken_ = consumes<edm::View<reco::PFJet> >(iConfig.getParameter<edm::InputTag>("jets"));
 	  }
 
       }
@@ -92,26 +95,15 @@ namespace cms
     else if (METtype == "TCMET" )
       {
 	produces<reco::METCollection>().setBranchAlias(alias.c_str());
-
-	int rfType_               = iConfig.getParameter<int>("rf_type");
-	bool correctShowerTracks_ = iConfig.getParameter<bool>("correctShowerTracks"); 
-
-	int responseFunctionType = 0;
-	if(! correctShowerTracks_)
-	  {
-	    if( rfType_ == 1 ) responseFunctionType = 1; // 'fit'
-	    else if( rfType_ == 2 ) responseFunctionType = 2; // 'mode'
-	    else { /* probably error */ }
-	  }
-	tcMetAlgo_.configure(iConfig, responseFunctionType );
+	tcMetAlgo_.configure(iConfig, consumesCollector());
       }
     else                            
       produces<reco::METCollection>().setBranchAlias(alias.c_str()); 
 
-    if (calculateSignificance_ && ( METtype == "CaloMET" || METtype == "PFMET")){
+    if (calculateSignificance_ && ( METtype == "CaloMET" || METtype == "PFMET"))
+      {
 	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
-	
-    }
+      }
   }
 
 
@@ -153,7 +145,7 @@ namespace cms
   void METProducer::produce_CaloMET(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
@@ -186,7 +178,7 @@ namespace cms
   void METProducer::produce_PFMET(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
@@ -196,7 +188,7 @@ namespace cms
     if( calculateSignificance_ )
       {
 	edm::Handle<edm::View<reco::PFJet> > jets;
-	event.getByLabel(jetsLabel_, jets);
+	event.getByToken(jetToken_, jets);
 	pf.runSignificance(*resolutions_, jets);
       }
 
@@ -209,7 +201,7 @@ namespace cms
   void METProducer::produce_PFClusterMET(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     METAlgo algo;
     CommonMETData commonMETdata = algo.run(input, globalThreshold);
@@ -225,7 +217,7 @@ namespace cms
   void METProducer::produce_GenMET(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     CommonMETData commonMETdata;
 
@@ -239,7 +231,7 @@ namespace cms
   void METProducer::produce_else(edm::Event& event)
   {
     edm::Handle<edm::View<reco::Candidate> > input;
-    event.getByLabel(inputLabel, input);
+    event.getByToken(inputToken_, input);
 
     CommonMETData commonMETdata;
 

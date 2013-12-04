@@ -243,11 +243,13 @@ class AlCaHOCalibProducer : public edm::EDProducer {
   //GM #endif
 
   edm::InputTag muonTags_;   // cosmicMuons or standAloneMuons
-  edm::InputTag hbheLabel_;
-  edm::InputTag hoLabel_;
-  edm::InputTag hltLabel_;
-  edm::InputTag l1Label_;  
-  edm::InputTag towerLabel_;    
+
+  edm::EDGetTokenT<reco::TrackCollection> tok_muons_;
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<edm::TriggerResults> tok_hlt_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_l1_;
+  edm::EDGetTokenT<CaloTowerCollection> tok_tower_;
 
   bool m_digiInput;            // digi (true) or rechit (false)
   bool m_hbinfo;
@@ -292,7 +294,6 @@ class AlCaHOCalibProducer : public edm::EDProducer {
 // constructors and destructor
 //
 AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
-  :  muonTags_(iConfig.getUntrackedParameter<edm::InputTag>("muons"))
 
 {
    //register your products
@@ -310,12 +311,17 @@ AlCaHOCalibProducer::AlCaHOCalibProducer(const edm::ParameterSet& iConfig)
   if (m_endTS >9) m_endTS=9;
   m_magscale = iConfig.getUntrackedParameter<double>("m_scale", 4.0);
   m_sigma = iConfig.getUntrackedParameter<double>("sigma", 1.0);
-  
-  hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
-  hbheLabel_ = iConfig.getParameter<edm::InputTag>("hbheInput");
-  hltLabel_ = iConfig.getParameter<edm::InputTag>("hltInput");
-  l1Label_ = iConfig.getParameter<edm::InputTag>("l1Input");
-  towerLabel_ = iConfig.getParameter<edm::InputTag>("towerInput");  
+
+  // keep InputTag muonTags_ since it is used below. - cowden
+  muonTags_ =   iConfig.getUntrackedParameter<edm::InputTag>("muons");
+  tok_muons_ = consumes<reco::TrackCollection>(muonTags_);
+  tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
+  tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
+  tok_tower_ = consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("towerInput"));  
+
+  // Since these accesses are currently commented out, I put the registration as "mayConsume". - cowden
+  tok_hlt_  = mayConsume<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltInput"));
+  tok_l1_ = mayConsume<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("l1Input"));
   
   produces<HOCalibVariableCollection>("HOCalibVariableCollection").setBranchAlias("HOCalibVariableCollection");
   
@@ -478,8 +484,8 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HBHEDigiCollection> hbhe; 
 
   if (m_digiInput) {
-      iEvent.getByLabel(hoLabel_,ho);
-      iEvent.getByLabel(hbheLabel_,hbhe);
+      iEvent.getByToken(tok_ho_,ho);
+      iEvent.getByToken(tok_hbhe_,hbhe);
   }
   
   if (m_hotime && m_digiInput) {
@@ -529,7 +535,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   double pival = acos(-1.);
   
   Handle<reco::TrackCollection> cosmicmuon;
-  iEvent.getByLabel(muonTags_, cosmicmuon);
+  iEvent.getByToken(tok_muons_, cosmicmuon);
   
   if (cosmicmuon->size()>0) { 
     
@@ -541,7 +547,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     /*   
     //L1 trigger
     Handle<L1GlobalTriggerReadoutRecord> L1GTRR;
-    iEvent.getByLabel(l1Label_,L1GTRR);  //gtDigis
+    iEvent.getByToken(tok_l1_,L1GTRR);  //gtDigis
     
     if ( L1GTRR.isValid()) {
       const unsigned int n(L1GTRR->decisionWord().size());
@@ -558,7 +564,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //HLT 
 
     Handle<edm::TriggerResults> trigRes;    
-    iEvent.getByLabel(hltLabel_, trigRes);
+    iEvent.getByToken(tok_hlt_, trigRes);
 
 
     unsigned int size = trigRes->size();
@@ -667,7 +673,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (muonTags_.label() =="standAloneMuons") {
 	
 	Handle<CaloTowerCollection> calotower;
-	iEvent.getByLabel(towerLabel_, calotower);
+	iEvent.getByToken(tok_tower_, calotower);
 
 	for (CaloTowerCollection::const_iterator calt = calotower->begin();
 	     calt !=calotower->end(); calt++) {
@@ -917,7 +923,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    } else {
 	      
 	      edm::Handle<HBHERecHitCollection> hbheht;// iEvent.getByType(hbheht);
-	      iEvent.getByLabel(hbheLabel_,hbheht);
+	      iEvent.getByToken(tok_hbhe_,hbheht);
 
 	      
 	      if ((*hbheht).size()>0) {
@@ -1153,7 +1159,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  } 
 	} else {
 	  edm::Handle<HORecHitCollection> hoht;
-	  iEvent.getByLabel(hoLabel_,hoht);
+	  iEvent.getByToken(tok_ho_,hoht);
 	    
 	  
 	  if ((*hoht).size()>0) {

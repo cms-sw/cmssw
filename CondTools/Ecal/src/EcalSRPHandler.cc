@@ -5,7 +5,7 @@
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -750,7 +750,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
 }
 
 void popcon::EcalSRPHandler::importDccConfigFile(EcalSRSettings& sr, const std::string& filename, bool useCLOB){
-  XMLPlatformUtils::Initialize();
+  cms::concurrency::xercesInitialize();
 
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme( XercesDOMParser::Val_Never );
@@ -826,7 +826,7 @@ void popcon::EcalSRPHandler::importDccConfigFile(EcalSRSettings& sr, const std::
   sr.srpHighInterestChannelZS_.push_back(L2ZS[0]*0.035/4);  //  EB
   sr.srpHighInterestChannelZS_.push_back(L2ZS[1]*0.060/4);  //  EE
   delete parser;
-  XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 }
 
 void popcon::EcalSRPHandler::PrintPayload(EcalSRSettings& sr, std::ofstream& fout){

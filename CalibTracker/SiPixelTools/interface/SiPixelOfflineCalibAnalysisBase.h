@@ -125,6 +125,8 @@ private:
   std::map<uint32_t, std::string> detIdNames_;
   
   edm::InputTag siPixelCalibDigiProducer_;
+
+  edm::EDGetTokenT<edm::DetSetVector<SiPixelCalibDigi> > tPixelCalibDigi;
   
   //the beginJob is used to load the calib database.  It then calls the pure
   //virtual calibrationSetup() function.  Derived classes should put beginJob functionality there.

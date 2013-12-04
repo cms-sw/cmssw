@@ -18,7 +18,7 @@ void StaticLocalChecker::checkASTDecl(const clang::VarDecl *D,
 {
 	clang::QualType t =  D->getType();
 
-	if ( D->isStaticLocal() && ! support::isConst( t ) )
+	if ( ( (D->isStaticLocal() || D->isStaticDataMember() )  && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local) && ! support::isConst( t ) )
 	{
 	    clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
 

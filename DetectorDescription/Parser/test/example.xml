@@ -154,27 +154,39 @@
 			<rChild name="MF"/>
 			<rReflectionRotation name="rotations:180R"/>
 		</PosPart>
-		<AlgoPosPart start="1" end="5" incr="1" algo="global:linear">
+		<Algorithm name="global:DDLinear">
 			<rParent name="world"/>
-			<rChild name="box"/>
-			<ParE name="phi" value="0"/>
-			<ParE name="theta" value="90*deg"/>
-			<ParE name="delta" value="0.5*m"/>
-		</AlgoPosPart>
-		<AlgoPosPart start="-1" end="1" incr="1" algo="global:linear">
+			<String  name="ChildName" value="box"/>
+			<Numeric name="N" value="5"/>
+			<Numeric name="StartCopyNo" value="1"/>
+			<Numeric name="IncrCopyNo" value="1"/>
+			<Numeric name="Delta" value="0.5*m"/>
+			<Vector  name="Base" type="numeric" nEntries="3"> 0.*mm, 0.*mm, 0.*mm </Vector>
+			<Numeric name="Theta" value="90.*deg"/>
+			<Numeric name="Phi" value="0.*deg"/>
+		</Algorithm>
+		<Algorithm name="global:DDLinear">
 			<rParent name="box"/>
-			<rChild name="sens"/>
-			<ParE name="phi" value="90*deg"/>
-			<ParE name="theta" value="90*deg"/>
-			<ParE name="delta" value="3.*cm"/>
-		</AlgoPosPart>
-		<AlgoPosPart start="1" end="5" incr="1" algo="global:linear">
+			<String  name="ChildName" value="sens"/>
+			<Numeric name="N" value="3"/>
+			<Numeric name="StartCopyNo" value="-1"/>
+			<Numeric name="IncrCopyNo" value="1"/>
+			<Numeric name="Delta" value="3*cm"/>
+			<Vector  name="Base" type="numeric" nEntries="3"> 0.*mm, 0.*mm, 0.*mm </Vector>
+			<Numeric name="Theta" value="90.*deg"/>
+			<Numeric name="Phi" value="90.*deg"/>
+		</Algorithm>
+		<Algorithm name="global:DDLinear">
 			<rParent name="world"/>
-			<rChild name="box"/>
-			<ParE name="phi" value="90*deg"/>
-			<ParE name="theta" value="90*deg"/>
-			<ParE name="delta" value="0.5*m"/>
-		</AlgoPosPart>
+			<String  name="ChildName" value="box"/>
+			<Numeric name="N" value="5"/>
+			<Numeric name="StartCopyNo" value="1"/>
+			<Numeric name="IncrCopyNo" value="1"/>
+			<Numeric name="Delta" value="0.5*m"/>
+			<Vector  name="Base" type="numeric" nEntries="3"> 0.*mm, 0.*mm, 0.*mm </Vector>
+			<Numeric name="Theta" value="90.*deg"/>
+			<Numeric name="Phi" value="90.*deg"/>
+		</Algorithm>
 	</PosPartSection>
 	<!--Algorithm name="DDTestAlgorithm">
   <rParent name="cms:OCMS"/>

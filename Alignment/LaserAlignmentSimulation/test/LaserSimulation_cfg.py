@@ -19,14 +19,14 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 ## all db records
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
-process.GlobalTag.globaltag = 'IDEAL_31X::All'
+process.GlobalTag.globaltag = 'PRE_MC62_V8::All'
 
 #process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
-process.load("Configuration.StandardSequences.MixingNoPileUp_cff")
+process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 
 process.load("Configuration.StandardSequences.Simulation_cff")
-process.simSiStripDigis.ZeroSuppression = False; ### NO ZERO SUPPRESSION
+##process.simSiStripDigis.ZeroSuppression = False; ### NO ZERO SUPPRESSION
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),

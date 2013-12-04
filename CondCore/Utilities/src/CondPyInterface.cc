@@ -25,7 +25,6 @@
 #include "CondCore/DBCommon/interface/Auth.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/FipProtocolParser.h"
 #include "CondCore/DBCommon/interface/ClassID.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "CondCore/DBCommon/interface/Logger.h"

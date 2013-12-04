@@ -6,76 +6,52 @@
  */
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronCombinedIsolationProducer.h"
-
-// Framework
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
-
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
-
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
+EgammaHLTElectronCombinedIsolationProducer::EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
 
-#include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
+  electronProducer_          = consumes<reco::ElectronCollection>(conf_.getParameter<edm::InputTag>("electronProducer"));
+  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
 
+  for (edm::InputTag const & tag : conf_.getParameter< std::vector<edm::InputTag> > ("CaloIsolationMapTags"))
+    CaloIsolTag_.push_back(consumes<reco::RecoEcalCandidateIsolationMap>(tag));
+  
+  TrackIsolTag_              = consumes<reco::ElectronIsolationMap>(conf_.getParameter<edm::InputTag>("TrackIsolationMapTag"));
 
-EgammaHLTElectronCombinedIsolationProducer::EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet& config) : conf_(config)
-{
-
-  electronProducer_         = conf_.getParameter<edm::InputTag>("electronProducer");
-  recoEcalCandidateProducer_ = conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer");
-
-  CaloIsolTag_ = conf_.getParameter< std::vector<edm::InputTag> > ("CaloIsolationMapTags");
-  //need to be in the order EcalIso, HcalIso, EleTrackIso
   CaloIsolWeight_ = conf_.getParameter< std::vector<double> > ("CaloIsolationWeight");
-
-  TrackIsolTag_ = conf_.getParameter<edm::InputTag>("TrackIsolationMapTag");
   TrackIsolWeight_ = conf_.getParameter<double>("TrackIsolationWeight");
-
-  if ( CaloIsolTag_.size() != CaloIsolWeight_.size()){
+  
+  if (CaloIsolTag_.size() != CaloIsolWeight_.size()){
     throw cms::Exception("BadConfig") << "vectors CaloIsolationMapTags and CaloIsolationWeight need to have size 3";
   }
   
-  
-  //  SCProducer_               = conf_.getParameter<edm::InputTag>("electronProducer");
-
   //register your products
   produces < reco::ElectronIsolationMap >();
-
 }
-EgammaHLTElectronCombinedIsolationProducer::~EgammaHLTElectronCombinedIsolationProducer(){}
 
+EgammaHLTElectronCombinedIsolationProducer::~EgammaHLTElectronCombinedIsolationProducer()
+{}
 
-void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
-  using namespace std;
-
   edm::Handle<reco::ElectronCollection> electronHandle;
-  iEvent.getByLabel(electronProducer_,electronHandle);
+  iEvent.getByToken(electronProducer_,electronHandle);
 
-    edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
-  iEvent.getByLabel(recoEcalCandidateProducer_,recoecalcandHandle);
+  edm::Handle<reco::RecoEcalCandidateCollection> recoecalcandHandle;
+  iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
   
   std::vector< edm::Handle<reco::RecoEcalCandidateIsolationMap> > CaloIsoMap;
   for( unsigned int u=0; u < CaloIsolTag_.size(); u++){
     edm::Handle<reco::RecoEcalCandidateIsolationMap> depMapTemp;
-    if(CaloIsolWeight_[u] != 0){ iEvent.getByLabel (CaloIsolTag_[u],depMapTemp);}
+    if(CaloIsolWeight_[u] != 0) 
+      iEvent.getByToken(CaloIsolTag_[u],depMapTemp);
+
     CaloIsoMap.push_back(depMapTemp);
   }
-
+  
   edm::Handle<reco::ElectronIsolationMap> TrackIsoMap;
-  if(TrackIsolWeight_ != 0){ iEvent.getByLabel (TrackIsolTag_,TrackIsoMap);}
+  if(TrackIsolWeight_ != 0) 
+    iEvent.getByToken(TrackIsolTag_,TrackIsoMap);
   
   reco::ElectronIsolationMap TotalIsolMap;
   double TotalIso=0;

@@ -1,9 +1,7 @@
 #include "RecoMET/METProducers/interface/ParticleFlowForChargedMETProducer.h"
 
 #include <DataFormats/VertexReco/interface/Vertex.h>
-#include <DataFormats/VertexReco/interface/VertexFwd.h>
 #include <DataFormats/ParticleFlowCandidate/interface/PFCandidate.h>
-#include <DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h>
 
 using namespace edm;
 using namespace std;
@@ -13,6 +11,10 @@ ParticleFlowForChargedMETProducer::ParticleFlowForChargedMETProducer(const edm::
 {
   pfCollectionLabel    = iConfig.getParameter<edm::InputTag>("PFCollectionLabel");
   pvCollectionLabel    = iConfig.getParameter<edm::InputTag>("PVCollectionLabel");
+
+  pfCandidatesToken = consumes<PFCandidateCollection>(pfCollectionLabel);
+  pvCollectionToken = consumes<VertexCollection>(pvCollectionLabel);
+
   dzCut    = iConfig.getParameter<double>("dzCut");
   neutralEtThreshold    = iConfig.getParameter<double>("neutralEtThreshold");
 
@@ -24,12 +26,12 @@ void ParticleFlowForChargedMETProducer::produce(Event& iEvent, const EventSetup&
 
   //Get the PV collection
   Handle<VertexCollection> pvCollection;
-  iEvent.getByLabel(pvCollectionLabel, pvCollection);
+  iEvent.getByToken(pvCollectionToken, pvCollection);
   VertexCollection::const_iterator vertex = pvCollection->begin();
 
   //Get pfCandidates
   Handle<PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel(pfCollectionLabel, pfCandidates);
+  iEvent.getByToken(pfCandidatesToken, pfCandidates);
 
   // the output collection
   auto_ptr<PFCandidateCollection> chargedPFCandidates( new PFCandidateCollection ) ;

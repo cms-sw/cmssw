@@ -1,5 +1,4 @@
 //
-// $Id: Lepjets_Event_Lep.cc,v 1.5 2010/07/29 11:00:41 haryo Exp $
 //
 // File: src/Lepjets_Event_Lep.cc
 // Purpose: Represent a `lepton' in a Lepjets_Event.

@@ -29,6 +29,7 @@ class MuEnrichRenormalizer : public edm::EDAnalyzer
    private:
       int type,genLight,genBC, anaLight, anaBC;
       double genIntlumi, anaIntlumi,rwbc,rwlight;
+      edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
 
 };
 

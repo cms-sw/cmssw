@@ -4,48 +4,45 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <string>
+#include <cassert>
+
+static edm::ProcessHistory s_emptyHistory;
 
 namespace edm {
 
-  HistoryAppender::HistoryAppender() :
-    previous_(historyMap_.end()) {
+  HistoryAppender::HistoryAppender()
+  {
   }
 
-  CachedHistory const&
+  boost::shared_ptr<ProcessHistory const>
   HistoryAppender::appendToProcessHistory(ProcessHistoryID const& inputPHID,
-                                          ProcessConfiguration const& pc,
-                                          ProcessHistoryRegistry& processHistoryRegistry)  {
+                                          ProcessHistory const* iInputProcessHistory,
+                                          ProcessConfiguration const& pc)  {
+    assert((iInputProcessHistory) == nullptr or (inputPHID == iInputProcessHistory->id()));
+    if (m_cachedHistory.get() != nullptr and inputPHID==m_cachedInputPHID) {
+      return m_cachedHistory;
+    }
 
-    if (previous_ != historyMap_.end() && inputPHID == previous_->first) return previous_->second;
-
-    HistoryMap::iterator iter = historyMap_.find(inputPHID);
-    if (iter != historyMap_.end()) return iter->second;
-
-    ProcessHistory const* inputProcessHistory = &emptyHistory_;
+    ProcessHistory const* inputProcessHistory = iInputProcessHistory? iInputProcessHistory : &s_emptyHistory;
 
     if (inputPHID.isValid()) {
-      inputProcessHistory = processHistoryRegistry.getMapped(inputPHID);
-      if (inputProcessHistory == nullptr) {
+      if (iInputProcessHistory == nullptr) {
         throw Exception(errors::LogicError)
           << "HistoryAppender::appendToProcessHistory\n"
-          << "Input ProcessHistory not found in registry\n"
+          << "Input ProcessHistory has valid ID but is nullptr\n"
           << "Contact a Framework developer\n";
       }
     }
 
-    ProcessHistory newProcessHistory;
-    newProcessHistory = *inputProcessHistory;
-    checkProcessHistory(newProcessHistory, pc);
-    newProcessHistory.push_back(pc);
-    processHistoryRegistry.registerProcessHistory(newProcessHistory);
-    ProcessHistoryID newProcessHistoryID = newProcessHistory.setProcessHistoryID();
-    CachedHistory newValue(inputProcessHistory,
-                           processHistoryRegistry.getMapped(newProcessHistoryID),
-                           newProcessHistoryID);
-    std::pair<ProcessHistoryID, CachedHistory> newEntry(inputPHID, newValue);
-    std::pair<HistoryMap::iterator, bool> result = historyMap_.insert(newEntry);
-    previous_ = result.first;
-    return result.first->second;
+    boost::shared_ptr<ProcessHistory> newProcessHistory(new ProcessHistory);
+    *newProcessHistory = *inputProcessHistory;
+    checkProcessHistory(*newProcessHistory, pc);
+    newProcessHistory->push_back(pc);
+    //force it to create the ID
+    newProcessHistory->setProcessHistoryID();
+    m_cachedInputPHID =inputPHID;
+    m_cachedHistory = newProcessHistory;
+    return m_cachedHistory;
   }
 
   void

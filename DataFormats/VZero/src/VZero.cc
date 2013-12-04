@@ -2,6 +2,6 @@
 
 using namespace reco;
 
-VZero::VZero(Vertex vertex, VZeroData data) :
+VZero::VZero(const Vertex& vertex, const VZeroData& data) :
              vertex_(vertex), data_(data)
 { }

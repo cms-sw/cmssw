@@ -25,6 +25,10 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1F.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
 class RPCDigiValid: public edm::EDAnalyzer
 {
 
@@ -37,6 +41,8 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void beginJob();
   void endJob(void);
+  void beginRun(edm::Run const&, edm::EventSetup const&);
+  void endRun(edm::Run const&, edm::EventSetup const&);
 
 private:
 
@@ -50,13 +56,6 @@ private:
   MonitorElement* ResWplu2;
   MonitorElement* BxDist;
   MonitorElement* StripProf;
-
-  MonitorElement* BxDist_whMin2;
-  MonitorElement* BxDist_whMin1;
-  MonitorElement* BxDist_wh0;
-  MonitorElement* BxDist_wh0_st1;
-  MonitorElement* BxDist_whPlu1;
-  MonitorElement* BxDist_whPlu2;
 
   //barrel layers residuals
   MonitorElement* ResLayer1_barrel;
@@ -89,14 +88,10 @@ private:
 
   //new member for cls
   MonitorElement* noiseCLS;
+  MonitorElement* noiseCLSBarrel;
+  MonitorElement* noiseCLSEndcaps;
 
   MonitorElement* clsBarrel;
-  MonitorElement* clsLayer1;
-  MonitorElement* clsLayer2;
-  MonitorElement* clsLayer3;
-  MonitorElement* clsLayer4;
-  MonitorElement* clsLayer5;
-  MonitorElement* clsLayer6;
 
   //CLS Validation
   //ring2, disc +- 1
@@ -115,6 +110,16 @@ private:
   MonitorElement* CLS_Endcap_123_Ring3_C;
   //CLS Validation
 
+  //4 endcap
+
+  MonitorElement *ResDmin4;
+  MonitorElement *ResDplu4;
+  MonitorElement *BxDisc_4Plus;
+  MonitorElement *BxDisc_4Min;
+  MonitorElement *xyvDplu4;
+  MonitorElement *xyvDmin4;
+  MonitorElement *CLS_Endcap_4;
+
   //new members for the noise
   std::map<RPCDetId, double> mapRollCls;
   std::map<RPCDetId, double> mapRollArea;
@@ -129,6 +134,11 @@ private:
   DQMStore* dbe_;
   std::string outputFile_;
   std::string digiLabel;
+
+  //Tokens for accessing run data. Used for passing to edm::Event. - stanislav
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitToken;
+  edm::EDGetTokenT<RPCDigiCollection> rpcDigiToken;
 };
 
 #endif
+

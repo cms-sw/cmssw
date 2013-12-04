@@ -1,10 +1,7 @@
 #ifndef Geometry_HcalTowerAlgo_HcalDDDGeometry_h
 #define Geometry_HcalTowerAlgo_HcalDDDGeometry_h
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
-
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
@@ -13,16 +10,14 @@
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 
-#include <vector>
-
 class HcalDDDGeometry : public CaloSubdetectorGeometry {
 
 public:
 
-      typedef std::vector<IdealObliquePrism> HBCellVec ;
-      typedef std::vector<IdealObliquePrism> HECellVec ;
-      typedef std::vector<IdealObliquePrism> HOCellVec ;
-      typedef std::vector<IdealZPrism>       HFCellVec ;
+  typedef std::vector<IdealObliquePrism> HBCellVec ;
+  typedef std::vector<IdealObliquePrism> HECellVec ;
+  typedef std::vector<IdealObliquePrism> HOCellVec ;
+  typedef std::vector<IdealZPrism>       HFCellVec ;
 
   explicit HcalDDDGeometry(const HcalTopology& theTopo);
   /// The HcalDDDGeometry will delete all its cell geometries at destruction time
@@ -35,35 +30,35 @@ public:
 
   int insertCell (std::vector<HcalCellType> const & );
 
-      virtual void newCell( const GlobalPoint& f1 ,
-			    const GlobalPoint& f2 ,
-			    const GlobalPoint& f3 ,
-			    const CCGFloat*    parm,
-			    const DetId&       detId     ) ;
+  virtual void newCell( const GlobalPoint& f1 ,
+			const GlobalPoint& f2 ,
+			const GlobalPoint& f3 ,
+			const CCGFloat*    parm,
+			const DetId&       detId     ) ;
 					
-   protected:
+protected:
 
-      virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
+  virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
 
 private:
 
-  mutable std::vector<DetId> m_validIds ;
+  void fillDetIds() const ;
 
   std::vector<HcalCellType> hcalCells_;
+  mutable std::vector<DetId> m_hbIds ;
+  mutable std::vector<DetId> m_heIds ;
+  mutable std::vector<DetId> m_hoIds ;
+  mutable std::vector<DetId> m_hfIds ;
+  mutable std::vector<DetId> m_emptyIds ;
 
   const HcalTopology& topo_;
-  mutable DetId::Detector                 lastReqDet_;
-  mutable int                             lastReqSubdet_;
+  double              etaMax_;
 
-  double                                  twopi, deg;
-  double                                  etaMax_, firstHFQuadRing_;
-
-      HBCellVec m_hbCellVec ;
-      HECellVec m_heCellVec ;
-      HOCellVec m_hoCellVec ;
-      HFCellVec m_hfCellVec ;
+  HBCellVec m_hbCellVec ;
+  HECellVec m_heCellVec ;
+  HOCellVec m_hoCellVec ;
+  HFCellVec m_hfCellVec ;
 };
-
 
 #endif
 

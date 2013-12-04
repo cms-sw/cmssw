@@ -26,7 +26,7 @@ typedef std::map<DetId, EcalRecHit> RecHitsMap;
 class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool> 
 {
 public:
-  bool operator()(EcalRecHit x, EcalRecHit y) 
+  bool operator()(const EcalRecHit& x, const EcalRecHit& y) 
   { 
     return (x.energy() > y.energy()); 
   }

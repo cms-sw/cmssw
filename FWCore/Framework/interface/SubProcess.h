@@ -37,7 +37,6 @@ namespace edm {
     SubProcess(ParameterSet& parameterSet,
                ParameterSet const& topLevelParameterSet,
                boost::shared_ptr<ProductRegistry const> parentProductRegistry,
-               ProcessHistoryRegistry& processHistoryRegistry,
                boost::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
                eventsetup::EventSetupsController& esController,
                ActivityRegistry& parentActReg,
@@ -220,17 +219,21 @@ namespace edm {
     
     ServiceToken                                  serviceToken_;
     boost::shared_ptr<ProductRegistry const>      parentPreg_;
-    boost::shared_ptr<ProductRegistry const>	  preg_;
-    ProcessHistoryRegistry&                       processHistoryRegistry_;
+    boost::shared_ptr<ProductRegistry const>	    preg_;
     boost::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;
     boost::shared_ptr<ProcessConfiguration const> processConfiguration_;
     ProcessContext                                processContext_;
+    //We require 1 history for each Run, Lumi and Stream
+    // The vectors first hold Stream info, then Lumi then Run
+    unsigned int                                  historyLumiOffset_;
+    unsigned int                                  historyRunOffset_;
+    std::vector<ProcessHistoryRegistry>           processHistoryRegistries_;
+    std::vector<HistoryAppender>                  historyAppenders_;
     PrincipalCache                                principalCache_;
     boost::shared_ptr<eventsetup::EventSetupProvider> esp_;
     std::auto_ptr<Schedule>                       schedule_;
     std::map<ProcessHistoryID, ProcessHistoryID>  parentToChildPhID_;
-    std::unique_ptr<HistoryAppender>              historyAppender_;
     std::auto_ptr<SubProcess>                     subProcess_;
     std::unique_ptr<ParameterSet>                 processParameterSet_;
 

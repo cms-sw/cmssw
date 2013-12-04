@@ -318,7 +318,7 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v2',
     'CMSSW_6_1_0_pre6-STARTHI61_V6-v1',
     'CMSSW_6_2_0_pre8-PRE_ST62_V8-v3',
-    'CMSSW_6_2_0_pre8-PRE_PO62_V7-v1'    # for _13  TeV samples; replace them with 6_2_0_patch1 when available (those GEN-SIM have '--magField':'38T_PostLS1')
+    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v2' # for _13  TeV samples with postLs1 geometry and updated mag field
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -382,7 +382,7 @@ steps['H130GGgluonfusion_13INPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluo
 steps['PhotonJets_Pt_10_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
 steps['QQH1352T_Tauola_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
 steps['ADDMonoJet_d3MD3_13INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
-steps['BeamHalo_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo_13/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['BeamHalo_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
 # particle guns with postLS1 geometry recycle GEN-SIM input
 steps['SingleElectronPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
 steps['SingleElectronPt35_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt35_UP15/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
@@ -884,8 +884,7 @@ steps['TTbarFSPU2']=merge([PUFS2,Kby(100,500),steps['TTbarFS']])
 
 
 # step2 
-step2Defaults = { 
-                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+step2Defaults = { '-s'            : 'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:startup',
@@ -893,12 +892,12 @@ step2Defaults = {
 #for 2015
 step2Upg2015Defaults = {'-s'     :'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                  '--conditions'  :'auto:upgradePLS1', 
-                 # '--magField'    : '38T_PostLS1',   #activate when 6_2_0_patch1 GEN-SIM will be available ( 6_2_0_pre8 GEN-SIM don't have 38T_PostLS1)
-                 '--datatier'    :'GEN-SIM-DIGI-RAW',
-                 '-n'            :'10',
+                 '--magField'    :'38T_PostLS1',
+                 '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
                  '--eventcontent':'FEVTDEBUGHLT',
-                 '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry'    : 'Extended2015'
+                 '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                 '--geometry'    :'Extended2015',
+                 '-n'            :'10'
                   }
 steps['DIGIUP15']=merge([step2Upg2015Defaults]) # todo: remove UP from label
 
@@ -906,7 +905,7 @@ steps['DIGIPROD1']=merge([{'--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'}
 steps['DIGI']=merge([step2Defaults])
 #steps['DIGI2']=merge([stCond,step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
-steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW','--magField':'38T_PostLS1'},step2Upg2015Defaults])
+steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
@@ -1029,20 +1028,21 @@ steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 #for 2015
 step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions':'auto:upgradePLS1', 
-                 #'--magField'    : '38T_PostLS1',    #activate when 6_2_0_patch1 GEN-SIM will be available ( 6_2_0_pre8 GEN-SIM don't have 38T_PostLS1)
-                 '--datatier':'GEN-SIM-RECO,DQM',
+                 '--magField'    : '38T_PostLS1',
                  '-n':'10',
+                 '--datatier':'GEN-SIM-RECO,DQM',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                  '--geometry' : 'Extended2015'
                  }
-step3Up2015Hal = {'-s'           :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-                 '--conditions'  :'auto:upgradePLS1', 
-                 '--eventcontent':'RECOSIM,AODSIM',
-                 '-n'            :'10',
-                 '--datatier'    : 'GEN-SIM-RECO,DQM',
-                 '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry'    : 'Extended2015'
+step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
+                 '--conditions'   :'auto:upgradePLS1', 
+                 '--magField'     :'38T_PostLS1',
+                 '--datatier'     :'GEN-SIM-RECO,DQM',
+                  '--eventcontent':'RECOSIM,DQM',
+                  '-n'            :'10',
+                 '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                 '--geometry'     :'Extended2015'
                  }
                              
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
@@ -1055,7 +1055,6 @@ steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},stCond,step3Defaults])
-#steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics','--magField':'38T_PostLS1',},step3Up2015Hal])   #activate when 6_2_0_patch1 GEN-SIM will be available ( 6_2_0_pre8 GEN-SIM don't have 38T_PostLS1)
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},stCond,step3Defaults])
 steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym+EcalCalPi0Calib+EcalCalEtaCalib,VALIDATION,DQM'},step3Up2015Defaults])
@@ -1205,10 +1204,13 @@ steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
                    '--scenario':'cosmics'}
 steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--conditions':'auto:upgradePLS1',
-                     #'--magField'  : '38T_PostLS1',    #activate when 6_2_0_patch1 GEN-SIM will be available ( 6_2_0_pre8 GEN-SIM don't have 38T_PostLS1)
+                     '--magField'  :'38T_PostLS1',
                      '--mc'        :'',
                      '--filein'    :'file:step3_inDQM.root',
-                   '--scenario'    :'cosmics'}
+                     '--scenario'    :'cosmics',
+                     '--filein':'file:step3_inDQM.root',
+                     '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                     }
 steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:startup',
                    '--mc':'',
@@ -1228,7 +1230,7 @@ steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
 		   
 steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
                    '--conditions':'auto:upgradePLS1', 
-                   #'--magField'    : '38T_PostLS1',    #activate when 6_2_0_patch1 GEN-SIM will be available ( 6_2_0_pre8 GEN-SIM don't have 38T_PostLS1)
+                   '--magField'    : '38T_PostLS1',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
 		   '--geometry' : 'Extended2015'

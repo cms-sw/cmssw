@@ -118,6 +118,9 @@ private:
   std::string genSrc_;
   const MagneticField *bField;
 
+  edm::EDGetTokenT<edm::HepMCProduct> tok_hepmc_;
+  edm::EDGetTokenT<reco::GenParticleCollection> tok_genParticles_;
+
   bool initL1, useHepMC;
   static const size_t nL1BitsMax=128;
   std::string algoBitToName[nL1BitsMax];
@@ -132,6 +135,15 @@ private:
   edm::InputTag L1extraTauJetSource_, L1extraCenJetSource_, L1extraFwdJetSource_;
   edm::InputTag L1extraMuonSource_,   L1extraIsoEmSource_,  L1extraNonIsoEmSource_;
   edm::InputTag L1GTReadoutRcdSource_, L1GTObjectMapRcdSource_;
+
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_L1GTrorsrc_;
+  edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_L1GTobjmap_;
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> tok_L1extMusrc_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> tok_L1Em_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> tok_L1extNonIsoEm_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extTauJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
 
 
   edm::Service<TFileService> fs;

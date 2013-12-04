@@ -73,6 +73,7 @@ class SiPixelErrorsDigisToCalibDigis : public edm::EDAnalyzer {
       // store the location of the mismatching error in the detector id
 
       edm::InputTag siPixelProducerLabel_;
+      edm::EDGetTokenT <edm::DetSetVector<SiPixelCalibDigiError> > tPixelCalibDigiError;
 
       DQMStore* daqBE_;
       SiPixelHistogramId * theHistogramIdWorker_;

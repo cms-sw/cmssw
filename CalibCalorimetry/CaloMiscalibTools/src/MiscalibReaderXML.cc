@@ -1,6 +1,7 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXML.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLDomUtils.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMap.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -29,7 +30,7 @@ MiscalibReaderFromXML::MiscalibReaderFromXML(CaloMiscalibMap & caloMap):caloMap_
 		//std::cout << "Xerces-c initialization Number "
 		//<< s_numberOfInstances<<std::endl;
 		if (s_numberOfInstances==0) 
-		XMLPlatformUtils::Initialize();  
+		cms::concurrency::xercesInitialize();  
 	}
 	catch (const XMLException& e) {
 		std::cout << "Xerces-c error in initialization \n"

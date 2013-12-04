@@ -10,7 +10,6 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackAssociatorParameters.cc,v 1.6.2.1 2009/07/01 04:35:27 dmytro Exp $
 //
 //
 

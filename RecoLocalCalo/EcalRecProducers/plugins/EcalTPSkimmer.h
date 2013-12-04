@@ -42,7 +42,7 @@ class EcalTPSkimmer : public edm::EDProducer {
 
                 std::set<EcalTrigTowerDetId> insertedTP_;
 
-                edm::InputTag tpInputCollection_;
+                edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpInputToken_;
 
                 std::string tpOutputCollection_;
 };

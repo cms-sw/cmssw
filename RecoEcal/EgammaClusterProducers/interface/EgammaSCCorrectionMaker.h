@@ -31,6 +31,10 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+
 class EgammaSCCorrectionMaker : public edm::EDProducer {
 	
    public:
@@ -67,8 +71,9 @@ class EgammaSCCorrectionMaker : public edm::EDProducer {
      double etThresh_;
      
      // vars to get products
-     edm::InputTag rHInputProducer_;
-     edm::InputTag sCInputProducer_;
+     edm::EDGetTokenT<EcalRecHitCollection>          rHInputProducer_;
+     edm::EDGetTokenT<reco::SuperClusterCollection>  sCInputProducer_;
+	 edm::InputTag rHTag_;
 
      reco::CaloCluster::AlgoId sCAlgo_;
      std::string outputCollection_;

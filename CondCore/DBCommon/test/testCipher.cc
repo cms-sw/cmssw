@@ -4,6 +4,19 @@
 
 int main(){
   cond::KeyGenerator gen;
+  // empty string to encode
+  std::string empty("");
+  std::string k0 = gen.makeWithRandomSize( 100 );
+  cond::Cipher c_en( k0 );
+  std::string e = c_en.b64encrypt( empty );
+  cond::Cipher c_de( k0 );
+  std::string d = c_de.b64decrypt(e);
+  if( empty != d ){
+    std::cout <<"##### Error: encoded ["<<empty<<"] (size="<<empty.size()<<") with key="<<k0<<"; decoded=["<<d<<"] (size="<<d.size()<<") "<<std::endl;
+  } else {
+    std::cout <<"TEST OK: encoded size "<<e.size()<<" with key size="<<k0.size()<<std::endl;
+  }
+
   for( unsigned int i = 0; i<200; i++ ){
     std::string word = gen.makeWithRandomSize( 200 );
     std::string k = gen.makeWithRandomSize( 100 );

@@ -59,7 +59,7 @@ public:
   virtual void process();
 
   /// set input data      
-  void setInputJet(int i, L1GctJetCand jet); 
+  void setInputJet(int i, const L1GctJetCand& jet); 
     
   /// get the input jets. Jets 0-5 from leaf card 0, jetfinderA.  Jets 6-11 from leaf card 0, jetfinder B... etc.
   JetVector getInputJets() const { return m_inputJets; }
@@ -149,7 +149,7 @@ private:
   /// Check the setup, independently of how we have been constructed
   bool checkSetup() const;
   /// Puts the output from a jetfinder into the correct index range of the m_inputJets array. 
-  void storeJets(JetVector jets, unsigned short iLeaf, unsigned short offset);
+  void storeJets(const JetVector& jets, unsigned short iLeaf, unsigned short offset);
   /// Classifies jets into central, forward or tau.
   void classifyJets();
   /// Initialises all the jet vectors with jets of the correct type.

@@ -65,13 +65,24 @@ from RecoJets.Configuration.RecoJetsGlobal_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
 metreco.remove(BeamHaloId)
 
-caloJetMet = cms.Sequence(
+
+caloJets = cms.Sequence(
     recoJets+
     recoJetIds+
-    recoTrackJets+
-    recoJetAssociations+recoJPTJets+
-    metreco
+    recoTrackJets
 )
+
+jetTrackAssoc = cms.Sequence (
+    recoJetAssociations
+    )
+
+jetPlusTracks = cms.Sequence(
+    recoJPTJets
+    )
+
+metReco = cms.Sequence(
+    metreco
+    )
 
 
 
@@ -425,10 +436,11 @@ if(CaloMode==3):
             muonshighlevelreco+
             particleFlowLinks+
             caloJetMetGen+
-            caloJetMet+
+            caloJets+
             PFJetMet+
-            ic5JetTracksAssociatorAtVertex+
-            ak5JetTracksAssociatorAtVertex+
+            jetTrackAssoc+
+            recoJPTJets+
+            metreco+
             reducedRecHits+
             famosBTaggingSequence+
             famosPFTauTaggingSequence
@@ -450,10 +462,11 @@ if(CaloMode==3):
             muonshighlevelreco+
             particleFlowLinks+
             caloJetMetGen+
-            caloJetMet+
+            caloJets+
             PFJetMet+
-            ic5JetTracksAssociatorAtVertex+
-            ak5JetTracksAssociatorAtVertex+
+            jetTrackAssoc+
+            recoJPTJets+
+            metreco+
             reducedRecHits+
             famosBTaggingSequence+
             famosPFTauTaggingSequence
@@ -476,10 +489,11 @@ else:
         muonshighlevelreco+
         particleFlowLinks+
         caloJetMetGen+
-        caloJetMet+
+        caloJets+
         PFJetMet+
-        ic5JetTracksAssociatorAtVertex+
-        ak5JetTracksAssociatorAtVertex+
+        jetTrackAssoc+
+        recoJPTJets+
+        metreco+
         reducedRecHits+
         famosBTaggingSequence+
         famosPFTauTaggingSequence
@@ -514,10 +528,11 @@ reconstructionHighLevel = cms.Sequence(
     muonshighlevelreco+
     particleFlowLinks+
     caloJetMetGen+
-    caloJetMet+
+    caloJets+
     PFJetMet+
-    ic5JetTracksAssociatorAtVertex+
-    ak5JetTracksAssociatorAtVertex+
+    jetTrackAssoc+
+    recoJPTJets+
+    metreco+
     reducedRecHits+
     famosBTaggingSequence+
     famosPFTauTaggingSequence
@@ -609,7 +624,11 @@ famosWithTracksAndJets = cms.Sequence(
     famosWithTracksAndCaloTowers+
     vertexreco+
     caloJetMetGen+
-    caloJetMet
+    caloJets+
+    PFJetMet+
+    jetTrackAssoc+
+    recoJPTJets+
+    metreco
 )
 
 ### Standard Jets _cannot_ be done without many other things...
@@ -625,7 +644,11 @@ famosWithJets = cms.Sequence(
     famosParticleFlowSequence+
     gsfElectronSequence+	
     caloJetMetGen+
-    caloJetMet
+    caloJets+
+    PFJetMet+
+    jetTrackAssoc+
+    recoJPTJets+
+    metreco
 )
 
 famosWithCaloTowersAndParticleFlow = cms.Sequence(
@@ -669,8 +692,8 @@ famosWithElectronsAndPhotons = cms.Sequence(
 famosWithBTagging = cms.Sequence(
     famosWithTracksAndCaloTowers+
     vertexreco+
-    ak5CaloJets+
-    ak5JetTracksAssociatorAtVertex+
+    ak5PFJetsCHS+
+    ak5JetTracksAssociatorAtVertexPF+
     ecalClustersNoPFBox+
     famosMuonSequence+
     reducedRecHits+ 
@@ -714,10 +737,11 @@ reconstructionWithFamosNoTk = cms.Sequence(
     egammaHighLevelRecoPostPF+
     muonshighlevelreco+
     caloJetMetGen+
-    caloJetMet+
+    caloJets+
     PFJetMet+
-    ic5JetTracksAssociatorAtVertex+
-    ak5JetTracksAssociatorAtVertex+
+    jetTrackAssoc+
+    recoJPTJets+
+    metreco+    
     reducedRecHits+
     famosBTaggingSequence+
     famosPFTauTaggingSequence
@@ -728,4 +752,3 @@ famosWithEverything = cms.Sequence(
     simulationWithFamos+
     reconstructionWithFamos
 )
-

@@ -41,6 +41,7 @@ namespace edm {
   class ProductHolderIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
+  class ProductHolderIndexAndSkipBit;
   
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -68,8 +69,10 @@ namespace edm {
       void
       registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
       
-      void itemsToGet(BranchType, std::vector<ProductHolderIndex>&) const;
-      void itemsMayGet(BranchType, std::vector<ProductHolderIndex>&) const;
+      void itemsToGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
+      void itemsMayGet(BranchType, std::vector<ProductHolderIndexAndSkipBit>&) const;
+      std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const;
+
       void updateLookup(BranchType iBranchType,
                         ProductHolderIndexHelper const&);
 

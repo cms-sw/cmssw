@@ -30,6 +30,13 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
 //
 // class decleration
 //
@@ -44,9 +51,6 @@ class AlCaHcalNoiseProducer : public edm::EDProducer {
    private:
       // ----------member data ---------------------------
 
- edm::InputTag JetSource_;
- edm::InputTag MetSource_;
- edm::InputTag TowerSource_;
  bool useMet_;
  bool useJet_;
  double MetCut_;
@@ -55,10 +59,18 @@ class AlCaHcalNoiseProducer : public edm::EDProducer {
  int nAnomalousEvents;
  int nEvents;
 
- edm::InputTag hbheLabel_;
- edm::InputTag hoLabel_;
- edm::InputTag hfLabel_;
  std::vector<edm::InputTag> ecalLabels_;
- edm::InputTag ecalPSLabel_; 
- edm::InputTag rawInLabel_;
+
+  edm::EDGetTokenT<reco::CaloJetCollection> tok_jets_;
+  edm::EDGetTokenT<reco::CaloMETCollection> tok_met_;
+  edm::EDGetTokenT<CaloTowerCollection> tok_tower_;
+
+  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+  edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+  edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+
+  edm::EDGetTokenT<EcalRecHitCollection> tok_ps_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection> > toks_ecal_;
+
 };

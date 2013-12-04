@@ -26,7 +26,7 @@ namespace reco {
      VZero() { }
 
      // constructor from parameters
-     VZero(Vertex vertex, VZeroData data);
+     VZero(const Vertex& vertex, const VZeroData& data);
 
      // decay/conversion vertex
      Vertex vertex() const { return vertex_; }

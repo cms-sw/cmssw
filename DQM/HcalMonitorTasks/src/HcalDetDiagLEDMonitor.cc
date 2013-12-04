@@ -209,8 +209,12 @@ private:
   EtaPhiHists *ChannelStatusTimeRMS;
 
   edm::InputTag digiLabel_;
-  edm::InputTag calibDigiLabel_;
-  edm::InputTag hcalTBTriggerDataTag_;
+
+  edm::EDGetTokenT<HcalTBTriggerData> tok_tb_;
+  edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+  edm::EDGetTokenT<HODigiCollection> tok_ho_;
+  edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+  edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
 
   std::map<unsigned int, int> KnownBadCells_;
 
@@ -235,9 +239,9 @@ static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10
 
 
 
-HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps) :
-  hcalTBTriggerDataTag_(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"))
-{
+HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps) {
+
+
   ievt_=0;
   dataset_seq_number=1;
   run_number=-1;
@@ -267,10 +271,18 @@ HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps) :
   XmlFilePath      = ps.getUntrackedParameter<std::string>("XmlFilePath", "");
 
   digiLabel_       = ps.getUntrackedParameter<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
-  calibDigiLabel_  = ps.getUntrackedParameter<edm::InputTag>("calibDigiLabel",edm::InputTag("hcalDigis"));
 
   emap=0;
   needLogicalMap_ = true;
+
+  // register for data access
+  tok_tb_ = consumes<HcalTBTriggerData>(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
+  tok_hbhe_ = consumes<HBHEDigiCollection>(digiLabel_);
+  tok_ho_ = consumes<HODigiCollection>(digiLabel_);
+  tok_hf_ = consumes<HFDigiCollection>(digiLabel_);
+  tok_calib_ = consumes<HcalCalibDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("calibDigiLabel",edm::InputTag("hcalDigis")));
+  
+
 }
 
 HcalDetDiagLEDMonitor::~HcalDetDiagLEDMonitor(){}
@@ -388,7 +400,7 @@ int  eta,phi,depth,nTS;
    // for local runs 
 
    edm::Handle<HcalTBTriggerData> trigger_data;
-   iEvent.getByLabel(hcalTBTriggerDataTag_, trigger_data);
+   iEvent.getByToken(tok_tb_, trigger_data);
    if(trigger_data.isValid()){
       if(trigger_data->triggerWord()==6){ LEDEvent=true;LocalRun=true;}
    } 
@@ -403,7 +415,7 @@ int  eta,phi,depth,nTS;
    double data[20];
 
    edm::Handle<HBHEDigiCollection> hbhe; 
-   iEvent.getByLabel(digiLabel_, hbhe);
+   iEvent.getByToken(tok_hbhe_, hbhe);
    if(hbhe.isValid()) for(HBHEDigiCollection::const_iterator digi=hbhe->begin();digi!=hbhe->end();digi++){
      eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
      if(digi->id().subdet()==HcalBarrel){
@@ -417,7 +429,7 @@ int  eta,phi,depth,nTS;
    }   
 
    edm::Handle<HODigiCollection> ho; 
-   iEvent.getByLabel(digiLabel_,ho);
+   iEvent.getByToken(tok_ho_,ho);
    if(ho.isValid()) for(HODigiCollection::const_iterator digi=ho->begin();digi!=ho->end();digi++){
      eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
      for(int i=0;i<nTS;i++) data[i]=adc2fC[digi->sample(i).adc()&0xff]-2.5;
@@ -425,7 +437,7 @@ int  eta,phi,depth,nTS;
    }   
 
    edm::Handle<HFDigiCollection> hf;
-   iEvent.getByLabel(digiLabel_,hf);
+   iEvent.getByToken(tok_hf_,hf);
    if(hf.isValid()) for(HFDigiCollection::const_iterator digi=hf->begin();digi!=hf->end();digi++){
      eta=digi->id().ieta(); phi=digi->id().iphi(); depth=digi->id().depth(); nTS=digi->size();
      for(int i=0;i<nTS;i++) data[i]=adc2fC[digi->sample(i).adc()&0xff]-2.5;
@@ -433,7 +445,7 @@ int  eta,phi,depth,nTS;
    }   
  
    edm::Handle<HcalCalibDigiCollection> calib;
-   iEvent.getByLabel(calibDigiLabel_, calib);
+   iEvent.getByToken(tok_calib_, calib);
    if(calib.isValid())for(HcalCalibDigiCollection::const_iterator digi=calib->begin();digi!=calib->end();digi++){
      if(digi->id().cboxChannel()!=0 || digi->id().hcalSubdet()==0) continue; 
      nTS=digi->size();

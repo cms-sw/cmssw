@@ -35,14 +35,14 @@ public:
   CaloTower(const CaloTowerDetId& id, 
 	    double emE, double hadE, double outerE,
 	    int ecal_tp, int hcal_tp,
-	    const PolarLorentzVector p4,
-      GlobalPoint emPosition, GlobalPoint hadPosition);
+	    const PolarLorentzVector& p4,
+      const GlobalPoint& emPosition, const GlobalPoint& hadPosition);
 
   CaloTower(const CaloTowerDetId& id, 
 	    double emE, double hadE, double outerE,
 	    int ecal_tp, int hcal_tp,
-	    const LorentzVector p4,
-      GlobalPoint emPosition, GlobalPoint hadPosition);
+	    const LorentzVector& p4,
+      const GlobalPoint& emPosition, const GlobalPoint& hadPosition);
 
 
    // setters
@@ -104,13 +104,13 @@ public:
 
   // recalculated wrt vertex provided as 3D point
 
-  math::PtEtaPhiMLorentzVector p4(Point v) const;
-  double p (Point v) const { return p4(v).P(); }
-  double et(Point v) const { return p4(v).Et(); }
+  math::PtEtaPhiMLorentzVector p4(const Point& v) const;
+  double p (const Point& v) const { return p4(v).P(); }
+  double et(const Point& v) const { return p4(v).Et(); }
 
-  double emEt(Point v)  const { return  emE_ * sin(p4(v).theta()); }
-  double hadEt(Point v) const { return  hadE_ * sin(p4(v).theta()); }
-  double outerEt(Point v) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(v).theta()) : 0.0; }
+  double emEt(const Point& v)  const { return  emE_ * sin(p4(v).theta()); }
+  double hadEt(const Point& v) const { return  hadE_ * sin(p4(v).theta()); }
+  double outerEt(const Point& v) const { return (id_.ietaAbs()<16)? outerE_ * sin(p4(v).theta()) : 0.0; }
 
   double hottestCellE() const { return hottestCellE_; }
 
@@ -119,7 +119,7 @@ public:
 
   math::PtEtaPhiMLorentzVector p4_HO() const;  
   math::PtEtaPhiMLorentzVector p4_HO(double vtxZ) const;
-  math::PtEtaPhiMLorentzVector p4_HO(Point v) const;
+  math::PtEtaPhiMLorentzVector p4_HO(const Point& v) const;
 
 
   // the reference poins in ECAL and HCAL for direction determination
@@ -196,8 +196,8 @@ private:
   // internally used in the transformation of the CaloTower p4
 
   // for 3D vertex
-  math::PtEtaPhiMLorentzVector hadP4(Point v) const;
-  math::PtEtaPhiMLorentzVector emP4(Point v) const;
+  math::PtEtaPhiMLorentzVector hadP4(const Point& v) const;
+  math::PtEtaPhiMLorentzVector emP4(const Point& v) const;
 
   // taking only z-component
   math::PtEtaPhiMLorentzVector hadP4(double vtxZ) const;

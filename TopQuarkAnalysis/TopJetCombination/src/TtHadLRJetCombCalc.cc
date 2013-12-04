@@ -1,4 +1,3 @@
-// $Id: TtHadLRJetCombCalc.cc,v 1.2 2008/02/17 11:27:55 rwolf Exp $
 // copied TtSemiLRJetCombCalc.cc,v 1.4 2007/06/18 14:08:16 by heyninck 
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtHadLRJetCombCalc.h"

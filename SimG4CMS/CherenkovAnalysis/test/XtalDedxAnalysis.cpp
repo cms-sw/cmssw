@@ -52,6 +52,10 @@ private:
   edm::InputTag  caloHitSource_;
   std::string    simTkLabel_;
 
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
+  edm::EDGetTokenT<edm::SimTrackContainer> tok_tk_;
+  edm::EDGetTokenT<edm::SimVertexContainer> tok_vtx_;
+
   TH1F           *meNHit_[4], *meE1T0_[4], *meE9T0_[4], *meE1T1_[4], *meE9T1_[4];
   TH1I           *mType_;
 
@@ -66,6 +70,11 @@ XtalDedxAnalysis::XtalDedxAnalysis(const edm::ParameterSet& ps) {
 				    << caloHitSource_ << " Track Label "
 				    << simTkLabel_ << " Energy Max "
 				    << energyMax;
+
+  // register for data access
+  tok_calo_ = consumes<edm::PCaloHitContainer>(caloHitSource_);
+  tok_tk_ = consumes<edm::SimTrackContainer>(edm::InputTag(simTkLabel_));
+  tok_vtx_ = consumes<edm::SimVertexContainer>(edm::InputTag(simTkLabel_));
 
   // Book histograms
   edm::Service<TFileService> tfile;
@@ -117,15 +126,15 @@ void XtalDedxAnalysis::analyze(const edm::Event& e, const edm::EventSetup& ) {
 
   std::vector<PCaloHit>               caloHits;
   edm::Handle<edm::PCaloHitContainer> pCaloHits;
-  e.getByLabel(caloHitSource_, pCaloHits);
+  e.getByToken(tok_calo_, pCaloHits);
 
   std::vector<SimTrack> theSimTracks;
   edm::Handle<edm::SimTrackContainer> simTk;
-  e.getByLabel(simTkLabel_,simTk);
+  e.getByToken(tok_tk_,simTk);
 
   std::vector<SimVertex> theSimVertex;
   edm::Handle<edm::SimVertexContainer> simVtx;
-  e.getByLabel(simTkLabel_,simVtx);
+  e.getByToken(tok_vtx_,simVtx);
 
   if (pCaloHits.isValid()) {
     caloHits.insert(caloHits.end(),pCaloHits->begin(),pCaloHits->end());

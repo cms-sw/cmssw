@@ -11,6 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 
     /** \class HcalSimpleReconstructor
@@ -27,13 +29,20 @@ class HcalTopology;
       virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
     private:      
-      template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c);
+      template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c, const edm::EDGetTokenT<DIGICOLL> &tok);
       void processUpgrade(edm::Event& e, const edm::EventSetup& c);
       HcalSimpleRecAlgo reco_;
       DetId::Detector det_;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
+
+      edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbheUp_;
+      edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hfUp_;
+      edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
+      edm::EDGetTokenT<HFDigiCollection> tok_hf_;
+      edm::EDGetTokenT<HODigiCollection> tok_ho_;
+      edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
 

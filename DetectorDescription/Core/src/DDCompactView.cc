@@ -108,8 +108,6 @@ void DDCompactView::algoPosPart(const DDLogicalPart & self,
 				const DDLogicalPart & parent,
 				DDAlgo & algo
 				) {
-  static int cnt_=0;
-  ++cnt_;
   if (algo.rep().numRegistered() == 0) {
     std::string e;
     e = "DDalgoPosPart: algorithmic positioning\n";

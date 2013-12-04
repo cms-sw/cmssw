@@ -127,7 +127,7 @@ DOMElement* HcalDQMDbInterface::createChannel(DOMDocument* doc,DOMElement* paren
   return chanElem;
 }
 
-DOMElement* HcalHotCellDbInterface::createData(DOMDocument* doc,DOMElement* parent, HcalDQMChannelQuality::Item item){
+DOMElement* HcalHotCellDbInterface::createData(DOMDocument* doc,DOMElement* parent, const HcalDQMChannelQuality::Item& item){
   DOMElement*  dataElem = createElement(doc,parent,"DATA");
   createElement(doc,dataElem,"CHANNEL_ON_OFF_STATE",itoa(item.mMasked));
   createElement(doc,dataElem,"CHANNEL_STATUS_WORD",itoa(item. mQuality));
@@ -137,7 +137,7 @@ DOMElement* HcalHotCellDbInterface::createData(DOMDocument* doc,DOMElement* pare
 
 
 void HcalHotCellDbInterface::createDataset(DOMDocument* doc,
-					   HcalDQMChannelQuality::Item item,
+					   const HcalDQMChannelQuality::Item& item,
 					   const char* gmtime,
 					   const char* version){
 
@@ -162,7 +162,7 @@ void HcalHLXMaskDbInterface::createHeader(DOMDocument* doc){
   element->setAttribute(transcode("mode"), transcode("no-run"));
 }
 
-void HcalHLXMaskDbInterface::createData(DOMDocument* doc,DOMElement* parent, HcalHLXMask masks){
+void HcalHLXMaskDbInterface::createData(DOMDocument* doc,DOMElement* parent, const HcalHLXMask& masks){
   DOMElement*  dataElem = createElement(doc,parent,"DATA");
   createElement(doc, dataElem, "FPGA", masks.position);
   char tmp[5] = "fooo";
@@ -175,7 +175,7 @@ void HcalHLXMaskDbInterface::createData(DOMDocument* doc,DOMElement* parent, Hca
 }
 
 DOMElement* HcalHLXMaskDbInterface::createDataset(DOMDocument* doc,
-						  const HcalHLXMask masks,
+						  const HcalHLXMask& masks,
 						  const char* gmtime,
 						  const char* version, const char* subversion){
 

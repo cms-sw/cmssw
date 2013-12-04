@@ -5,6 +5,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTPixelMatchElectronProducers
 // 
+// $Id: EgammaHLTPixelMatchElectronProducers.h,v 1.3 2009/10/14 14:32:23 covarell Exp $
   
   
 #include "FWCore/Framework/interface/EDProducer.h"

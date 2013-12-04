@@ -42,9 +42,9 @@ public:
   /// process the data, fill output buffers
   virtual void process();
     	
-  void setInputCentralJet(int i, L1GctJetCand jet);  ///< set the central jets input data
-  void setInputForwardJet(int i, L1GctJetCand jet);  ///< set the forward jets input data
-  void setInputTauJet(int i, L1GctJetCand jet);      ///< set the tau jets input data
+  void setInputCentralJet(int i, const L1GctJetCand& jet);  ///< set the central jets input data
+  void setInputForwardJet(int i, const L1GctJetCand& jet);  ///< set the forward jets input data
+  void setInputTauJet(int i, const L1GctJetCand& jet);      ///< set the tau jets input data
 
   JetVector getInputCentralJets() const { return m_inputCentralJets; } ///< get the central jets input data
   JetVector getInputForwardJets() const { return m_inputForwardJets; } ///< get the forward jets input data
@@ -91,7 +91,7 @@ private:
 
   //PRIVATE MEMBER FUNCTIONS
   ///Enters jets into the specified storageVector, according to which wheel card we are taking them from.
-  void storeJets(JetVector& storageVector, JetVector jets, unsigned short iWheel);
+  void storeJets(JetVector& storageVector, const JetVector& jets, unsigned short iWheel);
   
 };
 

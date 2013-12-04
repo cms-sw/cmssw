@@ -99,6 +99,7 @@ namespace cms
     //&&& PixelCPEBase * cpe_;                    // what we got (for now, one ptr to base class)
     bool ready_;                            // needed CPE's valid => good to go!
     edm::InputTag src_;
+    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> tPixelCluster;
     int   theVerboseLevel;              // algorithm's verbosity
     bool m_newCont; // save also in emdNew::DetSetVector
   };

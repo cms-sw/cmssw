@@ -67,7 +67,7 @@ namespace edm {
   
   EDProductGetter const*
   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID) {
-    if (prodGetter != 0) return prodGetter;
+    if (prodGetter != nullptr) return prodGetter;
         throw Exception(errors::InvalidReference, refType)
   	<< "Attempt to construct a " << refType << " with ProductID " << productID << "\n"
   	<< "but with a null pointer to a product getter.\n"
@@ -75,7 +75,7 @@ namespace edm {
   	<< "to a real getter, such as an EventPrincipal.\n";
   }
   
-  static EDProductGetter const* s_productGetter=0;
+  thread_local EDProductGetter const* s_productGetter = nullptr;
   EDProductGetter const* 
   EDProductGetter::switchProductGetter(EDProductGetter const* iNew) 
   {

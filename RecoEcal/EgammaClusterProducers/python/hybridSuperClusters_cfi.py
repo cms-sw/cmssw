@@ -29,9 +29,8 @@ cleanedHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
     # domino thresholds
     ethresh = cms.double(0.1),
     superclusterCollection = cms.string(''),
-    ecalhitcollection = cms.string('EcalRecHitsEB'),
-    # input collection
-    ecalhitproducer = cms.string('ecalRecHit'),
+	# input collection										
+    recHitsCollection = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
     # recHit flags to be excluded from seeding
     RecHitFlagToBeExcluded = cms.vstring(
         'kFaultyHardware',

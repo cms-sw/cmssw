@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 
@@ -32,9 +32,9 @@ class HybridClusterProducer : public edm::EDProducer
  
       std::string basicclusterCollection_;
       std::string superclusterCollection_;
-      std::string hitproducer_;
-      std::string hitcollection_;
-
+      
+      edm::EDGetTokenT<EcalRecHitCollection> hitsToken_;
+ 
 
       HybridClusterAlgo * hybrid_p; // clustering algorithm
       PositionCalc posCalculator_; // position calculation algorithm

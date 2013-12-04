@@ -28,10 +28,11 @@
 RecHitFilter::RecHitFilter(const edm::ParameterSet& ps)
 {
 
-  noiseEnergyThreshold_       = ps.getParameter<double>("noiseEnergyThreshold");
-  noiseChi2Threshold_       = ps.getParameter<double>("noiseChi2Threshold");
-  hitCollection_        = ps.getParameter<edm::InputTag>("hitCollection");
-  reducedHitCollection_ = ps.getParameter<std::string>("reducedHitCollection");
+  noiseEnergyThreshold_  = ps.getParameter<double>("noiseEnergyThreshold");
+  noiseChi2Threshold_    = ps.getParameter<double>("noiseChi2Threshold");
+  hitCollection_         = 
+	  consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("hitCollection"));
+  reducedHitCollection_  = ps.getParameter<std::string>("reducedHitCollection");
 
   produces< EcalRecHitCollection >(reducedHitCollection_);
 }
@@ -46,13 +47,7 @@ void RecHitFilter::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  evt.getByLabel(hitCollection_, rhcHandle);
-  if (!(rhcHandle.isValid())) 
-    {
-      edm::LogError("ProductNotFound")<<" Could not retrieve collection "<< hitCollection_ << std::endl; 
-
-      return;
-    }
+  evt.getByToken(hitCollection_, rhcHandle);
   const EcalRecHitCollection* hit_collection = rhcHandle.product();
 
   int nTot = hit_collection->size();

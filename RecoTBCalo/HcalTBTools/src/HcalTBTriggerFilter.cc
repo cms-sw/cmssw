@@ -1,5 +1,4 @@
 #include "RecoTBCalo/HcalTBTools/src/HcalTBTriggerFilter.h"
-#include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 HcalTBTriggerFilter::HcalTBTriggerFilter(const edm::ParameterSet& ps) :
@@ -8,15 +7,15 @@ HcalTBTriggerFilter::HcalTBTriggerFilter(const edm::ParameterSet& ps) :
   allowPedestalOutSpill_(ps.getParameter<bool>("AllowPedestalOutSpill")),
   allowLaser_(ps.getParameter<bool>("AllowLaser")),
   allowLED_(ps.getParameter<bool>("AllowLED")),
-  allowBeam_(ps.getParameter<bool>("AllowBeam")),
-  hcalTBTriggerDataTag_(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"))
+  allowBeam_(ps.getParameter<bool>("AllowBeam"))
 {
+  tok_tb_ = consumes<HcalTBTriggerData>(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
 }
 
 bool HcalTBTriggerFilter::filter(edm::Event& e, edm::EventSetup const& c) {
 
   edm::Handle<HcalTBTriggerData> h;
-  e.getByLabel(hcalTBTriggerDataTag_, h);
+  e.getByToken(tok_tb_, h);
 
   bool allowed=false;
 

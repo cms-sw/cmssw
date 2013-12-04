@@ -55,7 +55,7 @@ process.dqmFileReader.FileNames = cms.untracked.vstring (
 
 ######################################################################################
 ###  DQM Source program (in DQMServices/Examples/src/DQMSourceExample.cc)
-process.dqmSource   = cms.EDFilter("DQMSourceExample",
+process.dqmSource   = cms.EDAnalyzer("DQMSourceExample",
         monitorName = cms.untracked.string('YourSubsystemName'),
         prescaleEvt = cms.untracked.int32(1),
         prescaleLS  =  cms.untracked.int32(1)                    
@@ -64,7 +64,7 @@ process.dqmSource   = cms.EDFilter("DQMSourceExample",
 ######################################################################################
 ### run the quality tests as defined in QualityTests.xml
 ### by default: the quality tests run at the end of each lumisection
-process.qTester    = cms.EDFilter("QualityTester",
+process.qTester    = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQMServices/Examples/test/QualityTests.xml'),
     prescaleFactor = cms.untracked.int32(1),                               
     testInEventloop = cms.untracked.bool(False), #run on each event
@@ -78,7 +78,7 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 ######################################################################################
 ### DQM Client program (in DQMServices/Examples/src/DQMClientExample.cc)
 ### by default: the client runs at the end of each lumisection
-process.dqmClient = cms.EDFilter("DQMClientExample",
+process.dqmClient = cms.EDAnalyzer("DQMClientExample",
     monitorName   = cms.untracked.string('YourSubsystemName'),
     QTestName     = cms.untracked.string('YRange'),                     
     prescaleEvt   = cms.untracked.int32(1),

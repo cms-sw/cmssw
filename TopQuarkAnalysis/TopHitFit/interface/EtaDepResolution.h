@@ -1,5 +1,4 @@
 //
-//     $Id: EtaDepResolution.h,v 1.12 2010/05/08 20:44:20 haryo Exp $
 //
 // CMSSW File      : interface/EtaDepResolution.h
 // Original Author : Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>

@@ -383,18 +383,14 @@ void TrackClassifier::processesAtSimulation()
                 pdgid = 0;
         }
 
-        // Check for the number of psimhit if different from zero
-        if ((*iparticle)->numberOfHits()) continue;
-
-        // Collect the G4 process of the first psimhit (it should be the same for all of them)
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-        unsigned short process = (*iparticle)->pSimHit_begin()->processType();
-#else
         unsigned short process = 0;
-#endif
-        // Flagging all the different processes
 
+	// Check existence of SimVerteces assigned
+        if(parentVertex->nG4Vertices() > 0) {
+	  process = (*(parentVertex->g4Vertices_begin())).processType();
+	}
+
+        // Flagging all the different processes
         update(
             flags_[KnownProcess],
             process != G4::Undefined &&

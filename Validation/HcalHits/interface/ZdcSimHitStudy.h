@@ -80,6 +80,8 @@ private:
 
 
   std::string    g4Label, zdcHits, outFile_;
+  edm::EDGetTokenT<reco::GenParticleCollection> tok_gen_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_; 
   bool           verbose_, checkHit_;
   DQMStore       *dbe_;
 

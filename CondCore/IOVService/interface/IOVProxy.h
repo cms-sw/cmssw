@@ -168,7 +168,7 @@ namespace cond {
 
     IOVProxy(cond::DbSession& dbSession, const std::string & token );
 
-    IOVProxy( boost::shared_ptr<IOVProxyData>& data );
+    IOVProxy( const boost::shared_ptr<IOVProxyData>& data );
 
     IOVProxy( const IOVProxy& rhs );
 

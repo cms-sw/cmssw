@@ -35,8 +35,10 @@ namespace {
     kSysError,
     kFatal
   };
+  
+  static thread_local bool s_ignoreWarnings = false;
 
-  void RootErrorHandlerImpl(int level, char const* location, char const* message, bool ignoreWarnings) {
+  void RootErrorHandlerImpl(int level, char const* location, char const* message) {
 
   bool die = false;
 
@@ -51,7 +53,7 @@ namespace {
     } else if (level >= kError) {
       el_severity = SeverityLevel::kError;
     } else if (level >= kWarning) {
-      el_severity = ignoreWarnings ? SeverityLevel::kInfo : SeverityLevel::kWarning;
+      el_severity = s_ignoreWarnings ? SeverityLevel::kInfo : SeverityLevel::kWarning;
     }
 
   // Adapt C-strings to std::strings
@@ -157,11 +159,7 @@ namespace {
   }
 
   void RootErrorHandler(int level, bool, char const* location, char const* message) {
-    RootErrorHandlerImpl(level, location, message, false);
-  }
-
-  void RootErrorHandlerWithoutWarnings(int level, bool, char const* location, char const* message) {
-    RootErrorHandlerImpl(level, location, message, true);
+    RootErrorHandlerImpl(level, location, message);
   }
 
   extern "C" {
@@ -279,18 +277,13 @@ namespace edm {
     }
 
     void
-    InitRootHandlers::disableErrorHandler_() {
-        SetErrorHandler(DefaultErrorHandler);
+    InitRootHandlers::enableWarnings_() {
+      s_ignoreWarnings =false;
     }
 
     void
-    InitRootHandlers::enableErrorHandler_() {
-        SetErrorHandler(RootErrorHandler);
-    }
-
-    void
-    InitRootHandlers::enableErrorHandlerWithoutWarnings_() {
-        SetErrorHandler(RootErrorHandlerWithoutWarnings);
+    InitRootHandlers::ignoreWarnings_() {
+      s_ignoreWarnings = true;
     }
 
   }  // end of namespace service

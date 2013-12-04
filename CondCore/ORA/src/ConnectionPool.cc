@@ -32,6 +32,11 @@ ora::SharedSession::get(){
   return *m_proxy;
 }
 
+boost::shared_ptr<coral::ISessionProxy> 
+ora::SharedSession::share(){
+  return m_proxy;
+}
+
 bool ora::SharedSession::isValid(){
   return m_proxy.get();
 }

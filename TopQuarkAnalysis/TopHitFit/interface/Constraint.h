@@ -1,5 +1,4 @@
 //
-// $Id: Constraint.h,v 1.4 2009/11/17 13:37:51 haryo Exp $
 //
 // File: hitfit/private/Constraint.h
 // Purpose: Represent a mass constraint equation.

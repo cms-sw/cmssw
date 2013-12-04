@@ -52,14 +52,21 @@ many thanks to David Wardrope, Shahram Rahatlou and Federico Ferri
 
 UnifiedSCCollectionProducer::UnifiedSCCollectionProducer(const edm::ParameterSet& ps)
 {
-
-        // get the parameters
+	    using  reco::BasicClusterCollection;
+	    using  reco::SuperClusterCollection;
+	    // get the parameters
         // the cleaned collection:
-        cleanBcCollection_ = ps.getParameter<edm::InputTag>("cleanBcCollection");
-        cleanScCollection_ = ps.getParameter<edm::InputTag>("cleanScCollection");
+	    cleanBcCollection_ = 
+			consumes<BasicClusterCollection>(ps.getParameter<edm::InputTag>("cleanBcCollection"));
+        cleanScCollection_ = 
+			consumes<SuperClusterCollection>(ps.getParameter<edm::InputTag>("cleanScCollection"));
+ 
         // the uncleaned collection
-        uncleanBcCollection_ = ps.getParameter<edm::InputTag>("uncleanBcCollection");
-        uncleanScCollection_ = ps.getParameter<edm::InputTag>("uncleanScCollection");
+        uncleanBcCollection_ = 
+			consumes<BasicClusterCollection>(ps.getParameter<edm::InputTag>("uncleanBcCollection"));
+        uncleanScCollection_ = 
+			consumes<SuperClusterCollection>(ps.getParameter<edm::InputTag>("uncleanScCollection"));
+       
         // the names of the products to be produced:
         //
         // the clean collection: this is as it was before, but labeled
@@ -77,8 +84,6 @@ UnifiedSCCollectionProducer::UnifiedSCCollectionProducer(const edm::ParameterSet
 }
 
 
-UnifiedSCCollectionProducer::~UnifiedSCCollectionProducer() {;}
-
 
 void UnifiedSCCollectionProducer::produce(edm::Event& evt, 
                                           const edm::EventSetup& es)
@@ -95,56 +100,27 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
   edm::Handle<reco::BasicClusterCollection> pUncleanBC;
   edm::Handle<reco::SuperClusterCollection> pUncleanSC;
   
-  evt.getByLabel(cleanScCollection_, pCleanSC);
-  if (!(pCleanSC.isValid())) 
-    {
-      
-      edm::LogError("MissingInput") << "could not find clean super clusters";
-      return;
-    }
-  
-  evt.getByLabel(cleanBcCollection_, pCleanBC);
-  if (!(pCleanBC.isValid())) 
-    {
-      
-      edm::LogError("MissingInput") << "could not find " << cleanBcCollection_;
-      return;
-    }
-
-  evt.getByLabel(uncleanBcCollection_, pUncleanBC);
-  if (!(pUncleanBC.isValid())) 
-    {
-      
-      edm::LogError("MissingInput") << "could not find " <<  uncleanBcCollection_;
-      return;
-    }
-
-
-
-        evt.getByLabel(uncleanScCollection_, pUncleanSC);
-        if (!(pUncleanSC.isValid())) 
-        {
-
-	  edm::LogError("MissingInput")<< "could not handle unclean super clusters!" ;
-	  return;
-        }
-
-        // the collections to be produced ___________________________________________
-        reco::BasicClusterCollection basicClusters;
-        reco::SuperClusterCollection superClusters;
-        //
-        reco::BasicClusterCollection basicClustersUncleanOnly;
-        reco::SuperClusterCollection superClustersUncleanOnly;
-        //
-        // run over the uncleaned SC and check how many of them are matched to 
-        // the cleaned ones
-        // if you find a matched one, then keep the info that it is matched 
-        //    along with which clean SC was matched + its basic clusters
-        // if you find an unmatched one, keep the info and store its basic clusters
-        //
-        // 
-        int uncleanSize = pUncleanSC->size();
-        int cleanSize =   pCleanSC->size();
+  evt.getByToken(cleanScCollection_, pCleanSC);
+  evt.getByToken(cleanBcCollection_, pCleanBC);
+  evt.getByToken(uncleanBcCollection_, pUncleanBC);
+  evt.getByToken(uncleanScCollection_, pUncleanSC);
+       
+  // the collections to be produced ___________________________________________
+  reco::BasicClusterCollection basicClusters;
+  reco::SuperClusterCollection superClusters;
+  //
+  reco::BasicClusterCollection basicClustersUncleanOnly;
+  reco::SuperClusterCollection superClustersUncleanOnly;
+  //
+  // run over the uncleaned SC and check how many of them are matched to 
+  // the cleaned ones
+  // if you find a matched one, then keep the info that it is matched 
+  //    along with which clean SC was matched + its basic clusters
+  // if you find an unmatched one, keep the info and store its basic clusters
+  //
+  // 
+  int uncleanSize = pUncleanSC->size();
+  int cleanSize =   pCleanSC->size();
 	
 	LogTrace("UnifiedSC") << "Size of Clean Collection: " << cleanSize 
                         << ", uncleanSize: " << uncleanSize;

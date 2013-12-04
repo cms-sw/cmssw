@@ -3,7 +3,7 @@
 #include <string>
 #include <cstring>
 
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
@@ -37,10 +37,10 @@ XMLDocument::XercesPlatform::XercesPlatform()
 {
 	if (!instances++) {
 		try {
-			XMLPlatformUtils::Initialize();
+			cms::concurrency::xercesInitialize();
 		} catch(const XMLException &e) {
 			throw cms::Exception("XMLDocument")
-				<< "XMLPlatformUtils::Initialize failed "
+				<< "cms::concurrency::xercesInitialize failed "
 				   "because of: "
 				<< XMLSimpleStr(e.getMessage()) << std::endl;
 		}
@@ -50,7 +50,7 @@ XMLDocument::XercesPlatform::XercesPlatform()
 XMLDocument::XercesPlatform::~XercesPlatform()
 {
 	if (!--instances)
-		XMLPlatformUtils::Terminate();
+		cms::concurrency::xercesTerminate();
 }
 
 XMLDocument::XMLDocument(std::auto_ptr<std::istream> &in, Handler &handler) :
@@ -88,7 +88,7 @@ void XMLDocument::init(Handler &handler)
 				<< "SAXParser::parseFirst failed" << std::endl;
 	} catch(const XMLException &e) {
 		throw cms::Exception("XMLDocument")
-			<< "XMLPlatformUtils::Initialize failed because of "
+			<< "cms::concurrency::xercesInitialize failed because of "
 			<< XMLSimpleStr(e.getMessage())	<< std::endl;
 	} catch(const SAXException &e) {
 		throw cms::Exception("XMLDocument")
@@ -110,7 +110,7 @@ bool XMLDocument::parse()
                 done = !parser->parseNext(token);
 	} catch(const XMLException &e) {
 		throw cms::Exception("XMLDocument")
-			<< "XMLPlatformUtils::Initialize failed because of "
+			<< "cms::concurrency::xercesInitialize failed because of "
 			<< XMLSimpleStr(e.getMessage())	<< std::endl;
 	} catch(const SAXException &e) {
 		throw cms::Exception("XMLDocument")

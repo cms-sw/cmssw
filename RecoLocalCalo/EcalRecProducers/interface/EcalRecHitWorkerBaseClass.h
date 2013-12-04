@@ -2,6 +2,7 @@
 #define RecoLocalCalo_EcalRecAlgos_EcalRecHitWorkerBaseClass_hh
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
         class Event;
@@ -13,7 +14,8 @@ class EcalRecHitWorkerBaseClass {
         public:
                 enum RecoveryFlags { EB_single, EE_single, EB_VFE, EE_VFE, EB_FE, EE_FE };
 
-                EcalRecHitWorkerBaseClass(const edm::ParameterSet&) {};
+                EcalRecHitWorkerBaseClass(const edm::ParameterSet&, edm::ConsumesCollector& c) {};
+			    EcalRecHitWorkerBaseClass(const edm::ParameterSet&) {};
                 virtual ~EcalRecHitWorkerBaseClass() {};
 
                 virtual void set(const edm::EventSetup& es) = 0;

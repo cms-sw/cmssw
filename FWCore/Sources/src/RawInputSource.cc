@@ -52,7 +52,7 @@ namespace edm {
   void
   RawInputSource::makeEvent(EventPrincipal& eventPrincipal, EventAuxiliary const& eventAuxiliary) {
     EventSourceSentry sentry(*this);
-    eventPrincipal.fillEventPrincipal(eventAuxiliary, processHistoryRegistryForUpdate());
+    eventPrincipal.fillEventPrincipal(eventAuxiliary, processHistoryRegistry());
   }
 
   void

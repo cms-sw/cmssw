@@ -50,7 +50,7 @@ class ESSummaryClient : public ESClient {
       inline int getEvtPerRun() { return jevt_; }
 
       /// Set Clients
-      inline void setFriends(std::vector<ESClient*> clients) { clients_ = clients; }
+      inline void setFriends(const std::vector<ESClient*>& clients) { clients_ = clients; }
 
      /// EndLumiAnalyze 
      void endLumiAnalyze();

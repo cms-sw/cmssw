@@ -61,7 +61,7 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
+#include "FWCore/Concurrency/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <boost/filesystem.hpp>
 #include "boost/filesystem/path.hpp"
@@ -109,7 +109,7 @@ const std::string
 LumiCorrectionSource::servletTranslation(const std::string& servlet) const{
   std::string frontierConnect;
   std::string realconnect;
-  xercesc::XMLPlatformUtils::Initialize();  
+  cms::concurrency::xercesInitialize();  
   std::auto_ptr< xercesc::XercesDOMParser > parser(new xercesc::XercesDOMParser);
   try{
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);

@@ -1403,7 +1403,6 @@ void FourVectorHLTOnline::cleanDRMatchSet(mmset& tempSet)
 }
 
 void FourVectorHLTOnline::setupHltMatrix(std::string label, std::vector<std::string> paths) {
-
     //string groupLabelAny = "HLT_"+label+"_Any";
     //paths.push_back(groupLabelAny.c_str());
     paths.push_back("HLT_"+label+"_L1_Any");

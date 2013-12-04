@@ -14,7 +14,6 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -46,6 +45,7 @@ MuonSeedTrack::MuonSeedTrack(const edm::ParameterSet& pset)
   ParameterSet updatorPar = pset.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters");
   //theSeedPropagatorName = updatorPar.getParameter<string>("Propagator");
   theSeedsLabel = pset.getParameter<InputTag>("MuonSeed");
+  theSeedsToken = consumes<TrajectorySeedCollection>(theSeedsLabel);
   theUpdatorAtVtx = new MuonUpdatorAtVertex(updatorPar,theService);
 
   theAllowNoVtxFlag = pset.getUntrackedParameter<bool>("AllowNoVertex",false);
@@ -87,7 +87,7 @@ MuonSeedTrack::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
 
   Handle<TrajectorySeedCollection> seeds;
-  event.getByLabel(theSeedsLabel, seeds);
+  event.getByToken(theSeedsToken, seeds);
 
   for ( TrajectorySeedCollection::const_iterator iSeed = seeds->begin();
         iSeed != seeds->end(); iSeed++ ) {

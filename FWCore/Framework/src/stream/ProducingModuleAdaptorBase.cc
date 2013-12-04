@@ -84,16 +84,23 @@ namespace edm {
     
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::itemsToGet(BranchType iType, std::vector<ProductHolderIndex>& iIndices) const {
+    ProducingModuleAdaptorBase<T>::itemsToGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
       assert(not m_streamModules.empty());
       m_streamModules[0]->itemsToGet(iType,iIndices);
     }
     
     template< typename T>
     void
-    ProducingModuleAdaptorBase<T>::itemsMayGet(BranchType iType, std::vector<ProductHolderIndex>& iIndices) const {
+    ProducingModuleAdaptorBase<T>::itemsMayGet(BranchType iType, std::vector<ProductHolderIndexAndSkipBit>& iIndices) const {
       assert(not m_streamModules.empty());
-      m_streamModules[0]->itemsToGet(iType,iIndices);
+      m_streamModules[0]->itemsMayGet(iType,iIndices);
+    }
+
+    template<typename T>
+    std::vector<edm::ProductHolderIndexAndSkipBit> const&
+    ProducingModuleAdaptorBase<T>::itemsToGetFromEvent() const {
+      assert(not m_streamModules.empty());
+      return m_streamModules[0]->itemsToGetFromEvent();
     }
 
     template< typename T>

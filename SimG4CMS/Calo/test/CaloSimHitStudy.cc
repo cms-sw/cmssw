@@ -1,18 +1,19 @@
 #include "SimG4CMS/Calo/test/CaloSimHitStudy.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
 CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
 
-  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","generator");
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag(ps.getUntrackedParameter<std::string>("SourceLabel","generator")));
   g4Label   = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLab[0] = ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLab[1] = ps.getUntrackedParameter<std::string>("EECollection","EcalHitsEE");
   hitLab[2] = ps.getUntrackedParameter<std::string>("ESCollection","EcalHitsES");
   hitLab[3] = ps.getUntrackedParameter<std::string>("HCCollection","HcalHits");
+
+
   double maxEnergy_= ps.getUntrackedParameter<double>("MaxEnergy", 200.0);
   tmax_     = ps.getUntrackedParameter<double>("TimeCut", 100.0);
   eMIP_     = ps.getUntrackedParameter<double>("MIPCut",  0.70);
@@ -32,6 +33,20 @@ CaloSimHitStudy::CaloSimHitStudy(const edm::ParameterSet& ps) {
   tkLowLab[3] = "TrackerHitsTIBLowTof";
   tkLowLab[4] = "TrackerHitsTIDLowTof";
   tkLowLab[5] = "TrackerHitsTOBLowTof";
+
+  // register for data access
+  for ( unsigned i=0; i != 4; i++ )
+    toks_calo_[i] = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label,hitLab[i]));
+
+  for ( unsigned i=0; i != 3; i++ )
+    toks_track_[i] = consumes<edm::PSimHitContainer>(edm::InputTag(g4Label,muonLab[i]));
+
+  for ( unsigned i=0; i != 6; i++ ) {
+    toks_tkHigh_[i] = consumes<edm::PSimHitContainer>(edm::InputTag(g4Label,tkHighLab[i]));
+    toks_tkLow_[i] = consumes<edm::PSimHitContainer>(edm::InputTag(g4Label,tkLowLab[i]));
+  }
+
+
   edm::LogInfo("HitStudy") << "Module Label: " << g4Label << "   Hits: "
 			   << hitLab[0] << ", " << hitLab[1] << ", " 
 			   << hitLab[2] << ", "<< hitLab[3] 
@@ -160,7 +175,7 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
 		       << e.id().event();
 
   edm::Handle<edm::HepMCProduct > EvtHandle;
-  e.getByLabel(sourceLabel, EvtHandle);
+  e.getByToken(tok_evt_, EvtHandle);
   const  HepMC::GenEvent* myGenEvent = EvtHandle->GetEvent();
 
   double eInc=0, etaInc=0, phiInc=0;
@@ -180,7 +195,7 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
   for (int i=0; i<4; i++) {
     bool getHits = false;
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
-    e.getByLabel(g4Label,hitLab[i],hitsCalo); 
+    e.getByToken(toks_calo_[i],hitsCalo); 
     if (hitsCalo.isValid()) getHits = true;
     LogDebug("HitStudy") << "HcalValidation: Input flags Hits " << getHits;
 
@@ -200,7 +215,7 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
   std::vector<PSimHit>               muonHits;
   edm::Handle<edm::PSimHitContainer> hitsTrack;
   for (int i=0; i<3; i++) {
-    e.getByLabel(g4Label,muonLab[i],hitsTrack); 
+    e.getByToken(toks_track_[i],hitsTrack); 
     if (hitsTrack.isValid()) {
       muonHits.insert(muonHits.end(),hitsTrack->begin(),hitsTrack->end());
       analyzeHits (hitsTrack, i+12);
@@ -210,7 +225,7 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
   hitMu->Fill(double(nhmu));
   std::vector<PSimHit>               tkHighHits;
   for (int i=0; i<6; i++) {
-    e.getByLabel(g4Label,tkHighLab[i],hitsTrack); 
+    e.getByToken(toks_tkHigh_[i],hitsTrack); 
     if (hitsTrack.isValid()) {
       tkHighHits.insert(tkHighHits.end(),hitsTrack->begin(),hitsTrack->end());
       analyzeHits (hitsTrack, i);
@@ -220,7 +235,7 @@ void CaloSimHitStudy::analyze(const edm::Event& e, const edm::EventSetup& ) {
   hitHigh->Fill(double(nhtkh));
   std::vector<PSimHit>               tkLowHits;
   for (int i=0; i<6; i++) {
-    e.getByLabel(g4Label,tkLowLab[i],hitsTrack); 
+    e.getByToken(toks_tkLow_[i],hitsTrack); 
     if (hitsTrack.isValid()) {
       tkLowHits.insert(tkLowHits.end(),hitsTrack->begin(),hitsTrack->end());
       analyzeHits (hitsTrack, i+6);

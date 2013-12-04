@@ -481,10 +481,9 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
   }
 }
 
-bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(	edm::RefToBase<Jet> jetRef, FlavourMap flavours,
+bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(	edm::RefToBase<Jet> jetRef, const FlavourMap& flavours,
 	JetWithFlavour & jetWithFlavour, const edm::EventSetup & es)
 {
-
   edm::ProductID recProdId = jetRef.id();
   edm::ProductID refProdId = (flavours.begin() == flavours.end())
     ? recProdId
@@ -514,7 +513,10 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(	edm::RefToBase<Jet> jetRef, 
 
   jetWithFlavour.first = jetCorrector(*jetRef);
 
-  jetWithFlavour.second = reco::JetFlavour(jetWithFlavour.first.p4(), math::XYZPoint (0,0,0), flavours[jetRef]);
+//  jetWithFlavour.second = reco::JetFlavour(jetWithFlavour.first.p4(), math::XYZPoint (0,0,0), flavours.at(jetRef));
+  auto itFound = flavours.find(jetRef);
+  unsigned int flavour = itFound != flavours.end()? itFound->second : 0;
+  jetWithFlavour.second = reco::JetFlavour(jetWithFlavour.first.p4(), math::XYZPoint (0,0,0), flavour);
 
   LogTrace("Info") << "Found jet with flavour "<<jetWithFlavour.second.getFlavour()<<endl;
   LogTrace("Info") << jetWithFlavour.first.p()<<" , "<< jetWithFlavour.first.pt()<<" - "

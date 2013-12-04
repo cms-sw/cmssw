@@ -323,6 +323,12 @@ namespace edm {
       iRegistry.watchPrePathEvent(this,&MessageLogger::prePathEvent);
       iRegistry.watchPostPathEvent(this,&MessageLogger::postPathEvent);
       
+      
+      MessageDrop* messageDrop = MessageDrop::instance();
+      nonModule_debugEnabled   = messageDrop->debugEnabled;
+      nonModule_infoEnabled    = messageDrop->infoEnabled;
+      nonModule_warningEnabled = messageDrop->warningEnabled;
+      nonModule_errorEnabled   = messageDrop->errorEnabled;
     } // ctor
     
     //
@@ -334,10 +340,6 @@ namespace edm {
                                    const char * whichPhase)	// ChangeLog 13, 17
     {
       MessageDrop* messageDrop = MessageDrop::instance();
-      nonModule_debugEnabled   = messageDrop->debugEnabled;
-      nonModule_infoEnabled    = messageDrop->infoEnabled;
-      nonModule_warningEnabled = messageDrop->warningEnabled;
-      nonModule_errorEnabled   = messageDrop->errorEnabled;         // change log 20
       
       // std::cerr << "establishModule( " << desc.moduleName() << ")\n";
       // Change Log 17
@@ -375,10 +377,6 @@ namespace edm {
                                    const char * whichPhase)	// ChangeLog 13, 17
     {
       MessageDrop* messageDrop = MessageDrop::instance();
-      nonModule_debugEnabled   = messageDrop->debugEnabled;
-      nonModule_infoEnabled    = messageDrop->infoEnabled;
-      nonModule_warningEnabled = messageDrop->warningEnabled;
-      nonModule_errorEnabled   = messageDrop->errorEnabled;         // change log 20
       
       // std::cerr << "establishModule( " << desc.moduleName() << ")\n";
       // Change Log 17
@@ -550,13 +548,17 @@ namespace edm {
     { unEstablishModule (iDescription, "AfterSourceConstruction"); }
     
     void
-    MessageLogger::preModuleBeginStream(StreamContext const& stream, const ModuleDescription& desc)
+    MessageLogger::preModuleBeginStream(StreamContext const& stream, ModuleCallingContext const& mcc)
     {
+      ModuleDescription const& desc = *mcc.moduleDescription();
       establishModule (desc,"@beginStream");				// ChangeLog 13
     }
-    void MessageLogger::postModuleBeginStream(StreamContext const& stream, const ModuleDescription& iDescription)
-    { unEstablishModule (iDescription, "AfterModBeginStream"); }
-    
+    void MessageLogger::postModuleBeginStream(StreamContext const& stream, ModuleCallingContext const& mcc)
+    {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule (desc, "AfterModBeginStream");
+    }
+
     void
     MessageLogger::preModuleStreamBeginRun(StreamContext const& stream, ModuleCallingContext const& mod)
     {
@@ -641,15 +643,20 @@ namespace edm {
     }
     void MessageLogger::postModuleGlobalEndRun(GlobalContext const& stream, ModuleCallingContext const& mod)
     { unEstablishModule (mod, "AfterModGlobalEndRun"); }
-    
+
     void
-    MessageLogger::preModuleEndStream(StreamContext const&, const ModuleDescription& desc)
+    MessageLogger::preModuleEndStream(StreamContext const&, ModuleCallingContext const& mcc)
     {
+      ModuleDescription const& desc = *mcc.moduleDescription();
       establishModule (desc,"@endStream");				// ChangeLog 13
     }
-    void MessageLogger::postModuleEndStream(StreamContext const&, const ModuleDescription& iDescription)
-    { unEstablishModule (iDescription, "AfterModEndStream"); }
-    
+
+    void MessageLogger::postModuleEndStream(StreamContext const&, ModuleCallingContext const& mcc)
+    {
+      ModuleDescription const& desc = *mcc.moduleDescription();
+      unEstablishModule (desc, "AfterModEndStream");
+    }
+
     void
     MessageLogger::preModuleEndJob(const ModuleDescription& desc)
     {

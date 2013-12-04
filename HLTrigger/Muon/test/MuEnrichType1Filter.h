@@ -5,6 +5,7 @@
 //
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 class MuEnrichType1Filter : public edm::EDFilter {
 public:
@@ -15,6 +16,7 @@ private:
   virtual void beginJob() ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
+  edm::EDGetTokenT<edm::HepMCProduct> theGenToken;
   int nrejected;
   int naccepted;
   int type;

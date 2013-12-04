@@ -70,7 +70,7 @@ private:
         if (!msm_->count(name)) (*msm_)[name] = dbe_->book1D(name.c_str(), name.c_str(), n, min, max);
     }
 
-    void book1D(std::string name, HistLim limX) {
+    void book1D(std::string name, const HistLim& limX) {
         if (!msm_->count(name)) (*msm_)[name] = dbe_->book1D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max);
     }
 
@@ -78,7 +78,7 @@ private:
         msm_->find(name)->second->Fill(X, weight);
     }
 
-    void book2D(std::string name, HistLim limX, HistLim limY) {
+    void book2D(std::string name, const HistLim& limX, const HistLim& limY) {
         if (!msm_->count(name)) (*msm_)[name] = dbe_->book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
     }
 
@@ -86,7 +86,7 @@ private:
         msm_->find(name)->second->Fill(X, Y, weight);
     }
 
-    void bookPf(std::string name, HistLim limX, HistLim limY) {
+    void bookPf(std::string name, const HistLim& limX, const HistLim& limY) {
         if (!msm_->count(name)) (*msm_)[name] = dbe_->bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
     }
 

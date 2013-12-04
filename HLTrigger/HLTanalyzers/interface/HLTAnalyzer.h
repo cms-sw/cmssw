@@ -78,6 +78,155 @@ private:
   int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
 
+  //
+  // All tokens needed to access products in the event
+  //
+
+  edm::EDGetTokenT<reco::BeamSpot>                       BSProducerToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection>              hltjetsToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection>              hltcorjetsToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection>              hltcorL1L2L3jetsToken_;
+  edm::EDGetTokenT<double>                               rhoToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection>              recjetsToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection>              reccorjetsToken_;
+  edm::EDGetTokenT<reco::GenJetCollection>               genjetsToken_;
+  edm::EDGetTokenT<CaloTowerCollection>                  calotowersToken_;
+  edm::EDGetTokenT<CaloTowerCollection>                  calotowersUpperR45Token_;
+  edm::EDGetTokenT<CaloTowerCollection>                  calotowersLowerR45Token_;
+  edm::EDGetTokenT<CaloTowerCollection>                  calotowersNoR45Token_;
+  edm::EDGetTokenT<reco::CaloMETCollection>              recmetToken_;
+  edm::EDGetTokenT<reco::PFMETCollection>                recoPFMetToken_;
+  edm::EDGetTokenT<reco::GenMETCollection>               genmetToken_;
+  edm::EDGetTokenT<reco::METCollection>                  htToken_;
+  edm::EDGetTokenT<reco::PFJetCollection>                recoPFJetsToken_; 
+  edm::EDGetTokenT<reco::CandidateView>                  mctruthToken_;
+  edm::EDGetTokenT<GenEventInfoProduct>                  genEventInfoToken_;
+  edm::EDGetTokenT<std::vector<SimTrack> >               simTracksToken_;
+  edm::EDGetTokenT<std::vector<SimVertex> >              simVerticesToken_;
+  edm::EDGetTokenT<reco::MuonCollection>                 muonToken_;
+  edm::EDGetTokenT<reco::PFCandidateCollection>          pfmuonToken_;
+  edm::EDGetTokenT<edm::TriggerResults>                  hltresultsToken_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection>      l1extraemiToken_, l1extraemnToken_;
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection>    l1extramuToken_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection>     l1extrajetcToken_, l1extrajetfToken_, l1extrajetToken_, l1extrataujetToken_;
+  edm::EDGetTokenT<l1extra::L1EtMissParticleCollection>  l1extrametToken_,l1extramhtToken_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>         gtReadoutRecordToken_;
+  edm::EDGetTokenT< L1GctHFBitCountsCollection >         gctBitCountsToken_;
+  edm::EDGetTokenT< L1GctHFRingEtSumsCollection >        gctRingSumsToken_;
+    
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> MuCandTag2Token_, MuCandTag3Token_, MuNoVtxCandTag2Token_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> oniaPixelTagToken_, oniaTrackTagToken_;
+  edm::EDGetTokenT<reco::VertexCollection>               DiMuVtxToken_;
+  edm::EDGetTokenT<reco::MuonCollection>                 TrackerMuonTagToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> >                 MuIsolTag2Token_,  MuIsolTag3Token_, MuTrkIsolTag3Token_;
+  edm::EDGetTokenT<reco::CaloJetCollection>              L2TauToken_;
+  edm::EDGetTokenT<reco::HLTTauCollection>               HLTTauToken_;
+  edm::EDGetTokenT<reco::PFTauCollection>                PFTauToken_;
+  edm::EDGetTokenT<reco::PFTauCollection>                PFTauTightConeToken_;
+  edm::EDGetTokenT<reco::PFJetCollection>                PFJetsToken_;
+    
+    // offline reco tau collection and discriminators
+  edm::EDGetTokenT<reco::PFTauCollection>    RecoPFTauToken_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> RecoPFTauDiscrByTanCOnePercentToken_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> RecoPFTauDiscrByTanCHalfPercentToken_; 
+  edm::EDGetTokenT<reco::PFTauDiscriminator> RecoPFTauDiscrByTanCQuarterPercentToken_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> RecoPFTauDiscrByTanCTenthPercentToken_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> RecoPFTauDiscrByIsoToken_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> RecoPFTauAgainstMuonToken_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> RecoPFTauAgainstElecToken_;
+       
+    // btag OpenHLT input collections
+  edm::EDGetTokenT<edm::View<reco::Jet> >                rawBJetsToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> >                correctedBJetsToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> >                correctedBJetsL1FastJetToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> >                pfBJetsToken_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimeBJetsL25Token_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimeBJetsL3L1FastJetToken_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimeBJetsL25L1FastJetToken_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimeBJetsL3Token_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimePFBJetsL3Token_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimeBJetsL25SingleTrackToken_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimeBJetsL3SingleTrackToken_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimeBJetsL25SingleTrackL1FastJetToken_;
+  edm::EDGetTokenT<reco::JetTagCollection>               lifetimeBJetsL3SingleTrackL1FastJetToken_;
+  edm::EDGetTokenT<reco::JetTagCollection>               performanceBJetsL25Token_;
+  edm::EDGetTokenT<reco::JetTagCollection>               performanceBJetsL3Token_;
+  edm::EDGetTokenT<reco::JetTagCollection>               performanceBJetsL25L1FastJetToken_;
+  edm::EDGetTokenT<reco::JetTagCollection>               performanceBJetsL3L1FastJetToken_;
+    
+    // egamma OpenHLT input collections
+  edm::EDGetTokenT<reco::GsfElectronCollection>          ElectronToken_;
+  edm::EDGetTokenT<reco::PhotonCollection>               PhotonToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  IsoPhoR9Token_; 
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  NonIsoPhoR9Token_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  IsoPhoR9IDToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  NonIsoPhoR9IDToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  IsoPhoHoverEHToken_;   
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  NonIsoPhoHoverEHToken_;    
+  edm::EDGetTokenT<reco::ElectronCollection>             IsoElectronToken_;
+  edm::EDGetTokenT<reco::ElectronCollection>             NonIsoElectronToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  IsoEleR9Token_; 
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  NonIsoEleR9Token_;  
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  IsoEleR9IDToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  NonIsoEleR9IDToken_;
+  edm::EDGetTokenT<reco::ElectronIsolationMap>           IsoEleTrackIsolToken_;
+  edm::EDGetTokenT<reco::ElectronIsolationMap>           NonIsoEleTrackIsolToken_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection>         L1IsoPixelSeedsToken_;
+  edm::EDGetTokenT<reco::ElectronSeedCollection>         L1NonIsoPixelSeedsToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection>    CandIsoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection>    CandNonIsoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  EcalIsoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  EcalNonIsoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  HcalIsoPhoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  HcalNonIsoPhoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  IsoEleHcalToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  NonIsoEleHcalToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  NonIsoPhoTrackIsolToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  IsoPhoTrackIsolToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection>         HFECALClustersToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection>    HFElectronsToken_;
+
+    // ECAL Activity
+  edm::EDGetTokenT<reco::RecoEcalCandidateCollection>    ECALActivityToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  ActivityEcalIsoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  ActivityHcalIsoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  ActivityTrackIsoToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  ActivityR9Token_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  ActivityR9IDToken_;
+  edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap>  ActivityHoverEHToken_;
+ 
+    
+    // AlCa OpenHLT input collections
+    /*
+  edm::EDGetTokenT<EBRecHitCollection>             EBRecHitToken_;
+  edm::EDGetTokenT<EERecHitCollection>             EERecHitToken_;
+  edm::EDGetTokenT<EBRecHitCollection>             pi0EBRecHitToken_;
+  edm::EDGetTokenT<EERecHitCollection>             pi0EERecHitToken_;
+  edm::EDGetTokenT<HBHERecHitCollection>           HBHERecHitToken_;
+  edm::EDGetTokenT<HORecHitCollection>             HORecHitToken_;
+  edm::EDGetTokenT<HFRecHitCollection>             HFRecHitToken_;
+    */
+
+  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> IsoPixelTrackL3Token_; 
+  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> IsoPixelTrackL2Token_;	
+  edm::EDGetTokenT<reco::VertexCollection>                      IsoPixelTrackVerticesToken_;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection>        PixelTracksL3Token_; 
+  edm::EDGetTokenT<FEDRawDataCollection>                        PixelFEDSizeToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >       PixelClustersToken_;
+    
+    // Reco vertex collection
+  edm::EDGetTokenT<reco::VertexCollection> VertexHLTToken_;
+  edm::EDGetTokenT<reco::VertexCollection> VertexOffline0Token_;
+
+    // Extra stuffs
+  edm::EDGetTokenT<reco::HFEMClusterShapeAssociationCollection> HFEMClusterShapeAssociationToken_;
+
+  //
+  // All input tags
+  //
+
+  edm::InputTag BSProducer_;
+
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,recoPFMet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
   edm::InputTag calotowersUpperR45_, calotowersLowerR45_, calotowersNoR45_;
   edm::InputTag hltjets_, hltcorjets_, hltcorL1L2L3jets_, rho_;

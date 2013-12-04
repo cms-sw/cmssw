@@ -5,32 +5,27 @@
     email                : case@ucdhep.ucdavis.edu
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *                                                                         *
- ***************************************************************************/
-
-
 #include <iostream>
 #include <stdlib.h>
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 int main(int argc, char *argv[])
 {
   try {
-    AlgoInit();
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
 
     std::cout << "Get a hold of aDDLParser." << std::endl;
     DDCompactView cpv;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLParser myP(cpv);
 
     std::cout << "main:: initialize" << std::endl;
-    //  DDInit();
 
     std::cout << "======================" << std::endl << std::endl;
 
@@ -51,15 +46,6 @@ int main(int argc, char *argv[])
 	std::cout << "error in ReadConfig" << std::endl;
 	return -1;
       }
-
-
-    //  std::cout << "main::about to set configuration" << std::endl;
-    //   myP->SetConfig("configuration.xml");
-
-    //   std::cout << "main::about to start parsing" << std::endl;
- 
-    //   myP->StartParsing();
-
 
     // Parse the files provided by the DDLDocumentProvider above.
     std::cout << " parse all the files provided by the DDLDocumentProvider" << std::endl;
@@ -88,9 +74,6 @@ int main(int argc, char *argv[])
     std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
     DDCheckMaterials(std::cout);
 
-//     DDCompactView cpv;
-
-//     cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
   
     return EXIT_SUCCESS;
@@ -99,6 +82,5 @@ int main(int argc, char *argv[])
     {
       std::cout << "main::PROBLEM:" << std::endl 
 	   << "         " << e.what() << std::endl;
-    }  
-
+    }
 }
