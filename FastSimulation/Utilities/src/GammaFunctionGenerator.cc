@@ -1,11 +1,9 @@
 //FAMOS headers
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
-GammaFunctionGenerator::GammaFunctionGenerator(const RandomEngine* engine) :
-  random(engine)
+GammaFunctionGenerator::GammaFunctionGenerator()
 {
-
   xmax = 30.;
 
   for(unsigned i=1;i<=12;++i)
@@ -15,7 +13,7 @@ GammaFunctionGenerator::GammaFunctionGenerator(const RandomEngine* engine) :
       myIncompleteGamma.a().setValue((double)i);
       integralToApproxLimit.push_back(myIncompleteGamma(approxLimit[i-1]));
       theGammas.push_back(
-       GammaNumericalGenerator(random,(double)i,1.,0,approxLimit[i-1]+1.));
+       GammaNumericalGenerator((double)i,1.,0,approxLimit[i-1]+1.));
     }
   coreCoeff.push_back(0.);  // alpha=1 not used
   coreCoeff.push_back(1./8.24659e-01);
@@ -32,7 +30,7 @@ GammaFunctionGenerator::GammaFunctionGenerator(const RandomEngine* engine) :
 
 GammaFunctionGenerator::~GammaFunctionGenerator() {}
 
-double GammaFunctionGenerator::shoot() const
+double GammaFunctionGenerator::shoot(RandomEngineAndDistribution const* random) const
 {
   if(alpha<0.) return -1.;
   if(badRange) return xmin/beta;
@@ -41,16 +39,16 @@ double GammaFunctionGenerator::shoot() const
 
       if (alpha == na)
 	{
-	  return gammaInt ()/beta;
+	  return gammaInt(random)/beta;
 	}
       else if (na == 0)
 	{
-	  return gammaFrac ()/beta;
+	  return gammaFrac(random)/beta;
 	}
       else
 	{
-	  double gi=gammaInt ();
-	  double gf=gammaFrac ();
+	  double gi=gammaInt(random);
+	  double gf=gammaFrac(random);
 	  return (gi+gf)/beta;
 	}
     }
@@ -61,7 +59,7 @@ double GammaFunctionGenerator::shoot() const
     }
 }
 
-double GammaFunctionGenerator::gammaFrac () const
+double GammaFunctionGenerator::gammaFrac(RandomEngineAndDistribution const* random) const
 {
   /* This is exercise 16 from Knuth; see page 135, and the solution is
      on page 551.  */
@@ -89,7 +87,7 @@ double GammaFunctionGenerator::gammaFrac () const
   return x;
 }
 
-double GammaFunctionGenerator::gammaInt() const
+double GammaFunctionGenerator::gammaInt(RandomEngineAndDistribution const* random) const
 {
   // Exponential distribution : no approximation
   if(na==1)
@@ -106,7 +104,7 @@ double GammaFunctionGenerator::gammaInt() const
   // core-tail interval
   if(random->flatShoot()<coreProba)
     {
-      return theGammas[gn].gamma_lin();
+      return theGammas[gn].gamma_lin(random);
     }
   //  std::cout << " Tail called " << std::endl;
   return approxLimit[gn]-coreCoeff[gn]*log(random->flatShoot());

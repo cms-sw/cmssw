@@ -20,7 +20,7 @@ typedef std::vector<vec4>   vec5;
 enum part{hcbarrel=0, hcendcap=1, hcforward=2};
 enum type{ECAL=0, HCAL=1, VFCAL=2};
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 namespace edm { 
   class ParameterSet;
@@ -29,31 +29,31 @@ namespace edm {
 class HCALResponse
 {
 public:
-  HCALResponse(const edm::ParameterSet& pset, const RandomEngine* engine);
+  HCALResponse(const edm::ParameterSet& pset);
   ~HCALResponse(){ } 
 
   // Get the response smearing factor
   // for  e/gamma = 0, hadron = 1, mu = 2, mip: 0/1/2
   // mip = 2 means "mean" response regardless actual mip
-  double responseHCAL(int _mip, double energy, double eta, int partype);
+  double responseHCAL(int _mip, double energy, double eta, int partype, RandomEngineAndDistribution const*);
 
   //Get the energy and eta dependent mip fraction
    double getMIPfraction(double energy, double eta);
 
   // legacy methods using simple formulae
-  double getHCALEnergyResponse(double e, int hit);
+  double getHCALEnergyResponse(double e, int hit, RandomEngineAndDistribution const*);
   
 private:
 
   // calculates interpolated-extrapolated response smearing factors
   // for hadrons, muons, and e/gamma (the last in HF specifically)
-  double interHD(int mip, double e, int ie, int ieta, int det);
-  double interEM(double e, int ie, int ieta); 
-  double interMU(double e, int ie, int ieta);
+  double interHD(int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const*);
+  double interEM(double e, int ie, int ieta, RandomEngineAndDistribution const*);
+  double interMU(double e, int ie, int ieta, RandomEngineAndDistribution const*);
   
   //random shooting functions w/ protection from negative energies
-  double gaussShootNoNegative(double e, double sigma);
-  double cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR);
+  double gaussShootNoNegative(double e, double sigma, RandomEngineAndDistribution const*);
+  double cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR, RandomEngineAndDistribution const*);
 
   //find subdet
   int getDet(int ieta);
@@ -106,9 +106,6 @@ private:
   vec3 responseMU; 
   vec3 mipfraction;
 
-  // Famos random engine
-  const RandomEngine* random;
-  
   // crystal ball generator
   DoubleCrystalBallGenerator cball;
 

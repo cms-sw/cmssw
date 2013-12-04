@@ -18,7 +18,7 @@ public:
   ~NoPrimaryVertexGenerator() {;}
   
   /// Generation process (to be implemented)
-  virtual void generate() {;}
+  virtual void generate(RandomEngineAndDistribution const*) { }
 
  private:
 

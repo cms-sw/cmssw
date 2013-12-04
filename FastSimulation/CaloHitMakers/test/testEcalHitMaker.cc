@@ -24,9 +24,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -44,11 +41,10 @@
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
 
 #include <iomanip>
 
@@ -76,7 +72,6 @@ private:
 
   CaloGeometryHelper * myGeometry;
 
-  const RandomEngine* random;
   GammaFunctionGenerator* aGammaGenerator;
   FSimEvent * mySimEvent;
 };
@@ -94,16 +89,7 @@ private:
 //
 testEcalHitMaker::testEcalHitMaker( const edm::ParameterSet& iConfig )
 {
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable() ) {
-    throw cms::Exception("Configuration")
-      << "prod requires the RandomGeneratorService\n"
-         "which is not present in the configuration file.\n"
-         "You must add the service in the configuration file\n"
-         "or remove the module that requires it";
-  }
-  random = new RandomEngine(&(*rng));
-  aGammaGenerator = new GammaFunctionGenerator(random);
+  aGammaGenerator = new GammaFunctionGenerator();
 
   mySimEvent = new FSimEvent(iConfig.getParameter<edm::ParameterSet>( "TestParticleFilter" ));
   
@@ -144,11 +130,9 @@ void
 testEcalHitMaker::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    using namespace edm;
-   
-  // Initialize the random number generator service
 
+   RandomEngineAndDistribution random(iEvent.streamID());
 
-   
    math::XYZTLorentzVectorD theMomentum(10.,0.,5.,sqrt(125));
 
    // no need actually define it at the ECAL entrance: the fill of FSimEvent will do the 
@@ -211,13 +195,13 @@ testEcalHitMaker::analyze( const edm::Event& iEvent, const edm::EventSetup& iSet
 		 tailParams);
 
    //define the shower parameters 
-   EMShower theShower(random,aGammaGenerator,&showerparam,&thePart);
+   EMShower theShower(&random,aGammaGenerator,&showerparam,&thePart);
    
    // you might want to replace this with something elese 
    DetId pivot(myGeometry->getClosestCell(ecalentrance, true, mySimTrack.onEcal()==1));
    
    // define the 7x7 grid
-   EcalHitMaker myGrid(myGeometry,ecalentrance,pivot,mySimTrack.onEcal(),7,0,random);
+   EcalHitMaker myGrid(myGeometry,ecalentrance,pivot,mySimTrack.onEcal(),7,0,&random);
    myGrid.setCrackPadSurvivalProbability(0.9); // current parameters  in the Fast Sim
    myGrid.setRadiusFactor(1.096); // current parameters 
 
