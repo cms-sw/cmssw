@@ -15,6 +15,9 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('rfio:/castor/cern.ch/user/v/vesna/testDigis.root')
 )
 
+process.LockService = cms.Service("LockService",
+    labels = cms.untracked.vstring('source')
+)
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis'),
     cout = cms.untracked.PSet(
