@@ -7,23 +7,18 @@
  * \author Kevin Pedro
  * $Date: 14 March 2013 */
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class DoubleCrystalBallGenerator
 {
 	public:
 		//constructor
-		DoubleCrystalBallGenerator(const RandomEngine* engine) : random(engine) {}
+		DoubleCrystalBallGenerator() { }
 		//destructor
 		virtual ~DoubleCrystalBallGenerator() {}
-		
+
 		//functions
-		double shoot(double mu, double sigma, double aL, double nL, double aR, double nR);
-
-	private:
-		//random engine
-		const RandomEngine* random;
-
+		double shoot(double mu, double sigma, double aL, double nL, double aR, double nR,
+                             RandomEngineAndDistribution const* random);
 };
-
 #endif
