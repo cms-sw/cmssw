@@ -10,7 +10,7 @@
 //#include <boost/cstdint.hpp>
 
 class CaloGeometry;
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 namespace edm { 
   class ParameterSet;
@@ -22,27 +22,28 @@ class EcalPreshowerRecHitsMaker
 {
  public:
 
-  EcalPreshowerRecHitsMaker(edm::ParameterSet const & p, 
-			    const RandomEngine* random);
+  EcalPreshowerRecHitsMaker(edm::ParameterSet const & p);
 
   ~EcalPreshowerRecHitsMaker();
 
-  void loadEcalPreshowerRecHits(edm::Event &iEvent, ESRecHitCollection& esRecHits);
+  void loadEcalPreshowerRecHits(edm::Event &iEvent, ESRecHitCollection& esRecHits, RandomEngineAndDistribution const*);
   void init(const edm::EventSetup &es);
   
 
 
  private:
   
-  void loadPCaloHits(const edm::Event & iEvent);
+  void loadPCaloHits(const edm::Event & iEvent, RandomEngineAndDistribution const*);
   
   void clean();
 
   unsigned createVectorsOfCells(const edm::EventSetup &es);
-  void noisifySubdet(std::map<uint32_t, std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells);
-  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
-  void noisify();
-  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal=true);
+  void noisifySubdet(std::map<uint32_t, std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells,
+                     RandomEngineAndDistribution const*);
+  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap, RandomEngineAndDistribution const*);
+  void noisify(RandomEngineAndDistribution const*);
+  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,
+            RandomEngineAndDistribution const*, bool signal=true);
 
  private:
   edm::InputTag inputCol_;
@@ -53,7 +54,6 @@ class EcalPreshowerRecHitsMaker
   unsigned ncells_;
   std::map<uint32_t,std::pair<float,bool> > ecalsRecHits_;
   std::vector<uint32_t> escells_;
-  const RandomEngine* random_;
   const GaussianTail* myGaussianTailGenerator_;
 };
 

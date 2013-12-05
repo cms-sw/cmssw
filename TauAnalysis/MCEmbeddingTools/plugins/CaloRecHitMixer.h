@@ -23,6 +23,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
 
 #include <string>
+#include <iostream>
 #include <map>
 
 struct CaloRecHitMixer_mixedRecHitInfoType

@@ -6,7 +6,7 @@
 
 /** A class that generates a primary vertex with a Gaussian profile, in cm*/ 
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 namespace edm { 
   class ParameterSet;
@@ -16,14 +16,13 @@ class FlatPrimaryVertexGenerator : public PrimaryVertexGenerator {
 
 public:
   /// Default constructor
-  FlatPrimaryVertexGenerator(const edm::ParameterSet& vtx,
-			     const RandomEngine* engine);
+  FlatPrimaryVertexGenerator(const edm::ParameterSet& vtx);
 
   /// Destructor
   ~FlatPrimaryVertexGenerator() {;}
   
   /// Generation process (to be implemented)
-  virtual void generate();
+  virtual void generate(RandomEngineAndDistribution const*);
 
  private:
 
