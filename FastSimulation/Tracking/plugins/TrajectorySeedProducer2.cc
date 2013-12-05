@@ -163,11 +163,17 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	PTrajectoryStateOnDet initialState;
 
 	// Output
-	std::vector<TrajectorySeedCollection*>
-	output(seedingAlgo.size(),static_cast<TrajectorySeedCollection*>(0));
-	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) {
-	//    std::auto_ptr<TrajectorySeedCollection> p(new TrajectorySeedCollection );
-	output[ialgo] = new TrajectorySeedCollection;
+	std::vector<TrajectorySeedCollection*> output(seedingAlgo.size());
+	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
+	{
+		//TODO: is this really destroyed?
+		output[ialgo] = new TrajectorySeedCollection();
+	}
+
+	std::vector<TrajectorySeedCollection*> output_new(seedingAlgo.size());
+	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
+	{
+		output_new[ialgo] = new TrajectorySeedCollection();
 	}
 
 	// Beam spot
@@ -229,7 +235,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
 		const unsigned int currentID = *itSimTrackId;
-		if (currentID!=4) continue;
+		//if (currentID!=1088) continue;
 		//std::cout<<"processing simtrack with id: "<<currentID<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[*itSimTrackId];
 
@@ -275,7 +281,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				currentTrackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
 				if (currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
 				{
-					//TODO: perform check with SiTrackerGSMatchedRecHit2D directly -> saves the unnecessary creation of TrackerRecHit
 					continue;
 				}
 				++numberOfNonEqualHits;
@@ -286,7 +291,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			numberOfNonEqualHits=0;
 			for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second && !foundSeed; ++itRecHit)
 			{
-
 				const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
 				previousTrackerHit=currentTrackerHit;
 
@@ -294,6 +298,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 				if (currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
 				{
+
 					//continue; //allow to select another hit on same layer if the previous one has been rejected
 					++numberOfNonEqualHits;
 				}
@@ -305,12 +310,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				{
 					unsigned int currentlayer = hitNumbers[ilayerset].size();
 
-					/*
-					if (theLayersInSets[ilayerset].size()<=currentlayer)
-					{
-						continue;
-					}
-					*/
 					//TODO: speed things up by testing if the current hit is already further outside than the current layer
 					//-> faster rejection of invalid hits if there is no seed possible at all for a given simtrack
 					if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
@@ -326,15 +325,15 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 							{
 								//TODO: check if all valid seeds should be saved to perform additional quality checks
 								seedLayerSet=ilayerset;
-								foundSeed=true;
-								break;
+								//foundSeed=true;
+								//break;
 							}
 						}
 					}
 				}
 			} //end loop over hits associated to current simtrack
 
-			/*
+
 			std::cout<<"ialgo="<<ialgo<<std::endl;
 			for (unsigned int i=0;i<hitNumbers.size(); ++i)
 			{
@@ -355,19 +354,15 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				}
 			}
 
-			*/
+
 			if (foundSeed)
 			{
 
-				//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
 
 
-				for (unsigned int i=0;i<hitNumbers[seedLayerSet].size();++i)
-				{
-					seedHit_new[currentID].push_back(hitNumbers[seedLayerSet][i]);
-					//std::cout<<hitNumbers[seedLayerSet][i]<<",";
-				}
-				//std::cout<<std::endl;
+
+
+
 
 				edm::OwnVector<TrackingRecHit> recHits;
 				for ( unsigned ihit=0; ihit<seedHitCandiates[seedLayerSet].size(); ++ihit )
@@ -408,11 +403,36 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				//this is wrong because the FTS is defined at vertex, and it need to be properly propagated.
 				//      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());
 				const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
-				//TODO: what is the meaning of continue in this case?
-				if (!initialTSOS.isValid()) continue;
-				//TODO: rewrite this very ugly method - the 'initialState' is create here
-				stateOnDet(initialTSOS,recHits.front().geographicalId().rawId(),initialState);
-				//output[ialgo]->push_back(TrajectorySeed(initialState, recHits, alongMomentum));
+
+
+				if (!initialTSOS.isValid())
+				{
+					//std::cout<<"tsos rejected"<<std::endl;
+					break; //continues with the next seeding algorithm
+				}
+
+				//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
+				for (unsigned int i=0;i<hitNumbers[seedLayerSet].size();++i)
+				{
+					seedHit_new[currentID].push_back(hitNumbers[seedLayerSet][i]);
+					//std::cout<<hitNumbers[seedLayerSet][i]<<",";
+				}
+
+				//=std::cout<<std::endl;
+				const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
+				int dim = 5; /// should check if corresponds to m
+				float localErrors[15];
+				int k = 0;
+				for (int i=0; i<dim; ++i)
+				{
+					for (int j=0; j<=i; ++j)
+					{
+						localErrors[k++] = m(i,j);
+					}
+				}
+				int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
+				initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),localErrors, recHits.front().geographicalId().rawId(), surfaceSide);
+				output_new[ialgo]->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
 			}
 		} //end loop over seeding algorithms
 	} //end loop over simtracks
@@ -438,13 +458,14 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // loop over SimTrack Id's
   for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
-	  //std::cout<<"processing simtrack with id: "<<theSimTrackIds[tkId]<<std::endl;
+
 
 
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
-    if (simTrackId!=4) continue;
+    //if (simTrackId!=1088) continue;
+    //std::cout<<"processing simtrack with id: "<<theSimTrackIds[tkId]<<std::endl;
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId];
 #ifdef FAMOS_DEBUG
     std::cout << "Track number " << simTrackId << "--------------------------------" <<std::endl;
@@ -772,7 +793,11 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       //      const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());      
 
       const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
-      if (!initialTSOS.isValid()) continue; 
+      if (!initialTSOS.isValid())
+    	  {
+    	  //std::cout<<"tsos rejected"<<std::endl;
+    	  continue;
+    	  }
 
 #ifdef FAMOS_DEBUG
       std::cout << "TrajectorySeedProducer: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
@@ -795,7 +820,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       seedHit_old[simTrackId].push_back(hit2);
       seedHit_old[simTrackId].push_back(hit3);
 
-      output[ialgo]->push_back(TrajectorySeed(initialState, recHits, alongMomentum));
+      output[ialgo]->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
 #ifdef FAMOS_DEBUG
       std::cout << "Trajectory seed created ! " << std::endl;
 #endif
@@ -805,7 +830,24 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
     // End on the loop over simtracks
   }
 
-  for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) { 
+  for (unsigned int ialgo = 0; ialgo<seedingAlgo.size(); ++ ialgo)
+  {
+	  TrajectorySeedCollection* seed_new = output_new[ialgo];
+	  TrajectorySeedCollection* seed_old = output[ialgo];
+	  if (seed_new->size()!=seed_old->size())
+	  {
+		  std::cout<<"NOT EQUAL: NUMBER OF SEEDS! ("<<seedingAlgo[ialgo]<<"), old:"<<seed_old->size()<<", new:"<<seed_new->size()<<std::endl;
+	  }
+	  /*
+	  if (seed_new.nHits()!=seed_old.nHits())
+	  {
+		  std::cout<<"NOT EQUAL SEEDS"<<std::endl;
+	  }
+
+	  */
+  }
+
+  for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) {
     std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
     e.put(p,seedingAlgo[ialgo]);
   }
@@ -821,16 +863,19 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			  if (seedHit_old[isimtrack][ihit]!=seedHit_new[isimtrack][ihit])
 			  {
 				  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", hit="<<ihit<<" number is different!"<<std::endl;
-				  assert(true);
+				  //assert(false);
 			  }
 		  }
 	  }
 	  else
 	  {
 		  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", number of hits differ!"<<std::endl;
-		  assert(true);
+		  //assert(false);
 	  }
   }
+
+
+
 
   //std::cout<<"-------------------"<<std::endl;
   //std::cout<<"-------------------"<<std::endl;
