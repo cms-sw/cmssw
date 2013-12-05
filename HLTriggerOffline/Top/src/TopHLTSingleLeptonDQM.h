@@ -30,9 +30,9 @@
    of simplicity and to force the analyst to keep the number of histograms to be monitored 
    small the MonitorEnsemble class contains the histograms for all objects at once. It should 
    not contain much more than 10 histograms though in the STANDARD configuration, as these 
-   histograms will be monitored at each SelectionStepHLT. Monitoring of histograms after selec-
+   histograms will be monitored at each SelectionStep. Monitoring of histograms after selec-
    tion steps within the same object collection needs to be implemented within the Monitor-
-   Ensemble. It will not be covered by the SelectionStepHLT class.
+   Ensemble. It will not be covered by the SelectionStep class.
 */
 
 namespace TopHLTSingleLepton {
@@ -51,7 +51,7 @@ namespace TopHLTSingleLepton {
     /// book histograms in subdirectory _directory_
     void book(std::string directory);
     /// fill monitor histograms with electronId and jetCorrections
-    void fill(const edm::Event& event, const edm::EventSetup& setup);
+    void fill(const edm::Event& event, const edm::EventSetup& setup, edm::Handle<edm::TriggerResults> triggerTable, edm::Handle<edm::View<reco::Vertex> > pvs, edm::Handle<edm::View<reco::Muon> > muons, edm::Handle<edm::ValueMap<float> > electronId, edm::Handle<edm::View<reco::GsfElectron> > elecs, edm::Handle<edm::View<reco::Jet> > jets, edm::Handle<reco::JetIDValueMap> jetID, edm::Handle<reco::JetTagCollection> btagEff, edm::Handle<reco::JetTagCollection> btagPur, edm::Handle<reco::JetTagCollection> btagVtx, std::vector< edm::Handle<edm::View<reco::MET> > > mets);
 
   private:
     /// deduce monitorPath from label, the label is expected
@@ -171,8 +171,7 @@ namespace TopHLTSingleLepton {
 
 #include <utility>
 
-//#include "DQM/Physics/interface/TopDQMHelpers.h"
-#include "HLTriggerOffline/Top/interface/TopHLTDQMHelper.h"
+#include "DQM/Physics/interface/TopDQMHelpers.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -190,9 +189,9 @@ namespace TopHLTSingleLepton {
 
    Plugin to apply a monitored selection of top like events with some minimal flexibility 
    in the number and definition of the selection steps. To achieve this flexibility it 
-   employes the SelectionStepHLT class. The MonitorEnsemble class is used to provide a well 
-   defined set of histograms to be monitored after each selection step. The SelectionStepHLT 
-   class provides a flexible and intuitive selection via the StringCutParser. SelectionStepHLT 
+   employes the SelectionStep class. The MonitorEnsemble class is used to provide a well 
+   defined set of histograms to be monitored after each selection step. The SelectionStep 
+   class provides a flexible and intuitive selection via the StringCutParser. SelectionStep 
    and MonitorEnsemble classes are interleaved. The monitoring starts after a preselection 
    step (which is not monitored in the context of this module) with an instance of the 
    MonitorEnsemble class. The following objects are supported for selection:
@@ -252,10 +251,28 @@ class TopHLTSingleLeptonDQM : public edm::EDAnalyzer  {
   std::vector<std::string> selectionOrder_;
   /// this is the heart component of the plugin; std::string keeps a label 
   /// the selection step for later identification, edm::ParameterSet keeps
-  /// the configuration of the selection for the SelectionStepHLT class, 
+  /// the configuration of the selection for the SelectionStep class, 
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
   std::map<std::string, std::pair<edm::ParameterSet, TopHLTSingleLepton::MonitorEnsemble*> > selection_;
+
+  std::vector<edm::InputTag> metsTemp_;
+
+  edm::EDGetTokenT< edm::View<reco::Muon> > muonsToken_;
+  edm::EDGetTokenT< edm::View<reco::GsfElectron> > elecsToken_;
+  edm::EDGetTokenT< edm::View<reco::Jet> > jetsToken_;
+
+  edm::EDGetTokenT< edm::ValueMap<float> > electronIdToken_;
+  edm::EDGetTokenT<reco::JetIDValueMap> jetIDToken_;
+
+  edm::EDGetTokenT<edm::TriggerResults> triggerTableToken_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> > vertexToken_;
+  edm::EDGetTokenT< edm::View<reco::Vertex> > pvsToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
+
+  edm::EDGetTokenT<reco::JetTagCollection> btagEffToken_, btagPurToken_, btagVtxToken_;
+
+  std::vector< edm::EDGetTokenT< edm::View<reco::MET> > > metsTokens_;
 };
 
 #endif
