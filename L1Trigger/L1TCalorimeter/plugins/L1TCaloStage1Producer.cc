@@ -1,5 +1,5 @@
 ///
-/// \class l1t::CaloStage1JetAlgorithmProducer
+/// \class l1t::L1TCaloStage1Producer
 ///
 /// Description: Emulator for the stage 1 jet algorithms.
 ///
@@ -34,7 +34,7 @@
 #include <vector.h>
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmFactory.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
 
 using namespace std;
 using namespace edm;
@@ -45,10 +45,10 @@ namespace l1t {
 // class declaration
 //
 
-  class CaloStage1JetAlgorithmProducer : public EDProducer {
+  class L1TCaloStage1Producer : public EDProducer {
   public:
-    explicit CaloStage1JetAlgorithmProducer(const ParameterSet&);
-    ~CaloStage1JetAlgorithmProducer();
+    explicit L1TCaloStage1Producer(const ParameterSet&);
+    ~L1TCaloStage1Producer();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -62,9 +62,9 @@ namespace l1t {
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
     boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
-    boost::shared_ptr<CaloStage1JetAlgorithm> m_fw; // Algorithm to run per event, depends on database parameters.
+    boost::shared_ptr<CaloStage1JetAlgorithm> m_jetfw; // Algorithm to run per event, depends on database parameters.
 
-    CaloStage1JetAlgorithmFactory m_factory; // Factory to produce algorithms based on DB parameters
+    CaloStage1FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
 
     EDGetToken regionToken;
   };
@@ -72,7 +72,7 @@ namespace l1t {
   //
   // constructors and destructor
   //
-  CaloStage1JetAlgorithmProducer::CaloStage1JetAlgorithmProducer(const ParameterSet& iConfig)
+  L1TCaloStage1Producer::L1TCaloStage1Producer(const ParameterSet& iConfig)
   {
     // register what you produce
     produces<std::vector<l1t::Jet>>();
@@ -85,7 +85,7 @@ namespace l1t {
   }
 
 
-  CaloStage1JetAlgorithmProducer::~CaloStage1JetAlgorithmProducer()
+  L1TCaloStage1Producer::~L1TCaloStage1Producer()
   {
   }
 
@@ -97,41 +97,39 @@ namespace l1t {
 
 // ------------ method called to produce the data ------------
 void
-CaloStage1JetAlgorithmProducer::produce(Event& iEvent, const EventSetup& iSetup)
+L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
-  LogDebug("l1t|stage 1 jets") << "CaloStage1JetAlgorithmProducer::produce function called...\n";
+  LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::produce function called...\n";
 
-  Handle<std::vector<l1t::CaloRegions>> regions;
-  iEvent.getByToken(regionToken,regions);
+  Handle<std::vector<l1t::CaloRegions>> caloRegions;
+  iEvent.getByToken(regionToken,caloRegions);
 
-  std::auto_ptr<std::vector<l1t::Jet>> outColl (new std::vector<l1t::Jet>);
-  //BXVector<l1t::Jet> iout;
+  std::auto_ptr<std::vector<l1t::Jet>> l1Jets (new std::vector<l1t::Jet>);
 
-  if (m_fw) {
-    m_fw->processEvent(*regions, *outColl);
-  }
-
-  iEvent.put(outColl);
+  //if (m_jetfw) {
+  m_jetfw->processEvent(*caloRegions, *l1Jets);
+  //}
+  iEvent.put(l1Jets);
 
 }
 
 // ------------ method called once each job just before starting event loop ------------
 void
-CaloStage1JetAlgorithmProducer::beginJob()
+L1TCaloStage1Producer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop ------------
 void
-CaloStage1JetAlgorithmProducer::endJob() {
+L1TCaloStage1Producer::endJob() {
 }
 
 // ------------ method called when starting to processes a run ------------
 
-void CaloStage1JetAlgorithmProducer::beginRun(Run const&iR, EventSetup const&iE){
+void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
 
-  LogDebug("l1t|stage 1 jets") << "CaloStage1JetAlgorithmProducer::beginRun function called...\n";
+  LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::beginRun function called...\n";
 
   unsigned long long id = iE.get<CaloParamsRcd>().cacheIdentifier();
 
@@ -144,15 +142,15 @@ void CaloStage1JetAlgorithmProducer::beginRun(Run const&iR, EventSetup const&iE)
     m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
 
     if (! m_dbpars){
-      LogError("l1t|stage 1 jets") << "CaloStage1JetAlgorithmProducer: could not retreive DB params from Event Setup\n";
+      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: could not retreive DB params from Event Setup\n";
     }
 
     // Set the current algorithm version based on DB pars from database:
-    m_fw = m_factory.create(*m_dbpars);
+    m_jetfw = m_factory.create(*m_dbpars);
 
-    if (! m_fw) {
+    if (! m_jetfw) {
       // we complain here once per run
-      LogError("l1t|stage 1 jets") << "CaloStage1JetAlgorithmProducer: firmware could not be configured.\n";
+      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
     }
   }
 
@@ -160,14 +158,14 @@ void CaloStage1JetAlgorithmProducer::beginRun(Run const&iR, EventSetup const&iE)
 }
 
 // ------------ method called when ending the processing of a run ------------
-void CaloStage1JetAlgorithmProducer::endRun(Run const& iR, EventSetup const& iE){
+void L1TCaloStage1Producer::endRun(Run const& iR, EventSetup const& iE){
 
 }
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void
-CaloStage1JetAlgorithmProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+L1TCaloStage1Producer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
@@ -178,4 +176,4 @@ CaloStage1JetAlgorithmProducer::fillDescriptions(ConfigurationDescriptions& desc
 } // namespace
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::CaloStage1JetAlgorithmProducer);
+DEFINE_FWK_MODULE(l1t::L1TCaloStage1Producer);

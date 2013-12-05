@@ -1,10 +1,6 @@
 ///
-/// \class l1t::CaloStage1JetAlgorithmFactory
+/// \class l1t::CaloStage1FirmwareFactory
 ///
-/// Description: Firmware factory class for the fictitious Yellow trigger.
-///
-/// Implementation:
-/// Demonstrates how to implement the firmare factory design pattern.
 ///
 /// \author: R. Alex Barbieri
 ///
@@ -18,7 +14,7 @@
 
 #include "CaloStage1JetAlgorithmImp.h"
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmFactory.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
 
 
 using namespace std;
@@ -26,8 +22,8 @@ using namespace edm;
 
 namespace l1t {
 
-  CaloStage1JetAlgorithmFactory::ReturnType
-  CaloStage1JetAlgorithmFactory::create(const CaloParams & dbPars){
+  CaloStage1FirmwareFactory::ReturnType
+  CaloStage1FirmwareFactory::create(const CaloParams & dbPars){
     ReturnType p;
     unsigned fwv = dbPars.firmwareVersion();
 

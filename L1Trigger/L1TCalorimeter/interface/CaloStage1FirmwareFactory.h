@@ -1,5 +1,5 @@
 ///
-/// \class l1t::CaloStage1JetAlgorithm
+/// \class l1t::CaloStage1FirmwareFactory
 ///
 /// Implementation:
 /// Demonstrates how to define the firmware interface.
@@ -7,9 +7,6 @@
 /// \author: R. Alex Barbieri MIT
 ///
 
-//
-// See CaloStage1JetAlgorithm.h for a complete description of the recommended Firmware design pattern.
-//
 
 #ifndef CALOSTAGE1JETALGORITHMFACTORY_H
 #define CALOSTAGE1JETALGORITHMFACTORY_H
@@ -25,7 +22,7 @@
 
 namespace l1t {
 
-  class CaloStage1JetAlgorithmFactory {
+  class CaloStage1FirmwareFactory {
   public:
     typedef boost::shared_ptr<CaloStage1JetAlgorithm> ReturnType;
 

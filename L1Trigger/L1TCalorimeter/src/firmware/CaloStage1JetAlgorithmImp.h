@@ -9,7 +9,7 @@
 
 //
 // This header file contains the class definitions for all of the concrete
-// implementations of the firmware interface. The CaloStage1JetAlgorithmFactory
+// implementations of the firmware interface. The CaloStage1FirmwareFactory
 // selects the appropriate implementation based on the firmware version in the
 // configuration.
 //
@@ -18,7 +18,7 @@
 #define L1TCALOSTAGE1JETALGORITHMIMP_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmFactory.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
 
 namespace l1t {
 
