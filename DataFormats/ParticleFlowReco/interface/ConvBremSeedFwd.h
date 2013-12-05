@@ -15,8 +15,6 @@ namespace reco {
   typedef edm::RefProd<ConvBremSeedCollection> ConvBremSeedRefProd;
   /// vector of objects in the same collection of ConvBremSeed objects
   typedef edm::RefVector<ConvBremSeedCollection> ConvBremSeedRefVector;
-  /// iterator over a vector of reference to ConvBremSeed objects
-  typedef ConvBremSeedRefVector::iterator electronephltseed_iterator;
 }
 
 #endif
