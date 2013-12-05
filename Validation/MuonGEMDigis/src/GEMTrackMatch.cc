@@ -6,7 +6,6 @@
 #include <TMath.h>
 #include <TH1F.h>
 
-const float PI=TMath::Pi();
 
 
 struct MySimTrack
@@ -26,6 +25,7 @@ struct MySimTrack
 
 GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
 {
+   const float PI=TMath::Pi();
    cfg_= cfg; 
    simInputLabel_= simInputLabel;
    dbe_= dbe;

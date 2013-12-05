@@ -11,7 +11,7 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
-
+#include "Validation/MuonGEMHits/interface/GEMSimTrackMatch.h"
 class MuonGEMHits : public edm::EDAnalyzer
 {
 public:
@@ -37,6 +37,7 @@ private:
   std::string outputFile_;
 
   GEMHitsValidation* theGEMHitsValidation;
+  GEMSimTrackMatch* theGEMSimTrackMatch;
   
 
   void buildLUT();

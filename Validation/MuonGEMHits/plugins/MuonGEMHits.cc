@@ -91,7 +91,8 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
    //now do what ever initialization is needed
   
   std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel","g4SimHits"); 
-  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits") );
+  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits"),ps.getParameterSet("gemSystemSetting") );
+  theGEMSimTrackMatch  = new GEMSimTrackMatch(dbe_, simInputLabel_ , ps.getParameterSet("simTrackMatching") );
 }
 
 
@@ -104,6 +105,7 @@ MuonGEMHits::~MuonGEMHits()
 
 
   delete theGEMHitsValidation;
+  delete theGEMSimTrackMatch;
 
 
 }
@@ -122,6 +124,7 @@ MuonGEMHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   theGEMHitsValidation->analyze(iEvent,iSetup );  
+  theGEMSimTrackMatch->analyze(iEvent,iSetup );  
 
  
   
@@ -166,6 +169,7 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 
 
   theGEMHitsValidation->setGeometry(gem_geometry_);
+  theGEMSimTrackMatch->setGeometry(gem_geometry_);
 
 
 
@@ -177,61 +181,6 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 void 
 MuonGEMHits::endRun(edm::Run const&, edm::EventSetup const&)
 {
-/*
-  TH1F* gem_dg_lx_even[5];
-  gem_dg_lx_even[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_even")->getTH1F()->Clone(); 
-  gem_dg_lx_even[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_even_l1")->getTH1F()->Clone();
-  gem_dg_lx_even[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_even_l2")->getTH1F()->Clone();
-  gem_dg_lx_even[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_even_l1or2")->getTH1F()->Clone();
-  gem_dg_lx_even[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_even_l1and2")->getTH1F()->Clone();
-
-
-  TH1F* gem_dg_ly_even[5];
-  gem_dg_ly_even[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_even")->getTH1F()->Clone(); 
-  gem_dg_ly_even[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_even_l1")->getTH1F()->Clone();
-  gem_dg_ly_even[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_even_l2")->getTH1F()->Clone();
-  gem_dg_ly_even[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_even_l1or2")->getTH1F()->Clone();
-  gem_dg_ly_even[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_even_l1and2")->getTH1F()->Clone();
-
-
-  TH1F* gem_dg_lx_odd[5];
-  gem_dg_lx_odd[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_odd")->getTH1F()->Clone(); 
-  gem_dg_lx_odd[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_odd_l1")->getTH1F()->Clone();
-  gem_dg_lx_odd[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_odd_l2")->getTH1F()->Clone();
-  gem_dg_lx_odd[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_odd_l1or2")->getTH1F()->Clone();
-  gem_dg_lx_odd[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_lx_odd_l1and2")->getTH1F()->Clone();
-
-
-  TH1F* gem_dg_ly_odd[5];
-  gem_dg_ly_odd[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_odd")->getTH1F()->Clone(); 
-  gem_dg_ly_odd[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_odd_l1")->getTH1F()->Clone();
-  gem_dg_ly_odd[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_odd_l2")->getTH1F()->Clone();
-  gem_dg_ly_odd[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_odd_l1or2")->getTH1F()->Clone();
-  gem_dg_ly_odd[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMDigiTask/dg_ly_odd_l1and2")->getTH1F()->Clone();
-
-  for ( int i= 0; i<5 ; i++) {
-    gem_dg_lx_even[i]->Sumw2(); 
-    gem_dg_ly_even[i]->Sumw2(); 
-
-
-    gem_dg_lx_odd[i]->Sumw2(); 
-    gem_dg_ly_odd[i]->Sumw2(); 
-
-  }
-
-
-  for( int i=1 ; i<5 ; i++) {
-    gem_dg_lx_even[i]->Divide( gem_dg_lx_even[0]);
-    gem_dg_ly_even[i]->Divide( gem_dg_ly_even[0]);
-    gem_dg_lx_odd[i]->Divide( gem_dg_lx_odd[0]);
-    gem_dg_ly_odd[i]->Divide( gem_dg_ly_odd[0]);
-    
-    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_lx_even[i]->GetName()),gem_dg_lx_even[i] ); 
-    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_even[i]->GetName()),gem_dg_ly_even[i] ); 
-    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_lx_odd[i]->GetName()),gem_dg_lx_odd[i] ); 
-    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_odd[i]->GetName()),gem_dg_ly_odd[i] ); 
-  }
-*/
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
