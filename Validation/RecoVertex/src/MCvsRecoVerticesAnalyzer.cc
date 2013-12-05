@@ -193,19 +193,18 @@ MCvsRecoVerticesAnalyzer::~MCvsRecoVerticesAnalyzer()
 void
 MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
   
   double weight = 1.;
   
   if(m_useweight) {
-    Handle<double> weightprod;
+    edm::Handle< double > weightprod;
     iEvent.getByToken( m_doubleToken, weightprod );
     
     weight = *weightprod;
     
   }
   
-  Handle<std::vector<PileupSummaryInfo> > pileupinfos;
+  edm::Handle< std::vector<PileupSummaryInfo> > pileupinfos;
   iEvent.getByToken( m_vecPileupSummaryInfoToken, pileupinfos );
 
   // look for the intime PileupSummaryInfo
@@ -220,7 +219,7 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   
   //
   
-  Handle<reco::VertexCollection> pvcoll;
+  edm::Handle< reco::VertexCollection > pvcoll;
   iEvent.getByToken( m_recoVertexCollectionToken, pvcoll );
   
 
@@ -249,7 +248,7 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
     //
     
-    Handle< HepMCProduct > EvtHandle ;
+    edm::Handle< edm::HepMCProduct > EvtHandle ;
     iEvent.getByToken( m_hepMCProductToken, EvtHandle );
     
     const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
