@@ -280,11 +280,15 @@ EmDQM::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 
       } // loop over analysis types (single ele etc.)
 
+      hltCollectionLabelsFoundPerPath.reserve(paramSets.size());
+      hltCollectionLabelsMissedPerPath.reserve(paramSets.size());
       ////////////////////////////////////////////////////////////
       // loop over all the trigger path parameter sets
       ////////////////////////////////////////////////////////////
       for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
          SetVarsFromPSet(psetIt);
+         hltCollectionLabelsFoundPerPath.push_back(hltCollectionLabelsFound);
+         hltCollectionLabelsMissedPerPath.push_back(hltCollectionLabelsMissed);
 
          // if init returns TRUE, initialisation has succeeded!
       
@@ -694,6 +698,9 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   unsigned int vPos = 0;
   for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt, ++vPos) {
     SetVarsFromPSet(psetIt);
+    // get the set forthe current path
+    hltCollectionLabelsFound = hltCollectionLabelsFoundPerPath.at(vPos);
+    hltCollectionLabelsMissed = hltCollectionLabelsMissedPerPath.at(vPos);
 
     ////////////////////////////////////////////////////////////
     //           Check if there's enough gen particles        //
@@ -827,10 +834,10 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
           throw(cms::Exception("Release Validation Error") << "HLT output type not implemented: theHLTOutputTypes[n]" );
       }
     } // END of loop over filter modules
-    hltCollectionLabelsFoundPerPath.push_back(hltCollectionLabelsFound);
-    hltCollectionLabelsMissedPerPath.push_back(hltCollectionLabelsMissed);
-    hltCollectionLabelsFound.clear();
-    hltCollectionLabelsMissed.clear();
+
+    // earse the dummy and fill with real set
+    hltCollectionLabelsFoundPerPath.at(vPos) = hltCollectionLabelsFound;
+    hltCollectionLabelsMissedPerPath.at(vPos) = hltCollectionLabelsMissed;
   }
 }
 
