@@ -261,58 +261,46 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
 
   char label[200];
   for (int me=0; me<CSC_TYPES; me++) 
-    {
-      if (me==3 && !doME1a_) continue; // ME1/a
+  {
+    if (me==3 && !doME1a_) continue; // ME1/a
     
+    sprintf(label,"h_bx__alct_cscdet_%s",csc_type_[me].c_str());
+    h_bx__alct_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
+    
+    sprintf(label,"h_bx_min__alct_cscdet_%s",csc_type_[me].c_str());
+    h_bx_min__alct_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
 
-      sprintf(label,"h_bx__alct_cscdet_%s",csc_type_[me].c_str());
-      h_bx__alct_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
+    sprintf(label,"h_bx__alctOk_cscdet_%s",csc_type_[me].c_str());
+    h_bx__alctOk_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
 
-
-      sprintf(label,"h_bx_min__alct_cscdet_%s",csc_type_[me].c_str());
-      h_bx_min__alct_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
-
-
-      sprintf(label,"h_bx__alctOk_cscdet_%s",csc_type_[me].c_str());
-      h_bx__alctOk_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
-
-
-      sprintf(label,"h_bx__alctOkBest_cscdet_%s",csc_type_[me].c_str());
-      h_bx__alctOkBest_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
-
-      sprintf(label,"h_bx__clctOkBest_cscdet_%s",csc_type_[me].c_str());
-      h_bx__clctOkBest_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
-
-
-      sprintf(label,"h_wg_vs_bx__alctOkBest_cscdet_%s",csc_type_[me].c_str());
-      h_wg_vs_bx__alctOkBest_cscdet[me]  = fs->make<TH2D>(label, label, 51, -1, 50, 13,-6.5, 6.5);
-
-
-      sprintf(label,"h_bxf__alct_cscdet_%s",csc_type_[me].c_str());
-      h_bxf__alct_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
-
-      sprintf(label,"h_bxf__alctOk_cscdet_%s",csc_type_[me].c_str());
-      h_bxf__alctOk_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
-
-
-      sprintf(label,"h_dbxbxf__alct_cscdet_%s",csc_type_[me].c_str());
-      h_dbxbxf__alct_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
-
-      sprintf(label,"h_tf_stub_bx_cscdet_%s",csc_type_[me].c_str());
-      h_tf_stub_bx_cscdet[me] = fs->make<TH1D>(label, label, 15,-7.5, 7.5);
-
-      sprintf(label,"h_tf_stub_qu_cscdet_%s",csc_type_[me].c_str());
-      h_tf_stub_qu_cscdet[me] = fs->make<TH1D>(label, label, 17,-0.5, 16.5);
-
-
-    }//for (int me=0; me<CSC_TYPES; me++) 
-
-
+    sprintf(label,"h_bx__alctOkBest_cscdet_%s",csc_type_[me].c_str());
+    h_bx__alctOkBest_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
+    
+    sprintf(label,"h_bx__clctOkBest_cscdet_%s",csc_type_[me].c_str());
+    h_bx__clctOkBest_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
+    
+    sprintf(label,"h_wg_vs_bx__alctOkBest_cscdet_%s",csc_type_[me].c_str());
+    h_wg_vs_bx__alctOkBest_cscdet[me]  = fs->make<TH2D>(label, label, 51, -1, 50, 13,-6.5, 6.5);
+    
+    sprintf(label,"h_bxf__alct_cscdet_%s",csc_type_[me].c_str());
+    h_bxf__alct_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
+    
+    sprintf(label,"h_bxf__alctOk_cscdet_%s",csc_type_[me].c_str());
+    h_bxf__alctOk_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
+    
+    sprintf(label,"h_dbxbxf__alct_cscdet_%s",csc_type_[me].c_str());
+    h_dbxbxf__alct_cscdet[me]  = fs->make<TH1D>(label, label, 13,-6.5, 6.5);
+    
+    sprintf(label,"h_tf_stub_bx_cscdet_%s",csc_type_[me].c_str());
+    h_tf_stub_bx_cscdet[me] = fs->make<TH1D>(label, label, 15,-7.5, 7.5);
+      
+    sprintf(label,"h_tf_stub_qu_cscdet_%s",csc_type_[me].c_str());
+    h_tf_stub_qu_cscdet[me] = fs->make<TH1D>(label, label, 17,-0.5, 16.5);
+  }//for (int me=0; me<CSC_TYPES; me++) 
 
   h_tf_stub_bx = fs->make<TH1D>("h_tf_stub_bx","h_tf_stub_bx",15,-7.5, 7.5);
   h_tf_stub_qu = fs->make<TH1D>("h_tf_stub_qu","h_tf_stub_qu",17,-0.5, 16.5);
   h_tf_stub_qu_vs_bx = fs->make<TH2D>("h_tf_stub_qu_vs_bx","h_tf_stub_qu_vs_bx",17,-0.5, 16.5,15,-7.5, 7.5);
-
   
   //  h_bx_me1_aclct_ok_lct_no__bx_alct_vs_dbx_ACLCT = fs->make<TH2D>("h_bx_me1_aclct_ok_lct_no__bx_alct_vs_dbx_ACLCT","h_bx_me1_aclct_ok_lct_no__bx_alct_vs_dbx_ACLCT",13,-0.5,12.5, 13, -6.5,6.5);
 
@@ -325,7 +313,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
 
   h_tfqu_pt10 = fs->make<TH1D>("h_tfqu_pt10","h_tfqu_pt10",5,-0.5, 4.5);
   h_tfqu_pt10_no = fs->make<TH1D>("h_tfqu_pt10_no","h_tfqu_pt10_no",5,-0.5, 4.5);
-  
 
   h_nMplct_vs_nDigiMplct = fs->make<TH2D>("h_nMplct_vs_nDigiMplct","h_nMplct_vs_nDigiMplct",9,-.5, 8.5,9,-.5, 8.5);
   h_qu_vs_nDigiMplct = fs->make<TH2D>("h_qu_vs_nDigiMplct","h_qu_vs_nDigiMplct",5,-0.5, 4.5,9,-.5, 8.5);
@@ -1096,75 +1083,74 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   double sim_eta[2], sim_phi[2];
   int sim_n=0;
 
-  // add a part here to initialize the number of muons in the event
-  
+  const bool debugMC(false);
+
   // check MC truch loop
   for ( size_t ic = 0; ic < cands.size(); ic++ )
   {
     const reco::GenParticle * cand = &(cands[ic]);
 
     // is this particle a MC muon?    
-    if ( abs(cand->pdgId()) == 13 &&  cand->status() == 1 )
-    {
-      numberMCTr++;
-      mcpt = cand->pt();
-      mceta = cand->eta();
-      mcphi = normalizedPhi(cand->phi());
-      
-      h_pt_mctr ->Fill(mcpt);
-      h_eta_mctr->Fill(mceta);
-      h_phi_mctr->Fill(mcphi);
-      
-      // ignore muons with huge eta
-      if (fabs(mceta)>10) continue;
+    if ( abs(cand->pdgId()) != 13 || cand->status() != 1 ) continue;
 
-      std::cout << "Is good MC muon: " << numberMCTr++ << " with pt: " << mcpt << ", eta: " << mceta << ", and phi: " << mcphi << std::endl;
+    numberMCTr++;
+    mcpt = cand->pt();
+    mceta = cand->eta();
+    mcphi = normalizedPhi(cand->phi());
+    
+    h_pt_mctr ->Fill(mcpt);
+    h_eta_mctr->Fill(mceta);
+    h_phi_mctr->Fill(mcphi);
+    
+    // ignore muons with huge eta
+    if (fabs(mceta)>10) continue;
+
+    if (debugMC) std::cout << "Is good MC muon: " << numberMCTr++ << " with pt: " << mcpt << ", eta: " << mceta << ", and phi: " << mcphi << std::endl;
       
-      // match with SimTrack
-      edm::SimTrackContainer::const_iterator matchSimTr = simTracks.end();
-      double minDeltaRSimTr = 999.;
-      int numberSimTr=0;
-      for (edm::SimTrackContainer::const_iterator istrk = simTracks.begin(); istrk != simTracks.end(); ++istrk)
-      {
-	// sim track is a muon
-	if ( abs(istrk->type()) != 13 ) continue;
-	
-	numberSimTr++;
-	stpt = sqrt(istrk->momentum().perp2());
-	steta = istrk->momentum().eta();
-	stphi = normalizedPhi( istrk->momentum().phi() );
-	
-	// ignore muons with very low pt
-	if (stpt<1.) continue;
-	
-	//charge = static_cast<int> (-itrack->type()/13); //static_cast<int> (itrack->charge());
-	if (sim_n<2) {
-	  sim_eta[sim_n] = steta;
-	  sim_phi[sim_n] = stphi;
-	}
-	sim_n++;
-	std::cout << "sim_n " << sim_n << std::endl;
-	
-	double dr = deltaR(mceta, mcphi, steta, stphi);
-	h_DR_mctr_simtr->Fill(dr);
-	// there is a generator level match!
-	if (dr < minDeltaRSimTr){
-	  matchSimTr = istrk;
-	  minDeltaRSimTr = dr;
-	}
+    // match with SimTrack
+    edm::SimTrackContainer::const_iterator matchSimTr = simTracks.end();
+    double minDeltaRSimTr = 999.;
+    int numberSimTr=0;
+    for (edm::SimTrackContainer::const_iterator istrk = simTracks.begin(); istrk != simTracks.end(); ++istrk)
+    {
+      // sim track is not a muon
+      if ( abs(istrk->type()) != 13 ) continue;
+      
+      numberSimTr++;
+      stpt = sqrt(istrk->momentum().perp2());
+      steta = istrk->momentum().eta();
+      stphi = normalizedPhi( istrk->momentum().phi() );
+      
+      // ignore muons with very low pt
+      if (stpt<1.) continue;
+      
+      //charge = static_cast<int> (-itrack->type()/13); //static_cast<int> (itrack->charge());
+      if (sim_n<2) {
+        sim_eta[sim_n] = steta;
+        sim_phi[sim_n] = stphi;
       }
+      sim_n++;
+      if (debugMC) std::cout << "sim_n " << sim_n << std::endl;
       
-      h_N_simtr->Fill(numberSimTr);
-      
-      if (matchSimTr == simTracks.end()) {
-	std::cout<<"+++ Warning: no matching sim track for MC track!"<<std::endl;
-	MYDEBUG = 1;
+      double dr = deltaR(mceta, mcphi, steta, stphi);
+      h_DR_mctr_simtr->Fill(dr);
+      // there is a generator level match!
+      if (dr < minDeltaRSimTr){
+        matchSimTr = istrk;
+        minDeltaRSimTr = dr;
       }
-      
-      if (matchSimTr == simTracks.end()) continue;
-      h_MinDR_mctr_simtr->Fill(minDeltaRSimTr);
-      
-    } // if muon MC ca
+    }
+    
+    h_N_simtr->Fill(numberSimTr);
+    
+    if (matchSimTr == simTracks.end()) {
+      std::cout<<"+++ Warning: no matching sim track for MC track!"<<std::endl;
+      MYDEBUG = 1;
+    }
+    
+    if (matchSimTr == simTracks.end()) continue;
+    h_MinDR_mctr_simtr->Fill(minDeltaRSimTr);
+    
   } // MC cands loop
   
   h_N_mctr->Fill(numberMCTr);
@@ -1195,38 +1181,39 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       const CSCLayerGeometry* layerGeom = csclayer->geometry();
 
       for (unsigned j=0; j<hits.size(); j++) 
-  	{
-  	  LocalPoint hitLP = hits[j].localPosition();
-  	  GlobalPoint hitGP = csclayer->toGlobal(hitLP);
-  	  double hitEta = hitGP.eta();
-  	  double hitPhi = hitGP.phi();
-  	  std::cout<<"     "<<hitEta<<" "<<hitPhi<<"  "<<hits[j].entryPoint()<<" "<<hits[j].exitPoint()<<" "<<hits[j].particleType()<<" "<<hits[j].trackId()<<std::endl;
-  	}
+  	  {
+  	    LocalPoint hitLP = hits[j].localPosition();
+  	    GlobalPoint hitGP = csclayer->toGlobal(hitLP);
+  	    double hitEta = hitGP.eta();
+  	    double hitPhi = hitGP.phi();
+  	    std::cout<<"     "<<hitEta<<" "<<hitPhi<<"  "<<hits[j].entryPoint()<<" "<<hits[j].exitPoint()
+                 <<" "<<hits[j].particleType()<<" "<<hits[j].trackId()<<std::endl;
+  	  }
 
       std::cout<<"     wire digis: etas"<<std::endl;
       const CSCWireDigiCollection::Range rwired = wiredc->get(layerId);
       for (CSCWireDigiCollection::const_iterator digiIt = rwired.first; digiIt != rwired.second; ++digiIt) 
-  	{
-  	  //int bx_time = (*digiIt).getTimeBin();
-  	  int wiregroup = (*digiIt).getWireGroup(); // counted from 1
-  	  LocalPoint  digiLP = layerGeom->localCenterOfWireGroup(wiregroup); // x==0
-  	  GlobalPoint digiGP = csclayer->toGlobal(digiLP);
-  	  double eta = digiGP.eta();
-  	  std::cout <<"      " << eta <<"  "<< (*digiIt)<<std::endl;
-  	}
+  	  {
+  	    //int bx_time = (*digiIt).getTimeBin();
+  	    int wiregroup = (*digiIt).getWireGroup(); // counted from 1
+  	    LocalPoint  digiLP = layerGeom->localCenterOfWireGroup(wiregroup); // x==0
+  	    GlobalPoint digiGP = csclayer->toGlobal(digiLP);
+  	    double eta = digiGP.eta();
+  	    std::cout <<"      " << eta <<"  "<< (*digiIt)<<std::endl;
+  	  }
     
       std::cout<<"     strip digis: phis"<<std::endl;
       const CSCComparatorDigiCollection::Range rcompd = compdc->get(layerId);
       for (CSCComparatorDigiCollection::const_iterator digiIt = rcompd.first; digiIt != rcompd.second; ++digiIt) 
-  	{
-  	  //int bx_time = (*digiIt).getTimeBin();
-  	  int strip = (*digiIt).getStrip();
-  	  // Position at the center of the strip y==0
-  	  LocalPoint  digiLP = layerGeom->topology()->localPosition(strip-0.5);
-  	  GlobalPoint digiGP = csclayer->toGlobal(digiLP);
-  	  double phi = normalizedPhi ( digiGP.phi() );
-  	  std::cout <<"      " << phi <<"  strip/comparator/time ="<< (*digiIt)<<std::endl;
-  	}
+  	  {
+  	    //int bx_time = (*digiIt).getTimeBin();
+  	    int strip = (*digiIt).getStrip();
+  	    // Position at the center of the strip y==0
+  	    LocalPoint  digiLP = layerGeom->topology()->localPosition(strip-0.5);
+  	    GlobalPoint digiGP = csclayer->toGlobal(digiLP);
+  	    double phi = normalizedPhi ( digiGP.phi() );
+  	    std::cout <<"      " << phi <<"  strip/comparator/time ="<< (*digiIt)<<std::endl;
+  	  }
     }
 
     std::cout<<"--- SIMVERTICES: "<<std::endl;
@@ -1289,103 +1276,113 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   int numberSimTr=0;
   for (edm::SimTrackContainer::const_iterator istrk = simTracks.begin(); istrk != simTracks.end(); ++istrk)
+  {
+    // reject non muon simtrack
+    if (abs(istrk->type()) != 13) continue;
+    
+    // bad primary vertex 
+    if (istrk->vertIndex() == primaryVert) continue;
+    
+    // soft muons
+    stpt = sqrt(istrk->momentum().perp2());
+    if (stpt < minSimTrPt_ ) {
+      if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: with low pt = "<<stpt<<std::endl;
+      continue;
+    }
+    
+    // muons not in eta range
+    steta = istrk->momentum().eta();
+    if (fabs (steta) > maxSimTrEta_ || fabs (steta) < minSimTrEta_ ) {
+      if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: eta not in CSC  eta = "<<steta<<std::endl;
+      continue;
+    }
+    
+    // muons not in phi range
+    stphi = normalizedPhi( istrk->momentum().phi() );
+    if (stphi>maxSimTrPhi_ || stphi<minSimTrPhi_) {
+      if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: phi = "<<stphi<<" outside region"<<std::endl;
+      continue;
+    }
+    
+    if (debugALLEVENT) std::cout<<" *** Accepting mu SimTrack: pt = "<<stpt<<"  phi = "<<stphi<<" eta = "<<steta<<std::endl;
+    
+    // create a new matching object
+    MatchCSCMuL1 *match = new MatchCSCMuL1(&*istrk, &(simVertices[istrk->vertIndex()]), cscGeometry);
+    match->muOnly = doStrictSimHitToTrackMatch_;
+    match->minBxALCT  = minBxALCT_;
+    match->maxBxALCT  = maxBxALCT_;
+    match->minBxCLCT  = minBxCLCT_;
+    match->maxBxCLCT  = maxBxCLCT_;
+    match->minBxLCT   = minBxLCT_;
+    match->maxBxLCT   = maxBxLCT_;
+    match->minBxMPLCT = minBxMPLCT_;
+    match->maxBxMPLCT = maxBxMPLCT_;
+    
+    propagateToCSCStations(match);
+    
+    // match SimHits and do some checks
+    matchSimTrack2SimHits(match, simTracks, simVertices, allCSCSimHits);
+    
+    std::vector<int> csc_detId;
+    std::vector<int> csc_particleType;
+    csc_detId.clear();
+    csc_particleType.clear();
+    for (unsigned int i=0; i< match->simHits.size(); ++i)
     {
-      if ( !( abs(istrk->type()) == 13 && istrk->vertIndex() == primaryVert ) ) continue;
-      stpt = sqrt(istrk->momentum().perp2());
-      if (stpt < minSimTrPt_ ) {
-  	if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: with low pt = "<<stpt<<std::endl;
-  	continue;
-      }
-      steta = istrk->momentum().eta();
-      stphi = normalizedPhi( istrk->momentum().phi() );
-      if (fabs (steta) > 2.5 || fabs (steta) < .8 ) {
-  	if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: eta not in CSC  eta = "<<steta<<std::endl;
-  	continue;
-      }
-      bool inPhiEta = ( stphi>=minSimTrPhi_ && stphi<=maxSimTrPhi_ && steta>=minSimTrEta_ && steta<=maxSimTrEta_ );
-      bool goodPhiEta = invertSimTrPhiEta_ ? !inPhiEta  : inPhiEta;
-      if (!goodPhiEta) {
-  	if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: phi = "<<stphi<<" eta = "<<steta<<" outside region"<<std::endl;
-  	continue;
-      }
-      if (debugALLEVENT) std::cout<<" *** Accepting mu SimTrack: pt = "<<stpt<<"  phi = "<<stphi<<" eta = "<<steta<<std::endl;
+      csc_detId.push_back((match->simHits)[i].detUnitId());
+      csc_particleType.push_back((match->simHits)[i].particleType());
+    }
+    
+    // match ALCT digis and SimHits;
+    // if there are common SimHits in SimTrack, match to SimTrack
+    matchSimTrack2ALCTs(match, allCSCSimHits, alcts, wiredc );
+    
+    // match CLCT digis and SimHits;
+    // if there are common SimHits in SimTrack, match to SimTrack
+    matchSimTrack2CLCTs(match, allCSCSimHits, clcts, compdc );
+    
+    // match CorrelatedLCT digis after TMB
+    matchSimTrack2LCTs(match, lcts);
+    
+    // match CorrelatedLCT digis after MPC
+    matchSimTrack2MPLCTs(match, mplcts);
+    
+    // match TrackFinder's tracks after Sector Processor
+    matchSimtrack2TFTRACKs(match, muScales, muPtScale, l1Tracks);
+    
+    // match TrackFinder's track candidates after CSC Sorter
+    matchSimtrack2TFCANDs(match, muScales, muPtScale, l1TfCands);
+    
+    if (!lightRun) {
+      // match GMT candidates from GMT Readout
+      matchSimtrack2GMTCANDs(match, muScales, muPtScale, l1GmtCands, l1GmtCSCCands, l1GmtCSCCandsInBXs);
+      
+      // match trigger muons from l1extra
+      //  	matchSimtrack2L1EXTRAs(match, l1Muons);
+    }
+    
 
-      MatchCSCMuL1 *match = new MatchCSCMuL1(&*istrk, &(simVertices[istrk->vertIndex()]), cscGeometry);
-      match->muOnly = doStrictSimHitToTrackMatch_;
-      match->minBxALCT  = minBxALCT_;
-      match->maxBxALCT  = maxBxALCT_;
-      match->minBxCLCT  = minBxCLCT_;
-      match->maxBxCLCT  = maxBxCLCT_;
-      match->minBxLCT   = minBxLCT_;
-      match->maxBxLCT   = maxBxLCT_;
-      match->minBxMPLCT = minBxMPLCT_;
-      match->maxBxMPLCT = maxBxMPLCT_;
-
-      propagateToCSCStations(match);
-
-      // match SimHits and do some checks
-      matchSimTrack2SimHits(match, simTracks, simVertices, allCSCSimHits);
-
-      std::vector<int> csc_detId;
-      std::vector<int> csc_particleType;
-      csc_detId.clear();
-      csc_particleType.clear();
-      for (unsigned int i=0; i< match->simHits.size(); ++i)
-      {
-	csc_detId.push_back((match->simHits)[i].detUnitId());
-	csc_particleType.push_back((match->simHits)[i].particleType());
-      }
-
-      // match ALCT digis and SimHits;
-      // if there are common SimHits in SimTrack, match to SimTrack
-      matchSimTrack2ALCTs(match, allCSCSimHits, alcts, wiredc );
-	
-      // match CLCT digis and SimHits;
-      // if there are common SimHits in SimTrack, match to SimTrack
-      matchSimTrack2CLCTs(match, allCSCSimHits, clcts, compdc );
-
-      // match CorrelatedLCT digis after TMB
-      matchSimTrack2LCTs(match, lcts);
-
-      // match CorrelatedLCT digis after MPC
-      matchSimTrack2MPLCTs(match, mplcts);
-
-      // match TrackFinder's tracks after Sector Processor
-      matchSimtrack2TFTRACKs(match, muScales, muPtScale, l1Tracks);
-
-      // match TrackFinder's track candidates after CSC Sorter
-      matchSimtrack2TFCANDs(match, muScales, muPtScale, l1TfCands);
-
-      if (!lightRun) {
-  	// match GMT candidates from GMT Readout
-  	matchSimtrack2GMTCANDs(match, muScales, muPtScale, l1GmtCands, l1GmtCSCCands, l1GmtCSCCandsInBXs);
-
-  	// match trigger muons from l1extra
-	//  	matchSimtrack2L1EXTRAs(match, l1Muons);
-      }
-
-
-      matches.push_back(match);
-      numberSimTr++;
-
-      // checks
-      //      if (debugALLEVENT) {
-  	//charge = static_cast<int> (-itrack->type()/13); //static_cast<int> (itrack->charge());
-  	std::cout<<"SimTrk\t id eta phi pt nSH: "<<istrk->trackId()<<" "<<steta <<" "<< stphi <<" "<<stpt <<" "<<match->simHits.size()<<std::endl;
-  	std::cout<<"      \t nALCT: "<<match->ALCTs.size() 
-		 <<" nCLCT: "<<match->CLCTs.size() 
-		 <<" nLCT: "<<match->LCTs.size() 
-		 <<" nMPLCT: "<<match->MPLCTs.size() 
-		 <<" TFTRACKs/All: "<<match->TFTRACKs.size() <<"/"<<match->TFTRACKsAll.size()
-		 <<" TFCANDs/All: "<<match->TFCANDs.size() <<"/"<<match->TFCANDsAll.size()
-		 <<" GMTREGs/All: "<<match->GMTREGCANDs.size()<<"/"<<match->GMTREGCANDsAll.size()
-		 <<"  GMTRegBest:"<<(match->GMTREGCANDBest.l1reg != NULL)
-		 <<" GMTs/All: "<<match->GMTCANDs.size()<<"/"<<match->GMTCANDsAll.size()
-		 <<" GMTBest:"<<(match->GMTCANDBest.l1gmt != NULL)
-		 <<" L1EXTRAs/All: "<<match->L1EXTRAs.size()<<"/"<<match->L1EXTRAsAll.size()
-		 <<" L1EXTRABest:"<<(match->L1EXTRABest.l1extra != NULL)<<std::endl;
-      }
-  //    }
+    matches.push_back(match);
+    numberSimTr++;
+    
+    // checks
+    if (debugALLEVENT) {
+      //charge = static_cast<int> (-itrack->type()/13); //static_cast<int> (itrack->charge());
+      std::cout<<"SimTrk\t id eta phi pt nSH: "<<istrk->trackId()<<" "<<steta <<" "<< stphi <<" "<<stpt <<" "<<match->simHits.size()<<std::endl;
+      std::cout<<"      \t nALCT: "<<match->ALCTs.size() 
+               <<" nCLCT: "<<match->CLCTs.size() 
+               <<" nLCT: "<<match->LCTs.size() 
+               <<" nMPLCT: "<<match->MPLCTs.size() 
+               <<" TFTRACKs/All: "<<match->TFTRACKs.size() <<"/"<<match->TFTRACKsAll.size()
+               <<" TFCANDs/All: "<<match->TFCANDs.size() <<"/"<<match->TFCANDsAll.size()
+               <<" GMTREGs/All: "<<match->GMTREGCANDs.size()<<"/"<<match->GMTREGCANDsAll.size()
+               <<"  GMTRegBest:"<<(match->GMTREGCANDBest.l1reg != NULL)
+               <<" GMTs/All: "<<match->GMTCANDs.size()<<"/"<<match->GMTCANDsAll.size()
+               <<" GMTBest:"<<(match->GMTCANDBest.l1gmt != NULL)
+               <<" L1EXTRAs/All: "<<match->L1EXTRAs.size()<<"/"<<match->L1EXTRAsAll.size()
+               <<" L1EXTRABest:"<<(match->L1EXTRABest.l1extra != NULL)<<std::endl;
+    }
+  }
   
   
   // check overlapping chambers (have hits from two simtracks):
