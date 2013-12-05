@@ -230,7 +230,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_scPhiWidth_[2];
   MonitorElement* h_scEtaPhi_[2];
 
-
+  MonitorElement* h_dSCpfSC_[2][3];
   MonitorElement* h_scE_[2][3];
   MonitorElement* h_scEt_[2][3];
 

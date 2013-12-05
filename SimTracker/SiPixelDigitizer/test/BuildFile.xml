@@ -15,3 +15,6 @@
 <library   file="PixelDigisTest.cc" name="PixelDigisTest">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="PixelSimHitsTest.cc" name="PixelSimHitsTest">
+  <flags   EDM_PLUGIN="1"/>
+</library>

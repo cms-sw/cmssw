@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_0_0/PIon/V22 (CMSSW_7_0_0_pre8_HLT1)
+# /dev/CMSSW_7_0_0/PIon/V26 (CMSSW_7_0_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_0_0/PIon/V22')
+  tableName = cms.string('/dev/CMSSW_7_0_0/PIon/V26')
 )
 
 streams = cms.PSet( 
@@ -3122,9 +3122,9 @@ hltIter3Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESPr
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
-hltIter4ESPPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
+hltIter4ESPPixelLessLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   layerList = cms.vstring( 'TIB1+TIB2' ),
-  ComponentName = cms.string( "hltIter4ESPPixelLayerPairs" ),
+  ComponentName = cms.string( "hltIter4ESPPixelLessLayerPairs" ),
   TEC = cms.PSet(  ),
   FPix = cms.PSet(  ),
   TID = cms.PSet(  ),
@@ -3132,9 +3132,9 @@ hltIter4ESPPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   TIB = cms.PSet(  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ) ),
   TOB = cms.PSet(  )
 )
-hltIter4ESPPixelLayerPairsPA = cms.ESProducer( "SeedingLayersESProducer",
+hltIter4ESPPixelLessLayerPairsPA = cms.ESProducer( "SeedingLayersESProducer",
   layerList = cms.vstring( 'TIB1+TIB2' ),
-  ComponentName = cms.string( "hltIter4ESPPixelLayerPairsPA" ),
+  ComponentName = cms.string( "hltIter4ESPPixelLessLayerPairsPA" ),
   TEC = cms.PSet(  ),
   FPix = cms.PSet(  ),
   TID = cms.PSet(  ),
@@ -8392,7 +8392,8 @@ hltIter1PFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    )
+    ),
+    TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltIter1PFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter1PFJetPixelSeeds" ),
@@ -8641,7 +8642,8 @@ hltIter2PFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    )
+    ),
+    TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltIter2PFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter2PFJetPixelSeeds" ),
@@ -8845,7 +8847,8 @@ hltIter3PFJetMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    )
+    ),
+    TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltIter3PFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter3PFJetMixedSeeds" ),
@@ -9089,12 +9092,13 @@ hltIter4PFJetPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProd
         maxElement = cms.uint32( 100000 ),
         SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
-      SeedingLayers = cms.string( "hltIter4ESPPixelLayerPairs" )
+      SeedingLayers = cms.string( "hltIter4ESPPixelLessLayerPairs" )
     ),
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    )
+    ),
+    TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltIter4PFJetCkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltIter4PFJetPixelLessSeeds" ),
@@ -12053,7 +12057,8 @@ hltPAIter1PixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    )
+    ),
+    TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltPAIter1CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPAIter1PixelSeeds" ),
@@ -12302,7 +12307,8 @@ hltPAIter2PixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    )
+    ),
+    TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltPAIter2CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPAIter2PixelSeeds" ),
@@ -12506,7 +12512,8 @@ hltPAIter3MixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    )
+    ),
+    TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltPAIter3CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPAIter3MixedSeeds" ),
@@ -12750,12 +12757,13 @@ hltPAIter4PixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
         maxElement = cms.uint32( 100000 ),
         SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
-      SeedingLayers = cms.string( "hltIter4ESPPixelLayerPairsPA" )
+      SeedingLayers = cms.string( "hltIter4ESPPixelLessLayerPairsPA" )
     ),
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
       propagator = cms.string( "PropagatorWithMaterial" )
-    )
+    ),
+    TTRHBuilder = cms.string( "WithTrackAngle" )
 )
 hltPAIter4CkfTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     src = cms.InputTag( "hltPAIter4PixelLessSeeds" ),

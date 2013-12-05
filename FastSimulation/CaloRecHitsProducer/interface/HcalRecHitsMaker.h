@@ -9,7 +9,7 @@
 #include <vector>
 
 class CaloGeometry;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class HcalSimParameterMap;
 class HcalDbService;
 class HcalRespCorrs;
@@ -24,24 +24,28 @@ namespace edm {
 class HcalRecHitsMaker
 {
  public:
-  HcalRecHitsMaker(edm::ParameterSet const & p,int,const RandomEngine* random);
+  HcalRecHitsMaker(edm::ParameterSet const & p,int);
   ~HcalRecHitsMaker();
 
-  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HBHERecHitCollection& hbheHits, HBHEDigiCollection& hbheDigis);
-  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HORecHitCollection &ho, HODigiCollection & hoDigis);
-  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HFRecHitCollection &hfHits, HFDigiCollection& hfDigis);
+  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HBHERecHitCollection& hbheHits, HBHEDigiCollection& hbheDigis,
+                       RandomEngineAndDistribution const*);
+  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HORecHitCollection &ho, HODigiCollection & hoDigis,
+                       RandomEngineAndDistribution const*);
+  void loadHcalRecHits(edm::Event &iEvent, const HcalTopology&, HFRecHitCollection &hfHits, HFDigiCollection& hfDigis,
+                       RandomEngineAndDistribution const*);
   void init(const edm::EventSetup &es,bool dodigis,bool domiscalib);
 
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
   unsigned createVectorOfSubdetectorCells( const CaloGeometry&,const HcalTopology&, int subdetn,std::vector<int>&);
-  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *,double sigma,double threshold,double correctionfactor); 
+  unsigned noisifySubdet(std::vector<float >& theMap, std::vector<int>& theHits,const std::vector<int>& thecells, unsigned ncells, double  hcalHotFraction_, const GaussianTail *,double sigma,double threshold,double correctionfactor,
+                         RandomEngineAndDistribution const*);
   // Not currently used. Will probably be removed soon.
   //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
-  void noisify();
+  void noisify(RandomEngineAndDistribution const*);
   double noiseInfCfromDB(const HcalDbService * conditions,const HcalDetId & detId);
-  void Fill(int id,float energy, std::vector<int> & myHits,float noise,float correctionfactor);
-  void loadPCaloHits(const edm::Event & iEvent, const HcalTopology&);
+  void Fill(int id,float energy, std::vector<int> & myHits,float noise,float correctionfactor, RandomEngineAndDistribution const*);
+  void loadPCaloHits(const edm::Event & iEvent, const HcalTopology&, RandomEngineAndDistribution const*);
   
   void clean();
   void cleanSubDet(std::vector<float>& hits,std::vector<int>& cells);
@@ -59,11 +63,11 @@ class HcalRecHitsMaker
 
   //  edm::ESHandle<CaloTowerConstituentsMap> calotowerMap_;
   edm::InputTag inputCol_;
-  static bool initialized_;
-  static bool initializedHB_;
-  static bool initializedHE_;
-  static bool initializedHO_;
-  static bool initializedHF_;
+  bool initialized_;
+  bool initializedHB_;
+  bool initializedHE_;
+  bool initializedHO_;
+  bool initializedHF_;
   bool doDigis_;
   bool doMiscalib_;
   bool doSaturation_;
@@ -76,27 +80,26 @@ class HcalRecHitsMaker
 
   std::vector<int> firedCells_;
 
-  static std::vector<HcalDetId> theDetIds_;
-  static std::vector<float> miscalib_;
+  std::vector<HcalDetId> theDetIds_;
+  std::vector<float> miscalib_;
 
   // coefficients for fC to ADC conversion
-  static std::vector<int> fctoadc_;
+  std::vector<int> fctoadc_;
 
-  static std::vector<float> peds_;
-  static std::vector<float> gains_;
-  static std::vector<float> sat_;
-  static std::vector<float> noisesigma_;
-  static std::vector<float> TPGFactor_;
+  std::vector<float> peds_;
+  std::vector<float> gains_;
+  std::vector<float> sat_;
+  std::vector<float> noisesigma_;
+  std::vector<float> TPGFactor_;
  
   // the hashed indices
-  static unsigned maxIndex_;
-  static std::vector<int> hbhi_;
-  static std::vector<int> hehi_;
-  static std::vector<int> hohi_;
-  static std::vector<int> hfhi_;
+  unsigned maxIndex_;
+  std::vector<int> hbhi_;
+  std::vector<int> hehi_;
+  std::vector<int> hohi_;
+  std::vector<int> hfhi_;
   unsigned nhbcells_,nhecells_,nhocells_,nhfcells_;
 
-  const RandomEngine* random_;
   std::vector<GaussianTail*> myGaussianTailGenerators_;
 
   //  const HcalTPGCoder * myCoder_;

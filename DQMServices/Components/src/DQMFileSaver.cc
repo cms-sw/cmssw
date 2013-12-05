@@ -72,12 +72,13 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
     }
 
     dbe_->save(filename,
-             "", 
-	     "^(Reference/)?([^/]+)", 
-	     rewrite,
-	     (DQMStore::SaveReferenceTag) saveReference_,
-	     saveReferenceQMin_,
-	     fileUpdate_);
+               "",
+               "^(Reference/)?([^/]+)",
+               rewrite,
+               enableMultiThread_ ? run : 0,
+               (DQMStore::SaveReferenceTag) saveReference_,
+               saveReferenceQMin_,
+               fileUpdate_);
   }
   else // save EventInfo folders for luminosity sections
   {
@@ -91,10 +92,12 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
         dbe_->cd();
 	std::cout << systems[i] << "  " ;
         dbe_->save(filename,
-	   systems[i]+"/EventInfo", "^(Reference/)?([^/]+)", rewrite,
-	   DQMStore::SaveWithoutReference,
-	   dqm::qstatus::STATUS_OK,
-	   fileUpdate_);
+                   systems[i]+"/EventInfo", "^(Reference/)?([^/]+)",
+                   rewrite,
+                   enableMultiThread_ ? run : 0,
+                   DQMStore::SaveWithoutReference,
+                   dqm::qstatus::STATUS_OK,
+                   fileUpdate_);
 	// from now on update newly created file
 	if (fileUpdate_=="RECREATE") fileUpdate_="UPDATE";
       }
@@ -122,8 +125,15 @@ doSaveForOnline(std::list<std::string> &pastSavedFiles,
 		DQMStore::SaveReferenceTag saveref,
 		int saveRefQMin)
 {
-  store->save(filename, directory , rxpat, 
-         rewrite, saveref, saveRefQMin);
+  // TODO(rovere): fix the online case. so far we simply rely on the
+  // fact that we assume we will not run multithreaded in online.
+  store->save(filename,
+              directory ,
+              rxpat,
+              rewrite,
+              0,
+              saveref,
+              saveRefQMin);
   pastSavedFiles.push_back(filename);
   if (pastSavedFiles.size() > numKeepSavedFiles)
   {
@@ -205,6 +215,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     dirName_ ("."),
     version_ (1),
     runIsComplete_ (false),
+    enableMultiThread_(ps.getUntrackedParameter<bool>("enableMultiThread", false)),
     saveByLumiSection_ (-1),
     saveByEvent_ (-1),
     saveByMinute_ (-1),

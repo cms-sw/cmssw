@@ -18,17 +18,16 @@ int main(){
     std::string destConnect("sqlite_file:dest.db");
     cond::DbConnection connection;
     connection.configuration().setMessageLevel(coral::Debug);
-    connection.configuration().setPoolAutomaticCleanUp( false );
     connection.configure();
-    //session->configuration().setAuthenticationMethod(cond::XML);
     cond::DbSession sourcedb = connection.createSession();
     sourcedb.open("sqlite_file:source.db");
     cond::DbSession destdb = connection.createSession();
     destdb.open("sqlite_file:dest.db");
     
     cond::IOVEditor sourceIov(sourcedb);
-    cond::IOVEditor destIov(sourcedb);
+    cond::IOVEditor destIov(destdb);
     sourcedb.transaction().start(false);
+    sourceIov.createIOVContainerIfNecessary();
     sourceIov.create(cond::timestamp,1);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;
@@ -49,6 +48,9 @@ int main(){
     std::cout<<"source db started "<<std::endl;
     destdb.transaction().start(false);
     std::cout<<"dest db started "<<std::endl;
+    destIov.createIOVContainerIfNecessary();
+    destIov.create(sourceIov.proxy().timetype(),sourceIov.proxy().lastTill()); 
+    std::cout<<"importing... "<<std::endl;
     destIov.import( sourcedb, iovtoken );
     destdb.transaction().commit();
     std::cout<<"destdb committed"<<std::endl;

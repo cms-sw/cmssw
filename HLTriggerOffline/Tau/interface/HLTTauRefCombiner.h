@@ -30,7 +30,7 @@ public:
   typedef math::XYZTLorentzVectorD LorentzVector;
   typedef std::vector<LorentzVector> LorentzVectorCollection;
 
-  std::vector<edm::InputTag> inputColl_; //Input LV Collections
+  std::vector<edm::EDGetTokenT<LorentzVectorCollection> > inputColl_; //Input LV Collections
   double matchDeltaR_; //Delta R for matching
   std::string outName_; //outputObjectName
 

@@ -439,7 +439,7 @@ void SiStripMonitorTrack::trajectoryStudy(const edm::Ref<std::vector<Trajectory>
     TrajectoryStateOnSurface  updatedtsos=traj_mes_iterator->updatedState();
     ConstRecHitPointer ttrh=traj_mes_iterator->recHit();
 
-    if (!ttrh->isValid()) return;
+    if (!ttrh->isValid()) continue;
 
     const ProjectedSiStripRecHit2D* phit     = dynamic_cast<const ProjectedSiStripRecHit2D*>( ttrh->hit() );
     const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>( ttrh->hit() );

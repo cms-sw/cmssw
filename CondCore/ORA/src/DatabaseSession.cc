@@ -46,6 +46,7 @@ ora::DatabaseSession::DatabaseSession():
   m_connectionPool( new ConnectionPool ),
   m_dbSession(),
   m_connectionString( "" ),
+  m_schemaName(""),
   m_schema(),
   m_contIdSequence(),
   m_mappingDb(),
@@ -61,6 +62,7 @@ ora::DatabaseSession::DatabaseSession(boost::shared_ptr<ConnectionPool>& connect
   m_connectionPool( connectionPool ),
   m_dbSession(),
   m_connectionString( "" ),
+  m_schemaName(""),
   m_schema(),
   m_contIdSequence(),
   m_mappingDb(),
@@ -99,6 +101,21 @@ bool ora::DatabaseSession::connect( const std::string& connectionString,
   return isConnected();
 }
 
+bool ora::DatabaseSession::connect( boost::shared_ptr<coral::ISessionProxy>& coralSession, 
+				    const std::string& connectionString,
+				    const std::string& schemaName ){
+  m_ownedTransaction = false;
+  m_dbSession = SharedSession( coralSession );
+  if(m_dbSession.isValid()) {
+    m_connectionString = connectionString;
+    m_schemaName = schemaName;
+    if( ora::Monitoring::isEnabled() ){
+      m_monitoring = ora::Monitoring::get().startSession( connectionString );
+    }
+  }
+  return isConnected();
+}
+
 void ora::DatabaseSession::clearTransaction(){
   m_transactionCache.reset();
   m_mappingDb.reset();
@@ -108,7 +125,7 @@ void ora::DatabaseSession::clearTransaction(){
 }
 
 void ora::DatabaseSession::disconnect(){
-  if( isConnected() ){
+  if( isConnected() && m_ownedTransaction ){
     if( isTransactionActive()) rollbackTransaction();
   }
   clearTransaction();
@@ -128,7 +145,9 @@ const std::string& ora::DatabaseSession::connectionString(){
 void ora::DatabaseSession::startTransaction( bool readOnly ){
   if( !m_transactionCache.get() ){
     m_dbSession.get().transaction().start( readOnly );
-    m_schema.reset( IDatabaseSchema::createSchemaHandle( m_dbSession.get().nominalSchema() ));
+    coral::ISchema* targetSchema = &m_dbSession.get().nominalSchema();
+    if( !m_schemaName.empty() ) targetSchema = &m_dbSession.get().schema( m_schemaName );
+    m_schema.reset( IDatabaseSchema::createSchemaHandle( *targetSchema ));
     m_contIdSequence.reset( new NamedSequence( MappingRules::sequenceNameForContainerId(), *m_schema ));
     m_mappingDb.reset( new MappingDatabase( *m_schema ));
     m_transactionCache.reset( new TransactionCache );

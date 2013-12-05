@@ -26,7 +26,7 @@
  *
  */
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class FSimEvent : public FBaseSimEvent {
 
@@ -36,17 +36,16 @@ public:
   FSimEvent(const edm::ParameterSet& kine);
 
   FSimEvent(const edm::ParameterSet& vtx,
-	    const edm::ParameterSet& kine,
-	    const RandomEngine* engine);
+	    const edm::ParameterSet& kine);
 
   ///  usual virtual destructor
   virtual ~FSimEvent();
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
-  void fill(const HepMC::GenEvent & hev, edm::EventID & Id);
+  void fill(const HepMC::GenEvent & hev, edm::EventID & Id, RandomEngineAndDistribution const*);
 
   /// fill the FBaseSimEvent from the current reco::GenParticleCollection
-  void fill(const reco::GenParticleCollection & parts, edm::EventID & Id);
+  void fill(const reco::GenParticleCollection & parts, edm::EventID & Id, RandomEngineAndDistribution const*);
 
   /// fill the FBaseSimEvent from the SimTrack's and SimVert'ices
   void fill(const std::vector<SimTrack>& simTracks, 
