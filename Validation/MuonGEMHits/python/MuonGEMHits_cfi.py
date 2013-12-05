@@ -1,0 +1,13 @@
+import FWCore.ParameterSet.Config as cms
+
+
+
+from Validation.MuonGEMHits.simTrackMatching_cfi import SimTrackMatching
+gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
+	outputFile = cms.string('valid.root'),
+        simInputLabel = cms.untracked.string('g4SimHits'),
+	minPt = cms.untracked.double(4.5),
+	ntupleTrackChamberDelta = cms.untracked.bool(True),
+	ntupleTrackEff = cms.untracked.bool(True),        
+        simTrackMatching = SimTrackMatching
+)
