@@ -254,6 +254,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
       local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix);
     }
 
+ #ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) {
     cout  
       << "\n\t >>> cluster.x = " << cluster.x()
@@ -268,6 +269,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
       << "," << meas_LLcorn_URpix.y() 
       << endl;
   }
+#endif
 
   //--- &&& Note that the cuts below should not be hardcoded (like in Orca and
   //--- &&& CPEFromDetPosition/PixelCPEInitial), but rather be
@@ -275,8 +277,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
 
 
   //--- Position, including the half lorentz shift
+
+ #ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing X" << endl;
+#endif
 
   float xPos = 
     generic_position_formula( cluster.sizeX(),
@@ -292,8 +297,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
                               the_size_cutX);           // cut for eff charge width &&&
 
 
+ #ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing Y" << endl;
+#endif
+
   float yPos = 
     generic_position_formula( cluster.sizeY(),
 			      Q_f_Y, Q_l_Y, 
@@ -432,12 +440,12 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- it with an *average* effective charge width, which is the average
   //--- length of the edge pixels.
   //
-  bool usedEdgeAlgo = false;
+  //  bool usedEdgeAlgo = false;
   if (( W_eff/pitch < eff_charge_cut_low ) ||
       ( W_eff/pitch > eff_charge_cut_high ) || (size >= size_cut)) 
     {
       W_eff = pitch * 0.5 * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
-      usedEdgeAlgo = true;
+      //  usedEdgeAlgo = true;
       nRecHitsUsedEdge_++;
     }
 
@@ -450,6 +458,7 @@ generic_position_formula( int size,                //!< Size of this projection.
 	if(Qsum==0) Qsum=1.0;
   double hit_pos = geom_center + 0.5*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
 
+ #ifdef EDM_ML_DEBUG
   //--- Debugging output
   if (theVerboseLevel > 20) {
     if ( thePart == GeomDetEnumerators::PixelBarrel ) {
@@ -479,7 +488,7 @@ generic_position_formula( int size,                //!< Size of this projection.
       cout << "\n\t >>> Used angle information." ;
     cout << endl;
   }
-
+#endif
 
   return hit_pos;
 }
@@ -584,7 +593,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster) const
   // Find if cluster contains double (big) pixels. 
   bool bigInX = theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
   bool bigInY = theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
-  if (  isUpgrade_ ||(!with_track_angle && DoCosmics_) )
+  if unlikely(  isUpgrade_ ||(!with_track_angle && DoCosmics_) )
     {
       //cout << "Track angles are not known and we are processing cosmics." << endl; 
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;

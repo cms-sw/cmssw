@@ -146,14 +146,14 @@ namespace cms
 	recHitsOnDetUnit.push_back(hit);
 	// =============================
 
-	//std::cout << "SiPixelRecHitConverterVI " << numberOfClusters << ' '<< lp << " " << le << std::endl;
+	std::cout << "SiPixelRecHitConverterVI " << numberOfClusters << ' '<< lp << " " << le << std::endl;
       } //  <-- End loop on Clusters
 	
 
       //  LogDebug("SiPixelRecHitConverter")
-      //std::cout << "SiPixelRecHitConverterVI "
-	//	<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
-	//	<< std::endl;
+      std::cout << "SiPixelRecHitConverterVI "
+		<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
+		<< std::endl;
       
       
     } //    <-- End loop on DetUnits

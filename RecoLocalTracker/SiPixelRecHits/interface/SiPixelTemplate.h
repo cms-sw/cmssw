@@ -281,8 +281,8 @@ class SiPixelTemplate {
 //           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2, float& lorywidth, float& lorxwidth);
 	
 // Overload for backward compatibility. 
-	int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
-			 float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
+  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+	   float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
 	
 // Overload to use for cluster splitting 
 	int qbin(int id, float cotalpha, float cotbeta, float qclus);
