@@ -76,16 +76,14 @@ namespace cond {
   typedef cond::serialization::InputArchive InputArchive;
   typedef cond::serialization::OutputArchive OutputArchive;
 
-  template <typename T> Binary serialize( const T& payload ){
-    // save data to buffer
-    std::ostringstream buffer;
-    OutputArchive oa( buffer );
-    oa << payload;
+  // call for the serialization. Setting packingOnly = TRUE the data will stay in the original memory layout 
+  // ( no serialization in this case ). This option is used by the ORA backend - will be dropped after the changeover
+  template <typename T> Binary serialize( const T& payload, bool packingOnly = false ){
     Binary ret;
     if( !packingOnly ){
       // save data to buffer
       std::ostringstream buffer;
-      CondOutputArchive oa( buffer );
+      OutputArchive oa( buffer );
       oa << payload;
       //TODO: avoid (2!!) copies
       ret.copy( buffer.str() );
@@ -101,13 +99,18 @@ namespace cond {
     // for the moment we fail if types don't match... later we will check for base types...
     if( demangledName( typeid(T) )!= payloadType ) throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"",
 								  "deserialize" );
-    std::stringbuf sbuf;
-    sbuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
+    boost::shared_ptr<T> payload;
+    if( !unpackingOnly ){
+      std::stringbuf sbuf;
+      sbuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
 
-    std::istream buffer( &sbuf );
-    InputArchive ia(buffer);
-    boost::shared_ptr<T> payload( new T );
-    ia >> (*payload);
+      std::istream buffer( &sbuf );
+      InputArchive ia(buffer);
+      payload.reset( new T );
+      ia >> (*payload);
+    } else {
+      payload = boost::static_pointer_cast<T>(payloadData.share());
+    }
     return payload;
   }
 
