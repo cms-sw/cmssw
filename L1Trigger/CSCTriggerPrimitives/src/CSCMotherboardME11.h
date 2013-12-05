@@ -128,6 +128,8 @@ class CSCMotherboardME11 : public CSCMotherboard
   /** maximum lcts per BX in ME11: 2, 3, 4 or 999 */
   unsigned int max_me11_lcts;
 
+  /// Do GEM matching?
+  bool do_gem_matching;
 
   /// GEM matching dphi and deta
   double gem_match_delta_phi_odd;
