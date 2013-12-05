@@ -162,7 +162,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
 
 RunManager::~RunManager() 
 { 
-    if (m_kernel!=0) delete m_kernel; 
+  //   if (m_kernel!=0) delete m_kernel; 
 }
 
 void RunManager::initG4(const edm::EventSetup & es)
