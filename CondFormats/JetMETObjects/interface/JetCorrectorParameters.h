@@ -212,14 +212,6 @@ class JetCorrectorParametersCollection {
   collection_type                        corrections_;
   collection_type                        correctionsL5_;
   collection_type                        correctionsL7_;
-  static const char *                    labelsArray_[N_LEVELS];
-  static std::vector<std::string>        labels_;
-
-  static const char *                    l5FlavorArray_[N_L5_SPECIES];
-  static std::vector<std::string>        l5Flavors_;
-
-  static const char *                    l7PartonArray_[N_L7_SPECIES];
-  static std::vector<std::string>        l7Partons_;
 
  COND_SERIALIZABLE;
 };
