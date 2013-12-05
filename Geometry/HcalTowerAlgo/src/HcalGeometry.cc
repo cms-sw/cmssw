@@ -90,8 +90,7 @@ const std::vector<DetId>&
 HcalGeometry::getValidDetIds( DetId::Detector det,
 			      int             subdet ) const 
 {
-   if( 0 != subdet &&
-       0 == m_hbIds->size() ) fillDetIds() ;
+   if( 0 != subdet && !m_hbIds.isSet() ) fillDetIds() ;
    return ( 0 == subdet ? CaloSubdetectorGeometry::getValidDetIds() :
 	    ( HcalBarrel == subdet ? *m_hbIds.load() :
 	      ( HcalEndcap == subdet ? *m_heIds.load() :
