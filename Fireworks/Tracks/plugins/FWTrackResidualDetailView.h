@@ -23,6 +23,7 @@
 //      |mu = 0      DT  = 1            layer                             hit type = 0-3
 //      |mu = 0      CSC = 2            layer                             hit type = 0-3
 //      |mu = 0      RPC = 3            layer                             hit type = 0-3
+//      |mu = 0      GEM = 3            layer                             hit type = 0-3
 //
 //      hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
 //      valid    = valid hit                                     = 0
