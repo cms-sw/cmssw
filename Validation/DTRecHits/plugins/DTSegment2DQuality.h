@@ -39,6 +39,9 @@ public:
 
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+
+  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+
   // Write the histos to file
   void endJob();
 

@@ -63,12 +63,10 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
   sigmaResBeta = pset.getParameter<double>("sigmaResBeta");
   doall = pset.getUntrackedParameter<bool>("doall", false);
   local = pset.getUntrackedParameter<bool>("local", false);
+}
 
+void DTSegment4DQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
 
-  // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
-// ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
   dbe_ = Service<DQMStore>().operator->();
@@ -107,7 +105,8 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
       }
     }
   }
-}
+};
+
 
 // Destructor
 DTSegment4DQuality::~DTSegment4DQuality(){
@@ -115,8 +114,6 @@ DTSegment4DQuality::~DTSegment4DQuality(){
 }
 void DTSegment4DQuality::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
     edm::EventSetup const& c){
-
-
 }
 
 void DTSegment4DQuality::endJob() {

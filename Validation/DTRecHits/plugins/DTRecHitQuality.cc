@@ -59,11 +59,9 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   doStep3 = pset.getUntrackedParameter<bool>("doStep3", false);
   doall = pset.getUntrackedParameter<bool>("doall", false);
   local = pset.getUntrackedParameter<bool>("local", true);
-  // if(doall) doStep1
-  // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
+}
 
+void DTRecHitQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
 
   // ----------------------                 
   // get hold of back-end interface 

@@ -53,11 +53,11 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
   sigmaResAngle = pset.getParameter<double>("sigmaResAngle");
   doall = pset.getUntrackedParameter<bool>("doall", false);
   local = pset.getUntrackedParameter<bool>("local", false);
+}
 
-  // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
-  // ----------------------                 
+
+void DTSegment2DSLPhiQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
+
   // get hold of back-end interface 
   dbe_ = 0;
   dbe_ = Service<DQMStore>().operator->();
