@@ -35,6 +35,8 @@ namespace reco {
 
     typedef unsigned int index;
 
+    static double magd(GlobalVector v) { return std::sqrt( double(v.x())*double(v.x())+double(v.y())*double(v.y())+double(v.z())*double(v.z()));}
+
     /// default constructor                                                               
     LeafCandidate() : 
       qx3_(0), pt_(0), eta_(0), phi_(0), mass_(0), 
@@ -81,11 +83,11 @@ namespace reco {
     }
     
     /// constructor from values  
-    LeafCandidate( Charge q, const GlobalVector & p3, float iEnergy, const Point & vtx = Point( 0, 0, 0 ),
+    LeafCandidate( Charge q, const GlobalVector & p3, float iEnergy, bool massless, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
-      qx3_( q ), pt_( p3.perp() ), eta_( p3.eta() ), phi_( p3.phi() ), mass_( std::sqrt(std::abs(iEnergy*iEnergy-p3.mag2()))),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ), p4Cartesian_(p3.x(),p3.y(),p3.z(),iEnergy),
-      cachePolarFixed_( false ), cacheCartesianFixed_( true ) {
+      qx3_( q ), pt_( p3.perp() ), eta_( p3.eta() ), phi_( p3.phi() ), mass_(massless ? 0. :  std::sqrt(std::abs(iEnergy*iEnergy-p3.mag2()))),
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ),  p4Polar_(pt_,eta_,phi_,mass_),  p4Cartesian_(p3.x(),p3.y(),p3.z(), massless ? magd(p3) : iEnergy),
+      cachePolarFixed_( true ), cacheCartesianFixed_( true ) {
       if ( integerCharge ) qx3_ *= 3;
     }
 

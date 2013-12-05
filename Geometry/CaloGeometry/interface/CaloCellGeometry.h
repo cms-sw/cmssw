@@ -121,11 +121,12 @@ protected:
 
   // MUST be called by children constructors
   void initSpan() const {
-     initBack();
      m_dEta = std::abs(getCorners()[0].eta()-
                       getCorners()[2].eta());
      m_dPhi = std::abs(getCorners()[0].phi() -
                       getCorners()[2].phi());
+     initBack();
+
   }
 
  void initBack() const {
