@@ -67,22 +67,22 @@ private:
   //--------------------------------------------------------------------
   //  Methods.
   //------------------------------------------------------------------
-  double
-    generic_position_formula( int size,                //!< Size of this projection.
-			      double Q_f,              //!< Charge in the first pixel.
-			      double Q_l,              //!< Charge in the last pixel.
-			      double upper_edge_first_pix, //!< As the name says.
-			      double lower_edge_last_pix,  //!< As the name says.
-			      double half_lorentz_shift,   //!< L-shift at half thickness
-			      double cot_angle,            //!< cot of alpha_ or beta_
-			      double pitch,            //!< thePitchX or thePitchY
-			      bool first_is_big,       //!< true if the first is big
-			      bool last_is_big,        //!< true if the last is big
-			      double eff_charge_cut_low, //!< Use edge if > W_eff (in pix) &&&
-			      double eff_charge_cut_high,//!< Use edge if < W_eff (in pix) &&&
-			      double size_cut           //!< Use edge when size == cuts
-			      ) const;
-
+  float
+  generic_position_formula( int size,                //!< Size of this projection.
+			    float Q_f,              //!< Charge in the first pixel.
+			    float Q_l,              //!< Charge in the last pixel.
+			    float upper_edge_first_pix, //!< As the name says.
+			    float lower_edge_last_pix,  //!< As the name says.
+			    float half_lorentz_shift,   //!< L-shift at half thickness
+			    float cot_angle,            //!< cot of alpha_ or beta_
+			    float pitch,            //!< thePitchX or thePitchY
+			    bool first_is_big,       //!< true if the first is big
+			    bool last_is_big,        //!< true if the last is big
+			    float eff_charge_cut_low, //!< Use edge if > W_eff (in pix) &&&
+			    float eff_charge_cut_high,//!< Use edge if < W_eff (in pix) &&&
+			    float size_cut           //!< Use edge when size == cuts
+			    ) const;
+  
   void
     collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 			 float & Q_f_X,              //!< output, Q first  in X 
@@ -97,12 +97,12 @@ private:
   float err2Y(bool&, int&) const;
 
   //--- Cuts made externally settable
-  double the_eff_charge_cut_lowX;
-  double the_eff_charge_cut_lowY;
-  double the_eff_charge_cut_highX;
-  double the_eff_charge_cut_highY;
-  double the_size_cutX;
-  double the_size_cutY;
+  float the_eff_charge_cut_lowX;
+  float the_eff_charge_cut_lowY;
+  float the_eff_charge_cut_highX;
+  float the_eff_charge_cut_highY;
+  float the_size_cutX;
+  float the_size_cutY;
 
   bool inflate_errors;
   bool inflate_all_errors_no_trk_angle;
@@ -114,8 +114,8 @@ private:
   bool IrradiationBiasCorrection_;
   bool isUpgrade_;
 
-  double EdgeClusterErrorX_;
-  double EdgeClusterErrorY_;
+  float EdgeClusterErrorX_;
+  float EdgeClusterErrorY_;
 
   std::vector<float> xerr_barrel_l1_,yerr_barrel_l1_,xerr_barrel_ln_;
   std::vector<float> yerr_barrel_ln_,xerr_endcap_,yerr_endcap_;

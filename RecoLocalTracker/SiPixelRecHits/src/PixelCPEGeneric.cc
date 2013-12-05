@@ -379,24 +379,24 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
 //!  are passed by the caller.  The only class variable used by this method
 //!  is the theThickness, since that's common for both X and Y.
 //-----------------------------------------------------------------------------
-double
+float
 PixelCPEGeneric::    
 generic_position_formula( int size,                //!< Size of this projection.
-			  double Q_f,              //!< Charge in the first pixel.
-			  double Q_l,              //!< Charge in the last pixel.
-			  double upper_edge_first_pix, //!< As the name says.
-			  double lower_edge_last_pix,  //!< As the name says.
-			  double half_lorentz_shift,   //!< L-shift at half thickness
-			  double cot_angle,        //!< cot of alpha_ or beta_
-			  double pitch,            //!< thePitchX or thePitchY
+			  float Q_f,              //!< Charge in the first pixel.
+			  float Q_l,              //!< Charge in the last pixel.
+			  float upper_edge_first_pix, //!< As the name says.
+			  float lower_edge_last_pix,  //!< As the name says.
+			  float half_lorentz_shift,   //!< L-shift at half thickness
+			  float cot_angle,        //!< cot of alpha_ or beta_
+			  float pitch,            //!< thePitchX or thePitchY
 			  bool first_is_big,       //!< true if the first is big
 			  bool last_is_big,        //!< true if the last is big
-			  double eff_charge_cut_low, //!< Use edge if > W_eff  &&&
-			  double eff_charge_cut_high,//!< Use edge if < W_eff  &&&
-			  double size_cut         //!< Use edge when size == cuts
+			  float eff_charge_cut_low, //!< Use edge if > W_eff  &&&
+			  float eff_charge_cut_high,//!< Use edge if < W_eff  &&&
+			  float size_cut         //!< Use edge when size == cuts
 			 ) const
 {
-  double geom_center = 0.5 * ( upper_edge_first_pix + lower_edge_last_pix );
+  float geom_center = 0.5f * ( upper_edge_first_pix + lower_edge_last_pix );
 
   //--- The case of only one pixel in this projection is separate.  Note that
   //--- here first_pix == last_pix, so the average of the two is still the
@@ -413,26 +413,23 @@ generic_position_formula( int size,                //!< Size of this projection.
 
   //--- Width of the clusters minus the edge (first and last) pixels.
   //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
-  double W_inner      = lower_edge_last_pix - upper_edge_first_pix;  // in cm
+  float W_inner      = lower_edge_last_pix - upper_edge_first_pix;  // in cm
 
 
   //--- Predicted charge width from geometry
-  double W_pred = 
+  float W_pred = 
     theThickness * cot_angle                     // geometric correction (in cm)
-    - 2 * half_lorentz_shift;                    // (in cm) &&& check fpix!  
+    - 2.f * half_lorentz_shift;                    // (in cm) &&& check fpix!  
   
 
   //--- Total length of the two edge pixels (first+last)
-  double sum_of_edge = 0.0;
-  if (first_is_big) sum_of_edge += 2.0;
-  else              sum_of_edge += 1.0;
-  
-  if (last_is_big)  sum_of_edge += 2.0;
-  else              sum_of_edge += 1.0;
+  float sum_of_edge = 2.0f;
+  if (first_is_big) sum_of_edge += 1.0f;
+  if (last_is_big)  sum_of_edge += 1.0f;
   
 
   //--- The `effective' charge width -- particle's path in first and last pixels only
-  double W_eff = fabs( W_pred ) - W_inner;
+  float W_eff = std::abs( W_pred ) - W_inner;
 
 
   //--- If the observed charge width is inconsistent with the expectations
@@ -441,22 +438,23 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- length of the edge pixels.
   //
   //  bool usedEdgeAlgo = false;
-  if (( W_eff/pitch < eff_charge_cut_low ) ||
-      ( W_eff/pitch > eff_charge_cut_high ) || (size >= size_cut)) 
+  if ( (size >= size_cut) || (
+       ( W_eff/pitch < eff_charge_cut_low ) |
+       ( W_eff/pitch > eff_charge_cut_high ) ) ) 
     {
-      W_eff = pitch * 0.5 * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
+      W_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
       //  usedEdgeAlgo = true;
       nRecHitsUsedEdge_++;
     }
 
   
   //--- Finally, compute the position in this projection
-  double Qdiff = Q_l - Q_f;
-  double Qsum  = Q_l + Q_f;
+  float Qdiff = Q_l - Q_f;
+  float Qsum  = Q_l + Q_f;
 
-	//--- Temporary fix for clusters with both first and last pixel with charge = 0
-	if(Qsum==0) Qsum=1.0;
-  double hit_pos = geom_center + 0.5*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
+  //--- Temporary fix for clusters with both first and last pixel with charge = 0
+  if(Qsum==0) Qsum=1.0f;
+  float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
 
  #ifdef EDM_ML_DEBUG
   //--- Debugging output
