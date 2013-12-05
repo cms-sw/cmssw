@@ -141,7 +141,6 @@ GEMGeometry::add(GEMEtaPartition* etaPartition){
 		(etaPartition->geographicalId(),etaPartition));
 }
 
-
 void
 GEMGeometry::add(GEMChamber* chamber){
   allChambers.push_back(chamber);
