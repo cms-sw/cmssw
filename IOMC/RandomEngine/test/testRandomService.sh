@@ -12,7 +12,6 @@ pushd ${LOCAL_TMP_DIR}
   echo "=============================================="
   cmsRun ${LOCAL_TEST_DIR}/${test}1_cfg.py > testRandomService1Dump.txt || die "cmsRun ${LOCAL_TEST_DIR}/${test}1_cfg.py" $?
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1Dump.txt  testRandomService1Dump.txt || die "comparing testRandomService1Dump.txt" $?
-  mv ${test}.txt ${test}1.txt
   mv testRandomService_0_t1.txt testRandomService1_0_t1.txt
   mv testRandomService_0_t2.txt testRandomService1_0_t2.txt
   mv testRandomService_0_t3.txt testRandomService1_0_t3.txt

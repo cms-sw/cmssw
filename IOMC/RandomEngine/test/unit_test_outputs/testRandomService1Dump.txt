@@ -18,8 +18,8 @@ RandomNumberGeneratorService dump
     childIndex_ = 0
     eventSeedOffset_ = 0
     verbose_ = 1
-    restoreStateTag_ = InputTag:  label = , instance = 
-    restoreStateBeginLumiTag_ = InputTag:  label = , instance = beginLumi
+    restoreStateTag_ = InputTag:  label = , instance = , process = @skipCurrentProcess
+    restoreStateBeginLumiTag_ = InputTag:  label = , instance = beginLumi, process = @skipCurrentProcess
 
     streamEngines_
         Stream 0
