@@ -17,6 +17,8 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         '/store/relval/CMSSW_7_0_0_pre8/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/PU_START70_V1-v1/00000/1C634144-E94A-E311-964E-002618943866.root',
 #        '/store/relval/CMSSW_7_0_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/PU_START70_V1-v1/00000/269313CD-E54A-E311-9EB4-002618943894.root',
+#        '/store/relval/CMSSW_7_0_0_pre8/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_RR-v7/00000/96E6CAB6-3B59-E311-9593-002618943925.root',
+#        '/store/relval/CMSSW_7_0_0_pre8/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_RR-v7/00000/B6FDCDBB-3D59-E311-AB2B-002618943857.root',
     )
 )
 
