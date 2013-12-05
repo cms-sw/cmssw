@@ -17,8 +17,8 @@
 #ifndef L1TCALOSTAGE1JETALGORITHMIMP_H
 #define L1TCALOSTAGE1JETALGORITHMIMP_H
 
-#include "L1Trigger/L1TYellow/interface/CaloStage1JetAlgorithm.h"
-#include "L1Trigger/L1TYellow/interface/CaloStage1JetAlgorithmFactory.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmFactory.h"
 
 namespace l1t {
 

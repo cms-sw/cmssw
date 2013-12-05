@@ -25,7 +25,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //this doesn't exist yet 12/5/13 Alex
-#include "CondFormats/DataRecord/interface/CaloStage1JetParamsRcd.h"
+#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
 //this only exists in Jim's private repo?
 #include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
@@ -133,13 +133,13 @@ void CaloStage1JetAlgorithmProducer::beginRun(Run const&iR, EventSetup const&iE)
 
   LogDebug("l1t|stage 1 jets") << "CaloStage1JetAlgorithmProducer::beginRun function called...\n";
 
-  unsigned long long id = iE.get<CaloStage1JetParamsRcd>().cacheIdentifier();
+  unsigned long long id = iE.get<CaloParamsRcd>().cacheIdentifier();
 
   if (id != m_paramsCacheId){ // Need to update:
     m_paramsCacheId = id;
 
     ESHandle<CaloParams> parameters;
-    iE.get<CaloStage1JetParamsRcd>().get(parameters);
+    iE.get<CaloParamsRcd>().get(parameters);
 
     m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
 
