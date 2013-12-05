@@ -263,6 +263,7 @@ private:
   double maxSimTrEta_;
   bool invertSimTrPhiEta_;
   bool bestPtMatch_;
+  bool onlyForwardMuons_;
 
   int minBX_;
   int maxBX_;
