@@ -21,7 +21,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 
-#include "Validation/MuonGEMDigis/interface/SimTrackMatchManager.h"
+#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
 
 
 class GEMTrackMatch 

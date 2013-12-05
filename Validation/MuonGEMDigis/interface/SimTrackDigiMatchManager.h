@@ -1,5 +1,5 @@
-#ifndef GEMValidation_SimTrackMatchManager_h
-#define GEMValidation_SimTrackMatchManager_h
+#ifndef GEMValidation_SimTrackDigiMatchManager_h
+#define GEMValidation_SimTrackDigiMatchManager_h
 
 /**\class SimTrackMatchManager
 
@@ -16,14 +16,14 @@
 #include "Validation/MuonGEMDigis/interface/SimHitMatcher.h"
 #include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
 
-class SimTrackMatchManager
+class SimTrackDigiMatchManager
 {
 public:
   
-  SimTrackMatchManager(const SimTrack& t, const SimVertex& v,
+  SimTrackDigiMatchManager(const SimTrack& t, const SimVertex& v,
       const edm::ParameterSet& ps, const edm::Event& ev, const edm::EventSetup& es);
   
-  ~SimTrackMatchManager();
+  ~SimTrackDigiMatchManager();
 
   const SimHitMatcher& simhits() const {return simhits_;}
   const GEMDigiMatcher& gemDigis() const {return gem_digis_;}

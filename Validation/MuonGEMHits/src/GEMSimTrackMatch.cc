@@ -8,17 +8,6 @@
 
 
 
-struct MySimTrack
-{
-  Float_t pt, eta, phi;
-  Char_t endcap;
-  Char_t gem_sh_layer1, gem_sh_layer2;
-  Float_t gem_sh_eta, gem_sh_phi;
-  Float_t gem_trk_eta, gem_trk_phi;
-  Float_t gem_lx_even, gem_ly_even;
-  Float_t gem_lx_odd, gem_ly_odd;
-  Char_t has_gem_sh_l1, has_gem_sh_l2;
-};
 
 
 
@@ -33,18 +22,18 @@ GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , ed
    maxEta_ = cfg_.getUntrackedParameter<double>("gemMaxEta",2.18);
    buildLUT();
 
-   track_eta        = dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
-   track_eta_l1     = dbe_->book1D("track_eta_l1","track_eta_l1",140,1.5,2.2);
-   track_eta_l2     = dbe_->book1D("track_eta_l2","track_eta_l2",140,1.5,2.2);
-   track_eta_l1or2  = dbe_->book1D("track_eta_l1or2","track_eta_l1or2",140,1.5,2.2);
-   track_eta_l1and2 = dbe_->book1D("track_eta_l1and2","track_eta_l1and2",140,1.5,2.2);
+   track_eta        = dbe_->book1D("track_eta_sim", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
+   track_eta_l1     = dbe_->book1D("track_eta_l1_sim","track_eta_l1",140,1.5,2.2);
+   track_eta_l2     = dbe_->book1D("track_eta_l2_sim","track_eta_l2",140,1.5,2.2);
+   track_eta_l1or2  = dbe_->book1D("track_eta_l1or2_sim","track_eta_l1or2",140,1.5,2.2);
+   track_eta_l1and2 = dbe_->book1D("track_eta_l1and2_sim","track_eta_l1and2",140,1.5,2.2);
 
 
-   track_phi        = dbe_->book1D("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
-   track_phi_l1     = dbe_->book1D("track_phi_l1","track_phi_l1",100,-PI,PI);
-   track_phi_l2     = dbe_->book1D("track_phi_l2","track_phi_l2",100,-PI,PI);
-   track_phi_l1or2  = dbe_->book1D("track_phi_l1or2","track_phi_l1or2",100,-PI,PI);
-   track_phi_l1and2 = dbe_->book1D("track_phi_l1and2","track_phi_l1and2",100,-PI,PI);
+   track_phi        = dbe_->book1D("track_phi_sim", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
+   track_phi_l1     = dbe_->book1D("track_phi_l1_sim","track_phi_l1",100,-PI,PI);
+   track_phi_l2     = dbe_->book1D("track_phi_l2_sim","track_phi_l2",100,-PI,PI);
+   track_phi_l1or2  = dbe_->book1D("track_phi_l1or2_sim","track_phi_l1or2",100,-PI,PI);
+   track_phi_l1and2 = dbe_->book1D("track_phi_l1and2_sim","track_phi_l1and2",100,-PI,PI);
 
    gem_lx_even        = dbe_->book1D("gem_lx_even","gem_lx_even",100,-100,100); 
    gem_lx_even_l1     = dbe_->book1D("gem_lx_even_l1","gem_lx_even_l1",100,-100,100);
@@ -146,6 +135,17 @@ std::pair<int,int> GEMSimTrackMatch::getClosestChambers(int region, float phi)
 
 void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  struct MySimTrack
+  {
+    Float_t pt, eta, phi;
+    Char_t endcap;
+    Char_t gem_sh_layer1, gem_sh_layer2;
+    Float_t gem_sh_eta, gem_sh_phi;
+    Float_t gem_trk_eta, gem_trk_phi;
+    Float_t gem_lx_even, gem_ly_even;
+    Float_t gem_lx_odd, gem_ly_odd;
+    Char_t has_gem_sh_l1, has_gem_sh_l2;
+  };
   MySimTrack track_;
 
   iEvent.getByLabel(simInputLabel_, sim_tracks);
