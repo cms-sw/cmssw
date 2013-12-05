@@ -145,8 +145,9 @@ namespace HcalSimpleRecAlgoImpl {
       HcalDetId cell(digi.id());
       int ieta   = cell.ieta();
       int iphi   = cell.iphi();
-      ampl *= eCorr(ieta,iphi,ampl,runnum_); // HO is deliberately re-inlcuded
-                                             // to keep it as it was in Run I 
+      if( runnum_ < 216091 || cell.subdet() == HcalBarrel)
+	ampl *= eCorr(ieta,iphi,ampl,runnum_); // HO is deliberately 
+                                               // re-included for Run I
     }
 
     // Correction for a leak to pre-sample
