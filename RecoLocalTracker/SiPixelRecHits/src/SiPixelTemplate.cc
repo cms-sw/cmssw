@@ -2177,7 +2177,7 @@ void SiPixelTemplate::xtemp3d(int i, int j, std::vector<float>& xtemplate)
 //! \param lorxwidth - (output) the estimated x Lorentz width
 // ************************************************************************************************************ 
 int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
-                          float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2, float& lorywidth, float& lorxwidth)
+                          float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2) // float& lorywidth, float& lorxwidth)
 		 
 {
     // Interpolate for a new set of track angles 
@@ -2237,11 +2237,11 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
     auto qscale = thePixelTemp_[index].head.qscale;
 
 
-
+     /*
     lorywidth = thePixelTemp_[index].head.lorywidth;
     if(locBz > 0.f) {lorywidth = -lorywidth;}
     lorxwidth = thePixelTemp_[index].head.lorxwidth;
-
+    */
 
     
     auto Ny = thePixelTemp_[index].head.NTy;
@@ -2256,7 +2256,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
     assert(Ny > 1 && Nyx > 0 && Nxx > 1);
 #endif
     
-// next, loop over all y-angle entries   
+    // next, loop over all y-angle entries   
     
     auto ilow = 0;
     auto ihigh = 0;
@@ -2269,7 +2269,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       else { yratio = (cotb - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
       
       ihigh = j-templ.cotbetaY;
-      ilow = ihigh=1;
+      ilow = ihigh-1;
     }
 
 
@@ -2356,7 +2356,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       else { xxratio = (cotalpha - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
 
       ihigh = j-templ.cotalphaX;
-      ilow = ihigh=1; 
+      ilow = ihigh-1; 
     }
     
 
@@ -2416,6 +2416,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
 //! \param sx2 - (output) the estimated x-error for 1 double-pixel clusters in microns
 //! \param dx2 - (output) the estimated x-bias for 1 double-pixel clusters in microns
 // ************************************************************************************************************ 
+/*
 int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
                           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2)
 
@@ -2425,6 +2426,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
 								 sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, lorywidth, lorxwidth);
 	
 } // qbin
+*/
 
 // ************************************************************************************************************ 
 //! Interpolate beta/alpha angles to produce an expected average charge. Return int (0-4) describing the charge 
@@ -2439,11 +2441,11 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float qclus)
 	// Interpolate for a new set of track angles 
 	
 	// Local variables 
-	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz, lorywidth, lorxwidth;
+	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz; //  lorywidth, lorxwidth;
 	locBz = -1.f;
 	if(cotbeta < 0.f) {locBz = -locBz;}
 	return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, qclus, pixmx, sigmay, deltay, sigmax, deltax, 
-										  sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, lorywidth, lorxwidth);
+										  sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2); // , lorywidth, lorxwidth);
 	
 } // qbin
 
@@ -2459,12 +2461,12 @@ int SiPixelTemplate::qbin(int id, float cotbeta, float qclus)
 // Interpolate for a new set of track angles 
 				
 // Local variables 
-	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz, lorywidth, lorxwidth;
+	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz; //, lorywidth, lorxwidth;
 	const float cotalpha = 0.f;
 	locBz = -1.f;
 	if(cotbeta < 0.f) {locBz = -locBz;}
 	return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, qclus, pixmx, sigmay, deltay, sigmax, deltax, 
-								sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, lorywidth, lorxwidth);
+								sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2); // , lorywidth, lorxwidth);
 				
 } // qbin
 				
