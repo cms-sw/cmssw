@@ -60,6 +60,9 @@ namespace reco {
 
 void testCandidate::checkAll() {
   reco::Particle::LorentzVector p( 1.0, 2.0, 3.0, 4.0 );
+  GlobalVector v(1.0, 2.0, 3.0);
+  reco::LeafCandidate::PolarLorentzVector pl(p);  
+
   reco::Particle::Charge q( 1 );
   int x = 123, y0 = 111, y1 = 222;
   std::auto_ptr<reco::Candidate> c( new test::DummyCandidate1( p, q, x, y0, y1 ) );
@@ -78,4 +81,39 @@ void testCandidate::checkAll() {
   reco::Candidate::const_iterator b = c->begin(), e = c->end();
   CPPUNIT_ASSERT( b == e );
   CPPUNIT_ASSERT( e - b == 0 );
+
+  // test constructors
+
+  reco::LeafCandidate c1(q,p);
+  reco::LeafCandidate c2(q,pl);
+  reco::LeafCandidate c3(q,v,4.f);
+
+  auto ok = [](float a, float b)->bool { return a==b;};
+
+  CPPUNIT_ASSERT(ok(c1.pt(),c2.pt()));
+  CPPUNIT_ASSERT(ok(c1.eta(),c2.eta()));
+  CPPUNIT_ASSERT(ok(c1.phi(),c2.phi()));
+  CPPUNIT_ASSERT(ok(c1.mass(),c2.mass()));
+
+  CPPUNIT_ASSERT(ok(c1.y(),c2.y()));
+ 
+  CPPUNIT_ASSERT(ok(c1.pt(),c3.pt()));
+  CPPUNIT_ASSERT(ok(c1.eta(),c3.eta()));
+  CPPUNIT_ASSERT(ok(c1.phi(),c3.phi()));
+  CPPUNIT_ASSERT(ok(c1.mass(),c3.mass()));
+
+  CPPUNIT_ASSERT(ok(c1.y(),c3.y()));
+
+  CPPUNIT_ASSERT(ok(c1.px(),c2.px()));
+  CPPUNIT_ASSERT(ok(c1.py(),c2.py()));
+  CPPUNIT_ASSERT(ok(c1.pz(),c2.pz()));
+  CPPUNIT_ASSERT(ok(c1.energy(),c2.energy()));
+
+  CPPUNIT_ASSERT(ok(c1.px(),c3.px()));
+  CPPUNIT_ASSERT(ok(c1.py(),c3.py()));
+  CPPUNIT_ASSERT(ok(c1.pz(),c3.pz()));
+  CPPUNIT_ASSERT(ok(c1.energy(),c3.energy()));
+
+
+
 }
