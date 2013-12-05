@@ -10,7 +10,6 @@
 <use   name="PhysicsTools/MVATrainer"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EgammaObjects"/>
-<use   name="CondCore/EgammaPlugins"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="CondCore/DBOutputService"/>
 <use name="roottmva"/>

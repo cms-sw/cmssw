@@ -2,7 +2,7 @@
 //
 // Package:    DPGAnalysis
 // Class:      TrackerDpgAnalysis
-// 
+//
 /**\class TrackerDpgAnalysis TrackerDpgAnalysis.cc DPGAnalysis/SiStripTools/plugins/TrackerDpgAnalysis.cc
 
  Description: analysis of the clusters and digis in the tracker
@@ -15,7 +15,7 @@
 //         Created:  Tue Sep 23 02:11:44 CEST 2008
 //         Revised:  Thu Nov 26 10:00:00 CEST 2009
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
-// part of the code was inspired by 
+// part of the code was inspired by
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
 // $Id: TrackerDpgAnalysis.cc,v 1.14 2013/02/27 19:49:47 wmtan Exp $
 //
@@ -44,6 +44,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -82,7 +83,7 @@
 #include <DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h>
 #include <DataFormats/Common/interface/TriggerResults.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"  
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include <MagneticField/Engine/interface/MagneticField.h>
@@ -134,13 +135,26 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
       static const int nMaxPVs_ = 50;
-      edm::InputTag clusterLabel_, pixelclusterLabel_, dedx1Label_, dedx2Label_, dedx3Label_, pixelVertexLabel_, 
-                    vertexLabel_, bsLabel_, L1Label_, HLTLabel_;
+      edm::EDGetTokenT<SiStripEventSummary> summaryToken_;
+      edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> L1Token_;
+      edm::EDGetTokenT<edm::TriggerResults> HLTToken_;
+      edm::EDGetTokenT<reco::BeamSpot> bsToken_;
+      edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+      edm::EDGetTokenT<reco::VertexCollection> pixelVertexToken_;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusterToken_;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelclusterToken_;
+      edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > dedx1Token_;
+      edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > dedx2Token_;
+      edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > dedx3Token_;
+      edm::InputTag HLTLabel_;
       std::vector<edm::InputTag> trackLabel_;
+      std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackCollectionTokens_;
+      std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajectoryCollectionTokens_;
+      std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> > trajTrackAssociationTokens_;
       edm::ESHandle<SiStripFedCabling> cabling_;
       edm::ESHandle<TrackerGeometry> tracker_;
       std::multimap<const uint32_t,const FedChannelConnection*> connections_;
-      bool functionality_offtrackClusters_, functionality_ontrackClusters_, functionality_pixclusters_, functionality_pixvertices_, 
+      bool functionality_offtrackClusters_, functionality_ontrackClusters_, functionality_pixclusters_, functionality_pixvertices_,
            functionality_missingHits_, functionality_tracks_, functionality_vertices_, functionality_events_;
       TTree* clusters_;
       TTree* pixclusters_;
@@ -188,7 +202,6 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
       char *moduleName_, *moduleId_, *PSUname_;
       std::string cablingFileName_;
       std::vector<std::string> delayFileNames_;
-      edm::ParameterSet pset_;
       std::vector<std::string>  hlNames_;  // name of each HLT algorithm
       HLTConfigProvider hltConfig_;        // to get configuration for L1s/Pre
 
@@ -197,13 +210,12 @@ class TrackerDpgAnalysis : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConfig_()
+TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig) : hltConfig_()
 {
    // members
    moduleName_ = new char[256];
    moduleId_   = new char[256];
    PSUname_    = new char[256];
-   pset_ = iConfig;
 
    // enable/disable functionalities
    functionality_offtrackClusters_ = iConfig.getUntrackedParameter<bool>("keepOfftrackClusters",true);
@@ -216,17 +228,23 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    functionality_events_           = iConfig.getUntrackedParameter<bool>("keepEvents",true);
 
    // parameters
-   clusterLabel_      = iConfig.getParameter<edm::InputTag>("ClustersLabel");
-   pixelclusterLabel_ = iConfig.getParameter<edm::InputTag>("PixelClustersLabel");
+   summaryToken_      = consumes<SiStripEventSummary>(edm::InputTag("siStripDigis"));
+   clusterToken_      = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("ClustersLabel"));
+   pixelclusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("PixelClustersLabel"));
    trackLabel_        = iConfig.getParameter<std::vector<edm::InputTag> >("TracksLabel");
-   dedx1Label_        = iConfig.getParameter<edm::InputTag>("DeDx1Label");
-   dedx2Label_        = iConfig.getParameter<edm::InputTag>("DeDx2Label");
-   dedx3Label_        = iConfig.getParameter<edm::InputTag>("DeDx3Label");
-   vertexLabel_       = iConfig.getParameter<edm::InputTag>("vertexLabel");
-   pixelVertexLabel_  = iConfig.getParameter<edm::InputTag>("pixelVertexLabel");
-   bsLabel_           = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
-   L1Label_           = iConfig.getParameter<edm::InputTag>("L1Label");
+   trackCollectionTokens_      = edm::vector_transform(trackLabel_, [this](edm::InputTag const & tag){return mayConsume<reco::TrackCollection>(tag);});
+   trajectoryCollectionTokens_ = edm::vector_transform(trackLabel_, [this](edm::InputTag const & tag){return mayConsume<std::vector<Trajectory> >(tag);});
+   trajTrackAssociationTokens_ = edm::vector_transform(trackLabel_, [this](edm::InputTag const & tag){return mayConsume<TrajTrackAssociationCollection>(tag);});
+
+   dedx1Token_        = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("DeDx1Label"));
+   dedx2Token_        = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("DeDx2Label"));
+   dedx3Token_        = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter<edm::InputTag>("DeDx3Label"));
+   vertexToken_       = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexLabel"));
+   pixelVertexToken_  = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pixelVertexLabel"));
+   bsToken_           = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotLabel"));
+   L1Token_           = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("L1Label"));
    HLTLabel_          = iConfig.getParameter<edm::InputTag>("HLTLabel");
+   HLTToken_          = consumes<edm::TriggerResults>(HLTLabel_);
 
    // initialize arrays
    ntracks_ = new uint32_t[trackLabel_.size()];
@@ -235,10 +253,10 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    trackid_ = new uint32_t[trackLabel_.size()];
    lowPixelProbabilityFraction_ = new float[trackLabel_.size()];
    globalvertexid_ = iConfig.getParameter<uint32_t>("InitalCounter");
-   for(size_t i = 0; i<trackLabel_.size();++i) { 
-     ntracks_[i]=0; 
-     ntrajs_[i]=0; 
-     globaltrackid_[i]=iConfig.getParameter<uint32_t>("InitalCounter"); 
+   for(size_t i = 0; i<trackLabel_.size();++i) {
+     ntracks_[i]=0;
+     ntrajs_[i]=0;
+     globaltrackid_[i]=iConfig.getParameter<uint32_t>("InitalCounter");
      trackid_[i]=0;
      lowPixelProbabilityFraction_[i]=0;
    }
@@ -246,7 +264,7 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    // create output
    edm::Service<TFileService> fileService;
    TFileDirectory* dir = new TFileDirectory(fileService->mkdir("trackerDPG"));
-   
+
    // create a TTree for clusters
    clusters_ = dir->make<TTree>("clusters","cluster information");
    clusters_->Branch("eventid",&eventid_,"eventid/i");
@@ -303,7 +321,7 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    pixclusters_->Branch("clglobalY",&globalY_,"clglobalY/F");
    pixclusters_->Branch("clglobalZ",&globalZ_,"clglobalZ/F");
    pixclusters_->Branch("detid",&detid_,"detid/i");
-   
+
    // create a tree for tracks
    for(size_t i = 0; i<trackLabel_.size(); ++i) {
      char buffer1[256];
@@ -451,7 +469,7 @@ TrackerDpgAnalysis::TrackerDpgAnalysis(const edm::ParameterSet& iConfig):hltConf
    event_->Branch("planarity",&planarity_,"planarity/F");
    event_->Branch("aplanarity",&aplanarity_,"aplanarity/F");
    event_->Branch("MagneticField",&fBz_,"MagneticField/F");
-   
+
    // cabling
    cablingFileName_ = iConfig.getUntrackedParameter<std::string>("PSUFileName","PSUmapping.csv");
    delayFileNames_  = iConfig.getUntrackedParameter<std::vector<std::string> >("DelayFileNames",std::vector<std::string>(0));
@@ -496,7 +514,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    using namespace reco;
    using namespace std;
    using reco::TrackCollection;
-   
+
    // load event info
    eventid_     = iEvent.id().event();
    runid_       = iEvent.id().run();
@@ -508,7 +526,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    // Retrieve commissioning information from "event summary", when available (for standard fine delay)
    edm::Handle<SiStripEventSummary> summary;
-   iEvent.getByLabel( "siStripDigis", summary );
+   iEvent.getByToken(summaryToken_, summary );
    if(summary.isValid())
      delay_ = delay(*summary.product());
    else
@@ -522,7 +540,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    // load trigger info
    edm::Handle<L1GlobalTriggerReadoutRecord> gtrr_handle;
-   iEvent.getByLabel(L1Label_, gtrr_handle);
+   iEvent.getByToken(L1Token_, gtrr_handle);
    L1GlobalTriggerReadoutRecord const* gtrr = gtrr_handle.product();
    L1GtFdlWord fdlWord = gtrr->gtFdlWord();
    DecisionWord L1decision = fdlWord.gtDecisionWord();
@@ -540,17 +558,17 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    orbitL1_ = fdlWord.orbitNr();
    physicsDeclared_ = fdlWord.physicsDeclared();
    edm::Handle<edm::TriggerResults> trh;
-   iEvent.getByLabel(HLTLabel_, trh);
+   iEvent.getByToken(HLTToken_, trh);
    size_t ntrh = trh->size();
    for(size_t bit=0;bit<256;++bit)
      HLTDecisionBits_[bit] = bit<ntrh ? (bool)(trh->accept(bit)): false;
-     
+
    // load beamspot
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-   iEvent.getByLabel(bsLabel_,recoBeamSpotHandle);
-   reco::BeamSpot bs = *recoBeamSpotHandle; 
-   const Point beamSpot = recoBeamSpotHandle.isValid() ? 
-                           Point(recoBeamSpotHandle->x0(), recoBeamSpotHandle->y0(), recoBeamSpotHandle->z0()) : 
+   iEvent.getByToken(bsToken_,recoBeamSpotHandle);
+   reco::BeamSpot bs = *recoBeamSpotHandle;
+   const Point beamSpot = recoBeamSpotHandle.isValid() ?
+                           Point(recoBeamSpotHandle->x0(), recoBeamSpotHandle->y0(), recoBeamSpotHandle->z0()) :
 			   Point(0, 0, 0);
    if(recoBeamSpotHandle.isValid()) {
      bsX0_ = bs.x0();
@@ -559,7 +577,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      bsSigmaZ_ = bs.sigmaZ();
      bsDxdz_ = bs.dxdz();
      bsDydz_ = bs.dydz();
-   } else { 
+   } else {
      bsX0_ = 0.;
      bsY0_ = 0.;
      bsZ0_ = 0.;
@@ -567,14 +585,14 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      bsDxdz_ = 0.;
      bsDydz_ = 0.;
    }
-   
+
    // load primary vertex
    static const reco::VertexCollection s_empty_vertexColl;
    edm::Handle<reco::VertexCollection> vertexCollectionHandle;
-   iEvent.getByLabel(vertexLabel_,vertexCollectionHandle);
+   iEvent.getByToken(vertexToken_,vertexCollectionHandle);
    const reco::VertexCollection vertexColl = *(vertexCollectionHandle.product());
    nVertices_ = 0;
-   for(reco::VertexCollection::const_iterator v=vertexColl.begin(); 
+   for(reco::VertexCollection::const_iterator v=vertexColl.begin();
        v!=vertexColl.end(); ++v) {
      if(v->isValid() && !v->isFake()) ++nVertices_;
    }
@@ -582,34 +600,34 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    // load pixel vertices
    // Pixel vertices are handled as primary vertices, but not linked to tracks.
     edm::Handle<reco::VertexCollection>  pixelVertexCollectionHandle;
-    iEvent.getByLabel(pixelVertexLabel_, pixelVertexCollectionHandle);
+    iEvent.getByToken(pixelVertexToken_, pixelVertexCollectionHandle);
     const reco::VertexCollection pixelVertexColl = *(pixelVertexCollectionHandle.product());
     nPixelVertices_ = pixelVertexColl.size();
-   
+
    // load the clusters
    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
-   iEvent.getByLabel(clusterLabel_,clusters);
+   iEvent.getByToken(clusterToken_,clusters);
    edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelclusters;
-   iEvent.getByLabel(pixelclusterLabel_,pixelclusters  );
-   
+   iEvent.getByToken(pixelclusterToken_,pixelclusters  );
+
    // load dedx info
    Handle<ValueMap<DeDxData> > dEdx1Handle;
    Handle<ValueMap<DeDxData> > dEdx2Handle;
    Handle<ValueMap<DeDxData> > dEdx3Handle;
-   try {iEvent.getByLabel(dedx1Label_, dEdx1Handle);} catch ( cms::Exception& ) {;}
-   try {iEvent.getByLabel(dedx2Label_, dEdx2Handle);} catch ( cms::Exception& ) {;}
-   try {iEvent.getByLabel(dedx3Label_, dEdx3Handle);} catch ( cms::Exception& ) {;}
+   try {iEvent.getByToken(dedx1Token_, dEdx1Handle);} catch ( cms::Exception& ) {;}
+   try {iEvent.getByToken(dedx2Token_, dEdx2Handle);} catch ( cms::Exception& ) {;}
+   try {iEvent.getByToken(dedx3Token_, dEdx3Handle);} catch ( cms::Exception& ) {;}
    const ValueMap<DeDxData> dEdxTrack1 = *dEdx1Handle.product();
    const ValueMap<DeDxData> dEdxTrack2 = *dEdx2Handle.product();
    const ValueMap<DeDxData> dEdxTrack3 = *dEdx3Handle.product();
-   
+
    // load track collections
    std::vector<reco::TrackCollection> trackCollection;
    std::vector<edm::Handle<reco::TrackCollection> > trackCollectionHandle;
    trackCollectionHandle.resize(trackLabel_.size());
    size_t index = 0;
-   for(std::vector<edm::InputTag>::const_iterator label = trackLabel_.begin();label!=trackLabel_.end();++label,++index) {
-     try {iEvent.getByLabel(*label,trackCollectionHandle[index]);} catch ( cms::Exception& ) {;}
+   for(std::vector<edm::EDGetTokenT<reco::TrackCollection> >::const_iterator token = trackCollectionTokens_.begin();token!=trackCollectionTokens_.end();++token,++index) {
+     try {iEvent.getByToken(*token,trackCollectionHandle[index]);} catch ( cms::Exception& ) {;}
      trackCollection.push_back(*trackCollectionHandle[index].product());
      ntracks_[index] = trackCollection[index].size();
    }
@@ -619,8 +637,8 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    std::vector<edm::Handle<std::vector<Trajectory> > > trajectoryCollectionHandle;
    trajectoryCollectionHandle.resize(trackLabel_.size());
    index = 0;
-   for(std::vector<edm::InputTag>::const_iterator label = trackLabel_.begin();label!=trackLabel_.end();++label,++index) {
-     try {iEvent.getByLabel(*label,trajectoryCollectionHandle[index]);} catch ( cms::Exception& ) {;}
+   for(std::vector<edm::EDGetTokenT<std::vector<Trajectory> > >::const_iterator token = trajectoryCollectionTokens_.begin();token!=trajectoryCollectionTokens_.end();++token,++index) {
+     try {iEvent.getByToken(*token,trajectoryCollectionHandle[index]);} catch ( cms::Exception& ) {;}
      trajectoryCollection.push_back(*trajectoryCollectionHandle[index].product());
      ntrajs_[index] = trajectoryCollection[index].size();
    }
@@ -628,11 +646,11 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    // load the tracks/traj association maps
    std::vector<TrajTrackAssociationCollection> TrajToTrackMap;
    Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
-   for(std::vector<edm::InputTag>::const_iterator label = trackLabel_.begin();label!=trackLabel_.end();++label) {
-     try {iEvent.getByLabel(*label,trajTrackAssociationHandle);} catch ( cms::Exception& ) {;}
+   for(std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> >::const_iterator token = trajTrackAssociationTokens_.begin();token!=trajTrackAssociationTokens_.end();++token) {
+     try {iEvent.getByToken(*token,trajTrackAssociationHandle);} catch ( cms::Exception& ) {;}
      TrajToTrackMap.push_back(*trajTrackAssociationHandle.product());
    }
-     
+
    // sanity check
    if(!(trackCollection.size()>0 && trajectoryCollection.size()>0)) return;
 
@@ -644,9 +662,9 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    // iterate over vertices
    if(functionality_vertices_) {
-     for(reco::VertexCollection::const_iterator v=vertexColl.begin(); 
+     for(reco::VertexCollection::const_iterator v=vertexColl.begin();
          v!=vertexColl.end(); ++v) {
-       nTracks_pvtx_ = v->tracksSize();        
+       nTracks_pvtx_ = v->tracksSize();
        sumptsq_pvtx_ = sumPtSquared(*v);
        isValid_pvtx_ = int(v->isValid());
        isFake_pvtx_ =  int(v->isFake());
@@ -663,9 +681,9 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    // iterate over pixel vertices
    if(functionality_pixvertices_) {
-     for(reco::VertexCollection::const_iterator v=pixelVertexColl.begin(); 
+     for(reco::VertexCollection::const_iterator v=pixelVertexColl.begin();
          v!=pixelVertexColl.end(); ++v) {
-       nTracks_pvtx_ = v->tracksSize();        
+       nTracks_pvtx_ = v->tracksSize();
        sumptsq_pvtx_ = sumPtSquared(*v);
        isValid_pvtx_ = int(v->isValid());
        isFake_pvtx_ =  int(v->isFake());
@@ -683,7 +701,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    // to do this, we use the first track/traj collection
    std::vector<double> clusterOntrackAngles = onTrackAngles(clusters,trajectoryCollection[0]);
    std::vector<std::pair<double,double> > pixclusterOntrackAngles = onTrackAngles(pixelclusters,trajectoryCollection[0]);
-   
+
 /*
   // iterate over trajectories
   // note: when iterating over trajectories, it might be simpler to use the tracks/trajectories association map
@@ -695,7 +713,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     Trajectory::DataContainer measurements = traj->measurements();
     // iterate over measurements
     for(Trajectory::DataContainer::iterator meas = measurements.begin(); meas!= measurements.end(); ++meas) {
-    } 
+    }
   }
 */
 
@@ -710,7 +728,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
    nclustersOntrack_    = count_if(stripClusterOntrackIndices[0].begin(),stripClusterOntrackIndices[0].end(),bind2nd(not_equal_to<int>(), -1));
    npixClustersOntrack_ = count_if(pixelClusterOntrackIndices[0].begin(),pixelClusterOntrackIndices[0].end(),bind2nd(not_equal_to<int>(), -1));
-   
+
    // iterate over tracks
    for (size_t coll = 0; coll<trackCollection.size(); ++coll) {
      uint32_t n_hits_barrel=0;
@@ -826,7 +844,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      }
      lowPixelProbabilityFraction_[coll] = n_hits_barrel>0 ? (float)n_hits_lowprob/n_hits_barrel : -1.;
    }
-   
+
    // iterate over clusters
    nclusters_ = 0;
    std::vector<double>::const_iterator angleIt = clusterOntrackAngles.begin();
@@ -877,7 +895,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        }
      }
    }
-   
+
    // iterate over pixel clusters
    npixClusters_ = 0;
    std::vector<std::pair<double,double> >::const_iterator pixAngleIt = pixclusterOntrackAngles.begin();
@@ -927,14 +945,14 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    sphericity_ = shape.sphericity();
    planarity_  = shape.planarity();
    aplanarity_ = shape.aplanarity();
-   
+
    // fill event tree
    if(functionality_events_) event_->Fill();
-  
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
@@ -942,7 +960,7 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
    edm::ESHandle<TrackerTopology> tTopoHandle;
    iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
    const TrackerTopology* const tTopo = tTopoHandle.product();
- 
+
    //geometry
    iSetup.get<TrackerDigiGeometryRecord>().get(tracker_);
 
@@ -956,7 +974,7 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
    int i=0;
    for(std::vector<std::string>::const_iterator it = hlNames_.begin(); it<hlNames_.end();++it) {
      std::cout << (i++) << " = " << (*it) << std::endl;
-   } 
+   }
 
    // read the delay offsets for each device from input files
    // this is only for the so-called "random delay" run
@@ -1019,13 +1037,13 @@ TrackerDpgAnalysis::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
      }
    } else {
      edm::LogWarning("BadConfig") << " The PSU file does not exist. The psumap tree will not be filled."
-                                  << std::endl << " Looking for " << cablingFileName_.c_str() << "." 
+                                  << std::endl << " Looking for " << cablingFileName_.c_str() << "."
 				  << std::endl << " Please specify a valid filename through the PSUFileName untracked parameter.";
    }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 TrackerDpgAnalysis::endJob() {
   for(size_t i = 0; i<tracks_.size();++i) {
     char buffer[256];
@@ -1056,7 +1074,7 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
     for(Trajectory::DataContainer::iterator meas = measurements.begin(); meas!= measurements.end(); ++meas) {
       double tla = meas->updatedState().localDirection().theta();
       insertMeasurement(onTrackPositions,&(*(meas->recHit())),tla);
-    } 
+    }
   }
   // then loop over the clusters to check
   double angle = 0.;
@@ -1064,7 +1082,7 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
     edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
     std::pair< std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator,
-               std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator> range =  
+               std::multimap<uint32_t,std::pair<LocalPoint,double> >::const_iterator> range =
       onTrackPositions.equal_range(DSViter->id());
     const GeomDetUnit* gdu = static_cast<const GeomDetUnit*>(tracker_->idToDet(DSViter->id()));
     for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
@@ -1118,7 +1136,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
     edmNew::DetSet<SiStripCluster>::const_iterator begin=DSViter->begin();
     edmNew::DetSet<SiStripCluster>::const_iterator end  =DSViter->end();
     std::pair< std::multimap<uint32_t,std::pair<int,int> >::const_iterator,
-               std::multimap<uint32_t,std::pair<int,int> >::const_iterator> range =  
+               std::multimap<uint32_t,std::pair<int,int> >::const_iterator> range =
       onTrackPositions.equal_range(DSViter->id());
     for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
       thetrackid = -1;
@@ -1156,7 +1174,7 @@ std::map<size_t,int> TrackerDpgAnalysis::inVertex(const reco::TrackCollection& t
 {
   // build reverse map track -> vertex
   std::map<size_t,int> output;
-  uint32_t vertexid = firstVertex; 
+  uint32_t vertexid = firstVertex;
   for(reco::VertexCollection::const_iterator v = vertices.begin(); v!=vertices.end(); ++v,++vertexid) {
     reco::Vertex::trackRef_iterator it = v->tracks_begin();
     reco::Vertex::trackRef_iterator lastTrack = v->tracks_end();
@@ -1180,7 +1198,7 @@ std::vector<std::pair<double,double> > TrackerDpgAnalysis::onTrackAngles(edm::Ha
       double alpha = atan2(localDir.z(), localDir.x());
       double beta  = atan2(localDir.z(), localDir.y());
       insertMeasurement(onTrackPositions,&(*(meas->recHit())),alpha,beta);
-    } 
+    }
   }
   // then loop over the clusters to check
   double alpha = 0.;
@@ -1192,7 +1210,7 @@ std::vector<std::pair<double,double> > TrackerDpgAnalysis::onTrackAngles(edm::Ha
       alpha = 0.;
       beta  = 0.;
       std::pair< std::multimap<uint32_t,std::pair<LocalPoint,std::pair<double, double> > >::const_iterator,
-                 std::multimap<uint32_t,std::pair<LocalPoint,std::pair<double, double> > >::const_iterator> range =  
+                 std::multimap<uint32_t,std::pair<LocalPoint,std::pair<double, double> > >::const_iterator> range =
           onTrackPositions.equal_range(DSViter->id());
       const GeomDetUnit* gdu = static_cast<const GeomDetUnit*>(tracker_->idToDet(DSViter->id()));
       for(std::multimap<uint32_t,std::pair<LocalPoint,std::pair<double, double> > >::const_iterator cl = range.first; cl!= range.second; ++cl) {
@@ -1238,7 +1256,7 @@ std::vector<int> TrackerDpgAnalysis::onTrack(edm::Handle<edmNew::DetSetVector<Si
     for(edmNew::DetSet<SiPixelCluster>::const_iterator iter=begin;iter!=end;++iter) {
       thetrackid = -1;
       std::pair< std::multimap<uint32_t,std::pair<std::pair<float, float>,int> >::const_iterator,
-                 std::multimap<uint32_t,std::pair<std::pair<float, float>,int> >::const_iterator> range =  
+                 std::multimap<uint32_t,std::pair<std::pair<float, float>,int> >::const_iterator> range =
           onTrackPositions.equal_range(DSViter->id());
       for(std::multimap<uint32_t,std::pair<std::pair<float, float>,int> >::const_iterator cl = range.first; cl!= range.second; ++cl) {
         if((fabs(cl->second.first.first-iter->x())<2)&&(fabs(cl->second.first.second-iter->y())<2)) {
@@ -1268,7 +1286,7 @@ std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopolo
      case 3:
      {
        output << "TIB";
-       
+
        output << (tTopo->tibIsZPlusSide(rawid) ? "+" : "-");
        output << " layer ";
        output << tTopo->tibLayer(rawid);
@@ -1287,7 +1305,7 @@ std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopolo
      case 4:
      {
        output << "TID";
-       
+
        output << (tTopo->tidIsZPlusSide(rawid) ? "+" : "-");
        output << " disk ";
        output << tTopo->tidWheel(rawid);
@@ -1306,7 +1324,7 @@ std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopolo
      case 5:
      {
        output << "TOB";
-       
+
        output << (tTopo->tobIsZPlusSide(rawid) ? "+" : "-");
        output << " layer ";
        output << tTopo->tobLayer(rawid);
@@ -1324,7 +1342,7 @@ std::string TrackerDpgAnalysis::toStringName(uint32_t rawid, const TrackerTopolo
      case 6:
      {
        output << "TEC";
-       
+
        output << (tTopo->tecIsZPlusSide(rawid) ? "+" : "-");
        output << " disk ";
        output << tTopo->tecWheel(rawid);
@@ -1414,7 +1432,7 @@ std::map<uint32_t,float> TrackerDpgAnalysis::delay(const std::vector<std::string
        }
      } else {
        edm::LogWarning("BadConfig") << " The delay file does not exist. The delay map will not be filled properly."
-                                    << std::endl << " Looking for " << file->c_str() << "." 
+                                    << std::endl << " Looking for " << file->c_str() << "."
           			    << std::endl << " Please specify valid filenames through the DelayFileNames untracked parameter.";
      }
    }

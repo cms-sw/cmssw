@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      ByMultiplicityEventFilter
-// 
+//
 /**\class ByMultiplicityEventFilter ByMultiplicityEventFilter.cc DPGAnalysis/SiStripTools/ByMultiplicityEventFilter.cc
 
  Description: templated EDFilter to select events with large number of SiStripDigi or SiStripCluster
@@ -57,7 +57,7 @@ class ByMultiplicityEventFilter : public edm::EDFilter {
       virtual void beginJob() override ;
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
-      
+
       // ----------member data ---------------------------
 
   T m_multiplicities;
@@ -79,7 +79,7 @@ class ByMultiplicityEventFilter : public edm::EDFilter {
 //
 template <class T>
 ByMultiplicityEventFilter<T>::ByMultiplicityEventFilter(const edm::ParameterSet& iConfig):
-  m_multiplicities(iConfig.getParameter<edm::ParameterSet>("multiplicityConfig")),
+  m_multiplicities(iConfig.getParameter<edm::ParameterSet>("multiplicityConfig"), consumesCollector()),
   m_selector(iConfig.getParameter<std::string>("cut")),
   m_taggedMode(iConfig.getUntrackedParameter<bool>("taggedMode", false)),
   m_forcedValue(iConfig.getUntrackedParameter<bool>("forcedValue", true))
@@ -94,7 +94,7 @@ ByMultiplicityEventFilter<T>::ByMultiplicityEventFilter(const edm::ParameterSet&
 template <class T>
 ByMultiplicityEventFilter<T>::~ByMultiplicityEventFilter()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -124,14 +124,14 @@ ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& 
 
 // ------------ method called once each job just before starting event loop  ------------
 template <class T>
-void 
+void
 ByMultiplicityEventFilter<T>::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 template <class T>
-void 
+void
 ByMultiplicityEventFilter<T>::endJob() {
 }
 
