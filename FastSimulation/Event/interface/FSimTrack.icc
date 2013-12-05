@@ -1,6 +1,5 @@
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
-#include "assert.h"
 
 inline const FSimVertex& FSimTrack::vertex() const{ return mom_->vertex(vertIndex()); }
 
