@@ -20,7 +20,7 @@ namespace edm {
   class AdjusterBase {
   public:
     virtual ~AdjusterBase() {}
-    virtual void doOffset(int bcr, const edm::EventPrincipal&, ModuleCallingContext const*, unsigned int EventNr, int vertexOffset) = 0;
+    virtual void doOffset(int bunchspace, int bcr, const edm::EventPrincipal&, ModuleCallingContext const*, unsigned int EventNr, int vertexOffset) = 0;
     virtual bool checkSignal(edm::Event const& event) = 0;
   };
 
@@ -28,11 +28,11 @@ namespace edm {
   class Adjuster : public AdjusterBase {
 
   public:
-    Adjuster(int bunchsp, InputTag const& tag);
+    Adjuster(InputTag const& tag);
 
     virtual ~Adjuster() {}
 
-    virtual void doOffset(int bcr, const edm::EventPrincipal&, ModuleCallingContext const*, unsigned int EventNr, int vertexOffset);
+    virtual void doOffset(int bunchspace, int bcr, const edm::EventPrincipal&, ModuleCallingContext const*, unsigned int EventNr, int vertexOffset);
 
     virtual bool checkSignal(edm::Event const& event) {
       bool got = false;
@@ -42,7 +42,6 @@ namespace edm {
     }
 
    private:
-    int bunchSpace_;  //in nsec
     InputTag tag_;
   };
 
@@ -58,17 +57,16 @@ namespace edm {
   }
 
   template<typename T>
-  void  Adjuster<T>::doOffset(int bcr, const EventPrincipal &ep, ModuleCallingContext const* mcc, unsigned int eventNr, int vertexOffset) {
+  void  Adjuster<T>::doOffset(int bunchspace, int bcr, const EventPrincipal &ep, ModuleCallingContext const* mcc, unsigned int eventNr, int vertexOffset) {
     boost::shared_ptr<Wrapper<std::vector<T> > const> shPtr = getProductByTag<std::vector<T> >(ep, tag_, mcc);
     if (shPtr) {
       std::vector<T>& product = const_cast<std::vector<T>&>(*shPtr->product());
-      detail::doTheOffset(bunchSpace_, bcr, product, eventNr, vertexOffset);
+      detail::doTheOffset(bunchspace, bcr, product, eventNr, vertexOffset);
     }
   }
 
   template<typename T>
-  Adjuster<T>::Adjuster(int bunchsp, InputTag const& tag) :
-           bunchSpace_(bunchsp), tag_(tag) {
+  Adjuster<T>::Adjuster(InputTag const& tag) : tag_(tag) {
   }
 }
 
