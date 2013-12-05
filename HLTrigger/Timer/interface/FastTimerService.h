@@ -320,10 +320,10 @@ private:
   bool                                          m_is_first_event;
 
   struct Timing {
-    double              event;                  // time spent processing the Event
     double              presource;              // time spent between the end of the previous Event, LumiSection or Run, and the beginning of the Source
     double              source;                 // time spent processing the Source
-    double              postsource;             // time spent between the end of the Source and the new Event, Lumisection or Run
+    double              preevent;               // time spent between the end of the Source and the new Event, Lumisection or Run
+    double              event;                  // time spent processing the Event
     double              all_paths;              // time spent processing all Paths
     double              all_endpaths;           // time spent processing all EndPaths
     double              interpaths;             // time spent between the Paths (and EndPaths - i.e. the sum of all the entries in the following vector)
@@ -331,10 +331,10 @@ private:
     unsigned int        count;                  // number of processed events (used by the per-run and per-job accounting)
 
     Timing() :
-      event         (0.),
       presource     (0.),
       source        (0.),
-      postsource    (0.),
+      preevent      (0.),
+      event         (0.),
       all_paths     (0.),
       all_endpaths  (0.),
       interpaths    (0.),
@@ -343,10 +343,10 @@ private:
     { }
 
     Timing(std::vector<double>::size_type size) :
-      event         (0.),
       presource     (0.),
       source        (0.),
-      postsource    (0.),
+      preevent      (0.),
+      event         (0.),
       all_paths     (0.),
       all_endpaths  (0.),
       interpaths    (0.),
@@ -355,10 +355,10 @@ private:
     { }
 
     void reset() {
-      event         = 0.;
       presource     = 0.;
       source        = 0.;
-      postsource    = 0.;
+      preevent      = 0.;
+      event         = 0.;
       all_paths     = 0.;
       all_endpaths  = 0.;
       interpaths    = 0.;
@@ -367,10 +367,10 @@ private:
     }
 
     void reset(std::vector<double>::size_type size) {
-      event         = 0.;
       presource     = 0.;
       source        = 0.;
-      postsource    = 0.;
+      preevent      = 0.;
+      event         = 0.;
       all_paths     = 0.;
       all_endpaths  = 0.;
       interpaths    = 0.;
@@ -381,10 +381,10 @@ private:
     Timing & operator+=(Timing const & other) {
       assert( paths_interpaths.size() == other.paths_interpaths.size() );
 
-      event         += other.event;
       presource     += other.presource;
       source        += other.source;
-      postsource    += other.postsource;
+      preevent      += other.preevent;
+      event         += other.event;
       all_paths     += other.all_paths;
       all_endpaths  += other.all_endpaths;
       interpaths    += other.interpaths;
@@ -410,29 +410,29 @@ private:
 
   // set of summary plots
   struct SummaryPlots {
-    TH1F *     event;
     TH1F *     presource;
     TH1F *     source;
-    TH1F *     postsource;
+    TH1F *     preevent;
+    TH1F *     event;
     TH1F *     all_paths;
     TH1F *     all_endpaths;
     TH1F *     interpaths;
 
     SummaryPlots() :
-      event         (nullptr),
       presource     (nullptr),
       source        (nullptr),
-      postsource    (nullptr),
+      preevent      (nullptr),
+      event         (nullptr),
       all_paths     (nullptr),
       all_endpaths  (nullptr),
       interpaths    (nullptr)
     { }
 
     void reset() {
-      event         = nullptr;
       presource     = nullptr;
       source        = nullptr;
-      postsource    = nullptr;
+      preevent      = nullptr;
+      event         = nullptr;
       all_paths     = nullptr;
       all_endpaths  = nullptr;
       interpaths    = nullptr;
@@ -440,10 +440,10 @@ private:
 
     void fill(Timing const & value) {
       // convert on the fly from seconds to ms
-      event         ->Fill( 1000. * value.event );
       presource     ->Fill( 1000. * value.presource );
       source        ->Fill( 1000. * value.source );
-      postsource    ->Fill( 1000. * value.postsource );
+      preevent      ->Fill( 1000. * value.preevent );
+      event         ->Fill( 1000. * value.event );
       all_paths     ->Fill( 1000. * value.all_paths );
       all_endpaths  ->Fill( 1000. * value.all_endpaths );
       interpaths    ->Fill( 1000. * value.interpaths );
@@ -452,39 +452,39 @@ private:
   };
 
   struct SummaryProfiles {
-    TProfile * event;
     TProfile * presource;
     TProfile * source;
-    TProfile * postsource;
+    TProfile * preevent;
+    TProfile * event;
     TProfile * all_paths;
     TProfile * all_endpaths;
     TProfile * interpaths;
 
     SummaryProfiles() :
-      event         (nullptr),
       presource     (nullptr),
       source        (nullptr),
-      postsource    (nullptr),
+      preevent      (nullptr),
+      event         (nullptr),
       all_paths     (nullptr),
       all_endpaths  (nullptr),
       interpaths    (nullptr)
     { }
 
     void reset() {
-      event         = nullptr;
       presource     = nullptr;
       source        = nullptr;
-      postsource    = nullptr;
+      preevent      = nullptr;
+      event         = nullptr;
       all_paths     = nullptr;
       all_endpaths  = nullptr;
       interpaths    = nullptr;
     }
 
     void fill(double x, Timing const & value) {
-      event         ->Fill( x, 1000. * value.event );
       presource     ->Fill( x, 1000. * value.presource );
       source        ->Fill( x, 1000. * value.source );
-      postsource    ->Fill( x, 1000. * value.postsource );
+      preevent      ->Fill( x, 1000. * value.preevent );
+      event         ->Fill( x, 1000. * value.event );
       all_paths     ->Fill( x, 1000. * value.all_paths );
       all_endpaths  ->Fill( x, 1000. * value.all_endpaths );
       interpaths    ->Fill( x, 1000. * value.interpaths );

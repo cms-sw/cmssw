@@ -232,9 +232,9 @@ void FastTimerService::preGlobalBeginRun( edm::GlobalContext const & )
         stream.dqm.source        = m_dqms->book1D("source",       "Source processing time",        modulebins, 0., m_dqm_moduletime_range)->getTH1F();
         stream.dqm.source        ->StatOverflows(true);
         stream.dqm.source        ->SetXTitle("processing time [ms]");
-        stream.dqm.postsource    = m_dqms->book1D("postsource",   "Post-Source processing time",   modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-        stream.dqm.postsource    ->StatOverflows(true);
-        stream.dqm.postsource    ->SetXTitle("processing time [ms]");
+        stream.dqm.preevent      = m_dqms->book1D("preevent",     "Pre-Event processing time",     modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+        stream.dqm.preevent      ->StatOverflows(true);
+        stream.dqm.preevent      ->SetXTitle("processing time [ms]");
         stream.dqm.all_paths     = m_dqms->book1D("all_paths",    "Paths processing time",         eventbins,  0., m_dqm_eventtime_range)->getTH1F();
         stream.dqm.all_paths     ->StatOverflows(true);
         stream.dqm.all_paths     ->SetXTitle("processing time [ms]");
@@ -263,10 +263,10 @@ void FastTimerService::preGlobalBeginRun( edm::GlobalContext const & )
           plot->StatOverflows(true);
           plot->SetXTitle("processing time [ms]");
           if (m_concurrent_threads == n) stream.dqm_nproc.source = plot;
-          plot = m_dqms->book1D("postsource",   "Post-Source processing time", modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+          plot = m_dqms->book1D("preevent",     "Pre-Event processing time",   modulebins, 0., m_dqm_moduletime_range)->getTH1F();
           plot->StatOverflows(true);
           plot->SetXTitle("processing time [ms]");
-          if (m_concurrent_threads == n) stream.dqm_nproc.postsource = plot;
+          if (m_concurrent_threads == n) stream.dqm_nproc.preevent = plot;
           plot = m_dqms->book1D("all_paths",    "Paths processing time",       eventbins,  0., m_dqm_eventtime_range)->getTH1F();
           plot->StatOverflows(true);
           plot->SetXTitle("processing time [ms]");
@@ -327,10 +327,10 @@ void FastTimerService::preGlobalBeginRun( edm::GlobalContext const & )
         stream.dqm_byls.source       ->StatOverflows(true);
         stream.dqm_byls.source       ->SetXTitle("lumisection");
         stream.dqm_byls.source       ->SetYTitle("processing time [ms]");
-        stream.dqm_byls.postsource   = m_dqms->bookProfile("postsource_byls",   "Post-Source processing time, by LumiSection", m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-        stream.dqm_byls.postsource   ->StatOverflows(true);
-        stream.dqm_byls.postsource   ->SetXTitle("lumisection");
-        stream.dqm_byls.postsource   ->SetYTitle("processing time [ms]");
+        stream.dqm_byls.preevent     = m_dqms->bookProfile("preevent_byls",     "Pre-Event processing time, by LumiSection",   m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byls.preevent     ->StatOverflows(true);
+        stream.dqm_byls.preevent     ->SetXTitle("lumisection");
+        stream.dqm_byls.preevent     ->SetYTitle("processing time [ms]");
         stream.dqm_byls.all_paths    = m_dqms->bookProfile("all_paths_byls",    "Paths processing time, by LumiSection",       m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
         stream.dqm_byls.all_paths    ->StatOverflows(true);
         stream.dqm_byls.all_paths    ->SetXTitle("lumisection");
@@ -365,11 +365,11 @@ void FastTimerService::preGlobalBeginRun( edm::GlobalContext const & )
           plot->SetXTitle("lumisection");
           plot->SetYTitle("processing time [ms]");
           if (m_concurrent_threads == n) stream.dqm_nproc_byls.source = plot;
-          plot = m_dqms->bookProfile("postsource_byls",   "Post-Source processing time, by LumiSection",   m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+          plot = m_dqms->bookProfile("preevent_byls",     "Pre-Event processing time, by LumiSection",   m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
           plot->StatOverflows(true);
           plot->SetXTitle("lumisection");
           plot->SetYTitle("processing time [ms]");
-          if (m_concurrent_threads == n) stream.dqm_nproc_byls.postsource = plot;
+          if (m_concurrent_threads == n) stream.dqm_nproc_byls.preevent = plot;
           plot = m_dqms->bookProfile("all_paths_byls",    "Paths processing time, by LumiSection",    m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
           plot->StatOverflows(true);
           plot->SetXTitle("lumisection");
@@ -403,10 +403,10 @@ void FastTimerService::preGlobalBeginRun( edm::GlobalContext const & )
         stream.dqm_byluminosity.source       ->StatOverflows(true);
         stream.dqm_byluminosity.source       ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
         stream.dqm_byluminosity.source       ->SetYTitle("processing time [ms]");
-        stream.dqm_byluminosity.postsource   = m_dqms->bookProfile("postsource_byluminosity",   "Post-Source processing time vs. instantaneous luminosity",  lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-        stream.dqm_byluminosity.postsource   ->StatOverflows(true);
-        stream.dqm_byluminosity.postsource   ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-        stream.dqm_byluminosity.postsource   ->SetYTitle("processing time [ms]");
+        stream.dqm_byluminosity.preevent     = m_dqms->bookProfile("preevent_byluminosity",     "Pre-Event processing time vs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byluminosity.preevent     ->StatOverflows(true);
+        stream.dqm_byluminosity.preevent     ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+        stream.dqm_byluminosity.preevent     ->SetYTitle("processing time [ms]");
         stream.dqm_byluminosity.all_paths    = m_dqms->bookProfile("all_paths_byluminosity",    "Paths processing time vs. instantaneous luminosity",        lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
         stream.dqm_byluminosity.all_paths    ->StatOverflows(true);
         stream.dqm_byluminosity.all_paths    ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
@@ -441,11 +441,11 @@ void FastTimerService::preGlobalBeginRun( edm::GlobalContext const & )
           plot->SetYTitle("processing time [ms]");
           plot->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
           if (m_concurrent_threads == n) stream.dqm_nproc_byluminosity.source = plot;
-          plot = m_dqms->bookProfile("postsource_byluminosity",   "Post-Source processing time vs. instantaneous luminosity", lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+          plot = m_dqms->bookProfile("preevent_byluminosity",     "Pre-Event processing time vs. instantaneous luminosity",   lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
           plot->StatOverflows(true);
           plot->SetYTitle("processing time [ms]");
           plot->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-          if (m_concurrent_threads == n) stream.dqm_nproc_byluminosity.postsource = plot;
+          if (m_concurrent_threads == n) stream.dqm_nproc_byluminosity.preevent = plot;
           plot = m_dqms->bookProfile("all_paths_byluminosity",    "Paths processing time vs. instantaneous luminosity",       lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
           plot->StatOverflows(true);
           plot->SetYTitle("processing time [ms]");
@@ -602,7 +602,7 @@ FastTimerService::postEndJob()
     out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ") << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_job_summary.presource    / (double) m_job_summary.count << "  Pre-Source"    << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_job_summary.source       / (double) m_job_summary.count << "  Source"        << '\n';
-    out << "FastReport              " << std::right << std::setw(10) << m_job_summary.postsource   / (double) m_job_summary.count << "  Post-Source"   << '\n';
+    out << "FastReport              " << std::right << std::setw(10) << m_job_summary.preevent     / (double) m_job_summary.count << "  Pre-Event"     << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_job_summary.event        / (double) m_job_summary.count << "  Event"         << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_job_summary.all_paths    / (double) m_job_summary.count << "  all Paths"     << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_job_summary.all_endpaths / (double) m_job_summary.count << "  all EndPaths"  << '\n';
@@ -689,7 +689,7 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const &)
     out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ") << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_run_summary.presource    / (double) m_run_summary.count << "  Pre-Source"    << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_run_summary.source       / (double) m_run_summary.count << "  Source"        << '\n';
-    out << "FastReport              " << std::right << std::setw(10) << m_run_summary.postsource   / (double) m_run_summary.count << "  Post-Source"   << '\n';
+    out << "FastReport              " << std::right << std::setw(10) << m_run_summary.preevent     / (double) m_run_summary.count << "  Pre-Event"     << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_run_summary.event        / (double) m_run_summary.count << "  Event"         << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_run_summary.all_paths    / (double) m_run_summary.count << "  all Paths"     << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_run_summary.all_endpaths / (double) m_run_summary.count << "  all EndPaths"  << '\n';
@@ -778,7 +778,7 @@ void FastTimerService::preEvent(edm::StreamContext const & sc) {
   stream.timer_event.start();
 
   // account the time spent after the source
-  stream.timing.postsource = delta(stream.timer_source.getStopTime(), stream.timer_event.getStartTime());
+  stream.timing.preevent = delta(stream.timer_source.getStopTime(), stream.timer_event.getStartTime());
 
   // clear the event counters
   stream.timing.event        = 0;
@@ -970,7 +970,7 @@ void FastTimerService::preSourceEvent(edm::StreamID sid) {
 
   // clear the event counters
   stream.timing.source = 0.;
-  stream.timing.postsource = 0.;
+  stream.timing.preevent = 0.;
 }
 
 void FastTimerService::postSourceEvent(edm::StreamID sid) {
