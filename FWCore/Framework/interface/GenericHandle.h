@@ -33,7 +33,6 @@
 
 // system include files
 #include <string>
-#include <functional>
 
 // forward declarations
 namespace edm {
