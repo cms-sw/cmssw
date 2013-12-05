@@ -13,23 +13,20 @@
 #ifndef CaloStage2JetAlgorithm_h
 #define CaloStage2JetAlgorithm_h
 
-#include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
-
+#include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
-
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
-
 namespace l1t {
-    
-  class CaloStage2JetAlgorithm { 
+
+  class CaloStage2JetAlgorithm {
   public:
-    virtual void processEvent(const BXVector<l1t::CaloTower> & towers,
-							  BXVector<l1t::Jet> & jets) = 0;    
+    virtual void processEvent(const BXVector<l1t::CaloRegion> & regions,
+			      BXVector<l1t::Jet> & jets) = 0;
 
     virtual ~CaloStage2JetAlgorithm(){};
-  }; 
-  
-} 
+  };
+
+}
 
 #endif
