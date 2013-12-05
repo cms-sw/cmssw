@@ -32,8 +32,8 @@ GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
 ,  theCSCPad_bx_rp1_l2( dbe_->book1D("pad_dg_bx_rp1_l2", "Bunch crossing: region  1, layer2; bunch crossing ; entries", 11,-5.5,5.5))
 
 
-,  theCSCPad_zr_rm1( dbe_->book2D("pad_dg_zr_rm1", "Digi occupancy: region-1; globalR [cm] ; globalZ [cm] ", 55,130,240,200,-573,-564))
-,  theCSCPad_zr_rp1( dbe_->book2D("pad_dg_zr_rp1", "Digi occupancy: region 1; globalR [cm] ; globalZ [cm] ", 55,130,240,200, 564, 573))
+,  theCSCPad_zr_rm1( dbe_->book2D("pad_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,55,130,240))
+,  theCSCPad_zr_rp1( dbe_->book2D("pad_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200,564,573,55,130,240))
 {
 
 }
@@ -96,7 +96,7 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
 
       // fill hist
       if ( region== -1 ) {
-                theCSCPad_zr_rm1->Fill(g_r,g_z);
+                theCSCPad_zr_rm1->Fill(g_z,g_r);
 	if ( layer == 1 ) {
 	        theCSCPad_xy_rm1_l1->Fill(g_x,g_y); 
           theCSCPad_phipad_rm1_l1->Fill(g_phi, pad);
@@ -114,7 +114,7 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
 	}
       }
       else if ( region == 1 ) {
-                theCSCPad_zr_rp1->Fill(g_r,g_z);
+                theCSCPad_zr_rp1->Fill(g_z,g_r);
 
         if ( layer == 1 ) {
                 theCSCPad_xy_rp1_l1->Fill(g_x,g_y);

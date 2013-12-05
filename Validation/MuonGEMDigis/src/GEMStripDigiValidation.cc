@@ -30,8 +30,8 @@ GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
 ,  theStrip_bx_rp1_l2( dbe_->book1D("strip_dg_bx_rp1_l2", "Bunch crossing: region  1, layer2; bunch crossing ; entries", 11,-5.5,5.5))
 
 
-,  theStrip_zr_rm1( dbe_->book2D("strip_dg_zr_rm1", "Digi occupancy: region-1; globalR [cm] ; globalZ [cm] ", 55,130,240,200,-573,-564))
-,  theStrip_zr_rp1( dbe_->book2D("strip_dg_zr_rp1", "Digi occupancy: region 1; globalR [cm] ; globalZ [cm] ", 55,130,240,200, 564, 573))
+,  theStrip_zr_rm1( dbe_->book2D("strip_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564, 55,130,240))
+,  theStrip_zr_rp1( dbe_->book2D("strip_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200,564,573,55,130,240))
 {
 
 }
@@ -94,7 +94,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
 
       // fill hist
       if ( region== -1 ) {
-                theStrip_zr_rm1->Fill(g_r,g_z);
+                theStrip_zr_rm1->Fill(g_z,g_r);
 	if ( layer == 1 ) {
 	        theStrip_xy_rm1_l1->Fill(g_x,g_y); 
           theStrip_phistrip_rm1_l1->Fill(strip,g_phi);
@@ -108,11 +108,11 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
                 theStrip_bx_rm1_l2->Fill(bx);
         }
         else {
-          std::cout<<"layer : "<<layer<<std::endl;
+          edm::LogInfo("StripDIGIValidation")<<"layer : "<<layer<<std::endl;
 	}
       }
       else if ( region == 1 ) {
-                theStrip_zr_rp1->Fill(g_r,g_z);
+                theStrip_zr_rp1->Fill(g_z,g_r);
 
         if ( layer == 1 ) {
                 theStrip_xy_rp1_l1->Fill(g_x,g_y);
@@ -127,11 +127,11 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
                 theStrip_bx_rp1_l2->Fill(bx);
         }
         else {
-          std::cout<<"layer : "<<layer<<std::endl;
+          edm::LogInfo("StripDIGIValidation")<<"layer : "<<layer<<std::endl;
         }
       }
       else {
-        std::cout<<"region : "<<region<<std::endl;
+        edm::LogInfo("StripDIGIValidation")<<"region : "<<region<<std::endl;
       }
    }
   }

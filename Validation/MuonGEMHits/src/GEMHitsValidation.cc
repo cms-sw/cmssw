@@ -73,15 +73,13 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Float_t g_y = hitGP.y();
     Float_t g_z = hitGP.z();
 
-    // Now filling strip info using entry point rather than local position to be
-    // consistent with digi strips. To change back, just switch the comments - WHF
-    // gem_sh.strip=gem_geometry_->etaPartition(hits->detUnitId())->strip(hitLP);
     const LocalPoint hitEP(hits->entryPoint());
     //Int_t strip = theGEMGeometry->etaPartition(hits->detUnitId())->strip(hitEP);
 
       // fill hist
       if ( region== -1 ) {
-        gem_sh_zr_rm1->Fill(g_r,g_z);
+        gem_sh_zr_rm1->Fill(g_z,g_r);
+        std::cout<<"Z : "<<g_z<<"  Rho : "<<g_r<<std::endl;
 	if ( layer == 1 ) {
 	  gem_sh_xy_rm1_l1->Fill(g_x,g_y); 
         }
@@ -93,7 +91,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
 	}
       }
       else if ( region == 1 ) {
-          gem_sh_zr_rp1->Fill(g_r,g_z);
+        gem_sh_zr_rp1->Fill(g_z,g_r);
         if ( layer == 1 ) {
           gem_sh_xy_rp1_l1->Fill(g_x,g_y);
         }

@@ -90,9 +90,8 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
 
    //now do what ever initialization is needed
   
-
-  theGEMHitsValidation = new GEMHitsValidation(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"), 
-                                       ps.getParameterSet("simTrackMatching") );
+  std::string simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel","g4SimHits"); 
+  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits") );
 }
 
 

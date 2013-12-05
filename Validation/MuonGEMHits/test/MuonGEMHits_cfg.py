@@ -47,7 +47,8 @@ process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = cms.untracked.vstring(
 #        'file:/pnfs/user/geonmo/CMSSW_6_2_0_SLHC1/src/Validation/MuonGEMDigis/data/out_digi_2.root'
-         'file:/pnfs/user/unclok/digi/4954.uosaf0008.sscc.uos.ac.kr/out_sim.root'   
+#         'file:/pnfs/user/unclok/digi/4954.uosaf0008.sscc.uos.ac.kr/out_sim.root'   
+         'file:/pnfs/user/unclok/gemsim2/4919.uosaf0008.sscc.uos.ac.kr/out_sim.root'   
  )
 )
 
@@ -63,5 +64,5 @@ process.gemHitsValidation.simTrackMatching = SimTrackMatching
        	
 
 
-process.p = cms.Path(process.gemDigiValidation*process.MEtoEDMConverter)
+process.p = cms.Path(process.gemHitsValidation*process.MEtoEDMConverter)
 process.outpath = cms.EndPath(process.o1)

@@ -43,8 +43,7 @@ private:
   std::pair<int,int> getClosestChambers(int region, float phi);
 
 
-  edm::Handle<GEMHitsigiCollection> gem_digis;
-  edm::ESHandle<GEMGeometry> gem_geo_;
+  edm::ESHandle<GEMGeometry> gem_geom;
 
   const GEMGeometry* gem_geometry_;
 
