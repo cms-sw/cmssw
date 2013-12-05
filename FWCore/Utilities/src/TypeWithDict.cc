@@ -388,6 +388,16 @@ isConst() const
 
 bool
 TypeWithDict::
+isArray() const
+{
+  if (type_ == nullptr) {
+    return false;
+  }
+  return gInterpreter->Type_IsArray(type_);
+}
+
+bool
+TypeWithDict::
 isEnum() const
 {
   if (type_ == nullptr) {
@@ -542,6 +552,16 @@ size() const
     return 0;
   }
   return gInterpreter->Type_Size(type_);
+}
+
+size_t
+TypeWithDict::
+arrayLength() const
+{
+  if (type_ == nullptr) {
+    return 0;
+  }
+  return gInterpreter->Type_ArraySize(type_);
 }
 
 size_t

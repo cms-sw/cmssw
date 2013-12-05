@@ -84,6 +84,7 @@ public:
   long getProperty() const;
   bool isClass() const;
   bool isConst() const;
+  bool isArray() const;
   bool isEnum() const;
   bool isFundamental() const;
   bool isPointer() const;
@@ -98,6 +99,7 @@ public:
   std::string friendlyClassName() const;
   std::string templateName() const;
   size_t size() const;
+  size_t arrayLength() const;
   size_t dataMemberSize() const;
   size_t functionMemberSize() const;
   MemberWithDict dataMemberByName(const std::string&) const;
