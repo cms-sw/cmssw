@@ -16,12 +16,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "CondFormats/L1TYellow/interface/CaloParams.h"
+#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 //#include "DataFormats/L1TYellow/interface/YellowDigi.h"
 //#include "DataFormats/L1TYellow/interface/YellowOutput.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "L1Trigger/L1TYellow/interface/CaloStage1JetAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
 
 namespace l1t {
 
