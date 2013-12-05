@@ -10,19 +10,19 @@
 //
 //
 
-#ifndef CaloStage1JetAlgorithmFirmware_H
-#define CaloStage1JetAlgorithmFirmware_H
+#ifndef CaloStage1TauAlgorithmFirmware_H
+#define CaloStage1TauAlgorithmFirmware_H
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1TauAlgorithm.h"
 #include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
 namespace l1t {
 
   // Imp1 is for v1 and v2
-  class CaloStage1JetAlgorithmFirmware1 : public CaloStage1JetAlgorithm {
+  class CaloStage1TauAlgorithmFirmware1 : public CaloStage1TauAlgorithm {
   public:
-    CaloStage1JetAlgorithm1(const CaloMainProcessorParams & dbPars);
-    virtual ~CaloStage1JetAlgorithmFirmware1();
+    CaloStage1TauAlgorithm1(const CaloMainProcessorParams & dbPars);
+    virtual ~CaloStage1TauAlgorithmFirmware1();
     virtual void processEvent(const std::vector<Tower> & towers,
 			      std::vector<Cluster> & clusters);
   private:

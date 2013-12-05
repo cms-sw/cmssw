@@ -18,10 +18,10 @@ CaloStage1JetAlgorithmImpHI::CaloStage1JetAlgorithmImpHI(const CaloParams & dbPa
 
 CaloStage1JetAlgorithmImpHI::~CaloStage1JetAlgorithmImpHI(){};
 
-void CaloStage1JetAlgorithmImpHI::processEvent(const BXVector<l1t::CaloRegion> & regions,
-					       BXVector<l1t::Jet> & jets){
-  BXVector<l1t::CaloRegion>::const_iterator incell;
-  BXVector<l1t::Jet> outcell;
+void CaloStage1JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
+					       std::vector<l1t::Jet> & jets){
+  std::vector<l1t::CaloRegion>::const_iterator incell;
+  std::vector<l1t::Jet> outcell;
 
   for (incell = input.begin(); incell != input.end(); ++incell){
 

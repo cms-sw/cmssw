@@ -31,7 +31,7 @@
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
-#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include <vector.h>
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmFactory.h"
@@ -75,10 +75,10 @@ namespace l1t {
   CaloStage1JetAlgorithmProducer::CaloStage1JetAlgorithmProducer(const ParameterSet& iConfig)
   {
     // register what you produce
-    produces<BXVector<l1t::Jet>>();
+    produces<std::vector<l1t::Jet>>();
 
     // register what you consume and keep token for later access:
-    regionToken = consumes<BXVector<l1t::CaloRegions>>(iConfig.getParameter<InputTag>("uctDigis"));
+    regionToken = consumes<std::vector<l1t::CaloRegions>>(iConfig.getParameter<InputTag>("uctDigis"));
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
@@ -102,10 +102,10 @@ CaloStage1JetAlgorithmProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   LogDebug("l1t|stage 1 jets") << "CaloStage1JetAlgorithmProducer::produce function called...\n";
 
-  Handle<BXVector<l1t::CaloRegions>> regions;
+  Handle<std::vector<l1t::CaloRegions>> regions;
   iEvent.getByToken(regionToken,regions);
 
-  std::auto_ptr<BXVector<l1t::Jet>> outColl (new BXVector<l1t::Jet>);
+  std::auto_ptr<std::vector<l1t::Jet>> outColl (new std::vector<l1t::Jet>);
   //BXVector<l1t::Jet> iout;
 
   if (m_fw) {

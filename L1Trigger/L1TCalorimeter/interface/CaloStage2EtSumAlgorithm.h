@@ -17,15 +17,14 @@
 
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
-#include "DataFormats/L1Trigger/interface/BXVector.h"
-
+#include <vector>
 
 namespace l1t {
     
   class CaloStage2EtSumAlgorithm { 
   public:
-    virtual void processEvent(const BXVector<l1t::CaloTower> & towers,
-							  BXVector<l1t::EtSum> & sums) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
+			      std::vector<l1t::EtSum> & sums) = 0;    
 
     virtual ~CaloStage2EtSumAlgorithm(){};
   }; 

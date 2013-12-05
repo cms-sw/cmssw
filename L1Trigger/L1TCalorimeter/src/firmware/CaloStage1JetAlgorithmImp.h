@@ -27,8 +27,8 @@ namespace l1t {
   public:
     CaloStage1JetAlgorithmImpHI(const CaloParams & dbPars);
     virtual ~CaloStage1JetAlgorithmImpHI();
-    virtual void processEvent(const BXVector<l1t::CaloRegion> & regions,
-			      BXVector<l1t::Jet> & jets);
+    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      std::vector<l1t::Jet> & jets);
   private:
     CaloParams const & db;
   };
@@ -38,8 +38,8 @@ namespace l1t {
   /* public: */
   /*   CaloStage1JetAlgorithmImp2(const CaloParams & dbPars); */
   /*   virtual ~CaloStage1JetAlgorithmImp2(); */
-  /*   virtual void processEvent(const BXVector<l1t::CaloRegion> & regions,
-			      BXVector<l1t::Jet> & jets); */
+  /*   virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      std::vector<l1t::Jet> & jets); */
   /* private: */
   /*   CaloParams const & db; */
   /* }; */
