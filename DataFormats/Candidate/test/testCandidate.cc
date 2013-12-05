@@ -59,8 +59,8 @@ namespace reco {
 }
 
 void testCandidate::checkAll() {
-  reco::Particle::LorentzVector p( 1.0, 2.0, 3.0, 4.0 );
-  GlobalVector v(1.0, 2.0, 3.0);
+  reco::Particle::LorentzVector p( 1.0, 2.0, 3.0, 5.0 );
+  GlobalVector v(1.0, 2.0, 5.0);
   reco::LeafCandidate::PolarLorentzVector pl(p);  
 
   reco::Particle::Charge q( 1 );
@@ -86,7 +86,7 @@ void testCandidate::checkAll() {
 
   reco::LeafCandidate c1(q,p);
   reco::LeafCandidate c2(q,pl);
-  reco::LeafCandidate c3(q,v,4.f);
+  reco::LeafCandidate c3(q,v,4.f,false);
 
   auto ok = [](float a, float b)->bool { return a==b;};
 

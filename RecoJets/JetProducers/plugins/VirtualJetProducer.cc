@@ -410,6 +410,7 @@ void VirtualJetProducer::inputTowers( )
     inEnd = inputs_.end(), i = inBegin;
   for (; i != inEnd; ++i ) {
     reco::CandidatePtr input = *i;
+    // std::cout << "CaloTowerVI jets " << input->pt() << " " << input->et() << ' '<< input->energy() << ' ' << (isAnomalousTower(input) ? " bad" : " ok") << std::endl; 
     if (edm::isNotFinite(input->pt()))           continue;
     if (input->et()    <inputEtMin_)  continue;
     if (input->energy()<inputEMin_)   continue;

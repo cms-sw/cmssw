@@ -47,7 +47,7 @@ public:
   CaloTower(CaloTowerDetId id, 
 	    float emE, float hadE, float outerE,
 	    int ecal_tp, int hcal_tp,
-	    GlobalVector p3, float iEnergy,
+	    GlobalVector p3, float iEnergy, bool massless,
 	    GlobalPoint emPosition, GlobalPoint hadPosition);
 
 
