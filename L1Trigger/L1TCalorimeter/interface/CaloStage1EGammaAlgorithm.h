@@ -18,15 +18,15 @@
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
-#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include <vector>
 
 namespace l1t {
     
   class CaloStage1EGammaAlgorithm { 
   public:
-    virtual void processEvent(const BXVector<l1t::CaloStage1Cluster> & clusters,
-							  const BXVector<l1t::CaloRegion> & regions,
-							  BXVector<l1t::EGamma> & egammas) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloStage1Cluster> & clusters,
+			      const std::veector<l1t::CaloRegion> & regions,
+			      std::vector<l1t::EGamma> & egammas) = 0;    
 
     virtual ~CaloStage1EGammaAlgorithm(){};
   }; 

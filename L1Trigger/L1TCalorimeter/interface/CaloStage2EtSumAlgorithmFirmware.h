@@ -23,8 +23,8 @@ namespace l1t {
   public:
     CaloStage2EtSumAlgorithm1(const CaloParams & dbPars);
     virtual ~CaloStage2EtSumAlgorithmFirmware1();
-    virtual void processEvent(const BXVector<l1t::CaloTower> & towers,
-							  BXVector<l1t::CaloCluster> & clusters);
+    virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
+			      std::vector<l1t::CaloCluster> & clusters);
   private:
     CaloParams const & m_params;
   };

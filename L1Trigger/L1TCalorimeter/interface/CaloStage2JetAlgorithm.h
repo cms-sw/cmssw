@@ -17,15 +17,15 @@
 
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
-#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include <vector>
 
 
 namespace l1t {
     
   class CaloStage2JetAlgorithm { 
   public:
-    virtual void processEvent(const BXVector<l1t::CaloTower> & towers,
-							  BXVector<l1t::Jet> & jets) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
+			      std::vector<l1t::Jet> & jets) = 0;    
 
     virtual ~CaloStage2JetAlgorithm(){};
   }; 
