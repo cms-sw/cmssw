@@ -1,6 +1,8 @@
 #ifndef DataFormats_Common_DetSetNew_h
 #define DataFormats_Common_DetSetNew_h
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 namespace edmNew {
   //  FIXME move it elsewhere....
   typedef unsigned int det_id_type;
