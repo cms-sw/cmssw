@@ -12,8 +12,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "CaloStage1JetAlgorithmImp.h"
-#include "CaloStage1MainProcessorFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessorFirmware.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
 
