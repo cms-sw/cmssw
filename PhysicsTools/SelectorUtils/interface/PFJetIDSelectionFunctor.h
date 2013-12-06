@@ -1,8 +1,9 @@
-#ifndef PhysicsTools_SelectorUtils_interface_PFJetIDSelectionFunctor_h
-#define PhysicsTools_SelectorUtils_interface_PFJetIDSelectionFunctor_h
+#ifndef PhysicsTools_PatUtils_interface_PFJetIDSelectionFunctor_h
+#define PhysicsTools_PatUtils_interface_PFJetIDSelectionFunctor_h
+
 
 /**
-  \class    PFJetIDSelectionFunctor PFJetIDSelectionFunctor.h "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+  \class    PFJetIDSelectionFunctor PFJetIDSelectionFunctor.h "PhysicsTools/Utilities/interface/PFJetIDSelectionFunctor.h"
   \brief    PF Jet selector for pat::Jets
 
   Selector functor for pat::Jets that implements quality cuts based on
@@ -10,7 +11,13 @@
 
   Please see https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATSelectors
   for a general overview of the selectors. 
+
+  \author Salvatore Rappoccio
+  \version  $Id: PFJetIDSelectionFunctor.h,v 1.23 2012/05/25 08:12:18 veelken Exp $
 */
+
+
+
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
