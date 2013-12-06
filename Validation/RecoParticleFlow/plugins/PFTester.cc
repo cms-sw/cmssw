@@ -40,7 +40,7 @@ using namespace reco;
 PFTester::PFTester(const edm::ParameterSet& iConfig)
 {
 
-  inputPFlowLabel_             = iConfig.getParameter<std::string>("InputPFlowLabel");
+  inputPFlowLabel_tok_         = consumes<reco::PFCandidateCollection> (iConfig.getParameter<std::string>("InputPFlowLabel") );
   outputFile_                  = iConfig.getUntrackedParameter<std::string>("OutputFile");
 
   if (outputFile_.size() > 0)
@@ -107,7 +107,7 @@ PFTester::analyze(const edm::Event& iEvent,
 
     // Get Particle Flow Candidates
     Handle<PFCandidateCollection> pflow_hnd;
-    iEvent.getByLabel(inputPFlowLabel_, pflow_hnd);
+    iEvent.getByToken(inputPFlowLabel_tok_, pflow_hnd);
     pflow_candidates = pflow_hnd.product();
 
   }

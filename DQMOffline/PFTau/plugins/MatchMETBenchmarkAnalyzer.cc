@@ -41,11 +41,9 @@ MatchMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   
   
   Handle< View<MET> > collection; 
-  //iEvent.getByLabel( inputLabel_, collection); 
   iEvent.getByToken(myColl_, collection);
 
   Handle< View<MET> > matchedCollection; 
-  //iEvent.getByLabel( matchedInputLabel_, matchedCollection); 
   iEvent.getByToken(myMatchColl_, matchedCollection);
 
   fillOne( (*collection)[0] , (*matchedCollection)[0]);

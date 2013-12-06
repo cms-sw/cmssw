@@ -38,18 +38,19 @@ private:
   string outputfile;
   DQMStore * db;
   string benchmarkLabel;
-  InputTag sGenParticleSource;
   double maxDeltaR;
   double minMCPt;
   double maxMCAbsEta;
   double minRecoPt;
   double maxRecoAbsEta;
-  InputTag pfTauProducer; 
-  InputTag pfTauDiscriminatorByIsolationProducer; 
-  InputTag pfTauDiscriminatorAgainstElectronProducer; 
   bool applyEcalCrackCut;
   string  sGenMatchObjectLabel;
-  
+
+  edm::EDGetTokenT<edm::HepMCProduct> sGenParticleSource_tok_; 
+  edm::EDGetTokenT<reco::PFTauCollection> pfTauProducer_tok_; 
+  edm::EDGetTokenT<reco::PFTauDiscriminator> pfTauDiscriminatorByIsolationProducer_tok_; 
+  edm::EDGetTokenT<reco::PFTauDiscriminator> pfTauDiscriminatorAgainstElectronProducer_tok_; 
+
   PFTauElecRejectionBenchmark PFTauElecRejectionBenchmark_;
 };
 /// PFTauElecRejection Benchmark
@@ -69,32 +70,21 @@ PFTauElecRejectionBenchmarkAnalyzer::PFTauElecRejectionBenchmarkAnalyzer(const e
 
 {
   //now do what ever initialization is needed
-  outputfile = 
-    iConfig.getUntrackedParameter<string>("OutputFile");
-  benchmarkLabel =
-    iConfig.getParameter<string>("BenchmarkLabel");
-  sGenParticleSource = 
-    iConfig.getParameter<InputTag>("InputTruthLabel");
-  maxDeltaR = 
-    iConfig.getParameter<double>("maxDeltaR");	  
-  minMCPt  = 
-    iConfig.getParameter<double>("minMCPt"); 
-  maxMCAbsEta = 
-    iConfig.getParameter<double>("maxMCAbsEta"); 
-  minRecoPt  = 
-    iConfig.getParameter<double>("minRecoPt"); 
-  maxRecoAbsEta = 
-    iConfig.getParameter<double>("maxRecoAbsEta"); 
-  pfTauProducer = 
-    iConfig.getParameter<InputTag>("PFTauProducer");
-  pfTauDiscriminatorByIsolationProducer = 
-    iConfig.getParameter<InputTag>("PFTauDiscriminatorByIsolationProducer");
-  pfTauDiscriminatorAgainstElectronProducer = 
-    iConfig.getParameter<InputTag>("PFTauDiscriminatorAgainstElectronProducer");
-  sGenMatchObjectLabel =
-    iConfig.getParameter<string>("GenMatchObjectLabel");
-  applyEcalCrackCut =
-    iConfig.getParameter<bool>("ApplyEcalCrackCut");
+  outputfile = iConfig.getUntrackedParameter<string>("OutputFile");
+  benchmarkLabel = iConfig.getParameter<string>("BenchmarkLabel");
+  sGenParticleSource_tok_ = consumes<edm::HepMCProduct>(iConfig.getParameter<InputTag>("InputTruthLabel"));
+  maxDeltaR = iConfig.getParameter<double>("maxDeltaR");	  
+  minMCPt  = iConfig.getParameter<double>("minMCPt"); 
+  maxMCAbsEta = iConfig.getParameter<double>("maxMCAbsEta"); 
+  minRecoPt  = iConfig.getParameter<double>("minRecoPt"); 
+  maxRecoAbsEta = iConfig.getParameter<double>("maxRecoAbsEta"); 
+  pfTauProducer_tok_ = consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("PFTauProducer"));
+  pfTauDiscriminatorByIsolationProducer_tok_ = consumes<reco::PFTauDiscriminator>
+    (iConfig.getParameter<InputTag>("PFTauDiscriminatorByIsolationProducer"));
+  pfTauDiscriminatorAgainstElectronProducer_tok_ = consumes<reco::PFTauDiscriminator>
+    (iConfig.getParameter<InputTag>("PFTauDiscriminatorAgainstElectronProducer") );
+  sGenMatchObjectLabel = iConfig.getParameter<string>("GenMatchObjectLabel");
+  applyEcalCrackCut = iConfig.getParameter<bool>("ApplyEcalCrackCut");
 
 
   db = edm::Service<DQMStore>().operator->();
@@ -132,19 +122,19 @@ PFTauElecRejectionBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm
 
   // get gen products
   Handle<HepMCProduct> mcevt;
-  iEvent.getByLabel(sGenParticleSource, mcevt);
+  iEvent.getByToken(sGenParticleSource_tok_, mcevt);
 
   // get pftau collection
   Handle<PFTauCollection> thePFTau;
-  iEvent.getByLabel(pfTauProducer,thePFTau);
+  iEvent.getByToken(pfTauProducer_tok_,thePFTau);
   
   // get iso discriminator association vector
   Handle<PFTauDiscriminator> thePFTauDiscriminatorByIsolation;
-  iEvent.getByLabel(pfTauDiscriminatorByIsolationProducer,thePFTauDiscriminatorByIsolation);
+  iEvent.getByToken(pfTauDiscriminatorByIsolationProducer_tok_,thePFTauDiscriminatorByIsolation);
 
   // get anti-elec discriminator association vector
   Handle<PFTauDiscriminator> thePFTauDiscriminatorAgainstElectron;
-  iEvent.getByLabel(pfTauDiscriminatorAgainstElectronProducer,thePFTauDiscriminatorAgainstElectron);
+  iEvent.getByToken(pfTauDiscriminatorAgainstElectronProducer_tok_,thePFTauDiscriminatorAgainstElectron);
 
   PFTauElecRejectionBenchmark_.process(mcevt, thePFTau, thePFTauDiscriminatorByIsolation, 
 				       thePFTauDiscriminatorAgainstElectron);

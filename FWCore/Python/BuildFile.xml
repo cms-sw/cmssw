@@ -1,9 +1,0 @@
-<use   name="boost"/>
-<use   name="boost_python"/>
-<use   name="root"/>
-<use   name="python"/>
-<use   name="FWCore/Framework"/>
-<use   name="FWCore/PythonParameterSet"/>
-<use   name="FWCore/ParameterSet"/>
-<lib   name="PyROOT"/>
-<flags   EDM_PLUGIN="1"/>

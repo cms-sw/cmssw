@@ -1,0 +1,16 @@
+<library   name="EgammaEGammaAnalysisToolsTest" file="*.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/EgammaReco"/>
+  <use   name="DataFormats/GsfTrackReco"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="RecoParticleFlow/PFProducer"/>
+  <use   name="EgammaAnalysis/ElectronTools"/>
+  <use   name="clhep"/>
+  <use   name="root"/>
+  <use   name="roottmva"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -121,7 +121,7 @@ namespace edm
                                         inputTag_,
                                         nullptr,
                                         mcc);
-      convert_handle(h,product_);
+      convert_handle(std::move(h),product_);
     }
     
     typedef detail::NamedEventSelector NES;

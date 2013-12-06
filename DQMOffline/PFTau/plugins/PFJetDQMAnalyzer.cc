@@ -52,11 +52,9 @@ void PFJetDQMAnalyzer::analyze(edm::Event const& iEvent,
 			       edm::EventSetup const& iSetup) {
 
   edm::Handle< edm::View<reco::Jet> > jetCollection;
-  //iEvent.getByLabel(inputLabel_, jetCollection);   
   iEvent.getByToken(myJet_, jetCollection);   
   
   edm::Handle< edm::View<reco::Jet> > matchedJetCollection; 
-  //iEvent.getByLabel( matchLabel_, matchedJetCollection);
   iEvent.getByToken(myMatchedJet_, matchedJetCollection);
 
   float maxRes = 0.0;
