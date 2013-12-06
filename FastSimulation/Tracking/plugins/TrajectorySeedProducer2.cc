@@ -7,9 +7,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -88,12 +86,12 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
 }
 
 bool
-TrajectorySeedProducer2::passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId)
+TrajectorySeedProducer2::passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& trackerRecHits, std::vector<unsigned int> previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId)
 {
 	//return true;
 	if (previousHits.size()==1)
 	{
-		TrackerRecHit& theSeedHits0 = previousHits[0];
+		TrackerRecHit& theSeedHits0 = trackerRecHits[previousHits[0]];
 		TrackerRecHit& theSeedHits1 = currentHit;
 		GlobalPoint gpos1 = theSeedHits0.globalPosition();
 		GlobalPoint gpos2 = theSeedHits1.globalPosition();
@@ -129,13 +127,92 @@ TrajectorySeedProducer2::passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>
 	}
 	else if (previousHits.size()==2)
 	{
-		TrackerRecHit& theSeedHits0 = previousHits[0];
-		TrackerRecHit& theSeedHits1 = previousHits[1];
+		TrackerRecHit& theSeedHits0 = trackerRecHits[previousHits[0]];
+		TrackerRecHit& theSeedHits1 = trackerRecHits[previousHits[1]];
 		TrackerRecHit& theSeedHits2 = currentHit;
 		//may not be necessary anymore
 		return theSeedHits0.makesATripletWith(theSeedHits1,theSeedHits2);
 	}
 	return true;
+}
+
+int TrajectorySeedProducer2::iterateHits(
+		SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
+		SiTrackerGSMatchedRecHit2DCollection::range range,
+		std::vector<std::vector<unsigned int>> hitNumbers,
+		std::vector<TrackerRecHit>& trackerRecHits,
+		unsigned int trackingAlgorithmId,
+		std::vector<unsigned int>& seedHitNumbers
+	)
+{
+
+
+
+	for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = start; itRecHit!=range.second; ++itRecHit)
+	{
+		const unsigned int currentHitIndex = itRecHit-range.first;
+		//trackerRecHits.size() is 'absMinRecHits' + including hits on the same layer
+		if ( currentHitIndex >= trackerRecHits.size())
+		{
+			std::cout<<"break absHits"<<std::endl;
+			return -1;
+		}
+		TrackerRecHit& currentTrackerHit = trackerRecHits[currentHitIndex];
+
+
+		//check: currentHitIndex==0 so that 'trackerRecHits[currentHitIndex-1]' is defined otherwise
+		//check: itRecHit == start to always accept the first hit even if it is on the same layer as the previous on, this breaks the recursion
+
+		if (currentHitIndex>0 && currentTrackerHit.isOnTheSameLayer(trackerRecHits[currentHitIndex-1]))
+		{
+
+			/*
+			//test follow both seeding solutions using both hits
+			int result1 = iterateHits(itRecHit+1,range,hitNumbers,trackerRecHits,trackingAlgorithmId,seedHitNumbers);
+			if (result1>=0)
+			{
+				return result1;
+			}
+			*/
+
+		}
+		std::cout<<"\thit="<<currentHitIndex<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<", globalX="<<currentTrackerHit.globalPosition().x()<<std::endl;
+		for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
+		{
+			unsigned int currentlayer = hitNumbers[ilayerset].size();
+
+			//TODO: speed things up by testing if the current hit is already further outside than the current layer
+			//-> faster rejection of invalid hits if there is no seed possible at all for a given simtrack
+			if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
+			{
+
+				//TODO: it seems that currently only a PV compatibility check for the first 2 hits is really important
+				if (this->passTrackerRecHitQualityCuts(trackerRecHits, hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))
+				{
+					hitNumbers[ilayerset].push_back(itRecHit-range.first);
+					std::cout<<"hit accepted"<<std::endl;
+					//seedHitCandiates[ilayerset].push_back(currentTrackerHit);
+					//layerNames[ilayerset].push_back(theLayersInSets[ilayerset][currentlayer].name);
+
+					if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
+					{
+						//std::cout<<"found seed"<<std::endl;
+						//TODO: check if all valid seeds should be saved to perform additional quality checks
+						//seedHitNumbers=
+						for (unsigned int j=0; j<hitNumbers[ilayerset].size(); ++ j)
+						{
+							seedHitNumbers.push_back(hitNumbers[ilayerset][j]);
+						}
+						return ilayerset;
+						//foundSeed=true;
+						//break;
+					}
+				}
+			}
+		}
+
+	}
+	return -1;
 }
 
 void 
@@ -234,10 +311,10 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
-		const unsigned int currentID = *itSimTrackId;
-		//if (currentID!=1088) continue;
-		//std::cout<<"processing simtrack with id: "<<currentID<<std::endl;
-		const SimTrack& theSimTrack = (*theSimTracks)[*itSimTrackId];
+		const unsigned int currentSimTrackId = *itSimTrackId;
+		//if (currentSimTrackId!=1088) continue;
+		std::cout<<"processing simtrack with id: "<<currentSimTrackId<<std::endl;
+		const SimTrack& theSimTrack = (*theSimTracks)[currentSimTrackId];
 
 		int vertexIndex = theSimTrack.vertIndex();
 		if (vertexIndex<0)
@@ -253,7 +330,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			{
 				continue;
 			}
-			SiTrackerGSMatchedRecHit2DCollection::range recHitRange = theGSRecHits->get(*itSimTrackId);
+			SiTrackerGSMatchedRecHit2DCollection::range recHitRange = theGSRecHits->get(currentSimTrackId);
 			//std::cout<<"\ttotal produced: "<<recHitRange.second-recHitRange.first<<" hits"<<std::endl;
 
 			TrackerRecHit previousTrackerHit;
@@ -271,14 +348,18 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			std::vector<std::vector<std::string>> layerNames;
 			layerNames.resize(theLayersInSets.size());
 
-			bool foundSeed = false;
-			unsigned int seedLayerSet=0;
+
 			unsigned int numberOfNonEqualHits=0;
-			for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second && !foundSeed; ++itRecHit)
+
+			//store the converted objects
+			std::vector<TrackerRecHit> trackerRecHits;
+
+			for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
 			{
 				const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
 				previousTrackerHit=currentTrackerHit;
 				currentTrackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
+				trackerRecHits.push_back(currentTrackerHit);
 				if (currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
 				{
 					continue;
@@ -288,86 +369,34 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			}
 			if ( numberOfNonEqualHits < minRecHits[ialgo] ) continue;
 
-			numberOfNonEqualHits=0;
-			for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second && !foundSeed; ++itRecHit)
-			{
-				const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
-				previousTrackerHit=currentTrackerHit;
 
-				currentTrackerHit = TrackerRecHit(&vec,theGeometry,tTopo);
+			std::vector<unsigned int> seedHitNumbers;
+			int seedLayerSetIndex = iterateHits(recHitRange.first,recHitRange,hitNumbers,trackerRecHits, ialgo,seedHitNumbers);
 
-				if (currentTrackerHit.isOnTheSameLayer(previousTrackerHit))
-				{
-
-					//continue; //allow to select another hit on same layer if the previous one has been rejected
-					++numberOfNonEqualHits;
-				}
-				//speed things up by only running over the max number of requested hits
-				if ( numberOfNonEqualHits >= absMinRecHits ) break;
-
-				//std::cout<<"\thit="<<itRecHit-recHitRange.first<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<", globalX="<<currentTrackerHit.globalPosition().x()<<std::endl;
-				for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
-				{
-					unsigned int currentlayer = hitNumbers[ilayerset].size();
-
-					//TODO: speed things up by testing if the current hit is already further outside than the current layer
-					//-> faster rejection of invalid hits if there is no seed possible at all for a given simtrack
-					if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
-					{
-						//TODO: it seems that currently only a PV compatibility check for the first 2 hits is really important
-						if (this->passTrackerRecHitQualityCuts(seedHitCandiates[ilayerset],currentTrackerHit,ialgo))
-						{
-							hitNumbers[ilayerset].push_back(itRecHit-recHitRange.first);
-							seedHitCandiates[ilayerset].push_back(currentTrackerHit);
-							layerNames[ilayerset].push_back(theLayersInSets[ilayerset][currentlayer].name);
-
-							if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
-							{
-								//TODO: check if all valid seeds should be saved to perform additional quality checks
-								seedLayerSet=ilayerset;
-								//foundSeed=true;
-								//break;
-							}
-						}
-					}
-				}
-			} //end loop over hits associated to current simtrack
-
-
-			std::cout<<"ialgo="<<ialgo<<std::endl;
-			for (unsigned int i=0;i<hitNumbers.size(); ++i)
+			if (seedLayerSetIndex>=0)
 			{
 
-				std::cout<<"layerset="<<i<<std::endl;
-				std::cout<<"\thits=";
-				for (unsigned int j=0; j<hitNumbers[i].size();++j)
+				std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentSimTrackId<<", #recHits=";
+				for (unsigned int j=0; j<seedHitNumbers.size();++j)
 				{
-					std::cout<<hitNumbers[i][j]<<"("<<layerNames[i][j]<<"),";
+					std::cout<<seedHitNumbers[j]<<",";
 				}
-				if (theLayersInSets[i].size()==hitNumbers[i].size())
+				std::cout<<std::endl;
+
+				for (unsigned int j=0; j<trackerRecHits.size();++j)
 				{
-					std::cout<<"\tseed!"<<std::endl;
-				}
-				else
-				{
-					std::cout<<std::endl;
+					std::cout<<"hit: "<<j<<", subId="<<trackerRecHits[j].subDetId()<<", layer="<<trackerRecHits[j].layerNumber()<<", globalX="<<trackerRecHits[j].globalPosition().x()<<std::endl;
 				}
 			}
 
 
-			if (foundSeed)
+			if (seedLayerSetIndex>=0)
 			{
 
-
-
-
-
-
-
 				edm::OwnVector<TrackingRecHit> recHits;
-				for ( unsigned ihit=0; ihit<seedHitCandiates[seedLayerSet].size(); ++ihit )
+				for ( unsigned ihit=0; ihit<seedHitNumbers.size(); ++ihit )
 				{
-					TrackingRecHit* aTrackingRecHit = seedHitCandiates[seedLayerSet][ihit].hit()->clone();
+					TrackingRecHit* aTrackingRecHit = trackerRecHits[seedHitNumbers[ihit]].hit()->clone();
 					recHits.push_back(aTrackingRecHit);
 				}
 
@@ -390,7 +419,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
 				//this line help the fit succeed in the case of pixelless tracks (4th and 5th iteration)
 				//for the future: probably the best thing is to use the mini-kalmanFilter
-				if(seedHitCandiates[seedLayerSet][0].subDetId() !=1 || seedHitCandiates[seedLayerSet][0].subDetId() !=2)
+				if(trackerRecHits[seedHitNumbers[0]].subDetId() !=1 ||trackerRecHits[seedHitNumbers[0]].subDetId() !=2)
 				{
 					errorMatrix = errorMatrix * 0.0000001;
 				}
@@ -412,9 +441,9 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				}
 
 				//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
-				for (unsigned int i=0;i<hitNumbers[seedLayerSet].size();++i)
+				for (unsigned int i=0;i<seedHitNumbers.size();++i)
 				{
-					seedHit_new[currentID].push_back(hitNumbers[seedLayerSet][i]);
+					seedHit_new[currentSimTrackId].push_back(seedHitNumbers[i]);
 					//std::cout<<hitNumbers[seedLayerSet][i]<<",";
 				}
 
@@ -434,6 +463,9 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),localErrors, recHits.front().geographicalId().rawId(), surfaceSide);
 				output_new[ialgo]->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
 			}
+
+
+
 		} //end loop over seeding algorithms
 	} //end loop over simtracks
 
@@ -445,8 +477,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	}
 	*/
 
-	//std::cout<<std::endl;
-    //std::cout<<"old result:"<<std::endl;
+	std::cout<<std::endl;
+    std::cout<<"old result:"<<std::endl;
 
   
 #ifdef FAMOS_DEBUG
@@ -465,7 +497,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
     //if (simTrackId!=1088) continue;
-    //std::cout<<"processing simtrack with id: "<<theSimTrackIds[tkId]<<std::endl;
+    std::cout<<"processing simtrack with id: "<<theSimTrackIds[tkId]<<std::endl;
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId];
 #ifdef FAMOS_DEBUG
     std::cout << "Track number " << simTrackId << "--------------------------------" <<std::endl;
@@ -815,7 +847,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
       // Create a new Trajectory Seed    
 
 
-      //std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
+      std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<simTrackId<<", #recHits="<<hit1<<","<<hit2<<","<<hit3<<std::endl;
       seedHit_old[simTrackId].push_back(hit1);
       seedHit_old[simTrackId].push_back(hit2);
       seedHit_old[simTrackId].push_back(hit3);
@@ -863,22 +895,22 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			  if (seedHit_old[isimtrack][ihit]!=seedHit_new[isimtrack][ihit])
 			  {
 				  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", hit="<<ihit<<" number is different!"<<std::endl;
-				  //assert(false);
+				  assert(false);
 			  }
 		  }
 	  }
 	  else
 	  {
 		  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", number of hits differ!"<<std::endl;
-		  //assert(false);
+		  assert(false);
 	  }
   }
 
 
 
 
-  //std::cout<<"-------------------"<<std::endl;
-  //std::cout<<"-------------------"<<std::endl;
+  std::cout<<"-------------------"<<std::endl;
+  std::cout<<"-------------------"<<std::endl;
 }
 
 
