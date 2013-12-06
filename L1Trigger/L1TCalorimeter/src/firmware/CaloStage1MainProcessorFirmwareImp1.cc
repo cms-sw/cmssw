@@ -21,10 +21,10 @@ CaloStage1MainProcessorFirmwareImp1::~CaloStage1MainProcessorFirmwareImp1(){};
 //need to switch to BXVector
 void CaloStage1MainProcessorFirmwareImp1::processEvent(const EcalTriggerPrimitiveDigiCollection &,
 						       const HcalTriggerPrimitiveCollection &,
-						       BXVector<EGamma> & egammas,
-						       BXVector<Tau> & taus,
-						       BXVector<Jet> & jets,
-						       BXVector<EtSum> & etsums){
+						       std::vector<EGamma> & egammas,
+						       std::vector<Tau> & taus,
+						       std::vector<Jet> & jets,
+						       std::vector<EtSum> & etsums){
 
   //const std::vector<l1t::CaloRegion> & regions,
   //std::vector<l1t::Jet> & jets){
