@@ -219,7 +219,7 @@ Make a new developer area (eg, based on the most recent IB):
 
 cmsrel CMSSW_7_0_X_2013-12-06-0200
 cd CMSSW_7_0_X_2013-12-06-0200/src
-cmsrel
+cmsenv
 
 Update to the HEAD of the CMSSW release series, here: 7_0_X:
 
