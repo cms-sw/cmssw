@@ -63,15 +63,6 @@ class PFEGammaProducer : public edm::EDProducer {
   void setPFVertexParameters(bool useVertex,
 			     const reco::VertexCollection*  primaryVertices);	  
    
-  void setPFPhotonRegWeights(
-			     const GBRForest *LCorrForestEB,
-			     const GBRForest *LCorrForestEE,
-			     const GBRForest *GCorrForestBarrel,
-			     const GBRForest *GCorrForestEndcapHr9,
-			     const GBRForest *GCorrForestEndcapLr9,
-			     const GBRForest *PFEcalResolution
-			     );   
-  
   edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
   edm::EDGetTokenT<reco::VertexCollection>  vertices_;
