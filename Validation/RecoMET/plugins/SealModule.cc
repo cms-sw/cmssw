@@ -1,5 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "METTester.h"
 
-#include "JetTester.h"
-DEFINE_FWK_MODULE( JetTester );
+DEFINE_FWK_MODULE (METTester) ;
+
+
