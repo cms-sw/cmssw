@@ -18,13 +18,13 @@
 //#include "DataFormats/L1TYellow/interface/YellowOutput.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
 
 namespace l1t {
 
   class CaloStage1FirmwareFactory {
   public:
-    typedef boost::shared_ptr<CaloStage1JetAlgorithm> ReturnType;
+    typedef boost::shared_ptr<CaloStage1MainProcessor> ReturnType;
 
     ReturnType create(const CaloParams & dbPars);
 

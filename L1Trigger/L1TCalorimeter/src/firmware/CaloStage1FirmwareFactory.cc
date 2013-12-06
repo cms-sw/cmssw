@@ -12,7 +12,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "CaloStage1JetAlgorithmImp.h"
+//#include "CaloStage1JetAlgorithmImp.h"
+#include "CaloStage1MainProcessorFirmware.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
 
@@ -33,10 +34,10 @@ namespace l1t {
 
     switch (fwv){
     case 1:
-      p = ReturnType(new CaloStage1JetAlgorithmImp1(dbPars));
+      p = ReturnType(new CaloStage1MainProcessorFirmwareImp1(dbPars));
       break;
     case 2:
-      p = ReturnType(new CaloStage1JetAlgorithmImp1(dbPars));
+      p = ReturnType(new CaloStage1MainProcessorFirmwareImp1(dbPars));
       break;
     default:
       // Invalid Firmware, log an error:

@@ -10,8 +10,8 @@
 
 //
 
-#ifndef CaloMainProcessor_h
-#define CaloMainProcessor_h
+#ifndef CaloStage1MainProcessor_h
+#define CaloStage1MainProcessor_h
 
 #include "DataFormats/L1TCalorimeter/interface/BXVector.h"
 #include "DataFormats/L1TCalorimeter/interface/EGamma.h"
@@ -22,19 +22,19 @@
 #include "FWCore/Framework/interface/Event.h"
 
 namespace l1t {
-    
-  class CaloMainProcessor { 
+
+  class CaloStage1MainProcessor {
   public:
     virtual void processEvent(const EcalTriggerPrimitiveDigiCollection &,
-							  const HcalTriggerPrimitiveCollection &,
- 							  BXVector<EGamma> & egammas,
-							  BXVector<Tau> & taus,
-							  BXVector<Jet> & jets,
-							  BXVector<EtSum> & etsums) = 0;    
+			      const HcalTriggerPrimitiveCollection &,
+			      BXVector<EGamma> & egammas,
+			      BXVector<Tau> & taus,
+			      BXVector<Jet> & jets,
+			      BXVector<EtSum> & etsums) = 0;
 
-    virtual ~CaloMainProcessor(){};
-  }; 
-  
-} 
+    virtual ~CaloStage1MainProcessor(){};
+  };
+
+}
 
 #endif

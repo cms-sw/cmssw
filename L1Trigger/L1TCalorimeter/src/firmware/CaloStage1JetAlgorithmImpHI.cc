@@ -1,13 +1,11 @@
 ///
 /// \class l1t::CaloStage1JetAlgorithmImpHI
 ///
-/// Implementation:
-/// Demonstrates how to implement firmware.
 ///
 /// \author: R. Alex Barbieri MIT
 ///
 
-// This example implemenents firmware version 1 and 2.
+// This example implemenents algorithm version 1 and 2.
 
 #include "CaloStage1JetAlgorithmImp.h"
 

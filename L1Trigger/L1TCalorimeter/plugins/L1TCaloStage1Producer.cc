@@ -33,7 +33,8 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include <vector.h>
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
+//#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
 
 using namespace std;
@@ -62,10 +63,11 @@ namespace l1t {
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
     boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
-    boost::shared_ptr<CaloStage1JetAlgorithm> m_jetfw; // Algorithm to run per event, depends on database parameters.
+    boost::shared_ptr<CaloStage1MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
 
     CaloStage1FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
 
+    // to be extended with other "consumes" stuff
     EDGetToken regionToken;
   };
 
@@ -107,9 +109,8 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
   std::auto_ptr<std::vector<l1t::Jet>> l1Jets (new std::vector<l1t::Jet>);
 
-  //if (m_jetfw) {
-  m_jetfw->processEvent(*caloRegions, *l1Jets);
-  //}
+  m_fw->processEvent(*caloRegions, *l1Jets);
+
   iEvent.put(l1Jets);
 
 }
@@ -146,9 +147,9 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
     }
 
     // Set the current algorithm version based on DB pars from database:
-    m_jetfw = m_factory.create(*m_dbpars);
+    m_fw = m_factory.create(*m_dbpars);
 
-    if (! m_jetfw) {
+    if (! m_fw) {
       // we complain here once per run
       LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
     }

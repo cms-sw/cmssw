@@ -2,7 +2,7 @@
 /// Description: Firmware headers
 ///
 /// Implementation:
-/// Collects concrete firmware implmentations.
+/// Collects concrete algorithm implmentations.
 ///
 /// \author: R. Alex Barbieri MIT
 ///
@@ -18,11 +18,10 @@
 #define L1TCALOSTAGE1JETALGORITHMIMP_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
+#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
 namespace l1t {
 
-  // Imp1 is for v1 and v2
   class CaloStage1JetAlgorithmImpHI : public CaloStage1JetAlgorithm {
   public:
     CaloStage1JetAlgorithmImpHI(const CaloParams & dbPars);
@@ -32,18 +31,6 @@ namespace l1t {
   private:
     CaloParams const & db;
   };
-
-  /* // Imp2 is for v3 */
-  /* class CaloStage1JetAlgorithmImp2 : public CaloStage1JetAlgorithm { */
-  /* public: */
-  /*   CaloStage1JetAlgorithmImp2(const CaloParams & dbPars); */
-  /*   virtual ~CaloStage1JetAlgorithmImp2(); */
-  /*   virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::Jet> & jets); */
-  /* private: */
-  /*   CaloParams const & db; */
-  /* }; */
-
 }
 
 #endif
