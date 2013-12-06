@@ -128,7 +128,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
 void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-
+	if ( MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>()) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
  	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
@@ -141,7 +141,7 @@ void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr
 
 void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-
+	if ( FD->hasAttr<CMSThreadGuardAttr>() || FD->hasAttr<CMSThreadSafeAttr>()) return;
         if (FD-> isInExternCContext()) {
                 std::string buf;
                 std::string dname = FD->getQualifiedNameAsString();
@@ -164,6 +164,7 @@ void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManag
 	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 		{
+			if ( I->hasAttr<CMSThreadGuardAttr>() || I->hasAttr<CMSThreadSafeAttr>()) continue;
 			if (I->doesThisDeclarationHaveABody()) {
 				FWalker walker(BR, mgr.getAnalysisDeclContext(*I));
 				walker.Visit(I->getBody());
