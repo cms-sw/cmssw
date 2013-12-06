@@ -1,4 +1,5 @@
 #include <clang/AST/DeclCXX.h>
+#include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/StmtVisitor.h>
@@ -63,7 +64,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
   
 
   if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
-
+	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
 	if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();

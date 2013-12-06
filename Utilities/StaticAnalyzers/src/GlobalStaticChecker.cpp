@@ -23,7 +23,6 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
 			  !support::isConst( t ) )
 	{
 	    clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
-    	    clang::QualType t =  D->getType();
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
 		   return;
