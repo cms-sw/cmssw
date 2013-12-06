@@ -119,6 +119,9 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
     pref[m]   = pref[0] + m/2;
   }
 
+  /// Do GEM matching?
+  do_gem_matching = tmbParams.getUntrackedParameter<bool>("doGemMatching", true);
+  
   /// GEM matching dphi and deta
   gem_match_delta_phi_odd = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiOdd", 0.0055);
   gem_match_delta_phi_even = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiEven", 0.0031);
@@ -335,7 +338,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of ALCT-centric matching
 
   // possibly use some discrimination from GEMs
-  if (gemPads != nullptr) matchGEMPads(gemPads);
+  if (gemPads != nullptr &&  do_gem_matching) matchGEMPads(gemPads);
 
 
   // reduction of nLCTs per each BX
@@ -723,7 +726,7 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
   int npads = 0;
   
   int region = (theEndcap == 1) ? 1: -1;
-  const GEMSuperChamber* superChamber(gem_g->superChamber(GEMDetId(region, 1, 1, 1, chamber, 0)));
+  const GEMSuperChamber* superChamber(gem_g->superChamber(GEMDetId(region, csc_id.ring(), csc_id.station(), 1, chamber, 0)));
   for (auto ch : superChamber->chambers())
   {
     for (auto roll : ch->etaPartitions() )
