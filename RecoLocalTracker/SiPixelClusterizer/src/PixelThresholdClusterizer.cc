@@ -145,14 +145,14 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
       if ( theBuffer(theSeeds[i]) >= theSeedThreshold ) 
 	{  // Is this seed still valid?
 	  //  Make a cluster around this seed
-	  SiPixelCluster cluster = make_cluster( theSeeds[i] , output);
+	  SiPixelCluster && cluster = make_cluster( theSeeds[i] , output);
 	  
 	  //  Check if the cluster is above threshold  
 	  // (TO DO: one is signed, other unsigned, gcc warns...)
 	  if ( cluster.charge() >= theClusterThreshold) 
 	    {
-	      //	cout << "putting in this cluster" << endl;
-	      output.push_back( cluster );
+	      // std::cout << "putting in this cluster " << i << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
+	      output.push_back( std::move(cluster) );
 	    }
 	}
     }
@@ -187,20 +187,56 @@ void PixelThresholdClusterizer::clear_buffer( DigiIterator begin, DigiIterator e
 //----------------------------------------------------------------------------
 void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator end ) 
 {
-  for(DigiIterator di = begin; di != end; ++di) 
-    {
-      int row = di->row();
-      int col = di->column();
-      int adc = calibrate(di->adc(),col,row); // convert ADC -> electrons
-      if ( adc >= thePixelThreshold) 
-	{
-	  theBuffer.set_adc( row, col, adc);
-	  if ( adc >= theSeedThreshold) 
-	    { 
-	      theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
-	    }
+  static int ic=0;
+  if (ic==0) {
+    // std::cout << (doMissCalibrate ? "VI from db" : "VI linear") << std::endl;
+  }
+  ic++;
+  int electron[end-begin];
+  if ( doMissCalibrate ) {
+    (*theSiPixelGainCalibrationService_).calibrate(detid_,begin,end,theConversionFactor, theOffset,electron);
+  } else {
+    int layer = (DetId(detid_).subdetId()==1) ? PXBDetId(detid_).layer() : 0;
+    int i=0;
+    for(DigiIterator di = begin; di != end; ++di) {
+      auto adc = di->adc();
+      const float gain = 135.; // 1 ADC = 135 electrons
+      const float pedestal = 0.; //
+      electron[i] = int(adc * gain + pedestal);
+      if (layer>=theFirstStack_) {
+	if (theStackADC_==1&&adc==1) {
+	  electron[i] = int(255*135); // Arbitrarily use overflow value.
 	}
+	if (theStackADC_>1&&theStackADC_!=255&&adc>=1){
+	  const float gain = 135.; // 1 ADC = 135 electrons
+	  electron[i] = int((adc-1) * gain * 255/float(theStackADC_-1));
+	}
+      }
+      ++i;
     }
+    assert(i==(end-begin));
+  }
+
+  int i=0;
+#ifdef PIXELREGRESSION
+  static int eqD=0;
+#endif
+  for(DigiIterator di = begin; di != end; ++di) {
+    int row = di->row();
+    int col = di->column();
+    int adc = electron[i++];
+#ifdef PIXELREGRESSION
+    int adcOld = calibrate(di->adc(),col,row);
+    //assert(adc==adcOld);
+    if (adc!=adcOld) std::cout << "VI " << eqD  <<' '<< ic  <<' '<< end-begin <<' '<< i <<' '<< di->adc() <<' ' << adc <<' '<< adcOld << std::endl; else ++eqD;
+#endif
+    if ( adc >= thePixelThreshold) {
+      theBuffer.set_adc( row, col, adc);
+      if ( adc >= theSeedThreshold) theSeeds.push_back( SiPixelCluster::PixelPos(row,col) );
+    }
+  }
+  assert(i==(end-begin));
+
 }
 
 //----------------------------------------------------------------------------
@@ -326,18 +362,20 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
   //The only difference between dead/noisy pixels and standard ones is that for dead/noisy pixels,
   //We consider the charge of the pixel to always be zero.
 
+  /*  this is not possible as dead and noisy pixel cannot make it into a seed...
   if ( doMissCalibrate &&
        (theSiPixelGainCalibrationService_->isDead(detid_,pix.col(),pix.row()) || 
 	theSiPixelGainCalibrationService_->isNoisy(detid_,pix.col(),pix.row())) )
     {
+      std::cout << "IMPOSSIBLE" << std::endl;
       seed_adc = 0;
       theBuffer.set_adc(pix, 1);
     }
-  else
-    {
-      seed_adc = theBuffer(pix.row(), pix.col());
-      theBuffer.set_adc( pix, 1);
-    }
+    else {
+  */
+  seed_adc = theBuffer(pix.row(), pix.col());
+  theBuffer.set_adc( pix, 1);
+      //  }
   
   AccretionCluster acluster;
   acluster.add(pix, seed_adc);
@@ -348,17 +386,13 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
     {
       //This is the standard algorithm to find and add a pixel
       auto curInd = acluster.top(); acluster.pop();
-      for ( auto r = acluster.x[curInd]-1; r <= acluster.x[curInd]+1; ++r) 
-	{
-	  for ( auto c = acluster.y[curInd]-1; c <= acluster.y[curInd]+1; ++c) 
-	    {
-	      if ( theBuffer(r,c) >= thePixelThreshold) 
-		{
-		  
-		  SiPixelCluster::PixelPos newpix(r,c);
-		  if (!acluster.add( newpix, theBuffer(r,c))) goto endClus;
-		  theBuffer.set_adc( newpix, 1);
-		}
+      for ( auto c = std::max(0,int(acluster.y[curInd])-1); c < std::min(int(acluster.y[curInd])+2,theBuffer.columns()) ; ++c) {
+	for ( auto r = std::max(0,int(acluster.x[curInd])-1); r < std::min(int(acluster.x[curInd])+2,theBuffer.rows()); ++r)  {
+	  if ( theBuffer(r,c) >= thePixelThreshold) {
+	    SiPixelCluster::PixelPos newpix(r,c);
+	    if (!acluster.add( newpix, theBuffer(r,c))) goto endClus;
+	    theBuffer.set_adc( newpix, 1);
+	  }
 	     
 
 	      /* //Commenting out the addition of dead pixels to the cluster until further testing -- dfehling 06/09
