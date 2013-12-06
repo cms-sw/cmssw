@@ -22,6 +22,7 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
 
@@ -71,11 +72,11 @@ class APVShotsFilter : public edm::EDFilter {
 
   void updateDetCabling( const edm::EventSetup& setup );
       // ----------member data ---------------------------
-      // ----------member data ---------------------------
 
-  const edm::InputTag _digicollection;
-  const edm::InputTag _historyProduct;
-  const edm::InputTag _apvphasecoll;
+
+  edm::EDGetTokenT<EventWithHistory>                heToken_;
+  edm::EDGetTokenT<APVCyclePhaseCollection>         apvphaseToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digisToken_;
 
   bool _selectAPVshots;
 
@@ -101,10 +102,7 @@ class APVShotsFilter : public edm::EDFilter {
 // constructors and destructor
 //
 APVShotsFilter::APVShotsFilter(const edm::ParameterSet& iConfig)
-  : _digicollection (iConfig.getParameter<edm::InputTag>("digiCollection"))
-  , _historyProduct (iConfig.getParameter<edm::InputTag>("historyProduct"))
-  , _apvphasecoll   (iConfig.getParameter<edm::InputTag>("apvPhaseCollection"))
-  , _selectAPVshots (iConfig.getUntrackedParameter<bool>("selectAPVshots", true))
+  : _selectAPVshots (iConfig.getUntrackedParameter<bool>("selectAPVshots", true))
   , _zs             (iConfig.getUntrackedParameter<bool>("zeroSuppressed",true))
   , _nevents(0)
   , _useCabling     (iConfig.getUntrackedParameter<bool>("useCabling",true))
@@ -113,6 +111,13 @@ APVShotsFilter::APVShotsFilter(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
+  edm::InputTag digicollection = iConfig.getParameter<edm::InputTag>("digiCollection");
+  edm::InputTag historyProduct = iConfig.getParameter<edm::InputTag>("historyProduct");
+  edm::InputTag apvphasecoll   = iConfig.getParameter<edm::InputTag>("apvPhaseCollection");
+  
+  heToken_       = consumes<EventWithHistory>               (historyProduct);
+  apvphaseToken_ = consumes<APVCyclePhaseCollection>        (apvphasecoll);
+  digisToken_    = consumes<edm::DetSetVector<SiStripDigi> >(digicollection);
 
 }
 
@@ -144,13 +149,13 @@ APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    _nevents++;
 
    edm::Handle<EventWithHistory> he;
-   iEvent.getByLabel(_historyProduct,he);
+   iEvent.getByToken(heToken_,he);
 
    edm::Handle<APVCyclePhaseCollection> apvphase;
-   iEvent.getByLabel(_apvphasecoll,apvphase);
+   iEvent.getByToken(apvphaseToken_,apvphase);
 
    edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
-   iEvent.getByLabel(_digicollection,digis);
+   iEvent.getByToken(digisToken_,digis);
 
    // loop on detector with digis
    int nshots = 0;
