@@ -33,7 +33,8 @@ using namespace pixeltrackfitting;
 using namespace ctfseeding;
 using edm::ParameterSet;
 
-PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg)
+PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
+	   edm::ConsumesCollector && iC)
   : theConfig(cfg), theFitter(0), theFilter(0), theCleaner(0), theGenerator(0), theRegionProducer(0), theMerger_(0)
 {
   if ( cfg.exists("SeedMergerPSet") ) {
@@ -48,6 +49,11 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg)
     theMerger_->setTTRHBuilderLabel( seedmergerTTRHBuilderLabel );
     theMerger_->setLayerListName( seedmergerLayerListName );
   }
+
+  ParameterSet regfactoryPSet = theConfig.getParameter<ParameterSet>("RegionFactoryPSet");
+  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, std::move(iC));
+
 }
   
 PixelTrackReconstruction::~PixelTrackReconstruction() 
@@ -67,9 +73,6 @@ void PixelTrackReconstruction::halt()
 
 void PixelTrackReconstruction::init(const edm::EventSetup& es)
 {
-  ParameterSet regfactoryPSet = theConfig.getParameter<ParameterSet>("RegionFactoryPSet");
-  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
 
   ParameterSet orderedPSet =
       theConfig.getParameter<ParameterSet>("OrderedHitsFactoryPSet");

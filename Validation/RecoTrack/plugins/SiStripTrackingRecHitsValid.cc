@@ -34,8 +34,6 @@
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 
-using namespace std;
-
 // ROOT
 #include "TROOT.h"
 #include "TFile.h"
@@ -54,9 +52,10 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
 
   //Read config file
   //MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "striptrackingrechitshisto.root");
+  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "striptrackingrechitshisto.root");
   //src_ = ps.getUntrackedParameter<std::string>( "src" );
   //builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
+  v_TrajectoryToken_ = consumes< std::vector<Trajectory> >( edm::InputTag( ps.getParameter<std::string>( "trajectoryInput" ) ) );
 
   // Book histograms
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -1258,20 +1257,20 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
   // Mangano's
 
-  edm::Handle<vector<Trajectory> > trajCollectionHandle;
-  e.getByLabel(conf_.getParameter<string>("trajectoryInput"),trajCollectionHandle);
+  edm::Handle<std::vector<Trajectory> > trajCollectionHandle;
+  e.getByToken( v_TrajectoryToken_, trajCollectionHandle );
 
   edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() ;
 
   //cout<<"trajColl->size() = "<<trajCollectionHandle->size()<<endl;
   
-  for(vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
+  for(std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
      
     edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
 					    << "isValid: " << it->isValid() ;
 
-    vector<TrajectoryMeasurement> tmColl = it->measurements();
-    for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
+    std::vector<TrajectoryMeasurement> tmColl = it->measurements();
+    for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
       if(! itTraj->updatedState().isValid()) continue;
            
 //        edm::LogVerbatim("TrajectoryAnalyzer") << "tm number: " << (itTraj - tmColl.begin()) + 1<< " , "
@@ -1329,7 +1328,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(matchedhit->geographicalId());
 	  const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
 	  std::pair<LocalPoint,LocalVector> hitPair;
-	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	  for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    //project simhit;
 	    hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
 	    distx = fabs(rechitmatchedx - hitPair.first.x());
@@ -1547,7 +1546,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    if(!matched.empty()){
 	      //		  cout << "\t\t\tmatched  " << matched.size() << endl;
 	      //	      cout<<"associatesimplehit"<<endl;
-	      for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	      for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 		dist = abs((monohit)->localPosition().x() - (*m).localPosition().x());
 		if(dist<mindist){
 		  mindist = dist;
@@ -1656,7 +1655,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      matched = associate.associateHit(*stereohit);
 	      if(!matched.empty()){
 		//		  cout << "\t\t\tmatched  " << matched.size() << endl;
-		for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+		for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 		  dist = abs((stereohit)->localPosition().x() - (*m).localPosition().x());
 		  if(dist<mindist){
 		    mindist = dist;
@@ -1773,7 +1772,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  matched = associate.associateHit(*hit1d);
 	  if(!matched.empty()){
 	    //		  cout << "\t\t\tmatched  " << matched.size() << endl;
-	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	      dist = abs((hit1d)->localPosition().x() - (*m).localPosition().x());
 	      if(dist<mindist){
 		mindist = dist;
@@ -1943,7 +1942,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  matched = associate.associateHit(*hit1d);
 	  if(!matched.empty()){
 	    //		  cout << "\t\t\tmatched  " << matched.size() << endl;
-	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	      dist = abs((hit1d)->localPosition().x() - (*m).localPosition().x());
 	      if(dist<mindist){
 		mindist = dist;
@@ -2049,7 +2048,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  matched = associate.associateHit(*hit2d);
 	  if(!matched.empty()){
 	    //		  cout << "\t\t\tmatched  " << matched.size() << endl;
-	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	      dist = abs((hit2d)->localPosition().x() - (*m).localPosition().x());
 	      if(dist<mindist){
 		mindist = dist;
@@ -2218,7 +2217,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  matched = associate.associateHit(*hit2d);
 	  if(!matched.empty()){
 	    //		  cout << "\t\t\tmatched  " << matched.size() << endl;
-	    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	    for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	      dist = abs((hit2d)->localPosition().x() - (*m).localPosition().x());
 	      if(dist<mindist){
 		mindist = dist;
