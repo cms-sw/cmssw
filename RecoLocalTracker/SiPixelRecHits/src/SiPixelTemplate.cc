@@ -869,7 +869,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 
 
 void SiPixelTemplate::postInit() {
-
+  /*
   std::cout << "SiPixelTemplate size " << thePixelTemp_.size() << std::endl;
 #ifndef SI_PIXEL_TEMPLATE_USE_BOOST 
   std::cout <<"uses C arrays" << std::endl;
@@ -884,6 +884,7 @@ void SiPixelTemplate::postInit() {
       std::cout << std::endl;
     ++i;
   }
+  */
 
   for (auto & templ : thePixelTemp_) {
     for ( auto iy=0; iy<templ.head.NTy; ++iy ) templ.cotbetaY[iy]=templ.enty[iy].cotbeta;

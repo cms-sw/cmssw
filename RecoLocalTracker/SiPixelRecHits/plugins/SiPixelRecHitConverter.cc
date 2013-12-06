@@ -159,11 +159,11 @@ namespace cms
     } //    <-- End loop on DetUnits
     
     //    LogDebug ("SiPixelRecHitConverter") 
-      std::cout << "SiPixelRecHitConverterVI "
-      << cpeName_ << " converted " << numberOfClusters 
-      << " SiPixelClusters into SiPixelRecHits, in " 
-      << numberOfDetUnits << " DetUnits." //; 
-      << std::endl;
+    //  std::cout << "SiPixelRecHitConverterVI "
+    //  << cpeName_ << " converted " << numberOfClusters 
+    //  << " SiPixelClusters into SiPixelRecHits, in " 
+    //  << numberOfDetUnits << " DetUnits." //; 
+    //  << std::endl;
 	
   }
 }  // end of namespace cms
