@@ -2,6 +2,7 @@
 #define RecoHI_HiTracking_HIMuonTrackingRegionProducer_H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
@@ -18,10 +19,11 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
   
  public:
   
-  HIMuonTrackingRegionProducer(const edm::ParameterSet& cfg) { 
+  HIMuonTrackingRegionProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) { 
         
     // get parameters from PSet
     theMuonSource                         = cfg.getParameter<edm::InputTag>("MuonSrc");
+    theMuonSourceToken                    = iC.consumes<reco::TrackCollection>(theMuonSource);
     
     // initialize region builder
     edm::ParameterSet regionBuilderPSet   = cfg.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
@@ -49,7 +51,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
 
     // get stand-alone muon collection
     edm::Handle<reco::TrackCollection> muonH;
-    ev.getByLabel(theMuonSource ,muonH);
+    ev.getByToken(theMuonSourceToken ,muonH);
     
     // loop over all muons and add a tracking region for each
     // that passes the requirements specified to theRegionBuilder
@@ -74,6 +76,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
  private:
   
   edm::InputTag theMuonSource;
+  edm::EDGetTokenT<reco::TrackCollection> theMuonSourceToken;
   MuonTrackingRegionBuilder* theRegionBuilder;
   MuonServiceProxy* theService;
   

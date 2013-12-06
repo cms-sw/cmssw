@@ -180,18 +180,23 @@ namespace evf {
   template<typename Consumer>
   void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*){
     std::cout << "RecoEventOutputModuleForFU : end lumi " << std::endl;
-    int b;
-    // move dat file to one level up - this is VERRRRRY inefficient, come up with a smarter idea
     std::string fullDataOutputPath = smpath_ + "/open/" + filelist_.value();
-    FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
-    FILE *src = fopen(fullDataOutputPath.c_str(),"r");
-    if(des != 0 && src !=0){
-      while((b=fgetc(src))!= EOF){
-	fputc((unsigned char)b,des);
+    processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
+    if(processed_.value()!=0){
+      int b;
+      // move dat file to one level up - this is VERRRRRY inefficient, come up with a smarter idea
+
+      FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
+      FILE *src = fopen(fullDataOutputPath.c_str(),"r");
+      if(des != 0 && src !=0){
+	while((b=fgetc(src))!= EOF){
+	  fputc((unsigned char)b,des);
+	}
       }
+
+      edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
+      fclose(src);
     }
-    edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
-    fclose(src);
     //remove file
     remove(fullDataOutputPath.c_str());
 
@@ -202,7 +207,7 @@ namespace evf {
 /* 	boost::filesystem::rename(openDatPath, closedDatPath); */
 
 	// output jsn file
-	processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
+    if(processed_.value()!=0){
 	jsonMonitor_->snap(false, "");
 	std::stringstream outputJsonNameStream;
 	string runDirName = fms_->getRunDirName();
@@ -212,7 +217,7 @@ namespace evf {
 			<< "_pid" << std::setfill('0') << std::setw(5) << getpid()
 			<< ".jsn";
 	jsonMonitor_->outputFullHistoDataPoint(outputJsonNameStream.str());
-
+    }
 	// reset monitoring params
 	accepted_.value() = 0;
 	filelist_ = "";

@@ -144,13 +144,13 @@ void EventProcessor::processEvent(const char* data, const int32_t dataSize, cons
  * @param  standby HW standby status indicator
  * @return
  */
-void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag)
+  void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inputTag)
 {
 
   preProcessEvent();
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  if (!e.getByLabel(inputTag, rawdata))
+  if (!e.getByToken(frdtoken, rawdata))
     {
       LOG_WARN << "No product: " << inputTag << " in stream";
       return;
@@ -169,6 +169,7 @@ void EventProcessor::processEvent(const edm::Event& e, const edm::InputTag& inpu
   MonitorObject* mo = 0;
 
   /*
+  // BEWARE! NOT YET UPDATED FOR consumes INTERFACE 29.11.2013 BUT THIS SECTION WAS NOT ACTIVE
   const edm::InputTag formatStatusCollectionTag("MuonCSCDCCFormatStatusDigi");
   bool processFormatStatusDigi = true;
   edm::Handle<CSCDCCFormatStatusDigiCollection> formatStatusColl;

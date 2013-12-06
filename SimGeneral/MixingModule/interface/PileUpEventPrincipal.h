@@ -41,7 +41,7 @@ public:
     typedef typename T::value_type ItemType;
     typedef typename T::iterator iterator;
     edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag, nullptr, mcc_);
-    convert_handle(bh, result);
+    convert_handle(std::move(bh), result);
     return result.isValid();
   }
 

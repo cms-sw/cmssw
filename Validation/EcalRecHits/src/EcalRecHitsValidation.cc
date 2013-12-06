@@ -30,7 +30,17 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   ESrechitCollection_        = ps.getParameter<edm::InputTag>("ESrechitCollection");
   EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
   EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
-  
+  // fix for consumes
+  HepMCLabel_Token_         = consumes<HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"));
+  EBrechitCollection_Token_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBrechitCollection"));
+  EErechitCollection_Token_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
+  ESrechitCollection_Token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
+  EBuncalibrechitCollection_Token_ = consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"));
+  EEuncalibrechitCollection_Token_ = consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));  
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
+
   // ---------------------- 
   // DQM ROOT output 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -270,7 +280,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   
   Handle<HepMCProduct> MCEvt;                   
   bool skipMC = false;
-  e.getByLabel(HepMCLabel, MCEvt);  
+  e.getByToken(HepMCLabel_Token_, MCEvt);  
   if (!MCEvt.isValid()) { skipMC = true; }
 
   edm::Handle<CrossingFrame<PCaloHit> > crossingFrame;
@@ -278,7 +288,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   bool skipBarrel = false;
   const EBUncalibratedRecHitCollection *EBUncalibRecHit =0;
   Handle< EBUncalibratedRecHitCollection > EcalUncalibRecHitEB;
-  e.getByLabel( EBuncalibrechitCollection_, EcalUncalibRecHitEB);
+  e.getByToken( EBuncalibrechitCollection_Token_, EcalUncalibRecHitEB);
   if (EcalUncalibRecHitEB.isValid()) {
     EBUncalibRecHit = EcalUncalibRecHitEB.product() ;    
   } else {
@@ -288,7 +298,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   bool skipEndcap = false;
   const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
+  e.getByToken( EEuncalibrechitCollection_Token_, EcalUncalibRecHitEE);
   if (EcalUncalibRecHitEE.isValid()){ 
     EEUncalibRecHit = EcalUncalibRecHitEE.product () ;
   } else {
@@ -297,7 +307,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   const EBRecHitCollection *EBRecHit = 0;
   Handle<EBRecHitCollection> EcalRecHitEB;
-  e.getByLabel( EBrechitCollection_, EcalRecHitEB);
+  e.getByToken( EBrechitCollection_Token_, EcalRecHitEB);
   if (EcalRecHitEB.isValid()){ 
     EBRecHit = EcalRecHitEB.product();
   } else {
@@ -306,7 +316,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   const EERecHitCollection *EERecHit = 0;
   Handle<EERecHitCollection> EcalRecHitEE;
-  e.getByLabel( EErechitCollection_, EcalRecHitEE);
+  e.getByToken( EErechitCollection_Token_, EcalRecHitEE);
   if (EcalRecHitEE.isValid()){
     EERecHit = EcalRecHitEE.product ();
   } else {
@@ -316,7 +326,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   bool skipPreshower = false;
   const ESRecHitCollection *ESRecHit = 0;
   Handle<ESRecHitCollection> EcalRecHitES;
-  e.getByLabel( ESrechitCollection_, EcalRecHitES);
+  e.getByToken( ESrechitCollection_Token_, EcalRecHitES);
   if (EcalRecHitES.isValid()) {
     ESRecHit = EcalRecHitES.product ();      
   } else {
@@ -357,8 +367,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipBarrel) {
 
     // 1) loop over simHits  
-    const std::string barrelHitsName(hitsProducer_+"EcalHitsEB");
-    e.getByLabel("mix",barrelHitsName,crossingFrame);
+    e.getByToken(EBHits_Token_,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
       barrelHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
     
@@ -508,8 +517,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipEndcap ) {
 
     // 1) loop over simHits
-    const std::string endcapHitsName(hitsProducer_+"EcalHitsEE");
-    e.getByLabel("mix",endcapHitsName,crossingFrame);
+    e.getByToken(EEHits_Token_,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
       endcapHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
   
@@ -648,8 +656,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipPreshower ) {
 
     // 1) loop over simHits
-    const std::string preshowerHitsName(hitsProducer_+"EcalHitsES");
-    e.getByLabel("mix",preshowerHitsName,crossingFrame);
+    e.getByToken(ESHits_Token_,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
       preshowerHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
 

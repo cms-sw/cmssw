@@ -75,8 +75,7 @@ bool Py8JetGun::generatePartonsAndHadronize()
       //
       ee   = (fMaxE-fMinE)*randomEngine->flat() + fMinE;
             
-      double mass = (fMasterGen->particleData).mass( particleID );
-//      double mass = (pythia->particleData).m0( particleID );
+      double mass = (fMasterGen->particleData).m0( particleID );
 
       pp = sqrt( ee*ee - mass*mass );
       

@@ -11,6 +11,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
 #include "boost/shared_ptr.hpp"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
 #include<vector>
@@ -161,6 +162,14 @@ namespace edmNew {
 	v.m_data.push_back(d);
 	item.size++;
       }
+#ifndef CMS_NOCXX11
+      void push_back(data_type && d) {
+        v.m_data.push_back(std::move(d));
+        item.size++;
+      }
+
+#endif
+
       data_type & back() { return v.m_data.back();}
       
     private:

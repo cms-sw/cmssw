@@ -66,7 +66,7 @@ for samplenum in range(len(samples.names)):
 
 egammaSelectors.remove(tmp)  # remove the initial dummy
 
-dqmFeeder = cms.EDAnalyzer('EmDQMFeeder',
+emdqm = cms.EDAnalyzer('EmDQM',
                            #processname = cms.string("HLT"), # can be obtained from triggerobject
                            triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),
                            genEtaAcc = cms.double(2.5),
@@ -80,5 +80,5 @@ dqmFeeder = cms.EDAnalyzer('EmDQMFeeder',
                           )
 
 # selectors go into separate "prevalidation" sequence
-egammaValidationSequence   = cms.Sequence(dqmFeeder)
-egammaValidationSequenceFS = cms.Sequence(dqmFeeder)
+egammaValidationSequence   = cms.Sequence(emdqm)
+egammaValidationSequenceFS = cms.Sequence(emdqm)
