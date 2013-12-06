@@ -5,6 +5,7 @@
 #include "HLTriggerOffline/Top/src/TopHLTDiLeptonOfflineDQM.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "HLTriggerOffline/Top/interface/TopHLTDQMHelper.h"
+
 /*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 
 namespace TopDiLeptonOffline {
@@ -251,12 +252,15 @@ namespace TopDiLeptonOffline {
   }
 
   void 
-  MonitorEnsemble::fill(const edm::Event& event, const edm::EventSetup& setup)
+  MonitorEnsemble::fill(const edm::Event& event, const edm::EventSetup& setup, 
+			edm::Handle<edm::TriggerResults> triggerTable, edm::Handle<edm::View<reco::Muon> > muons, 
+			edm::Handle<edm::ValueMap<float> > electronId, edm::Handle<edm::View<reco::GsfElectron> > elecs, 
+			edm::Handle<edm::View<reco::Jet> > jets, edm::Handle<reco::JetIDValueMap> jetID,
+			std::vector< edm::Handle<edm::View<reco::MET> > > mets)
   {
     // fetch trigger event if configured such 
-    edm::Handle<edm::TriggerResults> triggerTable;
     if(!triggerTable_.label().empty()) {
-      if( !event.getByLabel(triggerTable_, triggerTable) ) return;
+      if( !triggerTable.isValid() ) return;
     }
 
     /*
@@ -284,8 +288,7 @@ namespace TopDiLeptonOffline {
     // buffer isolated muons
     std::vector<const reco::Muon*> isoMuons;
 
-    edm::Handle<edm::View<reco::Muon> > muons;
-    if( !event.getByLabel(muons_, muons) ) return;
+    if( !muons.isValid() ) return;
 
     for(edm::View<reco::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
       // restrict to globalMuons
@@ -314,13 +317,11 @@ namespace TopDiLeptonOffline {
 
     // buffer isolated electronss
     std::vector<const reco::GsfElectron*> isoElecs;
-    edm::Handle<edm::ValueMap<float> > electronId; 
     if(!electronId_.label().empty()) {
-      if( !event.getByLabel(electronId_, electronId) ) return;
+      if( !electronId.isValid() ) return;
     }
 
-    edm::Handle<edm::View<reco::GsfElectron> > elecs;
-    if( !event.getByLabel(elecs_, elecs) ) return;
+    if( !elecs.isValid() ) return;
 
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       // restrict to electrons with good electronId
@@ -371,12 +372,10 @@ namespace TopDiLeptonOffline {
     unsigned int mult=0;
     // buffer leadingJets
     std::vector<reco::Jet> leadingJets;
-    edm::Handle<edm::View<reco::Jet> > jets; 
-    if( !event.getByLabel(jets_, jets) ) return;
+    if( !jets.isValid() ) return;
 
-    edm::Handle<reco::JetIDValueMap> jetID;
     if(jetIDSelect_){ 
-      if( !event.getByLabel(jetIDLabel_, jetID) ) return;
+      if( !jetID.isValid() ) return;
     }
 
     for(edm::View<reco::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
@@ -446,13 +445,14 @@ namespace TopDiLeptonOffline {
 
     // buffer for event logging 
     reco::MET caloMET;
-    for(std::vector<edm::InputTag>::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
-
-      edm::Handle<edm::View<reco::MET> > met;
-      if( !event.getByLabel(*met_, met) ) continue;
+    //for(std::vector<edm::InputTag>::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
+    //for(  met_=mets_.begin(); met_!=mets_.end(); ++met_){
+    for( int i=0; i<int(mets.size()); i++ ){
+      edm::Handle<edm::View<reco::MET> > met = mets[i];
+      if( !met.isValid() ) continue;
 
       if(met->begin()!=met->end()){
-	unsigned int idx=met_-mets_.begin();
+	unsigned int idx=i;
 	if(idx==0){
 	  caloMET=*met->begin(); 
 	  fill("metCalo_", met->begin()->et());
@@ -585,22 +585,56 @@ namespace TopDiLeptonOffline {
 
 TopHLTDiLeptonOfflineDQM::TopHLTDiLeptonOfflineDQM(const edm::ParameterSet& cfg): triggerTable_(""), vertex_(""), vertexSelect_(0), beamspotSelect_(0)
 {
+  edm::ParameterSet sources=cfg.getParameter<edm::ParameterSet>("sources");
+  muonsToken_ = consumes< edm::View<reco::Muon> >(sources.getParameter<edm::InputTag>("muons"));
+  elecsToken_ = consumes< edm::View<reco::GsfElectron> >(sources.getParameter<edm::InputTag>("elecs"));
+  jetsToken_  = consumes< edm::View<reco::Jet> >(sources.getParameter<edm::InputTag>("jets" ));
+
+  metsTemp_ = sources.getParameter<std::vector<edm::InputTag> >("mets" );
+
+  metsTokens_.resize( metsTemp_.size() );
+  for( int i=0; i<int(metsTemp_.size()); i++ ) metsTokens_[i] = consumes< edm::View<reco::MET> >(metsTemp_[i]);
+
   // configure the preselection
   edm::ParameterSet presel=cfg.getParameter<edm::ParameterSet>("preselection");
   if( presel.existsAs<edm::ParameterSet>("trigger") ){
     edm::ParameterSet trigger=presel.getParameter<edm::ParameterSet>("trigger");
     triggerTable_=trigger.getParameter<edm::InputTag>("src");
+    triggerTableToken_ = consumes<edm::TriggerResults>(trigger.getParameter<edm::InputTag>("src"));
     triggerPaths_=trigger.getParameter<std::vector<std::string> >("select");
   } 
   if( presel.existsAs<edm::ParameterSet>("vertex" ) ){
     edm::ParameterSet vertex=presel.getParameter<edm::ParameterSet>("vertex");
     vertex_= vertex.getParameter<edm::InputTag>("src");
+    vertexToken_= consumes< std::vector<reco::Vertex> >(vertex.getParameter<edm::InputTag>("src"));
     vertexSelect_= new StringCutObjectSelector<reco::Vertex>(vertex.getParameter<std::string>("select"));
   }
   if( presel.existsAs<edm::ParameterSet>("beamspot" ) ){
     edm::ParameterSet beamspot=presel.getParameter<edm::ParameterSet>("beamspot");
     beamspot_= beamspot.getParameter<edm::InputTag>("src");
+    beamspotToken_= consumes<reco::BeamSpot>(beamspot.getParameter<edm::InputTag>("src"));
     beamspotSelect_= new StringCutObjectSelector<reco::BeamSpot>(beamspot.getParameter<std::string>("select"));
+  }
+
+  // elecExtras are optional; they may be omitted or empty
+  if( cfg.existsAs<edm::ParameterSet>("elecExtras") ){
+    edm::ParameterSet elecExtras=cfg.getParameter<edm::ParameterSet>("elecExtras");
+    // electronId is optional; in case it's not found the 
+    // InputTag will remain empty
+    if( elecExtras.existsAs<edm::ParameterSet>("electronId") ){
+      edm::ParameterSet elecId=elecExtras.getParameter<edm::ParameterSet>("electronId");
+      electronIdToken_= consumes< edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
+    }
+  }
+
+  // jetExtras are optional; they may be omitted or empty
+  if( cfg.existsAs<edm::ParameterSet>("jetExtras") ){
+    edm::ParameterSet jetExtras=cfg.getParameter<edm::ParameterSet>("jetExtras");
+    // read jetID information if it exists
+    if(jetExtras.existsAs<edm::ParameterSet>("jetID")){
+      edm::ParameterSet jetID=jetExtras.getParameter<edm::ParameterSet>("jetID");
+      jetIDToken_ = consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
+    }
   }
 
   // conifgure the selection
@@ -614,66 +648,87 @@ TopHLTDiLeptonOfflineDQM::TopHLTDiLeptonOfflineDQM(const edm::ParameterSet& cfg)
 void 
 TopHLTDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup& setup)
 { 
+  edm::Handle<edm::TriggerResults> triggerTable;
+  edm::Handle<std::vector<reco::Vertex> > vertex;
+  edm::Handle<reco::BeamSpot> beamspot;
+
+  edm::Handle<edm::View<reco::Muon> > muons;
+  event.getByToken(muonsToken_, muons);
+
+  edm::Handle<edm::ValueMap<float> > electronId; 
+  event.getByToken(electronIdToken_, electronId);
+
+  edm::Handle<edm::View<reco::GsfElectron> > elecs;
+  event.getByToken(elecsToken_, elecs);
+
+  edm::Handle<edm::View<reco::Jet> > jets; 
+  event.getByToken(jetsToken_, jets);
+
+  edm::Handle<reco::JetIDValueMap> jetID;
+  event.getByToken(jetIDToken_, jetID);
+
+  std::vector< edm::Handle<edm::View<reco::MET> > > mets;
+  for( int i=0; i<int(metsTemp_.size()); i++ ) event.getByToken(metsTokens_[i],mets[i]);
+
+
   if(!triggerTable_.label().empty()){
-    edm::Handle<edm::TriggerResults> triggerTable;
-    if( !event.getByLabel(triggerTable_, triggerTable) ) return;
+    if( !event.getByToken(triggerTableToken_, triggerTable) ) return;
     if(!acceptHLT(event, *triggerTable, triggerPaths_)) return;
   }
   if(!vertex_.label().empty()){
-    edm::Handle<std::vector<reco::Vertex> > vertex;
-    if( !event.getByLabel(vertex_, vertex) ) return;
+    if( !event.getByToken(vertexToken_, vertex) ) return;
     if(vertex->empty() || !(*vertexSelect_)(vertex->front())) return;
   }
   if(!beamspot_.label().empty()){
-    edm::Handle<reco::BeamSpot> beamspot;
-    if( !event.getByLabel(beamspot_, beamspot) ) return;
+    if( !event.getByToken(beamspotToken_, beamspot) ) return;
     if(!(*beamspotSelect_)(*beamspot)) return;
   }
+
   // apply selection steps
   for(std::vector<std::string>::const_iterator selIt=selectionOrder_.begin(); selIt!=selectionOrder_.end(); ++selIt){
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if(selection_.find(key)!=selection_.end()){
       if(type=="empty"){
-	selection_[key].second->fill(event, setup);
+	selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
       }
       if(type=="Hlt" ){
 //      cout<<"HLT filled"<<endl;
-        selection_[key].second->fill(event, setup);
+        selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
       }
       if(type=="muons"){
-	SelectionStepHLT<reco::Muon> step(selection_[key].first);
+	SelectionStepHLT<reco::Muon> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){
-	  selection_[key].second->fill(event, setup);
+	  selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
 	} else break;
       }
       if(type=="elecs"){
-	SelectionStepHLT<reco::GsfElectron> step(selection_[key].first);
+	SelectionStepHLT<reco::GsfElectron> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){ 
-	  selection_[key].second->fill(event, setup);
+	  selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
 	} else break;
       }
       if(type=="jets" ){
-	SelectionStepHLT<reco::Jet> step(selection_[key].first);
+	SelectionStepHLT<reco::Jet> step(selection_[key].first, consumesCollector());
 	if(step.select(event, setup)){
-	  selection_[key].second->fill(event, setup);
+	  selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
 	} else break;
       }
       if(type=="jets/pf" ){
-	SelectionStepHLT<reco::PFJet> step(selection_[key].first);
+	SelectionStepHLT<reco::PFJet> step(selection_[key].first, consumesCollector());
 	if(step.select(event, setup)){
-	  selection_[key].second->fill(event, setup);
+	  selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
 	} else break;
       }
       if(type=="jets/calo" ){
-	SelectionStepHLT<reco::CaloJet> step(selection_[key].first);
+	SelectionStepHLT<reco::CaloJet> step(selection_[key].first, consumesCollector());
 	if(step.select(event, setup)){
-	  selection_[key].second->fill(event, setup);
+	  selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
 	} else break;
       }
       if(type=="met" ){
-	SelectionStepHLT<reco::MET> step(selection_[key].first);
+	SelectionStepHLT<reco::MET> step(selection_[key].first, consumesCollector());
 	if(step.select(event)){
-	  selection_[key].second->fill(event, setup);
+	  selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
 	} else break;
       }
     }
