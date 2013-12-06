@@ -11,6 +11,10 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 #include <vector>
 #include <string>
 
@@ -30,7 +34,17 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
 
   virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId);
 
-  virtual bool passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId);
+  virtual bool passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& trackerRecHits, std::vector<unsigned int> previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId);
+
+  virtual int iterateHits(
+	SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
+	SiTrackerGSMatchedRecHit2DCollection::range range,
+	std::vector<std::vector<unsigned int>> hitNumbers,
+	std::vector<TrackerRecHit>& trackerRecHits,
+	unsigned int trackingAlgorithmId,
+	std::vector<unsigned int>& seedHitNumbers
+  );
+
 };
 
 #endif
