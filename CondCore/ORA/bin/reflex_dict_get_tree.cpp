@@ -66,7 +66,7 @@ void processType( const edm::TypeWithDict& t,
   std::set<std::string> bases;
   std::set<std::string> members;
 
-  while( objType.IsArray() ) objType = objType.ToType();
+  while( objType.isArray() ) objType = objType.ToType();
   if( isBasic( objType ) ) return;
   edm::TypeWithDictTemplate templ = objType.TemplateFamily();
   if ( templ ) {

@@ -57,7 +57,7 @@ namespace ora {
                 ++currentIndex;
             }
             return baseWanted;
-        } // end DataMemberAt
+        } // end FunctionMemberAt
 
         Reflex::PropertyList Properties( const edm::TypeWithDict& objType ) {
             return Reflex::PropertyList( objType );
