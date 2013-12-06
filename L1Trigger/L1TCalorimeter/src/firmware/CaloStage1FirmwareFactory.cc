@@ -23,9 +23,10 @@ using namespace edm;
 namespace l1t {
 
   CaloStage1FirmwareFactory::ReturnType
-  CaloStage1FirmwareFactory::create(const CaloParams & dbPars){
+  CaloStage1FirmwareFactory::create(/*const CaloParams & dbPars*/){
     ReturnType p;
-    unsigned fwv = dbPars.firmwareVersion();
+    //unsigned fwv = dbPars.firmwareVersion();
+    unsigned fwv = 1;
 
     // It is up to developers to choose when a new concrete firmware
     // implementation is needed. In this example, Imp1 handles FW
@@ -33,10 +34,10 @@ namespace l1t {
 
     switch (fwv){
     case 1:
-      p = ReturnType(new CaloStage1MainProcessorFirmwareImp1(dbPars));
+      p = ReturnType(new CaloStage1MainProcessorFirmwareImp1(/*dbPars*/));
       break;
     case 2:
-      p = ReturnType(new CaloStage1MainProcessorFirmwareImp1(dbPars));
+      p = ReturnType(new CaloStage1MainProcessorFirmwareImp1(/*dbPars*/));
       break;
     default:
       // Invalid Firmware, log an error:

@@ -25,13 +25,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //this doesn't exist yet 12/5/13 Alex
-#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
+//#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
 //this only exists in Jim's private repo?
-#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+//#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
-#include <vector.h>
+#include <vector>
 
 //#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
@@ -62,7 +62,7 @@ namespace l1t {
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
-    boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
+    //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
     boost::shared_ptr<CaloStage1MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
 
     CaloStage1FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
@@ -80,7 +80,7 @@ namespace l1t {
     produces<std::vector<l1t::Jet>>();
 
     // register what you consume and keep token for later access:
-    regionToken = consumes<std::vector<l1t::CaloRegions>>(iConfig.getParameter<InputTag>("uctDigis"));
+    regionToken = consumes<std::vector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("uctDigis"));
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
@@ -104,7 +104,7 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
   LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::produce function called...\n";
 
-  Handle<std::vector<l1t::CaloRegions>> caloRegions;
+  Handle<std::vector<l1t::CaloRegion>> caloRegions;
   iEvent.getByToken(regionToken,caloRegions);
 
   std::auto_ptr<std::vector<l1t::Jet>> l1Jets (new std::vector<l1t::Jet>);
@@ -132,22 +132,23 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
 
   LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::beginRun function called...\n";
 
-  unsigned long long id = iE.get<CaloParamsRcd>().cacheIdentifier();
+  //unsigned long long id = iE.get<CaloParamsRcd>().cacheIdentifier();
 
-  if (id != m_paramsCacheId){ // Need to update:
-    m_paramsCacheId = id;
+  //if (id != m_paramsCacheId)
+  { // Need to update:
+    //m_paramsCacheId = id;
 
-    ESHandle<CaloParams> parameters;
-    iE.get<CaloParamsRcd>().get(parameters);
+    //ESHandle<CaloParams> parameters;
+    //iE.get<CaloParamsRcd>().get(parameters);
 
-    m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
+    //m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
 
-    if (! m_dbpars){
-      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: could not retreive DB params from Event Setup\n";
-    }
+    // if (! m_dbpars){
+    //   LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: could not retreive DB params from Event Setup\n";
+    // }
 
     // Set the current algorithm version based on DB pars from database:
-    m_fw = m_factory.create(*m_dbpars);
+    m_fw = m_factory.create(/**m_dbpars*/);
 
     if (! m_fw) {
       // we complain here once per run

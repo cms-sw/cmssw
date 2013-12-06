@@ -18,18 +18,18 @@
 #define L1TCALOSTAGE1JETALGORITHMIMP_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
-#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+//#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
 namespace l1t {
 
   class CaloStage1JetAlgorithmImpHI : public CaloStage1JetAlgorithm {
   public:
-    CaloStage1JetAlgorithmImpHI(const CaloParams & dbPars);
+    CaloStage1JetAlgorithmImpHI(/*const CaloParams & dbPars*/);
     virtual ~CaloStage1JetAlgorithmImpHI();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      std::vector<l1t::Jet> & jets);
   private:
-    CaloParams const & db;
+    /*CaloParams const & db;*/
   };
 }
 

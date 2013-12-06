@@ -13,7 +13,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+//#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 //#include "DataFormats/L1TYellow/interface/YellowDigi.h"
 //#include "DataFormats/L1TYellow/interface/YellowOutput.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -26,7 +26,7 @@ namespace l1t {
   public:
     typedef boost::shared_ptr<CaloStage1MainProcessor> ReturnType;
 
-    ReturnType create(const CaloParams & dbPars);
+    ReturnType create(/*const CaloParams & dbPars*/);
 
     // (Why not make "create" a static member function? You could...
     // But this way allows you to add additional customizations to the
