@@ -11,7 +11,7 @@ namespace edm {
     template <typename KEY, typename T, typename E>
     ThreadSafeRegistry<KEY,T,E>*
     ThreadSafeRegistry<KEY,T,E>::instance() {
-      [[edm::thread_safe]] static ThreadSafeRegistry<KEY,T,E> me;
+      static ThreadSafeRegistry<KEY,T,E> me;
       return &me;
     }
 
