@@ -70,6 +70,9 @@
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
+
 #include <vector>
 
 EcalDBCopy::EcalDBCopy(const edm::ParameterSet& iConfig) :
@@ -178,6 +181,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalTimeOffsetConstantRcd>().cacheIdentifier();
   } else if (container == "EcalSampleMask") {
     cacheID = evtSetup.get<EcalSampleMaskRcd>().cacheIdentifier();
+  } else if (container == "EcalTimeBiasCorrections") {
+    cacheID = evtSetup.get<EcalTimeBiasCorrectionsRcd>().cacheIdentifier();
   }
 
   else {
@@ -421,7 +426,23 @@ else if (container == "EcalIntercalibConstantsMC") {
    std::cout << "sample mask pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const EcalSampleMask>( new EcalSampleMask(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
- } else {
+ } else if (container == "EcalTimeBiasCorrections") {
+   edm::ESHandle<EcalTimeBiasCorrections> handle;
+   evtSetup.get<EcalTimeBiasCorrectionsRcd>().get(handle);
+   const EcalTimeBiasCorrections* obj = handle.product();
+   std::cout << "TimeBiasCorrections pointer is: "<< obj<< std::endl;
+   EcalTimeBiasCorrections *bias_;
+   bias_ = new EcalTimeBiasCorrections();
+   std::vector<float> vect = obj->EBTimeCorrAmplitudeBins;
+   copy(vect.begin(), vect.end(), back_inserter(bias_->EBTimeCorrAmplitudeBins));
+   vect = obj->EBTimeCorrShiftBins;
+   copy(vect.begin(), vect.end(), back_inserter(bias_->EBTimeCorrShiftBins));
+   vect = obj->EETimeCorrAmplitudeBins;
+   copy(vect.begin(), vect.end(), back_inserter(bias_->EETimeCorrAmplitudeBins));
+   vect = obj->EETimeCorrShiftBins;
+   copy(vect.begin(), vect.end(), back_inserter(bias_->EETimeCorrShiftBins));
+   dbOutput->writeOne(bias_, dbOutput->beginOfTime(), "EcalTimeBiasCorrectionsRcd");
+} else {
     throw cms::Exception("Unknown container");
   }
 
