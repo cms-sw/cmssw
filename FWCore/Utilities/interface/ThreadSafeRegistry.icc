@@ -5,13 +5,13 @@
 
 namespace edm {
   namespace detail {
-    static boost::mutex registry_mutex;
+    [[edm::thread_safe]] static boost::mutex registry_mutex;
 
     // ----------------------------------------------------------------------
     template <typename KEY, typename T, typename E>
     ThreadSafeRegistry<KEY,T,E>*
     ThreadSafeRegistry<KEY,T,E>::instance() {
-      static ThreadSafeRegistry<KEY,T,E> me;
+      [[edm::thread_safe]] static ThreadSafeRegistry<KEY,T,E> me;
       return &me;
     }
 
