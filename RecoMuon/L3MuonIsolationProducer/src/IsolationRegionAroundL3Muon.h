@@ -9,18 +9,22 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 class IsolationRegionAroundL3Muon : public TrackingRegionProducer {
 
 public:
 
-  IsolationRegionAroundL3Muon(const edm::ParameterSet& cfg) { 
+  IsolationRegionAroundL3Muon(const edm::ParameterSet& cfg,
+	edm::ConsumesCollector && iC) { 
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
     theVertexSrc   = regionPSet.getParameter<std::string>("vertexSrc");
-    theInputTrkSrc = regionPSet.getParameter<edm::InputTag>("TrkSrc");
+    if (theVertexSrc.length()>1) theVertexToken   = iC.consumes<reco::VertexCollection>(
+	edm::InputTag(theVertexSrc));
+    theInputTrkToken = iC.consumes<reco::TrackCollection>(regionPSet.getParameter<edm::InputTag>("TrkSrc"));
 
     thePtMin              = regionPSet.getParameter<double>("ptMin");
     theOriginRadius       = regionPSet.getParameter<double>("originRadius");
@@ -46,7 +50,7 @@ public:
     double originz = theOriginZPos;
     if (theVertexSrc.length()>1) {
       edm::Handle<reco::VertexCollection> vertices;
-      ev.getByLabel(theVertexSrc,vertices);
+      ev.getByToken(theVertexToken,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (vertCollection.size()>0) {
@@ -58,7 +62,7 @@ public:
     }
 
     edm::Handle<reco::TrackCollection> trks;
-    ev.getByLabel(theInputTrkSrc, trks);
+    ev.getByToken(theInputTrkToken, trks);
 
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
       double vz = (theVertexZconstrained) ? iTrk->dz() : originz;
@@ -75,7 +79,8 @@ public:
 private:
 
   std::string theVertexSrc;
-  edm::InputTag theInputTrkSrc;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexToken;
+  edm::EDGetTokenT<reco::TrackCollection> theInputTrkToken;
 
   double thePtMin; 
   double theOriginRadius; 

@@ -44,7 +44,6 @@ METBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   
   
   Handle< View<MET> > collection; 
-  //iEvent.getByLabel( inputLabel_, collection); 
   iEvent.getByToken(myColl_, collection);
 
   fill( *collection );

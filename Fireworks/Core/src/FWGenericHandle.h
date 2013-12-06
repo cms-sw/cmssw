@@ -127,14 +127,14 @@ public:
 
    void clear() { prov_ = 0; whyFailed_.reset();}
       
-   void setWhyFailed(boost::shared_ptr<cms::Exception> const& iWhyFailed) {
+   void setWhyFailed(std::shared_ptr<cms::Exception> const& iWhyFailed) {
     whyFailed_=iWhyFailed;
   }
 private:
    edm::TypeWithDict type_;
    edm::ObjectWithDict prod_;
    Provenance const* prov_;    
-   boost::shared_ptr<cms::Exception> whyFailed_;
+   std::shared_ptr<cms::Exception> whyFailed_;
 };
 
 typedef Handle<FWGenericObject> FWGenericHandle;

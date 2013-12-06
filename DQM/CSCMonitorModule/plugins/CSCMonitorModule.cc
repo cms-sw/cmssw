@@ -37,7 +37,17 @@ CSCMonitorModule::CSCMonitorModule(const edm::ParameterSet& ps) {
     
   dbe = edm::Service<DQMStore>().operator->();
 
+#ifdef DQMLOCAL
   dispatcher = new cscdqm::Dispatcher(&config, const_cast<CSCMonitorModule*>(this));
+#endif
+#ifdef DQMGLOBAL
+  //  edm::ConsumesCollector coco( consumesCollector() );
+  dispatcher = new cscdqm::Dispatcher(&config, const_cast<CSCMonitorModule*>(this), 
+				      inputTag, consumesCollector() );
+  dcstoken = consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi") );
+
+#endif
+
   dispatcher->init();
 
   if (ps.exists("MASKEDHW")) {
@@ -84,7 +94,12 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Get DCS status scalers
   if (processDcsScalers) {
     edm::Handle<DcsStatusCollection> dcsStatus;
+#ifdef DQMLOCAL
     if (e.getByLabel("scalersRawToDigi", dcsStatus)) {
+#endif
+#ifdef DQMGLOBAL
+    if (e.getByToken(dcstoken, dcsStatus) ) {
+#endif
       DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
       for (; dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
         standby.applyMeP(dcsStatusItr->ready(DcsStatus::CSCp));

@@ -296,7 +296,7 @@ namespace evf {
     // close and reopen the stream / fd
     close(fu_readwritelock_fd_);
     std::string fulockfile = bu_run_dir_ + "/fu.lock";
-    fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR, S_IRWXU);
+    fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR | O_NONBLOCK, S_IRWXU);
     if (fu_readwritelock_fd_ == -1)
       edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock "
 		<< strerror(errno);
@@ -307,7 +307,9 @@ namespace evf {
     edm::LogInfo("EvFDaqDirector") << "Reopened the fw FD & STREAM";
 
     // obtain lock on the fulock file - this call will block if the lock is held by another process
-    fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_flk);
+    int retval = fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_flk);
+    //if locking fails just return here 
+    if(retval!=0) return false;
 
     eorSeen = false;
     struct stat buf;

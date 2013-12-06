@@ -21,7 +21,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -34,8 +33,6 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
@@ -46,9 +43,6 @@
 
 #include <TTree.h>
 #include <TFile.h>
-
-using namespace std;
-using namespace edm;
 
 // End job: write and close the ntuple file
 void SiPixelTrackingRecHitsValid::endJob() 
@@ -115,19 +109,20 @@ void SiPixelTrackingRecHitsValid::beginJob()
   
 }
 
-SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps):conf_(ps), dbe_(0), tfile_(0), t_(0)
+SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet& ps):conf_(ps), dbe_(0), tfile_(0), t_(0)
 {
   //Read config file
   MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixeltrackingrechitshisto.root");
-  src_ = ps.getUntrackedParameter<std::string>( "src" );
+  outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "pixeltrackingrechitshisto.root");
+  siPixelRecHitCollectionToken_ = consumes<SiPixelRecHitCollection>( edm::InputTag( "siPixelRecHits" ) );
+  recoTrackCollectionToken_ = consumes<reco::TrackCollection>( edm::InputTag( ps.getUntrackedParameter<std::string>( "src" ) ) );
   builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
   checkType_ = ps.getParameter<bool>("checkType");
   genType_ = ps.getParameter<int>("genType");
-  debugNtuple_=ps.getUntrackedParameter<string>("debugNtuple", "SiPixelTrackingRecHitsValid_Ntuple.root");
+  debugNtuple_=ps.getUntrackedParameter<std::string>("debugNtuple", "SiPixelTrackingRecHitsValid_Ntuple.root");
 
   // Book histograms
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
 
   //float math_pi = 3.14159265;
@@ -1103,7 +1098,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       // --------------------------------------- all hits -----------------------------------------------------------
       //--- Fetch Pixel RecHits
       edm::Handle<SiPixelRecHitCollection> recHitColl;
-      e.getByLabel( "siPixelRecHits", recHitColl);
+      e.getByToken( siPixelRecHitCollectionToken_, recHitColl );
       
       //cout <<" ----- Found " 
       //   << const_cast<SiPixelRecHitCollection*>(recHitColl.product())->size()
@@ -1162,7 +1157,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			  mePosxZmPanel2_all_hits->Fill( rechitx );
 			  mePosyZmPanel2_all_hits->Fill( rechity );
 			}
-		      else LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
+		      else edm::LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
 		    } // if ( side==1 ) 
 		  else if ( side==2 )
 		    {
@@ -1176,12 +1171,12 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			   mePosxZpPanel2_all_hits->Fill( rechitx );
 			   mePosyZpPanel2_all_hits->Fill( rechity );
 			 }
-		       else  LogWarning("SiPixelTrackingRecHitsValid")<< "..............................................Wrong panel number !";
+		       else  edm::LogWarning("SiPixelTrackingRecHitsValid")<< "..............................................Wrong panel number !";
 		    } //else if ( side==2 )
-		  else LogWarning("SiPixelTrackingRecHitsValid") << ".......................................................Wrong side !" ;
+		  else edm::LogWarning("SiPixelTrackingRecHitsValid") << ".......................................................Wrong side !" ;
 		  
 		} // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
-	      else LogWarning("SiPixelTrackingRecHitsValid") << "Pixel rechit collection but we are not in the pixel detector" << (int)detId.subdetId() ;
+	      else edm::LogWarning("SiPixelTrackingRecHitsValid") << "Pixel rechit collection but we are not in the pixel detector" << (int)detId.subdetId() ;
 	      
 	    }
 	}
@@ -1189,7 +1184,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
        
       // Get tracks
       edm::Handle<reco::TrackCollection> trackCollection;
-      e.getByLabel(src_, trackCollection);
+      e.getByToken( recoTrackCollectionToken_, trackCollection );
       const reco::TrackCollection *tracks = trackCollection.product();
       reco::TrackCollection::const_iterator tciter;
 
@@ -1279,8 +1274,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			  
 			  int n_assoc_muon = 0;
 
-			  vector<PSimHit>::const_iterator closestit = matched.begin();
-			  for (vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++)
+			  std::vector<PSimHit>::const_iterator closestit = matched.begin();
+			  for (std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++)
 			    {
 			      if ( checkType_ )
 				{
@@ -1305,7 +1300,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				  closestit = m;
 				  found_hit_from_generated_particle = true;
 				}
-			    } // for (vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++)
+			    } // for (std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++)
 			  
 			  // This recHit does not have any simHit with the same particleType as the particles generated
 			  // Ignore it as most probably come from delta rays.
@@ -1314,8 +1309,8 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			  
 			  if ( n_assoc_muon > 1 )
 			    {
-			      LogWarning("SiPixelTrackingRecHitsValid") << " ----- This is not good: n_assoc_muon = " << n_assoc_muon ;
-			      LogWarning("SiPixelTrackingRecHitsValid") << "evt = " << evt ;
+			      edm::LogWarning("SiPixelTrackingRecHitsValid") << " ----- This is not good: n_assoc_muon = " << n_assoc_muon ;
+			      edm::LogWarning("SiPixelTrackingRecHitsValid") << "evt = " << evt ;
 			    }
 
 			  pidhit = (*closestit).particleType();
@@ -1388,7 +1383,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				  half = 0;
 				}
 			      else 
-				LogWarning("SiPixelTrackingRecHitsValid") << "-------------------------------------------------- Wrong module size !!!";
+				edm::LogWarning("SiPixelTrackingRecHitsValid") << "-------------------------------------------------- Wrong module size !!!";
 
 			      float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
 			      float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
@@ -1620,7 +1615,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				      mePullYvsEtaZmPanel2DiskPlaq[disk-1][plaq-1]->Fill( eta, rechitpully );
 
 				    }
-				  else LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
+				  else edm::LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
 				} // if ( side==1 ) 
 			      else if ( side==2 )
 				{
@@ -1740,12 +1735,12 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 				      mePullYvsEtaZpPanel2DiskPlaq[disk-1][plaq-1]->Fill( eta, rechitpully );
 
 				    }
-				  else LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
+				  else edm::LogWarning("SiPixelTrackingRecHitsValid") << "..............................................Wrong panel number !"; 
 				} //else if ( side==2 )
-			      else LogWarning("SiPixelTrackingRecHitsValid") << ".......................................................Wrong side !" ;
+			      else edm::LogWarning("SiPixelTrackingRecHitsValid") << ".......................................................Wrong side !" ;
 			      
 			    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
-			  else LogWarning("SiPixelTrackingRecHitsValid") << "Pixel rechit but we are not in the pixel detector" << (int)detId.subdetId() ;
+			  else edm::LogWarning("SiPixelTrackingRecHitsValid") << "Pixel rechit but we are not in the pixel detector" << (int)detId.subdetId() ;
 			  
 			  if(debugNtuple_.size()!=0)t_->Fill();
 

@@ -41,7 +41,29 @@ GlobalDigisAnalyzer::GlobalDigisAnalyzer(const edm::ParameterSet& iPSet) :
   MuCSCStripSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCStripSrc");
   MuCSCWireSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCWireSrc");
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
-  
+
+  ECalEBSrc_Token_ = consumes<EBDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
+  ECalEESrc_Token_ = consumes<EEDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEESrc"));
+  ECalESSrc_Token_ = consumes<ESDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalESSrc"));
+  HCalSrc_Token_ = consumes<edm::PCaloHitContainer>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  HBHEDigi_Token_ = consumes<edm::SortedCollection<HBHEDataFrame> >(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  HODigi_Token_ = consumes<edm::SortedCollection<HODataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  HFDigi_Token_ = consumes<edm::SortedCollection<HFDataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  SiStripSrc_Token_ = consumes<edm::DetSetVector<SiStripDigi> >(iPSet.getParameter<edm::InputTag>("SiStripSrc")); 
+  SiPxlSrc_Token_ = consumes<edm::DetSetVector<PixelDigi> >(iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
+  MuDTSrc_Token_ = consumes<DTDigiCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
+  MuCSCStripSrc_Token_ = consumes<CSCStripDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCStripSrc"));
+  MuCSCWireSrc_Token_ = consumes<CSCWireDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCWireSrc"));
+  MuRPCSrc_Token_ = consumes<RPCDigiCollection>(iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
+  //
+  const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
+  const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
+  const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("barrelHitsName")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
+
+  RPCSimHit_Token_ = consumes<edm::PSimHitContainer>(edm::InputTag(std::string("g4SimHits"), std::string("MuonRPCHits")));
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -547,7 +569,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isBarrel = true;
   edm::Handle<EBDigiCollection> EcalDigiEB;  
-  iEvent.getByLabel(ECalEBSrc_, EcalDigiEB);
+  iEvent.getByToken(ECalEBSrc_Token_, EcalDigiEB);
   bool validDigiEB = true;
   if (!EcalDigiEB.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -561,8 +583,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
       
       // loop over simhits
       MapType ebSimMap;
-      const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
-      iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
+      iEvent.getByToken(EBHits_Token_,crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
 	LogDebug(MsgLoggerCat)
@@ -674,7 +695,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isEndCap = true;
   edm::Handle<EEDigiCollection> EcalDigiEE;  
-  iEvent.getByLabel(ECalEESrc_, EcalDigiEE);
+  iEvent.getByToken(ECalEESrc_Token_, EcalDigiEE);
   bool validDigiEE = true;
   if (!EcalDigiEE.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -688,8 +709,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
       
       // loop over simhits
       MapType eeSimMap;
-      const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
-      iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
+      iEvent.getByToken(EEHits_Token_,crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
 	LogDebug(MsgLoggerCat)
@@ -803,7 +823,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
   ////////////////////////
   bool isPreshower = true;
   edm::Handle<ESDigiCollection> EcalDigiES;  
-  iEvent.getByLabel(ECalESSrc_, EcalDigiES);
+  iEvent.getByToken(ECalESSrc_Token_, EcalDigiES);
   bool validDigiES = true;
   if (!EcalDigiES.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -820,8 +840,7 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event& iEvent,
     if (isPreshower) {
       
       // loop over simhits
-      const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
-      iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
+      iEvent.getByToken(ESHits_Token_,crossingFrame);
       bool validXFrame = true;
       if (!crossingFrame.isValid()) {
 	LogDebug(MsgLoggerCat)
@@ -917,7 +936,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   // extract simhit info
   //////////////////////
   edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByLabel(HCalSrc_,hcalHits);
+  iEvent.getByToken(HCalSrc_Token_,hcalHits);
   bool validhcalHits = true;
   if (!hcalHits.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -957,7 +976,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   // get HBHE information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HBHEDataFrame> > hbhe;
-  iEvent.getByLabel(HCalDigi_,hbhe);
+  iEvent.getByToken(HBHEDigi_Token_,hbhe);
   bool validHBHE = true;
   if (!hbhe.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1047,7 +1066,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   // get HO information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HODataFrame> > ho;
-  iEvent.getByLabel(HCalDigi_,ho);
+  iEvent.getByToken(HODigi_Token_,ho);
   bool validHO = true;
   if (!ho.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1103,7 +1122,7 @@ void GlobalDigisAnalyzer::fillHCal(const edm::Event& iEvent,
   // get HF information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HFDataFrame> > hf;
-  iEvent.getByLabel(HCalDigi_,hf);
+  iEvent.getByToken(HFDigi_Token_,hf);
   bool validHF = true;
   if (!hf.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1178,7 +1197,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event& iEvent,
   
   // get strip information
   edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;  
-  iEvent.getByLabel(SiStripSrc_, stripDigis);
+  iEvent.getByToken(SiStripSrc_Token_, stripDigis);
   bool validstripDigis = true;
   if (!stripDigis.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1325,7 +1344,7 @@ void GlobalDigisAnalyzer::fillTrk(const edm::Event& iEvent,
 
   // get pixel information
   edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;  
-  iEvent.getByLabel(SiPxlSrc_, pixelDigis);
+  iEvent.getByToken(SiPxlSrc_Token_, pixelDigis);
   bool validpixelDigis = true;
   if (!pixelDigis.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1435,7 +1454,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   
   // get DT information
   edm::Handle<DTDigiCollection> dtDigis;  
-  iEvent.getByLabel(MuDTSrc_, dtDigis);
+  iEvent.getByToken(MuDTSrc_Token_, dtDigis);
   bool validdtDigis = true;
   if (!dtDigis.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1498,7 +1517,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
 
   // get CSC Strip information
   edm::Handle<CSCStripDigiCollection> strips;  
-  iEvent.getByLabel(MuCSCStripSrc_, strips);
+  iEvent.getByToken(MuCSCStripSrc_Token_, strips);
   bool validstrips = true;
   if (!strips.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1542,7 +1561,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
 
   // get CSC Wire information
   edm::Handle<CSCWireDigiCollection> wires;  
-  iEvent.getByLabel(MuCSCWireSrc_, wires);
+  iEvent.getByToken(MuCSCWireSrc_Token_, wires);
   bool validwires = true;
   if (!wires.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1583,7 +1602,8 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   }
   
   edm::Handle<edm::PSimHitContainer> rpcsimHit;
-  iEvent.getByLabel("g4SimHits", "MuonRPCHits", rpcsimHit);
+  iEvent.getByToken(RPCSimHit_Token_, rpcsimHit);
+  //  iEvent.getByLabel("g4SimHits", "MuonRPCHits", rpcsimHit);
   bool validrpcsim = true;
   if (!rpcsimHit.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1592,7 +1612,7 @@ void GlobalDigisAnalyzer::fillMuon(const edm::Event& iEvent,
   }   
   
   edm::Handle<RPCDigiCollection> rpcDigis;  
-  iEvent.getByLabel(MuRPCSrc_, rpcDigis);
+  iEvent.getByToken(MuRPCSrc_Token_, rpcDigis);
   bool validrpcdigi = true;
   if (!rpcDigis.isValid()) {
     LogDebug(MsgLoggerCat)

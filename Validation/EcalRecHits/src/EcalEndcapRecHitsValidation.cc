@@ -16,8 +16,8 @@ using namespace std;
 EcalEndcapRecHitsValidation::EcalEndcapRecHitsValidation(const ParameterSet& ps){
 
   // ---------------------- 
-  EEdigiCollection_          = ps.getParameter<edm::InputTag>("EEdigiCollection");
-  EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
+  EEdigiCollection_token_          = consumes< EEDigiCollection > (ps.getParameter<edm::InputTag>("EEdigiCollection") );
+  EEuncalibrechitCollection_token_ = consumes< EEUncalibratedRecHitCollection > (ps.getParameter<edm::InputTag>("EEuncalibrechitCollection") );
     
   // ---------------------- 
   // verbosity switch 
@@ -130,7 +130,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
+  e.getByToken( EEuncalibrechitCollection_token_, EcalUncalibRecHitEE);
   if (EcalUncalibRecHitEE.isValid()) {
     EEUncalibRecHit = EcalUncalibRecHitEE.product() ;
   } else {
@@ -140,7 +140,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   bool skipDigis = false;
   const EEDigiCollection *EEDigi = 0;
   Handle< EEDigiCollection > EcalDigiEE;
-  e.getByLabel( EEdigiCollection_, EcalDigiEE);
+  e.getByToken( EEdigiCollection_token_, EcalDigiEE);
   if (EcalDigiEE.isValid()) { 
     EEDigi = EcalDigiEE.product(); 
   } else { 
