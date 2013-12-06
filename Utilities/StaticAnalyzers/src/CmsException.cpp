@@ -13,7 +13,7 @@ namespace clangcms {
 bool CmsException::reportGeneral( clang::ento::PathDiagnosticLocation const& path,
 				clang::ento::BugReporter & BR ) const
 {
-  const char *sfile=BR.getSourceManager().getPresumedLoc(path.asDecl()->getLocation()).getFilename();
+  const char *sfile=BR.getSourceManager().getPresumedLoc(path.asLocation()).getFilename();
   if ((!sfile) || (!support::isCmsLocalFile(sfile))) return false;
   return true;
 }

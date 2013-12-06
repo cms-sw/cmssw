@@ -5,13 +5,17 @@
 //===----------------------------------------------------------------------===//
 
 #include "MutableMemberChecker.h"
+#include <clang/AST/Attr.h>
 using namespace clang;
+using namespace ento;
+using namespace llvm;
 namespace clangcms {
 
 void MutableMemberChecker::checkASTDecl(const clang::FieldDecl *D,
                     clang::ento::AnalysisManager &Mgr,
                     clang::ento::BugReporter &BR) const
 {
+        if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
 	if ( D->isMutable() &&
 			 D->getDeclContext()->isRecord() )
 	{
