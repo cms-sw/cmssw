@@ -68,7 +68,7 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
   event.getByLabel( label_, buffers ); 
   
   // Local cache of fed ids from cabling
-  vector<uint16_t> fed_ids = cabling->feds();
+  auto fed_ids = cabling->fedIds();
   
   // Containers storing fed ids and buffer sizes
   Feds trg_feds; // trigger feds
@@ -193,7 +193,7 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
     uint16_t ifed = trk_feds[ii].first;
 
     // record connections
-    vector<FedChannelConnection> channels = cabling->connections(ifed);
+    auto channels = cabling->fedConnections(ifed);
     for ( uint16_t chan = 0; chan < channels.size(); ++chan ) {
       if ( channels[chan].isConnected() ) {
 	connected[ifed].push_back(channels[chan].fedCh());

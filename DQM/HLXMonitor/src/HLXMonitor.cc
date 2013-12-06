@@ -818,8 +818,13 @@ void HLXMonitor::SaveDQMFile(){
 
   for( size_t i = 0, e = systems.size(); i != e; ++i )
      if (systems[i] != "Reference")
-         dbe_->save( tempStreamer.str(), systems[i], "^(Reference/)?([^/]+)", rewrite,
-		     (DQMStore::SaveReferenceTag)saveReference_, saveReferenceQMin_);
+         // TODO(rovere):  fix the saving to comply w/ the DQM-multithread
+         dbe_->save( tempStreamer.str(),
+                     systems[i],
+                     "^(Reference/)?([^/]+)",
+                     rewrite,
+                     0,
+		                 (DQMStore::SaveReferenceTag)saveReference_, saveReferenceQMin_);
 
   //dbe_->save(tempStreamer.str());
 }

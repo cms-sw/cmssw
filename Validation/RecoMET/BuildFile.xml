@@ -9,9 +9,13 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/DetId"/>
+<use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
-<flags   EDM_PLUGIN="1"/>
+<export>
+  <lib   name="1"/>
+</export>
+

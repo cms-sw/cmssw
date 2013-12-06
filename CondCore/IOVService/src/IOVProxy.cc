@@ -1,7 +1,10 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
+#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
 
+#include <iostream>
 void cond::IOVProxyData::refresh(){
+  if( token.empty() ) return;
   data = dbSession.getTypedObject<cond::IOVSequence>( token );
   // loading the lazy-loading Queryable vector...
   data->loadAll();

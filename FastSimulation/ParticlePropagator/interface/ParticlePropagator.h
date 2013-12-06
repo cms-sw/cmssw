@@ -21,7 +21,7 @@
 
 class TrackerLayer;
 class FSimTrack;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class MagneticFieldMap;
 
 class ParticlePropagator : public BaseParticlePropagator {
@@ -36,13 +36,13 @@ public:
   ParticlePropagator(const RawParticle& myPart, 
 		     double R, double Z,
 		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngine* engine);
+		     const RandomEngineAndDistribution* engine);
   
   /** Constructor with only a RawParticle as argument for subsequent 
       propagation to known surfaces (ECAL, HCAL ...) */
   ParticlePropagator(const RawParticle& myPart,
 		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngine* engine);
+		     const RandomEngineAndDistribution* engine);
 
   /** Constructor with two LorentzVector (momentum and vertex (in cm)) and 
       an electric charge propagation to known surfaces (ECAL, HCAL ...) */
@@ -60,7 +60,7 @@ public:
   /** Constructor with a FSimTrack from the FSimEvent*/
   ParticlePropagator(const FSimTrack& simTrack,
 		     const MagneticFieldMap* aFieldMap,
-		     const RandomEngine* engine);
+		     const RandomEngineAndDistribution* engine);
 
   /** Constructor with a (Base)ParticlePropagator*/
   ParticlePropagator(const ParticlePropagator& myPropPart);
@@ -94,7 +94,7 @@ public:
 private:
 
   const MagneticFieldMap* theFieldMap;
-  const RandomEngine* random;
+  const RandomEngineAndDistribution* random;
 
 };
 

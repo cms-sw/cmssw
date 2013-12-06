@@ -49,11 +49,9 @@ void PFMETDQMAnalyzer::beginJob() {
 void PFMETDQMAnalyzer::analyze(edm::Event const& iEvent, 
 				      edm::EventSetup const& iSetup) {
   edm::Handle< edm::View<reco::MET> > metCollection;
-  //iEvent.getByLabel(inputLabel_, metCollection);   
   iEvent.getByToken(myMET_, metCollection);   
   
   edm::Handle< edm::View<reco::MET> > matchedMetCollection; 
-  //iEvent.getByLabel( matchLabel_, matchedMetCollection);
   iEvent.getByToken(myMatchedMET_, matchedMetCollection);
 
   if (metCollection.isValid() && matchedMetCollection.isValid()) {

@@ -6,6 +6,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
@@ -56,10 +57,10 @@ namespace edm {
   }
 
   static
-  boost::shared_ptr<cms::Exception>
+  std::shared_ptr<cms::Exception>
   makeNotFoundException(char const* where, KindOfType kindOfType,
                         TypeID const& productType, std::string const& label, std::string const& instance, std::string const& process) {
-    boost::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
+    std::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
     if (kindOfType == PRODUCT_TYPE) {
       *exception << "Principal::" << where << ": Found zero products matching all criteria\nLooking for type: " << productType << "\n"
                  << "Looking for module label: " << label << "\n" << "Looking for productInstanceName: " << instance << "\n"
@@ -95,13 +96,6 @@ namespace edm {
     << "Try a get not using a View or change the instance name of one of the products";
     throw exception;
     
-  }
-
-  static
-  void
-  throwNotFoundException(char const* where, TypeID const& productType, InputTag const& tag) {
-    boost::shared_ptr<cms::Exception> exception = makeNotFoundException(where, PRODUCT_TYPE, productType, tag.label(), tag.instance(), tag.process());
-    throw *exception;
   }
 
   namespace {
@@ -464,9 +458,9 @@ namespace edm {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, mcc);
     if(result == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed =
-        makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
-      return BasicHandle(whyFailed);
+      return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
+        return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
+      }));
     }
     return BasicHandle(*result);
   }
@@ -482,9 +476,9 @@ namespace edm {
 
     ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer, mcc);
     if(result == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed =
-        makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
-      return BasicHandle(whyFailed);
+      return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
+        return makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
+      }));
     }
     return BasicHandle(*result);
   }
@@ -738,9 +732,6 @@ namespace edm {
                          tag,
                          nullptr,
                          mcc);
-    if(productData == nullptr) {
-      throwNotFoundException("findProductByTag", typeID, tag);
-    }
     return productData;
   }
 

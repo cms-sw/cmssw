@@ -776,7 +776,7 @@ HLT_HT290_AlphaT0p57_v*					# Half rate menu postLS1
 HLT_HT340_AlphaT0p53_v*					# Half rate menu postLS1
 HLT_HT340_AlphaT0p54_v*					# Half rate menu postLS1
 HLT_HT360_DoubleDisplacedPFJet60_v*			# Half rate menu postLS1
-HLT_HT360_SingleDisplacedPFJet60_v*			# Half rate menu postLS1
+#HLT_HT360_SingleDisplacedPFJet60_v*			# Half rate menu postLS1   # removed, as it was added by mistake
 HLT_HT385_AlphaT0p52_v*					# Half rate menu postLS1
 HLT_HT380_AlphaT0p53_v*					# Half rate menu postLS1
 HLT_HT440_AlphaT0p51_v*					# Half rate menu postLS1

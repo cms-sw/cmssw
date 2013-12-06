@@ -17,20 +17,17 @@ class L3MumuTrackingRegion : public TrackingRegionProducer {
 
 public:
 
-  L3MumuTrackingRegion(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :  L3MumuTrackingRegion(cfg) {
-    if (theVertex) theVertexToken  = iC.consumes<reco::VertexCollection>(theVertexTag);
-    if (!(theVertex && useVtxTks)) theInputTrkToken= iC.consumes<reco::TrackCollection>(theInputTrkTag);
-  }
-
-  L3MumuTrackingRegion(const edm::ParameterSet& cfg) { 
+  L3MumuTrackingRegion(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) { 
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
     theVertexTag    = regionPSet.getParameter<edm::InputTag>("vertexSrc");
     theVertex       = (theVertexTag.label().length()>1);
     theInputTrkTag  = regionPSet.getParameter<edm::InputTag>("TrkSrc");
-
     useVtxTks = regionPSet.getParameter<bool>("UseVtxTks");
+
+    if (theVertex) theVertexToken  = iC.consumes<reco::VertexCollection>(theVertexTag);
+    if (!(theVertex && useVtxTks)) theInputTrkToken= iC.consumes<reco::TrackCollection>(theInputTrkTag);
 
     thePtMin              = regionPSet.getParameter<double>("ptMin");
     theOriginRadius       = regionPSet.getParameter<double>("originRadius");
@@ -68,18 +65,17 @@ public:
     double originz = theOriginZPos;
     if (theVertex) {
       edm::Handle<reco::VertexCollection> vertices;
-      if (theVertexToken.isUnitialized() || (!ev.getByToken(theVertexToken,vertices))) ev.getByLabel(theVertexTag,vertices);
+      ev.getByToken(theVertexToken,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (vertCollection.size()>0) {
-            originz = ci->z();
+	originz = ci->z();
       } else {
-            originz = theOriginZPos;
-            deltaZVertex = 15.;
+	originz = theOriginZPos;
+	deltaZVertex = 15.;
       }
       if (useVtxTks) {
-
-        for(ci=vertCollection.begin();ci!=vertCollection.end();ci++)
+	for(ci=vertCollection.begin();ci!=vertCollection.end();ci++)
           for (reco::Vertex::trackRef_iterator trackIt =  ci->tracks_begin();trackIt !=  ci->tracks_end();trackIt++){
 	    reco::TrackRef iTrk =  (*trackIt).castTo<reco::TrackRef>() ;
             GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
@@ -96,12 +92,11 @@ public:
     }
 
     edm::Handle<reco::TrackCollection> trks;
-    if (theInputTrkToken.isUnitialized() || (!ev.getByToken(theInputTrkToken,trks))) ev.getByLabel(theInputTrkTag, trks);
-
+    if (!theInputTrkToken.isUninitialized()) ev.getByToken(theInputTrkToken, trks);
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
       result.push_back( 
-          new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(originz)), 
+	  new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(originz)), 
 					       thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
 					       m_howToUseMeasurementTracker,
 					       true,

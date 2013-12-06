@@ -137,7 +137,7 @@ SiStripShotFilter::filter(edm::Event& iEvent,
 	 iCh < sistrip::FEDCH_PER_FED; 
 	 iCh++) {//loop on channels
 	  
-      const FedChannelConnection & lConnection = cabling_->connection(fedId,iCh);
+      const FedChannelConnection & lConnection = cabling_->fedConnection(fedId,iCh);
 
       uint32_t lDetId = lConnection.detId();
       short lAPVPair = lConnection.apvPairNumber();

@@ -14,6 +14,9 @@
 namespace Reflex {
   class Type;
 }
+namespace coral {
+  class ISessionProxy;
+}
 
 namespace ora {
 
@@ -50,6 +53,7 @@ namespace ora {
 
     bool connect( const std::string& connectionString, bool readOnly );
     bool connect( const std::string& connectionString, const std::string& asRole, bool readOnly );
+    bool connect( boost::shared_ptr<coral::ISessionProxy>& coralSession, const std::string& connectionString, const std::string& schemaName );
 
     void disconnect();
 
@@ -132,7 +136,9 @@ namespace ora {
     private:
     boost::shared_ptr<ConnectionPool> m_connectionPool;
     SharedSession m_dbSession;
+    bool m_ownedTransaction = true;
     std::string m_connectionString;
+    std::string m_schemaName;
     std::auto_ptr<IDatabaseSchema> m_schema;
     std::auto_ptr<NamedSequence> m_contIdSequence;
     std::auto_ptr<MappingDatabase> m_mappingDb;

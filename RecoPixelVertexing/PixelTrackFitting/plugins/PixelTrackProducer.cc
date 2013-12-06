@@ -16,7 +16,7 @@ using namespace pixeltrackfitting;
 using edm::ParameterSet;
 
 PixelTrackProducer::PixelTrackProducer(const ParameterSet& cfg)
-  : theReconstruction(cfg)
+  : theReconstruction(cfg, consumesCollector())
 {
   edm::LogInfo("PixelTrackProducer")<<" construction...";
   produces<reco::TrackCollection>();

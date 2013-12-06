@@ -28,6 +28,28 @@ namespace cscdqm {
    */
   Dispatcher::Dispatcher(Configuration* const p_config, MonitorObjectProvider* p_provider) : 
   collection(p_config), processor(p_config), processorFract(p_config) {
+    commonConstruct( p_config, p_provider );
+  }
+
+#ifdef DQMGLOBAL
+
+  /**
+   * @brief  Constructor.
+   * @param  p_config Pointer to Global Configuration
+   * @param  p_provider Pointer to MonitorObjectProvider
+   * @param  itag InputTag to raw data - to be passed down
+   * @param  coco rvalue to ConsumesCollector - to be passed down
+   * @return 
+   */
+  Dispatcher::Dispatcher(Configuration* const p_config, MonitorObjectProvider* p_provider,
+			   const edm::InputTag& itag, edm::ConsumesCollector&& coco) : 
+      collection(p_config), processor(p_config, itag, coco), processorFract(p_config) {
+    commonConstruct( p_config, p_provider );
+  }
+
+#endif
+
+  void Dispatcher::commonConstruct( Configuration* const p_config, MonitorObjectProvider* p_provider ) {
 
     /** Save pointers to class properties */
     config = p_config;

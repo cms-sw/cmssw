@@ -6,6 +6,7 @@
 
 #include "MixingModule.h"
 #include "MixingWorker.h"
+#include "Adjuster.h"
 
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -79,6 +80,7 @@ namespace edm {
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
+            adjustersObjects_.push_back(new Adjuster<SimTrack>(tag));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimTrack>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -106,6 +108,7 @@ namespace edm {
             std::string label;
 
             branchesActivate(TypeID(typeid(std::vector<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
+            adjustersObjects_.push_back(new Adjuster<SimVertex>(tag));
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
@@ -143,6 +146,7 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
+              adjustersObjects_.push_back(new Adjuster<PCaloHit>(tag));
               if(binary_search_all(crossingFrames, tag.instance())) {
                 workersObjects_.push_back(new MixingWorker<PCaloHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
                 produces<CrossingFrame<PCaloHit> >(label);
@@ -165,6 +169,7 @@ namespace edm {
               std::string label;
 
               branchesActivate(TypeID(typeid(std::vector<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
+              adjustersObjects_.push_back(new Adjuster<PSimHit>(tag));
               if(binary_search_all(crossingFrames, tag.instance())) {
                 workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF));
                 produces<CrossingFrame<PSimHit> >(label);
@@ -236,10 +241,17 @@ namespace edm {
   }
 
   void MixingModule::checkSignal(const edm::Event &e){
+    if (adjusters_.empty()){
+      for (auto const& adjuster : adjustersObjects_) {
+        if (adjuster->checkSignal(e)){
+          adjusters_.push_back(adjuster);
+        }
+      }
+    }
     if (workers_.empty()){
-      for (unsigned int ii=0;ii<workersObjects_.size();++ii){
-        if (workersObjects_[ii]->checkSignal(e)){
-          workers_.push_back(workersObjects_[ii]);
+      for (auto const& worker : workersObjects_) {
+        if (worker->checkSignal(e)){
+          workers_.push_back(worker);
         }
       }
     }
@@ -256,14 +268,16 @@ namespace edm {
 
   // Virtual destructor needed.
   MixingModule::~MixingModule() {
-    for (unsigned int ii=0;ii<workersObjects_.size();++ii){
-      delete workersObjects_[ii];
+    for (auto& worker : workersObjects_) {
+      delete worker;
     }
 
-    std::vector<DigiAccumulatorMixMod*>::const_iterator accItr = digiAccumulators_.begin();
-    std::vector<DigiAccumulatorMixMod*>::const_iterator accEnd = digiAccumulators_.end();
-    for (; accItr != accEnd; ++accItr) {
-        delete *accItr;
+    for (auto& adjuster : adjustersObjects_) {
+      delete adjuster;
+    }
+
+    for (auto& digiAccumulator : digiAccumulators_) {
+      delete digiAccumulator;
     }
   }
 
@@ -289,14 +303,17 @@ namespace edm {
     ModuleCallingContext moduleCallingContext(&moduleDescription());
     ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
 
-    PileUpEventPrincipal pep(eventPrincipal, &moduleCallingContext, bunchCrossing, bunchSpace_, eventId, vertexOffset);
+    for (auto const& adjuster : adjusters_) {
+      adjuster->doOffset(bunchSpace_, bunchCrossing, eventPrincipal, &moduleCallingContext, eventId, vertexOffset);
+    }
+    PileUpEventPrincipal pep(eventPrincipal, &moduleCallingContext, bunchCrossing);
     accumulateEvent(pep, setup);
 
-    for (unsigned int ii=0;ii<workers_.size();++ii) {
+    for (auto const& worker : workers_) {
       LogDebug("MixingModule") <<" merging Event:  id " << eventPrincipal.id();
       //      std::cout <<"PILEALLWORKERS merging Event:  id " << eventPrincipal.id() << std::endl;
 
-      workers_[ii]->addPileups(bunchCrossing,eventPrincipal, &moduleCallingContext, eventId, vertexOffset_);
+      worker->addPileups(eventPrincipal, &moduleCallingContext, eventId);
     }
   }
 

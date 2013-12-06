@@ -37,13 +37,14 @@ inline int FSimTrack::nDaughters() const {
 }
 
 inline const std::vector<int>& FSimTrack::daughters() const {
-  if(abs(type()) == 11)
+  if(abs(type()) == 11 || noEndVertex() )
     return daugh_;
   else{
-    if(noEndVertex())
-      throw cms::Exception("FastSim") << "FSimTrack::daughter(int index) called for FSimTrack w/o end vertex, please contact FastSim developers" << std::endl;
+    //if(noEndVertex()){
+      //throw cms::Exception("FastSim") << "FSimTrack::daughters() called for FSimTrack w/o end vertex, please contact FastSim developers" << std::endl;
+    //}
     return endVertex().daughters();
-  }	
+  }
 }
 
 inline bool FSimTrack::noEndVertex() const { 

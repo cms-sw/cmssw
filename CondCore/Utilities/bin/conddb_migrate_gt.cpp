@@ -4,9 +4,9 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Auth.h"
 
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/Utils.h"
-#include "CondCore/CondDB/interface/Configuration.h"
 
 #include "CondCore/CondDB/src/DbCore.h"
 
@@ -70,11 +70,7 @@ namespace cond {
       int execute();
   };
 
-  using Session = persistency::Session;
-  //using IOVproxy = persistency::IOVProxy;
-  using IOVEditor = persistency::IOVEditor;
-  using GTProxy = persistency::GTProxy;
-  using GTEditor = persistency::GTEditor;
+  using namespace persistency;
 }
 
 cond::MigrateGTUtilities::MigrateGTUtilities():Utilities("conddb_test_gt_import"){
@@ -125,9 +121,9 @@ int cond::MigrateGTUtilities::execute(){
   std::vector<std::tuple<std::string,std::string,std::string,std::string,std::string> > gtlist;
   if(! getGTList( gtag, gtlist ) ) throw std::runtime_error( std::string("GT ")+gtag+" has not been found." );
 
-  Session session;
-  if( hasDebug() ) session.configuration().setMessageVerbosity( coral::Debug );
-  session.open( destConnect );
+  ConnectionPool connPool;
+  if( hasDebug() ) connPool.setMessageVerbosity( coral::Debug );
+  Session session = connPool.createSession( destConnect, true );
   session.transaction().start( false );
 
   GTEditor newGT = session.createGlobalTag( gtag );

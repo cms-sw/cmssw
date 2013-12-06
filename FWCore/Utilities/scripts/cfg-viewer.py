@@ -91,7 +91,7 @@ class unscheduled:
     types = False
     with open(fullDataFile,'w') as data:
       data.write("{")
-      v = visitor(data)  
+      v = visitor(data, self._config)  
       for item in paths:
         if(not types):
           spec = self._checkType(item)
@@ -520,7 +520,7 @@ def getParamSeqDict(params, fil, typ, oType):
   return d
 
 class visitor:
-  def __init__(self, df):
+  def __init__(self, df, cfg):
     self._df = df
     self._underPath = [] # direct children of paths 
                          #(includes children of modules)
@@ -534,6 +534,7 @@ class visitor:
     self._typeNumbers = {}
     self._innerSeq = False
     self._reg= re.compile("<|>|'")
+    self.config = cfg
 
   def _finalExit(self):
     self._pathLength+=1
@@ -549,7 +550,8 @@ class visitor:
     Do Module Objects e.g. producers etc
   """
   def _doModules(self,modObj, dataFile, seq, seqs, currentName, innerSeq):
-    name = modObj.label_()
+    #name = modObj.label_()
+    name = self.config.label(modObj)
     # If this is not an inner sequence then we add so it can go to paths
     if(seq==0):
       self._underPath.append(name)
@@ -581,7 +583,8 @@ class visitor:
       if(isinstance(value, cms._ModuleSequenceType)):
         if(len(self._currentName) >0):
           self._oldNames.insert(0, self._currentName)
-        name = value.label()
+        name = self.config.label(value)
+        #name = value.label_()
         if(self._seq >0):
           # this is an inner sequence
           self._innerSeq = True;
@@ -610,7 +613,8 @@ class visitor:
       # now need to determine difference between 
       #ones which have lists and ones which dont
       if(isinstance(value, cms._ModuleSequenceType)):
-        name = value.label()
+        #name = value.label()
+        name = self.config.label(value)
         if(name in self._oldNames):self._oldNames.remove(name)
         if(self._currentName == name):
           if(self._oldNames):
@@ -1433,7 +1437,12 @@ def main(args,helperDir,htmlFile,quiet, noServer):
     if not os.path.exists(helperdir):
       os.makedirs(helperdir)
     print "Calculating", x
-    u = unscheduled(x, lowerHTML, quiet, helper,helperdir)
+    try:
+      u = unscheduled(x, lowerHTML, quiet, helper,helperdir)
+    except Exception as e:
+      print "File %s is a config file but something went wrong"%(x)
+      print "%s"%(e)
+      continue
     print "Finished with", x
     if(not u._computed and dirCreated):
       # remove any directories created

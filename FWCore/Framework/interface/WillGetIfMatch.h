@@ -12,6 +12,7 @@ See comments in the file GetterOfProducts.h.
 
 #include <functional>
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace edm {
 
@@ -28,22 +29,21 @@ namespace edm {
       module_(module) {
     }
     
-    bool operator()(BranchDescription const& branchDescription) {
+    EDGetTokenT<T>  operator()(BranchDescription const& branchDescription) {
       if (match_(branchDescription)){
         auto transition = branchDescription.branchType();
         edm::InputTag tag{branchDescription.moduleLabel(),
                           branchDescription.productInstanceName(),
                           branchDescription.processName()};
         if(transition == edm::InEvent) {
-          module_->template consumes<T>(tag);
+          return module_->template consumes<T>(tag);
         } else if(transition == edm::InLumi) {
-          module_->template consumes<T,edm::InLumi>(tag);
+          return module_->template consumes<T,edm::InLumi>(tag);
         } else if(transition == edm::InRun) {
-          module_->template consumes<T,edm::InRun>(tag);
+          return module_->template consumes<T,edm::InRun>(tag);
         }
-        return true;
       }
-      return false;
+      return EDGetTokenT<T>{};
     }
     
   private:

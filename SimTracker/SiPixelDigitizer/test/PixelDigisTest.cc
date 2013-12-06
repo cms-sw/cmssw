@@ -9,8 +9,9 @@
  Barrel & Forward digis. Uses root histos.
  Adopted for the new simLinks. 
  Added the online detector index. d.k. 11/09
-
- Works with CMSSW_3_3_3
+ Works with CMSSW_7
+ New detector ID.
+ Modified to use "byToken"
 
 */
 //
@@ -206,8 +207,6 @@ void PixelDigisTest::beginJob() {
    cout << "Initialize PixelDigisTest " <<endl;
 
 #ifdef HISTOS
-
- // NEW way to use root (from 2.0.0?)
   edm::Service<TFileService> fs;
 
   // Histos go to a subdirectory "PixRecHits")
@@ -356,7 +355,6 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
   iSetup.get<IdealGeometryRecord>().get(tTopo);
-
 
   using namespace edm;
   if(PRINT) cout<<" Analyze PixelDigisTest "<<endl;
@@ -516,7 +514,6 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
       }
 
     } else if(subid == 1) { // Barrel 
-      
       
       // Barell layer = 1,2,3
       layerC=tTopo->pxbLayer(detid);
