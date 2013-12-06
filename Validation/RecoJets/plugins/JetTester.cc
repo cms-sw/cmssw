@@ -18,7 +18,6 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mRecoJetPtThreshold            (iConfig.getParameter<double>              ("recoJetPtThreshold")),
   mMatchGenPtThreshold           (iConfig.getParameter<double>              ("matchGenPtThreshold")),
   mGenEnergyFractionThreshold    (iConfig.getParameter<double>              ("genEnergyFractionThreshold")),
-  mReverseEnergyFractionThreshold(iConfig.getParameter<double>              ("reverseEnergyFractionThreshold")),
   mRThreshold                    (iConfig.getParameter<double>              ("RThreshold")),
   JetCorrectionService           (iConfig.getParameter<std::string>         ("JetCorrections"))
 {
