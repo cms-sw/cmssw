@@ -9,7 +9,7 @@
 ora::IArrayHandler*
 ora::ArrayHandlerFactory::newArrayHandler( const edm::TypeWithDict& arrayType )
 {
-  if(arrayType.IsArray()){
+  if(arrayType.isArray()){
     return new CArrayHandler( arrayType );
   } else {  
     if ( arrayType.isTemplateInstance() ) {

@@ -331,7 +331,7 @@ bool ora::ClassUtils::isTypeObject( const edm::TypeWithDict& typ){
     //if ( resType.IsFundamental() || resType.IsEnum() || isTypeString(resType) ) {
     return false;
   } else {
-    if( resType.IsArray( )               ) return false;
+    if( resType.isArray( )               ) return false;
     if( isTypeContainer( resType )       ) return false;
     if( isTypeOraPointer( resType )      ) return false;
     if( isTypeUniqueReference( resType ) ) return false;

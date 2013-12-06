@@ -42,7 +42,7 @@ ora::RelationalMapping::_sizeInColumns(const edm::TypeWithDict& topLevelClassTyp
   // primitive and string
   if( isPrimitive || isOraPolyPointer || ora::ClassUtils::isTypeNamedReference( typ)) {
     ++sz;
-  } else if (typ.IsArray()){
+  } else if (typ.isArray()){
     size_t arraySize = 0;
     _sizeInColumnsForCArray( typ,arraySize, hasDependencies );
     if( arraySize < MappingRules::MaxColumnsForInlineCArray ) sz += arraySize;
@@ -83,7 +83,7 @@ ora::RelationalMapping::_sizeInColumnsForCArray(const edm::TypeWithDict& topLeve
                                                 bool& hasDependencies){
   // resolve possible typedef chains
   edm::TypeWithDict typ = ClassUtils::resolvedType( topLevelClassType );
-  if( !typ.IsArray()){
+  if( !typ.isArray()){
     return;
   }
 
@@ -112,7 +112,7 @@ ora::IRelationalMapping* ora::RelationalMappingFactory::newProcessor( const edm:
   if ( ora::ClassUtils::isTypePrimitive(resType) ) {
     return new PrimitiveMapping( attributeType, m_tableRegister );
   }
-  else if ( resType.IsArray() ){
+  else if ( resType.isArray() ){
     return new CArrayMapping( attributeType, m_tableRegister );
   }
   else if ( ora::ClassUtils::isTypeContainer( resType ) ) {
