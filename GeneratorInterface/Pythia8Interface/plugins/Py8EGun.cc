@@ -64,8 +64,7 @@ bool Py8EGun::generatePartonsAndHadronize()
       double eta  = (fMaxEta-fMinEta) * randomEngine->flat() + fMinEta;                                                      
       double the  = 2.*atan(exp(-eta));                                                                          
       
-      double mass = (fMasterGen->particleData).mass( particleID );
-//      double mass = (pythia->particleData).m0( particleID );
+      double mass = (fMasterGen->particleData).m0( particleID );
 
       double pp = sqrt( ee*ee - mass*mass );
       double px = pp * sin(the) * cos(phi);

@@ -105,7 +105,6 @@ GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   { 
     // Get Truth Candidates (GenCandidates, GenJets, etc.)
     Handle<candidateCollection> truth_hnd;
-    //bool isGen = iEvent.getByLabel(inputTruthLabel_, truth_hnd);
     bool isGen = iEvent.getByToken(myTruth_, truth_hnd);   
 
     if ( !isGen ) { 
@@ -117,7 +116,6 @@ GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
 
     // Get Reco Candidates (PFlow, CaloJet, etc.)
     Handle<candidateCollection> reco_hnd;
-    //bool isReco = iEvent.getByLabel(inputRecoLabel_, reco_hnd);
     bool isReco = iEvent.getByToken(myReco_, reco_hnd);
     if ( !isReco ) { 
       std::cout << "Warning : no Reco jets in input !" << std::endl;

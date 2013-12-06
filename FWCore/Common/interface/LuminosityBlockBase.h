@@ -212,18 +212,19 @@ namespace edm {
     return provRecorder_.getManyByType(results);
   }
 */
+#if !defined(__REFLEX__)
    template<class T>
    bool
    LuminosityBlockBase::getByLabel(const InputTag& tag, Handle<T>& result) const {
       result.clear();
       BasicHandle bh = this->getByLabelImpl(typeid(Wrapper<T>), typeid(T), tag);
-      convert_handle(bh, result);  // throws on conversion error
-      if (bh.failedToGet()) {
+      convert_handle(std::move(bh), result);  // throws on conversion error
+      if (result.failedToGet()) {
          return false;
       }
       return true;
    }
-
+#endif
 
 }
 #endif /*!defined(__CINT__) && !defined(__MAKECINT__)*/

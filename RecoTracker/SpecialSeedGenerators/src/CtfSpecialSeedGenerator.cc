@@ -9,6 +9,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -26,6 +27,10 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
   	produces<TrajectorySeedCollection>();
 	theSeedBuilder =0; 
 	theRegionProducer =0;
+
+	edm::ParameterSet regfactoryPSet = conf_.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+  	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+  	theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
 }
 
 CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
@@ -74,9 +79,6 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
           	upperScintillator = BoundPlane::build(upperPosition, rot, &upperBounds);
           	lowerScintillator = BoundPlane::build(lowerPosition, rot, &lowerBounds);
   	} 
-	edm::ParameterSet regfactoryPSet = conf_.getParameter<edm::ParameterSet>("RegionFactoryPSet");
-  	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  	theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
 	
 	edm::ESHandle<Propagator>  propagatorAlongHandle;
   	iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",propagatorAlongHandle);

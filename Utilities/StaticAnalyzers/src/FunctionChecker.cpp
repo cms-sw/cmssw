@@ -132,12 +132,26 @@ void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr
  	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
 	if ( fname.find("/test/") != std::string::npos) return;
-  
       	if (!MD->doesThisDeclarationHaveABody()) return;
 	FWalker walker(BR, mgr.getAnalysisDeclContext(MD));
 	walker.Visit(MD->getBody());
        	return;
 } 
+
+void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
+                    BugReporter &BR) const {
+
+        if (FD-> isInExternCContext()) {
+                std::string buf;
+                std::string dname = FD->getQualifiedNameAsString();
+                if ( dname.compare(dname.size()-1,1,"_") != 0 ) return;
+                llvm::raw_string_ostream os(buf);
+                os << "function '"<< dname << "' is in an extern \"C\" context and most likely accesses or modifies fortran variables in a 'COMMONBLOCK'.\n";
+                clang::ento::PathDiagnosticLocation FDLoc = clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
+		BR.EmitBasicReport(FD, "FunctionChecker : COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
+                llvm::errs() <<  "function '"<<dname << "' static variable 'COMMONBLOCK'.\n\n";
+        }
+}
 
 void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager& mgr,
                     BugReporter &BR) const {
@@ -146,7 +160,6 @@ void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManag
    	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
 	if ( fname.find("/test/") != std::string::npos) return;
-  
 	for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
 			E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
 		{
@@ -154,7 +167,7 @@ void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManag
 				FWalker walker(BR, mgr.getAnalysisDeclContext(*I));
 				walker.Visit(I->getBody());
 				}
-		}	
+		}
 	return;
 }
 

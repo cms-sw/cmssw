@@ -81,9 +81,10 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
  private:
 
   edm::ParameterSet conf_;
-
-  DQMStore* dbe_;
   std::string outputFile_;
+  edm::EDGetTokenT< std::vector<Trajectory> > v_TrajectoryToken_;
+  
+  DQMStore* dbe_;
 
   MonitorElement* PullRMSvsTrackwidth;
   MonitorElement* PullRMSvsExpectedwidth;
