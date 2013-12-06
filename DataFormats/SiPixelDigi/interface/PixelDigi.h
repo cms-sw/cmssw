@@ -55,8 +55,13 @@ public:
 };  
 
 // Comparison operators
+
+//inline bool operator<( const PixelDigi& one, const PixelDigi& other) {
+//  return one.channel() < other.channel();
+//}
+
 inline bool operator<( const PixelDigi& one, const PixelDigi& other) {
-  return one.channel() < other.channel();
+  return (one.packedData()&PixelChannelIdentifier::thePacking.rowcol_mask) < (other.packedData()&PixelChannelIdentifier::thePacking.rowcol_mask);
 }
 
 #include<iostream>
