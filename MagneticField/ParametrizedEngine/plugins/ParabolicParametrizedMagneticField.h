@@ -29,11 +29,11 @@ class ParabolicParametrizedMagneticField : public MagneticField {
 
   GlobalVector inTeslaUnchecked (const GlobalPoint& gp) const;
 
-  float B0Z(const float a) const;
+  inline float B0Z(const float a) const;
 
-  float Kr(const float R2) const;
+  inline float Kr(const float R2) const;
 
-  bool isDefined(const GlobalPoint& gp) const;
+  inline bool isDefined(const GlobalPoint& gp) const;
 
  private:
   const float b0 = -3.94991e-06;  
