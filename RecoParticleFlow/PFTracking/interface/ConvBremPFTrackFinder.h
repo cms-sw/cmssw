@@ -30,8 +30,15 @@ class ConvBremPFTrackFinder {
   
  public:
   ConvBremPFTrackFinder(const TransientTrackBuilder& builder,
-			double mvaBremConvCut,
-			std::string mvaWeightFileConvBrem);  
+			double mvaBremConvCutBarrelLowPt,
+			double mvaBremConvCutBarrelHighPt,
+			double mvaBremConvCutEndcapsLowPt,	     
+			double mvaBremConvCutEndcapsHighPt,
+			std::string mvaWeightFileConvBremBarrelLowPt,
+			std::string mvaWeightFileConvBremBarrelHighPt,
+			std::string mvaWeightFileConvBremEndcapsLowPt,
+			std::string mvaWeightFileConvBremEndcapsHighPt
+			);
   ~ConvBremPFTrackFinder();
   
   bool foundConvBremPFRecTrack(const edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCol,
@@ -69,12 +76,12 @@ class ConvBremPFTrackFinder {
 			 const reco::GsfPFRecTrack& gsfpfrectk);
   
 
-
+  void CheckPtEtaregion(double pt, double eta, double& thecut,  TString& thepath );
   bool found_;
   TransientTrackBuilder builder_;
-  double mvaBremConvCut_;
-  std::string mvaWeightFileConvBrem_;
-  TMVA::Reader    *tmvaReader_;
+  double mvaBremConvCutBarrelLowPt_,mvaBremConvCutBarrelHighPt_,mvaBremConvCutEndcapsLowPt_,mvaBremConvCutEndcapsHighPt_;
+  std::string mvaWeightFileConvBremBarrelLowPt_, mvaWeightFileConvBremBarrelHighPt_,mvaWeightFileConvBremEndcapsLowPt_,mvaWeightFileConvBremEndcapsHighPt_;
+  
   std::vector<reco::PFRecTrackRef> pfRecTrRef_vec_;
   float secR,secPout,ptRatioGsfKF,sTIP,Epout,detaBremKF,secPin;
   //int nHITS1;
