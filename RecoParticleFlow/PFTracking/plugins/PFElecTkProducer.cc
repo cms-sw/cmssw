@@ -100,16 +100,23 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   
   // set parameter for convBremFinder
   useConvBremFinder_ =     iConfig.getParameter<bool>("useConvBremFinder");
-  mvaConvBremFinderID_
-    = iConfig.getParameter<double>("pf_convBremFinderID_mvaCut");
   
-  string mvaWeightFileConvBrem
-    = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFile");
+  mvaConvBremFinderIDBarrelLowPt_ = iConfig.getParameter<double>("pf_convBremFinderID_mvaCutBarrelLowPt");
+  mvaConvBremFinderIDBarrelHighPt_ = iConfig.getParameter<double>("pf_convBremFinderID_mvaCutBarrelHighPt");
+  mvaConvBremFinderIDEndcapsLowPt_ = iConfig.getParameter<double>("pf_convBremFinderID_mvaCutEndcapsLowPt");
+  mvaConvBremFinderIDEndcapsHighPt_ = iConfig.getParameter<double>("pf_convBremFinderID_mvaCutEndcapsHighPt");
   
+  string mvaWeightFileConvBremBarrelLowPt  = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFileBarrelLowPt");
+  string mvaWeightFileConvBremBarrelHighPt  = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFileBarrelHighPt");
+  string mvaWeightFileConvBremEndcapsLowPt  = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFileEndcapsLowPt");
+  string mvaWeightFileConvBremEndcapsHighPt = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFileEndcapsHighPt");
   
-  if(useConvBremFinder_) 
-    path_mvaWeightFileConvBrem_ = edm::FileInPath ( mvaWeightFileConvBrem.c_str() ).fullPath();
-
+  if(useConvBremFinder_) {
+    path_mvaWeightFileConvBremBarrelLowPt_ = edm::FileInPath ( mvaWeightFileConvBremBarrelLowPt.c_str() ).fullPath();
+    path_mvaWeightFileConvBremBarrelHighPt_ = edm::FileInPath ( mvaWeightFileConvBremBarrelHighPt.c_str() ).fullPath();
+    path_mvaWeightFileConvBremEndcapsLowPt_ = edm::FileInPath ( mvaWeightFileConvBremEndcapsLowPt.c_str() ).fullPath();
+    path_mvaWeightFileConvBremEndcapsHighPt_ = edm::FileInPath ( mvaWeightFileConvBremEndcapsHighPt.c_str() ).fullPath();
+  }
 }
 
 
@@ -1194,19 +1201,35 @@ PFElecTkProducer::beginRun(const edm::Run& run,
   
 
   if(useConvBremFinder_) {
-    FILE * fileConvBremID = fopen(path_mvaWeightFileConvBrem_.c_str(), "r");
-    if (fileConvBremID) {
-      fclose(fileConvBremID);
+    vector <TString> weightfiles; 
+    weightfiles.push_back(path_mvaWeightFileConvBremBarrelLowPt_.c_str()); 
+    weightfiles.push_back(path_mvaWeightFileConvBremBarrelHighPt_.c_str()); 
+    weightfiles.push_back(path_mvaWeightFileConvBremEndcapsLowPt_.c_str()); 
+    weightfiles.push_back(path_mvaWeightFileConvBremEndcapsHighPt_.c_str()); 
+    for(uint iter = 0;iter<weightfiles.size();iter++){
+      FILE * fileConvBremID = fopen(weightfiles[iter],"r"); 
+      if (fileConvBremID) {
+	fclose(fileConvBremID);
+      }
+      else {
+	string err = "PFElecTkProducer: cannot open weight file '";
+	err += weightfiles[iter];
+	err += "'";
+	throw invalid_argument( err );
+      }
     }
-    else {
-      string err = "PFElecTkProducer: cannot open weight file '";
-      err += path_mvaWeightFileConvBrem_;
-      err += "'";
-      throw invalid_argument( err );
-    }
-  }
-  convBremFinder_ = new ConvBremPFTrackFinder(thebuilder,mvaConvBremFinderID_,path_mvaWeightFileConvBrem_);
 
+  }
+  convBremFinder_ = new ConvBremPFTrackFinder(thebuilder,
+					      mvaConvBremFinderIDBarrelLowPt_,
+					      mvaConvBremFinderIDBarrelHighPt_,
+					      mvaConvBremFinderIDEndcapsLowPt_, 
+					      mvaConvBremFinderIDEndcapsHighPt_,
+					      path_mvaWeightFileConvBremBarrelLowPt_,
+					      path_mvaWeightFileConvBremBarrelHighPt_,
+					      path_mvaWeightFileConvBremEndcapsLowPt_,
+					      path_mvaWeightFileConvBremEndcapsHighPt_);
+ 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
