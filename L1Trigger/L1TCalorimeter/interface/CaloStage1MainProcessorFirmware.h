@@ -14,7 +14,7 @@
 #define CaloStage1MainProcessorFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
-#include "CondFormats/L1TCalorimeter/interface/CaloStage1MainProcessorParams.h"
+#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
 //#include "L1Trigger/L1TYellow/interface/YellowFirmwareFactory.h"
 
@@ -23,7 +23,7 @@ namespace l1t {
   // Imp1 is for v1 and v2
   class CaloStage1MainProcessorFirmwareImp1 : public CaloStage1MainProcessor {
   public:
-    CaloStage1MainProcessorFirmware1(const CaloStage1MainProcessorParams & dbPars);
+    CaloStage1MainProcessorFirmware1(const CaloParams & dbPars);
     virtual ~CaloStage1MainProcessorFirmware1();
     virtual void processEvent(const EcalTriggerPrimitiveDigiCollection &,
 			      const HcalTriggerPrimitiveCollection &,
@@ -33,7 +33,7 @@ namespace l1t {
 			      BXVector<EtSum> & etsums);
   private:
 
-    CaloStage1MainProcessorParams const & m_db;
+    CaloParams const & m_db;
 
     CaloStage1TowerAlgorithm* m_towerAlgo;
     CaloStage1ClusterAlgorithm* m_clusterAlgo;
