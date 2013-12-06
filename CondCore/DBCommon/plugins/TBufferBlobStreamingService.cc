@@ -55,8 +55,6 @@ cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( edm::TypeWithDict const & type_)
 {
   edm::TypeWithDict type = type_;
   while(true) {
-    type = type.FinalType();
-
     if (!type.isArray())
       break;
 
