@@ -4,8 +4,6 @@ import FWCore.ParameterSet.Config as cms
 TrackerMaterialBlock = cms.PSet(
     TrackerMaterial = cms.PSet(
 
-    use_hardcoded_geometry = cms.bool(True),
-
     disk_thickness = cms.vdouble(0.058,0.058,0.04,0.04,0.055,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05),
     disk_inner_radius = cms.vdouble(5.82585,5.82585,22.7005,22.7005,22.7005,23.3726,23.3726,23.3726,32.1214,32.1214,32.1214,39.2102,39.2102,50.4201),
     disk_outer_radius = cms.vdouble(14.5978,14.5978,50.4389,50.4389,50.4389,109.521,109.521,109.521,109.521,109.521,109.521,109.521,109.521,109.521),

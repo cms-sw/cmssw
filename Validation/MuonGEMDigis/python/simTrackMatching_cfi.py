@@ -18,6 +18,9 @@ SimTrackMatching = cms.PSet(
     minBXGEM = cms.untracked.int32(-1),
     maxBXGEM = cms.untracked.int32(1),
     matchDeltaStripGEM = cms.untracked.int32(1),
+    gemDigiMinEta  = cms.untracked.double(1.55),
+    gemDigiMaxEta  = cms.untracked.double(2.18),
+    gemDigiMinPt = cms.untracked.double(5.0),
     # CSC digi matching:
     verboseCSCDigi = cms.untracked.int32(0),
     cscComparatorDigiInput = cms.untracked.InputTag("simMuonCSCDigis", "MuonCSCComparatorDigi"),
