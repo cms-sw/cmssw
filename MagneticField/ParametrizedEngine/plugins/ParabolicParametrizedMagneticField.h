@@ -34,9 +34,9 @@ class ParabolicParametrizedMagneticField : public MagneticField {
   bool isDefined(const GlobalPoint& gp) const;
 
  private:
-  float b0 = -2.0789e-06;  
-  float b1 = 7.53701e-06;
-  float c1 = 3.8114;     
-  float a  = 2.43878e-11;
+  const float b0 = -3.94991e-06;  
+  const float b1 = 7.53701e-06;
+  const float c1 = 3.8114;     
+  const float a  = 2.43878e-11;
 };
 #endif

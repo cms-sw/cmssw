@@ -30,22 +30,19 @@ ParabolicParametrizedMagneticField::inTesla(const GlobalPoint& gp) const {
   }
 }
 
-GlobalVector
-ParabolicParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
-  float x[3] = {gp.x(), gp.y(), gp.z()};
-  float B=B0Z(x[2])*Kr(x[0]*x[0]+x[1]*x[1]);
+GlobalVector ParabolicParametrizedMagneticField::inTeslaUnchecked(const GlobalPoint& gp) const {
+  float B=B0Z(gp.z())*Kr(gp.perp2());
   return GlobalVector(0, 0, B);
 }
 
-float ParabolicParametrizedMagneticField::B0Z(const float z) const {
+inline float ParabolicParametrizedMagneticField::B0Z(const float z) const {
   return b0*z*z + b1*z + c1;
 }
 
-float ParabolicParametrizedMagneticField::Kr(const float R2) const {
+inline float ParabolicParametrizedMagneticField::Kr(const float R2) const {
   return a*R2 +1.;
 }
 
-bool
-ParabolicParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
-  return (gp.perp2()<(115.f*115.f) && fabs(gp.z())<280.f);
+inline bool ParabolicParametrizedMagneticField::isDefined(const GlobalPoint& gp) const {
+  return (gp.perp2()<(13225.f) && fabs(gp.z())<280.f);
 }
