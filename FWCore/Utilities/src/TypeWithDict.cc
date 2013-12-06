@@ -199,6 +199,7 @@ TypeWithDict(TClass* cl, long property /*= 0L*/)
   , dataType_(nullptr)
   , property_((long) kIsClass | property)
 {
+  ti_ = cl->GetTypeInfo();
   type_ = gInterpreter->Type_Factory(*cl->GetTypeInfo());
 }
 
