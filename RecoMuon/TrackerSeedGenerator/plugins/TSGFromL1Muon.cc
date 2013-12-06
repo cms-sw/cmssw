@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
@@ -66,7 +67,7 @@ void TSGFromL1Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
   edm::ParameterSet regfactoryPSet = theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   TrackingRegionProducer * p =
-    TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
+    TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
   theRegionProducer = dynamic_cast<L1MuonRegionProducer* >(p);
 
   edm::ParameterSet hitsfactoryPSet =
