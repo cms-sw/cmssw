@@ -118,7 +118,7 @@ protected:
 
   bool           printAtTermination;
 
-  static std::set<std::string> groupedCategories;		// 8/16/07 mf 
+  [[cms::thread_safe]] static std::set<std::string> groupedCategories;		// 8/16/07 mf 
   static ELstring formSummary(ELmap_stats & stats);		// 8/16/07 mf 
 
   // ----  Helper methods specific to MessageLogger applicaton

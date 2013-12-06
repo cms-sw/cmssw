@@ -106,11 +106,11 @@ public:
   bool warningEnabled;                           // change log 8
   bool errorEnabled;                             // change log 8, 12
 
-  static std::string jobMode;					// change log 6
-  static unsigned char messageLoggerScribeIsRunning;	// change log 7
-  static bool debugAlwaysSuppressed;			// change log 9
-  static bool infoAlwaysSuppressed;			// change log 9
-  static bool warningAlwaysSuppressed;			// change log 9
+  [[cms::thread_safe]] static std::string jobMode;					// change log 6
+  [[cms::thread_safe]] static unsigned char messageLoggerScribeIsRunning;	// change log 7
+  [[cms::thread_safe]] static bool debugAlwaysSuppressed;			// change log 9
+  [[cms::thread_safe]] static bool infoAlwaysSuppressed;			// change log 9
+  [[cms::thread_safe]] static bool warningAlwaysSuppressed;			// change log 9
 private:
   messagedrop::StringProducerWithPhase * spWithPhase;
   messagedrop::StringProducerPath      * spPath;

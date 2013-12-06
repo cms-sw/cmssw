@@ -83,9 +83,9 @@ private:
   void  operator = ( MessageLoggerQ const & );
 
   // --- data:
-  static  boost::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
-  static  edm::ELseverityLevel threshold;
-  static  std::set<std::string> squelchSet;
+  [[cms::thread_safe]] static  boost::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
+  [[cms::thread_safe]] static  edm::ELseverityLevel threshold;
+  [[cms::thread_safe]] static  std::set<std::string> squelchSet;
   
 };  // MessageLoggerQ
 
