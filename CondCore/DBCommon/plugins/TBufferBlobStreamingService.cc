@@ -57,12 +57,12 @@ cond::TBufferBlobTypeInfo::TBufferBlobTypeInfo( edm::TypeWithDict const & type_)
   while(true) {
     type = type.FinalType();
 
-    if (!type.IsArray())
+    if (!type.isArray())
       break;
 
     if (!m_arraySize)
       m_arraySize = 1;
-    m_arraySize *= type.ArrayLength();
+    m_arraySize *= type.arrayLength();
     type = type.toType();
   }
 
