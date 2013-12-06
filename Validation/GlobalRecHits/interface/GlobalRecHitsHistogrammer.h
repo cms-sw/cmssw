@@ -81,6 +81,7 @@ class GlobalRecHitsHistogrammer : public edm::EDAnalyzer
   bool doOutput;
 
   edm::InputTag GlobalRecHitSrc_;
+  edm::EDGetTokenT<PGlobalRecHit> GlobalRecHitSrc_Token_;
   //edm::InputTag srcGlobalRecHits;
 
   // Electromagnetic info
