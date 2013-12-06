@@ -88,7 +88,11 @@ const GEMRing* GEMGeometry::ring(int re, int st, int ri) const{
 }
 
 const GEMSuperChamber* GEMGeometry::superChamber(GEMDetId id) const{
-   return dynamic_cast<const GEMSuperChamber*>(idToDet(id));
+  for (auto sch : allSuperChambers){
+    if (sch->id() != id) continue;
+    return sch;
+  }
+  return 0;
 }
 
 const GEMChamber* GEMGeometry::chamber(GEMDetId id) const{ 
