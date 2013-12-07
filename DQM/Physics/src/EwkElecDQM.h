@@ -42,7 +42,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecTag_;
   edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
   edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
-  edm::EDGetTokenT<reco::VertexCollection> vertexTag_;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > vertexTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
   bool metIncludesMuons_;
 
