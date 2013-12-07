@@ -22,12 +22,22 @@ using namespace reco;
 using namespace std;
 using namespace l1extra;
 
-PlotMakerL1::PlotMakerL1(const edm::ParameterSet& PlotMakerL1Input)
+PlotMakerL1::PlotMakerL1(const edm::ParameterSet& PlotMakerL1Input, edm::ConsumesCollector&& iC)
 {
-  m_l1extra      	 = PlotMakerL1Input.getParameter<string>("l1extramc");
-
+  m_l1extra         = PlotMakerL1Input.getParameter<string>("l1extramc");
   dirname_          = PlotMakerL1Input.getParameter<std::string>("dirname");
 
+  m_l1extra_emIsolated_        = iC.consumes<l1extra::L1EmParticleCollection>(edm::InputTag(m_l1extra,"Isolated"));
+  m_l1extra_emNonIsolated_     = iC.consumes<l1extra::L1EmParticleCollection>(edm::InputTag(m_l1extra,"NonIsolated"));
+
+  m_l1extra_muons_             = iC.consumes<l1extra::L1MuonParticleCollection>(edm::InputTag(m_l1extra));
+
+  m_l1extra_jetCentral_        = iC.consumes<l1extra::L1JetParticleCollection>(edm::InputTag(m_l1extra,"Central"));
+  m_l1extra_jetFwd_            = iC.consumes<l1extra::L1JetParticleCollection>(edm::InputTag(m_l1extra,"Forward"));
+  m_l1extra_jetTau_            = iC.consumes<l1extra::L1JetParticleCollection>(edm::InputTag(m_l1extra,"Tau"));
+
+  m_l1extra_MET_               = iC.consumes<l1extra::L1EtMissParticleCollection>(edm::InputTag(m_l1extra,"MET"));
+  
 }
 
 void PlotMakerL1::fillPlots(const edm::Event& iEvent)
@@ -818,8 +828,8 @@ void PlotMakerL1::handleObjects(const edm::Event& iEvent)
   //Get the EM objects
 
   Handle<l1extra::L1EmParticleCollection> theL1EmIsoHandle, theL1EmNotIsoHandle;
-  iEvent.getByLabel(m_l1extra,"Isolated",theL1EmIsoHandle);
-  iEvent.getByLabel(m_l1extra,"NonIsolated",theL1EmNotIsoHandle);
+  iEvent.getByToken(m_l1extra_emIsolated_,theL1EmIsoHandle);
+  iEvent.getByToken(m_l1extra_emNonIsolated_,theL1EmNotIsoHandle);
   theL1EmIsoCollection = *theL1EmIsoHandle;
   std::sort(theL1EmIsoCollection.begin(), theL1EmIsoCollection.end(), PtSorter());
   theL1EmNotIsoCollection = *theL1EmNotIsoHandle;
@@ -827,15 +837,15 @@ void PlotMakerL1::handleObjects(const edm::Event& iEvent)
 
   //Get the Muons  
   Handle<l1extra::L1MuonParticleCollection> theL1MuonHandle;
-  iEvent.getByLabel(m_l1extra,theL1MuonHandle);
+  iEvent.getByToken(m_l1extra_muons_,theL1MuonHandle);
   theL1MuonCollection = *theL1MuonHandle;
   std::sort(theL1MuonCollection.begin(), theL1MuonCollection.end(),PtSorter());
 
   //Get the Jets
   Handle<l1extra::L1JetParticleCollection> theL1CentralJetHandle,theL1ForwardJetHandle,theL1TauJetHandle;
-  iEvent.getByLabel(m_l1extra,"Central",theL1CentralJetHandle);
-  iEvent.getByLabel(m_l1extra,"Forward",theL1ForwardJetHandle);
-  iEvent.getByLabel(m_l1extra,"Tau",theL1TauJetHandle);
+  iEvent.getByToken(m_l1extra_jetCentral_,theL1CentralJetHandle);
+  iEvent.getByToken(m_l1extra_jetFwd_,theL1ForwardJetHandle);
+  iEvent.getByToken(m_l1extra_jetTau_,theL1TauJetHandle);
   theL1CentralJetCollection = *theL1CentralJetHandle;
   std::sort(theL1CentralJetCollection.begin(), theL1CentralJetCollection.end(), PtSorter());
   theL1ForwardJetCollection = *theL1ForwardJetHandle;
@@ -846,8 +856,7 @@ void PlotMakerL1::handleObjects(const edm::Event& iEvent)
 
   //Get the MET
   Handle<l1extra::L1EtMissParticleCollection> theL1METHandle;
-  iEvent.getByLabel(m_l1extra,"MET",theL1METHandle);
-  //iEvent.getByLabel(m_l1extra,theL1METHandle);
+  iEvent.getByToken(m_l1extra_MET_,theL1METHandle);
   theL1METCollection = *theL1METHandle;
   std::sort(theL1METCollection.begin(), theL1METCollection.end(),PtSorter());
 
