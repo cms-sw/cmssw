@@ -29,3 +29,6 @@ time python $SCRIPTS/Splitter.py $DOC/html/ annotated.html annotatedList_
 time python $SCRIPTS/ConfigFiles.py $DOC/html/ configfiles.html
 time python $SCRIPTS/Splitter.py $DOC/html/ namespaces.html namespaceList_
 time python $SCRIPTS/PackageSplitter.py $DOC/html/ pages.html packageDocumentation_
+
+cd $CMSSW_BASE/..
+find $VER/doc -type f -name "*.html" > $CMSSW_BASE/$VER.index
