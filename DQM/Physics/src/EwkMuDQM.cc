@@ -357,7 +357,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       //  LogWarning("")<<"Loop over triggers";
 
-
+      /*  change faulty logic of triggering
       for (unsigned int i=0; i<triggerResults->size(); i++)
       {
               const std::string trigName = trigNames.triggerName(i);
@@ -378,6 +378,55 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
               if( triggerResults->accept(i) && !prescaled){   trigger_fired=true;}
                         // LogWarning("")<<"TrigNo: "<<i<<"  "<<found<<"  "<<trigName<<" ---> FIRED";}
       }
+      */
+
+      // get the prescale set for this event
+      const int prescaleSet=hltConfigProvider_.prescaleSet(ev,iSet);
+      if (prescaleSet==-1) {
+        LogTrace("") << "Failed to determine prescaleSet\n";
+        //std::cout << "Failed to determine prescaleSet. Check the GlobalTag in cfg\n";
+        return;
+      }
+
+      for (unsigned int i=0; (i<triggerResults->size()) && (trigger_fired==false); i++) {
+        // skip trigger, if it did not fire
+        if (!triggerResults->accept(i)) continue;
+
+        // skip trigger, if it is not on our list
+        bool found=false;
+        const std::string trigName = trigNames.triggerName(i);
+	for(unsigned int index=0; index<trigPathNames_.size() && found==false; index++) {
+          if ( trigName.find(trigPathNames_.at(index)) == 0 ) found=true;
+        }
+        if(!found) continue;
+
+        // skip trigger, if it is prescaled
+	if (prescaleSet!=-1) {
+	  if (hltConfigProvider_.prescaleValue(prescaleSet,trigName) != 1)
+	    continue;
+	}
+	else {
+	  // prescaleSet is not known. 
+	  // This branch is not needed, if prescaleSet=-1 forces to skip event
+	  int prescaled=0;
+	  for (unsigned int ps=0; 
+	       !prescaled && (ps<hltConfigProvider_.prescaleSize()); 
+	       ++ps) {
+	    if (hltConfigProvider_.prescaleValue(ps, trigName) != 1) {
+	      prescaled=1;
+	    }
+	  }
+	  if (prescaled) {
+	    //std::cout << "trigger prescaled\n";
+	    continue;
+	  }
+	}
+
+        //std::cout << "found unprescaled trigger that fired: " << trigName << "\n";
+	trigger_fired=true;
+      }
+      //if (trigger_fired) std::cout << "\n\tGot Trigger\n";
+
       trig_before_->Fill(trigger_fired);
 
       // Jet collection
