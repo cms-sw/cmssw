@@ -22,14 +22,15 @@ using namespace reco;
 using namespace std;
 using namespace l1extra;
 
-PlotMakerReco::PlotMakerReco(const edm::ParameterSet& PlotMakerRecoInput)
+PlotMakerReco::PlotMakerReco(const edm::ParameterSet& PlotMakerRecoInput, edm::ConsumesCollector&& iC)
 {
-  m_electronSrc  	 = PlotMakerRecoInput.getParameter<string>("electrons");
-  m_muonSrc    	 	 = PlotMakerRecoInput.getParameter<string>("muons");
-  m_jetsSrc    	 	 = PlotMakerRecoInput.getParameter<string>("jets");
+  m_electronSrc  	 = iC.consumes<GsfElectronCollection>(PlotMakerRecoInput.getParameter<string>("electrons"));
+  m_muonSrc    	 	 = iC.consumes<MuonCollection>(PlotMakerRecoInput.getParameter<string>("muons"));
+  m_jetsSrc    	 	 = iC.consumes<CaloJetCollection>(PlotMakerRecoInput.getParameter<string>("jets"));
   m_photonProducerSrc  	 = PlotMakerRecoInput.getParameter<string>("photonProducer");
   m_photonSrc  	 	 = PlotMakerRecoInput.getParameter<string>("photons");
-  m_calometSrc 	 	 = PlotMakerRecoInput.getParameter<string>("calomet");
+  m_photon_token_ 	 = iC.consumes<PhotonCollection>(edm::InputTag(m_photonProducerSrc,m_photonSrc));
+  m_calometSrc 	 	 = iC.consumes<CaloMETCollection>(PlotMakerRecoInput.getParameter<string>("calomet"));
 
   def_electronPtMin = PlotMakerRecoInput.getParameter<double>("def_electronPtMin");
   def_muonPtMin     = PlotMakerRecoInput.getParameter<double>("def_muonPtMin");
@@ -755,31 +756,31 @@ void PlotMakerReco::handleObjects(const edm::Event& iEvent)
 
   //Get the electrons
   Handle<GsfElectronCollection> theElectronCollectionHandle; 
-  iEvent.getByLabel(m_electronSrc, theElectronCollectionHandle);
+  iEvent.getByToken(m_electronSrc, theElectronCollectionHandle);
   theElectronCollection = *theElectronCollectionHandle;
   std::sort(theElectronCollection.begin(), theElectronCollection.end(), PtSorter());
 
   //Get the Muons
   Handle<MuonCollection> theMuonCollectionHandle; 
-  iEvent.getByLabel(m_muonSrc, theMuonCollectionHandle);
+  iEvent.getByToken(m_muonSrc, theMuonCollectionHandle);
   theMuonCollection = *theMuonCollectionHandle;
   std::sort(theMuonCollection.begin(), theMuonCollection.end(), PtSorter());
 
   //Get the Photons
   Handle<PhotonCollection> thePhotonCollectionHandle; 
-  iEvent.getByLabel(m_photonProducerSrc, m_photonSrc, thePhotonCollectionHandle);
+  iEvent.getByToken(m_photon_token_, thePhotonCollectionHandle);
   thePhotonCollection = *thePhotonCollectionHandle;
   std::sort(thePhotonCollection.begin(), thePhotonCollection.end(), PtSorter());
 
   //Get the CaloJets
   Handle<CaloJetCollection> theCaloJetCollectionHandle;
-  iEvent.getByLabel(m_jetsSrc, theCaloJetCollectionHandle);
+  iEvent.getByToken(m_jetsSrc, theCaloJetCollectionHandle);
   theCaloJetCollection = *theCaloJetCollectionHandle;
   std::sort(theCaloJetCollection.begin(), theCaloJetCollection.end(), PtSorter());
 
   //Get the CaloMET
   Handle<CaloMETCollection> theCaloMETCollectionHandle;
-  iEvent.getByLabel(m_calometSrc, theCaloMETCollectionHandle);
+  iEvent.getByToken(m_calometSrc, theCaloMETCollectionHandle);
   theCaloMETCollection = *theCaloMETCollectionHandle;
 }
 

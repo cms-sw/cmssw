@@ -17,6 +17,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 
 
 
@@ -44,7 +46,7 @@
 class PlotMakerL1 {
 
  public:
-  PlotMakerL1(const edm::ParameterSet& objectList);
+  PlotMakerL1(const edm::ParameterSet& objectList, edm::ConsumesCollector&& iC);
   virtual ~PlotMakerL1(){};
 
   void handleObjects(const edm::Event&);
@@ -66,6 +68,16 @@ class PlotMakerL1 {
 
   // Define the parameters
   std::string m_l1extra;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> m_l1extra_emIsolated_;
+  edm::EDGetTokenT<l1extra::L1EmParticleCollection> m_l1extra_emNonIsolated_;
+
+  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> m_l1extra_muons_;
+
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_l1extra_jetCentral_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_l1extra_jetFwd_;
+  edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_l1extra_jetTau_;
+
+  edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_l1extra_MET_;
 
   l1extra::L1EmParticleCollection theL1EmIsoCollection, theL1EmNotIsoCollection;
   l1extra::L1MuonParticleCollection theL1MuonCollection;

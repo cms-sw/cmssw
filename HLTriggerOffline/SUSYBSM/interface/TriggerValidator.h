@@ -34,12 +34,20 @@
 
 #include "HLTriggerOffline/SUSYBSM/interface/RecoSelector.h"
 #include "HLTriggerOffline/SUSYBSM/interface/McSelector.h"
-
-//To be included in a second stage
 #include "HLTriggerOffline/SUSYBSM/interface/PlotMakerL1.h"
 #include "HLTriggerOffline/SUSYBSM/interface/PlotMakerReco.h"
 #include "HLTriggerOffline/SUSYBSM/interface/MuonAnalyzer.h"
 //#include "HLTriggerOffline/SUSYBSM/interface/TurnOnMaker.h"
+
+//data formats
+//Added by Max for the Trigger
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+
 
 //included for DQM
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -95,8 +103,9 @@ class TriggerValidator : public edm::EDAnalyzer {
       //Histo
       std::string HistoFileName;
       std::string StatFileName;
-      edm::InputTag l1Label;
+      edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> l1Label;
       edm::InputTag hltLabel;
+      edm::EDGetTokenT<edm::TriggerResults> hlt_token_;
 
       //McFlag
       bool mcFlag;
@@ -113,6 +122,8 @@ class TriggerValidator : public edm::EDAnalyzer {
       edm::InputTag triggerTag_;
       std::string processName_;
       std::string triggerName_;
+      edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigis_token_;
+
       // name of each L1 algorithm
       std::vector<std::string> l1Names_;    
       // name of each hlt algorithm

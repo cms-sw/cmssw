@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -35,7 +36,7 @@ class RecoSelector {
  public:
   
   //Constructor
-  RecoSelector(const edm::ParameterSet& userCut_params);
+  RecoSelector(const edm::ParameterSet& userCut_params, edm::ConsumesCollector&& iC);
   //Destructor
   virtual ~RecoSelector(){};
 
@@ -48,12 +49,13 @@ class RecoSelector {
   
   // Define the parameters
   std::string name;
-  std::string m_electronSrc;
-  std::string m_muonSrc;
-  std::string m_jetsSrc;
+  edm::EDGetTokenT<reco::GsfElectronCollection> m_electronSrc;
+  edm::EDGetTokenT<reco::MuonCollection> m_muonSrc;
+  edm::EDGetTokenT<reco::CaloJetCollection> m_jetsSrc;
   std::string m_photonSrc;
   std::string m_photonProducerSrc;
-  std::string m_calometSrc;
+  edm::EDGetTokenT<reco::PhotonCollection> m_photon_token_;
+  edm::EDGetTokenT<reco::CaloMETCollection> m_calometSrc;
   double reco_metMin;
   double reco_ptJet1Min;
   double reco_ptJet2Min;
