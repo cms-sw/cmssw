@@ -137,8 +137,8 @@ void EwkMuDQM::init_histograms() {
   eta_before_ = theDbe->book1D("ETA_BEFORECUTS","Muon pseudo-rapidity",50,-2.5,2.5);
   eta_after_ = theDbe->book1D("ETA_AFTERWCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
 
-  dxy_before_ = theDbe->book1D("DXY_BEFORECUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
-  dxy_after_ = theDbe->book1D("DXY_AFTERWCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  dxy_before_ = theDbe->book1D("DXY_BEFORECUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
+  dxy_after_ = theDbe->book1D("DXY_AFTERWCUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
 
   goodewkmuon_before_ = theDbe->book1D("GOODEWKMUON_BEFORECUTS","Quality-muon flag",2,-0.5,1.5);
   goodewkmuon_after_ = theDbe->book1D("GOODEWKMUON_AFTERWCUTS","Quality-muon flag",2,-0.5,1.5);
@@ -210,7 +210,7 @@ void EwkMuDQM::init_histograms() {
 
   pt1_afterZ_ = theDbe->book1D("PT1_AFTERZCUTS","Muon transverse momentum (global muon) [GeV]",100,0.,100.);
   eta1_afterZ_ = theDbe->book1D("ETA1_AFTERZCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
-  dxy1_afterZ_ = theDbe->book1D("DXY1_AFTERZCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  dxy1_afterZ_ = theDbe->book1D("DXY1_AFTERZCUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
   goodewkmuon1_afterZ_ = theDbe->book1D("GOODEWKMUON1_AFTERZCUTS","Quality-muon flag",2,-0.5,1.5);
 
   if (isRelativeIso_) {
@@ -233,7 +233,7 @@ void EwkMuDQM::init_histograms() {
 
   pt2_afterZ_ = theDbe->book1D("PT2_AFTERZCUTS","Muon transverse momentum (global muon) [GeV]",100,0.,100.);
   eta2_afterZ_ = theDbe->book1D("ETA2_AFTERZCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
-  dxy2_afterZ_ = theDbe->book1D("DXY2_AFTERZCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  dxy2_afterZ_ = theDbe->book1D("DXY2_AFTERZCUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
   goodewkmuon2_afterZ_ = theDbe->book1D("GOODEWKMUON2_AFTERZCUTS","Quality-muon flag",2,-0.5,1.5);
   ztrig_afterZ_ = theDbe->book1D("ZTRIG_AFTERZCUTS","Trigger response (boolean of muon triggers)",2,-0.5,1.5);
   dimuonmass_before_= theDbe->book1D("DIMUONMASS_BEFORECUTS","DiMuonMass (2 globals)",100,0,200);
@@ -251,7 +251,7 @@ void EwkMuDQM::init_histograms() {
 
   nph_ = theDbe->book1D("nph","Number of photons in the event",20,0.,20.);
   //npfph_ = theDbe->book1D("npfph","Number of PF photons in the event",20,0.,20.);
-  phPt_ = theDbe->book1D("phPt","Photon transverse momentum [GeV]",1000,0.,1000.);
+  phPt_ = theDbe->book1D("phPt","Photon transverse momentum [GeV]",100,0.,1000.);
   //pfphPt_ = theDbe->book1D("pfphPt","PF Photon transverse momentum [GeV]",1000,0.,1000.);
   snprintf(chtitle, 255, "Photon pseudorapidity (pT>%4.1f)",ptThrForPhoton_);
   phEta_ = theDbe->book1D("phEta",chtitle,100,-2.5,2.5);
