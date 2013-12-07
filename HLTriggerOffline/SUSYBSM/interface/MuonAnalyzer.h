@@ -15,6 +15,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,7 +36,7 @@
 class MuonAnalyzerSBSM {
 
  public:
-  MuonAnalyzerSBSM(const edm::InputTag&, const edm::InputTag&);
+  MuonAnalyzerSBSM(const edm::InputTag&, const edm::InputTag&, edm::ConsumesCollector&& iC);
   virtual ~MuonAnalyzerSBSM(){};
 
   void InitializePlots(DQMStore *, const std::string);
@@ -72,8 +73,8 @@ class MuonAnalyzerSBSM {
   MonitorElement* hAssocRecoMuonEta_3_ByMuon;
 
   reco::MuonCollection Muons;
-  edm::InputTag triggerTag_;
-  edm::InputTag muonTag_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerTag_;
+  edm::EDGetTokenT<reco::MuonCollection> muonTag_;
 
   bool find(const std::vector<int>&, int);
 

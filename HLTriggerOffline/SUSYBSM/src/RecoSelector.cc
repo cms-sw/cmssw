@@ -17,16 +17,17 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-RecoSelector::RecoSelector(const edm::ParameterSet& userCut_params)
+RecoSelector::RecoSelector(const edm::ParameterSet& userCut_params, edm::ConsumesCollector&& iC)
 {
 
   name                   = userCut_params.getParameter<string>("name");
-  m_electronSrc  	 = userCut_params.getParameter<string>("electrons");
-  m_muonSrc    	 	 = userCut_params.getParameter<string>("muons");
-  m_jetsSrc    	 	 = userCut_params.getParameter<string>("jets");
-  m_photonProducerSrc  	 = userCut_params.getParameter<string>("photonProducer");
+  m_electronSrc  	 = iC.consumes<GsfElectronCollection>(userCut_params.getParameter<string>("electrons"));
+  m_muonSrc    	 	 = iC.consumes<MuonCollection>(userCut_params.getParameter<string>("muons"));
+  m_jetsSrc    	 	 = iC.consumes<CaloJetCollection>(userCut_params.getParameter<string>("jets"));
   m_photonSrc  	 	 = userCut_params.getParameter<string>("photons");
-  m_calometSrc 	         = userCut_params.getParameter<string>("calomet");
+  m_photonProducerSrc  	 = userCut_params.getParameter<string>("photonProducer");
+  m_photon_token_  	 = iC.consumes<PhotonCollection>(edm::InputTag(m_photonProducerSrc, m_photonSrc));
+  m_calometSrc 	         = iC.consumes<CaloMETCollection>(userCut_params.getParameter<string>("calomet"));
 
   reco_metMin    = userCut_params.getParameter<double>("reco_metMin") ;
   reco_ptJet1Min = userCut_params.getParameter<double>("reco_ptJet1Min");
@@ -123,27 +124,27 @@ void RecoSelector::handleObjects(const edm::Event& iEvent)
 
   //Get the electrons
   Handle<GsfElectronCollection> theElectronCollectionHandle; 
-  iEvent.getByLabel(m_electronSrc, theElectronCollectionHandle);
+  iEvent.getByToken(m_electronSrc, theElectronCollectionHandle);
   theElectronCollection = theElectronCollectionHandle.product();
 
   //Get the Muons
   Handle<MuonCollection> theMuonCollectionHandle; 
-  iEvent.getByLabel(m_muonSrc, theMuonCollectionHandle);
+  iEvent.getByToken(m_muonSrc, theMuonCollectionHandle);
   theMuonCollection = theMuonCollectionHandle.product();
 
   //Get the Photons
   Handle<PhotonCollection> thePhotonCollectionHandle; 
-  iEvent.getByLabel(m_photonProducerSrc, m_photonSrc, thePhotonCollectionHandle);
+  iEvent.getByToken(m_photon_token_, thePhotonCollectionHandle);
   thePhotonCollection = thePhotonCollectionHandle.product();
 
   //Get the CaloJets
   Handle<CaloJetCollection> theCaloJetCollectionHandle;
-  iEvent.getByLabel(m_jetsSrc, theCaloJetCollectionHandle);
+  iEvent.getByToken(m_jetsSrc, theCaloJetCollectionHandle);
   theCaloJetCollection = theCaloJetCollectionHandle.product();
 
   //Get the CaloMET
   Handle<CaloMETCollection> theCaloMETCollectionHandle;
-  iEvent.getByLabel(m_calometSrc, theCaloMETCollectionHandle);
+  iEvent.getByToken(m_calometSrc, theCaloMETCollectionHandle);
   theCaloMETCollection = theCaloMETCollectionHandle.product();
 
 }
