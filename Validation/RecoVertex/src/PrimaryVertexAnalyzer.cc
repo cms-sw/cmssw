@@ -1,5 +1,8 @@
 #include "Validation/RecoVertex/interface/PrimaryVertexAnalyzer.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -9,20 +12,15 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
-// simulated vertices,..., add <use name=SimDataFormats/Vertex> and <../Track>
-#include <SimDataFormats/Vertex/interface/SimVertex.h>
-#include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
-#include <SimDataFormats/Track/interface/SimTrack.h>
-#include <SimDataFormats/Track/interface/SimTrackContainer.h>
-
 //generator level + CLHEP
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
-//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "HepMC/GenParticle.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 // Root
+#include <TDirectory.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TFile.h>
@@ -47,27 +45,34 @@ using namespace reco;
 // constructors and destructor
 //
 PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const ParameterSet& iConfig)
+  : verbose_( iConfig.getUntrackedParameter<bool>( "verbose", false ) )
+  , simUnit_( 1.0 ) // starting with CMSSW_1_2_x ??
+  , recoTrackCollectionToken_( consumes< reco::TrackCollection >( edm::InputTag( iConfig.getUntrackedParameter<std::string>( "recoTrackProducer" ) ) ) )
+  , edmSimVertexContainerToken_( consumes< edm::SimVertexContainer>( iConfig.getParameter<edm::InputTag>( "simG4" ) ) )
+  , edmSimTrackContainerToken_( consumes< edm::SimTrackContainer >( iConfig.getParameter<edm::InputTag>( "simG4" ) ) )
+  , edmHepMCProductToken_( consumes< edm::HepMCProduct >( edm::InputTag( std::string( "generator" ) ) ) )
 {
    //now do what ever initialization is needed
-  simG4_=iConfig.getParameter<edm::InputTag>( "simG4" );
-  recoTrackProducer_= iConfig.getUntrackedParameter<std::string>("recoTrackProducer");
-  // open output file to store histograms}
-  outputFile_  = iConfig.getUntrackedParameter<std::string>("outputFile");
+  // open output file to store histograms
+  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
   TString tversion(edm::getReleaseVersion());
   tversion = tversion.Remove(0,1);
   tversion = tversion.Remove(tversion.Length()-1,tversion.Length());
-  outputFile_  = std::string(tversion)+"_"+outputFile_;
+  outputFile_ = std::string(tversion)+"_"+outputFile_;
 
-  vtxSample_   = iConfig.getUntrackedParameter<std::vector< std::string > >("vtxSample");
-  for(std::vector<std::string>::iterator isample = vtxSample_.begin(); isample!=vtxSample_.end(); ++isample) {
+  std::vector<std::string> vtxSample = iConfig.getUntrackedParameter<std::vector< std::string > >("vtxSample");
+  recoVertexCollectionTokens_.reserve( vtxSample.size() );
+  suffixSample_.reserve( vtxSample.size() );
+  auto vtxSampleBegin = vtxSample.begin();
+  auto vtxSampleEnd = vtxSample.end();
+  for( auto isample = vtxSampleBegin; isample != vtxSampleEnd; ++isample ) {
+    recoVertexCollectionTokens_.push_back( consumes< reco::VertexCollection >( edm::InputTag( *isample ) ) );
     if ( *isample == "offlinePrimaryVertices" ) suffixSample_.push_back("AVF");
     if ( *isample == "offlinePrimaryVerticesWithBS" ) suffixSample_.push_back("wBS");
   }
   if ( suffixSample_.size() == 0 ) throw cms::Exception("NoVertexSamples") << " no known vertex samples given";
 
   rootFile_ = new TFile(outputFile_.c_str(),"RECREATE");
-  verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
-  simUnit_= 1.0;  // starting with CMSSW_1_2_x ??
   if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
     simUnit_=0.1;  // for use in  CMSSW_1_1_1 tutorial
   }
@@ -407,19 +412,19 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 {
   
   Handle<reco::TrackCollection> recTrks;
-  iEvent.getByLabel(recoTrackProducer_, recTrks);
+  iEvent.getByToken( recoTrackCollectionToken_, recTrks );
 
   Handle<SimVertexContainer> simVtxs;
-  iEvent.getByLabel( simG4_, simVtxs);
+  iEvent.getByToken( edmSimVertexContainerToken_, simVtxs );
   
   Handle<SimTrackContainer> simTrks;
-  iEvent.getByLabel( simG4_, simTrks);
+  iEvent.getByToken( edmSimTrackContainerToken_, simTrks );
 
-  for (int ivtxSample=0; ivtxSample!= (int)vtxSample_.size(); ++ivtxSample) {
+  for (int ivtxSample=0; ivtxSample!= (int)recoVertexCollectionTokens_.size(); ++ivtxSample) {
     std::string isuffix = suffixSample_[ivtxSample];
 
     Handle<reco::VertexCollection> recVtxs;
-    iEvent.getByLabel(vtxSample_[ivtxSample], recVtxs);
+    iEvent.getByToken( recoVertexCollectionTokens_[ ivtxSample ], recVtxs );
 
     try{
       iSetup.getData(pdt);
@@ -429,7 +434,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
     bool MC=false;
     Handle<HepMCProduct> evtMC;
-    iEvent.getByLabel("generator",evtMC);
+    iEvent.getByToken( edmHepMCProductToken_, evtMC );
     if (!evtMC.isValid()) {
       MC=false;
       if(verbose_){
