@@ -186,7 +186,7 @@ bool PrimaryVertexAnalyzer::isCharged(const HepMC::GenParticle * p){
   }
 }
 
-void PrimaryVertexAnalyzer::printRecVtxs(const edm::Handle<reco::VertexCollection> recVtxs){
+void PrimaryVertexAnalyzer::printRecVtxs(const edm::Handle<reco::VertexCollection> & recVtxs){
     int ivtx=0;
     for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
 	v!=recVtxs->end(); ++v){
@@ -205,7 +205,7 @@ void PrimaryVertexAnalyzer::printRecVtxs(const edm::Handle<reco::VertexCollectio
 }
 
 
-void PrimaryVertexAnalyzer::printSimVtxs(const edm::Handle<edm::SimVertexContainer> simVtxs){
+void PrimaryVertexAnalyzer::printSimVtxs(const edm::Handle<edm::SimVertexContainer> & simVtxs){
     int i=0;
     for(edm::SimVertexContainer::const_iterator vsim=simVtxs->begin();
 	vsim!=simVtxs->end(); ++vsim){
@@ -221,7 +221,7 @@ void PrimaryVertexAnalyzer::printSimVtxs(const edm::Handle<edm::SimVertexContain
 }
 
 
-void PrimaryVertexAnalyzer::printSimTrks(const edm::Handle<edm::SimTrackContainer> simTrks){
+void PrimaryVertexAnalyzer::printSimTrks(const edm::Handle<edm::SimTrackContainer> & simTrks){
   std::cout <<  " simTrks   type, (momentum), vertIndex, genpartIndex"  << std::endl;
   int i=1;
   for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
@@ -240,8 +240,8 @@ void PrimaryVertexAnalyzer::printSimTrks(const edm::Handle<edm::SimTrackContaine
 }
 
 
-std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getSimPVs( const edm::Handle<edm::HepMCProduct> evtMC
-										     , std::string suffix=""
+std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getSimPVs( const edm::Handle<edm::HepMCProduct> & evtMC
+										     , const std::string & suffix
 										       )
 {
   std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> simpv;
@@ -331,9 +331,9 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 
 
 
-std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getSimPVs( const edm::Handle<edm::HepMCProduct> evtMC
-										     , const edm::Handle<edm::SimVertexContainer> simVtxs 
-										     , const edm::Handle<edm::SimTrackContainer> simTrks
+std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getSimPVs( const edm::Handle<edm::HepMCProduct> & evtMC
+										     , const edm::Handle<edm::SimVertexContainer> & simVtxs 
+										     , const edm::Handle<edm::SimTrackContainer> & simTrks
 										       )
 {
    // simvertices don't have enough information to decide, 

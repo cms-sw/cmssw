@@ -87,13 +87,13 @@ private:
   bool isFinalstateParticle(const HepMC::GenParticle * p);
   bool isCharged(const HepMC::GenParticle * p);
  
-  void printRecVtxs(const edm::Handle<reco::VertexCollection> recVtxs);
-  void printSimVtxs(const edm::Handle<edm::SimVertexContainer> simVtxs);
-  void printSimTrks(const edm::Handle<edm::SimTrackContainer> simVtrks);
-  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evtMC, std::string suffix);
-  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evt, 
-					  const edm::Handle<edm::SimVertexContainer> simVtxs, 
-					  const edm::Handle<edm::SimTrackContainer> simTrks);
+  void printRecVtxs(const edm::Handle<reco::VertexCollection> & recVtxs);
+  void printSimVtxs(const edm::Handle<edm::SimVertexContainer> & simVtxs);
+  void printSimTrks(const edm::Handle<edm::SimTrackContainer> & simVtrks);
+  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> & evtMC, const std::string & suffix = "");
+  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> & evt, 
+					  const edm::Handle<edm::SimVertexContainer> & simVtxs, 
+					  const edm::Handle<edm::SimTrackContainer> & simTrks);
   // ----------member data ---------------------------
   bool verbose_;
   double simUnit_;     
