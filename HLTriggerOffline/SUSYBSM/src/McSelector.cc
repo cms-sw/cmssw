@@ -17,13 +17,13 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-McSelector::McSelector(const edm::ParameterSet& userCut_params)
+McSelector::McSelector(const edm::ParameterSet& userCut_params, edm::ConsumesCollector&& iC)
 {
   //******************** PLEASE PAY ATTENTION: number of electron and muons is strictly equal, for jets, taus and photons the requirement is >= ********************
   name     = userCut_params.getParameter<string>("name");
-  m_genSrc       = userCut_params.getParameter<string>("mcparticles");
-  m_genJetSrc    = userCut_params.getParameter<string>("genJets");
-  m_genMetSrc    = userCut_params.getParameter<string>("genMet");
+  m_genSrc       = iC.consumes<reco::GenParticleCollection>(userCut_params.getParameter<string>("mcparticles"));
+  m_genJetSrc    = iC.consumes<reco::GenJetCollection>(userCut_params.getParameter<string>("genJets"));
+  m_genMetSrc    = iC.consumes<reco::GenMETCollection>(userCut_params.getParameter<string>("genMet"));
   mc_ptElecMin 	   = userCut_params.getParameter<double>("mc_ptElecMin"	    );
   mc_ptMuonMin 	   = userCut_params.getParameter<double>("mc_ptMuonMin"	    );
   mc_ptTauMin  	   = userCut_params.getParameter<double>("mc_ptTauMin" 	    );
@@ -251,19 +251,19 @@ void McSelector::handleObjects(const edm::Event& iEvent)
 
   //Get the GenParticleCandidates
   Handle< reco::GenParticleCollection > theCandidateCollectionHandle;
-  iEvent.getByLabel(m_genSrc, theCandidateCollectionHandle);
+  iEvent.getByToken(m_genSrc, theCandidateCollectionHandle);
   theGenParticleCollection = theCandidateCollectionHandle.product();
 
   
   //Get the GenJets
   Handle< GenJetCollection > theGenJetCollectionHandle ;
-  iEvent.getByLabel( m_genJetSrc, theGenJetCollectionHandle);  
+  iEvent.getByToken( m_genJetSrc, theGenJetCollectionHandle);  
   theGenJetCollection = theGenJetCollectionHandle.product();
 
 
   //Get the GenMET
   Handle< GenMETCollection > theGenMETCollectionHandle;
-  iEvent.getByLabel( m_genMetSrc, theGenMETCollectionHandle);
+  iEvent.getByToken( m_genMetSrc, theGenMETCollectionHandle);
   theGenMETCollection = theGenMETCollectionHandle.product();
 
 

@@ -49,13 +49,15 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 
 
 
 class PlotMakerReco {
 
  public:
-  PlotMakerReco(const edm::ParameterSet& objectList);
+  PlotMakerReco(const edm::ParameterSet& objectList, edm::ConsumesCollector&& iC);
   virtual ~PlotMakerReco(){};
 
   void handleObjects(const edm::Event&);
@@ -76,12 +78,13 @@ class PlotMakerReco {
     
 
   // Define the parameters
-  std::string m_electronSrc;
-  std::string m_muonSrc;
-  std::string m_jetsSrc;
-  std::string m_photonSrc;
+  edm::EDGetTokenT<reco::GsfElectronCollection> m_electronSrc;
+  edm::EDGetTokenT<reco::MuonCollection> m_muonSrc;
+  edm::EDGetTokenT<reco::CaloJetCollection> m_jetsSrc;
   std::string m_photonProducerSrc;
-  std::string m_calometSrc;
+  std::string m_photonSrc;
+  edm::EDGetTokenT<reco::PhotonCollection> m_photon_token_;
+  edm::EDGetTokenT<reco::CaloMETCollection> m_calometSrc;
 
 
   double def_electronPtMin; 

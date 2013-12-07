@@ -28,7 +28,7 @@ HITpixelPairRegGenerator = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer
             etaCenter = cms.double(0.0),
             phiCenter = cms.double(0.0),
             originZPos = cms.double(0.0),
-            vertexSrc = cms.string('pixelVertices')
+            vertexSrc = cms.InputTag("pixelVertices")
         )
     ),
     TTRHBuilder = cms.string('WithTrackAngle')
