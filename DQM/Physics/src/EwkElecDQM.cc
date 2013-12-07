@@ -494,7 +494,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup & iSet) {
       const int prescaleSet=hltConfigProvider_.prescaleSet(ev,iSet);
       if (prescaleSet==-1) {
         LogTrace("") << "Failed to determine prescaleSet\n";
-	std::cout << "Failed to determine prescaleSet\n";
+	//std::cout << "Failed to determine prescaleSet. Check cmsRun GlobalTag\n";
         return;
       }
 
