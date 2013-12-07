@@ -71,7 +71,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA3 : public PFTauDiscriminationPro
     minMVA3prongNoMatch_                = iConfig.getParameter<double>("minMVA3prongNoMatch");
   
     srcGsfElectrons_ = iConfig.getParameter<edm::InputTag>("srcGsfElectrons");
-
+    GsfElectrons_token = consumes<reco::GsfElectronCollection>(srcGsfElectrons_);
     mva_ = new AntiElectronIDMVA3();
     // CV: working version of file compression not implemented yet
 //     mva_->Initialize_from_string(method_,
@@ -189,6 +189,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA3 : public PFTauDiscriminationPro
   double minMVA3prongMatch_ ;
   double minMVA3prongNoMatch_ ;
   edm::InputTag srcGsfElectrons_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> GsfElectrons_token;
   edm::Handle<reco::GsfElectronCollection> gsfElectrons_;
   edm::Handle<TauCollection> taus_;
   std::auto_ptr<PFTauDiscriminator> category_output_;
@@ -198,11 +199,11 @@ class PFRecoTauDiscriminationAgainstElectronMVA3 : public PFTauDiscriminationPro
 void PFRecoTauDiscriminationAgainstElectronMVA3::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
   if ( returnMVA_ ) {
-    evt.getByLabel(TauProducer_, taus_);
+    evt.getByToken(Tau_token, taus_);
     category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
     tauIndex_ = 0;
   }
-  evt.getByLabel(srcGsfElectrons_, gsfElectrons_);
+  evt.getByToken(GsfElectrons_token, gsfElectrons_);
 }
 
 double PFRecoTauDiscriminationAgainstElectronMVA3::discriminate(const PFTauRef& thePFTauRef)

@@ -36,6 +36,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
@@ -75,8 +76,13 @@ class TauDiscriminationProducerBase : public edm::EDProducer {
     struct TauDiscInfo {
       edm::InputTag label;
       edm::Handle<TauDiscriminator> handle;
+      edm::EDGetTokenT<TauDiscriminator> disc_token;
+      // = consumes<TauDiscriminator>(label); 
       double cut;
-      void fill(const edm::Event& evt) { evt.getByLabel(label, handle); };
+      void fill(const edm::Event& evt) { 
+	//	disc_token = consumes<TauDiscriminator>(label);
+	evt.getByToken(disc_token, handle); 
+      };
     };
 
   protected:
@@ -86,6 +92,7 @@ class TauDiscriminationProducerBase : public edm::EDProducer {
     edm::InputTag TauProducer_;
 
     std::string moduleLabel_;
+    edm::EDGetTokenT<TauCollection> Tau_token;
 
   private:
     std::vector<TauDiscInfo> prediscriminants_;

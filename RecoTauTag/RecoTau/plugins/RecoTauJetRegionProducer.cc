@@ -33,6 +33,8 @@ class RecoTauJetRegionProducer : public edm::EDProducer {
     float deltaR2_;
     edm::InputTag inputJets_;
     edm::InputTag pfSrc_;
+    edm::EDGetTokenT<reco::PFCandidateCollection> pf_token;
+  edm::EDGetTokenT<reco::CandidateView> Jets_token;
 };
 
 RecoTauJetRegionProducer::RecoTauJetRegionProducer(
@@ -40,15 +42,16 @@ RecoTauJetRegionProducer::RecoTauJetRegionProducer(
   deltaR2_ = pset.getParameter<double>("deltaR"); deltaR2_*=deltaR2_;
   inputJets_ = pset.getParameter<edm::InputTag>("src");
   pfSrc_ = pset.getParameter<edm::InputTag>("pfSrc");
+  pf_token = consumes<reco::PFCandidateCollection>(pfSrc_); 
+  Jets_token = consumes<reco::CandidateView>(inputJets_);
   produces<reco::PFJetCollection>("jets");
   produces<PFJetMatchMap>();
 }
 
 void RecoTauJetRegionProducer::produce(edm::Event& evt,
     const edm::EventSetup& es) {
-
   edm::Handle<reco::PFCandidateCollection> pfCandsHandle;
-  evt.getByLabel(pfSrc_, pfCandsHandle);
+  evt.getByToken(pf_token, pfCandsHandle);
 
   // Build Ptrs for all the PFCandidates
   typedef edm::Ptr<reco::PFCandidate> PFCandPtr;
@@ -60,7 +63,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
 
   // Get the jets
   edm::Handle<reco::CandidateView> jetView;
-  evt.getByLabel(inputJets_, jetView);
+  evt.getByToken(Jets_token, jetView);
   // Convert to a vector of PFJetRefs
   reco::PFJetRefVector jets =
       reco::tau::castView<reco::PFJetRefVector>(jetView);

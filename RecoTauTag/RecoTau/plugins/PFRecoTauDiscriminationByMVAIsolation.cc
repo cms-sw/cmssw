@@ -66,6 +66,7 @@ public:
     // Read GBRForest
     TFile *gbrfFile = new TFile(gbrfFilePath_.fullPath().data());
     gbrfTauIso_ = (GBRForest *)(gbrfFile->Get("gbrfTauIso"));
+    rho_token=consumes<double>(rhoProducer_);
   }
 
   ~PFRecoTauDiscriminationByMVAIsolation(){} 
@@ -76,6 +77,7 @@ public:
 
 private:
   edm::InputTag rhoProducer_;
+  edm::EDGetTokenT<double> rho_token;
   edm::FileInPath gbrfFilePath_;
   GBRForest *gbrfTauIso_;
   bool returnMVA_;
@@ -88,7 +90,7 @@ void PFRecoTauDiscriminationByMVAIsolation::beginEvent(const edm::Event& event,
 {
   // Get rho of event
   edm::Handle<double> hRho;
-  event.getByLabel(rhoProducer_, hRho);
+  event.getByToken(rho_token, hRho);
   rho_ = *hRho;
 }
 
