@@ -1,13 +1,11 @@
 
-#include <string>
-
 class Foo
 {
 public:
     void bar()
     {
         // will produce a warning by StaticLocalChecker
-        static int evilStaticLocal = 0;
+        	[[cms::thread_safe]] static int evilStaticLocal = 0;
 		static int & intRef = evilStaticLocal;
 		static int * intPtr = & evilStaticLocal;
 
