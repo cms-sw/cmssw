@@ -6,7 +6,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
