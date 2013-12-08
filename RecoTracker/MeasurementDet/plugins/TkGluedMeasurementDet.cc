@@ -12,6 +12,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
 
 #include <typeinfo>
 
@@ -351,8 +352,8 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasu
 void
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d) 
 {
-  static LocalCache<TSiStripMatchedRecHit> lcache; // in case of pool allocator it will be cleared centrally
-  std::auto_ptr<TSiStripMatchedRecHit> & cache = lcache.ptr;
+  static thread_local std::auto_ptr<TSiStripMatchedRecHit> lcache;
+  std::auto_ptr<TSiStripMatchedRecHit> & cache = lcache;
   TSiStripMatchedRecHit::buildInPlace( cache, geomDet_, &hit2d, matcher_, cpe_ );
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, *cache);
   if ( diffEst.first) {
