@@ -16,6 +16,7 @@
 //
 //
 #include <clang/AST/Decl.h>
+#include <clang/AST/Attr.h>
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/StmtVisitor.h>
@@ -322,7 +323,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 
   	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(),AC);
 	if (!m_exception.reportClass( CELoc, BR ) ) return;
-
+        if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
 	if ( D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local && ! support::isConst( t ) )
 	{
 		std::string buf;
@@ -682,6 +683,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 		if ( !llvm::isa<clang::CXXMethodDecl>((*I)) ) continue;
 		if (!(*I)->isConst()) continue;
 		clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
+		if ( MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>()) continue;
 //        	llvm::errs() << "\n\nmethod "<<MD->getQualifiedNameAsString()<<"\n\n";
 //		for (clang::CXXMethodDecl::method_iterator J = MD->begin_overridden_methods(), F = MD->end_overridden_methods(); J != F; ++J) {
 //			llvm::errs()<<"\n\n overwritten method "<<(*J)->getQualifiedNameAsString()<<"\n\n";

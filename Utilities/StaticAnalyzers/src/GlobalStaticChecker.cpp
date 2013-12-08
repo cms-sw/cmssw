@@ -6,7 +6,11 @@
 
 #include "GlobalStaticChecker.h"
 
+#include <clang/AST/Attr.h>
 #include "CmsSupport.h"
+using namespace clang;
+using namespace ento;
+using namespace llvm;
 
 namespace clangcms
 {
@@ -15,7 +19,7 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
                     clang::ento::AnalysisManager &Mgr,
                     clang::ento::BugReporter &BR) const
 {
-
+	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
 	clang::QualType t =  D->getType();
 	if ( D->hasGlobalStorage() &&
 			  !D->isStaticDataMember() &&
@@ -23,7 +27,6 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
 			  !support::isConst( t ) )
 	{
 	    clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
-    	    clang::QualType t =  D->getType();
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
 		   return;

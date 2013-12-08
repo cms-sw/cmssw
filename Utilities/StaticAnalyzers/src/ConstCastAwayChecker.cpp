@@ -6,6 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+#include <clang/AST/Attr.h>
 #include "ConstCastAwayChecker.h"
 #include "CmsSupport.h" 
 

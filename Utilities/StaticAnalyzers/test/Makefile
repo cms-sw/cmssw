@@ -19,10 +19,10 @@ global_static_edm.o: global_static_edm.cpp
 	$(CXX) global_static_edm.cpp
 
 static_local.o: static_local.cpp
-	$(CXX) static_local.cpp
+	$(CXX) -Wno-attributes -std=c++11 $(CURDIR)/static_local.cpp
 
 class_checker.o: class_checker.cpp
-	$(CXX) -std=c++11 class_checker.cpp	
+	$(CXX) -Wno-attributes -std=c++11 $(CURDIR)/class_checker.cpp	
 
 func_checker.o: func_checker.cpp
-	$(CXX) func_checker.cpp
+	$(CXX) -Wno-attributes -std=c++11 $(CURDIR)/func_checker.cpp
