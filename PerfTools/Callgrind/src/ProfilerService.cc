@@ -10,7 +10,7 @@
 #include "valgrind/callgrind.h"
 
 ProfilerService::ProfilerService(edm::ParameterSet const& pset, 
-				 edm::ActivityRegistry  & activity) :
+				 edm::ActivityRegistry& activity) :
   
   m_firstEvent(pset.getUntrackedParameter<int>("firstEvent",0 )),
   m_lastEvent(pset.getUntrackedParameter<int>("lastEvent",std::numeric_limits<int>::max())),
@@ -31,10 +31,10 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
     activity.watchPostSourceEvent(this,&ProfilerService::preSourceI);
   else {
-    activity.watchPreProcessEvent(this,&ProfilerService::beginEventI);
-    activity.watchPostProcessEvent(this,&ProfilerService::endEventI);
-    activity.watchPreProcessPath(this,&ProfilerService::beginPathI);
-    activity.watchPostProcessPath(this,&ProfilerService::endPathI);
+    activity.watchPreEvent(this,&ProfilerService::beginEventI);
+    activity.watchPostEvent(this,&ProfilerService::endEventI);
+    activity.watchPrePathEvent(this,&ProfilerService::beginPathI);
+    activity.watchPostPathEvent(this,&ProfilerService::endPathI);
   }
 }
 
@@ -128,7 +128,7 @@ void  ProfilerService::endEvent() {
   forceStopInstrumentation();
 }
 
-void  ProfilerService::beginPath(std::string const & path) {
+void  ProfilerService::beginPath(std::string const& path) {
   if (!doEvent()) return;
   // assume less than 5-6 path to instrument or to exclude
   if (std::find(m_excludedPaths.begin(),m_excludedPaths.end(),path) != m_excludedPaths.end()) {
@@ -140,7 +140,7 @@ void  ProfilerService::beginPath(std::string const & path) {
   startInstrumentation();
 }
 
-void  ProfilerService::endPath(std::string const & path) {
+void  ProfilerService::endPath(std::string const& path) {
   resumeInstrumentation();
   if (m_activePath==path) {
     stopInstrumentation();
