@@ -8,6 +8,10 @@
 
 #include "CmsSupport.h"
 #include <iostream>
+#include <clang/AST/Attr.h>
+using namespace clang;
+using namespace ento;
+using namespace llvm;
 
 namespace clangcms {
 
@@ -17,7 +21,7 @@ void StaticLocalChecker::checkASTDecl(const clang::VarDecl *D,
                     clang::ento::BugReporter &BR) const
 {
 	clang::QualType t =  D->getType();
-
+        if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
 	if ( ( (D->isStaticLocal() || D->isStaticDataMember() )  && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local) && ! support::isConst( t ) )
 	{
 	    clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());

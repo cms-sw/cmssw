@@ -1,4 +1,5 @@
 #include <clang/AST/DeclCXX.h>
+#include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/StmtVisitor.h>
@@ -63,7 +64,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
   
 
   if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
-
+	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
 	if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
@@ -127,7 +128,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
 void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-
+	if ( MD->hasAttr<CMSThreadSafeAttr>()) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
  	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);
@@ -140,7 +141,7 @@ void FunctionChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr
 
 void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
                     BugReporter &BR) const {
-
+	if ( FD->hasAttr<CMSThreadSafeAttr>()) return;
         if (FD-> isInExternCContext()) {
                 std::string buf;
                 std::string dname = FD->getQualifiedNameAsString();
@@ -156,6 +157,7 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
 void FunctionChecker::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManager& mgr,
                     BugReporter &BR) const {
 
+	if ( TD->hasAttr<CMSThreadSafeAttr>()) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
    	if (!support::isCmsLocalFile(sfile)) return;
 	std::string fname(sfile);

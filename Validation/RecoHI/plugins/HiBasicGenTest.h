@@ -15,13 +15,16 @@
 #include <iostream>
 #include <stdlib.h>
 
+namespace edm { class HepMCProduct; }
+
+
 class HiBasicGenTest : public edm::EDAnalyzer
 {
  public:
   explicit HiBasicGenTest(const edm::ParameterSet&);
   virtual ~HiBasicGenTest();
   virtual void beginJob();
-  virtual void endJob();  
+  virtual void endJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
@@ -29,7 +32,8 @@ class HiBasicGenTest : public edm::EDAnalyzer
  private:
 
   DQMStore *dbe;
-  
+
+  edm::EDGetTokenT<edm::HepMCProduct> generatorToken_;
   MonitorElement *dnchdeta[3];
   MonitorElement *dnchdpt[3];
   MonitorElement *b[3];
