@@ -5,7 +5,12 @@
 //===----------------------------------------------------------------------===//
 
 
+#include <clang/AST/Attr.h>
 #include "ConstCastChecker.h"
+
+using namespace clang;
+using namespace ento;
+using namespace llvm;
 
 namespace clangcms {
 
