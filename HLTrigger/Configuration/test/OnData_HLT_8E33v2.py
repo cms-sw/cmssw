@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v2.2/HLT/V8 (CMSSW_6_2_0_pre6_HLT2)
+# /online/collisions/2012/8e33/v2.2/HLT/V10 (CMSSW_6_2_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT8E33v2" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V8')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.2/HLT/V10')
 )
 
 process.streams = cms.PSet( 
@@ -1541,7 +1541,7 @@ process.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "GR_H_V32::All" ),
+    globaltag = cms.string( "GR_H_V33::All" ),
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
