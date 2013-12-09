@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="ebrot.xml" eval="true">
+		<Constant name="BarRotX" value="0"/>
+		<Constant name="BarRotY" value="1"/>
+		<Constant name="BarRotZ" value="0"/>
+		<Constant name="BarRotA" value="0"/>
+		<Constant name="BarRot2X" value="0"/>
+		<Constant name="BarRot2Y" value="1"/>
+		<Constant name="BarRot2Z" value="0"/>
+		<Constant name="BarRot2A" value="0"/>
+		<Constant name="BarRot3X" value="0"/>
+		<Constant name="BarRot3Y" value="1"/>
+		<Constant name="BarRot3Z" value="0"/>
+		<Constant name="BarRot3A" value="0"/>
+	</ConstantsSection>
+</DDDefinition>
