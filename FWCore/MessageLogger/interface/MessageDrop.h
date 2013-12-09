@@ -23,7 +23,7 @@
 // Framework include files
 
 #include "FWCore/Utilities/interface/EDMException.h"	// change log 4
-
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // system include files
 
@@ -106,11 +106,11 @@ public:
   bool warningEnabled;                           // change log 8
   bool errorEnabled;                             // change log 8, 12
 
-  [[cms::thread_safe]] static std::string jobMode;					// change log 6
-  [[cms::thread_safe]] static unsigned char messageLoggerScribeIsRunning;	// change log 7
-  [[cms::thread_safe]] static bool debugAlwaysSuppressed;			// change log 9
-  [[cms::thread_safe]] static bool infoAlwaysSuppressed;			// change log 9
-  [[cms::thread_safe]] static bool warningAlwaysSuppressed;			// change log 9
+  CMS_THREAD_SAFE static std::string jobMode;					// change log 6
+  CMS_THREAD_SAFE static unsigned char messageLoggerScribeIsRunning;	// change log 7
+  CMS_THREAD_SAFE static bool debugAlwaysSuppressed;			// change log 9
+  CMS_THREAD_SAFE static bool infoAlwaysSuppressed;			// change log 9
+  CMS_THREAD_SAFE static bool warningAlwaysSuppressed;			// change log 9
 private:
   messagedrop::StringProducerWithPhase * spWithPhase;
   messagedrop::StringProducerPath      * spPath;
