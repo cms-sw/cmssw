@@ -220,17 +220,16 @@ RectangularPixelTopology::localX( const float mpx ) const
   float fractionX = mpx - float(binoffx); // find the fraction 
   float local_pitchx = m_pitchx;   // defaultpitch
 
-  if( m_upgradeGeometry ) 
-  {
-    if( binoffx > m_ROWS_PER_ROC * m_ROCS_X ) // too large
-    {
-      LogDebug("RectangularPixelTopology") << " very bad, binx " << binoffx << "\n"
+  if unlikely( m_upgradeGeometry ) {
+#ifdef EDM_ML_DEBUG
+    if( binoffx > m_ROWS_PER_ROC * `m_ROCS_X ) // too large
+    {`
+      `LogDebug("RectangularPixelTopology") << " very bad, binx " << binoffx << "\n"
 					   << mpx << " " << binoffx << " "
 					   << fractionX << " " << local_pitchx << " " << m_xoffset << "\n";
     }
-  }
-  else 
-  { 
+#endif
+  } else { 
     if (binoffx>80) {            // ROC 1 - handles x on edge cluster
       binoffx=binoffx+2;
     } else if (binoffx==80) {    // ROC 1
@@ -277,16 +276,16 @@ RectangularPixelTopology::localY( const float mpy ) const
   float fractionY = mpy - float(binoffy); // find the fraction 
   float local_pitchy = m_pitchy;   // defaultpitch
 
-  if( m_upgradeGeometry )
-  {
-    if( binoffy > m_ROCS_Y * m_COLS_PER_ROC )   // too large
+  if unlikely( m_upgradeGeometry ){
+ #ifdef EDM_ML_DEBUG
+   if( binoffy > m_ROCS_Y * m_COLS_PER_ROC )   // too large
       {
 	LogDebug( "RectangularPixelTopology" ) << " very bad, biny " << binoffy << "\n"
 					       << mpy << " " << binoffy << " " << fractionY
 					       << " " << local_pitchy << " " << m_yoffset;
-      }     
-  }
-  else {
+      }
+#endif
+    } else {   // 415 is last big pixel, 416 and above do not exists!
     constexpr int bigYIndeces[]{0,51,52,103,104,155,156,207,208,259,260,311,312,363,364,415,416,511};
     auto const j = std::lower_bound(std::begin(bigYIndeces),std::end(bigYIndeces),binoffy);
     if (*j==binoffy) local_pitchy  *= 2 ;
@@ -336,49 +335,19 @@ RectangularPixelTopology::measurementError( const LocalPoint& lp,
   float pitchy=m_pitchy;
   float pitchx=m_pitchx;
 
-  if( !m_upgradeGeometry ) 
-  {    
-    int iybin = int( (lp.y() - m_yoffset)/m_pitchy );   //get bin for equal picth 
-    int iybin0 = iybin%54;  //This is just to avoid many ifs by using the periodicy
-    //quasi bins 0,1,52,53 fall into larger pixels  
-    if(iybin0==0 || iybin0==1 || iybin0==52 || iybin0==53 )
-      pitchy = 2. * m_pitchy;
+  if likely( !m_upgradeGeometry ) {    
+      int iybin = int( (lp.y() - m_yoffset)/m_pitchy );   //get bin for equal picth 
+      int iybin0 = iybin%54;  //This is just to avoid many ifs by using the periodicy
+      //quasi bins 0,1,52,53 fall into larger pixels  
+      if( (iybin0<=1) | (iybin0>=52) )
+	pitchy = 2.f * m_pitchy;
 
-    int ixbin = int( (lp.x() - m_xoffset)/m_pitchx );   //get bin for equal pitch
-    //quasi bins 79,80,81,82 fall into the 2 larger pixels  
-    if(ixbin>=79 && ixbin<=82) pitchx = 2. * m_pitchx;  
-  }
+      int ixbin = int( (lp.x() - m_xoffset)/m_pitchx );   //get bin for equal pitch
+      //quasi bins 79,80,81,82 fall into the 2 larger pixels  
+      if( (ixbin>=79) & (ixbin<=82) ) pitchx = 2.f * m_pitchx;  
+    }
   
   return MeasurementError( le.xx()/float(pitchx*pitchx), 0,
 			   le.yy()/float(pitchy*pitchy));
 }
 
-
-// why is different than Y????? (in any case it has just to check if 79 or 80 are in the range (bha!)
-bool
-RectangularPixelTopology::containsBigPixelInX( const int& ixmin, const int& ixmax ) const
-{
-  if( !m_upgradeGeometry ) 
-  {    
-    for(int i = ixmax+1, iend = ixmin; i != iend; i--)
-    {
-      if( isItBigPixelInX( i )) return true;
-    }
-  }
-  
-  return false;
-}
-
-// again, no need to loop...
-bool
-RectangularPixelTopology::containsBigPixelInY( const int& iymin, const int& iymax ) const
-{
-  if( !m_upgradeGeometry ) 
-  {    
-    for( int i = iymin, iend = iymax+1; i != iend; i++ )
-    {
-      if( isItBigPixelInY( i )) return true;
-    }
-  }
-  return false;
-}
