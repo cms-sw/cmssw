@@ -24,7 +24,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <vector>
+//#include <vector>
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
 //this doesn't exist yet 12/5/13 Alex
@@ -35,7 +35,10 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 
 //#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
