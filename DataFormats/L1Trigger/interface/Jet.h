@@ -3,8 +3,12 @@
 
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 
 namespace l1t {
+
+  class Jet;
+  typedef BXVector<Jet> JetBxCollection;
 
   class Jet : public L1Candidate {
     

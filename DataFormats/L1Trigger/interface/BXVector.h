@@ -94,4 +94,8 @@ class BXVector  {
   
 };
 
+#include "BXVector.impl"
+
 #endif
+
+
