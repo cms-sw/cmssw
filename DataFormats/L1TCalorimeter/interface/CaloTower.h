@@ -9,6 +9,7 @@ namespace l1t {
   class CaloTower : public L1Candidate {
     
   public:
+    CaloTower(){}
     CaloTower( const LorentzVector& p4,
 	   double etEm=0.,
 	   double etHad=0.,

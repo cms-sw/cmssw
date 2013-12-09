@@ -9,6 +9,7 @@ namespace l1t {
   class CaloRegion : public L1Candidate {
     
   public:
+    CaloRegion(){}
     CaloRegion( const LorentzVector& p4,
 	   double etEm=0.,
 	   double etHad=0.,
