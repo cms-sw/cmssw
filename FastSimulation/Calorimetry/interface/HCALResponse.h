@@ -54,6 +54,7 @@ private:
   //random shooting functions w/ protection from negative energies
   double gaussShootNoNegative(double e, double sigma);
   double cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR);
+  double PoissonShootNoNegative(double e, double sigma);
 
   //find subdet
   int getDet(int ieta);
@@ -75,7 +76,7 @@ private:
 
   //max values
   int maxMUe, maxMUeta, maxMUbin, maxEMe, maxEMeta;
-  int maxHDe[3];
+  int maxHDe[4];
   // eta step for eta index calc
   double etaStep;
   // eta index for different regions
@@ -105,6 +106,7 @@ private:
   // indices: responseMU[energy][eta][bin]
   vec3 responseMU; 
   vec3 mipfraction;
+  vec3 PoissonParameters;
 
   // Famos random engine
   const RandomEngine* random;
