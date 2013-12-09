@@ -32,13 +32,12 @@ public:
   virtual ~ECalSD();
   virtual double                    getEnergyDeposit(G4Step*);
   virtual uint16_t                  getRadiationLength(G4Step *);
+  virtual uint16_t                  getLayerIDForTimeSim(G4Step *);
   virtual uint32_t                  setDetUnitId(G4Step*);
   void                              setNumberingScheme(EcalNumberingScheme*);
   virtual int                       getTrackID(G4Track*);
   virtual uint16_t                  getDepth(G4Step*);
-
 private:    
-
   void                              initMap(G4String, const DDCompactView &);
   double                            curve_LY(G4Step*); 
   double                            crystalLength(G4LogicalVolume*);
@@ -50,7 +49,7 @@ private:
 						   const DDsvalues_type&);
 
   EcalNumberingScheme *             numberingScheme;
-  bool                              useWeight, storeTrack, storeRL;
+  bool                              useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool                              useBirk, useBirkL3;
   double                            birk1, birk2, birk3, birkSlope, birkCut;
   double                            slopeLY;
@@ -60,6 +59,7 @@ private:
   EcalBaseNumber                    theBaseNumber;
   EnergyResolutionVsLumi            ageing;
   bool                              ageingWithSlopeLY;
+
 };
 
 #endif // ECalSD_h
