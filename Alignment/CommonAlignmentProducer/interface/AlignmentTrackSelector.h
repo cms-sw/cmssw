@@ -81,6 +81,10 @@ class AlignmentTrackSelector
   const int minHitsinENDCAP_, minHitsinENDCAPplus_, minHitsinENDCAPminus_;
   const double maxHitDiffEndcaps_;
   const double nLostHitMax_;
+  std::vector<double> RorZofFirstHitMin_;
+  std::vector<double> RorZofFirstHitMax_;
+  std::vector<double> RorZofLastHitMin_;
+  std::vector<double> RorZofLastHitMax_;
 
   const edm::InputTag clusterValueMapTag_;  // ValueMap containing association cluster - flag
   const int minPrescaledHits_;

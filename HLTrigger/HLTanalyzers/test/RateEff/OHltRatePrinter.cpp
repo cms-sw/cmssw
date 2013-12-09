@@ -14,23 +14,23 @@
 using namespace std;
 
 void OHltRatePrinter::SetupAll(
-      vector<float> tRate,
-      vector<float> tRateErr,
-      vector<float> tspureRate,
-      vector<float> tspureRateErr,
-      vector<float> tpureRate,
-      vector<float> tpureRateErr,
-      vector< vector<float> >tcoMa,
-      vector < vector <float> > tRatePerLS,
+      vector<double> tRate,
+      vector<double> tRateErr,
+      vector<double> tspureRate,
+      vector<double> tspureRateErr,
+      vector<double> tpureRate,
+      vector<double> tpureRateErr,
+      vector< vector<double> >tcoMa,
+      vector < vector <double> > tRatePerLS,
       vector<int> tRunID,
       vector<int> tLumiSection,
-      vector<float> tTotalRatePerLS,
+      vector<double> tTotalRatePerLS,
       vector< vector<int> > tRefPrescalePerLS,
       vector< vector<int> > tRefL1PrescalePerLS,
-      vector<float> tAverageRefPrescaleHLT,
-      vector<float> tAverageRefPrescaleL1,
-      vector< vector<int> > tCountPerLS,
-      vector<int> tTotalCountPerLS,
+      vector<double> tAverageRefPrescaleHLT,
+      vector<double> tAverageRefPrescaleL1,
+      vector< vector<double> > tCountPerLS,
+      vector<double> tTotalCountPerLS,
       vector<double> tLumiPerLS)
 {
    Rate = tRate;
@@ -70,10 +70,10 @@ void OHltRatePrinter::printRatesASCII(OHltConfig *cfg, OHltMenu *menu)
    cout
          << "----------------------------------------------------------------------------------------------\n";
 
-   float cumulRate = 0.;
-   float cumulRateErr = 0.;
-   float hltPrescaleCorrection = 1.;
-   float l1PrescaleCorrection = 1.; 
+   double cumulRate = 0.;
+   double cumulRateErr = 0.;
+   double hltPrescaleCorrection = 1.;
+   double l1PrescaleCorrection = 1.; 
 
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
    {
@@ -223,16 +223,16 @@ void OHltRatePrinter::printHltRatesTwiki(OHltConfig *cfg, OHltMenu *menu)
    outFile << " | *Avg. Size [MB]*";
    outFile << " | *Total Throughput [MB/s]* |" << endl;
 
-   float cumulRate = 0.;
-   float cumulRateErr = 0.;
-   float cuThru = 0.;
-   float cuThruErr = 0.;
-   float physCutThru = 0.;
-   float physCutThruErr = 0.;
-   float cuPhysRate = 0.;
-   float cuPhysRateErr = 0.;
-   float hltPrescaleCorrection = 1;
-   float l1PrescaleCorrection = 1.;
+   double cumulRate = 0.;
+   double cumulRateErr = 0.;
+   double cuThru = 0.;
+   double cuThruErr = 0.;
+   double physCutThru = 0.;
+   double physCutThruErr = 0.;
+   double cuPhysRate = 0.;
+   double cuPhysRateErr = 0.;
+   double hltPrescaleCorrection = 1;
+   double l1PrescaleCorrection = 1.;
 
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
    {
@@ -377,9 +377,9 @@ void OHltRatePrinter::printL1RatesTwiki(OHltConfig *cfg, OHltMenu *menu)
    outFile << " | *L1 rate [Hz]*";
    outFile << " | *Total Rate [Hz]* |" << endl;
 
-   float cumulRate = 0.;
-   float cumulRateErr = 0.;
-   float hltPrescaleCorrection = 1.;
+   double cumulRate = 0.;
+   double cumulRateErr = 0.;
+   double hltPrescaleCorrection = 1.;
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
    {
       cumulRate += spureRate[i];
@@ -428,16 +428,20 @@ int OHltRatePrinter::ivecMin(vector<int> ivec)
    return min;
 }
 
+
 /* ********************************************** */
 // Fill histos
 /* ********************************************** */
-void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
+void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents)
 {
    TString tableFileName = GetFileName(cfg, menu);
-
+   TString NumberOfProcessedEvents(Nevents);
+   cout<<"numEvents to write="<<Nevents<<endl;
+   TString Temp("Nevt");
+   Temp+=Nevents;
+   TNamed* NumberToWrite=new TNamed(TString("ProcessedEvents"),Temp);
    TFile *fr = new TFile(tableFileName+TString(".root"),"recreate");
    fr->cd();
-
    int nTrig = (int)menu->GetTriggerSize();
    int nL1Trig = (int)menu->GetL1TriggerSize();
    TH1F *individual = new TH1F("individual","individual",nTrig,1,nTrig+1);
@@ -446,6 +450,9 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    TH1F *eventsize = new TH1F("eventsize","eventsize",nTrig,1,nTrig+1);
    TH2F *overlap = new TH2F("overlap","overlap",nTrig,1,nTrig+1,nTrig,1,nTrig+1);
    TH1F *unique = new TH1F("unique","unique",nTrig,1,nTrig+1);
+   
+   TH1F *NEVTS = new TH1F("NEVTS","NEVTS",1,0.,1.);
+   TH1F *NLumiSec = new TH1F("NLumiSec","NLumiSec",1,0.,1.);
 
    int RunLSn = RatePerLS.size();
 
@@ -457,6 +464,11 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    int RunLSmin = RunMin*10000 + LSMin;
    int RunLSmax = RunMax*10000 + LSMax;
 
+   int NLSec = lumiSection.size();
+
+   NLumiSec->SetBinContent(1,NLSec);
+   NEVTS->SetBinContent(1,Nevents);
+   
    //cout<<">>>>>>>> "<<RunLSn<<" "<<RunMin<<" "<<RunMax<<" "<<LSMin<<" "<<LSMax<<endl;
 
    TH2F *individualPerLS = new TH2F("individualPerLS","individualPerLS",nTrig,1,nTrig+1,
@@ -473,20 +485,24 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    TH1F *totalCountsPerLS = new TH1F("totalCountsPerLS","totalCountsPerLS",RunLSn,RunLSmin,RunLSmax);
    TH1F *instLumiPerLS = new TH1F("instLumiPerLS","instLumiPerLS",RunLSn,RunLSmin,RunLSmax);
 
-   float cumulRate = 0.;
-   float cumulRateErr = 0.;
-   float cuThru = 0.;
-   float cuThruErr = 0.;
+   double cumulRate = 0.;
+   double cumulRateErr = 0.;
+   double cumulRErr = 0.;
+   double cuThru = 0.;
+   double cuThruErr = 0.;
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
    {
       cumulRate += spureRate[i];
       cumulRateErr += pow(spureRateErr[i], fTwo);
       cuThru += spureRate[i] * menu->GetEventsize(i);
       cuThruErr += pow(spureRate[i]*menu->GetEventsize(i), fTwo);
+      cumulRErr = sqrt(cumulRateErr);
 
       individual->SetBinContent(i+1, Rate[i]);
+      individual->SetBinError(i+1, RateErr[i]);
       individual->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
       cumulative->SetBinContent(i+1, cumulRate);
+      cumulative->SetBinError(i+1, cumulRErr);
       cumulative->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
       unique->SetBinContent(i+1, pureRate[i]); 
       unique->GetXaxis()->SetBinLabel(i+1, menu->GetTriggerName(i));
@@ -591,7 +607,7 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
          overlap->GetYaxis()->SetBinLabel(j+1, menu->GetTriggerName(j));
       }
    }
-
+   NumberToWrite->Write();
    individual->SetStats(0);
    individual->SetYTitle("Rate (Hz)");
    individual->SetTitle("Individual trigger rate");
@@ -609,6 +625,8 @@ void OHltRatePrinter::writeHistos(OHltConfig *cfg, OHltMenu *menu)
    throughput->Write();
    overlap->Write();
    unique->Write();
+   NEVTS->Write();
+   NLumiSec->Write();
    individualPerLS->SetStats(0);
    individualPerLS->SetZTitle("Rate (Hz)");
    individualPerLS->SetTitle("Individual trigger rate vs Run/LumiSection");
@@ -790,9 +808,9 @@ void OHltRatePrinter::printL1RatesTex(OHltConfig *cfg, OHltMenu *menu)
    outFile << "\\hline " << endl;
    outFile << "\\endlastfoot " << endl;
 
-   float cumulRate = 0.;
-   float cumulRateErr = 0.;
-   float hltPrescaleCorrection = 1.;
+   double cumulRate = 0.;
+   double cumulRateErr = 0.;
+   double hltPrescaleCorrection = 1.;
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
    {
       cumulRate += spureRate[i];
@@ -924,15 +942,15 @@ void OHltRatePrinter::printHltRatesTex(OHltConfig *cfg, OHltMenu *menu)
    outFile << "\\hline " << endl;
    outFile << "\\endlastfoot " << endl;
 
-   float cumulRate = 0.;
-   float cumulRateErr = 0.;
-   float cuThru = 0.;
-   float cuThruErr = 0.;
-   float physCutThru = 0.;
-   float physCutThruErr = 0.;
-   float cuPhysRate = 0.;
-   float cuPhysRateErr = 0.;
-   float hltPrescaleCorrection = 1.;
+   double cumulRate = 0.;
+   double cumulRateErr = 0.;
+   double cuThru = 0.;
+   double cuThruErr = 0.;
+   double physCutThru = 0.;
+   double physCutThruErr = 0.;
+   double cuPhysRate = 0.;
+   double cuPhysRateErr = 0.;
+   double hltPrescaleCorrection = 1.;
    vector<TString> footTrigSeedPrescales;
    vector<TString> footTrigSeeds;
    vector<TString> footTrigNames;
@@ -1113,7 +1131,7 @@ void OHltRatePrinter::printPrescalesCfg(OHltConfig *cfg, OHltMenu *menu)
    outFile << "\t\tprescales = cms.vuint32( 1 )" << endl;
    outFile << "\t\t)," << endl;
 
-   float hltPrescaleCorrection = 1.;
+   double hltPrescaleCorrection = 1.;
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
    {
       if (cfg->readRefPrescalesFromNtuple)
@@ -1160,7 +1178,7 @@ void OHltRatePrinter::printHLTDatasets(
    hltDatasets.report(sLumi, fullPathTableName+ "_PS_", significantDigits); //SAK -- prints PDF tables
    // 	printf("OHltRatePrinter::printHLTDatasets. About to call hltDatasets.write\n"); //RR
    hltDatasets.write();
-   float hltPrescaleCorrection = 1.;
+   double hltPrescaleCorrection = 1.;
 
    printf("**************************************************************************************************************************\n");
    unsigned int HLTDSsize=hltDatasets.size();
@@ -1265,19 +1283,19 @@ void OHltRatePrinter::ReorderRunLS()
             lumiSection[j] = lumiSection[j+1];
             lumiSection[j+1] = swap2;
 
-            vector<float> swap3 = RatePerLS[j];
+            vector<double> swap3 = RatePerLS[j];
             RatePerLS[j] = RatePerLS[j+1];
             RatePerLS[j+1] = swap3;
 
-            float swap4 = totalRatePerLS[j];
+            double swap4 = totalRatePerLS[j];
             totalRatePerLS[j] = totalRatePerLS[j+1];
             totalRatePerLS[j+1] = swap4;
 
-	    int swap5 = totalCountPerLS[j];
+	    double swap5 = totalCountPerLS[j];
 	    totalCountPerLS[j] = totalCountPerLS[j+1];
 	    totalCountPerLS[j+1] = swap5;
 
-	    vector<int> swap6 = CountPerLS[j];
+	    vector<double> swap6 = CountPerLS[j];
 	    CountPerLS[j] = CountPerLS[j+1];
 	    CountPerLS[j+1] = swap6;
 

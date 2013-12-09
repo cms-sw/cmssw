@@ -410,6 +410,11 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     //    edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
     //    iSetup.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
    
+    edm::ESHandle<LumiCorrectionParam> lumicorrdatahandle; //get LumiCorrectionParam object from event setup  
+    iSetup.getData(lumicorrdatahandle);  
+
+    edm::Handle<std::vector< PileupSummaryInfo > >    pupInfo;  
+
     
     // extract the collections from the event, check their validity and log which are missing
     std::vector<MissingCollectionInfo> missing;
@@ -562,6 +567,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, pixelclusters,            PixelClustersTag_,          kPixelClusters );  
     getCollection( iEvent, missing, recoVertexsHLT,           VertexTagHLT_,              kRecoVerticesHLT ); 
     getCollection( iEvent, missing, recoVertexsOffline0,      VertexTagOffline0_,         kRecoVerticesOffline0 );
+
+    getCollection( iEvent, missing, pupInfo,         pileupInfo_,        kPileupInfo ); 
     
     double ptHat=-1.;
     if (genEventInfo.isValid()) {ptHat=genEventInfo->qScale();}
@@ -684,6 +691,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           ptHat,
                           simTracks,
                           simVertices,
+			  pupInfo,
                           HltTree);
     track_analysis_.analyze( 
                             isopixeltracksL3, 
@@ -740,7 +748,8 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			     recoVertexsOffline0,
 			     HltTree);
 
-    evt_header_.analyze(iEvent, HltTree);
+    evt_header_.analyze(iEvent, lumicorrdatahandle, HltTree); 
+    //evt_header_.analyze(iEvent, HltTree); 
     
     
     // std::cout << " Ending Event Analysis" << std::endl;

@@ -967,7 +967,7 @@ process.TrackerTrackHitFilter.usePixelQualityFlag= True
 #bit xy for muons trigger
 
 
-process.triggerSelection=cms.Sequence(process.bptxAnd)
+#process.triggerSelection=cms.Sequence(process.bptxAnd)
 
 
 
@@ -1415,6 +1415,6 @@ process.TrackerTrackHitFilter.usePixelQualityFlag= True
 #bit xy for muons trigger
 
 
-process.triggerSelection=cms.Sequence(process.bptxAnd)
+#process.triggerSelection=cms.Sequence(process.bptxAnd)
 
 """

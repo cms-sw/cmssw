@@ -10,9 +10,13 @@
 using namespace edm;
 using namespace reco;
 
-TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParticle & st)const{
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
+TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParticleRef st)const{
+
+  std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(st,TrackPSimHitRef());//SimHit is dummy: for simHitTPAssociationListGreater 
+	                                                                                         // sorting only the cluster is needed
+  auto range = std::equal_range(simHitsTPAssoc->begin(), simHitsTPAssoc->end(), 
+				clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
+
   //  TrackingParticle* simtrack = const_cast<TrackingParticle*>(&st);
   //loop over PSimHits
   const PSimHit * psimhit=0;
@@ -20,16 +24,20 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   double dLim=thePositionMinimumDistance;
 
   //    look for the further most hit beyond a certain limit
-  std::vector<PSimHit> pSimHit = st.trackPSimHit();
-  if (!theConsiderAllSimHits) pSimHit=st.trackPSimHit(DetId::Tracker);
-  std::vector<PSimHit> ::const_iterator start=pSimHit.begin();
-  std::vector<PSimHit> ::const_iterator end=pSimHit.end();
-  LogDebug("TrackAssociatorByPosition")<<pSimHit.size()<<" PSimHits.";
+  auto start=range.first;
+  auto end=range.second;
+  LogDebug("TrackAssociatorByPosition")<<range.second-range.first<<" PSimHits.";
 
   unsigned int count=0;
-  for (std::vector<PSimHit> ::const_iterator psit=start;psit!=end;++psit){    
+  for (auto ip=start;ip!=end;++ip){    
+
+    TrackPSimHitRef psit = ip->second;
+
     //get the detid
     DetId dd(psit->detUnitId());
+
+    if (!theConsiderAllSimHits && dd.det()!=DetId::Tracker) continue; 
+
     LogDebug("TrackAssociatorByPosition")<<count++<<"] PSimHit on: "<<dd.rawId();
     //get the surface from the global geometry
     const GeomDet * gd=theGeometry->idToDet(dd);
@@ -55,9 +63,6 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
   else{
     //    edm::LogError("TrackAssociatorByPosition")<<"no corresponding PSimHit for a tracking particle. will fail.";
     return TrajectoryStateOnSurface();}
-#else
-  return TrajectoryStateOnSurface();
-#endif
 }
 
 FreeTrajectoryState TrackAssociatorByPosition::getState(const reco::Track & track)const{
@@ -110,6 +115,10 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(const edm::Ref
   std::pair<unsigned int,unsigned int> minPair;
   const double dQmin_default=1542543;
   double dQmin=dQmin_default;
+
+  //warning: make sure the TP collection used in the map is the same used in the associator!
+  e->getByLabel(_simHitTpMapTag,simHitsTPAssoc);
+
   for (unsigned int Ti=0; Ti!=tCH.size();++Ti){
     //initial state (initial OR inner OR outter)
     FreeTrajectoryState iState = getState(*(tCH)[Ti]);
@@ -118,7 +127,7 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(const edm::Ref
     //    for each tracking particle, find a state position and the plane to propagate the track to.
     for (unsigned int TPi=0;TPi!=tPCH.size();++TPi) {
       //get a state in the muon system 
-      TrajectoryStateOnSurface simReferenceState = getState(*(tPCH)[TPi]);
+      TrajectoryStateOnSurface simReferenceState = getState((tPCH)[TPi]);
       if (!simReferenceState.isValid()) continue;
 
       //propagate the TRACK to the surface
@@ -158,9 +167,13 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(const edm::Ref
   std::pair<unsigned int,unsigned int> minPair;
   const double dQmin_default=1542543;
   double dQmin=dQmin_default;
+
+  //warning: make sure the TP collection used in the map is the same used in the associator!
+  e->getByLabel(_simHitTpMapTag,simHitsTPAssoc);
+
   for (unsigned int TPi=0;TPi!=tPCH.size();++TPi){
     //get a state in the muon system
-    TrajectoryStateOnSurface simReferenceState= getState(*(tPCH)[TPi]);
+    TrajectoryStateOnSurface simReferenceState= getState((tPCH)[TPi]);
       
     if (!simReferenceState.isValid()) continue; 
     bool atLeastOne=false;

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="eregalgo.xml" eval="true">
+		
+		
+	</ConstantsSection>
+	<SolidSection label="eregalgo.xml">
+		<Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-[eecon:EEFarZC]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EErNeck]"/>
+			<ZSection z="-[eecon:EEzNeckC]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EErNeck]"/>
+			<ZSection z="-[eecon:EEzNeckC]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-[eecon:EEzFront]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-([escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF])" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-([escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF])" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF]" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [eecon:EEzFront]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [eecon:EEzNeckC]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [eecon:EEzNeckC]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EErNeck]"/>
+			<ZSection z="  [eecon:EEFarZC]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EErNeck]"/>
+		</Polycone>
+		<Polycone name="EREG" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_FRONT]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_MID_Z]" rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax1]"/>
+			<ZSection z="[eecon:EEzBack]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax2]"/>
+			<ZSection z="[eecon:EEzBack]" rMin="[eecon:EEIREREG]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="[eecon:EEzNeck]" rMin="[eecon:EEIREREG]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="[eecon:EEzNeck]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErNeck]"/>
+			<ZSection z="[eecon:EEFarZ]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErNeck]"/>
+		</Polycone>
+	</SolidSection>
+	<LogicalPartSection label="eregalgo.xml">
+		<LogicalPart name="ECAL" category="unspecified">
+			<rSolid name="ECAL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="EREG" category="unspecified">
+			<rSolid name="EREG"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="eregalgo.xml">
+		<PosPart copyNumber="1">
+			<rParent name="caloBase:CALO"/>
+			<rChild name="eregalgo:ECAL"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

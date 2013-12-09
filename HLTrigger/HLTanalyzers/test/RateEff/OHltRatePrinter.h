@@ -16,30 +16,30 @@ class OHltRatePrinter
 {
 public:
 
-   static const float fTwo=2.;
+   constexpr static double fTwo=2.;
 
    OHltRatePrinter() {}
 
    virtual ~OHltRatePrinter() {}
 
    void SetupAll(
-         std::vector<float> Rate,
-         std::vector<float> RateErr,
-         std::vector<float> spureRate,
-         std::vector<float> spureRateErr,
-         std::vector<float> pureRate,
-         std::vector<float> pureRateErr,
-         std::vector< std::vector<float> >coMa,
-         std::vector< std::vector<float> > RatePerLS,
+         std::vector<double> Rate,
+         std::vector<double> RateErr,
+         std::vector<double> spureRate,
+         std::vector<double> spureRateErr,
+         std::vector<double> pureRate,
+         std::vector<double> pureRateErr,
+         std::vector< std::vector<double> >coMa,
+         std::vector< std::vector<double> > RatePerLS,
          std::vector<int> tRunID,
          std::vector<int> tLumiSection,
-         std::vector<float> tTotalRatePerLS,
+         std::vector<double> tTotalRatePerLS,
          std::vector< std::vector<int> > tRefPrescalePerLS,
          std::vector< std::vector<int> > tRefL1PrescalePerLS,
-         std::vector<float> averageRefPrescaleHLT,
-         std::vector<float> averageRefPrescaleL1,
-	 std::vector< std::vector<int> > CountPerLS,
-	 std::vector<int> tTotalCountPerLS,
+         std::vector<double> averageRefPrescaleHLT,
+         std::vector<double> averageRefPrescaleL1,
+	 std::vector< std::vector<double> > CountPerLS,
+	 std::vector<double> tTotalCountPerLS,
 	 std::vector<double> tLumiPerLS);
 
    void ReorderRunLS();
@@ -62,7 +62,7 @@ public:
 
    void printHltRatesBocci(OHltConfig *cfg, OHltMenu *menu);
 
-   void writeHistos(OHltConfig *cfg, OHltMenu *menu);
+   void writeHistos(OHltConfig *cfg, OHltMenu *menu, int Nevents);
 
    void fitRatesForPileup(OHltConfig *cfg, OHltMenu *menu);
 
@@ -80,25 +80,25 @@ public:
    int ivecMax(std::vector<int> ivec);
 
    int ivecMin(std::vector<int> ivec);
+   
+   std::vector<double> Rate;
+   std::vector<double> RateErr;
+   std::vector<double> spureRate;
+   std::vector<double> spureRateErr;
+   std::vector<double> pureRate;
+   std::vector<double> pureRateErr;
+   std::vector< std::vector<double> > coMa;
+   std::vector< std::vector<double> > CountPerLS;
+   std::vector<double> totalCountPerLS;
 
-   std::vector<float> Rate;
-   std::vector<float> RateErr;
-   std::vector<float> spureRate;
-   std::vector<float> spureRateErr;
-   std::vector<float> pureRate;
-   std::vector<float> pureRateErr;
-   std::vector< std::vector<float> > coMa;
-   std::vector< std::vector<int> > CountPerLS;
-   std::vector<int> totalCountPerLS;
-
-   std::vector< std::vector<float> > RatePerLS;
-   std::vector<float> totalRatePerLS;
+   std::vector< std::vector<double> > RatePerLS;
+   std::vector<double> totalRatePerLS;
    std::vector< std::vector<int> > prescaleRefPerLS;
    std::vector< std::vector<int> > prescaleL1RefPerLS;
    std::vector<int> runID;
    std::vector<int> lumiSection;
-   std::vector<float> averageRefPrescaleHLT;
-   std::vector<float> averageRefPrescaleL1;
+   std::vector<double> averageRefPrescaleHLT;
+   std::vector<double> averageRefPrescaleL1;
    std::vector<double> LumiPerLS;
 };
 
