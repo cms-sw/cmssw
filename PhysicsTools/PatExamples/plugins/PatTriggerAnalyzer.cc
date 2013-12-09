@@ -1,8 +1,64 @@
+#include <map>
+#include <string>
+
+#include "TH1D.h"
+#include "TH2D.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
+
+
+class PatTriggerAnalyzer : public edm::EDAnalyzer {
+
+ public:
+  /// default constructor
+  explicit PatTriggerAnalyzer( const edm::ParameterSet & iConfig );
+  /// default destructor
+  ~PatTriggerAnalyzer();
+
+ private:
+  /// everythin that needs to be done before the event loop
+  virtual void beginJob();
+  /// everythin that needs to be done during the event loop
+  virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
+  /// everythin that needs to be done after the event loop
+  virtual void endJob();
+
+  /// input for patTrigger
+  edm::InputTag trigger_;
+  /// input for patTriggerEvent
+  edm::InputTag triggerEvent_;
+  /// input for muons
+  edm::InputTag muons_;
+  /// input for trigger match objects
+  std::string   muonMatch_;
+  /// binning for turn-on curve
+  unsigned nBins_;
+  double   binWidth_;
+  /// minimal id for meanPt plot
+  unsigned minID_;
+  /// maximal id for meanPt plot
+  unsigned maxID_;
+
+  /// histogram management
+  std::map< std::string, TH1D* > histos1D_;
+  std::map< std::string, TH2D* > histos2D_;
+
+  /// internals for meanPt histogram calculation
+  std::map< unsigned, unsigned > sumN_;
+  std::map< unsigned, double >   sumPt_;
+};
+
+
 #include "TMath.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
-#include "PhysicsTools/PatExamples/plugins/PatTriggerAnalyzer.h"
 
 
 using namespace pat;
@@ -17,6 +73,9 @@ PatTriggerAnalyzer::PatTriggerAnalyzer( const edm::ParameterSet & iConfig ) :
   muons_( iConfig.getParameter< edm::InputTag >( "muons" ) ),
   // muon match objects
   muonMatch_( iConfig.getParameter< std::string >( "muonMatch" ) ),
+  // binning for turn-on curve
+  nBins_( iConfig.getParameter< unsigned >( "nBins" ) ),
+  binWidth_( iConfig.getParameter< double >( "binWidth" ) ),
   // minimal id for of all trigger objects
   minID_( iConfig.getParameter< unsigned >( "minID" ) ),
   // maximal id for of all trigger objects
@@ -45,17 +104,21 @@ void PatTriggerAnalyzer::beginJob()
   histos2D_[ "phiTrigCand" ] = fileService->make< TH2D >( "phiTrigCand", "Object vs. candidate #phi", 60, -TMath::Pi(), TMath::Pi(), 60, -TMath::Pi(), TMath::Pi() );
   histos2D_[ "phiTrigCand" ]->SetXTitle( "candidate #phi" );
   histos2D_[ "phiTrigCand" ]->SetYTitle( "object #phi" );
-  // turn-on curves
-  histos1D_[ "turnOn" ] = fileService->make< TH1D >( "turnOn", "p_{T} (GeV) of matched candidate", 10, 0., 50.);
+  // candidate counter for turn-on curve
+  histos1D_[ "countCand" ] = fileService->make< TH1D >( "countCand", "p_{T} (GeV) of candidate", nBins_, 20., 20. + nBins_ * binWidth_ );
+  histos1D_[ "countCand" ]->SetXTitle( "candidate p_{T} (GeV)" );
+  histos1D_[ "countCand" ]->SetYTitle( "# of candidates" );
+  // turn-on curve
+  histos1D_[ "turnOn" ] = fileService->make< TH1D >( "turnOn", "p_{T} (GeV) of candidate", nBins_, 20., 20. + nBins_ * binWidth_ );
   histos1D_[ "turnOn" ]->SetXTitle( "candidate p_{T} (GeV)" );
-  histos1D_[ "turnOn" ]->SetYTitle( "# of objects" );
+  histos1D_[ "turnOn" ]->SetYTitle( "efficiency" );
   // mean pt for all trigger objects
   histos1D_[ "ptMean" ] = fileService->make< TH1D >( "ptMean", "Mean p_{T} (GeV) per trigger object type", maxID_ - minID_ + 1, minID_ - 0.5, maxID_ + 0.5);
   histos1D_[ "ptMean" ]->SetXTitle( "trigger object type" );
   histos1D_[ "ptMean" ]->SetYTitle( "mean p_{T} (GeV)" );
 
   // initialize counters for mean pt calculation
-  for( unsigned id = minID_; id <= maxID_; ++id ){
+  for( unsigned id = minID_; id <= maxID_; ++id ) {
     sumN_ [ id ] = 0;
     sumPt_[ id ] = 0.;
   }
@@ -94,6 +157,12 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
     turn-on curve
   */
 
+  // loop over muon references again
+  for( size_t iMuon = 0; iMuon < muons->size(); ++iMuon ) {
+    // fill the counting histogram...
+    histos1D_[ "countCand" ]->Fill( muons->at( iMuon ).pt() );
+  }
+
   // get the trigger objects corresponding to the used matching (HLT muons)
   const TriggerObjectRefVector trigRefs( triggerEvent->objects( trigger::TriggerMuon ) );
   // loop over selected trigger objects
@@ -114,10 +183,10 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
     mean pt
   */
 
-  // loop over all trigger match objects from minID to maxID; have
+  // loop over all trigger objects from minID to maxID; have
   // a look to DataFormats/HLTReco/interface/TriggerTypeDefs.h to
-  // know more about the available trrigger object id's
-  for ( unsigned id=minID_; id<=maxID_; ++id ) {
+  // know more about the available trrigger object IDs
+  for ( unsigned id = minID_; id <= maxID_; ++id ) {
     // vector of all objects for a given object id
     const TriggerObjectRefVector objRefs( triggerEvent->objects( id ) );
     // buffer the number of objects
@@ -131,9 +200,20 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
 
 void PatTriggerAnalyzer::endJob()
 {
+  /*
+    turn-on curve
+  */
+
+  // normalise bins for turn-on based with counter
+  histos1D_[ "turnOn" ]->Divide( histos1D_[ "countCand" ] );
+
+  /*
+    mean pt
+  */
+
   // normalize the entries for the mean pt plot
   for(unsigned id=minID_; id<=maxID_; ++id){
-    if( sumN_[ id ]!=0 ) histos1D_[ "ptMean" ]->Fill( id, sumPt_[ id ]/sumN_[ id ] );
+    if( sumN_[ id ] != 0 ) histos1D_[ "ptMean" ]->Fill( id, sumPt_[ id ] / sumN_[ id ] );
   }
 }
 

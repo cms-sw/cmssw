@@ -13,9 +13,10 @@ def customise_NoCrossing(process):
         'TotemHitsT2Gem')
     process.mix.mixObjects.mixCH.crossingFrames = cms.untracked.vstring('')
     process.mix.mixObjects.mixTracks.makeCrossingFrame = cms.untracked.bool(False)
-    process.mix.mixObjects.mixVertices.makeCrossingFrame = cms.untracked.bool(False)
+#    process.mix.mixObjects.mixVertices.makeCrossingFrame = cms.untracked.bool(False)
     process.mix.mixObjects.mixHepMC.makeCrossingFrame = cms.untracked.bool(False)
     #and get the tracking particles under control
+    # this may not be needed
     if hasattr(process.mix,'digitizers'):
         if hasattr(process.mix.digitizers,'mergedtruth'):
             process.mix.digitizers.mergedtruth.createUnmergedCollection=cms.bool(False)

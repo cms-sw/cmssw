@@ -1,0 +1,26 @@
+#################################################
+# Descriptor: [Bs -> mu+ mu- K*0 (K+ pi-)] + cc #
+# Created by Mauro Dinardo
+# Changed the Bs -> B_s0 by Xin Shi [2013-07-25] 
+#################################################
+Alias      MyB_s0        B_s0
+Alias      Myanti-B_s0   anti-B_s0
+ChargeConj MyB_s0        Myanti-B_s0
+Alias      MyK*0       K*0
+Alias      MyK*0bar    anti-K*0
+ChargeConj MyK*0       MyK*0bar
+#
+Decay MyB_s0
+  1.000        MyK*0     mu+     mu-               BTOSLLBALL;
+Enddecay
+Decay Myanti-B_s0
+  1.000        MyK*0bar     mu+     mu-            BTOSLLBALL;
+Enddecay
+#
+Decay MyK*0
+  1.000        K+        pi-                    VSS;
+Enddecay
+Decay MyK*0bar
+  1.000        K-        pi+                    VSS;
+Enddecay 
+End

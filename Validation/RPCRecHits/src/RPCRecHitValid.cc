@@ -19,6 +19,9 @@
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
+
+#include <algorithm>
 
 using namespace std;
 
@@ -28,7 +31,8 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
 {
   simHitLabel_ = pset.getParameter<edm::InputTag>("simHit");
   recHitLabel_ = pset.getParameter<edm::InputTag>("recHit");
-  simTrackLabel_ = pset.getParameter<edm::InputTag>("simTrack");
+  simParticleLabel_ = pset.getParameter<edm::InputTag>("simTrack");
+  simHitAssocLabel_ = pset.getParameter<edm::InputTag>("simHitAssoc");
   muonLabel_ = pset.getParameter<edm::InputTag>("muon");
   dbe_ = edm::Service<DQMStore>().operator->();
   if ( !dbe_ )
@@ -43,9 +47,9 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
 
   // SimHit plots, not compatible to RPCPoint-RPCRecHit comparison
   dbe_->setCurrentFolder(subDir_+"/HitProperty");
-  h_simTrackPType = dbe_->book1D("SimHitPType", "SimHit particle type", 11, 0, 11);
-  h_simTrackPType->getTH1()->SetMinimum(0);
-  if ( TH1* h = h_simTrackPType->getTH1() )
+  h_simParticleType = dbe_->book1D("SimHitPType", "SimHit particle type", 11, 0, 11);
+  h_simParticleType->getTH1()->SetMinimum(0);
+  if ( TH1* h = h_simParticleType->getTH1() )
   {
     h->GetXaxis()->SetBinLabel(1 , "#mu^{-}");
     h->GetXaxis()->SetBinLabel(2 , "#mu^{+}");
@@ -76,7 +80,7 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
   h_nRPCHitPerSimMuonBarrel  ->getTH1()->SetMinimum(0);
   h_nRPCHitPerSimMuonOverlap ->getTH1()->SetMinimum(0);
   h_nRPCHitPerSimMuonEndcap  ->getTH1()->SetMinimum(0);
-                             
+
   h_nRPCHitPerRecoMuon       ->getTH1()->SetMinimum(0);
   h_nRPCHitPerRecoMuonBarrel ->getTH1()->SetMinimum(0);
   h_nRPCHitPerRecoMuonOverlap->getTH1()->SetMinimum(0);
@@ -122,7 +126,7 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
   h_simMuonOverlap_phi ->getTH1()->SetMinimum(0);
   h_simMuonEndcap_phi  ->getTH1()->SetMinimum(0);
   h_simMuonNoRPC_phi   ->getTH1()->SetMinimum(0);
-                       
+
   h_recoMuonBarrel_pt  ->getTH1()->SetMinimum(0);
   h_recoMuonOverlap_pt ->getTH1()->SetMinimum(0);
   h_recoMuonEndcap_pt  ->getTH1()->SetMinimum(0);
@@ -246,17 +250,14 @@ void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventS
   int nRPCRollBarrel = 0, nRPCRollEndcap = 0;
 
   TrackingGeometry::DetContainer rpcDets = rpcGeom->dets();
-  for ( TrackingGeometry::DetContainer::const_iterator detIter = rpcDets.begin();
-        detIter != rpcDets.end(); ++detIter )
+  for ( auto det : rpcDets )
   {
-    RPCChamber* rpcCh = dynamic_cast<RPCChamber*>(*detIter);
+    RPCChamber* rpcCh = dynamic_cast<RPCChamber*>(det);
     if ( !rpcCh ) continue;
 
     std::vector<const RPCRoll*> rolls = rpcCh->rolls();
-    for ( std::vector<const RPCRoll*>::const_iterator rollIter = rolls.begin();
-          rollIter != rolls.end(); ++rollIter )
+    for ( auto roll : rolls )
     {
-      const RPCRoll* roll = *rollIter;
       if ( !roll ) continue;
 
       //RPCGeomServ rpcSrv(roll->id());
@@ -296,11 +297,10 @@ void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventS
   h_rollAreaBarrel_detId = dbe_->bookProfile("RollAreaBarrel_detId", "Roll area;roll index;Area", nRPCRollBarrel, 0., 1.*nRPCRollBarrel, 0., 1e5);
   h_rollAreaEndcap_detId = dbe_->bookProfile("RollAreaEndcap_detId", "Roll area;roll index;Area", nRPCRollEndcap, 0., 1.*nRPCRollEndcap, 0., 1e5);
 
-  for ( map<int, int>::const_iterator iter = detIdToIndexMapBarrel_.begin();
-        iter != detIdToIndexMapBarrel_.end(); ++iter )
+  for ( auto detIdToIndex : detIdToIndexMapBarrel_ )
   {
-    const int rawId = iter->first;
-    const int index = iter->second;
+    const int rawId = detIdToIndex.first;
+    const int index = detIdToIndex.second;
 
     const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
@@ -314,11 +314,10 @@ void RPCRecHitValid::beginRun(const edm::Run& run, const edm::EventSetup& eventS
     h_rollAreaBarrel_detId->Fill(index, area);
   }
 
-  for ( map<int, int>::const_iterator iter = detIdToIndexMapEndcap_.begin();
-        iter != detIdToIndexMapEndcap_.end(); ++iter )
+  for ( auto detIdToIndex : detIdToIndexMapEndcap_ )
   {
-    const int rawId = iter->first;
-    const int index = iter->second;
+    const int rawId = detIdToIndex.first;
+    const int index = detIdToIndex.second;
 
     const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
@@ -364,11 +363,21 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     return;
   }
 
-  // Get SimTracks
-  edm::Handle<edm::View<TrackingParticle> > simTrackHandle;
-  if ( !event.getByLabel(simTrackLabel_, simTrackHandle) )
+  // Get SimParticles
+  edm::Handle<TrackingParticleCollection> simParticleHandle;
+  if ( !event.getByLabel(simParticleLabel_, simParticleHandle) )
   {
-    edm::LogInfo("RPCRecHitValid") << "Cannot find simTrack collection\n";
+    edm::LogInfo("RPCRecHitValid") << "Cannot find TrackingParticle collection\n";
+    return;
+  }
+
+  typedef std::pair<TrackingParticleRef, TrackPSimHitRef> SimHitTPPair;
+  typedef std::vector<SimHitTPPair> SimHitTPAssociationList;
+  // Get SimParticle to SimHit association map
+  edm::Handle<SimHitTPAssociationList> simHitsTPAssoc;
+  if ( !event.getByLabel(simHitAssocLabel_, simHitsTPAssoc) )
+  {
+    edm::LogInfo("RPCRecHitValid") << "Cannot find TrackingParticle to SimHit association map\n";
     return;
   }
 
@@ -382,115 +391,107 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
   typedef edm::PSimHitContainer::const_iterator SimHitIter;
   typedef RPCRecHitCollection::const_iterator RecHitIter;
+  typedef std::vector<TrackPSimHitRef> SimHitRefs;
 
-  std::vector<const PSimHit*> muonSimHits;
-  std::vector<const PSimHit*> pthrSimHits;
-  for ( edm::View<TrackingParticle>::const_iterator simTrack = simTrackHandle->begin();
-        simTrack != simTrackHandle->end(); ++simTrack )
+  // TrackingParticles with (and without) RPC simHits
+  SimHitRefs muonSimHits, pthrSimHits;
+
+  for ( int i=0, n=simParticleHandle->size(); i<n; ++i )
   {
-    if ( simTrack->pt() < 1.0 or simTrack->p() < 2.5 ) continue; // globalMuon acceptance
+    TrackingParticleRef simParticle(simParticleHandle, i);
+    if ( simParticle->pt() < 1.0 or simParticle->p() < 2.5 ) continue; // globalMuon acceptance
 
-    bool hasRPCHit = false;
-    if ( abs(simTrack->pdgId()) == 13 )
+    // Collect SimHits from this Tracking Particle
+    SimHitRefs simHitsFromParticle;
+    auto range = std::equal_range(simHitsTPAssoc->begin(), simHitsTPAssoc->end(),
+                                  std::make_pair(simParticle, TrackPSimHitRef()),
+                                  SimHitTPAssociationProducer::simHitTPAssociationListGreater);
+    for ( auto simParticleToHit = range.first; simParticleToHit != range.second; ++simParticleToHit )
     {
+      auto simHit = simParticleToHit->second;
+      const DetId detId(simHit->detUnitId());
+      if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
+
+      simHitsFromParticle.push_back(simParticleToHit->second);
+    }
+    const int nRPCHit = simHitsFromParticle.size();
+    const bool hasRPCHit = nRPCHit > 0;
+
+    if ( abs(simParticle->pdgId()) == 13 )
+    {
+      muonSimHits.insert(muonSimHits.end(), simHitsFromParticle.begin(), simHitsFromParticle.end());
+
+      // Count number of Barrel hits and Endcap hits
       int nRPCHitBarrel = 0;
       int nRPCHitEndcap = 0;
-
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-      for ( SimHitIter simHit = simTrack->pSimHit_begin();
-            simHit != simTrack->pSimHit_end(); ++simHit )
+      for ( auto simHit : simHitsFromParticle )
       {
-        const DetId detId(simHit->detUnitId());
-        if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
         const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
         const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
         if ( !roll ) continue;
 
         if ( rpcDetId.region() == 0 ) ++nRPCHitBarrel;
         else ++nRPCHitEndcap;
-
-        muonSimHits.push_back(&*simHit);
       }
-#endif
 
-      const int nRPCHit = nRPCHitBarrel+nRPCHitEndcap;
-      hasRPCHit = nRPCHit > 0;
+      // Fill TrackingParticle related histograms
       h_nRPCHitPerSimMuon->Fill(nRPCHit);
       if ( nRPCHitBarrel and nRPCHitEndcap )
       {
         h_nRPCHitPerSimMuonOverlap->Fill(nRPCHit);
-        h_simMuonOverlap_pt->Fill(simTrack->pt());
-        h_simMuonOverlap_eta->Fill(simTrack->eta());
-        h_simMuonOverlap_phi->Fill(simTrack->phi());
+        h_simMuonOverlap_pt->Fill(simParticle->pt());
+        h_simMuonOverlap_eta->Fill(simParticle->eta());
+        h_simMuonOverlap_phi->Fill(simParticle->phi());
       }
       else if ( nRPCHitBarrel )
       {
         h_nRPCHitPerSimMuonBarrel->Fill(nRPCHit);
-        h_simMuonBarrel_pt->Fill(simTrack->pt());
-        h_simMuonBarrel_eta->Fill(simTrack->eta());
-        h_simMuonBarrel_phi->Fill(simTrack->phi());
+        h_simMuonBarrel_pt->Fill(simParticle->pt());
+        h_simMuonBarrel_eta->Fill(simParticle->eta());
+        h_simMuonBarrel_phi->Fill(simParticle->phi());
       }
       else if ( nRPCHitEndcap )
       {
         h_nRPCHitPerSimMuonEndcap->Fill(nRPCHit);
-        h_simMuonEndcap_pt->Fill(simTrack->pt());
-        h_simMuonEndcap_eta->Fill(simTrack->eta());
-        h_simMuonEndcap_phi->Fill(simTrack->phi());
+        h_simMuonEndcap_pt->Fill(simParticle->pt());
+        h_simMuonEndcap_eta->Fill(simParticle->eta());
+        h_simMuonEndcap_phi->Fill(simParticle->phi());
       }
       else
       {
-        h_simMuonNoRPC_pt->Fill(simTrack->pt());
-        h_simMuonNoRPC_eta->Fill(simTrack->eta());
-        h_simMuonNoRPC_phi->Fill(simTrack->phi());
+        h_simMuonNoRPC_pt->Fill(simParticle->pt());
+        h_simMuonNoRPC_eta->Fill(simParticle->eta());
+        h_simMuonNoRPC_phi->Fill(simParticle->phi());
       }
     }
     else
     {
-      int nRPCHit = 0;
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-      for ( SimHitIter simHit = simTrack->pSimHit_begin();
-            simHit != simTrack->pSimHit_end(); ++simHit )
-      {
-        const DetId detId(simHit->detUnitId());
-        if ( detId.det() != DetId::Muon or detId.subdetId() != MuonSubdetId::RPC ) continue;
-        const RPCDetId rpcDetId = static_cast<const RPCDetId>(simHit->detUnitId());
-        const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId()));
-        if ( !roll ) continue;
-
-        ++nRPCHit;
-        pthrSimHits.push_back(&*simHit);
-      }
-#endif
-      hasRPCHit = nRPCHit > 0;
+      pthrSimHits.insert(pthrSimHits.end(), simHitsFromParticle.begin(), simHitsFromParticle.end());
     }
 
     if ( hasRPCHit )
     {
-      switch ( simTrack->pdgId() )
+      switch ( simParticle->pdgId() )
       {
-        case    13: h_simTrackPType->Fill( 0); break;
-        case   -13: h_simTrackPType->Fill( 1); break;
-        case    11: h_simTrackPType->Fill( 2); break;
-        case   -11: h_simTrackPType->Fill( 3); break;
-        case   211: h_simTrackPType->Fill( 4); break;
-        case  -211: h_simTrackPType->Fill( 5); break;
-        case   321: h_simTrackPType->Fill( 6); break;
-        case  -321: h_simTrackPType->Fill( 7); break;
-        case  2212: h_simTrackPType->Fill( 8); break;
-        case -2212: h_simTrackPType->Fill( 9); break;
-        default:    h_simTrackPType->Fill(10); break;
+        case    13: h_simParticleType->Fill( 0); break;
+        case   -13: h_simParticleType->Fill( 1); break;
+        case    11: h_simParticleType->Fill( 2); break;
+        case   -11: h_simParticleType->Fill( 3); break;
+        case   211: h_simParticleType->Fill( 4); break;
+        case  -211: h_simParticleType->Fill( 5); break;
+        case   321: h_simParticleType->Fill( 6); break;
+        case  -321: h_simParticleType->Fill( 7); break;
+        case  2212: h_simParticleType->Fill( 8); break;
+        case -2212: h_simParticleType->Fill( 9); break;
+        default:    h_simParticleType->Fill(10); break;
       }
     }
   }
 
   // Loop over muon simHits, fill histograms which does not need associations
   int nRefHitBarrel = 0, nRefHitEndcap = 0;
-  for ( std::vector<const PSimHit*>::const_iterator simHitP = muonSimHits.begin();
-        simHitP != muonSimHits.end(); ++simHitP )
+  for ( auto simHit : muonSimHits )
   {
-    const PSimHit* simHit = *simHitP;
     const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
 
@@ -521,10 +522,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   }
 
   // Loop over punch-through simHits, fill histograms which does not need associations
-  for ( std::vector<const PSimHit*>::const_iterator simHitP = pthrSimHits.begin();
-        simHitP != pthrSimHits.end(); ++simHitP )
+  for ( auto simHit : pthrSimHits )
   {
-    const PSimHit* simHit = *simHitP;
     const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId()));
 
@@ -613,13 +612,11 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   }
 
   // Start matching SimHits to RecHits
-  typedef std::map<const PSimHit*, RecHitIter> SimToRecHitMap;
+  typedef std::map<TrackPSimHitRef, RecHitIter> SimToRecHitMap;
   SimToRecHitMap simToRecHitMap;
 
-  for ( std::vector<const PSimHit*>::const_iterator simHitP = muonSimHits.begin();
-        simHitP != muonSimHits.end(); ++simHitP )
+  for ( auto simHit : muonSimHits )
   {
-    const PSimHit* simHit = *simHitP;
     const RPCDetId simDetId = static_cast<const RPCDetId>(simHit->detUnitId());
     //const RPCRoll* simRoll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(simDetId));
 
@@ -658,11 +655,10 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   // Now we have simHit-recHit mapping
   // So we can fill up relavant histograms
   int nMatchHitBarrel = 0, nMatchHitEndcap = 0;
-  for ( SimToRecHitMap::const_iterator match = simToRecHitMap.begin();
-        match != simToRecHitMap.end(); ++match )
+  for ( auto match : simToRecHitMap )
   {
-    const PSimHit* simHit = match->first;
-    RecHitIter recHitIter = match->second;
+    TrackPSimHitRef simHit = match.first;
+    RecHitIter recHitIter = match.second;
 
     const RPCDetId detId = static_cast<const RPCDetId>(simHit->detUnitId());
     const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(detId));
@@ -787,10 +783,9 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
     //const int subsector = roll->id().subsector();
 
     bool matched = false;
-    for ( SimToRecHitMap::const_iterator match = simToRecHitMap.begin();
-          match != simToRecHitMap.end(); ++match )
+    for ( auto match : simToRecHitMap )
     {
-      if ( recHitIter == match->second )
+      if ( recHitIter == match.second )
       {
         matched = true;
         break;
@@ -815,10 +810,8 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
 
       int nPunchMatched = 0;
       // Check if this recHit came from non-muon simHit
-      for ( std::vector<const PSimHit*>::const_iterator pthrSimHitP = pthrSimHits.begin();
-            pthrSimHitP != pthrSimHits.end(); ++pthrSimHitP )
+      for ( auto simHit : pthrSimHits )
       {
-        const PSimHit* simHit = *pthrSimHitP;
         const int absSimHitPType = abs(simHit->particleType());
         if ( absSimHitPType == 13 ) continue;
 

@@ -79,22 +79,22 @@ class MatrixInjector(object):
             print '\n\tFound wmclient\n'
             
         self.defaultChain={
-            "RequestType" : "TaskChain", #this is how we handle relvals
-            "Requestor": self.user, #Person responsible
-            "Group": self.group, #group for the request
-            "CMSSWVersion": os.getenv('CMSSW_VERSION'), #CMSSW Version (used for all tasks in chain)
-            "Campaign": os.getenv('CMSSW_VERSION'), # only for wmstat purpose
-            "ScramArch": os.getenv('SCRAM_ARCH'), #Scram Arch (used for all tasks in chain)
-            "ProcessingVersion": self.version, #Processing Version (used for all tasks in chain)
-            "GlobalTag": None, #Global Tag (overridden per task)
-            "CouchURL": self.couch, #URL of CouchDB containing Config Cache
-            "ConfigCacheURL": self.couch, #URL of CouchDB containing Config Cache
+            "RequestType" :   "TaskChain",                    #this is how we handle relvals
+            "Requestor": self.user,                           #Person responsible
+            "Group": self.group,                              #group for the request
+            "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
+            "Campaign": os.getenv('CMSSW_VERSION'),           # only for wmstat purpose
+            "ScramArch": os.getenv('SCRAM_ARCH'),             #Scram Arch (used for all tasks in chain)
+            "ProcessingVersion": self.version,                #Processing Version (used for all tasks in chain)
+            "GlobalTag": None,                                #Global Tag (overridden per task)
+            "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
+            "ConfigCacheURL": self.couch,                           #URL of CouchDB containing Config Cache
             "DbsUrl": "http://cmsdbsprod.cern.ch/cms_dbs_prod_global/servlet/DBSServlet",
             #"CouchDBName": self.couchDB, #Name of Couch Database containing config cache
             #- Will contain all configs for all Tasks
-            #"SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"], #Site whitelist
-            "TaskChain" : None, #Define number of tasks in chain.
-            "nowmTasklist" : [], #a list of tasks as we put them in
+            #"SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
+            "TaskChain" : None,                                  #Define number of tasks in chain.
+            "nowmTasklist" : [],  #a list of tasks as we put them in
             "unmergedLFNBase" : "/store/unmerged",
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
@@ -113,11 +113,11 @@ class MatrixInjector(object):
             "TaskName" : None, #Task Name
             "ConfigCacheID" : None, #Generator Config id
             "GlobalTag": None,
-            "SplittingAlgo" : "EventBased", #Splitting Algorithm
-            "EventsPerJob" : None, #Size of jobs in terms of splitting algorithm
-            "RequestNumEvents" : None, #Total number of events to generate
-            "Seeding" : "AutomaticSeeding", #Random seeding method
-            "PrimaryDataset" : None, #Primary Dataset to be created
+            "SplittingAlgo"  : "EventBased",             #Splitting Algorithm
+            "EventsPerJob" : None,                       #Size of jobs in terms of splitting algorithm
+            "RequestNumEvents" : None,                      #Total number of events to generate
+            "Seeding" : "AutomaticSeeding",                          #Random seeding method
+            "PrimaryDataset" : None,                          #Primary Dataset to be created
             "nowmIO": {},
             "KeepOutput" : False
             }
@@ -125,9 +125,9 @@ class MatrixInjector(object):
             "TaskName" : "DigiHLT", #Task Name
             "ConfigCacheID" : None, #Processing Config id
             "GlobalTag": None,
-            "InputDataset" : None, #Input Dataset to be processed
-            "SplittingAlgo" : "LumiBased", #Splitting Algorithm
-            "LumisPerJob" : 10, #Size of jobs in terms of splitting algorithm
+            "InputDataset" : None,                                       #Input Dataset to be processed
+            "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
+            "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "KeepOutput" : False
             }
@@ -137,8 +137,8 @@ class MatrixInjector(object):
             "InputFromOutputModule" : None, #OutputModule name in the input task that will provide files to process
             "ConfigCacheID" : None, #Processing Config id
             "GlobalTag": None,
-            "SplittingAlgo" : "LumiBased", #Splitting Algorithm
-            "LumisPerJob" : 10, #Size of jobs in terms of splitting algorithm
+            "SplittingAlgo"  : "LumiBased",                        #Splitting Algorithm
+            "LumisPerJob" : 10,               #Size of jobs in terms of splitting algorithm
             "nowmIO": {},
             "KeepOutput" : False
             }

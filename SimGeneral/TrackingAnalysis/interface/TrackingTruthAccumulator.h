@@ -2,7 +2,7 @@
 #define TrackingAnalysis_TrackingTruthAccumulator_h
 
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
-#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "SimGeneral/TrackingAnalysis/interface/TrackingParticleSelector.h"
 #include <memory> // required for std::auto_ptr
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"

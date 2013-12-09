@@ -16,8 +16,8 @@ class CosmicParametersDefinerForTP : public ParametersDefinerForTP {
   CosmicParametersDefinerForTP(){};
   virtual ~CosmicParametersDefinerForTP() {};
 
-  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const;
-  virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticle& tp) const;
+  virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef tpr) const;
+  virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef tpr) const;
 
   virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 	const Charge ch, const Point & vertex, const LorentzVector& lv) const {
@@ -29,7 +29,12 @@ class CosmicParametersDefinerForTP : public ParametersDefinerForTP {
     return TrackingParticle::Point();
   }
 
+  void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) const {
+    simHitsTPAssoc = simHitsTPAssocToSet;
+  }
 
+ private:
+  mutable edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
 };
 
 

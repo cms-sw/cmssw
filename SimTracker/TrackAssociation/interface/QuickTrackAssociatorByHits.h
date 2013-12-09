@@ -123,7 +123,7 @@ private:
 	bool trackingParticleContainsIdentifier( const TrackingParticle* pTrackingParticle, const SimTrackIdentifiers& identifier ) const;
 
 	/** @brief This method was copied almost verbatim from the standard TrackAssociatorByHits. */
-	template<typename iter> int getDoubleCount( iter begin, iter end, const TrackingParticle& associatedTrackingParticle ) const;
+	template<typename iter> int getDoubleCount( iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
 
 	/** @brief Returns a vector of pairs where first is a SimTrackIdentifiers (see typedef above) and second is the number of hits that came from that sim track.
 	 *

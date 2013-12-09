@@ -24,8 +24,14 @@ function getPathList() {
 }
 
 function makeCreateConfig() {
-  [ -d $CMSSW_BASE/src/EventFilter/ConfigDB ]                                            || addpkg EventFilter/ConfigDB $CONFDB_TAG
-  [ -f $CMSSW_BASE/src/EventFilter/ConfigDB/classes/confdb/db/ConfDBCreateConfig.class ] || ant -f $CMSSW_BASE/src/EventFilter/ConfigDB/build.xml gui
+  # if not already present, check out and build the ConfDB converter
+  if ! [ -d "$CMSSW_BASE/hlt-confdb/.git" ]; then
+    mkdir -p "$CMSSW_BASE/hlt-confdb"
+    git clone "https://github.com/cms-sw/hlt-confdb.git" "$CMSSW_BASE/hlt-confdb" 1>&2
+  fi
+  if ! [ -f "$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-gui.jar" ]; then
+    ant -f "$CMSSW_BASE/hlt-confdb/build.xml" gui 1>&2
+  fi
 }
 
 function loadConfiguration() {
@@ -38,7 +44,7 @@ function loadConfiguration() {
       PWHASH="0196d34dd35b04c0f3597dc89fbbe6e2"
       ;;
     *)
-      # see $CMSSW_BASE/src/EventFilter/ConfigDB/test/runCreateConfig for other possible settings
+      # see $CMSSW_BASE/hlt-confdb/test/runCreateConfig for other possible settings
       echo "Error, unnown database \"$1\", exiting."
       exit 1
       ;;
@@ -49,7 +55,7 @@ function runCreateConfig() {
   loadConfiguration "$1"
   java \
     -Xmx1024m \
-    -classpath "$CMSSW_BASE/src/EventFilter/ConfigDB/ext/ojdbc14.jar:$CMSSW_BASE/src/EventFilter/ConfigDB/lib/cmssw-evf-confdb-gui.jar" \
+    -classpath "$CMSSW_BASE/hlt-confdb/ext/ojdbc6.jar:$CMSSW_BASE/hlt-confdb/lib/cmssw-evf-confdb-gui.jar" \
     confdb.db.ConfDBCreateConfig \
     --dbHost $DBHOST \
     --dbName $DBNAME \
