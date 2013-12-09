@@ -140,7 +140,6 @@ GEMGeometry::add(GEMEtaPartition* etaPartition){
 		(etaPartition->geographicalId(),etaPartition));
 }
 
-
 void
 GEMGeometry::add(GEMChamber* chamber){
   allChambers.push_back(chamber);
@@ -149,4 +148,5 @@ GEMGeometry::add(GEMChamber* chamber){
   theMap.insert(std::pair<DetId,GeomDet*>
 		(chamber->geographicalId(),chamber));
 }
+
 

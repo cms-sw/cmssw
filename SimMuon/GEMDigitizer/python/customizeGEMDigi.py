@@ -24,7 +24,7 @@ mixObjects_dt_csc_rpc =  cms.PSet(
             'MuonCSCHits',
             'MuonDTHits',
             'MuonRPCHits'
-            ),
+        ),
         input = cms.VInputTag(
             cms.InputTag("g4SimHits","MuonCSCHits"),
             cms.InputTag("g4SimHits","MuonDTHits"),
@@ -34,7 +34,7 @@ mixObjects_dt_csc_rpc =  cms.PSet(
             'MuonCSCHits',
             'MuonDTHits',
             'MuonRPCHits'
-            )
+        )
     ),
     mixTracks = cms.PSet(
         input = cms.VInputTag(cms.InputTag("g4SimHits")),
@@ -107,8 +107,9 @@ def customize_digi_addGEM(process):
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
         process.doAllDigi*
-        process.trackingParticles*
-        process.addPileupInfo )
+        #process.trackingParticles*
+        process.addPileupInfo
+    )
     return process
 
 
@@ -126,7 +127,8 @@ def customize_digi_addGEM_muon_only(process):
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
-        process.muonDigi )
+        process.muonDigi
+    )
     return process
 
 
@@ -145,6 +147,7 @@ def customize_digi_addGEM_gem_only(process):
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
         process.simMuonGEMDigis*
-        process.simMuonGEMCSCPadDigis )
+        process.simMuonGEMCSCPadDigis
+    )
     return process
-
+    

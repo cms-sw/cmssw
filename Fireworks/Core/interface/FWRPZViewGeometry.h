@@ -60,6 +60,7 @@ private:
    TEveElement* makeCaloOutlineRhoZ();
    void estimateProjectionSizeDT( const FWGeometry::GeomDetInfo& info, float&, float&, float&, float& );
    void estimateProjectionSizeCSC( const FWGeometry::GeomDetInfo& info, float&, float&, float&, float& );
+   void estimateProjectionSizeGEM( const FWGeometry::GeomDetInfo& info, float&, float&, float&, float& );
    void estimateProjectionSize( const float*, float&, float&, float&, float& );
 
    void importNew(TEveElementList* x);
