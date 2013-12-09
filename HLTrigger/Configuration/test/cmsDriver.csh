@@ -11,9 +11,9 @@ rehash
 
 #
 # gen sim input files for Monte-Carlo tests
-set InputGenSimGRun = /store/relval/CMSSW_5_2_7-START52_V10/RelValProdTTbar/GEN-SIM/v1/00000/1E51943C-5306-E211-A13F-0018F3D096A2.root
-set InputGenSimHIon = /store/relval/CMSSW_5_2_7/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI52_V9-v1/0004/52203A21-3708-E211-A85A-003048D2C16E.root
-set InputGenSimPIon = /store/relval/CMSSW_5_2_7-START52_V10/RelValProdTTbar/GEN-SIM/v1/00000/1E51943C-5306-E211-A13F-0018F3D096A2.root
+set InputGenSimGRun = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
+set InputGenSimHIon = /store/relval/CMSSW_5_3_6/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_V10-v1/0004/CE7B8599-EA2C-E211-A254-003048D375AA.root
+set InputGenSimPIon = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
 #
 # lhc raw input files for Real-Data tests
 set InputLHCRawGRun = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
@@ -148,7 +148,7 @@ foreach gtag ( STARTUP DATA )
 
     echo
     echo "Creating DigiL1RawHLT $name"
-    cmsDriver.py RelVal                --step=DIGI,L1,DIGI2RAW,$XHLT               --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'  --eventcontent=FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
+    cmsDriver.py RelVal                --step=DIGI:pdigi_valid,L1,DIGI2RAW,$XHLT   --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'  --eventcontent=FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
 
     if ( ($table != HIon) && ($table != PIon) ) then
 
@@ -177,7 +177,7 @@ foreach gtag ( STARTUP DATA )
     echo "Creating HLT+RECO $name"
     cmsDriver.py RelVal                --step=$XHLT,RAW2DIGI,L1Reco,RECO           --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME
 
-    set RTAG = auto:com10_${table}
+    set RTAG = $GTAG
 
     echo
     echo "Creating RECO+DQM $name"

@@ -5,3 +5,7 @@ import RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi
 combinedSecondaryVertexPositive = RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi.combinedSecondaryVertex.clone()
 combinedSecondaryVertexPositive.trackSelection.sip3dSigMin = 0
 combinedSecondaryVertexPositive.trackPseudoSelection.sip3dSigMin = 0
+
+combinedSecondaryVertexV1Positive = RecoBTag.SecondaryVertex.combinedSecondaryVertexES_cfi.combinedSecondaryVertexV1.clone()
+combinedSecondaryVertexV1Positive.trackSelection.sip3dSigMin = 0
+combinedSecondaryVertexV1Positive.trackPseudoSelection.sip3dSigMin = 0

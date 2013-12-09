@@ -11,9 +11,7 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.9 $
  *
- * $Id: SmearedJetProducerT.h,v 1.9 2012/08/31 09:58:44 veelken Exp $
  *
  */
 
@@ -159,7 +157,7 @@ class SmearedJetProducerT : public edm::EDProducer
 
     edm::FileInPath inputFileName = cfg.getParameter<edm::FileInPath>("inputFileName");
     std::string lutName = cfg.getParameter<std::string>("lutName");
-    if ( !inputFileName.isLocal() ) 
+    if (inputFileName.location() == edm::FileInPath::Unknown)
       throw cms::Exception("JetMETsmearInputProducer") 
         << " Failed to find File = " << inputFileName << " !!\n";
 

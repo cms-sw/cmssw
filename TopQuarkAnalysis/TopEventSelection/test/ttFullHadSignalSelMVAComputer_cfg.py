@@ -18,7 +18,7 @@ process.source = cms.Source("PoolSource",
     '/store/user/eschliec/Summer09/7TeV/QCD/pt0015-pythia/patTuple_1.root',
     '/store/user/eschliec/Summer09/7TeV/QCD/pt0015-pythia/patTuple_4.root',
     '/store/user/eschliec/Summer09/7TeV/QCD/pt0015-pythia/patTuple_8.root',
-    '/store/user/eschliec/Summer09/7TeV/QCD/pt0015-pythia/patTuple_7.root', 
+    '/store/user/eschliec/Summer09/7TeV/QCD/pt0015-pythia/patTuple_7.root',
     '/store/user/eschliec/Summer09/7TeV/QCD/pt0015-pythia/patTuple_3.root',
     '/store/user/eschliec/Summer09/7TeV/QCD/pt0015-pythia/patTuple_6.root',
     '/store/user/eschliec/Summer09/7TeV/QCD/pt0015-pythia/patTuple_9.root',
@@ -33,7 +33,7 @@ process.source = cms.Source("PoolSource",
     #'/store/user/eschliec/Summer09/7TeV/QCD/pt1400-pythia/patTuple_1.root',
     #'/store/user/eschliec/Summer09/7TeV/QCD/pt1400-pythia/patTuple_4.root',
     #'/store/user/eschliec/Summer09/7TeV/QCD/pt1400-pythia/patTuple_8.root',
-    #'/store/user/eschliec/Summer09/7TeV/QCD/pt1400-pythia/patTuple_7.root', 
+    #'/store/user/eschliec/Summer09/7TeV/QCD/pt1400-pythia/patTuple_7.root',
     #'/store/user/eschliec/Summer09/7TeV/QCD/pt1400-pythia/patTuple_3.root',
     #'/store/user/eschliec/Summer09/7TeV/QCD/pt1400-pythia/patTuple_6.root',
     #'/store/user/eschliec/Summer09/7TeV/QCD/pt1400-pythia/patTuple_9.root',
@@ -63,18 +63,20 @@ process.maxEvents = cms.untracked.PSet(
 )
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = cms.string('MC_38Y_V14::All')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
-## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+## std sequence for PAT
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 process.load("TopQuarkAnalysis.TopEventSelection.TtFullHadSignalSelMVAComputer_cff")
 
 ## jet count filter
@@ -86,8 +88,7 @@ process.leadingJetSelection = process.countLayer1Jets.clone(src = 'selectedLayer
                                                             )
 
 ## path1
-process.p = cms.Path(#process.patDefaultSequence *
-                     process.leadingJetSelection *
+process.p = cms.Path(process.leadingJetSelection *
                      process.findTtFullHadSignalSelMVA
                      )
 
@@ -98,8 +99,8 @@ process.out = cms.OutputModule(
   outputCommands = cms.untracked.vstring('drop *',
                                          'keep double_*_DiscSel_*'
                                         ),
-  fileName = cms.untracked.string('MVAComputer_Output.root')
+  fileName = cms.untracked.string('ttFullHadSignalSelMVAComputer.root')
 )
 ## output path
 process.outpath = cms.EndPath(process.out)
-                      
+

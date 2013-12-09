@@ -18,7 +18,7 @@
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "SimGeneral/TrackingAnalysis/interface/TrackingParticleSelector.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 
 class TTree;

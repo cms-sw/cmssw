@@ -341,7 +341,6 @@ streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_DiPFJetAve320
     'HLT_HT300_v7', 
     'HLT_HT350_v7', 
     'HLT_HT360_DoubleDisplacedPFJet60_v1', 
-    'HLT_HT360_SingleDisplacedPFJet60_v1', 
     'HLT_HT400_v7', 
     'HLT_HT450_v7', 
     'HLT_HT500_v7', 
