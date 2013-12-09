@@ -12,7 +12,7 @@
 // Taken from UCT code. Might not be appropriate. Refers to legacy L1 objects.
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+//#include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 using namespace std;
 using namespace l1t;
@@ -195,8 +195,9 @@ void makeJets(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[],
 	assert(false);
       }
 
-      LorentzVector *jetLorentz = new LorentzVector(0,0,0,0);
-      l1t::Jet theJet(jetLorentz, jetET, jetEta, jetPhi);
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+      l1t::Jet theJet(*jetLorentz, jetET, jetEta, jetPhi);
+      //l1t::Jet theJet(0, jetET, jetEta, jetPhi);
 
       jets.push_back(theJet);
     }

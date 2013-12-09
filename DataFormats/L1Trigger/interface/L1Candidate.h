@@ -5,10 +5,10 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 namespace l1t {
-	
+
 	// All L1 data formats which encode physically meaningful quantities inherit from Candidate
   class L1Candidate : public reco::LeafCandidate {
-    
+
   public:
     L1Candidate();
 
@@ -18,9 +18,9 @@ namespace l1t {
 		 int eta=0,
 		 int phi=0,
 		 int qual=0);
-    
+
     ~L1Candidate();
-    
+
     // methods to set integer values
     // in general, these should not be needed
     void setHwPt(int pt);
@@ -29,21 +29,21 @@ namespace l1t {
     void setHwQual(int qual);
 
     // methods to retrieve integer values
-    int hwPt();
-    int hwEta();
-    int hwPhi();
-    int hwQual();
-    
+    int hwPt() const;
+    int hwEta() const;
+    int hwPhi() const;
+    int hwQual() const;
+
   private:
-    
+
     // integer "hardware" values
     int hwPt_;
     int hwEta_;
     int hwPhi_;
     int hwQual_;
-    
+
   };
-  
+
 };
 
 #endif

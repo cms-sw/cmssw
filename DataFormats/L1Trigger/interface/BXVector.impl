@@ -7,7 +7,7 @@ template < class T >
 BXVector<T>::BXVector( int size,      // number of objects per BX
 		    int bxFirst,   // first BX stored
 		    int bxLast )  // last BX stored
-  : 
+  :
     bxFirst_(bxFirst),
     bxLast_(bxLast),
     data_(bxLast-bxFirst, std::vector<T>(size))
@@ -22,7 +22,7 @@ BXVector<T>::BXVector ( const BXVector& vector )
 
 }
 
-// dtor			
+// dtor
 template < class T >
 BXVector<T>::~BXVector()
 {
@@ -33,7 +33,7 @@ BXVector<T>::~BXVector()
 //template < class T >
 //BXVector<T> BXVector<T>::operator=( BXVector vector )
 //{
-//  
+//
 //}
 
 // set BX range
@@ -97,14 +97,14 @@ T& BXVector<T>::at( int bx, int i )
 
 // iterator access by BX
 template < class T >
-typename BXVector<T>::const_iterator BXVector<T>::begin( int bx )
+typename BXVector<T>::const_iterator BXVector<T>::begin( int bx ) const
 {
   return data_.at(bx).begin();
 }
 
 // iterator access by BX
 template < class T >
-typename BXVector<T>::const_iterator BXVector<T>::end( int bx )
+typename BXVector<T>::const_iterator BXVector<T>::end( int bx ) const
 {
   return data_.at(bx).end();
 }
