@@ -204,3 +204,54 @@ identified as such and people who depend on your changes do not have headaches.
 
 If you have multiple commits you can even rearrange those by using
 the `git rebase --interactive` option.
+
+### The above is all great stuff but I need a quick recipe!
+
+So, here it is: you have pushed your changes onto your branch and made a pull
+request! Great - but then the integration team tells you that your pull request
+no longer merges. This happens if others have made changes at those code lines
+also affected by your changes
+
+So here is the recipe to UPDATE your pull request:
+
+Make a new developer area (eg, based on the most recent IB), e.g.:
+
+    cmsrel CMSSW_7_0_X_2013-12-06-0200
+    cd CMSSW_7_0_X_2013-12-06-0200/src
+    cmsenv
+
+Update to the HEAD of the CMSSW release series, here `CMSSW_7_0_X`:
+
+    git cms-merge-topic CMSSW_7_0_X
+
+Checkout your old branch (from the pull request which does not merge),
+ for example:
+
+    git checkout -b <my-development-branch>
+
+Run the merging of the pull request yourself, such as:
+
+    git cms-merge-topic <pull-request-id>
+
+Look for conflicts:
+
+    git diff
+
+Fix them:
+
+    emacs ...
+    emacs ...
+
+Commit them back to the old branch:
+
+    git commit -a -m "Fix conflicts." 
+
+Push the branch:
+
+    git push my-cmssw HEAD:<my-development-branch>
+
+(beware: must add "HEAD:" in the above)
+
+This updates your pull request!
+
+Now wait for the "+1" to arrive.
