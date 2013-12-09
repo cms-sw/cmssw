@@ -49,7 +49,6 @@ typedef int clockid_t;
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "HLTrigger/Timer/interface/FastTimerService.h"
-#include "HLTrigger/Timer/interface/CPUAffinity.h"
 
 
 // file-static methods to fill a vector of strings with "(dup.) (...)" entries
@@ -63,8 +62,7 @@ void fill_dups(std::vector<std::string> & dups, unsigned int size) {
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
   // configuration
-  m_timer_id(                    config.getUntrackedParameter<bool>(     "useRealTimeClock"         ) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
-  m_is_cpu_bound(                false ),
+  m_use_realtime(                config.getUntrackedParameter<bool>(     "useRealTimeClock"         ) ),
   m_enable_timing_paths(         config.getUntrackedParameter<bool>(     "enableTimingPaths"        ) ),
   m_enable_timing_modules(       config.getUntrackedParameter<bool>(     "enableTimingModules"      ) ),
   m_enable_timing_exclusive(     config.getUntrackedParameter<bool>(     "enableTimingExclusive"    ) ),
@@ -155,34 +153,14 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
     registry.watchPreModuleEventDelayedGet(  this, & FastTimerService::preModuleEventDelayedGet );
     registry.watchPostModuleEventDelayedGet( this, & FastTimerService::postModuleEventDelayedGet );
   }
-
-#if defined(__APPLE__) || defined (__MACH__)
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &m_clock_port);
-#endif // defined(__APPLE__) || defined(__MACH__)
 }
 
 FastTimerService::~FastTimerService()
 {
-#if defined(__APPLE__) || defined (__MACH__)
-  mach_port_deallocate(mach_task_self(), m_clock_port);
-#endif // defined(__APPLE__) || defined(__MACH__)
 }
 
 void FastTimerService::preGlobalBeginRun( edm::GlobalContext const & )
 {
-  // check if the process is bound to a single CPU.
-  // otherwise, the results of the CLOCK_THREAD_CPUTIME_ID timer might be inaccurate
-#ifdef __linux
-  // cpu affinity is currently only supported on LINUX
-  m_is_cpu_bound = CPUAffinity::isCpuBound();
-  if ((m_timer_id != CLOCK_REALTIME) and not m_is_cpu_bound) {
-    clockid_t clock;
-    if (clock_getcpuclockid(0, & clock) == ENOENT)
-      // the process is NOT bound to a single CPU, and the system does not support a consistent time source across multiple CPUs
-      edm::LogError("FastTimerService") << "this process is NOT bound to a single CPU, the results of the FastTimerService may be undefined";
-  }
-#endif
-
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
 
   // cache the names of the first and last path and endpath
@@ -625,7 +603,7 @@ FastTimerService::postEndJob()
 
     std::ostringstream out;
     out << std::fixed << std::setprecision(6);
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ") << '\n';
+    out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ") << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_job_summary.presource    / (double) m_job_summary.count << "  Pre-Source"    << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_job_summary.source       / (double) m_job_summary.count << "  Source"        << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_job_summary.postsource   / (double) m_job_summary.count << "  Post-Source"   << '\n';
@@ -641,19 +619,19 @@ FastTimerService::postEndJob()
     }
     out << '\n';
     if (m_enable_timing_paths and not m_enable_timing_modules) {
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
       for (auto const & name: tns.getTrigPaths())
         out << "FastReport              "
             << std::right << std::setw(10) << m_stream.paths[name].summary_active / (double) m_job_summary.count << "  "
             << name << '\n';
       out << '\n';
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
       for (auto const & name: tns.getEndPaths())
         out << "FastReport              "
             << std::right << std::setw(10) << m_stream.paths[name].summary_active / (double) m_job_summary.count << "  "
             << name << '\n';
     } else if (m_enable_timing_paths and m_enable_timing_modules) {
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  Path" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  Path" << '\n';
       for (auto const & name: tns.getTrigPaths()) {
         out << "FastReport              "
             << std::right << std::setw(10) << m_stream.paths[name].summary_active        / (double) m_job_summary.count << " "
@@ -665,7 +643,7 @@ FastTimerService::postEndJob()
             << name << '\n';
       }
       out << '\n';
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  EndPath" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  EndPath" << '\n';
       for (auto const & name: tns.getEndPaths()) {
         out << "FastReport              "
             << std::right << std::setw(10) << m_stream.paths[name].summary_active        / (double) m_job_summary.count << " "
@@ -679,21 +657,21 @@ FastTimerService::postEndJob()
     }
     out << '\n';
     if (m_enable_timing_modules) {
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
       for (auto & keyval: m_stream.modules) {
         std::string const & label  = keyval.first;
         ModuleInfo  const & module = keyval.second;
         out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_job_summary.count << "  " << label << '\n';
       }
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
       out << '\n';
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
       for (auto & keyval: m_stream.moduletypes) {
         std::string const & label  = keyval.first;
         ModuleInfo  const & module = keyval.second;
         out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_job_summary.count << "  " << label << '\n';
       }
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
     }
     out << '\n';
     edm::LogVerbatim("FastReport") << out.str();
@@ -712,7 +690,7 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const &)
 
     std::ostringstream out;
     out << std::fixed << std::setprecision(6);
-    out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ") << '\n';
+    out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ") << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_run_summary.presource    / (double) m_run_summary.count << "  Pre-Source"    << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_run_summary.source       / (double) m_run_summary.count << "  Source"        << '\n';
     out << "FastReport              " << std::right << std::setw(10) << m_run_summary.postsource   / (double) m_run_summary.count << "  Post-Source"   << '\n';
@@ -728,19 +706,19 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const &)
     }
     out << '\n';
     if (m_enable_timing_paths and not m_enable_timing_modules) {
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active Path" << '\n';
       for (auto const & name: tns.getTrigPaths())
         out << "FastReport              "
             << std::right << std::setw(10) << m_stream.paths[name].summary_active / (double) m_run_summary.count << "  "
             << name << '\n';
       out << '\n';
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active EndPath" << '\n';
       for (auto const & name: tns.getEndPaths())
         out << "FastReport              "
             << std::right << std::setw(10) << m_stream.paths[name].summary_active / (double) m_run_summary.count << "  "
             << name << '\n';
     } else if (m_enable_timing_paths and m_enable_timing_modules) {
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  Path" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  Path" << '\n';
       for (auto const & name: tns.getTrigPaths()) {
         out << "FastReport              "
             << std::right << std::setw(10) << m_stream.paths[name].summary_active        / (double) m_run_summary.count << " "
@@ -752,7 +730,7 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const &)
             << name << '\n';
       }
       out << '\n';
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  EndPath" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active       Pre-     Inter-  Post-mods   Overhead      Total  EndPath" << '\n';
       for (auto const & name: tns.getEndPaths()) {
         out << "FastReport              "
             << std::right << std::setw(10) << m_stream.paths[name].summary_active        / (double) m_run_summary.count << " "
@@ -766,21 +744,21 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const &)
     }
     out << '\n';
     if (m_enable_timing_modules) {
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
       for (auto & keyval: m_stream.modules) {
         std::string const & label  = keyval.first;
         ModuleInfo  const & module = keyval.second;
         out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_run_summary.count << "  " << label << '\n';
       }
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
       out << '\n';
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
       for (auto & keyval: m_stream.moduletypes) {
         std::string const & label  = keyval.first;
         ModuleInfo  const & module = keyval.second;
         out << "FastReport              " << std::right << std::setw(10) << module.summary_active  / (double) m_run_summary.count << "  " << label << '\n';
       }
-      out << "FastReport " << (m_timer_id == CLOCK_REALTIME ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
+      out << "FastReport " << (m_use_realtime ? "(real time) " : "(CPU time)  ")    << "     Active  Module" << '\n';
     }
     out << '\n';
     edm::LogVerbatim("FastReport") << out.str();
