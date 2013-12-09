@@ -24,14 +24,18 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <vector>
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+
 //this doesn't exist yet 12/5/13 Alex
 //#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
 //this only exists in Jim's private repo?
 //#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
+
 #include "DataFormats/L1Trigger/interface/Jet.h"
-#include <vector>
 
 //#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
@@ -69,6 +73,7 @@ namespace l1t {
 
     // to be extended with other "consumes" stuff
     EDGetToken regionToken;
+    EDGetToken candsToken;
   };
 
   //
@@ -77,10 +82,14 @@ namespace l1t {
   L1TCaloStage1Producer::L1TCaloStage1Producer(const ParameterSet& iConfig)
   {
     // register what you produce
-    produces<std::vector<l1t::Jet>>();
+    produces<BXVector<l1t::EGamma>>();
+    produces<BXVector<l1t::Tau>>();
+    produces<BXVector<l1t::Jet>>();
+    produces<BXVector<l1t::EtSum>>();
 
     // register what you consume and keep token for later access:
-    regionToken = consumes<std::vector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("uctDigis"));
+    regionToken = consumes<BXVector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
+    candsToken = consumes<BXVector<l1t::CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
@@ -104,14 +113,26 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
   LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::produce function called...\n";
 
-  Handle<std::vector<l1t::CaloRegion>> caloRegions;
+  //inputs
+  Handle<BXVector<l1t::CaloRegion>> caloRegions;
   iEvent.getByToken(regionToken,caloRegions);
 
-  std::auto_ptr<std::vector<l1t::Jet>> l1Jets (new std::vector<l1t::Jet>);
+  Handle<BXVector<l1t::CaloEmCand>> caloEmCands;
+  iEvent.getByToken(candsToken, caloEmCands);
 
-  //m_fw->processEvent(*caloRegions, *l1Jets);
+  //outputs
+  std::auto_ptr<BXVector<l1t::EGamma>> egammas (new BXVector<l1t::EGamma>);
+  std::auto_ptr<BXVector<l1t::Tau>> taus (new BXVector<l1t::Tau>);
+  std::auto_ptr<BXVector<l1t::Jet>> jets (new BXVector<l1t::Jet>);
+  std::auto_ptr<BXVector<l1t::EtSum>> etsums (new BXVector<l1t::EtSum>);
 
-  iEvent.put(l1Jets);
+  m_fw->processEvent(*caloEmCands, *caloRegions,
+		     *egammas, *taus, *jets, *etsums);
+
+  iEvent.put(egammas);
+  iEvent.put(taus);
+  iEvent.put(jets);
+  iEvent.put(etsums);
 
 }
 

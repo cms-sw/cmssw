@@ -22,8 +22,8 @@ namespace l1t {
   public:
     CaloStage1MainProcessorFirmwareImp1(/*const CaloParams & dbPars*/);
     virtual ~CaloStage1MainProcessorFirmwareImp1();
-    virtual void processEvent(const CaloEmCand &,
-                              const CaloRegion &,
+    virtual void processEvent(const BXVector<CaloEmCand> &,
+                              const BXVector<CaloRegion> &,
 			      BXVector<EGamma> & egammas,
 			      BXVector<Tau> & taus,
 			      BXVector<Jet> & jets,

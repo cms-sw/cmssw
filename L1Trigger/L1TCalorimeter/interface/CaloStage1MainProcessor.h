@@ -17,7 +17,7 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-#include <vector>
+//#include <vector>
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
@@ -29,8 +29,8 @@ namespace l1t {
 
   class CaloStage1MainProcessor {
   public:
-    virtual void processEvent(const CaloEmCand &,
-			      const CaloRegion &,
+    virtual void processEvent(const BXVector<CaloEmCand> &,
+			      const BXVector<CaloRegion> &,
 			      BXVector<EGamma> & egammas,
 			      BXVector<Tau> & taus,
 			      BXVector<Jet> & jets,
