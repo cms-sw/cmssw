@@ -42,8 +42,8 @@ class EgammaHLTRechitInRegionsProducer : public edm::EDProducer {
   double regionEtaMargin_;
   double regionPhiMargin_;
   
-  //HybridClusterAlgo * hybrid_p; // clustering algorithm
-  //PositionCalc posCalculator_; // position calculation algorithm
+  std::vector<edm::InputTag> hitLabels;
+  std::vector<edm::EDGetTokenT<EcalRecHitCollection>> hitTokens;
   
   bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
 };
