@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(10.01),
-        MinPt = cms.double(9.99),
+        MaxPt = cms.double(3.00),
+        MinPt = cms.double(3.00),
         PartID = cms.vint32(22),
         MaxEta = cms.double(2.5),
         MaxPhi = cms.double(3.14159265359),
