@@ -108,7 +108,7 @@ bool support::isDataClass(const std::string & name) {
 	}
 		
 	std::string tname("/tmp/classes.txt");
-	std::string sname("/Utilities/StaticAnalyzers/scripts/classes.txt");
+	std::string sname("/src/Utilities/StaticAnalyzers/scripts/classes.txt");
 	std::string fname1 = lname + tname;
 	std::string fname2 = rname + sname;
 	if (!FM.getFile(fname1) && !FM.getFile(fname2) ) {
