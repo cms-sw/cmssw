@@ -75,6 +75,7 @@ pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
     chi2_cuts = cms.vdouble(),
     maxChi2 = cms.double(4.0),
     extraPhiKDBox = cms.double(0.0),
+    SimpleMagneticField = cms.string('ParabolicMf'),
     refitHits = cms.bool(True),
     ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
     debug = cms.bool(False),
