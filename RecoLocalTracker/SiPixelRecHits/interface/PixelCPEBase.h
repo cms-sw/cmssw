@@ -59,6 +59,13 @@ public:
 	       const SiPixelLorentzAngle * lorentzAngle = 0, const SiPixelCPEGenericErrorParm * genErrorParm = 0, 
 	       const SiPixelTemplateDBObject * templateDBobject = 0);
   
+
+ //--------------------------------------------------------------------------
+  // Allow the magnetic field to be set/updated later.
+  //--------------------------------------------------------------------------
+  inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
+ 
+
   //--------------------------------------------------------------------------
   // Obtain the angles from the position of the DetUnit.
   // LocalValues is typedef for pair<LocalPoint,LocalError> 
@@ -68,11 +75,11 @@ public:
     {
       nRecHitsTotal_++ ;
       setTheDet( det, cl );
-      computeAnglesFromDetPosition(cl, det);
+      computeAnglesFromDetPosition(cl);
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition( cl, det );
-      LocalError le = localError( cl, det );        
+      LocalPoint lp = localPosition( cl);
+      LocalError le = localError( cl);        
       
       return std::make_pair( lp, le );
     }
@@ -86,54 +93,26 @@ public:
   {
     nRecHitsTotal_++ ;
     setTheDet( det, cl );
-    computeAnglesFromTrajectory(cl, det, ltp);
+    computeAnglesFromTrajectory(cl, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-    LocalPoint lp = localPosition( cl, det ); 
-    LocalError le = localError( cl, det );        
+    LocalPoint lp = localPosition( cl); 
+    LocalError le = localError( cl);        
     
     return std::make_pair( lp, le );
   } 
   
-  //--------------------------------------------------------------------------
-  // The third one, with the user-supplied alpha and beta
-  //--------------------------------------------------------------------------
-  LocalValues localParameters( const SiPixelCluster & cl,
-			       const GeomDetUnit    & det, 
-			       float alpha, float beta) const 
-  {
-    nRecHitsTotal_++ ;
-    alpha_ = alpha;
-    beta_  = beta;
-    double HalfPi = 0.5*TMath::Pi();
-    cotalpha_ = tan(HalfPi - alpha_);
-    cotbeta_  = tan(HalfPi - beta_ );
-      setTheDet( det, cl );
-      
-      // localPosition( cl, det ) must be called before localError( cl, det ) !!!
-      LocalPoint lp = localPosition( cl, det ); 
-      LocalError le = localError( cl, det );        
-      
-      return std::make_pair( lp, le );
-  }
   
   
-  void computeAnglesFromDetPosition(const SiPixelCluster & cl, 
-				    const GeomDetUnit    & det ) const;
-  
-  //--------------------------------------------------------------------------
-  // Allow the magnetic field to be set/updated later.
-  //--------------------------------------------------------------------------
-  inline void setMagField(const MagneticField *mag) const { magfield_ = mag; }
-  
+private:
   //--------------------------------------------------------------------------
   // This is where the action happens.
   //--------------------------------------------------------------------------
-  virtual LocalPoint localPosition(const SiPixelCluster& cl, const GeomDetUnit & det) const;  // = 0, take out dk 8/06
-  virtual LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const = 0;
+  virtual LocalPoint localPosition(const SiPixelCluster& cl) const = 0;
+  virtual LocalError localError   (const SiPixelCluster& cl) const = 0;
   
   
-  
+public:  
   //--------------------------------------------------------------------------
   //--- Accessors of other auxiliary quantities
   inline float probabilityX()  const { return probabilityX_ ;  }
@@ -192,6 +171,7 @@ public:
   mutable Param const * theParam;
 
   mutable GeomDetType::SubDetector thePart;
+  mutable  Local3DPoint theOrigin;
   //mutable EtaCorrection theEtaFunc;
   mutable float theThickness;
   mutable float thePitchX;
@@ -207,12 +187,9 @@ public:
   mutable float theSign;
 
   //--- Cluster-level quantities (may need more)
-  mutable float alpha_;
-  mutable float beta_;
-
-  // G.Giurgiu (12/13/06)-----
   mutable float cotalpha_;
   mutable float cotbeta_;
+  mutable bool  zneg;
 
   // G.Giurgiu (05/14/08) track local coordinates
   mutable float trk_lp_x;
@@ -250,10 +227,10 @@ public:
   // be computed *incorrectly* (i.e. there's a bug) we add new variables
   // so that we can study the effect of the bug.
   mutable LocalVector driftDirection_;  // drift direction cached // &&&
-  mutable double lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
-  mutable double lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
-  mutable double lorentzShiftInCmX_;   // a FULL shift, in cm
-  mutable double lorentzShiftInCmY_;   // a FULL shift, in cm
+  mutable float lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
+  mutable float lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
+  mutable float lorentzShiftInCmX_;   // a FULL shift, in cm
+  mutable float lorentzShiftInCmY_;   // a FULL shift, in cm
 
 
   //--- Global quantities
@@ -276,24 +253,20 @@ public:
   mutable Topology::LocalTrackPred loc_trk_pred_;
 
   mutable LocalTrajectoryParameters loc_traj_param_;
-  
-  //---------------------------------------------------------------------------
-  //  Methods.
-  //---------------------------------------------------------------------------
-  void       setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
-
-  MeasurementPoint measurementPosition( const SiPixelCluster& cluster, 
-					const GeomDetUnit & det) const;
-  MeasurementError measurementError   ( const SiPixelCluster&, 
-					const GeomDetUnit & det) const ;
 
   //---------------------------------------------------------------------------
   //  Geometrical services to subclasses.
   //---------------------------------------------------------------------------
+private:
+  void computeAnglesFromDetPosition(const SiPixelCluster & cl ) const;
+  
 
-  void computeAnglesFromTrajectory (const SiPixelCluster & cl,
-				    const GeomDetUnit    & det, 
+  void computeAnglesFromTrajectory (const SiPixelCluster & cl, 
 				    const LocalTrajectoryParameters & ltp) const;
+
+protected:
+  void  setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const ;
+
   LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
   LocalVector driftDirection       ( LocalVector bfield ) const ; //wrong sign
   LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
@@ -311,10 +284,6 @@ public:
   float lorentzShiftX() const;
   float lorentzShiftY() const;
  
-  //--- Position in X and Y
-  virtual float xpos( const SiPixelCluster& ) const = 0;
-  virtual float ypos( const SiPixelCluster& ) const = 0;
-  
   
   LocalVector const & getDrift() const {return  driftDirection_ ;}
  
@@ -323,9 +292,9 @@ public:
   Param const & param() const;
  
  private:
-  typedef  std::unordered_map< unsigned int, Param> Params;
+  using Params=std::vector<Param>;
   
-  mutable Params m_Params;
+  mutable Params m_Params=Params(1440);
   
 
 

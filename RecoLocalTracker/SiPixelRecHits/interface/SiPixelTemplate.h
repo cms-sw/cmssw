@@ -105,6 +105,11 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float sxtwo;             //!< rms for one double-pixel x-clusters 
   float qmin;              //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits) 
   float qmin2;             //!< tighter minimum cluster charge for valid hit (keeps 99.8% of simulated hits)
+  float yavggen[4];        //!< generic algorithm: average y-bias of reconstruction binned in 4 charge bins 
+  float yrmsgen[4];        //!< generic algorithm: average y-rms of reconstruction binned in 4 charge bins 
+  float xavggen[4];        //!< generic algorithm: average x-bias of reconstruction binned in 4 charge bins 
+  float xrmsgen[4];        //!< generic algorithm: average x-rms of reconstruction binned in 4 charge bins 
+
   float clsleny;           //!< cluster y-length in pixels at signal height symax/2
   float clslenx;           //!< cluster x-length in pixels at signal height sxmax/2
   float mpvvav;            //!< most probable charge in Vavilov distribution (not actually for larger kappa)
@@ -143,12 +148,8 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float xrmsc2m[4];        //!< 1st pass chi2 min search: average x-rms of reconstruction binned in 4 charge bins 
   float chi2xavgc2m[4];    //!< 1st pass chi2 min search: average x chi^2 in 4 charge bins (merged clusters) 
   float chi2xminc2m[4];    //!< 1st pass chi2 min search: minimum of x chi^2 in 4 charge bins (merged clusters) 
-  float yavggen[4];        //!< generic algorithm: average y-bias of reconstruction binned in 4 charge bins 
-  float yrmsgen[4];        //!< generic algorithm: average y-rms of reconstruction binned in 4 charge bins 
   float ygx0gen[4];        //!< generic algorithm: average y0 from Gaussian fit binned in 4 charge bins 
   float ygsiggen[4];       //!< generic algorithm: average sigma_y from Gaussian fit binned in 4 charge bins 
-  float xavggen[4];        //!< generic algorithm: average x-bias of reconstruction binned in 4 charge bins 
-  float xrmsgen[4];        //!< generic algorithm: average x-rms of reconstruction binned in 4 charge bins 
   float xgx0gen[4];        //!< generic algorithm: average x0 from Gaussian fit binned in 4 charge bins 
   float xgsiggen[4];       //!< generic algorithm: average sigma_x from Gaussian fit binned in 4 charge bins 
   float qbfrac[3];         //!< fraction of sample in qbin = 0-2 (>=3 is the complement)
@@ -165,21 +166,22 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
 
 
 struct SiPixelTemplateHeader {           //!< template header structure 
-  char title[80];         //!< template title 
   int ID;                 //!< template ID number 
-  int templ_version;      //!< Version number of the template to ensure code compatibility 
-  float Bfield;           //!< Bfield in Tesla
   int NTy;                //!< number of Template y entries 
   int NTyx;               //!< number of Template y-slices of x entries 
   int NTxx;               //!< number of Template x-entries in each slice
   int Dtype;              //!< detector type (0=BPix, 1=FPix)
+  float qscale;           //!< Charge scaling to match cmssw and pixelav
+  float lorywidth;        //!< estimate of y-lorentz width from single pixel offset
+  float lorxwidth;        //!< estimate of x-lorentz width from single pixel offset
   float Vbias;            //!< detector bias potential in Volts 
   float temperature;      //!< detector temperature in deg K 
   float fluence;          //!< radiation fluence in n_eq/cm^2 
-  float qscale;           //!< Charge scaling to match cmssw and pixelav
   float s50;              //!< 1/2 of the readout threshold in ADC units
-  float lorywidth;        //!< estimate of y-lorentz width from single pixel offset
-  float lorxwidth;        //!< estimate of x-lorentz width from single pixel offset
+  char title[80];         //!< template title 
+  int templ_version;      //!< Version number of the template to ensure code compatibility 
+  float Bfield;           //!< Bfield in Tesla
+
   float xsize;            //!< pixel size (for future use in upgraded geometry)
   float ysize;            //!< pixel size (for future use in upgraded geometry)
   float zsize;            //!< pixel size (for future use in upgraded geometry)
@@ -189,6 +191,9 @@ struct SiPixelTemplateHeader {           //!< template header structure
 
 struct SiPixelTemplateStore { //!< template storage structure 
   SiPixelTemplateHeader head;
+  float cotbetaY[60];
+  float cotbetaX[5];
+  float cotalphaX[29];
 #ifndef SI_PIXEL_TEMPLATE_USE_BOOST 
   SiPixelTemplateEntry enty[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px [28 entries for fpix]
   SiPixelTemplateEntry entx[5][29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
@@ -228,6 +233,9 @@ class SiPixelTemplate {
   bool pushfile(const SiPixelTemplateDBObject& dbobject);     // load the private store with info from db
 #endif
   
+  // initialize the rest;
+  void postInit();
+
 	
 // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
   bool interpolate(int id, float cotalpha, float cotbeta, float locBz);
@@ -269,12 +277,12 @@ class SiPixelTemplate {
   float xflcorr(int binq, float qflx);
   
 // Interpolate input beta angle to estimate the average charge. return qbin flag for input cluster charge, and estimate y/x errors and biases for the Generic Algorithm. 
-  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
-           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2, float& lorywidth, float& lorxwidth);
+//  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+//           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2, float& lorywidth, float& lorxwidth);
 	
 // Overload for backward compatibility. 
-	int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
-			 float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
+  int qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
+	   float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2);
 	
 // Overload to use for cluster splitting 
 	int qbin(int id, float cotalpha, float cotbeta, float qclus);
