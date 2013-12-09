@@ -178,7 +178,7 @@ c      CALL PYGIVE('PARP(93)=15')
       IF(ickkw.gt.0) CALL set_matching(npara,param,value)
  
 C...For photon initial states from protons: Set proton not to break up
-CMRENNA      CALL PYGIVE('MSTP(98)=1')
+      CALL PYGIVE('MSTP(98)=1')
 
   
 C      IF(ickkw.gt.0.and.(NPRUP.gt.1.or.iexclusive(LPRUP(1)).ne.-1))
@@ -1373,7 +1373,7 @@ C...Initialize the icount counter to detect infinite loops
 
 C...Need lower scale for final state radiation in e+e-
       IF(IABS(IDBMUP(1)).EQ.11.AND.IABS(IDBMUP(2)).EQ.11) then
-CMRENNA        CALL PYGIVE('PARP(71)=1')
+        CALL PYGIVE('PARP(71)=1')
       ENDIF
 
 C...CRUCIAL FOR JET-PARTON MATCHING: CALL UPVETO, ALLOW JET-PARTON MATCHING
@@ -1533,8 +1533,8 @@ C             WRITE(*,*) 'shower kt is activated'
        endif
       else if(ickkw.eq.2)then
 c     Turn off color coherence suppressions (leave this to ME)
-CMRENNA        CALL PYGIVE('MSTP(62)=2')
-CMRENNA        CALL PYGIVE('MSTP(67)=0')
+        CALL PYGIVE('MSTP(62)=2')
+        CALL PYGIVE('MSTP(67)=0')
         if(MSTP(81).LT.20)THEN
           WRITE(*,*)'WARNING: Must run CKKW with pt-ordered showers'
           WRITE(*,*)'         Setting MSTP(81)=',20+MOD(MSTP(81),10)
@@ -1988,8 +1988,8 @@ C*********************************************************************
       INTEGER KCHG
       DOUBLE PRECISION PMAS,PARF,VCKM
       COMMON/PYDAT2/KCHG(500,4),PMAS(500,4),PARF(2000),VCKM(4,4)
-      INTEGER MSTP,MSTI,MRPY
-      DOUBLE PRECISION PARP,PARI,RRPY
+      INTEGER MSTP,MSTI
+      DOUBLE PRECISION PARP,PARI
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)
 
       if(PMAS(1,1).lt.0.1D0.or.PMAS(1,1).gt.1.) THEN
@@ -2018,6 +2018,7 @@ C*********************************************************************
 
         MSTP(61) = 2
         MSTP(71) = 1
+        MSTP(183)= 2013
 
       endif
 
