@@ -35,7 +35,7 @@ public:
 
   /// Constructor
   DQMEventInfo(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   virtual ~DQMEventInfo();
 
@@ -43,7 +43,7 @@ protected:
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void bookHistograms(DQMStore::IBooker &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
   void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
 
@@ -67,7 +67,7 @@ private:
   int64_t pEvent_;
 
   //////////////////////////////////////////////////////////////////
-  ///These MEs are filled with the info from the most recent event 
+  ///These MEs are filled with the info from the most recent event
   ///   by the module
   //////////////////////////////////////////////////////////////////
   MonitorElement * runId_;

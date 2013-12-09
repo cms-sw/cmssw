@@ -32,7 +32,9 @@ DQMDcsInfo::DQMDcsInfo(const edm::ParameterSet& ps)
 DQMDcsInfo::~DQMDcsInfo(){
 }
 
-void DQMDcsInfo::bookHistograms(DQMStore::IBooker & ibooker) {
+void DQMDcsInfo::bookHistograms(DQMStore::IBooker & ibooker,
+                                edm::Run const & /* iRun */,
+                                edm::EventSetup const & /* iSetup */) {
 
   // Fetch GlobalTag information and fill the string/ME.
   ibooker.cd();
