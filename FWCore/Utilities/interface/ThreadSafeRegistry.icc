@@ -5,7 +5,7 @@
 
 namespace edm {
   namespace detail {
-    static boost::mutex registry_mutex;
+    [[edm::thread_safe]] static boost::mutex registry_mutex;
 
     // ----------------------------------------------------------------------
     template <typename KEY, typename T, typename E>
