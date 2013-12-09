@@ -26,19 +26,22 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const BXVector<CaloEmCand
 
   //if (db.firmwareVersion() == 1) {
   m_jetAlgo = new CaloStage1JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
-    //} else {
-    //}
-
-  //need to convert EcalTriggerPrimitiveDigiCollection to regions
 
   //firmware is responsible for splitting the BXVector into pieces for
   //the algos to handle
-  // for(loop over BX)
-  // {
-  //   std::auto_ptr<std::vector<l1t::Jet>> localJets (new std::vector<l1t::Jet>);
-  //   m_jetAlgo->processEvent(regions, localJets);
+  // Hardcode bx=0 for now. TODO
   std::auto_ptr<std::vector<l1t::Jet>> localJets (new std::vector<l1t::Jet>);
   std::auto_ptr<std::vector<l1t::CaloRegion>> localRegions (new std::vector<l1t::CaloRegion>);
+  for(std::vector<l1t::CaloRegion>::const_iterator region = regions->begin(0); region != regions->end(0); ++region)
+  {
+    localRegions->push_back(region);
+  }
   m_jetAlgo->processEvent(*localRegions, *localJets);
+
+  for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
+  {
+    jets->push_back(0, jet);
+  }
+  //}
 
 }
