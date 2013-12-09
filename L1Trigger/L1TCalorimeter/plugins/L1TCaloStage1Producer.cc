@@ -114,25 +114,25 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
   LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::produce function called...\n";
 
   //inputs
-  Handle<BXVector<l1t::CaloRegion>> caloRegions;
-  iEvent.getByToken(regionToken,caloRegions);
+  //Handle<BXVector<l1t::CaloRegion>> caloRegions;
+  //iEvent.getByToken(regionToken,caloRegions);
 
-  Handle<BXVector<l1t::CaloEmCand>> caloEmCands;
-  iEvent.getByToken(candsToken, caloEmCands);
+  //Handle<BXVector<l1t::CaloEmCand>> caloEmCands;
+  //iEvent.getByToken(candsToken, caloEmCands);
 
   //outputs
-  std::auto_ptr<BXVector<l1t::EGamma>> egammas (new BXVector<l1t::EGamma>);
-  std::auto_ptr<BXVector<l1t::Tau>> taus (new BXVector<l1t::Tau>);
-  std::auto_ptr<BXVector<l1t::Jet>> jets (new BXVector<l1t::Jet>);
-  std::auto_ptr<BXVector<l1t::EtSum>> etsums (new BXVector<l1t::EtSum>);
+  //std::auto_ptr<BXVector<l1t::EGamma>> egammas (new BXVector<l1t::EGamma>);
+  //std::auto_ptr<BXVector<l1t::Tau>> taus (new BXVector<l1t::Tau>);
+  std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
+  //std::auto_ptr<BXVector<l1t::EtSum>> etsums (new BXVector<l1t::EtSum>);
 
-  m_fw->processEvent(*caloEmCands, *caloRegions,
-		     *egammas, *taus, *jets, *etsums);
+  //m_fw->processEvent(*caloEmCands, *caloRegions,
+  //		     *egammas, *taus, *jets, *etsums);
 
-  iEvent.put(egammas);
-  iEvent.put(taus);
-  iEvent.put(jets);
-  iEvent.put(etsums);
+  //iEvent.put(egammas);
+  //iEvent.put(taus);
+  //iEvent.put(jets);
+  //iEvent.put(etsums);
 
 }
 

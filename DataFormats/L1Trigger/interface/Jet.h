@@ -13,6 +13,7 @@ namespace l1t {
   class Jet : public L1Candidate {
     
   public:
+  Jet(){}
   Jet( const LorentzVector& p4,
        int pt=0,
        int eta=0,
