@@ -32,8 +32,8 @@
 //---------------------------------------------------------------------------
 
 //--- Base class for CPEs:
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-//&&& #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
 //--- Geometry + DataFormats
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -94,13 +94,11 @@ namespace cms
   private:
     edm::ParameterSet conf_;
     // TO DO: maybe allow a map of pointers?
-    std::string cpeName_;                   // what the user said s/he wanted
-    const PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
-    //&&& PixelCPEBase * cpe_;                    // what we got (for now, one ptr to base class)
-    bool ready_;                            // needed CPE's valid => good to go!
+    std::string cpeName_="None";                   // what the user said s/he wanted
+    /// const PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
+    PixelCPEBase const * cpe_=nullptr;                    // What we got (for now, one ptr to base class)
     edm::InputTag src_;
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> tPixelCluster;
-    int   theVerboseLevel;              // algorithm's verbosity
     bool m_newCont; // save also in emdNew::DetSetVector
   };
 }

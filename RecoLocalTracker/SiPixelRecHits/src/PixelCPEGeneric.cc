@@ -18,7 +18,12 @@
 #include <iostream>
 using namespace std;
 
-const double HALF_PI = 1.57079632679489656;
+namespace {
+  constexpr float HALF_PI = 1.57079632679489656;
+  constexpr float PI = 2*HALF_PI;
+
+}
+
 
 //-----------------------------------------------------------------------------
 //!  The constructor.
@@ -148,10 +153,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 //! into the local frame (in centimeters).  
 //-----------------------------------------------------------------------------
 LocalPoint
-PixelCPEGeneric::localPosition(const SiPixelCluster& cluster, 
-			       const GeomDetUnit & det) const 
+PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const 
 {
-  setTheDet( det, cluster );  //!< Initialize this det unit
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
   if ( UseErrorsFromTemplates_ )
     {
@@ -211,13 +214,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
   
   float Q_f_X = 0.0;        //!< Q of the first  pixel  in X 
   float Q_l_X = 0.0;        //!< Q of the last   pixel  in X
-  float Q_m_X = 0.0;        //!< Q of the middle pixels in X
   float Q_f_Y = 0.0;        //!< Q of the first  pixel  in Y 
   float Q_l_Y = 0.0;        //!< Q of the last   pixel  in Y
-  float Q_m_Y = 0.0;        //!< Q of the middle pixels in Y
   collect_edge_charges( cluster, 
-			Q_f_X, Q_l_X, Q_m_X, 
-			Q_f_Y, Q_l_Y, Q_m_Y );
+			Q_f_X, Q_l_X, 
+			Q_f_Y, Q_l_Y );
 
   //--- Find the inner widths along X and Y in one shot.  We
   //--- compute the upper right corner of the inner pixels
@@ -253,6 +254,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
       local_LLcorn_URpix = theTopol->localPosition(meas_LLcorn_URpix);
     }
 
+ #ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) {
     cout  
       << "\n\t >>> cluster.x = " << cluster.x()
@@ -267,6 +269,7 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
       << "," << meas_LLcorn_URpix.y() 
       << endl;
   }
+#endif
 
   //--- &&& Note that the cuts below should not be hardcoded (like in Orca and
   //--- &&& CPEFromDetPosition/PixelCPEInitial), but rather be
@@ -274,8 +277,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 
 
   //--- Position, including the half lorentz shift
+
+ #ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing X" << endl;
+#endif
 
   float xPos = 
     generic_position_formula( cluster.sizeX(),
@@ -291,8 +297,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
                               the_size_cutX);           // cut for eff charge width &&&
 
 
+ #ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing Y" << endl;
+#endif
+
   float yPos = 
     generic_position_formula( cluster.sizeY(),
 			      Q_f_Y, Q_l_Y, 
@@ -370,24 +379,24 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster,
 //!  are passed by the caller.  The only class variable used by this method
 //!  is the theThickness, since that's common for both X and Y.
 //-----------------------------------------------------------------------------
-double
+float
 PixelCPEGeneric::    
 generic_position_formula( int size,                //!< Size of this projection.
-			  double Q_f,              //!< Charge in the first pixel.
-			  double Q_l,              //!< Charge in the last pixel.
-			  double upper_edge_first_pix, //!< As the name says.
-			  double lower_edge_last_pix,  //!< As the name says.
-			  double half_lorentz_shift,   //!< L-shift at half thickness
-			  double cot_angle,        //!< cot of alpha_ or beta_
-			  double pitch,            //!< thePitchX or thePitchY
+			  float Q_f,              //!< Charge in the first pixel.
+			  float Q_l,              //!< Charge in the last pixel.
+			  float upper_edge_first_pix, //!< As the name says.
+			  float lower_edge_last_pix,  //!< As the name says.
+			  float half_lorentz_shift,   //!< L-shift at half thickness
+			  float cot_angle,        //!< cot of alpha_ or beta_
+			  float pitch,            //!< thePitchX or thePitchY
 			  bool first_is_big,       //!< true if the first is big
 			  bool last_is_big,        //!< true if the last is big
-			  double eff_charge_cut_low, //!< Use edge if > W_eff  &&&
-			  double eff_charge_cut_high,//!< Use edge if < W_eff  &&&
-			  double size_cut         //!< Use edge when size == cuts
+			  float eff_charge_cut_low, //!< Use edge if > W_eff  &&&
+			  float eff_charge_cut_high,//!< Use edge if < W_eff  &&&
+			  float size_cut         //!< Use edge when size == cuts
 			 ) const
 {
-  double geom_center = 0.5 * ( upper_edge_first_pix + lower_edge_last_pix );
+  float geom_center = 0.5f * ( upper_edge_first_pix + lower_edge_last_pix );
 
   //--- The case of only one pixel in this projection is separate.  Note that
   //--- here first_pix == last_pix, so the average of the two is still the
@@ -404,26 +413,23 @@ generic_position_formula( int size,                //!< Size of this projection.
 
   //--- Width of the clusters minus the edge (first and last) pixels.
   //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
-  double W_inner      = lower_edge_last_pix - upper_edge_first_pix;  // in cm
+  float W_inner      = lower_edge_last_pix - upper_edge_first_pix;  // in cm
 
 
   //--- Predicted charge width from geometry
-  double W_pred = 
+  float W_pred = 
     theThickness * cot_angle                     // geometric correction (in cm)
-    - 2 * half_lorentz_shift;                    // (in cm) &&& check fpix!  
+    - 2.f * half_lorentz_shift;                    // (in cm) &&& check fpix!  
   
 
   //--- Total length of the two edge pixels (first+last)
-  double sum_of_edge = 0.0;
-  if (first_is_big) sum_of_edge += 2.0;
-  else              sum_of_edge += 1.0;
-  
-  if (last_is_big)  sum_of_edge += 2.0;
-  else              sum_of_edge += 1.0;
+  float sum_of_edge = 2.0f;
+  if (first_is_big) sum_of_edge += 1.0f;
+  if (last_is_big)  sum_of_edge += 1.0f;
   
 
   //--- The `effective' charge width -- particle's path in first and last pixels only
-  double W_eff = fabs( W_pred ) - W_inner;
+  float W_eff = std::abs( W_pred ) - W_inner;
 
 
   //--- If the observed charge width is inconsistent with the expectations
@@ -431,24 +437,26 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- it with an *average* effective charge width, which is the average
   //--- length of the edge pixels.
   //
-  bool usedEdgeAlgo = false;
-  if (( W_eff/pitch < eff_charge_cut_low ) ||
-      ( W_eff/pitch > eff_charge_cut_high ) || (size >= size_cut)) 
+  //  bool usedEdgeAlgo = false;
+  if ( (size >= size_cut) || (
+       ( W_eff/pitch < eff_charge_cut_low ) |
+       ( W_eff/pitch > eff_charge_cut_high ) ) ) 
     {
-      W_eff = pitch * 0.5 * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
-      usedEdgeAlgo = true;
+      W_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
+      //  usedEdgeAlgo = true;
       nRecHitsUsedEdge_++;
     }
 
   
   //--- Finally, compute the position in this projection
-  double Qdiff = Q_l - Q_f;
-  double Qsum  = Q_l + Q_f;
+  float Qdiff = Q_l - Q_f;
+  float Qsum  = Q_l + Q_f;
 
-	//--- Temporary fix for clusters with both first and last pixel with charge = 0
-	if(Qsum==0) Qsum=1.0;
-  double hit_pos = geom_center + 0.5*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
+  //--- Temporary fix for clusters with both first and last pixel with charge = 0
+  if(Qsum==0) Qsum=1.0f;
+  float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
 
+ #ifdef EDM_ML_DEBUG
   //--- Debugging output
   if (theVerboseLevel > 20) {
     if ( thePart == GeomDetEnumerators::PixelBarrel ) {
@@ -478,7 +486,7 @@ generic_position_formula( int size,                //!< Size of this projection.
       cout << "\n\t >>> Used angle information." ;
     cout << endl;
   }
-
+#endif
 
   return hit_pos;
 }
@@ -497,15 +505,13 @@ PixelCPEGeneric::
 collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 		     float & Q_f_X,              //!< output, Q first  in X 
 		     float & Q_l_X,              //!< output, Q last   in X
-		     float & Q_m_X,              //!< output, Q middle in X
 		     float & Q_f_Y,              //!< output, Q first  in Y 
-		     float & Q_l_Y,              //!< output, Q last   in Y
-		     float & Q_m_Y               //!< output, Q middle in Y
+		     float & Q_l_Y               //!< output, Q last   in Y
 		     ) const
 {
   // Initialize return variables.
-  Q_f_X = Q_l_X = Q_m_X = 0.0;
-  Q_f_Y = Q_l_Y = Q_m_Y = 0.0;
+  Q_f_X = Q_l_X = 0.0;
+  Q_f_Y = Q_l_Y = 0.0;
 
 
   // Obtain boundaries in index units
@@ -529,20 +535,12 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 
       //
       // X projection
-      if      ( pixel.x == xmin )       // need to match with tolerance!!! &&&
-	Q_f_X += pix_adc;
-      else if ( pixel.x == xmax ) 
-	Q_l_X += pix_adc;
-      else 
-	Q_m_X += pix_adc;
+      if ( pixel.x == xmin ) Q_f_X += pix_adc;
+      if ( pixel.x == xmax ) Q_l_X += pix_adc;
       //
       // Y projection
-      if      ( pixel.y == ymin ) 
-	Q_f_Y += pix_adc;
-      else if ( pixel.y == ymax ) 
-	Q_l_Y += pix_adc;
-      else 
-	Q_m_Y += pix_adc;
+      if ( pixel.y == ymin ) Q_f_Y += pix_adc;
+      if ( pixel.y == ymax ) Q_l_Y += pix_adc;
     }
   
   return;
@@ -555,15 +553,8 @@ collect_edge_charges(const SiPixelCluster& cluster,  //!< input, the cluster
 //  Hit error in the local frame
 //-------------------------------------------------------------------------
 LocalError 
-PixelCPEGeneric::localError( const SiPixelCluster& cluster, 
-			     const GeomDetUnit & det) const 
+PixelCPEGeneric::localError( const SiPixelCluster& cluster) const 
 {
-  setTheDet( det, cluster );
-
-  // The squared errors
-  float xerr_sq = -99999.9f;
-  float yerr_sq = -99999.9f;
-
    
   // Default errors are the maximum error used for edge clusters.
   /*
@@ -600,7 +591,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
   // Find if cluster contains double (big) pixels. 
   bool bigInX = theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
   bool bigInY = theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
-  if (  isUpgrade_ ||(!with_track_angle && DoCosmics_) )
+  if unlikely(  isUpgrade_ ||(!with_track_angle && DoCosmics_) )
     {
       //cout << "Track angles are not known and we are processing cosmics." << endl; 
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
@@ -608,7 +599,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
       
       if ( thePart == GeomDetEnumerators::PixelBarrel ) 
 	{
-	  DetId id = (det.geographicalId());
+	  DetId id = (theDet->geographicalId());
 	  int layer=PXBDetId(id).layer();
 	  if ( layer==1 ) {
 	    if ( !edgex )
@@ -679,8 +670,8 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		    ++n_bigy;
 		}
 	      
-	      xerr = (float)(sizex + n_bigx) * thePitchX / sqrt( 12.0f );
-	      yerr = (float)(sizey + n_bigy) * thePitchY / sqrt( 12.0f );
+	      xerr = (float)(sizex + n_bigx) * thePitchX / std::sqrt( 12.0f );
+	      yerr = (float)(sizey + n_bigy) * thePitchY / std::sqrt( 12.0f );
 	      
 	    } // if ( qbin == 0 && inflate_errors )
 	  else
@@ -728,37 +719,42 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	    } 
 	  else 
 	    { 	 
+
+	      auto alpha = HALF_PI - std::atan(cotalpha_);
+	      auto beta = HALF_PI - std::atan(cotbeta_); 
+	      if (zneg) { beta -=PI; alpha -=PI;}
+
 	      pair<float,float> errPair = 	 
 		genErrorsFromDB_->getError( genErrorParm_, thePart, sizex, sizey, 	 
-					    alpha_, beta_, bigInX, bigInY ); 
+					    alpha, beta, bigInX, bigInY ); 
 	      if ( !edgex ) 
 		xerr = errPair.first; 	 
 	      if ( !edgey ) 
 		yerr = errPair.second; 	 
 	    } 	 
 	  
-	  if (theVerboseLevel > 9) 
-	    { 	 
-	      LogDebug("PixelCPEGeneric") << 	 
-		" Sizex = " << cluster.sizeX() << " Sizey = " << cluster.sizeY() << 	 
-		" Edgex = " << edgex           << " Edgey = " << edgey           << 	 
-		" ErrX  = " << xerr            << " ErrY  = " << yerr; 	 
-	    }
+	  LogDebug("PixelCPEGeneric") << 	 
+	    " Sizex = " << cluster.sizeX() << " Sizey = " << cluster.sizeY() << 	 
+	    " Edgex = " << edgex           << " Edgey = " << edgey           << 	 
+	    " ErrX  = " << xerr            << " ErrY  = " << yerr; 	 
+
 	  
 	} //if ( UseErrorsFromTemplates_ ) else 
       
     } // if ( !with_track_angle ) else
-  
-  if ( !(xerr > 0.0) )
+
+#ifdef EDM_ML_DEBUG
+    if ( !(xerr > 0.0) )
     throw cms::Exception("PixelCPEGeneric::localError") 
       << "\nERROR: Negative pixel error xerr = " << xerr << "\n\n";
   
   if ( !(yerr > 0.0) )
     throw cms::Exception("PixelCPEGeneric::localError") 
       << "\nERROR: Negative pixel error yerr = " << yerr << "\n\n";
+#endif
  
-  xerr_sq = xerr*xerr; 
-  yerr_sq = yerr*yerr;
+  auto xerr_sq = xerr*xerr; 
+  auto yerr_sq = yerr*yerr;
  
   return LocalError( xerr_sq, 0, yerr_sq );
 
