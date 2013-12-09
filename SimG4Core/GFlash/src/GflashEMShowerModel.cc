@@ -19,6 +19,8 @@
 #include "G4TouchableHandle.hh"
 #include "G4VSensitiveDetector.hh"
 
+using namespace CLHEP;
+
 GflashEMShowerModel::GflashEMShowerModel(const G4String& modelName, 
 					 G4Envelope* envelope, 
 					 const edm::ParameterSet& parSet)

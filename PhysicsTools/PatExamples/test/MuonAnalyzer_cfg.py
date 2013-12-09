@@ -26,7 +26,7 @@ process.TFileService=cms.Service('TFileService',
 
 
 process.muonAnalysis = cms.EDAnalyzer("ExampleMuonAnalyzer",
-                                      MuonCollection = cms.untracked.string('cleanLayer1Muons'),
+                                      MuonCollection = cms.untracked.InputTag('cleanLayer1Muons'),
                                       )
 
 

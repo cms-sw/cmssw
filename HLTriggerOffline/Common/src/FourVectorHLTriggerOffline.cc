@@ -1,3 +1,4 @@
+// $Id: FourVectorHLTriggerOffline.cc,v 1.40 2011/10/28 16:34:34 olzem Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "HLTriggerOffline/Common/interface/FourVectorHLTriggerOffline.h"
@@ -60,10 +61,27 @@ FourVectorHLTriggerOffline::FourVectorHLTriggerOffline(const edm::ParameterSet& 
     }
 
  
-  triggerSummaryLabel_ = 
-    iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
-  triggerResultsLabel_ = 
-    iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
+  triggerSummary_token_ = consumes<TriggerEvent>(iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"));
+  triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  triggerResults_token_ = consumes<TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResultsLabel"));
+
+  triggerResultsLabelFU_ = consumes<TriggerResults>(edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU"));
+  triggerSummaryLabelFU_ = consumes<TriggerEvent>(edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU"));
+
+
+  genParticles_token_ = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("genParticles"),edm::InputTag("genParticles")));
+  iterativeCone5GenJets_token_ = consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("iterativeCone5GenJets"),edm::InputTag("iterativeCone5GenJets")));
+  genMetTrue_token_ = consumes<reco::GenMETCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("genMetTrue"),edm::InputTag("genMetTrue")));
+  muonCollection_ = consumes<reco::MuonCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("muons"),edm::InputTag("muons")));
+  gsfElectronCollection_ = consumes<reco::GsfElectronCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("gsfElectrons"),edm::InputTag("gsfElectrons")));
+  caloRecoTauCollection_ = consumes<reco::CaloTauCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("caloRecoTauProducer"),edm::InputTag("caloRecoTauProducer")));
+  caloJetCollection_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("iterativeCone5CaloJets"),edm::InputTag("iterativeCone5CaloJets")));
+  jetTagCollection_ = consumes<reco::JetTagCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("jetTagCollection"),edm::InputTag("jetProbabilityBJetTags")));
+  softMuonBJetTags_ = consumes<reco::JetTagCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("softMuonBJetTags"),edm::InputTag("softMuonBJetTags")));
+  caloMetCollection_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("metCollection"),edm::InputTag("met")));
+  photonCollection_ = consumes<reco::PhotonCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("photonCollection"),edm::InputTag("photons")));
+  trackCollection_ = consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("trackCollection"),edm::InputTag("pixelTracks")));
 
   electronEtaMax_ = iConfig.getUntrackedParameter<double>("electronEtaMax",2.5);
   electronEtMin_ = iConfig.getUntrackedParameter<double>("electronEtMin",3.0);
@@ -123,7 +141,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   LogDebug("FourVectorHLTriggerOffline")<< " analyze...." ;
   
   Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel("genParticles", genParticles);
+  iEvent.getByToken(genParticles_token_, genParticles);
   if(!genParticles.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "genParticles not found, "
       "skipping event"; 
@@ -131,7 +149,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   Handle<reco::GenJetCollection> genJets;
-  iEvent.getByLabel("iterativeCone5GenJets",genJets);
+  iEvent.getByToken(iterativeCone5GenJets_token_,genJets);
   if(!genJets.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "genJets not found, "
       "skipping event"; 
@@ -139,7 +157,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   Handle<reco::GenMETCollection> genMets;
-  iEvent.getByLabel("genMetTrue",genMets);
+  iEvent.getByToken(genMetTrue_token_,genMets);
   if(!genMets.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "genMets not found, "
       "skipping event"; 
@@ -147,33 +165,31 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   edm::Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(triggerResultsLabel_,triggerResults);
+  iEvent.getByToken(triggerResults_token_,triggerResults);
   if(!triggerResults.isValid()) {
-    edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-   iEvent.getByLabel(triggerResultsLabelFU,triggerResults);
-  if(!triggerResults.isValid()) {
-    edm::LogInfo("FourVectorHLTriggerOffline") << "TriggerResults not found, "
-      "skipping event"; 
-    return;
-   }
+    iEvent.getByToken(triggerResultsLabelFU_,triggerResults);
+    if(!triggerResults.isValid()) {
+      edm::LogInfo("FourVectorHLTriggerOffline") << "TriggerResults not found, "
+	"skipping event"; 
+      return;
+    }
   }
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   int npath = triggerResults->size();
 
   edm::Handle<TriggerEvent> triggerObj;
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
+  iEvent.getByToken(triggerSummary_token_,triggerObj); 
   if(!triggerObj.isValid()) {
-    edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
-   iEvent.getByLabel(triggerSummaryLabelFU,triggerObj);
-  if(!triggerObj.isValid()) {
-    edm::LogInfo("FourVectorHLTriggerOffline") << "TriggerEvent not found, "
-      "skipping event"; 
-    return;
-   }
+    iEvent.getByToken(triggerSummaryLabelFU_,triggerObj);
+    if(!triggerObj.isValid()) {
+      edm::LogInfo("FourVectorHLTriggerOffline") << "TriggerEvent not found, "
+	"skipping event"; 
+      return;
+    }
   }
-
+  
   edm::Handle<reco::MuonCollection> muonHandle;
-  iEvent.getByLabel("muons",muonHandle);
+  iEvent.getByToken(muonCollection_,muonHandle);
   if(!muonHandle.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "muonHandle not found, ";
     //  "skipping event"; 
@@ -181,7 +197,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
    }
 
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  iEvent.getByLabel("gsfElectrons",gsfElectrons); 
+  iEvent.getByToken(gsfElectronCollection_,gsfElectrons); 
   if(!gsfElectrons.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "gsfElectrons not found, ";
       //"skipping event"; 
@@ -189,7 +205,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   edm::Handle<reco::CaloTauCollection> tauHandle;
-  iEvent.getByLabel("caloRecoTauProducer",tauHandle);
+  iEvent.getByToken(caloRecoTauCollection_,tauHandle);
   if(!tauHandle.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "tauHandle not found, ";
       //"skipping event"; 
@@ -197,7 +213,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   edm::Handle<reco::CaloJetCollection> jetHandle;
-  iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
+  iEvent.getByToken(caloJetCollection_,jetHandle);
   if(!jetHandle.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "jetHandle not found, ";
       //"skipping event"; 
@@ -206,7 +222,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
  
    // Get b tag information
  edm::Handle<reco::JetTagCollection> bTagIPHandle;
- iEvent.getByLabel("jetProbabilityBJetTags", bTagIPHandle);
+ iEvent.getByToken(jetTagCollection_, bTagIPHandle);
  if (!bTagIPHandle.isValid()) {
     edm::LogInfo("FourVectorHLTriggerOffline") << "mTagIPHandle trackCountingHighEffJetTags not found, ";
       //"skipping event"; 
@@ -215,7 +231,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
 
    // Get b tag information
  edm::Handle<reco::JetTagCollection> bTagMuHandle;
- iEvent.getByLabel("softMuonBJetTags", bTagMuHandle);
+ iEvent.getByToken(softMuonBJetTags_, bTagMuHandle);
  if (!bTagMuHandle.isValid()) {
     edm::LogInfo("FourVectorHLTriggerOffline") << "bTagMuHandle  not found, ";
       //"skipping event"; 
@@ -223,7 +239,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   edm::Handle<reco::CaloMETCollection> metHandle;
-  iEvent.getByLabel("met",metHandle);
+  iEvent.getByToken(caloMetCollection_,metHandle);
   if(!metHandle.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "metHandle not found, ";
       //"skipping event"; 
@@ -231,7 +247,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   edm::Handle<reco::PhotonCollection> photonHandle;
-  iEvent.getByLabel("photons",photonHandle);
+  iEvent.getByToken(photonCollection_,photonHandle);
   if(!photonHandle.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "photonHandle not found, ";
       //"skipping event"; 
@@ -239,7 +255,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   edm::Handle<reco::TrackCollection> trackHandle;
-  iEvent.getByLabel("pixelTracks",trackHandle);
+  iEvent.getByToken(trackCollection_,trackHandle);
   if(!trackHandle.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "trackHandle not found, ";
       //"skipping event"; 
@@ -1353,32 +1369,33 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 
     // from all the other maps, clean entries that have mapped value "topValue"
     // loop j
-    for ( mmset::iterator setIter_j = ++tempIter_i; setIter_j != tempSet.end( ); setIter_j++ ) 
+    for ( mmset::iterator setIter_j = ++tempIter_i; setIter_j != tempSet.end( ); ) 
     {
 
       fimmap tempMap_j = *setIter_j;
       //LogTrace("FourVectorHLTriggerOffline") << "  size of the map  = " << tempMap_j.size() << std::endl;
 
-      for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); ++it)
+      for (fimmap::iterator it = tempMap_j.begin(); it != tempMap_j.end(); )
       {
 
         if(topValue == (*it).second) 
 	{
 				  
           //LogTrace("FourVectorHLTriggerOffline") << "   Ridding map of a doubly-matched object." << std::endl;
-	  tempMap_j.erase(it);
+	  tempMap_j.erase(it++);
 
 	  cleanedOneMap = true;
 
 	}
+	else ++it;
 
-     } //end for
+      } //end for
 
      if(cleanedOneMap) 
      {
         
 	//remove the old map from the set
-	tempSet.erase(setIter_j);
+	tempSet.erase(setIter_j++);
 
 	// insert in the set the new map if it is not an empty map
 	if(! tempMap_j.empty()) tempSet.insert(tempMap_j);
@@ -1386,6 +1403,7 @@ void FourVectorHLTriggerOffline::cleanDRMatchSet(mmset& tempSet)
 	break; // break from loop j
 
      } // end if
+     else ++setIter_j;
 
     }// end loop j 
 

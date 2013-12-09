@@ -20,6 +20,12 @@
 // dqm includes
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+//dataFormats
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 
 class BxTiming : public edm::EDAnalyzer {
@@ -32,6 +38,7 @@ class BxTiming : public edm::EDAnalyzer {
  protected:
 
   virtual void beginJob(void) ;
+  virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
@@ -39,7 +46,9 @@ class BxTiming : public edm::EDAnalyzer {
 
   // input
   edm::InputTag fedSource_;
+  edm::EDGetTokenT<FEDRawDataCollection> fedSource_token_;
   edm::InputTag gtSource_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtSource_token_;
 
   // debug verbose level
   int verbose_;

@@ -12,6 +12,12 @@ class MagneticField;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+
+namespace reco {class BeamSpot;}
+
 class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
  {
   public:
@@ -23,23 +29,23 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
 
   private:
 
-    edm::InputTag mcTruthCollection_;
-    edm::InputTag electronCollection_;
-    edm::InputTag electronCoreCollection_;
-    edm::InputTag electronTrackCollection_;
-    edm::InputTag electronSeedCollection_;
-    edm::InputTag beamSpotTag_ ;
+    edm::EDGetTokenT<reco::GenParticleCollection> mcTruthCollection_;
+    edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;
+    edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
+    edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
+    edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
     bool readAOD_;
     //std::string outputFile_ ;
 
-    edm::InputTag isoFromDepsTk03Tag_ ;
-    edm::InputTag isoFromDepsTk04Tag_ ;
-    edm::InputTag isoFromDepsEcalFull03Tag_ ;
-    edm::InputTag isoFromDepsEcalFull04Tag_ ;
-    edm::InputTag isoFromDepsEcalReduced03Tag_ ;
-    edm::InputTag isoFromDepsEcalReduced04Tag_ ;
-    edm::InputTag isoFromDepsHcal03Tag_ ;
-    edm::InputTag isoFromDepsHcal04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsTk03Tag_;
+    edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsTk04Tag_;
+    edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsEcalFull03Tag_;
+    edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsEcalFull04Tag_;
+    edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsEcalReduced03Tag_;
+    edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsEcalReduced04Tag_;
+    edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsHcal03Tag_;
+    edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsHcal04Tag_;
 
     edm::ESHandle<TrackerGeometry> pDD ;
     edm::ESHandle<MagneticField> theMagField ;
@@ -71,7 +77,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     int mee_nbin ; double mee_min ; double mee_max ;
     int hoe_nbin ; double hoe_min ; double hoe_max ;
     int poptrue_nbin ; double poptrue_min ; double poptrue_max ;
-    int error_nbin ; double enerror_max ;  
+    int error_nbin ; double enerror_max ;
 
     // histos
 
@@ -173,12 +179,12 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h2_ele_vertexTIPVsEta;
     MonitorElement *h2_ele_vertexTIPVsPhi;
     MonitorElement *h2_ele_vertexTIPVsPt;
-    MonitorElement *h1_ele_ecalEnergyError;		    
-    MonitorElement *h1_ele_ecalEnergyError_barrel;      
-    MonitorElement *h1_ele_ecalEnergyError_endcaps;     
-    MonitorElement *h1_ele_combinedP4Error;             
-    MonitorElement *h1_ele_combinedP4Error_barrel;      
-    MonitorElement *h1_ele_combinedP4Error_endcaps;     
+    MonitorElement *h1_ele_ecalEnergyError;
+    MonitorElement *h1_ele_ecalEnergyError_barrel;
+    MonitorElement *h1_ele_ecalEnergyError_endcaps;
+    MonitorElement *h1_ele_combinedP4Error;
+    MonitorElement *h1_ele_combinedP4Error_barrel;
+    MonitorElement *h1_ele_combinedP4Error_endcaps;
 
     MonitorElement *h1_scl_En;
     MonitorElement *h1_scl_EoEtrue_barrel;
@@ -486,7 +492,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth1_endcaps;
     MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2;
     MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2_barrel;
-    MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2_endcaps;    
+    MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2_endcaps;
     MonitorElement *h1_ele_tkSumPt_dr04;
     MonitorElement *h1_ele_tkSumPt_dr04_barrel;
     MonitorElement *h1_ele_tkSumPt_dr04_endcaps;
@@ -508,7 +514,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dIso_ecalReducedRecHitSumEt_dr04;
     MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr03;
     MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr04;
-    
+
     MonitorElement *h1_ele_hcalDepth1OverEcalBc;
     MonitorElement *h1_ele_hcalDepth1OverEcalBc_barrel;
     MonitorElement *h1_ele_hcalDepth1OverEcalBc_endcaps;
@@ -516,17 +522,17 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_hcalDepth2OverEcalBc_barrel;
     MonitorElement *h1_ele_hcalDepth2OverEcalBc_endcaps;
 
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1;   
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1_barrel;    
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1_endcaps;    
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2;  
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel;   
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1_barrel;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth1_endcaps;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel;
     MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps;
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1;    
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1_barrel;   
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1_endcaps;   
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2;    
-    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel; 
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1_barrel;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1_endcaps;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2;
+    MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel;
     MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2_endcaps;
 
     // conversions

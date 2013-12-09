@@ -20,6 +20,7 @@
 #include "G4FastSimulationManager.hh"
 #include "G4TouchableHandle.hh"
 #include "G4VSensitiveDetector.hh"
+#include "G4SystemOfUnits.hh"
 
 GFlashEMShowerModel::GFlashEMShowerModel(const G4String& modelName, 
 					 G4Envelope* envelope, 

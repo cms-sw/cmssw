@@ -4,7 +4,6 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtFullHadSignalSelEval.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -13,12 +12,12 @@
 
 
 TtFullHadSignalSelMVAComputer::TtFullHadSignalSelMVAComputer(const edm::ParameterSet& cfg):
-  jets_    (cfg.getParameter<edm::InputTag>("jets"))
+  jetsToken_    (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets")))
 {
   produces< double >("DiscSel");
 }
 
-  
+
 
 TtFullHadSignalSelMVAComputer::~TtFullHadSignalSelMVAComputer()
 {
@@ -28,7 +27,7 @@ void
 TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   std::auto_ptr< double > pOutDisc (new double);
- 
+
   mvaComputer.update<TtFullHadSignalSelMVARcd>(setup, "ttFullHadSignalSelMVA");
 
   // read name of the last processor in the MVA calibration
@@ -39,8 +38,8 @@ TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
     = (calibContainer->find("ttFullHadSignalSelMVA")).getProcessors();
 
   edm::Handle< std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
-  
+  evt.getByToken(jetsToken_, jets);
+
   //calculation of InputVariables
   //see TopQuarkAnalysis/TopTools/interface/TtFullHadSignalSel.h
   //                             /src/TtFullHadSignalSel.cc
@@ -51,18 +50,18 @@ TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
   double discrim = evaluateTtFullHadSignalSel(mvaComputer, selection);
 
   *pOutDisc = discrim;
-  
+
   evt.put(pOutDisc, "DiscSel");
-  
+
   DiscSel = discrim;
 }
 
-void 
+void
 TtFullHadSignalSelMVAComputer::beginJob()
 {
 }
 
-void 
+void
 TtFullHadSignalSelMVAComputer::endJob()
 {
 }

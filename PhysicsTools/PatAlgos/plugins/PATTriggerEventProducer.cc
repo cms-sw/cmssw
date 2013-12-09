@@ -6,13 +6,12 @@
 
 #include <cassert>
 
+#include "FWCore/Utilities/interface/transform.h"
+
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -49,9 +48,21 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   if ( iConfig.exists( "triggerResults" ) )     tagTriggerResults_  = iConfig.getParameter< InputTag >( "triggerResults" );
   if ( iConfig.exists( "triggerEvent" ) )       tagTriggerEvent_    = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
-  if ( iConfig.exists( "condGtTag" ) )          tagCondGt_          = iConfig.getParameter< InputTag >( "condGtTag" );
-  if ( iConfig.exists( "l1GtTag" ) )            tagL1Gt_            = iConfig.getParameter< InputTag >( "l1GtTag" );
-  if ( iConfig.exists( "patTriggerMatches" ) )  tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
+  triggerAlgorithmCollectionToken_ = mayConsume< TriggerAlgorithmCollection >( tagTriggerProducer_ );
+  triggerConditionCollectionToken_ = mayConsume< TriggerConditionCollection >( tagTriggerProducer_ );
+  triggerPathCollectionToken_      = mayConsume< TriggerPathCollection >( tagTriggerProducer_ );
+  triggerFilterCollectionToken_    = mayConsume< TriggerFilterCollection >( tagTriggerProducer_ );
+  triggerObjectCollectionToken_    = mayConsume< TriggerObjectCollection >( tagTriggerProducer_ );
+  if ( iConfig.exists( "condGtTag" ) ) {
+    tagCondGt_           = iConfig.getParameter< InputTag >( "condGtTag" );
+    tagCondGtRunToken_   = mayConsume< ConditionsInRunBlock, InRun >( tagCondGt_ );
+    tagCondGtLumiToken_  = mayConsume< ConditionsInLumiBlock, InLumi >( tagCondGt_ );
+    tagCondGtEventToken_ = mayConsume< ConditionsInEventBlock >( tagCondGt_ );
+  }
+  if ( iConfig.exists( "l1GtTag" ) ) tagL1Gt_ = iConfig.getParameter< InputTag >( "l1GtTag" );
+  l1GtToken_ = mayConsume< L1GlobalTriggerReadoutRecord >( tagL1Gt_ );
+  if ( iConfig.exists( "patTriggerMatches" ) ) tagsTriggerMatcher_ = iConfig.getParameter< std::vector< InputTag > >( "patTriggerMatches" );
+  triggerMatcherTokens_ = vector_transform( tagsTriggerMatcher_, [this](edm::InputTag const & tag) { return mayConsume< TriggerObjectStandAloneMatch >( tag ); } );
 
   for ( size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch ) {
     produces< TriggerObjectMatch >( tagsTriggerMatcher_.at( iMatch ).label() );
@@ -96,6 +107,7 @@ void PATTriggerEventProducer::beginRun(const Run & iRun, const EventSetup & iSet
   } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
     LogWarning( "triggerResultsTag" ) << "TriggerResults process name '" << tagTriggerResults_.process() << "' differs from HLT process name '" << nameProcess_ << "'";
   }
+//   triggerResultsToken_ = mayConsume< TriggerResults >( tagTriggerResults_ ); // FIXME: This works only in the c'tor!
   if ( tagTriggerEvent_.process().empty() || tagTriggerEvent_.process()   == "*" ) {
     tagTriggerEvent_ = InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance(), nameProcess_ );
   } else if ( tagTriggerEvent_.process() != nameProcess_ ) {
@@ -105,7 +117,7 @@ void PATTriggerEventProducer::beginRun(const Run & iRun, const EventSetup & iSet
   gtCondRunInit_ = false;
   if ( ! tagCondGt_.label().empty() ) {
     Handle< ConditionsInRunBlock > condRunBlock;
-    iRun.getByLabel( tagCondGt_, condRunBlock );
+    iRun.getByToken( tagCondGtRunToken_, condRunBlock );
     if ( condRunBlock.isValid() ) {
       condRun_       = *condRunBlock;
       gtCondRunInit_ = true;
@@ -134,7 +146,7 @@ void PATTriggerEventProducer::beginLuminosityBlock(const LuminosityBlock & iLumi
   gtCondLumiInit_ = false;
   if ( ! tagCondGt_.label().empty() ) {
     Handle< ConditionsInLumiBlock > condLumiBlock;
-    iLuminosityBlock.getByLabel( tagCondGt_, condLumiBlock );
+    iLuminosityBlock.getByToken( tagCondGtLumiToken_, condLumiBlock );
     if ( condLumiBlock.isValid() ) {
       condLumi_       = *condLumiBlock;
       gtCondLumiInit_ = true;
@@ -158,26 +170,27 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
   iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
   Handle< TriggerResults > handleTriggerResults;
   iEvent.getByLabel( tagTriggerResults_, handleTriggerResults );
+//   iEvent.getByToken( triggerResultsToken_, handleTriggerResults );
   if ( ! handleTriggerResults.isValid() ) {
     LogError( "triggerResultsValid" ) << "TriggerResults product with InputTag '" << tagTriggerResults_.encode() << "' not in event\n"
                                       << "No trigger information produced";
     return;
   }
   Handle< TriggerAlgorithmCollection > handleTriggerAlgorithms;
-  iEvent.getByLabel( tagTriggerProducer_, handleTriggerAlgorithms );
+  iEvent.getByToken( triggerAlgorithmCollectionToken_, handleTriggerAlgorithms );
   Handle< TriggerConditionCollection > handleTriggerConditions;
-  iEvent.getByLabel( tagTriggerProducer_, handleTriggerConditions );
+  iEvent.getByToken( triggerConditionCollectionToken_, handleTriggerConditions );
   Handle< TriggerPathCollection > handleTriggerPaths;
-  iEvent.getByLabel( tagTriggerProducer_, handleTriggerPaths );
+  iEvent.getByToken( triggerPathCollectionToken_, handleTriggerPaths );
   Handle< TriggerFilterCollection > handleTriggerFilters;
-  iEvent.getByLabel( tagTriggerProducer_, handleTriggerFilters );
+  iEvent.getByToken( triggerFilterCollectionToken_, handleTriggerFilters );
   Handle< TriggerObjectCollection > handleTriggerObjects;
-  iEvent.getByLabel( tagTriggerProducer_, handleTriggerObjects );
+  iEvent.getByToken( triggerObjectCollectionToken_, handleTriggerObjects );
 
   bool physDecl( false );
   if ( iEvent.isRealData() && ! tagL1Gt_.label().empty() ) {
     Handle< L1GlobalTriggerReadoutRecord > handleL1GlobalTriggerReadoutRecord;
-    iEvent.getByLabel( tagL1Gt_, handleL1GlobalTriggerReadoutRecord );
+    iEvent.getByToken( l1GtToken_, handleL1GlobalTriggerReadoutRecord );
     if ( handleL1GlobalTriggerReadoutRecord.isValid() ) {
       L1GtFdlWord fdlWord = handleL1GlobalTriggerReadoutRecord->gtFdlWord();
       if ( fdlWord.physicsDeclared() == 1 ) {
@@ -234,7 +247,7 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
   }
   if ( ! tagCondGt_.label().empty() ) {
     Handle< ConditionsInEventBlock > condEventBlock;
-    iEvent.getByLabel( tagCondGt_, condEventBlock );
+    iEvent.getByToken( tagCondGtEventToken_, condEventBlock );
     if ( condEventBlock.isValid() ) {
       triggerEvent->setBstMasterStatus( condEventBlock->bstMasterStatus );
       triggerEvent->setTurnCount( condEventBlock->turnCountNumber );
@@ -250,7 +263,7 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
       // copy trigger match association using TriggerObjectStandAlone to those using TriggerObject
       // relying on the fact, that only one candidate collection is present in the association
       Handle< TriggerObjectStandAloneMatch > handleTriggerObjectStandAloneMatch;
-      iEvent.getByLabel( labelTriggerObjectMatcher, handleTriggerObjectStandAloneMatch );
+      iEvent.getByToken( triggerMatcherTokens_.at( iMatch ), handleTriggerObjectStandAloneMatch );
       if ( ! handleTriggerObjectStandAloneMatch.isValid() ) {
         LogError( "triggerMatchValid" ) << "pat::TriggerObjectStandAloneMatch product with InputTag '" << labelTriggerObjectMatcher << "' not in event";
         continue;

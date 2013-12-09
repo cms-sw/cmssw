@@ -47,9 +47,10 @@ Description: SiStrip-driven electron seed finding algorithm.
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
 
-SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterSet &pset)
- : beamSpotTag_("offlineBeamSpot"),
+SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterSet &pset, const SiStripElectronSeedGenerator::Tokens& tokens)
+ : beamSpotTag_(tokens.token_bs),
    theUpdator(0),thePropagator(0),theMeasurementTracker(0),
+   theMeasurementTrackerEventTag(tokens.token_mte),
    theSetup(0), theMatcher_(0),
    cacheIDMagField_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0),
    tibOriginZCut_(pset.getParameter<double>("tibOriginZCut")),
@@ -76,13 +77,13 @@ SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterS
   // use of a theMeasurementTrackerName
   if (pset.exists("measurementTrackerName"))
    { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
-  if (pset.existsAs<edm::InputTag>("measurementTrackerEvent")) {
-    theMeasurementTrackerEventTag = pset.getParameter<edm::InputTag>("measurementTrackerEvent");
-  }
+  
 
   // new beamSpot tag
+  /*
   if (pset.exists("beamSpot"))
    { beamSpotTag_ = pset.getParameter<edm::InputTag>("beamSpot") ; }
+  */
 
   theUpdator = new KFUpdator();
   theEstimator = new Chi2MeasurementEstimator(30,3);
@@ -121,10 +122,11 @@ void  SiStripElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& se
 					const edm::Handle<reco::SuperClusterCollection> &clusters,
 					reco::ElectronSeedCollection & out) {
   theSetup= &setup;
-  e.getByLabel(beamSpotTag_,theBeamSpot);
 
+  e.getByToken(beamSpotTag_,theBeamSpot);
   edm::Handle<MeasurementTrackerEvent> data;
-  e.getByLabel(theMeasurementTrackerEventTag, data);
+  e.getByToken(theMeasurementTrackerEventTag, data);
+
 
   for  (unsigned int i=0;i<clusters->size();++i) {
     edm::Ref<reco::SuperClusterCollection> theClusB(clusters,i);

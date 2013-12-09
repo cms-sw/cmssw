@@ -6,6 +6,7 @@
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
 #include "testPayloadObj.h"
+#include <iostream>
 int main(){
   edmplugin::PluginManager::Config config;
   try{

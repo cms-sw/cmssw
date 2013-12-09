@@ -32,19 +32,19 @@ class PFMETAnalyzerBase {
 
   /// Constructor
   PFMETAnalyzerBase() {}
-  
+
   /// Destructor
   virtual ~PFMETAnalyzerBase() {}
-  
+
   /// Inizialize parameters for histo binning
   virtual void beginJob(DQMStore * dbe)= 0;
 
   /// Get the analysis of the muon properties
-    void analyze(const edm::Event&, const edm::EventSetup&, 
+    void analyze(const edm::Event&, const edm::EventSetup&,
 		 const edm::TriggerResults&,
                  reco::PFMET& pfMET){}
 
  private:
   // ----------member data ---------------------------
 };
-#endif  
+#endif

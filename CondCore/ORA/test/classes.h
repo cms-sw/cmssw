@@ -385,7 +385,6 @@ class SimpleClass : public BaseClass {
     return s_data;
   }
   
-  static int s_data1;
   static int const s_data0= 0xFFFF;
   static const int s_data = 0x0FFF;
   enum MySimpleClassCode { ZERO, ONE, TWO };
@@ -1417,16 +1416,18 @@ class SH {
 
 }  // namespace testORA
 
-namespace {
-  std::vector<double>::iterator dummy1;
-  std::vector<int>::iterator dummy2;
-  std::vector<int16_t>::iterator dummy3;
-  std::vector<short>::iterator dummy4;
-  std::vector<float>::iterator dummy5;
-  std::vector<testORA::Entry>::iterator dummy6;
-  std::vector<testORA::SiStripNoises::DetRegistry>::iterator dummy7;
-  std::vector<std::vector<double> >::iterator dummy8;
-  std::pair<size_t,testORA::SM> dummy9;
+namespace CondCore_ORA {
+  struct dictionary {
+    std::vector<double>::iterator dummy1;
+    std::vector<int>::iterator dummy2;
+    std::vector<int16_t>::iterator dummy3;
+    std::vector<short>::iterator dummy4;
+    std::vector<float>::iterator dummy5;
+    std::vector<testORA::Entry>::iterator dummy6;
+    std::vector<testORA::SiStripNoises::DetRegistry>::iterator dummy7;
+    std::vector<std::vector<double> >::iterator dummy8;
+    std::pair<size_t,testORA::SM> dummy9;
+  };
 }
 
 #endif

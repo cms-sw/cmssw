@@ -49,14 +49,14 @@ TruncatedPyramid::TruncatedPyramid( const CornersMgr*  cMgr ,
    CaloCellGeometry ( fCtr, cMgr, parV ) ,
    m_axis           ( ( bCtr - fCtr ).unit() ) ,
    m_corOne         ( cor1.x(), cor1.y(), cor1.z() ) 
-{} 
+{initSpan();} 
 
 TruncatedPyramid::TruncatedPyramid( const CornersVec& corn ,
 				    const CCGFloat*   par    ) :
    CaloCellGeometry ( corn, par   ) , 
    m_axis           ( makeAxis()  ) ,
    m_corOne         ( corn[0].x(), corn[0].y(), corn[0].z()  )
-{} 
+{initSpan();} 
 
 TruncatedPyramid::~TruncatedPyramid() 
 {}

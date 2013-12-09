@@ -64,12 +64,14 @@ private:
   void  postEndJob();
   void  jobFailure();
   
-  void  preSource  ();
-  void  postSource ();
+  void  preSourceEvent  ( StreamID );
+  void  postSourceEvent ( StreamID );
+  void  preSourceRunLumi  ();
+  void  postSourceRunLumi ();
   
-  void  preFile       ( std::string const &, bool );
+  void  preFile       ( std::string const&, bool );
   void  preFileClose  ( std::string const&, bool );
-  void  postFile      ( std::string const &, bool );
+  void  postFile      ( std::string const&, bool );
   
   void  preModuleConstruction ( ModuleDescription const & );
   void  postModuleConstruction( ModuleDescription const & );

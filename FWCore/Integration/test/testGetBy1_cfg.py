@@ -3,11 +3,33 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD1")
 
 process.Tracer = cms.Service('Tracer',
-                             dumpContextForLabel = cms.untracked.string('intProducerA'),
+                             dumpContextForLabels = cms.untracked.vstring('intProducerA'),
                              dumpNonModuleContext = cms.untracked.bool(True)
 )
 
-process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations   = cms.untracked.vstring('cout',
+                                           'cerr'
+    ),
+    categories = cms.untracked.vstring(
+        'Tracer'
+    ),
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet (
+            limit = cms.untracked.int32(0)
+        ),
+        Tracer = cms.untracked.PSet(
+            limit=cms.untracked.int32(100000000)
+        )
+    )
+)
+
+process.options = cms.untracked.PSet(
+    allowUnscheduled = cms.untracked.bool(True),
+    numberOfStreams = cms.untracked.uint32(1),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
+)
 
 process.source = cms.Source("IntSource")
 process.maxEvents = cms.untracked.PSet(

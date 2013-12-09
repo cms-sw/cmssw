@@ -54,6 +54,7 @@ class MuonIdDQM : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob();
+      virtual void beginRun(const edm::Run&, const edm::EventSetup&);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       virtual void Fill(MonitorElement*, float);
@@ -61,9 +62,9 @@ class MuonIdDQM : public edm::EDAnalyzer {
       DQMStore* dbe_;
 
       // ----------member data ---------------------------
-      edm::InputTag inputMuonCollection_;
-      edm::InputTag inputDTRecSegment4DCollection_;
-      edm::InputTag inputCSCSegmentCollection_;
+      edm::EDGetTokenT<reco::MuonCollection> inputMuonCollection_;
+      edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DCollection_;
+      edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentCollection_;
       bool useTrackerMuons_;
       bool useGlobalMuons_;
       bool useTrackerMuonsNotGlobalMuons_;

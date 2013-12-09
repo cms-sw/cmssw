@@ -4,23 +4,18 @@
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 #include "PhysicsTools/MVATrainer/interface/HelperMacros.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
 #include "TopQuarkAnalysis/TopEventSelection/plugins/TtSemiLepSignalSelMVATrainer.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLepSignalSelEval.h"
 
-#include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Flags.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 
 TtSemiLepSignalSelMVATrainer::TtSemiLepSignalSelMVATrainer(const edm::ParameterSet& cfg):
-  muons_     (cfg.getParameter<edm::InputTag>("muons")),
-  electrons_ (cfg.getParameter<edm::InputTag>("elecs")),
-  jets_      (cfg.getParameter<edm::InputTag>("jets")),
-  METs_      (cfg.getParameter<edm::InputTag>("mets")),
+  muonsToken_     (consumes< edm::View<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
+  electronsToken_ (consumes< edm::View<pat::Electron> >(cfg.getParameter<edm::InputTag>("elecs"))),
+  jetsToken_      (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+  METsToken_      (consumes<edm::View<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
+  genEvtToken_      (consumes<TtGenEvent>(edm::InputTag("genEvt"))),
   lepChannel_(cfg.getParameter<int>("lepChannel")),
   whatData_  (cfg.getParameter<int>("whatData")),
   maxEv_     (cfg.getParameter<int>("maxEv"))
@@ -37,20 +32,20 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
   //communication with CMSSW CondDB
   mvaComputer.update<TtSemiLepSignalSelMVARcd>("trainer", setup, "traintreeSaver");
 
-  // can occur in the last iteration when the 
+  // can occur in the last iteration when the
   // MVATrainer is about to save the result
   if(!mvaComputer) return;
 
 
   //make your preselection here!!
-  //the following code is for the default example  
+  //the following code is for the default example
   edm::Handle<edm::View<pat::MET> > MET_handle;
-  evt.getByLabel(METs_,MET_handle);
+  evt.getByToken(METsToken_,MET_handle);
   if(!MET_handle.isValid()) return;
   const edm::View<pat::MET> MET = *MET_handle;
 
   edm::Handle< std::vector<pat::Jet> > jet_handle;
-  evt.getByLabel(jets_, jet_handle);
+  evt.getByToken(jetsToken_, jet_handle);
   if(!jet_handle.isValid()) return;
   const std::vector<pat::Jet> jets = *jet_handle;
   unsigned int nJets = 0;
@@ -69,9 +64,9 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
 
   //sort by Pt
   sort(seljets.begin(),seljets.end(),JetwithHigherPt());
- 
-  edm::Handle< edm::View<pat::Muon> > muon_handle; 
-  evt.getByLabel(muons_, muon_handle);
+
+  edm::Handle< edm::View<pat::Muon> > muon_handle;
+  evt.getByToken(muonsToken_, muon_handle);
   if(!muon_handle.isValid()) return;
   const edm::View<pat::Muon> muons = *muon_handle;
   int nmuons = 0;
@@ -79,10 +74,10 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
   for(edm::View<pat::Muon>::const_iterator it = muons.begin(); it!=muons.end(); it++) {
     reco::TrackRef gltr = it->track(); // global track
     reco::TrackRef trtr = it->innerTrack(); // tracker track
-    if(it->pt()>30 && fabs(it->eta())<2.1 && (it->pt()/(it->pt()+it->trackIso()+it->caloIso()))>0.95 && it->isGlobalMuon()){      
+    if(it->pt()>30 && fabs(it->eta())<2.1 && (it->pt()/(it->pt()+it->trackIso()+it->caloIso()))>0.95 && it->isGlobalMuon()){
       if(gltr.isNull()) continue;  //temporary problems with dead trackrefs
       if((gltr->chi2()/gltr->ndof())<10 && trtr->numberOfValidHits()>=11) {
-     
+
         double dRmin = 9999.;
         for(std::vector<pat::Jet>::const_iterator ajet = seljets.begin(); ajet != seljets.end(); ajet++) {
           math::XYZTLorentzVector jet = ajet->p4();
@@ -90,7 +85,6 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
           double tmpdR = DeltaR(muon,jet);
           if(tmpdR<dRmin) dRmin = tmpdR;
         }
-        reco::TrackRef trtr = it->track(); // tracker track
         if(dRmin>0.3) {   //temporary problems with muon isolation
           nmuons++;
           selMuons.push_back(*it);
@@ -100,22 +94,22 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
   }
   //std::cout<<"selected Muons: "<<nleptons<<std::endl;
   if(nmuons!=1) return;
-  
-  edm::Handle< edm::View<pat::Electron> > electron_handle; 
-  evt.getByLabel(electrons_, electron_handle);
+
+  edm::Handle< edm::View<pat::Electron> > electron_handle;
+  evt.getByToken(electronsToken_, electron_handle);
   if(!electron_handle.isValid()) return;
   const edm::View<pat::Electron> electrons = *electron_handle;
   int nelectrons = 0;
   for(edm::View<pat::Electron>::const_iterator it = electrons.begin(); it!=electrons.end(); it++) {
     if(it->pt()>30 && fabs(it->eta())<2.4 && (it->pt()/(it->pt()+it->trackIso()+it->caloIso()))>0.95 && it->isElectronIDAvailable("eidTight"))
-    { 
+    {
       if(it->electronID("eidTight")==1) nelectrons++;
     }
   }
   if(nelectrons>0) return;
   //end of the preselection
 
-  
+
   math::XYZTLorentzVector muon = selMuons.begin()->p4();
 
   //count the number of selected events
@@ -133,17 +127,17 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
 
   //this is only needed for the default example
   edm::Handle<TtGenEvent> genEvt;
-  evt.getByLabel("genEvt", genEvt);
+  evt.getByToken(genEvtToken_, genEvt);
 
-  double weight = 1.0; //standard no weight, i.e. weight=1.0, set this to the corresponding weight if 
-                       //different weights for different events are available  
+  double weight = 1.0; //standard no weight, i.e. weight=1.0, set this to the corresponding weight if
+                       //different weights for different events are available
   if(whatData_==-1) {  //your training-file contains both, signal and background events
     bool isSignal;
     isSignal = true;//true for signal, false for background this has to be derived in some way
     evaluateTtSemiLepSignalSel(mvaComputer, selection, weight, true, isSignal);
   }
   else {
-   
+
     if(whatData_==1){ //your tree contains only signal events
       //if needed do a special signal selection here
       //the following code is for the default example

@@ -30,6 +30,7 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
 
@@ -109,6 +110,10 @@ private:
 
  // Reference Collection
   edm::InputTag refCollectionInputTag_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
+  edm::EDGetTokenT<reco::PFTauCollection> tauProducerInputTagToken_;
+  edm::EDGetTokenT<reco::VertexCollection> primaryVertexCollectionToken_;
+  std::vector <edm::EDGetTokenT<reco::PFTauDiscriminator> > currentDiscriminatorToken_;
   std::string refCollection_;
 
   // In case you need to distinguish the output file

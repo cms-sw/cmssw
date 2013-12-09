@@ -31,6 +31,7 @@ PFCandidateBenchmarkAnalyzer::PFCandidateBenchmarkAnalyzer(const edm::ParameterS
 	    parameterSet.getParameter<double>("phiMin"),
 	    parameterSet.getParameter<double>("phiMax") );
 
+  myColl_ = consumes< PFCandidateCollection >(inputLabel_);
 }
 
 
@@ -46,10 +47,10 @@ void
 PFCandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup) {
   
-
   
   Handle<PFCandidateCollection> collection; 
-  iEvent.getByLabel( inputLabel_, collection); 
+  //iEvent.getByLabel( inputLabel_, collection); 
+  iEvent.getByToken(myColl_, collection);
 
   fill( *collection );
 }

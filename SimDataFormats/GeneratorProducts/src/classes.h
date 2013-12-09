@@ -18,7 +18,7 @@
 
 #include <HepMC/GenRanges.h>
 
-namespace {
+namespace SimDataFormats_GeneratorProducts {
 	struct dictionary {
 		// HepMC externals used in HepMCProduct
 
@@ -59,6 +59,8 @@ namespace {
 		// LHE products
 
 		edm::Wrapper<LHERunInfoProduct>	wcommon;
+	        gen::WeightsInfo wwgtinfo;
+	        std::vector<gen::WeightsInfo> wvwgtinfo;
 		edm::Wrapper<LHEEventProduct>	wevent;
                 edm::Wrapper<LHEXMLStringProduct> wstring;
 	};

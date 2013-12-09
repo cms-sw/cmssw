@@ -39,6 +39,19 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// GCT and RCT data formats
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
+
+// L1Extra
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+
+// Ecal
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -69,8 +82,12 @@ protected:
 // BeginJob
  void beginJob(void);
 
+// BeginRun
+ void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+
+
 // EndJob
-void endJob(void);
+ void endJob(void);
 
 private:
   // ----------member data ---------------------------
@@ -101,9 +118,17 @@ private:
   bool monitorDaemon_;
   std::ofstream logFile_;
 
+  edm::EDGetTokenT<L1CaloEmCollection> rctSourceEm_token_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceRctEmRgn_token_;
   edm::InputTag rctSource_;
   edm::InputTag gctSource_;
   edm::InputTag ecalTpgSource_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTpgSource_token_;
+
+  //define Token(-s)
+  edm::EDGetTokenT<L1GctJetCandCollection> gctCenJetsToken_;
+  edm::EDGetTokenT<L1GctEmCandCollection> gctIsoEmCandsToken_;
+  edm::EDGetTokenT<L1GctEmCandCollection> gctNonIsoEmCandsToken_;
   
   class RctObject {
   public:

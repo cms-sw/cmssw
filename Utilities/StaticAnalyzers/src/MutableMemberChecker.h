@@ -12,6 +12,7 @@
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 
 #include "CmsException.h"
+#include "CmsSupport.h"
 
 namespace clangcms {
 class MutableMemberChecker : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::FieldDecl> > {

@@ -19,6 +19,7 @@
 #include <G4PhaseSpaceDecayChannel.hh>
 #include "G4ProcessManager.hh"
 
+using namespace CLHEP;
 
 bool CustomParticleFactory::loaded = false;
 std::set<G4ParticleDefinition *> CustomParticleFactory::m_particles;

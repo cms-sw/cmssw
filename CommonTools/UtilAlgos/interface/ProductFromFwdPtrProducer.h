@@ -4,7 +4,7 @@
 
 /**
   \class    edm::ProductFromFwdPtrProducer ProductFromFwdPtrProducer.h "CommonTools/UtilAlgos/interface/ProductFromFwdPtrProducer.h"
-  \brief    Produces a list of objects "by value" that correspond to the FwdPtr's from an input collection. 
+  \brief    Produces a list of objects "by value" that correspond to the FwdPtr's from an input collection.
 
 
   \author   Salvatore Rappoccio
@@ -24,24 +24,24 @@ namespace edm {
 
 
 
-  template < class T, class H = ProductFromFwdPtrFactory<T> > 
+  template < class T, class H = ProductFromFwdPtrFactory<T> >
   class ProductFromFwdPtrProducer : public edm::EDProducer {
   public :
     explicit ProductFromFwdPtrProducer( edm::ParameterSet const & params ) :
-      src_   ( params.getParameter<edm::InputTag>("src") )
+      srcToken_   ( consumes< std::vector<edm::FwdPtr<T> > >( params.getParameter<edm::InputTag>("src") ) )
     {
       produces< std::vector<T> > ();
     }
-    
+
     ~ProductFromFwdPtrProducer() {}
 
     virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override {
 
       edm::Handle< std::vector<edm::FwdPtr<T> > > hSrc;
-      iEvent.getByLabel( src_, hSrc );
-      
+      iEvent.getByToken( srcToken_, hSrc );
+
       std::auto_ptr< std::vector<T> > pOutput ( new std::vector<T> );
-      
+
       for ( typename std::vector< edm::FwdPtr<T> >::const_iterator ibegin = hSrc->begin(),
 	      iend = hSrc->end(),
 	      i = ibegin; i!= iend; ++i ) {
@@ -49,13 +49,13 @@ namespace edm {
 	T t = factory(*i);
 	pOutput->push_back( t );
       }
-      
-      
-      iEvent.put( pOutput );      
+
+
+      iEvent.put( pOutput );
     }
-    
+
   protected :
-    edm::InputTag src_;
+    edm::EDGetTokenT< std::vector<edm::FwdPtr<T> > > srcToken_;
   };
 }
 

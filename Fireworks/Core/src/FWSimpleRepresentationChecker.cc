@@ -37,8 +37,9 @@
 FWSimpleRepresentationChecker::FWSimpleRepresentationChecker(const std::string& iTypeName,
                                                              const std::string& iPurpose,
                                                              unsigned int iBitPackedViews,
-                                                             bool iRepresentsSubPart) :
-   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart),
+                                                             bool iRepresentsSubPart,
+                                                             bool iRequiresFF) :
+   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart, iRequiresFF),
    m_typeidName(iTypeName)
 {
 }
@@ -117,7 +118,7 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    //see if the modelType inherits from our type
 
    if(inheritsFrom(modelType,m_typeidName,distance) ) {
-      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart());
+      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart(), requiresFF());
    }
    return FWRepresentationInfo();
 }

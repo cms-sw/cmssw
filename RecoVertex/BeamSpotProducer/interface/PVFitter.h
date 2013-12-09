@@ -24,12 +24,17 @@
 #include "RecoVertex/BeamSpotProducer/interface/BeamSpotTreeData.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamSpotFitPVData.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
 #include "TH2F.h"
 
 #include <fstream>
+
+namespace edm {class ConsumesCollector;}
 
 namespace reco {
   class Vertex;
@@ -38,9 +43,11 @@ namespace reco {
 class PVFitter {
  public:
   PVFitter() {}
-  PVFitter(const edm::ParameterSet& iConfig);
+  PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&iColl);
+  PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iColl);
   virtual ~PVFitter();
 
+  void initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iColl);
   void readEvent(const edm::Event& iEvent);
   void setTree(TTree* tree);
   
@@ -137,7 +144,7 @@ class PVFitter {
 
   bool debug_;
   bool do3DFit_;
-  edm::InputTag vertexLabel_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   bool writeTxt_;
   std::string outputTxt_;
 

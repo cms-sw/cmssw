@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
 
 class ParticleDecayProducer : public edm::EDProducer {
@@ -18,7 +19,7 @@ class ParticleDecayProducer : public edm::EDProducer {
 
  private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  edm::InputTag genCandidates_;
+  edm::EDGetTokenT<reco::CandidateCollection> genCandidatesToken_;
   int motherPdgId_;
   std::vector<int> daughtersPdgId_;
   std::string decayChain_;
@@ -26,7 +27,6 @@ class ParticleDecayProducer : public edm::EDProducer {
 };
 
 // Candidate handling
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
@@ -38,7 +38,7 @@ using namespace reco;
 
 // constructors
 ParticleDecayProducer::ParticleDecayProducer(const edm::ParameterSet& iConfig) :
-  genCandidates_(iConfig.getParameter<InputTag>("src")),
+  genCandidatesToken_(consumes<CandidateCollection>(iConfig.getParameter<InputTag>("src"))),
   motherPdgId_(iConfig.getParameter<int>("motherPdgId")),
   daughtersPdgId_(iConfig.getParameter<vector<int> >("daughtersPdgId")),
   decayChain_(iConfig.getParameter<std::string>("decayChain")) {
@@ -60,7 +60,7 @@ ParticleDecayProducer::~ParticleDecayProducer() {
 void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // get gen particle candidates
   edm::Handle<CandidateCollection> genCandidatesCollection;
-  iEvent.getByLabel(genCandidates_, genCandidatesCollection);
+  iEvent.getByToken(genCandidatesToken_, genCandidatesCollection);
 
   auto_ptr<CandidateCollection> mothercands(new CandidateCollection);
   auto_ptr<CandidateCollection> daughterscands(new CandidateCollection);
@@ -75,13 +75,13 @@ void ParticleDecayProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	    daughterscands->push_back(p->daughter(i)->clone());
 	  }
 	}
-      }      
+      }
     }
   }
 
   iEvent.put(mothercands, decayChain_ + "Mother");
   daughterscands->sort(GreaterByPt<reco::Candidate>());
-  
+
   for (unsigned int row = 0; row < daughtersize; ++ row ){
     auto_ptr<CandidateCollection> leptonscands_(new CandidateCollection);
     leptonscands_->push_back((daughterscands->begin()+row)->clone());

@@ -64,7 +64,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
 
   edm::ParameterSet conf_;
   virtual void fillClusterSeeds(  ) const ;
-  void startSeed(FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int layer) const ;
+  void startSeed(const FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int layer) const ;
   virtual void findSeeds(const TrajectoryStateOnSurface & startingState,
 			 float signedpt, unsigned int startingLayer) const ;
   

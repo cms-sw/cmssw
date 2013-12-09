@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
 
 #include <vector>
@@ -21,12 +22,12 @@ class TtSemiLRSignalSelCalc;
 
 
 class TtSemiEvtSolutionMaker : public edm::EDProducer {
-  
+
  public:
-  
+
   explicit TtSemiEvtSolutionMaker(const edm::ParameterSet & iConfig);
   ~TtSemiEvtSolutionMaker();
-  
+
   virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
   // convert unsigned to Param
@@ -37,12 +38,12 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
   std::vector<TtSemiLepKinFitter::Constraint> constraints(std::vector<unsigned>&);
 
  private:
-  
+
   // configurables
-  edm::InputTag electronSrc_;
-  edm::InputTag muonSrc_;
-  edm::InputTag metSrc_;
-  edm::InputTag jetSrc_;
+  edm::EDGetTokenT<std::vector<pat::Electron> > electronSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::Muon> > muonSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::MET> > metSrcToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetSrcToken_;
   std::string leptonFlavour_;
   int jetCorrScheme_;
   unsigned int nrCombJets_;
@@ -56,13 +57,14 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
   int jetParam_, lepParam_, metParam_;
   std::vector<int> lrSignalSelObs_, lrJetCombObs_;
   std::vector<unsigned> constraints_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
   // tools
   TtSemiLepKinFitter           * myKinFitter;
   TtSemiSimpleBestJetComb      * mySimpleBestJetComb;
   TtSemiLRJetCombObservables   * myLRJetCombObservables;
   TtSemiLRJetCombCalc          * myLRJetCombCalc;
   TtSemiLRSignalSelObservables * myLRSignalSelObservables;
-  TtSemiLRSignalSelCalc        * myLRSignalSelCalc;  
+  TtSemiLRSignalSelCalc        * myLRSignalSelCalc;
 };
 
 

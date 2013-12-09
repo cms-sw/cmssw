@@ -9,7 +9,17 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -35,8 +45,8 @@ class ProbeVariable {
             name_(name), external_(false), function_(expression) {}
 
         /// Create a ProbeVariable to be read from a ValueMap
-        ProbeVariable(const std::string &name, const edm::InputTag &src) :
-            name_(name), external_(true), function_("-1"), src_(src) {}
+        ProbeVariable(const std::string &name, const edm::EDGetTokenT<edm::ValueMap<float> > &srcToken) :
+            name_(name), external_(true), function_("-1"), srcToken_(srcToken) {}
 
         /// Destructor (does nothing)
         ~ProbeVariable() ;
@@ -49,7 +59,7 @@ class ProbeVariable {
 
         /// To be called at the beginning of the event (will fetch ValueMap if needed)
         void init(const edm::Event &iEvent) const {
-            if (external_) iEvent.getByLabel(src_, handle_);
+            if (external_) iEvent.getByToken(srcToken_, handle_);
         }
 
         /// To be called for each item
@@ -73,9 +83,9 @@ class ProbeVariable {
 
         // ---- this below is used if 'external_' is true
         /// the external valuemap
-        edm::InputTag src_;
+        edm::EDGetTokenT<edm::ValueMap<float> > srcToken_;
         /// the handle to keep the ValueMap
-        mutable edm::Handle<edm::ValueMap<float> > handle_; 
+        mutable edm::Handle<edm::ValueMap<float> > handle_;
 };
 
 class ProbeFlag {
@@ -85,8 +95,8 @@ class ProbeFlag {
             name_(name), external_(false), cut_(cut) {}
 
         /// Create a ProbeFlag to be read from a ValueMap
-        ProbeFlag(const std::string &name, const edm::InputTag &src) :
-            name_(name), external_(true), cut_(""), src_(src) {}
+        ProbeFlag(const std::string &name, const edm::EDGetTokenT<edm::View<reco::Candidate> > &srcToken) :
+            name_(name), external_(true), cut_(""), srcToken_(srcToken) {}
 
         /// Destructor (does nothing)
         ~ProbeFlag() ;
@@ -117,9 +127,9 @@ class ProbeFlag {
 
         // ---- this below is used if 'external_' is true
         /// the external collection
-        edm::InputTag src_;
+        edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
         /// the handle to keep the refs to the passing probes
-        mutable std::vector<reco::CandidateBaseRef> passingProbes_; 
+        mutable std::vector<reco::CandidateBaseRef> passingProbes_;
 };
 
 
@@ -127,10 +137,11 @@ class ProbeFlag {
 class BaseTreeFiller : boost::noncopyable {
     public:
         /// specify the name of the TTree, and the configuration for it
-        BaseTreeFiller(const char *name, const edm::ParameterSet& config);
+        BaseTreeFiller(const char *name, const edm::ParameterSet& config, edm::ConsumesCollector && iC) : BaseTreeFiller(name, config, iC) {};
+        BaseTreeFiller(const char *name, const edm::ParameterSet& config, edm::ConsumesCollector & iC);
 
         /// Add branches to an existing TTree managed by another BaseTreeFiller
-        BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix);
+        BaseTreeFiller(BaseTreeFiller &main, const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC, const std::string &branchNamePrefix);
 
         /// Destructor, does nothing but it's out-of-line as we have complex data members
         ~BaseTreeFiller();
@@ -155,7 +166,12 @@ class BaseTreeFiller : boost::noncopyable {
         /// How event weights are defined: 'None' = no weights, 'Fixed' = one value specified in cfg file, 'External' = read weight from the event (as double)
         enum WeightMode { None, Fixed, External };
         WeightMode weightMode_;
-        edm::InputTag weightSrc_;
+        edm::EDGetTokenT<double> weightSrcToken_;
+        edm::EDGetTokenT<reco::VertexCollection> recVtxsToken_;
+        edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+        edm::EDGetTokenT<reco::CaloMETCollection> metToken_;
+        edm::EDGetTokenT<reco::METCollection> tcmetToken_;
+        edm::EDGetTokenT<reco::PFMETCollection> pfmetToken_;
 
         /// Ignore exceptions when evaluating variables
         bool ignoreExceptions_;
@@ -166,14 +182,14 @@ class BaseTreeFiller : boost::noncopyable {
         /// Add branches with event variables: met, sum ET, .. etc.
 	bool addEventVariablesInfo_;
 
-        void addBranches_(TTree *tree, const edm::ParameterSet &iConfig, const std::string &branchNamePrefix="") ;
+        void addBranches_(TTree *tree, const edm::ParameterSet &iConfig, edm::ConsumesCollector & iC, const std::string &branchNamePrefix="") ;
 
         //implementation notice: these two are 'mutable' because we will fill them from a 'const' method
         mutable TTree * tree_;
         mutable float weight_;
         mutable uint32_t run_, lumi_, event_, mNPV_;
 
-        mutable float mPVx_,mPVy_,mPVz_,mBSx_,mBSy_,mBSz_; 
+        mutable float mPVx_,mPVy_,mPVz_,mBSx_,mBSy_,mBSz_;
 
         mutable float mMET_,mSumET_,mMETSign_,mtcMET_,mtcSumET_,
 	  mtcMETSign_,mpfMET_,mpfSumET_,mpfMETSign_;

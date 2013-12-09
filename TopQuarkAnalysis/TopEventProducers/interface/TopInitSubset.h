@@ -7,7 +7,7 @@
 
 namespace TopInitID{
   static const int status = 3;
-  static const int tID    = 6; 
+  static const int tID    = 6;
 }
 
 class TopInitSubset : public edm::EDProducer {
@@ -16,11 +16,11 @@ class TopInitSubset : public edm::EDProducer {
 
   explicit TopInitSubset(const edm::ParameterSet&);
   ~TopInitSubset();
-  
+
   virtual void produce(edm::Event&, const edm::EventSetup&);
   void fillOutput(const reco::GenParticleCollection&, reco::GenParticleCollection&);
 
  private:
 
-  edm::InputTag src_;  
+  edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
 };

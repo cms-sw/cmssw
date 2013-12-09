@@ -14,22 +14,22 @@
 #include "CoralBase/Attribute.h"
 
 std::string ora::OraMainTable::version(){
-  static std::string s_version("1.1.0");
+  static const std::string s_version("1.1.0");
   return s_version;
 }
 
 std::string ora::OraMainTable::tableName(){
-  static std::string s_name("ORA_DB");
+  static const std::string s_name("ORA_DB");
   return s_name;
 }
 
 std::string ora::OraMainTable::parameterNameColumn(){
-  static std::string s_column("PARAMETER_NAME");
+  static const std::string s_column("PARAMETER_NAME");
   return s_column;
 }
 
 std::string ora::OraMainTable::parameterValueColumn(){
-  static std::string s_column("PARAMETER_VALUE");
+  static const std::string s_column("PARAMETER_VALUE");
   return s_column;
 }
 
@@ -112,17 +112,17 @@ void ora::OraMainTable::drop(){
 }
 
 std::string ora::OraSequenceTable::tableName(){
-  static std::string s_name("ORA_SEQUENCE");
+  static const std::string s_name("ORA_SEQUENCE");
   return s_name;
 }
 
 std::string ora::OraSequenceTable::sequenceNameColumn(){
-  static std::string s_column("NAME");
+  static const std::string s_column("NAME");
   return s_column;
 }
 
 std::string ora::OraSequenceTable::sequenceValueColumn(){
-  static std::string s_column("VALUE");
+  static const std::string s_column("VALUE");
   return s_column;
 }
 
@@ -230,12 +230,12 @@ void ora::OraSequenceTable::drop(){
 }
 
 std::string ora::OraMappingVersionTable::tableName(){
-  static std::string s_table("ORA_MAPPING_VERSION");
+  static const std::string s_table("ORA_MAPPING_VERSION");
   return s_table;
 }
 
 std::string ora::OraMappingVersionTable::mappingVersionColumn(){
-  static std::string s_col("MAPPING_VERSION");
+  static const std::string s_col("MAPPING_VERSION");
   return s_col;
 }
 
@@ -275,53 +275,53 @@ void ora::OraMappingVersionTable::drop(){
 
 
 std::string ora::OraMappingElementTable::tableName(){
-  static std::string s_table("ORA_MAPPING_ELEMENT");
+  static const std::string s_table("ORA_MAPPING_ELEMENT");
   return s_table;  
 }
 
 std::string ora::OraMappingElementTable::mappingVersionColumn(){
-  static std::string s_col("MAPPING_VERSION");
+  static const std::string s_col("MAPPING_VERSION");
   return s_col;  
 }
 
 std::string ora::OraMappingElementTable::elementIdColumn(){
-  static std::string s_col("ELEMENT_ID");
+  static const std::string s_col("ELEMENT_ID");
   return s_col;
 }
 
 std::string ora::OraMappingElementTable::elementTypeColumn(){
-  static std::string s_col("ELEMENT_TYPE");
+  static const std::string s_col("ELEMENT_TYPE");
   return s_col;  
 }
 
 std::string ora::OraMappingElementTable::scopeNameColumn(){
-  static std::string s_col("VARIABLE_SCOPE");
+  static const std::string s_col("VARIABLE_SCOPE");
   return s_col;
 }
 
 std::string ora::OraMappingElementTable::variableNameColumn(){
-  static std::string s_col("VARIABLE_NAME");
+  static const std::string s_col("VARIABLE_NAME");
   return s_col;
 }
 
 std::string ora::OraMappingElementTable::variableParIndexColumn(){
-  static std::string s_col("VARIABLE_PAR_INDEX");
+  static const std::string s_col("VARIABLE_PAR_INDEX");
   return s_col;
 }
 
 std::string ora::OraMappingElementTable::variableTypeColumn(){
-  static std::string s_col("VARIABLE_TYPE");
+  static const std::string s_col("VARIABLE_TYPE");
   return s_col;
 
 }
 
 std::string ora::OraMappingElementTable::tableNameColumn(){
-  static std::string s_col("TABLE_NAME");
+  static const std::string s_col("TABLE_NAME");
   return s_col;  
 }
 
 std::string ora::OraMappingElementTable::columnNameColumn(){
-  static std::string s_col("COLUMN_NAME");
+  static const std::string s_col("COLUMN_NAME");
   return s_col;  
 }
 
@@ -392,29 +392,29 @@ void ora::OraMappingElementTable::drop(){
 }
 
 std::string ora::OraContainerHeaderTable::tableName(){
-  static std::string s_name("ORA_CONTAINER");
+  static const std::string s_name("ORA_CONTAINER");
   return s_name;
 }
 
 
 std::string ora::OraContainerHeaderTable::containerIdColumn(){
-  static std::string s_column("CONTAINER_ID");
+  static const std::string s_column("CONTAINER_ID");
   return s_column;
 }
 
 
 std::string ora::OraContainerHeaderTable::containerNameColumn(){
-  static std::string s_column("CONTAINER_NAME");
+  static const std::string s_column("CONTAINER_NAME");
   return s_column;  
 }
 
 std::string ora::OraContainerHeaderTable::classNameColumn(){
-  static std::string s_column("CLASS_NAME");
+  static const std::string s_column("CLASS_NAME");
   return s_column;
 }
 
 std::string ora::OraContainerHeaderTable::numberOfObjectsColumn(){
-  static std::string s_column("NUMBER_OF_OBJECTS");
+  static const std::string s_column("NUMBER_OF_OBJECTS");
   return s_column;  
 }
 
@@ -587,38 +587,38 @@ void ora::OraContainerHeaderTable::drop(){
 }
 
 std::string ora::OraClassVersionTable::tableName(){
-  static std::string s_table("ORA_CLASS_VERSION");
+  static const std::string s_table("ORA_CLASS_VERSION");
   return s_table;
 }
 
 std::string ora::OraClassVersionTable::classNameColumn(){
-  static std::string s_col("CLASS_NAME");
+  static const std::string s_col("CLASS_NAME");
   return s_col;
 }
 
 std::string ora::OraClassVersionTable::classVersionColumn(){
-  static std::string s_col("CLASS_VERSION");
+  static const std::string s_col("CLASS_VERSION");
   return s_col;
 }
 
 std::string ora::OraClassVersionTable::classIdColumn(){
-  static std::string s_col("CLASS_ID");
+  static const std::string s_col("CLASS_ID");
   return s_col;
 }
 
 std::string ora::OraClassVersionTable::dependencyIndexColumn(){
-  static std::string s_col("DEPENDENCY_INDEX");
+  static const std::string s_col("DEPENDENCY_INDEX");
   return s_col;
 }
 
 std::string ora::OraClassVersionTable::containerIdColumn(){
-  static std::string s_col("CONTAINER_ID");
+  static const std::string s_col("CONTAINER_ID");
   return s_col;
 
 }
  
 std::string ora::OraClassVersionTable::mappingVersionColumn(){
-  static std::string s_col("MAPPING_VERSION");
+  static const std::string s_col("MAPPING_VERSION");
   return s_col;
 }
 
@@ -1069,23 +1069,23 @@ bool ora::OraDatabaseSchema::existsMainTable( coral::ISchema& dbSchema ){
   return tmp.exists();
 }
 
-std::string& ora::OraNamingServiceTable::tableName(){
-  static std::string s_table("ORA_NAMING_SERVICE" );
+std::string ora::OraNamingServiceTable::tableName(){
+  static const std::string s_table("ORA_NAMING_SERVICE" );
   return s_table;
 }
 
-std::string& ora::OraNamingServiceTable::objectNameColumn(){
-  static std::string s_column("OBJECT_NAME");
+std::string ora::OraNamingServiceTable::objectNameColumn(){
+  static const std::string s_column("OBJECT_NAME");
   return s_column;  
 }
 
-std::string& ora::OraNamingServiceTable::containerIdColumn(){
-  static std::string s_column("CONTAINER_ID");
+std::string ora::OraNamingServiceTable::containerIdColumn(){
+  static const std::string s_column("CONTAINER_ID");
   return s_column;  
 }
 
-std::string& ora::OraNamingServiceTable::itemIdColumn(){
-  static std::string s_column("ITEM_ID");
+std::string ora::OraNamingServiceTable::itemIdColumn(){
+  static const std::string s_column("ITEM_ID");
   return s_column;  
 }
 

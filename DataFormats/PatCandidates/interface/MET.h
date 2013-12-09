@@ -16,7 +16,9 @@
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga, Slava Krutelyov
 */
-
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <atomic>
+#endif
 
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/PFMET.h"
@@ -49,8 +51,12 @@ namespace pat {
       MET(const edm::RefToBase<reco::MET> & aMETRef);
       /// constructor from a Ptr to a reco::MET
       MET(const edm::Ptr<reco::MET> & aMETRef);
+      /// copy constructor
+      MET( MET const&);
       /// destructor
       virtual ~MET();
+
+      MET& operator=(MET const&);
 
       /// required reimplementation of the Candidate's clone method
       virtual MET * clone() const { return new MET(*this); }
@@ -149,15 +155,6 @@ namespace pat {
           return pfMET_[0];
       }
 
-    protected:
-
-      // ---- GenMET holder ----
-      std::vector<reco::GenMET> genMET_;
-      // ---- holder for CaloMET specific info ---
-      std::vector<SpecificCaloMETData> caloMET_;
-      // ---- holder for pfMET specific info ---
-      std::vector<SpecificPFMETData> pfMET_;
-
       // ---- members for MET corrections ----
       struct UncorInfo {
 	UncorInfo(): corEx(0), corEy(0), corSumEt(0), pt(0), phi(0) {}
@@ -167,10 +164,23 @@ namespace pat {
 	float pt;
 	float phi;
       };
+
+    private:
+
+      // ---- GenMET holder ----
+      std::vector<reco::GenMET> genMET_;
+      // ---- holder for CaloMET specific info ---
+      std::vector<SpecificCaloMETData> caloMET_;
+      // ---- holder for pfMET specific info ---
+      std::vector<SpecificPFMETData> pfMET_;
+
       // uncorrection transients
-      mutable std::vector<UncorInfo> uncorInfo_;
-      mutable unsigned int nCorrections_;
-      mutable float oldPt_;
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+      mutable std::atomic<std::vector<UncorInfo>*> uncorInfo_;
+#else
+      mutable std::vector<UncorInfo>* uncorInfo_;
+#endif
+      mutable unsigned int nCorrections_; //thread-safe protected by uncorInfo_
       
     protected:
 

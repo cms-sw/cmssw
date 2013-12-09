@@ -87,13 +87,13 @@ namespace edm {
 
       void
       addWrapperOfVectorOfBuiltin(std::map<std::string, std::string>& iMap, char const* iBuiltin) {
-         static std::string sReflexPrefix("edm::Wrapper<std::vector<");
-         static std::string sReflexPostfix("> >");
+         static std::string const sReflexPrefix("edm::Wrapper<std::vector<");
+         static std::string const sReflexPostfix("> >");
 
          //Wrapper<vector<float, allocator<float> > >
-         static std::string sCintPrefix("Wrapper<vector<");
-         static std::string sCintMiddle(",allocator<");
-         static std::string sCintPostfix("> > >");
+         static std::string const sCintPrefix("Wrapper<vector<");
+         static std::string const sCintMiddle(",allocator<");
+         static std::string const sCintPostfix("> > >");
 
          std::string type(iBuiltin);
          iMap.insert(make_pair(sCintPrefix + type + sCintMiddle + type + sCintPostfix,

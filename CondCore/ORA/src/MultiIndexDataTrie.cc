@@ -38,7 +38,7 @@ size_t ora::MultiIndexDataTrie::push( const std::vector<int>& indexes,
     }
     trie = nt;
   }
-  trie->m_data.swap(data);
+  if( trie ) trie->m_data.swap(data);
   return s;
 }
 
@@ -84,14 +84,16 @@ void ora::MultiIndexDataTrie::lookupAndClear( const std::vector<int>& indexes, R
       throwException( mess.str(),"MultiIndexDataTrie::lookupAndClear" );      
     }
   }
-  MultiIndexDataTrie* leaf = trie->m_children[indexes[i-1]];
-  if(0==leaf->m_data.size()){
-    throwException( "No Data for the specified index combination.",
-                    "MultiIndexDataTrie::lookupAndClear" );
+  if( trie ){
+    MultiIndexDataTrie* leaf = trie->m_children[indexes[i-1]];
+    if(0==leaf->m_data.size()){
+      throwException( "No Data for the specified index combination.",
+		      "MultiIndexDataTrie::lookupAndClear" );
+    }
+    rec.swap(leaf->m_data);
+    delete leaf;
+    trie->m_children[indexes[i-1]] = 0;
   }
-  rec.swap(leaf->m_data);
-  delete leaf;
-  trie->m_children[indexes[i-1]] = 0;
 }
 
 size_t ora::MultiIndexDataTrie::size() const {

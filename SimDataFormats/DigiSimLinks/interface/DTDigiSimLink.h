@@ -42,16 +42,16 @@ class DTDigiSimLink {
   // Return the Encoded Event Id
   EncodedEventId eventId()  const;
 
-private:
-  // The value of one TDC count in ns
-  static const double reso;
-
   // Used to repack the channel number to an int
   struct ChannelPacking {
     uint16_t wi;
     uint16_t num;
   };
   
+private:
+  // The value of one TDC count in ns
+  static const double reso;
+
  private:
   uint16_t theWire;       // wire number
   uint16_t theDigiNumber; // digi number on the wire

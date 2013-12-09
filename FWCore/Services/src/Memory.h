@@ -24,6 +24,7 @@
 #include "FWCore/Services/src/ProcInfoFetcher.h"
 
 #include <cstdio>
+#include <atomic>
 
 namespace edm {
   class EventID;
@@ -61,18 +62,17 @@ namespace edm {
 
       void preSourceConstruction(const ModuleDescription&);
       void postSourceConstruction(const ModuleDescription&);
-      void postSource();
+      void postSourceEvent(StreamID);
 
       void postBeginJob();
       
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const Event&, const EventSetup&);
+      void postEvent(StreamContext const&);
       
       void postModuleBeginJob(const ModuleDescription&);
       void postModuleConstruction(const ModuleDescription&);
 
-      void preModule(const ModuleDescription&);
-      void postModule(const ModuleDescription&);
+      void preModule(StreamContext const&, ModuleCallingContext const&);
+      void postModule(StreamContext const&, ModuleCallingContext const&);
 
       void postEndJob();
 
@@ -106,7 +106,7 @@ namespace edm {
       bool oncePerEventMode_;
       bool jobReportOutputOnly_;
       bool monitorPssAndPrivate_;
-      int count_;
+      std::atomic<int> count_;
 
       //smaps
       FILE* smapsFile_;
@@ -225,9 +225,14 @@ namespace edm {
       typedef std::map<std::string,SignificantModule> SignificantModulesMap;
       SignificantModulesMap modules_;      
       double moduleEntryVsize_;
-      edm::EventID currentEventID_;
-      void updateModuleMemoryStats(SignificantModule & m, double dv);
-                 
+      void updateModuleMemoryStats(SignificantModule & m, double dv, edm::EventID const&);
+      
+      //Used to guarantee we only do one measurement at a time
+      std::atomic<bool> measurementUnderway_;
+      std::atomic<bool> moduleMeasurementUnderway_;
+      std::atomic<unsigned int> moduleStreamID_;
+      std::atomic<unsigned int> moduleID_;
+      
     }; // SimpleMemoryCheck
     
     std::ostream & 

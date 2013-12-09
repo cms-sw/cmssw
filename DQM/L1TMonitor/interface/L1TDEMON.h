@@ -97,6 +97,8 @@ class L1TDEMON : public edm::EDAnalyzer {
   MonitorElement* deword[dedefs::DEnsys];
   MonitorElement* masked[dedefs::DEnsys];
 
+  //define Token(-s)
+  edm::EDGetTokenT<L1DataEmulRecord> DEsourceToken_;
 };
 
 #endif

@@ -13,6 +13,11 @@
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+// RecHit
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -45,27 +50,27 @@ protected:
 
   void beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg, const edm::EventSetup& context);
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
-  
+
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
+
   /// Endjob
   void endJob();
 
 private:
-  
+
   void bookHistos(DTChamberId chId);
   void bookHistos(DTSuperLayerId slId);
 
-  // The label to retrieve the digis 
-  edm::InputTag dtDigiLabel;
+  // The label to retrieve the digis
+  edm::EDGetTokenT<DTDigiCollection> dtDigiToken_;
   // counter of processed events
   int evtNumber;
   //switch for time boxes filling
   bool doTimeBoxHistos;
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
   //switch for segment veto
   bool doSegmentVeto;
 
@@ -92,3 +97,8 @@ private:
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

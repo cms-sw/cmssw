@@ -18,20 +18,19 @@ rsWithMaterialTracksP5TkCntFilter = cms.EDFilter("TrackCountFilter",
                                                  )
 
 cosmicMuonsBarrelOnlyTkFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                             SALabel = cms.string("cosmicMuons"),
+                                             SALabel = cms.InputTag("cosmicMuons"),
                                              PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                              radius = cms.double(90.0),
                                              maxZ = cms.double(130.0),
-                                             saveTags = cms.bool(False)
-                                             )
+)
 
-cosmicMuonsEndCapsOnlyTkFilter       = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("cosmicMuonsEndCapsOnly"))
-cosmicMuonsTkFilter                  = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("cosmicMuons"))
-cosmicMuons1LegTkFilter              = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("cosmicMuons1Leg"))
-globalCosmicMuonsBarrelOnlyTkFilter  = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuons"))
-globalCosmicMuonsEndCapsOnlyTkFilter = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuons"))
-globalCosmicMuonsTkFilter            = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuons"))
-globalCosmicMuons1LegTkFilter        = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuons1Leg"))
+cosmicMuonsEndCapsOnlyTkFilter       = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.InputTag("cosmicMuonsEndCapsOnly"))
+cosmicMuonsTkFilter                  = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.InputTag("cosmicMuons"))
+cosmicMuons1LegTkFilter              = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.InputTag("cosmicMuons1Leg"))
+globalCosmicMuonsBarrelOnlyTkFilter  = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.InputTag("globalCosmicMuons"))
+globalCosmicMuonsEndCapsOnlyTkFilter = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.InputTag("globalCosmicMuons"))
+globalCosmicMuonsTkFilter            = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.InputTag("globalCosmicMuons"))
+globalCosmicMuons1LegTkFilter        = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.InputTag("globalCosmicMuons1Leg"))
 
 cosmicMuonsBarrelOnlyTkSequence        = cms.Sequence(cosmicMuonsBarrelOnlyTkFilter)
 cosmicMuonsEndCapsOnlyTkSequence       = cms.Sequence(cosmicMuonsEndCapsOnlyTkFilter)

@@ -11,6 +11,8 @@
 #include "G4IonConstructor.hh"
 #include "G4RegionStore.hh"
 
+using namespace CLHEP;
+
 
 ParametrisedPhysics::ParametrisedPhysics(std::string name, const edm::ParameterSet & p) :
   G4VPhysicsConstructor(name), theParSet(p) 

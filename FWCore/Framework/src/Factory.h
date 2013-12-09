@@ -21,7 +21,7 @@ namespace edm {
 
     ~Factory();
 
-    static Factory* get();
+    static Factory const* get();
 
     std::shared_ptr<maker::ModuleHolder> makeModule(const MakeModuleParams&,
                                                     signalslot::Signal<void(const ModuleDescription&)>& pre,
@@ -33,7 +33,7 @@ namespace edm {
   private:
     Factory();
     Maker* findMaker(const MakeModuleParams& p) const;
-    static Factory singleInstance_;
+    static Factory const singleInstance_;
     mutable MakerMap makers_;
   };
 

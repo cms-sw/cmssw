@@ -80,23 +80,23 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 		       int step) const;
 
   //Map of meantimes
-   const DTMtime *mTimeMap;
+  const DTMtime *mTimeMap;
  
   // Times below MinTime (ns) are considered as coming from previous BXs.
-  static float minTime;
+  const float minTime;
 
   // Times above MaxTime (ns) are considered as coming from following BXs
-  static float maxTime;
+  const float maxTime;
   
   // Perform a correction to vDrift for the external wheels
-  bool doVdriftCorr;
+  const bool doVdriftCorr;
 
   // Switch recalculating hit parameters from digi time in Step 2 
   // (when off, Step 2 does nothing)
-  bool stepTwoFromDigi;
+  const bool stepTwoFromDigi;
 
   // Switch on/off the verbosity
-  static bool debug;
+  const bool debug;
 };
 #endif
 

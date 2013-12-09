@@ -326,91 +326,91 @@ void JetCorrectorParameters::printFile(const std::string& fFileName) const
   txtFile.close();
 }
 
+namespace {
+const std::vector<std::string> labels_ = {
+  "L1Offset",
+  "L2Relative",
+  "L3Absolute",
+  "L4EMF",
+  "L5Flavor",
+  "L6UE",
+  "L7Parton",
+  "L1JPTOffset",
+  "L2L3Residual",
+  "Uncertainty",
+  "L1FastJet",
+  "UncertaintyAbsolute", 
+  "UncertaintyHighPtExtra", 
+  "UncertaintySinglePionECAL", 
+  "UncertaintyFlavor", 
+  "UncertaintyTime",
+  "UncertaintyRelativeJEREC1", 
+  "UncertaintyRelativeJEREC2", 
+  "UncertaintyRelativeJERHF",
+  "UncertaintyRelativeStatEC2", 
+  "UncertaintyRelativeStatHF", 
+  "UncertaintyRelativeFSR",
+  "UncertaintyPileUpDataMC", 
+  "UncertaintyPileUpOOT", 
+  "UncertaintyPileUpPtBB", 
+  "UncertaintyPileUpBias", 
+  "UncertaintyPileUpJetRate",
+  "UncertaintySinglePionHCAL",
+  "UncertaintyRelativePtEC1",
+  "UncertaintyRelativePtEC2",
+  "UncertaintyRelativePtHF",
+  "UncertaintyRelativeSample",
+  "UncertaintyPileUpPtEC", 
+  "UncertaintyPileUpPtHF",
+  "UncertaintyAux1", 
+  "UncertaintyAux2", 
+  "UncertaintyAux3", 
+  "UncertaintyAux4", 
+}; 
 
+const std::vector<std::string> l5Flavors_ = {
+  "L5Flavor_bJ",
+  "L5Flavor_cJ",
+  "L5Flavor_qJ",
+  "L5Flavor_gJ",
+  "L5Flavor_bT",
+  "L5Flavor_cT",
+  "L5Flavor_qT",
+  "L5Flavor_gT"
+};
 
-const char * 
-JetCorrectorParametersCollection::labelsArray_[JetCorrectorParametersCollection::N_LEVELS] = 
-  {
-    "L1Offset",
-    "L2Relative",
-    "L3Absolute",
-    "L4EMF",
-    "L5Flavor",
-    "L6UE",
-    "L7Parton",
-    "L1JPTOffset",
-    "L2L3Residual",
-    "Uncertainty",
-    "L1FastJet",
-    "UncertaintyAbsolute", 
-    "UncertaintyHighPtExtra", 
-    "UncertaintySinglePionECAL", 
-    "UncertaintyFlavor", 
-    "UncertaintyTime",
-    "UncertaintyRelativeJEREC1", 
-    "UncertaintyRelativeJEREC2", 
-    "UncertaintyRelativeJERHF",
-    "UncertaintyRelativeStatEC2", 
-    "UncertaintyRelativeStatHF", 
-    "UncertaintyRelativeFSR",
-    "UncertaintyPileUpDataMC", 
-    "UncertaintyPileUpOOT", 
-    "UncertaintyPileUpPtBB", 
-    "UncertaintyPileUpBias", 
-    "UncertaintyPileUpJetRate",
-    "UncertaintySinglePionHCAL",
-    "UncertaintyRelativePtEC1",
-    "UncertaintyRelativePtEC2",
-    "UncertaintyRelativePtHF",
-    "UncertaintyRelativeSample",
-    "UncertaintyPileUpPtEC", 
-    "UncertaintyPileUpPtHF",
-    "UncertaintyAux1", 
-    "UncertaintyAux2", 
-    "UncertaintyAux3", 
-    "UncertaintyAux4", 
-  }; 
+const std::vector<std::string> l7Partons_ = {
+  "L7Parton_gJ",
+  "L7Parton_qJ",
+  "L7Parton_cJ",
+  "L7Parton_bJ",
+  "L7Parton_jJ",
+  "L7Parton_qT",
+  "L7Parton_cT",
+  "L7Parton_bT",
+  "L7Parton_tT"
+};
+}
+std::string
+JetCorrectorParametersCollection::findLabel( key_type k ){
+  if      ( isL5(k) ) return findL5Flavor(k);
+  else if ( isL7(k) ) return findL7Parton(k);
+  else                return labels_[k];
+}
 
-const char *
-JetCorrectorParametersCollection::l5FlavorArray_[JetCorrectorParametersCollection::N_L5_SPECIES] = 
-  {
-    "L5Flavor_bJ",
-    "L5Flavor_cJ",
-    "L5Flavor_qJ",
-    "L5Flavor_gJ",
-    "L5Flavor_bT",
-    "L5Flavor_cT",
-    "L5Flavor_qT",
-    "L5Flavor_gT"
-  };
+std::string
+JetCorrectorParametersCollection::findL5Flavor( key_type k ){
+  if ( k == L5Flavor ) return labels_[L5Flavor];
+  else 
+    return l5Flavors_[k / 100 - 1];
+}  
 
-const char *
-JetCorrectorParametersCollection::l7PartonArray_[JetCorrectorParametersCollection::N_L7_SPECIES] = 
-  {
-    "L7Parton_gJ",
-    "L7Parton_qJ",
-    "L7Parton_cJ",
-    "L7Parton_bJ",
-    "L7Parton_jJ",
-    "L7Parton_qT",
-    "L7Parton_cT",
-    "L7Parton_bT",
-    "L7Parton_tT"
-  };
-
-
-std::vector<std::string>
-JetCorrectorParametersCollection::labels_(labelsArray_, 
-					  labelsArray_ + sizeof(labelsArray_)/sizeof(*labelsArray_) );
-
-std::vector<std::string>
-JetCorrectorParametersCollection::l5Flavors_(l5FlavorArray_, 
-					     l5FlavorArray_ + sizeof(l5FlavorArray_)/sizeof(*l5FlavorArray_) );
-
-std::vector<std::string>
-JetCorrectorParametersCollection::l7Partons_(l7PartonArray_, 
-					     l7PartonArray_ + sizeof(l7PartonArray_)/sizeof(*l7PartonArray_) );
-
+std::string
+JetCorrectorParametersCollection::findL7Parton( key_type k ){
+  if ( k == L7Parton ) return labels_[L7Parton];
+  else 
+    return l7Partons_[k / 1000 - 1];
+}
 
 void JetCorrectorParametersCollection::getSections( std::string inputFile,
 						    std::vector<std::string> & outputs )

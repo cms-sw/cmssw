@@ -8,12 +8,6 @@
 
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 
-
-EventHeader::EventHeader(edm::ConsumesCollector && iC) : EventHeader::EventHeader()
-{
-  lumi_Token = iC.consumes<LumiSummary>(edm::InputTag("lumiProducer")); 
-}
-
 EventHeader::EventHeader() :
   fRun( -1 ),
   fEvent( -1 ),
@@ -22,16 +16,14 @@ EventHeader::EventHeader() :
   fOrbit( -1 ),
   fAvgInstDelLumi( -999. ),
   _Debug( false )
-{
-  //  lumi_Token = consumes<LumiSummary>(edm::InputTag("lumiProducer")); 
-}
+{ }
 
 EventHeader::~EventHeader() {
 
 }
 
 /*  Setup the analysis to put the branch-variables into the tree. */
-void EventHeader::setup(TTree* HltTree) {
+void EventHeader::setup(edm::ConsumesCollector && iC, TTree* HltTree) {
 
   fRun = -1;
   fEvent = -1;
@@ -46,6 +38,8 @@ void EventHeader::setup(TTree* HltTree) {
   HltTree->Branch("Bx",        &fBx,          "Bx/I"); 
   HltTree->Branch("Orbit",     &fOrbit,       "Orbit/I"); 
   HltTree->Branch("AvgInstDelLumi", &fAvgInstDelLumi, "AvgInstDelLumi/D");
+
+  lumi_Token = iC.consumes<LumiSummary,edm::InLumi>(edm::InputTag("lumiProducer")); 
 }
 
 /* **Analyze the event** */
@@ -62,8 +56,7 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
   const edm::LuminosityBlock& iLumi = iEvent.getLuminosityBlock(); 
   edm::Handle<LumiSummary> lumiSummary; 
   try{
-    if (!lumi_Token.isUnitialized() ) iLumi.getByToken(lumi_Token, lumiSummary);
-    else iLumi.getByLabel(edm::InputTag("lumiProducer"), lumiSummary);
+    iLumi.getByToken(lumi_Token, lumiSummary);
     lumiSummary->isValid();
   }
   catch(cms::Exception&){

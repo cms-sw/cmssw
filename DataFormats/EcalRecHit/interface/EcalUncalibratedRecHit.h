@@ -21,11 +21,14 @@ class EcalUncalibratedRecHit {
           
   };
 
-  EcalUncalibratedRecHit();
-  EcalUncalibratedRecHit(const DetId& detId, float ampl, float ped,
-                          float jit, float chi2, uint32_t flags = 0, uint32_t aux = 0);
+  EcalUncalibratedRecHit() :
+      amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.), OOTamplitude_(0.), OOTchi2_(10000.), flags_(0), aux_(0) { }
 
-  virtual ~EcalUncalibratedRecHit();
+  EcalUncalibratedRecHit(const DetId& id, float ampl, float ped,
+                          float jit, float chi2, uint32_t flags = 0, uint32_t aux = 0):
+     amplitude_(ampl), pedestal_(ped), jitter_(jit), chi2_(chi2), OOTamplitude_(0.), OOTchi2_(10000.), flags_(flags), aux_(aux), id_(id) { }
+
+
   float amplitude() const { return amplitude_; }
   float pedestal() const { return pedestal_; }
   float jitter() const { return jitter_; }

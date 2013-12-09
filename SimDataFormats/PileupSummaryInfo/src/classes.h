@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 
-namespace { 
+namespace SimDataFormats_PileupSummaryInfo {
   struct dictionary {
     PileupSummaryInfo dummy0;
     std::vector<PileupSummaryInfo> dummy1;

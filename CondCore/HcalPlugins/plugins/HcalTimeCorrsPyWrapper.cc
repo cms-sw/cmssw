@@ -13,7 +13,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "math.h"
+#include <cmath>
 //functions for correct representation of data in summary and plot:
 #include "CondCore/HcalPlugins/interface/HcalObjRepresent.h"
 using namespace HcalObjRepresent;

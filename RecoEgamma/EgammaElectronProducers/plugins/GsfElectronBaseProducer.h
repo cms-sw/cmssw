@@ -4,6 +4,9 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
 
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -40,6 +43,7 @@ class GsfElectronBaseProducer : public edm::EDProducer
     void fillEvent( edm::Event & ) ;
     void endEvent() ;
     reco::GsfElectron * newElectron() { return 0 ; }
+    const edm::OrphanHandle<reco::GsfElectronCollection> & orphanHandle() const { return orphanHandle_;}
 
     // configurables
     GsfElectronAlgo::InputTagsConfiguration inputCfg_ ;
@@ -54,6 +58,7 @@ class GsfElectronBaseProducer : public edm::EDProducer
     // check expected configuration of previous modules
     bool ecalSeedingParametersChecked_ ;
     void checkEcalSeedingParameters( edm::ParameterSet const & ) ;
+    edm::OrphanHandle<reco::GsfElectronCollection> orphanHandle_;
 
  } ;
 

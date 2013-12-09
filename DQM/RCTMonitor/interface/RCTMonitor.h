@@ -154,7 +154,8 @@ class RCTMonitor : public edm::EDAnalyzer {
   std::string m_outputFileName;
 
 
-  
+  //define Token(-s)
+  edm::EDGetTokenT<L1CaloEmCollection> m_rctSourceToken_;
 };
 
 #endif 

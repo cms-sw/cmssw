@@ -155,19 +155,19 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
 
   // try to access the input collection as a collection of GsfElectrons, Muons or Tracks
 
-  unsigned int leptonId = SoftLeptonProperties::quality::leptonId;
+  unsigned int leptonId = SoftLeptonProperties::Quality::leptonId;
   do { {
     // look for View<GsfElectron>
     Handle<GsfElectronView> h_electrons;
     event.getByToken(token_gsfElectrons, h_electrons);
 
     if (h_electrons.isValid()) {
-      leptonId = SoftLeptonProperties::quality::egammaElectronId;
+      leptonId = SoftLeptonProperties::Quality::egammaElectronId;
       for (GsfElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
         LeptonIds &id = leptons[reco::TrackBaseRef(electron->gsfTrack())];
-        id[SoftLeptonProperties::quality::pfElectronId] = electron->mva();
+        id[SoftLeptonProperties::Quality::pfElectronId] = electron->mva();
         if (haveLeptonCands)
-          id[SoftLeptonProperties::quality::btagElectronCands] = (*h_leptonCands)[h_electrons->refAt(electron - h_electrons->begin())];
+          id[SoftLeptonProperties::Quality::btagElectronCands] = (*h_leptonCands)[h_electrons->refAt(electron - h_electrons->begin())];
       }
       break;
     }
@@ -177,11 +177,11 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     Handle<ElectronView> h_electrons;
     event.getByToken(token_electrons, h_electrons);
     if (h_electrons.isValid()) {
-      leptonId = SoftLeptonProperties::quality::egammaElectronId;
+      leptonId = SoftLeptonProperties::Quality::egammaElectronId;
       for (ElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
         LeptonIds &id = leptons[reco::TrackBaseRef(electron->track())];
         if (haveLeptonCands)
-          id[SoftLeptonProperties::quality::btagElectronCands] = (*h_leptonCands)[h_electrons->refAt(electron - h_electrons->begin())];
+          id[SoftLeptonProperties::Quality::btagElectronCands] = (*h_leptonCands)[h_electrons->refAt(electron - h_electrons->begin())];
       }
       break;
     }
@@ -191,7 +191,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
     Handle<reco::PFCandidateCollection> h_electrons;
     event.getByToken(token_pfElectrons, h_electrons);
     if (h_electrons.isValid()) {
-      leptonId = SoftLeptonProperties::quality::egammaElectronId;
+      leptonId = SoftLeptonProperties::Quality::egammaElectronId;
       for (reco::PFCandidateCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
         LeptonIds *id;
         if (electron->gsfTrackRef().isNonnull())
@@ -200,9 +200,9 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
           id = &leptons[reco::TrackBaseRef(electron->trackRef())];
         else
           continue;
-        (*id)[SoftLeptonProperties::quality::pfElectronId] = electron->mva_e_pi();
+        (*id)[SoftLeptonProperties::Quality::pfElectronId] = electron->mva_e_pi();
         if (haveLeptonCands)
-          (*id)[SoftLeptonProperties::quality::btagElectronCands] = (*h_leptonCands)[reco::PFCandidateRef(h_electrons, electron - h_electrons->begin())];
+          (*id)[SoftLeptonProperties::Quality::btagElectronCands] = (*h_leptonCands)[reco::PFCandidateRef(h_electrons, electron - h_electrons->begin())];
       }
       break;
     }
@@ -225,7 +225,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
           else
             continue;
           if (haveLeptonCands)
-            (*id)[SoftLeptonProperties::quality::btagMuonCands] = (*h_leptonCands)[h_muons->refAt(muon - h_muons->begin())];
+            (*id)[SoftLeptonProperties::Quality::btagMuonCands] = (*h_leptonCands)[h_muons->refAt(muon - h_muons->begin())];
         }
       }
       break;
@@ -238,7 +238,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
       for (unsigned int i = 0; i < h_tracks->size(); i++) {
         LeptonIds &id = leptons[h_tracks->refAt(i)];
         if (haveLeptonCands)
-          id[SoftLeptonProperties::quality::btagLeptonCands] = (*h_leptonCands)[h_tracks->refAt(i)];
+          id[SoftLeptonProperties::Quality::btagLeptonCands] = (*h_leptonCands)[h_tracks->refAt(i)];
       }
       break;
     }
@@ -296,7 +296,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
 
     for(LeptonIds::const_iterator iter = lepton->second.begin(); iter != lepton->second.end(); ++iter)
-      properties.setQuality(static_cast<SoftLeptonProperties::quality::Generic>(iter->first), iter->second);
+      properties.setQuality(static_cast<SoftLeptonProperties::Quality::Generic>(iter->first), iter->second);
 
     info.insert( lepton->first, properties );
   }

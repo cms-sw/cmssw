@@ -17,7 +17,7 @@
  
  
  
-namespace {
+namespace RecoParticleFlow_PFRootEvent {
   struct dictionary {
 /*      GPFRecHit dummy1; */
 /*      std::vector<std::vector<GPFRecHit> > dummy2; */

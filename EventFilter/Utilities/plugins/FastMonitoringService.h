@@ -58,7 +58,7 @@ namespace evf{
 	//trick: only encode state when sending it over (i.e. every sec)
 	int encode(const void *add){
 	  std::map<const void *, int>::const_iterator it=quickReference_.find(add);
-	  return (it!=quickReference_.end()) ? (*it).second : -1;
+	  return (it!=quickReference_.end()) ? (*it).second : 0;
 	}
 	const void* decode(unsigned int index){return decoder_[index];}
 	void fillReserved(void* add, unsigned int i){
@@ -118,8 +118,8 @@ namespace evf{
       void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
       void postEventProcessing(const edm::Event&, const edm::EventSetup&);
       
-      void preSource();
-      void postSource();
+      void preSourceEvent(edm::StreamID);
+      void postSourceEvent(edm::StreamID);
       
       void preModule(const edm::ModuleDescription&);
       void postModule(const edm::ModuleDescription&);

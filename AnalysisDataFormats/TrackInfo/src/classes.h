@@ -9,7 +9,7 @@
 #include <vector>
 
 
-namespace {
+namespace AnalysisDataFormats_TrackInfo {
   struct dictionary {
 
     reco::TrackingStateInfo                 tsi;

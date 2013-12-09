@@ -73,3 +73,8 @@ using namespace edm::serviceregistry;
 typedef edm::serviceregistry::AllArgsMaker<DTDataMonitorInterface,DTDataIntegrityTask> maker;
 
 DEFINE_FWK_SERVICE_MAKER(DTDataIntegrityTask,maker);
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

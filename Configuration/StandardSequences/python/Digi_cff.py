@@ -26,5 +26,4 @@ from SimMuon.Configuration.SimMuon_cff import *
 from SimGeneral.Configuration.SimGeneral_cff import *
 doAllDigi = cms.Sequence(calDigi+muonDigi)
 pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo)
-
-
+pdigi_valid = cms.Sequence(pdigi)

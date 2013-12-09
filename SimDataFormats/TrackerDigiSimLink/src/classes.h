@@ -9,7 +9,7 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripCompactDigiSimLinks.h"
 
-namespace {
+namespace SimDataFormats_TrackerDigiSimLink {
   struct dictionary {
    edm::Wrapper<PixelDigiSimLink> PixelLink1;
     edm::Wrapper< std::vector<PixelDigiSimLink>  > PixelLink2;

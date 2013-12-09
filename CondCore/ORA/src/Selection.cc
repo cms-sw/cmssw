@@ -6,14 +6,8 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 
-std::vector<std::string>& ora::Selection::selectionTypes(){
-  static std::vector<std::string> types;
-  types.push_back("=");
-  types.push_back("!=");
-  types.push_back(">");
-  types.push_back(">=");
-  types.push_back("<");
-  types.push_back("<=");
+const std::vector<std::string>& ora::Selection::selectionTypes(){
+  static const std::vector<std::string> types = { "=","!=",">",">=","<","<=" };
   return types;
 }
 
@@ -24,7 +18,7 @@ std::string  ora::Selection::variableNameFromUniqueString(const std::string& uni
 }
 
 std::string ora::Selection::indexVariable(){
-  static std::string s_var("ora::ContainerIndex");
+  static const std::string s_var("ora::ContainerIndex");
   return s_var;
 }
 

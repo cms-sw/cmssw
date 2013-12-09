@@ -275,7 +275,7 @@ bool CtfSpecialSeedGenerator::postCheck(const TrajectorySeed& seed){
         TrajectoryStateOnSurface theTSOS = trajectoryStateTransform::transientState(pstate,
 								      &(theTracker->idToDet(DetId(pstate.detId()))->surface()),
 								      &(*theMagfield));	
-	FreeTrajectoryState* state = theTSOS.freeState();	
+	const FreeTrajectoryState* state = theTSOS.freeState();	
 	StraightLinePlaneCrossing planeCrossingLower( Basic3DVector<float>(state->position()), 
 						      Basic3DVector<float>(state->momentum()),
 						      alongMomentum);

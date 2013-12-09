@@ -33,7 +33,7 @@ public:
 
 private:
   // Switch on verbosity
-  static bool debug;
+  const bool debug;
   // The label to be used to retrieve DT digis from the event
   edm::InputTag theDTDigiLabel;
   // The reconstruction algorithm

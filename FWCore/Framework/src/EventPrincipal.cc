@@ -14,8 +14,10 @@
 #include "FWCore/Framework/interface/ProductDeletedException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 #include <algorithm>
+#include <memory>
 
 namespace edm {
   EventPrincipal::EventPrincipal(
@@ -181,11 +183,22 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
-    WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+    {
+      if(mcc) {
+        preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      }
+      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
+        if(mcc) {
+          postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+        }
+      });
 
-    // Now fix up the ProductHolder
-    checkUniquenessAndType(edp, &phb);
-    phb.putProduct(edp);
+      WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+
+      // Now fix up the ProductHolder
+      checkUniquenessAndType(edp, &phb);
+      phb.putProduct(edp);
+    }
   }
 
   BranchID
@@ -326,6 +339,10 @@ namespace edm {
           << "with a null pointer to the ModuleCalling Context. This should never happen.\n"
           << "Contact a Framework developer";
       }
+      preModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
+        postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
+      });
       unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
     }
     return true;

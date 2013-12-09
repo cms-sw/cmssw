@@ -45,19 +45,21 @@ using namespace std;
 
 
 DTAlbertoBenvenutiTask::DTAlbertoBenvenutiTask(const edm::ParameterSet& ps){
-  
+
   debug = ps.getUntrackedParameter<bool>("debug", false);
   if(debug)
     cout<<"[DTAlbertoBenvenutiTask]: Constructor"<<endl;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDigiSources.root");
   maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHits",1000);
-  
+
   // tMax (not yet from the DB)
   tMax = parameters.getParameter<int>("defaultTmax");
 
-  parameters = ps; 
+  parameters = ps;
 
+  //set Token(-s)
+  DTUnpackerToken_ = consumes<DTDigiCollection>(std::string("dtunpacker"));
 }
 
 
@@ -82,20 +84,20 @@ void DTAlbertoBenvenutiTask::endJob(){
     DTChamberId chId = (*wHisto).first.layerId().superlayerId().chamberId();
     TBMap_perChamber[chId].push_back((*wHisto).second);
   }
- 
-  
+
+
   for(map<DTChamberId, vector<TH1F*> >::const_iterator Histo = TBMap_perChamber.begin();
       Histo != TBMap_perChamber.end();
       Histo++) {
     stringstream station; station << (*Histo).first.station();
-    stringstream sector; sector << (*Histo).first.sector();	
+    stringstream sector; sector << (*Histo).first.sector();
     stringstream wheel; wheel << (*Histo).first.wheel();
-    
+
     string fileTag = "TimeBoxes";
     string fileName = fileTag
       + "_W" + wheel.str()
       + "_Sec" + sector.str()
-      + "_St" + station.str() 
+      + "_St" + station.str()
       + ".ps";
 
     TPostScript psFile(fileName.c_str(),111);
@@ -104,14 +106,14 @@ void DTAlbertoBenvenutiTask::endJob(){
     TCanvas c1("c1","",600,780);
     c1.Divide(4,4);
     psFile.NewPage();
-    
+
     cout<<"[DTAlbertoBenvenutiTask] filling the file: "<<fileName<<endl;
     for(vector<TH1F*>::const_iterator tbHisto = (*Histo).second.begin();
 	tbHisto != (*Histo).second.end();
 	tbHisto++) {
       counter++;
       c1.cd(counter);
-      (*tbHisto)->Draw();      
+      (*tbHisto)->Draw();
        if(counter%16 == 0 && counter>=16){
 	 c1.Update();
 	 psFile.NewPage();
@@ -142,12 +144,12 @@ void DTAlbertoBenvenutiTask::beginRun(const edm::Run&, const edm::EventSetup& co
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
-  // tTrig 
-  if (parameters.getUntrackedParameter<bool>("readDB", true)) 
+  // tTrig
+  if (parameters.getUntrackedParameter<bool>("readDB", true))
     context.get<DTTtrigRcd>().get(tTrigMap);
 
-  // t0s 
-  if (parameters.getParameter<bool>("performPerWireT0Calibration")) 
+  // t0s
+  if (parameters.getParameter<bool>("performPerWireT0Calibration"))
     context.get<DTT0Rcd>().get(t0Map);
 
 }
@@ -157,10 +159,10 @@ void DTAlbertoBenvenutiTask::bookHistos(const DTWireId dtWire) {
 
   if (debug) cout<<"[DTAlbertoBenvenutiTask]: booking"<<endl;
 
-  stringstream wheel; wheel << dtWire.layerId().superlayerId().chamberId().wheel();	
-  stringstream station; station << dtWire.layerId().superlayerId().chamberId().station();	
-  stringstream sector; sector << dtWire.layerId().superlayerId().chamberId().sector();	
-  
+  stringstream wheel; wheel << dtWire.layerId().superlayerId().chamberId().wheel();
+  stringstream station; station << dtWire.layerId().superlayerId().chamberId().station();
+  stringstream sector; sector << dtWire.layerId().superlayerId().chamberId().sector();
+
   // Loop over all the chambers
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
@@ -168,13 +170,13 @@ void DTAlbertoBenvenutiTask::bookHistos(const DTWireId dtWire) {
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId ch = (*ch_it)->id();
     if(ch == dtWire.layerId().superlayerId().chamberId()){
-      vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 
+      vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
       vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
       // Loop over the SLs
       for(; sl_it != sl_end; ++sl_it) {
 	DTSuperLayerId sl = (*sl_it)->id();
 	stringstream superLayer; superLayer << sl.superlayer();
-	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
+	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
 	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
 	// Loop over the Ls
 	for(; l_it != l_end; ++l_it) {
@@ -190,29 +192,29 @@ void DTAlbertoBenvenutiTask::bookHistos(const DTWireId dtWire) {
 
 	    string histoTag = "TimeBox";
 	    string histoName = histoTag
-	      + "_W" + wheel.str() 
-	      + "_St" + station.str() 
-	      + "_Sec" + sector.str() 
+	      + "_W" + wheel.str()
+	      + "_St" + station.str()
+	      + "_Sec" + sector.str()
 	      + "_SL" + superLayer.str()
 	      + "_L" + layer.str()
 	      + "_wire" + wire.str();
 
 	    if (debug) cout<<"[DTAlbertoBenvenutiTask]: histoName "<<histoName<<endl;
 
-	    if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
+	    if ( parameters.getUntrackedParameter<bool>("readDB", false) )
               // ttrig and rms are TDC counts
 	      tTrigMap->get(dtWire.layerId().superlayerId(), tTrig, tTrigRMS, kFactor,
-                            DTTimeUnits::counts); 
+                            DTTimeUnits::counts);
 	    else tTrig = parameters.getParameter<int>("defaultTtrig");
-  
+
 	    string histoTitle = histoName + " (TDC Counts)";
 	    int timeBoxGranularity = parameters.getUntrackedParameter<int>("timeBoxGranularity",4);
-  
+
 	    if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
 	      int maxTDCCounts = 6400 * parameters.getUntrackedParameter<int>("tdcRescale", 1);
 	      TH1F *TB = new TH1F(histoName.c_str(),histoTitle.c_str(), maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
 	      TBMap[wrId] = TB;
-	    }    
+	    }
 	    else {
 	      TH1F *TB = new TH1F(histoName.c_str(),histoTitle.c_str(), 2*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
 	      TBMap[wrId] = TB;
@@ -227,12 +229,12 @@ void DTAlbertoBenvenutiTask::bookHistos(const DTWireId dtWire) {
 
 
 void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
-  
+
   nevents++;
   if (nevents%1000 == 0 && debug) {}
-  
+
   edm::Handle<DTDigiCollection> dtdigis;
-  e.getByLabel("dtunpacker", dtdigis);
+  e.getByToken(DTUnpackerToken_, dtdigis);
 
   bool checkNoisyChannels = parameters.getUntrackedParameter<bool>("checkNoisyChannels",false);
   ESHandle<DTStatusFlag> statusMap;
@@ -252,11 +254,11 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
 
   bool isSyncNoisy = false;
   if (tdcCount > maxTDCHits) isSyncNoisy = true;
-  
+
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
-      
+
       bool isNoisy = false;
       bool isFEMasked = false;
       bool isTDCMasked = false;
@@ -266,18 +268,18 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
       const DTWireId wireId(((*dtLayerId_It).first), (*digiIt).wire());
       if(checkNoisyChannels) {
 	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-      }      
- 
+      }
+
       // for clearness..
 //      const  DTSuperLayerId dtSLId = ((*dtLayerId_It).first).superlayerId();
 //       uint32_t indexSL = dtSLId.rawId();
-//      const  DTChamberId dtChId = dtSLId.chamberId(); 
+//      const  DTChamberId dtChId = dtSLId.chamberId();
 //       uint32_t indexCh = dtChId.rawId();
 //       int layer_number=((*dtLayerId_It).first).layer();
 //       int superlayer_number=dtSLId.superlayer();
 //      const  DTLayerId dtLId = (*dtLayerId_It).first;
 //       uint32_t indexL = dtLId.rawId();
-      
+
       float t0; float t0RMS;
       int tdcTime = (*digiIt).countsTDC();
 
@@ -286,7 +288,7 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
 	t0Map->get(dtWireId, t0, t0RMS, DTTimeUnits::counts) ;
 	tdcTime += int(round(t0));
       }
-       
+
       // avoid to fill TB with noise
       if ((!isNoisy ) && (!isSyncNoisy)) {
 	// TimeBoxes per wire
@@ -302,3 +304,8 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
 }
 
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

@@ -7,6 +7,8 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronCombinedIsolationProducer.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTElectronCombinedIsolationProducer::EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
 
@@ -31,6 +33,18 @@ EgammaHLTElectronCombinedIsolationProducer::EgammaHLTElectronCombinedIsolationPr
 
 EgammaHLTElectronCombinedIsolationProducer::~EgammaHLTElectronCombinedIsolationProducer()
 {}
+
+void EgammaHLTElectronCombinedIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("electronProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag(""));
+  desc.add<std::vector<edm::InputTag> >("CaloIsolationMapTags", std::vector<edm::InputTag>());
+  desc.add<edm::InputTag>("TrackIsolationMapTag", edm::InputTag(""));
+desc.add<std::vector<double> >("CaloIsolationWeight", std::vector<double>());
+  desc.add<double>("TrackIsolationWeight", 0);
+  descriptions.add("hltEgammaHLTElectronCombinedIsolationProducer", desc);  
+}
 
 void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   

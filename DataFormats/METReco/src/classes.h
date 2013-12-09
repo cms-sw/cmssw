@@ -38,7 +38,7 @@
 #include "DataFormats/METReco/interface/BoundaryInformation.h"
 
 #include <vector>
-namespace {
+namespace DataFormats_METReco {
   struct dictionary {
     edm::Wrapper<reco::MET> dummy1;
     edm::Wrapper<reco::METCollection> dummy2;

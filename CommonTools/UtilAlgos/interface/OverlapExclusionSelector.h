@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 namespace edm { class EventSetup; }
@@ -10,25 +11,27 @@ namespace edm { class EventSetup; }
 template<typename C, typename T, typename O>
 class OverlapExclusionSelector {
 public:
-  OverlapExclusionSelector(const edm::ParameterSet&);
+  OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :
+    OverlapExclusionSelector(cfg, iC) {};
+  OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC);
   void newEvent(const edm::Event&, const edm::EventSetup&) const;
   bool operator()(const T&) const;
 private:
-  edm::InputTag src_;
+  edm::EDGetTokenT<C> srcToken_;
   mutable typename C::const_iterator begin_, end_;
   O overlap_;
 };
 
 template<typename C, typename T, typename O>
-OverlapExclusionSelector<C, T, O>::OverlapExclusionSelector(const edm::ParameterSet& cfg) :
-  src_(cfg.template getParameter<edm::InputTag>("overlap")),
+OverlapExclusionSelector<C, T, O>::OverlapExclusionSelector(const edm::ParameterSet& cfg, edm::ConsumesCollector & iC) :
+  srcToken_(iC.consumes<C>(cfg.template getParameter<edm::InputTag>("overlap"))),
   overlap_(cfg) {
 }
 
 template<typename C, typename T, typename O>
        void OverlapExclusionSelector<C, T, O>::newEvent(const edm::Event& evt, const edm::EventSetup&) const {
   edm::Handle<C> h;
-  evt.getByLabel(src_, h);
+  evt.getByToken(srcToken_, h);
   begin_ = h->begin();
   end_ = h->end();
 }
@@ -40,7 +43,7 @@ bool OverlapExclusionSelector<C, T, O>::operator()(const T& t) const {
     if(overlap_(*i, t)) {
       noOverlap = false;
       break;
-    } 
+    }
   }
   return noOverlap;
 }

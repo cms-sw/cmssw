@@ -48,7 +48,7 @@ using namespace edm;
 
 SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
-  src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  src_( consumes<SiPixelRecHitCollection>( conf_.getParameter<edm::InputTag>( "src" ))),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
   isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
@@ -125,7 +125,8 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
   //cout << eventNo << endl;
   // get input data
   edm::Handle<SiPixelRecHitCollection>  recHitColl;
-  iEvent.getByLabel( src_, recHitColl );
+  //iEvent.getByLabel( src_, recHitColl ); //original
+  iEvent.getByToken( src_, recHitColl );
 
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {

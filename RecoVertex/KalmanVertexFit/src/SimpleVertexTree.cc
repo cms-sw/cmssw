@@ -3,7 +3,7 @@
 #include "TROOT.h"
 #include "TTree.h"
 #include "TH1F.h"
-#include "iostream"
+#include <iostream>
 
 using namespace std;
 
@@ -167,12 +167,11 @@ void SimpleVertexTree::fill(const TrackingVertex * simv)
 void SimpleVertexTree::fill() 
 {
   ++numberOfVertices;
-
+  static std::atomic<int> nFill{0};
   TDirectory* rootDir = gDirectory;
   //
   // fill entry
   //
-  static int nFill(0);
   vertexTree->GetDirectory()->cd();
   vertexTree->Fill();
   if ( (++nFill)%1000==0 )  vertexTree->AutoSave();

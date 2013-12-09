@@ -11,12 +11,12 @@
 
 template <typename LeptonCollection>
 class TtSemiLepKinFitProducer : public edm::EDProducer {
-  
+
  public:
-  
+
   explicit TtSemiLepKinFitProducer(const edm::ParameterSet&);
   ~TtSemiLepKinFitProducer();
-  
+
  private:
   // produce
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -31,11 +31,11 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   bool doBTagging(bool& useBTag_, edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
 		  std::string& bTagAlgo_, double& minBTagValueBJets_, double& maxBTagValueNonBJets_);
 
-  edm::InputTag jets_;
-  edm::InputTag leps_;
-  edm::InputTag mets_;
-  
-  edm::InputTag match_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<LeptonCollection> lepsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET>> metsToken_;
+
+  edm::EDGetTokenT<std::vector<std::vector<int> > > matchToken_;
   /// switch to use only a combination given by another hypothesis
   bool useOnlyMatch_;
   /// input tag for b-tagging algorithm
@@ -92,10 +92,10 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
 
 template<typename LeptonCollection>
 TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::ParameterSet& cfg):
-  jets_                    (cfg.getParameter<edm::InputTag>("jets")),
-  leps_                    (cfg.getParameter<edm::InputTag>("leps")),
-  mets_                    (cfg.getParameter<edm::InputTag>("mets")),
-  match_                   (cfg.getParameter<edm::InputTag>("match")),
+  jetsToken_                    (consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+  lepsToken_                    (consumes<LeptonCollection>(cfg.getParameter<edm::InputTag>("leps"))),
+  metsToken_                    (consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
+  matchToken_                   (mayConsume<std::vector<std::vector<int> > >(cfg.getParameter<edm::InputTag>("match"))),
   useOnlyMatch_            (cfg.getParameter<bool>         ("useOnlyMatch"        )),
   bTagAlgo_                (cfg.getParameter<std::string>  ("bTagAlgo"            )),
   minBTagValueBJet_        (cfg.getParameter<double>       ("minBDiscBJets"       )),
@@ -154,7 +154,7 @@ TtSemiLepKinFitProducer<LeptonCollection>::~TtSemiLepKinFitProducer()
 template<typename LeptonCollection>
 bool TtSemiLepKinFitProducer<LeptonCollection>::doBTagging(bool& useBTag_, edm::Handle<std::vector<pat::Jet> >& jets, std::vector<int>& combi,
 							   std::string& bTagAlgo_, double& minBTagValueBJet_, double& maxBTagValueNonBJet_){
-  
+
   if( !useBTag_ ) {
     return true;
   }
@@ -188,13 +188,13 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   std::auto_ptr<int> pJetsConsidered(new int);
 
   edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
+  evt.getByToken(jetsToken_, jets);
 
   edm::Handle<std::vector<pat::MET> > mets;
-  evt.getByLabel(mets_, mets);
+  evt.getByToken(metsToken_, mets);
 
   edm::Handle<LeptonCollection> leps;
-  evt.getByLabel(leps_, leps);
+  evt.getByToken(lepsToken_, leps);
 
   const unsigned int nPartons = 4;
 
@@ -203,7 +203,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   if(useOnlyMatch_) {
     *pJetsConsidered = nPartons;
     edm::Handle<std::vector<std::vector<int> > > matchHandle;
-    evt.getByLabel(match_, matchHandle);
+    evt.getByToken(matchToken_, matchHandle);
     match = *(matchHandle->begin());
     // check if match is valid
     if(match.size()!=nPartons) invalidMatch=true;
@@ -232,7 +232,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pNeutrinos  ->push_back( fitter->fittedNeutrino() );
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    for(unsigned int i = 0; i < nPartons; ++i) 
+    for(unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back( -1 );
     pCombi->push_back( invalidCombi );
     // chi2
@@ -262,7 +262,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   // analyze different jet combinations using the KinFitter
   // (or only a given jet combination if useOnlyMatch=true)
   // -----------------------------------------------------
-  
+
   std::vector<int> jetIndices;
   if(!useOnlyMatch_) {
     for(unsigned int i=0; i<jets->size(); ++i){
@@ -273,7 +273,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
       jetIndices.push_back(i);
     }
   }
-  
+
   std::vector<int> combi;
   for(unsigned int i=0; i<nPartons; ++i) {
     if(useOnlyMatch_) combi.push_back( match[i] );
@@ -288,7 +288,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
       // reduces combinatorics by a factor of 2
       if( (combi[TtSemiLepEvtPartons::LightQ] < combi[TtSemiLepEvtPartons::LightQBar]
 	 || useOnlyMatch_ ) && doBTagging(useBTag_, jets, combi, bTagAlgo_, minBTagValueBJet_, maxBTagValueNonBJet_) ){
-	
+
 	std::vector<pat::Jet> jetCombi;
 	jetCombi.resize(nPartons);
 	jetCombi[TtSemiLepEvtPartons::LightQ   ] = (*jets)[combi[TtSemiLepEvtPartons::LightQ   ]];
@@ -325,7 +325,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 
   // sort results w.r.t. chi2 values
   FitResultList.sort();
-  
+
   // -----------------------------------------------------
   // feed out result
   // starting with the JetComb having the smallest chi2
@@ -340,7 +340,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pNeutrinos  ->push_back( fitter->fittedNeutrino() );
     // indices referring to the jet combination
     std::vector<int> invalidCombi;
-    for(unsigned int i = 0; i < nPartons; ++i) 
+    for(unsigned int i = 0; i < nPartons; ++i)
       invalidCombi.push_back( -1 );
     pCombi->push_back( invalidCombi );
     // chi2
@@ -386,25 +386,25 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   evt.put(pStatus     , "Status"     );
   evt.put(pJetsConsidered, "NumberOfConsideredJets");
 }
- 
+
 template<typename LeptonCollection>
-TtSemiLepKinFitter::Param TtSemiLepKinFitProducer<LeptonCollection>::param(unsigned val) 
+TtSemiLepKinFitter::Param TtSemiLepKinFitProducer<LeptonCollection>::param(unsigned val)
 {
   TtSemiLepKinFitter::Param result;
   switch(val){
   case TtSemiLepKinFitter::kEMom       : result=TtSemiLepKinFitter::kEMom;       break;
   case TtSemiLepKinFitter::kEtEtaPhi   : result=TtSemiLepKinFitter::kEtEtaPhi;   break;
   case TtSemiLepKinFitter::kEtThetaPhi : result=TtSemiLepKinFitter::kEtThetaPhi; break;
-  default: 
-    throw cms::Exception("Configuration") 
+  default:
+    throw cms::Exception("Configuration")
       << "Chosen jet parametrization is not supported: " << val << "\n";
     break;
   }
   return result;
-} 
+}
 
 template<typename LeptonCollection>
-TtSemiLepKinFitter::Constraint TtSemiLepKinFitProducer<LeptonCollection>::constraint(unsigned val) 
+TtSemiLepKinFitter::Constraint TtSemiLepKinFitProducer<LeptonCollection>::constraint(unsigned val)
 {
   TtSemiLepKinFitter::Constraint result;
   switch(val){
@@ -415,13 +415,13 @@ TtSemiLepKinFitter::Constraint TtSemiLepKinFitProducer<LeptonCollection>::constr
   case TtSemiLepKinFitter::kNeutrinoMass   : result=TtSemiLepKinFitter::kNeutrinoMass;   break;
   case TtSemiLepKinFitter::kEqualTopMasses : result=TtSemiLepKinFitter::kEqualTopMasses; break;
   case TtSemiLepKinFitter::kSumPt          : result=TtSemiLepKinFitter::kSumPt;          break;
-  default: 
-    throw cms::Exception("Configuration") 
+  default:
+    throw cms::Exception("Configuration")
       << "Chosen fit constraint is not supported: " << val << "\n";
     break;
   }
   return result;
-} 
+}
 
 template<typename LeptonCollection>
 std::vector<TtSemiLepKinFitter::Constraint> TtSemiLepKinFitProducer<LeptonCollection>::constraints(std::vector<unsigned>& val)
@@ -430,7 +430,7 @@ std::vector<TtSemiLepKinFitter::Constraint> TtSemiLepKinFitProducer<LeptonCollec
   for(unsigned i=0; i<val.size(); ++i){
     result.push_back(constraint(val[i]));
   }
-  return result; 
+  return result;
 }
 
 #endif

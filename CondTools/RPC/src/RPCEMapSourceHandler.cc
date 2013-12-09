@@ -380,8 +380,8 @@ void popcon::RPCEMapSourceHandler::readEMap1()
 
 int popcon::RPCEMapSourceHandler::Compare2EMaps(const Ref& _map1, RPCEMap* map2) {
   Ref map1 = _map1;
-  RPCReadOutMapping* oldmap1 = map1->convert();
-  RPCReadOutMapping* oldmap2 = map2->convert();
+  RPCReadOutMapping const* oldmap1 = map1->convert();
+  RPCReadOutMapping const* oldmap2 = map2->convert();
   std::vector<const DccSpec *> dccs1 = oldmap1->dccList();
   std::vector<const DccSpec *> dccs2 = oldmap2->dccList();
   if(dccs1.size()!=dccs2.size()) {

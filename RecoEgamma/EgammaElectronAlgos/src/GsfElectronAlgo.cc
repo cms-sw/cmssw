@@ -10,7 +10,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -529,7 +528,6 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   const EcalRecHitCollection * recHits = 0 ;
   std::vector<int> recHitFlagsToBeExcluded ;
   std::vector<int> recHitSeverityToBeExcluded ;
-  const EcalSeverityLevelAlgo * severityLevelAlgo = eventSetupData_->sevLevel.product() ;
   if (detector==EcalBarrel)
    {
     recHits = eventData_->barrelRecHits.product() ;
@@ -543,15 +541,15 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps ;
    }
 
-  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,recHits,topology,geometry,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
+  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,recHits,topology,geometry) ;
+  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
   if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
-  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
-  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
-  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
-  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)/theClus->rawEnergy() ;
+  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology)  ;
+  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology)  ;
+  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology) ;
+  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,recHits,topology)/theClus->rawEnergy() ;
 
   if (pflow)
    {
@@ -654,6 +652,7 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
   }
  }
 
+
 void GsfElectronAlgo::copyElectrons( GsfElectronCollection & outEle )
  {
   GsfElectronPtrCollection::const_iterator it ;
@@ -672,21 +671,21 @@ void GsfElectronAlgo::beginEvent( edm::Event & event )
 
   // init the handles linked to the current event
   eventData_->event = &event ;
-  event.getByLabel(generalData_->inputCfg.previousGsfElectrons,eventData_->previousElectrons) ;
-  event.getByLabel(generalData_->inputCfg.pflowGsfElectronsTag,eventData_->pflowElectrons) ;
-  event.getByLabel(generalData_->inputCfg.gsfElectronCores,eventData_->coreElectrons) ;
-  event.getByLabel(generalData_->inputCfg.ctfTracks,eventData_->currentCtfTracks) ;
-  event.getByLabel(generalData_->inputCfg.barrelRecHitCollection,eventData_->barrelRecHits) ;
-  event.getByLabel(generalData_->inputCfg.endcapRecHitCollection,eventData_->endcapRecHits) ;
-  event.getByLabel(generalData_->inputCfg.hcalTowersTag,eventData_->towers) ;
-  event.getByLabel(generalData_->inputCfg.pfMVA,eventData_->pfMva) ;
-  event.getByLabel(generalData_->inputCfg.seedsTag,eventData_->seeds) ;
+  event.getByToken(generalData_->inputCfg.previousGsfElectrons,eventData_->previousElectrons) ;
+  event.getByToken(generalData_->inputCfg.pflowGsfElectronsTag,eventData_->pflowElectrons) ;
+  event.getByToken(generalData_->inputCfg.gsfElectronCores,eventData_->coreElectrons) ;
+  event.getByToken(generalData_->inputCfg.ctfTracks,eventData_->currentCtfTracks) ;
+  event.getByToken(generalData_->inputCfg.barrelRecHitCollection,eventData_->barrelRecHits) ;
+  event.getByToken(generalData_->inputCfg.endcapRecHitCollection,eventData_->endcapRecHits) ;
+  event.getByToken(generalData_->inputCfg.hcalTowersTag,eventData_->towers) ;
+  event.getByToken(generalData_->inputCfg.pfMVA,eventData_->pfMva) ;
+  event.getByToken(generalData_->inputCfg.seedsTag,eventData_->seeds) ;
   if (generalData_->strategyCfg.useGsfPfRecTracks)
-   { event.getByLabel(generalData_->inputCfg.gsfPfRecTracksTag,eventData_->gsfPfRecTracks) ; }
+   { event.getByToken(generalData_->inputCfg.gsfPfRecTracksTag,eventData_->gsfPfRecTracks) ; }
 
   // get the beamspot from the Event:
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle ;
-  event.getByLabel(generalData_->inputCfg.beamSpotTag,recoBeamSpotHandle) ;
+  event.getByToken(generalData_->inputCfg.beamSpotTag,recoBeamSpotHandle) ;
   eventData_->beamspot = recoBeamSpotHandle.product() ;
 
   // prepare access to hcal data
@@ -1114,6 +1113,32 @@ void GsfElectronAlgo::setPflowPreselectionFlag( GsfElectron * ele )
 //  if (ele->passingPflowPreselection())
 //   { LogTrace("GsfElectronAlgo") << "Mva criteria are satisfied" ; }
  }
+
+void GsfElectronAlgo::setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs) 
+{
+  GsfElectronPtrCollection::iterator el ;
+  for
+    ( el = eventData_->electrons->begin() ;
+      el != eventData_->electrons->end() ;
+      el++ )
+    {
+      std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput>::const_iterator itcheck=mvaInputs.find((*el)->gsfTrack());
+      (*el)->setMvaInput(itcheck->second);
+    }
+}
+
+void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs)
+{
+  GsfElectronPtrCollection::iterator el ;
+  for
+    ( el = eventData_->electrons->begin() ;
+      el != eventData_->electrons->end() ;
+      el++ )
+    {
+      std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput>::const_iterator itcheck=mvaOutputs.find((*el)->gsfTrack());
+      (*el)->setMvaOutput(itcheck->second);
+    }
+}
 
 void GsfElectronAlgo::createElectron()
  {

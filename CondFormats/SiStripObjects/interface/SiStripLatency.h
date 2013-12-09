@@ -114,8 +114,6 @@ class SiStripLatency
   /// Prints the full list of all ranges and corresponding values of latency and mode
   void printDebug(std::stringstream & ss) const;
 
- private:
-
   struct OrderByDetIdAndApv
   {
     bool operator()(const Latency & lat1, const uint32_t detIdAndApv) const {
@@ -139,6 +137,8 @@ class SiStripLatency
       return( (lat1.latency == lat2.latency) && (lat1.mode == lat2.mode) );
     }
   };
+
+ private:
 
   /// Used to compute the position with the lower_bound binary search
   // If put in the cc file it will not know about the typedefs and the Latency class

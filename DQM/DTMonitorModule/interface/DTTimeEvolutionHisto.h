@@ -22,8 +22,8 @@ public:
   ///    - title of the MonitorElement <br>
   ///    - # of bins <br>
   ///    - # of LumiSections per bin <br>
-  ///    - mode: <br> 
-  ///         0 -> rate (over event) <br> 
+  ///    - mode: <br>
+  ///         0 -> rate (over event) <br>
   ///              need to fill using accumulateValueTimeSlot and updateTimeSlot methods <br>
   ///         1 -> # of entries <br>
   ///         2 -> # of events <br>
@@ -53,11 +53,11 @@ public:
   virtual ~DTTimeEvolutionHisto();
 
   // Operations
-  
+
   void setTimeSlotValue(float value, int timeSlot);
-  
+
   void accumulateValueTimeSlot(float value);
-  
+
   void updateTimeSlot(int ls, int nEventsInLS);
 
   void normalizeTo(const MonitorElement *histForNorm);
@@ -74,7 +74,12 @@ private:
   int nBookedBins;
   int theMode;
   MonitorElement *histo;
-  
+
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

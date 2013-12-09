@@ -13,13 +13,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
-#include "../interface/JsonMonitorable.h"
-#include "../interface/DataPointMonitor.h"
-#include "../interface/JSONSerializer.h"
-
-#include "EvFDaqDirector.h"
-
-using namespace jsoncollector;
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/DataPointMonitor.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/reader.h"
 
 class FEDRawDataCollection;
 class InputSourceDescription;
@@ -28,68 +25,60 @@ class ParameterSet;
 class FedRawDataInputSource: public edm::RawInputSource {
 
 public:
-	explicit FedRawDataInputSource(edm::ParameterSet const&,
-			edm::InputSourceDescription const&);
-	virtual ~FedRawDataInputSource();
+  explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
+  virtual ~FedRawDataInputSource();
 
 protected:
-	virtual bool checkNextEvent();
-	virtual void read(edm::EventPrincipal& eventPrincipal);
+  virtual bool checkNextEvent() override;
+  virtual void read(edm::EventPrincipal& eventPrincipal) override;
 
 private:
-	virtual void preForkReleaseResources();
-	virtual void postForkReacquireResources(
-			boost::shared_ptr<edm::multicore::MessageReceiverForSource>);
-	virtual void rewind_();
+  virtual void preForkReleaseResources() override;
+  virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>) override;
+  virtual void rewind_() override;
 
-	void createWorkingDirectory();
-	//void findRunDir(const std::string& rootFUDirectory);
-	void findRunDir();
-	edm::Timestamp fillFEDRawDataCollection(
-			std::auto_ptr<FEDRawDataCollection>&);
-	bool openNextFile();
-	void openFile(boost::filesystem::path const&);
-	bool searchForNextFile(boost::filesystem::path const&);
-	//bool grabNextFile(boost::filesystem::path const&,boost::filesystem::path const&);
-	bool grabNextFile(boost::filesystem::path&, boost::filesystem::path const&);
-	bool eofReached() const;
-	bool runEnded() const;
+  void maybeOpenNewLumiSection(const uint32_t lumiSection);
+  bool cacheNextEvent();
+  edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
+  bool openNextFile();
+  bool searchForNextFile();
+  bool grabNextJsonFile(boost::filesystem::path const&);
+  void openDataFile(std::string const&);
+  bool eofReached() const;
+  bool readNextChunkIntoBuffer();
+  void renameToNextFree() const;
 
-	uint32_t getEventSizeFromBuffer();
-	uint32_t getPaddingSizeFromBuffer();
-	uint32_t fillFedSizesFromBuffer(uint32_t *fedSizes);
-	bool getEventHeaderFromBuffer(FRDEventHeader_V2 *eventHeader);
-	bool checkIfBuffered();
+  const unsigned int eventChunkSize_; // for buffered read-ahead
 
-	// get LS from filename instead of event header
-	bool getLSFromFilename_;
+  // get LS from filename instead of event header
+  const bool getLSFromFilename_;
+  const bool verifyAdler32_;
+  const bool testModeNoBuilderUnit_;
+  
+  const edm::RunNumber_t runNumber_;
 
-	bool testModeNoBuilderUnit_;
+  const std::string buInputDir_;
+  const std::string fuOutputDir_;
 
-	edm::DaqProvenanceHelper daqProvenanceHelper_;
+  const edm::DaqProvenanceHelper daqProvenanceHelper_;
 
-	// the BU run directory
-	boost::filesystem::path buRunDirectory_;
-	// the OUTPUT run directory
-	boost::filesystem::path localRunBaseDirectory_;
-	boost::filesystem::path localRunDirectory_;
-	edm::RunNumber_t runNumber_;
-	uint32_t formatVersion_;
+  std::unique_ptr<FRDEventMsgView> event_;
 
-	boost::filesystem::path workingDirectory_;
-	boost::filesystem::path openFile_;
-	size_t fileIndex_;
-	FILE* fileStream_;
-	bool workDirCreated_;
-	edm::EventID eventID_;
+  boost::filesystem::path openFile_;
+  FILE* fileStream_;
+  edm::EventID eventID_;
 
-	unsigned int lastOpenedLumi_;
-	boost::filesystem::path currentDataDir_;
-	bool eorFileSeen_;
-	uint32_t buffer_left;
-	uint32_t buffer_cursor;
-	unsigned int eventChunkSize_;
-	unsigned char *data_buffer; // temporarily hold multiple event data
+  unsigned int currentLumiSection_;
+  boost::filesystem::path currentInputJson_;
+  unsigned int currentInputEventCount_;
+
+  bool eorFileSeen_;
+
+  unsigned char *dataBuffer_; // temporarily hold multiple event data
+  unsigned char *bufferCursor_;
+  uint32_t bufferLeft_;
+
+  Json::Reader reader_;
 };
 
 #endif // EventFilter_Utilities_FedRawDataInputSource_h

@@ -44,11 +44,20 @@ public:
 private:
   edm::ParameterSet conf_; 
   int verbose_;
+  std::string file_;
   std::map<std::string, TH1*> h;
+  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexCollectionToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexContainerToken_;
 };
 
 PixelVertexVal::PixelVertexVal(const edm::ParameterSet& conf)
-  : conf_(conf)
+  : verbose_( conf.getUntrackedParameter<unsigned int>( "Verbosity", 0 ) ) // How noisy?
+  , file_( conf.getUntrackedParameter<std::string>( "HistoFile","pixelVertexHistos.root" ) )
+  , h()
+  , trackCollectionToken_( consumes<reco::TrackCollection>( edm::InputTag( conf.getParameter<std::string>( "TrackCollection" ) ) ) )
+  , vertexCollectionToken_( consumes<reco::VertexCollection>( edm::InputTag( conf.getParameter<std::string>( "VertexCollection" ) ) ) )
+  , simVertexContainerToken_( consumes<edm::SimVertexContainer>( conf.getParameter<edm::InputTag>( "simG4" ) ) )
 {
   edm::LogInfo("PixelVertexVal")<<" CTOR";
 }
@@ -59,10 +68,6 @@ PixelVertexVal::~PixelVertexVal()
 }
 
 void PixelVertexVal::beginJob() {
-  // How noisy?
-  verbose_ = conf_.getUntrackedParameter<unsigned int>("Verbosity",0);
-
-
   // validation histos
   h["h_Nbvtx"]= new TH1F("h_nbvtx","nb vertices in event",16,0.,16.);
   h["h_Nbtrks"]= new TH1F("h_Nbtrks","nb tracks in PV",100,0.,100.);
@@ -79,8 +84,7 @@ void PixelVertexVal::analyze(
   if (verbose_ > 0) cout <<"------------------------------------------------"<<endl;
   cout <<"*** PixelVertexVal, analyze event: " << ev.id() << endl;
   edm::Handle<reco::TrackCollection> trackCollection;
-  std::string trackCollName = conf_.getParameter<std::string>("TrackCollection");
-  ev.getByLabel(trackCollName,trackCollection);
+  ev.getByToken( trackCollectionToken_, trackCollection );
   const reco::TrackCollection tracks = *(trackCollection.product());
 
   reco::TrackRefVector trks;
@@ -91,17 +95,15 @@ void PixelVertexVal::analyze(
 //  }
 
   edm::Handle<reco::VertexCollection> vertexCollection;
-  std::string vertexCollName = conf_.getParameter<std::string>("VertexCollection");
-  ev.getByLabel(vertexCollName,vertexCollection);
+  ev.getByToken( vertexCollectionToken_, vertexCollection );
   const reco::VertexCollection vertexes = *(vertexCollection.product());
   if (verbose_ > 0) {
 //    std::cout << *(vertexCollection.provenance()) << std::endl;
     cout << "Reconstructed "<< vertexes.size() << " vertexes" << std::endl;
   }
 
-  edm::InputTag simG4 = conf_.getParameter<edm::InputTag>( "simG4" );
   edm::Handle<edm::SimVertexContainer> simVtcs;
-  ev.getByLabel( simG4, simVtcs);
+  ev.getByToken( simVertexContainerToken_, simVtcs );
   if (verbose_ > 0) {
     cout << "simulated vertices: "<< simVtcs->size() << std::endl;
   }
@@ -143,8 +145,7 @@ void PixelVertexVal::analyze(
 }
 
 void PixelVertexVal::endJob() {
-  std::string file = conf_.getUntrackedParameter<std::string>("HistoFile","pixelVertexHistos.root");
-  TFile rootFile(file.c_str(),"RECREATE");
+  TFile rootFile(file_.c_str(),"RECREATE");
   for (std::map<std::string, TH1*>::const_iterator ih= h.begin(); ih != h.end(); ++ih) {
     TH1 * histo = (*ih).second;
     histo->Write();

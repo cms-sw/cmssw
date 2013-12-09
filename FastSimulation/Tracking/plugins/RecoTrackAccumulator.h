@@ -33,14 +33,18 @@ namespace edm {
 }
 */
 namespace edm {
+  class ConsumesCollector;
   template<typename T> class Handle;
+  namespace one {
+    class EDProducerBase;
+  }
 }
 
 
 class RecoTrackAccumulator : public DigiAccumulatorMixMod 
 {
  public:
-  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::EDProducer& mixMod);
+  explicit RecoTrackAccumulator(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual ~RecoTrackAccumulator();
   
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);

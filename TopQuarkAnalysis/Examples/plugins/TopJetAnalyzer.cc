@@ -1,13 +1,12 @@
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "TopQuarkAnalysis/Examples/plugins/TopJetAnalyzer.h"
 
 
 TopJetAnalyzer::TopJetAnalyzer(const edm::ParameterSet& cfg):
-  input_  (cfg.getParameter<edm::InputTag>("input"  )),
+  inputToken_  (consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("input"  ))),
   verbose_(cfg.getParameter<bool>         ("verbose"))
 {
   edm::Service<TFileService> fs;
-  
+
   mult_ = fs->make<TH1F>("mult", "multiplicity (jets)", 30,  0 ,   30);
   en_   = fs->make<TH1F>("en"  , "energy (jets)",       60,  0., 300.);
   pt_   = fs->make<TH1F>("pt"  , "pt (jets)",           60,  0., 300.);
@@ -23,10 +22,10 @@ void
 TopJetAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup)
 {
   edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByLabel(input_, jets); 
+  evt.getByToken(inputToken_, jets);
 
   // fill histograms
-  
+
   mult_->Fill( jets->size() );
   for(std::vector<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
     pt_ ->Fill( jet->pt()     );
@@ -107,4 +106,4 @@ void TopJetAnalyzer::endJob()
 {
 }
 
-  
+

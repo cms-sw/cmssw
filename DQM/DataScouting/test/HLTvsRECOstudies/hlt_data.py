@@ -5163,8 +5163,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       '28_bunches',
       '5e32' )
 )
-process.UpdaterService = cms.Service( "UpdaterService",
-)
 
 process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 

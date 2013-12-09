@@ -17,8 +17,8 @@
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 #include "DataFormats/PatCandidates/interface/Conversion.h"
 
-namespace {
-  struct dictionary {
+namespace DataFormats_PatCandidates {
+  struct dictionaryobjects {
 
   /*   PAT Object Collection Iterators   */
   std::vector<pat::Electron>::const_iterator	    v_p_e_ci;

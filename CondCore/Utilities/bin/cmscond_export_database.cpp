@@ -17,6 +17,8 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 
+#include <iostream>
+
 namespace cond {
   class ExportAccountUtilities : public Utilities {
     public:

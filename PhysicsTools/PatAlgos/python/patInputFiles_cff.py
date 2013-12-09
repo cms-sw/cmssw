@@ -1,35 +1,42 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 
+# /RelValProdTTbar/CMSSW_7_0_0_pre8-START70_V1-v1/AODSIM
 filesRelValProdTTbarAODSIM = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_7_0_0_pre7'
                         , relVal        = 'RelValProdTTbar'
                         , globalTag     = 'PRE_ST62_V8'
                         , dataTier      = 'AODSIM'
-                        , maxVersions   = 3
+                        , maxVersions   = 2
                         , numberOfFiles = 1
                         )
     )
+
+# /RelValProdTTbar/CMSSW_7_0_0_pre8-START70_V1-v1/GEN-SIM-RECO
 filesRelValProdTTbarGENSIMRECO = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_7_0_0_pre7'
                         , relVal        = 'RelValProdTTbar'
                         , globalTag     = 'PRE_ST62_V8'
-                        , dataTier      = 'GEN-SIM-RECO'
-                        , maxVersions   = 3
-                        , numberOfFiles = 1
-                        )
-    )
-filesRelValTTbarPileUpGENSIMRECO = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0'
-                        , relVal        = 'RelValTTbar'
-                        , globalTag     = 'PU_PRE_ST62_V8'
                         , dataTier      = 'GEN-SIM-RECO'
                         , maxVersions   = 2
                         , numberOfFiles = 1
                         )
     )
+
+# /RelValTTbar/CMSSW_7_0_0_pre8-PU_START70_V1-v1/GEN-SIM-RECO
+filesRelValTTbarPileUpGENSIMRECO = cms.untracked.vstring(
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_7_0_0_pre7'
+                        , relVal        = 'RelValTTbar'
+                        , globalTag     = 'PU_PRE_ST62_V8'
+                        , dataTier      = 'GEN-SIM-RECO'
+                        , maxVersions   = 1
+                        , numberOfFiles = 1
+                        )
+    )
+
+# /SingleMu/CMSSW_6_2_0_pre8-PRE_62_V8_RelVal_mu2012D-v1/RECO
 filesSingleMuRECO = cms.untracked.vstring(
-    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0_pre8'
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_6_2_0_pre8' # no 70X data RelVals at CERN
                         , relVal        = 'SingleMu'
                         , dataTier      = 'RECO'
                         , globalTag     = 'PRE_62_V8_RelVal_mu2012D'

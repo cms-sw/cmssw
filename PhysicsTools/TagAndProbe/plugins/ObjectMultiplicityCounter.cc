@@ -2,8 +2,8 @@
 
 /**
   \class    ObjectMultiplicityCounter"
-  \brief    Matcher of number of reconstructed objects in the event to probe 
-            
+  \brief    Matcher of number of reconstructed objects in the event to probe
+
   \author   Kalanand Mishra
 */
 
@@ -32,15 +32,15 @@ class ObjectMultiplicityCounter : public edm::EDProducer {
         virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
-        edm::InputTag probes_;            
-        edm::InputTag objects_; 
+        edm::EDGetTokenT<edm::View<reco::Candidate> > probesToken_;
+        edm::EDGetTokenT<edm::View<T> > objectsToken_;
         StringCutObjectSelector<T,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
 };
 
 template<typename T>
 ObjectMultiplicityCounter<T>::ObjectMultiplicityCounter(const edm::ParameterSet & iConfig) :
-    probes_(iConfig.getParameter<edm::InputTag>("probes")),
-    objects_(iConfig.getParameter<edm::InputTag>("objects")),
+    probesToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("probes"))),
+    objectsToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("objects"))),
     objCut_(iConfig.existsAs<std::string>("objectSelection") ? iConfig.getParameter<std::string>("objectSelection") : "", true)
 {
     produces<edm::ValueMap<float> >();
@@ -53,16 +53,16 @@ ObjectMultiplicityCounter<T>::~ObjectMultiplicityCounter()
 }
 
 template<typename T>
-void 
+void
 ObjectMultiplicityCounter<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
 
     // read input
     Handle<View<reco::Candidate> > probes;
     Handle<View<T> > objects;
-    iEvent.getByLabel(probes_,  probes);
-    iEvent.getByLabel(objects_, objects);
-    
+    iEvent.getByToken(probesToken_,  probes);
+    iEvent.getByToken(objectsToken_, objects);
+
     // fill
     float count = 0.0;
     typename View<T>::const_iterator object, endobjects = objects->end();
@@ -71,7 +71,7 @@ ObjectMultiplicityCounter<T>::produce(edm::Event & iEvent, const edm::EventSetup
       count += 1.0;
     }
 
-    // prepare vector for output    
+    // prepare vector for output
     std::vector<float> values(probes->size(), count);
 
     // convert into ValueMap and store

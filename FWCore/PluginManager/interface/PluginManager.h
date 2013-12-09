@@ -22,11 +22,14 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <mutex>
+
 #include <boost/filesystem/path.hpp>
 #include "boost/shared_ptr.hpp"
-#include "FWCore/Utilities/interface/Signal.h"
+#include "tbb/concurrent_unordered_map.h"
 
 // user include files
+#include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
 #include "FWCore/PluginManager/interface/PluginInfo.h"
 
@@ -34,6 +37,14 @@
 namespace edmplugin {
   class DummyFriend;
   class PluginFactoryBase;
+  
+  struct PluginManagerPathHasher {
+    size_t operator()(boost::filesystem::path const& iPath) const {
+      tbb::tbb_hash<std::string> hasher;
+      return hasher( iPath.native() );
+    }
+  };
+  
 class PluginManager
 {
    friend class DummyFriend;
@@ -103,15 +114,18 @@ class PluginManager
       void newFactory(const PluginFactoryBase* );
       static std::string& loadingLibraryNamed_();
       static PluginManager*& singleton();
-      
+  
+      std::recursive_mutex& pluginLoadMutex() {return pluginLoadMutex_;}
+  
       const boost::filesystem::path& loadableFor_(const std::string& iCategory,
                                                   const std::string& iPlugin,
                                                   bool& ioThrowIfFailElseSucceedStatus);
       // ---------- member data --------------------------------
       SearchPath searchPath_;
-      std::map<boost::filesystem::path, boost::shared_ptr<SharedLibrary> > loadables_;
+      tbb::concurrent_unordered_map<boost::filesystem::path, boost::shared_ptr<SharedLibrary>, PluginManagerPathHasher > loadables_;
       
       CategoryToInfos categoryToInfos_;
+      std::recursive_mutex pluginLoadMutex_;
 };
 
 }

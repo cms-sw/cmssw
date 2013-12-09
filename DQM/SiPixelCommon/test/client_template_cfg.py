@@ -94,10 +94,6 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
-
 # define all paths and sequences:
 process.Digis = cms.Sequence(process.siPixelDigis)
 process.Clusters = cms.Sequence(process.siPixelClusters)

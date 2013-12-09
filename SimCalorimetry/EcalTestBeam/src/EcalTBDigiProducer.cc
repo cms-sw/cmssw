@@ -1,7 +1,8 @@
 
 #include "SimCalorimetry/EcalTestBeam/interface/EcalTBDigiProducer.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -11,8 +12,8 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h"
 
-EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params, edm::EDProducer& mixMod ) :
-   EcalDigiProducer( params, mixMod )
+EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+   EcalDigiProducer(params, mixMod, iC)
 {
    std::string const instance("simEcalUnsuppressedDigis");
    m_EBdigiFinalTag = params.getParameter<std::string>( "EBdigiFinalCollection" ) ;
@@ -54,6 +55,11 @@ EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params, edm::ED
    m_theTBReadout = new EcalTBReadout( m_ecalTBInfoLabel ) ;
 
    m_tunePhaseShift =  params.getParameter<double>( "tunePhaseShift" ) ;
+
+   if( m_doPhaseShift )
+   {
+     iC.consumes<PEcalTBInfo>(edm::InputTag(params.getUntrackedParameter<std::string>("EcalTBInfoLabel","SimEcalTBG4Object")));
+   }
 }
 
 EcalTBDigiProducer::~EcalTBDigiProducer()

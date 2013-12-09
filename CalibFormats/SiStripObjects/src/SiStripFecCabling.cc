@@ -177,7 +177,7 @@ const SiStripModule& SiStripFecCabling::module( const uint32_t& dcu_id ) const {
       }
     }
   }
-  static FedChannelConnection temp;
+  static const FedChannelConnection temp;
   static const SiStripModule module(temp);
   return module;
 }

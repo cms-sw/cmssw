@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.PhotonIdentification.pfIsolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
@@ -8,20 +9,25 @@ from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 # producer for photons
 #
 gedPhotons = cms.EDProducer("GEDPhotonProducer",
-    photonCoreProducer = cms.InputTag("gedPhotonCore"),
+    photonProducer = cms.InputTag("tmpGedPhoton"),                        
     regressionWeightsFromDB =   cms.bool(True),                    
     energyRegressionWeightsFileLocation = cms.string('/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root'),
     energyRegressionWeightsDBLocation = cms.string('wgbrph'), 
     superClusterEnergyCorrFunction =  cms.string("EcalClusterEnergyCorrection"),                  
     superClusterEnergyErrorFunction = cms.string("EcalClusterEnergyUncertainty"),
     superClusterCrackEnergyCorrFunction =  cms.string("EcalClusterCrackCorrection"),                                       
-    photonEcalEnergyCorrFunction = cms.string("EcalClusterEnergyCorrectionObjectSpecific"),             
+    photonEcalEnergyCorrFunction = cms.string("EcalClusterEnergyCorrectionObjectSpecific"),
+    pfEgammaCandidates = cms.InputTag("particleFlowEGamma"),
+    pfCandidates = cms.InputTag("particleFlowTmp"),                        
+    outputPhotonCollection = cms.string(""),                         
+    valueMapPhotons = cms.string("valMapPFEgammaCandToPhoton"),             
     #candidateP4type = cms.string("fromRegression"),
     candidateP4type = cms.string("fromEcalEnergy"),                     
     isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
+    PFIsolationCalculatorSet = cms.PSet(pfIsolationCalculator),                        
     mipVariableSet = cms.PSet(mipVariable), 
     usePrimaryVertex = cms.bool(True),
-    primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
+    primaryVertexProducer = cms.InputTag('offlinePrimaryVerticesWithBS'),
     posCalc_t0_endcPresh = cms.double(3.6),
     posCalc_logweight = cms.bool(True),
     posCalc_w0 = cms.double(4.2),

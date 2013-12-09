@@ -196,6 +196,9 @@
        int numberOfDigis[192];
        int nDigisA;
        int nDigisB;
+
+       //define Token(-s)
+       edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > srcToken_;
  };
 
 #endif

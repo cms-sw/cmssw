@@ -24,7 +24,7 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 #include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
 
-#include "sstream"
+#include <sstream>
 #include "boost/foreach.hpp"
 
 inline bool lt_(std::pair<double,short> a, std::pair<double,short> b) { return a.first<b.first; }

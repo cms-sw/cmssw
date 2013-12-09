@@ -12,12 +12,12 @@
  *   - For example: can match a photon with track within a given deltaR.
  *   - Saves collection of the reference vectors of matched objects.
  * History:
- *   
+ *
  * Kalanand Mishra, Fermilab - kalanand@fnal.gov
- * Extended the class to compute deltaR with respect to any object 
- * (i.e., Candidate, Jet, Muon, Electron, or Photon). The previous 
+ * Extended the class to compute deltaR with respect to any object
+ * (i.e., Candidate, Jet, Muon, Electron, or Photon). The previous
  * version of this class could deltaR only with respect to reco::Candidates.
- * This didn't work if one wanted to apply selection cuts on the Candidate's 
+ * This didn't work if one wanted to apply selection cuts on the Candidate's
  * RefToBase object.
  *****************************************************************************/
 
@@ -49,15 +49,15 @@ class DeltaRNearestObjectComputer : public edm::EDProducer {
         virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
-        edm::InputTag probes_;            
-        edm::InputTag objects_; 
+        edm::EDGetTokenT<edm::View<reco::Candidate> > probesToken_;
+        edm::EDGetTokenT<edm::View<T> > objectsToken_;
         StringCutObjectSelector<T,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
 };
 
 template<typename T>
 DeltaRNearestObjectComputer<T>::DeltaRNearestObjectComputer(const edm::ParameterSet & iConfig) :
-    probes_(iConfig.getParameter<edm::InputTag>("probes")),
-    objects_(iConfig.getParameter<edm::InputTag>("objects")),
+    probesToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("probes"))),
+    objectsToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("objects"))),
     objCut_(iConfig.existsAs<std::string>("objectSelection") ? iConfig.getParameter<std::string>("objectSelection") : "", true)
 {
     produces<edm::ValueMap<float> >();
@@ -70,20 +70,20 @@ DeltaRNearestObjectComputer<T>::~DeltaRNearestObjectComputer()
 }
 
 template<typename T>
-void 
+void
 DeltaRNearestObjectComputer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
 
     // read input
     Handle<View<reco::Candidate> > probes;
-    iEvent.getByLabel(probes_,  probes);
+    iEvent.getByToken(probesToken_,  probes);
 
     Handle<View<T> > objects;
-    iEvent.getByLabel(objects_, objects);
+    iEvent.getByToken(objectsToken_, objects);
 
-    // prepare vector for output    
+    // prepare vector for output
     std::vector<float> values;
-    
+
     // fill
     View<reco::Candidate>::const_iterator probe, endprobes = probes->end();
     for (probe = probes->begin(); probe != endprobes; ++probe) {
@@ -118,9 +118,9 @@ typedef DeltaRNearestObjectComputer<reco::Photon>        DeltaRNearestPhotonComp
 typedef DeltaRNearestObjectComputer<reco::Jet>           DeltaRNearestJetComputer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(DeltaRNearestCandidateComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestMuonComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestElectronComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestGsfElectronComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestPhotonComputer);          
-DEFINE_FWK_MODULE(DeltaRNearestJetComputer);          
+DEFINE_FWK_MODULE(DeltaRNearestCandidateComputer);
+DEFINE_FWK_MODULE(DeltaRNearestMuonComputer);
+DEFINE_FWK_MODULE(DeltaRNearestElectronComputer);
+DEFINE_FWK_MODULE(DeltaRNearestGsfElectronComputer);
+DEFINE_FWK_MODULE(DeltaRNearestPhotonComputer);
+DEFINE_FWK_MODULE(DeltaRNearestJetComputer);

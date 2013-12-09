@@ -1,7 +1,7 @@
 /******* \class DTEffAnalyzer *******
  *
  * Description:
- *  
+ *
  *  detailed description
  *
  * \author : Mario Pelliccioni, pellicci@cern.ch
@@ -39,13 +39,13 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h" 
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "DataFormats/Common/interface/RefToBase.h" 
+#include "DataFormats/Common/interface/RefToBase.h"
 
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
@@ -58,7 +58,7 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
 {
   // Get the debug parameter for verbose output
   debug = pSet.getUntrackedParameter<bool>("debug",false);
-  
+
   LogVerbatim("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: constructor called";
 
@@ -70,7 +70,8 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
   ParameterSet serviceParameters = pSet.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  theTracksLabel = pSet.getParameter<InputTag>("TrackCollection");
+  theTracksLabel_ = pSet.getParameter<InputTag>("TrackCollection");
+  theTracksToken_ = consumes<reco::TrackCollection>(theTracksLabel_);
 
   theMaxChi2 = static_cast<unsigned int>(pSet.getParameter<double>("theMaxChi2"));
   theNSigma = pSet.getParameter<double>("theNSigma");
@@ -82,11 +83,11 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
   thecscSegments = pSet.getParameter<InputTag>("cscSegments");
 
   theMeasurementExtractor = new MuonDetLayerMeasurements(thedt4DSegments,thecscSegments,
-							 labelRPCRecHits,true,false,false); 
+							 labelRPCRecHits,true,false,false);
 
   theNavigationType = pSet.getParameter<string>("NavigationType");
 
-  theEstimator = new Chi2MeasurementEstimator(theMaxChi2,theNSigma); 
+  theEstimator = new Chi2MeasurementEstimator(theMaxChi2,theNSigma);
 }
 
 
@@ -143,7 +144,7 @@ void DTChamberEfficiency::bookHistos()
 
     vector<MonitorElement *> histos;
 
-    stringstream wheel_str; wheel_str << wheel;	
+    stringstream wheel_str; wheel_str << wheel;
 
     histos.push_back(theDbe->book2D("hCountSectVsChamb_All_W"+ wheel_str.str(),
 				    "Countings for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
@@ -170,20 +171,20 @@ void DTChamberEfficiency::analyze(const Event & event,
     event.id().run() << " #Event: " << event.id().event() << endl;
 
   theService->update(eventSetup);
-  theMeasurementExtractor->setEvent(event); 
+  theMeasurementExtractor->setEvent(event);
   // set navigation school
   NavigationSetter setter(*theService->muonNavigationSchool());
 
   //Read tracks from event
   Handle<reco::TrackCollection> tracks;
-  event.getByLabel(theTracksLabel, tracks);
-  
+  event.getByToken(theTracksToken_, tracks);
+
   if(tracks.isValid()) { // check the validity of the collection
 
     //loop over the muons
     for(reco::TrackCollection::const_iterator track = tracks->begin(); track!=tracks->end(); ++track) {
 
-      
+
       reco::TransientTrack trans_track(*track,magfield.product(),theTrackingGeometry);
       const int recHitsize = (int)trans_track.recHitsSize();
       if(recHitsize < theMinNrec) continue;
@@ -208,31 +209,31 @@ void DTChamberEfficiency::analyze(const Event & event,
       const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer(id);
 
       TrajectoryStateOnSurface init_fs = trans_track.innermostMeasurementState();
-      FreeTrajectoryState *init_fs_free = init_fs.freeState();
+      const FreeTrajectoryState *init_fs_free = init_fs.freeState();
 
       //get the list of compatible layers
       vector<const DetLayer*> layer_list = compatibleLayers(initialLayer,*init_fs_free,alongMomentum);
       vector<const DetLayer*> layer_list_2 = compatibleLayers(initialLayer,*init_fs_free,oppositeToMomentum);
 
       layer_list.insert(layer_list.end(),layer_list_2.begin(),layer_list_2.end());
-      
+
       set<DTChamberId> alreadyCheckedCh;
 
       //loop over the list of compatible layers
       for(int i=0;i< (int)layer_list.size();i++) {
 
 	//propagate the track to the i-th layer
-	TrajectoryStateOnSurface tsos = propagator()->propagate(init_fs,layer_list.at(i)->surface()); 
+	TrajectoryStateOnSurface tsos = propagator()->propagate(init_fs,layer_list.at(i)->surface());
 	if(!tsos.isValid()) continue;
 
 	//determine the chambers kinematically compatible with the track on the i-th layer
 	vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
-	
+
 	if(dss.size() == 0) continue;
 
 	// get the first det (it's the most compatible)
 	const DetWithState detWithState = dss.front();
-	const DetId idDetLay = detWithState.first->geographicalId(); 
+	const DetId idDetLay = detWithState.first->geographicalId();
 
 	// check if this is a DT and the track has the needed quality
 	if(!chamberSelection(idDetLay,trans_track)) continue;
@@ -242,7 +243,7 @@ void DTChamberEfficiency::analyze(const Event & event,
 	// check if the chamber has already been counted
 	if(alreadyCheckedCh.find(DTid) != alreadyCheckedCh.end()) continue;
 	alreadyCheckedCh.insert(DTid);
-	
+
 	// get the compatible measurements
 	MeasurementContainer detMeasurements_initial = theMeasurementExtractor->measurements(layer_list.at(i),
 											     detWithState.first,
@@ -255,19 +256,19 @@ void DTChamberEfficiency::analyze(const Event & event,
 	//we want to be more picky about the quality of the segments:
 	//exclude the segments with less than 12 hits
 	MeasurementContainer detMeasurements = segQualityCut(detMeasurements_initial);
-	
+
 	// get the histos for this chamber
-	vector<MonitorElement *> histos =  histosPerW[DTid.wheel()+2];  
+	vector<MonitorElement *> histos =  histosPerW[DTid.wheel()+2];
 	// fill them
 	if (detMeasurements_initial.size() != 0) histos[0]->Fill(DTid.sector(),DTid.station(),1.);
 	if (detMeasurements.size() != 0) histos[1]->Fill(DTid.sector(),DTid.station(),1.);
 	histos[2]->Fill(DTid.sector(),DTid.station(),1.);
-	
+
 
       }
     }
   } else {
-    LogInfo("DTDQM|DTMonitorModule|DTChamberEfficiency") << "[DTChamberEfficiency] Collection: " << theTracksLabel
+    LogInfo("DTDQM|DTMonitorModule|DTChamberEfficiency") << "[DTChamberEfficiency] Collection: " << theTracksLabel_
 							 << " is not valid!" << endl;
   }
   return;
@@ -339,8 +340,13 @@ if(theNavigationType == "Standard"){
    LogError("DTDQM|DTMonitorModule|DTChamberEfficiency") << "No Properly Navigation Selected!!"<<endl;
 
  return detLayers;
-} 
+}
 
 inline ESHandle<Propagator> DTChamberEfficiency::propagator() const {
   return theService->propagator("SteppingHelixPropagatorAny");
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

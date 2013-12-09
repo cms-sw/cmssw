@@ -254,13 +254,20 @@ namespace edm {
     
     void
     OutputModuleBase::doPreForkReleaseResources() {
-      //doPreForkReleaseResources();
+      preForkReleaseResources();
     }
     
     void
     OutputModuleBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      //postForkReacquireResources_(iChildIndex, iNumberOfChildren);
+      postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
+    
+    void
+    OutputModuleBase::preForkReleaseResources() {}
+    
+    void
+    OutputModuleBase::postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+
     
     void OutputModuleBase::maybeOpenFile() {
       if(!isFileOpen()) reallyOpenFile();

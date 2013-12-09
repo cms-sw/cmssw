@@ -117,6 +117,14 @@ private:
   MonitorElement * m_plotL3IP3ndTrack3d;
   MonitorElement * m_plotL3IP3ndTrack3dSig;
   MonitorElement * m_plotL3Discriminator;
+
+  //define Token(-s)
+  edm::EDGetTokenT<edm::TriggerResults> m_triggerResultsToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> > m_L2JetsToken_;
+  edm::EDGetTokenT<reco::TrackIPTagInfoCollection> m_L25TagInfoToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> m_L25JetTagsToken_;
+  edm::EDGetTokenT<reco::TrackIPTagInfoCollection> m_L3TagInfoToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> m_L3JetTagsToken_;
 };
 
 #endif // DQM_HLTEvF_HLTMonBTagIPSource_H

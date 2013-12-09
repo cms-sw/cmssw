@@ -56,6 +56,9 @@ void analyze(const edm::Event& e, const edm::EventSetup& c);
 // BeginJob
 void beginJob(void);
 
+// BeginRun
+void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+
 // EndJob
 void endJob(void);
 
@@ -79,7 +82,7 @@ private:
   std::vector<int> l1feds_;
   std::ofstream logFile_;
   edm::InputTag fedSource_;  
-  edm::InputTag rawl_;
+  edm::EDGetTokenT<FEDRawDataCollection> rawl_;
   std::string directory_;
   bool stableROConfig_;
 };

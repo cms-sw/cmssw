@@ -16,7 +16,7 @@
 //
 #include "CondCore/CondDB/interface/Time.h"
 
-namespace conddb {
+namespace cond {
 
   typedef enum { 
     SYNCHRONIZATION_UNKNOWN = -1,
@@ -30,17 +30,14 @@ namespace conddb {
 
   SynchronizationType synchronizationTypeFromName( const std::string& name );
 
-  template <typename T> 
-  std::pair<const std::string,T> enumPair( std::string name, T value ){
-    return std::make_pair( name, value );
-  }
-
   typedef std::string Hash;
   static constexpr unsigned int HASH_SIZE = 40;
 
   // Basic element of the IOV sequence.
   struct Iov_t {
     void clear();
+    bool isValid() const;
+    bool isValidFor( Time_t target ) const;
     Time_t since;
     Time_t till;
     Hash payloadId;

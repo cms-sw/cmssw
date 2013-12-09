@@ -73,7 +73,9 @@
 // the final column definition macro
 #define column( ... ) SELECT_COLUMN_MACRO(__VA_ARGS__)(__VA_ARGS__)
 
-namespace conddb {
+namespace cond {
+
+  namespace persistency {
 
   // helper function to asses the equality of the underlying types, regardless if they are references and their constness
   template <typename T, typename P>
@@ -88,7 +90,7 @@ namespace conddb {
       data[ attributeName ].data<T>() = param;
     }
 
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const conddb::Binary& param, bool init ){
+    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::Binary& param, bool init ){
       if(init) data.extend<coral::Blob>( attributeName );
       data[ attributeName ].bind( param.get() );
     }
@@ -98,12 +100,12 @@ namespace conddb {
       data[ attributeName ].data<coral::TimeStamp>() = coral::TimeStamp(param);
     }
 
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const conddb::TimeType& param, bool init ){
+    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::TimeType& param, bool init ){
       if(init) data.extend<std::string>( attributeName );
-      data[ attributeName ].data<std::string>() = conddb::time::timeTypeName( param );
+      data[ attributeName ].data<std::string>() = cond::time::timeTypeName( param );
     }
 
-    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const conddb::SynchronizationType& param, bool init ){
+    template<> void f_add_attribute( coral::AttributeList& data, const std::string& attributeName, const cond::SynchronizationType& param, bool init ){
       if(init) data.extend<std::string>( attributeName );
       data[ attributeName ].data<std::string>() = synchronizationTypeNames( param );
     }
@@ -179,7 +181,7 @@ namespace conddb {
       return coral::AttributeSpecification::typeNameForType<T>();
     }
   };
-  template<> struct AttributeTypeName<conddb::Binary> {
+  template<> struct AttributeTypeName<cond::Binary> {
     std::string operator()(){
       return coral::AttributeSpecification::typeNameForType<coral::Blob>();
     }
@@ -189,12 +191,12 @@ namespace conddb {
       return coral::AttributeSpecification::typeNameForType<coral::TimeStamp>();
     }
   };
-  template<> struct AttributeTypeName<conddb::TimeType> {
+  template<> struct AttributeTypeName<cond::TimeType> {
     std::string operator()(){
       return coral::AttributeSpecification::typeNameForType<std::string>();
     }
   };
-  template<> struct AttributeTypeName<conddb::SynchronizationType> {
+  template<> struct AttributeTypeName<cond::SynchronizationType> {
     std::string operator()(){
       return coral::AttributeSpecification::typeNameForType<std::string>();
     }
@@ -286,21 +288,21 @@ namespace conddb {
   template <typename T> struct GetFromRow { T operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
     return row[ fullyQualifiedName ].data<T>(); 
   } };
-  template <> struct GetFromRow<conddb::Binary> { conddb::Binary operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
-    return conddb::Binary(row[ fullyQualifiedName ].data<coral::Blob>());
+  template <> struct GetFromRow<cond::Binary> { cond::Binary operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
+    return cond::Binary(row[ fullyQualifiedName ].data<coral::Blob>());
   } };
   template <> struct GetFromRow<boost::posix_time::ptime> { boost::posix_time::ptime operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
     return  row[ fullyQualifiedName ].data<coral::TimeStamp>().time();
   } };
-  template <> struct GetFromRow<conddb::TimeType> { conddb::TimeType operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
-    return  conddb::time::timeTypeFromName( row[ fullyQualifiedName ].data<std::string>() );
+  template <> struct GetFromRow<cond::TimeType> { cond::TimeType operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
+    return  cond::time::timeTypeFromName( row[ fullyQualifiedName ].data<std::string>() );
   } };
-  template <> struct GetFromRow<conddb::SynchronizationType> { conddb::SynchronizationType operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
-    return  conddb::synchronizationTypeFromName( row[ fullyQualifiedName ].data<std::string>() );
+  template <> struct GetFromRow<cond::SynchronizationType> { cond::SynchronizationType operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
+    return  cond::synchronizationTypeFromName( row[ fullyQualifiedName ].data<std::string>() );
   } };
   template <std::size_t n> struct GetFromRow< std::array<char,n> > { std::string operator()( const coral::AttributeList& row, const std::string& fullyQualifiedName ){
     std::string val = row[ fullyQualifiedName ].data<std::string>();
-    if( val.size() != n ) conddb::throwException("Retrieved string size does not match with the expected string size.","getFromRow");
+    if( val.size() != n ) throwException("Retrieved string size does not match with the expected string size.","getFromRow");
     std::array<char,n> ret;
     ::memcpy(ret.data(),val.c_str(),n);
     return ret;
@@ -370,7 +372,7 @@ namespace conddb {
     query.addToOutputList( fullyQualifiedName );
     query.defineOutputType( fullyQualifiedName, coral::AttributeSpecification::typeNameForType<T>() );      
   } };
-  template<> struct DefineQueryOutput<conddb::Binary>{ static void make( coral::IQuery& query, const std::string& fullyQualifiedName ){
+  template<> struct DefineQueryOutput<cond::Binary>{ static void make( coral::IQuery& query, const std::string& fullyQualifiedName ){
     query.addToOutputList( fullyQualifiedName );
     query.defineOutputType( fullyQualifiedName, coral::AttributeSpecification::typeNameForType<coral::Blob>() );      
   } };
@@ -378,11 +380,11 @@ namespace conddb {
     query.addToOutputList( fullyQualifiedName );
     query.defineOutputType( fullyQualifiedName, coral::AttributeSpecification::typeNameForType<coral::TimeStamp>() );      
   } };
-  template<> struct DefineQueryOutput<conddb::TimeType>{ static void make( coral::IQuery& query, const std::string& fullyQualifiedName ){
+  template<> struct DefineQueryOutput<cond::TimeType>{ static void make( coral::IQuery& query, const std::string& fullyQualifiedName ){
     query.addToOutputList( fullyQualifiedName );
     query.defineOutputType( fullyQualifiedName, coral::AttributeSpecification::typeNameForType<std::string>() );      
   } };
-  template<> struct DefineQueryOutput<conddb::SynchronizationType>{ static void make( coral::IQuery& query, const std::string& fullyQualifiedName ){
+  template<> struct DefineQueryOutput<cond::SynchronizationType>{ static void make( coral::IQuery& query, const std::string& fullyQualifiedName ){
     query.addToOutputList( fullyQualifiedName );
     query.defineOutputType( fullyQualifiedName, coral::AttributeSpecification::typeNameForType<std::string>() );      
   } };
@@ -391,68 +393,6 @@ namespace conddb {
     query.defineOutputType( fullyQualifiedName, coral::AttributeSpecification::typeNameForType<std::string>() );      
   } };
 
-  /**
-  class QueryDefinition {
-  public:
-    QueryDefinition():
-      m_whereData(),
-      m_whereClause(""),
-      m_tables(){
-    }
-
-    void bind( coral::IQueryDefinition& query ){
-      m_coralQuery = &query;
-    }
-  protected:
-    template<typename Col> void addTable(){
-      if( m_tables.find( Col::tableName() )==m_tables.end() ){
-	m_coralQuery->addToTableList( Col::tableName() );
-	m_tables.insert( Col::tableName() );
-      }
-    }
-
-    template<typename Col> void addToOutput(){
-      m_coralQuery->addToOutputList( Col::fullyQualifiedName() );
-    }
-
-  public:
-
-    template<typename C, typename T> void addCondition( const T& value, const std::string condition = "="){
-      addTable<C>();
-      f_add_condition_data<C>( m_whereData, m_whereClause, value, condition );       
-    }
-  
-    template<typename C1, typename C2> void addCondition( const std::string condition = "="){
-      addTable<C1>();
-      addTable<C2>();
-      f_add_condition<C1,C2>( m_whereClause, condition );      
-    }
-
-    template<typename C> void addOrderClause( bool ascending=true ){
-      std::string orderClause( C::fullyQualifiedName() );
-      if(!ascending) orderClause += " DESC";
-      m_coralQuery->addToOrderList( orderClause );
-    }
-
-    void setDistinct(){
-      m_coralQuery->setDistinct();
-    }
-
-    const coral::AttributeList& whereData() const {
-      return m_whereData;
-    }
-
-    const std::string& whereClause() const {
-      return m_whereClause;
-    }
-
-  private:    
-    coral::AttributeList m_whereData;
-    std::string m_whereClause;
-    std::set<std::string> m_tables;
-    coral::IQueryDefinition* m_coralQuery = 0;
-  };
-  **/
 
   template<typename... Types> class Query  {
     public:
@@ -507,14 +447,14 @@ namespace conddb {
     }
 
     bool next(){
-      if(!m_cursor) conddb::throwException( "The query has not been executed.","Query::currentRow");
+      if(!m_cursor) throwException( "The query has not been executed.","Query::currentRow");
       bool ret = m_cursor->next();
       if( ret ) m_retrievedRows++;
       return ret;
     }
 
     const coral::AttributeList& currentRow() const {
-      if(!m_cursor) conddb::throwException( "The query has not been executed.","Query::currentRow");
+      if(!m_cursor) throwException( "The query has not been executed.","Query::currentRow");
       return m_cursor->currentRow();
     }
 
@@ -655,6 +595,8 @@ namespace conddb {
     void updateTable( coral::ISchema& schema, const char* tableName, const UpdateBuffer& data ){
       schema.tableHandle( std::string(tableName ) ).dataEditor().updateRows( data.setClause(), data.whereClause(), data.get() );
     }
+
+  }
 
   }
 

@@ -8,7 +8,11 @@ using namespace std;
 
 HLTTauRefCombiner::HLTTauRefCombiner(const edm::ParameterSet& iConfig)
 {
-  inputColl_   = iConfig.getParameter< std::vector<InputTag> >("InputCollections");
+  std::vector<edm::InputTag> inputCollVector_ = iConfig.getParameter< std::vector<InputTag> >("InputCollections");
+  for(unsigned int ii=0; ii<inputCollVector_.size(); ++ii)
+    {
+      inputColl_.push_back( consumes<LorentzVectorCollection>(inputCollVector_[ii]) );
+    }
   matchDeltaR_ = iConfig.getParameter<double>("MatchDeltaR");
   outName_     = iConfig.getParameter<string>("OutputCollection");
 
@@ -29,7 +33,7 @@ void HLTTauRefCombiner::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     for(size_t i = 0;i<inputColl_.size();++i)
       {
 	edm::Handle<LorentzVectorCollection> tmp;
-	if(iEvent.getByLabel(inputColl_[i],tmp))
+	if(iEvent.getByToken(inputColl_[i],tmp))
 	  {
 	    handles.push_back(tmp);
 	  }

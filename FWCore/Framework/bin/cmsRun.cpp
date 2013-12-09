@@ -334,7 +334,10 @@ int main(int argc, char* argv[]) {
       alwaysAddContext = false;
       context = "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
       proc.on();
-      proc->runToCompletion();
+      auto status = proc->runToCompletion();
+      if (status == edm::EventProcessor::epSignal) {
+        returnCode = edm::errors::CaughtSignal;
+      }
       proc.off();
 
       context = "Calling endJob";

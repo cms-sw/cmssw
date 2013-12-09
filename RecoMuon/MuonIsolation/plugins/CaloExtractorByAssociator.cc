@@ -2,8 +2,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Utilities/Timing/interface/TimingReport.h"
@@ -34,7 +32,7 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
+CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, edm::ConsumesCollector && iC) :
   theUseRecHitsFlag(par.getParameter<bool>("UseRecHitsFlag")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDepositInstanceLabels(par.getParameter<std::vector<std::string> >("DepositInstanceLabels")),
@@ -51,7 +49,7 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
   theNoise_EE(par.getParameter<double>("Noise_EE")),
   theNoise_HB(par.getParameter<double>("Noise_HB")),
   theNoise_HE(par.getParameter<double>("Noise_HE")),
-  theNoise_HO(par.getParameter<double>("Noise_HO")),	
+  theNoise_HO(par.getParameter<double>("Noise_HO")),
   theNoiseTow_EB(par.getParameter<double>("NoiseTow_EB")),
   theNoiseTow_EE(par.getParameter<double>("NoiseTow_EE")),
   theService(0),
@@ -113,10 +111,10 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
   }
 
   typedef IsoDeposit::Veto Veto;
-  //! this should be (eventually) set to the eta-phi of the crossing point of 
+  //! this should be (eventually) set to the eta-phi of the crossing point of
   //! a straight line tangent to a muon at IP and the calorimeter
   IsoDeposit::Direction muonDir(muon.eta(), muon.phi());
-  
+
   IsoDeposit depEcal(muonDir);
   IsoDeposit depHcal(muonDir);
   IsoDeposit depHOcal(muonDir);
@@ -165,8 +163,8 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double deltar0 = reco::deltaR(muon, eHitPos);
       double cosTheta = 1./cosh(eHitPos.eta());
       double energy = eHitCPtr->energy();
-      double et = energy*cosTheta; 
-      if (deltar0 > theDR_Max 
+      double et = energy*cosTheta;
+      if (deltar0 > theDR_Max
 	  || ! (et > theThreshold_E && energy > 3*noiseRecHit(eHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
@@ -189,7 +187,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       if (vetoHit ){
 	depEcal.addCandEnergy(et);
       } else {
-	depEcal.addDeposit(reco::isodeposit::Direction(eHitPos.eta(), eHitPos.phi()), et);      
+	depEcal.addDeposit(reco::isodeposit::Direction(eHitPos.eta(), eHitPos.phi()), et);
       }
     }
 
@@ -202,7 +200,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(hHitPos.eta());
       double energy = hHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max 
+      if (deltar0 > theDR_Max
 	  || ! (et > theThreshold_H && energy > 3*noiseRecHit(hHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
@@ -225,7 +223,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       if (vetoHit ){
 	depHcal.addCandEnergy(et);
       } else {
-	depHcal.addDeposit(reco::isodeposit::Direction(hHitPos.eta(), hHitPos.phi()), et);      
+	depHcal.addDeposit(reco::isodeposit::Direction(hHitPos.eta(), hHitPos.phi()), et);
       }
     }
 
@@ -238,7 +236,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double cosTheta = 1./cosh(hoHitPos.eta());
       double energy = hoHitCPtr->energy();
       double et = energy*cosTheta;
-      if (deltar0 > theDR_Max 
+      if (deltar0 > theDR_Max
 	  || ! (et > theThreshold_HO && energy > 3*noiseRecHit(hoHitCPtr->detid()))) continue;
 
       bool vetoHit = false;
@@ -261,19 +259,19 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       if (vetoHit ){
 	depHOcal.addCandEnergy(et);
       } else {
-	depHOcal.addDeposit(reco::isodeposit::Direction(hoHitPos.eta(), hoHitPos.phi()), et);      	
+	depHOcal.addDeposit(reco::isodeposit::Direction(hoHitPos.eta(), hoHitPos.phi()), et);
       }
     }
 
 
   } else {
-    //! use calo towers    
+    //! use calo towers
     std::vector<const CaloTower*>::const_iterator calCI = mInfo.towers.begin();
     for (; calCI != mInfo.towers.end(); ++calCI){
       const CaloTower* calCPtr = *calCI;
       double deltar0 = reco::deltaR(muon,*calCPtr);
       if (deltar0>theDR_Max) continue;
-    
+
       //even more copy-pasting .. need to refactor
       double etecal = calCPtr->emEt();
       double eecal = calCPtr->emEnergy();
@@ -285,7 +283,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
       double ehocal = calCPtr->outerEnergy();
       bool doHOcal = ethocal>theThreshold_HO && ehocal>3*noiseHOcal(*calCPtr);
       if ((!doEcal) && (!doHcal) && (!doHcal)) continue;
-    
+
       bool vetoTowerEcal = false;
       double deltarEcal = reco::deltaR(mInfo.trkGlobPosAtEcal, *calCPtr);
       //! first check if the tower is inside the veto cone by dR-alone
@@ -346,7 +344,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
     }
   }
 
-  std::vector<IsoDeposit> resultDeps;    
+  std::vector<IsoDeposit> resultDeps;
   resultDeps.push_back(depEcal);
   resultDeps.push_back(depHcal);
   resultDeps.push_back(depHOcal);
@@ -363,7 +361,7 @@ double CaloExtractorByAssociator::noiseEcal(const CaloTower& tower) const {
 }
 
 double CaloExtractorByAssociator::noiseHcal(const CaloTower& tower) const {
-  double noise = fabs(tower.eta())> 1.479 ? theNoise_HE : theNoise_HB;      
+  double noise = fabs(tower.eta())> 1.479 ? theNoise_HE : theNoise_HB;
   return noise;
 }
 
@@ -388,7 +386,7 @@ double CaloExtractorByAssociator::noiseRecHit(const DetId& detId) const {
     if (subDet == HcalBarrel){
       noise = theNoise_HB;
     } else if (subDet == HcalEndcap){
-      noise = theNoise_HE;      
+      noise = theNoise_HE;
     } else if (subDet == HcalOuter){
       noise = theNoise_HO;
     }

@@ -42,11 +42,16 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
   // use onfiguration file to setup input/output collection names
 
-  photonCoreProducer_   = conf_.getParameter<edm::InputTag>("photonCoreProducer");
-  barrelEcalHits_   = conf_.getParameter<edm::InputTag>("barrelEcalHits");
-  endcapEcalHits_   = conf_.getParameter<edm::InputTag>("endcapEcalHits");
-  vertexProducer_   = conf_.getParameter<std::string>("primaryVertexProducer");
-  hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
+  photonCoreProducer_   = 
+    consumes<reco::PhotonCoreCollection>(conf_.getParameter<edm::InputTag>("photonCoreProducer"));
+  barrelEcalHits_   = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("barrelEcalHits"));
+  endcapEcalHits_   = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("endcapEcalHits"));
+  vertexProducer_   = 
+    consumes<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("primaryVertexProducer"));
+  hcalTowers_ = 
+    consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers"));
   hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
   highEt_        = conf_.getParameter<double>("highEt");
   // R9 value to decide converted/unconverted
@@ -173,9 +178,10 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   // Get the PhotonCore collection
   bool validPhotonCoreHandle=true;
   Handle<reco::PhotonCoreCollection> photonCoreHandle;
-  theEvent.getByLabel(photonCoreProducer_,photonCoreHandle);
+  theEvent.getByToken(photonCoreProducer_,photonCoreHandle);
   if (!photonCoreHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<photonCoreProducer_.label();
+    edm::LogError("PhotonProducer") 
+      << "Error! Can't get the photonCoreProducer";
     validPhotonCoreHandle=false;
   }
 
@@ -183,19 +189,21 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   bool validEcalRecHits=true;
   Handle<EcalRecHitCollection> barrelHitHandle;
   EcalRecHitCollection barrelRecHits;
-  theEvent.getByLabel(barrelEcalHits_, barrelHitHandle);
+  theEvent.getByToken(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<barrelEcalHits_.label();
+    edm::LogError("PhotonProducer") 
+      << "Error! Can't get the barrelEcalHits";
     validEcalRecHits=false; 
   }
   if (  validEcalRecHits)  barrelRecHits = *(barrelHitHandle.product());
 
   
   Handle<EcalRecHitCollection> endcapHitHandle;
-  theEvent.getByLabel(endcapEcalHits_, endcapHitHandle);
+  theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
   EcalRecHitCollection endcapRecHits;
   if (!endcapHitHandle.isValid()) {
-    edm::LogError("PhotonProducer") << "Error! Can't get the product "<<endcapEcalHits_.label();
+    edm::LogError("PhotonProducer") 
+      << "Error! Can't get the endcapEcalHits";
     validEcalRecHits=false; 
   }
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
@@ -209,7 +217,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
 // get Hcal towers collection 
   Handle<CaloTowerCollection> hcalTowersHandle;
-  theEvent.getByLabel(hcalTowers_, hcalTowersHandle);
+  theEvent.getByToken(hcalTowers_, hcalTowersHandle);
 
 
   // get the geometry from the event setup:
@@ -228,7 +236,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
   reco::VertexCollection vertexCollection;
   bool validVertex=true;
   if ( usePrimaryVertex_ ) {
-    theEvent.getByLabel(vertexProducer_, vertexHandle);
+    theEvent.getByToken(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
       edm::LogWarning("PhotonProducer") << "Error! Can't get the product primary Vertex Collection "<< "\n";
       validVertex=false;
@@ -338,12 +346,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float maxXtal =   EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
     //AA
     //Change these to consider severity level of hits
-    float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
-    float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv );    
-    float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology), flags_, severitiesexcl_, sevLv);
-    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);   
-    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry,flags_, severitiesexcl_, sevLv);
-    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology),flags_, severitiesexcl_, sevLv);
+    float e1x5    =   EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology));
+    float e2x5    =   EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology));    
+    float e3x3    =   EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology));
+    float e5x5    =   EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology));   
+    std::vector<float> cov =  EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry);
+    std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology));
       
     float sigmaEtaEta = sqrt(cov[0]);
     float sigmaIetaIeta = sqrt(locCov[0]);

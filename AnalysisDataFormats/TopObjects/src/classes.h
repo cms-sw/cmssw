@@ -5,7 +5,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
-#include "AnalysisDataFormats/TopObjects/interface/CATopJetTagInfo.h"
+
 
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "TString.h"
 
-namespace {
+namespace AnalysisDataFormats_TopObjects {
   struct dictionary {
     TtGenEvent ttgen;
     StGenEvent stgen;
@@ -60,16 +60,5 @@ namespace {
     edm::Wrapper<std::vector<TtHadEvtSolution> > w_v_tthad;
     edm::Wrapper<std::vector<StEvtSolution> > w_v_st;   
 
-    reco::CATopJetProperties                                            catopjetp;
-    std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>      catopjetp_p;
-
-    reco::CATopJetTagInfo                                               catopjet;
-    reco::CATopJetTagInfoCollection                                     catopjet_c;
-    reco::CATopJetTagInfoRef                                            catopjet_r;
-    reco::CATopJetTagInfoRefProd                                        catopjet_rp;
-    reco::CATopJetTagInfoRefVector                                      catopjet_rv;
-    edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
-    edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef> rb_catopjet;
-    edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>                 rbh_catopjet; 
   };
 }

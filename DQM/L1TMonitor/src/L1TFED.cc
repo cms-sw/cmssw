@@ -6,10 +6,6 @@
  */
 
 #include "DQM/L1TMonitor/interface/L1TFED.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/FEDRawData/interface/FEDHeader.h"
-#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 using namespace std;
 using namespace edm;
@@ -19,7 +15,7 @@ L1TFED::L1TFED(const ParameterSet& ps)
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-  rawl_  = ps.getParameter< InputTag >("rawTag");
+  rawl_  = consumes<FEDRawDataCollection>(ps.getParameter< InputTag >("rawTag"));
   if(verbose_) cout << "L1TFED: constructor...." << endl;
 
 
@@ -58,13 +54,11 @@ L1TFED::~L1TFED()
 
 void L1TFED::beginJob(void)
 {
-
   nev_ = 0;
+}
 
-  // get hold of back-end interface
-  DQMStore* dbe = 0;
-  dbe = Service<DQMStore>().operator->();
-
+void L1TFED::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) 
+{
   if ( dbe ) {
     dbe->setCurrentFolder(directory_);
     dbe->rmdir(directory_);
@@ -112,7 +106,7 @@ void L1TFED::analyze(const Event& e, const EventSetup& c)
   if(verbose_) cout << "L1T FED Integrity: analyze...." << endl;
 
   edm::Handle<FEDRawDataCollection> rawdata;
-  bool t = e.getByLabel(rawl_,rawdata);
+  bool t = e.getByToken(rawl_,rawdata);
   
   if ( ! t ) {
     if(verbose_) cout << "can't find FEDRawDataCollection "<< endl;

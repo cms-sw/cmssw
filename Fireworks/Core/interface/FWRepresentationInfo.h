@@ -28,17 +28,19 @@
 class FWRepresentationInfo {
 
 public:
-   FWRepresentationInfo(const std::string& iPurpose, unsigned int iProximity, unsigned int iBitPackedViews, bool iRepresentsSubPart) :
+   FWRepresentationInfo(const std::string& iPurpose, unsigned int iProximity, unsigned int iBitPackedViews, bool iRepresentsSubPart, bool iRequiresFF) :
       m_purpose(iPurpose),
       m_proximity(iProximity),
       m_bitPackedViews(iBitPackedViews),
-      m_representsSubPart(iRepresentsSubPart){
+      m_representsSubPart(iRepresentsSubPart)
+   {
    }
    FWRepresentationInfo() :
       m_purpose(),
       m_proximity(0xFFFFFFFF),
       m_bitPackedViews(0),
-      m_representsSubPart(false) {
+      m_representsSubPart(false),
+      m_requiresFF(false){
    }
    //virtual ~FWRepresentationInfo();
 
@@ -57,6 +59,8 @@ public:
    bool representsSubPart() const {
       return m_representsSubPart;
    }
+
+   bool requiresFF() const { return m_requiresFF; }
    
    unsigned int bitPackedViews() const {
       return m_bitPackedViews;
@@ -74,8 +78,9 @@ private:
    std::string m_purpose;
    unsigned int m_proximity;
    unsigned int m_bitPackedViews;
-   bool m_representsSubPart;
 
+   bool m_representsSubPart;
+   bool m_requiresFF;
 };
 
 

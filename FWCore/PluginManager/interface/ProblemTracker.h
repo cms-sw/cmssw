@@ -18,14 +18,12 @@ namespace edm
   class ProblemTracker
   {
   public:
-    static ProblemTracker* instance();
+    static ProblemTracker const* instance();
 
   private:
     ProblemTracker();
     ~ProblemTracker();
     ProblemTracker(const ProblemTracker&);
-
-    static bool dead_;
   };
 
   class AssertHandler
@@ -35,7 +33,7 @@ namespace edm
     ~AssertHandler();
   private:
     AssertHandler(const AssertHandler&);
-    ProblemTracker* pt_;
+    ProblemTracker const* pt_;
   };
 
 }

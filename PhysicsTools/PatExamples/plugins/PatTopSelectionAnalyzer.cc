@@ -10,6 +10,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+
 class PatTopSelectionAnalyzer : public edm::EDAnalyzer {
 
 public:
@@ -17,7 +22,7 @@ public:
   explicit PatTopSelectionAnalyzer(const edm::ParameterSet&);
   /// default destructor
   ~PatTopSelectionAnalyzer();
-  
+
 private:
   /// everything that needs to be done before the event loop
   virtual void beginJob() override ;
@@ -30,30 +35,25 @@ private:
   bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
   /// fill histogram if it had been booked before
   void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
-  
-  // simple map to contain all histograms; 
-  // histograms are booked in the beginJob() 
+
+  // simple map to contain all histograms;
+  // histograms are booked in the beginJob()
   // method
-  std::map<std::string, TH1F*> hists_; 
+  std::map<std::string, TH1F*> hists_;
 
-  // input tags  
-  edm::InputTag elecs_;
-  edm::InputTag muons_;
-  edm::InputTag jets_;
-  edm::InputTag met_;
+  // input tags
+  edm::EDGetTokenT<edm::View<pat::Electron> > elecsToken_;
+  edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
+  edm::EDGetTokenT<edm::View<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<edm::View<pat::MET> > metToken_;
 };
-
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
 
 PatTopSelectionAnalyzer::PatTopSelectionAnalyzer(const edm::ParameterSet& iConfig):
   hists_(),
-  elecs_(iConfig.getUntrackedParameter<edm::InputTag>("elecs")),
-  muons_(iConfig.getUntrackedParameter<edm::InputTag>("muons")),
-  jets_ (iConfig.getUntrackedParameter<edm::InputTag>("jets" )),
-  met_  (iConfig.getUntrackedParameter<edm::InputTag>("met"  ))
+  elecsToken_(consumes<edm::View<pat::Electron> >(iConfig.getUntrackedParameter<edm::InputTag>("elecs"))),
+  muonsToken_(consumes<edm::View<pat::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("muons"))),
+  jetsToken_ (consumes<edm::View<pat::Jet> >(iConfig.getUntrackedParameter<edm::InputTag>("jets" ))),
+  metToken_  (consumes<edm::View<pat::MET> >(iConfig.getUntrackedParameter<edm::InputTag>("met"  )))
 {
 }
 
@@ -66,19 +66,19 @@ PatTopSelectionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 {
   // get electron collection
   edm::Handle<edm::View<pat::Electron> > elecs;
-  iEvent.getByLabel(elecs_,elecs);
+  iEvent.getByToken(elecsToken_,elecs);
 
   // get muon collection
   edm::Handle<edm::View<pat::Muon> > muons;
-  iEvent.getByLabel(muons_,muons);
+  iEvent.getByToken(muonsToken_,muons);
 
   // get jet collection
   edm::Handle<edm::View<pat::Jet> > jets;
-  iEvent.getByLabel(jets_,jets);
+  iEvent.getByToken(jetsToken_,jets);
 
-  // get met collection  
+  // get met collection
   edm::Handle<edm::View<pat::MET> > met;
-  iEvent.getByLabel(met_,met);
+  iEvent.getByToken(metToken_,met);
 
   // fill yield
   fill("yield", 0.5);
@@ -109,12 +109,12 @@ PatTopSelectionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   fill("met", met->empty()?0:(*met)[0].et());
 }
 
-void 
+void
 PatTopSelectionAnalyzer::beginJob()
 {
   // register to the TFileService
   edm::Service<TFileService> fs;
-  
+
   // book histograms:
   hists_["yield"   ]=fs->make<TH1F>("yield"   , "electron multiplicity",   1, 0.,   1.);
   hists_["elecMult"]=fs->make<TH1F>("elecMult", "electron multiplicity",  10, 0.,  10.);
@@ -131,8 +131,8 @@ PatTopSelectionAnalyzer::beginJob()
   hists_["met"     ]=fs->make<TH1F>("met"     , "missing E_{T}"        ,  25, 0., 200.);
 }
 
-void 
-PatTopSelectionAnalyzer::endJob() 
+void
+PatTopSelectionAnalyzer::endJob()
 {
 }
 

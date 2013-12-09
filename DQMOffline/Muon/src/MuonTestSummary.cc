@@ -6,7 +6,7 @@
  */
 
 
-#include <DQMOffline/Muon/src/MuonTestSummary.h>
+#include <DQMOffline/Muon/interface/MuonTestSummary.h>
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
@@ -28,6 +28,8 @@ using namespace std;
 MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
 
   dbe = Service<DQMStore>().operator->();
+  dbe->cd();
+  dbe->setCurrentFolder("Muons/TestSummary"); 
 
   // parameter initialization for kinematics test
   etaExpected = ps.getParameter<double>("etaExpected");
@@ -75,8 +77,16 @@ void MuonTestSummary::beginJob(void){
 
   metname = "muonTestSummary";
   LogTrace(metname)<<"[MuonTestSummary] beginJob: Histo booking";
+  dbe->cd();
+  dbe->setCurrentFolder("Muons/TestSummary"); 
 
   // book the summary histos
+}
+void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
+
+  LogTrace(metname)<<"[MuonTestSummary]: beginRun";
+  
+  dbe->cd();
   dbe->setCurrentFolder("Muons/TestSummary"); 
 
   // kinematics test report
@@ -242,13 +252,7 @@ void MuonTestSummary::beginJob(void){
   for (unsigned int icert=0;icert <theCertificationContents.size();icert++){
     theCertificationContents[icert]->Fill(-1);
   }
-}
-
-
-void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonTestSummary]: beginRun";
-
+  
   // initialisation of histo bins
   for(int xBin=1; xBin<=5; xBin++){
     for(int yBin=1; yBin<=3; yBin++){

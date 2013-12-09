@@ -53,5 +53,5 @@ simHcalDigis.HFlevel   = cms.int32(-10000)
 
 doAllDigi = cms.Sequence(calDigi+muonDigi)
 pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
-
+pdigi_valid = cms.Sequence(pdigi)
 

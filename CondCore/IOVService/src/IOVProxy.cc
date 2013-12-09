@@ -221,17 +221,14 @@ bool cond::IOVProxy::isValid( cond::Time_t currenttime ){
 }
 
 std::pair<cond::Time_t, cond::Time_t> cond::IOVProxy::validity( cond::Time_t currenttime ){  
-  cond::Time_t since=iov().firstSince();
-  cond::Time_t till=iov().lastTill();
+  cond::Time_t since = iov().lastTill();
+  cond::Time_t till = iov().lastTill();
   IOVSequence::const_iterator iter=iov().find(currenttime);
   if (iter!=iov().iovs().end())  {
     since=iter->sinceTime();
     iter++;
     if (iter!=iov().iovs().end()) 
       till = iter->sinceTime()-1;
-  }
-  else {
-    since=iov().lastTill();
   }
   return std::pair<cond::Time_t, cond::Time_t>(since,till);
 }

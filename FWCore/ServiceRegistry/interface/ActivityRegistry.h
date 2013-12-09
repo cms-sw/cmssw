@@ -31,6 +31,7 @@ unscheduled execution. The tests are in FWCore/Integration/test:
 // system include files
 //#include "boost/signal.hpp"
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
 #include "boost/utility.hpp"
@@ -102,20 +103,20 @@ namespace edm {
       AR_WATCH_USING_METHOD_0(watchJobFailure)
       
       /// signal is emitted before the source starts creating an Event
-      typedef signalslot::Signal<void()> PreSource;
-      PreSource preSourceSignal_;
-      void watchPreSource(PreSource::slot_type const& iSlot) {
+      typedef signalslot::Signal<void(StreamID)> PreSourceEvent;
+      PreSourceEvent preSourceSignal_;
+      void watchPreSourceEvent(PreSourceEvent::slot_type const& iSlot) {
         preSourceSignal_.connect(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPreSource)
+      AR_WATCH_USING_METHOD_1(watchPreSourceEvent)
 
       /// signal is emitted after the source starts creating an Event
-      typedef signalslot::Signal<void()> PostSource;
-      PostSource postSourceSignal_;
-      void watchPostSource(PostSource::slot_type const& iSlot) {
+      typedef signalslot::Signal<void(StreamID)> PostSourceEvent;
+      PostSourceEvent postSourceSignal_;
+      void watchPostSourceEvent(PostSourceEvent::slot_type const& iSlot) {
          postSourceSignal_.connect_front(iSlot);
       }
-      AR_WATCH_USING_METHOD_0(watchPostSource)
+      AR_WATCH_USING_METHOD_1(watchPostSourceEvent)
         
       /// signal is emitted before the source starts creating a Lumi
       typedef signalslot::Signal<void()> PreSourceLumi;
@@ -615,6 +616,22 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostModuleEvent)
 
+     /// signal is emitted after the module starts processing the Event and before a delayed get has started
+     typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleEventDelayedGet;
+     PreModuleEventDelayedGet preModuleEventDelayedGetSignal_;
+     void watchPreModuleEventDelayedGet(PreModuleEventDelayedGet::slot_type const& iSlot) {
+       preModuleEventDelayedGetSignal_.connect(iSlot);
+     }
+     AR_WATCH_USING_METHOD_2(watchPreModuleEventDelayedGet)
+     
+     /// signal is emitted after the module starts processing the Event and after a delayed get has finished
+     typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PostModuleEventDelayedGet;
+     PostModuleEventDelayedGet postModuleEventDelayedGetSignal_;
+     void watchPostModuleEventDelayedGet(PostModuleEventDelayedGet::slot_type const& iSlot) {
+       postModuleEventDelayedGetSignal_.connect_front(iSlot);
+     }
+     AR_WATCH_USING_METHOD_2(watchPostModuleEventDelayedGet)
+     
       typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleStreamBeginRun;
       PreModuleStreamBeginRun preModuleStreamBeginRunSignal_;
       void watchPreModuleStreamBeginRun(PreModuleStreamBeginRun::slot_type const& iSlot) {

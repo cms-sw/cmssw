@@ -1,4 +1,6 @@
 /*
+ *  $Date: 2012/01/11 13:53:29 $
+ *  $Revision: 1.14 $
  *  \author M. Marienfeld - DESY Hamburg
  */
 
@@ -813,3 +815,8 @@ void TopDiLeptonDQM::endJob() {
   if(fileOutput_)  outfile.close();
 
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

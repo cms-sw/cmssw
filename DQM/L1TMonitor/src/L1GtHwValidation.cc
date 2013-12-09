@@ -159,6 +159,11 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet) :
 
     }
 
+    //set Token(-s)
+    m_l1GtDataDaqInputToken_ = consumes<L1GlobalTriggerReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtDataDaqInputTag"));
+    m_l1GtEmulDaqInputToken_ = consumes<L1GlobalTriggerReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtEmulDaqInputTag"));
+    m_l1GtDataEvmInputToken_ = consumes<L1GlobalTriggerEvmReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtDataEvmInputTag"));
+    m_l1GtEmulEvmInputToken_ = consumes<L1GlobalTriggerEvmReadoutRecord>(paramSet.getParameter<edm::InputTag>("L1GtEmulEvmInputTag"));
 }
 
 // destructor
@@ -1595,7 +1600,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 
     // get the L1 GT hardware DAQ record L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordData;
-    iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
+    iEvent.getByToken(m_l1GtDataDaqInputToken_, gtReadoutRecordData);
 
     bool validData = false;
 
@@ -1607,7 +1612,7 @@ void L1GtHwValidation::compareDaqRecord(const edm::Event& iEvent,
 
     // get the L1 GT emulator DAQ record L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordEmul;
-    iEvent.getByLabel(m_l1GtEmulDaqInputTag, gtReadoutRecordEmul);
+    iEvent.getByToken(m_l1GtEmulDaqInputToken_, gtReadoutRecordEmul);
 
     bool validEmul = false;
 
@@ -1762,7 +1767,7 @@ void L1GtHwValidation::compareEvmRecord(const edm::Event& iEvent,
 
     // get the L1 GT hardware EVM record L1GlobalTriggerEvmReadoutRecord
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecordData;
-    iEvent.getByLabel(m_l1GtDataEvmInputTag, gtReadoutRecordData);
+    iEvent.getByToken(m_l1GtDataEvmInputToken_, gtReadoutRecordData);
 
     bool validData = false;
 
@@ -1774,7 +1779,7 @@ void L1GtHwValidation::compareEvmRecord(const edm::Event& iEvent,
 
     // get the L1 GT emulator EVM record L1GlobalTriggerEvmReadoutRecord
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecordEmul;
-    iEvent.getByLabel(m_l1GtEmulEvmInputTag, gtReadoutRecordEmul);
+    iEvent.getByToken(m_l1GtEmulEvmInputToken_, gtReadoutRecordEmul);
 
     bool validEmul = false;
 

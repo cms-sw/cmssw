@@ -9,5 +9,6 @@
   <use   name="DataFormats/FEDRawData"/>
   <use   name="root"/>
   <use   name="boost"/>
+  <use   name="CLHEP"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

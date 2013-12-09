@@ -44,7 +44,7 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
+    static std::atomic<unsigned int> cvalue_;
    
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const& p) {
       ++m_count;
@@ -84,9 +84,9 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbr;
-    static bool ger;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbr;
+    static std::atomic<bool> ger;
     bool br;
     bool er;
 
@@ -158,11 +158,11 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbl;
-    static bool gel;
-    static bool bl;
-    static bool el;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbl;
+    static std::atomic<bool> gel;
+    static std::atomic<bool> bl;
+    static std::atomic<bool> el;
 
     LumiIntAnalyzer(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -232,15 +232,15 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbr;
-    static bool ger;
-    static bool gbrs;
-    static bool gers;
-    static bool brs;
-    static bool ers;
-    static bool br;
-    static bool er;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbr;
+    static std::atomic<bool> ger;
+    static std::atomic<bool> gbrs;
+    static std::atomic<bool> gers;
+    static std::atomic<bool> brs;
+    static std::atomic<bool> ers;
+    static std::atomic<bool> br;
+    static std::atomic<bool> er;
 
     RunSummaryIntAnalyzer(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -336,15 +336,15 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbl;
-    static bool gel;
-    static bool gbls;
-    static bool gels;
-    static bool bls;
-    static bool els;
-    static bool bl;
-    static bool el;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbl;
+    static std::atomic<bool> gel;
+    static std::atomic<bool> gbls;
+    static std::atomic<bool> gels;
+    static std::atomic<bool> bls;
+    static std::atomic<bool> els;
+    static std::atomic<bool> bl;
+    static std::atomic<bool> el;
 
     LumiSummaryIntAnalyzer(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -449,33 +449,33 @@ std::atomic<unsigned int> edmtest::stream::RunIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::RunSummaryIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::m_count{0};
-unsigned int edmtest::stream::GlobalIntAnalyzer::cvalue_ = 0;
-unsigned int edmtest::stream::RunIntAnalyzer::cvalue_ = 0;
-unsigned int edmtest::stream::LumiIntAnalyzer::cvalue_ = 0;
-unsigned int edmtest::stream::RunSummaryIntAnalyzer::cvalue_ = 0;
-unsigned int edmtest::stream::LumiSummaryIntAnalyzer::cvalue_ = 0;
-bool edmtest::stream::RunIntAnalyzer::gbr=false;
-bool edmtest::stream::RunIntAnalyzer::ger=false;
-bool edmtest::stream::LumiIntAnalyzer::gbl=false;
-bool edmtest::stream::LumiIntAnalyzer::gel=false;
-bool edmtest::stream::LumiIntAnalyzer::bl=false;
-bool edmtest::stream::LumiIntAnalyzer::el=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::gbr=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::ger=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::gbrs=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::gers=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::brs=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::ers=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::br=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::er=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::gbl=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::gel=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::gbls=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::gels=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::bls=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::els=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::bl=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::el=false;
+std::atomic<unsigned int> edmtest::stream::GlobalIntAnalyzer::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::RunIntAnalyzer::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::LumiIntAnalyzer::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::RunSummaryIntAnalyzer::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::cvalue_{0};
+std::atomic<bool> edmtest::stream::RunIntAnalyzer::gbr{false};
+std::atomic<bool> edmtest::stream::RunIntAnalyzer::ger{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::gbl{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::gel{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::bl{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::el{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gbr{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::ger{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gbrs{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gers{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::brs{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::ers{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::br{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::er{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gbl{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gel{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gbls{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gels{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::bls{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::els{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::bl{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::el{false};
 DEFINE_FWK_MODULE(edmtest::stream::GlobalIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::RunIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::LumiIntAnalyzer);

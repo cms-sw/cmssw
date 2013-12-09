@@ -47,8 +47,8 @@ GlobalPoint MuonDetIdAssociator::getPosition(const DetId& id) const {
    return GlobalPoint(point.x(),point.y(),point.z());
 }
 
-const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex) const {
-  validIds_.clear();
+void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vector<DetId>& validIds) const {
+  validIds.clear();
   if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
   if (subDectorIndex!=0) throw cms::Exception("FatalError") << 
     "Muon sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
@@ -59,14 +59,14 @@ const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDe
   for(std::vector<GeomDet*>::const_iterator it = geomDetsCSC.begin(); it != geomDetsCSC.end(); ++it)
     if (CSCChamber* csc = dynamic_cast< CSCChamber*>(*it)) {
       if ((! includeBadChambers_) && (cscbadchambers_->isInBadChamber(CSCDetId(csc->id())))) continue;
-      validIds_.push_back(csc->id());
+      validIds.push_back(csc->id());
     }
   
   // DT
   if (! geometry_->slaveGeometry(DTChamberId()) ) throw cms::Exception("FatalError") << "Cannnot DTGeometry\n";
   const std::vector<GeomDet*>& geomDetsDT = geometry_->slaveGeometry(DTChamberId())->dets();
   for(std::vector<GeomDet*>::const_iterator it = geomDetsDT.begin(); it != geomDetsDT.end(); ++it)
-    if (DTChamber* dt = dynamic_cast< DTChamber*>(*it)) validIds_.push_back(dt->id());
+    if (DTChamber* dt = dynamic_cast< DTChamber*>(*it)) validIds.push_back(dt->id());
 
   // RPC
   if (! geometry_->slaveGeometry(RPCDetId()) ) throw cms::Exception("FatalError") << "Cannnot RPCGeometry\n";
@@ -75,10 +75,9 @@ const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDe
     if (RPCChamber* rpc = dynamic_cast< RPCChamber*>(*it)) {
       std::vector< const RPCRoll*> rolls = (rpc->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rolls.begin(); r != rolls.end(); ++r)
-	validIds_.push_back((*r)->id().rawId());
+	validIds.push_back((*r)->id().rawId());
     }
   
-  return validIds_;
 }
 
 bool MuonDetIdAssociator::insideElement(const GlobalPoint& point, const DetId& id) const {
@@ -88,9 +87,10 @@ bool MuonDetIdAssociator::insideElement(const GlobalPoint& point, const DetId& i
 }
 
 std::pair<DetIdAssociator::const_iterator,DetIdAssociator::const_iterator> 
-MuonDetIdAssociator::getDetIdPoints(const DetId& id) const 
+MuonDetIdAssociator::getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const 
 {
-   points_.clear();
+   points.clear();
+   points.reserve(8);
    const GeomDet* geomDet = getGeomDet( id );
    
    // the coners of muon detector elements are not stored and can be only calculated
@@ -105,16 +105,16 @@ MuonDetIdAssociator::getDetIdPoints(const DetId& id) const
    // calculation from the edge, we will use exact geometry to get it right.
 	    
    const Bounds* bounds = &(geometry_->idToDet(id)->surface().bounds());
-   points_.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,+bounds->length()/2,+bounds->thickness()/2)));
-   points_.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,+bounds->length()/2,+bounds->thickness()/2)));
-   points_.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,-bounds->length()/2,+bounds->thickness()/2)));
-   points_.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,-bounds->length()/2,+bounds->thickness()/2)));
-   points_.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,+bounds->length()/2,-bounds->thickness()/2)));
-   points_.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,+bounds->length()/2,-bounds->thickness()/2)));
-   points_.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,-bounds->length()/2,-bounds->thickness()/2)));
-   points_.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,-bounds->length()/2,-bounds->thickness()/2)));
+   points.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,+bounds->length()/2,+bounds->thickness()/2)));
+   points.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,+bounds->length()/2,+bounds->thickness()/2)));
+   points.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,-bounds->length()/2,+bounds->thickness()/2)));
+   points.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,-bounds->length()/2,+bounds->thickness()/2)));
+   points.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,+bounds->length()/2,-bounds->thickness()/2)));
+   points.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,+bounds->length()/2,-bounds->thickness()/2)));
+   points.push_back(geomDet->toGlobal(LocalPoint(+bounds->width()/2,-bounds->length()/2,-bounds->thickness()/2)));
+   points.push_back(geomDet->toGlobal(LocalPoint(-bounds->width()/2,-bounds->length()/2,-bounds->thickness()/2)));
    
-   return std::pair<const_iterator,const_iterator>(points_.begin(),points_.end());
+   return std::pair<const_iterator,const_iterator>(points.begin(),points.end());
 }
 
 void MuonDetIdAssociator::setGeometry(const DetIdAssociatorRecord& iRecord)

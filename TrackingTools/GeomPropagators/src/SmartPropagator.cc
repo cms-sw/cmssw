@@ -31,19 +31,15 @@
 /* ====================================================================== */
 
 /* static member */
-ReferenceCountingPointer<BoundCylinder> & SmartPropagator::theTkVolume() {
-  static ReferenceCountingPointer<BoundCylinder> local=0;
-  return local;
-}
 
 
 
 /* Constructor */ 
-SmartPropagator::SmartPropagator(Propagator* aTkProp, Propagator* aGenProp, const MagneticField* field,
+SmartPropagator::SmartPropagator(const Propagator* aTkProp, const Propagator* aGenProp, const MagneticField* field,
                                  PropagationDirection dir, float epsilon) :
   Propagator(dir), theTkProp(aTkProp->clone()), theGenProp(aGenProp->clone()), theField(field) { 
 
-  if (theTkVolume()==0) initTkVolume(epsilon);
+  initTkVolume(epsilon);
 
 }
 
@@ -52,7 +48,7 @@ SmartPropagator::SmartPropagator(const Propagator& aTkProp, const Propagator& aG
                                  PropagationDirection dir, float epsilon) :
   Propagator(dir), theTkProp(aTkProp.clone()), theGenProp(aGenProp.clone()), theField(field) {
 
-  if (theTkVolume()==0) initTkVolume(epsilon);
+  initTkVolume(epsilon);
 
 }
 
@@ -66,7 +62,7 @@ SmartPropagator::SmartPropagator(const SmartPropagator& aProp) :
 
     //SL since it's a copy constructor, then the TkVolume has been already
     //initialized
-    //if (theTkVolume==0) initTkVolume(epsilon);
+    // initTkVolume(epsilon);
 
   }
 
@@ -94,7 +90,7 @@ void SmartPropagator::initTkVolume(float epsilon) {
   Surface::PositionType pos(0,0,0); // centered at the global origin
   Surface::RotationType rot; // unit matrix - barrel cylinder orientation
 
-  theTkVolume() = Cylinder::build(radius, pos, rot, new SimpleCylinderBounds(r_in, r_out, z_min, z_max));
+  theTkVolume = Cylinder::build(radius, pos, rot, new SimpleCylinderBounds(r_in, r_out, z_min, z_max));
 
 }
 
@@ -193,14 +189,14 @@ bool SmartPropagator::insideTkVol( const Plane& plane)  const {
 }
 
 
-Propagator* SmartPropagator::getTkPropagator() const {
+const Propagator* SmartPropagator::getTkPropagator() const {
 
   return theTkProp;
 
 }
 
 
-Propagator* SmartPropagator::getGenPropagator() const {
+const Propagator* SmartPropagator::getGenPropagator() const {
 
   return theGenProp;
 

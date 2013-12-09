@@ -34,7 +34,7 @@ public:
     float ratio;                            // momentum over jet energy
     float ratioRel;                         // momentum parallel to jet axis over jet energy
 
-    struct quality {
+    struct Quality {
         static const float undef;
 
 	// these first two entries work for both electrons and muons,
@@ -66,21 +66,21 @@ public:
     // check to see if quality has been set
 
     inline float hasQuality() const
-    { return quality() != quality::undef; }
-    inline float hasQuality(quality::Generic qual) const
-    { return quality((unsigned int)qual, false) != quality::undef; }
-    inline float hasQuality(quality::Muon qual) const
-    { return quality((unsigned int)qual, false) != quality::undef; }
-    inline float hasQuality(quality::Electron qual) const
-    { return quality((unsigned int)qual, false) != quality::undef; }
+    { return quality() != Quality::undef; }
+    inline float hasQuality(Quality::Generic qual) const
+    { return quality((unsigned int)qual, false) != Quality::undef; }
+    inline float hasQuality(Quality::Muon qual) const
+    { return quality((unsigned int)qual, false) != Quality::undef; }
+    inline float hasQuality(Quality::Electron qual) const
+    { return quality((unsigned int)qual, false) != Quality::undef; }
 
     // retrieve lepton quality
 
-    inline float quality(quality::Generic qual, bool throwIfUndefined = true) const
+    inline float quality(Quality::Generic qual, bool throwIfUndefined = true) const
     { return quality((unsigned int)qual, throwIfUndefined); }
-    inline float quality(quality::Muon qual, bool throwIfUndefined = true) const
+    inline float quality(Quality::Muon qual, bool throwIfUndefined = true) const
     { return quality((unsigned int)qual, throwIfUndefined); }
-    inline float quality(quality::Electron qual, bool throwIfUndefined = true) const
+    inline float quality(Quality::Electron qual, bool throwIfUndefined = true) const
     { return quality((unsigned int)qual, throwIfUndefined); }
 
     // default value
@@ -88,11 +88,11 @@ public:
 
     // set lepton quality
 
-    inline void setQuality(quality::Generic qual, float value)
+    inline void setQuality(Quality::Generic qual, float value)
     { setQuality((unsigned int)qual, value); }
-    inline void setQuality(quality::Muon qual, float value)
+    inline void setQuality(Quality::Muon qual, float value)
     { setQuality((unsigned int)qual, value); }
-    inline void setQuality(quality::Electron qual, float value)
+    inline void setQuality(Quality::Electron qual, float value)
     { setQuality((unsigned int)qual, value); }
 
 private:

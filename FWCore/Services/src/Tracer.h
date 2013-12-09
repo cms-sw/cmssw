@@ -5,7 +5,7 @@
 // Package:     Services
 // Class  :     Tracer
 // 
-/**\class Tracer Tracer.h FWCore/Services/interface/Tracer.h
+/**\class edm::service::Tracer
 
  Description: <one line class summary>
 
@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <string>
+#include <set>
 
 namespace edm {
    class ConfigurationDescriptions;
@@ -42,16 +43,18 @@ namespace edm {
 
    namespace service {
       class Tracer {
-public:
+      public:
          Tracer(const ParameterSet&,ActivityRegistry&);
          
          static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
+         void preallocate(service::SystemBounds const&);
+
          void postBeginJob();
          void postEndJob();
          
-         void preSource();
-         void postSource();
+         void preSourceEvent(StreamID);
+         void postSourceEvent(StreamID);
 
          void preSourceLumi();
          void postSourceLumi();
@@ -112,6 +115,8 @@ public:
 
          void preModuleEvent(StreamContext const&, ModuleCallingContext const&);
          void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
+         void preModuleEventDelayedGet(StreamContext const&, ModuleCallingContext const&);
+         void postModuleEventDelayedGet(StreamContext const&, ModuleCallingContext const&);
          
          void preModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
          void postModuleStreamBeginRun(StreamContext const&, ModuleCallingContext const&);
@@ -136,10 +141,9 @@ public:
          void preSourceConstruction(ModuleDescription const& md);
          void postSourceConstruction(ModuleDescription const& md);
 
-private:
+      private:
          std::string indention_;
-         unsigned int depth_;
-         std::string dumpContextForLabel_;
+         std::set<std::string> dumpContextForLabels_;
          bool dumpNonModuleContext_;
       };
    }

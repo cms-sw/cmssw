@@ -22,7 +22,7 @@
 #include <vector>
 #include <map>
 
-namespace { struct dictionary {
+namespace DataFormats_L1GlobalTrigger { struct dictionary {
     // dictionary for L1GtfeWord
     L1GtfeWord dummy20;
     edm::Wrapper<L1GtfeWord> dummy21;

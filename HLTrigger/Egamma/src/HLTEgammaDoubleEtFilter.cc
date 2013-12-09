@@ -27,21 +27,21 @@ public:
 //
 // constructors and destructor
 //
-HLTEgammaDoubleEtFilter::HLTEgammaDoubleEtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) 
+HLTEgammaDoubleEtFilter::HLTEgammaDoubleEtFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   etcut1_  = iConfig.getParameter<double> ("etcut1");
   etcut2_  = iConfig.getParameter<double> ("etcut2");
   npaircut_  = iConfig.getParameter<int> ("npaircut");
   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
-  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
-  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
+  L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand");
+  L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
   candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
 }
 
 HLTEgammaDoubleEtFilter::~HLTEgammaDoubleEtFilter(){}
 
-void 
+void
 HLTEgammaDoubleEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
    edm::ParameterSetDescription desc;
    makeHLTFilterDescription(desc);
@@ -57,7 +57,7 @@ HLTEgammaDoubleEtFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
 
 // ------------ method called to produce the data  ------------
 bool
-HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
 
@@ -76,7 +76,7 @@ HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // look at all candidates,  check cuts and add to filter object
   int n(0);
-  
+
   // Sort the list
   std::sort(mysortedrecoecalcands.begin(), mysortedrecoecalcands.end(), EgammaHLTEtSortCriterium());
   edm::Ref<reco::RecoEcalCandidateCollection> ref1, ref2;
@@ -93,13 +93,13 @@ HLTEgammaDoubleEtFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
   }
-  
+
 
   // filter decision
   bool accept(n>=npaircut_);
-  
+
   return accept;
 }
 
 
-  
+

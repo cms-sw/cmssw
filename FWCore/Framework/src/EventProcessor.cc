@@ -516,6 +516,8 @@ namespace edm {
                                                               *processConfiguration_,
                                                               historyAppender_.get(),
                                                               index));
+      ep->preModuleDelayedGetSignal_.connect(std::cref(actReg_->preModuleEventDelayedGetSignal_));
+      ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
     }
     // initialize the subprocess, if there is one
@@ -547,10 +549,7 @@ namespace edm {
     looper_.reset();
     actReg_.reset();
 
-    pset::Registry* psetRegistry = pset::Registry::instance();
-    psetRegistry->dataForUpdate().clear();
-    psetRegistry->extraForUpdate().setID(ParameterSetID());
-
+    pset::Registry::instance()->clear();
     ParentageRegistry::instance()->clear();
   }
 
@@ -566,7 +565,8 @@ namespace edm {
 
     service::SystemBounds bounds(preallocations_.numberOfStreams(),
                                  preallocations_.numberOfLuminosityBlocks(),
-                                 preallocations_.numberOfRuns());
+                                 preallocations_.numberOfRuns(),
+                                 preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
@@ -1806,7 +1806,7 @@ namespace edm {
     //TODO this will have to become per stream
     auto& event = principalCache_.eventPrincipal(iStreamIndex);
     StreamContext streamContext(event.streamID(), &processContext_);
-    input_->readEvent(event, &streamContext);
+    input_->readEvent(event, streamContext);
     FDEBUG(1) << "\treadEvent\n";
   }
   void EventProcessor::processEvent(unsigned int iStreamIndex) {

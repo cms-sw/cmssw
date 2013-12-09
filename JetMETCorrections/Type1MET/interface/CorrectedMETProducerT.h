@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "JetMETCorrections/Type1MET/interface/METCorrectionAlgorithm.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
@@ -70,9 +71,9 @@ class CorrectedMETProducerT : public edm::EDProducer
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       algorithm_(0)
   {
-    src_ = cfg.getParameter<edm::InputTag>("src");
+    token_ = consumes<METCollection>(cfg.getParameter<edm::InputTag>("src"));
 
-    algorithm_ = new METCorrectionAlgorithm(cfg);
+    algorithm_ = new METCorrectionAlgorithm(cfg, consumesCollector());
 
     produces<METCollection>("");
   }
@@ -88,7 +89,7 @@ class CorrectedMETProducerT : public edm::EDProducer
     std::auto_ptr<METCollection> correctedMEtCollection(new METCollection);
 
     edm::Handle<METCollection> rawMEtCollection;
-    evt.getByLabel(src_, rawMEtCollection);
+    evt.getByToken(token_, rawMEtCollection);
 
     for ( typename METCollection::const_iterator rawMEt = rawMEtCollection->begin();
 	  rawMEt != rawMEtCollection->end(); ++rawMEt ) {
@@ -106,7 +107,7 @@ class CorrectedMETProducerT : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // input collection
+  edm::EDGetTokenT<METCollection> token_;
 
   METCorrectionAlgorithm* algorithm_; // algorithm for computing Type 1 / Type 1 + 2 MET corrections
 };

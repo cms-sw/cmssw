@@ -10,6 +10,9 @@
 ScoutingTestAnalyzer::ScoutingTestAnalyzer( const edm::ParameterSet & conf )
    :ScoutingAnalyzerBase(conf){
   m_pfJetsCollectionTag = conf.getUntrackedParameter<edm::InputTag>("pfJetsCollectionName");
+
+  //set Token(-s)
+  m_pfJetsCollectionTagToken_ = consumes<reco::CaloJetCollection>(conf.getUntrackedParameter<edm::InputTag>("pfJetsCollectionName"));
   }
 
 //------------------------------------------------------------------------------
@@ -22,7 +25,8 @@ void ScoutingTestAnalyzer::analyze( const edm::Event & iEvent, const edm::EventS
   
   
   edm::Handle<reco::CaloJetCollection> calojets_handle ;
-  iEvent.getByLabel(m_pfJetsCollectionTag,calojets_handle) ;
+  iEvent.getByToken(m_pfJetsCollectionTagToken_, calojets_handle);
+
   /* This is an example of how C++11 can simplify or lifes. The auto keyword 
    make the compiler figure out by itself which is the type of the pfjets object.
    The qualifier const of course still apply.

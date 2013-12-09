@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 
-namespace{ 
+namespace DataFormats_RPCDigi {
   struct dictionary {
     
     RPCDigi d;

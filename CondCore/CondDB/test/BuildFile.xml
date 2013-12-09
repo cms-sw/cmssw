@@ -9,3 +9,6 @@
 <bin   file="testConditionDatabase_0.cpp" name="testConditionDatabase_0">
   <lib   name="testCondDBDict"/>
 </bin>
+<bin   file="testPayloadProxy.cpp" name="testPayloadProxy">
+  <lib   name="testCondDBDict"/>
+</bin>

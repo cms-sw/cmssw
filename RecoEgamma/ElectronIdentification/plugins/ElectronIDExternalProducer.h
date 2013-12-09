@@ -4,6 +4,7 @@
 #include <memory>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -17,8 +18,8 @@ template<class algo>
 class ElectronIDExternalProducer : public edm::EDProducer {
  public:
    explicit ElectronIDExternalProducer(const edm::ParameterSet& iConfig) :
-            src_(iConfig.getParameter<edm::InputTag>("src")),
-            select_(iConfig)
+            srcToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+            select_(iConfig, consumesCollector())
    {
         produces<edm::ValueMap<float> >();
    }
@@ -26,18 +27,18 @@ class ElectronIDExternalProducer : public edm::EDProducer {
    virtual ~ElectronIDExternalProducer() {}
 
    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
-	
- private:	
-   edm::InputTag src_ ;
+
+ private:
+   edm::EDGetTokenT<reco::GsfElectronCollection> srcToken_ ;
    algo select_ ;
-  
+
 };
 
 template<typename algo>
 void ElectronIDExternalProducer<algo>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
      // read input collection
      edm::Handle<reco::GsfElectronCollection> electrons;
-     iEvent.getByLabel(src_, electrons);
+     iEvent.getByToken(srcToken_, electrons);
 
      // initialize common selector
      select_.newEvent(iEvent, iSetup);

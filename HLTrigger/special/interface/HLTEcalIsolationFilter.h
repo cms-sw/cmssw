@@ -13,14 +13,14 @@ class HLTEcalIsolationFilter : public HLTFilter {
    public:
       explicit HLTEcalIsolationFilter(const edm::ParameterSet&);
       ~HLTEcalIsolationFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag candTag_;
       edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candToken_;
-      double maxennearby; 
-      double minen;        
+      double maxennearby;
+      double minen;
       int maxhitout;
       int maxhitin;
       double maxenin;
@@ -29,4 +29,4 @@ class HLTEcalIsolationFilter : public HLTFilter {
 
 };
 
-#endif 
+#endif

@@ -2,10 +2,10 @@
 #define CondCore_IOVService_IOVProxy_h
 
 #include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/Time.h"
 
 #include "CondFormats/Common/interface/IOVSequence.h"
 #include "CondFormats/Common/interface/SequenceState.h"
-#include "CondFormats/Common/interface/Time.h"
 
 //
 #include <boost/shared_ptr.hpp>

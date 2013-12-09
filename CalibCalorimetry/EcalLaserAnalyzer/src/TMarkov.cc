@@ -7,7 +7,7 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h>
 
 #include <iostream>
-#include "math.h"
+#include <cmath>
 
 //ClassImp(TMarkov)
 

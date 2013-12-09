@@ -14,6 +14,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
+
 #include <fstream>
 
 class HLTMonHcalIsoTrack : public edm::EDAnalyzer {
@@ -73,6 +75,10 @@ private:
   std::vector<MonitorElement*> hL1eta;
   std::vector<MonitorElement*> hL1phi;
 
+  //define Token(-s)
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> toLabToken_;
+  std::vector<edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> > l2collectionToken_;
+  std::vector<edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> > l3collectionToken_;
 };
 
 

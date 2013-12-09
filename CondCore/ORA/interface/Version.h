@@ -9,12 +9,13 @@ namespace ora {
   class Version {
   public:
    
-    static Version& poolSchemaVersion();
-    static Version& thisSchemaVersion();
+    static const Version& poolSchemaVersion();
+    static const Version& thisSchemaVersion();
     static Version fromString( const std::string& versionString );
 
     public:
     Version();
+    Version( const std::string& label, int id );
     ~Version(){
     }
     Version( const Version& rhs );

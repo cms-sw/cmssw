@@ -2,14 +2,15 @@
  *
  * Producer for simple match map
  * to match two collections of candidate
- * with one-to-One matching 
+ * with one-to-One matching
  * minimizing Sum(DeltaR)
  *
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include<vector>
 #include<iostream>
@@ -23,9 +24,9 @@ class CandOneToOneDeltaRMatcher : public edm::EDProducer {
   double lenght( const std::vector<int>& );
   std::vector<int> AlgoBruteForce(int, int);
   std::vector<int> AlgoSwitchMethod(int, int);
-  
-  edm::InputTag source_;
-  edm::InputTag matched_;
+
+  edm::EDGetTokenT<reco::CandidateView> sourceToken_;
+  edm::EDGetTokenT<reco::CandidateView> matchedToken_;
   std::vector < std::vector<float> > AllDist;
   std::string algoMethod_;
 
@@ -36,12 +37,12 @@ class CandOneToOneDeltaRMatcher : public edm::EDProducer {
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -57,8 +58,8 @@ using namespace ROOT::Math::VectorUtil;
 using namespace stdcomb;
 
 CandOneToOneDeltaRMatcher::CandOneToOneDeltaRMatcher( const ParameterSet & cfg ) :
-  source_( cfg.getParameter<InputTag>( "src" ) ),
-  matched_( cfg.getParameter<InputTag>( "matched" ) ),
+  sourceToken_( consumes<CandidateView>( cfg.getParameter<InputTag>( "src" ) ) ),
+  matchedToken_( consumes<CandidateView>( cfg.getParameter<InputTag>( "matched" ) ) ),
   algoMethod_( cfg.getParameter<string>( "algoMethod" ) ) {
   produces<CandViewMatchMap>("src2mtc");
   produces<CandViewMatchMap>("mtc2src");
@@ -66,22 +67,22 @@ CandOneToOneDeltaRMatcher::CandOneToOneDeltaRMatcher( const ParameterSet & cfg )
 
 CandOneToOneDeltaRMatcher::~CandOneToOneDeltaRMatcher() {
 }
-		
+
 void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
-  
-  Handle<CandidateView> source;  
-  Handle<CandidateView> matched;  
-  evt.getByLabel( source_, source ) ;
-  evt.getByLabel( matched_, matched ) ;
- 
+
+  Handle<CandidateView> source;
+  Handle<CandidateView> matched;
+  evt.getByToken( sourceToken_, source ) ;
+  evt.getByToken( matchedToken_, matched ) ;
+
   edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "======== Source Collection =======";
   for( CandidateView::const_iterator c = source->begin(); c != source->end(); ++c ) {
     edm::LogVerbatim("CandOneToOneDeltaRMatcher") << " pt source  " << c->pt() << " " << c->eta() << " " << c->phi()  << endl;
-  }    
+  }
   edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "======== Matched Collection =======";
   for( CandidateView::const_iterator c = matched->begin(); c != matched->end(); ++c ) {
     edm::LogVerbatim("CandOneToOneDeltaRMatcher") << " pt source  " << c->pt() << " " << c->eta() << " " << c->phi()  << endl;
-  } 
+  }
 
   const int nSrc = source->size();
   const int nMtc = matched->size();
@@ -97,12 +98,12 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
       vector <float> tempAllDist;
       for(CandidateView::const_iterator iMt  = matched->begin();
 	  iMt != matched->end();
-	  iMt++) { 
+	  iMt++) {
 	tempAllDist.push_back(DeltaR( iSr->p4() , iMt->p4() ) );
       }
       AllDist.push_back(tempAllDist);
       tempAllDist.clear();
-    } 
+    }
   } else {
     for(CandidateView::const_iterator iMt  = matched->begin();
 	iMt != matched->end();
@@ -110,24 +111,24 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
       vector <float> tempAllDist;
       for(CandidateView::const_iterator iSr  = source->begin();
 	  iSr != source->end();
-	  iSr++) { 
+	  iSr++) {
 	tempAllDist.push_back(DeltaR( iSr->p4() , iMt->p4() ) );
       }
       AllDist.push_back(tempAllDist);
       tempAllDist.clear();
-    } 
+    }
   }
-  
+
   /*
   edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "======== The DeltaR Matrix =======";
   for(int m0=0; m0<nMin; m0++) {
     //    for(int m1=0; m1<nMax; m1++) {
       edm::LogVerbatim("CandOneToOneDeltaRMatcher") << setprecision(2) << fixed << (m1 AllDist[m0][m1] ;
     //}
-    edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "\n"; 
+    edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "\n";
   }
   */
-  
+
   // Loop size if Brute Force
   int nLoopToDo = (int) ( TMath::Factorial(nMax) / TMath::Factorial(nMax - nMin) );
   edm::LogVerbatim("CandOneToOneDeltaRMatcher") << "nLoop:" << nLoopToDo << endl;
@@ -149,9 +150,9 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
 
     if( nLoopToDo < 10000 ) {
       bestCB = AlgoBruteForce(nMin,nMax);
-    } else { 
+    } else {
       bestCB = AlgoSwitchMethod(nMin,nMax);
-    } 
+    }
 
   } else {
     throw cms::Exception("OneToOne Constructor") << "wrong matching method in ParameterSet";
@@ -181,8 +182,8 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
 
 /*
   for( int c = 0; c != nMin; c ++ ) {
-    if( source->size() <= matched->size() ) { 
-      matchMapSrMt->insert( CandidateRef( source,  c         ), CandidateRef( matched, bestCB[c] ) ); 
+    if( source->size() <= matched->size() ) {
+      matchMapSrMt->insert( CandidateRef( source,  c         ), CandidateRef( matched, bestCB[c] ) );
       matchMapMtSr->insert( CandidateRef( matched, bestCB[c] ), CandidateRef( source, c          ) );
     } else {
       matchMapSrMt->insert( CandidateRef( source,  bestCB[c] ), CandidateRef( matched, c         ) );
@@ -200,7 +201,7 @@ void CandOneToOneDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
 double CandOneToOneDeltaRMatcher::lenght(const vector<int>& best) {
   double myLenght=0;
   int row=0;
-  for(vector<int>::const_iterator it=best.begin(); it!=best.end(); it++ ) { 		
+  for(vector<int>::const_iterator it=best.begin(); it!=best.end(); it++ ) {
     myLenght+=AllDist[row][*it];
     row++;
   }
@@ -213,7 +214,7 @@ double CandOneToOneDeltaRMatcher::lenght(const vector<int>& best) {
 // Be carefull when you have high values for nMin and nMax --> the combinatorial could explode!
 // Sum(DeltaR) is minimized -->
 // 0.1 - 0.2 - 1.0 - 1.5 is lower than
-// 0.1 - 0.2 - 0.3 - 3.0 
+// 0.1 - 0.2 - 0.3 - 3.0
 // Which one do you prefer? --> BruteForce select always the first
 
 vector<int> CandOneToOneDeltaRMatcher::AlgoBruteForce( int nMin, int nMax ) {
@@ -241,7 +242,7 @@ vector<int> CandOneToOneDeltaRMatcher::AlgoBruteForce( int nMin, int nMax ) {
 	}
     }
   while(next_combination( ca.begin() , ca.end() , cb.begin() , cb.end() ));
-  
+
   return bestCB;
 }
 
@@ -249,11 +250,11 @@ vector<int> CandOneToOneDeltaRMatcher::AlgoBruteForce( int nMin, int nMax ) {
 // choosing the minimum DeltaR for each line in AllDist matrix
 // If no repeated row is found: ie (line,col)=(1,3) and (2,3) --> same as BruteForce
 // If repetition --> set the higher DeltaR between  the 2 repetition to 1000 and re-check best combination
-// Iterate until no repetition  
+// Iterate until no repetition
 // No guaranted minimum for Sum(DeltaR)
 // If you have:
 // 0.1 - 0.2 - 1.0 - 1.5 is lower than
-// 0.1 - 0.2 - 0.3 - 3.0 
+// 0.1 - 0.2 - 0.3 - 3.0
 // SwitchMethod normally select the second solution
 
 vector<int> CandOneToOneDeltaRMatcher::AlgoSwitchMethod( int nMin, int nMax ) {
@@ -261,7 +262,7 @@ vector<int> CandOneToOneDeltaRMatcher::AlgoSwitchMethod( int nMin, int nMax ) {
   vector<int> bestCB;
   for(int i1=0; i1<nMin; i1++) {
     int minInd=0;
-    for(int i2=1; i2<nMax; i2++) if( AllDist[i1][i2] < AllDist[i1][minInd] ) minInd = i2; 
+    for(int i2=1; i2<nMax; i2++) if( AllDist[i1][i2] < AllDist[i1][minInd] ) minInd = i2;
     bestCB.push_back(minInd);
   }
 
@@ -275,16 +276,16 @@ vector<int> CandOneToOneDeltaRMatcher::AlgoSwitchMethod( int nMin, int nMax ) {
 	  if ( AllDist[i1][(bestCB[i1])] <= AllDist[i2][(bestCB[i2])]) {
 	    AllDist[i2][(bestCB[i2])]= 1000;
 	    int minInd=0;
-	    for(int i3=1; i3<nMax; i3++) if( AllDist[i2][i3] < AllDist[i2][minInd] ) minInd = i3; 
+	    for(int i3=1; i3<nMax; i3++) if( AllDist[i2][i3] < AllDist[i2][minInd] ) minInd = i3;
 	    bestCB[i2]= minInd;
 	  }  else {
 	    AllDist[i1][(bestCB[i1])]= 1000;
 	    int minInd=0;
-	    for(int i3=1; i3<nMax; i3++) if( AllDist[i1][i3] < AllDist[i1][minInd] ) minInd = i3; 
+	    for(int i3=1; i3<nMax; i3++) if( AllDist[i1][i3] < AllDist[i1][minInd] ) minInd = i3;
 	    bestCB[i1]= minInd;
 	  }
 	} // End if
-      } 
+      }
     }
   } // End while
 

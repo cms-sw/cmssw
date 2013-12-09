@@ -8,8 +8,8 @@
 #include <iterator>
 #include <vector>
 
-namespace {
-  struct dictionary {
+namespace DataFormats_PatCandidates {
+  struct dictionarytrigger {
 
   pat::TriggerObjectCollection v_p_to;
   pat::TriggerObjectCollection::const_iterator v_p_to_ci;

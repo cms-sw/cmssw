@@ -3,26 +3,73 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"     
+
+#include "TMath.h"
 
 using namespace reco;
 using namespace edm;
 
 PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
+  : conf_          ( pSet )
+  , dqmStore_      ( edm::Service<DQMStore>().operator->() )
+  , TopFolderName_ ( pSet.getParameter<std::string>("TopFolderName") )
+  , AlignmentLabel_( pSet.getParameter<std::string>("AlignmentLabel"))
+  , nbvtx(NULL)
+  , bsX(NULL)
+  , bsY(NULL)
+  , bsZ(NULL)
+  , bsSigmaZ(NULL)
+  , bsDxdz(NULL)
+  , bsDydz(NULL)
+  , bsBeamWidthX(NULL)
+  , bsBeamWidthY(NULL)
+  , bsType(NULL)
+  , sumpt(NULL)
+  , ntracks(NULL)
+  , weight(NULL)
+  , chi2ndf(NULL)
+  , chi2prob(NULL)
+  , dxy(NULL)
+  , dz(NULL)
+  , dxyErr(NULL)
+  , dzErr(NULL)
+  , dxyVsPhi_pt1(NULL)
+  , dzVsPhi_pt1(NULL)
+  , dxyVsEta_pt1(NULL)
+  , dzVsEta_pt1(NULL)
+  , dxyVsPhi_pt10(NULL)
+  , dzVsPhi_pt10(NULL)
+  , dxyVsEta_pt10(NULL)
+  , dzVsEta_pt10(NULL)
 {
-  moduleLabel = pSet.getParameter<InputTag>("vertexLabel");
-  beamSpotLabel = pSet.getParameter<InputTag>("beamSpotLabel");
+  //  dqmStore_ = edm::Service<DQMStore>().operator->();
+
+
+  vertexInputTag_   = pSet.getParameter<InputTag>("vertexLabel");
+  beamSpotInputTag_ = pSet.getParameter<InputTag>("beamSpotLabel");
+  vertexToken_   = consumes<reco::VertexCollection>(vertexInputTag_);
+  beamspotToken_ = consumes<reco::BeamSpot>        (beamSpotInputTag_);
+
+}
+
+// -- BeginRun
+//---------------------------------------------------------------------------------//
+void 
+PrimaryVertexMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+{
+
+  std::string dqmLabel = "";
 
   //
   // Book all histograms.
   //
 
   //  get the store
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  dqmLabel = "OfflinePV/"+moduleLabel.label();
+  dqmLabel = TopFolderName_+"/"+vertexInputTag_.label();
   dqmStore_->setCurrentFolder(dqmLabel);
 
 //   xPos = dqmStore_->book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
@@ -76,6 +123,11 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
     type[i]->getTH1F()->GetXaxis()->SetBinLabel(3,"Invalid");
   }
 
+
+  //  get the store
+  dqmLabel = TopFolderName_+"/"+beamSpotInputTag_.label();
+  dqmStore_->setCurrentFolder(dqmLabel);
+  
   bsX 		= dqmStore_->book1D("bsX", "BeamSpot x0", 100,-0.1,0.1);
   bsY 		= dqmStore_->book1D("bsY", "BeamSpot y0", 100,-0.1,0.1);
   bsZ 		= dqmStore_->book1D("bsZ", "BeamSpot z0", 100,-2.,2.);
@@ -89,6 +141,77 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   bsType->getTH1F()->GetXaxis()->SetBinLabel(2,"Fake");
   bsType->getTH1F()->GetXaxis()->SetBinLabel(3,"LHC");
   bsType->getTH1F()->GetXaxis()->SetBinLabel(4,"Tracker");
+
+  
+  //  get the store
+  dqmLabel = TopFolderName_+"/"+AlignmentLabel_;
+  dqmStore_->setCurrentFolder(dqmLabel);
+
+  int    TKNoBin    = conf_.getParameter<int>(   "TkSizeBin");
+  double TKNoMin    = conf_.getParameter<double>("TkSizeMin");
+  double TKNoMax    = conf_.getParameter<double>("TkSizeMax");
+
+  int    DxyBin     = conf_.getParameter<int>(   "DxyBin");
+  double DxyMin     = conf_.getParameter<double>("DxyMin");
+  double DxyMax     = conf_.getParameter<double>("DxyMax");
+  
+  int    DzBin      = conf_.getParameter<int>(   "DzBin");
+  double DzMin      = conf_.getParameter<double>("DzMin");
+  double DzMax      = conf_.getParameter<double>("DzMax");
+  
+  int    PhiBin     = conf_.getParameter<int>(   "PhiBin");
+  double PhiMin     = conf_.getParameter<double>("PhiMin");
+  double PhiMax     = conf_.getParameter<double>("PhiMax");
+
+  int    EtaBin     = conf_.getParameter<int>(   "EtaBin");
+  double EtaMin     = conf_.getParameter<double>("EtaMin");
+  double EtaMax     = conf_.getParameter<double>("EtaMax");
+  
+      
+  ntracks = dqmStore_->book1D("ntracks","number of PV tracks (p_{T} > 1 GeV)", 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
+  ntracks->setAxisTitle("Number of PV Tracks (p_{T} > 1 GeV) per Event", 1);
+  ntracks->setAxisTitle("Number of Event", 2);
+
+  weight = dqmStore_->book1D("weight","weight of PV tracks (p_{T} > 1 GeV)", 100, 0., 1.);
+  weight->setAxisTitle("weight of PV Tracks (p_{T} > 1 GeV) per Event", 1);
+  weight->setAxisTitle("Number of Event", 2);
+
+  sumpt    = dqmStore_->book1D("sumpt",   "#Sum p_{T} of PV tracks (p_{T} > 1 GeV)",       100,-0.5,199.5); 
+  chi2ndf  = dqmStore_->book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof",       100, 0., 200. );
+  chi2prob = dqmStore_->book1D("chi2prob","PV tracks (p_{T} > 1 GeV) #chi^{2} probability",100, 0.,   1. );
+  dxy      = dqmStore_->book1D("dxy",     "PV tracks (p_{T} > 1 GeV) d_{xy} (cm)",         DxyBin, DxyMin, DxyMax);
+  dz       = dqmStore_->book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (cm)",          DzBin,  DzMin,  DzMax );
+  dxyErr   = dqmStore_->book1D("dxyErr",  "PV tracks (p_{T} > 1 GeV) d_{xy} error (cm)",   100, 0.,   1. );
+  dzErr    = dqmStore_->book1D("dzErr",   "PV tracks (p_{T} > 1 GeV) d_{z} error(cm)",     100, 0.,   1. );
+
+  dxyVsPhi_pt1 = dqmStore_->bookProfile("dxyVsPhi_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi",  1);
+  dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy}",2);
+  dzVsPhi_pt1  = dqmStore_->bookProfile("dzVsPhi_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (cm) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
+  dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
+  dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z}",2);
+
+  dxyVsEta_pt1 = dqmStore_->bookProfile("dxyVsEta_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta",  1);
+  dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy}",2);
+  dzVsEta_pt1  = dqmStore_->bookProfile("dzVsEta_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (cm) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
+  dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z}",2);
+
+  dxyVsPhi_pt10 = dqmStore_->bookProfile("dxyVsPhi_pt10", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi",  1);
+  dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy}",2);
+  dzVsPhi_pt10  = dqmStore_->bookProfile("dzVsPhi_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (cm) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
+  dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 1);
+  dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z}",2);
+
+  dxyVsEta_pt10 = dqmStore_->bookProfile("dxyVsEta_pt10", "PV tracks (p_{T} > 10 GeV) d_{xy} (cm) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta",  1);
+  dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy}",2);
+  dzVsEta_pt10  = dqmStore_->bookProfile("dzVsEta_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (cm) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
+  dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
+  dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z}",2);
+
 }
 
 
@@ -98,10 +221,10 @@ PrimaryVertexMonitor::~PrimaryVertexMonitor()
 void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByLabel(moduleLabel, recVtxs);
+  iEvent.getByToken(vertexToken_, recVtxs);
 
   edm::Handle<reco::BeamSpot> beamSpotHandle;
-  iEvent.getByLabel(beamSpotLabel,beamSpotHandle);
+  iEvent.getByToken(beamspotToken_,beamSpotHandle);
 
   //
   // check for absent products and simply "return" in that case
@@ -109,9 +232,9 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   if (recVtxs.isValid() == false || beamSpotHandle.isValid()== false){
     edm::LogWarning("PrimaryVertexMonitor")
       <<" Some products not available in the event: VertexCollection "
-      <<moduleLabel<<" " 
+      <<vertexInputTag_<<" " 
       <<recVtxs.isValid() <<" BeamSpot "
-      <<beamSpotLabel<<" "
+      <<beamSpotInputTag_<<" "
       <<beamSpotHandle.isValid()<<". Skipping plots for this event";
     return;
   }
@@ -121,6 +244,9 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   nbvtx->Fill(recVtxs->size()*1.);
 
   vertexPlots(recVtxs->front(), beamSpot, 1);
+
+  // fill PV tracks MEs (as now, for alignment)
+  pvTracksPlots(recVtxs->front());
 
   for(reco::VertexCollection::const_iterator v=recVtxs->begin()+1; 
       v!=recVtxs->end(); ++v){
@@ -136,6 +262,71 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   bsBeamWidthX->Fill(beamSpot.BeamWidthX()*10000);
   bsBeamWidthY->Fill(beamSpot.BeamWidthY()*10000);
   // bsType->Fill(beamSpot.type());
+
+}
+
+void
+PrimaryVertexMonitor::pvTracksPlots(const Vertex & v)
+{
+
+  const math::XYZPoint myVertex(v.position().x(),v.position().y(),v.position().z());
+
+  if ( !v.isValid() ) return;
+  if (  v.isFake()  ) return;
+
+  if ( v.tracksSize() == 0 ) {
+    ntracks -> Fill ( 0 );
+    return;
+  }
+
+  size_t nTracks = 0;
+  float sumPT = 0.;
+  for (reco::Vertex::trackRef_iterator t = v.tracks_begin(); t != v.tracks_end(); t++) {
+
+    bool isHighPurity = (**t).quality(reco::TrackBase::highPurity);
+    if ( !isHighPurity ) continue;
+
+    float pt = (**t).pt();    
+    if ( pt < 1. ) continue;
+
+    nTracks++;
+
+    float eta      = (**t).eta();
+    float phi      = (**t).phi();
+
+    float w        = v.trackWeight(*t);
+    float chi2NDF  = (**t).normalizedChi2();
+    float chi2Prob = TMath::Prob((**t).chi2(),(int)(**t).ndof());
+    float Dxy      = (**t).dxy(myVertex);
+    float Dz       = (**t).dz(myVertex);
+    float DxyErr   = (**t).dxyError();
+    float DzErr    = (**t).dzError();
+
+    sumPT += pt*pt;
+
+    
+    // fill MEs
+    weight   -> Fill (w);
+    chi2ndf  -> Fill (chi2NDF);
+    chi2prob -> Fill (chi2Prob);
+    dxy      -> Fill (Dxy);
+    dz       -> Fill (Dz);
+    dxyErr   -> Fill (DxyErr);
+    dzErr    -> Fill (DzErr);
+    
+    dxyVsPhi_pt1 -> Fill (phi,Dxy);
+    dzVsPhi_pt1  -> Fill (phi,Dz);
+    dxyVsEta_pt1 -> Fill (eta,Dxy);
+    dzVsEta_pt1  -> Fill (eta,Dz);
+
+    if ( pt < 10. ) continue;
+    dxyVsPhi_pt10 -> Fill (phi,Dxy);
+    dzVsPhi_pt10  -> Fill (phi,Dz);
+    dxyVsEta_pt10 -> Fill (eta,Dxy);
+    dzVsEta_pt10  -> Fill (eta,Dz);
+  }
+  ntracks -> Fill (float(nTracks));
+  sumpt   -> Fill (sumPT);
 
 }
 

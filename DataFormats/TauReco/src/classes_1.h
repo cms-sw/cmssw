@@ -27,8 +27,8 @@
 #include <vector>
 #include <map>
 
-namespace {
-  struct dictionary {
+namespace DataFormats_TauReco {
+  struct dictionary1 {
     reco::L2TauIsolationInfo                                    l2iI;
     reco::L2TauInfoAssociation                                  l2ts;
     edm::Wrapper<reco::L2TauInfoAssociation>                    wl2ts;

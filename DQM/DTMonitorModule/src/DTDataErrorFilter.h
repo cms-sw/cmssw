@@ -21,14 +21,19 @@ public:
   virtual ~DTDataErrorFilter();
 
   // Operations
-  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  
+  virtual bool hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+
 protected:
 
 private:
   DTDataIntegrityTask * dataMonitor;
 
-  
+
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

@@ -29,6 +29,16 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//DataFormats
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/Scalers/interface/Level1TriggerRates.h"
+#include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
+#include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
+#include "DataFormats/Luminosity/interface/LumiDetails.h" // Luminosity Information
+#include "DataFormats/Luminosity/interface/LumiSummary.h" // Luminosity Information
+
+
 #include <TString.h>
 
 #include <iostream>
@@ -117,8 +127,9 @@ private:
   std::map<int,std::map<TString,double> > m_lsCounts;                // Map of counts (by bit) recorded for each LS
 
   // Input tags
-  edm::InputTag m_scalersSource;       // Where to get L1 Scalers
-  edm::InputTag m_l1GtDataDaqInputTag; // Where to get L1 GT Data DAQ
+  edm::EDGetTokenT<LumiScalersCollection> m_scalersSource_LSCollection;            // Where to get L1 Scalers
+  edm::EDGetTokenT<Level1TriggerScalersCollection> m_scalersSource_L1TSCollection; // Where to get L1 Scalers
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputTag;            // Where to get L1 GT Data DAQ
 
   // ParameterSet
   edm::ParameterSet m_parameters;

@@ -105,6 +105,8 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
 
   size_t elementSize = dereferenceMethod.TypeOf().ReturnType().SizeOf();
 
+  if( ! elementSize ) return;
+
   // Retrieve the container size
   size_t contrainerSize = blobData.size() / elementSize;
 

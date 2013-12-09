@@ -17,6 +17,8 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -32,19 +34,34 @@ typedef TransientTrackingRecHit::ConstRecHitPointer Hit;
 
 struct HitLessByRadius { bool operator() (const Hit& h1, const Hit & h2) { return h1->globalPosition().perp2() < h2->globalPosition().perp2(); } };
 
-SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg)
-  : theConfig(cfg), 
-    theInputCollectionTag(cfg.getParameter<InputTag>("InputCollection")),
-    theInputVertexCollectionTag(cfg.getParameter<InputTag>("InputVertexCollection")),
-    originHalfLength(cfg.getParameter<double>("originHalfLength")),
-    originRadius(cfg.getParameter<double>("originRadius")),
-    useProtoTrackKinematics(cfg.getParameter<bool>("useProtoTrackKinematics")),
-    useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
-    builderName(cfg.getParameter<std::string>("TTRHBuilder"))
+void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<InputTag>("InputCollection", InputTag("pixelTracks"));
+  desc.add<InputTag>("InputVertexCollection", InputTag(""));
+  desc.add<double>("originHalfLength", 1E9);
+  desc.add<double>("originRadius", 1E9);
+  desc.add<bool>("useProtoTrackKinematics", false);
+  desc.add<bool>("useEventsWithNoVertex", true);
+  desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
+  desc.add<bool>("usePV", false);
+  descriptions.add("SeedGeneratorFromProtoTracksEDProducer", desc);
+}
+
+
+SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg):theConfig(cfg)
 
 {
   produces<TrajectorySeedCollection>();
+  theInputCollectionTag       = cfg.getParameter<InputTag>("InputCollection");
+  theInputVertexCollectionTag = cfg.getParameter<InputTag>("InputVertexCollection");
+  originHalfLength            = cfg.getParameter<double>("originHalfLength");
+  originRadius                = cfg.getParameter<double>("originRadius");
+  useProtoTrackKinematics     = cfg.getParameter<bool>("useProtoTrackKinematics");
+  useEventsWithNoVertex       = cfg.getParameter<bool>("useEventsWithNoVertex");
+  builderName                 = cfg.getParameter<std::string>("TTRHBuilder");
+  usePV_                      = cfg.getParameter<bool>( "usePV" );
 }
+
 
 void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
@@ -69,7 +86,18 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
     bool keepTrack = false;
     if ( !foundVertices ) { 
 	  if (useEventsWithNoVertex) keepTrack = true;
-    } else { 
+    } 
+    else if (usePV_){
+ 
+      GlobalPoint aPV(vertices->begin()->position().x(),vertices->begin()->position().y(),vertices->begin()->position().z());
+      double distR2 = sqr(vtx.x()-aPV.x()) +sqr(vtx.y()-aPV.y());
+      double distZ = fabs(vtx.z()-aPV.z());
+      if ( distR2 < sqr(originRadius) && distZ < originHalfLength ) {
+        keepTrack = true;
+      }
+    }
+
+    else { 
       for (reco::VertexCollection::const_iterator iv=vertices->begin(); iv!= vertices->end(); ++iv) {
         GlobalPoint aPV(iv->position().x(),iv->position().y(),iv->position().z());
 	double distR2 = sqr(vtx.x()-aPV.x()) +sqr(vtx.y()-aPV.y());

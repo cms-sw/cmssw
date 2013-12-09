@@ -7,8 +7,8 @@
 #include <vector>
 #include <functional>
 
-namespace {
-  struct dictionary {
+namespace DataFormats_StdDictionaries {
+  struct dictionaryothers {
   std::allocator<char> achar;
   std::allocator<double> adouble;
   std::allocator<int> aint;

@@ -1,6 +1,6 @@
 /** \class HLTEcalTowerFilter
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing a
  *  single CaloTower requirement with an emEnergy threshold (not Et!)
  *
@@ -34,11 +34,11 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  virtual bool hltFilter(edm::Event &, const edm::EventSetup &, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   edm::EDGetTokenT<CaloTowerCollection> inputToken_;
   edm::InputTag inputTag_; // input tag identifying product
-  double min_E_;           // energy threshold in GeV 
+  double min_E_;           // energy threshold in GeV
   double max_Eta_;         // maximum eta
   int min_N_;              // minimum number
 
@@ -81,8 +81,8 @@ HLTEcalTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-  bool 
-HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+  bool
+HLTEcalTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;

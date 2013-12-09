@@ -1,21 +1,23 @@
 #include "Validation/MuonCSCDigis/src/CSCComparatorDigiValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
-#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
-CSCComparatorDigiValidation::CSCComparatorDigiValidation(DQMStore* dbe, 
-    const edm::InputTag & inputTag, const edm::InputTag & stripDigiInputTag)
+CSCComparatorDigiValidation::CSCComparatorDigiValidation(DQMStore* dbe,
+                                                         const edm::InputTag & inputTag,
+                                                         const edm::InputTag & stripDigiInputTag,
+                                                         edm::ConsumesCollector && iC)
 : CSCBaseValidation(dbe, inputTag),
-  theStripDigiInputTag(stripDigiInputTag),
+  theStripDigi_Token_(iC.consumes<CSCStripDigiCollection>(stripDigiInputTag)),
   theTimeBinPlots(),
   theNDigisPerLayerPlots(),
   theStripDigiPlots(),
   the3StripPlots(),
   theNDigisPerEventPlot( dbe_->book1D("CSCComparatorDigisPerEvent", "CSC Comparator Digis per event", 100, 0, 100) )
 {
+  comparators_Token_ = iC.consumes<CSCComparatorDigiCollection>(inputTag);
+
   for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200], title3[200], title4[200];
@@ -27,7 +29,6 @@ CSCComparatorDigiValidation::CSCComparatorDigiValidation(DQMStore* dbe,
     theNDigisPerLayerPlots[i] = dbe_->book1D(title2, title2, 100, 0, 20);
     theStripDigiPlots[i] = dbe_->book1D(title3, title3, 100, 0, 1000);
     the3StripPlots[i] = dbe_->book1D(title4, title4, 100, 0, 1000);
-
   }
 }
 
@@ -51,15 +52,15 @@ void CSCComparatorDigiValidation::analyze(const edm::Event&e, const edm::EventSe
   edm::Handle<CSCComparatorDigiCollection> comparators;
   edm::Handle<CSCStripDigiCollection> stripDigis;
 
-  e.getByLabel(theInputTag, comparators);
+  e.getByToken(comparators_Token_, comparators);
   if (!comparators.isValid()) {
     edm::LogError("CSCDigiDump") << "Cannot get comparators by label " << theInputTag.encode();
   }
-  e.getByLabel(theStripDigiInputTag, stripDigis);
+  e.getByToken(theStripDigi_Token_, stripDigis);
   if (!stripDigis.isValid()) {
     edm::LogError("CSCDigiDump") << "Cannot get comparators by label " << theInputTag.encode();
   }
-  
+
   unsigned nDigisPerEvent = 0;
 
   for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); j!=comparators->end(); j++) {

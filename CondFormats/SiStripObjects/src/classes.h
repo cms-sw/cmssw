@@ -14,7 +14,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
 
-namespace {
+namespace CondFormats_SiStripObjects {
   struct dictionary {
     std::vector< std::vector<FedChannelConnection> > tmp1;
   

@@ -37,6 +37,7 @@
 
 namespace edm
 {
+  class ConsumesCollector;
   class ModuleCallingContext;
 
   class DataMixingHcalDigiWorkerProd
@@ -44,7 +45,7 @@ namespace edm
     public:
 
      /** standard constructor*/
-      explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps);
+      explicit DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
 
       /**Default destructor*/
       virtual ~DataMixingHcalDigiWorkerProd();

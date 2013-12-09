@@ -20,20 +20,15 @@ V00-03-25
 #include "DQM/BeamMonitor/plugins/BeamMonitor.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSFitter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include <numeric>
@@ -77,9 +72,15 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
 
   parameters_     = ps;
   monitorName_    = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
-  bsSrc_          = parameters_.getUntrackedParameter<InputTag>("beamSpot");
-  pvSrc_          = parameters_.getUntrackedParameter<InputTag>("primaryVertex");
-  hltSrc_         = parameters_.getParameter<InputTag>("hltResults");
+  bsSrc_          = consumes<reco::BeamSpot>(
+      parameters_.getUntrackedParameter<InputTag>("beamSpot"));
+  tracksLabel_    = consumes<reco::TrackCollection>(
+      parameters_.getParameter<ParameterSet>("BeamFitter")
+      .getUntrackedParameter<InputTag>("TrackCollection"));
+  pvSrc_          = consumes<reco::VertexCollection>(
+      parameters_.getUntrackedParameter<InputTag>("primaryVertex"));
+  hltSrc_         = consumes<TriggerResults>(
+      parameters_.getParameter<InputTag>("hltResults"));
   intervalInSec_  = parameters_.getUntrackedParameter<int>("timeInterval",920);//40 LS X 23"
   fitNLumi_       = parameters_.getUntrackedParameter<int>("fitEveryNLumi",-1);
   resetFitNLumi_  = parameters_.getUntrackedParameter<int>("resetEveryNLumi",-1);
@@ -89,7 +90,6 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
   debug_          = parameters_.getUntrackedParameter<bool>("Debug");
   onlineMode_     = parameters_.getUntrackedParameter<bool>("OnlineMode");
   jetTrigger_     = parameters_.getUntrackedParameter<std::vector<std::string> >("jetTrigger");
-  tracksLabel_    = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<InputTag>("TrackCollection");
   min_Ntrks_      = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
   maxZ_           = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
   minNrVertices_  = parameters_.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
@@ -100,7 +100,7 @@ BeamMonitor::BeamMonitor( const ParameterSet& ps ) :
 
   if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
 
-  theBeamFitter = new BeamFitter(parameters_);
+  theBeamFitter = new BeamFitter(parameters_, consumesCollector());
   theBeamFitter->resetTrkVector();
   theBeamFitter->resetLSRange();
   theBeamFitter->resetRefTime();
@@ -555,7 +555,7 @@ void BeamMonitor::analyze(const Event& iEvent,
   theBeamFitter->readEvent(iEvent); //Remember when track fitter read the event in the same place the PVFitter read the events !!!!!!!!!
 
   Handle<reco::BeamSpot> recoBeamSpotHandle;
-  iEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+  iEvent.getByToken(bsSrc_,recoBeamSpotHandle);
   refBS = *recoBeamSpotHandle;
 
   dbe_->setCurrentFolder(monitorName_+"Fit/");
@@ -577,7 +577,7 @@ void BeamMonitor::analyze(const Event& iEvent,
 
   //----Reco tracks -------------------------------------
   Handle<reco::TrackCollection> TrackCollection;
-  iEvent.getByLabel(tracksLabel_, TrackCollection);
+  iEvent.getByToken(tracksLabel_, TrackCollection);
   const reco::TrackCollection *tracks = TrackCollection.product();
   for ( reco::TrackCollection::const_iterator track = tracks->begin();
       track != tracks->end(); ++track ) {
@@ -588,7 +588,7 @@ void BeamMonitor::analyze(const Event& iEvent,
    //-------HLT Trigger --------------------------------
    edm::Handle<TriggerResults> triggerResults;
    bool JetTrigPass= false;
-  if(iEvent.getByLabel(hltSrc_, triggerResults)){
+  if(iEvent.getByToken(hltSrc_, triggerResults)){
      const edm::TriggerNames & trigNames = iEvent.triggerNames(*triggerResults); 
       for (unsigned int i=0; i< triggerResults->size(); i++){
            std::string trigName = trigNames.triggerName(i);
@@ -613,7 +613,7 @@ void BeamMonitor::analyze(const Event& iEvent,
   //------ Primary Vertices-------
   edm::Handle< reco::VertexCollection > PVCollection;
 
-  if (iEvent.getByLabel(pvSrc_, PVCollection )) {
+  if (iEvent.getByToken(pvSrc_, PVCollection )) {
     int nPVcount = 0;
     int nPVcount_ST =0;   //For Single Trigger(hence ST)
 
@@ -1403,3 +1403,8 @@ bool BeamMonitor::testScroll(time_t & tmpTime_, time_t & refTime_){
 }
 
 DEFINE_FWK_MODULE(BeamMonitor);
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

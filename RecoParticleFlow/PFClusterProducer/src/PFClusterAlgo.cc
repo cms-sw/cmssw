@@ -83,7 +83,8 @@ void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle ) {
   doClusteringWorker( rechits );
 }
 
-void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle, const std::vector<bool> & mask ) {
+void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle, 
+				  const std::vector<bool> & mask ) {
 
   const reco::PFRecHitCollection& rechits = * rechitsHandle;
 
@@ -151,7 +152,6 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits, const
   doClusteringWorker( rechits );
 
 }
-
 
 void PFClusterAlgo::doClusteringWorker( const reco::PFRecHitCollection& rechits ) {
 
@@ -1834,7 +1834,7 @@ ostream& operator<<(ostream& out,const PFClusterAlgo& algo) {
 std::pair<double,double>
 PFClusterAlgo::dCrack(double phi, double eta){
 
-  static double pi= M_PI;// 3.14159265358979323846;
+  static const double pi= M_PI;// 3.14159265358979323846;
   
   //Location of the 18 phi-cracks
   static std::vector<double> cPhi;

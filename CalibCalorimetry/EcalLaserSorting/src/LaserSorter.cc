@@ -539,7 +539,7 @@ bool LaserSorter::renameAsBackup(const std::string& fileName,
                                  std::string& newFileName){
   int i = 0;
   int err;
-  static int maxTries = 100;
+  static const int maxTries = 100;
   stringstream newFileName_;
   do{
     newFileName_.str("");

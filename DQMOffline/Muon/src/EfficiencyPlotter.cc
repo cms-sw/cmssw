@@ -1,4 +1,4 @@
-#include "DQMOffline/Muon/src/EfficiencyPlotter.h"
+#include "DQMOffline/Muon/interface/EfficiencyPlotter.h"
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>

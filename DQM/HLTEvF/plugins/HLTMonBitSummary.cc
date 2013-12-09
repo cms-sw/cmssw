@@ -62,6 +62,8 @@ HLTMonBitSummary::HLTMonBitSummary(const edm::ParameterSet& iConfig) :
   dbe_ = edm::Service < DQMStore > ().operator->();
   dbe_->setVerbose(0);
 
+  //set Token(-s)
+  inputToken_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag> ("TriggerResultsTag"));
 }
 
 
@@ -299,7 +301,7 @@ HLTMonBitSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // get hold of TriggerResults Object
   edm::Handle<edm::TriggerResults> trh;
-  iEvent.getByLabel(inputTag_,trh);
+  iEvent.getByToken(inputToken_, trh);
   
   if (trh.failedToGet()) {
      edm::LogError("HLTMonBitSummary")<<" could not get: "<<inputTag_;

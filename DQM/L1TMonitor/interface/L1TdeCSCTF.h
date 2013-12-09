@@ -14,12 +14,17 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
+#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
+
+//data formats
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
+
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
+#include "L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -34,7 +39,10 @@
 
 class L1TdeCSCTF : public edm::EDAnalyzer {
 private:
-	edm::InputTag lctProducer, dataTrackProducer, emulTrackProducer, dataStubProducer, emulStubProducer;
+  edm::EDGetTokenT<L1CSCTrackCollection> dataTrackProducer;
+  edm::EDGetTokenT<L1CSCTrackCollection> emulTrackProducer;
+  edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > dataStubProducer;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> emulStubProducer;
 
 	const L1MuTriggerScales *ts;
 	CSCTFPtLUT* ptLUT_;
@@ -62,6 +70,8 @@ public:
 	void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
 	void endJob(void);
 	void beginJob();
+	void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
+
 
 	explicit L1TdeCSCTF(edm::ParameterSet const& pset);
 	virtual ~L1TdeCSCTF() {}

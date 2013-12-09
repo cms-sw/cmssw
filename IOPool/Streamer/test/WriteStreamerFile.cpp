@@ -117,16 +117,6 @@ int main() try {
     stream_writer.write(emb);
   }
 
-  //Write the EOF Record Both at the end of Streamer file
-  uint32 dummyStatusCode = 1234;
-  std::vector<uint32> hltStats;
-
-  hltStats.push_back(32);
-  hltStats.push_back(33);
-  hltStats.push_back(34);
-
-  stream_writer.writeEOF(dummyStatusCode, hltStats);
-
   return 0;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

@@ -16,8 +16,6 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>

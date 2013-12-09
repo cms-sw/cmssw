@@ -14,8 +14,8 @@ using namespace pat;
 
 TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-    src_(cfg.getParameter<edm::InputTag>("src")),
-    levels_(cfg.getParameter<std::vector<std::string> >("levels")) 
+    srcToken_(consumes<edm::View<reco::BaseTau> >(cfg.getParameter<edm::InputTag>("src"))),
+    levels_(cfg.getParameter<std::vector<std::string> >("levels"))
 {
   typedef std::vector<edm::ParameterSet> vParameterSet;
   vParameterSet parameters = cfg.getParameter<vParameterSet>("parameters");
@@ -26,7 +26,7 @@ TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cf
     payloadMapping.payload_ = param->getParameter<std::string>("payload");
 
     vstring decayModes_string = param->getParameter<vstring>("decayModes");
-    for ( vstring::const_iterator decayMode = decayModes_string.begin(); 
+    for ( vstring::const_iterator decayMode = decayModes_string.begin();
 	  decayMode != decayModes_string.end(); ++decayMode ) {
       if ( (*decayMode) == "*" ) {
 	defaultPayload_ = payloadMapping.payload_;
@@ -42,40 +42,40 @@ TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cf
 }
 
 std::vector<JetCorrectorParameters>
-TauJetCorrFactorsProducer::params(const JetCorrectorParametersCollection& jecParameters, const std::vector<std::string>& levels) const 
+TauJetCorrFactorsProducer::params(const JetCorrectorParametersCollection& jecParameters, const std::vector<std::string>& levels) const
 {
   std::vector<JetCorrectorParameters> retVal;
-  for ( std::vector<std::string>::const_iterator corrLevel = levels.begin(); 
-	corrLevel != levels.end(); ++corrLevel ) { 
-    const JetCorrectorParameters& jecParameter_level = jecParameters[*corrLevel]; 
-    retVal.push_back(jecParameter_level); 
-  } 
+  for ( std::vector<std::string>::const_iterator corrLevel = levels.begin();
+	corrLevel != levels.end(); ++corrLevel ) {
+    const JetCorrectorParameters& jecParameter_level = jecParameters[*corrLevel];
+    retVal.push_back(jecParameter_level);
+  }
   return retVal;
 }
 
 float
-TauJetCorrFactorsProducer::evaluate(edm::View<reco::BaseTau>::const_iterator& tauJet, 
+TauJetCorrFactorsProducer::evaluate(edm::View<reco::BaseTau>::const_iterator& tauJet,
 				    boost::shared_ptr<FactorizedJetCorrector>& corrector, int corrLevel)
 {
-  corrector->setJetEta(tauJet->eta()); 
-  corrector->setJetPt(tauJet->pt()); 
-  corrector->setJetE(tauJet->energy()); 
+  corrector->setJetEta(tauJet->eta());
+  corrector->setJetPt(tauJet->pt());
+  corrector->setJetE(tauJet->energy());
   return corrector->getSubCorrections()[corrLevel];
 }
 
-void 
-TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
+void
+TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   // get tau-jet collection from the event
   edm::Handle<edm::View<reco::BaseTau> > tauJets;
-  evt.getByLabel(src_, tauJets);
+  evt.getByToken(srcToken_, tauJets);
 
   typedef boost::shared_ptr<FactorizedJetCorrector> FactorizedJetCorrectorPtr;
   std::map<std::string, FactorizedJetCorrectorPtr> correctorMapping;
 
   // fill the tauJetCorrFactors
   std::vector<TauJetCorrFactors> tauJetCorrections;
-  for ( edm::View<reco::BaseTau>::const_iterator tauJet = tauJets->begin(); 
+  for ( edm::View<reco::BaseTau>::const_iterator tauJet = tauJets->begin();
 	tauJet != tauJets->end(); ++tauJet ) {
 
     // the TauJetCorrFactors::CorrectionFactor is a std::pair<std::string, float>
@@ -84,11 +84,11 @@ TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     std::vector<TauJetCorrFactors::CorrectionFactor> jec;
     jec.push_back(std::make_pair(std::string("Uncorrected"), 1.0));
 
-    if ( levels_.size() == 0 ) 
-      throw cms::Exception("No JECFactors") 
+    if ( levels_.size() == 0 )
+      throw cms::Exception("No JECFactors")
 	<< "You request to create a jetCorrFactors object with no JEC Levels indicated. \n"
 	<< "This makes no sense, either you should correct this or drop the module from \n"
-	<< "the sequence."; 
+	<< "the sequence.";
 
     std::string payload = defaultPayload_;
     if ( dynamic_cast<const reco::PFTau*>(&(*tauJet)) ) {
@@ -106,7 +106,7 @@ TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     // in case it does not exist already for current payload
     if ( correctorMapping.find(payload) == correctorMapping.end() ) {
       edm::ESHandle<JetCorrectorParametersCollection> jecParameters;
-      es.get<JetCorrectionsRecord>().get(payload, jecParameters); 
+      es.get<JetCorrectionsRecord>().get(payload, jecParameters);
 
       correctorMapping[payload] = FactorizedJetCorrectorPtr(new FactorizedJetCorrector(params(*jecParameters, levels_)));
     }
@@ -116,14 +116,14 @@ TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     size_t numLevels = levels_.size();
     for ( size_t idx = 0; idx < numLevels; ++idx ) {
       const std::string& corrLevel = levels_[idx];
-  
+
       float jecFactor = evaluate(tauJet, corrector, idx);
-      
-      // push back the set of JetCorrFactors: the first entry corresponds to the label 
-      // of the correction level. The second parameter corresponds to the jec factor. 
-      // In the default configuration the CorrectionFactor will look like this: 
-      //   'Uncorrected' : 1 ; 
-      //   'L2Relative'  : x ; 
+
+      // push back the set of JetCorrFactors: the first entry corresponds to the label
+      // of the correction level. The second parameter corresponds to the jec factor.
+      // In the default configuration the CorrectionFactor will look like this:
+      //   'Uncorrected' : 1 ;
+      //   'L2Relative'  : x ;
       //   'L3Absolute'  : x ;
       jec.push_back(std::make_pair(corrLevel.substr(0, corrLevel.find("_")), jecFactor));
     }

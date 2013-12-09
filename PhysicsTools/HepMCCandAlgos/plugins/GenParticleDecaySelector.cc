@@ -18,15 +18,15 @@ private:
   /// process one event
   void produce(edm::Event& e, const edm::EventSetup&) override;
   bool firstEvent_;
-  /// source collection name  
-  edm::InputTag src_;  
+  /// source collection name
+  edm::EDGetTokenT<reco::GenParticleCollection> srcToken_;
   /// particle type
   PdtEntry particle_;
   /// particle status
   int status_;
   /// recursively add a new particle to the output collection
   std::pair<reco::GenParticleRef, reco::GenParticle*>
-  add(reco::GenParticleCollection&, const reco::GenParticle &, 
+  add(reco::GenParticleCollection&, const reco::GenParticle &,
       reco::GenParticleRefProd);
 };
 
@@ -41,7 +41,7 @@ using namespace std;
 
 GenParticleDecaySelector::GenParticleDecaySelector(const edm::ParameterSet& cfg) :
   firstEvent_(true),
-  src_(cfg.getParameter<InputTag>("src")),
+  srcToken_(consumes<GenParticleCollection>(cfg.getParameter<InputTag>("src"))),
   particle_(cfg.getParameter<PdtEntry>("particle")),
   status_(cfg.getParameter<int>("status")) {
   produces<GenParticleCollection>();
@@ -51,7 +51,7 @@ void GenParticleDecaySelector::produce(edm::Event& evt, const edm::EventSetup& e
   if (firstEvent_) {particle_.setup(es); firstEvent_ = false;}
 
   Handle<GenParticleCollection> genParticles;
-  evt.getByLabel(src_, genParticles);
+  evt.getByToken(srcToken_, genParticles);
   auto_ptr<GenParticleCollection> decay(new GenParticleCollection);
   const GenParticleRefProd ref = evt.getRefBeforePut<GenParticleCollection>();
   for(GenParticleCollection::const_iterator g = genParticles->begin();

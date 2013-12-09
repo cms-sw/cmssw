@@ -38,7 +38,7 @@ class SmartPropagator GCC11_FINAL : public Propagator {
 
     /* Constructor */ 
     ///Defines which propagator is used inside Tk and which outside
-    SmartPropagator(Propagator* aTkProp, Propagator* aGenProp, const MagneticField* field,
+    SmartPropagator(const Propagator* aTkProp, const Propagator* aGenProp, const MagneticField* field,
         PropagationDirection dir = alongMomentum, float epsilon = 5) ;
 
     ///Defines which propagator is used inside Tk and which outside
@@ -132,20 +132,20 @@ class SmartPropagator GCC11_FINAL : public Propagator {
     bool insideTkVol(const Plane& plane)  const ;
 
     ///return the propagator used inside tracker
-    Propagator* getTkPropagator() const ;
+    const Propagator* getTkPropagator() const ;
     ///return the propagator used outside tracker
-    Propagator* getGenPropagator() const ;
+    const Propagator* getGenPropagator() const ;
     ///return the magneticField
     virtual const MagneticField* magneticField() const {return theField;}
 
   private:
     ///build the tracker volume
-  static void initTkVolume(float epsilon);
+    void initTkVolume(float epsilon);
 
-    mutable Propagator* theTkProp;
-    mutable Propagator* theGenProp;
+    Propagator* theTkProp;
+    Propagator* theGenProp;
     const MagneticField* theField;
-    static ReferenceCountingPointer<Cylinder> & theTkVolume();
+    ReferenceCountingPointer<Cylinder> theTkVolume;
 
   protected:
 

@@ -36,8 +36,10 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
-namespace {
-  struct dictionary {
+#include "DataFormats/JetReco/interface/CATopJetTagInfo.h"
+
+namespace DataFormats_JetReco {
+  struct dictionary4 {
     // jet id stuff
     reco::JetID jid;
     edm::Ref<std::vector<reco::JetID> > rjid;
@@ -174,6 +176,20 @@ namespace {
     edm::PtrVector<reco::FFTCaloJet> ptrvgj_fft_2;
     edm::Association<reco::FFTCaloJetCollection> a_gj_fft_2;
     edm::Wrapper<edm::Association<reco::FFTCaloJetCollection> > w_a_gj_fft_2;
+
+
+
+    reco::CATopJetProperties                                            catopjetp;
+    std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>      catopjetp_p;
+
+    reco::CATopJetTagInfo                                               catopjet;
+    reco::CATopJetTagInfoCollection                                     catopjet_c;
+    reco::CATopJetTagInfoRef                                            catopjet_r;
+    reco::CATopJetTagInfoRefProd                                        catopjet_rp;
+    reco::CATopJetTagInfoRefVector                                      catopjet_rv;
+    edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef> rb_catopjet;
+    edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>                 rbh_catopjet; 
 
   };
 }

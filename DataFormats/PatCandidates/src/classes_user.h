@@ -10,8 +10,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-namespace {
-  struct dictionary {
+namespace DataFormats_PatCandidates {
+  struct dictionaryuser {
 
   /*   UserData: Core   */
   pat::UserDataCollection	         ov_p_ud;

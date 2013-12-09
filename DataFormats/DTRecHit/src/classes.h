@@ -13,7 +13,7 @@
 #include <vector>
 #include <map>
 
-namespace{
+namespace DataFormats_DTRecHit {
   struct dictionary {
     std::map<DTLayerId,std::pair<unsigned int,unsigned int> > dummydtlayerid1;
     std::map<DTLayerId,std::pair<unsigned long,unsigned long> > dummydtlayerid2;

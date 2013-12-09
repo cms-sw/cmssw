@@ -29,7 +29,7 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   // either FullEvent or selected path
   static std::string const fullEvent("FullEvent");
   if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
-    activity.watchPostSource(this,&ProfilerService::preSourceI);
+    activity.watchPostSourceEvent(this,&ProfilerService::preSourceI);
   else {
     activity.watchPreProcessEvent(this,&ProfilerService::beginEventI);
     activity.watchPostProcessEvent(this,&ProfilerService::endEventI);

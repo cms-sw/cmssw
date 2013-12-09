@@ -23,7 +23,7 @@
 // constructors and destructor
 //
 template<typename T>
-HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
+HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
   inputToken_  (consumes<std::vector<T> >(inputTag_)),
   triggerType_ (iConfig.template getParameter<int>("triggerType")),
@@ -43,7 +43,7 @@ HLTSmartSinglet<T>::~HLTSmartSinglet()
 {
 }
 
-template<typename T> 
+template<typename T>
 void
 HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -60,9 +60,9 @@ HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T> 
+template<typename T>
 bool
-HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;

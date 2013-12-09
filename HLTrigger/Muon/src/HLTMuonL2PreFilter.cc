@@ -35,7 +35,7 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig): HLTFil
   seedMapToken_(consumes<SeedMap>(seedMapTag_)),
   minN_( iConfig.getParameter<int>("MinN") ),
   maxEta_( iConfig.getParameter<double>("MaxEta") ),
-  absetaBins_( iConfig.getParameter<std::vector<double> >("AbsEtaBins") ), 
+  absetaBins_( iConfig.getParameter<std::vector<double> >("AbsEtaBins") ),
   minNstations_( iConfig.getParameter<std::vector<int> >("MinNstations") ),
   minNhits_( iConfig.getParameter<std::vector<int> >("MinNhits") ),
   cutOnChambers_( iConfig.getParameter<bool>("CutOnChambers") ),
@@ -50,10 +50,10 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig): HLTFil
   using namespace std;
 
   // check that number of eta bins matches number of nStation cuts
-  if( minNstations_.size()!=absetaBins_.size() || 
-      minNhits_.size()!=absetaBins_.size()     || 
+  if( minNstations_.size()!=absetaBins_.size() ||
+      minNhits_.size()!=absetaBins_.size()     ||
       ( cutOnChambers_ && minNchambers_.size()!=absetaBins_.size() ) ) {
-    throw cms::Exception("Configuration") << "Number of MinNstations, MinNhits, or MinNchambers cuts " 
+    throw cms::Exception("Configuration") << "Number of MinNstations, MinNhits, or MinNchambers cuts "
 					  << "does not match number of eta bins." << endl;
   }
 
@@ -136,7 +136,7 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
@@ -171,7 +171,7 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
   for(RecoChargedCandidateCollection::const_iterator cand=allMuons->begin(); cand!=allMuons->end(); cand++){
     TrackRef mu = cand->get<TrackRef>();
 
-    // check if this muon passed previous level 
+    // check if this muon passed previous level
     if(!mapL2ToL1.isTriggeredByL1(mu)) continue;
 
     // eta cut
@@ -225,7 +225,7 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // filter decision
   const bool accept (n >= minN_);
-   
+
   // dump event for debugging
   if(edm::isDebugEnabled()){
     ostringstream ss;

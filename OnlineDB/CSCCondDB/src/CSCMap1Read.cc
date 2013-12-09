@@ -1,5 +1,5 @@
 #include "OnlineDB/CSCCondDB/interface/CSCMap1Read.h"
-#include "string"
+#include <string>
 
 CSCMap1Read::CSCMap1Read(const edm::ParameterSet&){}
 CSCMap1Read::~CSCMap1Read(){}

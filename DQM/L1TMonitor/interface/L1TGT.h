@@ -33,6 +33,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+//L1 trigger includes
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+
+
 //
 // class declaration
 //
@@ -99,10 +104,11 @@ private:
     /// input parameters
 
     /// input tag for L1 GT DAQ readout record
-    edm::InputTag gtSource_;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtSource_L1GT_;
+    edm::EDGetTokenT<L1MuGMTReadoutCollection> gtSource_L1MuGMT_;
 
     /// input tag for L1 GT EVM readout record
-    edm::InputTag gtEvmSource_;
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmSource_;
 
     /// switches to choose the running of various methods
     bool m_runInEventLoop;

@@ -78,20 +78,20 @@ void HLTBeamModeFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   //    #
   //    # InputTag for the L1 Global Trigger EVM readout record
   //    #   gtDigis        GT Emulator
-  //    #   l1GtEvmUnpack  GT EVM Unpacker (default module name) 
-  //    #   gtEvmDigis     GT EVM Unpacker in RawToDigi standard sequence  
+  //    #   l1GtEvmUnpack  GT EVM Unpacker (default module name)
+  //    #   gtEvmDigis     GT EVM Unpacker in RawToDigi standard sequence
   //    #
   //    #   cloned GT unpacker in HLT = gtEvmDigis
   desc.add<edm::InputTag>("L1GtEvmReadoutRecordTag",edm::InputTag("gtEvmDigis"));
   //    #
-  //    # vector of allowed beam modes 
+  //    # vector of allowed beam modes
   //    # default value: 11 (STABLE)
   std::vector<unsigned int> allowedBeamMode(1,11);
   desc.add<std::vector<unsigned int> >("AllowedBeamMode",allowedBeamMode);
   descriptions.add("hltBeamModeFilter", desc);
 }
 
-bool HLTBeamModeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+bool HLTBeamModeFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
 
     // for MC samples, return always true (not even checking validity of L1GlobalTriggerEvmReadoutRecord)
     // eventually, the BST information will be filled also in MC simulation to spare this check

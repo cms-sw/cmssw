@@ -39,7 +39,7 @@ namespace reco {
    typedef edm::AssociationMap<edm::OneToManyWithQualityGeneric<CandidateView,CandidateView,bool> > CandViewCandViewAssociation;
 }
 
-namespace {
+namespace DataFormats_Candidate {
   struct dictionary {
     std::vector<reco::Candidate *> v1;
     reco::CandidateCollection o1;

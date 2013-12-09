@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-namespace {
-  struct dictionary {
+namespace DataFormats_StdDictionaries {
+  struct dictionaryvector {
   std::vector<bool> dummy13;
   std::vector<char*> dummy6p;
   std::vector<char> dummy6;

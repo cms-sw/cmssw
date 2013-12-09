@@ -20,17 +20,17 @@ coral::MsgLevel coralMessageLevel( const char* envVar ){
 }
 
 std::string ora::Configuration::automaticDatabaseCreation(){
-  static std::string s_automaticDatabaseCreation("ORA_AUTOMATIC_DATABASE_CREATION");
+  static const std::string s_automaticDatabaseCreation("ORA_AUTOMATIC_DATABASE_CREATION");
   return s_automaticDatabaseCreation;  
 }
 
 std::string ora::Configuration::automaticContainerCreation(){
-  static std::string s_automaticContainerCreation("ORA_AUTOMATIC_CONTAINER_CREATION");
+  static const std::string s_automaticContainerCreation("ORA_AUTOMATIC_CONTAINER_CREATION");
   return s_automaticContainerCreation;  
 }
 
 std::string ora::Configuration::automaticSchemaEvolution(){
-  static std::string s_automaticSchemaEvolution("ORA_AUTOMATIC_SCHEMA_EVOLUTION");
+  static const std::string s_automaticSchemaEvolution("ORA_AUTOMATIC_SCHEMA_EVOLUTION");
   return s_automaticSchemaEvolution;  
 }
 

@@ -109,7 +109,12 @@ class OccupancyPlotter : public edm::EDAnalyzer {
   // histograms
   TH1F * hist_LumivsLS;
   TH1F * hist_PUvsLS;
-  
+
+  //set Token(-s)
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<trigger::TriggerEvent> aodTriggerToken_;
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatusToken_;
+  edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
 };
 
 //
@@ -139,7 +144,11 @@ OccupancyPlotter::OccupancyPlotter(const edm::ParameterSet& iConfig)
 
   if (debugPrint) std::cout << "Got plot dirname = " << plotDirectoryName << std::endl;
 
-
+  //set Token(-s)
+  triggerResultsToken_ = consumes<edm::TriggerResults>(InputTag("TriggerResults","", "HLT"));
+  aodTriggerToken_ = consumes<trigger::TriggerEvent>(InputTag("hltTriggerSummaryAOD", "", "HLT"));
+  dcsStatusToken_ = consumes<DcsStatusCollection>(std::string("hltScalersRawToDigi"));
+  lumiScalersToken_ = consumes<LumiScalersCollection>(InputTag("hltScalersRawToDigi","",""));
 }
 
 
@@ -193,7 +202,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     // Access Trigger Results
    edm::Handle<edm::TriggerResults> triggerResults;
-   iEvent.getByLabel(InputTag("TriggerResults","", "HLT"), triggerResults);
+   iEvent.getByToken(triggerResultsToken_, triggerResults);
    
    if (!triggerResults.isValid()) {
      if (debugPrint) std::cout << "Trigger results not valid" << std::endl;
@@ -202,7 +211,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (debugPrint) std::cout << "Found triggerResults" << std::endl;
 
    edm::Handle<trigger::TriggerEvent>         aodTriggerEvent;   
-   iEvent.getByLabel(InputTag("hltTriggerSummaryAOD", "", "HLT"), aodTriggerEvent);
+   iEvent.getByToken(aodTriggerToken_, aodTriggerEvent);
    
    if ( !aodTriggerEvent.isValid() ) { 
      if (debugPrint) std::cout << "No AOD trigger summary found! Returning..."; 
@@ -509,7 +518,7 @@ bool OccupancyPlotter::checkDcsInfo (const edm::Event & jEvent) {
   //Copy of code from DQMServices/Components/src/DQMDcsInfo.cc
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  if ( ! jEvent.getByLabel("hltScalersRawToDigi", dcsStatus) )
+  if (! jEvent.getByToken(dcsStatusToken_, dcsStatus))
     {
       std::cout  << "[OccupancyPlotter::checkDcsInfo] Could not get scalersRawToDigi by label\n" ;
       for (int i=0;i<24;i++) dcs[i]=false;
@@ -577,7 +586,7 @@ void OccupancyPlotter::checkLumiInfo (const edm::Event & jEvent) {
   if (debugPrint) std::cout << "Inside method check lumi info" << std::endl;
   
   edm::Handle<LumiScalersCollection> lumiScalers;
-  bool lumiHandleOK = jEvent.getByLabel(InputTag("hltScalersRawToDigi","",""), lumiScalers);
+  bool lumiHandleOK = jEvent.getByToken(lumiScalersToken_, lumiScalers);
 
   if (!lumiHandleOK || !lumiScalers.isValid()){
     if (debugPrint) std::cout << "scalers not valid" << std::endl;

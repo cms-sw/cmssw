@@ -30,7 +30,7 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
+METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet, ConsumesCollector&& iC) {
 
   parameters = pSet;
 
@@ -42,14 +42,14 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
 
-  //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_ ) );
-  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
-  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
-  _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms   );
-  _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms   );
-  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms    );
-  _EleEventFlag       = new GenericTriggerEventFlag( eleparms       );
-  _MuonEventFlag      = new GenericTriggerEventFlag( muonparms      );
+  //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_, iC ) );
+  _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms, iC );
+  _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms, iC );
+  _MinBiasEventFlag   = new GenericTriggerEventFlag( minbiasparms , iC );
+  _HighMETEventFlag   = new GenericTriggerEventFlag( highmetparms , iC );
+  //  _LowMETEventFlag    = new GenericTriggerEventFlag( lowmetparms  , iC );
+  _EleEventFlag       = new GenericTriggerEventFlag( eleparms     , iC );
+  _MuonEventFlag      = new GenericTriggerEventFlag( muonparms    , iC );
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
@@ -62,7 +62,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 }
 
 // ***********************************************************
-METAnalyzer::~METAnalyzer() { 
+METAnalyzer::~METAnalyzer() {
 
   delete _HighPtJetEventFlag;
   delete _LowPtJetEventFlag;
@@ -118,7 +118,7 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   _source                     = parameters.getParameter<std::string>("Source");
 
   if (theMETCollectionLabel.label() == "tcMet" ) {
-    inputTrackLabel         = parameters.getParameter<edm::InputTag>("InputTrackLabel");    
+    inputTrackLabel         = parameters.getParameter<edm::InputTag>("InputTrackLabel");
     inputMuonLabel          = parameters.getParameter<edm::InputTag>("InputMuonLabel");
     inputElectronLabel      = parameters.getParameter<edm::InputTag>("InputElectronLabel");
     inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
@@ -169,7 +169,7 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
   _FolderNames.push_back("Triggers");
   _FolderNames.push_back("PV");
 
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
+  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                  bookMESet(DirName+"/"+*ic);
     if (_cleanupSelection){
@@ -209,7 +209,7 @@ void METAnalyzer::bookMESet(std::string DirName)
   if ( _HighPtJetEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"HighPtJet",false);
     hTriggerName_HighPtJet = _dbe->bookString("triggerName_HighPtJet", highPtJetExpr_[0]);
-  }  
+  }
 
   if ( _LowPtJetEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"LowPtJet",false);
@@ -255,10 +255,10 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 
   hMEx        = _dbe->book1D("METTask_MEx",        "METTask_MEx",        200, -500,  500);
   hMEy        = _dbe->book1D("METTask_MEy",        "METTask_MEy",        200, -500,  500);
-  hMET        = _dbe->book1D("METTask_MET",        "METTask_MET",        200,    0, 1000); 
-  hSumET      = _dbe->book1D("METTask_SumET",      "METTask_SumET",      400,    0, 4000); 
+  hMET        = _dbe->book1D("METTask_MET",        "METTask_MET",        200,    0, 1000);
+  hSumET      = _dbe->book1D("METTask_SumET",      "METTask_SumET",      400,    0, 4000);
   hMETSig     = _dbe->book1D("METTask_METSig",     "METTask_METSig",      51,    0,   51);
-  hMETPhi     = _dbe->book1D("METTask_METPhi",     "METTask_METPhi",      60, -3.2,  3.2); 
+  hMETPhi     = _dbe->book1D("METTask_METPhi",     "METTask_METPhi",      60, -3.2,  3.2);
   hMET_logx   = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx",    40,   -1,    7);
   hSumET_logx = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx",  40,   -1,    7);
 
@@ -336,7 +336,7 @@ void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 // ***********************************************************
 void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe)
 {
-  
+
   //
   //--- Check the time length of the Run from the lumi section plots
 
@@ -358,7 +358,7 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
     totltime = double(totlsec*90); // one lumi sec ~ 90 (sec)
   }
 
-  if (totltime==0.) totltime=1.; 
+  if (totltime==0.) totltime=1.;
 
   //
   //--- Make the integrated plots with rate (Hz)
@@ -370,19 +370,19 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
       DirName = dirName+*ic;
 
       makeRatePlot(DirName,totltime);
-      if ( _HighPtJetEventFlag->on() ) 
+      if ( _HighPtJetEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_HighJetPt",totltime);
-      if ( _LowPtJetEventFlag->on() ) 
+      if ( _LowPtJetEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_LowJetPt",totltime);
-      if ( _MinBiasEventFlag->on() ) 
+      if ( _MinBiasEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_MinBias",totltime);
-      if ( _HighMETEventFlag->on() ) 
+      if ( _HighMETEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_HighMET",totltime);
-      //      if ( _LowMETEventFlag->on() ) 
+      //      if ( _LowMETEventFlag->on() )
       //	makeRatePlot(DirName+"/"+"triggerName_LowMET",totltime);
-      if ( _EleEventFlag->on() ) 
+      if ( _EleEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_Ele",totltime);
-      if ( _MuonEventFlag->on() ) 
+      if ( _MuonEventFlag->on() )
 	makeRatePlot(DirName+"/"+"triggerName_Muon",totltime);
     }
 }
@@ -401,7 +401,7 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
   if ( meMET )
     if ( meMET->getRootObject() ) {
       tMET     = meMET->getTH1F();
-      
+
       // Integral plot & convert number of events to rate (hz)
       tMETRate = (TH1F*) tMET->Clone("METTask_METRate");
       for (int i = tMETRate->GetNbinsX()-1; i>=0; i--){
@@ -409,7 +409,7 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
       }
       for (int i = 0; i<tMETRate->GetNbinsX(); i++){
 	tMETRate->SetBinContent(i+1,tMETRate->GetBinContent(i+1)/double(totltime));
-      }      
+      }
 
       tMETRate->SetName("METTask_METRate");
       tMETRate->SetTitle("METTask_METRate");
@@ -418,7 +418,7 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
 }
 
 // ***********************************************************
-void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 			    const edm::TriggerResults& triggerResults) {
 
   if (_verbose) std::cout << "METAnalyzer analyze" << std::endl;
@@ -429,8 +429,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   hmetME->Fill(2);
 
-  // ==========================================================  
-  // Trigger information 
+  // ==========================================================
+  // Trigger information
   //
   _trig_JetMB=0;
   _trig_HighPtJet=0;
@@ -441,21 +441,21 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   _trig_Ele=0;
   _trig_Muon=0;
   _trig_PhysDec=0;
-  if(&triggerResults) {   
+  if(&triggerResults) {
 
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
 
     //
     //
-    // Check how many HLT triggers are in triggerResults 
+    // Check how many HLT triggers are in triggerResults
     int ntrigs = triggerResults.size();
     if (_verbose) std::cout << "ntrigs=" << ntrigs << std::endl;
-    
+
     //
     //
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(triggerResults);
-    
+
     //
     //
     const unsigned int nTrig(triggerNames.size());
@@ -492,22 +492,22 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     /*
       if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_HighPtJet=1;
-      
+
       if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_LowPtJet=1;
-      
+
       if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup) )
       _trig_MinBias=1;
-      
+
       if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup) )
       _trig_HighMET=1;
-      
+
       if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup) )
       _trig_LowMET=1;
-      
+
       if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup) )
       _trig_Ele=1;
-      
+
       if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup) )
       _trig_Muon=1;
     */
@@ -516,19 +516,19 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   } else {
 
     edm::LogInfo("MetAnalyzer") << "TriggerResults::HLT not found, "
-      "automatically select events"; 
+      "automatically select events";
 
-    // TriggerResults object not found. Look at all events.    
+    // TriggerResults object not found. Look at all events.
     _trig_JetMB=1;
   }
 
   // ==========================================================
   // MET information
-  
-  // **** Get the MET container  
+
+  // **** Get the MET container
   edm::Handle<reco::METCollection> metcoll;
   iEvent.getByLabel(theMETCollectionLabel, metcoll);
-  
+
   if(!metcoll.isValid()) {
     std::cout<<"Unable to find MET results for MET collection "<<theMETCollectionLabel<<std::endl;
     return;
@@ -537,11 +537,11 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   const METCollection *metcol = metcoll.product();
   const MET *met;
   met = &(metcol->front());
-    
+
   LogTrace(metname)<<"[METAnalyzer] Call to the MET analyzer";
 
   // ==========================================================
-  // TCMET 
+  // TCMET
 
   if (theMETCollectionLabel.label() == "tcMet" ) {
 
@@ -557,7 +557,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(!beamSpot_h.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
 
     bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
-    
+
   }
 
   // ==========================================================
@@ -569,7 +569,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     LogDebug("") << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
     if (_verbose) std::cout << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
-  
+
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
   iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
@@ -591,21 +591,21 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // MET sanity check
 
   //   if (_source=="MET") validateMET(*met, tcCandidates);
-  
+
   // ==========================================================
-  // JetID 
+  // JetID
 
   if (_verbose) std::cout << "JetID starts" << std::endl;
-  
+
   //
   // --- Minimal cuts
   //
   bool bJetIDMinimal=true;
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
     if (cal->pt()>10.){
-      if (fabs(cal->eta())<=2.6 && 
+      if (fabs(cal->eta())<=2.6 &&
 	  cal->emEnergyFraction()<=0.01) bJetIDMinimal=false;
     }
   }
@@ -614,83 +614,83 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // --- Loose cuts, not  specific for now!
   //
   bool bJetIDLoose=true;
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
-       cal!=caloJets->end(); ++cal){ 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
+       cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
-    if (_verbose) std::cout << jetID->n90Hits() << " " 
+    if (_verbose) std::cout << jetID->n90Hits() << " "
 			    << jetID->restrictedEMF() << " "
 			    << cal->pt() << std::endl;
     if (cal->pt()>10.){
       //
       // for all regions
-      if (jetID->n90Hits()<2)  bJetIDLoose=false; 
-      if (jetID->fHPD()>=0.98) bJetIDLoose=false; 
-      //if (jetID->restrictedEMF()<0.01) bJetIDLoose=false; 
+      if (jetID->n90Hits()<2)  bJetIDLoose=false;
+      if (jetID->fHPD()>=0.98) bJetIDLoose=false;
+      //if (jetID->restrictedEMF()<0.01) bJetIDLoose=false;
       //
       // for non-forward
       if (fabs(cal->eta())<2.55){
-	if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false;
       }
       // for forward
       else {
-	if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false;
 	if (cal->pt()>80.){
-	if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false; 
+	if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false;
 	}
       } // forward vs non-forward
     }   // pt>10 GeV/c
   }     // calor-jets loop
- 
+
   //
   // --- Tight cuts
   //
   bool bJetIDTight=true;
   bJetIDTight=bJetIDLoose;
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     jetID->calculate(iEvent, *cal);
     if (cal->pt()>25.){
       //
       // for all regions
-      if (jetID->fHPD()>=0.95) bJetIDTight=false; 
+      if (jetID->fHPD()>=0.95) bJetIDTight=false;
       //
       // for 1.0<|eta|<1.75
       if (fabs(cal->eta())>=1.00 && fabs(cal->eta())<1.75){
-	if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false; 
+	if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false;
       }
       //
       // for 1.75<|eta|<2.55
       else if (fabs(cal->eta())>=1.75 && fabs(cal->eta())<2.55){
-	if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false; 
+	if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false;
       }
       //
       // for 2.55<|eta|<3.25
       else if (fabs(cal->eta())>=2.55 && fabs(cal->eta())<3.25){
-	if (cal->pt()< 50.                   && cal->emEnergyFraction()<=-0.3) bJetIDTight=false; 
-	if (cal->pt()>=50. && cal->pt()< 80. && cal->emEnergyFraction()<=-0.2) bJetIDTight=false; 
-	if (cal->pt()>=80. && cal->pt()<340. && cal->emEnergyFraction()<=-0.1) bJetIDTight=false; 
-	if (cal->pt()>=340.                  && cal->emEnergyFraction()<=-0.1 
-                                             && cal->emEnergyFraction()>=0.95) bJetIDTight=false; 
+	if (cal->pt()< 50.                   && cal->emEnergyFraction()<=-0.3) bJetIDTight=false;
+	if (cal->pt()>=50. && cal->pt()< 80. && cal->emEnergyFraction()<=-0.2) bJetIDTight=false;
+	if (cal->pt()>=80. && cal->pt()<340. && cal->emEnergyFraction()<=-0.1) bJetIDTight=false;
+	if (cal->pt()>=340.                  && cal->emEnergyFraction()<=-0.1
+                                             && cal->emEnergyFraction()>=0.95) bJetIDTight=false;
       }
       //
       // for 3.25<|eta|
       else if (fabs(cal->eta())>=3.25){
 	if (cal->pt()< 50.                   && cal->emEnergyFraction()<=-0.3
-                                             && cal->emEnergyFraction()>=0.90) bJetIDTight=false; 
+                                             && cal->emEnergyFraction()>=0.90) bJetIDTight=false;
 	if (cal->pt()>=50. && cal->pt()<130. && cal->emEnergyFraction()<=-0.2
-                                             && cal->emEnergyFraction()>=0.80) bJetIDTight=false; 
-	if (cal->pt()>=130.                  && cal->emEnergyFraction()<=-0.1 
-                                             && cal->emEnergyFraction()>=0.70) bJetIDTight=false; 
+                                             && cal->emEnergyFraction()>=0.80) bJetIDTight=false;
+	if (cal->pt()>=130.                  && cal->emEnergyFraction()<=-0.1
+                                             && cal->emEnergyFraction()>=0.70) bJetIDTight=false;
       }
     }   // pt>10 GeV/c
   }     // calor-jets loop
-  
+
   if (_verbose) std::cout << "JetID ends" << std::endl;
 
 
   // ==========================================================
   // HCAL Noise filter
-  
+
   bool bHcalNoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
@@ -709,11 +709,11 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
 
-  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() && 
+  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() &&
       !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
     bBeamHaloIDLoosePass = false;
 
-  if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() && 
+  if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() &&
       !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
     bBeamHaloIDTightPass = false;
 
@@ -733,7 +733,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
       if (_verbose) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
     }
-    
+
     if ( vertexHandle.isValid() ){
       VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
@@ -743,12 +743,12 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	double vertex_ndof    = v->ndof();
 	bool   fakeVtx        = v->isFake();
 	double vertex_Z       = v->z();
-	
+
 	if (  !fakeVtx
 	      && vertex_number>=_nvtx_min
 	      && vertex_ndof   >_vtxndof_min
 	      && vertex_chi2   <_vtxchi2_max
-	      && fabs(vertex_Z)<_vtxz_max ) 
+	      && fabs(vertex_Z)<_vtxz_max )
 	  bPrimaryVertex = true;
       }
     }
@@ -762,7 +762,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     LogDebug("") << "CaloMETAnalyzer: Could not find GT readout record" << std::endl;
     if (_verbose) std::cout << "CaloMETAnalyzer: Could not find GT readout record product" << std::endl;
   }
-  
+
   bool bTechTriggers    = true;
   bool bTechTriggersAND = true;
   bool bTechTriggersOR  = false;
@@ -770,14 +770,14 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if (gtReadoutRecord.isValid()) {
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
-    
+
     if (_techTrigsAND.size() == 0)
       bTechTriggersAND = true;
     else
       for (unsigned ttr = 0; ttr != _techTrigsAND.size(); ttr++) {
 	bTechTriggersAND = bTechTriggersAND && technicalTriggerWordBeforeMask.at(_techTrigsAND.at(ttr));
       }
-    
+
     if (_techTrigsAND.size() == 0)
       bTechTriggersOR = true;
     else
@@ -797,19 +797,19 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       bTechTriggersOR  = true;
       bTechTriggersNOT = false;
     }
-  
+
   if (_techTrigsAND.size()==0)
     bTechTriggersAND = true;
   if (_techTrigsOR.size()==0)
     bTechTriggersOR = true;
   if (_techTrigsNOT.size()==0)
     bTechTriggersNOT = false;
-  
+
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
-  
+
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
-  
+
   bool bHcalNoise   = bHcalNoiseFilter;
   bool bBeamHaloID  = bBeamHaloIDLoosePass;
   bool bJetID       = true;
@@ -829,8 +829,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool bExtraCleanup = bBasicCleanup && bHcalNoise && bJetID && bBeamHaloID;
 
   //std::string DirName = _FolderName+_source;
-  
-  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin(); 
+
+  for (std::vector<std::string>::const_iterator ic = _FolderNames.begin();
        ic != _FolderNames.end(); ic++){
     if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *met);
     if (DCSFilter->filter(iEvent, iSetup)) {
@@ -854,7 +854,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 // ***********************************************************
-void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName, 
+void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 			      const reco::MET& met)
 {
 
@@ -882,8 +882,8 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 }
 
 // ***********************************************************
-void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName, 
-					 std::string TriggerTypeName, 
+void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName,
+					 std::string TriggerTypeName,
 					 const reco::MET& met, bool bLumiSecPlot)
 {
 
@@ -905,7 +905,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
   else if (TriggerTypeName=="Muon") {
     if (!selectWMuonEvent(iEvent)) return;
   }
-  
+
 // Reconstructed MET Information
   double SumET  = met.sumEt();
   double METSig = met.mEtSig();
@@ -925,7 +925,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
   if (_verbose) std::cout << "_etThreshold = " << _etThreshold << std::endl;
   if (SumET>_etThreshold){
-    
+
     hMEx    = _dbe->get(DirName+"/"+"METTask_MEx");     if (hMEx           && hMEx->getRootObject())     hMEx          ->Fill(MEx);
     hMEy    = _dbe->get(DirName+"/"+"METTask_MEy");     if (hMEy           && hMEy->getRootObject())     hMEy          ->Fill(MEy);
     hMET    = _dbe->get(DirName+"/"+"METTask_MET");     if (hMET           && hMET->getRootObject())     hMET          ->Fill(MET);
@@ -939,7 +939,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
     //hMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_METIonFeedbck");  if (hMETIonFeedbck && hMETIonFeedbck->getRootObject())  hMETIonFeedbck->Fill(MET);
     //hMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_METHPDNoise");    if (hMETHPDNoise   && hMETHPDNoise->getRootObject())    hMETHPDNoise->Fill(MET);
-       
+
     if (_allhist){
       if (bLumiSecPlot){
 	hMExLS = _dbe->get(DirName+"/"+"METTask_MExLS"); if (hMExLS  &&  hMExLS->getRootObject())   hMExLS->Fill(MEx,myLuminosityBlock);
@@ -949,7 +949,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
     ////////////////////////////////////
     if (theMETCollectionLabel.label() == "tcMet" ) {
-    
+
       if(track_h.isValid()) {
 	for( edm::View<reco::Track>::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
 	  htrkPt    = _dbe->get(DirName+"/"+"METTask_trackPt");     if (htrkPt    && htrkPt->getRootObject())     htrkPt->Fill( trkit->pt() );
@@ -960,18 +960,18 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  htrkD0    = _dbe->get(DirName+"/"+"METTask_trackD0");     if (htrkD0 && htrkD0->getRootObject())        htrkD0->Fill( d0 );
 	}
       }
-      
+
       if(electron_h.isValid()) {
 	for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
-	  helePt  = _dbe->get(DirName+"/"+"METTask_electronPt");   if (helePt  && helePt->getRootObject())   helePt->Fill( eleit->p4().pt() );  
+	  helePt  = _dbe->get(DirName+"/"+"METTask_electronPt");   if (helePt  && helePt->getRootObject())   helePt->Fill( eleit->p4().pt() );
 	  heleEta = _dbe->get(DirName+"/"+"METTask_electronEta");  if (heleEta && heleEta->getRootObject())  heleEta->Fill( eleit->p4().eta() );
 	  heleHoE = _dbe->get(DirName+"/"+"METTask_electronHoverE");  if (heleHoE && heleHoE->getRootObject())  heleHoE->Fill( eleit->hadronicOverEm() );
 	}
       }
-      
+
       if(muon_h.isValid()) {
-	for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {      
-	  const reco::TrackRef siTrack = muonit->innerTrack();      
+	for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {
+	  const reco::TrackRef siTrack = muonit->innerTrack();
 	  hmuPt    = _dbe->get(DirName+"/"+"METTask_muonPt");     if (hmuPt    && hmuPt->getRootObject())  hmuPt   ->Fill( muonit->p4().pt() );
 	  hmuEta   = _dbe->get(DirName+"/"+"METTask_muonEta");    if (hmuEta   && hmuEta->getRootObject())  hmuEta  ->Fill( muonit->p4().eta() );
 	  hmuNhits = _dbe->get(DirName+"/"+"METTask_muonNhits");  if (hmuNhits && hmuNhits->getRootObject())  hmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
@@ -979,8 +979,8 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
 	  hmuD0    = _dbe->get(DirName+"/"+"METTask_muonD0");     if (hmuD0    && hmuD0->getRootObject())  hmuD0->Fill( d0 );
 	}
-	
-	const unsigned int nMuons = muon_h->size();      
+
+	const unsigned int nMuons = muon_h->size();
 	for( unsigned int mus = 0; mus < nMuons; mus++ ) {
 	  reco::MuonRef muref( muon_h, mus);
 	  reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
@@ -1007,13 +1007,13 @@ bool METAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
     if (_verbose) std::cout << "METAnalyzer: Could not find jet product" << std::endl;
   }
 
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     if (cal->pt()>_highPtJetThreshold){
       return_value=true;
     }
   }
-  
+
   return return_value;
 }
 
@@ -1029,7 +1029,7 @@ bool METAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
     if (_verbose) std::cout << "METAnalyzer: Could not find jet product" << std::endl;
   }
 
-  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin(); 
+  for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
        cal!=caloJets->end(); ++cal){
     if (cal->pt()>_lowPtJetThreshold){
       return_value=true;

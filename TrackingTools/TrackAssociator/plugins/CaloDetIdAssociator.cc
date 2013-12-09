@@ -7,7 +7,8 @@ bool CaloDetIdAssociator::crossedElement(const GlobalPoint& point1,
 					 const SteppingHelixStateInfo* initialState
 					 ) const
 {
-   const std::pair<const_iterator,const_iterator>& points = getDetIdPoints(id);
+   std::vector<GlobalPoint> pointBuffer;
+   const std::pair<const_iterator,const_iterator>& points = getDetIdPoints(id, pointBuffer);
    // fast check
    bool xLess(false), xIn(false), xMore(false);
    bool yLess(false), yIn(false), yMore(false);
@@ -200,14 +201,14 @@ GlobalPoint CaloDetIdAssociator::getPosition(const DetId& id) const {
   return geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
 }
    
-const std::vector<DetId>& CaloDetIdAssociator::getValidDetIds(unsigned int subDectorIndex) const 
+void CaloDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vector<DetId>& detIds) const 
 {
   if ( subDectorIndex!=0 ) cms::Exception("FatalError") << "Calo sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
-  return geometry_->getValidDetIds(DetId::Calo, 1);
+  detIds = geometry_->getValidDetIds(DetId::Calo, 1);
 }
    
 std::pair<DetIdAssociator::const_iterator, DetIdAssociator::const_iterator> 
-CaloDetIdAssociator::getDetIdPoints(const DetId& id) const 
+CaloDetIdAssociator::getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const 
 {
   const CaloSubdetectorGeometry* subDetGeom = geometry_->getSubdetectorGeometry(id);
   if(! subDetGeom){

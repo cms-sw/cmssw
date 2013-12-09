@@ -7,7 +7,7 @@
 #include <set>
 #include <string>
 
-namespace {
+namespace DataFormats_WrappedStdDictionaries {
   struct dictionary {
   edm::Wrapper<std::vector<unsigned long> > dummy1;
   edm::Wrapper<std::vector<unsigned int> > dummy2;

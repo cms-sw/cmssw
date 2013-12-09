@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -30,24 +31,31 @@ private:
   typedef std::vector<std::string> vstring;
   struct type2BinningEntryType
   {
-    type2BinningEntryType(const std::string& binCorrformula, const edm::ParameterSet& binCorrParameter, const vInputTag& srcUnclEnergySums)
+    type2BinningEntryType(const std::string& binCorrformula, const edm::ParameterSet& binCorrParameter, const vInputTag& srcUnclEnergySums, edm::ConsumesCollector && iConsumesCollector)
       : binLabel_(""),
-        srcUnclEnergySums_(srcUnclEnergySums),
         binCorrFormula_(0)
     {
+      for (vInputTag::const_iterator inputTag = srcUnclEnergySums.begin(); inputTag != srcUnclEnergySums.end(); ++inputTag)
+	{
+	  corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(*inputTag));
+	}
+
       initialize(binCorrformula, binCorrParameter);
     }
-    type2BinningEntryType(const edm::ParameterSet& cfg, const vInputTag& srcUnclEnergySums)
+    type2BinningEntryType(const edm::ParameterSet& cfg, const vInputTag& srcUnclEnergySums, edm::ConsumesCollector && iConsumesCollector)
       : binLabel_(cfg.getParameter<std::string>("binLabel")),
         binCorrFormula_(0)
     {
+
       for ( vInputTag::const_iterator srcUnclEnergySum = srcUnclEnergySums.begin();
-	    srcUnclEnergySum != srcUnclEnergySums.end(); ++srcUnclEnergySum ) {
-	std::string instanceLabel = srcUnclEnergySum->instance();
-	if ( instanceLabel != "" && binLabel_ != "" ) instanceLabel.append("#");
-	instanceLabel.append(binLabel_);
-	srcUnclEnergySums_.push_back(edm::InputTag(srcUnclEnergySum->label(), instanceLabel));
-      }
+	    srcUnclEnergySum != srcUnclEnergySums.end(); ++srcUnclEnergySum )
+	{
+	  std::string instanceLabel = srcUnclEnergySum->instance();
+	  if ( instanceLabel != "" && binLabel_ != "" ) instanceLabel.append("#");
+	  instanceLabel.append(binLabel_);
+	  edm::InputTag inputTag(srcUnclEnergySum->label(), instanceLabel);
+	  corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(inputTag));
+	}
       
       std::string binCorrFormula = cfg.getParameter<std::string>("binCorrFormula").data();
     
@@ -91,7 +99,7 @@ private:
       delete binCorrFormula_;
     }
     std::string binLabel_;
-    vInputTag srcUnclEnergySums_;
+    std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens_;
     TFormula* binCorrFormula_;
     std::vector<double> binCorrParameter_;
   };
@@ -106,18 +114,22 @@ private:
 Type2CorrectionProducer::Type2CorrectionProducer(const edm::ParameterSet& cfg)
 {
   vInputTag srcUnclEnergySums = cfg.getParameter<vInputTag>("srcUnclEnergySums");
-  if ( cfg.exists("type2Binning") ) {
-    typedef std::vector<edm::ParameterSet> vParameterSet;
-    vParameterSet cfgType2Binning = cfg.getParameter<vParameterSet>("type2Binning");
-    for ( vParameterSet::const_iterator cfgType2BinningEntry = cfgType2Binning.begin();
-	  cfgType2BinningEntry != cfgType2Binning.end(); ++cfgType2BinningEntry ) {
-      type2Binning_.push_back(new type2BinningEntryType(*cfgType2BinningEntry, srcUnclEnergySums));
+
+  if ( cfg.exists("type2Binning") )
+    {
+      typedef std::vector<edm::ParameterSet> vParameterSet;
+      vParameterSet cfgType2Binning = cfg.getParameter<vParameterSet>("type2Binning");
+      for ( vParameterSet::const_iterator cfgType2BinningEntry = cfgType2Binning.begin();
+	    cfgType2BinningEntry != cfgType2Binning.end(); ++cfgType2BinningEntry ) {
+	type2Binning_.push_back(new type2BinningEntryType(*cfgType2BinningEntry, srcUnclEnergySums, consumesCollector()));
+      }
     }
-  } else {
-    std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula").data();
-    edm::ParameterSet type2CorrParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
-    type2Binning_.push_back(new type2BinningEntryType(type2CorrFormula, type2CorrParameter, srcUnclEnergySums));
-  }
+  else
+    {
+      std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula").data();
+      edm::ParameterSet type2CorrParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
+      type2Binning_.push_back(new type2BinningEntryType(type2CorrFormula, type2CorrParameter, srcUnclEnergySums, consumesCollector()));
+    }
   produces<CorrMETData>("");
 }
 
@@ -127,23 +139,24 @@ void Type2CorrectionProducer::produce(edm::Event& evt, const edm::EventSetup& es
   CorrMETData product;
 
   for ( std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
-	type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
-    CorrMETData unclEnergySum;
-    for (vInputTag::const_iterator inputTag = (*type2BinningEntry)->srcUnclEnergySums_.begin();
-	 inputTag != (*type2BinningEntry)->srcUnclEnergySums_.end(); ++inputTag) {
+	type2BinningEntry != type2Binning_.end(); ++type2BinningEntry )
+    {
+      CorrMETData unclEnergySum;
+
       edm::Handle<CorrMETData> unclEnergySummand;
-      evt.getByLabel(*inputTag, unclEnergySummand);
+      for (std::vector<edm::EDGetTokenT<CorrMETData> >::const_iterator corrToken = (*type2BinningEntry)->corrTokens_.begin(); corrToken != (*type2BinningEntry)->corrTokens_.end(); ++corrToken)
+      {
+	evt.getByToken(*corrToken, unclEnergySummand);
+	unclEnergySum += (*unclEnergySummand);
+      }
 
-      unclEnergySum += (*unclEnergySummand);
-    }
+      double unclEnergySumPt = sqrt(unclEnergySum.mex*unclEnergySum.mex + unclEnergySum.mey*unclEnergySum.mey);
+      double unclEnergyScaleFactor = (*type2BinningEntry)->binCorrFormula_->Eval(unclEnergySumPt);
 
-    double unclEnergySumPt = sqrt(unclEnergySum.mex*unclEnergySum.mex + unclEnergySum.mey*unclEnergySum.mey);
-    double unclEnergyScaleFactor = (*type2BinningEntry)->binCorrFormula_->Eval(unclEnergySumPt);
+      unclEnergySum.mex = -unclEnergySum.mex;
+      unclEnergySum.mey = -unclEnergySum.mey;
 
-    unclEnergySum.mex = -unclEnergySum.mex;
-    unclEnergySum.mey = -unclEnergySum.mey;
-
-    product += (unclEnergyScaleFactor - 1.)*unclEnergySum;
+      product += (unclEnergyScaleFactor - 1.)*unclEnergySum;
   }
 
   std::auto_ptr<CorrMETData> pprod(new CorrMETData(product));

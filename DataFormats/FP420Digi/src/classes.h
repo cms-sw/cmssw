@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 
-namespace {
+namespace DataFormats_FP420Digi {
   struct dictionary {
     edm::Wrapper<HDigiFP420 > zs0;
     edm::Wrapper<std::vector<HDigiFP420> > zs1;

@@ -20,7 +20,7 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "math.h"
+#include <cmath>
 #include "TH1F.h"
 #include "TProfile.h"
 #include "TH2F.h"
@@ -98,8 +98,13 @@ HLTJetMETDQMSource::HLTJetMETDQMSource(const edm::ParameterSet& iConfig):
   htMin_ = iConfig.getUntrackedParameter<double>("htMin",0.0);
   sumEtMin_ = iConfig.getUntrackedParameter<double>("sumEtMin",0.0);	
   
-
-
+  //set Token(-s)
+  triggerResultsToken_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResultsLabel"));
+  edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
+  triggerResultsTokenFU_ = consumes<edm::TriggerResults>(triggerResultsLabelFU);
+  triggerSummaryToken_ = consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("triggerSummaryLabel"));
+  edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
+  triggerSummaryTokenFU_ = consumes<trigger::TriggerEvent>(triggerSummaryLabelFU);
 }
 
 
@@ -149,10 +154,9 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   
   edm::Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(triggerResultsLabel_,triggerResults);
+  iEvent.getByToken(triggerResultsToken_, triggerResults);
   if(!triggerResults.isValid()) {
-    edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerResultsLabelFU,triggerResults);
+    iEvent.getByToken(triggerResultsTokenFU_, triggerResults);
     if(!triggerResults.isValid()) {
       LogWarning("HLTJetMETDQMSource")  << "TriggerResults not found, skipping event" << std::endl; 
       return;
@@ -162,10 +166,9 @@ HLTJetMETDQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   unsigned int npath = triggerResults->size();
 
   edm::Handle<TriggerEvent> triggerObj;
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj); 
+  iEvent.getByToken(triggerSummaryToken_, triggerObj);
   if(!triggerObj.isValid()) {
-    edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerSummaryLabelFU,triggerObj);
+    iEvent.getByToken(triggerSummaryTokenFU_, triggerObj);
     if(!triggerObj.isValid()) {
       LogWarning("HLTJetMETDQMSource")  << "TriggerEvent not found, skipping event" << std::endl; 
       return;

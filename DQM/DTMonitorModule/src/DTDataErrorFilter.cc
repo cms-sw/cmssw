@@ -19,8 +19,13 @@ DTDataErrorFilter::DTDataErrorFilter(const edm::ParameterSet & config) :
 DTDataErrorFilter::~DTDataErrorFilter(){}
 
 
-bool DTDataErrorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
-  // check the event error flag 
+bool DTDataErrorFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
+  // check the event error flag
   if (dataMonitor->eventHasErrors()) return true;
   return false;
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

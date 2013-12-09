@@ -9,7 +9,7 @@
 #include "TDirectory.h"
 #include "TPaveLabel.h"
 #include "TF1.h"
-#include "time.h"
+#include <ctime>
 #include "TGraph.h"
 #include <stdio.h>
 #include <math.h>

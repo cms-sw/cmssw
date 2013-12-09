@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 
-namespace {
+namespace DataFormats_TestObjects {
 struct dictionary {
   edm::Wrapper<edmtest::DummyProduct> dummyw12;
   edm::Wrapper<edmtest::IntProduct> dummyw13;

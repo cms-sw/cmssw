@@ -27,7 +27,7 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
 
     /* Constructor */ 
     ///Defines which propagator is used inside endcap and in barrel
-    BeamHaloPropagator(Propagator* aEndCapTkProp, Propagator* aCrossTkProp, const MagneticField* field,
+    BeamHaloPropagator(const Propagator* aEndCapTkProp, const Propagator* aCrossTkProp, const MagneticField* field,
 		       PropagationDirection dir = alongMomentum);
 
     ///Defines which propagator is used inside endcap and in barrel
@@ -117,17 +117,17 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
       bool crossingTk(const FreeTrajectoryState& fts, const Plane& plane)  const ;
 
     ///return the propagator used in endcaps
-    Propagator* getEndCapTkPropagator() const ;
+    const Propagator* getEndCapTkPropagator() const ;
     ///return the propagator used to cross the tracker
-    Propagator* getCrossTkPropagator() const ;
+    const Propagator* getCrossTkPropagator() const ;
     ///return the magneticField
     virtual const MagneticField* magneticField() const {return theField;}
 
   private:
     void directionCheck(PropagationDirection dir)const;
 
-    mutable Propagator* theEndCapTkProp;
-    mutable Propagator* theCrossTkProp;
+    Propagator* theEndCapTkProp;
+    Propagator* theCrossTkProp;
     const MagneticField* theField;
     
   protected:

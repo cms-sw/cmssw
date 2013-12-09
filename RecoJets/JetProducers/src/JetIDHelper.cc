@@ -33,7 +33,7 @@ namespace reco {
     
     bool subtower_has_greater_E( reco::helper::JetIDHelper::subtower i, 
 				 reco::helper::JetIDHelper::subtower j ) { return i.E > j.E; }
-    int JetIDHelper::sanity_checks_left_ = 100;
+    std::atomic<int> JetIDHelper::sanity_checks_left_{100};
   }
 }
 
@@ -164,7 +164,7 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
       fLS_ = LS_bad_energy / jet.energy();
       fHFOOT_ = HF_OOT_energy / jet.energy();
 
-      if( sanity_checks_left_ > 0 ) {
+      if( sanity_checks_left_.load(std::memory_order_acquire) > 0 ) {
 	--sanity_checks_left_;
 	double EH_sum = accumulate( Ecal_energies.begin(), Ecal_energies.end(), 0. );
 	EH_sum = accumulate( Hcal_energies.begin(), Hcal_energies.end(), EH_sum );

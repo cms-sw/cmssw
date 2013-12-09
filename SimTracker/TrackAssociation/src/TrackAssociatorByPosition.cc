@@ -10,11 +10,12 @@
 using namespace edm;
 using namespace reco;
 
-TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParticleRef st)const{
+
+TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParticleRef& st, const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc)const{
 
   std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(st,TrackPSimHitRef());//SimHit is dummy: for simHitTPAssociationListGreater 
 	                                                                                         // sorting only the cluster is needed
-  auto range = std::equal_range(simHitsTPAssoc->begin(), simHitsTPAssoc->end(), 
+  auto range = std::equal_range(simHitsTPAssoc.begin(), simHitsTPAssoc.end(),
 				clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
 
   //  TrackingParticle* simtrack = const_cast<TrackingParticle*>(&st);
@@ -116,6 +117,8 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(const edm::Ref
   const double dQmin_default=1542543;
   double dQmin=dQmin_default;
 
+  edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
+
   //warning: make sure the TP collection used in the map is the same used in the associator!
   e->getByLabel(_simHitTpMapTag,simHitsTPAssoc);
 
@@ -127,7 +130,7 @@ RecoToSimCollection TrackAssociatorByPosition::associateRecoToSim(const edm::Ref
     //    for each tracking particle, find a state position and the plane to propagate the track to.
     for (unsigned int TPi=0;TPi!=tPCH.size();++TPi) {
       //get a state in the muon system 
-      TrajectoryStateOnSurface simReferenceState = getState((tPCH)[TPi]);
+      TrajectoryStateOnSurface simReferenceState = getState((tPCH)[TPi],*simHitsTPAssoc);
       if (!simReferenceState.isValid()) continue;
 
       //propagate the TRACK to the surface
@@ -168,12 +171,14 @@ SimToRecoCollection TrackAssociatorByPosition::associateSimToReco(const edm::Ref
   const double dQmin_default=1542543;
   double dQmin=dQmin_default;
 
+  edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
+
   //warning: make sure the TP collection used in the map is the same used in the associator!
   e->getByLabel(_simHitTpMapTag,simHitsTPAssoc);
 
   for (unsigned int TPi=0;TPi!=tPCH.size();++TPi){
     //get a state in the muon system
-    TrajectoryStateOnSurface simReferenceState= getState((tPCH)[TPi]);
+    TrajectoryStateOnSurface simReferenceState= getState((tPCH)[TPi],*simHitsTPAssoc);
       
     if (!simReferenceState.isValid()) continue; 
     bool atLeastOne=false;

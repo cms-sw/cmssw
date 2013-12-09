@@ -35,7 +35,7 @@
 <bin   file="MallocOpts_t.cpp">
   <use   name="cppunit"/>
 </bin>
-<bin   name="testFWCoreUtilities" file="typeidbase_t.cppunit.cpp,typeid_t.cppunit.cpp,cputimer_t.cppunit.cpp,extensioncord_t.cppunit.cpp,friendlyname_t.cppunit.cpp,signal_t.cppunit.cpp,soatuple_t.cppunit.cpp,transform.cppunit.cpp">
+<bin   name="testFWCoreUtilities" file="typeidbase_t.cppunit.cpp,typeid_t.cppunit.cpp,cputimer_t.cppunit.cpp,extensioncord_t.cppunit.cpp,friendlyname_t.cppunit.cpp,signal_t.cppunit.cpp,soatuple_t.cppunit.cpp,transform.cppunit.cpp,callxnowait_t.cppunit.cpp">
   <use   name="cppunit"/>
 </bin>
 

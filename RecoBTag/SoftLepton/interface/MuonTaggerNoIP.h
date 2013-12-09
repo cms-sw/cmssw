@@ -19,7 +19,6 @@ public:
 
   /// explicit ctor
   explicit MuonTaggerNoIP(const edm::ParameterSet & configuration) : 
-    theNet(),
     m_selector(configuration)
   { 
     uses("slTagInfos"); 
@@ -32,8 +31,6 @@ public:
   virtual float discriminator(const TagInfoHelper & tagInfo) const;
 
 private:
-
-  mutable MuonTaggerNoIPMLP theNet;
 
   btag::LeptonSelector m_selector;
 

@@ -20,8 +20,8 @@
 #include <vector>
 #include <map>
 
-namespace {
-  struct dictionary {
+namespace DataFormats_TauReco {
+  struct dictionaryhlt {
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;
     edm::Wrapper<std::vector<reco::HLTTau> >                   ht_w;

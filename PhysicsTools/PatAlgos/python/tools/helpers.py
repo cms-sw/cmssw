@@ -108,12 +108,13 @@ class MassSearchReplaceParamVisitor(object):
 class MassSearchReplaceAnyInputTagVisitor(object):
     """Visitor that travels within a cms.Sequence, looks for a parameter and replace its value
        It will climb down within PSets, VPSets and VInputTags to find its target"""
-    def __init__(self,paramSearch,paramReplace,verbose=False,moduleLabelOnly=False):
+    def __init__(self,paramSearch,paramReplace,verbose=False,moduleLabelOnly=False,skipLabelTest=False):
         self._paramSearch  = self.standardizeInputTagFmt(paramSearch)
         self._paramReplace = self.standardizeInputTagFmt(paramReplace)
         self._moduleName   = ''
         self._verbose=verbose
         self._moduleLabelOnly=moduleLabelOnly
+        self._skipLabelTest=skipLabelTest
     def doIt(self,pset,base):
         if isinstance(pset, cms._Parameterizable):
             for name in pset.parameterNames_():
@@ -163,8 +164,11 @@ class MassSearchReplaceAnyInputTagVisitor(object):
 
     def enter(self,visitee):
         label = ''
-        try:    label = visitee.label_()
-        except AttributeError: label = '<Module not in a Process>'
+        if (not self._skipLabelTest):
+            try:    label = visitee.label_()
+            except AttributeError: label = '<Module not in a Process>'
+        else:
+            label = '<Module label not tested>'
         self.doIt(visitee, label)
     def leave(self,visitee):
         pass
@@ -255,9 +259,9 @@ def listSequences(sequence):
     sequence.visit(visitor)
     return visitor.modules()
 
-def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag,verbose=False,moduleLabelOnly=False) :
+def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag,verbose=False,moduleLabelOnly=False,skipLabelTest=False) :
     """Replace InputTag oldInputTag with newInputTag, at any level of nesting within PSets, VPSets, VInputTags..."""
-    sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag,verbose=verbose,moduleLabelOnly=moduleLabelOnly))
+    sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag,verbose=verbose,moduleLabelOnly=moduleLabelOnly,skipLabelTest=skipLabelTest))
 
 def jetCollectionString(prefix='', algo='', type=''):
     """

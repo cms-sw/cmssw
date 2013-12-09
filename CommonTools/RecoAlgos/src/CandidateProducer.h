@@ -26,8 +26,8 @@ namespace converter {
   namespace helper {
     template<typename T>
     struct CandConverter { };
-    
-    struct ConcreteCreator { 
+
+    struct ConcreteCreator {
       template<typename CColl, typename Comp, typename Conv>
       static void create(size_t idx, CColl & cands, const Comp & components, Conv & converter) {
 	typename Conv::Candidate c;
@@ -37,8 +37,8 @@ namespace converter {
 	cands.push_back(c);
       }
     };
-    
-    struct PolymorphicCreator { 
+
+    struct PolymorphicCreator {
       template<typename CColl, typename Comp, typename Conv>
       static void create(size_t idx, CColl & cands, const Comp & components, Conv & converter) {
 	typename Conv::Candidate * c = new typename Conv::Candidate;
@@ -50,12 +50,12 @@ namespace converter {
     };
 
     template<typename CColl>
-    struct CandCreator { 
+    struct CandCreator {
       typedef ConcreteCreator type;
     };
 
     template<>
-    struct CandCreator<reco::CandidateCollection> { 
+    struct CandCreator<reco::CandidateCollection> {
       typedef PolymorphicCreator type;
     };
   }
@@ -69,15 +69,15 @@ class CandidateProducer : public edm::EDProducer {
 public:
   /// constructor from parameter set
   CandidateProducer(const edm::ParameterSet & cfg) :
-    src_(cfg.template getParameter<edm::InputTag>("src")), 
+    srcToken_(consumes<TColl>(cfg.template getParameter<edm::InputTag>("src"))),
     converter_(cfg),
-    selector_(reco::modules::make<Selector>(cfg)),
+    selector_(reco::modules::make<Selector>(cfg, consumesCollector())),
     initialized_(false) {
     produces<CColl>();
   }
   /// destructor
   ~CandidateProducer() { }
-  
+
 private:
   /// begin job (first run)
   void beginRun(const edm::Run&, const edm::EventSetup& es) override {
@@ -89,7 +89,7 @@ private:
   /// process one event
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
     edm::Handle<TColl> src;
-    evt.getByLabel(src_, src);
+    evt.getByToken(srcToken_, src);
     Init::init(selector_, evt, es);
     ::helper::MasterCollection<TColl> master(src);
     std::auto_ptr<CColl> cands(new CColl);
@@ -104,7 +104,7 @@ private:
     evt.put(cands);
   }
   /// label of source collection and tag
-  edm::InputTag src_;
+  edm::EDGetTokenT<TColl> srcToken_;
   /// converter helper
   Conv converter_;
   /// selector

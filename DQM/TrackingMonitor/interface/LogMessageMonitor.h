@@ -33,6 +33,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
+
 
 #include <vector>
 #include <string>

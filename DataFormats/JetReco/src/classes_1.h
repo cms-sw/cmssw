@@ -23,8 +23,8 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
-namespace {
-  struct dictionary {
+namespace DataFormats_JetReco {
+  struct dictionary1 {
     reco::CaloJetCollection o1;
     reco::CaloJetRef r1;
     reco::CaloJetFwdRef fwdr1;

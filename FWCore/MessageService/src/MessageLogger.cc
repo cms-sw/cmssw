@@ -97,6 +97,7 @@
 
 
 #include <sstream>
+#include <limits>
 
 using namespace edm;
 using namespace edm::service;
@@ -125,6 +126,13 @@ namespace {
 }
 
 namespace edm {
+  //Forward declare here
+  // Only the MessageLogger::postEVent function is allowed to call this function.
+  // So although the function is defined in MessageSender.cc this is the
+  //  only place where we want it declared.
+  void clearLoggedErrorsSummary(unsigned int);
+  void setMaxLoggedErrorsSummaryIndicies(unsigned int iMax);
+
   namespace service {
     
     bool edm::service::MessageLogger::anyDebugEnabled_                    = false;
@@ -240,6 +248,8 @@ namespace edm {
                                           +iBounds.maxNumberOfConcurrentRuns());
         lumiInfoBegin_ = iBounds.maxNumberOfStreams();
         runInfoBegin_= lumiInfoBegin_+iBounds.maxNumberOfConcurrentLuminosityBlocks();
+
+        setMaxLoggedErrorsSummaryIndicies(iBounds.maxNumberOfStreams());
       });
       
       iRegistry.watchPostBeginJob(this,&MessageLogger::postBeginJob);
@@ -257,13 +267,13 @@ namespace edm {
       iRegistry.watchPreModuleEvent(this,&MessageLogger::preModuleEvent);
       iRegistry.watchPostModuleEvent(this,&MessageLogger::postModuleEvent);
       
-      iRegistry.watchPreSource(this,&MessageLogger::preSource);
-      iRegistry.watchPostSource(this,&MessageLogger::postSource);
+      iRegistry.watchPreSourceEvent(this,&MessageLogger::preSourceEvent);
+      iRegistry.watchPostSourceEvent(this,&MessageLogger::postSourceEvent);
       // change log 14:
-      iRegistry.watchPreSourceRun(this,&MessageLogger::preSource);
-      iRegistry.watchPostSourceRun(this,&MessageLogger::postSource);
-      iRegistry.watchPreSourceLumi(this,&MessageLogger::preSource);
-      iRegistry.watchPostSourceLumi(this,&MessageLogger::postSource);
+      iRegistry.watchPreSourceRun(this,&MessageLogger::preSourceRunLumi);
+      iRegistry.watchPostSourceRun(this,&MessageLogger::postSourceRunLumi);
+      iRegistry.watchPreSourceLumi(this,&MessageLogger::preSourceRunLumi);
+      iRegistry.watchPostSourceLumi(this,&MessageLogger::postSourceRunLumi);
       iRegistry.watchPreOpenFile(this,&MessageLogger::preFile);
       iRegistry.watchPostOpenFile(this,&MessageLogger::postFile);
       iRegistry.watchPreCloseFile(this,&MessageLogger::preFileClose);
@@ -384,6 +394,10 @@ namespace edm {
       messageDrop->runEvent = transitionInfoCache_[transitionIndex];
       messageDrop->setModuleWithPhase(desc->moduleName(), desc->moduleLabel(),
                                       desc->id(), whichPhase );
+      messageDrop->streamID = transitionIndex;
+      if(transitionIndex>= lumiInfoBegin_) {
+        messageDrop->streamID = std::numeric_limits<unsigned int>::max();
+      }
       // Removed caching per change 17 - caching is now done in MessageDrop.cc
       // in theContext() method, and only happens if a message is actually issued.
       
@@ -453,7 +467,9 @@ namespace edm {
           establishModule(stream->streamID().value(),*previous,s_streamTransitionNames[static_cast<int>(stream->transition())]);
         }
       } else {
+
         MessageDrop* messageDrop = MessageDrop::instance();
+        messageDrop->streamID = std::numeric_limits<unsigned int>::max();
         messageDrop->setSinglet( state ); 			// Change Log 17
         messageDrop->debugEnabled   = nonModule_debugEnabled;
         messageDrop->infoEnabled    = nonModule_infoEnabled;
@@ -676,12 +692,13 @@ namespace edm {
       MessageDrop::instance()->setSinglet("AfterBeginJob");     // Change Log 17
     }
     
-    void
-    MessageLogger::preSource()
-    {
-      establish("source");
-    }
-    void MessageLogger::postSource()
+    void MessageLogger::preSourceEvent(StreamID)
+    { establish("source"); }
+    void MessageLogger::postSourceEvent(StreamID)
+    { unEstablish("AfterSource"); }
+    void MessageLogger::preSourceRunLumi()
+    { establish("source"); }
+    void MessageLogger::postSourceRunLumi()
     { unEstablish("AfterSource"); }
     
     void MessageLogger::preFile( std::string const &, bool )
@@ -708,9 +725,10 @@ namespace edm {
     }
     
     void
-    MessageLogger::postEvent(StreamContext const&)
+    MessageLogger::postEvent(StreamContext const& iContext)
     {
       edm::MessageDrop::instance()->runEvent = "PostProcessEvent";
+      edm::clearLoggedErrorsSummary(iContext.streamID().value());
     }
     
     void

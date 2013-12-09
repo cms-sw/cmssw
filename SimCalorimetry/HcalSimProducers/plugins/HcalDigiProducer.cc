@@ -1,15 +1,16 @@
 #include "SimCalorimetry/HcalSimProducers/plugins/HcalDigiProducer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
-HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod) :
+HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
   DigiAccumulatorMixMod(),
-  theDigitizer_(pset) {
+  theDigitizer_(pset, iC) {
   mixMod.produces<HBHEDigiCollection>();
   mixMod.produces<HODigiCollection>();
   mixMod.produces<HFDigiCollection>();
   mixMod.produces<ZDCDigiCollection>();
   mixMod.produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
   mixMod.produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
+
 }
 
 void

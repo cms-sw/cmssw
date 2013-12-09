@@ -59,11 +59,15 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   // use onfiguration file to setup input/output collection names
  
 
-  bcBarrelCollection_     = conf_.getParameter<edm::InputTag>("bcBarrelCollection");
-  bcEndcapCollection_     = conf_.getParameter<edm::InputTag>("bcEndcapCollection");
+  bcBarrelCollection_ = 
+    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("bcBarrelCollection"));
+  bcEndcapCollection_ = 
+    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("bcEndcapCollection"));
   
-  scHybridBarrelProducer_       = conf_.getParameter<edm::InputTag>("scHybridBarrelProducer");
-  scIslandEndcapProducer_       = conf_.getParameter<edm::InputTag>("scIslandEndcapProducer");
+  scHybridBarrelProducer_ = 
+    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("scHybridBarrelProducer"));
+  scIslandEndcapProducer_ = 
+    consumes<edm::View<reco::CaloCluster> >(conf_.getParameter<edm::InputTag>("scIslandEndcapProducer"));
   
   OutInTrackCandidateCollection_ = conf_.getParameter<std::string>("outInTrackCandidateCollection");
   InOutTrackCandidateCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateCollection");
@@ -72,10 +76,13 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   OutInTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
   InOutTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
-  barrelecalCollection_ = conf_.getParameter<edm::InputTag>("barrelEcalRecHitCollection");
-  endcapecalCollection_ = conf_.getParameter<edm::InputTag>("endcapEcalRecHitCollection");
+  barrelecalCollection_ = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
+  endcapecalCollection_ = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
   
-  hcalTowers_        = conf_.getParameter<edm::InputTag>("hcalTowers");
+  hcalTowers_        = 
+    consumes<CaloTowerCollection>(conf_.getParameter<edm::InputTag>("hcalTowers"));
   hOverEConeSize_    = conf_.getParameter<double>("hOverEConeSize");
   maxHOverE_         = conf_.getParameter<double>("maxHOverE");
   minSCEt_           = conf_.getParameter<double>("minSCEt");
@@ -212,9 +219,10 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // Get the basic cluster collection in the Barrel 
   bool validBarrelBCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
-  theEvent.getByLabel(bcBarrelCollection_, bcBarrelHandle);
+  theEvent.getByToken(bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
-    edm::LogError("ConversionTrackCandidateProducer") << "Error! Can't get the product "<<bcBarrelCollection_.label();
+    edm::LogError("ConversionTrackCandidateProducer") 
+      << "Error! Can't get the Barrel Basic Clusters!";
     validBarrelBCHandle=false;
   }
   
@@ -222,9 +230,10 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // Get the basic cluster collection in the Endcap 
   bool validEndcapBCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
-  theEvent.getByLabel(bcEndcapCollection_, bcEndcapHandle);
+  theEvent.getByToken(bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
-    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<bcEndcapCollection_.label();
+    edm::LogError("CoonversionTrackCandidateProducer") 
+      << "Error! Can't get the Endcap Basic Clusters";
     validEndcapBCHandle=false; 
   }
   
@@ -233,9 +242,10 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // Get the Super Cluster collection in the Barrel
   bool validBarrelSCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
-  theEvent.getByLabel(scHybridBarrelProducer_,scBarrelHandle);
+  theEvent.getByToken(scHybridBarrelProducer_,scBarrelHandle);
   if (!scBarrelHandle.isValid()) {
-    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scHybridBarrelProducer_.label();
+    edm::LogError("CoonversionTrackCandidateProducer") 
+      << "Error! Can't get the barrel superclusters!";
     validBarrelSCHandle=false;
   }
 
@@ -243,9 +253,10 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   // Get the Super Cluster collection in the Endcap
   bool validEndcapSCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
-  theEvent.getByLabel(scIslandEndcapProducer_,scEndcapHandle);
+  theEvent.getByToken(scIslandEndcapProducer_,scEndcapHandle);
   if (!scEndcapHandle.isValid()) {
-    edm::LogError("CoonversionTrackCandidateProducer") << "Error! Can't get the product "<<scIslandEndcapProducer_.label();
+    edm::LogError("CoonversionTrackCandidateProducer") 
+      << "Error! Can't get the endcap superclusters!";
     validEndcapSCHandle=false;
   }
 
@@ -255,13 +266,13 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   // get Hcal towers collection 
   Handle<CaloTowerCollection> hcalTowersHandle;
-  theEvent.getByLabel(hcalTowers_, hcalTowersHandle);
+  theEvent.getByToken(hcalTowers_, hcalTowersHandle);
 
   edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
   edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
 
-  theEvent.getByLabel(endcapecalCollection_, ecalhitsCollEE);
-  theEvent.getByLabel(barrelecalCollection_, ecalhitsCollEB);
+  theEvent.getByToken(endcapecalCollection_, ecalhitsCollEE);
+  theEvent.getByToken(barrelecalCollection_, ecalhitsCollEB);
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);

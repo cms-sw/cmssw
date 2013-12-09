@@ -15,7 +15,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "TH1I.h"
@@ -28,7 +27,7 @@ using namespace edm;
 /// Constructor
 ExampleMuonAnalyzer::ExampleMuonAnalyzer(const ParameterSet& pset){
 
-  theMuonLabel = pset.getUntrackedParameter<string>("MuonCollection");
+  theMuonToken = consumes<pat::MuonCollection>(pset.getParameter<InputTag>("MuonCollection"));
 }
 
 /// Destructor
@@ -42,7 +41,7 @@ void ExampleMuonAnalyzer::beginJob(){
   hPtRec  = fileService->make<TH1F>("pT","p_{T}^{rec}",250,0,120);
   hPtReso = fileService->make<TH2F>("pT_Reso","(p_{T}^{rec}-p_{T}^{sim})/p_{T}^{sim}",250,0,120,100,-0.2,0.2);
   hNMuons = fileService->make<TH1I>("NMuons","Number of muons per event",20,0,20);
-  
+
   hEHcal = fileService->make<TH1F>("EHCal","Energy deposit in HCAL",100,0,10);
 
   // ID
@@ -64,13 +63,13 @@ void ExampleMuonAnalyzer::beginJob(){
 
 void ExampleMuonAnalyzer::endJob(){
 }
- 
+
 
 void ExampleMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
-  
+
   // Get the Muon collection
   Handle<pat::MuonCollection> muons;
-  event.getByLabel(theMuonLabel, muons);
+  event.getByToken(theMuonToken, muons);
 
   // How many muons in the event?
   hNMuons->Fill(muons->size());
@@ -100,7 +99,7 @@ void ExampleMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSe
       if(muon->isGlobalMuon())
 	if(muon->isTrackerMuon()) hMuonType->Fill(1); // STA + GLB + TM
 	else hMuonType->Fill(2); // STA + GLB
-      else 
+      else
 	if(muon->isTrackerMuon()) hMuonType->Fill(3);  // STA + TM
 	else hMuonType->Fill(5); // STA
     else
@@ -112,9 +111,9 @@ void ExampleMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSe
       double diff =  muon->innerTrack()->pt() - muon->standAloneMuon()->pt();
       hPtSTATKDiff->Fill(diff);
     }
-    
+
     // Muon ID quantities
-    
+
     // Muon in CMS are usually MIP. What is the compatibility of a muon HP using only claorimeters?
     if(muon->isCaloCompatibilityValid())
       hMuCaloCompatibility->Fill(muon->caloCompatibility());
@@ -129,35 +128,35 @@ void ExampleMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSe
     // you can get the list of matched info using matches()
 
 
-    // Muon ID selection. As described in AN-2008/098  
+    // Muon ID selection. As described in AN-2008/098
     if(muon::isGoodMuon(*muon, muon::All))                                // dummy options - always true
-      hMuIdAlgo->Fill(0);       
+      hMuIdAlgo->Fill(0);
     if(muon::isGoodMuon(*muon, muon::AllStandAloneMuons))                 // checks isStandAloneMuon flag
-      hMuIdAlgo->Fill(1);       
+      hMuIdAlgo->Fill(1);
     if(muon::isGoodMuon(*muon, muon::AllTrackerMuons))                    // checks isTrackerMuon flag
-      hMuIdAlgo->Fill(2);          
+      hMuIdAlgo->Fill(2);
     if(muon::isGoodMuon(*muon, muon::TrackerMuonArbitrated))              // resolve ambiguity of sharing segments
       hMuIdAlgo->Fill(3);
     if(muon::isGoodMuon(*muon, muon::AllArbitrated))                      // all muons with the tracker muon arbitrated
-      hMuIdAlgo->Fill(4);            
+      hMuIdAlgo->Fill(4);
     if(muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight))              // global muons with tighter fit requirements
-      hMuIdAlgo->Fill(5);    
+      hMuIdAlgo->Fill(5);
     if(muon::isGoodMuon(*muon, muon::TMLastStationLoose))                 // penetration depth loose selector
-      hMuIdAlgo->Fill(6);       
+      hMuIdAlgo->Fill(6);
     if(muon::isGoodMuon(*muon, muon::TMLastStationTight))                 // penetration depth tight selector
-      hMuIdAlgo->Fill(7);       
+      hMuIdAlgo->Fill(7);
     if(muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose))             // likelihood based loose selector
-      hMuIdAlgo->Fill(8);   
+      hMuIdAlgo->Fill(8);
     if(muon::isGoodMuon(*muon, muon::TM2DCompatibilityTight))             // likelihood based tight selector
-      hMuIdAlgo->Fill(9);   
+      hMuIdAlgo->Fill(9);
     if(muon::isGoodMuon(*muon, muon::TMOneStationLoose))                  // require one well matched segment
-      hMuIdAlgo->Fill(10);        
+      hMuIdAlgo->Fill(10);
     if(muon::isGoodMuon(*muon, muon::TMOneStationTight))                  // require one well matched segment
-      hMuIdAlgo->Fill(11);        
+      hMuIdAlgo->Fill(11);
     if(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose))   // combination of TMLastStation and TMOneStation
-      hMuIdAlgo->Fill(12); 
+      hMuIdAlgo->Fill(12);
     if(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtTight))   // combination of TMLastStation and TMOneStation
-      hMuIdAlgo->Fill(13);  
+      hMuIdAlgo->Fill(13);
 
 
 
@@ -170,14 +169,14 @@ void ExampleMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSe
     }
 
     // OK, let see if we understood everything.
-    // Suppose we are searching for H->ZZ->4mu. 
+    // Suppose we are searching for H->ZZ->4mu.
     // In mean the 4 muons have/are:
     // high pt (but 1 out of 4 can be at quite low pt)
     // isolated
-    // so, we can make some requirements  
+    // so, we can make some requirements
     if(muon->isolationR03().sumPt< 0.2){
       if(muon->isGlobalMuon() ||
-	 muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose) || 
+	 muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose) ||
 	 muon::isGoodMuon(*muon, muon::TMLastStationLoose))
 	selectedMuons.push_back(*muon);
     }

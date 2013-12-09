@@ -48,13 +48,15 @@ Calorimeter::Calorimeter(const edm::ParameterSet& fastCalo):
   PreshowerGeometry_          (NULL)  
 {
   edm::ParameterSet fastDet = fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties");
+  edm::ParameterSet fastDetHF = fastCalo.getParameter<edm::ParameterSet>("ForwardCalorimeterProperties");
+
   myPreshowerLayer1Properties_  = new PreshowerLayer1Properties(fastDet); 
   myPreshowerLayer2Properties_  = new PreshowerLayer2Properties(fastDet);
   myECALBarrelProperties_       = new ECALBarrelProperties     (fastDet);
   myECALEndcapProperties_       = new ECALEndcapProperties     (fastDet);
   myHCALBarrelProperties_       = new HCALBarrelProperties     (fastDet);
   myHCALEndcapProperties_       = new HCALEndcapProperties     (fastDet);
-  myHCALForwardProperties_      = new HCALForwardProperties    (fastDet);
+  myHCALForwardProperties_      = new HCALForwardProperties    (fastDetHF);
 
 }
 

@@ -67,7 +67,8 @@
 
     private:
        edm::ParameterSet conf_;
-       edm::InputTag src_;
+       edm::EDGetTokenT<SiPixelRecHitCollection> src_;
+
        bool saveFile;
        bool isPIB;
        bool slowDown;

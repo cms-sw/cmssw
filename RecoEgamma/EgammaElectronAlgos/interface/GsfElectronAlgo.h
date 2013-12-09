@@ -24,6 +24,7 @@ class EcalClusterFunctionBaseClass ;
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronCoreFwd.h"
@@ -38,6 +39,7 @@ class EcalClusterFunctionBaseClass ;
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
@@ -46,26 +48,27 @@ class EcalClusterFunctionBaseClass ;
 #include <list>
 #include <string>
 
+
 class GsfElectronAlgo {
 
   public:
 
     struct InputTagsConfiguration
      {
-      edm::InputTag previousGsfElectrons ;
-      edm::InputTag pflowGsfElectronsTag ;
-      edm::InputTag gsfElectronCores ;
-      edm::InputTag hcalTowersTag ;
-      edm::InputTag barrelSuperClusters ;
-      edm::InputTag endcapSuperClusters ;
-      //edm::InputTag tracks ;
-      edm::InputTag barrelRecHitCollection ;
-      edm::InputTag endcapRecHitCollection ;
-      edm::InputTag pfMVA ;
-      edm::InputTag seedsTag ;
-      edm::InputTag ctfTracks ;
-      edm::InputTag beamSpotTag ;
-      edm::InputTag gsfPfRecTracksTag ;
+       edm::EDGetTokenT<reco::GsfElectronCollection> previousGsfElectrons ;
+       edm::EDGetTokenT<reco::GsfElectronCollection> pflowGsfElectronsTag ;
+       edm::EDGetTokenT<reco::GsfElectronCoreCollection> gsfElectronCores ;
+       edm::EDGetTokenT<CaloTowerCollection> hcalTowersTag ;
+       edm::EDGetTokenT<reco::SuperClusterCollection> barrelSuperClusters ;
+       edm::EDGetTokenT<reco::SuperClusterCollection> endcapSuperClusters ;
+      //edm::EDGetTokenT tracks ;
+       edm::EDGetTokenT<EcalRecHitCollection> barrelRecHitCollection ;
+       edm::EDGetTokenT<EcalRecHitCollection> endcapRecHitCollection ;
+       edm::EDGetTokenT<edm::ValueMap<float> > pfMVA ;
+       edm::EDGetTokenT<reco::ElectronSeedCollection> seedsTag ;
+       edm::EDGetTokenT<reco::TrackCollection> ctfTracks ;
+       edm::EDGetTokenT<reco::BeamSpot> beamSpotTag ;
+       edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag ;
 
       //IsoVals (PF and EcalDriven)
       edm::ParameterSet pfIsoVals;
@@ -207,8 +210,9 @@ class GsfElectronAlgo {
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
     void copyElectrons( reco::GsfElectronCollection & ) ;
+    void setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
+    void setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
     void endEvent() ;
-
 
   private :
 
@@ -228,6 +232,7 @@ class GsfElectronAlgo {
     void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;
     void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, reco::GsfElectron::ShowerShape & ) ;
+
 
     // associations
     const reco::SuperClusterRef getTrSuperCluster( const reco::GsfTrackRef & trackRef ) ;

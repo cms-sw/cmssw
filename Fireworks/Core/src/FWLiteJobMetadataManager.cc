@@ -102,7 +102,9 @@ FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest *request)
          /* if(!infos[ii].representsSubPart() && minProx != infos[ii].proximity()) {
             continue;
             } */
-         purposes.insert(infos[ii].purpose());
+         if (infos[ii].requiresFF() == false) {
+             purposes.insert(infos[ii].purpose());
+         }
       }
       
       if (purposes.empty())

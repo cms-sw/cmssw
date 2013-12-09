@@ -91,6 +91,17 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+// GCT and RCT data formats
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+// TPGs
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
 
 // Trigger Headers
 
@@ -328,11 +339,13 @@ private:
   bool monitorDaemon_;
   std::ofstream logFile_;
 
-  edm::InputTag rctSourceEmul_;
-  edm::InputTag rctSourceData_;
-  edm::InputTag ecalTPGData_;
-  edm::InputTag hcalTPGData_;
-  edm::InputTag gtDigisLabel_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceEmul_rgnEmul_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSourceEmul_emEmul_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceData_rgnData_;
+  edm::EDGetTokenT<L1CaloEmCollection> rctSourceData_emData_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPGData_;
+  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPGData_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigisLabel_;
   std::string gtEGAlgoName_; // name of algo to determine EG trigger threshold
   int doubleThreshold_; // value of ET at which to make 2-D eff plot
 

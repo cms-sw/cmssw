@@ -74,11 +74,13 @@ class HeavyFlavorValidation : public edm::EDAnalyzer {
     string dqmFolder;
     string triggerProcessName;
     string triggerPathName;
-    InputTag triggerSummaryRAWTag;
-    InputTag triggerSummaryAODTag;
-    InputTag triggerResultsTag;
-    InputTag recoMuonsTag;
-    InputTag genParticlesTag;   
+
+    EDGetTokenT<TriggerEventWithRefs>  triggerSummaryRAWTag;
+    EDGetTokenT<TriggerEvent>          triggerSummaryAODTag;
+    EDGetTokenT<TriggerResults>        triggerResultsTag;
+    EDGetTokenT<MuonCollection>        recoMuonsTag;
+    EDGetTokenT<GenParticleCollection> genParticlesTag;
+
     vector<int> motherIDs;
     double genGlobDeltaRMatchingCut;
     double globL1DeltaRMatchingCut;
@@ -103,11 +105,6 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
   dqmFolder(pset.getUntrackedParameter<string>("DQMFolder")),
   triggerProcessName(pset.getUntrackedParameter<string>("TriggerProcessName")),
   triggerPathName(pset.getUntrackedParameter<string>("TriggerPathName")),
-  triggerSummaryRAWTag(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryRAW"), "", triggerProcessName)),
-  triggerSummaryAODTag(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryAOD"), "", triggerProcessName)),
-  triggerResultsTag(InputTag( pset.getUntrackedParameter<string>("TriggerResults"), "", triggerProcessName)),
-  recoMuonsTag(pset.getParameter<InputTag>("RecoMuons")),
-  genParticlesTag(pset.getParameter<InputTag>("GenParticles")),
   motherIDs(pset.getUntrackedParameter<vector<int> >("MotherIDs")),
   genGlobDeltaRMatchingCut(pset.getUntrackedParameter<double>("GenGlobDeltaRMatchingCut")),
   globL1DeltaRMatchingCut(pset.getUntrackedParameter<double>("GlobL1DeltaRMatchingCut")),
@@ -122,7 +119,13 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
   dimuonEtaBins(pset.getUntrackedParameter<vector<double> >("DimuonEtaBins")),
   dimuonDRBins(pset.getUntrackedParameter<vector<double> >("DimuonDRBins")),
   muonMass(0.106)
-{}
+{
+  triggerSummaryRAWTag = consumes<TriggerEventWithRefs>(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryRAW"), "", triggerProcessName));
+  triggerSummaryAODTag = consumes<TriggerEvent>(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryAOD"), "", triggerProcessName));
+  triggerResultsTag = consumes<TriggerResults>(InputTag( pset.getUntrackedParameter<string>("TriggerResults"), "", triggerProcessName));
+  recoMuonsTag = consumes<MuonCollection>(pset.getParameter<InputTag>("RecoMuons"));
+  genParticlesTag = consumes<GenParticleCollection>(pset.getParameter<InputTag>("GenParticles"));
+}
   
 void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup){
 //discover HLT configuration
@@ -285,7 +288,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 //access the containers and create LeafCandidate copies
   vector<LeafCandidate> genMuons;
   Handle<GenParticleCollection> genParticles;
-  iEvent.getByLabel(genParticlesTag, genParticles);
+  iEvent.getByToken(genParticlesTag, genParticles);
   if(genParticles.isValid()){
     for(GenParticleCollection::const_iterator p=genParticles->begin(); p!= genParticles->end(); ++p){
       if( p->status() == 1 && std::abs(p->pdgId())==13 && 
@@ -303,7 +306,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   vector<LeafCandidate> globMuons;
   vector<LeafCandidate> globMuons_position;
   Handle<MuonCollection> recoMuonsHandle;
-  iEvent.getByLabel(recoMuonsTag, recoMuonsHandle);
+  iEvent.getByToken(recoMuonsTag, recoMuonsHandle);
   if(recoMuonsHandle.isValid()){
     for(MuonCollection::const_iterator p=recoMuonsHandle->begin(); p!= recoMuonsHandle->end(); ++p){
       if(p->isGlobalMuon()){
@@ -325,7 +328,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     muonPositionsAtFilter.push_back(vector<LeafCandidate>());
   }
   Handle<TriggerEventWithRefs> rawTriggerEvent;
-  iEvent.getByLabel( triggerSummaryRAWTag, rawTriggerEvent );
+  iEvent.getByToken( triggerSummaryRAWTag, rawTriggerEvent );
   if( rawTriggerEvent.isValid() ){
     for(size_t i=0; i<filterNamesLevels.size(); i++){
       size_t index = rawTriggerEvent->filterIndex(InputTag( filterNamesLevels[i].first, "", triggerProcessName ));
@@ -357,7 +360,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 // access AOD trigger event  
   vector<LeafCandidate> pathMuons;
   Handle<TriggerEvent> aodTriggerEvent;
-  iEvent.getByLabel(triggerSummaryAODTag,aodTriggerEvent);
+  iEvent.getByToken(triggerSummaryAODTag,aodTriggerEvent);
   if(aodTriggerEvent.isValid()){
     TriggerObjectCollection allObjects = aodTriggerEvent->getObjects();
     for(int i=0; i<aodTriggerEvent->sizeFilters(); i++){         
@@ -377,7 +380,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 // access Trigger Results
   bool triggerFired = false;
   Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(triggerResultsTag,triggerResults);
+  iEvent.getByToken(triggerResultsTag,triggerResults);
   if(triggerResults.isValid()){
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Successfully initialized "<<triggerResultsTag<<endl;
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);

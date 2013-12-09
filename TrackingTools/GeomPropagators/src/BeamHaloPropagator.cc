@@ -50,7 +50,7 @@ void BeamHaloPropagator::directionCheck(PropagationDirection dir)const {
   
 }
 
-BeamHaloPropagator::BeamHaloPropagator(Propagator* aEndCapTkProp, Propagator* aCrossTkProp, const MagneticField* field,
+BeamHaloPropagator::BeamHaloPropagator(const Propagator* aEndCapTkProp, const Propagator* aCrossTkProp, const MagneticField* field,
                                  PropagationDirection dir) :
   Propagator(dir), theEndCapTkProp(aEndCapTkProp->clone()), theCrossTkProp(aCrossTkProp->clone()), theField(field) { 
   directionCheck(dir);
@@ -122,12 +122,12 @@ BeamHaloPropagator::propagateWithPath(const FreeTrajectoryState& fts,
 {  return getCrossTkPropagator()->propagateWithPath(fts, cylinder);}
 
 
-Propagator* BeamHaloPropagator::getEndCapTkPropagator() const {
+const Propagator* BeamHaloPropagator::getEndCapTkPropagator() const {
   LogDebug("BeamHaloPropagator")<<"using the EndCap propagator";
   return theEndCapTkProp;}
 
 
-Propagator* BeamHaloPropagator::getCrossTkPropagator() const {
+const Propagator* BeamHaloPropagator::getCrossTkPropagator() const {
   LogDebug("BeamHaloPropagator")<<"using the Crossing propagator";
   return theCrossTkProp;}
 

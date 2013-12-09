@@ -19,6 +19,9 @@
 #include "CatchAll.h"
 #include "UsingNamespace.h"
 #include "ArgSizeChecker.h"
+#include "FunctionChecker.h"
+#include "FunctionDumper.h"
+#include "EDMPluginDumper.h"
 
 #include <clang/StaticAnalyzer/Core/CheckerRegistry.h>
 
@@ -33,16 +36,19 @@ void clang_registerCheckers ( clang::ento::CheckerRegistry &registry)
 	registry.addChecker< clangcms::StaticLocalChecker>( "threadsafety.StaticLocal", "Checks for non-const method local statics which might not be thread-safe" );
 	registry.addChecker< clangcms::MutableMemberChecker>( "threadsafety.MutableMember", "Checks for members with the mutable keyword which might not be thread-safe" );
 	registry.addChecker< clangcms::GlobalStaticChecker>( "threadsafety.GlobalStatic", "Checks for global non-const statics which might not be thread-safe" );
-	registry.addChecker< clangcms::ClassChecker>( "optional.ClassChecker", "Checks classes of interest" );
-	registry.addChecker< clangcms::ClassDumperCT>( "optional.ClassDumperCT", "Dumps class info" );
-	registry.addChecker< clangcms::ClassDumperFT>( "optional.ClassDumperFT", "Dumps class info" );
-	registry.addChecker< clangcms::ClassDumperInherit>( "optional.ClassDumperInherit", "Dumps class inheritance info" );
+	registry.addChecker< clangcms::ClassChecker>( "optional.ClassChecker", "Checks data classes for thread safety issues" );
+	registry.addChecker< clangcms::ClassDumperCT>( "optional.ClassDumperCT", "dumps template edm::Wrapper,edm::RunCache,edm::LuminosityBlockCache, and edm::GlobalCache types which define data classes " );
+	registry.addChecker< clangcms::ClassDumperFT>( "optional.ClassDumperFT", "dumps macro TYPELOOKUP_DATA_REG types which define data classes" );
+	registry.addChecker< clangcms::ClassDumperInherit>( "optional.ClassDumperInherit", "Dumps classes inheriting from data classes" );
 	registry.addChecker< clangcms::FiniteMathChecker>( "cms.NonFiniteMath", "Reports usage of isnan and isinf." );
 	registry.addChecker< clangcms::UsingNamespace>( "cms.CodeRules.UsingNamespace", "Checks for 'using namespace' or 'using std::' in header files" );
 	registry.addChecker< clangcms::CatchAll>( "cms.CodeRules.CatchAll", "Checks for 'catch(...)' in source files" );
 	registry.addChecker< clangcms::edmChecker>( "optional.edmChecker", "Checks classes inheriting from edm::Producer and edm::Filter" );
 	registry.addChecker< clangcms::getByChecker>( "optional.getByChecker", "Checks for calls to edm::getByLabel or edm::getManyByType and reports edm::Handle type passed" );
-	registry.addChecker< clangcms::ArgSizeChecker>( "cms.ArgSize", "Reports args passed by value with size>4k." );
+	registry.addChecker< clangcms::ArgSizeChecker>( "optional.ArgSize", "Reports args passed by value with size>4k." );
+	registry.addChecker< clangcms::FunctionChecker>( "cms.FunctionChecker", "Reports functions which access non-const statics" );
+	registry.addChecker< clangcms::FunctionDumper>( "cms.FunctionDumper", "Reports function calls and overrides" );
+	registry.addChecker< clangcms::EDMPluginDumper>( "optional.EDMPluginDumper", "Dumps macro DEFINE_EDM_PLUGIN types" );
 }
 
 extern "C"

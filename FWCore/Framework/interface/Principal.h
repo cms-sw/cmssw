@@ -165,6 +165,10 @@ namespace edm {
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
     BranchType const& branchType() const {return branchType_;}
+    
+    //This will never return 0 so you can use 0 to mean unset
+    typedef unsigned long CacheIdentifier_t;
+    CacheIdentifier_t cacheIdentifier() const {return cacheIdentifier_;}
 
     DelayedReader* reader() const {return reader_;}
 
@@ -269,6 +273,8 @@ namespace edm {
     // input ProcessHistory, the following pointer should be null.
     // The Principal does not own this object.
     HistoryAppender* historyAppender_;
+    
+    CacheIdentifier_t cacheIdentifier_;
 
   };
 

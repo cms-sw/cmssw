@@ -24,6 +24,10 @@
 #include <string>
 #include <vector>
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class ESListOfFEDSProducer : public edm::EDProducer {
 
 public:
@@ -35,6 +39,7 @@ public:
 	void Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
 	void Muon(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
 	void Jets(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs);
+	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
 	//edm::InputTag Pi0ListToIgnore_; 

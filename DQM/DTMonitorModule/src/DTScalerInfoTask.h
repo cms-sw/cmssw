@@ -24,6 +24,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 #include <vector>
 #include <string>
@@ -32,19 +34,19 @@
 class DTTimeEvolutionHisto;
 
 class DTScalerInfoTask: public edm::EDAnalyzer{
-  
+
   friend class DTMonitorModule;
-  
+
  public:
-  
+
   /// Constructor
   DTScalerInfoTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTScalerInfoTask();
-  
+
  protected:
-  
+
   // BeginJob
   void beginJob();
 
@@ -59,10 +61,10 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
 
   /// Perform trend plot operations
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-  
+
   /// EndJob
   void endJob(void);
-  
+
  private:
 
   /// Book the histograms
@@ -70,11 +72,11 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
 
   int nEvents;
   int nEventsInLS;
-  
+
   DQMStore* theDQMStore;
   edm::ParameterSet theParams;
 
-  edm::InputTag theScalerTag;
+  edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
 
   std::map<std::string ,DTTimeEvolutionHisto* > trendHistos;
   MonitorElement* nEventMonitor;
@@ -82,3 +84,8 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

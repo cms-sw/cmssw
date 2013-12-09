@@ -2,7 +2,7 @@
 //
 // Package:    EcalFEDErrorFilter
 // Class:      EcalFEDErrorFilter
-// 
+//
 /**\class EcalFEDErrorFilter EcalFEDErrorFilter.cc filter/EcalFEDErrorFilter/src/EcalFEDErrorFilter.cc
 
 Description: <one line class summary>
@@ -29,7 +29,7 @@ EcalFEDErrorFilter::EcalFEDErrorFilter(const edm::ParameterSet& iConfig) :
 
   DataLabel_     = iConfig.getParameter<edm::InputTag>("InputLabel");
   fedUnpackList_ = iConfig.getUntrackedParameter< std::vector<int> >("FEDs", std::vector<int>());
-  if (fedUnpackList_.empty()) 
+  if (fedUnpackList_.empty())
     for (int i=FEDNumbering::MINECALFEDID; i<=FEDNumbering::MAXECALFEDID; i++)
       fedUnpackList_.push_back(i);
 }
@@ -37,7 +37,7 @@ EcalFEDErrorFilter::EcalFEDErrorFilter(const edm::ParameterSet& iConfig) :
 
 EcalFEDErrorFilter::~EcalFEDErrorFilter()
 {
- 
+
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
@@ -50,23 +50,23 @@ EcalFEDErrorFilter::~EcalFEDErrorFilter()
 
 // ------------ method called on each new Event  ------------
 bool
-EcalFEDErrorFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+EcalFEDErrorFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace edm;
 
-  edm::Handle<FEDRawDataCollection> rawdata;  
+  edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByLabel(DataLabel_,rawdata);
 
   // get fed raw data and SM id
 
   // loop over FEDS
-  for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) 
+  for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++)
     {
 
       // get fed raw data and SM id
       const FEDRawData & fedData = rawdata->FEDData(*i);
       int length = fedData.size()/sizeof(uint64_t);
-      
+
       //    LogDebug("EcalRawToDigi") << "raw data length: " << length ;
       //if data size is not null interpret data
       if ( length >= 1 )
@@ -74,7 +74,7 @@ EcalFEDErrorFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
       	    uint64_t * pData = (uint64_t *)(fedData.data());
 	    //When crc error is found return true
 	    uint64_t * fedTrailer = pData + (length - 1);
-	    bool crcError = (*fedTrailer >> 2 ) & 0x1; 
+	    bool crcError = (*fedTrailer >> 2 ) & 0x1;
 	    if (crcError)
 	      {
 		std::cout << "CRCERROR in FED " << *i << " trailer is " << std::setw(8)   << std::hex << (*fedTrailer) << std::endl;
@@ -82,6 +82,6 @@ EcalFEDErrorFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
 	      }
 	}
     }
-  
+
   return false;
 }

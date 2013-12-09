@@ -112,6 +112,15 @@ typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCom
 
   bool eventInitialized;
   bool electronPlots, muonPlots, tauPlots;
+
+  //add consumes 
+  edm::EDGetTokenT<GenEventInfoProduct> genToken;
+  edm::EDGetTokenT<reco::JetFlavourMatchingCollection> jetToken;
+  edm::EDGetTokenT<reco::SoftLeptonTagInfoCollection> slInfoToken;
+  std::vector< edm::EDGetTokenT<reco::JetTagCollection> > jetTagToken;
+  std::vector< std::pair<edm::EDGetTokenT<reco::JetTagCollection>, edm::EDGetTokenT<reco::JetTagCollection>> > tagCorrelationToken;
+  std::vector<std::vector <edm::EDGetTokenT<edm::View<reco::BaseTagInfo>> >> tagInfoToken;
+
 };
 
 

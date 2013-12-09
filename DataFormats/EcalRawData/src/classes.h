@@ -10,7 +10,7 @@
 
 #include <DataFormats/Common/interface/Wrapper.h>
 
-namespace {
+namespace DataFormats_EcalRawData {
   struct dictionary {
     EcalDCCHeaderBlock ERDC_;
     EcalDCCHeaderBlock::EcalDCCEventSettings ERDCSet_;

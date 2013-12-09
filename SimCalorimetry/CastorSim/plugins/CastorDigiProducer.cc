@@ -1,6 +1,6 @@
 #include "SimCalorimetry/CastorSim/plugins/CastorDigiProducer.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,7 +18,7 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::EDProducer& mixMod) 
+CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) 
 : theParameterMap(new CastorSimParameterMap(ps)),
   theCastorShape(new CastorShape()),
   theCastorIntegratedShape(new CaloShapeIntegrator(theCastorShape)),
@@ -30,6 +30,7 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::EDProdu
   theCastorDigitizer(0),
   theCastorHits()
 {
+  iC.consumes<std::vector<PCaloHit> >(edm::InputTag("g4SimHits", "CastorFI"));
   
   mixMod.produces<CastorDigiCollection>();
 
@@ -103,18 +104,16 @@ void CastorDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHit
 
 void CastorDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&) {
   // Step A: Get and accumulate digitized hits 
-  edm::InputTag castorTag("g4SimHits", "CastorFI");
   edm::Handle<std::vector<PCaloHit> > castorHandle;
-  e.getByLabel(castorTag, castorHandle);
+  e.getByLabel(edm::InputTag("g4SimHits", "CastorFI"), castorHandle);
 
   accumulateCaloHits(*castorHandle.product(), 0);
 }
 
 void CastorDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const&) {
   // Step A: Get and accumulate digitized hits 
-  edm::InputTag castorTag("g4SimHits", "CastorFI");
   edm::Handle<std::vector<PCaloHit> > castorHandle;
-  e.getByLabel(castorTag, castorHandle);
+  e.getByLabel(edm::InputTag("g4SimHits", "CastorFI"), castorHandle);
 
   accumulateCaloHits(*castorHandle.product(), e.bunchCrossing());
 }

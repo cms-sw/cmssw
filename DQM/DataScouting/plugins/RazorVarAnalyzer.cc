@@ -19,6 +19,12 @@ RazorVarAnalyzer::RazorVarAnalyzer( const edm::ParameterSet & conf ):
   m_jetCollectionTag(conf.getUntrackedParameter<edm::InputTag>("jetCollectionName",edm::InputTag("hltCaloJetIDPassed"))),
   m_muCollectionTag(conf.getUntrackedParameter<edm::InputTag>("muCollectionName",edm::InputTag("hltL3MuonCandidates"))),
   m_razorVarCollectionTag(conf.getUntrackedParameter<edm::InputTag>("razorVarCollectionName")){
+
+  //set Token(-s)
+  m_jetCollectionTagToken_ = consumes<reco::CaloJetCollection>(conf.getUntrackedParameter<edm::InputTag>("jetCollectionName",edm::InputTag("hltCaloJetIDPassed")));
+  m_muCollectionTagToken_ = consumes<std::vector<reco::RecoChargedCandidate> >(conf.getUntrackedParameter<edm::InputTag>("muCollectionName",edm::InputTag("hltL3MuonCandidates")));
+  m_eleCollectionTagToken_ = consumes<reco::ElectronCollection>(conf.getUntrackedParameter<edm::InputTag>("eleCollectionName",edm::InputTag("hltPixelMatchElectronsActivity")));
+  m_razorVarCollectionTagToken_ = consumes<std::vector<double> >(conf.getUntrackedParameter<edm::InputTag>("razorVarCollectionName"));
 }
 
 //------------------------------------------------------------------------------
@@ -31,7 +37,8 @@ void RazorVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   
   //count the number of jets with a minimal selection
   edm::Handle<reco::CaloJetCollection> calojets_handle;
-  iEvent.getByLabel(m_jetCollectionTag,calojets_handle);
+  iEvent.getByToken(m_jetCollectionTagToken_, calojets_handle);
+
   
   unsigned int njets = 0;
   for(reco::CaloJetCollection::const_iterator it = calojets_handle->begin(); it != calojets_handle->end(); ++it){
@@ -42,7 +49,7 @@ void RazorVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
 
   //count the number of muons
   edm::Handle<std::vector<reco::RecoChargedCandidate> > muon_handle;
-  iEvent.getByLabel(m_muCollectionTag,muon_handle);
+  iEvent.getByToken(m_muCollectionTagToken_, muon_handle);
 
   unsigned int nmu_loose = 0;
   unsigned int nmu_tight = 0;
@@ -55,7 +62,7 @@ void RazorVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   
   //count the number of electrons
   edm::Handle<reco::ElectronCollection> ele_handle;
-  iEvent.getByLabel(m_eleCollectionTag,ele_handle);
+  iEvent.getByToken(m_eleCollectionTagToken_, ele_handle);
   
   unsigned int nele_loose = 0;
   unsigned int nele_tight = 0;
@@ -81,7 +88,7 @@ void RazorVarAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSetup
   }
 
   edm::Handle<std::vector<double> > razorvar_handle;
-  iEvent.getByLabel(m_razorVarCollectionTag,razorvar_handle);
+  iEvent.getByToken(m_razorVarCollectionTagToken_, razorvar_handle);
 
   if(razorvar_handle->size() > 1){
     const double MR = razorvar_handle->at(0);

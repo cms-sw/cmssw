@@ -56,9 +56,9 @@ class DTConfigPluginHandler: public DTConfigAbstractHandler {
 
   void purge();
 
-  static int maxBrickNumber;
-  static int maxStringNumber;
-  static int maxByteNumber;
+  static const int maxBrickNumber;
+  static const int maxStringNumber;
+  static const int maxByteNumber;
 
  private:
 

@@ -1,14 +1,14 @@
 #include "PhysicsTools/JetCharge/plugins/JetChargeProducer.h"
 
 JetChargeProducer::JetChargeProducer(const edm::ParameterSet &cfg) :
-src_(cfg.getParameter<edm::InputTag>("src")),
+srcToken_(consumes<reco::JetTracksAssociationCollection>(cfg.getParameter<edm::InputTag>("src"))),
 algo_(cfg) {
     produces<JetChargeCollection>();
 }
 
 void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
     edm::Handle<reco::JetTracksAssociationCollection> hJTAs;
-    iEvent.getByLabel(src_, hJTAs);
+    iEvent.getByToken(srcToken_, hJTAs);
     typedef reco::JetTracksAssociationCollection::const_iterator IT;
     typedef edm::RefToBase<reco::Jet>  JetRef;
 
@@ -26,5 +26,5 @@ void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         reco::JetFloatAssociation::setValue(*ret, jet, val);
     }
 
-    iEvent.put(ret);        
+    iEvent.put(ret);
 }

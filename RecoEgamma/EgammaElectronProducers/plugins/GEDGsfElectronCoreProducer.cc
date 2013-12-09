@@ -32,15 +32,16 @@ void GEDGsfElectronCoreProducer::fillDescriptions( edm::ConfigurationDescription
 GEDGsfElectronCoreProducer::GEDGsfElectronCoreProducer( const edm::ParameterSet & config )
  : GsfElectronCoreBaseProducer(config)
 {
-  gedEMUnbiasedTag_ = config.getParameter<edm::InputTag>("GEDEMUnbiased") ;
+  gedEMUnbiasedTag_ = consumes<reco::PFCandidateCollection>(config.getParameter<edm::InputTag>("GEDEMUnbiased")) ;
 }
 
 void GEDGsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup & setup )
  {
   // base input
   GsfElectronCoreBaseProducer::initEvent(event,setup) ;
-
-  event.getByLabel(gedEMUnbiasedTag_,gedEMUnbiasedH_);
+  
+  edm::Handle<reco::PFCandidateCollection> gedEMUnbiasedH_;
+  event.getByToken(gedEMUnbiasedTag_,gedEMUnbiasedH_);
 
   // output
   std::auto_ptr<GsfElectronCoreCollection> electrons(new GsfElectronCoreCollection) ;

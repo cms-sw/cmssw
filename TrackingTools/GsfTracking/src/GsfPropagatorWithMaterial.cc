@@ -6,6 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <atomic>
+
 GsfPropagatorWithMaterial::GsfPropagatorWithMaterial (const Propagator& aPropagator,
 						      const GsfMaterialEffectsUpdator& aMEUpdator) :
   Propagator(aPropagator.propagationDirection()),
@@ -97,7 +99,7 @@ GsfPropagatorWithMaterial::propagateWithPath (const TrajectoryStateOnSurface& ts
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
 					      const Plane& plane) const {
-  static int nWarn(0);
+  static std::atomic<int> nWarn(0);
   if ( nWarn++<5 )
     edm::LogInfo("GsfPropagatorWithMaterial") 
       << "GsfPropagatorWithMaterial used from FTS: input state might have been collapsed!";
@@ -112,7 +114,7 @@ GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts,
 std::pair<TrajectoryStateOnSurface,double> 
 GsfPropagatorWithMaterial::propagateWithPath (const FreeTrajectoryState& fts, 
 					      const Cylinder& cylinder) const {
-  static int nWarn(0);
+  static std::atomic<int> nWarn(0);
   if ( nWarn++<5 )
     edm::LogInfo("GsfPropagatorWithMaterial") 
       << "GsfPropagatorWithMaterial used from FTS: input state might have been collapsed!";
