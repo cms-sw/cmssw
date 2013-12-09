@@ -1,21 +1,12 @@
 #ifndef SiStripRecHitsValid_h
 #define SiStripRecHitsValid_h
 
-/* \class SiStripRecHitsValid
- *
- * Analyzer to validate RecHits in the Strip tracker
- *
- * \author Patrizia Azzi, INFN PD
- *
- * \version   1st version May 2006
- *
- ************************************************************/
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 //only mine
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,6 +37,12 @@
 
 #include <string>
 #include "DQMServices/Core/interface/MonitorElement.h"
+//For RecHit
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
+
+class SiStripDetCabling;
+class SiStripDCSStatus;
 
 class SiStripRecHitsValid : public edm::EDAnalyzer {
 
@@ -54,172 +51,161 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   SiStripRecHitsValid(const edm::ParameterSet& conf);
   
   ~SiStripRecHitsValid();
+ 
+  struct TotalMEs{ // MEs for total detector Level
+    MonitorElement*  meNumTotrphi;
+    MonitorElement*  meNumTotStereo;
+    MonitorElement*  meNumTotMatched;
+  };
+ 
+  struct SubDetMEs{ // MEs for Subdetector Level
+    MonitorElement*  meNumrphi;
+    MonitorElement*  meNumStereo;
+    MonitorElement*  meNumMatched;
+  };
+
+  struct LayerMEs{ // MEs for Layer Level
+    MonitorElement* meNstprphi;
+    MonitorElement* meAdcrphi;
+    MonitorElement* mePosxrphi;
+    MonitorElement* meErrxrphi;
+    MonitorElement* meResrphi;
+    MonitorElement* mePullLFrphi;
+    MonitorElement* mePullMFrphi;
+    MonitorElement* meChi2rphi;
+    
+  };
+
+  struct StereoAndMatchedMEs{ // MEs for Layer Level
+    MonitorElement* meNstpStereo;
+    MonitorElement* meAdcStereo;
+    MonitorElement* mePosxStereo;
+    MonitorElement* meErrxStereo;
+    MonitorElement* meResStereo;
+    MonitorElement* mePullLFStereo;
+    MonitorElement* mePullMFStereo;
+    MonitorElement* meChi2Stereo;
+    MonitorElement* mePosxMatched;
+    MonitorElement* mePosyMatched;
+    MonitorElement* meErrxMatched;
+    MonitorElement* meErryMatched;
+    MonitorElement* meResxMatched;
+    MonitorElement* meResyMatched;
+    MonitorElement* meChi2Matched;
+
+  };
+
+  struct RecHitProperties{ 
+    float x;
+    float y;
+    float z;
+    float errxx;
+    float errxy;
+    float erryy;
+    float resx;
+    float resy;
+    float pullMF;
+    int clusiz;
+    float cluchg;
+    float chi2;
+  };
+
 
  protected:
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginJob();
+  void beginJob(const edm::EventSetup& es);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   void endJob();
-  
+    
  private: 
   //Back-End Interface
   DQMStore* dbe_;
   std::string outputFile_;
-  MonitorElement*  meNumTotRphi;
-  MonitorElement*  meNumTotSas;
-  MonitorElement*  meNumTotMatched;
-  MonitorElement*  meNumRphiTIB;
-  MonitorElement*  meNumSasTIB;
-  MonitorElement*  meNumMatchedTIB;
-  MonitorElement*  meNumRphiTOB;
-  MonitorElement*  meNumSasTOB;
-  MonitorElement*  meNumMatchedTOB;
-  MonitorElement*  meNumRphiTID;
-  MonitorElement*  meNumSasTID;
-  MonitorElement*  meNumMatchedTID;
-  MonitorElement*  meNumRphiTEC;
-  MonitorElement*  meNumSasTEC;
-  MonitorElement*  meNumMatchedTEC;
 
-  //TIB
-  MonitorElement* meNstpRphiTIB[4];
-  MonitorElement* meAdcRphiTIB[4];
-  MonitorElement* mePosxRphiTIB[4];
-  MonitorElement* meErrxRphiTIB[4];
-  MonitorElement* meResRphiTIB[4];
-  MonitorElement* mePullLFRphiTIB[4];
-  MonitorElement* mePullMFRphiTIB[4];
-  MonitorElement* meChi2RphiTIB[4];
-  MonitorElement* meNstpSasTIB[4];
-  MonitorElement* meAdcSasTIB[4];
-  MonitorElement* mePosxSasTIB[4];
-  MonitorElement* meErrxSasTIB[4];
-  MonitorElement* meResSasTIB[4];
-  MonitorElement* mePullLFSasTIB[4];
-  MonitorElement* mePullMFSasTIB[4];
-  MonitorElement* meChi2SasTIB[4];
-  MonitorElement* mePosxMatchedTIB[2];
-  MonitorElement* mePosyMatchedTIB[2];
-  MonitorElement* meErrxMatchedTIB[2];
-  MonitorElement* meErryMatchedTIB[2];
-  MonitorElement* meResxMatchedTIB[2];
-  MonitorElement* meResyMatchedTIB[2];
-  MonitorElement* meChi2MatchedTIB[2];
-  //TOB
-  MonitorElement* meNstpRphiTOB[6];
-  MonitorElement* meAdcRphiTOB[6];
-  MonitorElement* mePosxRphiTOB[6];
-  MonitorElement* meErrxRphiTOB[6];
-  MonitorElement* meResRphiTOB[6];
-  MonitorElement* mePullLFRphiTOB[6];
-  MonitorElement* mePullMFRphiTOB[6];
-  MonitorElement* meChi2RphiTOB[6];
-  MonitorElement* meNstpSasTOB[2];
-  MonitorElement* meAdcSasTOB[2];
-  MonitorElement* mePosxSasTOB[2];
-  MonitorElement* meErrxSasTOB[2];
-  MonitorElement* meResSasTOB[2];
-  MonitorElement* mePullLFSasTOB[2];
-  MonitorElement* mePullMFSasTOB[2];
-  MonitorElement* meChi2SasTOB[2];
-  MonitorElement* mePosxMatchedTOB[2];
-  MonitorElement* mePosyMatchedTOB[2];
-  MonitorElement* meErrxMatchedTOB[2];
-  MonitorElement* meErryMatchedTOB[2];
-  MonitorElement* meResxMatchedTOB[2];
-  MonitorElement* meResyMatchedTOB[2];
-  MonitorElement* meChi2MatchedTOB[2];
-  //TID
-  MonitorElement* meNstpRphiTID[3];
-  MonitorElement* meAdcRphiTID[3];
-  MonitorElement* mePosxRphiTID[3];
-  MonitorElement* meErrxRphiTID[3];
-  MonitorElement* meResRphiTID[3];
-  MonitorElement* mePullLFRphiTID[3];
-  MonitorElement* mePullMFRphiTID[3];
-  MonitorElement* meChi2RphiTID[3];
-  MonitorElement* meNstpSasTID[2];
-  MonitorElement* meAdcSasTID[2];
-  MonitorElement* mePosxSasTID[2];
-  MonitorElement* meErrxSasTID[2];
-  MonitorElement* meResSasTID[2];
-  MonitorElement* mePullLFSasTID[2];
-  MonitorElement* mePullMFSasTID[2];
-  MonitorElement* meChi2SasTID[2];
+  TotalMEs totalMEs;
 
-  MonitorElement* mePosxMatchedTID[2];
-  MonitorElement* mePosyMatchedTID[2];
-  MonitorElement* meErrxMatchedTID[2];
-  MonitorElement* meErryMatchedTID[2];
-  MonitorElement* meResxMatchedTID[2];
-  MonitorElement* meResyMatchedTID[2];
-  MonitorElement* meChi2MatchedTID[2];
-  //TEC
-  MonitorElement* meNstpRphiTEC[7];
-  MonitorElement* meAdcRphiTEC[7];
-  MonitorElement* mePosxRphiTEC[7];
-  MonitorElement* meErrxRphiTEC[7];
-  MonitorElement* meResRphiTEC[7];
-  MonitorElement* mePullLFRphiTEC[7];
-  MonitorElement* mePullMFRphiTEC[7];
-  MonitorElement* meChi2RphiTEC[7];
-  MonitorElement* meNstpSasTEC[5];
-  MonitorElement* meAdcSasTEC[5];
-  MonitorElement* mePosxSasTEC[5];
-  MonitorElement* meErrxSasTEC[5];
-  MonitorElement* meResSasTEC[5];
-  MonitorElement* mePullLFSasTEC[5];
-  MonitorElement* mePullMFSasTEC[5];
-  MonitorElement* meChi2SasTEC[5];
-  MonitorElement* mePosxMatchedTEC[5];
-  MonitorElement* mePosyMatchedTEC[5];
-  MonitorElement* meErrxMatchedTEC[5];
-  MonitorElement* meErryMatchedTEC[5];
-  MonitorElement* meResxMatchedTEC[5];
-  MonitorElement* meResyMatchedTEC[5];
-  MonitorElement* meChi2MatchedTEC[5];
+  bool switchNumTotrphi;
+  bool switchNumTotStereo;
+  bool switchNumTotMatched;
 
+
+  bool switchNumrphi;
+  bool switchNumStereo;
+  bool switchNumMatched;
+
+
+  bool switchNstprphi;
+  bool switchAdcrphi;
+  bool switchPosxrphi;
+  bool switchErrxrphi;
+  bool switchResrphi;
+  bool switchPullLFrphi;
+  bool switchPullMFrphi;
+  bool switchChi2rphi;
+  bool switchNstpStereo;
+  bool switchAdcStereo;
+  bool switchPosxStereo;
+  bool switchErrxStereo;
+  bool switchResStereo;
+  bool switchPullLFStereo;
+  bool switchPullMFStereo;
+  bool switchChi2Stereo;
+  bool switchPosxMatched;
+  bool switchPosyMatched;
+  bool switchErrxMatched;
+  bool switchErryMatched;
+  bool switchResxMatched;
+  bool switchResyMatched;
+  bool switchChi2Matched;
+  
+  std::string topFolderName_;
+  std::vector<std::string> SubDetList_;
+  
   std::vector<PSimHit> matched;
+  std::map<std::string, LayerMEs> LayerMEsMap;
+  std::map<std::string, StereoAndMatchedMEs> StereoAndMatchedMEsMap;
+  std::map<std::string, SubDetMEs> SubDetMEsMap;
+  std::map<std::string, std::vector< uint32_t > > LayerDetMap;
+  std::map<std::string, std::vector< uint32_t > > StereoAndMatchedDetMap;
+
+  edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
+
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
 							const BoundPlane& plane);
+  void createMEs(const edm::EventSetup& es);
+  void createTotalMEs(); 
+  void createLayerMEs(std::string label);
+  void createSubDetMEs(std::string label);
+  void createStereoAndMatchedMEs(std::string label);
+  
+  MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
+
+  inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
+  inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3){if (ME!=0)ME->Fill(value1,value2,value3);}
+  inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
+
   edm::ParameterSet conf_;
+  unsigned long long m_cacheID_;
+  edm::ParameterSet Parameters;
   //const StripTopology* topol;
 
-  static const int MAXHIT = 1000;
-  float rechitrphix[MAXHIT];
-  float rechitrphierrx[MAXHIT];
-  float rechitrphiy[MAXHIT];
-  float rechitrphiz[MAXHIT];
-  float rechitrphiphi[MAXHIT];
-  float rechitrphires[MAXHIT];
-  float rechitrphipullMF[MAXHIT];
-  int   clusizrphi[MAXHIT];
-  float cluchgrphi[MAXHIT];
-  float rechitsasx[MAXHIT];
-  float rechitsaserrx[MAXHIT];
-  float rechitsasy[MAXHIT];
-  float rechitsasz[MAXHIT];
-  float rechitsasphi[MAXHIT];
-  float rechitsasres[MAXHIT];
-  float rechitsaspullMF[MAXHIT];
-  int   clusizsas[MAXHIT];
-  float cluchgsas[MAXHIT];
-  float chi2rphi[MAXHIT];
-  float chi2sas[MAXHIT];
-  float chi2matched[MAXHIT];
-  float rechitmatchedx[MAXHIT];
-  float rechitmatchedy[MAXHIT];
-  float rechitmatchedz[MAXHIT];
-  float rechitmatchederrxx[MAXHIT];
-  float rechitmatchederrxy[MAXHIT];
-  float rechitmatchederryy[MAXHIT];
-  float rechitmatchedphi[MAXHIT];
-  float rechitmatchedresx[MAXHIT];
-  float rechitmatchedresy[MAXHIT];
-  float rechitmatchedchi2[MAXHIT];
+  /* static const int MAXHIT = 1000; */
 
+  std::vector<RecHitProperties> rechitrphi;
+  std::vector<RecHitProperties> rechitstereo;
+  std::vector<RecHitProperties> rechitmatched;
+  RecHitProperties rechitpro;
 
-  edm::InputTag matchedRecHits_, rphiRecHits_, stereoRecHits_;
+  void rechitanalysis(SiStripRecHit2D const rechit,const StripTopology &topol, TrackerHitAssociator associate);
+  void rechitanalysis_matched(SiStripMatchedRecHit2D const rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator associate);
+  
+  //edm::InputTag matchedRecHits_, rphiRecHits_, stereoRecHits_; 
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedRecHitsToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> rphiRecHitsToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> stereoRecHitsToken_;
+
 };
 
 #endif

@@ -24,6 +24,9 @@
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="DQMServices/ClientConfig"/>
+<use   name="DQM/SiStripCommon"/>
+<use   name="CalibTracker/Records"/>
+<use   name="CommonTools/TriggerUtils"/>
 <use   name="Validation/RecoTrack"/>
 <lib   name="MathMore"/>
 <library   file="*.cc" name="ValidationRecoTrackPlugins">

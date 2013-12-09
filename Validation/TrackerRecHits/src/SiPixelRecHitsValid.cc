@@ -605,3 +605,4 @@ void SiPixelRecHitsValid::fillForward(const SiPixelRecHit & recHit, const PSimHi
         } // end else
     } // end for
 }
+DEFINE_FWK_MODULE(SiPixelRecHitsValid);
