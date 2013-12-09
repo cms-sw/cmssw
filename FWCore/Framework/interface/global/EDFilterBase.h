@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/ProducerBase.h"
@@ -139,8 +140,8 @@ namespace edm {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
-      std::vector<BranchID> previousParentage_; //Per stream in the future?
-      ParentageID previousParentageId_;
+      std::unique_ptr<std::vector<BranchID>[]> previousParentages_; //Per stream in the future?
+      std::unique_ptr<ParentageID[]> previousParentageIds_;
     };
 
   }
