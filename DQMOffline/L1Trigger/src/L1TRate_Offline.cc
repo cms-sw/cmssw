@@ -1,7 +1,9 @@
  /*
  * \file L1TRate_Offline.cc
  *
- * \author J. Pela, P. Musella
+ * $Date: 2013/03/26 20:56:59 $
+ * $Revision: 1.7 $
+ * \authors F.Nguyen, J. Pela
  *
  */
 
@@ -53,15 +55,15 @@ L1TRate_Offline::L1TRate_Offline(const ParameterSet & ps){
   m_inputCategories["HTT"]    = Categories.getUntrackedParameter<bool>("HTT");
   m_inputCategories["HTM"]    = Categories.getUntrackedParameter<bool>("HTM");
 
-  // Inicializing Variables
+  // Initializing Variables
   if (m_verbose) {
-    cout << "[L1TRate_Offline:] ____________ Storage inicialization ____________ " << endl;
-    cout << "[L1TRate_Offline:] Setting up dbe folder: L1T/L1TRate_Offline" << endl;
+    cout << "[L1TRate_Offline:] ____________ Storage initialization ____________ " << endl;
+    cout << "[L1TRate_Offline:] Setting up dbe folder: L1T/L1TRate" << endl;
   }
 
   dbe = Service < DQMStore > ().operator->();
   dbe->setVerbose(0);
-  dbe->setCurrentFolder("L1T/L1TRate_Offline");
+  dbe->setCurrentFolder("L1T/L1TRate");
 
   // Inicializing Variables
   if (m_verbose) {cout << "[L1TRate_Offline:] Pointer for DQM Store: " << dbe << endl;}
@@ -80,8 +82,8 @@ void L1TRate_Offline::beginJob(void){
   dbe = Service < DQMStore > ().operator->();
 
   if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TRate_Offline");
-    dbe->rmdir("L1T/L1TRate_Offline");
+    dbe->setCurrentFolder("L1T/L1TRate");
+    dbe->rmdir("L1T/L1TRate");
   }
 
 }
@@ -115,7 +117,7 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
   const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
 
   // Initializing DQM Monitor Elements
-  dbe->setCurrentFolder("L1T/L1TRate_Offline");
+  dbe->setCurrentFolder("L1T/L1TRate");
   m_ErrorMonitor = dbe->book1D("ErrorMonitor", "ErrorMonitor",2,0,2);
   m_ErrorMonitor->setBinLabel(UNKNOWN               ,"UNKNOWN");
   m_ErrorMonitor->setBinLabel(WARNING_PY_MISSING_FIT,"WARNING_PY_MISSING_FIT");
@@ -192,7 +194,25 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 
     }
 
-    dbe->setCurrentFolder("L1T/L1TRate_Offline/TriggerCounts"); // trigger counts...
+    dbe->setCurrentFolder("L1T/L1TRate/xSecDelivLumi"); // trigger counts...
+    m_xSecObservedVsDelivLumi[tTrigger] = dbe->bookProfile(tCategory,
+                                                  "Cross Sec. vs Deliv. Lumi: "+tTrigger+tErrorMessage,
+                                                  m_maxNbins,
+                                                  minInstantLuminosity,
+                                                  maxInstantLuminosity,0,500);
+    m_xSecObservedVsDelivLumi[tTrigger] ->setAxisTitle("Delivered Luminosity [10^{30}cm^{-2}s^{-1}]" ,1);
+    m_xSecObservedVsDelivLumi[tTrigger] ->setAxisTitle("Algorithm #sigma [#mu b]" ,2);
+
+    dbe->setCurrentFolder("L1T/L1TRate/xSecRecorLumi"); // trigger counts...
+    m_xSecObservedVsRecorLumi[tTrigger] = dbe->bookProfile(tCategory,
+                                                  "Cross Sec. vs Recor. Lumi: "+tTrigger+tErrorMessage,
+                                                  m_maxNbins,
+                                                  minInstantLuminosity,
+                                                  maxInstantLuminosity,0,500);
+    m_xSecObservedVsRecorLumi[tTrigger] ->setAxisTitle("Recorded Luminosity [10^{30}cm^{-2}s^{-1}]" ,1);
+    m_xSecObservedVsRecorLumi[tTrigger] ->setAxisTitle("Algorithm #sigma [#mu b]" ,2);
+
+    dbe->setCurrentFolder("L1T/L1TRate/TriggerCounts"); // trigger counts...
     m_CountsVsLS[tTrigger] = dbe->bookProfile(tCategory,
                                                   "Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,
                                                   m_maxNbins,
@@ -205,11 +225,30 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 
     m_algoFit[tTrigger] = (TF1*) tTestFunction->Clone("Fit_"+tTrigger); // NOTE: Workaround
 
-    dbe->setCurrentFolder("L1T/L1TRate_Offline/Ratio");
+    dbe->setCurrentFolder("L1T/L1TRate/xSecObs");
+    m_xSecObservedVsLS[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
+    m_xSecObservedVsLS[tTrigger] ->setAxisTitle("Lumi Section" ,1);
+    m_xSecObservedVsLS[tTrigger] ->setAxisTitle("#sigma_{obs}" ,2);
+
+    dbe->setCurrentFolder("L1T/L1TRate/Delivered");
+    m_DelivLumiVsLS[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
+    m_DelivLumiVsLS[tTrigger] ->setAxisTitle("Lumi Section" ,1);
+    m_DelivLumiVsLS[tTrigger] ->setAxisTitle("Deliv. Lumi" ,2);
+
+    dbe->setCurrentFolder("L1T/L1TRate/Recorded");
+    m_RecorLumiVsLS[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
+    m_RecorLumiVsLS[tTrigger] ->setAxisTitle("Lumi Section" ,1);
+    m_RecorLumiVsLS[tTrigger] ->setAxisTitle("Recor. Lumi" ,2);
+
+    dbe->setCurrentFolder("L1T/L1TRate/Ratio");
     m_xSecObservedToExpected[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("Lumi Section" ,1);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("#sigma_{obs} / #sigma_{exp}" ,2);
 
+//     dbe->setCurrentFolder("L1T/L1TRate/DeadTime");
+//     m_DeadTimeVsLS[tTrigger] = dbe->book1D(tCategory, "Dead Time: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
+//     m_DeadTimeVsLS[tTrigger] ->setAxisTitle("Lumi Section" ,1);
+//     m_DeadTimeVsLS[tTrigger] ->setAxisTitle("Dead Time" ,2);
 
   }
 
@@ -219,8 +258,8 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 void L1TRate_Offline::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
   if (m_verbose) {cout << "[L1TRate_Offline:] Called endRun." << endl;}
-}
 
+}
 //_____________________________________________________________________
 void L1TRate_Offline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
 
@@ -245,6 +284,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   bool isDefLumi,isDefPrescaleIndex;
   //map<TString,double>* rates=0;
   double               lumi=0;
+  double               deadtime=0;
   int                  prescalesIndex=0;
 
   bool isDefCount;
@@ -253,8 +293,16 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   // Resetting MonitorElements so we can refill them
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
     string tTrigger      = (*i).second;
+    //    m_DeadTimeVsLS          [tTrigger]->getTH1()->Reset("ICE");
     m_CountsVsLS            [tTrigger]->getTH1()->Reset("ICE");
     m_xSecObservedToExpected[tTrigger]->getTH1()->Reset("ICE");
+
+    m_xSecObservedVsLS      [tTrigger]->getTH1()->Reset("ICE");
+    m_DelivLumiVsLS         [tTrigger]->getTH1()->Reset("ICE");
+    m_RecorLumiVsLS         [tTrigger]->getTH1()->Reset("ICE");
+
+    m_xSecObservedVsDelivLumi[tTrigger]->getTH1()->Reset("ICE");
+    m_xSecObservedVsRecorLumi[tTrigger]->getTH1()->Reset("ICE");
 
   }
 
@@ -271,6 +319,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
     else{
       isDefLumi=true;
       lumi=m_lsLuminosity[lsOffline];
+      deadtime=m_lsDeadTime[lsOffline];
     }
 
     lsPreInd = lsOffline + 1; // NOTE: Workaround
@@ -283,7 +332,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
 
     if(isDefCount && isDefLumi && isDefPrescaleIndex){
 
-      //const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
+      const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
 
       for(map<string,string>::const_iterator j=m_selectedTriggers.begin() ; j!=m_selectedTriggers.end() ; j++){
 
@@ -297,26 +346,49 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
         // If trigger name is defined we get the rate fit parameters
         if(tTrigger != "Undefined"){
 
+          unsigned int   trigBit      = m_algoBit[tTrigger];
+          double trigPrescale = currentPrescaleFactors[trigBit];
 
-          if(lumi!=0 && trigCount!=0 && prescalesIndex!=0){
+          if(lumi!=0 && trigCount!=0 && trigPrescale!=0){
 
-            double AlgoXSec              = (prescalesIndex*trigCount)/lumi;
+	    double RecLumi               = lumi*(1. - deadtime/100.);
+
+            double AlgoXSec              = (trigPrescale*trigCount)/RecLumi;
             double TemplateFunctionValue = tTestFunction->Eval(lumi);
 
+
             // Checking against Template function
+	    //            m_DeadTimeVsLS [tTrigger]->Fill(lumi,deadtime);
+
+
+	    m_xSecObservedVsRecorLumi[tTrigger]->Fill(RecLumi,AlgoXSec);
+
             m_CountsVsLS  [tTrigger]->Fill(lumi,AlgoXSec);
 
             int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(lsOffline);
             m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,AlgoXSec/TemplateFunctionValue);
 
+	    m_DelivLumiVsLS[tTrigger]->setBinContent(ibin,lumi);
+	    m_RecorLumiVsLS[tTrigger]->setBinContent(ibin,RecLumi);
+
+	    m_xSecObservedVsLS[tTrigger]->setBinContent(ibin,AlgoXSec);
 
           }
           else {
+	    //            m_DeadTimeVsLS [tTrigger]->Fill(0.000001,0.000001);
+
+	    m_xSecObservedVsRecorLumi[tTrigger]->Fill(0.000001,0.000001);
+
             m_CountsVsLS  [tTrigger]->Fill(0.000001,0.000001);
 
             int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(lsOffline);
             m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,0.000001);
-          }
+
+ 	    m_DelivLumiVsLS[tTrigger]->setBinContent(ibin,0.000001);
+	    m_RecorLumiVsLS[tTrigger]->setBinContent(ibin,0.000001);
+
+	    m_xSecObservedVsLS[tTrigger]->setBinContent(ibin,0.000001);
+         }
         }
       }
     }
@@ -336,17 +408,27 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
   iEvent.getByToken(m_scalersSource_L1TSCollection      , triggerScalers);
 
   // Integers
-  //int  EventRun = iEvent.id().run();
+  int  EventRun = iEvent.id().run();
   unsigned int eventLS  = iEvent.id().luminosityBlock();
 
   // Getting the trigger trigger rates from GT and buffering it
   if(triggerScalers.isValid() && triggerScalers->size()){
 
     Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
-    //Level1TriggerRates trigRates(*itL1TScalers,EventRun);
+    Level1TriggerRates trigRates(*itL1TScalers,EventRun);
+
+    //Trying to retrieve GT DeadTime
+    //unsigned long long deadtime = itL1TScalers->deadtime();
+    //double deadtime = itL1TScalers->deadtime();
+    double deadtime = trigRates.deadtimePercent(); //correct DeadTime % to retrieve
 
     // Trying to get the trigger counts
     const std::vector<unsigned int> gtAlgoCounts =  itL1TScalers->gtAlgoCounts();
+
+    //    int lumisegment = (*itL1TScalers).lumiSegmentNr();
+
+//     cout << "deadtime =" << deadtime << " -- 
+//    cout << "lumisegment = " << lumisegment << endl;
 
     int gtLS = (*itL1TScalers).lumiSegmentNr()+m_lsShiftGTRates;
 
@@ -371,6 +453,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 	}
       }
       m_lsRates[gtLS] = bufferCount;
+      m_lsDeadTime[gtLS] = deadtime;
     }
   }
 
@@ -387,6 +470,22 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
       if (m_verbose) {cout << "[L1TRate_Offline:] Buffering SCAL-HF Lumi for LS=" << scalLS << endl;}
       double instLumi       = itLScal->instantLumi();           // Getting Instant Lumi from HF (via SCAL) // <###### WE NEED TO STORE THIS
       double deadTimeNormHF = itLScal->deadTimeNormalization(); // Getting Dead Time Normalization from HF (via SCAL)
+
+//       double mylumiFill      = itLScal->lumiFill();      // Integrated lumi since beginning of fill, delivered
+//       double mylumiRun       = itLScal->lumiRun();       // Integrated lumi since beginning of run, delivered
+//       double myliveLumiFill  = itLScal->liveLumiFill();  // Integrated lumi since beginning of fill, live
+//       double myliveLumiRun   = itLScal->liveLumiRun();   // Integrated lumi since beginning of run, live
+//       double mysectionNumber = itLScal->sectionNumber(); // Lumi section  number for this info
+//       double mynumOrbits     = itLScal->numOrbits();     // Number of orbits that have passed this run
+
+//       cout << "instantLumi = " << instLumi << endl;
+//       cout << "lumiFill = " << mylumiFill << endl;
+//       cout << "lumiRun = " << mylumiRun << endl;
+//       cout << "livelumiFill = " << myliveLumiFill << endl;
+//       cout << "livelumiRun = " << myliveLumiRun << endl;
+//       cout << "sectionNumber = " << mysectionNumber << endl;
+//       cout << "numOrbits = " << mynumOrbits << endl;
+
 
       // If HF Dead Time Corrections is requested we apply it
       // NOTE: By default this is assumed false since for now WbM fits do NOT assume this correction
@@ -493,7 +592,6 @@ bool L1TRate_Offline::getXSexFitsPython(const edm::ParameterSet& ps){
    return noError;
 
 }
-
 
 
 //define this as a plug-in

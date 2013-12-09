@@ -4,7 +4,9 @@
 /*
  * \file L1TRate_Offline.h
  *
- * \author J. Pela
+ * $Date: 2013/03/26 20:56:59 $
+ * $Revision: 1.3 $
+ * \author F. Nguyen, J. Pela
  *
 */
 
@@ -73,7 +75,7 @@ protected:
   virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
 // Private methods
-private:
+//private:
 
   //    bool getXSexFitsOMDS  (const edm::ParameterSet& ps);
   bool getXSexFitsPython(const edm::ParameterSet& ps);
@@ -96,6 +98,7 @@ private:
   const std::vector< std::vector<int> >* m_listsPrescaleFactors; // Collection os all sets of prescales
 
   // Maps
+  std::map<int,double>                    m_lsDeadTime;             // Map of dead time for each LS
   std::map<int,int>                       m_lsPrescaleIndex;        // Map of precale index for each LS
   std::map<int,double>                    m_lsLuminosity;           // Map of luminosity recorded for each LS
   std::map<int,std::map<TString,double> > m_lsRates;                // Map of rates (by bit) recorded for each LS
@@ -105,10 +108,19 @@ private:
   std::map<std::string,std::string>       m_selectedTriggers;       // Map of what trigger to monitor for each category
   std::map<TString,MonitorElement*>       m_xSecObservedToExpected; // Monitor Elements for Observed to Expected Algo XSec 
   std::map<TString,MonitorElement*>       m_xSecVsInstLumi;         // Monitor Elements for Algo XSec vs Instant Luminosity
+  
+  std::map<TString,MonitorElement*>       m_xSecObservedVsDelivLumi;      
+  std::map<TString,MonitorElement*>       m_xSecObservedVsRecorLumi;      
 
-  std::map<TString,MonitorElement*>       m_CountsVsLS;         // Monitor Elements for 
-  std::map<TString,MonitorElement*>       m_InstLumiVsLS;         // Monitor Elements for 
-  std::map<TString,MonitorElement*>       m_PrescIndexVsLS;         // Monitor Elements for 
+
+  std::map<TString,MonitorElement*>       m_CountsVsLS;         // Monitor Elements for counts
+  std::map<TString,MonitorElement*>       m_InstLumiVsLS;         // Monitor Elements for Instant Lumi
+  std::map<TString,MonitorElement*>       m_PrescIndexVsLS;         // Monitor Elements for Prescale Index
+  //  std::map<TString,MonitorElement*>       m_DeadTimeVsLS;         // Monitor Elements (Check Purpose)
+
+  std::map<TString,MonitorElement*>       m_xSecObservedVsLS;      
+  std::map<TString,MonitorElement*>       m_DelivLumiVsLS;      
+  std::map<TString,MonitorElement*>       m_RecorLumiVsLS;      
 
   std::map<TString,TF1*>                  m_templateFunctions;      // For each trigger template f(InstLumi)=XSec
 
