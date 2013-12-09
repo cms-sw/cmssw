@@ -70,9 +70,9 @@ EgammaHLTRechitInRegionsProducer::EgammaHLTRechitInRegionsProducer(const edm::Pa
   const std::vector<std::string> severitynames = ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
   const std::vector<int> severitiesexcl = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
 
-  hitLabels = ps.getParameter<std::vector<edm::InputTag>>("hitLabels");
+  hitLabels = ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels");
   for (unsigned int i=0; i<hitLabels.size(); i++) 
-    hitTokens[i] = consumes<EcalRecHitCollection>(hitLabels[i]);
+    hitTokens.push_back(consumes<EcalRecHitCollection>(hitLabels[i]));
     
   produces<EcalRecHitCollection> ("EcalRegionalRecHitsEB");
   produces<EcalRecHitCollection> ("EcalRegionalRecHitsEE");
@@ -114,7 +114,7 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
   
   edm::Handle<EcalRecHitCollection> rhcH[3];
 
-  for (unsigned int i=0; i<3; i++) {
+  for (unsigned int i=0; i<hitLabels.size(); i++) {
     evt.getByToken(hitTokens[i], rhcH[i]);  
     if (!(rhcH[i].isValid())) {
       edm::LogError("ProductNotFound")<< "could not get a handle on the EcalRecHitCollection! (" << hitLabels[i].encode() << ")" << std::endl;
