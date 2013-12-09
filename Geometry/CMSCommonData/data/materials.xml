@@ -4421,5 +4421,46 @@
     <rMaterial name="materials:Oxygen"/>
    </MaterialFraction>
   </CompositeMaterial>
+  <CompositeMaterial name="M_Rdout_Brd" density="1.79*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.98667">
+    <rMaterial name="materials:G10"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.01333">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_Kapton_Cu" density="1.24*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9836">
+    <rMaterial name="materials:Kapton"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0164">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_GEM_Gas" density="1.8*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.60">
+    <rMaterial name="materials:Argon"/>
+    </MaterialFraction>
+   <MaterialFraction fraction="0.083">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.145">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.172">
+    <rMaterial name="materials:Fluorine"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_GEM_Foil" density="1.74*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.6565">
+    <rMaterial name="materials:Kapton"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1013">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2422">
+    <rMaterial name="materials:M_GEM_Gas"/>
+   </MaterialFraction>
+  </CompositeMaterial>
  </MaterialSection>
 </DDDefinition>

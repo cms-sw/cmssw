@@ -25,8 +25,8 @@ TrackAssociatorByHits = cms.ESProducer("TrackAssociatorByHitsESProducer",
     associateStrip = cms.bool(True),
     Purity_SimToReco = cms.double(0.75),
     Cut_RecoToSim = cms.double(0.75),
-    SimToRecoDenominator = cms.string('sim') ##"reco"
-
-)
+    SimToRecoDenominator = cms.string('sim'), ##"reco"
+    simHitTpMapTag = cms.InputTag("simHitTPAssocProducer")
+ )
 
 

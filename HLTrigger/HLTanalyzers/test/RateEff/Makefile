@@ -13,10 +13,10 @@ LIBS       = -L$(CMSSW_RELEASE_BASE)/external/$(SCRAM_ARCH)/lib $(ROOTLIBS) -lEG
 
 OHltRateEff: OHltRateEff.cpp OHltConfig.cpp OHltConfig.h OHltMenu.cpp OHltMenu.h \
 	 OHltRateCounter.cpp OHltRateCounter.h OHltRatePrinter.cpp OHltRatePrinter.h \
-	 OHltEffPrinter.cpp OHltEffPrinter.h  PlotOHltEffCurves.cpp\
+	 OHltEffPrinter.cpp OHltEffPrinter.h\
 	 OHltTree.cpp OHltTreeOpen.cpp OHltTree.h OHltPileupRateFitter.cpp OHltPileupRateFitter.h L1GtLogicParser.cpp L1GtLogicParser.h HLTDatasets.h
 	$(CXX) $(CXXFLAGS) $(CFGCFLAGS) $(LIBS) OHltConfig.cpp  OHltMenu.cpp OHltRateEff.cpp \
-	OHltEffPrinter.cpp OHltEffPrinter.h PlotOHltEffCurves.cpp \
+	OHltEffPrinter.cpp OHltEffPrinter.h \
 	OHltRateCounter.cpp OHltRatePrinter.cpp OHltTree.cpp OHltTreeOpen.cpp L1GtLogicParser.cpp HLTDatasets.cpp OHltPileupRateFitter.cpp \
 	-o OHltRateEff
 

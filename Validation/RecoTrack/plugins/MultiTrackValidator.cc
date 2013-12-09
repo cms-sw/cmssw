@@ -77,7 +77,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
   useGsf = pset.getParameter<bool>("useGsf");
   runStandalone = pset.getParameter<bool>("runStandalone");
 
-
+  _simHitTpMapTag = pset.getParameter<edm::InputTag>("simHitTpMapTag");
     
   if (!UseAssociators) {
     associators.clear();
@@ -161,6 +161,14 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   event.getByLabel(label_tp_fake,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
   
+  if(parametersDefiner=="CosmicParametersDefinerForTP") {
+    edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
+    //warning: make sure the TP collection used in the map is the same used in the MTV!
+    event.getByLabel(_simHitTpMapTag,simHitsTPAssoc);
+    parametersDefinerTP->initEvent(simHitsTPAssoc);
+    cosmictpSelector.initEvent(simHitsTPAssoc);
+  }
+
   //if (tPCeff.size()==0) {edm::LogInfo("TrackValidator") 
   //<< "TP Collection for efficiency studies has size = 0! Skipping Event." ; return;}
   //if (tPCfake.size()==0) {edm::LogInfo("TrackValidator") 
@@ -263,8 +271,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    momentumTP = tp->momentum();
 	    vertexTP = tp->vertex();
 	    //Calcualte the impact parameters w.r.t. PCA
-	    TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,*tp);
-	    TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,*tp);
+	    TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
+	    TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
 	    dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
 	    dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2()) 
 	      * momentum.z()/sqrt(momentum.perp2());
@@ -272,9 +280,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	//If the TrackingParticle is comics, get the momentum and vertex at PCA
 	if(parametersDefiner=="CosmicParametersDefinerForTP")
 	  {
-	    if(! cosmictpSelector(*tp,&bs,event,setup)) continue;	
-	    momentumTP = parametersDefinerTP->momentum(event,setup,*tp);
-	    vertexTP = parametersDefinerTP->vertex(event,setup,*tp);
+	    if(! cosmictpSelector(tpr,&bs,event,setup)) continue;	
+	    momentumTP = parametersDefinerTP->momentum(event,setup,tpr);
+	    vertexTP = parametersDefinerTP->vertex(event,setup,tpr);
 	    dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
 	    dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2()) 
 	      * momentumTP.z()/sqrt(momentumTP.perp2());
@@ -453,8 +461,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	  
 	//Get tracking particle parameters at point of closest approach to the beamline
-	TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,*(tpr.get()));
-	TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));		 	 
+	TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,tpr);
+	TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,tpr);		 	 
 	int chargeTP = tpr->charge();
 
 	histoProducerAlgo_->fill_ResoAndPull_recoTrack_histos(w,momentumTP,vertexTP,chargeTP,
