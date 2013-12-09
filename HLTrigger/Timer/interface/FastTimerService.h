@@ -309,10 +309,13 @@ private:
   std::string const *                           m_first_endpath;
   std::string const *                           m_last_endpath;
   bool                                          m_is_first_module;      // helper to measure the time spent between the beginning of the path and the execution of the first module
+  bool                                          m_is_first_event;
 
   // per-event accounting
   double                                        m_event;
+  double                                        m_presource;
   double                                        m_source;
+  double                                        m_postsource;
   double                                        m_all_paths;
   double                                        m_all_endpaths;
   double                                        m_interpaths;
@@ -320,7 +323,9 @@ private:
   // per-job summary
   unsigned int                                  m_summary_events;       // number of events
   double                                        m_summary_event;
+  double                                        m_summary_presource;
   double                                        m_summary_source;
+  double                                        m_summary_postsource;
   double                                        m_summary_all_paths;
   double                                        m_summary_all_endpaths;
   double                                        m_summary_interpaths;
@@ -330,14 +335,18 @@ private:
 
   // event summary plots
   TH1F *                                        m_dqm_event;
+  TH1F *                                        m_dqm_presource;
   TH1F *                                        m_dqm_source;
+  TH1F *                                        m_dqm_postsource;
   TH1F *                                        m_dqm_all_paths;
   TH1F *                                        m_dqm_all_endpaths;
   TH1F *                                        m_dqm_interpaths;
 
   // event summary plots - summed over nodes with the same number of processes
   TH1F *                                        m_dqm_nproc_event;
+  TH1F *                                        m_dqm_nproc_presource;
   TH1F *                                        m_dqm_nproc_source;
+  TH1F *                                        m_dqm_nproc_postsource;
   TH1F *                                        m_dqm_nproc_all_paths;
   TH1F *                                        m_dqm_nproc_all_endpaths;
   TH1F *                                        m_dqm_nproc_interpaths;
@@ -350,28 +359,36 @@ private:
 
   // plots per lumisection
   TProfile *                                    m_dqm_byls_event;
+  TProfile *                                    m_dqm_byls_presource;
   TProfile *                                    m_dqm_byls_source;
+  TProfile *                                    m_dqm_byls_postsource;
   TProfile *                                    m_dqm_byls_all_paths;
   TProfile *                                    m_dqm_byls_all_endpaths;
   TProfile *                                    m_dqm_byls_interpaths;
 
   // plots per lumisection - summed over nodes with the same number of processes
   TProfile *                                    m_dqm_nproc_byls_event;
+  TProfile *                                    m_dqm_nproc_byls_presource;
   TProfile *                                    m_dqm_nproc_byls_source;
+  TProfile *                                    m_dqm_nproc_byls_postsource;
   TProfile *                                    m_dqm_nproc_byls_all_paths;
   TProfile *                                    m_dqm_nproc_byls_all_endpaths;
   TProfile *                                    m_dqm_nproc_byls_interpaths;
 
   // plots vs. instantaneous luminosity
   TProfile *                                    m_dqm_byluminosity_event;
+  TProfile *                                    m_dqm_byluminosity_presource;
   TProfile *                                    m_dqm_byluminosity_source;
+  TProfile *                                    m_dqm_byluminosity_postsource;
   TProfile *                                    m_dqm_byluminosity_all_paths;
   TProfile *                                    m_dqm_byluminosity_all_endpaths;
   TProfile *                                    m_dqm_byluminosity_interpaths;
 
   // plots vs. instantaneous luminosity - summed over nodes with the same number of processes
   TProfile *                                    m_dqm_nproc_byluminosity_event;
+  TProfile *                                    m_dqm_nproc_byluminosity_presource;
   TProfile *                                    m_dqm_nproc_byluminosity_source;
+  TProfile *                                    m_dqm_nproc_byluminosity_postsource;
   TProfile *                                    m_dqm_nproc_byluminosity_all_paths;
   TProfile *                                    m_dqm_nproc_byluminosity_all_endpaths;
   TProfile *                                    m_dqm_nproc_byluminosity_interpaths;

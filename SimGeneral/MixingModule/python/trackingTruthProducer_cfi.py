@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+             
 trackingParticles = cms.PSet(
 	accumulatorType = cms.string('TrackingTruthAccumulator'),
-	createUnmergedCollection = cms.bool(True),
+	createUnmergedCollection = cms.bool(False),
 	createMergedBremsstrahlung = cms.bool(True),
 	alwaysAddAncestors = cms.bool(True),
-	maximumPreviousBunchCrossing = cms.uint32(9999),
+	maximumPreviousBunchCrossing = cms.uint32(5),
 	maximumSubsequentBunchCrossing = cms.uint32(9999),
 	simHitCollections = cms.PSet(
 		muon = cms.VInputTag( cms.InputTag('g4SimHits','MuonDTHits'),

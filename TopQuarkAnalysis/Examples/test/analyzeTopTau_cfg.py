@@ -20,20 +20,20 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
-
-## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+## std sequence for PAT
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 process.load("TopQuarkAnalysis.Examples.TopTauAnalyzer_cfi")
 
@@ -42,7 +42,6 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTopTau.root')
 )
 
-## end path   
-process.p1 = cms.Path(process.patDefaultSequence *
-                      process.analyzeTau)
+## end path
+process.p1 = cms.Path(process.analyzeTau)
 

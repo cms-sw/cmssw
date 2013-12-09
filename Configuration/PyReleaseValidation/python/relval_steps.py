@@ -1296,7 +1296,7 @@ steps['MinBias_TuneZ2starFSP2Forw']=merge([{'cfg':'MinBias_TuneZ2star_14TeV_pyth
 
 # step2 
 step2Defaults = { 
-                  '-s'            : 'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+                  '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:startup',
@@ -1323,7 +1323,7 @@ steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI,L1,DIGI2R
 
 
 #for 2017
-step2Upg2017Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'auto:upgrade2017', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
 		 '--magField' : '38T_PostLS1',
@@ -1334,7 +1334,7 @@ step2Upg2017Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                   }
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
 
-step2Upg2017puDefaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017puDefaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
 		 '--conditions':'auto:upgrade2017', 
 		 '--datatier':'GEN-SIM-DIGI-RAW',
 		 '-n':'10',
@@ -1351,7 +1351,7 @@ steps['DIGIPUUP17']=merge([step2Upg2017puDefaults])
 #addForAll(step2,{'--process':'DIGI'})
 
 #for 2019
-step2Upg2019Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
 		 '--conditions':'auto:upgrade2019', 
 		 '--datatier':'GEN-SIM-DIGI-RAW',
 		 '-n':'10',
@@ -1363,7 +1363,7 @@ step2Upg2019Defaults = {'-s':'DIGI,L1,DIGI2RAW',
 steps['DIGIUP19']=merge([step2Upg2019Defaults])
 
 
-step2Upg2019puDefaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019puDefaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'auto:upgrade2019', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1383,7 +1383,7 @@ steps['DIGIPUUP19']=merge([step2Upg2019puDefaults])
 
 ####DIGI AGING VALIDATION - STARTUP set of reference
 
-step2Upg2017_START_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_START_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_150_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1396,7 +1396,7 @@ steps['DIGIUP17STAR']=merge([step2Upg2017_START_Defaults])
 
 
 
-step2Upg2017pu_START_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017pu_START_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_150_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1413,7 +1413,7 @@ steps['DIGIPUUP17STAR']=merge([step2Upg2017pu_START_Defaults])
 
 ####DIGI AGING VALIDATION - 300fb-1
 
-step2Upg2017_300_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_300_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_300_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1424,7 +1424,7 @@ step2Upg2017_300_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                   }
 steps['DIGIUP17300']=merge([step2Upg2017_300_Defaults])
 
-step2Upg2017pu_300_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017pu_300_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_300_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1440,7 +1440,7 @@ steps['DIGIPUUP17300']=merge([step2Upg2017pu_300_Defaults])
 
 ####DIGI AGING VALIDATION - 300fb-1  COMPLETE ECAK
 
-step2Upg2017_300comp_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_300comp_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_300_62C2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1453,7 +1453,7 @@ steps['DIGIUP17300COMP']=merge([step2Upg2017_300comp_Defaults])
 
 ####DIGI AGING VALIDATION - 500fb-1 
 
-step2Upg2017_500_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_500_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_500_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1465,7 +1465,7 @@ step2Upg2017_500_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
 steps['DIGIUP17500']=merge([step2Upg2017_500_Defaults])
 
 
-step2Upg2017pu_500_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017pu_500_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_500_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1482,7 +1482,7 @@ steps['DIGIPUUP17500']=merge([step2Upg2017pu_500_Defaults])
 
 ####DIGI AGING VALIDATION - 1000fb-1 
 
-step2Upg2017_1000_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_1000_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_100062E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1493,7 +1493,7 @@ step2Upg2017_1000_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                   }
 steps['DIGIUP171000']=merge([step2Upg2017_1000_Defaults])
 
-step2Upg2017pu_1000_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017pu_1000_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_100062E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1508,7 +1508,7 @@ steps['DIGIPUUP171000']=merge([step2Upg2017pu_1000_Defaults])
 
 ####DIGI AGING VALIDATION - 1000fb-1 COMPLETE ECAL
 
-step2Upg2017_1000comp_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_1000comp_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_100062C2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1521,7 +1521,7 @@ steps['DIGIUP171000COMP']=merge([step2Upg2017_1000comp_Defaults])
 
 ####DIGI AGING VALIDATION - 1000fb-1 tkid
 
-step2Upg2017_1000_TkId_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_1000_TkId_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_100062E2A::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1534,7 +1534,7 @@ steps['DIGIUP171000TkId']=merge([step2Upg2017_1000_TkId_Defaults])
 
 ####DIGI AGING VALIDATION - 1000fb-1 tkid COMPLETE ECAL
 
-step2Upg2017_1000comp_TkId_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_1000comp_TkId_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_100062C2A::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1548,7 +1548,7 @@ steps['DIGIUP171000COMPTkId']=merge([step2Upg2017_1000comp_TkId_Defaults])
 
 ####DIGI AGING VALIDATION - 3000fb-1 _ 
 
-step2Upg2017_3000_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_3000_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_300062E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1562,7 +1562,7 @@ steps['DIGIUP173000']=merge([step2Upg2017_3000_Defaults])
 
 ####DIGI AGING VALIDATION - 3000fb-1 _ COMPLETE ECAL
 
-step2Upg2017_3000comp_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2017_3000comp_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W17_300062C2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1575,7 +1575,7 @@ steps['DIGIUP173000COMP']=merge([step2Upg2017_3000comp_Defaults])
 
 ####DIGI AGING VALIDATION - STARTUP set of reference
 
-step2Upg2019_START_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_START_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_150_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1588,7 +1588,7 @@ steps['DIGIUP19STAR']=merge([step2Upg2019_START_Defaults])
 
 
 
-step2Upg2019pu_START_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019pu_START_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_150_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1605,7 +1605,7 @@ steps['DIGIPUUP19STAR']=merge([step2Upg2019pu_START_Defaults])
 
 ####DIGI AGING VALIDATION - 300fb-1
 
-step2Upg2019_300_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_300_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_300_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1616,7 +1616,7 @@ step2Upg2019_300_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                   }
 steps['DIGIUP19300']=merge([step2Upg2019_300_Defaults])
 
-step2Upg2019pu_300_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019pu_300_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_300_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1632,7 +1632,7 @@ steps['DIGIPUUP19300']=merge([step2Upg2019pu_300_Defaults])
 
 ####DIGI AGING VALIDATION - 300fb-1  COMPLETE ECAK
 
-step2Upg2019_300comp_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_300comp_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_300_62C2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1645,7 +1645,7 @@ steps['DIGIUP19300COMP']=merge([step2Upg2019_300comp_Defaults])
 
 ####DIGI AGING VALIDATION - 500fb-1 
 
-step2Upg2019_500_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_500_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_500_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1657,7 +1657,7 @@ step2Upg2019_500_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
 steps['DIGIUP19500']=merge([step2Upg2019_500_Defaults])
 
 
-step2Upg2019pu_500_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019pu_500_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_500_62E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1674,7 +1674,7 @@ steps['DIGIPUUP19500']=merge([step2Upg2019pu_500_Defaults])
 
 ####DIGI AGING VALIDATION - 1000fb-1 
 
-step2Upg2019_1000_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_1000_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_100062E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1685,7 +1685,7 @@ step2Upg2019_1000_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
                   }
 steps['DIGIUP191000']=merge([step2Upg2019_1000_Defaults])
 
-step2Upg2019pu_1000_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019pu_1000_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_100062E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1700,7 +1700,7 @@ steps['DIGIPUUP191000']=merge([step2Upg2019pu_1000_Defaults])
 
 ####DIGI AGING VALIDATION - 1000fb-1 COMPLETE ECAL
 
-step2Upg2019_1000comp_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_1000comp_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_100062C2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1713,7 +1713,7 @@ steps['DIGIUP191000COMP']=merge([step2Upg2019_1000comp_Defaults])
 
 ####DIGI AGING VALIDATION - 1000fb-1 tkid
 
-step2Upg2019_1000_TkId_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_1000_TkId_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_100062E2A::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1726,7 +1726,7 @@ steps['DIGIUP191000TkId']=merge([step2Upg2019_1000_TkId_Defaults])
 
 ####DIGI AGING VALIDATION - 1000fb-1 tkid COMPLETE ECAL
 
-step2Upg2019_1000comp_TkId_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_1000comp_TkId_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_100062C2A::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1740,7 +1740,7 @@ steps['DIGIUP191000COMPTkId']=merge([step2Upg2019_1000comp_TkId_Defaults])
 
 ####DIGI AGING VALIDATION - 3000fb-1 _ 
 
-step2Upg2019_3000_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_3000_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_300062E2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -1754,7 +1754,7 @@ steps['DIGIUP193000']=merge([step2Upg2019_3000_Defaults])
 
 ####DIGI AGING VALIDATION - 3000fb-1 _ COMPLETE ECAL
 
-step2Upg2019_3000comp_Defaults = {'-s':'DIGI,L1,DIGI2RAW',
+step2Upg2019_3000comp_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--conditions':'W19_300062C2::All', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -2348,7 +2348,7 @@ step3Up2019_3000comp_Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
 steps['RECOUP193000COMP']=merge([step3Up2019_3000comp_Defaults])
 
 #for 2023 BE
-step3Up2023_BE_Defaults = {'-s':'DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco',
+step3Up2023_BE_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco',
                  '--conditions':'auto:upgradePLS3', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -2362,7 +2362,7 @@ steps['RECOUP23_BE']=merge([step3Up2023_BE_Defaults])
 
 
 #for 2023 BE5D
-step3Up2023_BE5D_Defaults = {'-s':'DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco',
+step3Up2023_BE5D_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco',
                  '--conditions':'auto:upgradePLS3', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -2375,7 +2375,7 @@ step3Up2023_BE5D_Defaults = {'-s':'DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltra
 steps['RECOUP23_BE5D']=merge([step3Up2023_BE5D_Defaults])
 
 
-step3Up2023_LB4_Defaults = {'-s':'DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco',
+step3Up2023_LB4_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco',
                  '--conditions':'auto:upgradePLS3', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -2387,7 +2387,7 @@ step3Up2023_LB4_Defaults = {'-s':'DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrac
                              
 steps['RECOUP23_LB4']=merge([step3Up2023_LB4_Defaults])
 
-step3Up2023_LB6_Defaults = {'-s':'DIGI,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco',
+step3Up2023_LB6_Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,L1TrackTrigger,RECO:pixeltrackerlocalreco',
                  '--conditions':'auto:upgradePLS3', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
@@ -2403,7 +2403,7 @@ steps['RECOUP23_LB6']=merge([step3Up2023_LB6_Defaults])
 
 ########################### split be5d into three steps
 
-step2Up2023_BE5D_Defaults = {'-s':'DIGI,L1,L1TrackTrigger,DIGI2RAW',
+step2Up2023_BE5D_Defaults = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
                  '--conditions':'auto:upgradePLS3', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',

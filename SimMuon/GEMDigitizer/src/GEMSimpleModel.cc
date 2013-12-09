@@ -1,18 +1,14 @@
 #include "SimMuon/GEMDigitizer/interface/GEMSimpleModel.h"
-
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandGamma.h"
-
 #include <cmath>
 #include <utility>
 #include <map>
@@ -24,24 +20,23 @@ namespace
 }
 
 GEMSimpleModel::GEMSimpleModel(const edm::ParameterSet& config) :
-GEMDigiModel(config)//
-, averageEfficiency_(config.getParameter<double> ("averageEfficiency"))//
-, averageShapingTime_(config.getParameter<double> ("averageShapingTime"))//
-, timeResolution_(config.getParameter<double> ("timeResolution"))//
-, timeJitter_(config.getParameter<double> ("timeJitter"))//
-, timeCalibrationOffset_(config.getParameter<double> ("timeCalibrationOffset"))//
-, averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))//
-, averageClusterSize_(config.getParameter<double> ("averageClusterSize"))//
-, signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))//
-, cosmics_(config.getParameter<bool> ("cosmics"))//
-, bxwidth_(config.getParameter<int> ("bxwidth"))//
-, minBunch_(config.getParameter<int> ("minBunch"))//
-, maxBunch_(config.getParameter<int> ("maxBunch"))//
-, digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons"))//
+GEMDigiModel(config)
+, averageEfficiency_(config.getParameter<double> ("averageEfficiency"))
+, averageShapingTime_(config.getParameter<double> ("averageShapingTime"))
+, timeResolution_(config.getParameter<double> ("timeResolution"))
+, timeJitter_(config.getParameter<double> ("timeJitter"))
+, timeCalibrationOffset_(config.getParameter<double> ("timeCalibrationOffset"))
+, averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
+, averageClusterSize_(config.getParameter<double> ("averageClusterSize"))
+, signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))
+, cosmics_(config.getParameter<bool> ("cosmics"))
+, bxwidth_(config.getParameter<int> ("bxwidth"))
+, minBunch_(config.getParameter<int> ("minBunch"))
+, maxBunch_(config.getParameter<int> ("maxBunch"))
+, digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons"))
 , neutronGammaRoll_(config.getParameter<std::vector<double>>("neutronGammaRoll"))
-, doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))//
-, minPabsNoiseCLS_(config.getParameter<double> ("minPabsNoiseCLS"))//
-
+, doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
+, scaleLumi_(config.getParameter<double> ("scaleLumi"))
 {
 }
 
@@ -69,7 +64,6 @@ void GEMSimpleModel::setRandomEngine(CLHEP::HepRandomEngine& eng)
   gauss1_ = new CLHEP::RandGaussQ(eng);
   gauss2_ = new CLHEP::RandGaussQ(eng);
   gamma1_ = new CLHEP::RandGamma(eng);
-  //  gamma1_ = new CLHEP::RandGamma(eng);
 }
 
 void GEMSimpleModel::setup()
@@ -88,8 +82,6 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
     if (std::abs(hit->particleType()) != 13 && digitizeOnlyMuons_)
       continue;
 
-    if (std::abs(hit->particleType()) != 13 && digitizeOnlyMuons_)
-      continue;
     // Check GEM efficiency
     if (flat1_->fire(1) > averageEfficiency_)
       continue;
@@ -133,24 +125,30 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
   const float halfStripLength(0.5 * top->stripLength());
   const float distanceFromEdge(halfStripLength - simHitPos.y());
 
+  // signal propagation speed in vacuum in [m/s]
+  const double cspeed = 299792458;
+  // signal propagation speed in material in [cm/ns]
+  double signalPropagationSpeedTrue = signalPropagationSpeed_ * cspeed * 1e+2 * 1e-9;
+
   // average time for the signal to propagate from the SimHit to the top of a strip
-  const float averagePropagationTime(distanceFromEdge / signalPropagationSpeed_);
+  const float averagePropagationTime(distanceFromEdge / signalPropagationSpeedTrue);
   // random Gaussian time correction due to the finite timing resolution of the detector
   const float randomResolutionTime(gauss2_->fire(0., timeResolution_));
 
   const float simhitTime(tof + averageShapingTime_ + randomResolutionTime + averagePropagationTime + randomJitterTime);
-  const float referenceTime(timeCalibrationOffset_ + halfStripLength / signalPropagationSpeed_ + averageShapingTime_);
+  const float referenceTime(timeCalibrationOffset_ + halfStripLength / signalPropagationSpeedTrue + averageShapingTime_);
   const float timeDifference(cosmics_ ? (simhitTime - referenceTime) / COSMIC_PAR : simhitTime - referenceTime);
 
   // assign the bunch crossing
   bx = static_cast<int> (std::round((timeDifference) / bxwidth_));
+
   // check time
   const bool debug(false);
   if (debug)
   {
     std::cout << "checktime " << "bx = " << bx << "\tdeltaT = " << timeDifference << "\tsimT =  " << simhitTime
         << "\trefT =  " << referenceTime << "\ttof = " << tof << "\tavePropT =  " << averagePropagationTime
-        << "\taveRefPropT = " << halfStripLength / signalPropagationSpeed_ << std::endl;
+        << "\taveRefPropT = " << halfStripLength / signalPropagationSpeedTrue << std::endl;
   }
   return bx;
 }
@@ -175,11 +173,26 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 
   const int nBxing(maxBunch_ - minBunch_ + 1);
   double averageNoiseRatePerRoll = neutronGammaRoll_[rollNumb - 1];
-  double averageNoiseRatePerStrip = averageNoiseRatePerRoll / (roll->nstrips()) + averageNoiseRate_;
 
-  const double averageNoise(averageNoiseRatePerStrip * nBxing * bxwidth_ * trArea * 1.0e-9);
+  //simulate intrinsic noise
+  if(simulateIntrinsicNoise_)
+  {
+    double aveIntrinsicNoisPerStrip = averageNoiseRate_ * nBxing * bxwidth_ * trStripArea * 1.0e-9;
+    for(int j = 0; j < nstrips; ++j)
+    {
+      const int n_intrHits = poisson_->fire(aveIntrinsicNoisPerStrip);
+      for (int k = 0; k < n_intrHits; k++ )
+      {
+        const int time_hit(static_cast<int> (flat2_->fire(nBxing)) + minBunch_);
+        std::pair<int, int> digi(k+1,time_hit);
+        strips_.insert(digi);
+      }
+    }
+  }//end simulate intrinsic noise
+
+  //simulate bkg contribution
+  const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9 * scaleLumi_);
   const int n_hits(poisson_->fire(averageNoise));
-
   for (int i = 0; i < n_hits; ++i)
   {
     const int centralStrip(static_cast<int> (flat1_->fire(1, nstrips)));
@@ -252,7 +265,7 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
     centralStrip = topology.channel(hit_position) + 1;
   else
     centralStrip = topology.channel(hit_position);
-  //get delta Phi differences
+
   GlobalPoint pointSimHit = roll->toGlobal(hit_position);
   GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
   double deltaphi = pointSimHit.phi() - pointDigiHit.phi();
@@ -317,4 +330,3 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
 
   return cluster_;
 }
-

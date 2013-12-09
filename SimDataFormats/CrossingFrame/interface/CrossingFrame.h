@@ -58,9 +58,9 @@ class CrossingFrame
   void addSignals(const T * vec,edm::EventID id);
  
   // standard version
-  void addPileups(const int bcr, std::vector<T> * vec, unsigned int evtId,int vertexoffset=0);
+  void addPileups(std::vector<T> const& vec);
   // version for HepMCProduct
-  void addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset=0);
+  void addPileups(T const& product);
 
   void setTof( );
 
@@ -281,31 +281,20 @@ template <class T>
 void CrossingFrame<T>::setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr) {shPtrPileupsPCF_=shPtr;}
 
 
-//==================== template specializations  ===========================================
 template <class T>
-void CrossingFrame<T>::addPileups(const int bcr, T * product, unsigned int evtId,int vertexoffset) {
+void CrossingFrame<T>::addPileups(T const& product) {
   // default, valid for HepMCProduct
-  pileups_.push_back(product);
+  pileups_.push_back(&product);
 }
 
+#ifndef __GCCXML__
 template <class T>
-void CrossingFrame<T>::addPileups(const int bcr, std::vector<T> * product, unsigned int evtId,int vertexoffset){
-  // default, in fact never called since special implementations exist for all possible types
-  // of this signature, i.e. PSimHit, PCaloHit, SimTrack, SimVertex
-  // But needs to be present for HepMCProduct
+void CrossingFrame<T>::addPileups(std::vector<T> const& product){
+  for (auto const& item : product) {
+    pileups_.push_back(&item);
+  }
 }
-
-template <>
-void CrossingFrame<SimTrack>::addPileups(const int bcr, std::vector<SimTrack> *, unsigned int evtId,int vertexoffset);
-
-template <>
-void CrossingFrame<SimVertex>::addPileups(const int bcr, std::vector<SimVertex> *, unsigned int evtId,int vertexoffset);
-
-template <>
-void CrossingFrame<PSimHit>::addPileups(const int bcr, std::vector<PSimHit> *, unsigned int evtId,int vertexoffset);
-
-template <>
-void CrossingFrame<PCaloHit>::addPileups(const int bcr, std::vector<PCaloHit> *, unsigned int evtId,int vertexoffset);
+#endif
 
 template <class T> 
 void CrossingFrame<T>::addSignals(const std::vector<T> * vec,edm::EventID id){
