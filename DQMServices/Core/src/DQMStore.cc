@@ -323,10 +323,11 @@ MonitorElement * DQMStore::IBooker::book2D(const std::string &name,
 void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
                                                uint32_t streamId,
                                                uint32_t moduleId) {
-  std::cout << "Merging objects from run: "
-	    << run
-	    << ", stream: " << streamId
-	    << " module: " << moduleId << std::endl;
+  if (verbose_ > 1)
+    std::cout << "Merging objects from run: "
+              << run
+              << ", stream: " << streamId
+              << " module: " << moduleId << std::endl;
   std::string null_str("");
   MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
   std::set<MonitorElement>::const_iterator e = data_.end();
@@ -373,10 +374,11 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
 						      uint32_t lumi,
 						      uint32_t streamId,
 						      uint32_t moduleId) {
-  std::cout << "Merging objects from run: "
-	    << run << 	" lumi: " << lumi
-	    << ", stream: " << streamId
-	    << " module: " << moduleId << std::endl;
+  if (verbose_ > 1)
+    std::cout << "Merging objects from run: "
+              << run << 	" lumi: " << lumi
+              << ", stream: " << streamId
+              << " module: " << moduleId << std::endl;
   std::string null_str("");
   MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
   std::set<MonitorElement>::const_iterator e = data_.end();

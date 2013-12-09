@@ -50,7 +50,7 @@ public:
                                               dqmDetails::NoCache*);
   uint32_t streamId() const {return stream_id_;}
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
-  virtual void bookHistograms(DQMStore::IBooker &) = 0;
+  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
 
 private:
   uint32_t stream_id_;

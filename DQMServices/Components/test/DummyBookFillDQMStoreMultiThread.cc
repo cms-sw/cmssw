@@ -156,7 +156,7 @@ class DummyBookFillDQMStoreMultiThread :  public DQMEDAnalyzer {
   virtual void endLuminosityBlock(edm::LuminosityBlock const&,
                                   edm::EventSetup const&);
 
-  void bookHistograms(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void fillerDispose();
 
   // ----------member data ---------------------------
@@ -195,7 +195,9 @@ void DummyBookFillDQMStoreMultiThread::fillerDispose(void) {
 }
 
 
-void DummyBookFillDQMStoreMultiThread::bookHistograms(DQMStore::IBooker &iBooker) {
+void DummyBookFillDQMStoreMultiThread::bookHistograms(DQMStore::IBooker &iBooker,
+                                                      edm::Run const & /* iRun */,
+                                                      edm::EventSetup const & /* iSetup */) {
   fillerDispose();
 
   std::cout << "Booking" << std::endl;

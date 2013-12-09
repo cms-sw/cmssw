@@ -266,8 +266,7 @@ private:
   template <typename T> using ModuleMap = std::unordered_map<edm::ModuleDescription const *, T>;
 
   // timer configuration
-  const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME
-  bool                                          m_is_cpu_bound;         // if the process is not bound to a single CPU, per-thread or per-process measuerements may be unreliable
+  bool                                          m_use_realtime;
   bool                                          m_enable_timing_paths;
   bool                                          m_enable_timing_modules;
   bool                                          m_enable_timing_exclusive;
