@@ -30,11 +30,11 @@ BXVector<T>::~BXVector()
 }
 
 // assignment operator (pass by value for exception safety)
-template < class T >
-BXVector<T> BXVector<T>::operator=( BXVector vector )
-{
-  
-}
+//template < class T >
+//BXVector<T> BXVector<T>::operator=( BXVector vector )
+//{
+//  
+//}
 
 // set BX range
 template < class T >

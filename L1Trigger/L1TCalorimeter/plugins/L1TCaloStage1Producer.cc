@@ -131,7 +131,7 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //iEvent.put(egammas);
   //iEvent.put(taus);
-  //iEvent.put(jets);
+  iEvent.put(jets);
   //iEvent.put(etsums);
 
 }
