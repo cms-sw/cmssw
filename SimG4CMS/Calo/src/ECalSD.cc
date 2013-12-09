@@ -228,12 +228,11 @@ int ECalSD::getTrackID(G4Track* aTrack) {
 
 uint16_t ECalSD::getDepth(G4Step * aStep) {
   G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  uint16_t ret = 0;
-  if (any(useDepth1,lv))      ret = 1;
-  else if (any(useDepth2,lv)) ret = 2;
-  else if (storeRL) ret = getRadiationLength(aStep);
-  else if (storeLayerTimeSim) ret = getLayerIDForTimeSim(aStep);
-  return ret;
+  if (any(useDepth1,lv))      return 1;
+  else if (any(useDepth2,lv)) return 2;
+  else if (storeRL) return getRadiationLength(aStep);
+  else if (storeLayerTimeSim) return getLayerIDForTimeSim(aStep);
+  return 0;
 }
 
 uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
@@ -271,6 +270,8 @@ uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep)
       detz     = (float)(0.5*crlength + localPoint.z());
     else
       detz     = (float)(0.5*crlength - localPoint.z());
+    if (detz<0)
+      detz=0;
     return 100+(int)detz/layerSize;
   }
   return 0;
