@@ -1,10 +1,10 @@
-# /online/collisions/2012/8e33/v2.3/HLT/V19 (CMSSW_7_0_0_pre9)
+# /online/collisions/2012/8e33/v2.3/HLT/V20 (CMSSW_7_0_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v2.3/HLT/V19')
+  tableName = cms.string('/online/collisions/2012/8e33/v2.3/HLT/V20')
 )
 
 streams = cms.PSet( 
@@ -3897,9 +3897,9 @@ hltIter3Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESPr
   intermediateCleaning = cms.bool( True ),
   lostHitPenalty = cms.double( 30.0 )
 )
-hltIter4ESPPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
+hltIter4ESPPixelLessLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   layerList = cms.vstring( 'TIB1+TIB2' ),
-  ComponentName = cms.string( "hltIter4ESPPixelLayerPairs" ),
+  ComponentName = cms.string( "hltIter4ESPPixelLessLayerPairs" ),
   TEC = cms.PSet(  ),
   FPix = cms.PSet(  ),
   TID = cms.PSet(  ),
@@ -3907,9 +3907,9 @@ hltIter4ESPPixelLayerPairs = cms.ESProducer( "SeedingLayersESProducer",
   TIB = cms.PSet(  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ) ),
   TOB = cms.PSet(  )
 )
-hltIter4ESPPixelLayerPairsPA = cms.ESProducer( "SeedingLayersESProducer",
+hltIter4ESPPixelLessLayerPairsPA = cms.ESProducer( "SeedingLayersESProducer",
   layerList = cms.vstring( 'TIB1+TIB2' ),
-  ComponentName = cms.string( "hltIter4ESPPixelLayerPairsPA" ),
+  ComponentName = cms.string( "hltIter4ESPPixelLessLayerPairsPA" ),
   TEC = cms.PSet(  ),
   FPix = cms.PSet(  ),
   TID = cms.PSet(  ),
@@ -7058,7 +7058,7 @@ hltIter4PFJetPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProd
         maxElement = cms.uint32( 100000 ),
         SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
-      SeedingLayers = cms.string( "hltIter4ESPPixelLayerPairs" )
+      SeedingLayers = cms.string( "hltIter4ESPPixelLessLayerPairs" )
     ),
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
@@ -13956,11 +13956,11 @@ hltRegionalSeedsForL3MuonIsolation = cms.EDProducer( "SeedGeneratorFromRegionHit
         zVertex = cms.double( 5.0 ),
         deltaEtaRegion = cms.double( 0.3 ),
         rVertex = cms.double( 5.0 ),
-        vertexSrc = cms.string( "" ),
         vertexZConstrained = cms.bool( False ),
         vertexZDefault = cms.double( 0.0 ),
         TrkSrc = cms.InputTag( "hltL3Muons" ),
-        measurementTrackerName = cms.string( "hltSiStripClusters" )
+        measurementTrackerName = cms.string( "hltSiStripClusters" ),
+        vertexSrc = cms.InputTag( "" )
       ),
       CollectionsPSet = cms.PSet( 
         recoL2MuonsCollection = cms.InputTag( "" ),
@@ -16963,7 +16963,7 @@ hltIter4Tau3MuPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDPro
     OrderedHitsFactoryPSet = cms.PSet( 
       maxElement = cms.uint32( 0 ),
       ComponentName = cms.string( "StandardHitPairGenerator" ),
-      SeedingLayers = cms.string( "hltIter4ESPPixelLayerPairs" ),
+      SeedingLayers = cms.string( "hltIter4ESPPixelLessLayerPairs" ),
       GeneratorPSet = cms.PSet( 
         maxElement = cms.uint32( 100000 ),
         SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
@@ -31359,7 +31359,7 @@ hltIter4PFJetPixelLessSeedsReg = cms.EDProducer( "SeedGeneratorFromRegionHitsEDP
         maxElement = cms.uint32( 100000 ),
         SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       ),
-      SeedingLayers = cms.string( "hltIter4ESPPixelLayerPairs" )
+      SeedingLayers = cms.string( "hltIter4ESPPixelLessLayerPairs" )
     ),
     SeedCreatorPSet = cms.PSet( 
       ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
@@ -41661,13 +41661,13 @@ hltHITPixelTripletSeedGeneratorHE = cms.EDProducer( "SeedGeneratorFromRegionHits
         useL1Jets = cms.bool( False ),
         deltaPhiTrackRegion = cms.double( 0.05 ),
         deltaPhiL1JetRegion = cms.double( 0.3 ),
-        vertexSrc = cms.string( "hltHITPixelVerticesHE" ),
         fixedReg = cms.bool( False ),
         etaCenter = cms.double( 0.0 ),
         phiCenter = cms.double( 0.0 ),
         originZPos = cms.double( 0.0 ),
         deltaEtaTrackRegion = cms.double( 0.05 ),
-        ptMin = cms.double( 0.5 )
+        ptMin = cms.double( 0.5 ),
+        vertexSrc = cms.InputTag( "hltHITPixelVerticesHE" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -41815,13 +41815,13 @@ hltHITPixelTripletSeedGeneratorHB = cms.EDProducer( "SeedGeneratorFromRegionHits
         useL1Jets = cms.bool( False ),
         deltaPhiTrackRegion = cms.double( 0.05 ),
         deltaPhiL1JetRegion = cms.double( 0.3 ),
-        vertexSrc = cms.string( "hltHITPixelVerticesHB" ),
         fixedReg = cms.bool( False ),
         etaCenter = cms.double( 0.0 ),
         phiCenter = cms.double( 0.0 ),
         originZPos = cms.double( 0.0 ),
         deltaEtaTrackRegion = cms.double( 0.05 ),
-        ptMin = cms.double( 1.0 )
+        ptMin = cms.double( 1.0 ),
+        vertexSrc = cms.InputTag( "hltHITPixelVerticesHB" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
