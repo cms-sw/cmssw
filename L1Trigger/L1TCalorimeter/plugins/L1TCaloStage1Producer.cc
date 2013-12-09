@@ -31,6 +31,7 @@
 //#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
 //this only exists in Jim's private repo?
 //#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
@@ -70,6 +71,9 @@ namespace l1t {
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
     //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
+    //boost::shared_ptr<const FirmwareVersion> m_fwv;
+    boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+
     boost::shared_ptr<CaloStage1MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
 
     CaloStage1FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
@@ -166,13 +170,16 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
     //iE.get<CaloParamsRcd>().get(parameters);
 
     //m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
+    //m_fwv = boost::shared_ptr<const FirmwareVersion>();
+    m_fwv = boost::shared_ptr<FirmwareVersion>(); //not const during testing
+    m_fwv->setFirmwareVersion(1); //hardcode for now, 1=HI, 2=PP
 
     // if (! m_dbpars){
     //   LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: could not retreive DB params from Event Setup\n";
     // }
 
     // Set the current algorithm version based on DB pars from database:
-    m_fw = m_factory.create(/**m_dbpars*/);
+    m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
 
     if (! m_fw) {
       // we complain here once per run

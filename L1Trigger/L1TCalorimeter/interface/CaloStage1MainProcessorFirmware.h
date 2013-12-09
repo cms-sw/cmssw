@@ -14,13 +14,14 @@
 #define CaloStage1MainProcessorFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
+#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "CaloStage1JetAlgorithm.h"
 
 namespace l1t {
 
   class CaloStage1MainProcessorFirmwareImp1 : public CaloStage1MainProcessor {
   public:
-    CaloStage1MainProcessorFirmwareImp1(/*const CaloParams & dbPars*/);
+    CaloStage1MainProcessorFirmwareImp1(const FirmwareVersion & fwv /*const CaloParams & dbPars*/);
     virtual ~CaloStage1MainProcessorFirmwareImp1();
     virtual void processEvent(const BXVector<CaloEmCand> &,
                               const BXVector<CaloRegion> &,
@@ -31,6 +32,7 @@ namespace l1t {
   private:
 
     //CaloParams const & m_db;
+    FirmwareVersion const & m_fwv;
 
     //CaloStage1EGammaAlgorithm* m_egAlgo;
     //CaloStage1TauAlgoritmh* m_tauAlgo;
