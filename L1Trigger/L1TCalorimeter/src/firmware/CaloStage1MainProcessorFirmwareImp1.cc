@@ -44,7 +44,7 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const BXVector<CaloEmCand
     {
       jets.push_back(0, *jet);
     }
-  } else if( m_fwv.firmwareVersion() == 1 ) {
+  } else if( m_fwv.firmwareVersion() == 2 ) {
     //pp algorithm should go here
   }
 
