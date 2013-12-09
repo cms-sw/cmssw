@@ -27,7 +27,7 @@ public:
    static const int kSubdetOffset       = 25;
 
    enum Detector { Tracker = 1, Muon = 2, Ecal = 3, Hcal = 4, Calo = 5 };
-   enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10 };
+   enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10, GEM = 11 };
 
    struct Range {
       double min1;

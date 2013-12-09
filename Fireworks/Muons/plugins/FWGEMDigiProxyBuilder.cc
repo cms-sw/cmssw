@@ -23,6 +23,8 @@
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 
 class FWGEMDigiProxyBuilder : public FWProxyBuilderBase
 {
@@ -60,7 +62,7 @@ void FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     if( ! geom->contains( rawid ))
     {
       fwLog( fwlog::kWarning ) << "Failed to get geometry of GEM roll with detid: "
-			       << rawid << std::endl;
+                               << rawid << std::endl;
       
       TEveCompound* compound = createCompound();
       setupAddElement( compound, product );
@@ -71,9 +73,9 @@ void FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     const float* parameters = geom->getParameters( rawid );
     float nStrips = parameters[0];
     float halfStripLength = parameters[1]*0.5;
-    float pitch = parameters[2];
-    float offset = -0.5*nStrips*pitch;
-    
+    float topPitch = parameters[3];
+    float bottomPitch = parameters[4];
+
     for( GEMDigiCollection::const_iterator dit = range.first;
 	 dit != range.second; ++dit )
     {
@@ -82,16 +84,17 @@ void FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
       setupAddElement( stripDigiSet, product );
 
       int strip = (*dit).strip();
-      float centreOfStrip = (strip-0.5)*pitch + offset;
+      float topOfStrip = (strip-0.5)*topPitch - 0.5*nStrips*topPitch;
+      float bottomOfStrip = (strip-0.5)*bottomPitch - 0.5*nStrips*bottomPitch;
 
       float localPointTop[3] =
       {
-        centreOfStrip, halfStripLength, 0.0
+        topOfStrip, halfStripLength, 0.0
       };
 
       float localPointBottom[3] = 
       {
-        centreOfStrip, -halfStripLength, 0.0
+        bottomOfStrip, -halfStripLength, 0.0
       };
 
       float globalPointTop[3];
@@ -146,7 +149,7 @@ FWGEMCSCPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pr
     if( ! geom->contains( rawid ))
     {
       fwLog( fwlog::kWarning ) << "Failed to get geometry of GEM roll with detid: "
-			       << rawid << std::endl;
+                               << rawid << std::endl;
       
       TEveCompound* compound = createCompound();
       setupAddElement( compound, product );
@@ -157,34 +160,36 @@ FWGEMCSCPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pr
     const float* parameters = geom->getParameters( rawid );
     float nStrips = parameters[0];
     float halfStripLength = parameters[1]*0.5;
-    float pitch = parameters[2];
-    float offset = -0.5*nStrips*pitch;
-    
+    float nPads = parameters[5];
+    float topPitch = parameters[3]*nStrips/nPads;
+    float bottomPitch = parameters[4]*nStrips/nPads;
+
     for( GEMCSCPadDigiCollection::const_iterator dit = range.first;
 	 dit != range.second; ++dit )
     {
       TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
-      stripDigiSet->SetLineWidth(3);
+      stripDigiSet->SetLineWidth(3*nStrips/nPads);
       setupAddElement( stripDigiSet, product );
 
       int pad = (*dit).pad();
-      float centreOfStrip = (pad-0.5)*pitch + offset;
+      float topOfStrip = (pad-0.5)*topPitch - 0.5*topPitch*nPads;
+      float bottomOfStrip = (pad-0.5)*bottomPitch - 0.5*bottomPitch*nPads;
 
       float localPointTop[3] =
       {
-        centreOfStrip, halfStripLength, 0.0
+        topOfStrip, halfStripLength, 0.0
       };
 
       float localPointBottom[3] = 
       {
-        centreOfStrip, -halfStripLength, 0.0
+        bottomOfStrip, -halfStripLength, 0.0
       };
 
       float globalPointTop[3];
       float globalPointBottom[3];
 
       geom->localToGlobal( rawid, localPointTop, globalPointTop, localPointBottom, globalPointBottom );
-
+      
       stripDigiSet->AddLine(globalPointTop[0], globalPointTop[1], globalPointTop[2],
                             globalPointBottom[0], globalPointBottom[1], globalPointBottom[2]);
     }
