@@ -68,8 +68,8 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
   MuRPCSimSrc_Token_ = consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("MuRPCSimSrc"));
 
   EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
-  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProduc\
-er") + std::string("EcalHitsEE")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
