@@ -35,8 +35,12 @@
 
 using namespace std;
 
-const float PI = 3.141593;
-const float degsPerRad = 57.29578;
+
+namespace {
+  constexpr float degsPerRad = 57.29578;
+  constexpr float HALF_PI = 1.57079632679489656;
+  constexpr float PI = 2*HALF_PI;
+}
 
 //-----------------------------------------------------------------------------
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
@@ -88,22 +92,23 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 void
 PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const 
 {
-  if ( theDet == &det )
-    return;       // we have already seen this det unit
-  
-  //--- This is a new det unit, so cache it
-  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-
-  if ( !theDet ) 
-    {
-      throw cms::Exception(" PixelCPEBase::setTheDet : ")
-            << " Wrong pointer to PixelGeomDetUnit object !!!";
-    }
-
-  //--- theDet->type() returns a GeomDetType, which implements subDetector()
-  thePart = theDet->type().subDetector();
-  switch ( thePart ) 
-    {
+  if ( theDet != &det ) {
+    
+    //--- This is a new det unit, so cache it
+    theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
+    
+    if unlikely( !theDet ) {
+	throw cms::Exception(" PixelCPEBase::setTheDet : ")
+	  << " Wrong pointer to PixelGeomDetUnit object !!!";
+      }
+    
+    theOrigin =   theDet->surface().toLocal(GlobalPoint(0,0,0));
+    
+    //--- theDet->type() returns a GeomDetType, which implements subDetector()
+    thePart = theDet->type().subDetector();
+    
+#ifdef EDM_ML_DEBUG
+    switch ( thePart ) {
     case GeomDetEnumerators::PixelBarrel:
       // A barrel!  A barrel!
       break;
@@ -114,59 +119,71 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
       throw cms::Exception("PixelCPEBase::setTheDet :")
       	<< "PixelCPEBase: A non-pixel detector type in here?" ;
     }
-
-  //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
-  //--- The call goes via BoundSurface, returned by theDet->surface(), but
-  //--- position() is implemented in GloballyPositioned<> template
-  //--- ( BoundSurface : Surface : GloballyPositioned<float> )
-  theDetR = theDet->surface().position().perp();
-  theDetZ = theDet->surface().position().z();
-  //--- Define parameters for chargewidth calculation
-
-  //--- bounds() is implemented in BoundSurface itself.
-  theThickness = theDet->surface().bounds().thickness();
-
-  //--- Cache the topology.
-  // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
-  //theTopol
-  //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
-
-  auto topol = &(theDet->specificTopology());
-  if unlikely(topol!=theTopol) { // there is ONE topology!)
-      theTopol=topol;
-      auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
-      if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
-      else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
-      assert(theRecTopol);
-      
-      //---- The geometrical description of one module/plaquette
-      theNumOfRow = theRecTopol->nrows();      // rows in x
-      theNumOfCol = theRecTopol->ncolumns();   // cols in y
-      std::pair<float,float> pitchxy = theRecTopol->pitch();
-      thePitchX = pitchxy.first;            // pitch along x
-      thePitchY = pitchxy.second;           // pitch along y
+#endif
+    
+    //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
+    //--- The call goes via BoundSurface, returned by theDet->surface(), but
+    //--- position() is implemented in GloballyPositioned<> template
+    //--- ( BoundSurface : Surface : GloballyPositioned<float> )
+    theDetR = theDet->surface().position().perp();
+    theDetZ = theDet->surface().position().z();
+    //--- Define parameters for chargewidth calculation
+    
+    //--- bounds() is implemented in BoundSurface itself.
+    theThickness = theDet->surface().bounds().thickness();
+    
+    //--- Cache the topology.
+    // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
+    //theTopol
+    //= dynamic_cast<const RectangularPixelTopology*>( & (theDet->specificTopology()) );
+    
+    auto topol = &(theDet->specificTopology());
+    if unlikely(topol!=theTopol) { // there is ONE topology!)
+	theTopol=topol;
+	auto const proxyT = dynamic_cast<const ProxyPixelTopology*>(theTopol);
+	if (proxyT) theRecTopol = dynamic_cast<const RectangularPixelTopology*>(&(proxyT->specificTopology()));
+	else theRecTopol = dynamic_cast<const RectangularPixelTopology*>(theTopol);
+	assert(theRecTopol);
+	
+	//---- The geometrical description of one module/plaquette
+	theNumOfRow = theRecTopol->nrows();      // rows in x
+	theNumOfCol = theRecTopol->ncolumns();   // cols in y
+	std::pair<float,float> pitchxy = theRecTopol->pitch();
+	thePitchX = pitchxy.first;            // pitch along x
+	thePitchY = pitchxy.second;           // pitch along y
+      }
+    
+    theSign = isFlipped() ? -1 : 1;
+    
+    
+    // will cache if not yest there (need some of the above)
+    theParam = &param();
+    
+    // this "has wrong sign..."
+    driftDirection_ = (*theParam).drift;
+    
+    
+    //--- The Lorentz shift.
+    theLShiftX = lorentzShiftX();
+    
+    theLShiftY = lorentzShiftY();
+    
+    // testing 
+    if(thePart == GeomDetEnumerators::PixelBarrel) {
+      //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
+      theLShiftY=0.;
     }
-  
-  theSign = isFlipped() ? -1 : 1;
-
-
-  // will cache if not yest there (need some of the above)
-  theParam = &param();
-
-  // this "has wrong sign..."
-  driftDirection_ = (*theParam).drift;
- 
-
-  //--- The Lorentz shift.
-  theLShiftX = lorentzShiftX();
-
-  theLShiftY = lorentzShiftY();
-
-  // testing 
-  if(thePart == GeomDetEnumerators::PixelBarrel) {
-    //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
-    theLShiftY=0.;
+    
+    LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
+			     << " thePart = " << thePart
+			     << " theThickness = " << theThickness
+			     << " thePitchX  = " << thePitchX 
+			     << " thePitchY  = " << thePitchY 
+			     << " theLShiftX  = " << theLShiftX;
+    
+    
   }
+    
 
   //--- Geometric Quality Information
   int minInX,minInY,maxInX,maxInY=0;
@@ -175,37 +192,18 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   maxInX = cluster.maxPixelRow();
   maxInY = cluster.maxPixelCol();
   
-  if(theRecTopol->isItEdgePixelInX(minInX) || theRecTopol->isItEdgePixelInX(maxInX) ||
-     theRecTopol->isItEdgePixelInY(minInY) || theRecTopol->isItEdgePixelInY(maxInY) )  {
-    isOnEdge_ = true;
-  }
-  else isOnEdge_ = false;
+  isOnEdge_ = theRecTopol->isItEdgePixelInX(minInX) | theRecTopol->isItEdgePixelInX(maxInX) |
+    theRecTopol->isItEdgePixelInY(minInY) | theRecTopol->isItEdgePixelInY(maxInY) ;
   
   // Bad Pixels have their charge set to 0 in the clusterizer 
   hasBadPixels_ = false;
   for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
-    if(cluster.pixelADC()[i] == 0) hasBadPixels_ = true;
+    if(cluster.pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   }
   
-  if(theRecTopol->containsBigPixelInX(minInX,maxInX) ||
-     theRecTopol->containsBigPixelInY(minInY,maxInY) )  {
-    spansTwoROCs_ = true;
-  }
-  else spansTwoROCs_ = false;
-  
-  
-  if (theVerboseLevel > 1) 
-    {
-      LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
-			       << " thePart = " << thePart
-			       << " theThickness = " << theThickness
-			       << " thePitchX  = " << thePitchX 
-			       << " thePitchY  = " << thePitchY 
-	// << " theOffsetX = " << theOffsetX 
-	// << " theOffsetY = " << theOffsetY 
-			       << " theLShiftX  = " << theLShiftX;
-    }
-  
+  spansTwoROCs_ = theRecTopol->containsBigPixelInX(minInX,maxInX) |
+    theRecTopol->containsBigPixelInY(minInY,maxInY);
+
 }
 
 
@@ -215,37 +213,31 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
 //-----------------------------------------------------------------------------
 void PixelCPEBase::
 computeAnglesFromTrajectory( const SiPixelCluster & cl,
-			     const GeomDetUnit    & det, 
 			     const LocalTrajectoryParameters & ltp) const
 {
   loc_traj_param_ = ltp;
 
-  LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
+  LocalVector localDir = ltp.momentum();
   
-  // &&& Or, maybe we need to move to the local frame ???
-  //  LocalVector localDir( theDet->toLocal(theState.globalDirection()));
-  //thePart = theDet->type().part();
   
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
-
+  
   /*
-    // Danek's definition 
-    alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
-    if ( isFlipped() )                    // &&& check for FPIX !!!
-    alpha_ = PI - alpha_ ;
-    beta_ = acos(locy/sqrt(locy*locy+locz*locz));
+  // Danek's definition 
+  alpha_ = acos(locx/sqrt(locx*locx+locz*locz));
+  if ( isFlipped() )                    // &&& check for FPIX !!!
+  alpha_ = PI - alpha_ ;
+  beta_ = acos(locy/sqrt(locy*locy+locz*locz));
   */
-
-  // &&& In the above, why not use atan2() ?
-  // ggiurgiu@fnal.gov, 01/24/09 :  Use it now.
-  alpha_ = atan2( locz, locx );
-  beta_  = atan2( locz, locy );
-
+  
+  
   cotalpha_ = locx/locz;
   cotbeta_  = locy/locz;
-
+  zneg = (locz < 0);
+  
+  
   LocalPoint trk_lp = ltp.position();
   trk_lp_x = trk_lp.x();
   trk_lp_y = trk_lp.y();
@@ -255,7 +247,6 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 
   // ggiurgiu@jhu.edu 12/09/2010 : needed to correct for bows/kinks
   AlgebraicVector5 vec_trk_parameters = ltp.mixedFormatVector();
-  //loc_trk_pred = &Topology::LocalTrackPred( vec_trk_parameters );
   loc_trk_pred_ = Topology::LocalTrackPred( vec_trk_parameters );
   
 }
@@ -272,60 +263,7 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 //}
 
 
-//-----------------------------------------------------------------------------
-//  The local position.
-// Should do correctly the big pixels.
-// who is using this version????
-//-----------------------------------------------------------------------------
-LocalPoint
-PixelCPEBase::localPosition( const SiPixelCluster& cluster, 
-			     const GeomDetUnit & det) const {
-  setTheDet( det, cluster );
-  
-  float lpx = xpos(cluster);
-  float lpy = ypos(cluster);
-  float lxshift = theLShiftX * thePitchX;  // shift in cm
-  float lyshift = theLShiftY * thePitchY;
-  LocalPoint cdfsfs(lpx-lxshift, lpy-lyshift);
-  return cdfsfs;
-}
 
-//-----------------------------------------------------------------------------
-//  Seems never used?
-//-----------------------------------------------------------------------------
-MeasurementPoint 
-PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, 
-				   const GeomDetUnit & det) const {
-
-  LocalPoint lp = localPosition(cluster,det);
-
-  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
-
-  if ( with_track_angle )
-    return theTopol->measurementPosition( lp, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
-  else 
-    return theTopol->measurementPosition( lp );
-
-}
-
-
-//-----------------------------------------------------------------------------
-//  Once we have the position, feed it to the topology to give us
-//  the error.  
-//  &&& APPARENTLY THIS METHOD IS NOT BEING USED ??? (Delete it?)
-//-----------------------------------------------------------------------------
-MeasurementError  
-PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit & det) const 
-{
-  LocalPoint lp( localPosition(cluster, det) );
-  LocalError le( localError(   cluster, det) );
-
-  // ggiurgiu@jhu.edu 12/09/2010 : trk angles needed for bow/kink correction
-  if ( with_track_angle )
-    return theTopol->measurementError( lp, le, Topology::LocalTrackAngles( loc_traj_param_.dxdz(), loc_traj_param_.dydz() ) );
-  else 
-    return theTopol->measurementError( lp, le );
-}
 
 //-----------------------------------------------------------------------------
 //  Compute alpha_ and beta_ from the position of this DetUnit.
@@ -334,18 +272,11 @@ PixelCPEBase::measurementError( const SiPixelCluster& cluster, const GeomDetUnit
 //-----------------------------------------------------------------------------
 // G. Giurgiu, 12/01/06 : implement the function
 void PixelCPEBase::
-computeAnglesFromDetPosition(const SiPixelCluster & cl, 
-			     const GeomDetUnit    & det ) const
+computeAnglesFromDetPosition(const SiPixelCluster & cl ) const
 {
-  //--- This is a new det unit, so cache it
-  theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-  if ( ! theDet ) 
-    {
-      throw cms::Exception("PixelCPEBase::computeAngleFromDetPosition")
-	<< " Wrong pointer to pixel detector !!!" << endl;
-    
-    }
-
+ 
+  
+  /*
   // get cluster center of gravity (of charge)
   float xcenter = cl.x();
   float ycenter = cl.y();
@@ -394,25 +325,39 @@ computeAnglesFromDetPosition(const SiPixelCluster & cl,
   float gv_dot_gvx = gv.x()*gvx.x() + gv.y()*gvx.y() + gv.z()*gvx.z();
   float gv_dot_gvy = gv.x()*gvy.x() + gv.y()*gvy.y() + gv.z()*gvy.z();
   float gv_dot_gvz = gv.x()*gvz.x() + gv.y()*gvz.y() + gv.z()*gvz.z();
-
-
-  /* all the above is equivalent to  
-     const Local3DPoint origin =   theDet->surface().toLocal(GlobalPoint(0,0,0)); // can be computed once...
-     auto gvx = lp.x()-origin.x();
-     auto gvy = lp.y()-origin.y();
-     auto gvz = -origin.z();
-  *  normalization not required as only ratio used... 
   */
+  
+  // all the above is equivalent to 
+  LocalPoint lp = theTopol->localPosition( MeasurementPoint(cl.x(), cl.y()) );
+  auto gvx = lp.x()-theOrigin.x();
+  auto gvy = lp.y()-theOrigin.y();
+  auto gvz = -1.f/theOrigin.z();
+  //  normalization not required as only ratio used... 
+  
 
+  zneg = (gvz < 0);
 
   // calculate angles
-  alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
-  beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
-
-  cotalpha_ = gv_dot_gvx / gv_dot_gvz;
-  cotbeta_  = gv_dot_gvy / gv_dot_gvz;
+  cotalpha_ = gvx*gvz;
+  cotbeta_  = gvy*gvz;
 
   with_track_angle = false;
+
+
+  /*
+  // used only in dberror param...
+  auto alpha = HALF_PI - std::atan(cotalpha_);
+  auto beta = HALF_PI - std::atan(cotbeta_); 
+  if (zneg) { beta -=PI; alpha -=PI;}
+
+  auto alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
+  auto beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
+
+  std::cout << "alpha/beta " << alpha_ <<','<<alpha <<' '<< beta_<<','<<beta <<','<< HALF_PI-beta << std::endl;
+  assert(std::abs(std::round(alpha*10000.f)-std::round(alpha_*10000.f))<2);
+  assert(std::abs(std::round(beta*10000.f)-std::round(beta_*10000.f))<2);
+  */
+
 }
 
 
@@ -440,7 +385,9 @@ bool PixelCPEBase::isFlipped() const
 }
 
 PixelCPEBase::Param const & PixelCPEBase::param() const {
-  Param & p = m_Params[ theDet->geographicalId().rawId() ];
+  auto i = theDet->index();
+  if (i>=int(m_Params.size())) m_Params.resize(i+1);  // should never happen!
+  Param & p = m_Params[i];
   if unlikely ( p.bz<-1.e10f  ) { 
       LocalVector Bfield = theDet->surface().toLocal(magfield_->inTesla(theDet->surface().position()));
       p.drift = driftDirection(Bfield );
@@ -505,16 +452,11 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const {
 LocalVector 
 PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   
-  if(lorentzAngle_ == 0){
-    throw cms::Exception("invalidPointer") << "[PixelCPEBase::driftDirection] zero pointer to lorentz angle record ";
-  }
-  double langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
-  float alpha2;
-  if (alpha2Order) {
-    alpha2 = langle*langle;
-  } else {
-    alpha2 = 0.0;
-  }
+  
+  auto langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+  float alpha2 = alpha2Order ?  langle*langle : 0;
+
+
   // &&& dir_x should have a "-" and dir_y a "+"
   // **********************************************************************
   // Our convention is the following:
@@ -526,11 +468,10 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   float dir_x =  ( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
   float dir_y = -( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
   float dir_z = -( 1.f + alpha2* Bfield.z()*Bfield.z() );
-  double scale = 1.f/std::abs( dir_z );  // same as 1 + alpha2*Bfield.z()*Bfield.z()
+  auto scale = 1.f/std::abs( dir_z );  // same as 1 + alpha2*Bfield.z()*Bfield.z()
   LocalVector  dd(dir_x*scale, dir_y*scale, -1.f );  // last is -1 !
-  if ( theVerboseLevel > 9 ) 
-    LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			     << dd   ;
+
+  LogDebug("PixelCPEBase") << " The drift direction in local coordinate is "  << dd   ;
 	
   return dd;
 }
@@ -539,27 +480,23 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
 //  One-shot computation of the driftDirection and both lorentz shifts
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::computeLorentzShifts() const 
-{
+PixelCPEBase::computeLorentzShifts() const {
   // this "has wrong sign..."  so "corrected below
-   driftDirection_ = getDrift();
- 
- // Max shift (at the other side of the sensor) in cm 
+  driftDirection_ = getDrift();
+  
+  // Max shift (at the other side of the sensor) in cm 
   lorentzShiftInCmX_ = -driftDirection_.x()/driftDirection_.z() * theThickness;  // &&& redundant
   // Express the shift in units of pitch, 
   lorentzShiftX_ = lorentzShiftInCmX_ / thePitchX ; 
-   
+  
   // Max shift (at the other side of the sensor) in cm 
   lorentzShiftInCmY_ = -driftDirection_.y()/driftDirection_.z() * theThickness;  // &&& redundant
   // Express the shift in units of pitch, 
   lorentzShiftY_ = lorentzShiftInCmY_ / thePitchY;
-
-
-  if ( theVerboseLevel > 9 ) {
-    LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
-			     << driftDirection_    ;
-    
-  }
+  
+  
+  LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
+			   << driftDirection_    ;
 }
 
 //-----------------------------------------------------------------------------

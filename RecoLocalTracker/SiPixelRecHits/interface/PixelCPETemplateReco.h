@@ -38,19 +38,15 @@ class PixelCPETemplateReco : public PixelCPEBase
   PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField *, const SiPixelLorentzAngle *, const SiPixelTemplateDBObject *);
   ~PixelCPETemplateReco();
 
+
+private:
   // We only need to implement measurementPosition, since localPosition() from
   // PixelCPEBase will call it and do the transformation
   // Gavril : put it back
-  LocalPoint localPosition (const SiPixelCluster& cluster, const GeomDetUnit & det) const; 
+  LocalPoint localPosition (const SiPixelCluster& cluster) const; 
   
   // However, we do need to implement localError().
-  LocalError localError   (const SiPixelCluster& cl, const GeomDetUnit & det) const;
-
- protected:
-  //--- These functions are no longer needed, yet they are declared 
-  //--- pure virtual in the base class.
-  float xpos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
-  float ypos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
+  LocalError localError   (const SiPixelCluster& cl) const;
 
  private:
   // Template storage

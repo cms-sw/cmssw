@@ -41,8 +41,8 @@ class PixelTopology : public Topology {
 
   virtual bool isItBigPixelInX(const int ixbin) const = 0;
   virtual bool isItBigPixelInY(const int iybin) const = 0;
-  virtual bool containsBigPixelInX(const int& ixmin, const int& ixmax) const = 0;
-  virtual bool containsBigPixelInY(const int& iymin, const int& iymax) const = 0;
+  virtual bool containsBigPixelInX(int ixmin, int ixmax) const = 0;
+  virtual bool containsBigPixelInY(int iymin, int iymax) const = 0;
 
   virtual bool isItEdgePixelInX (int ixbin) const = 0;
   virtual bool isItEdgePixelInY (int iybin) const = 0;
