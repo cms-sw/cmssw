@@ -17,8 +17,8 @@ CaloStage1MainProcessorFirmwareImp1::CaloStage1MainProcessorFirmwareImp1(/*const
 CaloStage1MainProcessorFirmwareImp1::~CaloStage1MainProcessorFirmwareImp1(){};
 
 //need to switch to BXVector
-void CaloStage1MainProcessorFirmwareImp1::processEvent(const EcalTriggerPrimitiveDigiCollection &,
-						       const HcalTriggerPrimitiveCollection &,
+void CaloStage1MainProcessorFirmwareImp1::processEvent(const CaloEmCand & emcands,
+						       const CaloRegion & regions,						       
 						       BXVector<EGamma> & egammas,
 						       BXVector<Tau> & taus,
 						       BXVector<Jet> & jets,
@@ -28,12 +28,12 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const EcalTriggerPrimitiv
   //std::vector<l1t::Jet> & jets){
 
   //if (db.firmwareVersion() == 1) {
-  m_jetAlgo = new CaloStage1JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
+  //m_jetAlgo = new CaloStage1JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
     //} else {
     //}
 
   //need to convert EcalTriggerPrimitiveDigiCollection to regions
 
-  processEvent(regions, jets);
+  //processEvent(regions, jets);
 
 }

@@ -109,7 +109,7 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
   std::auto_ptr<std::vector<l1t::Jet>> l1Jets (new std::vector<l1t::Jet>);
 
-  m_fw->processEvent(*caloRegions, *l1Jets);
+  //m_fw->processEvent(*caloRegions, *l1Jets);
 
   iEvent.put(l1Jets);
 
