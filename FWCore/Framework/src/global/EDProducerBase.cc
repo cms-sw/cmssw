@@ -39,8 +39,8 @@ namespace edm {
     EDProducerBase::EDProducerBase():
     ProducerBase(),
     moduleDescription_(),
-    previousParentage_(),
-    previousParentageId_() { }
+    previousParentages_(),
+    previousParentageIds_() { }
     
     EDProducerBase::~EDProducerBase()
     {
@@ -52,13 +52,17 @@ namespace edm {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
       this->produce(e.streamID(), e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
+      const auto streamIndex = e.streamID().value();
+      commit_(e,&previousParentages_[streamIndex], &previousParentageIds_[streamIndex]);
       return true;
     }
 
     void
     EDProducerBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
-      preallocStreams(iPrealloc.numberOfStreams());
+      auto const nStreams = iPrealloc.numberOfStreams();
+      previousParentages_.reset(new std::vector<BranchID>[nStreams]);
+      previousParentageIds_.reset( new ParentageID[nStreams]);
+      preallocStreams(nStreams);
     }
     
     void
