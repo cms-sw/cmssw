@@ -1,6 +1,8 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
+l1t::L1Candidate::L1Candidate(){}
+
 l1t::L1Candidate::L1Candidate( const LorentzVector& p4,
 			       int pt,
 			       int eta,

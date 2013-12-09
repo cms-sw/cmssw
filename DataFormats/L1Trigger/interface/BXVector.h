@@ -29,7 +29,7 @@ class BXVector  {
   ~BXVector();
   
   // assignment operator (pass by value for exception safety)
-  BXVector operator=( BXVector vector );
+  //BXVector operator=( BXVector vector );
   
   // the methods given below are a minimal set
   // other methods from the std::vector interface can be replicated as desired

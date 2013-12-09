@@ -8,6 +8,7 @@ namespace l1t {
   class CaloEmCand : public L1Candidate {
     
   public:
+    CaloEmCand(){}
     CaloEmCand( const LorentzVector& p4,
 		int pt=0,
 		int eta=0,

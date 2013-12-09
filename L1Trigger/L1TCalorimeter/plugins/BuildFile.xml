@@ -3,7 +3,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/L1TCalorimeter"/>
-<use name="CondFormats/L1TCalorimeter"/>
+<use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <library file="*.cc" name="L1TCalorimeterPlugins">

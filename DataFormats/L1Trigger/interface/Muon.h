@@ -2,12 +2,17 @@
 #define DataFormats_L1Trigger_Muon_h
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 
 namespace l1t {
+
+  class Muon;
+  typedef BXVector<Muon> MuonBxCollection;
 
   class Muon : public L1Candidate {
     
   public:
+    Muon(){}
     Muon( const LorentzVector& p4,
 	  int pt=0,
 	  int eta=0,
