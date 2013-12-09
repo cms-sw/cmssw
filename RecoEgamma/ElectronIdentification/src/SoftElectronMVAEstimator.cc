@@ -113,8 +113,6 @@ UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const 
 
 double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const edm::Event & evt)  {
 
-std::cout<<"in mva"<<std::endl;
-
  edm::Handle<reco::VertexCollection> FullprimaryVertexCollection;
  evt.getByLabel("offlinePrimaryVertices", FullprimaryVertexCollection);
  const reco::VertexCollection pvc = *(FullprimaryVertexCollection.product());
@@ -150,10 +148,8 @@ std::cout<<"in mva"<<std::endl;
   nPV=pvc.size();
 
   bindVariables();
-  std::cout<<"ok"<<std::endl;	
 //  double result= fmvaReader[GetMVABin(nPV,eta,pt)]->EvaluateMVA("BDT");
   double result= fmvaReader[0]->EvaluateMVA("BDT");
-  std::cout<<"providing result"<<std::endl;
 //  double result =  tmvaReader_->EvaluateMVA("BDT");
   return result;
 }
