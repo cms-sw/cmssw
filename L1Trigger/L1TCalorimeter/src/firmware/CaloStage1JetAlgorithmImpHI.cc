@@ -10,10 +10,9 @@
 #include "CaloStage1JetAlgorithmImp.h"
 
 // Taken from UCT code. Might not be appropriate. Refers to legacy L1 objects.
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-#include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 using namespace std;
 using namespace l1t;
@@ -24,22 +23,28 @@ CaloStage1JetAlgorithmImpHI::~CaloStage1JetAlgorithmImpHI(){};
 // needs to come from db eventually
 double regionLSB_ = 0.5;
 
-double regionPhysicalEt(const L1CaloRegion& cand) {
-  return regionLSB_*cand.et();
+double regionPhysicalEt(const l1t::CaloRegion& cand) {
+  return regionLSB_*cand.hwPt();
+}
+int deltaGctPhi(const CaloRegion & region, const CaloRegion & neighbor)
+{
+  int phi1 = region.hwPhi();
+  int phi2 = neighbor.hwPhi();
+  int diff = phi1 - phi2;
+  if (std::abs(phi1 - phi2) == 18-1) { //18 regions in phi
+    diff = -diff/std::abs(diff);
+  }
+  return diff;
 }
 
-void puSubtraction(const std::vector<l1t::CaloRegion> & regions, vector<double> puLevelHI );
-void makeJets(const std::vector<l1t::CaloRegion> & regions, vector<double> puLevelHI,
+void puSubtraction(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[] );
+void makeJets(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[],
 	      std::vector<l1t::Jet> & jets);
 
 
 void CaloStage1JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
 					       std::vector<l1t::Jet> & jets){
-  vector<double> puLevelHI;
-  puLevelHI.resize(L1CaloRegionDetId::N_ETA);
-  for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
-    puLevelHI[i] = 0;
-
+  int puLevelHI[L1CaloRegionDetId::N_ETA];
 
   puSubtraction(regions, puLevelHI);
   makeJets(regions, puLevelHI, jets);
@@ -52,7 +57,7 @@ void CaloStage1JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion
 }
 
 // NB PU is not in the physical scale!!  Needs to be multiplied by regionLSB
-void puSubtraction(const std::vector<l1t::CaloRegion> & regions, vector<double> puLevelHI )
+void puSubtraction(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[] )
 {
   double r_puLevelHI[L1CaloRegionDetId::N_ETA];
   int etaCount[L1CaloRegionDetId::N_ETA];
@@ -63,9 +68,9 @@ void puSubtraction(const std::vector<l1t::CaloRegion> & regions, vector<double> 
     etaCount[i] = 0;
   }
 
-  for(vector<double>::const_iterator region = regions->begin(); region != regions->end(); region++){
-    r_puLevelHI[region->gctEta()] += region->et();
-    etaCount[region->gctEta()]++;
+  for(vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++){
+    r_puLevelHI[region->hwEta()] += region->hwPt();
+    etaCount[region->hwEta()]++;
   }
 
   for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
@@ -74,13 +79,13 @@ void puSubtraction(const std::vector<l1t::CaloRegion> & regions, vector<double> 
   }
 }
 
-void makeJets(const std::vector<l1t::CaloRegion> & regions, vector<double> puLevelHI,
+void makeJets(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[],
 	      std::vector<l1t::Jet> & jets)
 {
-  for(vector<double>::const_iterator region = regions->begin(); region != regions->end(); region++) {
+  for(vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
     double regionET = regionPhysicalEt(*region);
     regionET = std::max(0.,regionET -
-			(puLevelHI[region->gctEta()]*regionLSB_));
+			(puLevelHI[region->hwEta()]*regionLSB_));
     double neighborN_et = 0;
     double neighborS_et = 0;
     double neighborE_et = 0;
@@ -90,61 +95,61 @@ void makeJets(const std::vector<l1t::CaloRegion> & regions, vector<double> puLev
     double neighborNW_et = 0;
     double neighborSE_et = 0;
     unsigned int nNeighbors = 0;
-    for(vector<double>::const_iterator neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
+    for(vector<CaloRegion>::const_iterator neighbor = regions.begin(); neighbor != regions.end(); neighbor++) {
       double neighborET = regionPhysicalEt(*neighbor);
       if(deltaGctPhi(*region, *neighbor) == 1 &&
-	 (region->gctEta()    ) == neighbor->gctEta()) {
+	 (region->hwEta()    ) == neighbor->hwEta()) {
 	neighborN_et = std::max(0.,neighborET -
-				(puLevelHI[neighbor->gctEta()]*regionLSB_));
+				(puLevelHI[neighbor->hwEta()]*regionLSB_));
 	nNeighbors++;
 	continue;
       }
       else if(deltaGctPhi(*region, *neighbor) == -1 &&
-	      (region->gctEta()    ) == neighbor->gctEta()) {
+	      (region->hwEta()    ) == neighbor->hwEta()) {
 	neighborS_et = std::max(0.,neighborET -
-				(puLevelHI[neighbor->gctEta()]*regionLSB_));
+				(puLevelHI[neighbor->hwEta()]*regionLSB_));
 	nNeighbors++;
 	continue;
       }
       else if(deltaGctPhi(*region, *neighbor) == 0 &&
-	      (region->gctEta() + 1) == neighbor->gctEta()) {
+	      (region->hwEta() + 1) == neighbor->hwEta()) {
 	neighborE_et = std::max(0.,neighborET -
-				(puLevelHI[neighbor->gctEta()]*regionLSB_));
+				(puLevelHI[neighbor->hwEta()]*regionLSB_));
 	nNeighbors++;
 	continue;
       }
       else if(deltaGctPhi(*region, *neighbor) == 0 &&
-	      (region->gctEta() - 1) == neighbor->gctEta()) {
+	      (region->hwEta() - 1) == neighbor->hwEta()) {
 	neighborW_et = std::max(0.,neighborET -
-				(puLevelHI[neighbor->gctEta()]*regionLSB_));
+				(puLevelHI[neighbor->hwEta()]*regionLSB_));
 	nNeighbors++;
 	continue;
       }
       else if(deltaGctPhi(*region, *neighbor) == 1 &&
-	      (region->gctEta() + 1) == neighbor->gctEta()) {
+	      (region->hwEta() + 1) == neighbor->hwEta()) {
 	neighborNE_et = std::max(0.,neighborET -
-				 (puLevelHI[neighbor->gctEta()]*regionLSB_));
+				 (puLevelHI[neighbor->hwEta()]*regionLSB_));
 	nNeighbors++;
 	continue;
       }
       else if(deltaGctPhi(*region, *neighbor) == -1 &&
-	      (region->gctEta() - 1) == neighbor->gctEta()) {
+	      (region->hwEta() - 1) == neighbor->hwEta()) {
 	neighborSW_et = std::max(0.,neighborET -
-				 (puLevelHI[neighbor->gctEta()]*regionLSB_));
+				 (puLevelHI[neighbor->hwEta()]*regionLSB_));
 	nNeighbors++;
 	continue;
       }
       else if(deltaGctPhi(*region, *neighbor) == 1 &&
-	      (region->gctEta() - 1) == neighbor->gctEta()) {
+	      (region->hwEta() - 1) == neighbor->hwEta()) {
 	neighborNW_et = std::max(0.,neighborET -
-				 (puLevelHI[neighbor->gctEta()]*regionLSB_));
+				 (puLevelHI[neighbor->hwEta()]*regionLSB_));
 	nNeighbors++;
 	continue;
       }
       else if(deltaGctPhi(*region, *neighbor) == -1 &&
-	      (region->gctEta() + 1) == neighbor->gctEta()) {
+	      (region->hwEta() + 1) == neighbor->hwEta()) {
 	neighborSE_et = std::max(0.,neighborET -
-				 (puLevelHI[neighbor->gctEta()]*regionLSB_));
+				 (puLevelHI[neighbor->hwEta()]*regionLSB_));
 	nNeighbors++;
 	continue;
       }
@@ -161,7 +166,7 @@ void makeJets(const std::vector<l1t::CaloRegion> & regions, vector<double> puLev
 	neighborN_et + neighborS_et + neighborE_et + neighborW_et +
 	neighborNE_et + neighborSW_et + neighborSE_et + neighborNW_et;
       /*
-	int jetPhi = region->gctPhi() * 4 +
+	int jetPhi = region->hwPhi() * 4 +
 	( - 2 * (neighborS_et + neighborSE_et + neighborSW_et)
 	+ 2 * (neighborN_et + neighborNE_et + neighborNW_et) ) / jetET;
 	if(jetPhi < 0) {
@@ -170,15 +175,15 @@ void makeJets(const std::vector<l1t::CaloRegion> & regions, vector<double> puLev
 	else if(jetPhi >= ((int) N_JET_PHI)) {
 	jetPhi -= N_JET_PHI;
 	}
-	int jetEta = region->gctEta() * 4 +
+	int jetEta = region->hwEta() * 4 +
 	( - 2 * (neighborW_et + neighborNW_et + neighborSW_et)
 	+ 2 * (neighborE_et + neighborNE_et + neighborSE_et) ) / jetET;
 	if(jetEta < 0) jetEta = 0;
 	if(jetEta >= ((int) N_JET_ETA)) jetEta = N_JET_ETA - 1;
       */
       // Temporarily use the region granularity -- we will try to improve as above when code is debugged
-      int jetPhi = region->gctPhi();
-      int jetEta = region->gctEta();
+      int jetPhi = region->hwPhi();
+      int jetEta = region->hwEta();
 
       bool neighborCheck = (nNeighbors == 8);
       // On the eta edge we only expect 5 neighbors
@@ -195,6 +200,6 @@ void makeJets(const std::vector<l1t::CaloRegion> & regions, vector<double> puLev
       jets.push_back(theJet);
     }
   }
-  jets.sort();
-  jets.reverse();
+  //jets.sort();
+  //jets.reverse();
 }
