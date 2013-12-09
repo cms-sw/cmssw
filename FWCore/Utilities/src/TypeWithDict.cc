@@ -161,7 +161,7 @@ TypeWithDict(const type_info& ti, long property /*= 0L*/)
         abort();
       }
       TObject* tobj =
-        Tycl.class_->GetListOfEnums()->FindObject(name().c_str());
+        Tycl.class_->GetListOfEnums()->FindObject(unscopedName().c_str());
       if (tobj == nullptr) {
         // FIXME: Replace this with an exception!
         fprintf(stderr, "TypeWithDict(const type_info&, long): "
@@ -256,7 +256,7 @@ TypeWithDict(TType* ttype, long property /*= 0L*/)
         abort();
       }
       TObject* tobj =
-        Tycl.class_->GetListOfEnums()->FindObject(name().c_str());
+        Tycl.class_->GetListOfEnums()->FindObject(unscopedName().c_str());
       if (tobj == nullptr) {
         // FIXME: Replace this with an exception!
         fprintf(stderr, "TypeWithDict(TType*, long): "
