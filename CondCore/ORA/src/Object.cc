@@ -16,7 +16,7 @@ ora::Object::Object( const void* ptr, const edm::TypeWithDict& type ):
 
 ora::Object::Object( const void* ptr, const std::string& typeName ):
   m_ptr( const_cast<void*>(ptr) ),
-  m_type(Reflex::Type::ByName( typeName )){
+  m_type(edm::TypeWithDict::byName( typeName )){
 }
 
 ora::Object::Object( const Object& rhs):

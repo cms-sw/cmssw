@@ -14,6 +14,7 @@ namespace ora {
     public:
     Object();
     Object( const void* ptr, const edm::TypeWithDict& type );
+    Object( const void* ptr, const std::string& typeName );
     Object( const Object& rhs);
     virtual ~Object();
     Object& operator=( const Object& rhs);
