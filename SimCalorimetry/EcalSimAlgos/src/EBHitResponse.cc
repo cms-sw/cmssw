@@ -112,7 +112,7 @@ EBHitResponse::putAPDSignal( const DetId& detId  ,
 double 
 EBHitResponse::apdSignalAmplitude( const PCaloHit& hit ) const 
 {
-  std::cout << "*** " << hit.depth() << std::endl;
+  //  std::cout << "*** " << hit.depth() << std::endl;
    assert( 1 == hit.depth() ||
 	   2 == hit.depth()    ) ;
 
