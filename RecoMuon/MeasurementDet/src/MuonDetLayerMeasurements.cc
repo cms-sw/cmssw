@@ -46,13 +46,13 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
   static int procInstance(0);
   std::ostringstream sDT;
   sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << procInstance;
-  theDTCheckName = sDT.str();
+  //  theDTCheckName = sDT.str();
   std::ostringstream sRPC;
   sRPC<<"MuonDetLayerMeasurements::checkRPCRecHits::" << procInstance;
-  theRPCCheckName = sRPC.str();
+  //theRPCCheckName = sRPC.str();
   std::ostringstream sCSC;
   sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << procInstance;
-  theCSCCheckName = sCSC.str();
+  //theCSCCheckName = sCSC.str();
   procInstance++;
 }
 

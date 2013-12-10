@@ -41,15 +41,15 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   // Option to write MuIsoDeposit sum into the event
   bool optOutputIsolatorFloat;
 
+
+  // Muon track Collection Label
+  edm::InputTag theSACollectionLabel;
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken;
   // MuIsoExtractor
   reco::isodeposit::IsoDepositExtractor* theExtractor;
 
   // muon isolator 
   muonisolation::MuIsoBaseIsolator * theDepositIsolator;
-
-  // Muon track Collection Label
-  edm::InputTag theSACollectionLabel;
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken;
 
 };
 

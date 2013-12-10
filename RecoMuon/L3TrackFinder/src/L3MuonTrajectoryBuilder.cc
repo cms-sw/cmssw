@@ -76,20 +76,12 @@ L3MuonTrajectoryBuilder::L3MuonTrajectoryBuilder(const edm::ParameterSet& par,
   theTrajectoryCleaner = new TrajectoryCleanerBySharedHits();    
 
   theTkCollName = par.getParameter<edm::InputTag>("tkTrajLabel");
-<<<<<<< HEAD
-<<<<<<< HEAD
   theBeamSpotInputTag = par.getParameter<edm::InputTag>("tkTrajBeamSpot");
   theMaxChi2 = par.getParameter<double>("tkTrajMaxChi2");
   theDXYBeamSpot = par.getParameter<double>("tkTrajMaxDXYBeamSpot");
   theUseVertex = par.getParameter<bool>("tkTrajUseVertex");
   theVertexCollInputTag = par.getParameter<edm::InputTag>("tkTrajVertex");
-=======
   trackToken_ = iC.consumes<reco::TrackCollection>(theTkCollName);
->>>>>>> Adding everyhting
-=======
-  trackToken_ = iC.consumes<reco::TrackCollection>(theTkCollName);
->>>>>>> d063ff6fef6301c2915be5aa2713f31f42aa21f0
-
 }
 
 

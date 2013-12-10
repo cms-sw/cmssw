@@ -20,12 +20,12 @@ using reco::IsoDeposit;
 using namespace muonisolation;
 
 
-MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf) 
+MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf,edm::ConsumesCollector& iC) 
   : theExtractor(0), theIsolator(0)
 {
   edm::ParameterSet extractorPSet = conf.getParameter<edm::ParameterSet>("ExtractorPSet");
   string extractorName = extractorPSet.getParameter<string>("ComponentName"); 
-  theExtractor = IsoDepositExtractorFactory::get()->create(extractorName, extractorPSet,iC);
+  theExtractor = IsoDepositExtractorFactoryFromHelper::get()->create(extractorName, extractorPSet,iC);
   theCut = conf.getUntrackedParameter<double>("Threshold", 0.);
   float coneSize =  conf.getUntrackedParameter<double>("ConeSize", 0.);
   vector<double> weights(1,1.);

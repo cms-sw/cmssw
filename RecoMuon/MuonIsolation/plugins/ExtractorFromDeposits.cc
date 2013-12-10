@@ -15,13 +15,7 @@ using reco::isodeposit::Direction;
 ExtractorFromDeposits::ExtractorFromDeposits( const ParameterSet& par,edm::ConsumesCollector& iC ) :
   theCollectionTag(par.getParameter<edm::InputTag>("IsolationCollectionTag"))
 { 
-
-}
-
-
-void ExtractorFromDeposits::registerProducts(edm::ConsumesCollector& iC) {
   isoToken_ = iC.consumes<reco::IsoDepositMap> (theCollectionTag );
-
 }
 
 void ExtractorFromDeposits::fillVetos (const edm::Event & ev, 

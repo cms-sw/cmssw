@@ -13,7 +13,7 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-TrackExtractor::TrackExtractor( const ParameterSet& par ) :
+TrackExtractor::TrackExtractor( const ParameterSet& par,edm::ConsumesCollector& iC ) :
   theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
@@ -21,25 +21,16 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
   theDR_Max(par.getParameter<double>("DR_Max")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
-  theBeamSpotToken(iC.consumes<reco::BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
+  theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
   theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
   theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
   thePt_Min(par.getParameter<double>("Pt_Min"))
 {
-
-}
-
-void TrackExtractor::registerProducts(edm::ConsumesCollector & iC) {
   trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
   beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
 }
 
-void TrackExtractor::registerProducts(edm::ConsumesCollector & iC) {
-  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
-  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
-
-}
 
 
 reco::IsoDeposit::Vetos TrackExtractor::vetos(const edm::Event & ev,

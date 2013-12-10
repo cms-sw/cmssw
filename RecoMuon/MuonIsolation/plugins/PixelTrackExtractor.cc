@@ -27,7 +27,7 @@ PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par,edm::ConsumesC
   theDR_Max(par.getParameter<double>("DR_Max")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
-  theBeamSpotToken(iC.mayConsume<BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
+  theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
   theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
   theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
@@ -38,25 +38,9 @@ PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par,edm::ConsumesC
   thePtVeto_Min(par.getParameter<double>("PtVeto_Min")),           //! .. it is above this threshold
   theDR_VetoPt(par.getParameter<double>("DR_VetoPt"))              //!.. and is inside this cone
 {
- 
-
-}
-
-
-void PixelTrackExtractor::registerProducts(edm::ConsumesCollector& iC) {
   trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
   beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
-
 }
-
-
-
-void PixelTrackExtractor::registerProducts(edm::ConsumesCollector& iC) {
-  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
-  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
-
-}
-
 
 
 reco::IsoDeposit::Vetos PixelTrackExtractor::vetos(const edm::Event & ev,

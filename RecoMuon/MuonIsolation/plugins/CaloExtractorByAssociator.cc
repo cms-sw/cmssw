@@ -32,7 +32,7 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
+CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, edm::ConsumesCollector& iC) :
   theUseRecHitsFlag(par.getParameter<bool>("UseRecHitsFlag")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDepositInstanceLabels(par.getParameter<std::vector<std::string> >("DepositInstanceLabels")),

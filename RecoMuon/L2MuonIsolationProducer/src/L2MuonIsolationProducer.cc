@@ -49,7 +49,7 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
   //
   edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet,iC);  
+  theExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( extractorName, extractorPSet,iC);  
 
   edm::ParameterSet isolatorPSet = par.getParameter<edm::ParameterSet>("IsolatorPSet");
   bool haveIsolator = !isolatorPSet.empty();

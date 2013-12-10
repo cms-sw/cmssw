@@ -62,11 +62,12 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
 
-
+  edm::ConsumesCollector iC = consumesCollector(); 
 
   if (!theExtractor) {
     edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
     std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
+
     theExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( extractorName, extractorPSet,iC);
     LogDebug(metname)<<" Load extractor..."<<extractorName;
   }

@@ -48,8 +48,8 @@ public:
   void registerProducts(edm::ConsumesCollector &);
 
 private:
-  edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
 
+  edm::InputTag theJetCollectionLabel;
   std::string thePropagatorName;
 
   // Cone cuts and thresholds
@@ -67,6 +67,7 @@ private:
   TrackDetectorAssociator* theAssociator;
 
   bool thePrintTimeReport;
+
   edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
 };
 

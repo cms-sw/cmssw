@@ -18,6 +18,8 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 

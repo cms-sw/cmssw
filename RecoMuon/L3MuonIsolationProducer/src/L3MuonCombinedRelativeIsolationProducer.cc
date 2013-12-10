@@ -71,7 +71,7 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
 
     theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,iC);
+    caloExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( caloExtractorName, caloExtractorPSet,iC);
     //std::string caloDepositType = caloExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
   }
 
@@ -80,8 +80,8 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   edm::ParameterSet trkExtractorPSet = theConfig.getParameter<edm::ParameterSet>("TrkExtractorPSet");
 
   std::string trkExtractorName = trkExtractorPSet.getParameter<std::string>("ComponentName");
-  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet);
-  trkExtractor->registerProducts(iC);
+  trkExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( trkExtractorName, trkExtractorPSet,iC);
+
   
   //std::string trkDepositType = trkExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
 
@@ -114,11 +114,6 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theMaxNTracks = cutsPSet.getParameter<int>("maxNTracks");
   theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
 
-
-<<<<<<< HEAD
-=======
-
->>>>>>> d063ff6fef6301c2915be5aa2713f31f42aa21f0
 }
   
 /// destructor
@@ -128,10 +123,6 @@ L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProduce
   if (trkExtractor) delete trkExtractor;
 }
 
-void L3MuonCombinedRelativeIsolationProducer::beginJob()
-{
-
-}
 
 void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
   std::string metname = "RecoMuon|L3MuonCombinedRelativeIsolationProducer";

@@ -18,7 +18,7 @@ namespace edm { class ParameterSet; }
 
 class MuIsoByTrackPt : public MuIsoBaseAlgorithm {
 public:
-  MuIsoByTrackPt(const edm::ParameterSet& conf);
+  MuIsoByTrackPt(const edm::ParameterSet& conf,edm::ConsumesCollector& iC);
   virtual ~MuIsoByTrackPt();
 
   virtual float isolation(const edm::Event&, const edm::EventSetup&, const reco::Track& muon);
