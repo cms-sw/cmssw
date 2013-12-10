@@ -16,7 +16,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoMET.METProducers.METSigParams_cfi import *
 
 met = cms.EDProducer(
-    "METProducer",
+    "CaloMETProducer",
     METSignificance_params,
     src = cms.InputTag("towerMaker"),
     METType = cms.string('CaloMET'),
@@ -32,7 +32,7 @@ metHO.src = "towerMakerWithHO"
 metHO.alias = 'RawCaloMETHO'
 
 metOpt = cms.EDProducer(
-    "METProducer",
+    "CaloMETProducer",
     METSignificance_params,
     src = cms.InputTag("calotoweroptmaker"),
     METType = cms.string('CaloMET'),
@@ -48,7 +48,7 @@ metOptHO.src = "calotoweroptmakerWithHO"
 metOptHO.alias = 'RawCaloMETOptHO'
 
 metNoHF = cms.EDProducer(
-    "METProducer",
+    "CaloMETProducer",
     METSignificance_params,
     src = cms.InputTag("towerMaker"),
     METType = cms.string('CaloMET'),
@@ -64,7 +64,7 @@ metNoHFHO.src = "towerMakerWithHO"
 metNoHFHO.alias = 'RawCaloMETNoHFHO'
 
 metOptNoHF = cms.EDProducer(
-    "METProducer",
+    "CaloMETProducer",
     METSignificance_params,
     src = cms.InputTag("calotoweroptmaker"),
     METType = cms.string('CaloMET'),
