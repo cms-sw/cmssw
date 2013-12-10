@@ -34,12 +34,12 @@ L1TRate_Offline::L1TRate_Offline(const ParameterSet & ps){
   m_parameters = ps;
 
   // Mapping parameter input variables
-  m_scalersSource_LSCollection       = consumes<LumiScalersCollection>(m_parameters.getParameter                <InputTag>("inputTagScalersResults") );
-  m_scalersSource_L1TSCollection     = consumes<Level1TriggerScalersCollection>(m_parameters.getParameter       <InputTag>("inputTagScalersResults") );
-  m_l1GtDataDaqInputTag = consumes<L1GlobalTriggerReadoutRecord>(m_parameters.getParameter         <InputTag>("inputTagL1GtDataDaq") );
-  m_verbose             = m_parameters.getUntrackedParameter<bool>    ("verbose",false);
-  m_refPrescaleSet      = m_parameters.getParameter         <int>     ("refPrescaleSet");
-  m_lsShiftGTRates      = m_parameters.getUntrackedParameter<int>     ("lsShiftGTRates",0);
+  m_scalersSource_LSCollection   = consumes<LumiScalersCollection>         (m_parameters.getParameter<InputTag>("inputTagScalersResults"));
+  m_scalersSource_L1TSCollection = consumes<Level1TriggerScalersCollection>(m_parameters.getParameter<InputTag>("inputTagScalersResults"));
+  m_l1GtDataDaqInputTag          = consumes<L1GlobalTriggerReadoutRecord>  (m_parameters.getParameter<InputTag>("inputTagL1GtDataDaq"));
+  m_verbose                      = m_parameters.getUntrackedParameter<bool>("verbose",false);
+  m_refPrescaleSet               = m_parameters.getParameter         <int> ("refPrescaleSet");
+  m_lsShiftGTRates               = m_parameters.getUntrackedParameter<int> ("lsShiftGTRates",0);
 
   // Getting which categories to monitor
   ParameterSet Categories     = ps.getParameter<ParameterSet>("categories");
