@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="eregalgo.xml" eval="true">
+		
+		
+	</ConstantsSection>
+	<SolidSection label="eregalgo.xml">
+		<Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-328.85*cm" rMin="172.15*cm" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-310.606*cm" rMin="172.15*cm" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-310.606*cm" rMin="142.0*cm" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-305.756*cm" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMax]"/>
+			<ZSection z=" 305.756*cm" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMax]"/>
+			<ZSection z=" 310.606*cm" rMin="142.0*cm" rMax="[eecon:EBRMax]"/>
+			<ZSection z=" 310.606*cm" rMin="172.15*cm" rMax="[eecon:EBRMax]"/>
+			<ZSection z=" 328.85*cm" rMin="172.15*cm" rMax="[eecon:EBRMax]"/>
+		</Polycone>
+	</SolidSection>
+	<LogicalPartSection label="eregalgo.xml">
+		<LogicalPart name="ECAL" category="unspecified">
+			<rSolid name="ECAL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="eregalgo.xml">
+		<PosPart copyNumber="1">
+			<rParent name="caloBase:CALO"/>
+			<rChild name="eregalgo:ECAL"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

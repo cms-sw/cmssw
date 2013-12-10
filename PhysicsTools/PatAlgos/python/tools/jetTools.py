@@ -131,6 +131,7 @@ class AddJetCollection(ConfigToolBase):
         for x in ["ak", "kt", "sc", "ic"]:
             if jetSource.getModuleLabel().lower().find(x)>-1:
                 _algo=jetSource.getModuleLabel()[jetSource.getModuleLabel().lower().find(x):jetSource.getModuleLabel().lower().find(x)+3]
+                break
 	#print _algo
         ## add new patJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
@@ -351,7 +352,7 @@ class AddJetCollection(ConfigToolBase):
                             raise TypeError, "In addJetCollection: L1FastJet corrections are only supported for PF and Calo jets."
                         ## configure module
                         _newPatJetCorrFactors.useRho=True
-                        _newPatJetCorrFactors.rho=cms.InputTag('kt6'+_type+'Jets', 'rho')
+                        _newPatJetCorrFactors.rho=cms.InputTag('kt6PFJets', 'rho')
                         ## we set this to True now as a L1 correction type should appear only once
                         ## otherwise levels is miss configured
                         error=True
@@ -391,9 +392,9 @@ class AddJetCollection(ConfigToolBase):
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloJetMETcorr
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloType1CorrectedMet
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloType1p2CorrectedMet
-                    setattr(process,jetCorrections[0]+'JetMETcorr'+postfix, caloJetMETcorr.clone(src=jetSource,srcMET = "corMetGlobalMuons",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector'+postfix)))
-                    setattr(process,jetCorrections[0]+'Type1CorMet'+postfix, caloType1CorrectedMet.clone(src = "corMetGlobalMuons"+postfix,srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr'+postfix, 'type1'))))
-                    setattr(process,jetCorrections[0]+'Type1p2CorMet'+postfix,caloType1p2CorrectedMet.clone(src = "corMetGlobalMuons"+postfix,srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr'+postfix, 'type1')),srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+'JetMETcorr'+postfix, 'offset'),cms.InputTag('muonCaloMETcorr'+postfix))))
+                    setattr(process,jetCorrections[0]+'JetMETcorr'+postfix, caloJetMETcorr.clone(src=jetSource,srcMET = "corMetGlobalMuons",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector')))
+                    setattr(process,jetCorrections[0]+'Type1CorMet'+postfix, caloType1CorrectedMet.clone(src = "corMetGlobalMuons",srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr'+postfix, 'type1'))))
+                    setattr(process,jetCorrections[0]+'Type1p2CorMet'+postfix,caloType1p2CorrectedMet.clone(src = "corMetGlobalMuons",srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr'+postfix, 'type1')),srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+'JetMETcorr'+postfix, 'offset'),cms.InputTag('muonCaloMETcorr'))))
 
                 elif _type == 'PF':
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandsNotInJet
@@ -410,15 +411,16 @@ class AddJetCollection(ConfigToolBase):
                 ## common configuration for Calo and PF
                 if ('L1FastJet' in jetCorrections[1] or 'L1Fastjet' in jetCorrections[1]):
                     getattr(process,jetCorrections[0]+'JetMETcorr'+postfix).offsetCorrLabel = cms.string(jetCorrections[0]+'L1FastJet')
-                elif ('L1Offset' in jetCorrections[1]):
-                    getattr(process,jetCorrections[0]+'JetMETcorr'+postfix).offsetCorrLabel = cms.string(jetCorrections[0]+'L1Offset')
+                #FIXME: What is wrong here?
+                #elif ('L1Offset' in jetCorrections[1]):
+                    #getattr(process,jetCorrections[0]+'JetMETcorr'+postfix).offsetCorrLabel = cms.string(jetCorrections[0]+'L1Offset')
                 else:
                     getattr(process,jetCorrections[0]+'JetMETcorr'+postfix).offsetCorrLabel = cms.string('')
 
                 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
                 if jetCorrections[2].lower() == 'type-1':
                     setattr(process, 'patMETs'+_labelName+postfix, patMETs.clone(metSource = cms.InputTag(jetCorrections[0]+'Type1CorMet'+postfix), addMuonCorrections = False))
-                elif jetCorrections[2].lower() == 'type-1':
+                elif jetCorrections[2].lower() == 'type-2':
                     setattr(process, 'patMETs'+_labelName+postfix, patMETs.clone(metSource = cms.InputTag(jetCorrections[0]+'Type1p2CorMet'+postfix), addMuonCorrections = False))
         else:
             ## switch jetCorrFactors off

@@ -12,7 +12,7 @@
 #include "Rivet/Analysis.hh"
 #include "Rivet/RivetAIDA.hh"
 #include "LWH/AIManagedObject.h"
-#include "tinyxml.h"
+#include "FWCore/Utilities/interface/tinyxml.h" 
 
 #include <string>
 #include <vector>

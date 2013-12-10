@@ -10,7 +10,7 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     timeCalibrationOffset = cms.double(19.9),
     averageClusterSize = cms.double(1.5),
     averageEfficiency = cms.double(0.98),
-    averageNoiseRate = cms.double(0.0), #intrinsic noise
+    averageNoiseRate = cms.double(0.001), #intrinsic noise
     numberOfStripsPerPartition = cms.int32(384),
     bxwidth = cms.int32(25),
     minBunch = cms.int32(-5), ## in terms of 25 ns
@@ -21,6 +21,8 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
 #    neutronGammaRoll = cms.vdouble(18., 23., 30., 39., 45., 52., 62., 76)#, #n and gamma bkg per roll
     neutronGammaRoll = cms.vdouble(69.3, 74.0, 101.7, 121.1, 145.5, 143.8, 199.1, 314.1), #n, gamma and charged prtcls bkg per roll
     doNoiseCLS = cms.bool(True),
-    minPabsNoiseCLS = cms.double(0.)
+    minPabsNoiseCLS = cms.double(0.), #do cls>=1 for the particles with |p|> minPabsNoiseCLS
+    simulateIntrinsicNoise = cms.bool(False),
+    scaleLumi = cms.double(1.)
 
 )

@@ -12,6 +12,13 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
    nEntries = -1;
    nPrintStatusEvery = 10000;
    isRealData= false;
+   isCounts= false;
+   useINPATH_INFILE = false;
+   isMCPUreweight = false;
+   MCPUfile = "";
+   DataPUfile = "";
+   MCPUhisto = "";
+   DataPUhisto = "";
    menuTag = "";
    preFilterLogicString = "";
    versionTag = "";
@@ -20,6 +27,8 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
    useNonIntegerPrescales = false;
    readRefPrescalesFromNtuple = false;
    nonlinearPileupFit = "";
+   alcaCondition = "";
+   lumiBinsForPileupFit = 150;
    dsList = "";
    iLumi = 1.E31;
    bunchCrossingTime = 25.0E-09;
@@ -54,6 +63,13 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
       cfg.lookupValue("run.nPrintStatusEvery",nPrintStatusEvery);
       cfg.lookupValue("run.isRealData",isRealData);
       omenu->SetIsRealData(isRealData);
+      cfg.lookupValue("run.isCounts",isCounts);
+      cfg.lookupValue("run.useINPATH_INFILE",useINPATH_INFILE);
+      cfg.lookupValue("run.isMCPUreweight",isMCPUreweight);
+      cfg.lookupValue("run.MCPUfile",stmp); MCPUfile = TString(stmp);
+      cfg.lookupValue("run.DataPUfile",stmp); DataPUfile = TString(stmp);
+      cfg.lookupValue("run.MCPUhisto",stmp); MCPUhisto = TString(stmp);
+      cfg.lookupValue("run.DataPUhisto",stmp); DataPUhisto = TString(stmp);
       cfg.lookupValue("run.menuTag",stmp); menuTag = TString(stmp);
       cfg.lookupValue("run.versionTag",stmp); versionTag = TString(stmp);
       cfg.lookupValue("run.doPrintAll",doPrintAll);
@@ -62,6 +78,8 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
       cfg.lookupValue("run.useNonIntegerPrescales",useNonIntegerPrescales);
       cfg.lookupValue("run.readRefPrescalesFromNtuple",readRefPrescalesFromNtuple);
       cfg.lookupValue("run.nonlinearPileupFit",stmp); nonlinearPileupFit = TString(stmp);
+      cfg.lookupValue("run.alcaCondition",stmp); alcaCondition = TString(stmp);
+      cfg.lookupValue("run.lumiBinsForPileupFit",lumiBinsForPileupFit);
       cout << "General Menu & Run conditions...ok"<< endl;
       /**********************************/
 
@@ -102,14 +120,17 @@ OHltConfig::OHltConfig(TString cfgfile, OHltMenu *omenu)
          pnames.push_back(TString(stmp));
          itmp = isPS[i];
          pisPhysicsSample.push_back(itmp);
-         stmp = pa[i];
+	 if (useINPATH_INFILE == true) stmp = getenv("INPATH");
+         else stmp = pa[i];
          // LA add trailing slash to directories if missing
          string ppath = stmp;
          string lastChar=ppath.substr(ppath.size()-1);
          if (lastChar.compare("/") != 0 ) ppath.append("/");
 
+
          ppaths.push_back(TString(ppath));
-         stmp = fn[i];
+	 if (useINPATH_INFILE == true) stmp = getenv("INFILE");
+         else stmp = fn[i];
          pfnames.push_back(TString(stmp));
          ftmp = xs[i];
          psigmas.push_back(ftmp);
@@ -370,11 +391,19 @@ void OHltConfig::print()
          cout << "Luminosity scaled by: " << lumiScaleFactor << endl;
       cout << "PD prescale factor: " << prescaleNormalization << endl;
    }
+   cout << "isCounts: " << isCounts << endl;
+   cout << "isMCPUreweight: " << isMCPUreweight << endl;
+   if (isMCPUreweight == true) 
+     {
+       cout << "MCPUfile: " << MCPUfile << endl;
+       cout << "DataPUfile: " << DataPUfile << endl;
+     }
    cout << "doPrintAll: " << doPrintAll << endl;
    cout << "doDeterministicPrescale: " << doDeterministicPrescale << endl;
    cout << "useNonIntegerPrescales: " << useNonIntegerPrescales << endl;
    cout << "readRefPrescalesFromNtuple: " << readRefPrescalesFromNtuple << endl;
    cout << "nonlinearPileupFit: " << nonlinearPileupFit << endl;
+   cout << "lumiBinsForPileupFit: " << lumiBinsForPileupFit << endl;
    cout << "preFilterLogicString: " << preFilterLogicString << endl;
    cout << "---------------------------------------------" << endl;
    cout << "iLumi: " << iLumi << endl;

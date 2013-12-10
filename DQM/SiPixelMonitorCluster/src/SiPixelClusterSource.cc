@@ -144,7 +144,8 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
 {
   eventNo++;
   
-  if(modOn && !isUpgrade){
+  //if(modOn && !isUpgrade){
+  if(!isUpgrade){
     MonitorElement* meReset = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
     MonitorElement* meReset1 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_2");
     MonitorElement* meReset2 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");
@@ -161,7 +162,8 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
       meReset5->Reset();
       meReset6->Reset();
     }
-  }else if(modOn && isUpgrade){
+  //}else if(modOn && isUpgrade){
+  }else if(isUpgrade){
     MonitorElement* meReset = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
     MonitorElement* meReset1 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_2");
     MonitorElement* meReset2 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");

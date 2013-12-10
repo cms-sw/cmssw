@@ -19,17 +19,16 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    #allowUnscheduled = cms.untracked.bool(True), # What happens to the Looper?
+    wantSummary = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
@@ -45,6 +44,8 @@ from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeSaver_cff 
 process.looper = looper
 
 ## produce pat objects and ttGenEvt and make mva training
-process.p = cms.Path(process.patDefaultSequence *
+process.p = cms.Path(process.particleFlowPtrs *
+                     process.patCandidates *
+                     process.selectedPatCandidates *
                      process.makeGenEvt *
                      process.saveTrainTree)

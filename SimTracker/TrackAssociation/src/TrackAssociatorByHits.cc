@@ -18,6 +18,7 @@
 //TrackingParticle
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 //##---new stuff
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -41,7 +42,8 @@ TrackAssociatorByHits::TrackAssociatorByHits (const edm::ParameterSet& conf) :
   UsePixels(conf_.getParameter<bool>("UsePixels")),
   UseGrouped(conf_.getParameter<bool>("UseGrouped")),
   UseSplitting(conf_.getParameter<bool>("UseSplitting")),
-  ThreeHitTracksAreSpecial(conf_.getParameter<bool>("ThreeHitTracksAreSpecial"))
+  ThreeHitTracksAreSpecial(conf_.getParameter<bool>("ThreeHitTracksAreSpecial")),
+  _simHitTpMapTag(conf_.getParameter<edm::InputTag>("simHitTpMapTag"))
 {
   std::string tmp = conf_.getParameter<string>("SimToRecoDenominator");
   if (tmp=="sim") {
@@ -172,6 +174,10 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
   //    LogTrace("TrackAssociator") << "(*g4T).trackId()=" <<(*g4T).trackId() ;
   //  }
   //}
+
+  edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;
+  //warning: make sure the TP collection used in the map is the same used in the associator!
+  e->getByLabel(_simHitTpMapTag,simHitsTPAssoc);
   
   //get the ID of the recotrack  by hits 
   int tindex=0;
@@ -188,10 +194,8 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
       for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	idcachev.clear();
 	float totsimhit = 0; 
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-  const TrackerTopology *tTopo=tTopoHand.product();
-        std::vector<PSimHit> trackerPSimHit( t->trackPSimHit(DetId::Tracker) );
+	const TrackerTopology *tTopo=tTopoHand.product();
+
         //int nsimhit = trackerPSimHit.size();
 	std::vector<PSimHit> tphits;
 	//LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
@@ -209,7 +213,14 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
 
 	  //count the TP simhit
 	  //LogTrace("TrackAssociator") << "recounting of tp hits";
-	  for(std::vector<PSimHit>::const_iterator TPhit = trackerPSimHit.begin(); TPhit != trackerPSimHit.end(); TPhit++){
+
+	  std::pair<TrackingParticleRef, TrackPSimHitRef> 
+	    clusterTPpairWithDummyTP(TrackingParticleRef(TPCollectionH,t-tPC.begin()),TrackPSimHitRef());//SimHit is dummy: for simHitTPAssociationListGreater 
+	                                                                                                 // sorting only the cluster is needed
+	  auto range = std::equal_range(simHitsTPAssoc->begin(), simHitsTPAssoc->end(), 
+					clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
+	  for(auto ip = range.first; ip != range.second; ++ip) {
+	    TrackPSimHitRef TPhit = ip->second;
 	    DetId dId = DetId(TPhit->detUnitId());
 	  
 	    unsigned int subdetId = static_cast<unsigned int>(dId.subdetId());
@@ -260,9 +271,6 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
 	  }
 	  totsimhit = tphits.size();
 	}
-#else
-	totsimhit = t->numberOfTrackerLayers();
-#endif
 
 	if (AbsoluteNumberOfHits) quality = static_cast<double>(nshared);
 	else if(SimToRecoDenominator == denomsim && totsimhit!=0) quality = ((double) nshared)/((double)totsimhit);

@@ -59,7 +59,6 @@ protected:
 
    TEveBoxSet* addBoxSetToProduct(TEveElementList* product);
    void addBox(TEveBoxSet* set, const float* pnts, const FWDisplayProperties& dp);
-   TEveBoxSet* getBoxSet() const { return m_boxSet; } 
 
 private:
    FWDigitSetProxyBuilder(const FWDigitSetProxyBuilder&); // stop default
@@ -74,7 +73,6 @@ private:
 
    TEveDigitSet* digitSet(TEveElement* product);
 
-   TEveBoxSet* m_boxSet;	
 };
 
 

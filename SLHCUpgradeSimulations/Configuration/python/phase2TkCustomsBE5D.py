@@ -295,6 +295,10 @@ def customise_Validation(process,pileup):
         process.mix.minBunch = cms.int32(0)
         process.mix.maxBunch = cms.int32(0)
 
+    if hasattr(process,'simHitTPAssocProducer'):    
+        process.simHitTPAssocProducer.simHitSrc=cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
+                                                              cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"))
+
     return process
 
 def customise_harvesting(process):
