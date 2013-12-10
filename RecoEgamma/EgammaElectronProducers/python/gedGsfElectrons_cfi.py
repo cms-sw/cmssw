@@ -3,6 +3,46 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
+from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
+
+gedelectronGBRESSource = cms.ESSource(
+    "PoolDBESSource",
+    CondDBCommon,
+    DumpStat=cms.untracked.bool(False),
+    toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_EBCorrection_offline'),
+    label = cms.untracked.string('gedelectron_EBCorrection_offline')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_EECorrection_offline'),
+    label = cms.untracked.string('gedelectron_EECorrection_offline')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_EBUncertainty_offline'),
+    label = cms.untracked.string('gedelectron_EBUncertainty_offline')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_EEUncertainty_offline'),
+    label = cms.untracked.string('gedelectron_EEUncertainty_offline')
+    ),
+    )
+)
+gedelectronGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
+
+gedelectronPrefer = cms.ESPrefer(
+    'PoolDBESSource',
+    'gedelectronGBRESSource',
+    GBRWrapperRcd = cms.vstring('GBRForest/gedelectron_EBCorrection_offline',
+                                'GBRForest/gedelectron_EECorrection_offline',
+                                'GBRForest/gedelectron_EBUncertainty_offline',
+                                'GBRForest/gedelectron_EEUncertainty_offline')
+)
+
 gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 
     # input collections
@@ -41,7 +81,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     ambSortingStrategy = cms.uint32(1),
     ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True), # this one should be transfered to the "core" level
-    useEcalRegression = cms.bool(False),
+    useEcalRegression = cms.bool(True),
     useCombinationRegression = cms.bool(False),                                    
     
     # preselection parameters (ecal driven electrons)
@@ -145,13 +185,16 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
 
    # regression. The labels are needed in all cases
-   ecalRefinedRegressionWeightLabels = cms.vstring(),
+   ecalRefinedRegressionWeightLabels = cms.vstring('gedelectron_EBCorrection_offline',
+                                                   'gedelectron_EECorrection_offline',
+                                                   'gedelectron_EBUncertainty_offline',
+                                                   'gedelectron_EEUncertainty_offline'),
    combinationRegressionWeightLabels = cms.vstring(),
    
    ecalWeightsFromDB = cms.bool(True),
    # if not from DB. Otherwise, keep empty
    ecalRefinedRegressionWeightFiles = cms.vstring(),
-   combinationWeightsFromDB = cms.bool(True),
+   combinationWeightsFromDB = cms.bool(False),
    # if not from DB. Otherwise, keep empty
    combinationRegressionWeightFile = cms.vstring(),                              
  
