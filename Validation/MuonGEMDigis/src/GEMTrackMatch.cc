@@ -6,26 +6,14 @@
 #include <TMath.h>
 #include <TH1F.h>
 
-const float PI=TMath::Pi();
 
 
-struct MySimTrack
-{
-  Float_t pt, eta, phi;
-  Char_t gem_sh_layer1, gem_sh_layer2;
-  Char_t gem_dg_layer1, gem_dg_layer2;
-  Char_t gem_pad_layer1, gem_pad_layer2;
-  Float_t gem_lx_even, gem_ly_even;
-  Float_t gem_lx_odd, gem_ly_odd;
-  Char_t has_gem_dg_l1, has_gem_dg_l2;
-  Char_t has_gem_pad_l1, has_gem_pad_l2;
-  Char_t has_gem_sh_l1, has_gem_sh_l2;
-};
 
 
 
 GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
 {
+   const float PI=TMath::Pi();
    cfg_= cfg; 
    simInputLabel_= simInputLabel;
    dbe_= dbe;
@@ -102,6 +90,7 @@ GEMTrackMatch::~GEMTrackMatch() {
 
 bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
 {
+
   // SimTrack selection
   if (t.noVertex())   return false; 
   if (t.noGenpart()) return false;
@@ -109,12 +98,14 @@ bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
   if (t.momentum().pt() < 5 ) return false;
   float eta = fabs(t.momentum().eta());
   if (eta > maxEta_ || eta < minEta_ ) return false; // no GEMs could be in such eta
+
   return true;
 }
 
 
 void GEMTrackMatch::buildLUT()
 {
+  
   const int maxChamberId_ = GEMDetId().maxChamberId; 
   std::vector<int> pos_ids;
   pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,1).rawId());
@@ -134,6 +125,7 @@ void GEMTrackMatch::buildLUT()
   }
   positiveLUT_ = std::make_pair(phis,pos_ids);
   negativeLUT_ = std::make_pair(phis,neg_ids);
+
 }
 
 
@@ -153,23 +145,35 @@ void GEMTrackMatch::setGeometry(const GEMGeometry* geom)
   radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
   chamberHeight_ = gp_top.perp() - gp_bottom.perp();
 
-  std::cout<<"radiusCenter"<<radiusCenter_<<std::endl;
 }  
 
 
 std::pair<int,int> GEMTrackMatch::getClosestChambers(int region, float phi)
 {
+  
   auto& phis(positiveLUT_.first);
   auto upper = std::upper_bound(phis.begin(), phis.end(), phi);
-//  std::cout << "lower = " << upper - phis.begin() << std::endl;
-//  std::cout << "upper = " << upper - phis.begin() + 1 << std::endl;
   auto& LUT = (region == 1 ? positiveLUT_.second : negativeLUT_.second);
+
+
   return std::make_pair(LUT.at(upper - phis.begin()), (LUT.at((upper - phis.begin() + 1)%36)));
 }
 
 
 void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  struct MySimTrack
+  {
+    Float_t pt, eta, phi;
+    Char_t gem_sh_layer1, gem_sh_layer2;
+    Char_t gem_dg_layer1, gem_dg_layer2;
+    Char_t gem_pad_layer1, gem_pad_layer2;
+    Float_t gem_lx_even, gem_ly_even;
+    Float_t gem_lx_odd, gem_ly_odd;
+    Char_t has_gem_dg_l1, has_gem_dg_l2;
+    Char_t has_gem_pad_l1, has_gem_pad_l2;
+    Char_t has_gem_sh_l1, has_gem_sh_l2;
+  };
   MySimTrack track_;
 
   iEvent.getByLabel(simInputLabel_, sim_tracks);
@@ -178,6 +182,7 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
 
+
   for (auto& t: sim_trks)
   {
     if (!isSimTrackGood(t)) 
@@ -185,7 +190,7 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //{ printf("skip!!\n"); continue; }
     
     // match hits and digis to this SimTrack
-    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+    SimTrackDigiMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
 
     const SimHitMatcher& match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();
@@ -224,9 +229,12 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
 
+
     // ** GEM Digis, Pads and CoPads ** //
 
+
     auto gem_dg_ids_ch = match_gd.chamberIds();
+
     for(auto d: gem_dg_ids_ch)
     {
       GEMDetId id(d);

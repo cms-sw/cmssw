@@ -66,7 +66,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/MuonGEMDigis/interface/SimTrackMatchManager.h"
+#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
 
 
 
@@ -136,12 +136,8 @@ MuonGEMDigis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   theGEMStripDigiValidation->analyze(iEvent,iSetup );  
   theGEMCSCPadDigiValidation->analyze(iEvent,iSetup );  
   theGEMCSCCoPadDigiValidation->analyze(iEvent,iSetup );  
-
- 
-  
-
   theGEMTrackMatch->analyze(iEvent,iSetup) ;
-
+  
 
 }
 

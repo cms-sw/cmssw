@@ -14,7 +14,6 @@
 
 #include "Validation/MuonGEMDigis/interface/BaseMatcher.h"
 #include "Validation/MuonGEMDigis/interface/SimHitMatcher.h"
-#include "Validation/MuonGEMDigis/interface/GEMDigiMatcher.h"
 
 class SimTrackMatchManager
 {
@@ -26,12 +25,10 @@ public:
   ~SimTrackMatchManager();
 
   const SimHitMatcher& simhits() const {return simhits_;}
-  const GEMDigiMatcher& gemDigis() const {return gem_digis_;}
   
 private:
 
   SimHitMatcher simhits_;
-  GEMDigiMatcher gem_digis_;
 };
 
 #endif

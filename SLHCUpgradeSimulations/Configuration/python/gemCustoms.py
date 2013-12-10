@@ -70,14 +70,18 @@ def customise_DigiPreValidation(process):
     return process
 
 def customise_DigiValidation(process):
+    process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
     process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
-    process.validation = cms.Sequence( process.gemDigiValidation )
+    process.validation  = cms.Sequence( process.gemHitsValidation)
+    process.validation += cms.Sequence( process.gemDigiValidation )
     process.validation_step = cms.EndPath(process.validation)
     process = scheduleOrdering(process)
     return process
 
 def customise_Validation(process):
+    process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
     process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
+    process.validation += cms.Sequence( process.gemHitsValidation)
     process.validation += cms.Sequence( process.gemDigiValidation )
     process.validation_step = cms.EndPath( process.validation )
     process = scheduleOrdering(process)
