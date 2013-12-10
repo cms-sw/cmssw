@@ -143,3 +143,4 @@ convLayerPairs.TOB6.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHit")
 
 from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
 hbhereco.hbheInput= cms.InputTag("hbheprereco::SPLIT")
+
