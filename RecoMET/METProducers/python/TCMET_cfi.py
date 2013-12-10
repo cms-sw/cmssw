@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Form Track Corrected MET
 
-tcMet = cms.EDProducer("METProducer",
+tcMet = cms.EDProducer("TCMETProducer",
                        src = cms.InputTag("towerMaker"), #This parameter does not get used for TCMET
                        METType = cms.string('TCMET'),
                        alias = cms.string('TCMET'),
