@@ -228,12 +228,6 @@ PFEGammaProducer::beginRun(const edm::Run & run,
 
 
   //pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
-  setPFPhotonRegWeights(ReaderLCEB_,
-			ReaderLCEE_,
-			ReaderGCBarrel_,
-			ReaderGCEndCapHighr9_, 
-			ReaderGCEndCapLowr9_, 
-			ReaderEcalRes_ );
     
 }
 
@@ -486,18 +480,6 @@ void PFAlgo::setPFPhotonRegWeights(
     pfpho_->setGBRForest(LCorrForest, GCorrForest, ResForest);
 } 
 */
-void PFEGammaProducer::setPFPhotonRegWeights(
-                                   const GBRForest *LCorrForestEB,
-                                   const GBRForest *LCorrForestEE,
-                                   const GBRForest *GCorrForestBarrel,
-                                   const GBRForest *GCorrForestEndcapHr9,
-                                   const GBRForest *GCorrForestEndcapLr9,
-				   const GBRForest *PFEcalResolution
-                                   ){  
-  pfeg_->setGBRForest(LCorrForestEB,LCorrForestEE,
-		      GCorrForestBarrel, GCorrForestEndcapHr9, 
-		      GCorrForestEndcapLr9, PFEcalResolution);
-}
 
 void
 PFEGammaProducer::setPFVertexParameters(bool useVertex,
