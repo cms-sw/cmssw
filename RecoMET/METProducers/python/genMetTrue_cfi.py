@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Form Missing ET from Generator Information and store into event as a GenMET
 # product.  Exclude only invisible final state particles like neutrinos. 
-genMetTrue = cms.EDProducer("METProducer",
+genMetTrue = cms.EDProducer("GenMETProducer",
                             src = cms.InputTag("genParticlesForMETAllVisible"), ## Input  product label		  
                             
                             METType = cms.string('GenMET'), ## Output MET type		  
