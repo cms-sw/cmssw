@@ -55,9 +55,12 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
   maxHDe[0] = pset.getParameter<int>("maxHBe");
   maxHDe[1] = pset.getParameter<int>("maxHEe");
   maxHDe[2] = pset.getParameter<int>("maxHFe");
+  maxHDe[3] = pset.getParameter<int>("maxHFlowe");
+
   eGridHD[0] = pset.getParameter<vec1>("eGridHB");
   eGridHD[1] = pset.getParameter<vec1>("eGridHE");
   eGridHD[2] = pset.getParameter<vec1>("eGridHF");
+  eGridHD[3] = pset.getParameter<vec1>("loweGridHF");
   
   //region eta indices calculated from eta values
   etaStep = pset.getParameter<double>("etaStep");
@@ -101,6 +104,21 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
 	  }
 	}
   }
+//set up Poisson parameters for low energy Hadrons in HF
+//----------------------------------------------------------------------
+  PoissonParameters= vec3(4);
+  std::string PoissonParName[] = {"mean_overall","shift_overall","mean_between","shift_between"};
+    for(int d = 0; d < 4; d++){ //loop over Poisson parameteres
+     vec1 tmp1 = pset.getParameter<vec1>(PoissonParName[d]);
+        for(int i = 0; i < maxHDe[3]; i++){ //loop over energy for low HF energy points
+        PoissonParameters[d].resize(maxHDe[3]);
+           for(int j = 0; j < maxHDetas[2]; j++){ //loop over HF eta points
+           PoissonParameters[d][i].resize(maxHDetas[2]);
+           PoissonParameters[d][i][j]= tmp1[i*maxHDetas[2] + j];
+           }
+        }
+     }
+
 
 //MIP fraction fill in 3d vector
 ////--------------------------------------------------------------------
@@ -267,6 +285,16 @@ double HCALResponse::responseHCAL(int _mip, double energy, double eta, int party
       }
       if(ie == -1) ie = maxHDe[det] - 2; // more than maximum - extrapolation with last interval
       
+//different energy smearing for low energy hadrons in HF
+      if(det==2 && energy <20 && deta>5){
+      for (int i = 0; i < maxHDe[3]; i++) {
+      if(energy < eGridHD[3][i])  {
+            if(i == 0) ie = 0; // less than minimal - back extrapolation with the 1st interval
+            else  ie = i-1;
+            break;
+            }
+      }
+    }
 	  //do smearing
       mean = interHD(mip, energy, ie, deta, det, random);
   }
@@ -360,54 +388,69 @@ double HCALResponse::interMU(double e, int ie, int ieta, RandomEngineAndDistribu
 }
 
 double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const* random) {
+  double x1, x2;
   double y1, y2;
   if(det==2) mip=2; //ignore mip status for HF 
-
-  double x1 = eGridHD[det][ie];
-  double x2 = eGridHD[det][ie+1];
-  
+  double mean = 0;
   vec1 pars(nPar,0);
 
-  //calculate all parameters
-  for(int p = 0; p < nPar; p++){
-	y1 = parameters[p][mip][det][ie][ieta];
-	y2 = parameters[p][mip][det][ie+1][ieta];
+  if (det==2 && ieta>5 && e<20){
 
-	//par-specific checks
-	double custom = 0;
-	bool use_custom = false;
-	
-	//do not let mu or sigma get extrapolated below zero for low energies
-	//especially important for HF since extrapolation is used for E < 15 GeV
-	if((p==0 || p==1) && e < x1){
-		double tmp = (y1*x2-y2*x1)/(x2-x1); //extrapolate down to e=0
-		if(tmp<0) { //require mu,sigma > 0 for E > 0
-			custom = y1*e/x1;
-			use_custom = true;
-		}
-	}
-	//tail parameters have lower bounds - never extrapolate down
-	else if((p==2 || p==3 || p==4 || p==5)){
-		if(e < x1 && y1 < y2){
-			custom = y1;
-			use_custom = true;
-		}
-		else if(e > x2 && y2 < y1){
-			custom = y2;
-			use_custom = true;
-		}
-	}
-	
-	//linear interpolation
-	if(use_custom) pars[p] = custom;
-	else pars[p] = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
+    x1 = eGridHD[det+1][ie];
+    x2 = eGridHD[det+1][ie+1];
+    for(int p = 0; p < 4; p++){
+      y1=PoissonParameters[p][ie][ieta];
+      y2=PoissonParameters[p][ie+1][ieta];
+      if(e>5)pars[p] = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
+      else pars[p] = y1;
+    }
+    mean =random->poissonShoot((int (PoissonShootNoNegative(pars[0],pars[1],random))+(int (PoissonShootNoNegative(pars[2],pars[3],random)))/4+random->flatShoot()/4) *6)/(0.3755*6);
   }
-  
-  //random smearing
-  double mean = 0;
-  if(nPar==6) mean = cballShootNoNegative(pars[0],pars[1],pars[2],pars[3],pars[4],pars[5], random);
-  else if(nPar==2) mean = gaussShootNoNegative(pars[0],pars[1], random); //gaussian fallback
 
+  else{
+    
+    x1 = eGridHD[det][ie];
+    x2 = eGridHD[det][ie+1];
+    
+    //calculate all parameters
+    for(int p = 0; p < nPar; p++){
+      y1 = parameters[p][mip][det][ie][ieta];
+      y2 = parameters[p][mip][det][ie+1][ieta];
+      
+      //par-specific checks
+      double custom = 0;
+      bool use_custom = false;
+      
+      //do not let mu or sigma get extrapolated below zero for low energies
+      //especially important for HF since extrapolation is used for E < 15 GeV
+      if((p==0 || p==1) && e < x1){
+	double tmp = (y1*x2-y2*x1)/(x2-x1); //extrapolate down to e=0
+	if(tmp<0) { //require mu,sigma > 0 for E > 0
+	  custom = y1*e/x1;
+	  use_custom = true;
+	}
+      }
+      //tail parameters have lower bounds - never extrapolate down
+      else if((p==2 || p==3 || p==4 || p==5)){
+	if(e < x1 && y1 < y2){
+	  custom = y1;
+	  use_custom = true;
+	}
+	else if(e > x2 && y2 < y1){
+	  custom = y2;
+	  use_custom = true;
+	}
+      }
+      
+      //linear interpolation
+      if(use_custom) pars[p] = custom;
+      else pars[p] = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
+    }
+    
+    //random smearing
+    if(nPar==6) mean = cballShootNoNegative(pars[0],pars[1],pars[2],pars[3],pars[4],pars[5], random);
+    else if(nPar==2) mean = gaussShootNoNegative(pars[0],pars[1], random); //gaussian fallback
+  }
   return mean;
 }
 
@@ -507,3 +550,13 @@ double HCALResponse::cballShootNoNegative(double mu, double sigma, double aL, do
 
   return out;
 }
+double HCALResponse::PoissonShootNoNegative(double e, double sigma,RandomEngineAndDistribution const* random) {
+  double out = -1;
+    while (out < 0.) {
+    out = random->poissonShoot(e);
+    out = out + sigma;
+    }
+  return out;
+
+}
+
