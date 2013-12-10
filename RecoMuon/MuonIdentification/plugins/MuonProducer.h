@@ -120,8 +120,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<reco::MuonShower> > theShowerMapToken_;
 
   edm::InputTag theCosmicCompMapName;
-  edm::EDGetTokenT<edm::ValueMap<unsigned int> > theCosmicCompMapToken_;
-
+  edm::EDGetTokenT<edm::ValueMap<unsigned int> > theCosmicIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonCosmicCompatibility> > theCosmicCompMapToken_;
   std::string theMuToMuMapName;
 
   MuPFIsoHelper *thePFIsoHelper;

@@ -103,7 +103,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   
   if(fillCosmicsIdMap_){
     theCosmicCompMapName = pSet.getParameter<edm::InputTag>("CosmicIdMap");
-    theCosmicCompMapToken_ = consumes<edm::ValueMap<unsigned int> >(theCosmicCompMapName);
+    theCosmicIdMapToken_ = consumes<edm::ValueMap<unsigned int> >(theCosmicCompMapName);
+    theCosmicCompMapToken_ = consumes<edm::ValueMap<reco::MuonCosmicCompatibility> >(theCosmicCompMapName);
 
     produces<edm::ValueMap<reco::MuonCosmicCompatibility> >(labelOrInstance(theCosmicCompMapName));
     produces<edm::ValueMap<unsigned int> >(labelOrInstance(theCosmicCompMapName));
@@ -278,7 +279,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    std::vector<reco::MuonShower> showerInfoColl(nMuons);
 
    edm::Handle<edm::ValueMap<unsigned int> > cosmicIdMap;
-   if(fillCosmicsIdMap_) event.getByToken(theCosmicCompMapToken_,cosmicIdMap);
+   if(fillCosmicsIdMap_) event.getByToken(theCosmicIdMapToken_,cosmicIdMap);
    std::vector<unsigned int> cosmicIdColl(fillCosmicsIdMap_ ? nMuons : 0);
    
    edm::Handle<edm::ValueMap<reco::MuonCosmicCompatibility> > cosmicCompMap;
