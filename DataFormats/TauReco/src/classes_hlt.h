@@ -7,6 +7,13 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDecayMode.h"
+#include "DataFormats/TauReco/interface/RecoTauPiZero.h"
+#include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/CaloTauDiscriminatorAgainstElectron.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminatorByIsolation.h"
+#include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Ptr.h"
@@ -16,11 +23,20 @@
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
+#include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
+#include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
+#include "DataFormats/TauReco/interface/PFJetChargedHadronAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
+#include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
+#include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
+
 
 #include <vector>
 #include <map>
+#include "TLorentzVector.h"
 
-namespace DataFormats_TauReco {
+namespace DataFormats_TauReco{
   struct dictionaryhlt {
     //Needed only in HLT-Open
     std::vector<reco::HLTTau>                                  ht_v;
