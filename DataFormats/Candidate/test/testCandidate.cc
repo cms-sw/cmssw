@@ -3,6 +3,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateWithRef.h"
 #include <memory>
+#include <iostream>
 
 class testCandidate : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testCandidate);
@@ -60,7 +61,7 @@ namespace reco {
 
 void testCandidate::checkAll() {
   reco::Particle::LorentzVector p( 1.0, 2.0, 3.0, 5.0 );
-  GlobalVector v(1.0, 2.0, 5.0);
+  GlobalVector v(1.0, 2.0, 3.0);
   reco::LeafCandidate::PolarLorentzVector pl(p);  
 
   reco::Particle::Charge q( 1 );
@@ -86,9 +87,11 @@ void testCandidate::checkAll() {
 
   reco::LeafCandidate c1(q,p);
   reco::LeafCandidate c2(q,pl);
-  reco::LeafCandidate c3(q,v,4.f,false);
+  reco::LeafCandidate c3(q,v,5.f,false);
 
-  auto ok = [](float a, float b)->bool { return a==b;};
+  auto ftoi = [](float x)->int { int i; memcpy(&i,&x,4); return i;};
+  auto print = [](float a, float b)->bool { std::cout << "\nwhat? " << a <<' ' << b << std::endl; return false;};
+  auto ok = [&](float a, float b)->bool { return std::abs(ftoi(a)-ftoi(b))<10 ? true : print(a,b); };
 
   CPPUNIT_ASSERT(ok(c1.pt(),c2.pt()));
   CPPUNIT_ASSERT(ok(c1.eta(),c2.eta()));
