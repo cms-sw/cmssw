@@ -695,6 +695,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     
     
     // std::cout << "area " << ijet << " " << jetArea << " " << Area<T>::get(jet) << std::endl;
+    //std::cout << "JetVI " << ijet << jet.pt() << " " << jet.et() << ' '<< jet.energy() << ' '<< jet.mass() << std::endl;
 
     // add to the list
     jets->push_back(jet);        
