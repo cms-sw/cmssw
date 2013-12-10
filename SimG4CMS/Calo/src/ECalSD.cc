@@ -122,13 +122,14 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   }
 
   edm::LogInfo("EcalSim") << "ECalSD:: Suppression Flag " << suppressHeavy
-			  << " protons below " << kmaxProton << " MeV,"
-			  << " neutrons below " << kmaxNeutron << " MeV and"
-			  << " ions below " << kmaxIon << " MeV\n"
-			  << "         Depth1 Name = " << depth1Name
-			  << " and Depth2 Name = " << depth2Name
-			  << " storeRL " << storeRL
-			  << " storeLayerTimeSim " << storeLayerTimeSim;
+			  << "\tprotons below " << kmaxProton << " MeV,"
+			  << "\tneutrons below " << kmaxNeutron << " MeV"
+			  << "\tions below " << kmaxIon << " MeV"
+			  << "\n\tDepth1 Name = " << depth1Name
+			  << "\tDepth2 Name = " << depth2Name
+			  << "\n\tstoreRL" << storeRL
+			  << "\tstoreLayerTimeSim " << storeLayerTimeSim
+			  << "\n\ttime Granularity " << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit") << " ns"; 
   
   if (useWeight) initMap(name,cpv);
 
