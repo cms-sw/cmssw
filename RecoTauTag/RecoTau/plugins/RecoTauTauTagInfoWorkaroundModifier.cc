@@ -18,7 +18,7 @@ namespace reco { namespace tau {
 
 class RecoTauTagInfoWorkaroundModifer : public RecoTauModifierPlugin {
   public:
-  explicit RecoTauTagInfoWorkaroundModifer(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
+  explicit RecoTauTagInfoWorkaroundModifer(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC);
     virtual ~RecoTauTagInfoWorkaroundModifer() {}
     void operator()(PFTau&) const override;
     // Called by base class
@@ -30,7 +30,7 @@ class RecoTauTagInfoWorkaroundModifer : public RecoTauModifierPlugin {
 };
 
 RecoTauTagInfoWorkaroundModifer::RecoTauTagInfoWorkaroundModifer(
-   const edm::ParameterSet &pset, edm::ConsumesCollector &iC):RecoTauModifierPlugin(pset,iC) {
+   const edm::ParameterSet &pset, edm::ConsumesCollector &&iC):RecoTauModifierPlugin(pset,std::move(iC)) {
   pfTauTagInfoSrc_ = pset.getParameter<edm::InputTag>("pfTauTagInfoSrc");
   pfTauTagInfo_token = iC.consumes<PFTauTagInfoCollection>(pfTauTagInfoSrc_);
 }

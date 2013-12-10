@@ -78,7 +78,6 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
   piZero_token = consumes<reco::JetPiZeroAssociation>(piZeroSrc_);
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
-  edm::ConsumesCollector iC(consumesCollector());
   const VPSet& builders = pset.getParameter<VPSet>("builders");
   for (VPSet::const_iterator builderPSet = builders.begin();
       builderPSet != builders.end(); ++builderPSet) {
@@ -88,8 +87,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
     // Build the plugin
       builders_.push_back(
           RecoTauBuilderPluginFactory::get()->create(
-						     pluginType, *builderPSet, iC));
-  
+						     pluginType, *builderPSet, consumesCollector()));
   }
 
   const VPSet& modfiers = pset.getParameter<VPSet>("modifiers");
@@ -101,7 +99,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
     // Build the plugin
          modifiers_.push_back(
           RecoTauModifierPluginFactory::get()->create(
-      pluginType, *modfierPSet, iC));
+						      pluginType, *modfierPSet, consumesCollector()));
    
   }
 

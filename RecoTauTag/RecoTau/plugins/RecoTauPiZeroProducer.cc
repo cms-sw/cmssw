@@ -79,7 +79,6 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
 
   // Get each of our PiZero builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
-  edm::ConsumesCollector iC(consumesCollector());
   for (VPSet::const_iterator builderPSet = builders.begin();
       builderPSet != builders.end(); ++builderPSet) {
     // Get plugin name
@@ -87,7 +86,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
       builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
     builders_.push_back(RecoTauPiZeroBuilderPluginFactory::get()->create(
-									 pluginType, *builderPSet, iC));
+									 pluginType, *builderPSet, consumesCollector()));
   }
 
   // Get each of our quality rankers

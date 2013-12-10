@@ -68,7 +68,6 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& cleaners = pset.getParameter<VPSet>("cleaners");
-  edm::ConsumesCollector iC(consumesCollector());
   for (VPSet::const_iterator cleanerPSet = cleaners.begin();
       cleanerPSet != cleaners.end(); ++cleanerPSet) {
     // Get plugin name
@@ -76,7 +75,7 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
       cleanerPSet->getParameter<std::string>("plugin");
     // Build the plugin
     cleaners_.push_back(
-			RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, iC));
+			RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector()));
   }
 
   // Check if we want to apply a final output selection

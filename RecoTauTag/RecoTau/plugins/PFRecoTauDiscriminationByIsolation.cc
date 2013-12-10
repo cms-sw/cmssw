@@ -78,9 +78,8 @@ class PFRecoTauDiscriminationByIsolation :
             "isolationQualityCuts");
 
         qcuts_.reset(new tau::RecoTauQualityCuts(isolationQCuts));
-	edm::ConsumesCollector iC(consumesCollector());
         vertexAssociator_.reset(
-				new tau::RecoTauVertexAssociator(qualityCutsPSet_,iC));
+				new tau::RecoTauVertexAssociator(qualityCutsPSet_,consumesCollector()));
 
         applyDeltaBeta_ = pset.exists("applyDeltaBetaCorrection") ?
           pset.getParameter<bool>("applyDeltaBetaCorrection") : false;

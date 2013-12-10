@@ -32,7 +32,7 @@ class RecoTauEnergyRecoveryPlugin : public RecoTauModifierPlugin
 {
  public:
 
-  explicit RecoTauEnergyRecoveryPlugin(const edm::ParameterSet&, edm::ConsumesCollector &iC);
+  explicit RecoTauEnergyRecoveryPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   virtual ~RecoTauEnergyRecoveryPlugin();
   void operator()(PFTau&) const override;
   virtual void beginEvent() override;
@@ -50,8 +50,8 @@ class RecoTauEnergyRecoveryPlugin : public RecoTauModifierPlugin
   double lev1EtaWindow_;
 };
 
-  RecoTauEnergyRecoveryPlugin::RecoTauEnergyRecoveryPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector &iC)
-    : RecoTauModifierPlugin(cfg, iC),
+  RecoTauEnergyRecoveryPlugin::RecoTauEnergyRecoveryPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector &&iC)
+    : RecoTauModifierPlugin(cfg, std::move(iC)),
     theEventVertex_(0),
     corrLevel_(cfg.getParameter<unsigned>("corrLevel")),
     lev1PhiWindow_(cfg.getParameter<double>("lev1PhiWindow")),

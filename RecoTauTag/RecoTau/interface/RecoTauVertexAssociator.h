@@ -50,7 +50,7 @@ class RecoTauVertexAssociator {
       kCombined
     };
 
-    RecoTauVertexAssociator (const edm::ParameterSet& pset,  edm::ConsumesCollector& iC);
+    RecoTauVertexAssociator (const edm::ParameterSet& pset,  edm::ConsumesCollector&& iC);
     virtual ~RecoTauVertexAssociator (){}
     /// Get the primary vertex associated to a given jet. Returns a null Ref if
     /// no vertex is found.

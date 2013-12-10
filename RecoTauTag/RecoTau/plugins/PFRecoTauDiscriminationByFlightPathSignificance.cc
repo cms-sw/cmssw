@@ -30,8 +30,8 @@ class PFRecoTauDiscriminationByFlightPathSignificance
       flightPathSig		= iConfig.getParameter<double>("flightPathSig");
       withPVError		= iConfig.getParameter<bool>("UsePVerror");
       booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
-      edm::ConsumesCollector iC(consumesCollector());
-      vertexAssociator_ = new reco::tau::RecoTauVertexAssociator(iConfig.getParameter<ParameterSet>("qualityCuts"),iC);
+      //      edm::ConsumesCollector iC(consumesCollector());
+      vertexAssociator_ = new reco::tau::RecoTauVertexAssociator(iConfig.getParameter<ParameterSet>("qualityCuts"),consumesCollector());
     }
 
     ~PFRecoTauDiscriminationByFlightPathSignificance(){}

@@ -14,7 +14,7 @@ namespace reco { namespace tau {
 
 class RecoTauDiscriminantCleanerPlugin : public RecoTauCleanerPlugin {
   public:
-  RecoTauDiscriminantCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &iC);
+  RecoTauDiscriminantCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     virtual ~RecoTauDiscriminantCleanerPlugin(){}
 
     // Get discriminant value for a given tau Ref
@@ -29,7 +29,7 @@ class RecoTauDiscriminantCleanerPlugin : public RecoTauCleanerPlugin {
 };
 
 RecoTauDiscriminantCleanerPlugin::RecoTauDiscriminantCleanerPlugin(
-								   const edm::ParameterSet& pset, edm::ConsumesCollector &iC):RecoTauCleanerPlugin(pset,iC) {
+								   const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauCleanerPlugin(pset,std::move(iC)) {
   discriminatorSrc_ = pset.getParameter<edm::InputTag>("src");
   discriminator_token = iC.consumes<PFTauDiscriminator>(discriminatorSrc_);
 }

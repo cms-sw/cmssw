@@ -30,7 +30,7 @@ namespace reco { namespace tau {
 
 class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
   public:
-  explicit RecoTauBuilderConePlugin(const edm::ParameterSet& pset,edm::ConsumesCollector &iC);
+  explicit RecoTauBuilderConePlugin(const edm::ParameterSet& pset,edm::ConsumesCollector &&iC);
     ~RecoTauBuilderConePlugin() {}
     // Build a tau from a jet
     return_type operator()(const reco::PFJetRef& jet,
@@ -54,7 +54,7 @@ class RecoTauBuilderConePlugin : public RecoTauBuilderPlugin {
 
 // ctor - initialize all of our variables
 RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(
-    const edm::ParameterSet& pset, edm::ConsumesCollector &iC):RecoTauBuilderPlugin(pset,iC),
+						   const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauBuilderPlugin(pset,std::move(iC)),
     qcuts_(pset.getParameterSet(
           "qualityCuts").getParameterSet("signalQualityCuts")),
     usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),

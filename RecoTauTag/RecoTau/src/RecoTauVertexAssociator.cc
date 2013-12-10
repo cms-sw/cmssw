@@ -82,7 +82,7 @@ class TrackWeightInVertex : public std::unary_function<double, reco::VertexRef>
   }
 
 RecoTauVertexAssociator::RecoTauVertexAssociator(
-						 const edm::ParameterSet& pset, edm::ConsumesCollector & iC):  qcuts_(pset.exists("vxAssocQualityCuts") ? pset.getParameterSet("vxAssocQualityCuts") : pset.getParameterSet("signalQualityCuts"))
+						 const edm::ParameterSet& pset, edm::ConsumesCollector && iC):  qcuts_(pset.exists("vxAssocQualityCuts") ? pset.getParameterSet("vxAssocQualityCuts") : pset.getParameterSet("signalQualityCuts"))
 {
   //   qcuts_ = pset.exists("vxAssocQualityCuts") ? pset.getParameterSet("vxAssocQualityCuts") : pset.getParameterSet("signalQualityCuts");
   vertexTag_ = edm::InputTag("offlinePrimaryVertices", "");
