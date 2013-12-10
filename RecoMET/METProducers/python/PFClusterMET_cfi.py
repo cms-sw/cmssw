@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMET.METProducers.METSigParams_cfi import *
 
-pfClusterMet = cms.EDProducer("METProducer",
+pfClusterMet = cms.EDProducer("PFClusterMETProducer",
                               METSignificance_params,
                               src = cms.InputTag("pfClusterRefsForJets"),
                               METType = cms.string('PFClusterMET'),
