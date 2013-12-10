@@ -12,7 +12,6 @@
    a collection of objects of TauType.
 
   \author   Steven Lowette, Christophe Delaere
-  \version  $Id: PATTauProducer.h,v 1.23 2011/09/26 12:36:30 veelken Exp $
 */
 
 
@@ -39,7 +38,7 @@
 
 #include <string>
 
-
+typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > PFTauTIPAssociationByRef;
 namespace pat {
 
   class PATTauProducer : public edm::EDProducer {
@@ -54,9 +53,10 @@ namespace pat {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
-
+      
       // configurables
       edm::EDGetTokenT<edm::View<reco::BaseTau> > baseTauToken_;
+      edm::EDGetTokenT<PFTauTIPAssociationByRef> tauTransverseImpactParameterToken_;
       edm::EDGetTokenT<reco::PFTauCollection> pfTauToken_;
       edm::EDGetTokenT<reco::CaloTauCollection> caloTauToken_;
       bool embedIsolationTracks_;
