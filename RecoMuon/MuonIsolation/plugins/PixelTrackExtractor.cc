@@ -5,8 +5,8 @@
 #include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/Common/interface/View.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -19,15 +19,15 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par,edm::ConsumesCollector& iC ) :
-  theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
+PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par, edm::ConsumesCollector && iC ) :
+  theTrackCollectionToken(iC.consumes<View<Track> >(par.getParameter<edm::InputTag>("inputTrackCollection"))),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
-  theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
+  theBeamSpotToken(iC.mayConsume<BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
   theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
   theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
@@ -38,10 +38,7 @@ PixelTrackExtractor::PixelTrackExtractor( const ParameterSet& par,edm::ConsumesC
   thePtVeto_Min(par.getParameter<double>("PtVeto_Min")),           //! .. it is above this threshold
   theDR_VetoPt(par.getParameter<double>("DR_VetoPt"))              //!.. and is inside this cone
 {
-  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
-  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
 }
-
 
 reco::IsoDeposit::Vetos PixelTrackExtractor::vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & track) const
@@ -90,7 +87,7 @@ IsoDeposit PixelTrackExtractor::deposit(const Event & event, const EventSetup & 
   deposit.addCandEnergy(muon.pt());
 
   Handle<View<Track> > tracksH;
-  event.getByToken(trackToken_, tracksH);
+  event.getByToken(theTrackCollectionToken, tracksH);
   //  const TrackCollection tracks = *(tracksH.product());
   LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracksH->size();
 
@@ -103,7 +100,7 @@ IsoDeposit PixelTrackExtractor::deposit(const Event & event, const EventSetup & 
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotH;
 
-    event.getByToken(beamspotToken_,beamSpotH);
+    event.getByToken(theBeamSpotToken,beamSpotH);
 
     if (beamSpotH.isValid()){
       beamPoint = beamSpotH->position();

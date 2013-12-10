@@ -3,12 +3,11 @@
 
 #include "RecoMuon/MuonIsolation/interface/MuIsoBaseIsolator.h"
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 class SimpleCutsIsolator : public muonisolation::MuIsoBaseIsolator {
  public:
-  SimpleCutsIsolator(const edm::ParameterSet & par,edm::ConsumesCollector& iC):
+  SimpleCutsIsolator(const edm::ParameterSet & par):
     theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
 	    par.getParameter<std::vector<double> > ("ConeSizes"),
 	    par.getParameter<std::vector<double> > ("Thresholds"))

@@ -11,7 +11,12 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
@@ -20,7 +25,6 @@
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
 #include "L3NominalEfficiencyConfigurator.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <string>
 
@@ -53,25 +57,19 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
     //produces<std::vector<double> >("combinedRelativeIsoDeposits");
     produces<edm::ValueMap<double> >("combinedRelativeIsoDeposits");
   }
-
-  muonToken_ = consumes<reco::TrackCollection> (theMuonCollectionLabel);
-  caloDepToken_ = consumes<edm::ValueMap<float> > (theCaloDepsLabel);
-
   produces<edm::ValueMap<bool> >();
-  edm::ConsumesCollector iC = consumesCollector();
+
   //
   // Extractor
   //
   // Calorimeters (ONLY if not previously computed)
   //
-
-
   if( useRhoCorrectedCaloDeps==false ) {
     edm::ParameterSet caloExtractorPSet = theConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
 
     theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-    caloExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( caloExtractorName, caloExtractorPSet,iC);
+    caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet, consumesCollector());
     //std::string caloDepositType = caloExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
   }
 
@@ -80,9 +78,7 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   edm::ParameterSet trkExtractorPSet = theConfig.getParameter<edm::ParameterSet>("TrkExtractorPSet");
 
   std::string trkExtractorName = trkExtractorPSet.getParameter<std::string>("ComponentName");
-  trkExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( trkExtractorName, trkExtractorPSet,iC);
-
-  
+  trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet, consumesCollector());
   //std::string trkDepositType = trkExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
 
 
@@ -115,14 +111,13 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
 
 }
-  
+
 /// destructor
 L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProducer(){
   LogDebug("RecoMuon|L3MuonCombinedRelativeIsolationProducer")<<" L3MuonCombinedRelativeIsolationProducer DTOR";
   if (caloExtractor) delete caloExtractor;
   if (trkExtractor) delete trkExtractor;
 }
-
 
 void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
   std::string metname = "RecoMuon|L3MuonCombinedRelativeIsolationProducer";
@@ -133,12 +128,12 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
   // Take the SA container
   if (printDebug) std::cout  <<" Taking the muons: "<<theMuonCollectionLabel << std::endl;
   Handle<TrackCollection> muons;
-  event.getByToken(muonToken_,muons);
+  event.getByLabel(theMuonCollectionLabel,muons);
 
   // Take calo deposits with rho corrections (ONLY if previously computed)
   Handle< edm::ValueMap<float> > caloDepWithCorrMap;
   if( useRhoCorrectedCaloDeps )
-    event.getByToken(caloDepToken_, caloDepWithCorrMap);
+    event.getByLabel(theCaloDepsLabel, caloDepWithCorrMap);
 
   std::auto_ptr<reco::IsoDepositMap> caloDepMap( new reco::IsoDepositMap());
   std::auto_ptr<reco::IsoDepositMap> trkDepMap( new reco::IsoDepositMap());

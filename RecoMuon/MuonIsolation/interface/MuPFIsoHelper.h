@@ -21,8 +21,6 @@
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
 
 
 
@@ -30,7 +28,7 @@ class MuPFIsoHelper {
    public:
   typedef edm::ValueMap<double> CandDoubleMap;
   
-  MuPFIsoHelper(const std::map<std::string,edm::ParameterSet>&,edm::ConsumesCollector&);
+  MuPFIsoHelper(const std::map<std::string,edm::ParameterSet>&);
 
   void beginEvent(const edm::Event& iEvent);
 
@@ -59,14 +57,6 @@ class MuPFIsoHelper {
   std::vector<edm::Handle<CandDoubleMap> > photon_;
   std::vector<edm::Handle<CandDoubleMap> > photonHighThreshold_;
   std::vector<edm::Handle<CandDoubleMap> > pu_;
-
-  std::vector<edm::EDGetTokenT<CandDoubleMap> > chargedParticleToken_;
-  std::vector<edm::EDGetTokenT<CandDoubleMap> > chargedHadronToken_;
-  std::vector<edm::EDGetTokenT<CandDoubleMap> > neutralHadronToken_;
-  std::vector<edm::EDGetTokenT<CandDoubleMap> > neutralHadronHighThresholdToken_;
-  std::vector<edm::EDGetTokenT<CandDoubleMap> > photonToken_;
-  std::vector<edm::EDGetTokenT<CandDoubleMap> > photonHighThresholdToken_;
-  std::vector<edm::EDGetTokenT<CandDoubleMap> > puToken_;
 
 };
 #endif

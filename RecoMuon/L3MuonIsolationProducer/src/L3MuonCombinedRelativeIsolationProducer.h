@@ -10,13 +10,6 @@
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
-#include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-
-
 #include <string>
 
 namespace edm { class Event; }
@@ -41,8 +34,6 @@ private:
 
   // Muon track Collection Label
   edm::InputTag theMuonCollectionLabel;
-  edm::EDGetTokenT<reco::TrackCollection> muonToken_;
-  edm::EDGetTokenT<edm::ValueMap<float> > caloDepToken_;
 
   // Isolation cuts
   muonisolation::Cuts theCuts;

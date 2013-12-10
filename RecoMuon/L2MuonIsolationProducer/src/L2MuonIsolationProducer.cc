@@ -39,24 +39,21 @@ L2MuonIsolationProducer::L2MuonIsolationProducer(const ParameterSet& par) :
 {
   LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")<<" L2MuonIsolationProducer constructor called";
 
-  theSACollectionLabel = (par.getParameter<edm::InputTag>("StandAloneCollectionLabel"));
-  tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
 
-
-  edm::ConsumesCollector iC = consumesCollector();
   //
   // Extractor
   //
   edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( extractorName, extractorPSet,iC);  
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
+
 
   edm::ParameterSet isolatorPSet = par.getParameter<edm::ParameterSet>("IsolatorPSet");
   bool haveIsolator = !isolatorPSet.empty();
   optOutputDecision = haveIsolator;
   if (optOutputDecision){
     std::string type = isolatorPSet.getParameter<std::string>("ComponentName");
-    theDepositIsolator = MuonIsolatorFactory::get()->create(type,isolatorPSet,iC);
+    theDepositIsolator = MuonIsolatorFactory::get()->create(type,isolatorPSet);
   }
   if (optOutputDecision) produces<edm::ValueMap<bool> >();
   produces<reco::IsoDepositMap>();
@@ -87,7 +84,7 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   // Take the SA container
   LogDebug(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
   Handle<TrackCollection> tracks;
-  event.getByToken(tracksToken,tracks);
+  event.getByLabel(theSACollectionLabel,tracks);
 
   // Find deposits and load into event
   LogDebug(metname)<<" Get energy around";

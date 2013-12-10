@@ -43,11 +43,8 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   {
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";
 
-  muonToken_ = consumes<reco::TrackCollection> (theMuonCollectionLabel);
-
   if (optOutputIsoDeposits) produces<reco::IsoDepositMap>();
   produces<edm::ValueMap<bool> >();
-  edm::ConsumesCollector  iC  = consumesCollector();
 
   //
   // Extractor
@@ -56,7 +53,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   //! get min pt for the track to go into sumPt
   theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( extractorName, extractorPSet,iC);
+  theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
   std::string depositType = extractorPSet.getUntrackedParameter<std::string>("DepositLabel");
 
   //
@@ -85,12 +82,7 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   // (kludge) additional cut on the number of tracks
   theMaxNTracks = cutsPSet.getParameter<int>("maxNTracks");
   theApplyCutsORmaxNTracks = cutsPSet.getParameter<bool>("applyCutsORmaxNTracks");
-
-
-
-
 }
-  
 
 /// destructor
 L3MuonIsolationProducer::~L3MuonIsolationProducer(){
@@ -107,7 +99,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   // Take the SA container
   LogTrace(metname)<<" Taking the muons: "<<theMuonCollectionLabel;
   Handle<TrackCollection> muons;
-  event.getByToken(muonToken_,muons);
+  event.getByLabel(theMuonCollectionLabel,muons);
 
   std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
   std::auto_ptr<edm::ValueMap<bool> > isoMap( new edm::ValueMap<bool> ());

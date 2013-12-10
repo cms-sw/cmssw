@@ -22,10 +22,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class TrackAssociatorParameters;
 class TrackDetectorAssociator;
@@ -38,18 +36,17 @@ class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
 public:
 
   JetExtractor(){};
-  JetExtractor(const edm::ParameterSet& par,edm::ConsumesCollector &);
+  JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+
   virtual ~JetExtractor();
 
   virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
   virtual reco::IsoDeposit
     deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
-  void registerProducts(edm::ConsumesCollector &);
-
 private:
+  edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
 
-  edm::InputTag theJetCollectionLabel;
   std::string thePropagatorName;
 
   // Cone cuts and thresholds
@@ -68,7 +65,6 @@ private:
 
   bool thePrintTimeReport;
 
-  edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
 };
 
 }

@@ -4,7 +4,6 @@
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
@@ -13,25 +12,21 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-TrackExtractor::TrackExtractor( const ParameterSet& par,edm::ConsumesCollector& iC ) :
-  theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
+TrackExtractor::TrackExtractor( const ParameterSet& par, edm::ConsumesCollector && iC ) :
+  theTrackCollectionToken(iC.consumes<View<Track> >(par.getParameter<edm::InputTag>("inputTrackCollection"))),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theBeamlineOption(par.getParameter<string>("BeamlineOption")),
-  theBeamSpotLabel(par.getParameter<edm::InputTag>("BeamSpotLabel")),
+  theBeamSpotToken(iC.consumes<reco::BeamSpot>(par.getParameter<edm::InputTag>("BeamSpotLabel"))),
   theNHits_Min(par.getParameter<unsigned int>("NHits_Min")),
   theChi2Ndof_Max(par.getParameter<double>("Chi2Ndof_Max")),
   theChi2Prob_Min(par.getParameter<double>("Chi2Prob_Min")),
   thePt_Min(par.getParameter<double>("Pt_Min"))
 {
-  trackToken_ = iC.consumes<edm::View<reco::Track> >(theTrackCollectionTag);
-  beamspotToken_ = iC.consumes<reco::BeamSpot>(theBeamSpotLabel);
 }
-
-
 
 reco::IsoDeposit::Vetos TrackExtractor::vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & track) const
@@ -58,7 +53,7 @@ IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & event
   deposit.addCandEnergy(muon.pt());
 
   Handle<View<Track> > tracksH;
-  event.getByToken(trackToken_, tracksH);
+  event.getByToken(theTrackCollectionToken, tracksH);
   //  const TrackCollection tracks = *(tracksH.product());
   LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracksH->size();
 
@@ -71,7 +66,7 @@ IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & event
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotH;
 
-    event.getByToken(beamspotToken_,beamSpotH);
+    event.getByToken(theBeamSpotToken,beamSpotH);
 
     if (beamSpotH.isValid()){
       beamPoint = beamSpotH->position();

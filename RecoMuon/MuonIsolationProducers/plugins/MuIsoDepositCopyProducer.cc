@@ -34,13 +34,9 @@ MuIsoDepositCopyProducer::MuIsoDepositCopyProducer(const ParameterSet& par) :
   if (theInputTags.size() != theDepositNames.size()){
     throw  cms::Exception("MuIsoDepositCopyProducer constructor")<<"the sizes of input/output vectors don't match";
   }
-
-  for (unsigned int i = 0; i < theInputTags.size(); ++i)
-    isoTokens.push_back(consumes<reco::IsoDepositMap >(theInputTags.at(i)));
   
   for (unsigned int i = 0; i < theDepositNames.size(); ++i){
     std::string alias = theConfig.getParameter<std::string>("@module_label");
-
     if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
@@ -62,7 +58,7 @@ void MuIsoDepositCopyProducer::produce(Event& event, const EventSetup& eventSetu
 
   for (unsigned int iDep = 0; iDep < theInputTags.size(); ++iDep){
     Handle<reco::IsoDepositMap > inDep;
-    event.getByToken(isoTokens[iDep], inDep);
+    event.getByLabel(theInputTags[iDep], inDep);
 
     std::auto_ptr<reco::IsoDepositMap> outDep(new reco::IsoDepositMap(*inDep));
     event.put(outDep, theDepositNames[iDep]);

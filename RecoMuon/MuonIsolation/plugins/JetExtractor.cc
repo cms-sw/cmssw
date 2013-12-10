@@ -31,8 +31,8 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-JetExtractor::JetExtractor(const ParameterSet& par,edm::ConsumesCollector& iC) :
-  theJetCollectionLabel(par.getParameter<edm::InputTag>("JetCollectionLabel")),
+JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector && iC) :
+  theJetCollectionToken(iC.consumes<CaloJetCollection>(par.getParameter<edm::InputTag>("JetCollectionLabel"))),
   thePropagatorName(par.getParameter<std::string>("PropagatorName")),
   theThreshold(par.getParameter<double>("Threshold")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
@@ -44,12 +44,10 @@ JetExtractor::JetExtractor(const ParameterSet& par,edm::ConsumesCollector& iC) :
 {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
+
   theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
   theAssociator = new TrackDetectorAssociator();
-  jetToken_ = iC.consumes<reco::CaloJetCollection>(theJetCollectionLabel); 
-
 }
-
 
 JetExtractor::~JetExtractor(){
   if (thePrintTimeReport) TimingReport::current()->dump(std::cout);
@@ -90,7 +88,7 @@ IsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSe
 
 
   edm::Handle<CaloJetCollection> caloJetsH;
-  event.getByToken(jetToken_, caloJetsH);
+  event.getByToken(theJetCollectionToken, caloJetsH);
 
   //use calo towers
   CaloJetCollection::const_iterator jetCI = caloJetsH->begin();

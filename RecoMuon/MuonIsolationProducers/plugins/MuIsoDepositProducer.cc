@@ -9,11 +9,19 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
+
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+#include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
@@ -40,17 +48,8 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
   theMultipleDepositsFlag = ioPSet.getParameter<bool>("MultipleDepositsFlag");
 
-  bool readFromRecoTrack = theInputType == "TrackCollection";
-  bool readFromRecoMuon = theInputType == "MuonCollection";
-  bool readFromCandidateView = theInputType == "CandidateView";
 
-  if (readFromRecoMuon)
-    muonToken = consumes<edm::View<reco::RecoCandidate> >(theMuonCollectionTag);
-  else if (readFromRecoTrack)
-    trackToken = consumes<edm::View<reco::Track> >(theMuonCollectionTag);
-  else if (readFromCandidateView||theExtractForCandidate)
-    candToken = consumes<edm::View<reco::Candidate> >(theMuonCollectionTag);
-  
+
   if (theMultipleDepositsFlag){
     theDepositNames = par.getParameter<edm::ParameterSet>("ExtractorPSet")
       .getParameter<std::vector<std::string> >("DepositInstanceLabels");
@@ -61,19 +60,6 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
     if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
-
-  edm::ConsumesCollector iC = consumesCollector(); 
-
-  if (!theExtractor) {
-    edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
-    std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-
-    theExtractor = IsoDepositExtractorFactoryFromHelper::get()->create( extractorName, extractorPSet,iC);
-    LogDebug(metname)<<" Load extractor..."<<extractorName;
-  }
-
-
-
 }
 
 //! destructor
@@ -88,6 +74,14 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
 
   LogDebug(metname)<<" Muon Deposit producing..."
 		   <<" BEGINING OF EVENT " <<"================================";
+
+  if (!theExtractor) {
+    edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
+    std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
+    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
+    LogDebug(metname)<<" Load extractor..."<<extractorName;
+  }
+
 
   unsigned int nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
 
@@ -107,18 +101,18 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   bool readFromCandidateView = theInputType == "CandidateView";
 
   if (readFromRecoMuon){
-    event.getByToken(muonToken,muons);
+    event.getByLabel(theMuonCollectionTag,muons);
     nMuons = muons->size();
     LogDebug(metname) <<"Got Muons of size "<<nMuons;
 
   }
   if (readFromRecoTrack){
-    event.getByToken(trackToken,tracks);
+    event.getByLabel(theMuonCollectionTag,tracks);
     nMuons = tracks->size();
     LogDebug(metname) <<"Got MuonTracks of size "<<nMuons;
   }
   if (readFromCandidateView || theExtractForCandidate){
-    event.getByToken(candToken,cands);
+    event.getByLabel(theMuonCollectionTag,cands);
     unsigned int nCands = cands->size();
     if (readFromRecoMuon && theExtractForCandidate){
       //! expect nMuons set already

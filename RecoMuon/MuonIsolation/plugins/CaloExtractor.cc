@@ -22,8 +22,8 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-CaloExtractor::CaloExtractor(const ParameterSet& par,edm::ConsumesCollector& iC) :
-  theCaloTowerCollectionLabel(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel")),
+CaloExtractor::CaloExtractor(const ParameterSet& par, edm::ConsumesCollector && iC) :
+  theCaloTowerCollectionToken(iC.consumes<CaloTowerCollection>(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel"))),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theWeight_E(par.getParameter<double>("Weight_E")),
   theWeight_H(par.getParameter<double>("Weight_H")),
@@ -35,18 +35,14 @@ CaloExtractor::CaloExtractor(const ParameterSet& par,edm::ConsumesCollector& iC)
   vertexConstraintFlag_XY(par.getParameter<bool>("Vertex_Constraint_XY")),
   vertexConstraintFlag_Z(par.getParameter<bool>("Vertex_Constraint_Z"))
 {
-  caloTowerToken_ = iC.consumes<CaloTowerCollection>(theCaloTowerCollectionLabel);
-
 }
-
-
 
 void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& eventSetup, const TrackCollection& muons)
 {
   theVetoCollection.clear();
 
   Handle<CaloTowerCollection> towers;
-  event.getByToken(caloTowerToken_,towers);
+  event.getByToken(theCaloTowerCollectionToken,towers);
 
   edm::ESHandle<CaloGeometry> caloGeom;
   eventSetup.get<CaloGeometryRecord>().get(caloGeom);
@@ -102,7 +98,8 @@ IsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& eventS
 	  << " phi " << muon.phi();
 
   Handle<CaloTowerCollection> towers;
-  event.getByToken(caloTowerToken_,towers);
+  event.getByToken(theCaloTowerCollectionToken,towers);
+
   edm::ESHandle<CaloGeometry> caloGeom;
   eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 

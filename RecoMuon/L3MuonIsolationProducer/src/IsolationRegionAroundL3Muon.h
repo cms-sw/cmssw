@@ -1,8 +1,6 @@
 #ifndef RecoMuon_L3MuonIsolationProducer_IsolationRegionAroundL3Muon_H 
 #define RecoMuon_L3MuonIsolationProducer_IsolationRegionAroundL3Muon_H 
 
-#include "FWCore/Framework/interface/Event.h"
-
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
@@ -18,12 +16,14 @@ class IsolationRegionAroundL3Muon : public TrackingRegionProducer {
 
 public:
 
-  IsolationRegionAroundL3Muon(const edm::ParameterSet& cfg) { 
+  IsolationRegionAroundL3Muon(const edm::ParameterSet& cfg,
+	edm::ConsumesCollector && iC) { 
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
-    theVertexSrc   = regionPSet.getParameter<std::string>("vertexSrc");
-    theInputTrkSrc = regionPSet.getParameter<edm::InputTag>("TrkSrc");
+    theVertexSrc   = regionPSet.getParameter<edm::InputTag>("vertexSrc");
+    if (theVertexSrc.label().length()>1) theVertexToken   = iC.consumes<reco::VertexCollection>(theVertexSrc);
+    theInputTrkToken = iC.consumes<reco::TrackCollection>(regionPSet.getParameter<edm::InputTag>("TrkSrc"));
 
     thePtMin              = regionPSet.getParameter<double>("ptMin");
     theOriginRadius       = regionPSet.getParameter<double>("originRadius");
@@ -34,19 +34,12 @@ public:
     theDeltaEta = regionPSet.getParameter<double>("deltaEtaRegion");
     theDeltaPhi =  regionPSet.getParameter<double>("deltaPhiRegion");
     theMeasurementTrackerName = regionPSet.getParameter<std::string>("measurementTrackerName"); 
+  }   
 
-  
-  }
   virtual ~IsolationRegionAroundL3Muon(){}
 
-
-  void registerProducts(edm::ConsumesCollector& iC) {
-    trackToken_ = iC.consumes<reco::TrackCollection>(theInputTrkSrc);
-    vertexToken_ = iC.consumes<reco::VertexCollection>(theVertexSrc);
-  }
-
   virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, 
-						const edm::EventSetup& es) const {
+      const edm::EventSetup& es) const {
 
     std::vector<TrackingRegion* > result;
 
@@ -54,10 +47,9 @@ public:
     // get highest Pt pixel vertex (if existing)
     double deltaZVertex =  theOriginHalfLength;
     double originz = theOriginZPos;
-    if (theVertexSrc.length()>1) {
+    if (theVertexSrc.label().length()>1) {
       edm::Handle<reco::VertexCollection> vertices;
-      ev.getByToken(vertexToken_,vertices);
-
+      ev.getByToken(theVertexToken,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
       reco::VertexCollection::const_iterator ci = vertCollection.begin();
       if (vertCollection.size()>0) {
@@ -69,7 +61,7 @@ public:
     }
 
     edm::Handle<reco::TrackCollection> trks;
-    ev.getByToken(trackToken_, trks);
+    ev.getByToken(theInputTrkToken, trks);
 
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
       double vz = (theVertexZconstrained) ? iTrk->dz() : originz;
@@ -85,8 +77,9 @@ public:
 
 private:
 
-  std::string theVertexSrc;
-  edm::InputTag theInputTrkSrc;
+  edm::InputTag theVertexSrc;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexToken;
+  edm::EDGetTokenT<reco::TrackCollection> theInputTrkToken;
 
   double thePtMin; 
   double theOriginRadius; 
@@ -97,10 +90,6 @@ private:
   double theDeltaEta; 
   double theDeltaPhi;
   std::string theMeasurementTrackerName;
-  edm::EDGetTokenT<reco::TrackCollection>  trackToken_;
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-
-
 };
 
 #endif 

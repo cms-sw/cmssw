@@ -5,7 +5,7 @@
 
 using namespace muonisolation;
 
-CutsIsolatorWithCorrection::CutsIsolatorWithCorrection(const edm::ParameterSet & par,edm::ConsumesCollector& iC):
+CutsIsolatorWithCorrection::CutsIsolatorWithCorrection(const edm::ParameterSet & par):
   theCuts(par.getParameter<std::vector<double> > ("EtaBounds"),
 	  par.getParameter<std::vector<double> > ("ConeSizes"),
 	  par.getParameter<std::vector<double> > ("Thresholds")),
@@ -25,9 +25,6 @@ CutsIsolatorWithCorrection::CutsIsolatorWithCorrection(const edm::ParameterSet &
   theReturnRelativeSum(par.getParameter<bool>("ReturnRelativeSum")),
   theAndOrCuts(par.getParameter<bool>("AndOrCuts"))
 {
-
-  rhoToken_  =iC.consumes<double>(theRhoSrc);
-
   if (! ( theCutAbsIso || theCutRelativeIso ) ) throw cms::Exception("BadConfiguration")
     << "Something has to be cut: set either CutAbsoluteIso or CutRelativeIso to true";
 }
@@ -65,7 +62,7 @@ MuIsoBaseIsolator::Result CutsIsolatorWithCorrection::result(const DepositContai
 
   if (theUseRhoCorrection){
     edm::Handle<double> rhoHandle; 
-    ev->getByToken(rhoToken_, rhoHandle); 
+    ev->getByLabel(theRhoSrc, rhoHandle); 
     rho = *(rhoHandle.product());
     if (rho < 0.0) rho = 0.0;
     double rhoScale = fabs(tk.eta()) > 1.442 ? theRhoScaleEndcap : theRhoScaleBarrel;
