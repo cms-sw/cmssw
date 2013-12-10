@@ -8,9 +8,6 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -40,6 +37,9 @@ MuIsoDepositCopyProducer::MuIsoDepositCopyProducer(const ParameterSet& par) :
     if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
+  for (unsigned int iDep = 0; iDep < theInputTags.size(); ++iDep)
+    theInputTokens.push_back(consumes<reco::IsoDepositMap>(theInputTags.at(iDep)));
+
 }
 
 //! destructor
@@ -56,9 +56,9 @@ void MuIsoDepositCopyProducer::produce(Event& event, const EventSetup& eventSetu
 
   LogTrace(metname)<<" Taking the inputs: ";
 
-  for (unsigned int iDep = 0; iDep < theInputTags.size(); ++iDep){
+  for (unsigned int iDep = 0; iDep < theInputTokens.size(); ++iDep){
     Handle<reco::IsoDepositMap > inDep;
-    event.getByLabel(theInputTags[iDep], inDep);
+    event.getByToken(theInputTokens[iDep], inDep);
 
     std::auto_ptr<reco::IsoDepositMap> outDep(new reco::IsoDepositMap(*inDep));
     event.put(outDep, theDepositNames[iDep]);

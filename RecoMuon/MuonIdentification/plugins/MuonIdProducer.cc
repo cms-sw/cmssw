@@ -24,8 +24,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
@@ -38,9 +36,6 @@
 
 #include <boost/regex.hpp>
 #include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
-#include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
-#include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
-#include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -52,12 +47,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
-// RPC-Muon stuffs
-#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-#include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
+#include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
-#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "RecoMuon/MuonIdentification/interface/MuonKinkFinder.h"
 
@@ -162,6 +153,11 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    //create mesh holder
    meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 
+
+   edm::InputTag rpcHitTag("rpcRecHits");
+   rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
+   glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality> >(globalTrackQualityInputTag_);
+   
 
    //Consumes... UGH
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
@@ -875,7 +871,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
 
   edm::Handle<RPCRecHitCollection> rpcRecHits;
-  iEvent.getByLabel(edm::InputTag("rpcRecHits"), rpcRecHits);
+  iEvent.getByToken(rpcHitToken_, rpcRecHits);
 
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
@@ -1283,7 +1279,7 @@ double MuonIdProducer::phiOfMuonIneteractionRegion( const reco::Muon& muon ) con
 void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
 {
   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualH;
-  iEvent.getByLabel(globalTrackQualityInputTag_, glbQualH);
+  iEvent.getByToken(glbQualToken_, glbQualH);
 
   if(aMuon.isGlobalMuon() && glbQualH.isValid() && !glbQualH.failedToGet()) {
     aMuon.setCombinedQuality((*glbQualH)[aMuon.combinedMuon()]);
