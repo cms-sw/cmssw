@@ -360,6 +360,9 @@ namespace {
   
   bool isROLinkedByClusterOrTrack(const PFEGammaAlgo::ProtoEGObject& RO1,
 				  const PFEGammaAlgo::ProtoEGObject& RO2 ) {
+    // also don't allow ROs where both have clusters
+    // and GSF tracks to merge (10 Dec 2013)
+    if(RO1.primaryGSFs.size() && RO2.primaryGSFs.size()) return false;
     // don't allow EB/EE to mix (11 Sept 2013)
     if( RO1.ecalclusters.size() && RO2.ecalclusters.size() ) {
       if(RO1.ecalclusters.front().first->clusterRef()->layer() !=
@@ -614,11 +617,11 @@ namespace {
     } else if ( kfCluster ) {
       RO.electronClusters.push_back(kfCluster);
     }
-    if( firstBrem ) {      
+    if( bremCluster && !gsfCluster && !kfCluster ) {
+      RO.electronClusters.push_back(bremCluster);
+    }
+    if( firstBrem && RO.ecalclusters.size() > 1 ) {      
       RO.firstBrem = firstBrem->indTrajPoint() - 2;
-      if( !gsfCluster && !kfCluster ) { 
-	RO.electronClusters.push_back(bremCluster);
-      }
       if( bremCluster == gsfCluster ) RO.lateBrem = 1;
     }
   }
@@ -1585,7 +1588,7 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
       attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
       RO.localMap.push_back(ElementMap::value_type(primgsf.first,elemascluster));
       RO.localMap.push_back(ElementMap::value_type(elemascluster,primgsf.first));
-      ECALbegin->second = false;    
+      ecal->second = false;    
     }    
   }
 }
@@ -1611,6 +1614,7 @@ linkRefinableObjectPrimaryGSFTrackToHCAL(ProtoEGObject& RO) {
       RO.hcalClusters.push_back(temp);
       RO.localMap.push_back( ElementMap::value_type(primgsf.first,temp.first) );
       RO.localMap.push_back( ElementMap::value_type(temp.first,primgsf.first) );
+      hcal->second = false;
     }
   }
 }
@@ -1738,6 +1742,7 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	
 	RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
 	RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
+	ecal->second = false;
 	LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
 	  << "Found a cluster not already associated by brem extrapolation"
 	  << " at ECAL surface!" << std::endl;
