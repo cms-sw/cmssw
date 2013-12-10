@@ -5,6 +5,7 @@
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
+<use name="DataFormats/VertexReco"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/FWLite"/>
 <use name="FWCore/ParameterSet"/>
@@ -20,6 +21,7 @@
   <use name="DataFormats/BeamSpot"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/VertexReco"/>
   <use name="FWCore/Common"/>
   <use name="FWCore/FWLite"/>
   <use name="FWCore/ParameterSet"/>

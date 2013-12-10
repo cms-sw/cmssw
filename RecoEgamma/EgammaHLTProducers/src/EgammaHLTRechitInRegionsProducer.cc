@@ -64,15 +64,16 @@ EgammaHLTRechitInRegionsProducer::EgammaHLTRechitInRegionsProducer(const edm::Pa
   regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
   regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
 
-  // Parameters for the position calculation:
-  //posCalculator_ = PositionCalc( ps.getParameter<edm::ParameterSet>("posCalcParameters") );
-  
   const std::vector<std::string> flagnames = ps.getParameter<std::vector<std::string> >("RecHitFlagToBeExcluded");
   const std::vector<int> flagsexcl = StringToEnumValue<EcalRecHit::Flags>(flagnames);
   
   const std::vector<std::string> severitynames = ps.getParameter<std::vector<std::string> >("RecHitSeverityToBeExcluded");
   const std::vector<int> severitiesexcl = StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severitynames);
-  
+
+  hitLabels = ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels");
+  for (unsigned int i=0; i<hitLabels.size(); i++) 
+    hitTokens.push_back(consumes<EcalRecHitCollection>(hitLabels[i]));
+    
   produces<EcalRecHitCollection> ("EcalRegionalRecHitsEB");
   produces<EcalRecHitCollection> ("EcalRegionalRecHitsEE");
   produces<EcalRecHitCollection> ("EcalRegionalRecHitsES");
@@ -86,6 +87,11 @@ EgammaHLTRechitInRegionsProducer::~EgammaHLTRechitInRegionsProducer()
 
 void EgammaHLTRechitInRegionsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  std::vector<edm::InputTag> inputTags;
+  inputTags.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
+  inputTags.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
+  inputTags.push_back(edm::InputTag("hltESRegionalEgammaRecHit:EcalRecHitsES"));
+  desc.add<std::vector<edm::InputTag>>("ecalhitLabels", inputTags);
   desc.add<edm::InputTag>("ecalhitproducer", edm::InputTag("ecalRecHit"));
   desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles","Isolated"));
   desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles","NonIsolated"));
@@ -105,18 +111,13 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
   std::auto_ptr<EcalRecHitCollection> hitsEB(new EcalRecHitCollection);
   std::auto_ptr<EcalRecHitCollection> hitsEE(new EcalRecHitCollection);
   std::auto_ptr<EcalRecHitCollection> hitsES(new EcalRecHitCollection);
-
-  std::vector<edm::InputTag> labels;
-  labels.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEB"));
-  labels.push_back(edm::InputTag("hltEcalRegionalEgammaRecHit:EcalRecHitsEE"));
-  labels.push_back(edm::InputTag("hltESRegionalEgammaRecHit:EcalRecHitsES"));
   
   edm::Handle<EcalRecHitCollection> rhcH[3];
 
-  for (unsigned int i=0; i<3; i++) {
-    evt.getByLabel(labels[i], rhcH[i]);  
+  for (unsigned int i=0; i<hitLabels.size(); i++) {
+    evt.getByToken(hitTokens[i], rhcH[i]);  
     if (!(rhcH[i].isValid())) {
-      edm::LogError("ProductNotFound")<< "could not get a handle on the EcalRecHitCollection! (" << labels[i].encode() << ")" << std::endl;
+      edm::LogError("ProductNotFound")<< "could not get a handle on the EcalRecHitCollection! (" << hitLabels[i].encode() << ")" << std::endl;
       return;
     }
   }
@@ -200,17 +201,15 @@ void EgammaHLTRechitInRegionsProducer::produce(edm::Event& evt, const edm::Event
     }
   }
   
-  for (unsigned int i=0; i<3; i++) {
+  for (unsigned int i=0; i<hitLabels.size(); i++) {
     const EcalRecHitCollection *recHits = rhcH[i].product();
-    //std::cout << "Nhits: " << recHits->size() << std::endl;
-    //std::cout << labels[i].encode() << std::endl;
-    if(labels[i].encode() == "hltEcalRegionalEgammaRecHit:EcalRecHitsEB") {
+    if(hitLabels[i].encode() == "hltEcalRegionalEgammaRecHit:EcalRecHitsEB") {
       geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
       topology.reset(new EcalBarrelTopology(geoHandle));
-    } else if(labels[i].encode() == "hltEcalRegionalEgammaRecHit:EcalRecHitsEE") {
+    } else if(hitLabels[i].encode() == "hltEcalRegionalEgammaRecHit:EcalRecHitsEE") {
       geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
       topology.reset(new EcalEndcapTopology(geoHandle));
-    } else if(labels[i].encode() == "hltESRegionalEgammaRecHit:EcalRecHitsES") {
+    } else if(hitLabels[i].encode() == "hltESRegionalEgammaRecHit:EcalRecHitsES") {
       geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
       topology.reset(new EcalPreshowerTopology (geoHandle));
     } else throw(std::runtime_error("\n\nProducer encountered invalied ecalhitcollection type.\n\n"));
