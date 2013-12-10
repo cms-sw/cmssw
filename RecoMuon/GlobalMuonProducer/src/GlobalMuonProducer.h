@@ -48,7 +48,7 @@ class GlobalMuonProducer : public edm::EDProducer {
   edm::InputTag theSTACollectionLabel    ;
   /// STA Tokens
   edm::EDGetTokenT<reco::TrackCollection> staMuonsToken;
-  edm::EDGetTokenT<Trajectory> staMuonsTrajToken;
+  edm::EDGetTokenT<std::vector<Trajectory> > staMuonsTrajToken;
   edm::EDGetTokenT<TrajTrackAssociationCollection> staAssoMapToken;
   edm::EDGetTokenT<reco::TrackToTrackMap> updatedStaAssoMapToken;
 
