@@ -102,8 +102,7 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    // Load parameters for the TimingFiller
    edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");
-   edm::ConsumesCollector iC = consumesCollector();
-   theTimingFiller_ = new MuonTimingFiller(timingParameters,iC);
+   theTimingFiller_ = new MuonTimingFiller(timingParameters,consumesCollector());
    
 
    if (fillCaloCompatibility_){
@@ -116,15 +115,15 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
       // Load MuIsoExtractor parameters
       edm::ParameterSet caloExtractorPSet = iConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
       std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorCalo_ = IsoDepositExtractorFactoryFromHelper::get()->create( caloExtractorName, caloExtractorPSet,iC);
+      muIsoExtractorCalo_ = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet,consumesCollector());
 
       edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
       std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorTrack_ = IsoDepositExtractorFactoryFromHelper::get()->create( trackExtractorName, trackExtractorPSet,iC);
+      muIsoExtractorTrack_ = IsoDepositExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet,consumesCollector());
 
       edm::ParameterSet jetExtractorPSet = iConfig.getParameter<edm::ParameterSet>("JetExtractorPSet");
       std::string jetExtractorName = jetExtractorPSet.getParameter<std::string>("ComponentName");
-      muIsoExtractorJet_ = IsoDepositExtractorFactoryFromHelper::get()->create( jetExtractorName, jetExtractorPSet,iC);
+      muIsoExtractorJet_ = IsoDepositExtractorFactory::get()->create( jetExtractorName, jetExtractorPSet,consumesCollector());
    }
    if (fillIsolation_ && writeIsoDeposits_){
      trackDepositName_ = iConfig.getParameter<std::string>("trackDepositName");

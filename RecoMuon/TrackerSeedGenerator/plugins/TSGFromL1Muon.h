@@ -11,11 +11,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-
 namespace edm { class Event; class EventSetup; }
 class L1MuonRegionProducer;
 class L1MuonPixelTrackFitter;
@@ -30,7 +25,7 @@ public:
   virtual ~TSGFromL1Muon();
   virtual void beginRun(const edm::Run & run, const edm::EventSetup&es) override;
   virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
-
+private:
  
 private:
   edm::ParameterSet theConfig;
@@ -43,6 +38,5 @@ private:
   PixelTrackFilter * theFilter;
   L1MuonSeedsMerger * theMerger;
 
-  edm::EDGetTokenT<l1extra::L1MuonParticleCollection> l1muonToken;
 };
 #endif

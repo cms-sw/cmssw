@@ -135,8 +135,7 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
     for( std::vector<std::string>::const_iterator label = isolationLabels.begin();label != isolationLabels.end();++label)
       psetMap[*label] =pfIsoPSet.getParameter<edm::ParameterSet >(*label); 
 
-    edm::ConsumesCollector iC = consumesCollector();
-    thePFIsoHelper = new MuPFIsoHelper(psetMap,iC);
+    thePFIsoHelper = new MuPFIsoHelper(psetMap,consumesCollector());
 
     //Now loop on the mass read for each PSet the parameters and save them to the mapNames for later
 

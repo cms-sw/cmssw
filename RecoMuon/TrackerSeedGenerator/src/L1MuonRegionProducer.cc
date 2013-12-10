@@ -8,7 +8,8 @@
 
 using namespace std;
 
-L1MuonRegionProducer::L1MuonRegionProducer(const edm::ParameterSet& cfg) { 
+L1MuonRegionProducer::L1MuonRegionProducer(const edm::ParameterSet& cfg,
+	   edm::ConsumesCollector && iC) { 
 
   edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 

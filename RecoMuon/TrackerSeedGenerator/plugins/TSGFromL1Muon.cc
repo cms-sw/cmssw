@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
@@ -33,6 +34,8 @@
 
 #include <vector>
 
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
@@ -48,7 +51,6 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
 {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
-  l1muonToken = consumes<l1extra::L1MuonParticleCollection>(theSourceTag);
 }
 
 TSGFromL1Muon::~TSGFromL1Muon()
@@ -65,7 +67,7 @@ void TSGFromL1Muon::beginRun(const edm::Run & run, const edm::EventSetup&es)
   edm::ParameterSet regfactoryPSet = theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   TrackingRegionProducer * p =
-    TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
+    TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
   theRegionProducer = dynamic_cast<L1MuonRegionProducer* >(p);
 
   edm::ParameterSet hitsfactoryPSet =
@@ -94,7 +96,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
 
   edm::Handle<L1MuonParticleCollection> l1muon;
-  ev.getByToken(l1muonToken, l1muon);
+  ev.getByLabel(theSourceTag, l1muon);
 
   LogDebug("TSGFromL1Muon")<<l1muon->size()<<" l1 muons to seed from.";
 

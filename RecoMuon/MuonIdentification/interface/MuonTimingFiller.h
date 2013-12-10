@@ -41,7 +41,7 @@
 
 class MuonTimingFiller {
    public:
-  MuonTimingFiller(const edm::ParameterSet&, edm::ConsumesCollector& iC);
+  MuonTimingFiller(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
       ~MuonTimingFiller();
       void fillTiming( const reco::Muon& muon, reco::MuonTimeExtra& dtTime, 
                     reco::MuonTimeExtra& cscTime, reco::MuonTimeExtra& combinedTime, 

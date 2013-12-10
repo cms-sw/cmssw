@@ -40,7 +40,7 @@
 //
 // constructors and destructor
 //
-MuonTimingFiller::MuonTimingFiller(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
+MuonTimingFiller::MuonTimingFiller(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
 {
    // Load parameters for the DTTimingExtractor
    edm::ParameterSet dtTimingParameters = iConfig.getParameter<edm::ParameterSet>("DTTimingParameters");
