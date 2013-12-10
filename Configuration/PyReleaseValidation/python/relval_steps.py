@@ -259,6 +259,8 @@ steps['ZpMM_2250_8TeV_Tauola']=gen('ZpMM_2250_8TeV_Tauola_cfi',Kby(9,100))
 steps['ZpEE_2250_8TeV_Tauola']=gen('ZpEE_2250_8TeV_Tauola_cfi',Kby(9,100))
 steps['ZpTT_1500_8TeV_Tauola']=gen('ZpTT_1500_8TeV_Tauola_cfi',Kby(9,100))
 
+
+
 def identitySim(wf):
     return merge([{'--restoreRND':'SIM','--process':'SIM2'},wf])
 
@@ -400,6 +402,7 @@ steps['QCD_Pt_20_30']=genS('QCD_Pt_20_30_8TeV_cfi',Kby(25,100))
 steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_cfi',Kby(25,100))
 
 
+
 ## upgrade dedicated wf
 
 step1Up2017Defaults = {'-s' : 'GEN,SIM',
@@ -483,6 +486,91 @@ steps['ZMM_UPG2017_14']=gen2017('ZMM_14TeV_cfi',Kby(18,300))
 #steps['ADDMonoJet_d3MD3_UPG2017_14']=gen2017('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
 #steps['ZpMM_UPG2017_14']=gen2017('ZpMM_14TeV_cfi',Kby(9,200))
 #steps['WpM_UPG2017_14']=gen2017('WpM_14TeV_cfi',Kby(9,200))
+
+# step1 gensim
+step1Up2017EcalFineDefaults = {'-s' : 'GEN,SIM',
+                             '-n' : 10,
+                             '--conditions' : 'auto:upgrade2017', 
+                             '--beamspot' : 'Gauss',
+			     '--magField' : '38T_PostLS1',
+			     '--datatier' : 'GEN-SIM',
+                             '--eventcontent': 'FEVTDEBUG',
+                             '--geometry' : 'Extended2017',
+                             '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017'
+                             }
+def gen2017EcalFine(fragment,howMuch):
+    global step1Up2017EcalFineDefaults
+    return merge([{'cfg':fragment},howMuch,step1Up2017EcalFineDefaults])
+
+
+steps['FourMuPt1_200_UPG2017EcalFine']=gen2017EcalFine('FourMuPt_1_200_cfi',Kby(10,100))
+steps['SingleElectronPt10_UPG2017EcalFine']=gen2017EcalFine('SingleElectronPt10_cfi',Kby(9,300))
+steps['SingleElectronPt35_UPG2017EcalFine']=gen2017EcalFine('SingleElectronPt35_cfi',Kby(9,500))
+steps['SingleElectronPt1000_UPG2017EcalFine']=gen2017EcalFine('SingleElectronPt1000_cfi',Kby(9,50))
+steps['SingleGammaPt10_UPG2017EcalFine']=gen2017EcalFine('SingleGammaPt10_cfi',Kby(9,300))
+steps['SingleGammaPt35_UPG2017EcalFine']=gen2017EcalFine('SingleGammaPt35_cfi',Kby(9,50))
+steps['SingleMuPt1_UPG2017EcalFine']=gen2017EcalFine('SingleMuPt1_cfi',Kby(25,1000))
+steps['SingleMuPt10_UPG2017EcalFine']=gen2017EcalFine('SingleMuPt10_cfi',Kby(25,500))
+steps['SingleMuPt100_UPG2017EcalFine']=gen2017EcalFine('SingleMuPt100_cfi',Kby(9,500))
+steps['SingleMuPt1000_UPG2017EcalFine']=gen2017EcalFine('SingleMuPt1000_cfi',Kby(9,500))
+
+steps['TTbarLepton_UPG2017EcalFine_8']=gen2017EcalFine('TTbarLepton_Tauola_8TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_80_120_UPG2017EcalFine_8']=gen2017EcalFine('Wjet_Pt_80_120_8TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_3000_3500_UPG2017EcalFine_8']=gen2017EcalFine('Wjet_Pt_3000_3500_8TeV_cfi',Kby(9,50))
+steps['LM1_sfts_UPG2017EcalFine_8']=gen2017EcalFine('LM1_sfts_8TeV_cfi',Kby(9,100))
+
+steps['QCD_Pt_3000_3500_UPG2017EcalFine_8']=gen2017EcalFine('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800_UPG2017EcalFine_8']=gen2017EcalFine('QCD_Pt_600_800_8TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120_UPG2017EcalFine_8']=gen2017EcalFine('QCD_Pt_80_120_8TeV_cfi',Kby(9,100))
+
+steps['Higgs200ChargedTaus_UPG2017EcalFine_8']=gen2017EcalFine('H200ChargedTaus_Tauola_8TeV_cfi',Kby(9,100))
+steps['JpsiMM_UPG2017EcalFine_8']=gen2017EcalFine('JpsiMM_8TeV_cfi',Kby(66,1000))
+steps['TTbar_UPG2017EcalFine_8']=gen2017EcalFine('TTbar_Tauola_8TeV_cfi',Kby(9,100))
+steps['WE_UPG2017EcalFine_8']=gen2017EcalFine('WE_8TeV_cfi',Kby(9,100))
+steps['ZEE_UPG2017EcalFine_8']=gen2017EcalFine('ZEE_8TeV_cfi',Kby(9,100))
+steps['ZTT_UPG2017EcalFine_8']=gen2017EcalFine('ZTT_Tauola_All_hadronic_8TeV_cfi',Kby(9,15))
+steps['H130GGgluonfusion_UPG2017EcalFine_8']=gen2017EcalFine('H130GGgluonfusion_8TeV_cfi',Kby(9,100))
+steps['PhotonJets_Pt_10_UPG2017EcalFine_8']=gen2017EcalFine('PhotonJet_Pt_10_8TeV_cfi',Kby(9,150))
+steps['QQH1352T_Tauola_UPG2017EcalFine_8']=gen2017EcalFine('QQH1352T_Tauola_8TeV_cfi',Kby(9,100))
+
+steps['MinBias_TuneZ2star_UPG2017EcalFine_8']=gen2017EcalFine('MinBias_TuneZ2star_8TeV_pythia6_cff',Kby(9,30))
+steps['WM_UPG2017EcalFine_8']=gen2017EcalFine('WM_8TeV_cfi',Kby(9,200))
+steps['ZMM_UPG2017EcalFine_8']=gen2017EcalFine('ZMM_8TeV_cfi',Kby(18,300))
+
+steps['ADDMonoJet_d3MD3_UPG2017EcalFine_8']=gen2017EcalFine('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
+steps['ZpMM_UPG2017EcalFine_8']=gen2017EcalFine('ZpMM_8TeV_cfi',Kby(9,200))
+steps['WpM_UPG2017EcalFine_8']=gen2017EcalFine('WpM_8TeV_cfi',Kby(9,200))
+
+
+
+#14TeV
+steps['TTbarLepton_UPG2017EcalFine_14']=gen2017EcalFine('TTbarLepton_Tauola_14TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_80_120_UPG2017EcalFine_14']=gen2017EcalFine('Wjet_Pt_80_120_14TeV_cfi',Kby(9,100))
+steps['Wjet_Pt_3000_3500_UPG2017EcalFine_14']=gen2017EcalFine('Wjet_Pt_3000_3500_14TeV_cfi',Kby(9,50))
+steps['LM1_sfts_UPG2017EcalFine_14']=gen2017EcalFine('LM1_sfts_14TeV_cfi',Kby(9,100))
+
+steps['QCD_Pt_3000_3500_UPG2017EcalFine_14']=gen2017EcalFine('QCD_Pt_3000_3500_14TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800_UPG2017EcalFine_14']=gen2017EcalFine('QCD_Pt_600_800_14TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120_UPG2017EcalFine_14']=gen2017EcalFine('QCD_Pt_80_120_14TeV_cfi',Kby(9,100))
+
+steps['Higgs200ChargedTaus_UPG2017EcalFine_14']=gen2017EcalFine('H200ChargedTaus_Tauola_14TeV_cfi',Kby(9,100))
+steps['JpsiMM_UPG2017EcalFine_14']=gen2017EcalFine('JpsiMM_14TeV_cfi',Kby(66,1000))
+steps['TTbar_UPG2017EcalFine_14']=gen2017EcalFine('TTbar_Tauola_14TeV_cfi',Kby(9,100))
+steps['WE_UPG2017EcalFine_14']=gen2017EcalFine('WE_14TeV_cfi',Kby(9,100))
+steps['ZEE_UPG2017EcalFine_14']=gen2017EcalFine('ZEE_14TeV_cfi',Kby(9,100))
+steps['ZTT_UPG2017EcalFine_14']=gen2017EcalFine('ZTT_Tauola_All_hadronic_14TeV_cfi',Kby(9,150))
+steps['H130GGgluonfusion_UPG2017EcalFine_14']=gen2017EcalFine('H130GGgluonfusion_14TeV_cfi',Kby(9,100))
+steps['PhotonJets_Pt_10_UPG2017EcalFine_14']=gen2017EcalFine('PhotonJet_Pt_10_14TeV_cfi',Kby(9,150))
+steps['QQH1352T_Tauola_UPG2017EcalFine_14']=gen2017EcalFine('QQH1352T_Tauola_14TeV_cfi',Kby(9,100))
+
+steps['MinBias_TuneZ2star_UPG2017EcalFine_14']=gen2017EcalFine('MinBias_TuneZ2star_14TeV_pythia6_cff',Kby(9,300))
+steps['WM_UPG2017EcalFine_14']=gen2017EcalFine('WM_14TeV_cfi',Kby(9,200))
+steps['ZMM_UPG2017EcalFine_14']=gen2017EcalFine('ZMM_14TeV_cfi',Kby(18,300))
+
+steps['ADDMonoJet_d3MD3_UPG2017EcalFine_14']=gen2017EcalFine('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
+steps['ZpMM_UPG2017EcalFine_14']=gen2017EcalFine('ZpMM_14TeV_cfi',Kby(9,200))
+steps['WpM_UPG2017EcalFine_14']=gen2017EcalFine('WpM_14TeV_cfi',Kby(9,200))
+
 
 
 ####GENSIM AGING VALIDATION - STARTUP set of reference
