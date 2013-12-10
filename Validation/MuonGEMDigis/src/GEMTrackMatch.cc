@@ -21,40 +21,38 @@ GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::Par
    minEta_ = cfg_.getUntrackedParameter<double>("gemDigiMinEta",1.55);
    maxEta_ = cfg_.getUntrackedParameter<double>("gemDigiMaxEta",2.18);
    buildLUT();
-   track_eta =  new TH1F("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
-   track_phi =  new TH1F("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
-   track_dg_eta =  new TH1F("track_dg_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
-   track_sh_eta =  new TH1F("track_sh_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
+   track_eta =  dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
+   track_phi =  dbe_->book1D("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
 
-   dg_eta[0] = new TH1F("dg_eta_l1","dg_eta_l1",140,1.5,2.2);
-   dg_eta[1] = new TH1F("dg_eta_l2","dg_eta_l2",140,1.5,2.2);
-   dg_eta[2] = new TH1F("dg_eta_l1or2","dg_eta_l1or2",140,1.5,2.2);
-   dg_eta[3] = new TH1F("dg_eta_l1and2","dg_eta_l1and2",140,1.5,2.2);
+   dg_eta[0] = dbe_->book1D("dg_eta_l1","dg_eta_l1",140,1.5,2.2);
+   dg_eta[1] = dbe_->book1D("dg_eta_l2","dg_eta_l2",140,1.5,2.2);
+   dg_eta[2] = dbe_->book1D("dg_eta_l1or2","dg_eta_l1or2",140,1.5,2.2);
+   dg_eta[3] = dbe_->book1D("dg_eta_l1and2","dg_eta_l1and2",140,1.5,2.2);
 
-   dg_sh_eta[0] = new TH1F("dg_sh_eta_l1","dg_sh_eta_l1",140,1.5,2.2);
-   dg_sh_eta[1] = new TH1F("dg_sh_eta_l2","dg_sh_eta_l2",140,1.5,2.2);
-   dg_sh_eta[2] = new TH1F("dg_sh_eta_l1or2","dg_sh_eta_l1or2",140,1.5,2.2);
-   dg_sh_eta[3] = new TH1F("dg_sh_eta_l1and2","dg_sh_eta_l1and2",140,1.5,2.2);
+   dg_sh_eta[0] = dbe_->book1D("dg_sh_eta_l1","dg_sh_eta_l1",140,1.5,2.2);
+   dg_sh_eta[1] = dbe_->book1D("dg_sh_eta_l2","dg_sh_eta_l2",140,1.5,2.2);
+   dg_sh_eta[2] = dbe_->book1D("dg_sh_eta_l1or2","dg_sh_eta_l1or2",140,1.5,2.2);
+   dg_sh_eta[3] = dbe_->book1D("dg_sh_eta_l1and2","dg_sh_eta_l1and2",140,1.5,2.2);
 
-   dg_phi[0] = new TH1F("dg_phi_l1","dg_phi_l1",100,-PI,PI);
-   dg_phi[1] = new TH1F("dg_phi_l2","dg_phi_l2",100,-PI,PI);
-   dg_phi[2] = new TH1F("dg_phi_l1or2","dg_phi_l1or2",100,-PI,PI);
-   dg_phi[3] = new TH1F("dg_phi_l1and2","dg_phi_l1and2",100,-PI,PI);
+   dg_phi[0] = dbe_->book1D("dg_phi_l1","dg_phi_l1",100,-PI,PI);
+   dg_phi[1] = dbe_->book1D("dg_phi_l2","dg_phi_l2",100,-PI,PI);
+   dg_phi[2] = dbe_->book1D("dg_phi_l1or2","dg_phi_l1or2",100,-PI,PI);
+   dg_phi[3] = dbe_->book1D("dg_phi_l1and2","dg_phi_l1and2",100,-PI,PI);
   
-   dg_sh_phi[0] = new TH1F("dg_sh_phi_l1","dg_sh_phi_l1",100,-PI,PI);
-   dg_sh_phi[1] = new TH1F("dg_sh_phi_l2","dg_sh_phi_l2",100,-PI,PI);
-   dg_sh_phi[2] = new TH1F("dg_sh_phi_l1or2","dg_sh_phi_l1or2",100,-PI,PI);
-   dg_sh_phi[3] = new TH1F("dg_sh_phi_l1and2","dg_sh_phi_l1and2",100,-PI,PI);
+   dg_sh_phi[0] = dbe_->book1D("dg_sh_phi_l1","dg_sh_phi_l1",100,-PI,PI);
+   dg_sh_phi[1] = dbe_->book1D("dg_sh_phi_l2","dg_sh_phi_l2",100,-PI,PI);
+   dg_sh_phi[2] = dbe_->book1D("dg_sh_phi_l1or2","dg_sh_phi_l1or2",100,-PI,PI);
+   dg_sh_phi[3] = dbe_->book1D("dg_sh_phi_l1and2","dg_sh_phi_l1and2",100,-PI,PI);
 
-   pad_eta[0] = new TH1F("pad_eta_l1","pad_eta_l1",140,1.5,2.2);
-   pad_eta[1] = new TH1F("pad_eta_l2","pad_eta_l2",140,1.5,2.2);
-   pad_eta[2] = new TH1F("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
-   pad_eta[3] = new TH1F("copad_eta","copad_eta",140,1.5,2.2);
+   pad_eta[0] = dbe_->book1D("pad_eta_l1","pad_eta_l1",140,1.5,2.2);
+   pad_eta[1] = dbe_->book1D("pad_eta_l2","pad_eta_l2",140,1.5,2.2);
+   pad_eta[2] = dbe_->book1D("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
+   pad_eta[3] = dbe_->book1D("copad_eta","copad_eta",140,1.5,2.2);
 
-   pad_phi[0] = new TH1F("pad_phi_l1","pad_phi_l1",100,-PI,PI);
-   pad_phi[1] = new TH1F("pad_phi_l2","pad_phi_l2",100,-PI,PI);
-   pad_phi[2] = new TH1F("pad_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
-   pad_phi[3] = new TH1F("copad_phi","copad_phi",100,-PI,PI);
+   pad_phi[0] = dbe_->book1D("pad_phi_l1","pad_phi_l1",100,-PI,PI);
+   pad_phi[1] = dbe_->book1D("pad_phi_l2","pad_phi_l2",100,-PI,PI);
+   pad_phi[2] = dbe_->book1D("pad_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
+   pad_phi[3] = dbe_->book1D("copad_phi","copad_phi",100,-PI,PI);
 
    dg_lx_even        = dbe_->book1D("dg_lx_even","dg_lx_even",100,-100,100); 
    dg_lx_even_l1     = dbe_->book1D("dg_lx_even_l1","dg_lx_even_l1",100,-100,100);
@@ -252,7 +250,6 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     track_eta->Fill( fabs( track_.eta)  );
-    track_dg_eta->Fill( fabs( track_.eta));
     if ( track_.gem_dg_layer1 > 0 ) {
       dg_eta[0]->Fill ( fabs( track_.eta ) );
     }
@@ -270,8 +267,6 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
 
-    track_sh_eta->Fill( fabs( track_.eta));
-  
     if ( track_.gem_sh_layer1 > 0 ) {
       dg_sh_eta[0]->Fill ( fabs(track_.eta)); 
     }
