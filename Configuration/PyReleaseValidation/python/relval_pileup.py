@@ -29,9 +29,7 @@ workflows[401]=['TTbarNewMix',['TTbarFSPU2','HARVESTFS']]
 
 # 50 ns at 13 TeV and POSTLS1
 workflows[50200]=['',['ZEE_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
-#
-workflows[50201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
-# cannot be recycled => GEN SIM NEEDED!
+workflows[50201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]  # verify GEN-SIM when card is available
 workflows[50202]=['',['TTbar_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
 workflows[50203]=['',['H130GGgluonfusion_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
 workflows[50204]=['',['QQH1352T_Tauola_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
