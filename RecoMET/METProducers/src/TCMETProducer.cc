@@ -11,9 +11,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 
 #include <string.h>
@@ -24,7 +21,6 @@ namespace cms
 
 //____________________________________________________________________________||
   TCMETProducer::TCMETProducer(const edm::ParameterSet& iConfig)
-    : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src")))
   {
     std::string alias(iConfig.getParameter<std::string>("alias"));
     produces<reco::METCollection>().setBranchAlias(alias.c_str());

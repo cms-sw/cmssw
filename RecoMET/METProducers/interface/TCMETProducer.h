@@ -41,8 +41,6 @@ namespace cms
 
     private:
 
-      edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
-
       TCMETAlgo tcMetAlgo_;
 
     };
