@@ -13,6 +13,14 @@ from RecoTracker.FinalTrackSelectors.preDuplicateMergingGeneralTracks_cfi import
 from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
+earlyGeneralTracks.selectedTrackQuals[0] = cms.InputTag("initialStepSelector","initialStep")
+earlyGeneralTracks.selectedTrackQuals[5] = cms.InputTag("pixelLessStepSelector","pixelLessStep")
+
+photonConvTrajSeedFromSingleLeg.OrderedHitsFactoryPSet.maxElement = 10000
+photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.MaxNumberOfCosmicClusters = 150000
+photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.MaxNumberOfPixelClusters = 20000
+photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.cut = "strip < 150000 && pixel < 20000 && (strip < 20000 + 7* pixel)"
+
 iterTracking = cms.Sequence(InitialStep*
                             LowPtTripletStep*
                             PixelPairStep*

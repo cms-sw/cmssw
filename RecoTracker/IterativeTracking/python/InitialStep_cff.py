@@ -13,10 +13,10 @@ initialStepClusters = cms.EDProducer("TrackClusterRemover",
                                      doStripChargeCheck = cms.bool(True),
                                      stripRecHits = cms.string('siStripMatchedRecHits'),
                                      Common = cms.PSet(
-    maxChi2 = cms.double(9.0),
-    minGoodStripCharge = cms.double(50.0)
-    )
-)
+                                       maxChi2 = cms.double(9.0),
+                                       minGoodStripCharge = cms.double(50.0)
+                                      )
+                                     )
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
@@ -102,28 +102,24 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
     GBRForestLabel = cms.string('MVASelectorIter0'),
     trackSelectors= cms.VPSet(
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-    name = 'initialStepLoose',
-    ), #end of pset
+        name = 'initialStepLoose',
+        ), #end of pset
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-    name = 'initialStepTight',
-    preFilterName = 'initialStepLoose',
-    ),
+        name = 'initialStepTight',
+        preFilterName = 'initialStepLoose',
+        ),
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-    name = 'initialStepV1',
-    preFilterName = 'initialStepTight',
-    ),
+        name = 'initialStepV1',
+        preFilterName = 'initialStepTight',
+        ),
     detachedTripletStepSelector.trackSelectors[4].clone(
-    name = 'initialStepV2',
-    preFilterName=cms.string(''),
-    d0_par1 = ( 1.0, 3.0 ),#from mixedTripletStep
-    dz_par1 = ( 1.0, 3.0 ),#from mixedTripletStep
-    d0_par2 = ( 1.1, 3.0 ),#from mixedTripletStep
-    dz_par2 = ( 1.1, 3.0 ) #from mixedTripletStep
-    ),
+        name = 'initialStepV2',
+        preFilterName=cms.string('')
+        ),
     detachedTripletStepSelector.trackSelectors[5].clone(
-    name = 'initialStepV3',
-    preFilterName=cms.string('')
-    )
+        name = 'initialStepV3',
+        preFilterName=cms.string('')
+        )
     ) #end of vpset
 )#end of clone
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi

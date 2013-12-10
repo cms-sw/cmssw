@@ -456,7 +456,8 @@ namespace cms
 	      trkUpdated[j]=true;
 	    }else{
 	      // If tracks from both iterations are virtually identical, choose the one with the best quality
-	      if ((trackQuals[j] & 0x0111) <= (trackQuals[i] & 0x0111 )) {
+	      if ((trackQuals[j] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) ) <= 
+		  (trackQuals[i] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) )) {
 		selected[j]=0;
 		selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 		trkUpdated[i]=true;
