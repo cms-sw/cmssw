@@ -29,19 +29,20 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 	if ( pPath != NULL ) dname = std::string(pPath);
 	std::string fname("/tmp/classes.txt.unsorted");
 	std::string tname = dname + fname;
-	llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
 	std::string rname = RD->getQualifiedNameAsString();
-	output <<"class " << rname <<"\n";
+	llvm::StringRef Rname("class "+rname);
+	llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
+	output << Rname.str() <<"\n";
 	for (clang::RecordDecl::field_iterator I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
 		{
-		clang::QualType qual;
-		if (I->getType().getTypePtr()->isAnyPointerType()) 
-			qual = I->getType().getTypePtr()->getPointeeType();
-		else 
-			qual = I->getType().getNonReferenceType();
-
-		if (!qual.getTypePtr()->isRecordType()) return;
-		if (const CXXRecordDecl * TRD = I->getType().getTypePtr()->getAsCXXRecordDecl()) checkASTDecl( TRD, mgr, BR );
+			FieldDecl * FD = *I;
+			clang::QualType qual;
+			if (FD->getType().getTypePtr()->isAnyPointerType()) 
+				qual = FD->getType().getTypePtr()->getPointeeType();
+			else 
+				qual = FD->getType().getNonReferenceType();
+			if (!qual.getTypePtr()->isRecordType()) return;
+			if (const CXXRecordDecl * TRD = qual->getAsCXXRecordDecl()) checkASTDecl( TRD, mgr, BR );
 		}
 
 } //end class
