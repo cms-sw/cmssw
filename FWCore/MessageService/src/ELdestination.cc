@@ -88,12 +88,12 @@ bool ELdestination::log( const edm::ErrorObj &)  { return false; }
 // and all the no-op methods will issue an ELwarning2 at their own destination.
 
 
-static ELstring noSummarizationMsg = "No summarization()";
-static ELstring noSummaryMsg = "No summary()";
-static ELstring noClearSummaryMsg = "No clearSummary()";
-static ELstring hereMsg = "available via this destination";
-static ELstring noosMsg = "No ostream";
-static ELstring notELoutputMsg = "This destination is not an ELoutput";
+static const ELstring noSummarizationMsg = "No summarization()";
+static const ELstring noSummaryMsg = "No summary()";
+static const ELstring noClearSummaryMsg = "No clearSummary()";
+static const ELstring hereMsg = "available via this destination";
+static const ELstring noosMsg = "No ostream";
+static const ELstring notELoutputMsg = "This destination is not an ELoutput";
 
 void ELdestination::clearSummary()  {
 
