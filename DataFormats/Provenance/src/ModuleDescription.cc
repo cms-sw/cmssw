@@ -18,12 +18,12 @@ namespace edm {
     moduleName_(),
     moduleLabel_(),
     processConfigurationPtr_(nullptr),
-    id_(getInvalidID()){}
+    id_(invalidID()){}
 
   ModuleDescription::ModuleDescription(
 		ParameterSetID const& pid,
 		std::string const& modName,
-		std::string const& modLabel) : ModuleDescription{pid, modName, modLabel, nullptr, getInvalidID()} {}
+		std::string const& modLabel) : ModuleDescription{pid, modName, modLabel, nullptr, invalidID()} {}
 
   ModuleDescription::ModuleDescription(
 		ParameterSetID const& pid,
@@ -39,12 +39,12 @@ namespace edm {
 
   ModuleDescription::ModuleDescription(
 		std::string const& modName,
-		std::string const& modLabel) : ModuleDescription{ParameterSetID(), modName, modLabel, nullptr, getInvalidID()} {}
+		std::string const& modLabel) : ModuleDescription{ParameterSetID(), modName, modLabel, nullptr, invalidID()} {}
 
   ModuleDescription::ModuleDescription(
 		std::string const& modName,
 		std::string const& modLabel,
-		ProcessConfiguration const* procConfig) : ModuleDescription{ParameterSetID(), modName, modLabel, procConfig, getInvalidID()} {}
+		ProcessConfiguration const* procConfig) : ModuleDescription{ParameterSetID(), modName, modLabel, procConfig, invalidID()} {}
 
   ModuleDescription::~ModuleDescription() {}
 
