@@ -47,8 +47,8 @@ sys.setdlopenflags(DLFCN.RTLD_GLOBAL+DLFCN.RTLD_LAZY)
 from pluginCondDBPyInterface import *
 a = FWIncantation()
 rdbms = RDBMS("/afs/cern.ch/cms/DB/conddb")
-logName = "oracle://cms_orcoff_prod/CMS_COND_31X_POPCONLOG"
-gdbName = "oracle://cms_orcoff_prod/CMS_COND_31X_GLOBALTAG"
+logName = "oracle://cms_orcon_adg/CMS_COND_31X_POPCONLOG"
+gdbName = "oracle://cms_orcon_adg/CMS_COND_31X_GLOBALTAG"
 gName = options.globalTag+'::All'
 globalTag = rdbms.globalTag(gdbName,gName,"","")
 
@@ -87,14 +87,14 @@ process.GlobalTag.RefreshEachRun=cms.untracked.bool(False)
 process.GlobalTag.DumpStat=cms.untracked.bool(True)
 process.GlobalTag.pfnPrefix=cms.untracked.string('')
 process.GlobalTag.pfnPostfix=cms.untracked.string('')
-process.GlobalTag.DBParameters.authenticationPath = "/afs/cern.ch/cms/DB/conddb"
+#process.GlobalTag.DBParameters.authenticationPath = "/afs/cern.ch/cms/DB/conddb"
 process.GlobalTag.DBParameters.connectionTimeOut = 0
 process.GlobalTag.DBParameters.messageLevel = 0
 process.GlobalTag.DBParameters.transactionId = cms.untracked.string("")
 
 
 if(options.source=="oracle") :
-  process.GlobalTag.pfnPrefix = cms.untracked.string('oracle://cms_orcoff_prod/')
+  process.GlobalTag.pfnPrefix = cms.untracked.string('oracle://cms_orcon_adg/')
 
 #process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
 #process.GlobalTag.pfnPrefix = "oracle://cmsarc_lb/"

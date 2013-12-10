@@ -40,8 +40,8 @@ namespace cond {
       m_transaction( *m_session ){
     }
     
-    Session::Session( boost::shared_ptr<coral::ISessionProxy>& session ):
-      m_session( new SessionImpl( session ) ),
+    Session::Session( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString ):
+      m_session( new SessionImpl( session, connectionString ) ),
       m_transaction( *m_session ){
     }
 
@@ -133,6 +133,13 @@ namespace cond {
       return proxy;
     }
     
+    GTProxy Session::readGlobalTag( const std::string& name, const std::string& preFix, const std::string& postFix  ){
+      m_session->openGTDb();
+      GTProxy proxy( m_session );
+      proxy.load( name, preFix, postFix );
+      return proxy;
+    }
+
     cond::Hash Session::storePayloadData( const std::string& payloadObjectType, 
 					  const cond::Binary& payloadData, 
 					  const boost::posix_time::ptime& creationTime ){
@@ -161,6 +168,24 @@ namespace cond {
       if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
       m_session->iovSchema().tagMigrationTable().insert( sourceAccount, sourceTag, destTag, 
 						       boost::posix_time::microsec_clock::universal_time() );
+    }
+
+    std::string Session::connectionString(){
+      return m_session->connectionString;
+    }
+
+    TransactionScope::TransactionScope( Transaction& transaction ):
+      m_transaction(transaction),m_status(false){
+    }
+
+    TransactionScope::~TransactionScope(){
+      if(!m_status && m_transaction.isActive() ) {
+	m_transaction.rollback();
+      }
+    }
+    
+    void TransactionScope::close(){
+      m_status = true;
     }
     
   }

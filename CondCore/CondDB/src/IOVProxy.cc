@@ -130,7 +130,7 @@ namespace cond {
       if( full ) {
 	
 	// load the full iov sequence in this case!
-	m_session->iovSchema().iovTable().selectLast( m_data->tag, m_data->iovSequence );
+	m_session->iovSchema().iovTable().selectLatest( m_data->tag, m_data->iovSequence );
 	m_data->lowerGroup = cond::time::MIN_VAL;
 	m_data->higherGroup = cond::time::MAX_VAL;
       } else {
@@ -171,6 +171,10 @@ namespace cond {
     cond::Time_t IOVProxy::lastValidatedTime() const {
       return m_data.get() ? m_data->lastValidatedTime : cond::time::MIN_VAL;
     }
+
+    bool IOVProxy::isEmpty() const {
+      return m_data.get() ? ( m_data->sinceGroups.size()==0 && m_data->iovSequence.size()==0 ) : true; 
+    }
     
     void IOVProxy::checkSession( const std::string& ctx ){
       if( !m_session.get() ) throwException("The session is not active.",ctx );
@@ -178,7 +182,7 @@ namespace cond {
     
     void IOVProxy::fetchSequence( cond::Time_t lowerGroup, cond::Time_t higherGroup ){
       m_data->iovSequence.clear();
-      m_session->iovSchema().iovTable().selectLastByGroup( m_data->tag, lowerGroup, higherGroup, m_data->iovSequence );
+      m_session->iovSchema().iovTable().selectLatestByGroup( m_data->tag, lowerGroup, higherGroup, m_data->iovSequence );
       
       m_data->lowerGroup = lowerGroup;
       m_data->higherGroup = higherGroup;
@@ -262,12 +266,25 @@ namespace cond {
       }
       return *valid;
     }
+
+    cond::Iov_t IOVProxy::getLast(){
+      cond::Iov_t ret;
+      if( m_session->iovSchema().iovTable().getLastIov( m_data->tag, ret.since, ret.payloadId ) ){
+	ret.till = cond::time::MAX_VAL;
+      }
+      return ret;
+    }
     
-    
-    int IOVProxy::size() const {
+    int IOVProxy::loadedSize() const {
       return m_data.get()? m_data->iovSequence.size() : 0;
     }
     
+    int IOVProxy::sequenceSize() const {
+      size_t ret;
+      m_session->iovSchema().iovTable().getSize( m_data->tag, ret );
+      return ret;
+    }
+
     size_t IOVProxy::numberOfQueries() const {
       return m_data.get()?  m_data->numberOfQueries : 0;
     }

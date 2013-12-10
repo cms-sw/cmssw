@@ -61,7 +61,7 @@ namespace cond {
       Session();
       
       // constructor
-      explicit Session( boost::shared_ptr<coral::ISessionProxy>& session );
+      Session( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString );
 
       // 
       Session( const Session& rhs );
@@ -106,7 +106,8 @@ namespace cond {
       IOVEditor editIov( const std::string& tag );
       
       // functions to store a payload in the database. return the identifier of the item in the db. 
-      template <typename T> cond::Hash storePayload( const T& payload, const boost::posix_time::ptime& creationTime );
+      template <typename T> cond::Hash storePayload( const T& payload, 
+						     const boost::posix_time::ptime& creationTime = boost::posix_time::microsec_clock::universal_time() );
       template <typename T> boost::shared_ptr<T> fetchPayload( const cond::Hash& payloadHash );
       
       // low-level function to access the payload data as a blob. mainly used for the data migration and testing. 
@@ -119,10 +120,14 @@ namespace cond {
       GTEditor editGlobalTag( const std::string& name );
       
       GTProxy readGlobalTag( const std::string& name );
+      // essentially for the bridge. useless where ORA disappears.
+      GTProxy readGlobalTag( const std::string& name, const std::string& preFix, const std::string& postFix  );
     public:
       
       bool checkMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, std::string& destinationTag );
       void addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destinationTag );
+
+      std::string connectionString();
       
     private:
       cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime );
@@ -152,6 +157,20 @@ namespace cond {
 			"Session::fetchPayload" );
       return deserialize<T>(  payloadType, payloadData, isOraSession() );
     }
+
+    class TransactionScope {
+    public:
+      explicit TransactionScope( Transaction& transaction );   
+      
+      ~TransactionScope();
+      
+      void close();
+    private:
+      Transaction& m_transaction;
+      bool m_status;
+      
+    };
+
 
   }
 }

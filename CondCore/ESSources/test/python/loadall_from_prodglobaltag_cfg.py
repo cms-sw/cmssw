@@ -7,7 +7,7 @@ options.register('runNumber',
                  VarParsing.VarParsing.varType.int,
                  "Run number; default gives latest IOV")
 options.register('globalTag',
-                 'IDEAL', #default value
+                 'FT_R_53_V18', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")
@@ -19,7 +19,8 @@ process = cms.Process("TEST")
 process.add_(cms.Service("PrintEventSetupDataRetrieval", printProviders=cms.untracked.bool(True)))
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-process.GlobalTag.globaltag = options.globalTag+'::All'
+#process.GlobalTag.globaltag = options.globalTag+'::All'
+process.GlobalTag.globaltag = options.globalTag
 process.GlobalTag.RefreshEachRun=cms.untracked.bool(False)
 process.GlobalTag.DumpStat=cms.untracked.bool(True)
 process.GlobalTag.pfnPrefix=cms.untracked.string('')

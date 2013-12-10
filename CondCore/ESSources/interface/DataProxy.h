@@ -7,22 +7,16 @@
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 
-#include "CondCore/IOVService/interface/PayloadProxy.h"
+#include "CondCore/CondDB/interface/PayloadProxy.h"
 
 // expose a cond::PayloadProxy as a eventsetup::DataProxy
-namespace cond {
-  template< typename DataT> struct DefaultInitializer {
-    void operator()(DataT &){}
-  };
-}
-
-template< class RecordT, class DataT , typename Initializer=cond::DefaultInitializer<DataT> >
-class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
+template< class RecordT, class DataT >
+  class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
   public:
   typedef DataProxy<RecordT,DataT> self;
-  typedef boost::shared_ptr<cond::PayloadProxy<DataT> > DataP;
+    typedef boost::shared_ptr<cond::persistency::PayloadProxy<DataT> > DataP;
 
-  explicit DataProxy(boost::shared_ptr<cond::PayloadProxy<DataT> > pdata) : m_data(pdata) { 
+    explicit DataProxy(boost::shared_ptr<cond::persistency::PayloadProxy<DataT> > pdata) : m_data(pdata) { 
  
   }
   //virtual ~DataProxy();
@@ -36,7 +30,6 @@ class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
   protected:
   virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
     m_data->make();
-    m_initializer(const_cast<DataT&>((*m_data)()));
     return &(*m_data)();
   }
   virtual void invalidateCache() {
@@ -51,8 +44,8 @@ class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
   const DataProxy& operator=( const DataProxy& ); // stop default
   // ---------- member data --------------------------------
 
-  boost::shared_ptr<cond::PayloadProxy<DataT> >  m_data;
-  Initializer m_initializer;
+    boost::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_data;
+
 };
 
 namespace cond {
@@ -62,7 +55,7 @@ namespace cond {
    */
   class DataProxyWrapperBase {
   public:
-    typedef boost::shared_ptr<cond::BasePayloadProxy> ProxyP;
+    typedef boost::shared_ptr<cond::persistency::BasePayloadProxy> ProxyP;
     typedef boost::shared_ptr<edm::eventsetup::DataProxy> edmProxyP;
     
     // limitation of plugin manager...
@@ -76,9 +69,7 @@ namespace cond {
     DataProxyWrapperBase();
     explicit DataProxyWrapperBase(std::string const & il);
     // late initialize (to allow to load ALL library first)
-    virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
-			  std::string const & il, std::string const & cs, std::string const & tag)=0;
-    virtual void lateInit(cond::DbSession& session, const std::string & tag,
+    virtual void lateInit(cond::persistency::Session& session, const std::string & tag,
 			  std::string const & il, std::string const & cs)=0;
 
     void addInfo(std::string const & il, std::string const & cs, std::string const & tag);
@@ -101,19 +92,21 @@ namespace cond {
 /* bridge between the cond world and eventsetup world
  * keep them separated!
  */
-template< class RecordT, class DataT, typename Initializer=cond::DefaultInitializer<DataT> >
+template< class RecordT, class DataT >
 class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
-  typedef ::DataProxy<RecordT,DataT, Initializer> DataProxy;
-  typedef cond::PayloadProxy<DataT> PayProxy;
+  typedef ::DataProxy<RecordT,DataT> DataProxy;
+  typedef cond::persistency::PayloadProxy<DataT> PayProxy;
   typedef boost::shared_ptr<PayProxy> DataP;
   
   
-  DataProxyWrapper(cond::DbSession& session,
-		   const std::string & iovtoken, std::string const & ilabel, const char * source=0) :
+  DataProxyWrapper(cond::persistency::Session& session,
+		   const std::string& tag, const std::string& ilabel, const char * source=0) :
     cond::DataProxyWrapperBase(ilabel),
-    m_proxy(new PayProxy(session,iovtoken,true, source)), //errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions
+    m_source( source ? source : "" ),
+    m_proxy(new PayProxy( source)), //'errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions' still needed?
     m_edmProxy(new DataProxy(m_proxy)){
+    m_proxy->setUp( session );
     //NOTE: We do this so that the type 'DataT' will get registered
     // when the plugin is dynamically loaded
     m_type = edm::eventsetup::DataKey::makeTypeTag<DataT>();
@@ -127,25 +120,19 @@ public:
   }
 
   // late initialize (to allow to load ALL library first)
-  virtual void lateInit(cond::DbSession& session, const std::string & tag,
+  virtual void lateInit(cond::persistency::Session& session, const std::string & tag,
 			std::string const & il, std::string const & cs) {
-    m_proxy.reset(new PayProxy(session,true, //errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions
-			       m_source.empty() ?  (const char *)(0) : m_source.c_str() 
-			       )
-		  );
+    std::cout <<"$$ late init."<<std::endl;
+    /**
+    m_proxy.reset(new PayProxy(m_source.empty() ?  (const char *)(0) : m_source.c_str() ) );
+    std::cout <<"$$ using session..."<<std::endl;
+    m_proxy->setUp( session );
+    std::cout <<"$$ loading tag "<<tag<<std::endl;
     m_proxy->loadTag( tag);
+    std::cout <<"$$ almost ok... "<<std::endl;
     m_edmProxy.reset(new DataProxy(m_proxy));
     addInfo(il, cs, tag);
-  }
-  // late initialize (to allow to load ALL library first)
-  virtual void lateInit(cond::DbSession& session, const std::string & iovtoken,
-			std::string const & il, std::string const & cs, std::string const & tag) {
-    m_proxy.reset(new PayProxy(session,iovtoken,true, //errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions
-			       m_source.empty() ?  (const char *)(0) : m_source.c_str() 
-			       )
-		  );
-    m_edmProxy.reset(new DataProxy(m_proxy));
-    addInfo(il, cs, tag);
+    **/
   }
     
   virtual edm::eventsetup::TypeTag type() const { return m_type;}
@@ -155,7 +142,7 @@ public:
 private:
   std::string m_source;
   edm::eventsetup::TypeTag m_type;
-  boost::shared_ptr<cond::PayloadProxy<DataT> >  m_proxy;
+  boost::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_proxy;
   edmProxyP m_edmProxy;
 
 };
