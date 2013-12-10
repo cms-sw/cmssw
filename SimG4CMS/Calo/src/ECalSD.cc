@@ -38,7 +38,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 	       SensitiveDetectorCatalog & clg, 
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager, 
-	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<int>("TimeSliceUnit"),
+	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")*ns,
 	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")), 
   numberingScheme(0){
 
@@ -65,6 +65,9 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
   bool isItTB  = m_EC.getUntrackedParameter<bool>("TestBeam", false);
   bool nullNS  = m_EC.getUntrackedParameter<bool>("NullNumbering", false);
   storeRL      = m_EC.getUntrackedParameter<bool>("StoreRadLength", false);
+
+  //Changes for improved timing simulation
+  storeLayerTimeSim = m_EC.getUntrackedParameter<bool>("StoreLayerTimeSim", false);
   
   ageingWithSlopeLY   = m_EC.getUntrackedParameter<bool>("AgeingWithSlopeLY", false);
   if(ageingWithSlopeLY) ageing.setLumies(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("DelivLuminosity"),
@@ -123,8 +126,10 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 			  << " neutrons below " << kmaxNeutron << " MeV and"
 			  << " ions below " << kmaxIon << " MeV\n"
 			  << "         Depth1 Name = " << depth1Name
-			  << " and Depth2 Name = " << depth2Name;
-
+			  << " and Depth2 Name = " << depth2Name
+			  << " storeRL " << storeRL
+			  << " storeLayerTimeSim " << storeLayerTimeSim;
+  
   if (useWeight) initMap(name,cpv);
 
 }
@@ -223,14 +228,11 @@ int ECalSD::getTrackID(G4Track* aTrack) {
 
 uint16_t ECalSD::getDepth(G4Step * aStep) {
   G4LogicalVolume* lv   = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  uint16_t ret = 0;
-  if (any(useDepth1,lv))      ret = 1;
-  else if (any(useDepth2,lv)) ret = 2;
-  else if (storeRL) ret = getRadiationLength(aStep);
-#ifdef DebugLog
-  LogDebug("EcalSim") << "Volume " << lv->GetName() << " Depth " << ret;
-#endif
-  return ret;
+  if (any(useDepth1,lv))      return 1;
+  else if (any(useDepth2,lv)) return 2;
+  else if (storeRL) return getRadiationLength(aStep);
+  else if (storeLayerTimeSim) return getLayerIDForTimeSim(aStep);
+  return 0;
 }
 
 uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
@@ -250,6 +252,29 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
     } 
   }
   return thisX0;
+}
+
+uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep) 
+{
+  float    layerSize = 1*cm; //layer size in cm
+  if (this->nameOfSD().find("EcalHitsEB")==std::string::npos && this->nameOfSD().find("EcalHitsEE")==std::string::npos)
+    return 0;
+  if (aStep != NULL ) {
+    G4StepPoint* hitPoint = aStep->GetPostStepPoint();
+    G4LogicalVolume* lv   = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
+    G4ThreeVector  localPoint = setToLocal(hitPoint->GetPosition(),
+					   hitPoint->GetTouchable());
+    double crlength = crystalLength(lv);
+    double detz;
+    if( lv->GetName().find("refl") != std::string::npos )
+      detz     = (float)(0.5*crlength + localPoint.z());
+    else
+      detz     = (float)(0.5*crlength - localPoint.z());
+    if (detz<0)
+      detz=0;
+    return 100+(int)detz/layerSize;
+  }
+  return 0;
 }
 
 uint32_t ECalSD::setDetUnitId(G4Step * aStep) { 
@@ -416,13 +441,6 @@ double ECalSD::curve_LY(G4Step* aStep) {
 				 << " take weight = " << weight;
     }
   }
-#ifdef DebugLog
-  LogDebug("EcalSim") << "ECalSD, light coll curve : " << dapd 
-		      << " crlength = " << crlength
-		      << " crystal name = " << lv->GetName()
-		      << " z of localPoint = " << localPoint.z() 
-		      << " take weight = " << weight;
-#endif
   return weight;
 }
 
