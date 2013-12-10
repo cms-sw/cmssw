@@ -50,6 +50,7 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
 bool
 TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId)
 {
+
 	//require min pT of the simtrack
 	if ( theSimTrack.momentum().Perp2() < pTMin[trackingAlgorithmId] )
 	{
@@ -88,6 +89,8 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
 bool
 TrajectorySeedProducer2::passTrackerRecHitQualityCuts(std::vector<TrackerRecHit>& trackerRecHits, std::vector<unsigned int> previousHits, TrackerRecHit& currentHit, unsigned int trackingAlgorithmId)
 {
+	//TODO: it seems that currently only a PV compatibility check for the first 2 hits is really important
+
 	//return true;
 	if (previousHits.size()==1)
 	{
@@ -147,10 +150,12 @@ int TrajectorySeedProducer2::iterateHits(
 {
 
 
-
+	bool nextHitOnSameLayer=false;
+	bool thisHitOnSameLayer=false;
 	for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = start; itRecHit!=range.second; ++itRecHit)
 	{
-		const unsigned int currentHitIndex = itRecHit-range.first;
+	    unsigned int currentHitIndex = itRecHit-range.first;
+
 		//trackerRecHits.size() is 'absMinRecHits' + including hits on the same layer
 		if ( currentHitIndex >= trackerRecHits.size())
 		{
@@ -158,58 +163,67 @@ int TrajectorySeedProducer2::iterateHits(
 			return -1;
 		}
 		TrackerRecHit& currentTrackerHit = trackerRecHits[currentHitIndex];
-
-
-		//check: currentHitIndex==0 so that 'trackerRecHits[currentHitIndex-1]' is defined otherwise
-		//check: itRecHit == start to always accept the first hit even if it is on the same layer as the previous on, this breaks the recursion
-
-		if (currentHitIndex>0 && currentTrackerHit.isOnTheSameLayer(trackerRecHits[currentHitIndex-1]))
-		{
-
-			/*
-			//test follow both seeding solutions using both hits
-			int result1 = iterateHits(itRecHit+1,range,hitNumbers,trackerRecHits,trackingAlgorithmId,seedHitNumbers);
-			if (result1>=0)
-			{
-				return result1;
-			}
-			*/
-
-		}
 		std::cout<<"\thit="<<currentHitIndex<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<", globalX="<<currentTrackerHit.globalPosition().x()<<std::endl;
-		for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
+
+
+		thisHitOnSameLayer=nextHitOnSameLayer;
+		if (currentHitIndex+1 <= trackerRecHits.size())
 		{
-			unsigned int currentlayer = hitNumbers[ilayerset].size();
-
-			//TODO: speed things up by testing if the current hit is already further outside than the current layer
-			//-> faster rejection of invalid hits if there is no seed possible at all for a given simtrack
-			if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
+			nextHitOnSameLayer=trackerRecHits[currentHitIndex].isOnTheSameLayer(trackerRecHits[currentHitIndex+1]);
+		}
+		if (nextHitOnSameLayer)
+		{
+			//branch here to process an alternative seeding hypothesis using the next hit which will be skip by the main loop
+			int result=TrajectorySeedProducer2::iterateHits(
+					itRecHit+1,
+					range,
+					hitNumbers,
+					trackerRecHits,
+					trackingAlgorithmId,
+					seedHitNumbers
+				);
+			if (result>=0)
 			{
+				return result;
+			}
+		}
 
-				//TODO: it seems that currently only a PV compatibility check for the first 2 hits is really important
-				if (this->passTrackerRecHitQualityCuts(trackerRecHits, hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))
+
+		//skip this hit because in previous iteration this hit was already processed
+		if (thisHitOnSameLayer)
+		{
+			std::cout<<"hit on same layer"<<std::endl;
+		}
+		else
+		{
+			for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
+			{
+				unsigned int currentlayer = hitNumbers[ilayerset].size();
+
+				//TODO: speed things up by testing if the current hit is already further outside than the current layer
+				//-> faster rejection of invalid hits if there is no seed possible at all for a given simtrack
+				if (theLayersInSets[ilayerset][currentlayer].subDet==currentTrackerHit.subDetId() && theLayersInSets[ilayerset][currentlayer].idLayer==currentTrackerHit.layerNumber())
 				{
-					hitNumbers[ilayerset].push_back(itRecHit-range.first);
-					std::cout<<"hit accepted"<<std::endl;
-					//seedHitCandiates[ilayerset].push_back(currentTrackerHit);
-					//layerNames[ilayerset].push_back(theLayersInSets[ilayerset][currentlayer].name);
-
-					if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
+					if (this->passTrackerRecHitQualityCuts(trackerRecHits, hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))
 					{
-						//std::cout<<"found seed"<<std::endl;
-						//TODO: check if all valid seeds should be saved to perform additional quality checks
-						//seedHitNumbers=
-						for (unsigned int j=0; j<hitNumbers[ilayerset].size(); ++ j)
+						hitNumbers[ilayerset].push_back(itRecHit-range.first);
+						std::cout<<"hit accepted: layerset="<<ilayerset<<std::endl;
+
+						//seed found!
+						if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
 						{
-							seedHitNumbers.push_back(hitNumbers[ilayerset][j]);
+							for (unsigned int j=0; j<hitNumbers[ilayerset].size(); ++ j)
+							{
+								//save result
+								seedHitNumbers.push_back(hitNumbers[ilayerset][j]);
+							}
+							return ilayerset;
 						}
-						return ilayerset;
-						//foundSeed=true;
-						//break;
 					}
 				}
 			}
 		}
+
 
 	}
 	return -1;
@@ -312,7 +326,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
 		const unsigned int currentSimTrackId = *itSimTrackId;
-		//if (currentSimTrackId!=1088) continue;
+		//if (currentSimTrackId!=628) continue;
 		std::cout<<"processing simtrack with id: "<<currentSimTrackId<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[currentSimTrackId];
 
@@ -365,7 +379,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 					continue;
 				}
 				++numberOfNonEqualHits;
-				if ( numberOfNonEqualHits >= absMinRecHits ) break;
+				if ( numberOfNonEqualHits > absMinRecHits ) break;
 			}
 			if ( numberOfNonEqualHits < minRecHits[ialgo] ) continue;
 
@@ -496,7 +510,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
-    //if (simTrackId!=1088) continue;
+    //if (simTrackId!=628) continue;
     std::cout<<"processing simtrack with id: "<<theSimTrackIds[tkId]<<std::endl;
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId];
 #ifdef FAMOS_DEBUG
@@ -895,14 +909,22 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			  if (seedHit_old[isimtrack][ihit]!=seedHit_new[isimtrack][ihit])
 			  {
 				  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", hit="<<ihit<<" number is different!"<<std::endl;
-				  assert(false);
+				  //assert(false);
 			  }
 		  }
 	  }
 	  else
 	  {
-		  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", number of hits differ!"<<std::endl;
-		  assert(false);
+		  if (seedHit_old[isimtrack].size()<seedHit_new[isimtrack].size())
+		  {
+			  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", new number of hits are more!"<<std::endl;
+		  }
+		  else
+		  {
+			  std::cout<<"NOT EQUAL: simtrack="<<isimtrack<<", new number of hits are less!"<<std::endl;
+			  assert(false);
+		  }
+
 	  }
   }
 
