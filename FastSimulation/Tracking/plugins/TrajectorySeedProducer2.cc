@@ -159,11 +159,11 @@ int TrajectorySeedProducer2::iterateHits(
 		//trackerRecHits.size() is 'absMinRecHits' + including hits on the same layer
 		if ( currentHitIndex >= trackerRecHits.size())
 		{
-			std::cout<<"break absHits"<<std::endl;
+			//std::cout<<"break absHits"<<std::endl;
 			return -1;
 		}
 		TrackerRecHit& currentTrackerHit = trackerRecHits[currentHitIndex];
-		std::cout<<"\thit="<<currentHitIndex<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<", globalX="<<currentTrackerHit.globalPosition().x()<<std::endl;
+		//std::cout<<"\thit="<<currentHitIndex<<", subId="<<currentTrackerHit.subDetId()<<", layer="<<currentTrackerHit.layerNumber()<<", globalX="<<currentTrackerHit.globalPosition().x()<<std::endl;
 
 
 		thisHitOnSameLayer=nextHitOnSameLayer;
@@ -192,7 +192,7 @@ int TrajectorySeedProducer2::iterateHits(
 		//skip this hit because in previous iteration this hit was already processed
 		if (thisHitOnSameLayer)
 		{
-			std::cout<<"hit on same layer"<<std::endl;
+			//std::cout<<"hit on same layer"<<std::endl;
 		}
 		else
 		{
@@ -207,7 +207,7 @@ int TrajectorySeedProducer2::iterateHits(
 					if (this->passTrackerRecHitQualityCuts(trackerRecHits, hitNumbers[ilayerset], currentTrackerHit, trackingAlgorithmId))
 					{
 						hitNumbers[ilayerset].push_back(itRecHit-range.first);
-						std::cout<<"hit accepted: layerset="<<ilayerset<<std::endl;
+						//std::cout<<"hit accepted: layerset="<<ilayerset<<std::endl;
 
 						//seed found!
 						if (theLayersInSets[ilayerset].size()<=hitNumbers[ilayerset].size())
@@ -246,10 +246,6 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	const TrackerTopology *tTopo=tTopoHand.product();
 
 
-	unsigned nSimTracks = 0;
-	unsigned nTracksWithHits = 0;
-	unsigned nTracksWithPT = 0;
-	unsigned nTracksWithD0Z0 = 0;
 	//  unsigned nTrackCandidates = 0;
 	PTrajectoryStateOnDet initialState;
 
@@ -327,7 +323,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	{
 		const unsigned int currentSimTrackId = *itSimTrackId;
 		//if (currentSimTrackId!=628) continue;
-		std::cout<<"processing simtrack with id: "<<currentSimTrackId<<std::endl;
+		//std::cout<<"processing simtrack with id: "<<currentSimTrackId<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[currentSimTrackId];
 
 		int vertexIndex = theSimTrack.vertIndex();
@@ -387,8 +383,10 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			std::vector<unsigned int> seedHitNumbers;
 			int seedLayerSetIndex = iterateHits(recHitRange.first,recHitRange,hitNumbers,trackerRecHits, ialgo,seedHitNumbers);
 
+			/*
 			if (seedLayerSetIndex>=0)
 			{
+
 
 				std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentSimTrackId<<", #recHits=";
 				for (unsigned int j=0; j<seedHitNumbers.size();++j)
@@ -401,7 +399,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				{
 					std::cout<<"hit: "<<j<<", subId="<<trackerRecHits[j].subDetId()<<", layer="<<trackerRecHits[j].layerNumber()<<", globalX="<<trackerRecHits[j].globalPosition().x()<<std::endl;
 				}
-			}
+			}*/
 
 
 			if (seedLayerSetIndex>=0)
@@ -455,12 +453,13 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				}
 
 				//std::cout<<"produce seed for ialgo="<<ialgo<<", simtrackid="<<currentID<<", #recHits=";
+				/*
 				for (unsigned int i=0;i<seedHitNumbers.size();++i)
 				{
 					seedHit_new[currentSimTrackId].push_back(seedHitNumbers[i]);
 					//std::cout<<hitNumbers[seedLayerSet][i]<<",";
 				}
-
+				*/
 				//=std::cout<<std::endl;
 				const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
 				int dim = 5; /// should check if corresponds to m
@@ -483,14 +482,14 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 		} //end loop over seeding algorithms
 	} //end loop over simtracks
 
-	/*
+
 	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
 	{
 		std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
 		e.put(p,seedingAlgo[ialgo]);
 	}
-	*/
 
+/*
 	std::cout<<std::endl;
     std::cout<<"old result:"<<std::endl;
 
@@ -696,12 +695,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	      } else {
 		compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
 		//check
-		/*
-		  if((seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs") && !compatible) 
-		  std::cout << "NOT Compatible " <<  seedingAlgo[0] 
-		  <<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
-		  <<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
-		*/
+
 	      }
 	    }	
 	  }    
@@ -884,13 +878,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	  {
 		  std::cout<<"NOT EQUAL: NUMBER OF SEEDS! ("<<seedingAlgo[ialgo]<<"), old:"<<seed_old->size()<<", new:"<<seed_new->size()<<std::endl;
 	  }
-	  /*
-	  if (seed_new.nHits()!=seed_old.nHits())
-	  {
-		  std::cout<<"NOT EQUAL SEEDS"<<std::endl;
-	  }
 
-	  */
   }
 
   for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo ) {
@@ -933,6 +921,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 
   std::cout<<"-------------------"<<std::endl;
   std::cout<<"-------------------"<<std::endl;
+  */
 }
 
 
