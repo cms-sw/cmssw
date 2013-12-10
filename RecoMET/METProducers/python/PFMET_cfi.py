@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMET.METProducers.METSigParams_cfi import *
 
-pfMet = cms.EDProducer("METProducer",
+pfMet = cms.EDProducer("PFMETProducer",
                        
                        METSignificance_params,
                        src = cms.InputTag("particleFlow"),
