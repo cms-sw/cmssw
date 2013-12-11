@@ -40,6 +40,7 @@ namespace metsig
     void addPFCandidate(reco::PFCandidatePtr pf);
     void useOriginalPtrs(const edm::ProductID& productID);
     TMatrixD getSignifMatrix() const {return algo_.getSignifMatrix();}
+    TMatrixD mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
 
   private:
     metsig::SignAlgoResolutions *resolutions_;

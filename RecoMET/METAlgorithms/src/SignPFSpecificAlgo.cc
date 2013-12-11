@@ -11,6 +11,8 @@
 //____________________________________________________________________________||
 #include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 //____________________________________________________________________________||
 metsig::SignPFSpecificAlgo::SignPFSpecificAlgo()
 : resolutions_(0), algo_()
@@ -73,6 +75,23 @@ void metsig::SignPFSpecificAlgo::addPFCandidate(reco::PFCandidatePtr pf)
   std::vector<metsig::SigInputObj> vobj;
   vobj.push_back(resolutions_->evalPF(&(*pf)));
   algo_.addObjects(vobj);
+}
+
+//____________________________________________________________________________||
+TMatrixD metsig::SignPFSpecificAlgo::mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates)
+{
+  useOriginalPtrs(PFCandidates.id());
+  for(edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin(); iParticle != (PFCandidates.product())->end(); ++iParticle )
+    {
+      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*> (&(*iParticle));
+      if (!pfCandidate) continue;
+      reco::CandidatePtr dau(PFCandidates, iParticle - PFCandidates->begin());
+      if(dau.isNull()) continue;
+      if(!dau.isAvailable()) continue;
+      reco::PFCandidatePtr pf(dau.id(), pfCandidate, dau.key());
+      addPFCandidate(pf);
+    }
+  return getSignifMatrix();
 }
 
 //____________________________________________________________________________||

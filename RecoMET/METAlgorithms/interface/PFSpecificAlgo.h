@@ -49,7 +49,6 @@ class PFSpecificAlgo
   typedef math::XYZPoint Point;
   void initializeSpecificPFMETData(SpecificPFMETData &specific);
   SpecificPFMETData mkSpecificPFMETData(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
-  TMatrixD mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
 
   bool doSignificance;
   metsig::SignPFSpecificAlgo pfsignalgo_;
