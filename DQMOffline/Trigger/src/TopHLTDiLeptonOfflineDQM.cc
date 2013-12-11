@@ -840,6 +840,7 @@ TopHLTDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup
 
         //std::cout << " Processing : selectionOrder2 = " << type2.c_str() << std::endl; 
 
+        if(type2=="Hlt" || type2=="empty" ) continue;
         if (!selectmap_[type2]->select(event)) passSel=false;
 
       } // end 2nd loop
