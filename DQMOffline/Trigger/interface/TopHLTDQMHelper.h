@@ -10,6 +10,8 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 /*Originally from DQM/Physics package, written by Roger Wolf and Jeremy Andrea*/
 /**
    \fn      acceptTopHLTDQMHelpers.h "HLTriggerOffline/Top/interface/TopHLTDQMHelpers.h" 
@@ -171,19 +173,30 @@ class CalculateHLT {
    for jets to circumvent problems with the template specialisation. Note that for MET not 
    type1 or muon corrections are supported on reco candidates.
 */
+class SelectionStepHLTBase {
+  public:
+    virtual bool select(const edm::Event& event) {
+      return false;
+    };
+
+    virtual bool select(const edm::Event& event, const edm::EventSetup& setup) {
+      assert(false);
+      return false;
+    };
+};
 
 template <typename Object> 
-class SelectionStepHLT {
+class SelectionStepHLT: public SelectionStepHLTBase {
 public:
   /// default constructor
-  SelectionStepHLT(const edm::ParameterSet& cfg);
+  SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
   /// default destructor
-  ~SelectionStepHLT(){};
+  virtual ~SelectionStepHLT(){};
 
   /// apply selection
-  bool select(const edm::Event& event);
+  virtual bool select(const edm::Event& event);
   /// apply selection override for jets
-  bool select(const edm::Event& event, const edm::EventSetup& setup); 
+  virtual bool select(const edm::Event& event, const edm::EventSetup& setup); 
   bool selectVertex(const edm::Event& event);
 private:
   /// input collection
@@ -222,8 +235,8 @@ private:
 
 /// default constructor
 template <typename Object> 
-SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg) :
-  src_( consumes< edm::View<Object> >(cfg.getParameter<edm::InputTag>( "src"   ))),
+SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) :
+  src_( iC.consumes< edm::View<Object> >(cfg.getParameter<edm::InputTag>( "src"   ))),
   select_( cfg.getParameter<std::string>("select")),
   jetIDSelect_(0)
 {
@@ -234,7 +247,7 @@ SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg) :
   // read electron extras if they exist
   if(cfg.existsAs<edm::ParameterSet>("electronId")){ 
     edm::ParameterSet elecId=cfg.getParameter<edm::ParameterSet>("electronId");
-    electronId_= consumes< edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
+    electronId_= iC.consumes< edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
     eidPattern_= elecId.getParameter<int>("pattern");
   }
   // read jet corrector label if it exists
@@ -242,13 +255,13 @@ SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg) :
   // read btag information if it exists
   if(cfg.existsAs<edm::ParameterSet>("jetBTagger")){
     edm::ParameterSet jetBTagger=cfg.getParameter<edm::ParameterSet>("jetBTagger");
-    btagLabel_= consumes< reco::JetTagCollection >(jetBTagger.getParameter<edm::InputTag>("label"));
+    btagLabel_= iC.consumes< reco::JetTagCollection >(jetBTagger.getParameter<edm::InputTag>("label"));
     btagWorkingPoint_=jetBTagger.getParameter<double>("workingPoint");
   }
   // read jetID information if it exists
   if(cfg.existsAs<edm::ParameterSet>("jetID")){
     edm::ParameterSet jetID=cfg.getParameter<edm::ParameterSet>("jetID");
-    jetIDLabel_ = consumes< reco::JetIDValueMap >(jetID.getParameter<edm::InputTag>("label"));
+    jetIDLabel_ = iC.consumes< reco::JetIDValueMap >(jetID.getParameter<edm::InputTag>("label"));
     jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
   }
 }
@@ -308,12 +321,18 @@ bool SelectionStepHLT<Object>::selectVertex(const edm::Event& event)
   return (min_<0 && max_<0) ? (n>0):accept;
 }
 
-/// apply selection (w/o using the template class Object), override for jets
 template <typename Object> 
 bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventSetup& setup)
 {
+  return false;
+}
+/// apply selection (w/o using the template class Object), override for jets
+template <> 
+bool SelectionStepHLT<reco::Jet>::select(const edm::Event& event, const edm::EventSetup& setup)
+{
   // fetch input collection
-  edm::Handle<edm::View<Object> > src; 
+  //FIXME
+  edm::Handle<edm::View<reco::Jet> > src; 
   if( !event.getByToken(src_, src) ) return false;
 
   // load btag collection if configured such
@@ -360,7 +379,7 @@ bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventS
   }
   // determine multiplicity of selected objects
   int n=0;
-  for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
+  for(typename edm::View<reco::Jet>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
     // check for chosen btag discriminator to be above the 
     // corresponding working point if configured such 
     unsigned int idx = obj-src->begin();
@@ -372,7 +391,7 @@ bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventS
       }
       if(passedJetID){
 	// scale jet energy if configured such
-	Object jet=*obj; jet.scaleEnergy(corrector ? corrector->correction(*obj) : 1.);
+        reco::Jet jet=*obj; jet.scaleEnergy(corrector ? corrector->correction(*obj) : 1.);
 	if(select_(jet))++n;
       }
     }

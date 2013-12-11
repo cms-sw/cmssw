@@ -67,6 +67,7 @@ dqmEnvHLT.subSystemFolder = 'HLT'
 
 # Remove topElectronHLTOffDQMSource
 # remove quadJetAna
+from DQMOffline.Trigger.topHLTDQM_cff import *
 offlineHLTSource = cms.Sequence(
     hltResults *
     egHLTOffDQMSource *
@@ -77,7 +78,8 @@ offlineHLTSource = cms.Sequence(
     #TnPEfficiency *
     hltInclusiveVBFSource *
     TrackerCollisionTrackMonHLT *
-    dqmEnvHLT)
+    dqmEnvHLT *
+    topHLTriggerDQM)
 
 #triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)
