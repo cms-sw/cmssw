@@ -109,6 +109,7 @@ public:
   //FunctionWithDict functionMemberByName(const std::string& name, const TypeWithDict& signature, int mods, TypeMemberQuery memberQuery) const;
   TypeWithDict nestedType(char const*) const;
   TypeWithDict nestedType(const std::string&) const;
+  TypeWithDict finalType() const;
   TypeWithDict toType() const;
   void print(std::ostream& os) const;
   bool hasBase(const std::string&) const;
