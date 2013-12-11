@@ -22,8 +22,6 @@ RecoTauTagAOD = cms.PSet(
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
         'keep *_hpsPFTauProducer_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
-        'keep *_hpsTancTaus_*_*',
-        'keep *_hpsTancTausDiscrimination*_*_*'
         )
 )
 

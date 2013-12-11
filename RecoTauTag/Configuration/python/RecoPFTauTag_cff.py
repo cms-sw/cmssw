@@ -29,7 +29,9 @@ recoTauAK5PFJets08Region = cms.EDProducer(
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
          ak5PFJetsLegacyHPSPiZeros
 ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
-
+# import charged hadrons
+from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
+          ak5PFJetsRecoTauChargedHadrons
 
 #-------------------------------------------------------------------------------
 #------------------ Produce combinatoric base taus------------------------------
@@ -91,6 +93,7 @@ recoTauCommonSequence = cms.Sequence(
 # Produce only classic HPS taus
 recoTauClassicHPSSequence = cms.Sequence(
     ak5PFJetsLegacyHPSPiZeros *
+    ak5PFJetsRecoTauChargedHadrons *
     combinatoricRecoTaus *
     produceAndDiscriminateHPSPFTaus
 )

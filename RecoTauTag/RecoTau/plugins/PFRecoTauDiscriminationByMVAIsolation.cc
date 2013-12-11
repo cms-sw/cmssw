@@ -111,7 +111,7 @@ reco::tau::cone::IsoRings PFRecoTauDiscriminationByMVAIsolation::computeIsoRings
 
   for(unsigned int i = 0; i < pfTau->isolationPFCands().size(); i++)
   {
-    const PFCandidateRef pf = pfTau->isolationPFCands().at(i);
+    const PFCandidatePtr pf = pfTau->isolationPFCands().at(i);
 
     // Angular distance between PF candidate and tau
     float deta = pfTau->eta() - pf->eta();

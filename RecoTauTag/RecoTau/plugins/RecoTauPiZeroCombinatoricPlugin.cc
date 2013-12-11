@@ -59,7 +59,7 @@ RecoTauPiZeroCombinatoricPlugin::operator()(
   typedef PFCandPtrs::const_iterator PFCandIter;
   PiZeroVector output;
 
-  PFCandPtrs pfGammaCands = qcuts_.filterRefs(pfGammas(jet));
+  PFCandPtrs pfGammaCands = qcuts_.filterCandRefs(pfGammas(jet));
   // Check if we have anything to do...
   if (pfGammaCands.size() < choose_)
     return output.release();
