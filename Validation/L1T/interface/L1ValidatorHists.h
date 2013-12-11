@@ -9,7 +9,8 @@
 
 #include <string>
 
-//#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 /*#define DECLARE_HISTS(TYPE) \
 TH2F * ## TYPE ## _N_Pt; \
@@ -22,8 +23,9 @@ TH2F * ## TYPE ## _dPt;
 
 class L1ValidatorHists{
   public:
-    L1ValidatorHists(/*DQMStore *dbe*/);
+    L1ValidatorHists(DQMStore *dbe);
     ~L1ValidatorHists();
+    void Book();
     void Normalize();
     void Write();
 
@@ -47,20 +49,20 @@ class L1ValidatorHists{
     DECLARE_HISTS(TauJet)
     DECLARE_HISTS(Muon)*/
 
-    TH1F *N[Type::Number];
+    MonitorElement *N[Type::Number];
     TH1F *N_Pt[Type::Number];
     TH1F *N_Eta[Type::Number];
-    TH1F *Eff_Pt[Type::Number];
-    TH1F *Eff_Eta[Type::Number];
-    TH1F *TurnOn_15[Type::Number];
-    TH1F *TurnOn_30[Type::Number];
-    TH1F *dR[Type::Number];
-    TH1F *dPt[Type::Number];
+    MonitorElement *Eff_Pt[Type::Number];
+    MonitorElement *Eff_Eta[Type::Number];
+    MonitorElement *TurnOn_15[Type::Number];
+    MonitorElement *TurnOn_30[Type::Number];
+    MonitorElement *dR[Type::Number];
+    MonitorElement *dPt[Type::Number];
 
     // add the rest...
     //TH2F *ETM_Delta, *ETT_Delta, *HTM_Delta, *HTT_Delta;
 
-    //DQMStore *_dbe;
+    DQMStore *_dbe;
 
     void Fill(int, const reco::LeafCandidate *, const reco::LeafCandidate *);
     void FillNumber(int, int);

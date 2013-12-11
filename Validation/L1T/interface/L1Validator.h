@@ -34,7 +34,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <DataFormats/HepMCCandidate/interface/GenParticle.h>
@@ -48,8 +48,7 @@
 #include <DataFormats/L1Trigger/interface/L1EtMissParticle.h>
 #include <DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h>
 
-
-//#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/DQMStore.h>
 
 #include <Validation/L1T/interface/L1ValidatorHists.h>
 
@@ -70,16 +69,25 @@ class L1Validator : public edm::EDAnalyzer {
     //virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
 
-    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
     //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void analyze(const edm::Event&, const edm::EventSetup&);
 
     // ----------member data ---------------------------
-    //DQMStore* _dbe;
+    DQMStore* _dbe;
     std::string _dirName;
     std::string _fileName;
+
+    edm::EDGetTokenT<reco::GenParticleCollection> _GenSource;
+    edm::EDGetTokenT<l1extra::L1EmParticleCollection> _L1ExtraIsoEGSource;
+    edm::EDGetTokenT<l1extra::L1EmParticleCollection> _L1ExtraNonIsoEGSource;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1ExtraCenJetSource;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1ExtraForJetSource;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> _L1ExtraTauJetSource;
+    edm::EDGetTokenT<l1extra::L1MuonParticleCollection> _L1ExtraMuonSource;
+    //edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> _L1ExtraMETSource;
 
     L1ValidatorHists *_Hists;
 
