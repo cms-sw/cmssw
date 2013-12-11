@@ -83,21 +83,24 @@
 // constructors and destructor
 //
 MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
-//  , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
-//  , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
+
+  stripLabel_ = ps.getParameter<edm::InputTag>("stripLabel");
+  cscPadLabel_ = ps.getParameter<edm::InputTag>("cscPadLabel");
+  cscCopadLabel_ = ps.getParameter<edm::InputTag>("cscCopadLabel");
+  simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
+  simTrackMatching_ = ps.getParameterSet("simTrackMatching");
    //now do what ever initialization is needed
   
+  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
+  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ );
+  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_ );
+  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_ );
+  theGEMTrackMatch = new GEMTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
 
-  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripLabel"));
-  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscPadLabel"));
-  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscCopadLabel"));
-  theGEMTrackMatch = new GEMTrackMatch(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"), 
-                                       ps.getParameterSet("simTrackMatching") );
   
 
 

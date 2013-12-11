@@ -146,6 +146,7 @@ MuonGEMDigis_Harvesting::beginRun(edm::Run const&, edm::EventSetup const& iSetup
 void 
 MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 {
+  dbe_->cd();
   dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
   
   std::vector< std::string > postfix;
