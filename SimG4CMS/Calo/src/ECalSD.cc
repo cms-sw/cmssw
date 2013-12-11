@@ -292,12 +292,8 @@ uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep)
 	else
 	  detz     = (float)(0.5*crlength + localPoint.z());
       }
-    
     if (detz<0)
       detz=0;
-    
-    if (isEE)
-      std::cout << lv->GetName() << "," << localPoint.z() << "," << detz <<  std::endl;
     return 100+(int)detz/layerSize;
   }
   return 0;
