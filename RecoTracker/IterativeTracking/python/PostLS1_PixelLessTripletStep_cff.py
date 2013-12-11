@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.PostLS1_PixelLessStep_cff import *
 
 # SEEDING LAYERS BARREL
-pixelLessStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayersA'),
+pixelLessStepSeedLayersA = cms.PSet(
     layerList = cms.vstring(
     #TIB
     'TIB1+TIB2+MTIB3',
@@ -33,7 +32,7 @@ pixelLessStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
 # SEEDS BARREL
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 pixelLessStepSeedsA = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-pixelLessStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayersA'
+pixelLessStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = pixelLessStepSeedLayersA
 pixelLessStepSeedsA.OrderedHitsFactoryPSet.ComponentName = 'StandardMultiHitGenerator'
 pixelLessStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
     useFixedPreFiltering = cms.bool(False),
@@ -67,8 +66,7 @@ pixelLessStepSeedsA.SeedComparitorPSet = cms.PSet(
 )
  
 # SEEDING LAYERS ENDCAP
-pixelLessStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('pixelLessStepSeedLayersB'),
+pixelLessStepSeedLayersB = cms.PSet(
     layerList = cms.vstring(
     #TID
     'TID1_pos+TID2_pos+MTID3_pos','TID1_neg+TID2_neg+MTID3_neg',#ring 3 (mono)
@@ -110,7 +108,7 @@ pixelLessStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
 # SEEDS ENDCAP
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 pixelLessStepSeedsB = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-pixelLessStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayersB'
+pixelLessStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = pixelLessStepSeedLayersB
 pixelLessStepSeedsB.OrderedHitsFactoryPSet.ComponentName = 'StandardMultiHitGenerator'
 pixelLessStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
     useFixedPreFiltering = cms.bool(False),

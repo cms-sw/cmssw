@@ -157,12 +157,14 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //map<const DetLayer*, LayerRZPredictions> mapPred;//gc
   map<std::string, LayerRZPredictions> mapPred;//need to use the name as map key since we may have more than one SeedingLayer per DetLayer (e.g. TEC and OTEC)
   const RecHitsSortedInPhi * thirdHitMap[size];//gc: this comes from theLayerCache
+  const DetLayer *layers[size];
 
   //gc: loop over each layer
   for(int il = 0; il < size; il++) {
     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
     if (debug) cout << "considering third layer: " << theLayers[il].name() << " with hits: " << thirdHitMap[il]->all().second-thirdHitMap[il]->all().first << endl;
-    const DetLayer *layer = theLayers[il].detLayer();
+    const DetLayer *layer = theLayers[il].detLayer(es);
+    layers[il] = layer;
     LayerRZPredictions &predRZ = mapPred[theLayers[il].name()];
     predRZ.line.initLayer(layer);
     predRZ.line.initTolerance(extraHitRZtolerance);
@@ -172,7 +174,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     layerTree.clear();
     double minz=999999.0, maxz= -999999.0; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
-    bool barrelLayer = (theLayers[il].detLayer()->location() == GeomDetEnumerators::barrel);
+    bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
     if (hitRange.first != hitRange.second)
       { minz = barrelLayer? hitRange.first->hit()->globalPosition().z() : hitRange.first->hit()->globalPosition().perp();
 	maxz = minz; //In case there's only one hit on the layer
@@ -297,7 +299,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     for(int il = 0; il < size && !usePair; il++) {
 
       if (debug && ip->inner()->rawId()==debug_Id0 && ip->outer()->rawId()==debug_Id1) 
-	cout << "cosider layer: " << theLayers[il].name() << " for this pair. Location: " << theLayers[il].detLayer()->location() << endl;
+	cout << "cosider layer: " << theLayers[il].name() << " for this pair. Location: " << layers[il]->location() << endl;
 
       if (hitTree[il].empty()) {
 	if (debug && ip->inner()->rawId()==debug_Id0 && ip->outer()->rawId()==debug_Id1) {
@@ -309,7 +311,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       SeedingHitSet tripletFromThisLayer;
       float chi2FromThisLayer = std::numeric_limits<float>::max();
 
-      const DetLayer *layer = theLayers[il].detLayer();
+      const DetLayer *layer = layers[il];
       bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
 
       //gc: this is the curvature of the two hits assuming the region

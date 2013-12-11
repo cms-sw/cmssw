@@ -19,8 +19,7 @@ tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-tobTecStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('tobTecStepSeedLayersA'),
+tobTecStepSeedLayersA = cms.PSet(
     layerList = cms.vstring('TOB1+TOB2', 
         'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
         'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 
@@ -45,7 +44,7 @@ tobTecStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 tobTecStepSeedsA = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-tobTecStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayersA'
+tobTecStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = tobTecStepSeedLayersA
 tobTecStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 tobTecStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius = 6.0
@@ -53,8 +52,7 @@ tobTecStepSeedsA.SeedCreatorPSet.OriginTransverseErrorMultiplier = 2.0
 
 
 # SEEDING LAYERS
-tobTecStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('tobTecStepSeedLayersB'),
+tobTecStepSeedLayersB = cms.PSet(
     layerList = cms.vstring('TIB4+TOB1', 'TOB2+TOB3', 
                             'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
                             'TEC2_pos+TEC3_pos', 'TEC2_neg+TEC3_neg',
@@ -123,7 +121,7 @@ tobTecStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 tobTecStepSeedsB = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-tobTecStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayersB'
+tobTecStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = tobTecStepSeedLayersB
 tobTecStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin = 0.8
 tobTecStepSeedsB.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius = 3.0

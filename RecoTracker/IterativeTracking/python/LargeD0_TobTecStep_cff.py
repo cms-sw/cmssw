@@ -53,16 +53,14 @@ largeD0step5StripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHit
 )
 #SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.TobTecLayerPairs_cfi
-largeD0step5layerpairs = RecoTracker.TkSeedingLayers.TobTecLayerPairs_cfi.tobteclayerpairs.clone(
-    ComponentName = 'largeD0step5LayerPairs',
-)
-largeD0step5layerpairs.TOB.matchedRecHits = 'largeD0step5StripRecHits:matchedRecHit'
-largeD0step5layerpairs.TEC.matchedRecHits = 'largeD0step5StripRecHits:matchedRecHit'
+largeD0step5LayerPairs = RecoTracker.TkSeedingLayers.TobTecLayerPairs_cfi.TobTecLayerPairs.clone()
+largeD0step5LayerPairs.TOB.matchedRecHits = 'largeD0step5StripRecHits:matchedRecHit'
+largeD0step5LayerPairs.TEC.matchedRecHits = 'largeD0step5StripRecHits:matchedRecHit'
 
 #SEEDS
 from RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cff import *
 largeD0step5Seeds = RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cff.globalPixelLessSeeds.clone()
-largeD0step5Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step5LayerPairs'
+largeD0step5Seeds.OrderedHitsFactoryPSet.SeedingLayers = largeD0step5LayerPairs
 largeD0step5Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 largeD0step5Seeds.RegionFactoryPSet.RegionPSet.originRadius = 10.0
 largeD0step5Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 20.0

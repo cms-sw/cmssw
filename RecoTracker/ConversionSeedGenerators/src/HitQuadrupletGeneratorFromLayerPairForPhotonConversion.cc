@@ -71,13 +71,16 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
   /*----------------*/
 
   /*This object will check the compatibility of the his in phi among the two layers. */
-  //InnerDeltaPhi deltaPhi(*theInnerLayer.detLayer(), region, es);
+  //InnerDeltaPhi deltaPhi(*theInnerLayer.detLayer(es), region, es);
 
   vector<RecHitsSortedInPhi::Hit> innerHits;
   //  float outerPhimin, outerPhimax;
   float innerPhimin, innerPhimax;
   float maxDeltaPhi=1.; //sguazz
   //float maxDeltaPhi=1.;
+
+  const DetLayer *innerLayerDet = theInnerLayer.detLayer(es);
+  const DetLayer *outerLayerDet = theOuterLayer.detLayer(es);
 
   RecHitsSortedInPhi::Range outerHits = outerHitsMap.all();
 
@@ -87,7 +90,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     GlobalPoint oPos = ohit->globalPosition();  
 
     totCountP2++;
-    const HitRZCompatibility *checkRZ = region.checkRZ(theOuterLayer.detLayer(), ohit, es);    
+    const HitRZCompatibility *checkRZ = region.checkRZ(outerLayerDet, ohit, es);
     for(nextoh=oh+1;nextoh!=outerHits.second; ++nextoh){
       
       RecHitsSortedInPhi::Hit nohit = (*nextoh).hit();
@@ -105,7 +108,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     totCountM2++;
     
     /*Check the compatibility of the ohit with the eta of the seeding track*/
-    if(failCheckRZCompatibility(nohit,*theOuterLayer.detLayer(),checkRZ,region)) continue;
+    if(failCheckRZCompatibility(nohit, *outerLayerDet, checkRZ,region)) continue;
 
     /*  
     //Do I need this? it uses a compatibility that probably I wouldn't 
@@ -128,8 +131,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     (*ss) << "\tiphimin, iphimax " << innerPhimin << " " << innerPhimax << std::endl;
 #endif    
 
-    const HitRZCompatibility *checkRZb = region.checkRZ(theInnerLayer.detLayer(),  ohit, es);
-    const HitRZCompatibility *checkRZc = region.checkRZ(theInnerLayer.detLayer(), nohit, es);
+    const HitRZCompatibility *checkRZb = region.checkRZ(innerLayerDet,  ohit, es);
+    const HitRZCompatibility *checkRZc = region.checkRZ(innerLayerDet, nohit, es);
 
     /*Loop on inner hits*/
     vector<RecHitsSortedInPhi::Hit>::const_iterator ieh = innerHits.end();
@@ -146,9 +149,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       totCountP1++;
       
       /*Check the compatibility of the ihit with the two outer hits*/
-      if(failCheckRZCompatibility(ihit,*theInnerLayer.detLayer(),checkRZb,region) 
+      if(failCheckRZCompatibility(ihit, *innerLayerDet, checkRZb, region)
 	 || 
-	 failCheckRZCompatibility(ihit,*theInnerLayer.detLayer(),checkRZc,region) ) continue;
+	 failCheckRZCompatibility(ihit, *innerLayerDet, checkRZc, region) ) continue;
       
       
       for ( vector<RecHitsSortedInPhi::Hit>::const_iterator nextih=ih+1; nextih != ieh; ++nextih) {  
@@ -166,9 +169,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 	totCountM1++;
 
 	/*Check the compatibility of the nihit with the two outer hits*/
-	if(failCheckRZCompatibility(nihit,*theInnerLayer.detLayer(),checkRZb,region) 
+	if(failCheckRZCompatibility(nihit, *innerLayerDet, checkRZb, region)
 	   || 
-	   failCheckRZCompatibility(nihit,*theInnerLayer.detLayer(),checkRZc,region) ) continue;
+	   failCheckRZCompatibility(nihit, *innerLayerDet, checkRZc, region) ) continue;
 	
 	/*Sguazz modifica qui*/
 	if(failCheckSlopeTest(ohit,nohit,ihit,nihit,region)) continue;

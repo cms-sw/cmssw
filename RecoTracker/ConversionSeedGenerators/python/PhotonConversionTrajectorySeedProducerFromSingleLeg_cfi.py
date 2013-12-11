@@ -15,7 +15,7 @@ photonConvTrajSeedFromSingleLeg  = cms.EDProducer("PhotonConversionTrajectorySee
                                                   OrderedHitsFactoryPSet = cms.PSet(
                                                       maxHitPairsPerTrackAndGenerator = cms.uint32(10),
                                                       maxElement = cms.uint32(10000),
-                                                      SeedingLayers = cms.string('convLayerPairs')
+                                                      SeedingLayers = cms.PSet(),
                                                       ),
                                                   SeedComparitorPSet = cms.PSet(
                                                       ComponentName = cms.string('none')

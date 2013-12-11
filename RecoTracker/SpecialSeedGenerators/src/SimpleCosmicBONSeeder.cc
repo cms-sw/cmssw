@@ -9,6 +9,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 
 #include <numeric>
@@ -16,14 +17,14 @@ typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 using namespace std;
 SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) : 
   conf_(conf),
-  theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet")),
+  theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet"), consumesCollector()),
   writeTriplets_(conf.getParameter<bool>("writeTriplets")),
   seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
   rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),
   tripletsVerbosity_(conf.getParameter<edm::ParameterSet>("TripletsPSet").getUntrackedParameter<uint32_t>("debugLevel",0)),
   seedVerbosity_(conf.getUntrackedParameter<uint32_t>("seedDebugLevel",0)),
   helixVerbosity_(conf.getUntrackedParameter<uint32_t>("helixDebugLevel",0)),
-  check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+  check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), consumesCollector()),
   maxTriplets_(conf.getParameter<int32_t>("maxTriplets")),
   maxSeeds_(conf.getParameter<int32_t>("maxSeeds"))
 {
@@ -171,7 +172,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
 
     hitTriplets.clear();
     hitTriplets.reserve(0);
-    SeedingLayerSets lss = theLsb.layers(es);
+    SeedingLayerSets lss = theLsb.layers();
     SeedingLayerSets::const_iterator iLss;
 
     double minRho = region_.ptMin() / ( 0.003 * magfield->inTesla(GlobalPoint(0,0,0)).z() );
@@ -205,17 +206,22 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
 
         size_t sizBefore = hitTriplets.size();
         /// Now actually filling in the charges for all the clusters
+        const TransientTrackingRecHitBuilder *hitBuilders[3] = {
+          ls[0].hitBuilder(es),
+          ls[1].hitBuilder(es),
+          ls[2].hitBuilder(es)
+        };
         int idx = 0;
         for (iOuterHit = outerHits.begin(), idx = 0; iOuterHit != outerHits.end(); ++idx, ++iOuterHit){
-            outerTTRHs.push_back(ls[2].hitBuilder()->build((**iOuterHit).hit()));
+            outerTTRHs.push_back(hitBuilders[2]->build((**iOuterHit).hit()));
             if (checkCharge_ && !checkCharge(outerTTRHs.back()->hit())) outerOk[idx] = false;
         }
         for (iMiddleHit = middleHits.begin(), idx = 0; iMiddleHit != middleHits.end(); ++idx, ++iMiddleHit){
-            middleTTRHs.push_back(ls[1].hitBuilder()->build((**iMiddleHit).hit()));
+            middleTTRHs.push_back(hitBuilders[1]->build((**iMiddleHit).hit()));
             if (checkCharge_ && !checkCharge(middleTTRHs.back()->hit())) middleOk[idx] = false;
         }
         for (iInnerHit = innerHits.begin(), idx = 0; iInnerHit != innerHits.end(); ++idx, ++iInnerHit){
-            innerTTRHs.push_back(ls[0].hitBuilder()->build((**iInnerHit).hit()));
+            innerTTRHs.push_back(hitBuilders[0]->build((**iInnerHit).hit()));
             if (checkCharge_ && !checkCharge(innerTTRHs.back()->hit())) innerOk[idx] = false;
         }
         if (checkMaxHitsPerModule_) {

@@ -7,10 +7,6 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
@@ -27,6 +23,81 @@
 using namespace ctfseeding;
 using namespace std;
 
+namespace {
+  std::tuple<GeomDetEnumerators::SubDetector,
+             SeedingLayer::Side,
+             int> nameToEnumId(const std::string& name) {
+    GeomDetEnumerators::SubDetector subdet = GeomDetEnumerators::invalidDet;
+    SeedingLayer::Side side = SeedingLayer::Barrel;
+    int idLayer = 0;
+
+    size_t index;
+    //
+    // BPIX
+    //
+    if ((index = name.find("BPix")) != string::npos) {
+      subdet = GeomDetEnumerators::PixelBarrel;
+      side = SeedingLayer::Barrel;
+      idLayer = atoi(name.substr(index+4,1).c_str());
+    }
+    //
+    // FPIX
+    //
+    else if ((index = name.find("FPix")) != string::npos) {
+      subdet = GeomDetEnumerators::PixelEndcap;
+      idLayer = atoi(name.substr(index+4,1).c_str());
+      if ( name.find("pos") != string::npos ) {
+        side = SeedingLayer::PosEndcap;
+      } else {
+        side = SeedingLayer::NegEndcap;
+      }
+    }
+    //
+    // TIB
+    //
+    else if ((index = name.find("TIB")) != string::npos) {
+      subdet = GeomDetEnumerators::TIB;
+      side = SeedingLayer::Barrel;
+      idLayer = atoi(name.substr(index+3,1).c_str());
+    }
+    //
+    // TID
+    //
+    else if ((index = name.find("TID")) != string::npos) {
+      subdet = GeomDetEnumerators::TID;
+      idLayer = atoi(name.substr(index+3,1).c_str());
+      if ( name.find("pos") != string::npos ) {
+        side = SeedingLayer::PosEndcap;
+      } else {
+        side = SeedingLayer::NegEndcap;
+      }
+    }
+    //
+    // TOB
+    //
+    else if ((index = name.find("TOB")) != string::npos) {
+      subdet = GeomDetEnumerators::TOB;
+      side = SeedingLayer::Barrel;
+      idLayer = atoi(name.substr(index+3,1).c_str());
+    }
+    //
+    // TEC
+    //
+    else if ((index = name.find("TEC")) != string::npos) {
+      subdet = GeomDetEnumerators::TEC;
+      idLayer = atoi(name.substr(index+3,1).c_str());
+      if ( name.find("pos") != string::npos ) {
+        side = SeedingLayer::PosEndcap;
+      } else {
+        side = SeedingLayer::NegEndcap;
+      }
+    }
+    return std::make_tuple(subdet, side, idLayer);
+  }
+}
+
+SeedingLayerSetsBuilder::LayerSpec::LayerSpec() {}
+SeedingLayerSetsBuilder::LayerSpec::~LayerSpec() {}
 
 std::string SeedingLayerSetsBuilder::LayerSpec::print() const
 {
@@ -38,14 +109,21 @@ std::string SeedingLayerSetsBuilder::LayerSpec::print() const
   else str<<"false";
 
   str << ", useRingSelector: ";
-  if (useRingSelector) {
-    str <<"true,"<<" Rings: ("<<minRing<<","<<maxRing<<")"; 
+  HitExtractorSTRP *ext = nullptr;
+  if((ext = dynamic_cast<HitExtractorSTRP *>(extractor.get())) &&
+     ext->useRingSelector()) {
+    auto minMaxRing = ext->getMinMaxRing();
+    str <<"true,"<<" Rings: ("<< std::get<0>(minMaxRing) <<","<< std::get<1>(minMaxRing) <<")"; 
   } else  str<<"false";
 
   return str.str();
 }
 
-SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
+SeedingLayerSetsBuilder::SeedingLayerSetsBuilder() {}
+SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC):
+  SeedingLayerSetsBuilder(cfg, iC)
+{}
+SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC)
 {
   std::vector<std::string> namesPset = cfg.getParameter<std::vector<std::string> >("layerList");
   std::vector<std::vector<std::string> > layerNamesInSets = this->layerNamesInSets(namesPset);
@@ -62,7 +140,7 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
 //  }
 //  std::cout << str.str() << std::endl;
 
-  map<string,LayerSpec> mapConfig; // for debug printout only!
+  map<string, std::pair<std::size_t, std::size_t> > mapConfig; // for debug printout only!
 
   int layerSetId = 0;
   for (IT it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
@@ -75,44 +153,17 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
       edm::ParameterSet cfgLayer = layerConfig(layer.name, cfg);
 
       layer.usePixelHitProducer = true;
-      layer.useMatchedRecHits = true; 
-      layer.useRPhiRecHits = true;
-      layer.useStereoRecHits = true;
       if (cfgLayer.exists("HitProducer")) {
           layer.pixelHitProducer = cfgLayer.getParameter<string>("HitProducer"); 
       }else{
           layer.usePixelHitProducer = false;
       }
-      if (cfgLayer.exists("matchedRecHits")) {
-          layer.matchedRecHits = cfgLayer.getParameter<edm::InputTag>("matchedRecHits"); 
-      }else{
-          layer.useMatchedRecHits = false;
+      bool skipClusters = cfgLayer.exists("skipClusters");
+      if (skipClusters) {
+        LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" ready for skipping";
       }
-      if (cfgLayer.exists("rphiRecHits")) {
-          layer.rphiRecHits = cfgLayer.getParameter<edm::InputTag>("rphiRecHits"); 
-      }else{
-          layer.useRPhiRecHits = false;
-      }
-      if (cfgLayer.exists("stereoRecHits")) {
-          layer.stereoRecHits= cfgLayer.getParameter<edm::InputTag>("stereoRecHits"); 
-      }else{
-          layer.useStereoRecHits = false;
-      }
-      if (cfgLayer.exists("skipClusters")){
-	LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" ready for skipping (1)";
-	layer.clustersToSkip = cfgLayer.getParameter<edm::InputTag>("skipClusters");
-	layer.skipClusters=true;
-      }else{
-	layer.skipClusters=false;
-      }
-      if (layer.skipClusters){
-	if (cfgLayer.exists("useProjection")){
-	  LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" will project partially masked matched rechit";
-	  layer.useProjection=cfgLayer.getParameter<bool>("useProjection");
-	}
-	else{
-	  layer.useProjection=false;
-	}
+      else{
+        LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" not skipping ";
       }
       layer.hitBuilder  = cfgLayer.getParameter<string>("TTRHBuilder");
 
@@ -122,33 +173,73 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
         layer.hitErrorRZ   = cfgLayer.getParameter<double>("hitErrorRZ");
       }
 
-      layer.useRingSelector = cfgLayer.exists("useRingSlector") ? cfgLayer.getParameter<bool>("useRingSlector") : false;
-      if (layer.useRingSelector) {
-        layer.minRing = cfgLayer.getParameter<int>("minRing");
-        layer.maxRing = cfgLayer.getParameter<int>("maxRing");
+
+      auto subdetData = nameToEnumId(layer.name);
+      layer.subdet = std::get<0>(subdetData);
+      layer.side = std::get<1>(subdetData);
+      layer.idLayer = std::get<2>(subdetData);
+      if(layer.subdet == GeomDetEnumerators::PixelBarrel ||
+         layer.subdet == GeomDetEnumerators::PixelEndcap) {
+        layer.extractor = std::make_shared<HitExtractorPIX>(layer.side, layer.idLayer, layer.pixelHitProducer, iC);
+      }
+      else if(layer.subdet != GeomDetEnumerators::invalidDet) {
+        std::shared_ptr<HitExtractorSTRP> extractor = std::make_shared<HitExtractorSTRP>(layer.subdet, layer.side, layer.idLayer, iC);
+        if (cfgLayer.exists("matchedRecHits")) {
+          extractor->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
+        }
+        if (cfgLayer.exists("rphiRecHits")) {
+	  extractor->useRPhiHits(cfgLayer.getParameter<edm::InputTag>("rphiRecHits"), iC);
+        }
+        if (cfgLayer.exists("stereoRecHits")) {
+          extractor->useStereoHits(cfgLayer.getParameter<edm::InputTag>("stereoRecHits"), iC);
+        }
+        if (cfgLayer.exists("useRingSlector") && cfgLayer.getParameter<bool>("useRingSlector")) {
+          extractor->useRingSelector(cfgLayer.getParameter<int>("minRing"),
+                                     cfgLayer.getParameter<int>("maxRing"));
+        }
+        bool useSimpleRphiHitsCleaner = cfgLayer.exists("useSimpleRphiHitsCleaner") ? cfgLayer.getParameter<bool>("useSimpleRphiHitsCleaner") : true;
+        extractor->useSimpleRphiHitsCleaner(useSimpleRphiHitsCleaner);
+
+        double minAbsZ = cfgLayer.exists("MinAbsZ") ? cfgLayer.getParameter<double>("MinAbsZ") : 0.;
+        if(minAbsZ > 0.) {
+          extractor->setMinAbsZ(minAbsZ);
+        }
+        if(skipClusters) {
+          bool useProjection = cfgLayer.exists("useProjection") ? cfgLayer.getParameter<bool>("useProjection") : false;
+          if(useProjection) {
+            LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" will project partially masked matched rechit";
+          }
+          else {
+	    extractor->setNoProjection();
+          }
+        }
+
+        layer.extractor = extractor;
+      }
+      if(layer.extractor && skipClusters) {
+        layer.extractor->useSkipClusters(cfgLayer.getParameter<edm::InputTag>("skipClusters"), iC);
       }
 
-      layer.useSimpleRphiHitsCleaner = cfgLayer.exists("useSimpleRphiHitsCleaner") ? cfgLayer.getParameter<bool>("useSimpleRphiHitsCleaner") : true; 
 
-      layer.minAbsZ = cfgLayer.exists("MinAbsZ") ? cfgLayer.getParameter<double>("MinAbsZ") : 0.;
-
-      layersInSet.push_back(layer);
-      mapConfig[layer.name]=layer;
+      mapConfig[layer.name]=std::make_pair(theLayersInSets.size(), layersInSet.size());
       if (nameToId.find(layer.name)==nameToId.end()) {
 	std::string name = layer.name;
 	nameToId.insert( std::pair<std::string,int>(name,layerSetId) );
 	layerSetId++;	
       }
+      layersInSet.push_back(layer);
     }
     theLayersInSets.push_back(layersInSet);
   }
 
   // debug printout
   // The following should not be set to cout
-//  for (map<string,LayerSpec>::const_iterator im = mapConfig.begin(); im != mapConfig.end(); im++) {
-//    std::cout << (*im).second.print() << std::endl; 
+//  for(const auto& nameIndices: mapConfig) {
+//    std::cout << theLayersInSets[nameIndices.second.first][nameIndices.second.second].print() << std::endl;
 //  }
 }
+
+SeedingLayerSetsBuilder::~SeedingLayerSetsBuilder() {}
 
 edm::ParameterSet SeedingLayerSetsBuilder::layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const
 {
@@ -180,26 +271,11 @@ vector<vector<string> > SeedingLayerSetsBuilder::layerNamesInSets( const vector<
   return result;
 }
 
-SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) const
+SeedingLayerSets SeedingLayerSetsBuilder::layers() const
 {
   typedef std::vector<SeedingLayer> Set;
   SeedingLayerSets  result;
 
-  edm::ESHandle<GeometricSearchTracker> tracker;
-  es.get<TrackerRecoGeometryRecord>().get( tracker );
-
-  std::vector<BarrelDetLayer*>  bpx  = tracker->barrelLayers();
-  std::vector<BarrelDetLayer*>  tib  = tracker->tibLayers();
-  std::vector<BarrelDetLayer*>  tob  = tracker->tobLayers();
-
-  std::vector<ForwardDetLayer*> fpx_pos = tracker->posForwardLayers();
-  std::vector<ForwardDetLayer*> tid_pos = tracker->posTidLayers();
-  std::vector<ForwardDetLayer*> tec_pos = tracker->posTecLayers();
-
-  std::vector<ForwardDetLayer*> fpx_neg = tracker->negForwardLayers();
-  std::vector<ForwardDetLayer*> tid_neg = tracker->negTidLayers();
-  std::vector<ForwardDetLayer*> tec_neg = tracker->negTecLayers();
-  
   typedef std::vector<std::vector<LayerSpec> >::const_iterator IT;
   typedef std::vector<LayerSpec>::const_iterator IS;
 
@@ -208,119 +284,27 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
     bool setOK = true;
     for (IS is = it->begin(), isEnd = it->end(); is < isEnd; ++is) {
       const LayerSpec & layer = (*is);
-      std::string name = layer.name;
-      const DetLayer * detLayer =0;
-      SeedingLayer::Side side=SeedingLayer::Barrel;
-      int idLayer = 0;
       bool nameOK = true;
-      HitExtractor * extractor = 0; 
       
-      //
-      // BPIX
-      //
-      if (name.find("BPix") != string::npos) {
-        idLayer = atoi(name.substr(name.find("BPix")+4,1).c_str());
-        side=SeedingLayer::Barrel;
-        detLayer=bpx[idLayer-1]; 
-      }
-      //
-      // FPIX
-      //
-      else if (name.find("FPix") != string::npos) {
-        idLayer = atoi(name.substr(name.find("FPix")+4,1).c_str());
-        if ( name.find("pos") != string::npos ) {
-          side = SeedingLayer::PosEndcap;
-          detLayer = fpx_pos[idLayer-1];
-        } else {
-          side = SeedingLayer::NegEndcap;
-          detLayer = fpx_neg[idLayer-1];
-        }
-      }
-      //
-      // TIB
-      //
-      else if (name.find("TIB") != string::npos) {
-        idLayer = atoi(name.substr(name.find("TIB")+3,1).c_str());
-        side=SeedingLayer::Barrel;
-        detLayer=tib[idLayer-1];
-      }
-      //
-      // TID
-      //
-      else if (name.find("TID") != string::npos) {
-        idLayer = atoi(name.substr(name.find("TID")+3,1).c_str());
-        if ( name.find("pos") != string::npos ) {
-          side = SeedingLayer::PosEndcap;
-          detLayer = tid_pos[idLayer-1];
-        } else {
-          side = SeedingLayer::NegEndcap;
-          detLayer = tid_neg[idLayer-1];
-        }
-      }
-      //
-      // TOB
-      //
-      else if (name.find("TOB") != string::npos) {
-        idLayer = atoi(name.substr(name.find("TOB")+3,1).c_str());
-        side=SeedingLayer::Barrel;
-        detLayer=tob[idLayer-1];
-      }
-      //
-      // TEC
-      //
-      else if (name.find("TEC") != string::npos) {
-        idLayer = atoi(name.substr(name.find("TEC")+3,1).c_str());
-        if ( name.find("pos") != string::npos ) {
-          side = SeedingLayer::PosEndcap;
-          detLayer = tec_pos[idLayer-1];
-        } else {
-          side = SeedingLayer::NegEndcap;
-          detLayer = tec_neg[idLayer-1];
-        }
-      }
-      else {
+      if(layer.subdet == GeomDetEnumerators::invalidDet) {
         nameOK = false;
         setOK = false;
       }
 
       if(nameOK) {
-        if ( detLayer->subDetector() == GeomDetEnumerators::PixelBarrel ||
-             detLayer->subDetector() == GeomDetEnumerators::PixelEndcap) {
-          extractor = new HitExtractorPIX(side,idLayer,layer.pixelHitProducer);
-        } else {
-          HitExtractorSTRP extSTRP(detLayer,side,idLayer);
-	  if (layer.useMatchedRecHits) extSTRP.useMatchedHits(layer.matchedRecHits);
-	  if (layer.useRPhiRecHits)    extSTRP.useRPhiHits(layer.rphiRecHits);
-          if (layer.useStereoRecHits)  extSTRP.useStereoHits(layer.stereoRecHits);
-          if (layer.useRingSelector)   extSTRP.useRingSelector(layer.minRing,layer.maxRing);
-	  extSTRP.useSimpleRphiHitsCleaner(layer.useSimpleRphiHitsCleaner);
-	  if (layer.minAbsZ>0.) extSTRP.setMinAbsZ(layer.minAbsZ);
-	  if (layer.skipClusters && !layer.useProjection)
-	    extSTRP.setNoProjection();
-          extractor = extSTRP.clone();
-        }
-	if (layer.skipClusters) {
-	  LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" ready for skipping (2)";
-	  extractor->useSkipClusters(layer.clustersToSkip);
-	}
-	else{
-	  LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" not skipping ";
-	}
+        std::unique_ptr<HitExtractor> extractor(layer.extractor->clone());
 
-        edm::ESHandle<TransientTrackingRecHitBuilder> builder;
-        es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
-
-	auto it = nameToId.find(name);
+	auto it = nameToId.find(layer.name);
 	if (it==nameToId.end()) {
-	  edm::LogError("SeedingLayerSetsBuilder")<<"nameToId map mismatch! Could not find: "<<name;
+	  edm::LogError("SeedingLayerSetsBuilder")<<"nameToId map mismatch! Could not find: "<<layer.name;
 	  return result;
 	}
 	int layerSetId = it->second;
         if (layer.useErrorsFromParam) {
-          set.push_back( SeedingLayer( name, layerSetId, detLayer, builder.product(), 
-                                       extractor, true, layer.hitErrorRPhi,layer.hitErrorRZ));	  
+          set.push_back( SeedingLayer( layer.name, layerSetId, layer.subdet, layer.side, layer.idLayer, layer.hitBuilder,
+                                       extractor.release(), true, layer.hitErrorRPhi,layer.hitErrorRZ));	  
         } else {
-          set.push_back( SeedingLayer( name, layerSetId, detLayer, builder.product(), extractor));
+          set.push_back( SeedingLayer( layer.name, layerSetId, layer.subdet, layer.side, layer.idLayer, layer.hitBuilder, extractor.release()));
         }
       }
     

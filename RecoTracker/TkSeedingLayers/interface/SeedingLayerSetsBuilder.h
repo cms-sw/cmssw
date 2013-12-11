@@ -9,16 +9,18 @@
 
 #include <string>
 #include <vector>
-namespace edm { class EventSetup; }
+namespace edm { class EventSetup; class ConsumesCollector;}
 
 class SeedingLayerSetsBuilder {
 
 public:
 
-  SeedingLayerSetsBuilder(){}
-  SeedingLayerSetsBuilder(const edm::ParameterSet & cfg);
+  SeedingLayerSetsBuilder();
+  SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC);
+  ~SeedingLayerSetsBuilder();
 
-  ctfseeding::SeedingLayerSets layers(const edm::EventSetup& es) const; 
+  ctfseeding::SeedingLayerSets layers() const;
 
 private:
   std::vector<std::vector<std::string> > layerNamesInSets(
@@ -28,16 +30,20 @@ private:
 
 private:
   struct LayerSpec { 
+    LayerSpec();
+    ~LayerSpec();
     std::string name; 
-    std::string pixelHitProducer; edm::InputTag matchedRecHits,rphiRecHits,stereoRecHits;  
-    bool usePixelHitProducer, useMatchedRecHits, useRPhiRecHits, useStereoRecHits;
+    std::string pixelHitProducer;
+    bool usePixelHitProducer;
     std::string hitBuilder;
     bool useErrorsFromParam; double hitErrorRPhi; double hitErrorRZ; 
-    bool useRingSelector; int minRing; int maxRing;
-    bool useSimpleRphiHitsCleaner;
-    bool skipClusters; edm::InputTag clustersToSkip;
     bool useProjection;
-    double minAbsZ;
+
+    GeomDetEnumerators::SubDetector subdet;
+    ctfseeding::SeedingLayer::Side side;
+    int idLayer;
+    std::shared_ptr<ctfseeding::HitExtractor> extractor;
+
     std::string print() const;
   }; 
   std::vector<std::vector<LayerSpec> > theLayersInSets;

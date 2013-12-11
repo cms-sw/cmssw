@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
@@ -24,7 +25,7 @@ private:
   edm::ParameterSet _conf;
   std::string _newSeedCandidates, _xcheckSeedCandidates;
   bool _DoxcheckSeedCandidates;
-  PhotonConversionTrajectorySeedProducerFromSingleLegAlgo *_theFinder;
+  std::unique_ptr<PhotonConversionTrajectorySeedProducerFromSingleLegAlgo> _theFinder;
 };
 
 
@@ -33,10 +34,9 @@ PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& con
   : _conf(conf),
     _newSeedCandidates(conf.getParameter<std::string>( "newSeedCandidates")),
     _xcheckSeedCandidates(conf.getParameter<std::string>( "xcheckSeedCandidates") ),
-    _DoxcheckSeedCandidates( conf.getParameter<bool>( "DoxcheckSeedCandidates") )
+    _DoxcheckSeedCandidates( conf.getParameter<bool>( "DoxcheckSeedCandidates") ),
+    _theFinder(new PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(conf, consumesCollector()))
 {
-  _theFinder = new PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(conf,
-  	consumesCollector());
   produces<TrajectorySeedCollection>(_newSeedCandidates);
   if(_DoxcheckSeedCandidates)
     produces<TrajectorySeedCollection>(_xcheckSeedCandidates);

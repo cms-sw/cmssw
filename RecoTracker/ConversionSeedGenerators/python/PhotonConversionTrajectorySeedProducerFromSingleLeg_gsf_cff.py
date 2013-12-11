@@ -38,8 +38,7 @@ convStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverte
     ClusterProducer = 'convClusters'
     )
 
-convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
-                                ComponentName = cms.string('convLayerPairs'),
+convLayerPairs = cms.PSet(
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 
@@ -226,6 +225,7 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
 
 
 photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('TrackRefitterStd')
+photonConvTrajSeedFromSingleLeg.OrderedHitsFactoryPSet.SeedingLayers = convLayerPairs
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi

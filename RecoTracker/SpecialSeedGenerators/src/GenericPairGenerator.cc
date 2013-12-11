@@ -6,18 +6,10 @@ typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 using namespace ctfseeding;
 
 
-GenericPairGenerator::GenericPairGenerator(const edm::ParameterSet& conf): 
-	theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet")){
+GenericPairGenerator::GenericPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
+  theLsb(conf.getParameter<edm::ParameterSet>("LayerPSet"), iC){
 	edm::LogInfo("CtfSpecialSeedGenerator|GenericPairGenerator") << "Constructing GenericPairGenerator";
 } 
-
-
-SeedingLayerSets GenericPairGenerator::init(const edm::EventSetup& es){
-	//edm::ParameterSet leyerPSet = conf_.getParameter<edm::ParameterSet>("LayerPSet");
-	//SeedingLayerSetsBuilder lsBuilder(leyerPSet);
-  	SeedingLayerSets lss = theLsb.layers(es);
-	return lss;	
-}
 
 
 const OrderedSeedingHits& GenericPairGenerator::run(const TrackingRegion& region,
@@ -25,7 +17,7 @@ const OrderedSeedingHits& GenericPairGenerator::run(const TrackingRegion& region
                               			    const edm::EventSetup& es){
 	hitPairs.clear();
 	hitPairs.reserve(0);
-	SeedingLayerSets lss = init(es);
+	SeedingLayerSets lss = theLsb.layers();
 	SeedingLayerSets::const_iterator iLss;
 	for (iLss = lss.begin(); iLss != lss.end(); iLss++){
 		SeedingLayers ls = *iLss;

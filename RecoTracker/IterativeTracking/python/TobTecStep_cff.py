@@ -19,9 +19,7 @@ tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-tobTecStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('tobTecStepSeedLayers'),
-
+tobTecStepSeedLayers = cms.PSet(
     layerList = cms.vstring('TOB1+TOB2', 
         'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
         'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
@@ -50,7 +48,7 @@ tobTecStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 tobTecStepSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-tobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayers'
+tobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = tobTecStepSeedLayers
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0

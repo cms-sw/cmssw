@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-pixellayerpairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('PixelLayerPairs'),
+PixelLayerPairs = cms.PSet(
     layerList = cms.vstring('BPix1+BPix2', 
         'BPix1+BPix3', 
         'BPix2+BPix3', 
