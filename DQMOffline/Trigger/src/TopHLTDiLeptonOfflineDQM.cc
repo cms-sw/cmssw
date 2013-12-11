@@ -115,9 +115,9 @@ namespace TopHLTDiLeptonOffline {
 
     // and don't forget to do the histogram booking
     book(cfg.getParameter<std::string>("directory"));
-  
+
     triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","","HLT"));
-    
+
   }
 
   void 
@@ -841,30 +841,6 @@ TopHLTDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup
         //std::cout << " Processing : selectionOrder2 = " << type2.c_str() << std::endl; 
 
         if (!selectmap_[type2]->select(event)) passSel=false;
-        /*   if(type2=="muons"){
-             SelectionStepHLT<reco::Muon> step(selection_[key2].first);
-             if(!step.select(event)) passSel=false;
-             }
-             if(type2=="elecs"){
-             SelectionStepHLT<reco::GsfElectron> step(selection_[key2].first);
-             if(!step.select(event)) passSel=false;
-             }
-             if(type2=="jets" ){
-             SelectionStepHLT<reco::Jet> step(selection_[key2].first);
-             if(!step.select(event, setup)) passSel=false;
-             }
-             if(type2=="jets/pf" ){
-             SelectionStepHLT<reco::PFJet> step(selection_[key2].first);
-             if(!step.select(event, setup)) passSel=false;
-             }
-             if(type2=="jets/calo" ){
-             SelectionStepHLT<reco::CaloJet> step(selection_[key2].first);
-             if(!step.select(event, setup)) passSel=false;
-             }
-             if(type2=="met" ){
-             SelectionStepHLT<reco::MET> step(selection_[key2].first);
-             if(!step.select(event)) passSel=false;
-             }*/
 
       } // end 2nd loop
 
