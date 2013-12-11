@@ -44,19 +44,19 @@ class BXVector  {
   void resizeAll( int size );
 
   // get the first BX stored
-  int getFirstBX();
+  int getFirstBX() const;
 
   // get the last BX stored
-  int getLastBX();
+  int getLastBX() const;
 
   // get N objects for a given BX
-  unsigned size( int bx );
+  unsigned size( int bx ) const;
 
   // add element with given BX index
   void push_back( int bx, T object );
 
   // random access
-  T& at( int bx, int i );
+  T& at( int bx, int i ) const;
 
   // iterator access by BX
   const_iterator begin( int bx ) const;
@@ -68,7 +68,7 @@ class BXVector  {
 
   // this method converts integer BX index into an unsigned index
   // used by the internal data representation
-  unsigned indexFromBX(int bx);
+  unsigned indexFromBX(int bx) const;
 
 
  private:

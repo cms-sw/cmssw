@@ -62,21 +62,21 @@ void BXVector<T>::resizeAll( int size )
 
 // get the first BX stored
 template < class T >
-int BXVector<T>::getFirstBX()
+int BXVector<T>::getFirstBX() const
 {
   return bxFirst_;
 }
 
 // get the last BX stored
 template < class T >
-int BXVector<T>::getLastBX()
+int BXVector<T>::getLastBX() const
 {
   return bxLast_;
 }
 
 // get N objects for a given BX
 template < class T >
-unsigned BXVector<T>::size( int bx )
+unsigned BXVector<T>::size( int bx ) const
 {
   return data_.at(bx).size();
 }
@@ -90,7 +90,7 @@ void BXVector<T>::push_back( int bx, T object )
 
 // random access
 template < class T >
-T& BXVector<T>::at( int bx, int i )
+T& BXVector<T>::at( int bx, int i ) const
 {
   return data_.at(bx).at(i);
 }
@@ -111,6 +111,7 @@ typename BXVector<T>::const_iterator BXVector<T>::end( int bx ) const
 
 
 template < class T >
-unsigned BXVector<T>::indexFromBX(int bx) {
+unsigned BXVector<T>::indexFromBX(int bx) const
+{
   return bx - bxFirst_;
 }
