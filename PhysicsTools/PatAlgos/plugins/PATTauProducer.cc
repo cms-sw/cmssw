@@ -39,7 +39,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   baseTauToken_ = consumes<edm::View<reco::BaseTau> >(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   tauTransverseImpactParameterSrc_ = iConfig.getParameter<edm::InputTag>( "tauTransverseImpactParameterSource" );
   tauTransverseImpactParameterToken_ = consumes<PFTauTIPAssociationByRef>( tauTransverseImpactParameterSrc_);
-  pfTauToken_ = mayConsume<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
+  pfTauToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   caloTauToken_ = mayConsume<reco::CaloTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   embedIsolationTracks_ = iConfig.getParameter<bool>( "embedIsolationTracks" );
   embedLeadTrack_ = iConfig.getParameter<bool>( "embedLeadTrack" );
@@ -365,7 +365,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     // (only available for PFTaus)
     if ( aTau.isPFTau() && tauTransverseImpactParameterSrc_.label() != "" ) {
       edm::Handle<reco::PFTauCollection> pfTaus;
-      iEvent.getByToken(baseTauToken_, pfTaus);
+      iEvent.getByToken(pfTauToken_, pfTaus);
       reco::PFTauRef pfTauRef(pfTaus, idx);
 
       edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
