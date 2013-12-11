@@ -19,15 +19,7 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
     )
 )
 
-pixelLessStepSeedClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution = cms.bool(True),
-    oldClusterRemovalInfo = cms.InputTag("mixedTripletStepClusters"),
-    trajectories = cms.InputTag("mixedTripletStepTracks"),
-    overrideTrkQuals = cms.InputTag('mixedTripletStep'),
-    TrackQuality = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
+pixelLessStepSeedClusters = pixelLessStepClusters.clone(
     doStripChargeCheck = cms.bool(True),
     stripRecHits = cms.string('siStripMatchedRecHits'),
     Common = cms.PSet(

@@ -18,15 +18,7 @@ tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
     )
 )
 
-tobTecStepSeedClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution = cms.bool(True),
-    oldClusterRemovalInfo = cms.InputTag("pixelLessStepClusters"),
-    trajectories = cms.InputTag("pixelLessStepTracks"),
-    overrideTrkQuals = cms.InputTag('pixelLessStepSelector','pixelLessStep'),
-    TrackQuality = cms.string('highPurity'),
-    minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
+tobTecStepSeedClusters = tobTecStepClusters.clone(
     doStripChargeCheck = cms.bool(True),
     stripRecHits = cms.string('siStripMatchedRecHits'),
     Common = cms.PSet(
