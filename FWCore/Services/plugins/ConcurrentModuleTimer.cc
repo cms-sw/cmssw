@@ -135,7 +135,9 @@ ConcurrentModuleTimer::start()
   std::chrono::high_resolution_clock::time_point oldTime;
   bool expected = false;
   unsigned int nModules;
-  while (m_spinLock.compare_exchange_weak(expected,true,std::memory_order_acq_rel)){}
+  while (not m_spinLock.compare_exchange_strong(expected,true,std::memory_order_acq_rel)){
+    expected = false;
+  }
   {
     oldTime = m_time;
     m_time = newTime;
@@ -156,7 +158,9 @@ ConcurrentModuleTimer::stop()
   std::chrono::high_resolution_clock::time_point oldTime;
   bool expected = false;
   unsigned int nModules;
-  while (m_spinLock.compare_exchange_weak(expected,true,std::memory_order_acq_rel)){}
+  while (not m_spinLock.compare_exchange_weak(expected,true,std::memory_order_acq_rel)){
+    expected = false;
+  }
   {
     oldTime = m_time;
     m_time = newTime;
