@@ -384,28 +384,28 @@ namespace pat {
 
       std::vector<reco::PFCandidate> signalPFCands_;
       bool embeddedSignalPFCands_;
-      edm::AtomicPtrCache<reco::PFCandidatePtr> signalPFCandsTransientPtrs_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > signalPFCandsTransientPtrs_;
       std::vector<reco::PFCandidate> signalPFChargedHadrCands_;
       bool embeddedSignalPFChargedHadrCands_;
-      edm::AtomicPtrCache<reco::PFCandidatePtr> signalPFChargedHadrCandsTransientPtrs_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > signalPFChargedHadrCandsTransientPtrs_;
       std::vector<reco::PFCandidate> signalPFNeutralHadrCands_;
       bool embeddedSignalPFNeutralHadrCands_;
-      edm::AtomicPtrCache<reco::PFCandidatePtr> signalPFNeutralHadrCandsTransientPtrs_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > signalPFNeutralHadrCandsTransientPtrs_;
       std::vector<reco::PFCandidate> signalPFGammaCands_;
       bool embeddedSignalPFGammaCands_;
-      edm::AtomicPtrCache<reco::PFCandidatePtr> signalPFGammaCandsTransientPtrs_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > signalPFGammaCandsTransientPtrs_;
       std::vector<reco::PFCandidate> isolationPFCands_;
       bool embeddedIsolationPFCands_;
-      edm::AtomicPtrCache<reco::PFCandidatePtr> isolationPFCandsTransientPtrs_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > isolationPFCandsTransientPtrs_;
       std::vector<reco::PFCandidate> isolationPFChargedHadrCands_;
       bool embeddedIsolationPFChargedHadrCands_;
-      edm::AtomicPtrCache<reco::PFCandidatePtr> isolationPFChargedHadrCandsTransientPtrs_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > isolationPFChargedHadrCandsTransientPtrs_;
       std::vector<reco::PFCandidate> isolationPFNeutralHadrCands_;
       bool embeddedIsolationPFNeutralHadrCands_;
-      edm::AtomicPtrCache<reco::PFCandidatePtr> isolationPFNeutralHadrCandsTransientPtrs_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > isolationPFNeutralHadrCandsTransientPtrs_;
       std::vector<reco::PFCandidate> isolationPFGammaCands_;
       bool embeddedIsolationPFGammaCands_;
-      edm::AtomicPtrCache<reco::PFCandidatePtr> isolationPFGammaCandsTransientPtrs_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > isolationPFGammaCandsTransientPtrs_;
 
       // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;

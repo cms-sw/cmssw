@@ -446,7 +446,7 @@ const reco::PFCandidatePtr Tau::leadPFCand() const {
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFCands() const { 
   if (embeddedSignalPFCands_) {
    if (!signalPFCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<reco::PFCandidatePtr> aPtrs{new reco::PFCandidatePtr{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
       aPtrs->reserve(signalPFCands_.size());
       for (unsigned int i = 0; i < signalPFCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&signalPFCands_, i) );
@@ -461,7 +461,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFCands() const {
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFChargedHadrCands() const {
   if (embeddedSignalPFChargedHadrCands_) {
    if (!signalPFChargedHadrCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<reco::PFCandidatePtr> aPtrs{ new reco::PFCandidatePtr{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{ new std::vector<reco::PFCandidatePtr>{}};
       aPtrs->reserve(signalPFChargedHadrCands_.size());
       for (unsigned int i = 0; i < signalPFChargedHadrCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&signalPFChargedHadrCands_, i) );
@@ -476,12 +476,12 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFChargedHadrCands() const {
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFNeutrHadrCands() const {
   if (embeddedSignalPFNeutralHadrCands_) {
    if (!signalPFNeutralHadrCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<reco::PFCandidatePtr> aPtrs{new reco::PFCandidatePtr{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
       aPtrs->reserve(signalPFNeutralHadrCands_.size());
       for (unsigned int i = 0; i < signalPFNeutralHadrCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&signalPFNeutralHadrCands_, i) );
       }
-      signalPFNeutralHadrCandsTransientPtrs_.set(std::move(aRefVec));
+      signalPFNeutralHadrCandsTransientPtrs_.set(std::move(aPtrs));
     }
     return *signalPFNeutralHadrCandsTransientPtrs_;
   } else
@@ -491,7 +491,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::signalPFNeutrHadrCands() const {
 const std::vector<reco::PFCandidatePtr>& Tau::signalPFGammaCands() const {
   if (embeddedSignalPFGammaCands_) {
    if (!signalPFGammaCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<reco::PFCandidatePtr> aPtrs{ new reco::PFCandidatePtr{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{ new std::vector<reco::PFCandidatePtr>{}};
       aPtrs->reserve(signalPFGammaCands_.size());
       for (unsigned int i = 0; i < signalPFGammaCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&signalPFGammaCands_, i) );
@@ -514,7 +514,7 @@ const std::vector<reco::RecoTauPiZero> & Tau::signalPiZeroCandidates() const {
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFCands() const {
   if (embeddedIsolationPFCands_) {
   if (!isolationPFCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<reco::PFCandidatePtr> aPtrs{ new reco::PFCandidatePtr{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{ new std::vector<reco::PFCandidatePtr>{}};
       aPtrs->reserve(isolationPFCands_.size());
       for (unsigned int i = 0; i < isolationPFCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&isolationPFCands_, i) );
@@ -529,7 +529,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFCands() const {
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFChargedHadrCands() const {
   if (embeddedIsolationPFChargedHadrCands_) {
    if (!isolationPFChargedHadrCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<reco::PFCandidatePtr> aPtrs{ new reco::PFCandidatePtr{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{ new std::vector<reco::PFCandidatePtr>{}};
       aPtrs->reserve(isolationPFChargedHadrCands_.size());
       for (unsigned int i = 0; i < isolationPFChargedHadrCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&isolationPFChargedHadrCands_, i) );
@@ -544,7 +544,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFChargedHadrCands() cons
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFNeutrHadrCands() const {
   if (embeddedIsolationPFNeutralHadrCands_) {
     if (!isolationPFNeutralHadrCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<reco::PFCandidatePtr> aPtrs{ new reco::PFCandidatePtr{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{ new std::vector<reco::PFCandidatePtr>{}};
       aPtrs->reserve(isolationPFNeutralHadrCands_.size());
       for (unsigned int i = 0; i < isolationPFNeutralHadrCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&isolationPFNeutralHadrCands_, i) );
@@ -559,7 +559,7 @@ const std::vector<reco::PFCandidatePtr>& Tau::isolationPFNeutrHadrCands() const 
 const std::vector<reco::PFCandidatePtr>& Tau::isolationPFGammaCands() const {
   if (embeddedIsolationPFGammaCands_) {
     if (!isolationPFGammaCandsTransientPtrs_.isSet()) {
-      std::unique_ptr<reco::PFCandidatePtr> aPtrs{new reco::PFCandidatePtr{}};
+      std::unique_ptr<std::vector<reco::PFCandidatePtr> > aPtrs{new std::vector<reco::PFCandidatePtr>{}};
       aPtrs->reserve(isolationPFGammaCands_.size());
       for (unsigned int i = 0; i < isolationPFGammaCands_.size(); i++) {
 	aPtrs->push_back(reco::PFCandidatePtr(&isolationPFGammaCands_, i) );

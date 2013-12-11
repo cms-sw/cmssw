@@ -46,6 +46,9 @@
    <version ClassVersion="11" checksum="3100353428"/>
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
+  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
+   <class name="edm::AtomicPtrCache<reco::TrackRefVector>"/>
+   <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >" />
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationTracksTransientRefVector_">
   <![CDATA[isolationTracksTransientRefVector_.reset();]]>
   </ioread>
