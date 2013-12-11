@@ -85,7 +85,6 @@
 MuonGEMDigis_Harvesting::MuonGEMDigis_Harvesting(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
 }
 
 
@@ -147,6 +146,8 @@ MuonGEMDigis_Harvesting::beginRun(edm::Run const&, edm::EventSetup const& iSetup
 void 
 MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 {
+  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
+  
   std::vector< std::string > postfix;
   postfix.push_back("_l1");
   postfix.push_back("_l2");

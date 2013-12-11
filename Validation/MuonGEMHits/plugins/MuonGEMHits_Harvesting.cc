@@ -85,7 +85,6 @@
 MuonGEMHits_Harvesting::MuonGEMHits_Harvesting(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
    //now do what ever initialization is needed
   
 }
@@ -155,7 +154,8 @@ MuonGEMHits_Harvesting::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 void 
 MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 {
-
+  dbe_->cd();
+  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   TH1F* track_eta[5]={nullptr};
   TH1F* track_phi[5]={nullptr};
   TH1F* gem_lx_even[5]={nullptr};
