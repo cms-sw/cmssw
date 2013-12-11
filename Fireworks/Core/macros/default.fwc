@@ -1067,16 +1067,6 @@
       <string>phi</string>
       <string>3</string>
     </config>
-    <config name="edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;" version="1">
-      <string>number of segments</string>
-      <string>size</string>
-      <string>0</string>
-    </config>
-    <config name="edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;" version="1">
-      <string>number of segments</string>
-      <string>size</string>
-      <string>0</string>
-    </config>
     <config name="reco::CaloJet" version="1">
       <string>Pt</string>
       <string>pt</string>
@@ -1305,8 +1295,6 @@
     <config name="typeNames" version="1">
       <string>CaloRecHit</string>
       <string>CaloTower</string>
-      <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
-      <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
       <string>reco::CaloJet</string>
       <string>reco::GenParticle</string>
       <string>reco::GsfElectron</string>
