@@ -3,8 +3,12 @@
 
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 
 namespace l1t {
+
+  class EtSum;
+  typedef BXVector<EtSum> EtSumBxCollection;
   
   class EtSum : public L1Candidate {
     
@@ -16,7 +20,8 @@ namespace l1t {
       kTotalEt,
       kTotalHt
     };
-    
+
+    EtSum(){}
     EtSum( const LorentzVector& p4,
 	   EtSumType type,
 	   int pt=0,

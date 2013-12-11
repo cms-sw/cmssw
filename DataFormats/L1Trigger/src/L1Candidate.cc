@@ -1,6 +1,8 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
+l1t::L1Candidate::L1Candidate(){}
+
 l1t::L1Candidate::L1Candidate( const LorentzVector& p4,
 			       int pt,
 			       int eta,
@@ -12,10 +14,10 @@ l1t::L1Candidate::L1Candidate( const LorentzVector& p4,
     hwPhi_(phi),
     hwQual_(qual)
 {
-  
+
 }
 
-l1t::L1Candidate::~L1Candidate() 
+l1t::L1Candidate::~L1Candidate()
 {
 
 }
@@ -40,24 +42,23 @@ void l1t::L1Candidate::setHwQual(int qual)
   hwQual_ = qual;
 }
 
-int l1t::L1Candidate::hwPt()
+int l1t::L1Candidate::hwPt() const
 {
   return hwPt_;
 }
 
-int l1t::L1Candidate::hwEta()
+int l1t::L1Candidate::hwEta() const
 {
   return hwEta_;
 }
 
-int l1t::L1Candidate::hwPhi()
+int l1t::L1Candidate::hwPhi() const
 {
   return hwPhi_;
 }
 
 
-int l1t::L1Candidate::hwQual()
+int l1t::L1Candidate::hwQual() const
 {
   return hwQual_;
 }
-

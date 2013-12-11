@@ -3,12 +3,17 @@
 
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 
 namespace l1t {
+
+  class Tau;
+  typedef BXVector<Tau> TauBxCollection;
 
   class Tau : public L1Candidate {
     
   public:
+    Tau(){}
     Tau( const LorentzVector& p4,
 	    int pt=0,
 	    int eta=0,

@@ -23,8 +23,8 @@ namespace l1t {
   public:
     CaloStage2JetAlgorithm1(const CaloMainProcessorParams & dbPars);
     virtual ~CaloStage2JetAlgorithmFirmware1();
-    virtual void processEvent(const BXVector<Tower> & towers,
-							  BXVector<Cluster> & clusters);
+    virtual void processEvent(const std::vector<Tower> & towers,
+			      std::vector<Cluster> & clusters);
   private:
     CaloParams const & m_params;
   };

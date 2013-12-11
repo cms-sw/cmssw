@@ -3,12 +3,18 @@
 
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+
 
 namespace l1t {
+
+  class EGamma;
+  typedef BXVector<EGamma> EGammaBxCollection;
 
   class EGamma : public L1Candidate {
     
   public:
+    EGamma(){}
     EGamma( const LorentzVector& p4,
 	    int pt=0,
 	    int eta=0,
