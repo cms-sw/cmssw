@@ -47,7 +47,8 @@ private:
 						const DDsvalues_type&);
   std::vector<std::string>          getStringArray(const std::string&,
 						   const DDsvalues_type&);
-
+  bool                              isEB;
+  bool                              isEE;
   EcalNumberingScheme *             numberingScheme;
   bool                              useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool                              useBirk, useBirkL3;
