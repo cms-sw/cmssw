@@ -1,6 +1,16 @@
+#include "L1Trigger/L1TCalorimeter/plugins/L1TCaloRCTToUpgradeConverter.h"
+
+l1t::L1TCaloRCTToUpgradeConverter::L1TCaloRCTToUpgradeConverter(const edm::ParameterSet& ps) {
+
+}
+
+l1t::L1TCaloRCTToUpgradeConverter::~L1TCaloRCTToUpgradeConverter() {
+
+}
+
 // ------------ method called to produce the data  ------------
 void
-L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 /* This is an event example
@@ -24,19 +34,19 @@ L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TCaloTowerProducer::beginJob()
+l1t::L1TCaloRCTToUpgradeConverter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-L1TCaloTowerProducer::endJob() {
+l1t::L1TCaloRCTToUpgradeConverter::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void
-L1TCaloTowerProducer::beginRun(edm::Run const&, edm::EventSetup const&)
+l1t::L1TCaloRCTToUpgradeConverter::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -44,7 +54,7 @@ L1TCaloTowerProducer::beginRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
-L1TCaloTowerProducer::endRun(edm::Run const&, edm::EventSetup const&)
+l1t::L1TCaloRCTToUpgradeConverter::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -52,7 +62,7 @@ L1TCaloTowerProducer::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-L1TCaloTowerProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
+l1t::L1TCaloRCTToUpgradeConverter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
 t&)
 {
 }
@@ -61,7 +71,7 @@ t&)
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-L1TCaloTowerProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
+l1t::L1TCaloRCTToUpgradeConverter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
 )
 {
 }
@@ -69,7 +79,7 @@ L1TCaloTowerProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::Event
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TCaloTowerProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+l1t::L1TCaloRCTToUpgradeConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -78,4 +88,4 @@ L1TCaloTowerProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TCaloTowerProducer);
+DEFINE_FWK_MODULE(l1t::L1TCaloRCTToUpgradeConverter);
