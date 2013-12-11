@@ -99,7 +99,7 @@ void PerfStatService::postEndJob() {
   out.precision(3);
   out.setf( std::ios::fixed, std:: ios::floatfield );
   out << "|module  ";
-  PerfStat::header(out);
+  master.header(out);
   master.read(); master.calib();
   out << "|Total  "; master.summary(out,false,1.e-6,100.);
   for ( auto const & p : perfs) {
