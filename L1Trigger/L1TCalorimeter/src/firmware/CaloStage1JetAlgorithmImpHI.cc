@@ -36,18 +36,18 @@ CaloStage1JetAlgorithmImpHI::~CaloStage1JetAlgorithmImpHI(){};
 //   return diff;
 // }
 
-void puSubtraction(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[] );
-void makeJets(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[],
-	      std::vector<l1t::Jet> & jets);
+void puSubtraction(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> subRegions);
+// void makeJets(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[],
+// 	      std::vector<l1t::Jet> & jets);
 
 
 void CaloStage1JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
 					       std::vector<l1t::Jet> & jets){
-  int puLevelHI[L1CaloRegionDetId::N_ETA];
 
-  puSubtraction(regions, puLevelHI);
+  std::vector<l1t::CaloRegion> subRegions;
+  puSubtraction(regions, subRegions);
   //makeJets(regions, puLevelHI, jets);
-  findJets(regions, jets);
+  findJets(subRegions, jets);
 
   // std::vector<l1t::CaloRegion>::const_iterator incell;
   // for (incell = regions.begin(); incell != regions.end(); ++incell){
@@ -57,8 +57,9 @@ void CaloStage1JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion
 }
 
 // NB PU is not in the physical scale!!  Needs to be multiplied by regionLSB
-void puSubtraction(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[] )
+void puSubtraction(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> subRegions)
 {
+  int puLevelHI[L1CaloRegionDetId::N_ETA];
   double r_puLevelHI[L1CaloRegionDetId::N_ETA];
   int etaCount[L1CaloRegionDetId::N_ETA];
   for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
@@ -76,6 +77,18 @@ void puSubtraction(const std::vector<l1t::CaloRegion> & regions, int puLevelHI[]
   for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
   {
     puLevelHI[i] = floor(r_puLevelHI[i]/etaCount[i] + 0.5);
+  }
+
+  for(vector<CaloRegion>::const_iterator region = regions.begin(); region!= regions.end(); region++){
+    int subPt = std::max(0, region->hwPt() - puLevelHI[region->hwEta()]);
+    int subEta = region->hwEta();
+    int subPhi = region->hwPhi();
+
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz =
+      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+
+    CaloRegion newSubRegion(*lorentz, 0, 0, subPt, subEta, subPhi, 0, 0, 0);
+    subRegions.push_back(newSubRegion);
   }
 }
 
