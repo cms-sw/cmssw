@@ -6,6 +6,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
+
 #include <vector>
 namespace edm { class ParameterSet; class Event; class EventSetup; }
 
