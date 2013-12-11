@@ -7,14 +7,15 @@
 // Authors: I.Naranjo
 //--------------------------------------------------------------------------------------------------
 
-#ifndef RECOTAUTAG_RECOTAU_AntiElectronIDMVA3_H
-#define RECOTAUTAG_RECOTAU_AntiElectronIDMVA3_H
+#ifndef RECOTAUTAG_RECOTAU_AntiElectronIDMVA3GBR_H
+#define RECOTAUTAG_RECOTAU_AntiElectronIDMVA3GBR_H
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
@@ -23,48 +24,16 @@
 
 #include <vector>
 
-class AntiElectronIDMVA3 
+class AntiElectronIDMVA3GBR 
 {
   public:
 
-    AntiElectronIDMVA3();
-    ~AntiElectronIDMVA3(); 
+    AntiElectronIDMVA3GBR();
+    ~AntiElectronIDMVA3GBR(); 
 
     void Initialize_from_file(const std::string& methodName,
-			      const std::string& oneProngNoEleMatch0Pi0woGSF_BL,
-			      const std::string& oneProngNoEleMatch0Pi0wGSF_BL,
-			      const std::string& oneProngNoEleMatch1Pi0woGSF_BL,
-			      const std::string& oneProngNoEleMatch1Pi0wGSF_BL,
-			      const std::string& oneProng0Pi0woGSF_BL,
-			      const std::string& oneProng0Pi0wGSF_BL,
-			      const std::string& oneProng1Pi0woGSF_BL,
-			      const std::string& oneProng1Pi0wGSF_BL,
-			      const std::string& oneProngNoEleMatch0Pi0woGSF_EC,
-			      const std::string& oneProngNoEleMatch0Pi0wGSF_EC,
-			      const std::string& oneProngNoEleMatch1Pi0woGSF_EC,
-			      const std::string& oneProngNoEleMatch1Pi0wGSF_EC,
-			      const std::string& oneProng0Pi0woGSF_EC,
-			      const std::string& oneProng0Pi0wGSF_EC,
-			      const std::string& oneProng1Pi0woGSF_EC,
-			      const std::string& oneProng1Pi0wGSF_EC);
-
-    void Initialize_from_string(const std::string& methodName,
-				const std::string& oneProngNoEleMatch0Pi0woGSF_BL,
-				const std::string& oneProngNoEleMatch0Pi0wGSF_BL,
-				const std::string& oneProngNoEleMatch1Pi0woGSF_BL,
-				const std::string& oneProngNoEleMatch1Pi0wGSF_BL,
-				const std::string& oneProng0Pi0woGSF_BL,
-				const std::string& oneProng0Pi0wGSF_BL,
-				const std::string& oneProng1Pi0woGSF_BL,
-				const std::string& oneProng1Pi0wGSF_BL,
-				const std::string& oneProngNoEleMatch0Pi0woGSF_EC,
-				const std::string& oneProngNoEleMatch0Pi0wGSF_EC,
-				const std::string& oneProngNoEleMatch1Pi0woGSF_EC,
-				const std::string& oneProngNoEleMatch1Pi0wGSF_EC,
-				const std::string& oneProng0Pi0woGSF_EC,
-				const std::string& oneProng0Pi0wGSF_EC,
-				const std::string& oneProng1Pi0woGSF_EC,
-				const std::string& oneProng1Pi0wGSF_EC);
+			      const std::string& gbrFile
+			      );
 
     double MVAValue(Float_t TauEtaAtEcalEntrance,
 		    Float_t TauPt,
@@ -146,45 +115,45 @@ class AntiElectronIDMVA3
 
  private:
 
-    void bookMVAs();
     double dCrackEta(double eta);
     double minimum(double a,double b);
     double dCrackPhi(double phi, double eta);
     Bool_t isInitialized_;
     std::string methodName_;
-    TMVA::Reader* fTMVAReader_[16];
+    TFile* fin_;
+    Float_t* Var_NoEleMatch_woGwoGSF_Barrel_;
+    Float_t* Var_NoEleMatch_woGwGSF_Barrel_;
+    Float_t* Var_NoEleMatch_wGwoGSF_Barrel_;
+    Float_t* Var_NoEleMatch_wGwGSF_Barrel_;
+    Float_t* Var_woGwoGSF_Barrel_;
+    Float_t* Var_woGwGSF_Barrel_;
+    Float_t* Var_wGwoGSF_Barrel_;
+    Float_t* Var_wGwGSF_Barrel_;
+    Float_t* Var_NoEleMatch_woGwoGSF_Endcap_;
+    Float_t* Var_NoEleMatch_woGwGSF_Endcap_;
+    Float_t* Var_NoEleMatch_wGwoGSF_Endcap_;
+    Float_t* Var_NoEleMatch_wGwGSF_Endcap_;
+    Float_t* Var_woGwoGSF_Endcap_;
+    Float_t* Var_woGwGSF_Endcap_;
+    Float_t* Var_wGwoGSF_Endcap_;
+    Float_t* Var_wGwGSF_Endcap_;
 
-    Float_t GammadEta_;
-    Float_t GammadPhi_;
-    Float_t GammadPt_;
-
-    Float_t Tau_EtaAtEcalEntrance_;
-    Float_t Tau_Pt_;
-    Float_t Tau_dCrackEta_;
-    Float_t Tau_dCrackPhi_;
-    Float_t Tau_EmFraction_; 
-    Float_t Tau_NumGammaCands_; 
-    Float_t Tau_HadrHoP_; 
-    Float_t Tau_HadrEoP_; 
-    Float_t Tau_VisMass_; 
-    Float_t Tau_HadrMva_; 
-    Float_t Tau_GammaEtaMom_;
-    Float_t Tau_GammaPhiMom_;
-    Float_t Tau_GammaEnFrac_;
-    Float_t Tau_GSFChi2_; 
-    Float_t Tau_NumHitsVariable_; 
-    Float_t Tau_GSFTrackResol_;
-    Float_t Tau_GSFTracklnPt_;
-    Float_t Tau_GSFTrackEta_;
-
-    Float_t Elec_EtotOverPin_;
-    Float_t Elec_EgammaOverPdif_;
-    Float_t Elec_Fbrem_;
-    Float_t Elec_Chi2GSF_;
-    Float_t Elec_GSFNumHits_;
-    Float_t Elec_GSFTrackResol_;
-    Float_t Elec_GSFTracklnPt_;
-    Float_t Elec_GSFTrackEta_;
+    GBRForest* gbr_NoEleMatch_woGwoGSF_BL_;
+    GBRForest* gbr_NoEleMatch_woGwGSF_BL_ ;
+    GBRForest* gbr_NoEleMatch_wGwoGSF_BL_ ;
+    GBRForest* gbr_NoEleMatch_wGwGSF_BL_ ;
+    GBRForest* gbr_woGwoGSF_BL_;
+    GBRForest* gbr_woGwGSF_BL_ ;
+    GBRForest* gbr_wGwoGSF_BL_ ;
+    GBRForest* gbr_wGwGSF_BL_ ;
+    GBRForest* gbr_NoEleMatch_woGwoGSF_EC_ ;
+    GBRForest* gbr_NoEleMatch_woGwGSF_EC_ ;
+    GBRForest* gbr_NoEleMatch_wGwoGSF_EC_ ;
+    GBRForest* gbr_NoEleMatch_wGwGSF_EC_ ;
+    GBRForest* gbr_woGwoGSF_EC_ ;
+    GBRForest* gbr_woGwGSF_EC_ ;
+    GBRForest* gbr_wGwoGSF_EC_ ;
+    GBRForest* gbr_wGwGSF_EC_ ;
 
     int verbosity_;
 };
