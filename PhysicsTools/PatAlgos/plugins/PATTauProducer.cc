@@ -20,7 +20,6 @@
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
-#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 
 
@@ -38,7 +37,8 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
 {
   // initialize the configurables
   baseTauToken_ = consumes<edm::View<reco::BaseTau> >(iConfig.getParameter<edm::InputTag>( "tauSource" ));
-  tauTransverseImpactParameterToken_ = consumes<PFTauTIPAssociationByRef>( iConfig.getParameter<edm::InputTag>( "tauTransverseImpactParameterSource" ));
+  tauTransverseImpactParameterSrc_ = iConfig.getParameter<edm::InputTag>( "tauTransverseImpactParameterSource" );
+  tauTransverseImpactParameterToken_ = consumes<PFTauTIPAssociationByRef>( tauTransverseImpactParameterSrc_);
   pfTauToken_ = mayConsume<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   caloTauToken_ = mayConsume<reco::CaloTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   embedIsolationTracks_ = iConfig.getParameter<bool>( "embedIsolationTracks" );

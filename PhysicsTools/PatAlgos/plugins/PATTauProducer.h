@@ -35,6 +35,8 @@
 
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
+#include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
 
 #include <string>
 
@@ -59,6 +61,7 @@ namespace pat {
       edm::EDGetTokenT<PFTauTIPAssociationByRef> tauTransverseImpactParameterToken_;
       edm::EDGetTokenT<reco::PFTauCollection> pfTauToken_;
       edm::EDGetTokenT<reco::CaloTauCollection> caloTauToken_;
+      edm::InputTag tauTransverseImpactParameterSrc_;
       bool embedIsolationTracks_;
       bool embedLeadTrack_;
       bool embedSignalTracks_;

@@ -31,7 +31,7 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin
       const reco::PFJetRef&, 
       const std::vector<reco::PFRecoTauChargedHadron>&, 
       const std::vector<RecoTauPiZero>&, 
-      const std::vector<PFCandidatePtr>&) const;
+      const std::vector<PFCandidatePtr>&) const override;
 
  private:
   RecoTauQualityCuts qcuts_;
@@ -151,7 +151,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     const reco::PFJetRef& jet, 
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons, 
     const std::vector<RecoTauPiZero>& piZeros, 
-    const std::vector<PFCandidatePtr>& regionalExtras) const override
+    const std::vector<PFCandidatePtr>& regionalExtras) const 
 {
   if ( verbosity_ ) {
     std::cout << "<RecoTauBuilderCombinatoricPlugin::operator()>:" << std::endl;
