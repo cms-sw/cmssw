@@ -138,8 +138,9 @@ public:
 
       CODE_MEM_LOAD_UOPS_RETIRED__LLC_HIT,
       CODE_MEM_LOAD_UOPS_RETIRED__LLC_MISS, 
-      CODE_CYCLE_ACTIVITY__STALLS_L2_PENDING,     
-      CODE_IDQ_UOPS_NOT_DELIVERED__CYCLES_0_UOPS_DELIV__CORE
+      CODE_CYCLE_ACTIVITY__STALLS_L2_PENDING,
+      CODE_ICACHE__IFETCH_STALL    
+      //      CODE_IDQ_UOPS_NOT_DELIVERED__CYCLES_0_UOPS_DELIV__CORE
     }
   };
 
@@ -193,7 +194,7 @@ public:
   long long MEM_LOAD_UOPS_RETIRED__LLC_MISS()  const { return results[3][METRIC_OFFSET+4];}
   long long CYCLE_ACTIVITY__STALLS_L2_PENDING()  const { return results[3][METRIC_OFFSET+5];}
   long long IDQ_UOPS_NOT_DELIVERED__CYCLES_0_UOPS_DELIV__CORE() const  { return results[3][METRIC_OFFSET+6];}
-
+  long long ICACHE__IFETCH_STALL() const  { return results[3][METRIC_OFFSET+6];}
 
 
   // level 1
@@ -210,8 +211,13 @@ public:
   // level2
 
   double frontLatency() const { 
-    return IDQ_UOPS_NOT_DELIVERED__CYCLES_0_UOPS_DELIV__CORE()/SLOTS(3);
+    return IDQ_UOPS_NOT_DELIVERED__CYCLES_0_UOPS_DELIV__CORE()/CYCLES(3);
   }
+
+  double iCache() const { 
+    return ICACHE__IFETCH_STALL()/CYCLES(3);
+  }
+
 
   double backendBoundAtEXE_stalls() const {
     return CYCLE_ACTIVITY__CYCLES_NO_EXECUTE() + UOPS_EXECUTED__CYCLES_GE_1_UOP_EXEC() 
@@ -265,7 +271,8 @@ public:
    	<< sep << "bad spec" 
    	<< sep << "retiring" 
       
-  	<< sep << "front lat" 
+      // << sep << "front lat" 
+  	<< sep << "icache" 
       
   	<< sep << "exe" 
    	<< sep << "mem" 
@@ -300,8 +307,9 @@ public:
 	<< sep << percent*badSpeculation()
 	<< sep << percent*retiring()
       
-	<< sep << percent*frontLatency()
-      
+      //	<< sep << percent*frontLatency()
+	<< sep << percent*iCache()      
+
       	<< sep << percent*backendBoundAtEXE()
 	<< sep << percent*memBound()
 	<< sep << percent*coreBound()
