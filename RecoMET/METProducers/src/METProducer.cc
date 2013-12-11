@@ -44,6 +44,7 @@
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
 
 #include <memory>
 
@@ -185,16 +186,22 @@ namespace cms
 
     PFSpecificAlgo pf;
 	
-    if( calculateSignificance_ )
-      {
-	edm::Handle<edm::View<reco::PFJet> > jets;
-	event.getByToken(jetToken_, jets);
-	pf.runSignificance(*resolutions_, jets);
-      }
-
     std::auto_ptr<reco::PFMETCollection> pfmetcoll;
     pfmetcoll.reset(new reco::PFMETCollection);
-    pfmetcoll->push_back( pf.addInfo(input, commonMETdata) );
+    reco::PFMET pfmet = pf.addInfo(input, commonMETdata);
+
+    if(calculateSignificance_)
+      {
+	metsig::SignPFSpecificAlgo pfsignalgo;
+	pfsignalgo.setResolutions(resolutions_);
+
+	edm::Handle<edm::View<reco::PFJet> > jets;
+	event.getByToken(jetToken_, jets);
+	pfsignalgo.addPFJets(jets);
+	pfmet.setSignificanceMatrix(pfsignalgo.mkSignifMatrix(input));
+      }
+
+    pfmetcoll->push_back(pfmet);
     event.put( pfmetcoll );
   }
 

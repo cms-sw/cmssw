@@ -28,7 +28,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
 #include "TMatrixD.h"
 
 namespace metsig {
@@ -39,9 +38,8 @@ namespace metsig {
 class PFSpecificAlgo
 {
  public:
-  PFSpecificAlgo() : doSignificance(false) { }
+  PFSpecificAlgo() { }
   
-  void runSignificance(metsig::SignAlgoResolutions & resolutions, edm::Handle<edm::View<reco::PFJet> > jets);
   reco::PFMET addInfo(edm::Handle<edm::View<reco::Candidate> > PFCandidates, const CommonMETData& met);
 
  private:
@@ -50,8 +48,6 @@ class PFSpecificAlgo
   void initializeSpecificPFMETData(SpecificPFMETData &specific);
   SpecificPFMETData mkSpecificPFMETData(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
 
-  bool doSignificance;
-  metsig::SignPFSpecificAlgo pfsignalgo_;
 };
 
 //____________________________________________________________________________||

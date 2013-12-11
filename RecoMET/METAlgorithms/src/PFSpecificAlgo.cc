@@ -9,7 +9,6 @@
 //
 //____________________________________________________________________________||
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
-#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 //____________________________________________________________________________||
@@ -24,17 +23,7 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   const Point vtx(0.0,0.0,0.0);
   PFMET pfMET(specific, met.sumet, p4, vtx );
 
-  if(doSignificance) pfMET.setSignificanceMatrix(pfsignalgo_.mkSignifMatrix(PFCandidates));
-
   return pfMET;
-}
-
-//____________________________________________________________________________||
-void PFSpecificAlgo::runSignificance(metsig::SignAlgoResolutions &resolutions, edm::Handle<edm::View<reco::PFJet> > jets)
-{
-  doSignificance = true;
-  pfsignalgo_.setResolutions( &resolutions );
-  pfsignalgo_.addPFJets(jets);
 }
 
 //____________________________________________________________________________||
