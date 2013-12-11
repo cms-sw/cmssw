@@ -131,7 +131,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     numHitsRPC[iStation] = 0;
   }
 
-  const reco::PFCandidateRef& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
+  const reco::PFCandidatePtr& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
   if ( pfLeadChargedHadron.isNonnull() ) {
     reco::MuonRef muonRef = pfLeadChargedHadron->muonRef();      
     if ( muonRef.isNonnull() ) {
