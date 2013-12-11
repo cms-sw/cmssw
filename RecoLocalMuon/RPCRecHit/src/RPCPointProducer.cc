@@ -28,9 +28,11 @@
 
 RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
 {
-  cscSegments=iConfig.getParameter<edm::InputTag>("cscSegments");
-  dt4DSegments=iConfig.getParameter<edm::InputTag>("dt4DSegments");
-  tracks=iConfig.getParameter<edm::InputTag>("tracks");
+  cscSegments = consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("cscSegments"));
+  
+  dt4DSegments = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("dt4DSegments"));
+  tracks = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
+  tracks_ = iConfig.getParameter<edm::InputTag>("tracks");
 
   debug=iConfig.getUntrackedParameter<bool>("debug",false);
   incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
@@ -64,7 +66,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   if(incldt){
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
-    iEvent.getByLabel(dt4DSegments, all4DSegments);
+    iEvent.getByToken(dt4DSegments, all4DSegments);
     if(all4DSegments.isValid()){
       DTSegtoRPC DTClass(all4DSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
       std::auto_ptr<RPCRecHitCollection> TheDTPoints(DTClass.thePoints());     
@@ -76,7 +78,7 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   if(inclcsc){
     edm::Handle<CSCSegmentCollection> allCSCSegments;
-    iEvent.getByLabel(cscSegments, allCSCSegments);
+    iEvent.getByToken(cscSegments, allCSCSegments);
     if(allCSCSegments.isValid()){
       CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
       std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
@@ -87,9 +89,9 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   if(incltrack){
     edm::Handle<reco::TrackCollection> alltracks;
-    iEvent.getByLabel(tracks,alltracks);
+    iEvent.getByToken(tracks,alltracks);
     if(!(alltracks->empty())){
-      TracktoRPC TrackClass(alltracks,iSetup,iEvent,debug,trackTransformerParam,tracks);
+      TracktoRPC TrackClass(alltracks,iSetup,iEvent,debug,trackTransformerParam,tracks_);
       std::auto_ptr<RPCRecHitCollection> TheTrackPoints(TrackClass.thePoints());
       iEvent.put(TheTrackPoints,"RPCTrackExtrapolatedPoints");
     }else{
