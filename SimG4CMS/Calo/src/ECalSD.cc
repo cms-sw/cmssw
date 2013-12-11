@@ -95,13 +95,24 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 
   EcalNumberingScheme* scheme=0;
   if (nullNS)                    scheme = 0;
-  else if (name == "EcalHitsEB") scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
-  else if (name == "EcalHitsEE") scheme = dynamic_cast<EcalNumberingScheme*>(new EcalEndcapNumberingScheme());
-  else if (name == "EcalHitsES") {
-    if (isItTB) scheme = dynamic_cast<EcalNumberingScheme*>(new ESTBNumberingScheme());
-    else        scheme = dynamic_cast<EcalNumberingScheme*>(new EcalPreshowerNumberingScheme());
-    useWeight = false;
-  } else {edm::LogWarning("EcalSim") << "ECalSD: ReadoutName not supported\n";}
+  else if (name == "EcalHitsEB") 
+    {
+      scheme = dynamic_cast<EcalNumberingScheme*>(new EcalBarrelNumberingScheme());
+      isEB=1;
+    }
+  else if (name == "EcalHitsEE")
+    { 
+      scheme = dynamic_cast<EcalNumberingScheme*>(new EcalEndcapNumberingScheme());
+      isEE=1;
+    }
+  else if (name == "EcalHitsES") 
+    {
+      if (isItTB) scheme = dynamic_cast<EcalNumberingScheme*>(new ESTBNumberingScheme());
+      else        scheme = dynamic_cast<EcalNumberingScheme*>(new EcalPreshowerNumberingScheme());
+      useWeight = false;
+    } 
+  else {edm::LogWarning("EcalSim") << "ECalSD: ReadoutName not supported\n";}
+
 
   if (scheme)  setNumberingScheme(scheme);
 #ifdef DebugLog
@@ -130,9 +141,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 			  << "\n\tstoreRL" << storeRL
 			  << "\tstoreLayerTimeSim " << storeLayerTimeSim
 			  << "\n\ttime Granularity " << p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit") << " ns"; 
-  
   if (useWeight) initMap(name,cpv);
-
 }
 
 ECalSD::~ECalSD() {
@@ -258,8 +267,9 @@ uint16_t ECalSD::getRadiationLength(G4Step * aStep) {
 uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep) 
 {
   float    layerSize = 1*cm; //layer size in cm
-  if (this->nameOfSD().find("EcalHitsEB")==std::string::npos && this->nameOfSD().find("EcalHitsEE")==std::string::npos)
+  if (!isEB && !isEE)
     return 0;
+
   if (aStep != NULL ) {
     G4StepPoint* hitPoint = aStep->GetPostStepPoint();
     G4LogicalVolume* lv   = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
@@ -267,12 +277,27 @@ uint16_t ECalSD::getLayerIDForTimeSim(G4Step * aStep)
 					   hitPoint->GetTouchable());
     double crlength = crystalLength(lv);
     double detz;
-    if( lv->GetName().find("refl") != std::string::npos )
-      detz     = (float)(0.5*crlength + localPoint.z());
+
+    if( (lv->GetName().find("refl") != std::string::npos)  )
+      {
+	if (isEB)
+	  detz     = (float)(0.5*crlength + localPoint.z());
+	else
+	  detz     = (float)(0.5*crlength - localPoint.z());
+      }
     else
-      detz     = (float)(0.5*crlength - localPoint.z());
+      {  
+	if (isEB)
+	  detz     = (float)(0.5*crlength - localPoint.z());
+	else
+	  detz     = (float)(0.5*crlength + localPoint.z());
+      }
+    
     if (detz<0)
       detz=0;
+    
+    if (isEE)
+      std::cout << lv->GetName() << "," << localPoint.z() << "," << detz <<  std::endl;
     return 100+(int)detz/layerSize;
   }
   return 0;

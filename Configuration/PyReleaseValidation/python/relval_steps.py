@@ -1435,6 +1435,19 @@ step2Upg2017puDefaults = {'-s':'DIGI,L1,DIGI2RAW',
 		  }
 steps['DIGIPUUP17']=merge([step2Upg2017puDefaults])
 
+step2Upg2017EcalFinepuDefaults = {'-s':'DIGI,L1,DIGI2RAW',
+		 '--conditions':'auto:upgrade2017', 
+		 '--datatier':'GEN-SIM-DIGI-RAW',
+		 '-n':'10',
+		 '--eventcontent':'FEVTDEBUGHLT',
+		 '--magField' : '38T_PostLS1',
+	       '--pileup': 'AVE_20_BX_25ns',
+		 '--customise': 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017,SLHCUpgradeSimulations/Configuration/pileUp_MinBias_TuneZ2star_14TeV_pythia6_620SLHC4_UPG2017ECALFINE.customisePU',
+		 '--geometry' : 'Extended2017'
+#	       '--pileup_input':'dbs:/RelValMinBias_TuneZ2star_14TeV/CMSSW_6_1_2_SLHC6-DES17_61_V5_UPG2017-v1/GEN-SIM'
+		  }
+steps['DIGIPUUP17ECALFINE']=merge([step2Upg2017EcalFinepuDefaults])
+
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
 
