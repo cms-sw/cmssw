@@ -74,12 +74,16 @@ void PixelTripletNoTipGenerator::hitTriplets(
   }
 
   const HitPairGeneratorFromLayerPair * pairGen = dynamic_cast<const HitPairGeneratorFromLayerPair *>(thePairGenerator);
-  const DetLayer * firstLayer = pairGen->innerLayer().detLayer();
-  const DetLayer * secondLayer = pairGen->outerLayer().detLayer();
+  const DetLayer * firstLayer = pairGen->innerLayer().detLayer(es);
+  const DetLayer * secondLayer = pairGen->outerLayer().detLayer(es);
   if (!firstLayer || !secondLayer) return;
 
   MultipleScatteringParametrisation sigma1RPhi( firstLayer, es);
   MultipleScatteringParametrisation sigma2RPhi( secondLayer, es);
+
+  const DetLayer *layers[size];
+  for (int il=0; il <=size-1; il++)
+    layers[il] = theLayers[il].detLayer(es);
 
   typedef RecHitsSortedInPhi::Hit Hit;
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
@@ -106,7 +110,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
 
     for (int il=0; il <=size-1; il++) {
 
-      const DetLayer * layer = theLayers[il].detLayer();
+      const DetLayer * layer = layers[il];
       bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
       MultipleScatteringParametrisation sigma3RPhi( layer, es);
       double msRPhi3 = sigma3RPhi(pt_p1p2, line.cotLine(),point2);

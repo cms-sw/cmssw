@@ -23,7 +23,7 @@ public:
   typedef std::vector<TrajectorySeed> BTSeedCollection;  
   typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
-  CompositeTSG(const edm::ParameterSet &pset);
+  CompositeTSG(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
   virtual ~CompositeTSG();
 
   /// initialized the TSGs

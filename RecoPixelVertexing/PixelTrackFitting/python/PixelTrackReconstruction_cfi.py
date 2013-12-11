@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoPixelVertexing.PixelTrackFitting.PixelFitterByHelixProjections_cfi import *
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
-
+from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 
 PixelTrackReconstructionBlock = cms.PSet (
     FitterPSet = cms.PSet(
@@ -24,7 +24,7 @@ PixelTrackReconstructionBlock = cms.PSet (
     ),
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),
-        SeedingLayers = cms.string('PixelLayerTriplets'),
+        SeedingLayers = PixelLayerTriplets,
         GeneratorPSet = cms.PSet(
             PixelTripletHLTGeneratorWithFilter
         )

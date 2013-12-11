@@ -6,7 +6,7 @@
 #include <vector>
 
 //constructor
-CombinedTSG::CombinedTSG(const edm::ParameterSet & par) : CompositeTSG(par) {
+CombinedTSG::CombinedTSG(const edm::ParameterSet & par, edm::ConsumesCollector& iC) : CompositeTSG(par, iC) {
   theCategory = "CombinedTSG";
 }
 

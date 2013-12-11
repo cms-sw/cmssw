@@ -15,7 +15,7 @@ class TrackerTopology;
 
 class SeparatingTSG : public CompositeTSG {
  public:
-  SeparatingTSG(const edm::ParameterSet &pset);
+  SeparatingTSG(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
   virtual ~SeparatingTSG();
 
   void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &);

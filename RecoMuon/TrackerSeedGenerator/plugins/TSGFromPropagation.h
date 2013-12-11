@@ -31,9 +31,9 @@ class TSGFromPropagation : public TrackerSeedGenerator {
 
 public:
   /// constructor
-  TSGFromPropagation(const edm::ParameterSet &pset);
+  TSGFromPropagation(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
 
-  TSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*);
+  TSGFromPropagation(const edm::ParameterSet& par, edm::ConsumesCollector& iC, const MuonServiceProxy*);
 
   /// destructor
   virtual ~TSGFromPropagation();

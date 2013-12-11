@@ -67,7 +67,7 @@ class ElectronSeedProducer : public edm::EDProducer
 
     edm::ParameterSet conf_ ;
     ElectronSeedGenerator * matcher_ ;
-    SeedFilter * seedFilter_;
+    std::unique_ptr<SeedFilter> seedFilter_;
 
     TrajectorySeedCollection * theInitialSeedColl ;
 

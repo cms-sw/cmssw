@@ -14,20 +14,17 @@
 using namespace std;
 using namespace ctfseeding;
 
-CombinedHitTripletGenerator::CombinedHitTripletGenerator(const edm::ParameterSet& cfg)
-  : initialised(false), theConfig(cfg)
+CombinedHitTripletGenerator::CombinedHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
+  : initialised(false), theConfig(cfg),
+    theLayerBuilder(cfg.getParameter<edm::ParameterSet>("SeedingLayers"), iC)
 { }
 
 void CombinedHitTripletGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
 {
 //  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
-//  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
+//  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers();
 
-  std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
-  edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
-  es.get<TrackerDigiGeometryRecord>().get(layerBuilderName, layerBuilder);
-
-  SeedingLayerSets layerSets  =  layerBuilder->layers(es);
+  SeedingLayerSets layerSets  =  theLayerBuilder.layers();
 
 
   vector<LayerTriplets::LayerPairAndLayers>::const_iterator it;

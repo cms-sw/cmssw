@@ -25,7 +25,7 @@
 #include <TrackingTools/KalmanUpdators/interface/KFUpdator.h>
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
-TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par){
+TSGForRoadSearch::TSGForRoadSearch(const edm::ParameterSet & par, edm::ConsumesCollector& iC){
 
   theOption = par.getParameter<unsigned int>("option");
   theCopyMuonRecHit = par.getParameter<bool>("copyMuonRecHit");

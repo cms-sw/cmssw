@@ -4,7 +4,7 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-CompositeTSG::CompositeTSG(const edm::ParameterSet & par){
+CompositeTSG::CompositeTSG(const edm::ParameterSet & par, edm::ConsumesCollector& iC){
   theCategory = "CompositeTSG";
 
   //configure the individual components of the TSG
@@ -18,7 +18,7 @@ CompositeTSG::CompositeTSG(const edm::ParameterSet & par){
     }else {
       std::string SeedGenName = TSGpset.getParameter<std::string>("ComponentName");
       theNames.push_back((*nIt)+":"+SeedGenName);
-      theTSGs.push_back(TrackerSeedGeneratorFactory::get()->create(SeedGenName,TSGpset));
+      theTSGs.push_back(TrackerSeedGeneratorFactory::get()->create(SeedGenName,TSGpset, iC));
     }
   }
   

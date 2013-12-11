@@ -7,7 +7,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
 
-TSGSmart::TSGSmart(const edm::ParameterSet &pset)
+TSGSmart::TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector& iC)
   : theConfig(pset), thePairGenerator(0), theTripletGenerator(0), theMixedGenerator(0)
 {
 
@@ -22,7 +22,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset)
     PairPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string pairhitsfactoryName = pairhitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  pairhitsGenerator =
-    OrderedHitsGeneratorFactory::get()->create( pairhitsfactoryName, pairhitsfactoryPSet);
+    OrderedHitsGeneratorFactory::get()->create( pairhitsfactoryName, pairhitsfactoryPSet, iC);
 
 
   thePairGenerator = new SeedGeneratorFromRegionHits( pairhitsGenerator, 0, 
@@ -34,7 +34,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset)
     TripletPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string triplethitsfactoryName = triplethitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  triplethitsGenerator =
-    OrderedHitsGeneratorFactory::get()->create( triplethitsfactoryName, triplethitsfactoryPSet);
+    OrderedHitsGeneratorFactory::get()->create( triplethitsfactoryName, triplethitsfactoryPSet, iC);
   theTripletGenerator = new SeedGeneratorFromRegionHits( triplethitsGenerator, 0, 
 						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 						 );
@@ -44,7 +44,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset)
     MixedPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string mixedhitsfactoryName = mixedhitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  mixedhitsGenerator =
-    OrderedHitsGeneratorFactory::get()->create( mixedhitsfactoryName, mixedhitsfactoryPSet);
+    OrderedHitsGeneratorFactory::get()->create( mixedhitsfactoryName, mixedhitsfactoryPSet, iC);
   theMixedGenerator = new SeedGeneratorFromRegionHits( mixedhitsGenerator, 0, 
 						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 						 );
