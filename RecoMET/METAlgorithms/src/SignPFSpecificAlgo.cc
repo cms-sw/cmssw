@@ -27,7 +27,7 @@ void metsig::SignPFSpecificAlgo::setResolutions( metsig::SignAlgoResolutions *re
 }
 
 //____________________________________________________________________________||
-void metsig::SignPFSpecificAlgo::addPFJets(edm::Handle<edm::View<reco::PFJet> > PFJets)
+void metsig::SignPFSpecificAlgo::addPFJets(const edm::View<reco::PFJet>* PFJets)
 {
   std::vector<metsig::SigInputObj> vobj;
   for(edm::View<reco::PFJet>::const_iterator jet = PFJets->begin(); jet != PFJets->end(); ++jet)

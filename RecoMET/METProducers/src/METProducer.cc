@@ -197,7 +197,7 @@ namespace cms
 
 	edm::Handle<edm::View<reco::PFJet> > jets;
 	event.getByToken(jetToken_, jets);
-	pfsignalgo.addPFJets(jets);
+	pfsignalgo.addPFJets(jets.product());
 	pfmet.setSignificanceMatrix(pfsignalgo.mkSignifMatrix(input));
       }
 

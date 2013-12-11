@@ -36,7 +36,7 @@ namespace metsig
     ~SignPFSpecificAlgo() { }
 
     void setResolutions( metsig::SignAlgoResolutions *resolutions);
-    void addPFJets(edm::Handle<edm::View<reco::PFJet> > PFJets);
+    void addPFJets(const edm::View<reco::PFJet>* PFJets);
     void addPFCandidate(reco::PFCandidatePtr pf);
     void useOriginalPtrs(const edm::ProductID& productID);
     TMatrixD getSignifMatrix() const {return algo_.getSignifMatrix();}
