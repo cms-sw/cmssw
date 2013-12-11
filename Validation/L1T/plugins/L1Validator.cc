@@ -21,6 +21,8 @@
 
 #include <Validation/L1T/interface/L1Validator.h>
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "TFile.h"
@@ -49,11 +51,22 @@ if(COLLECTION1.product() != COLLECTION2.product()){ \
 }
 
 L1Validator::L1Validator(const edm::ParameterSet& iConfig){
-  //_dbe = edm::Service<DQMStore>().operator->();
+  _dbe = edm::Service<DQMStore>().operator->();
   _dirName = iConfig.getParameter<std::string>("dirName");
-  _fileName = iConfig.getParameter<std::string>("fileName");
+  _GenSource = consumes<reco::GenParticleCollection> (iConfig.getParameter<edm::InputTag>("GenSource"));
 
-  _Hists = new L1ValidatorHists(/*_dbe*/);
+  _L1ExtraIsoEGSource = consumes<l1extra::L1EmParticleCollection> (iConfig.getParameter<edm::InputTag>("L1ExtraIsoEGSource"));
+  _L1ExtraNonIsoEGSource = consumes<l1extra::L1EmParticleCollection> (iConfig.getParameter<edm::InputTag>("L1ExtraNonIsoEGSource"));
+  _L1ExtraCenJetSource = consumes<l1extra::L1JetParticleCollection> (iConfig.getParameter<edm::InputTag>("L1ExtraCenJetSource"));
+  _L1ExtraForJetSource = consumes<l1extra::L1JetParticleCollection> (iConfig.getParameter<edm::InputTag>("L1ExtraForJetSource"));
+  _L1ExtraTauJetSource = consumes<l1extra::L1JetParticleCollection> (iConfig.getParameter<edm::InputTag>("L1ExtraTauJetSource"));
+  _L1ExtraMuonSource = consumes<l1extra::L1MuonParticleCollection> (iConfig.getParameter<edm::InputTag>("L1ExtraMuonSource"));
+  //_L1ExtraMETSource = consumes<l1extra::L1EtMissParticleCollection> (iConfig.getParameter<edm::InputTag>("L1ExtraMETSource"));
+
+  //_fileName = iConfig.getParameter<std::string>("fileName");
+
+  _dbe->setCurrentFolder(_dirName.c_str());
+  _Hists = new L1ValidatorHists(_dbe);
 }
 
 
@@ -75,15 +88,22 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<L1MuonParticleCollection> Muons;
   //Handle<L1EtMissParticleCollection> METs;
 
-  iEvent.getByLabel("genParticles", GenParticles);
+/*  iEvent.getByLabel("genParticles", GenParticles);
   iEvent.getByLabel("l1extraParticles", "Isolated", IsoEGs);
   iEvent.getByLabel("l1extraParticles", "NonIsolated", NonIsoEGs);
   iEvent.getByLabel("l1extraParticles", "Central", CenJets);
   iEvent.getByLabel("l1extraParticles", "Forward", ForJets);
   iEvent.getByLabel("l1extraParticles", "Tau", Taus);
-  iEvent.getByLabel("l1extraParticles", Muons);
+  iEvent.getByLabel("l1extraParticles", Muons);*/
   //iEvent.getByLabel("l1extraParticles", METs);
 
+  iEvent.getByToken(_GenSource, GenParticles);
+  iEvent.getByToken(_L1ExtraIsoEGSource, IsoEGs);
+  iEvent.getByToken(_L1ExtraNonIsoEGSource, NonIsoEGs);
+  iEvent.getByToken(_L1ExtraCenJetSource, CenJets);
+  iEvent.getByToken(_L1ExtraForJetSource, ForJets);
+  iEvent.getByToken(_L1ExtraTauJetSource, Taus);
+  iEvent.getByToken(_L1ExtraMuonSource, Muons);
 
   _Hists->NEvents++;
 
@@ -148,24 +168,23 @@ void L1Validator::beginJob(){
 
 // ------------ method called once each job just after ending the event loop  ------------
 void L1Validator::endJob(){
-  _Hists->Normalize();
 
-  TFile OutFile(_fileName.c_str(), "recreate");
-  _Hists->Write();
-  OutFile.Close();
+  //TFile OutFile(_fileName.c_str(), "recreate");
+  //_Hists->Write();
+  //OutFile.Close();
 }
 
 // ------------ method called when starting to processes a run  ------------
-/*
 void L1Validator::beginRun(edm::Run const&, edm::EventSetup const&){
+  _Hists->Book();
 }
-*/
 
 // ------------ method called when ending the processing of a run  ------------
-/*
+
 void L1Validator::endRun(edm::Run const&, edm::EventSetup const&){
+  _Hists->Normalize();
 }
-*/
+
 
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
