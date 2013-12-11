@@ -29,7 +29,7 @@ process.GlobalTag.globaltag = 'FT_R_53_V6::All'
 
 #################################################################################################
 process.load("Calibration.IsolatedParticles.isolatedTracksNxN_cfi")
-process.isolatedTracksNxN.JetSource = 'ak5CaloJets'
+process.isolatedTracksNxN.JetSource = 'ak4CaloJets'
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('IsolatedTracksNxNData.root')
                                    )

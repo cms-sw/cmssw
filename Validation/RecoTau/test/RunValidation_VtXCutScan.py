@@ -201,7 +201,7 @@ process.hpsPFTauDiscriminationByTightIsolation.qualityCuts.isolationQualityCuts.
 process.preValidation = cms.Sequence(process.recoTauCommonSequence)
 
 process.validation = cms.Sequence(
-   process.ak5PFJetsLegacyHPSPiZeros *
+   process.ak4PFJetsLegacyHPSPiZeros *
    process.combinatoricRecoTaus *
    process.produceAndDiscriminateHPSPFTaus*
    process.produceDenominator *

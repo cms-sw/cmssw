@@ -11,11 +11,11 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
-# uncomment the following lines to add ak5PFJets with new b-tags to your PAT output
+# uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
 addJetCollection(
    process,
    labelName = 'AK5PF',
-   jetSource = cms.InputTag('ak5PFJets'),
+   jetSource = cms.InputTag('ak4PFJets'),
    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -78,7 +78,7 @@ addJetCollection(
   )
 process.patJetsAK5PF.addTagInfos = True
 process.patJetsAK5PF.addJetID    = True
-process.patJetsAK5PF.jetIDMap    = "ak5JetID"
+process.patJetsAK5PF.jetIDMap    = "ak4JetID"
 process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
 
 ## let it run

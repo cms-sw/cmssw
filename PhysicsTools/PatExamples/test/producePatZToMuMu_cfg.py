@@ -20,7 +20,7 @@ process.source.fileNames = zjetsRECO
 
 #process.p0 = cms.Path(
 #    process.genJetParticles *
-#    process.ak5GenJets
+#    process.ak4GenJets
 #)
 
 ## ---

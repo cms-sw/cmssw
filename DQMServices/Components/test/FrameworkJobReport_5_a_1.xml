@@ -62,8 +62,8 @@
   <Branch>SimTracks_g4SimHits__HLT.</Branch>
   <Branch>SimVertexs_g4SimHits__HLT.</Branch>
   <Branch>ints_genParticles__HLT.</Branch>
-  <Branch>recoGenJets_ak5GenJets__HLT.</Branch>
-  <Branch>recoGenJets_ak7GenJets__HLT.</Branch>
+  <Branch>recoGenJets_ak4GenJets__HLT.</Branch>
+  <Branch>recoGenJets_ak8GenJets__HLT.</Branch>
   <Branch>recoGenJets_iterativeCone5GenJets__HLT.</Branch>
   <Branch>recoGenJets_kt4GenJets__HLT.</Branch>
   <Branch>recoGenJets_kt6GenJets__HLT.</Branch>

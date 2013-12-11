@@ -10789,7 +10789,7 @@ process.hltMet = cms.EDProducer( "METProducer",
     track_quality = cms.vint32( 2 ),
     isCosmics = cms.bool( False ),
     eVetoMinElectronPt = cms.double( 10.0 ),
-    jets = cms.InputTag( "ak5PFJets" )
+    jets = cms.InputTag( "ak4PFJets" )
 )
 process.hltMET65 = cms.EDFilter( "HLT1CaloMET",
     saveTags = cms.bool( True ),
@@ -14197,7 +14197,7 @@ process.hltMetClean = cms.EDProducer( "METProducer",
     track_quality = cms.vint32( 2 ),
     isCosmics = cms.bool( False ),
     eVetoMinElectronPt = cms.double( 10.0 ),
-    jets = cms.InputTag( "ak5PFJets" )
+    jets = cms.InputTag( "ak4PFJets" )
 )
 process.hltMETClean25 = cms.EDFilter( "HLT1CaloMET",
     saveTags = cms.bool( True ),
@@ -16104,7 +16104,7 @@ process.hltRegionalSeedsForL3MuonIsolation = cms.EDProducer( "SeedGeneratorFromR
         recoMuonsCollection = cms.InputTag( "" )
       ),
       RegionInJetsCheckPSet = cms.PSet( 
-        recoCaloJetsCollection = cms.InputTag( "ak5CaloJets" ),
+        recoCaloJetsCollection = cms.InputTag( "ak4CaloJets" ),
         deltaRExclusionSize = cms.double( 0.3 ),
         jetsPtMin = cms.double( 5.0 ),
         doJetsExclusionCheck = cms.bool( True )

@@ -121,7 +121,7 @@ void PatBJetVertexAnalyzer::beginJob()
 		                                 5, 0, 5);
 		plots.deltaR = fs->make<TH1F>(Form("deltaR_%s", name),
 		                              Form("\\DeltaR between vertex direction and jet direction in %s", flavour),
-		                              100, 0, 0.5);
+		                              100, 0, 0.4);
 		plots.mass = fs->make<TH1F>(Form("mass_%s", name),
 		                            Form("vertex mass in %s", flavour),
 		                            100, 0, 10);
@@ -130,7 +130,7 @@ void PatBJetVertexAnalyzer::beginJob()
 		                            100, 0, 2);
 		plots.distErr = fs->make<TH1F>(Form("distErr_%s", name),
 		                               Form("Transverse distance error between PV and SV in %s", flavour),
-		                               100, 0, 0.5);
+		                               100, 0, 0.4);
 		plots.distSig = fs->make<TH1F>(Form("distSig_%s", name),
 		                               Form("Transverse distance significance between PV and SV in %s", flavour),
 		                               100, 0, 50);

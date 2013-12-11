@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 # ---------- Add assigned jet-track association
 
-from RecoJets.JetAssociationProducers.ak5JTA_cff import *
-ak5JetTracksAssociatorAtVertexJPT = ak5JetTracksAssociatorAtVertex.clone()
-ak5JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
-ak5JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
+from RecoJets.JetAssociationProducers.ak4JTA_cff import *
+ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone()
+ak4JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
+ak4JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
 
 from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import *
 iterativeCone5JetTracksAssociatorAtVertexJPT = iterativeCone5JetTracksAssociatorAtVertex.clone()
@@ -47,7 +47,7 @@ JetPlusTrackZSPCorJetIcone5.JetTracksAssociationAtVertex = cms.InputTag("iterati
 JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer(
     "JetPlusTrackProducer",
     cms.PSet(JPTZSPCorrectorICone5),
-    src = cms.InputTag("ak5CaloJets"),
+    src = cms.InputTag("ak4CaloJets"),
     tagName = cms.vstring('ZSP_CMSSW390_Akt_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
@@ -58,15 +58,15 @@ JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer(
     ptCUT = cms.double(15.)
     )
 
-JetPlusTrackZSPCorJetAntiKt5.JetTracksAssociationAtVertex = cms.InputTag("ak5JetTracksAssociatorAtVertexJPT")
-JetPlusTrackZSPCorJetAntiKt5.JetTracksAssociationAtCaloFace = cms.InputTag("ak5JetTracksAssociatorAtCaloFace")
+JetPlusTrackZSPCorJetAntiKt5.JetTracksAssociationAtVertex = cms.InputTag("ak4JetTracksAssociatorAtVertexJPT")
+JetPlusTrackZSPCorJetAntiKt5.JetTracksAssociationAtCaloFace = cms.InputTag("ak4JetTracksAssociatorAtCaloFace")
 JetPlusTrackZSPCorJetAntiKt5.JetSplitMerge = cms.int32(2)
 
 
 JetPlusTrackZSPCorJetSiscone5 = cms.EDProducer(
     "JetPlusTrackProducer",
     cms.PSet(JPTZSPCorrectorICone5),
-    src = cms.InputTag("ak5CaloJets"),
+    src = cms.InputTag("ak4CaloJets"),
     tagName = cms.vstring('ZSP_CMSSW390_Akt_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
@@ -106,7 +106,7 @@ JetPlusTrackCorrectionsSisCone5 = cms.Sequence(
 
 JetPlusTrackCorrectionsAntiKt5 = cms.Sequence(
     JPTeidTight*
-    ak5JetTracksAssociatorAtVertexJPT*
+    ak4JetTracksAssociatorAtVertexJPT*
     JetPlusTrackZSPCorJetAntiKt5
     )
 

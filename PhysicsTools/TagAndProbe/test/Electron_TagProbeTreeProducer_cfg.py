@@ -157,7 +157,7 @@ if MC_flag:
 SUPERCLUSTER_CUTS = "abs(eta)<2.5 && !(1.4442< abs(eta) <1.566) && et>" + str(ELECTRON_ET_CUT_MIN)
 
 
-JET_COLL = "ak5PFJets"
+JET_COLL = "ak4PFJets"
 JET_CUTS = "abs(eta)<2.6 && chargedHadronEnergyFraction>0 && electronEnergyFraction<0.1 && nConstituents>1 && neutralHadronEnergyFraction<0.99 && neutralEmEnergyFraction<0.99" 
 ########################
 
@@ -257,7 +257,7 @@ process.goodSuperClusters = cms.EDFilter("CandViewSelector",
 ##### this improves the purity of the probe sample without affecting efficiency
 
 process.JetsToRemoveFromSuperCluster = cms.EDFilter("CaloJetSelector",   
-    src = cms.InputTag("ak5CaloJets"),
+    src = cms.InputTag("ak4CaloJets"),
     cut = cms.string('pt>5 && energyFractionHadronic > 0.15')
 )
 process.goodSuperClustersClean = cms.EDProducer("CandViewCleaner",
@@ -502,7 +502,7 @@ process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
 ##   
 ## Here we show how to use a module to compute an external variable
 ## process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-## ak5PFResidual.useCondDB = False
+## ak4PFResidual.useCondDB = False
 
 process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
     probes = cms.InputTag("goodSuperClusters"),
@@ -534,7 +534,7 @@ process.JetMultiplicityInGsfEvents = process.JetMultiplicityInSCEvents.clone()
 process.JetMultiplicityInGsfEvents.probes = cms.InputTag( ELECTRON_COLL )
 
 process.ext_ToNearestJet_sequence = cms.Sequence(
-    #process.ak5PFResidual + 
+    #process.ak4PFResidual + 
     process.superClusterDRToNearestJet +
     process.JetMultiplicityInSCEvents +
     process.SCConvRejVars +

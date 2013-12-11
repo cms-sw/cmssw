@@ -34,7 +34,7 @@ process.TFileService = cms.Service("TFileService",
 #
 process.test = cms.EDAnalyzer("BasicGenJetTester",
     qcut = cms.double(40.),
-#    src = cms.InputTag("ak5GenJets")
+#    src = cms.InputTag("ak4GenJets")
 )
 
 process.p1 = cms.Path( process.test )

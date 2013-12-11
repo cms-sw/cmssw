@@ -209,8 +209,8 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
   edm::EDGetTokenT<std::vector<T> > token_;
 
-  std::string offsetCorrLabel_; // e.g. 'ak5PFJetL1Fastjet'
-  std::string jetCorrLabel_;    // e.g. 'ak5PFJetL1FastL2L3' (MC) / 'ak5PFJetL1FastL2L3Residual' (Data)
+  std::string offsetCorrLabel_; // e.g. 'ak4PFJetL1Fastjet'
+  std::string jetCorrLabel_;    // e.g. 'ak4PFJetL1FastL2L3' (MC) / 'ak4PFJetL1FastL2L3Residual' (Data)
   Textractor jetCorrExtractor_;
 
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold

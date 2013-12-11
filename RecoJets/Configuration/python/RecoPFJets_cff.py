@@ -2,10 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.JetProducers.sc5PFJets_cfi import sisCone5PFJets
 from RecoJets.JetProducers.ic5PFJets_cfi import iterativeCone5PFJets
-from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
-from RecoJets.JetProducers.ak5PFJetsTrimmed_cfi import ak5PFJetsTrimmed
-from RecoJets.JetProducers.ak5PFJetsFiltered_cfi import ak5PFJetsFiltered, ak5PFJetsMassDropFiltered
-from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+from RecoJets.JetProducers.ak4PFJetsTrimmed_cfi import ak4PFJetsTrimmed
+from RecoJets.JetProducers.ak4PFJetsFiltered_cfi import ak4PFJetsFiltered, ak4PFJetsMassDropFiltered
+from RecoJets.JetProducers.ak4PFJetsPruned_cfi import ak4PFJetsPruned
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
 from RecoJets.JetProducers.gk5PFJets_cfi import gk5PFJets
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
@@ -15,8 +16,8 @@ from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFa
 from RecoJets.JetProducers.caTopTaggers_cff import *
 
 sisCone7PFJets = sisCone5PFJets.clone( rParam = 0.7 )
-ak7PFJets = ak5PFJets.clone( rParam = 0.7 )
-ak8PFJets = ak5PFJets.clone( rParam = 0.8 )
+ak8PFJets = ak4PFJets.clone( rParam = 0.7 )
+ak8PFJets = ak4PFJets.clone( rParam = 0.8 )
 gk7PFJets = gk5PFJets.clone( rParam = 0.7 )
 kt6PFJets = kt4PFJets.clone( rParam = 0.6 )
 ca8PFJets = ca4PFJets.clone( rParam = 0.8 )
@@ -26,9 +27,10 @@ kt6PFJets.doRhoFastjet = True
 kt6PFJets.doAreaFastjet = True
 #use active areas and not Voronoi tessellation for the moment
 kt6PFJets.voronoiRfact = 0.9
-ak5PFJets.doAreaFastjet = True
-ak5PFJetsTrimmed.doAreaFastjet = True
-ak7PFJets.doAreaFastjet = True
+ak4PFJets.doAreaFastjet = True
+ak4PFJets.doAreaFastjet = True
+ak4PFJetsTrimmed.doAreaFastjet = True
+ak8PFJets.doAreaFastjet = True
 
 
 
@@ -76,38 +78,38 @@ ak8PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
 #   - CHS, pruned
 #   - CHS, filtered
 #   - CHS, trimmed
-ak5PFJetsCHS = ak5PFJets.clone(
+ak4PFJetsCHS = ak4PFJets.clone(
     src = cms.InputTag("pfNoPileUpJME")
     )
 
-ak5PFJetsCHSPruned = ak5PFJetsPruned.clone(
+ak4PFJetsCHSPruned = ak4PFJetsPruned.clone(
     src = cms.InputTag("pfNoPileUpJME")
     )
 
-ak5PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
+ak4PFJetsCHSFiltered = ak4PFJetsFiltered.clone(
     src = cms.InputTag("pfNoPileUpJME")
     )
 
-ak5PFJetsCHSTrimmed = ak5PFJetsTrimmed.clone(
+ak4PFJetsCHSTrimmed = ak4PFJetsTrimmed.clone(
     src = cms.InputTag("pfNoPileUpJME")
     )
 
-ak8PFJetsCHS = ak5PFJetsCHS.clone(
+ak8PFJetsCHS = ak4PFJetsCHS.clone(
     rParam = 0.8,
     jetPtMin = 15.0
     )
 
-ak8PFJetsCHSPruned = ak5PFJetsCHSPruned.clone(
+ak8PFJetsCHSPruned = ak4PFJetsCHSPruned.clone(
     rParam = 0.8,
     jetPtMin = 15.0
     )
 
-ak8PFJetsCHSFiltered = ak5PFJetsCHSFiltered.clone(
+ak8PFJetsCHSFiltered = ak4PFJetsCHSFiltered.clone(
     rParam = 0.8,
     jetPtMin = 15.0
     )
 
-ak8PFJetsCHSTrimmed = ak5PFJetsCHSTrimmed.clone(
+ak8PFJetsCHSTrimmed = ak4PFJetsCHSTrimmed.clone(
     rParam = 0.8,
     jetPtMin = 15.0
     )
@@ -130,14 +132,14 @@ ca8PFJetsCHSTrimmed = ak8PFJetsCHSTrimmed.clone(
 
 
 # Higgs taggers
-ca15PFJetsCHSMassDropFiltered = ak5PFJetsMassDropFiltered.clone(
+ca15PFJetsCHSMassDropFiltered = ak4PFJetsMassDropFiltered.clone(
     jetAlgorithm = cms.string("CambridgeAachen"),
     src = cms.InputTag("pfNoPileUpJME"),
     rParam = 1.5,
     jetPtMin=100.0
     )
 
-ca15PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
+ca15PFJetsCHSFiltered = ak4PFJetsFiltered.clone(
     jetAlgorithm = cms.string("CambridgeAachen"),
     src = cms.InputTag("pfNoPileUpJME"),
     rParam = 1.5,
@@ -156,9 +158,9 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            fixedGridRhoFastjetAll+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
-                           ak5PFJets+ak8PFJets+
+                           ak4PFJets+ak4PFJets+ak8PFJets+
                            pfNoPileUpJMESequence+
-                           ak5PFJetsCHS+
+                           ak4PFJetsCHS+
                            ak8PFJetsCHS+
                            ca8PFJetsCHS+
                            ak8PFJetsCHSConstituents+
@@ -180,14 +182,14 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
                            iterativeCone5PFJets+
-                           ak5PFJets+ak7PFJets+ak8PFJets+
+                           ak4PFJets+ak8PFJets+ak8PFJets+
                            gk5PFJets+gk7PFJets+
                            ca4PFJets+ca8PFJets+
                            pfNoPileUpJMESequence+
-                           ak5PFJetsCHS+
-                           ak5PFJetsCHSPruned+
-                           ak5PFJetsCHSFiltered+
-                           ak5PFJetsCHSTrimmed+
+                           ak4PFJetsCHS+
+                           ak4PFJetsCHSPruned+
+                           ak4PFJetsCHSFiltered+
+                           ak4PFJetsCHSTrimmed+
                            ak8PFJetsCHS+
                            ak8PFJetsCHSPruned+
                            ak8PFJetsCHSFiltered+

@@ -4,27 +4,27 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 
 from RecoJets.JetAssociationProducers.j2tParametersCALO_cfi import *
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
-ak7JetTracksAssociatorAtVertexPF = cms.EDProducer("JetTracksAssociatorAtVertex",
+ak8JetTracksAssociatorAtVertexPF = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
-    jets = cms.InputTag("ak7PFJetsCHS")
+    jets = cms.InputTag("ak8PFJetsCHS")
 )
 
-ak7JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+ak8JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
-    jets = cms.InputTag("ak7CaloJets")
+    jets = cms.InputTag("ak8CaloJets")
 )
 
-ak7JetTracksAssociatorAtCaloFace = cms.EDProducer("JetTracksAssociatorAtCaloFace",
+ak8JetTracksAssociatorAtCaloFace = cms.EDProducer("JetTracksAssociatorAtCaloFace",
     j2tParametersCALO,
-    jets = cms.InputTag("ak7CaloJets")
+    jets = cms.InputTag("ak8CaloJets")
 )
 
-ak7JetExtender = cms.EDProducer("JetExtender",
-    jets = cms.InputTag("ak7CaloJets"),
-    jet2TracksAtCALO = cms.InputTag("ak7JetTracksAssociatorAtCaloFace"),
-    jet2TracksAtVX = cms.InputTag("ak7JetTracksAssociatorAtVertex"),
+ak8JetExtender = cms.EDProducer("JetExtender",
+    jets = cms.InputTag("ak8CaloJets"),
+    jet2TracksAtCALO = cms.InputTag("ak8JetTracksAssociatorAtCaloFace"),
+    jet2TracksAtVX = cms.InputTag("ak8JetTracksAssociatorAtVertex"),
     coneSize = cms.double(0.7)
 )
 
-ak7JTA = cms.Sequence(ak7JetTracksAssociatorAtVertexPF*ak7JetTracksAssociatorAtVertex*ak7JetTracksAssociatorAtCaloFace*ak7JetExtender)
+ak8JTA = cms.Sequence(ak8JetTracksAssociatorAtVertexPF*ak8JetTracksAssociatorAtVertex*ak8JetTracksAssociatorAtCaloFace*ak8JetExtender)
 

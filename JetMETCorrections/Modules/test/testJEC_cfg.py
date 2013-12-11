@@ -27,13 +27,13 @@ jetPtHistogram = cms.PSet(min          = cms.untracked.double(     10),
                           description  = cms.untracked.string(     ''),
                           plotquantity = cms.untracked.string(   'pt')
                           )
-process.ak5CaloL2L3Histos = cms.EDAnalyzer(
+process.ak4CaloL2L3Histos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('ak5CaloJetsL2L3'),
+    src = cms.InputTag('ak4CaloJetsL2L3'),
     histograms = cms.VPSet(jetPtHistogram)
     )
 
-process.p = cms.Path(process.ak5CaloJetsL2L3 * process.ak5CaloL2L3Histos)
+process.p = cms.Path(process.ak4CaloJetsL2L3 * process.ak4CaloL2L3Histos)
 
 
 

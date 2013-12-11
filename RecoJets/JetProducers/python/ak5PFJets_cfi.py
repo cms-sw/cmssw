@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.PFJetParameters_cfi import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
 
-ak5PFJets = cms.EDProducer(
+ak4PFJets = cms.EDProducer(
     "FastjetJetProducer",
     PFJetParameters,
     AnomalousCellParameters,

@@ -38,12 +38,12 @@ if isMC:
 #specifies the binning of parameters
 EfficiencyBins = cms.PSet(
     probe_sc_et = cms.vdouble( 25, 30, 35, 40, 45, 50, 200 ),
-    probe_sc_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5 )
+    probe_sc_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.4, 0.0, 0.4, 1.0, 1.5, 2.0, 2.5 )
 )
 ## for super clusters
 EfficiencyBinsSC = cms.PSet(
     probe_et = cms.vdouble( 25, 30, 35, 40, 45, 50, 200 ),
-    probe_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5 )
+    probe_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.4, 0.0, 0.4, 1.0, 1.5, 2.0, 2.5 )
 )
 
 #### For data: except for HLT step
@@ -75,7 +75,7 @@ EfficiencyBinningSpecificationMC = cms.PSet(
     UnbinnedVariables = cms.vstring("mass"),
     BinnedVariables = cms.PSet(
     probe_et = cms.vdouble( 25, 30, 35, 40, 45, 50, 200 ),
-    probe_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5 ),
+    probe_eta = cms.vdouble( -2.5, -2.0, -1.5, -1.0, -0.4, 0.0, 0.4, 1.0, 1.5, 2.0, 2.5 ),
     mcTrue = cms.vstring("true")
     ),
     BinToPDFmap = cms.vstring()  
@@ -222,7 +222,7 @@ process.GsfElectronToId = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     "FCONV::signalFail(mass, signalPhy, signalResFail)",     
     "efficiency[0.9,0,1]",
     "signalFractionInPassing[1.0]"     
-    #"Gaussian::signal(mass, mean[91.2, 89.0, 93.0], sigma[2.3, 0.5, 10.0])",
+    #"Gaussian::signal(mass, mean[91.2, 89.0, 93.0], sigma[2.3, 0.4, 10.0])",
     #"RooExponential::backgroundPass(mass, cPass[-0.02,-5,0])",
     #"RooExponential::backgroundFail(mass, cFail[-0.02,-5,0])",
     #"efficiency[0.9,0,1]",

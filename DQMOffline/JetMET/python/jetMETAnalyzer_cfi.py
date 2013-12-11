@@ -56,10 +56,10 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoJetPtCleaning            = cms.untracked.bool(False),                           
     DoDiJetSelection           = cms.untracked.bool(True),
 
-    PFJetsCollectionLabel      = cms.InputTag("ak5PFJets"),
+    PFJetsCollectionLabel      = cms.InputTag("ak4PFJets"),
     JPTJetsCollectionLabel     = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
     SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
-    AKJetsCollectionLabel      = cms.InputTag("ak5CaloJets"),
+    AKJetsCollectionLabel      = cms.InputTag("ak4CaloJets"),
     ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
 
     #

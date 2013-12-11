@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltak5CaloJets = cms.EDProducer( "FastjetJetProducer", 
+hltak4CaloJets = cms.EDProducer( "FastjetJetProducer", 
     Active_Area_Repeats = cms.int32(1),
     doOutputJets = cms.bool(True),
     useDeterministicSeed = cms.bool(True),

@@ -17,8 +17,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 ##-------------------- User analyzer  --------------------------------
-process.ak5pfl2l3Residual  = cms.EDAnalyzer('JetCorrectorDemo',
-    JetCorrectionService     = cms.string('ak5PFL2L3Residual'),
+process.ak4pfl2l3Residual  = cms.EDAnalyzer('JetCorrectorDemo',
+    JetCorrectionService     = cms.string('ak4PFL2L3Residual'),
     UncertaintyTag           = cms.string('Uncertainty'),
     UncertaintyFile          = cms.string(''),
     PayloadName              = cms.string('AK5PF'),
@@ -36,5 +36,5 @@ process.ak5pfl2l3Residual  = cms.EDAnalyzer('JetCorrectorDemo',
     UseCondDB                = cms.untracked.bool(True)
 )
 
-process.p = cms.Path(process.ak5pfl2l3Residual)
+process.p = cms.Path(process.ak4pfl2l3Residual)
 

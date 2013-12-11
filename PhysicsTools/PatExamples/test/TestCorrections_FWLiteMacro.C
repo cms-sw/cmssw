@@ -71,7 +71,7 @@ void JetCorrFWLite()
     
     
     fwlite::Handle<vector<reco::CaloJet> > jetHandle;
-    jetHandle.getByLabel(ev,"ak5CaloJets");
+    jetHandle.getByLabel(ev,"ak4CaloJets");
     
     
     

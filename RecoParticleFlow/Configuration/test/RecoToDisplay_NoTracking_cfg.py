@@ -84,8 +84,8 @@ process.genReReco = cms.Sequence(process.generator+
 process.load("RecoParticleFlow.PFProducer.particleFlowCandidateChecker_cfi")
 #process.particleFlowCandidateChecker.pfCandidatesReco = cms.InputTag("particleFlow","","REPROD")
 #process.particleFlowCandidateChecker.pfCandidatesReReco = cms.InputTag("particleFlow","","REPROD2")
-#process.particleFlowCandidateChecker.pfJetsReco = cms.InputTag("ak5PFJets","","REPROD")
-#process.particleFlowCandidateChecker.pfJetsReReco = cms.InputTag("ak5PFJets","","REPROD2")
+#process.particleFlowCandidateChecker.pfJetsReco = cms.InputTag("ak4PFJets","","REPROD")
+#process.particleFlowCandidateChecker.pfJetsReReco = cms.InputTag("ak4PFJets","","REPROD2")
 
 # The complete reprocessing
 process.p = cms.Path(process.localReReco+

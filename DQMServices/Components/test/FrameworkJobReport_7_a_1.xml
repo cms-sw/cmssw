@@ -52,7 +52,7 @@
   <Branch>edmRandomEngineStates_randomEngineStateProducer__SIM.</Branch>
   <Branch>edmTriggerResults_TriggerResults__SIM.</Branch>
   <Branch>ints_genParticles__SIM.</Branch>
-  <Branch>recoGenJets_ak5GenJets__SIM.</Branch>
+  <Branch>recoGenJets_ak4GenJets__SIM.</Branch>
   <Branch>recoGenJets_ak8GenJets__SIM.</Branch>
   <Branch>recoGenJets_iterativeCone5GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt4GenJets__SIM.</Branch>
@@ -125,7 +125,7 @@
   <Branch>SimTracks_g4SimHits__SIM.</Branch>
   <Branch>SimVertexs_g4SimHits__SIM.</Branch>
   <Branch>ints_genParticles__SIM.</Branch>
-  <Branch>recoGenJets_ak5GenJets__SIM.</Branch>
+  <Branch>recoGenJets_ak4GenJets__SIM.</Branch>
   <Branch>recoGenJets_ak8GenJets__SIM.</Branch>
   <Branch>recoGenJets_iterativeCone5GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt4GenJets__SIM.</Branch>
@@ -2216,7 +2216,7 @@
   <Branch>edmRandomEngineStates_randomEngineStateProducer__SIM.</Branch>
   <Branch>edmTriggerResults_TriggerResults__SIM.</Branch>
   <Branch>ints_genParticles__SIM.</Branch>
-  <Branch>recoGenJets_ak5GenJets__SIM.</Branch>
+  <Branch>recoGenJets_ak4GenJets__SIM.</Branch>
   <Branch>recoGenJets_ak8GenJets__SIM.</Branch>
   <Branch>recoGenJets_iterativeCone5GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt4GenJets__SIM.</Branch>
@@ -2277,7 +2277,7 @@
 <Branch Name="edmRandomEngineStates_randomEngineStateProducer__SIM." ReadCount="1" />
 <Branch Name="edmTriggerResults_TriggerResults__SIM." ReadCount="1" />
 <Branch Name="ints_genParticles__SIM." ReadCount="1" />
-<Branch Name="recoGenJets_ak5GenJets__SIM." ReadCount="1" />
+<Branch Name="recoGenJets_ak4GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_ak8GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_iterativeCone5GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_kt4GenJets__SIM." ReadCount="1" />

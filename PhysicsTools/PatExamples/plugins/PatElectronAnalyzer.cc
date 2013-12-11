@@ -148,7 +148,7 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 	deltaR_->Fill(TMath::Log10(deltaR));
 	if( deltaR<maxDeltaR_ ){
 	  if( electronID_.compare("none")!=0 ){
-	    if( elec->electronID(electronID_)<0.5 )
+	    if( elec->electronID(electronID_)<0.4 )
 	      continue;
 	  }
 	  if( elec->pt()>minPt_ && fabs(elec->eta())<maxEta_ ){
@@ -170,7 +170,7 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
     // loop tag electron
     for( std::vector<pat::Electron>::const_iterator elec=electrons->begin(); elec!=electrons->end(); ++elec ){
       isoTag_->Fill(elec->trackIso());
-      if( elec->trackIso()<maxTagIso_  && elec->electronID("eidTight")>0.5 ){
+      if( elec->trackIso()<maxTagIso_  && elec->electronID("eidTight")>0.4 ){
 	// loop probe electron
 	for( std::vector<pat::Electron>::const_iterator probe=electrons->begin(); probe!=electrons->end(); ++probe ){
 	  // skip the tag electron itself
@@ -184,7 +184,7 @@ PatElectronAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
 	  // check for the Z mass
 	  if( fabs( zMass-90. )<maxDeltaM_ ){
 	    if( electronID_.compare("none")!=0 ){
-	      if( probe->electronID(electronID_)<0.5 )
+	      if( probe->electronID(electronID_)<0.4 )
 		continue;
 	    }
 	    if( probe->pt()>minPt_ && fabs(probe->eta())<maxEta_ ){

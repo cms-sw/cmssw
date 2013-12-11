@@ -6,8 +6,8 @@ import JetMETCorrections.Configuration.JetCorrectionServices_cff
 #--------------------------------------------------------------------------------
 # produce Type 1 + 2 MET corrections for CaloJets
 caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
-    src = cms.InputTag('ak5CaloJets'),
-    jetCorrLabel = cms.string("ak5CaloL2L3"), # NOTE: use "ak5CaloL2L3" for MC / "ak5CaloL2L3Residual" for Data
+    src = cms.InputTag('ak4CaloJets'),
+    jetCorrLabel = cms.string("ak4CaloL2L3"), # NOTE: use "ak4CaloL2L3" for MC / "ak4CaloL2L3Residual" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(20.0),
     skipEM = cms.bool(True),

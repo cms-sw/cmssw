@@ -88,13 +88,13 @@ ic7CaloJets = iterativeConePu7CaloJets.clone()
 ic7CaloJets.doRhoFastjet = True
 ic7CaloJets.doPUOffsetCorr = False
 
-ak5CaloJets = akPu5CaloJets.clone()
-ak5CaloJets.doRhoFastjet = True
-ak5CaloJets.doPUOffsetCorr = False
+ak4CaloJets = akPu5CaloJets.clone()
+ak4CaloJets.doRhoFastjet = True
+ak4CaloJets.doPUOffsetCorr = False
 
-ak7CaloJets = akPu7CaloJets.clone()
-ak7CaloJets.doRhoFastjet = True
-ak7CaloJets.doPUOffsetCorr = False
+ak8CaloJets = akPu7CaloJets.clone()
+ak8CaloJets.doRhoFastjet = True
+ak8CaloJets.doPUOffsetCorr = False
 
 kt4CaloJets = ktPu4CaloJets.clone()
 kt4CaloJets.doRhoFastjet = True
@@ -108,6 +108,6 @@ kt6CaloJets.doPUOffsetCorr = False
 hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets)
 
 ## Extended Sequence
-hiRecoAllJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+ic5CaloJets+ic7CaloJets+akPu5CaloJets+akPu7CaloJets+ak5CaloJets+ak7CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
+hiRecoAllJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+ic5CaloJets+ic7CaloJets+akPu5CaloJets+akPu7CaloJets+ak4CaloJets+ak8CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
 
 

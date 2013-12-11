@@ -37,7 +37,7 @@ using namespace reco;
 EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       // Input collections
       metTag_       (cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
-      jetTag_       (cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
+      jetTag_       (cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak4PFJets"))),
       trigTag_      (consumes<edm::TriggerResults> (
 		       cfg.getUntrackedParameter<edm::InputTag> ("TrigTag",
 								 edm::InputTag("TriggerResults::HLT")))),
@@ -49,7 +49,7 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
 								 edm::InputTag("pfmet")))),
       jetToken_       (consumes<edm::View<reco::Jet> > (
 			 cfg.getUntrackedParameter<edm::InputTag> ("JetTag",
-								   edm::InputTag("ak5PFJets")))),
+								   edm::InputTag("ak4PFJets")))),
       phoTag_       (consumes<edm::View<reco::Photon> > (
 		       cfg.getUntrackedParameter<edm::InputTag> ("phoTag",
 								 edm::InputTag("photons")))),

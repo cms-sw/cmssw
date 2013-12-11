@@ -48,7 +48,7 @@ process.analyzeBJetTracks = cms.EDAnalyzer("PatBJetTrackAnalyzer",
 	jetEtaCut = cms.double(2.4),
 
 	#track cuts
-	maxDeltaR = cms.double(0.5),
+	maxDeltaR = cms.double(0.4),
 	minPt = cms.double(1.0),
 	minPixelHits = cms.uint32(2),
 	minTotalHits = cms.uint32(8),

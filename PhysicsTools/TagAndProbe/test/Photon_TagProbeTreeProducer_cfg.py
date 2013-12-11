@@ -17,7 +17,7 @@ HLTPath3 = "HLT_Photon20_Cleaned_L1R"
 #InputTagProcess = "REDIGI36X"
 InputTagProcess = "HLT"
 RECOProcess = "RECO"
-JET_COLL = "ak5PFJets"
+JET_COLL = "ak4PFJets"
 JET_CUTS = "abs(eta)<2.6 && chargedHadronEnergyFraction>0 && electronEnergyFraction<0.1 && nConstituents>1 && neutralHadronEnergyFraction<0.99 && neutralEmEnergyFraction<0.99 && pt>15.0" 
 ELECTRON_ET_CUT_MIN = 20.0
 ELECTRON_COLL = "gsfElectrons"
@@ -158,12 +158,12 @@ process.probePhotonsPassingHLT = cms.EDProducer(
 ##   
 
 ## Here we show how to use a module to compute an external variable
-#producer of dR < 0.5 photon-cleaned jets
+#producer of dR < 0.4 photon-cleaned jets
 process.cleanJets = cms.EDProducer("JetViewCleaner",
     srcObject = cms.InputTag(JET_COLL, "", "RECO"),
     srcObjectSelection = cms.string(JET_CUTS),
     srcObjectsToRemove = cms.VInputTag( cms.InputTag("photons", "", RECOProcess)),
-    deltaRMin = cms.double(0.5)  
+    deltaRMin = cms.double(0.4)  
     )
 
 
