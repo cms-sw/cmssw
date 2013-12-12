@@ -21,7 +21,7 @@ JetAnalyzerICPU5Calo = cms.EDAnalyzer("JetTester",
     recoJetPtThreshold = cms.double(40),
     genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
-    RThreshold                     = cms.double(0.3),
+    RThreshold                     = cms.double(0.3)
 )
 
 JetAnalyzerICPU7Calo = cms.EDAnalyzer("JetTester",
