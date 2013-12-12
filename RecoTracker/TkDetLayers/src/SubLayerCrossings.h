@@ -8,7 +8,7 @@ class SubLayerCrossing {
 public:
   SubLayerCrossing(){}
   SubLayerCrossing( int sli, int cdi, const GlobalPoint& pos) : 
-    subLayerIndex_(sli), closestDetIndex_(cdi), pos_(pos) {}
+    pos_(pos), subLayerIndex_(sli), closestDetIndex_(cdi) {}
 
   int subLayerIndex()   const {return subLayerIndex_;}
   int closestDetIndex() const {return closestDetIndex_;}

@@ -296,7 +296,10 @@ namespace cms{
       // end of loop over seeds
       
       if (theSeedCleaner) theSeedCleaner->done();
-      
+   
+        std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
+
+   
       // Step E: Clean the results to avoid duplicate tracks
       // Rejected ones just flagged as invalid.
       theTrajectoryCleaner->clean(rawResult);
@@ -357,7 +360,9 @@ namespace cms{
       //}
 
       //analyseCleanedTrajectories(unsmoothedResult);
-      
+   
+      int viTotHits=0;   
+   
       if (theTrackCandidateOutput){
 	// Step F: Convert to TrackCandidates
        output->reserve(unsmoothedResult.size());
@@ -375,6 +380,8 @@ namespace cms{
 	      hitIt != thits.end(); ++hitIt) {
 	   recHits.push_back( (**hitIt).hit()->clone());
 	 }
+
+         viTotHits+=thits.size();        
 
 	 LogDebug("CkfPattern") << "getting initial state.";
 	 const bool doBackFit = !doSeedingRegionRebuilding && !reverseTrajectories;
@@ -408,7 +415,7 @@ namespace cms{
 						    << "number of Seed: " << collseed->size()<<endl
       						    <<PrintoutHelper::regressionTest(*tracker,unsmoothedResult);
 
-      
+      std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
      
       if (theTrajectoryOutput){ outputT->swap(unsmoothedResult);}
 
