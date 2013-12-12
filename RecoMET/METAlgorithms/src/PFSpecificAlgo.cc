@@ -9,7 +9,6 @@
 //
 //____________________________________________________________________________||
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
-#include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 //____________________________________________________________________________||
@@ -24,17 +23,7 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
   const Point vtx(0.0,0.0,0.0);
   PFMET pfMET(specific, met.sumet, p4, vtx );
 
-  if(doSignificance) pfMET.setSignificanceMatrix(mkSignifMatrix(PFCandidates));
-
   return pfMET;
-}
-
-//____________________________________________________________________________||
-void PFSpecificAlgo::runSignificance(metsig::SignAlgoResolutions &resolutions, edm::Handle<edm::View<reco::PFJet> > jets)
-{
-  doSignificance = true;
-  pfsignalgo_.setResolutions( &resolutions );
-  pfsignalgo_.addPFJets(jets);
 }
 
 //____________________________________________________________________________||
@@ -100,23 +89,6 @@ SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(edm::Handle<edm::View<reco
     specific.Type7Fraction = type7Et/Et_total;
   }
   return specific;
-}
-
-//____________________________________________________________________________||
-TMatrixD PFSpecificAlgo::mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates)
-{
-  pfsignalgo_.useOriginalPtrs(PFCandidates.id());
-  for(edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin(); iParticle != (PFCandidates.product())->end(); ++iParticle )
-    {   
-      const PFCandidate* pfCandidate = dynamic_cast<const PFCandidate*> (&(*iParticle));
-      if (!pfCandidate) continue;
-      reco::CandidatePtr dau(PFCandidates, iParticle - PFCandidates->begin());
-      if(dau.isNull()) continue;
-      if(!dau.isAvailable()) continue;
-      reco::PFCandidatePtr pf(dau.id(), pfCandidate, dau.key());
-      pfsignalgo_.addPFCandidate(pf);
-    }
-  return pfsignalgo_.getSignifMatrix();
 }
 
 //____________________________________________________________________________||
