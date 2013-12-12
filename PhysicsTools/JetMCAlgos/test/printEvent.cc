@@ -22,7 +22,7 @@ class printEvent : public edm::EDAnalyzer {
 
   private:
 
-    edm::InputTag source_;
+    edm::EDGetTokenT< edm::View<reco::Jet> > sourceToken_;
     edm::Handle< edm::View<reco::Jet> > genJets;
     edm::ESHandle<ParticleDataTable> pdt_;
 
@@ -42,7 +42,7 @@ using namespace CandMCTagUtils;
 
 printEvent::printEvent(const edm::ParameterSet& iConfig)
 {
-  source_ = iConfig.getParameter<InputTag> ("src");
+  sourceToken_ = consumes< edm::View<reco::Jet> >(iConfig.getParameter<InputTag> ("src"));
 }
 
 void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -50,9 +50,9 @@ void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   typedef edm::RefToBase<reco::Jet> JetRef;
 
   cout << "[printGenJet] analysing event " << iEvent.id() << endl;
-  
+
   try {
-    iEvent.getByLabel (source_,genJets);
+    iEvent.getByToken (sourceToken_,genJets);
     iSetup.getData( pdt_ );
   } catch(std::exception& ce) {
     cerr << "[printGenJet] caught std::exception " << ce.what() << endl;
@@ -90,7 +90,7 @@ void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                 c->eta(),
                 c->phi(),
                 isB,isC  );
-    }       
+    }
   }
 }
 

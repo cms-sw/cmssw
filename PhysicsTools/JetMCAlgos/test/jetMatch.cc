@@ -41,11 +41,11 @@ class jetMatch : public edm::EDAnalyzer {
 
   private:
 
-    InputTag source_;
-    InputTag matched_;
-    InputTag matchedjetsOne_;   
-    InputTag matchedjetsMany_;   
-    string   fOutputFileName_;            
+    EDGetTokenT<CandidateCollection> sourceToken_;
+    EDGetTokenT<CandidateCollection> matchedToken_;
+    EDGetTokenT<CandViewMatchMap> matchedjetsOneToken_;
+    EDGetTokenT<CandMatchMapMany> matchedjetsManyToken_;
+    string   fOutputFileName_;
 
     Handle<CandidateCollection> source;
     Handle<CandidateCollection> matched;
@@ -58,42 +58,42 @@ class jetMatch : public edm::EDAnalyzer {
 
 jetMatch::jetMatch(const edm::ParameterSet& iConfig)
 {
-  source_          = iConfig.getParameter<InputTag> ("src");
-  matched_         = iConfig.getParameter<InputTag> ("matched");
-  matchedjetsOne_  = iConfig.getParameter<InputTag> ("matchMapOne");
-  matchedjetsMany_ = iConfig.getParameter<InputTag> ("matchMapMany");
+  sourceToken_          = consumes<CandidateCollection>(iConfig.getParameter<InputTag> ("src"));
+  matchedToken_         = consumes<CandidateCollection>(iConfig.getParameter<InputTag> ("matched"));
+  matchedjetsOneToken_  = consumes<CandViewMatchMap>(iConfig.getParameter<InputTag> ("matchMapOne"));
+  matchedjetsManyToken_ = consumes<CandMatchMapMany>(iConfig.getParameter<InputTag> ("matchMapMany"));
   fOutputFileName_ = iConfig.getUntrackedParameter<string>("HistOutFile",std::string("testMatch.root"));
 }
 
 void jetMatch::beginJob()
 {
- 
+
    hOutputFile   = new TFile( fOutputFileName_.c_str(), "RECREATE" ) ;
    hTotalLenght  = new TH1D( "hTotalLenght", "Total Lenght", 100,  0., 5. );
    return ;
 }
 
 void jetMatch::endJob()
-{      
+{
    hOutputFile->Write() ;
-   hOutputFile->Close() ;  
+   hOutputFile->Close() ;
    return ;
 }
 
 void jetMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[GenJetTest] analysing event " << iEvent.id() << endl;
-  
+
   try {
-    iEvent.getByLabel (source_,source);
-    iEvent.getByLabel (matched_,matched);
-    iEvent.getByLabel (matchedjetsOne_ , matchedjetsOne );
-    iEvent.getByLabel (matchedjetsMany_, matchedjetsMany);
+    iEvent.getByToken (sourceToken_,source);
+    iEvent.getByToken (matchedToken_,matched);
+    iEvent.getByToken (matchedjetsOneToken_ , matchedjetsOne );
+    iEvent.getByToken (matchedjetsManyToken_, matchedjetsMany);
   } catch(std::exception& ce) {
     cerr << "[GenJetTest] caught std::exception " << ce.what() << endl;
     return;
   }
-  
+
   //
   // Printout for OneToOne matcher
   //
@@ -112,16 +112,16 @@ void jetMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       printf("[GenJetTest] (pt,eta,phi) source = %6.2f %5.2f %5.2f matched = %6.2f %5.2f %5.2f dR=%5.3f\n",
 	     sourceRef->et(),
 	     sourceRef->eta(),
-	     sourceRef->phi(), 
-	     matchRef->et(), 
+	     sourceRef->phi(),
+	     matchRef->et(),
 	     matchRef->eta(),
-	     matchRef->phi(), 
+	     matchRef->phi(),
 	     dR);
-      
+
   }
 
   hTotalLenght->Fill( dR );
-  
+
   //
   // Printout for OneToMany matcher
   //
@@ -148,10 +148,10 @@ void jetMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     matchedRef->eta(),
 	     matchedRef->phi(),
 	     deltaR);
-      
+
     }
   }
-  
+
 }
 
 DEFINE_FWK_MODULE( jetMatch );
