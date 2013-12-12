@@ -30,10 +30,12 @@ class RecoTauPiZeroUnembedder : public edm::EDProducer {
     void produce(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag src_;
+    edm::EDGetTokenT<reco::CandidateView> token; 
 };
 
 RecoTauPiZeroUnembedder::RecoTauPiZeroUnembedder(const edm::ParameterSet& pset) {
   src_ = pset.getParameter<edm::InputTag>("src");
+  token = consumes<reco::CandidateView>(src_);
   produces<reco::RecoTauPiZeroCollection>("pizeros");
   produces<reco::PFTauCollection>();
 }
@@ -43,7 +45,7 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
   std::auto_ptr<reco::PFTauCollection> tausOut(new reco::PFTauCollection);
 
   edm::Handle<reco::CandidateView> tauView;
-  evt.getByLabel(src_, tauView);
+  evt.getByToken(token, tauView);
 
   reco::PFTauRefVector taus =
       reco::tau::castView<reco::PFTauRefVector>(tauView);

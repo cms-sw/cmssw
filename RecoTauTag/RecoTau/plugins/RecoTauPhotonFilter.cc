@@ -19,7 +19,7 @@ namespace reco { namespace tau {
 // Filter photons
 class RecoTauPhotonFilter : public RecoTauModifierPlugin {
   public:
-    explicit RecoTauPhotonFilter(const edm::ParameterSet& pset);
+  explicit RecoTauPhotonFilter(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     virtual ~RecoTauPhotonFilter() {}
     void operator()(PFTau&) const override;
   private:
@@ -30,7 +30,7 @@ class RecoTauPhotonFilter : public RecoTauModifierPlugin {
 };
 
 RecoTauPhotonFilter::RecoTauPhotonFilter(
-    const edm::ParameterSet& pset):RecoTauModifierPlugin(pset) {
+  const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauModifierPlugin(pset,std::move(iC)) {
   minPtFractionSinglePhotons_ =
       pset.getParameter<double>("minPtFractionSinglePhotons");
   minPtFractionPiZeroes_ =

@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCleaningTools.h"
@@ -56,19 +57,21 @@ class RecoTauPiZeroProducer : public edm::EDProducer {
     typedef reco::tau::RecoTauLexicographicalRanking<rankerList,
             reco::RecoTauPiZero> PiZeroPredicate;
 
-    edm::InputTag src_;
+  //  edm::InputTag src_;
     builderList builders_;
     rankerList rankers_;
     std::auto_ptr<PiZeroPredicate> predicate_;
     double piZeroMass_;
 
+  //consumes interface
+  edm::EDGetTokenT<reco::CandidateView> cand_token;
     // Output selector
     std::auto_ptr<StringCutObjectSelector<reco::RecoTauPiZero> >
       outputSelector_;
 };
 
 RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
-  src_ = pset.getParameter<edm::InputTag>("jetSrc");
+  cand_token = consumes<reco::CandidateView>( pset.getParameter<edm::InputTag>("jetSrc"));
 
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get the mass hypothesis for the pizeros
@@ -76,7 +79,6 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
 
   // Get each of our PiZero builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
-
   for (VPSet::const_iterator builderPSet = builders.begin();
       builderPSet != builders.end(); ++builderPSet) {
     // Get plugin name
@@ -84,7 +86,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
       builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
     builders_.push_back(RecoTauPiZeroBuilderPluginFactory::get()->create(
-          pluginType, *builderPSet));
+									 pluginType, *builderPSet, consumesCollector()));
   }
 
   // Get each of our quality rankers
@@ -116,7 +118,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
                                     const edm::EventSetup& es) {
   // Get a view of our jets via the base candidates
   edm::Handle<reco::CandidateView> jetView;
-  evt.getByLabel(src_, jetView);
+  evt.getByToken(cand_token, jetView);
 
   // Give each of our plugins a chance at doing something with the edm::Event
   BOOST_FOREACH(Builder& builder, builders_) {

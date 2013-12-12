@@ -27,7 +27,7 @@ namespace reco { namespace tau {
 
 class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
-    explicit RecoTauPiZeroCombinatoricPlugin(const edm::ParameterSet& pset);
+  explicit RecoTauPiZeroCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     ~RecoTauPiZeroCombinatoricPlugin() {}
     // Return type is auto_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const override;
@@ -42,7 +42,7 @@ class RecoTauPiZeroCombinatoricPlugin : public RecoTauPiZeroBuilderPlugin {
 };
 
 RecoTauPiZeroCombinatoricPlugin::RecoTauPiZeroCombinatoricPlugin(
-    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
+    const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauPiZeroBuilderPlugin(pset,std::move(iC)),
     qcuts_(pset.getParameterSet(
           "qualityCuts").getParameterSet("signalQualityCuts")) {
   minMass_ = pset.getParameter<double>("minMass");
