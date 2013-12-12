@@ -107,6 +107,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
     }
   }
   buildNullTaus_ = pset.getParameter<bool>("buildNullTaus");
+
   produces<reco::PFTauCollection>();
 }
 

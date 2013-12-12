@@ -60,7 +60,7 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(const edm::Pa
   for ( VPSet::const_iterator decayMode = decayModes.begin();
 	decayMode != decayModes.end(); ++decayMode ) {
     decayModeInfo info;
-                                                                                                                                                                                                                                                                                                                                                                                                                           info.nCharged_ = decayMode->getParameter<uint32_t>("nCharged");
+    info.nCharged_ = decayMode->getParameter<uint32_t>("nCharged");
     info.nPiZeros_ = decayMode->getParameter<uint32_t>("nPiZeros");
     info.maxPFCHs_ = decayMode->getParameter<uint32_t>("maxTracks");
     info.maxPiZeros_ = decayMode->getParameter<uint32_t>("maxPiZeros");
@@ -155,6 +155,8 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 {
   if ( verbosity_ ) {
     std::cout << "<RecoTauBuilderCombinatoricPlugin::operator()>:" << std::endl;
+    std::cout << " processing jet: Pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->eta() << ","
+	      << " mass = " << jet->mass() << ", area = " << jet->jetArea() << std::endl;
   }
   
   // Define output.  

@@ -161,6 +161,13 @@ namespace
       assert(tauRef_.key() == idx_);
       std::cout << " Pt = " << tauRef_->pt() << ", eta = " << tauRef_->eta() << ", phi = " << tauRef_->phi() << ", mass = " << tauRef_->mass() << " (decayMode = " << tauRef_->decayMode() << ")";
       std::cout << std::endl;
+      std::cout << "associated jet:";
+      if ( tauRef_->jetRef().isNonnull() ) {
+	std::cout << " Pt = " << tauRef_->jetRef()->pt() << ", eta = " << tauRef_->jetRef()->eta() << ", phi = " << tauRef_->jetRef()->phi() 
+		  << ", mass = " << tauRef_->jetRef()->mass() << ", area = " << tauRef_->jetRef()->jetArea();
+      }
+      else std::cout << " N/A";
+      std::cout << std::endl;
       const std::vector<reco::PFRecoTauChargedHadron>& signalTauChargedHadronCandidates = tauRef_->signalTauChargedHadronCandidates();
       size_t numChargedHadrons = signalTauChargedHadronCandidates.size();
       for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {

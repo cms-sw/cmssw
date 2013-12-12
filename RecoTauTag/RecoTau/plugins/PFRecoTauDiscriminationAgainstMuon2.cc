@@ -50,6 +50,8 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
       dRmuonMatchLimitedToJetArea_ = cfg.getParameter<bool>("dRmuonMatchLimitedToJetArea");
     }
+    numWarnings_ = 0;
+    maxWarnings_ = 3;
     verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
    }
   ~PFRecoTauDiscriminationAgainstMuon2() {} 
@@ -69,6 +71,8 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
   edm::Handle<reco::MuonCollection> muons_;
   double dRmuonMatch_;
   bool dRmuonMatchLimitedToJetArea_;
+  mutable int numWarnings_;
+  int maxWarnings_;
   int verbosity_;
 };
 
@@ -160,8 +164,12 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	if ( jetArea > 0. ) {
 	  dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
 	} else {
-	  edm::LogWarning("PFRecoTauDiscriminationAgainstMuon2::discriminate") 
-	    << "Jet associated to Tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << " has area = " << jetArea << " !!" << std::endl;
+	  if ( numWarnings_ < maxWarnings_ ) {
+	    edm::LogWarning("PFRecoTauDiscriminationAgainstMuon2::discriminate") 
+	      << "Jet associated to Tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << " has area = " << jetArea << " !!" << std::endl;
+	    ++numWarnings_;
+	  }
+	  dRmatch = 0.1;
 	}
       }
       if ( dR < dRmatch ) {
