@@ -115,6 +115,9 @@ staSeedTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackVal
 staSeedTrackVMuonAssoc.associatormap = 'tpToStaseedAssociation'
 staSeedTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
 staSeedTrackVMuonAssoc.label = ('staSeedsInTracks',)
+print staSeedTrackVMuonAssoc.dirName
+staSeedTrackVMuonAssoc.dirName = cms.string('Muons/RecoMuonSeedsV/MultiTrack/')
+print staSeedTrackVMuonAssoc.dirName
 staSeedTrackVMuonAssoc.usetracker = False
 staSeedTrackVMuonAssoc.usemuon = True
 
@@ -248,6 +251,18 @@ recoMuonVMuAssoc_sta.simLabel = 'mix:MergedTrackTruth'
 recoMuonVMuAssoc_sta.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalone'
 recoMuonVMuAssoc_sta.trackType = 'outer'
 recoMuonVMuAssoc_sta.selection = "isStandAloneMuon"
+
+#seed of StandAlone
+muonAssociatorByHitsESProducerNoSimHits_Seedsta = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
+muonAssociatorByHitsESProducerNoSimHits_Seedsta.ComponentName = 'muonAssociatorByHits_NoSimHits_seedOfStandalone'
+muonAssociatorByHitsESProducerNoSimHits_Seedsta.UseTracker = False
+muonAssociatorByHitsESProducerNoSimHits_Seedsta.UseMuon  = True
+recoMuonVMuAssoc_seedSta = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
+recoMuonVMuAssoc_seedSta.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_SeedSta'
+recoMuonVMuAssoc_seedSta.simLabel = 'mix:MergedTrackTruth'
+recoMuonVMuAssoc_seedSta.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalone'
+recoMuonVMuAssoc_seedSta.trackType = 'outer'
+recoMuonVMuAssoc_seedSta.selection = ""
 
 #standalone and PF
 muonAssociatorByHitsESProducerNoSimHits_staPF = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()

@@ -36,6 +36,7 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       dbe_->cd();
       InputTag algo = label[www];
       string dirName=dirName_;
+      std::cout << "avant =" << dirName.c_str() << std::endl;
       if (algo.process()!="")
 	dirName+=algo.process()+"_";
       if(algo.label()!="")
@@ -52,7 +53,7 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
       dbe_->setCurrentFolder(dirName.c_str());
-
+	std::cout << "coucou dirName=" << dirName.c_str() << std::endl;
       setUpVectors();
 
       dbe_->goUp();
