@@ -11,23 +11,23 @@ from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
 
 ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracksFromConversions*ckfInOutTracksFromConversions)
 
-mustacheConversionTrackCandidates = conversionTrackCandidates.clone()
-mustacheConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
-mustacheConversionTrackCandidates.bcBarrelCollection = cms.InputTag('particleFlowClusterECAL')
-mustacheConversionTrackCandidates.scIslandEndcapProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
-mustacheConversionTrackCandidates.bcEndcapCollection = cms.InputTag('particleFlowClusterECAL')
+oldegConversionTrackCandidates = conversionTrackCandidates.clone()
+oldegConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
+oldegConversionTrackCandidates.bcBarrelCollection = cms.InputTag("correctedHybridSuperClusters")
+oldegConversionTrackCandidates.scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
+oldegConversionTrackCandidates.bcEndcapCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
 
-ckfOutInTracksFromMustacheConversions = ckfOutInTracksFromConversions.clone()
-ckfOutInTracksFromMustacheConversions.src = cms.InputTag('mustacheConversionTrackCandidates','outInTracksFromConversions')
-ckfOutInTracksFromMustacheConversions.producer = cms.string('mustacheConversionTrackCandidates')
-ckfOutInTracksFromMustacheConversions.ComponentName = cms.string('ckfOutInTracksFromMustacheConversions')
+ckfOutInTracksFromOldEGConversions = ckfOutInTracksFromConversions.clone()
+ckfOutInTracksFromOldEGConversions.src = cms.InputTag('oldegConversionTrackCandidates','outInTracksFromConversions')
+ckfOutInTracksFromOldEGConversions.producer = cms.string('oldegConversionTrackCandidates')
+ckfOutInTracksFromOldEGConversions.ComponentName = cms.string('ckfOutInTracksFromOldEGConversions')
 
-ckfInOutTracksFromMustacheConversions = ckfInOutTracksFromConversions.clone()
-ckfInOutTracksFromMustacheConversions.src = cms.InputTag('mustacheConversionTrackCandidates','inOutTracksFromConversions')
-ckfInOutTracksFromMustacheConversions.producer = cms.string('mustacheConversionTrackCandidates')
-ckfInOutTracksFromMustacheConversions.ComponentName = cms.string('ckfInOutTracksFromMustacheConversions')
+ckfInOutTracksFromOldEGConversions = ckfInOutTracksFromConversions.clone()
+ckfInOutTracksFromOldEGConversions.src = cms.InputTag('oldegConversionTrackCandidates','inOutTracksFromConversions')
+ckfInOutTracksFromOldEGConversions.producer = cms.string('mustacheConversionTrackCandidates')
+ckfInOutTracksFromOldEGConversions.ComponentName = cms.string('ckfInOutTracksFromOldEGConversions')
 
-ckfTracksFromMustacheConversions = cms.Sequence(mustacheConversionTrackCandidates*ckfOutInTracksFromMustacheConversions*ckfInOutTracksFromMustacheConversions)
+ckfTracksFromOldEGConversions = cms.Sequence(oldegConversionTrackCandidates*ckfOutInTracksFromOldEGConversions*ckfInOutTracksFromOldEGConversions)
 
 #producer from general tracks collection, set tracker only, merged arbitrated, merged arbitrated ecal/general flags
 generalConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
@@ -66,12 +66,12 @@ gsfConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackPro
 
 conversionTrackProducers = cms.Sequence(generalConversionTrackProducer*conversionStepConversionTrackProducer*inOutConversionTrackProducer*outInConversionTrackProducer*gsfConversionTrackProducer)
 
-inOutMustacheConversionTrackProducer = inOutConversionTrackProducer.clone()
-inOutMustacheConversionTrackProducer.TrackProducer = cms.string('ckfInOutTracksFromMustacheConversions')
-outInMustacheConversionTrackProducer = outInConversionTrackProducer.clone()
-outInMustacheConversionTrackProducer.TrackProducer = cms.string('ckfOutInTracksFromMustacheConversions')
+inOutOldEGConversionTrackProducer = inOutConversionTrackProducer.clone()
+inOutOldEGConversionTrackProducer.TrackProducer = cms.string('ckfInOutTracksFromOldEGConversions')
+outInOldEGConversionTrackProducer = outInConversionTrackProducer.clone()
+outInOldEGConversionTrackProducer.TrackProducer = cms.string('ckfOutInTracksFromOldEGConversions')
 
-mustacheConversionTrackProducers = cms.Sequence(inOutMustacheConversionTrackProducer*outInMustacheConversionTrackProducer)
+oldegConversionTrackProducers = cms.Sequence(inOutOldEGConversionTrackProducer*outInOldEGConversionTrackProducer)
 
 #merge generalTracks and conversionStepTracks collections, with arbitration by nhits then chi^2/ndof for ecalseededarbitrated, mergedarbitratedecalgeneral and mergedarbitrated flags
 generalConversionStepConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
@@ -130,17 +130,17 @@ gsfGeneralInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.con
 
 conversionTrackMergers = cms.Sequence(inOutOutInConversionTrackMerger*generalConversionStepConversionTrackMerger*generalInOutOutInConversionTrackMerger*gsfGeneralInOutOutInConversionTrackMerger)
 
-inOutOutInMustacheConversionTrackMerger = inOutOutInConversionTrackMerger.clone()
-inOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutMustacheConversionTrackProducer')
-inOutOutInMustacheConversionTrackMerger.TrackProducer2 = cms.InputTag('outInMustacheConversionTrackProducer')
+inOutOutInOldEGConversionTrackMerger = inOutOutInConversionTrackMerger.clone()
+inOutOutInOldEGConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutOldEGConversionTrackProducer')
+inOutOutInOldEGConversionTrackMerger.TrackProducer2 = cms.InputTag('outInOldEGConversionTrackProducer')
 
-generalInOutOutInMustacheConversionTrackMerger = generalInOutOutInConversionTrackMerger.clone()
-generalInOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutOutInMustacheConversionTrackMerger')
+generalInOutOutInOldEGConversionTrackMerger = generalInOutOutInConversionTrackMerger.clone()
+generalInOutOutInOldEGConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutOutInOldEGConversionTrackMerger')
 
-gsfGeneralInOutOutInMustacheConversionTrackMerger = gsfGeneralInOutOutInConversionTrackMerger.clone()
-gsfGeneralInOutOutInMustacheConversionTrackMerger.TrackProducer1 = cms.InputTag('generalInOutOutInMustacheConversionTrackMerger')
+gsfGeneralInOutOutInOldEGConversionTrackMerger = gsfGeneralInOutOutInConversionTrackMerger.clone()
+gsfGeneralInOutOutInOldEGConversionTrackMerger.TrackProducer1 = cms.InputTag('generalInOutOutInOldEGConversionTrackMerger')
 
-mustacheConversionTrackMergers = cms.Sequence(inOutOutInMustacheConversionTrackMerger*generalInOutOutInMustacheConversionTrackMerger*gsfGeneralInOutOutInMustacheConversionTrackMerger)
+oldegConversionTrackMergers = cms.Sequence(inOutOutInOldEGConversionTrackMerger*generalInOutOutInOldEGConversionTrackMerger*gsfGeneralInOutOutInOldEGConversionTrackMerger)
 
 conversionTrackSequence = cms.Sequence(ckfTracksFromConversions*conversionTrackProducers*conversionTrackMergers)
 

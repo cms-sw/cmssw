@@ -48,7 +48,7 @@ HLTSusyExoValFastSim = cms.EDAnalyzer("TriggerValidator",
             reco_ptMuonMin = cms.double(10.0),
             reco_ptPhotMin = cms.double(0.0),
             calomet = cms.string('met'),
-            electrons = cms.string('gsfElectrons')
+            electrons = cms.string('gedGsfElectrons')
         )
     ),         
     # if mc_flag = false the McSelection folder will contain empty histograms
@@ -322,7 +322,7 @@ HLTSusyExoValFastSim = cms.EDAnalyzer("TriggerValidator",
         def_muonPtMin = cms.double(7.0),
         def_photonPtMin = cms.double(30.0),
         calomet = cms.string('met'),
-        electrons = cms.string('gsfElectrons'),
+        electrons = cms.string('gedGsfElectrons'),
         jets = cms.string('iterativeCone5CaloJets'),
         muons = cms.string('muons'),
         def_jetPtMin = cms.double(30.0),

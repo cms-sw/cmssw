@@ -15,7 +15,7 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -172,7 +172,7 @@ SingleTopSingleElectronTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
