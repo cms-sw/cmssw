@@ -11,6 +11,13 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 class TrajectoryStateClosestToBeamLineBuilder;
 
+
+ParametersDefinerForTP::ParametersDefinerForTP(const edm::ParameterSet& iConfig)
+  : beamSpotInputTag_ ( iConfig.getUntrackedParameter<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot")) )
+{
+}
+
+
 TrackingParticle::Vector
 ParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 	const Charge charge, const Point & vtx, const LorentzVector& lv) const {
@@ -22,7 +29,7 @@ ParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
   
   edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(InputTag("offlineBeamSpot"),bs);
+  iEvent.getByLabel(beamSpotInputTag_,bs);
 
   TrackingParticle::Vector momentum(0, 0, 0); 
 
@@ -49,7 +56,7 @@ TrackingParticle::Point ParametersDefinerForTP::vertex(const edm::Event& iEvent,
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
   
   edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(InputTag("offlineBeamSpot"),bs);
+  iEvent.getByLabel(beamSpotInputTag_,bs);
 
   TrackingParticle::Point vertex(0, 0, 0);
   
