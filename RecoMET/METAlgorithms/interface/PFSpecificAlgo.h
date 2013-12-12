@@ -31,11 +31,11 @@ class PFSpecificAlgo
  public:
   PFSpecificAlgo() { }
   
-  reco::PFMET addInfo(const edm::View<reco::Candidate>& PFCandidates, const CommonMETData& met);
+  reco::PFMET addInfo(const edm::View<reco::Candidate>& pfCands, const CommonMETData& met);
 
  private:
   void initializeSpecificPFMETData(SpecificPFMETData &specific);
-  SpecificPFMETData mkSpecificPFMETData(const edm::View<reco::Candidate>& PFCandidates);
+  SpecificPFMETData mkSpecificPFMETData(const edm::View<reco::Candidate>& pfCands);
 
 };
 
