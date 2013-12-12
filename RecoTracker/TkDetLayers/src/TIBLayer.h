@@ -16,9 +16,9 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
  public:
 
   TIBLayer(std::vector<const TIBRing*>& innerRings,
-	   std::vector<const TIBRing*>& outerRings) __attribute__ ((hot));
+	   std::vector<const TIBRing*>& outerRings) __attribute__ ((cold));
 
-  ~TIBLayer() __attribute__ ((hot));
+  ~TIBLayer() __attribute__ ((cold));
   
   // GeometricSearchDet interface
 
