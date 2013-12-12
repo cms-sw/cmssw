@@ -106,9 +106,11 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = 'GR_E_V31::All'
 #process.GlobalTag.connect   = 'sqlite_file:/afs/cern.ch/user/c/cerminar/public/Alca/GlobalTag/GR_R_311_V2.db'
 
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("DropBoxMetadataRcd"),
-             tag = cms.string("DropBoxMetadata"),
-             connect = cms.untracked.string("sqlite_file:DropBoxMetadata.db")
-            )
-    )
+if process.mywriter.read == cms.untracked.bool(True):
+
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string("DropBoxMetadataRcd"),
+                 tag = cms.string("DropBoxMetadata"),
+                 connect = cms.untracked.string("sqlite_file:DropBoxMetadata.db")
+                )
+        )
