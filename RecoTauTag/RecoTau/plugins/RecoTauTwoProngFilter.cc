@@ -33,14 +33,14 @@ void deleteFrom(const PFCandidateRef ref, PFCandidateRefVector* collection) {
 
 class RecoTauTwoProngFilter : public RecoTauModifierPlugin {
   public:
-    explicit RecoTauTwoProngFilter(const edm::ParameterSet& pset);
+  explicit RecoTauTwoProngFilter(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     virtual ~RecoTauTwoProngFilter() {}
     void operator()(PFTau&) const override;
   private:
     double minPtFractionForSecondProng_;
 };
 
-RecoTauTwoProngFilter::RecoTauTwoProngFilter(const edm::ParameterSet& pset):RecoTauModifierPlugin(pset) {
+  RecoTauTwoProngFilter::RecoTauTwoProngFilter(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauModifierPlugin(pset,std::move(iC)) {
   minPtFractionForSecondProng_ = pset.getParameter<double>("minPtFractionForSecondProng");
 }
 

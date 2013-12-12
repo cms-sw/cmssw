@@ -44,7 +44,11 @@ class PFRecoTauTagInfoProducer : public EDProducer {
   edm::InputTag PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
-  double smearedPVsigmaZ_;  
+  double smearedPVsigmaZ_;
+
+  edm::EDGetTokenT<PFCandidateCollection> PFCandidate_token;
+  edm::EDGetTokenT<JetTracksAssociationCollection> PFJetTracksAssociator_token;
+  edm::EDGetTokenT<VertexCollection> PV_token;
 };
 
 PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig){
@@ -56,6 +60,9 @@ PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iCon
   smearedPVsigmaY_                    = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_                    = iConfig.getParameter<double>("smearedPVsigmaZ");	
   PFRecoTauTagInfoAlgo_=new PFRecoTauTagInfoAlgorithm(iConfig);
+  PFCandidate_token = consumes<PFCandidateCollection>(PFCandidateProducer_);
+  PFJetTracksAssociator_token = consumes<JetTracksAssociationCollection>(PFJetTracksAssociatorProducer_);
+  PV_token = consumes<VertexCollection>(PVProducer_);
   produces<PFTauTagInfoCollection>();      
 }
 PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer(){
@@ -64,10 +71,10 @@ PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer(){
 
 void PFRecoTauTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   edm::Handle<JetTracksAssociationCollection> thePFJetTracksAssociatorCollection;
-  iEvent.getByLabel(PFJetTracksAssociatorProducer_,thePFJetTracksAssociatorCollection);
+  iEvent.getByToken(PFJetTracksAssociator_token,thePFJetTracksAssociatorCollection);
   // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet
   edm::Handle<PFCandidateCollection> thePFCandidateCollection;
-  iEvent.getByLabel(PFCandidateProducer_,thePFCandidateCollection);
+  iEvent.getByToken(PFCandidate_token,thePFCandidateCollection);
   PFCandidateRefVector thePFCandsInTheEvent;
   for(unsigned int i_PFCand=0;i_PFCand!=thePFCandidateCollection->size();i_PFCand++) { 
         thePFCandsInTheEvent.push_back(PFCandidateRef(thePFCandidateCollection,i_PFCand));
@@ -75,7 +82,7 @@ void PFRecoTauTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup
   // ***
   // query a rec/sim PV
   edm::Handle<VertexCollection> thePVs;
-  iEvent.getByLabel(PVProducer_,thePVs);
+  iEvent.getByToken(PV_token,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   math::XYZPoint V(0,0,-1000.);
 

@@ -17,7 +17,7 @@ namespace reco { namespace tau {
 
 class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
   public:
-    explicit RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset);
+  explicit RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
     virtual ~RecoTauBuilderCombinatoricPlugin() {}
     virtual return_type operator() (const reco::PFJetRef& jet,
          const std::vector<RecoTauPiZero>& piZeros,
@@ -36,7 +36,7 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin {
 };
 
 RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(
-    const edm::ParameterSet& pset): RecoTauBuilderPlugin(pset),
+  const edm::ParameterSet& pset, edm::ConsumesCollector && iC): RecoTauBuilderPlugin(pset,std::move(iC)),
   qcuts_(pset.getParameterSet(
         "qualityCuts").getParameterSet("signalQualityCuts")),
   usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
