@@ -33,7 +33,7 @@ class RecoTauJetRegionProducer : public edm::EDProducer
 {
  public:
   typedef edm::Association<reco::PFJetCollection> PFJetMatchMap;
-
+  typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;
   explicit RecoTauJetRegionProducer(const edm::ParameterSet& pset);
   ~RecoTauJetRegionProducer() {}
 
@@ -62,7 +62,7 @@ RecoTauJetRegionProducer::RecoTauJetRegionProducer(const edm::ParameterSet& cfg)
   pfCandSrc_ = cfg.getParameter<edm::InputTag>("pfCandSrc");
   pfCandAssocMapSrc_ = cfg.getParameter<edm::InputTag>("pfCandAssocMapSrc");
 
-  pf_token = consumes<reco::PFCandidateCollection>(pfSrc_); 
+  pf_token = consumes<reco::PFCandidateCollection>(pfCandSrc_); 
   Jets_token = consumes<reco::CandidateView>(inputJets_);
   pfCandAssocMap_token =  consumes<JetToPFCandidateAssociation>(pfCandAssocMapSrc_);
   
@@ -105,7 +105,6 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
 
   // Get the association map matching jets to PFCandidates
   // (needed for recinstruction of boosted taus)
-  typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;
   edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
   if ( pfCandAssocMapSrc_.label() != "" ) {
     evt.getByToken(pfCandAssocMap_token, jetToPFCandMap);

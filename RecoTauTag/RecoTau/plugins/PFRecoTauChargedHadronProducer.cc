@@ -103,7 +103,7 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
     std::string pluginType = pset->getParameter<std::string>("plugin");
     edm::ParameterSet pset_modified = (*pset);
     pset_modified.addParameter<int>("verbosity", verbosity_);
-    builders_.push_back(PFRecoTauChargedHadronBuilderPluginFactory::get()->create(pluginType, pset_modified));
+    builders_.push_back(PFRecoTauChargedHadronBuilderPluginFactory::get()->create(pluginType, pset_modified, consumesCollector()));
   }
   
   // get set of plugins for ranking ChargedHadrons in quality

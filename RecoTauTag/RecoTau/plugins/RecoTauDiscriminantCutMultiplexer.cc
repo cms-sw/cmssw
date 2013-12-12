@@ -150,7 +150,7 @@ RecoTauDiscriminantCutMultiplexer::~RecoTauDiscriminantCutMultiplexer()
 
 void RecoTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const edm::EventSetup& es) 
 {
-  evt.getByToken(toMultiplex_token, toMultiPlexHandle_);
+  evt.getByToken(toMultiplex_token, toMultiplexHandle_);
   evt.getByToken(key_token, keyHandle_);
 }
 

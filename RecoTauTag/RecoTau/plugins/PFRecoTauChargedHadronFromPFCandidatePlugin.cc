@@ -42,7 +42,7 @@ namespace tau
 class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadronBuilderPlugin 
 {
  public:
-  explicit PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet&);
+  explicit PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   virtual ~PFRecoTauChargedHadronFromPFCandidatePlugin();
   // Return type is auto_ptr<ChargedHadronVector>
   return_type operator()(const reco::PFJet&) const;
@@ -77,9 +77,9 @@ class PFRecoTauChargedHadronFromPFCandidatePlugin : public PFRecoTauChargedHadro
   int verbosity_;
 };
 
-PFRecoTauChargedHadronFromPFCandidatePlugin::PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet& pset)
-  : PFRecoTauChargedHadronBuilderPlugin(pset),
-    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
+  PFRecoTauChargedHadronFromPFCandidatePlugin::PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
+    : PFRecoTauChargedHadronBuilderPlugin(pset,std::move(iC)),
+      vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)),
     qcuts_(0)
 {
   edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");

@@ -36,7 +36,7 @@ class PFRecoTauEnergyAlgorithmPlugin : public RecoTauModifierPlugin
 {
  public:
 
-  explicit PFRecoTauEnergyAlgorithmPlugin(const edm::ParameterSet&);
+  explicit PFRecoTauEnergyAlgorithmPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   virtual ~PFRecoTauEnergyAlgorithmPlugin();
   void operator()(PFTau&) const;
   virtual void beginJob(edm::EDProducer*);
@@ -53,8 +53,8 @@ class PFRecoTauEnergyAlgorithmPlugin : public RecoTauModifierPlugin
   int verbosity_;
 };
 
-PFRecoTauEnergyAlgorithmPlugin::PFRecoTauEnergyAlgorithmPlugin(const edm::ParameterSet& cfg)
-  : RecoTauModifierPlugin(cfg),
+  PFRecoTauEnergyAlgorithmPlugin::PFRecoTauEnergyAlgorithmPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector &&iC)
+    : RecoTauModifierPlugin(cfg, std::move(iC)),
     dRaddNeutralHadron_(cfg.getParameter<double>("dRaddNeutralHadron")),
     minNeutralHadronEt_(cfg.getParameter<double>("minNeutralHadronEt")),
     dRaddPhoton_(cfg.getParameter<double>("dRaddPhoton")),

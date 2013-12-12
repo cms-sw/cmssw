@@ -23,6 +23,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauPluginsCommon.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 namespace reco {
 
 // Forward declarations
@@ -39,7 +41,7 @@ class PFRecoTauChargedHadronBuilderPlugin : public RecoTauEventHolderPlugin
   // Storing the result in an auto ptr on function return allows
   // allows us to safely release the ptr_vector in the virtual function
   typedef std::auto_ptr<ChargedHadronVector> return_type;
-  explicit PFRecoTauChargedHadronBuilderPlugin(const edm::ParameterSet& pset)
+  explicit PFRecoTauChargedHadronBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
     : RecoTauEventHolderPlugin(pset) 
   {}
   virtual ~PFRecoTauChargedHadronBuilderPlugin() {}
@@ -65,6 +67,6 @@ class PFRecoTauChargedHadronQualityPlugin : public RecoTauNamedPlugin
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 typedef edmplugin::PluginFactory<reco::tau::PFRecoTauChargedHadronQualityPlugin*(const edm::ParameterSet&)> PFRecoTauChargedHadronQualityPluginFactory;
-typedef edmplugin::PluginFactory<reco::tau::PFRecoTauChargedHadronBuilderPlugin*(const edm::ParameterSet&)> PFRecoTauChargedHadronBuilderPluginFactory;
+typedef edmplugin::PluginFactory<reco::tau::PFRecoTauChargedHadronBuilderPlugin*(const edm::ParameterSet&, edm::ConsumesCollector &&iC)> PFRecoTauChargedHadronBuilderPluginFactory;
 
 #endif
