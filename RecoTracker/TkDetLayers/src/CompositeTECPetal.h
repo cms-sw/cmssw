@@ -19,9 +19,9 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
   struct WedgePar { float theR, thetaMin, thetaMax;};
 
   CompositeTECPetal(std::vector<const TECWedge*>& innerWedges,
-		    std::vector<const TECWedge*>& outerWedges);
+		    std::vector<const TECWedge*>& outerWedges)  __attribute__ ((cold));
   
-  ~CompositeTECPetal();
+  ~CompositeTECPetal()  __attribute__ ((cold));
   
   // GeometricSearchDet interface  
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
@@ -30,7 +30,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
     compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		const MeasurementEstimator&) const;
+		const MeasurementEstimator&) const __attribute__ ((hot));
   
   virtual void
     groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
@@ -44,7 +44,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
   
   // private methods for the implementation of groupedCompatibleDets()
   SubLayerCrossings computeCrossings(const TrajectoryStateOnSurface& tsos,
-				     PropagationDirection propDir) const dso_internal;
+				     PropagationDirection propDir) const  __attribute__ ((hot)) dso_internal;
   
   
   
@@ -66,7 +66,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
   static
     float computeWindowSize( const GeomDet* det, 
 			     const TrajectoryStateOnSurface& tsos, 
-			     const MeasurementEstimator& est) dso_internal;
+			     const MeasurementEstimator& est)  __attribute__ ((hot)) dso_internal;
   
   int findBin( float R,int layer) const dso_internal;
   
