@@ -53,6 +53,11 @@ class RecoTauProducer : public edm::EDProducer {
     edm::InputTag jetSrc_;
     edm::InputTag jetRegionSrc_;
     edm::InputTag piZeroSrc_;
+  //token definition
+    edm::EDGetTokenT<reco::CandidateView> jet_token;
+    edm::EDGetTokenT<edm::Association<reco::PFJetCollection> > jetRegion_token;
+    edm::EDGetTokenT<reco::JetPiZeroAssociation> piZero_token;
+
     BuilderList builders_;
     ModifierList modifiers_;
     // Optional selection on the output of the taus
@@ -67,7 +72,10 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
   jetSrc_ = pset.getParameter<edm::InputTag>("jetSrc");
   jetRegionSrc_ = pset.getParameter<edm::InputTag>("jetRegionSrc");
   piZeroSrc_ = pset.getParameter<edm::InputTag>("piZeroSrc");
-
+  //consumes definition
+  jet_token=consumes<reco::CandidateView>(jetSrc_);
+  jetRegion_token = consumes<edm::Association<reco::PFJetCollection> >(jetRegionSrc_);
+  piZero_token = consumes<reco::JetPiZeroAssociation>(piZeroSrc_);
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
@@ -79,8 +87,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
     // Build the plugin
       builders_.push_back(
           RecoTauBuilderPluginFactory::get()->create(
-            pluginType, *builderPSet));
-  
+						     pluginType, *builderPSet, consumesCollector()));
   }
 
   const VPSet& modfiers = pset.getParameter<VPSet>("modifiers");
@@ -92,7 +99,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
     // Build the plugin
          modifiers_.push_back(
           RecoTauModifierPluginFactory::get()->create(
-            pluginType, *modfierPSet));
+						      pluginType, *modfierPSet, consumesCollector()));
    
   }
 
@@ -111,7 +118,7 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
 void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Get the jet input collection via a view of Candidates
   edm::Handle<reco::CandidateView> jetView;
-  evt.getByLabel(jetSrc_, jetView);
+  evt.getByToken(jet_token, jetView);
 
   // Convert to a vector of PFJetRefs
   reco::PFJetRefVector jets =
@@ -119,11 +126,11 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   // Get the jet region producer
   edm::Handle<edm::Association<reco::PFJetCollection> > jetRegionHandle;
-  evt.getByLabel(jetRegionSrc_, jetRegionHandle);
+  evt.getByToken(jetRegion_token, jetRegionHandle);
 
   // Get the pizero input collection
   edm::Handle<reco::JetPiZeroAssociation> piZeroAssoc;
-  evt.getByLabel(piZeroSrc_, piZeroAssoc);
+  evt.getByToken(piZero_token, piZeroAssoc);
 
   // Update all our builders and modifiers with the event info
   for (BuilderList::iterator builder = builders_.begin();

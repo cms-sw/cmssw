@@ -33,6 +33,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -54,12 +55,13 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
     typedef boost::ptr_vector<reco::PFTau> output_type;
     typedef std::auto_ptr<output_type> return_type;
 
-    explicit RecoTauBuilderPlugin(const edm::ParameterSet& pset):
+    explicit RecoTauBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC):
       RecoTauEventHolderPlugin(pset),
       // The vertex association configuration is specified with the
       // quality cuts.
-      vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
+      vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)) {
         pfCandSrc_ = pset.getParameter<edm::InputTag>("pfCandSrc");
+	pfCand_token = iC.consumes<PFCandidateCollection>(pfCandSrc_);
       };
 
     virtual ~RecoTauBuilderPlugin() {}
@@ -89,13 +91,13 @@ class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
     // Handle to PFCandidates needed to build Refs
     edm::Handle<PFCandidateCollection> pfCands_;
     reco::tau::RecoTauVertexAssociator vertexAssociator_;
-
+    edm::EDGetTokenT<PFCandidateCollection> pfCand_token;
 };
 
 /* Class that updates a PFTau's members (i.e. electron variables) */
 class RecoTauModifierPlugin : public RecoTauEventHolderPlugin {
   public:
-    explicit RecoTauModifierPlugin(const edm::ParameterSet& pset):
+     explicit RecoTauModifierPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC):
       RecoTauEventHolderPlugin(pset){};
     virtual ~RecoTauModifierPlugin() {}
     // Modify an existing PFTau (i.e. add electron rejection, etc)
@@ -106,7 +108,7 @@ class RecoTauModifierPlugin : public RecoTauEventHolderPlugin {
 /* Class that returns a double value indicating the quality of a given tau */
 class RecoTauCleanerPlugin : public RecoTauEventHolderPlugin {
   public:
-    explicit RecoTauCleanerPlugin(const edm::ParameterSet& pset):
+      explicit RecoTauCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC ):
       RecoTauEventHolderPlugin(pset){};
     virtual ~RecoTauCleanerPlugin() {}
     // Modify an existing PFTau (i.e. add electron rejection, etc)
@@ -117,10 +119,10 @@ class RecoTauCleanerPlugin : public RecoTauEventHolderPlugin {
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 typedef edmplugin::PluginFactory<reco::tau::RecoTauBuilderPlugin*
-(const edm::ParameterSet&)> RecoTauBuilderPluginFactory;
+(const edm::ParameterSet&, edm::ConsumesCollector &&iC)> RecoTauBuilderPluginFactory;
 typedef edmplugin::PluginFactory<reco::tau::RecoTauModifierPlugin*
-(const edm::ParameterSet&)> RecoTauModifierPluginFactory;
+(const edm::ParameterSet&, edm::ConsumesCollector &&iC)> RecoTauModifierPluginFactory;
 typedef edmplugin::PluginFactory<reco::tau::RecoTauCleanerPlugin*
-(const edm::ParameterSet&)> RecoTauCleanerPluginFactory;
+(const edm::ParameterSet&, edm::ConsumesCollector &&iC)> RecoTauCleanerPluginFactory;
 
 #endif

@@ -43,7 +43,7 @@ math::XYZTLorentzVector applyMassConstraint(
 
 class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
-    explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset);
+  explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
     virtual ~RecoTauPiZeroStripPlugin() {}
     // Return type is auto_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const override;
@@ -67,10 +67,11 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
 };
 
 RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(
-    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
+    const edm::ParameterSet& pset, edm::ConsumesCollector && iC):
+    RecoTauPiZeroBuilderPlugin(pset,std::move(iC)),
     qcuts_(pset.getParameterSet(
           "qualityCuts").getParameterSet("signalQualityCuts")),
-    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
+    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)) {
   inputPdgIds_ = pset.getParameter<std::vector<int> >(
       "stripCandidatesParticleIds");
   etaAssociationDistance_ = pset.getParameter<double>(
