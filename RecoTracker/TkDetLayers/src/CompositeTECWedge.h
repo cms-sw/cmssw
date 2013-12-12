@@ -14,9 +14,9 @@
 class CompositeTECWedge GCC11_FINAL : public TECWedge{
  public:
   CompositeTECWedge(std::vector<const GeomDet*>& innerDets,
-		    std::vector<const GeomDet*>& outerDets);
+		    std::vector<const GeomDet*>& outerDets)  __attribute__ ((cold));
 
-  ~CompositeTECWedge();
+  ~CompositeTECWedge()  __attribute__ ((cold));
   
   // GeometricSearchDet interface
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
@@ -25,7 +25,7 @@ class CompositeTECWedge GCC11_FINAL : public TECWedge{
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+	      const MeasurementEstimator&) const __attribute__ ((hot));
 
   virtual void
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
