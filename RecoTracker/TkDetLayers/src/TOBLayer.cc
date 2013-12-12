@@ -146,6 +146,7 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
 
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
 					     propDir,*theOuterCylinder);
+
   if (!outerCrossing.hasSolution()) return SubLayerCrossings();
 
   GlobalPoint gOuterPoint( outerCrossing.position());

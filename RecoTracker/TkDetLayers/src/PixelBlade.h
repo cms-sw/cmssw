@@ -16,9 +16,9 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
  public:
 
   PixelBlade(std::vector<const GeomDet*>& frontDets,
-	     std::vector<const GeomDet*>& backDets  );
+	     std::vector<const GeomDet*>& backDets  ) __attribute__ ((cold));
 
-  ~PixelBlade();
+  ~PixelBlade() __attribute__ ((cold));
   
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theDiskSector;}
@@ -29,7 +29,7 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
 
   std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+	      const MeasurementEstimator&) const  __attribute__ ((cold));
   
   virtual void 
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
