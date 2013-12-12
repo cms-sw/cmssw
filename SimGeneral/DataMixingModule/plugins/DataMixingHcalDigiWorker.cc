@@ -518,7 +518,7 @@ namespace edm
 
 	  unsigned int sizeold = HB_old.size();
 	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(HB_old,(HBHEdigis->back()), 0 );   // as per simulation, capid=0???
+	    coder.fC2adc(HB_old,(HBHEdigis->back()), 1 );   // as per simulation, capid=1
 	  }
 	}
 	//save pointers for next iteration                                                                 
@@ -542,7 +542,7 @@ namespace edm
 
         unsigned int sizenew = (iHB->second).size();
 	for(unsigned int isamp = 0; isamp<sizenew; isamp++) {
-	  coder.fC2adc(HB_old,(HBHEdigis->back()), 0 );  // as per simulation, capid=0???
+	  coder.fC2adc(HB_old,(HBHEdigis->back()), 1 );  // as per simulation, capid=1
   	}
       }
     }
@@ -613,7 +613,7 @@ namespace edm
 
 	  unsigned int sizeold = HO_old.size();
 	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(HO_old,(HOdigis->back()), 0 );   // as per simulation, capid=0???
+	    coder.fC2adc(HO_old,(HOdigis->back()), 1 );   // as per simulation, capid=1
 	  }
 	}
 	//save pointers for next iteration                                                                 
@@ -635,7 +635,7 @@ namespace edm
 
 	  unsigned int sizeold = (iHO->second).size();
 	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(HO_old,(HOdigis->back()), 0 );   // as per simulation, capid=0???
+	    coder.fC2adc(HO_old,(HOdigis->back()), 1 );   // as per simulation, capid=1
 	  }
 
       }
@@ -706,7 +706,7 @@ namespace edm
 
 	  unsigned int sizeold = HF_old.size();
 	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(HF_old,(HFdigis->back()), 0 );   // as per simulation, capid=0???
+	    coder.fC2adc(HF_old,(HFdigis->back()), 1 );   // as per simulation, capid=1
 	  }
 	}
 	//save pointers for next iteration                                                                 
@@ -728,7 +728,7 @@ namespace edm
 
 	  unsigned int sizeold = (iHF->second).size();
 	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(HF_old,(HFdigis->back()), 0 );   // as per simulation, capid=0???
+	    coder.fC2adc(HF_old,(HFdigis->back()), 1 );   // as per simulation, capid=1
 	  }
 
       }
@@ -800,7 +800,7 @@ namespace edm
 
 	  unsigned int sizeold = ZDC_old.size();
 	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 0 );   // as per simulation, capid=0???
+	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 1 );   // as per simulation, capid=1
 	  }
 	}
 	//save pointers for next iteration                                                                 
@@ -822,7 +822,7 @@ namespace edm
 
 	  unsigned int sizeold = (iZDC->second).size();
 	  for(unsigned int isamp = 0; isamp<sizeold; isamp++) {
-	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 0 );   // as per simulation, capid=0???
+	    coder.fC2adc(ZDC_old,(ZDCdigis->back()), 1 );   // as per simulation, capid=1
 	  }
 
       }
