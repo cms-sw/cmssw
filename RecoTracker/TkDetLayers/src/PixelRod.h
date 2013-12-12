@@ -28,7 +28,7 @@ class PixelRod GCC11_FINAL : public DetRodOneR{
   compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est,
-		  std::vector<DetWithState> & result) const;
+		  std::vector<DetWithState> & result) const __attribute__ ((hot));
 
   virtual void  
   groupedCompatibleDetsV( const TrajectoryStateOnSurface&,

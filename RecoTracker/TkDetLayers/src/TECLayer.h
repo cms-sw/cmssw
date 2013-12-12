@@ -28,7 +28,7 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
  
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TEC;}
@@ -44,7 +44,7 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -52,7 +52,7 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const;
+			bool checkClosest) const __attribute__ ((hot));
   
 
   bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& petal, float window) const;

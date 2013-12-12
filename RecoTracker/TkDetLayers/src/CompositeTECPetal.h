@@ -36,7 +36,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
     groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			    const Propagator& prop,
 			    const MeasurementEstimator& est,
-			    std::vector<DetGroup> & result) const;
+			    std::vector<DetGroup> & result) const __attribute__ ((hot));
   
   
  private:
@@ -52,7 +52,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const dso_internal;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot)) dso_internal;
   
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -60,7 +60,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const dso_internal;
+			bool checkClosest) const __attribute__ ((hot)) dso_internal;
   
   
   static

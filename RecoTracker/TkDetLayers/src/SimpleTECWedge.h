@@ -29,7 +29,7 @@ class SimpleTECWedge GCC11_FINAL : public TECWedge{
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est,
-                         std::vector<DetGroup> & result) const;
+                         std::vector<DetGroup> & result) const __attribute__ ((hot));
 
  private:
   const GeomDet* theDet;

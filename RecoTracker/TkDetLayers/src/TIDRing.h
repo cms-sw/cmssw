@@ -31,7 +31,7 @@ class TIDRing GCC11_FINAL : public GeometricSearchDetWithGroups{
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
   
  
   //Extension of interface
@@ -48,7 +48,7 @@ class TIDRing GCC11_FINAL : public GeometricSearchDetWithGroups{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -56,7 +56,7 @@ class TIDRing GCC11_FINAL : public GeometricSearchDetWithGroups{
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const;
+			bool checkClosest) const __attribute__ ((hot));
 
   const std::vector<const GeomDet*>& subLayer( int ind) const {
     return (ind==0 ? theFrontDets : theBackDets);
