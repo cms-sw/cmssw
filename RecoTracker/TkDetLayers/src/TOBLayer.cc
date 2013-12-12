@@ -149,7 +149,7 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   if (!outerCrossing.hasSolution()) return SubLayerCrossings();
 
   GlobalPoint gOuterPoint( outerCrossing.position());
-  int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.phi());
+  int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.barePhi());
   float outerDist = theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.barePhi() ;
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
   
@@ -257,11 +257,11 @@ bool TOBLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet
 
   // introduce offset (extrapolated point and true propagated point differ by 0.0003 - 0.00033, 
   // due to thickness of Rod of 1 cm) 
-  const float phiOffset = 0.00034;  //...TOBE CHECKED LATER...
+  constexpr float phiOffset = 0.00034;  //...TOBE CHECKED LATER...
   phiWin += phiOffset;
 
   // detector phi range
-  std::pair<float,float> phiRange(crossPoint.phi()-phiWin, crossPoint.phi()+phiWin);
+  std::pair<float,float> phiRange(crossPoint.barePhi()-phiWin, crossPoint.barePhi()+phiWin);
 
   //   // debug
   //   edm::LogInfo(TkDetLayers) ;

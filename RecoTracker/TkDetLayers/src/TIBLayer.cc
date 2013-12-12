@@ -249,17 +249,11 @@ bool TIBLayer::overlap( const GlobalPoint& crossPoint,
 			const GeometricSearchDet& det, 
 			float window) const
 {
-  float halfLength = det.surface().bounds().length()/2.;
+  float halfLength = 0.5f*det.surface().bounds().length();
 
 //   edm::LogInfo(TkDetLayers) << " TIBLayer: checking ring with z " << det.position().z();
 
-  if ( fabs( crossPoint.z()-det.position().z()) < (halfLength + window)) {
-//     edm::LogInfo(TkDetLayers) << "    PASSED" ;
-    return true;
-  } else {
-//     edm::LogInfo(TkDetLayers) << "    FAILED " ;
-    return false;
-  }
+  return std::abs( crossPoint.z()-det.position().z()) < (halfLength + window);
 }
 
 float TIBLayer::computeWindowSize( const GeomDet* det, 
@@ -274,8 +268,10 @@ float TIBLayer::computeWindowSize( const GeomDet* det,
   MeasurementEstimator::Local2DVector localError( est.maximalLocalDisplacement(tsos, det->surface()));
   float yError = localError.y();
 
-  float tanTheta = tan( tsos.globalMomentum().theta());
-  float thickCorrection = det->surface().bounds().thickness() / (2.*fabs( tanTheta));
+  // float tanTheta = std::tan( tsos.globalMomentum().theta());
+  auto gm = tsos.globalMomentum();
+  auto cotanTheta = gm.z()/gm.perp();
+  float thickCorrection = 0.5f*det->surface().bounds().thickness()*std::abs( cotanTheta);
 
   // FIXME: correct this in case of wide phi window !  
 
