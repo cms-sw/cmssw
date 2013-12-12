@@ -114,10 +114,12 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         float seedPt =  theTrajectory.globalMomentum().perp();
         CovarianceMatrix matrixSeedErr = theTrajectory.curvilinearError().matrix();
         edm::LogVerbatim("SeedToTrackProducer") <<  "seedPt=" << seedPt << " seedEta=" << seedEta << " seedPhi=" << seedPhi << endl;
-  
+        AlgebraicSymMatrix66 errors = theTrajectory.cartesianError().matrix();
+        double partialPterror = errors(3,3)*pow(theTrajectory.globalMomentum().x(),2) + errors(4,4)*pow(theTrajectory.globalMomentum().y(),2);
+	edm::LogVerbatim("SeedToTrackProducer") <<  "seedPtError=" << sqrt(partialPterror)/theTrajectory.globalMomentum().perp() << "seedPhiError=" << theTrajectory.curvilinearError().matrix()(2,2) << endl; 
         //fill the track in a way that its pt, phi and eta will be the same as the seed
         math::XYZPoint initPoint(0,0,0);
-        math::XYZVector initMom(seedPt*cos(seedPhi),seedPt*sin(seedPhi),cosh(seedEta)*seedPt);
+        math::XYZVector initMom(seedPt*cos(seedPhi),seedPt*sin(seedPhi),seedPt*sinh(seedEta));
         reco::Track theTrack(1, 1, //dummy Chi2 and ndof
                              initPoint, initMom,
                              1, matrixSeedErr,
@@ -133,7 +135,8 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                   matrixExtra, 2,
                                   (L2seeds->at(i)).direction(), seed);
         theTrack.setExtra( reco::TrackExtraRef( rTrackExtras, idx++ ) );
-        edm::LogVerbatim("SeedToTrackProducer") << "trackPt=" << seedPt << " trackEta=" << seedEta << " trackPhi=" << seedPhi << endl;
+        edm::LogVerbatim("SeedToTrackProducer") << "trackPt=" << theTrack.pt() << " trackEta=" << theTrack.eta() << " trackPhi=" << theTrack.phi() << endl;
+        edm::LogVerbatim("SeedToTrackProducer") << "trackPtError=" << theTrack.ptError() << "trackPhiError=" << theTrack.phiError() << endl;
  
         //fill the seed segments in the track
         unsigned int index_hit = 0;
