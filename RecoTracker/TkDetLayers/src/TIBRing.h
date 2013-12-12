@@ -20,7 +20,7 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
 
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
 
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
@@ -73,7 +73,7 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
 
   SubRingCrossings 
   computeCrossings( const TrajectoryStateOnSurface& startingState,
-		    PropagationDirection propDir) const;
+		    PropagationDirection propDir) const __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 

@@ -21,7 +21,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
@@ -56,7 +56,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
   
   SubTurbineCrossings 
     computeCrossings( const TrajectoryStateOnSurface& startingState,
-		      PropagationDirection propDir) const;
+		      PropagationDirection propDir) const __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 

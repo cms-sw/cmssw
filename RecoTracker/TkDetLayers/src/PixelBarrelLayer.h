@@ -28,7 +28,7 @@ class PixelBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSear
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
@@ -46,7 +46,7 @@ class PixelBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSear
   // In the future, to move common code in a common place!
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
-				      PropagationDirection propDir) const;
+				      PropagationDirection propDir) const __attribute__ ((hot));
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
