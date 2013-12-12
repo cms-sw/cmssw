@@ -662,6 +662,26 @@ functionMemberByName(const string& member) const
 
 TypeWithDict
 TypeWithDict::
+finalType() const
+{
+  TypeWithDict ret;
+  if (type_ == nullptr) {
+    return ret;
+  }
+  TType* ty = gInterpreter->Type_FinalType(type_);
+  if (ty == nullptr) {
+    return ret;
+  }
+  const std::type_info* ti = gInterpreter->Type_TypeInfo(ty);
+  if (ti == nullptr) {
+    return ret;
+  }
+  ret = TypeWithDict(*ti);
+  return ret;
+}
+
+TypeWithDict
+TypeWithDict::
 toType() const
 {
   TypeWithDict ret;
