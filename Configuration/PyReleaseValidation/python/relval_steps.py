@@ -2008,6 +2008,21 @@ step3Up2017Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                              
 steps['RECOUP17']=merge([step3Up2017Defaults])
 
+step3Up2017PUEcalFineDefaults = {'-s':'RAW2DIGI,L1Reco,RECO',
+                                 '--conditions':'auto:upgrade2017', 
+                                 '--datatier':'GEN-SIM-RECO',
+                                 '-n':'10',
+                                 '--magField' : '38T_PostLS1',
+                                 '--eventcontent':'FEVTDEBUGHLT',
+                                 '--customise' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
+                                 '--geometry' : 'Extended2017',
+                                 '--pileup': 'AVE_20_BX_25ns',
+                                 '--customise': 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017,SLHCUpgradeSimulations/Configuration/pileUp_MinBias_TuneZ2star_14TeV_pythia6_620SLHC4_UPG2017ECALFINE.customisePU'
+                 }
+                             
+steps['RECOPUUP17ECALFINE']=merge([step3Up2017PUEcalFineDefaults])
+
+
 
 
 #for 2019
