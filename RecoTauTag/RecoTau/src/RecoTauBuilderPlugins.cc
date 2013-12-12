@@ -8,7 +8,7 @@ namespace reco { namespace tau {
 // Update our reference to the PFCandidates & PVs
 void RecoTauBuilderPlugin::beginEvent() {
   vertexAssociator_.setEvent(*evt());
-  evt()->getByLabel(pfCandSrc_, pfCands_);
+  evt()->getByToken(pfCand_token, pfCands_);
 }
 
 }}  // end namespace reco::tau

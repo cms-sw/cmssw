@@ -25,13 +25,13 @@ using namespace edm;
 class PFRecoTauDiscriminationByFlightPathSignificance
   : public PFTauDiscriminationProducerBase  {
   public:
-    explicit PFRecoTauDiscriminationByFlightPathSignificance(
-        const ParameterSet& iConfig)
-      :PFTauDiscriminationProducerBase(iConfig),
-      vertexAssociator_(iConfig.getParameter<ParameterSet>("qualityCuts")) {
+    explicit PFRecoTauDiscriminationByFlightPathSignificance(const ParameterSet& iConfig)
+      :PFTauDiscriminationProducerBase(iConfig){
       flightPathSig		= iConfig.getParameter<double>("flightPathSig");
       withPVError		= iConfig.getParameter<bool>("UsePVerror");
       booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
+      //      edm::ConsumesCollector iC(consumesCollector());
+      vertexAssociator_ = new reco::tau::RecoTauVertexAssociator(iConfig.getParameter<ParameterSet>("qualityCuts"),consumesCollector());
     }
 
     ~PFRecoTauDiscriminationByFlightPathSignificance(){}
@@ -43,7 +43,7 @@ class PFRecoTauDiscriminationByFlightPathSignificance
     double threeProngFlightPathSig(const PFTauRef&);
     double vertexSignificance(reco::Vertex&,reco::Vertex&,GlobalVector&);
 
-    reco::tau::RecoTauVertexAssociator vertexAssociator_;
+    reco::tau::RecoTauVertexAssociator* vertexAssociator_;
 
     bool booleanOutput;
     double flightPathSig;
@@ -55,7 +55,7 @@ class PFRecoTauDiscriminationByFlightPathSignificance
 void PFRecoTauDiscriminationByFlightPathSignificance::beginEvent(
     const Event& iEvent, const EventSetup& iSetup){
 
-  vertexAssociator_.setEvent(iEvent);
+   vertexAssociator_->setEvent(iEvent);
 
   // Transient Tracks
   edm::ESHandle<TransientTrackBuilder> builder;
@@ -74,7 +74,7 @@ double PFRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
     const PFTauRef& tau){
   double flightPathSignificance = 0;
 
-  reco::VertexRef primaryVertex = vertexAssociator_.associatedVertex(*tau);
+  reco::VertexRef primaryVertex = vertexAssociator_->associatedVertex(*tau);
 
   if (primaryVertex.isNull()) {
     edm::LogError("FlightPathSignficance") << "Could not get vertex associated"

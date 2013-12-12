@@ -19,6 +19,7 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
 {
    // tau collection to discriminate
    TauProducer_        = iConfig.getParameter<edm::InputTag>(getProducerString<TauType>());
+   Tau_token= consumes<TauCollection>(TauProducer_);
 
    // prediscriminant operator
    // require the tau to pass the following prediscriminants
@@ -55,6 +56,7 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator>::TauDiscriminationProdu
       TauDiscInfo thisDiscriminator;
       thisDiscriminator.label = label;
       thisDiscriminator.cut   = cut;
+      thisDiscriminator.disc_token = consumes<TauDiscriminator>(label);
       prediscriminants_.push_back(thisDiscriminator);
    }
 
@@ -72,7 +74,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
 
    // retrieve the tau collection to discriminate
    edm::Handle<TauCollection> taus;
-   event.getByLabel(TauProducer_, taus);
+   event.getByToken(Tau_token, taus);
 
    edm::ProductID tauProductID = taus.id();
 
