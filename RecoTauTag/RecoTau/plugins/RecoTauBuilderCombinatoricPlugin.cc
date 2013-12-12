@@ -60,7 +60,7 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(const edm::Pa
   for ( VPSet::const_iterator decayMode = decayModes.begin();
 	decayMode != decayModes.end(); ++decayMode ) {
     decayModeInfo info;
-    info.nCharged_ = decayMode->getParameter<uint32_t>("nCharged");
+                                                                                                                                                                                                                                                                                                                                                                                                                           info.nCharged_ = decayMode->getParameter<uint32_t>("nCharged");
     info.nPiZeros_ = decayMode->getParameter<uint32_t>("nPiZeros");
     info.maxPFCHs_ = decayMode->getParameter<uint32_t>("maxTracks");
     info.maxPiZeros_ = decayMode->getParameter<uint32_t>("maxPiZeros");

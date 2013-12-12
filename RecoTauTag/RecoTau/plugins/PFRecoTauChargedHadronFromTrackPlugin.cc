@@ -25,6 +25,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -35,6 +36,8 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
+
+#include <TMath.h>
 
 #include <memory>
 #include <math.h>
@@ -60,6 +63,7 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
 
   edm::InputTag srcTracks_;
   double dRcone_;
+  bool dRconeLimitedToJetArea_;
 
   double dRmergeNeutralHadron_;
   double dRmergePhoton_;
@@ -79,6 +83,7 @@ PFRecoTauChargedHadronFromTrackPlugin::PFRecoTauChargedHadronFromTrackPlugin(con
 
   srcTracks_ = pset.getParameter<edm::InputTag>("srcTracks");
   dRcone_ = pset.getParameter<double>("dRcone");
+  dRconeLimitedToJetArea_ = pset.getParameter<bool>("dRconeLimitedToJetArea");
 
   dRmergeNeutralHadron_ = pset.getParameter<double>("dRmergeNeutralHadron");
   dRmergePhoton_ = pset.getParameter<double>("dRmergePhoton");
@@ -138,7 +143,17 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
 
     // consider tracks in vicinity of tau-jet candidate only
     double dR = deltaR(track->eta(), track->phi(), jet.eta(), jet.phi());
-    if ( dR > dRcone_ ) continue;
+    double dRmatch = dRcone_;
+    if ( dRconeLimitedToJetArea_ ) {
+      double jetArea = jet.jetArea();
+      if ( jetArea > 0. ) {
+	dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
+      } else {
+	edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
+	  << "Jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << " has area = " << jetArea << " !!" << std::endl;
+      }
+    }
+    if ( dR > dRmatch ) continue;
 
     // ignore tracks which fail quality cuts
     if ( !qcuts_->filterTrack(track) ) continue;

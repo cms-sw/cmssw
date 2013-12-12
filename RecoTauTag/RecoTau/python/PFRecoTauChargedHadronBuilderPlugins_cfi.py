@@ -43,6 +43,7 @@ tracks = cms.PSet(
     plugin = cms.string("PFRecoTauChargedHadronFromTrackPlugin"),
     srcTracks = cms.InputTag('generalTracks'),
     dRcone = cms.double(0.5),
+    dRconeLimitedToJetArea = cms.bool(False),
     qualityCuts = PFTauQualityCuts,
     dRmergeNeutralHadron = cms.double(0.10),
     dRmergePhoton = cms.double(0.05),

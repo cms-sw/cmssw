@@ -12,6 +12,9 @@
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 
 #include "RecoTauTag/RecoTau/interface/ConeTools.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
@@ -32,14 +35,16 @@ class RecoTauJetRegionProducer : public edm::EDProducer {
   private:
     float deltaR2_;
     edm::InputTag inputJets_;
-    edm::InputTag pfSrc_;
+    edm::InputTag pfCandSrc_;
+    edm::InputTag pfCandAssocMapSrc_;
 };
 
 RecoTauJetRegionProducer::RecoTauJetRegionProducer(
     const edm::ParameterSet& pset) {
   deltaR2_ = pset.getParameter<double>("deltaR"); deltaR2_*=deltaR2_;
   inputJets_ = pset.getParameter<edm::InputTag>("src");
-  pfSrc_ = pset.getParameter<edm::InputTag>("pfSrc");
+  pfCandSrc_ = pset.getParameter<edm::InputTag>("pfCandSrc");
+  pfCandAssocMapSrc_ = pset.getParameter<edm::InputTag>("pfCandAssocMapSrc");
   produces<reco::PFJetCollection>("jets");
   produces<PFJetMatchMap>();
 }
@@ -48,7 +53,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
     const edm::EventSetup& es) {
 
   edm::Handle<reco::PFCandidateCollection> pfCandsHandle;
-  evt.getByLabel(pfSrc_, pfCandsHandle);
+  evt.getByLabel(pfCandSrc_, pfCandsHandle);
 
   // Build Ptrs for all the PFCandidates
   typedef edm::Ptr<reco::PFCandidate> PFCandPtr;
@@ -65,6 +70,14 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
   reco::PFJetRefVector jets =
       reco::tau::castView<reco::PFJetRefVector>(jetView);
   size_t nJets = jets.size();
+
+  // Get the association map matching jets to PFCandidates
+  // (needed for recinstruction of boosted taus)
+  typedef edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>, std::vector<reco::PFCandidate>, unsigned int> > JetToPFCandidateAssociation;
+  edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
+  if ( pfCandAssocMapSrc_.label() != "" ) {
+    evt.getByLabel(pfCandAssocMapSrc_, jetToPFCandMap);
+  }
 
   // Get the original product, so we can match against it - otherwise the
   // indices don't match up.
@@ -89,7 +102,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
   std::auto_ptr<reco::PFJetCollection> newJets(new reco::PFJetCollection);
 
   // Keep track of the indices of the current jet and the old (original) jet
-  // -1 indicats no match.
+  // -1 indicates no match.
   std::vector<int> matchInfo(nOriginalJets, -1);
   newJets->reserve(nJets);
   for (size_t ijet = 0; ijet < nJets; ++ijet) {
@@ -97,12 +110,27 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt,
     reco::PFJetRef jetRef = jets[ijet];
     // Make an initial copy.
     newJets->emplace_back(*jetRef);
-    reco::PFJet & newJet = newJets->back();
+    reco::PFJet& newJet = newJets->back();
     // Clear out all the constituents
     newJet.clearDaughters();
     // Loop over all the PFCands
-    for ( auto cand :  pfCands )
-      if ( reco::deltaR2(*jetRef,*cand)<deltaR2_ ) newJet.addDaughter(cand);
+    for ( std::vector<PFCandPtr>::const_iterator pfCand = pfCands.begin();
+	  pfCand != pfCands.end(); ++pfCand ) {
+      //      bool isMappedToJet = false;
+      if ( pfCandAssocMapSrc_.label() != "" ) {
+	edm::RefVector<reco::PFCandidateCollection> pfCandsMappedToJet = (*jetToPFCandMap)[jetRef];
+	for ( edm::RefVector<reco::PFCandidateCollection>::const_iterator pfCandMappedToJet = pfCandsMappedToJet.begin();
+	      pfCandMappedToJet != pfCandsMappedToJet.end(); ++pfCandMappedToJet ) {
+	  if ( reco::deltaR2(**pfCandMappedToJet, **pfCand) < 1.e-8 ) {
+	    //    isMappedToJet = true;
+	    break;
+	  }
+	}
+      }// else {
+      //	isMappedToJet = true;
+      //  }
+      if ( reco::deltaR2(*jetRef, **pfCand) < deltaR2_ ) newJet.addDaughter(*pfCand);
+    }
     // Match the index of the jet we just made to the index into the original
     // collection.
     matchInfo[jetRef.key()] = ijet;

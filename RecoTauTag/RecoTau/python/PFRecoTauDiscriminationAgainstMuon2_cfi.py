@@ -22,6 +22,7 @@ pfRecoTauDiscriminationAgainstMuon2 = cms.EDProducer("PFRecoTauDiscriminationAga
     # optional collection of muons to check for overlap with taus
     srcMuons = cms.InputTag('muons'),
     dRmuonMatch = cms.double(0.3),
+    dRmuonMatchLimitedToJetArea = cms.bool(False),                                                 
 
     verbosity = cms.int32(0)
 )

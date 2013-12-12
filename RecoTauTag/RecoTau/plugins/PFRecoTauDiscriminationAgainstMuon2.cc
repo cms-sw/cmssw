@@ -48,6 +48,7 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
     if ( cfg.exists("srcMuons") ) {
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
+      dRmuonMatchLimitedToJetArea_ = cfg.getParameter<bool>("dRmuonMatchLimitedToJetArea");
     }
     verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
    }
@@ -67,6 +68,7 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
   edm::InputTag srcMuons_;
   edm::Handle<reco::MuonCollection> muons_;
   double dRmuonMatch_;
+  bool dRmuonMatchLimitedToJetArea_;
   int verbosity_;
 };
 
@@ -151,7 +153,18 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	continue;
       }
       double dR = deltaR(muon->p4(), pfTau->p4());
-      if ( dR < dRmuonMatch_ ) {
+      double dRmatch = dRmuonMatch_;
+      if ( dRmuonMatchLimitedToJetArea_ ) {
+	double jetArea = 0.;
+	if ( pfTau->jetRef().isNonnull() ) jetArea = pfTau->jetRef()->jetArea();
+	if ( jetArea > 0. ) {
+	  dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
+	} else {
+	  edm::LogWarning("PFRecoTauDiscriminationAgainstMuon2::discriminate") 
+	    << "Jet associated to Tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << " has area = " << jetArea << " !!" << std::endl;
+	}
+      }
+      if ( dR < dRmatch ) {
 	if ( verbosity_ ) std::cout << " overlaps with tau, dR = " << dR << std::endl;
 	numMatches += muon->numberOfMatches(reco::Muon::NoArbitration);
 	countHits(*muon, numHitsDT, numHitsCSC, numHitsRPC);

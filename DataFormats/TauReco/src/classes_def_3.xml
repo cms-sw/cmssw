@@ -211,7 +211,6 @@
   <class name="edm::Association<std::vector<reco::PFTau3ProngSummaryRef> >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau3ProngSummaryRef> > >"/>
 
- <class name="std::vector<TLorentzVector>"/>
  <class name="std::vector<std::vector<TLorentzVector> >"/>
 
  <class name="reco::PFTau3ProngSumAssociation">
@@ -223,6 +222,14 @@
   <class name="reco::PFTau3ProngSumAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTau3ProngSumAssociation>"/>
   <class name="std::pair<reco::PFTauRef, std::vector<reco::PFTau3ProngSummaryRef> >"/>
-  <class name="std::vector<std::pair<reco::PFTauRef,  std::vector<reco::PFTau3ProngSummaryRef> > >" />
+  <class name="std::vector<std::pair<reco::PFTauRef, std::vector<reco::PFTau3ProngSummaryRef> > >" />
+
+<!--   Needed for boosted tau reconstruction -->
+ <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>,std::vector<reco::PFCandidate>,unsigned int> >"/>
+ <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>,std::vector<reco::PFCandidate>,unsigned int> > >"/>
+ <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFJet> >,edm::RefProd<std::vector<reco::PFCandidate> > >"/>
+ <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/>
+ <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
+
 
 </lcgdict>
