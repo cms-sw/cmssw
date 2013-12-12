@@ -45,6 +45,8 @@ namespace gen
          // initialise Pythia on first call from "dummy" instance
          virtual void enter();
 
+         void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
+
      private:
         friend double gen::pyr_(int*);
 

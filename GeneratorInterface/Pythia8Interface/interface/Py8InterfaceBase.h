@@ -5,9 +5,14 @@
 #include <string>
 
 #include "GeneratorInterface/Core/interface/ParameterCollector.h"
+#include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
 
 #include <Pythia.h>
 #include <HepMCInterface.h>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace gen {
 
@@ -28,7 +33,10 @@ namespace gen {
          virtual void finalizeEvent() = 0; 
          virtual void statistics();
          virtual const char* classname() const = 0;
-	       
+
+         void p8SetRandomEngine(CLHEP::HepRandomEngine* v) { p8RndmEngine_.setRandomEngine(v); }
+         P8RndmEngine& randomEngine() { return p8RndmEngine_; }
+
       protected:
          
 	 std::auto_ptr<Pythia8::Pythia> fMasterGen;
@@ -40,8 +48,9 @@ namespace gen {
          bool                           pythiaHepMCVerbosity;
 	 unsigned int                   maxEventsToPrint;
 
+      private:
+
+         P8RndmEngine p8RndmEngine_;
    };
-
 }
-
 #endif

@@ -23,6 +23,13 @@ namespace edm {
     // In the future, 4.10.X and later might not need to be
     static const std::string kGEANT;
     static const std::string kCLHEPRandomEngine;
+    static const std::string kPythia6;
+    static const std::string kPythia8;
+    static const std::string kPhotos;
+    static const std::string kTauola;
+    static const std::string kEvtGen;
   };
+
+  std::string uniqueSharedResourceName();
 }
 #endif
