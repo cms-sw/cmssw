@@ -18,8 +18,8 @@ class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
   typedef PeriodicBinFinderInZ<float>   BinFinderType;
 
   TOBRod(std::vector<const GeomDet*>& innerDets,
-	 std::vector<const GeomDet*>& outerDets);
-  ~TOBRod();
+	 std::vector<const GeomDet*>& outerDets) __attribute__ ((cold));
+  ~TOBRod() __attribute__ ((cold));
   
   // GeometricSearchDet interface
   
@@ -30,7 +30,7 @@ class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+	      const MeasurementEstimator&) const  __attribute__ ((cold));
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
@@ -52,7 +52,7 @@ class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+			   const MeasurementEstimator& est) const __attribute__ ((hot));
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,

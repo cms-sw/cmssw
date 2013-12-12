@@ -16,8 +16,8 @@
 class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
  public:
   TECLayer(std::vector<const TECPetal*>& innerPetals,
-	   std::vector<const TECPetal*>& outerPetals);
-  ~TECLayer();
+	   std::vector<const TECPetal*>& outerPetals) __attribute__ ((cold));
+  ~TECLayer() __attribute__ ((cold));
   
   // GeometricSearchDet interface
   
@@ -63,7 +63,7 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 
 
  protected:
-  virtual BoundDisk* computeDisk( std::vector<const GeometricSearchDet*>& petals) const;
+  virtual BoundDisk* computeDisk( std::vector<const GeometricSearchDet*>& petals) const __attribute__ ((cold));
 
   std::vector<const GeometricSearchDet*> theComps;
   std::vector<const GeometricSearchDet*> theFrontComps;
