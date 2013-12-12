@@ -127,11 +127,14 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
   Handle<BXVector<l1t::CaloEmCand>> caloEmCands;
   iEvent.getByToken(candsToken, caloEmCands);
 
+  int bxFirst = caloRegions->getFirstBX();
+  int bxLast = caloRegions->getLastBX();
+
   //outputs
-  std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection);
-  std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection);
-  std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
-  std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection);
+  std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
+  std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
+  std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
+  std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
 
   m_fw->processEvent(*caloEmCands, *caloRegions,
   		     *egammas, *taus, *jets, *etsums);

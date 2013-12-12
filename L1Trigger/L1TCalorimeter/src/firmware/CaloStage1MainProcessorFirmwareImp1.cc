@@ -32,17 +32,20 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const BXVector<CaloEmCand
     //firmware is responsible for splitting the BXVector into pieces for
     //the algos to handle
     // Hardcode bx=0 for now. TODO
-    std::auto_ptr<std::vector<l1t::Jet>> localJets (new std::vector<l1t::Jet>);
-    std::auto_ptr<std::vector<l1t::CaloRegion>> localRegions (new std::vector<l1t::CaloRegion>);
-    for(std::vector<l1t::CaloRegion>::const_iterator region = regions.begin(0); region != regions.end(0); ++region)
+    for(int i = regions.getFirstBX(); i < regions.getLastBX(); ++i)
     {
-      localRegions->push_back(*region);
-    }
-    m_jetAlgo->processEvent(*localRegions, *localJets);
+      std::auto_ptr<std::vector<l1t::Jet>> localJets (new std::vector<l1t::Jet>);
+      std::auto_ptr<std::vector<l1t::CaloRegion>> localRegions (new std::vector<l1t::CaloRegion>);
+      for(std::vector<l1t::CaloRegion>::const_iterator region = regions.begin(i); region != regions.end(i); ++region)
+      {
+	localRegions->push_back(*region);
+      }
+      m_jetAlgo->processEvent(*localRegions, *localJets);
 
-    for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
-    {
-      jets.push_back(0, *jet);
+      for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
+      {
+	jets.push_back(i, *jet);
+      }
     }
   } else if( m_fwv.firmwareVersion() == 2 ) {
     //pp algorithm should go here

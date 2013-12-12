@@ -1,5 +1,5 @@
-#ifndef L1TCaloRCTToUpgradeConverter_h
-#define L1TCaloRCTToUpgradeConverter_h
+#ifndef L1TCaloTowerProducer_h
+#define L1TCaloTowerProducer_h
 
 // -*- C++ -*-
 //
@@ -39,13 +39,14 @@
 
 namespace l1t {
     
-  class L1TCaloRCTToUpgradeConverter : public edm::EDProducer { 
+  class L1TCaloTowerProducer : public edm::EDProducer { 
   public:
-    explicit L1TCaloStage2Producer(const edm::ParameterSet& ps);
-    ~L1TCaloStage2Producer();
+    explicit L1TCaloTowerProducer(const edm::ParameterSet& ps);
+    ~L1TCaloTowerProducer();
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 ;
+
   private:
       virtual void beginJob() override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
@@ -53,12 +54,11 @@ namespace l1t {
       
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::Even
-tSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventS
-etup const&) override;
+      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
+
 
   }; 
   

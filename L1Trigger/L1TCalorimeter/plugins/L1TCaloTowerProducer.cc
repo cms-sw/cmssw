@@ -1,6 +1,18 @@
+#include "L1Trigger/L1TCalorimeter/plugins/L1TCaloTowerProducer.h"
+
+l1t::L1TCaloTowerProducer::L1TCaloTowerProducer(const edm::ParameterSet& ps) {
+
+}
+
+l1t::L1TCaloTowerProducer::~L1TCaloTowerProducer() {
+
+}
+
+
+
 // ------------ method called to produce the data  ------------
 void
-L1TCaloStage2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+l1t::L1TCaloTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 /* This is an event example
@@ -24,19 +36,19 @@ L1TCaloStage2Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TCaloStage2Producer::beginJob()
+l1t::L1TCaloTowerProducer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-L1TCaloStage2Producer::endJob() {
+l1t::L1TCaloTowerProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void
-L1TCaloStage2Producer::beginRun(edm::Run const&, edm::EventSetup const&)
+l1t::L1TCaloTowerProducer::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -44,7 +56,7 @@ L1TCaloStage2Producer::beginRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
-L1TCaloStage2Producer::endRun(edm::Run const&, edm::EventSetup const&)
+l1t::L1TCaloTowerProducer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -52,7 +64,7 @@ L1TCaloStage2Producer::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-L1TCaloStage2Producer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
+l1t::L1TCaloTowerProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
 t&)
 {
 }
@@ -61,7 +73,7 @@ t&)
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-L1TCaloStage2Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
+l1t::L1TCaloTowerProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
 )
 {
 }
@@ -69,7 +81,7 @@ L1TCaloStage2Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::Even
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TCaloStage2Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+l1t::L1TCaloTowerProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -78,4 +90,4 @@ L1TCaloStage2Producer::fillDescriptions(edm::ConfigurationDescriptions& descript
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TCaloStage2Producer);
+DEFINE_FWK_MODULE(l1t::L1TCaloTowerProducer);

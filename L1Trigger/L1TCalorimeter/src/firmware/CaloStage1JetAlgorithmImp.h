@@ -30,6 +30,7 @@ namespace l1t {
 			      std::vector<l1t::Jet> & jets);
   private:
     /*CaloParams const & db;*/
+    double regionLSB_;
   };
 }
 
