@@ -26,7 +26,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
@@ -52,7 +52,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
 			const MeasurementEstimator& est,
 			const SubTurbineCrossings& crossings,
 			float window, 
-			std::vector<DetGroup>& result) const;
+			std::vector<DetGroup>& result) const __attribute__ ((hot));
   
   SubTurbineCrossings 
     computeCrossings( const TrajectoryStateOnSurface& startingState,

@@ -30,7 +30,7 @@ class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWit
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
 
   // DetLayer interface
@@ -47,7 +47,7 @@ class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWit
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -65,7 +65,7 @@ class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWit
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const;
+			bool checkClosest) const __attribute__ ((hot));
 
   const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);}

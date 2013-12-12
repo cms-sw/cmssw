@@ -32,7 +32,7 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			  const Propagator& prop,
 			  const MeasurementEstimator& est,
-			  std::vector<DetGroup> & result) const;
+			  std::vector<DetGroup> & result) const __attribute__ ((hot));
 
  
   //--- Extension of the interface
@@ -69,7 +69,7 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
 			const MeasurementEstimator& est,
 			const SubRingCrossings& crossings,
 			float window, 
-			std::vector<DetGroup>& result) const;
+			std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   SubRingCrossings 
   computeCrossings( const TrajectoryStateOnSurface& startingState,

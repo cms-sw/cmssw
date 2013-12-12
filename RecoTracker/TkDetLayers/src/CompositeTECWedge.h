@@ -31,7 +31,7 @@ class CompositeTECWedge GCC11_FINAL : public TECWedge{
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			 const Propagator& prop,
 			 const MeasurementEstimator& est,
-			 std::vector<DetGroup> & result) const;
+			 std::vector<DetGroup> & result) const __attribute__ ((hot));
 
  private:
   // private methods for the implementation of groupedCompatibleDets()
@@ -42,7 +42,7 @@ class CompositeTECWedge GCC11_FINAL : public TECWedge{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
   
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -50,7 +50,7 @@ class CompositeTECWedge GCC11_FINAL : public TECWedge{
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const;
+			bool checkClosest) const __attribute__ ((hot));
   
   int findClosestDet( const GlobalPoint& startPos,int sectorId) const;
 

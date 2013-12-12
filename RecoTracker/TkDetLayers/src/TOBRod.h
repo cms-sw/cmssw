@@ -35,7 +35,7 @@ class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
   
  
  private:
@@ -48,7 +48,7 @@ class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -61,7 +61,7 @@ class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const;
+			bool checkClosest) const __attribute__ ((hot));
 
   bool overlap( const GlobalPoint& gpos, const GeomDet& rod, float phiWin) const;
 
