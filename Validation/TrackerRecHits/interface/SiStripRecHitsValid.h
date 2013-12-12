@@ -65,10 +65,10 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   };
 
   struct LayerMEs{ // MEs for Layer Level
-    MonitorElement* meNstprphi;
+    MonitorElement* meWclusrphi;
     MonitorElement* meAdcrphi;
     MonitorElement* mePosxrphi;
-    MonitorElement* meErrxrphi;
+    MonitorElement* meResolxrphi;
     MonitorElement* meResrphi;
     MonitorElement* mePullLFrphi;
     MonitorElement* mePullMFrphi;
@@ -77,18 +77,18 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   };
 
   struct StereoAndMatchedMEs{ // MEs for Layer Level
-    MonitorElement* meNstpStereo;
+    MonitorElement* meWclusStereo;
     MonitorElement* meAdcStereo;
     MonitorElement* mePosxStereo;
-    MonitorElement* meErrxStereo;
+    MonitorElement* meResolxStereo;
     MonitorElement* meResStereo;
     MonitorElement* mePullLFStereo;
     MonitorElement* mePullMFStereo;
     MonitorElement* meChi2Stereo;
     MonitorElement* mePosxMatched;
     MonitorElement* mePosyMatched;
-    MonitorElement* meErrxMatched;
-    MonitorElement* meErryMatched;
+    MonitorElement* meResolxMatched;
+    MonitorElement* meResolyMatched;
     MonitorElement* meResxMatched;
     MonitorElement* meResyMatched;
     MonitorElement* meChi2Matched;
@@ -99,9 +99,9 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
     float x;
     float y;
     float z;
-    float errxx;
-    float errxy;
-    float erryy;
+    float resolxx;
+    float resolxy;
+    float resolyy;
     float resx;
     float resy;
     float pullMF;
@@ -135,26 +135,26 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   bool switchNumMatched;
 
 
-  bool switchNstprphi;
+  bool switchWclusrphi;
   bool switchAdcrphi;
   bool switchPosxrphi;
-  bool switchErrxrphi;
+  bool switchResolxrphi;
   bool switchResrphi;
   bool switchPullLFrphi;
   bool switchPullMFrphi;
   bool switchChi2rphi;
-  bool switchNstpStereo;
+  bool switchWclusStereo;
   bool switchAdcStereo;
   bool switchPosxStereo;
-  bool switchErrxStereo;
+  bool switchResolxStereo;
   bool switchResStereo;
   bool switchPullLFStereo;
   bool switchPullMFStereo;
   bool switchChi2Stereo;
   bool switchPosxMatched;
   bool switchPosyMatched;
-  bool switchErrxMatched;
-  bool switchErryMatched;
+  bool switchResolxMatched;
+  bool switchResolyMatched;
   bool switchResxMatched;
   bool switchResyMatched;
   bool switchChi2Matched;

@@ -52,7 +52,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
 
     ),
 
-    TH1Nstprphi = cms.PSet(
+    TH1Wclusrphi = cms.PSet(
         Nbinx          = cms.int32(20),
         xmin           = cms.double(-0.5),
         xmax           = cms.double(19.5),
@@ -73,7 +73,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
         switchon  = cms.bool(True)
     ),
 
-    TH1Errxrphi = cms.PSet( #<error>~20micron 
+    TH1Resolxrphi = cms.PSet( #<error>~20micron 
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
         xmax           = cms.double(0.10),#0.01
@@ -108,7 +108,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
         switchon  = cms.bool(True)
     ),
 
-    TH1NstpStereo = cms.PSet( 
+    TH1WclusStereo = cms.PSet( 
         Nbinx          = cms.int32(20),
         xmin           = cms.double(-0.5),
         xmax           = cms.double(19.5),
@@ -129,7 +129,7 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
         switchon  = cms.bool(True)
     ),
 
-   TH1ErrxStereo = cms.PSet( 
+   TH1ResolxStereo = cms.PSet( 
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
         xmax           = cms.double(0.1),#0.01
@@ -178,14 +178,14 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
         switchon  = cms.bool(True)
     ),
 
-   TH1ErrxMatched = cms.PSet( 
+   TH1ResolxMatched = cms.PSet( 
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
         xmax           = cms.double(0.1),#0.01
         switchon  = cms.bool(True)
     ),
 
-   TH1ErryMatched = cms.PSet( 
+   TH1ResolyMatched = cms.PSet( 
         Nbinx          = cms.int32(100),
         xmin           = cms.double(0.),
         xmax           = cms.double(0.25),#0.05
