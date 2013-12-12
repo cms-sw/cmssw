@@ -22,7 +22,7 @@ class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer, public Geome
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,

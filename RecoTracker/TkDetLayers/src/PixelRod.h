@@ -18,7 +18,7 @@ class PixelRod GCC11_FINAL : public DetRodOneR{
   
   // GeometricSearchDet interface
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 

@@ -19,7 +19,7 @@ class SimpleTECWedge GCC11_FINAL : public TECWedge{
   // GeometricSearchDet interface
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 

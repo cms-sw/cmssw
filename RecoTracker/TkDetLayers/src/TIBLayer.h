@@ -24,7 +24,7 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
 
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
@@ -39,7 +39,7 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
   // private methods for the implementation of groupedCompatibleDets()
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& startingState,
-				      PropagationDirection propDir) const;
+				      PropagationDirection propDir) const __attribute__ ((hot));
 
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,

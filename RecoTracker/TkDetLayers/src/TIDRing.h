@@ -22,7 +22,7 @@ class TIDRing GCC11_FINAL : public GeometricSearchDetWithGroups{
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface&, const Propagator&, 
@@ -42,7 +42,7 @@ class TIDRing GCC11_FINAL : public GeometricSearchDetWithGroups{
   // private methods for the implementation of groupedCompatibleDets()
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
-				      PropagationDirection propDir) const;
+				      PropagationDirection propDir) const __attribute__ ((hot));
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
