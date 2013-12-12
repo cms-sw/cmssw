@@ -224,7 +224,11 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     threshPFClusterES_ = iConfig.getParameter<double>("thresh_Preshower");
     applyCrackCorrections_ = 
       iConfig.getParameter<bool>("applyCrackCorrections");
-    produces<reco::PFCluster::EEtoPSAssociation>();
+    if (inputTagPFClustersPS_.label().empty()) {
+      produces_eeps = false;
+    } else {
+      produces<reco::PFCluster::EEtoPSAssociation>();
+    }
   }
 
   //inputTagClusterCollectionName_ =  iConfig.getParameter<string>("PFClusterCollectionName");    

@@ -106,6 +106,13 @@ class OfflineValidationParallel(OfflineValidation):
                                               defaultDict = defaults )
         self.general.update( offline )
         self.__NJobs = self.general["parallelJobs"]
+        self.outputFiles = []
+        for index in range(int(self.general["parallelJobs"])):
+            fName = replaceByMap("AlignmentValidation_"+self.name
+                                 +"_.oO[name]Oo._%d.root"%(index),
+                                 self.getRepMap())
+            self.outputFiles.append(fName)
+        
 
     def createConfiguration(self, path, configBaseName = "TkAlOfflineValidation"):
         # if offline validation uses N parallel jobs, we create here N cfg files
@@ -140,12 +147,7 @@ class OfflineValidationParallel(OfflineValidation):
             repMap.update({"nIndex": str(index)})
             # Create the result file directly to datadir since should not use /tmp/
             # see https://cern.service-now.com/service-portal/article.do?n=KB0000484
-            repMap.update({
-                "outputFile": replaceByMap("AlignmentValidation_"
-                                           + self.name +
-                                           "_.oO[name]Oo._.oO[nIndex]Oo..root",
-                                           repMap )
-                })
+            repMap.update({"outputFile": self.outputFiles[index]})
             repMap["outputFile"] = os.path.expandvars( repMap["outputFile"] )
 
             cfgs = {cfgName:replaceByMap(configTemplates.offlineParallelTemplate,
@@ -168,12 +170,7 @@ class OfflineValidationParallel(OfflineValidation):
             repMap["nIndex"]=""
             repMap["nIndex"]=str(index)
             repMap["CommandLine"]=""
-            repMap.update({
-                "outputFile": replaceByMap("AlignmentValidation_"
-                                           + self.name +
-                                           "_.oO[name]Oo._.oO[nIndex]Oo..root",
-                                           repMap )
-                })
+            repMap.update({"outputFile": self.outputFiles[index]})
             for cfg in self.configFiles:
                 # The ugly solution here is to change the name for each parallel job 
                 cfgtemp = cfg.replace(str(numJobs-1)+"_cfg.py",
