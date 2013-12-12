@@ -18,8 +18,8 @@ class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWit
 
 
   TOBLayer(std::vector<const TOBRod*>& innerRods,
-	   std::vector<const TOBRod*>& outerRods);
-  ~TOBLayer();
+	   std::vector<const TOBRod*>& outerRods)  __attribute__ ((cold));
+  ~TOBLayer()  __attribute__ ((cold));
   
   // GeometricSearchDet interface
   
@@ -51,12 +51,12 @@ class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWit
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+			   const MeasurementEstimator& est) const __attribute__ ((hot));
   
   double calculatePhiWindow( double Xmax, const GeomDet& det,
-			     const TrajectoryStateOnSurface& state) const;
+			     const TrajectoryStateOnSurface& state) const __attribute__ ((hot));
 
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float phiWin) const;
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float phiWin) const  __attribute__ ((hot));
 
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
@@ -70,7 +70,7 @@ class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWit
   const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);}
   
-  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const ;
+  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rods) const __attribute__ ((cold));
 
 
  private:

@@ -16,9 +16,9 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
  public:
 
   TIBLayer(std::vector<const TIBRing*>& innerRings,
-	   std::vector<const TIBRing*>& outerRings);
+	   std::vector<const TIBRing*>& outerRings) __attribute__ ((hot));
 
-  ~TIBLayer();
+  ~TIBLayer() __attribute__ ((hot));
   
   // GeometricSearchDet interface
 
@@ -57,9 +57,9 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+			   const MeasurementEstimator& est) const  __attribute__ ((hot));
 
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& ring, float window) const;
+  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& ring, float window) const  __attribute__ ((hot));
 
   const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);
@@ -78,7 +78,7 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
   GeneralBinFinderInZforGeometricSearchDet<float> theInnerBinFinder;
   GeneralBinFinderInZforGeometricSearchDet<float> theOuterBinFinder;
 
-  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rings);
+  BoundCylinder* cylinder( const std::vector<const GeometricSearchDet*>& rings) __attribute__ ((cold));
 
 
 };
