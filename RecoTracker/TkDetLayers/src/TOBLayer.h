@@ -14,7 +14,7 @@
 #pragma GCC visibility push(hidden)
 class TOBLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWithGroups{
  public:
-  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
+  typedef PeriodicBinFinderInPhi<float>   BinFinderType;
 
 
   TOBLayer(std::vector<const TOBRod*>& innerRods,

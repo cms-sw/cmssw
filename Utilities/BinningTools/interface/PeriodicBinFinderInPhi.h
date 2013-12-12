@@ -10,18 +10,18 @@
  */
 
 template <class T>
-class PeriodicBinFinderInPhi : public BaseBinFinder<T> {
+class PeriodicBinFinderInPhi final : public BaseBinFinder<T> {
 public:
 
-  PeriodicBinFinderInPhi() : theNbins(0), thePhiStep(0), thePhiOffset(0) {}
+  PeriodicBinFinderInPhi()  {}
 
   PeriodicBinFinderInPhi( T firstPhi, int nbins) :
-    theNbins( nbins), thePhiStep( twoPi() / nbins),
-    thePhiOffset( firstPhi - thePhiStep/2.) {}
+    theNbins( nbins), thePhiStep( twoPiC / T(nbins)), theInvPhiStep(T(1)/thePhiStep),
+    thePhiOffset( firstPhi - T(0.5)*thePhiStep) {}
 
   /// returns an index in the valid range for the bin that contains phi
-  virtual  int binIndex( T phi) const {
-    T tmp = fmod((phi - thePhiOffset), twoPi()) / thePhiStep;
+  virtual int binIndex( T phi) const {
+    T tmp = std::fmod((phi - thePhiOffset), twoPiC)*theInvPhiStep;
     if ( tmp < 0) tmp += theNbins;
     return std::min( int(tmp), theNbins-1);
   }
@@ -37,14 +37,20 @@ public:
     return thePhiOffset + thePhiStep * ( ind + 0.5);
   }
 
-  static T pi() { return 3.141592653589793238;}
-  static T twoPi() { return 2.*pi();}
+  static constexpr T pi() { return piC;}
+  static constexpr T twoPi() { return twoPiC;}
 
 private:
 
-  int theNbins;
-  T thePhiStep;
-  T thePhiOffset;
+  static constexpr T piC = 3.141592653589793238;
+  static constexpr T twoPiC = 2*piC;
+
+
+
+  int theNbins=0;
+  T thePhiStep=0;
+  T theInvPhiStep=0;
+  T thePhiOffset=0;
 
 };
 #endif

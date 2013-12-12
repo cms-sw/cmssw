@@ -140,8 +140,8 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   if (!innerCrossing.hasSolution()) return SubLayerCrossings();
 
   GlobalPoint gInnerPoint( innerCrossing.position());
-  int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.phi());
-  float innerDist = theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.phi();
+  int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.barePhi());
+  float innerDist = theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.barePhi();
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
@@ -150,13 +150,13 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
 
   GlobalPoint gOuterPoint( outerCrossing.position());
   int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.phi());
-  float outerDist = theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.phi() ;
+  float outerDist = theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.barePhi() ;
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
   
-  innerDist *= PhiLess()( theInnerBinFinder.binPosition(innerIndex),gInnerPoint.phi()) ? -1. : 1.; 
-  outerDist *= PhiLess()( theOuterBinFinder.binPosition(outerIndex),gOuterPoint.phi()) ? -1. : 1.; 
-  if (innerDist < 0.) { innerDist += 2.*Geom::pi();}
-  if (outerDist < 0.) { outerDist += 2.*Geom::pi();}
+  innerDist *= PhiLess()( theInnerBinFinder.binPosition(innerIndex),gInnerPoint.barePhi()) ? -1.f : 1.f; 
+  outerDist *= PhiLess()( theOuterBinFinder.binPosition(outerIndex),gOuterPoint.barePhi()) ? -1.f : 1.f; 
+  if (innerDist < 0.) { innerDist += Geom::ftwoPi();}
+  if (outerDist < 0.) { outerDist += Geom::ftwoPi();}
   
 
   if (innerDist < outerDist) {
@@ -199,10 +199,10 @@ double TOBLayer::calculatePhiWindow( double Xmax, const GeomDet& det,
   //LocalPoint shift2( startPoint); //original code;
   //shift2 -= shift;
 
-  double phi1 = det.surface().toGlobal(shift1).barePhi();
-  double phi2 = det.surface().toGlobal(shift2).barePhi();
-  double phiStart = state.globalPosition().barePhi();
-  double phiWin = min(fabs(phiStart-phi1),fabs(phiStart-phi2));
+  auto phi1 = det.surface().toGlobal(shift1).barePhi();
+  auto phi2 = det.surface().toGlobal(shift2).barePhi();
+  auto phiStart = state.globalPosition().barePhi();
+  auto phiWin = std::min(std::abs(phiStart-phi1),std::abs(phiStart-phi2));
 
   return phiWin;
 }
@@ -225,7 +225,7 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->surface().phi())) {
+    if ( PhiLess()( gCrossingPos.barePhi(), sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {

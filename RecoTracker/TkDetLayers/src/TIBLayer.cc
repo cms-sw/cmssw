@@ -173,7 +173,7 @@ SubLayerCrossings TIBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   GlobalPoint gInnerPoint( innerCrossing.position());
   int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.z());
   const GeometricSearchDet* innerRing( theInnerComps[innerIndex]);
-  float innerDist = fabs( innerRing->surface().position().z() - gInnerPoint.z());
+  float innerDist = std::abs( innerRing->surface().position().z() - gInnerPoint.z());
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
