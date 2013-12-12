@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_0_0/HIon/V27 (CMSSW_7_0_0_pre9)
+# /dev/CMSSW_7_0_0/HIon/V28 (CMSSW_7_0_0_pre10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V27')
+  tableName = cms.string('/dev/CMSSW_7_0_0/HIon/V28')
 )
 
 process.streams = cms.PSet( 
@@ -3306,8 +3306,9 @@ process.DQM = cms.Service( "DQM",
 )
 process.DQMStore = cms.Service( "DQMStore",
     verboseQT = cms.untracked.int32( 0 ),
+    enableMultiThread = cms.untracked.bool( False ),
     verbose = cms.untracked.int32( 0 ),
-    collateHistograms = cms.untracked.bool( False )
+    collateHistograms = cms.untracked.bool( False ),
 )
 process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
     processingMode = cms.untracked.string( "HLT" ),
