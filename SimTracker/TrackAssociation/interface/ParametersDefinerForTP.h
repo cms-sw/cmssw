@@ -18,6 +18,7 @@ class ParametersDefinerForTP {
 
  public:
   ParametersDefinerForTP(){};
+  ParametersDefinerForTP(const edm::ParameterSet& iConfig);
   virtual ~ParametersDefinerForTP() {};
 
     typedef int Charge; ///< electric charge type
@@ -47,6 +48,8 @@ class ParametersDefinerForTP {
   }
 
   virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) const { }
+
+  edm::InputTag beamSpotInputTag_;
 
 };
 
