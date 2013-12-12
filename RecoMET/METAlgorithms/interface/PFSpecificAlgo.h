@@ -19,7 +19,6 @@
 #define METAlgorithms_PFMETInfo_h
 
 //____________________________________________________________________________||
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/SpecificPFMETData.h"
@@ -32,11 +31,11 @@ class PFSpecificAlgo
  public:
   PFSpecificAlgo() { }
   
-  reco::PFMET addInfo(edm::Handle<edm::View<reco::Candidate> > PFCandidates, const CommonMETData& met);
+  reco::PFMET addInfo(const edm::View<reco::Candidate>& PFCandidates, const CommonMETData& met);
 
  private:
   void initializeSpecificPFMETData(SpecificPFMETData &specific);
-  SpecificPFMETData mkSpecificPFMETData(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
+  SpecificPFMETData mkSpecificPFMETData(const edm::View<reco::Candidate>& PFCandidates);
 
 };
 

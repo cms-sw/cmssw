@@ -18,7 +18,7 @@
 using namespace reco;
 
 //____________________________________________________________________________||
-reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandidates, const CommonMETData& met)
+reco::PFMET PFSpecificAlgo::addInfo(const edm::View<reco::Candidate>& PFCandidates, const CommonMETData& met)
 {
   SpecificPFMETData specific = mkSpecificPFMETData(PFCandidates);
 
@@ -42,9 +42,9 @@ void PFSpecificAlgo::initializeSpecificPFMETData(SpecificPFMETData &specific)
 }
 
 //____________________________________________________________________________||
-SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(edm::Handle<edm::View<reco::Candidate> > &PFCandidates)
+SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(const edm::View<reco::Candidate>& PFCandidates)
 {
-  if(!PFCandidates->size())
+  if(!PFCandidates.size())
   {
     SpecificPFMETData specific;
     initializeSpecificPFMETData(specific);
@@ -59,7 +59,7 @@ SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(edm::Handle<edm::View<reco
   double type6Et = 0.0;
   double type7Et = 0.0;
 
-  for( edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin(); iParticle != (PFCandidates.product())->end(); ++iParticle )
+  for( edm::View<reco::Candidate>::const_iterator iParticle = PFCandidates.begin(); iParticle != PFCandidates.end(); ++iParticle)
     {   
       const PFCandidate* pfCandidate = dynamic_cast<const PFCandidate*> (&(*iParticle));
       if (!pfCandidate) continue;
