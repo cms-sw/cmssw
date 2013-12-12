@@ -30,7 +30,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
     compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		const MeasurementEstimator&) const __attribute__ ((hot));
+		const MeasurementEstimator&) const __attribute__((cold));
   
   virtual void
     groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,

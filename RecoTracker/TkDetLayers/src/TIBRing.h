@@ -12,8 +12,8 @@
 #pragma GCC visibility push(hidden)
 class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
  public:
-  TIBRing(std::vector<const GeomDet*>& theGeomDets);
-  ~TIBRing();
+  TIBRing(std::vector<const GeomDet*>& theGeomDets) __attribute__ ((cold));
+  ~TIBRing() __attribute__ ((cold));
   
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theCylinder;}  
@@ -25,7 +25,7 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+	      const MeasurementEstimator&) const __attribute__ ((cold));
 
   
   virtual void 
@@ -44,12 +44,12 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
   //general private methods
 
   void checkPeriodicity(std::vector<const GeomDet*>::const_iterator first,
-			std::vector<const GeomDet*>::const_iterator last);
+			std::vector<const GeomDet*>::const_iterator last) __attribute__ ((cold));
 
   void checkRadius(std::vector<const GeomDet*>::const_iterator first,
-		   std::vector<const GeomDet*>::const_iterator last);
+		   std::vector<const GeomDet*>::const_iterator last) __attribute__ ((cold));
   
-  void computeHelicity();
+  void computeHelicity() __attribute__ ((cold));
 
   // methods for groupedCompatibleDets implementation
   struct SubRingCrossings {
@@ -77,7 +77,7 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+			   const MeasurementEstimator& est) const __attribute__ ((hot));
 
 
 
