@@ -11,6 +11,9 @@
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
+
 //____________________________________________________________________________||
 using namespace reco;
 
@@ -19,9 +22,9 @@ reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandida
 {
   SpecificPFMETData specific = mkSpecificPFMETData(PFCandidates);
 
-  const LorentzVector p4(met.mex , met.mey, 0.0, met.met);
-  const Point vtx(0.0,0.0,0.0);
-  PFMET pfMET(specific, met.sumet, p4, vtx );
+  const math::XYZTLorentzVector p4(met.mex, met.mey, 0.0, met.met);
+  const math::XYZPoint vtx(0.0, 0.0, 0.0);
+  PFMET pfMET(specific, met.sumet, p4, vtx);
 
   return pfMET;
 }
