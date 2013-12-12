@@ -27,8 +27,6 @@ interestingTrackEcalDetIds = cms.EDProducer('InterestingTrackEcalDetIdProducer',
     MinTrackPt      = cms.double(50.0)
 )
 
-
-
 reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     interestingDetIdCollections = cms.VInputTag(
@@ -39,10 +37,7 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
             cms.InputTag("interestingEleIsoDetIdEB"),
             cms.InputTag("interestingGamIsoDetIdEB"),
             # tau
-            #cms.InputTag("caloRecoTauProducer"),
-            #pf
-            cms.InputTag("pfElectronInterestingEcalDetIdEB"),
-            cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
+            #cms.InputTag("caloRecoTauProducer"),            
             # muons
             cms.InputTag("muonEcalDetIds"),
             # high pt tracks
@@ -60,10 +55,7 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
             cms.InputTag("interestingEleIsoDetIdEE"),
             cms.InputTag("interestingGamIsoDetIdEE"),
             # tau
-            #cms.InputTag("caloRecoTauProducer"),
-            #pf
-            cms.InputTag("pfElectronInterestingEcalDetIdEE"),
-            cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
+            #cms.InputTag("caloRecoTauProducer"),            
             # muons
             cms.InputTag("muonEcalDetIds"),
             # high pt tracks
@@ -75,7 +67,8 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
 reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                       scEtThreshold = cms.double(15),
                                       EcalRecHitCollectionES = cms.InputTag('ecalPreshowerRecHit','EcalRecHitsES'),
-                                      EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
+                                      EndcapSuperClusterCollection = cms.InputTag("particleFlowSuperClusterECAL",
+                                      "particleFlowSuperClusterECALEndcapWithPreshower"),
                                       OutputLabel_ES = cms.string(''),
                                       interestingDetIds = cms.VInputTag()
                                       )

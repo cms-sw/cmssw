@@ -7,7 +7,7 @@ electronHcalTowerIsolationScone = cms.EDProducer("EgammaTowerIsolationProducer",
     towerProducer = cms.InputTag("towerMaker"),
     etMin = cms.double(0.0),
     Depth = cms.int32(-1),
-    emObjectProducer = cms.InputTag("gsfElectrons")
+    emObjectProducer = cms.InputTag("gedGsfElectrons")
 )
 
 
@@ -18,7 +18,7 @@ electronHcalDepth1TowerIsolationScone = cms.EDProducer("EgammaTowerIsolationProd
     towerProducer = cms.InputTag("towerMaker"),
     etMin = cms.double(0.0),
     Depth = cms.int32(1),
-    emObjectProducer = cms.InputTag("gsfElectrons")
+    emObjectProducer = cms.InputTag("gedGsfElectrons")
 )
 
 electronHcalDepth2TowerIsolationScone = cms.EDProducer("EgammaTowerIsolationProducer",
@@ -28,6 +28,6 @@ electronHcalDepth2TowerIsolationScone = cms.EDProducer("EgammaTowerIsolationProd
     towerProducer = cms.InputTag("towerMaker"),
     etMin = cms.double(0.0),
     Depth = cms.int32(2),
-    emObjectProducer = cms.InputTag("gsfElectrons")
+    emObjectProducer = cms.InputTag("gedGsfElectrons")
 )
 

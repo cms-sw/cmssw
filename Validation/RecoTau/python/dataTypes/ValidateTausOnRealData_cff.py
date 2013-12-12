@@ -21,7 +21,7 @@ PFJetsId = cms.EDFilter(
 
 CleanedPFJets = cms.EDProducer("TauValJetViewCleaner",
     srcObject            = cms.InputTag( "kinematicSelectedPFJets" ),
-    srcObjectsToRemove   = cms.VInputTag( cms.InputTag("muons"), cms.InputTag("gsfElectrons") ),
+    srcObjectsToRemove   = cms.VInputTag( cms.InputTag("muons"), cms.InputTag("gedGsfElectrons") ),
     deltaRMin            = cms.double(0.15)
 )
 
