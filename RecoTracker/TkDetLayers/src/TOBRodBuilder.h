@@ -17,7 +17,7 @@ class TOBRodBuilder {
   TOBRodBuilder(){};
   TOBRod* build(const GeometricDet* negTOBRod,
 		const GeometricDet* posTOBRod,
-		const TrackerGeometry* theGeomDetGeometry);
+		const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
 
   
 };
