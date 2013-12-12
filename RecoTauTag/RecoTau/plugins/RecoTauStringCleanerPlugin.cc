@@ -23,7 +23,7 @@ namespace reco { namespace tau {
 
 class RecoTauStringCleanerPlugin : public RecoTauCleanerPlugin {
   public:
-    explicit RecoTauStringCleanerPlugin(const edm::ParameterSet&);
+  explicit RecoTauStringCleanerPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
     ~RecoTauStringCleanerPlugin() {}
     double operator()(const PFTauRef& tau) const override;
   private:
@@ -33,7 +33,7 @@ class RecoTauStringCleanerPlugin : public RecoTauCleanerPlugin {
 };
 
 RecoTauStringCleanerPlugin::RecoTauStringCleanerPlugin(
-    const edm::ParameterSet& pset): RecoTauCleanerPlugin(pset),
+    const edm::ParameterSet& pset, edm::ConsumesCollector &&iC): RecoTauCleanerPlugin(pset,std::move(iC)),
     selector_(pset.getParameter<std::string>("selection")),
     function_(pset.getParameter<std::string>("selectionPassFunction")),
     failResult_(pset.getParameter<double>("selectionFailValue")) {}

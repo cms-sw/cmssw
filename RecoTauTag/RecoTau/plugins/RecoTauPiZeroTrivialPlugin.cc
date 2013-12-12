@@ -25,7 +25,7 @@ namespace reco { namespace tau {
 
 class RecoTauPiZeroTrivialPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
-    explicit RecoTauPiZeroTrivialPlugin(const edm::ParameterSet& pset);
+  explicit RecoTauPiZeroTrivialPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     ~RecoTauPiZeroTrivialPlugin() {}
     return_type operator()(const reco::PFJet& jet) const override;
   private:
@@ -33,7 +33,7 @@ class RecoTauPiZeroTrivialPlugin : public RecoTauPiZeroBuilderPlugin {
 };
 
 RecoTauPiZeroTrivialPlugin::RecoTauPiZeroTrivialPlugin(
-    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
+						       const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauPiZeroBuilderPlugin(pset,std::move(iC)),
     qcuts_(pset.getParameterSet(
           "qualityCuts").getParameterSet("signalQualityCuts")) {}
 

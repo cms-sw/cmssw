@@ -36,12 +36,16 @@ class RecoTauDiscriminantCutMultiplexer : public PFTauDiscriminationProducerBase
     edm::InputTag key_;
     edm::Handle<reco::PFTauDiscriminator> toMultiplexHandle_;
     edm::Handle<reco::PFTauDiscriminator> keyHandle_;
+    edm::EDGetTokenT<reco::PFTauDiscriminator> toMultiplex_token;
+    edm::EDGetTokenT<reco::PFTauDiscriminator> key_token;
 };
 
 RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(
     const edm::ParameterSet& pset):PFTauDiscriminationProducerBase(pset) {
   toMultiplex_ = pset.getParameter<edm::InputTag>("toMultiplex");
+  toMultiplex_token = consumes<reco::PFTauDiscriminator>(toMultiplex_);
   key_ = pset.getParameter<edm::InputTag>("key");
+  key_token = consumes<reco::PFTauDiscriminator>(key_);
   /*code*/
   typedef std::vector<edm::ParameterSet> VPSet;
   VPSet mapping = pset.getParameter<VPSet>("mapping");
@@ -59,8 +63,8 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(
 
 void RecoTauDiscriminantCutMultiplexer::beginEvent(
     const edm::Event& evt, const edm::EventSetup& es) {
-   evt.getByLabel(toMultiplex_, toMultiplexHandle_);
-   evt.getByLabel(key_, keyHandle_);
+   evt.getByToken(toMultiplex_token, toMultiplexHandle_);
+   evt.getByToken(key_token, keyHandle_);
 }
 
 double
