@@ -1,7 +1,7 @@
 #ifndef TkDetLayers_SubLayerCrossings_h
 #define TkDetLayers_SubLayerCrossings_h
 
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #pragma GCC visibility push(hidden)
 class SubLayerCrossing {
@@ -15,16 +15,16 @@ public:
   const GlobalPoint& position() const { return pos_;}
 
 private:
+  GlobalPoint pos_;
   int subLayerIndex_;
   int closestDetIndex_;
-  GlobalPoint pos_;
 };
 
 class SubLayerCrossings {
 public:
   SubLayerCrossings(): isValid_(false){}
   SubLayerCrossings( const SubLayerCrossing& c, const SubLayerCrossing& o, int ci) :
-    isValid_(true),closest_(c), other_(o), closestIndex_(ci) {}
+    closest_(c), other_(o), closestIndex_(ci),isValid_(true) {}
 
   bool isValid() {return isValid_ ;}
   const SubLayerCrossing& closest() const {return closest_;}
@@ -32,10 +32,10 @@ public:
   int closestIndex() const {return closestIndex_;}
 
 private:
-  bool isValid_;
   SubLayerCrossing closest_;
   SubLayerCrossing other_;
   int closestIndex_;
+  bool isValid_;
 
 };
 
