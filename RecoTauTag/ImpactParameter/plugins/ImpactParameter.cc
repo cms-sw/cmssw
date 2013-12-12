@@ -1,32 +1,18 @@
-// -*- C++ -*-
-//
-// Package:    ImpactParameter
-// Class:      ImpactParameter
-// 
-/**\class ImpactParameter ImpactParameter.cc RecoBTag/ImpactParameter/src/ImpactParameter.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Andrea Rizzi
-//         Created:  Thu Apr  6 09:56:23 CEST 2006
-//
-//
-
+/* class ImpactParameter
+ * EDProducer for TauImpactParameterInfoCollection
+ * author: Andrea Rizzi
+ */
 
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "RecoTauTag/ImpactParameter/interface/ImpactParameter.h"
-
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -35,10 +21,25 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
+#include "RecoTauTag/ImpactParameter/interface/ImpactParameterAlgorithm.h"
+
+
+class ImpactParameter : public edm::EDProducer {
+public:
+  explicit ImpactParameter(const edm::ParameterSet&);
+  ~ImpactParameter();
+
+
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+private:
+  ImpactParameterAlgorithm* algo;
+  std::string jetTrackSrc;
+  std::string vertexSrc;
+  bool usingVertex;
+};
+
 
 //
 // constructors and destructor
@@ -123,3 +124,4 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
+DEFINE_FWK_MODULE(ImpactParameter);
