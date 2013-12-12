@@ -62,6 +62,7 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
   RecoTauQualityCuts* qcuts_;
 
   edm::InputTag srcTracks_;
+  edm::EDGetTokenT<reco::TrackCollection> Tracks_token;
   double dRcone_;
   bool dRconeLimitedToJetArea_;
 
@@ -85,6 +86,7 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
   qcuts_ = new RecoTauQualityCuts(qcuts_pset);
 
   srcTracks_ = pset.getParameter<edm::InputTag>("srcTracks");
+  Tracks_token = iC.consumes<reco::TrackCollection>(srcTracks_);
   dRcone_ = pset.getParameter<double>("dRcone");
   dRconeLimitedToJetArea_ = pset.getParameter<bool>("dRconeLimitedToJetArea");
 
@@ -139,7 +141,7 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
   const edm::Event& evt = (*this->evt());
 
   edm::Handle<reco::TrackCollection> tracks;
-  evt.getByLabel(srcTracks_, tracks);
+  evt.getByToken(Tracks_token, tracks);
 
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
 

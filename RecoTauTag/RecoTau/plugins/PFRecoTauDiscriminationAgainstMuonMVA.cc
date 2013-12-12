@@ -74,6 +74,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
     mvaInput_ = new float[11];
   
     srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
+    Muons_token=consumes<reco::MuonCollection>(srcMuons_);
     dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
 
     verbosity_ = ( cfg.exists("verbosity") ) ?
@@ -111,6 +112,7 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 
   edm::InputTag srcMuons_;
   edm::Handle<reco::MuonCollection> muons_;
+  edm::EDGetTokenT<reco::MuonCollection> Muons_token;
   double dRmuonMatch_;
 
   edm::Handle<TauCollection> taus_;
@@ -124,9 +126,9 @@ class PFRecoTauDiscriminationAgainstMuonMVA : public PFTauDiscriminationProducer
 
 void PFRecoTauDiscriminationAgainstMuonMVA::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
-  evt.getByLabel(srcMuons_, muons_);
+  evt.getByToken(Muons_token, muons_);
 
-  evt.getByLabel(TauProducer_, taus_);
+  evt.getByToken(Tau_token, taus_);
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
   tauIndex_ = 0;
 }
@@ -180,7 +182,7 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau)
   }
   mvaInput_[1]  = TMath::Sqrt(TMath::Max(0., tauCaloEnECAL));
   mvaInput_[2]  = TMath::Sqrt(TMath::Max(0., tauCaloEnHCAL));
-  mvaInput_[3]  = tau->leadPFChargedHadrCand()->pt()/TMath::Max(1., tau->pt());
+  mvaInput_[3]  = tau->leadPFChargedHadrCand()->pt()/TMath::Max(1.,Double_t(tau->pt()));
   mvaInput_[4]  = TMath::Sqrt(TMath::Max(0., tau->leadPFChargedHadrCand()->ecalEnergy()));
   mvaInput_[5]  = TMath::Sqrt(TMath::Max(0., tau->leadPFChargedHadrCand()->hcalEnergy()));
   int numMatches = 0;

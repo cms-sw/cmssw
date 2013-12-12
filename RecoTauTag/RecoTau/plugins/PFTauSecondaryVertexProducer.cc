@@ -56,10 +56,11 @@ class PFTauSecondaryVertexProducer : public EDProducer {
   virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
   edm::InputTag PFTauTag_;
+  edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
 };
 
 PFTauSecondaryVertexProducer::PFTauSecondaryVertexProducer(const edm::ParameterSet& iConfig):
-  PFTauTag_(iConfig.getParameter<edm::InputTag>("PFTauTag"))
+  PFTauToken_(consumes<std::vector<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("PFTauTag")))
 {
   produces<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > > >();
   produces<VertexCollection>("PFTauSecondaryVertices");
@@ -75,7 +76,7 @@ void PFTauSecondaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSe
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
 
   edm::Handle<std::vector<reco::PFTau> > Tau;
-  iEvent.getByLabel(PFTauTag_,Tau);
+  iEvent.getByToken(PFTauToken_,Tau);
 
   // Set Association Map
   auto_ptr<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > > > AVPFTauSV(new edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > >(PFTauRefProd(Tau)));

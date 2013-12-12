@@ -58,16 +58,16 @@ class PFTauTransverseImpactParameters : public EDProducer {
   ~PFTauTransverseImpactParameters();
   virtual void produce(edm::Event&,const edm::EventSetup&);
  private:
-  edm::InputTag PFTauTag_;
-  edm::InputTag PFTauPVATag_;
-  edm::InputTag PFTauSVATag_;
+  edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
+  edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > > PFTauPVAToken_;
+  edm::EDGetTokenT<edm::AssociationVector<PFTauRefProd,std::vector<std::vector<reco::VertexRef> > > > PFTauSVAToken_;
   bool useFullCalculation_;
 };
 
 PFTauTransverseImpactParameters::PFTauTransverseImpactParameters(const edm::ParameterSet& iConfig):
-  PFTauTag_(iConfig.getParameter<edm::InputTag>("PFTauTag")),
-  PFTauPVATag_(iConfig.getParameter<edm::InputTag>("PFTauPVATag")),
-  PFTauSVATag_(iConfig.getParameter<edm::InputTag>("PFTauSVATag")),
+  PFTauToken_(consumes<std::vector<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("PFTauTag"))),
+  PFTauPVAToken_(consumes<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > >(iConfig.getParameter<edm::InputTag>("PFTauPVATag"))),
+  PFTauSVAToken_(consumes<edm::AssociationVector<PFTauRefProd,std::vector<std::vector<reco::VertexRef> > > >(iConfig.getParameter<edm::InputTag>("PFTauSVATag"))),
   useFullCalculation_(iConfig.getParameter<bool>("useFullCalculation"))
 {
   produces<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > >(); 
@@ -84,13 +84,13 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
   
   edm::Handle<std::vector<reco::PFTau> > Tau;
-  iEvent.getByLabel(PFTauTag_,Tau);
+  iEvent.getByToken(PFTauToken_,Tau);
 
   edm::Handle<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef> > > PFTauPVA;
-  iEvent.getByLabel(PFTauPVATag_,PFTauPVA);
+  iEvent.getByToken(PFTauPVAToken_,PFTauPVA);
 
   edm::Handle<edm::AssociationVector<PFTauRefProd,std::vector<std::vector<reco::VertexRef> > > > PFTauSVA;
-  iEvent.getByLabel(PFTauSVATag_,PFTauSVA);
+  iEvent.getByToken(PFTauSVAToken_,PFTauSVA);
 
   // Set Association Map
   auto_ptr<edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > > AVPFTauTIP(new edm::AssociationVector<PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> >(PFTauRefProd(Tau)));

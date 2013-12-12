@@ -82,11 +82,11 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
     else if ( mvaOpt_ == kOldDMwLT  || mvaOpt_ == kNewDMwLT  ) mvaInput_ = new float[12];
     else assert(0);
 
-    srcTauTransverseImpactParameters_ = cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters");
+    TauTransverseImpactParameters_token = consumes<PFTauTIPAssociationByRef>(cfg.getParameter<edm::InputTag>("srcTauTransverseImpactParameters"));
     
-    srcChargedIsoPtSum_ = cfg.getParameter<edm::InputTag>("srcChargedIsoPtSum");
-    srcNeutralIsoPtSum_ = cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum");
-    srcPUcorrPtSum_ = cfg.getParameter<edm::InputTag>("srcPUcorrPtSum");
+    ChargedIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcChargedIsoPtSum"));
+    NeutralIsoPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcNeutralIsoPtSum"));
+    PUcorrPtSum_token = consumes<reco::PFTauDiscriminator>(cfg.getParameter<edm::InputTag>("srcPUcorrPtSum"));
   
     verbosity_ = ( cfg.exists("verbosity") ) ?
       cfg.getParameter<int>("verbosity") : 0;
@@ -121,15 +121,15 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
   int mvaOpt_;
   float* mvaInput_;
 
-  edm::InputTag srcTauTransverseImpactParameters_;
   typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > PFTauTIPAssociationByRef;
+  edm::EDGetTokenT<PFTauTIPAssociationByRef> TauTransverseImpactParameters_token;
   edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
 
-  edm::InputTag srcChargedIsoPtSum_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> ChargedIsoPtSum_token;
   edm::Handle<reco::PFTauDiscriminator> chargedIsoPtSums_;
-  edm::InputTag srcNeutralIsoPtSum_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> NeutralIsoPtSum_token;
   edm::Handle<reco::PFTauDiscriminator> neutralIsoPtSums_;
-  edm::InputTag srcPUcorrPtSum_;
+  edm::EDGetTokenT<reco::PFTauDiscriminator> PUcorrPtSum_token;
   edm::Handle<reco::PFTauDiscriminator> puCorrPtSums_;
 
   edm::Handle<TauCollection> taus_;
@@ -143,13 +143,13 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
 void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
-  evt.getByLabel(srcTauTransverseImpactParameters_, tauLifetimeInfos);
+  evt.getByToken(TauTransverseImpactParameters_token, tauLifetimeInfos);
 
-  evt.getByLabel(srcChargedIsoPtSum_, chargedIsoPtSums_);
-  evt.getByLabel(srcNeutralIsoPtSum_, neutralIsoPtSums_);
-  evt.getByLabel(srcPUcorrPtSum_, puCorrPtSums_);
+  evt.getByToken(ChargedIsoPtSum_token, chargedIsoPtSums_);
+  evt.getByToken(NeutralIsoPtSum_token, neutralIsoPtSums_);
+  evt.getByToken(PUcorrPtSum_token, puCorrPtSums_);
 
-  evt.getByLabel(TauProducer_, taus_);
+  evt.getByToken(Tau_token, taus_);
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
   tauIndex_ = 0;
 }
@@ -181,14 +181,14 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
     double decayDistMag = TMath::Sqrt(decayDistX*decayDistX + decayDistY*decayDistY + decayDistZ*decayDistZ);
     
     if ( mvaOpt_ == kOldDMwoLT || mvaOpt_ == kNewDMwoLT ) {
-      mvaInput_[0]  = TMath::Log(TMath::Max(1., tau->pt()));
+      mvaInput_[0]  = TMath::Log(TMath::Max(1., Double_t(tau->pt())));
       mvaInput_[1]  = TMath::Abs(tau->eta());
       mvaInput_[2]  = TMath::Log(TMath::Max(1.e-2, chargedIsoPtSum));
       mvaInput_[3]  = TMath::Log(TMath::Max(1.e-2, neutralIsoPtSum - 0.125*puCorrPtSum));
       mvaInput_[4]  = TMath::Log(TMath::Max(1.e-2, puCorrPtSum));
       mvaInput_[5]  = tauDecayMode;
     } else if ( mvaOpt_ == kOldDMwLT || mvaOpt_ == kNewDMwLT  ) {
-      mvaInput_[0]  = TMath::Log(TMath::Max(1., tau->pt()));
+      mvaInput_[0]  = TMath::Log(TMath::Max(1., Double_t(tau->pt())));
       mvaInput_[1]  = TMath::Abs(tau->eta());
       mvaInput_[2]  = TMath::Log(TMath::Max(1.e-2, chargedIsoPtSum));
       mvaInput_[3]  = TMath::Log(TMath::Max(1.e-2, neutralIsoPtSum - 0.125*puCorrPtSum));

@@ -74,6 +74,7 @@ public:
 
   // input jet collection
   edm::InputTag srcJets_;
+  edm::EDGetTokenT<reco::CandidateView> Jets_token;
 
   // plugins for building and ranking ChargedHadron candidates
   builderList builders_;
@@ -92,7 +93,7 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
   srcJets_ = cfg.getParameter<edm::InputTag>("jetSrc");
-    
+  Jets_token = consumes<reco::CandidateView>(srcJets_);
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
   
@@ -144,7 +145,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   
   // get a view of our jets via the base candidates
   edm::Handle<reco::CandidateView> jets;
-  evt.getByLabel(srcJets_, jets);
+  evt.getByToken(Jets_token, jets);
   
   // convert the view to a RefVector of actual PFJets
   reco::PFJetRefVector pfJets = reco::tau::castView<reco::PFJetRefVector>(jets);
