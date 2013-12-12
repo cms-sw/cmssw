@@ -32,8 +32,7 @@ using namespace std;
 using namespace reco;
 
 SeedFilter::SeedFilter(const edm::ParameterSet& conf,
-		       const SeedFilter::Tokens& tokens,
-		       edm::ConsumesCollector& iC)
+		       const SeedFilter::Tokens& tokens)
  {
   edm::LogInfo("EtaPhiRegionSeedFactory") << "Enter the EtaPhiRegionSeedFactory";
   edm::ParameterSet regionPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
@@ -57,7 +56,7 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf,
   hitsfactoryMode_ = hitsfactoryPSet.getUntrackedParameter<int>("useOnDemandTracker");
 
   // get orderd hits generator from factory
-  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC);
+  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet);
 
   // start seed generator
   // FIXME??

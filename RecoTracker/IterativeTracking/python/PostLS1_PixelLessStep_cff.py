@@ -36,7 +36,8 @@ pixelLessStepSeedClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-pixelLessStepSeedLayersA = cms.PSet(
+pixelLessStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('pixelLessStepSeedLayersA'),
     layerList = cms.vstring('TIB1+TIB2'),
     TIB = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -48,7 +49,7 @@ pixelLessStepSeedLayersA = cms.PSet(
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 pixelLessStepSeedsA = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-pixelLessStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = pixelLessStepSeedLayersA
+pixelLessStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayersA'
 pixelLessStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 pixelLessStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
 pixelLessStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius = 1.0
@@ -63,7 +64,8 @@ pixelLessStepSeedsA.SeedComparitorPSet = cms.PSet(
     )
 
 # SEEDING LAYERS
-pixelLessStepSeedLayersB = cms.PSet(
+pixelLessStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('pixelLessStepSeedLayersB'),
     layerList = cms.vstring('TID1_pos+TID2_pos','TID2_pos+TID3_pos',
         'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos','TEC4_pos+TEC5_pos',
         'TID1_neg+TID2_neg','TID2_neg+TID3_neg',
@@ -89,7 +91,7 @@ pixelLessStepSeedLayersB = cms.PSet(
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 pixelLessStepSeedsB = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-pixelLessStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = pixelLessStepSeedLayersB
+pixelLessStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayersB'
 pixelLessStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin = 0.7
 pixelLessStepSeedsB.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
 pixelLessStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius = 1.5

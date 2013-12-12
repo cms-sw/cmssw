@@ -20,7 +20,8 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-pixelLessStepSeedLayers = cms.PSet(
+pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('pixelLessStepSeedLayers'),
     layerList = cms.vstring('TIB1+TIB2',
         'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
         'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos','TEC4_pos+TEC5_pos',
@@ -52,7 +53,7 @@ pixelLessStepSeedLayers = cms.PSet(
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 pixelLessStepSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = pixelLessStepSeedLayers
+pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayers'
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5

@@ -24,7 +24,7 @@ public:
 
 public:
 
-  CombinedMultiHitGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
+  CombinedMultiHitGenerator( const edm::ParameterSet& cfg);
 
   virtual ~CombinedMultiHitGenerator();
 

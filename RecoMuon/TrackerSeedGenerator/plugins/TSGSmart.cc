@@ -22,7 +22,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector& iC)
     PairPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string pairhitsfactoryName = pairhitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  pairhitsGenerator =
-    OrderedHitsGeneratorFactory::get()->create( pairhitsfactoryName, pairhitsfactoryPSet, iC);
+    OrderedHitsGeneratorFactory::get()->create( pairhitsfactoryName, pairhitsfactoryPSet);
 
 
   thePairGenerator = new SeedGeneratorFromRegionHits( pairhitsGenerator, 0, 
@@ -34,7 +34,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector& iC)
     TripletPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string triplethitsfactoryName = triplethitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  triplethitsGenerator =
-    OrderedHitsGeneratorFactory::get()->create( triplethitsfactoryName, triplethitsfactoryPSet, iC);
+    OrderedHitsGeneratorFactory::get()->create( triplethitsfactoryName, triplethitsfactoryPSet);
   theTripletGenerator = new SeedGeneratorFromRegionHits( triplethitsGenerator, 0, 
 						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 						 );
@@ -44,7 +44,7 @@ TSGSmart::TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector& iC)
     MixedPSet.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string mixedhitsfactoryName = mixedhitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  mixedhitsGenerator =
-    OrderedHitsGeneratorFactory::get()->create( mixedhitsfactoryName, mixedhitsfactoryPSet, iC);
+    OrderedHitsGeneratorFactory::get()->create( mixedhitsfactoryName, mixedhitsfactoryPSet);
   theMixedGenerator = new SeedGeneratorFromRegionHits( mixedhitsGenerator, 0, 
 						 SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
 						 );

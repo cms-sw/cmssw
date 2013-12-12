@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
 
 # SEEDING LAYERS
-pixelLessStepSeedLayers = cms.PSet(
+pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('pixelLessStepSeedLayers'),
     layerList = cms.vstring(
     #TIB
     'TIB1+TIB2+MTIB3',
@@ -59,7 +60,7 @@ pixelLessStepSeedLayers = cms.PSet(
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 pixelLessStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = pixelLessStepSeedLayers
+pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayers'
 pixelLessStepSeeds.OrderedHitsFactoryPSet.ComponentName = 'StandardMultiHitGenerator'
 pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
     useFixedPreFiltering = cms.bool(False),

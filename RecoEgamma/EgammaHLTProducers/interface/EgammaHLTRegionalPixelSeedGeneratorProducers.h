@@ -41,7 +41,8 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
 
 
  private:
-  std::unique_ptr<SeedGeneratorFromRegionHits> combinatorialSeedGenerator;
+  edm::ParameterSet conf_;
+  SeedGeneratorFromRegionHits *combinatorialSeedGenerator;
   double ptmin_;
   double vertexz_;
   double originradius_;

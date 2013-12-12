@@ -14,7 +14,8 @@ convClusters = cms.EDProducer("TrackClusterRemover",
                               Common = cms.PSet(maxChi2 = cms.double(30.0))
                               )
 
-convLayerPairs = cms.PSet(
+convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
+                                ComponentName = cms.string('convLayerPairs'),
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 
@@ -209,7 +210,6 @@ convLayerPairs = cms.PSet(
 
 photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('pixelVertices')
-photonConvTrajSeedFromSingleLeg.OrderedHitsFactoryPSet.SeedingLayers = convLayerPairs
 #photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
 #photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
 

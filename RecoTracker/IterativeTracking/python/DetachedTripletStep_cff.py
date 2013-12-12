@@ -22,7 +22,9 @@ detachedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-detachedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
+detachedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
+    ComponentName = 'detachedTripletStepSeedLayers'
+    )
 detachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 detachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 
@@ -32,7 +34,7 @@ PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
 PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 detachedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-detachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = detachedTripletStepSeedLayers
+detachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'detachedTripletStepSeedLayers'
 detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
 detachedTripletStepSeeds.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
 detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.3

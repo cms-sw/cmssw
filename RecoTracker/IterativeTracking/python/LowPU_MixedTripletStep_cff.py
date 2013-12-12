@@ -19,7 +19,8 @@ mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-mixedTripletStepSeedLayersA = cms.PSet(
+mixedTripletStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('mixedTripletStepSeedLayersA'),
     layerList = cms.vstring('BPix1+BPix2+BPix3', 
         'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
         'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
@@ -59,7 +60,7 @@ PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
 PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 mixedTripletStepSeedsA = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-mixedTripletStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = mixedTripletStepSeedLayersA
+mixedTripletStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'mixedTripletStepSeedLayersA'
 mixedTripletStepSeedsA.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
 mixedTripletStepSeedsA.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
 mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 0.3
@@ -67,7 +68,8 @@ mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength = 20.0
 mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius = 1.5
 
 # SEEDING LAYERS
-mixedTripletStepSeedLayersB = cms.PSet(
+mixedTripletStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('mixedTripletStepSeedLayersB'),
     layerList = cms.vstring('BPix2+BPix3+TIB1', 'BPix2+BPix3+TIB2'),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
@@ -90,7 +92,7 @@ PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
 PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 mixedTripletStepSeedsB = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-mixedTripletStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = mixedTripletStepSeedLayersB
+mixedTripletStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'mixedTripletStepSeedLayersB'
 mixedTripletStepSeedsB.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
 mixedTripletStepSeedsB.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
 mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin = 0.4

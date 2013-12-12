@@ -53,15 +53,17 @@ largeD0step4StripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHit
 )
 #SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLessLayerPairs_cfi
-largeD0step4LayerPairs = RecoTracker.TkSeedingLayers.PixelLessLayerPairs_cfi.PixelLessLayerPairs.clone()
-largeD0step4LayerPairs.TIB.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
-largeD0step4LayerPairs.TID.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
-largeD0step4LayerPairs.TEC.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
+largeD0step4layerpairs = RecoTracker.TkSeedingLayers.PixelLessLayerPairs_cfi.pixellesslayerpairs.clone(
+    ComponentName = 'largeD0step4LayerPairs',
+)
+largeD0step4layerpairs.TIB.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
+largeD0step4layerpairs.TID.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
+largeD0step4layerpairs.TEC.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
 
 #SEEDS
 import RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cff
 largeD0step4Seeds = RecoTracker.TkSeedGenerator.GlobalPixelLessSeeds_cff.globalPixelLessSeeds.clone()
-largeD0step4Seeds.OrderedHitsFactoryPSet.SeedingLayers = largeD0step4LayerPairs
+largeD0step4Seeds.OrderedHitsFactoryPSet.SeedingLayers = 'largeD0step4LayerPairs'
 largeD0step4Seeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 largeD0step4Seeds.RegionFactoryPSet.RegionPSet.originRadius = 5.0
 largeD0step4Seeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0

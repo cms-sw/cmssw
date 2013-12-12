@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-PixelLessLayerPairs = cms.PSet(
+pixellesslayerpairs = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('PixelLessLayerPairs'),
     layerList = cms.vstring('TIB1+TIB2', 
         'TIB1+TID1_pos', 
 #        'TIB1+TID2_pos', 

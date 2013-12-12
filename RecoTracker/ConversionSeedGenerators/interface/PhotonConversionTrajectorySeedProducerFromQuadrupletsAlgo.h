@@ -59,12 +59,12 @@ class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
   const edm::ParameterSet _conf;
 
   TrajectorySeedCollection *seedCollection;
-  edm::ParameterSet creatorPSet,regfactoryPSet;
+  edm::ParameterSet hitsfactoryPSet,creatorPSet,regfactoryPSet;
   ClusterChecker theClusterCheck;
   edm::ParameterSet SeedComparitorPSet,QuadCutPSet;
   bool theSilentOnClusterCheck;
 
-  std::unique_ptr<CombinedHitQuadrupletGeneratorForPhotonConversion> theHitsGenerator;
+  CombinedHitQuadrupletGeneratorForPhotonConversion * theHitsGenerator;
   SeedForPhotonConversionFromQuadruplets *theSeedCreator;
   GlobalTrackingRegionProducerFromBeamSpot* theRegionProducer;
 

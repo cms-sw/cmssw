@@ -28,16 +28,18 @@ public:
   typedef LayerHitMapCache LayerCacheType;
 
 public:
-  CombinedHitQuadrupletGeneratorForPhotonConversion(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
-  CombinedHitQuadrupletGeneratorForPhotonConversion(const CombinedHitQuadrupletGeneratorForPhotonConversion & cb);
+  CombinedHitQuadrupletGeneratorForPhotonConversion(const edm::ParameterSet & cfg);
   virtual ~CombinedHitQuadrupletGeneratorForPhotonConversion();
+
+  void  add(const ctfseeding::SeedingLayer & inner, 
+	      const ctfseeding::SeedingLayer & outer);
 
   /// form base class
   virtual void hitPairs(const TrackingRegion&, OrderedHitPairs&, const edm::Event&, const edm::EventSetup&);
 
   /// from base class
   virtual CombinedHitQuadrupletGeneratorForPhotonConversion * clone() const 
-    { return new CombinedHitQuadrupletGeneratorForPhotonConversion(*this); }
+    { return new CombinedHitQuadrupletGeneratorForPhotonConversion(theConfig); } 
 
   const OrderedHitPairs & run(const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
 
@@ -46,7 +48,18 @@ public:
 
   /*------------------------*/
 private:
+  CombinedHitQuadrupletGeneratorForPhotonConversion(const CombinedHitQuadrupletGeneratorForPhotonConversion & cb); 
+  void init(const ctfseeding::SeedingLayerSets & layerSets);
+  void init(const edm::ParameterSet & cfg, const edm::EventSetup& es);
+  void cleanup();
+
+
+  mutable bool initialised;
+  edm::ParameterSet theConfig;
+
   LayerCacheType   theLayerCache;
+
+  edm::ESWatcher<TrackerDigiGeometryRecord> theESWatcher;
 
   typedef std::vector<HitQuadrupletGeneratorFromLayerPairForPhotonConversion *>   Container;
   Container        theGenerators;

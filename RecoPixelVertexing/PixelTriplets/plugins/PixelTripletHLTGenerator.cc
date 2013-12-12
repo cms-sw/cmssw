@@ -85,7 +85,6 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   ThirdHitRZPrediction<PixelRecoLineRZ> preds[size];
   
   const RecHitsSortedInPhi * thirdHitMap[size];
-  const DetLayer *layers[size];
   typedef RecHitsSortedInPhi::Hit Hit;
 
   using NodeInfo = KDTreeNodeInfo<unsigned int>;
@@ -102,9 +101,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
     auto const & hits = *thirdHitMap[il];
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
-    const DetLayer *layer = theLayers[il].detLayer(es);
-    layers[il] = layer;
-    pred.initLayer(layer);
+    pred.initLayer(theLayers[il].detLayer());
     pred.initTolerance(extraHitRZtolerance);
     
     layerTree.clear();
@@ -127,7 +124,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     //add fudge factors in case only one hit and also for floating-point inaccuracy
     hitTree[il].build(layerTree, phiZ); // make KDtree
     rzError[il] = maxErr; //save error
-    // std::cout << "layer " << layers[il]->seqNum() << " " << layerTree.size() << std::endl; 
+    // std::cout << "layer " << theLayers[il].detLayer()->seqNum() << " " << layerTree.size() << std::endl; 
   }
   
   float imppar = region.originRBound();
@@ -163,7 +160,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       
       auto const & hits = *thirdHitMap[il];
       
-      const DetLayer * layer = layers[il];
+      const DetLayer * layer = theLayers[il].detLayer();
       auto barrelLayer = layer->isBarrel();
 
       ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, outSeq, useMScat, useBend); 
@@ -256,7 +253,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	  hitTree[il].search(phiZ, foundNodes);
 	}
 
-      // std::cout << ip << ": " << layers[il]->seqNum() << " " << foundNodes.size() << " " << prmin << " " << prmax << std::endl;
+      // std::cout << ip << ": " << theLayers[il].detLayer()->seqNum() << " " << foundNodes.size() << " " << prmin << " " << prmax << std::endl;
 
 
       // int kk=0;

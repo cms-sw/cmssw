@@ -110,7 +110,7 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   // the list of layers on which quadruplets should be formed
   edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
   es.get<TrackerDigiGeometryRecord>().get( layerListName_.c_str(), layerBuilder );
-  theLayerSets_ = layerBuilder->layers(); // this is a vector<vector<SeedingLayer> >
+  theLayerSets_ = layerBuilder->layers( es ); // this is a vector<vector<SeedingLayer> >
 
   
   // make a working copy of the input triplets

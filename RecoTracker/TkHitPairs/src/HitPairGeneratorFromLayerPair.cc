@@ -108,9 +108,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
 
   HitDoublets result(innerHitsMap,outerHitsMap); result.reserve(std::max(innerHitsMap.size(),outerHitsMap.size()));
 
-  const DetLayer *outerLayerDet = theOuterLayer.detLayer(iSetup);
-  const DetLayer *innerLayerDet = theInnerLayer.detLayer(iSetup);
-  InnerDeltaPhi deltaPhi(*outerLayerDet, *innerLayerDet, region, iSetup);
+  InnerDeltaPhi deltaPhi(*theOuterLayer.detLayer(), *theInnerLayer.detLayer(), region, iSetup);
 
   // std::cout << "layers " << theInnerLayer.detLayer()->seqNum()  << " " << theOuterLayer.detLayer()->seqNum() << std::endl;
 
@@ -126,7 +124,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
 
     if (phiRange.empty()) continue;
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(innerLayerDet, ohit, iSetup, outerLayerDet, 
+    const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup,theOuterLayer.detLayer(), 
 						       outerHitsMap.rv(io),outerHitsMap.z[io],
 						       outerHitsMap.isBarrel ? outerHitsMap.du[io] :  outerHitsMap.dv[io],
 						       outerHitsMap.isBarrel ? outerHitsMap.dv[io] :  outerHitsMap.du[io]

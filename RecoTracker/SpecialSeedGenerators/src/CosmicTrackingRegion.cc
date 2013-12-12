@@ -36,7 +36,7 @@ TrackingRegion::Hits CosmicTrackingRegion::hits(const edm::Event& ev,
   TrackingRegion::Hits result;
 
   //detector layer
-  const DetLayer * detLayer = layer->detLayer(es);
+  const DetLayer * detLayer = layer->detLayer();
   LogDebug("CosmicTrackingRegion") << "Looking at hits on subdet/layer " << layer->name();
   EtaPhiMeasurementEstimator est(0.3,0.3);
 

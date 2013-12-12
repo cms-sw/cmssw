@@ -2,7 +2,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -25,7 +24,7 @@
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
-  : theConfig(cfg), theRegionProducer(0),
+  : theConfig(cfg), theGenerator(0), theRegionProducer(0),
     theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet"),consumesCollector()),
     theMerger_(0)
 {
@@ -48,35 +47,40 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
 
-  edm::ConsumesCollector iC = consumesCollector();
+  produces<TrajectorySeedCollection>();
+}
 
-  edm::ParameterSet hitsfactoryPSet =
+SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
+{
+}
+
+void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
+  delete theRegionProducer;
+  delete theGenerator;
+}
+
+void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const edm::EventSetup& es)
+{
+  edm::ParameterSet hitsfactoryPSet = 
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
-  OrderedHitsGenerator*  hitsGenerator =
-    OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
+  OrderedHitsGenerator*  hitsGenerator = 
+      OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
 
   edm::ParameterSet comparitorPSet =
       theConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
-  SeedComparitor * aComparitor = (comparitorName == "none") ?
-      0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);
+  SeedComparitor * aComparitor = (comparitorName == "none") ? 
+      0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);   
 
   edm::ParameterSet creatorPSet =
       theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
   SeedCreator * aCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet);
 
-  theGenerator.reset(new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator));
-
-  produces<TrajectorySeedCollection>();
+  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator); 
 }
-
-SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
-{
-  delete theRegionProducer;
-}
-
+ 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<TrajectorySeedCollection> triplets(new TrajectorySeedCollection());

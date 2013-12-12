@@ -8,36 +8,36 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/Common/interface/ContainerMask.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+
 using namespace ctfseeding;
 using namespace std;
 
 HitExtractorPIX::HitExtractorPIX(
-    SeedingLayer::Side & side, int idLayer, const std::string & hitProducer, edm::ConsumesCollector& iC)
-  : theHitProducer(iC.consumes<SiPixelRecHitCollection>(hitProducer)), theSide(side), theIdLayer(idLayer)
+    SeedingLayer::Side & side, int idLayer, const std::string & hitProducer)
+  : theSide(side), theIdLayer(idLayer), theHitProducer(hitProducer)
 { }
 
-void HitExtractorPIX::useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) {
-  theSkipClusters = iC.consumes<SkipClustersCollection>(m);
-}
-
-HitExtractor::Hits HitExtractorPIX::hits(const TransientTrackingRecHitBuilder *hitBuilder, const edm::Event& ev, const edm::EventSetup& es) const
+HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Event& ev, const edm::EventSetup& es) const
 {
   HitExtractor::Hits result;
   TrackerLayerIdAccessor accessor;
   edm::Handle<SiPixelRecHitCollection> pixelHits;
-  ev.getByToken( theHitProducer, pixelHits);
+  ev.getByLabel( theHitProducer, pixelHits);
   if (theSide==SeedingLayer::Barrel) {
-    range2SeedingHits( *pixelHits, result, accessor.pixelBarrelLayer(theIdLayer), hitBuilder );
+    range2SeedingHits( *pixelHits, result, accessor.pixelBarrelLayer(theIdLayer), sl, es );
   } else {
-    range2SeedingHits( *pixelHits, result, accessor.pixelForwardDisk(theSide,theIdLayer), hitBuilder );
+    range2SeedingHits( *pixelHits, result, accessor.pixelForwardDisk(theSide,theIdLayer), sl, es );
   }
 
 
   if (skipClusters){
     LogDebug("HitExtractorPIX")<<"getting : "<<result.size()<<" pixel hits.";
     //std::cout<<" skipping"<<std::endl;
-    edm::Handle<SkipClustersCollection> pixelClusterMask;
-    ev.getByToken(theSkipClusters,pixelClusterMask);
+    edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > > pixelClusterMask;
+    ev.getByLabel(theSkipClusters,pixelClusterMask);
     std::vector<bool> keep(result.size(),true);
     HitExtractor::Hits newHits;
     unsigned int skipped=0;

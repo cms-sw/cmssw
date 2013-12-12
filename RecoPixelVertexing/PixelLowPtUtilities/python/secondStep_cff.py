@@ -27,7 +27,8 @@ secondStripRecHits.ClusterProducer = 'secondClusters'
 # Secondary triplets
 from RecoPixelVertexing.PixelLowPtUtilities.common_cff import BPixError
 from RecoPixelVertexing.PixelLowPtUtilities.common_cff import FPixError
-SecondLayerTriplets = cms.PSet(
+secondLayerTriplets = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('SecondLayerTriplets'),
     layerList = cms.vstring('BPix1+BPix2+BPix3',
         'BPix1+BPix2+FPix1_pos',
         'BPix1+BPix2+FPix1_neg',
@@ -51,7 +52,7 @@ import RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi
 pixelSecoTracks = RecoPixelVertexing.PixelLowPtUtilities.AllPixelTracks_cfi.allPixelTracks.clone()
 pixelSecoTracks.passLabel = 'Pixel triplet tracks without vertex constraint'
 pixelSecoTracks.RegionFactoryPSet.RegionPSet.originRadius = 3.5
-pixelSecoTracks.OrderedHitsFactoryPSet.SeedingLayers = SecondLayerTriplets
+pixelSecoTracks.OrderedHitsFactoryPSet.SeedingLayers = 'SecondLayerTriplets'
 
 #################################
 # Secondary seeds

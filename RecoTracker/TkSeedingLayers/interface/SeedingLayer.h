@@ -6,7 +6,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
 class DetLayer;
 class TransientTrackingRecHitBuilder;
@@ -25,10 +24,8 @@ public:
   SeedingLayer(){}
 
   SeedingLayer( const std::string & name, int seqNum,
-                GeomDetEnumerators::SubDetector subdet,
-                Side side,
-                int layerId,
-                const std::string& hitBuilderName,
+                const DetLayer* layer,
+                const TransientTrackingRecHitBuilder * hitBuilder,
                 const HitExtractor * hitExtractor,  
                 bool usePredefinedErrors = false, float hitErrorRZ = 0., float hitErrorRPhi=0.);
 
@@ -40,9 +37,9 @@ public:
 
   bool operator==(const SeedingLayer &s) const { return name()==s.name(); }
 
-  const DetLayer*  detLayer(const edm::EventSetup& es) const;
-
-  const TransientTrackingRecHitBuilder * hitBuilder(const edm::EventSetup& es) const;
+  const DetLayer*  detLayer() const;
+  
+  const TransientTrackingRecHitBuilder * hitBuilder() const;
 
   bool hasPredefinedHitErrors() const;
   float predefinedHitErrorRZ() const;

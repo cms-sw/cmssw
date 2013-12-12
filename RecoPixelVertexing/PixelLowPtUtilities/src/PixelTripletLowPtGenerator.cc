@@ -86,11 +86,8 @@ void PixelTripletLowPtGenerator::hitTriplets(
 
   // Set aliases
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size]; 
-  const DetLayer *layers[size];
-  for(int il=0; il<size; il++) {
+  for(int il=0; il<size; il++)
     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
-    layers[il] = theLayers[il].detLayer(es);
-  }
 
   // Get tracker
   getTracker(es);
@@ -123,7 +120,8 @@ void PixelTripletLowPtGenerator::hitTriplets(
     // Look at all layers
     for(int il=0; il<size; il++)
     {
-      const DetLayer * layer = layers[il];
+      const SeedingLayer & layerwithhits = theLayers[il];
+      const DetLayer * layer = layerwithhits.detLayer();
 
 #ifdef Debug
       cerr << "  check layer " << layer->subDetector()

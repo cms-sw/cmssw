@@ -40,7 +40,6 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -50,7 +49,7 @@ using namespace reco ;
 
 ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
  : //conf_(iConfig),
-   applyHOverECut_(true), hcalHelper_(0),
+   seedFilter_(0), applyHOverECut_(true), hcalHelper_(0),
    caloGeom_(0), caloGeomCacheId_(0), caloTopo_(0), caloTopoCacheId_(0)
  {
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
@@ -116,9 +115,12 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   superClusters_[1]=
     consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("endcapSuperClusters")) ;
 
-  // Construction of SeedFilter was in beginRun() with the comment
-  // below, but it has to be done here because of ConsumesCollector
-  //
+  //register your products
+  produces<ElectronSeedCollection>() ;
+}
+
+
+void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
   // FIXME: because of a bug presumably in tracker seeding,
   // perhaps in CombinedHitPairGenerator, badly caching some EventSetup product,
   // we must redo the SeedFilter for each run.
@@ -126,20 +128,14 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     SeedFilter::Tokens sf_tokens;
     sf_tokens.token_bs  = beamSpotTag_;
     sf_tokens.token_vtx = filterVtxTag_;
-    edm::ConsumesCollector iC = consumesCollector();
-    seedFilter_.reset(new SeedFilter(conf_, sf_tokens, iC));
+    seedFilter_ = new SeedFilter(conf_,sf_tokens) ;
   }
-
-  //register your products
-  produces<ElectronSeedCollection>() ;
-}
-
-
-void ElectronSeedProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
 }
 
 void ElectronSeedProducer::endRun(edm::Run const&, edm::EventSetup const&)
  {
+  delete seedFilter_ ;
+  seedFilter_ = 0 ;
  }
 
 ElectronSeedProducer::~ElectronSeedProducer()

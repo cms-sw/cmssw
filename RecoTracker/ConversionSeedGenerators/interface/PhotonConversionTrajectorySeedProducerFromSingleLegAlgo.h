@@ -62,7 +62,7 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
 
   TrajectorySeedCollection *seedCollection;
   TrajectorySeedCollection *seedCollectionOfSourceTracks;
-  std::unique_ptr<CombinedHitPairGeneratorForPhotonConversion> theHitsGenerator;
+  CombinedHitPairGeneratorForPhotonConversion * theHitsGenerator;
   SeedForPhotonConversion1Leg *theSeedCreator;
   GlobalTrackingRegionProducerFromBeamSpot* theRegionProducer;
 

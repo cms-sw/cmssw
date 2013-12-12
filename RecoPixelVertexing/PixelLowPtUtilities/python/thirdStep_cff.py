@@ -28,7 +28,8 @@ thirdStripRecHits.ClusterProducer = 'thirdClusters'
 # Tertiary pairs
 from RecoPixelVertexing.PixelLowPtUtilities.common_cff import BPixError
 from RecoPixelVertexing.PixelLowPtUtilities.common_cff import FPixError
-ThirdLayerPairs = cms.PSet(
+thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('ThirdLayerPairs'),
     layerList = cms.vstring('BPix1+BPix2',
         'BPix1+BPix3',
         'BPix2+BPix3',
@@ -62,7 +63,7 @@ pixelTertTracks.passLabel = 'Pixel pair tracks with vertex constraint'
 pixelTertTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.4 # 0.2
 pixelTertTracks.RegionFactoryPSet.RegionPSet.useFoundVertices = True
 pixelTertTracks.OrderedHitsFactoryPSet.ComponentName = 'StandardHitPairGenerator'
-pixelTertTracks.OrderedHitsFactoryPSet.SeedingLayers = ThirdLayerPairs
+pixelTertTracks.OrderedHitsFactoryPSet.SeedingLayers = 'ThirdLayerPairs'
 pixelTertTracks.OrderedHitsFactoryPSet.GeneratorPSet.ComponentName = 'StandardHitPairGenerator'
 pixelTertTracks.FilterPSet = cms.PSet(
         ComponentName = cms.string('none')

@@ -28,19 +28,18 @@ public:
   typedef LayerHitMapCache LayerCacheType;
 
 public:
-  CombinedHitPairGeneratorForPhotonConversion(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
+  CombinedHitPairGeneratorForPhotonConversion(const edm::ParameterSet & cfg);
   virtual ~CombinedHitPairGeneratorForPhotonConversion();
-  CombinedHitPairGeneratorForPhotonConversion(const CombinedHitPairGeneratorForPhotonConversion & cb);
 
-//   void  add(const ctfseeding::SeedingLayer & inner, 
-// 	      const ctfseeding::SeedingLayer & outer);
+  void  add(const ctfseeding::SeedingLayer & inner, 
+            const ctfseeding::SeedingLayer & outer);
 
   /// form base class
   virtual void hitPairs(const TrackingRegion&, OrderedHitPairs&, const edm::Event&, const edm::EventSetup&){};
 
   /// from base class
-  CombinedHitPairGeneratorForPhotonConversion * clone() const override
-    { return new CombinedHitPairGeneratorForPhotonConversion(*this); }
+  virtual CombinedHitPairGeneratorForPhotonConversion * clone() const 
+    { return new CombinedHitPairGeneratorForPhotonConversion(theConfig); } 
 
   /*Added to the original class*/
   const OrderedHitPairs & run(
@@ -55,11 +54,21 @@ public:
 
   /*------------------------*/
 private:
+  CombinedHitPairGeneratorForPhotonConversion(const CombinedHitPairGeneratorForPhotonConversion & cb); 
+  void init(const ctfseeding::SeedingLayerSets & layerSets);
+  void init(const edm::ParameterSet & cfg, const edm::EventSetup& es);
+  void cleanup();
+
+
+  mutable bool initialised;
+  edm::ParameterSet theConfig;
   uint32_t maxHitPairsPerTrackAndGenerator;
 
   LayerCacheType   theLayerCache;
 
-  typedef std::vector<std::unique_ptr<HitPairGeneratorFromLayerPairForPhotonConversion> >   Container;
+  edm::ESWatcher<TrackerDigiGeometryRecord> theESWatcher;
+
+  typedef std::vector<HitPairGeneratorFromLayerPairForPhotonConversion *>   Container;
   Container        theGenerators;
 
   OrderedHitPairs thePairs;

@@ -10,17 +10,17 @@
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
 class BeamHaloPairGenerator : public OrderedHitsGenerator {
 	public:
-	BeamHaloPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
+	BeamHaloPairGenerator(const edm::ParameterSet& conf);
 	virtual ~BeamHaloPairGenerator(){};
 	virtual const OrderedSeedingHits& run(const TrackingRegion& region, 
 					      const edm::Event & ev, 
 					      const edm::EventSetup& es);
 	private:
-	SeedingLayerSetsBuilder theLayerBuilder;
+	ctfseeding::SeedingLayerSets init(const edm::EventSetup& es);
+	edm::ParameterSet conf_;
 	OrderedHitPairs hitPairs;
 	double theMaxTheta;
 };

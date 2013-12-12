@@ -113,14 +113,12 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
   LayerRZPredictions mapPred[size];
 
   const RecHitsSortedInPhi * thirdHitMap[size];
-  const DetLayer *layers[size];
 
   for(int il = 0; il < size; il++) {
     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
     auto const & hits = *thirdHitMap[il];
  
-    const DetLayer *layer = theLayers[il].detLayer(es);
-    layers[il] = layer;
+    const DetLayer *layer = theLayers[il].detLayer();
     LayerRZPredictions &predRZ = mapPred[il];
     predRZ.line.initLayer(layer);
     predRZ.helix1.initLayer(layer);
@@ -175,7 +173,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
 
     for(int il = 0; il < size; il++) {
       if (hitTree[il].empty()) continue; // Don't bother if no hits
-      const DetLayer *layer = layers[il];
+      const DetLayer *layer = theLayers[il].detLayer();
       bool barrelLayer = layer->isBarrel();
       
       Range curvature = generalCurvature;

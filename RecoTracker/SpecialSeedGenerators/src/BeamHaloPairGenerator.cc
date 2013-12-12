@@ -1,24 +1,31 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/BeamHaloPairGenerator.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace ctfseeding;
 
 
-BeamHaloPairGenerator::BeamHaloPairGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector& iC): 
-  theLayerBuilder(conf.getParameter<edm::ParameterSet>("LayerPSet"), iC)
-{
+BeamHaloPairGenerator::BeamHaloPairGenerator(const edm::ParameterSet& conf): conf_(conf){
 	edm::LogInfo("CtfSpecialSeedGenerator|BeamHaloPairGenerator") << "Constructing BeamHaloPairGenerator";
 	theMaxTheta=conf.getParameter<double>("maxTheta");
 	theMaxTheta=fabs(sin(theMaxTheta));
 } 
 
 
+SeedingLayerSets BeamHaloPairGenerator::init(const edm::EventSetup& es){
+	edm::ParameterSet leyerPSet = conf_.getParameter<edm::ParameterSet>("LayerPSet");
+	SeedingLayerSetsBuilder lsBuilder(leyerPSet);
+  	SeedingLayerSets lss = lsBuilder.layers(es);
+	return lss;	
+}
+
+
 const OrderedSeedingHits& BeamHaloPairGenerator::run(const TrackingRegion& region,
                           			    const edm::Event& e,
                               			    const edm::EventSetup& es){
 	hitPairs.clear();
-	SeedingLayerSets lss = theLayerBuilder.layers();
+	SeedingLayerSets lss = init(es);
 	SeedingLayerSets::const_iterator iLss;
 	for (iLss = lss.begin(); iLss != lss.end(); iLss++){
 		SeedingLayers ls = *iLss;

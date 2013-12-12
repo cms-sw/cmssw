@@ -18,7 +18,8 @@ pixelLessStepSeedClusterMask = seedClusterRemover.clone(
     oldClusterRemovalInfo = cms.InputTag("mixedTripletStepSeedClusterMask")
 )
 
-tripletElectronSeedLayers = cms.PSet(
+tripletElectronSeedLayers = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('tripletElectronSeedLayers'),
     layerList = cms.vstring('BPix1+BPix2+BPix3', 
                             'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
                             'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg'),
@@ -52,7 +53,7 @@ tripletElectronSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.g
     )
     )
 )
-tripletElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = tripletElectronSeedLayers
+tripletElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('tripletElectronSeedLayers')
 
 from RecoLocalTracker.SubCollectionProducers.SeedClusterRemover_cfi import seedClusterRemover
 tripletElectronClusterMask = seedClusterRemover.clone(
@@ -60,7 +61,8 @@ tripletElectronClusterMask = seedClusterRemover.clone(
     oldClusterRemovalInfo = cms.InputTag("pixelLessStepSeedClusterMask")
 )
 
-pixelPairElectronSeedLayers = cms.PSet(
+pixelPairElectronSeedLayers = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('pixelPairElectronSeedLayers'),
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
                             'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
                             'BPix1+FPix2_pos', 'BPix1+FPix2_neg', 
@@ -89,9 +91,10 @@ pixelPairElectronSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVer
 pixelPairElectronSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.0
 pixelPairElectronSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.015
 pixelPairElectronSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03
-pixelPairElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = pixelPairElectronSeedLayers
+pixelPairElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('pixelPairElectronSeedLayers')
 
-stripPairElectronSeedLayers = cms.PSet(
+stripPairElectronSeedLayers = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('stripPairElectronSeedLayers'),
     layerList = cms.vstring('TIB1+TIB2', 'TIB1+TID1_pos', 'TIB1+TID1_neg', 'TID2_pos+TID3_pos', 'TID2_neg+TID3_neg',
                             'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos',
                             'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg'),
@@ -120,7 +123,7 @@ stripPairElectronSeedLayers = cms.PSet(
 
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 stripPairElectronSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-stripPairElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = stripPairElectronSeedLayers
+stripPairElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'stripPairElectronSeedLayers'
 stripPairElectronSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.0
 stripPairElectronSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
 stripPairElectronSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.4

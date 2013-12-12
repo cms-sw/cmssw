@@ -20,7 +20,8 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
 )
 
 # SEEDING LAYERS
-pixelLessStepSeedLayersA = cms.PSet(
+pixelLessStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('pixelLessStepSeedLayersA'),
     layerList = cms.vstring('TIB1+TID1_pos','TIB1+TID1_neg',
         'TID3_pos+TEC1_pos','TID3_neg+TEC1_neg',
         'TID1_pos+TID2_pos','TID2_pos+TID3_pos',
@@ -53,7 +54,7 @@ pixelLessStepSeedLayersA = cms.PSet(
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 pixelLessStepSeedsA = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-pixelLessStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = pixelLessStepSeedLayersA
+pixelLessStepSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayersA'
 pixelLessStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 0.2
 pixelLessStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength = 20.0
 pixelLessStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius = 6.0
@@ -67,7 +68,8 @@ pixelLessStepSeedsA.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
     )
 
-pixelLessStepSeedLayersB = cms.PSet(
+pixelLessStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('pixelLessStepSeedLayersB'),
     layerList = cms.vstring('TIB1+TIB2', 'TIB2+TIB3', 'TID3_pos+TEC1_pos','TID3_neg+TEC1_neg'),
     TIB1 = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -105,7 +107,7 @@ pixelLessStepSeedLayersB = cms.PSet(
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 pixelLessStepSeedsB = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-pixelLessStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = pixelLessStepSeedLayersB
+pixelLessStepSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayersB'
 pixelLessStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin = 0.8
 pixelLessStepSeedsB.RegionFactoryPSet.RegionPSet.originHalfLength = 20.0
 pixelLessStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius = 3.0

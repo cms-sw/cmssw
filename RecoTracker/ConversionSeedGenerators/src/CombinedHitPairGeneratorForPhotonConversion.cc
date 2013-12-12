@@ -11,34 +11,53 @@
 using namespace std;
 using namespace ctfseeding;
 
-CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonConversion(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
+CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonConversion(const edm::ParameterSet& cfg)
+  : initialised(false), theConfig(cfg)
 {
   theMaxElement = cfg.getParameter<unsigned int>("maxElement");
   maxHitPairsPerTrackAndGenerator = cfg.getParameter<unsigned int>("maxHitPairsPerTrackAndGenerator");
 
-  SeedingLayerSetsBuilder layerBuilder(cfg.getParameter<edm::ParameterSet>("SeedingLayers"), iC);
+}
 
-  SeedingLayerSets layerSets  =  layerBuilder.layers();
+void CombinedHitPairGeneratorForPhotonConversion::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
+{
+  theMaxElement = cfg.getParameter<unsigned int>("maxElement");
+  maxHitPairsPerTrackAndGenerator = cfg.getParameter<unsigned int>("maxHitPairsPerTrackAndGenerator");
 
+  std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
+  edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
+  es.get<TrackerDigiGeometryRecord>().get(layerBuilderName, layerBuilder);
+
+  SeedingLayerSets layerSets  =  layerBuilder->layers(es); 
+  init(layerSets);
+}
+
+void CombinedHitPairGeneratorForPhotonConversion::init(const SeedingLayerSets & layerSets)
+{
+  initialised = true;
   typedef SeedingLayerSets::const_iterator IL;
   for (IL il=layerSets.begin(), ilEnd=layerSets.end(); il != ilEnd; ++il) {
     const SeedingLayers & set = *il;
     if (set.size() != 2) continue;
-    theGenerators.emplace_back( new HitPairGeneratorFromLayerPairForPhotonConversion( set[0], set[1], &theLayerCache, 0, maxHitPairsPerTrackAndGenerator));
+    add( set[0], set[1] );
   }
 }
 
-CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonConversion(const CombinedHitPairGeneratorForPhotonConversion & cb):
-  maxHitPairsPerTrackAndGenerator(cb.maxHitPairsPerTrackAndGenerator) {
-  theGenerators.reserve(cb.theGenerators.size());
-  for(const auto& gen: cb.theGenerators) {
-    theGenerators.emplace_back(gen->clone());
+void CombinedHitPairGeneratorForPhotonConversion::cleanup()
+{
+  Container::const_iterator it;
+  for (it = theGenerators.begin(); it!= theGenerators.end(); it++) {
+    delete (*it);
   }
+  theGenerators.clear();
 }
 
+CombinedHitPairGeneratorForPhotonConversion::~CombinedHitPairGeneratorForPhotonConversion() { cleanup(); }
 
-CombinedHitPairGeneratorForPhotonConversion::~CombinedHitPairGeneratorForPhotonConversion() {}
-
+void CombinedHitPairGeneratorForPhotonConversion::add( const SeedingLayer& inner, const SeedingLayer& outer)
+{ 
+  theGenerators.push_back( new HitPairGeneratorFromLayerPairForPhotonConversion( inner, outer, &theLayerCache, 0, maxHitPairsPerTrackAndGenerator));
+}
 
 const OrderedHitPairs & CombinedHitPairGeneratorForPhotonConversion::run(
 									 const ConversionRegion& convRegion,
@@ -55,6 +74,11 @@ void CombinedHitPairGeneratorForPhotonConversion::hitPairs(
 							   const TrackingRegion& region, OrderedHitPairs  & result,
 							   const edm::Event& ev, const edm::EventSetup& es)
 {
+  if (theESWatcher.check(es) || !initialised ) {
+    cleanup();
+    init(theConfig,es);
+  }
+
   Container::const_iterator i;
   OrderedHitPairs  resultTmp;
   resultTmp.reserve(maxHitPairsPerTrackAndGenerator);

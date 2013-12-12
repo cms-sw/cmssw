@@ -24,7 +24,8 @@ hiMixedTripletClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # SEEDING LAYERS
-hiMixedTripletSeedLayersA = cms.PSet(
+hiMixedTripletSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
+                                             ComponentName = cms.string('hiMixedTripletSeedLayersA'),
                                              layerList = cms.vstring('FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg'),
                                                                      #'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
                                    BPix = cms.PSet(
@@ -59,7 +60,7 @@ PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
 PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 hiMixedTripletSeedsA = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-hiMixedTripletSeedsA.OrderedHitsFactoryPSet.SeedingLayers = hiMixedTripletSeedLayersA
+hiMixedTripletSeedsA.OrderedHitsFactoryPSet.SeedingLayers = 'hiMixedTripletSeedLayersA'
 hiMixedTripletSeedsA.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
 hiMixedTripletSeedsA.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
 hiMixedTripletSeedsA.RegionFactoryPSet.RegionPSet.ptMin = 4.0
@@ -73,7 +74,8 @@ hiMixedTripletSeedsA.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
 
 
 # SEEDING LAYERS
-hiMixedTripletSeedLayersB = cms.PSet(
+hiMixedTripletSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
+                                   ComponentName = cms.string('hiMixedTripletSeedLayersB'),
                                    layerList = cms.vstring(
     #'BPix1+BPix2+TIB1',
     #'BPix1+BPix2+TIB2',    
@@ -102,7 +104,7 @@ PixelTripletLargeTipGenerator.extraHitRZtolerance = 0.0
 PixelTripletLargeTipGenerator.extraHitRPhitolerance = 0.0
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 hiMixedTripletSeedsB = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-hiMixedTripletSeedsB.OrderedHitsFactoryPSet.SeedingLayers = hiMixedTripletSeedLayersB
+hiMixedTripletSeedsB.OrderedHitsFactoryPSet.SeedingLayers = 'hiMixedTripletSeedLayersB'
 hiMixedTripletSeedsB.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(PixelTripletLargeTipGenerator)
 hiMixedTripletSeedsB.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
 hiMixedTripletSeedsB.RegionFactoryPSet.RegionPSet.ptMin = 4.0

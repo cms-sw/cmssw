@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
 
 # TRIPLET SEEDING LAYERS
-tobTecStepSeedLayersTripl = cms.PSet(
+tobTecStepSeedLayersTripl = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('tobTecStepSeedLayersTripl'),
     layerList = cms.vstring(
     #TOB
     'TOB1+TOB2+MTOB3',
@@ -55,7 +56,7 @@ tobTecStepSeedLayersTripl = cms.PSet(
 # TRIPLET SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 tobTecStepSeedsTripl = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
-tobTecStepSeedsTripl.OrderedHitsFactoryPSet.SeedingLayers = tobTecStepSeedLayersTripl
+tobTecStepSeedsTripl.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayersTripl'
 tobTecStepSeedsTripl.OrderedHitsFactoryPSet.ComponentName = 'StandardMultiHitGenerator'
 tobTecStepSeedsTripl.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
     useFixedPreFiltering = cms.bool(False),
@@ -88,7 +89,8 @@ tobTecStepSeedsTripl.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
 )
 # PAIR SEEDING LAYERS
-tobTecStepSeedLayersPair = cms.PSet(
+tobTecStepSeedLayersPair = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('tobTecStepSeedLayersPair'),
     layerList = cms.vstring('TOB1+TEC1_pos','TOB1+TEC1_neg', 
                             'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg', 
                             'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg', 
@@ -114,7 +116,7 @@ tobTecStepSeedLayersPair = cms.PSet(
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 tobTecStepSeedsPair = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
 tobTecStepSeedsPair.OrderedHitsFactoryPSet.ComponentName = cms.string('StandardHitPairGenerator')
-tobTecStepSeedsPair.OrderedHitsFactoryPSet.SeedingLayers = tobTecStepSeedLayersPair
+tobTecStepSeedsPair.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayersPair'
 tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originRadius = 6.0
