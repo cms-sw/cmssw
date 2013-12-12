@@ -29,7 +29,7 @@ runTest "${INPUT} --scenario=cosmics --reco --aod --alcareco --dqm --global-tag 
 runTest "${INPUT} --scenario=pp --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 runTest "${INPUT} --scenario=HeavyIons --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 runTest "${INPUT} --scenario=AlCaLumiPixels --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
-runTest "${INPUT} --scenario=AlCaP0 --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
+#runTest "${INPUT} --scenario=AlCaP0 --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 #runTest "${INPUT} --scenario=AlCaPhiSymEcal --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 runTest "${INPUT} --scenario=AlCaTestEnable --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 runTest "${INPUT} --scenario=hcalnzs --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
@@ -40,8 +40,8 @@ runTest "${INPUT} --scenario pp --lfn=/store/whatever --global-tag GLOBALTAG::AL
 runTest "${INPUT} --scenario cosmics --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias+SiStripPCLHistos"
 runTest "${INPUT} --scenario HeavyIons --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+PromptCalibProd"
 runTest "${INPUT} --scenario AlCaLumiPixels --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims LumiPixels"
-runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPi0Calib"
-runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPhiSym"
+#runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPi0Calib"
+#runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPhiSym"
 
 
 INPUT=${LOCAL_TEST_DIR}/RunAlcaHarvesting.py
@@ -55,5 +55,5 @@ INPUT=${LOCAL_TEST_DIR}/RunDQMHarvesting.py
 runTest "${INPUT} --scenario pp --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 runTest "${INPUT} --scenario cosmics --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 runTest "${INPUT} --scenario AlCaLumiPixels --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
-runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
-runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
+#runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
+#runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
