@@ -83,7 +83,7 @@ private:
 // constructors and destructor
 //
 AnotherPrimaryVertexAnalyzer::AnotherPrimaryVertexAnalyzer(const edm::ParameterSet& iConfig):
-  _vhm(iConfig.getParameter<edm::ParameterSet>("vHistogramMakerPSet")),
+  _vhm(iConfig.getParameter<edm::ParameterSet>("vHistogramMakerPSet"), consumesCollector()),
   _pvcollection(iConfig.getParameter<edm::InputTag>("pvCollection")),
   _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false)),
   _weightprov(iConfig.getParameter<bool>("usePrescaleWeight") ?
