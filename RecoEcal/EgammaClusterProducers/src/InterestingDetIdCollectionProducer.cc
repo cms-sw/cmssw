@@ -26,7 +26,7 @@ InterestingDetIdCollectionProducer::InterestingDetIdCollectionProducer(const edm
   recHitsToken_ = 
 	  consumes<EcalRecHitCollection>(iConfig.getParameter< edm::InputTag > ("recHitsLabel"));
   basicClustersToken_ = 
-	  consumes<reco::BasicClusterCollection>(iConfig.getParameter< edm::InputTag >("basicClustersLabel"));
+    consumes<edm::View<reco::CaloCluster> >(iConfig.getParameter< edm::InputTag >("basicClustersLabel"));
 
   interestingDetIdCollection_ = iConfig.getParameter<std::string>("interestingDetIdCollection");
   
@@ -64,8 +64,8 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
    using namespace std;
 
    // take BasicClusters
-  Handle<reco::BasicClusterCollection> pClusters;
-  iEvent.getByToken(basicClustersToken_, pClusters);
+   Handle<edm::View<reco::CaloCluster> > pClusters;
+   iEvent.getByToken(basicClustersToken_, pClusters);
   
   // take EcalRecHits
   Handle<EcalRecHitCollection> recHitsHandle;
@@ -75,7 +75,7 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
   std::vector<DetId> indexToStore;
   indexToStore.reserve(1000);
 
-  reco::BasicClusterCollection::const_iterator clusIt;
+  edm::View<reco::CaloCluster>::const_iterator clusIt;
 
   std::vector<DetId> xtalsToStore;
   xtalsToStore.reserve(50);

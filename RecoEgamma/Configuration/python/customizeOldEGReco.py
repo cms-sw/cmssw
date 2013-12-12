@@ -2,17 +2,17 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Utilities as psu
 from  PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag as _replaceTags
 
-def customizePFforEGammaGED(process):
+def customizeOldEGReco(process):
     for path in process.paths:
         sequences = getattr(process,path)
         #for seq in path:
         _replaceTags(sequences,
-                     cms.InputTag('gsfElectrons'),
                      cms.InputTag('gedGsfElectrons'),
+                     cms.InputTag('gsfElectrons'),
                      skipLabelTest=True)
         _replaceTags(sequences,
-                     cms.InputTag('gsfElectronCores'),
                      cms.InputTag('gedGsfElectronCores'),
+                     cms.InputTag('gsfElectronCores'),
                      skipLabelTest=True)
 
     # all the rest:
@@ -42,28 +42,29 @@ def customizePFforEGammaGED(process):
 
 def _configurePFForGEDEGamma(process):  
     #for later
-    process.particleFlowBlock.SCBarrel = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
-    process.particleFlowBlock.SCEndcap = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
+    process.particleFlowBlock.SCBarrel = cms.InputTag('correctedHybridSuperClusters')
+    process.particleFlowBlock.SCEndcap = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
     #add in conversions
     ## for PF
     
-    process.allConversionSequence += process.allConversionMustacheSequence
-    process.pfConversions.conversionCollection = cms.InputTag('allConversionsMustache')        
-    #setup mustache based reco::Photon
-    process.ckfTracksFromConversions += process.ckfTracksFromMustacheConversions
-    process.conversionTrackProducers += process.mustacheConversionTrackProducers
-    process.conversionTrackMergers += process.mustacheConversionTrackMergers
+    process.allConversionSequence += process.allConversionOldEGSequence
+    process.pfConversions.conversionCollection = cms.InputTag('allConversionsOldEG')        
+    #return to old EG-based conversions based reco::Photon
+    process.ckfTracksFromConversions += process.ckfTracksFromOldEGConversions
+    process.conversionTrackProducers += process.oldegConversionTrackProducers
+    process.conversionTrackMergers += process.oldegConversionTrackMergers
     if hasattr(process,'conversionSequence'):
-        process.conversionSequence += process.mustacheConversionSequence
-    process.photonSequence += process.mustachePhotonSequence
-    process.particleFlowBlock.EGPhotons = cms.InputTag('mustachePhotons')
-    #tell PFProducer to use PFEG objects / gedTmp
-    process.particleFlowTmp.useEGammaFilters = cms.bool(True)
-    process.particleFlowTmp.usePFPhotons = cms.bool(False)
-    process.particleFlowTmp.usePFElectrons = cms.bool(False)
-    #re-route PF linker to use ged collections
-    process.particleFlow.GsfElectrons = cms.InputTag('gedGsfElectrons')
-    process.particleFlow.Photons = cms.InputTag('gedPhotons')
+        process.conversionSequence += process.oldegConversionSequence
+    process.photonSequence.remove(process.mustachePhotonSequence)
+    process.particleFlowBlock.EGPhotons = cms.InputTag('photons')
+    process.particleFlowBlock.PhotonSelectionCuts = cms.vdouble(1,10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05, 10.0, 0.50),
+    #tell PFProducer to use old PF electron / PF photon code
+    process.particleFlowTmp.useEGammaFilters = cms.bool(False)
+    process.particleFlowTmp.usePFPhotons = cms.bool(True)
+    process.particleFlowTmp.usePFElectrons = cms.bool(True)
+    #re-route PF linker to use old EG collections
+    process.particleFlow.GsfElectrons = cms.InputTag('gsfElectrons')
+    process.particleFlow.Photons = cms.InputTag('pfPhotonTranslator:pfphot')
     return process
 
 
@@ -74,31 +75,31 @@ def _customize_DQM(process):
 
 def _customize_Validation(process):
     _replaceTags(process.validation_step,
-                 cms.InputTag('gsfElectrons'),
                  cms.InputTag('gedGsfElectrons'),
+                 cms.InputTag('gsfElectrons'),
                  skipLabelTest=True)
     _replaceTags(process.validation_step,
-                 cms.InputTag('gsfElectronCores'),
                  cms.InputTag('gedGsfElectronCores'),
+                 cms.InputTag('gsfElectronCores'),
                  skipLabelTest=True)
     #don't ask... just don't ask
     if hasattr(process,'HLTSusyExoValFastSim'):
         process.HLTSusyExoValFastSim.PlotMakerRecoInput.electrons = \
-                                                 cms.string('gedGsfElectrons')
+                                                 cms.string('gsfElectrons')
         for pset in process.HLTSusyExoValFastSim.reco_parametersets:
-            pset.electrons = cms.string('gedGsfElectrons')
+            pset.electrons = cms.string('gsfElectrons')
     if hasattr(process,'HLTSusyExoVal'):
         process.HLTSusyExoVal.PlotMakerRecoInput.electrons = \
-                                                 cms.string('gedGsfElectrons')
+                                                 cms.string('gsfElectrons')
         for pset in process.HLTSusyExoVal.reco_parametersets:
-            pset.electrons = cms.string('gedGsfElectrons')
+            pset.electrons = cms.string('gsfElectrons')
     if hasattr(process,'hltHiggsValidator'):
         process.hltHiggsValidator.H2tau.recElecLabel = \
-                                                cms.string('gedGsfElectrons')
+                                                cms.string('gsfElectrons')
         process.hltHiggsValidator.HZZ.recElecLabel = \
-                                                cms.string('gedGsfElectrons')
+                                                cms.string('gsfElectrons')
         process.hltHiggsValidator.HWW.recElecLabel = \
-                                                cms.string('gedGsfElectrons')
+                                                cms.string('gsfElectrons')
     if hasattr(process,'oldpfPhotonValidation'):
         process.photonValidationSequence.remove(process.oldpfPhotonValidation)
     return process
@@ -125,9 +126,19 @@ def _customize_HLT(process):
 
 def _customize_FastSim(process):
     process=_configurePFForGEDEGamma(process)
-    process.famosParticleFlowSequence.remove(process.pfElectronTranslatorSequence)
-    process.famosParticleFlowSequence.remove(process.pfPhotonTranslatorSequence)
-    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
+    process.egammaHighLevelRecoPostPF.insert(process.gsfElectronMergingSequence,0)
+    process.famosParticleFlowReco.insert(process.pfPhotonTranslatorSequence,7)
+    process.famosParticleFlowReco.insert(process.pfElectronTranslatorSequence,7)
+
+    process.interestingEcalDetIdEB.basicClustersLabel = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
+    process.interestingEcalDetIdEE.basicClustersLabel = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
+    process.reducedEcalRecHitsES. EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+
+    process.interestingEleIsoDetIdEB.emObjectLabel = cms.InputTag('gsfElectrons')
+    process.interestingEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
+    process.interestingGamIsoDetIdEB.emObjectLabel = cms.InputTag('photons')
+    process.interestingGamIsoDetIdEE.emObjectLabel = cms.InputTag('photons')  
+        
     process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
         # ecal
         cms.InputTag("interestingEcalDetIdEB"),
@@ -138,8 +149,8 @@ def _customize_FastSim(process):
         # tau
         #cms.InputTag("caloRecoTauProducer"),
         #pf
-        #cms.InputTag("pfElectronInterestingEcalDetIdEB"),
-        #cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
+        cms.InputTag("pfElectronInterestingEcalDetIdEB"),
+        cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
         # muons
         cms.InputTag("muonEcalDetIds"),
         # high pt tracks
@@ -154,25 +165,36 @@ def _customize_FastSim(process):
         # tau
         #cms.InputTag("caloRecoTauProducer"),
         #pf
-        #cms.InputTag("pfElectronInterestingEcalDetIdEE"),
-        #cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
+        cms.InputTag("pfElectronInterestingEcalDetIdEE"),
+        cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
         # muons
         cms.InputTag("muonEcalDetIds"),
         # high pt tracks
         cms.InputTag("interestingTrackEcalDetIds")
         )
-    process.allConversionsMustache.src = cms.InputTag('gsfGeneralConversionTrackMerger')
+    process.allConversionsOldEG.src = cms.InputTag('gsfGeneralConversionTrackMerger')
+
     if hasattr(process,'ecalDrivenElectronSeeds'):
-        process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
-        process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
+        process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('correctedHybridSuperClusters')
+        process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
     return process
 
 
 def _customize_Reco(process):
-    process=_configurePFForGEDEGamma(process)
-    process.particleFlowReco.remove(process.pfElectronTranslatorSequence)
-    process.particleFlowReco.remove(process.pfPhotonTranslatorSequence)
-    process.egammaHighLevelRecoPostPF.remove(process.gsfElectronMergingSequence)
+    process=_configurePFForGEDEGamma(process)    
+    process.egammaHighLevelRecoPostPF.insert(process.gsfElectronMergingSequence,0)
+    process.particleFlowReco.insert(process.pfPhotonTranslatorSequence,7)
+    process.particleFlowReco.insert(process.pfElectronTranslatorSequence,7)
+
+    process.interestingEcalDetIdEB.basicClustersLabel = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
+    process.interestingEcalDetIdEE.basicClustersLabel = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
+    process.reducedEcalRecHitsES. EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+
+    process.interestingEleIsoDetIdEB.emObjectLabel = cms.InputTag('gsfElectrons')
+    process.interestingEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
+    process.interestingGamIsoDetIdEB.emObjectLabel = cms.InputTag('photons')
+    process.interestingGamIsoDetIdEE.emObjectLabel = cms.InputTag('photons')    
+    
     process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
         # ecal
         cms.InputTag("interestingEcalDetIdEB"),
@@ -183,8 +205,8 @@ def _customize_Reco(process):
         # tau
         #cms.InputTag("caloRecoTauProducer"),
         #pf
-        #cms.InputTag("pfElectronInterestingEcalDetIdEB"),
-        #cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
+        cms.InputTag("pfElectronInterestingEcalDetIdEB"),
+        cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
         # muons
         cms.InputTag("muonEcalDetIds"),
         # high pt tracks
@@ -199,8 +221,8 @@ def _customize_Reco(process):
         # tau
         #cms.InputTag("caloRecoTauProducer"),
         #pf
-        #cms.InputTag("pfElectronInterestingEcalDetIdEE"),
-        #cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
+        cms.InputTag("pfElectronInterestingEcalDetIdEE"),
+        cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
         # muons
         cms.InputTag("muonEcalDetIds"),
         # high pt tracks
@@ -208,12 +230,12 @@ def _customize_Reco(process):
         )
 
     if hasattr(process,'ecalDrivenElectronSeeds'):
-        process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
-        process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
+        process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('correctedHybridSuperClusters')
+        process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
     return process
 
 
 def _customize_harvesting(process):
     if hasattr(process,'oldpfPhotonPostprocessing'):
-        process.photonPostProcessor.remove(process.oldpfPhotonPostprocessing)
+        process.photonPostProcessor += process.oldpfPhotonPostprocessing
     return process

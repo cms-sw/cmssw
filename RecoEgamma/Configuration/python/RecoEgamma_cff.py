@@ -25,7 +25,7 @@ egammaHighLevelRecoPrePF = cms.Sequence(gsfEcalDrivenElectronSequence*uncleanedO
 #egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 #adding new gedGsfElectronSequence and gedPhotonSequence :
 #egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*gedGsfElectronSequence*interestingEgammaIsoDetIds*gedPhotonSequence*photonIDSequence*eIdSequence*hfEMClusteringSequence)
-egammaHighLevelRecoPostPF = cms.Sequence(gsfElectronMergingSequence*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
+egammaHighLevelRecoPostPF = cms.Sequence(interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 
 
 egammarecoFull = cms.Sequence(egammareco*interestingEgammaIsoDetIds*photonIDSequence*eIdSequence*hfEMClusteringSequence)

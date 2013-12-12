@@ -56,9 +56,7 @@ famosParticleFlowSequence = cms.Sequence(
     particleFlowTmp+
     particleFlowTmpPtrs+
     particleFlowEGammaFinal+
-    FSparticleFlow+
-    pfElectronTranslatorSequence+
-    pfPhotonTranslatorSequence
+    FSparticleFlow
 )
 
 particleFlowLinks = cms.Sequence(particleFlow+particleFlowPtrs)
