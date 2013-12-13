@@ -1342,6 +1342,7 @@ void GsfElectronAlgo::createElectron()
        tcMatching, tkExtra, ctfInfo,
        fiducialFlags,showerShape,
        conversionVars ) ;
+  // Will be overwritten later in the case of the regression
   ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ;
   ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,momentum,0,true) ;
 
@@ -1367,7 +1368,6 @@ void GsfElectronAlgo::createElectron()
   //====================================================
   // classification and corrections
   //====================================================
-
   // classification
   ElectronClassification theClassifier ;
   theClassifier.classify(*ele) ;
@@ -1398,16 +1398,16 @@ void GsfElectronAlgo::createElectron()
     }
   
   // momentum
+  // Keep the default correction running first. The track momentum error is computed in there
+  if (ele->core()->ecalDrivenSeed())
+    {
+      ElectronMomentumCorrector theMomCorrector;
+      theMomCorrector.correct(*ele,electronData_->vtxTSOS);
+    }
   if(generalData_->strategyCfg.useCombinationRegression)  // new 
     {
-      
+      generalData_->regHelper->applyCombinationRegression(*ele);
     }
-  else if (ele->core()->ecalDrivenSeed())       //original computation
-   {
-    ElectronMomentumCorrector theMomCorrector;
-    theMomCorrector.correct(*ele,electronData_->vtxTSOS);
-   }
-
 
   //====================================================
   // now isolation variables

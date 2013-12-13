@@ -22,7 +22,8 @@ void RegressionHelper::applyEcalRegression(reco::GsfElectron & ele,
   double cor, err;
   getEcalRegression(*ele.superCluster(), vertices, rechitsEB, rechitsEE, cor, err);
   ele.setCorrectedEcalEnergy(cor * ele.superCluster()->energy());
-  ele.setCorrectedEcalEnergyError( err * ele.superCluster()->energy());
+  ele.setCorrectedEcalEnergyError( err * ele.superCluster()->energy());	
+
 }
 
 void RegressionHelper::checkSetup(const edm::EventSetup & es) {
@@ -322,4 +323,93 @@ void RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
       throw cms::Exception("RegressionHelper::calculateRegressedEnergy")
 	<< "Supercluster seed is either EB nor EE!" << std::endl;
     }
+}
+
+void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
+{
+  float energy = ele.correctedEcalEnergy();
+  float energyError = ele.correctedEcalEnergyError();
+  float momentum = ele.trackMomentumAtVtx().R();
+  float momentumError = ele.trackMomentumError();
+  int elClass = -.1;
+  
+  switch (ele.classification()) {
+  case reco::GsfElectron::GOLDEN:
+    elClass = 0;
+    break;
+  case reco::GsfElectron::BIGBREM:
+    elClass = 1;
+    break;
+  case reco::GsfElectron::BADTRACK:
+    elClass = 2;
+    break;
+  case  reco::GsfElectron::SHOWERING:
+    elClass = 3;
+    break;
+  case reco::GsfElectron::GAP:
+    elClass = 4;
+    break;
+  default:
+    elClass = -1;
+
+
+  bool isEcalDriven = ele.ecalDriven();
+  bool isTrackerDriven =  ele.trackerDrivenSeed();
+  bool isEB = ele.isEB();
+
+  // compute relative errors and ratio of errors
+  float energyRelError = energyError / energy;
+  float momentumRelError = momentumError / momentum;
+  float errorRatio = energyRelError / momentumRelError;
+
+  // calculate E/p and corresponding error
+  float eOverP = energy / momentum;
+  float eOverPerror = sqrt(
+			   (energyError/momentum)*(energyError/momentum) +
+			   (energy*momentumError/momentum/momentum)*
+			   (energy*momentumError/momentum/momentum));
+
+  // fill input variables
+  std::vector<float> regressionInputs ;
+  regressionInputs.resize(11,0.);
+
+  regressionInputs[0]  = energy;
+  regressionInputs[1]  = energyRelError;
+  regressionInputs[2]  = momentum;
+  regressionInputs[3]  = momentumRelError;
+  regressionInputs[4]  = errorRatio;
+  regressionInputs[5]  = eOverP;
+  regressionInputs[6]  = eOverPerror;
+  regressionInputs[7]  = static_cast<float>(isEcalDriven);
+  regressionInputs[8]  = static_cast<float>(isTrackerDriven);
+  regressionInputs[9]  = static_cast<float>(elClass);
+  regressionInputs[10] = static_cast<float>(isEB);
+    
+  // retrieve combination weight
+  float weight = 0.;
+  if(eOverP>0.025 
+     &&fabs(momentum-energy)<15.*sqrt(momentumError*momentumError + energyError*energyError)
+     ) // protection against crazy track measurement
+    {
+      weight = combinationReg_->GetResponse(&regressionInputs[0]);
+      if(weight>1.) weight = 1.;
+      else if(weight<0.) weight = 0.;
+    }
+
+  float combinedMomentum = weight*momentum + (1.-weight)*energy;
+  float combinedMomentumError = sqrt(weight*weight*momentumError*momentumError + (1.-weight)*(1.-weight)*energyError*energyError);
+
+  // FIXME : pure tracker electrons have track momentum error of 999.
+  // If the combination try to combine such electrons then the original combined momentum is kept
+  if(momentumError!=999. || weight==0.)
+    {
+      math::XYZTLorentzVector oldMomentum = ele.p4() ;
+      math::XYZTLorentzVector newMomentum(oldMomentum.x()*combinedMomentum/oldMomentum.t(),
+					  oldMomentum.y()*combinedMomentum/oldMomentum.t(),
+					  oldMomentum.z()*combinedMomentum/oldMomentum.t(),
+					  combinedMomentum);
+					  
+      ele.setP4(reco::GsfElectron::P4_COMBINATION,newMomentum,combinedMomentumError,true);
+    }
+  }
 }

@@ -47,6 +47,7 @@ class RegressionHelper {
 			   const edm::Handle<EcalRecHitCollection>& rechitsEB,
 			   const edm::Handle<EcalRecHitCollection>& rechitsEE) const;
 
+  void applyCombinationRegression(reco::GsfElectron & ele) const;
   ~RegressionHelper() ;
 
  private:
