@@ -5,6 +5,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/Plane3D.h"
 #include "SimG4CMS/Calo/interface/CaloHitID.h"
+#include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 
 //CLHEP headers
 //#include "CLHEP/Geometry/Point3D.h"
@@ -14,9 +15,12 @@
 //STL headers
 #include <string>
 #include <map>
+#include <vector>
 
 class CaloGeometryHelper;
 class CalorimeterProperties;
+class HCALProperties;
+class HEDarkening;
 
 class CaloHitMaker
 {
@@ -27,7 +31,7 @@ class CaloHitMaker
   typedef ROOT::Math::Plane3D Plane3D;
 
   CaloHitMaker(const CaloGeometryHelper * calo,DetId::Detector det,int subdetn,int cal,unsigned sht=0);
-  virtual ~CaloHitMaker(){;}
+  virtual ~CaloHitMaker();
   
   virtual bool addHit(double r,double phi,unsigned layer=0)=0;
   virtual void setSpotEnergy(double e)=0;
@@ -46,6 +50,8 @@ class CaloHitMaker
 
   const CaloGeometryHelper * myCalorimeter;    
   const CalorimeterProperties * theCaloProperties;
+  const HCALProperties * theHCALProperties;
+  HEDarkening * m_HEDarkening;;
   double moliereRadius;
   double interactionLength;
   double spotEnergy;
@@ -53,6 +59,9 @@ class CaloHitMaker
   bool EMSHOWER;
   bool HADSHOWER;
   bool MIP;
+  bool darkening;
+  float intLumi;
+  std::vector <double> heLayers_; 
 
  private:
   DetId::Detector base_;
