@@ -158,7 +158,7 @@ class MatrixInjector(object):
             wmsplit['DIGIPU1']=4
             wmsplit['RECOPU1']=1
             wmsplit['DIGIHISt3']=5
-            wmsplit['RECOHISt4']=5
+            wmsplit['RECODSplit']=1
             wmsplit['SingleMuPt10_ID']=1
             wmsplit['DIGI_ID']=1
             wmsplit['RECO_ID']=1
