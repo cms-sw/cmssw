@@ -709,10 +709,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  myPFElectron.setParticleType(particleType);
 	  myPFElectron.setCharge(gedEleRef->charge());
 	  myPFElectron.setP4(gedEleRef->p4());
+	  myPFElectron.set_mva_e_pi(gedEleRef->mva());
+
 	  if(egmLocalDebug) {
 	    cout << " PFAlgo: found an electron with NEW EGamma code " << endl;
 	    cout << " myPFElectron: pt " << myPFElectron.pt() 
-		 << " eta,phi " << myPFElectron.eta() << ", " <<myPFElectron.phi() 
+		 << " eta,phi " << myPFElectron.eta() << ", " <<myPFElectron.phi()
+		 << " mva " << myPFElectron.mva_e_pi() 
 		 << " charge " << myPFElectron.charge() << endl;
 	  }
 	  
