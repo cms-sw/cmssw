@@ -1281,7 +1281,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (abs(istrk->type()) != 13) continue;
     
     // bad primary vertex 
-    if (istrk->vertIndex() == primaryVert) continue;
+    if (istrk->vertIndex() != primaryVert) continue;
     
     // soft muons
     stpt = sqrt(istrk->momentum().perp2());
@@ -1469,6 +1469,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       stpt = sqrt(match->strk->momentum().perp2());
       steta = match->strk->momentum().eta();
       stphi = normalizedPhi( match->strk->momentum().phi() );
+      std::cout  << "pt "  << stpt << " eta "  << steta << " phi "  << stphi << std::endl;
 
       const bool pt_ok = fabs(stpt) > minSimTrPt_;
       const bool eta_ok = ( fabs(steta) >= minSimTrEta_ &&  fabs(steta) <= maxSimTrEta_);
