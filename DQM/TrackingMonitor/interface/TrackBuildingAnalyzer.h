@@ -36,7 +36,7 @@ class TrackBuildingAnalyzer
     public:
         TrackBuildingAnalyzer(const edm::ParameterSet&);
         virtual ~TrackBuildingAnalyzer();
-        virtual void beginJob(DQMStore * dqmStore_);
+        virtual void beginRun(DQMStore * dqmStore_);
         virtual void analyze
         (
             const edm::Event& iEvent, 
