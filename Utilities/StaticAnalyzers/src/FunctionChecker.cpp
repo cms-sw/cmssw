@@ -88,21 +88,30 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		sdname = support::getQualifiedName(*ND);
 		dname = ND->getQualifiedNameAsString();
 	}
+	clang::ento::PathDiagnosticLocation DLoc;
+	if (support::isCmsLocalFile(sfile)) {
+		if (D->getLocation().isMacroID()) 
+			DLoc = clang::ento::PathDiagnosticLocation(D->getLocation(),BR.getSourceManager());
+		else 
+			DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
+	} else 
+		DLoc = clang::ento::PathDiagnosticLocation::createBegin(DRE, BR.getSourceManager(), AC);
 
- 	clang::ento::PathDiagnosticLocation DLoc = clang::ento::PathDiagnosticLocation::createBegin(D, BR.getSourceManager());
 	const char * pPath = std::getenv("LOCALRT");
 	std::string tname = ""; 
 	if ( pPath != NULL ) tname += std::string(pPath);
 	tname+="/tmp/function-checker.txt.unsorted";
+
+	std::string vname = support::getQualifiedName(*D);
+	std::string svname = D->getNameAsString();
 
 	if ( (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
 	{
 	    if ( support::isSafeClassName( t.getAsString() ) ) return;
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
-	   	os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << D->getNameAsString() << "'.\n";
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		std::string ostring =  "function '"+ sdname + "' static variable '" + support::getQualifiedName(*D) + "'.\n";
+		os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << svname<< "'.\n";
+		std::string ostring =  "function '"+ sdname + "' static variable '" + vname + "'.\n";
 		file_mutex.wait();
 		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
 		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
@@ -110,6 +119,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 			file<<ostring;
 			file.close();
 			file_mutex.post();
+			BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		} else {
 			file.close();
 			file_mutex.post();
@@ -121,9 +131,8 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	{
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
-	    	os << "function '"<<dname<< "' accesses or modifies non-const static member data variable '" << D->getNameAsString() << "'.\n";
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		std::string ostring =  "function '" + sdname + "' static variable '" + support::getQualifiedName(*D) + "'.\n";
+		os << "function '"<<dname<< "' accesses or modifies non-const static member data variable '" << svname << "'.\n";
+		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
 		file_mutex.wait();
 		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
 		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
@@ -131,6 +140,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 			file<<ostring;
 			file.close();
 			file_mutex.post();
+			BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		} else {
 			file.close();
 			file_mutex.post();
@@ -146,9 +156,8 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 	{
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);
-	    	os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << D->getNameAsString() << "'.\n";
-		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
- 		std::string ostring =  "function '" + sdname + "' static variable '" + support::getQualifiedName(*D) + "'.\n";
+		os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << svname << "'.\n";
+		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
 		file_mutex.wait();
 		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
 		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
@@ -156,6 +165,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 			file<<ostring;
 			file.close();
 			file_mutex.post();
+			BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		} else {
 			file.close();
 			file_mutex.post();
@@ -193,7 +203,6 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
                 llvm::raw_string_ostream os(buf);
                 os << "function '"<< dname << "' is in an extern \"C\" context and most likely accesses or modifies fortran variables in a 'COMMONBLOCK'.\n";
                 clang::ento::PathDiagnosticLocation FDLoc = clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
-		BR.EmitBasicReport(FD, "FunctionChecker : COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
                 std::string ostring =  "function '" + dname + "' static variable 'COMMONBLOCK'.\n";
 		const char * pPath = std::getenv("LOCALRT");
 		std::string tname = ""; 
@@ -206,6 +215,7 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
 			file<<ostring;
 			file.close();
 			file_mutex.post();
+			BR.EmitBasicReport(FD, "FunctionChecker : COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
 		} else {
 			file.close();
 			file_mutex.post();
