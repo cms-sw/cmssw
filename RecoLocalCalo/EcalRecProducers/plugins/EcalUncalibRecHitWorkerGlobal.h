@@ -22,6 +22,7 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 
@@ -53,8 +54,8 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 
                 template < class C > int isSaturated(const C & digi);
 
-		double timeCorrectionEB(float ampliEB);
-		double timeCorrectionEE(float ampliEE);
+                double timeCorrection(float ampli,
+                    const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
                 // weights method
                 edm::ESHandle<EcalWeightXtalGroups>  grps;
@@ -78,10 +79,6 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 std::pair<double,double> EEtimeFitLimits_;  
 		bool                doEBtimeCorrection_;
 		bool                doEEtimeCorrection_;
-                std::vector<double> EBtimeCorrAmplitudeBins_; 
-                std::vector<double> EBtimeCorrShiftBins_; 
-                std::vector<double> EEtimeCorrAmplitudeBins_; 
-                std::vector<double> EEtimeCorrShiftBins_; 
                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
 
@@ -100,6 +97,8 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 double amplitudeThreshEB_;
                 double amplitudeThreshEE_;
                 double ebSpikeThresh_;
+
+                edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
 
                 // leading edge method
                 edm::ESHandle<EcalTimeCalibConstants> itime;

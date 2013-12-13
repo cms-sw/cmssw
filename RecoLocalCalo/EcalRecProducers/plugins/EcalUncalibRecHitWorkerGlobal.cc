@@ -12,6 +12,7 @@
 #include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
 EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
   EcalUncalibRecHitWorkerBaseClass(ps,c)
@@ -42,18 +43,6 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
 	// amplitude-dependent correction of time
         doEBtimeCorrection_      = ps.getParameter<bool>("doEBtimeCorrection");
         doEEtimeCorrection_      = ps.getParameter<bool>("doEEtimeCorrection");
-        EBtimeCorrAmplitudeBins_ = ps.getParameter<std::vector<double> >("EBtimeCorrAmplitudeBins"); 
-        EBtimeCorrShiftBins_     = ps.getParameter<std::vector<double> >("EBtimeCorrShiftBins"); 
-        EEtimeCorrAmplitudeBins_ = ps.getParameter<std::vector<double> >("EEtimeCorrAmplitudeBins"); 
-        EEtimeCorrShiftBins_     = ps.getParameter<std::vector<double> >("EEtimeCorrShiftBins"); 
-	if(EBtimeCorrAmplitudeBins_.size() != EBtimeCorrShiftBins_.size()) {
-	  doEBtimeCorrection_ = false;
-	  edm::LogError("EcalRecHitError") << "Size of EBtimeCorrAmplitudeBins different from EBtimeCorrShiftBins. Forcing no time corrections for EB. ";
-	}
-	if(EEtimeCorrAmplitudeBins_.size() != EEtimeCorrShiftBins_.size()) {
-	  doEEtimeCorrection_ = false;
-	  edm::LogError("EcalRecHitError") << "Size of EEtimeCorrAmplitudeBins different from EEtimeCorrShiftBins. Forcing no time corrections for EE. ";
-	}
 
 	// spike threshold
         ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
@@ -100,18 +89,6 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
 	// amplitude-dependent correction of time
         doEBtimeCorrection_      = ps.getParameter<bool>("doEBtimeCorrection");
         doEEtimeCorrection_      = ps.getParameter<bool>("doEEtimeCorrection");
-        EBtimeCorrAmplitudeBins_ = ps.getParameter<std::vector<double> >("EBtimeCorrAmplitudeBins"); 
-        EBtimeCorrShiftBins_     = ps.getParameter<std::vector<double> >("EBtimeCorrShiftBins"); 
-        EEtimeCorrAmplitudeBins_ = ps.getParameter<std::vector<double> >("EEtimeCorrAmplitudeBins"); 
-        EEtimeCorrShiftBins_     = ps.getParameter<std::vector<double> >("EEtimeCorrShiftBins"); 
-	if(EBtimeCorrAmplitudeBins_.size() != EBtimeCorrShiftBins_.size()) {
-	  doEBtimeCorrection_ = false;
-	  edm::LogError("EcalRecHitError") << "Size of EBtimeCorrAmplitudeBins different from EBtimeCorrShiftBins. Forcing no time corrections for EB. ";
-	}
-	if(EEtimeCorrAmplitudeBins_.size() != EEtimeCorrShiftBins_.size()) {
-	  doEEtimeCorrection_ = false;
-	  edm::LogError("EcalRecHitError") << "Size of EEtimeCorrAmplitudeBins different from EEtimeCorrShiftBins. Forcing no time corrections for EE. ";
-	}
 
 	// spike threshold
         ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
@@ -158,6 +135,9 @@ EcalUncalibRecHitWorkerGlobal::set(const edm::EventSetup& es)
         // for the leading edge method
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
         es.get<EcalTimeOffsetConstantRcd>().get(offtime);
+
+		// for the time correction methods
+		es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
 }
 
 
@@ -178,80 +158,66 @@ int EcalUncalibRecHitWorkerGlobal::isSaturated(const C & dataFrame)
 }
 
 
-double EcalUncalibRecHitWorkerGlobal::timeCorrectionEB(float ampliEB){
-  // computed initially in ns. Than turned in the BX's, as EcalUncalibratedRecHit need be.
-  double theCorrection=0;
+double EcalUncalibRecHitWorkerGlobal::timeCorrection(
+    float ampli,
+	const std::vector<float>& amplitudeBins,
+    const std::vector<float>& shiftBins) {
+  // algorithm is the same for EE and EB, so merged them in.
 
-  
-  int myBin = -1;
-  for (int bin=0; bin<(int)EBtimeCorrAmplitudeBins_.size(); bin++ ){
-    if(ampliEB > EBtimeCorrAmplitudeBins_.at(bin)) {
-      myBin = bin;     }
-    else break;
+  // computed initially in ns. Than turned in the BX's, as
+  // EcalUncalibratedRecHit need be.
+  double theCorrection = 0;
+
+  // sanity check for arrays
+  if (amplitudeBins.size() == 0) {
+	// this will reset time correction on all events
+    doEBtimeCorrection_ = false;
+
+    edm::LogError("EcalRecHitError")
+        << "timeCorrAmplitudeBins is empty, forcing no time bias corrections.";
+
+    return 0;
   }
-  
-  if (myBin == -1)
-    {
-      theCorrection = EBtimeCorrShiftBins_.at(0);
-    }    
-  else if  ( myBin == ((int)(EBtimeCorrAmplitudeBins_.size()-1))   ) 
-    {
-      theCorrection = EBtimeCorrShiftBins_.at( myBin );      
-    }    
-  else if  ( -1 < myBin   &&   myBin <  ((int)EBtimeCorrAmplitudeBins_.size()-1) )
-    {
-      // interpolate linearly between two assingned points
-      theCorrection  = ( EBtimeCorrShiftBins_.at(myBin+1) - EBtimeCorrShiftBins_.at(myBin) );
-      theCorrection *= ( ((double)ampliEB) -  EBtimeCorrAmplitudeBins_.at(myBin) ) / ( EBtimeCorrAmplitudeBins_.at(myBin+1) - EBtimeCorrAmplitudeBins_.at(myBin) );
-      theCorrection += EBtimeCorrShiftBins_.at(myBin);
-    }
-  else
-    {
-      edm::LogError("EcalRecHitError") << "Assigning time correction impossible. Setting it to 0 ";
-      theCorrection = 0.;
-    }
+
+  if (amplitudeBins.size() != shiftBins.size()) {
+	// this will reset time correction on all events
+    doEBtimeCorrection_ = false;
+
+    edm::LogError("EcalRecHitError")
+        << "Size of timeCorrAmplitudeBins different from "
+           "timeCorrShiftBins. Forcing no time bias corrections. ";
+
+    return 0;
+  }
+
+  int myBin = -1;
+  for (int bin = 0; bin < (int) amplitudeBins.size(); bin++) {
+    if (ampli > amplitudeBins.at(bin)) {
+      myBin = bin;
+    } else {
+      break;
+	}
+  }
+
+  if (myBin == -1) {
+    theCorrection = shiftBins.at(0);
+  } else if (myBin == ((int)(amplitudeBins.size() - 1))) {
+    theCorrection = shiftBins.at(myBin);
+  } else if (-1 < myBin && myBin < ((int) amplitudeBins.size() - 1)) {
+    // interpolate linearly between two assingned points
+    theCorrection = (shiftBins.at(myBin + 1) - shiftBins.at(myBin));
+    theCorrection *= (((double) ampli) - amplitudeBins.at(myBin)) /
+                     (amplitudeBins.at(myBin + 1) - amplitudeBins.at(myBin));
+    theCorrection += shiftBins.at(myBin);
+  } else {
+    edm::LogError("EcalRecHitError")
+        << "Assigning time correction impossible. Setting it to 0 ";
+    theCorrection = 0.;
+  }
 
   // convert ns into clocks
-  return theCorrection/25.;
+  return theCorrection / 25.;
 }
-
-
-double EcalUncalibRecHitWorkerGlobal::timeCorrectionEE(float ampliEE){
-  // computed initially in ns. Than turned in the BX's, as EcalUncalibratedRecHit need be.
-  double theCorrection=0;
-  
-  int myBin = -1;
-  for (int bin=0; bin<(int)EEtimeCorrAmplitudeBins_.size(); bin++ ){
-    if(ampliEE > EEtimeCorrAmplitudeBins_.at(bin)) {
-      myBin = bin;     }
-    else break;
-  }
-  
-  if (myBin == -1)
-    {
-      theCorrection = EEtimeCorrShiftBins_.at(0);
-    }    
-  else if  ( myBin == ((int)(EEtimeCorrAmplitudeBins_.size()-1))   ) 
-    {
-      theCorrection = EEtimeCorrShiftBins_.at( myBin );      
-    }    
-  else if  ( -1 < myBin   &&   myBin <  ((int)EEtimeCorrAmplitudeBins_.size()-1) )
-    {
-      // interpolate linearly between two assingned points
-      theCorrection  = ( EEtimeCorrShiftBins_.at(myBin+1) - EEtimeCorrShiftBins_.at(myBin) );
-      theCorrection *= ( ((double)ampliEE) -  EEtimeCorrAmplitudeBins_.at(myBin) ) / ( EEtimeCorrAmplitudeBins_.at(myBin+1) - EEtimeCorrAmplitudeBins_.at(myBin) );
-      theCorrection += EEtimeCorrShiftBins_.at(myBin);
-    }
-  else
-    {
-      edm::LogError("EcalRecHitError") << "Assigning time correction impossible. Setting it to 0 ";
-      theCorrection = 0.;
-    }
-  
-  // convert ns into clocks
-  return theCorrection/25.;
-}
-
 
 
 
@@ -394,7 +360,10 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
 				double theTimeCorrectionEE=0;
-				if(doEEtimeCorrection_) theTimeCorrectionEE = timeCorrectionEE( uncalibRecHit.amplitude() );
+				if(doEEtimeCorrection_) theTimeCorrectionEE = timeCorrection(uncalibRecHit.amplitude(),
+					timeCorrBias_->EETimeCorrAmplitudeBins,
+					timeCorrBias_->EETimeCorrShiftBins);
+
                                 uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
                                 uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
                                 uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
@@ -431,7 +400,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
 				double theTimeCorrectionEB=0;
-				if(doEBtimeCorrection_) theTimeCorrectionEB = timeCorrectionEB( uncalibRecHit.amplitude() );
+				if(doEBtimeCorrection_) theTimeCorrectionEB = timeCorrection(uncalibRecHit.amplitude(),
+					timeCorrBias_->EBTimeCorrAmplitudeBins,
+					timeCorrBias_->EBTimeCorrShiftBins);
 
 				uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
 
