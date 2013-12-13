@@ -4,7 +4,7 @@
 ///
 /// \author: R. Alex Barbieri MIT
 ///
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessorFirmware.h"
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
@@ -28,46 +28,30 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const BXVector<CaloEmCand
 
   if (m_fwv.firmwareVersion() == 1) { //HI algo
     m_jetAlgo = new CaloStage1JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
-
-    //firmware is responsible for splitting the BXVector into pieces for
-    //the algos to handle
-    // Hardcode bx=0 for now. TODO
-    for(int i = regions.getFirstBX(); i < regions.getLastBX(); ++i)
-    {
-      std::auto_ptr<std::vector<l1t::Jet>> localJets (new std::vector<l1t::Jet>);
-      std::auto_ptr<std::vector<l1t::CaloRegion>> localRegions (new std::vector<l1t::CaloRegion>);
-      for(std::vector<l1t::CaloRegion>::const_iterator region = regions.begin(i); region != regions.end(i); ++region)
-      {
-	localRegions->push_back(*region);
-      }
-      m_jetAlgo->processEvent(*localRegions, *localJets);
-
-      for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
-      {
-	jets.push_back(i, *jet);
-      }
-    }
   } else if( m_fwv.firmwareVersion() == 2 ) { //PP algorithm
     m_jetAlgo = new CaloStage1JetAlgorithmImpPP(/*m_db*/); //fwv =2 => PP algo
+  } else{ // undefined fwv version
+    edm::LogError("FWVersionError")
+      << "Undefined firmware version passed to CaloStage1MainProcessorFirmwareImp1" << std::endl;
+    return;
+  }
 
-    //firmware is responsible for splitting the BXVector into pieces for
-    //the algos to handle
-    // Hardcode bx=0 for now. TODO
-    for(int i = regions.getFirstBX(); i < regions.getLastBX(); ++i)
+  //firmware is responsible for splitting the BXVector into pieces for
+  //the algos to handle
+  // Hardcode bx=0 for now. TODO
+  for(int i = regions.getFirstBX(); i < regions.getLastBX(); ++i)
     {
       std::auto_ptr<std::vector<l1t::Jet>> localJets (new std::vector<l1t::Jet>);
       std::auto_ptr<std::vector<l1t::CaloRegion>> localRegions (new std::vector<l1t::CaloRegion>);
       for(std::vector<l1t::CaloRegion>::const_iterator region = regions.begin(i); region != regions.end(i); ++region)
-      {
-	localRegions->push_back(*region);
-      }
+	{
+	  localRegions->push_back(*region);
+	}
       m_jetAlgo->processEvent(*localRegions, *localJets);
 
       for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
-      {
-	jets.push_back(i, *jet);
-      }
+	{
+	  jets.push_back(i, *jet);
+	}
     }
-  }
-
 }
