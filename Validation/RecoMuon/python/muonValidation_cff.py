@@ -112,12 +112,9 @@ staMuonTrackVMuonAssoc.usetracker = False
 staMuonTrackVMuonAssoc.usemuon = True
 
 staSeedTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
-staSeedTrackVMuonAssoc.associatormap = 'tpToStaseedAssociation'
+staSeedTrackVMuonAssoc.associatormap = 'tpToStaSeedAssociation'
 staSeedTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
-staSeedTrackVMuonAssoc.label = ('staSeedsInTracks',)
-print staSeedTrackVMuonAssoc.dirName
-staSeedTrackVMuonAssoc.dirName = cms.string('Muons/RecoMuonSeedsV/MultiTrack/')
-print staSeedTrackVMuonAssoc.dirName
+staSeedTrackVMuonAssoc.label = ('seedsOfSTAmuons',)
 staSeedTrackVMuonAssoc.usetracker = False
 staSeedTrackVMuonAssoc.usemuon = True
 

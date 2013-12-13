@@ -37,9 +37,9 @@ extractedMuonTracks_seq = cms.Sequence( extractedGlobalMuons )
 #
 
 import SimMuon.MCTruth.SeedToTrackProducer_cfi
-staSeedsInTracks = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackProducer.clone()
-staSeedsInTracks.L2seedsCollection = cms.InputTag("ancientMuonSeed")
-staSeedsInTracks_seq = cms.Sequence( staSeedsInTracks )
+seedsOfSTAmuons = SimMuon.MCTruth.SeedToTrackProducer_cfi.SeedToTrackProducer.clone()
+seedsOfSTAmuons.L2seedsCollection = cms.InputTag("ancientMuonSeed")
+seedsOfSTAmuons_seq = cms.Sequence( seedsOfSTAmuons )
 
 #
 # Associators for Full Sim + Reco:
@@ -151,7 +151,7 @@ tpToL3L2TrackTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
 import SimMuon.MCTruth.MuonAssociatorByHits_cfi
 
 tpToTkMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
-tpToStaseedAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
+tpToStaSeedAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToStaUpdMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
 tpToGlbMuonAssociation = SimMuon.MCTruth.MuonAssociatorByHits_cfi.muonAssociatorByHits.clone()
@@ -173,10 +173,10 @@ tpToTkMuonAssociation.tracksTag = 'generalTracks'
 tpToTkMuonAssociation.UseTracker = True
 tpToTkMuonAssociation.UseMuon = False
 
-tpToStaseedAssociation.tpTag = 'mix:MergedTrackTruth'
-tpToStaseedAssociation.tracksTag = 'staSeedsInTracks'
-tpToStaseedAssociation.UseTracker = False
-tpToStaseedAssociation.UseMuon = True
+tpToStaSeedAssociation.tpTag = 'mix:MergedTrackTruth'
+tpToStaSeedAssociation.tracksTag = 'seedsOfSTAmuons'
+tpToStaSeedAssociation.UseTracker = False
+tpToStaSeedAssociation.UseMuon = True
 
 
 tpToStaMuonAssociation.tpTag = 'mix:MergedTrackTruth'
@@ -314,9 +314,9 @@ tpToGlbCosmicMuonAssociation.UseMuon = True
 
 muonAssociation_seq = cms.Sequence(
     extractedMuonTracks_seq
-    + staSeedsInTracks_seq
+    + seedsOfSTAmuons_seq
     +(tpToTkMuonAssociation)
-    +(tpToStaseedAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
+    +(tpToStaSeedAssociation+tpToStaMuonAssociation+tpToStaUpdMuonAssociation+tpToGlbMuonAssociation)
     +(tpToTkmuTrackAssociation)
 #   +(tpToTkmuTrackAssociation+tpToStaTrackAssociation+tpToStaUpdTrackAssociation+tpToGlbTrackAssociation)
 )
