@@ -23,12 +23,15 @@ HCALProperties::HCALProperties(const edm::ParameterSet& fastDet) : CalorimeterPr
   HCALinteractionLength_= fastDetHCAL.getParameter<double>("HCALinteractionLength");
   etatow_=fastDetHCAL.getParameter<std::vector<double>>("HCALetatow");
   hcalDepthLam_=fastDetHCAL.getParameter<std::vector<double>>("HCALDepthLam");
+  heDark_=fastDetHCAL.getParameter<bool>("RadDamHE");
+  intLumi_=fastDetHCAL.getParameter<double>("intLumi");
+  heLayers_=fastDetHCAL.getParameter<std::vector<double>>("layersHE");
 
   // in principle this splitting into 42 bins may change with future detectors, but let's add a protection to make sure that differences are not typos in the configuration file:
   if (etatow_.size() != 42) std::cout << " HCALProperties::eta2ieta - WARNING: here we expect 42 entries instead of " << etatow_.size() << "; is the change intentional?" << std::endl;
   // splitting of  28-th tower is taken into account (2.65-2.853-3.0)
   if (hcalDepthLam_.size() != etatow_.size()-1) std::cout << " HCALProperties::eta2ieta - WARNING: the sizes of HCALetatow and HCALDepthLam should differ by 1 unit! HCALDepthLam has size " << hcalDepthLam_.size()<< " and HCALetatow has size " << etatow_.size() << std::endl;
-  
+
 
 }
 
