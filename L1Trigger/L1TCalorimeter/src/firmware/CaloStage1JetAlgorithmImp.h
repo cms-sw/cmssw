@@ -32,6 +32,17 @@ namespace l1t {
     /*CaloParams const & db;*/
     double regionLSB_;
   };
+
+  class CaloStage1JetAlgorithmImpPP : public CaloStage1JetAlgorithm {
+  public:
+    CaloStage1JetAlgorithmImpPP(/*const CaloParams & dbPars*/);
+    virtual ~CaloStage1JetAlgorithmImpPP();
+    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      std::vector<l1t::Jet> & jets);
+  private:
+    /*CaloParams const & db;*/
+    double regionLSB_;
+  };
 }
 
 #endif
