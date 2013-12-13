@@ -31,7 +31,7 @@ islandClusteringSequence = cms.Sequence(islandBasicClusters
                                         )
 
 #Jets
-hiSignalIterativeConePu5CaloJets = iterativeConePu5CaloJets.clone()
+hiSignalIterativeConePu5CaloJets = akPu5CaloJets.clone()
 runjets = cms.Sequence(caloTowersRec*caloTowers*hiSignalIterativeConePu5CaloJets)
 
 #Muons

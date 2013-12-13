@@ -17,7 +17,7 @@ pfGenParticlesForJets.ignoreParticleIDs.append(5)
 pfGenParticlesForJets.ignoreParticleIDs.append(21)
 pfGenParticlesForJets.excludeResonances = False
 
-pfIterativeCone5GenJets = iterativeCone5GenJets.clone()
+pfIterativeCone5GenJets = ak4GenJets.clone()
 pfIterativeCone5GenJets.src = 'pfGenParticlesForJets'
 
 pfJetFilter.InputTruthLabel = 'pfIterativeCone5GenJets'

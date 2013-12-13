@@ -15,7 +15,7 @@ import FWCore.ParameterSet.Config as cms
 # )
 
 Jet2 = cms.EDFilter("EtaPtMinCandViewSelector",
-                      src = cms.InputTag("iterativeCone5CaloJets"),
+                      src = cms.InputTag("ak4CaloJets"),
                       ptMin   = cms.double(8),
                       etaMin = cms.double(-2),
                       etaMax = cms.double(2)
@@ -29,7 +29,7 @@ Jet1 = cms.EDFilter("EtaPtMinCandViewSelector",
                       )
 #Define the Reco quality cut
 #jetFilter = cms.EDFilter("CaloJetSelector",
-#                               src = cms.InputTag("iterativeCone5CaloJets"),
+#                               src = cms.InputTag("ak4CaloJets"),
 #                               cut = cms.string('pt > 100 && abs(eta) < 2.0' ),
 #                               filter = cms.bool(True),
 #                              minNumber = cms.uint32(2)

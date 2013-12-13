@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 #   Define the producers of corrected jet collections for each algorithm.
 #
 ZSPJetCorJetIcone5 = cms.EDProducer("CaloJetProducer",
-    src = cms.InputTag("iterativeCone5CaloJets"),
+    src = cms.InputTag("ak4CaloJets"),
     tagName = cms.vstring('ZSP_CMSSW332_Iterative_Cone_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),

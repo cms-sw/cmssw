@@ -17,8 +17,8 @@ primaryVertexFilterForJets = cms.EDFilter("VertexSelector",
 # jet energy correction (L2+L3)
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 icPu5CaloJetsL2L3 = cms.EDProducer('CaloJetCorrectionProducer',
-    src = cms.InputTag('iterativeConePu5CaloJets'),
-    correctors = cms.vstring('ic5CaloL2L3')
+    src = cms.InputTag('akPu5CaloJets'),
+    correctors = cms.vstring('ak4CaloL2L3')
     )
 
 # leading jet E_T filter

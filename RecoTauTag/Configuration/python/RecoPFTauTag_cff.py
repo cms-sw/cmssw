@@ -58,9 +58,9 @@ combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak4PFJetsLegacyHPSPiZeros")
 # Build the PFTauTagInfos separately, then relink them into the taus.
 from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import \
         pfRecoTauTagInfoProducer
-from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi \
-        import ic5PFJetTracksAssociatorAtVertex
-ak4PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
+from RecoJets.JetAssociationProducers.ak4PFJetTracksAssociatorAtVertex_cfi \
+        import ak4PFJetTracksAssociatorAtVertex
+ak4PFJetTracksAssociatorAtVertex = ak4PFJetTracksAssociatorAtVertex.clone()
 ak4PFJetTracksAssociatorAtVertex.jets = cms.InputTag("ak4PFJets")
 tautagInfoModifer = cms.PSet(
     name = cms.string("TTIworkaround"),

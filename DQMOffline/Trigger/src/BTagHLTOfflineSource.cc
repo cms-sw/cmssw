@@ -1002,7 +1002,7 @@ void BTagHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& 
 
 		
 		histoname = labelname+"_DenominatorEtaPhi";
-		title     = labelname+"DenominatorEtaPhi;Calo #eta (IC5);Calo #Phi ";
+		title     = labelname+"DenominatorEtaPhi;Calo #eta (AK4);Calo #Phi ";
 		MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 		DenominatorEtaPhi->getTH1();
 

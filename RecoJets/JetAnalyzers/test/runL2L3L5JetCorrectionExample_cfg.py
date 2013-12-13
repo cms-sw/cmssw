@@ -27,7 +27,7 @@ process.L3AbsoluteJetCorrector = cms.ESSource("L3AbsoluteCorrectionService",
 #############   Define the L5 correction service #####
 process.L5JetCorrector = cms.ESSource("L5FlavorCorrectionService",
     section = cms.string('bJ'), 
-    tagName = cms.string('L5Flavor_IC5'),# IMPORTANT: the L5 correction was derived from IC5 but it is the same for all algos
+    tagName = cms.string('L5Flavor_AK4'),# IMPORTANT: the L5 correction was derived from AK4 but it is the same for all algos
     label = cms.string('L5FlavorJetCorrector')
 )
 #############   Define the chain corrector service ###

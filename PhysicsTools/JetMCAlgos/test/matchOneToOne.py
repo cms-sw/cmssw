@@ -11,12 +11,12 @@ process.source = cms.Source("PoolSource",
 )
 
 process.caloJetSele = cms.EDFilter("CaloJetRefSelector",
-    src = cms.InputTag("iterativeCone5CaloJets"),
+    src = cms.InputTag("ak4CaloJets"),
     cut = cms.string('pt > 20.0')
 )
 
 process.genJetSele = cms.EDFilter("GenJetRefSelector",
-    src = cms.InputTag("iterativeCone5GenJets"),
+    src = cms.InputTag("ak4GenJets"),
     cut = cms.string('pt > 20.0')
 )
 

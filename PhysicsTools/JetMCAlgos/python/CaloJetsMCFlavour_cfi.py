@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.JetMCAlgos.SelectPartons_cff import *
-from PhysicsTools.JetMCAlgos.IC5CaloJetsMCFlavour_cff import *
+from PhysicsTools.JetMCAlgos.AK4CaloJetsMCFlavour_cff import *
 from PhysicsTools.JetMCAlgos.AK4CaloJetsMCFlavour_cff import *
 from PhysicsTools.JetMCAlgos.AK8CaloJetsMCFlavour_cff import *
 from PhysicsTools.JetMCAlgos.GK5CaloJetsMCFlavour_cff import *
@@ -11,7 +11,7 @@ from PhysicsTools.JetMCAlgos.KT6CaloJetsMCFlavour_cff import *
 from PhysicsTools.JetMCAlgos.SC5CaloJetsMCFlavour_cff import *
 from PhysicsTools.JetMCAlgos.SC7CaloJetsMCFlavour_cff import *
 
-iterativeCone5Flavour = cms.Sequence(IC5byRef*IC5byValPhys*IC5byValAlgo)
+ak4Flavour = cms.Sequence(AK4byRef*AK4byValPhys*AK4byValAlgo)
 sisCone5Flavour = cms.Sequence(SC5byRef*SC5byValPhys*SC5byValAlgo)
 sisCone7Flavour = cms.Sequence(SC7byRef*SC7byValPhys*SC7byValAlgo)
 AK4Flavour = cms.Sequence(AK4byRef*AK4byValPhys*AK4byValAlgo)
@@ -23,7 +23,7 @@ KT6Flavour = cms.Sequence(KT6byRef*KT6byValPhys*KT6byValAlgo)
 
 caloJetMCFlavour = cms.Sequence(
 	myPartons * (
-		iterativeCone5Flavour +
+		ak4Flavour +
 		sisCone5Flavour +
 		sisCone7Flavour +
 		AK4Flavour +

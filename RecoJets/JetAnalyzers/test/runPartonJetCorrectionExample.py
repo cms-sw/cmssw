@@ -15,10 +15,10 @@ process.source = cms.Source("PoolSource",
 
 process.partonJetCorrectionExample = cms.EDFilter("PartonJetCorrectionExample",
     src = cms.InputTag("hltMCJetCorJetIcone5"),
-    gJetCorrector = cms.string('L7PartonJetCorrectorIC5gJet'),
-    qJetCorrector = cms.string('L7PartonJetCorrectorIC5qJet'),
-    bJetCorrector = cms.string('L7PartonJetCorrectorIC5bJet'),
-    bTopCorrector = cms.string('L7PartonJetCorrectorIC5bTop')
+    gJetCorrector = cms.string('L7PartonJetCorrectorAK4gJet'),
+    qJetCorrector = cms.string('L7PartonJetCorrectorAK4qJet'),
+    bJetCorrector = cms.string('L7PartonJetCorrectorAK4bJet'),
+    bTopCorrector = cms.string('L7PartonJetCorrectorAK4bTop')
 )
 
 #process.p = cms.Path(process.MCJetCorJetIcone5*process.partonJetCorrectionExample)

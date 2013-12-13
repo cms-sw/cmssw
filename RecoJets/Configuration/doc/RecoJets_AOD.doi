@@ -4,7 +4,7 @@
 <tr>
   <td><a href="classCaloJet.html">reco::CaloJet</a></rd>
   <td><a href="DataFormats_JetReco.html">reco::CaloJetCollection</a></td>
-  <td><a href="#">iterativeCone5CaloJets</a></td>
+  <td><a href="#">ak4CaloJets</a></td>
   <td class="description">IterativeCone R=0.5 jets </td>
   <td> F.Ratnikov </td>
 </tr>

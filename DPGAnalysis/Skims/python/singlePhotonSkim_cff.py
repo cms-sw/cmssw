@@ -61,7 +61,7 @@ oneEmCluster = cms.Sequence(
             )
 
 gammaJet = cms.EDFilter("EtaPtMinCandViewSelector",
-                          src = cms.InputTag("iterativeCone5CaloJets"),
+                          src = cms.InputTag("ak4CaloJets"),
                           ptMin   = cms.double(5),
                           etaMin = cms.double(-2),
                           etaMax = cms.double(2)

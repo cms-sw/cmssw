@@ -53,7 +53,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                                                       'keep HcalNoiseSummary*_*_*_*',
 #                                                                      'keep HBHEDataFramesSorted_*_*_*',
                                                                       'keep HBHERecHitsSorted_*_*_*',
-                                                                      'keep recoCaloJets_iterativeCone5CaloJets_*_*',
+                                                                      'keep recoCaloJets_ak4CaloJets_*_*',
                                                                       'keep CaloTowersSorted_towerMaker_*_*',
                                                                       'keep recoMET*_*_*_*',
                                                                       'keep recoTracks_generalTracks_*_*')

@@ -14,7 +14,7 @@ process.load("SimTracker.TrackHistory.JetVetoedTracksAssociator_cfi")
 
 process.btag = cms.Path(process.btagging)
 process.plots = cms.Path(process.bTagAnalysis)
-process.jassoc = cms.Path(process.ic5JetVetoedTracksAssociatorAtVertex)
+process.jassoc = cms.Path(process.ak4JetVetoedTracksAssociatorAtVertex)
 process.schedule = cms.Schedule(process.jassoc, process.btag, process.plots)
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.bTagAnalysis.producePs = False
@@ -24,5 +24,5 @@ process.source = cms.Source("PoolSource",
 )
 
 process.bTagAnalysis.rootfile = cms.string('test.root')
-process.impactParameterTagInfos.jetTracks = cms.InputTag("ic5JetVetoedTracksAssociatorAtVertex")
+process.impactParameterTagInfos.jetTracks = cms.InputTag("ak4JetVetoedTracksAssociatorAtVertex")
 

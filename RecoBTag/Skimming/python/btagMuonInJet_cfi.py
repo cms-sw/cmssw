@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 btagMuonInJet = cms.EDFilter("BTagSkimLeptonJet",
-    CaloJet = cms.InputTag("iterativeCone5CaloJets"),
+    CaloJet = cms.InputTag("ak4CaloJets"),
     MinimumCaloJetPt = cms.double(20.0),
     MinimumPtRel = cms.double(0.0),
     LeptonType = cms.string('muon'),

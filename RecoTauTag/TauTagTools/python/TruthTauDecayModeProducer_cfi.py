@@ -25,7 +25,7 @@ makeMCTauDecayModes = cms.EDProducer("TruthTauDecayModeProducer",
 
 makeMCQCDTauDecayModes = cms.EDProducer("TruthTauDecayModeProducer",
     totalEtaCut = cms.double(2.5),
-    inputTag = cms.InputTag("iterativeCone5GenJets"),
+    inputTag = cms.InputTag("ak4GenJets"),
     leadTrackEtaCut = cms.double(2.5),
     leadTrackPtCut = cms.double(-1.0),
     totalPtCut = cms.double(5.0),
@@ -34,5 +34,5 @@ makeMCQCDTauDecayModes = cms.EDProducer("TruthTauDecayModeProducer",
 
 makeMC = cms.Sequence(mcDecayedTaus*makeMCTauDecayModes)
 
-makeMCQCD = cms.Sequence(iterativeCone5GenJets*makeMCQCDTauDecayModes)
+makeMCQCD = cms.Sequence(ak4GenJets*makeMCQCDTauDecayModes)
 

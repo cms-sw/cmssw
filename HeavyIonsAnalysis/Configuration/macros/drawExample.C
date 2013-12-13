@@ -15,8 +15,8 @@ void drawEdm(){
   ev->SetAlias("hitrk","recoTracks_hiSelectedTracks__HIRECOSKIM.obj");  
   
   // jets
-  ev->SetAlias("ppjet","recoCaloJets_iterativeCone5CaloJets__RECO.obj");
-  ev->SetAlias("hijet","recoCaloJets_iterativeConePu5CaloJets__HIRECOSKIM.obj");
+  ev->SetAlias("ppjet","recoCaloJets_ak4CaloJets__RECO.obj");
+  ev->SetAlias("hijet","recoCaloJets_akPu5CaloJets__HIRECOSKIM.obj");
 
   // number of high purity tracks
   ev->SetAlias("nHPtracks","Sum$( (pptrk.qualityMask() & (1<<2) ) > 0 )");

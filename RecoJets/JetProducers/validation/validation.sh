@@ -22,9 +22,9 @@ if [ -n $title ]; then
     if [ -e $reference ]; then
 	if [ -e $new ]; then
 
-	    TAG=(CaloJetTask_iterativeCone5CaloJets PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_sisCone5CaloJets CaloJetTask_sisCone7CaloJets)
+	    TAG=(CaloJetTask_ak4CaloJets PFJetTask_ak4PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_sisCone5CaloJets CaloJetTask_sisCone7CaloJets)
 
-	    FOLDER=(ic5Calo ic5PFlow kt4Calo kt6Calo sc5Calo sc7Calo)
+	    FOLDER=(ak4Calo ak4PFlow kt4Calo kt6Calo sc5Calo sc7Calo)
 
 	    ntag=${#TAG[@]}
 	    echo "Number of module tags: " $ntag

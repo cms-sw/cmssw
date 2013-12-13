@@ -33,10 +33,10 @@ htMetSC7 = cms.EDProducer("METProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetIC5 = cms.EDProducer("METProducer",
-    src = cms.InputTag("iterativeCone5CaloJets"),
+htMetAK4 = cms.EDProducer("METProducer",
+    src = cms.InputTag("ak4CaloJets"),
     METType = cms.string('MET'),
-    alias = cms.string('HTMETIC5'),
+    alias = cms.string('HTMETAK4'),
     noHF = cms.bool(False),
     globalThreshold = cms.double(20.0),
     InputType = cms.string('CaloJetCollection')

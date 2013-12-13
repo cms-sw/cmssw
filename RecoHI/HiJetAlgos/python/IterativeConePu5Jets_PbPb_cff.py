@@ -19,33 +19,33 @@ caloTowers = cms.EDProducer("CaloTowerCandidateCreator",
     et = cms.double(0.0)
 )
 
-iterativeConePu5CaloJets = cms.EDProducer("FastjetJetProducer",
+akPu5CaloJets = cms.EDProducer("FastjetJetProducer",
                                           CaloJetParameters,
                                           AnomalousCellParameters,
                                           jetAlgorithm = cms.string("IterativeCone"),
                                           rParam       = cms.double(0.5),
                                           )
 
-iterativeConePu5CaloJets.doPUOffsetCorr = True
-iterativeConePu5CaloJets.doPVCorrection = False
-iterativeConePu5CaloJets.jetPtMin = 10
+akPu5CaloJets.doPUOffsetCorr = True
+akPu5CaloJets.doPVCorrection = False
+akPu5CaloJets.jetPtMin = 10
 
 
 # REPLACE with UP-TO-DATE Corrections
 #MCJetCorJetIconePu5 = cms.EDProducer("CaloJetCorrectionProducer",
-#    src = cms.InputTag("iterativeConePu5CaloJets"),
+#    src = cms.InputTag("akPu5CaloJets"),
 #    correctors = cms.vstring('MCJetCorrectorIcone5'),
 #    alias = cms.untracked.string('MCJetCorJetIconePu5')
 #)
 
-#iterativeCone5HiGenJets = cms.EDProducer("IterativeConeHiGenJetProducer",
+#ak4HiGenJets = cms.EDProducer("IterativeConeHiGenJetProducer",
 #                                         IconeJetParameters,
 #                                         inputEtMin = cms.double(0.0),                                        
 #                                         inputEMin = cms.double(0.0),                                        
 #                                         src = cms.InputTag("hiGenParticles"),
 #                                         jetType = cms.string('GenJet'),                                        
-#                                         alias = cms.untracked.string('IC5HiGenJet'),
+#                                         alias = cms.untracked.string('AK4HiGenJet'),
 #                                         coneRadius = cms.double(0.5)
 #                                         )
 
-runjets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets)
+runjets = cms.Sequence(caloTowersRec*caloTowers*akPu5CaloJets)

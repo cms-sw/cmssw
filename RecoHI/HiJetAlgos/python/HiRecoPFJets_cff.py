@@ -23,7 +23,7 @@ kt4PFJets = cms.EDProducer(
     rParam       = cms.double(0.4),
     )
 
-ic5PFJets = cms.EDProducer(
+ak4PFJets = cms.EDProducer(
     "FastjetJetProducer",
     HiPFJetParameters,
     AnomalousCellParameters,
@@ -34,10 +34,10 @@ ic5PFJets = cms.EDProducer(
 
 
 
-ic3PFJets = ic5PFJets.clone()
+ic3PFJets = ak4PFJets.clone()
 ic3PFJets.rParam       = cms.double(0.3)
 
-ic4PFJets = ic5PFJets.clone()
+ic4PFJets = ak4PFJets.clone()
 ic4PFJets.rParam       = cms.double(0.4)
 
 ak3PFJets = ak4PFJets.clone()
@@ -56,7 +56,7 @@ kt6PFJets = kt4PFJets.clone()
 kt6PFJets.rParam       = cms.double(0.6)
 
 
-#hiRecoPFJets = cms.Sequence(ic5PFJets)
-#hiRecoAllPFJets = cms.Sequence(ic5PFJets + ak4PFJets + ak8PFJets + kt4PFJets + kt6PFJets)
+#hiRecoPFJets = cms.Sequence(ak4PFJets)
+#hiRecoAllPFJets = cms.Sequence(ak4PFJets + ak4PFJets + ak8PFJets + kt4PFJets + kt6PFJets)
 
 

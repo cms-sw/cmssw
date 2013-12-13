@@ -7,15 +7,15 @@ import copy
 
 
 # require generator level hadrons produced within muon acceptance
-iterativeCone5GenJetsEta25 = cms.EDFilter("GenJetSelector",
-     src = cms.InputTag("iterativeCone5GenJets"),
+ak4GenJetsEta25 = cms.EDFilter("GenJetSelector",
+     src = cms.InputTag("ak4GenJets"),
      cut = cms.string('abs(eta) < 2.5'),
      filter = cms.bool(False)
 )
 
 # require generator level hadrons produced in tau-decay to have transverse momentum above threshold
-iterativeCone5GenJetsPt5Cumulative = cms.EDFilter("GenJetSelector",
-     src = cms.InputTag("iterativeCone5GenJetsEta25"),
+ak4GenJetsPt5Cumulative = cms.EDFilter("GenJetSelector",
+     src = cms.InputTag("ak4GenJetsEta25"),
      cut = cms.string('pt > 5.'),
      filter = cms.bool(False)
 )

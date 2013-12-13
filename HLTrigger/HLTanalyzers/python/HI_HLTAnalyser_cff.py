@@ -6,7 +6,7 @@ from RecoHI.HiCentralityAlgos.CentralityBin_cfi import *
 from HLTrigger.HLTanalyzers.HLTAnalyser_cfi import * 
 
 # jets
-hltanalysis.genjets           = cms.InputTag("iterativeCone5HiGenJets")
+hltanalysis.genjets           = cms.InputTag("ak4HiGenJets")
 hltanalysis.recjets           = cms.InputTag("hltIterativeCone5PileupSubtractionCaloJets")
 
 # photons

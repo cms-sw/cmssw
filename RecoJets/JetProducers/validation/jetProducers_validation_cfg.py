@@ -28,22 +28,22 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.DQMStore = cms.Service("DQMStore")
 
 
-# IC5 Calo-Jets
-process.ic5calo = cms.EDAnalyzer(
+# AK4 Calo-Jets
+process.ak4calo = cms.EDAnalyzer(
     "CaloJetTester",
-    src = cms.InputTag("iterativeCone5CaloJets::RECO"),
-    srcGen = cms.InputTag("iterativeCone5GenJets::HLT"),
+    src = cms.InputTag("ak4CaloJets::RECO"),
+    srcGen = cms.InputTag("ak4GenJets::HLT"),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
     reverseEnergyFractionThreshold = cms.double(0.5)
     )
 
-# IC5 PFlow-Jets
-process.ic5pflow = cms.EDFilter(
+# AK4 PFlow-Jets
+process.ak4pflow = cms.EDFilter(
     "PFJetTester",
-    src = cms.InputTag("iterativeCone5PFJets::RECO"),
-    srcGen = cms.InputTag("iterativeCone5GenJets::HLT"),
+    src = cms.InputTag("ak4PFJets::RECO"),
+    srcGen = cms.InputTag("ak4GenJets::HLT"),
     genEnergyFractionThreshold = cms.double(0.05),
     genPtThreshold = cms.double(1.0),
     RThreshold = cms.double(0.3),
@@ -95,7 +95,7 @@ process.sc7calo = cms.EDFilter(
     )
 
 process.p1 = cms.Path(process.fileSaver+
-                      process.ic5calo+process.ic5pflow+
+                      process.ak4calo+process.ak4pflow+
                       process.kt4calo+process.kt6calo+
                       process.sc5calo+process.sc7calo
                       )

@@ -6,10 +6,10 @@ ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone()
 ak4JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
 ak4JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
 
-from RecoJets.JetAssociationProducers.iterativeCone5JTA_cff import *
-iterativeCone5JetTracksAssociatorAtVertexJPT = iterativeCone5JetTracksAssociatorAtVertex.clone()
-iterativeCone5JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
-iterativeCone5JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
+from RecoJets.JetAssociationProducers.ak4JTA_cff import *
+ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone()
+ak4JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
+ak4JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
 
 from RecoJets.JetAssociationProducers.sisCone5JTA_cff import *
 sisCone5JetTracksAssociatorAtVertexJPT = sisCone5JetTracksAssociatorAtVertex.clone()
@@ -29,7 +29,7 @@ from RecoJets.JetPlusTracks.JetPlusTrackCorrections_cfi import *
 JetPlusTrackZSPCorJetIcone5 = cms.EDProducer(
     "JetPlusTrackProducer",
     cms.PSet(JPTZSPCorrectorICone5),
-    src = cms.InputTag("iterativeCone5CaloJets"),    
+    src = cms.InputTag("ak4CaloJets"),    
     tagName = cms.vstring('ZSP_CMSSW390_Akt_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),
@@ -41,7 +41,7 @@ JetPlusTrackZSPCorJetIcone5 = cms.EDProducer(
     )
     
 JetPlusTrackZSPCorJetIcone5.JetSplitMerge = cms.int32(0)
-JetPlusTrackZSPCorJetIcone5.JetTracksAssociationAtVertex = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertexJPT") 
+JetPlusTrackZSPCorJetIcone5.JetTracksAssociationAtVertex = cms.InputTag("ak4JetTracksAssociatorAtVertexJPT") 
 
 
 JetPlusTrackZSPCorJetAntiKt5 = cms.EDProducer(
@@ -86,11 +86,11 @@ JetPlusTrackZSPCorJetSiscone5.JetSplitMerge = cms.int32(1)
 
 ### ---------- Sequences
 
-# IC5
+# AK4
 
 JetPlusTrackCorrectionsIcone5 = cms.Sequence(
     JPTeidTight*
-    iterativeCone5JetTracksAssociatorAtVertexJPT*
+    ak4JetTracksAssociatorAtVertexJPT*
     JetPlusTrackZSPCorJetIcone5
     )
 

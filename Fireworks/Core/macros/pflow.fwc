@@ -119,7 +119,7 @@
      <string>std::vector&lt;reco::CaloJet&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>iterativeCone5CaloJets</string>
+     <string>ak4CaloJets</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>

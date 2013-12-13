@@ -23,9 +23,9 @@ json = {
       "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HO with optimized threshold parameters"
      },
      {
-      "instance": "htMetIC5",
+      "instance": "htMetAK4",
       "container": "reco::METCollection",
-      "desc": "Raw Missing Transverse Energy calculated using IC5 CaloJets"
+      "desc": "Raw Missing Transverse Energy calculated using AK4 CaloJets"
      },
      {
       "instance": "metNoHFHO",

@@ -97,7 +97,7 @@ private:
 using namespace reco;
 
 TauJetCorrectorExample::TauJetCorrectorExample(const edm::ParameterSet& iConfig):
-  jetname(iConfig.getUntrackedParameter<std::string>("JetHandle","iterativeCone5CaloJets")),
+  jetname(iConfig.getUntrackedParameter<std::string>("JetHandle","ak4CaloJets")),
   tauname(iConfig.getUntrackedParameter<std::string>("TauHandle","coneIsolation")),
   tauCorrectorname(iConfig.getUntrackedParameter<std::string>("tauCorrHandle", "TauJetCorrectorIcone5")),
   nEvt(0), njets(0), taucorrector(0)

@@ -15,7 +15,7 @@ hiPartons = cms.EDProducer('HiPartonCleaner',
                            )
 
 heavyIonCleanedGenJets = cms.EDProducer('HiGenJetCleaner',
-                                        src    = cms.InputTag('iterativeCone5HiGenJets'),
+                                        src    = cms.InputTag('ak4HiGenJets'),
                                         deltaR = cms.double(0.25),
                                         ptCut  = cms.double(20),
                                         createNewCollection = cms.untracked.bool(True),

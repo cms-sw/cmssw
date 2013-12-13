@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoHI.HiJetAlgos.HiGenCleaner_cff import *
 
-iterativeCone5HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('iterativeCone5HiGenJets'))
-iterativeCone7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('iterativeCone7HiGenJets'))
+ak4HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak4HiGenJets'))
+ak7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak7HiGenJets'))
 ak4HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak4HiGenJets'))
 ak8HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak8HiGenJets'))
 
@@ -15,8 +15,8 @@ ak8HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak8HiGen
 JetAnalyzerICPU5Calo = cms.EDAnalyzer("JetTester",
     JetType = cms.untracked.string('calo'),
     OutputFile = cms.untracked.string('JetTester.root'),
-    src = cms.InputTag("iterativeConePu5CaloJets"),
-    srcGen = cms.InputTag("iterativeCone5HiCleanedGenJets"),
+    src = cms.InputTag("akPu5CaloJets"),
+    srcGen = cms.InputTag("ak4HiCleanedGenJets"),
     recoJetPtThreshold = cms.double(40),
     genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
@@ -26,8 +26,8 @@ JetAnalyzerICPU5Calo = cms.EDAnalyzer("JetTester",
 JetAnalyzerICPU7Calo = cms.EDAnalyzer("JetTester",
     JetType = cms.untracked.string('calo'),
     OutputFile = cms.untracked.string('JetTester.root'),
-    src = cms.InputTag("iterativeConePu7CaloJets"),
-    srcGen = cms.InputTag("iterativeCone7HiCleanedGenJets"), 
+    src = cms.InputTag("akPu7CaloJets"),
+    srcGen = cms.InputTag("ak7HiCleanedGenJets"), 
     recoJetPtThreshold = cms.double(40),
     genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
@@ -79,8 +79,8 @@ JetAnalyzerAkFastPU7Calo = cms.EDAnalyzer("JetTester",
 )
 
 hiJetValidation = cms.Sequence(
-    (iterativeCone5HiCleanedGenJets * JetAnalyzerICPU5Calo) 
-    #+ (iterativeCone7HiCleanedGenJets * JetAnalyzerICPU7Calo)
+    (ak4HiCleanedGenJets * JetAnalyzerICPU5Calo) 
+    #+ (ak7HiCleanedGenJets * JetAnalyzerICPU7Calo)
     #+ (ak4HiCleanedGenJets * JetAnalyzerAkPU5Calo * JetAnalyzerAkFastPU5Calo
     #+ (ak8HiCleanedGenJets*JetAnalyzerAkPU7Calo *JetAnalyzerAkFastPU7Calo)
     )

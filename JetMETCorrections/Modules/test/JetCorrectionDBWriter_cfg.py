@@ -48,14 +48,14 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
          label  = cms.string('AK8JPT')                                          
       ),
       cms.PSet(
-         record = cms.string('IC5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V5_IC5Calo'), 
-         label  = cms.string('IC5Calo') 
+         record = cms.string('AK4Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V5_AK4Calo'), 
+         label  = cms.string('AK4Calo') 
       ),
      cms.PSet(
-         record = cms.string('IC5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V5_IC5PF'), 
-         label  = cms.string('IC5PF') 
+         record = cms.string('AK4PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V5_AK4PF'), 
+         label  = cms.string('AK4PF') 
       ),
       cms.PSet(
          record = cms.string('KT4Calo'), 
@@ -128,13 +128,13 @@ process.dbWriterKT6PF = cms.EDAnalyzer('JetCorrectorDBWriter',
    era    = cms.untracked.string('Jec11_V5'),  
    algo   = cms.untracked.string('KT6PF') 
 )
-process.dbWriterIC5Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
+process.dbWriterAK4Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'),  
-   algo   = cms.untracked.string('IC5Calo') 
+   algo   = cms.untracked.string('AK4Calo') 
 ) 
-process.dbWriterIC5PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
+process.dbWriterAK4PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'),  
-   algo   = cms.untracked.string('IC5PF') 
+   algo   = cms.untracked.string('AK4PF') 
 ) 
 
 
@@ -152,6 +152,6 @@ process.dbWriterKT4Calo *
 process.dbWriterKT4PF *
 process.dbWriterKT6Calo *
 process.dbWriterKT6PF *
-process.dbWriterIC5Calo *
-process.dbWriterIC5PF
+process.dbWriterAK4Calo *
+process.dbWriterAK4PF
 ) 

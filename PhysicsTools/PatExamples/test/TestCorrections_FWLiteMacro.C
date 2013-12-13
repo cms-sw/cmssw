@@ -80,7 +80,7 @@ void JetCorrFWLite()
     ////////////////////////////////////////////////////////////////////////
     
     string Levels1 = "L2:L3:L5:L7";
-    string Tags1 = "900GeV_L2Relative_AK4Calo:900GeV_L3Absolute_AK4Calo:L5Flavor_IC5:L7Parton_IC5";
+    string Tags1 = "900GeV_L2Relative_AK4Calo:900GeV_L3Absolute_AK4Calo:L5Flavor_AK4:L7Parton_AK4";
     string Options1 = "Flavor:gJ & Parton:gJ";
     CombinedJetCorrector *L2L3L5L7JetCorrector = new CombinedJetCorrector(Levels1,Tags1,Options1);
     

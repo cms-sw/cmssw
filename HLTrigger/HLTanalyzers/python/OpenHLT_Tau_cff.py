@@ -53,7 +53,7 @@ hltIcone2Tau1 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" ),
+    alias = cms.untracked.string( "AK4CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
@@ -67,7 +67,7 @@ hltIcone2Tau2 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" ),
+    alias = cms.untracked.string( "AK4CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
@@ -81,7 +81,7 @@ hltIcone2Tau3 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" ),
+    alias = cms.untracked.string( "AK4CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
@@ -95,7 +95,7 @@ hltIcone2Tau4 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" ),
+    alias = cms.untracked.string( "AK4CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
@@ -109,7 +109,7 @@ hltIcone2Central1 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" ),
+    alias = cms.untracked.string( "AK4CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
@@ -123,7 +123,7 @@ hltIcone2Central2 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" ),
+    alias = cms.untracked.string( "AK4CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
@@ -137,7 +137,7 @@ hltIcone2Central3 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" ),
+    alias = cms.untracked.string( "AK4CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )
@@ -151,7 +151,7 @@ hltIcone2Central4 = cms.EDProducer( "IterativeConeJetProducer",
     inputEMin = cms.double( 0.0 ),
     inputEtMin = cms.double( 0.5 ),
     debugLevel = cms.untracked.int32( 0 ),
-    alias = cms.untracked.string( "IC5CaloJet" ),
+    alias = cms.untracked.string( "AK4CaloJet" ),
     correctInputToSignalVertex = cms.bool( False ),
     pvCollection = cms.InputTag( "offlinePrimaryVertices" )
 )

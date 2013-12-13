@@ -15,8 +15,8 @@ iovs = [
     'JetCorrectorParametersCollection_Jec11_V10_KT4PF',
     'JetCorrectorParametersCollection_Jec11_V5_KT6Calo',
     'JetCorrectorParametersCollection_Jec11_V5_KT6PF',
-    'JetCorrectorParametersCollection_Jec11_V5_IC5Calo',
-    'JetCorrectorParametersCollection_Jec11_V5_IC5PF'
+    'JetCorrectorParametersCollection_Jec11_V5_AK4Calo',
+    'JetCorrectorParametersCollection_Jec11_V5_AK4PF'
     
     
     ]

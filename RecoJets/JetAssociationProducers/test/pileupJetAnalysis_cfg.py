@@ -13,11 +13,11 @@ process.GlobalTag.globaltag = 'IDEAL_V11::All'
 
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
-process.load("RecoJets.JetAssociationProducers.ic5JetVertexCompatibility_cfi")
+process.load("RecoJets.JetAssociationProducers.ak4JetVertexCompatibility_cfi")
 
 process.pileupJetAnalyzer = cms.EDAnalyzer("PileupJetAnalyzer",
-	jetTracksAssoc = cms.InputTag("ic5JetTracksAssociatorAtVertex"),
-	jetTagLabel = cms.InputTag("ic5JetVertexCompatibility"),
+	jetTracksAssoc = cms.InputTag("ak4JetTracksAssociatorAtVertex"),
+	jetTagLabel = cms.InputTag("ak4JetVertexCompatibility"),
 	signalFraction = cms.double(0.5),
 	jetMinE = cms.double(10),
 	jetMinEt = cms.double(10),
@@ -30,6 +30,6 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.path = cms.Path(
-	process.ic5JetVertexCompatibility *
+	process.ak4JetVertexCompatibility *
 	process.pileupJetAnalyzer
 )

@@ -54,7 +54,7 @@
   <Branch>ints_genParticles__SIM.</Branch>
   <Branch>recoGenJets_ak4GenJets__SIM.</Branch>
   <Branch>recoGenJets_ak8GenJets__SIM.</Branch>
-  <Branch>recoGenJets_iterativeCone5GenJets__SIM.</Branch>
+  <Branch>recoGenJets_ak4GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt4GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt6GenJets__SIM.</Branch>
   <Branch>recoGenMETs_genMetCalo__SIM.</Branch>
@@ -898,7 +898,7 @@
   <Branch>recoElectrons_hltPixelMatchElectronsL1Seeded__HLT.</Branch>
   <Branch>recoGenJets_ak4GenJets__SIM.</Branch>
   <Branch>recoGenJets_ak8GenJets__SIM.</Branch>
-  <Branch>recoGenJets_iterativeCone5GenJets__SIM.</Branch>
+  <Branch>recoGenJets_ak4GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt4GenJets__SIM.</Branch>
   <Branch>recoGenJets_kt6GenJets__SIM.</Branch>
   <Branch>recoGenMETs_genMetCalo__SIM.</Branch>
@@ -2806,7 +2806,7 @@
 <Branch Name="edmTriggerResults_TriggerResults__HLT." ReadCount="1" />
 <Branch Name="recoCaloMETs_hltMet__HLT." ReadCount="1" />
 <Branch Name="recoGenJets_ak4GenJets__SIM." ReadCount="1" />
-<Branch Name="recoGenJets_iterativeCone5GenJets__SIM." ReadCount="1" />
+<Branch Name="recoGenJets_ak4GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenJets_kt6GenJets__SIM." ReadCount="1" />
 <Branch Name="recoGenMETs_genMetCalo__SIM." ReadCount="1" />
 <Branch Name="recoGenMETs_genMetTrue__SIM." ReadCount="1" />

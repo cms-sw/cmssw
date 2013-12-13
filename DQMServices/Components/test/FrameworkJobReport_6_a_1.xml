@@ -52,14 +52,14 @@
   <Branch>double_hltAntiKT5CaloJets_rho_HLT.</Branch>
   <Branch>double_hltAntiKT5PFJets_rho_HLT.</Branch>
   <Branch>double_hltAntiKT5PFJetsForTaus_rho_HLT.</Branch>
-  <Branch>double_iterativeCone5GenJets_rho_HLT.</Branch>
+  <Branch>double_ak4GenJets_rho_HLT.</Branch>
   <Branch>double_kt4GenJets_rho_HLT.</Branch>
   <Branch>double_kt6GenJets_rho_HLT.</Branch>
   <Branch>double_ak4GenJets_sigma_HLT.</Branch>
   <Branch>double_hltAntiKT5CaloJets_sigma_HLT.</Branch>
   <Branch>double_hltAntiKT5PFJets_sigma_HLT.</Branch>
   <Branch>double_hltAntiKT5PFJetsForTaus_sigma_HLT.</Branch>
-  <Branch>double_iterativeCone5GenJets_sigma_HLT.</Branch>
+  <Branch>double_ak4GenJets_sigma_HLT.</Branch>
   <Branch>double_kt4GenJets_sigma_HLT.</Branch>
   <Branch>double_kt6GenJets_sigma_HLT.</Branch>
   <Branch>L2MuonTrajectorySeedsToManyL2MuonTrajectorySeedsAssociation_hltL2Muons__HLT.</Branch>
@@ -220,14 +220,14 @@
   <Branch>doubles_hltAntiKT5CaloJets_rhos_HLT.</Branch>
   <Branch>doubles_hltAntiKT5PFJets_rhos_HLT.</Branch>
   <Branch>doubles_hltAntiKT5PFJetsForTaus_rhos_HLT.</Branch>
-  <Branch>doubles_iterativeCone5GenJets_rhos_HLT.</Branch>
+  <Branch>doubles_ak4GenJets_rhos_HLT.</Branch>
   <Branch>doubles_kt4GenJets_rhos_HLT.</Branch>
   <Branch>doubles_kt6GenJets_rhos_HLT.</Branch>
   <Branch>doubles_ak4GenJets_sigmas_HLT.</Branch>
   <Branch>doubles_hltAntiKT5CaloJets_sigmas_HLT.</Branch>
   <Branch>doubles_hltAntiKT5PFJets_sigmas_HLT.</Branch>
   <Branch>doubles_hltAntiKT5PFJetsForTaus_sigmas_HLT.</Branch>
-  <Branch>doubles_iterativeCone5GenJets_sigmas_HLT.</Branch>
+  <Branch>doubles_ak4GenJets_sigmas_HLT.</Branch>
   <Branch>doubles_kt4GenJets_sigmas_HLT.</Branch>
   <Branch>doubles_kt6GenJets_sigmas_HLT.</Branch>
   <Branch>ints_genParticles__HLT.</Branch>
@@ -313,7 +313,7 @@
   <Branch>recoElectrons_hltPixelMatchElectronsL1Seeded__HLT.</Branch>
   <Branch>recoGenJets_ak4GenJets__HLT.</Branch>
   <Branch>recoGenJets_ak8GenJets__HLT.</Branch>
-  <Branch>recoGenJets_iterativeCone5GenJets__HLT.</Branch>
+  <Branch>recoGenJets_ak4GenJets__HLT.</Branch>
   <Branch>recoGenJets_kt4GenJets__HLT.</Branch>
   <Branch>recoGenJets_kt6GenJets__HLT.</Branch>
   <Branch>recoGenMETs_genMetCalo__HLT.</Branch>
@@ -324,7 +324,7 @@
   <Branch>recoIsolatedPixelTrackCandidates_hltHITIPTCorrectorHE__HLT.</Branch>
   <Branch>recoIsolatedPixelTrackCandidates_hltIsolPixelTrackProdHB__HLT.</Branch>
   <Branch>recoIsolatedPixelTrackCandidates_hltIsolPixelTrackProdHE__HLT.</Branch>
-  <Branch>recoMETs_genMetIC5GenJets__HLT.</Branch>
+  <Branch>recoMETs_genMetAK4GenJets__HLT.</Branch>
   <Branch>recoMETs_hltEle15CaloIdTTrkIdTCaloIsoVLTrkIsoVLCleanedPFHTNoPU__HLT.</Branch>
   <Branch>recoMETs_hltEle18CaloIdTTrkIdTCaloIsoVLTrkIsoVLCleanedPFHTNoPU__HLT.</Branch>
   <Branch>recoMETs_hltEle40CaloIdVTTrkIdTCleanedPFHTNoPU__HLT.</Branch>

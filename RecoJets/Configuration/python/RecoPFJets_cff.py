@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoJets.JetProducers.sc5PFJets_cfi import sisCone5PFJets
-from RecoJets.JetProducers.ic5PFJets_cfi import iterativeCone5PFJets
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 from RecoJets.JetProducers.ak4PFJetsTrimmed_cfi import ak4PFJetsTrimmed
@@ -152,7 +151,6 @@ cmsTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"
 hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
 
 recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
-                           iterativeCone5PFJets+
                            #kt6PFJetsCentralChargedPileUp+
                            #kt6PFJetsCentralNeutral+
                            #kt6PFJetsCentralNeutralTight+
@@ -177,7 +175,6 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
     )
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
-                           iterativeCone5PFJets+
                            kt4PFJets+kt6PFJets+
                            kt6PFJetsCentralChargedPileUp+
                            kt6PFJetsCentralNeutral+
@@ -186,7 +183,7 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            fixedGridRhoFastjetAll+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
-                           iterativeCone5PFJets+
+                           ak4PFJets+
                            ak4PFJets+ak5PFJets+ak8PFJets+
                            gk5PFJets+gk7PFJets+
                            ca4PFJets+ca8PFJets+

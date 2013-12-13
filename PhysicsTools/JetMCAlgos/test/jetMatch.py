@@ -11,11 +11,11 @@ process.source = cms.Source("PoolSource",
 )
 
 process.caloJetCollectionClone = cms.EDProducer("CaloJetShallowCloneProducer",
-    src = cms.InputTag("iterativeCone5CaloJets")
+    src = cms.InputTag("ak4CaloJets")
 )
 
 process.genJetCollectionClone = cms.EDProducer("GenJetShallowCloneProducer",
-    src = cms.InputTag("iterativeCone5GenJets")
+    src = cms.InputTag("ak4GenJets")
 )
 
 process.caloJetSele = cms.EDFilter("PtMinCandSelector",
@@ -29,9 +29,9 @@ process.genJetSele = cms.EDFilter("PtMinCandSelector",
 )
 
 process.jetMatchOne = cms.EDFilter("CandOneToOneDeltaRMatcher",
-    src = cms.InputTag("iterativeCone5GenJets"),
+    src = cms.InputTag("ak4GenJets"),
     algoMethod = cms.string('SwitchMode'),
-    matched = cms.InputTag("iterativeCone5CaloJets")
+    matched = cms.InputTag("ak4CaloJets")
 )
 
 process.jetMatchMany = cms.EDFilter("CandOneToManyDeltaRMatcher",

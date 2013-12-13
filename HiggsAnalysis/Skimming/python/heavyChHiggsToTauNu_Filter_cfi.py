@@ -9,7 +9,7 @@ heavyChHiggsToTauNuFilter = cms.EDFilter("HeavyChHiggsToTauNuSkim",
     jetEtaMax = cms.double(2.5),
     minNumberOfJets = cms.int32(3),
     jetEtMin = cms.double(20.0),
-    JetTagCollection = cms.InputTag("iterativeCone5CaloJets")
+    JetTagCollection = cms.InputTag("ak4CaloJets")
 )
 
 

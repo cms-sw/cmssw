@@ -12,7 +12,7 @@ using namespace pat;
 
 // constructor
 LeptonJetIsolationAngle::LeptonJetIsolationAngle(edm::ConsumesCollector && iC)
-: jetToken_( iC.consumes< reco::CaloJetCollection >( edm::InputTag( "iterativeCone5CaloJets" ) ) )
+: jetToken_( iC.consumes< reco::CaloJetCollection >( edm::InputTag( "ak4CaloJets" ) ) )
 , electronsToken_( iC.consumes< std::vector<reco::GsfElectron > >( edm::InputTag( "pixelMatchGsfElectrons" ) ) )
 {
 }
