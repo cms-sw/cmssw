@@ -54,6 +54,6 @@ recoAllGenJetsNoNu=cms.Sequence(genParticlesForJetsNoNu+
                                 kt4GenJetsNoNu+kt6GenJetsNoNu+
                                 ak4GenJetsNoNu+ak8GenJetsNoNu)
 
-recoAllGenJetsNoMuNoNu=cms.Sequence(genParticlesForJetsNoNuNoMu+
+recoAllGenJetsNoMuNoNu=cms.Sequence(genParticlesForJetsNoMuNoNu+
                                     kt4GenJetsNoMuNoNu+kt6GenJetsNoMuNoNu+
                                     ak4GenJetsNoMuNoNu+ak8GenJetsNoMuNoNu)
