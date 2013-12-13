@@ -82,6 +82,7 @@ workflows[4.62] = ['',['RunMu2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
 workflows[4.63] = ['',['RunPhoton2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
 workflows[4.64] = ['',['RunEl2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
 workflows[4.65] = ['',['RunJet2012C','HLTD','RECODreHLT','HARVESTDreHLT']]
+# workflows[4.69] = ['',['RunZBias2012C','RECODSplit','HARVESTD']] # needed but can't be tested because of DBS => das hanging forever
 workflows[4.66] = ['',['ZMuSkim2012C','RECOSKIM','HARVESTD']]
 workflows[4.67] = ['',['ZElSkim2012C','RECOSKIM','HARVESTD']]
 workflows[4.68] = ['',['WElSkim2012C','RECOSKIM','HARVESTD']]

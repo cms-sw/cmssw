@@ -217,6 +217,11 @@ steps['ZMuSkim2012C']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012C-ZMu-PromptS
 steps['WElSkim2012C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012C-WElectron-PromptSkim-v3/USER',label='wEl2012C',location='STD',run=Run2012Csk)}
 steps['ZElSkim2012C']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012C-ZElectron-PromptSkim-v3/RAW-RECO',label='zEl2012C',location='STD',run=Run2012Csk)}
 
+# needed but can't be tested because of DBS => das hanging forever 
+#RunHighPU2012C=[198588]
+#steps['RunZBias2012C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2012C-v1/RAW',label='zb2012C',location='STD',run=RunHighPU2012C,events=100000)}
+
+
 Run2012D=[208307]
 Run2012Dsk=Run2012D+[207454]
 steps['RunMinBias2012D']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012D-v1/RAW',label='mb2012D',run=Run2012D, events=100000,location='STD')}
@@ -884,8 +889,8 @@ steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
 PU={'-n':10,'--pileup':'default','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
-PU25={'-n':10,'--pileup':'AVE_20_BX_25ns','--pileup_input':'dbs:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[7],)}
-PU50={'-n':10,'--pileup':'AVE_40_BX_50ns','--pileup_input':'dbs:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[7],)}
+PU25={'-n':10,'--pileup':'AVE_10_BX_25ns_m8','--pileup_input':'dbs:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[7],)}
+PU50={'-n':10,'--pileup':'AVE_20_BX_50ns_m8','--pileup_input':'dbs:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[7],)}
 PUFS={'--pileup':'default'}
 PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
 steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
@@ -980,6 +985,7 @@ steps['HLTD']=merge([{'--process':'reHLT',
 #wmsplit['HLTD']=5
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
+steps['RECODSplit']=steps['RECOD'] # finer job splitting  
 steps['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
                               },steps['RECOD']])
 steps['RECOSKIM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM',
