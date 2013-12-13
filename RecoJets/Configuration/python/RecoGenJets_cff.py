@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoJets.Configuration.GenJetParticles_cff import *
 from RecoJets.JetProducers.sc5GenJets_cfi import sisCone5GenJets
 from RecoJets.JetProducers.ic5GenJets_cfi import iterativeCone5GenJets
 from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
@@ -42,13 +43,17 @@ gk8GenJetsNoMuNoNu = gk8GenJets.clone( src = cms.InputTag("genParticlesForJetsNo
 ca4GenJetsNoMuNoNu = ca4GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 ca6GenJetsNoMuNoNu = ca6GenJets.clone( src = cms.InputTag("genParticlesForJetsNoMuNoNu") )
 
-recoGenJets   =cms.Sequence(ak4GenJets+ak4GenJets+ak8GenJets+ak4GenJetsNoNu+ak8GenJetsNoNu)
+recoGenJets   =cms.Sequence(genParticlesForJetsNoNu+
+                            ak4GenJets+ak4GenJets+ak8GenJets+ak4GenJetsNoNu+ak8GenJetsNoNu)
 
-recoAllGenJets=cms.Sequence(kt4GenJets+kt6GenJets+
+recoAllGenJets=cms.Sequence(genParticlesForJetsNoNu+
+                            kt4GenJets+kt6GenJets+
                             ak4GenJets+ak8GenJets)
 
-recoAllGenJetsNoNu=cms.Sequence(kt4GenJetsNoNu+kt6GenJetsNoNu+
+recoAllGenJetsNoNu=cms.Sequence(genParticlesForJetsNoNu+
+                                kt4GenJetsNoNu+kt6GenJetsNoNu+
                                 ak4GenJetsNoNu+ak8GenJetsNoNu)
 
-recoAllGenJetsNoMuNoNu=cms.Sequence(kt4GenJetsNoMuNoNu+kt6GenJetsNoMuNoNu+
+recoAllGenJetsNoMuNoNu=cms.Sequence(genParticlesForJetsNoNuNoMu+
+                                    kt4GenJetsNoMuNoNu+kt6GenJetsNoMuNoNu+
                                     ak4GenJetsNoMuNoNu+ak8GenJetsNoMuNoNu)
