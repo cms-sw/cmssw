@@ -50,6 +50,13 @@ public:
 	    GlobalVector p3, float iEnergy, bool massless,
 	    GlobalPoint emPosition, GlobalPoint hadPosition);
 
+  CaloTower(CaloTowerDetId id,
+            float emE, float hadE, float outerE,
+            int ecal_tp, int hcal_tp,
+            GlobalVector p3, float iEnergy, float imass,
+            GlobalPoint emPosition, GlobalPoint hadPosition);
+
+
 
    // setters
   void addConstituent( DetId id ) { constituents_.push_back( id ); }
