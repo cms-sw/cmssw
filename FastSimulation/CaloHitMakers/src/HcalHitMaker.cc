@@ -100,15 +100,20 @@ bool HcalHitMaker::addHit(const XYZPoint& point, unsigned layer)
       //      std::cout << " FamosHcalHitMaker::addHit - the cell num " << cell
       //      		<< std::endl;
 
+      double ww = 1.0;
+      if( myDetId.subdetId()==HcalEndcap && darkening ) { 
+        int lay = getLayerNumber(point.Z());
+        ww = m_HEDarkening->degradation(intLumi,myDetId.ietaAbs(),lay-1);
+      } 
       std::map<CaloHitID,float>::iterator cellitr;
       cellitr = hitMap_.find(current_id);
       if(cellitr==hitMap_.end())
 	{
-	  hitMap_.insert(std::pair<CaloHitID,float>(current_id,spotEnergy));
+	  hitMap_.insert(std::pair<CaloHitID,float>(current_id,ww*spotEnergy));
 	}
       else
 	{
-	  cellitr->second+=spotEnergy;
+	  cellitr->second+=ww*spotEnergy;
 	}
       return true;
     }
@@ -179,4 +184,14 @@ HcalHitMaker::setDepth(double depth,bool inCm)
 			   (Point)(origin+particleDirection),
 			   (Point)(origin+planeVec1));
   return true;
+}
+
+int HcalHitMaker::getLayerNumber(double z)
+{
+  int lay = 0;
+  for (unsigned int i=0; i<heLayers_.size()-1; ++i) {
+    if(abs(z) <=heLayers_[0]) break; 
+    else if (abs(z) > heLayers_[i]) lay = i;
+  }
+  return lay;
 }
