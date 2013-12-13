@@ -1,10 +1,8 @@
 #ifndef TkDetLayers_TIBLayer_h
 #define TkDetLayers_TIBLayer_h
 
-
-#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TBLayer.h"
 #include "TIBRing.h"
-#include "SubLayerCrossings.h"
 #include "TrackingTools/DetLayers/interface/GeneralBinFinderInZforGeometricSearchDet.h"
 
 /** A concrete implementation for TIB layer 
@@ -12,7 +10,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWithGroups {
+class TIBLayer GCC11_FINAL : public TBLayer {
  public:
 
   TIBLayer(std::vector<const TIBRing*>& innerRings,
@@ -20,17 +18,7 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
 
   ~TIBLayer() __attribute__ ((cold));
   
-  // GeometricSearchDet interface
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
-
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
-  
-  void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
-			       const Propagator& prop,
-			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
- 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TIB;}
 
@@ -38,14 +26,8 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
  private:
   // private methods for the implementation of groupedCompatibleDets()
 
-  SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& startingState,
-				      PropagationDirection propDir) const __attribute__ ((hot));
+  std::tuple<bool,int,int>  computeIndexes(GlobalPoint gInnerPoint, GlobalPoint gOuterPoint) const  __attribute__ ((hot));
 
-  bool addClosest( const TrajectoryStateOnSurface& tsos,
-		   const Propagator& prop,
-		   const MeasurementEstimator& est,
-		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -61,19 +43,6 @@ class TIBLayer GCC11_FINAL : public BarrelDetLayer, public GeometricSearchDetWit
 
   bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& ring, float window) const  __attribute__ ((hot));
 
-  const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
-    return (ind==0 ? theInnerComps : theOuterComps);
-  }
-
-
- private:
-  std::vector<const GeometricSearchDet*> theComps;
-  std::vector<const GeometricSearchDet*> theInnerComps;
-  std::vector<const GeometricSearchDet*> theOuterComps;
-  std::vector<const GeomDet*> theBasicComps;
-  
-  ReferenceCountingPointer<BoundCylinder>  theInnerCylinder;
-  ReferenceCountingPointer<BoundCylinder>  theOuterCylinder;
 
   GeneralBinFinderInZforGeometricSearchDet<float> theInnerBinFinder;
   GeneralBinFinderInZforGeometricSearchDet<float> theOuterBinFinder;

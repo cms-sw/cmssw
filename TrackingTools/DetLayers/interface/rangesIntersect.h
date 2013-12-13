@@ -12,7 +12,7 @@
 
 template <typename Range>
 inline bool rangesIntersect( const Range& a, const Range& b) {
-  return !( a.first > b.second | b.first > a.second);
+  return !( (a.first > b.second) | (b.first > a.second) );
 }
 
 template <typename Range, typename Less>
