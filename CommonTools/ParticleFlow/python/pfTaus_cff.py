@@ -136,10 +136,21 @@ pfTausPreSequence = cms.Sequence(
 )
 
 # Select taus from given collection that pass cloned discriminants
+pfTaus = pfTauSelector.clone()
+pfTaus.src = cms.InputTag("pfTausProducer")
+pfTaus.discriminators = cms.VPSet(
+        cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByDecayModeFinding"),selectionCut=cms.double(0.5) ),
+            )
+
+pfTausPtrs = cms.EDProducer("PFTauFwdPtrProducer",
+                             src=cms.InputTag("pfTaus")
+                                                        )
 
 pfTauSequence = cms.Sequence(
     pfTausPreSequence +
-    pfTausBaseSequence
+    pfTausBaseSequence +
+    pfTaus +
+    pfTausPtrs
  )
 
 
