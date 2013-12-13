@@ -18,12 +18,12 @@
 #include "FWCore/RootAutoLibraryLoader/src/stdNamespaceAdder.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 #include "TClass.h"
 #include "TInterpreter.h"
 #include "TROOT.h"
 
-#include <iostream>
 #include <map>
 #include <string>
 
@@ -87,6 +87,7 @@ loadLibraryForClass(const char* classname)
 /// during lookup of a class name.  We try to load a library
 /// that provides the definition of the class using the SEAL
 /// Capabilities plugin.
+#include <iostream>
 static
 int
 AutoLoadCallback(const char* c)
@@ -235,7 +236,8 @@ GetClass(const type_info& typeinfo, bool load)
     return nullptr;
   }
   // FIXME: demangle the name here!
-  return GetClass(typeinfo.name(), load);
+  std::string demangledName = typeDemangle(typeinfo.name());
+  return GetClass(demangledName.c_str(), load);
 }
 
 void

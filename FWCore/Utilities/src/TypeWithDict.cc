@@ -137,13 +137,19 @@ TypeWithDict(const type_info& ti, long property /*= 0L*/)
 {
   type_ = gInterpreter->Type_Factory(ti);
   if (!gInterpreter->Type_TypeInfo(type_)) {
+    // This can happen if no dictionary has been loaded for the class or enum.
+    // If this is a class, trigger the loading of the dictionary.
+    class_ = TClass::GetClass(ti);
+  }
+  if (!gInterpreter->Type_TypeInfo(type_)) {
     // FIXME: Replace this with an exception!
     fprintf(stderr, "TypeWithDict(const type_info&, long): "
             "Type_TypeInfo returns nullptr!\n");
     abort();
   }
   dataType_ = TDataType::GetDataType(TDataType::GetType(ti));
-  if (!gInterpreter->Type_IsFundamental(type_) &&
+  if (class_ == nullptr &&
+      !gInterpreter->Type_IsFundamental(type_) &&
       !gInterpreter->Type_IsEnum(type_)) {
     // Must be a class, struct, or union.
     class_ = TClass::GetClass(ti);
@@ -893,6 +899,12 @@ destruct(void* address, bool dealloc) const
 //-------------------------------------------------------------
 //
 //
+
+// A related free function
+bool 
+hasDictionary(const std::type_info& ti) {
+  return gInterpreter->Type_TypeInfo(gInterpreter->Type_Factory(ti));
+}
 
 bool
 operator==(const TypeWithDict& a, const TypeWithDict& b)

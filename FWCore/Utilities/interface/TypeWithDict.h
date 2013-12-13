@@ -125,6 +125,9 @@ public:
   void destruct(void* address, bool dealloc = true) const;
 };
 
+// A related free function
+bool hasDictionary(const std::type_info&);
+
 inline bool operator<(const TypeWithDict& a, const TypeWithDict& b)
 {
   return a.typeInfo().before(b.typeInfo());

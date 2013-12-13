@@ -229,6 +229,7 @@ namespace edm {
       // Enable automatic Root library loading.
       if(autoLibraryLoader_) {
         RootAutoLibraryLoader::enable();
+        gInterpreter->SetClassAutoloading(1);
       }
 
       // Set ROOT parameters.
