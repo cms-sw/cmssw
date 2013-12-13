@@ -54,7 +54,7 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
       jetToken_(consumes<edm::View<reco::Jet> >(
 		cfg.getUntrackedParameter<edm::InputTag> ("JetTag",
 							  edm::InputTag("sisCone5CaloJets")))),
-      vertexTag_(consumes<reco::VertexCollection>(
+      vertexTag_(consumes<edm::View<reco::Vertex> >(
 		   cfg.getUntrackedParameter<edm::InputTag> ("VertexTag",
 							     edm::InputTag("offlinePrimaryVertices")))),
       beamSpotTag_(consumes<reco::BeamSpot>(
@@ -370,7 +370,10 @@ void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
   LogVerbatim("") << ">>>>>> SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
 
-void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
+inline void HERE(const char *msg) { std::cout << msg << "\n"; }
+
+
+void EwkElecDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       // Reset global event selection flags
       bool rec_sel = false;
@@ -392,6 +395,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	//LogWarning("") << ">>> No beam spot found !!!";
 	return;
       }
+
         // MET
       double met_px = 0.;
       double met_py = 0.;
@@ -400,6 +404,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	//LogWarning("") << ">>> MET collection does not exist !!!";
 	return;
       }
+
       const MET& met = metCollection->at(0);
       met_px = met.px();
       met_py = met.py();
@@ -423,14 +428,14 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
                  LogError("") << ">>> Vertex collection does not exist !!!";
                  return;
             }
+
       for (unsigned int i=0; i<vertexCollection->size(); i++) {
             const Vertex& vertex = vertexCollection->at(i);
             if (vertex.isValid()) npvCount++;
       }
       npvs_before_->Fill(npvCount);
 
-
-      // Trigger
+     // Trigger
       Handle<TriggerResults> triggerResults;
       if (!ev.getByToken(trigTag_, triggerResults)) {
 	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
@@ -438,7 +443,8 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       }
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       bool trigger_fired = false;
-      /*
+
+      /* very old code
       for (unsigned int i=0; i<triggerResults->size(); i++) {
             if (triggerResults->accept(i)) {
                   LogTrace("") << "Accept by: " << i << ", Trigger: " << trigNames.triggerName(i);
@@ -452,6 +458,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       if (triggerResults->accept(itrig1)) trigger_fired = true;
       */
       //suggested replacement: lm250909
+      /*  Fix buggy trigger logic
       for (unsigned int i=0; i<triggerResults->size(); i++)
 	{
 	  std::string trigName = trigNames.triggerName(i);
@@ -481,7 +488,35 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	      if(triggerResults->accept(i) && !prescaled) trigger_fired=true;
 
 	}
+      */
 
+      // get the prescale set for this event
+      const int prescaleSet=hltConfigProvider_.prescaleSet(ev,iSet);
+      if (prescaleSet==-1) {
+        LogTrace("") << "Failed to determine prescaleSet\n";
+	//std::cout << "Failed to determine prescaleSet. Check cmsRun GlobalTag\n";
+        return;
+      }
+
+      for (unsigned int i=0; (i<triggerResults->size()) && (trigger_fired==false); i++) {
+        // skip trigger, if it did not fire
+        if (!triggerResults->accept(i)) continue;
+
+        // skip trigger, if it is not on our list
+        bool found=false;
+        const std::string trigName = trigNames.triggerName(i);
+        for(unsigned int index=0; index<elecTrig_.size() && found==false; index++) {
+          if ( trigName.find(elecTrig_.at(index)) == 0 ) found=true;
+        }
+        if(!found) continue;
+
+        // skip trigger, if it is prescaled
+        if (hltConfigProvider_.prescaleValue(prescaleSet,trigName) != 1)
+          continue;
+
+        //std::cout << "found unprescaled trigger that fired: " << trigName << "\n";
+        trigger_fired=true;
+      }
 
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( " ;
       for (unsigned int k = 0; k < elecTrig_.size(); k++)
@@ -490,21 +525,6 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	}
       LogTrace("") << ")";
       trig_before_->Fill(trigger_fired);
-
-//       // Loop to reject/control Z->mumu is done separately
-//       unsigned int nmuonsForZ1 = 0;
-//       unsigned int nmuonsForZ2 = 0;
-//       for (unsigned int i=0; i<muonCollectionSize; i++) {
-//             const Muon& mu = muonCollection->at(i);
-//             if (!mu.isGlobalMuon()) continue;
-//             double pt = mu.pt();
-//             if (pt>ptThrForZ1_) nmuonsForZ1++;
-//             if (pt>ptThrForZ2_) nmuonsForZ2++;
-//       }
-//       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
-//       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
-//       nz1_before_->Fill(nmuonsForZ1);
-//       nz2_before_->Fill(nmuonsForZ2);
 
       // Jet collection
       Handle<View<Jet> > jetCollection;
