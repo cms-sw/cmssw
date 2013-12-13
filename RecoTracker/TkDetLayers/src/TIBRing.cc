@@ -235,7 +235,8 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
   double rho( startingState.transverseCurvature());
 
   HelixBarrelCylinderCrossing cylCrossing( startPos, startDir, rho,
-					   propDir,specificSurface());
+					   propDir,specificSurface(),
+					     HelixBarrelCylinderCrossing::bestSol);
 
   if (!cylCrossing.hasSolution()) return SubRingCrossings();
 
