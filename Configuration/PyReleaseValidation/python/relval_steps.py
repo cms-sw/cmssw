@@ -908,9 +908,9 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2
                  '--geometry'    :'Extended2015',
                  '-n'            :'10'
                   }
-steps['DIGIUP15']=merge([step2Upg2015Defaults])      # todo: remove UP from label
-steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults]) # todo: remove UP from label
-steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults]) # todo: remove UP from label
+steps['DIGIUP15']=merge([step2Upg2015Defaults])
+steps['DIGIUP15_PU25']=merge([{'--conditions':'POSTLS162_V2::All'},PU25,step2Upg2015Defaults])  # FIX explicit GT in absence of label in autoCond.py
+steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults])
 
 steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
@@ -1073,7 +1073,7 @@ steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBi
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
 
 steps['RECOPU1']=merge([PU,steps['RECO']])
-steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
+steps['RECOUP15_PU25']=merge([{'--conditions':'POSTLS162_V2::All'},PU25,step3Up2015Defaults])  # FIX explicit GT in absence of label in autoCond.py
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults])
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
