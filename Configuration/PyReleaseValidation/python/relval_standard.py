@@ -12,6 +12,9 @@ workflows = Matrix()
 workflows[1] = ['', ['ProdMinBias','DIGIPROD1','RECOPROD1']]
 workflows[2] = ['', ['ProdTTbar','DIGIPROD1','RECOPROD1']]
 workflows[3] = ['', ['ProdQCD_Pt_3000_3500','DIGIPROD1','RECOPROD1']]
+workflows[1301] = ['', ['ProdMinBias_13','DIGIUP15PROD1','RECOPROD1']]
+workflows[1302] = ['', ['ProdTTbar_13','DIGIUP15PROD1','RECOPROD1']]
+workflows[1303] = ['', ['ProdQCD_Pt_3000_3500_13','DIGIUP15PROD1','RECOPROD1']]
 
 ### data ###
 workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD','HARVESTDC']]
@@ -128,6 +131,7 @@ workflows[1306]  = ['', ['SingleMuPt1_UP15','DIGIUP15','RECOUP15','HARVESTUP15']
 workflows[1320] = ['', ['SingleMuPt10_UP15','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1321] = ['', ['SingleMuPt100_UP15','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1322] = ['', ['SingleMuPt1000_UP15','DIGIUP15','RECOUP15','HARVESTUP15']]
+#workflows[140.1] = ['',['HydjetQ_MinBias_2760GeV_UP15','DIGIHIUP15','RECOHIUP15','HARVESTHI']] # need new GEN-SIM for this one
 
 ## 8 TeV
 workflows[24] = ['', ['TTbarLepton','DIGI','RECO','HARVEST']]
