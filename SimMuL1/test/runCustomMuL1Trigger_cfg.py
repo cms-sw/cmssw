@@ -224,7 +224,7 @@ if not physics:
 
 ## custom sequences
 process.mul1 = cms.Sequence(
-  #process.pdigi *
+  process.pdigi *
   process.SimL1MuTriggerPrimitives *
   process.SimL1MuTrackFinders *
   process.simRpcTriggerDigis *
@@ -233,7 +233,7 @@ process.mul1 = cms.Sequence(
 )
 
 process.muL1Short = cms.Sequence(
-  #process.pdigi *
+  process.pdigi *
   process.simCscTriggerPrimitiveDigis *
   process.SimL1MuTrackFinders *
   process.simGmtDigis *
