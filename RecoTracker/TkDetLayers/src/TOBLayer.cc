@@ -136,7 +136,8 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   double rho( startingState.transverseCurvature());
 
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
-					     propDir,*theInnerCylinder);
+					     propDir,*theInnerCylinder,
+					     HelixBarrelCylinderCrossing::onlyPos);
   if (!innerCrossing.hasSolution()) return SubLayerCrossings();
 
   GlobalPoint gInnerPoint( innerCrossing.position());
@@ -145,7 +146,8 @@ SubLayerCrossings TOBLayer::computeCrossings( const TrajectoryStateOnSurface& st
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
-					     propDir,*theOuterCylinder);
+					     propDir,*theOuterCylinder,
+					     HelixBarrelCylinderCrossing::onlyPos);
 
   if (!outerCrossing.hasSolution()) return SubLayerCrossings();
 

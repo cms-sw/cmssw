@@ -126,7 +126,8 @@ SubLayerCrossings PixelBarrelLayer::computeCrossings( const TrajectoryStateOnSur
   double rho( startingState.transverseCurvature());
   
   HelixBarrelCylinderCrossing innerCrossing( startPos, startDir, rho,
-					     propDir,*theInnerCylinder);
+					     propDir,*theInnerCylinder,
+					     HelixBarrelCylinderCrossing::onlyPos);
 
   if (!innerCrossing.hasSolution()) return SubLayerCrossings();
   //{
@@ -135,12 +136,13 @@ SubLayerCrossings PixelBarrelLayer::computeCrossings( const TrajectoryStateOnSur
   //}
 
   GlobalPoint gInnerPoint( innerCrossing.position());
-  int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.phi());
-  float innerDist = theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.phi();
+  int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.barePhi());
+  float innerDist = theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.barePhi();
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
   HelixBarrelCylinderCrossing outerCrossing( startPos, startDir, rho,
-					     propDir,*theOuterCylinder);
+					     propDir,*theOuterCylinder,
+					     HelixBarrelCylinderCrossing::onlyPos);
 
   if (!outerCrossing.hasSolution()) return SubLayerCrossings();
   //if (!outerCrossing.hasSolution()) {
@@ -148,14 +150,14 @@ SubLayerCrossings PixelBarrelLayer::computeCrossings( const TrajectoryStateOnSur
   //}
 
   GlobalPoint gOuterPoint( outerCrossing.position());
-  int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.phi());
-  float outerDist = theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.phi() ;
+  int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.barePhi());
+  float outerDist = theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.barePhi() ;
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
   
-  innerDist *= PhiLess()( theInnerBinFinder.binPosition(innerIndex),gInnerPoint.phi()) ? -1. : 1.; 
-  outerDist *= PhiLess()( theOuterBinFinder.binPosition(outerIndex),gOuterPoint.phi()) ? -1. : 1.; 
-  if (innerDist < 0.) { innerDist += 2.*Geom::pi();}
-  if (outerDist < 0.) { outerDist += 2.*Geom::pi();}
+  innerDist *= PhiLess()( theInnerBinFinder.binPosition(innerIndex),gInnerPoint.barePhi()) ? -1.f : 1.f; 
+  outerDist *= PhiLess()( theOuterBinFinder.binPosition(outerIndex),gOuterPoint.barePhi()) ? -1.f : 1.f; 
+  if (innerDist < 0) { innerDist += Geom::ftwoPi();}
+  if (outerDist < 0) { outerDist += Geom::ftwoPi();}
   
 
   if (innerDist < outerDist) {
