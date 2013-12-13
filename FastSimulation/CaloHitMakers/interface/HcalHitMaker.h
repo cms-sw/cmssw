@@ -39,6 +39,8 @@ class HcalHitMaker : public CaloHitMaker
   /// set the depth in X0 or Lambda0 units depending on showerType
   bool setDepth(double,bool inCm=false); 
 
+  int getLayerNumber(double); 
+
  private:
     EcalHitMaker& myGrid;
     
