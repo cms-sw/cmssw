@@ -13,6 +13,7 @@ const std::string edm::SharedResourceNames::kEvtGen = "EvtGen";
 
 static std::atomic<unsigned int> counter;
 
+// See comments in header file for the purpose of this function.
 std::string edm::uniqueSharedResourceName() {
   std::stringstream ss;
   ss << "uniqueSharedResourceName" << counter.fetch_add(1);
