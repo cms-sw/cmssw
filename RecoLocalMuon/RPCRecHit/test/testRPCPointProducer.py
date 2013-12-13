@@ -10,7 +10,7 @@ process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "MC_3XY_V15::All"
+process.GlobalTag.globaltag = "START53_V27::All"
 
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -23,7 +23,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	'/store/data/Commissioning10/Cosmics/RECO/v3/000/127/155/005F9301-2E16-DF11-B60B-0030487CD6B4.root'
+        #	'/store/data/Commissioning10/Cosmics/RECO/v3/000/127/155/005F9301-2E16-DF11-B60B-0030487CD6B4.root'
+        '/store/data/Run2012D/RPCMonitor/RAW/v1/000/207/900/1AFE2D3D-A836-E211-B86A-001D09F23D1D.root'
         )                           
 )
 
@@ -40,7 +41,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_standAloneMuons_*_*',
         'keep *_cosmicMuons_*_*',
         'keep *_globalMuons_*_*'),
- fileName = cms.untracked.string('/tmp/carrillo/outs/output.root')
+ fileName = cms.untracked.string('output.root')
 )
   
 process.p = cms.Path(process.rpcPointProducer)
