@@ -41,7 +41,7 @@ namespace cond {
       typedef enum { THROW, DO_NOT_THROW, CREATE } FailureOnOpeningPolicy;
     public:
       SessionImpl();
-      explicit SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session );
+      SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString );
       ~SessionImpl();
       
       void close();

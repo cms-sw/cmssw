@@ -55,7 +55,8 @@ int run( const std::string& connectionString ){
     session.transaction().start();
 
     IOVProxy proxy = session.readIov( "MyNewIOV" );
-    std::cout <<"## iov size="<<proxy.size()<<std::endl;
+    std::cout <<"## iov loaded size="<<proxy.loadedSize()<<std::endl;
+    std::cout <<"## iov sequence size="<<proxy.sequenceSize()<<std::endl;
     IOVProxy::Iterator iovIt = proxy.find( 57 );
     if( iovIt == proxy.end() ){
       std::cout <<"#0 not found!"<<std::endl;

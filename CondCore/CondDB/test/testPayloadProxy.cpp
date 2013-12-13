@@ -58,8 +58,10 @@ int main (int argc, char** argv)
     std::cout <<"# iov changes committed!..."<<std::endl;
     ::sleep(2);
 
-    PayloadProxy<MyTestData> pp0( session );
-    PayloadProxy<std::string> pp1( session );
+    PayloadProxy<MyTestData> pp0;
+    pp0.setUp( session );
+    PayloadProxy<std::string> pp1;
+    pp1.setUp( session );
 
     pp0.loadTag( "MyNewIOV2" );
     cond::ValidityInterval v1 = pp0.setIntervalFor( 25 );
