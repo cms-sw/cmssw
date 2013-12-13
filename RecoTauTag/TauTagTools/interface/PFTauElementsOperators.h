@@ -116,13 +116,13 @@ class PFTauElementsOperators : public TauElementsOperators {
   Angle<math::XYZVector> metricAngle_;
   double computeDeltaR(const math::XYZVector& vec1, const math::XYZVector& vec2);
   double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2);
-  ElementsInCone<math::XYZVector,DeltaR<math::XYZVector>,reco::PFCandidateCollection> PFCandsinCone_DRmetric_;
-  ElementsInCone<math::XYZVector,Angle<math::XYZVector>,reco::PFCandidateCollection> PFCandsinCone_Anglemetric_; 
-  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,DeltaR<math::XYZVector>,reco::PFCandidateCollection> PFCandsinAnnulus_innerDRouterDRmetrics_;
-  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,Angle<math::XYZVector>,reco::PFCandidateCollection> PFCandsinAnnulus_innerDRouterAnglemetrics_; 
-  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,Angle<math::XYZVector>,reco::PFCandidateCollection> PFCandsinAnnulus_innerAngleouterAnglemetrics_;
-  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,DeltaR<math::XYZVector>,reco::PFCandidateCollection> PFCandsinAnnulus_innerAngleouterDRmetrics_; 
-  ElementsInEllipse<reco::PFCandidate, reco::PFCandidateCollection> PFCandidatesInEllipse_;
+  ElementsInCone<math::XYZVector,DeltaR<math::XYZVector>,reco::PFCandidate> PFCandsinCone_DRmetric_;
+  ElementsInCone<math::XYZVector,Angle<math::XYZVector>,reco::PFCandidate> PFCandsinCone_Anglemetric_; 
+  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,DeltaR<math::XYZVector>,reco::PFCandidate> PFCandsinAnnulus_innerDRouterDRmetrics_;
+  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,Angle<math::XYZVector>,reco::PFCandidate> PFCandsinAnnulus_innerDRouterAnglemetrics_; 
+  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,Angle<math::XYZVector>,reco::PFCandidate> PFCandsinAnnulus_innerAngleouterAnglemetrics_;
+  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,DeltaR<math::XYZVector>,reco::PFCandidate> PFCandsinAnnulus_innerAngleouterDRmetrics_; 
+  ElementsInEllipse<reco::PFCandidate, reco::PFCandidate> PFCandidatesInEllipse_;
 };
 #endif
 
