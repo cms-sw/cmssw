@@ -123,6 +123,8 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
 
   edm::InputTag G4VtxSrc_;
   edm::InputTag G4TrkSrc_;
+  edm::EDGetTokenT<edm::SimVertexContainer> G4VtxSrc_Token_;
+  edm::EDGetTokenT<edm::SimTrackContainer> G4TrkSrc_Token_;
 
   // Electromagnetic info
   // ECal info
@@ -133,6 +135,8 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   TH1F *hCaloEcalEta;  
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> ECalEBSrc_Token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> ECalEESrc_Token_;
 
   // Preshower info
   TH1F *hCaloPreSh[2];
@@ -141,6 +145,7 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   TH1F *hCaloPreShPhi;
   TH1F *hCaloPreShEta;
   edm::InputTag ECalESSrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> ECalESSrc_Token_;
 
   // Hadronic info
   // HCal info
@@ -150,6 +155,7 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   TH1F *hCaloHcalPhi;
   TH1F *hCaloHcalEta;  
   edm::InputTag HCalSrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  HCalSrc_Token_;
 
   // Tracker info
   // Pixel info
@@ -165,6 +171,10 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   edm::InputTag PxlBrlHighSrc_;
   edm::InputTag PxlFwdLowSrc_;
   edm::InputTag PxlFwdHighSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> PxlBrlLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> PxlBrlHighSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> PxlFwdLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> PxlFwdHighSrc_Token_;
 
   // Strip info
   int nSiHits;
@@ -183,6 +193,14 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   edm::InputTag SiTIDHighSrc_;
   edm::InputTag SiTECLowSrc_;
   edm::InputTag SiTECHighSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTIBLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTIBHighSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTOBLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTOBHighSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTIDLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTIDHighSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTECLowSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> SiTECHighSrc_Token_;
 
   // Muon info
   TH1F *hMuon[2];
@@ -194,16 +212,19 @@ class GlobalHitsProdHist : public edm::one::EDProducer<edm::EndRunProducer>
   TH1F *hMuonDtToF[2];
   TH1F *hMuonDtR;
   edm::InputTag MuonDtSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonDtSrc_Token_;
   // CSC info
   TH1F *hMuonCscToF[2];
   TH1F *hMuonCscZ;
   edm::InputTag MuonCscSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonCscSrc_Token_;
   // RPC info
   TH1F *hMuonRpcFToF[2];
   TH1F *hMuonRpcFZ;
   TH1F *hMuonRpcBToF[2];
   TH1F *hMuonRpcBR;
   edm::InputTag MuonRpcSrc_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonRpcSrc_Token_;
 
   // private statistics information
   unsigned int count;
