@@ -1,4 +1,4 @@
-#include "SimMuon/GEMDigitizer/src/GEMCSCPadDigiProducer.h"
+#include "SimMuon/GEMDigitizer/interface/GEMCSCPadDigiProducer.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -28,16 +28,13 @@ GEMCSCPadDigiProducer::~GEMCSCPadDigiProducer()
 {}
 
 
-void GEMCSCPadDigiProducer::beginRun( const edm::Run& r, const edm::EventSetup& eventSetup)
+void GEMCSCPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
+  // set geometry
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
   geometry_ = &*hGeom;
-}
 
-
-void GEMCSCPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
-{
   edm::Handle<GEMDigiCollection> hdigis;
   e.getByLabel(input_, hdigis);
 

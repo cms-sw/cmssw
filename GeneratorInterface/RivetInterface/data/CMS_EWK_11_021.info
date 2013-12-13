@@ -1,24 +1,27 @@
 Name: CMS_EWK_11_021
 Year: 2011
-Summary: Azimuthal correlations and event shapes in Z + jets in pp collisions at sqrt(s) = 7 TeV
-
+Summary: 'Azimuthal correlations and event shapes in Z + jets in pp collisions at sqrt(s) = 7 TeV'
 Experiment: CMS
 Collider: LHC
-SpiresID: 
+SpiresID: 1209721
 Status: UNVALIDATED
 Authors:
  - Io Odderskov <io.odderskov@gmail.com> 
 References:
  - http://cms.cern.ch/iCMS/analysisadmin/cadi?ancode=EWK-11-021 
+ - https://cds.cern.ch/record/1503578
+ - http://inspirehep.net/record/1209721
+ - arXiv:1301.1646 [hep-ex] (http://arxiv.org/abs/arXiv:1301.1646)
+ - Submitted to Phys. Lett. B
 RunInfo:
    Run MC generators with Z decaying to leptonic modes at 7TeV comEnergy
 NumEvents: 100k
 Beams: [p+, p+]
 Energies: [7000]
 PtCuts: 
-  leptons Pt>20GeV and |leptons_eta|<2.4,| Jets>50GeV
+  leptons Pt>20GeV and |leptons_eta|<2.4, Jets>50GeV
 Description:
-  Measurements are presented of event shapes and azimuthal correlations in the inclu-
+  'Measurements are presented of event shapes and azimuthal correlations in the inclu-
   sive production of a Z boson in association with jets in proton-proton collisions. The
   data correspond to an integrated luminosity of 5.0 fb1, collected with the CMS detec-
   tor at the CERN LHC at sqrt(s) = 7 TeV. This to test perturbative QCD predictions
@@ -28,11 +31,21 @@ Description:
   Carlo event generators that include leading-order multiparton matrix-element (with
   up to four hard partons in the final state) and next-to-leading-order simulations of
   Z + 1-jet events. The results are corrected for detector effects, and can therefore be
-  used as input to improve models for describing these processes.
-BibKey: 
-   '<Insert SPIRES BibTeX key>'
-BibTeX: 
-   '<Insert SPIRES BibTeX block>'
-ToDo:
- - update reference when paper published
-
+  used as input to improve models for describing these processes.'
+BibKey: 'Chatrchyan:2013tna'
+BibTeX: '@article{Chatrchyan:2013tna,
+      author         = "Chatrchyan, Serguei and others",
+      title          = "{Event shapes and azimuthal correlations in $Z$ + jets
+                        events in $pp$ collisions at $\sqrt{s}=7$ TeV}",
+      collaboration  = "CMS Collaboration",
+      journal        = "Phys.Lett.",
+      volume         = "B722",
+      pages          = "238-261",
+      doi            = "10.1016/j.physletb.2013.04.025",
+      year           = "2013",
+      eprint         = "1301.1646",
+      archivePrefix  = "arXiv",
+      primaryClass   = "hep-ex",
+      reportNumber   = "CMS-EWK-11-021, CERN-PH-EP-2013-001",
+      SLACcitation   = "%%CITATION = ARXIV:1301.1646;%%",
+}'

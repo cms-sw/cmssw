@@ -8,6 +8,7 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
+// $Id: FWItemMuonAccessors.cc,v 1.6 2010/06/11 08:21:07 mccauley Exp $
 // $Id: FWItemMuonAccessors.cc,v 1.7 2010/06/18 12:44:05 yana Exp $
 // $Id: FWItemMuonAccessors.cc,v 1.8 2013/10/10 22:17:00 YusangKim$
 //
@@ -58,11 +59,12 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(CSCStripDigiAccessor, CSCStripDigiCollection, "
 typedef FWItemMuonDigiAccessor<RPCDigiCollection, RPCDigi> RPCDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(RPCDigiAccessor, RPCDigiCollection, "RPCDigiCollectionAccessor");
 
-typedef FWItemMuonDigiAccessor<GEMDigiCollection, GEMDigi> GEMDigiAccessor;
-REGISTER_TEMPLATE_FWITEMACCESSOR(GEMDigiAccessor, GEMDigiCollection, "GEMDigiCollectionAccessor");
 
 typedef FWItemMuonDigiAccessor<CSCRPCDigiCollection, CSCRPCDigi> CSCRPCDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(CSCRPCDigiAccessor, CSCRPCDigiCollection, "CSCRPCDigiCollectionAccessor");
+
+typedef FWItemMuonDigiAccessor<GEMDigiCollection, GEMDigi> GEMDigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(GEMDigiAccessor, GEMDigiCollection, "GEMDigiCollectionAccessor");
 
 typedef FWItemMuonDigiAccessor<GEMCSCPadDigiCollection, GEMCSCPadDigi> GEMCSCPadDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(GEMCSCPadDigiAccessor, GEMCSCPadDigiCollection, "GEMCSCPadDigiCollectionAccessor");

@@ -30,9 +30,9 @@ StackedTrackerGeometryESModule = cms.ESProducer( "StackedTrackerGeometryESModule
      cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
      cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 4, 4, 4, 5, 6, 6, 7, 5, 6, 7, 8, 10, 11 ) ), #D1
      cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 3, 4, 4, 5, 5, 6, 6, 4, 5, 6, 7, 8, 9 ) ), #D2 ...
-     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 4, 4, 4, 4, 5, 5, 4, 4, 6, 6, 7, 8 ) ),
-     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 5, 6, 4, 4, 5, 6, 7 ) ),
-     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 6, 6, 4, 4, 5, 6 ) ) ),
+     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 4, 4, 4, 4, 5, 5, 4, 4, 6, 6, 7, 8, 9 ) ),
+     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 5, 6, 4, 4, 5, 6, 7, 7, 8, 9 ) ),
+     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 6, 6, 4, 4, 5, 6, 7, 7, 8, 9 ) ) ),
                                                 # missing rings are not taken into account in numbering, so everything
                                                 # always starts from 1 to N, with increasing r
 

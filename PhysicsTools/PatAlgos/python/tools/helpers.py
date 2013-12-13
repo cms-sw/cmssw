@@ -116,7 +116,7 @@ class MassSearchReplaceAnyInputTagVisitor(object):
         self._moduleLabelOnly=moduleLabelOnly
     def doIt(self,pset,base):
         if isinstance(pset, cms._Parameterizable):
-            for name in pset.parameters_().keys():
+            for name in pset.parameterNames_():
                 # if I use pset.parameters_().items() I get copies of the parameter values
                 # so I can't modify the nested pset
                 value = getattr(pset,name)
@@ -358,5 +358,27 @@ if __name__=="__main__":
            massSearchReplaceParam(p.s,"src",cms.InputTag("b"),"a")
            self.assertEqual(cms.InputTag("a"),p.c.src)
            self.assertNotEqual(cms.InputTag("a"),p.c.nested.src)
+       def testMassSearchReplaceAnyInputTag(self):
+           p = cms.Process("test")
+           p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
+           p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
+           p.c = cms.EDProducer("ac", src=cms.InputTag("b"),
+                                nested = cms.PSet(src = cms.InputTag("b"), src2 = cms.InputTag("c")),
+                                nestedv = cms.VPSet(cms.PSet(src = cms.InputTag("b")), cms.PSet(src = cms.InputTag("d"))),
+                                vec = cms.VInputTag(cms.InputTag("a"), cms.InputTag("b"), cms.InputTag("c"), cms.InputTag("d"))
+                               )
+           p.s = cms.Sequence(p.a*p.b*p.c)
+           massSearchReplaceAnyInputTag(p.s, cms.InputTag("b"), cms.InputTag("new"))
+           self.assertNotEqual(cms.InputTag("new"), p.b.src)
+           self.assertEqual(cms.InputTag("new"), p.c.src)
+           self.assertEqual(cms.InputTag("new"), p.c.nested.src)
+           self.assertEqual(cms.InputTag("new"), p.c.nested.src)
+           self.assertNotEqual(cms.InputTag("new"), p.c.nested.src2)
+           self.assertEqual(cms.InputTag("new"), p.c.nestedv[0].src)
+           self.assertNotEqual(cms.InputTag("new"), p.c.nestedv[1].src)
+           self.assertNotEqual(cms.InputTag("new"), p.c.vec[0])
+           self.assertEqual(cms.InputTag("new"), p.c.vec[1])
+           self.assertNotEqual(cms.InputTag("new"), p.c.vec[2])
+           self.assertNotEqual(cms.InputTag("new"), p.c.vec[3])
 
    unittest.main()

@@ -10,7 +10,7 @@
 
 #include <string>
 #include <map>
-#include <list>
+#include <vector>
 
 class DDCompactView;
 class DDFilteredView;
@@ -32,7 +32,7 @@ class GEMGeometryBuilderFromDDD
 
  private:
   GEMGeometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
-  //  std::map<GEMDetId,std::list<GEMEtaPartition *> > chids;
+  std::map<GEMDetId,std::vector<GEMDetId>> chids;
 
   bool theComp11Flag;
 

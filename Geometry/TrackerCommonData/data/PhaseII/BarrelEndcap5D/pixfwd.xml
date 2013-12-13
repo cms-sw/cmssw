@@ -30,8 +30,8 @@
    <ZSection z="102.80*cm" rMin="2.50*cm" rMax="110.0*cm"/>
    <ZSection z="102.80*cm" rMin="9.99*cm" rMax="110.0*cm"/>
    <ZSection z="214.24*cm" rMin="9.99*cm" rMax="110.0*cm"/>
-   <ZSection z="214.24*cm" rMin="28.19*cm" rMax="110.0*cm"/>
-   <ZSection z="235.30*cm" rMin="28.19*cm" rMax="110.0*cm"/>
+   <ZSection z="214.24*cm" rMin="22.19*cm" rMax="110.0*cm"/>
+   <ZSection z="245.30*cm" rMin="22.19*cm" rMax="110.0*cm"/>
 <!--
  <ZSection z="[RootStartZ]"  rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>
  <ZSection z="[RootMidZ1]"   rMin="[cms:TrackBeamR1]" rMax="[RootRadius]"/>

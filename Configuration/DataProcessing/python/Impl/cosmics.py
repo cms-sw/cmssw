@@ -51,3 +51,16 @@ class cosmics(Reco):
 
         customiseCosmicData(process)  
         return process
+
+
+    def alcaHarvesting(self, globalTag, datasetName, **args):
+        """
+        _alcaHarvesting_
+
+        Proton collisions data taking AlCa Harvesting
+
+        """
+        if not 'skims' in args:
+            args['skims']=['SiStripQuality']
+            
+        return Reco.alcaHarvesting(self, globalTag, datasetName, **args)

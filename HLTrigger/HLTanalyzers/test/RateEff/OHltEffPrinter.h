@@ -21,25 +21,25 @@ public:
    virtual ~OHltEffPrinter() {}
 
    void SetupAll(
-         std::vector<float> Eff,
-         std::vector<float> EffErr,
-         std::vector<float> spureEff,
-         std::vector<float> spureEffErr,
-         std::vector<float> pureEff,
-         std::vector<float> pureEffErr,
-         std::vector< std::vector<float> >coMa,
-         float DenEff);
+         std::vector<double> Eff,
+         std::vector<double> EffErr,
+         std::vector<double> spureEff,
+         std::vector<double> spureEffErr,
+         std::vector<double> pureEff,
+         std::vector<double> pureEffErr,
+         std::vector< std::vector<double> >coMa,
+         double DenEff);
 
    void printEffASCII(OHltConfig *cfg, OHltMenu *menu);
 
-   std::vector<float> Eff;
-   std::vector<float> EffErr;
-   std::vector<float> spureEff;
-   std::vector<float> spureEffErr;
-   std::vector<float> pureEff;
-   std::vector<float> pureEffErr;
-   std::vector< std::vector<float> > coMa;
-   float DenEff;
+   std::vector<double> Eff;
+   std::vector<double> EffErr;
+   std::vector<double> spureEff;
+   std::vector<double> spureEffErr;
+   std::vector<double> pureEff;
+   std::vector<double> pureEffErr;
+   std::vector< std::vector<double> > coMa;
+   double DenEff;
 
 };
 

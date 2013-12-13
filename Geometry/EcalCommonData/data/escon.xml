@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <ConstantsSection label="escon.xml" eval="true">
+        <!--
+             <Constant name="ECAL_Z" value="314.4*cm"/>
+             <Constant name="PRESH_Z" value="295.7*cm"/>
+             -->
+        <Constant name="ESWaferTilt" value="3.79996*deg"/>
+        <Constant name="PRE_ETA_MIN" value="1.653"/>
+        <Constant name="PRE_ETA_MAX" value="2.61"/>
+        <Constant name="PRE_AL_DISC" value="6*cm"/>
+        <Constant name="NMAT_PRESH" value="24"/>
+        <Constant name="waf_intra_col_sep" value="6.34*cm"/>
+        <Constant name="waf_inter_col_sep" value="0.05*cm"/>
+        <Constant name="dee_sep" value="0.05*cm"/>
+        <Constant name="wedge_width" value="6.24*cm"/>
+        <Constant name="wedge_length" value="5.2*cm"/>
+        <Constant name="wedge_front_thick" value="0.2*cm"/>
+        <Constant name="wedge_back_thick" value="0.545*cm"/>
+        <Constant name="waf_overlap" value="0.2*cm"/>
+        <Constant name="waf_width" value="6.3*cm"/>
+        <Constant name="waf_thick" value="0.031*cm"/>
+        <Constant name="ceramic_length" value="10*cm"/>
+        <Constant name="ceramic_thick" value="0.06*cm"/>
+        <Constant name="elec_thick" value="0.15*cm"/>
+        <Constant name="PRESH_ENCA_GAP" value="0.20*cm"/>
+        <Constant name="R_MIN" value="31.1*cm"/>
+        <Constant name="R_MIN_Layers" value="[R_MIN]+9.9*cm"/>
+        <Constant name="R_MAX" value="140.0*cm"/>
+        <Constant name="R_MAX_Layers" value="[R_MAX]-16*cm"/>
+        <Constant name="P1" value="0.10*cm"/>
+        <!-- moderartor support -->
+        <Constant name="P2" value="3.60*cm"/>
+        <!-- neutron moderator -->
+        <Constant name="P3" value="0.10*cm"/>
+        <!-- moderartor support -->
+        <Constant name="P4" value="0.90*cm"/>
+        <!-- foam / active cooling, sim. as air-->
+        <Constant name="P5" value="0.43*cm"/>
+        <!-- air gap -->
+        <Constant name="P6" value="0.27*cm"/>
+        <!-- first cooling - aluminium  -->
+        <Constant name="P7" value="0.06*cm"/>
+        <!-- first cooling - water -->
+        <Constant name="P8" value="0.27*cm"/>
+        <!-- first cooling - aluminium  -->
+        <Constant name="P9" value="0.20*cm"/>
+        <!-- first absorber - aluminium -->
+        <Constant name="P10" value="0.93*cm"/>
+        <!-- first absorber - lead -->
+        <Constant name="P11" value="0.20*cm"/>
+        <!-- first absorber - aluminium -->
+        <Constant name="P12" value="0.20*cm"/>
+        <!-- micromod space - aluminium support -->
+        <Constant name="P13" value="1.53*cm"/>
+        <!-- micromod space - air gap containing silicon  -->
+        <Constant name="P14" value="0.16*cm"/>
+        <!-- micromod space - electronics (aluminium) -->
+        <Constant name="P15" value="1.20*cm"/>
+        <!-- air gap for cables  -->
+        <Constant name="P16" value="0.27*cm"/>
+        <!-- second cooling - aluminium -->
+        <Constant name="P17" value="0.06*cm"/>
+        <!-- second cooling - water -->
+        <Constant name="P18" value="0.27*cm"/>
+        <!-- second cooling - aluminium -->
+        <Constant name="P19" value="0.20*cm"/>
+        <!-- second absorber - aluminium -->
+        <Constant name="P20" value="0.37*cm"/>
+        <!-- second absorber - lead -->
+        <Constant name="P21" value="0.20*cm"/>
+        <!-- second absorber - aluminium -->
+        <Constant name="P22" value="0.20*cm"/>
+        <!-- micromod space - aluminiums support -->
+        <Constant name="P23" value="1.53*cm"/>
+        <!-- micromod space - air gap containing silicon  -->
+        <Constant name="P24" value="0.16*cm"/>
+        <!-- micromod space - electronics (aluminiums) -->
+        <Constant name="P25" value="1.41*cm"/>
+        <!-- air gap for cables -->
+        <Constant name="P26" value="0.90*cm"/>
+        <!-- foam / active cooling / sim. as air -->
+        <Constant name="P27" value="0.10*cm"/>
+        <!-- moderartor support -->
+        <Constant name="P28" value="3.60*cm"/>
+        <!-- neutron moderator -->
+        <Constant name="P29" value="0.10*cm"/>
+        <!-- moderartor support -->
+        <Constant name="PRESH_Z_TOTAL" value="[P1]+[P2]+[P3]+[P4]+[P5]+[P6]+[P7]+[P8]+[P9]+[P10]+                                         [P11]+[P12]+[P13]+[P14]+[P15]+[P16]+[P17]+[P18]+[P19]+[P20]+                                         [P21]+[P22]+[P23]+[P24]+[P25]+[P26]+[P27]+[P28]+[P29]"/>
+        <!-- Constants for construction of the overall EREG -->
+        <Constant name="PRESH_Z_OFFSET" value="[eecon:ESFrontZ] + [PRESH_Z_TOTAL]/2"/>
+        <Constant name="PRESH_MID_Z" value="1.8*cm"/>
+        <Constant name="PRESH_RMAX_BACK" value="[R_MAX]"/>
+        <Constant name="PRESH_RMAX_FRONT" value="[R_MAX]-9*cm"/>
+        <!-- Constants for preshower front and rear window -->
+        <Constant name="Front_window_Al" value="[R_MAX]-9*cm"/>
+        <Constant name="Rear_window_Al" value="[R_MAX]-1.3*cm"/>
+        <Constant name="Window_backend_Al" value="[Front_window_Al]-3.5*cm"/>
+        <Constant name="PRESH_window_Z" value="3.6*cm"/>
+        <Constant name="Front_window_mid_Z" value="3.1*cm"/>
+        <Constant name="Rear_window_mid_Z" value="2.6*cm"/>
+        <!-- Constants for preshower neutron moderator (NM) -->
+        <Constant name="NM_first_Z" value="0.9*cm"/>
+        <Constant name="NM_second_Z" value="2.7*cm"/>
+        <Constant name="NM_RMIN_outer" value="37.1*cm"/>
+        <Constant name="NM_RMIN_inner" value="36.1*cm"/>
+        <Constant name="Front_NM_RMAX_outer" value="122.7*cm"/>
+        <Constant name="Front_NM_RMAX_inner" value="122.3*cm"/>
+        <Constant name="Rear_NM_RMAX_outer" value="[Front_NM_RMAX_outer]+0.1*cm"/>
+        <Constant name="Rear_NM_RMAX_inner" value="[Front_NM_RMAX_inner]-0.1*cm"/>
+        <!-- Constants for preshower outer drum (OD) -->
+        <Constant name="OD_first_Z" value="1.5*cm"/>
+        <Constant name="OD_second_Z" value="8.7*cm"/>
+        <Constant name="OD_third_Z" value="15.65*cm"/>
+        <Constant name="OD_forth_Z" value="16.72*cm"/>
+        <Constant name="OD_fifth_Z" value="16.8*cm"/>
+        <Constant name="OD_RMIN_0" value="[Front_window_Al]"/>
+        <Constant name="OD_RMIN_1" value="[Front_window_Al]+5.0*cm"/>
+        <Constant name="OD_RMIN_2" value="[Front_window_Al]+7.7*cm"/>
+        <Constant name="OD_RMAX_0" value="[Front_window_Al]"/>
+        <Constant name="OD_RMAX_1" value="131.8315*cm"/>
+        <Constant name="OD_RMAX_2" value="[R_MAX]-3.0*cm"/>
+        <Constant name="OD_Z_shift" value="[P1]+1.6*cm"/>
+        <!-- Constants for preshower inner drum (ID) -->
+        <Constant name="ID_height" value="3.6*cm"/>
+        <!-- Constants for preshower cooling pipes (CP) and cooling water (CW) -->
+        <Constant name="CP_diameter" value="2.5*cm"/>
+        <Constant name="CW_diameter" value="2.0*cm"/>
+        <Constant name="Front_CP_radius" value="130.5*cm"/>
+        <Constant name="Rear_CP_radius" value="132.6*cm"/>
+        <Constant name="Front_CP_Z_shift" value="-4.19*cm"/>
+        <Constant name="Rear_CP_Z_shift" value="1.65*cm"/>
+        <!-- Constants for preshower ladders -->
+        <Constant name="ladder_thick" value="[box_thick]/cos([wedge_angle]*2) + [ceramic_length]*sin([wedge_angle]*2) + [wedge_front_thick]+0.02*mm"/>
+        <Constant name="ladder_width" value="2*[waf_intra_col_sep]"/>
+        <Constant name="micromodule_length" value="[ceramic_length]*cos([wedge_angle]*2) + [box_thick]*sin([wedge_angle]*2)"/>
+        <Constant name="LdrFrnt_Length" value="[ceramic_length]*cos([wedge_angle]*2)+[box_thick]*sin([wedge_angle]*2)"/>
+        <Constant name="LdrFrnt_Offset" value="(2*[ladder_thick]-[ceramic_length]*sin([wedge_angle]*2))/4."/>
+        <Constant name="LdrBck_Length" value="[ceramic_length]*cos([wedge_angle]*2)-[wedge_length]"/>
+        <Constant name="LdrBck_Offset" value="([ladder_thick]-[wedge_back_thick]+[box_thick]/cos([wedge_angle]*2)+0.02*mm)/4.+[wedge_back_thick]+([LdrBck_Length]/2)*sin([wedge_angle]*2)+0.02*mm"/>
+        <Constant name="R_MIN_Abs_Al" value="[R_MIN]+4.9*cm"/>
+        <Constant name="R_MIN_Abs_Pb" value="[R_MIN]+14.35*cm"/>
+        <Constant name="R_MAX_Abs_Al" value="127.54*cm"/>
+        <Constant name="AbsAlX_X" value="276.8*cm"/>
+        <Constant name="AbsAlX_Y" value="346.6*cm"/>
+        <Constant name="AbsAlX_subtr1_Xshift" value="122.74*cm"/>
+        <Constant name="AbsAlX_subtr1_Yshift" value="124.5*cm"/>
+        <Constant name="AbsAlY_X" value="339.4*cm"/>
+        <Constant name="AbsAlY_Y" value="316.9*cm"/>
+        <Constant name="AbsAlY_subtr1_Xshift" value="123.54*cm"/>
+        <Constant name="AbsAlY_subtr1_Yshift" value="123.5*cm"/>
+        <!-- derived constants -->
+        <Constant name="THETA_MIN" value="2*atan(exp(-[PRE_ETA_MIN]))"/>
+        <Constant name="THETA_MAX" value="2*atan(exp(-[PRE_ETA_MAX]))"/>
+        <Constant name="wedge_angle" value=" atan((([wedge_back_thick]-[wedge_front_thick])/2)/[wedge_length])"/>
+        <Constant name="waf_active" value="[waf_width]-[waf_overlap]"/>
+        <Constant name="wedge_sep" value="[waf_active]*cos([wedge_angle])"/>
+        <Constant name="wedge_gap" value="[wedge_sep]-[wedge_length]"/>
+        <Constant name="wedge_offset" value=" ([wedge_front_thick]+[wedge_back_thick])/4."/>
+        <Constant name="ceramic_width" value="[waf_width]"/>
+        <Constant name="ywedge_ceramic_diff" value="([ceramic_length]/2.)*cos([wedge_angle]*2.) -[wedge_length]/2."/>
+        <Constant name="elec_width" value="[waf_width]"/>
+        <Constant name="elec_length" value="[ceramic_length] - [waf_width]"/>
+        <Constant name="box_thick" value="[elec_thick] + [ceramic_thick]"/>
+        <Constant name="zwedge_ceramic_diff" value="([box_thick]/2)/cos([wedge_angle]*2) + [wedge_front_thick]+ ([ceramic_length]/2.) *sin([wedge_angle]*2)"/>
+        <Constant name="angle" value="2*[wedge_angle]"/>
+    </ConstantsSection>
+</DDDefinition>

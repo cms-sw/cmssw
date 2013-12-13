@@ -51,7 +51,9 @@ ln -sf `which gfortran` g77
 PATH=`pwd`:${PATH}
 
 tar xzf ${name}_gridpack.tar.gz ; rm -f ${name}_gridpack.tar.gz ; cd madevent
-## compile according to MG version 1.3.30 or 1.4.3 
+## rename addmasses.py to addmasses.py.no
+
+find . -name addmasses.py -exec mv {} {}.no \;
 
 ########### BEGIN - REPLACE process ################
 # REPLACE script is runned automatically by run.sh if REPLACE dir is found ###

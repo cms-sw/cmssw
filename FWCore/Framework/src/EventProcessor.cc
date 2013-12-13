@@ -109,18 +109,26 @@ namespace edm {
     class ScheduleSignalSentry {
     public:
       ScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es) :
-           a_(a), principal_(principal), es_(es) {
+           a_(a), principal_(principal), es_(es), allowThrow_(false) {
         if (a_) T::preScheduleSignal(a_, principal_);
       }
-      ~ScheduleSignalSentry() {
-        if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_);
+      ~ScheduleSignalSentry() noexcept(false) {
+        try {
+          if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_);
+        } catch(...) {
+          if( allowThrow_) {throw;}
+        }
       }
 
+      void allowThrow() {
+        allowThrow_ = true;
+      }
     private:
       // We own none of these resources.
       ActivityRegistry* a_;
       typename T::MyPrincipal* principal_;
       EventSetup const* es_;
+      bool allowThrow_ =true;
     };
   }
 
@@ -1990,6 +1998,7 @@ namespace edm {
       if(hasSubProcess()) {
         subProcess_->doBeginRun(runPrincipal, ts);
       }
+      sentry.allowThrow();
     }
     FDEBUG(1) << "\tbeginRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -2011,6 +2020,7 @@ namespace edm {
       if(hasSubProcess()) {
         subProcess_->doEndRun(runPrincipal, ts, cleaningUpAfterException);
       }
+      sentry.allowThrow();
     }
     FDEBUG(1) << "\tendRun " << run.runNumber() << "\n";
     if(looper_) {
@@ -2040,6 +2050,7 @@ namespace edm {
       if(hasSubProcess()) {
         subProcess_->doBeginLuminosityBlock(lumiPrincipal, ts);
       }
+      sentry.allowThrow();
     }
     FDEBUG(1) << "\tbeginLumi " << run << "/" << lumi << "\n";
     if(looper_) {
@@ -2063,6 +2074,7 @@ namespace edm {
       if(hasSubProcess()) {
         subProcess_->doEndLuminosityBlock(lumiPrincipal, ts, cleaningUpAfterException);
       }
+      sentry.allowThrow();
     }
     FDEBUG(1) << "\tendLumi " << run << "/" << lumi << "\n";
     if(looper_) {
@@ -2155,6 +2167,7 @@ namespace edm {
       if(hasSubProcess()) {
         subProcess_->doEvent(*pep, ts);
       }
+      sentry.allowThrow();
     }
 
     if(looper_) {
