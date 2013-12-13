@@ -5,6 +5,7 @@
 #include "CondCore/CondDB/interface/Binary.h"
 #include "CondCore/CondDB/interface/Serialization.h"
 #include "CondCore/CondDB/interface/Exception.h"
+#include "CondFormats/Common/interface/BaseKeyed.h"
 //
 #include<map>
 #include<vector>
@@ -50,6 +51,11 @@ namespace cond {
 	}
 	return boost::static_pointer_cast<T>( m_objects[n] ).get();
       }
+
+      const cond::BaseKeyed* elem(int n) const {
+	return get<cond::BaseKeyed>( n );
+      }
+
 
       int size() const { return m_objects.size();}
 
