@@ -2,7 +2,6 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoMET/METProducers/interface/METProducer.h"
 #include "RecoMET/METProducers/interface/BeamHaloSummaryProducer.h"
 #include "RecoMET/METProducers/interface/CSCHaloDataProducer.h" 
 #include "RecoMET/METProducers/interface/HcalHaloDataProducer.h" 
@@ -10,7 +9,6 @@
 #include "RecoMET/METProducers/interface/GlobalHaloDataProducer.h" 
 #include "RecoMET/METProducers/interface/ParticleFlowForChargedMETProducer.h" 
 
-using cms::METProducer;
 using reco::BeamHaloSummaryProducer;
 using reco::CSCHaloDataProducer;
 using reco::HcalHaloDataProducer;
@@ -18,7 +16,6 @@ using reco::EcalHaloDataProducer;
 using reco::GlobalHaloDataProducer;
 using reco::ParticleFlowForChargedMETProducer;
 
-DEFINE_FWK_MODULE(METProducer);
 DEFINE_FWK_MODULE(BeamHaloSummaryProducer);
 DEFINE_FWK_MODULE(CSCHaloDataProducer);
 DEFINE_FWK_MODULE(HcalHaloDataProducer);
