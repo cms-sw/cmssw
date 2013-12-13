@@ -54,7 +54,7 @@ bool writeLog(std::string ostring) {
 		file.close();
 		return true;
 	}
-	return false;
+	return true;
 }
 
 
