@@ -934,7 +934,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     auto & caloTower = collection.back();
 
     // if (!massless) std::cout << "massive " << id <<' ' << mass1 <<' ' << mass2 <<' ' <<  caloTower.mass() << std::endl;
-    std::cout << "CaloTowerVI " <<theMomConstrMethod <<' ' << id <<' '<< E_em <<' '<< E_had <<' '<< E_outer <<' '<< GlobalVector(towerP4) <<' '<< towerP4[3] <<' '<< emPoint <<' '<< hadPoint << std::endl;
+    // std::cout << "CaloTowerVI " <<theMomConstrMethod <<' ' << id <<' '<< E_em <<' '<< E_had <<' '<< E_outer <<' '<< GlobalVector(towerP4) <<' '<< towerP4[3] <<' '<< emPoint <<' '<< hadPoint << std::endl;
 
     if(caloTower.energy() < theEcutTower) { collection.pop_back(); return;}
     
@@ -1038,7 +1038,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     caloTower.setConstituents(std::move(contains));
     caloTower.setHottestCellE(maxCellE);
 
- std::cout << "CaloTowerVI " << caloTower.id() << ' ' << caloTower.pt() << ' ' << caloTower.et() << ' ' << caloTower.mass() << ' '<< caloTower.constituentsSize() <<' '<< caloTower.towerStatusWord() << std::endl;
+    // std::cout << "CaloTowerVI " << caloTower.id() << ' ' << caloTower.pt() << ' ' << caloTower.et() << ' ' << caloTower.mass() << ' '<< caloTower.constituentsSize() <<' '<< caloTower.towerStatusWord() << std::endl;
 
 } 
 
