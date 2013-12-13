@@ -30,6 +30,11 @@ gedelectronGBRESSource = cms.ESSource(
     tag = cms.string('gedelectron_EEUncertainty_offline'),
     label = cms.untracked.string('gedelectron_EEUncertainty_offline')
     ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_p4combination_offline'),
+    label = cms.untracked.string('gedelectron_p4combination_offline')
+    ),
     )
 )
 gedelectronGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
@@ -40,7 +45,8 @@ gedelectronPrefer = cms.ESPrefer(
     GBRWrapperRcd = cms.vstring('GBRForest/gedelectron_EBCorrection_offline',
                                 'GBRForest/gedelectron_EECorrection_offline',
                                 'GBRForest/gedelectron_EBUncertainty_offline',
-                                'GBRForest/gedelectron_EEUncertainty_offline')
+                                'GBRForest/gedelectron_EEUncertainty_offline',
+                                'GBRForest/gedelectron_p4combination_offline')
 )
 
 gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
@@ -82,7 +88,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True), # this one should be transfered to the "core" level
     useEcalRegression = cms.bool(True),
-    useCombinationRegression = cms.bool(False),                                    
+    useCombinationRegression = cms.bool(True),                                    
     
     # preselection parameters (ecal driven electrons)
     minSCEtBarrel = cms.double(4.0),
@@ -189,12 +195,12 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
                                                    'gedelectron_EECorrection_offline',
                                                    'gedelectron_EBUncertainty_offline',
                                                    'gedelectron_EEUncertainty_offline'),
-   combinationRegressionWeightLabels = cms.vstring(),
+   combinationRegressionWeightLabels = cms.vstring('gedelectron_p4combination_offline'),
    
    ecalWeightsFromDB = cms.bool(True),
    # if not from DB. Otherwise, keep empty
    ecalRefinedRegressionWeightFiles = cms.vstring(),
-   combinationWeightsFromDB = cms.bool(False),
+   combinationWeightsFromDB = cms.bool(True),
    # if not from DB. Otherwise, keep empty
    combinationRegressionWeightFile = cms.vstring(),                              
  
