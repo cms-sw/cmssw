@@ -12,13 +12,13 @@ from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Spring10_V5_AK5Calo"),
+             tag = cms.string("JetCorrectorParametersCollection_Spring10_V5_AK4Calo"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-             label=cms.untracked.string("AK5CaloNew")),
+             label=cms.untracked.string("AK4CaloNew")),
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Summer10_V5_AK5JPT"),
+             tag = cms.string("JetCorrectorParametersCollection_Summer10_V5_AK4JPT"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-             label=cms.untracked.string("AK5JPTNew")),
+             label=cms.untracked.string("AK4JPTNew")),
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
              tag = cms.string("JetCorrectorParametersCollection_Spring10_V5_IC5Calo"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
@@ -34,14 +34,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.demo2 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK5CaloNew'),
+        payloadName    = cms.untracked.string('AK4CaloNew'),
         printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(False)
 )
 
 
 process.demo3 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK5JPTNew'),
+        payloadName    = cms.untracked.string('AK4JPTNew'),
         printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(False)
 )

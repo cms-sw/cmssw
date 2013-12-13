@@ -37,23 +37,23 @@ ak8JPTL1Fastjet  = ak4JPTL1Fastjet.clone()
 ak8L1JPTOffset = ak4L1JPTOffset.clone()
 
 # L2 (relative eta-conformity) Correction Services
-ak8CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK7Calo' )
+ak8CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK8Calo' )
 kt4CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'KT4Calo' )
 kt6CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'KT6Calo' )
 ic5CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'IC5Calo' )
 
-ak8PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'AK7PF' )
+ak8PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'AK8PF' )
 kt4PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'KT4PF' )
 kt6PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'KT6PF' )
 ic5PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'IC5PF' )
 
 # L3 (absolute) Correction Services
-ak8CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'AK7Calo' )
+ak8CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'AK8Calo' )
 kt4CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'KT4Calo' )
 kt6CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'KT6Calo' )
 ic5CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'IC5Calo' )
 
-ak8PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'AK7PF' )
+ak8PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'AK8PF' )
 kt4PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'KT4PF' )
 kt6PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'KT6PF' )
 ic5PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'IC5PF' )

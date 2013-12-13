@@ -63,14 +63,14 @@ options.parseArguments()
 
 
 if not options.useData :
-	inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
+	inputJetCorrLabel = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute'])
 
 	process.source.fileNames = [
 		'/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V5-v1/0000/FEBE99BB-3881-E111-B1F3-003048D42DC8.root'
 		]    		
 
 else :
-	inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+	inputJetCorrLabel = ('AK4PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
 	process.source.fileNames = [
 		'/store/mc/Summer12/TTJets_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S7_START52_V5-v1/0000/FEBE99BB-3881-E111-B1F3-003048D42DC8.root'
 		]
@@ -209,17 +209,17 @@ from RecoJets.JetProducers.GenJetParameters_cfi import *
 ########## PF Setup ###########
 ###############################
 
-# Default PF2PAT with AK5 jets. Make sure to turn ON the L1fastjet stuff. 
+# Default PF2PAT with AK4 jets. Make sure to turn ON the L1fastjet stuff. 
 from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
-usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=not options.useData, postfix=postfix,
+usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=not options.useData, postfix=postfix,
 	  jetCorrections=inputJetCorrLabel, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
 if not options.forceCheckClosestZVertex :
     process.pfPileUpPFlow.checkClosestZVertex = False
 
 
 postfixLoose = "PFlowLoose"
-usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=not options.useData, postfix=postfixLoose,
+usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=not options.useData, postfix=postfixLoose,
 	  jetCorrections=inputJetCorrLabel, pvCollection=cms.InputTag('goodOfflinePrimaryVertices'))
 if not options.forceCheckClosestZVertex :
     process.pfPileUpPFlowLoose.checkClosestZVertex = False
@@ -646,7 +646,7 @@ if options.useExtraJetColls:
 
 	addJetCollection(process, 
 			 cms.InputTag('ak4PrunedPFlow'),
-			 'AK5Pruned', 'PF',
+			 'AK4Pruned', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
 			 jetCorrLabel=inputJetCorrLabel,
@@ -660,7 +660,7 @@ if options.useExtraJetColls:
 
 	addJetCollection(process, 
 			 cms.InputTag('ak4FilteredPFlow'),
-			 'AK5Filtered', 'PF',
+			 'AK4Filtered', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
 			 jetCorrLabel=inputJetCorrLabel,
@@ -673,7 +673,7 @@ if options.useExtraJetColls:
 
 	addJetCollection(process, 
 			 cms.InputTag('ak4TrimmedPFlow'),
-			 'AK5Trimmed', 'PF',
+			 'AK4Trimmed', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
 			 jetCorrLabel=inputJetCorrLabel,
@@ -687,7 +687,7 @@ if options.useExtraJetColls:
 
 	addJetCollection(process, 
 			 cms.InputTag('ak8PFlow'),
-			 'AK7', 'PF',
+			 'AK8', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
 			 jetCorrLabel=inputJetCorrLabel,
@@ -700,7 +700,7 @@ if options.useExtraJetColls:
 
 	addJetCollection(process, 
 			 cms.InputTag('ak8PrunedPFlow'),
-			 'AK7Pruned', 'PF',
+			 'AK8Pruned', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
 			 jetCorrLabel=inputJetCorrLabel,
@@ -714,7 +714,7 @@ if options.useExtraJetColls:
 
 	addJetCollection(process, 
 			 cms.InputTag('ak8FilteredPFlow'),
-			 'AK7Filtered', 'PF',
+			 'AK8Filtered', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
 			 jetCorrLabel=inputJetCorrLabel,
@@ -727,7 +727,7 @@ if options.useExtraJetColls:
 
 	addJetCollection(process, 
 			 cms.InputTag('ak8TrimmedPFlow'),
-			 'AK7Trimmed', 'PF',
+			 'AK8Trimmed', 'PF',
 			 doJTA=False,
 			 doBTagging=False,
 			 jetCorrLabel=inputJetCorrLabel,
@@ -815,13 +815,13 @@ for icorr in [process.patJetCorrFactors,
 
 
 if options.useExtraJetColls: 
-	for icorr in [process.patJetCorrFactorsAK5PrunedPF,
-		      process.patJetCorrFactorsAK5FilteredPF,
-		      process.patJetCorrFactorsAK5TrimmedPF,
-		      process.patJetCorrFactorsAK7PF,
-		      process.patJetCorrFactorsAK7PrunedPF,
-		      process.patJetCorrFactorsAK7FilteredPF,
-		      process.patJetCorrFactorsAK7TrimmedPF,
+	for icorr in [process.patJetCorrFactorsAK4PrunedPF,
+		      process.patJetCorrFactorsAK4FilteredPF,
+		      process.patJetCorrFactorsAK4TrimmedPF,
+		      process.patJetCorrFactorsAK8PF,
+		      process.patJetCorrFactorsAK8PrunedPF,
+		      process.patJetCorrFactorsAK8FilteredPF,
+		      process.patJetCorrFactorsAK8TrimmedPF,
 		      process.patJetCorrFactorsAK8PF,
 		      process.patJetCorrFactorsAK8PrunedPF,
 		      process.patJetCorrFactorsAK8FilteredPF,
@@ -863,13 +863,13 @@ process.patJetsCATopTagPF.addBTagInfo = True
 
 # Do some configuration of the jet substructure things
 if options.useExtraJetColls: 
-	for jetcoll in (process.patJetsAK5TrimmedPF,
-			process.patJetsAK5PrunedPF,
-			process.patJetsAK5FilteredPF,
-			process.patJetsAK7PF,
-			process.patJetsAK7TrimmedPF,
-			process.patJetsAK7PrunedPF,
-			process.patJetsAK7FilteredPF,
+	for jetcoll in (process.patJetsAK4TrimmedPF,
+			process.patJetsAK4PrunedPF,
+			process.patJetsAK4FilteredPF,
+			process.patJetsAK8PF,
+			process.patJetsAK8TrimmedPF,
+			process.patJetsAK8PrunedPF,
+			process.patJetsAK8FilteredPF,
 			process.patJetsAK8PF,
 			process.patJetsAK8TrimmedPF,
 			process.patJetsAK8PrunedPF,
@@ -910,13 +910,13 @@ for module in [process.patJetCorrFactors,
 if options.useExtraJetColls: 
 	for module in [process.patJetCorrFactorsCA12FilteredPF,
 		       process.patJetCorrFactorsCA12MassDropFilteredPF,
-		       process.patJetCorrFactorsAK5TrimmedPF,
-		       process.patJetCorrFactorsAK5PrunedPF,
-		       process.patJetCorrFactorsAK5FilteredPF,
-		       process.patJetCorrFactorsAK7PF,
-		       process.patJetCorrFactorsAK7TrimmedPF,
-		       process.patJetCorrFactorsAK7PrunedPF,
-		       process.patJetCorrFactorsAK7FilteredPF,
+		       process.patJetCorrFactorsAK4TrimmedPF,
+		       process.patJetCorrFactorsAK4PrunedPF,
+		       process.patJetCorrFactorsAK4FilteredPF,
+		       process.patJetCorrFactorsAK8PF,
+		       process.patJetCorrFactorsAK8TrimmedPF,
+		       process.patJetCorrFactorsAK8PrunedPF,
+		       process.patJetCorrFactorsAK8FilteredPF,
 		       process.patJetCorrFactorsAK8PF,
 		       process.patJetCorrFactorsAK8TrimmedPF,
 		       process.patJetCorrFactorsAK8PrunedPF,
@@ -929,7 +929,7 @@ if options.useExtraJetColls:
 #### Selections Setup #########
 ###############################
 
-# AK5 Jets
+# AK4 Jets
 process.selectedPatJetsPFlow.cut = cms.string("pt > 5")
 process.patJetsPFlow.addTagInfos = True
 process.patJetsPFlow.tagInfoSources = cms.VInputTag(
@@ -958,17 +958,17 @@ if options.useExtraJetColls:
 	process.selectedPatJetsCA12FilteredPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
 	process.selectedPatJetsCA12MassDropFilteredPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
 
-	# AK5 groomed jets
-	process.selectedPatJetsAK5PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK5TrimmedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK5FilteredPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	# AK4 groomed jets
+	process.selectedPatJetsAK4PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	process.selectedPatJetsAK4TrimmedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	process.selectedPatJetsAK4FilteredPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
 
 
-	# AK7 groomed jets
-	process.selectedPatJetsAK7PF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK7PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK7TrimmedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK7FilteredPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	# AK8 groomed jets
+	process.selectedPatJetsAK8PF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	process.selectedPatJetsAK8PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	process.selectedPatJetsAK8TrimmedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	process.selectedPatJetsAK8FilteredPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
 
 
 	# AK8 groomed jets
@@ -1037,34 +1037,34 @@ if options.useExtraJetColls:
 						      src = cms.InputTag("selectedPatJetsCA12MassDropFilteredPF")
 						      )
 
-	process.goodPatJetsAK5PrunedPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+	process.goodPatJetsAK4PrunedPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 						      filterParams = pfJetIDSelector.clone(),
-						      src = cms.InputTag("selectedPatJetsAK5PrunedPF")
+						      src = cms.InputTag("selectedPatJetsAK4PrunedPF")
 						      )
-	process.goodPatJetsAK5FilteredPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+	process.goodPatJetsAK4FilteredPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 						      filterParams = pfJetIDSelector.clone(),
-						      src = cms.InputTag("selectedPatJetsAK5FilteredPF")
+						      src = cms.InputTag("selectedPatJetsAK4FilteredPF")
 						      )
-	process.goodPatJetsAK5TrimmedPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+	process.goodPatJetsAK4TrimmedPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 						      filterParams = pfJetIDSelector.clone(),
-						      src = cms.InputTag("selectedPatJetsAK5TrimmedPF")
+						      src = cms.InputTag("selectedPatJetsAK4TrimmedPF")
 						      )
 
-	process.goodPatJetsAK7PF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+	process.goodPatJetsAK8PF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 						      filterParams = pfJetIDSelector.clone(),
-						      src = cms.InputTag("selectedPatJetsAK7PF")
+						      src = cms.InputTag("selectedPatJetsAK8PF")
 						      )
-	process.goodPatJetsAK7PrunedPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+	process.goodPatJetsAK8PrunedPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 						      filterParams = pfJetIDSelector.clone(),
-						      src = cms.InputTag("selectedPatJetsAK7PrunedPF")
+						      src = cms.InputTag("selectedPatJetsAK8PrunedPF")
 						      )
-	process.goodPatJetsAK7FilteredPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+	process.goodPatJetsAK8FilteredPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 						      filterParams = pfJetIDSelector.clone(),
-						      src = cms.InputTag("selectedPatJetsAK7FilteredPF")
+						      src = cms.InputTag("selectedPatJetsAK8FilteredPF")
 						      )
-	process.goodPatJetsAK7TrimmedPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
+	process.goodPatJetsAK8TrimmedPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 						      filterParams = pfJetIDSelector.clone(),
-						      src = cms.InputTag("selectedPatJetsAK7TrimmedPF")
+						      src = cms.InputTag("selectedPatJetsAK8TrimmedPF")
 						      )
 
 
@@ -1155,31 +1155,31 @@ if options.useExtraJetColls:
 
 
 	process.ak4TrimmedLite = process.ak4Lite.clone(
-		src = cms.InputTag('goodPatJetsAK5TrimmedPF')
+		src = cms.InputTag('goodPatJetsAK4TrimmedPF')
 		)
 
 	process.ak4PrunedLite = process.ak4Lite.clone(
-		src = cms.InputTag('goodPatJetsAK5PrunedPF')
+		src = cms.InputTag('goodPatJetsAK4PrunedPF')
 		)
 
 	process.ak4FilteredLite = process.ak4Lite.clone(
-		src = cms.InputTag('goodPatJetsAK5FilteredPF')
+		src = cms.InputTag('goodPatJetsAK4FilteredPF')
 		)
 
 	process.ak8Lite = process.ak4Lite.clone(
-		src = cms.InputTag('goodPatJetsAK7PF')
+		src = cms.InputTag('goodPatJetsAK8PF')
 		)
 
 	process.ak8TrimmedLite = process.ak4Lite.clone(
-		src = cms.InputTag('goodPatJetsAK7TrimmedPF')
+		src = cms.InputTag('goodPatJetsAK8TrimmedPF')
 		)
 
 	process.ak8PrunedLite = process.ak4Lite.clone(
-		src = cms.InputTag('goodPatJetsAK7PrunedPF')
+		src = cms.InputTag('goodPatJetsAK8PrunedPF')
 		)
 
 	process.ak8FilteredLite = process.ak4Lite.clone(
-		src = cms.InputTag('goodPatJetsAK7FilteredPF')
+		src = cms.InputTag('goodPatJetsAK8FilteredPF')
 		)
 
 
@@ -1291,13 +1291,13 @@ if options.useExtraJetColls:
 		process.ak8PrunedGenJetsNoNu*
 		process.goodPatJetsCA12FilteredPF*
 		process.goodPatJetsCA12MassDropFilteredPF*
-		process.goodPatJetsAK5TrimmedPF*
-		process.goodPatJetsAK5FilteredPF*
-		process.goodPatJetsAK5PrunedPF*
-		process.goodPatJetsAK7PF*
-		process.goodPatJetsAK7TrimmedPF*
-		process.goodPatJetsAK7FilteredPF*
-		process.goodPatJetsAK7PrunedPF*
+		process.goodPatJetsAK4TrimmedPF*
+		process.goodPatJetsAK4FilteredPF*
+		process.goodPatJetsAK4PrunedPF*
+		process.goodPatJetsAK8PF*
+		process.goodPatJetsAK8TrimmedPF*
+		process.goodPatJetsAK8FilteredPF*
+		process.goodPatJetsAK8PrunedPF*
 		process.goodPatJetsAK8PF*
 		process.goodPatJetsAK8TrimmedPF*
 		process.goodPatJetsAK8FilteredPF*
@@ -1440,13 +1440,13 @@ process.out.outputCommands = [
     'drop CaloTowers_selectedPatJets*_*_*',
     'drop recoBasicJets_*_*_*',
     'keep *_*Lite_*_*',
-    'drop patJets_goodPatJetsAK5FilteredPF_*_*',
-    'drop patJets_goodPatJetsAK5PrunedPF_*_*',
-    'drop patJets_goodPatJetsAK5TrimmedPF_*_*',
-    'drop patJets_goodPatJetsAK7PF_*_*',
-    'drop patJets_goodPatJetsAK7FilteredPF_*_*',
-    'drop patJets_goodPatJetsAK7PrunedPF_*_*',
-    'drop patJets_goodPatJetsAK7TrimmedPF_*_*',
+    'drop patJets_goodPatJetsAK4FilteredPF_*_*',
+    'drop patJets_goodPatJetsAK4PrunedPF_*_*',
+    'drop patJets_goodPatJetsAK4TrimmedPF_*_*',
+    'drop patJets_goodPatJetsAK8PF_*_*',
+    'drop patJets_goodPatJetsAK8FilteredPF_*_*',
+    'drop patJets_goodPatJetsAK8PrunedPF_*_*',
+    'drop patJets_goodPatJetsAK8TrimmedPF_*_*',
     'drop patJets_goodPatJetsAK8PF_*_*',
     'drop patJets_goodPatJetsAK8FilteredPF_*_*',
     'drop patJets_goodPatJetsAK8PrunedPF_*_*',

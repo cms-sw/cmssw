@@ -477,8 +477,8 @@
   <Branch>recoHcalNoiseRBXs_hcalnoise__RECO.</Branch>
   <Branch>recoJPTJets_JetPlusTrackZSPCorJetAntiKt5__RECO.</Branch>
   <Branch>recoJPTJets_TCTauJetPlusTrackZSPCorJetAntiKt5__RECO.</Branch>
-  <Branch>recoMETs_htMetAK5__RECO.</Branch>
-  <Branch>recoMETs_htMetAK7__RECO.</Branch>
+  <Branch>recoMETs_htMetAK4__RECO.</Branch>
+  <Branch>recoMETs_htMetAK8__RECO.</Branch>
   <Branch>recoMETs_htMetIC5__RECO.</Branch>
   <Branch>recoMETs_htMetKT4__RECO.</Branch>
   <Branch>recoMETs_htMetKT6__RECO.</Branch>

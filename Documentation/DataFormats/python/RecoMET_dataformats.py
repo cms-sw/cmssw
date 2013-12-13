@@ -123,12 +123,12 @@ json = {
       "desc": "MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and also muons"
      },
      {
-      "instance": "htMetAK7",
+      "instance": "htMetAK8",
       "container": "reco::METCollection",
       "desc": "Raw Missing Transverse Energy calculated using anti-KT7 CaloJets"
      },
      {
-      "instance": "htMetAK5",
+      "instance": "htMetAK4",
       "container": "reco::METCollection",
       "desc": "Raw Missing Transverse Energy calculated using anti-KT5 CaloJets"
      },

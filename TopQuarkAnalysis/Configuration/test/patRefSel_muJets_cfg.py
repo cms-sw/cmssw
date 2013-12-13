@@ -260,7 +260,7 @@ process.load( "PhysicsTools.PatAlgos.patSequences_cff" )
 ### Check JECs
 
 # JEC set
-jecSet = 'AK5PF'
+jecSet = 'AK4PF'
 if usePFnoPU:
   jecSet += 'chs'
 

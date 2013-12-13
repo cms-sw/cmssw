@@ -15,15 +15,15 @@ process.maxEvents = cms.untracked.PSet(
 payloads = [
     # generic tau-jet energy corrections parameters,
     # not specific to any reconstructed tau decay mode 
-    'AK5tauHPSlooseCombDBcorr',
+    'AK4tauHPSlooseCombDBcorr',
     # tau-jet energy corrections parameters specific to one-prong, no pi0 decay mode
-    'AK5tauHPSlooseCombDBcorrOneProng0Pi0',
+    'AK4tauHPSlooseCombDBcorrOneProng0Pi0',
     # tau-jet energy corrections parameters specific to one-prong, one pi0 decay mode
-    'AK5tauHPSlooseCombDBcorrOneProng1Pi0',
+    'AK4tauHPSlooseCombDBcorrOneProng1Pi0',
     # tau-jet energy corrections parameters specific to one-prong, two pi0 decay mode
-    'AK5tauHPSlooseCombDBcorrOneProng2Pi0',
+    'AK4tauHPSlooseCombDBcorrOneProng2Pi0',
     # tau-jet energy corrections parameters specific to three-prong, no pi0 decay mode
-    'AK5tauHPSlooseCombDBcorrThreeProng0Pi0'
+    'AK4tauHPSlooseCombDBcorrThreeProng0Pi0'
 ]    
 
 process.dbReaderSequence = cms.Sequence()

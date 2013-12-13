@@ -18,7 +18,7 @@ myList = LumiList.LumiList (filename = JSONfile).getCMSSWString().split(',')
 process.jetStudies = cms.PSet(
     # input parameter sets
     jetSrc = cms.InputTag('selectedPatJets'),
-    pfJetSrc = cms.InputTag('selectedPatJetsAK5PF'),
+    pfJetSrc = cms.InputTag('selectedPatJetsAK4PF'),
     metSrc = cms.InputTag('patMETs'),
     pfMetSrc = cms.InputTag('patMETsPF'),
     useCalo = cms.bool(True)

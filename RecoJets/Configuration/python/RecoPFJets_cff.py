@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.sc5PFJets_cfi import sisCone5PFJets
 from RecoJets.JetProducers.ic5PFJets_cfi import iterativeCone5PFJets
 from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
-from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 from RecoJets.JetProducers.ak4PFJetsTrimmed_cfi import ak4PFJetsTrimmed
 from RecoJets.JetProducers.ak4PFJetsFiltered_cfi import ak4PFJetsFiltered, ak4PFJetsMassDropFiltered
 from RecoJets.JetProducers.ak4PFJetsPruned_cfi import ak4PFJetsPruned
@@ -16,7 +16,7 @@ from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFa
 from RecoJets.JetProducers.caTopTaggers_cff import *
 
 sisCone7PFJets = sisCone5PFJets.clone( rParam = 0.7 )
-ak8PFJets = ak4PFJets.clone( rParam = 0.7 )
+ak7PFJets = ak4PFJets.clone( rParam = 0.7 )
 ak8PFJets = ak4PFJets.clone( rParam = 0.8 )
 gk7PFJets = gk5PFJets.clone( rParam = 0.7 )
 kt6PFJets = kt4PFJets.clone( rParam = 0.6 )
@@ -28,8 +28,10 @@ kt6PFJets.doAreaFastjet = True
 #use active areas and not Voronoi tessellation for the moment
 kt6PFJets.voronoiRfact = 0.9
 ak4PFJets.doAreaFastjet = True
-ak4PFJets.doAreaFastjet = True
+ak5PFJets.doAreaFastjet = True
 ak4PFJetsTrimmed.doAreaFastjet = True
+ak4PFJetsPruned.doAreaFastjet = True
+ak4PFJetsFiltered.doAreaFastjet = True
 ak8PFJets.doAreaFastjet = True
 
 
@@ -73,7 +75,7 @@ ak8PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
                                         )
 
 
-# Advanced Algorithms for AK5, AK8 and CA8 :
+# Advanced Algorithms for AK4, AK8 and CA8 :
 #   - CHS, ungroomed
 #   - CHS, pruned
 #   - CHS, filtered
@@ -158,7 +160,10 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            fixedGridRhoFastjetAll+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
-                           ak4PFJets+ak4PFJets+ak8PFJets+
+                           ak4PFJets+
+                           # TO BE ADDED BACK AFTER CHECKS : 
+                           #ak5PFJets+
+                           ak8PFJets+
                            pfNoPileUpJMESequence+
                            ak4PFJetsCHS+
                            ak8PFJetsCHS+
@@ -182,7 +187,7 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
                            iterativeCone5PFJets+
-                           ak4PFJets+ak8PFJets+ak8PFJets+
+                           ak4PFJets+ak5PFJets+ak8PFJets+
                            gk5PFJets+gk7PFJets+
                            ca4PFJets+ca8PFJets+
                            pfNoPileUpJMESequence+

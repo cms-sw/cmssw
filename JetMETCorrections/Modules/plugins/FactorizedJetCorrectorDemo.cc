@@ -83,7 +83,7 @@ void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::Ev
   if ( mDebug ) 
     std::cout << "Hello from FactorizedJetCorrectorDemo" << std::endl;
   // retreive parameters from the DB this still need a proper configurable 
-  // payloadName like: JetCorrectorParametersCollection_Spring10_AK5Calo.
+  // payloadName like: JetCorrectorParametersCollection_Spring10_AK4Calo.
   edm::ESHandle<JetCorrectorParametersCollection> parameters;
   iSetup.get<JetCorrectionsRecord>().get(mPayloadName, parameters); 
 

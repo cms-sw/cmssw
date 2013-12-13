@@ -35,8 +35,8 @@ process.GlobalTag.globaltag = 'GR_R_42_V14::All'
 mytrigs = ['*']
 
 # Jet energy corrections to use:
-#inputJetCorrLabel = ('AK5PF', ['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
-inputJetCorrLabel = ('AK5PF', ['L1Offset', 'L2Relative', 'L3Absolute'])
+#inputJetCorrLabel = ('AK4PF', ['L1Offset', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
+inputJetCorrLabel = ('AK4PF', ['L1Offset', 'L2Relative', 'L3Absolute'])
 process.patJetCorrFactors.useRho=False
 
 # add pf met

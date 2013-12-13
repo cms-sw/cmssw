@@ -18,22 +18,22 @@ from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 ## uncomment the following lines to add ak4PFJetsCHS to your PAT output
-postfixAK5PFCHS = 'Copy'
+postfixAK4PFCHS = 'Copy'
 addJetCollection(
    process,
-   postfix   = postfixAK5PFCHS,
-   labelName = 'AK5PFCHS',
+   postfix   = postfixAK4PFCHS,
+   labelName = 'AK4PFCHS',
    jetSource = cms.InputTag('ak4PFJetsCHS'),
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PFCHS%s_caloTowers_*'%( postfixAK5PFCHS ) )
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PFCHS%s_caloTowers_*'%( postfixAK4PFCHS ) )
 
 # uncomment the following lines to add ak4PFJets to your PAT output
 addJetCollection(
    process,
-   labelName = 'AK5PF',
+   labelName = 'AK4PF',
    jetSource = cms.InputTag('ak4PFJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
+   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'
@@ -44,13 +44,13 @@ addJetCollection(
      , 'combinedSecondaryVertexBJetTags'
      ],
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 
 # uncomment the following lines to switch to ak4CaloJets in your PAT output
 switchJetCollection(
    process,
    jetSource = cms.InputTag('ak4CaloJets'),
-   jetCorrections = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-1'),
+   jetCorrections = ('AK4Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'

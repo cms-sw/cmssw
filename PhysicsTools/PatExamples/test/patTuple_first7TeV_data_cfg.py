@@ -16,10 +16,10 @@ addPfMET(process, 'PF')
 # Add PF jets
 from PhysicsTools.PatAlgos.tools.jetTools import *
 addJetCollection(process,cms.InputTag('ak4PFJets'),
-                 'AK5', 'PF',
+                 'AK4', 'PF',
                  doJTA        = False,
                  doBTagging   = False,
-                 jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
+                 jetCorrLabel = ('AK4PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
                  doType1MET   = False,
                  doL1Cleaning = False,
                  doL1Counters = False,
@@ -55,7 +55,7 @@ process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
 
 # Select jets
 process.selectedPatJets.cut = cms.string('pt > 10')
-process.selectedPatJetsAK5PF.cut = cms.string('pt > 10')
+process.selectedPatJetsAK4PF.cut = cms.string('pt > 10')
 
 # Add the files
 readFiles = cms.untracked.vstring()

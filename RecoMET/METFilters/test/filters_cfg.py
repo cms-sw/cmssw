@@ -12,8 +12,8 @@ options.register('doJetPFchs', True, VarParsing.VarParsing.multiplicity.singleto
 
 options.register('hltName', 'HLT', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "HLT menu to use for trigger matching, e.g., HLT, REDIGI311X")
 options.register('mcVersion', '', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "'36X' for example. Used for specific MC fix")
-options.register('jetTypes', 'AK5PF', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional jet types that will be produced (AK5Calo and AK5PF, cross cleaned in PF2PAT, are included anyway)")
-#options.jetTypes.append('AK5Calo')
+options.register('jetTypes', 'AK4PF', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional jet types that will be produced (AK4Calo and AK4PF, cross cleaned in PF2PAT, are included anyway)")
+#options.jetTypes.append('AK4Calo')
 options.register('hltSelection', '*', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "hlTriggers (OR) used to filter events. for data: ''HLT_Mu9', 'HLT_IsoMu9', 'HLT_IsoMu13_v*''; for MC, HLT_Mu9")
 options.register('addKeep', '', VarParsing.VarParsing.multiplicity.list, VarParsing.VarParsing.varType.string, "Additional keep and drop statements to trim the event content")
 
@@ -75,10 +75,10 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 )
 
 postfix = "PFlow"
-jetAlgo="AK5"
-print "====> Configuring usePF2PAT : using AK5PFchs ..."
+jetAlgo="AK4"
+print "====> Configuring usePF2PAT : using AK4PFchs ..."
 print "See https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU"
-usePF2PAT(process, runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=options.mcInfo, postfix=postfix, jetCorrections=('AK5PFchs', options.jetCorrections))
+usePF2PAT(process, runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=options.mcInfo, postfix=postfix, jetCorrections=('AK4PFchs', options.jetCorrections))
 getattr(process,"pfPileUp"+postfix).Enable = True
 getattr(process,"pfPileUp"+postfix).Vertices = 'goodOfflinePrimaryVertices'
 getattr(process,"pfPileUp"+postfix).checkClosestZVertex = cms.bool(False)

@@ -21,7 +21,7 @@ if run33xOn31xMC :
                     cms.InputTag('antikt5CaloJets'),   
                     doJTA            = True,            
                     doBTagging       = True,            
-                    jetCorrLabel     = ('AK5','Calo'),  
+                    jetCorrLabel     = ('AK4','Calo'),  
                     doType1MET       = True,            
                     genJetCollection = cms.InputTag("antikt5GenJets")
                     )

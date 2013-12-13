@@ -214,9 +214,9 @@ selection_inverse = cms.PSet (
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 #process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
 process.jetSequence = cms.Sequence( process.ak4CaloJetsL2L3  )
-process.pfjetAK5Sequence = cms.Sequence( process.ak4PFJetsL2L3 )
+process.pfjetAK4Sequence = cms.Sequence( process.ak4PFJetsL2L3 )
 
-process.ourJetSequence = cms.Sequence( process.jetSequence * process.pfjetAK5Sequence )
+process.ourJetSequence = cms.Sequence( process.jetSequence * process.pfjetAK4Sequence )
 
 
 

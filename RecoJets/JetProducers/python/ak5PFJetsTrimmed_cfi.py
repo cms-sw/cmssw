@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.JetProducers.PFJetParameters_cfi import *
 from RecoJets.JetProducers.AnomalousCellParameters_cfi import *
-from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
 
-ak4PFJetsTrimmed = ak4PFJets.clone(
+ak5PFJetsTrimmed = ak5PFJets.clone(
     useTrimming = cms.bool(True),
     rFilt = cms.double(0.2),
     trimPtFracMin = cms.double(0.03),

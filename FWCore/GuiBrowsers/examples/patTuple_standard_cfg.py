@@ -33,10 +33,10 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## uncomment the following lines to add jets from a
 ## 35X input sample
 #addJetCollection35X(process,cms.InputTag('ak8CaloJets'),
-#                 'AK7', 'Calo',
+#                 'AK8', 'Calo',
 #                 doJTA        = True,
 #                 doBTagging   = False,
-#                 jetCorrLabel = ('AK7', 'Calo'),
+#                 jetCorrLabel = ('AK8', 'Calo'),
 #                 doType1MET   = True,
 #                 doL1Cleaning = True,                 
 #                 doL1Counters = False,

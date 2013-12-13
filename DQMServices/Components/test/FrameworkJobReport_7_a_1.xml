@@ -396,8 +396,8 @@
   <Branch>recoCaloJets_hltCaloJetIDPassedRegional__HLT.</Branch>
   <Branch>recoCaloJets_hltCaloJetL1FastJetCorrected__HLT.</Branch>
   <Branch>recoCaloJets_hltCaloJetL1MatchedRegional__HLT.</Branch>
-  <Branch>recoCaloJets_hltCleanEle17CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK5CorrJetsJet30__HLT.</Branch>
-  <Branch>recoCaloJets_hltCleanEle8CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK5CorrJetsJet30__HLT.</Branch>
+  <Branch>recoCaloJets_hltCleanEle17CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK4CorrJetsJet30__HLT.</Branch>
+  <Branch>recoCaloJets_hltCleanEle8CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK4CorrJetsJet30__HLT.</Branch>
   <Branch>recoCaloJets_hltFastPVJetVertexChecker__HLT.</Branch>
   <Branch>recoCaloJets_hltGetJetsfromBJetHbbVBF__HLT.</Branch>
   <Branch>recoCaloJets_hltGetJetsfromBLifetime3D1stTrkL25FilterJet20Hbb__HLT.</Branch>
@@ -517,10 +517,10 @@
   <Branch>recoPFCandidates_hltParticleFlowForTaus_CleanedPunchThroughNeutralHadrons_HLT.</Branch>
   <Branch>recoPFCandidates_hltParticleFlow_CleanedTrackerAndGlobalMuons_HLT.</Branch>
   <Branch>recoPFCandidates_hltParticleFlowForTaus_CleanedTrackerAndGlobalMuons_HLT.</Branch>
-  <Branch>recoPFJets_hltAK5PFJetL1FastL2L3Corrected__HLT.</Branch>
-  <Branch>recoPFJets_hltAK5PFJetL1FastL2L3CorrectedNoPU__HLT.</Branch>
-  <Branch>recoPFJets_hltAK5PFJetNeutralL1FastL2L3Corrected__HLT.</Branch>
-  <Branch>recoPFJets_hltAK5PFJetPromptTrackL1FastL2L3Corrected__HLT.</Branch>
+  <Branch>recoPFJets_hltAK4PFJetL1FastL2L3Corrected__HLT.</Branch>
+  <Branch>recoPFJets_hltAK4PFJetL1FastL2L3CorrectedNoPU__HLT.</Branch>
+  <Branch>recoPFJets_hltAK4PFJetNeutralL1FastL2L3Corrected__HLT.</Branch>
+  <Branch>recoPFJets_hltAK4PFJetPromptTrackL1FastL2L3Corrected__HLT.</Branch>
   <Branch>recoPFJets_hltAntiKT5PFJets__HLT.</Branch>
   <Branch>recoPFJets_hltAntiKT5PFJetsForTaus__HLT.</Branch>
   <Branch>recoPFJets_hltAntiKT5PFJetsNeutral__HLT.</Branch>

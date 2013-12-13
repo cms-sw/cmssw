@@ -23,7 +23,7 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
 # collections have standard names + postfix (e.g. patElectronPFlow)
 postfix = "PFlow"
-jetAlgo = "AK5"
+jetAlgo = "AK4"
 #Define Objects to be excluded from Top Projection. Default is Tau, so objects are not cleaned for taus
 excludeFromTopProjection=['Tau']
 
@@ -34,7 +34,7 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=runOnMC, postfix=post
 # to run second PF2PAT+PAT with different postfix uncomment the following lines
 # and add the corresponding sequence to path
 #postfix2 = "PFlow2"
-#jetAlgo2="AK7"
+#jetAlgo2="AK8"
 #usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo2, runOnMC=True, postfix=postfix2)
 
 # to use tau-cleaned jet collection uncomment the following:

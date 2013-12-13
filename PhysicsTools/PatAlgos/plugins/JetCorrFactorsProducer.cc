@@ -292,7 +292,7 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   iDesc.add<bool>("emf", false);
   iDesc.add<std::string>("flavorType", "J");
   iDesc.add<edm::InputTag>("src", edm::InputTag("ak4CaloJets"));
-  iDesc.add<std::string>("payload", "AK5Calo");
+  iDesc.add<std::string>("payload", "AK4Calo");
   iDesc.add<bool>("useNPV", true);
   iDesc.add<edm::InputTag>("primaryVertices", edm::InputTag("offlinePrimaryVertices"));
   iDesc.add<bool>("useRho", true);

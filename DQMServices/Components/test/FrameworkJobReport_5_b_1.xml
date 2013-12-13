@@ -328,8 +328,8 @@
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_iterativeCone5JetTracksAssociatorAtVertex__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_kt4JetTracksAssociatorAtCaloFace__RECO.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_kt4JetTracksAssociatorAtVertex__RECO.</Branch>
-  <Branch>recoMETs_htMetAK5__RECO.</Branch>
-  <Branch>recoMETs_htMetAK7__RECO.</Branch>
+  <Branch>recoMETs_htMetAK4__RECO.</Branch>
+  <Branch>recoMETs_htMetAK8__RECO.</Branch>
   <Branch>recoMETs_htMetIC5__RECO.</Branch>
   <Branch>recoMETs_htMetKT4__RECO.</Branch>
   <Branch>recoMETs_htMetKT6__RECO.</Branch>

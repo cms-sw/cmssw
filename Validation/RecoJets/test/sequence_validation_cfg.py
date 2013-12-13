@@ -75,11 +75,11 @@ process.source = cms.Source("PoolSource",
 #)
 
 
-## AK5 Corrected jets
-#process.JetAnalyzerAK5Cor = cms.EDAnalyzer("CaloJetTester",
+## AK4 Corrected jets
+#process.JetAnalyzerAK4Cor = cms.EDAnalyzer("CaloJetTester",
 #    src = cms.InputTag('ak4CaloJetsL2L3'),
 #    JetCorrectionService = cms.string('ak4CaloJetsL2L3'),
-    ##src = cms.InputTag("L2L3CorJetAK5Calo"),
+    ##src = cms.InputTag("L2L3CorJetAK4Calo"),
 #    srcGen = cms.InputTag("ak4GenJets"),
 ##    TurnOnEverything = cms.untracked.string('yes'),
 ##    TurnOnEverything = cms.untracked.string('no'),
@@ -129,7 +129,7 @@ process.p1 = cms.Path(#process.fileSaver*
  #                     *process.ZSPJetCorrectionsAntiKt5
  #                     *process.JetPlusTrackCorrectionsIcone5
  #                     *process.JetPlusTrackCorrectionsAntiKt5
-#                      *process.JetAnalyzerAK5Cor
+#                      *process.JetAnalyzerAK4Cor
 #                      *process.JetAnalyzerIC5JPT
 #                      *process.JetAnalyzerAk5JPT
                       #--- Standard sequence

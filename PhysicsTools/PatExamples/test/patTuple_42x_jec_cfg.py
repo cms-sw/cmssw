@@ -16,7 +16,7 @@ process.goodOfflinePrimaryVertices = cms.EDFilter(
 # not possible to run PF2PAT+PAT and standart PAT at the same time
 from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
-usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix=postfix)
+usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=True, postfix=postfix)
 process.pfPileUpPFlow.Enable = True
 process.pfPileUpPFlow.checkClosestZVertex = cms.bool(False)
 process.pfPileUpPFlow.Vertices = cms.InputTag('goodOfflinePrimaryVertices')

@@ -39,7 +39,7 @@ process.load( "PhysicsTools.PatAlgos.patSequences_cff" )
 from PhysicsTools.PatAlgos.tools.pfTools import *
 usePF2PAT( process
          , runPF2PAT = True
-         , jetAlgo   = 'AK5'
+         , jetAlgo   = 'AK4'
          , runOnMC   = True
          , postfix   = ''
          )

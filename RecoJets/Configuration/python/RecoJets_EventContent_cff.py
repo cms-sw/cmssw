@@ -60,8 +60,8 @@ RecoJetsRECO = cms.PSet(
                                            #'keep *_kt4PFJets_*_*', 
                                            'keep double_kt6PFJets_rho_*',
                                            'keep *_ak4PFJets_*_*',
-                                           'keep *_ak4PFJets_*_*',                                           
-                                           #'keep *_ak8PFJets_*_*',
+                                           #'keep *_ak5PFJets_*_*',                                           
+                                           #'keep *_ak7PFJets_*_*',
                                            'keep *_ak8PFJets_*_*',                                           
                                            'keep *_ak4PFJetsCHS_*_*',
                                            'keep *_ak8PFJetsCHS_*_*',
@@ -104,10 +104,10 @@ RecoJetsRECO = cms.PSet(
 RecoGenJetsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(#        'keep *_kt4GenJets_*_*', 
                                            #        'keep *_kt6GenJets_*_*',
-                                           'keep *_ak4GenJets_*_*',
-                                           'keep *_ak4GenJets_*_*',
-                                           'keep *_ak8GenJets_*_*',
-                                           'keep *_iterativeCone5GenJets_*_*',
+                                           'keep *_ak4GenJets*_*_*',
+                                           #'keep *_ak5GenJets*_*_*',
+                                           'keep *_ak8GenJets*_*_*',
+                                           #'keep *_iterativeCone5GenJets_*_*',
                                            'keep *_genParticle_*_*')
     )
 #AOD content
@@ -130,14 +130,14 @@ RecoJetsAOD = cms.PSet(
                                            #        'keep *_kt6PFJets_*_*',
                                            'keep double_kt6PFJets_rho_*',
                                            'keep *_ak4PFJets_*_*',
-                                           'keep *_ak4PFJets_*_*',
-                                           #'keep *_ak8PFJets_*_*',
+                                           #'keep *_ak5PFJets_*_*',
+                                           #'keep *_ak7PFJets_*_*',
                                            'keep *_ak8PFJets_*_*',
                                            #        'keep *_iterativeCone5PFJets_*_*', 
                                            'keep *_JetPlusTrackZSPCorJetAntiKt5_*_*',    
                                            'keep *_ak4TrackJets_*_*',
                                            #        'keep *_kt4TrackJets_*_*',
-                                           'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',                                             
+                                           'keep recoRecoChargedRefCandidates_trackRefsForJets_*_*',
                                            'keep *_caloTowers_*_*', 
                                            #        'keep *_towerMaker_*_*',
                                            'keep *_CastorTowerReco_*_*',                                           
@@ -168,9 +168,9 @@ RecoJetsAOD = cms.PSet(
 RecoGenJetsAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(#        'keep *_kt4GenJets_*_*', 
                                            #        'keep *_kt6GenJets_*_*',
-                                           'keep *_ak4GenJets_*_*',
-                                           'keep *_ak4GenJets_*_*',
-                                           'keep *_ak8GenJets_*_*',
+                                           'keep *_ak4GenJets*_*_*',
+                                           #'keep *_ak5GenJets*_*_*',
+                                           'keep *_ak8GenJets*_*_*',
                                            #        'keep *_iterativeCone5GenJets_*_*', 
                                            'keep *_genParticle_*_*'
                                            )

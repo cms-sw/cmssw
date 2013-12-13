@@ -22,14 +22,14 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 #############   Include the jet corrections ##########
 process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_7TeV_ReReco332_cff")
 # set the record's IOV. Must be defined once. Choose ANY correction service. #
-process.prefer("L2L3JetCorrectorAK5Calo")
+process.prefer("L2L3JetCorrectorAK4Calo")
 
 #############   User analyzer (calo jets) ##
 process.DijetRatioCaloJets = cms.EDAnalyzer("DijetRatioCaloJets",
     # Uncorrected CaloJets
     UnCorrectedJets           = cms.string('ak4CaloJets'),
     # Corrected CaloJets                                          
-    CorrectedJets  = cms.string('L2L3CorJetAK5Calo'), 
+    CorrectedJets  = cms.string('L2L3CorJetAK4Calo'), 
     # Name of the output ROOT file containing the histograms 
     HistoFileName = cms.untracked.string('DijetRatioCaloJets.root')
 )
@@ -39,7 +39,7 @@ process.DijetRatioPFJets = cms.EDAnalyzer("DijetRatioPFJets",
     # Uncorrected PFJets
     UnCorrectedJets          = cms.string('ak4PFJets'),
     # Corrected PFJets                                          
-    CorrectedJets = cms.string('L2L3CorJetAK5PF'), 
+    CorrectedJets = cms.string('L2L3CorJetAK4PF'), 
     # Name of the output ROOT file containing the histograms 
     HistoFileName = cms.untracked.string('DijetRatioPFJets.root')
 )
@@ -60,8 +60,8 @@ process.DijetRatioGenJets = cms.EDAnalyzer("DijetRatioGenJets",
 
 
 #############   Path       ###########################
-process.p = cms.Path(process.L2L3CorJetAK5Calo * process.DijetRatioCaloJets)
-process.p2 = cms.Path(process.L2L3CorJetAK5PF * process.DijetRatioPFJets)
+process.p = cms.Path(process.L2L3CorJetAK4Calo * process.DijetRatioCaloJets)
+process.p2 = cms.Path(process.L2L3CorJetAK4PF * process.DijetRatioPFJets)
 process.p3 = cms.Path(process.genParticlesForJets *
                          process.ak4GenJets * process.DijetRatioGenJets)
 #############   Format MessageLogger #################
