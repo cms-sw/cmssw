@@ -15,11 +15,11 @@ BJetOperatingPointsParameters = cms.PSet(
             0.7322, 3.335,         #JTP,  JBTP, 
             3.524,  0.9467,        #SSV,  CSV, 
             0.9635, 0.9462,        #MSV,  IPM,
-            0.5581, 0.2757, 0.349  #SET,  SMT,  SMNoIPT  
+            0.4581, 0.2757, 0.349  #SET,  SMT,  SMNoIPT  
         ),
         discCutMedium = cms.vdouble(
             4.433,  2.53,
-            0.5114, 2.295,
+            0.4114, 2.295,
             2.13,   0.8339,
             0.8131, 0.8141,
             0.1974, 0.1208, 0.1846

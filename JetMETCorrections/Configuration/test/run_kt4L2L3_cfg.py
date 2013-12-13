@@ -1,6 +1,6 @@
 ################################################################################
 #
-# run_ak5L2L3_cfg.py
+# run_ak4L2L3_cfg.py
 # ------------------
 #
 # This configuration demonstrates how to run the L2L3 correction producers
@@ -64,24 +64,24 @@ jetPtHistogram = cms.PSet(min          = cms.untracked.double(     10),
                           plotquantity = cms.untracked.string(   'pt')
                           )
 
-process.ak5CaloHistos = cms.EDAnalyzer(
+process.ak4CaloHistos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('ak5CaloJets'),
+    src = cms.InputTag('ak4CaloJets'),
     histograms = cms.VPSet(jetPtHistogram)
     )
-process.ak5CaloL2L3Histos = cms.EDAnalyzer(
+process.ak4CaloL2L3Histos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('ak5CaloJetsL2L3'),
+    src = cms.InputTag('ak4CaloJetsL2L3'),
     histograms = cms.VPSet(jetPtHistogram)
     )
-process.ak5PFHistos = cms.EDAnalyzer(
+process.ak4PFHistos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('ak5PFJets'),
+    src = cms.InputTag('ak4PFJets'),
     histograms = cms.VPSet(jetPtHistogram)
     )
-process.ak5PFL2L3Histos = cms.EDAnalyzer(
+process.ak4PFL2L3Histos = cms.EDAnalyzer(
     'CandViewHistoAnalyzer',
-    src = cms.InputTag('ak5PFJetsL2L3'),
+    src = cms.InputTag('ak4PFJetsL2L3'),
     histograms = cms.VPSet(jetPtHistogram)
     )
 
@@ -89,6 +89,6 @@ process.ak5PFL2L3Histos = cms.EDAnalyzer(
 # RUN!
 #
 process.run = cms.Path(
-    process.ak5CaloJetsL2L3*process.ak5CaloHistos*process.ak5CaloL2L3Histos*
-    process.ak5PFJetsL2L3*  process.ak5PFHistos*  process.ak5PFL2L3Histos
+    process.ak4CaloJetsL2L3*process.ak4CaloHistos*process.ak4CaloL2L3Histos*
+    process.ak4PFJetsL2L3*  process.ak4PFHistos*  process.ak4PFL2L3Histos
     )

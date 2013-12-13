@@ -4227,7 +4227,7 @@ process.hltMet = cms.EDProducer( "METProducer",
     track_quality = cms.vint32( 2 ),
     isCosmics = cms.bool( False ),
     eVetoMinElectronPt = cms.double( 10.0 ),
-    jets = cms.InputTag( "ak5PFJets" )
+    jets = cms.InputTag( "ak4PFJets" )
 )
 process.hltHIMET120 = cms.EDFilter( "HLT1CaloMET",
     saveTags = cms.bool( True ),
@@ -7749,7 +7749,7 @@ process.hltMetForHf = cms.EDProducer( "METProducer",
     track_quality = cms.vint32( 2 ),
     isCosmics = cms.bool( False ),
     eVetoMinElectronPt = cms.double( 10.0 ),
-    jets = cms.InputTag( "ak5PFJets" )
+    jets = cms.InputTag( "ak4PFJets" )
 )
 process.hltGlobalSumETHfFilter3200 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     saveTags = cms.bool( False ),

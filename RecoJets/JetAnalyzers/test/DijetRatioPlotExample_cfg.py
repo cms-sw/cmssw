@@ -27,7 +27,7 @@ process.prefer("L2L3JetCorrectorAK5Calo")
 #############   User analyzer (calo jets) ##
 process.DijetRatioCaloJets = cms.EDAnalyzer("DijetRatioCaloJets",
     # Uncorrected CaloJets
-    UnCorrectedJets           = cms.string('ak5CaloJets'),
+    UnCorrectedJets           = cms.string('ak4CaloJets'),
     # Corrected CaloJets                                          
     CorrectedJets  = cms.string('L2L3CorJetAK5Calo'), 
     # Name of the output ROOT file containing the histograms 
@@ -37,7 +37,7 @@ process.DijetRatioCaloJets = cms.EDAnalyzer("DijetRatioCaloJets",
 #############   User analyzer (PF jets) ##
 process.DijetRatioPFJets = cms.EDAnalyzer("DijetRatioPFJets",
     # Uncorrected PFJets
-    UnCorrectedJets          = cms.string('ak5PFJets'),
+    UnCorrectedJets          = cms.string('ak4PFJets'),
     # Corrected PFJets                                          
     CorrectedJets = cms.string('L2L3CorJetAK5PF'), 
     # Name of the output ROOT file containing the histograms 
@@ -46,14 +46,14 @@ process.DijetRatioPFJets = cms.EDAnalyzer("DijetRatioPFJets",
 
 
 #############   User analyzer (gen jets) ##
-# ak5GenJets are NOT there: First load the needed modules
+# ak4GenJets are NOT there: First load the needed modules
 process.load("RecoJets.Configuration.GenJetParticles_cff")
-process.load("RecoJets.JetProducers.ak5GenJets_cfi")
+process.load("RecoJets.JetProducers.ak4GenJets_cfi")
 process.DijetRatioGenJets = cms.EDAnalyzer("DijetRatioGenJets",
     # Uncorrected GenJets
-    UnCorrectedJets          = cms.string('ak5GenJets'),
+    UnCorrectedJets          = cms.string('ak4GenJets'),
     # Corrected GenJets  == Uncorrected GenJets   
-    CorrectedJets  = cms.string('ak5GenJets'), 
+    CorrectedJets  = cms.string('ak4GenJets'), 
     # Name of the output ROOT file containing the histograms 
     HistoFileName = cms.untracked.string('DijetRatioGenJets.root')
 )
@@ -63,7 +63,7 @@ process.DijetRatioGenJets = cms.EDAnalyzer("DijetRatioGenJets",
 process.p = cms.Path(process.L2L3CorJetAK5Calo * process.DijetRatioCaloJets)
 process.p2 = cms.Path(process.L2L3CorJetAK5PF * process.DijetRatioPFJets)
 process.p3 = cms.Path(process.genParticlesForJets *
-                         process.ak5GenJets * process.DijetRatioGenJets)
+                         process.ak4GenJets * process.DijetRatioGenJets)
 #############   Format MessageLogger #################
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 

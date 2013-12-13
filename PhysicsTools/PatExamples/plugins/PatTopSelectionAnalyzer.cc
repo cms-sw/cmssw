@@ -81,7 +81,7 @@ PatTopSelectionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(metToken_,met);
 
   // fill yield
-  fill("yield", 0.5);
+  fill("yield", 0.4);
 
   // fill quantities for leading elec and elec multiplicity
   fill("elecMult", elecs->size());

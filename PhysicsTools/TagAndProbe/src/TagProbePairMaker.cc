@@ -99,7 +99,7 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
 	    --nclean;
 	  } else{
 	    // do a coin toss to decide if we want to swap them
-	    if (randGen_->Rndm()>0.5) {
+	    if (randGen_->Rndm()>0.4) {
 	      std::swap(*it, *it2);
 	    }
 	    // and invalidate it2

@@ -194,7 +194,7 @@ PatBTagCommonHistos::Set(std::string flavor)
   const int ntptarray = 23;
   const int njptarray = 14;
   const int netaarray = 19;
-  Double_t jetetabins[netaarray] = {-2.5,-2.0,-1.75,-1.5,-1.25,-1.0,-0.75,-0.5,-0.25,0.0,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.5};
+  Double_t jetetabins[netaarray] = {-2.5,-2.0,-1.75,-1.5,-1.25,-1.0,-0.75,-0.4,-0.25,0.0,0.25,0.4,0.75,1.0,1.25,1.5,1.75,2.0,2.5};
   Double_t jetptxbins[njptarray] = {0.,10.,20.,30., 40., 50., 60., 70., 80, 90., 100., 120., 140., 230.};
   Double_t jetpttbins[ntptarray] = {0.,1.,2.,4.,6.,8.,10.,15.,20.,25.,30., 35.,40., 45., 50., 60., 70., 80, 90., 100., 120., 140., 230.};
   edm::Service<TFileService> fs;
@@ -231,13 +231,13 @@ PatBTagCommonHistos::Set(std::string flavor)
 
   //#tracks per jet
   histoid = "tracks_in_jet_"+flavor;  histotitle = "traks per jet "+flavor;
-  histocontainer_["tracks_in_jet_"+flavor]=fs->make<TH1D>(histoid.c_str(),histotitle.c_str(),31,-0.5,30.5);
+  histocontainer_["tracks_in_jet_"+flavor]=fs->make<TH1D>(histoid.c_str(),histotitle.c_str(),31,-0.4,30.4);
   histoid = "tracks_in_jet_"+flavor+"030"; histotitle = "traks per jet "+flavor+ "pt_{T} < 30[GeV/c]";
-  histocontainer_[histoid]=fs->make<TH1D>(histoid.c_str(),histotitle.c_str(),31,-0.5,30.5);
+  histocontainer_[histoid]=fs->make<TH1D>(histoid.c_str(),histotitle.c_str(),31,-0.4,30.4);
   histoid = "tracks_in_jet_"+flavor+"3050"; histotitle = "traks per jet "+flavor+ "30 < pt_{T} < 50[GeV/c]";
-  histocontainer_[histoid]=fs->make<TH1D>(histoid.c_str(),histotitle.c_str(),31,-0.5,30.5);
+  histocontainer_[histoid]=fs->make<TH1D>(histoid.c_str(),histotitle.c_str(),31,-0.4,30.4);
   histoid = "tracks_in_jet_"+flavor+"50"; histotitle = "traks per jet "+flavor+ "pt_{T} > 50[GeV/c]";
-  histocontainer_[histoid]=fs->make<TH1D>(histoid.c_str(),histotitle.c_str(),31,-0.5,30.5);
+  histocontainer_[histoid]=fs->make<TH1D>(histoid.c_str(),histotitle.c_str(),31,-0.4,30.4);
 
   // pt of tracks in bins of jet pt 0-30,30-50,50
   histoid= "pt_tracks_in_jet_"+flavor; histotitle = "track p_{T} [GeV/c] "+ flavor+" jets";

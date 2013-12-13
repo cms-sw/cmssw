@@ -4,36 +4,36 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi i
 
 from RecoJets.JetAssociationProducers.j2tParametersCALO_cfi import *
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
-ak5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+ak4JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
-    jets = cms.InputTag("ak5CaloJets")
+    jets = cms.InputTag("ak4CaloJets")
 )
 
-ak5JetTracksAssociatorAtVertexPF = cms.EDProducer("JetTracksAssociatorAtVertex",
+ak4JetTracksAssociatorAtVertexPF = cms.EDProducer("JetTracksAssociatorAtVertex",
     j2tParametersVX,
-    jets = cms.InputTag("ak5PFJetsCHS")
+    jets = cms.InputTag("ak4PFJetsCHS")
 )
 
 
-ak5JetTracksAssociatorExplicit = cms.EDProducer("JetTracksAssociatorExplicit",
+ak4JetTracksAssociatorExplicit = cms.EDProducer("JetTracksAssociatorExplicit",
     j2tParametersVX,
-    jets = cms.InputTag("ak5PFJetsCHS")
+    jets = cms.InputTag("ak4PFJetsCHS")
 )
 
-ak5JetTracksAssociatorAtCaloFace = cms.EDProducer("JetTracksAssociatorAtCaloFace",
+ak4JetTracksAssociatorAtCaloFace = cms.EDProducer("JetTracksAssociatorAtCaloFace",
     j2tParametersCALO,
-    jets = cms.InputTag("ak5CaloJets")
+    jets = cms.InputTag("ak4CaloJets")
 )
 
-ak5JetExtender = cms.EDProducer("JetExtender",
-    jets = cms.InputTag("ak5CaloJets"),
-    jet2TracksAtCALO = cms.InputTag("ak5JetTracksAssociatorAtCaloFace"),
-    jet2TracksAtVX = cms.InputTag("ak5JetTracksAssociatorAtVertex"),
+ak4JetExtender = cms.EDProducer("JetExtender",
+    jets = cms.InputTag("ak4CaloJets"),
+    jet2TracksAtCALO = cms.InputTag("ak4JetTracksAssociatorAtCaloFace"),
+    jet2TracksAtVX = cms.InputTag("ak4JetTracksAssociatorAtVertex"),
     coneSize = cms.double(0.5)
 )
 
-ak5JTA = cms.Sequence(ak5JetTracksAssociatorAtVertexPF*
-                      ak5JetTracksAssociatorAtVertex*
-                      ak5JetTracksAssociatorAtCaloFace*ak5JetExtender)
+ak4JTA = cms.Sequence(ak4JetTracksAssociatorAtVertexPF*
+                      ak4JetTracksAssociatorAtVertex*
+                      ak4JetTracksAssociatorAtCaloFace*ak4JetExtender)
 
-ak5JTAExplicit = cms.Sequence(ak5JetTracksAssociatorExplicit)
+ak4JTAExplicit = cms.Sequence(ak4JetTracksAssociatorExplicit)

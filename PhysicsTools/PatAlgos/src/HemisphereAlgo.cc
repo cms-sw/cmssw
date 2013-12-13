@@ -94,7 +94,7 @@ int HemisphereAlgo::reconstruct(){
       
       float DeltaR = deltaR((*Object[i]).eta(),(*Object[i]).phi(),(*Object[I_Max]).eta(),(*Object[I_Max]).phi()) ;   
       
-      if (Object_Noseed[i] == 0 && DeltaR > 0.5) { 
+      if (Object_Noseed[i] == 0 && DeltaR > 0.4) { 
     
         float DeltaRP = DeltaR * (*Object[i]).p();       
         if (DeltaRP > DeltaRP_Max){

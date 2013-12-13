@@ -54,10 +54,10 @@ process.load("RecoMET/METProducers/PFClusterMET_cfi")
 process.load("RecoJets/JetAssociationProducers/trackExtrapolator_cfi")
 
 #process.kt6PFJets.voronoiRfact = cms.double(0.9)
-process.ak5PFJetsTrimmed.doAreaFastjet = True
+process.ak4PFJetsTrimmed.doAreaFastjet = True
 
 #process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets)
-process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets+process.pfClusterMet+process.ak5PFJetsTrimmed)
+process.recoJets = cms.Path(process.trackExtrapolator+process.jetGlobalReco+process.CastorFullReco+process.jetHighLevelReco+process.recoPFClusterJets+process.pfClusterMet+process.ak4PFJetsTrimmed)
 
 # Since we don't want to re-run all of the PF "top projection" sequences,
 # turn off a few modules which depend on them in RECO

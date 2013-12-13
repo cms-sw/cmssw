@@ -18,7 +18,7 @@ iterativeCone5JetExtender = cms.EDProducer("JetExtender",
     jets = cms.InputTag("iterativeCone5CaloJets"),
     jet2TracksAtCALO = cms.InputTag("iterativeCone5JetTracksAssociatorAtCaloFace"),
     jet2TracksAtVX = cms.InputTag("iterativeCone5JetTracksAssociatorAtVertex"),
-    coneSize = cms.double(0.5)
+    coneSize = cms.double(0.4)
 )
 
 iterativeCone5JTA = cms.Sequence(iterativeCone5JetTracksAssociatorAtVertex*iterativeCone5JetTracksAssociatorAtCaloFace*iterativeCone5JetExtender)

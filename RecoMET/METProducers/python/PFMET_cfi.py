@@ -19,5 +19,5 @@ pfMet = cms.EDProducer("METProducer",
                        globalThreshold = cms.double(0.0),
                        InputType = cms.string('PFCandidateCollection'),
                        calculateSignificance = cms.bool(True),
-		       jets = cms.InputTag("ak5PFJets") #used for significance calculation
+		       jets = cms.InputTag("ak4PFJets") #used for significance calculation
                        )

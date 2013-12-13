@@ -6,17 +6,17 @@
  *
  * usage:
  *
- * from RecoJets.JetProducers.ak5JetID_cfi import *
+ * from RecoJets.JetProducers.ak4JetID_cfi import *
  * module CaloJetsLooseId = cms.EDProducer("CaloJetIdSelector",
- *    src     = cms.InputTag( "ak5CaloJets" ),
+ *    src     = cms.InputTag( "ak4CaloJets" ),
  *    idLevel = cms.string("LOOSE"),
- *    jetIDMap = cms.untracked.InputTag("ak5JetID") 
+ *    jetIDMap = cms.untracked.InputTag("ak4JetID") 
  *               ### must provide jet ID value map for CaloJets
  * )
  *
  *
  * module PFJetsLooseId = cms.EDProducer("PFJetIdSelector",
- *    src     = cms.InputTag( "ak5PFJets" ),
+ *    src     = cms.InputTag( "ak4PFJets" ),
  *    idLevel = cms.string("LOOSE"),
  * )
  *
@@ -96,7 +96,7 @@ template<typename T>
 JetIdSelector<T>::JetIdSelector(const edm::ParameterSet& iConfig)
   : src_    (iConfig.getParameter<edm::InputTag>         ("src"))
   , qualityStr  (iConfig.getParameter<string>            ("idLevel"))
-  , jetIDMap_(iConfig.getUntrackedParameter<edm::InputTag> ("jetIDMap", edm::InputTag("ak5JetID")))
+  , jetIDMap_(iConfig.getUntrackedParameter<edm::InputTag> ("jetIDMap", edm::InputTag("ak4JetID")))
   , moduleLabel_(iConfig.getParameter<string>                ("@module_label"))
   , nJetsTot_(0)
   , nJetsPassed_(0)

@@ -66,15 +66,15 @@ PatZjetsElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
       histContainer_["dr"]->Fill(histContainer_["dr"]->GetBinCenter(bin), elec->trackIsoDeposit()->depositWithin(upperEdge) - elec->trackIsoDeposit()->depositWithin(lowerEdge));
     }
     // fill electron id histograms
-    if( elec->electronID("eidRobustLoose") > 0.5 )
+    if( elec->electronID("eidRobustLoose") > 0.4 )
       histContainer_["eIDs" ]->Fill(0);
-    if( elec->electronID("eidRobustTight") > 0.5 )
+    if( elec->electronID("eidRobustTight") > 0.4 )
       histContainer_["eIDs" ]->Fill(1);
-    if( elec->electronID("eidLoose"      ) > 0.5 )
+    if( elec->electronID("eidLoose"      ) > 0.4 )
       histContainer_["eIDs" ]->Fill(2);
-    if( elec->electronID("eidTight"      ) > 0.5 )
+    if( elec->electronID("eidTight"      ) > 0.4 )
       histContainer_["eIDs" ]->Fill(3);
-    if( elec->electronID("eidRobustHighEnergy") > 0.5 )
+    if( elec->electronID("eidRobustHighEnergy") > 0.4 )
       histContainer_["eIDs" ]->Fill(4);
   }
 }

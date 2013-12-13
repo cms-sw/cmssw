@@ -17,7 +17,7 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5PFJetsCHS"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
@@ -59,11 +59,11 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets                                            
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak4CaloL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #      ),
       ## when omitted no extra selection will be applied on jets before
@@ -118,10 +118,10 @@ singleTopDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
   selection = cms.VPSet(
     cms.PSet(
       label  = cms.string("jets/calo:step0"),
-      src    = cms.InputTag("ak5CaloJets"),
+      src    = cms.InputTag("ak4CaloJets"),
       select = cms.string("pt>20 & abs(eta)<2.1 & 0.05<emEnergyFraction"),
       jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
+        label  = cms.InputTag("ak4JetID"),
         select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
       ),
       min = cms.int32(2),
@@ -147,7 +147,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
 #    muons = cms.InputTag("muons"),
     elecs_gsf = cms.InputTag("gsfElectrons"),
     elecs = cms.InputTag("particleFlow"),
-    jets  = cms.InputTag("ak5PFJetsCHS"),
+    jets  = cms.InputTag("ak4PFJetsCHS"),
     mets  = cms.VInputTag("met", "tcMet", "pfMet"),
     pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
@@ -180,11 +180,11 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                                                                   
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string(""), ##fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #     ),
       ## when omitted no extra selection will be applied on jets before
@@ -271,8 +271,8 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step1"),
-      src    = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4PFJetsCHS"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string(" pt>30 & abs(eta)<4.5 & numberOfDaughters>1 & ((abs(eta)>2.4) || ( chargedHadronEnergyFraction > 0 & chargedMultiplicity>0 & chargedEmEnergyFraction<0.99)) & neutralEmEnergyFraction < 0.99 & neutralHadronEnergyFraction < 0.99"), 
 
       min = cms.int32(1),
@@ -280,8 +280,8 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ), 
     cms.PSet(
      label  = cms.string("jets/pf:step2"),
-     src    = cms.InputTag("ak5PFJetsCHS"),
-     jetCorrector = cms.string("ak5PFL2L3"),
+     src    = cms.InputTag("ak4PFJetsCHS"),
+     jetCorrector = cms.string("ak4PFL2L3"),
      select = cms.string(" pt>30 & abs(eta)<4.5 & numberOfDaughters>1 & ((abs(eta)>2.4) || ( chargedHadronEnergyFraction > 0 & chargedMultiplicity>0 & chargedEmEnergyFraction<0.99)) & neutralEmEnergyFraction < 0.99 & neutralHadronEnergyFraction < 0.99"),
      
      min = cms.int32(2),
@@ -307,7 +307,7 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
       muons = cms.InputTag("particleFlow"),
       elecs_gsf = cms.InputTag("gsfElectrons"),
       elecs = cms.InputTag("particleFlow"),
-      jets  = cms.InputTag("ak5PFJetsCHS"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -340,11 +340,11 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string(" ")
 #      ),
       ## when omitted no extra selection will be applied on jets before
@@ -428,8 +428,8 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ),
     cms.PSet(
       label = cms.string("jets/pf:step1"),
-      src   = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src   = cms.InputTag("ak4PFJetsCHS"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & numberOfDaughters>1 & ((abs(eta)>2.4) || ( chargedHadronEnergyFraction > 0 & chargedMultiplicity>0 & chargedEmEnergyFraction<0.99)) & neutralEmEnergyFraction < 0.99 & neutralHadronEnergyFraction < 0.99"), 
 
       min = cms.int32(1),
@@ -438,8 +438,8 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     ),
     cms.PSet(
       label = cms.string("jets/pf:step2"),
-      src   = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src   = cms.InputTag("ak4PFJetsCHS"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & numberOfDaughters>1 & ((abs(eta)>2.4) || ( chargedHadronEnergyFraction > 0 & chargedMultiplicity>0 & chargedEmEnergyFraction<0.99)) & neutralEmEnergyFraction < 0.99 & neutralHadronEnergyFraction < 0.99"),
 
       min = cms.int32(2),

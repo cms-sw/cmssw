@@ -45,7 +45,7 @@ process.source = cms.Source("PoolSource",
 # ptHatEdges:    Edges of ptHatBins that correspond to xsecGen values above
 #
 process.gen = cms.EDAnalyzer("GenJetAnaPythia",
-    JetAlgorithm    = cms.string('ak7GenJets'),
+    JetAlgorithm    = cms.string('ak8GenJets'),
     HistoFileName   = cms.string('QCD900GeVGenJets700Kevts.root'),
     debug           = cms.bool(False),
     NJets           = cms.int32(2),

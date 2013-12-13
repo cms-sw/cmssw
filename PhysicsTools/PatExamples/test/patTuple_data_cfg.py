@@ -45,12 +45,12 @@ addPfMET(process, 'PF')
 
 # Add PF jets
 from PhysicsTools.PatAlgos.tools.jetTools import *
-switchJetCollection(process,cms.InputTag('ak5PFJets'),
+switchJetCollection(process,cms.InputTag('ak4PFJets'),
                  doJTA        = True,
                  doBTagging   = True,
                  jetCorrLabel = inputJetCorrLabel,
                  doType1MET   = True,
-                 genJetCollection=cms.InputTag("ak5GenJets"),
+                 genJetCollection=cms.InputTag("ak4GenJets"),
                  doJetID      = True
                  )
 process.patJets.addTagInfos = True

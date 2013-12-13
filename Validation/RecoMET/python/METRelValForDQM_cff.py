@@ -12,8 +12,8 @@ from Validation.RecoMET.METValidation_cfi import *
 
 from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfJetMETcorr, pfchsMETcorr, pfType1CorrectedMet 
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5PFL1FastL2L3,ak5PFL1Fastjet,ak5PFL2Relative,ak5PFL3Absolute
-newAk5PFL1FastL2L3 = ak5PFL1FastL2L3.clone()
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3,ak4PFL1Fastjet,ak4PFL2Relative,ak4PFL3Absolute
+newAk5PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
 pfJetMETcorr.jetCorrLabel = cms.string('newAk5PFL1FastL2L3')
 
 pfType0CorrectedMet = pfType1CorrectedMet.clone(applyType0Corrections = cms.bool(True), applyType1Corrections = cms.bool(False))

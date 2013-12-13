@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 pfJets = 'hltICone5PFJets'
 #pfJets = 'iterativeCone5PFJets'
-#pfJets = 'ak5PFJets'
+#pfJets = 'ak4PFJets'
 
 pfJetBenchmark = cms.EDAnalyzer("PFJetBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('JetBenchmark.root'),

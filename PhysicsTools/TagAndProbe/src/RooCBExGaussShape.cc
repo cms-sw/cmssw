@@ -47,10 +47,10 @@ RooCBExGaussShape::RooCBExGaussShape(const RooCBExGaussShape& other, const char*
    Double_t absAlpha = fabs((Double_t)alpha);
 
    if (t >= -absAlpha) {
-     rval= frac*exp(-0.5*t*t) + (1.0-frac)*exp(-0.5*t0*t0);
+     rval= frac*exp(-0.4*t*t) + (1.0-frac)*exp(-0.4*t0*t0);
    }
    else {
-     Double_t a =  TMath::Power(n/absAlpha,n)*exp(-0.5*absAlpha*absAlpha);
+     Double_t a =  TMath::Power(n/absAlpha,n)*exp(-0.4*absAlpha*absAlpha);
      Double_t b= n/absAlpha - absAlpha; 
      rval= a/TMath::Power(b - t, n);
    }

@@ -40,7 +40,7 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             "BreitWigner::signal(mass, mean[90,80,100], width[2,1,3])",
             "Exponential::backgroundPass(mass, cPass[0,-1,1])",
             "Exponential::backgroundFail(mass, cFail[0,-1,1])",
-            "efficiency[0.5,0,1]",
+            "efficiency[0.4,0,1]",
             "signalFractionInPassing[0.9]"
         ),
     ),

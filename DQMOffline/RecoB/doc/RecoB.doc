@@ -66,18 +66,18 @@ offline DQM package for b-tagging : allowed to produce histograms for the differ
 
 Modules for prebTagSequence in dqmAnalyzer_cff.py :
  - goodOfflinePrimaryVertices : create a collection of good primary vertices from "offlinePrimaryVertices"
- - ak5PFJetsJEC : create a collection of jets with JEC from "ak5PFJets"
- - PFJetsFilter : create a collection of jets with extra cuts from "ak5PFJetsJEC"
+ - ak4PFJetsJEC : create a collection of jets with JEC from "ak4PFJets"
+ - PFJetsFilter : create a collection of jets with extra cuts from "ak4PFJetsJEC"
  - pfAk5JetTracksAssociatorAtVertex : do the JetTracksAssociatorAtVertex for the "PFJetsFilter" jets
  - pfbtagging (and corresponding modules) : compute all tag infos and discriminant value for the "PFJetsFilter" jets 	 
 
 Modules used the validation conig file (see Validation/RecoB/test/validation_cfg.py) :
- - myak5JetTracksAssociatorAtVertex : like pfAk5JetTracksAssociatorAtVertex
+ - myak4JetTracksAssociatorAtVertex : like pfAk5JetTracksAssociatorAtVertex
  - flavourSeq (sequence) : to run the matching with the proper modules and correct input tag
  - btagSequence (sequence): to run the btagging sequence modified to run with the correct input tags 
  - goodOfflinePrimaryVertices : same as goodOfflinePrimaryVertices in dqmAnalyzer_cff.py 
  - bTagHLT : trigger filter
- - ak5PFJetsJEC and PFJetsFilter : see the same modules in dqmAnalyzer_cff.py
+ - ak4PFJetsJEC and PFJetsFilter : see the same modules in dqmAnalyzer_cff.py
 
  
 \subsection tests Unit tests and examples

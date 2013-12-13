@@ -20,7 +20,7 @@ ZSPJetCorJetSiscone5 = cms.EDProducer("CaloJetProducer",
     alias = cms.untracked.string('ZSPJetCorJetSiscone5')
 )
 ZSPJetCorJetAntiKt5 = cms.EDProducer("CaloJetProducer",
-    src = cms.InputTag("ak5CaloJets"),
+    src = cms.InputTag("ak4CaloJets"),
     tagName = cms.vstring('ZSP_CMSSW332_Iterative_Cone_05_PU0'),
     tagNameOffset = cms.vstring(),
     PU = cms.int32(-1),

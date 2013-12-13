@@ -104,7 +104,7 @@ void PatTriggerAnalyzer::beginJob()
   histos1D_[ "turnOn" ]->SetXTitle( "candidate p_{T} (GeV)" );
   histos1D_[ "turnOn" ]->SetYTitle( "# of objects" );
   // mean pt for all trigger objects
-  histos1D_[ "ptMean" ] = fileService->make< TH1D >( "ptMean", "Mean p_{T} (GeV) per trigger object type", maxID_ - minID_ + 1, minID_ - 0.5, maxID_ + 0.5);
+  histos1D_[ "ptMean" ] = fileService->make< TH1D >( "ptMean", "Mean p_{T} (GeV) per trigger object type", maxID_ - minID_ + 1, minID_ - 0.4, maxID_ + 0.4);
   histos1D_[ "ptMean" ]->SetXTitle( "trigger object type" );
   histos1D_[ "ptMean" ]->SetYTitle( "mean p_{T} (GeV)" );
 

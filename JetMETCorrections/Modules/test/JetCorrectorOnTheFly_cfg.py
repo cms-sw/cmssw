@@ -9,8 +9,8 @@ process.GlobalTag.globaltag = 'START38_V14::All'
 
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-process.ak5CaloL1Offset.useCondDB = False
-process.ak5PFL1Offset.useCondDB = False
+process.ak4CaloL1Offset.useCondDB = False
+process.ak4PFL1Offset.useCondDB = False
 ##-------------------- Define the source  ----------------------------
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -22,14 +22,14 @@ process.source = cms.Source("PoolSource",
 process.TFileService=cms.Service("TFileService",fileName=cms.string('plots.root'))
 ##-------------------- User analyzer  --------------------------------
 process.testCalo  = cms.EDAnalyzer('CaloJetCorrectorOnTheFly',
-    JetCorrectionService     = cms.string('ak5CaloL1L2L3Residual'),
-    JetCollectionName        = cms.string('ak5CaloJets'),
+    JetCorrectionService     = cms.string('ak4CaloL1L2L3Residual'),
+    JetCollectionName        = cms.string('ak4CaloJets'),
     MinRawJetPt              = cms.double(10),
     Debug                    = cms.bool(True)
 )
 process.testPF  = cms.EDAnalyzer('PFJetCorrectorOnTheFly',
-    JetCorrectionService     = cms.string('ak5PFL1L2L3Residual'),
-    JetCollectionName        = cms.string('ak5PFJets'),
+    JetCorrectionService     = cms.string('ak4PFL1L2L3Residual'),
+    JetCollectionName        = cms.string('ak4PFJets'),
     MinRawJetPt              = cms.double(7),
     Debug                    = cms.bool(True)
 )

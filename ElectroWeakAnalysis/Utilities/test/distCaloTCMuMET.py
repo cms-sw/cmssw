@@ -98,7 +98,7 @@ process.out.outputCommands.extend(cms.untracked.vstring('keep *_distMetGlobalMuo
 process.out.outputCommands.extend(cms.untracked.vstring('keep *_tcMet_*_*'))
 process.out.outputCommands.extend(cms.untracked.vstring('keep *_disttcMet_*_*'))
 process.out.outputCommands.extend(cms.untracked.vstring('keep *_pfMet_*_*'))
-process.out.outputCommands.extend(cms.untracked.vstring('keep *_ak5CaloJets_*_*'))
+process.out.outputCommands.extend(cms.untracked.vstring('keep *_ak4CaloJets_*_*'))
 
 
 

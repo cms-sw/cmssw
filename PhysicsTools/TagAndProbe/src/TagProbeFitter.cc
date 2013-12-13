@@ -455,8 +455,8 @@ void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar
   //efficiency = *e;
   efficiency.setVal(e->getVal());
   Double_t errLo = e->getErrorLo(), errHi = e->getErrorHi();
-  if (errLo == 0 && e->getVal() < 0.5) errLo = e->getMin()-e->getVal();
-  if (errHi == 0 && e->getVal() > 0.5) errHi = e->getMax()-e->getVal();
+  if (errLo == 0 && e->getVal() < 0.4) errLo = e->getMin()-e->getVal();
+  if (errHi == 0 && e->getVal() > 0.4) errHi = e->getMax()-e->getVal();
   efficiency.setAsymError(errLo, errHi);
 
   if (totPassing * totFailing == 0) {
