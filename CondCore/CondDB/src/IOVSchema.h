@@ -64,6 +64,7 @@ namespace cond {
 	void create();
 	bool select( const cond::Hash& payloadHash);
 	bool select( const cond::Hash& payloadHash, std::string& objectType, cond::Binary& payloadData);
+	bool getType( const cond::Hash& payloadHash, std::string& objectType );
 	bool insert( const cond::Hash& payloadHash, const std::string& objectType, 
 		     const cond::Binary& payloadData, const boost::posix_time::ptime& insertionTime);
 	cond::Hash insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 

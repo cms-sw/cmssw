@@ -167,7 +167,7 @@ cond::service::PoolDBOutputService::currentTime() const{
 }
 
 void 
-cond::service::PoolDBOutputService::createNewIOV( const Hash& firstPayloadId,
+cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadId,
 						  const std::string payloadType, 
                                                   cond::Time_t firstSinceTime, 
                                                   cond::Time_t firstTillTime,
@@ -210,10 +210,34 @@ cond::service::PoolDBOutputService::createNewIOV( const Hash& firstPayloadId,
   scope.close();
 }
 
+void 
+cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadId,
+                                                  cond::Time_t firstSinceTime, 
+                                                  cond::Time_t firstTillTime,
+                                                  const std::string& recordName, 
+                                                  bool withlogging){
+  cond::persistency::TransactionScope scope( m_session.transaction() );
+  Record& myrecord=this->lookUpRecord(recordName);
+  if(!myrecord.m_isNewTag) {
+    cond::throwException( myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
+  }
+  std::string iovToken;
+  try{
+    // FIX ME: synchronization type and description have to be passed as the other parameters?
+    cond::persistency::IOVEditor editor = m_session.createIovForPayload( firstPayloadId, myrecord.m_tag, myrecord.m_timetype, cond::OFFLINE ); 
+    editor.setDescription( "New Tag" );
+    editor.insert( firstSinceTime, firstPayloadId );
+    editor.flush();
+    myrecord.m_isNewTag=false;
+  }catch(const std::exception& er){ 
+    cond::throwException(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ",
+		   "PoolDBOutputService::createNewIOV");
+  }
+  scope.close();
+}
 
 void 
-cond::service::PoolDBOutputService::appendSinceTime( const Hash& payloadId,
-						     const std::string payloadType,
+cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadId,
 						     cond::Time_t time,
 						     const std::string& recordName,
 						     bool withlogging) {

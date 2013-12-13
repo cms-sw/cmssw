@@ -12,7 +12,7 @@ namespace cond {
 
     void BasePayloadProxy::setUp( Session dbSession ){
       m_session = dbSession;
-      m_iovProxy = m_session.iovProxy();
+      //m_iovProxy = m_session.iovProxy();
       invalidateCache();    
     }
     
@@ -34,8 +34,10 @@ namespace cond {
       if( !m_currentIov.isValidFor( time ) ){
 	m_session.transaction().start(true);
 	auto it = m_iovProxy.find( time );
-	if( it == m_iovProxy.end() ) throwException( "No valid iov found for time "+boost::lexical_cast<std::string>( time ),
-						     "BasePayloadProxy::setIntervalFor" );
+	if( it == m_iovProxy.end() ) {
+	  throwException( "No valid iov found in tag "+m_iovProxy.tag()+" for time "+boost::lexical_cast<std::string>( time ),
+			  "BasePayloadProxy::setIntervalFor" );
+	}
 	m_currentIov = *it;
 	if(load) loadPayload();
 	m_session.transaction().commit();

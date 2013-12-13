@@ -121,6 +121,11 @@ namespace cond {
       payloadData = cond::Binary( obj.makeShared() );
       return true;
     }
+
+    bool OraPayloadTable::getType( const cond::Hash& payloadHash, std::string& objectType ){
+      objectType = m_session.classNameForItem( payloadHash );
+      return true;
+    }
       
     cond::Hash OraPayloadTable::insertIfNew( const std::string& objectType, const cond::Binary& payloadData, 
 					     const boost::posix_time::ptime& ){
@@ -196,7 +201,8 @@ namespace cond {
 
     bool OraIOVTable::getSize( const std::string& tag, size_t& size ){
       if(!m_cache.load( tag )) return false;
-      return m_cache.iovSequence().size();
+      size = m_cache.iovSequence().size();
+      return true;
     }
       
     bool OraIOVTable::getSnapshotSize( const std::string& tag, const boost::posix_time::ptime&, size_t& size ){
@@ -305,8 +311,7 @@ namespace cond {
       if( tmp.size() ) tags.resize( tmp.size() );
       size_t i = 0;
       for( const auto& m : tmp ){
-	std::string tagFullName = m.tag+"@"+m.pfn;
-	std::cout <<"%% tag full name="<<tagFullName<<" record : "<<m.recordname<<std::endl;
+	std::string tagFullName = m.tag+"@["+m.pfn+"]";
 	tags[ i ] = std::make_tuple( m.recordname, m.labelname, tagFullName );
 	i++;
       }

@@ -215,7 +215,6 @@ namespace cond {
     // function to search in the vector the target time
     template <typename T> typename std::vector<T>::const_iterator search( const cond::Time_t& val, const std::vector<T>& container ){
       if( !container.size() ) return container.end();
-      
       auto p = std::upper_bound( container.begin(), container.end(), val, IOVComp() );
       return (p!= container.begin()) ? p-1 : container.end();
     }
@@ -280,7 +279,7 @@ namespace cond {
     }
     
     int IOVProxy::sequenceSize() const {
-      size_t ret;
+      size_t ret = 0;
       m_session->iovSchema().iovTable().getSize( m_data->tag, ret );
       return ret;
     }
@@ -291,6 +290,10 @@ namespace cond {
     
     std::pair<cond::Time_t,cond::Time_t> IOVProxy::loadedGroup() const {
       return m_data.get()? std::make_pair( m_data->lowerGroup, m_data->higherGroup ): std::make_pair( cond::time::MAX_VAL, cond::time::MIN_VAL );
+    }
+
+    const std::shared_ptr<SessionImpl>& IOVProxy::session() const {
+      return m_session;
     }
     
   }

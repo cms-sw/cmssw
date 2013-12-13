@@ -282,9 +282,17 @@ namespace cond {
       for ( auto row : q ) {}
       
       return q.retrievedRows();
-    
     }
 
+    bool PAYLOAD::Table::getType( const cond::Hash& payloadHash, std::string& objectType ){
+      Query< OBJECT_TYPE > q( m_schema );
+      q.addCondition<HASH>( payloadHash );
+      for ( auto row : q ) {
+	objectType = std::get<0>(row);
+      }
+      
+      return q.retrievedRows(); 
+    }
 
     bool PAYLOAD::Table::select( const cond::Hash& payloadHash, 
 				 std::string& objectType, 

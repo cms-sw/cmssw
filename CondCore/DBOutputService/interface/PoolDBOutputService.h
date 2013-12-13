@@ -70,7 +70,7 @@ namespace cond{
 	if (isNewTagRequest(recordName) ){
 	  createNewIOV(payloadId, payloadType, time, endOfTime(), recordName, withlogging);
         } else {
-	  appendSinceTime(payloadId, payloadType, time, recordName, withlogging);
+	  appendSinceTime(payloadId, time, recordName, withlogging);
         }	
       }
 
@@ -94,13 +94,20 @@ namespace cond{
                       withlogging);	
       }
             
-      void createNewIOV( const Hash& firstPayloadId,
+      void createNewIOV( const std::string& firstPayloadId,
 			 const std::string payloadType, 
                          cond::Time_t firstSinceTime,
                          cond::Time_t firstTillTime,
                          const std::string& recordName,
                          bool withlogging=false);
       
+      // this one we need to avoid to adapt client code around... to be removed in the long term!
+      void createNewIOV( const std::string& firstPayloadId,
+                         cond::Time_t firstSinceTime,
+                         cond::Time_t firstTillTime,
+                         const std::string& recordName,
+                         bool withlogging=false);
+
       // 
       template<typename T> void appendSinceTime( T* payloadObj,
                                                  cond::Time_t sinceTime,
@@ -108,7 +115,6 @@ namespace cond{
                                                  bool withlogging=false){
         if( !payloadObj ) throwException( "Provided payload pointer is invalid.","PoolDBOutputService::appendSinceTime");
         appendSinceTime( m_session.storePayload( *payloadObj ),
-			 cond::demangledName(typeid(T)),
 			 sinceTime,
 			 recordName,
 			 withlogging);
@@ -118,8 +124,7 @@ namespace cond{
       // Note: the iov index appended to MUST pre-existing and the existing 
       // conditions data are retrieved from the DB
       // 
-      void appendSinceTime( const Hash& payloadId,
-			    const std::string payloadType, 
+      void appendSinceTime( const std::string& payloadId,
                             cond::Time_t sinceTime,
                             const std::string& recordName,
                             bool withlogging=false);

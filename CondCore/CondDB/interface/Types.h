@@ -54,7 +54,7 @@ namespace cond {
   };
 
   struct TagInfo_t {
-    // FIX ME: to be simplyfied, currently keeping the same interface as cond::TagInfo
+    // FIX ME: to be simplyfied, currently keeping the same interface as CondCore/DBCommon/interface/TagInfo.h
     TagInfo_t(): name(""),token(""),lastInterval(0,0), lastPayloadToken(""),size(0){}
     std::string name;
     std::string token;
@@ -62,6 +62,9 @@ namespace cond {
     std::string lastPayloadToken;
     size_t size;
   };
+
+  // temporarely, to minimize changes in the clients code
+  typedef TagInfo_t TagInfo;
 
   struct TagMetadata_t {
     SynchronizationType synchronizationType;

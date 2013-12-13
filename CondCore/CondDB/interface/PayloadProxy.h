@@ -47,10 +47,15 @@ namespace cond {
       
       TimeType timeType() const { return m_iovProxy.timeType();}
       
-      virtual void loadMore(CondGetter const &){}
+      virtual void loadMore(CondGetter const &){
+      }
 
       IOVProxy iov();
       
+      const std::vector<std::pair<Time_t,std::string> >& logs() const {
+	return m_logs;
+      }
+    
     private:
       virtual void loadPayload() = 0;   
       
@@ -59,6 +64,7 @@ namespace cond {
       IOVProxy m_iovProxy;
       Iov_t m_currentIov;
       Session m_session;
+      std::vector<std::pair<Time_t,std::string> > m_logs;
       
     };
     
@@ -95,13 +101,16 @@ namespace cond {
       virtual void invalidateCache() {
 	m_data.reset();
 	m_currentIov.clear();
+	m_logs.clear();
       }
-      
-    
+
     protected:
       virtual void loadPayload() {
-	m_data = m_session.fetchPayload<DataT>( m_currentIov.payloadId );
-	m_currentPayloadId = m_currentIov.payloadId;
+	if( m_currentPayloadId != m_currentIov.payloadId ){
+	  m_data = m_session.fetchPayload<DataT>( m_currentIov.payloadId );
+	  m_currentPayloadId = m_currentIov.payloadId;	  
+	  m_logs.push_back( std::make_pair( m_currentIov.since, m_currentPayloadId ) );
+	}
       }
       
     private:

@@ -26,7 +26,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <exception>
 
-//#include "CondFormats/Common/interface/TimeConversions.h"
 #include <iomanip>
 
 namespace {
@@ -49,7 +48,7 @@ namespace {
     size_t pos = tag.rfind('@');
     if( pos != std::string::npos && tag.size() >= pos+3 ){
       if( tag[pos+1]=='[' && tag[tag.size()-1]==']' ) {
-	pfn = tag.substr( pos+2,tag.size()-pos-4 ); 
+	pfn = tag.substr( pos+2,tag.size()-pos-3 ); 
 	t = tag.substr( 0, pos );
       }
     }
@@ -94,18 +93,11 @@ namespace {
       //	<< ", make " << proxy.proxy()->stats.nMake
       //	<< ", load " << proxy.proxy()->stats.nLoad
       ;
-    /**
-    if ( proxy.proxy()->stats.nLoad>0) {
-      out << "\n oids,sinces:";
-      cond::BasePayloadProxy::ObjIds const & ids =  proxy.proxy()->stats.ids;
-      for (cond::BasePayloadProxy::ObjIds::const_iterator id=ids.begin(); id!=ids.end(); ++id)
-	out << " "
-	    // << std::ios::hex 
-            << (*id).oid1 <<"-"<< (*id).oid2 <<"," 
-	    // << std::ios::dec 
-            <<  (*id).since;
-    }
-    **/
+    //if ( proxy.proxy()->stats.nLoad>0) {
+    out << "Time look up, payloadIds:" <<std::endl;
+    const auto& pids =  proxy.proxy()->logs();
+    for (auto id: pids )
+      out << "   "<< id.first <<" - "<< id.second <<std::endl; 
   }
 
 }
@@ -140,7 +132,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     m_policy = RECONNECT_EACH_RUN;
   }
 
-  std::cout <<"## CDBESS #0"<<std::endl;
   Stats s = {0,0,0,0,0,0,0,0};
   m_stats = s;	
   /*parameter set parsing and pool environment setting
@@ -156,8 +147,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   m_connection.setParameters( connectionPset );
   m_connection.configure();
   
-  std::cout <<"## CDBESS #1"<<std::endl;
-
   // load additional record/tag info it will overwrite the global tag
   std::map<std::string,cond::GTEntry_t> replacements;
   if( iConfig.exists( "toGet" ) ) {
@@ -174,8 +163,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
     }
   }
   
-  std::cout <<"## CDBESS #2"<<std::endl;
-
   // get the global tag, merge with "replacement" store in "tagCollection"
   std::vector<std::string> globaltagList;
   std::vector<std::string> connectList;
@@ -197,8 +184,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
 			  globaltagList,
 			  replacements);
   
-  std::cout <<"## CDBESS #3"<<std::endl;
-
   TagCollection::iterator it;
   TagCollection::iterator itBeg = m_tagCollection.begin();
   TagCollection::iterator itEnd = m_tagCollection.end();
@@ -216,19 +201,21 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
   std::vector<cond::DataProxyWrapperBase *> proxyWrappers(m_tagCollection.size());
   size_t ipb=0;
   for(it=itBeg;it!=itEnd;++it){
-    std::cout <<"# record ="<<it->second.recordName()<<" tag="<<it->second.tagName()<<std::endl;
     proxyWrappers[ipb++] =  
       cond::ProxyFactory::get()->create(buildName(it->second.recordName()));
   }
 
-  std::cout <<"## CDBESS #4"<<std::endl;
   // now all required libraries have been loaded
   // init sessions and DataProxies
   ipb=0;
   for(it=itBeg;it!=itEnd;++it){
     std::string connStr = m_connectionString;
+    std::string tag = it->second.tagName();
     std::pair<std::string,std::string> tagParams = parseTag( it->second.tagName() );
-    if( !tagParams.second.empty() ) connStr =  tagParams.second;
+    if( !tagParams.second.empty() ) {
+      connStr =  tagParams.second;
+      tag = tagParams.first;
+    }
     std::map<std::string, cond::persistency::Session>::iterator p = sessions.find( connStr );
     cond::persistency::Session nsess;
     if (p == sessions.end()) {
@@ -237,19 +224,14 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       sessions.insert(std::make_pair( connStr, nsess));
     } else nsess = (*p).second;
 
-    std::cout <<"## CDBESS #5"<<std::endl;
-    // owenship...
+    // ownership...
     ProxyP proxy(proxyWrappers[ipb++]);
    //  instert in the map
     m_proxies.insert(std::make_pair(it->second.recordName(), proxy));
-    std::cout <<"## CDBESS #6"<<std::endl;
     // initialize
-    proxy->lateInit(nsess,it->second.tagName(), 
-		    it->second.recordLabel(), connStr);
-    std::cout <<"## CDBESS #7"<<std::endl;
+    proxy->lateInit(nsess, tag, it->second.recordLabel(), connStr);
   }
 
-    std::cout <<"## CDBESS #8"<<std::endl;
   // one loaded expose all other tags to the Proxy! 
   CondGetterFromESSource visitor( m_proxies );
   ProxyMap::iterator b = m_proxies.begin();
@@ -265,7 +247,6 @@ CondDBESSource::CondDBESSource( const edm::ParameterSet& iConfig ) :
       usingRecordWithKey( recordKey );
     }
   }
-    std::cout <<"## CDBESS #9"<<std::endl;
 
   m_stats.nData=m_proxies.size();
 
@@ -429,7 +410,6 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
 	std::pair<std::string,std::string> tagParams = parseTag( tcIter->second.tagName() );
 	if( !tagParams.second.empty() ) connStr =  tagParams.second;
 	std::map<std::string,std::pair<cond::persistency::Session,std::string> >::iterator iSess = m_sessionPool.find( connStr );
-	//cond::persistency::Session theSession;
 	bool reopen = false;
 	if( iSess != m_sessionPool.end() ){
 	  if( iSess->second.second != transId.str() ) {
@@ -437,7 +417,6 @@ CondDBESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey
             reopen = true;
 	    iSess->second.second = transId.str();
 	  }
-	  //theSession = iSess->second.first;
 	} else {
           // no available session: probably first run analysed... 
 	  iSess = m_sessionPool.insert(std::make_pair( connStr, std::make_pair( cond::persistency::Session(),transId.str()) )).first; 
@@ -570,12 +549,10 @@ void CondDBESSource::fillTagCollectionFromGT( const std::string & connectionStri
   if ( !roottag.empty() ) {
     if ( connectionString.empty() )
       throw cond::Exception( std::string( "ESSource: requested global tag ") + roottag + std::string( " but not connection string given" ) );
-    std::cout <<"#### Conn for GT:"<<connectionString<<std::endl;
     cond::persistency::Session session = m_connection.createSession( connectionString );
     session.transaction().start( true );
     cond::persistency::GTProxy gtp = session.readGlobalTag( roottag, prefix, postfix ); 
     for( const auto& gte : gtp ){
-      std::cout <<"$$ gte t="<<gte.tagName()<<" r="<<gte.recordName()<<std::endl; 
       tagcoll.insert( gte );
     }
     session.transaction().commit();
@@ -609,7 +586,6 @@ void CondDBESSource::fillTagCollectionFromDB( const std::vector<std::string> & c
     std::map<std::string,cond::GTEntry_t>::iterator fid = replacement.find( recordLabelKey );
     if( fid != replacement.end() ) {
       cond::GTEntry_t tagMetadata( std::make_tuple( tagCollIter->recordName(), tagCollIter->recordLabel(), fid->second.tagName() ) );  
-      //tagMetadata.objectname = tagCollIter->objectname;
       m_tagCollection.insert( std::make_pair( recordLabelKey, tagMetadata ) );
       replacement.erase( fid );
       edm::LogInfo( "CondDBESSource" ) << "Replacing tag \"" << tagCollIter->tagName()

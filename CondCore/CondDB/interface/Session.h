@@ -27,6 +27,7 @@
 // TO BE REMOVED AFTER THE TRANSITION
 namespace coral {
   class ISessionProxy;
+  class ISchema;
 }
 // END TO BE REMOVED
 
@@ -60,6 +61,9 @@ namespace cond {
       // default constructor
       Session();
       
+      // constructor
+      explicit Session( const std::shared_ptr<SessionImpl>& sessionImpl );
+
       // constructor
       Session( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString );
 
@@ -100,6 +104,9 @@ namespace cond {
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
       IOVEditor createIov(  const std::string& payloadType, const std::string& tag, cond::TimeType timeType,
 			   cond::SynchronizationType synchronizationType=cond::OFFLINE );
+
+      IOVEditor createIovForPayload(  const Hash& payloadHash, const std::string& tag, cond::TimeType timeType,
+				      cond::SynchronizationType synchronizationType=cond::OFFLINE );
       
       // update an existing iov sequence with the specified tag.
       // timeType and payloadType can't be modified.
@@ -128,6 +135,10 @@ namespace cond {
       void addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destinationTag );
 
       std::string connectionString();
+
+      coral::ISessionProxy& coralSession();
+      // TO BE REMOVED in the long term. The new code will use coralSession().
+      coral::ISchema& nominalSchema();
       
     private:
       cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime );
@@ -163,6 +174,10 @@ namespace cond {
       explicit TransactionScope( Transaction& transaction );   
       
       ~TransactionScope();
+
+      void start( bool readOnly=true );
+
+      void commit();
       
       void close();
     private:

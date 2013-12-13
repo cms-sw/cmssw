@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing()
 options.register('runNumber',
-                 4294967294, #default value
+                 186234, #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number; default gives latest IOV")
 options.register('globalTag',
-                 'FT_R_53_V18', #default value
+                 'GR_P_V42', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")

@@ -122,17 +122,11 @@ public:
   // late initialize (to allow to load ALL library first)
   virtual void lateInit(cond::persistency::Session& session, const std::string & tag,
 			std::string const & il, std::string const & cs) {
-    std::cout <<"$$ late init."<<std::endl;
-    /**
     m_proxy.reset(new PayProxy(m_source.empty() ?  (const char *)(0) : m_source.c_str() ) );
-    std::cout <<"$$ using session..."<<std::endl;
     m_proxy->setUp( session );
-    std::cout <<"$$ loading tag "<<tag<<std::endl;
     m_proxy->loadTag( tag);
-    std::cout <<"$$ almost ok... "<<std::endl;
     m_edmProxy.reset(new DataProxy(m_proxy));
     addInfo(il, cs, tag);
-    **/
   }
     
   virtual edm::eventsetup::TypeTag type() const { return m_type;}

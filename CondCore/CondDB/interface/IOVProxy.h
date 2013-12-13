@@ -124,7 +124,9 @@ namespace cond {
       
       // for debugging
       std::pair<cond::Time_t,cond::Time_t> loadedGroup() const; 
-      
+
+      // maybe will be removed with a re-design of the top level interface (ESSources )
+      const std::shared_ptr<SessionImpl>& session() const;
       
     private:
       void checkSession( const std::string& ctx );
