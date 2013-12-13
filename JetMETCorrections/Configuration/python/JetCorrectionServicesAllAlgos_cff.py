@@ -40,23 +40,23 @@ ak8L1JPTOffset = ak4L1JPTOffset.clone()
 ak8CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK8Calo' )
 kt4CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'KT4Calo' )
 kt6CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'KT6Calo' )
-ak4CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK4Calo' )
+ak4CaloL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5Calo' )
 
 ak8PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'AK8PF' )
 kt4PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'KT4PF' )
 kt6PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'KT6PF' )
-ak4PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'AK4PF' )
+ak4PFL2Relative   = ak4PFL2Relative.clone  ( algorithm = 'AK5PF' )
 
 # L3 (absolute) Correction Services
 ak8CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'AK8Calo' )
 kt4CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'KT4Calo' )
 kt6CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'KT6Calo' )
-ak4CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'AK4Calo' )
+ak4CaloL3Absolute = ak4CaloL3Absolute.clone( algorithm = 'AK5Calo' )
 
 ak8PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'AK8PF' )
 kt4PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'KT4PF' )
 kt6PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'KT6PF' )
-ak4PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'AK4PF' )
+ak4PFL3Absolute   = ak4PFL3Absolute.clone  ( algorithm = 'AK5PF' )
 
 # Residual Correction Services
 ak8CaloResidual   = ak4CaloResidual.clone()

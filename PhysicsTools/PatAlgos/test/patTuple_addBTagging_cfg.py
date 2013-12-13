@@ -14,9 +14,9 @@ from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 # uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
 addJetCollection(
    process,
-   labelName = 'AK4PF',
+   labelName = 'AK5PF',
    jetSource = cms.InputTag('ak4PFJets'),
-   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
       ,'jetProbabilityBJetTags'
@@ -76,10 +76,10 @@ addJetCollection(
       #,'negativeCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
     ],
   )
-process.patJetsAK4PF.addTagInfos = True
-process.patJetsAK4PF.addJetID    = True
-process.patJetsAK4PF.jetIDMap    = "ak4JetID"
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
+process.patJetsAK5PF.addTagInfos = True
+process.patJetsAK5PF.addJetID    = True
+process.patJetsAK5PF.jetIDMap    = "ak4JetID"
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
 
 ## let it run
 process.p = cms.Path(

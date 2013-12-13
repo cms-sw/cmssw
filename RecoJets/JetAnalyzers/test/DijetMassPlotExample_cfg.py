@@ -23,7 +23,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 #############   Include the jet corrections ##########
 process.load("JetMETCorrections.Configuration.L2L3Corrections_Summer09_7TeV_ReReco332_cff")
 # set the record's IOV. Must be defined once. Choose ANY correction service. #
-process.prefer("L2L3JetCorrectorAK4Calo")
+process.prefer("L2L3JetCorrectorAK5Calo")
 
 #############   User analyzer (calo jets) ##
 process.DijetMassCaloJets = cms.EDAnalyzer("DijetMassCaloJets",
@@ -33,8 +33,8 @@ process.DijetMassCaloJets = cms.EDAnalyzer("DijetMassCaloJets",
     SCJets           = cms.string('sisCone5CaloJets'),
     KTJets           = cms.string('kt4CaloJets'),
     # Corrected CaloJets                                          
-    AKCorrectedJets  = cms.string('L2L3CorJetAK4Calo'), 
-    ICCorrectedJets  = cms.string('L2L3CorJetAK4Calo'), 
+    AKCorrectedJets  = cms.string('L2L3CorJetAK5Calo'), 
+    ICCorrectedJets  = cms.string('L2L3CorJetAK5Calo'), 
     SCCorrectedJets  = cms.string('L2L3CorJetSC5Calo'), 
     KTCorrectedJets  = cms.string('L2L3CorJetKT4Calo'),
     # Name of the output ROOT file containing the histograms 
@@ -49,8 +49,8 @@ process.DijetMassPFJets = cms.EDAnalyzer("DijetMassPFJets",
     SCJets           = cms.string('sisCone5PFJets'),
     KTJets           = cms.string('kt4PFJets'),
     # Corrected PFJets                                          
-    AKCorrectedJets  = cms.string('L2L3CorJetAK4PF'), 
-    ICCorrectedJets  = cms.string('L2L3CorJetAK4PF'), 
+    AKCorrectedJets  = cms.string('L2L3CorJetAK5PF'), 
+    ICCorrectedJets  = cms.string('L2L3CorJetAK5PF'), 
     SCCorrectedJets  = cms.string('L2L3CorJetSC5PF'), 
     KTCorrectedJets  = cms.string('L2L3CorJetKT4PF'),
     # Name of the output ROOT file containing the histograms 
@@ -79,8 +79,8 @@ process.DijetMassGenJets = cms.EDAnalyzer("DijetMassGenJets",
 
 
 #############   Path       ###########################
-process.p = cms.Path(process.L2L3CorJetAK4Calo * process.L2L3CorJetAK4Calo * process.L2L3CorJetSC5Calo * process.L2L3CorJetKT4Calo * process.DijetMassCaloJets)
-process.p2 = cms.Path(process.L2L3CorJetAK4PF * process.L2L3CorJetAK4PF * process.L2L3CorJetSC5PF * process.L2L3CorJetKT4PF * process.DijetMassPFJets)
+process.p = cms.Path(process.L2L3CorJetAK5Calo * process.L2L3CorJetAK5Calo * process.L2L3CorJetSC5Calo * process.L2L3CorJetKT4Calo * process.DijetMassCaloJets)
+process.p2 = cms.Path(process.L2L3CorJetAK5PF * process.L2L3CorJetAK5PF * process.L2L3CorJetSC5PF * process.L2L3CorJetKT4PF * process.DijetMassPFJets)
 process.p3 = cms.Path(process.genParticlesForJets * process.ak4GenJets * process.DijetMassGenJets)
 
 #############   Format MessageLogger #################

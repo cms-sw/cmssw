@@ -312,7 +312,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   //------------------------------------------------------------------------------
 
 
-  // Five types of jets {AK4 Barrel, AK4 EndCap, AK4 Forward, PF, JPT}
+  // Five types of jets {AK5 Barrel, AK5 EndCap, AK5 Forward, PF, JPT}
   //----------------------------------------------------------------------------
   // Kolmogorov (KS) tests
   const QReport* QReport_JetEta[5] = {0, 0, 0, 0, 0};

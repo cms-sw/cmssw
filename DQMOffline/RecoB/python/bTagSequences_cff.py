@@ -18,12 +18,12 @@ softPFElectronsTagInfos.jets = jetID
 
 #for MC do the matching with you jet collection
 from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import *
-AK4byRef.jets = jetID
+AK5byRef.jets = jetID
 
 #do the matching : only for MC
 flavourSeq = cms.Sequence(
     myPartons *
-    AK4Flavour
+    AK5Flavour
     )
 
 #run the btagging sequence for your jets

@@ -4,31 +4,31 @@ import FWCore.ParameterSet.Config as cms
 ak4PFchsL1Offset = cms.ESProducer(
     'L1OffsetCorrectionESProducer',
     level = cms.string('L1Offset'),
-    algorithm = cms.string('AK4PFchs'),
+    algorithm = cms.string('AK5PFchs'),
     vertexCollection = cms.string('offlinePrimaryVertices'),
     minVtxNdof = cms.int32(4)
     )
 ak4PFchsL1Fastjet = cms.ESProducer(
     'L1FastjetCorrectionESProducer',
     level       = cms.string('L1FastJet'),
-    algorithm   = cms.string('AK4PFchs'),
+    algorithm   = cms.string('AK5PFchs'),
     srcRho      = cms.InputTag('kt6PFJets','rho')
     )
 ak4PFchsL2Relative = ak4CaloL2Relative = cms.ESProducer(
     'LXXXCorrectionESProducer',
     level     = cms.string('L2Relative'),
-    algorithm = cms.string('AK4PFchs')
+    algorithm = cms.string('AK5PFchs')
     )
 ak4PFchsL3Absolute = ak4CaloL3Absolute = cms.ESProducer(
     'LXXXCorrectionESProducer',
     level     = cms.string('L3Absolute'),
-    algorithm = cms.string('AK4PFchs')
+    algorithm = cms.string('AK5PFchs')
     )
 
 ak4PFchsResidual = cms.ESProducer(
     'LXXXCorrectionESProducer',
     level     = cms.string('L2L3Residual'),
-    algorithm = cms.string('AK4PFchs')
+    algorithm = cms.string('AK5PFchs')
     )
 ak4PFchsL2L3 = cms.ESProducer(
     'JetCorrectionESChain',

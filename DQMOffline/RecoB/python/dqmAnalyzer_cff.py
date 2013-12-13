@@ -179,7 +179,7 @@ bTagPlotsDATA = cms.Sequence(pfbTagAnalysis)
 ########## MC ############
 #Matching
 from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import *
-AK4byRef.jets = jetID
+AK5byRef.jets = jetID
 
 # Module execution for MC
 from Validation.RecoB.bTagAnalysis_cfi import *
@@ -258,12 +258,12 @@ pfbTagValidation = bTagValidation.clone(
     )
 pfbTagValidation.finalizePlots = False
 pfbTagValidation.finalizeOnly = False
-pfbTagValidation.jetMCSrc = 'AK4byValAlgo'
+pfbTagValidation.jetMCSrc = 'AK5byValAlgo'
 pfbTagValidation.ptRanges = cms.vdouble(0.0)
 pfbTagValidation.etaRanges = cms.vdouble(0.0)
 #to run on fastsim
-bTagPlotsMC = cms.Sequence(myPartons*AK4Flavour*pfbTagValidation)
+bTagPlotsMC = cms.Sequence(myPartons*AK5Flavour*pfbTagValidation)
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
 pfbTagValidationNoall = pfbTagValidation.clone(flavPlots="noall")
-bTagPlotsMCbcl = cms.Sequence(myPartons*AK4Flavour*pfbTagValidationNoall)
+bTagPlotsMCbcl = cms.Sequence(myPartons*AK5Flavour*pfbTagValidationNoall)

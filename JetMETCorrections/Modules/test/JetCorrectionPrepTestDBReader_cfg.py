@@ -12,17 +12,17 @@ from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Spring10_V10_AK4Calo"),
+             tag = cms.string("JetCorrectorParametersCollection_Spring10_V10_AK5Calo"),
              connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
-             label=cms.untracked.string("AK4CaloNew")),
+             label=cms.untracked.string("AK5CaloNew")),
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Summer10_V10_AK4JPT"),
+             tag = cms.string("JetCorrectorParametersCollection_Summer10_V10_AK5JPT"),
              connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
-             label=cms.untracked.string("AK4JPTNew")),
+             label=cms.untracked.string("AK5JPTNew")),
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Spring10_V10_AK4Calo"),
+             tag = cms.string("JetCorrectorParametersCollection_Spring10_V10_AK5Calo"),
              connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
-             label=cms.untracked.string("AK4CaloNew")),    
+             label=cms.untracked.string("AK5CaloNew")),    
     )
 
 
@@ -34,7 +34,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.demo2 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK4CaloNew'),
+        payloadName    = cms.untracked.string('AK5CaloNew'),
         printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(False),
         globalTag      = cms.untracked.string('JEC_Spring10')                               
@@ -42,7 +42,7 @@ process.demo2 = cms.EDAnalyzer('JetCorrectorDBReader',
 
 
 process.demo3 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK4JPTNew'),
+        payloadName    = cms.untracked.string('AK5JPTNew'),
         printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(False),
         globalTag      = cms.untracked.string('JEC_Spring10')                                                              
@@ -50,7 +50,7 @@ process.demo3 = cms.EDAnalyzer('JetCorrectorDBReader',
 
 
 process.demo4 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('AK4CaloNew'),
+        payloadName    = cms.untracked.string('AK5CaloNew'),
         printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(False),
         globalTag      = cms.untracked.string('JEC_Spring10')                                                              

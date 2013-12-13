@@ -74,7 +74,7 @@ ak8PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
                                         )
 
 
-# Advanced Algorithms for AK4, AK8 and CA8 :
+# Advanced Algorithms for AK5, AK8 and CA8 :
 #   - CHS, ungroomed
 #   - CHS, pruned
 #   - CHS, filtered

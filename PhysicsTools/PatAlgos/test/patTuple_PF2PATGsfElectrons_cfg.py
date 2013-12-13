@@ -10,7 +10,7 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 from PhysicsTools.PatAlgos.tools.pfTools import *
 
 postfix = "PFlow"
-jetAlgo="AK4"
+jetAlgo="AK5"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix)
 
 # to use GsfElectrons instead of PF electrons

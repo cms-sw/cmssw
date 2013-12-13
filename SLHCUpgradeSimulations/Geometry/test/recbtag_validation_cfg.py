@@ -22,7 +22,7 @@ process.load("RecoBTag.Configuration.RecoBTag_cff")
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")  
 
 process.load("Validation.RecoB.bTagAnalysis_cfi")
-process.bTagValidation.jetMCSrc = 'AK4byValAlgo'
+process.bTagValidation.jetMCSrc = 'AK5byValAlgo'
 process.bTagValidation.allHistograms = True 
 #process.bTagValidation.fastMC = True
 
@@ -41,10 +41,10 @@ process.source = cms.Source("PoolSource",
 #process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 #process.p7 = cms.Path(process.anal)
 
-#process.plots = cms.Path(process.anal*process.myPartons* process.AK4Flavour * process.bTagValidation*process.dqmSaver)
-process.plots = cms.Path(process.myPartons* process.AK4Flavour * process.bTagValidation*process.dqmSaver)
+#process.plots = cms.Path(process.anal*process.myPartons* process.AK5Flavour * process.bTagValidation*process.dqmSaver)
+process.plots = cms.Path(process.myPartons* process.AK5Flavour * process.bTagValidation*process.dqmSaver)
 #process.plots = cms.Path(process.bTagValidation)
-#process.plots = cms.Path(process.myPartons* process.AK4Flavour * process.impactParameterTagInfos* process.trackCountingHighEffBJetTags *process.bTagValidation)
+#process.plots = cms.Path(process.myPartons* process.AK5Flavour * process.impactParameterTagInfos* process.trackCountingHighEffBJetTags *process.bTagValidation)
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
 process.dqmSaver.workflow = '/POG/BTAG/BJET'

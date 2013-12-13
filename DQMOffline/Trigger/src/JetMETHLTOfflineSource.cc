@@ -4881,7 +4881,7 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	    DenominatorPhi->getTH1();
 	    
 	    histoname = labelname+"_DenominatorEtaPhi";
-	    title     = labelname+"DenominatorEtaPhi;Calo #eta (AK4);Calo #Phi ";
+	    title     = labelname+"DenominatorEtaPhi;Calo #eta (AK5);Calo #Phi ";
 	    MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	    DenominatorEtaPhi->getTH1();
 	    
@@ -5121,7 +5121,7 @@ JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	    DenominatorPFPhi->getTH1();
 	    
 	    histoname = labelname+"_DenominatorPFEtaPhi";
-	    title     = labelname+"DenominatorPFEtaPhi;PF #eta (AK4);PF #Phi ";
+	    title     = labelname+"DenominatorPFEtaPhi;PF #eta (AK5);PF #Phi ";
 	    MonitorElement * DenominatorPFEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	    DenominatorPFEtaPhi->getTH1();
 	    

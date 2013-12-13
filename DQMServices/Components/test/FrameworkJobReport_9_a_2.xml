@@ -568,8 +568,8 @@
   <Branch>recoCaloJets_hltCaloJetIDPassedRegional__HLT.</Branch>
   <Branch>recoCaloJets_hltCaloJetL1FastJetCorrected__HLT.</Branch>
   <Branch>recoCaloJets_hltCaloJetL1MatchedRegional__HLT.</Branch>
-  <Branch>recoCaloJets_hltCleanEle17CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK4CorrJetsJet30__HLT.</Branch>
-  <Branch>recoCaloJets_hltCleanEle8CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK4CorrJetsJet30__HLT.</Branch>
+  <Branch>recoCaloJets_hltCleanEle17CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK5CorrJetsJet30__HLT.</Branch>
+  <Branch>recoCaloJets_hltCleanEle8CaloIdTTrkIdVLCaloIsoVLTrkIsoVLFromAK5CorrJetsJet30__HLT.</Branch>
   <Branch>recoCaloJets_hltFastPVJetVertexChecker__HLT.</Branch>
   <Branch>recoCaloJets_hltGetJetsfromBJetHbbVBF__HLT.</Branch>
   <Branch>recoCaloJets_hltGetJetsfromBLifetime3D1stTrkL25FilterJet20Hbb__HLT.</Branch>
@@ -643,7 +643,7 @@
   <Branch>recoHFEMClusterShapes_hfEMClusters__HLT.</Branch>
   <Branch>recoJPTJets_JetPlusTrackZSPCorJetAntiKt5__HLT.</Branch>
   <Branch>recoMETs_corMetGlobalMuons__HLT.</Branch>
-  <Branch>recoMETs_genMetAK4GenJets__HLT.</Branch>
+  <Branch>recoMETs_genMetAK5GenJets__HLT.</Branch>
   <Branch>recoMETs_hltEle15CaloIdTTrkIdTCaloIsoVLTrkIsoVLCleanedPFHTNoPU__HLT.</Branch>
   <Branch>recoMETs_hltEle40CaloIdVTTrkIdTCleanedPFHTNoPU__HLT.</Branch>
   <Branch>recoMETs_hltEle5CaloIdTCaloIsoVLTrkIdTTrkIsoVLCleanedPFHT350NoPUPFMET45__HLT.</Branch>
@@ -773,10 +773,10 @@
   <Branch>recoPFJets_ak8PFJetsCHS__HLT.</Branch>
   <Branch>recoPFJets_ak8PFJetsCHSConstituents__HLT.</Branch>
   <Branch>recoPFJets_ca8PFJetsCHS__HLT.</Branch>
-  <Branch>recoPFJets_hltAK4PFJetL1FastL2L3Corrected__HLT.</Branch>
-  <Branch>recoPFJets_hltAK4PFJetL1FastL2L3CorrectedNoPU__HLT.</Branch>
-  <Branch>recoPFJets_hltAK4PFJetNeutralL1FastL2L3Corrected__HLT.</Branch>
-  <Branch>recoPFJets_hltAK4PFJetPromptTrackL1FastL2L3Corrected__HLT.</Branch>
+  <Branch>recoPFJets_hltAK5PFJetL1FastL2L3Corrected__HLT.</Branch>
+  <Branch>recoPFJets_hltAK5PFJetL1FastL2L3CorrectedNoPU__HLT.</Branch>
+  <Branch>recoPFJets_hltAK5PFJetNeutralL1FastL2L3Corrected__HLT.</Branch>
+  <Branch>recoPFJets_hltAK5PFJetPromptTrackL1FastL2L3Corrected__HLT.</Branch>
   <Branch>recoPFJets_hltAntiKT5PFJets__HLT.</Branch>
   <Branch>recoPFJets_hltAntiKT5PFJetsForTaus__HLT.</Branch>
   <Branch>recoPFJets_hltAntiKT5PFJetsNeutral__HLT.</Branch>
@@ -819,7 +819,7 @@
   <Branch>recoPFJets_cmsTopTagPFJetsCHS_caTopSubJets_HLT.</Branch>
   <Branch>recoPFJets_hepTopTagPFJetsCHS_caTopSubJets_HLT.</Branch>
   <Branch>recoPFJets_pfTauPFJets08Region_jets_HLT.</Branch>
-  <Branch>recoPFJets_recoTauAK4PFJets08Region_jets_HLT.</Branch>
+  <Branch>recoPFJets_recoTauAK5PFJets08Region_jets_HLT.</Branch>
   <Branch>recoPFMETs_pfMet__HLT.</Branch>
   <Branch>recoPFMETs_pfMetEI__HLT.</Branch>
   <Branch>recoPFRecHits_particleFlowRecHitECAL__HLT.</Branch>

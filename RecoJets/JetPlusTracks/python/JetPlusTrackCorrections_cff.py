@@ -86,7 +86,7 @@ JetPlusTrackZSPCorJetSiscone5.JetSplitMerge = cms.int32(1)
 
 ### ---------- Sequences
 
-# AK4
+# AK5
 
 JetPlusTrackCorrectionsIcone5 = cms.Sequence(
     JPTeidTight*

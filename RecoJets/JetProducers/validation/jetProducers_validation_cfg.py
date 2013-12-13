@@ -28,7 +28,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.DQMStore = cms.Service("DQMStore")
 
 
-# AK4 Calo-Jets
+# AK5 Calo-Jets
 process.ak4calo = cms.EDAnalyzer(
     "CaloJetTester",
     src = cms.InputTag("ak4CaloJets::RECO"),
@@ -39,7 +39,7 @@ process.ak4calo = cms.EDAnalyzer(
     reverseEnergyFractionThreshold = cms.double(0.5)
     )
 
-# AK4 PFlow-Jets
+# AK5 PFlow-Jets
 process.ak4pflow = cms.EDFilter(
     "PFJetTester",
     src = cms.InputTag("ak4PFJets::RECO"),

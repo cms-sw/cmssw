@@ -9,8 +9,8 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
   toGet = cms.VPSet( 
       cms.PSet( 
          record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JEC_Spring10_AK4Calo'), 
-         label  = cms.untracked.string('JEC_Spring10_AK4Calo') 
+         tag    = cms.string('JEC_Spring10_AK5Calo'), 
+         label  = cms.untracked.string('JEC_Spring10_AK5Calo') 
       )
   )
 )
@@ -19,8 +19,8 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
   toGet = cms.VPSet( 
       cms.PSet( 
          record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JEC_Spring10_AK4PF'), 
-         label  = cms.untracked.string('JEC_Spring10_AK4PF') 
+         tag    = cms.string('JEC_Spring10_AK5PF'), 
+         label  = cms.untracked.string('JEC_Spring10_AK5PF') 
       )
   )
 )
@@ -29,8 +29,8 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
   toGet = cms.VPSet( 
       cms.PSet( 
          record = cms.string('JetCorrectionsRecord'), 
-         tag    = cms.string('JEC_Summer10_AK4JPT'), 
-         label  = cms.untracked.string('JEC_Summer10_AK4JPT') 
+         tag    = cms.string('JEC_Summer10_AK5JPT'), 
+         label  = cms.untracked.string('JEC_Summer10_AK5JPT') 
       )
   )
 )

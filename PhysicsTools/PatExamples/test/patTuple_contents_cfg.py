@@ -11,7 +11,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #switchJetCollection(process,cms.InputTag('ak4PFJets'),
 #                 doJTA        = True,
 #                 doBTagging   = True,
-#                 jetCorrLabel = ('AK4PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
+#                 jetCorrLabel = ('AK5PF', cms.vstring(['L2Relative', 'L3Absolute', 'L2L3Residual'])),
 #                 doType1MET   = True,
 #                 genJetCollection=cms.InputTag("ak4GenJets"),
 #                 doJetID      = True
@@ -35,10 +35,10 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 #                 jetIdLabel   = "ak8"
 #                 )
 #addJetCollection(process,cms.InputTag('ak4CaloJets'),
-#                 'AK4', 'Calo',
+#                 'AK5', 'Calo',
 #                 doJTA        = True,
 #                 doBTagging   = True,
-#                 jetCorrLabel = ('AK4Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
+#                 jetCorrLabel = ('AK5Calo', cms.vstring(['L2Relative', 'L3Absolute'])),
 #                 doType1MET   = True,
 #                 doL1Cleaning = True,                 
 #                 doL1Counters = False,

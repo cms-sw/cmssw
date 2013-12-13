@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# keep AK4 association for backward compatibility for external use
+# keep AK5 association for backward compatibility for external use
 from RecoJets.JetAssociationProducers.ak4JetTracksAssociatorAtVertex_cfi import *
 from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
 #JPTtrackExtrapolatorAA = trackExtrapolator.clone()
@@ -164,7 +164,7 @@ JPTAntiKtPu5JetExtender.jet2TracksAtVX = cms.InputTag("JPTAntiKtPu5JetTracksAsso
 
 ### ---------- Sequences
 
-# AK4
+# AK5
 
 JPTrecoJetAssociationsIconePu5 = cms.Sequence(
     trackExtrapolator*

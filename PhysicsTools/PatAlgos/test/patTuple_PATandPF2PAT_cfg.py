@@ -23,7 +23,7 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
 # collections have standard names + postfix (e.g. patElectronPFlow)
 postfix = "PFlow"
-jetAlgo = "AK4"
+jetAlgo = "AK5"
 #Define Objects to be excluded from Top Projection. Default is Tau, so objects are not cleaned for taus
 excludeFromTopProjection=['Tau']
 

@@ -54,8 +54,8 @@ if whichJets=="ak4PFnoPU":
     process.load("PhysicsTools.PatAlgos.patSequences_cff")
     from PhysicsTools.PatAlgos.tools.pfTools import *
     postfix="PF2PAT"
-    usePF2PAT(process,runPF2PAT=True, jetAlgo="AK4", runOnMC=runOnMC, postfix=postfix)
-    applyPostfix(process,"patJetCorrFactors",postfix).payload = cms.string('AK4PFchs')
+    usePF2PAT(process,runPF2PAT=True, jetAlgo="AK5", runOnMC=runOnMC, postfix=postfix)
+    applyPostfix(process,"patJetCorrFactors",postfix).payload = cms.string('AK5PFchs')
     process.pfPileUpPF2PAT.Vertices = cms.InputTag('goodOfflinePrimaryVertices')
     process.pfPileUpPF2PAT.checkClosestZVertex = cms.bool(False)
     from DQMOffline.RecoB.bTagSequences_cff import JetCut
@@ -74,7 +74,7 @@ if not whichJets=="ak4PF":
     process.myak4JetTracksAssociatorAtVertex.jets = newjetID
     process.softPFMuonsTagInfos.jets             = newjetID
     process.softPFElectronsTagInfos.jets          = newjetID
-    process.AK4byRef.jets                         = newjetID
+    process.AK5byRef.jets                         = newjetID
 
 ###
 print "inputTag : ", process.myak4JetTracksAssociatorAtVertex.jets
@@ -82,7 +82,7 @@ print "inputTag : ", process.myak4JetTracksAssociatorAtVertex.jets
 
 if runOnMC:
     process.load("Validation.RecoB.bTagAnalysis_cfi")
-    process.bTagValidation.jetMCSrc = 'AK4byValAlgo'
+    process.bTagValidation.jetMCSrc = 'AK5byValAlgo'
     process.bTagValidation.allHistograms = True 
     #process.bTagValidation.fastMC = True
     process.bTagValidation.applyPtHatWeight = False

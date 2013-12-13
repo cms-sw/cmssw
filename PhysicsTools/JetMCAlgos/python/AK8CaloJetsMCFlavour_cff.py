@@ -1,22 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
 # Flavour byReference
-AK5byRef = cms.EDProducer("JetPartonMatcher",
-    jets = cms.InputTag("ak4CaloJets"),
+AK8byRef = cms.EDProducer("JetPartonMatcher",
+    jets = cms.InputTag("ak8CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons = cms.InputTag("myPartons")
 )
 
 # Flavour byValue PhysDef
-AK5byValPhys = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference = cms.InputTag("AK5byRef"),
+AK8byValPhys = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference = cms.InputTag("AK8byRef"),
     physicsDefinition = cms.bool(True),
     leptonInfo = cms.bool(True)
 )
 
 # Flavour byValue AlgoDef
-AK5byValAlgo = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference = cms.InputTag("AK5byRef"),
+AK8byValAlgo = cms.EDProducer("JetFlavourIdentifier",
+    srcByReference = cms.InputTag("AK8byRef"),
     physicsDefinition = cms.bool(False),
     leptonInfo = cms.bool(True)
 )

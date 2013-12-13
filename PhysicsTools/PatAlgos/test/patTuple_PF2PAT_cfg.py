@@ -8,7 +8,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 # this function will modify the PAT sequences.
 from PhysicsTools.PatAlgos.tools.pfTools import *
 postfix = "PFlow"
-jetAlgo="AK4"
+jetAlgo="AK5"
 usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix)
 
 # to turn on type-1 MET corrections, use the following call

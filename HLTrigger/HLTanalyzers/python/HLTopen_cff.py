@@ -36,15 +36,15 @@ hltMu5L2Mu2JpsiTrackMassFiltered.MaxMasses = cms.vdouble ( 4.5, 130.0 )
 # create the jetMET HLT reco path
 DoHLTJets = cms.Path(
     HLTBeginSequence +
-    HLTRecoJetSequenceAK4Corrected +
-    HLTRecoJetSequenceAK4L1FastJetCorrected +
+    HLTRecoJetSequenceAK5Corrected +
+    HLTRecoJetSequenceAK5L1FastJetCorrected +
     HLTRecoMETSequence +
     HLTDoLocalHcalWithoutHOSequence +                 
     OpenHLTHCalNoiseTowerCleanerSequence
 )
 DoHLTJetsU = cms.Path(HLTBeginSequence +
     HLTBeginSequence +
-    HLTRecoJetSequenceAK4Uncorrected +
+    HLTRecoJetSequenceAK5Uncorrected +
     HLTRecoMETSequence
 )
 

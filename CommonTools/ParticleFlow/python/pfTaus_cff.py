@@ -33,7 +33,7 @@ pfJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
 
 pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
 
-pfTauPFJets08Region = recoTauAK4PFJets08Region.clone()
+pfTauPFJets08Region = recoTauAK5PFJets08Region.clone()
 pfTauPFJets08Region.src = cms.InputTag("ak4PFJets")
 pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
 pfJetsLegacyHPSPiZeros.jetRegionSrc = 'pfTauPFJets08Region'

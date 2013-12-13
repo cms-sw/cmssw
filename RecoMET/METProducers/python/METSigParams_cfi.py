@@ -48,7 +48,7 @@ METSignificance_params = cms.PSet(
     
     # Jet Resolution
     resolutionsEra     = cms.string('Spring10'),
-    resolutionsAlgo    = cms.string('AK4PF'),
+    resolutionsAlgo    = cms.string('AK5PF'),
     ptresolthreshold   = cms.double(10.),
     #temporary rough fix for low pT PFJets
     #10 eta bins

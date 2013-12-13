@@ -15,15 +15,15 @@ process.CondDBCommon.connect = 'sqlite_file:TauJec11_V1.db'
 payloads = [
     # generic tau-jet energy corrections parameters,
     # not specific to any reconstructed tau decay mode 
-    'AK4tauHPSlooseCombDBcorr',
+    'AK5tauHPSlooseCombDBcorr',
     # tau-jet energy corrections parameters specific to one-prong, no pi0 decay mode
-    'AK4tauHPSlooseCombDBcorrOneProng0Pi0',
+    'AK5tauHPSlooseCombDBcorrOneProng0Pi0',
     # tau-jet energy corrections parameters specific to one-prong, one pi0 decay mode
-    'AK4tauHPSlooseCombDBcorrOneProng1Pi0',
+    'AK5tauHPSlooseCombDBcorrOneProng1Pi0',
     # tau-jet energy corrections parameters specific to one-prong, two pi0 decay mode
-    'AK4tauHPSlooseCombDBcorrOneProng2Pi0',
+    'AK5tauHPSlooseCombDBcorrOneProng2Pi0',
     # tau-jet energy corrections parameters specific to three-prong, no pi0 decay mode
-    'AK4tauHPSlooseCombDBcorrThreeProng0Pi0'
+    'AK5tauHPSlooseCombDBcorrThreeProng0Pi0'
 ]    
 
 process.dbWriterSequence = cms.Sequence()

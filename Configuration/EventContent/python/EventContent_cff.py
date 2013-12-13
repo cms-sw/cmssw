@@ -726,7 +726,7 @@ REGENEventContent = cms.PSet(
       'drop *_genMetCalo_*_*',
       'drop *_genMetCaloAndNonPrompt_*_*',
       'drop *_genMetTrue_*_*',
-      'drop *_genMetAK4GenJs_*_*'
+      'drop *_genMetAK5GenJs_*_*'
       )
 )
 

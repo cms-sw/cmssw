@@ -129,9 +129,9 @@ GenEventInfoProduct_generator__SIM. 200.096 77.1556
 recoGenMETs_genMetCaloAndNonPrompt__SIM. 225.237 76.828
 recoGlobalHaloData_GlobalHaloData__RECO. 174.237 75.3417
 recoMETs_tcMetWithPFclusters__RECO. 197.039 74.185
-recoMETs_htMetAK4__RECO. 195.501 72.5763
+recoMETs_htMetAK5__RECO. 195.501 72.5763
 recoMETs_htMetKT6__RECO. 195.501 72.57
-recoMETs_htMetAK4__RECO. 195.501 72.566
+recoMETs_htMetAK5__RECO. 195.501 72.566
 recoMETs_htMetAK8__RECO. 195.501 72.5639
 recoMETs_htMetKT4__RECO. 195.501 72.559
 recoMETs_tcMet__RECO. 195.082 72.263

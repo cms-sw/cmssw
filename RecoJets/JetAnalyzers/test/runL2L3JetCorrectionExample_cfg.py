@@ -112,21 +112,21 @@ process.ak4JPTJetsSel = cms.EDFilter("JPTJetSelector",
 
 ####################################################### 
 #############   User analyzer (corrected calo jets) ##
-process.correctedAK4Calo = cms.EDAnalyzer("CaloJetPlotsExample",
+process.correctedAK5Calo = cms.EDAnalyzer("CaloJetPlotsExample",
     JetAlgorithm  = cms.string("ak4CaloJetsSel"),
-    HistoFileName = cms.string('CorJetHisto_AK4Calo.root'),
+    HistoFileName = cms.string('CorJetHisto_AK5Calo.root'),
     NJets         = cms.int32(NJetsToKeep)
     )
 #############   User analyzer (corrected pf jets) ##
-process.correctedAK4PF = cms.EDAnalyzer("PFJetPlotsExample",
+process.correctedAK5PF = cms.EDAnalyzer("PFJetPlotsExample",
     JetAlgorithm  = cms.string("ak4PFJetsSel"),
-    HistoFileName = cms.string('CorJetHisto_AK4PF.root'),
+    HistoFileName = cms.string('CorJetHisto_AK5PF.root'),
     NJets         = cms.int32(NJetsToKeep)
     )
 #############   User analyzer (corrected jpt jets) #####
-process.correctedAK4JPT = cms.EDAnalyzer("JPTJetPlotsExample",
+process.correctedAK5JPT = cms.EDAnalyzer("JPTJetPlotsExample",
     JetAlgorithm    = cms.string("ak4JPTJetsSel"),
-    HistoFileName   = cms.string('CorJetHisto_AK4JPT.root'),
+    HistoFileName   = cms.string('CorJetHisto_AK5JPT.root'),
     NJets           = cms.int32(NJetsToKeep)
     )
 
@@ -143,15 +143,15 @@ process.correctedAK4JPT = cms.EDAnalyzer("JPTJetPlotsExample",
 process.p = cms.Path( process.ak4CaloJetsL2L3 +
                       process.ak4CaloJetsL2L3Residual + 
                       process.ak4CaloJetsSel +
-                      process.correctedAK4Calo +                      
+                      process.correctedAK5Calo +                      
                       process.ak4PFJetsL2L3 +
                       process.ak4PFJetsL2L3Residual +
                       process.ak4PFJetsSel +
-                      process.correctedAK4PF  +                      
+                      process.correctedAK5PF  +                      
                       process.ak4JPTJetsL2L3 +
                       process.ak4JPTJetsL2L3Residual +                      
                       process.ak4JPTJetsSel +
-                      process.correctedAK4JPT
+                      process.correctedAK5JPT
                       )
 #############   Format MessageLogger #################
 process.MessageLogger.cerr.FwkReport.reportEvery = 10

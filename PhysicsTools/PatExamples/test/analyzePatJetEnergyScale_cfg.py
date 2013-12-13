@@ -29,7 +29,7 @@ process.goodJets = selectedPatJets.clone(
 
 ## use this selection of particle flow jets
 #process. goodJets   = selectedPatJets.clone(
-#    src = 'cleanPatJetsAK4PF',
+#    src = 'cleanPatJetsAK5PF',
 #    cut = 'abs(eta) < 2.4 & pt > 30.          &'
 #    'chargedHadronEnergyFraction > 0.0  &'
 #    'neutralHadronEnergyFraction/corrFactor("raw") < 0.99 &'

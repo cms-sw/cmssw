@@ -15,8 +15,8 @@ p2 = re.compile(r'PRODNAME')
 #******************   definitions  **********************************
 jec_type    = 'JetCorrectorParametersCollection'
 ERA         = 'Jec11_V10'
-ALGO_LIST   = [#'AK4Calo','AK4PF',
-               'AK4Calo','AK4PF','AK4PFchs','AK4JPT'#,#'AK4TRK',
+ALGO_LIST   = [#'AK5Calo','AK5PF',
+               'AK5Calo','AK5PF','AK5PFchs','AK5JPT'#,#'AK5TRK',
                'AK8Calo','AK8PF',
                'KT4Calo','KT4PF',
                #'KT6Calo','KT6PF'

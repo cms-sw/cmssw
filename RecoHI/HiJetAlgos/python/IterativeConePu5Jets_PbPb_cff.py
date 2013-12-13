@@ -44,7 +44,7 @@ akPu5CaloJets.jetPtMin = 10
 #                                         inputEMin = cms.double(0.0),                                        
 #                                         src = cms.InputTag("hiGenParticles"),
 #                                         jetType = cms.string('GenJet'),                                        
-#                                         alias = cms.untracked.string('AK4HiGenJet'),
+#                                         alias = cms.untracked.string('AK5HiGenJet'),
 #                                         coneRadius = cms.double(0.5)
 #                                         )
 

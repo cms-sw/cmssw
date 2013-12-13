@@ -30,7 +30,7 @@ shrinkingConeRecoTaus = cms.EDProducer(
     "RecoTauProducer",
     jetSrc = cms.InputTag("ak4PFJets"),
     piZeroSrc = cms.InputTag("ak4PFJetsRecoTauPiZeros"),
-    jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
+    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     builders = cms.VPSet(
         _shrinkingConeRecoTausConfig
     ),
