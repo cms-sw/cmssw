@@ -13,7 +13,6 @@ related:
 | -                                    | -                                            |
 | tagset                               | topic branch                                 |
 | publish a tagset                     | create a pull request                        |
-| Tag Collector                        | Topic Collector                              |
 | `addpkg`                             | `git cms-addpkg`                             |
 | `checkdeps`                          | `git cms-checkdeps`                          |
 | `cmstc tagset <tagset-id> -a`        | `git cms-merge-topic <topic-id>`             |
