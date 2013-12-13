@@ -70,9 +70,9 @@ public:
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   
 private:
-  edm::InputTag stripClusters_;
-  edm::InputTag pixelClusters_;
-  
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
+
   bool simSplitPixel_;
   bool simSplitStrip_;
   bool tmpSplitPixel_;
@@ -93,11 +93,15 @@ private:
   bool useTrajectories_; 
 
   // These are either "generalTracks", if useTrajectories_ = True, or "pixelTracks" if  useTrajectories_ = False
-  edm::InputTag trajectories_;  
+  edm::EDGetTokenT<TrajTrackAssociationCollection > trajTrackAssociations_;
+  edm::EDGetTokenT<std::vector<reco::Track> > tracks_;
 
   // This is the pixel primary vertex collection
-  edm::InputTag vertices_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > vertices_;
   
+  edm::EDGetTokenT< edm::DetSetVector<PixelDigiSimLink> > pixeldigisimlinkToken;
+  edm::EDGetTokenT< edm::DetSetVector<StripDigiSimLink> > stripdigisimlinkToken;
+
   // gavril : what is this for ?
   std::string propagatorName_;
   edm::ESHandle<MagneticField>          magfield_;
@@ -229,15 +233,19 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 #define foreach BOOST_FOREACH
 
 TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
-  stripClusters_(iConfig.getParameter<edm::InputTag>("stripClusters")),
-  pixelClusters_(iConfig.getParameter<edm::InputTag>("pixelClusters")),
-  useTrajectories_(iConfig.getParameter<bool>("useTrajectories")),
-  trajectories_(iConfig.getParameter<edm::InputTag>(useTrajectories_ ? "trajTrackAssociations" : "tracks")),
-  vertices_(iConfig.getParameter<edm::InputTag>("vertices"))
+  useTrajectories_(iConfig.getParameter<bool>("useTrajectories"))
 {
-  if ( !useTrajectories_ ) 
+  if (useTrajectories_) {
+    trajTrackAssociations_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssociations"));
+  } else {
     propagatorName_ = iConfig.getParameter<std::string>("propagator");
-  
+    tracks_ = consumes<std::vector<reco::Track> >(iConfig.getParameter<edm::InputTag>("tracks"));
+  }
+
+  pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"));
+  stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
+  vertices_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
+
   produces< edmNew::DetSetVector<SiPixelCluster> >();
 
   produces< edmNew::DetSetVector<SiStripCluster> >();
@@ -248,6 +256,12 @@ TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
   tmpSplitStrip_ = (iConfig.getParameter<bool>("tmpSplitStrip"));
 
   useStraightTracks_ = (iConfig.getParameter<bool>("useStraightTracks"));
+
+
+  if ( simSplitPixel_ ) pixeldigisimlinkToken = consumes< edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+  if ( simSplitStrip_ ) stripdigisimlinkToken = consumes< edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
+
+
 
   /*
     cout << "TrackClusterSplitter : " << endl;
@@ -331,9 +345,9 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<edmNew::DetSetVector<SiPixelCluster> > inputPixelClusters;
   Handle<edmNew::DetSetVector<SiStripCluster> > inputStripClusters;
   
-  iEvent.getByLabel(pixelClusters_, inputPixelClusters);
+  iEvent.getByToken(pixelClusters_, inputPixelClusters);
   
-  iEvent.getByLabel(stripClusters_, inputStripClusters);
+  iEvent.getByToken(stripClusters_, inputStripClusters);
   
   if(simSplitStrip_)
     hitAssociator = new TrackerHitAssociator(iEvent);
@@ -371,7 +385,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // Here use the fully reconstructed tracks to get the track angle
 
       Handle<TrajTrackAssociationCollection> trajectories; 
-      iEvent.getByLabel(trajectories_, trajectories);
+      iEvent.getByToken(trajTrackAssociations_, trajectories);
       for ( TrajTrackAssociationCollection::const_iterator it = trajectories->begin(), 
 	      ed = trajectories->end(); it != ed; ++it ) 
 	{ 
@@ -445,7 +459,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // Here use the pixel tracks to get the track angles
 
       Handle<std::vector<reco::Track> > tracks; 
-      iEvent.getByLabel(trajectories_, tracks);
+      iEvent.getByToken(tracks_, tracks);
       //TrajectoryStateTransform transform;
       foreach (const reco::Track &track, *tracks) 
 	{
@@ -489,15 +503,15 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
   Handle<std::vector<reco::Vertex> > vertices; 
-  iEvent.getByLabel(vertices_, vertices);
+  iEvent.getByToken(vertices_, vertices);
   
   // Needed in case of simsplit
   if ( simSplitPixel_ )
-    iEvent.getByLabel("simSiPixelDigis", pixeldigisimlink);
+    iEvent.getByToken(pixeldigisimlinkToken, pixeldigisimlink);
     
   // Needed in case of strip simsplit
   if ( simSplitStrip_ )
-    iEvent.getByLabel("simSiStripDigis", stripdigisimlink);
+    iEvent.getByToken(stripdigisimlinkToken, stripdigisimlink);
 
   // gavril : to do: choose the best vertex here instead of just choosing the first one ? 
   std::auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
