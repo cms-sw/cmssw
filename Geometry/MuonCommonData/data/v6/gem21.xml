@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="gem21.xml" eval="true">
+		<Constant name="z1" value="786.5*cm"/>
+		<Constant name="z2" value="792.8*cm"/>
+		<Constant name="z3" value="799.8*cm"/>
+		<Constant name="rMin1" value="196.0*cm"/>
+		<Constant name="rMin2" value="128.2*cm"/>
+		<Constant name="rMax" value="325.05*cm"/>
+		<Constant name="Angle" value="10.0*deg"/>
+		<Constant name="slope" value="tan([Angle])"/>
+
+		<Constant name="dzGB21" value="62.5*cm"/>
+		<Constant name="dyGB21" value="8.100*mm"/>
+		<Constant name="dxTopGB21"  value="62.5*cm"/>
+		<Constant name="dxBotGB21"  value="([dxTopGB21]-2*[slope]*[dzGB21])"/>
+		<Constant name="dyGA21"     value="4.000*mm"/>
+		<Constant name="dzGA21"     value="62.0*cm"/>
+		<Constant name="dxBotGA21"  value="[dxBotGB21]-11.665*cm"/>
+		<Constant name="dxTopGA21"  value="[dxTopGB21]-11.76*cm"/>
+		<Constant name="dzTot"      value="1960.026*mm"/>
+		<Constant name="rPos"       value="([dzTot]+[dzGB21])"/>
+	</ConstantsSection>
+	<SolidSection label="gem21.xml">
+		<Polycone name="GEM21" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[z1]" rMin="[rMin1]" rMax="[rMax]"/>
+			<ZSection z="[z2]" rMin="[rMin1]" rMax="[rMax]"/>
+			<ZSection z="[z2]" rMin="[rMin2]" rMax="[rMax]"/>
+			<ZSection z="[z3]" rMin="[rMin2]" rMax="[rMax]"/>
+		</Polycone>
+		<Tubs name="GE21S" rMin="1.96*m  " rMax="3.27*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="GE21L" rMin="1.282*m  " rMax="3.25*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+		<Trd1 name="GB21" dz="[dzGB21]" dy1="[dyGB21]" dy2="[dyGB21]" dx1="[dxBotGB21]" dx2="[dxTopGB21]" />
+		<Trd1 name="GA21" dz="[dzGA21]" dy1="[dyGA21]" dy2="[dyGA21]" dx1="[dxBotGA21]" dx2="[dxTopGA21]" />
+		<UnionSolid name="GEMBox21">
+			 <rSolid name="GB21"/>
+			 <rSolid name="GA21"/>
+			 <Translation x="0.0*fm" y="([dyGB21]+[dyGA21])" z="([dzGB21]-[dzGA21])"/>
+		</UnionSolid>
+	</SolidSection>
+	<LogicalPartSection label="gem21.xml">
+		<LogicalPart name="GE21SP" category="unspecified">
+			<rSolid name="GE21S"/>
+			<rMaterial name="materials:ME_free_space"/>
+		</LogicalPart>
+		<LogicalPart name="GE21SN" category="unspecified">
+			<rSolid name="GE21S"/>
+			<rMaterial name="materials:ME_free_space"/>
+		</LogicalPart>
+		<LogicalPart name="GE21LP" category="unspecified">
+			<rSolid name="GE21L"/>
+			<rMaterial name="materials:ME_free_space"/>
+		</LogicalPart>
+		<LogicalPart name="GE21LN" category="unspecified">
+			<rSolid name="GE21L"/>
+			<rMaterial name="materials:ME_free_space"/>
+		</LogicalPart>
+		<LogicalPart name="GEMBox21" category="unspecified">
+		        <rSolid name="GEMBox21"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="gem21.xml">
+		<PosPart copyNumber="1">
+			<rParent name="mf:ME2RingP"/>
+			<rChild name="GE21SP"/>
+			<Translation x="0*fm" y="0*fm" z="7.865*m + 4.5*cm " />
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="mf:ME2RingN"/>
+			<rChild name="GE21SN"/>
+			<Translation x="0*fm" y="0*fm" z="7.865*m + 4.5*cm " />
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="mf:ME2RingP"/>
+			<rChild name="GE21LP"/>
+			<Translation x="0*fm" y="0*fm" z="7.865*m + 3*4.5*cm " />
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="mf:ME2RingN"/>
+			<rChild name="GE21LN"/>
+			<Translation x="0*fm" y="0*fm" z="7.865*m + 3*4.5*cm " />
+		</PosPart>
+	</PosPartSection>
+  <Algorithm name="muon:DDGEMAngular">
+    <rParent name="GE21SP"/>
+    <String name="ChildName" value="GEMBox21"/>
+    <String name="RotNameSpace" value="gem21"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="+28.70*mm"/>
+  </Algorithm>
+  <Algorithm name="muon:DDGEMAngular">
+    <rParent name="GE21SP"/>
+    <String name="ChildName" value="GEMBox21"/>
+    <String name="RotNameSpace" value="gem21"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" -9.70*mm"/>
+  </Algorithm>
+  <Algorithm name="muon:DDGEMAngular">
+    <rParent name="GE21SP"/>
+    <String name="ChildName" value="GEMBox21"/>
+    <String name="RotNameSpace" value="gem21"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="53"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" +9.50*mm"/>
+  </Algorithm>
+  <Algorithm name="muon:DDGEMAngular">
+    <rParent name="GE21SP"/>
+    <String name="ChildName" value="GEMBox21"/>
+    <String name="RotNameSpace" value="gem21"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="-27.90*mm"/>
+  </Algorithm>
+
+</DDDefinition>
