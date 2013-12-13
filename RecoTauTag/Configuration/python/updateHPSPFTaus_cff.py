@@ -31,44 +31,35 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLoose
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolationDBSumPtCorr
 ## import for scheduled mode
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVAIsolationSeq
+#from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVAIsolationSeq
 ## imports for unscheduled mode
-from RecoTauTag.Configuration.HPSPFTaus_cff import kt6PFJetsForRhoComputationVoronoi
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByIsolationMVAraw
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseIsolationMVA
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolationMVA
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolationMVA
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByIsolationMVA2raw
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseIsolationMVA2
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolationMVA2
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolationMVA2
-
+# from RecoTauTag.Configuration.HPSPFTaus_cff import kt6PFJetsForRhoComputationVoronoi
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByIsolationMVAraw
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseIsolationMVA
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolationMVA
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolationMVA
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByIsolationMVA2raw
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseIsolationMVA2
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumIsolationMVA2
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightIsolationMVA2
 
 ## import for (un-)scheduled mode
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr
-from RecoTauTag.Configuration.HPSPFTaus_cff import pfRecoTauDiscriminationAgainstElectronMVA
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVAElectronRejection
-from RecoTauTag.Configuration.HPSPFTaus_cff import pfRecoTauDiscriminationAgainstElectronMVA2
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA2rawElectronRejection
 from RecoTauTag.Configuration.HPSPFTaus_cff import recoTauDiscriminantCutMultiplexer
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA2VLooseElectronRejection
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA2LooseElectronRejection 
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA2MediumElectronRejection
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA2TightElectronRejection
 from RecoTauTag.Configuration.HPSPFTaus_cff import pfRecoTauDiscriminationAgainstMuon
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseMuonRejection
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMediumMuonRejection
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTightMuonRejection 
 
 # new discriminators
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3rawElectronRejection
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3VTightElectronRejection
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3LooseElectronRejection
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3MediumElectronRejection
-from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3TightElectronRejection
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3rawElectronRejection
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3VTightElectronRejection
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3LooseElectronRejection
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3MediumElectronRejection
+# from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByMVA3TightElectronRejection
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByDeadECALElectronRejection
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr
@@ -90,7 +81,7 @@ from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByTight
 updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByDecayModeFinding*
     hpsPFTauDiscriminationByChargedIsolationSeq*
-    hpsPFTauDiscriminationByMVAIsolationSeq*
+#    hpsPFTauDiscriminationByMVAIsolationSeq*
     hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByRawChargedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByRawGammaIsolationDBSumPtCorr*
@@ -115,12 +106,6 @@ updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
-    hpsPFTauDiscriminationByMVAElectronRejection*
-    hpsPFTauDiscriminationByMVA2rawElectronRejection*
-    hpsPFTauDiscriminationByMVA2LooseElectronRejection*
-    hpsPFTauDiscriminationByMVA2VLooseElectronRejection*
-    hpsPFTauDiscriminationByMVA2MediumElectronRejection*
-    hpsPFTauDiscriminationByMVA2TightElectronRejection*
     hpsPFTauDiscriminationByLooseMuonRejection*
     hpsPFTauDiscriminationByMediumMuonRejection*
     hpsPFTauDiscriminationByTightMuonRejection*
@@ -129,11 +114,11 @@ updateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByTightMuonRejection2*
     hpsPFTauDiscriminationByLooseMuonRejection3*
     hpsPFTauDiscriminationByTightMuonRejection3*
-    
-    hpsPFTauDiscriminationByMVA3rawElectronRejection*
-    hpsPFTauDiscriminationByMVA3LooseElectronRejection*
-    hpsPFTauDiscriminationByMVA3VTightElectronRejection*
-    hpsPFTauDiscriminationByMVA3MediumElectronRejection*
-    hpsPFTauDiscriminationByMVA3TightElectronRejection*
+
+#     hpsPFTauDiscriminationByMVA3rawElectronRejection*
+#     hpsPFTauDiscriminationByMVA3LooseElectronRejection*
+#     hpsPFTauDiscriminationByMVA3VTightElectronRejection*
+#     hpsPFTauDiscriminationByMVA3MediumElectronRejection*
+#     hpsPFTauDiscriminationByMVA3TightElectronRejection*
     hpsPFTauDiscriminationByDeadECALElectronRejection    
 )
