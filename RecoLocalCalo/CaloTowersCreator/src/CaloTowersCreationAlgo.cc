@@ -813,6 +813,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     // this is actually a 4D vector
     Basic3DVectorF towerP4;
     bool massless=true;
+    // float mass1=0;
+    float mass2=0;
 
     // conditional assignment of depths for barrel/endcap
     // Some additional tuning may be required in the transitional region
@@ -851,24 +853,32 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     case 1 :
       {   // separate 4-vectors for ECAL, HCAL, add to get the 4-vector of the tower (=>tower has mass!)
 	if (id.ietaAbs()<=29) {
+          Basic3DVectorF emP4;
 	  if (E_em>0) {
 	    emPoint   = emShwrPos(metaContains, momEmDepth, E_em);
-	    auto lP4 = emPoint.basicVector().unit();
-	    lP4[3] = 1.f;  // energy
-	    lP4 *=E_em;
-	    towerP4 +=lP4;
+	    emP4 = emPoint.basicVector().unit();
+	    emP4[3] = 1.f;  // energy
+	    towerP4 = emP4*E_em;
 	    
 	    // double emPf = 1.0/cosh(emPoint.eta());
 	    // towerP4 += CaloTower::PolarLorentzVector(E_em*emPf, emPoint.eta(), emPoint.phi(), 0); 
 	  }
 	  if ( (E_had + E_outer) >0) {
+            massless = (E_em<=0);
 	    hadPoint  = hadShwrPos(id, momHadDepth);
 	    auto lP4 = hadPoint.basicVector().unit();
 	    lP4[3] = 1.f;  // energy
+            if (!massless) {
+              auto diff = lP4-emP4;  mass2 = std::sqrt(E_em*E_had_tot*diff.mag2()); 
+            }
 	    lP4 *=E_had_tot;
-            massless = (E_em<=0);
 	    towerP4 +=lP4;
-	    
+            /*
+            if (!massless) {
+               auto p = towerP4;
+               double m2 = double(p[3]*p[3]) - double(p[0]*p[0])+double(p[1]*p[1])+double(p[2]*p[2]); mass1 = m2>0 ? std::sqrt(m2) : 0;
+            }	    
+            */
 	    // double hadPf = 1.0/cosh(hadPoint.eta());	  
 	    // if (E_had_tot>0) {
 	    //  towerP4 += CaloTower::PolarLorentzVector(E_had_tot*hadPf, hadPoint.eta(), hadPoint.phi(), 0); 
@@ -920,11 +930,12 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     
     
     // insert in collection (remove and return if below threshold)
-    collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, GlobalVector(towerP4), towerP4[3], massless, emPoint, hadPoint);
-    // if (!massless) std::cout << "massive" << std::endl;
-    // std::cout << "CaloTowerVI " <<theMomConstrMethod <<' ' << id <<' '<< E_em <<' '<< E_had <<' '<< E_outer <<' '<< GlobalVector(towerP4) <<' '<< towerP4[3] <<' '<< emPoint <<' '<< hadPoint << std::endl;
-
+    collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, GlobalVector(towerP4), towerP4[3], mass2, emPoint, hadPoint);
     auto & caloTower = collection.back();
+
+    // if (!massless) std::cout << "massive " << id <<' ' << mass1 <<' ' << mass2 <<' ' <<  caloTower.mass() << std::endl;
+    std::cout << "CaloTowerVI " <<theMomConstrMethod <<' ' << id <<' '<< E_em <<' '<< E_had <<' '<< E_outer <<' '<< GlobalVector(towerP4) <<' '<< towerP4[3] <<' '<< emPoint <<' '<< hadPoint << std::endl;
+
     if(caloTower.energy() < theEcutTower) { collection.pop_back(); return;}
     
     // set the timings
@@ -1027,7 +1038,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     caloTower.setConstituents(std::move(contains));
     caloTower.setHottestCellE(maxCellE);
 
- //std::cout << "CaloTowerVI " << caloTower.id() << ' ' << caloTower.pt() << ' ' << caloTower.et() << ' ' << caloTower.mass() << ' '<< caloTower.constituentsSize() <<' '<< caloTower.towerStatusWord() << std::endl;
+ std::cout << "CaloTowerVI " << caloTower.id() << ' ' << caloTower.pt() << ' ' << caloTower.et() << ' ' << caloTower.mass() << ' '<< caloTower.constituentsSize() <<' '<< caloTower.towerStatusWord() << std::endl;
 
 } 
 
