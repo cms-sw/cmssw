@@ -30,12 +30,34 @@
 #include <llvm/ADT/SmallString.h>
 
 #include "ClassChecker.h"
+#include <boost/interprocess/sync/interprocess_semaphore.hpp>
+#include <iostream>
+#include <fstream>
+#include <iterator>
+#include <string>
+#include <algorithm> 
 
 using namespace clang;
 using namespace clang::ento;
 using namespace llvm;
 
 namespace clangcms {
+bool writeLog(std::string ostring) {
+	const char * pPath = std::getenv("LOCALRT");
+	std::string tname = ""; 
+	if ( pPath != NULL ) tname += std::string(pPath);
+	tname+="/tmp/class-checker.txt.unsorted";
+	std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
+	std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
+	if ( filecontents.find(ostring)  == std::string::npos ) {
+		file<<ostring;
+		file.close();
+		return true;
+	}
+	return false;
+}
+
+
 
 class WalkAST : public clang::StmtVisitor<WalkAST> {
   clang::ento::BugReporter &BR;
@@ -146,7 +168,6 @@ public:
 //===----------------------------------------------------------------------===//
 // AST walking.
 //===----------------------------------------------------------------------===//
-
 
 
 
@@ -279,7 +300,7 @@ void WalkAST::VisitDeclRefExpr( clang::DeclRefExpr * DRE) {
 }
 
 void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
-
+ 
  if (const clang::VarDecl * D = llvm::dyn_cast<clang::VarDecl>(DRE->getDecl())) {
 	clang::QualType t =  D->getType();
 	const clang::Stmt * PS = ParentStmt(DRE);
@@ -300,9 +321,11 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	   	os << "Non-const variable '" << D->getNameAsString() << "' is static local and accessed in statement '";
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
-	    	BugType * BT = new BugType("ClassChecker : non-const static local variable accessed","ThreadSafety");
-		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-		BR.emitReport(R);
+		if (writeLog(os.str())) {
+	    		BugType * BT = new BugType("ClassChecker : non-const static local variable accessed","ThreadSafety");
+			BugReport * R = new BugReport(*BT,os.str(),CELoc);
+			BR.emitReport(R);
+		}
 		return;
 	}
 
@@ -313,9 +336,11 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	    	os << "Non-const variable '" << D->getNameAsString() << "' is static member data and accessed in statement '";
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
-	    	BugType * BT = new BugType("ClassChecker : non-const static member variable accessed","ThreadSafety");
-		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-		BR.emitReport(R);
+		if (writeLog(os.str())) {
+	    		BugType * BT = new BugType("ClassChecker : non-const static member variable accessed","ThreadSafety");
+			BugReport * R = new BugReport(*BT,os.str(),CELoc);
+			BR.emitReport(R);
+		}
 	    return;
 	}
 
@@ -331,9 +356,11 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	    	os << "Non-const variable '" << D->getNameAsString() << "' is global static and accessed in statement '";
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
-	    	BugType * BT = new BugType("ClassChecker : non-const global static variable accessed","ThreadSafety");
-		BugReport * R = new BugReport(*BT,os.str(),CELoc);
-		BR.emitReport(R);
+		if (writeLog(os.str())) {
+	    		BugType * BT = new BugType("ClassChecker : non-const global static variable accessed","ThreadSafety");
+			BugReport * R = new BugReport(*BT,os.str(),CELoc);
+			BR.emitReport(R);
+		}
 	    return;
 	
 	}
@@ -423,15 +450,18 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   CELoc = clang::ento::PathDiagnosticLocation::createBegin(ME, BR.getSourceManager(),AC);
   R = ME->getSourceRange();
 
-  os << " Member data '";
+  os << "Member data '";
   ME->printPretty(os,0,Policy);
-  os << "' is directly or indirectly modified in const function";
+  os << "' is directly or indirectly modified in const function\n";
 
   if (!m_exception.reportClass( CELoc, BR ) ) return;
+  if (writeLog(os.str()))
   BR.EmitBasicReport(AC->getDecl(),"Class Checker : Member data modified in const function","ThreadSafety",os.str(),CELoc,R);
 }
 
 void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
+
+  if ( support::isSafeClassName( CE->getRecordDecl()->getQualifiedNameAsString() ) ) return; 
   llvm::SmallString<100> buf;
   llvm::raw_svector_ostream os(buf);
 
@@ -439,19 +469,21 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   clang::LangOptions LangOpts;
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
-
  
   CE->printPretty(os,0,Policy);
   os<<"' is a non-const member function that could modify member data object '";
   CE->getImplicitObjectArgument()->printPretty(os,0,Policy);
+  os << "\n";
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
   
 
   if (!m_exception.reportClass( CELoc, BR ) ) return;
-  BugType * BT = new BugType("Class Checker : Non-const member function could modify member data object","ThreadSafety");
-  BugReport * R = new BugReport(*BT,os.str(),CELoc);
-  BR.emitReport(R);
+  if (writeLog(os.str())) {
+   BugType * BT = new BugType("Class Checker : Non-const member function could modify member data object","ThreadSafety");
+   BugReport * R = new BugReport(*BT,os.str(),CELoc);
+   BR.emitReport(R);
+  }
 	 
 
 }
@@ -502,6 +534,7 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
   os << " Member data " << VD->getQualifiedNameAsString();
   os<< " is passed to a non-const reference parameter";
   os <<" of CXX method '" << MD->getQualifiedNameAsString() << "in const function";
+  os << "\n";
 
 
   clang::ento::PathDiagnosticLocation ELoc =
@@ -525,6 +558,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   os << "Returns a pointer or reference to a non-const member data object ";
   os << "in const function in statement '";
   RS->printPretty(os,0,Policy);
+  os << "\n";
 
 
   clang::ento::PathDiagnosticLocation CELoc =
@@ -577,15 +611,17 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 					{
 						llvm::SmallString<100> buf;
 						llvm::raw_svector_ostream os(buf);
-						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object";
-						clang::SourceRange SR = MD->getSourceRange();
-						BR.EmitBasicReport(MD, "Class Checker : Const function returns pointer or reference to non-const object.","ThreadSafety",os.str(),ELoc);
+						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object \n";
+						
+						if (writeLog(os.str())) {
+						  clang::SourceRange SR = MD->getSourceRange();
+						  BR.EmitBasicReport(MD, "Class Checker : Const function returns pointer or reference to non-const object.","ThreadSafety",os.str(),ELoc);
+						}
 					}
 				}
    	}	/* end of methods loop */
 
 
 } //end of class
-
 
 } //end namespace
