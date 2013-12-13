@@ -1,6 +1,6 @@
 import sys
 import math
-from ROOT *
+from ROOT import *
 from cuts import *
 
 

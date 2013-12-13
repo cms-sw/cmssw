@@ -131,6 +131,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   maxSimTrEta_  = iConfig.getUntrackedParameter<double>("maxSimTrEta", 5.);
   invertSimTrPhiEta_ = iConfig.getUntrackedParameter<bool>("invertSimTrPhiEta", false);
   bestPtMatch_  = iConfig.getUntrackedParameter<bool>("bestPtMatch", true);
+  onlyForwardMuons_ = iConfig.getUntrackedParameter<bool>("onlyForwardMuons", true);
 
   minBX_    = iConfig.getUntrackedParameter< int >("minBX",-6);
   maxBX_    = iConfig.getUntrackedParameter< int >("maxBX",6);
@@ -1297,6 +1298,12 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       continue;
     }
     
+    // only forward muons
+    if (steta < 0 && onlyForwardMuons_) {
+      if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: not a forard muon" <<std::endl;
+      continue;
+    }
+
     // muons not in phi range
     stphi = normalizedPhi( istrk->momentum().phi() );
     if (stphi>maxSimTrPhi_ || stphi<minSimTrPhi_) {
