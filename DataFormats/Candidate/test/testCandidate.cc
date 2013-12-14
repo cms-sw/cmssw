@@ -87,7 +87,7 @@ void testCandidate::checkAll() {
 
   reco::LeafCandidate c1(q,p);
   reco::LeafCandidate c2(q,pl);
-  reco::LeafCandidate c3(q,v,5.f,false);
+  reco::LeafCandidate c3(q,v,5.f,c1.mass());
 
   auto ftoi = [](float x)->int { int i; memcpy(&i,&x,4); return i;};
   auto print = [](float a, float b)->bool { std::cout << "\nwhat? " << a <<' ' << b << std::endl; return false;};
