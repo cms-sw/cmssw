@@ -267,6 +267,10 @@ void DQMStore::IBooker::setCurrentFolder(const std::string &fullpath) {
   owner_->setCurrentFolder(fullpath);
 }
 
+void DQMStore::IBooker::tag(MonitorElement *me, unsigned int tag) {
+  owner_->tag(me, tag);
+}
+
 MonitorElement * DQMStore::IBooker::bookString(const char *name,
                                                const char *value) {
   return owner_->bookString(name, value);
@@ -309,6 +313,15 @@ MonitorElement * DQMStore::IBooker::book2D(const std::string &name,
                         nchY, lowY, highY);
 }
 
+MonitorElement * DQMStore::IBooker::bookProfile(const std::string &name,
+                                                const std::string &title,
+                                                int nchX, double lowX, double highX,
+                                                int nchY, double lowY, double highY) {
+  return owner_->bookProfile(name, title,
+                             nchX, lowX, highX,
+                             nchY, lowY, highY);
+}
+
 /** Function to transfer the local copies of histograms from each
     stream into the global ROOT Object. Since this involves de-facto a
     booking action in the case in which the global object is not yet
@@ -349,12 +362,14 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
     global_me.globalize();
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
     if (me != data_.end()) {
-      std::cout << "Found global Object, using it. ";
+      if (verbose_ > 1)
+        std::cout << "Found global Object, using it. ";
       me->getTH1()->Add(i->getTH1());
     } else {
       // Since this is equivalent to a real booking operation it must
       // be locked.
-      std::cout << "No global Object found. ";
+      if (verbose_ > 1)
+        std::cout << "No global Object found. ";
       std::lock_guard<std::mutex> guard(book_mutex_);
       me = data_.find(global_me);
       if (me != data_.end()) {
@@ -401,12 +416,14 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     global_me.setLumi(lumi);
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
     if (me != data_.end()) {
-      std::cout << "Found global Object, using it --> ";
+      if (verbose_ > 1)
+        std::cout << "Found global Object, using it --> ";
       me->getTH1()->Add(i->getTH1());
     } else {
       // Since this is equivalent to a real booking operation it must
       // be locked.
-      std::cout << "No global Object found. ";
+      if (verbose_ > 1)
+        std::cout << "No global Object found. ";
       std::lock_guard<std::mutex> guard(book_mutex_);
       me = data_.find(global_me);
       if (me != data_.end()) {
@@ -2393,7 +2410,6 @@ DQMStore::save(const std::string &filename,
     // Loop over monitor elements in this directory.
     MonitorElement proto(&*di, std::string(), run, 0, 0);
     mi = data_.lower_bound(proto);
-    std::cout <<"DQMStore::save() " << run << " " << *di << std::endl;
     for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
     {
       if (verbose_ > 1)
