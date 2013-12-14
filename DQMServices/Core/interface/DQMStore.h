@@ -45,16 +45,16 @@ class TProfile2D;
     patterns.  */
 class fastmatch
 {
-private:
+ private:
   enum MatchingHeuristicEnum { UseFull, OneStarStart, OneStarEnd, TwoStar };
 
-public:
+ public:
   fastmatch (std::string const& _fastString);
   ~fastmatch();
 
   bool match (std::string const& s) const;
 
-private:
+ private:
   // checks if two strings are equal, starting at the back of the strings
   bool compare_strings_reverse (std::string const& pattern,
                                 std::string const& input) const;
@@ -69,7 +69,7 @@ private:
 
 class DQMStore
 {
-public:
+ public:
   enum SaveReferenceTag
   {
     SaveWithoutReference,
@@ -84,7 +84,7 @@ public:
 
   class IBooker
   {
-  public:
+   public:
     friend class DQMStore;
     MonitorElement * bookString(const char *name,
                                 const char *value);
@@ -101,11 +101,16 @@ public:
                             const std::string &title,
                             int nchX, double lowX, double highX,
                             int nchY, double lowY, double highY);
+    MonitorElement * bookProfile(const std::string &name,
+                                 const std::string &title,
+                                 int nchX, double lowX, double highX,
+                                 int nchY, double lowY, double highY);
     void cd(void);
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
+    void tag(MonitorElement *, unsigned int);
 
-  private:
+   private:
     explicit IBooker(DQMStore * store):owner_(0) {
       assert(store);
       owner_ = store;
@@ -427,7 +432,7 @@ public:
   int                           getStatus(const std::string &path = "") const;
   void        scaleElements(void);
 
-private:
+ private:
   // ---------------- Navigation -----------------------
   bool                          cdInto(const std::string &path) const;
 
@@ -456,7 +461,7 @@ private:
                                            const uint32_t streamId = 0,
                                            const uint32_t moduleId = 0) const;
 
-public:
+ public:
   void                          getAllTags(std::vector<std::string> &into) const;
   std::vector<MonitorElement*>  getAllContents(const std::string &path,
                                                uint32_t runNumber = 0,
@@ -471,7 +476,7 @@ public:
 					      uint32_t lumi,
 					      uint32_t streamId,
 					      uint32_t moduleId);
-private:
+ private:
 
   // ---------------- Miscellaneous -----------------------------
   void        initializeFrom(const edm::ParameterSet&);
