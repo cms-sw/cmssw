@@ -45,6 +45,9 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   desc.add<bool>("ctfTracksCheck",true) ;
   desc.add<edm::InputTag>("ctfTracksTag",edm::InputTag("generalTracks")) ;
 
+  desc.add<bool>("gedElectronMode",true) ;
+  desc.add<double>("PreSelectMVA",-0.1) ;
+
   // steering
   desc.add<bool>("useGsfPfRecTracks",true) ;
   desc.add<bool>("applyPreselection",false) ;
@@ -210,6 +213,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy") ;
   strategyCfg_.addPflowElectrons = cfg.getParameter<bool>("addPflowElectrons") ;
   strategyCfg_.ctfTracksCheck = cfg.getParameter<bool>("ctfTracksCheck");
+  strategyCfg_.gedElectronMode = cfg.getParameter<bool>("gedElectronMode");
+  strategyCfg_.PreSelectMVA = cfg.getParameter<double>("PreSelectMVA");  
   strategyCfg_.useEcalRegression = cfg.getParameter<bool>("useEcalRegression");
   strategyCfg_.useCombinationRegression = cfg.getParameter<bool>("useCombinationRegression");
 
