@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-
 import RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi
 
 duplicateTrackCandidates = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateTrackMerger.clone(
