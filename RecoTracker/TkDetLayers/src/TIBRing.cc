@@ -245,7 +245,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   const Plane& closestPlane( theDets[closestIndex]->surface());
 
-  LocalPoint closestPos = Crossing( cylPoint, cylDir, rho, closestPlane).position();
+  LocalPoint closestPos = Crossing::positionOnly( cylPoint, cylDir, rho, closestPlane);
   float closestDist = closestPos.x(); // use fact that local X perp to global Z 
 
   //int next = cylPoint.phi() - closestPlane.position().phi() > 0 ? closest+1 : closest-1;
@@ -253,7 +253,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
     closestIndex+1 : closestIndex-1;
 
   const Plane& nextPlane( theDets[ theBinFinder.binIndex(nextIndex)]->surface());
-  LocalPoint nextPos = Crossing( cylPoint, cylDir, rho, nextPlane).position();
+  LocalPoint nextPos = Crossing::positionOnly( cylPoint, cylDir, rho, nextPlane);
   float nextDist = nextPos.x();
 
   if (fabs(closestDist) < fabs(nextDist)) {
