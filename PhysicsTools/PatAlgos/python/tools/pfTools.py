@@ -383,9 +383,9 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK5', pos
     print "input collection: ", input
 
     if( algo == 'IC5' ):
-        genJetCollection = cms.InputTag('iterativeCone5GenJetsNoNu')
+        genJetCollection = cms.InputTag('ak4GenJetsNoNu')
     elif algo == 'AK5':
-        genJetCollection = cms.InputTag('ak5GenJetsNoNu')
+        genJetCollection = cms.InputTag('ak4GenJetsNoNu')
     elif algo == 'AK7':
         genJetCollection = cms.InputTag('ak7GenJetsNoNu')
     else:
@@ -480,7 +480,7 @@ def adaptPVs(process, pvCollection=cms.InputTag('offlinePrimaryVertices'), postf
                     setattr(getattr(process,m),namePvSrc,deepcopy(pvCollection))
 
 
-def usePF2PAT(process,runPF2PAT=True, jetAlgo='ak5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute'],'None'), pvCollection=cms.InputTag('offlinePrimaryVertices',), typeIMetCorrections=False, outputModules=['out'],excludeFromTopProjection=['Tau']):
+def usePF2PAT(process,runPF2PAT=True, jetAlgo='ak4', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute'],'None'), pvCollection=cms.InputTag('offlinePrimaryVertices',), typeIMetCorrections=False, outputModules=['out'],excludeFromTopProjection=['Tau']):
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED.
 

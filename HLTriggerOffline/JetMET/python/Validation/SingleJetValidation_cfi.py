@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 rootfile="ttbar_output.root"
 
-# calojetcoll="iterativeCone5CaloJets"
+# calojetcoll="ak4CaloJets"
 #calojetcoll="hltIterativeCone5CaloJets"
 #calojetcoll="hltAntiKT5L2L3CorrCaloJets"
 calojetcoll="hltAntiKT5PFJets"
@@ -23,7 +23,7 @@ SingleJetMetPaths = cms.EDAnalyzer("HLTJetMETValidation",
     #HLTLow                = cms.untracked.InputTag(hltlow15),
     #HLTPath               = cms.untracked.InputTag(hltname15),
     CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
-    GenJetAlgorithm       = cms.untracked.InputTag("ak5GenJets"),
+    GenJetAlgorithm       = cms.untracked.InputTag("ak4GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
     GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
     HLTriggerResults = cms.InputTag("TriggerResults::HLT"),

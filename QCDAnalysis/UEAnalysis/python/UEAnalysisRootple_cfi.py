@@ -15,7 +15,7 @@ ueAnalysisRootple = cms.EDProducer("AnalysisRootpleProducer",
     #label of standard Calo Jet 
     RecoCaloJetCollectionName = cms.untracked.InputTag("iterativeCone5CaloJets"),
     #label of Jet made with MC particles
-    GenJetCollectionName = cms.untracked.InputTag("iterativeCone5GenJetsSeed10"),
+    GenJetCollectionName = cms.untracked.InputTag("ak4GenJetsSeed10"),
     #label of trigger results
     triggerResults = cms.InputTag("TriggerResults")
 )

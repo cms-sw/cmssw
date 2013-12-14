@@ -6,7 +6,7 @@ patJetPartons = cms.EDProducer("PartonSelector",
 )
 
 patJetPartonAssociation = cms.EDProducer("JetPartonMatcher",
-    jets    = cms.InputTag("ak5PFJetsCHS"),
+    jets    = cms.InputTag("ak4PFJetsCHS"),
     partons = cms.InputTag("patJetPartons"),
     coneSizeToAssociate = cms.double(0.3),
 )

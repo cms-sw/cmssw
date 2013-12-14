@@ -8,7 +8,7 @@ ueAnalysisRootple = cms.EDFilter("AnalysisRootpleProducerOnlyMC",
     #label of charged MC particles
     ChgGenPartCollectionName = cms.untracked.InputTag("chargeParticles"),
     #label of Jet made with MC particles
-    GenJetCollectionName = cms.untracked.InputTag("iterativeCone5GenJetsSeed10")
+    GenJetCollectionName = cms.untracked.InputTag("ak4GenJetsSeed10")
 )
 
 

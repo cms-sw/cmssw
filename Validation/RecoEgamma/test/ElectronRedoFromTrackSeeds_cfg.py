@@ -36,7 +36,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep recoTrack*_*_*_*', 
         'keep recoGsfTrack*_*_*_*', 
         'keep *_iterativeCone5CaloJets_*_*', 
-        'keep *_iterativeCone5GenJets_*_*', 
+        'keep *_ak4GenJets_*_*', 
         'keep *_gsfElectronCores_*_*', 
         'keep *_gsfElectrons_*_*'
     ),

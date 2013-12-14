@@ -37,7 +37,7 @@ process.SingleJetAnalyser = cms.EDFilter("JetMETHLTAnalyzer",
                                  Debug    = cms.bool(True),
                                  Progress  = cms.int32(1),
                                  CaloJets = cms.string('iterativeCone5CaloJets'),
-                                 GenJets  = cms.string('iterativeCone5GenJets'),
+                                 GenJets  = cms.string('ak4GenJets'),
                                  HLTriggerResults = cms.InputTag("TriggerResults::HLT"),
                                  l1extramc  = cms.string('l1extraParticles')
                                  )

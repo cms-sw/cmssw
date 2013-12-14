@@ -51,7 +51,7 @@ process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 process.load("JetMETCorrections.Configuration.ZSPJetCorrections152_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.iterativeCone5PFJets.inputEtMin = 0.0
+process.ak4PFJets.inputEtMin = 0.0
 # Endcap
 # process.pfJetBenchmarkGeneric.minEta = cms.double(1.6)
 # process.caloJetBenchmarkGeneric.minEta = cms.double(1.6)
@@ -73,8 +73,8 @@ process.jptJetBenchmarkGeneric.OutputFile = cms.untracked.string('JetBenchmarkGe
 
 process.p =cms.Path(
     process.genJetParticles+
-    process.iterativeCone5GenJets+
-    #process.iterativeCone5PFJets+
+    process.ak4GenJets+
+    #process.ak4PFJets+
     process.pfJetBenchmarkGeneric+
     process.caloJetBenchmarkGeneric
     #process.ZSPJetCorrections+

@@ -33,7 +33,7 @@ process.printTree = cms.EDFilter("ParticleListDrawer",
 )
 
 process.BCRatio = cms.EDFilter("GenJetBCEnergyRatio",
-    genJets = cms.InputTag("iterativeCone5GenJets")
+    genJets = cms.InputTag("ak4GenJets")
 )
 
 process.printEvent = cms.EDAnalyzer("printGenJetRatio",

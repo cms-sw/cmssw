@@ -59,7 +59,7 @@ process.filterCsJetHI = cms.Path(process.makeHeavyIonJets *
                                  process.selectedPatJets *
                                  process.countPatJets *
                                  process.kt4CaloJets *
-                                 process.ak5CaloJets)
+                                 process.ak4CaloJets)
 
 ### MuHI AOD CS
 process.filterCsMuHI = cms.Path(process.muonSelector *
