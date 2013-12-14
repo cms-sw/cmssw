@@ -16,7 +16,7 @@ class PFMuonSelector : public Selector<pat::Muon> {
 
   bool verbose_;
   
-  enum Version_t { SPRING11, N_VERSIONS };
+  enum Version_t { TOPPAG12_LJETS, N_VERSIONS };
 
   PFMuonSelector() {}
 
@@ -28,8 +28,8 @@ class PFMuonSelector : public Selector<pat::Muon> {
 
     Version_t version = N_VERSIONS;
 
-    if ( versionStr == "SPRING11" ) {
-      version = SPRING11;
+    if ( versionStr == "TOPPAG12_LJETS" ) {
+      version = TOPPAG12_LJETS;
     }
     else {
       throw cms::Exception("InvalidInput") << "Expect version to be one of SPRING11" << std::endl;
@@ -37,12 +37,12 @@ class PFMuonSelector : public Selector<pat::Muon> {
 
     initialize( version, 
 		parameters.getParameter<double>("Chi2"),
-		parameters.getParameter<double>("D0")  ,
-		parameters.getParameter<int>   ("NHits")   ,
-		parameters.getParameter<int>   ("NValMuHits"),
-		parameters.getParameter<double>("PFIso"),
-		parameters.getParameter<int>   ("nPixelHits"),
-		parameters.getParameter<int>   ("nMatchedStations")
+		parameters.getParameter<int>   ("minTrackerLayers"),
+		parameters.getParameter<int>   ("minValidMuHits"),
+		parameters.getParameter<double>("maxIp"),
+		parameters.getParameter<int>   ("minPixelHits"),
+		parameters.getParameter<int>   ("minMatchedStations"),
+		parameters.getParameter<double>("maxPfRelIso")
 		);
     if ( parameters.exists("cutsToIgnore") )
       setIgnoredCuts( parameters.getParameter<std::vector<std::string> >("cutsToIgnore") );
@@ -51,91 +51,112 @@ class PFMuonSelector : public Selector<pat::Muon> {
 
   }
 
+
+
   void initialize( Version_t version,
-		   double chi2 = 10.0,
-		   double d0 = 0.02,
-		   int nhits = 11,
-		   int nValidMuonHits = 0,
-		   double pfiso = 0.15,
-		   int minPixelHits = 1,
-		   int minNMatches = 1 )
+		   double    chi2             = 10.0,
+		   int       minTrackerLayers = 6,
+		   int       minValidMuonHits = 1,
+		   double    maxIp            = 0.2,
+		   int       minPixelHits     = 1,
+		   int       minNMatches      = 2,
+		   double    pfiso            = 0.12
+		   )
   {
     version_ = version; 
 
-    push_back("Chi2",      chi2   );
-    push_back("D0",        d0     );
-    push_back("NHits",     nhits  );
-    push_back("NValMuHits",nValidMuonHits  );
-    push_back("PFIso",     pfiso );
-    push_back("nPixelHits",minPixelHits);
-    push_back("nMatchedStations", minNMatches);
+    push_back("GlobalMuon",         true);
+    push_back("TrackerMuon",        true);
+    push_back("Chi2",               chi2   );
+    push_back("minTrackerLayers",   minTrackerLayers);
+    push_back("minValidMuHits",     minValidMuonHits  );
+    push_back("maxIp",              maxIp );
+    push_back("minPixelHits",       minPixelHits);
+    push_back("minMatchedStations", minNMatches);
+    push_back("maxPfRelIso",        pfiso );
 
+    set("GlobalMuon");
+    set("TrackerMuon");
     set("Chi2");
-    set("D0");
-    set("NHits");
-    set("NValMuHits");
-    set("PFIso");   
-    set("nPixelHits");
-    set("nMatchedStations");  
+    set("minTrackerLayers");
+    set("minValidMuHits");
+    set("maxIp");
+    set("minPixelHits");
+    set("minMatchedStations");  
+    set("maxPfRelIso");   
 
-    indexChi2_          = index_type(&bits_, "Chi2"         );
-    indexD0_            = index_type(&bits_, "D0"           );
-    indexNHits_         = index_type(&bits_, "NHits"        );
-    indexNValMuHits_    = index_type(&bits_, "NValMuHits"   );
-    indexPFIso_         = index_type(&bits_, "PFIso"       );
-    indexPixHits_       = index_type(&bits_, "nPixelHits");
-    indexStations_      = index_type(&bits_, "nMatchedStations");
+    indexChi2_             = index_type(&bits_, "Chi2"            );
+    indexMinTrackerLayers_ = index_type(&bits_, "minTrackerLayers" );
+    indexminValidMuHits_   = index_type(&bits_, "minValidMuHits"      );
+    indexMaxIp_            = index_type(&bits_, "maxIp"      );
+    indexPixHits_          = index_type(&bits_, "minPixelHits"      );
+    indexStations_         = index_type(&bits_, "minMatchedStations");
+    indexmaxPfRelIso_      = index_type(&bits_, "maxPfRelIso"           );
+
+
+    if (version_ == TOPPAG12_LJETS ){
+      set("TrackerMuon", false);
+    }
 
   }
 
   // Allow for multiple definitions of the cuts. 
   bool operator()( const pat::Muon & muon, pat::strbitset & ret ) 
   { 
-    if (version_ == SPRING11 ) return spring11Cuts(muon, ret);
+    if (version_ == TOPPAG12_LJETS ) return TopPag12LjetsCuts(muon, ret);
     else {
       return false;
     }
   }
+  
+
 
   using Selector<pat::Muon>::operator();
+  
 
-  // cuts based on top group L+J synchronization exercise
-  bool spring11Cuts( const pat::Muon & muon, pat::strbitset & ret)
-  {
+
+  bool TopPag12LjetsCuts( const pat::Muon & muon, pat::strbitset & ret){
+    
     ret.set(false);
+    
 
-    double norm_chi2 = 9999999.0;
-    if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )
-      norm_chi2 = muon.normChi2();
-    double corr_d0 = 999999.0;
-    if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )    
-      corr_d0 = muon.dB();
+    bool isGlobal  = muon.isGlobalMuon();
+    bool isTracker = muon.isTrackerMuon();
 
-    int nhits = static_cast<int>( muon.numberOfValidHits() );
-    int nValidMuonHits = 0;
-    if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() )
-      nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
+
+    double norm_chi2     = 9999999.0;
+    int minTrackerLayers = 0;
+    int minValidMuonHits = 0;
+    int _ip = 0.0;
+    int minPixelHits = 0;
+    if ( muon.globalTrack().isNonnull() && muon.globalTrack().isAvailable() ){
+      norm_chi2        = muon.normChi2();
+      minTrackerLayers = static_cast<int> (muon.track()->hitPattern().trackerLayersWithMeasurement());
+      minValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
+      _ip = muon.dB();
+      minPixelHits = muon.innerTrack()->hitPattern().numberOfValidPixelHits();
+    }
+
+
+    int minMatchedStations = muon.numberOfMatches();
+
 
     double chIso = muon.userIsolation(pat::PfChargedHadronIso);
     double nhIso = muon.userIsolation(pat::PfNeutralHadronIso);
     double gIso  = muon.userIsolation(pat::PfGammaIso);
     double pt    = muon.pt() ;
-
     double pfIso = (chIso + nhIso + gIso) / pt;
 
-    int nPixelHits = 0;
-    if ( muon.innerTrack().isNonnull() && muon.innerTrack().isAvailable() )
-      nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement();
 
-    int nMatchedStations = muon.numberOfMatches();
-
-    if ( norm_chi2     <  cut(indexChi2_,   double()) || ignoreCut(indexChi2_)    ) passCut(ret, indexChi2_   );
-    if ( fabs(corr_d0) <  cut(indexD0_,     double()) || ignoreCut(indexD0_)      ) passCut(ret, indexD0_     );
-    if ( nhits         >= cut(indexNHits_,  int()   ) || ignoreCut(indexNHits_)   ) passCut(ret, indexNHits_  );
-    if ( nValidMuonHits>  cut(indexNValMuHits_,int()) || ignoreCut(indexNValMuHits_)) passCut(ret, indexNValMuHits_  );
-    if ( pfIso         <  cut(indexPFIso_, double())  || ignoreCut(indexPFIso_)  ) passCut(ret, indexPFIso_ );
-    if ( nPixelHits    >  cut(indexPixHits_,int())    || ignoreCut(indexPixHits_))  passCut(ret, indexPixHits_);
-    if ( nMatchedStations> cut(indexStations_,int())  || ignoreCut(indexStations_))  passCut(ret, indexStations_);
+    if ( isGlobal  || ignoreCut("GlobalMuon")  )  passCut(ret, "GlobalMuon" );
+    if ( isTracker || ignoreCut("TrackerMuon")  )  passCut(ret, "TrackerMuon" );
+    if ( norm_chi2          <  cut(indexChi2_,   double()) || ignoreCut(indexChi2_)    ) passCut(ret, indexChi2_   );
+    if ( minTrackerLayers   >= cut(indexMinTrackerLayers_,int()) || ignoreCut(indexMinTrackerLayers_)) passCut(ret, indexMinTrackerLayers_  );
+    if ( minValidMuonHits   >= cut(indexminValidMuHits_,int()) || ignoreCut(indexminValidMuHits_)) passCut(ret, indexminValidMuHits_  );
+    if ( _ip                <  cut(indexMaxIp_,double()) || ignoreCut(indexMaxIp_)) passCut(ret, indexMaxIp_  );
+    if ( minPixelHits       >= cut(indexPixHits_,int())    || ignoreCut(indexPixHits_))  passCut(ret, indexPixHits_);
+    if ( minMatchedStations >= cut(indexStations_,int())  || ignoreCut(indexStations_))  passCut(ret, indexStations_);
+    if ( pfIso              <  cut(indexmaxPfRelIso_, double())  || ignoreCut(indexmaxPfRelIso_)  ) passCut(ret, indexmaxPfRelIso_ );
 
     setIgnored(ret);
     
@@ -149,12 +170,12 @@ class PFMuonSelector : public Selector<pat::Muon> {
   Version_t version_;
 
   index_type indexChi2_;
-  index_type indexD0_;
-  index_type indexNHits_;
-  index_type indexNValMuHits_;
-  index_type indexPFIso_;
+  index_type indexMinTrackerLayers_;
+  index_type indexminValidMuHits_;
+  index_type indexMaxIp_;
   index_type indexPixHits_;
   index_type indexStations_;
+  index_type indexmaxPfRelIso_;
 
 
 };

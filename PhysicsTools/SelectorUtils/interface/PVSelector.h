@@ -34,14 +34,21 @@ public:
 
     // Loop over PV's and count those that pass
     int npv = 0;
+    int _ntotal = 0;
+    mvSelPvs.clear();
     for ( std::vector<reco::Vertex>::const_iterator ibegin = h_primVtx->begin(),
 	    iend = h_primVtx->end(), i = ibegin; i != iend; ++i ) {
       reco::Vertex const & pv = *i;
       bool ipass = pvSel_(pv);
       if ( ipass ) {
 	++npv;
+	mvSelPvs.push_back(edm::Ptr<reco::Vertex>(h_primVtx,_ntotal)); 
       }
+      ++_ntotal;
     }
+
+    // cache npv
+    mNpv = npv;
 
     // Set the strbitset
     if ( npv >= cut(indexNPV_, int() ) || ignoreCut(indexNPV_) ) {
@@ -60,11 +67,25 @@ public:
 
   edm::Handle<std::vector<reco::Vertex> > const & vertices() const { return h_primVtx; }
 
+
+
+  // get NPV from the last check
+  int GetNpv(void){return mNpv;}
+
+
+
+  std::vector<edm::Ptr<reco::Vertex> >  const & 
+    GetSelectedPvs() const { return mvSelPvs; }
+
+
+
 private:
   edm::InputTag                           pvSrc_;
   PVObjectSelector                        pvSel_;
   edm::Handle<std::vector<reco::Vertex> > h_primVtx;
+  std::vector<edm::Ptr<reco::Vertex> >    mvSelPvs; // selected vertices
   index_type                              indexNPV_;
+  int                                     mNpv; // cache number of PVs
 };
 
 #endif
