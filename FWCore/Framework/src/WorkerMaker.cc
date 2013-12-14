@@ -41,12 +41,10 @@ namespace edm {
   
   void
   Maker::throwConfigurationException(ModuleDescription const& md,
-                                     signalslot::Signal<void(ModuleDescription const&)>& post,
                                      cms::Exception & iException) const {
     std::ostringstream ost;
     ost << "Constructing module: class=" << md.moduleName() << " label='" << md.moduleLabel() << "'";
     iException.addContext(ost.str());
-    post(md);
     throw;
   }
   
@@ -87,15 +85,17 @@ namespace edm {
     
     ModuleDescription md = createModuleDescription(p);
     std::shared_ptr<maker::ModuleHolder> module;
+    bool postCalled = false;
     try {
       try {
         pre(md);
-        //even if we have an exception, do post
-        std::shared_ptr<int> sentry{nullptr, [&md, &post](void*) { post(md); } };
         module = makeModule(*(p.pset_));
         module->setModuleDescription(md);
         module->preallocate(*(p.preallocate_));
         module->registerProductsAndCallbacks(p.reg_);
+        // if exception then post will be called in the catch block
+        postCalled = true;
+        post(md);
       }
       catch (cms::Exception& e) { throw; }
       catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
@@ -105,7 +105,15 @@ namespace edm {
       catch (...) { convertException::unknownToEDM(); }
     }
     catch(cms::Exception & iException){
-      throwConfigurationException(md, post, iException);
+      if(!postCalled) {
+        try {
+          post(md);
+        }
+        catch (...) {
+          // If post throws an exception ignore it because we are already handling another exception
+        }
+      }
+      throwConfigurationException(md, iException);
     }
     return module;
   }
