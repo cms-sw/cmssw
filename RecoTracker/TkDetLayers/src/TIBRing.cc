@@ -152,13 +152,12 @@ TIBRing::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   DetGroupElement closestGel( closestResult.front().front());
   float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
-  //vector<DetGroup> result;
   float detWidth = closestGel.det()->surface().bounds().width();
   if (crossings.nextDistance < detWidth + window) {
     vector<DetGroup> nextResult;
     if (Adder::add( *theDets[theBinFinder.binIndex(crossings.nextIndex)], 
 		    tsos, prop, est, nextResult)) {
-      int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
+      int crossingSide = LayerCrossingSide::barrelSide( tsos, prop);
       if (crossings.closestIndex < crossings.nextIndex) {
 	DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult),
 						result,
@@ -191,7 +190,7 @@ void TIBRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			       vector<DetGroup>& result) const
 {
   typedef CompatibleDetToGroupAdder Adder;
-  int crossingSide = LayerCrossingSide().barrelSide( tsos, prop);
+  int crossingSide = LayerCrossingSide::barrelSide( tsos, prop);
   typedef DetGroupMerger Merger;
   
   int negStart = min( crossings.closestIndex, crossings.nextIndex) - 1;
@@ -242,7 +241,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   GlobalPoint  cylPoint( cylCrossing.position());
   GlobalVector cylDir( cylCrossing.direction());
-  int closestIndex = theBinFinder.binIndex(cylPoint.phi());
+  int closestIndex = theBinFinder.binIndex(cylPoint.barePhi());
 
   const Plane& closestPlane( theDets[closestIndex]->surface());
 
@@ -250,7 +249,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
   float closestDist = closestPos.x(); // use fact that local X perp to global Z 
 
   //int next = cylPoint.phi() - closestPlane.position().phi() > 0 ? closest+1 : closest-1;
-  int nextIndex = PhiLess()( closestPlane.position().phi(), cylPoint.phi()) ? 
+  int nextIndex = PhiLess()( closestPlane.position().barePhi(), cylPoint.barePhi()) ? 
     closestIndex+1 : closestIndex-1;
 
   const Plane& nextPlane( theDets[ theBinFinder.binIndex(nextIndex)]->surface());
