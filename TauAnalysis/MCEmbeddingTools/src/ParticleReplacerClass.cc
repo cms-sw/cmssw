@@ -1,8 +1,10 @@
+
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerClass.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "GeneratorInterface/TauolaInterface/interface/TauolaFactory.h"
 
 #include "HepMC/IO_HEPEVT.h"
 
@@ -23,13 +25,12 @@ extern "C" {
 ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool verbose):
   ParticleReplacerBase(pset),
   generatorMode_(pset.getParameter<std::string>("generatorMode")),
-  tauola_(pset.getParameter< edm::ParameterSet>("TauolaOptions")),
-  //tauola_(gen::TauolaInterface::getInstance()),
   printEvent_(verbose),
   outTree(0),
   maxNumberOfAttempts_(pset.getUntrackedParameter<int>("maxNumberOfAttempts", 1000))
 {
-//	tauola_->setPSet(pset.getParameter< edm::ParameterSet>("TauolaOptions"));
+  tauola_ = (gen::TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauola271215", pset.getParameter< edm::ParameterSet>("TauolaOptions")));
+
 // 	using namespace reco;
 	using namespace edm;
 	using namespace std;
@@ -148,7 +149,8 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
             "or remove the modules that require it." << std::endl;
         } 
         // this is a global variable defined in GeneratorInterface/ExternalDecays/src/ExternalDecayDriver.cc
-        decayRandomEngine = &rng->getEngine();
+	CLHEP::HepRandomEngine* decayRandomEngine = &rng->getEngine();
+	tauola_->SetDecayRandomEngine(decayRandomEngine);
 
 	edm::LogInfo("Replacer") << "generatorMode = "<< generatorMode_<< "\n";
 	edm::LogInfo("Replacer") << "replacementMode = "<< replacementMode_<< "\n";
@@ -158,6 +160,7 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
 
 ParticleReplacerClass::~ParticleReplacerClass()
 {
+  delete tauola_;
 	// do anything here that needs to be done at desctruction time
 	// (e.g. close files, deallocate resources etc.)
 }
@@ -392,7 +395,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 		if (generatorMode_ == "Tauola")	// TAUOLA
 		{
 			conv.write_event(evt);
-			tempevt=tauola_.decay(evt);
+			tempevt=tauola_->decay(evt);
 		}
 
 		if (testEvent(tempevt))
@@ -447,14 +450,14 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
 // ------------ method called once each job just before starting event loop  ------------
 void ParticleReplacerClass::beginRun(edm::Run& iRun,const edm::EventSetup& iSetup)
 {
-	tauola_.init(iSetup);
+	tauola_->init(iSetup);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ParticleReplacerClass::endJob()
 {
-	tauola_.statistics();
+	tauola_->statistics();
 }
 
 bool ParticleReplacerClass::testEvent(HepMC::GenEvent * evt)
