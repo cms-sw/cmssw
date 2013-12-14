@@ -127,6 +127,7 @@ class TrackerMap {
   void setRange(float min,float max);
   std::pair<float,float>getAutomaticRange();
   void addPixel(bool addPixelfl){addPixelFlag=addPixelfl;};
+  void onlyPixel(bool onlyPixelfl){onlyPixelFlag=onlyPixelfl;};
   void reset();
   void load(std::string s="tmap.svg"); 
   int getxsize(){return xsize;};
@@ -504,6 +505,7 @@ void defwindow(int num_lay){
   float oldz;
   bool saveAsSingleLayer;
   bool addPixelFlag;
+  bool onlyPixelFlag;
 };
 #endif
 

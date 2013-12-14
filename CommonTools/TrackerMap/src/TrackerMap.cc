@@ -445,6 +445,7 @@ void TrackerMap::init() {
   palette = 1;
   printflag=true;
   addPixelFlag=false;
+  onlyPixelFlag=false;
   temporary_file=false;
   gminvalue=0.; gmaxvalue=0.;//default global range for online rendering
 
@@ -774,7 +775,10 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     *savefile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"300\" y=\"0\">"<<title<<"</svg:text>"<<std::endl;
   }
   
-  if(printflag)drawPalette(savefile);
+  if(printflag) {
+    if(onlyPixelFlag) {drawPalette(savefile,-30);}
+    else {drawPalette(savefile);}
+  }
   if(!temporary_file){
     *savefile << "</svg:svg>"<<std::endl;
     *savefile << "</svg>"<<std::endl;
@@ -798,7 +802,9 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     TCanvas *MyC = new TCanvas("MyC", "TrackerMap",width,height);
     gPad->SetFillColor(38);
     
-    if(addPixelFlag)gPad->Range(0,0,3800,1600);else gPad->Range(800,0,3800,1600);
+    if(addPixelFlag) {gPad->Range(0,0,3800,1600);}
+    else if(onlyPixelFlag) {gPad->Range(-100,0,800,1600);}
+    else {gPad->Range(800,0,3800,1600);}
     
     //First  build palette
     ncolor=0;
@@ -846,7 +852,8 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     if (printflag) {
       float lminvalue=minvalue; float lmaxvalue=maxvalue;
       if(tkMapLog) {lminvalue=log(minvalue)/log(10);lmaxvalue=log(maxvalue)/log(10);}
-      axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");
+      if(onlyPixelFlag) {axis = new TGaxis(-30,36,-30,1530,lminvalue,lmaxvalue,510,"+L");}
+      else {axis = new TGaxis(3660,36,3660,1530,lminvalue,lmaxvalue,510,"+L");}
       axis->SetLabelSize(0.02);
       axis->Draw();
     }
@@ -861,9 +868,12 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     l.SetTextSize(0.04);
     std::string fulltitle = title;
     if(tkMapLog && (fulltitle.find("Log10 scale") == std::string::npos)) fulltitle += ": Log10 scale";
-    l.DrawLatex(850,1500,fulltitle.c_str());
-    l.DrawLatex(1730,40,"-z");
-    l.DrawLatex(1730,1360,"+z");
+    if(onlyPixelFlag) {l.DrawLatex(30,1500,fulltitle.c_str());} 
+    else {l.DrawLatex(850,1500,fulltitle.c_str());}
+    if(onlyPixelFlag) {l.DrawLatex(380,40,"-z");}
+    else {l.DrawLatex(1730,40,"-z");}
+    if(onlyPixelFlag) {l.DrawLatex(380,1330,"+z");}
+    else {l.DrawLatex(1730,1360,"+z");}
     l.DrawLatex(1085,330,"TIB L1");
     l.DrawLatex(1085,1000,"TIB L2");
     l.DrawLatex(1585,330,"TIB L3");
@@ -886,6 +896,16 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     ary.SetLineWidth(3);
     arz.SetLineWidth(3);
     arphi.SetLineWidth(3);
+    if(onlyPixelFlag) {
+      arx.SetX1(570);arx.SetX2(570);arx.SetY1(1190);arx.SetY2(1350);
+      l.DrawLatex(570+12,1190+160,"x");
+      ary.SetX1(570);ary.SetX2(570-160);ary.SetY1(1190);ary.SetY2(1190);
+      l.DrawLatex(570-160,1190+30,"y");
+      arz.SetX1(380);arz.SetX2(380);arz.SetY1(683-100);arz.SetY2(683+100);
+      l.DrawLatex(380+15,683+100-9,"z");
+      arphi.SetX1(380);arphi.SetX2(380-390);arphi.SetY1(683);arphi.SetY2(683);
+      l.DrawLatex(380-390-14,683+9,"#Phi");
+    }
     arx.Draw();
     ary.Draw();
     arz.Draw();
