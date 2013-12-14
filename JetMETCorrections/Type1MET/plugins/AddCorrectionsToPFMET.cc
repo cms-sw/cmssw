@@ -17,12 +17,12 @@
 #include <vector>
 
 //____________________________________________________________________________||
-class CorrectedPFMETProducer2 : public edm::EDProducer  
+class AddCorrectionsToPFMET : public edm::EDProducer
 {
 
 public:
 
-  explicit CorrectedPFMETProducer2(const edm::ParameterSet& cfg)
+  explicit AddCorrectionsToPFMET(const edm::ParameterSet& cfg)
     : token_(consumes<METCollection>(cfg.getParameter<edm::InputTag>("src")))
   {
   std::vector<edm::InputTag> corrInputTags = cfg.getParameter<std::vector<edm::InputTag> >("srcCorrections");
@@ -34,8 +34,8 @@ public:
     produces<METCollection>("");
   }
 
-  ~CorrectedPFMETProducer2() { }
-    
+  ~AddCorrectionsToPFMET() { }
+
 private:
 
   typedef std::vector<reco::PFMET> METCollection;
@@ -89,5 +89,4 @@ private:
 
 //____________________________________________________________________________||
 
-DEFINE_FWK_MODULE(CorrectedPFMETProducer2);
-
+DEFINE_FWK_MODULE(AddCorrectionsToPFMET);
