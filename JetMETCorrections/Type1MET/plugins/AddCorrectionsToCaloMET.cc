@@ -17,12 +17,12 @@
 #include <vector>
 
 //____________________________________________________________________________||
-class CorrectedCaloMETProducer2 : public edm::EDProducer  
+class AddCorrectionsToCaloMET : public edm::EDProducer
 {
 
 public:
 
-  explicit CorrectedCaloMETProducer2(const edm::ParameterSet& cfg)
+  explicit AddCorrectionsToCaloMET(const edm::ParameterSet& cfg)
     : token_(consumes<METCollection>(cfg.getParameter<edm::InputTag>("src")))
   {
 
@@ -35,8 +35,8 @@ public:
     produces<METCollection>("");
   }
 
-  ~CorrectedCaloMETProducer2() { }
-    
+  ~AddCorrectionsToCaloMET() { }
+
 private:
 
   typedef std::vector<reco::CaloMET> METCollection;
@@ -93,4 +93,4 @@ private:
 
 //____________________________________________________________________________||
 
-DEFINE_FWK_MODULE(CorrectedCaloMETProducer2);
+DEFINE_FWK_MODULE(AddCorrectionsToCaloMET);
