@@ -1,4 +1,3 @@
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -1230,92 +1229,94 @@ void TrackClusterSplitter::splitCluster<SiPixelCluster> (const SiPixelClusterWit
       int dsl = 0; // number of digisimlinks
       
       edm::DetSetVector<PixelDigiSimLink>::const_iterator isearch = pixeldigisimlink->find(output.id());
-      edm::DetSet<PixelDigiSimLink> digiLink = (*isearch);
-      
-      edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = digiLink.data.begin();
-      //create a vector for the track ids in the digisimlinks
-      std::vector<int> simTrackIdV;  
-      simTrackIdV.clear();
-      //create a vector for the new splittedClusters 
-      std::vector<SiPixelCluster> splittedCluster;
-      splittedCluster.clear();
-      
-      for ( ; linkiter != digiLink.data.end(); linkiter++) 
-	{ // loop over all digisimlinks 
-	  dsl++;
-	  std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
-      
-	  // is the digisimlink inside the cluster boundaries?
-	  if ( pixel_coord.first  <= maxPixelRow && 
-	       pixel_coord.first  >= minPixelRow &&
-	       pixel_coord.second <= maxPixelCol &&
-	       pixel_coord.second >= minPixelCol ) 
-	    {
-	      bool inStock(false); // did we see this simTrackId before?
-	     
-	      SiPixelCluster::PixelPos newPixelPos(pixel_coord.first, pixel_coord.second); // coordinates to the pixel
+      if (isearch != pixeldigisimlink->end()){
+	edm::DetSet<PixelDigiSimLink> digiLink = (*isearch);
+	
+	edm::DetSet<PixelDigiSimLink>::const_iterator linkiter = digiLink.data.begin();
+	//create a vector for the track ids in the digisimlinks
+	std::vector<int> simTrackIdV;  
+	simTrackIdV.clear();
+	//create a vector for the new splittedClusters 
+	std::vector<SiPixelCluster> splittedCluster;
+	splittedCluster.clear();
+	
+	for ( ; linkiter != digiLink.data.end(); linkiter++) 
+	  { // loop over all digisimlinks 
+	    dsl++;
+	    std::pair<int,int> pixel_coord = PixelDigi::channelToPixel(linkiter->channel());
+	    
+	    // is the digisimlink inside the cluster boundaries?
+	    if ( pixel_coord.first  <= maxPixelRow && 
+		 pixel_coord.first  >= minPixelRow &&
+		 pixel_coord.second <= maxPixelCol &&
+		 pixel_coord.second >= minPixelCol ) 
+	      {
+		bool inStock(false); // did we see this simTrackId before?
+		
+		SiPixelCluster::PixelPos newPixelPos(pixel_coord.first, pixel_coord.second); // coordinates to the pixel
+		
+		//loop over the pixels from the cluster to get the charge in this pixel
+		int newPixelCharge(0); //fraction times charge in the original cluster pixel
+		
+		const std::vector<SiPixelCluster::Pixel>& pixvector = (*c.cluster).pixels();
+		
+		for(std::vector<SiPixelCluster::Pixel>::const_iterator itPix = pixvector.begin(); itPix != pixvector.end(); itPix++)
+		  {
+		    if (((int) itPix->x) == ((int) pixel_coord.first)&&(((int) itPix->y) == ((int) pixel_coord.second)))
+		      {
+			newPixelCharge = (int) (linkiter->fraction()*itPix->adc); 
+		      }
+		  }
+		
+		if ( newPixelCharge < 2500 ) 
+		  continue; 
+		
+		//add the pixel to an already existing cluster if the charge is above the threshold
+		int clusVecPos = 0;
+		std::vector<int>::const_iterator sTIter =  simTrackIdV.begin();
 	      
-	      //loop over the pixels from the cluster to get the charge in this pixel
-	      int newPixelCharge(0); //fraction times charge in the original cluster pixel
-
-	      const std::vector<SiPixelCluster::Pixel>& pixvector = (*c.cluster).pixels();
-	      
-	      for(std::vector<SiPixelCluster::Pixel>::const_iterator itPix = pixvector.begin(); itPix != pixvector.end(); itPix++)
-		{
-		  if (((int) itPix->x) == ((int) pixel_coord.first)&&(((int) itPix->y) == ((int) pixel_coord.second)))
-		    {
-		      newPixelCharge = (int) (linkiter->fraction()*itPix->adc); 
-		    }
-		}
-	      
-	      if ( newPixelCharge < 2500 ) 
-		continue; 
-	      
-	      //add the pixel to an already existing cluster if the charge is above the threshold
-	      int clusVecPos = 0;
-	      std::vector<int>::const_iterator sTIter =  simTrackIdV.begin();
-	      
-	      for ( ; sTIter < simTrackIdV.end(); sTIter++) 
-		{
-		  if (((*sTIter)== (int) linkiter->SimTrackId())) 
-		    {
+		for ( ; sTIter < simTrackIdV.end(); sTIter++) 
+		  {
+		    if (((*sTIter)== (int) linkiter->SimTrackId())) 
+		      {
 		      inStock=true; // now we saw this id before
 		      // 	  //		  std::cout << " adding a pixel to the cluster " << (int) (clusVecPos) <<std::endl;
 		      // 	  //		    std::cout << "newPixelCharge " << newPixelCharge << std::endl;
 		      splittedCluster.at(clusVecPos).add(newPixelPos,newPixelCharge); // add the pixel to the cluster
-		    }
-		  clusVecPos++;
-		}
-	      
+		      }
+		    clusVecPos++;
+		  }
+		
 	      //look if the splitted cluster was already made before, if not create one
-	      
-	      if ( !inStock ) 
-		{
-		  //		std::cout << "creating a new cluster " << std::endl;
-		  simTrackIdV.push_back(linkiter->SimTrackId()); // add the track id to the vector
+		
+		if ( !inStock ) 
+		  {
+		    //		std::cout << "creating a new cluster " << std::endl;
+		    simTrackIdV.push_back(linkiter->SimTrackId()); // add the track id to the vector
 		  splittedCluster.push_back(SiPixelCluster(newPixelPos,newPixelCharge)); // add the cluster to the vector
-		}
-	    }
-	}
+		  }
+	      }
+	  }
+	
+	//    std::cout << "will add clusters : simTrackIdV.size() " << simTrackIdV.size() << std::endl;
       
-      //    std::cout << "will add clusters : simTrackIdV.size() " << simTrackIdV.size() << std::endl;
-      
-      if ( ( ( (int)simTrackIdV.size() ) == 1 ) || ( *c.cluster).size()==1 ) 
-	{ 
-	  //	    cout << "putting in this cluster" << endl;
-	  output.push_back(*c.cluster );
-	  //      std::cout << "cluster added " << output.size() << std::endl;
-	}
-      else 
+	if ( ( ( (int)simTrackIdV.size() ) == 1 ) || ( *c.cluster).size()==1 ) 
+	  { 
+	    //	    cout << "putting in this cluster" << endl;
+	    output.push_back(*c.cluster );
+	    //      std::cout << "cluster added " << output.size() << std::endl;
+	  }
+	else 
 	{  	  
 	  for (std::vector<SiPixelCluster>::const_iterator cIter = splittedCluster.begin(); cIter != splittedCluster.end(); cIter++ )
 	    {
 	      output.push_back( (*cIter) );   
 	    }
 	}
-  
-      simTrackIdV.clear();  
-      splittedCluster.clear();
+	
+	simTrackIdV.clear();  
+	splittedCluster.clear();
+      }//if (isearch != pixeldigisimlink->end())
     }
   else if ( tmpSplitPixel_ )
     { 

@@ -24,6 +24,8 @@
 #include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
 #include "CondFormats/DataRecord/interface/RPCDeadStripsRcd.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+
 
 #include "RPCRollMask.h"
 
@@ -54,7 +56,8 @@ public:
 private:
 
   // The label to be used to retrieve RPC digis from the event
-  edm::InputTag theRPCDigiLabel;
+  edm::EDGetTokenT<RPCDigiCollection> theRPCDigiLabel;
+  //  edm::InputTag theRPCDigiLabel;
 
   // The reconstruction algorithm
   RPCRecHitBaseAlgo *theAlgo;

@@ -17,11 +17,13 @@ class RecoTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
     DecayModeCutMap decayModeCuts_;
     edm::InputTag toMultiplex_;
     edm::Handle<reco::PFTauDiscriminator> handle_;
+    edm::EDGetTokenT<reco::PFTauDiscriminator> toMultiplex_token;
 };
 
 RecoTauDecayModeCutMultiplexer::RecoTauDecayModeCutMultiplexer(
     const edm::ParameterSet& pset):PFTauDiscriminationProducerBase(pset) {
   toMultiplex_ = pset.getParameter<edm::InputTag>("toMultiplex");
+  toMultiplex_token = consumes<reco::PFTauDiscriminator>(toMultiplex_);
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
   // Setup our cut map
@@ -41,7 +43,7 @@ RecoTauDecayModeCutMultiplexer::RecoTauDecayModeCutMultiplexer(
 void
 RecoTauDecayModeCutMultiplexer::beginEvent(
     const edm::Event& evt, const edm::EventSetup& es) {
-   evt.getByLabel(toMultiplex_, handle_);
+   evt.getByToken(toMultiplex_token, handle_);
 }
 
 double

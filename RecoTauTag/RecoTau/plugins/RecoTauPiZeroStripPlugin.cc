@@ -43,7 +43,7 @@ math::XYZTLorentzVector applyMassConstraint(
 
 class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
-    explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset);
+  explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
     virtual ~RecoTauPiZeroStripPlugin() {}
     // Return type is auto_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const override;
@@ -67,10 +67,11 @@ class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
 };
 
 RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(
-    const edm::ParameterSet& pset):RecoTauPiZeroBuilderPlugin(pset),
+    const edm::ParameterSet& pset, edm::ConsumesCollector && iC):
+    RecoTauPiZeroBuilderPlugin(pset,std::move(iC)),
     qcuts_(pset.getParameterSet(
           "qualityCuts").getParameterSet("signalQualityCuts")),
-    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")) {
+    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)) {
   inputPdgIds_ = pset.getParameter<std::vector<int> >(
       "stripCandidatesParticleIds");
   etaAssociationDistance_ = pset.getParameter<double>(
@@ -99,8 +100,8 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
 
   // Get the candidates passing our quality cuts
   qcuts_.setPV(vertexAssociator_.associatedVertex(jet));
-  PFCandPtrs candsVector = qcuts_.filterRefs(pfCandidates(jet, inputPdgIds_));
-  //PFCandPtrs candsVector = qcuts_.filterRefs(pfGammas(jet));
+  PFCandPtrs candsVector = qcuts_.filterCandRefs(pfCandidates(jet, inputPdgIds_));
+  //PFCandPtrs candsVector = qcuts_.filterCandRefs(pfGammas(jet));
 
   // Convert to stl::list to allow fast deletions
   typedef std::list<reco::PFCandidatePtr> PFCandPtrList;

@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Form uncorrected Missing HT from Jets and store into event as a MET
 # product
-htMet = cms.EDProducer("METProducer",
+htMet = cms.EDProducer("ElseMETProducer",
     src = cms.InputTag("midPointCone5CaloJets"),
     METType = cms.string('MET'),
     alias = cms.string('HTMET'),
@@ -15,7 +15,7 @@ htMet = cms.EDProducer("METProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetSC5 = cms.EDProducer("METProducer",
+htMetSC5 = cms.EDProducer("ElseMETProducer",
     src = cms.InputTag("sisCone5CaloJets"),
     METType = cms.string('MET'),
     alias = cms.string('HTMETSC5'),
@@ -24,7 +24,7 @@ htMetSC5 = cms.EDProducer("METProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetSC7 = cms.EDProducer("METProducer",
+htMetSC7 = cms.EDProducer("ElseMETProducer",
     src = cms.InputTag("sisCone7CaloJets"),
     METType = cms.string('MET'),
     alias = cms.string('HTMETSC7'),
@@ -33,16 +33,17 @@ htMetSC7 = cms.EDProducer("METProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetAK5 = cms.EDProducer("METProducer",
+
+htMetAK4 = cms.EDProducer("ElseMETProducer",
     src = cms.InputTag("ak4CaloJets"),
     METType = cms.string('MET'),
-    alias = cms.string('HTMETAK5'),
+    alias = cms.string('HTMETAK4'),
     noHF = cms.bool(False),
     globalThreshold = cms.double(20.0),
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetKT4 = cms.EDProducer("METProducer",
+htMetKT4 = cms.EDProducer("ElseMETProducer",
     src = cms.InputTag("kt4CaloJets"),
     METType = cms.string('MET'),
     alias = cms.string('HTMETKT4'),
@@ -51,7 +52,7 @@ htMetKT4 = cms.EDProducer("METProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetKT6 = cms.EDProducer("METProducer",
+htMetKT6 = cms.EDProducer("ElseMETProducer",
     src = cms.InputTag("kt6CaloJets"),
     METType = cms.string('MET'),
     alias = cms.string('HTMETKT6'),
@@ -60,16 +61,8 @@ htMetKT6 = cms.EDProducer("METProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetAK5 = cms.EDProducer("METProducer",
-    src = cms.InputTag("ak4CaloJets"),
-    METType = cms.string('MET'),
-    alias = cms.string('HTMETAK5'),
-    noHF = cms.bool(False),
-    globalThreshold = cms.double(20.0),
-    InputType = cms.string('CaloJetCollection')
-)
 
-htMetAK8 = cms.EDProducer("METProducer",
+htMetAK8 = cms.EDProducer("ElseMETProducer",
     src = cms.InputTag("ak8CaloJets"),
     METType = cms.string('MET'),
     alias = cms.string('HTMETAK8'),

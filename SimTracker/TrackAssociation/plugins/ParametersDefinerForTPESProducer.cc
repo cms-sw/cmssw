@@ -17,6 +17,7 @@
 
 
 ParametersDefinerForTPESProducer::ParametersDefinerForTPESProducer(const edm::ParameterSet& iConfig)
+  : pset_(iConfig)
 {
   //the following line is needed to tell the framework what
   // data is being produced
@@ -45,7 +46,7 @@ ParametersDefinerForTPESProducer::~ParametersDefinerForTPESProducer()
 ParametersDefinerForTPESProducer::ReturnType
 ParametersDefinerForTPESProducer::produce(const TrackAssociatorRecord& iRecord)
 {
-  ReturnType parametersDefiner_ (new ParametersDefinerForTP());
+  ReturnType parametersDefiner_ (new ParametersDefinerForTP(pset_));
   return parametersDefiner_ ;
 }
 

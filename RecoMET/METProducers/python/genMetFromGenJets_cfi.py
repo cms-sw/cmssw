@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # Form Missing ET from Generator Information and store into event as a GenMET
 # product.  
-genMetAK5GenJets = cms.EDProducer("METProducer",
+genMetAK5GenJets = cms.EDProducer("ElseMETProducer",
     src = cms.InputTag("ak4GenJets"), ## Input  product label		  
 
     METType = cms.string('MET'), ## Output MET type		  
