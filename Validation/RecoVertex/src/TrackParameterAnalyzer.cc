@@ -128,7 +128,6 @@ bool TrackParameterAnalyzer::match(const ParameterVector  &a,
 void
 TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
    using CLHEP::HepLorentzVector;
 
    //edm::ESHandle<TransientTrackBuilder> theB;
@@ -136,7 +135,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    //double fBfield=((*theB).field()->inTesla(GlobalPoint(0.,0.,0.))).z();
    const double fBfield=3.8;
   
-   Handle<edm::SimVertexContainer> simVtcs;
+   edm::Handle<edm::SimVertexContainer> simVtcs;
    iEvent.getByToken( edmSimVertexContainerToken_, simVtcs );
    if(verbose_){
      std::cout << "SimVertex " << simVtcs->size() << std::endl;
@@ -154,7 +153,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    }
    
    // get the simulated tracks, extract perigee parameters
-   Handle<SimTrackContainer> simTrks;
+   edm::Handle<edm::SimTrackContainer> simTrks;
    iEvent.getByToken( edmSimTrackContainerToken_, simTrks );
    
    if(verbose_){std::cout << "simtrks " << simTrks->size() << std::endl;}
@@ -226,7 +225,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    // loop over tracks and try to match them to simulated tracks
 
 
-   Handle<reco::TrackCollection> recTracks;
+   edm::Handle<reco::TrackCollection> recTracks;
    iEvent.getByToken( recoTrackCollectionToken_, recTracks );
 
    for(reco::TrackCollection::const_iterator t=recTracks->begin();
