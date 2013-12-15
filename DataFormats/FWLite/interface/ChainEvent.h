@@ -91,6 +91,12 @@ namespace fwlite {
         return event_->getTFile();
       }
 
+      // These functions return the index of the file that the current event
+      // resides in. Note that the file index is based on the vector of files
+      // which were actually opened, not the vector of input files in the
+      // constructor. These two may differ in the case some input files contain
+      // 0 events. To get the path of the file where the current event resides
+      // in, fwlite::ChainEvent::getTFile()->GetPath() is preferred.
       Long64_t eventIndex() const { return eventIndex_; }
       virtual Long64_t fileIndex() const { return eventIndex_; }
 
