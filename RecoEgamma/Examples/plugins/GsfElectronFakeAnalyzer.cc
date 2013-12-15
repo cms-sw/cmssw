@@ -125,7 +125,7 @@ void GsfElectronFakeAnalyzer::beginJob(){
 
 
   // matching object
-  std::string::size_type locJet = matchingObjectCollection_.label().find( "iterativeCone5CaloJets", 0 );
+  std::string::size_type locJet = matchingObjectCollection_.label().find( "ak4CaloJets", 0 );
   std::string type_;
   if ( locJet != std::string::npos ) {
     std::cout << "Matching objects are CaloJets " << std::endl;

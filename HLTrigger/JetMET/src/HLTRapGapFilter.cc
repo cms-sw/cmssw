@@ -36,7 +36,7 @@ HLTRapGapFilter::~HLTRapGapFilter(){}
 void HLTRapGapFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("inputJetTag",edm::InputTag("ak4CaloJets"));
   desc.add<double>("minEta",3.0);
   desc.add<double>("maxEta",5.0);
   desc.add<double>("caloThresh",20.);

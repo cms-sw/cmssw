@@ -35,7 +35,7 @@ void
 HLTHcalNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("JetSource",edm::InputTag("iterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("JetSource",edm::InputTag("ak4CaloJets"));
   desc.add<edm::InputTag>("MetSource",edm::InputTag("met"));
   desc.add<edm::InputTag>("TowerSource",edm::InputTag("towerMaker"));
   desc.add<bool>("UseJet",true);
