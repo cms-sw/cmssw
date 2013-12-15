@@ -425,21 +425,21 @@ namespace edm {
     addProduct_(productHolder);
   }
 
-  Principal::ConstProductPtr
+  Principal::ConstProductHolderPtr
   Principal::getProductHolder(BranchID const& bid, bool resolveProd, bool fillOnDemand,
                               ModuleCallingContext const* mcc) const {
     ProductHolderIndex index = preg_->indexFrom(bid);
     if(index == ProductHolderIndexInvalid){
-       return ConstProductPtr();
+       return ConstProductHolderPtr();
     }
-    return getProductByIndex(index, resolveProd, fillOnDemand, mcc);
+    return getProductHolderByIndex(index, resolveProd, fillOnDemand, mcc);
   }
 
-  Principal::ConstProductPtr
-  Principal::getProductByIndex(ProductHolderIndex const& index, bool resolveProd, bool fillOnDemand,
+  Principal::ConstProductHolderPtr
+  Principal::getProductHolderByIndex(ProductHolderIndex const& index, bool resolveProd, bool fillOnDemand,
                                ModuleCallingContext const* mcc) const {
 
-    ConstProductPtr const phb = productHolders_[index].get();
+    ConstProductHolderPtr const phb = productHolders_[index].get();
     if(nullptr == phb) {
       return phb;
     }
@@ -723,7 +723,7 @@ namespace edm {
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd,
                           ModuleCallingContext const* mcc) const {
-    ConstProductPtr const phb = getProductHolder(bid, getProd, true, mcc);
+    ConstProductHolderPtr const phb = getProductHolder(bid, getProd, true, mcc);
     if(phb == nullptr) {
       throwProductNotFoundException("getForOutput", errors::LogicError, bid);
     }
@@ -742,7 +742,7 @@ namespace edm {
   Provenance
   Principal::getProvenance(BranchID const& bid,
                            ModuleCallingContext const* mcc) const {
-    ConstProductPtr const phb = getProductHolder(bid, false, true, mcc);
+    ConstProductHolderPtr const phb = getProductHolder(bid, false, true, mcc);
     if(phb == nullptr) {
       throwProductNotFoundException("getProvenance", errors::ProductNotFound, bid);
     }
