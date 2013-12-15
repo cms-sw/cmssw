@@ -87,7 +87,7 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 jetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('jetCoreRegionalStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(30.0)
 )
 
 # TRACK BUILDING
@@ -108,9 +108,10 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 jetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('jetCoreRegionalStepSeeds'),
     TrajectoryBuilder = 'jetCoreRegionalStepTrajectoryBuilder',
+    maxSeedsBeforeCleaning = cms.uint32(10000),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    #numHitsForSeedCleaner = cms.int32(50),
+    #onlyPixelHitsForSeedCleaner = cms.bool(True),
 
 )
 
