@@ -16,7 +16,7 @@ l1tRate_Offline = cms.EDAnalyzer("L1TRate_Offline",
   # set to 0 again.
   lsShiftGTRates             = cms.untracked.int32(-1),
 
-  verbose                    = cms.untracked.bool(True),
+  verbose                    = cms.untracked.bool(False), # This must be off when running on official release
   dqmStore                   = cms.untracked.bool(True),
   disableROOToutput          = cms.untracked.bool(True),
   inputTagScalersResults     = cms.InputTag("scalersRawToDigi"),
