@@ -2,8 +2,11 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
 // #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 // #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
 using namespace Pythia8;
+
+const std::vector<std::string> gen::Py8GunBase::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
 
 namespace gen {
 
