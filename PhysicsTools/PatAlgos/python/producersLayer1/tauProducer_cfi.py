@@ -178,24 +178,3 @@ patTaus = cms.EDProducer("PATTauProducer",
     resolutions     = cms.PSet()
 )
 
-NoUpdateDiscriminators=False
-try:
-    from RecoTauTag.Configuration.updateHPSPFTaus_cff import *
-except ImportError:
-    NoUpdateDiscriminators=True
-
-if NoUpdateDiscriminators:
-    patTaus.tauIDSources = cms.PSet(
-                         decayModeFinding = cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
-                         byVLooseCombinedIsolationDeltaBetaCorr = cms.InputTag("hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr"),
-                         byLooseCombinedIsolationDeltaBetaCorr = cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"),
-                         byMediumCombinedIsolationDeltaBetaCorr = cms.InputTag("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr"),
-                         byTightCombinedIsolationDeltaBetaCorr = cms.InputTag("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr"),
-                         againstElectronLoose = cms.InputTag("hpsPFTauDiscriminationByLooseElectronRejection"),
-                         againstElectronMedium = cms.InputTag("hpsPFTauDiscriminationByMediumElectronRejection"),
-                         againstElectronTight = cms.InputTag("hpsPFTauDiscriminationByTightElectronRejection"),
-                         againstElectronMVA = cms.InputTag("hpsPFTauDiscriminationByMVAElectronRejection"),
-                         againstMuonLoose = cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection"),
-                         againstMuonMedium = cms.InputTag("hpsPFTauDiscriminationByMediumMuonRejection"),
-                         againstMuonTight = cms.InputTag("hpsPFTauDiscriminationByTightMuonRejection")
-                     )
