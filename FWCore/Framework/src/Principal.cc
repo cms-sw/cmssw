@@ -748,14 +748,11 @@ namespace edm {
     }
 
     if(phb->onDemand()) {
-      unscheduledFill(phb->branchDescription().moduleLabel(), mcc);
+      ProductHolderBase::ResolveStatus status;
+      if(not phb->resolveProduct(status,false,mcc) ) {
+        throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
+      }
     }
-    // We already tried to produce the unscheduled products above
-    // If they still are not there, then throw
-    if(phb->onDemand()) {
-      throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
-    }
-
     return *phb->provenance();
   }
 
