@@ -5,8 +5,6 @@
 
 #include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-// #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 
 #include "HepMC/GenEvent.h"

@@ -605,26 +605,11 @@ namespace edm {
             continue;
           }
 
-          //NOTE sometimes 'productHolder->productUnavailable()' is true if was already deleted
-          if(productHolder->productWasDeleted()) {
-            throwProductDeletedException("findProducts",
-                                         typeID,
-                                         bd.moduleLabel(),
-                                         bd.productInstanceName(),
-                                         bd.processName());
-          }
-
-          // Skip product if not available.
-          if(!productHolder->productUnavailable()) {
-
-            this->resolveProduct(*productHolder, true, mcc);
-            // If the product is a dummy filler, product holder will now be marked unavailable.
-            // Unscheduled execution can fail to produce the EDProduct so check
-            if(productHolder->product() && !productHolder->productUnavailable() && !productHolder->onDemand()) {
-              // Found a good match, save it
-              BasicHandle bh(productHolder->productData());
-              results.push_back(bh);
-            }
+          ProductHolderBase::ResolveStatus resolveStatus;
+          ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, mcc);
+          if(productData) {
+            // Skip product if not available.
+            results.emplace_back(*productData);
           }
         }
       }

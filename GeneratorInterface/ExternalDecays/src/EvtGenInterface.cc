@@ -9,12 +9,10 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "Utilities/General/interface/FileInPath.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/Random.h"
 
 #include "GeneratorInterface/ExternalDecays/interface/myEvtRandomEngine.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -23,6 +21,8 @@
 // #include "HepMC/PythiaWrapper6_2.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
+#include "CLHEP/Random/RandFlat.h"
 
 //#define PYGIVE pygive_
 //extern "C" {
@@ -39,27 +39,12 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
   nevent = 0;
   std::cout << " EvtGenProducer starting ... " << std::endl;
 
-  // create random engine and initialize seed using Random Number 
-  // Generator Service 
-  // as configured in the configuration file
-
-  edm::Service<edm::RandomNumberGenerator> rngen;
-  
-  if ( ! rngen.isAvailable()) {             
-    throw cms::Exception("Configuration")
-      << "The EvtGenProducer module requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file if you  want to run EvtGenProducer";
-    }
-
-  CLHEP::HepRandomEngine& m_engine = rngen->getEngine();
-  m_flat = new CLHEP::RandFlat(m_engine, 0., 1.);
-  myEvtRandomEngine* the_engine = new myEvtRandomEngine(&m_engine); 
+  the_engine = new myEvtRandomEngine(nullptr);
 
   // Get data from parameter set
   edm::FileInPath decay_table = pset.getParameter<edm::FileInPath>("decay_table");
   edm::FileInPath pdt = pset.getParameter<edm::FileInPath>("particle_property_file");
-  bool useDefault = pset.getUntrackedParameter<bool>("use_default_decay",true);
+  useDefault = pset.getUntrackedParameter<bool>("use_default_decay",true);
   usePythia = pset.getUntrackedParameter<bool>("use_internal_pythia",true);
   polarize_ids = pset.getUntrackedParameter<std::vector<int> >("particles_to_polarize",
 							       std::vector<int>());
@@ -79,43 +64,16 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
   }
 
   edm::FileInPath user_decay = pset.getParameter<edm::FileInPath>("user_decay_file");
-  std::string decay_table_s = decay_table.fullPath();
-  std::string pdt_s = pdt.fullPath();
-  std::string user_decay_s = user_decay.fullPath();
+  decay_table_s = decay_table.fullPath();
+  pdt_s = pdt.fullPath();
+  user_decay_s = user_decay.fullPath();
 
   //-->pythia_params = pset.getParameter< std::vector<std::string> >("processParameters");
   
   
   // any number of alias names for forced decays can be specified using dynamic std vector of strings 
-  std::vector<std::string> forced_names = pset.getParameter< std::vector<std::string> >("list_forced_decays");
-    
-  m_EvtGen = new EvtGen (decay_table_s.c_str(),pdt_s.c_str(),the_engine);  
-  // 4th parameter should be rad cor - set to PHOTOS (default)
- 
-  if (!useDefault) m_EvtGen->readUDecay( user_decay_s.c_str() );
+  forced_names = pset.getParameter< std::vector<std::string> >("list_forced_decays");
 
-  std::vector<std::string>::const_iterator i;
-  nforced=0;
-
-  for (i=forced_names.begin(); i!=forced_names.end(); ++i)   
-    // i will point to strings containing
-    // names of particles with forced decay
-    {
-      nforced++;
-      EvtId found = EvtPDL::getId(*i);      
-      if (found.getId()==-1)
-	{
-	  throw cms::Exception("Configuration")
-	    << "name in part list for forced decays not found: " << *i; 
-	}
-      if (found.getId()==found.getAlias())
-	{
-	  throw cms::Exception("Configuration")
-	    << "name in part list for forced decays is not an alias: " << *i; 
-	}
-      forced_Evt.push_back(found);                      // forced_Evt is the list of EvtId's
-      forced_Hep.push_back(EvtPDL::getStdHep(found));   // forced_Hep is the list of stdhep codes
-    }
 
    // fill up default list of particles to be declared stable in the "master generator"
    // these are assumed to be PDG ID's
@@ -349,10 +307,9 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
 	    m_PDGs = tmpPIDs;
          }
       }
-   } 
-   
-  m_Py6Service = new Pythia6Service;
-} 
+   }
+   m_Py6Service = new Pythia6Service;
+}
 
 EvtGenInterface::~EvtGenInterface()
 {
@@ -362,25 +319,52 @@ EvtGenInterface::~EvtGenInterface()
 
 void EvtGenInterface::init()
 {
+  m_EvtGen = new EvtGen (decay_table_s.c_str(), pdt_s.c_str(), the_engine);
+  // 4th parameter should be rad cor - set to PHOTOS (default)
 
-   Pythia6Service::InstanceWrapper guard(m_Py6Service);	// grab Py6 instance
+  if (!useDefault) m_EvtGen->readUDecay( user_decay_s.c_str() );
+
+  nforced = 0;
+  for (auto const& forced_name : forced_names) {
+    ++nforced;
+    EvtId found = EvtPDL::getId(forced_name);
+    if (found.getId() == -1) {
+      throw cms::Exception("Configuration")
+        << "name in part list for forced decays not found: " << forced_name;
+    }
+    if (found.getId() == found.getAlias()) {
+      throw cms::Exception("Configuration")
+	<< "name in part list for forced decays is not an alias: " << forced_name;
+    }
+    forced_Evt.push_back(found);                      // forced_Evt is the list of EvtId's
+    forced_Hep.push_back(EvtPDL::getStdHep(found));   // forced_Hep is the list of stdhep codes
+  }
+
+  Pythia6Service::InstanceWrapper guard(m_Py6Service);	// grab Py6 instance
    
-   // Do here initialization of EvtPythia then restore original settings
-   if (usePythia) EvtPythia::pythiaInit(0);
-   
+  // Do here initialization of EvtPythia then restore original settings
+  if (usePythia) EvtPythia::pythiaInit(0);
+
 // no need - will be done via Pythia6Hadronizer::declareStableParticles
 //
 //    for( std::vector<std::string>::const_iterator itPar = pythia_params.begin(); itPar != pythia_params.end(); ++itPar ) {
 //      call_pygive(*itPar);
 //    }
 
-   return ;
-
+  return;
 }
-
 
 HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
 {
+  if(the_engine->engine() == nullptr) {
+    throw edm::Exception(edm::errors::LogicError)
+      << "The EvtGen code attempted to use a random number engine while\n"
+      << "the engine pointer was null in EvtGenInterface::decay. This might\n"
+      << "mean that the code was modified to generate a random number outside\n"
+      << "the event and beginLuminosityBlock methods, which is not allowed.\n";
+  }
+  CLHEP::RandFlat m_flat(*the_engine->engine(), 0., 1.);
+
   Pythia6Service::InstanceWrapper guard(m_Py6Service);	// grab Py6 instance
 
   nevent++;
@@ -430,7 +414,7 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
   if(nlist!=0)   
      {
       // decide randomly which one to decay as alias
-      int which = (int)(nlist*m_flat->fire()); 
+      int which = (int)(nlist * m_flat.fire());
       if (which == nlist) which = nlist-1;
   
 	  for(int k=0;k < nlist; k++)
@@ -641,3 +625,8 @@ EvtGenInterface::update_candlist( int theIndex, HepMC::GenParticle *thePart )
   return;
 }
 
+void
+EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
+  the_engine->setRandomEngine(v);
+  m_Py6Service->setRandomEngine(v);
+}

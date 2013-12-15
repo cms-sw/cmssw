@@ -77,6 +77,8 @@ namespace gen {
       const std::vector<int>& operatesOnParticles() { return fPDGs; }
       HepMC::GenEvent* decay( HepMC::GenEvent* );
       void statistics() ;
+
+      void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
       
       private: 
       
