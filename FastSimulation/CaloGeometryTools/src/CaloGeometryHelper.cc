@@ -113,50 +113,11 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
 	result = myDetId2;
 	return result;
       }
-
-
-      if(result.subdetId()!=HcalEndcap) return result;
-      // Special patch to correct the HCAL geometry
-      if(myDetId.depth()==3) return result;
-
-      int ieta=myDetId.ietaAbs();
-      float azmin=400.458;         /// in sync with BaseParticlePropagator 
-
-      if(ieta<=17) 
+      else {
         return result;
-      else if(ieta>=18 && ieta<=26) 
-        azmin += 35.0;    // don't consider ieta=18 nose separately
-      else if(ieta>=27)
-        azmin += 21.0;
-
-      HcalDetId first(HcalEndcap,myDetId.ieta(),myDetId.iphi(),1);
-      bool layer2=(fabs(point.Z())>azmin);
-      if(!layer2)
-        {
-          return first;
-        }
-      else
-        {
-          HcalDetId second(HcalEndcap,myDetId.ieta(),myDetId.iphi(),2);
-	  if(second!=HcalDetId()) result=second;
-	}
-#ifdef DEBUGGCC
-      if(result.null()) 
-	{
-	  return result;
-	}
-      GlobalPoint ip=GlobalPoint(point.x(),point.y(),point.z());
-      GlobalPoint cc=HcalGeometry_->getGeometry(result)->getPosition();
-      float deltaeta2 = ip.eta()-cc.eta();
-      deltaeta2 *= deltaeta2;
-      float deltaphi2 = acos(cos(ip.phi()-cc.phi()));
-      deltaphi2 *= deltaphi2;
-
-      Histos::instance()->fill("h120",point.eta(),sqrt(deltaeta2+deltaphi2));
-#endif
-      
+      }
     }
-  return result;
+    return result;
 }
 
 void CaloGeometryHelper::getWindow(const DetId& pivot,int s1,int s2,std::vector<DetId>& vec) const

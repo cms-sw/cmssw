@@ -8,7 +8,7 @@
 typedef ROOT::Math::Plane3D::Point Point;
 
 CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector basedet,int subdetn,int cal,unsigned sht)
-  :myCalorimeter(theCalo),theCaloProperties(NULL),base_(basedet),subdetn_(subdetn),onCal_(cal),showerType_(sht)
+  :myCalorimeter(theCalo),theCaloProperties(NULL),theHCALProperties(NULL),base_(basedet),subdetn_(subdetn),onCal_(cal),showerType_(sht)
 {
   //  std::cout << " FamosCalorimeter " << basedet << " " << cal << std::endl;
   EMSHOWER=(sht==0);
@@ -20,6 +20,20 @@ CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector ba
   if(base_==DetId::Ecal&&subdetn_==EcalPreshower&&onCal_)
     theCaloProperties = (PreshowerProperties*)myCalorimeter->layer1Properties(onCal_);
   if(base_==DetId::Hcal&&cal) theCaloProperties = myCalorimeter->hcalProperties(onCal_);
+  if(base_==DetId::Hcal&&cal) theHCALProperties = myCalorimeter->hcalProperties(onCal_);
+
+  if(theHCALProperties && onCal_==2)
+    {
+      darkening = theHCALProperties->boolDark();
+      intLumi   = theHCALProperties->getIntLumi();
+      if(darkening) m_HEDarkening = new HEDarkening();
+      heLayers_ = theHCALProperties->getMapLayers();
+    } 
+  else 
+    {
+       darkening = false;
+       intLumi = 0.0;
+    } 
 
   if(theCaloProperties)
     {
@@ -33,6 +47,13 @@ CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector ba
     }
 }
 
+CaloHitMaker::~CaloHitMaker()
+{
+  if (darkening && m_HEDarkening != 0)
+    {
+      delete m_HEDarkening;
+    }
+}
 
 CaloHitMaker::XYZPoint 
 CaloHitMaker::intersect(const Plane3D& p,const XYZPoint& a,const XYZPoint& b, 
