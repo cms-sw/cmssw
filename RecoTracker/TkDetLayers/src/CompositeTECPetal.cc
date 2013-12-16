@@ -46,10 +46,11 @@ namespace {
       std::adjacent_difference(boundaries.begin(),boundaries.end(),  boundaries.begin(), Mean());
     }
     
+    inline
     int findBin(std::vector<float> const & boundaries, float r) {
       return  
 	std::lower_bound(boundaries.begin()+1,boundaries.end(),r)
-      -boundaries.begin()-1;
+	-boundaries.begin()-1;
     }
     
 
@@ -73,14 +74,16 @@ namespace {
       // adapeted for groupedCompatibleDets() needs
       
       // assume "fixed theta window", i.e. margin in local y = r is changing linearly with z
-      float tsRadius = gpos.perp();
-      float thetamin =  std::max(0.f,tsRadius-ymax)/(fabs(gpos.z())+10.f); // add 10 cm contingency 
-      float thetamax = ( tsRadius + ymax)/(fabs(gpos.z())-10.f);
+      auto tsRadius = gpos.perp();
+      auto rmin = std::max(0.f,tsRadius-ymax);
+      auto zmax = std::abs(gpos.z())+10.f; // add 10 cm contingency 
+      auto rmax = (tsRadius + ymax);
+      auto zmin = std::abs(gpos.z())-10.f;
       
   
       // do the theta regions overlap ?
       
-      return  !( thetamin > wpar.thetaMax || wpar.thetaMin > thetamax);
+      return  !(  (rmin > zmax*wpar.thetaMax) | ( zmin*wpar.thetaMin > rmax) );
       
     } 
     
@@ -243,7 +246,7 @@ CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingStat
     << gBackPoint.phi() << ")" ;
 
   int backIndex = findBin(gBackPoint.perp(),1);
-  float backDist = fabs( theBackPars[backIndex].theR - gBackPoint.perp());
+  float backDist = std::abs( theBackPars[backIndex].theR - gBackPoint.perp());
   
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
   
