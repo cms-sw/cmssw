@@ -29,8 +29,6 @@ public:
   virtual CommonMETData run(const edm::View<reco::Candidate>& candidates, double globalThreshold = 0.0);
   virtual void run(const edm::View<reco::Candidate>& candidates, CommonMETData *met, double globalThreshold = 0.0);
 
-  virtual CommonMETData run(edm::Handle<edm::View<reco::Candidate> > candidates, double globalThreshold = 0.0);
-  virtual void run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold = 0.0);
 };
 
 #endif // METAlgo_h

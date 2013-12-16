@@ -51,17 +51,3 @@ void METAlgo::run(const edm::View<reco::Candidate>& candidates, CommonMETData *m
 }
 
 //____________________________________________________________________________||
-CommonMETData METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, double globalThreshold)
-{
-  CommonMETData met;
-  run(*candidates.product(), &met, globalThreshold);
-  return met;
-}
-
-//____________________________________________________________________________||
-void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold)
-{
-  run(*candidates.product(), met, globalThreshold);
-}
-
-//____________________________________________________________________________||
