@@ -36,12 +36,7 @@ namespace cms
   {
     if(calculateSignificance_)
       {
-	jetsLabel_ = iConfig.getParameter<edm::InputTag>("jets");
 	jetToken_ = consumes<edm::View<reco::PFJet> >(iConfig.getParameter<edm::InputTag>("jets"));
-      }
-
-    if (calculateSignificance_)
-      {
 	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
       }
 
@@ -63,7 +58,7 @@ namespace cms
 
     std::auto_ptr<reco::PFMETCollection> pfmetcoll;
     pfmetcoll.reset(new reco::PFMETCollection);
-    reco::PFMET pfmet = pf.addInfo(input, commonMETdata);
+    reco::PFMET pfmet = pf.addInfo(*input.product(), commonMETdata);
 
     if(calculateSignificance_)
       {
