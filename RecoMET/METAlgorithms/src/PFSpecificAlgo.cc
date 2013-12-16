@@ -11,17 +11,17 @@
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-//____________________________________________________________________________||
-using namespace reco;
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 //____________________________________________________________________________||
-reco::PFMET PFSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > PFCandidates, const CommonMETData& met)
+reco::PFMET PFSpecificAlgo::addInfo(const edm::View<reco::Candidate>& pfCands, const CommonMETData& met)
 {
-  SpecificPFMETData specific = mkSpecificPFMETData(PFCandidates);
+  SpecificPFMETData specific = mkSpecificPFMETData(pfCands);
 
-  const LorentzVector p4(met.mex , met.mey, 0.0, met.met);
-  const Point vtx(0.0,0.0,0.0);
-  PFMET pfMET(specific, met.sumet, p4, vtx );
+  const math::XYZTLorentzVector p4(met.mex, met.mey, 0.0, met.met);
+  const math::XYZPoint vtx(0.0, 0.0, 0.0);
+  reco::PFMET pfMET(specific, met.sumet, p4, vtx);
 
   return pfMET;
 }
@@ -39,9 +39,9 @@ void PFSpecificAlgo::initializeSpecificPFMETData(SpecificPFMETData &specific)
 }
 
 //____________________________________________________________________________||
-SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(edm::Handle<edm::View<reco::Candidate> > &PFCandidates)
+SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(const edm::View<reco::Candidate>& pfCands)
 {
-  if(!PFCandidates->size())
+  if(!pfCands.size())
   {
     SpecificPFMETData specific;
     initializeSpecificPFMETData(specific);
@@ -56,23 +56,21 @@ SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(edm::Handle<edm::View<reco
   double type6Et = 0.0;
   double type7Et = 0.0;
 
-  for( edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin(); iParticle != (PFCandidates.product())->end(); ++iParticle )
+  for( edm::View<reco::Candidate>::const_iterator iPfCand = pfCands.begin(); iPfCand != pfCands.end(); ++iPfCand)
     {   
-      const PFCandidate* pfCandidate = dynamic_cast<const PFCandidate*> (&(*iParticle));
-      if (!pfCandidate) continue;
-      const double theta = pfCandidate->theta();
-      const double e     = pfCandidate->energy();
+      const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*> (&(*iPfCand));
+      if (!pfCand) continue;
+      const double theta = pfCand->theta();
+      const double e     = pfCand->energy();
       const double et    = e*sin(theta);
 
-      if (pfCandidate->particleId() == 1) ChargedHadEt += et;
-      if (pfCandidate->particleId() == 2) ChargedEMEt += et;
-      if (pfCandidate->particleId() == 3) MuonEt += et;
-      if (pfCandidate->particleId() == 4) NeutralEMEt += et;
-      if (pfCandidate->particleId() == 5) NeutralHadEt += et;
-      if (pfCandidate->particleId() == 6) type6Et += et;
-      if (pfCandidate->particleId() == 7) type7Et += et;
-
-
+      if (pfCand->particleId() == 1) ChargedHadEt += et;
+      if (pfCand->particleId() == 2) ChargedEMEt += et;
+      if (pfCand->particleId() == 3) MuonEt += et;
+      if (pfCand->particleId() == 4) NeutralEMEt += et;
+      if (pfCand->particleId() == 5) NeutralHadEt += et;
+      if (pfCand->particleId() == 6) type6Et += et;
+      if (pfCand->particleId() == 7) type7Et += et;
     }
 
   const double Et_total = NeutralEMEt + NeutralHadEt + ChargedEMEt + ChargedHadEt + MuonEt + type6Et + type7Et;
