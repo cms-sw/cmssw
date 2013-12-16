@@ -9,11 +9,12 @@
  */
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/SeparatingTSG.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 class DualByEtaTSG : public SeparatingTSG{
  public:
-  DualByEtaTSG(const edm::ParameterSet &pset);
+  DualByEtaTSG(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
 
   /// decide the TSG depending on the absolute value of momentum eta of the track. Return value is 0 or 1.
   unsigned int selectTSG(const TrackCand&, const TrackingRegion&);

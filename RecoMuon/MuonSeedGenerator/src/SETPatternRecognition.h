@@ -3,12 +3,18 @@
 
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedVPatternRecognition.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"            
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"             
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"                
 
 
 class SETPatternRecognition: public MuonSeedVPatternRecognition
 {
 public:
-  explicit SETPatternRecognition(const edm::ParameterSet & pset);
+  explicit SETPatternRecognition(const edm::ParameterSet & pset, edm::ConsumesCollector& iC);
   virtual ~SETPatternRecognition() {}
   /** Output is a cluster, with possibly more than one hit per layer */
   virtual void produce(const edm::Event& event, const edm::EventSetup& eSetup,
@@ -29,11 +35,18 @@ private:
   edm::InputTag CSCRecSegmentLabel;
   edm::InputTag RPCRecSegmentLabel;
 
+  edm::EDGetTokenT<DTRecSegment4DCollection> dtToken;
+  edm::EDGetTokenT<CSCSegmentCollection> cscToken;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcToken;
+
+
   double outsideChamberErrorScale; 
   double minLocalSegmentAngle; 
   //----
 
   MuonServiceProxy * theService;
+
+
 };
 
 #endif

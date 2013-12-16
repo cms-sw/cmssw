@@ -23,6 +23,7 @@ class MuonSelectionTypeValueMapProducer : public edm::EDProducer {
         {
             selectionType_ = muon::selectionTypeFromString(selectionTypeLabel_);
             produces<edm::ValueMap<bool> >().setBranchAlias("muid"+selectionTypeLabel_);
+	    muonToken_ = consumes<reco::MuonCollection>(inputMuonCollection_);
         }
         virtual ~MuonSelectionTypeValueMapProducer() {}
 
@@ -30,6 +31,8 @@ class MuonSelectionTypeValueMapProducer : public edm::EDProducer {
         virtual void produce(edm::Event&, const edm::EventSetup&);
 
         edm::InputTag inputMuonCollection_;
+	edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+
         std::string selectionTypeLabel_;
         muon::SelectionType selectionType_;
 };
@@ -39,7 +42,7 @@ MuonSelectionTypeValueMapProducer::produce(edm::Event& iEvent, const edm::EventS
 {
     // input muon collection
     edm::Handle<reco::MuonCollection> muonsH;
-    iEvent.getByLabel(inputMuonCollection_, muonsH);
+    iEvent.getByToken(muonToken_, muonsH);
 
     // reserve some space
     std::vector<bool> values;
