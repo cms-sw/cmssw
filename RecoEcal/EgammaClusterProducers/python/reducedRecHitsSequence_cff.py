@@ -17,6 +17,29 @@ interestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollect
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
     )
 
+#SuperClusters for GED reco
+import RecoEcal.EgammaClusterProducers.interestingDetIdFromSuperClusterProducer_cfi
+
+interestingEcalDetIdPFEB = RecoEcal.EgammaClusterProducers.interestingDetIdFromSuperClusterProducer_cfi.interestingDetIdFromSuperClusterProducer.clone(
+    superClustersLabel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
+    
+interestingEcalDetIdPFEE = RecoEcal.EgammaClusterProducers.interestingDetIdFromSuperClusterProducer_cfi.interestingDetIdFromSuperClusterProducer.clone(
+    superClustersLabel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    )
+    
+interestingEcalDetIdRefinedEB = RecoEcal.EgammaClusterProducers.interestingDetIdFromSuperClusterProducer_cfi.interestingDetIdFromSuperClusterProducer.clone(
+    superClustersLabel = cms.InputTag("particleFlowEGamma",""),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
+    
+interestingEcalDetIdRefinedEE = RecoEcal.EgammaClusterProducers.interestingDetIdFromSuperClusterProducer_cfi.interestingDetIdFromSuperClusterProducer.clone(
+    superClustersLabel = cms.InputTag("particleFlowEGamma",""),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    )    
+    
 # rechits associated to high pt tracks for HSCP
 
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
@@ -33,11 +56,15 @@ reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
             # ecal
             cms.InputTag("interestingEcalDetIdEB"),
             cms.InputTag("interestingEcalDetIdEBU"),
+            #ged
+            cms.InputTag("interestingEcalDetIdPFEB"),
+            cms.InputTag("interestingEcalDetIdRefinedEB"),
             # egamma
-            cms.InputTag("interestingEleIsoDetIdEB"),
+            cms.InputTag("interestingGedEleIsoDetIdEB"),
+            cms.InputTag("interestingGedGamIsoDetIdEB"),
             cms.InputTag("interestingGamIsoDetIdEB"),
             # tau
-            #cms.InputTag("caloRecoTauProducer"),            
+            #cms.InputTag("caloRecoTauProducer"),
             # muons
             cms.InputTag("muonEcalDetIds"),
             # high pt tracks
@@ -51,11 +78,15 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
     interestingDetIdCollections = cms.VInputTag(
             # ecal
             cms.InputTag("interestingEcalDetIdEE"),
+            #ged
+            cms.InputTag("interestingEcalDetIdPFEE"),
+            cms.InputTag("interestingEcalDetIdRefinedEE"),            
             # egamma
-            cms.InputTag("interestingEleIsoDetIdEE"),
+            cms.InputTag("interestingGedEleIsoDetIdEE"),
+            cms.InputTag("interestingGedGamIsoDetIdEE"),
             cms.InputTag("interestingGamIsoDetIdEE"),
             # tau
-            #cms.InputTag("caloRecoTauProducer"),            
+            #cms.InputTag("caloRecoTauProducer"),
             # muons
             cms.InputTag("muonEcalDetIds"),
             # high pt tracks
@@ -78,6 +109,8 @@ from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
 reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
                                           interestingEcalDetIdEE*
+                                          interestingEcalDetIdPFEB*interestingEcalDetIdPFEE*
+                                          interestingEcalDetIdRefinedEB*interestingEcalDetIdRefinedEE*
                                           interestingTrackEcalDetIds*
                                           reducedEcalRecHitsEB*
                                           reducedEcalRecHitsEE*
