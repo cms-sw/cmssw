@@ -59,7 +59,9 @@ namespace edm {
        ProductDoesNotSupportPtr = 8025,
 
        NotFound = 8026,
-       FormatIncompatibility = 8027
+       FormatIncompatibility = 8027,
+
+       CaughtSignal = 9000
     };
 
   }
