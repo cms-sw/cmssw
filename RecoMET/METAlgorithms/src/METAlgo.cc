@@ -12,7 +12,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <cmath>
 
-CommonMETData METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, double globalThreshold)
+//____________________________________________________________________________||
+CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates, double globalThreshold)
 {
   CommonMETData met;
   run(candidates, &met, globalThreshold);
@@ -20,16 +21,16 @@ CommonMETData METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, 
 }
 
 //____________________________________________________________________________||
-void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold)
+void METAlgo::run(const edm::View<reco::Candidate>& candidates, CommonMETData *met, double globalThreshold)
 { 
   double px = 0.0;
   double py = 0.0;
   double pz = 0.0;
   double et = 0.0;
 
-  for (unsigned int i = 0; i < candidates->size(); ++i)
+  for (unsigned int i = 0; i < candidates.size(); ++i)
   {
-    const reco::Candidate &cand = (*candidates)[i];
+    const reco::Candidate &cand = candidates[i];
     if( !(cand.et() > globalThreshold) ) continue;
     px += cand.px();
     py += cand.py();
@@ -47,6 +48,20 @@ void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMET
   met->met   = sqrt( px*px + py*py );
   met->sumet = et;
   met->phi   = atan2( -py, -px ); // no longer needed as MET is now a candidate
+}
+
+//____________________________________________________________________________||
+CommonMETData METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, double globalThreshold)
+{
+  CommonMETData met;
+  run(*candidates.product(), &met, globalThreshold);
+  return met;
+}
+
+//____________________________________________________________________________||
+void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold)
+{
+  run(*candidates.product(), met, globalThreshold);
 }
 
 //____________________________________________________________________________||
