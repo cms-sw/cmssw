@@ -103,10 +103,7 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_last_path(),
   m_first_endpath(),
   m_last_endpath(),
-  m_is_first_module(false),
   m_is_first_event(true),
-  // per-event accounting
-  m_event(),
   // per-run and per-job summaries
   m_run_summary(),
   m_job_summary(),
@@ -189,8 +186,8 @@ void FastTimerService::preGlobalBeginRun( edm::GlobalContext const & )
     for (auto & stream: m_stream)
       stream.paths[label].index = size_p + i;
   }
-  for (auto & timing: m_event)
-    timing.paths_interpaths.assign(size + 1, 0);
+  for (auto & stream: m_stream)
+    stream.timing.paths_interpaths.assign(size + 1, 0);
   for (auto & timing: m_run_summary)
     timing.paths_interpaths.assign(size + 1, 0);
   m_job_summary.paths_interpaths.assign(size + 1, 0);
@@ -584,7 +581,6 @@ FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
   m_concurrent_streams = bounds.maxNumberOfStreams();
   m_concurrent_threads = bounds.maxNumberOfThreads();
 
-  m_event.resize(m_concurrent_streams);
   m_run_summary.resize(m_concurrent_runs);
   m_stream.resize(m_concurrent_streams);
 
@@ -776,20 +772,22 @@ void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) 
 
 void FastTimerService::preEvent(edm::StreamContext const & sc) {
   unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
 
   // new event, reset the per-event counter
-  start(m_timer_event);
+  stream.timer_event.start();
 
   // account the time spent after the source
-  m_event[sid].postsource = delta(m_timer_source.getStopTime(), m_timer_event.getStartTime());
+  stream.timing.postsource = delta(stream.timer_source.getStopTime(), stream.timer_event.getStartTime());
 
   // clear the event counters
-  m_event[sid].event        = 0;
-  m_event[sid].all_paths    = 0;
-  m_event[sid].all_endpaths = 0;
-  m_event[sid].interpaths   = 0;
-  m_event[sid].paths_interpaths.assign(m_stream[sid].paths.size() + 1, 0);
+  stream.timing.event        = 0;
+  stream.timing.all_paths    = 0;
+  stream.timing.all_endpaths = 0;
+  stream.timing.interpaths   = 0;
+  stream.timing.paths_interpaths.assign(m_stream[sid].paths.size() + 1, 0);
   for (auto & keyval : m_stream[sid].paths) {
+    keyval.second.timer.reset();
     keyval.second.time_active       = 0.;
     keyval.second.time_exclusive    = 0.;
     keyval.second.time_premodules   = 0.;
@@ -798,11 +796,13 @@ void FastTimerService::preEvent(edm::StreamContext const & sc) {
     keyval.second.time_total        = 0.;
   }
   for (auto & keyval : m_stream[sid].modules) {
+    keyval.second.timer.reset();
     keyval.second.time_active       = 0.;
     keyval.second.run_in_path       = nullptr;
     keyval.second.counter           = 0;
   }
   for (auto & keyval : m_stream[sid].moduletypes) {
+    keyval.second.timer.reset();
     keyval.second.time_active       = 0.;
     keyval.second.run_in_path       = nullptr;
     keyval.second.counter           = 0;
@@ -810,30 +810,31 @@ void FastTimerService::preEvent(edm::StreamContext const & sc) {
 
   // copy the start event timestamp as the end of the previous path
   // used by the inter-path overhead measurement
-  m_timer_path.setStopTime( m_timer_event.getStartTime() );
+  stream.timer_last_path = stream.timer_event.getStartTime();
 }
 
 void FastTimerService::postEvent(edm::StreamContext const & sc) {
   unsigned int sid = sc.streamID();
   unsigned int rid = sc.runIndex();
+  auto & stream = m_stream[sid];
 
   // stop the per-event timer, and account event time
-  stop(m_timer_event);
-  m_event[sid].event = delta(m_timer_event);
+  stream.timer_event.stop();
+  stream.timing.event = stream.timer_event.seconds();
 
   // the last part of inter-path overhead is the time between the end of the last (end)path and the end of the event processing
-  double interpaths = delta(m_timer_path.getStopTime(), m_timer_event.getStopTime());
-  m_event[sid].interpaths += interpaths;
-  m_event[sid].paths_interpaths[m_stream[sid].paths.size()] = interpaths;
+  double interpaths = delta(stream.timer_last_path, stream.timer_event.getStopTime());
+  stream.timing.interpaths += interpaths;
+  stream.timing.paths_interpaths[stream.paths.size()] = interpaths;
 
   // keep track of the total number of events and add this event's time to the per-run and per-job summary
-  m_event[sid].count = 1;
-  m_run_summary[rid] += m_event[sid];
-  m_job_summary += m_event[sid];
+  stream.timing.count = 1;
+  m_run_summary[rid] += stream.timing;
+  m_job_summary += stream.timing;
 
   // elaborate "exclusive" modules
   if (m_enable_timing_exclusive) {
-    for (auto & keyval: m_stream[sid].paths) {
+    for (auto & keyval: stream.paths) {
       PathInfo & pathinfo = keyval.second;
       pathinfo.time_exclusive = pathinfo.time_overhead;
 
@@ -858,20 +859,20 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
   // fill plots for per-event time by path
   if (m_enable_timing_paths) {
 
-    for (auto & keyval: m_stream[sid].paths) {
+    for (auto & keyval: stream.paths) {
       PathInfo & pathinfo = keyval.second;
 
-      m_stream[sid].dqm_paths_active_time->Fill(pathinfo.index, pathinfo.time_active * 1000.);
+      stream.dqm_paths_active_time->Fill(pathinfo.index, pathinfo.time_active * 1000.);
       if (m_enable_dqm_bypath_active)
-        pathinfo.dqm_active      ->Fill(pathinfo.time_active          * 1000.);
+        pathinfo.dqm_active->Fill(pathinfo.time_active * 1000.);
 
-      m_stream[sid].dqm_paths_exclusive_time->Fill(pathinfo.index, pathinfo.time_exclusive * 1000.);
+      stream.dqm_paths_exclusive_time->Fill(pathinfo.index, pathinfo.time_exclusive * 1000.);
       if (m_enable_dqm_bypath_exclusive)
-        pathinfo.dqm_exclusive   ->Fill(pathinfo.time_exclusive       * 1000.);
+        pathinfo.dqm_exclusive->Fill(pathinfo.time_exclusive * 1000.);
 
-      m_stream[sid].dqm_paths_total_time->Fill(pathinfo.index, pathinfo.time_total * 1000.);
+      stream.dqm_paths_total_time->Fill(pathinfo.index, pathinfo.time_total * 1000.);
       if (m_enable_dqm_bypath_total)
-        pathinfo.dqm_total       ->Fill(pathinfo.time_total           * 1000.);
+        pathinfo.dqm_total->Fill(pathinfo.time_total * 1000.);
 
       // fill path overhead histograms
       if (m_enable_dqm_bypath_overhead) {
@@ -911,7 +912,7 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
 
   // fill plots for per-event time by module
   if (m_enable_dqm_bymodule) {
-    for (auto & keyval : m_stream[sid].modules) {
+    for (auto & keyval : stream.modules) {
       ModuleInfo & module = keyval.second;
       module.dqm_active->Fill(module.time_active * 1000.);
     }
@@ -919,29 +920,29 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
 
   // fill plots for per-event time by module type
   if (m_enable_dqm_bymoduletype) {
-    for (auto & keyval : m_stream[sid].moduletypes) {
+    for (auto & keyval : stream.moduletypes) {
       ModuleInfo & module = keyval.second;
       module.dqm_active->Fill(module.time_active * 1000.);
     }
   }
 
   // fill the interpath overhead plot
-  for (unsigned int i = 0; i <= m_stream[sid].paths.size(); ++i)
-    m_stream[sid].dqm_paths_interpaths->Fill(i, m_event[sid].paths_interpaths[i] * 1000.);
+  for (unsigned int i = 0; i <= stream.paths.size(); ++i)
+    stream.dqm_paths_interpaths->Fill(i, stream.timing.paths_interpaths[i] * 1000.);
 
   if (m_enable_dqm_summary) {
-    m_stream[sid].dqm.fill(m_event[sid]);
+    stream.dqm.fill(stream.timing);
 
     if (m_nproc_enabled)
-      m_stream[sid].dqm_nproc.fill(m_event[sid]);
+      stream.dqm_nproc.fill(stream.timing);
   }
 
   if (m_enable_dqm_byls) {
     unsigned int ls = sc.eventID().luminosityBlock();
-    m_stream[sid].dqm_byls.fill(ls, m_event[sid] );
+    stream.dqm_byls.fill(ls, stream.timing );
 
     if (m_nproc_enabled)
-      m_stream[sid].dqm_nproc_byls.fill(ls, m_event[sid]);
+      stream.dqm_nproc_byls.fill(ls, stream.timing);
   }
 
   if (m_enable_dqm_byluminosity) {
@@ -952,29 +953,31 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
     if (event.getByLabel(m_luminosity_label, h_luminosity) and not h_luminosity->empty())
       luminosity = h_luminosity->front().instantLumi();   // in units of 1e30 cm-2s-1
     */
-    m_stream[sid].dqm_byluminosity.fill(luminosity, m_event[sid]);
+    stream.dqm_byluminosity.fill(luminosity, stream.timing);
 
     if (m_nproc_enabled)
-      m_stream[sid].dqm_nproc_byluminosity.fill(luminosity, m_event[sid]);
+      stream.dqm_nproc_byluminosity.fill(luminosity, stream.timing);
   }
 
 }
 
 void FastTimerService::preSourceEvent(edm::StreamID sid) {
-  start(m_timer_source);
+  auto & stream = m_stream[sid];
+  stream.timer_source.start();
 
   // account the time spent before the source
-  m_event[sid].presource = (m_is_first_event) ? 0. : delta(m_timer_event.getStopTime(), m_timer_source.getStartTime());
+  stream.timing.presource = (m_is_first_event) ? 0. : delta(stream.timer_event.getStopTime(), stream.timer_source.getStartTime());
 
   // clear the event counters
-  m_event[sid].source = 0.;
-  m_event[sid].postsource = 0.;
+  stream.timing.source = 0.;
+  stream.timing.postsource = 0.;
 }
 
 void FastTimerService::postSourceEvent(edm::StreamID sid) {
-  stop(m_timer_source);
+  auto & stream = m_stream[sid];
+  stream.timer_source.stop();
 
-  m_event[sid].source = delta(m_timer_source);
+  stream.timing.source = stream.timer_source.seconds();
 }
 
 
@@ -984,7 +987,7 @@ void FastTimerService::prePathEvent(edm::StreamContext const & sc, edm::PathCont
   auto & stream = m_stream[sid];
 
   // prepare to measure the time spent between the beginning of the path and the execution of the first module
-  m_is_first_module = true;
+  stream.first_module_in_path = nullptr;
 
   PathMap<PathInfo>::iterator keyval = stream.paths.find(path);
   if (keyval != stream.paths.end()) {
@@ -996,21 +999,21 @@ void FastTimerService::prePathEvent(edm::StreamContext const & sc, edm::PathCont
   }
 
   // time each (end)path
-  start(m_timer_path);
+  stream.current_path->timer.start();
 
   if (path == m_first_path) {
     // this is the first path, start the "all paths" counter
-    m_timer_paths.setStartTime( m_timer_path.getStartTime() );
+    stream.timer_paths.setStartTime(stream.current_path->timer.getStartTime());
   } else if (path == m_first_endpath) {
     // this is the first endpath, start the "all paths" counter
-    m_timer_endpaths.setStartTime(m_timer_path.getStartTime());
+    stream.timer_endpaths.setStartTime(stream.current_path->timer.getStartTime());
   }
 
   // measure the inter-path overhead as the time elapsed since the end of preiovus path
   // (or the beginning of the event, if this is the first path - see preEvent)
-  double interpaths = delta(m_timer_path.getStopTime(), m_timer_path.getStartTime());
-  m_event[sid].interpaths += interpaths;
-  m_event[sid].paths_interpaths[stream.current_path->index] = interpaths;
+  double interpaths = delta(stream.timer_last_path, stream.current_path->timer.getStartTime());
+  stream.timing.interpaths += interpaths;
+  stream.timing.paths_interpaths[stream.current_path->index] = interpaths;
 }
 
 
@@ -1020,15 +1023,16 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
   auto &              stream = m_stream[sid];
 
   // time each (end)path
-  stop(m_timer_path);
+  stream.current_path->timer.stop();
+  stream.current_path->time_active = stream.current_path->timer.seconds();
+  stream.timer_last_path = stream.current_path->timer.getStopTime();
 
-  double active = delta(m_timer_path);
+  double active = stream.current_path->time_active;
 
   // if enabled, account each (end)path
   if (m_enable_timing_paths) {
 
     PathInfo & pathinfo = * stream.current_path;
-    pathinfo.time_active = active;
     pathinfo.summary_active += active;
 
     // measure the time spent between the execution of the last module and the end of the path
@@ -1063,7 +1067,7 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
 
       }
 
-      if (m_is_first_module) {
+      if (stream.first_module_in_path == nullptr) {
         // no modules were active during this path, account all the time as overhead
         pre      = 0.;
         inter    = 0.;
@@ -1071,8 +1075,8 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
         overhead = active;
       } else {
         // extract overhead information
-        pre      = delta(m_timer_path.getStartTime(),  m_timer_first_module);
-        post     = delta(m_timer_module.getStopTime(), m_timer_path.getStopTime());
+        pre      = delta(stream.current_path->timer.getStartTime(),  stream.first_module_in_path->timer.getStartTime());
+        post     = delta(stream.current_module->timer.getStopTime(), stream.current_path->timer.getStopTime());
         inter    = active - pre - current - post;
         // take care of numeric precision and rounding errors - the timer is less precise than nanosecond resolution
         if (std::abs(inter) < 1e-9)
@@ -1100,29 +1104,44 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
 
   if (path == m_last_path) {
     // this is the last path, stop and account the "all paths" counter
-    m_timer_paths.setStopTime(m_timer_path.getStopTime());
-    m_event[sid].all_paths = delta(m_timer_paths);
+    stream.timer_paths.setStopTime(stream.current_path->timer.getStopTime());
+    stream.timing.all_paths = stream.timer_paths.seconds();
   } else if (path == m_last_endpath) {
     // this is the last endpath, stop and account the "all endpaths" counter
-    m_timer_endpaths.setStopTime(m_timer_path.getStopTime());
-    m_event[sid].all_endpaths = delta(m_timer_endpaths);
+    stream.timer_endpaths.setStopTime(stream.current_path->timer.getStopTime());
+    stream.timing.all_endpaths = stream.timer_endpaths.seconds();
   }
 
 }
 
-void FastTimerService::preModuleEvent(edm::StreamContext const &, edm::ModuleCallingContext const &) {
+void FastTimerService::preModuleEvent(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
+  edm::ModuleDescription const * md = mcc.moduleDescription();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
   // time each module
-  start(m_timer_module);
-
-  if (m_is_first_module) {
-    m_is_first_module = false;
-
-    // measure the time spent between the beginning of the path and the execution of the first module
-    m_timer_first_module = m_timer_module.getStartTime();
+  { // if-scope
+    ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
+    if (keyval != stream.fast_modules.end()) {
+      ModuleInfo & module = * keyval->second;
+      module.run_in_path = stream.current_path;
+      module.timer.start();
+      stream.current_module = & module;
+      // used to measure the time spent between the beginning of the path and the execution of the first module
+      if (stream.first_module_in_path == nullptr)
+        stream.first_module_in_path = & module;
+    } else {
+      // should never get here
+      if (md == nullptr)
+        edm::LogError("FastTimerService") << "FastTimerService::preModuleEvent: invalid module";
+      else
+        edm::LogError("FastTimerService") << "FastTimerService::preModuleEvent: unexpected module " << md->moduleLabel();
+    }
   }
+
 }
 
 void FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
@@ -1133,17 +1152,17 @@ void FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::Modul
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
-  // time and account each module
-  stop(m_timer_module);
+  double active = 0.;
 
+  // time and account each module
   { // if-scope
     ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
     if (keyval != stream.fast_modules.end()) {
-      double time = delta(m_timer_module);
       ModuleInfo & module = * keyval->second;
-      module.run_in_path     = stream.current_path;
-      module.time_active     = time;
-      module.summary_active += time;
+      module.timer.stop();
+      module.time_active = module.timer.seconds();
+      module.summary_active += module.time_active;
+      active = module.time_active;
       // plots are filled post event processing
     } else {
       // should never get here
@@ -1154,14 +1173,13 @@ void FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::Modul
     }
   }
 
+  // FIXME move this to post event processing
   { // if-scope
     ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_moduletypes.find(md);
     if (keyval != stream.fast_moduletypes.end()) {
-      double time = delta(m_timer_module);
       ModuleInfo & module = * keyval->second;
-      // module.run_in_path is not meaningful here
-      module.time_active    += time;
-      module.summary_active += time;
+      module.time_active    += active;
+      module.summary_active += active;
       // plots are filled post event processing
     } else {
       // should never get here
@@ -1174,24 +1192,60 @@ void FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::Modul
 
 }
 
-void FastTimerService::preModuleEventDelayedGet(edm::StreamContext const &, edm::ModuleCallingContext const &) {
+void FastTimerService::preModuleEventDelayedGet(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
+  edm::ModuleDescription const * md = mcc.moduleDescription();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
-  // XXX
   // check if the signal has interrupted a module or not
   //  - if it is, pause the time for that module, and prepare timing a new module
   //  - otherwise, ignore it
+  { // if-scope
+    ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
+    if (keyval != stream.fast_modules.end()) {
+      ModuleInfo & module = * keyval->second;
+      if (module.timer.state() == FastTimer::State::kRunning)
+        module.timer.pause();
+    } else {
+      // should never get here
+      if (md == nullptr)
+        edm::LogError("FastTimerService") << "FastTimerService::preModuleEventDelayedGet: invalid module";
+      else
+        edm::LogError("FastTimerService") << "FastTimerService::preModuleEventDelayedGet: unexpected module " << md->moduleLabel();
+    }
+  }
+
 }
 
-void FastTimerService::postModuleEventDelayedGet(edm::StreamContext const &, edm::ModuleCallingContext const &) {
+void FastTimerService::postModuleEventDelayedGet(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
+  edm::ModuleDescription const * md = mcc.moduleDescription();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
-  // XXX
   // check if the signal has interrupted a module or not
   //  - if it is, reasume the timing for the original module
   //  - otherwise, ignore it
+  { // if-scope
+    ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
+    if (keyval != stream.fast_modules.end()) {
+      ModuleInfo & module = * keyval->second;
+      if (module.timer.state() == FastTimer::State::kPaused)
+        module.timer.resume();
+    } else {
+      // should never get here
+      if (md == nullptr)
+        edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: invalid module";
+      else
+        edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: unexpected module " << md->moduleLabel();
+    }
+  }
+
 }
 
 // associate to a path all the modules it contains
@@ -1227,18 +1281,18 @@ void FastTimerService::fillPathMap(std::string const & name, std::vector<std::st
 // Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns
 
 // return the time spent since the last preModuleEvent() event
-double FastTimerService::currentModuleTime(edm::StreamID) const {
-  return std::chrono::duration_cast<std::chrono::duration<double>>(m_timer_module.untilNow()).count();
+double FastTimerService::currentModuleTime(edm::StreamID sid) const {
+  return m_stream[sid].current_module->timer.secondsUntilNow();
 }
 
 // return the time spent since the last prePathEvent() event
-double FastTimerService::currentPathTime(edm::StreamID) const {
-  return std::chrono::duration_cast<std::chrono::duration<double>>(m_timer_path.untilNow()).count();
+double FastTimerService::currentPathTime(edm::StreamID sid) const {
+  return m_stream[sid].current_path->timer.secondsUntilNow();
 }
 
 // return the time spent since the last preEvent() event
-double FastTimerService::currentEventTime(edm::StreamID) const {
-  return std::chrono::duration_cast<std::chrono::duration<double>>(m_timer_event.untilNow()).count();
+double FastTimerService::currentEventTime(edm::StreamID sid) const {
+  return m_stream[sid].timer_event.secondsUntilNow();
 }
 
 // query the time spent in a module (available after the module has run)
@@ -1252,7 +1306,7 @@ double FastTimerService::queryModuleTime(edm::StreamID sid, const edm::ModuleDes
   }
 }
 
-// query the time spent in a module (available after the module has run
+// query the time spent in a module (available after the module has run)
 double FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, const std::string & label) const {
   auto const & keyval = m_stream[sid].modules.find(label);
   if (keyval != m_stream[sid].modules.end()) {
@@ -1264,7 +1318,7 @@ double FastTimerService::queryModuleTimeByLabel(edm::StreamID sid, const std::st
   }
 }
 
-// query the time spent in a module (available after the module has run
+// query the time spent in a type of module (available after the module has run)
 double FastTimerService::queryModuleTimeByType(edm::StreamID sid, const std::string & type) const {
   auto const & keyval = m_stream[sid].moduletypes.find(type);
   if (keyval != m_stream[sid].moduletypes.end()) {
@@ -1311,22 +1365,22 @@ double FastTimerService::queryPathTotalTime(edm::StreamID sid, const std::string
 
 // query the time spent in the current event's source (available during event processing)
 double FastTimerService::querySourceTime(edm::StreamID sid) const {
-  return m_event[sid].source;
+  return m_stream[sid].timing.source;
 }
 
 // query the time spent in the current event's paths (available during endpaths)
 double FastTimerService::queryPathsTime(edm::StreamID sid) const {
-  return m_event[sid].all_paths;
+  return m_stream[sid].timing.all_paths;
 }
 
 // query the time spent in the current event's endpaths (available after all endpaths have run)
 double FastTimerService::queryEndPathsTime(edm::StreamID sid) const {
-  return m_event[sid].all_endpaths;
+  return m_stream[sid].timing.all_endpaths;
 }
 
 // query the time spent processing the current event (available after the event has been processed)
 double FastTimerService::queryEventTime(edm::StreamID sid) const {
-  return m_event[sid].event;
+  return m_stream[sid].timing.event;
 }
 
 // describe the module's configuration
