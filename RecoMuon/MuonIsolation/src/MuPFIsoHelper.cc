@@ -1,7 +1,7 @@
 #include "RecoMuon/MuonIsolation/interface/MuPFIsoHelper.h"
 
 
-MuPFIsoHelper::MuPFIsoHelper(const std::map<std::string,edm::ParameterSet>& labelMap):
+MuPFIsoHelper::MuPFIsoHelper(const std::map<std::string,edm::ParameterSet>& labelMap, edm::ConsumesCollector&& iC):
   labelMap_(labelMap)  
 {
   edm::Handle<CandDoubleMap> nullHandle;
@@ -13,6 +13,14 @@ MuPFIsoHelper::MuPFIsoHelper(const std::map<std::string,edm::ParameterSet>& labe
     photon_.push_back(nullHandle);
     photonHighThreshold_.push_back(nullHandle);
     pu_.push_back(nullHandle);
+
+    chargedParticleToken_.push_back(iC.consumes<CandDoubleMap>(i->second.getParameter<edm::InputTag>("chargedParticle")));
+    chargedHadronToken_.push_back(iC.consumes<CandDoubleMap>(i->second.getParameter<edm::InputTag>("chargedHadron")));
+    neutralHadronToken_.push_back(iC.consumes<CandDoubleMap>(i->second.getParameter<edm::InputTag>("neutralHadron")));
+    neutralHadronHighThresholdToken_.push_back(iC.consumes<CandDoubleMap>(i->second.getParameter<edm::InputTag>("neutralHadronHighThreshold")));
+    photonToken_.push_back(iC.consumes<CandDoubleMap>(i->second.getParameter<edm::InputTag>("photon")));
+    photonHighThresholdToken_.push_back(iC.consumes<CandDoubleMap>(i->second.getParameter<edm::InputTag>("photonHighThreshold")));
+    puToken_.push_back(iC.consumes<CandDoubleMap>(i->second.getParameter<edm::InputTag>("pu")));
   }
     
 
@@ -89,13 +97,13 @@ void MuPFIsoHelper::beginEvent(const edm::Event& iEvent){
 
   unsigned int count=0;
   for(std::map<std::string,edm::ParameterSet>::const_iterator i = labelMap_.begin();i!=labelMap_.end();++i) {
-    iEvent.getByLabel(i->second.getParameter<edm::InputTag>("chargedParticle"),chargedParticle_[count]);
-    iEvent.getByLabel(i->second.getParameter<edm::InputTag>("chargedHadron"),chargedHadron_[count]);
-    iEvent.getByLabel(i->second.getParameter<edm::InputTag>("neutralHadron"),neutralHadron_[count]);
-    iEvent.getByLabel(i->second.getParameter<edm::InputTag>("neutralHadronHighThreshold"),neutralHadronHighThreshold_[count]);
-    iEvent.getByLabel(i->second.getParameter<edm::InputTag>("photon"),photon_[count]);
-    iEvent.getByLabel(i->second.getParameter<edm::InputTag>("photonHighThreshold"),photonHighThreshold_[count]);
-    iEvent.getByLabel(i->second.getParameter<edm::InputTag>("pu"),pu_[count]);
+    iEvent.getByToken(chargedParticleToken_[count],chargedParticle_[count]);
+    iEvent.getByToken(chargedHadronToken_[count],chargedHadron_[count]);
+    iEvent.getByToken(neutralHadronToken_[count],neutralHadron_[count]);
+    iEvent.getByToken(neutralHadronHighThresholdToken_[count],neutralHadronHighThreshold_[count]);
+    iEvent.getByToken(photonToken_[count],photon_[count]);
+    iEvent.getByToken(photonHighThresholdToken_[count],photonHighThreshold_[count]);
+    iEvent.getByToken(puToken_[count],pu_[count]);
     count++;
   }
 

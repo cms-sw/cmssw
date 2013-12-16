@@ -840,39 +840,55 @@ std::vector<PrimaryVertexAnalyzer4PU::SimPart> PrimaryVertexAnalyzer4PU::getSimT
    return tsim;
 }
 
+namespace {
+  struct Array2D {
+    Array2D(size_t iN, size_t iM):
+      m_step(iM),m_array(new double[iN*iM]) {}
 
-int*  PrimaryVertexAnalyzer4PU::supf(std::vector<SimPart>& simtrks, const reco::TrackCollection & trks){
-  int nsim=simtrks.size();
-  int nrec=trks.size();
-  int *rectosim=new int[nrec]; // pointer to associated simtrk
-  double** pij=new double*[nrec];
+    double& operator()(size_t iN, size_t iM) {
+      return m_array[iN*m_step+iM];
+    }
+
+    double operator()(size_t iN, size_t iM) const {
+      return m_array[iN*m_step+iM];
+    }
+
+    size_t m_step;
+    std::unique_ptr<double[]> m_array;
+  };
+}
+
+std::vector<int>  PrimaryVertexAnalyzer4PU::supf(std::vector<SimPart>& simtrks, const reco::TrackCollection & trks){
+  const unsigned int nsim=simtrks.size();
+  const unsigned int nrec=trks.size();
+  std::vector<int> rectosim(nrec); // pointer to associated simtrk
+  Array2D pij(nrec,nsim);
   double mu=100.; // initial chi^2 cut-off  (5 dofs !)
   int nmatch=0;
   int i=0;
   for(reco::TrackCollection::const_iterator t=trks.begin(); t!=trks.end(); ++t){
-    pij[i]=new double[nsim];
     rectosim[i]=-1;
     ParameterVector  par = t->parameters();
     //reco::TrackBase::CovarianceMatrix V = t->covariance();
     reco::TrackBase::CovarianceMatrix S = t->covariance();
     S.Invert();
-    for(int j=0; j<nsim; j++){
+    for(unsigned int j=0; j<nsim; j++){
       simtrks[j].rec=-1;
       SimPart s=simtrks[j];
       double c=0;
-      for(int k=0; k<5; k++){
-        for(int l=0; l<5; l++){
+      for(unsigned int k=0; k<5; k++){
+        for(unsigned int l=0; l<5; l++){
           c+=(par(k)-s.par[k])*(par(l)-s.par[l])*S(k,l);
         }
       }
-      pij[i][j]=exp(-0.5*c);
+      pij(i,j)=exp(-0.5*c);
 
 //       double c0=pow((par[0]-s.par[0])/t->qoverpError(),2)*0.1
 // 	+pow((par[1]-s.par[1])/t->lambdaError(),2)
 // 	+pow((par[2]-s.par[2])/t->phiError(),2)
 // 	+pow((par[3]-s.par[3])/t->dxyError(),2)*0.1;
 //         +pow((par[4]-s.par[4])/t->dszError(),2)*0.1;
-//       pij[i][j]=exp(-0.5*c0);
+//       pij(i,j)=exp(-0.5*c0);
 
 //       if( c0 <100 ){
 //       cout << setw(3) << i << " rec " << setw(6) << par << endl;
@@ -898,18 +914,18 @@ int*  PrimaryVertexAnalyzer4PU::supf(std::vector<SimPart>& simtrks, const reco::
     i++;
   }
 
-  for(int k=0; k<nrec; k++){
+  for(unsigned int k=0; k<nrec; k++){
     int imatch=-1; int jmatch=-1;
     double pmatch=0;
-    for(int j=0; j<nsim; j++){
+    for(unsigned int j=0; j<nsim; j++){
       if ((simtrks[j].rec)<0){
         double psum=exp(-0.5*mu); //cutoff
-        for(int i=0; i<nrec; i++){
-          if (rectosim[i]<0){ psum+=pij[i][j];}
+        for(unsigned int i=0; i<nrec; i++){
+          if (rectosim[i]<0){ psum+=pij(i,j);}
         }
-        for(int i=0; i<nrec; i++){
-          if ((rectosim[i]<0)&&(pij[i][j]/psum>pmatch)){
-            pmatch=pij[i][j]/psum;
+        for(unsigned int i=0; i<nrec; i++){
+          if ((rectosim[i]<0)&&(pij(i,j)/psum>pmatch)){
+            pmatch=pij(i,j)/psum;
             imatch=i; jmatch=j;
           }
         }
@@ -944,7 +960,7 @@ int*  PrimaryVertexAnalyzer4PU::supf(std::vector<SimPart>& simtrks, const reco::
 //   }
 
    std::cout << "unmatched sim " << std::endl;
-   for(int j=0; j<nsim; j++){
+   for(unsigned int j=0; j<nsim; j++){
      if(simtrks[j].rec<0){
        double pt= 1./simtrks[j].par[0]/tan(simtrks[j].par[1]);
        if((fabs(pt))>1.){
@@ -959,10 +975,7 @@ int*  PrimaryVertexAnalyzer4PU::supf(std::vector<SimPart>& simtrks, const reco::
    }
 //   std::cout << "<<<<<<<<<<<<<<<--------------supf----------------------" << std::endl;
 
-  //delete rectosim; // or return it?
-  for(int i=0; i<nrec; i++){delete pij[i];}
-  delete pij;
-  return rectosim;  // caller must delete it
+  return rectosim;
 }
 
 
@@ -1307,7 +1320,7 @@ void PrimaryVertexAnalyzer4PU::printPVTrks(const Handle<reco::TrackCollection> &
   reco::TrackCollection selRecTrks;
 
   for(unsigned int i=0; i<selTrks.size(); i++){ selRecTrks.push_back(selTrks[i].track());} 
-  int* rectosim=supf(tsim, selRecTrks);
+  std::vector<int> rectosim=supf(tsim, selRecTrks);
 
 
 
@@ -1418,7 +1431,6 @@ void PrimaryVertexAnalyzer4PU::printPVTrks(const Handle<reco::TrackCollection> &
     }
     cout << endl;
   }
-  delete rectosim;
 }
 
 

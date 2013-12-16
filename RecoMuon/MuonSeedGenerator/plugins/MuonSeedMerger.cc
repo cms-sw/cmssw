@@ -15,10 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// Data Formats 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/Common/interface/View.h"
 
 using namespace std;
 using namespace edm;
@@ -32,7 +28,11 @@ MuonSeedMerger::MuonSeedMerger(const ParameterSet& parameterSet){
   for(vector<InputTag>::const_iterator label = theSeedCollectionLabels.begin();
       label != theSeedCollectionLabels.end(); ++label)
     LogTrace(metname) << *label;
-  
+
+  for(vector<InputTag>::const_iterator label = theSeedCollectionLabels.begin();
+      label != theSeedCollectionLabels.end(); ++label){ 
+    seedTokens.push_back(consumes<edm::View<TrajectorySeed> >(*label));
+  }  
 
   produces<TrajectorySeedCollection>();
 }
@@ -48,10 +48,10 @@ void MuonSeedMerger::produce(Event& event, const EventSetup& eventSetup){
   
   Handle<View<TrajectorySeed> > seeds; 
   
-  for(vector<InputTag>::const_iterator label = theSeedCollectionLabels.begin();
-      label != theSeedCollectionLabels.end(); ++label){ 
-    event.getByLabel(*label,seeds);
-    LogTrace(metname) << *label << " has "<< seeds->size() <<" seeds";
+  for(unsigned int i=0;i<theSeedCollectionLabels.size();++i) {
+    event.getByToken(seedTokens.at(i),seeds);
+
+    LogTrace(metname) << theSeedCollectionLabels.at(i)  << " has "<< seeds->size() <<" seeds";
     for(View<TrajectorySeed>::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed)
       output->push_back(*seed);
   }

@@ -54,11 +54,14 @@ using namespace edm;
 //----------------
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
-							 const MuonServiceProxy* service) : GlobalTrajectoryBuilderBase(par, service)
+							 const MuonServiceProxy* service,
+							 edm::ConsumesCollector& iC
+							 ) : GlobalTrajectoryBuilderBase(par, service)
 	   
 {
 
   theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
+  allTrackerTracksToken = iC.consumes<reco::TrackCollection>( theTkTrackLabel );
 
 }
 
@@ -80,7 +83,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   GlobalTrajectoryBuilderBase::setEvent(event);
 
   // get tracker TrackCollection from Event
-  event.getByLabel(theTkTrackLabel,allTrackerTracks);
+  event.getByToken(allTrackerTracksToken,allTrackerTracks);
   LogDebug(category) 
       << " Found " << allTrackerTracks->size() 
       << " tracker Tracks with label "<< theTkTrackLabel;  
