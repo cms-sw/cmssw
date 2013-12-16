@@ -6,8 +6,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DQMOffline/Trigger/interface/TopHLTSingleLeptonDQM.h"
-#include "DQMOffline/Trigger/interface/TopHLTDQMHelper.h"
+#include "DQMOffline/Trigger/interface/TopSingleLeptonHLTOfflineDQM.h"
+#include "DQMOffline/Trigger/interface/TopHLTOfflineDQMHelper.h"
 #include <iostream>
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -20,7 +20,7 @@
 
 /*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 using namespace std;
-namespace TopHLTSingleLepton {
+namespace HLTOfflineDQMTopSingleLepton {
 
   // maximal number of leading jets 
   // to be used for top mass estimate
@@ -32,7 +32,7 @@ namespace TopHLTSingleLepton {
   // hlt and reco objects matched
   static const double DRMIN = 0.05;
 
-  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) : 
+  MonitorSingleLepton::MonitorSingleLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC) : 
     label_(label), elecIso_(0), elecSelect_(0), pvSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
   {
     // sources have to be given; this PSet is not optional
@@ -154,7 +154,7 @@ namespace TopHLTSingleLepton {
   }
 
   void 
-    MonitorEnsemble::book(std::string directory)
+    MonitorSingleLepton::book(std::string directory)
     {
       //set up the current directory path
       std::string current(directory); current+=label_;
@@ -232,7 +232,7 @@ namespace TopHLTSingleLepton {
     }
 
   void 
-    MonitorEnsemble::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths)
+    MonitorSingleLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths)
     {
       // fetch trigger event if configured such 
       edm::Handle<edm::TriggerResults> triggerTable;
@@ -343,7 +343,7 @@ namespace TopHLTSingleLepton {
           corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
         }
         else{ 
-          edm::LogVerbatim( "TopHLTSingleLeptonDQM" ) 
+          edm::LogVerbatim( "TopSingleLeptonHLTOfflineDQM" ) 
             << "\n"
             << "------------------------------------------------------------------------------------- \n"
             << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
@@ -670,7 +670,7 @@ namespace TopHLTSingleLepton {
 
 ///===========================================================================================================
 
-TopHLTSingleLeptonDQM::TopHLTSingleLeptonDQM(const edm::ParameterSet& cfg): vertexSelect_(0), beamspotSelect_(0)
+TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg): vertexSelect_(0), beamspotSelect_(0)
 {
   // configure preselection
   edm::ParameterSet presel=cfg.getParameter<edm::ParameterSet>("preselection");
@@ -694,7 +694,7 @@ TopHLTSingleLeptonDQM::TopHLTSingleLeptonDQM(const edm::ParameterSet& cfg): vert
   std::vector<edm::ParameterSet> sel=cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
   for(unsigned int i=0; i<sel.size(); ++i){
     selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
-    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), new TopHLTSingleLepton::MonitorEnsemble(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
+    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), new HLTOfflineDQMTopSingleLepton::MonitorSingleLepton(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
   }
 
   for (const std::string& s: selectionOrder_) {
@@ -725,18 +725,18 @@ TopHLTSingleLeptonDQM::TopHLTSingleLeptonDQM(const edm::ParameterSet& cfg): vert
 }
 
   void
-TopHLTSingleLeptonDQM::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+TopSingleLeptonHLTOfflineDQM::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
 {
   using namespace std;
   using namespace edm;
 
-  //  cout << " New run in TopHLTSingleLeptonDQM::beginRun() " << endl;
+  //  cout << " New run in TopSingleLeptonHLTOfflineDQM::beginRun() " << endl;
 
   std::string processName = "HLT"; 
 
   bool changed(true);
   if ( !hltConfig_.init(iRun,iSetup,processName,changed)) {
-    cout << "TopHLTSingleLeptonDQM::beginRun:"
+    cout << "TopSingleLeptonHLTOfflineDQM::beginRun:"
       << " config extraction failure with process name "
       << processName << endl;
   }
@@ -744,7 +744,7 @@ TopHLTSingleLeptonDQM::beginRun(edm::Run const & iRun, edm::EventSetup const& iS
 }
 
   void 
-TopHLTSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setup)
+TopSingleLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup& setup)
 { 
   if(!triggerTable_.isUninitialized()){
     edm::Handle<edm::TriggerResults> triggerTable;
