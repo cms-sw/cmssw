@@ -110,7 +110,7 @@ TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     
 
     DetGroupElement nextGel( nextResult.front().front());  
-    int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide::endcapSide( nextGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					    crossings.closestIndex(), crossingSide);   
   }  
@@ -123,7 +123,7 @@ TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     searchNeighbors( tsos, prop, est, crossings.other(), phiWindow,
 		     nextResult, true); 
     
-    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide::endcapSide( closestGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result,
 					    crossings.closestIndex(), crossingSide);
   }
@@ -221,7 +221,7 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->position().phi())) {
+    if ( PhiLess()( gCrossingPos.barePhi(), sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {
