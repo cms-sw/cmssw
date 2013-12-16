@@ -62,7 +62,7 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
 
 // Virtual destructor needed.
 EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { 
-}
+}  
 
 void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
@@ -88,6 +88,29 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::Configu
   descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
 }
 
+void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run const&run, const edm::EventSetup& es)
+{
+  delete combinatorialSeedGenerator;
+  combinatorialSeedGenerator=0;
+}
+
+
+void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run const&run, const edm::EventSetup& es)
+{
+  edm::ParameterSet hitsfactoryPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+  std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
+  
+  // get orderd hits generator from factory
+  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
+  
+  // start seed generator
+  edm::ParameterSet creatorPSet;
+  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+  
+  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits( hitsGenerator, 0, 
+								SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+								);
+}
 
 // Functions that gets called by framework every event
 void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
