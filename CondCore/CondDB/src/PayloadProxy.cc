@@ -36,7 +36,7 @@ namespace cond {
 	auto it = m_iovProxy.find( time );
 	if( it == m_iovProxy.end() ) {
 	  throwException( "No valid iov found in tag "+m_iovProxy.tag()+" for time "+boost::lexical_cast<std::string>( time ),
-			  "BasePayloadProxy::setIntervalFor" );
+	  		  "BasePayloadProxy::setIntervalFor" );
 	}
 	m_currentIov = *it;
 	if(load) loadPayload();

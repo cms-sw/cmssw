@@ -31,19 +31,23 @@ namespace cond {
     IOVProxy::Iterator::Iterator():
       m_current(),
       m_end(),
-      m_timeType( cond::invalid ){
+      m_timeType( cond::invalid ),
+      m_endOfValidity(cond::time::MAX_VAL) {
     }
     
-    IOVProxy::Iterator::Iterator( IOVContainer::const_iterator current, IOVContainer::const_iterator end, cond::TimeType timeType ):
+    IOVProxy::Iterator::Iterator( IOVContainer::const_iterator current, IOVContainer::const_iterator end, 
+				  cond::TimeType timeType, cond::Time_t endOfValidity ):
       m_current( current ),
       m_end( end ),
-      m_timeType( timeType ){
+      m_timeType( timeType ),
+      m_endOfValidity( endOfValidity ){
     }
     
     IOVProxy::Iterator::Iterator( const Iterator& rhs ):
       m_current( rhs.m_current ),
       m_end( rhs.m_end ),
-      m_timeType( rhs.m_timeType ){
+      m_timeType( rhs.m_timeType ),
+      m_endOfValidity( rhs.m_endOfValidity ){
     }
     
     IOVProxy::Iterator& IOVProxy::Iterator::operator=( const Iterator& rhs ){
@@ -51,6 +55,7 @@ namespace cond {
 	m_current = rhs.m_current;
 	m_end = rhs.m_end;
 	m_timeType = rhs.m_timeType;
+	m_endOfValidity = rhs.m_endOfValidity;
       }
       return *this;
     }
@@ -61,8 +66,9 @@ namespace cond {
       auto next = m_current;
       next++;
       
+      // default is the end of validity when set...
+      retVal.till = m_endOfValidity;
       // for the till, the next element has to be verified!
-      retVal.till = cond::time::MAX_VAL;
       if( next != m_end ){
 	
 	// the till has to be calculated according to the time type ( because of the packing for some types ) 
@@ -192,14 +198,15 @@ namespace cond {
     
     IOVProxy::Iterator IOVProxy::begin() const {
       if( m_data.get() ){
-	return Iterator( m_data->iovSequence.begin(), m_data->iovSequence.end(), m_data->timeType );
+	return Iterator( m_data->iovSequence.begin(), m_data->iovSequence.end(), 
+			 m_data->timeType, m_data->endOfValidity );
       } 
       return Iterator();
     }
     
     IOVProxy::Iterator IOVProxy::end() const {
       if( m_data.get() ){
-	return Iterator( m_data->iovSequence.end(), m_data->iovSequence.end(), m_data->timeType );
+	return Iterator( m_data->iovSequence.end(), m_data->iovSequence.end(), m_data->timeType, m_data->endOfValidity );
       } 
       return Iterator();
     }
@@ -255,7 +262,7 @@ namespace cond {
       
       // the current iov set is a good one...
       auto iIov = search( time, m_data->iovSequence );
-      return Iterator( iIov, m_data->iovSequence.end(), m_data->timeType );
+      return Iterator( iIov, m_data->iovSequence.end(), m_data->timeType, m_data->endOfValidity );
     }
     
     cond::Iov_t IOVProxy::getInterval( cond::Time_t time ){

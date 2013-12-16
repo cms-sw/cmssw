@@ -52,8 +52,8 @@ namespace cond {
 
       IOVProxy iov();
       
-      const std::vector<std::pair<Time_t,std::string> >& logs() const {
-	return m_logs;
+      const std::vector<Iov_t>& requests() const {
+	return m_requests;
       }
     
     private:
@@ -64,7 +64,7 @@ namespace cond {
       IOVProxy m_iovProxy;
       Iov_t m_currentIov;
       Session m_session;
-      std::vector<std::pair<Time_t,std::string> > m_logs;
+      std::vector<Iov_t> m_requests;
       
     };
     
@@ -101,7 +101,7 @@ namespace cond {
       virtual void invalidateCache() {
 	m_data.reset();
 	m_currentIov.clear();
-	m_logs.clear();
+	m_requests.clear();
       }
 
     protected:
@@ -109,7 +109,7 @@ namespace cond {
 	if( m_currentPayloadId != m_currentIov.payloadId ){
 	  m_data = m_session.fetchPayload<DataT>( m_currentIov.payloadId );
 	  m_currentPayloadId = m_currentIov.payloadId;	  
-	  m_logs.push_back( std::make_pair( m_currentIov.since, m_currentPayloadId ) );
+	  m_requests.push_back( m_currentIov );
 	}
       }
       

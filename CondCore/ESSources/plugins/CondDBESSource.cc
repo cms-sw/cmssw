@@ -95,9 +95,9 @@ namespace {
       ;
     //if ( proxy.proxy()->stats.nLoad>0) {
     out << "Time look up, payloadIds:" <<std::endl;
-    const auto& pids =  proxy.proxy()->logs();
+    const auto& pids =  proxy.proxy()->requests();
     for (auto id: pids )
-      out << "   "<< id.first <<" - "<< id.second <<std::endl; 
+      out << "   "<< id.since <<" - "<< id.till <<" : "<<id.payloadId<<std::endl; 
   }
 
 }

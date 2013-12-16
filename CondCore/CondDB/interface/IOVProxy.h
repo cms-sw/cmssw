@@ -33,7 +33,8 @@ namespace cond {
       public:
 	//
 	Iterator();
-	Iterator( IOVContainer::const_iterator current, IOVContainer::const_iterator end, cond::TimeType timeType );
+	Iterator( IOVContainer::const_iterator current, IOVContainer::const_iterator end, 
+		  cond::TimeType timeType, cond::Time_t endOfValidity );
 	Iterator( const Iterator& rhs );
 	
 	//
@@ -54,6 +55,7 @@ namespace cond {
 	IOVContainer::const_iterator m_current;
 	IOVContainer::const_iterator m_end;
 	cond::TimeType m_timeType;
+	cond::Time_t m_endOfValidity;
       };
       
     public:

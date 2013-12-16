@@ -142,17 +142,12 @@ namespace cond {
 
     size_t OraIOVTable::selectGroups( const std::string& tag, std::vector<cond::Time_t>& groups ){
       if(!m_cache.load( tag )) return 0;
-      cond::Time_t current = 0;
-      size_t ret = 0;
-      for( auto iov : m_cache.iovSequence() ){
-	cond::Time_t group = (iov.since()/cond::time::SINCE_GROUP_SIZE)*cond::time::SINCE_GROUP_SIZE;
-	if( ret==0 || group != current ){
-	  current = group;
-	  groups.push_back( group );
-	  ret++;
-	}
+      if( m_cache.iovSequence().size()>0 ){
+	groups.push_back( m_cache.iovSequence().firstSince() );
+	groups.push_back( m_cache.iovSequence().lastTill() );
+	return true;
       }
-      return ret;
+      return false; 
     }
       
     size_t OraIOVTable::selectSnapshotGroups( const std::string& tag, const boost::posix_time::ptime&, 
