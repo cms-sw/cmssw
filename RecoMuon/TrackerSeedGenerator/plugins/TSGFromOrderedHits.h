@@ -12,7 +12,7 @@ class TrackingRegion;
 class TSGFromOrderedHits : public TrackerSeedGenerator {
 
 public:
-  TSGFromOrderedHits(const edm::ParameterSet &pset);
+  TSGFromOrderedHits(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
 
   virtual ~TSGFromOrderedHits();
 

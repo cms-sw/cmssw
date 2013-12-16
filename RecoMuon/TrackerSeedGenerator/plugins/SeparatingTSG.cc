@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-SeparatingTSG::SeparatingTSG(const edm::ParameterSet &pset):CompositeTSG(pset){}
+SeparatingTSG::SeparatingTSG(const edm::ParameterSet &pset, edm::ConsumesCollector& iC):CompositeTSG(pset, iC){}
 
 SeparatingTSG::~SeparatingTSG(){}
 

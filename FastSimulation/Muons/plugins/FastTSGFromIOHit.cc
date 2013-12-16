@@ -16,7 +16,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 
-FastTSGFromIOHit::FastTSGFromIOHit(const edm::ParameterSet & iConfig) : theConfig (iConfig)
+FastTSGFromIOHit::FastTSGFromIOHit(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC) : theConfig (iConfig)
 {
   theCategory = "FastSimulation|Muons||FastTSGFromIOHit";
 

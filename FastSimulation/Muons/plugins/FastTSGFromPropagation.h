@@ -46,9 +46,9 @@ class FastTSGFromPropagation : public TrackerSeedGenerator {
 
 public:
   /// constructor
-  FastTSGFromPropagation(const edm::ParameterSet &pset);
+  FastTSGFromPropagation(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
 
-  FastTSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*);
+  FastTSGFromPropagation(const edm::ParameterSet& par, edm::ConsumesCollector& iC, const MuonServiceProxy*);
 
   /// destructor
   virtual ~FastTSGFromPropagation();

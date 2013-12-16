@@ -10,7 +10,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 
 
-TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset)
+TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset, edm::ConsumesCollector& iC)
   : theLastRun(0), theConfig(pset), theGenerator(0)
 {
 	init();

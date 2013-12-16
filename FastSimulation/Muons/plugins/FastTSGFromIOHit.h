@@ -24,7 +24,7 @@ class FastTSGFromIOHit : public TrackerSeedGenerator {
 
 public:
   /// constructor
-  FastTSGFromIOHit(const edm::ParameterSet &pset);
+  FastTSGFromIOHit(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
 
   /// destructor
   virtual ~FastTSGFromIOHit();

@@ -48,7 +48,7 @@ public:
   typedef std::vector<TrajectorySeed> BTSeedCollection;  
   typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
-  TSGForRoadSearch(const edm::ParameterSet &pset);
+  TSGForRoadSearch(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
 
   virtual ~TSGForRoadSearch();
 
