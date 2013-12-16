@@ -14,6 +14,7 @@ autoCond = {
     'hltonline'         :   'PRE_P62_V9::All',
     # GlobalTag for POSTLS1 upgrade studies:
     'upgradePLS1'       :   'POSTLS162_V4::All',
+    'upgradePLS150ns'   :   'POSTLS162_V5::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for 62X)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for 62X)
     'upgradePLS3'       :   'POSTLS262_V1::All' # placeholder (GT not meant for 62X)
