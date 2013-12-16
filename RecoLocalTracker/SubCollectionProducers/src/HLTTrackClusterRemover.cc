@@ -52,11 +52,17 @@ class HLTTrackClusterRemover : public edm::EDProducer {
         };
         static const unsigned int NumberOfParamBlocks = 6;
 
-        edm::InputTag trajectories_;
         bool doStrip_, doPixel_;
-        edm::InputTag stripClusters_, pixelClusters_;
         bool mergeOld_;
-        edm::InputTag oldRemovalInfo_;
+
+	typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMaskContainer;
+	typedef edm::ContainerMask<edm::LazyGetter<SiStripCluster> > StripMaskContainer;
+	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
+	edm::EDGetTokenT<edm::LazyGetter<SiStripCluster> > stripClusters_;
+	edm::EDGetTokenT<PixelMaskContainer> oldPxlMaskToken_;
+	edm::EDGetTokenT<StripMaskContainer> oldStrMaskToken_;
+	edm::EDGetTokenT<std::vector<Trajectory> > trajectories_;
+
 
         ParamBlock pblocks_[NumberOfParamBlocks];
         void readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
@@ -106,20 +112,17 @@ HLTTrackClusterRemover::readPSet(const edm::ParameterSet& iConfig, const std::st
 }
 
 HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig):
-    trajectories_(iConfig.getParameter<InputTag>("trajectories")),
     doStrip_(iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true),
     doPixel_(iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true),
-    stripClusters_(doStrip_ ? iConfig.getParameter<InputTag>("stripClusters") : InputTag("NONE")),
-    pixelClusters_(doPixel_ ? iConfig.getParameter<InputTag>("pixelClusters") : InputTag("NONE")),
     mergeOld_(false),
-    oldRemovalInfo_(edm::InputTag()),
     makeProducts_(true)
 {
 
   if (iConfig.exists("oldClusterRemovalInfo"))
     {
-      oldRemovalInfo_=iConfig.getParameter<InputTag>("oldClusterRemovalInfo");
-      if (not (oldRemovalInfo_== edm::InputTag())) mergeOld_=true;
+      oldPxlMaskToken_ = consumes<PixelMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
+      oldStrMaskToken_ = consumes<StripMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
+      if (not (iConfig.getParameter<InputTag>("oldClusterRemovalInfo")== edm::InputTag())) mergeOld_=true;
     }
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
@@ -145,6 +148,13 @@ HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig):
         if (pblocks_[i].usesCharge_ && !usingCharge) {
             throw cms::Exception("Configuration Error") << "HLTTrackClusterRemover: Configuration for subDetID = " << (i+1) << " uses cluster charge, which is not enabled.";
         }
+    }
+    trajectories_ = consumes<vector<Trajectory> >(iConfig.getParameter<InputTag>("trajectories"));
+    if (doPixel_) pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<InputTag>("pixelClusters"));
+    if (doStrip_) stripClusters_ = consumes<edm::LazyGetter<SiStripCluster> >(iConfig.getParameter<InputTag>("stripClusters"));
+    if (mergeOld_) {
+      oldPxlMaskToken_ = consumes<PixelMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
+      oldStrMaskToken_ = consumes<StripMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
     }
 
     //produces<edmNew::DetSetVector<SiPixelClusterRefNew> >();
@@ -296,27 +306,25 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
     if (doPixel_) {
-        iEvent.getByLabel(pixelClusters_, pixelClusters);
+        iEvent.getByToken(pixelClusters_, pixelClusters);
         pixelSourceProdID = pixelClusters.id();
     }
 
     Handle<edm::LazyGetter<SiStripCluster> > stripClusters;
     if (doStrip_) {
-        iEvent.getByLabel(stripClusters_, stripClusters);
+        iEvent.getByToken(stripClusters_, stripClusters);
         stripSourceProdID = stripClusters.id();
     }
 
     //Handle<TrajTrackAssociationCollection> trajectories; 
     Handle<vector<Trajectory> > trajectories; 
-    iEvent.getByLabel(trajectories_, trajectories);
+    iEvent.getByToken(trajectories_, trajectories);
 
-    typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMaskContainer;
-    typedef edm::ContainerMask<edm::LazyGetter<SiStripCluster> > StripMaskContainer;
     if(mergeOld_) {
       edm::Handle<PixelMaskContainer> oldPxlMask;
       edm::Handle<StripMaskContainer> oldStrMask;
-      iEvent.getByLabel(oldRemovalInfo_,oldPxlMask);
-      iEvent.getByLabel(oldRemovalInfo_,oldStrMask);
+      iEvent.getByToken(oldPxlMaskToken_ ,oldPxlMask);
+      iEvent.getByToken(oldStrMaskToken_ ,oldStrMask);
       LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
       oldStrMask->copyMaskTo(collectedRegStrips_);
       oldPxlMask->copyMaskTo(collectedPixels_);
