@@ -191,10 +191,7 @@ namespace edm {
 
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 
-    ConstProductHolderPtr getProductHolderByIndex(ProductHolderIndex const& oid,
-                                      bool resolveProd,
-                                      bool fillOnDemand,
-                                      ModuleCallingContext const* mcc) const;
+    ConstProductHolderPtr getProductHolderByIndex(ProductHolderIndex const& oid) const;
 
     bool isComplete() const {return isComplete_();}
 

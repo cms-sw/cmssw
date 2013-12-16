@@ -432,20 +432,19 @@ namespace edm {
     if(index == ProductHolderIndexInvalid){
        return ConstProductHolderPtr();
     }
-    return getProductHolderByIndex(index, resolveProd, fillOnDemand, mcc);
+    auto returnValue = getProductHolderByIndex(index);
+    
+    if(nullptr != returnValue and resolveProd and !returnValue->productUnavailable()) {
+      this->resolveProduct(*returnValue, fillOnDemand, mcc);
+    }
+    
+    return returnValue;
   }
 
   Principal::ConstProductHolderPtr
-  Principal::getProductHolderByIndex(ProductHolderIndex const& index, bool resolveProd, bool fillOnDemand,
-                               ModuleCallingContext const* mcc) const {
+  Principal::getProductHolderByIndex(ProductHolderIndex const& index) const {
 
     ConstProductHolderPtr const phb = productHolders_[index].get();
-    if(nullptr == phb) {
-      return phb;
-    }
-    if(resolveProd && !phb->productUnavailable()) {
-      this->resolveProduct(*phb, fillOnDemand, mcc);
-    }
     return phb;
   }
 
