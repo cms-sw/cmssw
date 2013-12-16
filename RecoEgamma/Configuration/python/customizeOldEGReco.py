@@ -40,7 +40,11 @@ def customizeOldEGReco(process):
 
     return process
 
-def _configurePFForGEDEGamma(process):  
+def _configurePFForGEDEGamma(process):
+    #fix a few things in the GED from the mass-replace
+    process.gedGsfElectronsTmp.gsfElectronCoresTag = cms.InputTag('gedGsfElectronCores')
+    process.particleBasedIsolation.electronProducer = cms.InputTag("gedGsfElectrons")
+        
     #for later
     process.particleFlowBlock.SCBarrel = cms.InputTag('correctedHybridSuperClusters')
     process.particleFlowBlock.SCEndcap = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
@@ -48,7 +52,8 @@ def _configurePFForGEDEGamma(process):
     ## for PF
     
     process.allConversionSequence += process.allConversionOldEGSequence
-    process.pfConversions.conversionCollection = cms.InputTag('allConversionsOldEG')        
+    process.pfConversions.conversionCollection = cms.InputTag('allConversionsOldEG')
+    process.photons.conversionProducer = cms.InputTag('oldegConversions')
     #return to old EG-based conversions based reco::Photon
     process.ckfTracksFromConversions += process.ckfTracksFromOldEGConversions
     process.conversionTrackProducers += process.oldegConversionTrackProducers
@@ -57,7 +62,7 @@ def _configurePFForGEDEGamma(process):
         process.conversionSequence += process.oldegConversionSequence
     process.photonSequence.remove(process.mustachePhotonSequence)
     process.particleFlowBlock.EGPhotons = cms.InputTag('photons')
-    process.particleFlowBlock.PhotonSelectionCuts = cms.vdouble(1,10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05, 10.0, 0.50),
+    process.particleFlowBlock.PhotonSelectionCuts = cms.vdouble(1,10,2.0, 0.001, 4.2, 0.003, 2.2, 0.001, 0.05, 10.0, 0.10)
     #tell PFProducer to use old PF electron / PF photon code
     process.particleFlowTmp.useEGammaFilters = cms.bool(False)
     process.particleFlowTmp.usePFPhotons = cms.bool(True)
@@ -126,25 +131,27 @@ def _customize_HLT(process):
 
 def _customize_FastSim(process):
     process=_configurePFForGEDEGamma(process)
-    process.egammaHighLevelRecoPostPF.insert(process.gsfElectronMergingSequence,0)
-    process.famosParticleFlowReco.insert(process.pfPhotonTranslatorSequence,7)
-    process.famosParticleFlowReco.insert(process.pfElectronTranslatorSequence,7)
+    process.egammaHighLevelRecoPostPF.insert(0,process.gsfElectronMergingSequence)
+    process.famosParticleFlowSequence.insert(8,process.pfPhotonTranslatorSequence)
+    process.famosParticleFlowSequence.insert(8,process.pfElectronTranslatorSequence)
 
-    process.interestingEcalDetIdEB.basicClustersLabel = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
-    process.interestingEcalDetIdEE.basicClustersLabel = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
     process.reducedEcalRecHitsES. EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFEB)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFEE)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedEB)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedEE)
 
-    process.interestingEleIsoDetIdEB.emObjectLabel = cms.InputTag('gsfElectrons')
-    process.interestingEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
-    process.interestingGamIsoDetIdEB.emObjectLabel = cms.InputTag('photons')
-    process.interestingGamIsoDetIdEE.emObjectLabel = cms.InputTag('photons')  
+    process.interestingGedEleIsoDetIdEB.emObjectLabel = cms.InputTag('gsfElectrons')
+    process.interestingGedEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
+    process.interestingEgammaIsoDetIds.remove(process.interestingGedGamIsoDetIdEB)
+    process.interestingEgammaIsoDetIds.remove(process.interestingGedGamIsoDetIdEE)
         
     process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
         # ecal
         cms.InputTag("interestingEcalDetIdEB"),
         cms.InputTag("interestingEcalDetIdEBU"),
         # egamma
-        cms.InputTag("interestingEleIsoDetIdEB"),
+        cms.InputTag("interestingGedEleIsoDetIdEB"),
         cms.InputTag("interestingGamIsoDetIdEB"),
         # tau
         #cms.InputTag("caloRecoTauProducer"),
@@ -160,7 +167,7 @@ def _customize_FastSim(process):
         # ecal
         cms.InputTag("interestingEcalDetIdEE"),
         # egamma
-        cms.InputTag("interestingEleIsoDetIdEE"),
+        cms.InputTag("interestingGedEleIsoDetIdEE"),
         cms.InputTag("interestingGamIsoDetIdEE"),
         # tau
         #cms.InputTag("caloRecoTauProducer"),
@@ -182,25 +189,27 @@ def _customize_FastSim(process):
 
 def _customize_Reco(process):
     process=_configurePFForGEDEGamma(process)    
-    process.egammaHighLevelRecoPostPF.insert(process.gsfElectronMergingSequence,0)
-    process.particleFlowReco.insert(process.pfPhotonTranslatorSequence,7)
-    process.particleFlowReco.insert(process.pfElectronTranslatorSequence,7)
+    process.egammaHighLevelRecoPostPF.insert(0,process.gsfElectronMergingSequence)
+    process.particleFlowReco.insert(8,process.pfPhotonTranslatorSequence)
+    process.particleFlowReco.insert(8,process.pfElectronTranslatorSequence)
 
-    process.interestingEcalDetIdEB.basicClustersLabel = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
-    process.interestingEcalDetIdEE.basicClustersLabel = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
     process.reducedEcalRecHitsES. EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFEB)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFEE)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedEB)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedEE)
 
-    process.interestingEleIsoDetIdEB.emObjectLabel = cms.InputTag('gsfElectrons')
-    process.interestingEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
-    process.interestingGamIsoDetIdEB.emObjectLabel = cms.InputTag('photons')
-    process.interestingGamIsoDetIdEE.emObjectLabel = cms.InputTag('photons')    
+    process.interestingGedEleIsoDetIdEB.emObjectLabel = cms.InputTag('gsfElectrons')
+    process.interestingGedEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
+    process.interestingEgammaIsoDetIds.remove(process.interestingGedGamIsoDetIdEB)
+    process.interestingEgammaIsoDetIds.remove(process.interestingGedGamIsoDetIdEE)
     
     process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
         # ecal
         cms.InputTag("interestingEcalDetIdEB"),
         cms.InputTag("interestingEcalDetIdEBU"),
         # egamma
-        cms.InputTag("interestingEleIsoDetIdEB"),
+        cms.InputTag("interestingGedEleIsoDetIdEB"),
         cms.InputTag("interestingGamIsoDetIdEB"),
         # tau
         #cms.InputTag("caloRecoTauProducer"),
@@ -216,7 +225,7 @@ def _customize_Reco(process):
         # ecal
         cms.InputTag("interestingEcalDetIdEE"),
         # egamma
-        cms.InputTag("interestingEleIsoDetIdEE"),
+        cms.InputTag("interestingGedEleIsoDetIdEE"),
         cms.InputTag("interestingGamIsoDetIdEE"),
         # tau
         #cms.InputTag("caloRecoTauProducer"),

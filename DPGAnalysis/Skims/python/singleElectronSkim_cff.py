@@ -18,35 +18,35 @@ import FWCore.ParameterSet.Config as cms
 #Define the Reco quality cut
 
 singleRecoElectronPt20Filter = cms.EDFilter("GsfElectronRefSelector",
-                                        src = cms.InputTag("gsfElectrons"),
+                                        src = cms.InputTag("gedGsfElectrons"),
                                         cut = cms.string('pt > 20.0 && abs(eta) < 2.5 ' ),
                                         filter = cms.bool(True),
                                         minN    = cms.int32(1) 
                                         )
 
 singleRecoElectronPt15Filter = cms.EDFilter("GsfElectronRefSelector",
-                                        src = cms.InputTag("gsfElectrons"),
+                                        src = cms.InputTag("gedGsfElectrons"),
                                         cut = cms.string('pt > 15.0 && abs(eta) < 2.5 ' ),
                                         filter = cms.bool(True),
                                         minN    = cms.int32(1)
                                         )
 
 singleRecoElectronPt10Filter = cms.EDFilter("GsfElectronRefSelector",
-                                        src = cms.InputTag("gsfElectrons"),
+                                        src = cms.InputTag("gedGsfElectrons"),
                                         cut = cms.string('pt > 10.0 && abs(eta) < 2.5 ' ),
                                         filter = cms.bool(True),
                                         minN    = cms.int32(1)
                                         )
 
 singleRecoElectronPt5Filter = cms.EDFilter("GsfElectronRefSelector",
-                                        src = cms.InputTag("gsfElectrons"),
+                                        src = cms.InputTag("gedGsfElectrons"),
                                         cut = cms.string('pt > 5.0 && abs(eta) < 2.5 ' ),
                                         filter = cms.bool(True),
                                         minN    = cms.int32(1)
                                         )
 
 singleRecoElectronPt1Filter = cms.EDFilter("GsfElectronRefSelector",
-                                           src = cms.InputTag("gsfElectrons"),
+                                           src = cms.InputTag("gedGsfElectrons"),
                                            cut = cms.string('pt > 1.0 && abs(eta) < 2.5 ' ),
                                            filter = cms.bool(True),
                                            minN    = cms.int32(1)
@@ -73,7 +73,7 @@ singleRecoElectronPt1Filter = cms.EDFilter("GsfElectronRefSelector",
 #                                      )
 
 #electronCounter = cms.EDFilter("CandViewCountFilter",
-#                               src = cms.InputTag("gsfElectrons"),
+#                               src = cms.InputTag("gedGsfElectrons"),
 #                               minNumber = cms.uint32(1)
 #                               )
 
@@ -91,8 +91,8 @@ singleRecoElectronPt1Filter = cms.EDFilter("GsfElectronRefSelector",
 #ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1Low = cms.double(0.3)
 #ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi1High = cms.double(0.3)
 #ecalDrivenElectronSeeds.SeedConfiguration.DeltaPhi2 = cms.double(0.3)
-#gsfElectrons.applyPreselection = cms.bool(False)
-#gsfElectrons.applyAmbResolution = cms.bool(True)
+#gedGsfElectrons.applyPreselection = cms.bool(False)
+#gedGsfElectrons.applyAmbResolution = cms.bool(True)
 
 #Define group sequence, using HLT/Reco quality cut. 
 #singleMuHLTQualitySeq = cms.Sequence()
