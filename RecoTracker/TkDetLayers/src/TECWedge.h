@@ -13,11 +13,11 @@
 class TECWedge : public GeometricSearchDetWithGroups {
  public:
     // GeometricSearchDet interface
-  virtual const BoundSurface& surface() const{return *theDiskSector;}
+  virtual const BoundSurface& surface() const  final {return *theDiskSector;}
 
   
   //Extension of the interface
-  virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}
+  virtual const BoundDiskSector& specificSurface() const final {return *theDiskSector;}
 
 
  protected:

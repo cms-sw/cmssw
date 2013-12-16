@@ -102,12 +102,13 @@ CompositeTECWedge::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const{
-  SubLayerCrossings  crossings; 
-  crossings = computeCrossings( tsos, prop.propagationDirection());
+
+  SubLayerCrossings  crossings = computeCrossings( tsos, prop.propagationDirection());
   if(! crossings.isValid()) return;
 
   std::vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
+
   LogDebug("TkDetLayers") 
     << "in CompositeTECWedge::groupedCompatibleDets,closestResult.size(): "
     << closestResult.size() ;
@@ -115,12 +116,12 @@ CompositeTECWedge::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   if (closestResult.empty()) return;
   
   DetGroupElement closestGel( closestResult.front().front());
-  float window = tkDetUtil::computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
+  auto window = tkDetUtil::computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
 
   searchNeighbors( tsos, prop, est, crossings.closest(), window,
 		   closestResult, false);
 
-  vector<DetGroup> nextResult;
+  std::vector<DetGroup> nextResult;
   searchNeighbors( tsos, prop, est, crossings.other(), window,
   		   nextResult, true);
 
@@ -141,7 +142,8 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
 {
   HelixPlaneCrossing::PositionType startPos( startingState.globalPosition() );
   HelixPlaneCrossing::DirectionType startDir( startingState.globalMomentum() );
-  float rho( startingState.transverseCurvature());
+ 
+  auto rho = startingState.transverseCurvature();
 
   HelixForwardPlaneCrossing crossing( startPos, startDir, rho, propDir);
 
@@ -171,19 +173,19 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
   int backIndex = findClosestDet(gBackPoint,1);
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
-  float frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), 
-					     theFrontDets[frontIndex]->surface().phi()));
+  auto frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), 
+					    theFrontDets[frontIndex]->surface().phi()));
   /*
-  float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
-  frontDist *= Geom::phiLess( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.barePhi()) ? -1. : 1.; 
-  if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
+    float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
+    frontDist *= Geom::phiLess( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.barePhi()) ? -1. : 1.; 
+    if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
   */
-  float backDist = std::abs(Geom::deltaPhi( gBackPoint.barePhi(), 
-					    theBackDets[backIndex]->surface().phi()) );
+  auto backDist = std::abs(Geom::deltaPhi( gBackPoint.barePhi(), 
+					   theBackDets[backIndex]->surface().phi()) );
   /*
-  float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
-  backDist  *= Geom::phiLess( theBackDets[backIndex]->surface().phi(),gBackPoint.barePhi()) ? -1. : 1.;
-  if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
+    float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
+    backDist  *= Geom::phiLess( theBackDets[backIndex]->surface().phi(),gBackPoint.barePhi()) ? -1. : 1.;
+    if ( backDist < 0.) { backDist  += 2.*Geom::pi();}
   */
   
   if (frontDist < backDist) {
@@ -260,10 +262,10 @@ CompositeTECWedge::findClosestDet( const GlobalPoint& startPos,int sectorId) con
   vector<const GeomDet*> const & myDets = sectorId==0 ? theFrontDets : theBackDets;
 
   int close = 0;
-  float closeDist = fabs( (myDets.front()->toLocal(startPos)).x());
+  auto closeDist = std::abs( (myDets.front()->toLocal(startPos)).x());
   for (unsigned int i = 1; i < myDets.size(); i++ ) {
-    float dist = (myDets[i]->toLocal(startPos)).x();
-    if ( fabs(dist) < fabs(closeDist) ) {
+    auto dist = std::abs((myDets[i]->toLocal(startPos)).x());
+    if ( dist < closeDist ) {
       close = i;
       closeDist = dist;
     }
