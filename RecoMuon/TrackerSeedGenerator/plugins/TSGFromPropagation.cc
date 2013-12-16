@@ -32,6 +32,7 @@ TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig,edm::Co
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
   theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
   theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
+  beamspotToken = iC.consumes<reco::BeamSpot>(theConfig.getParameter<edm::InputTag>("beamSpot")); 
 }
 
 TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service,edm::ConsumesCollector& iC) : theTkLayerMeasurements (), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
@@ -190,7 +191,6 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
-  //edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(beamspotToken, beamSpot);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();

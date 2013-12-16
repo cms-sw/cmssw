@@ -41,9 +41,9 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   // L2 Muon Collection Label
   theL2CollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
   l2MuonToken_ = consumes<reco::TrackCollection>(theL2CollectionLabel);
-  l2MuonTrajToken_ = consumes<std::vector<Trajectory> >(theL2CollectionLabel);
-  l2AssoMapToken_ = consumes<TrajTrackAssociationCollection>(theL2CollectionLabel);
-  updatedL2AssoMapToken_ = consumes<reco::TrackToTrackMap>(theL2CollectionLabel);
+  l2MuonTrajToken_ = consumes<std::vector<Trajectory> >(theL2CollectionLabel.label());
+  l2AssoMapToken_ = consumes<TrajTrackAssociationCollection>(theL2CollectionLabel.label());
+  updatedL2AssoMapToken_ = consumes<reco::TrackToTrackMap>(theL2CollectionLabel.label());
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -107,6 +107,7 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   // Take the L2 muon container(s)
   LogTrace(metname)<<"Taking the L2 Muons "<<theL2CollectionLabel<<endl;
 
+
   Handle<reco::TrackCollection> L2Muons;
   event.getByToken(l2MuonToken_,L2Muons);
 
@@ -115,12 +116,14 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
 
   event.getByToken(l2MuonTrajToken_, L2MuonsTraj);      
-  
+
   edm::Handle<TrajTrackAssociationCollection> L2AssoMap;
   event.getByToken(l2AssoMapToken_,L2AssoMap);
-  
+
   edm::Handle<reco::TrackToTrackMap> updatedL2AssoMap;
   event.getByToken(updatedL2AssoMapToken_,updatedL2AssoMap);
+
+
       
   for(TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin(); it != L2AssoMap->end(); ++it){	
     const Ref<vector<Trajectory> > traj = it->key;

@@ -155,7 +155,6 @@ private:
 
   edm::Handle<reco::BeamSpot> beamSpot;
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken;
-  edm::InputTag theBeamSpotInputTag;
 
 };
 
