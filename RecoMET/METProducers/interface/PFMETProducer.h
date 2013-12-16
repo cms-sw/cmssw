@@ -52,7 +52,6 @@ namespace cms
 
       bool calculateSignificance_;
       metsig::SignAlgoResolutions *resolutions_;
-      edm::InputTag jetsLabel_;
 
       double globalThreshold_;
 
