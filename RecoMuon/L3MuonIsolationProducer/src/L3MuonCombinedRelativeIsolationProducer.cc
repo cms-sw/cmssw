@@ -14,6 +14,8 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
@@ -129,7 +131,7 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
 
   // Take the SA container
   if (printDebug) std::cout  <<" Taking the muons: "<<theMuonCollectionLabel << std::endl;
-  Handle<TrackCollection> muons;
+  Handle<RecoChargedCandidateCollection> muons;
   event.getByLabel(theMuonCollectionLabel,muons);
 
   // Take calo deposits with rho corrections (ONLY if previously computed)
@@ -176,13 +178,14 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
 
   for (unsigned int i=0; i<nMuons; i++) {
 
-    TrackRef mu(muons,i);
+    RecoChargedCandidateRef candref(muons,i);
+    TrackRef mu = candref->track();
 
     trkDeps[i] = trkExtractor->deposit(event, eventSetup, *mu);
     trkVetos[i] = trkDeps[i].veto();
 
     if( useCaloIso && useRhoCorrectedCaloDeps ) {
-      caloCorrDeps[i] = (*caloDepWithCorrMap)[mu];
+      caloCorrDeps[i] = (*caloDepWithCorrMap)[candref];
     }
     else if (useCaloIso) {
       caloDeps[i] = caloExtractor->deposit(event, eventSetup, *mu);
@@ -204,7 +207,7 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
   for(unsigned int iMu=0; iMu < nMuons; ++iMu){
 
     if (printDebug) std::cout  << "Muon number = " << iMu << std::endl;
-    const reco::Track* mu = &(*muons)[iMu];
+    TrackRef mu = (*muons)[iMu].track();
 
     // cuts
     const Cuts::CutSpec & cut = theCuts( mu->eta());
