@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltL3MuonIsolations = cms.EDProducer( "L3MuonCombinedRelativeIsolationProducer",
                                       UseRhoCorrectedCaloDeposits = cms.bool( False ),
+                                      UseCaloIso = cms.bool( True ),
                                       CaloDepositsLabel = cms.InputTag( "hltL3CaloMuonCorrectedIsolations" ),
                                       inputMuonCollection = cms.InputTag( "hltL3Muons" ),
                                       OutputMuIsoDeposits = cms.bool( True ),
