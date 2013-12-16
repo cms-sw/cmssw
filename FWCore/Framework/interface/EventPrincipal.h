@@ -182,6 +182,8 @@ namespace edm {
                                  bool fillOnDemand,
                                  ModuleCallingContext const* mcc) const override;
 
+    virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const override;
+
     virtual unsigned int transitionIndex_() const override;
     
   private:

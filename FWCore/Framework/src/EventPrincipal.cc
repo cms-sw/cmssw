@@ -176,12 +176,16 @@ namespace edm {
       }
       return;
     }
+    readFromSource(phb,mcc);
+  }
 
+   void
+  EventPrincipal::readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
     if(phb.branchDescription().produced()) return; // nothing to do.
     if(phb.product()) return; // nothing to do.
     if(phb.productUnavailable()) return; // nothing to do.
     if(!reader()) return; // nothing to do.
-
+    
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
     {
@@ -193,9 +197,9 @@ namespace edm {
           postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
         }
       });
-
+      
       WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
-
+      
       // Now fix up the ProductHolder
       checkUniquenessAndType(edp, &phb);
       phb.putProduct(edp);

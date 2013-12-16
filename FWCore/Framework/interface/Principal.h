@@ -185,6 +185,10 @@ namespace edm {
     // We do not change the *number* of products through this call, and so
     // *this is const.
     void resolveProduct(ProductHolderBase const& phb, bool fillOnDemand, ModuleCallingContext const* mcc) const {resolveProduct_(phb, fillOnDemand,mcc);}
+    
+    void readFromSource(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
+      readFromSource_(phb, mcc);
+    }
 
     virtual bool unscheduledFill(std::string const& moduleLabel,
                                  ModuleCallingContext const* mcc) const = 0;
@@ -237,6 +241,8 @@ namespace edm {
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/,
                                  ModuleCallingContext const*) const {}
+
+    virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {}
 
     virtual bool isComplete_() const {return true;}
 
