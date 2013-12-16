@@ -35,7 +35,7 @@
   </Polycone>
   <Tubs name="ME3Ring" rMin="1360*mm" rMax="7.02*m  " dz="32.75*cm " startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="ME4Ring" rMin="1530*mm" rMax="7.02*m  " dz="33.675*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="RR2X" rMin="3.3*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RR2X" rMin="3.3015*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  </SolidSection>
 
  <LogicalPartSection label="mf.xml">
