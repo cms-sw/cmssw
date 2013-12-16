@@ -151,6 +151,7 @@
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/Provenance"/>
   <use   name="DataFormats/TestObjects"/>
+  <use   name="DataFormats/WrappedStdDictionaries"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/RootAutoLibraryLoader"/>
@@ -169,6 +170,7 @@
 </bin>
 <bin   name="TestFWCoreFrameworkeventprocessor" file="testRunner.cpp,eventprocessor2_t.cppunit.cc,eventprocessor_t.cppunit.cc">
   <use   name="DataFormats/Provenance"/>
+  <use   name="DataFormats/WrappedStdDictionaries"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/RootAutoLibraryLoader"/>
   <use   name="FWCore/ServiceRegistry"/>
@@ -217,6 +219,7 @@
 </bin>
 <bin   name="TestFWCoreFrameworkGlobalStreamOne" file="TestDriver.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_global_stream_one.sh"/>
+  <use   name="DataFormats/WrappedStdDictionaries"/>
   <use   name="FWCore/Utilities"/>
 </bin>
 <bin   name="TestFWCoreFrameworkReplace" file="TestDriver.cpp">
