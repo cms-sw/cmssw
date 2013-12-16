@@ -7,13 +7,13 @@ from JetMETCorrections.Configuration.JetCorrectionProducersAllAlgos_cff import *
 
 
 
-topHLTriggerDQM = cms.Sequence(  
-        DiMuonDQM
-        *DiElectronDQM
-        *ElecMuonDQM
-        *topSingleMuonMediumTriggerDQM
-        *topSingleElectronMediumTriggerDQM
-        *SingleTopSingleMuonTriggerDQM
-        *SingleTopSingleElectronTriggerDQM	
+topHLTriggerOfflineDQM = cms.Sequence(  
+        DiMuonHLTOfflineDQM
+        *DiElectronHLTOfflineDQM
+        *ElecMuonHLTOfflineDQM
+        *topSingleMuonHLTOfflineDQM
+        *topSingleElectronHLTOfflineDQM
+        *SingleTopSingleMuonHLTOfflineDQM
+        *SingleTopSingleElectronHLTOfflineDQM	
         )
 

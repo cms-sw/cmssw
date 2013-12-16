@@ -1,5 +1,5 @@
-#ifndef TOPDILEPTONOFFLINEDQM
-#define TOPDILEPTONOFFLINEDQM
+#ifndef TOPSINGLELEPTONHLTOFFLINEDQM
+#define TOPSINGLELEPTONHLTOFFLINEDQM
 
 #include <string>
 #include <vector>
@@ -8,24 +8,24 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DQMOffline/Trigger/interface/TopHLTDQMHelper.h"
+#include "DQMOffline/Trigger/interface/TopHLTOfflineDQMHelper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-//*Originally from DQM/Physics by R. Wolf and J. Andrea*/
+/*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 
 /**
-  \class   MonitorEnsemble TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
+  \class   MonitorSingleLepton TopHLTOfflineDQMHelper.h
 
   \brief   Helper class to define histograms for monitoring of muon/electron/jet/met quantities.
 
@@ -34,28 +34,23 @@
   be used to fill histograms in three different granularity levels according to STANDARD 
   (<10 histograms), VERBOSE(<20 histograms), DEBUG(<30 histgorams). Note that for the sake 
   of simplicity and to force the analyst to keep the number of histograms to be monitored 
-  small the MonitorEnsemble class contains the histograms for all objects at once. It should 
+  small the MonitorSingleLepton class contains the histograms for all objects at once. It should 
   not contain much more than 10 histograms though in the STANDARD configuration, as these 
   histograms will be monitored at each SelectionStep. Monitoring of histograms after selec-
   tion steps within the same object collection needs to be implemented within the Monitor-
   Ensemble. It will not be covered by the SelectionStep class.
   */
 
-namespace TopHLTDiLeptonOffline {
+namespace HLTOfflineDQMTopSingleLepton {
 
-  class MonitorEnsemble {
+  class MonitorSingleLepton {
     public:
-      /// make clear which LorentzVector to use
-      /// for jet, electrons and muon buffering
-      typedef reco::LeafCandidate::LorentzVector LorentzVector;
-      /// different decay channels
-      enum DecayChannel{ NONE, DIMUON, DIELEC, ELECMU };
 
     public:
       /// default contructor
-      MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
+      MonitorSingleLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
       /// default destructor
-      ~MonitorEnsemble(){};
+      ~MonitorSingleLepton(){};
 
       /// book histograms in subdirectory _directory_
       void book(std::string directory);
@@ -70,8 +65,6 @@ namespace TopHLTDiLeptonOffline {
       /// expected to be of type 'selectionPath:monitorPath' 
       std::string selectionPath(const std::string& label) const { return label.substr(0, label.find(':')); };  
 
-      /// set labels for event logging histograms
-      void loggerBinLabels(std::string hist);
       /// set configurable labels for trigger monitoring histograms
       void triggerBinLabels(std::string channel, const std::vector<std::string>& labels);
       /// fill trigger monitoring histograms
@@ -89,23 +82,20 @@ namespace TopHLTDiLeptonOffline {
     private:
       /// instance label 
       std::string label_;
+      /// considers a vector of METs
+      std::vector< edm::EDGetTokenT< edm::View<reco::MET> > > mets_; 
       /// input sources for monitoring
       edm::EDGetTokenT< edm::View<reco::GsfElectron> > elecs_;
       edm::EDGetTokenT< edm::View<reco::Muon> > muons_;
       edm::EDGetTokenT< edm::View<reco::Jet> > jets_; 
-      /// considers a vector of METs
-      std::vector< edm::EDGetTokenT< edm::View<reco::MET> > > mets_;
+      edm::EDGetTokenT< edm::View<reco::Vertex> > pvs_; 
 
       /// trigger table
       edm::EDGetTokenT< edm::TriggerResults > triggerTable_;
       edm::EDGetTokenT< trigger::TriggerEventWithRefs > triggerEventWithRefsTag_;
       /// trigger paths for monitoring, expected 
       /// to be of form signalPath:MonitorPath
-      std::vector<std::string> elecMuPaths_;
-      /// trigger paths for di muon channel
-      std::vector<std::string> diMuonPaths_;
-      /// trigger paths for di electron channel
-      std::vector<std::string> diElecPaths_;
+      std::vector<std::string> triggerPaths_;
 
       /// electronId label
       edm::EDGetTokenT< edm::ValueMap<float> > electronId_;
@@ -125,6 +115,9 @@ namespace TopHLTDiLeptonOffline {
       /// extra selection on electrons
       StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
 
+      /// extra selection on primary vertices; meant to investigate the pile-up effect
+      StringCutObjectSelector<reco::Vertex>* pvSelect_;
+
       /// extra isolation criterion on muon
       StringCutObjectSelector<reco::Muon>* muonIso_;
       /// extra selection on muons
@@ -139,11 +132,20 @@ namespace TopHLTDiLeptonOffline {
       /// extra selection on jets (here given as std::string as it depends
       /// on the the jet type, which selections are valid and which not)
       std::string jetSelect_;
+      /// include btag information or not
+      /// to be determined from the cfg  
+      bool includeBTag_;
+      /// btag discriminator labels
+      edm::EDGetTokenT< reco::JetTagCollection > btagEff_;
+      edm::EDGetTokenT< reco::JetTagCollection > btagPur_; 
+      edm::EDGetTokenT< reco::JetTagCollection > btagVtx_;
+      /// btag working points
+      double btagEffWP_, btagPurWP_, btagVtxWP_;
       /// mass window upper and lower edge
       double lowerEdge_, upperEdge_;
 
       /// number of logged interesting events
-      int elecMuLogged_, diMuonLogged_, diElecLogged_;
+      int logged_;
       /// storage manager
       DQMStore* store_;
       /// histogram container  
@@ -154,37 +156,12 @@ namespace TopHLTDiLeptonOffline {
       trigger::VRelectron  electronRefs_;
       trigger::Vids        muonIds_;
       trigger::VRmuon      muonRefs_;
+      trigger::Vids        pfjetIds_;
+      trigger::VRpfjet     pfjetRefs_;
   };
 
   inline void 
-    MonitorEnsemble::loggerBinLabels(std::string hist)
-    {
-      // set axes titles for selected events
-      hists_[hist.c_str()]->getTH1()->SetOption("TEXT");
-      hists_[hist.c_str()]->setBinLabel( 1 , "Run"             , 1);
-      hists_[hist.c_str()]->setBinLabel( 2 , "Block"           , 1);
-      hists_[hist.c_str()]->setBinLabel( 3 , "Event"           , 1);
-      hists_[hist.c_str()]->setBinLabel( 6 , "pt_{L2L3}(jet1)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 7 , "pt_{L2L3}(jet2)" , 1);
-      hists_[hist.c_str()]->setBinLabel( 8 , "MET_{Calo}"      , 1);
-      hists_[hist.c_str()]->setAxisTitle("logged evts"         , 2);
-
-      if(hist=="diMuonLogger_"){
-        hists_[hist.c_str()]->setBinLabel( 4 , "pt(muon)" , 1);
-        hists_[hist.c_str()]->setBinLabel( 5 , "pt(muon)" , 1);
-      }
-      if(hist=="diElecLogger_"){
-        hists_[hist.c_str()]->setBinLabel( 4 , "pt(elec)" , 1);
-        hists_[hist.c_str()]->setBinLabel( 5 , "pt(elec)" , 1);
-      }
-      if(hist=="elecMuLogger_"){
-        hists_[hist.c_str()]->setBinLabel( 4 , "pt(elec)" , 1);
-        hists_[hist.c_str()]->setBinLabel( 5 , "pt(muon)" , 1);
-      }
-    }
-
-  inline void 
-    MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string>& labels)
+    MonitorSingleLepton::triggerBinLabels(std::string channel, const std::vector<std::string>& labels)
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         hists_[(channel+"Mon_").c_str()]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
@@ -193,15 +170,14 @@ namespace TopHLTDiLeptonOffline {
     }
 
   inline void 
-    MonitorEnsemble::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const
+    MonitorSingleLepton::fill(const edm::Event& event, const edm::TriggerResults& triggerTable, std::string channel, const std::vector<std::string>& labels) const
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
           fill((channel+"Mon_").c_str(), idx+0.5 );
-          //	// take care to fill triggerMon_ before evts is being called
+          // take care to fill triggerMon_ before evts is being called
           //	int evts = hists_.find((channel+"Mon_").c_str())->second->getBinContent(idx+1);
           //	double value = hists_.find((channel+"Eff_").c_str())->second->getBinContent(idx+1);
-          //	fill((channel+"Eff_").c_str(), idx+0.5, 1./evts*(acceptHLT(event, triggerTable, selectionPath(labels[idx]))-value));
         }
       }
     }
@@ -210,6 +186,7 @@ namespace TopHLTDiLeptonOffline {
 
 #include <utility>
 
+#include "DQMOffline/Trigger/interface/TopHLTOfflineDQMHelper.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -221,22 +198,21 @@ namespace TopHLTDiLeptonOffline {
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-
 /**
-  \class   TopHLTDiLeptonOfflineDQM TopHLTDiLeptonOfflineDQM.h "DQM/Physics/plugins/TopHLTDiLeptonOfflineDQM.h"
+  \class   TopSingleLeptonHLTOfflineDQM TopSingleLeptonHLTOfflineDQM.h 
 
-  \brief   Module to apply a monitored selection of top like events in the di-leptonic channel
+  \brief   Module to apply a monitored selection of top like events in the semi-leptonic channel
 
   Plugin to apply a monitored selection of top like events with some minimal flexibility 
   in the number and definition of the selection steps. To achieve this flexibility it 
-  employes the SelectionStep class. The MonitorEnsemble class is used to provide a well 
+  employes the SelectionStep class. The MonitorSingleLepton class is used to provide a well 
   defined set of histograms to be monitored after each selection step. The SelectionStep 
   class provides a flexible and intuitive selection via the StringCutParser. SelectionStep 
-  and MonitorEnsemble classes are interleaved. The monitoring starts after a preselection 
+  and MonitorSingleLepton classes are interleaved. The monitoring starts after a preselection 
   step (which is not monitored in the context of this module) with an instance of the 
-  MonitorEnsemble class. The following objects are supported for selection:
+  MonitorSingleLepton class. The following objects are supported for selection:
 
-  - jets  : of type reco::Jet
+  - jets  : of type reco::Jet (jets), reco::CaloJet (jets/calo) or reco::PFJet (jets/pflow)
   - elecs : of type reco::GsfElectron
   - muons : of type reco::Muon
   - met   : of type reco::MET
@@ -247,18 +223,18 @@ namespace TopHLTDiLeptonOffline {
   _objectType_ and _seletionStep_ as declared below.
   */
 
-/// define MonitorEnsembple to be used
-//using TopDiLeptonOffline::MonitorEnsemble;
+/// define MonitorSingleLepton to be used
+//using HLTOfflineDQMTopSingleLepton::MonitorSingleLepton;
 
-class TopHLTDiLeptonOfflineDQM : public edm::EDAnalyzer  {
+class TopSingleLeptonHLTOfflineDQM : public edm::EDAnalyzer  {
   public: 
     /// default constructor
-    TopHLTDiLeptonOfflineDQM(const edm::ParameterSet& cfg);
+    TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);
     /// default destructor
-    ~TopHLTDiLeptonOfflineDQM(){ 
-      if( beamspotSelect_ ) delete beamspotSelect_; 
+    ~TopSingleLeptonHLTOfflineDQM(){
       if( vertexSelect_ ) delete vertexSelect_;
-    }
+      if( beamspotSelect_ ) delete beamspotSelect_;
+    };
 
     /// do this during the event loop
     virtual void beginRun(edm::Run const &, edm::EventSetup const&);
@@ -281,6 +257,7 @@ class TopHLTDiLeptonOfflineDQM : public edm::EDAnalyzer  {
     edm::EDGetTokenT< std::vector<reco::Vertex> > vertex_;
     /// string cut selector
     StringCutObjectSelector<reco::Vertex>* vertexSelect_;
+
     /// beamspot 
     edm::EDGetTokenT< reco::BeamSpot > beamspot_;
     /// string cut selector
@@ -288,15 +265,17 @@ class TopHLTDiLeptonOfflineDQM : public edm::EDAnalyzer  {
 
     HLTConfigProvider hltConfig_;
 
+
+
     /// needed to guarantee the selection order as defined by the order of
     /// ParameterSets in the _selection_ vector as defined in the config
     std::vector<std::string> selectionOrder_;
     /// this is the heart component of the plugin; std::string keeps a label 
     /// the selection step for later identification, edm::ParameterSet keeps
     /// the configuration of the selection for the SelectionStep class, 
-    /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
+    /// MonitoringEnsemble keeps an instance of the MonitorSingleLepton class to 
     /// be filled _after_ each selection step
-    std::map<std::string, std::pair<edm::ParameterSet, TopHLTDiLeptonOffline::MonitorEnsemble*> > selection_;
+    std::map<std::string, std::pair<edm::ParameterSet, HLTOfflineDQMTopSingleLepton::MonitorSingleLepton*> > selection_; 
 
     std::map<std::string, SelectionStepHLTBase*> selectmap_;
 };

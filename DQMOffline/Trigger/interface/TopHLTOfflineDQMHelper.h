@@ -1,5 +1,5 @@
-#ifndef TOPHLTDQMHELPERS
-#define TOPHLTDQMHELPERS
+#ifndef TOPHLTOFFLINEDQMHELPER
+#define TOPHLTOFFLINEDQMHELPER
 
 #include <string>
 #include <vector>
@@ -14,7 +14,7 @@
 
 /*Originally from DQM/Physics package, written by Roger Wolf and Jeremy Andrea*/
 /**
-   \fn      acceptTopHLTDQMHelpers.h "HLTriggerOffline/Top/interface/TopHLTDQMHelpers.h" 
+   \fn      TopHLTOfflineDQMHelper.h 
    
    \brief   Helper function to determine trigger accepts.
    
@@ -59,8 +59,8 @@ acceptHLT(const edm::Event& event, const edm::TriggerResults& triggerTable, cons
 
 #include "DataFormats/METReco/interface/CaloMET.h"
 /**
-   \class   Calculate TopHLTDQMHelpers.h "HLTriggerOffline/Top/interface/TopHLTDQMHelpers.h" 
-   
+   \class   Calculate TopHLTOfflineDQMHelper.h 
+
    \brief   Helper class for the calculation of a top and a W boson mass estime.
    
    Helper class for the calculation of a top and a W boson mass estimate. The
@@ -135,7 +135,7 @@ class CalculateHLT {
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 /**
-   \class   SelectionStep TopHLTDQMHelpers.h "HLTriggerOffline/Top/interface/TopHLTDQMHelpers.h"
+   \class   SelectionStep TopHLTOfflineDQMHelper.h 
    
    \brief   Templated helper class to allow a selection on a certain object collection.
    

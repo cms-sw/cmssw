@@ -1,4 +1,4 @@
-#include "DQMOffline/Trigger/interface/TopHLTDQMHelper.h"
+#include "DQMOffline/Trigger/interface/TopHLTOfflineDQMHelper.h"
 #include <iostream>
 /*Originally from DQM/Physics package, written by Roger Wolf and Jeremy Andrea*/
 
@@ -9,7 +9,6 @@ template <>
 bool SelectionStepHLT<reco::Jet>::select(const edm::Event& event, const edm::EventSetup& setup)
 {
   // fetch input collection
-  //FIXME
   edm::Handle<edm::View<reco::Jet> > src; 
   if( !event.getByToken(src_, src) ) return false;
 
@@ -41,7 +40,7 @@ bool SelectionStepHLT<reco::Jet>::select(const edm::Event& event, const edm::Eve
       corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
     }
     else{
-      edm::LogVerbatim( "TopDQMHelpers" ) 
+      edm::LogVerbatim( "TopHLTOfflineDQMHelper" ) 
         << "\n"
         << "------------------------------------------------------------------------------------- \n"
         << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
