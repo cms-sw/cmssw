@@ -15,12 +15,16 @@
 //          Created:  May 14, 2005
 //
 //
+
+//____________________________________________________________________________||
 #ifndef METAlgo_h
 #define METAlgo_h
 
+//____________________________________________________________________________||
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
+//____________________________________________________________________________||
 class METAlgo 
 {
 public:
@@ -31,4 +35,5 @@ public:
 
 };
 
+//____________________________________________________________________________||
 #endif // METAlgo_h
