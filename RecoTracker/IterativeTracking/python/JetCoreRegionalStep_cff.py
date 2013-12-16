@@ -22,7 +22,11 @@ jetCoreRegionalStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
         'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
         'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-        'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg','BPix2+TIB1','BPix3+TIB1','BPix2+TIB2','BPix3+TIB2'),
+        'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
+	#'BPix2+TIB1',
+	'BPix3+TIB1',
+	#'BPix2+TIB2',
+	'BPix3+TIB2'),
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle')
@@ -100,7 +104,8 @@ jetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
     maxCand = 50,
     estimator = cms.string('jetCoreRegionalStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxPtForLooperReconstruction = cms.double(0.7),
+#    bestHitOnly=False
     )
 
 # MAKING OF TRACK CANDIDATES
