@@ -327,10 +327,13 @@ int main(int argc, char* argv[])
     }
     proc.on();
     bool onlineStateTransitions = false;
-    proc->runToCompletion(onlineStateTransitions);
+    rc = 0;
+    edm::EventProcessor::StatusCode status = proc->runToCompletion(onlineStateTransitions);
+    if (status == edm::EventProcessor::epSignal) {
+      rc = edm::errors::CaughtSignal;
+    }
     proc.off();
     proc->endJob();
-    rc = 0;
     // Disable Root Error Handler so we do not throw because of ROOT errors.
     edm::ServiceToken token = proc->getToken();
     edm::ServiceRegistry::Operate operate(token);

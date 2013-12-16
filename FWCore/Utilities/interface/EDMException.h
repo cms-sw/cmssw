@@ -64,7 +64,9 @@ namespace edm {
        ProductDoesNotSupportViews = 8024,
        ProductDoesNotSupportPtr = 8025,
 
-       NotFound = 8026
+       NotFound = 8026,
+
+       CaughtSignal = 9000
     };
 
   }
