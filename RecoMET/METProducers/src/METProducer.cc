@@ -188,7 +188,7 @@ namespace cms
 	
     std::auto_ptr<reco::PFMETCollection> pfmetcoll;
     pfmetcoll.reset(new reco::PFMETCollection);
-    reco::PFMET pfmet = pf.addInfo(input, commonMETdata);
+    reco::PFMET pfmet = pf.addInfo(*input.product(), commonMETdata);
 
     if(calculateSignificance_)
       {
