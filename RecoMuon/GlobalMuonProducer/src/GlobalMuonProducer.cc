@@ -44,9 +44,9 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
   staMuonsToken=consumes<reco::TrackCollection>(parameterSet.getParameter<InputTag>("MuonCollectionLabel"));
-  staMuonsTrajToken=consumes<std::vector<Trajectory> >(parameterSet.getParameter<InputTag>("MuonCollectionLabel")); 
-  staAssoMapToken=consumes<TrajTrackAssociationCollection>(parameterSet.getParameter<InputTag>("MuonCollectionLabel")); 
-  updatedStaAssoMapToken=consumes<reco::TrackToTrackMap>(parameterSet.getParameter<InputTag>("MuonCollectionLabel"));
+  staMuonsTrajToken=consumes<std::vector<Trajectory> >(parameterSet.getParameter<InputTag>("MuonCollectionLabel").label()); 
+  staAssoMapToken=consumes<TrajTrackAssociationCollection>(parameterSet.getParameter<InputTag>("MuonCollectionLabel").label()); 
+  updatedStaAssoMapToken=consumes<reco::TrackToTrackMap>(parameterSet.getParameter<InputTag>("MuonCollectionLabel").label());
  
 
 

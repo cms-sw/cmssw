@@ -21,7 +21,6 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent,
 				     const edm::EventSetup& iSetup,
 				     reco::Muon& aMuon)
 {
-  printf("DONT FORGET TO CALL REGISTERCONSUMES()\n");
    // get a list of simulated track and find a track with the best match to
    // the muon.track(). Use its id and chamber id to localize hits
    // If a hit has non-zero local z coordinate, it's position wrt

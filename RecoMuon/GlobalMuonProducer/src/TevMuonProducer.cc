@@ -38,7 +38,7 @@ TevMuonProducer::TevMuonProducer(const ParameterSet& parameterSet) {
   // GLB Muon Collection Label
   theGLBCollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
   glbMuonsToken=consumes<reco::TrackCollection>(theGLBCollectionLabel);
-  glbMuonsTrajToken=consumes<std::vector<Trajectory> >(theGLBCollectionLabel);
+  glbMuonsTrajToken=consumes<std::vector<Trajectory> >(theGLBCollectionLabel.label());
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
