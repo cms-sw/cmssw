@@ -240,10 +240,8 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByToken(inputToken_, input);
 
-    CommonMETData commonMETdata;
-
     METAlgo algo;
-    algo.run(*input.product(), &commonMETdata, globalThreshold);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
 
     math::XYZTLorentzVector p4( commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
     math::XYZPoint vtx(0,0,0);
