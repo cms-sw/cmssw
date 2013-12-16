@@ -49,7 +49,7 @@ namespace cms
     CommonMETData commonMETdata;
 
     METAlgo algo;
-    algo.run(input, &commonMETdata, globalThreshold_);
+    algo.run(*input.product(), &commonMETdata, globalThreshold_);
 
     math::XYZTLorentzVector p4(commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
     math::XYZPoint vtx(0,0,0);

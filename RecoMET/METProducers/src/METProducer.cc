@@ -149,7 +149,7 @@ namespace cms
     event.getByToken(inputToken_, input);
 
     METAlgo algo;
-    CommonMETData commonMETdata = algo.run(input, globalThreshold);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
 
     CaloSpecificAlgo calospecalgo;
     reco::CaloMET calomet = calospecalgo.addInfo(input, commonMETdata, noHF, globalThreshold);
@@ -182,7 +182,7 @@ namespace cms
     event.getByToken(inputToken_, input);
 
     METAlgo algo;
-    CommonMETData commonMETdata = algo.run(input, globalThreshold);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
 
     PFSpecificAlgo pf;
 	
@@ -211,7 +211,7 @@ namespace cms
     event.getByToken(inputToken_, input);
 
     METAlgo algo;
-    CommonMETData commonMETdata = algo.run(input, globalThreshold);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
 
     PFClusterSpecificAlgo pfcluster;
     std::auto_ptr<reco::PFClusterMETCollection> pfclustermetcoll;
@@ -243,7 +243,7 @@ namespace cms
     CommonMETData commonMETdata;
 
     METAlgo algo;
-    algo.run(input, &commonMETdata, globalThreshold); 
+    algo.run(*input.product(), &commonMETdata, globalThreshold);
 
     math::XYZTLorentzVector p4( commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
     math::XYZPoint vtx(0,0,0);

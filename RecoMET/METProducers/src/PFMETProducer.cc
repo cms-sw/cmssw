@@ -52,7 +52,7 @@ namespace cms
     event.getByToken(inputToken_, input);
 
     METAlgo algo;
-    CommonMETData commonMETdata = algo.run(input, globalThreshold_);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold_);
 
     PFSpecificAlgo pf;
 
