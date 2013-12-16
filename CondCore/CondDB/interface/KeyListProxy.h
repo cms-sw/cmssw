@@ -8,18 +8,16 @@
 
 namespace cond {
 
-  using KeyList = cond::ora_wrapper::KeyList;
-
-  namespace db {
-    template<> class PayloadProxy<cond::KeyList> : public PayloadProxy<std::vector<cond::Time_t> > {
+  namespace persistency {
+    template<> class PayloadProxy<cond::persistency::KeyList> : public PayloadProxy<std::vector<cond::Time_t> > {
     public:
       typedef std::vector<cond::Time_t> DataT;
       typedef PayloadProxy<DataT> super;
 
     
-      PayloadProxy( Session& session, const char * source=0 ) :
-	super( session ),
-	m_keyList( session ) {
+      explicit PayloadProxy( const char * source=0 ) :
+	super( source ),
+	m_keyList() {
 	if( source ) m_name = source;
       }
 

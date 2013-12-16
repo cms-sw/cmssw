@@ -15,7 +15,7 @@
    <field name="m_translation" mapping="blob"/>
    <field name="m_dimension" mapping="blob"/>
    <field name="m_indexes" mapping="blob"/>
-   <field name="m_dins" mapping="blob"/>
+   <field name="m_dins" mapping="blob" persistency="loose_on_reading" />
  </class>
   
  <class name="RecoIdealGeometry" class_version="0">

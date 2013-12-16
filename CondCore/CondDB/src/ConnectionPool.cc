@@ -25,6 +25,7 @@ namespace cond {
       m_messageLevel( coral::Error ),
       m_loggingEnabled( false ),
       m_pluginManager( new cond::CoralServiceManager ){
+      configure();
     }
  
     ConnectionPool::~ConnectionPool(){
@@ -130,7 +131,7 @@ namespace cond {
       coral::ConnectionService connServ;
       boost::shared_ptr<coral::ISessionProxy> coralSession( connServ.connect( getRealConnectionString( connectionString, transactionId ), 
 									      writeCapable?coral::Update:coral::ReadOnly ) );
-      return Session( coralSession );
+      return Session( coralSession, connectionString );
     }
 
     Session ConnectionPool::createSession( const std::string& connectionString, bool writeCapable ){

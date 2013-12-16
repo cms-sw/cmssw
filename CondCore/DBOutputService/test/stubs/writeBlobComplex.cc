@@ -30,6 +30,7 @@ writeBlobComplex::analyze( const edm::Event& evt, const edm::EventSetup& evtSetu
     BlobComplex* me = new BlobComplex;
     unsigned int serial = 123;
     me->fill(serial);
+    std::cout<<"writeBlobComplex::about to write "<<std::endl;
     mydbservice->writeOne(me,mydbservice->currentTime(),m_RecordName);
   }catch(const std::exception& er){
     std::cout<<"caught std::exception "<<er.what()<<std::endl;
