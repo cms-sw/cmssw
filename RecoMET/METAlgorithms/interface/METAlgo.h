@@ -30,8 +30,8 @@ class METAlgo
 public:
   METAlgo() {}
   virtual ~METAlgo() {}
-  virtual CommonMETData run(const edm::View<reco::Candidate>& candidates, double globalThreshold = 0.0);
-  virtual void run(const edm::View<reco::Candidate>& candidates, CommonMETData *met, double globalThreshold = 0.0);
+  CommonMETData run(const edm::View<reco::Candidate>& candidates, double globalThreshold = 0.0);
+  void run(const edm::View<reco::Candidate>& candidates, CommonMETData *met, double globalThreshold = 0.0);
 
 };
 
