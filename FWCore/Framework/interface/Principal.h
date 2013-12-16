@@ -57,7 +57,7 @@ namespace edm {
     typedef std::vector<boost::shared_ptr<ProductHolderBase> > ProductHolderCollection;
     typedef boost::filter_iterator<FilledProductPtr, ProductHolderCollection::const_iterator> const_iterator;
     typedef ProcessHistory::const_iterator ProcessNameConstIterator;
-    typedef ProductHolderBase const* ConstProductPtr;
+    typedef ProductHolderBase const* ConstProductHolderPtr;
     typedef std::vector<BasicHandle> BasicHandleVec;
     typedef ProductHolderCollection::size_type size_type;
 
@@ -172,7 +172,7 @@ namespace edm {
 
     DelayedReader* reader() const {return reader_;}
 
-    ConstProductPtr getProductHolder(BranchID const& oid,
+    ConstProductHolderPtr getProductHolder(BranchID const& oid,
                                      bool resolveProd,
                                      bool fillOnDemand,
                                      ModuleCallingContext const* mcc) const;
@@ -191,7 +191,7 @@ namespace edm {
 
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 
-    ConstProductPtr getProductByIndex(ProductHolderIndex const& oid,
+    ConstProductHolderPtr getProductHolderByIndex(ProductHolderIndex const& oid,
                                       bool resolveProd,
                                       bool fillOnDemand,
                                       ModuleCallingContext const* mcc) const;
