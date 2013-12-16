@@ -43,7 +43,7 @@ HelixForwardPlaneCrossing::pathLength(const Plane& plane) {
   //
   // Protect against p_z=0 and calculate path length
   //
-  if ( std::abs(theCosTheta/theSinTheta)<FLT_MIN )  return std::pair<bool,double>(false,0);
+  if ( std::abs(theCosTheta)<FLT_MIN )  return std::pair<bool,double>(false,0);
 
   double dS = (plane.position().z()-theZ0) / theCosTheta;
 
@@ -73,7 +73,6 @@ HelixForwardPlaneCrossing::position (double s) const {
   //
   if ( std::abs(theCachedDPhi)>1.e-4 ) {
     // "standard" helix formula
-    // "standard" helix formula
     double o = 1./theRho;
     return PositionTypeDouble(theX0+(-theSinPhi0*(1.-theCachedCDPhi)+theCosPhi0*theCachedSDPhi)*o,
 			      theY0+( theCosPhi0*(1.-theCachedCDPhi)+theSinPhi0*theCachedSDPhi)*o,
@@ -98,8 +97,7 @@ HelixForwardPlaneCrossing::direction (double s) const {
   if ( s!=theCachedS ) {
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
-    theCachedSDPhi = sin(theCachedDPhi);
-    theCachedCDPhi = cos(theCachedDPhi);
+    vdt::fast_sincos(theCachedDPhi,theCachedSDPhi,theCachedCDPhi);
   }
 
   if ( fabs(theCachedDPhi)>1.e-4 ) {

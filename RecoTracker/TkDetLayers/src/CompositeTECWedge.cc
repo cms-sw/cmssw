@@ -171,15 +171,15 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
   int backIndex = findClosestDet(gBackPoint,1);
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
 
-  float frontDist = std::abs(Geom::deltaPhi( double(gFrontPoint.barePhi()), 
-					     double(theFrontDets[frontIndex]->surface().phi())));
+  float frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), 
+					     theFrontDets[frontIndex]->surface().phi()));
   /*
   float frontDist = theFrontDets[frontIndex]->surface().phi()  - gFrontPoint.phi(); 
   frontDist *= Geom::phiLess( theFrontDets[frontIndex]->surface().phi(),gFrontPoint.barePhi()) ? -1. : 1.; 
   if (frontDist < 0.) { frontDist += 2.*Geom::pi();}
   */
-  float backDist = std::abs(Geom::deltaPhi( double(gBackPoint.barePhi()), 
-					    double(theBackDets[backIndex]->surface().phi())));
+  float backDist = std::abs(Geom::deltaPhi( gBackPoint.barePhi(), 
+					    theBackDets[backIndex]->surface().phi()) );
   /*
   float backDist = theBackDets[backIndex]->surface().phi()  - gBackPoint.phi(); 
   backDist  *= Geom::phiLess( theBackDets[backIndex]->surface().phi(),gBackPoint.barePhi()) ? -1. : 1.;
@@ -261,8 +261,8 @@ CompositeTECWedge::findClosestDet( const GlobalPoint& startPos,int sectorId) con
 
   int close = 0;
   float closeDist = fabs( (myDets.front()->toLocal(startPos)).x());
-  for (unsigned int i = 0; i < myDets.size(); i++ ) {
-    float dist = (myDets[i]->surface().toLocal(startPos)).x();
+  for (unsigned int i = 1; i < myDets.size(); i++ ) {
+    float dist = (myDets[i]->toLocal(startPos)).x();
     if ( fabs(dist) < fabs(closeDist) ) {
       close = i;
       closeDist = dist;

@@ -187,19 +187,19 @@ CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					    crossings.closestIndex(), crossingSide);
   } else {
     
-  DetGroupElement closestGel( closestResult.front().front());  
-  float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
-
-  searchNeighbors( tsos, prop, est, crossings.closest(), window,
-		   closestResult, false); 
-
-  vector<DetGroup> nextResult;
-  searchNeighbors( tsos, prop, est, crossings.other(), window,
-		   nextResult, true); 
-
-  int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
-  DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
-				          crossings.closestIndex(), crossingSide);
+    DetGroupElement closestGel( closestResult.front().front());  
+    float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
+    
+    searchNeighbors( tsos, prop, est, crossings.closest(), window,
+		     closestResult, false); 
+    
+    vector<DetGroup> nextResult;
+    searchNeighbors( tsos, prop, est, crossings.other(), window,
+		     nextResult, true); 
+    
+    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+    DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
+					    crossings.closestIndex(), crossingSide);
   }
 }
 
