@@ -47,6 +47,19 @@
 #include "RecoMuon/MuonIdentification/interface/MuonTimingFiller.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
+// RPC-Muon stuffs
+
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
+#include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/CaloMuon.h"
+
+#include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
+#include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 
 class MuonMesh;
 class MuonKinkFinder;
@@ -142,6 +155,19 @@ class MuonIdProducer : public edm::EDProducer {
    edm::Handle<reco::TrackToTrackMap>             tpfmsCollectionHandle_;
    edm::Handle<reco::TrackToTrackMap>             pickyCollectionHandle_;
    edm::Handle<reco::TrackToTrackMap>             dytCollectionHandle_;
+
+   edm::EDGetTokenT<reco::TrackCollection>             innerTrackCollectionToken_;
+   edm::EDGetTokenT<reco::TrackCollection>             outerTrackCollectionToken_;
+   edm::EDGetTokenT<reco::MuonCollection>              muonCollectionToken_;
+   edm::EDGetTokenT<reco::MuonTrackLinksCollection>    linkCollectionToken_;
+   edm::EDGetTokenT<reco::TrackToTrackMap>             tpfmsCollectionToken_;
+   edm::EDGetTokenT<reco::TrackToTrackMap>             pickyCollectionToken_;
+   edm::EDGetTokenT<reco::TrackToTrackMap>             dytCollectionToken_;
+
+   edm::EDGetTokenT<RPCRecHitCollection> rpcHitToken_;
+   edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
+
+
    
    MuonCaloCompatibility muonCaloCompatibility_;
    reco::isodeposit::IsoDepositExtractor* muIsoExtractorCalo_;

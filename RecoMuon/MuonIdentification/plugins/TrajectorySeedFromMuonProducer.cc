@@ -52,9 +52,12 @@ public:
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-    edm::InputTag  muonCollectionTag_;
-    edm::InputTag  trackCollectionTag_;
-    bool           skipMatchedMuons_;
+  edm::InputTag  muonCollectionTag_;
+  edm::InputTag  trackCollectionTag_;
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonCollectionToken_;
+  edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  bool skipMatchedMuons_;
+
 };
 
 TrajectorySeedFromMuonProducer::TrajectorySeedFromMuonProducer(const edm::ParameterSet & iConfig)
@@ -62,6 +65,10 @@ TrajectorySeedFromMuonProducer::TrajectorySeedFromMuonProducer(const edm::Parame
   muonCollectionTag_  = iConfig.getParameter<edm::InputTag>("muonCollectionTag");
   trackCollectionTag_ = iConfig.getParameter<edm::InputTag>("trackCollectionTag");
   skipMatchedMuons_   = iConfig.getParameter<bool>("skipMatchedMuons");
+  
+  muonCollectionToken_ = consumes<edm::View<reco::Muon> >(muonCollectionTag_);
+  trackCollectionToken_ = consumes<reco::TrackCollection> (trackCollectionTag_);
+
   produces<TrajectorySeedCollection>();
 }
 
@@ -84,10 +91,10 @@ void TrajectorySeedFromMuonProducer::produce(edm::Event& iEvent, const edm::Even
   
   
   edm::Handle<edm::View<Muon> > muonCollectionHandle;
-  iEvent.getByLabel(muonCollectionTag_, muonCollectionHandle);
+  iEvent.getByToken(muonCollectionToken_, muonCollectionHandle);
   
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
-  iEvent.getByLabel(trackCollectionTag_, trackCollectionHandle);
+  iEvent.getByToken(trackCollectionToken_, trackCollectionHandle);
 
   // Loop over the muon track
   for (edm::View<Muon>::const_iterator muon = muonCollectionHandle->begin();  muon != muonCollectionHandle->end(); ++muon) {

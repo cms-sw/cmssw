@@ -178,7 +178,7 @@ private:
 		   std::vector<SimEvent>& simEvt,
 		   const bool selectedOnly=true);
 
-  int* supf(std::vector<SimPart>& simtrks, const reco::TrackCollection & trks);
+  std::vector<int> supf(std::vector<SimPart>& simtrks, const reco::TrackCollection & trks);
   static bool match(const ParameterVector  &a, const ParameterVector &b);
   std::vector<SimPart> getSimTrkParameters( edm::Handle<edm::SimTrackContainer> & simTrks,
 					    edm::Handle<edm::SimVertexContainer> & simVtcs,

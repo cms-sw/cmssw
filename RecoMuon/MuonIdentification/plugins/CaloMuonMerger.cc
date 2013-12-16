@@ -37,6 +37,13 @@ private:
   bool mergeTracks_;
   edm::InputTag tracks_;
   StringCutObjectSelector<reco::TrackRef, false> tracksCut_;
+
+    edm::EDGetTokenT<std::vector<reco::Muon> > muonToken_;
+    edm::EDGetTokenT<std::vector<reco::CaloMuon> > caloMuonToken_;
+    edm::EDGetTokenT<std::vector<reco::Track> > trackToken_;
+
+
+
 };
 
 
@@ -51,7 +58,10 @@ CaloMuonMerger::CaloMuonMerger(const edm::ParameterSet & iConfig) :
     tracks_(mergeTracks_ ? iConfig.getParameter<edm::InputTag>("tracks") : edm::InputTag()),
     tracksCut_(iConfig.existsAs<std::string>("tracksCut") ? iConfig.getParameter<std::string>("tracksCut") : "")
 {
-    produces<std::vector<reco::Muon> >();
+  muonToken_ = consumes<std::vector<reco::Muon> >(muons_);
+  caloMuonToken_=consumes<std::vector<reco::CaloMuon> >(caloMuons_);
+  trackToken_ = consumes<std::vector<reco::Track> > (tracks_);
+  produces<std::vector<reco::Muon> >();
 }
 
 void 
@@ -60,9 +70,9 @@ CaloMuonMerger::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     edm::Handle<std::vector<reco::CaloMuon> > caloMuons;
     edm::Handle<std::vector<reco::Track> > tracks;
 
-    iEvent.getByLabel(muons_, muons);
-    if(mergeCaloMuons_) iEvent.getByLabel(caloMuons_, caloMuons);
-    if(mergeTracks_) iEvent.getByLabel(tracks_, tracks);
+    iEvent.getByToken(muonToken_,muons);
+    if(mergeCaloMuons_) iEvent.getByToken(caloMuonToken_,caloMuons);
+      if(mergeTracks_) iEvent.getByToken(trackToken_,tracks);
 
     std::auto_ptr<std::vector<reco::Muon> >  out(new std::vector<reco::Muon>());
     out->reserve(muons->size() + (mergeTracks_?tracks->size():0));
