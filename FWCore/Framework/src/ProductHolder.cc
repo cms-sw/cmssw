@@ -419,7 +419,7 @@ namespace edm {
         return nullptr;
       }
       if (matchingHolders_[k] != ProductHolderIndexInvalid) {
-        ProductHolderBase const* productHolder = principal_->getProductByIndex(matchingHolders_[k], false, false, mcc);
+        ProductHolderBase const* productHolder = principal_->getProductHolderByIndex(matchingHolders_[k], false, false, mcc);
         ProductData const* pd =  productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
         if(pd != nullptr) return pd;
       }

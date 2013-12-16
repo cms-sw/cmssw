@@ -47,7 +47,7 @@ namespace edm {
     typedef EventAuxiliary Auxiliary;
     typedef Principal Base;
 
-    typedef Base::ConstProductPtr ConstProductPtr;
+    typedef Base::ConstProductHolderPtr ConstProductHolderPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
