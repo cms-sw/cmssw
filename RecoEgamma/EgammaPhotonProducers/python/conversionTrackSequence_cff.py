@@ -12,8 +12,8 @@ from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
 ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracksFromConversions*ckfInOutTracksFromConversions)
 
 oldegConversionTrackCandidates = conversionTrackCandidates.clone()
-oldegConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
-oldegConversionTrackCandidates.bcBarrelCollection = cms.InputTag("correctedHybridSuperClusters")
+oldegConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters")
+oldegConversionTrackCandidates.bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
 oldegConversionTrackCandidates.scIslandEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
 oldegConversionTrackCandidates.bcEndcapCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
 
@@ -24,7 +24,7 @@ ckfOutInTracksFromOldEGConversions.ComponentName = cms.string('ckfOutInTracksFro
 
 ckfInOutTracksFromOldEGConversions = ckfInOutTracksFromConversions.clone()
 ckfInOutTracksFromOldEGConversions.src = cms.InputTag('oldegConversionTrackCandidates','inOutTracksFromConversions')
-ckfInOutTracksFromOldEGConversions.producer = cms.string('mustacheConversionTrackCandidates')
+ckfInOutTracksFromOldEGConversions.producer = cms.string('oldegConversionTrackCandidates')
 ckfInOutTracksFromOldEGConversions.ComponentName = cms.string('ckfInOutTracksFromOldEGConversions')
 
 ckfTracksFromOldEGConversions = cms.Sequence(oldegConversionTrackCandidates*ckfOutInTracksFromOldEGConversions*ckfInOutTracksFromOldEGConversions)

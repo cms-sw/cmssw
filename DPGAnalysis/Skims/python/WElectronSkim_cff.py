@@ -14,7 +14,7 @@ HLTProcessName = "HLT"
 ELECTRON_ET_CUT_MIN = 10.0
 TAG_ELECTRON_ET_CUT_MIN = 20.0
 W_ELECTRON_ET_CUT_MIN = 27.0
-ELECTRON_COLL = "gsfElectrons"
+ELECTRON_COLL = "gedGsfElectrons"
 ELECTRON_CUTS = "(abs(superCluster.eta)<2.5) && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
 
 #met, mt cuts for W selection

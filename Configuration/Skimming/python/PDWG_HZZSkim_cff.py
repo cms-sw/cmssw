@@ -13,7 +13,7 @@ goodHzzMuons = cms.EDFilter("MuonRefSelector",
                             cut = cms.string(MUON_CUT)
                             )
 goodHzzElectrons = cms.EDFilter("GsfElectronRefSelector",
-                                src = cms.InputTag("gsfElectrons"),
+                                src = cms.InputTag("gedGsfElectrons"),
                                 cut = cms.string(ELECTRON_CUT)
                                 )
 
