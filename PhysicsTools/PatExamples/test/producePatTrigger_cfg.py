@@ -42,8 +42,8 @@ process.muonTriggerMatchHLTMuons = cms.EDProducer(
   # selections of trigger objects
 , matchedCuts = cms.string( 'type( "TriggerMuon" ) && path( "HLT_Mu24_v*", 1, 0 )' ) # input does not yet have the 'saveTags' parameter in HLT
   # selection of matches
-, maxDPtRel   = cms.double( 0.5 ) # no effect here
-, maxDeltaR   = cms.double( 0.5 )
+, maxDPtRel   = cms.double( 0.4 ) # no effect here
+, maxDeltaR   = cms.double( 0.4 )
 , maxDeltaEta = cms.double( 0.2 ) # no effect here
   # definition of matcher output
 , resolveAmbiguities    = cms.bool( True )

@@ -1,6 +1,5 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
-#include "RecoTauTag/TauTagTools/interface/PFTauQualityCutWrapper.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 /* class CaloRecoTauDiscriminationByDeltaE

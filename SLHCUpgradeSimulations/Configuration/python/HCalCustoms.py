@@ -145,10 +145,10 @@ def customise_Reco(process):
     process.towerMakerWithHO.hbheInput = cms.InputTag("hbheUpgradeReco") 
     process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbheUpgradeReco")
     process.particleFlowRecHitHCAL.hcalRecHitsHF = cms.InputTag("hfUpgradeReco")
-    process.ak5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
-    process.ak5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
-    process.ak7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
-    process.ak7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ak4JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ak4JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ak8JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ak8JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.ca4JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
     process.ca4JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.ca6JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
@@ -157,8 +157,8 @@ def customise_Reco(process):
     process.gk5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.gk7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
     process.gk7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
-    process.ic5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
-    process.ic5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ak4JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ak4JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.ic7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
     process.ic7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.kt4JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
@@ -211,8 +211,8 @@ def customise_Reco(process):
     # not sure why these are missing - but need to investigate later
     process.reconstruction_step.remove(process.castorreco)
     process.reconstruction_step.remove(process.CastorTowerReco)
-    process.reconstruction_step.remove(process.ak7BasicJets)
-    process.reconstruction_step.remove(process.ak7CastorJetID)
+    process.reconstruction_step.remove(process.ak8BasicJets)
+    process.reconstruction_step.remove(process.ak8CastorJetID)
     return process
 
 def customise_DQM(process):

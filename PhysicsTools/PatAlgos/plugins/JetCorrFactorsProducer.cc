@@ -291,12 +291,12 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   edm::ParameterSetDescription iDesc;
   iDesc.add<bool>("emf", false);
   iDesc.add<std::string>("flavorType", "J");
-  iDesc.add<edm::InputTag>("src", edm::InputTag("ak5CaloJets"));
+  iDesc.add<edm::InputTag>("src", edm::InputTag("ak4CaloJets"));
   iDesc.add<std::string>("payload", "AK5Calo");
   iDesc.add<bool>("useNPV", true);
   iDesc.add<edm::InputTag>("primaryVertices", edm::InputTag("offlinePrimaryVertices"));
   iDesc.add<bool>("useRho", true);
-  iDesc.add<edm::InputTag>("rho", edm::InputTag("kt6PFJets", "rho"));
+  iDesc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllCalo"));
   iDesc.add<std::string>("extraJPTOffset", "L1Offset");
 
   std::vector<std::string> levels;

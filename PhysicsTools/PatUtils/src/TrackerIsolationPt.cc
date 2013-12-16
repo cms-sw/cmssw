@@ -51,7 +51,7 @@ float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::Vie
       // find the closest matching track
       // FIXME: we could association by hits or chi2 to match
       float pRatio = track.perp()/lepton.perp();
-      if (dR < closestDRPt && pRatio > 0.5 && pRatio < 1.5) {
+      if (dR < closestDRPt && pRatio > 0.4 && pRatio < 1.5) {
         closestDRPt = dR;
         closestTrackDRPt = &*itTrack;
       }

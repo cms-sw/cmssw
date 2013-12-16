@@ -136,7 +136,7 @@ FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
   muonRecoCollectionNameToken_ = consumes<TriggerResults>(iConfig.getUntrackedParameter("muonRecoCollectionName", std::string("muons")));
   gsfElectronsToken_ = consumes<TriggerResults>(std::string("gsfElectrons"));
   caloRecoTauProducerToken_ = consumes<TriggerResults>(std::string("caloRecoTauProducer"));
-  iterativeCone5CaloJetsToken_ = consumes<TriggerResults>(std::string("iterativeCone5CaloJets"));
+  ak4CaloJetsToken_ = consumes<TriggerResults>(std::string("ak4CaloJets"));
   jetProbabilityBJetTagsToken_ = consumes<TriggerResults>(std::string("jetProbabilityBJetTags"));
   softMuonBJetTagsToken_ = consumes<TriggerResults>(std::string("softMuonBJetTags"));
   metToken_ = consumes<TriggerResults>(std::string("met"));
@@ -227,7 +227,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     edm::LogInfo("FourVectorHLTOnline") << "tauHandle not found, ";
 
   edm::Handle<TriggerResults> jetHandle;
-  iEvent.getByToken(iterativeCone5CaloJetsToken_, jetHandle);
+  iEvent.getByToken(ak4CaloJetsToken_, jetHandle);
   if(!jetHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOnline") << "jetHandle not found, ";
  

@@ -8,10 +8,10 @@
           ! ev.atEnd();
           ++ev) {
      fwlite::Handle<reco::CaloJetCollection> jets;
-     jets.getByLabel(ev,"iterativeCone5CaloJets");
-     const reco::JetTracksAssociation::Container* jet2tracksVX = reco::JetTracksAssociation::getByLabel (ev,"ic5JetTracksAssociatorAtVertex", 0, 0);;
-     const reco::JetTracksAssociation::Container* jet2tracksCALO = reco::JetTracksAssociation::getByLabel (ev,"ic5JetTracksAssociatorAtCaloFace", 0, 0);
-     const reco::JetExtendedAssociation::Container* jetExtend = reco::JetExtendedAssociation::getByLabel (ev,"ic5JetExtender", 0, 0);
+     jets.getByLabel(ev,"ak4CaloJets");
+     const reco::JetTracksAssociation::Container* jet2tracksVX = reco::JetTracksAssociation::getByLabel (ev,"ak4JetTracksAssociatorAtVertex", 0, 0);;
+     const reco::JetTracksAssociation::Container* jet2tracksCALO = reco::JetTracksAssociation::getByLabel (ev,"ak4JetTracksAssociatorAtCaloFace", 0, 0);
+     const reco::JetExtendedAssociation::Container* jetExtend = reco::JetExtendedAssociation::getByLabel (ev,"ak4JetExtender", 0, 0);
    //now can access data
    std::cout << "Total jets: " << jets->size() << std::endl;
      for (unsigned j = 0; j < jets->size(); ++j) {

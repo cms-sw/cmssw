@@ -124,7 +124,7 @@ void setAxisStyle(TH1* hist) {
 
 	hist->GetYaxis()->SetTitleSize( 0.07);
 	hist->GetYaxis()->SetTitleColor( 1);
-	hist->GetYaxis()->SetTitleOffset( 0.5);
+	hist->GetYaxis()->SetTitleOffset( 0.4);
 	hist->GetYaxis()->SetTitleFont( 62);
 	hist->GetYaxis()->SetLabelSize( 0.05);
 	hist->GetYaxis()->SetLabelFont( 62);

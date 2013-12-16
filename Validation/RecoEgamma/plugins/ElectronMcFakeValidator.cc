@@ -470,7 +470,7 @@ void ElectronMcFakeValidator::book()
 
   // matching object type
   std::string matchingObjectType ;
-/*  if (std::string::npos!=matchingObjectCollection_.label().find("iterativeCone5GenJets",0))
+/*  if (std::string::npos!=matchingObjectCollection_.label().find("ak4GenJets",0))
    { matchingObjectType = "GenJet" ; }
   if (matchingObjectType=="")
    { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }

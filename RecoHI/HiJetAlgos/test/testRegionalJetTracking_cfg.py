@@ -74,7 +74,7 @@ process.hiNewClusters.Common.maxChi2 = 0 # for testing: remove none of clusters 
 
 #### optionally run tracking only seeded by jets
 process.goodJets = cms.EDFilter("CaloJetSelector",
-                                src = cms.InputTag("iterativeConePu5CaloJets"),
+                                src = cms.InputTag("akPu5CaloJets"),
                                 cut = cms.string("et > 30.0"),
                                 filter = cms.bool(True)
                                 )

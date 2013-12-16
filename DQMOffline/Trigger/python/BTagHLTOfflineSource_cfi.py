@@ -32,7 +32,7 @@ dirname = cms.untracked.string("HLT/BTagMu"),
     pathnameMB = cms.untracked.vstring("HLT_MinBiasBSC"), 
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     triggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
-    CaloJetCollectionLabel = cms.InputTag("ak5CaloJets"),
+    CaloJetCollectionLabel = cms.InputTag("ak4CaloJets"),
     MuonCollectionLabel    = cms.InputTag("muons"),
         
     processname = cms.string("HLT"),

@@ -23,9 +23,9 @@ json = {
       "desc": "MET in energy deposits in calorimeter towers in EB, EE, HB, HE, and HO with optimized threshold parameters"
      },
      {
-      "instance": "htMetIC5",
+      "instance": "htMetAK5",
       "container": "reco::METCollection",
-      "desc": "Raw Missing Transverse Energy calculated using IC5 CaloJets"
+      "desc": "Raw Missing Transverse Energy calculated using AK5 CaloJets"
      },
      {
       "instance": "metNoHFHO",
@@ -123,7 +123,7 @@ json = {
       "desc": "MET in generated particles in simulation in their final states but excluding neutrinos, excited neutrinos, right-handed neutrinos, sneutrinos, neutralinos, gravitons, gravitinos and also muons"
      },
      {
-      "instance": "htMetAK7",
+      "instance": "htMetAK8",
       "container": "reco::METCollection",
       "desc": "Raw Missing Transverse Energy calculated using anti-KT7 CaloJets"
      },

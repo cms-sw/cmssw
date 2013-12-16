@@ -118,14 +118,14 @@ void PatTauAnalyzer::beginJob()
 //hTauJetPt_ =...
 
 //... for number of tau-jet candidates
-  hNumTauJets_ = fs->make<TH1F>("NumTauJets", "NumTauJets", 10, -0.5, 9.5);
+  hNumTauJets_ = fs->make<TH1F>("NumTauJets", "NumTauJets", 10, -0.4, 9.5);
 
 //... for Pt of highest Pt track within signal cone tau-jet...
   hTauLeadTrackPt_ = fs->make<TH1F>("TauLeadTrackPt", "TauLeadTrackPt", 40, 0., 100.);
 
 //... for total number of tracks within signal/isolation cones
-  hTauNumSigConeTracks_ = fs->make<TH1F>("TauNumSigConeTracks", "TauNumSigConeTracks", 10, -0.5,  9.5);
-  hTauNumIsoConeTracks_ = fs->make<TH1F>("TauNumIsoConeTracks", "TauNumIsoConeTracks", 20, -0.5, 19.5);
+  hTauNumSigConeTracks_ = fs->make<TH1F>("TauNumSigConeTracks", "TauNumSigConeTracks", 10, -0.4,  9.5);
+  hTauNumIsoConeTracks_ = fs->make<TH1F>("TauNumIsoConeTracks", "TauNumIsoConeTracks", 20, -0.4, 19.5);
 
 //... for values of tau id. discriminators based on track isolation cut/
 //    neural network-based tau id.
@@ -213,9 +213,9 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //    neural network-based tau id.
 //    (combine with requirement of at least one "leading" track of Pt > 5. GeV
 //     within the signal cone of the tau-jet)
-    float discrByIso = ( patTau->tauID(discrByLeadTrack_.data()) > 0.5 ) ? patTau->tauID(discrByIso_.data()) : 0.;
+    float discrByIso = ( patTau->tauID(discrByLeadTrack_.data()) > 0.4 ) ? patTau->tauID(discrByIso_.data()) : 0.;
     hTauDiscrByIso_->Fill(discrByIso);
-    float discrByTaNC = ( patTau->tauID(discrByLeadTrack_.data()) > 0.5 ) ? patTau->tauID(discrByTaNC_.data()) : 0.;
+    float discrByTaNC = ( patTau->tauID(discrByLeadTrack_.data()) > 0.4 ) ? patTau->tauID(discrByTaNC_.data()) : 0.;
     hTauDiscrByTaNC_->Fill(discrByTaNC);
 
 //... for values of tau id. discriminators against (unidentified) electrons and muons
@@ -238,7 +238,7 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
     hTauDiscrAgainstMuons_->Fill(patTau->tauID("againstMuonLoose"));
 
 //... for Energy, Pt, Eta, Phi of tau-jets passing the discriminatorByIsolation selection
-    if ( discrByIso > 0.5 ) {
+    if ( discrByIso > 0.4 ) {
       hTauJetEnergyIsoPassed_->Fill(patTau->energy());
       hTauJetPtIsoPassed_->Fill(patTau->pt());
       hTauJetEtaIsoPassed_->Fill(patTau->eta());
@@ -246,7 +246,7 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
     }
 
 //... for Energy, Pt, Eta, Phi of tau-jets passing the discriminatorByTaNC ("Tau Neural Classifier") selection
-    if ( discrByTaNC > 0.5 ) {
+    if ( discrByTaNC > 0.4 ) {
       hTauJetEnergyTaNCpassed_->Fill(patTau->energy());
       hTauJetPtTaNCpassed_->Fill(patTau->pt());
       hTauJetEtaTaNCpassed_->Fill(patTau->eta());

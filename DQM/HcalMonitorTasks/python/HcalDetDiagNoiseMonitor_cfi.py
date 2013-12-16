@@ -31,7 +31,7 @@ hcalDetDiagNoiseMonitor=cms.EDAnalyzer("HcalDetDiagNoiseMonitor",
                                        
 				       HLTriggerResults                    = cms.untracked.InputTag("TriggerResults","","HLT"),
                                        MetSource                           = cms.untracked.InputTag("met"),
-                                       JetSource                           = cms.untracked.InputTag("iterativeCone5CaloJets"),
+                                       JetSource                           = cms.untracked.InputTag("ak4CaloJets"),
                                        TrackSource                         = cms.untracked.InputTag("generalTracks"),
                                        VertexSource                        = cms.untracked.InputTag("offlinePrimaryVertices"),
                                        UseVertexCuts		           = cms.untracked.bool(True),

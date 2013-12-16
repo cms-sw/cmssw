@@ -41,7 +41,7 @@ process.genParticlesVisible = cms.EDFilter("GenJetParticleRefSelector",
 
 process.SDDijets = cms.EDAnalyzer("SDDijetsAnalyzer",
 	GenParticleTag = cms.InputTag("genParticles"),
-	GenJetTag = cms.InputTag("ak5GenJets"),
+	GenJetTag = cms.InputTag("ak4GenJets"),
         EBeam = cms.double(4000.0),
 	debug = cms.untracked.bool(True)
 )

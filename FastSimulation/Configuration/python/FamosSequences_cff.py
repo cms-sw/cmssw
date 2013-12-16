@@ -178,7 +178,7 @@ from RecoMuon.MuonIdentification.muonIdProducerSequence_cff import *
 from RecoMuon.MuonIsolationProducers.muIsolation_cff import *
 
 famosMuonIdAndIsolationSequence = cms.Sequence(
-    ak5CaloJets+
+    ak4CaloJets+
     muonIdProducerSequence+
     muIsolation
 )
@@ -261,8 +261,8 @@ from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff impo
 
 
 # B tagging
-from RecoJets.JetAssociationProducers.ak5JTA_cff import *
-ak5JetTracksAssociatorAtVertex.tracks = 'generalTracks'
+from RecoJets.JetAssociationProducers.ak4JTA_cff import *
+ak4JetTracksAssociatorAtVertex.tracks = 'generalTracks'
 from RecoVertex.Configuration.RecoVertex_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import *
@@ -692,8 +692,8 @@ famosWithElectronsAndPhotons = cms.Sequence(
 famosWithBTagging = cms.Sequence(
     famosWithTracksAndCaloTowers+
     vertexreco+
-    ak5PFJetsCHS+
-    ak5JetTracksAssociatorAtVertexPF+
+    ak4PFJetsCHS+
+    ak4JetTracksAssociatorAtVertexPF+
     ecalClustersNoPFBox+
     famosMuonSequence+
     reducedRecHits+ 

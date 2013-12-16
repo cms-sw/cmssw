@@ -13,7 +13,7 @@ jec = cms.ESSource("PoolDBESSource",
             label  = cms.untracked.string('AK5PF')
             )
       ),
-      ## here you add as many jet types as you need (AK5Calo, AK5JPT, AK7PF, AK7Calo, KT4PF, KT4Calo, KT6PF, KT6Calo)
+      ## here you add as many jet types as you need (AK5Calo, AK5JPT, AK8PF, AK8Calo, KT4PF, KT4Calo, KT6PF, KT6Calo)
       connect = cms.string('sqlite_file:Jec43x.db')
 )
 

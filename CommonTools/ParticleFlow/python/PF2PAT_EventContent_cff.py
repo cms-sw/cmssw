@@ -56,7 +56,7 @@ PATEventContent = cms.PSet(
     # Gen information
 #    'keep *_genParticles_*_*',
     'keep *_genMetTrue_*_*',
-    'keep recoGenJets_iterativeCone5GenJets_*_*',
+    'keep recoGenJets_ak4GenJets_*_*',
     'keep patElectrons_selectedLayer1Electrons_*_*',
     'keep patMuons_selectedLayer1Muons_*_*',
     'keep patJets_selectedLayer1Jets_*_*',

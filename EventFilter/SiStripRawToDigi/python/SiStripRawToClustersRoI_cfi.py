@@ -13,7 +13,7 @@ SiStripRoI = cms.EDProducer("SiStripRawToClustersRoI",
     # define objects of interest
     Global = cms.untracked.bool(True),
     ElectronBarrelL2 = cms.InputTag("hltHybridSuperClustersL1Isolated"),
-    BJetL2 = cms.InputTag("iterativeCone5CaloJets"),
+    BJetL2 = cms.InputTag("ak4CaloJets"),
     TauJets = cms.untracked.bool(False),
     # define tracker windows
     ElectronEtaWindow = cms.untracked.double(0.16),

@@ -15,7 +15,7 @@ import FWCore.ParameterSet.Config as cms
 # )
 
 Jets = cms.EDProducer("EtaPtMinCandViewSelector",
-                      src = cms.InputTag("iterativeCone5CaloJets"),
+                      src = cms.InputTag("ak4CaloJets"),
                       ptMin   = cms.double(5),
                       etaMin = cms.double(-2),
                       etaMax = cms.double(2)

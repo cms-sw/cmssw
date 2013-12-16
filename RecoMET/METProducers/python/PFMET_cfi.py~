@@ -1,0 +1,31 @@
+import FWCore.ParameterSet.Config as cms
+
+##____________________________________________________________________________||
+from RecoMET.METProducers.METSigParams_cfi import *
+
+<<<<<<< HEAD
+pfMet = cms.EDProducer("METProducer",
+                       
+                       METSignificance_params,
+                       src = cms.InputTag("particleFlow"),
+                       METType = cms.string('PFMET'),
+                       alias = cms.string('PFMET'),
+                       noHF = cms.bool(False),
+                       globalThreshold = cms.double(0.0),
+                       InputType = cms.string('PFCandidateCollection'),
+                       calculateSignificance = cms.bool(True),
+		       jets = cms.InputTag("ak4PFJets") #used for significance calculation
+                       )
+=======
+##____________________________________________________________________________||
+pfMet = cms.EDProducer(
+    "PFMETProducer",
+    METSignificance_params,
+    src = cms.InputTag("particleFlow"),
+    alias = cms.string('PFMET'),
+    globalThreshold = cms.double(0.0),
+    calculateSignificance = cms.bool(True),
+    jets = cms.InputTag("ak4PFJets") # for significance calculation
+    )
+##____________________________________________________________________________||
+>>>>>>> cms-sw/refs/pull/1817/head

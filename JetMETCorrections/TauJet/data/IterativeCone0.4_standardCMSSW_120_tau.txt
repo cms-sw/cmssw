@@ -6,7 +6,7 @@
 # the following config file can be used to create 0.4 cone jets in CMSSW120:
 ###############################################################
 #  include "RecoJets/JetProducers/data/IconeJetParameters.cfi"
-#  module iterativeCone4CaloJets = IterativeConeJetProducer {
+#  module ak4CaloJets = IterativeConeJetProducer {
 #      using IconeJetParameters
 #      double towerThreshold = 0.5
 #      double coneRadius = 0.4

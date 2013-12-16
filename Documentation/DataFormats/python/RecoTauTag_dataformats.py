@@ -68,7 +68,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJetsRecoTauPiZeros",
+      "instance": "ak4PFJetsRecoTauPiZeros",
       "container": "*",
       "desc": "No documentation"
      },
@@ -123,7 +123,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJetsRecoTauPiZeros",
+      "instance": "ak4PFJetsRecoTauPiZeros",
       "container": "*",
       "desc": "No documentation"
      },
@@ -153,7 +153,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak5PFJetsRecoTauPiZeros",
+      "instance": "ak4PFJetsRecoTauPiZeros",
       "container": "*",
       "desc": "No documentation"
      },

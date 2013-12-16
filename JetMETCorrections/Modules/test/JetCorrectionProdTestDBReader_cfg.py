@@ -20,9 +20,9 @@ process.GlobalTag.toGet = cms.VPSet(
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
              label=cms.untracked.string("AK5JPTNew")),
     cms.PSet(record = cms.string("JetCorrectionsRecord"),
-             tag = cms.string("JetCorrectorParametersCollection_Spring10_V5_IC5Calo"),
+             tag = cms.string("JetCorrectorParametersCollection_Spring10_V5_AK5Calo"),
              connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-             label=cms.untracked.string("IC5CaloNew")),    
+             label=cms.untracked.string("AK5CaloNew")),    
     )
 
 
@@ -48,7 +48,7 @@ process.demo3 = cms.EDAnalyzer('JetCorrectorDBReader',
 
 
 process.demo4 = cms.EDAnalyzer('JetCorrectorDBReader', 
-        payloadName    = cms.untracked.string('IC5CaloNew'),
+        payloadName    = cms.untracked.string('AK5CaloNew'),
         printScreen    = cms.untracked.bool(False),
         createTextFile = cms.untracked.bool(False)
 )

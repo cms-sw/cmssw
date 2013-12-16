@@ -17,22 +17,22 @@ addMETCollection(process, labelName='patMETTC', metSource='tcMet')
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
-## uncomment the following lines to add ak5PFJetsCHS to your PAT output
+## uncomment the following lines to add ak4PFJetsCHS to your PAT output
 postfixAK5PFCHS = 'Copy'
 addJetCollection(
    process,
    postfix   = postfixAK5PFCHS,
    labelName = 'AK5PFCHS',
-   jetSource = cms.InputTag('ak5PFJetsCHS'),
+   jetSource = cms.InputTag('ak4PFJetsCHS'),
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
    )
 process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PFCHS%s_caloTowers_*'%( postfixAK5PFCHS ) )
 
-# uncomment the following lines to add ak5PFJets to your PAT output
+# uncomment the following lines to add ak4PFJets to your PAT output
 addJetCollection(
    process,
    labelName = 'AK5PF',
-   jetSource = cms.InputTag('ak5PFJets'),
+   jetSource = cms.InputTag('ak4PFJets'),
    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -46,10 +46,10 @@ addJetCollection(
    )
 process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
 
-# uncomment the following lines to switch to ak5CaloJets in your PAT output
+# uncomment the following lines to switch to ak4CaloJets in your PAT output
 switchJetCollection(
    process,
-   jetSource = cms.InputTag('ak5CaloJets'),
+   jetSource = cms.InputTag('ak4CaloJets'),
    jetCorrections = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -62,7 +62,7 @@ switchJetCollection(
      ],
    )
 process.patJets.addJetID=True
-process.patJets.jetIDMap="ak5JetID"
+process.patJets.jetIDMap="ak4JetID"
 process.out.outputCommands.append( 'keep *_selectedPatJets_caloTowers_*' )
 process.out.outputCommands.append( 'drop *_selectedPatJets_pfCandidates_*' )
 

@@ -16,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.trackOriginAnalyzer = cms.EDAnalyzer("QualityCutsAnalyzer",
     process.trackClassifier,
-    jetTracksAssociation = cms.untracked.InputTag("ic5JetTracksAssociatorAtVertex"),
+    jetTracksAssociation = cms.untracked.InputTag("ak4JetTracksAssociatorAtVertex"),
     # no selection whatsoever   
     minimumNumberOfHits = cms.untracked.int32(0),
     minimumTransverseMomentum = cms.untracked.double(0.0),

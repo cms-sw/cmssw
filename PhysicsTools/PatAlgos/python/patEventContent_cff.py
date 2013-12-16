@@ -86,6 +86,6 @@ patHiEventContent = [
 
 patHiExtraAodEventContent = [
     'keep recoGenParticles_hiGenParticles*_*_*',
-    'keep recoGenJets_iterativeCone5HiGenJets*_*_*', # until a better solution
+    'keep recoGenJets_ak4HiGenJets*_*_*', # until a better solution
     'keep recoTracks_hiSelectedTracks*_*_*'
 ]

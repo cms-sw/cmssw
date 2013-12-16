@@ -44,9 +44,9 @@ process.PFCand = FirstVertexPFCandidates.clone(
 )
 	
 ### JetProducer-specific includes
-from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets	
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets	
 
-process.ak5PFJetsNew = ak5PFJets.clone(
+process.ak4PFJetsNew = ak4PFJets.clone(
 	src = cms.InputTag("PFCand","P2V")
 	#src = cms.InputTag("PFCand","V2P")
 )
@@ -55,15 +55,15 @@ process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
 
 # L2L3 Correction Producers
-process.ak5PFJetsNewL23 = cms.EDProducer('PFJetCorrectionProducer',
-    src        = cms.InputTag('ak5PFJetsNew'),
-    correctors = cms.vstring('ak5PFL2L3')
+process.ak4PFJetsNewL23 = cms.EDProducer('PFJetCorrectionProducer',
+    src        = cms.InputTag('ak4PFJetsNew'),
+    correctors = cms.vstring('ak4PFL2L3')
 )
 		
 # L1L2L3 Correction Producers
-process.ak5PFJetsNewL123 = cms.EDProducer('PFJetCorrectionProducer',
-    src        = cms.InputTag('ak5PFJetsNew'),
-    correctors = cms.vstring('ak5PFL1L2L3')
+process.ak4PFJetsNewL123 = cms.EDProducer('PFJetCorrectionProducer',
+    src        = cms.InputTag('ak4PFJetsNew'),
+    correctors = cms.vstring('ak4PFL1L2L3')
 )
 				
 ### paths & sequences
@@ -77,9 +77,9 @@ process.pfc = cms.Sequence(
 		
 ##sequence to produce the jet collections
 process.pfjet = cms.Sequence(
-	  process.ak5PFJetsNew
-	* process.ak5PFJetsNewL23
-	* process.ak5PFJetsNewL123
+	  process.ak4PFJetsNew
+	* process.ak4PFJetsNewL23
+	* process.ak4PFJetsNewL123
 )
 		
 

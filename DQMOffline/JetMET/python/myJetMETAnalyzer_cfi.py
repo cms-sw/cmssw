@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     OutputMEsInRootFile = cms.bool(True),
-    PFJetsCollectionLabel = cms.InputTag("iterativeCone5PFJets"),
+    PFJetsCollectionLabel = cms.InputTag("ak4PFJets"),
     caloMETAnalysis = cms.PSet(
 
     ),
@@ -33,7 +33,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoJetAnalysis = cms.untracked.bool(True),
     CaloMETCollectionLabel = cms.InputTag("met"),
     CaloMETNoHFCollectionLabel = cms.InputTag("metNoHF"),
-    ICJetsCollectionLabel = cms.InputTag("iterativeCone5CaloJets")
+    ICJetsCollectionLabel = cms.InputTag("ak4CaloJets")
 )
 
 

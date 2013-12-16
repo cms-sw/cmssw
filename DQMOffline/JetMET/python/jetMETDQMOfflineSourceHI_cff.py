@@ -12,8 +12,8 @@ jetMETAnalyzer.DoPFJetAnalysis  = cms.untracked.bool(False)
 jetMETAnalyzer.DoJPTJetAnalysis = cms.untracked.bool(False)
 jetMETAnalyzer.DoDiJetSelection = cms.untracked.bool(False)
 
-jetMETAnalyzer.AKJetsCollectionLabel  = cms.InputTag("iterativeConePu5CaloJets")
-jetMETAnalyzer.ICJetsCollectionLabel  = cms.InputTag("iterativeConePu5CaloJets")
+jetMETAnalyzer.AKJetsCollectionLabel  = cms.InputTag("akPu5CaloJets")
+jetMETAnalyzer.ICJetsCollectionLabel  = cms.InputTag("akPu5CaloJets")
 jetMETAnalyzer.CleaningParameters.vertexLabel = cms.InputTag("hiSelectedVertex")
 
 jetMETAnalyzer.DoPFJetCleaning  = cms.untracked.bool(False)

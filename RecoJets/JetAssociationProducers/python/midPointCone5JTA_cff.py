@@ -18,7 +18,7 @@ midPointCone5JetExtender = cms.EDProducer("JetExtender",
     jets = cms.InputTag("midPointCone5CaloJets"),
     jet2TracksAtCALO = cms.InputTag("midPointCone5JetTracksAssociatorAtCaloFace"),
     jet2TracksAtVX = cms.InputTag("midPointCone5JetTracksAssociatorAtVertex"),
-    coneSize = cms.double(0.5)
+    coneSize = cms.double(0.4)
 )
 
 midPointCone5JTA = cms.Sequence(midPointCone5JetTracksAssociatorAtVertex*midPointCone5JetTracksAssociatorAtCaloFace*midPointCone5JetExtender)

@@ -36,7 +36,7 @@ process.muonsWithPFIso = cms.EDFilter("MuonWithPFIsoProducer",
 process.load("ElectroWeakAnalysis.WMuNu.WMuNuSelection_cff")
 process.pfMetWMuNus.MuonTag = cms.untracked.InputTag("muonsWithPFIso")
 process.selpfMet.MuonTag = cms.untracked.InputTag("muonsWithPFIso")
-# Use the following line only for old Summer09 samples (new: "ak5", old "antikt5")
+# Use the following line only for old Summer09 samples (new: "ak4", old "antikt5")
 #process.selpfMet.JetTag = cms.untracked.InputTag("antikt5PFJets") 
 
 # Output

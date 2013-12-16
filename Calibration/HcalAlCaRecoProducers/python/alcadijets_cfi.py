@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 DiJProd = cms.EDProducer("AlCaDiJetsProducer",
-    jetsInput = cms.InputTag("iterativeCone5CaloJets"),
+    jetsInput = cms.InputTag("ak4CaloJets"),
     ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE")),
     hbheInput = cms.InputTag("hbhereco"),
     hoInput = cms.InputTag("horeco"),

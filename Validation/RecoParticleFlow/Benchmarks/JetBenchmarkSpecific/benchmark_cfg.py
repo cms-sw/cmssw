@@ -51,8 +51,8 @@ process.load("RecoJets.Configuration.RecoPFJets_cff")
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-#process.iterativeCone5PFJets.inputEtMin = 0.0
-process.ak5PFJets.inputEtMin = 0.0
+#process.ak4PFJets.inputEtMin = 0.0
+process.ak4PFJets.inputEtMin = 0.0
 
 # should do a cloning
 process.genParticlesForJets.ignoreParticleIDs.append(14)
@@ -73,13 +73,13 @@ process.genParticlesForJets.excludeResonances = False
 process.pfJetBenchmark.OutputFile = cms.untracked.string('JetBenchmark_Fast_3110pre3.root')
 process.pfJetBenchmark.deltaRMax = 0.1
 process.pfJetBenchmark.OnlyTwoJets = cms.bool(True)
-process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak5GenJets')
+process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak4GenJets')
 
 process.p =cms.Path(
     process.genJetParticles+
-    process.ak5GenJets+
-    #process.iterativeCone5GenJets+
-    #process.ak5PFJets+
+    process.ak4GenJets+
+    #process.ak4GenJets+
+    #process.ak4PFJets+
     process.pfJetBenchmark
     )
 

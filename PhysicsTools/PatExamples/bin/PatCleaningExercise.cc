@@ -56,7 +56,7 @@ int main(int argc, char *argv[]){
   TH1F* emfAllJets_    = theDir.make<TH1F>("emfAllJets"    , "f_{emf}(All Jets)"    ,  20,  0.,  1.);
   TH1F* emfCleanJets_  = theDir.make<TH1F>("emfCleanJets"  , "f_{emf}(Clean Jets)"  ,  20,  0.,  1.);
   TH1F* emfOverlapJets_= theDir.make<TH1F>("emfOverlapJets", "f_{emf}(Overlap Jets)",  20,  0.,  1.);
-  TH1F* deltaRElecJet_ = theDir.make<TH1F>("deltaRElecJet" , "#DeltaR (elec, jet)"  ,  10,  0., 0.5);
+  TH1F* deltaRElecJet_ = theDir.make<TH1F>("deltaRElecJet" , "#DeltaR (elec, jet)"  ,  10,  0., 0.4);
   TH1F* elecOverJet_   = theDir.make<TH1F>("elecOverJet"   , "E_{elec}/E_{jet}"     , 100,  0.,  2.);
   TH1F* nOverlaps_     = theDir.make<TH1F>("nOverlaps"     , "Number of overlaps"   ,   5,  0.,  5.);
   

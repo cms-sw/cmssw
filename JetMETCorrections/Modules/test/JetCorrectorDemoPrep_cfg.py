@@ -29,8 +29,8 @@ process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
                                 tag = cms.string("JetCorrectorParametersCollection_Jec11_V10_AK5JPT"),
                                 label=cms.untracked.string("AK5JPT")),
                       # cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                      #          tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_IC5Calo"),
-                      #          label=cms.untracked.string("IC5Calo")),
+                      #          tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_AK5Calo"),
+                      #          label=cms.untracked.string("AK5Calo")),
                       # cms.PSet(record = cms.string("JetCorrectionsRecord"),
                       #          tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_KT6Calo"),
                       #          label=cms.untracked.string("KT6Calo")),
@@ -38,8 +38,8 @@ process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
                        ##          tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_KT4Calo"),
                        ##          label=cms.untracked.string("KT4Calo")),
                        ## cms.PSet(record = cms.string("JetCorrectionsRecord"),
-                       ##          tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_AK7Calo"),
-                       ##          label=cms.untracked.string("AK7Calo")),
+                       ##          tag = cms.string("JetCorrectorParametersCollection_Jec11_V3_AK8Calo"),
+                       ##          label=cms.untracked.string("AK8Calo")),
                        )
                    
                    )
@@ -57,7 +57,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 ##-------------------- User analyzer  --------------------------------
-process.ak5calol2l3Residuall5l7  = cms.EDAnalyzer('FactorizedJetCorrectorDemo',
+process.ak4calol2l3Residuall5l7  = cms.EDAnalyzer('FactorizedJetCorrectorDemo',
     levels                   = cms.vstring( 'L2Relative', 'L3Absolute', 'L5Flavor_gJ', 'L7Parton_gJ'),
     UncertaintyTag           = cms.string('Uncertainty'),
     UncertaintyFile          = cms.string(''),
@@ -75,5 +75,5 @@ process.ak5calol2l3Residuall5l7  = cms.EDAnalyzer('FactorizedJetCorrectorDemo',
     Debug                    = cms.untracked.bool(True)
 )
 
-process.p = cms.Path(process.ak5calol2l3Residuall5l7)
+process.p = cms.Path(process.ak4calol2l3Residuall5l7)
 

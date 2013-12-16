@@ -174,8 +174,8 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
   edm::EDGetTokenT<std::vector<T> > token_;
 
-  std::string offsetCorrLabel_; // e.g. 'ak5CaloJetL1Fastjet'
-  std::string jetCorrLabel_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
+  std::string offsetCorrLabel_; // e.g. 'ak4CaloJetL1Fastjet'
+  std::string jetCorrLabel_;    // e.g. 'ak4CaloJetL1FastL2L3' (MC) / 'ak4CaloJetL1FastL2L3Residual' (Data)
   Textractor jetCorrExtractor_;
 
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),

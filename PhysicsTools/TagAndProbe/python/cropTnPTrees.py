@@ -17,7 +17,7 @@ try:
     frac = float(args[1])
 except TypeError:
     parser.print_usage()
-    print "fraction must be a floating point number (e.g. 0.5)"
+    print "fraction must be a floating point number (e.g. 0.4)"
     sys.exit(2)
 
 input  = ROOT.TFile(args[0])

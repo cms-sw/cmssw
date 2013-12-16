@@ -227,7 +227,7 @@ private:
             
   edm::EDGetTokenT<reco::MuonCollection> muonsToken_;
   edm::EDGetTokenT<reco::TrackCollection> ctfWithMaterialTracksToken_;
-  edm::EDGetTokenT<reco::CaloJetCollection> iterativeCone5CaloJetsToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> ak4CaloJetsToken_;
   edm::EDGetTokenT<reco::GsfElectronCollection> offlineElectronsToken_;
   edm::EDGetTokenT<edm::TriggerResults> inputTagToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;

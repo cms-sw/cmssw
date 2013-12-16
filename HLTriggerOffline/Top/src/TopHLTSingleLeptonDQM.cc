@@ -433,7 +433,7 @@ namespace TopHLTSingleLepton {
 	  << "                                                                                      \n"
 	  << "  ## load jet corrections                                                             \n"
 	  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
-	  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+	  << "  process.prefer(\"ak4CaloL2L3\")                                                     \n"
 	  << "                                                                                      \n"
 	  << "------------------------------------------------------------------------------------- \n";
       }

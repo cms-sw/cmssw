@@ -22,9 +22,9 @@
  Note that the "dr" values below correspond to the dr between the
  matched genjet, and the sister genjet.
 
- 1) W+bb with >= 2 jets from the ME (dr > 0.5)
+ 1) W+bb with >= 2 jets from the ME (dr > 0.4)
  2) W+b or W+bb with 1 jet from the ME
- 3) W+cc from the ME (dr > 0.5)
+ 3) W+cc from the ME (dr > 0.4)
  4) W+c or W+cc with 1 jet from the ME
  5) W+bb with 1 jet from the parton shower (dr == 0.0)
  6) W+cc with 1 jet from the parton shower (dr == 0.0)
@@ -33,8 +33,8 @@
 
  7) W+bb with >= 2 partons but 1 jet from the ME (dr == 0.0)
  8) W+cc with >= 2 partons but 1 jet from the ME (dr == 0.0)
- 9) W+bb with >= 2 partons but 2 jets from the PS (dr > 0.5)
- 10)W+cc with >= 2 partons but 2 jets from the PS (dr > 0.5)
+ 9) W+bb with >= 2 partons but 2 jets from the PS (dr > 0.4)
+ 10)W+cc with >= 2 partons but 2 jets from the PS (dr > 0.4)
 
  And here is the true "light flavor" sample:
 

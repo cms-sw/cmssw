@@ -21,11 +21,11 @@ process.cleanJets = cms.EDFilter("PATCaloJetCleaner",
         deltaR = cms.double(0.3),
         collection = cms.InputTag("cleanElectrons")
     )),
-    jetSource = cms.InputTag("iterativeCone5CaloJets")
+    jetSource = cms.InputTag("ak4CaloJets")
 )
 
 process.convBtag = cms.EDFilter("JetTagToValueMapFloat",
-    src = cms.InputTag("iterativeCone5CaloJets"),
+    src = cms.InputTag("ak4CaloJets"),
     tags = cms.InputTag("jetProbabilityJetTags")
 )
 
@@ -37,7 +37,7 @@ process.skimBtag = cms.EDFilter("CandValueMapSkimmerFloat",
 
 process.refTestAnalyzer = cms.EDAnalyzer("RefTestAnalyzer",
     jets1 = cms.InputTag("cleanJets"),
-    jets0 = cms.InputTag("iterativeCone5CaloJets"),
+    jets0 = cms.InputTag("ak4CaloJets"),
     btag = cms.InputTag("convBtag","jetProbabilityJetTags"),
     newbtag = cms.InputTag("skimBtag"),
     backmap = cms.InputTag("cleanJets"),

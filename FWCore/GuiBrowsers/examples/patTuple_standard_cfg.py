@@ -32,27 +32,27 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 ## uncomment the following lines to add jets from a
 ## 35X input sample
-#addJetCollection35X(process,cms.InputTag('ak7CaloJets'),
-#                 'AK7', 'Calo',
+#addJetCollection35X(process,cms.InputTag('ak8CaloJets'),
+#                 'AK8', 'Calo',
 #                 doJTA        = True,
 #                 doBTagging   = False,
-#                 jetCorrLabel = ('AK7', 'Calo'),
+#                 jetCorrLabel = ('AK8', 'Calo'),
 #                 doType1MET   = True,
 #                 doL1Cleaning = True,                 
 #                 doL1Counters = False,
-#                 genJetCollection=cms.InputTag("ak7GenJets"),
+#                 genJetCollection=cms.InputTag("ak8GenJets"),
 #                 doJetID      = True,
-#                 jetIdLabel   = "ak7"
+#                 jetIdLabel   = "ak8"
 #                 )
 
 ## uncomment the following lines to switch the jet
 ## collection from a 35X input sample
-#switchJetCollection35X(process,cms.InputTag('ak5PFJets'),
+#switchJetCollection35X(process,cms.InputTag('ak4PFJets'),
 #                 doJTA        = True,
 #                 doBTagging   = True,
 #                 jetCorrLabel = None,
 #                 doType1MET   = True,
-#                 genJetCollection=cms.InputTag("ak5GenJets"),
+#                 genJetCollection=cms.InputTag("ak4GenJets"),
 #                 doJetID      = True
 #                 )
 

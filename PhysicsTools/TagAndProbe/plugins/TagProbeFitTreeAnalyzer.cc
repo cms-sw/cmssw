@@ -95,7 +95,7 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
             fitter.addThresholdCategory(*name, cat[0], cat[1], atof(cat[2].c_str()));
         }else{
             LogError("TagProbeFitTreeAnalyzer")<<"Could not create cut: "<<*name<<
-                ". Example: matched = cms.vstring(\"Matched\", \"deltaR\", \"0.5\") ";
+                ". Example: matched = cms.vstring(\"Matched\", \"deltaR\", \"0.4\") ";
         }
     }
   }

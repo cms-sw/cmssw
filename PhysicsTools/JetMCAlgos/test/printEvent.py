@@ -28,7 +28,7 @@ process.printTree2 = cms.EDFilter("ParticleListDrawer",
 )
 
 process.genJetSele = cms.EDFilter("GenJetRefSelector",
-    src = cms.InputTag("iterativeCone5GenJets"),
+    src = cms.InputTag("ak4GenJets"),
     cut = cms.string('pt > 20.0')
 )
 

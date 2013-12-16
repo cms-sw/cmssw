@@ -10,7 +10,7 @@ EgammaZJetToMuPlusProbe = cms.EDFilter("EgammaProbeSelector",
     ScEtMin = cms.double(5.0),
     SuperClusterBarrelCollection = cms.InputTag("correctedHybridSuperClusters"),
     JetEtMin = cms.double(9999999.0),
-    JetCollection = cms.InputTag("iterativeCone5CaloJets"),
+    JetCollection = cms.InputTag("ak4CaloJets"),
     ScEtaMax = cms.double(2.7)
 )
 

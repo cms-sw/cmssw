@@ -26,7 +26,7 @@ process.cleanJets = cms.EDFilter("PATCaloJetCleaner",
         deltaR = cms.double(0.3),
         collection = cms.InputTag("cleanElectrons")
     )),
-    jetSource = cms.InputTag("iterativeCone5CaloJets")
+    jetSource = cms.InputTag("ak4CaloJets")
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

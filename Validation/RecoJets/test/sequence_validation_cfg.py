@@ -34,14 +34,14 @@ process.load("DQMServices.Core.DQM_cfg")
 #process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 #process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-#process.ak5L1JPTOffset.era = 'Jec11V0'
-#process.ak5L1JPTOffset.useCondDB = False
+#process.ak4L1JPTOffset.era = 'Jec11V0'
+#process.ak4L1JPTOffset.useCondDB = False
 
-process.ak5L1JPTOffset.offsetService = cms.string('')
+process.ak4L1JPTOffset.offsetService = cms.string('')
 
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 #process.kt6PFJets.doRhoFastjet = True
-process.ak5PFJets.doAreaFastjet = True
+process.ak4PFJets.doAreaFastjet = True
 
 # Validation module
 process.load("Validation.RecoJets.JetValidation_cff")
@@ -67,20 +67,20 @@ process.source = cms.Source("PoolSource",
 #)
 
 ## Test for corrected jets - available only for 
-#process.prefer("L2L3CorJetIC5Calo")
+#process.prefer("L2L3CorJetAK5Calo")
 
 #process.L2L3CorJetIcone5 = cms.EDProducer("CaloJetCorrectionProducer",
-#    src = cms.InputTag("iterativeCone5CaloJets"),
-#    correctors = cms.vstring('L2L3JetCorrectorIC5Calo')
+#    src = cms.InputTag("ak4CaloJets"),
+#    correctors = cms.vstring('L2L3JetCorrectorAK5Calo')
 #)
 
 
 ## AK5 Corrected jets
 #process.JetAnalyzerAK5Cor = cms.EDAnalyzer("CaloJetTester",
-#    src = cms.InputTag('ak5CaloJetsL2L3'),
-#    JetCorrectionService = cms.string('ak5CaloJetsL2L3'),
+#    src = cms.InputTag('ak4CaloJetsL2L3'),
+#    JetCorrectionService = cms.string('ak4CaloJetsL2L3'),
     ##src = cms.InputTag("L2L3CorJetAK5Calo"),
-#    srcGen = cms.InputTag("ak5GenJets"),
+#    srcGen = cms.InputTag("ak4GenJets"),
 ##    TurnOnEverything = cms.untracked.string('yes'),
 ##    TurnOnEverything = cms.untracked.string('no'),
 ##    outputFile = cms.untracked.string('histo.root'),
@@ -92,10 +92,10 @@ process.source = cms.Source("PoolSource",
 #)
 
 
-### IC5 JPT jets
-#JetAnalyzerIC5JPT = cms.EDFilter("CaloJetTester",
-#    src = cms.InputTag("ic5JPTJetsL2L3"),
-#    srcGen = cms.InputTag("iterativeCone5GenJets"),
+### AK5 JPT jets
+#JetAnalyzerAK5JPT = cms.EDFilter("CaloJetTester",
+#    src = cms.InputTag("ak4JPTJetsL2L3"),
+#    srcGen = cms.InputTag("ak4GenJets"),
 ##    TurnOnEverything = cms.untracked.string('yes'),
 ##    TurnOnEverything = cms.untracked.string('no'),
 ##    outputFile = cms.untracked.string('histo.root'),
@@ -108,8 +108,8 @@ process.source = cms.Source("PoolSource",
 
 ### AntiKt5 JPT jets
 #JetAnalyzerAk5JPT = cms.EDFilter("CaloJetTester",
-#    src = cms.InputTag("ak5JPTJetsL2L3"),
-#    srcGen = cms.InputTag("ak5GenJets"),
+#    src = cms.InputTag("ak4JPTJetsL2L3"),
+#    srcGen = cms.InputTag("ak4GenJets"),
 ##    TurnOnEverything = cms.untracked.string('yes'),
 ##    TurnOnEverything = cms.untracked.string('no'),
 ##    outputFile = cms.untracked.string('histo.root'),
@@ -122,15 +122,15 @@ process.source = cms.Source("PoolSource",
 
 process.p1 = cms.Path(#process.fileSaver*
 #	              process.kt6PFJets 
-                      #* process.ak5PFJets 
+                      #* process.ak4PFJets 
                       #--- Non-Standard sequence (that involve Producers)
-                      #*process.ak5CaloJetsL2L3
+                      #*process.ak4CaloJetsL2L3
  #                     *process.ZSPJetCorrectionsIcone5
  #                     *process.ZSPJetCorrectionsAntiKt5
  #                     *process.JetPlusTrackCorrectionsIcone5
  #                     *process.JetPlusTrackCorrectionsAntiKt5
 #                      *process.JetAnalyzerAK5Cor
-#                      *process.JetAnalyzerIC5JPT
+#                      *process.JetAnalyzerAK5JPT
 #                      *process.JetAnalyzerAk5JPT
                       #--- Standard sequence
                       process.JetValidation

@@ -8,7 +8,7 @@ BTAGCALAbtagCalibEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_mcAlgoJetFlavour_*_*', 
         'keep *_mcPhysJetFlavour_*_*', 
-        'keep *_iterativeCone5CaloJets_*_*', 
+        'keep *_ak4CaloJets_*_*', 
         'keep *_jetTracksAssociator_*_*', 
         'keep *_impactParameterTagInfos_*_*', 
         'keep *_combinedSVTagInfos_*_*')
@@ -19,7 +19,7 @@ BTAGCALBbtagCalibEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
         'keep *_mcAlgoJetFlavour_*_*', 
         'keep *_mcPhysJetFlavour_*_*', 
-        'keep *_iterativeCone5CaloJets_*_*', 
+        'keep *_ak4CaloJets_*_*', 
         'keep *_ctfWithMaterialTracks_*_*', 
         'keep *_offlinePrimaryVerticesFromCTFTracks_*_*')
 )

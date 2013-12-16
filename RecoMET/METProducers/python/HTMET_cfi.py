@@ -33,10 +33,11 @@ htMetSC7 = cms.EDProducer("ElseMETProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetIC5 = cms.EDProducer("ElseMETProducer",
-    src = cms.InputTag("iterativeCone5CaloJets"),
+
+htMetAK4 = cms.EDProducer("ElseMETProducer",
+    src = cms.InputTag("ak4CaloJets"),
     METType = cms.string('MET'),
-    alias = cms.string('HTMETIC5'),
+    alias = cms.string('HTMETAK4'),
     noHF = cms.bool(False),
     globalThreshold = cms.double(20.0),
     InputType = cms.string('CaloJetCollection')
@@ -60,19 +61,11 @@ htMetKT6 = cms.EDProducer("ElseMETProducer",
     InputType = cms.string('CaloJetCollection')
 )
 
-htMetAK5 = cms.EDProducer("ElseMETProducer",
-    src = cms.InputTag("ak5CaloJets"),
-    METType = cms.string('MET'),
-    alias = cms.string('HTMETAK5'),
-    noHF = cms.bool(False),
-    globalThreshold = cms.double(20.0),
-    InputType = cms.string('CaloJetCollection')
-)
 
-htMetAK7 = cms.EDProducer("ElseMETProducer",
-    src = cms.InputTag("ak7CaloJets"),
+htMetAK8 = cms.EDProducer("ElseMETProducer",
+    src = cms.InputTag("ak8CaloJets"),
     METType = cms.string('MET'),
-    alias = cms.string('HTMETAK7'),
+    alias = cms.string('HTMETAK8'),
     noHF = cms.bool(False),
     globalThreshold = cms.double(20.0),
     InputType = cms.string('CaloJetCollection')

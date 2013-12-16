@@ -71,12 +71,12 @@ FourVectorHLTriggerOffline::FourVectorHLTriggerOffline(const edm::ParameterSet& 
 
 
   genParticles_token_ = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("genParticles"),edm::InputTag("genParticles")));
-  iterativeCone5GenJets_token_ = consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("iterativeCone5GenJets"),edm::InputTag("iterativeCone5GenJets")));
+  ak4GenJets_token_ = consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("ak4GenJets"),edm::InputTag("ak4GenJets")));
   genMetTrue_token_ = consumes<reco::GenMETCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("genMetTrue"),edm::InputTag("genMetTrue")));
   muonCollection_ = consumes<reco::MuonCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("muons"),edm::InputTag("muons")));
   gsfElectronCollection_ = consumes<reco::GsfElectronCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("gsfElectrons"),edm::InputTag("gsfElectrons")));
   caloRecoTauCollection_ = consumes<reco::CaloTauCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("caloRecoTauProducer"),edm::InputTag("caloRecoTauProducer")));
-  caloJetCollection_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("iterativeCone5CaloJets"),edm::InputTag("iterativeCone5CaloJets")));
+  caloJetCollection_ = consumes<reco::CaloJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("ak4CaloJets"),edm::InputTag("ak4CaloJets")));
   jetTagCollection_ = consumes<reco::JetTagCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("jetTagCollection"),edm::InputTag("jetProbabilityBJetTags")));
   softMuonBJetTags_ = consumes<reco::JetTagCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("softMuonBJetTags"),edm::InputTag("softMuonBJetTags")));
   caloMetCollection_ = consumes<reco::CaloMETCollection>(iConfig.getUntrackedParameter<edm::InputTag>(("metCollection"),edm::InputTag("met")));
@@ -149,7 +149,7 @@ FourVectorHLTriggerOffline::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   Handle<reco::GenJetCollection> genJets;
-  iEvent.getByToken(iterativeCone5GenJets_token_,genJets);
+  iEvent.getByToken(ak4GenJets_token_,genJets);
   if(!genJets.isValid()) { 
     edm::LogInfo("FourVectorHLTriggerOffline") << "genJets not found, "
       "skipping event"; 

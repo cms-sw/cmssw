@@ -42,7 +42,7 @@ TopValidation::TopValidation(const edm::ParameterSet& iConfig)
 
      muonsToken_ = consumes<reco::MuonCollection>(std::string("muons"));
      ctfWithMaterialTracksToken_ = consumes<reco::TrackCollection>(std::string("ctfWithMaterialTracks"));
-     iterativeCone5CaloJetsToken_ = consumes<reco::CaloJetCollection>(std::string("iterativeCone5CaloJets"));
+     ak4CaloJetsToken_ = consumes<reco::CaloJetCollection>(std::string("ak4CaloJets"));
      offlineElectronsToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("offlineElectrons"));
      inputTagToken_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultsCollection"));
      genParticlesToken_ = consumes<reco::GenParticleCollection>(std::string("genParticles"));
@@ -82,7 +82,7 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      
   // get calo jet collection
   Handle<reco::CaloJetCollection> jetsHandle;
-  iEvent.getByToken(iterativeCone5CaloJetsToken_, jetsHandle);
+  iEvent.getByToken(ak4CaloJetsToken_, jetsHandle);
 
   
   // electron collection

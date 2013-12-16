@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # producer for alcaminbisas (HCAL minimum bias)
 
 HcalNoiseProd = cms.EDProducer("AlCaEcalHcalReadoutsProducer",
-    JetSource = cms.InputTag("iterativeCone5CaloJets"),
+    JetSource = cms.InputTag("ak4CaloJets"),
     MetSource = cms.InputTag("met"),
     TowerSource = cms.InputTag("towerMaker"),
     UseJet = cms.bool(True),

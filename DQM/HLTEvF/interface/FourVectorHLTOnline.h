@@ -217,7 +217,7 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       edm::EDGetTokenT<edm::TriggerResults> muonRecoCollectionNameToken_;
       edm::EDGetTokenT<edm::TriggerResults> gsfElectronsToken_;
       edm::EDGetTokenT<edm::TriggerResults> caloRecoTauProducerToken_;
-      edm::EDGetTokenT<edm::TriggerResults> iterativeCone5CaloJetsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> ak4CaloJetsToken_;
       edm::EDGetTokenT<edm::TriggerResults> jetProbabilityBJetTagsToken_;
       edm::EDGetTokenT<edm::TriggerResults> softMuonBJetTagsToken_;
       edm::EDGetTokenT<edm::TriggerResults> metToken_;

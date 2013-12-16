@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 pfJetDQMAnalyzer = cms.EDAnalyzer("PFJetDQMAnalyzer",
-    InputCollection = cms.InputTag('ak5PFJets'),
-    MatchCollection = cms.InputTag('ak5CaloJets'),
+    InputCollection = cms.InputTag('ak4PFJets'),
+    MatchCollection = cms.InputTag('ak4CaloJets'),
     BenchmarkLabel  = cms.string('ParticleFlow/PFVsCalo'),
     deltaRMax = cms.double(0.1),
     onlyTwoJets = cms.bool(False),

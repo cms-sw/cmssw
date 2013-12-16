@@ -26,7 +26,7 @@ process.L3AbsoluteJetCorrector = cms.ESSource("L3AbsoluteCorrectionService",
 )
 #############   Define the EMF correction service ####
 process.L4JetCorrector = cms.ESSource("L4EMFCorrectionService", 
-    tagName = cms.string('L4EMF_IC5'), # IMPORTANT: the L4 correction was derived from IC5 but it is the same for all algos
+    tagName = cms.string('L4EMF_AK5'), # IMPORTANT: the L4 correction was derived from AK5 but it is the same for all algos
     label = cms.string('L4EMFJetCorrector')
 )
 #############   Define the chain corrector service ###

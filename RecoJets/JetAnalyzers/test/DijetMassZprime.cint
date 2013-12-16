@@ -20,10 +20,10 @@
   ptMC5gen->SetLineColor(2);
   ptMC5gen->SetLineWidth(2);
   ptMC5gen->Draw("");
-  ptIC5gen->SetMarkerColor(2);
-  ptIC5gen->SetLineColor(2);
-  ptIC5gen->SetMarkerStyle(20);
-  ptIC5gen->Draw("peSAME");
+  ptAK5gen->SetMarkerColor(2);
+  ptAK5gen->SetLineColor(2);
+  ptAK5gen->SetMarkerStyle(20);
+  ptAK5gen->Draw("peSAME");
   ptKT10gen->SetMarkerColor(2);
   ptKT10gen->SetLineColor(2);
   ptKT10gen->SetMarkerStyle(25);
@@ -32,8 +32,8 @@
   //cal
   ptMC5cal->SetLineWidth(2);
   ptMC5cal->Draw("SAME");
-  ptIC5cal->SetMarkerStyle(20);
-  ptIC5cal->Draw("peSAME");
+  ptAK5cal->SetMarkerStyle(20);
+  ptAK5cal->Draw("peSAME");
   ptKT10cal->SetMarkerStyle(25);
   ptKT10cal->Draw("peSAME");
 
@@ -41,17 +41,17 @@
   ptMC5cor->SetLineColor(8);
   ptMC5cor->SetLineWidth(2);
   ptMC5cor->Draw("SAME");
-  ptIC5cor->SetLineColor(8);
-  ptIC5cor->SetMarkerStyle(20);
-  ptIC5cor->SetMarkerColor(8);
-  ptIC5cor->Draw("peSAME");
+  ptAK5cor->SetLineColor(8);
+  ptAK5cor->SetMarkerStyle(20);
+  ptAK5cor->SetMarkerColor(8);
+  ptAK5cor->Draw("peSAME");
 
   //legend
   leg1 = new TLegend(0.6,0.38,0.85,0.63);
   leg1->SetFillColor(0);
   leg1->SetHeader("CaloJets");
   leg1->AddEntry(ptMC5cal,"MCone R=0.5","l");
-  leg1->AddEntry(ptIC5cal,"ICone R=0.5","pe");
+  leg1->AddEntry(ptAK5cal,"ICone R=0.5","pe");
   leg1->AddEntry(ptKT10cal,"KT   D=1.0","pe");
   leg1->Draw();
   leg2 = new TLegend(0.6,0.65,0.85,0.9);
@@ -59,7 +59,7 @@
   leg2->SetTextColor(2);
   leg2->SetHeader("GenJets");
   leg2->AddEntry(ptMC5gen,"MCone R=0.5","l");
-  leg2->AddEntry(ptIC5gen,"ICone R=0.5","pe");
+  leg2->AddEntry(ptAK5gen,"ICone R=0.5","pe");
   leg2->AddEntry(ptKT10gen,"KT   D=1.0","pe");
   leg2->Draw();
   leg0 = new TLegend(0.6,0.18,0.85,0.36);
@@ -67,7 +67,7 @@
   leg0->SetTextColor(8);
   leg0->SetHeader("CorJets");
   leg0->AddEntry(ptMC5cor,"MCone R=0.5","l");
-  leg0->AddEntry(ptIC5cor,"ICone R=0.5","pe");
+  leg0->AddEntry(ptAK5cor,"ICone R=0.5","pe");
   leg0->Draw();
 
   mycpt->Print("ptBarrel.eps");
@@ -87,10 +87,10 @@
   m2jMC5gen->SetLineColor(2);
   m2jMC5gen->SetLineWidth(2);
   m2jMC5gen->Draw("");
-  m2jIC5gen->SetMarkerColor(2);
-  m2jIC5gen->SetLineColor(2);
-  m2jIC5gen->SetMarkerStyle(20);
-  m2jIC5gen->Draw("peSAME");
+  m2jAK5gen->SetMarkerColor(2);
+  m2jAK5gen->SetLineColor(2);
+  m2jAK5gen->SetMarkerStyle(20);
+  m2jAK5gen->Draw("peSAME");
   m2jKT10gen->SetMarkerColor(2);
   m2jKT10gen->SetLineColor(2);
   m2jKT10gen->SetMarkerStyle(25);
@@ -99,8 +99,8 @@
   //cal
   m2jMC5cal->SetLineWidth(2);
   m2jMC5cal->Draw("SAME");
-  m2jIC5cal->SetMarkerStyle(20);
-  m2jIC5cal->Draw("peSAME");
+  m2jAK5cal->SetMarkerStyle(20);
+  m2jAK5cal->Draw("peSAME");
   m2jKT10cal->SetMarkerStyle(25);
   m2jKT10cal->Draw("peSAME");
 
@@ -108,17 +108,17 @@
   m2jMC5cor->SetLineColor(8);
   m2jMC5cor->SetLineWidth(2);
   m2jMC5cor->Draw("SAME");
-  m2jIC5cor->SetLineColor(8);
-  m2jIC5cor->SetMarkerStyle(20);
-  m2jIC5cor->SetMarkerColor(8);
-  m2jIC5cor->Draw("peSAME");
+  m2jAK5cor->SetLineColor(8);
+  m2jAK5cor->SetMarkerStyle(20);
+  m2jAK5cor->SetMarkerColor(8);
+  m2jAK5cor->Draw("peSAME");
  
   //legend
   leg1 = new TLegend(0.6,0.38,0.85,0.63);
   leg1->SetFillColor(0);
   leg1->SetHeader("CaloJets");
   leg1->AddEntry(m2jMC5cal,"MCone R=0.5","l");
-  leg1->AddEntry(m2jIC5cal,"ICone R=0.5","pe");
+  leg1->AddEntry(m2jAK5cal,"ICone R=0.5","pe");
   leg1->AddEntry(m2jKT10cal,"KT   D=1.0","pe");
   leg1->Draw();
   leg2 = new TLegend(0.6,0.65,0.85,0.9);
@@ -126,7 +126,7 @@
   leg2->SetTextColor(2);
   leg2->SetHeader("GenJets");
   leg2->AddEntry(m2jMC5gen,"MCone R=0.5","l");
-  leg2->AddEntry(m2jIC5gen,"ICone R=0.5","pe");
+  leg2->AddEntry(m2jAK5gen,"ICone R=0.5","pe");
   leg2->AddEntry(m2jKT10gen,"KT   D=1.0","pe");
   leg2->Draw();
   leg0 = new TLegend(0.6,0.18,0.85,0.36);
@@ -134,7 +134,7 @@
   leg0->SetTextColor(8);
   leg0->SetHeader("CorJets");
   leg0->AddEntry(m2jMC5cor,"MCone R=0.5","l");
-  leg0->AddEntry(m2jIC5cor,"ICone R=0.5","pe");
+  leg0->AddEntry(m2jAK5cor,"ICone R=0.5","pe");
   leg0->Draw();
   mycm2j->Print("m2jBarrel.eps");
   mycm2j->Print("m2jBarrel.gif");
@@ -155,10 +155,10 @@
   etaMC5gen->SetLineColor(2);
   etaMC5gen->SetLineWidth(2);
   etaMC5gen->Draw("");
-  etaIC5gen->SetMarkerColor(2);
-  etaIC5gen->SetLineColor(2);
-  etaIC5gen->SetMarkerStyle(20);
-  etaIC5gen->Draw("peSAME");
+  etaAK5gen->SetMarkerColor(2);
+  etaAK5gen->SetLineColor(2);
+  etaAK5gen->SetMarkerStyle(20);
+  etaAK5gen->Draw("peSAME");
   etaKT10gen->SetMarkerColor(2);
   etaKT10gen->SetLineColor(2);
   etaKT10gen->SetMarkerStyle(25);
@@ -167,8 +167,8 @@
   //cal
   etaMC5cal->SetLineWidth(2);
   etaMC5cal->Draw("SAME");
-  etaIC5cal->SetMarkerStyle(20);
-  etaIC5cal->Draw("peSAME");
+  etaAK5cal->SetMarkerStyle(20);
+  etaAK5cal->Draw("peSAME");
   etaKT10cal->SetMarkerStyle(25);
   etaKT10cal->Draw("peSAME");
 
@@ -177,7 +177,7 @@
   leg1->SetFillColor(0);
   leg1->SetHeader("CaloJets");
   leg1->AddEntry(etaMC5cal,"MCone R=0.5","l");
-  leg1->AddEntry(etaIC5cal,"ICone R=0.5","pe");
+  leg1->AddEntry(etaAK5cal,"ICone R=0.5","pe");
   leg1->AddEntry(etaKT10cal,"KT   D=1.0","pe");
   leg1->Draw();
   leg2 = new TLegend(0.65,0.2,0.9,0.45);
@@ -185,7 +185,7 @@
   leg2->SetTextColor(2);
   leg2->SetHeader("GenJets");
   leg2->AddEntry(etaMC5gen,"MCone R=0.5","l");
-  leg2->AddEntry(etaIC5gen,"ICone R=0.5","pe");
+  leg2->AddEntry(etaAK5gen,"ICone R=0.5","pe");
   leg2->AddEntry(etaKT10gen,"KT   D=1.0","pe");
   leg2->Draw();
   myceta->Print("etaBarrel.eps");
@@ -206,10 +206,10 @@
   phiMC5gen->SetLineColor(2);
   phiMC5gen->SetLineWidth(2);
   phiMC5gen->Draw("");
-  phiIC5gen->SetMarkerColor(2);
-  phiIC5gen->SetLineColor(2);
-  phiIC5gen->SetMarkerStyle(20);
-  phiIC5gen->Draw("peSAME");
+  phiAK5gen->SetMarkerColor(2);
+  phiAK5gen->SetLineColor(2);
+  phiAK5gen->SetMarkerStyle(20);
+  phiAK5gen->Draw("peSAME");
   phiKT10gen->SetMarkerColor(2);
   phiKT10gen->SetLineColor(2);
   phiKT10gen->SetMarkerStyle(25);
@@ -218,8 +218,8 @@
   //cal
   phiMC5cal->SetLineWidth(2);
   phiMC5cal->Draw("SAME");
-  phiIC5cal->SetMarkerStyle(20);
-  phiIC5cal->Draw("peSAME");
+  phiAK5cal->SetMarkerStyle(20);
+  phiAK5cal->Draw("peSAME");
   phiKT10cal->SetMarkerStyle(25);
   phiKT10cal->Draw("peSAME");
 
@@ -228,7 +228,7 @@
   leg1->SetFillColor(0);
   leg1->SetHeader("CaloJets");
   leg1->AddEntry(phiMC5cal,"MCone R=0.5","l");
-  leg1->AddEntry(phiIC5cal,"ICone R=0.5","pe");
+  leg1->AddEntry(phiAK5cal,"ICone R=0.5","pe");
   leg1->AddEntry(phiKT10cal,"KT   D=1.0","pe");
   leg1->Draw();
   leg2 = new TLegend(0.55,0.2,0.8,0.45);
@@ -236,7 +236,7 @@
   leg2->SetTextColor(2);
   leg2->SetHeader("GenJets");
   leg2->AddEntry(phiMC5gen,"MCone R=0.5","l");
-  leg2->AddEntry(phiIC5gen,"ICone R=0.5","pe");
+  leg2->AddEntry(phiAK5gen,"ICone R=0.5","pe");
   leg2->AddEntry(phiKT10gen,"KT   D=1.0","pe");
   leg2->Draw();
   mycphi->Print("phiBarrel.eps");

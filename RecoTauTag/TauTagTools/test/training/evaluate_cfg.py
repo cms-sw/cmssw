@@ -108,9 +108,9 @@ process.signalJetsDMTruthMatching = cms.EDProducer(
 )
 process.signalSpecific += process.signalJetsDMTruthMatching
 
-# Overwrite the ak5PFJets with our special collection.  The regular tau
+# Overwrite the ak4PFJets with our special collection.  The regular tau
 # sequences will use this as input.
-process.ak5PFJets = cms.EDFilter(
+process.ak4PFJets = cms.EDFilter(
     "CandViewGenJetMatchRefSelector",
     src = cms.InputTag("kinematicSignalJets"),
     matching = cms.InputTag("signalJetsDMTruthMatching"),
@@ -150,7 +150,7 @@ if _SIGNAL:
     process.combinatoricRecoTaus.modifiers.append(jetMatchModifier)
 else:
     process.specific = process.backgroundSpecific
-    process.ak5PFJets = cms.EDFilter(
+    process.ak4PFJets = cms.EDFilter(
         "CandViewRefSelector",
         src = cms.InputTag("kinematicBackgroundJets"),
         cut = cms.string(_KIN_CUT),
@@ -193,8 +193,8 @@ process.plotHPSTancRes = process.plotShrinkingRes.clone(
     src = cms.InputTag("mediumHPSTancTaus")
 )
 
-process.main = cms.Sequence(process.specific*process.ak5PFJets*process.PFTau)
-#process.main = cms.Sequence(process.specific*process.ak5PFJets*process.ak5PFJetsRecoTauPiZeros*process.combinatoricRecoTaus*process.hpsTancTauSequence)
+process.main = cms.Sequence(process.specific*process.ak4PFJets*process.PFTau)
+#process.main = cms.Sequence(process.specific*process.ak4PFJets*process.ak4PFJetsRecoTauPiZeros*process.combinatoricRecoTaus*process.hpsTancTauSequence)
 
 if _SIGNAL:
     process.main += process.mediumShrinkingTaus
@@ -247,7 +247,7 @@ process.hpsTancTausDiscriminationByTancRaw.remapOutput = False
 # Plot the input jets to use in weighting the transformation
 process.plotAK5PFJets = cms.EDAnalyzer(
     "CandViewHistoAnalyzer",
-    src = cms.InputTag("ak5PFJets"),
+    src = cms.InputTag("ak4PFJets"),
     histograms = common.jet_histograms
 )
 process.main += process.plotAK5PFJets

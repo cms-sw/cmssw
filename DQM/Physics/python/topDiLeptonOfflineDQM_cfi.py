@@ -17,7 +17,7 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5PFJetsCHS"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -55,11 +55,11 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets    
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #      ),
       ## when omitted no extra selection will be applied on jets before
@@ -135,11 +135,11 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step1"),
-      src    = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4PFJetsCHS"),
+      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #     ),
       min = cms.int32(2),
@@ -167,7 +167,7 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5PFJetsCHS"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -205,11 +205,11 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets    
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #      ),
       ## when omitted no extra selection will be applied on jets before
@@ -285,12 +285,12 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step1"),
-      src    = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4PFJetsCHS"),
+      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
       select = cms.string("pt>30. & abs(eta)<2.4 "), 
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #      ),
       min = cms.int32(2),
@@ -316,7 +316,7 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5PFJetsCHS"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -354,11 +354,11 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets    
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #      ),
       ## when omitted no extra selection will be applied on jets before
@@ -438,12 +438,12 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step1"),
-      src    = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4PFJetsCHS"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string("pt>30. & abs(eta)<2.4"), 
 #      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #      ),
       min = cms.int32(2),
@@ -469,7 +469,7 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5PFJetsCHS"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -507,11 +507,11 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets    
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #      ),
       ## when omitted no extra selection will be applied on jets before
@@ -598,12 +598,12 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
-      src    = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4PFJetsCHS"),
+      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
       select = cms.string("pt>30. & abs(eta)<2.4 "), 
 #      jetID  = cms.PSet(
-#        label  = cms.InputTag("ak5JetID"),
+#        label  = cms.InputTag("ak4JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
 #      ),
       min = cms.int32(2),

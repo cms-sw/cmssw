@@ -15,7 +15,7 @@ process.inFlightMuons = cms.EDProducer("PATGenCandsFromSimTracksProducer",
         src           = cms.InputTag("g4SimHits"),   ## use "famosSimHits" for FAMOS
         setStatus     = cms.int32(-1),
         particleTypes = cms.vstring("mu+"),          ## picks also mu-, of course
-        filter        = cms.vstring("pt > 0.5"),     ## just for testing
+        filter        = cms.vstring("pt > 0.4"),     ## just for testing
         makeMotherLink = cms.bool(True),
         writeAncestors = cms.bool(True),             ## save also the intermediate GEANT ancestors of the muons
         genParticles   = cms.InputTag("genParticles"),
@@ -47,7 +47,7 @@ process.muonMatchByPt = cms.EDProducer("MCMatcherByPt", # cut on deltaR, deltaPt
     mcPdgId     = cms.vint32(13), # one or more PDG ID (13 = muon); absolute values (see below)
     checkCharge = cms.bool(True), # True = require RECO and MC objects to have the same charge
     mcStatus = cms.vint32(1),     # PYTHIA status code (1 = stable, 2 = shower, 3 = hard scattering)
-    maxDeltaR = cms.double(0.5),  # Minimum deltaR for the match
+    maxDeltaR = cms.double(0.4),  # Minimum deltaR for the match
     maxDPtRel = cms.double(0.5),  # Minimum deltaPt/Pt for the match
     resolveAmbiguities = cms.bool(True),     # Forbid two RECO objects to match to the same GEN object
     resolveByMatchQuality = cms.bool(False), # False = just match input in order; True = pick lowest deltaR pair first

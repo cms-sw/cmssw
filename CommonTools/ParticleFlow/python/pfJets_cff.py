@@ -4,8 +4,8 @@ from CommonTools.ParticleFlow.ParticleSelectors.ptMinPFJetSelector_cfi import pt
 from CommonTools.ParticleFlow.Tools.jetTools import jetAlgo
 
 
-#allPfJets = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
-pfJets = jetAlgo('AK5')
+#allPfJets = RecoJets.JetProducers.ak4PFJets_cfi.ak4PFJets.clone()
+pfJets = jetAlgo('AK4')
 
 pfJetsPtrs = cms.EDProducer("PFJetFwdPtrProducer",
                             src=cms.InputTag("pfJets")

@@ -173,7 +173,7 @@ void fwliteExample(bool debug=false){
     //----- loop over jets -----
 
     fwlite::Handle<vector<reco::CaloJet> > jets;
-    jets.getByLabel(event, "iterativeConePu5CaloJets");
+    jets.getByLabel(event, "akPu5CaloJets");
 
     //----- loop over muons -----
 

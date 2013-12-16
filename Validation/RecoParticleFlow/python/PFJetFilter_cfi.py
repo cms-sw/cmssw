@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 pfJetFilter = cms.EDFilter("PFJetFilter",
     # Gen Jets
-    InputTruthLabel = cms.InputTag('iterativeCone5GenJets'),
+    InputTruthLabel = cms.InputTag('ak4GenJets'),
     # Reco Jets
-    InputRecoLabel = cms.InputTag('iterativeCone5PFJets'),
+    InputRecoLabel = cms.InputTag('ak4PFJets'),
     # Pseudo-rapidity cut for the reconstructed jet.
     minEta = cms.double(-1),
     maxEta = cms.double(2.5),

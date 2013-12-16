@@ -46,7 +46,7 @@ void patBJetVertex_showPlots()
 		unsigned int k = 1;
 		if (TString(*plot).Contains("dist"))
 			gPad->SetLogy(1);
-		l = new TLegend(0.5, 0.6, 0.85, 0.85);
+		l = new TLegend(0.4, 0.6, 0.85, 0.85);
 		for(const char **flavour = flavours; *flavour; flavour++) {
 			h = (TH1*)file->Get(Form("%s/%s_%s", directory, *plot, *flavour));
 			title = h->GetTitle();
@@ -83,7 +83,7 @@ void setAxisStyle(TH1 *hist) {
 
 	hist->GetYaxis()->SetTitleSize( 0.07);
 	hist->GetYaxis()->SetTitleColor( 1);
-	hist->GetYaxis()->SetTitleOffset( 0.5);
+	hist->GetYaxis()->SetTitleOffset( 0.4);
 	hist->GetYaxis()->SetTitleFont( 62);
 	hist->GetYaxis()->SetLabelSize( 0.05);
 	hist->GetYaxis()->SetLabelFont( 62);

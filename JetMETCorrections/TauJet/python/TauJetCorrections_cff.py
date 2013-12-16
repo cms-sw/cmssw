@@ -15,7 +15,7 @@ TauJetCorrectorIcone4 = cms.ESSource("TauJetCorrectionService",
 )
 
 TauJetCorJetIcone4 = cms.EDProducer("JetCorrectionProducer",
-    src = cms.InputTag("iterativeCone4CaloJets"),
+    src = cms.InputTag("ak4CaloJets"),
     correctors = cms.vstring('TauJetCorrectorIcone4'),
     alias = cms.untracked.string('TauJetCorJetIcone4')
 )

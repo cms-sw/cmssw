@@ -7,8 +7,8 @@ from RecoJets.Configuration.RecoJets_cff import *
 
 #
 # special R=0.15 IC jets:
-iterativeCone15CaloJets = iterativeCone5CaloJets.clone( rParam = cms.double(0.15) )
+ak15CaloJets = ak4CaloJets.clone( rParam = cms.double(0.15) )
 
 
-recoJetsGR = cms.Sequence(iterativeCone15CaloJets+kt4CaloJets+kt6CaloJets+iterativeCone5CaloJets+ak5CaloJets+ak7CaloJets+sisCone5CaloJets+sisCone7CaloJets)
+recoJetsGR = cms.Sequence(ak15CaloJets+kt4CaloJets+kt6CaloJets+ak4CaloJets+ak4CaloJets+ak8CaloJets+sisCone5CaloJets+sisCone7CaloJets)
 

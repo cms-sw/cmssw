@@ -255,7 +255,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   Handle<GenJetCollection> genJets;
-  iEvent.getByLabel("iterativeCone5GenJets",genJets);
+  iEvent.getByLabel("ak4GenJets",genJets);
   if(!genJets.isValid()) { 
     edm::LogInfo("FourVectorHLTOffline") << "genJets not found, "
       "skipping event"; 
@@ -327,7 +327,7 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   selectTaus(iEvent);
 
   edm::Handle<reco::CaloJetCollection> jetHandle;
-  iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
+  iEvent.getByLabel("ak4CaloJets",jetHandle);
   if(!jetHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "jetHandle not found, ";
   selectJets(iEvent,jetHandle);

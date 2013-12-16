@@ -9,13 +9,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(50)
 )
 process.sols = cms.EDFilter("TestEventHypothesisWriter",
-    jets = cms.InputTag("iterativeCone5CaloJets"),
+    jets = cms.InputTag("ak4CaloJets"),
     muons = cms.InputTag("pixelMatchGsfElectrons")
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring('drop *', 
-        'keep *_iterativeCone5CaloJets_*_*', 
+        'keep *_ak4CaloJets_*_*', 
         'keep *_pixelMatchGsfElectrons_*_*', 
         'keep *_*_*_TestEHW'),
     fileName = cms.untracked.string('eh.root')

@@ -201,7 +201,7 @@ process.hpsPFTauDiscriminationByTightIsolation.qualityCuts.isolationQualityCuts.
 process.preValidation = cms.Sequence(process.recoTauCommonSequence)
 
 process.validation = cms.Sequence(
-   process.ak5PFJetsLegacyHPSPiZeros *
+   process.ak4PFJetsLegacyHPSPiZeros *
    process.combinatoricRecoTaus *
    process.produceAndDiscriminateHPSPFTaus*
    process.produceDenominator *
@@ -261,7 +261,7 @@ TauTagValOutputCommands = cms.PSet(
       outputCommands = cms.untracked.vstring('drop *',
          'keep recoPFCandidates_*_*_*',
          'keep *_genParticles*_*_*',
-         'keep *_iterativeCone5GenJets_*_*',
+         'keep *_ak4GenJets_*_*',
          'keep *_tauGenJets*_*_*',
          'keep *_selectedGenTauDecays*_*_*'
          )

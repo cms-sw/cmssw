@@ -171,7 +171,7 @@ class FourVectorHLTriggerOffline : public edm::EDAnalyzer {
 
 
       edm::EDGetTokenT<reco::GenParticleCollection> genParticles_token_;
-      edm::EDGetTokenT<reco::GenJetCollection> iterativeCone5GenJets_token_;
+      edm::EDGetTokenT<reco::GenJetCollection> ak4GenJets_token_;
       edm::EDGetTokenT<reco::GenMETCollection> genMetTrue_token_;
       edm::EDGetTokenT<reco::MuonCollection> muonCollection_;
       edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronCollection_;

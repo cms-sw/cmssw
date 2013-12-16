@@ -68,7 +68,7 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // Grab appropriate rho, hard coded for the moment                                                                                      
       edm::Handle<std::vector<double> > rs;
       iEvent.getByLabel(edm::InputTag(rhoTag_,"rhos"),rs);
-      //iEvent.getByLabel(edm::InputTag("ic5CaloJets","rhos"),rs);                                                                            
+      //iEvent.getByLabel(edm::InputTag("ak4CaloJets","rhos"),rs);                                                                            
       int rsize = rs->size();
 
       for(int j = 0; j < rsize; j++){
@@ -124,7 +124,7 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Grab appropriate rho, hard coded for the moment
     edm::Handle<std::vector<double> > rs;
     iEvent.getByLabel(edm::InputTag(rhoTag_,"rhos"),rs);
-    //iEvent.getByLabel(edm::InputTag("ic5CaloJets","rhos"),rs);
+    //iEvent.getByLabel(edm::InputTag("ak4CaloJets","rhos"),rs);
 
 
     int rsize = rs->size();
@@ -186,7 +186,7 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Grab appropriate rho, hard coded for the moment
     edm::Handle<std::vector<double> > rs;
     iEvent.getByLabel(edm::InputTag(rhoTag_,"rhos"),rs);
-    //iEvent.getByLabel(edm::InputTag("ic5CaloJets","rhos"),rs);
+    //iEvent.getByLabel(edm::InputTag("ak4CaloJets","rhos"),rs);
 
 
     int rsize = rs->size();

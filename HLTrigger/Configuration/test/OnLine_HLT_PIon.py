@@ -14332,7 +14332,7 @@ process.hltPAMetForHf = cms.EDProducer( "METProducer",
     track_quality = cms.vint32( 2 ),
     isCosmics = cms.bool( False ),
     eVetoMinElectronPt = cms.double( 10.0 ),
-    jets = cms.InputTag( "ak5PFJets" )
+    jets = cms.InputTag( "ak4PFJets" )
 )
 process.hltGlobalSumETHfFilter100 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     saveTags = cms.bool( False ),

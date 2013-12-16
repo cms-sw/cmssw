@@ -56,11 +56,11 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoJetPtCleaning            = cms.untracked.bool(False),                           
     DoDiJetSelection           = cms.untracked.bool(True),
 
-    PFJetsCollectionLabel      = cms.InputTag("ak5PFJets"),
+    PFJetsCollectionLabel      = cms.InputTag("ak4PFJets"),
     JPTJetsCollectionLabel     = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
     SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
-    AKJetsCollectionLabel      = cms.InputTag("ak5CaloJets"),
-    ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
+    AKJetsCollectionLabel      = cms.InputTag("ak4CaloJets"),
+    ICJetsCollectionLabel      = cms.InputTag("ak4CaloJets"),
 
     #
     # MET-related
@@ -125,7 +125,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
      pfMETAnalysis = metDQMParameters.clone(
          METCollectionLabel   = cms.InputTag("pfMet"),
          Source               = cms.string("PfMET"),
-         PfJetCollectionLabel = cms.InputTag("iterativeCone5PFJets"),
+         PfJetCollectionLabel = cms.InputTag("ak4PFJets"),
          PFCandidates         = cms.InputTag("particleFlow"),
          DCSFilter = cms.PSet(
            DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
@@ -171,7 +171,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     HTMHTAnalysis = cms.PSet(
         verbose     = cms.int32(0),
         printOut    = cms.int32(0),
-        JetCollectionForHTMHTLabel   = cms.InputTag("iterativeCone5CaloJets"),
+        JetCollectionForHTMHTLabel   = cms.InputTag("ak4CaloJets"),
         FolderName = cms.untracked.string("JetMET/MET/"),
         Source = cms.string("HTMHT"),
         HLTPathsJetMB = cms.vstring(),

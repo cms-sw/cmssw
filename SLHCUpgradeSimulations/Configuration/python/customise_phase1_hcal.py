@@ -327,7 +327,7 @@ def saveAllProds(process):
                                    'keep recoPFCandidates_pfAllChargedHadrons_*_*',
                                    'keep recoPFCandidates_particleFlow_electrons_*',
                                    'keep recoPFRecTracks_pfV0_*_*',
-                                   'keep recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ak5PFJetTracksAssociatorAtVertex_*_*',
+                                   'keep recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_ak4PFJetTracksAssociatorAtVertex_*_*',
                                    'keep recoPFRecTracks_pfConversions_*_*',
                                    'keep recoPFCandidateElectronExtras_particleFlow_*_*',
                                    'keep recoPFRecHits_particleFlowRecHitECAL_Cleaned_*',

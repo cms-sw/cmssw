@@ -62,7 +62,7 @@ void AnalysisJV::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel("jetvertex","JetType",JV_jet_type);
 
    Handle<CaloJetCollection> CaloIconeJetsHandle;
-   iEvent.getByLabel( "iterativeCone5CaloJets", CaloIconeJetsHandle);
+   iEvent.getByLabel( "ak4CaloJets", CaloIconeJetsHandle);
 
     if(CaloIconeJetsHandle->size()){
     ResultCollection1::const_iterator it_jv1 = JV_alpha->begin();

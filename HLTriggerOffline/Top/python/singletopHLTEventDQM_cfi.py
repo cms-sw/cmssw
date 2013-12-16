@@ -16,7 +16,7 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      jets  = cms.InputTag("ak4CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -47,11 +47,11 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                                                                   
       jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
+        label  = cms.InputTag("ak4JetID"),
         select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
       ),
       ## when omitted no extra selection will be applied on jets before
@@ -134,22 +134,22 @@ SingleTopSingleMuonTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/calo:step2"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4CaloJets"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & emEnergyFraction>0.01"),
       jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
+        label  = cms.InputTag("ak4JetID"),
         select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
       ),
       min = cms.int32(1),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step3"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4CaloJets"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & emEnergyFraction>0.01"),
       jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
+        label  = cms.InputTag("ak4JetID"),
         select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
       ),
       min = cms.int32(2),
@@ -173,7 +173,7 @@ SingleTopSingleElectronTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      jets  = cms.InputTag("ak4CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -204,11 +204,11 @@ SingleTopSingleElectronTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                                                                   
       jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
+        label  = cms.InputTag("ak4JetID"),
         select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
       ),
       ## when omitted no extra selection will be applied on jets before
@@ -291,22 +291,22 @@ SingleTopSingleElectronTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/calo:step2"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4CaloJets"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & emEnergyFraction>0.01"),
       jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
+        label  = cms.InputTag("ak4JetID"),
         select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
       ),
       min = cms.int32(1),
     ), 
     cms.PSet(
       label  = cms.string("jets/calo:step3"),
-      src    = cms.InputTag("ak5CaloJets"),
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      src    = cms.InputTag("ak4CaloJets"),
+      jetCorrector = cms.string("ak4CaloL2L3"),
       select = cms.string("pt>30 & abs(eta)<4.5 & emEnergyFraction>0.01"),
       jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
+        label  = cms.InputTag("ak4JetID"),
         select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
       ),
       min = cms.int32(2),

@@ -71,7 +71,7 @@ void JetCorrFWLite()
     
     
     fwlite::Handle<vector<reco::CaloJet> > jetHandle;
-    jetHandle.getByLabel(ev,"ak5CaloJets");
+    jetHandle.getByLabel(ev,"ak4CaloJets");
     
     
     
@@ -80,7 +80,7 @@ void JetCorrFWLite()
     ////////////////////////////////////////////////////////////////////////
     
     string Levels1 = "L2:L3:L5:L7";
-    string Tags1 = "900GeV_L2Relative_AK5Calo:900GeV_L3Absolute_AK5Calo:L5Flavor_IC5:L7Parton_IC5";
+    string Tags1 = "900GeV_L2Relative_AK5Calo:900GeV_L3Absolute_AK5Calo:L5Flavor_AK5:L7Parton_AK5";
     string Options1 = "Flavor:gJ & Parton:gJ";
     CombinedJetCorrector *L2L3L5L7JetCorrector = new CombinedJetCorrector(Levels1,Tags1,Options1);
     

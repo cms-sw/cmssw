@@ -33,29 +33,29 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
          label  = cms.string('AK5TRK') 
       ),
       cms.PSet(
-         record = cms.string('AK7Calo'),
-         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V10_AK7Calo'), 
-         label  = cms.string('AK7Calo') 
+         record = cms.string('AK8Calo'),
+         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V10_AK8Calo'), 
+         label  = cms.string('AK8Calo') 
       ),
       cms.PSet(
-         record = cms.string('AK7PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V10_AK7PF'), 
-         label  = cms.string('AK7PF') 
+         record = cms.string('AK8PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V10_AK8PF'), 
+         label  = cms.string('AK8PF') 
       ),
       cms.PSet(
-         record = cms.string('AK7JPT'),                           
-         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V10_AK7JPT'),
-         label  = cms.string('AK7JPT')                                          
+         record = cms.string('AK8JPT'),                           
+         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V10_AK8JPT'),
+         label  = cms.string('AK8JPT')                                          
       ),
       cms.PSet(
-         record = cms.string('IC5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V5_IC5Calo'), 
-         label  = cms.string('IC5Calo') 
+         record = cms.string('AK5Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V5_AK5Calo'), 
+         label  = cms.string('AK5Calo') 
       ),
      cms.PSet(
-         record = cms.string('IC5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V5_IC5PF'), 
-         label  = cms.string('IC5PF') 
+         record = cms.string('AK5PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec11_V5_AK5PF'), 
+         label  = cms.string('AK5PF') 
       ),
       cms.PSet(
          record = cms.string('KT4Calo'), 
@@ -100,17 +100,17 @@ process.dbWriterAK5TRK = cms.EDAnalyzer('JetCorrectorDBWriter',
    era    = cms.untracked.string('Jec11_V5'), 
    algo   = cms.untracked.string('AK5TRK') 
 )
-process.dbWriterAK7Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
+process.dbWriterAK8Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo   = cms.untracked.string('AK7Calo') 
+   algo   = cms.untracked.string('AK8Calo') 
 ) 
-process.dbWriterAK7PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
+process.dbWriterAK8PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo   = cms.untracked.string('AK7PF') 
+   algo   = cms.untracked.string('AK8PF') 
 ) 
-process.dbWriterAK7JPT = cms.EDAnalyzer('JetCorrectorDBWriter',
+process.dbWriterAK8JPT = cms.EDAnalyzer('JetCorrectorDBWriter',
    era    = cms.untracked.string('Jec11_V5'),
-   algo   = cms.untracked.string('AK7JPT')
+   algo   = cms.untracked.string('AK8JPT')
 )
 process.dbWriterKT4Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
@@ -128,13 +128,13 @@ process.dbWriterKT6PF = cms.EDAnalyzer('JetCorrectorDBWriter',
    era    = cms.untracked.string('Jec11_V5'),  
    algo   = cms.untracked.string('KT6PF') 
 )
-process.dbWriterIC5Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
+process.dbWriterAK5Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'),  
-   algo   = cms.untracked.string('IC5Calo') 
+   algo   = cms.untracked.string('AK5Calo') 
 ) 
-process.dbWriterIC5PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
+process.dbWriterAK5PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'),  
-   algo   = cms.untracked.string('IC5PF') 
+   algo   = cms.untracked.string('AK5PF') 
 ) 
 
 
@@ -145,13 +145,13 @@ process.dbWriterAK5PF *
 process.dbWriterAK5PFchs *
 process.dbWriterAK5JPT *
 process.dbWriterAK5TRK *
-process.dbWriterAK7Calo *
-process.dbWriterAK7PF *
-process.dbWriterAK7JPT *
+process.dbWriterAK8Calo *
+process.dbWriterAK8PF *
+process.dbWriterAK8JPT *
 process.dbWriterKT4Calo *
 process.dbWriterKT4PF *
 process.dbWriterKT6Calo *
 process.dbWriterKT6PF *
-process.dbWriterIC5Calo *
-process.dbWriterIC5PF
+process.dbWriterAK5Calo *
+process.dbWriterAK5PF
 ) 

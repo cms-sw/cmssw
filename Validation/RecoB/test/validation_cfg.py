@@ -7,7 +7,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
 
 options.register ('jets',
-                  "ak5PF", # default value, allowed : "ak5PF", "ak5PFJEC", ak5PFJECL1", "ak5PFnoPU"
+                  "ak4PF", # default value, allowed : "ak4PF", "ak4PFJEC", ak4PFJECL1", "ak4PFnoPU"
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,  
                   "jet collection to use")
@@ -46,7 +46,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMOffline.RecoB.bTagSequences_cff")
 #process.bTagHLT.HLTPaths = ["HLT_PFJet80_v*"] #uncomment this line if you want to use different trigger
 
-if whichJets=="ak5PFnoPU":
+if whichJets=="ak4PFnoPU":
     process.out = cms.OutputModule("PoolOutputModule",
                                    outputCommands = cms.untracked.vstring('drop *'),
                                    fileName = cms.untracked.string('EmptyFile.root')
@@ -62,22 +62,22 @@ if whichJets=="ak5PFnoPU":
     process.selectedPatJetsPF2PAT.cut = JetCut
     process.JECAlgo = cms.Sequence( getattr(process,"patPF2PATSequence"+postfix) )
     newjetID=cms.InputTag("selectedPatJetsPF2PAT")
-elif whichJets=="ak5PFJEC" or whichJets=="ak5PFJECL1":
-    if whichJets=="ak5PFJECL1":
-        if not runOnMC : process.ak5PFJetsJEC.correctors = ['ak5PFL1FastL2L3Residual']
-        else : process.ak5PFJetsJEC.correctors = ['ak5PFL1FastL2L3']
-        process.PFJetsFilter.src = cms.InputTag("ak5PFJetsJEC")
-    process.JECAlgo = cms.Sequence(process.ak5PFJetsJEC * process.PFJetsFilter)
+elif whichJets=="ak4PFJEC" or whichJets=="ak4PFJECL1":
+    if whichJets=="ak4PFJECL1":
+        if not runOnMC : process.ak4PFJetsJEC.correctors = ['ak4PFL1FastL2L3Residual']
+        else : process.ak4PFJetsJEC.correctors = ['ak4PFL1FastL2L3']
+        process.PFJetsFilter.src = cms.InputTag("ak4PFJetsJEC")
+    process.JECAlgo = cms.Sequence(process.ak4PFJetsJEC * process.PFJetsFilter)
     newjetID=cms.InputTag("PFJetsFilter")
 
-if not whichJets=="ak5PF":
-    process.myak5JetTracksAssociatorAtVertex.jets = newjetID
+if not whichJets=="ak4PF":
+    process.myak4JetTracksAssociatorAtVertex.jets = newjetID
     process.softPFMuonsTagInfos.jets             = newjetID
     process.softPFElectronsTagInfos.jets          = newjetID
     process.AK5byRef.jets                         = newjetID
 
 ###
-print "inputTag : ", process.myak5JetTracksAssociatorAtVertex.jets
+print "inputTag : ", process.myak4JetTracksAssociatorAtVertex.jets
 ###
 
 if runOnMC:
@@ -97,7 +97,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 )
 
-if whichJets=="ak5PF":
+if whichJets=="ak4PF":
     process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.btagSequence)
 else:
     process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.JECAlgo * process.btagSequence)

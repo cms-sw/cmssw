@@ -69,7 +69,7 @@
      <string>std::vector&lt;reco::PFJet&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>ak5PFJets</string>
+     <string>ak4PFJets</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>

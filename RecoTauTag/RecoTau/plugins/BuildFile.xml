@@ -32,5 +32,8 @@
   <use   name="Geometry/CaloGeometry"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="Geometry/Records"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="FastSimulation/BaseParticlePropagator"/>
   <use   name="root"/>
 </library>

@@ -28,13 +28,13 @@ process.prefer("L2L3JetCorrectorAK5Calo")
 #############   User analyzer (calo jets) ##
 process.DijetMassCaloJets = cms.EDAnalyzer("DijetMassCaloJets",
     # Uncorrected CaloJets
-    AKJets           = cms.string('ak5CaloJets'),
-    ICJets           = cms.string('iterativeCone5CaloJets'),
+    AKJets           = cms.string('ak4CaloJets'),
+    ICJets           = cms.string('ak4CaloJets'),
     SCJets           = cms.string('sisCone5CaloJets'),
     KTJets           = cms.string('kt4CaloJets'),
     # Corrected CaloJets                                          
     AKCorrectedJets  = cms.string('L2L3CorJetAK5Calo'), 
-    ICCorrectedJets  = cms.string('L2L3CorJetIC5Calo'), 
+    ICCorrectedJets  = cms.string('L2L3CorJetAK5Calo'), 
     SCCorrectedJets  = cms.string('L2L3CorJetSC5Calo'), 
     KTCorrectedJets  = cms.string('L2L3CorJetKT4Calo'),
     # Name of the output ROOT file containing the histograms 
@@ -44,13 +44,13 @@ process.DijetMassCaloJets = cms.EDAnalyzer("DijetMassCaloJets",
 #############   User analyzer (PF jets) ##
 process.DijetMassPFJets = cms.EDAnalyzer("DijetMassPFJets",
     # Uncorrected PFJets
-    AKJets           = cms.string('ak5PFJets'),
-    ICJets           = cms.string('iterativeCone5PFJets'),
+    AKJets           = cms.string('ak4PFJets'),
+    ICJets           = cms.string('ak4PFJets'),
     SCJets           = cms.string('sisCone5PFJets'),
     KTJets           = cms.string('kt4PFJets'),
     # Corrected PFJets                                          
     AKCorrectedJets  = cms.string('L2L3CorJetAK5PF'), 
-    ICCorrectedJets  = cms.string('L2L3CorJetIC5PF'), 
+    ICCorrectedJets  = cms.string('L2L3CorJetAK5PF'), 
     SCCorrectedJets  = cms.string('L2L3CorJetSC5PF'), 
     KTCorrectedJets  = cms.string('L2L3CorJetKT4PF'),
     # Name of the output ROOT file containing the histograms 
@@ -59,18 +59,18 @@ process.DijetMassPFJets = cms.EDAnalyzer("DijetMassPFJets",
 
 
 #############   User analyzer (gen jets) ##
-# ak5GenJets are NOT there: First load the needed modules
+# ak4GenJets are NOT there: First load the needed modules
 process.load("RecoJets.Configuration.GenJetParticles_cff")
-process.load("RecoJets.JetProducers.ak5GenJets_cfi")
+process.load("RecoJets.JetProducers.ak4GenJets_cfi")
 process.DijetMassGenJets = cms.EDAnalyzer("DijetMassGenJets",
     # Uncorrected GenJets
-    AKJets           = cms.string('ak5GenJets'),
-    ICJets           = cms.string('iterativeCone5GenJets'),
+    AKJets           = cms.string('ak4GenJets'),
+    ICJets           = cms.string('ak4GenJets'),
     SCJets           = cms.string('sisCone5GenJets'),
     KTJets           = cms.string('kt4GenJets'),
     # Corrected GenJets  == Uncorrected GenJets                                        
-    AKCorrectedJets  = cms.string('ak5GenJets'), 
-    ICCorrectedJets  = cms.string('iterativeCone5GenJets'), 
+    AKCorrectedJets  = cms.string('ak4GenJets'), 
+    ICCorrectedJets  = cms.string('ak4GenJets'), 
     SCCorrectedJets  = cms.string('sisCone5GenJets'), 
     KTCorrectedJets  = cms.string('kt4GenJets'),
     # Name of the output ROOT file containing the histograms 
@@ -79,9 +79,9 @@ process.DijetMassGenJets = cms.EDAnalyzer("DijetMassGenJets",
 
 
 #############   Path       ###########################
-process.p = cms.Path(process.L2L3CorJetAK5Calo * process.L2L3CorJetIC5Calo * process.L2L3CorJetSC5Calo * process.L2L3CorJetKT4Calo * process.DijetMassCaloJets)
-process.p2 = cms.Path(process.L2L3CorJetAK5PF * process.L2L3CorJetIC5PF * process.L2L3CorJetSC5PF * process.L2L3CorJetKT4PF * process.DijetMassPFJets)
-process.p3 = cms.Path(process.genParticlesForJets * process.ak5GenJets * process.DijetMassGenJets)
+process.p = cms.Path(process.L2L3CorJetAK5Calo * process.L2L3CorJetAK5Calo * process.L2L3CorJetSC5Calo * process.L2L3CorJetKT4Calo * process.DijetMassCaloJets)
+process.p2 = cms.Path(process.L2L3CorJetAK5PF * process.L2L3CorJetAK5PF * process.L2L3CorJetSC5PF * process.L2L3CorJetKT4PF * process.DijetMassPFJets)
+process.p3 = cms.Path(process.genParticlesForJets * process.ak4GenJets * process.DijetMassGenJets)
 
 #############   Format MessageLogger #################
 process.MessageLogger.cerr.FwkReport.reportEvery = 10

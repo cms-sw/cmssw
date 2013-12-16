@@ -38,7 +38,7 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                    IdCollection = cms.untracked.InputTag("elecIDext")
                                    ),
                                 Jets = cms.untracked.PSet(
-                                  JetCollection = cms.untracked.InputTag("iterativeCone5CaloJets"),
+                                  JetCollection = cms.untracked.InputTag("ak4CaloJets"),
                                   etMin = cms.untracked.double(10.0),
                                   doJets = cms.untracked.bool(True)
                                   ),

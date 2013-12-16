@@ -17,7 +17,7 @@ caloTowers = cms.EDProducer("CaloTowerCandidateCreator",
 )
 
 ## Iterative Cone
-iterativeConePu5CaloJets = cms.EDProducer(
+akPu5CaloJets = cms.EDProducer(
     "FastjetJetProducer",
     HiCaloJetParameters,
     AnomalousCellParameters,
@@ -25,9 +25,9 @@ iterativeConePu5CaloJets = cms.EDProducer(
     jetAlgorithm = cms.string("IterativeCone"),
     rParam       = cms.double(0.5)
     )
-iterativeConePu5CaloJets.radiusPU = 0.5
+akPu5CaloJets.radiusPU = 0.5
 
-iterativeConePu7CaloJets = cms.EDProducer(
+akPu7CaloJets = cms.EDProducer(
     "FastjetJetProducer",
     HiCaloJetParameters,
     AnomalousCellParameters,
@@ -35,7 +35,7 @@ iterativeConePu7CaloJets = cms.EDProducer(
     jetAlgorithm = cms.string("IterativeCone"),
     rParam       = cms.double(0.7)
     )
-iterativeConePu7CaloJets.radiusPU = 0.7
+akPu7CaloJets.radiusPU = 0.7
 
 ## kT
 ktPu4CaloJets = cms.EDProducer(
@@ -80,21 +80,21 @@ akPu7CaloJets = cms.EDProducer(
 akPu7CaloJets.radiusPU = 0.7
 
 ## Algos without offset pileup correction
-ic5CaloJets = iterativeConePu5CaloJets.clone()
-ic5CaloJets.doRhoFastjet = True
-ic5CaloJets.doPUOffsetCorr = False
+ak4CaloJets = akPu5CaloJets.clone()
+ak4CaloJets.doRhoFastjet = True
+ak4CaloJets.doPUOffsetCorr = False
 
-ic7CaloJets = iterativeConePu7CaloJets.clone()
+ic7CaloJets = akPu7CaloJets.clone()
 ic7CaloJets.doRhoFastjet = True
 ic7CaloJets.doPUOffsetCorr = False
 
-ak5CaloJets = akPu5CaloJets.clone()
-ak5CaloJets.doRhoFastjet = True
-ak5CaloJets.doPUOffsetCorr = False
+ak4CaloJets = akPu5CaloJets.clone()
+ak4CaloJets.doRhoFastjet = True
+ak4CaloJets.doPUOffsetCorr = False
 
-ak7CaloJets = akPu7CaloJets.clone()
-ak7CaloJets.doRhoFastjet = True
-ak7CaloJets.doPUOffsetCorr = False
+ak8CaloJets = akPu7CaloJets.clone()
+ak8CaloJets.doRhoFastjet = True
+ak8CaloJets.doPUOffsetCorr = False
 
 kt4CaloJets = ktPu4CaloJets.clone()
 kt4CaloJets.doRhoFastjet = True
@@ -105,9 +105,9 @@ kt6CaloJets.doRhoFastjet = True
 kt6CaloJets.doPUOffsetCorr = False
 
 ## Default Sequence
-hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets)
+hiRecoJets = cms.Sequence(caloTowersRec*caloTowers*akPu5CaloJets)
 
 ## Extended Sequence
-hiRecoAllJets = cms.Sequence(caloTowersRec*caloTowers*iterativeConePu5CaloJets+iterativeConePu7CaloJets+ic5CaloJets+ic7CaloJets+akPu5CaloJets+akPu7CaloJets+ak5CaloJets+ak7CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
+hiRecoAllJets = cms.Sequence(caloTowersRec*caloTowers*akPu5CaloJets+akPu7CaloJets+ak4CaloJets+ic7CaloJets+akPu5CaloJets+akPu7CaloJets+ak4CaloJets+ak8CaloJets + ktPu4CaloJets + ktPu6CaloJets +  kt4CaloJets + kt6CaloJets)
 
 

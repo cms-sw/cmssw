@@ -45,7 +45,7 @@ Validation package for b-tagging : contain useful scripts for validation purpose
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-- file validation_cfg.py : to be run as ' cmsRun validation_cfg.py jets="ak5PF" '. Other jets label possible : "ak5PFJEC", "ak5PFnoPU". Other options which could be changed : runOnMC(True for MC ; False for DATA) ; useTrigger(False:no trigger filter used ; True:trigger filter used, path could be modified in the cfg, default:HLT_PFJet40) ; tag(put here your global tag).
+- file validation_cfg.py : to be run as ' cmsRun validation_cfg.py jets="ak4PF" '. Other jets label possible : "ak4PFJEC", "ak4PFnoPU". Other options which could be changed : runOnMC(True for MC ; False for DATA) ; useTrigger(False:no trigger filter used ; True:trigger filter used, path could be modified in the cfg, default:HLT_PFJet40) ; tag(put here your global tag).
 
 - directory GridValidation/ : tools to run on Grid, cfg based on validation_cfg.py. In README, the step to run on the Grid are listed.   
 

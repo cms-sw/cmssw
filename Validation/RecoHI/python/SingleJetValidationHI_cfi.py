@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 rootfile="out.root"
 
-calojetcoll="iterativeConePu5CaloJets"
+calojetcoll="akPu5CaloJets"
 #calojetcoll="hltIterativeCone5PileupSubtractionCaloJets"
-genjetcoll="iterativeCone5HiGenJets"
+genjetcoll="ak4HiGenJets"
 
 hltlow35  =""
 hltname35="HLT_HIJet35U"

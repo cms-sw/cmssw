@@ -61,7 +61,7 @@ void patBJetVertex_efficiencies()
 			discrShape->SetMarkerColor(i + 1);
 			discrShape->Draw(i > 0 ? "same" : "");
 			if (!legend[0])
-				legend[0] = new TLegend(0.5, 0.7, 0.78, 0.88);
+				legend[0] = new TLegend(0.4, 0.7, 0.78, 0.88);
 			legend[0]->AddEntry(discrShape, *flavour);
 
 			canv->cd(2);
@@ -71,7 +71,7 @@ void patBJetVertex_efficiencies()
 			effVsCut->SetMarkerColor(i + 1);
 			effVsCut->Draw(i > 0 ? "same" : "");
 			if (!legend[1])
-				legend[1] = new TLegend(0.3, 0.4, 0.58, 0.58);
+				legend[1] = new TLegend(0.3, 0.4, 0.48, 0.48);
 			legend[1]->AddEntry(effVsCut, *flavour);
 
 			if (!effVsBEff)
@@ -153,7 +153,7 @@ void setAxisStyle(TH1 *hist) {
 
 	hist->GetYaxis()->SetTitleSize( 0.07);
 	hist->GetYaxis()->SetTitleColor( 1);
-	hist->GetYaxis()->SetTitleOffset( 0.5);
+	hist->GetYaxis()->SetTitleOffset( 0.4);
 	hist->GetYaxis()->SetTitleFont( 62);
 	hist->GetYaxis()->SetLabelSize( 0.05);
 	hist->GetYaxis()->SetLabelFont( 62);

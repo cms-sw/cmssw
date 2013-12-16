@@ -67,7 +67,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ## load jet corrections
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-process.prefer("ak5PFL2L3")
+process.prefer("ak4PFL2L3")
 
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")

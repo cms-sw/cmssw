@@ -52,7 +52,7 @@ void patBJetTracks_efficiencies()
 		discrShape->SetMarkerColor(i + 1);
 		discrShape->Draw(i > 0 ? "same" : "");
 		if (!legend[0])
-			legend[0] = new TLegend(0.5, 0.7, 0.78, 0.88);
+			legend[0] = new TLegend(0.4, 0.7, 0.78, 0.88);
 		legend[0]->AddEntry(discrShape, *flavour);
 
 		canv->cd(2);
@@ -129,7 +129,7 @@ void patBJetTracks_efficiencies()
 	discrShape1->Draw();
 	discrShape2->Draw("same");
 
-	TLegend *l = new TLegend(0.5, 0.7, 0.78, 0.88);
+	TLegend *l = new TLegend(0.4, 0.7, 0.78, 0.88);
 	l->AddEntry(discrShape1, "udsg");
 	l->AddEntry(discrShape2, "inv. neg");
 	l->Draw();
@@ -145,7 +145,7 @@ void patBJetTracks_efficiencies()
 	effVsCut1->Draw();
 	effVsCut2->Draw("same");
 
-	l = new TLegend(0.5, 0.7, 0.78, 0.88);
+	l = new TLegend(0.4, 0.7, 0.78, 0.88);
 	l->AddEntry(effVsCut1, "udsg");
 	l->AddEntry(effVsCut2, "inv. neg");
 	l->Draw();
@@ -216,7 +216,7 @@ void setAxisStyle(TH1 *hist) {
 
 	hist->GetYaxis()->SetTitleSize( 0.07);
 	hist->GetYaxis()->SetTitleColor( 1);
-	hist->GetYaxis()->SetTitleOffset( 0.5);
+	hist->GetYaxis()->SetTitleOffset( 0.4);
 	hist->GetYaxis()->SetTitleFont( 62);
 	hist->GetYaxis()->SetLabelSize( 0.05);
 	hist->GetYaxis()->SetLabelFont( 62);

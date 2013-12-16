@@ -7,7 +7,7 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 kinematicSelectedPFJets = cms.EDFilter(
     "TauValPFJetSelector",
-    src = cms.InputTag('ak5PFJets'),
+    src = cms.InputTag('ak4PFJets'),
     cut = cms.string("pt > 15 & abs(eta) < 2.5"),
     filter = cms.bool(False)
 	)

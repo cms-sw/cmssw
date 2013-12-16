@@ -345,7 +345,7 @@ class SmearedJetProducerT : public edm::EDProducer
   SmearedJetProducer_namespace::JetResolutionExtractorT<T> jetResolutionExtractor_;
   TRandom3 rnd_;
 
-  std::string jetCorrLabel_; // e.g. 'ak5PFJetL1FastL2L3' (reco::PFJets) / '' (pat::Jets)
+  std::string jetCorrLabel_; // e.g. 'ak4PFJetL1FastL2L3' (reco::PFJets) / '' (pat::Jets)
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
                          // reported in

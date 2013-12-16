@@ -84,7 +84,7 @@ metDQMParameters = cms.PSet(
     ),
 
     CaloTowersLabel    = cms.InputTag("towerMaker"),
-    JetCollectionLabel = cms.InputTag("iterativeCone5CaloJets"),   # jets used for event cleanup
+    JetCollectionLabel = cms.InputTag("ak4CaloJets"),   # jets used for event cleanup
     JetIDParams = cms.PSet(
         useRecHits = cms.bool(True),
         hbheRecHitsColl = cms.InputTag("hbhereco"),
