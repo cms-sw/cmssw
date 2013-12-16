@@ -47,6 +47,7 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
     maxNumberOfHitsLast2Stations_ = cfg.exists("maxNumberOfHitsLast2Stations") ? cfg.getParameter<int>("maxNumberOfHitsLast2Stations"): 0;
     if ( cfg.exists("srcMuons") ) {
       srcMuons_ = cfg.getParameter<edm::InputTag>("srcMuons");
+      Muons_token=consumes<reco::MuonCollection>(srcMuons_);
       dRmuonMatch_ = cfg.getParameter<double>("dRmuonMatch");
     }
     verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
@@ -66,6 +67,7 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
   int maxNumberOfHitsLast2Stations_;
   edm::InputTag srcMuons_;
   edm::Handle<reco::MuonCollection> muons_;
+  edm::EDGetTokenT<reco::MuonCollection> Muons_token;
   double dRmuonMatch_;
   int verbosity_;
 };
@@ -73,7 +75,7 @@ class PFRecoTauDiscriminationAgainstMuon2 : public PFTauDiscriminationProducerBa
 void PFRecoTauDiscriminationAgainstMuon2::beginEvent(const edm::Event& evt, const edm::EventSetup& es) 
 {
   if ( srcMuons_.label() != "" ) {
-    evt.getByLabel(srcMuons_, muons_);
+    evt.getByToken(Muons_token, muons_);
   }
 }
 

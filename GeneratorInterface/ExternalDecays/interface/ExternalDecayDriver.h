@@ -4,9 +4,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include <string>
+#include <vector>
+
 namespace HepMC
 {
 class GenEvent;
+}
+
+namespace CLHEP {
+   class HepRandomEngine;
 }
 
 namespace gen {
@@ -31,7 +38,10 @@ class PhotosInterface;
 	 HepMC::GenEvent* decay( HepMC::GenEvent* );
 	 
 	 void statistics() const;
-      
+
+         void setRandomEngine(CLHEP::HepRandomEngine*);
+         std::vector<std::string> const& sharedResources() const { return exSharedResources; }
+
       private:
       	 
 	 bool                     fIsInitialized;
@@ -40,7 +50,8 @@ class PhotosInterface;
 	 PhotosInterface*         fPhotosInterface;
 	 std::vector<int>         fPDGs;
 	 std::vector<std::string> fSpecialSettings;
-         
+
+         std::vector<std::string> exSharedResources;
    };
 
 }

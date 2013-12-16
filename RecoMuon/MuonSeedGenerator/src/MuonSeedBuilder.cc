@@ -49,7 +49,7 @@
 /*
  * Constructor
  */
-MuonSeedBuilder::MuonSeedBuilder(const edm::ParameterSet& pset){
+MuonSeedBuilder::MuonSeedBuilder(const edm::ParameterSet& pset,edm::ConsumesCollector& iC){
 
   // Local Debug flag
   debug                = pset.getParameter<bool>("DebugMuonSeed");
@@ -90,6 +90,12 @@ MuonSeedBuilder::MuonSeedBuilder(const edm::ParameterSet& pset){
   muonSeedCreate_   = new MuonSeedCreator( pset ); 
   muonSeedClean_    = new MuonSeedCleaner( pset ); 
 
+ // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
+  muonMeasurements = new MuonDetLayerMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),iC,
+						  enableDTMeasurement,enableCSCMeasurement,false);
+
+  
+
 }
 
 /*
@@ -100,6 +106,8 @@ MuonSeedBuilder::~MuonSeedBuilder(){
   delete muonSeedCreate_;
   delete muonSeedClean_;
   if (theService) delete theService;
+  if( muonMeasurements) delete muonMeasurements;
+
 }
 
 /* 
@@ -122,9 +130,6 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   std::vector<float> phiOfSeed;
   std::vector<int> nSegOnSeed;
 
- // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
-  MuonDetLayerMeasurements muonMeasurements(theDTSegmentLabel,theCSCSegmentLabel,edm::InputTag(),
-                                            enableDTMeasurement,enableCSCMeasurement,false);
 
  // Instantiate the accessor (get the segments: DT + CSC but not RPC=false)
  // MuonDetLayerMeasurements muonMeasurements(enableDTMeasurement,enableCSCMeasurement,false,
@@ -136,10 +141,10 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   // 1a. get the DT segments by stations (layers):
   std::vector<DetLayer*> dtLayers = muonLayers->allDTLayers();
  
-  SegmentContainer DTlist4 = muonMeasurements.recHits( dtLayers[3], event );
-  SegmentContainer DTlist3 = muonMeasurements.recHits( dtLayers[2], event );
-  SegmentContainer DTlist2 = muonMeasurements.recHits( dtLayers[1], event );
-  SegmentContainer DTlist1 = muonMeasurements.recHits( dtLayers[0], event );
+  SegmentContainer DTlist4 = muonMeasurements->recHits( dtLayers[3], event );
+  SegmentContainer DTlist3 = muonMeasurements->recHits( dtLayers[2], event );
+  SegmentContainer DTlist2 = muonMeasurements->recHits( dtLayers[1], event );
+  SegmentContainer DTlist1 = muonMeasurements->recHits( dtLayers[0], event );
 
   // Initialize flags that a given segment has been allocated to a seed
   BoolContainer usedDTlist4(DTlist4.size(), false);
@@ -158,11 +163,11 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
   // 1b. get the CSC segments by stations (layers):
   // 1b.1 Global z < 0
   std::vector<DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();    
-  SegmentContainer CSClist4B = muonMeasurements.recHits( cscBackwardLayers[4], event );
-  SegmentContainer CSClist3B = muonMeasurements.recHits( cscBackwardLayers[3], event );
-  SegmentContainer CSClist2B = muonMeasurements.recHits( cscBackwardLayers[2], event );
-  SegmentContainer CSClist1B = muonMeasurements.recHits( cscBackwardLayers[1], event ); // ME1/2 and 1/3
-  SegmentContainer CSClist0B = muonMeasurements.recHits( cscBackwardLayers[0], event ); // ME11
+  SegmentContainer CSClist4B = muonMeasurements->recHits( cscBackwardLayers[4], event );
+  SegmentContainer CSClist3B = muonMeasurements->recHits( cscBackwardLayers[3], event );
+  SegmentContainer CSClist2B = muonMeasurements->recHits( cscBackwardLayers[2], event );
+  SegmentContainer CSClist1B = muonMeasurements->recHits( cscBackwardLayers[1], event ); // ME1/2 and 1/3
+  SegmentContainer CSClist0B = muonMeasurements->recHits( cscBackwardLayers[0], event ); // ME11
 
   BoolContainer usedCSClist4B(CSClist4B.size(), false);
   BoolContainer usedCSClist3B(CSClist3B.size(), false);
@@ -172,11 +177,11 @@ int MuonSeedBuilder::build( edm::Event& event, const edm::EventSetup& eventSetup
 
   // 1b.2 Global z > 0
   std::vector<DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
-  SegmentContainer CSClist4F = muonMeasurements.recHits( cscForwardLayers[4], event );
-  SegmentContainer CSClist3F = muonMeasurements.recHits( cscForwardLayers[3], event );
-  SegmentContainer CSClist2F = muonMeasurements.recHits( cscForwardLayers[2], event );
-  SegmentContainer CSClist1F = muonMeasurements.recHits( cscForwardLayers[1], event );
-  SegmentContainer CSClist0F = muonMeasurements.recHits( cscForwardLayers[0], event );
+  SegmentContainer CSClist4F = muonMeasurements->recHits( cscForwardLayers[4], event );
+  SegmentContainer CSClist3F = muonMeasurements->recHits( cscForwardLayers[3], event );
+  SegmentContainer CSClist2F = muonMeasurements->recHits( cscForwardLayers[2], event );
+  SegmentContainer CSClist1F = muonMeasurements->recHits( cscForwardLayers[1], event );
+  SegmentContainer CSClist0F = muonMeasurements->recHits( cscForwardLayers[0], event );
 
   BoolContainer usedCSClist4F(CSClist4F.size(), false);
   BoolContainer usedCSClist3F(CSClist3F.size(), false);

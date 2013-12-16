@@ -57,11 +57,13 @@ class RecoTauCleanerImpl : public edm::EDProducer {
     CleanerList cleaners_;
     // Optional selection on the output of the taus
     std::auto_ptr<StringCutObjectSelector<reco::PFTau> > outputSelector_;
+    edm::EDGetTokenT<reco::CandidateView> tau_token;
 };
 
 template<typename Prod>
 RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
   tauSrc_ = pset.getParameter<edm::InputTag>("src");
+  tau_token=consumes<reco::CandidateView>(tauSrc_);
   // Build our list of quality plugins
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
@@ -73,7 +75,7 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
       cleanerPSet->getParameter<std::string>("plugin");
     // Build the plugin
     cleaners_.push_back(
-        RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet));
+			RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector()));
   }
 
   // Check if we want to apply a final output selection
@@ -116,7 +118,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt,
 
   // Get the input collection to clean
   edm::Handle<reco::CandidateView> input;
-  evt.getByLabel(tauSrc_, input);
+  evt.getByToken(tau_token, input);
 
   // Cast the input candidates to Refs to real taus
   reco::PFTauRefVector inputRefs =

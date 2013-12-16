@@ -72,12 +72,7 @@ private:
   void resetSiStripCertificationMEs();
   void fillSiStripCertificationMEs(edm::EventSetup const& eSetup);
 
-  void bookTrackingCertificationMEs();
-  void resetTrackingCertificationMEs();
-  void fillTrackingCertificationMEs(edm::EventSetup const& eSetup);
-
   void fillDummySiStripCertification();
-  void fillDummyTrackingCertification();
 
   void fillSiStripCertificationMEsAtLumi();
 
@@ -95,12 +90,8 @@ private:
   MonitorElement * SiStripCertification;
   MonitorElement * SiStripCertificationMap; 
   std::map<std::string, SubDetMEs> SubDetMEsMap;
-  std::map<std::string, MonitorElement*> TrackingMEsMap;
   MonitorElement * SiStripCertificationSummaryMap;
 
-  MonitorElement * TrackingCertification;  
-
-  bool trackingCertificationBooked_;
   bool sistripCertificationBooked_;
   unsigned long long m_cacheID_;
 

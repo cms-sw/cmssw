@@ -22,6 +22,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 class MuonLinksProducer : public edm::EDProducer {
  public:
@@ -30,8 +32,10 @@ class MuonLinksProducer : public edm::EDProducer {
    virtual ~MuonLinksProducer();
    
    virtual void produce(edm::Event&, const edm::EventSetup&);
-
+   
  private:
    edm::InputTag m_inputCollection;
+   edm::EDGetTokenT<reco::MuonCollection> muonToken_; 
+
 };
 #endif

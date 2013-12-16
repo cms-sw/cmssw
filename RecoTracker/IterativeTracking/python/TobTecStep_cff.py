@@ -8,7 +8,7 @@ tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("pixelLessStepClusters"),
     trajectories = cms.InputTag("pixelLessStepTracks"),
-    overrideTrkQuals = cms.InputTag('pixelLessStepSelector','pixelLessStep'),
+    overrideTrkQuals = cms.InputTag('pixelLessStep'),
     TrackQuality = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
@@ -18,28 +18,38 @@ tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
     )
 )
 
+tobTecStepSeedClusters = tobTecStepClusters.clone(
+    doStripChargeCheck = cms.bool(True),
+    stripRecHits = cms.string('siStripMatchedRecHits'),
+    Common = cms.PSet(
+        maxChi2 = cms.double(9.0),
+        minGoodStripCharge = cms.double(70.0)
+    )
+)
+
+
 # SEEDING LAYERS
 tobTecStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('tobTecStepSeedLayers'),
 
-    layerList = cms.vstring('TOB1+TOB2', 
-        'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
-        'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
-        'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos', 
-        'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos', 
-        'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg', 
-        'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg', 
+    layerList = cms.vstring('TOB1+TOB2',
+        'TOB1+TEC1_pos', 'TOB1+TEC1_neg',
+        'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos',
+        'TEC3_pos+TEC4_pos', 'TEC4_pos+TEC5_pos',
+        'TEC5_pos+TEC6_pos', 'TEC6_pos+TEC7_pos',
+        'TEC1_neg+TEC2_neg', 'TEC2_neg+TEC3_neg',
+        'TEC3_neg+TEC4_neg', 'TEC4_neg+TEC5_neg',
         'TEC5_neg+TEC6_neg', 'TEC6_neg+TEC7_neg'),
 
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('tobTecStepClusters'),
+        skipClusters = cms.InputTag('tobTecStepSeedClusters'),
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
 
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('tobTecStepClusters'),
+        skipClusters = cms.InputTag('tobTecStepSeedClusters'),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -101,7 +111,7 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
     estimator = cms.string('tobTecStepChi2Est'),
     #startSeedHitsInRebuild = True
     maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)  
+    maxPtForLooperReconstruction = cms.double(0.7)
     )
 
 # MAKING OF TRACK CANDIDATES
@@ -233,6 +243,7 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
 
 
 TobTecStep = cms.Sequence(tobTecStepClusters*
+                          tobTecStepSeedClusters*
                           tobTecStepSeeds*
                           tobTecStepTrackCandidates*
                           tobTecStepTracks*

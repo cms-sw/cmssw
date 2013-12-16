@@ -9,14 +9,12 @@
 
 #include "HepMC/GenEvent.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
 using namespace gen;
 using namespace edm;
 
-CLHEP::HepRandomEngine* decayRandomEngine;
+CLHEP::HepRandomEngine* decayRandomEngine = nullptr;
 
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
    : fIsInitialized(false),
@@ -28,21 +26,14 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
     std::vector<std::string> extGenNames =
        pset.getParameter< std::vector<std::string> >("parameterSets");
 
-    Service<RandomNumberGenerator> rng;
-    if(!rng.isAvailable()) {
-       throw cms::Exception("Configuration")
-       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-          "which appears to be absent.  Please add that service to your configuration\n"
-          "or remove the modules that require it." << std::endl;
-    } 
-    decayRandomEngine = &rng->getEngine();   
-    
     for (unsigned int ip=0; ip<extGenNames.size(); ++ip )
     {
       std::string curSet = extGenNames[ip];
       if ( curSet == "EvtGen" )
       {
          fEvtGenInterface = new gen::EvtGenInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
+         exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
+         exSharedResources.emplace_back(edm::SharedResourceNames::kPythia6);
       }
       else if ( curSet == "Tauola" )
       {
@@ -57,14 +48,14 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
 	 fPhotosInterface = new gen::PhotosInterface();
 	 fPhotosInterface->configureOnlyFor( 15 );
 	 fPhotosInterface->avoidTauLeptonicDecays();
+         exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
       }
       else if ( curSet == "Photos" )
       {
          if ( !fPhotosInterface ) fPhotosInterface = new gen::PhotosInterface();
+         exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
       }
-
     }
-
 }
 
 ExternalDecayDriver::~ExternalDecayDriver()
@@ -155,4 +146,15 @@ void ExternalDecayDriver::statistics() const
    if ( fTauolaInterface ) fTauolaInterface->statistics();
    // similar for EvtGen and/or Photos, if needs be
    return;
+}
+
+void ExternalDecayDriver::setRandomEngine(CLHEP::HepRandomEngine* v)
+{
+   decayRandomEngine = v;
+   if ( fTauolaInterface ) {
+      fTauolaInterface->setRandomEngine(v);
+   }
+   if ( fEvtGenInterface ) {
+      fEvtGenInterface->setRandomEngine(v);
+   }
 }

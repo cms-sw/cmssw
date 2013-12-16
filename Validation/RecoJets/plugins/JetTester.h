@@ -224,7 +224,6 @@ class JetTester : public edm::EDAnalyzer {
   double          mRecoJetPtThreshold;
   double          mMatchGenPtThreshold;
   double          mGenEnergyFractionThreshold;
-  double          mReverseEnergyFractionThreshold;
   double          mRThreshold;
   bool            isCaloJet;
   bool            isJPTJet;

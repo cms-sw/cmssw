@@ -78,9 +78,8 @@ class PFRecoTauDiscriminationByIsolation :
             "isolationQualityCuts");
 
         qcuts_.reset(new tau::RecoTauQualityCuts(isolationQCuts));
-
         vertexAssociator_.reset(
-            new tau::RecoTauVertexAssociator(qualityCutsPSet_));
+				new tau::RecoTauVertexAssociator(qualityCutsPSet_,consumesCollector()));
 
         applyDeltaBeta_ = pset.exists("applyDeltaBetaCorrection") ?
           pset.getParameter<bool>("applyDeltaBetaCorrection") : false;
@@ -111,7 +110,9 @@ class PFRecoTauDiscriminationByIsolation :
                 puFactorizedIsoQCuts.second));
 
           pfCandSrc_ = pset.getParameter<edm::InputTag>("particleFlowSrc");
+	  pfCand_token=consumes<reco::PFCandidateCollection>(pfCandSrc_);
           vertexSrc_ = pset.getParameter<edm::InputTag>("vertexSrc");
+	  vertex_token=consumes<reco::VertexCollection>(vertexSrc_);
           deltaBetaCollectionCone_ = pset.getParameter<double>(
               "isoConeSizeForDeltaBeta");
           std::string deltaBetaFactorFormula =
@@ -124,6 +125,7 @@ class PFRecoTauDiscriminationByIsolation :
           pset.getParameter<bool>("applyRhoCorrection") : false;
         if (applyRhoCorrection_) {
           rhoProducer_ = pset.getParameter<edm::InputTag>("rhoProducer");
+	  rho_token=consumes<double>(rhoProducer_);
           rhoConeSize_ = pset.getParameter<double>("rhoConeSize");
           rhoUEOffsetCorrection_ =
             pset.getParameter<double>("rhoUEOffsetCorrection");
@@ -167,8 +169,10 @@ class PFRecoTauDiscriminationByIsolation :
     // Delta Beta correction
     bool applyDeltaBeta_;
     edm::InputTag pfCandSrc_;
+    edm::EDGetTokenT<reco::PFCandidateCollection> pfCand_token;
     // Keep track of how many vertices are in the event
     edm::InputTag vertexSrc_;
+    edm::EDGetTokenT<reco::VertexCollection> vertex_token;
     std::vector<reco::PFCandidateRef> chargedPFCandidatesInEvent_;
     // Size of cone used to collect PU tracks
     double deltaBetaCollectionCone_;
@@ -178,6 +182,7 @@ class PFRecoTauDiscriminationByIsolation :
     // Rho correction
     bool applyRhoCorrection_;
     edm::InputTag rhoProducer_;
+    edm::EDGetTokenT<double> rho_token;
     double rhoConeSize_;
     double rhoUEOffsetCorrection_;
     double rhoCorrectionThisEvent_;
@@ -199,7 +204,7 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event,
   if (applyDeltaBeta_) {
     // Collect all the PF pile up tracks
     edm::Handle<reco::PFCandidateCollection> pfCandHandle_;
-    event.getByLabel(pfCandSrc_, pfCandHandle_);
+    event.getByToken(pfCand_token, pfCandHandle_);
     chargedPFCandidatesInEvent_.reserve(pfCandHandle_->size());
     for (size_t i = 0; i < pfCandHandle_->size(); ++i) {
       reco::PFCandidateRef pfCand(pfCandHandle_, i);
@@ -209,14 +214,14 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event,
     // Count all the vertices in the event, to parameterize the DB
     // correction factor
     edm::Handle<reco::VertexCollection> vertices;
-    event.getByLabel(vertexSrc_, vertices);
+    event.getByToken(vertex_token, vertices);
     size_t nVtxThisEvent = vertices->size();
     deltaBetaFactorThisEvent_ = deltaBetaFormula_->Eval(nVtxThisEvent);
   }
 
   if (applyRhoCorrection_) {
     edm::Handle<double> rhoHandle_;
-    event.getByLabel(rhoProducer_, rhoHandle_);
+    event.getByToken(rho_token, rhoHandle_);
     rhoThisEvent_ = (*rhoHandle_ - rhoUEOffsetCorrection_)*
       (3.14159)*rhoConeSize_*rhoConeSize_;
   }

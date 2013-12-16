@@ -18,7 +18,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load("DQMServices.Core.DQM_cfg")
 
 
-process.load("Validation.RecoMET.METRelValForDQM_cff"))
+process.load("Validation.RecoMET.METRelValForDQM_cff")
 
 
 process.DQMStore = cms.Service("DQMStore")

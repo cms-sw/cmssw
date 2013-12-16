@@ -66,7 +66,7 @@ class MuonServiceProxy;
 //
 // constructors and destructor
 //
-CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig)
+CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC)
   :
   CSCSegmentTags_(iConfig.getParameter<edm::InputTag>("CSCsegments")),
   thePruneCut_(iConfig.getParameter<double>("PruneCut")),
@@ -83,7 +83,7 @@ CSCTimingExtractor::CSCTimingExtractor(const edm::ParameterSet& iConfig)
   
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
 
-  theMatcher = new MuonSegmentMatcher(matchParameters, theService);
+  theMatcher = new MuonSegmentMatcher(matchParameters, theService,iC);
 }
 
 

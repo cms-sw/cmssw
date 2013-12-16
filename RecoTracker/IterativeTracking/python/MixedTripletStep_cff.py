@@ -6,9 +6,9 @@ import FWCore.ParameterSet.Config as cms
 
 mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution = cms.bool(True),
-    oldClusterRemovalInfo = cms.InputTag("detachedTripletStepClusters"),
-    trajectories = cms.InputTag("detachedTripletStepTracks"),
-    overrideTrkQuals = cms.InputTag('detachedTripletStep'),
+    oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
+    trajectories = cms.InputTag("pixelPairStepTracks"),
+    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
     TrackQuality = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
@@ -24,9 +24,7 @@ mixedTripletStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
     layerList = cms.vstring('BPix1+BPix2+BPix3', 
         'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
         'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
-        'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg', 
-        'FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg',
-        'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
+        'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
         hitErrorRZ = cms.double(0.006),
@@ -77,7 +75,7 @@ mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
 # SEEDING LAYERS
 mixedTripletStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('mixedTripletStepSeedLayersB'),
-    layerList = cms.vstring('BPix2+BPix3+TIB1', 'BPix2+BPix3+TIB2'),
+    layerList = cms.vstring('BPix2+BPix3+TIB1'),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),

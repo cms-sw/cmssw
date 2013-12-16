@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <stdint.h>
+#include <vector>
 
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h>
@@ -24,6 +25,7 @@
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -41,6 +43,10 @@
 #include "HepPID/ParticleIDTranslations.hh"
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 using namespace gen;
 using namespace Pythia8;
@@ -64,6 +70,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     const char *classname() const override { return "Pythia8Hadronizer"; }
 
   private:
+
+    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
+    virtual std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
 
     /// Center-of-Mass energy
     double       comEnergy;
@@ -99,8 +108,10 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     int  EV1_pTdefMode;
     bool EV1_MPIvetoOn;
 
+    static const std::vector<std::string> p8SharedResources;
 };
 
+const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
 
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params), Py8InterfaceBase(params),
@@ -436,7 +447,6 @@ void Pythia8Hadronizer::finalizeEvent()
     }
   }
 }
-
 
 typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
 DEFINE_FWK_MODULE(Pythia8GeneratorFilter);

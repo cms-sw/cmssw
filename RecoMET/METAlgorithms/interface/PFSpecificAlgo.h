@@ -19,40 +19,24 @@
 #define METAlgorithms_PFMETInfo_h
 
 //____________________________________________________________________________||
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/SpecificPFMETData.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
-#include "TMatrixD.h"
-
-namespace metsig {
-  class SignAlgoResolutions;
-}
 
 //____________________________________________________________________________||
 class PFSpecificAlgo
 {
  public:
-  PFSpecificAlgo() : doSignificance(false) { }
+  PFSpecificAlgo() { }
   
-  void runSignificance(metsig::SignAlgoResolutions & resolutions, edm::Handle<edm::View<reco::PFJet> > jets);
-  reco::PFMET addInfo(edm::Handle<edm::View<reco::Candidate> > PFCandidates, const CommonMETData& met);
+  reco::PFMET addInfo(const edm::View<reco::Candidate>& pfCands, const CommonMETData& met);
 
  private:
-  typedef math::XYZTLorentzVector LorentzVector;
-  typedef math::XYZPoint Point;
   void initializeSpecificPFMETData(SpecificPFMETData &specific);
-  SpecificPFMETData mkSpecificPFMETData(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
-  TMatrixD mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
+  SpecificPFMETData mkSpecificPFMETData(const edm::View<reco::Candidate>& pfCands);
 
-  bool doSignificance;
-  metsig::SignPFSpecificAlgo pfsignalgo_;
 };
 
 //____________________________________________________________________________||
