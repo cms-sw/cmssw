@@ -21,6 +21,26 @@ namespace reco {class Track;}
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
+#include "DataFormats/MuonReco/interface/MuonShower.h"
+#include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
+#include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
+#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+
+
 class MuPFIsoHelper;
 
 
@@ -62,7 +82,12 @@ private:
   bool fastLabelling_;
   
   edm::InputTag theMuonsCollectionLabel;
+  edm::EDGetTokenT<reco::MuonCollection> theMuonsCollectionToken_;
+ 
   edm::InputTag thePFCandLabel;
+  edm::EDGetTokenT<reco::PFCandidateCollection> thePFCandToken_;
+ 
+
 
   bool fillIsolation_;
   bool writeIsoDeposits_;
@@ -80,16 +105,36 @@ private:
   edm::InputTag theHoDepositName;
   edm::InputTag theJetDepositName;
 
+  edm::EDGetTokenT<reco::IsoDepositMap> theTrackDepositToken_;
+  edm::EDGetTokenT<reco::IsoDepositMap> theEcalDepositToken_;
+  edm::EDGetTokenT<reco::IsoDepositMap> theHcalDepositToken_;
+  edm::EDGetTokenT<reco::IsoDepositMap> theHoDepositToken_;
+  edm::EDGetTokenT<reco::IsoDepositMap> theJetDepositToken_;
+
+
   InputTags theSelectorMapNames;
+  std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > >  theSelectorMapTokens_;
+
 
   edm::InputTag theShowerMapName;
-  edm::InputTag theCosmicCompMapName;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonShower> > theShowerMapToken_;
 
+  edm::InputTag theCosmicCompMapName;
+  edm::EDGetTokenT<edm::ValueMap<unsigned int> > theCosmicIdMapToken_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonCosmicCompatibility> > theCosmicCompMapToken_;
   std::string theMuToMuMapName;
 
   MuPFIsoHelper *thePFIsoHelper;
 
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapCmbToken_;
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapDTToken_;
+  edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapCSCToken_;
+
+
+
+
   std::vector<std::map<std::string,edm::InputTag> > pfIsoMapNames;
+  std::vector<std::map<std::string,edm::EDGetTokenT<edm::ValueMap<double> > > > pfIsoMapTokens_;
   
 };
 #endif

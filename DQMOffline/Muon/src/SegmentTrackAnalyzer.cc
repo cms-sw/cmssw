@@ -36,8 +36,9 @@ SegmentTrackAnalyzer::SegmentTrackAnalyzer(const edm::ParameterSet& pSet) {
 
   // SegmentTrackAssociatior Parameters
   const ParameterSet SegmentsTrackAssociatorParameters = parameters.getParameter<ParameterSet>("SegmentsTrackAssociatorParameters");
-  
-  theSegmentsAssociator = new SegmentsTrackAssociator(SegmentsTrackAssociatorParameters);
+
+  edm::ConsumesCollector iC   = consumesCollector();
+  theSegmentsAssociator = new SegmentsTrackAssociator(SegmentsTrackAssociatorParameters,iC);
   
   
 }

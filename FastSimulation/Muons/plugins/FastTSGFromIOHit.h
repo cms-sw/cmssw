@@ -13,6 +13,7 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <vector>
 
@@ -24,7 +25,7 @@ class FastTSGFromIOHit : public TrackerSeedGenerator {
 
 public:
   /// constructor
-  FastTSGFromIOHit(const edm::ParameterSet &pset);
+  FastTSGFromIOHit(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
 
   /// destructor
   virtual ~FastTSGFromIOHit();

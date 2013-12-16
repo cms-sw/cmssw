@@ -45,8 +45,11 @@ MuonSeedProducer::MuonSeedProducer(const edm::ParameterSet& pset){
   // Local Debug flag
   debug              = pset.getParameter<bool>("DebugMuonSeed");
 
+
+  edm::ConsumesCollector iC = consumesCollector();
+
   // Builder which returns seed collection 
-  muonSeedBuilder_   = new MuonSeedBuilder( pset ); 
+  muonSeedBuilder_   = new MuonSeedBuilder( pset,iC ); 
 
 }
 

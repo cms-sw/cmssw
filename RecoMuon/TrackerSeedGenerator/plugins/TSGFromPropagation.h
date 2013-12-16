@@ -18,6 +18,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class Chi2MeasurementEstimator;
 class Propagator;
@@ -31,9 +32,9 @@ class TSGFromPropagation : public TrackerSeedGenerator {
 
 public:
   /// constructor
-  TSGFromPropagation(const edm::ParameterSet &pset);
+  TSGFromPropagation(const edm::ParameterSet &pset,edm::ConsumesCollector&);
 
-  TSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*);
+  TSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*, edm::ConsumesCollector&);
 
   /// destructor
   virtual ~TSGFromPropagation();
@@ -153,7 +154,7 @@ private:
   edm::ParameterSet theConfig;
 
   edm::Handle<reco::BeamSpot> beamSpot;
-  edm::InputTag theBeamSpotInputTag;
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken;
 
 };
 
