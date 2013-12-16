@@ -134,7 +134,7 @@ void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ent
 		std::string rname = RD->getQualifiedNameAsString();
 		std::string crname = "class "+rname+"\n";
 		std::string cbname = "class "+bname+"\n";
-		if ((ifilecontents.find(cbname) != std::string::npos )|| (bname.substr(0,ename.length()) == ename) ) {
+		if (ifilecontents.find(cbname) != std::string::npos ) {
 			std::string err;
 			const char * pPath = std::getenv("LOCALRT");
 			std::string pname(""); 
