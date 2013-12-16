@@ -15,14 +15,6 @@
 //____________________________________________________________________________||
 CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates, double globalThreshold)
 {
-  CommonMETData met;
-  run(candidates, &met, globalThreshold);
-  return met;
-}
-
-//____________________________________________________________________________||
-void METAlgo::run(const edm::View<reco::Candidate>& candidates, CommonMETData *met, double globalThreshold)
-{ 
   double px = 0.0;
   double py = 0.0;
   double pz = 0.0;
@@ -38,16 +30,20 @@ void METAlgo::run(const edm::View<reco::Candidate>& candidates, CommonMETData *m
     et += cand.energy()*sin(cand.theta());
   }
 
-  met->mex   = -px;
-  met->mey   = -py;
+  CommonMETData met;
 
-  met->mez   = -pz; // included here since it might be useful
+  met.mex   = -px;
+  met.mey   = -py;
+
+  met.mez   = -pz; // included here since it might be useful
                     // for Data Quality Monitering as it should be 
                     // symmetrically distributed about the origin
 
-  met->met   = sqrt( px*px + py*py );
-  met->sumet = et;
-  met->phi   = atan2( -py, -px ); // no longer needed as MET is now a candidate
+  met.met   = sqrt( px*px + py*py );
+  met.sumet = et;
+  met.phi   = atan2( -py, -px ); // no longer needed as MET is now a candidate
+
+  return met;
 }
 
 //____________________________________________________________________________||
