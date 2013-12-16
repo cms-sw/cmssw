@@ -20,6 +20,8 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -40,6 +42,7 @@ class L2MuonCandidateProducer : public edm::EDProducer {
   
   // StandAlone Collection Label
   edm::InputTag theSACollectionLabel; 
+  edm::EDGetTokenT<reco::TrackCollection> tracksToken;
 };
 
 #endif

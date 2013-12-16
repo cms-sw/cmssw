@@ -19,13 +19,12 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 InterestingEcalDetIdProducer::InterestingEcalDetIdProducer(const edm::ParameterSet& iConfig) 
 {
   inputCollection_ = iConfig.getParameter< edm::InputTag >("inputCollection");
   produces< DetIdCollection >() ;
+  muonToken_ = consumes<reco::MuonCollection>(inputCollection_);
 }
 
 
@@ -44,7 +43,7 @@ InterestingEcalDetIdProducer::produce (edm::Event& iEvent,
 				       const edm::EventSetup& iSetup)
 {
   edm::Handle<reco::MuonCollection> muons;
-  iEvent.getByLabel(inputCollection_,muons);
+  iEvent.getByToken(muonToken_,muons);
   
   std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
 

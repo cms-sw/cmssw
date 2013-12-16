@@ -29,6 +29,7 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 
 class LayerMeasurements;
@@ -46,9 +47,9 @@ class FastTSGFromPropagation : public TrackerSeedGenerator {
 
 public:
   /// constructor
-  FastTSGFromPropagation(const edm::ParameterSet &pset);
+  FastTSGFromPropagation(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
 
-  FastTSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*);
+  FastTSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*,edm::ConsumesCollector& iC);
 
   /// destructor
   virtual ~FastTSGFromPropagation();
