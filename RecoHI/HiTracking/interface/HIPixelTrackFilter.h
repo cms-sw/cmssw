@@ -5,6 +5,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace edm { class ParameterSet; class EventSetup; class Event;}
 class TrackerTopology;
@@ -22,6 +23,7 @@ private:
 	double theChi2Max, thePtMin;
 	bool useClusterShape;
 	edm::InputTag theVertexCollection; 	
+	edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken;
 	const reco::VertexCollection *theVertices;
 
 };

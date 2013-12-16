@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -24,6 +25,7 @@ theChi2Max( ps.getParameter<double>("chi2") ),
 thePtMin( ps.getParameter<double>("ptMin") ),
 useClusterShape( ps.getParameter<bool>("useClusterShape") ),
 theVertexCollection( ps.getParameter<edm::InputTag>("VertexCollection")),
+theVertexCollectionToken( iC.consumes<reco::VertexCollection>(theVertexCollection)),
 theVertices(0)
 { 
 }
@@ -77,7 +79,7 @@ void HIPixelTrackFilter::update(const edm::Event& ev, const edm::EventSetup& es)
 
   // Get reco vertices
   edm::Handle<reco::VertexCollection> vc;
-  ev.getByLabel(theVertexCollection, vc);
+  ev.getByToken(theVertexCollectionToken, vc);
   theVertices = vc.product();
   
   if(theVertices->size()>0) {
