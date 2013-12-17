@@ -44,6 +44,8 @@ class ParticleBasedIsoProducer : public edm::EDProducer
  edm::EDGetTokenT<reco::GsfElectronCollection> electronTmpProducerT_;
  edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+ edm::EDGetTokenT<edm::ValueMap<reco::PhotonRef> > valMapPFCandToPhoton_;
+ edm::EDGetTokenT<edm::ValueMap<reco::GsfElectronRef> > valMapPFCandToEle_;
 
  std::string valueMapPFCandPhoton_;
  std::string valueMapPhoPFCandIso_;

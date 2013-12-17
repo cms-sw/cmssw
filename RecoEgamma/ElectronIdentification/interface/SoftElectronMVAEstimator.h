@@ -1,5 +1,5 @@
-#ifndef ElectronMVA_H
-#define ElectronMVA_H
+#ifndef __ElectronIdentification_SoftElectronMVAEstimator_H__
+#define __ElectronIdentification_SoftElectronMVAEstimator_H__
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

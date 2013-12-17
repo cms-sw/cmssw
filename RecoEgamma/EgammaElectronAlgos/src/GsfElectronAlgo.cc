@@ -541,7 +541,6 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   const EcalRecHitCollection * recHits = 0 ;
   std::vector<int> recHitFlagsToBeExcluded ;
   std::vector<int> recHitSeverityToBeExcluded ;
-  const EcalSeverityLevelAlgo * severityLevelAlgo = eventSetupData_->sevLevel.product() ;
   if (detector==EcalBarrel)
    {
     recHits = eventData_->barrelRecHits.product() ;
@@ -555,15 +554,15 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps ;
    }
 
-  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,recHits,topology,geometry,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
-  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
+  std::vector<float> covariances = EcalClusterTools::covariances(seedCluster,recHits,topology,geometry) ;
+  std::vector<float> localCovariances = EcalClusterTools::localCovariances(seedCluster,recHits,topology) ;
   showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
   showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
   if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
-  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
-  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)  ;
-  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo) ;
-  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,recHits,topology,recHitFlagsToBeExcluded,recHitSeverityToBeExcluded,severityLevelAlgo)/theClus->rawEnergy() ;
+  showerShape.e1x5 = EcalClusterTools::e1x5(seedCluster,recHits,topology)  ;
+  showerShape.e2x5Max = EcalClusterTools::e2x5Max(seedCluster,recHits,topology)  ;
+  showerShape.e5x5 = EcalClusterTools::e5x5(seedCluster,recHits,topology) ;
+  showerShape.r9 = EcalClusterTools::e3x3(seedCluster,recHits,topology)/theClus->rawEnergy() ;
 
   if (pflow)
    {

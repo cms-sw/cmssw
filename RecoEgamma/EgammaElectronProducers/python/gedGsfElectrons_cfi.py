@@ -77,9 +77,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
-#TESTTESTTESTTEST
     applyPreselection = cms.bool(True),
-###############
     ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(False),
     ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(False),
     pureTrackerDrivenEcalErrorFromSimpleParameterization = cms.bool(True),

@@ -1,5 +1,4 @@
 //--------------------------------------------------------------------------------------------------
-// $Id $
 //
 //  PfBlockBasedIsolationCalculator.cc
 // Authors: N. Marinelli Univ. of Notre Dame
