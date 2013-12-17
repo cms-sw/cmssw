@@ -12,23 +12,23 @@
     <Constant name="thickness"  value="73.8*mm"/>
     <Constant name="hthick"	value="[thickness]/2."/>
     <Constant name="dzGB21"	value="64.05*cm"/>
-    <Constant name="dzGB21L"	value="95.55*cm"/>
+    <Constant name="dzGB21L"	value="98.0*cm"/>
     <Constant name="dyGB21"	value="8.100*mm"/>
     <Constant name="dxTopGB21"  value="61.537*cm"/>
     <Constant name="dxBotGB21"  value="([dxTopGB21]-2*[slope]*[dzGB21])"/>
     <Constant name="dxBotGB21L" value="([dxTopGB21]-2*[slope]*[dzGB21L])"/>
     <Constant name="dyGA21"     value="4.000*mm"/>
     <Constant name="dzGA21"     value="63.55*cm"/>
-    <Constant name="dzGA21L"    value="95.55*cm"/>
+    <Constant name="dzGA21L"    value="97.0*cm"/>
     <Constant name="dxTopGA21"  value="[dxTopGB21]-10.*cm"/>
     <Constant name="dxBotGA21"  value="([dxTopGA21]-2*[slope]*[dzGB21])"/>
-    <Constant name="dxTopGA21L" value="[dxTopGB21]-10.15*cm"/>
-    <Constant name="dxBotGA21L" value="[dxBotGB21L]-10.15*cm"/>
+    <Constant name="dxTopGA21L" value="[dxTopGB21]-10.*cm"/>
+    <Constant name="dxBotGA21L" value="[dxBotGB21L]-10.*cm"/>
     <Constant name="rPos"       value="([rMinS]+[dzGB21])"/>
     <Constant name="rPosL"	value="([rMinL]+[dzGB21L])"/>
     <Constant name="dxFrame"    value="10.0*mm"/>
     <Constant name="dyBase"     value="3.2*mm"/>
-    <Constant name="dyTop"      value="1.0*mm"/>
+    <Constant name="dyTop"      value="1.8*mm"/>
     <Constant name="dzGBI21"    value="([dzGB21]-[dxFrame])"/>
     <Constant name="dzGBI21L"   value="([dzGB21L]-[dxFrame])"/>
     <Constant name="dyGBI21"    value="([dyGB21]-0.5*([dyBase]+[dyTop]))"/>
