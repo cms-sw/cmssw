@@ -108,8 +108,9 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    ),
     Hgg = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
-		    "HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass60_v",
+		    "HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v",
 		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v",
+		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v",
 		    ),
 	    recPhotonLabel  = cms.string("photons"),
 	    # -- Analysis specific cuts
@@ -117,7 +118,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    ),
     Htaunu = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
-		    #"HLT_LooseIsoPFTau35_Trk20_MET75_v",
+		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
 		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
 		    ),
 	    recPFTauLabel   = cms.string("hpsPFTauProducer"),
@@ -127,8 +128,9 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    ),
     H2tau  = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
-		    "HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
-		    "HLT_IsoMu18_eta2p1_LooseIsoPFTau20_v"
+		    "HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v",#?
+#		    "HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
+		    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v"
 		    ),
 	    recPFTauLabel  = cms.string("hpsPFTauProducer"),
 	    recMuonLabel   = cms.string("muons"),
