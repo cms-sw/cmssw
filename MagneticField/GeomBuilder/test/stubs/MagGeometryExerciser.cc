@@ -16,8 +16,8 @@
 using namespace std;
 
 MagGeometryExerciser::MagGeometryExerciser(const MagGeometry * g) : theGeometry(g) {
-  const vector<MagVolume6Faces*>& theBVolumes = theGeometry->barrelVolumes();
-  const vector<MagVolume6Faces*>& theEVolumes = theGeometry->endcapVolumes();
+  const vector<MagVolume6Faces const*>& theBVolumes = theGeometry->barrelVolumes();
+  const vector<MagVolume6Faces const*>& theEVolumes = theGeometry->endcapVolumes();
 
   volumes = theBVolumes;
   volumes.insert(volumes.end(), theEVolumes.begin(), theEVolumes.end());
@@ -62,7 +62,7 @@ void MagGeometryExerciser::testFindVolume(int ntry){
 bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
   float tolerance = 0.;
   //  float tolerance = 0.03;  // Note: findVolume should handle tolerance himself.
-  MagVolume6Faces* vol = (MagVolume6Faces*) theGeometry->findVolume(gp, tolerance);
+  MagVolume6Faces const* vol = (MagVolume6Faces const*) theGeometry->findVolume(gp, tolerance);
   bool ok = (vol!=0);
 
   if (vol==0) {
@@ -73,7 +73,7 @@ bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
   
 
     // Try with a linear search
-    vol =  (MagVolume6Faces*) theGeometry->findVolume1(gp,tolerance);
+    vol =  (MagVolume6Faces const*) theGeometry->findVolume1(gp,tolerance);
     cout << "Was in volume: "
 	 << (vol !=0 ? vol->volumeNo : -1)
 	 << " (tolerance = " << tolerance << ")"
@@ -145,12 +145,12 @@ bool MagGeometryExerciser::testInside(const GlobalPoint & gp, float tolerance){
 
   bool reportSuccess = false;
 
-  vector<MagVolume6Faces*>& vols = volumes;
+  vector<MagVolume6Faces const*>& vols = volumes;
   // or use only barrel volumes:
-  // const vector<MagVolume6Faces*>& vols = theGeometry->barrelVolumes();
+  // const vector<MagVolume6Faces const*>& vols = theGeometry->barrelVolumes();
 
-  MagVolume6Faces * found = 0;
-  for (vector<MagVolume6Faces*>::const_iterator v = vols.begin();
+  MagVolume6Faces const* found = 0;
+  for (vector<MagVolume6Faces const*>::const_iterator v = vols.begin();
        v!=vols.end(); ++v){
     if ((*v)==0) {
       cout << endl << "ERROR: no magvlolume" << endl;
@@ -169,15 +169,15 @@ bool MagGeometryExerciser::testInside(const GlobalPoint & gp, float tolerance){
   
 
   if (found==0) {
-    MagVolume6Faces * foundP = 0;
-    MagVolume6Faces * foundN = 0;
+    MagVolume6Faces const * foundP = 0;
+    MagVolume6Faces const * foundN = 0;
     // Look for the closest neighbouring volumes
     const float phi=gp.phi();
     GlobalPoint gpP, gpN;
     int ntry=0;
     while ((foundP==0 || foundP==0) && ntry < 60) {
       ++ntry;
-      for (vector<MagVolume6Faces*>::const_iterator v = vols.begin();
+      for (vector<MagVolume6Faces const*>::const_iterator v = vols.begin();
 	   v!=vols.end(); ++v){
 	if (foundP==0) {
 	  float phiP=phi+ntry*0.008727;

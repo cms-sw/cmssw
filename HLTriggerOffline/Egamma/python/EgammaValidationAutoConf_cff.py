@@ -68,6 +68,7 @@ egammaSelectors.remove(tmp)  # remove the initial dummy
 
 emdqm = cms.EDAnalyzer('EmDQM',
                            #processname = cms.string("HLT"), # can be obtained from triggerobject
+                           autoConfMode = cms.untracked.bool(True),
                            triggerobject = cms.InputTag("hltTriggerSummaryRAW","","HLT"),
                            genEtaAcc = cms.double(2.5),
                            genEtAcc = cms.double(2.0),
