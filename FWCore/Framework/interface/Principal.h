@@ -172,10 +172,7 @@ namespace edm {
 
     DelayedReader* reader() const {return reader_;}
 
-    ConstProductHolderPtr getProductHolder(BranchID const& oid,
-                                     bool resolveProd,
-                                     bool fillOnDemand,
-                                     ModuleCallingContext const* mcc) const;
+    ConstProductHolderPtr getProductHolder(BranchID const& oid) const;
 
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 

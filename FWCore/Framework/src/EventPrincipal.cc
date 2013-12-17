@@ -243,7 +243,7 @@ namespace edm {
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    ConstProductHolderPtr const phb = getProductHolder(bid, true, false, nullptr);
+    ConstProductHolderPtr const phb = getProductHolder(bid);
     if(phb == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
@@ -263,11 +263,14 @@ namespace edm {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
         *whyFailed
-        << "get by product ID: no product with given id: " << pid << "\n"
-        << "onDemand production failed to produce it.\n";
+        << "get by ProductID: could not get product with id: " << pid << "\n"
+        << "Unscheduled execution not allowed to get via ProductID.\n";
         return whyFailed;
       }));
     }
+    ProductHolderBase::ResolveStatus status;
+    phb->resolveProduct(status,false,nullptr);
+
     return BasicHandle(phb->productData());
   }
 
