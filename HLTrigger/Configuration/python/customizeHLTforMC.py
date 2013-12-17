@@ -9,11 +9,6 @@ def customizeHLTforMC(process):
   #if 'CSCHaloData' in process.__dict__:
   #  process.CSCHaloData.ExpectedBX = cms.int32(6)
 
-  # EcalUncalibRecHitProducer - not used at HLT
-  #if 'ecalGlobalUncalibRecHit' in process.__dict__:
-  #  process.ecalGlobalUncalibRecHit.doEBtimeCorrection = cms.bool(False)
-  #  process.ecalGlobalUncalibRecHit.doEEtimeCorrection = cms.bool(False)
-
   # HcalRecAlgoESProducer - these flags are not used at HLT (they should stay set to the default value for both data and MC)
   #if 'hcalRecAlgos' in process.__dict__:
   #  import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel

@@ -40,9 +40,6 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
         outOfTimeThreshG61mEE_ = ps.getParameter<double>("outOfTimeThresholdGain61mEE");
         amplitudeThreshEB_ = ps.getParameter<double>("amplitudeThresholdEB");
         amplitudeThreshEE_ = ps.getParameter<double>("amplitudeThresholdEE");
-	// amplitude-dependent correction of time
-        doEBtimeCorrection_      = ps.getParameter<bool>("doEBtimeCorrection");
-        doEEtimeCorrection_      = ps.getParameter<bool>("doEEtimeCorrection");
 
 	// spike threshold
         ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
@@ -86,9 +83,6 @@ EcalUncalibRecHitWorkerGlobal::EcalUncalibRecHitWorkerGlobal(const edm::Paramete
         outOfTimeThreshG61mEE_ = ps.getParameter<double>("outOfTimeThresholdGain61mEE");
         amplitudeThreshEB_ = ps.getParameter<double>("amplitudeThresholdEB");
         amplitudeThreshEE_ = ps.getParameter<double>("amplitudeThresholdEE");
-	// amplitude-dependent correction of time
-        doEBtimeCorrection_      = ps.getParameter<bool>("doEBtimeCorrection");
-        doEEtimeCorrection_      = ps.getParameter<bool>("doEEtimeCorrection");
 
 	// spike threshold
         ebSpikeThresh_ = ps.getParameter<double>("ebSpikeThreshold");
@@ -157,12 +151,19 @@ int EcalUncalibRecHitWorkerGlobal::isSaturated(const C & dataFrame)
         return -1; // no saturation found
 }
 
-
+/**
+ * Amplitude-dependent time corrections; EE and EB have separate corrections:
+ * EXtimeCorrAmplitudes (ADC) and EXtimeCorrShifts (ns) need to have the same number of elements
+ * Bins must be ordered in amplitude. First-last bins take care of under-overflows.
+ *
+ * The algorithm is the same for EE and EB, only the correction vectors are different.
+ *
+ * @return Jitter (in clock cycles) which will be added to UncalibRechit.setJitter(), 0 if no correction is applied.
+ */
 double EcalUncalibRecHitWorkerGlobal::timeCorrection(
     float ampli,
 	const std::vector<float>& amplitudeBins,
     const std::vector<float>& shiftBins) {
-  // algorithm is the same for EE and EB, so merged them in.
 
   // computed initially in ns. Than turned in the BX's, as
   // EcalUncalibratedRecHit need be.
@@ -170,9 +171,6 @@ double EcalUncalibRecHitWorkerGlobal::timeCorrection(
 
   // sanity check for arrays
   if (amplitudeBins.size() == 0) {
-	// this will reset time correction on all events
-    doEBtimeCorrection_ = false;
-
     edm::LogError("EcalRecHitError")
         << "timeCorrAmplitudeBins is empty, forcing no time bias corrections.";
 
@@ -180,9 +178,6 @@ double EcalUncalibRecHitWorkerGlobal::timeCorrection(
   }
 
   if (amplitudeBins.size() != shiftBins.size()) {
-	// this will reset time correction on all events
-    doEBtimeCorrection_ = false;
-
     edm::LogError("EcalRecHitError")
         << "Size of timeCorrAmplitudeBins different from "
            "timeCorrShiftBins. Forcing no time bias corrections. ";
@@ -359,10 +354,8 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
                                 ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
-				double theTimeCorrectionEE=0;
-				if(doEEtimeCorrection_) theTimeCorrectionEE = timeCorrection(uncalibRecHit.amplitude(),
-					timeCorrBias_->EETimeCorrAmplitudeBins,
-					timeCorrBias_->EETimeCorrShiftBins);
+				double theTimeCorrectionEE = timeCorrection(uncalibRecHit.amplitude(),
+					timeCorrBias_->EETimeCorrAmplitudeBins, timeCorrBias_->EETimeCorrShiftBins);
 
                                 uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
                                 uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
@@ -399,10 +392,9 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 ratioMethod_barrel_.computeTime( EBtimeFitParameters_, EBtimeFitLimits_, EBamplitudeFitParameters_ );
                                 ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
                                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
-				double theTimeCorrectionEB=0;
-				if(doEBtimeCorrection_) theTimeCorrectionEB = timeCorrection(uncalibRecHit.amplitude(),
-					timeCorrBias_->EBTimeCorrAmplitudeBins,
-					timeCorrBias_->EBTimeCorrShiftBins);
+
+				double theTimeCorrectionEB = timeCorrection(uncalibRecHit.amplitude(),
+					timeCorrBias_->EBTimeCorrAmplitudeBins, timeCorrBias_->EBTimeCorrShiftBins);
 
 				uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
 

@@ -77,8 +77,7 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 std::vector<double> EEamplitudeFitParameters_; 
                 std::pair<double,double> EBtimeFitLimits_;  
                 std::pair<double,double> EEtimeFitLimits_;  
-		bool                doEBtimeCorrection_;
-		bool                doEEtimeCorrection_;
+
                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
 

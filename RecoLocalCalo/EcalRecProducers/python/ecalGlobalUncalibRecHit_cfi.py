@@ -30,11 +30,6 @@ ecalGlobalUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     outOfTimeThresholdGain61mEE    = cms.double(10),      # times estimated precision
     amplitudeThresholdEB    = cms.double(10),
     amplitudeThresholdEE    = cms.double(10),
-    #amplitude-dependent time corrections; EE and EB have separate corrections
-    #EXtimeCorrAmplitudes (ADC) and EXtimeCorrShifts (ns) need to have the same number of elements
-    #Bins must be ordered in amplitude. First-last bins take care of under-overflows.
-    doEBtimeCorrection = cms.bool(False),
-    doEEtimeCorrection = cms.bool(False),
 
     ebSpikeThreshold = cms.double(1.042),
 
