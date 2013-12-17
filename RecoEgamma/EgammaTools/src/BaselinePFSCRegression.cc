@@ -34,18 +34,20 @@ void BaselinePFSCRegression::set(const reco::SuperCluster& sc,
   memset(subClusDEta,0,3*sizeof(float));
   size_t iclus=0;
   for( auto clus = sc.clustersBegin()+1; clus != sc.clustersEnd(); ++clus ) {
-    const float this_dr = reco::deltaR(**clus, *seed);
-     if(this_dr > maxDR || maxDR == 999.0f) {
-       maxDR = this_dr;
-       maxDRDEta = (*clus)->eta() - seed->eta();
-       maxDRDPhi = TVector2::Phi_mpi_pi((*clus)->phi() - seed->phi());
-       maxDRRawEnergy = (*clus)->energy();
-     }
-     if( iclus++ < 3 ) {
-       subClusRawE[iclus] = (*clus)->energy();
-       subClusDEta[iclus] = (*clus)->eta() - seed->eta();
-       subClusDPhi[iclus] = TVector2::Phi_mpi_pi((*clus)->phi() - seed->phi());
-     }
+    const float this_deta = (*clus)->eta() - seed->eta();
+    const float this_dphi = TVector2::Phi_mpi_pi((*clus)->phi() - seed->phi());
+    const float this_dr = std::hypot(this_deta,this_dphi);
+    if(this_dr > maxDR || maxDR == 999.0f) {
+      maxDR = this_dr;
+      maxDRDEta = this_deta;
+      maxDRDPhi = this_dphi;
+      maxDRRawEnergy = (*clus)->energy();
+    }
+    if( iclus++ < 3 ) {
+      subClusRawE[iclus] = (*clus)->energy();
+      subClusDEta[iclus] = this_deta;
+      subClusDPhi[iclus] = this_dphi;
+    }
   }
   float scPreshowerSum = 0.0;
   for( auto psclus = sc.preshowerClustersBegin(); 

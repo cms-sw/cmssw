@@ -158,17 +158,19 @@ void RegressionHelper::getEcalRegression(const reco::SuperCluster & sc,
   memset(subClusDEta,0,3*sizeof(float));
   size_t iclus=0;
   for( auto clus = sc.clustersBegin()+1; clus != sc.clustersEnd(); ++clus ) {
-    const float this_dr = reco::deltaR(**clus, *seed);
+    const float this_deta = (*clus)->eta() - seed->eta();
+    const float this_dphi = TVector2::Phi_mpi_pi((*clus)->phi() - seed->phi());
+    const float this_dr = std::hypot(this_deta,this_dphi);
     if(this_dr > maxDR || maxDR == 999.0f) {
       maxDR = this_dr;
-      maxDRDEta = (*clus)->eta() - seed->eta();
-      maxDRDPhi = TVector2::Phi_mpi_pi((*clus)->phi() - seed->phi());
+      maxDRDEta = this_deta;
+      maxDRDPhi = this_dphi;
       maxDRRawEnergy = (*clus)->energy();
     }
     if( iclus++ < 3 ) {
       subClusRawE[iclus] = (*clus)->energy();
-      subClusDEta[iclus] = (*clus)->eta() - seed->eta();
-      subClusDPhi[iclus] = TVector2::Phi_mpi_pi((*clus)->phi() - seed->phi());
+      subClusDEta[iclus] = this_deta;
+      subClusDPhi[iclus] = this_dphi;
     }
   }
   float scPreshowerSum = 0.0;
@@ -363,12 +365,9 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
   float errorRatio = energyRelError / momentumRelError;
 
   // calculate E/p and corresponding error
-  float eOverP = energy / momentum;
-  float eOverPerror = sqrt(
-			   (energyError/momentum)*(energyError/momentum) +
-			   (energy*momentumError/momentum/momentum)*
-			   (energy*momentumError/momentum/momentum));
-
+  float eOverP = energy / momentum;  
+  float eOverPerror = eOverP*std::hypot(energyRelError,momentumRelError);
+  
   // fill input variables
   std::vector<float> regressionInputs ;
   regressionInputs.resize(11,0.);
@@ -391,7 +390,7 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron & ele) const
      &&fabs(momentum-energy)<15.*sqrt(momentumError*momentumError + energyError*energyError)
      ) // protection against crazy track measurement
     {
-      weight = combinationReg_->GetResponse(&regressionInputs[0]);
+      weight = combinationReg_->GetResponse(regressionInputs.data());
       if(weight>1.) weight = 1.;
       else if(weight<0.) weight = 0.;
     }

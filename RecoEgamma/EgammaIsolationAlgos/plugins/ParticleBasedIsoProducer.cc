@@ -34,9 +34,16 @@ ParticleBasedIsoProducer::ParticleBasedIsoProducer(const edm::ParameterSet& conf
   pfEgammaCandidates_      = 
     consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfEgammaCandidates"));
 
-  valueMapPFCandPhoton_ = conf_.getParameter<std::string>("valueMapPhoToEG");
-  valueMapPhoPFCandIso_ = conf_.getParameter<std::string>("valueMapPhoPFblockIso");
+  valueMapPFCandPhoton_ = conf_.getParameter<std::string>("valueMapPhoToEG");  
   valueMapPFCandEle_    = conf_.getParameter<std::string>("valueMapEleToEG");
+
+  valMapPFCandToPhoton_ = 
+    consumes<edm::ValueMap<reco::PhotonRef> >(edm::InputTag("gedPhotonsTmp",valueMapPFCandPhoton_));
+
+  valMapPFCandToEle_ = 
+    consumes<edm::ValueMap<reco::GsfElectronRef> >(edm::InputTag("gedGsfElectronsTmp",valueMapPFCandEle_));
+
+  valueMapPhoPFCandIso_ = conf_.getParameter<std::string>("valueMapPhoPFblockIso");
   valueMapElePFCandIso_ = conf_.getParameter<std::string>("valueMapElePFblockIso");
 
 
@@ -71,76 +78,33 @@ void ParticleBasedIsoProducer::produce(edm::Event& theEvent, const edm::EventSet
 
   edm::Handle<reco::PhotonCollection> photonHandle;
   theEvent.getByToken(photonProducerT_,photonHandle);
-  if ( photonHandle.isValid()) {
-  } else {
-    edm::LogError("ParticleBasedIsoProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
-  }
-
-
 
   edm::Handle<reco::PhotonCollection> photonTmpHandle;
   theEvent.getByToken(photonTmpProducerT_,photonTmpHandle);
-  if ( photonTmpHandle.isValid()) {
-  } else {
-    edm::LogError("ParticleBasedIsoProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
-  }
-
-
-
 
   edm::Handle<reco::GsfElectronCollection> electronTmpHandle;
   theEvent.getByToken(electronTmpProducerT_,electronTmpHandle);
-  if ( electronTmpHandle.isValid()) {
-  } else {
-    edm::LogError("ParticleBasedIsoProducer") << "Error! Can't get the product " <<   electronTmpProducer_.label() << "\n";
-  }
-
 
   edm::Handle<reco::GsfElectronCollection> electronHandle;
   theEvent.getByToken(electronProducerT_,electronHandle);
-  if ( electronHandle.isValid()) {
-  } else {
-    edm::LogError("ParticleBasedIsoProducer") << "Error! Can't get the product " <<   electronProducer_.label() << "\n";
-  }
-
-
-
   
   edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle;
   // Get the  PF refined cluster  collection
   theEvent.getByToken(pfEgammaCandidates_,pfEGCandidateHandle);
-  if (!pfEGCandidateHandle.isValid()) {
-    edm::LogError("ParticleBasedIsoProducer") 
-      << "Error! Can't get the pfEgammaCandidates";
-  }
   
   edm::Handle<reco::PFCandidateCollection> pfCandidateHandle;
   // Get the  PF candidates collection
   theEvent.getByToken(pfCandidates_,pfCandidateHandle);
-  if (!pfCandidateHandle.isValid()) {
-    edm::LogError("ParticleBasedIsoProducer") 
-      << "Error! Can't get the pfCandidates";
-  }
   
   edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap;
   edm::Handle<edm::ValueMap<reco::PhotonRef> > pfEGCandToPhotonMapHandle;
-  theEvent.getByLabel("gedPhotonsTmp",valueMapPFCandPhoton_,pfEGCandToPhotonMapHandle);
-  if ( ! pfEGCandToPhotonMapHandle.isValid()) {
-    edm::LogInfo("ParticleBasedIsoProducer") << "Error! Can't get the product: valueMapPhotons " << std::endl;
-  }
+  theEvent.getByToken(valMapPFCandToPhoton_,pfEGCandToPhotonMapHandle);
   pfEGCandToPhotonMap = *(pfEGCandToPhotonMapHandle.product());
-
-
 
   edm::ValueMap<reco::GsfElectronRef> pfEGCandToElectronMap;
   edm::Handle<edm::ValueMap<reco::GsfElectronRef> > pfEGCandToElectronMapHandle;
-  theEvent.getByLabel("gedGsfElectronsTmp",valueMapPFCandEle_,pfEGCandToElectronMapHandle);
-  if ( ! pfEGCandToElectronMapHandle.isValid()) {
-    edm::LogInfo("ParticleBasedIsoProducer") << "Error! Can't get the product: valueMapElectron " << std::endl;
-  }
+  theEvent.getByToken(valMapPFCandToEle_,pfEGCandToElectronMapHandle);
   pfEGCandToElectronMap = *(pfEGCandToElectronMapHandle.product());
-
-
 
   std::vector<std::vector<reco::PFCandidateRef>> pfCandIsoPairVecPho;
 

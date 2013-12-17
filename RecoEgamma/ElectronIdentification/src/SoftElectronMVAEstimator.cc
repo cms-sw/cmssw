@@ -130,8 +130,7 @@ double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const e
 
   bool validKF= false;
   reco::TrackRef myTrackRef     = myElectron.closestCtfTrackRef();
-  validKF                       = (myTrackRef.isAvailable());
-  validKF                       = (myTrackRef.isNonnull());
+  validKF                       = (myTrackRef.isAvailable() && myTrackRef.isNonnull());
   kfchi2                	=(validKF) ? myTrackRef->normalizedChi2() : 0 ;
   kfhits                	=(validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
   gsfchi2               	=myElectron.gsfTrack()->normalizedChi2();
