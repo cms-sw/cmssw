@@ -28,7 +28,6 @@
     <Constant name="rPosL"	value="([rMinL]+[dzGB21L])"/>
     <Constant name="dxFrame"    value="10.0*mm"/>
     <Constant name="dyBase"     value="3.2*mm"/>
-    <!-- Constant name="dyTop"      value="1.8*mm"/ -->
     <Constant name="dyTop"      value="2.6*mm"/>
     <Constant name="dzGBI21"    value="([dzGB21]-[dxFrame])"/>
     <Constant name="dzGBI21L"   value="([dzGB21L]-[dxFrame])"/>
@@ -144,173 +143,167 @@
     <Tubs name="GE21L" rMin="[rMinL]" rMax="[rMax]" dz="[hthick]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Trd1 name="GB21" dz="[dzGB21]" dy1="[dyGB21]" dy2="[dyGB21]" dx1="[dxBotGB21]" dx2="[dxTopGB21]" />
     <Trd1 name="GA21" dz="[dzGA21]" dy1="[dyGA21]" dy2="[dyGA21]" dx1="[dxBotGA21]" dx2="[dxTopGA21]" />
-		<Trd1 name="GB21L" dz="[dzGB21L]" dy1="[dyGB21]" dy2="[dyGB21]" dx1="[dxBotGB21L]" dx2="[dxTopGB21]" />
-		<Trd1 name="GA21L" dz="[dzGA21L]" dy1="[dyGA21]" dy2="[dyGA21]" dx1="[dxBotGA21L]" dx2="[dxTopGA21L]" />
-		<UnionSolid name="GEMBox21">
-			 <rSolid name="GB21"/>
-			 <rSolid name="GA21"/>
-			 <Translation x="0.0*fm" y="([dyGB21]+[dyGA21])" z="([dzGB21]-[dzGA21])"/>
-		</UnionSolid>
-		<UnionSolid name="GEMBox21L">
-			 <rSolid name="GB21L"/>
-			 <rSolid name="GA21L"/>
-			 <Translation x="0.0*fm" y="([dyGB21]+[dyGA21])" z="([dzGB21L]-[dzGA21L])"/>
-		</UnionSolid>
+    <Trd1 name="GB21L" dz="[dzGB21L]" dy1="[dyGB21]" dy2="[dyGB21]" dx1="[dxBotGB21L]" dx2="[dxTopGB21]" />
+    <Trd1 name="GA21L" dz="[dzGA21L]" dy1="[dyGA21]" dy2="[dyGA21]" dx1="[dxBotGA21L]" dx2="[dxTopGA21L]" />
+    <UnionSolid name="GEMBox21">
+      <rSolid name="GB21"/>
+      <rSolid name="GA21"/>
+      <Translation x="0.0*fm" y="([dyGB21]+[dyGA21])" z="([dzGB21]-[dzGA21])"/>
+    </UnionSolid>
+    <UnionSolid name="GEMBox21L">
+      <rSolid name="GB21L"/>
+      <rSolid name="GA21L"/>
+      <Translation x="0.0*fm" y="([dyGB21]+[dyGA21])" z="([dzGB21L]-[dzGA21L])"/>
+    </UnionSolid>
+    <Trd1 name="GBI21" dz="[dzGBI21]" dy1="[dyGBI21]" dy2="[dyGBI21]" dx1="[dxBotGBI21]" dx2="[dxTopGBI21]" />
+    <Trd1 name="GBJ21" dz="[dzGBI21]" dy1="0.5*[dyTop]" dy2="0.5*[dyTop]" dx1="[dxBotGBJ21]" dx2="[dxTopGBJ21]" />
+    <UnionSolid name="GEMInterior21">
+      <rSolid name="GBI21"/>
+      <rSolid name="GBJ21"/>
+      <Translation x="0.0*fm" y="([dyGBI21]+0.5*[dyTop])" z="0.0*fm"/>
+    </UnionSolid>
+    <Trd1 name="GAI21" dz="[dzGAI21]" dy1="[dyGAI21]" dy2="[dyGAI21]" dx1="[dxBotGAI21]" dx2="[dxTopGAI21]" />
+    <UnionSolid name="GMAX">
+      <rSolid name="GEMInterior21"/>
+      <rSolid name="GAI21"/>
+      <Translation x="0.0*fm" y="([dyGBI21]+[dyTop]+[dyGAI21])" z="([dzGBI21]-[dzGAI21])"/>
+    </UnionSolid>
+    <Trd1 name="GSAX" dz="[dzCard]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
 
-		<Trd1 name="GBI21" dz="[dzGBI21]" dy1="[dyGBI21]" dy2="[dyGBI21]" dx1="[dxBotGBI21]" dx2="[dxTopGBI21]" />
-		<Trd1 name="GBJ21" dz="[dzGBI21]" dy1="0.5*[dyTop]" dy2="0.5*[dyTop]" dx1="[dxBotGBJ21]" dx2="[dxTopGBJ21]" />
-		<UnionSolid name="GEMInterior21">
-		  <rSolid name="GBI21"/>
-		  <rSolid name="GBJ21"/>
-		  <Translation x="0.0*fm" y="([dyGBI21]+0.5*[dyTop])" z="0.0*fm"/>
-		</UnionSolid>
-		<Trd1 name="GAI21" dz="[dzGAI21]" dy1="[dyGAI21]" dy2="[dyGAI21]" dx1="[dxBotGAI21]" dx2="[dxTopGAI21]" />
-		<UnionSolid name="GMAX">
-		  <rSolid name="GEMInterior21"/>
-		  <rSolid name="GAI21"/>
-		  <Translation x="0.0*fm" y="([dyGBI21]+[dyTop]+[dyGAI21])" z="([dzGBI21]-[dzGAI21])"/>
-		</UnionSolid>
+    <Trd1 name="GHA201" dz="[dzS1]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx11]" dx2="[dx12]" />
+    <Trd1 name="GHA202" dz="[dzS2]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx21]" dx2="[dx22]" />
+    <Trd1 name="GHA203" dz="[dzS3]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx31]" dx2="[dx32]" />
+    <Trd1 name="GHA204" dz="[dzS4]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx41]" dx2="[dx42]" />
+    <Trd1 name="GHA205" dz="[dzS5]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx51]" dx2="[dx52]" />
+    <Trd1 name="GHA206" dz="[dzS6]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx61]" dx2="[dx62]" />
+    <Trd1 name="GHA207" dz="[dzS7]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx71]" dx2="[dx72]" />
+    <Trd1 name="GHA208" dz="[dzS8]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx81]" dx2="[dx82]" />
+    <Trd1 name="GHA209" dz="[dzS9]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx91]" dx2="[dx92]" />
+    <Trd1 name="GHA210" dz="[dzS10]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx101]" dx2="[dx102]" />
+    <Trd1 name="GHA211" dz="[dzS11]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx111]" dx2="[dx112]" />
+    <Trd1 name="GHA212" dz="[dzS12]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx121]" dx2="[dx122]" />
 
-		<Trd1 name="GSAX" dz="[dzCard]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
-
-		<Trd1 name="GHA1" dz="[dzS1]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx11]" dx2="[dx12]" />
-		<Trd1 name="GHA2" dz="[dzS2]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx21]" dx2="[dx22]" />
-		<Trd1 name="GHA3" dz="[dzS3]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx31]" dx2="[dx32]" />
-		<Trd1 name="GHA4" dz="[dzS4]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx41]" dx2="[dx42]" />
-		<Trd1 name="GHA5" dz="[dzS5]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx51]" dx2="[dx52]" />
-		<Trd1 name="GHA6" dz="[dzS6]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx61]" dx2="[dx62]" />
-		<Trd1 name="GHA7" dz="[dzS7]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx71]" dx2="[dx72]" />
-		<Trd1 name="GHA8" dz="[dzS8]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx81]" dx2="[dx82]" />
-		<Trd1 name="GHA9" dz="[dzS9]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx91]" dx2="[dx92]" />
-		<Trd1 name="GHA10" dz="[dzS10]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx101]" dx2="[dx102]" />
-		<Trd1 name="GHA11" dz="[dzS11]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx111]" dx2="[dx112]" />
-		<Trd1 name="GHA12" dz="[dzS12]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx121]" dx2="[dx122]" />
-
-		<Trd1 name="GJAX" dz="[dzCard]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
-		<Trd1 name="GSAX" dz="[dzCard]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
-  <Trd1 name="GGA1" dz="[dzS1]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx11]" dx2="[dx12]" />
-  <Trd1 name="GGA2" dz="[dzS2]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx21]" dx2="[dx22]" />
-  <Trd1 name="GGA3" dz="[dzS3]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx31]" dx2="[dx32]" />
-  <Trd1 name="GGA4" dz="[dzS4]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx41]" dx2="[dx42]" />
-  <Trd1 name="GGA5" dz="[dzS5]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx51]" dx2="[dx52]" />
-  <Trd1 name="GGA6" dz="[dzS6]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx61]" dx2="[dx62]" />
-  <Trd1 name="GGA7" dz="[dzS7]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx71]" dx2="[dx72]" />
-  <Trd1 name="GGA8" dz="[dzS8]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx81]" dx2="[dx82]" />
-  <Trd1 name="GFA1" dz="[dzS1]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx11]" dx2="[dx12]" />
-  <Trd1 name="GFA2" dz="[dzS2]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx21]" dx2="[dx22]" />
-  <Trd1 name="GFA3" dz="[dzS3]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx31]" dx2="[dx32]" />
-  <Trd1 name="GFA4" dz="[dzS4]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx41]" dx2="[dx42]" />
-  <Trd1 name="GFA5" dz="[dzS5]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx51]" dx2="[dx52]" />
-  <Trd1 name="GFA6" dz="[dzS6]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx61]" dx2="[dx62]" />
-  <Trd1 name="GFA7" dz="[dzS7]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx71]" dx2="[dx72]" />
-  <Trd1 name="GFA8" dz="[dzS8]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx81]" dx2="[dx82]" />
+    <Trd1 name="GJAX" dz="[dzCard]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
+    <Trd1 name="GSAX" dz="[dzCard]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
+    <Trd1 name="GGA1" dz="[dzS1]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx11]" dx2="[dx12]" />
+    <Trd1 name="GGA2" dz="[dzS2]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx21]" dx2="[dx22]" />
+    <Trd1 name="GGA3" dz="[dzS3]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx31]" dx2="[dx32]" />
+    <Trd1 name="GGA4" dz="[dzS4]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx41]" dx2="[dx42]" />
+    <Trd1 name="GGA5" dz="[dzS5]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx51]" dx2="[dx52]" />
+    <Trd1 name="GGA6" dz="[dzS6]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx61]" dx2="[dx62]" />
+    <Trd1 name="GGA7" dz="[dzS7]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx71]" dx2="[dx72]" />
+    <Trd1 name="GGA8" dz="[dzS8]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx81]" dx2="[dx82]" />
+    <Trd1 name="GFA1" dz="[dzS1]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx11]" dx2="[dx12]" />
+    <Trd1 name="GFA2" dz="[dzS2]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx21]" dx2="[dx22]" />
+    <Trd1 name="GFA3" dz="[dzS3]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx31]" dx2="[dx32]" />
+    <Trd1 name="GFA4" dz="[dzS4]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx41]" dx2="[dx42]" />
+    <Trd1 name="GFA5" dz="[dzS5]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx51]" dx2="[dx52]" />
+    <Trd1 name="GFA6" dz="[dzS6]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx61]" dx2="[dx62]" />
+    <Trd1 name="GFA7" dz="[dzS7]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx71]" dx2="[dx72]" />
+    <Trd1 name="GFA8" dz="[dzS8]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx81]" dx2="[dx82]" />
 
     <Trd1 name="GIAX" dz="[dzCard]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
 
     <Trd1 name="GKAX" dz="[dzFoil]" dy1="[dyFoil]" dy2="[dyFoil]" dx1="[dxBotFoil]" dx2="[dxTopFoil]" />
 
-  <!-- GE21 Long Chambers -->
-  
-  <Trd1 name="GBI21L" dz="[dzGBI21L]" dy1="[dyGBI21]" dy2="[dyGBI21]" dx1="[dxBotGBI21L]" dx2="[dxTopGBI21]" />
-  <Trd1 name="GBJ21L" dz="[dzGBI21L]" dy1="0.5*[dyTop]" dy2="0.5*[dyTop]" dx1="[dxBotGBJ21L]" dx2="[dxTopGBJ21]" />
-  <UnionSolid name="GEMInterior21L">
-    <rSolid name="GBI21L"/>
-    <rSolid name="GBJ21L"/>
-    <Translation x="0.0*fm" y="([dyGBI21]+0.5*[dyTop])" z="0.0*fm"/>
-  </UnionSolid>
-  <Trd1 name="GAI21L" dz="[dzGAI21L]" dy1="[dyGAI21]" dy2="[dyGAI21]" dx1="[dxBotGAI21L]" dx2="[dxTopGAI21]" />
-  <UnionSolid name="GMAXL">
-    <rSolid name="GEMInterior21L"/>
-    <rSolid name="GAI21L"/>
-    <Translation x="0.0*fm" y="([dyGBI21]+[dyTop]+[dyGAI21])" z="([dzGBI21L]-[dzGAI21L])"/>
-  </UnionSolid>
-  <Trd1 name="GSAXL" dz="[dzCardL]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotCardL]" dx2="[dxTopCard]" />
-  <Trd1 name="GJAXL" dz="[dzCardL]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dxBotCardL]" dx2="[dxTopCard]" />
-  <Trd1 name="GIAXL" dz="[dzCardL]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dxBotCardL]" dx2="[dxTopCard]" />
-  <Trd1 name="GKAXL" dz="[dzFoilL]" dy1="[dyFoil]" dy2="[dyFoil]" dx1="[dxBotFoilL]" dx2="[dxTopFoil]" />
-    
-
- </SolidSection>
-
- <LogicalPartSection label="gem21.xml">
-		<LogicalPart name="GE21SP" category="unspecified">
-			<rSolid name="GE21S"/>
-			<rMaterial name="materials:ME_free_space"/>
-		</LogicalPart>
-		<LogicalPart name="GE21SN" category="unspecified">
-			<rSolid name="GE21S"/>
-			<rMaterial name="materials:ME_free_space"/>
-		</LogicalPart>
-		<LogicalPart name="GE21LP" category="unspecified">
-			<rSolid name="GE21L"/>
-			<rMaterial name="materials:ME_free_space"/>
-		</LogicalPart>
-		<LogicalPart name="GE21LN" category="unspecified">
-			<rSolid name="GE21L"/>
-			<rMaterial name="materials:ME_free_space"/>
-		</LogicalPart>
-		<LogicalPart name="GEMBox21" category="unspecified">
-		        <rSolid name="GEMBox21"/>
-			<rMaterial name="materials:Aluminium"/>
-		</LogicalPart>
-		<LogicalPart name="GEMBox21L" category="unspecified">
-		        <rSolid name="GEMBox21L"/>
-			<rMaterial name="materials:Aluminium"/>
-		</LogicalPart>
-		<LogicalPart name="GMAX" category="unspecified">
-		        <rSolid name="GMAX"/>
-			<rMaterial name="materials:Air"/>
-		</LogicalPart>
-		<LogicalPart name="GSAX" category="unspecified">
-			 <rSolid name="GSAX"/>
-			 <rMaterial name="materials:G10"/>
-		</LogicalPart>
-  <LogicalPart name="GHA1" category="unspecified">
-    <rSolid name="GHA1"/>
+    <!-- GE21 Long Chambers -->  
+    <Trd1 name="GBI21L" dz="[dzGBI21L]" dy1="[dyGBI21]" dy2="[dyGBI21]" dx1="[dxBotGBI21L]" dx2="[dxTopGBI21]" />
+    <Trd1 name="GBJ21L" dz="[dzGBI21L]" dy1="0.5*[dyTop]" dy2="0.5*[dyTop]" dx1="[dxBotGBJ21L]" dx2="[dxTopGBJ21]" />
+    <UnionSolid name="GEMInterior21L">
+      <rSolid name="GBI21L"/>
+      <rSolid name="GBJ21L"/>
+      <Translation x="0.0*fm" y="([dyGBI21]+0.5*[dyTop])" z="0.0*fm"/>
+    </UnionSolid>
+    <Trd1 name="GAI21L" dz="[dzGAI21L]" dy1="[dyGAI21]" dy2="[dyGAI21]" dx1="[dxBotGAI21L]" dx2="[dxTopGAI21]" />
+    <UnionSolid name="GMAXL">
+      <rSolid name="GEMInterior21L"/>
+      <rSolid name="GAI21L"/>
+      <Translation x="0.0*fm" y="([dyGBI21]+[dyTop]+[dyGAI21])" z="([dzGBI21L]-[dzGAI21L])"/>
+    </UnionSolid>
+    <Trd1 name="GSAXL" dz="[dzCardL]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotCardL]" dx2="[dxTopCard]" />
+    <Trd1 name="GJAXL" dz="[dzCardL]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dxBotCardL]" dx2="[dxTopCard]" />
+    <Trd1 name="GIAXL" dz="[dzCardL]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dxBotCardL]" dx2="[dxTopCard]" />
+    <Trd1 name="GKAXL" dz="[dzFoilL]" dy1="[dyFoil]" dy2="[dyFoil]" dx1="[dxBotFoilL]" dx2="[dxTopFoil]" />
+  </SolidSection>
+  <LogicalPartSection label="gem21.xml">
+    <LogicalPart name="GE21SP" category="unspecified">
+      <rSolid name="GE21S"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="GE21SN" category="unspecified">
+      <rSolid name="GE21S"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="GE21LP" category="unspecified">
+      <rSolid name="GE21L"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="GE21LN" category="unspecified">
+      <rSolid name="GE21L"/>
+      <rMaterial name="materials:ME_free_space"/>
+    </LogicalPart>
+    <LogicalPart name="GEMBox21" category="unspecified">
+      <rSolid name="GEMBox21"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="GEMBox21L" category="unspecified">
+      <rSolid name="GEMBox21L"/>
+      <rMaterial name="materials:Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="GMAX" category="unspecified">
+      <rSolid name="GMAX"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="GSAX" category="unspecified">
+      <rSolid name="GSAX"/>
+      <rMaterial name="materials:G10"/>
+    </LogicalPart>
+    <LogicalPart name="GHA201" category="unspecified">
+      <rSolid name="GHA201"/>
+      <rMaterial name="gemf:M_GEM_Gas"/>
+    </LogicalPart>
+  <LogicalPart name="GHA202" category="unspecified">
+    <rSolid name="GHA202"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA2" category="unspecified">
-    <rSolid name="GHA2"/>
+  <LogicalPart name="GHA203" category="unspecified">
+    <rSolid name="GHA203"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA3" category="unspecified">
-    <rSolid name="GHA3"/>
+  <LogicalPart name="GHA204" category="unspecified">
+    <rSolid name="GHA204"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA4" category="unspecified">
-    <rSolid name="GHA4"/>
+  <LogicalPart name="GHA205" category="unspecified">
+    <rSolid name="GHA205"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA5" category="unspecified">
-    <rSolid name="GHA5"/>
+  <LogicalPart name="GHA206" category="unspecified">
+    <rSolid name="GHA206"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA6" category="unspecified">
-    <rSolid name="GHA6"/>
+  <LogicalPart name="GHA207" category="unspecified">
+    <rSolid name="GHA207"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA7" category="unspecified">
-    <rSolid name="GHA7"/>
+  <LogicalPart name="GHA208" category="unspecified">
+    <rSolid name="GHA208"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA8" category="unspecified">
-    <rSolid name="GHA8"/>
+  <LogicalPart name="GHA209" category="unspecified">
+    <rSolid name="GHA209"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA9" category="unspecified">
-    <rSolid name="GHA9"/>
+  <LogicalPart name="GHA210" category="unspecified">
+    <rSolid name="GHA210"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA10" category="unspecified">
-    <rSolid name="GHA10"/>
+  <LogicalPart name="GHA211" category="unspecified">
+    <rSolid name="GHA211"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA11" category="unspecified">
-    <rSolid name="GHA11"/>
-    <rMaterial name="gemf:M_GEM_Gas"/>
-  </LogicalPart>
-  <LogicalPart name="GHA12" category="unspecified">
-    <rSolid name="GHA12"/>
+  <LogicalPart name="GHA212" category="unspecified">
+    <rSolid name="GHA212"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
 
@@ -415,9 +408,9 @@
     <rSolid name="GKAXL"/>
     <rMaterial name="gemf:M_GEM_Foil"/>
   </LogicalPart>
-
-	</LogicalPartSection>
-	<PosPartSection label="gem21.xml">
+  
+  </LogicalPartSection>
+  <PosPartSection label="gem21.xml">
 		<PosPart copyNumber="1">
 			<rParent name="mf:ME2RingP"/>
 			<rChild name="GE21SP"/>
@@ -451,42 +444,42 @@
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="GSAX"/>
-    <rChild name="GHA1"/>
+    <rChild name="GHA201"/>
     <Translation x="0*fm" y="0*fm" z="[z10]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="GSAX"/>
-    <rChild name="GHA2"/>
+    <rChild name="GHA202"/>
     <Translation x="0*fm" y="0*fm" z="[z20]" />
   </PosPart>
   <PosPart copyNumber="3">
     <rParent name="GSAX"/>
-    <rChild name="GHA3"/>
+    <rChild name="GHA203"/>
     <Translation x="0*fm" y="0*fm" z="[z30]" />
   </PosPart>
   <PosPart copyNumber="4">
     <rParent name="GSAX"/>
-    <rChild name="GHA4"/>
+    <rChild name="GHA204"/>
     <Translation x="0*fm" y="0*fm" z="[z40]" />
   </PosPart>
   <PosPart copyNumber="5">
     <rParent name="GSAX"/>
-    <rChild name="GHA5"/>
+    <rChild name="GHA205"/>
     <Translation x="0*fm" y="0*fm" z="[z50]" />
   </PosPart>
   <PosPart copyNumber="6">
     <rParent name="GSAX"/>
-    <rChild name="GHA6"/>
+    <rChild name="GHA206"/>
     <Translation x="0*fm" y="0*fm" z="[z60]" />
   </PosPart>
   <PosPart copyNumber="7">
     <rParent name="GSAX"/>
-    <rChild name="GHA7"/>
+    <rChild name="GHA207"/>
     <Translation x="0*fm" y="0*fm" z="[z70]" />
   </PosPart>
   <PosPart copyNumber="8">
     <rParent name="GSAX"/>
-    <rChild name="GHA8"/>
+    <rChild name="GHA208"/>
     <Translation x="0*fm" y="0*fm" z="[z80]" />
   </PosPart>
   <PosPart copyNumber="1">
@@ -631,62 +624,62 @@
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="GSAXL"/>
-    <rChild name="GHA1"/>
+    <rChild name="GHA201"/>
     <Translation x="0*fm" y="0*fm" z="[z10L]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="GSAXL"/>
-    <rChild name="GHA2"/>
+    <rChild name="GHA202"/>
     <Translation x="0*fm" y="0*fm" z="[z20L]" />
   </PosPart>
   <PosPart copyNumber="3">
     <rParent name="GSAXL"/>
-    <rChild name="GHA3"/>
+    <rChild name="GHA203"/>
     <Translation x="0*fm" y="0*fm" z="[z30L]" />
   </PosPart>
   <PosPart copyNumber="4">
     <rParent name="GSAXL"/>
-    <rChild name="GHA4"/>
+    <rChild name="GHA204"/>
     <Translation x="0*fm" y="0*fm" z="[z40L]" />
   </PosPart>
   <PosPart copyNumber="5">
     <rParent name="GSAXL"/>
-    <rChild name="GHA5"/>
+    <rChild name="GHA205"/>
     <Translation x="0*fm" y="0*fm" z="[z50L]" />
   </PosPart>
   <PosPart copyNumber="6">
     <rParent name="GSAXL"/>
-    <rChild name="GHA6"/>
+    <rChild name="GHA206"/>
     <Translation x="0*fm" y="0*fm" z="[z60L]" />
   </PosPart>
   <PosPart copyNumber="7">
     <rParent name="GSAXL"/>
-    <rChild name="GHA7"/>
+    <rChild name="GHA207"/>
     <Translation x="0*fm" y="0*fm" z="[z70L]" />
   </PosPart>
   <PosPart copyNumber="8">
     <rParent name="GSAXL"/>
-    <rChild name="GHA8"/>
+    <rChild name="GHA208"/>
     <Translation x="0*fm" y="0*fm" z="[z80L]" />
   </PosPart>
   <PosPart copyNumber="9">
     <rParent name="GSAXL"/>
-    <rChild name="GHA9"/>
+    <rChild name="GHA209"/>
     <Translation x="0*fm" y="0*fm" z="[z90L]" />
   </PosPart>
   <PosPart copyNumber="10">
     <rParent name="GSAXL"/>
-    <rChild name="GHA10"/>
+    <rChild name="GHA210"/>
     <Translation x="0*fm" y="0*fm" z="[z100L]" />
   </PosPart>
   <PosPart copyNumber="11">
     <rParent name="GSAXL"/>
-    <rChild name="GHA11"/>
+    <rChild name="GHA211"/>
     <Translation x="0*fm" y="0*fm" z="[z110L]" />
   </PosPart>
   <PosPart copyNumber="12">
     <rParent name="GSAXL"/>
-    <rChild name="GHA12"/>
+    <rChild name="GHA212"/>
     <Translation x="0*fm" y="0*fm" z="[z120L]" />
   </PosPart>
 
