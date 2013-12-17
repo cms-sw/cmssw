@@ -14,7 +14,7 @@ template< >
 void TTClusterBuilder< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
   /// Prepare output
-  std::auto_ptr< std::vector< TTCluster< Ref_PixelDigi_ > > > TTClustersForOutput( new std::vector< TTCluster< Ref_PixelDigi_ > > );
+  std::auto_ptr< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > TTClusterDSVForOutput( new edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > );
 
   std::map< DetId, std::vector< Ref_PixelDigi_ > > rawHits; /// This is a map containing hits:
                                                             /// a vector of type Ref_PixelDigi_ is mapped wrt
@@ -64,21 +64,31 @@ void TTClusterBuilder< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const edm:
     if ( outerHitFind != rawHits.end() ) theClusterFindingAlgoHandle->Cluster( outerHits, outerHitFind->second, false );
 
     /// Create TTCluster objects and store them
-    for ( unsigned int i = 0; i < innerHits.size(); i++ )
+    /// Use the FastFiller with edmNew::DetSetVector
     {
-      TTCluster< Ref_PixelDigi_ > temp( innerHits.at(i), Id, 0 );
-      TTClustersForOutput->push_back( temp );
+      edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::FastFiller innerOutputFiller( *TTClusterDSVForOutput, Unit->stackMember(0) );
+      for ( unsigned int i = 0; i < innerHits.size(); i++ )
+      {
+        TTCluster< Ref_PixelDigi_ > temp( innerHits.at(i), Id, 0, storeLocalCoord );
+        innerOutputFiller.push_back( temp );
+      }
+      if ( innerOutputFiller.empty() )
+        innerOutputFiller.abort();
     }
-    for ( unsigned int i = 0; i < outerHits.size(); i++ )
     {
-      TTCluster< Ref_PixelDigi_ > temp( outerHits.at(i), Id, 1 );
-      TTClustersForOutput->push_back( temp );
+      edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::FastFiller outerOutputFiller( *TTClusterDSVForOutput, Unit->stackMember(1) );
+      for ( unsigned int i = 0; i < outerHits.size(); i++ )
+      {
+        TTCluster< Ref_PixelDigi_ > temp( outerHits.at(i), Id, 1, storeLocalCoord );
+        outerOutputFiller.push_back( temp );
+      }
+      if ( outerOutputFiller.empty() )
+        outerOutputFiller.abort();
     }
-
   } /// End of loop over detector elements
 
   /// Put output in the event
-  iEvent.put( TTClustersForOutput );
+  iEvent.put( TTClusterDSVForOutput, "ClusterInclusive" );
 }
 
 /// Retrieve hits from the event
@@ -121,7 +131,7 @@ void TTClusterBuilder< Ref_PixelDigi_ >::RetrieveRawHits( std::map< DetId, std::
           {
             /// If the Digi is over threshold,
             /// accept it as a raw hit and put into map
-            mRawHits[id].push_back( makeRefTo( HitHandle, id , hitsIter ) );
+            mRawHits[id].push_back( edm::makeRefTo( HitHandle, id , hitsIter ) );
           } /// End of threshold selection
         } /// End of loop over digis
       } /// End of "is Pixel"

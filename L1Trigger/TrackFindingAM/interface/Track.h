@@ -1,0 +1,90 @@
+#ifndef _TRACK_H_
+#define _TRACK_H_
+
+using namespace std;
+
+/**
+   \brief A track is defined with its curve (PT), D0, Phi0, Eta0 and Z0 parameters
+**/
+class Track{
+
+ private:
+  double curve;
+  double d0;
+  double phi0;
+  double eta0;
+  double z0;
+
+ public:
+  /**
+     \brief Default Constructor : all values set to 0
+  **/
+  Track();
+  /**
+     \brief Constructor
+     \param c The PT of the track
+     \param d The D0 of the track
+     \param p The PHI0 of the track
+     \param p_a The Eta0 of the track
+     \param p_b The Z0 of the track
+  **/
+  Track(double c, double d, double p, double p_a, double p_b);
+  /**
+     \brief Copy Constructor
+  **/
+  Track(const Track&);
+
+  /**
+     \brief Set the PT of the track
+     \param p The PT of the track
+  **/
+  void setCurve(double p);
+  /**
+     \brief Set the D0 of the track
+     \param d The D0 of the track
+  **/
+  void setD0(double d);
+  /**
+     \brief Set the Phi of the track
+     \param p The Phi of the track
+  **/
+  void setPhi0(double p);
+  /**
+     \brief Set the Eta of the track
+     \param e The Eta of the track
+  **/
+  void setEta0(double e);
+  /**
+     \brief Set the Z0 of the track
+     \param z The Z0 of the track
+  **/
+  void setZ0(double z);
+
+  /**
+     \brief Get the PT of the track
+     \return The PT of the track
+  **/
+  double getCurve();
+  /**
+     \brief Get the D0 of the track
+     \return The D0 of the track
+  **/
+  double getD0();
+  /**
+     \brief Get the Phi of the track
+     \return The Phi of the track
+  **/
+  double getPhi0();
+  /**
+     \brief Get the Eta of the track
+     \return The Eta of the track
+  **/
+  double getEta0();
+  /**
+     \brief Get the Z0 of the track
+     \return The Z0 of the track
+  **/
+  double getZ0();
+
+};
+#endif
