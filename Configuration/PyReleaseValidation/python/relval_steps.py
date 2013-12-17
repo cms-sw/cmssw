@@ -2543,7 +2543,7 @@ steps['HARVESTUPBE5D']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:upgradePLS3', 
                    '--mc':'',
                    '--magField' : '38T_PostLS1',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
+                   '--customise' : 'SLHCUpgradeSimulations/Configuration/phase2TkCustomsBE5D.customise',
 		   '--geometry' : 'ExtendedPhase2TkBE5D'
                    }
 
