@@ -1,0 +1,4 @@
+#ifdef __ROOTCLING__
+#define BOOST_SP_NO_ATOMIC_ACCESS
+#define BOOST_SP_DISABLE_THREADS
+#endif

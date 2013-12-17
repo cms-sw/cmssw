@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/boostWorkAround.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 
 #include <vector>
