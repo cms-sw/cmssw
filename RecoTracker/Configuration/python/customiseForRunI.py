@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 def customiseForRunI(process):
 
+    # apply only in reco step
+    if not hasattr(process,'reconstruction'):
+        return process
+
     # Put back 2012 default tracking. This piece of code is ugly.
 
     # first remove the current/default version of trackingGlocalReco
