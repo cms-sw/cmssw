@@ -8,6 +8,10 @@ def customiseForRunI(process):
     # and delete all its descendent sequences that are going to be
     # redefined later on by the new process.load()
 
+    # apply only in reco step
+    if not hasattr(process,'reconstruction'):
+        return process
+
     tgrIndex = process.globalreco.index(process.trackingGlobalReco)
     tgrIndexFromReco = process.reconstruction_fromRECO.index(process.trackingGlobalReco)
     process.globalreco.remove(process.trackingGlobalReco)
