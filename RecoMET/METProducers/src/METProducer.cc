@@ -184,11 +184,13 @@ namespace cms
     METAlgo algo;
     CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
 
+    const math::XYZTLorentzVector p4(commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
+    const math::XYZPoint vtx(0.0, 0.0, 0.0);
+
     PFSpecificAlgo pf;
-	
-    std::auto_ptr<reco::PFMETCollection> pfmetcoll;
-    pfmetcoll.reset(new reco::PFMETCollection);
-    reco::PFMET pfmet = pf.addInfo(*input.product(), commonMETdata);
+    SpecificPFMETData specific = pf.run(*input.product());
+
+    reco::PFMET pfmet(specific, commonMETdata.sumet, p4, vtx);
 
     if(calculateSignificance_)
       {
@@ -201,8 +203,11 @@ namespace cms
 	pfmet.setSignificanceMatrix(pfsignalgo.mkSignifMatrix(input));
       }
 
+    std::auto_ptr<reco::PFMETCollection> pfmetcoll;
+    pfmetcoll.reset(new reco::PFMETCollection);
+
     pfmetcoll->push_back(pfmet);
-    event.put( pfmetcoll );
+    event.put(pfmetcoll);
   }
 
   void METProducer::produce_PFClusterMET(edm::Event& event)
