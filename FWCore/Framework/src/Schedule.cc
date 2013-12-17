@@ -62,12 +62,29 @@ namespace edm {
                            ModuleDescription::getUniqueID());
       
       areg->preModuleConstructionSignal_(md);
-      //even if we have an exception, send signal
-      std::shared_ptr<int> sentry(nullptr,[areg,&md](void*) { areg->postModuleConstructionSignal_(md);});
-      maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
-      holder.setModuleDescription(md);
-      holder.registerProductsAndCallbacks(&preg);
-      return std::shared_ptr<TriggerResultInserter>{holder.release()};
+      bool postCalled = false;
+      std::shared_ptr<TriggerResultInserter> returnValue;
+      try {
+        maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
+        holder.setModuleDescription(md);
+        holder.registerProductsAndCallbacks(&preg);
+        returnValue.reset(holder.release());
+        postCalled = true;
+        // if exception then post will be called in the catch block
+        areg->postModuleConstructionSignal_(md);
+      }
+      catch (...) {
+        if(!postCalled) {
+          try {
+            areg->postModuleConstructionSignal_(md);
+          }
+          catch (...) {
+            // If post throws an exception ignore it because we are already handling another exception
+          }
+        }
+        throw;
+      }
+      return returnValue;
     }
 
     

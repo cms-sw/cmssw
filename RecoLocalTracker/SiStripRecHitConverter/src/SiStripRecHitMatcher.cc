@@ -110,9 +110,13 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 
 namespace {
   // FIXME for c++0X
-  inline void pb(std::vector<SiStripMatchedRecHit2D*> & v, SiStripMatchedRecHit2D* h) {
+  inline void pb1(std::vector<SiStripMatchedRecHit2D*> & v, SiStripMatchedRecHit2D* h) {
     v.push_back(h);
   }
+  inline void pb2(SiStripRecHitMatcher::CollectorMatched & v, const SiStripMatchedRecHit2D & h) {
+    v.push_back(h);
+  }
+
 }
 
 void
@@ -121,7 +125,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     std::vector<SiStripMatchedRecHit2D*> & collector, 
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const {
-  Collector result(boost::bind(&pb,boost::ref(collector),
+  Collector result(boost::bind(&pb1,boost::ref(collector),
 			     boost::bind(&SiStripMatchedRecHit2D::clone,_1)));
   match(monoRH,begin,end,result,gluedDet,trackdirection);
 }
@@ -154,7 +158,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     const GluedGeomDet* gluedDet,
 			     LocalVector trackdirection) const {
 
-  Collector result(boost::bind(&CollectorMatched::push_back,boost::ref(collector),_1));
+  Collector result(boost::bind(pb2,boost::ref(collector),_1));
   match(monoRH,begin,end,result,gluedDet,trackdirection);
   
 }

@@ -16,7 +16,9 @@ class DQMTestMultiThread
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void bookHistograms(DQMStore::IBooker&) override;
+  virtual void bookHistograms(DQMStore::IBooker&,
+                              edm::Run const &,
+                              edm::EventSetup const &) override;
 
   void dumpMe(MonitorElement const&, bool printStat = false);
 
@@ -34,7 +36,9 @@ DQMTestMultiThread::DQMTestMultiThread(const edm::ParameterSet &pset)
       debug_(pset.getUntrackedParameter<bool>("debug", false))
 {}
 
-void DQMTestMultiThread::bookHistograms(DQMStore::IBooker &b) {
+void DQMTestMultiThread::bookHistograms(DQMStore::IBooker &b,
+                                        edm::Run const & /* iRun*/,
+                                        edm::EventSetup const & /* iSetup*/ ) {
   b.setCurrentFolder("");
   b.setCurrentFolder(folder_);
   myHisto = b.book1D("MyHisto",

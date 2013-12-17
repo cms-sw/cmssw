@@ -29,7 +29,7 @@ photons.minR9Barrel = cms.double(10.)  #0.94
 photons.minR9Endcap = cms.double(10.)   #0.95
 photons.maxHoverEEndcap = cms.double(0.5)  #0.5
 photons.maxHoverEBarrel = cms.double(0.99)  #0.5
-photons.primaryVertexProducer = cms.string('hiSelectedVertex') # replace the primary vertex
+photons.primaryVertexProducer = cms.InputTag('hiSelectedVertex') # replace the primary vertex
 photons.isolationSumsCalculatorSet.trackProducer = isolationInputParameters.track    # cms.InputTag("highPurityTracks")
 
 hiPhotonSequence = cms.Sequence(#highPurityTracks*

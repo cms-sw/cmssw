@@ -40,7 +40,7 @@ class PackageSplitter:
             return str_
     
     def __GetFileName(self, str_):
-        return self.prefix + str_.lower().replace(' ', '_') + '.html'
+        return self.prefix + str_.replace(' ', '_') + '.html'
     
     def GenerateTab(self, current = None, linkPrefix = ""):
         html = '<div class="tabs3">\n<ul class="tablist">\n'

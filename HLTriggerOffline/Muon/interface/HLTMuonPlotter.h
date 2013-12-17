@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -44,6 +45,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
+#include "boost/tuple/tuple.hpp"
 
 #include "TPRegexp.h"
 
@@ -57,11 +59,22 @@ class HLTMuonPlotter {
 
  public:
   HLTMuonPlotter(const edm::ParameterSet &, std::string,
-                 const std::vector<std::string>&, const std::vector<std::string>&);
+                 const std::vector<std::string>&, 
+		 const std::vector<std::string>&,
+		 const boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+		                    edm::EDGetTokenT<reco::GenParticleCollection>,
+		                    edm::EDGetTokenT<reco::MuonCollection> >&
+		 );
+
   void beginJob();
   void beginRun(const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);
 
+  static boost::tuple<
+    edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+    edm::EDGetTokenT<reco::GenParticleCollection>,
+    edm::EDGetTokenT<reco::MuonCollection> > getTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
+  
  private:
   
   struct MatchStruct {
@@ -106,8 +119,9 @@ class HLTMuonPlotter {
   std::vector<std::string> moduleLabels_;
   std::vector<std::string> stepLabels_;
 
-  std::string genParticleLabel_;
-  std::string     recMuonLabel_;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> hltTriggerSummaryRAW_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticleLabel_;
+  edm::EDGetTokenT<reco::MuonCollection> recMuonLabel_;
 
   std::vector<double> parametersEta_;
   std::vector<double> parametersPhi_;

@@ -53,10 +53,10 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
 
 SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
 {
+  delete theRegionProducer;
 }
 
 void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
-  delete theRegionProducer;
   delete theGenerator;
 }
 
@@ -80,7 +80,6 @@ void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const e
   SeedCreator * aCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet);
 
   theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator); 
- 
 }
 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)

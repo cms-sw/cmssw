@@ -13,6 +13,7 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
 #include <vector>
 
@@ -117,6 +118,8 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   TrajectoryStateTransform* theTSTransform;
 
   std::map<std::string, float> theParameters;
+
+  MuonDetLayerMeasurements* muonMeasurements;
 
 };
 #endif

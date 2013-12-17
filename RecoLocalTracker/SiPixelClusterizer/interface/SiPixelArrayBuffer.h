@@ -92,19 +92,10 @@ bool SiPixelArrayBuffer::inside(int row, int col) const
 }
 
 
-int SiPixelArrayBuffer::operator()(int row, int col) const 
-{
-  if (inside(row,col))  return pixel_vec[index(row,col)];
-  else  return 0;
-}
+int SiPixelArrayBuffer::operator()(int row, int col) const  { return pixel_vec[index(row,col)];}
 
 
-int SiPixelArrayBuffer::operator()(const SiPixelCluster::PixelPos& pix) const 
-{
-  if (inside( pix.row(), pix.col())) return pixel_vec[index(pix)];
-  else return 0;
-}
-
+int SiPixelArrayBuffer::operator()(const SiPixelCluster::PixelPos& pix) const {return pixel_vec[index(pix)];}
 
 // unchecked!
 void SiPixelArrayBuffer::set_adc( int row, int col, int adc) 

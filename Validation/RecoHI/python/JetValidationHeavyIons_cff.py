@@ -12,58 +12,77 @@ ak7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak7HiGen
 ### jet analyzer for two radii (0.5, 0.7) and three algorithms:
 ### iterative cone with PU, anti-kt with PU, anti-kt with fastjet PU
 
-JetAnalyzerICPU5Calo = cms.EDAnalyzer("CaloJetTester",
+
+JetAnalyzerICPU5Calo = cms.EDAnalyzer("JetTester",
+    JetType = cms.untracked.string('calo'),
+    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("iterativeConePu5CaloJets"),
     srcGen = cms.InputTag("iterativeCone5HiCleanedGenJets"),
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                    
+    JetCorrections = cms.string(""),
+    recoJetPtThreshold = cms.double(40),
+    genEnergyFractionThreshold     = cms.double(0.05),
+    matchGenPtThreshold                 = cms.double(20.0),
+    RThreshold                     = cms.double(0.3)
 )
 
-JetAnalyzerICPU7Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerICPU7Calo = cms.EDAnalyzer("JetTester",
+    JetType = cms.untracked.string('calo'),
+    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("iterativeConePu7CaloJets"),
     srcGen = cms.InputTag("iterativeCone7HiCleanedGenJets"), 
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                    
+    JetCorrections = cms.string(""),
+    recoJetPtThreshold = cms.double(40),
+    genEnergyFractionThreshold     = cms.double(0.05),
+    matchGenPtThreshold                 = cms.double(20.0),
+    RThreshold                     = cms.double(0.3) 
 )
 
-JetAnalyzerAkPU5Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerAkPU5Calo = cms.EDAnalyzer("JetTester",
+    JetType = cms.untracked.string('calo'),
+    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("akPu5CaloJets"),
     srcGen = cms.InputTag("ak5HiCleanedGenJets"),  
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                    
+    JetCorrections = cms.string(""),
+    recoJetPtThreshold = cms.double(40),
+    genEnergyFractionThreshold     = cms.double(0.05),
+    matchGenPtThreshold                 = cms.double(20.0),
+    RThreshold                     = cms.double(0.3) 
 )
 
-JetAnalyzerAkPU7Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerAkPU7Calo = cms.EDAnalyzer("JetTester",
+    JetType = cms.untracked.string('calo'),
+    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("akPu7CaloJets"),
     srcGen = cms.InputTag("ak7HiCleanedGenJets"),       
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
+    JetCorrections = cms.string(""),
+    recoJetPtThreshold = cms.double(40),
+    genEnergyFractionThreshold     = cms.double(0.05),
+    matchGenPtThreshold                 = cms.double(20.0),
+    RThreshold                     = cms.double(0.3) 
 )
 
-JetAnalyzerAkFastPU5Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerAkFastPU5Calo = cms.EDAnalyzer("JetTester",
+    JetType = cms.untracked.string('calo'),
+    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("akFastPu5CaloJets"),
     srcGen = cms.InputTag("ak5HiCleanedGenJets"),  
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)                                    
+    JetCorrections = cms.string(""),
+    recoJetPtThreshold = cms.double(40),
+    genEnergyFractionThreshold     = cms.double(0.05),
+    matchGenPtThreshold                 = cms.double(20.0),
+    RThreshold                     = cms.double(0.3) 
 )
 
-JetAnalyzerAkFastPU7Calo = cms.EDAnalyzer("CaloJetTester",
+JetAnalyzerAkFastPU7Calo = cms.EDAnalyzer("JetTester",
+    JetType = cms.untracked.string('calo'),
+    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("akFastPu7CaloJets"),
     srcGen = cms.InputTag("ak7HiCleanedGenJets"),       
-    genEnergyFractionThreshold = cms.double(0.05),
-    genPtThreshold = cms.double(1.0),
-    RThreshold = cms.double(0.3),
-    reverseEnergyFractionThreshold = cms.double(0.5)
+    JetCorrections = cms.string(""),
+    recoJetPtThreshold = cms.double(40),
+    genEnergyFractionThreshold     = cms.double(0.05),
+    matchGenPtThreshold                 = cms.double(20.0),
+    RThreshold                     = cms.double(0.3) 
 )
 
 hiJetValidation = cms.Sequence(

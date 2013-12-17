@@ -45,7 +45,9 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps){
 DQMEventInfo::~DQMEventInfo(){
 }
 
-void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker)
+void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
+                                  edm::Run const & /* iRun*/,
+                                  edm::EventSetup const & /* iSetup */)
 {
   ibooker.setCurrentFolder(eventInfoFolder_) ;
 

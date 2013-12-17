@@ -1,7 +1,6 @@
 #ifndef CMSUTILS_BEUEUE_H
 #define CMSUTILS_BEUEUE_H
 #include <boost/intrusive_ptr.hpp>
-#include "DataFormats/GeometrySurface/interface/BlockWipedAllocator.h"
 #include<cassert>
 
 /**  Backwards linked queue with "head sharing"
@@ -43,7 +42,7 @@ namespace cmsutils {
   template<class T> void intrusive_ptr_release(_bqueue_item<T> *it) ;
   
   template <class T> 
-  class _bqueue_item : public BlockWipedAllocated<_bqueue_item<T> > {
+  class _bqueue_item  {
     friend class bqueue<T>;
     friend class _bqueue_itr<T>;
     friend void intrusive_ptr_add_ref<T>(_bqueue_item<T> *it);

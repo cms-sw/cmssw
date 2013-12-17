@@ -21,9 +21,8 @@ public:
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 
-    theVertexSrc   = regionPSet.getParameter<std::string>("vertexSrc");
-    if (theVertexSrc.length()>1) theVertexToken   = iC.consumes<reco::VertexCollection>(
-	edm::InputTag(theVertexSrc));
+    theVertexSrc   = regionPSet.getParameter<edm::InputTag>("vertexSrc");
+    if (theVertexSrc.label().length()>1) theVertexToken   = iC.consumes<reco::VertexCollection>(theVertexSrc);
     theInputTrkToken = iC.consumes<reco::TrackCollection>(regionPSet.getParameter<edm::InputTag>("TrkSrc"));
 
     thePtMin              = regionPSet.getParameter<double>("ptMin");
@@ -48,7 +47,7 @@ public:
     // get highest Pt pixel vertex (if existing)
     double deltaZVertex =  theOriginHalfLength;
     double originz = theOriginZPos;
-    if (theVertexSrc.length()>1) {
+    if (theVertexSrc.label().length()>1) {
       edm::Handle<reco::VertexCollection> vertices;
       ev.getByToken(theVertexToken,vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
@@ -78,7 +77,7 @@ public:
 
 private:
 
-  std::string theVertexSrc;
+  edm::InputTag theVertexSrc;
   edm::EDGetTokenT<reco::VertexCollection> theVertexToken;
   edm::EDGetTokenT<reco::TrackCollection> theInputTrkToken;
 

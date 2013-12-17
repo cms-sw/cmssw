@@ -77,9 +77,10 @@ class ClusterSummaryProducer : public edm::EDProducer {
       
       // ----------member data ---------------------------
       
-      edm::InputTag stripClustersLabel;
-      edm::InputTag pixelClustersLabel;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
       std::string stripModules;
+
       std::vector<std::string> v_stripModuleTypes;
       std::string pixelModules;
       std::vector<std::string> v_pixelModuleTypes;

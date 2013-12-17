@@ -17,6 +17,8 @@
  *
  */
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -48,7 +50,7 @@ class RecoTauVertexAssociator {
       kCombined
     };
 
-    RecoTauVertexAssociator (const edm::ParameterSet& pset);
+    RecoTauVertexAssociator (const edm::ParameterSet& pset,  edm::ConsumesCollector&& iC);
     virtual ~RecoTauVertexAssociator (){}
     /// Get the primary vertex associated to a given jet. Returns a null Ref if
     /// no vertex is found.
@@ -73,6 +75,8 @@ class RecoTauVertexAssociator {
     //PJ adding quality cuts
     RecoTauQualityCuts qcuts_;
     bool recoverLeadingTrk;
+
+    edm::EDGetTokenT<reco::VertexCollection> vx_token;
 
 };
 

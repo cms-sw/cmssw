@@ -16,6 +16,7 @@ SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT() :
   deadFlag_(255),
   noisyFlag_(254)
 {
+  initialize();
    if (deadFlag_ > 0xFF)
       throw cms::Exception("GainCalibration Payload configuration error")
          << "[SiPixelGainCalibrationHLT::SiPixelGainCalibrationHLT] Dead flag was set to " << deadFlag_ << ", and it must be set less than or equal to 255";
@@ -31,9 +32,17 @@ SiPixelGainCalibrationForHLT::SiPixelGainCalibrationForHLT(float minPed, float m
   deadFlag_(255),
   noisyFlag_(254)
 {
+  initialize();
    if (deadFlag_ > 0xFF)
       throw cms::Exception("GainCalibration Payload configuration error")
          << "[SiPixelGainCalibrationHLT::SiPixelGainCalibrationHLT] Dead flag was set to " << deadFlag_ << ", and it must be set less than or equal to 255";
+}
+
+
+void SiPixelGainCalibrationForHLT::initialize() const {
+  pedPrecision  = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
+  gainPrecision = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
+
 }
 
 bool SiPixelGainCalibrationForHLT::put(const uint32_t& DetId, Range input, const int& nCols) {
@@ -123,8 +132,34 @@ void SiPixelGainCalibrationForHLT::setData(float ped, float gain, std::vector<ch
   ::memcpy((void*)(&vped[vped.size()-2]),(void*)(&data),2);
 }
 
+
+std::pair<float,float> SiPixelGainCalibrationForHLT::getPedAndGain(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const {
+  // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
+  unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;
+  unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block 
+  unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
+
+  const DecodingStructure & s = (const DecodingStructure & ) *(range.first + col*lengthOfColumnData + lengthOfAveragedDataInEachColumn*numberOfDataBlocksToSkip);
+
+  isDeadColumn = (s.ped & 0xFF) == deadFlag_;
+  isNoisyColumn = (s.ped & 0xFF) == noisyFlag_;
+
+  /*
+  int maxRow = (lengthOfColumnData/lengthOfAveragedDataInEachColumn)*numberOfRowsToAverageOver_ - 1;
+  if (col >= nCols || row > maxRow){
+    throw cms::Exception("CorruptedData")
+      << "[SiPixelGainCalibrationForHLT::getPed] Pixel out of range: col " << col << " row: " << row;
+  }  
+  */
+
+  return std::make_pair(decodePed(s.ped & 0xFF),decodeGain(s.gain & 0xFF));
+
+
+}
+
+
 float SiPixelGainCalibrationForHLT::getPed(const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn) const {
-   // TODO MERGE THIS FUNCTION WITH GET GAIN, then provide wrappers
+   // TODO MERGE THIS FUNCTION WITH GET GAIN, then provide wrappers  ( VI done, see above)
 
   // determine what averaged data block we are in (there should be 1 or 2 of these depending on if plaquette is 1 by X or 2 by X
   unsigned int lengthOfColumnData  = (range.second-range.first)/nCols;
@@ -175,7 +210,7 @@ float SiPixelGainCalibrationForHLT::encodeGain( const float& gain ) {
     throw cms::Exception("InsertFailure")
       << "[SiPixelGainCalibrationForHLT::encodeGain] Trying to encode gain (" << gain << ") out of range [" << minGain_ << "," << maxGain_ << "]\n";
   } else {
-    double precision   = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
+    float precision   = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
     float  encodedGain = (float)((gain-minGain_)/precision);
     return encodedGain;
   }
@@ -188,27 +223,10 @@ float SiPixelGainCalibrationForHLT::encodePed( const float& ped ) {
     throw cms::Exception("InsertFailure")
       << "[SiPixelGainCalibrationForHLT::encodePed] Trying to encode pedestal (" << ped << ") out of range [" << minPed_ << "," << maxPed_ << "]\n";
   } else {
-    double precision   = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
+    float precision   = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
     float  encodedPed = (float)((ped-minPed_)/precision);
     return encodedPed;
   }
 
 }
-
-float SiPixelGainCalibrationForHLT::decodePed( unsigned int ped ) const {
-
-  double precision = (maxPed_-minPed_)/static_cast<float>(nBinsToUseForEncoding_);
-  float decodedPed = (float)(ped*precision + minPed_);
-  return decodedPed;
-
-}
-
-float SiPixelGainCalibrationForHLT::decodeGain( unsigned int gain ) const {
-
-  double precision = (maxGain_-minGain_)/static_cast<float>(nBinsToUseForEncoding_);
-  float decodedGain = (float)(gain*precision + minGain_);
-  return decodedGain;
-
-}
-
 

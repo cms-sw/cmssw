@@ -28,6 +28,8 @@
 
   <class name="SiPixelGainCalibrationForHLT" class_version="0">
      <field name="v_pedestals" mapping="blob"/>
+     <field name="pedPrecision" transient="true"/>
+     <field name="gainPrecision" transient="true"/>
   </class>
   <class name="SiPixelGainCalibrationForHLT::DetRegistry"/>
   <class name="std::vector<SiPixelGainCalibrationForHLT::DetRegistry>"/>

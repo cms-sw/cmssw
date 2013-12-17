@@ -11,7 +11,9 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,6 +22,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
@@ -32,7 +35,8 @@
 namespace edm
 {
   template <class HAD, class DEC> class GeneratorFilter : public one::EDFilter<EndRunProducer,
-                                                                               one::WatchLuminosityBlocks>
+                                                                               one::WatchLuminosityBlocks,
+                                                                               one::SharedResources>
   {
   public:
     typedef HAD Hadronizer;
@@ -73,14 +77,29 @@ namespace edm
     //
     // other maybe added as needs be
     //
-    
+
+    std::vector<std::string> const& sharedResources = hadronizer_.sharedResources();
+    for(auto const& resource : sharedResources) {
+      usesResource(resource);
+    }
+
     if ( ps.exists("ExternalDecays") )
     {
        //decayer_ = new gen::ExternalDecayDriver(ps.getParameter<ParameterSet>("ExternalDecays"));
        ParameterSet ps1 = ps.getParameter<ParameterSet>("ExternalDecays");
        decayer_ = new Decayer(ps1);
+
+       std::vector<std::string> const& sharedResourcesDec = decayer_->sharedResources();
+       for(auto const& resource : sharedResourcesDec) {
+         usesResource(resource);
+       }
     }
-    
+    // This handles the case where there are no shared resources, because you
+    // have to declare something when the SharedResources template parameter was used.
+    if(sharedResources.empty() && (!decayer_ || decayer_->sharedResources().empty())) {
+      usesResource(edm::uniqueSharedResourceName());
+    }
+
     produces<edm::HepMCProduct>();
     produces<GenEventInfoProduct>();
     produces<GenRunInfoProduct, edm::InRun>();
@@ -95,6 +114,9 @@ namespace edm
   bool
   GeneratorFilter<HAD, DEC>::filter(Event& ev, EventSetup const& /* es */)
   {
+    RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, ev.streamID());
+    RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, ev.streamID());
+
     //added for selecting/filtering gen events, in the case of hadronizer+externalDecayer
       
     bool passEvtGenSelector = false;
@@ -186,8 +208,10 @@ namespace edm
 
   template <class HAD, class DEC>
   void
-  GeneratorFilter<HAD, DEC>::beginLuminosityBlock( LuminosityBlock const&, EventSetup const& es )
+  GeneratorFilter<HAD, DEC>::beginLuminosityBlock( LuminosityBlock const& lumi, EventSetup const& es )
   {
+    RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
+    RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
     if ( !hadronizer_.readSettings(0) )
        throw edm::Exception(errors::Configuration) 

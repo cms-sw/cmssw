@@ -23,26 +23,32 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
   label = iPSet.getParameter<std::string>("Label");
   edm::ParameterSet m_Prov =
     iPSet.getParameter<edm::ParameterSet>("ProvenanceLookup");
-  getAllProvenances = 
+  getAllProvenances =
     m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
-  printProvenanceInfo = 
+  printProvenanceInfo =
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
 
    nRawGenPart = 0;
  // ROOT Histos output files
-   DToutputFile_ =  iPSet.getUntrackedParameter<std::string>("DT_outputFile", ""); 
+   DToutputFile_ =  iPSet.getUntrackedParameter<std::string>("DT_outputFile", "");
    //  CSCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("CSC_outputFile", "");
    //  RPCoutputFile_ =  iPSet.getUntrackedParameter<std::string>("RPC_outputFile", "");
-   
-   
+
+
    /// get labels for input tags
-   //  CSCHitsSrc_ = iPSet.getParameter<edm::InputTag>("CSCHitsSrc");
-   DTHitsSrc_  = iPSet.getParameter<edm::InputTag>("DTHitsSrc");
-   //  RPCHitsSrc_ = iPSet.getParameter<edm::InputTag>("RPCHitsSrc");
-   
+   CSCHitsToken_ = consumes<edm::PSimHitContainer>(
+       iPSet.getParameter<edm::InputTag>("CSCHitsSrc"));
+   DTHitsToken_  = consumes<edm::PSimHitContainer>(
+       iPSet.getParameter<edm::InputTag>("DTHitsSrc"));
+   RPCHitsToken_ = consumes<edm::PSimHitContainer>(
+       iPSet.getParameter<edm::InputTag>("RPCHitsSrc"));
+
    /// print out Parameter Set information being used
+
    if (verbosity) {
-     edm::LogInfo ("MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer") 
+     Labels l;
+     labelsForToken(DTHitsToken_, l);
+     edm::LogInfo ("MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer")
        << "\n===============================\n"
        << "Initialized as EDAnalyzer with parameter values:\n"
        << "    Name      = " << fName << "\n"
@@ -50,15 +56,15 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
        << "    Label     = " << label << "\n"
        << "    GetProv   = " << getAllProvenances << "\n"
        << "    PrintProv = " << printProvenanceInfo << "\n"
-       //    << "    CSCHitsSrc=  " <<CSCHitsSrc_.label() 
+       //    << "    CSCHitsSrc=  " <<CSCHitsSrc_.label()
        //    << ":" << CSCHitsSrc_.instance() << "\n"
-       << "    DTHitsSrc =  " <<DTHitsSrc_.label()
-       << ":" << DTHitsSrc_.instance() << "\n"
+       << "    DTHitsSrc =  " << l.module
+       << ":" << l.productInstance << "\n"
        //     << "    RPCHitsSrc=  " <<RPCHitsSrc_.label()
        //     << ":" << RPCHitsSrc_.instance() << "\n"
        << "===============================\n";
    }
-   
+
    // ----------------------
    // get hold of back-end interface DT
    dbeDT_ = 0;
@@ -73,11 +79,11 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
    if ( dbeDT_ ) {
      if ( verbosity ) dbeDT_->showDirStructure();
    }
-   
+
    // ----------------------
-   
+
    bookHistos_DT();
- 
+
    /*
    // get hold of back-end interface CSC
    dbeCSC_ = 0;
@@ -92,11 +98,11 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
    if ( dbeCSC_ ) {
    if ( verbosity ) dbeCSC_->showDirStructure();
    }
-   
+
    // ----------------------
-   
+
    bookHistos_CSC();
-   
+
    // get hold of back-end interface RPC
    dbeRPC_ = 0;
    dbeRPC_ = Service<DQMStore>().operator->();
@@ -110,34 +116,34 @@ MuonSimHitsValidAnalyzer::MuonSimHitsValidAnalyzer(const edm::ParameterSet& iPSe
    if ( dbeRPC_ ) {
    if ( verbosity ) dbeRPC_->showDirStructure();
    }
-   
+
    // ----------------------
-   
+
    bookHistos_RPC();
    */
-   
-   pow6=1000000.0; 
+
+   pow6=1000000.0;
    mom4 =0.;
-   mom1 = 0; 
+   mom1 = 0;
    costeta = 0.;
    radius = 0;
    sinteta = 0.;
    globposx = 0.;
    globposy = 0;
-   nummu_DT = 0; 
+   nummu_DT = 0;
    nummu_CSC =0;
    nummu_RPC=0;
-   
+
 }
 
-MuonSimHitsValidAnalyzer::~MuonSimHitsValidAnalyzer() 
+MuonSimHitsValidAnalyzer::~MuonSimHitsValidAnalyzer()
 {
- if ( DToutputFile_.size() != 0 ) 
+ if ( DToutputFile_.size() != 0 )
    {
     LogInfo("OutputInfo") << " DT MuonHits histos file is closed " ;
     theDTFile->Close();
-   }   
-   
+   }
+
 // theCSCFile->Close();
 // theRPCFile->Close();
 }
@@ -161,7 +167,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
   meGlobalXvsZ =0 ;
   meGlobalXvsY =0 ;
   meGlobalXvsZWm2 =0 ;
-  meGlobalXvsZWm1 =0 ; 
+  meGlobalXvsZWm1 =0 ;
   meGlobalXvsZW0 =0 ;
   meGlobalXvsZWp1 =0 ;
   meGlobalXvsZWp2 =0 ;
@@ -197,11 +203,11 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
 
   if ( dbeDT_ ) {
     dbeDT_->setCurrentFolder("MuonDTHitsV/DTHitsValidationTask");
- 
+
     sprintf (histo_n, "Number_of_all_DT_hits" );
     sprintf (histo_t, "Number_of_all_DT_hits" );
     meAllDTHits = dbeDT_->book1D(histo_n, histo_t,  200, 1.0, 201.0) ;
- 
+
     sprintf (histo_n, "Number_of_muon_DT_hits" );
     sprintf (histo_t, "Number_of_muon_DT_hits" );
     meMuDTHits  = dbeDT_->book1D(histo_n, histo_t, 150, 1.0, 151.0);
@@ -226,7 +232,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
     sprintf (histo_t, "Loss_of_muon_Momentum_in_Iron" );
     meLossMomIron  = dbeDT_->book1D(histo_n, histo_t, 80, 0.0, 40.0) ;
 
-    sprintf (histo_n, "Local_x-coord_vs_local_z-coord_of_muon_hit" );    
+    sprintf (histo_n, "Local_x-coord_vs_local_z-coord_of_muon_hit" );
     sprintf (histo_t, "Local_x-coord_vs_local_z-coord_of_muon_hit" );
     meLocalXvsZ = dbeDT_->book2D(histo_n, histo_t,100, -150., 150., 100, -0.8, 0.8 ) ;
 
@@ -240,7 +246,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
 
     sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit" );
     sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit" );
-    meGlobalXvsY = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. ) ; 
+    meGlobalXvsY = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. ) ;
 
 //   New histos
 
@@ -251,7 +257,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
     sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_w-2" );
     sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_w-2" );
     meGlobalXvsYWm2 = dbeDT_->book2D(histo_n, histo_t,  100, -800., 800., 100, -800., 800. );
- 
+
     sprintf (histo_n, "Global_x-coord_vs_global_z-coord_of_muon_hit_w-1" );
     sprintf (histo_t, "Global_x-coord_vs_global_z-coord_of_muon_hit_w-1" );
     meGlobalXvsZWm1 = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
@@ -259,7 +265,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
     sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_w-1" );
     sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_w-1" );
     meGlobalXvsYWm1 = dbeDT_->book2D(histo_n, histo_t,  100, -800., 800., 100, -800., 800. );
-  
+
     sprintf (histo_n, "Global_x-coord_vs_global_z-coord_of_muon_hit_w0" );
     sprintf (histo_t, "Global_x-coord_vs_global_z-coord_of_muon_hit_w0" );
     meGlobalXvsZW0 = dbeDT_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
@@ -292,7 +298,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
 
     sprintf (histo_n, "Station_occupancy" );
     sprintf (histo_t, "Station_occupancy" );
-    meStationOccup = dbeDT_->book1D(histo_n, histo_t, 6, 0., 6.0) ; 
+    meStationOccup = dbeDT_->book1D(histo_n, histo_t, 6, 0., 6.0) ;
 
     sprintf (histo_n, "Sector_occupancy" );
     sprintf (histo_t, "Sector_occupancy" );
@@ -313,8 +319,8 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
     sprintf (histo_n, "path_followed_by_muon" );
     sprintf (histo_t, "path_followed_by_muon" );
     mePathMuon = dbeDT_->book1D(histo_n, histo_t, 160, 0., 160.) ;
- 
-    sprintf (histo_n, "chamber_occupancy" ); 
+
+    sprintf (histo_n, "chamber_occupancy" );
     sprintf (histo_t, "chamber_occupancy" );
     meChamberOccup = dbeDT_->book1D(histo_n, histo_t,  251, 0., 251.) ;
 
@@ -322,15 +328,15 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
     sprintf (histo_t, "radius_of_hit");
     meHitRadius = dbeDT_->book1D(histo_n, histo_t, 100, 0., 1200. );
 
-    sprintf (histo_n, "costheta_of_hit" ); 
+    sprintf (histo_n, "costheta_of_hit" );
     sprintf (histo_t, "costheta_of_hit" );
     meCosTheta = dbeDT_->book1D(histo_n, histo_t,  100, -1., 1.) ;
 
     sprintf (histo_n, "global_eta_of_hit" );
     sprintf (histo_t, "global_eta_of_hit" );
-    meGlobalEta = dbeDT_->book1D(histo_n, histo_t, 60, -2.7, 2.7 ); 
- 
-    sprintf (histo_n, "global_phi_of_hit" ); 
+    meGlobalEta = dbeDT_->book1D(histo_n, histo_t, 60, -2.7, 2.7 );
+
+    sprintf (histo_n, "global_phi_of_hit" );
     sprintf (histo_t, "global_phi_of_hit" );
     meGlobalPhi = dbeDT_->book1D(histo_n, histo_t, 60, -3.14, 3.14);
 
@@ -341,7 +347,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_DT()
 void MuonSimHitsValidAnalyzer::bookHistos_RPC()
 {
   meAllRPCHits = 0 ;
-  meMuRPCHits = 0 ; 
+  meMuRPCHits = 0 ;
   meRegionOccup = 0 ;
   meRingOccBar = 0 ;
   meRingOccEndc = 0 ;
@@ -374,10 +380,10 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
   meCosThetaBar = 0 ;
   meHitRadiusEndc = 0 ;
   meCosThetaEndc = 0 ;
-  
+
   theRPCFile = new TFile(RPCoutputFile_.c_str(),"RECREATE");
   theRPCFile->cd();
- 
+
   Char_t histo_n[100];
   Char_t histo_t[100];
 
@@ -403,7 +409,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
     sprintf (histo_n, "Ring_occupancy_endcaps");
     sprintf (histo_t, "Ring_occupancy_endcaps");
     meRingOccEndc = dbeRPC_->book1D(histo_n, histo_t, 8, -3., 5.0) ;
- 
+
     sprintf (histo_n, "Station_occupancy_barrel");
     sprintf (histo_t, "Station_occupancy_barrel");
     meStatOccBar = dbeRPC_->book1D(histo_n, histo_t, 8, 0., 8.);
@@ -415,8 +421,8 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
     sprintf (histo_n, "Sector_occupancy_barrel" );
     sprintf (histo_t, "Sector_occupancy_barrel" );
     meSectorOccBar = dbeRPC_->book1D(histo_n, histo_t, 16, 0., 16.) ;
- 
-    sprintf (histo_n, "Sector_occupancy_endcaps" ); 
+
+    sprintf (histo_n, "Sector_occupancy_endcaps" );
     sprintf (histo_t, "Sector_occupancy_endcaps" );
     meSectorOccEndc = dbeRPC_->book1D(histo_n, histo_t, 16, 0., 16.) ;
 
@@ -427,7 +433,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
     sprintf (histo_n, "Layer_occupancy_endcaps" );
     sprintf (histo_t, "Layer_occupancy_endcaps" );
     meLayerOccEndc = dbeRPC_->book1D(histo_n, histo_t,4, 0., 4.) ;
-  
+
     sprintf (histo_n, "Subsector_occupancy_barrel" );
     sprintf (histo_t, "Subsector_occupancy_barrel" );
     meSubSectOccBar = dbeRPC_->book1D(histo_n, histo_t, 10, 0., 10.) ;
@@ -443,8 +449,8 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
     sprintf (histo_n, "Roll_occupancy_endcaps" );
     sprintf (histo_t, "Roll_occupancy_endcaps" );
     meRollOccEndc = dbeRPC_->book1D(histo_n, histo_t,  6, 0., 6.) ;
- 
-    sprintf (histo_n, "RPC_energy_loss_barrel" );   
+
+    sprintf (histo_n, "RPC_energy_loss_barrel" );
     sprintf (histo_t, "RPC_energy_loss_barrel" );
     meElossBar = dbeRPC_->book1D(histo_n, histo_t, 50, 0.0, 10.0) ;
 
@@ -475,7 +481,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
     sprintf (histo_n, "Momentum_at_RE4");
     sprintf (histo_t, "Momentum_at_RE4");
     meMomRE4 = dbeRPC_->book1D(histo_n, histo_t,  100, 10.0, 300.0);
- 
+
     sprintf (histo_n, "Loss_of_muon_Momentum_in_Iron_endcap" );
     sprintf (histo_t, "Loss_of_muon_Momentum_in_Iron_endcap" );
     meLossMomEndc = dbeRPC_->book1D(histo_n, histo_t, 80, 0.0, 40.0) ;
@@ -487,7 +493,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
     sprintf (histo_n, "Global_z-coord_vs_global_x-coord_of_muon_hit_barrel" );
     sprintf (histo_t, "Global_z-coord_vs_global_x-coord_of_muon_hit_barrel" );
     meGlobalXvsZBar = dbeRPC_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
- 
+
     sprintf (histo_n, "Global_x-coord_vs_global_y-coord_of_muon_hit_barrel" );
     sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_barrel" );
     meGlobalXvsYBar = dbeRPC_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
@@ -516,7 +522,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
     sprintf (histo_t, "Global_x-coord_vs_global_y-coord_of_muon_hit_endcaps" );
     meGlobalXvsYEndc = dbeRPC_->book2D(histo_n, histo_t, 100, -800., 800., 100, -800., 800. );
 
-  } 
+  }
 
 }
 
@@ -560,7 +566,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_CSC()
   meToF_432 =0 ;
   meEnergyLoss_241 =0 ;
   meToF_441 =0 ;
- 
+
 
    theCSCFile = new TFile(CSCoutputFile_.c_str(),"RECREATE");
    theCSCFile->cd();
@@ -570,14 +576,14 @@ void MuonSimHitsValidAnalyzer::bookHistos_CSC()
 
    if ( dbeCSC_ ) {
     dbeCSC_->setCurrentFolder("MuonCSCHitsV/CSCHitsValidationTask");
- 
+
     sprintf (histo_n, "Number_of_all_CSC_hits " );
     sprintf (histo_t, "Number_of_all_CSC_hits " );
     meAllCSCHits = dbeCSC_->book1D(histo_n, histo_t,  100, 1.0, 101.0) ;
 
     sprintf (histo_n, "Number_of_muon_CSC_hits" );
     sprintf (histo_t, "Number_of_muon_CSC_hits" );
-    meMuCSCHits = dbeCSC_->book1D(histo_n, histo_t, 50, 1.0, 51.0); 
+    meMuCSCHits = dbeCSC_->book1D(histo_n, histo_t, 50, 1.0, 51.0);
 
     sprintf (histo_n, "111__energy_loss");
     sprintf (histo_t, "111__energy_loss");
@@ -602,7 +608,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_CSC()
     sprintf (histo_n, "313_tof");
     sprintf (histo_t, "313_tof");
     meToF_313 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
- 
+
     sprintf (histo_n, "114__energy_loss");
     sprintf (histo_t, "114__energy_loss");
     meEnergyLoss_114 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
@@ -651,8 +657,8 @@ void MuonSimHitsValidAnalyzer::bookHistos_CSC()
     sprintf (histo_t, "341_tof");
     meToF_341 = dbeCSC_->book1D(histo_n, histo_t, 60, 0.0, 60.0) ;
 
-    
-    
+
+
     sprintf (histo_n, "211__energy_loss");
     sprintf (histo_t, "211__energy_loss");
     meEnergyLoss_211 = dbeCSC_->book1D(histo_n, histo_t,50, 0.0, 50.0) ;
@@ -734,17 +740,17 @@ void MuonSimHitsValidAnalyzer::saveHistos_DT()
   //int DTHistos;
   //DTHistos = 1000;
   theDTFile->cd();
-   
+
   if ( dbeDT_ ) {
     dbeDT_->setCurrentFolder("MuonDTHitsV/DTHitsValidationTask");
     //    cout << " DTFile.size " << DToutputFile_.size() << " dbeDT " << dbeDT_ << endl;
     dbeDT_->save(DToutputFile_);
-  } 
+  }
 
 //  gDirectory->pwd();
 //  theDTFile->ls();
 // theDTFile->GetList()->ls();
-//  hmgr->save(DTHistos); 
+//  hmgr->save(DTHistos);
 }
 
 void MuonSimHitsValidAnalyzer::saveHistos_RPC()
@@ -773,7 +779,7 @@ void MuonSimHitsValidAnalyzer::saveHistos_CSC()
   //int CSCHistos;
   //CSCHistos = 2000;
   theCSCFile->cd();
- 
+
   if ( dbeCSC_ ) {
     dbeCSC_->setCurrentFolder("MuonCSCHitsV/CSCHitsValidationTask");
     //    cout << " CSCFile.size " << CSCoutputFile_.size() << " dbeCSC " << dbeCSC_ << endl;
@@ -801,15 +807,15 @@ void MuonSimHitsValidAnalyzer::endJob()
 
 
 //  saveHistos_CSC();
-//  saveHistos_RPC(); 
+//  saveHistos_RPC();
   if (verbosity > 0)
-    edm::LogInfo ("MuonSimHitsValidAnalyzer::endJob") 
+    edm::LogInfo ("MuonSimHitsValidAnalyzer::endJob")
       << "Terminating having processed " << count << " events.";
   return;
 
 }
 
-void MuonSimHitsValidAnalyzer::analyze(const edm::Event& iEvent, 
+void MuonSimHitsValidAnalyzer::analyze(const edm::Event& iEvent,
 			       const edm::EventSetup& iSetup)
 {
   /// keep track of number of events processed
@@ -836,7 +842,7 @@ void MuonSimHitsValidAnalyzer::analyze(const edm::Event& iEvent,
 
     if (printProvenanceInfo && (verbosity > 0)) {
       TString eventout("\nProvenance info:\n");
-      
+
       for (unsigned int i = 0; i < AllProv.size(); ++i) {
 	eventout += "\n       ******************************";
 	eventout += "\n       Module       : ";
@@ -854,7 +860,7 @@ void MuonSimHitsValidAnalyzer::analyze(const edm::Event& iEvent,
       edm::LogInfo("MuonSimHitsValidAnalyzer::analyze") << eventout << "\n";
     }
   }
- 
+
   /// call fill functions
 
   /// gather CSC, DT and RPC information from event
@@ -871,13 +877,13 @@ void MuonSimHitsValidAnalyzer::analyze(const edm::Event& iEvent,
 
 
 
-void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent, 
+void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
 				 const edm::EventSetup& iSetup)
 {
 
   TString eventout;
   if (verbosity > 0)
-    eventout = "\nGathering CSC info:";  
+    eventout = "\nGathering CSC info:";
 
   /// iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
@@ -895,7 +901,7 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
 
   /// get  CSC information
   edm::Handle<edm::PSimHitContainer> MuonCSCContainer;
-  iEvent.getByLabel(CSCHitsSrc_,MuonCSCContainer);
+  iEvent.getByToken(CSCHitsToken_, MuonCSCContainer);
 //  iEvent.getByLabel("g4SimHits","MuonCSCHits",MuonCSCContainer);
   if (!MuonCSCContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidAnalyzer::fillCSC")
@@ -908,7 +914,7 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
 
   /// cycle through container
   int i = 0, j = 0;
-  for (itHit = MuonCSCContainer->begin(); itHit != MuonCSCContainer->end(); 
+  for (itHit = MuonCSCContainer->begin(); itHit != MuonCSCContainer->end();
        ++itHit) {
     ++i;
 
@@ -919,18 +925,18 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     /// check that expected detector is returned
-    if ((detector == dMuon) && 
+    if ((detector == dMuon) &&
         (subdetector == sdMuonCSC)) {
 
       /// get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theCSCMuon.idToDetUnit(theDetUnitId);
-    
+
       if (!theDet) {
 	edm::LogWarning("MuonSimHitsValidAnalyzer::fillCSC")
 	  << "Unable to get GeomDetUnit from theCSCMuon for hit " << i;
 	continue;
       }
-     
+
       ++j;
 
       /// get the Surface of the hit (knows how to go from local <-> global)
@@ -946,7 +952,7 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
       const CSCDetId& id=CSCDetId(itHit->detUnitId());
 
       int cscid=id.endcap()*100000 + id.station()*10000 +
-                id.ring()*1000     + id.chamber()*10 +id.layer(); 
+                id.ring()*1000     + id.chamber()*10 +id.layer();
 
       int iden = cscid/1000;
 
@@ -956,19 +962,19 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
       }
     } else {
       edm::LogWarning("MuonSimHitsValidAnalyzer::fillCSC")
-        << "MuonCsc PSimHit " << i 
-        << " is expected to be (det,subdet) = (" 
+        << "MuonCsc PSimHit " << i
+        << " is expected to be (det,subdet) = ("
         << dMuon << "," << sdMuonCSC
         << "); value returned is: ("
         << detector << "," << subdetector << ")";
       continue;
-    } 
-  } 
+    }
+  }
 
   if (verbosity > 1) {
     eventout += "\n          Number of CSC muon Hits collected:......... ";
     eventout += j;
-  }  
+  }
 
    meMuCSCHits->Fill( (float) nummu_CSC );
 
@@ -979,12 +985,12 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
 }
 
 
-void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent, 
+void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
 				 const edm::EventSetup& iSetup)
 {
  TString eventout;
   if (verbosity > 0)
-    eventout = "\nGathering DT info:";  
+    eventout = "\nGathering DT info:";
 
   /// iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
@@ -1002,7 +1008,7 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
 
   /// get DT information
   edm::Handle<edm::PSimHitContainer> MuonDTContainer;
-  iEvent.getByLabel(DTHitsSrc_,MuonDTContainer);
+  iEvent.getByToken(DTHitsToken_, MuonDTContainer);
 //  iEvent.getByLabel("g4SimHits","MuonDTHits",MuonDTContainer);
   if (!MuonDTContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidAnalyzer::fillDT")
@@ -1018,7 +1024,7 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
 
   /// cycle through container
   int i = 0, j = 0;
-  for (itHit = MuonDTContainer->begin(); itHit != MuonDTContainer->end(); 
+  for (itHit = MuonDTContainer->begin(); itHit != MuonDTContainer->end();
        ++itHit) {
 
     ++i;
@@ -1029,33 +1035,33 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     /// check that expected detector is returned
-    if ((detector == dMuon) && 
+    if ((detector == dMuon) &&
         (subdetector == sdMuonDT)) {
-       
+
       /// get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theDTMuon.idToDetUnit(theDetUnitId);
-    
+
       if (!theDet) {
-  	edm::LogWarning("MuonSimHitsValidAnalyzer::fillDT") 
+  	edm::LogWarning("MuonSimHitsValidAnalyzer::fillDT")
 	  << "Unable to get GeomDetUnit from theDTMuon for hit " << i;
 	continue;
       }
-     
+
       ++j;
 
       /// get the Surface of the hit (knows how to go from local <-> global)
       const BoundPlane& bsurf = theDet->surface();
-    
+
       /// gather necessary information
 
       if ( abs(itHit->particleType()) == 13 ) {
 
        nummu_DT++;
        meToF->Fill( itHit->tof() );
-       meEnergyLoss->Fill( itHit->energyLoss()*pow6 );     
+       meEnergyLoss->Fill( itHit->energyLoss()*pow6 );
 
        iden = itHit->detUnitId();
-       
+
        wheel = ((iden>>15) & 0x7 ) -3  ;
        station = ((iden>>22) & 0x7 ) ;
        sector = ((iden>>18) & 0xf ) ;
@@ -1072,7 +1078,7 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
 
    // Define a quantity to take into account station, splayer and layer being hit.
        path = (station-1) * 40 + superlayer * 10 + layer;
-       mePathMuon->Fill((float) path); 
+       mePathMuon->Fill((float) path);
 
    // Define a quantity to take into chamber being hit.
        pathchamber = (wheel+2) * 50 + (station-1) * 12 + sector;
@@ -1083,12 +1089,12 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
         {
          if (touch1 == 0)
          {
-          mom1=itHit->pabs();  
+          mom1=itHit->pabs();
           meMomentumMB1->Fill(mom1);
           touch1 = 1;
          }
         }
-   
+
    /// Muon Momentum at MB4 & Loss of Muon Momentum in Iron (between MB1 and MB4)
        if (station == 4 )
         {
@@ -1101,33 +1107,33 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
           {
            meLossMomIron->Fill(mom1-mom4);
           }
-         } 
+         }
         }
 
    /// X-Local Coordinate vs Z-Local Coordinate
-       meLocalXvsZ->Fill(itHit->localPosition().x(), itHit->localPosition().z() ); 
-   
+       meLocalXvsZ->Fill(itHit->localPosition().x(), itHit->localPosition().z() );
+
    /// X-Local Coordinate vs Y-Local Coordinate
        meLocalXvsY->Fill(itHit->localPosition().x(), itHit->localPosition().y() );
 
    /// Global Coordinates
-       
+
       globposz =  bsurf.toGlobal(itHit->localPosition()).z();
       globposeta = bsurf.toGlobal(itHit->localPosition()).eta();
-      globposphi = bsurf.toGlobal(itHit->localPosition()).phi(); 
+      globposphi = bsurf.toGlobal(itHit->localPosition()).phi();
 
-      radius = globposz* ( 1.+ exp(-2.* globposeta) ) / ( 1. - exp(-2.* globposeta ) ) ; 
+      radius = globposz* ( 1.+ exp(-2.* globposeta) ) / ( 1. - exp(-2.* globposeta ) ) ;
 
       costeta = ( 1. - exp(-2.*globposeta) ) /( 1. + exp(-2.* globposeta) ) ;
       sinteta = 2. * exp(-globposeta) /( 1. + exp(-2.*globposeta) );
 
     /// Z-Global Coordinate vs X-Global Coordinate
-    /// Y-Global Coordinate vs X-Global Coordinate   
-      globposx = radius*sinteta*cos(globposphi); 
+    /// Y-Global Coordinate vs X-Global Coordinate
+      globposx = radius*sinteta*cos(globposphi);
       globposy = radius*sinteta*sin(globposphi);
 
       meGlobalXvsZ->Fill(globposz, globposx);
-      meGlobalXvsY->Fill(globposx, globposy); 
+      meGlobalXvsY->Fill(globposx, globposy);
 
 //  New Histos
       if (wheel == -2) {
@@ -1150,7 +1156,7 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
       meGlobalXvsZWp2->Fill(globposz, globposx);
       meGlobalXvsYWp2->Fill(globposx, globposy);
       }
-// 
+//
       meHitRadius->Fill(radius);
       meCosTheta->Fill(costeta);
       meGlobalEta->Fill(globposeta);
@@ -1159,8 +1165,8 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
       }
     } else {
       edm::LogWarning("MuonSimHitsValidAnalyzer::fillDT")
-        << "MuonDT PSimHit " << i 
-        << " is expected to be (det,subdet) = (" 
+        << "MuonDT PSimHit " << i
+        << " is expected to be (det,subdet) = ("
         << dMuon << "," << sdMuonDT
         << "); value returned is: ("
         << detector << "," << subdetector << ")";
@@ -1171,26 +1177,26 @@ void MuonSimHitsValidAnalyzer::fillDT(const edm::Event& iEvent,
   if (verbosity > 1) {
     eventout += "\n          Number of DT muon Hits collected:......... ";
     eventout += j;
-  }  
+  }
   meMuDTHits->Fill( (float) nummu_DT );
-   
+
   if (verbosity > 0)
     edm::LogInfo("MuonSimHitsValidAnalyzer::fillDT") << eventout << "\n";
 return;
 }
 
 
-void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent, 
+void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
 				 const edm::EventSetup& iSetup)
 {
   TString eventout;
   if (verbosity > 0)
-    eventout = "\nGathering RPC info:";  
+    eventout = "\nGathering RPC info:";
 
   /// iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
 
-  /// access the RPC 
+  /// access the RPC
   /// access the RPC geometry
   edm::ESHandle<RPCGeometry> theRPCGeometry;
   iSetup.get<MuonGeometryRecord>().get(theRPCGeometry);
@@ -1203,7 +1209,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
 
   // get Muon RPC information
   edm::Handle<edm::PSimHitContainer> MuonRPCContainer;
-  iEvent.getByLabel(RPCHitsSrc_,MuonRPCContainer);
+  iEvent.getByToken(RPCHitsToken_, MuonRPCContainer);
 //  iEvent.getByLabel("g4SimHits","MuonRPCHits",MuonRPCContainer);
   if (!MuonRPCContainer.isValid()) {
     edm::LogWarning("MuonSimHitsValidAnalyzer::fillRPC")
@@ -1214,14 +1220,14 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
   touch1 = 0;
   touch4 = 0;
   touche1 = 0;
-  touche4 = 0; 
+  touche4 = 0;
   nummu_RPC = 0 ;
 
   meAllRPCHits->Fill( MuonRPCContainer->size() );
 
   /// cycle through container
   int i = 0, j = 0;
-  for (itHit = MuonRPCContainer->begin(); itHit != MuonRPCContainer->end(); 
+  for (itHit = MuonRPCContainer->begin(); itHit != MuonRPCContainer->end();
        ++itHit) {
 
     ++i;
@@ -1232,23 +1238,23 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     /// check that expected detector is returned
-    if ((detector == dMuon) && 
+    if ((detector == dMuon) &&
         (subdetector == sdMuonRPC)) {
 
       /// get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theRPCMuon.idToDetUnit(theDetUnitId);
-    
+
       if (!theDet) {
 	edm::LogWarning("MuonSimHitsValidAnalyzer::fillRPC")
 	  << "Unable to get GeomDetUnit from theRPCMuon for hit " << i;
 	continue;
       }
-     
+
       ++j;
 
       /// get the Surface of the hit (knows how to go from local <-> global)
       const BoundPlane& bsurf = theDet->surface();
-    
+
       /// gather necessary information
 
       if ( abs(itHit->particleType()) == 13 ) {
@@ -1256,7 +1262,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
        nummu_RPC++;
 
        iden = itHit->detUnitId();
-       
+
        region = ( ((iden>>0) & 0X3) -1 )  ;
        ring = ((iden>>2) & 0X7 ) ;
 
@@ -1273,12 +1279,12 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
        layer = ( ((iden>>11) & 0X1) + 1 ) ;
        subsector =  ( ((iden>>12) & 0X7) + 1 ) ;   //  ! Beware: mask says 0x7 !!
        roll =  ( (iden>>15) & 0X7)  ;
-  
+
        meRegionOccup->Fill((float)region);                  // Region
        if (region == 0 )   // Barrel
-        {  
-          meRingOccBar->Fill((float) ring);  
-          meStatOccBar->Fill((float) station); 
+        {
+          meRingOccBar->Fill((float) ring);
+          meStatOccBar->Fill((float) station);
           meSectorOccBar->Fill((float) sector);
           meLayerOccBar->Fill((float) layer);
           meSubSectOccBar->Fill((float) subsector);
@@ -1293,10 +1299,10 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
            meSectorOccEndc->Fill((float) sector);
            meLayerOccEndc->Fill((float) layer);
            meSubSectOccEndc->Fill((float) subsector);
-           meRollOccEndc->Fill((float) roll);  
+           meRollOccEndc->Fill((float) roll);
 
            meElossEndc->Fill(itHit->energyLoss()*pow6 );
-        } 
+        }
 
    // Define a quantity to take into account station, splayer and layer being hit.
         path = (region+1) * 50 + (ring+2) * 10 + (station -1) *2+ layer;
@@ -1306,7 +1312,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
   /// Muon Momentum at RB1 (Barrel)
         if ( region == 0 )  //  BARREL
        {
-         if (station == 1 && layer == 1 ) 
+         if (station == 1 && layer == 1 )
          {
           if (touch1 == 0)
           {
@@ -1320,7 +1326,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
          if (station == 4 )
          {
           if ( touch4 == 0)
-          { 
+          {
            mom4=itHit->pabs();
            meMomRB4->Fill(mom4);
            touch4 = 1;
@@ -1331,20 +1337,20 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
             }
           }
          }
-       }  // End of Barrel 
+       }  // End of Barrel
 
   /// Muon Momentum at RE1 (Endcaps)
         if ( region != 0 )  //  ENDCAPS
        {
          if (station == 1 )
-         { 
+         {
           if (touche1 == 0)
           {
            mome1=itHit->pabs();
            meMomRE1->Fill(mome1);
            touche1 = 1;
           }
-         }  
+         }
    /// Muon Momentum at RE4 (Endcaps)
          if (station == 4 )
          {
@@ -1353,14 +1359,14 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
            mome4=itHit->pabs();
            meMomRE4->Fill(mome4);
            touche4 = 1;
- /// Loss of Muon Momentum in Iron (between RE1_layer1 and RE4) 
+ /// Loss of Muon Momentum in Iron (between RE1_layer1 and RE4)
            if (touche1 == 1 )
             {
-             meLossMomEndc->Fill(mome1-mome4); 
-            } 
+             meLossMomEndc->Fill(mome1-mome4);
+            }
           }
          }
-       }  // End of Endcaps 
+       }  // End of Endcaps
 
   //  X-Local Coordinate vs Y-Local Coordinate
        meLocalXvsYBar->Fill(itHit->localPosition().x(), itHit->localPosition().y() );
@@ -1377,27 +1383,27 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
        globposx = radius*sinteta*cos(globposphi);
        globposy = radius*sinteta*sin(globposphi);
 
-       if (region == 0 ) // Barrel 
-        { 
+       if (region == 0 ) // Barrel
+        {
          meHitRadiusBar->Fill(radius);
          meCosThetaBar->Fill(costeta);
          meGlobalXvsZBar->Fill(globposz, globposx);
          meGlobalXvsYBar->Fill(globposx, globposy);
-        } 
+        }
        if (region != 0 ) // Endcaps
         {
-         meHitRadiusEndc->Fill(radius); 
+         meHitRadiusEndc->Fill(radius);
          meCosThetaEndc->Fill(costeta);
          meGlobalXvsZEndc->Fill(globposz, globposx);
          meGlobalXvsYEndc->Fill(globposx, globposy);
-        }  
+        }
 
       }
-    
+
     } else {
       edm::LogWarning("MuonSimHitsValidAnalyzer::fillRPC")
-        << "MuonRpc PSimHit " << i 
-        << " is expected to be (det,subdet) = (" 
+        << "MuonRpc PSimHit " << i
+        << " is expected to be (det,subdet) = ("
         << dMuon << "," << sdMuonRPC
         << "); value returned is: ("
         << detector << "," << subdetector << ")";
@@ -1408,7 +1414,7 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
   if (verbosity > 1) {
     eventout += "\n          Number of RPC muon Hits collected:......... ";
     eventout += j;
-  }  
+  }
 
   meMuRPCHits->Fill( (float) nummu_RPC );
 

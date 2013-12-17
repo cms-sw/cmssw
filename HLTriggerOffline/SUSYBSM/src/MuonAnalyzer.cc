@@ -33,10 +33,10 @@ using namespace std;
 using namespace trigger;
 
 
-MuonAnalyzerSBSM::MuonAnalyzerSBSM(const edm::InputTag& triggerTag_v, const edm::InputTag& muonTag_v)
+MuonAnalyzerSBSM::MuonAnalyzerSBSM(const edm::InputTag& triggerTag_v, const edm::InputTag& muonTag_v, edm::ConsumesCollector&& iC)
 {
-  triggerTag_ = triggerTag_v;
-  muonTag_ = muonTag_v;
+  triggerTag_ = iC.consumes<trigger::TriggerEvent>(edm::InputTag(triggerTag_v));
+  muonTag_    = iC.consumes<reco::MuonCollection>(edm::InputTag(muonTag_v));
 }
 
 bool MuonAnalyzerSBSM::find(const std::vector<int>& vec, int element)
@@ -58,7 +58,7 @@ void
 MuonAnalyzerSBSM::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    Handle<reco::MuonCollection> theMuonCollectionHandle;
-   iEvent.getByLabel(muonTag_, theMuonCollectionHandle);
+   iEvent.getByToken(muonTag_, theMuonCollectionHandle);
    Muons = *theMuonCollectionHandle;
    
    //Find reco muon with highest Pt, fill histos with lead reco muon pt and eta
@@ -77,7 +77,7 @@ MuonAnalyzerSBSM::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    //Creating histograms of L3 Muons
    Handle<TriggerEvent> theTriggerCollectionHandle;
-   iEvent.getByLabel(triggerTag_,theTriggerCollectionHandle);
+   iEvent.getByToken(triggerTag_,theTriggerCollectionHandle);
    trigger::size_type firstMuon=-1, lastMuon=-2;
    int indexOfCollection=-1, idOfLeadMuon=-1, indexOfFilter=-1;
    double LeadL3MuonPt=-1; // , LeadL3MuonEta=-1, LeadL3MuonPhi=-1; // UNUSED
@@ -238,16 +238,6 @@ MuonAnalyzerSBSM::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSe
        }*/
    
 
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-   Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
-#endif
-   
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-   ESHandle<SetupData> pSetup;
-   iSetup.get<SetupRecord>().get(pSetup);
-#endif
 }
 
 

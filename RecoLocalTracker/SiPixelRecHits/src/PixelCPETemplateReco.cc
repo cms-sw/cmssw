@@ -111,10 +111,8 @@ PixelCPETemplateReco::~PixelCPETemplateReco()
 //  The main call to the template code.
 //------------------------------------------------------------------
 LocalPoint
-PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const 
+PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster) const 
 {
-  setTheDet( det, cluster );
-  
   bool fpix;  //  barrel(false) or forward(true)
   if ( thePart == GeomDetEnumerators::PixelBarrel )   
     fpix = false;    // no, it's not forward -- it's barrel
@@ -466,8 +464,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 //  localError() relies on localPosition() being called FIRST!!!
 //------------------------------------------------------------------
 LocalError  
-PixelCPETemplateReco::localError( const SiPixelCluster& cluster, 
-				  const GeomDetUnit& det ) const 
+PixelCPETemplateReco::localError( const SiPixelCluster& cluster) const 
 {
   //cout << endl;
   //cout << "Set PixelCPETemplate errors .............................................." << endl;
@@ -495,9 +492,7 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
       // If errors are not split at the cluster splitting level, set the errors here
 
       //cout  << "Errors are not split at the cluster splitting level, set the errors here : " << endl; 
-  
-      setTheDet( det, cluster );
-      
+       
       int maxPixelCol = cluster.maxPixelCol();
       int maxPixelRow = cluster.maxPixelRow();
       int minPixelCol = cluster.minPixelCol();

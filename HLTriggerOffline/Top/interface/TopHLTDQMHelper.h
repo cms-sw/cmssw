@@ -3,12 +3,16 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 //#include <math>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 /*Originally from DQM/Physics package, written by Roger Wolf and Jeremy Andrea*/
 /**
    \fn      acceptTopHLTDQMHelpers.h "HLTriggerOffline/Top/interface/TopHLTDQMHelpers.h" 
@@ -173,7 +177,7 @@ template <typename Object>
 class SelectionStepHLT {
 public:
   /// default constructor
-  SelectionStepHLT(const edm::ParameterSet& cfg);
+  SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC);
   /// default destructor
   ~SelectionStepHLT(){};
 
@@ -185,10 +189,12 @@ public:
 private:
   /// input collection
   edm::InputTag src_;
+  edm::EDGetTokenT< edm::View<Object> > srcToken_;
   /// min/max for object multiplicity
   int min_, max_; 
   /// electronId label as extra selection type
   edm::InputTag electronId_;
+  edm::EDGetTokenT< edm::ValueMap<float> > electronIdToken_;
   /// electronId pattern we expect the following pattern:
   ///  0: fails
   ///  1: passes electron ID only
@@ -204,12 +210,15 @@ private:
   std::string jetCorrector_;
   /// choice for b-tag as extra selection type
   edm::InputTag btagLabel_;
+  edm::EDGetTokenT<reco::JetTagCollection> btagToken_;
   /// choice of b-tag working point as extra selection type
   double btagWorkingPoint_;
   /// jetID as an extra selection type 
   edm::InputTag jetIDLabel_;
+  edm::EDGetTokenT<reco::JetIDValueMap> jetIDToken_;
 
   edm::InputTag pvs_; 
+  edm::EDGetTokenT<edm::View<reco::Vertex> > pvsToken_;
 
   /// string cut selector
   StringCutObjectSelector<Object> select_;
@@ -219,11 +228,13 @@ private:
 
 /// default constructor
 template <typename Object> 
-SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg) :
+SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :
   src_( cfg.getParameter<edm::InputTag>( "src"   )),
   select_( cfg.getParameter<std::string>("select")),
   jetIDSelect_(0)
 {
+  srcToken_ = iC.consumes< edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"));
+  pvsToken_ = iC.consumes< edm::View<reco::Vertex> >(cfg.getParameter<edm::InputTag>("pvs"));
   // construct min/max if the corresponding params
   // exist otherwise they are initialized with -1
   cfg.exists("min") ? min_= cfg.getParameter<int>("min") : min_= -1;
@@ -232,6 +243,7 @@ SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg) :
   if(cfg.existsAs<edm::ParameterSet>("electronId")){ 
     edm::ParameterSet elecId=cfg.getParameter<edm::ParameterSet>("electronId");
     electronId_= elecId.getParameter<edm::InputTag>("src");
+    electronIdToken_= iC.consumes< edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
     eidPattern_= elecId.getParameter<int>("pattern");
   }
   // read jet corrector label if it exists
@@ -240,12 +252,14 @@ SelectionStepHLT<Object>::SelectionStepHLT(const edm::ParameterSet& cfg) :
   if(cfg.existsAs<edm::ParameterSet>("jetBTagger")){
     edm::ParameterSet jetBTagger=cfg.getParameter<edm::ParameterSet>("jetBTagger");
     btagLabel_=jetBTagger.getParameter<edm::InputTag>("label");
+    btagToken_= iC.consumes<reco::JetTagCollection>(jetBTagger.getParameter<edm::InputTag>("label"));
     btagWorkingPoint_=jetBTagger.getParameter<double>("workingPoint");
   }
   // read jetID information if it exists
   if(cfg.existsAs<edm::ParameterSet>("jetID")){
     edm::ParameterSet jetID=cfg.getParameter<edm::ParameterSet>("jetID");
     jetIDLabel_ =jetID.getParameter<edm::InputTag>("label");
+    jetIDToken_= iC.consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
     jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
   }
 }
@@ -256,12 +270,12 @@ bool SelectionStepHLT<Object>::select(const edm::Event& event)
 {
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 
-  if( !event.getByLabel(src_, src) ) return false;
+  if( !event.getByToken(srcToken_, src) ) return false;
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
   if(!electronId_.label().empty()) {
-    if( !event.getByLabel(electronId_, electronId) ) return false;
+    if( !event.getByToken(electronIdToken_, electronId) ) return false;
   }
 
   // determine multiplicity of selected objects
@@ -287,12 +301,12 @@ bool SelectionStepHLT<Object>::selectVertex(const edm::Event& event)
 {
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 
-  if( !event.getByLabel(src_, src) ) return false;
+  if( !event.getByToken(srcToken_, src) ) return false;
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
   if(!electronId_.label().empty()) {
-    if( !event.getByLabel(electronId_, electronId) ) return false;
+    if( !event.getByToken(electronIdToken_, electronId) ) return false;
   }
 
   // determine multiplicity of selected objects
@@ -311,7 +325,7 @@ bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventS
 {
   // fetch input collection
   edm::Handle<edm::View<Object> > src; 
-  if( !event.getByLabel(src_, src) ) return false;
+  if( !event.getByToken(srcToken_, src) ) return false;
 
   // load btag collection if configured such
   // NOTE that the JetTagCollection needs an
@@ -321,15 +335,15 @@ bool SelectionStepHLT<Object>::select(const edm::Event& event, const edm::EventS
   edm::Handle<reco::JetTagCollection> btagger;
   edm::Handle<edm::View<reco::Vertex> > pvertex; 
   if(!btagLabel_.label().empty()){ 
-    if( !event.getByLabel(src_, bjets) ) return false;
-    if( !event.getByLabel(btagLabel_, btagger) ) return false;
-    if( !event.getByLabel(pvs_, pvertex) ) return false;
+    if( !event.getByToken(srcToken_, bjets) ) return false;
+    if( !event.getByToken(btagToken_, btagger) ) return false;
+    if( !event.getByToken(pvsToken_, pvertex) ) return false;
   }
 
   // load jetID value map if configured such 
   edm::Handle<reco::JetIDValueMap> jetID;
   if(jetIDSelect_){
-    if( !event.getByLabel(jetIDLabel_, jetID) ) return false;
+    if( !event.getByToken(jetIDToken_, jetID) ) return false;
 
   }
 

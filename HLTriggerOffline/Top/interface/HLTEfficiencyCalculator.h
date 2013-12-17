@@ -138,7 +138,7 @@ private:
   EfficiencyHandler * myEffHandler;
   edm::InputTag HLTresCollection;        
   int verbosity ;	 
-  
+  edm::EDGetTokenT<edm::TriggerResults> HLTresCollectionToken_;
 };
 
 

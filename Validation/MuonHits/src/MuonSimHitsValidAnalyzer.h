@@ -58,7 +58,7 @@ namespace edm {
 
 class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
 {
-  
+
  public:
 
   typedef std::vector<float> FloatVector;
@@ -70,9 +70,9 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   virtual ~MuonSimHitsValidAnalyzer();
 
   virtual void beginJob();
-  virtual void endJob();  
+  virtual void endJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  
+
  private:
 
   void fillCSC(const edm::Event&, const edm::EventSetup&);
@@ -106,10 +106,10 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
 
   /// G4MC info
   int nRawGenPart;
- 
+
   unsigned int iden;
   Int_t wheel, station, sector, superlayer, layer, wire;
-  Int_t region, ring, subsector, roll; 
+  Int_t region, ring, subsector, roll;
   Int_t path, pathchamber;
   Int_t touch1, touch4, nummu_DT, nummu_RPC, nummu_CSC;
   Int_t touche1, touche4;
@@ -121,13 +121,13 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
 
   /// Input tags
 
-  edm::InputTag CSCHitsSrc_;
-  edm::InputTag DTHitsSrc_;
-  edm::InputTag RPCHitsSrc_;                                                
-  
+  edm::EDGetTokenT<edm::PSimHitContainer> CSCHitsToken_;
+  edm::EDGetTokenT<edm::PSimHitContainer> DTHitsToken_;
+  edm::EDGetTokenT<edm::PSimHitContainer> RPCHitsToken_;
+
   // DaqMonitor element
   DQMStore* dbeDT_;
-  DQMStore* dbeCSC_; 
+  DQMStore* dbeCSC_;
   DQMStore* dbeRPC_;
 
 
@@ -171,7 +171,7 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   MonitorElement* meAllCSCHits;
   MonitorElement* meMuCSCHits;
   MonitorElement* meEnergyLoss_111;
-  MonitorElement* meToF_311;  
+  MonitorElement* meToF_311;
   MonitorElement* meEnergyLoss_112;
   MonitorElement* meToF_312;
   MonitorElement* meEnergyLoss_113;
@@ -231,7 +231,7 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   MonitorElement* meLossMomBar;
   MonitorElement* meMomRE1;
   MonitorElement* meMomRE4;
-  MonitorElement* meLossMomEndc; 
+  MonitorElement* meLossMomEndc;
   MonitorElement* meLocalXvsYBar;
   MonitorElement* meGlobalXvsZBar;
   MonitorElement* meGlobalXvsYBar;
@@ -250,7 +250,7 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
 }; /// end class declaration
 
 /// geometry mapping
- 
+
 static const int dMuon            = 2;
 
 static const int sdMuonDT         = 1;

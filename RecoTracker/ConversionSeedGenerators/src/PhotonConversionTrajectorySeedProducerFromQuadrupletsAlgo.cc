@@ -37,14 +37,17 @@ PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSe
   init();  
 }
      
+PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::~PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo() {
+  if(theRegionProducer!=NULL)
+    delete theRegionProducer;
+}
+
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 clear(){
   if(theHitsGenerator!=NULL)
     delete theHitsGenerator;
   if(theSeedCreator!=NULL)
     delete theSeedCreator;
-  if(theRegionProducer!=NULL)
-    delete theRegionProducer;
 }
 
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::

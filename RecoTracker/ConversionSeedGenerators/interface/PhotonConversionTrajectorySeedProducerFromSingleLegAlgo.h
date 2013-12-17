@@ -37,7 +37,7 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   
   PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet &,
 	edm::ConsumesCollector && iC);
-  ~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(){};
+  ~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo();
 
   void init();
   void clear();

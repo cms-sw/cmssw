@@ -16,6 +16,28 @@
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationService.h"
 
+
+
+void SiPixelGainCalibrationServiceBase::calibrate(uint32_t detID, DigiIterator b, DigiIterator e, float conversionFactor, float offset, int * electron) {
+  int i=0;
+  for(DigiIterator di = b; di != e; ++di)  {
+    int row = di->row();
+    int col = di->column();
+    
+    if ( isDead(detID,col,row) || isNoisy(detID,col,row) ) electron[i++] =0;
+    else {
+      float DBgain     = getGain(detID, col, row);
+      float DBpedestal = getPedestal(detID, col, row) * DBgain;
+      float vcal = di->adc() * DBgain  - DBpedestal;
+      //    float vcal = (di->adc()  - DBpedestal) * DBgain;
+      electron[i++] = int( vcal * conversionFactor + offset); 
+    }
+  }
+  assert(i==(e-b));
+}
+
+
+
 float SiPixelGainCalibrationService::getPedestal( const uint32_t& detID,const int& col, const int& row)
 {
    bool isDead = false;

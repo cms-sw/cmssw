@@ -4,6 +4,7 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class SeedGeneratorFromRegionHits;
 class TrackingRegion;
@@ -12,7 +13,7 @@ class TrackingRegion;
 class TSGFromOrderedHits : public TrackerSeedGenerator {
 
 public:
-  TSGFromOrderedHits(const edm::ParameterSet &pset);
+  TSGFromOrderedHits(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
 
   virtual ~TSGFromOrderedHits();
 

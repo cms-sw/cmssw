@@ -10,8 +10,14 @@
 #include "CondCore/IOVService/interface/PayloadProxy.h"
 
 // expose a cond::PayloadProxy as a eventsetup::DataProxy
-template< class RecordT, class DataT >
-  class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT>{
+namespace cond {
+  template< typename DataT> struct DefaultInitializer {
+    void operator()(DataT &){}
+  };
+}
+
+template< class RecordT, class DataT , typename Initializer=cond::DefaultInitializer<DataT> >
+class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
   public:
   typedef DataProxy<RecordT,DataT> self;
   typedef boost::shared_ptr<cond::PayloadProxy<DataT> > DataP;
@@ -30,6 +36,7 @@ template< class RecordT, class DataT >
   protected:
   virtual const DataT* make(const RecordT&, const edm::eventsetup::DataKey&) {
     m_data->make();
+    m_initializer(const_cast<DataT&>((*m_data)()));
     return &(*m_data)();
   }
   virtual void invalidateCache() {
@@ -45,7 +52,7 @@ template< class RecordT, class DataT >
   // ---------- member data --------------------------------
 
   boost::shared_ptr<cond::PayloadProxy<DataT> >  m_data;
-
+  Initializer m_initializer;
 };
 
 namespace cond {
@@ -94,10 +101,10 @@ namespace cond {
 /* bridge between the cond world and eventsetup world
  * keep them separated!
  */
-template< class RecordT, class DataT >
+template< class RecordT, class DataT, typename Initializer=cond::DefaultInitializer<DataT> >
 class DataProxyWrapper : public  cond::DataProxyWrapperBase {
 public:
-  typedef ::DataProxy<RecordT,DataT> DataProxy;
+  typedef ::DataProxy<RecordT,DataT, Initializer> DataProxy;
   typedef cond::PayloadProxy<DataT> PayProxy;
   typedef boost::shared_ptr<PayProxy> DataP;
   

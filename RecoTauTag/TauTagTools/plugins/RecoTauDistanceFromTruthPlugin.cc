@@ -15,7 +15,7 @@ namespace tautools {
 
 class RecoTauDistanceFromTruthPlugin : public reco::tau::RecoTauCleanerPlugin {
   public:
-    RecoTauDistanceFromTruthPlugin(const edm::ParameterSet& pset);
+  RecoTauDistanceFromTruthPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     virtual ~RecoTauDistanceFromTruthPlugin() {}
     double operator()(const reco::PFTauRef&) const override;
     void beginEvent() override;
@@ -26,7 +26,7 @@ class RecoTauDistanceFromTruthPlugin : public reco::tau::RecoTauCleanerPlugin {
 };
 
 RecoTauDistanceFromTruthPlugin::RecoTauDistanceFromTruthPlugin(
-    const edm::ParameterSet& pset): reco::tau::RecoTauCleanerPlugin(pset) {
+							       const edm::ParameterSet& pset, edm::ConsumesCollector &&iC): reco::tau::RecoTauCleanerPlugin(pset,std::move(iC)) {
   matchingSrc_ = pset.getParameter<edm::InputTag>("matching");
 }
 

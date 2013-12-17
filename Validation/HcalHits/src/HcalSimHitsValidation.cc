@@ -173,7 +173,6 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   double eta_MC = -999.;  // eta of initial particle from HepMC
 
   edm::Handle<edm::HepMCProduct> evtMC;
-  //  ev.getByLabel("VtxSmeared",evtMC);
   ev.getByToken(tok_evt_,evtMC);  // generator in late 310_preX
   if (!evtMC.isValid()) {
     std::cout << "no HepMCProduct found" << std::endl;    

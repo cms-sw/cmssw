@@ -1,24 +1,12 @@
 #ifndef FastTimerService_h
 #define FastTimerService_h
 
-//system headers
-#ifdef __linux
-#include <time.h>
-#else
-typedef int clockid_t;
-#endif
-
-/* Darwin system headers */
-#if defined(__APPLE__) || defined(__MACH__)
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif // defined(__APPLE__) || defined(__MACH__)
-
 // C++ headers
 #include <cmath>
 #include <string>
 #include <map>
 #include <unordered_map>
+#include <chrono>
 #include <unistd.h>
 
 // CMSSW headers
@@ -33,6 +21,7 @@ typedef int clockid_t;
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "HLTrigger/Timer/interface/FastTimer.h"
 
 
 /*
@@ -52,32 +41,36 @@ event processing time is diveded into
 */
 
 /*
-Timer per-call overhead (on lxplus, SLC 5.7):
+Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step (with two calls per step, to start and stop the timer)
+with std::chrono::high_resolution_clock gives a per-event overhead of 1 ms
 
-Test results for "clock_gettime(CLOCK_THREAD_CPUTIME_ID, & value)"
- - average time per call: 340 ns
- - resolution:              ? ns
+Detailed informations on different timers can be extracted running $CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/testChrono .
 
-Test results for "clock_gettime(CLOCK_PROCESS_CPUTIME_ID, & value)"
- - average time per call: 360 ns
- - resolution:              ? ns
 
-Test results for "clock_gettime(CLOCK_REALTIME, & value)"
- - average time per call: 320 ns
- - resolution:              1 us
+Timer per-call overhead on SLC5:
 
-Test results for "getrusage(RUSAGE_SELF, & value)"
- - average time per call: 380 ns
- - resolution:              1 ms
+Linux 2.6.18-371.1.2.el5 x86_64
+glibc version: 2.5
+clock source: unknown
+For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
 
-Test results for "gettimeofday(& value, NULL)"
- - average time per call:  65 ns
- - resolution:              1 us
+Performance of std::chrono::high_resolution_clock
+        Average time per call:      317.0 ns
+        Clock tick period:            1.0 ns
+        Measured resolution:       1000.0 ns (median: 1000.0 ns) (sigma: 199.4 ns) (average: 1007.6 +/- 0.4 ns)
 
-Assuming an HLT process with ~2500 modules and ~500 paths, tracking each step
-with clock_gettime(CLOCK_THREAD_CPUTIME_ID) gives a per-event overhead of 2 ms
 
-Detailed informations on different timers can be extracted running $CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/testTimer .
+Timer per-call overhead on SLC6 (virtualized):
+
+Linux 2.6.32-358.23.2.el6.x86_64 x86_64
+glibc version: 2.12
+clock source: kvm-clock
+For each timer the resolution reported is the MINIMUM (MEDIAN) (MEAN +/- its STDDEV) of the increments measured during the test.
+
+Performance of std::chrono::high_resolution_clock
+        Average time per call:      351.2 ns
+        Clock tick period:            1.0 ns
+        Measured resolution:          1.0 ns (median: 358.0 ns) (sigma: 30360.8 ns) (average: 685.7 +/- 42.4 ns)
 */
 
 
@@ -88,73 +81,73 @@ public:
 
   // query the current module/path/event
   // Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns
-  double currentModuleTime() const;         // return the time spent since the last preModule() event
-  double currentPathTime() const;           // return the time spent since the last preProcessPath() event
-  double currentEventTime() const;          // return the time spent since the last preProcessEvent() event
+  double currentModuleTime(edm::StreamID) const;            // return the time spent since the last preModuleEvent() event
+  double currentPathTime(edm::StreamID) const;              // return the time spent since the last prePathEvent() event
+  double currentEventTime(edm::StreamID) const;             // return the time spent since the last preEvent() event
 
   // query the time spent in a module/path (available after it has run)
-  double queryModuleTime(const edm::ModuleDescription &) const;
-  double queryModuleTimeByLabel(const std::string &) const;
-  double queryModuleTimeByType(const std::string &) const;
-  double queryPathActiveTime(const std::string &) const;
-  double queryPathTotalTime(const std::string &) const;
+  double queryModuleTime(edm::StreamID, const edm::ModuleDescription &) const;
+  double queryModuleTimeByLabel(edm::StreamID, const std::string &) const;
+  double queryModuleTimeByType(edm::StreamID, const std::string &) const;
+  double queryPathActiveTime(edm::StreamID, const std::string &) const;
+  double queryPathExclusiveTime(edm::StreamID, const std::string &) const;
+  double queryPathTotalTime(edm::StreamID, const std::string &) const;
 
   // query the time spent in the current event's
   //  - source        (available during event processing)
   //  - all paths     (available during endpaths)
   //  - all endpaths  (available after all endpaths have run)
   //  - processing    (available after the event has been processed)
-  double querySourceTime() const;
-  double queryPathsTime() const;
-  double queryEndPathsTime() const;
-  double queryEventTime() const;
+  double querySourceTime(edm::StreamID) const;
+  double queryPathsTime(edm::StreamID) const;
+  double queryEndPathsTime(edm::StreamID) const;
+  double queryEventTime(edm::StreamID) const;
 
   /* FIXME not yet implemented
   // try to assess the overhead which may not be included in the source, paths and event timers
-  double queryPreSourceOverhead() const;    // time spent after the previous event's postProcessEvent and this event's preSourceEvent
-  double queryPreEventOverhead() const;     // time spent after this event's postSourceEvent and preProcessEvent
-  double queryPreEndPathsOverhead() const;  // time spent after the last path's postProcessPath and the first endpath's preProcessPath
+  double queryPreSourceOverhead(edm::StreamID) const;       // time spent after the previous event's postEvent and this event's preSource
+  double queryPreEventOverhead(edm::StreamID) const;        // time spent after this event's postSource and preEvent
+  double queryPreEndPathsOverhead(edm::StreamID) const;     // time spent after the last path's postPathEvent and the first endpath's prePathEvent
   */
 
-  // optionally called to specify the number of concurrent event processors
-  void setNumberOfProcesses(unsigned int);
-
 private:
+  void preallocate(edm::service::SystemBounds const &);
   void postEndJob();
-  void preBeginRun( edm::RunID const &, edm::Timestamp const & );
-  void preModuleBeginJob( edm::ModuleDescription const & );
-  void preProcessEvent( edm::EventID const &, edm::Timestamp const & );
-  void postProcessEvent( edm::Event const &, edm::EventSetup const & );
+  void preGlobalBeginRun(edm::GlobalContext const &);
+  void postGlobalEndRun(edm::GlobalContext const &);
+  void preModuleBeginJob(edm::ModuleDescription const &);
   void preSourceEvent(  edm::StreamID );
   void postSourceEvent( edm::StreamID );
-  void prePathBeginRun( std::string const & );
-  void preProcessPath(  std::string const & );
-  void postProcessPath( std::string const &, edm::HLTPathStatus const & );
-  void preModule(  edm::ModuleDescription const & );
-  void postModule( edm::ModuleDescription const & );
-
-  // needed for the DAQ when reconfiguring between runs
-  void reset();
+  void preEvent(edm::StreamContext const &);
+  void postEvent(edm::StreamContext const &);
+  void prePathEvent(edm::StreamContext const &, edm::PathContext const &);
+  void postPathEvent(edm::StreamContext const &, edm::PathContext const &,edm:: HLTPathStatus const &);
+  void preModuleEvent(edm::StreamContext const &, edm::ModuleCallingContext const &);
+  void postModuleEvent(edm::StreamContext const &, edm::ModuleCallingContext const &);
+  void preModuleEventDelayedGet(edm::StreamContext const &, edm::ModuleCallingContext const &);
+  void postModuleEventDelayedGet(edm::StreamContext const &, edm::ModuleCallingContext const &);
 
 public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
 
+  struct PathInfo;
+
   struct ModuleInfo {
     double                      time_active;        // per-event timer: time actually spent in this module
     double                      summary_active;
     TH1F *                      dqm_active;
-    bool                        has_just_run;       // flag set to check if a module was active inside a particular path, or not
-    bool                        is_exclusive;       // flag set to check if a module has been run only once
+    PathInfo *                  run_in_path;        // the path inside which the module was atually active
+    uint32_t                    counter;            // count how many times the module was scheduled to run
 
   public:
     ModuleInfo() :
       time_active(0.),
       summary_active(0.),
-      dqm_active(0),
-      has_just_run(false),
-      is_exclusive(false)
+      dqm_active(nullptr),
+      run_in_path(nullptr),
+      counter(0)
     { }
 
     ~ModuleInfo() {
@@ -166,15 +159,16 @@ private:
       time_active = 0.;
       summary_active = 0.;
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
-      dqm_active = 0;
-      has_just_run = false;
-      is_exclusive = false;
+      dqm_active = nullptr;
+      run_in_path = nullptr;
+      counter = 0;
     }
   };
 
   struct PathInfo {
     std::vector<ModuleInfo *>   modules;            // list of all modules contributing to the path (duplicate modules stored as null pointers)
     double                      time_active;        // per-event timer: time actually spent in this path
+    double                      time_exclusive;     // per-event timer: time actually spent in this path, in modules that are not run on any other paths
     double                      time_premodules;    // per-event timer: time spent between "begin path" and the first "begin module"
     double                      time_intermodules;  // per-event timer: time spent between modules
     double                      time_postmodules;   // per-event timer: time spent between the last "end module" and "end path"
@@ -186,23 +180,25 @@ private:
     double                      summary_postmodules;
     double                      summary_overhead;
     double                      summary_total;
-    uint32_t                    last_run;
+    uint32_t                    last_run;           // index of the last module run in this path
     uint32_t                    index;              // index of the Path or EndPath in the "schedule"
-    TH1F *                      dqm_active;
-    TH1F *                      dqm_exclusive;
-    TH1F *                      dqm_premodules;
-    TH1F *                      dqm_intermodules;
-    TH1F *                      dqm_postmodules;
-    TH1F *                      dqm_overhead;
-    TH1F *                      dqm_total;
+    bool                        accept;             // flag indicating if the path acepted the event
+    TH1F *                      dqm_active;         // see time_active
+    TH1F *                      dqm_exclusive;      // see time_exclusive
+    TH1F *                      dqm_premodules;     // see time_premodules
+    TH1F *                      dqm_intermodules;   // see time_intermodules
+    TH1F *                      dqm_postmodules;    // see time_postmodules
+    TH1F *                      dqm_overhead;       // see time_overhead
+    TH1F *                      dqm_total;          // see time_total
     TH1F *                      dqm_module_counter; // for each module in the path, track how many times it ran
-    TH1F *                      dqm_module_active;  // for each module in the path, track the active time spent 
-    TH1F *                      dqm_module_total;   // for each module in the path, track the total time spent 
+    TH1F *                      dqm_module_active;  // for each module in the path, track the active time spent
+    TH1F *                      dqm_module_total;   // for each module in the path, track the total time spent
 
   public:
     PathInfo() :
       modules(),
       time_active(0.),
+      time_exclusive(0.),
       time_premodules(0.),
       time_intermodules(0.),
       time_postmodules(0.),
@@ -216,16 +212,17 @@ private:
       summary_total(0.),
       last_run(0),
       index(0),
-      dqm_active(0),
-      dqm_exclusive(0),
-      dqm_premodules(0),
-      dqm_intermodules(0),
-      dqm_postmodules(0),
-      dqm_overhead(0),
-      dqm_total(0),
-      dqm_module_counter(0),
-      dqm_module_active(0),
-      dqm_module_total(0)
+      accept(false),
+      dqm_active(nullptr),
+      dqm_exclusive(nullptr),
+      dqm_premodules(nullptr),
+      dqm_intermodules(nullptr),
+      dqm_postmodules(nullptr),
+      dqm_overhead(nullptr),
+      dqm_total(nullptr),
+      dqm_module_counter(nullptr),
+      dqm_module_active(nullptr),
+      dqm_module_total(nullptr)
     { }
 
     ~PathInfo() {
@@ -236,6 +233,7 @@ private:
     void reset() {
       modules.clear();
       time_active = 0.;
+      time_exclusive = 0.;
       time_premodules = 0.;
       time_intermodules = 0.;
       time_postmodules = 0.;
@@ -249,26 +247,26 @@ private:
       summary_total = 0.;
       last_run = 0;
       index = 0;
+      accept = false;
 
       // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
-      dqm_active = 0; 
-      dqm_premodules = 0;
-      dqm_intermodules = 0;
-      dqm_postmodules = 0;
-      dqm_overhead = 0;
-      dqm_total = 0;
-      dqm_module_counter = 0;
-      dqm_module_active = 0;
-      dqm_module_total = 0;
+      dqm_active = nullptr;
+      dqm_premodules = nullptr;
+      dqm_intermodules = nullptr;
+      dqm_postmodules = nullptr;
+      dqm_overhead = nullptr;
+      dqm_total = nullptr;
+      dqm_module_counter = nullptr;
+      dqm_module_active = nullptr;
+      dqm_module_total = nullptr;
     }
   };
 
-  template <typename T> class PathMap   : public std::unordered_map<std::string, T> {};
-  template <typename T> class ModuleMap : public std::unordered_map<edm::ModuleDescription const *, T> {};
+  template <typename T> using PathMap   = std::unordered_map<std::string, T>;
+  template <typename T> using ModuleMap = std::unordered_map<edm::ModuleDescription const *, T>;
 
   // timer configuration
-  const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME
-  bool                                          m_is_cpu_bound;         // if the process is not bound to a single CPU, per-thread or per-process measuerements may be unreliable
+  bool                                          m_use_realtime;
   bool                                          m_enable_timing_paths;
   bool                                          m_enable_timing_modules;
   bool                                          m_enable_timing_exclusive;
@@ -276,7 +274,7 @@ private:
   const bool                                    m_skip_first_path;
 
   // dqm configuration
-  const bool                                    m_enable_dqm;
+  bool                                          m_enable_dqm;                   // non const because the availability of the DQMStore can only be checked during the begin job
   const bool                                    m_enable_dqm_bypath_active;     // require per-path timers
   const bool                                    m_enable_dqm_bypath_total;      // require per-path and per-module timers
   const bool                                    m_enable_dqm_bypath_overhead;   // require per-path and per-module timers
@@ -289,7 +287,12 @@ private:
   const bool                                    m_enable_dqm_byluminosity;
   const bool                                    m_enable_dqm_byls;
   const bool                                    m_enable_dqm_bynproc;
+
   bool                                          m_nproc_enabled;                // check if the plots by number of processes have been correctly enabled
+  unsigned int                                  m_concurrent_runs;
+  unsigned int                                  m_concurrent_streams;
+  unsigned int                                  m_concurrent_threads;
+
   const double                                  m_dqm_eventtime_range;
   const double                                  m_dqm_eventtime_resolution;
   const double                                  m_dqm_pathtime_range;
@@ -304,154 +307,270 @@ private:
   const std::vector<unsigned int>               m_supported_processes;  // possible number of concurrent processes
 
   // job configuration and caching
-  std::string const *                           m_first_path;           // the framework does not provide a pre-paths or pre-endpaths signal,
-  std::string const *                           m_last_path;            // so we emulate them keeping track of the first and last path and endpath
-  std::string const *                           m_first_endpath;
-  std::string const *                           m_last_endpath;
+  std::string                                   m_first_path;           // the framework does not provide a pre-paths or pre-endpaths signal,
+  std::string                                   m_last_path;            // so we emulate them keeping track of the first and last path and endpath
+  std::string                                   m_first_endpath;
+  std::string                                   m_last_endpath;
   bool                                          m_is_first_module;      // helper to measure the time spent between the beginning of the path and the execution of the first module
   bool                                          m_is_first_event;
 
-  // per-event accounting
-  double                                        m_event;
-  double                                        m_presource;
-  double                                        m_source;
-  double                                        m_postsource;
-  double                                        m_all_paths;
-  double                                        m_all_endpaths;
-  double                                        m_interpaths;
+  struct Timing {
+    double              event;                  // time spent processing the Event
+    double              presource;              // time spent between the end of the previous Event, LumiSection or Run, and the beginning of the Source
+    double              source;                 // time spent processing the Source
+    double              postsource;             // time spent between the end of the Source and the new Event, Lumisection or Run
+    double              all_paths;              // time spent processing all Paths
+    double              all_endpaths;           // time spent processing all EndPaths
+    double              interpaths;             // time spent between the Paths (and EndPaths - i.e. the sum of all the entries in the following vector)
+    std::vector<double> paths_interpaths;       // time spent between the beginning of the Event and the first Path, between Paths, and between the last (End)Path and the end of the Event
+    unsigned int        count;                  // number of processed events (used by the per-run and per-job accounting)
 
-  // per-job summary
-  unsigned int                                  m_summary_events;       // number of events
-  double                                        m_summary_event;
-  double                                        m_summary_presource;
-  double                                        m_summary_source;
-  double                                        m_summary_postsource;
-  double                                        m_summary_all_paths;
-  double                                        m_summary_all_endpaths;
-  double                                        m_summary_interpaths;
+    Timing() :
+      event         (0.),
+      presource     (0.),
+      source        (0.),
+      postsource    (0.),
+      all_paths     (0.),
+      all_endpaths  (0.),
+      interpaths    (0.),
+      paths_interpaths(),
+      count         (0)
+    { }
+
+    Timing(std::vector<double>::size_type size) :
+      event         (0.),
+      presource     (0.),
+      source        (0.),
+      postsource    (0.),
+      all_paths     (0.),
+      all_endpaths  (0.),
+      interpaths    (0.),
+      paths_interpaths(size, 0.),
+      count         (0)
+    { }
+
+    void reset() {
+      event         = 0.;
+      presource     = 0.;
+      source        = 0.;
+      postsource    = 0.;
+      all_paths     = 0.;
+      all_endpaths  = 0.;
+      interpaths    = 0.;
+      paths_interpaths.clear();
+      count         = 0;
+    }
+
+    void reset(std::vector<double>::size_type size) {
+      event         = 0.;
+      presource     = 0.;
+      source        = 0.;
+      postsource    = 0.;
+      all_paths     = 0.;
+      all_endpaths  = 0.;
+      interpaths    = 0.;
+      paths_interpaths.assign(size, 0.);
+      count         = 0;
+    }
+
+    Timing & operator+=(Timing const & other) {
+      assert( paths_interpaths.size() == other.paths_interpaths.size() );
+
+      event         += other.event;
+      presource     += other.presource;
+      source        += other.source;
+      postsource    += other.postsource;
+      all_paths     += other.all_paths;
+      all_endpaths  += other.all_endpaths;
+      interpaths    += other.interpaths;
+      for (unsigned int i = 0; i < paths_interpaths.size(); ++i)
+        paths_interpaths[i] += other.paths_interpaths[i];
+      count         += other.count;
+
+      return *this;
+    }
+
+    Timing operator+(Timing const & other) const {
+      Timing result = *this;
+      result += other;
+      return result;
+    }
+
+  };
+
+  std::vector<Timing>                           m_event;                // time accounting per-event (and per-stream)
+  std::vector<Timing>                           m_run_summary;          // time accounting per-run
+  Timing                                        m_job_summary;          // time accounting per-job
 
   // DQM
-  DQMStore *                                    m_dqms;
 
-  // event summary plots
-  TH1F *                                        m_dqm_event;
-  TH1F *                                        m_dqm_presource;
-  TH1F *                                        m_dqm_source;
-  TH1F *                                        m_dqm_postsource;
-  TH1F *                                        m_dqm_all_paths;
-  TH1F *                                        m_dqm_all_endpaths;
-  TH1F *                                        m_dqm_interpaths;
+  // set of summary plots
+  struct SummaryPlots {
+    TH1F *     event;
+    TH1F *     presource;
+    TH1F *     source;
+    TH1F *     postsource;
+    TH1F *     all_paths;
+    TH1F *     all_endpaths;
+    TH1F *     interpaths;
 
-  // event summary plots - summed over nodes with the same number of processes
-  TH1F *                                        m_dqm_nproc_event;
-  TH1F *                                        m_dqm_nproc_presource;
-  TH1F *                                        m_dqm_nproc_source;
-  TH1F *                                        m_dqm_nproc_postsource;
-  TH1F *                                        m_dqm_nproc_all_paths;
-  TH1F *                                        m_dqm_nproc_all_endpaths;
-  TH1F *                                        m_dqm_nproc_interpaths;
+    SummaryPlots() :
+      event         (nullptr),
+      presource     (nullptr),
+      source        (nullptr),
+      postsource    (nullptr),
+      all_paths     (nullptr),
+      all_endpaths  (nullptr),
+      interpaths    (nullptr)
+    { }
 
-  // plots by path
-  TProfile *                                    m_dqm_paths_active_time;
-  TProfile *                                    m_dqm_paths_total_time;
-  TProfile *                                    m_dqm_paths_exclusive_time;
-  TProfile *                                    m_dqm_paths_interpaths;
+    void reset() {
+      event         = nullptr;
+      presource     = nullptr;
+      source        = nullptr;
+      postsource    = nullptr;
+      all_paths     = nullptr;
+      all_endpaths  = nullptr;
+      interpaths    = nullptr;
+    }
 
-  // plots per lumisection
-  TProfile *                                    m_dqm_byls_event;
-  TProfile *                                    m_dqm_byls_presource;
-  TProfile *                                    m_dqm_byls_source;
-  TProfile *                                    m_dqm_byls_postsource;
-  TProfile *                                    m_dqm_byls_all_paths;
-  TProfile *                                    m_dqm_byls_all_endpaths;
-  TProfile *                                    m_dqm_byls_interpaths;
+    void fill(Timing const & value) {
+      // convert on the fly from seconds to ms
+      event         ->Fill( 1000. * value.event );
+      presource     ->Fill( 1000. * value.presource );
+      source        ->Fill( 1000. * value.source );
+      postsource    ->Fill( 1000. * value.postsource );
+      all_paths     ->Fill( 1000. * value.all_paths );
+      all_endpaths  ->Fill( 1000. * value.all_endpaths );
+      interpaths    ->Fill( 1000. * value.interpaths );
+    }
 
-  // plots per lumisection - summed over nodes with the same number of processes
-  TProfile *                                    m_dqm_nproc_byls_event;
-  TProfile *                                    m_dqm_nproc_byls_presource;
-  TProfile *                                    m_dqm_nproc_byls_source;
-  TProfile *                                    m_dqm_nproc_byls_postsource;
-  TProfile *                                    m_dqm_nproc_byls_all_paths;
-  TProfile *                                    m_dqm_nproc_byls_all_endpaths;
-  TProfile *                                    m_dqm_nproc_byls_interpaths;
+  };
 
-  // plots vs. instantaneous luminosity
-  TProfile *                                    m_dqm_byluminosity_event;
-  TProfile *                                    m_dqm_byluminosity_presource;
-  TProfile *                                    m_dqm_byluminosity_source;
-  TProfile *                                    m_dqm_byluminosity_postsource;
-  TProfile *                                    m_dqm_byluminosity_all_paths;
-  TProfile *                                    m_dqm_byluminosity_all_endpaths;
-  TProfile *                                    m_dqm_byluminosity_interpaths;
+  struct SummaryProfiles {
+    TProfile * event;
+    TProfile * presource;
+    TProfile * source;
+    TProfile * postsource;
+    TProfile * all_paths;
+    TProfile * all_endpaths;
+    TProfile * interpaths;
 
-  // plots vs. instantaneous luminosity - summed over nodes with the same number of processes
-  TProfile *                                    m_dqm_nproc_byluminosity_event;
-  TProfile *                                    m_dqm_nproc_byluminosity_presource;
-  TProfile *                                    m_dqm_nproc_byluminosity_source;
-  TProfile *                                    m_dqm_nproc_byluminosity_postsource;
-  TProfile *                                    m_dqm_nproc_byluminosity_all_paths;
-  TProfile *                                    m_dqm_nproc_byluminosity_all_endpaths;
-  TProfile *                                    m_dqm_nproc_byluminosity_interpaths;
+    SummaryProfiles() :
+      event         (nullptr),
+      presource     (nullptr),
+      source        (nullptr),
+      postsource    (nullptr),
+      all_paths     (nullptr),
+      all_endpaths  (nullptr),
+      interpaths    (nullptr)
+    { }
 
-  // per-path, per-module and per-module-type accounting
-  PathInfo *                                    m_current_path;
-  PathMap<PathInfo>                             m_paths;
-  std::unordered_map<std::string, ModuleInfo>   m_modules;
-  std::unordered_map<std::string, ModuleInfo>   m_moduletypes;
-  ModuleMap<ModuleInfo *>                       m_fast_modules;         // these assume that ModuleDescription are stored in the same object through the whole job,
-  ModuleMap<ModuleInfo *>                       m_fast_moduletypes;     // which is true only *after* the edm::Worker constructors have run
+    void reset() {
+      event         = nullptr;
+      presource     = nullptr;
+      source        = nullptr;
+      postsource    = nullptr;
+      all_paths     = nullptr;
+      all_endpaths  = nullptr;
+      interpaths    = nullptr;
+    }
+
+    void fill(double x, Timing const & value) {
+      event         ->Fill( x, 1000. * value.event );
+      presource     ->Fill( x, 1000. * value.presource );
+      source        ->Fill( x, 1000. * value.source );
+      postsource    ->Fill( x, 1000. * value.postsource );
+      all_paths     ->Fill( x, 1000. * value.all_paths );
+      all_endpaths  ->Fill( x, 1000. * value.all_endpaths );
+      interpaths    ->Fill( x, 1000. * value.interpaths );
+    }
+
+  };
+
+  struct StreamData {
+
+    // overall plots
+    SummaryPlots    dqm;                          // event summary plots
+    SummaryProfiles dqm_byls;                     // plots per lumisection
+    SummaryProfiles dqm_byluminosity;             // plots vs. instantaneous luminosity
+
+    // plots to be summed over nodes with the same number of processes/threads
+    SummaryPlots    dqm_nproc;                    // event summary plots
+    SummaryProfiles dqm_nproc_byls;               // plots per lumisection
+    SummaryProfiles dqm_nproc_byluminosity;       // plots vs. instantaneous luminosity
+
+    // plots by path
+    TProfile *      dqm_paths_active_time;
+    TProfile *      dqm_paths_total_time;
+    TProfile *      dqm_paths_exclusive_time;
+    TProfile *      dqm_paths_interpaths;
+
+    // per-path, per-module and per-module-type accounting
+    PathInfo *                                    current_path;
+    PathMap<PathInfo>                             paths;
+    std::unordered_map<std::string, ModuleInfo>   modules;
+    std::unordered_map<std::string, ModuleInfo>   moduletypes;
+    ModuleMap<ModuleInfo *>                       fast_modules;           // these assume that ModuleDescription are stored in the same object through the whole job,
+    ModuleMap<ModuleInfo *>                       fast_moduletypes;       // which is true only *after* the edm::Worker constructors have run
+
+    StreamData() :
+      // overall plots
+      dqm(),
+      dqm_byls(),
+      dqm_byluminosity(),
+      // plots to be summed over nodes with the same number of processes/threads
+      dqm_nproc(),
+      dqm_nproc_byls(),
+      dqm_nproc_byluminosity(),
+      // plots by path
+      dqm_paths_active_time(nullptr),
+      dqm_paths_total_time(nullptr),
+      dqm_paths_exclusive_time(nullptr),
+      dqm_paths_interpaths(nullptr),
+      // per-path, per-module and per-module-type accounting
+      current_path(0),
+      paths(),
+      modules(),
+      moduletypes(),
+      fast_modules(),
+      fast_moduletypes()
+    { }
+
+  };
+
+  std::vector<StreamData> m_stream;
 
   // timers
-  std::pair<struct timespec, struct timespec>   m_timer_event;          // track time spent in each event
-  std::pair<struct timespec, struct timespec>   m_timer_source;         // track time spent in the source
-  std::pair<struct timespec, struct timespec>   m_timer_paths;          // track time spent in all paths
-  std::pair<struct timespec, struct timespec>   m_timer_endpaths;       // track time spent in all endpaths
-  std::pair<struct timespec, struct timespec>   m_timer_path;           // track time spent in each path
-  std::pair<struct timespec, struct timespec>   m_timer_module;         // track time spent in each module
-  struct timespec                               m_timer_first_module;   // record the start of the first active module in a path, if any
+  FastTimer                     m_timer_event;          // track time spent in each event
+  FastTimer                     m_timer_source;         // track time spent in the source
+  FastTimer                     m_timer_paths;          // track time spent in all paths
+  FastTimer                     m_timer_endpaths;       // track time spent in all endpaths
+  FastTimer                     m_timer_path;           // track time spent in each path
+  FastTimer                     m_timer_module;         // track time spent in each module
+  FastTimer::Clock::time_point  m_timer_first_module;   // record the start of the first active module in a path, if any
 
-#if defined(__APPLE__) || defined (__MACH__)
-  clock_serv_t m_clock_port;
-#endif // defined(__APPLE__) || defined(__MACH__)
-
-  void gettime(struct timespec & stamp) const
+  void start(FastTimer & times) const
   {
-#if defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0
-    clock_gettime(m_timer_id, & stamp);
-#else
-// special cases which do not support _POSIX_TIMERS
-#if defined(__APPLE__) || defined (__MACH__)
-    mach_timespec_t timespec;
-    clock_get_time(m_clock_port, &timespec);
-    stamp.tv_sec  = timespec.tv_sec;
-    stamp.tv_nsec = timespec.tv_nsec;
-#endif // defined(__APPLE__) || defined(__MACH__)
-#endif // defined(_POSIX_TIMERS) && _POSIX_TIMERS >= 0
+    times.start();
   }
 
-  void start(std::pair<struct timespec, struct timespec> & times) const
+  void stop(FastTimer & times) const
   {
-    gettime(times.first);
-  }
-
-  void stop(std::pair<struct timespec, struct timespec> & times) const
-  {
-    gettime(times.second);
+    times.stop();
   }
 
   static
-  double delta(const struct timespec & first, const struct timespec & second)
+  double delta(FastTimer::Clock::time_point const & first, FastTimer::Clock::time_point const & second)
   {
-    if (second.tv_nsec > first.tv_nsec)
-      return (double) (second.tv_sec - first.tv_sec) + (double) (second.tv_nsec - first.tv_nsec) / (double) 1e9;
-    else
-      return (double) (second.tv_sec - first.tv_sec) - (double) (first.tv_nsec - second.tv_nsec) / (double) 1e9;
+    return std::chrono::duration_cast<std::chrono::duration<double>>(second - first).count();
   }
 
   static
-  double delta(const std::pair<struct timespec, struct timespec> & times)
+  double delta(FastTimer const & times)
   {
-    return delta(times.first, times.second);
+    //return std::chrono::duration_cast<std::chrono::duration<double>>(times.value()).count();
+    return std::chrono::duration_cast<std::chrono::duration<double>>(times.getStopTime() - times.getStartTime()).count();
   }
 
   // associate to a path all the modules it contains

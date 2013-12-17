@@ -198,22 +198,24 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
         contents    = soup.find("div", { "class" : "contents" })
         tr          = contents.findAll("tr", {})
         self.classes= {}
+        origin = 0 
+        if tr[0].text == 'src': origin = -1
         # depth of interface items can be only 3
         flag = False
         for i in tr:
-            if self.__GetHTMLItemDepth(i) == 1:
+            if self.__GetHTMLItemDepth(i) + origin == 1:
                 self.classes[i.text]    = {}
                 level1          = i.text
                 flag = False
                 
-            if self.__GetHTMLItemDepth(i) == 2:
+            if self.__GetHTMLItemDepth(i) + origin == 2:
                 self.classes[level1][i.text] = {}
                 level2 = i.text
                 flag = False
 
-            if self.__GetHTMLItemDepth(i) == 3 and i.text == u'interface':
+            if self.__GetHTMLItemDepth(i) + origin == 3 and i.text == u'interface':
                 flag = True
-            if self.__GetHTMLItemDepth(i) == 3 and i.text != u'interface':
+            if self.__GetHTMLItemDepth(i) + origin == 3 and i.text != u'interface':
                 flag = False
                 
 #            print i.text, self.__GetHTMLItemDepth(i)

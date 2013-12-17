@@ -22,8 +22,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include <string>
 
@@ -37,6 +35,7 @@ static const std::string category("Muon|RecoMuon|L3MuonCandidateProducerFromMuon
 L3MuonCandidateProducerFromMuons::L3MuonCandidateProducerFromMuons(const ParameterSet& parameterSet) :
   m_L3CollectionLabel( parameterSet.getParameter<InputTag>("InputObjects") )       // standAlone Collection Label
 {
+  muonToken_ = consumes<reco::MuonCollection>(m_L3CollectionLabel);
   LogTrace(category)<<" constructor called";
   produces<RecoChargedCandidateCollection>();
 }
@@ -56,7 +55,7 @@ void L3MuonCandidateProducerFromMuons::produce(Event& event, const EventSetup& e
   // Take the L3 container
   LogTrace(category)<<" Taking the L3/GLB muons: "<<m_L3CollectionLabel.label();
   Handle<reco::MuonCollection> muons;
-  event.getByLabel(m_L3CollectionLabel,muons);
+  event.getByToken(muonToken_,muons);
 
   if (not muons.isValid()) {
     LogError(category) << muons.whyFailed()->what();

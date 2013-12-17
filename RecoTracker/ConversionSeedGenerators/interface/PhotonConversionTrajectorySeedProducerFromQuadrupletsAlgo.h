@@ -32,7 +32,7 @@ class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
  public:
   PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSet &,
 	edm::ConsumesCollector && iC);
-  ~PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(){};
+  ~PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo();
 
   void init();
   void clear();

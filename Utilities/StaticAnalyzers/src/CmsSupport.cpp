@@ -86,9 +86,15 @@ bool support::isSafeClassName(const std::string &name) {
   std::string mutex = "std::mutex";
   std::string rmutex = "std::recursive_mutex";
   std::string btsp = "boost::thread_specific_ptr<";
+  std::string catomic = "class std::atomic<";
+  std::string cmutex = "class std::mutex";
+  std::string crmutex = "class std::recursive_mutex";
+  std::string cbtsp = "class boost::thread_specific_ptr<";
   
-  if ( name.substr(0,atomic.length()) == atomic || name.substr(0,mutex.length()) == mutex
-	|| name.substr(0,rmutex.length()) == rmutex || name.substr(0,btsp.length()) == btsp )
+  
+  if ( name.substr(0,atomic.length()) == atomic || name.substr(0,catomic.length()) == atomic || name.substr(0,mutex.length()) == mutex 
+	|| name.substr(0,cmutex.length()) == mutex || name.substr(0,rmutex.length()) == rmutex || name.substr(0,crmutex.length()) == rmutex 
+	|| name.substr(0,btsp.length()) == btsp || name.substr(0,cbtsp.length()) == btsp ) 
 	return true;	
   return false;
 }
@@ -108,7 +114,7 @@ bool support::isDataClass(const std::string & name) {
 	}
 		
 	std::string tname("/tmp/classes.txt");
-	std::string sname("/Utilities/StaticAnalyzers/scripts/classes.txt");
+	std::string sname("/src/Utilities/StaticAnalyzers/scripts/classes.txt");
 	std::string fname1 = lname + tname;
 	std::string fname2 = rname + sname;
 	if (!FM.getFile(fname1) && !FM.getFile(fname2) ) {

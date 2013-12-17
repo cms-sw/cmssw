@@ -30,6 +30,8 @@
 #include "TFile.h"
 #include "TDirectory.h"
 #include "TPRegexp.h"
+#include "boost/tuple/tuple.hpp"
+
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -64,6 +66,10 @@ private:
   // Member Variables
   std::vector<HLTMuonPlotter> analyzers_;
   HLTConfigProvider hltConfig_;
+  boost::tuple<
+    edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+    edm::EDGetTokenT<reco::GenParticleCollection>,
+    edm::EDGetTokenT<reco::MuonCollection> > myTokens_;
 
   // Access to the DQM
   DQMStore * dbe_;
@@ -92,6 +98,9 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet& pset) :
   hltProcessName_(pset.getParameter<string>("hltProcessName")),
   hltPathsToCheck_(pset.getParameter<vstring>("hltPathsToCheck"))
 {
+
+  myTokens_ = HLTMuonPlotter::getTokens(pset_, consumesCollector());
+
 }
 
 
@@ -140,15 +149,15 @@ HLTMuonValidator::stepLabels(const vector<string>& modules) {
 
 void 
 HLTMuonValidator::beginRun(const edm::Run & iRun, 
-                         const edm::EventSetup & iSetup) {
-
+                         const edm::EventSetup & iSetup) 
+{  
   // Initialize hltConfig
   bool changedConfig;
   if (!hltConfig_.init(iRun, iSetup, hltProcessName_, changedConfig)) {
     LogError("HLTMuonVal") << "Initialization of HLTConfigProvider failed!!"; 
     return;
   }
-
+  
   // Get the set of trigger paths we want to make plots for
   set<string> hltPaths;
   for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
@@ -162,27 +171,27 @@ HLTMuonValidator::beginRun(const edm::Run & iRun,
   analyzers_.clear();
   set<string>::iterator iPath;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
-
+    
     string path = * iPath;
     string shortpath = path;
     if (path.rfind("_v") < path.length())
       shortpath = path.substr(0, path.rfind("_v"));
-
+    
     vector<string> labels = moduleLabels(path);
     vector<string> steps = stepLabels(labels);
-
+    
     if (labels.size() > 0 && steps.size() > 0) {
-      HLTMuonPlotter analyzer(pset_, shortpath, labels, steps);
+      HLTMuonPlotter analyzer(pset_, shortpath, labels, steps, myTokens_);
       analyzers_.push_back(analyzer);
     }
   }
-
+  
   // Call the beginRun (which books all the histograms)
   vector<HLTMuonPlotter>::iterator iter;
   for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
     iter->beginRun(iRun, iSetup);
   }
-
+  
 }
 
 void

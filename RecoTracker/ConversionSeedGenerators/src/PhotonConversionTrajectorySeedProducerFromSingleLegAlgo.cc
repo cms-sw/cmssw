@@ -36,14 +36,17 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
   init();  
 }
      
+PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {
+  if(theRegionProducer!=NULL)
+    delete theRegionProducer;
+}
+
 void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 clear(){
   if(theHitsGenerator!=NULL)
     delete theHitsGenerator;
   if(theSeedCreator!=NULL)
     delete theSeedCreator;
-  if(theRegionProducer!=NULL)
-    delete theRegionProducer;
 }
 
 void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::

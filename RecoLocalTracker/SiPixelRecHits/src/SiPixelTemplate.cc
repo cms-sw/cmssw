@@ -70,10 +70,8 @@
 //
 //
 
-//#include <stdlib.h> 
-//#include <stdio.h>
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-//#include <cmath.h>
+#include <cmath>
 #else
 #include <math.h>
 #endif
@@ -481,7 +479,8 @@ bool SiPixelTemplate::pushfile(int filenum)
 		// Add this template to the store
 		
 		thePixelTemp_.push_back(theCurrentTemp);
-		
+
+		postInit();		
 		return true;
 		
 	} else {
@@ -497,6 +496,7 @@ bool SiPixelTemplate::pushfile(int filenum)
 
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
+
 
 //**************************************************************** 
 //! This routine initializes the global template structures from an
@@ -515,6 +515,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 	
 	// We must create a new object because dbobject must be a const and our stream must not be
 	SiPixelTemplateDBObject db = dbobject;
+	//	SiPixelTemplateDBObject & db = const_cast<SiPixelTemplateDBObject&>(dbobject);
 	
 	// Create a local template storage entry
 	SiPixelTemplateStore theCurrentTemp;
@@ -859,11 +860,41 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
 		thePixelTemp_.push_back(theCurrentTemp);
 		
 	}
+	postInit();
 	return true;
 	
 } // TempInit 
 
 #endif
+
+
+void SiPixelTemplate::postInit() {
+  /*
+  std::cout << "SiPixelTemplate size " << thePixelTemp_.size() << std::endl;
+#ifndef SI_PIXEL_TEMPLATE_USE_BOOST 
+  std::cout <<"uses C arrays" << std::endl;
+#endif
+
+  int i=0;
+  for (auto & templ : thePixelTemp_) {
+    std::cout << i <<':' << templ.head.ID << ' ' << templ.head.NTy <<','<< templ.head.NTyx <<','<< templ.head.NTxx << std::endl;
+    for ( auto iy=1; iy<templ.head.NTy; ++iy  ) { auto & ent = templ.enty[iy]; std::cout << ent.cotbeta <<',' << ent.cotbeta-templ.enty[iy-1].cotbeta << ' '; }
+    std::cout << std::endl;
+    for ( auto ix=1; ix<templ.head.NTxx; ++ix  ){ auto & ent = templ.entx[0][ix]; std::cout << ent.cotalpha <<','<< ent.cotalpha-templ.entx[0][ix-1].cotalpha << ' ';}
+      std::cout << std::endl;
+    ++i;
+  }
+  */
+
+  for (auto & templ : thePixelTemp_) {
+    for ( auto iy=0; iy<templ.head.NTy; ++iy ) templ.cotbetaY[iy]=templ.enty[iy].cotbeta;
+    for ( auto iy=0; iy<templ.head.NTyx; ++iy )  templ.cotbetaX[iy]= templ.entx[iy][0].cotbeta;
+    for ( auto ix=0; ix<templ.head.NTxx; ++ix ) templ.cotalphaX[ix]=templ.entx[0][ix].cotalpha;
+  }
+
+}
+
+
 
 
 // ************************************************************************************************************ 
@@ -2147,252 +2178,220 @@ void SiPixelTemplate::xtemp3d(int i, int j, std::vector<float>& xtemplate)
 //! \param lorxwidth - (output) the estimated x Lorentz width
 // ************************************************************************************************************ 
 int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
-                          float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2, float& lorywidth, float& lorxwidth)
+                          float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2) // float& lorywidth, float& lorxwidth)
 		 
 {
     // Interpolate for a new set of track angles 
     
-    // Local variables 
-    int i, binq;
-	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, index;
-	float yratio, yxratio, xxratio;
-	float acotb, qscale, qavg, qmin, qmin2, fq, qtotal, qcorrect, cotb, cotalpha0;
-	float yavggen[4], yrmsgen[4], xavggen[4], xrmsgen[4];
-	bool flip_y;
-	
 
 // Find the index corresponding to id
 
-       index = -1;
-       for(i=0; i<(int)thePixelTemp_.size(); ++i) {
-	
-	      if(id == thePixelTemp_[i].head.ID) {
-	   
-	         index = i;
-		     break;
-          }
-	    }
+   int index = -1;
+    for( int i=0; i<(int)thePixelTemp_.size(); ++i) {      
+      if(id == thePixelTemp_[i].head.ID) {
+	index = i;
+	break;
+      }
+    }
 	 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-	   if(index < 0 || index >= (int)thePixelTemp_.size()) {
-	      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin can't find needed template ID = " << id << std::endl;
-	   }
+    if(index < 0 || index >= (int)thePixelTemp_.size()) {
+      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin can't find needed template ID = " << id << std::endl;
+    }
 #else
-	   assert(index >= 0 && index < (int)thePixelTemp_.size());
+    assert(index >= 0 && index < (int)thePixelTemp_.size());
 #endif
 	 
-//		
+    //	
 
-// Interpolate the absolute value of cot(beta)     
+
+    auto const & templ = thePixelTemp_[index];	
     
-    acotb = fabs((double)cotbeta);
+    // Interpolate the absolute value of cot(beta)     
+    
+    auto acotb = std::abs(cotbeta);
+    
+    //	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)	
 	
-//	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)	
+    auto cotalpha0 =  thePixelTemp_[index].enty[0].cotalpha;
+    auto qcorrect=std::sqrt((1.f+cotbeta*cotbeta+cotalpha*cotalpha)/(1.f+cotbeta*cotbeta+cotalpha0*cotalpha0));
+    
+    // for some cosmics, the ususal gymnastics are incorrect   
+    
+    float cotb; bool flip_y;
+    if(thePixelTemp_[index].head.Dtype == 0) {
+      cotb = acotb;
+      flip_y = false;
+      if(cotbeta < 0.f) {flip_y = true;}
+    } else {
+      if(locBz < 0.f) {
+	cotb = cotbeta;
+	flip_y = false;
+      } else {
+	cotb = -cotbeta;
+	flip_y = true;
+      }	
+    }
+    
+    // Copy the charge scaling factor to the private variable     
+    
+    auto qscale = thePixelTemp_[index].head.qscale;
 
-	//	qcorrect corrects the cot(alpha)=0 cluster charge for non-zero cot(alpha)	
-	
-	cotalpha0 =  thePixelTemp_[index].enty[0].cotalpha;
-	qcorrect=std::sqrt((1.f+cotbeta*cotbeta+cotalpha*cotalpha)/(1.f+cotbeta*cotbeta+cotalpha0*cotalpha0));
-				
-	// for some cosmics, the ususal gymnastics are incorrect   
-	
-	if(thePixelTemp_[index].head.Dtype == 0) {
-		cotb = acotb;
-		flip_y = false;
-		if(cotbeta < 0.f) {flip_y = true;}
+
+     /*
+    lorywidth = thePixelTemp_[index].head.lorywidth;
+    if(locBz > 0.f) {lorywidth = -lorywidth;}
+    lorxwidth = thePixelTemp_[index].head.lorxwidth;
+    */
+
+    
+    auto Ny = thePixelTemp_[index].head.NTy;
+    auto Nyx = thePixelTemp_[index].head.NTyx;
+    auto Nxx = thePixelTemp_[index].head.NTxx;
+    
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+    if(Ny < 2 || Nyx < 1 || Nxx < 2) {
+      throw cms::Exception("DataCorrupt") << "template ID = " << id_current_ << "has too few entries: Ny/Nyx/Nxx = " << Ny << "/" << Nyx << "/" << Nxx << std::endl;
+    }
+#else
+    assert(Ny > 1 && Nyx > 0 && Nxx > 1);
+#endif
+    
+    // next, loop over all y-angle entries   
+    
+    auto ilow = 0;
+    auto ihigh = 0;
+    auto yratio = 0.f;
+      
+    {
+      auto j = std::lower_bound(templ.cotbetaY,templ.cotbetaY+Ny,cotb);
+      if (j==templ.cotbetaY+Ny) { --j;  yratio = 1.f; }
+      else if (j==templ.cotbetaY) { ++j; yratio = 0.f;}
+      else { yratio = (cotb - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
+      
+      ihigh = j-templ.cotbetaY;
+      ilow = ihigh-1;
+    }
+
+
+
+    // Interpolate/store all y-related quantities (flip displacements when flip_y)
+    
+    dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
+    if(flip_y) {dy1 = -dy1;}
+    sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
+    dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
+    if(flip_y) {dy2 = -dy2;}
+    sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
+ 
+    auto qavg = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qavg + yratio*thePixelTemp_[index].enty[ihigh].qavg;
+    qavg *= qcorrect;
+    auto qmin = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin + yratio*thePixelTemp_[index].enty[ihigh].qmin;
+    qmin *= qcorrect;
+    auto qmin2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin2 + yratio*thePixelTemp_[index].enty[ihigh].qmin2;
+    qmin2 *= qcorrect;
+
+
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+    if(qavg <= 0.f || qmin <= 0.f) {
+      throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin, qavg or qmin <= 0," 
+					  << " Probably someone called the generic pixel reconstruction with an illegal trajectory state" << std::endl;
+    }
+#else
+    assert(qavg > 0.f && qmin > 0.f);
+#endif
+    
+    //  Scale the input charge to account for differences between pixelav and CMSSW simulation or data	
+    
+    auto qtotal = qscale*qclus;
+    
+    // uncertainty and final corrections depend upon total charge bin 	   
+    
+    auto fq = qtotal/qavg;
+    int  binq;
+    if(fq > 1.5f) {
+      binq=0;
+    } else {
+      if(fq > 1.0f) {
+	binq=1;
+      } else {
+	if(fq > 0.85f) {
+	  binq=2;
 	} else {
-	    if(locBz < 0.f) {
-			cotb = cotbeta;
-			flip_y = false;
-		} else {
-			cotb = -cotbeta;
-			flip_y = true;
-		}	
+	  binq=3;
 	}
-	
-	// Copy the charge scaling factor to the private variable     
-		
-	   qscale = thePixelTemp_[index].head.qscale;
-		
-       Ny = thePixelTemp_[index].head.NTy;
-       Nyx = thePixelTemp_[index].head.NTyx;
-       Nxx = thePixelTemp_[index].head.NTxx;
-		
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-		if(Ny < 2 || Nyx < 1 || Nxx < 2) {
-			throw cms::Exception("DataCorrupt") << "template ID = " << id_current_ << "has too few entries: Ny/Nyx/Nxx = " << Ny << "/" << Nyx << "/" << Nxx << std::endl;
-		}
-#else
-		assert(Ny > 1 && Nyx > 0 && Nxx > 1);
-#endif
-        
-// next, loop over all y-angle entries   
+      }
+    }
 
-	   ilow = 0;
-	   yratio = 0.f;
-
-	   if(cotb >= thePixelTemp_[index].enty[Ny-1].cotbeta) {
-	
-	       ilow = Ny-2;
-		   yratio = 1.f;
-		
-	   } else {
-	   
-	      if(cotb >= thePixelTemp_[index].enty[0].cotbeta) {
-
-             for (i=0; i<Ny-1; ++i) { 
+    auto yavggen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
+    if(flip_y) {yavggen = -yavggen;}
+    auto yrmsgen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrmsgen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yrmsgen[binq];
     
-                if( thePixelTemp_[index].enty[i].cotbeta <= cotb && cotb < thePixelTemp_[index].enty[i+1].cotbeta) {
-		  
-	               ilow = i;
-		           yratio = (cotb - thePixelTemp_[index].enty[i].cotbeta)/(thePixelTemp_[index].enty[i+1].cotbeta - thePixelTemp_[index].enty[i].cotbeta);
-		           break;			 
-		        }
-	         }
-		  } 
-	   }
-	
-	   ihigh=ilow + 1;
-			  
-// Interpolate/store all y-related quantities (flip displacements when flip_y)
-
-	   qavg = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qavg + yratio*thePixelTemp_[index].enty[ihigh].qavg;
-	   qavg *= qcorrect;
-	   dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
-	   if(flip_y) {dy1 = -dy1;}
-	   sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
-	   dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
-	   if(flip_y) {dy2 = -dy2;}
-	   sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
-	   qmin = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin + yratio*thePixelTemp_[index].enty[ihigh].qmin;
-	   qmin *= qcorrect;
-	   qmin2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].qmin2 + yratio*thePixelTemp_[index].enty[ihigh].qmin2;
-	   qmin2 *= qcorrect;
-	   for(i=0; i<4; ++i) {
-	      yavggen[i]=(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[i] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[i];
-	      if(flip_y) {yavggen[i] = -yavggen[i];}
-	      yrmsgen[i]=(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrmsgen[i] + yratio*thePixelTemp_[index].enty[ihigh].yrmsgen[i];
-	   }
-	   
-	
+    
 // next, loop over all x-angle entries, first, find relevant y-slices   
-	
-	   iylow = 0;
-	   yxratio = 0.f;
-
-	   if(acotb >= thePixelTemp_[index].entx[Nyx-1][0].cotbeta) {
-	
-	       iylow = Nyx-2;
-		   yxratio = 1.f;
-		
-	   } else if(acotb >= thePixelTemp_[index].entx[0][0].cotbeta) {
-
-          for (i=0; i<Nyx-1; ++i) { 
     
-             if( thePixelTemp_[index].entx[i][0].cotbeta <= acotb && acotb < thePixelTemp_[index].entx[i+1][0].cotbeta) {
-		  
-	            iylow = i;
-		        yxratio = (acotb - thePixelTemp_[index].entx[i][0].cotbeta)/(thePixelTemp_[index].entx[i+1][0].cotbeta - thePixelTemp_[index].entx[i][0].cotbeta);
-		        break;			 
-		     }
-	      }
-	   }
-	
-	   iyhigh=iylow + 1;
+    auto iylow = 0;
+    auto iyhigh = 0;
+    auto yxratio = 0.f;
+       
 
-	   ilow = 0;
-	   xxratio = 0.f;
+    {
+      auto j = std::lower_bound(templ.cotbetaX,templ.cotbetaX+Nyx,acotb);
+      if (j==templ.cotbetaX+Nyx) { --j;  yxratio = 1.f; }
+      else if (j==templ.cotbetaX) { ++j; yxratio = 0.f;}
+      else { yxratio = (acotb - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
+      
+      iyhigh = j-templ.cotbetaX;
+      iylow = iyhigh -1;
+    }
 
-	   if(cotalpha >= thePixelTemp_[index].entx[0][Nxx-1].cotalpha) {
-	
-	       ilow = Nxx-2;
-		   xxratio = 1.f;
-		
-	   } else {
-	   
-	      if(cotalpha >= thePixelTemp_[index].entx[0][0].cotalpha) {
 
-             for (i=0; i<Nxx-1; ++i) { 
+
+    ilow = ihigh = 0;
+    auto xxratio = 0.f;  
+
+    {
+      auto j = std::lower_bound(templ.cotalphaX,templ.cotalphaX+Nxx,cotalpha);
+      if (j==templ.cotalphaX+Nxx) { --j;  xxratio = 1.f; }
+      else if (j==templ.cotalphaX) { ++j; xxratio = 0.f;}
+      else { xxratio = (cotalpha - (*(j-1)) )/( (*j) - (*(j-1)) ) ; }
+
+      ihigh = j-templ.cotalphaX;
+      ilow = ihigh-1; 
+    }
     
-                if( thePixelTemp_[index].entx[0][i].cotalpha <= cotalpha && cotalpha < thePixelTemp_[index].entx[0][i+1].cotalpha) {
-		  
-	               ilow = i;
-		           xxratio = (cotalpha - thePixelTemp_[index].entx[0][i].cotalpha)/(thePixelTemp_[index].entx[0][i+1].cotalpha - thePixelTemp_[index].entx[0][i].cotalpha);
-		           break;
-			    }
-		     }
-		  } 
-	   }
-	
-	   ihigh=ilow + 1;
-			  
-	   dx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxone + xxratio*thePixelTemp_[index].entx[0][ihigh].dxone;
-	   sx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxone + xxratio*thePixelTemp_[index].entx[0][ihigh].sxone;
-	   dx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].dxtwo;
-	   sx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].sxtwo;
-	   		  
-// pixmax is the maximum allowed pixel charge (used for truncation)
 
-	   pixmx=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iylow][ihigh].pixmax)
-			  +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
-			  
-	   for(i=0; i<4; ++i) {
-				  
-	      xavggen[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[i] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[i])
-		          +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[i] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[i]);
-		  
-	      xrmsgen[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xrmsgen[i] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[i])
-		          +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[i] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[i]);		  
-	   }
-	   
-		lorywidth = thePixelTemp_[index].head.lorywidth;
-	    if(locBz > 0.f) {lorywidth = -lorywidth;}
-		lorxwidth = thePixelTemp_[index].head.lorxwidth;
+
+    dx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxone + xxratio*thePixelTemp_[index].entx[0][ihigh].dxone;
+    sx1 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxone + xxratio*thePixelTemp_[index].entx[0][ihigh].sxone;
+    dx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].dxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].dxtwo;
+    sx2 = (1.f - xxratio)*thePixelTemp_[index].entx[0][ilow].sxtwo + xxratio*thePixelTemp_[index].entx[0][ihigh].sxtwo;
+    
+    // pixmax is the maximum allowed pixel charge (used for truncation)
+    
+    pixmx=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iylow][ihigh].pixmax)
+      +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].pixmax + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].pixmax);
+    
+    auto xavggen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq])
+      +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
+    
+    auto xrmsgen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xrmsgen[binq])
+      +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xrmsgen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xrmsgen[binq]);		  
+    
 		
+    
+    //  Take the errors and bias from the correct charge bin
 	
-	
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-	if(qavg <= 0.f || qmin <= 0.f) {
-		throw cms::Exception("DataCorrupt") << "SiPixelTemplate::qbin, qavg or qmin <= 0," 
-		<< " Probably someone called the generic pixel reconstruction with an illegal trajectory state" << std::endl;
-	}
-#else
-	assert(qavg > 0.f && qmin > 0.f);
-#endif
-	
-//  Scale the input charge to account for differences between pixelav and CMSSW simulation or data	
-	
-	qtotal = qscale*qclus;
-	
-// uncertainty and final corrections depend upon total charge bin 	   
-	   
-	fq = qtotal/qavg;
-	if(fq > 1.5f) {
-	   binq=0;
-	} else {
-	   if(fq > 1.0f) {
-	      binq=1;
-	   } else {
-		  if(fq > 0.85f) {
-			 binq=2;
-		  } else {
-			 binq=3;
-		  }
-	   }
-	}
-	
-//  Take the errors and bias from the correct charge bin
-	
-	sigmay = yrmsgen[binq]; deltay = yavggen[binq];
-	
-	sigmax = xrmsgen[binq]; deltax = xavggen[binq];
-	
-// If the charge is too small (then flag it)
-	
-	if(qtotal < 0.95f*qmin) {binq = 5;} else {if(qtotal < 0.95f*qmin2) {binq = 4;}}
-		
+    sigmay = yrmsgen; deltay = yavggen;
+    
+    sigmax = xrmsgen; deltax = xavggen;
+    
+    // If the charge is too small (then flag it)
+    
+    if(qtotal < 0.95f*qmin) {binq = 5;} else {if(qtotal < 0.95f*qmin2) {binq = 4;}}
+    
     return binq;
-  
+    
 } // qbin
 
 // ************************************************************************************************************ 
@@ -2418,6 +2417,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
 //! \param sx2 - (output) the estimated x-error for 1 double-pixel clusters in microns
 //! \param dx2 - (output) the estimated x-bias for 1 double-pixel clusters in microns
 // ************************************************************************************************************ 
+/*
 int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
                           float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2)
 
@@ -2427,6 +2427,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
 								 sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, lorywidth, lorxwidth);
 	
 } // qbin
+*/
 
 // ************************************************************************************************************ 
 //! Interpolate beta/alpha angles to produce an expected average charge. Return int (0-4) describing the charge 
@@ -2441,11 +2442,11 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float qclus)
 	// Interpolate for a new set of track angles 
 	
 	// Local variables 
-	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz, lorywidth, lorxwidth;
+	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz; //  lorywidth, lorxwidth;
 	locBz = -1.f;
 	if(cotbeta < 0.f) {locBz = -locBz;}
 	return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, qclus, pixmx, sigmay, deltay, sigmax, deltax, 
-										  sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, lorywidth, lorxwidth);
+										  sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2); // , lorywidth, lorxwidth);
 	
 } // qbin
 
@@ -2461,12 +2462,12 @@ int SiPixelTemplate::qbin(int id, float cotbeta, float qclus)
 // Interpolate for a new set of track angles 
 				
 // Local variables 
-	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz, lorywidth, lorxwidth;
+	float pixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, locBz; //, lorywidth, lorxwidth;
 	const float cotalpha = 0.f;
 	locBz = -1.f;
 	if(cotbeta < 0.f) {locBz = -locBz;}
 	return SiPixelTemplate::qbin(id, cotalpha, cotbeta, locBz, qclus, pixmx, sigmay, deltay, sigmax, deltax, 
-								sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2, lorywidth, lorxwidth);
+								sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2); // , lorywidth, lorxwidth);
 				
 } // qbin
 				

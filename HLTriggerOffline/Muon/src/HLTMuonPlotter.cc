@@ -36,7 +36,12 @@ typedef vector<ParameterSet> Parameters;
 HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
                                string hltPath,
                                const std::vector<string>& moduleLabels,
-                               const std::vector<string>& stepLabels) :
+                               const std::vector<string>& stepLabels,
+			       const boost::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+		                                  edm::EDGetTokenT<reco::GenParticleCollection>,
+		                                  edm::EDGetTokenT<reco::MuonCollection> >& tokens
+			       ) :
+			       
   l1Matcher_(pset)
 {
 
@@ -44,9 +49,6 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
   moduleLabels_ = moduleLabels;
   stepLabels_ = stepLabels;
   hltProcessName_  = pset.getParameter<string>("hltProcessName");
-
-  genParticleLabel_ = pset.getParameter<string>("genParticleLabel");
-      recMuonLabel_ = pset.getParameter<string>(    "recMuonLabel");
 
   cutsDr_      = pset.getParameter< vector<double> >("cutsDr"     );
 
@@ -62,6 +64,11 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
 
   dbe_ = Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
+
+  //set tokens
+  hltTriggerSummaryRAW_ = tokens.get<0>();
+  genParticleLabel_ = tokens.get<1>();
+  recMuonLabel_ = tokens.get<2>();
 
 }
 
@@ -147,11 +154,11 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
   Handle<                MuonCollection> recMuons;
   Handle<         GenParticleCollection> genParticles;
 
-  iEvent.getByLabel("hltTriggerSummaryRAW", rawTriggerEvent);
+  iEvent.getByToken(hltTriggerSummaryRAW_, rawTriggerEvent);
   if (rawTriggerEvent.failedToGet())
     {LogError("HLTMuonVal") << "No trigger summary found"; return;}
-  iEvent.getByLabel(    recMuonLabel_, recMuons     );
-  iEvent.getByLabel(genParticleLabel_, genParticles );
+  iEvent.getByToken(recMuonLabel_, recMuons);
+  iEvent.getByToken(genParticleLabel_, genParticles );
 
   vector<string> sources;
   if (genParticles.isValid()) sources.push_back("gen");
@@ -278,6 +285,26 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
     
   } // End loop over sources
   
+}
+
+
+
+boost::tuple<
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+  edm::EDGetTokenT<reco::GenParticleCollection>,
+  edm::EDGetTokenT<reco::MuonCollection> > HLTMuonPlotter::getTokens(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
+{
+
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> _hltTriggerSummaryRAW = iC.consumes<TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryRAW"));
+  edm::EDGetTokenT<reco::GenParticleCollection> _genParticleLabel = iC.consumes<GenParticleCollection>(pset.getParameter<string>("genParticleLabel"));
+  edm::EDGetTokenT<reco::MuonCollection> _recMuonLabel = iC.consumes<MuonCollection>(pset.getParameter<string>("recMuonLabel"));
+
+  boost::tuple<
+    edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
+    edm::EDGetTokenT<reco::GenParticleCollection>,
+    edm::EDGetTokenT<reco::MuonCollection> > myTuple(_hltTriggerSummaryRAW,_genParticleLabel,_recMuonLabel);
+
+  return (myTuple);
 }
 
 
