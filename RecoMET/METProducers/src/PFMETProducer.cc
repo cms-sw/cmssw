@@ -13,6 +13,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
