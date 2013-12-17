@@ -75,6 +75,22 @@ def _configurePFForGEDEGamma(process):
 
 
 def _customize_DQM(process):
+    try:
+        process.ecalBarrelClusterTask.SuperClusterCollection = cms.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel")
+        process.ecalBarrelClusterTask.BasicClusterCollection = cms.InputTag("particleFlowClusterECAL")
+        process.ecalEndcapClusterTask.SuperClusterCollection = cms.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower")
+        process.ecalEndcapClusterTask.BasicClusterCollection = cms.InputTag("particleFlowClusterECAL")
+        process.ecalBarrelClusterTaskExtras.SuperClusterCollection = cms.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel")
+        process.ecalBarrelClusterTaskExtras.BasicClusterCollection = cms.InputTag("particleFlowClusterECAL")
+        process.ecalEndcapClusterTaskExtras.SuperClusterCollection = cms.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower")
+        process.ecalEndcapClusterTaskExtras.BasicClusterCollection = cms.InputTag("particleFlowClusterECAL")
+        process.ecalBarrelRecoSummary.superClusterCollection_EB = cms.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel")
+        process.ecalBarrelRecoSummary.basicClusterCollection_EB = cms.InputTag("particleFlowClusterECAL")
+        process.ecalEndcapRecoSummary.superClusterCollection_EE = cms.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALEndcapWithPreshower")
+        process.ecalEndcapRecoSummary.basicClusterCollection_EE = cms.InputTag("particleFlowClusterECAL")
+    except AttributeError:
+        pass
+    
     return process
 
 
