@@ -229,11 +229,9 @@ void DTLinearFit::fit3par( const vector<float>& xfit,
                            const bool debug=0) const { 
 
   float vminf;
-  vector <double> tfit;
+  vector <double> tfit( nptfit, 0.);
   
-  for (int j=0; j<nptfit; j++) tfit.push_back(0.);
   fitNpar(3,xfit,yfit,lfit,tfit,sigy,aminf,bminf,cminf,vminf,chi2fit,debug);
-
 }
 
 

@@ -218,22 +218,20 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
 //    }
             
     assHits.push_back(AssPoint(*hit, DTEnums::Left));
-    DTSegmentCand* left_seg = fitWithT0(sl,assHits, chi2l, t0_corrl,0);
+    std::unique_ptr<DTSegmentCand> left_seg = fitWithT0(sl,assHits, chi2l, t0_corrl,0);
     assHits.pop_back();
 //    if (debug) 
 //      cout << "    Left:  t0= " << t0_corrl << "  chi2/nHits= " << chi2l << "/" << nHits << "  ok: " << left_ok << endl;
 
     assHits.push_back(AssPoint(*hit, DTEnums::Right));
-    DTSegmentCand* right_seg = fitWithT0(sl,assHits, chi2r, t0_corrr,0);
+    std::unique_ptr<DTSegmentCand> right_seg = fitWithT0(sl,assHits, chi2r, t0_corrr,0);
     assHits.pop_back();
 //    if (debug) 
 //      cout << "   Right:  t0= " << t0_corrr << "  chi2/nHits= " << chi2r << "/" << nHits << "  ok: " << right_ok << endl;
 
-    bool left_ok=(left_seg);
-    bool right_ok=(right_seg);
-    delete left_seg;
-    delete right_seg;
-
+    bool left_ok=(left_seg)?true:false;
+    bool right_ok=(right_seg)?true:false;
+    
     if (!left_ok && !right_ok) continue;
 
     foundSomething = true;    
@@ -269,22 +267,22 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<AssPoint>& assHit
   if (assHits.size()<maxfound) return;
 
   // Check if semgent Ok, calculate chi2
-  DTSegmentCand* seg = fitWithT0(sl,assHits, chi2l, t0_corrl,debug);
+  std::unique_ptr<DTSegmentCand> seg = fitWithT0(sl,assHits, chi2l, t0_corrl,debug);
+  if (!seg) return;
+  
   if (!seg->good()) {
 //    if (debug) cout << "   Segment not good() - skipping" << endl;
-    delete seg;
     return;
   }
 
   if (assHits.size()>maxfound) maxfound = assHits.size();
   if (debug) cout << endl << "   Seg t0= " << t0_corrl << *seg<< endl;
   
-  if (checkDoubleCandidates(result,seg)) {
-    result.push_back(seg);
+  if (checkDoubleCandidates(result,seg.get())) {
+    result.push_back(seg.release());
     if (debug) cout << "   Result is now " << result.size() << endl;
   } else {
     if (debug) cout << "   Exists - skipping" << endl;
-    delete seg;
   }
 }
 
@@ -325,16 +323,16 @@ DTMeantimerPatternReco::geometryFilter( const DTWireId first, const DTWireId sec
 }
 
 
-DTSegmentCand*
+std::unique_ptr<DTSegmentCand>
 DTMeantimerPatternReco::fitWithT0(const DTSuperLayer* sl, const vector<AssPoint> &assHits, double &chi2, double &t0_corr, const bool fitdebug) 
 {
   // create a DTSegmentCand 
   DTSegmentCand::AssPointCont pointsSet;
   pointsSet.insert(assHits.begin(),assHits.end());
-  DTSegmentCand* seg = new DTSegmentCand(pointsSet,sl);
+  std::unique_ptr<DTSegmentCand> seg(new DTSegmentCand(pointsSet,sl));
   
   // perform the 3 parameter fit on the segment candidate
-  theUpdator->fit(seg,1,fitdebug);
+  theUpdator->fit(seg.get(),1,fitdebug);
 
   chi2 = seg->chi2();
   t0_corr = seg->t0();
@@ -342,10 +340,7 @@ DTMeantimerPatternReco::fitWithT0(const DTSuperLayer* sl, const vector<AssPoint>
   // sanity check - drop segment candidates with a failed fit
   // for a 3-par fit this includes segments with hits after the calculated t0 correction ending up
   // beyond the chamber walls or on the other side of the wire
-  if (chi2==-1.) {
-    delete seg;
-    return false;
-  }
+  if (chi2==-1.) return nullptr;
 
   // at this point we keep all 3-hit segments that passed the above check
   if (assHits.size()==3) return seg;
@@ -353,18 +348,12 @@ DTMeantimerPatternReco::fitWithT0(const DTSuperLayer* sl, const vector<AssPoint>
   // for segments with no t0 information we impose a looser chi2 cut
   if (t0_corr==0) {
     if (chi2<200.) return seg;
-      else {
-        delete seg;
-        return false; 
-      }
+      else return nullptr; 
   }
 
   // cut on chi2/ndof of the segment candidate
   if ((chi2/(assHits.size()-3)<theMaxChi2)) return seg;
-    else {
-      delete seg;
-      return false;
-    }
+    else return nullptr;
 }
 
 

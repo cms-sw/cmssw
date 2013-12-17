@@ -88,11 +88,11 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
                std::vector<DTSegmentCand*> &result);
 
   // fit a set of left/right hits, calculate t0 and chi^2
-  DTSegmentCand* fitWithT0(const DTSuperLayer* sl,
-                 const std::vector<AssPoint> &assHits, 
-                 double &chi2, 
-                 double &t0_corr, 
-                 const bool fitdebug);
+  std::unique_ptr<DTSegmentCand> fitWithT0(const DTSuperLayer* sl,
+                                           const std::vector<AssPoint> &assHits, 
+                                           double &chi2, 
+                                           double &t0_corr, 
+                                           const bool fitdebug);
 
   // check if two hist can be considered in one segment (come from different layers, not too far away etc.)
   bool geometryFilter( const DTWireId first, const DTWireId second ) const;
