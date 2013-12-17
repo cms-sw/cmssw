@@ -18,16 +18,18 @@ DTMeantimerPatternReco2DAlgo_LinearDriftFromDB = cms.PSet(
         MaxChi2 = cms.double(8.0),
         MaxAllowedHits = cms.uint32(50),
         debug = cms.untracked.bool(False),
+
         # Parameters for the cleaner
         segmCleanerMode = cms.int32(2),
         nSharedHitsMax = cms.int32(2),
         nUnSharedHitsMin = cms.int32(2),
+
         # Parameters for  T0 fit segment in the Updator 
         performT0_vdriftSegCorrection = cms.bool(False),
         hit_afterT0_resolution = cms.double(0.03),
         performT0SegCorrection = cms.bool(False),
         enable_3par_fit = cms.bool(False),
-        perform_delta_rejecting = cms.bool(True)
+        perform_delta_rejecting = cms.bool(False)
     ),
     Reco2DAlgoName = cms.string('DTMeantimerPatternReco')
 )
