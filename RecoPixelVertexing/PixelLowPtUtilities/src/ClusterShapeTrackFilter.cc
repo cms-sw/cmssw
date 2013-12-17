@@ -25,9 +25,22 @@ inline float sqr(float x) { return x*x; }
 using namespace std;
 
 /*****************************************************************************/
-ClusterShapeTrackFilter::ClusterShapeTrackFilter
-  (const edm::ParameterSet& ps, const edm::EventSetup& es)
+ClusterShapeTrackFilter::ClusterShapeTrackFilter(const edm::ParameterSet& ps, edm::ConsumesCollector& iC):
+  theTracker(nullptr),
+  theFilter(nullptr)
 {
+  // Get ptMin if available
+  ptMin = (ps.exists("ptMin") ? ps.getParameter<double>("ptMin") : 0.);
+  ptMax = (ps.exists("ptMax") ? ps.getParameter<double>("ptMax") : 999999.);
+}
+
+/*****************************************************************************/
+ClusterShapeTrackFilter::~ClusterShapeTrackFilter()
+{
+}
+
+/*****************************************************************************/
+void ClusterShapeTrackFilter::update(const edm::Event& ev, const edm::EventSetup& es) {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry> tracker;
   es.get<TrackerDigiGeometryRecord>().get(tracker);
@@ -37,15 +50,6 @@ ClusterShapeTrackFilter::ClusterShapeTrackFilter
   edm::ESHandle<ClusterShapeHitFilter> shape;
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
   theFilter = shape.product();
-
-  // Get ptMin if available
-  ptMin = (ps.exists("ptMin") ? ps.getParameter<double>("ptMin") : 0.);
-  ptMax = (ps.exists("ptMax") ? ps.getParameter<double>("ptMax") : 999999.);
-}
-
-/*****************************************************************************/
-ClusterShapeTrackFilter::~ClusterShapeTrackFilter()
-{
 }
 
 /*****************************************************************************/

@@ -20,8 +20,9 @@ class TrackerTopology;
 class ValidHitPairFilter : public PixelTrackFilter 
 {
 public:
-  ValidHitPairFilter(const edm::ParameterSet& ps, const edm::EventSetup& es);
+  ValidHitPairFilter(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
   virtual ~ValidHitPairFilter();
+  void update(const edm::Event& ev, const edm::EventSetup& es) override;
   virtual bool operator()(const reco::Track * track,
                           const std::vector<const TrackingRecHit *>& recHits,
 			  const TrackerTopology *tTopo) const;
