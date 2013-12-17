@@ -178,10 +178,6 @@ namespace edm {
     virtual bool unscheduledFill(std::string const& moduleLabel,
                                  ModuleCallingContext const* mcc) const override;
 
-    virtual void resolveProduct_(ProductHolderBase const& phb,
-                                 bool fillOnDemand,
-                                 ModuleCallingContext const* mcc) const override;
-
     virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const override;
 
     virtual unsigned int transitionIndex_() const override;

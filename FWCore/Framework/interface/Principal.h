@@ -179,13 +179,11 @@ namespace edm {
 
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
-    // Make my DelayedReader get the EDProduct for a ProductHolder or
-    // trigger unscheduled execution if required.  The ProductHolder is
-    // a cache, and so can be modified through the const reference.
+    // Make my DelayedReader get the EDProduct for a ProductHolder.
+    // The ProductHolder is a cache, and so can be modified through the const
+    // reference.
     // We do not change the *number* of products through this call, and so
     // *this is const.
-    void resolveProduct(ProductHolderBase const& phb, bool fillOnDemand, ModuleCallingContext const* mcc) const {resolveProduct_(phb, fillOnDemand,mcc);}
-    
     void readFromSource(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
       readFromSource_(phb, mcc);
     }
@@ -237,10 +235,6 @@ namespace edm {
                                           std::string const& process,
                                           EDConsumerBase const* consumer,
                                           ModuleCallingContext const* mcc) const;
-
-    // defaults to no-op unless overridden in derived class.
-    virtual void resolveProduct_(ProductHolderBase const&, bool /*fillOnDemand*/,
-                                 ModuleCallingContext const*) const {}
 
     virtual void readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {}
 

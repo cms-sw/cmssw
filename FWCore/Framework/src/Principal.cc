@@ -435,7 +435,12 @@ namespace edm {
     auto returnValue = getProductHolderByIndex(index);
     
     if(nullptr != returnValue and resolveProd and !returnValue->productUnavailable()) {
-      this->resolveProduct(*returnValue, fillOnDemand, mcc);
+      if (not fillOnDemand and returnValue->onDemand()) {
+        //if requested, skip onDemand if it was onDemand
+        return returnValue;
+      }
+      ProductHolderBase::ResolveStatus status;
+      returnValue->resolveProduct(status,false,mcc);
     }
     
     return returnValue;

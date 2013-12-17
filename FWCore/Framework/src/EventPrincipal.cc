@@ -165,20 +165,6 @@ namespace edm {
     phb->putProduct(edp, productProvenance);
   }
 
-  void
-  EventPrincipal::resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand,
-                                  ModuleCallingContext const* mcc) const {
-    // Try unscheduled production.
-    if(phb.onDemand()) {
-      if(fillOnDemand) {
-        unscheduledFill(phb.resolvedModuleLabel(),
-                        mcc);
-      }
-      return;
-    }
-    readFromSource(phb,mcc);
-  }
-
    void
   EventPrincipal::readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
     if(phb.branchDescription().produced()) return; // nothing to do.
