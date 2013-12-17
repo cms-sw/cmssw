@@ -64,21 +64,31 @@ const char* TaggingVariableDescription[] = {
   /* [trackSip3dValAboveCharm]                  = */ "track 3D signed impact parameter of first track lifting mass above charm",
   /* [trackSip3dSigAboveCharm]                  = */ "track 3D signed impact parameter significance of first track lifting mass above charm",
 
-  /* [neutralEnergy]                            = */ "neutral ECAL clus. energy sum",
-  /* [neutralEnergyOverCombinedEnergy]          = */ "neutral ECAL clus. energy sum/(neutral ECAL clus. energy sum + pion tracks energy)",
-  /* [neutralIsolEnergy]                        = */ "neutral ECAL clus. energy sum in isolation band",
-  /* [neutralIsolEnergyOverCombinedEnergy]      = */ "neutral ECAL clus. energy sum in isolation band/(neutral ECAL clus. energy sum + pion tracks energy)",
-  /* [neutralEnergyRatio]                       = */ "ratio of neutral ECAL clus. energy sum in isolation band over neutral ECAL clus. energy sum",
-  /* [neutralclusterNumber]                     = */ "number of neutral ECAL clus.",
-  /* [neutralclusterRadius]                     = */ "mean DR between neutral ECAL clus. and lead.track",
-
-  /* [leptonQuality]                            = */ "lepton identification quality",
-  /* [leptonQuality2]                           = */ "lepton identification quality 2",
   /* [trackP0Par]                               = */ "track momentum along the jet axis, in the jet rest frame",
   /* [trackP0ParRatio]                          = */ "track momentum along the jet axis, in the jet rest frame, normalized to its energy"
   /* [trackChi2]                                = */ "chi2 of the track fit",
   /* [trackNTotalHits],                         = */ "number of valid total hits",
   /* [trackNPixelHits],                         = */ "number of valid pixel hits",
+
+  /* [leptonQuality]                            = */ "lepton identification quality",
+  /* [leptonQuality2]                           = */ "lepton identification quality 2",
+
+  /* [chargedHadronEnergyFraction],             = */ 	"fraction of the jet energy coming from charged hadrons",
+  /* [neutralHadronEnergyFraction],             = */	"fraction of the jet energy coming from neutral hadrons",
+  /* [photonEnergyFraction],			             	= */	"fraction of the jet energy coming from photons",
+  /* [electronEnergyFraction],			            = */	"fraction of the jet energy coming from electrons",
+  /* [muonEnergyFraction],					            = */	"fraction of the jet energy coming from muons",
+  /* [chargedHadronMultiplicity],	              = */  "number of charged hadrons in the jet",  			
+  /* [neutralHadronMultiplicity],	             	= */	"number of neutral hadrons in the jet",   			
+  /* [photonMultiplicity],  			            	= */	"number of photons in the jet",  		
+  /* [electronMultiplicity],  	             		= */	"number of electrons in the jet", 			
+  /* [muonMultiplicity],  		 	            		= */	"number of muons in the jet",	
+	/* [hadronMultiplicity],  		 								= */	"total number of charged and neutral hadrons in the jet",		
+	/* [hadronPhotonMultiplicity],  		 					= */	"total number of photons, charged and neutral hadrons in the jet",	
+	/* [totalMultiplicity],   		 								= */	"total number of photons, electrons, muons, charged and neutral hadrons in the jet",	
+
+	/* [massVertexEnergyFraction],								= */	"vertexmass times fraction of the vertex energy w.r.t. the jet energy",
+	/* [vertexBoostOverSqrtJetPt],								= */	"variable related to the boost of the vertex system in flight direction",
 
   /* [algoDiscriminator],                       = */ "discriminator output of an algorithm",
 
@@ -141,21 +151,32 @@ const char* TaggingVariableTokens[] = {
   /* [trackSip3dValAboveCharm]                  = */ "trackSip3dValAboveCharm",
   /* [trackSip3dSigAboveCharm]                  = */ "trackSip3dSigAboveCharm",
 
-  /* [neutralEnergy]                            = */ "neutralEnergy",
-  /* [neutralEnergyOverCombinedEnergy]          = */ "neutralEnergyOverCombinedEnergy",
-  /* [neutralIsolEnergy]                        = */ "neutralIsolEnergy",
-  /* [neutralIsolEnergyOverCombinedEnergy]      = */ "neutralIsolEnergyOverCombinedEnergy",
-  /* [neutralEnergyRatio]                       = */ "neutralEnergyRatio",
-  /* [neutralclusterNumber]                     = */ "neutralclusterNumber",
-  /* [neutralclusterRadius]                     = */ "neutralclusterRadius",
-
   /* [leptonQuality]                            = */ "leptonQuality",
   /* [leptonQuality2]                           = */ "leptonQuality2",
+
   /* [trackP0Par]                               = */ "trackP0Par",
   /* [trackP0ParRatio]                          = */ "trackP0ParRatio",
   /* [trackChi2]                                = */ "trackChi2",
   /* [trackNTotalHits],                         = */ "trackNTotalHits",
   /* [trackNPixelHits],                         = */ "trackNPixelHits",
+
+
+  /* [chargedHadronEnergyFraction],             = */ 	"chargedHadronEnergyFraction",
+  /* [neutralHadronEnergyFraction],             = */	"neutralHadronEnergyFraction",
+  /* [photonEnergyFraction],			             	= */	"photonEnergyFraction",
+  /* [electronEnergyFraction],			            = */	"electronEnergyFraction",
+  /* [muonEnergyFraction],					            = */	"muonEnergyFraction",
+  /* [chargedHadronMultiplicity],	              = */  "chargedHadronMultiplicity",  			
+  /* [neutralHadronMultiplicity],	             	= */	"neutralHadronMultiplicity",   			
+  /* [photonMultiplicity],  			            	= */	"photonMultiplicity",  		
+  /* [electronMultiplicity],  	             		= */	"electronMultiplicity", 			
+  /* [muonMultiplicity],  		 	            		= */	"muonMultiplicity",	
+	/* [hadronMultiplicity],  		 								= */	"hadronMultiplicity",		
+	/* [hadronPhotonMultiplicity],  		 					= */	"hadronPhotonMultiplicity",	
+	/* [totalMultiplicity],   		 								= */	"totalMultiplicity",	
+
+	/* [massVertexEnergyFraction],								= */	"massVertexEnergyFraction",
+	/* [vertexBoostOverSqrtJetPt],								= */	"vertexBoostOverSqrtJetPt",
 
   /* [algoDiscriminator],                       = */ "algoDiscriminator",
 
