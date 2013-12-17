@@ -151,8 +151,8 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
 	double  deta=(*jet).eta()-(*icalot)->eta();
 	double  dphi=(*jet).phi()-(*icalot)->phi();
 
-	if(dphi > 4.*atan(1.) ) dphi = dphi-8.*atan(1.);
-	if(dphi < -1.*4.*atan(1.) ) dphi = dphi+8.*atan(1.);
+	if(dphi > M_PI ) dphi = dphi-2.*M_PI;
+	if(dphi < -1.*M_PI ) dphi = dphi+2.*M_PI;
 
        if (verbosity > 0)  std::cout<<" CaloTower jet eta "<<(*jet).eta()<<" tower eta "<<(*icalot)->eta()<<" jet phi "<<(*jet).phi()<<" tower phi "<<(*icalot)->phi()<<" dphi "<<dphi<<" "<<(*icalot)->pt()<<" ieta "<<(*icalot)->ieta()<<" "<<abs((*icalot)->ieta())<<std::endl;
 
@@ -229,8 +229,8 @@ std::cout<<" ncalo "<<ncalotowers<<" deta2 "<<deta2<<" dphi2 "<<dphi2<<" deta1 "
 		 double  deta=(*jet).eta()-(*it)->eta();
 	         double  dphi=(*jet).phi()-(*it)->phi();
 
-	         if(dphi > 4.*atan(1.) ) dphi = dphi-8.*atan(1.);
-	         if(dphi < -1.*4.*atan(1.) ) dphi = dphi+8.*atan(1.);
+	         if(dphi > M_PI ) dphi = dphi-2.*M_PI;
+	         if(dphi < -1.*M_PI ) dphi = dphi+2.*M_PI;
 
 	         dphitr2 = dphitr2 + dphi*dphi*(*it)->pt();
 	         detatr2 = detatr2 + deta*deta*(*it)->pt();	
@@ -253,8 +253,8 @@ std::cout<<" ncalo "<<ncalotowers<<" deta2 "<<deta2<<" dphi2 "<<dphi2<<" deta1 "
 		 double  deta=(*jet).eta()-(*it)->eta();
 	         double  dphi=(*jet).phi()-(*it)->phi();
 
-	         if(dphi > 4.*atan(1.) ) dphi = dphi-8.*atan(1.);
-	         if(dphi < -1.*4.*atan(1.) ) dphi = dphi+8.*atan(1.);
+	         if(dphi > M_PI ) dphi = dphi-2.*M_PI;
+	         if(dphi < -1.*M_PI ) dphi = dphi+2.*M_PI;
 
 	         dphitr2 = dphitr2 + dphi*dphi*(*it)->pt();
 	         detatr2 = detatr2 + deta*deta*(*it)->pt();	
