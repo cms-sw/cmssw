@@ -19,7 +19,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
    hitsfactoryPSet(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet")),   
    creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
    regfactoryPSet(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet")),
-   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), std::move(iC)),
    theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)),
    _vtxMinDoF(conf.getParameter<double>("vtxMinDoF")),
    _maxDZSigmas(conf.getParameter<double>("maxDZSigmas")),
@@ -35,7 +35,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
   theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, std::move(iC));
   init();  
 }
-     
+
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {
   if(theRegionProducer!=NULL)
     delete theRegionProducer;
