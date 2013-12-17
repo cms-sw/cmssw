@@ -351,6 +351,13 @@ tpToTkmuTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
     label_tr = cms.InputTag('generalTracks')
 )
 
+tpToStaSeedAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
+    associator = cms.string('MuonAssociatorByHits'),
+    label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
+    label_tr = cms.InputTag('seedsOfSTAmuons')
+)
+
+
 tpToStaTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
@@ -526,7 +533,8 @@ tpToL3MuonAssociationFS.UseGrouped = False
 
 muonAssociationFastSim_seq = cms.Sequence(
         extractedMuonTracks_seq
-        +(tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
+        +seedsOfSTAmuons_seq
+        +(tpToStaSeedAssociationFS+tpToTkMuonAssociationFS+tpToStaMuonAssociationFS+tpToStaUpdMuonAssociationFS+tpToGlbMuonAssociationFS)
         +(tpToStaRefitMuonAssociationFS+tpToStaRefitUpdMuonAssociationFS)
         +(tpToTevFirstMuonAssociationFS+tpToTevPickyMuonAssociationFS+tpToTevDytMuonAssociationFS)
         +tpToTkmuTrackAssociationFS
