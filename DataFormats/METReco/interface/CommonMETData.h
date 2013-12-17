@@ -28,7 +28,6 @@ struct CommonMETData {
   double mey;
   double mez;
   double sumet;
-  double phi;
 
 };
 

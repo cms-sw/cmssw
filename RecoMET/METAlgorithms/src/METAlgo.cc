@@ -33,8 +33,6 @@ CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates, double 
                         // symmetrically distributed about the origin
 
   ret.met   = met.Pt();
-  ret.phi   = met.Phi(); // no longer needed as MET is now a candidate
-
 
   double et = 0.0;
   for(auto cand = candidates.begin(); cand != candidates.end(); ++cand)
