@@ -116,3 +116,9 @@ reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcal
                                           reducedEcalRecHitsEE*
                                           seldigis*
                                           reducedEcalRecHitsES)
+                                          
+reducedEcalRecHitsSequenceEcalOnly = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
+                                          interestingEcalDetIdEE*
+                                          reducedEcalRecHitsEB*
+                                          reducedEcalRecHitsEE*
+                                          seldigis)                                          
