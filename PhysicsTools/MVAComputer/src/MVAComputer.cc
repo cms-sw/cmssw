@@ -62,6 +62,7 @@ MVAComputer::MVAComputer(std::istream &is) :
 
 void MVAComputer::setup(const Calibration::MVAComputer *calib)
 {
+
 	nVars = calib->inputSet.size();
 	output = calib->output;
 
@@ -121,9 +122,7 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 
 	std::set<InputVar> variables;
 	unsigned int i = 0;
-	for(std::vector<Calibration::Variable>::const_iterator iter =
-			calib->inputSet.begin(); iter != calib->inputSet.end();
-	    ++iter, i++) {
+	for(std::vector<Calibration::Variable>::const_iterator iter = calib->inputSet.begin(); iter != calib->inputSet.end(); ++iter, i++) {
 		InputVar var;
 		var.var = Variable(iter->name, config[i].mask);
 		var.index = i;
@@ -131,11 +130,17 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 	}
 
 	inputVariables.resize(i);
-	std::copy(variables.begin(), variables.end(),
-	          inputVariables.begin());
 
+	unsigned int l =0;
+	for(std::set<InputVar>::const_iterator iter = variables.begin(); iter != variables.end(); ++iter, l++) 	
+	{
+		inputVariables[l].var=iter->var;
+		inputVariables[l].index=iter->index; 
+	}
+	
 	for(unsigned int j = 0; j < i; j++)
-		inputVariables[j].multiplicity = config[j].origin;
+		inputVariables[j].multiplicity = config[j].origin;	
+
 }
 
 MVAComputer::~MVAComputer()
@@ -144,9 +149,8 @@ MVAComputer::~MVAComputer()
 
 unsigned int MVAComputer::getVariableId(AtomicId name) const
 {
-	std::vector<InputVar>::const_iterator pos =
-		std::lower_bound(inputVariables.begin(), inputVariables.end(),
-		                 name);
+
+	std::vector<InputVar>::const_iterator pos = std::lower_bound(inputVariables.begin(), inputVariables.end(), name);
 
 	if (pos == inputVariables.end() || pos->var.getName() != name)
 		throw cms::Exception("InvalidVariable")
@@ -159,6 +163,7 @@ unsigned int MVAComputer::getVariableId(AtomicId name) const
 template<class T>
 void MVAComputer::evalInternal(T &ctx) const
 {
+	
 	double *output = ctx.values() + ctx.n();
 	int *outConf = ctx.conf() + inputVariables.size();
 
