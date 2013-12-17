@@ -8,7 +8,7 @@
 
 /*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 
-namespace TopDiLeptonOffline {
+namespace TopHLTDiLeptonOffline {
 
   MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : 
    label_(label), eidPattern_(0), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), 
@@ -641,7 +641,7 @@ TopHLTDiLeptonOfflineDQM::TopHLTDiLeptonOfflineDQM(const edm::ParameterSet& cfg)
   std::vector<edm::ParameterSet> sel=cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
   for(unsigned int i=0; i<sel.size(); ++i){
     selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
-    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), new TopDiLeptonOffline::MonitorEnsemble(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup")));
+    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), new TopHLTDiLeptonOffline::MonitorEnsemble(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup")));
   }
 }
 

@@ -13,7 +13,6 @@ from DQM.Physics.susyDQM_cfi import *
 from DQM.Physics.HiggsDQM_cfi import *
 from DQM.Physics.ExoticaDQM_cfi import *
 from DQM.Physics.B2GDQM_cfi import *
-from JetMETCorrections.Configuration.JetCorrectionProducersAllAlgos_cff import *
 
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 

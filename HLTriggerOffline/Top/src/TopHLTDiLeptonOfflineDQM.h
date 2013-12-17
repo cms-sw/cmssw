@@ -1,5 +1,5 @@
-#ifndef TOPDILEPTONOFFLINEDQM
-#define TOPDILEPTONOFFLINEDQM
+#ifndef TOPHLTDILEPTONOFFLINEDQM
+#define TOPHLTDILEPTONOFFLINEDQM
 
 #include <string>
 #include <vector>
@@ -40,7 +40,7 @@
    Ensemble. It will not be covered by the SelectionStep class.
 */
 
-namespace TopDiLeptonOffline {
+namespace TopHLTDiLeptonOffline {
 
   class MonitorEnsemble {
   public:
@@ -295,7 +295,7 @@ class TopHLTDiLeptonOfflineDQM : public edm::EDAnalyzer  {
   /// the configuration of the selection for the SelectionStep class, 
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to 
   /// be filled _after_ each selection step
-  std::map<std::string, std::pair<edm::ParameterSet, TopDiLeptonOffline::MonitorEnsemble*> > selection_;
+  std::map<std::string, std::pair<edm::ParameterSet, TopHLTDiLeptonOffline::MonitorEnsemble*> > selection_;
 
   std::vector<edm::InputTag> metsTemp_;
 
