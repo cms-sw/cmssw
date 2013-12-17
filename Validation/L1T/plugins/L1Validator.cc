@@ -97,13 +97,18 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel("l1extraParticles", Muons);*/
   //iEvent.getByLabel("l1extraParticles", METs);
 
-  iEvent.getByToken(_GenSource, GenParticles);
-  iEvent.getByToken(_L1ExtraIsoEGSource, IsoEGs);
-  iEvent.getByToken(_L1ExtraNonIsoEGSource, NonIsoEGs);
-  iEvent.getByToken(_L1ExtraCenJetSource, CenJets);
-  iEvent.getByToken(_L1ExtraForJetSource, ForJets);
-  iEvent.getByToken(_L1ExtraTauJetSource, Taus);
-  iEvent.getByToken(_L1ExtraMuonSource, Muons);
+  bool GotEverything=true;
+
+  if(!iEvent.getByToken(_GenSource, GenParticles)) GotEverything=false;
+  if(!iEvent.getByToken(_L1ExtraIsoEGSource, IsoEGs)) GotEverything=false;
+  if(!iEvent.getByToken(_L1ExtraNonIsoEGSource, NonIsoEGs)) GotEverything=false;
+  if(!iEvent.getByToken(_L1ExtraCenJetSource, CenJets)) GotEverything=false;
+  if(!iEvent.getByToken(_L1ExtraForJetSource, ForJets)) GotEverything=false;
+  if(!iEvent.getByToken(_L1ExtraTauJetSource, Taus)) GotEverything=false;
+  if(!iEvent.getByToken(_L1ExtraMuonSource, Muons)) GotEverything=false;
+
+  if(!GotEverything) return;
+
 
   _Hists->NEvents++;
 
