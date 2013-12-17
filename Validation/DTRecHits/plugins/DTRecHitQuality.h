@@ -60,8 +60,10 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   // Write the histos to file
 
+  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup &setup);
+
   void endJob();
-void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 					 edm::EventSetup const& c);
 
 protected:

@@ -48,13 +48,12 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   //sigma resolution on angle
   sigmaResAngle = pset.getParameter<double>("sigmaResAngle");
 
-  // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
-
   if(debug)
     cout << "[DTSegment2DQuality] Constructor called " << endl;
-  
+}
+
+void DTSegment2DQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
+
   // ----------------------                 
   // get hold of back-end interface 
   dbe_ = 0;
