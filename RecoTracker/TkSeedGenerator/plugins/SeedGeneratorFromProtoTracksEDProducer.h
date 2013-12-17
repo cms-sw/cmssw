@@ -2,8 +2,9 @@
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace edm { class Event; class EventSetup; }
 
@@ -17,8 +18,8 @@ public:
 
 private:
   edm::ParameterSet theConfig;
-  edm::InputTag theInputCollectionTag;
-  edm::InputTag theInputVertexCollectionTag;
+  edm::EDGetTokenT<reco::TrackCollection> theInputCollectionTag;
+  edm::EDGetTokenT<reco::VertexCollection> theInputVertexCollectionTag;
   double originHalfLength;
   double originRadius;
   bool useProtoTrackKinematics;
