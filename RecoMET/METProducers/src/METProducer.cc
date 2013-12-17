@@ -32,6 +32,7 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/GenMETFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/METReco/interface/PFClusterMETFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
