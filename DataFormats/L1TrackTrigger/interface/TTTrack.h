@@ -21,59 +21,59 @@ class TTTrack
 {
   private:
     /// Data members
-    std::vector< edm::Ptr< TTStub< T > > >  theStubPtrs;
-    GlobalVector                            theMomentum;
-    GlobalPoint                             theVertex;
-    double                                  theRInv;
-    unsigned int                            theSector;
-    unsigned int                            theWedge;
-    double                                  theChi2;
-    int                                     theLargestResIdx;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > >
+                 theStubRefs;
+    GlobalVector theMomentum;
+    GlobalPoint  thePOCA;
+    double       theRInv;
+    unsigned int theSector;
+    unsigned int theWedge;
+    double       theChi2;
+    unsigned int theFitParNo;
 
   public:
     /// Constructors
     TTTrack();
-    TTTrack( std::vector< edm::Ptr< TTStub< T > > > aStubs );
+    TTTrack( std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > aStubs );
 
     /// Destructor
     ~TTTrack();
 
     /// Track components
-    std::vector< edm::Ptr< TTStub< T > > > getStubPtrs() const        { return theStubPtrs; }
-    void addStubPtr( edm::Ptr< TTStub< T > > aStub )                  { theStubPtrs.push_back( aStub ); }
-    void setStubPtrs( std::vector< edm::Ptr< TTStub< T > > > aStubs ) { theStubPtrs = aStubs; }
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > getStubRefs() const        { return theStubRefs; }
+    void addStubRef( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub )                  { theStubRefs.push_back( aStub ); }
+    void setStubRefs( std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > aStubs ) { theStubRefs = aStubs; }
 
     /// Track momentum
     GlobalVector getMomentum() const                   { return theMomentum; }
     void         setMomentum( GlobalVector aMomentum ) { theMomentum = aMomentum; }
 
-    /// Track parameters
+    /// Track curvature
     double getRInv() const         { return theRInv; }
     void   setRInv( double aRInv ) { theRInv = aRInv; }
 
-    /// Vertex
-    GlobalPoint getVertex() const                { return theVertex; }
-    void        setVertex( GlobalPoint aVertex ) { theVertex = aVertex; }
+    /// POCA
+    GlobalPoint getPOCA() const              { return thePOCA; }
+    void        setPOCA( GlobalPoint aPOCA ) { thePOCA = aPOCA; }
 
     /// Sector
     unsigned int getSector() const                 { return theSector; }
     void         setSector( unsigned int aSector ) { theSector = aSector; }
-    unsigned int getWedge() const                { return theWedge; }
-    void         setWedge( unsigned int aWedge ) { theWedge = aWedge; }
+    unsigned int getWedge() const                  { return theWedge; }
+    void         setWedge( unsigned int aWedge )   { theWedge = aWedge; }
 
     /// Chi2
-    double getChi2() const         { return theChi2; }
-    double getChi2Red() const;
-    void   setChi2( double aChi2 ) { theChi2 = aChi2; }
+    double       getChi2() const                       { return theChi2; }
+    double       getChi2Red() const;
+    void         setChi2( double aChi2 )               { theChi2 = aChi2; }
+    unsigned int getFitParNo() const                   { return theFitParNo; }
+    void         setFitParNo( unsigned int aFitParNo ) { theFitParNo = aFitParNo; }
 
-    /// Largest Residual Idx
-    int  getLargestResIdx() const     { return theLargestResIdx; }
-    void setLargestResIdx( int aIdx ) { theLargestResIdx = aIdx; }
-
+/*
     /// Superstrip
     /// Here to prepare inclusion of AM L1 Track finding
     uint32_t getSuperStrip() const { return 0; }
-
+*/
     /// Duplicate identification
     bool isTheSameAs( TTTrack< T > aTrack ) const;
 
@@ -96,28 +96,29 @@ class TTTrack
 template< typename T >
 TTTrack< T >::TTTrack()
 {
-  theStubPtrs.clear();
+  theStubRefs.clear();
   theMomentum = GlobalVector(0.0,0.0,0.0);
   theRInv     = 0;
-  theVertex   = GlobalPoint(0.0,0.0,0.0);
+  thePOCA     = GlobalPoint(0.0,0.0,0.0);
   theSector   = 0;
   theWedge    = 0;
   theChi2     = 0;
-  theLargestResIdx = -1;
+  theFitParNo = 0;
 }
 
 /// Another Constructor
 template< typename T >
-TTTrack< T >::TTTrack( std::vector< edm::Ptr< TTStub< T > > > aStubs )
+//TTTrack< T >::TTTrack( std::vector< edm::Ptr< TTStub< T > > > aStubs )
+TTTrack< T >::TTTrack( std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > aStubs )
 {
-  theStubPtrs = aStubs;
+  theStubRefs = aStubs;
   theMomentum = GlobalVector(0.0,0.0,0.0);
-  theVertex   = GlobalPoint(0.0,0.0,0.0);
+  thePOCA     = GlobalPoint(0.0,0.0,0.0);
   theRInv     = 0;
   theSector   = 0;
   theWedge    = 0;
   theChi2     = 0;
-  theLargestResIdx = -1;
+  theFitParNo = 0;
 }
 
 /// Destructor
@@ -128,7 +129,7 @@ TTTrack< T >::~TTTrack(){}
 template< typename T >
 double TTTrack< T >::getChi2Red() const
 {
-  return theChi2/( 2*theStubPtrs.size() - 4 );
+  return theChi2/( 2*theStubRefs.size() - this->getFitParNo() );
 }
 
 /// Duplicate identification
@@ -136,15 +137,16 @@ template< typename T>
 bool TTTrack< T >::isTheSameAs( TTTrack< T > aTrack ) const
 {
   /// Take the other stubs
-  std::vector< edm::Ptr< TTStub< T > > > otherStubPtrs = aTrack.getStubPtrs();
+//  std::vector< edm::Ptr< TTStub< T > > > otherStubPtrs = aTrack.getStubPtrs();
+  std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > otherStubRefs = aTrack.getStubRefs();
 
   /// Count shared stubs
   unsigned int nShared = 0;
-  for ( unsigned int i = 0; i < theStubPtrs.size() && nShared < 2; i++)
+  for ( unsigned int i = 0; i < theStubRefs.size() && nShared < 2; i++)
   {
-    for ( unsigned int j = 0; j < otherStubPtrs.size() && nShared < 2; j++)
+    for ( unsigned int j = 0; j < otherStubRefs.size() && nShared < 2; j++)
     {
-      if ( theStubPtrs.at(i) == otherStubPtrs.at(j) )
+      if ( theStubRefs.at(i) == otherStubRefs.at(j) )
       {
         nShared++;
       }
@@ -159,9 +161,9 @@ bool TTTrack< T >::isTheSameAs( TTTrack< T > aTrack ) const
 template< typename T >
 bool TTTrack< T >::hasStubInBarrel( unsigned int aLayer ) const
 {
-  for ( unsigned int i = 0; i < theStubPtrs.size(); i++)
+  for ( unsigned int i = 0; i < theStubRefs.size(); i++)
   {
-    StackedTrackerDetId thisDetId( theStubPtrs.at(i)->getDetId() );
+    StackedTrackerDetId thisDetId( theStubRefs.at(i)->getDetId() );
     if ( thisDetId.isBarrel() && thisDetId.iLayer() == aLayer )
     {
       return true;
@@ -186,15 +188,16 @@ std::string TTTrack< T >::print( unsigned int i ) const
   padding+='\t';
   output << '\n';
   unsigned int iStub = 0;
-  typename std::vector< edm::Ptr< TTStub< T > > >::const_iterator stubIter;
-  for ( stubIter = theStubPtrs.begin();
-        stubIter!= theStubPtrs.end();
+
+  typename std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > >::const_iterator stubIter;
+  for ( stubIter = theStubRefs.begin();
+        stubIter!= theStubRefs.end();
         ++stubIter )
   {
     output << padding << "stub: " << iStub++ << ", DetId: " << ((*stubIter)->getDetId()).rawId() << '\n';
   }
 
-  //output << ", z-vertex: " << theVertex.z() << " (cm), transverse momentum " << theMomentum.perp() << " (GeV/c)";
+  //output << ", z-vertex: " << thePOCA.z() << " (cm), transverse momentum " << theMomentum.perp() << " (GeV/c)";
   //output << ", red. chi2 " << this->getChi2Red() << '\n';
 
   return output.str();

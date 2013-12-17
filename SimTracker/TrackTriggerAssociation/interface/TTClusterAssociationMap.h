@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
@@ -42,30 +43,30 @@ class TTClusterAssociationMap
     /// Helper methods: findABC( ... )
 
     /// Maps
-    std::map< edm::Ptr< TTCluster< T > >, std::vector< edm::Ptr< TrackingParticle > > > getTTClusterToTrackingParticlesMap() const
+    std::map< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >, std::vector< edm::Ptr< TrackingParticle > > > getTTClusterToTrackingParticlesMap() const
       { return clusterToTrackingParticleVectorMap; }
-    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTCluster< T > > > > getTrackingParticleToTTClustersMap() const
+    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > > getTrackingParticleToTTClustersMap() const
       { return trackingParticleToClusterVectorMap; }
 
-    void setTTClusterToTrackingParticlesMap( std::map< edm::Ptr< TTCluster< T > >, std::vector< edm::Ptr< TrackingParticle > > > aMap )
+    void setTTClusterToTrackingParticlesMap( std::map< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >, std::vector< edm::Ptr< TrackingParticle > > > aMap )
       { clusterToTrackingParticleVectorMap = aMap; }
-    void setTrackingParticleToTTClustersMap( std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTCluster< T > > > > aMap )
+    void setTrackingParticleToTTClustersMap( std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > > aMap )
       { trackingParticleToClusterVectorMap = aMap; }
 
     /// Operations
-    std::vector< edm::Ptr< TrackingParticle > > findTrackingParticlePtrs( edm::Ptr< TTCluster< T > > aCluster ) const;
-    edm::Ptr< TrackingParticle >                findTrackingParticlePtr( edm::Ptr< TTCluster< T > > aCluster ) const;
-    std::vector< edm::Ptr< TTCluster< T > > >   findTTClusterPtrs( edm::Ptr< TrackingParticle > aTrackingParticle ) const;
+    std::vector< edm::Ptr< TrackingParticle > >                                       findTrackingParticlePtrs( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const;
+    edm::Ptr< TrackingParticle >                                                      findTrackingParticlePtr( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > findTTClusterRefs( edm::Ptr< TrackingParticle > aTrackingParticle ) const;
 
     /// MC Truth methods
-    bool isGenuine( edm::Ptr< TTCluster< T > > aCluster ) const;
-    bool isCombinatoric( edm::Ptr< TTCluster< T > > aCluster ) const;
-    bool isUnknown( edm::Ptr< TTCluster< T > > aCluster ) const;
+    bool isGenuine( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const;
+    bool isCombinatoric( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const;
+    bool isUnknown( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const;
 
   private:
     /// Data members
-    std::map< edm::Ptr< TTCluster< T > >, std::vector< edm::Ptr< TrackingParticle > > > clusterToTrackingParticleVectorMap;
-    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTCluster< T > > > > trackingParticleToClusterVectorMap;
+    std::map< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >, std::vector< edm::Ptr< TrackingParticle > > > clusterToTrackingParticleVectorMap;
+    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > > trackingParticleToClusterVectorMap;
 
 }; /// Close class
 
@@ -92,20 +93,20 @@ TTClusterAssociationMap< T >::~TTClusterAssociationMap(){}
 
 /// Operations
 template< typename T >
-std::vector< edm::Ptr< TTCluster< T > > > TTClusterAssociationMap< T >::findTTClusterPtrs( edm::Ptr< TrackingParticle > aTrackingParticle ) const
+std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > TTClusterAssociationMap< T >::findTTClusterRefs( edm::Ptr< TrackingParticle > aTrackingParticle ) const
 {
   if ( trackingParticleToClusterVectorMap.find( aTrackingParticle ) != trackingParticleToClusterVectorMap.end() )
   {
     return trackingParticleToClusterVectorMap.find( aTrackingParticle )->second;
   }
 
-  std::vector< edm::Ptr< TTCluster< T > > > tempVector;
+  std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > tempVector;
   tempVector.clear();
   return tempVector;
 }
 
 template< typename T >
-std::vector< edm::Ptr< TrackingParticle > > TTClusterAssociationMap< T >::findTrackingParticlePtrs( edm::Ptr< TTCluster< T > > aCluster ) const
+std::vector< edm::Ptr< TrackingParticle > > TTClusterAssociationMap< T >::findTrackingParticlePtrs( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const
 {
   if ( clusterToTrackingParticleVectorMap.find( aCluster ) != clusterToTrackingParticleVectorMap.end() )
   {
@@ -130,7 +131,7 @@ std::vector< edm::Ptr< TrackingParticle > > TTClusterAssociationMap< T >::findTr
 /// >0       | U | C | C
 ///
 template< typename T >
-bool TTClusterAssociationMap< T >::isGenuine( edm::Ptr< TTCluster< T > > aCluster ) const
+bool TTClusterAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const
 {
   /// Get the TrackingParticles
   std::vector< edm::Ptr< TrackingParticle > > theseTrackingParticles = this->findTrackingParticlePtrs( aCluster );
@@ -173,7 +174,7 @@ bool TTClusterAssociationMap< T >::isGenuine( edm::Ptr< TTCluster< T > > aCluste
 }
 
 template< typename T >
-bool TTClusterAssociationMap< T >::isUnknown( edm::Ptr< TTCluster< T > > aCluster ) const
+bool TTClusterAssociationMap< T >::isUnknown( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const
 {
   /// Get the TrackingParticles
   std::vector< edm::Ptr< TrackingParticle > > theseTrackingParticles = this->findTrackingParticlePtrs( aCluster );
@@ -211,7 +212,7 @@ bool TTClusterAssociationMap< T >::isUnknown( edm::Ptr< TTCluster< T > > aCluste
 }
 
 template< typename T >
-bool TTClusterAssociationMap< T >::isCombinatoric( edm::Ptr< TTCluster< T > > aCluster ) const
+bool TTClusterAssociationMap< T >::isCombinatoric( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const
 {
   /// Get the TrackingParticles
   std::vector< edm::Ptr< TrackingParticle > > theseTrackingParticles = this->findTrackingParticlePtrs( aCluster );
@@ -255,7 +256,7 @@ bool TTClusterAssociationMap< T >::isCombinatoric( edm::Ptr< TTCluster< T > > aC
 }
 
 template< typename T >
-edm::Ptr< TrackingParticle > TTClusterAssociationMap< T >::findTrackingParticlePtr( edm::Ptr< TTCluster< T > > aCluster ) const
+edm::Ptr< TrackingParticle > TTClusterAssociationMap< T >::findTrackingParticlePtr( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aCluster ) const
 {
   if ( this->isGenuine( aCluster ) )
   {

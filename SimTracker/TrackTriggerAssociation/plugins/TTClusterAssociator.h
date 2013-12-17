@@ -49,7 +49,7 @@ class TTClusterAssociator : public edm::EDProducer
     edm::Handle< edm::DetSetVector< PixelDigiSimLink > >   thePixelDigiSimLinkHandle;
     edm::Handle< edm::SimTrackContainer >                  theSimTrackHandle;
     edm::InputTag                                          simTrackInputTag;
-    edm::InputTag                                          TTClustersInputTag;
+    std::vector< edm::InputTag >                           TTClustersInputTags;
     const StackedTrackerGeometry                           *theStackedTrackers;
     //unsigned int                                           ADCThreshold;
 
@@ -71,10 +71,12 @@ class TTClusterAssociator : public edm::EDProducer
 template< typename T >
 TTClusterAssociator< T >::TTClusterAssociator( const edm::ParameterSet& iConfig )
 {
-  simTrackInputTag = iConfig.getParameter< edm::InputTag >("simTrackHits");
-  TTClustersInputTag = iConfig.getParameter< edm::InputTag >( "TTClusters" );
-  //ADCThreshold = iConfig.getParameter< unsigned int >("ADCThreshold");
-  produces< TTClusterAssociationMap< T > >();
+  simTrackInputTag = iConfig.getParameter< edm::InputTag >( "simTrackHits" );
+  TTClustersInputTags = iConfig.getParameter< std::vector< edm::InputTag > >( "TTClusters" );
+  for ( unsigned int iTag = 0; iTag < TTClustersInputTags.size(); iTag++ )
+  {
+    produces< TTClusterAssociationMap< T > >( TTClustersInputTags.at(iTag).instance() );
+  }
 }
 
 /// Destructor

@@ -30,97 +30,91 @@ class StackedTrackerDetUnit;
 class GeomDet;
 class TrackerGeometry;
 
-class StackedTrackerGeometry {
-public:
-  typedef std::vector<StackedTrackerDetUnit*>                  StackContainer;
-  typedef std::vector<StackedTrackerDetUnit*>::const_iterator  StackContainerIterator;
-  typedef std::vector<StackedTrackerDetId>                     StackIdContainer;
-  typedef std::vector<StackedTrackerDetId>::const_iterator     StackIdContainerIterator;
-  typedef __gnu_cxx::hash_map< unsigned int, StackedTrackerDetUnit*> mapIdToStack;
+class StackedTrackerGeometry
+{
+  public:
+    typedef std::vector< StackedTrackerDetUnit* >                       StackContainer;
+    typedef std::vector< StackedTrackerDetUnit* >::const_iterator       StackContainerIterator;
+    typedef std::vector< StackedTrackerDetId >                          StackIdContainer;
+    typedef std::vector< StackedTrackerDetId >::const_iterator          StackIdContainerIterator;
+    typedef __gnu_cxx::hash_map< unsigned int, StackedTrackerDetUnit* > mapIdToStack;
 
-  /// Constructors
-  StackedTrackerGeometry( const TrackerGeometry *i );
-  StackedTrackerGeometry( const TrackerGeometry *i, const int partitionsPerRoc, const unsigned CBC3_Stubs );
-  virtual ~StackedTrackerGeometry();  
+    /// Constructors
+    StackedTrackerGeometry( const TrackerGeometry *i );
+    StackedTrackerGeometry( const TrackerGeometry *i, const int partitionsPerRoc, const unsigned CBC3_Stubs );
+    virtual ~StackedTrackerGeometry();  
 
-  /// Methods for data members
-  const StackContainer&   stacks() const   { return theStacks; }
-  const StackIdContainer& stackIds() const { return theStackIds; } 
-  void  addStack( StackedTrackerDetUnit *aStack );
-  const StackedTrackerDetUnit* idToStack( StackedTrackerDetId anId ) const;
+    /// Methods for data members
+    const StackContainer&   stacks() const   { return theStacks; }
+    const StackIdContainer& stackIds() const { return theStackIds; } 
+    void  addStack( StackedTrackerDetUnit *aStack );
+    const StackedTrackerDetUnit* idToStack( StackedTrackerDetId anId ) const;
 
-  /// Analogous to the methods in TrackerGeomety except that you pass it a stack id and an identifier to a stack member
-  const GeomDetUnit* idToDetUnit( StackedTrackerDetId anId, unsigned int stackMemberIdentifier ) const;
-  const GeomDet*     idToDet( StackedTrackerDetId anId, unsigned int stackMemberIdentifier )     const;
+    /// Analogous to the methods in TrackerGeomety except that you pass it a stack id and an identifier to a stack member
+    const GeomDetUnit* idToDetUnit( StackedTrackerDetId anId, unsigned int stackMemberIdentifier ) const;
+    const GeomDet*     idToDet( StackedTrackerDetId anId, unsigned int stackMemberIdentifier )     const;
 
-  /// Specific module properties
-  const bool isPSModule( StackedTrackerDetId anId ) const;
+    /// Association Detector/Module/Stack
+    DetId findPairedDetector( DetId anId ) const;
+    DetId findStackFromDetector( DetId anId ) const;
 
-  /// Dedicated to CBC3 emulation
-  /// Everything is in half-strip units
-  const int getDetUnitWindow( StackedTrackerDetId anId ) const;
-  const int getASICOffset( StackedTrackerDetId anId, int asicNumber, int partitionNumber ) const;
-  int       getPartitionsPerRoc() const { return theNumPartitions; }
-  unsigned  getCBC3MaxStubs() const     { return theMaxStubs; }
+    /// Specific module properties
+    const bool isPSModule( StackedTrackerDetId anId ) const;
 
-  /// Helper functions
-  Plane::PlanePointer meanPlane( StackedTrackerDetId anId ) const;
+    /// Dedicated to CBC3 emulation
+    /// Everything is in half-strip units
+    const int getDetUnitWindow( StackedTrackerDetId anId ) const;
+    const int getASICOffset( StackedTrackerDetId anId, int asicNumber, int partitionNumber ) const;
+    int       getPartitionsPerRoc() const { return theNumPartitions; }
+    unsigned  getCBC3MaxStubs() const     { return theMaxStubs; }
 
-  /// Stub functions
-  /// OLD STYLE
-  template< typename T >
-    double findRoughPt( double aMagneticFieldStrength, const L1TkStub<T> *stub) const;
-  template< typename T >
-    GlobalPoint  findGlobalPosition( const L1TkStub<T> *stub ) const;
-  template< typename T >
-    GlobalVector findGlobalDirection( const L1TkStub<T> *stub ) const;
+    /// Helper functions
+    Plane::PlanePointer meanPlane( StackedTrackerDetId anId ) const;
 
-  /// Stub functions
-  /// NEW style
-  template< typename T >
-    double findRoughPt( double aMagneticFieldStrength, const TTStub<T> *stub) const;
-  template< typename T >
-    GlobalPoint  findGlobalPosition( const TTStub<T> *stub ) const;
-  template< typename T >
-    GlobalVector findGlobalDirection( const TTStub<T> *stub ) const;
+    /// Stub functions
+    /// OLD STYLE
+    template< typename T > double       findRoughPt( double aMagneticFieldStrength, const L1TkStub<T> *stub) const;
+    template< typename T > GlobalPoint  findGlobalPosition( const L1TkStub<T> *stub ) const;
+    template< typename T > GlobalVector findGlobalDirection( const L1TkStub<T> *stub ) const;
+
+    /// Stub functions
+    /// NEW style
+    template< typename T > double       findRoughPt( double aMagneticFieldStrength, const TTStub<T> *stub) const;
+    template< typename T > GlobalPoint  findGlobalPosition( const TTStub<T> *stub ) const;
+    template< typename T > GlobalVector findGlobalDirection( const TTStub<T> *stub ) const;
  
-  /// Cluster functions
-  /// OLD STYLE
-  template< typename T >
-    LocalPoint       findHitLocalPosition( const L1TkCluster<T> *cluster , unsigned int hitIdx ) const;
-  template< typename T >
-    GlobalPoint      findHitGlobalPosition( const L1TkCluster<T> *cluster,  unsigned int hitIdx ) const;
-  template< typename T >
-    LocalPoint       findAverageLocalPosition(  const L1TkCluster<T> *cluster  ) const;
-  template< typename T >
-    GlobalPoint      findAverageGlobalPosition( const L1TkCluster<T> *cluster ) const;
-  template< typename T >
-    void checkSimTrack( L1TkCluster<T> *cluster,
-                        edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle,
-                        edm::Handle<edm::SimTrackContainer> simTrackHandle ) const;
+    /// Cluster functions
+    /// OLD STYLE
+    template< typename T > LocalPoint       findHitLocalPosition( const L1TkCluster<T> *cluster , unsigned int hitIdx ) const;
+    template< typename T > GlobalPoint      findHitGlobalPosition( const L1TkCluster<T> *cluster,  unsigned int hitIdx ) const;
+    template< typename T > LocalPoint       findAverageLocalPosition(  const L1TkCluster<T> *cluster  ) const;
+    template< typename T > GlobalPoint      findAverageGlobalPosition( const L1TkCluster<T> *cluster ) const;
+    template< typename T > void checkSimTrack( L1TkCluster<T> *cluster,
+                                               edm::Handle<edm::DetSetVector<PixelDigiSimLink> > thePixelDigiSimLinkHandle,
+                                               edm::Handle<edm::SimTrackContainer> simTrackHandle ) const;
 
-  /// Cluster functions
-  /// NEW STYLE
-  template< typename T >
-    LocalPoint       findHitLocalPosition( const TTCluster<T> *cluster , unsigned int hitIdx ) const;
-  template< typename T >
-    GlobalPoint      findHitGlobalPosition( const TTCluster<T> *cluster,  unsigned int hitIdx ) const;
-  template< typename T >
-    LocalPoint       findAverageLocalPosition(  const TTCluster<T> *cluster  ) const;
-  template< typename T >
-    GlobalPoint      findAverageGlobalPosition( const TTCluster<T> *cluster ) const;
+    /// Cluster functions
+    /// NEW STYLE
+    template< typename T > LocalPoint       findHitLocalPosition( const TTCluster<T> *cluster , unsigned int hitIdx ) const;
+    template< typename T > GlobalPoint      findHitGlobalPosition( const TTCluster<T> *cluster,  unsigned int hitIdx ) const;
+    template< typename T > LocalPoint       findAverageLocalPosition(  const TTCluster<T> *cluster  ) const;
+    template< typename T > GlobalPoint      findAverageGlobalPosition( const TTCluster<T> *cluster ) const;
 
-private:
+  private:
 
-  /// Data members
-  const TrackerGeometry* theTracker;
-  StackContainer         theStacks;
-  StackIdContainer       theStackIds;
-  mapIdToStack           theMap;
+    /// Data members
+    const TrackerGeometry* theTracker;
+    StackContainer         theStacks;
+    StackIdContainer       theStackIds;
+    mapIdToStack           theMap;
 
-  /// CBC3 dedicated stuff
-  int      theNumPartitions; // Partitions per ROC for offset calculations as per CBC3 chip
-  unsigned theMaxStubs; // Maximum number of stubs per CBC3 chip; will need rethink when PS chip designed
+    /// Associative containers
+    std::map< DetId, DetId > mapDetectorsToPartner;
+    std::map< DetId, DetId > mapDetectorsToStack;
+
+    /// CBC3 dedicated stuff
+    int      theNumPartitions; // Partitions per ROC for offset calculations as per CBC3 chip
+    unsigned theMaxStubs; // Maximum number of stubs per CBC3 chip; will need rethink when PS chip designed
 
 };
 
@@ -129,15 +123,15 @@ private:
 /// Cluster stuff
 /// OLD STYLE
 template<>
-  LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
+LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
 template<>
-  GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
+GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
 template<>
-  LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
+LocalPoint StackedTrackerGeometry::findHitLocalPosition( const L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster, unsigned int hitIdx ) const;
 template<>
-  void StackedTrackerGeometry::checkSimTrack( L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster,
-                                              edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  thePixelDigiSimLinkHandle,
-                                              edm::Handle<edm::SimTrackContainer> simTrackHandle ) const;
+void StackedTrackerGeometry::checkSimTrack( L1TkCluster< edm::Ref< edm::PSimHitContainer > > *cluster,
+                                            edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  thePixelDigiSimLinkHandle,
+                                            edm::Handle<edm::SimTrackContainer> simTrackHandle ) const;
 
 /// Fit Stub as in Builder
 /// To be used for out-of-Builder Stubs
@@ -229,7 +223,7 @@ GlobalVector StackedTrackerGeometry::findGlobalDirection( const L1TkStub< T > *s
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
-  T hit=cluster->getHits().at(hitIdx); 
+  T hit = cluster->getHits().at(hitIdx); 
   MeasurementPoint mp( hit->row() + 0.5, hit->column() + 0.5 );
   return geomDetUnit->topology().localPosition( mp );
 }
@@ -241,7 +235,7 @@ GlobalVector StackedTrackerGeometry::findGlobalDirection( const L1TkStub< T > *s
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
-  T hit=cluster->getHits().at(hitIdx); 
+  T hit = cluster->getHits().at(hitIdx); 
   MeasurementPoint mp( hit->row() + 0.5, hit->column() + 0.5 );
   return geomDetUnit->surface().toGlobal( geomDetUnit->topology().localPosition( mp ) );
 }
@@ -368,8 +362,8 @@ double StackedTrackerGeometry::findRoughPt( double aMagneticFieldStrength, const
   double mPtFactor = (floor(aMagneticFieldStrength*10.0 + 0.5))/10.0*0.0015;
 
   /// Get average position of Clusters composing the Stub
-  GlobalPoint innerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(0).get() );
-  GlobalPoint outerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(1).get() );
+  GlobalPoint innerHitPosition = findAverageGlobalPosition( stub->getClusterRef(0).get() );
+  GlobalPoint outerHitPosition = findAverageGlobalPosition( stub->getClusterRef(1).get() );
 
   /// Get useful quantities
   double outerPointRadius = outerHitPosition.perp();
@@ -397,8 +391,8 @@ double StackedTrackerGeometry::findRoughPt( double aMagneticFieldStrength, const
   {
     /// Test approximated formula for Endcap stubs
     /// Check always to be consistent with HitMatchingAlgorithm_window2012.h
-    double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(0).get() ).x()) ;
-    roughPt +=       outerPointRadius * outerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterPtr(1).get() ).x()) ;
+    double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterRef(0).get() ).x()) ;
+    roughPt +=       outerPointRadius * outerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterRef(1).get() ).x()) ;
     roughPt = roughPt / 2.;
 
     /// Return the rough Pt
@@ -415,15 +409,15 @@ template< typename T >
 GlobalPoint StackedTrackerGeometry::findGlobalPosition( const TTStub< T > *stub ) const
 {
   /// Fast version: only inner cluster matters
-  return findAverageGlobalPosition( stub->getClusterPtr(0).get() );
+  return findAverageGlobalPosition( stub->getClusterRef(0).get() );
 }
 
 template< typename T >
 GlobalVector StackedTrackerGeometry::findGlobalDirection( const TTStub< T > *stub ) const
 {
   /// Get average position of Clusters composing the Stub
-  GlobalPoint innerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(0).get() );
-  GlobalPoint outerHitPosition = findAverageGlobalPosition( stub->getClusterPtr(1).get() );
+  GlobalPoint innerHitPosition = findAverageGlobalPosition( stub->getClusterRef(0).get() );
+  GlobalPoint outerHitPosition = findAverageGlobalPosition( stub->getClusterRef(1).get() );
 
   /// Calculate the direction
   GlobalVector directionVector( outerHitPosition.x()-innerHitPosition.x(),
@@ -440,9 +434,21 @@ LocalPoint StackedTrackerGeometry::findHitLocalPosition( const TTCluster< T > *c
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
-  T hit=cluster->getHits().at(hitIdx);
+  int row = 0;
+  int col = 0;
 
-  MeasurementPoint mp( hit->row() + 0.5, hit->column() + 0.5 );
+  if ( cluster->getRows().size() == 0 || cluster->getCols().size() == 0 )
+  {
+    T hit = cluster->getHits().at(hitIdx);
+    row = hit->row();
+    col = hit->column();
+  }
+  else
+  {
+    row = cluster->getRows().at(hitIdx);
+    col = cluster->getCols().at(hitIdx);
+  } 
+  MeasurementPoint mp( row + 0.5, col + 0.5 );
   return geomDetUnit->topology().localPosition( mp );
 }
 
@@ -453,9 +459,21 @@ GlobalPoint StackedTrackerGeometry::findHitGlobalPosition( const TTCluster< T > 
 {
   /// Add 0.5 to get the center of the pixel
   const GeomDetUnit* geomDetUnit = idToDetUnit( cluster->getDetId(), cluster->getStackMember() );
-  T hit=cluster->getHits().at(hitIdx); 
+  int row = 0;
+  int col = 0;
 
-  MeasurementPoint mp( hit->row() + 0.5, hit->column() + 0.5 );
+  if ( cluster->getRows().size() == 0 || cluster->getCols().size() == 0 )
+  {
+    T hit = cluster->getHits().at(hitIdx);
+    row = hit->row();
+    col = hit->column();
+  }
+  else
+  {
+    row = cluster->getRows().at(hitIdx);
+    col = cluster->getCols().at(hitIdx);
+  }
+  MeasurementPoint mp( row + 0.5, col + 0.5 );
   return geomDetUnit->surface().toGlobal( geomDetUnit->topology().localPosition( mp ) );
 }
 
