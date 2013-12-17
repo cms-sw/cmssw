@@ -32,10 +32,10 @@ class PFSpecificAlgo
   PFSpecificAlgo() { }
   
   reco::PFMET addInfo(const edm::View<reco::Candidate>& pfCands, const CommonMETData& met);
+  SpecificPFMETData run(const edm::View<reco::Candidate>& pfCands);
 
  private:
   void initializeSpecificPFMETData(SpecificPFMETData &specific);
-  SpecificPFMETData mkSpecificPFMETData(const edm::View<reco::Candidate>& pfCands);
 
 };
 

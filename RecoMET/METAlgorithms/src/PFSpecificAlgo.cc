@@ -17,7 +17,7 @@
 //____________________________________________________________________________||
 reco::PFMET PFSpecificAlgo::addInfo(const edm::View<reco::Candidate>& pfCands, const CommonMETData& met)
 {
-  SpecificPFMETData specific = mkSpecificPFMETData(pfCands);
+  SpecificPFMETData specific = run(pfCands);
 
   const math::XYZTLorentzVector p4(met.mex, met.mey, 0.0, met.met);
   const math::XYZPoint vtx(0.0, 0.0, 0.0);
@@ -39,7 +39,7 @@ void PFSpecificAlgo::initializeSpecificPFMETData(SpecificPFMETData &specific)
 }
 
 //____________________________________________________________________________||
-SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(const edm::View<reco::Candidate>& pfCands)
+SpecificPFMETData PFSpecificAlgo::run(const edm::View<reco::Candidate>& pfCands)
 {
   if(!pfCands.size())
   {
