@@ -12,5 +12,3 @@ OppositeMaterialPropagatorParabolicMF = OppositeMaterialPropagator.clone(
     ComponentName = cms.string('PropagatorWithMaterialParabolicMfOpposite')
 )
 
-from MagneticField.ParametrizedEngine.ParabolicParametrizedField_cfi import ParametrizedMagneticFieldProducer
-ParametrizedMagneticFieldProducerForTracking = ParametrizedMagneticFieldProducer.clone(label = "ParabolicMf")
