@@ -31,9 +31,6 @@ class PFSpecificAlgo
   
   SpecificPFMETData run(const edm::View<reco::Candidate>& pfCands);
 
- private:
-  void initializeSpecificPFMETData(SpecificPFMETData &specific);
-
 };
 
 //____________________________________________________________________________||
