@@ -222,6 +222,8 @@ void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
 				 double ph_MinEt,
 				 double ph_combIso,
 				 double ph_HoE,
+				 double ph_sietaieta_eb,
+				 double ph_sietaieta_ee,
 				 const edm::ParameterSet& ph_protectionsForJetMET
 				 )
 {
@@ -246,6 +248,8 @@ void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
   pfegamma_ =  new PFEGammaFilters(ph_MinEt,
 				   ph_combIso,
 				   ph_HoE,
+				   ph_sietaieta_eb,
+				   ph_sietaieta_ee,
 				   ph_protectionsForJetMET,
 				   ele_iso_pt,
 				   ele_iso_mva_barrel,
@@ -705,10 +709,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  myPFElectron.setParticleType(particleType);
 	  myPFElectron.setCharge(gedEleRef->charge());
 	  myPFElectron.setP4(gedEleRef->p4());
+	  myPFElectron.set_mva_e_pi(gedEleRef->mva());
+
 	  if(egmLocalDebug) {
 	    cout << " PFAlgo: found an electron with NEW EGamma code " << endl;
 	    cout << " myPFElectron: pt " << myPFElectron.pt() 
-		 << " eta,phi " << myPFElectron.eta() << ", " <<myPFElectron.phi() 
+		 << " eta,phi " << myPFElectron.eta() << ", " <<myPFElectron.phi()
+		 << " mva " << myPFElectron.mva_e_pi() 
 		 << " charge " << myPFElectron.charge() << endl;
 	  }
 	  

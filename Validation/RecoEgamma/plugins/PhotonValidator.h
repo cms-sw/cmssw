@@ -13,6 +13,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -22,7 +23,6 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
 //#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
@@ -98,22 +98,25 @@ class PhotonValidator : public edm::EDAnalyzer
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   edm::ESHandle<CaloTopology> theCaloTopo_;
 
+
   std::string photonCollectionProducer_;
   std::string photonCollection_;
   edm::EDGetTokenT<reco::PhotonCollection> photonCollectionToken_;
-
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  std::string   valueMapPhoPFCandIso_ ;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   edm::InputTag  bcBarrelCollection_;
   edm::InputTag  bcEndcapCollection_;
 
+
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
-
   edm::EDGetTokenT<TrackingParticleCollection> token_tp_;
 
+ 
 
-  std::string conversionOITrackProducer_;
-  std::string conversionIOTrackProducer_;
+  edm::InputTag conversionOITrackProducer_;
+  edm::InputTag conversionIOTrackProducer_;
 
   edm::EDGetTokenT<edm::View<reco::Track> > conversionOITrackPr_Token_;
   edm::EDGetTokenT<edm::View<reco::Track> > conversionIOTrackPr_Token_;
@@ -230,7 +233,7 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_scPhiWidth_[2];
   MonitorElement* h_scEtaPhi_[2];
 
-  MonitorElement* h_dSCpfSC_[2][3];
+
   MonitorElement* h_scE_[2][3];
   MonitorElement* h_scEt_[2][3];
 
@@ -340,6 +343,19 @@ class PhotonValidator : public edm::EDAnalyzer
   MonitorElement* h_nCluOutsideMustache_[3];
   MonitorElement* h_etOutsideMustache_[3];
   MonitorElement* h_pfMva_[3];
+  //// particle based isolation from ValueMap
+  MonitorElement* h_dRPhoPFcand_ChHad_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_NeuHad_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_Pho_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_ChHad_unCleaned_[3];
+  MonitorElement* h_dRPhoPFcand_NeuHad_unCleaned_[3];
+  MonitorElement* h_dRPhoPFcand_Pho_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_ChHad_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_NeuHad_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_Pho_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_ChHad_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_NeuHad_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_Pho_unCleaned_[3];
 
 
   /// info per conversion
@@ -566,9 +582,9 @@ class PhotonValidator : public edm::EDAnalyzer
 class  sortPhotons
 {
   public:
-    bool operator () (const reco::Photon & lhs, const reco::Photon & rhs)
+    bool operator () (const reco::PhotonRef& lhs, const reco::PhotonRef & rhs)
     {
-        return lhs.et() > rhs.et();
+        return lhs->et() > rhs->et();
     }
 };
 

@@ -69,5 +69,5 @@ pfRecoTauDiscriminationAgainstElectronMVA3 = cms.EDProducer(
     minMVA3prongMatch                  = cms.double(0.0),
     minMVA3prongNoMatch                = cms.double(0.0),
 
-    srcGsfElectrons = cms.InputTag('gsfElectrons')
+    srcGsfElectrons = cms.InputTag('gedGsfElectrons')
 )
