@@ -7,7 +7,7 @@ options.register('runNumber',
                  VarParsing.VarParsing.varType.int,
                  "Run number; default gives latest IOV")
 options.register('globalTag',
-                 'START70_V2', #default value
+                 'START70_V2::All', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")

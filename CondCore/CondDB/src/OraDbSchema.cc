@@ -302,7 +302,7 @@ namespace cond {
 				std::vector<std::tuple<std::string,std::string,std::string> >& tags ){
       std::set<cond::TagMetadata> tmp;
       cond::TagCollectionRetriever gtRetriever( m_session, preFix, postFix );
-      if(!gtRetriever.selectTagCollection( gtName+"::All", tmp ) ) return false;
+      if(!gtRetriever.selectTagCollection( gtName, tmp ) ) return false;
       if( tmp.size() ) tags.resize( tmp.size() );
       size_t i = 0;
       for( const auto& m : tmp ){

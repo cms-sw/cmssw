@@ -56,6 +56,12 @@ int main (int argc, char** argv)
       editor.insert( 2000000, p3 );
       editor.flush();
     }
+    if( !session.existsIov( "StringData3" ) ){
+      editor = session.createIov<std::string>( "StringData3", cond::lumiid );
+      editor.setDescription("Test with std::string class");
+      editor.insert( 4294967297, p2 );
+      editor.flush();
+    }
 
     session.transaction().commit();
     std::cout <<"# iov changes committed!..."<<std::endl;
@@ -108,6 +114,15 @@ int main (int argc, char** argv)
       std::cout <<"ERROR: std::string object read different from source."<<std::endl;
     } else {
       std::cout << "std::string instance valid from "<< vs2.first<<" to "<<vs2.second<<std::endl; 
+    }
+
+    PayloadProxy<std::string> pp2;
+    pp2.setUp( session );
+    pp2.loadTag( "StringData3" );
+    try{
+      pp2.setIntervalFor( 4294967296 );
+    } catch ( cond::persistency::Exception& e ){
+      std::cout <<"Expected error: "<<e.what()<<std::endl;
     }
     
   } catch (const std::exception& e){

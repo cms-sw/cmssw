@@ -15,7 +15,7 @@ options.register('messageLevel',
                  VarParsing.VarParsing.varType.int,
                  "Message level; default to 0")
 options.register('globalTag',
-                 'START70_V2', #default value
+                 'START70_V2::All', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")
