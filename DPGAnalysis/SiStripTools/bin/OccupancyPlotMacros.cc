@@ -1,4 +1,5 @@
 #include "TText.h"
+#include "TLatex.h"
 #include "TLine.h"
 #include "TGaxis.h"
 #include "TFile.h"
@@ -312,12 +313,15 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 	label->SetTextAlign(22);
 	etalabels.Add(label);
       }
-
+      TLatex* etalab = new  TLatex(0,115,"#eta");
+      etalab->SetTextSize(.03);
+      etalab->SetTextAlign(22);
+      etalabels.Add(etalab);
 
       TGaxis *raxis = new TGaxis(-310,0,-310,140,0,140,10,"S");
       TGaxis *zaxis = new TGaxis(-310,0,310,0,-310,310,10,"S");
       raxis->SetTickSize(.01);      zaxis->SetTickSize(.01);
-      raxis->SetTitle("R (cm)"); zaxis->SetTitle("Z (cm)");
+      raxis->SetTitle("r (cm)"); zaxis->SetTitle("z (cm)");
 
       TList palette;
       TList mpalette;
@@ -334,6 +338,7 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
       TGaxis *paxis = new TGaxis(330,0,330,140,min,max,510,"SLG+");
       paxis->SetTickSize(.02);
       paxis->SetLabelOffset(paxis->GetLabelOffset()*0.5);
+      paxis->SetTitle("channel occupancy");
       palette.Add(paxis);
 
       TGaxis *mpaxis = new TGaxis(330,0,330,140,mmin,mmax,510,"SLG+");
