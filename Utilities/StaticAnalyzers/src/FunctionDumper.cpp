@@ -11,7 +11,6 @@ using namespace ento;
 using namespace llvm;
 
 namespace clangcms {
-[[edm::thread_safe]] static boost::interprocess::interprocess_semaphore file_mutex(1);
 
 class FDumper : public clang::StmtVisitor<FDumper> {
   clang::ento::BugReporter &BR;
@@ -62,17 +61,8 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	if ( pPath != NULL ) tname += std::string(pPath);
 	tname+="/tmp/function-dumper.txt.unsorted";
 	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
-	file_mutex.wait();
-	std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-	std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-	if ( filecontents.find(ostring)  == std::string::npos ) {
-		file<<ostring;
-		file.close();
-		file_mutex.post();
-	} else {
-		file.close();
-		file_mutex.post();
-	}
+	std::ofstream file(tname.c_str(),std::ios::app);
+	file<<ostring;
 }
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
@@ -93,17 +83,8 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
         for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
 		std::string oname = support::getQualifiedName(*(*I));
 		std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + "'\n";
-		file_mutex.wait();
-		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-		if ( filecontents.find(ostring) == std::string::npos) {
-			file<<ostring;
-			file.close();
-			file_mutex.post();
-		} else {
-			file.close();
-			file_mutex.post();
-		}
+		std::ofstream file(tname.c_str(),std::ios::app);
+		file<<ostring;
 	}
        	return;
 } 
