@@ -294,7 +294,6 @@ private:
   const bool                                    m_enable_dqm_byls;
   const bool                                    m_enable_dqm_bynproc;
 
-  bool                                          m_nproc_enabled;                // check if the plots by number of processes have been correctly enabled
   unsigned int                                  m_concurrent_runs;
   unsigned int                                  m_concurrent_streams;
   unsigned int                                  m_concurrent_threads;
@@ -310,7 +309,6 @@ private:
   const uint32_t                                m_dqm_ls_range;
   const std::string                             m_dqm_path;
   const edm::InputTag                           m_luminosity_label;     // label of the per-Event luminosity EDProduct
-  const std::vector<unsigned int>               m_supported_processes;  // possible number of concurrent processes
 
   // job configuration and caching
   std::string                                   m_first_path;           // the framework does not provide a pre-paths or pre-endpaths signal,
@@ -509,11 +507,6 @@ private:
     SummaryProfiles                                 dqm_byls;                   // plots per lumisection
     SummaryProfiles                                 dqm_byluminosity;           // plots vs. instantaneous luminosity
 
-    // plots to be summed over nodes with the same number of processes/threads
-    SummaryPlots                                    dqm_nproc;                  // event summary plots
-    SummaryProfiles                                 dqm_nproc_byls;             // plots per lumisection
-    SummaryProfiles                                 dqm_nproc_byluminosity;     // plots vs. instantaneous luminosity
-
     // plots by path
     TProfile *                                      dqm_paths_active_time;
     TProfile *                                      dqm_paths_total_time;
@@ -544,10 +537,6 @@ private:
       dqm(),
       dqm_byls(),
       dqm_byluminosity(),
-      // plots to be summed over nodes with the same number of processes/threads
-      dqm_nproc(),
-      dqm_nproc_byls(),
-      dqm_nproc_byluminosity(),
       // plots by path
       dqm_paths_active_time(nullptr),
       dqm_paths_total_time(nullptr),
