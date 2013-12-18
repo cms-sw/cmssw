@@ -57,7 +57,6 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 			bool checkClosest) const __attribute__ ((hot));
   
 
-  bool overlap( const GlobalPoint& gpos, const TECPetal& petal, float window) const;
 
   const std::vector<const TECPetal*>& subLayer( int ind) const {
     return (ind==0 ? theFrontComps : theBackComps);
