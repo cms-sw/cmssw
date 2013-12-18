@@ -3,10 +3,13 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 
+namespace edm {
+  template<class T> class DetSetVector;
+}
+class SiStripDigi;
 class DQMStore;
 class MonitorElement;
 
@@ -172,7 +175,7 @@ class  SiStripDigiValid: public edm::EDAnalyzer {
     //Back-End Interface
     DQMStore* dbe_;
     std::string outputFile_;
-    edm::InputTag src_;
+    edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > edmDetSetVector_SiStripDigi_Token_;
 };
 
 

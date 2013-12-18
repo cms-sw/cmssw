@@ -24,11 +24,10 @@
 using namespace std;
 using namespace edm;
 
-SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
-
-   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "stripdigihisto.root");
-    src_ =  ps.getParameter<edm::InputTag>( "src" );
-
+SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps)
+  : dbe_(0)
+  , outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "stripdigihisto.root" ) )
+  , edmDetSetVector_SiStripDigi_Token_( consumes< edm::DetSetVector<SiStripDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {
 
 }
 
@@ -390,7 +389,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
 
  std::string digiProducer = "siStripDigis";
  edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;
- e.getByLabel(src_, stripDigis);
+ e.getByToken( edmDetSetVector_SiStripDigi_Token_, stripDigis );
  edm::DetSetVector<SiStripDigi>::const_iterator DSViter = stripDigis->begin();
  for( ; DSViter != stripDigis->end(); DSViter++) {
          unsigned int id = DSViter->id;
