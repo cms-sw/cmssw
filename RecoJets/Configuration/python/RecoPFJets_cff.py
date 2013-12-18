@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.sc5PFJets_cfi import sisCone5PFJets
 from RecoJets.JetProducers.ic5PFJets_cfi import iterativeCone5PFJets
 from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoJets.JetProducers.ak5PFJetsTrimmed_cfi import ak5PFJetsTrimmed
 from RecoJets.JetProducers.ak5PFJetsFiltered_cfi import ak5PFJetsFiltered, ak5PFJetsMassDropFiltered
 from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
@@ -142,6 +143,7 @@ recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
                            kt6PFJetsCentralNeutralTight+
                            fixedGridRhoAll+
                            fixedGridRhoFastjetAll+
+                           ak4PFJets+
                            ak5PFJets+ak8PFJets+
                            pfNoPileUpJMESequence+
                            ak5PFJetsCHS+
@@ -164,6 +166,7 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            fixedGridRhoAll+
                            fixedGridRhoFastjetAll+
                            iterativeCone5PFJets+
+                           ak4PFJets+
                            ak5PFJets+ak7PFJets+ak8PFJets+
                            gk5PFJets+gk7PFJets+
                            ca4PFJets+ca8PFJets+
