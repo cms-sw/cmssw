@@ -3,10 +3,13 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 
+namespace edm {
+  template< class T > class DetSetVector;
+}
+class PixelDigi;
 class DQMStore;
 class MonitorElement;
 
@@ -259,7 +262,7 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
    
  
   DQMStore* dbe_;
-  edm::InputTag src_;  
+  edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > edmDetSetVector_PixelDigi_Token_;
 
  
 };

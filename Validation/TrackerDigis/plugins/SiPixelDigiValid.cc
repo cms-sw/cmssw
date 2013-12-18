@@ -23,17 +23,15 @@
 using namespace std;
 using namespace edm;
 
-SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
-  
-   
- outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixeldigihisto.root");
- src_ =  ps.getParameter<edm::InputTag>( "src" );
-
-
+SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps)
+  : outputFile_( ps.getUntrackedParameter<string>( "outputFile", "pixeldigihisto.root" ) )
+  , dbe_(0)
+  , edmDetSetVector_PixelDigi_Token_( consumes< edm::DetSetVector<PixelDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {
+ 
    dbe_ = Service<DQMStore>().operator->();
-  
- if ( dbe_ ) {
-    dbe_->setCurrentFolder("TrackerDigisV/TrackerDigis/Pixel");
+
+   if ( dbe_ ) {
+     dbe_->setCurrentFolder("TrackerDigisV/TrackerDigis/Pixel");
 
    meDigiMultiLayer1Ring1_ =  dbe_->book1D("digimulti_layer1ring1","Digi Multiplicity ",30, 0., 30.);
    meDigiMultiLayer1Ring2_ =  dbe_->book1D("digimulti_layer1ring2","Digi Multiplicity ",30, 0., 30.);
@@ -340,7 +338,7 @@ for ( int i =0 ; i< 44; i++) {
 
  //string digiProducer = "siPixelDigis";
  edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;
- e.getByLabel(src_, pixelDigis);
+ e.getByToken( edmDetSetVector_PixelDigi_Token_, pixelDigis );
 
  edm::DetSetVector<PixelDigi>::const_iterator DSViter = pixelDigis->begin();
  for( ; DSViter != pixelDigis->end(); DSViter++) {
