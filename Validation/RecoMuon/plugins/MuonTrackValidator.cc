@@ -49,8 +49,8 @@ void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
         dirName.replace(dirName.find("UpdatedAtVtx"),12,"UpdAtVtx");
       }
       string assoc= associators[ww];
-      if (assoc.find("Track")<assoc.length()){
-	assoc.replace(assoc.find("Track"),5,"");
+      if (assoc.find("tpToTkmuTrackAssociation")<assoc.length()){
+        dirName+="_TkAsso";
       }
       std::replace(dirName.begin(), dirName.end(), ':', '_');
       dbe_->setCurrentFolder(dirName.c_str());
