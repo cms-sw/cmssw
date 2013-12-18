@@ -48,11 +48,7 @@
 
 #include <math.h>
 
-using namespace std;
-using namespace edm;
-
-
-SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps)
+SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
   : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixelrechitshisto.root" ) )
   , dbe_(0) 
   , conf_(ps)
@@ -68,7 +64,7 @@ void SiPixelRecHitsValid::beginJob() {
 }
 
 void SiPixelRecHitsValid::beginRun( const edm::Run& r, const edm::EventSetup& c ) {
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
   
@@ -280,9 +276,9 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   es.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
-  LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   if ( (int) e.id().event() % 1000 == 0 )
-    cout << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;
+    std::cout << " Run = " << e.id().run() << " Event = " << e.id().event() << std::endl;
   
   //Get RecHits
   edm::Handle<SiPixelRecHitCollection> recHitColl;
