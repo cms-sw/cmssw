@@ -36,6 +36,8 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 
   
  private:
+
+
   // private methods for the implementation of groupedCompatibleDets()
   SubLayerCrossings   computeCrossings( const TrajectoryStateOnSurface& startingState,
 					PropagationDirection propDir) const __attribute__ ((hot));
@@ -55,21 +57,21 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 			bool checkClosest) const __attribute__ ((hot));
   
 
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& petal, float window) const;
+  bool overlap( const GlobalPoint& gpos, const TECPetal& petal, float window) const;
 
-  const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
+  const std::vector<const TECPetal*>& subLayer( int ind) const {
     return (ind==0 ? theFrontComps : theBackComps);
   }
 
 
  protected:
-  virtual BoundDisk* computeDisk( std::vector<const GeometricSearchDet*>& petals) const __attribute__ ((cold));
 
   std::vector<const GeometricSearchDet*> theComps;
-  std::vector<const GeometricSearchDet*> theFrontComps;
-  std::vector<const GeometricSearchDet*> theBackComps;
   std::vector<const GeomDet*> theBasicComps;
 
+  std::vector<const TECPetal*> theFrontComps;
+  std::vector<const TECPetal*> theBackComps;
+ 
 
   ReferenceCountingPointer<BoundDisk>  theFrontDisk;
   ReferenceCountingPointer<BoundDisk>  theBackDisk;

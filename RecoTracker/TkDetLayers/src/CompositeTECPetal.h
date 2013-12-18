@@ -3,8 +3,11 @@
 
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "TECPetal.h"
+
 #include "TECWedge.h"
+
+#include "BoundDiskSector.h"
+
 #include "SubLayerCrossings.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
@@ -14,7 +17,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class CompositeTECPetal GCC11_FINAL : public TECPetal{
+class CompositeTECPetal GCC11_FINAL : public GeometricSearchDetWithGroups {
  public:
   struct WedgePar { float theR, thetaMin, thetaMax;};
 
@@ -22,6 +25,13 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 		    std::vector<const TECWedge*>& outerWedges)  __attribute__ ((cold));
   
   ~CompositeTECPetal()  __attribute__ ((cold));
+
+  // GeometricSearchDet interface  
+  virtual const BoundSurface& surface() const final {return *theDiskSector;}
+  //Extension of the interface
+  virtual const BoundDiskSector& specificSurface() const final {return *theDiskSector;}
+
+
   
   // GeometricSearchDet interface  
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
@@ -40,8 +50,10 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
   
   
  private:
-  
-  
+
+  ReferenceCountingPointer<BoundDiskSector> theDiskSector;
+
+    
   // private methods for the implementation of groupedCompatibleDets()
   SubLayerCrossings computeCrossings(const TrajectoryStateOnSurface& tsos,
 				     PropagationDirection propDir) const  __attribute__ ((hot)) dso_internal;
