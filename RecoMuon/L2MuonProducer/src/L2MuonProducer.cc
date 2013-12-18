@@ -24,6 +24,7 @@
 
 // TrackFinder and Specific STA/L2 Trajectory Builder
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
+#include "RecoMuon/StandAloneTrackFinder/interface/ExhaustiveMuonTrajectoryBuilder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -63,8 +64,23 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   // the services
   theService = new MuonServiceProxy(serviceParameters);
 
+  MuonTrajectoryBuilder * trajectoryBuilder = 0;
   // instantiate the concrete trajectory builder in the Track Finder
-  theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService),
+  string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
+  if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
+    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+  else if(typeOfBuilder == "Exhaustive")
+    trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+  else{
+    LogWarning("Muon|RecoMuon|StandAloneMuonProducer") << "No Trajectory builder associated with "<<typeOfBuilder
+						       << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
+     trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+  }
+  // instantiate the concrete trajectory builder in the Track Finder
+  // theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService),
+  // 				       new MuonTrackLoader(trackLoaderParameters, theService),
+  // 				       new MuonTrajectoryCleaner(true));
+  theTrackFinder = new MuonTrackFinder(trajectoryBuilder,
 				       new MuonTrackLoader(trackLoaderParameters, theService),
 				       new MuonTrajectoryCleaner(true));
   
