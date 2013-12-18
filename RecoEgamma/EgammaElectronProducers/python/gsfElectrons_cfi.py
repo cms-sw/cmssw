@@ -20,10 +20,14 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     seedsTag = cms.InputTag("ecalDrivenElectronSeeds"),
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
     gsfPfRecTracksTag = cms.InputTag("pfTrackElec"),
+    vtxTag = cms.InputTag('offlinePrimaryVertices'),
     
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
     ctfTracksTag = cms.InputTag("generalTracks"),
+
+    gedElectronMode= cms.bool(False),
+    PreSelectMVA = cms.double(-0.1),
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
@@ -35,7 +39,9 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     ambSortingStrategy = cms.uint32(1),
     ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True), # this one should be transfered to the "core" level
-    
+    useEcalRegression = cms.bool(False),                                        
+    useCombinationRegression = cms.bool(False),    
+
     # preselection parameters (ecal driven electrons)
     minSCEtBarrel = cms.double(4.0),
     minSCEtEndcaps = cms.double(4.0),
@@ -136,8 +142,24 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     superClusterErrorFunction = cms.string("EcalClusterEnergyUncertaintyObjectSpecific"),
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
 
+   # Regression. The labels are needed in all cases
+   ecalRefinedRegressionWeightLabels = cms.vstring(),
+   combinationRegressionWeightLabels = cms.vstring(),
+   
+   ecalWeightsFromDB = cms.bool(True),
+   # if not from DB. Otherwise, keep empty
+   ecalRefinedRegressionWeightFiles = cms.vstring(),
+   combinationWeightsFromDB = cms.bool(True),
+   # if not from DB. Otherwise, keep empty
+   combinationRegressionWeightFile = cms.vstring(),                              
+
+
    # Iso Values 
-   useIsolationValues = cms.bool(False)
+   useIsolationValues = cms.bool(False),
+  SoftElecMVAFilesString = cms.vstring(
+    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_9Dec2013.weights.xml"
+                                ),
+
 )
 
 
@@ -158,11 +180,15 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     seedsTag = cms.InputTag("ecalDrivenElectronSeeds"),
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
     gsfPfRecTracksTag = cms.InputTag("pfTrackElec"),
+    vtxTag = cms.InputTag('offlinePrimaryVertices'),
     
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
     ctfTracksTag = cms.InputTag("generalTracks"),
-    
+   
+    gedElectronMode= cms.bool(False),
+    PreSelectMVA = cms.double(-0.1),
+ 
     # steering
     useGsfPfRecTracks = cms.bool(True),
     applyPreselection = cms.bool(True),
@@ -173,6 +199,8 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     ambSortingStrategy = cms.uint32(1),
     ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True),
+    useEcalRegression = cms.bool(False),                                        
+    useCombinationRegression = cms.bool(False),    
     
     # preselection parameters (ecal driven electrons)
     minSCEtBarrel = cms.double(4.0),
@@ -274,6 +302,19 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     superClusterErrorFunction = cms.string("EcalClusterEnergyUncertaintyObjectSpecific"),
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
 
+   # Regression. The labels are needed in all cases
+   ecalRefinedRegressionWeightLabels = cms.vstring(),
+   combinationRegressionWeightLabels = cms.vstring(),
+   
+   ecalWeightsFromDB = cms.bool(True),
+   # if not from DB. Otherwise, keep empty
+   ecalRefinedRegressionWeightFiles = cms.vstring(),
+   combinationWeightsFromDB = cms.bool(True),
+   # if not from DB. Otherwise, keep empty
+   combinationRegressionWeightFile = cms.vstring(),                              
+
+
+
    # Iso Values (PF and EcalDriven)
    useIsolationValues = cms.bool(True), 
    pfIsolationValues = cms.PSet(
@@ -284,8 +325,11 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
    edIsolationValues = cms.PSet(
            edSumChargedHadronPt = cms.InputTag('elEDIsoValueCharged04'),
            edSumPhotonEt = cms.InputTag('elEDIsoValueGamma04'),
-           edSumNeutralHadronEt= cms.InputTag('elEDIsoValueNeutral04'))
+           edSumNeutralHadronEt= cms.InputTag('elEDIsoValueNeutral04')),
 
+   SoftElecMVAFilesString = cms.vstring(
+    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_9Dec2013.weights.xml"
+                                ),
 )
 
 

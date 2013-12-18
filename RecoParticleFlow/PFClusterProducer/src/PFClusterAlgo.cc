@@ -1356,6 +1356,7 @@ PFClusterAlgo::calculateClusterPosition(reco::PFCluster& cluster,
     if( isSeed(rhi) && fraction > 1e-9 ) {
       seedIndex = rhi;
       seedIndexFound = true;
+      cluster.setSeed(DetId(cluster.rechits_[ic].recHitRef()->detId()));
     }
 
     double recHitEnergy = rh.energy() * fraction;
