@@ -3,14 +3,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/LazyGetter.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-ClusterChecker::ClusterChecker(const edm::ParameterSet & conf):
+ClusterChecker::ClusterChecker(const edm::ParameterSet & conf,
+	edm::ConsumesCollector && iC):
     doACheck_(conf.getParameter<bool>("doClusterCheck")),
     selector_(conf.getParameter<bool>("doClusterCheck") && conf.existsAs<std::string>("cut") ?
                 conf.getParameter<std::string>("cut") : 
@@ -19,6 +16,8 @@ ClusterChecker::ClusterChecker(const edm::ParameterSet & conf):
     if (doACheck_){
         clusterCollectionInputTag_ = conf.getParameter<edm::InputTag>("ClusterCollectionLabel");
         pixelClusterCollectionInputTag_ = conf.getParameter<edm::InputTag>("PixelClusterCollectionLabel");
+	token_sc = iC.consumes<edmNew::DetSetVector<SiStripCluster> >(clusterCollectionInputTag_);
+	token_pc = iC.consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterCollectionInputTag_);
         maxNrOfCosmicClusters_     = conf.getParameter<unsigned int>("MaxNumberOfCosmicClusters");
         maxNrOfPixelClusters_ = conf.getParameter<unsigned int>("MaxNumberOfPixelClusters");
         if (conf.existsAs<uint32_t>("DontCountDetsAboveNClusters")) {
@@ -40,7 +39,7 @@ size_t ClusterChecker::tooManyClusters(const edm::Event & e) const
 
     // get special input for cosmic cluster multiplicity filter
     edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterDSV;
-    e.getByLabel(clusterCollectionInputTag_, clusterDSV);
+    e.getByToken(token_sc, clusterDSV);
     reco::utils::ClusterTotals totals;
     if (!clusterDSV.failedToGet()) {
         const edmNew::DetSetVector<SiStripCluster> & input = *clusterDSV;
@@ -63,7 +62,7 @@ size_t ClusterChecker::tooManyClusters(const edm::Event & e) const
     }
     else{
         edm::Handle<edm::LazyGetter<SiStripCluster> > lazyGH;
-        e.getByLabel(clusterCollectionInputTag_, lazyGH);
+        e.getByToken(token_sc, lazyGH);
         totals.stripdets = 0; // don't know how to count this online
         if (!lazyGH.failedToGet()){
             totals.strip = lazyGH->size();
@@ -77,7 +76,7 @@ size_t ClusterChecker::tooManyClusters(const edm::Event & e) const
 
     // get special input for pixel cluster multiplicity filter
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusterDSV;
-    e.getByLabel(pixelClusterCollectionInputTag_, pixelClusterDSV);
+    e.getByToken(token_pc, pixelClusterDSV);
     if (!pixelClusterDSV.failedToGet()) {
         const edmNew::DetSetVector<SiPixelCluster> & input = *pixelClusterDSV;
 
