@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 TkAlCaRecoMonitor = cms.EDAnalyzer("TkAlCaRecoMonitor",
                                    TrackProducer= cms.InputTag( "generalTracks" ),
                                    ReferenceTrackProducer= cms.InputTag( "generalTracks" ),
-                                   CaloJetCollection= cms.InputTag( "kt6CaloJets" ),
+                                   CaloJetCollection= cms.InputTag( "ak5CaloJets" ),
                                    AlgoName = cms.string("testTkAlCaReco"),
                                    MeasurementState = cms.string("default"),#All/OuterSurface/InnerSurface/ImpactPoint/default(track)                         
                                    runsOnReco = cms.bool(False),
