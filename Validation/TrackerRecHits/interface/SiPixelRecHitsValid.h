@@ -35,6 +35,7 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 
 	virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
 	void beginJob();
+        void beginRun( const edm::Run& r, const edm::EventSetup& c );
 	void endJob();
 
    private:

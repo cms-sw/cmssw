@@ -59,6 +59,16 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
   src_( ps.getParameter<edm::InputTag>( "src" ) ) 
 {
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
+}
+
+SiPixelRecHitsValid::~SiPixelRecHitsValid() {
+}
+
+void SiPixelRecHitsValid::beginJob() {
+  
+}
+
+void SiPixelRecHitsValid::beginRun( const edm::Run& r, const edm::EventSetup& c ) {
   dbe_ = Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
@@ -257,14 +267,6 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
       sprintf(histo, "RecHit_YPull_Disk2_Plaquette%d", i+1);
       recHitYPullDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit YPull Disk2 by plaquette", 100, -10.0, 10.0);
     }
-
-}
-
-SiPixelRecHitsValid::~SiPixelRecHitsValid() {
-}
-
-void SiPixelRecHitsValid::beginJob() {
-  
 }
 
 void SiPixelRecHitsValid::endJob() {
