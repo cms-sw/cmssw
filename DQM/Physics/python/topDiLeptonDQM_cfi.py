@@ -23,7 +23,7 @@ topDiLeptonDQM = cms.EDAnalyzer("TopDiLeptonDQM",
     muon_eta_cut   = cms.double( 2.4 ),
     muon_iso_cut   = cms.double( 0.2 ),
     ### 
-    elecCollection = cms.InputTag('gsfElectrons'),
+    elecCollection = cms.InputTag('gedGsfElectrons'),
     elec_pT_cut    = cms.double( 5.0 ),
     elec_eta_cut   = cms.double( 2.4 ),
     elec_iso_cut   = cms.double( 0.2 ),
