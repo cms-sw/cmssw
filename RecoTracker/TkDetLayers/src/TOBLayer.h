@@ -39,8 +39,6 @@ class TOBLayer GCC11_FINAL : public TBLayer {
   double calculatePhiWindow( double Xmax, const GeomDet& det,
 			     const TrajectoryStateOnSurface& state) const __attribute__ ((hot));
 
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& rod, float phiWin) const  __attribute__ ((hot));
-
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
