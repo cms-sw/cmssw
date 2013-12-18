@@ -193,6 +193,10 @@
     <Trd1 name="GGA6" dz="[dzS6]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx61]" dx2="[dx62]" />
     <Trd1 name="GGA7" dz="[dzS7]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx71]" dx2="[dx72]" />
     <Trd1 name="GGA8" dz="[dzS8]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx81]" dx2="[dx82]" />
+    <Trd1 name="GGA9" dz="[dzS9]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx91]" dx2="[dx92]" />
+    <Trd1 name="GGA10" dz="[dzS10]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx101]" dx2="[dx102]" />
+    <Trd1 name="GGA11" dz="[dzS11]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx111]" dx2="[dx112]" />
+    <Trd1 name="GGA12" dz="[dzS12]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx121]" dx2="[dx122]" />
     <Trd1 name="GFA1" dz="[dzS1]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx11]" dx2="[dx12]" />
     <Trd1 name="GFA2" dz="[dzS2]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx21]" dx2="[dx22]" />
     <Trd1 name="GFA3" dz="[dzS3]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx31]" dx2="[dx32]" />
@@ -201,11 +205,19 @@
     <Trd1 name="GFA6" dz="[dzS6]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx61]" dx2="[dx62]" />
     <Trd1 name="GFA7" dz="[dzS7]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx71]" dx2="[dx72]" />
     <Trd1 name="GFA8" dz="[dzS8]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx81]" dx2="[dx82]" />
+    <Trd1 name="GFA9" dz="[dzS9]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx91]" dx2="[dx92]" />
+    <Trd1 name="GFA10" dz="[dzS10]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx101]" dx2="[dx102]" />
+    <Trd1 name="GFA11" dz="[dzS11]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx111]" dx2="[dx112]" />
+    <Trd1 name="GFA12" dz="[dzS12]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx121]" dx2="[dx122]" />
 
     <Trd1 name="GIAX" dz="[dzCard]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
 
     <Trd1 name="GKAX" dz="[dzFoil]" dy1="[dyFoil]" dy2="[dyFoil]" dx1="[dxBotFoil]" dx2="[dxTopFoil]" />
 
+    <!-- Readout board -->
+    <Trd1 name="GDAX" dz="[dzCard]" dy1="[dyGap4]" dy2="[dyGap4]" dx1="[dxBotCard]" dx2="[dxTopCard]" />
+
+    
     <!-- GE21 Long Chambers -->  
     <Trd1 name="GBI21L" dz="[dzGBI21L]" dy1="[dyGBI21]" dy2="[dyGBI21]" dx1="[dxBotGBI21L]" dx2="[dxTopGBI21]" />
     <Trd1 name="GBJ21L" dz="[dzGBI21L]" dy1="0.5*[dyTop]" dy2="0.5*[dyTop]" dx1="[dxBotGBJ21L]" dx2="[dxTopGBJ21]" />
@@ -348,7 +360,22 @@
     <rSolid name="GFA8"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-
+  <LogicalPart name="GFA9" category="unspecified">
+    <rSolid name="GFA9"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA10" category="unspecified">
+    <rSolid name="GFA10"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA11" category="unspecified">
+    <rSolid name="GFA11"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA12" category="unspecified">
+    <rSolid name="GFA12"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
 
   <LogicalPart name="GGA1" category="unspecified">
     <rSolid name="GGA1"/>
@@ -382,6 +409,22 @@
     <rSolid name="GGA8"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
+  <LogicalPart name="GGA9" category="unspecified">
+    <rSolid name="GGA9"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA10" category="unspecified">
+    <rSolid name="GGA10"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA11" category="unspecified">
+    <rSolid name="GGA11"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA12" category="unspecified">
+    <rSolid name="GGA12"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
 
   <LogicalPart name="GKAX" category="unspecified">
     <rSolid name="GKAX"/>
@@ -404,6 +447,66 @@
     <rSolid name="GIAXL"/>
     <rMaterial name="materials:G10"/>
   </LogicalPart>
+  <PosPart copyNumber="1">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA1"/>
+    <Translation x="0*fm" y="0*fm" z="[z10L]" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA2"/>
+    <Translation x="0*fm" y="0*fm" z="[z20L]" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA3"/>
+    <Translation x="0*fm" y="0*fm" z="[z30L]" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA4"/>
+    <Translation x="0*fm" y="0*fm" z="[z40L]" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA5"/>
+    <Translation x="0*fm" y="0*fm" z="[z50L]" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA6"/>
+    <Translation x="0*fm" y="0*fm" z="[z60L]" />
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA7"/>
+    <Translation x="0*fm" y="0*fm" z="[z70L]" />
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA8"/>
+    <Translation x="0*fm" y="0*fm" z="[z80L]" />
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA9"/>
+    <Translation x="0*fm" y="0*fm" z="[z90L]" />
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA10"/>
+    <Translation x="0*fm" y="0*fm" z="[z100L]" />
+  </PosPart>
+  <PosPart copyNumber="11">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA11"/>
+    <Translation x="0*fm" y="0*fm" z="[z110L]" />
+  </PosPart>
+  <PosPart copyNumber="12">
+    <rParent name="GIAXL"/>
+    <rChild name="GFA12"/>
+    <Translation x="0*fm" y="0*fm" z="[z120L]" />
+  </PosPart>
   <LogicalPart name="GKAXL" category="unspecified">
     <rSolid name="GKAXL"/>
     <rMaterial name="gemf:M_GEM_Foil"/>
@@ -606,6 +709,66 @@
     <rParent name="GMAXL"/>
     <rChild name="GJAXL"/>
     <Translation x="0*fm" y="[yGap2]" z="0*fm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA1"/>
+    <Translation x="0*fm" y="0*fm" z="[z10L]" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA2"/>
+    <Translation x="0*fm" y="0*fm" z="[z20L]" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA3"/>
+    <Translation x="0*fm" y="0*fm" z="[z30L]" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA4"/>
+    <Translation x="0*fm" y="0*fm" z="[z40L]" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA5"/>
+    <Translation x="0*fm" y="0*fm" z="[z50L]" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA6"/>
+    <Translation x="0*fm" y="0*fm" z="[z60L]" />
+  </PosPart>
+  <PosPart copyNumber="7">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA7"/>
+    <Translation x="0*fm" y="0*fm" z="[z70L]" />
+  </PosPart>
+  <PosPart copyNumber="8">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA8"/>
+    <Translation x="0*fm" y="0*fm" z="[z80L]" />
+  </PosPart>
+  <PosPart copyNumber="9">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA9"/>
+    <Translation x="0*fm" y="0*fm" z="[z90L]" />
+  </PosPart>
+  <PosPart copyNumber="10">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA10"/>
+    <Translation x="0*fm" y="0*fm" z="[z100L]" />
+  </PosPart>
+  <PosPart copyNumber="11">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA11"/>
+    <Translation x="0*fm" y="0*fm" z="[z110L]" />
+  </PosPart>
+  <PosPart copyNumber="12">
+    <rParent name="GJAXL"/>
+    <rChild name="GGA12"/>
+    <Translation x="0*fm" y="0*fm" z="[z120L]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="GMAXL"/>
