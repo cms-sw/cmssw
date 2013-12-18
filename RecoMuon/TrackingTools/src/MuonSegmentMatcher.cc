@@ -75,12 +75,13 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
   for(trackingRecHit_iterator hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
     if (!(*hit)->isValid()) continue; 
     if ( (*hit)->geographicalId().det() != DetId::Muon ) continue; 
-    if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue; 
-    if ((*(*hit)->recHits().begin())->recHits().size()>1) segments = true;
+    if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue;
+    if ((*hit)->recHits().size()) 
+      if ((*(*hit)->recHits().begin())->recHits().size()>1) segments = true;
     dtHits.push_back(*hit);
   }
   
-  // cout << "Muon DT hits found: " << dtHits.size() << " segments " << segments << endl;
+  cout << "Muon DT hits found: " << dtHits.size() << " segments " << segments << endl;
   
   double PhiCutParameter=dtRadius_;
   double ZCutParameter=dtRadius_;
