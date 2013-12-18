@@ -7,10 +7,11 @@
  * Created: 6/7/06
  */
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 
@@ -39,15 +40,12 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 	void endJob();
 
    private:
-	DQMStore* dbe_;
-	std::string outputFile_;
-
-	edm::ParameterSet conf_;
-
 	void fillBarrel(const SiPixelRecHit &,const PSimHit &, DetId, const PixelGeomDetUnit *,	
 			 const TrackerTopology *tTopo);
 	void fillForward(const SiPixelRecHit &, const PSimHit &, DetId, const PixelGeomDetUnit *,
 			 const TrackerTopology *tTopo);
+
+	std::string outputFile_;
 
 	//Clusters BPIX
 	MonitorElement* clustYSizeModule[8];
@@ -110,7 +108,10 @@ class SiPixelRecHitsValid : public edm::EDAnalyzer {
 	MonitorElement* recHitYPullDisk1Plaquettes[7];
 	MonitorElement* recHitYPullDisk2Plaquettes[7];
 
-        edm::InputTag src_;
+        DQMStore* dbe_;
+
+        edm::ParameterSet conf_;
+        edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionToken_;
 };
 
 #endif

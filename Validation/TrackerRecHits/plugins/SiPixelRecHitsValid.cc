@@ -20,7 +20,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -53,12 +52,12 @@ using namespace std;
 using namespace edm;
 
 
-SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps): 
-  dbe_(0), 
-  conf_(ps),
-  src_( ps.getParameter<edm::InputTag>( "src" ) ) 
-{
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
+SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps)
+  : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixelrechitshisto.root" ) )
+  , dbe_(0) 
+  , conf_(ps)
+  , siPixelRecHitCollectionToken_( consumes<SiPixelRecHitCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ) {
+
 }
 
 SiPixelRecHitsValid::~SiPixelRecHitsValid() {
@@ -287,7 +286,7 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
   //Get RecHits
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  e.getByLabel( src_, recHitColl);
+  e.getByToken( siPixelRecHitCollectionToken_, recHitColl );
   
   //Get event setup
   edm::ESHandle<TrackerGeometry> geom;
