@@ -107,6 +107,9 @@ namespace cond {
     protected:
       virtual void loadPayload() {
 	if( m_currentPayloadId != m_currentIov.payloadId ){
+          if( m_currentIov.payloadId.empty() ){
+	    throwException( "Can't load payload: no valid IOV found.","PayloadProxy::loadPayload" );
+	  }
 	  m_data = m_session.fetchPayload<DataT>( m_currentIov.payloadId );
 	  m_currentPayloadId = m_currentIov.payloadId;	  
 	  m_requests.push_back( m_currentIov );

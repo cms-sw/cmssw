@@ -31,37 +31,13 @@ namespace cond {
     
     ValidityInterval BasePayloadProxy::setIntervalFor(cond::Time_t time, bool load) {
       if( !m_currentIov.isValidFor( time ) ){
+	m_currentIov.clear();
 	m_session.transaction().start(true);
 	auto it = m_iovProxy.find( time );
-	if( it == m_iovProxy.end() ) {
-	  std::stringstream msg;
-	  msg << "No valid iov found";
-	  switch ( m_iovProxy.timeType() ){
-	  case cond::time::RUNNUMBER:
-	    msg <<" for run "<<time;
-	    break; 
-          case cond::time::TIMESTAMP:
-	    msg <<" for time "<<time;
-	    break; 
-	  case cond::time::LUMIID:
-	    msg <<" for run "<<cond::time::unpack(time).first<<", lumisection "<<cond::time::unpack(time).second;
-	    break; 
-          case cond::time::HASH:
-	    msg <<" for hash "<<time;
-	    break; 
-	  case cond::time::USERID:
-	    msg <<"for userid "<<time;
-	    break; 
-	  case cond::time::INVALID: 
-	    msg <<", invalid timetype";
-	    break;
-	  }
-	  msg <<" in tag "<<m_iovProxy.tag();
-	  throwException( msg.str(),
-	  		  "BasePayloadProxy::setIntervalFor" );
+	if( it != m_iovProxy.end() ) {
+	  m_currentIov = *it;
+	  if(load) loadPayload();
 	}
-	m_currentIov = *it;
-	if(load) loadPayload();
 	m_session.transaction().commit();
       }
       return ValidityInterval( m_currentIov.since, m_currentIov.till );
