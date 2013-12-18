@@ -223,10 +223,10 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	  updateTrajectory( newTraj, *itm);
 
 	  if ( toBeContinued(newTraj)) {
-	    newCand.push_back(newTraj);
+	    newCand.push_back(std::move(newTraj));
 	  }
 	  else {
-	    if ( qualityFilter(newTraj)) addToResult(sharedSeed, newTraj, result);
+	    if ( qualityFilter(newTraj))  addToResult(sharedSeed, newTraj, result);
 	    //// don't know yet
 	  }
 	}
@@ -236,7 +236,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
 	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
       }
-    }
+    } // end loop on candidates
 
     if (theIntermediateCleaning) IntermediateTrajectoryCleaner::clean(newCand);
 
@@ -259,12 +259,11 @@ void CkfTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
   TM::ConstRecHitPointer hit = tm.recHit();
  
   if ( hit->isValid()) {
-    TM tmp = TM( predictedState, theUpdator->update( predictedState, *hit),
+    traj.emplace( predictedState, theUpdator->update( predictedState, *hit),
 		 hit, tm.estimate(), tm.layer()); 
-    traj.push(tmp );
   }
   else {
-    traj.push( TM( predictedState, hit, 0, tm.layer()));
+    traj.emplace( predictedState, hit, 0, tm.layer());
   }
 }
 
