@@ -42,7 +42,7 @@ namespace edm {
       throwProductDeletedException();
     }
     if(!productUnavailable()) {
-      principal_->resolveProduct(*this, false, mcc);
+      principal_->readFromSource(*this, mcc);
       // If the product is a dummy filler, product holder will now be marked unavailable.
       if(product() && !productUnavailable()) {
         // Found the match
@@ -419,7 +419,7 @@ namespace edm {
         return nullptr;
       }
       if (matchingHolders_[k] != ProductHolderIndexInvalid) {
-        ProductHolderBase const* productHolder = principal_->getProductHolderByIndex(matchingHolders_[k], false, false, mcc);
+        ProductHolderBase const* productHolder = principal_->getProductHolderByIndex(matchingHolders_[k]);
         ProductData const* pd =  productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
         if(pd != nullptr) return pd;
       }
