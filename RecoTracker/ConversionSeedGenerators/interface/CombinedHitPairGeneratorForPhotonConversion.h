@@ -32,7 +32,7 @@ public:
   virtual ~CombinedHitPairGeneratorForPhotonConversion();
 
   void  add(const ctfseeding::SeedingLayer & inner, 
-	      const ctfseeding::SeedingLayer & outer);
+            const ctfseeding::SeedingLayer & outer);
 
   /// form base class
   virtual void hitPairs(const TrackingRegion&, OrderedHitPairs&, const edm::Event&, const edm::EventSetup&){};

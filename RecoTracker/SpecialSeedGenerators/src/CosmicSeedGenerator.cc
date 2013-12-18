@@ -13,11 +13,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 using namespace std;
 CosmicSeedGenerator::CosmicSeedGenerator(edm::ParameterSet const& conf) : 
-  conf_(conf) ,cosmic_seed(conf)
+  conf_(conf) ,cosmic_seed(conf),
+  check(conf,consumesCollector())
+
  {
   edm::LogInfo ("CosmicSeedGenerator")<<"Enter the CosmicSeedGenerator";
   produces<TrajectorySeedCollection>();
@@ -46,7 +47,6 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
 
   //check on the number of clusters
-  ClusterChecker check(conf_);
   size_t clustsOrZero = check.tooManyClusters(ev);
   if (!clustsOrZero){
     cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
