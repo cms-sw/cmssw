@@ -1,5 +1,8 @@
 #include "Validation/RecoVertex/interface/PrimaryVertexAnalyzer.h"
 
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
@@ -9,20 +12,15 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
-// simulated vertices,..., add <use name=SimDataFormats/Vertex> and <../Track>
-#include <SimDataFormats/Vertex/interface/SimVertex.h>
-#include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
-#include <SimDataFormats/Track/interface/SimTrack.h>
-#include <SimDataFormats/Track/interface/SimTrackContainer.h>
-
 //generator level + CLHEP
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
-//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "HepMC/GenParticle.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 // Root
+#include <TDirectory.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TFile.h>
@@ -33,8 +31,6 @@
 #include <gsl/gsl_eigen.h>
 
 
-using namespace edm;
-using namespace reco;
 //
 // constants, enums and typedefs
 //
@@ -46,28 +42,35 @@ using namespace reco;
 //
 // constructors and destructor
 //
-PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const ParameterSet& iConfig)
+PrimaryVertexAnalyzer::PrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
+  : verbose_( iConfig.getUntrackedParameter<bool>( "verbose", false ) )
+  , simUnit_( 1.0 ) // starting with CMSSW_1_2_x ??
+  , recoTrackCollectionToken_( consumes< reco::TrackCollection >( edm::InputTag( iConfig.getUntrackedParameter<std::string>( "recoTrackProducer" ) ) ) )
+  , edmSimVertexContainerToken_( consumes< edm::SimVertexContainer>( iConfig.getParameter<edm::InputTag>( "simG4" ) ) )
+  , edmSimTrackContainerToken_( consumes< edm::SimTrackContainer >( iConfig.getParameter<edm::InputTag>( "simG4" ) ) )
+  , edmHepMCProductToken_( consumes< edm::HepMCProduct >( edm::InputTag( std::string( "generator" ) ) ) )
 {
    //now do what ever initialization is needed
-  simG4_=iConfig.getParameter<edm::InputTag>( "simG4" );
-  recoTrackProducer_= iConfig.getUntrackedParameter<std::string>("recoTrackProducer");
-  // open output file to store histograms}
-  outputFile_  = iConfig.getUntrackedParameter<std::string>("outputFile");
+  // open output file to store histograms
+  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile");
   TString tversion(edm::getReleaseVersion());
   tversion = tversion.Remove(0,1);
   tversion = tversion.Remove(tversion.Length()-1,tversion.Length());
-  outputFile_  = std::string(tversion)+"_"+outputFile_;
+  outputFile_ = std::string(tversion)+"_"+outputFile_;
 
-  vtxSample_   = iConfig.getUntrackedParameter<std::vector< std::string > >("vtxSample");
-  for(std::vector<std::string>::iterator isample = vtxSample_.begin(); isample!=vtxSample_.end(); ++isample) {
+  std::vector<std::string> vtxSample = iConfig.getUntrackedParameter<std::vector< std::string > >("vtxSample");
+  recoVertexCollectionTokens_.reserve( vtxSample.size() );
+  suffixSample_.reserve( vtxSample.size() );
+  auto vtxSampleBegin = vtxSample.begin();
+  auto vtxSampleEnd = vtxSample.end();
+  for( auto isample = vtxSampleBegin; isample != vtxSampleEnd; ++isample ) {
+    recoVertexCollectionTokens_.push_back( consumes< reco::VertexCollection >( edm::InputTag( *isample ) ) );
     if ( *isample == "offlinePrimaryVertices" ) suffixSample_.push_back("AVF");
     if ( *isample == "offlinePrimaryVerticesWithBS" ) suffixSample_.push_back("wBS");
   }
   if ( suffixSample_.size() == 0 ) throw cms::Exception("NoVertexSamples") << " no known vertex samples given";
 
   rootFile_ = new TFile(outputFile_.c_str(),"RECREATE");
-  verbose_= iConfig.getUntrackedParameter<bool>("verbose", false);
-  simUnit_= 1.0;  // starting with CMSSW_1_2_x ??
   if ( (edm::getReleaseVersion()).find("CMSSW_1_1_",0)!=std::string::npos){
     simUnit_=0.1;  // for use in  CMSSW_1_1_1 tutorial
   }
@@ -183,7 +186,7 @@ bool PrimaryVertexAnalyzer::isCharged(const HepMC::GenParticle * p){
   }
 }
 
-void PrimaryVertexAnalyzer::printRecVtxs(const Handle<reco::VertexCollection> recVtxs){
+void PrimaryVertexAnalyzer::printRecVtxs(const edm::Handle<reco::VertexCollection> & recVtxs){
     int ivtx=0;
     for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
 	v!=recVtxs->end(); ++v){
@@ -202,9 +205,9 @@ void PrimaryVertexAnalyzer::printRecVtxs(const Handle<reco::VertexCollection> re
 }
 
 
-void PrimaryVertexAnalyzer::printSimVtxs(const Handle<SimVertexContainer> simVtxs){
+void PrimaryVertexAnalyzer::printSimVtxs(const edm::Handle<edm::SimVertexContainer> & simVtxs){
     int i=0;
-    for(SimVertexContainer::const_iterator vsim=simVtxs->begin();
+    for(edm::SimVertexContainer::const_iterator vsim=simVtxs->begin();
 	vsim!=simVtxs->end(); ++vsim){
       std::cout << i++ << ")" << std::scientific
                 << " evtid=" << vsim->eventId().event() 
@@ -218,10 +221,10 @@ void PrimaryVertexAnalyzer::printSimVtxs(const Handle<SimVertexContainer> simVtx
 }
 
 
-void PrimaryVertexAnalyzer::printSimTrks(const Handle<SimTrackContainer> simTrks){
+void PrimaryVertexAnalyzer::printSimTrks(const edm::Handle<edm::SimTrackContainer> & simTrks){
   std::cout <<  " simTrks   type, (momentum), vertIndex, genpartIndex"  << std::endl;
   int i=1;
-  for(SimTrackContainer::const_iterator t=simTrks->begin();
+  for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
       t!=simTrks->end(); ++t){
     //HepMC::GenParticle* gp=evtMC->GetEvent()->particle( (*t).genpartIndex() );
     std::cout << i++ << ")" 
@@ -237,8 +240,9 @@ void PrimaryVertexAnalyzer::printSimTrks(const Handle<SimTrackContainer> simTrks
 }
 
 
-std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getSimPVs(
-				      const Handle<HepMCProduct> evtMC, std::string suffix="")
+std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getSimPVs( const edm::Handle<edm::HepMCProduct> & evtMC
+										     , const std::string & suffix
+										       )
 {
   std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> simpv;
   const HepMC::GenEvent* evt=evtMC->GetEvent();
@@ -327,17 +331,17 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 
 
 
-std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getSimPVs(
-				      const Handle<HepMCProduct> evtMC, 
-				      const Handle<SimVertexContainer> simVtxs, 
-				      const Handle<SimTrackContainer> simTrks)
+std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getSimPVs( const edm::Handle<edm::HepMCProduct> & evtMC
+										     , const edm::Handle<edm::SimVertexContainer> & simVtxs 
+										     , const edm::Handle<edm::SimTrackContainer> & simTrks
+										       )
 {
    // simvertices don't have enough information to decide, 
    // genVertices don't have the simulated coordinates  ( with VtxSmeared they might)
    // go through simtracks to get the link between simulated and generated vertices
    std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> simpv;
    int idx=0;
-   for(SimTrackContainer::const_iterator t=simTrks->begin();
+   for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
        t!=simTrks->end(); ++t){
      if ( !(t->noVertex()) && !(t->type()==-99) ){
        double ptsq=0;
@@ -403,33 +407,33 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 
 // ------------ method called to produce the data  ------------
 void
-PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
+PrimaryVertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
-  Handle<reco::TrackCollection> recTrks;
-  iEvent.getByLabel(recoTrackProducer_, recTrks);
+  edm::Handle<reco::TrackCollection> recTrks;
+  iEvent.getByToken( recoTrackCollectionToken_, recTrks );
 
-  Handle<SimVertexContainer> simVtxs;
-  iEvent.getByLabel( simG4_, simVtxs);
+  edm::Handle<edm::SimVertexContainer> simVtxs;
+  iEvent.getByToken( edmSimVertexContainerToken_, simVtxs );
   
-  Handle<SimTrackContainer> simTrks;
-  iEvent.getByLabel( simG4_, simTrks);
+  edm::Handle<edm::SimTrackContainer> simTrks;
+  iEvent.getByToken( edmSimTrackContainerToken_, simTrks );
 
-  for (int ivtxSample=0; ivtxSample!= (int)vtxSample_.size(); ++ivtxSample) {
+  for (int ivtxSample=0; ivtxSample!= (int)recoVertexCollectionTokens_.size(); ++ivtxSample) {
     std::string isuffix = suffixSample_[ivtxSample];
 
-    Handle<reco::VertexCollection> recVtxs;
-    iEvent.getByLabel(vtxSample_[ivtxSample], recVtxs);
+    edm::Handle<reco::VertexCollection> recVtxs;
+    iEvent.getByToken( recoVertexCollectionTokens_[ ivtxSample ], recVtxs );
 
     try{
       iSetup.getData(pdt);
-    }catch(const Exception&){
+    }catch(const edm::Exception&){
       std::cout << "Some problem occurred with the particle data table. This may not work !." <<std::endl;
     }
 
     bool MC=false;
-    Handle<HepMCProduct> evtMC;
-    iEvent.getByLabel("generator",evtMC);
+    edm::Handle<edm::HepMCProduct> evtMC;
+    iEvent.getByToken( edmHepMCProductToken_, evtMC );
     if (!evtMC.isValid()) {
       MC=false;
       if(verbose_){
