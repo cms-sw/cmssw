@@ -1,6 +1,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // Field
@@ -30,6 +31,9 @@ OutInConversionSeedFinder::OutInConversionSeedFinder( const edm::ParameterSet& c
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
 
   maxNumberOfOutInSeedsPerBC_ =  conf_.getParameter<int>("maxNumOfSeedsOutIn");
+  bcEtcut_ =  conf_.getParameter<double>("bcEtCut");
+  bcEcut_ =  conf_.getParameter<double>("bcECut");
+  useEtCut_ =  conf_.getParameter<bool>("useEtCut");
    //the2ndHitdphi_ = 0.01; 
   the2ndHitdphi_ = 0.03; 
   the2ndHitdzConst_ = 5.;
@@ -79,19 +83,25 @@ void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::Cal
     //for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
     nSeedsPerBC_=0;
 
-    theBCEnergy_=allBC->ptrAt(i)->energy();
+
     theBCPosition_ = GlobalPoint(allBC->ptrAt(i)->position().x(), allBC->ptrAt(i)->position().y(), allBC->ptrAt(i)->position().z() ) ;
     float theBcEta=  theBCPosition_.eta();
     float theBcPhi=  theBCPosition_.phi();
     //    float  dPhi= theBcPhi-theSCPhi;
+    theBCEnergy_=allBC->ptrAt(i)->energy();        
 
-    //    std::cout << "  OutInConversionSeedFinder::makeSeeds() BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << " dPhi " << fabs(theBcPhi-theSCPhi) << " dEta " <<  fabs(theBcEta-theSCEta) << "\n";
-    
-    if ( theBCEnergy_ < 1.5 ) continue;
+    float EtOrECut = bcEcut_;
+    if ( useEtCut_ ) {
+      theBCEnergy_=(allBC->ptrAt(i)->energy()/cosh(allBC->ptrAt(i)->eta())); 
+      EtOrECut = bcEtcut_;
+    }   
+
+    if ( theBCEnergy_ < EtOrECut ) continue;
+    // std::cout << "  OutInConversionSeedFinder::makeSeeds() BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC transverse energy " << theBCEnergy_ << " dPhi " << fabs(theBcPhi-theSCPhi) << " dEta " <<  fabs(theBcEta-theSCEta) << "\n";
 
     LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() Passing the >=1.5 GeV cut  BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << "\n";
 
-    if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.3 ) { 
+    if (  fabs(theBcEta-theSCEta) < 0.015  && reco::deltaPhi(theBcPhi,theSCPhi) < 0.3 ) { 
       LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() in et and phi range passed to the analysis " << "\n";
       fillClusterSeeds( allBC->ptrAt(i)  );
     }
@@ -153,13 +163,14 @@ void OutInConversionSeedFinder::makeSeeds( const reco::CaloClusterPtr&  aBC )  c
 
   nSeedsPerBC_=0;
 
-  theBCEnergy_=aBC->energy();
+  // theBCEnergy_=aBC->energy();
+  theBCEnergy_=(aBC->energy()/cosh(aBC->eta()));
   theBCPosition_ = GlobalPoint(aBC->position().x(), aBC->position().y(), aBC->position().z() ) ;
   float theBcEta=  theBCPosition_.eta();
   float theBcPhi=  theBCPosition_.phi();
   //  float  dPhi= theBcPhi-theSCPhi;
 
-  if ( theBCEnergy_ < 1.5 ) return;
+  if ( theBCEnergy_ <  bcEtcut_ ) return;
 
   if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.25 ) {
     fillClusterSeeds( aBC);
@@ -257,7 +268,7 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
   m(0,0) = 0.1; m(1,1) = 0.1 ; m(2,2) = 0.1 ;
   m(3,3) = 0.1 ; m(4,4) = 0.1;
   
-  //std::cout << "OutInConversionSeedFinder::makeTrackState " <<  FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) << "\n";
+  //  std::cout << "OutInConversionSeedFinder::makeTrackState " <<  FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) << "\n";
    
   result.first= FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) ;
   return result;
@@ -315,6 +326,7 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 
 	  
 	  FreeTrajectoryState newfts = trackStateFromClusters(fts.charge(), hitPoint, alongMomentum, 0.8);
+	  //std::cout << "OutInConversionSeedFinder::startSeed  newfts " << newfts << "\n";
 	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed  newfts " << newfts << "\n";
 	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
 	  //  std::cout << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorOppositeToMomentum_->propagationDirection() ) << "\n";        
@@ -440,6 +452,8 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
   FreeTrajectoryState fts = createSeedFTS(m1, m2);
 
 
+  //std::cout << "OutInConversionSeedFinder::createSeed First point errors " <<m1.recHit()->parametersError() << "\n";
+  // std::cout << "original cluster FTS " << fts <<"\n";
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed First point errors " <<m1.recHit()->parametersError() << "\n";
   LogDebug("OutInConversionSeedFinder") << "original cluster FTS " << fts <<"\n";
 
@@ -501,7 +515,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 FreeTrajectoryState OutInConversionSeedFinder::createSeedFTS(const TrajectoryMeasurement & m1,
 							     const TrajectoryMeasurement & m2) const {
 
-  //std::cout  << "OutInConversionSeedFinder::createSeedFTS " << "\n";
+
 
   GlobalPoint xmeas = fixPointRadius(m1);
   GlobalPoint xvert = fixPointRadius(m2);
@@ -536,6 +550,7 @@ FreeTrajectoryState OutInConversionSeedFinder::createSeedFTS(const TrajectoryMea
   AlgebraicSymMatrix55 m = AlgebraicMatrixID();
   m(0,0) = 0.05; m(1,1) = 0.02 ; m(2,2) = 0.007 ;
   m(3,3) = 10. ; m(4,4) = 10. ;
+  //std::cout  << "OutInConversionSeedFinder::createSeedFTS " <<  FreeTrajectoryState(gp, CurvilinearTrajectoryError(m))  << "\n";
   return FreeTrajectoryState(gp, CurvilinearTrajectoryError(m));
 
 

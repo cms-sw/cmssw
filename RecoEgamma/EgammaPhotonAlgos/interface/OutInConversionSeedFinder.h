@@ -72,13 +72,15 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
 
   private :
     
-    float  the2ndHitdphi_;
+  float  the2ndHitdphi_;
   float   the2ndHitdzConst_;    
   float  the2ndHitdznSigma_; 
   mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
   mutable int nSeedsPerBC_;
   int maxNumberOfOutInSeedsPerBC_;
-
+  float bcEtcut_;
+  float bcEcut_;
+  bool useEtCut_;
 
 };
 
