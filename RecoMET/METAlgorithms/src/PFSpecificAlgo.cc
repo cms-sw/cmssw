@@ -11,42 +11,10 @@
 #include "RecoMET/METAlgorithms/interface/PFSpecificAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
-
 //____________________________________________________________________________||
-reco::PFMET PFSpecificAlgo::addInfo(const edm::View<reco::Candidate>& pfCands, const CommonMETData& met)
+SpecificPFMETData PFSpecificAlgo::run(const edm::View<reco::Candidate>& pfCands)
 {
-  SpecificPFMETData specific = mkSpecificPFMETData(pfCands);
-
-  const math::XYZTLorentzVector p4(met.mex, met.mey, 0.0, met.met);
-  const math::XYZPoint vtx(0.0, 0.0, 0.0);
-  reco::PFMET pfMET(specific, met.sumet, p4, vtx);
-
-  return pfMET;
-}
-
-//____________________________________________________________________________||
-void PFSpecificAlgo::initializeSpecificPFMETData(SpecificPFMETData &specific)
-{
-  specific.NeutralEMFraction = 0.0;
-  specific.NeutralHadFraction = 0.0;
-  specific.ChargedEMFraction = 0.0;
-  specific.ChargedHadFraction = 0.0;
-  specific.MuonFraction = 0.0;
-  specific.Type6Fraction = 0.0;
-  specific.Type7Fraction = 0.0;
-}
-
-//____________________________________________________________________________||
-SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(const edm::View<reco::Candidate>& pfCands)
-{
-  if(!pfCands.size())
-  {
-    SpecificPFMETData specific;
-    initializeSpecificPFMETData(specific);
-    return specific;
-  } 
+  if(!pfCands.size()) return SpecificPFMETData();
 
   double NeutralEMEt = 0.0;
   double NeutralHadEt = 0.0;
@@ -75,7 +43,6 @@ SpecificPFMETData PFSpecificAlgo::mkSpecificPFMETData(const edm::View<reco::Cand
 
   const double Et_total = NeutralEMEt + NeutralHadEt + ChargedEMEt + ChargedHadEt + MuonEt + type6Et + type7Et;
   SpecificPFMETData specific;
-  initializeSpecificPFMETData(specific);
   if (Et_total!=0.0)
   {
     specific.NeutralEMFraction = NeutralEMEt/Et_total;
