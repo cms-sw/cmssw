@@ -134,7 +134,15 @@ class PFElecTkProducer : public edm::EDProducer {
       
       /// Conv Brem Finder
       bool useConvBremFinder_;
-      double mvaConvBremFinderID_;
-      std::string path_mvaWeightFileConvBrem_;
+
+      double mvaConvBremFinderIDBarrelLowPt_;
+      double mvaConvBremFinderIDBarrelHighPt_;
+      double mvaConvBremFinderIDEndcapsLowPt_;
+      double mvaConvBremFinderIDEndcapsHighPt_;
+      std::string path_mvaWeightFileConvBremBarrelLowPt_;
+      std::string path_mvaWeightFileConvBremBarrelHighPt_;
+      std::string path_mvaWeightFileConvBremEndcapsLowPt_;
+      std::string path_mvaWeightFileConvBremEndcapsHighPt_;
+      
 };
 #endif
