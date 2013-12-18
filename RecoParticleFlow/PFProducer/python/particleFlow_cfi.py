@@ -73,16 +73,18 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     # New photon selection cuts for CMSSW_700
     photon_MinEt = cms.double(10.),
     photon_combIso = cms.double(10.),
-    photon_HoE =  cms.double(0.10),
+    photon_HoE =  cms.double(0.05),
+    photon_SigmaiEtaiEta_barrel = cms.double(0.0125),
+    photon_SigmaiEtaiEta_endcap = cms.double(0.034),                             
 
     # sumPtTrackIso, sumPtTrackIsoSlope                          
     photon_protectionsForJetMET = cms.PSet(
-    sumPtTrackIso = cms.double(2.0),
+    sumPtTrackIso = cms.double(4.0),
     sumPtTrackIsoSlope = cms.double(0.001)
     ),
     PFEGammaCandidates = cms.InputTag("particleFlowEGamma"),
     GedElectronValueMap = cms.InputTag("gedGsfElectronsTmp"),
-    GedPhotonValueMap = cms.InputTag("tmpGedPhotons","valMapPFEgammaCandToPhoton"),
+    GedPhotonValueMap = cms.InputTag("gedPhotonsTmp","valMapPFEgammaCandToPhoton"),
 
 
                                  
