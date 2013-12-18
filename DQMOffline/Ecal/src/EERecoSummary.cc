@@ -69,7 +69,7 @@ EERecoSummary::EERecoSummary(const edm::ParameterSet& ps)
   //now do what ever initialization is needed
   recHitCollection_EE_       = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("recHitCollection_EE"));
   redRecHitCollection_EE_    = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("redRecHitCollection_EE"));
-  basicClusterCollection_EE_ = consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("basicClusterCollection_EE"));
+  basicClusterCollection_EE_ = consumes<edm::View<reco::CaloCluster> >(ps.getParameter<edm::InputTag>("basicClusterCollection_EE"));
   superClusterCollection_EE_ = consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
 
   ethrEE_                    = ps.getParameter<double>("ethrEE");
@@ -221,23 +221,24 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
   //--- BASIC CLUSTERS --------------------------------------------------------------
 
   // ... endcap
-  edm::Handle<reco::BasicClusterCollection> basicClusters_EE_h;
-  ev.getByToken( basicClusterCollection_EE_, basicClusters_EE_h );
-  if ( ! basicClusters_EE_h.isValid() ) {
-    edm::LogWarning("EERecoSummary") << "basicClusters_EE_h not found"; 
-  }
+  edm::Handle<edm::View<reco::CaloCluster> > basicClusters_EE_h;
+  if(ev.getByToken( basicClusterCollection_EE_, basicClusters_EE_h )){
 
-  for (unsigned int icl = 0; icl < basicClusters_EE_h->size(); ++icl) {
+    for (unsigned int icl = 0; icl < basicClusters_EE_h->size(); ++icl) {
     
-    //Get the associated RecHits
-    const std::vector<std::pair<DetId,float> > & hits= (*basicClusters_EE_h)[icl].hitsAndFractions();
-    for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
+      //Get the associated RecHits
+      const std::vector<std::pair<DetId,float> > & hits= (*basicClusters_EE_h)[icl].hitsAndFractions();
+      for (std::vector<std::pair<DetId,float> > ::const_iterator rh = hits.begin(); rh!=hits.end(); ++rh){
       
-      EBRecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
-      if (itrechit==theEndcapEcalRecHits->end()) continue;
-      h_basicClusters_recHits_EE_recoFlag -> Fill ( itrechit -> recoFlag() );
-    }
+        EBRecHitCollection::const_iterator itrechit = theEndcapEcalRecHits->find((*rh).first);
+        if (itrechit==theEndcapEcalRecHits->end()) continue;
+        h_basicClusters_recHits_EE_recoFlag -> Fill ( itrechit -> recoFlag() );
+      }
   
+    }
+  }
+  else{
+    //    edm::LogWarning("EERecoSummary") << "basicClusters_EE_h not found"; 
   }
 
   // Super Clusters

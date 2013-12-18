@@ -66,7 +66,6 @@ PixelTrackReconstruction::PixelTrackReconstruction(const ParameterSet& cfg,
   
 PixelTrackReconstruction::~PixelTrackReconstruction() 
 {
-  delete theRegionProducer; theRegionProducer=0;
   halt();
 }
 
@@ -75,6 +74,7 @@ void PixelTrackReconstruction::halt()
   delete theFitter; theFitter=0;
   delete theCleaner; theCleaner=0;
   delete theGenerator; theGenerator=0;
+  delete theRegionProducer; theRegionProducer=0;
   delete theMerger_; theMerger_=0;
 }
 

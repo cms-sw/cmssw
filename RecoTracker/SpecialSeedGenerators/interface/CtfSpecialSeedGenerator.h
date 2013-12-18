@@ -33,6 +33,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 //Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 #include <map>
 
@@ -92,6 +93,7 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
   BoundPlane::BoundPlanePointer lowerScintillator;
   bool requireBOFF;
   int32_t theMaxSeeds;
+  ClusterChecker check;
 };
 #endif
 

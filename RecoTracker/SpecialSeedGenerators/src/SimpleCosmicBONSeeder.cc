@@ -23,7 +23,7 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) :
   tripletsVerbosity_(conf.getParameter<edm::ParameterSet>("TripletsPSet").getUntrackedParameter<uint32_t>("debugLevel",0)),
   seedVerbosity_(conf.getUntrackedParameter<uint32_t>("seedDebugLevel",0)),
   helixVerbosity_(conf.getUntrackedParameter<uint32_t>("helixDebugLevel",0)),
-  check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+  check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), consumesCollector()),
   maxTriplets_(conf.getParameter<int32_t>("maxTriplets")),
   maxSeeds_(conf.getParameter<int32_t>("maxSeeds"))
 {

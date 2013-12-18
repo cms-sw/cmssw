@@ -290,18 +290,7 @@ ecalBarrelTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'valEcalTriggerPrimi
 ecalEndcapTriggerTowerTask.EcalTrigPrimDigiCollectionEmul = 'valEcalTriggerPrimitiveDigis'
 
 ecalBarrelClusterTask.EcalRawDataCollection = 'ecalDigis:'
-ecalBarrelClusterTask.BasicClusterCollection = 'hybridSuperClusters:hybridBarrelBasicClusters'
-ecalBarrelClusterTask.SuperClusterCollection = 'correctedHybridSuperClusters:'
-
 ecalEndcapClusterTask.EcalRawDataCollection = 'ecalDigis:'
-ecalEndcapClusterTask.BasicClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapBasicClusters'
-ecalEndcapClusterTask.SuperClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapSuperClusters'
-
-ecalBarrelClusterTaskExtras.BasicClusterCollection = 'hybridSuperClusters:hybridBarrelBasicClusters'
-ecalBarrelClusterTaskExtras.SuperClusterCollection = 'correctedHybridSuperClusters:'
-
-ecalEndcapClusterTaskExtras.BasicClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapBasicClusters'
-ecalEndcapClusterTaskExtras.SuperClusterCollection = 'multi5x5SuperClusters:multi5x5EndcapSuperClusters'
 
 ecalBarrelHltTask.EBDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'
 ecalBarrelHltTask.EBDetIdCollection1 = 'ecalDigis:EcalIntegrityGainErrors'
