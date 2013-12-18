@@ -81,7 +81,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
     dtHits.push_back(*hit);
   }
   
-  cout << "Muon DT hits found: " << dtHits.size() << " segments " << segments << endl;
+  //  cout << "Muon DT hits found: " << dtHits.size() << " segments " << segments << endl;
   
   double PhiCutParameter=dtRadius_;
   double ZCutParameter=dtRadius_;
