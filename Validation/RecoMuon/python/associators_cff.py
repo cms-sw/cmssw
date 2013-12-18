@@ -351,13 +351,6 @@ tpToTkmuTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
     label_tr = cms.InputTag('generalTracks')
 )
 
-tpToStaSeedAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
-    associator = cms.string('MuonAssociatorByHits'),
-    label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
-    label_tr = cms.InputTag('seedsOfSTAmuons')
-)
-
-
 tpToStaTrackAssociationFS = cms.EDProducer('TrackAssociatorEDProducer',
     associator = cms.string('TrackAssociatorByDeltaR'),
     label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
@@ -450,6 +443,7 @@ baseMuonAssociatorFS.ROUList = ['famosSimHitsTrackerHits']
 
 tpToTkMuonAssociationFS   = baseMuonAssociatorFS.clone()
 tpToStaMuonAssociationFS  = baseMuonAssociatorFS.clone()
+tpToStaSeedAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaRefitMuonAssociationFS  = baseMuonAssociatorFS.clone()
 tpToStaRefitUpdMuonAssociationFS  = baseMuonAssociatorFS.clone()
@@ -470,6 +464,10 @@ tpToTkMuonAssociationFS.UseMuon = False
 tpToStaMuonAssociationFS.tracksTag = 'standAloneMuons'
 tpToStaMuonAssociationFS.UseTracker = False
 tpToStaMuonAssociationFS.UseMuon = True
+
+tpToStaSeedAssociationFS.tracksTag = 'seedsOfSTAmuons'
+tpToStaSeedAssociationFS.UseTracker = False
+tpToStaSeedAssociationFS.UseMuon = True
 
 tpToStaUpdMuonAssociationFS.tracksTag = 'standAloneMuons:UpdatedAtVtx'
 tpToStaUpdMuonAssociationFS.UseTracker = False
