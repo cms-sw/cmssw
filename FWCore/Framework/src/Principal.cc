@@ -426,26 +426,18 @@ namespace edm {
   }
 
   Principal::ConstProductHolderPtr
-  Principal::getProductHolder(BranchID const& bid, bool resolveProd, bool fillOnDemand,
-                              ModuleCallingContext const* mcc) const {
+  Principal::getProductHolder(BranchID const& bid) const {
     ProductHolderIndex index = preg_->indexFrom(bid);
     if(index == ProductHolderIndexInvalid){
        return ConstProductHolderPtr();
     }
-    return getProductHolderByIndex(index, resolveProd, fillOnDemand, mcc);
+    return getProductHolderByIndex(index);
   }
 
   Principal::ConstProductHolderPtr
-  Principal::getProductHolderByIndex(ProductHolderIndex const& index, bool resolveProd, bool fillOnDemand,
-                               ModuleCallingContext const* mcc) const {
+  Principal::getProductHolderByIndex(ProductHolderIndex const& index) const {
 
     ConstProductHolderPtr const phb = productHolders_[index].get();
-    if(nullptr == phb) {
-      return phb;
-    }
-    if(resolveProd && !phb->productUnavailable()) {
-      this->resolveProduct(*phb, fillOnDemand, mcc);
-    }
     return phb;
   }
 
@@ -723,7 +715,7 @@ namespace edm {
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd,
                           ModuleCallingContext const* mcc) const {
-    ConstProductHolderPtr const phb = getProductHolder(bid, getProd, true, mcc);
+    ConstProductHolderPtr const phb = getProductHolder(bid);
     if(phb == nullptr) {
       throwProductNotFoundException("getForOutput", errors::LogicError, bid);
     }
@@ -732,6 +724,10 @@ namespace edm {
                                    phb->moduleLabel(),
                                    phb->productInstanceName(),
                                    phb->processName());
+    }
+    if(getProd) {
+      ProductHolderBase::ResolveStatus status;
+      phb->resolveProduct(status,false,mcc);
     }
     if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
       return OutputHandle();
@@ -742,7 +738,7 @@ namespace edm {
   Provenance
   Principal::getProvenance(BranchID const& bid,
                            ModuleCallingContext const* mcc) const {
-    ConstProductHolderPtr const phb = getProductHolder(bid, false, true, mcc);
+    ConstProductHolderPtr const phb = getProductHolder(bid);
     if(phb == nullptr) {
       throwProductNotFoundException("getProvenance", errors::ProductNotFound, bid);
     }
