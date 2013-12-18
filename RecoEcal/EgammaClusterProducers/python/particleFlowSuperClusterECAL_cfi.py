@@ -2,6 +2,32 @@ import FWCore.ParameterSet.Config as cms
 from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
 import os
 
+pfSCecalGBRESSource = cms.ESSource(
+    "PoolDBESSource",
+    CondDBCommon,
+    DumpStat=cms.untracked.bool(False),
+    toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('pfscecal_EBCorrection_offline'),
+    label = cms.untracked.string('pfscecal_EBCorrection_offline')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('pfscecal_EECorrection_offline'),
+    label = cms.untracked.string('pfscecal_EECorrection_offline')
+    ),
+    )
+)
+pfSCecalGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
+
+pfSCecalPrefer = cms.ESPrefer(
+    'PoolDBESSource',
+    'pfSCecalGBRESSource',
+    GBRWrapperRcd = cms.vstring('GBRForest/pfscecal_EBCorrection_offline',
+                                'GBRForest/pfscecal_EECorrection_offline')
+)
+
 particleFlowSuperClusterECALBox = cms.EDProducer(
     "PFECALSuperClusterProducer",
     # verbosity 
@@ -85,10 +111,6 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
-    vertexCollection = cms.InputTag("offlinePrimaryVertices"),
-    #rechit collections for lazytools
-    ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-    ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
@@ -103,9 +125,14 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     # are the seed thresholds Et or Energy?
     seedThresholdIsET = cms.bool(True),
     # regression setup
-    useRegression = cms.bool(False),
-    regressionKeyEB = cms.string('pfecalsc_EBCorrection'),
-    regressionKeyEE = cms.string('pfecalsc_EECorrection'),
+    useRegression = cms.bool(True),
+    regressionConfig = cms.PSet(
+       regressionKeyEB = cms.string('pfscecal_EBCorrection_offline'),
+       regressionKeyEE = cms.string('pfscecal_EECorrection_offline'),
+       vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+       ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ),
     
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(1.0),

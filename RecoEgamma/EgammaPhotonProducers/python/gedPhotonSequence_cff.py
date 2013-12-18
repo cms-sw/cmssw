@@ -9,15 +9,17 @@ from RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi import *
 
 import RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi 
 
-tmpGedPhotons = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone()
-tmpGedPhotons.photonProducer = cms.InputTag("gedPhotonCore")
-tmpGedPhotons.outputPhotonCollection = cms.string("")
-gedPhotonSequenceTmp = cms.Sequence(gedPhotonCore+tmpGedPhotons)
+gedPhotonsTmp = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone()
+gedPhotonsTmp.photonProducer = cms.InputTag("gedPhotonCore")
+gedPhotonsTmp.outputPhotonCollection = cms.string("")
+gedPhotonsTmp.reconstructionStep = cms.string("tmp")
+gedPhotonSequenceTmp = cms.Sequence(gedPhotonCore+gedPhotonsTmp)
 
 
 gedPhotons = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone()
-gedPhotons.photonProducer = cms.InputTag("tmpGedPhotons")
+gedPhotons.photonProducer = cms.InputTag("gedPhotonsTmp")
 gedPhotons.outputPhotonCollection = cms.string("")
+gedPhotons.reconstructionStep = cms.string("final")
 gedPhotonSequence    = cms.Sequence(gedPhotons)
 
 
