@@ -20,9 +20,7 @@
 
 //____________________________________________________________________________||
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/SpecificPFMETData.h"
-#include "DataFormats/METReco/interface/CommonMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //____________________________________________________________________________||
@@ -31,11 +29,7 @@ class PFSpecificAlgo
  public:
   PFSpecificAlgo() { }
   
-  reco::PFMET addInfo(const edm::View<reco::Candidate>& pfCands, const CommonMETData& met);
-
- private:
-  void initializeSpecificPFMETData(SpecificPFMETData &specific);
-  SpecificPFMETData mkSpecificPFMETData(const edm::View<reco::Candidate>& pfCands);
+  SpecificPFMETData run(const edm::View<reco::Candidate>& pfCands);
 
 };
 
