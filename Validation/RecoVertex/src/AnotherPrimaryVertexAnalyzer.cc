@@ -29,7 +29,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -83,7 +83,7 @@ private:
 // constructors and destructor
 //
 AnotherPrimaryVertexAnalyzer::AnotherPrimaryVertexAnalyzer(const edm::ParameterSet& iConfig)
-  : _vhm(iConfig.getParameter<edm::ParameterSet>("vHistogramMakerPSet"))
+  : _vhm(iConfig.getParameter<edm::ParameterSet>("vHistogramMakerPSet"), consumesCollector())
   , _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection")))
   , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
   , _weightprov(iConfig.getParameter<bool>("usePrescaleWeight")
