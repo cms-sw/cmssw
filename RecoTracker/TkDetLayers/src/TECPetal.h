@@ -2,30 +2,9 @@
 #define TkDetLayers_TECPetal_h
 
 
-#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "TECWedge.h"
-#include "BoundDiskSector.h"
+#include "CompositeTECPetal.h"
 
+// the sole TECPetal...
+using TECPetal=CompositeTECPetal;
 
-/** A concrete implementation for TEC petals
- */
-
-#pragma GCC visibility push(hidden)
-class TECPetal : public GeometricSearchDetWithGroups {
- public:  
-  // GeometricSearchDet interface  
-  virtual const BoundSurface& surface() const final {return *theDiskSector;}
-
-
-  //Extension of the interface
-  virtual const BoundDiskSector& specificSurface() const final {return *theDiskSector;}
-
- protected:
-  // it needs to be initialized somehow ins the derived class
-  ReferenceCountingPointer<BoundDiskSector> theDiskSector;
-  
-};
-
-
-#pragma GCC visibility pop
 #endif 
