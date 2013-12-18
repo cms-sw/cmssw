@@ -106,7 +106,7 @@ def _customize_Validation(process):
         process.hltHiggsValidator.HWW.recElecLabel = \
                                                 cms.string('gsfElectrons')
     if hasattr(process,'oldpfPhotonValidation'):
-        process.photonValidationSequence.remove(process.oldpfPhotonValidation)
+        process.photonValidationSequence += process.oldpfPhotonValidation
     return process
 
 
