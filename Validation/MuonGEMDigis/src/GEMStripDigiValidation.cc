@@ -7,32 +7,32 @@
 GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
 :  GEMBaseValidation(dbe, inputTag)
-,  theStrip_xy_rm1_l1( dbe_->book2D("strip_dg_xy_rm1_l1", "Digi occupancy: region -1, layer1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260))
-,  theStrip_xy_rm1_l2( dbe_->book2D("strip_dg_xy_rm1_l2", "Digi occupancy: region -1, layer2;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260))
-,  theStrip_xy_rp1_l1( dbe_->book2D("strip_dg_xy_rp1_l1", "Digi occupancy: region  1, layer1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260))
-,  theStrip_xy_rp1_l2( dbe_->book2D("strip_dg_xy_rp1_l2", "Digi occupancy: region  1, layer2;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260))
-
-,  theStrip_phistrip_rm1_l1( dbe_->book2D("strip_dg_phistrip_rm1_l1", "Digi occupancy: region -1, layer1; strip number; phi [rad]", 192,0,384,280,-TMath::Pi(),TMath::Pi()))
-,  theStrip_phistrip_rm1_l2( dbe_->book2D("strip_dg_phistrip_rm1_l2", "Digi occupancy: region -1, layer2; strip number; phi [rad]", 192,0,384,280,-TMath::Pi(),TMath::Pi()))
-,  theStrip_phistrip_rp1_l1( dbe_->book2D("strip_dg_phistrip_rp1_l1", "Digi occupancy: region  1, layer1; strip number; phi [rad]", 192,0,384,280,-TMath::Pi(),TMath::Pi()))
-,  theStrip_phistrip_rp1_l2( dbe_->book2D("strip_dg_phistrip_rp1_l2", "Digi occupancy: region  1, layer2; strip number; phi [rad]", 192,0,384,280,-TMath::Pi(),TMath::Pi()))
-
-
-,  theStrip_rm1_l1( dbe_->book1D("strip_dg_rm1_l1", "Digi occupancy per stip number: region -1, layer1;strip number; entries", 384,0.5,384.5))
-,  theStrip_rm1_l2( dbe_->book1D("strip_dg_rm1_l2", "Digi occupancy per stip number: region -1, layer2;strip number; entries", 384,0.5,384.5))
-,  theStrip_rp1_l1( dbe_->book1D("strip_dg_rp1_l1", "Digi occupancy per stip number: region  1, layer1;strip number; entries", 384,0.5,384.5))
-,  theStrip_rp1_l2( dbe_->book1D("strip_dg_rp1_l2", "Digi occupancy per stip number: region  1, layer2;strip number; entries", 384,0.5,384.5))
-
-
-,  theStrip_bx_rm1_l1( dbe_->book1D("strip_dg_bx_rm1_l1", "Bunch crossing: region -1, layer1; bunch crossing ; entries", 11,-5.5,5.5))
-,  theStrip_bx_rm1_l2( dbe_->book1D("strip_dg_bx_rm1_l2", "Bunch crossing: region -1, layer2; bunch crossing ; entries", 11,-5.5,5.5))
-,  theStrip_bx_rp1_l1( dbe_->book1D("strip_dg_bx_rp1_l1", "Bunch crossing: region  1, layer1; bunch crossing ; entries", 11,-5.5,5.5))
-,  theStrip_bx_rp1_l2( dbe_->book1D("strip_dg_bx_rp1_l2", "Bunch crossing: region  1, layer2; bunch crossing ; entries", 11,-5.5,5.5))
-
-
-,  theStrip_zr_rm1( dbe_->book2D("strip_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564, 55,130,240))
-,  theStrip_zr_rp1( dbe_->book2D("strip_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200,564,573,55,130,240))
 {
+  theStrip_xy_rm1_l1 = dbe_->book2D("strip_dg_xy_rm1_l1", "Digi occupancy: region -1, layer1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260);
+  theStrip_xy_rm1_l2 = dbe_->book2D("strip_dg_xy_rm1_l2", "Digi occupancy: region -1, layer2;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260);
+  theStrip_xy_rp1_l1 = dbe_->book2D("strip_dg_xy_rp1_l1", "Digi occupancy: region  1, layer1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260);
+  theStrip_xy_rp1_l2 = dbe_->book2D("strip_dg_xy_rp1_l2", "Digi occupancy: region  1, layer2;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260);
+
+  theStrip_phistrip_rm1_l1 = dbe_->book2D("strip_dg_phistrip_rm1_l1", "Digi occupancy: region -1, layer1; strip number; phi [rad]", 192,0,384,280,-TMath::Pi(),TMath::Pi());
+  theStrip_phistrip_rm1_l2 = dbe_->book2D("strip_dg_phistrip_rm1_l2", "Digi occupancy: region -1, layer2; strip number; phi [rad]", 192,0,384,280,-TMath::Pi(),TMath::Pi());
+  theStrip_phistrip_rp1_l1 = dbe_->book2D("strip_dg_phistrip_rp1_l1", "Digi occupancy: region  1, layer1; strip number; phi [rad]", 192,0,384,280,-TMath::Pi(),TMath::Pi());
+  theStrip_phistrip_rp1_l2 = dbe_->book2D("strip_dg_phistrip_rp1_l2", "Digi occupancy: region  1, layer2; strip number; phi [rad]", 192,0,384,280,-TMath::Pi(),TMath::Pi());
+
+
+  theStrip_rm1_l1 = dbe_->book1D("strip_dg_rm1_l1", "Digi occupancy per stip number: region -1, layer1;strip number; entries", 384,0.5,384.5);
+  theStrip_rm1_l2 = dbe_->book1D("strip_dg_rm1_l2", "Digi occupancy per stip number: region -1, layer2;strip number; entries", 384,0.5,384.5);
+  theStrip_rp1_l1 = dbe_->book1D("strip_dg_rp1_l1", "Digi occupancy per stip number: region  1, layer1;strip number; entries", 384,0.5,384.5);
+  theStrip_rp1_l2 = dbe_->book1D("strip_dg_rp1_l2", "Digi occupancy per stip number: region  1, layer2;strip number; entries", 384,0.5,384.5);
+
+
+  theStrip_bx_rm1_l1 = dbe_->book1D("strip_dg_bx_rm1_l1", "Bunch crossing: region -1, layer1; bunch crossing ; entries", 11,-5.5,5.5);
+  theStrip_bx_rm1_l2 = dbe_->book1D("strip_dg_bx_rm1_l2", "Bunch crossing: region -1, layer2; bunch crossing ; entries", 11,-5.5,5.5);
+  theStrip_bx_rp1_l1 = dbe_->book1D("strip_dg_bx_rp1_l1", "Bunch crossing: region  1, layer1; bunch crossing ; entries", 11,-5.5,5.5);
+  theStrip_bx_rp1_l2 = dbe_->book1D("strip_dg_bx_rp1_l2", "Bunch crossing: region  1, layer2; bunch crossing ; entries", 11,-5.5,5.5);
+
+
+  theStrip_zr_rm1 = dbe_->book2D("strip_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564, 55,130,240);
+  theStrip_zr_rp1 = dbe_->book2D("strip_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200,564,573,55,130,240);
 
 }
 
@@ -52,8 +52,6 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
     edm::LogError("GEMDigiValidation") << "Cannot get strips by label "
                                        << theInputTag.encode();
   }
-  //std::cout<<" Hello "<<std::endl;
-
   for (GEMDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
 
     GEMDetId id = (*cItr).first;

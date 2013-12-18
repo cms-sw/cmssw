@@ -67,7 +67,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
-
+#include <vector>
 
 
 
@@ -83,21 +83,24 @@
 // constructors and destructor
 //
 MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
-//  , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
-//  , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 {
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
+
+  stripLabel_ = ps.getParameter<edm::InputTag>("stripLabel");
+  cscPadLabel_ = ps.getParameter<edm::InputTag>("cscPadLabel");
+  cscCopadLabel_ = ps.getParameter<edm::InputTag>("cscCopadLabel");
+  simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
+  simTrackMatching_ = ps.getParameterSet("simTrackMatching");
    //now do what ever initialization is needed
   
+  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
+  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ );
+  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_ );
+  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_ );
+  theGEMTrackMatch = new GEMTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
 
-  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripLabel"));
-  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscPadLabel"));
-  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, ps.getParameter<edm::InputTag>("cscCopadLabel"));
-  theGEMTrackMatch = new GEMTrackMatch(dbe_, ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"), 
-                                       ps.getParameterSet("simTrackMatching") );
   
 
 
@@ -184,103 +187,7 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 void 
 MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
 {
-//    if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
-  for ( int i =0 ; i< 4 ; i++) {
-      TH1F* dg = theGEMTrackMatch->GetDgEta()[i];
-      TH1F* temp1 = (TH1F*)dg->Clone("temp1");
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgEta()[i]->GetName(),"_origin").Data(), temp1 );
-      temp1->Divide( theGEMTrackMatch->GetTrackEta()); 
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgEta()[i]->GetName(),"_divided").Data(), temp1 );
-      TH1F* temp2 = (TH1F*)dg->Clone("temp2");
-      temp2->Divide( theGEMTrackMatch->GetShEta()[i]); 
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShEta()[i]->GetName(),"_origin").Data(), theGEMTrackMatch->GetShEta()[i] );
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShEta()[i]->GetName(),"_divided").Data(), temp2 );
-  }
-  for ( int i =0 ; i< 4 ; i++) {
-      TH1F* pad = (TH1F*)theGEMTrackMatch->GetPadEta()[i];
-      TH1F* temp1 = (TH1F*)pad->Clone("temp1");
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_origin").Data(), temp1 );
-      temp1->Divide( theGEMTrackMatch->GetTrackEta());
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_divided").Data(), temp1 );
-      
-      TH1F* temp2 = (TH1F*)pad->Clone("temp2");
-      temp2->Divide( theGEMTrackMatch->GetShEta()[i]);
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetPadEta()[i]->GetName(),"_sh_divided").Data(), temp1 );
-  
-  }
-  for ( int i=0 ; i<4 ; i++) {
-      TH1F* dgphi = theGEMTrackMatch->GetDgPhi()[i];
-      TH1F* temp1 = (TH1F*)dgphi->Clone("temp1");
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgPhi()[i]->GetName(),"_origin").Data(), temp1 );
-      temp1->Divide( theGEMTrackMatch->GetTrackPhi()); 
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetDgPhi()[i]->GetName(),"_divided").Data(), temp1 );
-      TH1F* temp2 = (TH1F*)dgphi->Clone("temp2");
-      temp2->Divide( theGEMTrackMatch->GetShPhi()[i]); 
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShPhi()[i]->GetName(),"_origin").Data(), theGEMTrackMatch->GetShPhi()[i] );
-      dbe_->book1D( TString::Format("%s%s",theGEMTrackMatch->GetShPhi()[i]->GetName(),"_divided").Data(), temp2 );
-  }
 
-
-  if( dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even") != nullptr) { 
-
-  TH1F* gem_dg_lx_even[5];
-  gem_dg_lx_even[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even")->getTH1F()->Clone(); 
-  gem_dg_lx_even[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l1")->getTH1F()->Clone();
-  gem_dg_lx_even[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l2")->getTH1F()->Clone();
-  gem_dg_lx_even[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l1or2")->getTH1F()->Clone();
-  gem_dg_lx_even[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_even_l1and2")->getTH1F()->Clone();
-
-
-  TH1F* gem_dg_ly_even[5];
-  gem_dg_ly_even[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even")->getTH1F()->Clone(); 
-  gem_dg_ly_even[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even_l1")->getTH1F()->Clone();
-  gem_dg_ly_even[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even_l2")->getTH1F()->Clone();
-  gem_dg_ly_even[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even_l1or2")->getTH1F()->Clone();
-  gem_dg_ly_even[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_even_l1and2")->getTH1F()->Clone();
-
-
-  TH1F* gem_dg_lx_odd[5];
-  gem_dg_lx_odd[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd")->getTH1F()->Clone(); 
-  gem_dg_lx_odd[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd_l1")->getTH1F()->Clone();
-  gem_dg_lx_odd[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd_l2")->getTH1F()->Clone();
-  gem_dg_lx_odd[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd_l1or2")->getTH1F()->Clone();
-  gem_dg_lx_odd[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_lx_odd_l1and2")->getTH1F()->Clone();
-
-
-  TH1F* gem_dg_ly_odd[5];
-  gem_dg_ly_odd[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd")->getTH1F()->Clone(); 
-  gem_dg_ly_odd[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l1")->getTH1F()->Clone();
-  gem_dg_ly_odd[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l2")->getTH1F()->Clone();
-  gem_dg_ly_odd[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l1or2")->getTH1F()->Clone();
-  gem_dg_ly_odd[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigiTask/dg_ly_odd_l1and2")->getTH1F()->Clone();
-
-
-  for ( int i= 0; i<5 ; i++) {
-    gem_dg_lx_even[i]->Sumw2(); 
-    gem_dg_ly_even[i]->Sumw2(); 
-
-
-    gem_dg_lx_odd[i]->Sumw2(); 
-    gem_dg_ly_odd[i]->Sumw2(); 
-
-  }
-
-
-  for( int i=1 ; i<5 ; i++) {
-    gem_dg_lx_even[i]->Divide( gem_dg_lx_even[0]);
-    gem_dg_ly_even[i]->Divide( gem_dg_ly_even[0]);
-    gem_dg_lx_odd[i]->Divide( gem_dg_lx_odd[0]);
-    gem_dg_ly_odd[i]->Divide( gem_dg_ly_odd[0]);
-    
-    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_lx_even[i]->GetName()),gem_dg_lx_even[i] ); 
-    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_even[i]->GetName()),gem_dg_ly_even[i] ); 
-    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_lx_odd[i]->GetName()),gem_dg_lx_odd[i] ); 
-    dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_odd[i]->GetName()),gem_dg_ly_odd[i] ); 
-  }
-
-  } //
-
-  //printf(" Call endRun!!\n");
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
