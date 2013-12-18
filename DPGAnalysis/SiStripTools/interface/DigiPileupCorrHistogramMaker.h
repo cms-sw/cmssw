@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 
 namespace edm {
@@ -18,8 +20,8 @@ class DigiPileupCorrHistogramMaker {
 
  public:
   DigiPileupCorrHistogramMaker();
-  DigiPileupCorrHistogramMaker(const edm::ParameterSet& iConfig);
- 
+  DigiPileupCorrHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC);
+
   ~DigiPileupCorrHistogramMaker();
 
   void book(const std::string dirname, const std::map<unsigned int, std::string>& labels);
@@ -29,11 +31,11 @@ class DigiPileupCorrHistogramMaker {
 
  private:
 
-  const edm::InputTag m_pileupcollection;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > m_pileupcollectionToken;
   bool m_useVisibleVertices;
   std::string m_hitname;
   const int m_nbins;
-  const int m_scalefact; 
+  const int m_scalefact;
   std::map<unsigned int,int> m_binmax;
   std::map<unsigned int, std::string> m_labels;
 

@@ -2,7 +2,7 @@
 //
 // Package:    BigEventsDebugger
 // Class:      BigEventsDebugger
-// 
+//
 /**\class BigEventsDebugger BigEventsDebugger.cc myTKAnalyses/BigEventsDebugger/src/BigEventsDebugger.cc
 
  Description: <one line class summary>
@@ -67,7 +67,7 @@ class BigEventsDebugger : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 
   DigiCollectionProfiler<T> m_digiprofiler;
-  edm::InputTag m_collection;
+  edm::EDGetTokenT<T> m_collectionToken;
   bool m_singleevents;
   bool m_folded;
   bool m_want1dHisto;
@@ -95,7 +95,7 @@ class BigEventsDebugger : public edm::EDAnalyzer {
 template <class T>
 BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig):
   m_digiprofiler(iConfig),
-  m_collection(iConfig.getParameter<edm::InputTag>("collection")),
+  m_collectionToken(consumes<T>(iConfig.getParameter<edm::InputTag>("collection"))),
   m_singleevents(iConfig.getParameter<bool>("singleEvents")),
   m_folded(iConfig.getUntrackedParameter<bool>("foldedStrips",false)),
   m_want1dHisto(iConfig.getUntrackedParameter<bool>("want1dHisto",true)),
@@ -106,7 +106,7 @@ BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig):
    //now do what ever initialization is needed
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
-  
+
   for(std::vector<edm::ParameterSet>::const_iterator selconfig=selconfigs.begin();selconfig!=selconfigs.end();++selconfig) {
     m_labels.push_back(selconfig->getParameter<std::string>("label"));
   }
@@ -118,12 +118,12 @@ BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig):
     char dirname[500];
     sprintf(dirname,"Summary");
     TFileDirectory subd = tfserv->mkdir(dirname);
-    
+
     //book histos
-    
+
     unsigned int nbins =768;
     if(m_folded) nbins=256;
-    
+
     for(std::vector<std::string>::const_iterator label=m_labels.begin(); label!=m_labels.end(); ++label) {
       if(m_want1dHisto) {
 	std::string hname = *label + "hist";
@@ -148,7 +148,7 @@ template <class T>
 BigEventsDebugger<T>::~BigEventsDebugger()
 {
 
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -173,16 +173,16 @@ BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& i
    if(m_singleevents) {
 
      m_hist.clear();     m_hprof.clear();     m_hist2d.clear();
-     
+
      char dirname[500];
      sprintf(dirname,"event_%u_%u",iEvent.run(),iEvent.id().event());
      TFileDirectory subd = tfserv->mkdir(dirname);
-     
+
      //book histos
-     
+
      unsigned int nbins =768;
      if(m_folded) nbins=256;
-     
+
      for(std::vector<std::string>::const_iterator label=m_labels.begin(); label!=m_labels.end(); ++label) {
        if(m_want1dHisto) {
 	 std::string hname = *label + "hist";
@@ -200,13 +200,13 @@ BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	 m_hist2d.push_back(subd.make<TH2F>(hname.c_str(),htitle.c_str(),nbins,-0.5,nbins-0.5,257,-0.5,256.5));
        }
      }
-     
+
    }
 
    //analyze event
 
    Handle<T> digis;
-   iEvent.getByLabel(m_collection,digis);
+   iEvent.getByToken(m_collectionToken,digis);
    m_digiprofiler.fill(digis,m_hist,m_hprof,m_hist2d);
 
 }
@@ -214,14 +214,14 @@ BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 template <class T>
-void 
+void
 BigEventsDebugger<T>::beginJob(const edm::EventSetup&)
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 template <class T>
-void 
+void
 BigEventsDebugger<T>::endJob() {
 }
 

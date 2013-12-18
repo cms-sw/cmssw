@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
 
 
 namespace edm {
@@ -21,23 +23,25 @@ class DigiLumiCorrHistogramMaker {
 
  public:
   DigiLumiCorrHistogramMaker();
-  DigiLumiCorrHistogramMaker(const edm::ParameterSet& iConfig);
- 
+  DigiLumiCorrHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC);
+
   ~DigiLumiCorrHistogramMaker();
 
-  void book(const std::string dirname, const std::map<unsigned int, std::string>& labels);
-  void book(const std::string dirname);
+  void book(const std::string dirname, const std::map<unsigned int, std::string>& labels, edm::ConsumesCollector && iC) {book(dirname, labels, iC);};
+  void book(const std::string dirname, const std::map<unsigned int, std::string>& labels, edm::ConsumesCollector & iC);
+  void book(const std::string dirname, edm::ConsumesCollector && iC) {book(dirname, iC);};
+  void book(const std::string dirname, edm::ConsumesCollector & iC);
   void beginRun(const edm::Run& iRun);
   void fill(const edm::Event& iEvent, const std::map<unsigned int,int>& ndigi);
 
  private:
 
-  const edm::InputTag m_lumiProducer;
+  edm::EDGetTokenT<LumiDetails> m_lumiToken;
   std::map<unsigned int,RunHistogramManager*> m_fhm;
   bool m_runHisto;
   std::string m_hitname;
   const int m_nbins;
-  const int m_scalefact; 
+  const int m_scalefact;
   const double m_maxlumi;
   std::map<unsigned int,int> m_binmax;
   std::map<unsigned int, std::string> m_labels;
