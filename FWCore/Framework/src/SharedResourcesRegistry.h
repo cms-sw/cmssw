@@ -53,9 +53,18 @@ namespace edm {
     // ---------- member functions ---------------------------
     ///A resource name must be registered before it can be used in the createAcquirer call
     void registerSharedResource(const std::string&);
-    
+
+#ifdef SHAREDRESOURCETESTACCESSORS
+    // The next 3 functions are only intended to be used in a unit test
+    std::map<std::string, std::pair<std::shared_ptr<std::recursive_mutex>,unsigned int>> const& resourceMap() const { return resourceMap_; }
+
+    bool legacyRegistered() const { return legacyRegistered_; }
+
+    std::vector<std::string> const& nonLegacyResources() const { return nonLegacyResources_; }
+#endif
+
   private:
-    SharedResourcesRegistry()=default;
+    SharedResourcesRegistry();
     ~SharedResourcesRegistry()=default;
 
     SharedResourcesRegistry(const SharedResourcesRegistry&) = delete; // stop default
@@ -67,6 +76,8 @@ namespace edm {
     
     std::shared_ptr<std::recursive_mutex> resourceForDelayedReader_;
     
+    bool legacyRegistered_;
+    std::vector<std::string> nonLegacyResources_;
   };
 }
 
