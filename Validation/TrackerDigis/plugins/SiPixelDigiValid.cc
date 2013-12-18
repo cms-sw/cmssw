@@ -20,15 +20,15 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
-using namespace std;
-using namespace edm;
+//using namespace std;
+//using namespace edm;
 
-SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps)
-  : outputFile_( ps.getUntrackedParameter<string>( "outputFile", "pixeldigihisto.root" ) )
+SiPixelDigiValid::SiPixelDigiValid(const edm::ParameterSet& ps)
+  : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixeldigihisto.root" ) )
   , dbe_(0)
   , edmDetSetVector_PixelDigi_Token_( consumes< edm::DetSetVector<PixelDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {
  
-   dbe_ = Service<DQMStore>().operator->();
+   dbe_ = edm::Service<DQMStore>().operator->();
 
    if ( dbe_ ) {
      dbe_->setCurrentFolder("TrackerDigisV/TrackerDigis/Pixel");
@@ -278,7 +278,7 @@ void SiPixelDigiValid::endJob() {
 }
 
 
-void SiPixelDigiValid::analyze(const Event& e, const EventSetup& c){
+void SiPixelDigiValid::analyze(const edm::Event& e, const edm::EventSetup& c){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   c.get<IdealGeometryRecord>().get(tTopoHandle);
