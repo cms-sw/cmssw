@@ -4,4 +4,3 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Catalog"/>
 <use   name="rootcore"/>
-<flags   EDM_PLUGIN="1"/>
