@@ -20,6 +20,7 @@ class  SiStripDigiValid: public edm::EDAnalyzer {
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c);
      void beginJob();
+     void beginRun(edm::Run const& r, edm::EventSetup const& es);
      void endJob(void);
 
  private:
