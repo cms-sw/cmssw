@@ -75,7 +75,7 @@ namespace reco {
     /// return a Ptr to one of the source Candidates                                      
     /// ( the candidates used to construct this Candidate)                                
     virtual CandidatePtr sourceCandidatePtr( size_type i ) const GCC11_FINAL  {
-      static CandidatePtr dummyPtr;
+      static const CandidatePtr dummyPtr;
       return dummyPtr;
     }
 
@@ -153,7 +153,7 @@ namespace reco {
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowCloneCandidate                                
     virtual const CandidateBaseRef & masterClone() const GCC11_FINAL  { 
-      static CandidateBaseRef dummyRef; return dummyRef; 
+      static const CandidateBaseRef dummyRef; return dummyRef; 
     }
     /// returns true if this candidate has a ptr to a master clone.                                                    
     /// This only happens if the concrete Candidate type is ShallowClonePtrCandidate                                   
@@ -161,7 +161,7 @@ namespace reco {
     /// returns ptr to master clone, if existing.                                                                      
     /// Throws an exception unless the concrete Candidate type is ShallowClonePtrCandidate                             
     virtual const CandidatePtr & masterClonePtr() const GCC11_FINAL  { 
-      static CandidatePtr dummyPtr; return dummyPtr; 
+      static const CandidatePtr dummyPtr; return dummyPtr; 
     }
 
     /// cast master clone reference to a concrete type                                                                 
