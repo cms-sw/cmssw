@@ -3,13 +3,14 @@
 // Package:    L1T
 // Class:      L1Validator
 // 
-/**\class L1T L1Validator.cc Validation/L1T/plugins/L1Validator.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
+/**
+ * \class L1T L1Validator.cc Validation/L1T/plugins/L1Validator.cc
+ *
+ * Description: [one line class summary]
+ * 
+ * Implementation:
+ *    [Notes on implementation]
+ */
 //
 // Original Author:  Scott Wilbur
 //         Created:  Wed, 28 Aug 2013 09:42:55 GMT
@@ -87,15 +88,6 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Handle<L1JetParticleCollection> Taus;
   Handle<L1MuonParticleCollection> Muons;
   //Handle<L1EtMissParticleCollection> METs;
-
-/*  iEvent.getByLabel("genParticles", GenParticles);
-  iEvent.getByLabel("l1extraParticles", "Isolated", IsoEGs);
-  iEvent.getByLabel("l1extraParticles", "NonIsolated", NonIsoEGs);
-  iEvent.getByLabel("l1extraParticles", "Central", CenJets);
-  iEvent.getByLabel("l1extraParticles", "Forward", ForJets);
-  iEvent.getByLabel("l1extraParticles", "Tau", Taus);
-  iEvent.getByLabel("l1extraParticles", Muons);*/
-  //iEvent.getByLabel("l1extraParticles", METs);
 
   bool GotEverything=true;
 

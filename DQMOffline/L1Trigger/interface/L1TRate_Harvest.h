@@ -1,15 +1,6 @@
 #ifndef DQMOFFLINE_L1TRIGGER_L1TRATE_HARVEST_H
 #define DQMOFFLINE_L1TRIGGER_L1TRATE_HARVEST_H
 
-/*
- * \file L1TRate_Harvest.h
- *
- * $Date: 2013/03/26 20:56:59 $
- * $Revision: 1.2 $
- * \author F. Nguyen, J. Pela
- *
-*/
-
 // system include files
 #include <memory>
 #include <unistd.h>

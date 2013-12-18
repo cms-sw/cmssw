@@ -1,12 +1,3 @@
-/*
- * \file L1TRate_Harvest.cc
- *
- * $Date: 2013/03/26 20:56:59 $
- * $Revision: 1.3 $
- * \author F.Nguyen, J. Pela
- *
- */
-
 // L1TMonitor includes
 #include "DQMOffline/L1Trigger/interface/L1TRate_Harvest.h"
 
