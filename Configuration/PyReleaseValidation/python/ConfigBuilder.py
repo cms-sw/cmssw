@@ -67,8 +67,6 @@ defaultOptions.donotDropOnInput = ''
 defaultOptions.python_filename =''
 defaultOptions.io=None
 defaultOptions.lumiToProcess=None
-defaultOptions.runsAndWeightsForMC = None
-defaultOptions.runsScenarioForMC = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -1315,9 +1313,6 @@ class ConfigBuilder(object):
 
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
-
-        if self._options.himix==True:
-            self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
 
 	if self._options.restoreRNDSeeds:
 		self.executeAndRemember("process.mix.playback = True")
