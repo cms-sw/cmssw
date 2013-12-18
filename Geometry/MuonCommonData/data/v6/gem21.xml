@@ -130,6 +130,7 @@
     <Constant name="dxBotFoil"  value="([dxTopFoil]-2*[slope]*[dzFoil])"/>
     <Constant name="dxBotFoilL" value="([dxTopFoil]-2*[slope]*[dzFoilL])"/>
     <Constant name="yFoil3"     value="([yGap3]+[dyGap3]+[dyFoil])"/>
+    <Constant name="dyGap4"     value="(1.0*mm-[dyFoil])/2"/>
   </ConstantsSection>
   <SolidSection label="gem21.xml">
 		<Polycone name="GEM21" startPhi="0*deg" deltaPhi="360*deg">

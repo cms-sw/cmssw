@@ -17,6 +17,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/SeedGeneratorForCosmics.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
 
 class CosmicSeedGenerator : public edm::EDProducer
@@ -32,6 +33,7 @@ class CosmicSeedGenerator : public edm::EDProducer
  private:
   edm::ParameterSet conf_;
   SeedGeneratorForCosmics  cosmic_seed;
+  ClusterChecker check;
 
 
 };

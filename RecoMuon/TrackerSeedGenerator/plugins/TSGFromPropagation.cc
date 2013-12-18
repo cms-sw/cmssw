@@ -26,16 +26,9 @@
  
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC): TSGFromPropagation(iConfig, iC, nullptr) {}
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig,edm::ConsumesCollector & iC) :theTkLayerMeasurements (), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
-{
-  theCategory = "Muon|RecoMuon|TSGFromPropagation";
-  theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
-  theMeasurementTrackerEventTag = iConfig.getParameter<edm::InputTag>("MeasurementTrackerEvent");
-  beamspotToken = iC.consumes<reco::BeamSpot>(theConfig.getParameter<edm::InputTag>("beamSpot")); 
-}
-
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service,edm::ConsumesCollector& iC) : theTkLayerMeasurements (), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC, const MuonServiceProxy* service) : theTkLayerMeasurements (), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theUpdator(0), theEstimator(0), theTSTransformer(0), theSigmaZ(0), theConfig (iConfig)
 {
   theCategory = "Muon|RecoMuon|TSGFromPropagation";
   theMeasTrackerName = iConfig.getParameter<std::string>("MeasurementTrackerName");
@@ -175,6 +168,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   theSigmaZ = theConfig.getParameter<double>("SigmaZ");
 
+  theBeamSpotInputTag = theConfig.getParameter<edm::InputTag>("beamSpot");
 
   edm::ParameterSet errorMatrixPset = theConfig.getParameter<edm::ParameterSet>("errorMatrixPset");
   if ( theResetMethod == "matrix" && !errorMatrixPset.empty()){
@@ -191,7 +185,8 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 }
 
 void TSGFromPropagation::setEvent(const edm::Event& iEvent) {
-  iEvent.getByToken(beamspotToken, beamSpot);
+  //edm::Handle<reco::BeamSpot> beamSpot;
+  iEvent.getByLabel(theBeamSpotInputTag, beamSpot);
 
   unsigned long long newCacheId_MT = theService->eventSetup().get<CkfComponentsRecord>().cacheIdentifier();
 
