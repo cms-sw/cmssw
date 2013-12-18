@@ -239,6 +239,22 @@ bool TECLayer::addClosest( const TrajectoryStateOnSurface& tsos,
   return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result); 
 }
 
+
+namespace {
+  inline
+  bool overlap(float phi, const TECPetal& gsdet, float phiWin) {
+    
+    const BoundDiskSector &  diskSector = gsdet.specificSurface();
+    pair<float,float> phiRange(phi-phiWin,phi+phiWin);
+    pair<float,float> petalPhiRange(diskSector.phi() - 0.5f*diskSector.phiExtension(),
+				    diskSector.phi() + 0.5f*diskSector.phiExtension());
+    
+    
+    return rangesIntersect(phiRange, petalPhiRange, PhiLess());
+  }
+  
+}
+
 void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				const Propagator& prop,
 				const MeasurementEstimator& est,
@@ -248,7 +264,8 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				bool checkClosest) const
 {
   GlobalPoint gCrossingPos = crossing.position();
-  
+  auto gphi = gCrossingPos.barePhi();  
+
   const auto & sLayer( subLayer( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
@@ -256,7 +273,7 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gCrossingPos.barePhi(), sLayer[closestIndex]->surface().phi())) {
+    if ( PhiLess()( gphi, sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {
@@ -270,29 +287,19 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
     const auto & neighborPetal = *sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, neighborPetal, window)) break;
+    if (!overlap( gphi, neighborPetal, window)) break;
     if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + half; idet++) {
     const auto & neighborPetal = *sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, neighborPetal, window)) break;
+    if (!overlap( gphi, neighborPetal, window)) break;
     if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
-bool TECLayer::overlap( const GlobalPoint& gpos, const TECPetal& gsdet, float phiWin) const
-{
-  float phi = gpos.barePhi();
-  const BoundDiskSector &  diskSector = gsdet.specificSurface();
-  pair<float,float> phiRange(phi-phiWin,phi+phiWin);
-  pair<float,float> petalPhiRange(diskSector.phi() - 0.5*diskSector.phiExtension(),
-				  diskSector.phi() + 0.5*diskSector.phiExtension());
 
-
-  return rangesIntersect(phiRange, petalPhiRange, PhiLess());
-}
 
 
 

@@ -145,6 +145,36 @@ double TOBLayer::calculatePhiWindow( double Xmax, const GeomDet& det,
 }
 
 
+namespace {
+
+  inline
+  bool overlap(float phi, const GeometricSearchDet& gsdet, float phiWin) {
+    
+    
+    // introduce offset (extrapolated point and true propagated point differ by 0.0003 - 0.00033, 
+    // due to thickness of Rod of 1 cm) 
+    constexpr float phiOffset = 0.00034;  //...TOBE CHECKED LATER...
+    phiWin += phiOffset;
+    
+    // detector phi range
+    std::pair<float,float> phiRange(phi-phiWin, phi+phiWin);
+    
+    //   // debug
+    //   edm::LogInfo(TkDetLayers) ;
+    //   edm::LogInfo(TkDetLayers) << " overlapInPhi: position, det phi range " 
+    //        << "("<< rod.position().perp() << ", " << rod.position().phi() << ")  "
+    //        << rodRange.phiRange().first << " " << rodRange.phiRange().second ;
+    //   edm::LogInfo(TkDetLayers) << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin ;
+    //   edm::LogInfo(TkDetLayers) << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin ;
+    
+    return rangesIntersect(phiRange, gsdet.surface().phiSpan(), PhiLess());
+  } 
+
+
+
+}
+
+
 void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				const Propagator& prop,
 				const MeasurementEstimator& est,
@@ -154,6 +184,7 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				bool checkClosest) const
 {
   GlobalPoint gCrossingPos = crossing.position();
+  auto gphi = gCrossingPos.barePhi();  
 
   const vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));
  
@@ -162,7 +193,7 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gCrossingPos.barePhi(), sLayer[closestIndex]->surface().phi())) {
+    if ( PhiLess()( gphi, sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {
@@ -176,39 +207,16 @@ void TOBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int quarter = sLayer.size()/4;
   for (int idet=negStartIndex; idet >= negStartIndex - quarter; idet--) {
     const GeometricSearchDet & neighborRod = *sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, neighborRod, window)) break;
+    if (!overlap( gphi, neighborRod, window)) break;
     if (!Adder::add( neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + quarter; idet++) {
     const GeometricSearchDet & neighborRod = *sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, neighborRod, window)) break;
+    if (!overlap( gphi, neighborRod, window)) break;
     if (!Adder::add( neighborRod, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
-
-bool TOBLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
-{
-  GlobalPoint crossPoint(gpos);
-
-  // introduce offset (extrapolated point and true propagated point differ by 0.0003 - 0.00033, 
-  // due to thickness of Rod of 1 cm) 
-  constexpr float phiOffset = 0.00034;  //...TOBE CHECKED LATER...
-  phiWin += phiOffset;
-
-  // detector phi range
-  std::pair<float,float> phiRange(crossPoint.barePhi()-phiWin, crossPoint.barePhi()+phiWin);
-
-  //   // debug
-  //   edm::LogInfo(TkDetLayers) ;
-  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: position, det phi range " 
-  //        << "("<< rod.position().perp() << ", " << rod.position().phi() << ")  "
-  //        << rodRange.phiRange().first << " " << rodRange.phiRange().second ;
-  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: cross point phi, window " << crossPoint.phi() << " " << phiWin ;
-  //   edm::LogInfo(TkDetLayers) << " overlapInPhi: search window: " << crossPoint.phi()-phiWin << "  " << crossPoint.phi()+phiWin ;
-
-  return rangesIntersect(phiRange, gsdet.surface().phiSpan(), PhiLess());
-} 
 
 
