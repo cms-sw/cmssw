@@ -12,6 +12,8 @@ using namespace reco;
 PFEGammaFilters::PFEGammaFilters(float ph_Et,
 				 float ph_combIso,
 				 float ph_loose_hoe,
+				 float ph_sietaieta_eb,
+				 float ph_sietaieta_ee,
 				 const edm::ParameterSet& ph_protectionsForJetMET,
 				 float ele_iso_pt,
 				 float ele_iso_mva_eb,
@@ -26,6 +28,8 @@ PFEGammaFilters::PFEGammaFilters(float ph_Et,
   ph_Et_(ph_Et),
   ph_combIso_(ph_combIso),
   ph_loose_hoe_(ph_loose_hoe),
+  ph_sietaieta_eb_(ph_sietaieta_eb),
+  ph_sietaieta_ee_(ph_sietaieta_ee),
   pho_sumPtTrackIso(ph_protectionsForJetMET.getParameter<double>("sumPtTrackIso")), 
   pho_sumPtTrackIsoSlope(ph_protectionsForJetMET.getParameter<double>("sumPtTrackIsoSlope")),
   ele_iso_pt_(ele_iso_pt),
@@ -60,13 +64,25 @@ bool PFEGammaFilters::passPhotonSelection(const reco::Photon & photon) {
 
   // Photon ET
   if(photon.pt()  < ph_Et_ ) return false;
-  //std::cout<<"Cuts "<<combIso_<<" H/E "<<loose_hoe_<<std::endl;
-  if (photon.hadronicOverEm() >ph_loose_hoe_ ) return false;
+//   std::cout<< "Cuts " << ph_combIso_ << " H/E " << ph_loose_hoe_ 
+// 	   << " SigmaiEtaiEta_EB " << ph_sietaieta_eb_  
+// 	   << " SigmaiEtaiEta_EE " << ph_sietaieta_ee_ << std::endl;
+
+  if (photon.hadTowOverEm() >ph_loose_hoe_ ) return false;
   //Isolation variables in 0.3 cone combined
   if(photon.trkSumPtHollowConeDR03()+photon.ecalRecHitSumEtConeDR03()+photon.hcalTowerSumEtConeDR03() > ph_combIso_)
     return false;		
   
-  
+  if(photon.isEB()) {
+    if(photon.sigmaIetaIeta() > ph_sietaieta_eb_) 
+      return false;
+  }
+  else {
+    if(photon.sigmaIetaIeta() > ph_sietaieta_ee_) 
+      return false;
+  }
+
+
   return true;
 }
 
@@ -95,8 +111,8 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron & electron,
 
   }
 
-  // TO BE CHANGED by accessing from GsfElectron
-  if(pfcand.mva_e_pi() > ele_noniso_mva_) {
+  //  cout << " My OLD MVA " << pfcand.mva_e_pi() << " MyNEW MVA " << electron.mva() << endl;
+  if(electron.mva() > ele_noniso_mva_) {
     passEleSelection = true; 
   }
   

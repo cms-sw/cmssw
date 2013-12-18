@@ -11,7 +11,6 @@
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-//#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 class CaloGeometry;
 
@@ -25,7 +24,6 @@ class EcalClusterLocal {
 
 	  void localCoordsEB( const reco::CaloCluster &bclus, const CaloGeometry & geom, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const;
           void localCoordsEE( const reco::CaloCluster &bclus, const CaloGeometry & geom, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const;
-
 
 };
 
