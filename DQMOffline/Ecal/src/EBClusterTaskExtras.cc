@@ -811,7 +811,7 @@ void EBClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
       }
    } else {
 
-      LogWarning("EBClusterTaskExtras") << "SuperClusterCollection not available";
+     //      LogWarning("EBClusterTaskExtras") << "SuperClusterCollection not available";
 
    }
 

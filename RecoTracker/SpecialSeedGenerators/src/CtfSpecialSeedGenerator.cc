@@ -13,14 +13,14 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
-
 using namespace ctfseeding;
 
 CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf): 
   conf_(conf),
   requireBOFF(conf.getParameter<bool>("requireBOFF")),
-  theMaxSeeds(conf.getParameter<int32_t>("maxSeeds"))
+  theMaxSeeds(conf.getParameter<int32_t>("maxSeeds")),
+  check(conf,consumesCollector())
+
 {
   	useScintillatorsConstraint = conf_.getParameter<bool>("UseScintillatorsConstraint");
   	edm::LogVerbatim("CtfSpecialSeedGenerator") << "Constructing CtfSpecialSeedGenerator";
@@ -146,7 +146,6 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   
   //check on the number of clusters
-  ClusterChecker check(conf_);
   if ( !requireBOFF || (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) ) {
       size_t clustsOrZero = check.tooManyClusters(e);
       if (!clustsOrZero){
