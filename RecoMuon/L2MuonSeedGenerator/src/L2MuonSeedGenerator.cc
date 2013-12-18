@@ -66,7 +66,8 @@ L2MuonSeedGenerator::L2MuonSeedGenerator(const edm::ParameterSet& iConfig) :
   theL1MinPt(iConfig.getParameter<double>("L1MinPt")),
   theL1MaxEta(iConfig.getParameter<double>("L1MaxEta")),
   theL1MinQuality(iConfig.getParameter<unsigned int>("L1MinQuality")),
-  useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)){
+  useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
+  useUnassociatedL1(iConfig.getUntrackedParameter<bool>("UseUnassociatedL1", true)){
   
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
@@ -306,10 +307,12 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 						     L1MuonParticleRef(muColl,l1ParticleIndex)));
 	    }
 	    else {
-	      // convert the TSOS into a PTSOD
-	      PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
-	      output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
-						     L1MuonParticleRef(muColl,l1ParticleIndex)));
+	      if(useUnassociatedL1) {
+		// convert the TSOS into a PTSOD
+		PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState( newTSOS,newTSOSDet->geographicalId().rawId());
+		output->push_back(L2MuonTrajectorySeed(seedTSOS,container,alongMomentum,
+						       L1MuonParticleRef(muColl,l1ParticleIndex)));
+	      }
 	    }
 	  }
 	  else {
