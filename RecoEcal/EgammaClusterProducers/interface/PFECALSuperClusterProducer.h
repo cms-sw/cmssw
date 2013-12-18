@@ -23,7 +23,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h" 
-#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+#include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
@@ -65,18 +65,7 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   bool   verbose_;
   // regression
   bool use_regression;
-  float rinputs[33];
-  EcalClusterLocal ecl_;
-  std::string eb_reg_key, ee_reg_key;
-  const GBRWrapperRcd* gbr_record;
-  edm::ESHandle<GBRForest> eb_reg, ee_reg;
-  const CaloTopologyRecord* topo_record;
-  edm::ESHandle<CaloTopology> calotopo;
-  double getRegressionCorrection(const reco::SuperCluster&, 
-				 const edm::Handle<reco::VertexCollection>&,
-				 const edm::Handle<EcalRecHitCollection>&,
-				 const edm::Handle<EcalRecHitCollection>&,
-				 const edm::EventSetup& );
+  std::unique_ptr<PFSCRegressionCalc> regr_;  
   
   edm::EDGetTokenT<edm::View<reco::PFCluster> >   inputTagPFClusters_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation>   inputTagPFClustersES_;
