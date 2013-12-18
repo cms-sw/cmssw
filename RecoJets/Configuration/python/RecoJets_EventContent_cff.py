@@ -55,6 +55,7 @@ RecoGenJetsFEVT = cms.PSet(
 RecoJetsRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(#'keep *_kt4CaloJets_*_*', 
                                            'keep *_kt6CaloJets_*_*',
+                                           'keep *_ak4CaloJets_*_*',
                                            'keep *_ak5CaloJets_*_*',
                                            #'keep *_ak7CaloJets_*_*', 
                                            #'keep *_kt4PFJets_*_*', 
@@ -63,6 +64,7 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_ak5PFJets_*_*',
                                            #'keep *_ak7PFJets_*_*',
                                            'keep *_ak8PFJets_*_*',                                           
+                                           'keep *_ak4PFJetsCHS_*_*',
                                            'keep *_ak5PFJetsCHS_*_*',
                                            'keep *_ak8PFJetsCHS_*_*',
                                            'keep *_ca8PFJetsCHS_*_*',
@@ -114,7 +116,9 @@ RecoGenJetsRECO = cms.PSet(
 RecoJetsAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(#        'keep *_kt4CaloJets_*_*', 
                                            #        'keep *_kt6CaloJets_*_*',
+                                           'keep *_ak4CaloJets_*_*',
                                            'keep *_ak5CaloJets_*_*',
+                                           'keep *_ak4PFJetsCHS_*_*',
                                            'keep *_ak5PFJetsCHS_*_*',
                                            'keep *_ak8PFJetsCHS_*_*',
                                            'keep *_ca8PFJetsCHS_*_*',
