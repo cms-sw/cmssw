@@ -13,6 +13,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripRunSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
+#include "CondFormats/SiStripObjects/interface/Phase2TrackerModule.h"
+#include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 
 namespace {
   struct dictionary {
@@ -26,6 +28,8 @@ namespace {
    
     std::vector<SiStripThreshold::Container>  tmp22;
     std::vector< SiStripThreshold::DetRegistry >  tmp24;
+
+    std::vector<Phase2TrackerModule> vp2m;
  
   };
 }  
