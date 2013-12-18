@@ -177,7 +177,7 @@ void TIBLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
 bool TIBLayer::overlap( const GlobalPoint& crossPoint,
 			const GeometricSearchDet& det, 
-			float window) const
+			float window)
 {
   float halfLength = 0.5f*det.surface().bounds().length();
 

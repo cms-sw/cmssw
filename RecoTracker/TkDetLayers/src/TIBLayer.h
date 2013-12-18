@@ -41,7 +41,7 @@ class TIBLayer GCC11_FINAL : public TBLayer {
 			   const TrajectoryStateOnSurface& tsos, 
 			   const MeasurementEstimator& est) const  __attribute__ ((hot));
 
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& ring, float window) const  __attribute__ ((hot));
+  static bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& ring, float window)   __attribute__ ((hot));
 
 
   GeneralBinFinderInZforGeometricSearchDet<float> theInnerBinFinder;
