@@ -21,10 +21,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
-using namespace std;
-using namespace edm;
-
-SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps)
+SiStripDigiValid::SiStripDigiValid(const edm::ParameterSet& ps)
   : dbe_(0)
   , outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "stripdigihisto.root" ) )
   , edmDetSetVector_SiStripDigi_Token_( consumes< edm::DetSetVector<SiStripDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {
@@ -42,7 +39,7 @@ void SiStripDigiValid::beginJob(){
 }
 
 void SiStripDigiValid::beginRun(edm::Run const& r, edm::EventSetup const& es) {
-   dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
 
    if ( dbe_ ) {
      dbe_->setCurrentFolder("TrackerDigisV/TrackerDigis/Strip");
@@ -341,7 +338,7 @@ void SiStripDigiValid::endJob() {
 }
 
 
-void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
+void SiStripDigiValid::analyze(const edm::Event& e, const edm::EventSetup& c){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   c.get<IdealGeometryRecord>().get(tTopoHandle);
@@ -384,7 +381,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
 
 
  //LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
- ESHandle<TrackerGeometry> tracker;
+ edm::ESHandle<TrackerGeometry> tracker;
  c.get<TrackerDigiGeometryRecord>().get( tracker );
 
  std::string digiProducer = "siStripDigis";
