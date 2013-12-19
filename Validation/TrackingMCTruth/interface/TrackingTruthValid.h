@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
@@ -25,11 +24,10 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   void endJob();
   
  private:
-  DQMStore* dbe_;
-  edm::ParameterSet conf_;
   std::string outputFile;
   edm::InputTag src_;
   
+  DQMStore* dbe_;
   MonitorElement* meTPMass;
   MonitorElement* meTPCharge; 
   MonitorElement* meTPId;
