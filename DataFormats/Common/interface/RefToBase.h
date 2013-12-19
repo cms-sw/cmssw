@@ -115,7 +115,11 @@ namespace edm {
     CMS_CLASS_VERSION(10)
   private:
     value_type const* getPtrImpl() const;
-    reftobase::BaseHolder<value_type>* holder_;
+    // FIXME: the "edm::" should not be needed here, but is here
+    // as a workaround for a ROOT6 bug.  It will be removed
+    // (with this reminder note) after the ROOT6 bug is fixed.
+    edm::reftobase::BaseHolder<value_type>* holder_;
+    //reftobase::BaseHolder<value_type>* holder_;
     friend class RefToBaseVector<T>;
     friend class RefToBaseProd<T>;
     template<typename B> friend class RefToBase;
