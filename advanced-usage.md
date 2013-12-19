@@ -42,7 +42,7 @@ top left part of the page:
 ![branches-dialog](images/branches-dialog.png)
 
 The source-code of the official CMSSW can be searched by using
-<https://github.com/cms-sw/cmssw/search>.
+https://github.com/cms-sw/cmssw/search .
 
 If you prefer using the command line interface, you can do the same by using
 `git grep` command inside `CMSSW/src` area:
