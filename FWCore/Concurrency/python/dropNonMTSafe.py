@@ -17,6 +17,9 @@ def dropNonMTSafe(process):
   _dropFromPaths(process,"SiStripMonitorDigi")
   _dropFromPaths(process,"SiStripMonitorCluster")
   _dropFromPaths(process,"SiStripMonitorTrack_ckf")
+  _dropFromPaths(process,"SiStripMonitorClusterBPTX")
+  _dropFromPaths(process,"siStripOfflineAnalyser")
+  _dropFromPaths(process,"SiStripMonitorTrackCommon")
 
   process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(8),
                                        numberOfStreams = cms.untracked.uint32(0))

@@ -5,27 +5,40 @@
 //
 //--------------------------------------------
 #include "Validation/TrackerRecHits/interface/SiStripRecHitsValid.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 
-//needed for the geometry: 
-#include "DataFormats/DetId/interface/DetId.h" 
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-
-//--- for RecHit
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
-#include "DataFormats/Common/interface/OwnVector.h" 
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-using namespace std;
-using namespace edm;
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
+
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 
 namespace helper { 
     struct GetDetId { 
@@ -47,15 +60,27 @@ namespace helper {
 
 
 //Constructor
-SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
-  dbe_(0),	
-  conf_(ps),
-  matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
-  rphiRecHits_( ps.getParameter<edm::InputTag>("rphiRecHits") ),
-  stereoRecHits_( ps.getParameter<edm::InputTag>("stereoRecHits") ) {
+SiStripRecHitsValid::SiStripRecHitsValid(const edm::ParameterSet& ps)
+  : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "sistriprechitshisto.root" ) )
+  , dbe_(0)
+  , conf_(ps)
+  , siStripMatchedRecHit2DCollectionToken_( consumes<SiStripMatchedRecHit2DCollection>( ps.getParameter<edm::InputTag>( "matchedRecHits" ) ) )
+  , siStripRecHit2DCollection_rphi_Token_( consumes<SiStripRecHit2DCollection>( ps.getParameter<edm::InputTag>( "rphiRecHits" ) ) )
+  , siStripRecHit2DCollection_stereo_Token_( consumes<SiStripRecHit2DCollection>( ps.getParameter<edm::InputTag>("stereoRecHits") ) ) {
 
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
-  dbe_ = Service<DQMStore>().operator->();
+}
+
+
+SiStripRecHitsValid::~SiStripRecHitsValid(){
+ //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+}
+
+void SiStripRecHitsValid::beginJob(){
+
+}
+
+void SiStripRecHitsValid::beginRun( const edm::Run& r, const edm::EventSetup& c ) {
+  dbe_ = edm::Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/SISTRIP");
 
@@ -310,16 +335,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
       sprintf(histo,"Chi2_matched_layer%dtec",i+1);
       meChi2MatchedTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
     }
-  }
-}
-
-
-SiStripRecHitsValid::~SiStripRecHitsValid(){
- //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}
-
-void SiStripRecHitsValid::beginJob(){
-
+  }  
 }
 
 void SiStripRecHitsValid::endJob() {
@@ -334,8 +350,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 
 
-  LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  
-  //cout  << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;  
+  edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  
+  //std::cout  << " Run = " << e.id().run() << " Event = " << e.id().event() << std::endl;
   
   //--- get RecHits
   
@@ -345,9 +361,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
   edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
   edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
-  e.getByLabel(matchedRecHits_, rechitsmatched);
-  e.getByLabel(rphiRecHits_, rechitsrphi);
-  e.getByLabel(stereoRecHits_, rechitsstereo);
+  e.getByToken( siStripMatchedRecHit2DCollectionToken_, rechitsmatched );
+  e.getByToken( siStripRecHit2DCollection_rphi_Token_, rechitsrphi );
+  e.getByToken( siStripRecHit2DCollection_stereo_Token_, rechitsstereo );
 
   int numrechitrphi   =0;
   int numrechitsas    =0;
@@ -464,7 +480,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	float dist = 999999;
 	PSimHit closest;
 	if(!matched.empty()){
-	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	  for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    dist = fabs(rechitrphix[i] - (*m).localPosition().x());
 	    if(dist<mindist){
 	      mindist = dist;
@@ -546,7 +562,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	matched.clear();
 	matched = associate.associateHit(rechit);
 	if(!matched.empty()){
-	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	  for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    dist = fabs(rechitsasx[j] - (*m).localPosition().x());
 	    if(dist<mindist){
 	      mindist = dist;
@@ -636,7 +652,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 	  //std::cout << " RECHIT position = " << position << std::endl;	  
 	  
-	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	  for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    //project simhit;
 	    hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
 	    distx = fabs(rechitmatchedx[k] - hitPair.first.x());
