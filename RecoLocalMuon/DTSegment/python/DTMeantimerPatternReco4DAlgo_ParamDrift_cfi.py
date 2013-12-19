@@ -30,8 +30,7 @@ DTMeantimerPatternReco4DAlgo_ParamDrift = cms.PSet(
         # theta segment will be recomputed from the 1D rechits
         # If false the theta segment will be taken from the Event. Caveat: in this case the
         # event must contain the 2D segments!
-        AllDTRecHits = cms.bool(True),
-        enable_3par_fit = cms.bool(False)
+        AllDTRecHits = cms.bool(True)
     )
 )
 

@@ -186,7 +186,7 @@ vector<DTChamberRecSegment2D> DTRefitAndCombineReco4D::refitSuperSegments(){
       DTChamberRecSegment2D superPhi(chId,recHitsSeg2DPhi1); 
       
       // refit it!
-      theUpdator->fit(&superPhi);
+      theUpdator->fit(&superPhi,0);
       
       // cut on the chi^2
       if (superPhi.chi2() > theMaxChi2forPhi)

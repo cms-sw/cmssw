@@ -28,7 +28,6 @@ DTMeantimerPatternReco2DAlgo_ParamDrift = cms.PSet(
         performT0_vdriftSegCorrection = cms.bool(False),
         hit_afterT0_resolution = cms.double(0.03),
         performT0SegCorrection = cms.bool(False),
-        enable_3par_fit = cms.bool(False),
         perform_delta_rejecting = cms.bool(False)
     ),
     Reco2DAlgoName = cms.string('DTMeantimerPatternReco')
