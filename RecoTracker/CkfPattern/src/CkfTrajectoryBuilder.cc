@@ -187,7 +187,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 {
   unsigned int nIter=1;
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
-
+  newCand.reserve(2*theMaxCand);
 
   
   auto trajCandLess = [&](TempTrajectory const & a, TempTrajectory const & b) {
@@ -255,7 +255,8 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
       if ((int)newCand.size() > theMaxCand) {
 	std::sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
 	// std::partial_sort( newCand.begin(), newCand.begin()+theMaxCand, newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
-	std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' ' << trajVal(newCand.back()) << ' ' << trajVal(newCand[theMaxCand-1]) << ' ' << trajVal(newCand[theMaxCand])  << std::endl;
+	std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' '
+	<< trajVal(newCand.back()) << ' ' << trajVal(newCand[theMaxCand-1]) << ' ' << trajVal(newCand[theMaxCand])  << std::endl;
 	newCand.resize(theMaxCand);
       }
       */
