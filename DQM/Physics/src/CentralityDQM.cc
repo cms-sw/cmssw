@@ -11,77 +11,15 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 
-// Candidate handling
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/Candidate/interface/OverlapChecker.h"
-#include "DataFormats/Candidate/interface/CompositeCandidate.h"
-#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h"
-
-// Vertex utilities
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-// Other
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Common/interface/RefToBase.h"
-
-// Math
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/Common/interface/AssociationVector.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-
-// vertexing
-
-// Transient tracks
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-//JetCorrection
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
-// ROOT
-#include "TLorentzVector.h"
 // Centrality
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 #include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-// STDLIB
-#include <iostream>
-#include <iomanip>
-#include <stdio.h>
-#include <string>
-#include <sstream>
-#include <math.h>
 
 using namespace edm;
-using namespace std;
 using namespace reco; 
-using namespace trigger;
-
-typedef vector<string> vstring;
-
-struct SortCandByDecreasingPt {
-  bool operator()( const Candidate &c1, const Candidate &c2) const {
-    return c1.pt() > c2.pt();
-  }
-};
 
 
 //
@@ -95,11 +33,7 @@ CentralityDQM::CentralityDQM(const edm::ParameterSet& ps){
   bei_->setCurrentFolder("Physics/Centrality");
   bookHistos(bei_);
 
-  typedef std::vector<edm::InputTag> vtag;
-
-  //  edm::InputTag _centralitytag;
   // just to initialize
-  //isValidHltConfig_ = false;
 }
 
 
@@ -115,9 +49,7 @@ CentralityDQM::~CentralityDQM(){
 // -- Begin Job
 //
 void CentralityDQM::beginJob(){
-  //  nLumiSecs_ = 0;
-  //nEvents_   = 0;
-  //pi = 3.14159265;
+  nLumiSecs_ = 0;
 }
 
 
@@ -126,14 +58,6 @@ void CentralityDQM::beginJob(){
 //
 void CentralityDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("CentralityDQM") <<"[CentralityDQM]: Begining of Run";
-  
-  // passed as parameter to HLTConfigProvider::init(), not yet used
-  //  bool isConfigChanged = false;
-  
-  // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  //  const std::string hltProcessName( "HLT" );
-
-
 }
 
 
@@ -151,7 +75,6 @@ void CentralityDQM::bookHistos(DQMStore* bei){
  
   bei->cd();
   
-  //--- Multijets
   bei->setCurrentFolder("Physics/Centrality");
   
   h_hiNpix= bei->book1D("h_hiNpix", "h_hiNpix", 1000,0,1000 );
@@ -177,9 +100,6 @@ void CentralityDQM::bookHistos(DQMStore* bei){
   h_hiZDC= bei->book1D("h_hiZDC", "h_hiZDC",1000,0,1000 ); 
   h_hiZDCplus= bei->book1D("h_hiZDCplus", "h_hiZDCplus",1000,0,1000 ); 
   h_hiZDCminus= bei->book1D("h_hiZDCminus", "h_hiZDCminus", 1000,0,1000);
-  
-  
-
   bei->cd();
 }
 
@@ -192,6 +112,7 @@ void CentralityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<reco::Centrality> centrality_;
   iEvent.getByLabel("hiCentrality",centrality_); //_centralitytag comes from the cfg as an inputTag and is "hiCentrality"
 
+  if (!centrality_.isValid()) return;
 
   h_hiNpix->Fill(centrality_->multiplicityPixel());
   h_hiNpixelTracks ->Fill( centrality_->NpixelTracks());
@@ -212,16 +133,9 @@ void CentralityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
 }
 
-void CentralityDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSetup& iSetup){  }
-
 //
 // -- End Luminosity Block
-void CentralityDQM::analyzeMultiJets(const Event & iEvent){}
-void CentralityDQM::analyzeMultiJetsTrigger(const Event & iEvent){}
-void CentralityDQM::analyzeLongLived(const Event & iEvent){ }
 void CentralityDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) { nLumiSecs_++;}
-void CentralityDQM::analyzeLongLivedTrigger(const Event & iEvent){}
-
 
 //
 // -- End Run
