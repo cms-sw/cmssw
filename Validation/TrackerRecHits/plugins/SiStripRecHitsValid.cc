@@ -40,9 +40,6 @@
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 
-using namespace std;
-using namespace edm;
-
 namespace helper { 
     struct GetDetId { 
         template<typename X> 
@@ -63,7 +60,7 @@ namespace helper {
 
 
 //Constructor
-SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps)
+SiStripRecHitsValid::SiStripRecHitsValid(const edm::ParameterSet& ps)
   : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "sistriprechitshisto.root" ) )
   , dbe_(0)
   , conf_(ps)
@@ -83,7 +80,7 @@ void SiStripRecHitsValid::beginJob(){
 }
 
 void SiStripRecHitsValid::beginRun( const edm::Run& r, const edm::EventSetup& c ) {
-  dbe_ = Service<DQMStore>().operator->();
+  dbe_ = edm::Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/SISTRIP");
 
@@ -353,8 +350,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 
 
-  LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  
-  //cout  << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;  
+  edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  
+  //std::cout  << " Run = " << e.id().run() << " Event = " << e.id().event() << std::endl;
   
   //--- get RecHits
   
@@ -483,7 +480,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	float dist = 999999;
 	PSimHit closest;
 	if(!matched.empty()){
-	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	  for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    dist = fabs(rechitrphix[i] - (*m).localPosition().x());
 	    if(dist<mindist){
 	      mindist = dist;
@@ -565,7 +562,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	matched.clear();
 	matched = associate.associateHit(rechit);
 	if(!matched.empty()){
-	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	  for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    dist = fabs(rechitsasx[j] - (*m).localPosition().x());
 	    if(dist<mindist){
 	      mindist = dist;
@@ -655,7 +652,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
 	  //std::cout << " RECHIT position = " << position << std::endl;	  
 	  
-	  for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
+	  for(std::vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 	    //project simhit;
 	    hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
 	    distx = fabs(rechitmatchedx[k] - hitPair.first.x());
