@@ -19,9 +19,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-using namespace std;
-using namespace ROOT::Math;
-using namespace edm;
+#include <cmath>
 
 typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
 
@@ -84,7 +82,6 @@ void TrackingTruthValid::beginRun( const edm::Run&, const edm::EventSetup& ) {
 }
 
 void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup& c){
-  using namespace std;
 
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
   //  edm::Handle<TrackingVertexCollection>    TruthVertexContainer;
