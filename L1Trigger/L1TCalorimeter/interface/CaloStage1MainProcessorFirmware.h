@@ -23,12 +23,12 @@ namespace l1t {
   public:
     CaloStage1MainProcessorFirmwareImp1(const FirmwareVersion & fwv /*const CaloParams & dbPars*/);
     virtual ~CaloStage1MainProcessorFirmwareImp1();
-    virtual void processEvent(const BXVector<CaloEmCand> &,
-                              const BXVector<CaloRegion> &,
-			      BXVector<EGamma> & egammas,
-			      BXVector<Tau> & taus,
-			      BXVector<Jet> & jets,
-			      BXVector<EtSum> & etsums);
+    virtual void processEvent(const std::vector<CaloEmCand> &,
+                              const std::vector<CaloRegion> &,
+			      std::vector<EGamma> & egammas,
+			      std::vector<Tau> & taus,
+			      std::vector<Jet> & jets,
+			      std::vector<EtSum> & etsums);
   private:
 
     //CaloParams const & m_db;

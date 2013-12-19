@@ -136,8 +136,42 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
 
-  m_fw->processEvent(*caloEmCands, *caloRegions,
-  		     *egammas, *taus, *jets, *etsums);
+  //producer is responsible for splitting the BXVector into pieces for
+  //the firmware to handle
+
+  for(int i = bxFirst; i < bxLast; ++i)
+  {
+    //make local inputs
+    std::auto_ptr<std::vector<l1t::CaloRegion>> localRegions (new std::vector<l1t::CaloRegion>);
+    std::auto_ptr<std::vector<l1t::CaloEmCand>> localEmCands (new std::vector<l1t::CaloEmCand>);
+
+    //make local outputs
+    std::auto_ptr<std::vector<l1t::EGamma>> localEGammas (new std::vector<l1t::EGamma>);
+    std::auto_ptr<std::vector<l1t::Tau>> localTaus (new std::vector<l1t::Tau>);
+    std::auto_ptr<std::vector<l1t::Jet>> localJets (new std::vector<l1t::Jet>);
+    std::auto_ptr<std::vector<l1t::EtSum>> localEtSums (new std::vector<l1t::EtSum>);
+
+    // copy over the inputs -> there must be a better way to do this
+    for(std::vector<l1t::CaloRegion>::const_iterator region = caloRegions->begin(i); region != caloRegions->end(i); ++region)
+      localRegions->push_back(*region);
+    for(std::vector<l1t::CaloEmCand>::const_iterator emcand = caloEmCands->begin(i); emcand != caloEmCands->end(i); ++emcand)
+      localEmCands->push_back(*emcand);
+
+    //run the firmware on one event
+    m_fw->processEvent(*localEmCands, *localRegions,
+		       *localEGammas, *localTaus, *localJets, *localEtSums);
+
+
+    // copy the output into the BXVector -> there must be a better way
+    for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
+      egammas->push_back(i, *eg);
+    for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau)
+      taus->push_back(i, *tau);
+    for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
+      jets->push_back(i, *jet);
+    for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
+      etsums->push_back(i, *etsum);
+  }
 
   iEvent.put(egammas);
   iEvent.put(taus);
