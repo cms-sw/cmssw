@@ -53,7 +53,12 @@ namespace edm {
     // ---------- member functions ---------------------------
     ///A resource name must be registered before it can be used in the createAcquirer call
     void registerSharedResource(const std::string&);
-    
+
+#ifdef SHAREDRESOURCETESTACCESSORS
+    // The next function is intended to be used only in a unit test
+    std::map<std::string, std::pair<std::shared_ptr<std::recursive_mutex>,unsigned int>> const& resourceMap() const { return resourceMap_; }
+#endif
+
   private:
     SharedResourcesRegistry()=default;
     ~SharedResourcesRegistry()=default;
