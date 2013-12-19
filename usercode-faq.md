@@ -2,8 +2,8 @@
 title: CMS Offline Software
 layout: default
 related:
- - { name: Project page, link: 'https://github.com/cms-sw/cmssw' }
- - { name: Feedback, link: 'https://github.com/cms-sw/cmssw/issues/new' }
+ - { name: "Project page", link: "https://github.com/cms-sw/cmssw" }
+ - { name: "Feedback", link: "https://github.com/cms-sw/cmssw/issues/new" }
 ---
 # CMS UserCode Migration FAQs
 
@@ -45,7 +45,7 @@ your transition.
 ### Where should I host my repository?
 
 You are free of hosting your repository on any git / SVN hosting site you
-prefer, however given we will use <http://github.com> for the CMSSW code, it's
+prefer, however given we will use http://github.com for the CMSSW code, it's
 probably a good idea if you stick with it too.
 
 ### How do I migrate to github?
@@ -98,16 +98,16 @@ In case you get the following message:
     fatal: The remote end hung up unexpectedly
 
 you forgot to register your ssh key when you registered to github, you can do
-it by going to <https://github.com/settings/ssh> and adding your public key
+it by going to https://github.com/settings/ssh and adding your public key
 there.
 
-Further information about cvs2git can be found at <http://cvs2svn.tigris.org/cvs2git.html>.
+Further information about cvs2git can be found at http://cvs2svn.tigris.org/cvs2git.html.
 
 ### I need a private repository!
 
 First of all, keep in mind that your UserCode area was never private, so you
 are asking for something new. If you really want to have a private repository you can 
-use CERN/IT provided service at <https://cernforge.cern.ch/cernforge/>. 
+use CERN/IT provided service at https://cernforge.cern.ch/cernforge/. 
 
 The above mentioned recipe becomes:
 
@@ -141,7 +141,7 @@ GitHub has to possible ways of dealing with this.
 
 * The first and easier one, suitable for small (2-5) group of people is to add
   your collaborators as such to your repository. Please have a look at:
-  <https://help.github.com/articles/how-do-i-add-a-collaborator> to see how to
+  https://help.github.com/articles/how-do-i-add-a-collaborator to see how to
   do it.
 
 * The second, suitable for larger groups is to create an "Organization" and put
@@ -150,7 +150,7 @@ GitHub has to possible ways of dealing with this.
   organization. The main advantage of organizations is that they provide much
   more flexible organization of contributors in terms of "Teams" with different
   commit rights.  To learn more about organizations please have a look at
-  <https://github.com/blog/674-introducing-organizations>. 
+  https://github.com/blog/674-introducing-organizations . 
   
   If you would like to have support for an official CMS organization for some
   of the code you have in UserCode, (for example for a given POG / PAG), please

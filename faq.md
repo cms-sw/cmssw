@@ -292,6 +292,10 @@ where of course `<cern-user-account>` needs to be substituted with your CERN
 account login. Notice that starting on the 15th of October this will be the
 only way to access it.
 
+Moreover, if you want to simply browse the old repository via web, you can point your browser to:
+
+<http://cvs.web.cern.ch/cvs/cgi-bin/viewcvs.cgi>
+
 ### How do I ask a question?
 
 If you have more questions about git and CMSSW on git, please use [this
