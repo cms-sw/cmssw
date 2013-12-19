@@ -8,35 +8,14 @@
  *
 */
 // framework & common header files
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include <fstream>
-#include <map>
-#include <iostream>
-#include <stdlib.h>
 #include <string>
-#include <memory>
-#include <vector>
 
+class DQMStore;
+class MonitorElement;
 
 class TrackerHitAnalyzer: public edm::EDAnalyzer {
   

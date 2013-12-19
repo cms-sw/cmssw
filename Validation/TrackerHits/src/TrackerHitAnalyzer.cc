@@ -1,10 +1,22 @@
 #include "Validation/TrackerHits/interface/TrackerHitAnalyzer.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 // tracker info
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -26,9 +38,13 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-
+#include <fstream>
 #include <iostream>
-#include "DQMServices/Core/interface/DQMStore.h"
+#include <map>
+#include <memory>
+#include <stdlib.h>
+#include <vector>
+
 using namespace edm;
 using namespace std;
 
