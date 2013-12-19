@@ -35,7 +35,6 @@ using namespace std;
 TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) :
    G4TrkSrc_(ps.getParameter<edm::InputTag>("G4TrkSrc")) {
 
-   fDBE = Service<DQMStore>().operator->();
    fOutputFile = ps.getUntrackedParameter<string>("outputFile", "TrackerHitHisto.root");
    verbose_ = ps.getUntrackedParameter<bool>("Verbosity",false);
    //get Labels to use to extract information
@@ -52,9 +51,11 @@ TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps) :
    SiTIDHighSrc_ = ps.getParameter<edm::InputTag>("SiTIDHighSrc");
    SiTECLowSrc_ = ps.getParameter<edm::InputTag>("SiTECLowSrc");
    SiTECHighSrc_ = ps.getParameter<edm::InputTag>("SiTECHighSrc");
+}
 
-
+void TrackerHitAnalyzer::beginRun( edm::Run const&, edm::EventSetup const& ) {
 ////// booking histograms
+   fDBE = Service<DQMStore>().operator->();
    	
   Char_t  hname1[50], htitle1[80];
   Char_t  hname2[50], htitle2[80];
