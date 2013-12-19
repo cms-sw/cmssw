@@ -658,7 +658,6 @@ void FastTimerService::preEvent(edm::StreamContext const & sc) {
 
   // new event, reset the per-event counter
   stream.timer_event.start();
-  std::cerr << "stream " << sid << " event timer start" << std::endl;
 
   // account the time spent after the source
   stream.timing.preevent = delta(stream.timer_source.getStopTime(), stream.timer_event.getStartTime());
@@ -704,7 +703,6 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
   // stop the per-event timer, and account event time
   stream.timer_event.stop();
   stream.timing.event = stream.timer_event.seconds();
-  std::cerr << "stream " << sid << " event time " << stream.timing.event << " seconds" << std::endl;
 
   // the last part of inter-path overhead is the time between the end of the last (end)path and the end of the event processing
   double interpaths = delta(stream.timer_last_path, stream.timer_event.getStopTime());
