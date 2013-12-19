@@ -7,15 +7,11 @@
 #include "Validation/TrackerRecHits/interface/SiStripRecHitsValid.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/OwnVector.h" 
-#include "DataFormats/DetId/interface/DetId.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h" 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -67,14 +63,14 @@ namespace helper {
 
 
 //Constructor
-SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
-  dbe_(0),	
-  conf_(ps),
-  matchedRecHits_( ps.getParameter<edm::InputTag>("matchedRecHits") ),
-  rphiRecHits_( ps.getParameter<edm::InputTag>("rphiRecHits") ),
-  stereoRecHits_( ps.getParameter<edm::InputTag>("stereoRecHits") ) {
+SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps)
+  : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "sistriprechitshisto.root" ) )
+  , dbe_(0)
+  , conf_(ps)
+  , siStripMatchedRecHit2DCollectionToken_( consumes<SiStripMatchedRecHit2DCollection>( ps.getParameter<edm::InputTag>( "matchedRecHits" ) ) )
+  , siStripRecHit2DCollection_rphi_Token_( consumes<SiStripRecHit2DCollection>( ps.getParameter<edm::InputTag>( "rphiRecHits" ) ) )
+  , siStripRecHit2DCollection_stereo_Token_( consumes<SiStripRecHit2DCollection>( ps.getParameter<edm::InputTag>("stereoRecHits") ) ) {
 
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
 }
 
 
@@ -368,9 +364,9 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
   edm::Handle<SiStripRecHit2DCollection> rechitsrphi;
   edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
-  e.getByLabel(matchedRecHits_, rechitsmatched);
-  e.getByLabel(rphiRecHits_, rechitsrphi);
-  e.getByLabel(stereoRecHits_, rechitsstereo);
+  e.getByToken( siStripMatchedRecHit2DCollectionToken_, rechitsmatched );
+  e.getByToken( siStripRecHit2DCollection_rphi_Token_, rechitsrphi );
+  e.getByToken( siStripRecHit2DCollection_stereo_Token_, rechitsstereo );
 
   int numrechitrphi   =0;
   int numrechitsas    =0;

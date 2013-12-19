@@ -14,14 +14,14 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 #include <string>
-#include <vector>
 #include <utility>
 
 class DQMStore;
@@ -46,8 +46,11 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   
  private: 
   //Back-End Interface
-  DQMStore* dbe_;
+  std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
+						const BoundPlane& plane );
+  std::vector<PSimHit> matched;
   std::string outputFile_;
+  DQMStore* dbe_;
   MonitorElement*  meNumTotRphi;
   MonitorElement*  meNumTotSas;
   MonitorElement*  meNumTotMatched;
@@ -162,13 +165,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   MonitorElement* meResyMatchedTEC[5];
   MonitorElement* meChi2MatchedTEC[5];
 
-  std::vector<PSimHit> matched;
-  std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
-							const BoundPlane& plane);
-  edm::ParameterSet conf_;
-  //const StripTopology* topol;
-
-  static const int MAXHIT = 1000;
+  static constexpr int MAXHIT = 1000;
   float rechitrphix[MAXHIT];
   float rechitrphierrx[MAXHIT];
   float rechitrphiy[MAXHIT];
@@ -201,8 +198,11 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   float rechitmatchedresy[MAXHIT];
   float rechitmatchedchi2[MAXHIT];
 
+  edm::ParameterSet conf_;
+  //const StripTopology* topol;
 
-  edm::InputTag matchedRecHits_, rphiRecHits_, stereoRecHits_;
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> siStripMatchedRecHit2DCollectionToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> siStripRecHit2DCollection_rphi_Token_, siStripRecHit2DCollection_stereo_Token_;
 };
 
 #endif
