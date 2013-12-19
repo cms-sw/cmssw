@@ -12,7 +12,9 @@ using namespace std;
 ///////////////////
 //  CONSTRUCTOR  //
 ///////////////////
-CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset){
+CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset):
+  dbe(nullptr)
+{
 
   param = pset;
 
@@ -468,7 +470,9 @@ void CSCOfflineMonitor::endRun( edm::Run const &, edm::EventSetup const & ){
 }
 
 void CSCOfflineMonitor::endJob(){
-  
+  if(nullptr == dbe) {
+    return;
+  }
   finalize() ;
   finalizedHistograms_ = true ;
   
