@@ -113,7 +113,7 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
 
     if ( currentLumiSection_ > 0 ) {
       const string fuEoLS =
-        edm::Service<evf::EvFDaqDirector>()->formatEndOfLSSlave(currentLumiSection_);
+        edm::Service<evf::EvFDaqDirector>()->getEoLSFilePathOnFU(currentLumiSection_);
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if ( !found ) {
