@@ -31,6 +31,7 @@ public:
   void VisitChildren(clang::Stmt *S );
   void VisitStmt( clang::Stmt *S) { VisitChildren(S); }
   void VisitCallExpr( CallExpr *CE ); 
+  void VisitCXXConstructExpr( CXXConstructExpr *CCE ); 
  
 };
 
@@ -39,6 +40,29 @@ void FDumper::VisitChildren( clang::Stmt *S) {
     if (clang::Stmt *child = *I) {
       Visit(child);
     }
+}
+
+void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
+	LangOptions LangOpts;
+	LangOpts.CPlusPlus = true;
+	PrintingPolicy Policy(LangOpts);
+	const Decl * D = AC->getDecl();
+	std::string mdname =""; 
+	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) mdname = support::getQualifiedName(*ND);
+	CXXConstructorDecl * CCD = CCE->getConstructor();
+	if (!CCD) return;
+	const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
+	if (!support::isCmsLocalFile(sfile)) return;
+	std::string sname(sfile);
+	if ( sname.find("/test/") != std::string::npos) return;
+	std::string mname = support::getQualifiedName(*CCD);
+	const char * pPath = std::getenv("LOCALRT");
+	std::string tname = ""; 
+	if ( pPath != NULL ) tname += std::string(pPath);
+	tname+="/tmp/function-dumper.txt.unsorted";
+	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
+	std::ofstream file(tname.c_str(),std::ios::app);
+	file<<ostring;
 }
 
 
