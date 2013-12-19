@@ -75,6 +75,26 @@ def _configurePFForGEDEGamma(process):
 
 
 def _customize_DQM(process):
+    try:
+	process.ecalBarrelClusterTask.SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters")
+	process.ecalBarrelClusterTask.BasicClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
+	process.ecalEndcapClusterTask.SuperClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters")
+	process.ecalEndcapClusterTask.BasicClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
+    except AttributeError:
+	pass
+    try:
+	process.ecalBarrelClusterTaskExtras.SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters")
+	process.ecalEndcapClusterTaskExtras.SuperClusterCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters")
+    except AttributeError:
+	pass
+    try:
+	process.ecalBarrelRecoSummary.superClusterCollection_EB = cms.InputTag("correctedHybridSuperClusters")
+	process.ecalBarrelRecoSummary.basicClusterCollection_EB = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
+	process.ecalEndcapRecoSummary.superClusterCollection_EE = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
+	process.ecalEndcapRecoSummary.basicClusterCollection_EE = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
+    except AttributeError:
+	pass 
+
     return process
 
 
