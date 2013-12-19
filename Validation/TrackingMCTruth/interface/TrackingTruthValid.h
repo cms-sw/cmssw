@@ -3,15 +3,16 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
 
 class DQMStore;
 class MonitorElement;
+class TrackingParticle;
 
 class TrackingTruthValid  : public edm::EDAnalyzer {
  public:
+  typedef std::vector<TrackingParticle> TrackingParticleCollection;
   //Constructor
   explicit TrackingTruthValid(const edm::ParameterSet& conf) ;
   //Destructor
@@ -25,7 +26,6 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   
  private:
   std::string outputFile;
-  edm::InputTag src_;
   
   DQMStore* dbe_;
   MonitorElement* meTPMass;
@@ -42,7 +42,8 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   MonitorElement* meTPVtxZ; 
   MonitorElement* meTPtip;
   MonitorElement* meTPlip;
-  
+
+  edm::EDGetTokenT<TrackingParticleCollection> vec_TrackingParticle_Token_;
 };
 
 #endif

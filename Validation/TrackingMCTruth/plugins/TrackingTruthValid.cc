@@ -18,14 +18,12 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 using namespace std;
 using namespace ROOT::Math;
 using namespace edm;
 
 typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
-typedef std::vector<TrackingParticle>                   TrackingParticleCollection;
 
 typedef TrackingParticleRefVector::iterator               tp_iterator;
 typedef TrackingParticle::g4t_iterator                   g4t_iterator;
@@ -36,11 +34,10 @@ typedef TrackingVertex::g4v_iterator                     g4v_iterator;
 
 void TrackingTruthValid::beginJob(const edm::ParameterSet& conf) {}
 
-TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
-  
-  outputFile = conf.getParameter<std::string>("outputFile");
-  src_ =  conf.getParameter<edm::InputTag>( "src" );
-}
+TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf)
+  : outputFile( conf.getParameter<std::string>( "outputFile" ) )
+  , dbe_( NULL )
+  , vec_TrackingParticle_Token_( consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>( "src" ) ) ) {}
 
 void TrackingTruthValid::beginRun( const edm::Run&, const edm::EventSetup& ) {
   dbe_  = edm::Service<DQMStore>().operator->();
@@ -92,10 +89,7 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
   //  edm::Handle<TrackingVertexCollection>    TruthVertexContainer;
 
-
-  event.getByLabel(src_,TruthTrackContainer );
-  //  event.getByLabel(src_,TruthVertexContainer);
-  //  std::cout << "Using Collection " << src_ << std::endl;
+  event.getByToken( vec_TrackingParticle_Token_, TruthTrackContainer );
   
   const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
   //  const TrackingVertexCollection   *tVC   = TruthVertexContainer.product();
