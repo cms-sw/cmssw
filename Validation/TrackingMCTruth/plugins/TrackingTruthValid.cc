@@ -1,28 +1,27 @@
 #include "Validation/TrackingMCTruth/interface/TrackingTruthValid.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-using namespace std;
-using namespace ROOT::Math;
-using namespace edm;
+#include <cmath>
 
 typedef edm::RefVector< std::vector<TrackingParticle> > TrackingParticleContainer;
-typedef std::vector<TrackingParticle>                   TrackingParticleCollection;
 
 typedef TrackingParticleRefVector::iterator               tp_iterator;
 typedef TrackingParticle::g4t_iterator                   g4t_iterator;
@@ -33,11 +32,12 @@ typedef TrackingVertex::g4v_iterator                     g4v_iterator;
 
 void TrackingTruthValid::beginJob(const edm::ParameterSet& conf) {}
 
-TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
-  
-  outputFile = conf.getParameter<std::string>("outputFile");
-  src_ =  conf.getParameter<edm::InputTag>( "src" );
-  
+TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf)
+  : outputFile( conf.getParameter<std::string>( "outputFile" ) )
+  , dbe_( NULL )
+  , vec_TrackingParticle_Token_( consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>( "src" ) ) ) {}
+
+void TrackingTruthValid::beginRun( const edm::Run&, const edm::EventSetup& ) {
   dbe_  = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("Tracking/TrackingMCTruth/TrackingParticle");
   
@@ -82,15 +82,11 @@ TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
 }
 
 void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup& c){
-  using namespace std;
 
   edm::Handle<TrackingParticleCollection>  TruthTrackContainer ;
   //  edm::Handle<TrackingVertexCollection>    TruthVertexContainer;
 
-
-  event.getByLabel(src_,TruthTrackContainer );
-  //  event.getByLabel(src_,TruthVertexContainer);
-  //  std::cout << "Using Collection " << src_ << std::endl;
+  event.getByToken( vec_TrackingParticle_Token_, TruthTrackContainer );
   
   const TrackingParticleCollection *tPC   = TruthTrackContainer.product();
   //  const TrackingVertexCollection   *tVC   = TruthVertexContainer.product();
