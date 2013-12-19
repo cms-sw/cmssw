@@ -59,7 +59,7 @@ famosParticleFlowSequence = cms.Sequence(
     FSparticleFlow
 )
 
-particleFlowLinks = cms.Sequence(particleFlow*particleFlowPtrs)
+particleFlowLinks = cms.Sequence(particleFlow*particleFlowPtrs+particleBasedIsolationSequence)
 
 # PF Reco Jets and MET
 from RecoJets.Configuration.RecoPFJets_cff import *

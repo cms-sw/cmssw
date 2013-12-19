@@ -14,6 +14,7 @@ from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
 # The following is replaced by the MVA-based 
 #from RecoParticleFlow.PFProducer.pfGsfElectronCiCSelector_cff import *
+from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
 from RecoParticleFlow.PFProducer.pfGsfElectronMVASelector_cff import *
 from RecoParticleFlow.PFProducer.pfLinker_cff import *
 from RecoParticleFlow.PFProducer.particleFlowEGamma_cff import *
@@ -59,7 +60,7 @@ famosParticleFlowSequence = cms.Sequence(
     FSparticleFlow
 )
 
-particleFlowLinks = cms.Sequence(particleFlow+particleFlowPtrs)
+particleFlowLinks = cms.Sequence(particleFlow+particleFlowPtrs + particleBasedIsolationSequence)
 
 # PF Reco Jets and MET
 

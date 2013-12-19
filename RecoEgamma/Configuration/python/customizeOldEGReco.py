@@ -55,6 +55,12 @@ def _configurePFForGEDEGamma(process):
     process.particleBasedIsolation.electronProducer = cms.InputTag("gedGsfElectrons")
     process.gedPhotonsTmp.photonProducer = cms.InputTag('gedPhotonCore')
     process.particleBasedIsolation.photonProducer = cms.InputTag("gedPhotons")
+
+    process.gedPhotonsTmp.candidateP4type = cms.string('fromEcalEnergy')
+    process.gedPhotons.candidateP4type = cms.string('fromEcalEnergy')
+
+    process.gedGsfElectronsTmp.useEcalRegression = cms.bool(False)
+    process.gedGsfElectronsTmp.useCombinationRegression = cms.bool(False)
         
     #for later
     process.particleFlowBlock.SCBarrel = cms.InputTag('correctedHybridSuperClusters')
