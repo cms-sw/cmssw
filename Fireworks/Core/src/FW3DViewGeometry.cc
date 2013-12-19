@@ -373,5 +373,3 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
       gEve->Redraw3D();
    }
 }
-
- 
