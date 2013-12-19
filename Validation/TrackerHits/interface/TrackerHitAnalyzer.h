@@ -50,6 +50,9 @@ TrackerHitAnalyzer(const edm::ParameterSet& ps);
 
 protected:
 
+/// Begin Run
+void beginRun( edm::Run const&, edm::EventSetup const&);
+
 /// Analyze
 void analyze(const edm::Event& e, const edm::EventSetup& c);
 
