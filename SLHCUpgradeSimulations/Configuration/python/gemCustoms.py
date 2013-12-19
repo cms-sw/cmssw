@@ -82,6 +82,8 @@ def customise_Reco(process):
     process.gemRecHits.gemDigiLabel = cms.InputTag("simMuonGEMDigis")
     process.muonlocalreco += process.gemRecHits
     process=outputCustoms(process)
+    process.standAloneMuons.STATrajBuilderParameters.EnableGEMMeasurement = cms.bool(True)
+    process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
     return process
 
 
