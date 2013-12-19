@@ -3,19 +3,13 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include <iostream>
 #include <string>
-#include <TH1F.h>
-#include <TH2F.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class DQMStore;
+class MonitorElement;
 
 class TrackingTruthValid  : public edm::EDAnalyzer {
  public:
