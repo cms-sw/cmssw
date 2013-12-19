@@ -23,7 +23,10 @@ TrackingRecHitPropagatorESProducer::~TrackingRecHitPropagatorESProducer() {}
 boost::shared_ptr<TrackingRecHitPropagator> 
 TrackingRecHitPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){ 
    ESHandle<MagneticField> magfield;
-   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );	 
+   if (pset_.exists("SimpleMagneticField"))
+     iRecord.getRecord<IdealMagneticFieldRecord>().get(pset_.getParameter<std::string>("SimpleMagneticField"), magfield);
+   else 
+     iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
    theHitPropagator= boost::shared_ptr<TrackingRecHitPropagator>(new TrackingRecHitPropagator(magfield.product()));
    return theHitPropagator;
 }

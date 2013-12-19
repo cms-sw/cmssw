@@ -75,6 +75,10 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     detIdsToDebug.push_back(0);
     detIdsToDebug.push_back(0);
   }
+  if (cfg.exists("SimpleMagneticField")) {
+    useSimpleMF = true;
+    mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
+  }
   bfield = 0;
   nomField = -1.;
 }
@@ -114,7 +118,10 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   if (nomField<0 && bfield == 0) {
     edm::ESHandle<MagneticField> bfield_h;
-    es.get<IdealMagneticFieldRecord>().get(bfield_h);
+    if (useSimpleMF) 
+      es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);
+    else
+      es.get<IdealMagneticFieldRecord>().get(bfield_h);
     bfield = bfield_h.product();
     nomField = bfield->nominalValue();
   }
