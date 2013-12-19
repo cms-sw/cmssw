@@ -6,7 +6,7 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
 
     Name = cms.untracked.string('photonAnalysis'),
 
-    phoProducer = cms.InputTag('gedphotons'),
+    phoProducer = cms.InputTag('photons'),
 
     photonIDLoose = cms.InputTag('PhotonIDProd:PhotonCutBasedIDLoose'),
     photonIDTight = cms.InputTag('PhotonIDProd:PhotonCutBasedIDTight'),																
