@@ -13,39 +13,21 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-//only mine
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//DQM services for histogram
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-//--- for SimHit association
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
-
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 #include <string>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <utility>
+
+class DQMStore;
+class MonitorElement;
+class PSimHit;
+class StripGeomDetUnit;
 
 class SiStripRecHitsValid : public edm::EDAnalyzer {
 
@@ -59,12 +41,16 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
   void beginJob();
+  void beginRun( const edm::Run& r, const edm::EventSetup& c );
   void endJob();
   
  private: 
   //Back-End Interface
-  DQMStore* dbe_;
+  std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
+						const BoundPlane& plane );
+  std::vector<PSimHit> matched;
   std::string outputFile_;
+  DQMStore* dbe_;
   MonitorElement*  meNumTotRphi;
   MonitorElement*  meNumTotSas;
   MonitorElement*  meNumTotMatched;
@@ -179,13 +165,7 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   MonitorElement* meResyMatchedTEC[5];
   MonitorElement* meChi2MatchedTEC[5];
 
-  std::vector<PSimHit> matched;
-  std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
-							const BoundPlane& plane);
-  edm::ParameterSet conf_;
-  //const StripTopology* topol;
-
-  static const int MAXHIT = 1000;
+  static constexpr int MAXHIT = 1000;
   float rechitrphix[MAXHIT];
   float rechitrphierrx[MAXHIT];
   float rechitrphiy[MAXHIT];
@@ -218,8 +198,11 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
   float rechitmatchedresy[MAXHIT];
   float rechitmatchedchi2[MAXHIT];
 
+  edm::ParameterSet conf_;
+  //const StripTopology* topol;
 
-  edm::InputTag matchedRecHits_, rphiRecHits_, stereoRecHits_;
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> siStripMatchedRecHit2DCollectionToken_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> siStripRecHit2DCollection_rphi_Token_, siStripRecHit2DCollection_stereo_Token_;
 };
 
 #endif
