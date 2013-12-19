@@ -1,5 +1,5 @@
-#ifndef __UECalibration_h__
-#define __UECalibration_h__
+#ifndef __HiJetAlgos_UECalibration_h__
+#define __HiJetAlgos_UECalibration_h__
 
 /////////////////////////////////////////////////////////////////////
 // SVD Block Predictor
@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 struct UECalibration{
-   UECalibration(){
+   UECalibration(bool isRealData = true){
       np[0] = 3;
       np[1] = 7;
       np[2] = 3;
@@ -32,7 +32,9 @@ struct UECalibration{
       unsigned int Nni1 = ni1[0]*ni1[1];
       unsigned int Nni2 = ni2[0]*ni2[1];
 
-      edm::FileInPath ueData("RecoHI/HiJetAlgos/data/ue_calibrations.txt");
+      std::string calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_data.txt";
+      if(!isRealData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_mc.txt";
+      edm::FileInPath ueData(calibrationFile.data());
       std::string qpDataName = ueData.fullPath();
       std::ifstream in( qpDataName.c_str() );
       std::string line;

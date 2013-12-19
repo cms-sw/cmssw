@@ -1,22 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    CentralityTableProducer
-// Class:      CentralityTableProducer
-// 
-/**\class CentralityTableProducer CentralityTableProducer.cc yetkin/CentralityTableProducer/src/CentralityTableProducer.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Yetkin Yilmaz
-//         Created:  Wed May  2 21:41:30 EDT 2007
-// $Id: CentralityTableProducer.cc,v 1.12 2010/11/03 14:53:05 yilmaz Exp $
-//
-//
-
 
 // system include files
 #include <iostream>
@@ -47,7 +28,7 @@
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 
 #include <TFile.h>
 

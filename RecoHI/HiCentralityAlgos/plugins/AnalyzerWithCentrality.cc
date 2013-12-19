@@ -1,22 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    AnalyzerWithCentrality
-// Class:      AnalyzerWithCentrality
-// 
-/**\class AnalyzerWithCentrality AnalyzerWithCentrality.cc RecoHI/AnalyzerWithCentrality/src/AnalyzerWithCentrality.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Yetkin Yilmaz
-//         Created:  Mon Mar  1 17:18:04 EST 2010
-// $Id: AnalyzerWithCentrality.cc,v 1.10 2010/11/02 16:15:59 yilmaz Exp $
-//
-//
-
 
 // system include files
 #include <memory>
@@ -31,7 +12,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 

@@ -92,6 +92,8 @@ class CentralityProducer : public edm::EDFilter {
   double trackPtCut_;
   double trackEtaCut_;
 
+  bool lowGainZDC_;
+
    edm::InputTag  srcHFhits_;	
    edm::InputTag  srcTowers_;
    edm::InputTag srcEEhits_;
@@ -156,7 +158,10 @@ class CentralityProducer : public edm::EDFilter {
       srcBasicClustersEE_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEE");
       srcBasicClustersEB_ = iConfig.getParameter<edm::InputTag>("srcBasicClustersEB");
    }
-   if(produceZDChits_) srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
+   if(produceZDChits_){
+     srcZDChits_ = iConfig.getParameter<edm::InputTag>("srcZDChits");
+     lowGainZDC_ = iConfig.getUntrackedParameter<bool>("lowGainZDC",0);
+   }
    if(producePixelhits_){
      srcPixelhits_ = iConfig.getParameter<edm::InputTag>("srcPixelhits");
      doPixelCut_ = iConfig.getParameter<bool>("doPixelCut");
@@ -386,9 +391,17 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
 	   const ZDCRecHit & rechit = (*hits)[ ihit ];
 	   if(rechit.id().zside() > 0 )
-	      creco->zdcSumPlus_ += rechit.energy();
+	     if(lowGainZDC_){
+	       creco->zdcSumPlus_ += rechit.lowGainEnergy();
+	     }else{
+	       creco->zdcSumPlus_ += rechit.energy();
+	     }
 	   if(rechit.id().zside() < 0)
-	      creco->zdcSumMinus_ += rechit.energy();
+             if(lowGainZDC_){
+	      creco->zdcSumMinus_ += rechit.lowGainEnergy();
+	     }else{
+	       creco->zdcSumMinus_ += rechit.energy();
+	     }
 	}
      }else{
 	creco->zdcSumPlus_ = -9;

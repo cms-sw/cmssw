@@ -9942,7 +9942,9 @@ c
           endif
         endif
       enddo
+      if(clast.ne.0)then
       cpermf(clast)=0
+      endif
       do i=1,m
         mark(i)=0
         if(rowsta(i).gt.-2)then
