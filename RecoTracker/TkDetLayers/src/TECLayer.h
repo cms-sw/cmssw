@@ -13,7 +13,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
+class TECLayer : public ForwardDetLayer  {
  public:
   TECLayer(std::vector<const TECPetal*>& innerPetals,
 	   std::vector<const TECPetal*>& outerPetals) __attribute__ ((cold));

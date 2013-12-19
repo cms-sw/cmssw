@@ -12,7 +12,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIDLayer GCC11_FINAL : public RingedForwardLayer, public GeometricSearchDetWithGroups {
+class TIDLayer GCC11_FINAL : public RingedForwardLayer {
  public:
   TIDLayer(std::vector<const TIDRing*>& rings)  __attribute__ ((cold));
   ~TIDLayer()  __attribute__ ((cold));

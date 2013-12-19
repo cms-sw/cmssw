@@ -14,13 +14,13 @@ DetRodOneR::~DetRodOneR(){}
 
 DetRodOneR::DetRodOneR(vector<const GeomDet*>::const_iterator first,
 		       vector<const GeomDet*>::const_iterator last)
-  : theDets(first,last)
+  : DetRod(false), theDets(first,last)
 {
   initialize();
 }
 
 DetRodOneR::DetRodOneR( const vector<const GeomDet*>& dets)
-  : theDets(dets) 
+  : DetRod(false), theDets(dets) 
 {
   initialize();
 }

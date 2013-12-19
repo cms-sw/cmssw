@@ -13,7 +13,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
+class TOBRod GCC11_FINAL : public DetRod {
  public:
   typedef PeriodicBinFinderInZ<float>   BinFinderType;
 
@@ -63,7 +63,6 @@ class TOBRod GCC11_FINAL : public DetRod, public GeometricSearchDetWithGroups{
 			std::vector<DetGroup>& result,
 			bool checkClosest) const __attribute__ ((hot));
 
-  bool overlap( const GlobalPoint& gpos, const GeomDet& rod, float phiWin) const;
 
   const std::vector<const GeomDet*>& subRod( int ind) const {
     return (ind==0 ? theInnerDets : theOuterDets);

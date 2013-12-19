@@ -10,12 +10,13 @@
 
 // A base class for Barrel Layers
 #pragma GCC visibility push(hidden)
-class TBLayer: public BarrelDetLayer, public GeometricSearchDetWithGroups {
+class TBLayer: public BarrelDetLayer {
  public:
   
   template<typename TDET>
   TBLayer(std::vector<const TDET*>& inner,
-	  std::vector<const TDET*>& outer, GeomDetEnumerators::SubDetector ime) : 
+	  std::vector<const TDET*>& outer, GeomDetEnumerators::SubDetector ime) :
+    BarrelDetLayer(true),
     theInnerComps(inner.begin(),inner.end()), 
     theOuterComps(outer.begin(),outer.end()), me(ime){}
 

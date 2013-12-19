@@ -45,9 +45,6 @@ class MuDetRing : public ForwardDetRingOneZ {
 			 const MeasurementEstimator& est) const;
 
 
-  // FIXME: should be implemented (overlaps in forward CSC and RPC)
-  virtual bool hasGroups() const {return false;}
-
  private:
   typedef PeriodicBinFinderInPhi<float>   BinFinderType;
   BinFinderType theBinFinder;

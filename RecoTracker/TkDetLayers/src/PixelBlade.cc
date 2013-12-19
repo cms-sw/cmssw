@@ -18,7 +18,8 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 PixelBlade::~PixelBlade(){}
 
 PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
-		       vector<const GeomDet*>& backDets):		       
+		       vector<const GeomDet*>& backDets):
+  GeometricSearchDet(true),		       
   theFrontDets(frontDets), theBackDets(backDets) 
 {
   theDets.assign(theFrontDets.begin(),theFrontDets.end());

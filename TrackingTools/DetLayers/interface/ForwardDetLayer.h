@@ -20,7 +20,7 @@
 class ForwardDetLayer : public DetLayer {
 public:
 
-  ForwardDetLayer(): DetLayer(false),  theDisk(0){}
+  ForwardDetLayer(bool doHaveGroups): DetLayer(doHaveGroups,false) {}
 
   virtual ~ForwardDetLayer();
 

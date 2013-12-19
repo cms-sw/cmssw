@@ -19,6 +19,7 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 TIBRing::TIBRing(vector<const GeomDet*>& theGeomDets):
+  GeometricSearchDet(true),
   theDets(theGeomDets.begin(),theGeomDets.end())
 {
   //checkRadius( first, last);

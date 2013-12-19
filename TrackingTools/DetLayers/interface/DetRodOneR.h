@@ -15,8 +15,6 @@ class DetRodOneR : public DetRod {
  public: 
   typedef std::vector<GeometricSearchDet*> DetContainer;
 
-  /// Dummy constructor
-  DetRodOneR(){};
 
   /// Construct from iterators on GeomDet*
   DetRodOneR( std::vector<const GeomDet*>::const_iterator first,
