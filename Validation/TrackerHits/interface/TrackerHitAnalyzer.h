@@ -10,7 +10,9 @@
 // framework & common header files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <string>
 
@@ -44,28 +46,17 @@ void endJob(void);
 
 private:
 
-  edm::InputTag SiTIBLowSrc_;
-  edm::InputTag SiTIBHighSrc_;
-  edm::InputTag SiTOBLowSrc_;
-  edm::InputTag SiTOBHighSrc_;
-  edm::InputTag SiTIDLowSrc_;
-  edm::InputTag SiTIDHighSrc_;
-  edm::InputTag SiTECLowSrc_;
-  edm::InputTag SiTECHighSrc_;
-  edm::InputTag PxlBrlLowSrc_;
-  edm::InputTag PxlBrlHighSrc_;
-  edm::InputTag PxlFwdLowSrc_;
-  edm::InputTag PxlFwdHighSrc_;
-  edm::InputTag G4TrkSrc_;
-
-//  edm::ParameterSet config_;
- 
- 
  bool verbose_;
- 
+
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlBrlLow_Token_, edmPSimHitContainer_pxlBrlHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlFwdLow_Token_, edmPSimHitContainer_pxlFwdHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIBLow_Token_, edmPSimHitContainer_siTIBHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTOBLow_Token_, edmPSimHitContainer_siTOBHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIDLow_Token_, edmPSimHitContainer_siTIDHigh_Token_;
+ edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTECLow_Token_, edmPSimHitContainer_siTECHigh_Token_;
+ edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
+
  DQMStore* fDBE;
- 
- std::string fOutputFile;
 
  MonitorElement* htofeta;
  MonitorElement* htofphi;
@@ -116,6 +107,8 @@ private:
  MonitorElement* h4ly[12];
  MonitorElement* h5ly[12];
  MonitorElement* h6ly[12];
+
+ std::string fOutputFile;
 };
 
 #endif
