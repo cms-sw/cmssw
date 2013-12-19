@@ -2,53 +2,17 @@
 #define TrackerHitProducer_h
 
 // framework & common header files
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-//#include "FWCore/Framework/interface/Provenance.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-
-// tracker info
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 
-// data in edm::event
-#include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-//#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-//#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
-// helper files
-#include <CLHEP/Vector/LorentzVector.h>
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include <iostream>
-#include <stdlib.h>
 #include <string>
-#include <memory>
 #include <vector>
 
-#include "TString.h"
+class PTrackerSimHit;
 
-class PGlobalSimHit;
-  
 class TrackerHitProducer : public edm::EDProducer
 {
   
