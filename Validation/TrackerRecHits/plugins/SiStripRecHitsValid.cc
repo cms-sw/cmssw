@@ -75,6 +75,18 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   stereoRecHits_( ps.getParameter<edm::InputTag>("stereoRecHits") ) {
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "sistriprechitshisto.root");
+}
+
+
+SiStripRecHitsValid::~SiStripRecHitsValid(){
+ //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+}
+
+void SiStripRecHitsValid::beginJob(){
+
+}
+
+void SiStripRecHitsValid::beginRun( const edm::Run& r, const edm::EventSetup& c ) {
   dbe_ = Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Strip/SISTRIP");
@@ -330,16 +342,7 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
       sprintf(histo,"Chi2_matched_layer%dtec",i+1);
       meChi2MatchedTEC[i] = dbe_->book1D(histo,"RecHit Chi2 test",100,0., 50);  
     }
-  }
-}
-
-
-SiStripRecHitsValid::~SiStripRecHitsValid(){
- //if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}
-
-void SiStripRecHitsValid::beginJob(){
-
+  }  
 }
 
 void SiStripRecHitsValid::endJob() {
