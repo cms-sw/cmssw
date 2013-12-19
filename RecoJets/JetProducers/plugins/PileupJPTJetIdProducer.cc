@@ -1,23 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    PileupJetIdProducer
-// Class:      PileupJetIdProducer
-// 
-/**\class PileupJPTJetIdProducer PileupJPTJetIdProducer.cc RecoJets/JetProducers/plugins/PileupJPTJetIdProducer.cc
-
-Description: [one line class summary]
-
-Implementation:
-[Notes on implementation]
-*/
-//
-// Original Author:  Olga Kodolova,40 R-A12,+41227671273,
-//         Created:  Fri Jan 11 15:30:47 CEST 2013
-// $Id: PileupJPTJetIdProducer.cc,v 1.1 2013/03/27 17:42:09 rkogler Exp $
-//
-//
-
-
 // system include files
 #include <memory>
 
@@ -46,9 +26,7 @@ public:
 	~PileupJPTJetIdProducer();
 
 private:
-	virtual void beginJob() ;
 	virtual void produce(edm::Event&, const edm::EventSetup&);
-	virtual void endJob() ;
       
 	virtual void beginRun(edm::Run&, edm::EventSetup const&);
 	virtual void endRun(edm::Run&, edm::EventSetup const&);
@@ -56,6 +34,7 @@ private:
 	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
 	edm::InputTag jets_;
+        edm::EDGetTokenT<edm::View<reco::JPTJet> > input_token_;
              bool allowMissingInputs_;
              int verbosity;
         cms::PileupJPTJetIdAlgo* pualgo;
@@ -66,8 +45,9 @@ private:
 PileupJPTJetIdProducer::PileupJPTJetIdProducer(const edm::ParameterSet& iConfig)
 {
 	jets_ = iConfig.getParameter<edm::InputTag>("jets");
-            verbosity   = iConfig.getParameter<int>("Verbosity");
-            allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",false);
+	input_token_ = consumes<edm::View<reco::JPTJet> >(jets_);
+        verbosity   = iConfig.getParameter<int>("Verbosity");
+        allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",false);
         pualgo = new cms::PileupJPTJetIdAlgo(iConfig); 
         pualgo->bookMVAReader();
 	produces<edm::ValueMap<float> > ("JPTPUDiscriminant");
@@ -86,14 +66,14 @@ PileupJPTJetIdProducer::~PileupJPTJetIdProducer()
 void
 PileupJPTJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	using namespace edm;
-	using namespace std;
-	using namespace reco;
+    using namespace edm;
+    using namespace std;
+    using namespace reco;
     edm::Handle<View<JPTJet> > jets;
-    iEvent.getByLabel(jets_, jets);
-             vector<float> mva;
-             vector<int> idflag;
-        for ( unsigned int i=0; i<jets->size(); ++i ) {
+    iEvent.getByToken(input_token_, jets);
+    vector<float> mva;
+    vector<int> idflag;
+    for ( unsigned int i=0; i<jets->size(); ++i ) {
         int b = -1;
         const JPTJet & jet = jets->at(i);
 
@@ -128,31 +108,18 @@ PileupJPTJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     }
      
-        auto_ptr<ValueMap<float> > mvaout(new ValueMap<float>());
-        ValueMap<float>::Filler mvafiller(*mvaout);
-        mvafiller.insert(jets,mva.begin(),mva.end());
-        mvafiller.fill();
-        iEvent.put(mvaout,"JPTPUDiscriminant");
+    auto_ptr<ValueMap<float> > mvaout(new ValueMap<float>());
+    ValueMap<float>::Filler mvafiller(*mvaout);
+    mvafiller.insert(jets,mva.begin(),mva.end());
+    mvafiller.fill();
+    iEvent.put(mvaout,"JPTPUDiscriminant");
 
-        auto_ptr<ValueMap<int> > idflagout(new ValueMap<int>());
-        ValueMap<int>::Filler idflagfiller(*idflagout);
-        idflagfiller.insert(jets,idflag.begin(),idflag.end());
-        idflagfiller.fill();
-        iEvent.put(idflagout,"JPTPUId");
-
-	
-
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::beginJob()
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::endJob() {
+    auto_ptr<ValueMap<int> > idflagout(new ValueMap<int>());
+    ValueMap<int>::Filler idflagfiller(*idflagout);
+    idflagfiller.insert(jets,idflag.begin(),idflag.end());
+    idflagfiller.fill();
+    iEvent.put(idflagout,"JPTPUId");
+       
 }
 
 // ------------------------------------------------------------------------------------------

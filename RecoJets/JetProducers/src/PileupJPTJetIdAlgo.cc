@@ -189,13 +189,14 @@ float PileupJPTJetIdAlgo::fillJPTBlock(const reco::JPTJet* jet
       
   // W.r.t. principal axis
 
-                     double detavar = deta2-deta1*deta1;
-                     double dphivar = dphi2-dphi1*dphi1;
-                     double dphidetacov = dphideta - deta1*dphi1;
-
-                     double det = (detavar-dphivar)*(detavar-dphivar)+4*dphidetacov*dphidetacov;
-                     double x1 = (detavar+dphivar+sqrt(det))/2.;
-                     double x2 = (detavar+dphivar-sqrt(det))/2.;
+      double detavar = deta2-deta1*deta1;
+      double dphivar = dphi2-dphi1*dphi1;
+      double dphidetacov = dphideta - deta1*dphi1;
+      
+      double det = (detavar-dphivar)*(detavar-dphivar)+4*dphidetacov*dphidetacov;
+      det = sqrt(det);
+      double x1 = (detavar+dphivar+det)/2.;
+      double x2 = (detavar+dphivar-det)/2.;
       
       
   // Energy fraction in cone
@@ -279,13 +280,14 @@ std::cout<<" ncalo "<<ncalotowers<<" deta2 "<<deta2<<" dphi2 "<<dphi2<<" deta1 "
 
   // W.r.t. principal axis
 
-                     double detavart = detatr2-detatr1*detatr1;
-                     double dphivart = dphitr2-dphitr1*dphitr1;
-                     double dphidetacovt = dphidetatr - detatr1*dphitr1;
-
-                     double dettr = (detavart-dphivart)*(detavart-dphivart)+4*dphidetacovt*dphidetacovt;
-		     double x1tr = (detavart+dphivart+sqrt(dettr))/2.;
-		     double x2tr = (detavart+dphivart-sqrt(dettr))/2.;
+      double detavart = detatr2-detatr1*detatr1;
+      double dphivart = dphitr2-dphitr1*dphitr1;
+      double dphidetacovt = dphidetatr - detatr1*dphitr1;
+      
+      double dettr = (detavart-dphivart)*(detavart-dphivart)+4*dphidetacovt*dphidetacovt;
+      dettr = sqrt(dettr);
+      double x1tr = (detavart+dphivart+dettr)/2.;
+      double x2tr = (detavart+dphivart-dettr)/2.;
      
         if (verbosity > 0) std::cout<<" ntracks "<<ntracks<<" detatr2 "<<detatr2<<" dphitr2 "<<dphitr2<<" detatr1 "<<detatr1<<" dphitr1 "<<dphitr1<<" detavart "<<detavart<<" dphivart "<<dphivart<<" dphidetacovt "<<dphidetacovt<<" sqrt(det) "<<sqrt(dettr)<<" x1tr "<<x1tr<<" x2tr "<<x2tr<<std::endl;
  
