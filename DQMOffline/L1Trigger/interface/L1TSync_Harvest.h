@@ -1,7 +1,7 @@
 #ifndef DQMOffline_L1Trigger_L1TSync_Harvest_h
 #define DQMOffline_L1Trigger_L1TSync_Harvest_h
 
-/*
+/**
  * \class L1TSync_Harvest
  *
  *

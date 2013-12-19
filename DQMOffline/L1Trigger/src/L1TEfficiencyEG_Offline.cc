@@ -1,7 +1,7 @@
-/*
+/**
  * \file L1TEfficiencyEG_Offline.cc
  *
- * \author J. Pela, P. Musella
+ * \author J. Pela
  *
  */
 
