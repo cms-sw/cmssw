@@ -4,21 +4,14 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 #include <string>
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+namespace edm {
+  template<class T> class DetSetVector;
+}
+class SiStripDigi;
+class DQMStore;
+class MonitorElement;
 
 class  SiStripDigiValid: public edm::EDAnalyzer {
 
@@ -30,6 +23,7 @@ class  SiStripDigiValid: public edm::EDAnalyzer {
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c);
      void beginJob();
+     void beginRun(edm::Run const& r, edm::EventSetup const& es);
      void endJob(void);
 
  private:
@@ -181,7 +175,7 @@ class  SiStripDigiValid: public edm::EDAnalyzer {
     //Back-End Interface
     DQMStore* dbe_;
     std::string outputFile_;
-    edm::InputTag src_;
+    edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > edmDetSetVector_SiStripDigi_Token_;
 };
 
 
