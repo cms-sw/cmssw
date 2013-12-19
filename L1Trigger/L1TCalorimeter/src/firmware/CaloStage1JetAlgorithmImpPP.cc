@@ -17,8 +17,8 @@
 using namespace std;
 using namespace l1t;
 
-CaloStage1JetAlgorithmImpPP::CaloStage1JetAlgorithmImpPP(/*const CaloParams & dbPars*/)/* : db(dbPars)*/
-  : regionLSB_(0.5) {}
+CaloStage1JetAlgorithmImpPP::CaloStage1JetAlgorithmImpPP(/*const CaloParams & dbPars*/)/* : db(dbPars)*/{}
+//: regionLSB_(0.5) {}
 
 CaloStage1JetAlgorithmImpPP::~CaloStage1JetAlgorithmImpPP(){};
 
