@@ -27,7 +27,6 @@ using namespace ento;
 using namespace llvm;
 
 namespace clangcms {
-[[edm::thread_safe]] static boost::interprocess::interprocess_semaphore file_mutex(1);
 
 class FWalker : public clang::StmtVisitor<FWalker> {
   clang::ento::BugReporter &BR;
@@ -113,17 +112,8 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		os << "function '"<<dname << "' accesses or modifies non-const static local variable '" << svname<< "'.\n";
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '"+ sdname + "' static variable '" + vname + "'.\n";
-		file_mutex.wait();
-		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-		if ( filecontents.find(ostring)  == std::string::npos ) {
-			file<<ostring;
-			file.close();
-			file_mutex.post();
-		} else {
-			file.close();
-			file_mutex.post();
-		}
+		std::ofstream file(tname.c_str(),std::ios::app);
+		file<<ostring;
 		return;
 	}
 
@@ -134,17 +124,8 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		os << "function '"<<dname<< "' accesses or modifies non-const static member data variable '" << svname << "'.\n";
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
-		file_mutex.wait();
-		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-		if ( filecontents.find(ostring)  == std::string::npos ) {
-			file<<ostring;
-			file.close();
-			file_mutex.post();
-		} else {
-			file.close();
-			file_mutex.post();
-		}
+		std::ofstream file(tname.c_str(),std::ios::app);
+		file<<ostring;
 	    return;
 	}
 
@@ -159,17 +140,8 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		os << "function '"<<dname << "' accesses or modifies non-const global static variable '" << svname << "'.\n";
 		BR.EmitBasicReport(D, "FunctionChecker : non-const static local variable accessed or modified","ThreadSafety",os.str(), DLoc);
 		std::string ostring =  "function '" + sdname + "' static variable '" + vname + "'.\n";
-		file_mutex.wait();
-		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-		if ( filecontents.find(ostring)  == std::string::npos ) {
-			file<<ostring;
-			file.close();
-			file_mutex.post();
-		} else {
-			file.close();
-			file_mutex.post();
-		}
+		std::ofstream file(tname.c_str(),std::ios::app);
+		file<<ostring;
 	    return;
 	
 	}
@@ -209,17 +181,8 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
 		std::string tname = ""; 
 		if ( pPath != NULL ) tname += std::string(pPath);
 		tname+="/tmp/function-checker.txt.unsorted";
-		file_mutex.wait();
-		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-		if ( filecontents.find(ostring)  == std::string::npos ) {
-			file<<ostring;
-			file.close();
-			file_mutex.post();
-		} else {
-			file.close();
-			file_mutex.post();
-		}
+		std::ofstream file(tname.c_str(),std::ios::app);
+		file<<ostring;
         }
 }
 
