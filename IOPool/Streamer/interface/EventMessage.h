@@ -44,6 +44,8 @@ hlt_count 4 | hltbits hlt_count/4 |
 adler32_chksum 4 | host name length 1 | host name {Fixed size}
 eventdatalength 4 | eventdata blob {variable} 
 
+Protocol Version 10: identical to version 9, but incremented to keep in sync with init msg version 
+
 */
 
 #ifndef IOPool_Streamer_EventMessage_h

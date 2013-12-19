@@ -3,22 +3,16 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include <iostream>
 #include <string>
-#include <TH1F.h>
-#include <TH2F.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+
+class DQMStore;
+class MonitorElement;
+class TrackingParticle;
 
 class TrackingTruthValid  : public edm::EDAnalyzer {
  public:
+  typedef std::vector<TrackingParticle> TrackingParticleCollection;
   //Constructor
   explicit TrackingTruthValid(const edm::ParameterSet& conf) ;
   //Destructor
@@ -27,14 +21,13 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
 
   void beginJob(const edm::ParameterSet& conf);
+  void beginRun( const edm::Run&, const edm::EventSetup& ); 
   void endJob();
   
  private:
-  DQMStore* dbe_;
-  edm::ParameterSet conf_;
   std::string outputFile;
-  edm::InputTag src_;
   
+  DQMStore* dbe_;
   MonitorElement* meTPMass;
   MonitorElement* meTPCharge; 
   MonitorElement* meTPId;
@@ -49,7 +42,8 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   MonitorElement* meTPVtxZ; 
   MonitorElement* meTPtip;
   MonitorElement* meTPlip;
-  
+
+  edm::EDGetTokenT<TrackingParticleCollection> vec_TrackingParticle_Token_;
 };
 
 #endif

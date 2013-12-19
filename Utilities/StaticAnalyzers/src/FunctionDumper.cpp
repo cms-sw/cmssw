@@ -11,7 +11,6 @@ using namespace ento;
 using namespace llvm;
 
 namespace clangcms {
-[[edm::thread_safe]] static boost::interprocess::interprocess_semaphore file_mutex(1);
 
 class FDumper : public clang::StmtVisitor<FDumper> {
   clang::ento::BugReporter &BR;
@@ -32,6 +31,7 @@ public:
   void VisitChildren(clang::Stmt *S );
   void VisitStmt( clang::Stmt *S) { VisitChildren(S); }
   void VisitCallExpr( CallExpr *CE ); 
+  void VisitCXXConstructExpr( CXXConstructExpr *CCE ); 
  
 };
 
@@ -40,6 +40,29 @@ void FDumper::VisitChildren( clang::Stmt *S) {
     if (clang::Stmt *child = *I) {
       Visit(child);
     }
+}
+
+void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
+	LangOptions LangOpts;
+	LangOpts.CPlusPlus = true;
+	PrintingPolicy Policy(LangOpts);
+	const Decl * D = AC->getDecl();
+	std::string mdname =""; 
+	if (const NamedDecl * ND = llvm::dyn_cast<NamedDecl>(D)) mdname = support::getQualifiedName(*ND);
+	CXXConstructorDecl * CCD = CCE->getConstructor();
+	if (!CCD) return;
+	const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
+	if (!support::isCmsLocalFile(sfile)) return;
+	std::string sname(sfile);
+	if ( sname.find("/test/") != std::string::npos) return;
+	std::string mname = support::getQualifiedName(*CCD);
+	const char * pPath = std::getenv("LOCALRT");
+	std::string tname = ""; 
+	if ( pPath != NULL ) tname += std::string(pPath);
+	tname+="/tmp/function-dumper.txt.unsorted";
+	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
+	std::ofstream file(tname.c_str(),std::ios::app);
+	file<<ostring;
 }
 
 
@@ -62,17 +85,8 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	if ( pPath != NULL ) tname += std::string(pPath);
 	tname+="/tmp/function-dumper.txt.unsorted";
 	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
-	file_mutex.wait();
-	std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-	std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-	if ( filecontents.find(ostring)  == std::string::npos ) {
-		file<<ostring;
-		file.close();
-		file_mutex.post();
-	} else {
-		file.close();
-		file_mutex.post();
-	}
+	std::ofstream file(tname.c_str(),std::ios::app);
+	file<<ostring;
 }
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
@@ -93,17 +107,8 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
         for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
 		std::string oname = support::getQualifiedName(*(*I));
 		std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + "'\n";
-		file_mutex.wait();
-		std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-		std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-		if ( filecontents.find(ostring) == std::string::npos) {
-			file<<ostring;
-			file.close();
-			file_mutex.post();
-		} else {
-			file.close();
-			file_mutex.post();
-		}
+		std::ofstream file(tname.c_str(),std::ios::app);
+		file<<ostring;
 	}
        	return;
 } 

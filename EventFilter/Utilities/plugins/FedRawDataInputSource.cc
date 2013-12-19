@@ -78,19 +78,10 @@ FedRawDataInputSource::~FedRawDataInputSource()
 bool FedRawDataInputSource::checkNextEvent()
 {
   int eventAvailable = cacheNextEvent();
-  if (  eventAvailable <0 ) {
+  if (eventAvailable < 0) {
     // run has ended
     resetLuminosityBlockAuxiliary();
-
-    if (fileStream_) {
-      edm::LogInfo("FedRawDataInputSource") << "Closing input stream ";
-      fclose(fileStream_);
-      fileStream_ = 0;
-      if (!testModeNoBuilderUnit_) {
-        edm::LogInfo("FedRawDataInputSource") << "Removing last input file used : " << openFile_.string();
-        boost::filesystem::remove(openFile_); // won't work in case of forked children
-      }
-    }
+    closeCurrentFile();
     return false;
   }
   else if(eventAvailable == 0) {
@@ -122,7 +113,7 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
 
     if ( currentLumiSection_ > 0 ) {
       const string fuEoLS =
-        edm::Service<evf::EvFDaqDirector>()->formatEndOfLSSlave(currentLumiSection_);
+        edm::Service<evf::EvFDaqDirector>()->getEoLSFilePathOnFU(currentLumiSection_);
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if ( !found ) {
@@ -201,6 +192,7 @@ int FedRawDataInputSource::readNextChunkIntoBuffer()
   // lumi section to account for 
   int fileStatus = 100; //file is healthy for now 
   if (eofReached()){
+    closeCurrentFile();
     fileStatus = openNextFile(); // this can now return even if there is 
                                  //no file only temporarily
     if(fileStatus==0) return -100; //should only happen when requesting the next event header and the run is over
@@ -235,6 +227,23 @@ bool FedRawDataInputSource::eofReached() const
   ungetc(c, fileStream_);
 
   return (c == EOF);
+}
+
+void FedRawDataInputSource::closeCurrentFile()
+{
+  if (fileStream_) {
+
+    edm::LogInfo("FedRawDataInputSource") << "Closing input file " << openFile_.string();
+
+    fclose(fileStream_);
+    fileStream_ = 0;
+
+    if (!testModeNoBuilderUnit_) {
+      boost::filesystem::remove(openFile_); // won't work in case of forked children
+    } else {
+      renameToNextFree();
+    }
+  }
 }
 
 int FedRawDataInputSource::openNextFile()
@@ -399,17 +408,6 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
 
 void FedRawDataInputSource::openDataFile(std::string const& nextFile)
 {
-  if (fileStream_) {
-    fclose(fileStream_);
-    fileStream_ = 0;
-
-    if (!testModeNoBuilderUnit_) {
-      boost::filesystem::remove(openFile_); // won't work in case of forked children
-    } else {
-      renameToNextFree();
-    }
-  }
-
   const int fileDescriptor = open(nextFile.c_str(), O_RDONLY);
   if (fileDescriptor != -1) {
     fileStream_ = fdopen(fileDescriptor, "rb");
