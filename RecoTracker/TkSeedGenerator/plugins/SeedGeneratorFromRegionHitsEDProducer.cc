@@ -52,10 +52,10 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
 
 SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
 {
+  delete theRegionProducer; theRegionProducer = nullptr;
 }
 
 void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
-  delete theRegionProducer;
   delete theGenerator;
 }
 

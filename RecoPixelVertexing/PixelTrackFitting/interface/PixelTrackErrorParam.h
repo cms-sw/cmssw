@@ -17,11 +17,17 @@ private:
   double thePt, thePt2;
 
   static const unsigned int nEta = 25;
-  static double ptPar0_[nEta], ptPar1_[nEta];
-  static double cotPar0_[nEta], cotPar1_[nEta], cotPar2_[nEta];
-  static double tipPar0_[nEta], tipPar1_[nEta];
-  static double zipPar0_[nEta], zipPar1_[nEta];
-  static double phiPar0_[nEta], phiPar1_[nEta];
+  static double const ptPar0_[nEta];
+  static double const ptPar1_[nEta];
+  static double const cotPar0_[nEta];
+  static double const cotPar1_[nEta];
+  static double const cotPar2_[nEta];
+  static double const tipPar0_[nEta];
+  static double const tipPar1_[nEta];
+  static double const zipPar0_[nEta];
+  static double const zipPar1_[nEta];
+  static double const phiPar0_[nEta];
+  static double const phiPar1_[nEta];
 };
 
 #endif
