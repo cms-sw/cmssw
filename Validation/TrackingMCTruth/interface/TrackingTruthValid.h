@@ -21,6 +21,7 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
 
   void beginJob(const edm::ParameterSet& conf);
+  void beginRun( const edm::Run&, const edm::EventSetup& ); 
   void endJob();
   
  private:

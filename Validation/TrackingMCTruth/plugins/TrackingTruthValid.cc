@@ -39,7 +39,9 @@ TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf) {
   
   outputFile = conf.getParameter<std::string>("outputFile");
   src_ =  conf.getParameter<edm::InputTag>( "src" );
-  
+}
+
+void TrackingTruthValid::beginRun( const edm::Run&, const edm::EventSetup& ) {
   dbe_  = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("Tracking/TrackingMCTruth/TrackingParticle");
   
