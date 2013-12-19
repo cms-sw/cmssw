@@ -3,19 +3,15 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include <string>
+
+namespace edm {
+  template< class T > class DetSetVector;
+}
+class PixelDigi;
+class DQMStore;
+class MonitorElement;
 
 class  SiPixelDigiValid: public edm::EDAnalyzer {
 
@@ -27,6 +23,7 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c);
      void beginJob();
+     void beginRun(edm::Run const& r, edm::EventSetup const& es);
      void endJob(void);
 
  private:
@@ -266,7 +263,7 @@ class  SiPixelDigiValid: public edm::EDAnalyzer {
    
  
   DQMStore* dbe_;
-  edm::InputTag src_;  
+  edm::EDGetTokenT< edm::DetSetVector<PixelDigi> > edmDetSetVector_PixelDigi_Token_;
 
  
 };
