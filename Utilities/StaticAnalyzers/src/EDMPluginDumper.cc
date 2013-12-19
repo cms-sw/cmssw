@@ -11,7 +11,6 @@ using namespace clang::ento;
 using namespace llvm;
 
 namespace clangcms {
-[[edm::thread_safe]] static boost::interprocess::interprocess_semaphore file_mutex(1);
 
 void EDMPluginDumper::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const {
@@ -22,29 +21,33 @@ void EDMPluginDumper::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ent
 			{
 			for (unsigned J = 0, F = I->getTemplateArgs().size(); J!=F; ++J)
 				{
-				if (const clang::CXXRecordDecl * D = I->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl()) {
+				if (const clang::CXXRecordDecl * RD = I->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl()) {
 					const char * pPath = std::getenv("LOCALRT");
-					std::string rname = D->getQualifiedNameAsString();
+					std::string rname = RD->getQualifiedNameAsString();
 					std::string dname(""); 
 					if ( pPath != NULL ) dname = std::string(pPath);
 					std::string fname("/tmp/plugins.txt.unsorted");
 					std::string tname = dname + fname;
 					std::string ostring = "edmplugin type '"+ rname +"'\n";
-					file_mutex.wait();
-					std::fstream file(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
-					std::string filecontents((std::istreambuf_iterator<char>(file)),std::istreambuf_iterator<char>() );
-					if ( filecontents.find(ostring) == std::string::npos) {
-						file<<ostring;
-						file.close();
-						file_mutex.post();
-					} else {
-						file.close();
-						file_mutex.post();
-					}
+					std::ofstream file(tname.c_str(),std::ios::app);
+					file<<ostring;
+					if (const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD)) {
+						for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
+							if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type && SD->getTemplateArgs().get(J).getAsType().getTypePtr()->isRecordType() ) 
+							{
+							const clang::CXXRecordDecl * D = SD->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl();
+							std::string dname = D->getQualifiedNameAsString();
+							std::string ostring = "edmplugin type '"+rname+"' template arg '"+ dname +"'\n";
+							std::ofstream file(tname.c_str(),std::ios::app);
+							file<<ostring;
+							
+							}
+						}
+					}	 
 				}
-				}
-			} 		
-		};
+			}
+		} 		
+	}
 } //end class
 
 
