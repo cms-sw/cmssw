@@ -104,7 +104,7 @@ namespace reco {
         } else {
            oError = -1*casts;
            //is this a show stopper error?
-           if(fatalErrorCondition(oError)) {
+           if(fatalErrorCondition(oError) && err_fatal == 0) {
               err_fatal = oError;
            }
         }
@@ -114,6 +114,7 @@ namespace reco {
 
     if (oks.empty() && err_fatal)
     {
+       oError = err_fatal;
        return mem;
     }
 
