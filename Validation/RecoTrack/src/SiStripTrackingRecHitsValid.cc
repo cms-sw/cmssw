@@ -53,11 +53,11 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   
   trajectoryInputToken_ = consumes<std::vector<Trajectory> >( conf_.getParameter<edm::InputTag>("trajectoryInput") ); 
 
-  edm::ParameterSet ParametersResolx_LF =  conf_.getParameter<edm::ParameterSet>("TH1Resolx_LF");
-  layerswitchResolx_LF = ParametersResolx_LF.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrx_LF =  conf_.getParameter<edm::ParameterSet>("TH1Errx_LF");
+  layerswitchErrx_LF = ParametersErrx_LF.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolx_MF =  conf_.getParameter<edm::ParameterSet>("TH1Resolx_MF");
-  layerswitchResolx_MF = ParametersResolx_MF.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrx_MF =  conf_.getParameter<edm::ParameterSet>("TH1Errx_MF");
+  layerswitchErrx_MF = ParametersErrx_MF.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersRes_LF =  conf_.getParameter<edm::ParameterSet>("TH1Res_LF");
   layerswitchRes_LF = ParametersRes_LF.getParameter<bool>("layerswitchon");
@@ -89,17 +89,17 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   edm::ParameterSet ParametersTrackanglebeta =  conf_.getParameter<edm::ParameterSet>("TH1Trackanglebeta");
   layerswitchTrackanglebeta = ParametersTrackanglebeta.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile_WClus1 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile_WClus1");
-  layerswitchResolxMFTrackwidthProfile_WClus1 = ParametersResolxMFTrackwidthProfile_WClus1.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile_WClus1 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile_WClus1");
+  layerswitchErrxMFTrackwidthProfile_WClus1 = ParametersErrxMFTrackwidthProfile_WClus1.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile_WClus2 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile_WClus2");
-  layerswitchResolxMFTrackwidthProfile_WClus2 = ParametersResolxMFTrackwidthProfile_WClus2.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile_WClus2 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile_WClus2");
+  layerswitchErrxMFTrackwidthProfile_WClus2 = ParametersErrxMFTrackwidthProfile_WClus2.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile_WClus3 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile_WClus3");
-  layerswitchResolxMFTrackwidthProfile_WClus3 = ParametersResolxMFTrackwidthProfile_WClus3.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile_WClus3 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile_WClus3");
+  layerswitchErrxMFTrackwidthProfile_WClus3 = ParametersErrxMFTrackwidthProfile_WClus3.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile_WClus4 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile_WClus4");
-  layerswitchResolxMFTrackwidthProfile_WClus4 = ParametersResolxMFTrackwidthProfile_WClus4.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile_WClus4 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile_WClus4");
+  layerswitchErrxMFTrackwidthProfile_WClus4 = ParametersErrxMFTrackwidthProfile_WClus4.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersResMFTrackwidthProfile_WClus1 =  conf_.getParameter<edm::ParameterSet>("TProfResMFTrackwidthProfile_WClus1");
   layerswitchResMFTrackwidthProfile_WClus1 = ParametersResMFTrackwidthProfile_WClus1.getParameter<bool>("layerswitchon");
@@ -122,50 +122,53 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   edm::ParameterSet ParametersResMFTrackwidthProfile_WClus4 =  conf_.getParameter<edm::ParameterSet>("TProfResMFTrackwidthProfile_WClus4");
   layerswitchResMFTrackwidthProfile_WClus4 = ParametersResMFTrackwidthProfile_WClus4.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile");
-  layerswitchResolxMFTrackwidthProfile = ParametersResolxMFTrackwidthProfile.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile");
+  layerswitchErrxMFTrackwidthProfile = ParametersErrxMFTrackwidthProfile.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile_Category1 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile_Category1");
-  layerswitchResolxMFTrackwidthProfile_Category1 = ParametersResolxMFTrackwidthProfile_Category1.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile_Category1 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile_Category1");
+  layerswitchErrxMFTrackwidthProfile_Category1 = ParametersErrxMFTrackwidthProfile_Category1.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile_Category2 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile_Category2");
-  layerswitchResolxMFTrackwidthProfile_Category2 = ParametersResolxMFTrackwidthProfile_Category2.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile_Category2 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile_Category2");
+  layerswitchErrxMFTrackwidthProfile_Category2 = ParametersErrxMFTrackwidthProfile_Category2.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile_Category3 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile_Category3");
-  layerswitchResolxMFTrackwidthProfile_Category3 = ParametersResolxMFTrackwidthProfile_Category3.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile_Category3 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile_Category3");
+  layerswitchErrxMFTrackwidthProfile_Category3 = ParametersErrxMFTrackwidthProfile_Category3.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfile_Category4 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfile_Category4");
-  layerswitchResolxMFTrackwidthProfile_Category4 = ParametersResolxMFTrackwidthProfile_Category4.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfile_Category4 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfile_Category4");
+  layerswitchErrxMFTrackwidthProfile_Category4 = ParametersErrxMFTrackwidthProfile_Category4.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFClusterwidthProfile_Category1 =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFClusterwidthProfile_Category1");
-  layerswitchResolxMFClusterwidthProfile_Category1 = ParametersResolxMFClusterwidthProfile_Category1.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFClusterwidthProfile_Category1 =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFClusterwidthProfile_Category1");
+  layerswitchErrxMFClusterwidthProfile_Category1 = ParametersErrxMFClusterwidthProfile_Category1.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFAngleProfile =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFAngleProfile");
-  layerswitchResolxMFAngleProfile = ParametersResolxMFAngleProfile.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFAngleProfile =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFAngleProfile");
+  layerswitchErrxMFAngleProfile = ParametersErrxMFAngleProfile.getParameter<bool>("layerswitchon");
   
-  edm::ParameterSet ParametersWclusRphi =  conf_.getParameter<edm::ParameterSet>("TH1WclusRphi");
-  layerswitchWclusRphi = ParametersWclusRphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersNstpRphi =  conf_.getParameter<edm::ParameterSet>("TH1NstpRphi");
+  layerswitchNstpRphi = ParametersNstpRphi.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersAdcRphi =  conf_.getParameter<edm::ParameterSet>("TH1AdcRphi");
   layerswitchAdcRphi = ParametersAdcRphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxLFRphi =  conf_.getParameter<edm::ParameterSet>("TH1ResolxLFRphi");
-  layerswitchResolxLFRphi = ParametersResolxLFRphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersPosxRphi =  conf_.getParameter<edm::ParameterSet>("TH1PosxRphi");
+  layerswitchPosxRphi = ParametersPosxRphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFRphi =  conf_.getParameter<edm::ParameterSet>("TH1ResolxMFRphi");
-  layerswitchResolxMFRphi = ParametersResolxMFRphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxLFRphi =  conf_.getParameter<edm::ParameterSet>("TH1ErrxLFRphi");
+  layerswitchErrxLFRphi = ParametersErrxLFRphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFRphiwclus1 =  conf_.getParameter<edm::ParameterSet>("TH1ResolxMFRphiwclus1");
-  layerswitchResolxMFRphiwclus1 = ParametersResolxMFRphiwclus1.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFRphi =  conf_.getParameter<edm::ParameterSet>("TH1ErrxMFRphi");
+  layerswitchErrxMFRphi = ParametersErrxMFRphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFRphiwclus2 =  conf_.getParameter<edm::ParameterSet>("TH1ResolxMFRphiwclus2");
-  layerswitchResolxMFRphiwclus2 = ParametersResolxMFRphiwclus2.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFRphiwclus1 =  conf_.getParameter<edm::ParameterSet>("TH1ErrxMFRphiwclus1");
+  layerswitchErrxMFRphiwclus1 = ParametersErrxMFRphiwclus1.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFRphiwclus3 =  conf_.getParameter<edm::ParameterSet>("TH1ResolxMFRphiwclus3");
-  layerswitchResolxMFRphiwclus3 = ParametersResolxMFRphiwclus3.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFRphiwclus2 =  conf_.getParameter<edm::ParameterSet>("TH1ErrxMFRphiwclus2");
+  layerswitchErrxMFRphiwclus2 = ParametersErrxMFRphiwclus2.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFRphiwclus4 =  conf_.getParameter<edm::ParameterSet>("TH1ResolxMFRphiwclus4");
-  layerswitchResolxMFRphiwclus4 = ParametersResolxMFRphiwclus4.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFRphiwclus3 =  conf_.getParameter<edm::ParameterSet>("TH1ErrxMFRphiwclus3");
+  layerswitchErrxMFRphiwclus3 = ParametersErrxMFRphiwclus3.getParameter<bool>("layerswitchon");
+
+  edm::ParameterSet ParametersErrxMFRphiwclus4 =  conf_.getParameter<edm::ParameterSet>("TH1ErrxMFRphiwclus4");
+  layerswitchErrxMFRphiwclus4 = ParametersErrxMFRphiwclus4.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersResLFRphi =  conf_.getParameter<edm::ParameterSet>("TH1ResLFRphi");
   layerswitchResLFRphi = ParametersResLFRphi.getParameter<bool>("layerswitchon");
@@ -257,20 +260,20 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   edm::ParameterSet ParametersPullTrackwidthProfileCategory4Rphi =  conf_.getParameter<edm::ParameterSet>("TProfPullTrackwidthProfileCategory4Rphi");
   layerswitchPullTrackwidthProfileCategory4Rphi = ParametersPullTrackwidthProfileCategory4Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileRphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileRphi");
-  layerswitchResolxMFTrackwidthProfileRphi = ParametersResolxMFTrackwidthProfileRphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileRphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileRphi");
+  layerswitchErrxMFTrackwidthProfileRphi = ParametersErrxMFTrackwidthProfileRphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileWclus1Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileWclus1Rphi");
-  layerswitchResolxMFTrackwidthProfileWclus1Rphi = ParametersResolxMFTrackwidthProfileWclus1Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileWclus1Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileWclus1Rphi");
+  layerswitchErrxMFTrackwidthProfileWclus1Rphi = ParametersErrxMFTrackwidthProfileWclus1Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileWclus2Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileWclus2Rphi");
-  layerswitchResolxMFTrackwidthProfileWclus2Rphi = ParametersResolxMFTrackwidthProfileWclus2Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileWclus2Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileWclus2Rphi");
+  layerswitchErrxMFTrackwidthProfileWclus2Rphi = ParametersErrxMFTrackwidthProfileWclus2Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileWclus3Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileWclus3Rphi");
-  layerswitchResolxMFTrackwidthProfileWclus3Rphi = ParametersResolxMFTrackwidthProfileWclus3Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileWclus3Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileWclus3Rphi");
+  layerswitchErrxMFTrackwidthProfileWclus3Rphi = ParametersErrxMFTrackwidthProfileWclus3Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileWclus4Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileWclus4Rphi");
-  layerswitchResolxMFTrackwidthProfileWclus4Rphi = ParametersResolxMFTrackwidthProfileWclus4Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileWclus4Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileWclus4Rphi");
+  layerswitchErrxMFTrackwidthProfileWclus4Rphi = ParametersErrxMFTrackwidthProfileWclus4Rphi.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersResMFTrackwidthProfileWclus1Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResMFTrackwidthProfileWclus1Rphi");
   layerswitchResMFTrackwidthProfileWclus1Rphi = ParametersResMFTrackwidthProfileWclus1Rphi.getParameter<bool>("layerswitchon");
@@ -284,23 +287,23 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   edm::ParameterSet ParametersResMFTrackwidthProfileWclus4Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResMFTrackwidthProfileWclus4Rphi");
   layerswitchResMFTrackwidthProfileWclus4Rphi = ParametersResMFTrackwidthProfileWclus4Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileCategory1Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileCategory1Rphi");
-  layerswitchResolxMFTrackwidthProfileCategory1Rphi = ParametersResolxMFTrackwidthProfileCategory1Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileCategory1Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileCategory1Rphi");
+  layerswitchErrxMFTrackwidthProfileCategory1Rphi = ParametersErrxMFTrackwidthProfileCategory1Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileCategory2Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileCategory2Rphi");
-  layerswitchResolxMFTrackwidthProfileCategory2Rphi = ParametersResolxMFTrackwidthProfileCategory2Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileCategory2Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileCategory2Rphi");
+  layerswitchErrxMFTrackwidthProfileCategory2Rphi = ParametersErrxMFTrackwidthProfileCategory2Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileCategory3Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileCategory3Rphi");
-  layerswitchResolxMFTrackwidthProfileCategory3Rphi = ParametersResolxMFTrackwidthProfileCategory3Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileCategory3Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileCategory3Rphi");
+  layerswitchErrxMFTrackwidthProfileCategory3Rphi = ParametersErrxMFTrackwidthProfileCategory3Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileCategory4Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileCategory4Rphi");
-  layerswitchResolxMFTrackwidthProfileCategory4Rphi = ParametersResolxMFTrackwidthProfileCategory4Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileCategory4Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileCategory4Rphi");
+  layerswitchErrxMFTrackwidthProfileCategory4Rphi = ParametersErrxMFTrackwidthProfileCategory4Rphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFAngleProfileRphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFAngleProfileRphi");
-  layerswitchResolxMFAngleProfileRphi = ParametersResolxMFAngleProfileRphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFAngleProfileRphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFAngleProfileRphi");
+  layerswitchErrxMFAngleProfileRphi = ParametersErrxMFAngleProfileRphi.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFClusterwidthProfileCategory1Rphi =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFClusterwidthProfileCategory1Rphi");
-  layerswitchResolxMFClusterwidthProfileCategory1Rphi = ParametersResolxMFClusterwidthProfileCategory1Rphi.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFClusterwidthProfileCategory1Rphi =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFClusterwidthProfileCategory1Rphi");
+  layerswitchErrxMFClusterwidthProfileCategory1Rphi = ParametersErrxMFClusterwidthProfileCategory1Rphi.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersrapidityResProfilewclus1 =  conf_.getParameter<edm::ParameterSet>("TProfrapidityResProfilewclus1");
   layerswitchrapidityResProfilewclus1 = ParametersrapidityResProfilewclus1.getParameter<bool>("layerswitchon");
@@ -314,17 +317,20 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   edm::ParameterSet ParametersrapidityResProfilewclus4 =  conf_.getParameter<edm::ParameterSet>("TProfrapidityResProfilewclus4");
   layerswitchrapidityResProfilewclus4 = ParametersrapidityResProfilewclus4.getParameter<bool>("layerswitchon");
   
-  edm::ParameterSet ParametersWclusSas =  conf_.getParameter<edm::ParameterSet>("TH1WclusSas");
-  layerswitchWclusSas = ParametersWclusSas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersNstpSas =  conf_.getParameter<edm::ParameterSet>("TH1NstpSas");
+  layerswitchNstpSas = ParametersNstpSas.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersAdcSas =  conf_.getParameter<edm::ParameterSet>("TH1AdcSas");
   layerswitchAdcSas = ParametersAdcSas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxLFSas =  conf_.getParameter<edm::ParameterSet>("TH1ResolxLFSas");
-  layerswitchResolxLFSas = ParametersResolxLFSas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersPosxSas =  conf_.getParameter<edm::ParameterSet>("TH1PosxSas");
+  layerswitchPosxSas = ParametersPosxSas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFSas =  conf_.getParameter<edm::ParameterSet>("TH1ResolxMFSas");
-  layerswitchResolxMFSas = ParametersResolxMFSas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxLFSas =  conf_.getParameter<edm::ParameterSet>("TH1ErrxLFSas");
+  layerswitchErrxLFSas = ParametersErrxLFSas.getParameter<bool>("layerswitchon");
+
+  edm::ParameterSet ParametersErrxMFSas =  conf_.getParameter<edm::ParameterSet>("TH1ErrxMFSas");
+  layerswitchErrxMFSas = ParametersErrxMFSas.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersResLFSas =  conf_.getParameter<edm::ParameterSet>("TH1ResLFSas");
   layerswitchResLFSas = ParametersResLFSas.getParameter<bool>("layerswitchon");
@@ -374,26 +380,26 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   edm::ParameterSet ParametersPullTrackwidthProfileCategory4Sas =  conf_.getParameter<edm::ParameterSet>("TProfPullTrackwidthProfileCategory4Sas");
   layerswitchPullTrackwidthProfileCategory4Sas = ParametersPullTrackwidthProfileCategory4Sas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileSas =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileSas");
-  layerswitchResolxMFTrackwidthProfileSas = ParametersResolxMFTrackwidthProfileSas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileSas =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileSas");
+  layerswitchErrxMFTrackwidthProfileSas = ParametersErrxMFTrackwidthProfileSas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileCategory1Sas =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileCategory1Sas");
-  layerswitchResolxMFTrackwidthProfileCategory1Sas = ParametersResolxMFTrackwidthProfileCategory1Sas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileCategory1Sas =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileCategory1Sas");
+  layerswitchErrxMFTrackwidthProfileCategory1Sas = ParametersErrxMFTrackwidthProfileCategory1Sas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileCategory2Sas =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileCategory2Sas");
-  layerswitchResolxMFTrackwidthProfileCategory2Sas = ParametersResolxMFTrackwidthProfileCategory2Sas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileCategory2Sas =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileCategory2Sas");
+  layerswitchErrxMFTrackwidthProfileCategory2Sas = ParametersErrxMFTrackwidthProfileCategory2Sas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileCategory3Sas =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileCategory3Sas");
-  layerswitchResolxMFTrackwidthProfileCategory3Sas = ParametersResolxMFTrackwidthProfileCategory3Sas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileCategory3Sas =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileCategory3Sas");
+  layerswitchErrxMFTrackwidthProfileCategory3Sas = ParametersErrxMFTrackwidthProfileCategory3Sas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFTrackwidthProfileCategory4Sas =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFTrackwidthProfileCategory4Sas");
-  layerswitchResolxMFTrackwidthProfileCategory4Sas = ParametersResolxMFTrackwidthProfileCategory4Sas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFTrackwidthProfileCategory4Sas =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFTrackwidthProfileCategory4Sas");
+  layerswitchErrxMFTrackwidthProfileCategory4Sas = ParametersErrxMFTrackwidthProfileCategory4Sas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFAngleProfileSas =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFAngleProfileSas");
-  layerswitchResolxMFAngleProfileSas = ParametersResolxMFAngleProfileSas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFAngleProfileSas =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFAngleProfileSas");
+  layerswitchErrxMFAngleProfileSas = ParametersErrxMFAngleProfileSas.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMFClusterwidthProfileCategory1Sas =  conf_.getParameter<edm::ParameterSet>("TProfResolxMFClusterwidthProfileCategory1Sas");
-  layerswitchResolxMFClusterwidthProfileCategory1Sas = ParametersResolxMFClusterwidthProfileCategory1Sas.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMFClusterwidthProfileCategory1Sas =  conf_.getParameter<edm::ParameterSet>("TProfErrxMFClusterwidthProfileCategory1Sas");
+  layerswitchErrxMFClusterwidthProfileCategory1Sas = ParametersErrxMFClusterwidthProfileCategory1Sas.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersPosxMatched =  conf_.getParameter<edm::ParameterSet>("TH1PosxMatched");
   layerswitchPosxMatched = ParametersPosxMatched.getParameter<bool>("layerswitchon");
@@ -401,11 +407,11 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const edm::ParameterSet
   edm::ParameterSet ParametersPosyMatched =  conf_.getParameter<edm::ParameterSet>("TH1PosyMatched");
   layerswitchPosyMatched = ParametersPosyMatched.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolxMatched =  conf_.getParameter<edm::ParameterSet>("TH1ResolxMatched");
-  layerswitchResolxMatched = ParametersResolxMatched.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErrxMatched =  conf_.getParameter<edm::ParameterSet>("TH1ErrxMatched");
+  layerswitchErrxMatched = ParametersErrxMatched.getParameter<bool>("layerswitchon");
 
-  edm::ParameterSet ParametersResolyMatched =  conf_.getParameter<edm::ParameterSet>("TH1ResolyMatched");
-  layerswitchResolyMatched = ParametersResolyMatched.getParameter<bool>("layerswitchon");
+  edm::ParameterSet ParametersErryMatched =  conf_.getParameter<edm::ParameterSet>("TH1ErryMatched");
+  layerswitchErryMatched = ParametersErryMatched.getParameter<bool>("layerswitchon");
 
   edm::ParameterSet ParametersResxMatched =  conf_.getParameter<edm::ParameterSet>("TH1ResxMatched");
   layerswitchResxMatched = ParametersResxMatched.getParameter<bool>("layerswitchon");
@@ -433,7 +439,7 @@ void SiStripTrackingRecHitsValid::beginRun(const edm::Run& run, const edm::Event
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;       
     edm::LogInfo("SiStripRecHitsValid") <<"SiStripRecHitsValid::beginRun: " 
-					<< " Creating MEs for new Cabling ";     
+					  << " Creating MEs for new Cabling ";     
     
     createMEs(es);
   }
@@ -574,8 +580,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
 	  fillME(iStereoAndMatchedME->second.mePosxMatched,rechitpro.x);
 	  fillME(iStereoAndMatchedME->second.mePosyMatched,rechitpro.y);
-	  fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt(rechitpro.resolxx));
-	  fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt(rechitpro.resolyy));
+	  fillME(iStereoAndMatchedME->second.meErrxMatched,sqrt(rechitpro.errxx));
+	  fillME(iStereoAndMatchedME->second.meErryMatched,sqrt(rechitpro.erryy));
 	  fillME(iStereoAndMatchedME->second.meResxMatched,rechitpro.resx);
 	  fillME(iStereoAndMatchedME->second.meResyMatched,rechitpro.resy);
 	  fillME(iStereoAndMatchedME->second.mePullxMatched,rechitpro.pullx);
@@ -584,10 +590,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	
       }
     
-      //Reset Variables here for the current event
-      isrechitrphi    = 0;
-      isrechitsas     = 0;
-     
+
       ///////////////////////////////////////////////////////
       // simple hits from matched hits
       ///////////////////////////////////////////////////////
@@ -658,7 +661,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 
 	}
       }
-    
+
 
       if (hit2d) {
 	// simple hits are mono or stereo
@@ -707,45 +710,45 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	  fillME(simplehitsMEs.meTrackanglealpha,rechitpro.trackangle);
 	  fillME(simplehitsMEs.meTrackanglebeta,rechitpro.trackanglebeta);
 
-	  fillME(simplehitsMEs.meResolxMFAngleProfile,rechitpro.trackangle, sqrt(rechitpro.resolxxMF));
-	  fillME(simplehitsMEs.meResolxMFTrackwidthProfile,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	  fillME(simplehitsMEs.meErrxMFAngleProfile,rechitpro.trackangle, sqrt(rechitpro.errxxMF));
+	  fillME(simplehitsMEs.meErrxMFTrackwidthProfile,rechitpro.trackwidth, sqrt(rechitpro.errxxMF));
 
 	  if (rechitpro.clusiz == 1) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus1,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileWClus1,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus1,rechitpro.trackwidth, fabs(rechitpro.resxMF));
 	  }
 	  if (rechitpro.clusiz == 2) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileWClus2,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus2,rechitpro.trackwidth, fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus21,rechitpro.trackwidth,fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus22,rechitpro.trackwidth,fabs(rechitpro.resxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus23,rechitpro.trackwidth,fabs(rechitpro.resxMF));
 	  }
 	  if (rechitpro.clusiz == 3) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileWClus3,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus3,rechitpro.trackwidth, fabs(rechitpro.resxMF));
 	  }
 	  if (rechitpro.clusiz == 4) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.errxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus4,rechitpro.trackwidth, fabs(rechitpro.resxMF));
 	  }
 
 	  if (rechitpro.category == 1) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory1,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResolxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileCategory1,rechitpro.trackwidth, sqrt(rechitpro.errxxMF));
+	    fillME(simplehitsMEs.meErrxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.errxxMF));
 	  }
 	  if (rechitpro.category == 2) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	  }
 	  if (rechitpro.category == 3) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	  }
 	  if (rechitpro.category == 4) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	  }
 
-	  fillME(simplehitsMEs.meResolxMF,sqrt(rechitpro.resolxxMF));
-	  fillME(simplehitsMEs.meResolxLF,sqrt(rechitpro.resolxx));
+	  fillME(simplehitsMEs.meErrxMF,sqrt(rechitpro.errxxMF));
+	  fillME(simplehitsMEs.meErrxLF,sqrt(rechitpro.errxx));
 	  fillME(simplehitsMEs.meResMF,rechitpro.resxMF);
 	  fillME(simplehitsMEs.meResLF,rechitpro.resx);
 	  fillME(simplehitsMEs.mePullMF,rechitpro.pullxMF);
@@ -762,42 +765,42 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	  fillME(simplehitsMEs.meTrackanglealpha,rechitpro.trackangle);
 	  fillME(simplehitsMEs.meTrackanglebeta,rechitpro.trackanglebeta);
 
-	  fillME(simplehitsMEs.meResolxMFAngleProfile,rechitpro.trackangle, sqrt(rechitpro.resolxxMF));
-	  fillME(simplehitsMEs.meResolxMFTrackwidthProfile,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	  fillME(simplehitsMEs.meErrxMFAngleProfile,rechitpro.trackangle, sqrt(rechitpro.errxxMF));
+	  fillME(simplehitsMEs.meErrxMFTrackwidthProfile,rechitpro.trackwidth, sqrt(rechitpro.errxxMF));
 
 	  if (rechitpro.clusiz == 1) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus1,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileWClus1,rechitpro.trackwidth, sqrt(rechitpro.errxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus1,rechitpro.trackwidth, rechitpro.resxMF);
 	  }
 
 	  if (rechitpro.clusiz == 2) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus2,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileWClus2,rechitpro.trackwidth, sqrt(rechitpro.errxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus2,rechitpro.trackwidth, rechitpro.resxMF);
 	  }
 	  if (rechitpro.clusiz == 3) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus3,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileWClus3,rechitpro.trackwidth, sqrt(rechitpro.errxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus3,rechitpro.trackwidth, rechitpro.resxMF);
 	  }
 	  if (rechitpro.clusiz == 4) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileWClus4,rechitpro.trackwidth, sqrt(rechitpro.errxxMF));
 	    fillME(simplehitsMEs.meResMFTrackwidthProfileWClus4,rechitpro.trackwidth, rechitpro.resxMF);
 	  }
 	  if (rechitpro.category == 1) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory1,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    fillME(simplehitsMEs.meResolxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileCategory1,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	    fillME(simplehitsMEs.meErrxMFClusterwidthProfileCategory1,rechitpro.clusiz, sqrt(rechitpro.errxxMF));
 	  }
 	  if (rechitpro.category == 2) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileCategory2,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	  }
 	  if (rechitpro.category == 3) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileCategory3,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	  }
 	  if (rechitpro.category == 4) {
-	    fillME(simplehitsMEs.meResolxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
+	    fillME(simplehitsMEs.meErrxMFTrackwidthProfileCategory4,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
 	  }
 
-	  fillME(simplehitsMEs.meResolxMF,sqrt(rechitpro.resolxxMF));
-	  fillME(simplehitsMEs.meResolxLF,sqrt(rechitpro.resolxx));
+	  fillME(simplehitsMEs.meErrxMF,sqrt(rechitpro.errxxMF));
+	  fillME(simplehitsMEs.meErrxLF,sqrt(rechitpro.errxx));
 	  fillME(simplehitsMEs.meResMF,rechitpro.resxMF);
 	  fillME(simplehitsMEs.meResLF,rechitpro.resx);
 	  fillME(simplehitsMEs.mePullMF,rechitpro.pullxMF);
@@ -809,135 +812,130 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	
 	if(iLayerME != LayerMEsMap.end()){
 
-	  if (isrechitrphi > 0) {
+	  fillME(iLayerME->second.meNstpRphi,rechitpro.clusiz);
+	  fillME(iLayerME->second.meAdcRphi,rechitpro.cluchg);
+	  fillME(iLayerME->second.mePosxRphi,rechitpro.x);
+	  fillME(iLayerME->second.meErrxLFRphi,sqrt(rechitpro.errxx));
+	  fillME(iLayerME->second.meErrxMFRphi,sqrt(rechitpro.errxxMF));
 
-	    fillME(iLayerME->second.meWclusRphi,rechitpro.clusiz);
-	    fillME(iLayerME->second.meAdcRphi,rechitpro.cluchg);
-	    fillME(iLayerME->second.meResolxLFRphi,sqrt(rechitpro.resolxx));
-	    fillME(iLayerME->second.meResolxMFRphi,sqrt(rechitpro.resolxxMF));
+	  if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.meErrxMFRphiwclus1,sqrt(rechitpro.errxxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.meErrxMFRphiwclus2,sqrt(rechitpro.errxxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.meErrxMFRphiwclus3,sqrt(rechitpro.errxxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.meErrxMFRphiwclus4,sqrt(rechitpro.errxxMF));}
 
-	    if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.meResolxMFRphiwclus1,sqrt(rechitpro.resolxxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.meResolxMFRphiwclus2,sqrt(rechitpro.resolxxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.meResolxMFRphiwclus3,sqrt(rechitpro.resolxxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.meResolxMFRphiwclus4,sqrt(rechitpro.resolxxMF));}
+	  fillME(iLayerME->second.meResLFRphi,rechitpro.resx);
+	  fillME(iLayerME->second.meResMFRphi,rechitpro.resxMF);
 
-	    fillME(iLayerME->second.meResLFRphi,rechitpro.resx);
-	    fillME(iLayerME->second.meResMFRphi,rechitpro.resxMF);
+	  if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.merapidityResProfilewclus1,track_rapidity, fabs(rechitpro.resxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.merapidityResProfilewclus2,track_rapidity, fabs(rechitpro.resxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.merapidityResProfilewclus3,track_rapidity, fabs(rechitpro.resxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.merapidityResProfilewclus4,track_rapidity, fabs(rechitpro.resxMF));}
 
-	    if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.merapidityResProfilewclus1,track_rapidity, fabs(rechitpro.resxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.merapidityResProfilewclus2,track_rapidity, fabs(rechitpro.resxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.merapidityResProfilewclus3,track_rapidity, fabs(rechitpro.resxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.merapidityResProfilewclus4,track_rapidity, fabs(rechitpro.resxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.meResMFRphiwclus1,rechitpro.resxMF);}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.meResMFRphiwclus2,rechitpro.resxMF);}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.meResMFRphiwclus3,rechitpro.resxMF);}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.meResMFRphiwclus4,rechitpro.resxMF);}
 
-	    if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.meResMFRphiwclus1,rechitpro.resxMF);}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.meResMFRphiwclus2,rechitpro.resxMF);}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.meResMFRphiwclus3,rechitpro.resxMF);}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.meResMFRphiwclus4,rechitpro.resxMF);}
-
-	    fillME(iLayerME->second.mePullLFRphi,rechitpro.pullx);
-	    fillME(iLayerME->second.mePullMFRphi,rechitpro.pullxMF);
+	  fillME(iLayerME->second.mePullLFRphi,rechitpro.pullx);
+	  fillME(iLayerME->second.mePullMFRphi,rechitpro.pullxMF);
 	    
-	    if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.mePullMFRphiwclus1,rechitpro.pullxMF);}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.mePullMFRphiwclus2,rechitpro.pullxMF);}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.mePullMFRphiwclus3,rechitpro.pullxMF);}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.mePullMFRphiwclus4,rechitpro.pullxMF);}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.mePullMFRphiwclus1,rechitpro.pullxMF);}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.mePullMFRphiwclus2,rechitpro.pullxMF);}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.mePullMFRphiwclus3,rechitpro.pullxMF);}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.mePullMFRphiwclus4,rechitpro.pullxMF);}
 
 
-	    fillME(iLayerME->second.meTrackangleRphi,rechitpro.trackangle);
-	    fillME(iLayerME->second.mePullTrackangleProfileRphi,rechitpro.trackangle,fabs(rechitpro.pullxMF));
+	  fillME(iLayerME->second.meTrackangleRphi,rechitpro.trackangle);
+	  fillME(iLayerME->second.mePullTrackangleProfileRphi,rechitpro.trackangle,fabs(rechitpro.pullxMF));
 
-	    if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.mePullTrackwidthProfileRphiwclus1,rechitpro.trackwidth, fabs(rechitpro.pullxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.mePullTrackwidthProfileRphiwclus2,rechitpro.trackwidth, fabs(rechitpro.pullxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.mePullTrackwidthProfileRphiwclus3,rechitpro.trackwidth, fabs(rechitpro.pullxMF));}
-	    if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.mePullTrackwidthProfileRphiwclus4,rechitpro.trackwidth, fabs(rechitpro.pullxMF));}
-
-
-	    if (rechitpro.clusiz == 1) {
-	      fillME(iLayerME->second.meResolxMFTrackwidthProfileWclus1Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	      fillME(iLayerME->second.meResMFTrackwidthProfileWclus1Rphi,rechitpro.trackwidth,fabs(rechitpro.resxMF));
-	    }
-	    if (rechitpro.clusiz == 2) {
-	      fillME(iLayerME->second.meResolxMFTrackwidthProfileWclus2Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	      fillME(iLayerME->second.meResMFTrackwidthProfileWclus2Rphi,rechitpro.trackwidth,fabs(rechitpro.resxMF));
-	    }
-	    if (rechitpro.clusiz == 3) {
-	      fillME(iLayerME->second.meResolxMFTrackwidthProfileWclus3Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	      fillME(iLayerME->second.meResMFTrackwidthProfileWclus3Rphi,rechitpro.trackwidth,fabs(rechitpro.resxMF));
-	    }
-	    if (rechitpro.clusiz == 4) {
-	      fillME(iLayerME->second.meResolxMFTrackwidthProfileWclus4Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	      fillME(iLayerME->second.meResMFTrackwidthProfileWclus4Rphi,rechitpro.trackwidth,fabs(rechitpro.resxMF));
-	    }
+	  if( (min(rechitpro.clusiz, 4) - 1) == 1 ){fillME(iLayerME->second.mePullTrackwidthProfileRphiwclus1,rechitpro.trackwidth, fabs(rechitpro.pullxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 2 ){fillME(iLayerME->second.mePullTrackwidthProfileRphiwclus2,rechitpro.trackwidth, fabs(rechitpro.pullxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.mePullTrackwidthProfileRphiwclus3,rechitpro.trackwidth, fabs(rechitpro.pullxMF));}
+	  if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.mePullTrackwidthProfileRphiwclus4,rechitpro.trackwidth, fabs(rechitpro.pullxMF));}
 
 
-	    if (rechitpro.category == 1) {
-	      fillME(iLayerME->second.mePullTrackwidthProfileCategory1Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
-	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory1Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	      fillME(iLayerME->second.meResolxMFClusterwidthProfileCategory1Rphi,rechitpro.clusiz,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 2) {
-	      fillME(iLayerME->second.mePullTrackwidthProfileCategory2Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
-	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory2Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 3) {
-	      fillME(iLayerME->second.mePullTrackwidthProfileCategory3Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
-	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory3Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 4) {
-	      fillME(iLayerME->second.mePullTrackwidthProfileCategory4Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
-	      fillME(iLayerME->second.meResolxMFTrackwidthProfileCategory4Rphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    
-	    fillME(iLayerME->second.meTrackwidthRphi,rechitpro.trackwidth);
-	    fillME(iLayerME->second.meExpectedwidthRphi,rechitpro.expectedwidth);
-	    fillME(iLayerME->second.meClusterwidthRphi,rechitpro.clusiz);
-	    fillME(iLayerME->second.meCategoryRphi,rechitpro.category);
-	    fillME(iLayerME->second.meResolxMFTrackwidthProfileRphi,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    fillME(iLayerME->second.meResolxMFAngleProfileRphi,rechitpro.trackangle,sqrt(rechitpro.resolxxMF));
+	  if (rechitpro.clusiz == 1) {
+	    fillME(iLayerME->second.meErrxMFTrackwidthProfileWclus1Rphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	    fillME(iLayerME->second.meResMFTrackwidthProfileWclus1Rphi,rechitpro.trackwidth,fabs(rechitpro.resxMF));
+	  }
+	  if (rechitpro.clusiz == 2) {
+	    fillME(iLayerME->second.meErrxMFTrackwidthProfileWclus2Rphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	    fillME(iLayerME->second.meResMFTrackwidthProfileWclus2Rphi,rechitpro.trackwidth,fabs(rechitpro.resxMF));
+	  }
+	  if (rechitpro.clusiz == 3) {
+	    fillME(iLayerME->second.meErrxMFTrackwidthProfileWclus3Rphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	    fillME(iLayerME->second.meResMFTrackwidthProfileWclus3Rphi,rechitpro.trackwidth,fabs(rechitpro.resxMF));
+	  }
+	  if (rechitpro.clusiz == 4) {
+	    fillME(iLayerME->second.meErrxMFTrackwidthProfileWclus4Rphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	    fillME(iLayerME->second.meResMFTrackwidthProfileWclus4Rphi,rechitpro.trackwidth,fabs(rechitpro.resxMF));
 	  }
 
+
+	  if (rechitpro.category == 1) {
+	    fillME(iLayerME->second.mePullTrackwidthProfileCategory1Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
+	    fillME(iLayerME->second.meErrxMFTrackwidthProfileCategory1Rphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	    fillME(iLayerME->second.meErrxMFClusterwidthProfileCategory1Rphi,rechitpro.clusiz,sqrt(rechitpro.errxxMF));
+	  }
+	  if (rechitpro.category == 2) {
+	    fillME(iLayerME->second.mePullTrackwidthProfileCategory2Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
+	    fillME(iLayerME->second.meErrxMFTrackwidthProfileCategory2Rphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	  }
+	  if (rechitpro.category == 3) {
+	    fillME(iLayerME->second.mePullTrackwidthProfileCategory3Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
+	    fillME(iLayerME->second.meErrxMFTrackwidthProfileCategory3Rphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	  }
+	  if (rechitpro.category == 4) {
+	    fillME(iLayerME->second.mePullTrackwidthProfileCategory4Rphi,rechitpro.trackwidth,fabs(rechitpro.pullxMF));
+	    fillME(iLayerME->second.meErrxMFTrackwidthProfileCategory4Rphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	  }
+	    
+	  fillME(iLayerME->second.meTrackwidthRphi,rechitpro.trackwidth);
+	  fillME(iLayerME->second.meExpectedwidthRphi,rechitpro.expectedwidth);
+	  fillME(iLayerME->second.meClusterwidthRphi,rechitpro.clusiz);
+	  fillME(iLayerME->second.meCategoryRphi,rechitpro.category);
+	  fillME(iLayerME->second.meErrxMFTrackwidthProfileRphi,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	  fillME(iLayerME->second.meErrxMFAngleProfileRphi,rechitpro.trackangle,sqrt(rechitpro.errxxMF));
 	}
 
 	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
 	  
-	  if (isrechitsas > 0) {
-
-	    fillME(iStereoAndMatchedME->second.meWclusSas,rechitpro.clusiz);
-	    fillME(iStereoAndMatchedME->second.meAdcSas,rechitpro.cluchg);
-	    fillME(iStereoAndMatchedME->second.meResolxLFSas,sqrt(rechitpro.resolxx));
-	    fillME(iStereoAndMatchedME->second.meResLFSas,rechitpro.resx);
-	    fillME(iStereoAndMatchedME->second.mePullLFSas,rechitpro.pullx);
-	    fillME(iStereoAndMatchedME->second.meResolxMFSas,sqrt(rechitpro.resolxxMF));
-	    fillME(iStereoAndMatchedME->second.meResMFSas,rechitpro.resxMF);
-	    fillME(iStereoAndMatchedME->second.mePullMFSas,rechitpro.pullxMF);
-	    fillME(iStereoAndMatchedME->second.meTrackangleSas,rechitpro.trackangle);
-	    fillME(iStereoAndMatchedME->second.mePullTrackangleProfileSas,rechitpro.trackangle, rechitpro.pullxMF);
-	    fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileSas,rechitpro.trackwidth, rechitpro.pullxMF);
-	    if (rechitpro.category == 1) {
-	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory1Sas,rechitpro.trackwidth,rechitpro.pullxMF);
-	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory1Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	      fillME(iStereoAndMatchedME->second.meResolxMFClusterwidthProfileCategory1Sas,rechitpro.clusiz,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 2) {
-	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory2Sas,rechitpro.trackwidth,rechitpro.pullxMF);
-	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory2Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 3) {
-	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory3Sas,rechitpro.trackwidth,rechitpro.pullxMF);
-	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory3Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    if (rechitpro.category == 4) {
-	      fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory4Sas,rechitpro.trackwidth,rechitpro.pullxMF);
-	      fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileCategory4Sas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    }
-	    fillME(iStereoAndMatchedME->second.meTrackwidthSas,rechitpro.trackwidth);
-	    fillME(iStereoAndMatchedME->second.meExpectedwidthSas,rechitpro.expectedwidth);
-	    fillME(iStereoAndMatchedME->second.meClusterwidthSas,rechitpro.clusiz);
-	    fillME(iStereoAndMatchedME->second.meCategorySas,rechitpro.category);
-	    fillME(iStereoAndMatchedME->second.meResolxMFTrackwidthProfileSas,rechitpro.trackwidth,sqrt(rechitpro.resolxxMF));
-	    fillME(iStereoAndMatchedME->second.meResolxMFAngleProfileSas,rechitpro.trackangle, rechitpro.resolxxMF);
+	  fillME(iStereoAndMatchedME->second.meNstpSas,rechitpro.clusiz);
+	  fillME(iStereoAndMatchedME->second.meAdcSas,rechitpro.cluchg);
+	  fillME(iStereoAndMatchedME->second.mePosxSas,rechitpro.x);
+	  fillME(iStereoAndMatchedME->second.meErrxLFSas,sqrt(rechitpro.errxx));
+	  fillME(iStereoAndMatchedME->second.meResLFSas,rechitpro.resx);
+	  fillME(iStereoAndMatchedME->second.mePullLFSas,rechitpro.pullx);
+	  fillME(iStereoAndMatchedME->second.meErrxMFSas,sqrt(rechitpro.errxxMF));
+	  fillME(iStereoAndMatchedME->second.meResMFSas,rechitpro.resxMF);
+	  fillME(iStereoAndMatchedME->second.mePullMFSas,rechitpro.pullxMF);
+	  fillME(iStereoAndMatchedME->second.meTrackangleSas,rechitpro.trackangle);
+	  fillME(iStereoAndMatchedME->second.mePullTrackangleProfileSas,rechitpro.trackangle, rechitpro.pullxMF);
+	  fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileSas,rechitpro.trackwidth, rechitpro.pullxMF);
+	  if (rechitpro.category == 1) {
+	    fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory1Sas,rechitpro.trackwidth,rechitpro.pullxMF);
+	    fillME(iStereoAndMatchedME->second.meErrxMFTrackwidthProfileCategory1Sas,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	    fillME(iStereoAndMatchedME->second.meErrxMFClusterwidthProfileCategory1Sas,rechitpro.clusiz,sqrt(rechitpro.errxxMF));
 	  }
-	
+	  if (rechitpro.category == 2) {
+	    fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory2Sas,rechitpro.trackwidth,rechitpro.pullxMF);
+	    fillME(iStereoAndMatchedME->second.meErrxMFTrackwidthProfileCategory2Sas,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	  }
+	  if (rechitpro.category == 3) {
+	    fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory3Sas,rechitpro.trackwidth,rechitpro.pullxMF);
+	    fillME(iStereoAndMatchedME->second.meErrxMFTrackwidthProfileCategory3Sas,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	  }
+	  if (rechitpro.category == 4) {
+	    fillME(iStereoAndMatchedME->second.mePullTrackwidthProfileCategory4Sas,rechitpro.trackwidth,rechitpro.pullxMF);
+	    fillME(iStereoAndMatchedME->second.meErrxMFTrackwidthProfileCategory4Sas,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	  }
+	  fillME(iStereoAndMatchedME->second.meTrackwidthSas,rechitpro.trackwidth);
+	  fillME(iStereoAndMatchedME->second.meExpectedwidthSas,rechitpro.expectedwidth);
+	  fillME(iStereoAndMatchedME->second.meClusterwidthSas,rechitpro.clusiz);
+	  fillME(iStereoAndMatchedME->second.meCategorySas,rechitpro.category);
+	  fillME(iStereoAndMatchedME->second.meErrxMFTrackwidthProfileSas,rechitpro.trackwidth,sqrt(rechitpro.errxxMF));
+	  fillME(iStereoAndMatchedME->second.meErrxMFAngleProfileSas,rechitpro.trackangle, rechitpro.errxxMF);
+	    
 	}
 	
 
@@ -990,8 +988,8 @@ std::pair < LocalPoint, LocalVector > SiStripTrackingRecHitsValid::projectHit(co
 //--------------------------------------------------------------------------------------------
 void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const GluedGeomDet* gluedDet, TrackerHitAssociator associate, edm::ESHandle<StripClusterParameterEstimator> stripcpe, std::string matchedmonorstereo){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.;   rechitpro.resolyy = -999999.; 
-  rechitpro.resolxxMF = -999999.; rechitpro.phi = -999999.;rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
+  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.errxx = -999999.; rechitpro.errxy = -999999.;   rechitpro.erryy = -999999.; 
+  rechitpro.errxxMF = -999999.; rechitpro.phi = -999999.;rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
   rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.; 
   rechitpro.trackangle2 = -999999.; rechitpro.trackwidth = -999999.; rechitpro.expectedwidth = -999999.; rechitpro.category = -999999.; rechitpro.thickness = -999999.; 
   rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; 
@@ -1089,10 +1087,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   rechitpro.x = position.x();
   rechitpro.y = position.y();
   rechitpro.z = position.z();
-  rechitpro.resolxx = error.xx();
-  rechitpro.resolxy = error.xy();
-  rechitpro.resolyy = error.yy();
-  rechitpro.resolxxMF = Merror.uu();
+  rechitpro.errxx = error.xx();
+  rechitpro.errxy = error.xy();
+  rechitpro.erryy = error.yy();
+  rechitpro.errxxMF = Merror.uu();
   rechitpro.clusiz = clusiz;
   rechitpro.cluchg = totcharge;
  
@@ -1163,8 +1161,8 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
 //--------------------------------------------------------------------------------------------
 void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const StripGeomDetUnit *stripdet,edm::ESHandle<StripClusterParameterEstimator> stripcpe, TrackerHitAssociator associate,  bool simplehit1or2D){
 
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.;   rechitpro.resolyy = -999999.; 
-  rechitpro.resolxxMF = -999999.; rechitpro.phi = -999999.;rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
+  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.errxx = -999999.; rechitpro.errxy = -999999.;   rechitpro.erryy = -999999.; 
+  rechitpro.errxxMF = -999999.; rechitpro.phi = -999999.;rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
   rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.; 
   rechitpro.trackangle2 = -999999.; rechitpro.trackwidth = -999999.; rechitpro.expectedwidth = -999999.; rechitpro.category = -999999.; rechitpro.thickness = -999999.; 
   rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; 
@@ -1220,10 +1218,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, 
   rechitpro.x = position.x();
   rechitpro.y = position.y();
   rechitpro.z = position.z();
-  rechitpro.resolxx = error.xx();
-  rechitpro.resolxy = error.xy();
-  rechitpro.resolyy = error.yy();
-  rechitpro.resolxxMF = Merror.uu();
+  rechitpro.errxx = error.xx();
+  rechitpro.errxy = error.xy();
+  rechitpro.erryy = error.yy();
+  rechitpro.errxxMF = Merror.uu();
   rechitpro.clusiz = clusiz;
   rechitpro.cluchg = totcharge;
 
@@ -1399,11 +1397,11 @@ void SiStripTrackingRecHitsValid::createSimpleHitsMEs()
   simplehitsMEs.meClusterwidth = 0;
   simplehitsMEs.meTrackanglealpha = 0;
   simplehitsMEs.meTrackanglebeta = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfile = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfileWClus1 = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfileWClus2 = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfileWClus3 = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfileWClus4 = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfile = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfileWClus1 = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfileWClus2 = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfileWClus3 = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfileWClus4 = 0;
   simplehitsMEs.meResMFTrackwidthProfileWClus1 = 0;
 
   simplehitsMEs.meResMFTrackwidthProfileWClus2 = 0;
@@ -1413,27 +1411,27 @@ void SiStripTrackingRecHitsValid::createSimpleHitsMEs()
 
   simplehitsMEs.meResMFTrackwidthProfileWClus3 = 0;
   simplehitsMEs.meResMFTrackwidthProfileWClus4 = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfileCategory1 = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfileCategory2 = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfileCategory3 = 0;
-  simplehitsMEs.meResolxMFTrackwidthProfileCategory4 = 0;
-  simplehitsMEs.meResolxMFClusterwidthProfileCategory1 = 0;
-  simplehitsMEs.meResolxMFAngleProfile = 0;
-  simplehitsMEs.meResolxLF = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfileCategory1 = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfileCategory2 = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfileCategory3 = 0;
+  simplehitsMEs.meErrxMFTrackwidthProfileCategory4 = 0;
+  simplehitsMEs.meErrxMFClusterwidthProfileCategory1 = 0;
+  simplehitsMEs.meErrxMFAngleProfile = 0;
+  simplehitsMEs.meErrxLF = 0;
   simplehitsMEs.meResLF = 0;
   simplehitsMEs.mePullLF = 0;
-  simplehitsMEs.meResolxMF = 0;
+  simplehitsMEs.meErrxMF = 0;
   simplehitsMEs.meResMF = 0;
   simplehitsMEs.mePullMF = 0;
     
 
-  if(layerswitchResolx_LF) { 
-    simplehitsMEs.meResolxLF = bookME1D("TH1Resolx_LF", "TH1Resolx_LF" ,"RecHit resol(x) coord. (local frame)");
-    simplehitsMEs.meResolxLF->setAxisTitle("resol(x) RecHit coord. (local frame)");
+  if(layerswitchErrx_LF) { 
+    simplehitsMEs.meErrxLF = bookME1D("TH1Errx_LF", "TH1Errx_LF" ,"RecHit err(x) coord. (local frame)");
+    simplehitsMEs.meErrxLF->setAxisTitle("err(x) RecHit coord. (local frame)");
   }
-  if(layerswitchResolx_MF) { 
-    simplehitsMEs.meResolxMF = bookME1D("TH1Resolx_MF", "TH1Resolx_MF" ,"RecHit resol(x) coord. (measurement frame)");
-    simplehitsMEs.meResolxMF->setAxisTitle("resol(x) RecHit coord. (measurement frame)");
+  if(layerswitchErrx_MF) { 
+    simplehitsMEs.meErrxMF = bookME1D("TH1Errx_MF", "TH1Errx_MF" ,"RecHit err(x) coord. (measurement frame)");
+    simplehitsMEs.meErrxMF->setAxisTitle("err(x) RecHit coord. (measurement frame)");
   }
   if(layerswitchRes_LF) { 
     simplehitsMEs.meResLF = bookME1D("TH1Res_LF", "TH1Res_LF" ,"Residual of the hit x coordinate (local frame)");
@@ -1475,26 +1473,26 @@ void SiStripTrackingRecHitsValid::createSimpleHitsMEs()
     simplehitsMEs.meTrackanglebeta = bookME1D("TH1Trackanglebeta", "TH1Trackanglebeta" ,"Track angle beta");
     simplehitsMEs.meTrackanglebeta->setAxisTitle("Track angle beta");
   } 
-  if(layerswitchResolxMFTrackwidthProfile_WClus1) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus1 = bookMEProfile("TProfResolxMFTrackwidthProfile_WClus1","TProfResolxMFTrackwidthProfile_WClus1","Profile of Resolution in MF vs track width for w=1");
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus1->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus1->setAxisTitle("Resolution (measurement frame) w=1",2);
+  if(layerswitchErrxMFTrackwidthProfile_WClus1) { 
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus1 = bookMEProfile("TProfErrxMFTrackwidthProfile_WClus1","TProfErrxMFTrackwidthProfile_WClus1","Profile of Resolution in MF vs track width for w=1");
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus1->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus1->setAxisTitle("Resolution (measurement frame) w=1",2);
   }
-  if(layerswitchResolxMFTrackwidthProfile_WClus2) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus2 = bookMEProfile("TProfResolxMFTrackwidthProfile_WClus2","TProfResolxMFTrackwidthProfile_WClus2","Profile of Resolution in MF vs track width for w=2");
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus2->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus2->setAxisTitle("Resolution (measurement frame) w=2",2);
+  if(layerswitchErrxMFTrackwidthProfile_WClus2) { 
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus2 = bookMEProfile("TProfErrxMFTrackwidthProfile_WClus2","TProfErrxMFTrackwidthProfile_WClus2","Profile of Resolution in MF vs track width for w=2");
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus2->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus2->setAxisTitle("Resolution (measurement frame) w=2",2);
 
-  } 
-  if(layerswitchResolxMFTrackwidthProfile_WClus3) {
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus3 = bookMEProfile("TProfResolxMFTrackwidthProfile_WClus3","TProfResolxMFTrackwidthProfile_WClus3","Profile of Resolution in MF vs track width for w=3");
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus3->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus3->setAxisTitle("Resolution (measurement frame) w=3",2);
+ } 
+  if(layerswitchErrxMFTrackwidthProfile_WClus3) {
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus3 = bookMEProfile("TProfErrxMFTrackwidthProfile_WClus3","TProfErrxMFTrackwidthProfile_WClus3","Profile of Resolution in MF vs track width for w=3");
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus3->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus3->setAxisTitle("Resolution (measurement frame) w=3",2);
   }  
-  if(layerswitchResolxMFTrackwidthProfile_WClus4) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus4 = bookMEProfile("TProfResolxMFTrackwidthProfile_WClus4","TProfResolxMFTrackwidthProfile_WClus4","Profile of Resolution in MF vs track width for w=4");
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus4->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfileWClus4->setAxisTitle("Resolution (measurement frame) w=3",2);
+  if(layerswitchErrxMFTrackwidthProfile_WClus4) { 
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus4 = bookMEProfile("TProfErrxMFTrackwidthProfile_WClus4","TProfErrxMFTrackwidthProfile_WClus4","Profile of Resolution in MF vs track width for w=4");
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus4->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfileWClus4->setAxisTitle("Resolution (measurement frame) w=3",2);
   } 
   if(layerswitchResMFTrackwidthProfile_WClus1) { 
     simplehitsMEs.meResMFTrackwidthProfileWClus1 = bookMEProfile("TProfResMFTrackwidthProfile_WClus1","TProfResMFTrackwidthProfile_WClus1","Profile of Residuals(x) in MF vs track width for w=1");
@@ -1532,40 +1530,40 @@ void SiStripTrackingRecHitsValid::createSimpleHitsMEs()
     simplehitsMEs.meResMFTrackwidthProfileWClus4->setAxisTitle("Track width",1);
     simplehitsMEs.meResMFTrackwidthProfileWClus4->setAxisTitle("Residuals(x) (measurement frame) w=4",2);
   } 
-  if(layerswitchResolxMFTrackwidthProfile) {  
-    simplehitsMEs.meResolxMFTrackwidthProfile = bookMEProfile("TProfResolxMFTrackwidthProfile","TProfResolxMFTrackwidthProfile","Profile of Resolution in MF vs track width");
-    simplehitsMEs.meResolxMFTrackwidthProfile->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfile->setAxisTitle("Resolution (measurement frame)",2);
+  if(layerswitchErrxMFTrackwidthProfile) {  
+    simplehitsMEs.meErrxMFTrackwidthProfile = bookMEProfile("TProfErrxMFTrackwidthProfile","TProfErrxMFTrackwidthProfile","Profile of Resolution in MF vs track width");
+    simplehitsMEs.meErrxMFTrackwidthProfile->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfile->setAxisTitle("Resolution (measurement frame)",2);
   }
-  if(layerswitchResolxMFTrackwidthProfile_Category1) {  
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory1 = bookMEProfile("TProfResolxMFTrackwidthProfile_Category1","TProfResolxMFTrackwidthProfile_Category1","Profile of Resolution in MF vs track width (Category 1)");
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory1->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory1->setAxisTitle("Resolution (measurement frame) Category 1",2);
+  if(layerswitchErrxMFTrackwidthProfile_Category1) {  
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory1 = bookMEProfile("TProfErrxMFTrackwidthProfile_Category1","TProfErrxMFTrackwidthProfile_Category1","Profile of Resolution in MF vs track width (Category 1)");
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory1->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory1->setAxisTitle("Resolution (measurement frame) Category 1",2);
   }
-  if(layerswitchResolxMFTrackwidthProfile_Category2) {  
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory2 = bookMEProfile("TProfResolxMFTrackwidthProfile_Category2","TProfResolxMFTrackwidthProfile_Category2","Profile of Resolution in MF vs track width (Category 2)");
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory2->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory2->setAxisTitle("Resolution (measurement frame) Category 2",2);
+  if(layerswitchErrxMFTrackwidthProfile_Category2) {  
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory2 = bookMEProfile("TProfErrxMFTrackwidthProfile_Category2","TProfErrxMFTrackwidthProfile_Category2","Profile of Resolution in MF vs track width (Category 2)");
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory2->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory2->setAxisTitle("Resolution (measurement frame) Category 2",2);
   }
-  if(layerswitchResolxMFTrackwidthProfile_Category3) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory3 = bookMEProfile("TProfResolxMFTrackwidthProfile_Category3","TProfResolxMFTrackwidthProfile_Category3","Profile of Resolution in MF vs track width (Category 3)");
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory3->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory3->setAxisTitle("Resolution (measurement frame) Category 3",2);
+  if(layerswitchErrxMFTrackwidthProfile_Category3) { 
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory3 = bookMEProfile("TProfErrxMFTrackwidthProfile_Category3","TProfErrxMFTrackwidthProfile_Category3","Profile of Resolution in MF vs track width (Category 3)");
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory3->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory3->setAxisTitle("Resolution (measurement frame) Category 3",2);
   }
-  if(layerswitchResolxMFTrackwidthProfile_Category4) { 
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory4 = bookMEProfile("TProfResolxMFTrackwidthProfile_Category4","TProfResolxMFTrackwidthProfile_Category4","Profile of Resolution in MF vs track width (Category 4)");
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory4->setAxisTitle("Track width",1);
-    simplehitsMEs.meResolxMFTrackwidthProfileCategory4->setAxisTitle("Resolution (measurement frame) Category 4",2);
+  if(layerswitchErrxMFTrackwidthProfile_Category4) { 
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory4 = bookMEProfile("TProfErrxMFTrackwidthProfile_Category4","TProfErrxMFTrackwidthProfile_Category4","Profile of Resolution in MF vs track width (Category 4)");
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory4->setAxisTitle("Track width",1);
+    simplehitsMEs.meErrxMFTrackwidthProfileCategory4->setAxisTitle("Resolution (measurement frame) Category 4",2);
   }
-  if(layerswitchResolxMFClusterwidthProfile_Category1) {
-    simplehitsMEs.meResolxMFClusterwidthProfileCategory1 = bookMEProfile("TProfResolxMFClusterwidthProfile_Category1","TProfResolxMFClusterwidthProfile_Category1","Profile of Resolution in MF vs cluster width (Category 1)");
-    simplehitsMEs.meResolxMFClusterwidthProfileCategory1->setAxisTitle("Cluster width",1);
-    simplehitsMEs.meResolxMFClusterwidthProfileCategory1->setAxisTitle("Resolution (measurement frame) Category 1",2);
+  if(layerswitchErrxMFClusterwidthProfile_Category1) {
+    simplehitsMEs.meErrxMFClusterwidthProfileCategory1 = bookMEProfile("TProfErrxMFClusterwidthProfile_Category1","TProfErrxMFClusterwidthProfile_Category1","Profile of Resolution in MF vs cluster width (Category 1)");
+    simplehitsMEs.meErrxMFClusterwidthProfileCategory1->setAxisTitle("Cluster width",1);
+    simplehitsMEs.meErrxMFClusterwidthProfileCategory1->setAxisTitle("Resolution (measurement frame) Category 1",2);
   }
-  if(layerswitchResolxMFAngleProfile) { 
-    simplehitsMEs.meResolxMFAngleProfile = bookMEProfile("TProfResolxMFAngleProfile","TProfResolxMFAngleProfile","Profile of Resolution in MF vs Track angle alpha");
-    simplehitsMEs.meResolxMFAngleProfile->setAxisTitle("Track angle alpha",1);
-    simplehitsMEs.meResolxMFAngleProfile->setAxisTitle("Resolution (measurement frame)",2);
+  if(layerswitchErrxMFAngleProfile) { 
+    simplehitsMEs.meErrxMFAngleProfile = bookMEProfile("TProfErrxMFAngleProfile","TProfErrxMFAngleProfile","Profile of Resolution in MF vs Track angle alpha");
+    simplehitsMEs.meErrxMFAngleProfile->setAxisTitle("Track angle alpha",1);
+    simplehitsMEs.meErrxMFAngleProfile->setAxisTitle("Resolution (measurement frame)",2);
   } 
 
          
@@ -1576,14 +1574,15 @@ void SiStripTrackingRecHitsValid::createLayerMEs(std::string label)
   SiStripHistoId hidmanager;
   LayerMEs layerMEs; 
 
-  layerMEs.meWclusRphi = 0;
+  layerMEs.meNstpRphi = 0;
   layerMEs.meAdcRphi = 0;
-  layerMEs.meResolxLFRphi = 0;
-  layerMEs.meResolxMFRphi = 0;
-  layerMEs.meResolxMFRphiwclus1 = 0;
-  layerMEs.meResolxMFRphiwclus2 = 0;
-  layerMEs.meResolxMFRphiwclus3 = 0;
-  layerMEs.meResolxMFRphiwclus4 = 0;
+  layerMEs.mePosxRphi = 0;
+  layerMEs.meErrxLFRphi = 0;
+  layerMEs.meErrxMFRphi = 0;
+  layerMEs.meErrxMFRphiwclus1 = 0;
+  layerMEs.meErrxMFRphiwclus2 = 0;
+  layerMEs.meErrxMFRphiwclus3 = 0;
+  layerMEs.meErrxMFRphiwclus4 = 0;
   layerMEs.meResLFRphi = 0;
   layerMEs.meResMFRphi = 0;
   layerMEs.meResMFRphiwclus1 = 0;
@@ -1614,68 +1613,73 @@ void SiStripTrackingRecHitsValid::createLayerMEs(std::string label)
   layerMEs.mePullTrackwidthProfileCategory2Rphi = 0;
   layerMEs.mePullTrackwidthProfileCategory3Rphi = 0;
   layerMEs.mePullTrackwidthProfileCategory4Rphi = 0;
-  layerMEs.meResolxMFTrackwidthProfileRphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileRphi = 0;
 
-  layerMEs.meResolxMFTrackwidthProfileWclus1Rphi = 0;
-  layerMEs.meResolxMFTrackwidthProfileWclus2Rphi = 0;
-  layerMEs.meResolxMFTrackwidthProfileWclus3Rphi = 0;
-  layerMEs.meResolxMFTrackwidthProfileWclus4Rphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileWclus1Rphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileWclus2Rphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileWclus3Rphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileWclus4Rphi = 0;
   layerMEs.meResMFTrackwidthProfileWclus1Rphi = 0;
   layerMEs.meResMFTrackwidthProfileWclus2Rphi = 0;
   layerMEs.meResMFTrackwidthProfileWclus3Rphi = 0;
   layerMEs.meResMFTrackwidthProfileWclus4Rphi = 0;
 
-  layerMEs.meResolxMFTrackwidthProfileCategory1Rphi = 0;
-  layerMEs.meResolxMFTrackwidthProfileCategory2Rphi = 0;
-  layerMEs.meResolxMFTrackwidthProfileCategory3Rphi = 0;
-  layerMEs.meResolxMFTrackwidthProfileCategory4Rphi = 0;
-  layerMEs.meResolxMFClusterwidthProfileCategory1Rphi = 0;
-  layerMEs.meResolxMFAngleProfileRphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileCategory1Rphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileCategory2Rphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileCategory3Rphi = 0;
+  layerMEs.meErrxMFTrackwidthProfileCategory4Rphi = 0;
+  layerMEs.meErrxMFClusterwidthProfileCategory1Rphi = 0;
+  layerMEs.meErrxMFAngleProfileRphi = 0;
   layerMEs.merapidityResProfilewclus1 = 0;
   layerMEs.merapidityResProfilewclus2 = 0;
   layerMEs.merapidityResProfilewclus3 = 0;
   layerMEs.merapidityResProfilewclus4 = 0;
       
 
-  //WclusRphi
-  if(layerswitchWclusRphi) {
-    layerMEs.meWclusRphi = bookME1D("TH1WclusRphi", hidmanager.createHistoLayer("Wclus_rphi","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster"); 
-    layerMEs.meWclusRphi->setAxisTitle(("Cluster Width [nr strips] in "+ label).c_str());
+  //NstpRphi
+  if(layerswitchNstpRphi) {
+    layerMEs.meNstpRphi = bookME1D("TH1NstpRphi", hidmanager.createHistoLayer("Nstp_rphi","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster"); 
+    layerMEs.meNstpRphi->setAxisTitle(("Cluster Width [nr strips] in "+ label).c_str());
   }
   //AdcRphi
   if(layerswitchAdcRphi) {
     layerMEs.meAdcRphi = bookME1D("TH1AdcRphi", hidmanager.createHistoLayer("Adc_rphi","layer",label,"").c_str() ,"RecHit Cluster Charge");
     layerMEs.meAdcRphi->setAxisTitle(("cluster charge [ADC] in " + label).c_str());
   }
-  //ResolxLFRphi
-  if(layerswitchResolxLFRphi) {
-    layerMEs.meResolxLFRphi = bookME1D("TH1ResolxLFRphi", hidmanager.createHistoLayer("Resolx_LF_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
-    layerMEs.meResolxLFRphi->setAxisTitle(("resol(x) RecHit coord. (local frame) in " + label).c_str());
+  //PosxRphi
+  if(layerswitchPosxRphi) {
+    layerMEs.mePosxRphi = bookME1D("TH1PosxRphi", hidmanager.createHistoLayer("Posx_rphi","layer",label,"").c_str() ,"RecHit x coord."); 
+    layerMEs.mePosxRphi->setAxisTitle(("x RecHit coord. (local frame) in " + label).c_str());
   }
-  //ResolxMFRphi
-  if(layerswitchResolxMFRphi) {
-    layerMEs.meResolxMFRphi = bookME1D("TH1ResolxMFRphi", hidmanager.createHistoLayer("Resolx_MF_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
-    layerMEs.meResolxMFRphi->setAxisTitle(("resol(x) RecHit coord. (measurement frame) in " + label).c_str());
+  //ErrxLFRphi
+  if(layerswitchErrxLFRphi) {
+    layerMEs.meErrxLFRphi = bookME1D("TH1ErrxLFRphi", hidmanager.createHistoLayer("Errx_LF_rphi","layer",label,"").c_str() ,"RecHit err(x) coord.");   //<error>~20micron  
+    layerMEs.meErrxLFRphi->setAxisTitle(("err(x) RecHit coord. (local frame) in " + label).c_str());
   }
-  //ResolxMFRphiwclus1
-  if(layerswitchResolxMFRphiwclus1) {
-    layerMEs.meResolxMFRphiwclus1 = bookME1D("TH1ResolxMFRphiwclus1", hidmanager.createHistoLayer("Resolx_MF_wclus1_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=1 ");   //<resolor>~20micron  
-    layerMEs.meResolxMFRphiwclus1->setAxisTitle(("resol(x) RecHit coord. (measurement frame) for w=1 in " + label).c_str());
+  //ErrxMFRphi
+  if(layerswitchErrxMFRphi) {
+    layerMEs.meErrxMFRphi = bookME1D("TH1ErrxMFRphi", hidmanager.createHistoLayer("Errx_MF_rphi","layer",label,"").c_str() ,"RecHit err(x) coord.");   //<error>~20micron  
+    layerMEs.meErrxMFRphi->setAxisTitle(("err(x) RecHit coord. (measurement frame) in " + label).c_str());
   }
-  //ResolxMFRphiwclus2
-  if(layerswitchResolxMFRphiwclus2) {
-    layerMEs.meResolxMFRphiwclus2 = bookME1D("TH1ResolxMFRphiwclus2", hidmanager.createHistoLayer("Resolx_MF_wclus2_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=2 ");   //<resolor>~20micron  
-    layerMEs.meResolxMFRphiwclus2->setAxisTitle(("resol(x) RecHit coord. (measurement frame) for w=2 in " + label).c_str());
+  //ErrxMFRphiwclus1
+  if(layerswitchErrxMFRphiwclus1) {
+    layerMEs.meErrxMFRphiwclus1 = bookME1D("TH1ErrxMFRphiwclus1", hidmanager.createHistoLayer("Errx_MF_wclus1_rphi","layer",label,"").c_str() ,"RecHit err(x) coord. w=1 ");   //<error>~20micron  
+    layerMEs.meErrxMFRphiwclus1->setAxisTitle(("err(x) RecHit coord. (measurement frame) for w=1 in " + label).c_str());
   }
-  //ResolxMFRphiwclus3
-  if(layerswitchResolxMFRphiwclus3) {
-    layerMEs.meResolxMFRphiwclus3 = bookME1D("TH1ResolxMFRphiwclus3", hidmanager.createHistoLayer("Resolx_MF_wclus3_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=3 ");   //<resolor>~20micron  
-    layerMEs.meResolxMFRphiwclus3->setAxisTitle(("resol(x) RecHit coord. (measurement frame) for w=3 in " + label).c_str());
+  //ErrxMFRphiwclus2
+  if(layerswitchErrxMFRphiwclus2) {
+    layerMEs.meErrxMFRphiwclus2 = bookME1D("TH1ErrxMFRphiwclus2", hidmanager.createHistoLayer("Errx_MF_wclus2_rphi","layer",label,"").c_str() ,"RecHit err(x) coord. w=2 ");   //<error>~20micron  
+    layerMEs.meErrxMFRphiwclus2->setAxisTitle(("err(x) RecHit coord. (measurement frame) for w=2 in " + label).c_str());
   }
-  //ResolxMFRphiwclus4
-  if(layerswitchResolxMFRphiwclus4) {
-    layerMEs.meResolxMFRphiwclus4 = bookME1D("TH1ResolxMFRphiwclus4", hidmanager.createHistoLayer("Resolx_MF_wclus4_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord. w=4 ");   //<resolor>~20micron  
-    layerMEs.meResolxMFRphiwclus4->setAxisTitle(("resol(x) RecHit coord. (measurement frame) for w=4 in " + label).c_str());
+  //ErrxMFRphiwclus3
+  if(layerswitchErrxMFRphiwclus3) {
+    layerMEs.meErrxMFRphiwclus3 = bookME1D("TH1ErrxMFRphiwclus3", hidmanager.createHistoLayer("Errx_MF_wclus3_rphi","layer",label,"").c_str() ,"RecHit err(x) coord. w=3 ");   //<error>~20micron  
+    layerMEs.meErrxMFRphiwclus3->setAxisTitle(("err(x) RecHit coord. (measurement frame) for w=3 in " + label).c_str());
+  }
+  //ErrxMFRphiwclus4
+  if(layerswitchErrxMFRphiwclus4) {
+    layerMEs.meErrxMFRphiwclus4 = bookME1D("TH1ErrxMFRphiwclus4", hidmanager.createHistoLayer("Errx_MF_wclus4_rphi","layer",label,"").c_str() ,"RecHit err(x) coord. w=4 ");   //<error>~20micron  
+    layerMEs.meErrxMFRphiwclus4->setAxisTitle(("err(x) RecHit coord. (measurement frame) for w=4 in " + label).c_str());
   }
   //ResLFRphi
   if(layerswitchResLFRphi) {
@@ -1822,31 +1826,31 @@ void SiStripTrackingRecHitsValid::createLayerMEs(std::string label)
     layerMEs.mePullTrackwidthProfileCategory4Rphi->setAxisTitle(("track width for Category 4 in "+ label).c_str(),1);
     layerMEs.mePullTrackwidthProfileCategory4Rphi->setAxisTitle(("Pull (MF) for Category 4 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileRphi) {
-    layerMEs.meResolxMFTrackwidthProfileRphi = bookMEProfile("TProfResolxMFTrackwidthProfileRphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width");
-    layerMEs.meResolxMFTrackwidthProfileRphi->setAxisTitle(("track width in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileRphi->setAxisTitle(("Resolution in MF in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileRphi) {
+    layerMEs.meErrxMFTrackwidthProfileRphi = bookMEProfile("TProfErrxMFTrackwidthProfileRphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width");
+    layerMEs.meErrxMFTrackwidthProfileRphi->setAxisTitle(("track width in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileRphi->setAxisTitle(("Resolution in MF in "+ label).c_str(),2);
   }
 
-  if(layerswitchResolxMFTrackwidthProfileWclus1Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileWclus1Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileWclus1Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=1");
-    layerMEs.meResolxMFTrackwidthProfileWclus1Rphi->setAxisTitle(("track width for w=1 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileWclus1Rphi->setAxisTitle(("Resolution in MF for w=1 in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileWclus1Rphi) {
+    layerMEs.meErrxMFTrackwidthProfileWclus1Rphi = bookMEProfile("TProfErrxMFTrackwidthProfileWclus1Rphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Wclus1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=1");
+    layerMEs.meErrxMFTrackwidthProfileWclus1Rphi->setAxisTitle(("track width for w=1 in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileWclus1Rphi->setAxisTitle(("Resolution in MF for w=1 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileWclus2Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileWclus2Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileWclus2Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus2_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=2");
-    layerMEs.meResolxMFTrackwidthProfileWclus2Rphi->setAxisTitle(("track width for w=2 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileWclus2Rphi->setAxisTitle(("Resolution in MF for w=2 in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileWclus2Rphi) {
+    layerMEs.meErrxMFTrackwidthProfileWclus2Rphi = bookMEProfile("TProfErrxMFTrackwidthProfileWclus2Rphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Wclus2_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=2");
+    layerMEs.meErrxMFTrackwidthProfileWclus2Rphi->setAxisTitle(("track width for w=2 in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileWclus2Rphi->setAxisTitle(("Resolution in MF for w=2 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileWclus3Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileWclus3Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileWclus3Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=3");
-    layerMEs.meResolxMFTrackwidthProfileWclus3Rphi->setAxisTitle(("track width for w=3 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileWclus3Rphi->setAxisTitle(("Resolution in MF for w=3 in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileWclus3Rphi) {
+    layerMEs.meErrxMFTrackwidthProfileWclus3Rphi = bookMEProfile("TProfErrxMFTrackwidthProfileWclus3Rphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Wclus3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=3");
+    layerMEs.meErrxMFTrackwidthProfileWclus3Rphi->setAxisTitle(("track width for w=3 in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileWclus3Rphi->setAxisTitle(("Resolution in MF for w=3 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileWclus4Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileWclus4Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileWclus4Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Wclus4_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=4");
-    layerMEs.meResolxMFTrackwidthProfileWclus4Rphi->setAxisTitle(("track width for w=4 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileWclus4Rphi->setAxisTitle(("Resolution in MF for w=4 in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileWclus4Rphi) {
+    layerMEs.meErrxMFTrackwidthProfileWclus4Rphi = bookMEProfile("TProfErrxMFTrackwidthProfileWclus4Rphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Wclus4_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for w=4");
+    layerMEs.meErrxMFTrackwidthProfileWclus4Rphi->setAxisTitle(("track width for w=4 in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileWclus4Rphi->setAxisTitle(("Resolution in MF for w=4 in "+ label).c_str(),2);
   }
   if(layerswitchResMFTrackwidthProfileWclus1Rphi) {
     layerMEs.meResMFTrackwidthProfileWclus1Rphi = bookMEProfile("TProfResMFTrackwidthProfileWclus1Rphi",hidmanager.createHistoLayer("ResMF_Track_width_Profile_Wclus1_Rphi","layer",label,"").c_str() ,"Profile of Residuals(x) in MF vs track width for w=1");
@@ -1869,35 +1873,35 @@ void SiStripTrackingRecHitsValid::createLayerMEs(std::string label)
     layerMEs.meResMFTrackwidthProfileWclus4Rphi->setAxisTitle(("Residuals(x) in MF for w=4 in "+ label).c_str(),2);
   }
 
-  if(layerswitchResolxMFTrackwidthProfileCategory1Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileCategory1Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 1");
-    layerMEs.meResolxMFTrackwidthProfileCategory1Rphi->setAxisTitle(("track width for Category 1 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileCategory1Rphi->setAxisTitle(("Resolution in MF for Category 1 in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileCategory1Rphi) {
+    layerMEs.meErrxMFTrackwidthProfileCategory1Rphi = bookMEProfile("TProfErrxMFTrackwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 1");
+    layerMEs.meErrxMFTrackwidthProfileCategory1Rphi->setAxisTitle(("track width for Category 1 in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileCategory1Rphi->setAxisTitle(("Resolution in MF for Category 1 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileCategory2Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileCategory2Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileCategory2Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category2_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 2");
-    layerMEs.meResolxMFTrackwidthProfileCategory2Rphi->setAxisTitle(("track width for Category 2 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileCategory2Rphi->setAxisTitle(("Resolution in MF for Category 2 in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileCategory2Rphi) {
+    layerMEs.meErrxMFTrackwidthProfileCategory2Rphi = bookMEProfile("TProfErrxMFTrackwidthProfileCategory2Rphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Category2_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 2");
+    layerMEs.meErrxMFTrackwidthProfileCategory2Rphi->setAxisTitle(("track width for Category 2 in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileCategory2Rphi->setAxisTitle(("Resolution in MF for Category 2 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileCategory3Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileCategory3Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 3");
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("track width for Category 3 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("Resolution in MF for Category 3 in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileCategory3Rphi) {
+    layerMEs.meErrxMFTrackwidthProfileCategory3Rphi = bookMEProfile("TProfErrxMFTrackwidthProfileCategory3Rphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 3");
+    layerMEs.meErrxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("track width for Category 3 in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("Resolution in MF for Category 3 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileCategory4Rphi) {
-    layerMEs.meResolxMFTrackwidthProfileCategory4Rphi = bookMEProfile("TProfResolxMFTrackwidthProfileCategory4Rphi",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 4");
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("track width for Category 4 in "+ label).c_str(),1);
-    layerMEs.meResolxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("Resolution in MF for Category 4 in "+ label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileCategory4Rphi) {
+    layerMEs.meErrxMFTrackwidthProfileCategory4Rphi = bookMEProfile("TProfErrxMFTrackwidthProfileCategory4Rphi",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Category3_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width for Category 4");
+    layerMEs.meErrxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("track width for Category 4 in "+ label).c_str(),1);
+    layerMEs.meErrxMFTrackwidthProfileCategory3Rphi->setAxisTitle(("Resolution in MF for Category 4 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFClusterwidthProfileCategory1Rphi) {
-    layerMEs.meResolxMFClusterwidthProfileCategory1Rphi = bookMEProfile("TProfResolxMFClusterwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ResolxMF_Cluster_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width for Category 1");
-    layerMEs.meResolxMFClusterwidthProfileCategory1Rphi->setAxisTitle(("cluster width for Category 1 in "+ label).c_str(),1);
-    layerMEs.meResolxMFClusterwidthProfileCategory1Rphi->setAxisTitle(("Resolution in MF for Category 1 in "+ label).c_str(),2);
+  if(layerswitchErrxMFClusterwidthProfileCategory1Rphi) {
+    layerMEs.meErrxMFClusterwidthProfileCategory1Rphi = bookMEProfile("TProfErrxMFClusterwidthProfileCategory1Rphi",hidmanager.createHistoLayer("ErrxMF_Cluster_width_Profile_Category1_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width for Category 1");
+    layerMEs.meErrxMFClusterwidthProfileCategory1Rphi->setAxisTitle(("cluster width for Category 1 in "+ label).c_str(),1);
+    layerMEs.meErrxMFClusterwidthProfileCategory1Rphi->setAxisTitle(("Resolution in MF for Category 1 in "+ label).c_str(),2);
   }
-  if(layerswitchResolxMFAngleProfileRphi) {
-    layerMEs.meResolxMFAngleProfileRphi = bookMEProfile("TProfResolxMFAngleProfileRphi",hidmanager.createHistoLayer("ResolxMF_Angle_Profile_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track angle alpha");
-    layerMEs.meResolxMFAngleProfileRphi->setAxisTitle(("track angle alpha in "+ label).c_str(),1);
-    layerMEs.meResolxMFAngleProfileRphi->setAxisTitle(("Resolution in MF in "+ label).c_str(),2);
+  if(layerswitchErrxMFAngleProfileRphi) {
+    layerMEs.meErrxMFAngleProfileRphi = bookMEProfile("TProfErrxMFAngleProfileRphi",hidmanager.createHistoLayer("ErrxMF_Angle_Profile_Rphi","layer",label,"").c_str() ,"Profile of Resolution in MF vs track angle alpha");
+    layerMEs.meErrxMFAngleProfileRphi->setAxisTitle(("track angle alpha in "+ label).c_str(),1);
+    layerMEs.meErrxMFAngleProfileRphi->setAxisTitle(("Resolution in MF in "+ label).c_str(),2);
   }
   if(layerswitchrapidityResProfilewclus1) {
     layerMEs.merapidityResProfilewclus1 = bookMEProfile("TProfrapidityResProfilewclus1",hidmanager.createHistoLayer("rapidity_Res_Profile_wclus1","layer",label,"").c_str() ,"Profile of rapidity vs Res for w=1");
@@ -1930,10 +1934,11 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(std::string label)
   SiStripHistoId hidmanager;
   StereoAndMatchedMEs stereoandmatchedMEs; 
 
-  stereoandmatchedMEs.meWclusSas = 0;
+  stereoandmatchedMEs.meNstpSas = 0;
   stereoandmatchedMEs.meAdcSas = 0;
-  stereoandmatchedMEs.meResolxLFSas = 0;
-  stereoandmatchedMEs.meResolxMFSas = 0;
+  stereoandmatchedMEs.mePosxSas = 0;
+  stereoandmatchedMEs.meErrxLFSas = 0;
+  stereoandmatchedMEs.meErrxMFSas = 0;
   stereoandmatchedMEs.meResLFSas = 0;
   stereoandmatchedMEs.meResMFSas = 0;
   stereoandmatchedMEs.mePullLFSas = 0;
@@ -1950,42 +1955,47 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(std::string label)
   stereoandmatchedMEs.mePullTrackwidthProfileCategory2Sas = 0;
   stereoandmatchedMEs.mePullTrackwidthProfileCategory3Sas = 0;
   stereoandmatchedMEs.mePullTrackwidthProfileCategory4Sas = 0;
-  stereoandmatchedMEs.meResolxMFTrackwidthProfileSas = 0;
-  stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory1Sas = 0;
-  stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory2Sas = 0;
-  stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory3Sas = 0;
-  stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory4Sas = 0;
-  stereoandmatchedMEs.meResolxMFClusterwidthProfileCategory1Sas = 0;
-  stereoandmatchedMEs.meResolxMFAngleProfileSas = 0;
+  stereoandmatchedMEs.meErrxMFTrackwidthProfileSas = 0;
+  stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory1Sas = 0;
+  stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory2Sas = 0;
+  stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory3Sas = 0;
+  stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory4Sas = 0;
+  stereoandmatchedMEs.meErrxMFClusterwidthProfileCategory1Sas = 0;
+  stereoandmatchedMEs.meErrxMFAngleProfileSas = 0;
 
   stereoandmatchedMEs.mePosxMatched = 0;
   stereoandmatchedMEs.mePosyMatched = 0;
-  stereoandmatchedMEs.meResolxMatched = 0;
-  stereoandmatchedMEs.meResolyMatched = 0;
+  stereoandmatchedMEs.meErrxMatched = 0;
+  stereoandmatchedMEs.meErryMatched = 0;
   stereoandmatchedMEs.meResxMatched = 0;
   stereoandmatchedMEs.meResyMatched = 0;
   stereoandmatchedMEs.mePullxMatched = 0;
   stereoandmatchedMEs.mePullyMatched = 0;
 
-  //WclusSas
-  if(layerswitchWclusSas) {
-    stereoandmatchedMEs.meWclusSas = bookME1D("TH1WclusSas", hidmanager.createHistoLayer("Wclus_sas","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster");  
-    stereoandmatchedMEs.meWclusSas->setAxisTitle(("Cluster Width [nr strips] (stereo) in "+ label).c_str());
+  //NstpSas
+  if(layerswitchNstpSas) {
+    stereoandmatchedMEs.meNstpSas = bookME1D("TH1NstpSas", hidmanager.createHistoLayer("Nstp_sas","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster");  
+    stereoandmatchedMEs.meNstpSas->setAxisTitle(("Cluster Width [nr strips] (stereo) in "+ label).c_str());
   }
   //AdcSas
   if(layerswitchAdcSas) {
     stereoandmatchedMEs.meAdcSas = bookME1D("TH1AdcSas", hidmanager.createHistoLayer("Adc_sas","layer",label,"").c_str() ,"RecHit Cluster Charge"); 
     stereoandmatchedMEs.meAdcSas->setAxisTitle(("cluster charge [ADC] (stereo) in " + label).c_str());
   }
-  //ResolxLFSas
-  if(layerswitchResolxLFSas) {
-    stereoandmatchedMEs.meResolxLFSas = bookME1D("TH1ResolxLFSas", hidmanager.createHistoLayer("Resolx_LF_sas","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
-    stereoandmatchedMEs.meResolxLFSas->setAxisTitle(("resol(x) RecHit coord. (local frame) (stereo) in " + label).c_str());
+  //PosxSas
+  if(layerswitchPosxSas) {
+    stereoandmatchedMEs.mePosxSas = bookME1D("TH1PosxSas", hidmanager.createHistoLayer("Posx_sas","layer",label,"").c_str() ,"RecHit x coord."); 
+    stereoandmatchedMEs.mePosxSas->setAxisTitle(("x RecHit coord. (local frame) (stereo) in " + label).c_str());
   }
-  //ResolxMFSas
-  if(layerswitchResolxMFSas) {
-    stereoandmatchedMEs.meResolxMFSas = bookME1D("TH1ResolxMFSas", hidmanager.createHistoLayer("Resolx_MF_sas","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
-    stereoandmatchedMEs.meResolxMFSas->setAxisTitle(("resol(x) RecHit coord. (measurement frame) (stereo) in " + label).c_str());
+  //ErrxLFSas
+  if(layerswitchErrxLFSas) {
+    stereoandmatchedMEs.meErrxLFSas = bookME1D("TH1ErrxLFSas", hidmanager.createHistoLayer("Errx_LF_sas","layer",label,"").c_str() ,"RecHit err(x) coord.");  
+    stereoandmatchedMEs.meErrxLFSas->setAxisTitle(("err(x) RecHit coord. (local frame) (stereo) in " + label).c_str());
+  }
+  //ErrxMFSas
+  if(layerswitchErrxMFSas) {
+    stereoandmatchedMEs.meErrxMFSas = bookME1D("TH1ErrxMFSas", hidmanager.createHistoLayer("Errx_MF_sas","layer",label,"").c_str() ,"RecHit err(x) coord.");  
+    stereoandmatchedMEs.meErrxMFSas->setAxisTitle(("err(x) RecHit coord. (measurement frame) (stereo) in " + label).c_str());
   }
   //ResLFSas
   if(layerswitchResLFSas) {
@@ -2062,40 +2072,40 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(std::string label)
     stereoandmatchedMEs.mePullTrackwidthProfileCategory4Sas->setAxisTitle(("track width (Category 4) (stereo) in " + label).c_str(),1);
     stereoandmatchedMEs.mePullTrackwidthProfileCategory4Sas->setAxisTitle(("Pull in MF (Category 4) (stereo) in " + label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileSas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileSas = bookMEProfile("TProfResolxMFTrackwidthProfileSas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (stereo)");
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileSas->setAxisTitle(("track width (stereo) in " + label).c_str(),1);
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileSas->setAxisTitle(("Resolution in MF (stereo) in " + label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileSas) {
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileSas = bookMEProfile("TProfErrxMFTrackwidthProfileSas",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (stereo)");
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileSas->setAxisTitle(("track width (stereo) in " + label).c_str(),1);
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileSas->setAxisTitle(("Resolution in MF (stereo) in " + label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileCategory1Sas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory1Sas = bookMEProfile("TProfResolxMFTrackwidthProfileCategory1Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 1) (stereo)");
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory1Sas->setAxisTitle((" track width (Category 1) (stereo) in " + label).c_str(),1);
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory1Sas->setAxisTitle(("  Resolution in MF (Category 1) (stereo) in " + label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileCategory1Sas) {
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory1Sas = bookMEProfile("TProfErrxMFTrackwidthProfileCategory1Sas",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 1) (stereo)");
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory1Sas->setAxisTitle((" track width (Category 1) (stereo) in " + label).c_str(),1);
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory1Sas->setAxisTitle(("  Resolution in MF (Category 1) (stereo) in " + label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileCategory2Sas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory2Sas = bookMEProfile("TProfResolxMFTrackwidthProfileCategory2Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category2_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 2) (stereo)");
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory2Sas->setAxisTitle((" track width (Category 2) (stereo) in " + label).c_str(),1);
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory2Sas->setAxisTitle((" Resolution in MF (Category 2) (stereo) in " + label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileCategory2Sas) {
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory2Sas = bookMEProfile("TProfErrxMFTrackwidthProfileCategory2Sas",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Category2_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 2) (stereo)");
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory2Sas->setAxisTitle((" track width (Category 2) (stereo) in " + label).c_str(),1);
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory2Sas->setAxisTitle((" Resolution in MF (Category 2) (stereo) in " + label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileCategory3Sas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory3Sas = bookMEProfile("TProfResolxMFTrackwidthProfileCategory3Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category3_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 3) (stereo)");
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory3Sas->setAxisTitle((" track width (Category 3) (stereo) in " + label).c_str(),1);
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory3Sas->setAxisTitle((" Resolution in MF (Category 3) (stereo) in " + label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileCategory3Sas) {
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory3Sas = bookMEProfile("TProfErrxMFTrackwidthProfileCategory3Sas",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Category3_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 3) (stereo)");
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory3Sas->setAxisTitle((" track width (Category 3) (stereo) in " + label).c_str(),1);
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory3Sas->setAxisTitle((" Resolution in MF (Category 3) (stereo) in " + label).c_str(),2);
   }
-  if(layerswitchResolxMFTrackwidthProfileCategory4Sas) {
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory4Sas = bookMEProfile("TProfResolxMFTrackwidthProfileCategory4Sas",hidmanager.createHistoLayer("ResolxMF_Track_width_Profile_Category4_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 4) (stereo)");
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory4Sas->setAxisTitle((" track width (Category 4) (stereo) in " + label).c_str(),1);
-    stereoandmatchedMEs.meResolxMFTrackwidthProfileCategory4Sas->setAxisTitle((" Resolution in MF (Category 4) (stereo) in " + label).c_str(),2);
+  if(layerswitchErrxMFTrackwidthProfileCategory4Sas) {
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory4Sas = bookMEProfile("TProfErrxMFTrackwidthProfileCategory4Sas",hidmanager.createHistoLayer("ErrxMF_Track_width_Profile_Category4_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track width (Category 4) (stereo)");
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory4Sas->setAxisTitle((" track width (Category 4) (stereo) in " + label).c_str(),1);
+    stereoandmatchedMEs.meErrxMFTrackwidthProfileCategory4Sas->setAxisTitle((" Resolution in MF (Category 4) (stereo) in " + label).c_str(),2);
   }
-  if(layerswitchResolxMFClusterwidthProfileCategory1Sas) {
-    stereoandmatchedMEs.meResolxMFClusterwidthProfileCategory1Sas = bookMEProfile("TProfResolxMFClusterwidthProfileCategory1Sas",hidmanager.createHistoLayer("ResolxMF_Cluster_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width (Category 1) (stereo)");
-    stereoandmatchedMEs.meResolxMFClusterwidthProfileCategory1Sas->setAxisTitle(("cluster width (Category 1) (stereo) in " + label).c_str(),1);
-    stereoandmatchedMEs.meResolxMFClusterwidthProfileCategory1Sas->setAxisTitle((" Resolution in MF (Category 1) (stereo) in " + label).c_str(),2);
+  if(layerswitchErrxMFClusterwidthProfileCategory1Sas) {
+    stereoandmatchedMEs.meErrxMFClusterwidthProfileCategory1Sas = bookMEProfile("TProfErrxMFClusterwidthProfileCategory1Sas",hidmanager.createHistoLayer("ErrxMF_Cluster_width_Profile_Category1_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs cluster width (Category 1) (stereo)");
+    stereoandmatchedMEs.meErrxMFClusterwidthProfileCategory1Sas->setAxisTitle(("cluster width (Category 1) (stereo) in " + label).c_str(),1);
+    stereoandmatchedMEs.meErrxMFClusterwidthProfileCategory1Sas->setAxisTitle((" Resolution in MF (Category 1) (stereo) in " + label).c_str(),2);
   }
-  if(layerswitchResolxMFAngleProfileSas) {
-    stereoandmatchedMEs.meResolxMFAngleProfileSas = bookMEProfile("TProfResolxMFAngleProfileSas",hidmanager.createHistoLayer("ResolxMF_Angle_Profile_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track angle (stereo)");
-    stereoandmatchedMEs.meResolxMFAngleProfileSas->setAxisTitle(("track angle (stereo) in " + label).c_str(),1);
-    stereoandmatchedMEs.meResolxMFAngleProfileSas->setAxisTitle(("Resolution in MF (stereo) in " + label).c_str(),2);
+  if(layerswitchErrxMFAngleProfileSas) {
+    stereoandmatchedMEs.meErrxMFAngleProfileSas = bookMEProfile("TProfErrxMFAngleProfileSas",hidmanager.createHistoLayer("ErrxMF_Angle_Profile_Sas","layer",label,"").c_str() ,"Profile of Resolution in MF vs track angle (stereo)");
+    stereoandmatchedMEs.meErrxMFAngleProfileSas->setAxisTitle(("track angle (stereo) in " + label).c_str(),1);
+    stereoandmatchedMEs.meErrxMFAngleProfileSas->setAxisTitle(("Resolution in MF (stereo) in " + label).c_str(),2);
   }
   //PosxMatched
   if(layerswitchPosxMatched) {
@@ -2107,15 +2117,15 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(std::string label)
     stereoandmatchedMEs.mePosyMatched = bookME1D("TH1PosyMatched", hidmanager.createHistoLayer("Posy_matched","layer",label,"").c_str() ,"RecHit y coord."); 
     stereoandmatchedMEs.mePosyMatched->setAxisTitle(("y coord. matched RecHit (local frame) in " + label).c_str());
   }
-  //ResolxMatched
-  if(layerswitchResolxMatched) {
-    stereoandmatchedMEs.meResolxMatched = bookME1D("TH1ResolxMatched", hidmanager.createHistoLayer("Resolx_matched","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
-    stereoandmatchedMEs.meResolxMatched->setAxisTitle(("resol(x) coord. matched RecHit (local frame) in " + label).c_str());
+  //ErrxMatched
+  if(layerswitchErrxMatched) {
+    stereoandmatchedMEs.meErrxMatched = bookME1D("TH1ErrxMatched", hidmanager.createHistoLayer("Errx_matched","layer",label,"").c_str() ,"RecHit err(x) coord.");  
+    stereoandmatchedMEs.meErrxMatched->setAxisTitle(("err(x) coord. matched RecHit (local frame) in " + label).c_str());
   }
-  //ResolyMatched
-  if(layerswitchResolyMatched) {
-    stereoandmatchedMEs.meResolyMatched = bookME1D("TH1ResolyMatched", hidmanager.createHistoLayer("Resoly_matched","layer",label,"").c_str() ,"RecHit resol(y) coord."); 
-    stereoandmatchedMEs.meResolyMatched->setAxisTitle(("resol(y) coord. matched RecHit (local frame) in " + label).c_str());
+  //ErryMatched
+  if(layerswitchErryMatched) {
+    stereoandmatchedMEs.meErryMatched = bookME1D("TH1ErryMatched", hidmanager.createHistoLayer("Erry_matched","layer",label,"").c_str() ,"RecHit err(y) coord."); 
+    stereoandmatchedMEs.meErryMatched->setAxisTitle(("err(y) coord. matched RecHit (local frame) in " + label).c_str());
   }
   //ResxMatched
   if(layerswitchResxMatched) {
@@ -2147,13 +2157,13 @@ MonitorElement* SiStripTrackingRecHitsValid::bookMEProfile(const char* Parameter
   Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   //The number of channels in Y is disregarded in a profile plot.
   return dbe_->bookProfile(HistoName,HistoTitle,
-			   Parameters.getParameter<int32_t>("Nbinx"),
-			   Parameters.getParameter<double>("xmin"),
-			   Parameters.getParameter<double>("xmax"),
-			   Parameters.getParameter<double>("ymin"),
-			   Parameters.getParameter<double>("ymax"),
-			   "" 
-			   );
+				Parameters.getParameter<int32_t>("Nbinx"),
+				Parameters.getParameter<double>("xmin"),
+				Parameters.getParameter<double>("xmax"),
+				Parameters.getParameter<double>("ymin"),
+				Parameters.getParameter<double>("ymax"),
+				"" 
+				);
 }
 
 // DEFINE_FWK_MODULE(SiStripTrackingRecHitsValid);

@@ -84,8 +84,8 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersNumMatched =  conf_.getParameter<edm::ParameterSet>("TH1NumMatched");
   switchNumMatched = ParametersNumMatched.getParameter<bool>("switchon");
 
-  edm::ParameterSet ParametersWclusrphi =  conf_.getParameter<edm::ParameterSet>("TH1Wclusrphi");
-  switchWclusrphi = ParametersWclusrphi.getParameter<bool>("switchon");
+  edm::ParameterSet ParametersNstprphi =  conf_.getParameter<edm::ParameterSet>("TH1Nstprphi");
+  switchNstprphi = ParametersNstprphi.getParameter<bool>("switchon");
 
   edm::ParameterSet ParametersAdcrphi =  conf_.getParameter<edm::ParameterSet>("TH1Adcrphi");
   switchAdcrphi = ParametersAdcrphi.getParameter<bool>("switchon");
@@ -93,8 +93,8 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersPosxrphi =  conf_.getParameter<edm::ParameterSet>("TH1Posxrphi");
   switchPosxrphi = ParametersPosxrphi.getParameter<bool>("switchon");
 
-  edm::ParameterSet ParametersResolxrphi =  conf_.getParameter<edm::ParameterSet>("TH1Resolxrphi");
-  switchResolxrphi = ParametersResolxrphi.getParameter<bool>("switchon");
+  edm::ParameterSet ParametersErrxrphi =  conf_.getParameter<edm::ParameterSet>("TH1Errxrphi");
+  switchErrxrphi = ParametersErrxrphi.getParameter<bool>("switchon");
 
   edm::ParameterSet ParametersResrphi =  conf_.getParameter<edm::ParameterSet>("TH1Resrphi");
   switchResrphi = ParametersResrphi.getParameter<bool>("switchon");
@@ -108,8 +108,8 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersChi2rphi =  conf_.getParameter<edm::ParameterSet>("TH1Chi2rphi");
   switchChi2rphi = ParametersChi2rphi.getParameter<bool>("switchon");
 
-  edm::ParameterSet ParametersWclusStereo =  conf_.getParameter<edm::ParameterSet>("TH1WclusStereo");
-  switchWclusStereo = ParametersWclusStereo.getParameter<bool>("switchon");
+  edm::ParameterSet ParametersNstpStereo =  conf_.getParameter<edm::ParameterSet>("TH1NstpStereo");
+  switchNstpStereo = ParametersNstpStereo.getParameter<bool>("switchon");
 
   edm::ParameterSet ParametersAdcStereo =  conf_.getParameter<edm::ParameterSet>("TH1AdcStereo");
   switchAdcStereo = ParametersAdcStereo.getParameter<bool>("switchon");
@@ -117,8 +117,8 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersPosxStereo =  conf_.getParameter<edm::ParameterSet>("TH1PosxStereo");
   switchPosxStereo = ParametersPosxStereo.getParameter<bool>("switchon");
 
-  edm::ParameterSet ParametersResolxStereo =  conf_.getParameter<edm::ParameterSet>("TH1ResolxStereo");
-  switchResolxStereo = ParametersResolxStereo.getParameter<bool>("switchon");
+  edm::ParameterSet ParametersErrxStereo =  conf_.getParameter<edm::ParameterSet>("TH1ErrxStereo");
+  switchErrxStereo = ParametersErrxStereo.getParameter<bool>("switchon");
 
   edm::ParameterSet ParametersResStereo =  conf_.getParameter<edm::ParameterSet>("TH1ResStereo");
   switchResStereo = ParametersResStereo.getParameter<bool>("switchon");
@@ -138,11 +138,11 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
   edm::ParameterSet ParametersPosyMatched =  conf_.getParameter<edm::ParameterSet>("TH1PosyMatched");
   switchPosyMatched = ParametersPosyMatched.getParameter<bool>("switchon");
 
-  edm::ParameterSet ParametersResolxMatched =  conf_.getParameter<edm::ParameterSet>("TH1ResolxMatched");
-  switchResolxMatched = ParametersResolxMatched.getParameter<bool>("switchon");
+  edm::ParameterSet ParametersErrxMatched =  conf_.getParameter<edm::ParameterSet>("TH1ErrxMatched");
+  switchErrxMatched = ParametersErrxMatched.getParameter<bool>("switchon");
 
-  edm::ParameterSet ParametersResolyMatched =  conf_.getParameter<edm::ParameterSet>("TH1ResolyMatched");
-  switchResolyMatched = ParametersResolyMatched.getParameter<bool>("switchon");
+  edm::ParameterSet ParametersErryMatched =  conf_.getParameter<edm::ParameterSet>("TH1ErryMatched");
+  switchErryMatched = ParametersErryMatched.getParameter<bool>("switchon");
 
   edm::ParameterSet ParametersResxMatched =  conf_.getParameter<edm::ParameterSet>("TH1ResxMatched");
   switchResxMatched = ParametersResxMatched.getParameter<bool>("switchon");
@@ -312,7 +312,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     std::string label = hidmanager.getSubdetid(myid,tTopo,true);
     std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
     std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    std::cout << "label " << label << endl;
+    //std::cout << "label " << label << endl;
     SiStripFolderOrganizer fold_organ;
     std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
   
@@ -324,13 +324,13 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 
       for (std::vector<RecHitProperties>::iterator irh=rechitrphi.begin(); irh!=rechitrphi.end(); ++irh) {
 	if(iLayerME != LayerMEsMap.end()){
-	  fillME(iLayerME->second.meWclusrphi,(*irh).clusiz);
+	  fillME(iLayerME->second.meNstprphi,(*irh).clusiz);
 	  fillME(iLayerME->second.meAdcrphi,(*irh).cluchg);
 	  fillME(iLayerME->second.mePosxrphi,(*irh).x);
-	  fillME(iLayerME->second.meResolxrphi,(*irh).resolxx);
+	  fillME(iLayerME->second.meErrxrphi,(*irh).errxx);
 	  if ( (*irh).resx != -999999. || (*irh).pullMF != -999999. || (*irh).chi2 != -999999. ){
 	    fillME(iLayerME->second.meResrphi,(*irh).resx);
-	    fillME(iLayerME->second.mePullLFrphi,(*irh).resx/sqrt((*irh).resolxx));
+	    fillME(iLayerME->second.mePullLFrphi,(*irh).resx/sqrt((*irh).errxx));
 	    fillME(iLayerME->second.mePullMFrphi,(*irh).pullMF);
 	    fillME(iLayerME->second.meChi2rphi,(*irh).chi2);
 	  }
@@ -340,13 +340,13 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       
       for (std::vector<RecHitProperties>::iterator irh=rechitstereo.begin(); irh!=rechitstereo.end(); ++irh) {
 	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  fillME(iStereoAndMatchedME->second.meWclusStereo,(*irh).clusiz);
+	  fillME(iStereoAndMatchedME->second.meNstpStereo,(*irh).clusiz);
 	  fillME(iStereoAndMatchedME->second.meAdcStereo,(*irh).cluchg);
 	  fillME(iStereoAndMatchedME->second.mePosxStereo,(*irh).x);
-	  fillME(iStereoAndMatchedME->second.meResolxStereo,sqrt((*irh).resolxx));
+	  fillME(iStereoAndMatchedME->second.meErrxStereo,sqrt((*irh).errxx));
 	  if ( (*irh).resx != -999999. || (*irh).pullMF != -999999. || (*irh).chi2 != -999999. ){
 	    fillME(iStereoAndMatchedME->second.meResStereo,(*irh).resx);
-	    fillME(iStereoAndMatchedME->second.mePullLFStereo,(*irh).resx/sqrt((*irh).resolxx));
+	    fillME(iStereoAndMatchedME->second.mePullLFStereo,(*irh).resx/sqrt((*irh).errxx));
 	    fillME(iStereoAndMatchedME->second.mePullMFStereo,(*irh).pullMF);
 	    fillME(iStereoAndMatchedME->second.meChi2Stereo,(*irh).chi2);
 	  }
@@ -357,8 +357,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
 	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
 	  fillME(iStereoAndMatchedME->second.mePosxMatched,(*irh).x);
 	  fillME(iStereoAndMatchedME->second.mePosyMatched,(*irh).y);
-	  fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt((*irh).resolxx));
-	  fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt((*irh).resolyy));
+	  fillME(iStereoAndMatchedME->second.meErrxMatched,sqrt((*irh).errxx));
+	  fillME(iStereoAndMatchedME->second.meErryMatched,sqrt((*irh).erryy));
 	  if ( (*irh).resx != -999999. || (*irh).resy != -999999. || (*irh).chi2 != -999999. ){
 	    fillME(iStereoAndMatchedME->second.meResxMatched,(*irh).resx);
 	    fillME(iStereoAndMatchedME->second.meResyMatched,(*irh).resy);
@@ -421,8 +421,8 @@ std::pair<LocalPoint,LocalVector> SiStripRecHitsValid::projectHit( const PSimHit
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const StripTopology &topol,TrackerHitAssociator associate){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.; 
-  rechitpro.resolyy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
+  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.errxx = -999999.; rechitpro.errxy = -999999.; 
+  rechitpro.erryy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
   rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; rechitpro.chi2 = -999999.;
 
   LocalPoint position=rechit.localPosition();
@@ -442,9 +442,9 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
   rechitpro.x = position.x();
   rechitpro.y = position.y();
   rechitpro.z = position.z();
-  rechitpro.resolxx = error.xx();
-  rechitpro.resolxy = error.xy();
-  rechitpro.resolyy = error.yy();
+  rechitpro.errxx = error.xx();
+  rechitpro.errxy = error.xy();
+  rechitpro.erryy = error.yy();
   rechitpro.clusiz = clusiz;
   rechitpro.cluchg = totcharge;
 
@@ -499,8 +499,8 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator associate){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.; 
-  rechitpro.resolyy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
+  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.errxx = -999999.; rechitpro.errxy = -999999.; 
+  rechitpro.erryy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
   rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; rechitpro.chi2 = -999999.;
 
   LocalPoint position=rechit.localPosition();
@@ -509,9 +509,9 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
   rechitpro.x = position.x();
   rechitpro.y = position.y();
   rechitpro.z = position.z();
-  rechitpro.resolxx = error.xx();
-  rechitpro.resolxy = error.xy();
-  rechitpro.resolyy = error.yy();
+  rechitpro.errxx = error.xx();
+  rechitpro.errxy = error.xy();
+  rechitpro.erryy = error.yy();
 
   matched.clear();
   matched = associate.associateHit(rechit);
@@ -728,19 +728,19 @@ void SiStripRecHitsValid::createLayerMEs(std::string label)
   SiStripHistoId hidmanager;
   LayerMEs layerMEs; 
 
-  layerMEs.meWclusrphi = 0;
+  layerMEs.meNstprphi = 0;
   layerMEs.meAdcrphi = 0;
   layerMEs.mePosxrphi = 0;
-  layerMEs.meResolxrphi = 0;
+  layerMEs.meErrxrphi = 0;
   layerMEs.meResrphi = 0;
   layerMEs.mePullLFrphi = 0;
   layerMEs.mePullMFrphi = 0;
   layerMEs.meChi2rphi = 0;
 
-  //Wclusrphi
-  if(switchWclusrphi) {
-    layerMEs.meWclusrphi = bookME1D("TH1Wclusrphi", hidmanager.createHistoLayer("Wclus_rphi","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster"); 
-    layerMEs.meWclusrphi->setAxisTitle(("Cluster Width [nr strips] in "+ label).c_str());
+  //Nstprphi
+  if(switchNstprphi) {
+    layerMEs.meNstprphi = bookME1D("TH1Nstprphi", hidmanager.createHistoLayer("Nstp_rphi","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster"); 
+    layerMEs.meNstprphi->setAxisTitle(("Cluster Width [nr strips] in "+ label).c_str());
   }
   //Adcrphi
   if(switchAdcrphi) {
@@ -752,10 +752,10 @@ void SiStripRecHitsValid::createLayerMEs(std::string label)
     layerMEs.mePosxrphi = bookME1D("TH1Posxrphi", hidmanager.createHistoLayer("Posx_rphi","layer",label,"").c_str() ,"RecHit x coord."); 
     layerMEs.mePosxrphi->setAxisTitle(("x RecHit coord. (local frame) in " + label).c_str());
   }
-  //Resolxrphi
-  if(switchResolxrphi) {
-    layerMEs.meResolxrphi = bookME1D("TH1Resolxrphi", hidmanager.createHistoLayer("Resolx_rphi","layer",label,"").c_str() ,"RecHit resol(x) coord.");   //<resolor>~20micron  
-    layerMEs.meResolxrphi->setAxisTitle(("resol(x) RecHit coord. (local frame) in " + label).c_str());
+  //Errxrphi
+  if(switchErrxrphi) {
+    layerMEs.meErrxrphi = bookME1D("TH1Errxrphi", hidmanager.createHistoLayer("Errx_rphi","layer",label,"").c_str() ,"RecHit err(x) coord.");   //<error>~20micron  
+    layerMEs.meErrxrphi->setAxisTitle(("err(x) RecHit coord. (local frame) in " + label).c_str());
   }
   //Resrphi
   if(switchResrphi) {
@@ -787,26 +787,26 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(std::string label)
   SiStripHistoId hidmanager;
   StereoAndMatchedMEs stereoandmatchedMEs; 
 
-  stereoandmatchedMEs.meWclusStereo = 0;
+  stereoandmatchedMEs.meNstpStereo = 0;
   stereoandmatchedMEs.meAdcStereo = 0;
   stereoandmatchedMEs.mePosxStereo = 0;
-  stereoandmatchedMEs.meResolxStereo = 0;
+  stereoandmatchedMEs.meErrxStereo = 0;
   stereoandmatchedMEs.meResStereo = 0;
   stereoandmatchedMEs.mePullLFStereo = 0;
   stereoandmatchedMEs.mePullMFStereo = 0;
   stereoandmatchedMEs.meChi2Stereo = 0;
   stereoandmatchedMEs.mePosxMatched = 0;
   stereoandmatchedMEs.mePosyMatched = 0;
-  stereoandmatchedMEs.meResolxMatched = 0;
-  stereoandmatchedMEs.meResolyMatched = 0;
+  stereoandmatchedMEs.meErrxMatched = 0;
+  stereoandmatchedMEs.meErryMatched = 0;
   stereoandmatchedMEs.meResxMatched = 0;
   stereoandmatchedMEs.meResyMatched = 0;
   stereoandmatchedMEs.meChi2Matched = 0;
 
-  //WclusStereo
-  if(switchWclusStereo) {
-    stereoandmatchedMEs.meWclusStereo = bookME1D("TH1WclusStereo", hidmanager.createHistoLayer("Wclus_stereo","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster");  
-    stereoandmatchedMEs.meWclusStereo->setAxisTitle(("Cluster Width [nr strips] in stereo modules in "+ label).c_str());
+  //NstpStereo
+  if(switchNstpStereo) {
+    stereoandmatchedMEs.meNstpStereo = bookME1D("TH1NstpStereo", hidmanager.createHistoLayer("Nstp_stereo","layer",label,"").c_str() ,"Cluster Width - Number of strips that belong to the RecHit cluster");  
+    stereoandmatchedMEs.meNstpStereo->setAxisTitle(("Cluster Width [nr strips] in stereo modules in "+ label).c_str());
   }
   //AdcStereo
   if(switchAdcStereo) {
@@ -818,10 +818,10 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(std::string label)
     stereoandmatchedMEs.mePosxStereo = bookME1D("TH1PosxStereo", hidmanager.createHistoLayer("Posx_stereo","layer",label,"").c_str() ,"RecHit x coord."); 
     stereoandmatchedMEs.mePosxStereo->setAxisTitle(("x RecHit coord. (local frame) in stereo modules in " + label).c_str());
   }
-  //ResolxStereo
-  if(switchResolxStereo) {
-    stereoandmatchedMEs.meResolxStereo = bookME1D("TH1ResolxStereo", hidmanager.createHistoLayer("Resolx_stereo","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
-    stereoandmatchedMEs.meResolxStereo->setAxisTitle(("resol(x) RecHit coord. (local frame) in stereo modules in " + label).c_str());
+  //ErrxStereo
+  if(switchErrxStereo) {
+    stereoandmatchedMEs.meErrxStereo = bookME1D("TH1ErrxStereo", hidmanager.createHistoLayer("Errx_stereo","layer",label,"").c_str() ,"RecHit err(x) coord.");  
+    stereoandmatchedMEs.meErrxStereo->setAxisTitle(("err(x) RecHit coord. (local frame) in stereo modules in " + label).c_str());
   }
   //ResStereo
   if(switchResStereo) {
@@ -853,15 +853,15 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(std::string label)
     stereoandmatchedMEs.mePosyMatched = bookME1D("TH1PosyMatched", hidmanager.createHistoLayer("Posy_matched","layer",label,"").c_str() ,"RecHit y coord."); 
     stereoandmatchedMEs.mePosyMatched->setAxisTitle(("y coord. matched RecHit (local frame) in " + label).c_str());
   }
-  //ResolxMatched
-  if(switchResolxMatched) {
-    stereoandmatchedMEs.meResolxMatched = bookME1D("TH1ResolxMatched", hidmanager.createHistoLayer("Resolx_matched","layer",label,"").c_str() ,"RecHit resol(x) coord.");  
-    stereoandmatchedMEs.meResolxMatched->setAxisTitle(("resol(x) coord. matched RecHit (local frame) in " + label).c_str());
+  //ErrxMatched
+  if(switchErrxMatched) {
+    stereoandmatchedMEs.meErrxMatched = bookME1D("TH1ErrxMatched", hidmanager.createHistoLayer("Errx_matched","layer",label,"").c_str() ,"RecHit err(x) coord.");  
+    stereoandmatchedMEs.meErrxMatched->setAxisTitle(("err(x) coord. matched RecHit (local frame) in " + label).c_str());
   }
-  //ResolyMatched
-  if(switchResolyMatched) {
-    stereoandmatchedMEs.meResolyMatched = bookME1D("TH1ResolyMatched", hidmanager.createHistoLayer("Resoly_matched","layer",label,"").c_str() ,"RecHit resol(y) coord."); 
-    stereoandmatchedMEs.meResolyMatched->setAxisTitle(("resol(y) coord. matched RecHit (local frame) in " + label).c_str());
+  //ErryMatched
+  if(switchErryMatched) {
+    stereoandmatchedMEs.meErryMatched = bookME1D("TH1ErryMatched", hidmanager.createHistoLayer("Erry_matched","layer",label,"").c_str() ,"RecHit err(y) coord."); 
+    stereoandmatchedMEs.meErryMatched->setAxisTitle(("err(y) coord. matched RecHit (local frame) in " + label).c_str());
   }
   //ResxMatched
   if(switchResxMatched) {
