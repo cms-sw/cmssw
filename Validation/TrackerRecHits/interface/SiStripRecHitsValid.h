@@ -13,39 +13,21 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-//only mine
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//DQM services for histogram
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-//--- for SimHit association
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
-
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+
 #include <string>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <vector>
+#include <utility>
+
+class DQMStore;
+class MonitorElement;
+class PSimHit;
+class StripGeomDetUnit;
 
 class SiStripRecHitsValid : public edm::EDAnalyzer {
 
