@@ -109,9 +109,6 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
  
   produces<std::vector<reco::CaloJet> >(); 
   produces<std::vector<reco::CaloJet> >("PUjets"); 
-
-  produces<std::vector<float> >("distance"); 
-  produces<std::vector<float> >("significance"); 
 }
 
 
@@ -135,9 +132,6 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
    std::auto_ptr<std::vector<reco::CaloJet> > pOut_PUjets(new std::vector<reco::CaloJet> );
-
-   std::auto_ptr<std::vector<float> > pOut_sig(new std::vector<float> );
-   std::auto_ptr<std::vector<float> > pOut_dist(new std::vector<float> );
 
    //get jetTracksAssociation
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
@@ -173,10 +167,6 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		{
 			reco::TransientTrack transientTrack = builder->build(*itTrack);
 	     		float jetTrackDistance = ((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
-	     		float significance = ((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).significance();
-	     		
-	     		pOut_sig->push_back(significance);
-	     		pOut_dist->push_back(jetTrackDistance);
 	     		
 			//select the tracks compabible with the jet
 			if(( (*itTrack)->pt() > m_MinTrackPt) && ( (*itTrack)->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance>-m_MaxTrackDistanceToJet))
@@ -198,9 +188,6 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    iEvent.put(pOut);
    iEvent.put(pOut_PUjets,"PUjets");
-   iEvent.put(pOut_dist,"distance");
-   iEvent.put(pOut_sig,"significance");
-
 
    edm::Handle<reco::BeamSpot> beamSpot;
    iEvent.getByLabel(m_beamSpot,beamSpot);
