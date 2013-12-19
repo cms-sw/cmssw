@@ -35,15 +35,10 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <fstream>
-#include <iostream>
 #include <map>
 #include <memory>
 #include <stdlib.h>
 #include <vector>
-
-using namespace edm;
-using namespace std;
 
 TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps)
   : verbose_( ps.getUntrackedParameter<bool>( "Verbosity",false ) )
@@ -66,7 +61,7 @@ TrackerHitAnalyzer::TrackerHitAnalyzer(const edm::ParameterSet& ps)
 
 void TrackerHitAnalyzer::beginRun( edm::Run const&, edm::EventSetup const& ) {
 ////// booking histograms
-   fDBE = Service<DQMStore>().operator->();
+  fDBE = edm::Service<DQMStore>().operator->();
    	
   Char_t  hname1[50], htitle1[80];
   Char_t  hname2[50], htitle2[80];
@@ -353,7 +348,7 @@ void TrackerHitAnalyzer::endJob()
 void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
 {
 
-   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
    
   // iterator to access containers
   edm::PSimHitContainer::const_iterator itHit;
@@ -502,7 +497,7 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
   for (itTrk = G4TrkContainer->begin(); itTrk != G4TrkContainer->end(); 
        ++itTrk) {
 
-//    cout << "itTrk = "<< itTrk << endl;
+//    std::cout << "itTrk = "<< itTrk << std::endl;
     double eta =0, p =0;
     const CLHEP::HepLorentzVector& G4Trk = CLHEP::HepLorentzVector(itTrk->momentum().x(),
                                                      itTrk->momentum().y(),
@@ -530,10 +525,10 @@ void TrackerHitAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c)
           if (eta>-2.0 && eta<=-1.5) ir = 9;
           if (eta>-2.5 && eta<=-2.0) ir = 10;
           if (eta<=-2.5) ir = 11;
-//          LogInfo("EventInfo") << " eta = " << eta << " ir = " << ir;
-//	  cout << " " <<endl;
-//          cout << "eta " << eta << " ir = " << ir << endl;                  
-//	  cout << " " <<endl;
+//          edm::LogInfo("EventInfo") << " eta = " << eta << " ir = " << ir;
+//	  std::cout << " " << std::endl;
+//          std::cout << "eta " << eta << " ir = " << ir << std::endl;                  
+//	  std::cout << " " << std::endl;
       }
   }	  
   ///////////////////////////////
