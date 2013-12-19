@@ -107,13 +107,15 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
 # 2015 step1 gensim
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n'            : 10,
-                             '--conditions'  : 'auto:upgradePLS1', 
+                             '--conditions'  : 'auto:upgradePLS1', # 25ns GT
                              '--datatier'    : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--geometry'    : 'Extended2015',
                              '--magField'    : '38T_PostLS1',
                              '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                              }
+# differences between upgradePLS150ns and upgradePLS1 ought to be irrelevant for GEN-SIM
+#step1Up2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step1Up2015Defaults])
 
 
 steps = Steps()
@@ -907,7 +909,7 @@ step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RA
                   }
 #for 2015
 step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
-                 '--conditions'  :'auto:upgradePLS1', 
+                 '--conditions'  :'auto:upgradePLS1', # this is the 25ns GT
                  '--magField'    :'38T_PostLS1',
                  '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
                  '--eventcontent':'FEVTDEBUGHLT',
@@ -915,11 +917,12 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2
                  '--geometry'    :'Extended2015',
                  '-n'            :'10'
                   }
+step2Upg2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step2Upg2015Defaults])
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
-steps['DIGIUP15_PU25']=merge([{'--conditions':'POSTLS162_V2::All'},PU25,step2Upg2015Defaults])  # FIX explicit GT in absence of label in autoCond.py
-steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults])
+steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
+steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 
 steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
@@ -1056,6 +1059,8 @@ step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                  '--geometry' : 'Extended2015'
                  }
+step3Up2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step3Up2015Defaults])
+
 step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions'   :'auto:upgradePLS1', 
                  '--magField'     :'38T_PostLS1',
@@ -1083,8 +1088,8 @@ steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBi
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
 
 steps['RECOPU1']=merge([PU,steps['RECO']])
-steps['RECOUP15_PU25']=merge([{'--conditions':'POSTLS162_V2::All'},PU25,step3Up2015Defaults])  # FIX explicit GT in absence of label in autoCond.py
-steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults])
+steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
+steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
