@@ -1,4 +1,4 @@
-/*
+/**
  * \file L1TEfficiency_Harvesting.cc
  *
  * \author J. Pela, C. Battilana
