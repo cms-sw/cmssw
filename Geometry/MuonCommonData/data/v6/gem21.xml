@@ -1108,7 +1108,7 @@
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-40*deg"/>
     <Numeric name="startAngle"  value="180*deg"/>
-    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value="+28.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
@@ -1121,7 +1121,7 @@
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-40*deg"/>
     <Numeric name="startAngle"  value="180*deg"/>
-    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value=" -9.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
@@ -1134,7 +1134,7 @@
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="-40*deg"/>
     <Numeric name="startAngle"  value="160*deg"/>
-    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value=" +9.50*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
@@ -1147,7 +1147,7 @@
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="-40*deg"/>
     <Numeric name="startAngle"  value="160*deg"/>
-    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value="-27.90*mm"/>
   </Algorithm>
       
