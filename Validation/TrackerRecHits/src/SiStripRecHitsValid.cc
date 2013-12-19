@@ -312,7 +312,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     std::string label = hidmanager.getSubdetid(myid,tTopo,true);
     std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
     std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    std::cout << "label " << label << endl;
+    //std::cout << "label " << label << endl;
     SiStripFolderOrganizer fold_organ;
     std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
   
