@@ -71,7 +71,7 @@ class L1ExtraParticlesProd : public edm::EDProducer {
       edm::InputTag hfRingEtSumsSource_ ;
       edm::InputTag hfRingBitCountsSource_ ;
 
-      static double muonMassGeV_ ;
+      static const double muonMassGeV_ ;
 
       bool centralBxOnly_ ;
 
