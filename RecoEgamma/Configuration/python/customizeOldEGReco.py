@@ -14,6 +14,15 @@ def customizeOldEGReco(process):
                      cms.InputTag('gedGsfElectronCores'),
                      cms.InputTag('gsfElectronCores'),
                      skipLabelTest=True)
+        #for seq in path:
+        _replaceTags(sequences,
+                     cms.InputTag('gedPhotons'),
+                     cms.InputTag('photons'),
+                     skipLabelTest=True)
+        _replaceTags(sequences,
+                     cms.InputTag('gedPhotonCore'),
+                     cms.InputTag('photonCore'),
+                     skipLabelTest=True)
 
     # all the rest:
     if hasattr(process,'DigiToRaw'):
@@ -44,6 +53,8 @@ def _configurePFForGEDEGamma(process):
     #fix a few things in the GED from the mass-replace
     process.gedGsfElectronsTmp.gsfElectronCoresTag = cms.InputTag('gedGsfElectronCores')
     process.particleBasedIsolation.electronProducer = cms.InputTag("gedGsfElectrons")
+    process.gedPhotonsTmp.photonProducer = cms.InputTag('gedPhotonCore')
+    process.particleBasedIsolation.photonProducer = cms.InputTag("gedPhotons")
         
     #for later
     process.particleFlowBlock.SCBarrel = cms.InputTag('correctedHybridSuperClusters')
@@ -67,6 +78,9 @@ def _configurePFForGEDEGamma(process):
     process.particleFlowTmp.useEGammaFilters = cms.bool(False)
     process.particleFlowTmp.usePFPhotons = cms.bool(True)
     process.particleFlowTmp.usePFElectrons = cms.bool(True)
+    process.particleFlowTmp.sumPtTrackIso = cms.double(2.0)
+    process.particleFlowTmp.photon_HoE =  cms.double(0.10)
+    
     #re-route PF linker to use old EG collections
     process.particleFlow.GsfElectrons = cms.InputTag('gsfElectrons')
     process.particleFlow.Photons = cms.InputTag('pfPhotonTranslator:pfphot')
@@ -107,6 +121,12 @@ def _customize_Validation(process):
                                                 cms.string('gsfElectrons')
     if hasattr(process,'oldpfPhotonValidation'):
         process.photonValidationSequence += process.oldpfPhotonValidation
+        process.oldpfPhotonValidation.conversionIOTrackProducer = cms.string('ckfInOutTracksFromOldEGConversions')
+        process.oldpfPhotonValidation.conversionOITrackProducer = cms.string('ckfOutInTracksFromOldEGConversions')
+        process.photonValidation.phoProducer = cms.string('photons')
+        process.photonValidation.conversionIOTrackProducer = cms.string('ckfInOutTracksFromOldEGConversions')
+        process.photonValidation.conversionOITrackProducer = cms.string('ckfOutInTracksFromOldEGConversions')
+        process.tkConversionValidation.convProducer = cms.string('allConversionsOldEG')
     return process
 
 
