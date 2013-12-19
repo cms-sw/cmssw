@@ -135,7 +135,7 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("hasPhi", -2, "hasPhi").
    column("hasZed", -2, "hasZed").
    column("chi2", 2, "chi2").
-   column("dof", 0, "degreesOfFreedom");
+   column("dof", 0, "degreesOfFreedom"); 
 
    table("DTRecHit1DPair").
    column("wheel", 0, "wireId.wheel").
@@ -145,6 +145,12 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("layer", 0, "wireId.layer").
    column("wire", 0, "wireId.wire").
    column("digiTime", 2, "digiTime");
+
+   table("CSCSegment").
+   column("endcap", 0, "cscDetId.endcap").
+   column("station", 0, "cscDetId.station").
+   column("ring", 0, "cscDetId.ring").
+   column("chamber", 0, "cscDetId.chamber");
 
    table("reco::Vertex").
    column("x", 5).
