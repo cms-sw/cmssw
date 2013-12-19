@@ -16,17 +16,19 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-class DetZLess {
-public:
-  bool operator()(const GeomDet* a,const GeomDet* b) 
-  {
-    return (a->position().z() < b->position().z());
-  } 
-};
-
+namespace {
+  class DetZLess {
+  public:
+    bool operator()(const GeomDet* a,const GeomDet* b) const
+    {
+      return (a->position().z() < b->position().z());
+    } 
+  };
+}
 
 TOBRod::TOBRod(vector<const GeomDet*>& innerDets,
 	       vector<const GeomDet*>& outerDets):
+  DetRod(true),
   theInnerDets(innerDets),theOuterDets(outerDets)
 {
   theDets.assign(theInnerDets.begin(),theInnerDets.end());
@@ -194,6 +196,33 @@ float TOBRod::computeWindowSize( const GeomDet* det,
 
 
 
+namespace {
+
+  inline
+  bool overlap( const GlobalPoint& crossPoint, const GeomDet& det, float window) {
+    // check if the z window around TSOS overlaps with the detector theDet (with a 1% margin added)
+    
+    //   const float tolerance = 0.1;
+    constexpr float relativeMargin = 1.01;
+    
+    LocalPoint localCrossPoint( det.surface().toLocal(crossPoint));
+    //   if (fabs(localCrossPoint.z()) > tolerance) {
+    //     edm::LogInfo(TkDetLayers) << "TOBRod::overlap calculation assumes point on surface, but it is off by "
+    // 	 << localCrossPoint.z() ;
+    //   }
+    
+    float localY = localCrossPoint.y();
+    float detHalfLength = 0.5f*det.surface().bounds().length();
+    
+    //   edm::LogInfo(TkDetLayers) << "TOBRod::overlap: Det at " << det.position() << " hit at " << localY 
+    //        << " Window " << window << " halflength "  << detHalfLength ;
+    
+    return (std::abs(localY)-window) < relativeMargin*detHalfLength;
+    
+  }
+
+}
+
 void TOBRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			      const Propagator& prop,
 			      const MeasurementEstimator& est,
@@ -232,26 +261,4 @@ void TOBRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
 
 
-bool TOBRod::overlap( const GlobalPoint& crossPoint, const GeomDet& det, float window) const
-{
-  // check if the z window around TSOS overlaps with the detector theDet (with a 1% margin added)
-  
-  //   const float tolerance = 0.1;
-  constexpr float relativeMargin = 1.01;
-
-  LocalPoint localCrossPoint( det.surface().toLocal(crossPoint));
-  //   if (fabs(localCrossPoint.z()) > tolerance) {
-  //     edm::LogInfo(TkDetLayers) << "TOBRod::overlap calculation assumes point on surface, but it is off by "
-  // 	 << localCrossPoint.z() ;
-  //   }
-
-  float localY = localCrossPoint.y();
-  float detHalfLength = 0.5f*det.surface().bounds().length();
-
-  //   edm::LogInfo(TkDetLayers) << "TOBRod::overlap: Det at " << det.position() << " hit at " << localY 
-  //        << " Window " << window << " halflength "  << detHalfLength ;
-  
-  return (std::abs(localY)-window) < relativeMargin*detHalfLength;
-
-}
 

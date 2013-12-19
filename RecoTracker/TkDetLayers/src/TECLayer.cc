@@ -55,6 +55,7 @@ namespace {
 
 TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 		   vector<const TECPetal*>& outerPetals) : 
+  ForwardDetLayer(true),
   theFrontComps(innerPetals.begin(),innerPetals.end()), 
   theBackComps(outerPetals.begin(),outerPetals.end())
 {

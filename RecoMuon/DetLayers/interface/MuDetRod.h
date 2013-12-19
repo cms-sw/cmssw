@@ -47,8 +47,6 @@ class MuDetRod : public DetRodOneR {
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const {return false;}
-
  private:
   //typedef PeriodicBinFinderInZ<float>   BinFinderType;
   typedef GenericBinFinderInZ<float, GeomDet> BinFinderType;

@@ -12,7 +12,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
+class PixelBlade GCC11_FINAL : public GeometricSearchDet {
  public:
 
   PixelBlade(std::vector<const GeomDet*>& frontDets,

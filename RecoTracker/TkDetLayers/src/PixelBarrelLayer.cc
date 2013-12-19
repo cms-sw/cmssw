@@ -18,7 +18,8 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 PixelBarrelLayer::PixelBarrelLayer(vector<const PixelRod*>& innerRods,
-				   vector<const PixelRod*>& outerRods) : 
+				   vector<const PixelRod*>& outerRods) :
+  RodBarrelLayer(true), 
   theInnerComps(innerRods.begin(),innerRods.end()), 
   theOuterComps(outerRods.begin(),outerRods.end())
 {

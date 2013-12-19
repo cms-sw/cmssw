@@ -10,8 +10,11 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TECWedge : public GeometricSearchDetWithGroups {
+class TECWedge : public GeometricSearchDet {
  public:
+
+  TECWedge() : GeometricSearchDet(true){}
+
     // GeometricSearchDet interface
   virtual const BoundSurface& surface() const  final {return *theDiskSector;}
 

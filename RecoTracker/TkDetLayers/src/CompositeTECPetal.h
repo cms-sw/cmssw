@@ -17,7 +17,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class CompositeTECPetal GCC11_FINAL : public GeometricSearchDetWithGroups {
+class CompositeTECPetal GCC11_FINAL : public GeometricSearchDet {
  public:
   struct WedgePar { float theR, thetaMin, thetaMax;};
 

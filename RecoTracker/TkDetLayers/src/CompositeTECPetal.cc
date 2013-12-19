@@ -93,6 +93,7 @@ namespace {
 
 CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
 				     vector<const TECWedge*>& outerWedges) : 
+  GeometricSearchDet(true),
   theFrontComps(innerWedges), 
   theBackComps(outerWedges)
 {

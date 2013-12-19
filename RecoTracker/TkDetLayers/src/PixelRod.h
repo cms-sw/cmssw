@@ -37,8 +37,6 @@ class PixelRod GCC11_FINAL : public DetRodOneR{
 			 std::vector<DetGroup> &) const;
 
 
-  virtual bool hasGroups() const {return false;}
-
  private:
   BinFinderType theBinFinder;
       

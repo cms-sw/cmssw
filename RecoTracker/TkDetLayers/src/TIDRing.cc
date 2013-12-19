@@ -24,6 +24,7 @@ typedef GeometricSearchDet::DetWithState DetWithState;
 
 TIDRing::TIDRing(vector<const GeomDet*>& innerDets,
 		 vector<const GeomDet*>& outerDets):
+  GeometricSearchDet(true),
   theFrontDets(innerDets.begin(),innerDets.end()), 
   theBackDets(outerDets.begin(),outerDets.end())
 {
