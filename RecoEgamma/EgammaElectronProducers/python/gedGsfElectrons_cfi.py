@@ -3,52 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
-from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
-
-gedelectronGBRESSource = cms.ESSource(
-    "PoolDBESSource",
-    CondDBCommon,
-    DumpStat=cms.untracked.bool(False),
-    toGet = cms.VPSet(
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedelectron_EBCorrection_offline'),
-    label = cms.untracked.string('gedelectron_EBCorrection_offline')
-    ),
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedelectron_EECorrection_offline'),
-    label = cms.untracked.string('gedelectron_EECorrection_offline')
-    ),
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedelectron_EBUncertainty_offline'),
-    label = cms.untracked.string('gedelectron_EBUncertainty_offline')
-    ),
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedelectron_EEUncertainty_offline'),
-    label = cms.untracked.string('gedelectron_EEUncertainty_offline')
-    ),
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedelectron_p4combination_offline'),
-    label = cms.untracked.string('gedelectron_p4combination_offline')
-    ),
-    )
-)
-gedelectronGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
-
-gedelectronPrefer = cms.ESPrefer(
-    'PoolDBESSource',
-    'gedelectronGBRESSource',
-    GBRWrapperRcd = cms.vstring('GBRForest/gedelectron_EBCorrection_offline',
-                                'GBRForest/gedelectron_EECorrection_offline',
-                                'GBRForest/gedelectron_EBUncertainty_offline',
-                                'GBRForest/gedelectron_EEUncertainty_offline',
-                                'GBRForest/gedelectron_p4combination_offline')
-)
-
 gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 
     # input collections
