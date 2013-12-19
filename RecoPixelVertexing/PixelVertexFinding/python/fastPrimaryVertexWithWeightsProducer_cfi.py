@@ -5,10 +5,10 @@ fastPrimaryVertices = cms.EDProducer( "FastPrimaryVertexWithWeightsProducer",
     clusters = cms.InputTag( "hltSiPixelClusters" ),
     pixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    jets = cms.InputTag( "hltCaloJetL1FastJetCorrected" ), ##"hltSelectorJets20L1FastJet"
+    jets = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
   
     njets     = cms.int32( 999 )	,
-    maxJetEta = cms.double( 999 ), #2.4
+    maxJetEta = cms.double( 2.6 ), 
     minJetPt  = cms.double( 40. ),
 
     barrel = cms.bool(True),	
@@ -28,7 +28,7 @@ fastPrimaryVertices = cms.EDProducer( "FastPrimaryVertexWithWeightsProducer",
 
     endCap = cms.bool(True),	
     minJetEta_EC  = cms.double( 1.3 ),	
-    maxJetEta_EC  = cms.double( 999 ),	#2.4
+    maxJetEta_EC  = cms.double( 2.6 ),	
     maxDeltaPhi_EC  = cms.double( 0.14 ),
     EC_weight     = cms.double( 0.008 ),
     weight_dPhi_EC     = cms.double( 0.064516129 ),	
