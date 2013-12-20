@@ -50,7 +50,6 @@
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "CommonTools/Clustering1D/interface/Clusterizer1DCommons.h"
 #include "CommonTools/Clustering1D/interface/Cluster1DMerger.h"
@@ -72,7 +71,6 @@
 #endif
 
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 using namespace std;
 
