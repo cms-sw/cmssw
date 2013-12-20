@@ -159,7 +159,6 @@ mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     trajectoryFilterName = 'mixedTripletStepTrajectoryFilter',
     propagatorAlong = cms.string('mixedTripletStepPropagator'),
     propagatorOpposite = cms.string('mixedTripletStepPropagatorOpposite'),
-    clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
     maxCand = 2,
     estimator = cms.string('mixedTripletStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -170,6 +169,7 @@ mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 mixedTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('mixedTripletStepSeeds'),
+    clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -309,3 +309,4 @@ MixedTripletStep = cms.Sequence(mixedTripletStepClusters*
                                 mixedTripletStepTracks*
                                 mixedTripletStepSelector*
                                 mixedTripletStep)
+
