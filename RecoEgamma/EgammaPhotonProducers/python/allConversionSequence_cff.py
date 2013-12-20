@@ -6,11 +6,11 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.EgammaPhotonProducers.allConversions_cfi import *
 allConversionSequence = cms.Sequence(allConversions)
 
-allConversionsMustache = allConversions.clone()
-allConversionsMustache.scBarrelProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel')
-allConversionsMustache.bcBarrelCollection = cms.InputTag('particleFlowClusterECAL')
-allConversionsMustache.scEndcapProducer = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower')
-allConversionsMustache.bcEndcapCollection = cms.InputTag('particleFlowClusterECAL')
+allConversionsOldEG = allConversions.clone()
+allConversionsOldEG.scBarrelProducer = cms.InputTag("correctedHybridSuperClusters")
+allConversionsOldEG.bcBarrelCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters")
+allConversionsOldEG.scEndcapProducer = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
+allConversionsOldEG.bcEndcapCollection = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters")
 
-allConversionMustacheSequence = cms.Sequence(allConversionsMustache)
+allConversionOldEGSequence = cms.Sequence(allConversionsOldEG)
 

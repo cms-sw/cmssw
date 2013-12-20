@@ -1,32 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
 import os
-
-pfSCecalGBRESSource = cms.ESSource(
-    "PoolDBESSource",
-    CondDBCommon,
-    DumpStat=cms.untracked.bool(False),
-    toGet = cms.VPSet(
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('pfscecal_EBCorrection_offline'),
-    label = cms.untracked.string('pfscecal_EBCorrection_offline')
-    ),
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('pfscecal_EECorrection_offline'),
-    label = cms.untracked.string('pfscecal_EECorrection_offline')
-    ),
-    )
-)
-pfSCecalGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
-
-pfSCecalPrefer = cms.ESPrefer(
-    'PoolDBESSource',
-    'pfSCecalGBRESSource',
-    GBRWrapperRcd = cms.vstring('GBRForest/pfscecal_EBCorrection_offline',
-                                'GBRForest/pfscecal_EECorrection_offline')
-)
 
 particleFlowSuperClusterECALBox = cms.EDProducer(
     "PFECALSuperClusterProducer",

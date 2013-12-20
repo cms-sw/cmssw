@@ -19,13 +19,13 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     PFClustersHFEM = cms.InputTag("particleFlowClusterHFEM"),
     PFClustersHFHAD = cms.InputTag("particleFlowClusterHFHAD"),
     PFClustersPS = cms.InputTag("particleFlowClusterPS"),
-    EGPhotons = cms.InputTag("photons"),  
+    EGPhotons = cms.InputTag("mustachePhotons"),  
     #disable dierct import of SuperCluster collections for now until effect on blocks can be
     #evaluated
     useSuperClusters = cms.bool(False),
     #current egamma superclusters
-    SCBarrel = cms.InputTag("correctedHybridSuperClusters"),
-    SCEndcap = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),    
+    SCBarrel = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel'),
+    SCEndcap = cms.InputTag('particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower'),
     #pfbox superclusters, will switch to this in the near future
     #SCBarrel = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),                                   
     #SCEndcap = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"), 
