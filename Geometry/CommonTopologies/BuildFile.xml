@@ -1,6 +1,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="Utilities/General"/>
+<use   name="vdt"/>
 <export>
   <lib   name="1"/>
 </export>
-# <flags   CXXFLAGS="-O3 -fno-math-errno -funsafe-loop-optimizations -ftree-loop-if-convert-stores --param max-completely-peel-times=1"/>
+# <flags   CXXFLAGS="-O3 -ffast-math -funsafe-loop-optimizations -ftree-loop-if-convert-stores"/>
