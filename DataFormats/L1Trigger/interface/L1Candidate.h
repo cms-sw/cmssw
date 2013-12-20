@@ -10,10 +10,17 @@ namespace l1t {
   class L1Candidate : public reco::LeafCandidate {
 
   public:
+
     L1Candidate();
 
     // construct from *both* physical and integer values
     L1Candidate( const LorentzVector& p4,
+		 int pt=0,
+		 int eta=0,
+		 int phi=0,
+		 int qual=0);
+
+    L1Candidate( const PolarLorentzVector& p4,
 		 int pt=0,
 		 int eta=0,
 		 int phi=0,

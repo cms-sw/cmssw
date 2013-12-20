@@ -14,39 +14,40 @@
 #define CaloStage2MainProcessorFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2MainProcessor.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2TauAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2EtSumAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetSumAlgorithm.h"
 
-#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+//#include "CondFormats/L1TObjects/interface/CaloParams.h"
+
+
 
 namespace l1t {
 
-  // Imp1 is for v1 and v2
+  // first iteration
   class CaloStage2MainProcessorFirmwareImp1 : public CaloStage2MainProcessor {
   public:
-    CaloStage2MainProcessorFirmware1(const CaloParams & dbPars);
-    virtual ~CaloStage2MainProcessorFirmware1();
-    virtual void processEvent(const l1t::BXVector<l1t::CaloTower> &,
- 							  l1t::BXVector<l1t::EGamma> & egammas,
-							  l1t::BXVector<l1t::Tau> & taus,
-							  l1t::BXVector<l1t::Jet> & jets,
-							  l1t::BXVector<l1t::EtSum> & etsums);
+    CaloStage2MainProcessorFirmwareImp1(); //const CaloParams & dbPars);
+    virtual ~CaloStage2MainProcessorFirmwareImp1();
+    virtual void processEvent(const std::vector<l1t::CaloTower> &,
+			      std::vector<l1t::EGamma> & egammas,
+			      std::vector<l1t::Tau> & taus,
+			      std::vector<l1t::Jet> & jets,
+			      std::vector<l1t::EtSum> & etsums);
   private:
-	
-    CaloParams const & m_params;
-
-	CaloClusterAlgorithm* m_clusterAlgo;
-	CaloEGAlgorithm* m_egAlgo;
-	CaloTauAlgoritmh* m_tauAlgo;
-	CaloJetAlgorithm* m_jetAlgo;
-	CaloSumAlgorithm* m_sumAlgo;
-	CaloJetSumAlgorithm* m_jetSumAlgo;
-	
-	l1t::BXVector<l1t::CaloCluster> m_clusters;
-	l1t::BXVector<l1t::EGamma> m_egammas;
-	l1t::BXVector<l1t::Tau> m_taus;
-	l1t::BXVector<l1t::Jet> m_jets;
-	l1t::BXVector<l1t::EtSums> m_etsums;
-	l1t::BXVector<l1t::EtSums> m_jetsums;
-
+    
+    //    CaloParams const & m_params;
+    
+    CaloStage2ClusterAlgorithm* m_clusterAlgo;
+    CaloStage2EGammaAlgorithm* m_egAlgo;
+    CaloStage2TauAlgorithm* m_tauAlgo;
+    CaloStage2JetAlgorithm* m_jetAlgo;
+    CaloStage2EtSumAlgorithm* m_sumAlgo;
+    CaloStage2JetSumAlgorithm* m_jetSumAlgo;
+    
   };
   
 }
