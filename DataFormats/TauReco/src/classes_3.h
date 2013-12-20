@@ -165,24 +165,24 @@ namespace DataFormats_TauReco {
     reco::PFTauTIPAssociationRefVector                pftautipass_rv;
     edm::Wrapper<reco::PFTauTIPAssociation>           pftautipass_w;
 
-    std::pair<reco::PFTauRef, std::vector<reco::PFTauTransverseImpactParameterRef> >                pftaupairtip_o;
-    std::vector<std::pair<reco::PFTauRef, std::vector<reco::PFTauTransverseImpactParameterRef> > >  pftaupairtip_v;
+    std::pair<reco::PFTauRef, reco::PFTauTransverseImpactParameterRef >                pftaupairtip_o;
+    std::vector<std::pair<reco::PFTauRef, reco::PFTauTransverseImpactParameterRef > >  pftaupairtip_v;
 
     reco::PFTauVertexAssociation                      pftauvertexass_o;
     reco::PFTauVertexAssociationRef                   pftauvertexass_r;
     reco::PFTauVertexAssociationRefProd               pftauvertexass_rp;
     reco::PFTauVertexAssociationRefVector             pftauvertexass_rv;
     edm::Wrapper<reco::PFTauVertexAssociation>        pftauvertexass_w;
-    std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >                 pftaupairvertex_o;
-    std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >   pftaupairvertex_v;
+    std::pair<reco::PFTauRef, reco::VertexRef >                 pftaupairvertex_o;
+    std::vector<std::pair<reco::PFTauRef, reco::VertexRef > >   pftaupairvertex_v;
     
     reco::PFTauVertexVAssociation                     pftauvertexvass_o;
     reco::PFTauVertexVAssociationRef                  pftauvertexvass_r;
     reco::PFTauVertexVAssociationRefProd              pftauvertexvass_rp;
     reco::PFTauVertexVAssociationRefVector            pftauvertexvass_rv;
     edm::Wrapper<reco::PFTauVertexVAssociation>       pftauvertexvass_w;
-    std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > >                pftaupairvertexv_o;
-    std::vector<std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > > >  pftaupairvertexv_v;
+    std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >                pftaupairvertexv_o;
+    std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >  pftaupairvertexv_v;
 
 
     reco::PFTau3ProngSummary                                                        pftau3prong_o;

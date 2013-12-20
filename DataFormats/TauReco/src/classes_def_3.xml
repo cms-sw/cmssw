@@ -152,8 +152,8 @@
   <class name="reco::PFTauTIPAssociationRefProd"/>
   <class name="reco::PFTauTIPAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTauTIPAssociation>"/>
-  <class name="std::pair<reco::PFTauRef, std::vector<reco::PFTauTransverseImpactParameterRef> >"/>
-  <class name="std::vector<std::pair<reco::PFTauRef,  std::vector<reco::PFTauTransverseImpactParameterRef> > >" />
+  <class name="std::pair<reco::PFTauRef, reco::PFTauTransverseImpactParameterRef >"/>
+  <class name="std::vector<std::pair<reco::PFTauRef,  reco::PFTauTransverseImpactParameterRef > >" />
 
   <class name="reco::PFTauVertexAssociation">
 <!--     <field name="transientVector_" transient="true"/> -->
@@ -163,8 +163,8 @@
   <class name="reco::PFTauVertexAssociationRefProd"/>
   <class name="reco::PFTauVertexAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTauVertexAssociation>"/>
-  <class name="std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >"/>
-  <class name="std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >" />
+  <class name="std::pair<reco::PFTauRef, reco::VertexRef>"/>
+  <class name="std::vector<std::pair<reco::PFTauRef, reco::VertexRef> >" />
 
   <class name="reco::PFTauVertexVAssociation">
 <!--     <field name="transientVector_" transient="true"/> -->
@@ -174,8 +174,8 @@
   <class name="reco::PFTauVertexVAssociationRefProd"/>
   <class name="reco::PFTauVertexVAssociationRefVector"/>
   <class name="edm::Wrapper<reco::PFTauVertexVAssociation>"/>
-  <class name="std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > >"/>
-  <class name="std::vector<std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > > >" />
+  <class name="std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >"/>
+  <class name="std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >" />
 
   <class name="reco::PFTau3ProngSummary"/>
   <class name="std::vector<reco::PFTau3ProngSummary>"/>
