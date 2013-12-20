@@ -1284,14 +1284,14 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     // bad primary vertex 
     if (istrk->vertIndex() != primaryVert) continue;
     
-    // soft muons
+    // reject soft muons
     stpt = sqrt(istrk->momentum().perp2());
     if (stpt < minSimTrPt_ ) {
       if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: with low pt = "<<stpt<<std::endl;
       continue;
     }
     
-    // muons not in eta range
+    // reject muons not in eta range
     steta = istrk->momentum().eta();
     if (fabs (steta) > maxSimTrEta_ || fabs (steta) < minSimTrEta_ ) {
       if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: eta not in CSC  eta = "<<steta<<std::endl;
@@ -1304,7 +1304,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       continue;
     }
 
-    // muons not in phi range
+    // reject muons not in phi range
     stphi = normalizedPhi( istrk->momentum().phi() );
     if (stphi>maxSimTrPhi_ || stphi<minSimTrPhi_) {
       if (debugALLEVENT) std::cout<<" - rejected mu SimTrack: phi = "<<stphi<<" outside region"<<std::endl;
@@ -1325,6 +1325,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     match->minBxMPLCT = minBxMPLCT_;
     match->maxBxMPLCT = maxBxMPLCT_;
     
+    // propagate the track to the 4 CSC stations 
     propagateToCSCStations(match);
     
     // match SimHits and do some checks
@@ -2721,11 +2722,6 @@ GEMCSCTriggerEfficiency::cleanUp()
 void 
 GEMCSCTriggerEfficiency::propagateToCSCStations(MatchCSCMuL1 *match)
 {
-  // do not propagate for hight etas
-  if (fabs(match->strk->momentum().eta())>2.6) return;
-
-  TrajectoryStateOnSurface tsos;
-
   // z planes
   int endcap = (match->strk->momentum().eta() >= 0) ? 1 : -1;
   double zME11 = endcap*585.;
@@ -2733,30 +2729,28 @@ GEMCSCTriggerEfficiency::propagateToCSCStations(MatchCSCMuL1 *match)
   double zME2  = endcap*830.;
   double zME3  = endcap*935.;
   
+  TrajectoryStateOnSurface tsos;
+  GlobalPoint gp;
+
   // extrapolate to ME1/1 surface
   tsos = propagateSimTrackToZ(match->strk, match->svtx, zME11);
-  if (tsos.isValid()) {
-    math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
-    match->pME11 = vgp;
-  }
+  gp = tsos.globalPosition();
+  if (tsos.isValid()) match->pME11 = math::XYZVectorD(gp.x(), gp.y(), gp.z());
+
   // extrapolate to ME1 surface
   tsos = propagateSimTrackToZ(match->strk, match->svtx, zME1);
-  if (tsos.isValid()) {
-    math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
-    match->pME1 = vgp;
-  }
+  gp = tsos.globalPosition();
+  if (tsos.isValid()) match->pME1 = math::XYZVectorD(gp.x(), gp.y(), gp.z());
+
   // extrapolate to ME2 surface
   tsos = propagateSimTrackToZ(match->strk, match->svtx, zME2);
-  if (tsos.isValid()) {
-    math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
-    match->pME2 = vgp;
-  }
+  gp = tsos.globalPosition();
+  if (tsos.isValid()) match->pME2 = math::XYZVectorD(gp.x(), gp.y(), gp.z());
+
   // extrapolate to ME3 surface
   tsos = propagateSimTrackToZ(match->strk, match->svtx, zME3);
-  if (tsos.isValid()) {
-    math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
-    match->pME3 = vgp;
-  }
+  gp = tsos.globalPosition();
+  if (tsos.isValid()) match->pME3 = math::XYZVectorD(gp.x(), gp.y(), gp.z());
 }
 
 // ================================================================================================
@@ -2774,12 +2768,13 @@ GEMCSCTriggerEfficiency::matchSimTrack2SimHits( MatchCSCMuL1 * match,
   // match SimHits to SimTracks
   std::vector<PSimHit> matchingSimHits = hitsFromSimTrack(match->familyIds, theCSCSimHitMap);
   for (unsigned i=0; i<matchingSimHits.size();i++) {
+    // skip the bad chambers?
     if (goodChambersOnly_)
-      if ( theStripConditions->isInBadChamber( CSCDetId( matchingSimHits[i].detUnitId() ) ) ) continue; // skip 'bad' chamber
+      if (theStripConditions->isInBadChamber(CSCDetId(matchingSimHits[i].detUnitId()))) continue;
     match->addSimHit(matchingSimHits[i]);
   }
 
-  // checks
+  // count the number of simhits for this simtrack
   unsigned stNhist = 0;
   for (edm::PSimHitContainer::const_iterator hit = allCSCSimHits->begin();  hit != allCSCSimHits->end();  ++hit) 
     {
@@ -2788,6 +2783,8 @@ GEMCSCTriggerEfficiency::matchSimTrack2SimHits( MatchCSCMuL1 * match,
       if ( chId.station() == 1 && chId.ring() == 4 && !doME1a_) continue;
       stNhist++;
     }
+
+  // check that the number of simhits match
   if (doStrictSimHitToTrackMatch_ && stNhist != match->simHits.size()) 
     {
       std::cout <<" ALARM!!! matchSimTrack2SimHits: stNhist != stHits.size()  ---> "<<stNhist <<" != "<<match->simHits.size()<<std::endl;
@@ -2827,6 +2824,8 @@ GEMCSCTriggerEfficiency::matchSimTrack2ALCTs(MatchCSCMuL1 *match,
   checkNALCT.clear();
 
   match->ALCTs.clear();
+
+  // loop on the detIds
   for (CSCALCTDigiCollection::DigiRangeIterator  adetUnitIt = alcts->begin(); 
        adetUnitIt != alcts->end(); adetUnitIt++)
     {
@@ -2837,178 +2836,201 @@ GEMCSCTriggerEfficiency::matchSimTrack2ALCTs(MatchCSCMuL1 *match,
       //if (id.station()==1&&id.ring()==2) debugALCT=1;
       CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
 
+      // loop on the alcts for each detId
       for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-	{
-	  checkNALCT[id.rawId()].push_back(*digiIt);
-	  nm++;
-      
-	  if (!(*digiIt).isValid()) continue;
+        {
+          const auto alct(*digiIt);
+          checkNALCT[id.rawId()].push_back(*digiIt);
+          nm++;
+          
+          if (!(*digiIt).isValid()) continue;
+          
+          const bool me1a_all = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getKeyWG() <= 15);
+          const bool me1a_no_overlap = ( me1a_all && (*digiIt).getKeyWG() < 10 );
 
-	  bool me1a_all = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getKeyWG() <= 15);
-	  bool me1a_no_overlap = ( me1a_all && (*digiIt).getKeyWG() < 10 );
+          
+          std::vector<PSimHit> trackHitsInChamber = match->chamberHits(id.rawId());
+          std::vector<PSimHit> trackHitsInChamber1a;
+          if (me1a_all) trackHitsInChamber1a = match->chamberHits(id1a.rawId());
+          
+          if (trackHitsInChamber.size() + trackHitsInChamber1a.size() == 0 ) // no point to do any matching here
+            {
+              if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"  #"<<nm<<"   no SimHits in chamber from this SimTrack!"<<std::endl;
+              continue;
+            }
+          
+          // discard this ALCT because it is way outside the ALCT time window
+          const int alctBX((*digiIt).getBX()-6);
+          if ( alctBX < minBX_ || alctBX > maxBX_ )
+            {
+              if (debugALCT) std::cout<<"discarding BX = "<< alctBX <<std::endl;
+              continue;
+            }
+          
+          // alctInfo is empty by default -- result is no matching simhits
+          std::vector<CSCAnodeLayerInfo> alctInfo;
+          //std::vector<CSCAnodeLayerInfo> alctInfo = alct_analyzer.getSimInfo(*digiIt, id, wiredc, allCSCSimHits);
+          std::vector<PSimHit> matchedHits;
 
-	  std::vector<PSimHit> trackHitsInChamber = match->chamberHits(id.rawId());
-	  std::vector<PSimHit> trackHitsInChamber1a;
-	  if (me1a_all) trackHitsInChamber1a = match->chamberHits(id1a.rawId());
-
-	  if (trackHitsInChamber.size() + trackHitsInChamber1a.size() == 0 ) // no point to do any matching here
-	    {
-	      if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"  #"<<nm<<"   no SimHits in chamber from this SimTrack!"<<std::endl;
-	      continue;
-	    }
-
-	  if ( (*digiIt).getBX()-6 < minBX_ || (*digiIt).getBX()-6 > maxBX_ )
-	    {
-	      if (debugALCT) std::cout<<"discarding BX = "<< (*digiIt).getBX()-6 <<std::endl;
-	      continue;
-	    }
-
-	  std::vector<CSCAnodeLayerInfo> alctInfo;
-	  //std::vector<CSCAnodeLayerInfo> alctInfo = alct_analyzer.getSimInfo(*digiIt, id, wiredc, allCSCSimHits);
-	  std::vector<PSimHit> matchedHits;
-	  unsigned nmhits = matchCSCAnodeHits(alctInfo, matchedHits);
-
-	  MatchCSCMuL1::ALCT malct(match);
-	  malct.trgdigi = &*digiIt;
-	  malct.layerInfo = alctInfo;
-	  malct.simHits = matchedHits;
-	  malct.id = id;
-	  malct.nHitsShared = 0;
-	  calculate2DStubsDeltas(match, malct);
-	  malct.deltaOk = (minDeltaWire_ <= malct.deltaWire) & (malct.deltaWire <= maxDeltaWire_);
-
-	  std::vector<CSCAnodeLayerInfo> alctInfo1a;
-	  std::vector<PSimHit> matchedHits1a;
-	  unsigned nmhits1a = 0;
-
-	  MatchCSCMuL1::ALCT malct1a(match);
-	  if (me1a_all) {
-	    //alctInfo1a = alct_analyzer.getSimInfo(*digiIt, id1a, wiredc, allCSCSimHits);
-	    nmhits1a = matchCSCAnodeHits(alctInfo, matchedHits1a);
-
-	    malct1a.trgdigi = &*digiIt;
-	    malct1a.layerInfo = alctInfo1a;
-	    malct1a.simHits = matchedHits1a;
-	    malct1a.id = id1a;
-	    malct1a.nHitsShared = 0;
-	    calculate2DStubsDeltas(match, malct1a);
-	    malct1a.deltaOk = (minDeltaWire_ <= malct1a.deltaWire) & (malct1a.deltaWire <= maxDeltaWire_);
-	  }
-
-	  if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"  #"<<nm<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  "
-			     <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
-			     << nmhits-alctInfo.size() <<std::endl
-			     << "  "<<(*digiIt)<<"  DW="<<malct.deltaWire<<" eta="<<malct.eta;
-
-	  if (nmhits + nmhits1a > 0)
-	    {
-	      //if (debugALCT) std::cout<<"  --- matched to ALCT hits: "<<std::endl;
-
-	      int nHitsMatch = 0;
-	      for (unsigned i=0; i<nmhits;i++)
-		{
-		  //if (debugALCT) std::cout<<"   "<<matchedHits[i]<<" "<<matchedHits[i].exitPoint()<<"  "
-		  //                   <<matchedHits[i].momentumAtEntry()<<" "<<matchedHits[i].energyLoss()<<" "
-		  //                   <<matchedHits[i].particleType()<<" "<<matchedHits[i].trackId();
-		  //bool wasmatch = 0;
-		  for (unsigned j=0; j<trackHitsInChamber.size(); j++)
-		    if ( compareSimHits ( matchedHits[i], trackHitsInChamber[j] ) )
-		      {
-			nHitsMatch++;
-			//wasmatch = 1;
-		      }
-		  //if (debugALCT)  {if (wasmatch) std::cout<<" --> match!"<<std::endl;  else std::cout<<std::endl;}
-		}
-	      malct.nHitsShared = nHitsMatch;
-	      if( me1a_all ) {
-		nHitsMatch = 0;
-		for (unsigned i=0; i<nmhits1a;i++) {
-		  //bool wasmatch = 0;
-		  for (unsigned j=0; j<trackHitsInChamber1a.size(); j++)
-		    if ( compareSimHits ( matchedHits1a[i], trackHitsInChamber1a[j] ) )
-		      {
-			nHitsMatch++;
-			//wasmatch = 1;
-		      }
-		}
-		malct1a.nHitsShared = nHitsMatch;
-	      }
-	    }
-	  else if (debugALCT) std::cout<< "  +++ ALCT warning: no simhits for its digi found!\n";
-
-	  if (debugALCT) std::cout<<"  nHitsShared="<<malct.nHitsShared<<std::endl;
-
-	  if(matchAllTrigPrimitivesInChamber_)
-	    {
-	      // if specified, try DY match
-	      bool dymatch = 0;
-	      if ( fabs(malct.deltaY)<= minDeltaYAnode_ )
-		{
-		  if (debugALCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
-				    std::cout<<"   DY match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
-					<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
-					<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
-  
-		  if (!me1a_no_overlap) match->ALCTs.push_back(malct);
-		  dymatch = true;
-		}
-	      if ( me1a_all && fabs(malct1a.deltaY)<= minDeltaYAnode_) {
-		if (!me1a_no_overlap) match->ALCTs.push_back(malct1a);
-		dymatch = true;
-	      }
-	      if (dymatch) continue;
-
-	      // whole chamber match
-	      if ( minDeltaYAnode_ < 0  )
-		{
-		  if (debugALCT)  for (unsigned i=0; i<trackHitsInChamber.size();i++)
-				    std::cout<<"   chamber match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
-					<<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
-					<<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
-  
-		  if (!me1a_no_overlap) match->ALCTs.push_back(malct);
-		  if (me1a_all) match->ALCTs.push_back(malct1a);
-		  continue;
-		}
-	      continue;
-	    }
-
-	  // else proceed with hit2hit matching:
-	  if (minNHitsShared_>=0)
-	    {
-	      if (!me1a_no_overlap && malct.nHitsShared >= minNHitsShared_) {
-		if (debugALCT)  std::cout<<" --> shared hits match!"<<std::endl;
-		match->ALCTs.push_back(malct);
-	      }
-	      if (me1a_all && malct1a.nHitsShared >= minNHitsShared_) {
-		if (debugALCT)  std::cout<<" --> shared hits match!"<<std::endl;
-		match->ALCTs.push_back(malct);
-	      }
-	    }
-
-	  // else proceed with deltaWire matching:
-	  if (!me1a_no_overlap && minDeltaWire_ <= malct.deltaWire && malct.deltaWire <= maxDeltaWire_){
-	    if (debugALCT)  std::cout<<" --> deltaWire match!"<<std::endl;
-	    match->ALCTs.push_back(malct);
-	  }
-
-	  // special case of default emulator with puts all ME11 alcts into ME1b
-	  // only for deltaWire matching!
-	  if (me1a_all && minDeltaWire_ <= malct1a.deltaWire && malct1a.deltaWire <= maxDeltaWire_){
-	    if (debugALCT)  std::cout<<" --> deltaWire match!"<<std::endl;
-	    match->ALCTs.push_back(malct);
-	  }
-	}
+          // get the number of simhits for this alct -- will always return O
+          const unsigned nmhits(matchCSCAnodeHits(alctInfo, matchedHits));
+          // std::cout << "nmhits " << nmhits << std::endl;
+          
+          // create a matched ALCT object
+          MatchCSCMuL1::ALCT malct(match);
+          malct.trgdigi = &*digiIt;
+          malct.layerInfo = alctInfo;
+          malct.simHits = matchedHits;
+          malct.id = id;
+          malct.nHitsShared = 0;
+          calculate2DStubsDeltas(match, malct);
+          malct.deltaOk = (minDeltaWire_ <= malct.deltaWire) & (malct.deltaWire <= maxDeltaWire_);
+          
+          std::vector<CSCAnodeLayerInfo> alctInfo1a;
+          std::vector<PSimHit> matchedHits1a;
+          unsigned nmhits1a = 0;
+          
+          MatchCSCMuL1::ALCT malct1a(match);
+          if (me1a_all) {
+            //alctInfo1a = alct_analyzer.getSimInfo(*digiIt, id1a, wiredc, allCSCSimHits);
+            nmhits1a = matchCSCAnodeHits(alctInfo, matchedHits1a);
+            
+            malct1a.trgdigi = &*digiIt;
+            malct1a.layerInfo = alctInfo1a;
+            malct1a.simHits = matchedHits1a;
+            malct1a.id = id1a;
+            malct1a.nHitsShared = 0;
+            calculate2DStubsDeltas(match, malct1a);
+            malct1a.deltaOk = (minDeltaWire_ <= malct1a.deltaWire) & (malct1a.deltaWire <= maxDeltaWire_);
+          }
+          
+          if (debugALCT) std::cout<<"raw ID "<<id.rawId()<<" "<<id<<"  #"<<nm<<"    NTrackHitsInChamber  nmhits  alctInfo.size  diff  "
+                                  <<trackHitsInChamber.size()<<" "<<nmhits<<" "<<alctInfo.size()<<"  "
+                                  << nmhits-alctInfo.size() <<std::endl
+                                  << "  "<<(*digiIt)<<"  DW="<<malct.deltaWire<<" eta="<<malct.eta;
+          
+          if (nmhits + nmhits1a > 0)
+            {
+              if (debugALCT) 
+              std::cout<<"  --- matched to ALCT hits: "<<  nmhits << " " << nmhits1a << std::endl;
+              
+              int nHitsMatch = 0;
+              for (unsigned i=0; i<nmhits;i++)
+                {
+                  //if (debugALCT) std::cout<<"   "<<matchedHits[i]<<" "<<matchedHits[i].exitPoint()<<"  "
+                  //                   <<matchedHits[i].momentumAtEntry()<<" "<<matchedHits[i].energyLoss()<<" "
+                  //                   <<matchedHits[i].particleType()<<" "<<matchedHits[i].trackId();
+                  //bool wasmatch = 0;
+                  for (unsigned j=0; j<trackHitsInChamber.size(); j++)
+                    if ( compareSimHits ( matchedHits[i], trackHitsInChamber[j] ) )
+                      {
+                        nHitsMatch++;
+                        //wasmatch = 1;
+                      }
+                  //if (debugALCT)  {if (wasmatch) std::cout<<" --> match!"<<std::endl;  else std::cout<<std::endl;}
+                }
+              malct.nHitsShared = nHitsMatch;
+              if( me1a_all ) {
+                nHitsMatch = 0;
+                for (unsigned i=0; i<nmhits1a;i++) {
+                  //bool wasmatch = 0;
+                  for (unsigned j=0; j<trackHitsInChamber1a.size(); j++)
+                    if ( compareSimHits ( matchedHits1a[i], trackHitsInChamber1a[j] ) )
+                      {
+                        nHitsMatch++;
+                        //wasmatch = 1;
+                      }
+                }
+                malct1a.nHitsShared = nHitsMatch;
+              }
+            }
+          else if (debugALCT) std::cout<< "  +++ ALCT warning: no simhits for its digi found!\n";
+          
+          if (debugALCT) std::cout<<"  nHitsShared="<<malct.nHitsShared<<std::endl;
+         
+          // does the actual matching of alcts in the chamber
+          if(matchAllTrigPrimitivesInChamber_)
+            {
+              std::cout << "Matching trigger primitives in the chamber " << std::endl;
+              // if specified, try DY match
+              bool dymatch = 0;
+              if ( fabs(malct.deltaY)<= minDeltaYAnode_ )
+                {
+                  if (debugALCT) {
+                    std::cout << "Attempt DY match" << std::endl;
+                  
+                    for (unsigned i=0; i<trackHitsInChamber.size();i++)
+                      std::cout<<"   DY match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
+                               <<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+                               <<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+                  }
+                  
+                  if (!me1a_no_overlap) match->ALCTs.push_back(malct);
+                  dymatch = true;
+                }
+              if ( me1a_all && fabs(malct1a.deltaY)<= minDeltaYAnode_) {
+                  if (debugALCT) std::cout << "Attempt DY match in ME1a" << std::endl;
+                if (!me1a_no_overlap) match->ALCTs.push_back(malct1a);
+                dymatch = true;
+              }
+              if (dymatch) continue;
+              
+              // whole chamber match
+              if ( minDeltaYAnode_ < 0  )
+                {
+                  if (debugALCT) {
+                    std::cout << "Attempt whole chamber match" << std::endl;
+                    for (unsigned i=0; i<trackHitsInChamber.size();i++)
+                      std::cout<<"   chamber match: "<<trackHitsInChamber[i]<<" "<<trackHitsInChamber[i].exitPoint()<<"  "
+                               <<trackHitsInChamber[i].momentumAtEntry()<<" "<<trackHitsInChamber[i].energyLoss()<<" "
+                               <<trackHitsInChamber[i].particleType()<<" "<<trackHitsInChamber[i].trackId()<<std::endl;
+                  }
+                  if (!me1a_no_overlap) match->ALCTs.push_back(malct);
+                  if (me1a_all) match->ALCTs.push_back(malct1a);
+                  continue;
+                }
+              continue;
+            }
+          
+          // else proceed with hit2hit matching:
+          if (minNHitsShared_>=0)
+            {
+              if (!me1a_no_overlap && malct.nHitsShared >= minNHitsShared_) {
+                if (debugALCT)  
+                  std::cout<<" --> shared hits match!"<<std::endl;
+                match->ALCTs.push_back(malct);
+              }
+              if (me1a_all && malct1a.nHitsShared >= minNHitsShared_) {
+                if (debugALCT)  
+                  std::cout<<" --> shared hits match!"<<std::endl;
+                match->ALCTs.push_back(malct);
+              }
+            }
+          
+          // else proceed with deltaWire matching:
+          if (!me1a_no_overlap && minDeltaWire_ <= malct.deltaWire && malct.deltaWire <= maxDeltaWire_){
+            if (debugALCT)  std::cout<<" --> deltaWire match!"<<std::endl;
+            match->ALCTs.push_back(malct);
+          }
+          
+          // special case of default emulator with puts all ME11 alcts into ME1b
+          // only for deltaWire matching!
+          if (me1a_all && minDeltaWire_ <= malct1a.deltaWire && malct1a.deltaWire <= maxDeltaWire_){
+            if (debugALCT)  std::cout<<" --> deltaWire match!"<<std::endl;
+            match->ALCTs.push_back(malct);
+          }
+        }
       //debugALCT=0;
     } // loop CSCALCTDigiCollection
   
-  if (debugALCT) for(std::map<int, std::vector<CSCALCTDigi> >::const_iterator mapItr = checkNALCT.begin(); mapItr != checkNALCT.end(); ++mapItr)
-		   if (mapItr->second.size()>2) {
-		     CSCDetId idd(mapItr->first);
-		     std::cout<<"~~~~ checkNALCT WARNING! nALCT = "<<mapItr->second.size()<<" in ch "<< mapItr->first<<" "<<idd<<std::endl;
-		     for (unsigned i=0; i<mapItr->second.size();i++) std::cout<<"~~~~~~ ALCT "<<i<<" "<<(mapItr->second)[i]<<std::endl;
-		   }
-
+  if (debugALCT) 
+    for(std::map<int, std::vector<CSCALCTDigi> >::const_iterator mapItr = checkNALCT.begin(); mapItr != checkNALCT.end(); ++mapItr)
+      if (mapItr->second.size()>2) {
+        CSCDetId idd(mapItr->first);
+        std::cout<<"~~~~ checkNALCT WARNING! nALCT = "<<mapItr->second.size()<<" in ch "<< mapItr->first<<" "<<idd<<std::endl;
+        for (unsigned i=0; i<mapItr->second.size();i++) std::cout<<"~~~~~~ ALCT "<<i<<" "<<(mapItr->second)[i]<<std::endl;
+      }
+  
   if (debugALCT) std::cout<<"--- ALCT-SimHits ---- end"<<std::endl;
 }
 
@@ -3874,6 +3896,9 @@ GEMCSCTriggerEfficiency::matchSimtrack2GMTCANDs( MatchCSCMuL1 *match,
 
 
 // ================================================================================================
+/*
+ * Get all child simtracks that belong to this parent simtrack
+ */
 std::vector<unsigned> 
 GEMCSCTriggerEfficiency::fillSimTrackFamilyIds(unsigned  id,
 				   const edm::SimTrackContainer & simTracks, const edm::SimVertexContainer & simVertices)
@@ -3885,41 +3910,46 @@ GEMCSCTriggerEfficiency::fillSimTrackFamilyIds(unsigned  id,
   if (doStrictSimHitToTrackMatch_) return result;
 
   if (fdebug)  std::cout<<"--- fillSimTrackFamilyIds:  id "<<id<<std::endl;
+
+  // loop on all possible simtrack children
   for (edm::SimTrackContainer::const_iterator istrk = simTracks.begin(); istrk != simTracks.end(); ++istrk)
     {
       if (fdebug)  std::cout<<"  --- looking at Id "<<istrk->trackId()<<std::endl;
       SimTrack lastTr = *istrk;
       bool ischild = 0;
+      // for each simtrack, find out if it is a good child 
       while (1)
-	{
-	  if (fdebug)  std::cout<<"    --- while Id "<<lastTr.trackId()<<std::endl;
-	  if ( lastTr.noVertex() ) break;
-	  if (fdebug)  std::cout<<"      --- vertex "<<lastTr.vertIndex()<<std::endl;
-	  if ( simVertices[lastTr.vertIndex()].noParent() ) break;
-	  unsigned parentId = simVertices[lastTr.vertIndex()].parentIndex();
-	  if (fdebug)  std::cout<<"      --- parentId "<<parentId<<std::endl;
-	  if ( parentId == id ) 
-	    {
-	      if (fdebug)  std::cout<<"      --- ischild "<<std::endl;
-	      ischild = 1; 
-	      break; 
-	    }
-	  std::map<unsigned, unsigned >::iterator association = trkId2Index.find( parentId );
-	  if ( association == trkId2Index.end() ) 
-	    { 
-	      if (fdebug)  std::cout<<"      --- not in trkId2Index "<<std::endl; 
-	      break; 
-	    }
-	  if (fdebug)  std::cout<<"      --- lastTrk index "<<association->second<<std::endl;
-	  lastTr = simTracks[ association->second ];
-	}
-      if (ischild) 
-	{
-	  result.push_back(istrk->trackId());
-	  if (fdebug)  std::cout<<"  --- child pushed "<<std::endl;
-	}
-    }
+        {
+          if (fdebug)  std::cout<<"    --- while Id "<<lastTr.trackId()<<std::endl;
+          if ( lastTr.noVertex() ) break;
+          if (fdebug)  std::cout<<"      --- vertex "<<lastTr.vertIndex()<<std::endl;
+          if ( simVertices[lastTr.vertIndex()].noParent() ) break;
+          unsigned parentId = simVertices[lastTr.vertIndex()].parentIndex();
+          if (fdebug)  std::cout<<"      --- parentId "<<parentId<<std::endl;
+          if ( parentId == id ) 
+            {
+              if (fdebug)  std::cout<<"      --- ischild "<<std::endl;
+              ischild = 1; 
+              break; 
+            }
+          std::map<unsigned, unsigned >::iterator association = trkId2Index.find( parentId );
+          if ( association == trkId2Index.end() ) 
+            { 
+              if (fdebug)  std::cout<<"      --- not in trkId2Index "<<std::endl; 
+              break; 
+            }
+          if (fdebug)  std::cout<<"      --- lastTrk index "<<association->second<<std::endl;
+          lastTr = simTracks[ association->second ];
+        }
 
+      // Add the child to the family
+      if (ischild) 
+        {
+          result.push_back(istrk->trackId());
+          if (fdebug)  std::cout<<"  --- child pushed "<<std::endl;
+        }
+    }
+  
   if (fdebug)  std::cout<<"  --- family size = "<<result.size()<<std::endl;
   return result;
 }
@@ -3928,6 +3958,9 @@ GEMCSCTriggerEfficiency::fillSimTrackFamilyIds(unsigned  id,
 
 
 // ================================================================================================
+/*
+ * Get the simhits for this simtrack -- 1st level
+ */
 std::vector<PSimHit> 
 GEMCSCTriggerEfficiency::hitsFromSimTrack(std::vector<unsigned> ids, SimHitAnalysis::PSimHitMap &hitMap)
 {
@@ -3949,6 +3982,9 @@ GEMCSCTriggerEfficiency::hitsFromSimTrack(std::vector<unsigned> ids, SimHitAnaly
 
 
 // ================================================================================================
+/*
+ * Get the simhits for this simtrack -- 2nd level
+ */
 std::vector<PSimHit> 
 GEMCSCTriggerEfficiency::hitsFromSimTrack(unsigned id, SimHitAnalysis::PSimHitMap &hitMap)
 {
@@ -3970,6 +4006,9 @@ GEMCSCTriggerEfficiency::hitsFromSimTrack(unsigned id, SimHitAnalysis::PSimHitMa
 
 
 // ================================================================================================
+/*
+ * Get the simhits for this simtrack -- 3rd level
+ */
 std::vector<PSimHit> 
 GEMCSCTriggerEfficiency::hitsFromSimTrack(unsigned id, int detId, SimHitAnalysis::PSimHitMap &hitMap)
 {
@@ -3980,15 +4019,16 @@ GEMCSCTriggerEfficiency::hitsFromSimTrack(unsigned id, int detId, SimHitAnalysis
   CSCDetId chId(detId);
   if ( chId.station() == 1 && chId.ring() == 4 && !doME1a_) return result;
 
-  edm::PSimHitContainer hits = hitMap.hits(detId);
-  
-  for(size_t h = 0; h< hits.size(); h++) if(hits[h].trackId() == id)
-					   {
-					     result.push_back(hits[h]);
-
-					     if (fdebug)  std::cout<<"   --- "<<detId<<" -> "<< hits[h] <<" "<<hits[h].exitPoint()<<" "<<hits[h].momentumAtEntry()<<" "<<hits[h].energyLoss()<<" "<<hits[h].particleType()<<" "<<hits[h].trackId()<<std::endl;
-					   }
-
+  edm::PSimHitContainer hits = hitMap.hits(detId);  
+  for(size_t h = 0; h< hits.size(); h++) {
+    if(hits[h].trackId() == id) {
+      result.push_back(hits[h]);
+      
+      if (fdebug)  std::cout<<"   --- "<<detId<<" -> "<< hits[h] <<" "<<hits[h].exitPoint()<<" "
+                            <<hits[h].momentumAtEntry()<<" "<<hits[h].energyLoss()<<" "
+                            <<hits[h].particleType()<<" "<<hits[h].trackId()<<std::endl;
+    }
+  }
   return result;
 }
 
@@ -4056,32 +4096,37 @@ GEMCSCTriggerEfficiency::matchCSCAnodeHits(const std::vector<CSCAnodeLayerInfo>&
 
   int nhits=0;
   matchedHit.clear();
+
+  std::cout << "Match Anode hits in a chamber to SimHits" << std::endl;
   
   std::vector<CSCAnodeLayerInfo>::const_iterator pli;
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) 
     {
       // For ALCT search, the key layer is the 3rd one, counting from 1.
       if (pli->getId().layer() == CSCConstants::KEY_ALCT_LAYER) 
-	{
-	  std::vector<PSimHit> thisLayerHits = pli->getSimHits();
-	  if (thisLayerHits.size() > 0) 
-	    {
-	      // There can be only one RecDigi (and therefore only one SimHit) in a key layer.
-	      if (thisLayerHits.size() != 1) 
-		{
-		  std::cout<< "+++ Warning in matchCSCAnodeHits: " << thisLayerHits.size()
-		      << " SimHits in key layer " << CSCConstants::KEY_ALCT_LAYER
-		      << "! +++ \n";
-		  for (unsigned i = 0; i < thisLayerHits.size(); i++) 
-		    std::cout<<"      SimHit # " << i <<": "<< thisLayerHits[i] << "\n";
-		}
-	      matchedHit.push_back(thisLayerHits[0]);
-	      nhits++;
-	      break;
-	    }
-	}
+        {
+          std::vector<PSimHit> thisLayerHits = pli->getSimHits();
+          std::cout << "available simhits for this layer " << thisLayerHits.size() << std::endl;
+          if (thisLayerHits.size() > 0) 
+            {
+              // There can be only one RecDigi (and therefore only one SimHit) in a key layer.
+              if (thisLayerHits.size() != 1) 
+                {
+                  std::cout<< "+++ Warning in matchCSCAnodeHits: " << thisLayerHits.size()
+                           << " SimHits in key layer " << CSCConstants::KEY_ALCT_LAYER
+                           << "! +++ \n";
+                  for (unsigned i = 0; i < thisLayerHits.size(); i++) 
+                    std::cout<<"      SimHit # " << i <<": "<< thisLayerHits[i] << "\n";
+                }
+              matchedHit.push_back(thisLayerHits[0]);
+              nhits++;
+              break;
+            }
+        }
+      else
+        std::cout << "Not in the key layer " << std::endl;
     }
-
+  
   for (pli = allLayerInfo.begin(); pli != allLayerInfo.end(); pli++) 
     {
       if (pli->getId().layer() == CSCConstants::KEY_ALCT_LAYER)  continue;
