@@ -37,6 +37,11 @@ namespace {
 #endif
 
 
+   // valid for |x| < 0.15  (better then 10^-9
+   inline double tan15(double x) {
+      return x * (1 + (x*x) * (0.33331906795501708984375 + (x*x) * 0.135160386562347412109375));
+   }
+
   // valid for z < pi/8
   inline 
   float atan0(float t) {
@@ -73,7 +78,7 @@ TkRadialStripTopology::TkRadialStripTopology(int ns, float aw, float dh, float r
   // zero for a strip lying along local y axis = long symmetry axis of plane of strips
   thePhiOfOneEdge = -(0.5*theNumberOfStrips) * theAngularWidth; // always negative!
   theTanOfOneEdge = std::tan(std::abs(thePhiOfOneEdge));
-  assert(std::abs(thePhiOfOneEdge)<0.35); // < pi/8 (and some tollerance)
+  assert(std::abs(thePhiOfOneEdge)<0.15); // 
 
   LogTrace("TkRadialStripTopology") << "TkRadialStripTopology: constructed with"
         << " strips = " << ns
@@ -148,10 +153,13 @@ MeasurementPoint TkRadialStripTopology::measurementPosition(const LocalPoint& lp
 			   ( lp.y() - yCentreOfStripPlane() )        / detHeight() );
 }
 
+
 LocalError TkRadialStripTopology::localError(float strip, float stripErr2) const {
-  float phif = stripAngle(strip);
+  double phi = stripAngle(strip);
+
   const double
-    t1(vdt::fast_tanf(phif)), t2(t1*t1),
+    t1(tan15(phi)),    // std::tan(phif)), // (vdt::fast_tanf(phif)), 
+    t2(t1*t1),
     // s1(std::sin(phi)), c1(std::cos(phi)),
     // cs(s1*c1), s2(s1*s1), c2(1-s2), // rotation matrix
 
