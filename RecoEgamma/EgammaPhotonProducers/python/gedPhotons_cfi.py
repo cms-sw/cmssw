@@ -6,47 +6,6 @@ from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
-from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
-
-gedphotonGBRESSource = cms.ESSource(
-    "PoolDBESSource",
-    CondDBCommon,
-    DumpStat=cms.untracked.bool(False),
-    toGet = cms.VPSet(
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedphoton_EBCorrection_offline'),
-    label = cms.untracked.string('gedphoton_EBCorrection_offline')
-    ),
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedphoton_EECorrection_offline'),
-    label = cms.untracked.string('gedphoton_EECorrection_offline')
-    ),
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedphoton_EBUncertainty_offline'),
-    label = cms.untracked.string('gedphoton_EBUncertainty_offline')
-    ),
-    cms.PSet(
-    record = cms.string('GBRWrapperRcd'),
-    tag = cms.string('gedphoton_EEUncertainty_offline'),
-    label = cms.untracked.string('gedphoton_EEUncertainty_offline')
-    ),
-    )
-)
-gedphotonGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
-
-gedphotonPrefer = cms.ESPrefer(
-    'PoolDBESSource',
-    'gedphotonGBRESSource',
-    GBRWrapperRcd = cms.vstring('GBRForest/gedphoton_EBCorrection_offline',
-                                'GBRForest/gedphoton_EECorrection_offline',
-                                'GBRForest/gedphoton_EBUncertainty_offline',
-                                'GBRForest/gedphoton_EEUncertainty_offline')
-)
-
-
 #
 # producer for photons
 #

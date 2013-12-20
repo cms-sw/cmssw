@@ -12,6 +12,6 @@ HLTTopVal = cms.EDAnalyzer("TopValidation",
     OutputFileName = cms.string(''),
   #  DQMFolder = cms.untracked.string("HLT/Top")
     FolderName = cms.string("HLT/Top/"),
-    offlineElectrons = cms.InputTag('gsfElectrons')
+    offlineElectrons = cms.InputTag('gedGsfElectrons')
    
  )

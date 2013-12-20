@@ -16,7 +16,7 @@ topDiLeptonTriggerDQM = cms.EDAnalyzer("TopHLTDiLeptonOfflineDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
@@ -173,7 +173,7 @@ DiMuonDQM = cms.EDAnalyzer("TopHLTDiLeptonOfflineDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
@@ -328,7 +328,7 @@ DiElectronDQM = cms.EDAnalyzer("TopHLTDiLeptonOfflineDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
@@ -447,7 +447,7 @@ DiElectronDQM = cms.EDAnalyzer("TopHLTDiLeptonOfflineDQM",
 
     cms.PSet(
       label = cms.string("elecs:step1"),
-      src   = cms.InputTag("gsfElectrons"),
+      src   = cms.InputTag("gedGsfElectrons"),
       electronId = cms.PSet(
         src = cms.InputTag("simpleEleId70cIso"),
         pattern = cms.int32(1)
@@ -487,7 +487,7 @@ ElecMuonDQM = cms.EDAnalyzer("TopHLTDiLeptonOfflineDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet")
     ),
@@ -613,7 +613,7 @@ ElecMuonDQM = cms.EDAnalyzer("TopHLTDiLeptonOfflineDQM",
     ),
     cms.PSet(
       label = cms.string("elecs:step2"),
-      src   = cms.InputTag("gsfElectrons"),
+      src   = cms.InputTag("gedGsfElectrons"),
       electronId = cms.PSet(
         src = cms.InputTag("simpleEleId70cIso"),
         pattern = cms.int32(1)

@@ -24,13 +24,13 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     useHO = cms.bool(True),                                 
 
     # Use electron identification in PFAlgo
-    usePFElectrons = cms.bool(True),
+    usePFElectrons = cms.bool(False),
     pf_electron_output_col=cms.string('electrons'),
     pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt'),
     pf_electron_mvaCut = cms.double(-0.1),
 
     # Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
-    usePFPhotons = cms.bool(True),
+    usePFPhotons = cms.bool(False),
     usePhotonReg=cms.bool(False),
     useRegressionFromDB=cms.bool(True),                                 
     pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt'),        
@@ -42,7 +42,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     sumPtTrackIsoForPhoton=cms.double(2.0),
     sumPtTrackIsoSlopeForPhoton=cms.double(0.001),
 
-    useEGammaFilters = cms.bool(False),
+    useEGammaFilters = cms.bool(True),
     useProtectionsForJetMET = cms.bool(True),    
     # New electron selection cuts for CMSSW_700
     electron_iso_pt = cms.double(10.0),

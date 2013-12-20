@@ -663,8 +663,8 @@ famosWithElectrons = cms.Sequence(
     famosGsfTrackSequence+
     famosParticleFlowSequence+
     famosElectronSequence+
-    interestingEleIsoDetIdEB+
-    interestingEleIsoDetIdEE+
+    interestingGedEleIsoDetIdEB+
+    interestingGedEleIsoDetIdEE+
     egammaIsolationSequence
 )
 
@@ -674,6 +674,8 @@ famosWithPhotons = cms.Sequence(
     caloRecHits+
     ecalClustersNoPFBox+
     famosPhotonSequence+
+    interestingGedGamIsoDetIdEB+
+    interestingGedGamIsoDetIdEE+
     interestingGamIsoDetIdEB+
     interestingGamIsoDetIdEE
 )
