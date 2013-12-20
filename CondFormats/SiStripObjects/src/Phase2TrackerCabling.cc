@@ -2,9 +2,10 @@
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerModule.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <sstream>
 
 
-Phase2TrackerCabling& Phase2TrackerCabling::fedCabling() {
+const Phase2TrackerCabling& Phase2TrackerCabling::fedCabling() const {
   // check the mode (current sorting)
   if (mode_!=1) {
     // sort according to the fed id/ch
@@ -16,7 +17,7 @@ Phase2TrackerCabling& Phase2TrackerCabling::fedCabling() {
   return *this;
 }
 
-Phase2TrackerCabling& Phase2TrackerCabling::detCabling() {
+const Phase2TrackerCabling& Phase2TrackerCabling::detCabling() const {
   // check the mode (current sorting)
   if (mode_!=2) {
     // sort according to the detid
@@ -28,7 +29,7 @@ Phase2TrackerCabling& Phase2TrackerCabling::detCabling() {
   return *this;
 }
 
-Phase2TrackerCabling& Phase2TrackerCabling::gbtCabling() {
+const Phase2TrackerCabling& Phase2TrackerCabling::gbtCabling() const {
   // check the mode (current sorting)
   if (mode_!=3) {
     // sort according to the gbtid (construction map)
@@ -40,7 +41,7 @@ Phase2TrackerCabling& Phase2TrackerCabling::gbtCabling() {
   return *this;
 }
 
-void Phase2TrackerCabling::checkMode(const char* funcname, int mode) {
+void Phase2TrackerCabling::checkMode(const char* funcname, int mode) const {
   if(mode_!=mode) {
     std::string message = std::string(funcname);
     switch(mode_) {
@@ -80,7 +81,7 @@ void Phase2TrackerCabling::checkMode(const char* funcname, int mode) {
   else return;
 } 
 
-const Phase2TrackerModule& Phase2TrackerCabling::findFedCh(std::pair<unsigned int, unsigned int> fedch) {
+const Phase2TrackerModule& Phase2TrackerCabling::findFedCh(std::pair<unsigned int, unsigned int> fedch) const {
   // check the proper mode
   checkMode(__PRETTY_FUNCTION__,1);
   // look for ch
@@ -91,7 +92,7 @@ const Phase2TrackerModule& Phase2TrackerCabling::findFedCh(std::pair<unsigned in
     throw cms::Exception("IndexNotFound") << "No connection corresponding to FED id/ch = " << fedch.first << "/" << fedch.second;
 }
 
-const Phase2TrackerModule& Phase2TrackerCabling::findDetid(uint32_t detid) {
+const Phase2TrackerModule& Phase2TrackerCabling::findDetid(uint32_t detid) const {
   // check the proper mode
   checkMode(__PRETTY_FUNCTION__,2);
   // look for id 
@@ -102,7 +103,7 @@ const Phase2TrackerModule& Phase2TrackerCabling::findDetid(uint32_t detid) {
     throw cms::Exception("IndexNotFound") << "No connection corresponding to detid = 0x" << std::hex << detid << std::dec;
 }
 
-const Phase2TrackerModule& Phase2TrackerCabling::findGbtid(uint32_t gbtid) {
+const Phase2TrackerModule& Phase2TrackerCabling::findGbtid(uint32_t gbtid) const {
   // check the proper mode
   checkMode(__PRETTY_FUNCTION__,3);
   // look for id 
@@ -113,11 +114,11 @@ const Phase2TrackerModule& Phase2TrackerCabling::findGbtid(uint32_t gbtid) {
     throw cms::Exception("IndexNotFound") << "No connection corresponding to gbtid = 0x" << std::hex << gbtid << std::dec;
 }
 
-Phase2TrackerCabling Phase2TrackerCabling::filterByCoolingLine(uint32_t coolingLine) {
+Phase2TrackerCabling Phase2TrackerCabling::filterByCoolingLine(uint32_t coolingLine) const {
   // sort according to cooling
   std::sort(connections_.begin(),connections_.end(),Phase2TrackerModule::coolingOrdering);
   // search for the proper range
-  std::pair< std::vector<Phase2TrackerModule>::const_iterator, std::vector<Phase2TrackerModule>::const_iterator > range = std::equal_range(connections_.begin(),connections_.end(),Phase2TrackerModule(0,0,0,0,0,coolingLine),Phase2TrackerModule::coolingOrdering);
+  std::pair< std::vector<Phase2TrackerModule>::const_iterator, std::vector<Phase2TrackerModule>::const_iterator > range = std::equal_range(connections_.begin(),connections_.end(),Phase2TrackerModule(Phase2TrackerModule::SS,0,0,0,0,0,coolingLine),Phase2TrackerModule::coolingOrdering);
   // create a new cabling object
   Phase2TrackerCabling result(std::vector<Phase2TrackerModule>(range.first,range.second));
   // restore the initial ordering
@@ -136,11 +137,11 @@ Phase2TrackerCabling Phase2TrackerCabling::filterByCoolingLine(uint32_t coolingL
   return result;
 }
 
-Phase2TrackerCabling Phase2TrackerCabling::filterByPowerGroup(uint32_t powerGroup) {
+Phase2TrackerCabling Phase2TrackerCabling::filterByPowerGroup(uint32_t powerGroup) const {
   // sort according to power groups
   std::sort(connections_.begin(),connections_.end(),Phase2TrackerModule::powerOrdering);
   // search for the proper range
-  std::pair< std::vector<Phase2TrackerModule>::const_iterator, std::vector<Phase2TrackerModule>::const_iterator > range = std::equal_range(connections_.begin(),connections_.end(),Phase2TrackerModule(0,0,0,0,powerGroup,0),Phase2TrackerModule::powerOrdering);
+  std::pair< std::vector<Phase2TrackerModule>::const_iterator, std::vector<Phase2TrackerModule>::const_iterator > range = std::equal_range(connections_.begin(),connections_.end(),Phase2TrackerModule(Phase2TrackerModule::SS,0,0,0,0,powerGroup,0),Phase2TrackerModule::powerOrdering);
   // create a new cabling object
   Phase2TrackerCabling result(std::vector<Phase2TrackerModule>(range.first,range.second));
   // restore the initial ordering
@@ -157,5 +158,47 @@ Phase2TrackerCabling Phase2TrackerCabling::filterByPowerGroup(uint32_t powerGrou
   }
   // return the new cabling object
   return result;
+}
+
+bool fedeq (Phase2TrackerModule& a, Phase2TrackerModule& b) {
+  return (a.getCh().first==b.getCh().first);
+}
+
+bool cooleq (Phase2TrackerModule& a, Phase2TrackerModule& b) {
+  return (a.getCoolingLoop()==b.getCoolingLoop());
+}
+
+bool poweq (Phase2TrackerModule& a, Phase2TrackerModule& b) {
+  return (a.getPowerGroup()==b.getPowerGroup());
+}
+
+std::string Phase2TrackerCabling::summaryDescription() const {
+  std::string mystring("Summary of the cabling\n======================\n");
+  std::stringstream ss;
+  // number of modules, feds, cooling loop and power groups
+  ss << "Number of modules: " << connections_.size() << std::endl;
+  std::vector<Phase2TrackerModule> orig(connections_);
+  ss << "Number of FEDs: ";
+  std::sort(orig.begin(),orig.end(),Phase2TrackerModule::chOrdering);
+  std::vector<Phase2TrackerModule> tmp(orig);
+  ss << std::distance(tmp.begin(),std::unique(tmp.begin(),tmp.end(),fedeq)) << std::endl;
+  ss << "Number of cooling loops: ";
+  std::sort(orig.begin(),orig.end(),Phase2TrackerModule::coolingOrdering);
+  tmp = orig;
+  ss << std::distance(tmp.begin(),std::unique(tmp.begin(),tmp.end(),cooleq)) << std::endl;
+  ss << "Number of power groups: ";
+  std::sort(orig.begin(),orig.end(),Phase2TrackerModule::powerOrdering);
+  tmp = orig;
+  ss << std::distance(tmp.begin(),std::unique(tmp.begin(),tmp.end(),poweq)) << std::endl;
+  mystring += ss.str();
+  return mystring;
+}
+
+std::string Phase2TrackerCabling::description(bool compact) const {
+  std::string mystring("Cabling:\n========\n");
+  for(std::vector<Phase2TrackerModule>::const_iterator it = connections_.begin();it<connections_.end();++it) {
+    mystring += it->description(compact);
+  }
+  return mystring;
 }
 

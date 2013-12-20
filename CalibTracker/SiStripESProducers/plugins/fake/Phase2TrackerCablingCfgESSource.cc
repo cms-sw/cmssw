@@ -49,7 +49,8 @@ Phase2TrackerCabling* Phase2TrackerCablingCfgESSource::make( const Phase2Tracker
      fedch = it->getParameter<uint32_t>("fedch");
      powerGroup = it->getParameter<uint32_t>("powerGroup");
      coolingLoop = it->getParameter<uint32_t>("coolingLoop");
-     conns.push_back(Phase2TrackerModule(detid,gbtid,fedid,fedch,powerGroup,coolingLoop));
+     Phase2TrackerModule::ModuleTypes type = it->getParameter<std::string>("moduleType")=="2S" ? Phase2TrackerModule::SS : Phase2TrackerModule::PS;
+     conns.push_back(Phase2TrackerModule(type,detid,gbtid,fedid,fedch,powerGroup,coolingLoop));
   }
   
   // return the cabling 
