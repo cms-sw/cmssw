@@ -66,15 +66,16 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   MuonTrajectoryBuilder * trajectoryBuilder = 0;
   // instantiate the concrete trajectory builder in the Track Finder
-  string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
-  if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")
+  string typeOfBuilder = parameterSet.existsAs<string>("MuonTrajectoryBuilder") ? 
+    parameterSet.getParameter<string>("MuonTrajectoryBuilder") : "StandAloneMuonTrajectoryBuilder";
+  if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder" || typeOfBuilder == "")
     trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
   else if(typeOfBuilder == "Exhaustive")
     trajectoryBuilder = new ExhaustiveMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
   else{
     LogWarning("Muon|RecoMuon|StandAloneMuonProducer") << "No Trajectory builder associated with "<<typeOfBuilder
-						       << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
-     trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
+    						       << ". Falling down to the default (StandAloneMuonTrajectoryBuilder)";
+    trajectoryBuilder = new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService);
   }
   // instantiate the concrete trajectory builder in the Track Finder
   // theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters, theService),
