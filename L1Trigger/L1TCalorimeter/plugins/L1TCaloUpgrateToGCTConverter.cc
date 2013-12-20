@@ -37,7 +37,13 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1DataFormatter.h"
+
+#include <vector>
+
+typedef BXVector<l1t::EGamma> L1TEGammaCollection;
+typedef BXVector<l1t::Tau> L1TTauCollection;
+typedef BXVector<l1t::Jet> L1TJetCollection;
+typedef BXVector<l1t::EtSum> L1TEtSumCollection;
 
 using namespace std;
 using namespace edm;
@@ -62,15 +68,30 @@ namespace l1t {
     virtual void beginRun(Run const&iR, EventSetup const&iE);
     virtual void endRun(Run const& iR, EventSetup const& iE);
 
+      L1GctEmCandCollection ConvertToIsoEmCand(const L1TEGammaCollection::const_iterator);
+    L1GctEmCandCollection ConvertToNonIsoEmCand(const L1TEGammaCollection&);
+    L1GctJetCandCollection ConvertToCenJetCand(const L1TJetCollection&);
+    L1GctJetCandCollection ConvertToForJetCand(const L1TJetCollection&);
+    L1GctJetCandCollection ConvertToTauJetCand(const L1TTauCollection&);
       
-      EDGetToken EGammaToken;
-      EDGetToken TauToken;
-      EDGetToken JetToken;
-      EDGetToken EtSumToken;
+    L1GctEtTotalCollection ConvertToEtTotal(const L1TEtSumCollection&);
+    L1GctEtHadCollection ConvertToEtHad(const L1TEtSumCollection&);
+    L1GctEtMissCollection ConvertToEtMiss(const L1TEtSumCollection&);
+    L1GctHtMissCollection ConvertToHtMiss(const L1TEtSumCollection&);
+    L1GctHFBitCountsCollection ConvertToHFBitCounts(const L1TEtSumCollection&);
+    L1GctHFRingEtSumsCollection ConvertToHFRingEtSums(const L1TEtSumCollection&);
       
-      CaloStage1DataFormatter DataFormatter;
+    L1GctInternJetDataCollection ConvertToIntJet(const L1TJetCollection&);
+    L1GctInternEtSumCollection ConvertToIntEtSum(const L1TEtSumCollection&);
+    L1GctInternHtMissCollection ConvertToIntHtMiss(const L1TEtSumCollection&);
+      
+    EDGetToken EGammaToken_;
+    EDGetToken TauToken_;
+    EDGetToken JetToken_;
+    EDGetToken EtSumToken_;
+      
      
-    };
+};
 
   //
   // constructors and destructor
@@ -96,10 +117,10 @@ namespace l1t {
     produces<L1GctHFRingEtSumsCollection>();
       
       // register what you consume and keep token for later access:
-      EGammaToken = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
-      TauToken = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
-      JetToken = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
-      EtSumToken = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
+      EGammaToken_ = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
+      TauToken_ = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
+      JetToken_ = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
+      EtSumToken_ = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
 
    
   }
@@ -124,20 +145,20 @@ L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
 
   //inputs
     Handle<L1TEGammaCollection> EGamma;
-    e.getByToken(EGammaToken,EGamma);
+    e.getByToken(EGammaToken_,EGamma);
 
   Handle<L1TTauCollection> Tau;
-  e.getByToken(TauToken,Tau);
+  e.getByToken(TauToken_,Tau);
 
   Handle<L1TJetCollection> Jet;
-  e.getByToken(JetToken,Jet);
+  e.getByToken(JetToken_,Jet);
     
   Handle<L1TEtSumCollection> EtSum;
-  e.getByToken(EtSumToken,EtSum);
+  e.getByToken(EtSumToken_,EtSum);
   
     
     // create the em and jet collections
-    std::auto_ptr<L1GctEmCandCollection> isoEmResult   (new L1GctEmCandCollection( ) );
+    std::auto_ptr<L1GctEmCandCollection> isoEmResult(new L1GctEmCandCollection( ) );
     std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection( ) );
     std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection( ) );
     std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection( ) );
@@ -159,11 +180,11 @@ L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
     std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ( ));
     
     
-    DataFormatter.ConvertToIsoEmCand(*EGamma, *isoEmResult);
-   // DataFormatter.ConvertToNonIsoEmCand(EGamma, nonIsoEmResult);
-   // DataFormatter.ConvertToCenJetCand(Jet, cenJetResult);
-   // DataFormatter.ConvertToForJetCand(Jet, forJetResult);
-   // DataFormatter.ConvertToTauJetCand(Tau, tauJetResult);
+   // *isoEmResult = this->ConvertToIsoEmCand(EGamma);
+  //  DataFormatter.ConvertToNonIsoEmCand(*EGamma, nonIsoEmResult);
+  //  DataFormatter.ConvertToCenJetCand(*Jet, cenJetResult);
+  //  DataFormatter.ConvertToForJetCand(*Jet, forJetResult);
+  //  DataFormatter.ConvertToTauJetCand(*Tau, tauJetResult);
 
   //  DataFormatter.ConvertToEtTotal(EtSum, etTotResult);
   // DataFormatter.ConvertToEtHad(EtSum,etHadResult);
