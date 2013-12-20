@@ -90,20 +90,20 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'pixelLessStepTrajectoryBuilder',
     MeasurementTrackerName = '',
-    clustersToSkip = cms.InputTag('pixelLessStepClusters'),
     trajectoryFilterName = 'pixelLessStepTrajectoryFilter',
     minNrOfHitsForRebuild = 4,
     maxCand = 2,
     alwaysUseInvalidHits = False,
     estimator = cms.string('pixelLessStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxPtForLooperReconstruction = cms.double(0.7)
     )
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('pixelLessStepSeeds'),
+    clustersToSkip = cms.InputTag('pixelLessStepClusters'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -182,3 +182,4 @@ PixelLessStep = cms.Sequence(pixelLessStepClusters*
                              pixelLessStepTrackCandidates*
                              pixelLessStepTracks*
                              pixelLessStepSelector)
+

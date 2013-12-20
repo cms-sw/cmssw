@@ -73,7 +73,6 @@ lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryB
     ComponentName = 'lowPtTripletStepTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'lowPtTripletStepTrajectoryFilter',
-    clustersToSkip = cms.InputTag('lowPtTripletStepClusters'),
     maxCand = 4,
     estimator = cms.string('lowPtTripletStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -91,6 +90,7 @@ lowPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.
     onlyPixelHitsForSeedCleaner = cms.bool(True),
 
     TrajectoryBuilder = 'lowPtTripletStepTrajectoryBuilder',
+    clustersToSkip = cms.InputTag('lowPtTripletStepClusters'),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )
@@ -138,3 +138,4 @@ LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
                                 lowPtTripletStepTrackCandidates*
                                 lowPtTripletStepTracks*
                                 lowPtTripletStepSelector)
+
