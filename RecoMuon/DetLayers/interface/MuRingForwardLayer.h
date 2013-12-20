@@ -42,8 +42,6 @@ class MuRingForwardLayer : public RingedForwardLayer {
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const;
-
 
   // DetLayer interface
   virtual SubDetector subDetector() const;
