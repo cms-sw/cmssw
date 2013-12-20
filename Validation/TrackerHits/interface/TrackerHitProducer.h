@@ -5,12 +5,17 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <string>
 #include <vector>
 
+namespace edm {
+  class HepMCProduct;
+}
 class PTrackerSimHit;
 
 class TrackerHitProducer : public edm::EDProducer
@@ -29,9 +34,6 @@ class TrackerHitProducer : public edm::EDProducer
   
  private:
 
-  //TrackerHitidation(const TrackerHitidation&);   
-  //const TrackerHitidation& operator=(const TrackerHitidation&);
-
   // production related methods
   void fillG4MC(edm::Event&);
   void storeG4MC(PTrackerSimHit&);
@@ -43,14 +45,29 @@ class TrackerHitProducer : public edm::EDProducer
  private:
 
   //  parameter information
-  std::string fName;
-  int verbosity;
-  std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
+  int verbosity;
+
+  // private statistics information
+  unsigned int count;
+
+  int nRawGenPart;
+
+  edm::ParameterSet config_;
+
+  edm::EDGetTokenT<edm::HepMCProduct> edmHepMCProductToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> edmSimVertexContainerToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> edmSimTrackContainerToken_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlBrlLow_Token_, edmPSimHitContainer_pxlBrlHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_pxlFwdLow_Token_, edmPSimHitContainer_pxlFwdHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIBLow_Token_, edmPSimHitContainer_siTIBHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTOBLow_Token_, edmPSimHitContainer_siTOBHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTIDLow_Token_, edmPSimHitContainer_siTIDHigh_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> edmPSimHitContainer_siTECLow_Token_, edmPSimHitContainer_siTECHigh_Token_;
+
 
   // G4MC info
-  int nRawGenPart;
   FloatVector G4VtxX; 
   FloatVector G4VtxY; 
   FloatVector G4VtxZ; 
@@ -86,27 +103,8 @@ class TrackerHitProducer : public edm::EDProducer
   FloatVector HitsEloss; 
   FloatVector HitsToF;
   
-  edm::InputTag SiTIBLowSrc_;
-  edm::InputTag SiTIBHighSrc_;
-  edm::InputTag SiTOBLowSrc_;
-  edm::InputTag SiTOBHighSrc_;
-  edm::InputTag SiTIDLowSrc_;
-  edm::InputTag SiTIDHighSrc_;
-  edm::InputTag SiTECLowSrc_;
-  edm::InputTag SiTECHighSrc_;
-  edm::InputTag PxlBrlLowSrc_;
-  edm::InputTag PxlBrlHighSrc_;
-  edm::InputTag PxlFwdLowSrc_;
-  edm::InputTag PxlFwdHighSrc_;
-  edm::InputTag G4VtxSrc_;
-  edm::InputTag G4TrkSrc_;
-
-  edm::ParameterSet config_;
-  std::string HepMClabel_;
-  std::string HepMCinstance_;
- 
-  // private statistics information
-  unsigned int count;
+  std::string fName;
+  std::string label;
 
 }; // end class declaration
   
