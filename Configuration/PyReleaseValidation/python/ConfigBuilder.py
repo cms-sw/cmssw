@@ -921,10 +921,7 @@ class ConfigBuilder(object):
 	    if not self._options.beamspot:
 		    self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
-            if not self._options.himix:
-                    self.GENDefaultSeq='pgen_hi'
-            else:
-                    self.GENDefaultSeq='pgen_himix'
+	    self.GENDefaultSeq='pgen_hi'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq=''
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
