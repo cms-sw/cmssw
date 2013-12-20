@@ -43,6 +43,7 @@ namespace {
    }
 
   // valid for z < pi/8
+  //  x * (1 + x*x * (-0.33322894573211669921875 + x*x * (0.1967026889324188232421875 + x*x * (-0.11053790152072906494140625))))  // .1e-7 by Sollya
   inline 
   float atan0(float t) {
     auto z=t;
