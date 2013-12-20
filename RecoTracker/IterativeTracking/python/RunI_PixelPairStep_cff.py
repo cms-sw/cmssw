@@ -80,7 +80,6 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     ComponentName = 'pixelPairStepTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'pixelPairStepTrajectoryFilter',
-    clustersToSkip = cms.InputTag('pixelPairStepClusters'),
     maxCand = 3,
     estimator = cms.string('pixelPairStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -91,6 +90,7 @@ pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 pixelPairStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('pixelPairStepSeeds'),
+    clustersToSkip = cms.InputTag('pixelPairStepClusters'),
     TrajectoryBuilder = 'pixelPairStepTrajectoryBuilder',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
@@ -135,3 +135,4 @@ PixelPairStep = cms.Sequence(pixelPairStepClusters*
                          pixelPairStepTrackCandidates*
                          pixelPairStepTracks*
                          pixelPairStepSelector)
+
