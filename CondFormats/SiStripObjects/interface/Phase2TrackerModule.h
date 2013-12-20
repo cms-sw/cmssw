@@ -13,8 +13,8 @@ class Phase2TrackerModule
 
   public:
     // normal constructor... for now, nothing is mandatory
-    Phase2TrackerModule(uint32_t detid=0, uint32_t gbtid=0, uint32_t fedid=0, uint32_t fedch=0, uint32_t powerGroup=0, uint32_t coolingLoop=0): 
-      detid_(detid), gbtid_(gbtid), powerGroup_(powerGroup), coolingLoop_(coolingLoop) { ch_ = std::make_pair(fedid, fedch); }
+    Phase2TrackerModule(ModuleTypes moduleType=SS, uint32_t detid=0, uint32_t gbtid=0, uint32_t fedid=0, uint32_t fedch=0, uint32_t powerGroup=0, uint32_t coolingLoop=0): 
+      moduleType_(moduleType), detid_(detid), gbtid_(gbtid), powerGroup_(powerGroup), coolingLoop_(coolingLoop) { ch_ = std::make_pair(fedid, fedch); }
 
     // destructor
     virtual ~Phase2TrackerModule() {}
@@ -25,9 +25,10 @@ class Phase2TrackerModule
     void setFedChannel(unsigned int fedid, unsigned int fedch) { ch_ = std::make_pair(fedid, fedch); }
     void setCoolingLoop(uint32_t cl) { coolingLoop_ = cl; }
     void setPowerGroup(uint32_t pg) { powerGroup_ = pg; }
+    void setModuleType(ModuleTypes moduleType) { moduleType_ = moduleType; }
     void addI2cDevice(unsigned int dev) { i2cDevices_.push_back(dev); }
     void setI2cDevices(std::vector<unsigned int> i2cd) { i2cDevices_ = i2cd; }
-    
+
     // getters
     uint32_t getDetid() const { return detid_; }
     uint32_t getGbtid() const { return gbtid_; }
@@ -36,6 +37,9 @@ class Phase2TrackerModule
     uint32_t getPowerGroup() const { return powerGroup_; }
     ModuleTypes getModuleType() const { return moduleType_; }
     const std::vector<unsigned int>& getI2cDevices() const { return i2cDevices_; }
+
+    // description (for printing)
+    std::string description(bool compact=false) const;
 
   friend class Phase2TrackerCabling;
   protected:
