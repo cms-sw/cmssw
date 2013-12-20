@@ -56,7 +56,9 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   
   if (num.getBaseNo(theRegionLevel) == 0) region = 1;
   else                                    region =-1;
-  station = num.getBaseNo(theStationLevel)+1;
+  //station = num.getBaseNo(theStationLevel)+1;
+  station = num.getSuperNo(theStationLevel);
+  
   ring    = num.getBaseNo(theRingLevel)+1;
   roll    = num.getBaseNo(theRollLevel)+1;
   const int copyno = num.getBaseNo(theSectorLevel) + 1;
