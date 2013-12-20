@@ -6,7 +6,7 @@ zmumugammaAnalysis = cms.EDAnalyzer("ZToMuMuGammaAnalyzer",
 
     Name = cms.untracked.string('zmumugammaAnalysis'),
 
-    phoProducer = cms.InputTag('photons'),
+    phoProducer = cms.InputTag('gedPhotons'),
 
     photonIDLoose = cms.InputTag('PhotonIDProd:PhotonCutBasedIDLoose'),
     photonIDTight = cms.InputTag('PhotonIDProd:PhotonCutBasedIDTight'),

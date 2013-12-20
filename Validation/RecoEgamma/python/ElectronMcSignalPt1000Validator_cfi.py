@@ -35,8 +35,8 @@ electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
   OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
     
   mcTruthCollection = cms.InputTag("genParticles"),
-  electronCollection = cms.InputTag("gsfElectrons"),
-  electronCoreCollection = cms.InputTag("gsfElectronCores"),
+  electronCollection = cms.InputTag("gedGsfElectrons"),
+  electronCoreCollection = cms.InputTag("gedGsfElectronCores"),
   electronTrackCollection = cms.InputTag("electronGsfTracks"),
   electronSeedCollection = cms.InputTag("electronMergedSeeds"),
   

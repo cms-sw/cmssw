@@ -15,7 +15,7 @@ topSingleLeptonTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -149,7 +149,7 @@ topSingleMuonLooseTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -323,7 +323,7 @@ topSingleMuonMediumTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -502,7 +502,7 @@ topSingleElectronLooseTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -612,7 +612,7 @@ topSingleElectronLooseTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ),
     cms.PSet(
       label  = cms.string("elecs:step1"),
-      src    = cms.InputTag("gsfElectrons"),
+      src    = cms.InputTag("gedGsfElectrons"),
       electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
       select = cms.string("pt>15 & abs(eta)<2.5"),
       min    = cms.int32(1),
@@ -679,7 +679,7 @@ topSingleElectronMediumTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
+      elecs = cms.InputTag("gedGsfElectrons"),
       jets  = cms.InputTag("ak5CaloJets"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
@@ -789,7 +789,7 @@ topSingleElectronMediumTriggerDQM = cms.EDAnalyzer("TopHLTSingleLeptonDQM",
     ),
     cms.PSet(
       label = cms.string("elecs:step1"),
-      src   = cms.InputTag("gsfElectrons"),
+      src   = cms.InputTag("gedGsfElectrons"),
       electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
       select = cms.string("pt>25 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
       min = cms.int32(1),

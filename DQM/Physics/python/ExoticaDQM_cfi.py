@@ -43,7 +43,7 @@ ExoticaDQM = cms.EDAnalyzer(
     ),
 
     #Physics objects
-    electronCollection       = cms.InputTag("gsfElectrons"),
+    electronCollection       = cms.InputTag("gedGsfElectrons"),
     pfelectronCollectionEI   = cms.InputTag("pfIsolatedElectronsEI"),
 
     muonCollection           = cms.InputTag("muons"),
@@ -52,7 +52,7 @@ ExoticaDQM = cms.EDAnalyzer(
     tauCollection            = cms.InputTag("caloRecoTauProducer"),
     #pftauCollection          = cms.InputTag("pfTaus"),
 
-    photonCollection         = cms.InputTag("photons"),
+    photonCollection         = cms.InputTag("gedPhotons"),
     #pfphotonCollection       = cms.InputTag("pfIsolatedPhotons"),
 
     caloJetCollection        = cms.InputTag("ak5CaloJets"),

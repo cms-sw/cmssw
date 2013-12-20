@@ -1005,12 +1005,17 @@ bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
 	float mvaValue=generalData_->sElectronMVAEstimator->mva( *(ele),*(eventData_->event));
 	bool passCutBased=ele->passingCutBasedPreselection();
 	bool passPF=ele->passingPflowPreselection();
-	bool passmva=!(generalData_->strategyCfg.gedElectronMode==true && !ele->ecalDrivenSeed() && mvaValue<generalData_->strategyCfg.PreSelectMVA);
-	if(!ele->ecalDrivenSeed()){
-		return passmva;
-	}	
+	if(generalData_->strategyCfg.gedElectronMode==true){
+		bool passmva=mvaValue>generalData_->strategyCfg.PreSelectMVA;
+		if(!ele->ecalDrivenSeed()){
+			return passmva;
+		}	
+		else{
+			return passCutBased || passPF || passmva;
+		}
+	}
 	else{
-		return passCutBased || passPF || passmva;
+		return passCutBased || passPF;
 	}
 
 	return true; 
@@ -1168,10 +1173,16 @@ void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfEl
       el != eventData_->electrons->end() ;
       el++ )
     {
-	float mvaValue=generalData_->sElectronMVAEstimator->mva( *(*el),*(eventData_->event));
-        GsfElectron::MvaOutput mvaOutput ;
-        mvaOutput.mva = mvaValue ;
-        (*el)->setMvaOutput(mvaOutput);
+	if(generalData_->strategyCfg.gedElectronMode==true){
+		float mvaValue=generalData_->sElectronMVAEstimator->mva( *(*el),*(eventData_->event));
+	        GsfElectron::MvaOutput mvaOutput ;
+	        mvaOutput.mva = mvaValue ;
+	        (*el)->setMvaOutput(mvaOutput);
+	}
+	else{
+		std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput>::const_iterator itcheck=mvaOutputs.find((*el)->gsfTrack());
+                (*el)->setMvaOutput(itcheck->second);
+	}
     }
 }
 

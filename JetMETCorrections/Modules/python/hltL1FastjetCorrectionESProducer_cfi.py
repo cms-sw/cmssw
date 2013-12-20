@@ -7,5 +7,5 @@ hltL1FastjetCorrectionESProducer = cms.ESProducer('L1FastjetCorrectionESProducer
     appendToDataLabel = cms.string( '' ),
     level     = cms.string( 'L1FastJet' ),
     algorithm = cms.string( 'AK5Calo' ),
-    srcRho    = cms.InputTag( 'hltKT6CaloJets', 'rho' )
+    srcRho    = cms.InputTag( 'fixedGridRhoFastjetAllCalo' )
 )

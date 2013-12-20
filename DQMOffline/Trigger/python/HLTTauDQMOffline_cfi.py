@@ -15,7 +15,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
                             ),
                     Electrons = cms.untracked.PSet(
-                            ElectronCollection = cms.untracked.InputTag("gsfElectrons"),
+                            ElectronCollection = cms.untracked.InputTag("gedGsfElectrons"),
                             doID = cms.untracked.bool(False),
                             InnerConeDR = cms.untracked.double(0.02),
                             MaxIsoVar = cms.untracked.double(0.02),
@@ -48,7 +48,7 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
 
                    Photons = cms.untracked.PSet(
                             doPhotons = cms.untracked.bool(True),
-                            PhotonCollection = cms.untracked.InputTag("photons"),
+                            PhotonCollection = cms.untracked.InputTag("gedPhotons"),
                             etMin = cms.untracked.double(10.0),
                             ECALIso = cms.untracked.double(3.0)
                             ),
