@@ -63,7 +63,7 @@ void EgammaHLTBcHcalIsolationProducersRegional::fillDescriptions(edm::Configurat
   
   desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltRecoEcalCandidate"));
   desc.add<edm::InputTag>(("caloTowerProducer"), edm::InputTag("hltTowerMakerForAll"));
-  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("hltKT6CaloJets", "rho"));
+  desc.add<edm::InputTag>(("rhoProducer"), edm::InputTag("fixedGridRhoFastjetAllCalo"));
   desc.add<bool>(("doRhoCorrection"), false);
   desc.add<double>(("rhoMax"), 999999.); 
   desc.add<double>(("rhoScale"), 1.0); 
