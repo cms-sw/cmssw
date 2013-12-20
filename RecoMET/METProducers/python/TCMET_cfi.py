@@ -5,7 +5,7 @@ tcMet = cms.EDProducer(
     "TCMETProducer",
     alias = cms.string('TCMET'),
     electronVetoCone = cms.bool(True),
-    electronInputTag  = cms.InputTag("gsfElectrons"),
+    electronInputTag  = cms.InputTag("gedGsfElectrons"),
     muonInputTag      = cms.InputTag("muons"),
     trackInputTag     = cms.InputTag("generalTracks"),
     metInputTag       = cms.InputTag("met"),

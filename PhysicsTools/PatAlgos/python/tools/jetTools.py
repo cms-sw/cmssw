@@ -353,7 +353,10 @@ class AddJetCollection(ConfigToolBase):
                             raise TypeError, "In addJetCollection: L1FastJet corrections are only supported for PF and Calo jets."
                         ## configure module
                         _newPatJetCorrFactors.useRho=True
-                        _newPatJetCorrFactors.rho=cms.InputTag('kt6PFJets', 'rho')
+                        if "PF" in _type : 
+                            _newPatJetCorrFactors.rho=cms.InputTag('fixedGridRhoFastjetAll')
+                        else :
+                            _newPatJetCorrFactors.rho=cms.InputTag('fixedGridRhoFastjetAllCalo')
                         ## we set this to True now as a L1 correction type should appear only once
                         ## otherwise levels is miss configured
                         error=True
@@ -376,7 +379,10 @@ class AddJetCollection(ConfigToolBase):
                 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak5PFL3Absolute
                 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak5PFResidual
 
-                setattr(process, jetCorrections[0]+'L1FastJet', ak5PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('kt6PFJets','rho')))
+                if "PF" in _type : 
+                    setattr(process, jetCorrections[0]+'L1FastJet', ak5PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('fixedGridRhoFastjetAll')))
+                else :
+                    setattr(process, jetCorrections[0]+'L1FastJet', ak5PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('fixedGridRhoFastjetAllCalo')))
                 setattr(process, jetCorrections[0]+'L1Offset', ak5PFL1Offset.clone(algorithm=jetCorrections[0]))
                 setattr(process, jetCorrections[0]+'L2Relative', ak5PFL2Relative.clone(algorithm=jetCorrections[0]))
                 setattr(process, jetCorrections[0]+'L3Absolute', ak5PFL3Absolute.clone(algorithm=jetCorrections[0]))
