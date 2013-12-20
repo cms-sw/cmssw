@@ -238,6 +238,7 @@ private:
   bool doStrictSimHitToTrackMatch_;
   bool matchAllTrigPrimitivesInChamber_;
   int minNHitsShared_;
+  int minNHitsChamber_;
   double minDeltaYAnode_;
   double minDeltaYCathode_;
   int minDeltaWire_;
