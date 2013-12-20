@@ -27,33 +27,40 @@ namespace edm {
     static SharedResourcesRegistry s_instance;
     return &s_instance;
   }
-  
+
+  SharedResourcesRegistry::SharedResourcesRegistry() : nLegacy_(0) {
+  }
+
   void
   SharedResourcesRegistry::registerSharedResource(const std::string& resourceName){
 
     auto& mutexAndCounter = resourceMap_[resourceName];
 
     if(resourceName == kLegacyModuleResourceName) {
+      ++nLegacy_;
       for(auto & resource : resourceMap_) {
         if(!resource.second.first) {
-          resource.second.first.reset(new std::recursive_mutex);
+          resource.second.first = std::make_shared<std::recursive_mutex>();
         }
         ++resource.second.second;
       }
     } else {
-      if(mutexAndCounter.second == 0) {
-        for(auto & resource : resourceMap_) {
-          if(resource.first == kLegacyModuleResourceName) {
-            mutexAndCounter.first.reset(new std::recursive_mutex);
-            mutexAndCounter.second += resource.second.second;
-            break;
-          }
-        }
-      } else if(mutexAndCounter.second == 1 && !mutexAndCounter.first) {
-        // make the resource if more than 1 module wants it
-        mutexAndCounter.first = std::shared_ptr<std::recursive_mutex>( new std::recursive_mutex );
-      }
+      // count the number of times the resource was registered
       ++mutexAndCounter.second;
+
+      // When first registering a nonlegacy resource, we have to
+      // account for any legacy resource registrations already made. 
+      if(mutexAndCounter.second == 1) {
+        if(nLegacy_ > 0U) {
+          mutexAndCounter.first = std::make_shared<std::recursive_mutex>();
+          mutexAndCounter.second += nLegacy_;
+        }
+      // If registering a nonlegacy resource the second time and
+      // the legacy resource has not been registered yet,
+      // we know we will need the mutex so go ahead and create it.
+      } else if(mutexAndCounter.second == 2) {
+        mutexAndCounter.first = std::make_shared<std::recursive_mutex>();
+      }
     }
   }
 

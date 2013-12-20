@@ -60,7 +60,7 @@ namespace edm {
 #endif
 
   private:
-    SharedResourcesRegistry()=default;
+    SharedResourcesRegistry();
     ~SharedResourcesRegistry()=default;
 
     SharedResourcesRegistry(const SharedResourcesRegistry&) = delete; // stop default
@@ -71,7 +71,8 @@ namespace edm {
     std::map<std::string, std::pair<std::shared_ptr<std::recursive_mutex>,unsigned int>> resourceMap_;
     
     std::shared_ptr<std::recursive_mutex> resourceForDelayedReader_;
-    
+
+    unsigned int nLegacy_;
   };
 }
 
