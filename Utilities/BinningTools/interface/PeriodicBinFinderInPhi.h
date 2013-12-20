@@ -34,7 +34,7 @@ public:
    
   /// the middle of the bin in radians
   virtual T binPosition( int ind) const {
-    return thePhiOffset + thePhiStep * ( ind + 0.5);
+    return thePhiOffset + thePhiStep * ( T(ind) + T(0.5));
   }
 
   static constexpr T pi() { return piC;}
