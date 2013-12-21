@@ -104,7 +104,8 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   doStrictSimHitToTrackMatch_ = iConfig.getUntrackedParameter<bool>("doStrictSimHitToTrackMatch", false);
   matchAllTrigPrimitivesInChamber_ = iConfig.getUntrackedParameter<bool>("matchAllTrigPrimitivesInChamber", false);
 
-  minNHitsShared_ = iConfig.getUntrackedParameter<int>("minNHitsShared_", -1);
+  minNHitsShared_ = iConfig.getUntrackedParameter<int>("minNHitsShared", -1);
+  minNHitsChamber_ = iConfig.getUntrackedParameter<int>("minNHitsChamber", 4);
   
   minDeltaYAnode_    = iConfig.getUntrackedParameter<double>("minDeltaYAnode", -1.);
   minDeltaYCathode_  = iConfig.getUntrackedParameter<double>("minDeltaYCathode", -1.);
@@ -131,6 +132,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   maxSimTrEta_  = iConfig.getUntrackedParameter<double>("maxSimTrEta", 5.);
   invertSimTrPhiEta_ = iConfig.getUntrackedParameter<bool>("invertSimTrPhiEta", false);
   bestPtMatch_  = iConfig.getUntrackedParameter<bool>("bestPtMatch", true);
+  onlyForwardMuons_ = iConfig.getUntrackedParameter<bool>("onlyForwardMuons", true);
 
   minBX_    = iConfig.getUntrackedParameter< int >("minBX",-6);
   maxBX_    = iConfig.getUntrackedParameter< int >("maxBX",6);
@@ -1481,8 +1483,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
       unsigned nst_with_hits = match->nStationsWithHits();
-      bool has_hits_in_st[5] = {0, match->hasHitsInStation(1), match->hasHitsInStation(2), 
-  				match->hasHitsInStation(3), match->hasHitsInStation(4)};
+      bool has_hits_in_st[5] = {0, match->hasHitsInStation(1,minNHitsChamber_), 
+                                match->hasHitsInStation(2,minNHitsChamber_), 
+                                match->hasHitsInStation(3,minNHitsChamber_), 
+                                match->hasHitsInStation(4,minNHitsChamber_)};
 
       bool okME1mplct = 0, okME2mplct = 0, okME3mplct = 0, okME4mplct = 0;
       int okNmplct = 0;
