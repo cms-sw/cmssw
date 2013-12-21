@@ -4,8 +4,6 @@
 #include <vector>
 #include <algorithm>
 
-class Phase2TrackerCabling;
-
 class Phase2TrackerModule
 {
   public:
@@ -40,49 +38,6 @@ class Phase2TrackerModule
 
     // description (for printing)
     std::string description(bool compact=false) const;
-
-  friend class Phase2TrackerCabling;
-  protected:
-    // methods to sort and order collections
-    // These methods are used by Phase2TrackerCabling
-    
-    // by detid
-    static bool detidOrdering(const Phase2TrackerModule& a, const Phase2TrackerModule& b) {
-      return a.getDetid() < b.getDetid(); }
-    static bool detidComp(const Phase2TrackerModule& a, uint32_t b) {
-      return a.getDetid() < b; }
-    
-    // by FED id/ch
-    static bool chOrdering(const Phase2TrackerModule& a, const Phase2TrackerModule& b) {
-      if (a.getCh().first==b.getCh().first)
-        return a.getCh().second < b.getCh().second;
-      else
-        return a.getCh().first < b.getCh().first;
-    }
-    static bool chComp(const Phase2TrackerModule& a, std::pair<unsigned int, unsigned int> b) {
-      if (a.getCh().first==b.first)
-        return a.getCh().second < b.second;
-      else
-        return a.getCh().first < b.first;
-    }
-
-    // by gbtid
-    static bool gbtidOrdering(const Phase2TrackerModule& a, const Phase2TrackerModule& b) {
-      return a.getGbtid() < b.getGbtid(); }
-    static bool gbtidComp(const Phase2TrackerModule& a, uint32_t b) {
-      return a.getGbtid() < b; }
-
-    // by cooling loop
-    static bool coolingOrdering(const Phase2TrackerModule& a, const Phase2TrackerModule& b) {
-      return a.getCoolingLoop() < b.getCoolingLoop(); }
-    static bool coolingComp(const Phase2TrackerModule& a, uint32_t b) {
-      return a.getCoolingLoop() < b; }
-
-    // by power group
-    static bool powerOrdering(const Phase2TrackerModule& a, const Phase2TrackerModule& b) {
-      return a.getPowerGroup() < b.getPowerGroup(); }
-    static bool powerComp(const Phase2TrackerModule& a, uint32_t b) {
-      return a.getPowerGroup() < b; }
 
   private:
     // the GBTid/fed map should be easy to build automatically, since the FED can ask to the link. It could be put in some commissioning packet

@@ -7,23 +7,22 @@
 
 class Phase2TrackerCabling
 {
+    typedef std::vector<Phase2TrackerModule> store;
+    typedef std::vector<Phase2TrackerModule>::const_iterator key;
+    typedef std::vector<key> cabling;
+
   public:
     // Constructor taking FED channel connection objects as input.
-    Phase2TrackerCabling( const std::vector<Phase2TrackerModule>& cons ):connections_(cons) { mode_ = 0; }
+    Phase2TrackerCabling( const std::vector<Phase2TrackerModule>& cons );
 
     // Copy ocnstructor
-    Phase2TrackerCabling( const Phase2TrackerCabling& src ) { connections_ = src.connections_; mode_ = 0; }
+    Phase2TrackerCabling( const Phase2TrackerCabling& src );
 
     // Default constructor
-    Phase2TrackerCabling() { mode_ = 0; }
+    Phase2TrackerCabling() {}
 
     // Default destructor
     virtual ~Phase2TrackerCabling() {}
-
-    // change the mode
-    const Phase2TrackerCabling& fedCabling() const;
-    const Phase2TrackerCabling& detCabling() const;
-    const Phase2TrackerCabling& gbtCabling() const;
 
     // get the list of modules
     const std::vector<Phase2TrackerModule>& connections() const { return connections_; }
@@ -49,19 +48,30 @@ class Phase2TrackerCabling
     // print the details of the content
     std::string description(bool compact=false) const;
 
-  protected:
-    // check the proper mode and sort if needed
-    void checkMode(const char* funcname, int mode) const;
+  private:
+    // the connections
+    store connections_;
+
+    // indices for fast searches
+    cabling fedCabling_;
+    cabling gbtCabling_;
+    cabling detCabling_;
 
   private:
-    // data members: declared as mutable to allow easy sorting. 
-    // for the vector, it is a bit an overkill, as we just want to sort it.
-    // since it is private with no way to add/remove elements, it has no impact.
-
-    // the connections
-    mutable std::vector<Phase2TrackerModule> connections_;
-    // the mode: sorted state
-    mutable int mode_;
+    // sorting functions
+    static bool chOrdering(key a, key b);
+    static bool chComp(key a, std::pair<unsigned int, unsigned int> b);
+    static bool fedeq(key a, key b);
+    static bool detidOrdering(key a, key b);
+    static bool detidComp(key a, uint32_t b);
+    static bool gbtidOrdering(key a, key b);
+    static bool gbtidComp(key a, uint32_t b);
+    static bool coolingOrdering(const Phase2TrackerModule& a, const Phase2TrackerModule& b);
+    static bool coolingComp(const Phase2TrackerModule& a, uint32_t b);
+    static bool cooleq(const Phase2TrackerModule& a, const Phase2TrackerModule& b);
+    static bool powerOrdering(const Phase2TrackerModule& a, const Phase2TrackerModule& b);
+    static bool powerComp(const Phase2TrackerModule& a, uint32_t b);
+    static bool poweq(const Phase2TrackerModule& a, const Phase2TrackerModule& b);
 
 };
 
