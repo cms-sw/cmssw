@@ -109,15 +109,25 @@ CheckPhase2Cabling::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    // print general information about the cabling
    std::cout << cablingHandle->summaryDescription() << std::endl;
-   // print detailed information, in full and compact form
+   // print detailed information
    std::cout << cablingHandle->description() << std::endl;
-   std::cout << cablingHandle->description(1) << std::endl;
 
    // search information about one module
-   Phase2TrackerModule module = cablingHandle->fedCabling().findFedCh(std::make_pair(0,1));
+   Phase2TrackerModule module = cablingHandle->findFedCh(std::make_pair(0,1));
 
    // print information about that module
-   std::cout << module.description();
+   std::cout << "Information about the module connected to FED 0.1:" << std::endl;
+   std::cout << module.description() << std::endl;
+
+   // look at one subset (based on cooling)
+   Phase2TrackerCabling coolingLoop = cablingHandle->filterByCoolingLine(0);
+   std::cout << "Subset in cooling line 0:" << std::endl;
+   std::cout << coolingLoop.description(1) << std::endl;
+  
+   // look at one subset (based on power)
+   Phase2TrackerCabling powerGroup = cablingHandle->filterByPowerGroup(1);
+   std::cout << "Subset in power group 1:" << std::endl;
+   std::cout << powerGroup.description(1) << std::endl;
   
 }
 
