@@ -25,7 +25,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
     verbose_ = false;
     
     std::string versionStr = parameters.getParameter<std::string>("version");
-    rhoTag_ = parameters.getParameter< edm::InputTag> ("rho");
+    rhoTag_ = parameters.getParameter< edm::InputTag> ("rhoSrc");
     
     Version_t version = N_VERSIONS;
     
