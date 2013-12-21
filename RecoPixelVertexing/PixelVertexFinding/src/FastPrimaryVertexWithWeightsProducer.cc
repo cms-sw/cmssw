@@ -28,8 +28,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -77,6 +79,7 @@ using namespace std;
 class FastPrimaryVertexWithWeightsProducer : public edm::EDProducer {
    public:
       explicit FastPrimaryVertexWithWeightsProducer(const edm::ParameterSet&);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -88,6 +91,9 @@ class FastPrimaryVertexWithWeightsProducer : public edm::EDProducer {
   std::string m_pixelCPE; 	// PixelCPE (PixelClusterParameterEstimator)
   edm::InputTag m_beamSpot;	// BeamSpot InputTag
   edm::InputTag m_jets;		// Jet InputTag
+  edm::EDGetTokenT<SiPixelClusterCollectionNew> clustersToken;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+  edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken;
 
 // PARAMETERS USED IN THE BARREL PIXEL CLUSTERS PROJECTION
   int m_njets;			// Use only the first njets
@@ -141,9 +147,12 @@ FastPrimaryVertexWithWeightsProducer::FastPrimaryVertexWithWeightsProducer(const
 {
   m_maxZ	      		= iConfig.getParameter<double>("maxZ");
   m_clusters          		= iConfig.getParameter<edm::InputTag>("clusters");
+  clustersToken                 = consumes<SiPixelClusterCollectionNew>(m_clusters);
   m_pixelCPE          		= iConfig.getParameter<std::string>("pixelCPE");
   m_beamSpot          		= iConfig.getParameter<edm::InputTag>("beamSpot");
+  beamSpotToken                 = consumes<reco::BeamSpot>(m_beamSpot);
   m_jets              		= iConfig.getParameter<edm::InputTag>("jets");
+  jetsToken                     = consumes<edm::View<reco::Jet> >(m_jets);
 
   m_njets     			= iConfig.getParameter<int>("njets");
   m_maxJetEta     		= iConfig.getParameter<double>("maxJetEta");
@@ -174,19 +183,58 @@ FastPrimaryVertexWithWeightsProducer::FastPrimaryVertexWithWeightsProducer(const
   m_zClusterWidth_step1      	= iConfig.getParameter<double>("zClusterWidth_step1");
 
   m_zClusterWidth_step2      	= iConfig.getParameter<double>("zClusterWidth_step2");
-  m_zClusterSearchArea_step2      = iConfig.getParameter<double>("zClusterSearchArea_step2");
+  m_zClusterSearchArea_step2    = iConfig.getParameter<double>("zClusterSearchArea_step2");
   m_weightCut_step2      	= iConfig.getParameter<double>("weightCut_step2");
 
   m_zClusterWidth_step3      	= iConfig.getParameter<double>("zClusterWidth_step3");
-  m_zClusterSearchArea_step3      = iConfig.getParameter<double>("zClusterSearchArea_step3");
+  m_zClusterSearchArea_step3    = iConfig.getParameter<double>("zClusterSearchArea_step3");
   m_weightCut_step3      	= iConfig.getParameter<double>("weightCut_step3");
-  
+
   produces<reco::VertexCollection>();
   produces<float>();
 
 }
 
-
+void
+FastPrimaryVertexWithWeightsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag> ("clusters",edm::InputTag("hltSiPixelClusters"));
+  desc.add<edm::InputTag> ("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag> ("jets",edm::InputTag("hltCaloJetL1FastJetCorrected"));
+  desc.add<std::string>("pixelCPE","hltESPPixelCPEGeneric");
+  desc.add<double>("maxZ",19.0);
+  desc.add<int>("njets",999);
+  desc.add<double>("maxJetEta",2.6);
+  desc.add<double>("minJetPt",40.);
+  desc.add<bool>("barrel",true);
+  desc.add<double>("maxSizeX",2.1);
+  desc.add<double>("maxDeltaPhi",0.21);
+  desc.add<double>("PixelCellHeightOverWidth",1.8);
+  desc.add<double>("weight_charge_down",11.*1000.);
+  desc.add<double>("weight_charge_up",190.*1000.);
+  desc.add<double>("maxSizeY_q",2.0);
+  desc.add<double>("minSizeY_q",-0.6);
+  desc.add<double>("weight_dPhi",0.13888888);
+  desc.add<double>("weight_SizeX1",0.88);
+  desc.add<double>("weight_rho_up",22.);
+  desc.add<double>("weight_charge_peak",22.*1000.);
+  desc.add<double>("peakSizeY_q",1.0);
+  desc.add<bool>("endCap",true);
+  desc.add<double>("minJetEta_EC",1.3);
+  desc.add<double>("maxJetEta_EC",2.6);
+  desc.add<double>("maxDeltaPhi_EC",0.14);
+  desc.add<double>("EC_weight",0.008);
+  desc.add<double>("weight_dPhi_EC",0.064516129);
+  desc.add<double>("zClusterWidth_step1",2.0);
+  desc.add<double>("zClusterWidth_step2",0.65);
+  desc.add<double>("zClusterSearchArea_step2",3.0);
+  desc.add<double>("weightCut_step2",0.05);
+  desc.add<double>("zClusterWidth_step3",0.3);
+  desc.add<double>("zClusterSearchArea_step3",0.55);
+  desc.add<double>("weightCut_step3",0.1);
+  descriptions.add("fastPrimaryVertexWithWeightsProducer",desc);
+}
 
 void
 FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -200,12 +248,12 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
 
    //get pixel cluster
    Handle<SiPixelClusterCollectionNew> cH;
-   iEvent.getByLabel(m_clusters,cH);
+   iEvent.getByToken(clustersToken,cH);
    const SiPixelClusterCollectionNew & pixelClusters = *cH.product();
 
    //get jets
    Handle<edm::View<reco::Jet> > jH;
-   iEvent.getByLabel(m_jets,jH);
+   iEvent.getByToken(jetsToken,jH);
    const edm::View<reco::Jet> & jets = *jH.product();
 
    vector<const reco::Jet*> selectedJets;
@@ -230,7 +278,7 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
 
    //get beamSpot
    edm::Handle<BeamSpot> beamSpot;
-   iEvent.getByLabel(m_beamSpot,beamSpot);
+   iEvent.getByToken(beamSpotToken,beamSpot);
  
    //get TrackerGeometry
    edm::ESHandle<TrackerGeometry> tracker;

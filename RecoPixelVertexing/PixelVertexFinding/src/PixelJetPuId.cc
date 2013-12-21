@@ -72,13 +72,15 @@ class PixelJetPuId : public edm::EDFilter {
       virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
-     edm::InputTag m_associator; 
      edm::InputTag m_primaryVertex;
      edm::InputTag m_beamSpot;
      edm::InputTag m_tracks;
      edm::InputTag m_jets;
+     edm::EDGetTokenT<std::vector<reco::Track> > tracksToken;
+     edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+     edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken;
+     edm::EDGetTokenT<reco::VertexCollection> primaryVertexToken;
 
-     
      double m_MinTrackPt; 
      double m_MaxTrackChi2; 
      double m_MaxTrackDistanceToJet; 
@@ -105,24 +107,27 @@ class PixelJetPuId : public edm::EDFilter {
 PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
 {
   //InputTag
-  m_beamSpot          = iConfig.getParameter<edm::InputTag>("beamSpot");
-//  m_associator        = iConfig.getParameter<edm::InputTag>("jetTracks");
-  m_tracks        = iConfig.getParameter<edm::InputTag>("tracks");
-  m_jets        = iConfig.getParameter<edm::InputTag>("jets");
-  m_primaryVertex              = iConfig.getParameter<edm::InputTag>("primaryVertex");
+  m_beamSpot       = iConfig.getParameter<edm::InputTag>("beamSpot");
+  beamSpotToken    = consumes<reco::BeamSpot>(m_beamSpot);
+  m_tracks         = iConfig.getParameter<edm::InputTag>("tracks");
+  tracksToken      = consumes<std::vector<reco::Track> >(m_tracks);
+  m_jets           = iConfig.getParameter<edm::InputTag>("jets");
+  jetsToken        = consumes<edm::View<reco::Jet> >(m_jets);
+  m_primaryVertex  = iConfig.getParameter<edm::InputTag>("primaryVertex");
+  primaryVertexToken = consumes<reco::VertexCollection>(m_primaryVertex);
 
   //Tracks Selection
-  m_MinTrackPt     = iConfig.getParameter<double>("MinTrackPt");
-  m_MaxTrackDistanceToJet = iConfig.getParameter<double>("MaxTrackDistanceToJet");
-  m_MaxTrackChi2 = iConfig.getParameter<double>("MaxTrackChi2");
+  m_MinTrackPt             = iConfig.getParameter<double>("MinTrackPt");
+  m_MaxTrackDistanceToJet  = iConfig.getParameter<double>("MaxTrackDistanceToJet");
+  m_MaxTrackChi2           = iConfig.getParameter<double>("MaxTrackChi2");
 
   //A jet is defined as a signal jet if Sum(trackPt) > minPt or Sum(comp.trackPt)/CaloJetPt > minPtRatio
-  m_MinGoodJetTrackPt          = iConfig.getParameter<double>("MinGoodJetTrackPt");
-  m_MinGoodJetTrackPtRatio     = iConfig.getParameter<double>("MinGoodJetTrackPtRatio");
+  m_MinGoodJetTrackPt      = iConfig.getParameter<double>("MinGoodJetTrackPt");
+  m_MinGoodJetTrackPtRatio = iConfig.getParameter<double>("MinGoodJetTrackPtRatio");
 
-  m_fwjets        = iConfig.getParameter<bool>("UseForwardJetsAsNoPU");
-  m_mineta_fwjets        = iConfig.getParameter<double>("MinEtaForwardJets");
-  m_minet_fwjets        = iConfig.getParameter<double>("MinEtForwardJets");
+  m_fwjets                 = iConfig.getParameter<bool>("UseForwardJetsAsNoPU");
+  m_mineta_fwjets          = iConfig.getParameter<double>("MinEtaForwardJets");
+  m_minet_fwjets           = iConfig.getParameter<double>("MinEtForwardJets");
 
   produces<std::vector<reco::CaloJet> >(); 
   produces<std::vector<reco::CaloJet> >("PUjets"); 
@@ -130,12 +135,7 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
 
 
 PixelJetPuId::~PixelJetPuId()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
+{}
 
 
 //
@@ -149,28 +149,22 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
    std::auto_ptr<std::vector<reco::CaloJet> > pOut_PUjets(new std::vector<reco::CaloJet> );
-
-//   //get jetTracksAssociation
-//   Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
-//   iEvent.getByLabel(m_associator, jetTracksAssociation);
    
    //get tracks
    Handle<std::vector<reco::Track> > tracks;
-   iEvent.getByLabel(m_tracks, tracks);
+   iEvent.getByToken(tracksToken, tracks);
    
    //get jets
    Handle<edm::View<reco::Jet> > jets;
-   iEvent.getByLabel(m_jets, jets);
+   iEvent.getByToken(jetsToken, jets);
    
    //get primary vertices
    Handle<reco::VertexCollection> primaryVertex;
-   iEvent.getByLabel(m_primaryVertex, primaryVertex);
+   iEvent.getByToken(primaryVertexToken, primaryVertex);
 
    //get Transient Track Builder
    edm::ESHandle<TransientTrackBuilder> builder;
    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
-
-//   reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
 
    //loop on trackIPTagInfos
    if(primaryVertex->size()>0)
@@ -225,7 +219,7 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(pOut_PUjets,"PUjets");
 
    edm::Handle<reco::BeamSpot> beamSpot;
-   iEvent.getByLabel(m_beamSpot,beamSpot);
+   iEvent.getByToken(beamSpotToken,beamSpot);
  
    return true;
 }
@@ -275,8 +269,19 @@ PixelJetPuId::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag> ("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag> ("jets",edm::InputTag("hltCaloJetL1FastJetCorrected"));
+  desc.add<edm::InputTag> ("tracks",edm::InputTag("hltPixelTracksNoPU"));
+  desc.add<edm::InputTag> ("primaryVertex",edm::InputTag("hltFastPVPixelVertices"));
+  desc.add<double>("MinGoodJetTrackPtRatio",0.045);
+  desc.add<double>("MinGoodJetTrackPt",1.8);
+  desc.add<double>("MaxTrackDistanceToJet",0.04);
+  desc.add<double>("MinTrackPt",0.6);
+  desc.add<double>("MaxTrackChi2",20.);
+  desc.add<bool>("UseForwardJetsAsNoPU",true);
+  desc.add<double>("MinEtaForwardJets",2.4);
+  desc.add<double>("MinEtForwardJets",40.);
+  descriptions.add("pixelJetPuId",desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(PixelJetPuId);
