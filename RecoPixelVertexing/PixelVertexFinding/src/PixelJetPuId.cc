@@ -138,6 +138,24 @@ PixelJetPuId::~PixelJetPuId()
 {}
 
 
+void
+PixelJetPuId::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag> ("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag> ("jets",edm::InputTag("hltCaloJetL1FastJetCorrected"));
+  desc.add<edm::InputTag> ("tracks",edm::InputTag("hltPixelTracksNoPU"));
+  desc.add<edm::InputTag> ("primaryVertex",edm::InputTag("hltFastPVPixelVertices"));
+  desc.add<double>("MinGoodJetTrackPtRatio",0.045);
+  desc.add<double>("MinGoodJetTrackPt",1.8);
+  desc.add<double>("MaxTrackDistanceToJet",0.04);
+  desc.add<double>("MinTrackPt",0.6);
+  desc.add<double>("MaxTrackChi2",20.);
+  desc.add<bool>("UseForwardJetsAsNoPU",true);
+  desc.add<double>("MinEtaForwardJets",2.4);
+  desc.add<double>("MinEtForwardJets",40.);
+  descriptions.add("pixelJetPuId",desc);
+}
+
 //
 // member functions
 //
@@ -263,25 +281,5 @@ PixelJetPuId::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
   return true;
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-PixelJetPuId::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag> ("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
-  desc.add<edm::InputTag> ("jets",edm::InputTag("hltCaloJetL1FastJetCorrected"));
-  desc.add<edm::InputTag> ("tracks",edm::InputTag("hltPixelTracksNoPU"));
-  desc.add<edm::InputTag> ("primaryVertex",edm::InputTag("hltFastPVPixelVertices"));
-  desc.add<double>("MinGoodJetTrackPtRatio",0.045);
-  desc.add<double>("MinGoodJetTrackPt",1.8);
-  desc.add<double>("MaxTrackDistanceToJet",0.04);
-  desc.add<double>("MinTrackPt",0.6);
-  desc.add<double>("MaxTrackChi2",20.);
-  desc.add<bool>("UseForwardJetsAsNoPU",true);
-  desc.add<double>("MinEtaForwardJets",2.4);
-  desc.add<double>("MinEtForwardJets",40.);
-  descriptions.add("pixelJetPuId",desc);
-}
 //define this as a plug-in
 DEFINE_FWK_MODULE(PixelJetPuId);
