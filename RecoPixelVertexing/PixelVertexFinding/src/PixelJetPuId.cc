@@ -5,7 +5,9 @@
 // 
 /**\class PixelJetPuId PixelJetPuId.cc RecoBTag/PixelJetPuId/src/PixelJetPuId.cc
 
- Description: The PixelJetPuId module select all the pixel tracks compatible with a jet. If the sum of the tracks momentum is under a threshold the jet is tagged as "PUjets".
+ Description:
+ The PixelJetPuId module select all the pixel tracks compatible with a jet.
+ If the sum of the tracks momentum is under a threshold the jet is tagged as "PUjets".
 
  Implementation:
      [Notes on implementation]
@@ -28,18 +30,16 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -73,11 +73,9 @@ class PixelJetPuId : public edm::EDFilter {
 
       // ----------member data ---------------------------
      edm::InputTag m_primaryVertex;
-     edm::InputTag m_beamSpot;
      edm::InputTag m_tracks;
      edm::InputTag m_jets;
      edm::EDGetTokenT<std::vector<reco::Track> > tracksToken;
-     edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
      edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken;
      edm::EDGetTokenT<reco::VertexCollection> primaryVertexToken;
 
@@ -85,7 +83,7 @@ class PixelJetPuId : public edm::EDFilter {
      double m_MaxTrackChi2; 
      double m_MaxTrackDistanceToJet; 
 
-     bool m_fwjets;
+     bool   m_fwjets;
      double m_mineta_fwjets;
      double m_minet_fwjets;
 
@@ -107,13 +105,11 @@ class PixelJetPuId : public edm::EDFilter {
 PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
 {
   //InputTag
-  m_beamSpot       = iConfig.getParameter<edm::InputTag>("beamSpot");
-  beamSpotToken    = consumes<reco::BeamSpot>(m_beamSpot);
-  m_tracks         = iConfig.getParameter<edm::InputTag>("tracks");
-  tracksToken      = consumes<std::vector<reco::Track> >(m_tracks);
-  m_jets           = iConfig.getParameter<edm::InputTag>("jets");
-  jetsToken        = consumes<edm::View<reco::Jet> >(m_jets);
-  m_primaryVertex  = iConfig.getParameter<edm::InputTag>("primaryVertex");
+  m_tracks           = iConfig.getParameter<edm::InputTag>("tracks");
+  tracksToken        = consumes<std::vector<reco::Track> >(m_tracks);
+  m_jets             = iConfig.getParameter<edm::InputTag>("jets");
+  jetsToken          = consumes<edm::View<reco::Jet> >(m_jets);
+  m_primaryVertex    = iConfig.getParameter<edm::InputTag>("primaryVertex");
   primaryVertexToken = consumes<reco::VertexCollection>(m_primaryVertex);
 
   //Tracks Selection
@@ -141,7 +137,6 @@ PixelJetPuId::~PixelJetPuId()
 void
 PixelJetPuId::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag> ("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
   desc.add<edm::InputTag> ("jets",edm::InputTag("hltCaloJetL1FastJetCorrected"));
   desc.add<edm::InputTag> ("tracks",edm::InputTag("hltPixelTracksNoPU"));
   desc.add<edm::InputTag> ("primaryVertex",edm::InputTag("hltFastPVPixelVertices"));
@@ -235,9 +230,6 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    iEvent.put(pOut);
    iEvent.put(pOut_PUjets,"PUjets");
-
-   edm::Handle<reco::BeamSpot> beamSpot;
-   iEvent.getByToken(beamSpotToken,beamSpot);
  
    return true;
 }
