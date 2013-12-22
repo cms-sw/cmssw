@@ -185,12 +185,10 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    	const reco::Vertex* pv = &*primaryVertex->begin();
    	//loop on jets
 	for(edm::View<reco::Jet>::const_iterator itJet = jets->begin();  itJet != jets->end(); itJet++ ) {
-//		const reco::TrackRefVector& tracks = it->second;
 
 		math::XYZVector jetMomentum = itJet->momentum();
 	        GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
 
-//		int ntracks=0;
 		math::XYZVector trMomentum;
 		      
 		//loop on tracks
@@ -207,10 +205,10 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			  if(deltaR<0.5)
 			  {
 				reco::TransientTrack transientTrack = builder->build(*itTrack);
-		     		float jetTrackDistance = ((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
+		     		float jetTrackDistance = -((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
 		     		
 				//select the tracks compabible with the jet
-				if(( itTrack->pt() > m_MinTrackPt) && ( itTrack->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance>-m_MaxTrackDistanceToJet))
+				if(( itTrack->pt() > m_MinTrackPt) && ( itTrack->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance<m_MaxTrackDistanceToJet))
 				{
 					trMomentum += itTrack->momentum(); //calculate the Sum(trackPt)
 				}

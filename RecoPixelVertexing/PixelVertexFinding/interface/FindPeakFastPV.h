@@ -9,13 +9,6 @@
  *  $Revision: 1.0 $
  *  \author Silvio Donato (SNS)
  */
-//#include "FWCore/Framework/interface/EDFilter.h"
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include <map>
-//#include <set>
 
 
 float FindPeakFastPV(  std::vector<float> &zProjections, std::vector<float> &zWeights, float oldVertex, const float m_zClusterWidth, const float m_zClusterSearchArea, const float m_weightCut){
