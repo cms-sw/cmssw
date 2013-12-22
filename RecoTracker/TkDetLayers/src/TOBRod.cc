@@ -16,17 +16,19 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-class DetZLess {
-public:
-  bool operator()(const GeomDet* a,const GeomDet* b) 
-  {
-    return (a->position().z() < b->position().z());
-  } 
-};
-
+namespace {
+  class DetZLess {
+  public:
+    bool operator()(const GeomDet* a,const GeomDet* b) const
+    {
+      return (a->position().z() < b->position().z());
+    } 
+  };
+}
 
 TOBRod::TOBRod(vector<const GeomDet*>& innerDets,
 	       vector<const GeomDet*>& outerDets):
+  DetRod(true),
   theInnerDets(innerDets),theOuterDets(outerDets)
 {
   theDets.assign(theInnerDets.begin(),theInnerDets.end());
@@ -102,10 +104,10 @@ TOBRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   crossings = computeCrossings( tsos, prop.propagationDirection());
   if(! crossings.isValid()) return;
 
-  vector<DetGroup> closestResult;
+  std::vector<DetGroup> closestResult;
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   if (closestResult.empty()){
-    vector<DetGroup> nextResult;
+    std::vector<DetGroup> nextResult;
     addClosest( tsos, prop, est, crossings.other(), nextResult);
     if(nextResult.empty())    return;
 
@@ -121,7 +123,7 @@ TOBRod::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     searchNeighbors( tsos, prop, est, crossings.closest(), window,
      		     closestResult, false);
 
-    vector<DetGroup> nextResult;
+    std::vector<DetGroup> nextResult;
     searchNeighbors( tsos, prop, est, crossings.other(), window,
 		     nextResult, true);
 
@@ -142,7 +144,7 @@ TOBRod::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   HelixBarrelPlaneCrossingByCircle crossing( startPos, startDir, rho, propDir);
 
-  pair<bool,double> innerPath = crossing.pathLength( *theInnerPlane);
+  std::pair<bool,double> innerPath = crossing.pathLength( *theInnerPlane);
   if (!innerPath.first) return SubLayerCrossings();
 
   GlobalPoint gInnerPoint( crossing.position(innerPath.second));
@@ -150,7 +152,7 @@ TOBRod::computeCrossings( const TrajectoryStateOnSurface& startingState,
   float innerDist = fabs( theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.z());
   SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
-  pair<bool,double> outerPath = crossing.pathLength( *theOuterPlane);
+  std::pair<bool,double> outerPath = crossing.pathLength( *theOuterPlane);
   if (!outerPath.first) return SubLayerCrossings();
 
   GlobalPoint gOuterPoint( crossing.position(outerPath.second));
@@ -194,6 +196,33 @@ float TOBRod::computeWindowSize( const GeomDet* det,
 
 
 
+namespace {
+
+  inline
+  bool overlap( const GlobalPoint& crossPoint, const GeomDet& det, float window) {
+    // check if the z window around TSOS overlaps with the detector theDet (with a 1% margin added)
+    
+    //   const float tolerance = 0.1;
+    constexpr float relativeMargin = 1.01;
+    
+    LocalPoint localCrossPoint( det.surface().toLocal(crossPoint));
+    //   if (fabs(localCrossPoint.z()) > tolerance) {
+    //     edm::LogInfo(TkDetLayers) << "TOBRod::overlap calculation assumes point on surface, but it is off by "
+    // 	 << localCrossPoint.z() ;
+    //   }
+    
+    float localY = localCrossPoint.y();
+    float detHalfLength = 0.5f*det.surface().bounds().length();
+    
+    //   edm::LogInfo(TkDetLayers) << "TOBRod::overlap: Det at " << det.position() << " hit at " << localY 
+    //        << " Window " << window << " halflength "  << detHalfLength ;
+    
+    return (std::abs(localY)-window) < relativeMargin*detHalfLength;
+    
+  }
+
+}
+
 void TOBRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			      const Propagator& prop,
 			      const MeasurementEstimator& est,
@@ -232,29 +261,4 @@ void TOBRod::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
 
 
-bool TOBRod::overlap( const GlobalPoint& crossPoint, const GeomDet& det, float window) const
-{
-  // check if the z window around TSOS overlaps with the detector theDet (with a 1% margin added)
-  
-  //   const float tolerance = 0.1;
-  const float relativeMargin = 1.01;
-
-  LocalPoint localCrossPoint( det.surface().toLocal(crossPoint));
-  //   if (fabs(localCrossPoint.z()) > tolerance) {
-  //     edm::LogInfo(TkDetLayers) << "TOBRod::overlap calculation assumes point on surface, but it is off by "
-  // 	 << localCrossPoint.z() ;
-  //   }
-
-  float localY = localCrossPoint.y();
-  float detHalfLength = det.surface().bounds().length()/2.;
-
-  //   edm::LogInfo(TkDetLayers) << "TOBRod::overlap: Det at " << det.position() << " hit at " << localY 
-  //        << " Window " << window << " halflength "  << detHalfLength ;
-  
-  if ( ( fabs(localY)-window) < relativeMargin*detHalfLength ) { // FIXME: margin hard-wired!
-    return true;
-  } else {
-    return false;
-  }
-}
 

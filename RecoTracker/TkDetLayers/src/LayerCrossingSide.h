@@ -16,28 +16,28 @@ class LayerCrossingSide {
 public:
 
   /// returns 0 if barrel layer crossed from inside, 1 if from outside
-  int barrelSide(const TrajectoryStateOnSurface& startingState, const Propagator& prop) const {
-    GlobalPoint pos = startingState.globalPosition();
-    GlobalVector radial(pos.x(), pos.y(), 0);
-    if (startingState.globalMomentum().dot( radial) > 0) {  // momentum points outwards
-      return (prop.propagationDirection() == alongMomentum ? 0 : 1);
-    }
-    else {  // momentum points inwards
-      return (prop.propagationDirection() == oppositeToMomentum ? 0 : 1);
-    }
+  static int barrelSide(const TrajectoryStateOnSurface& startingState, const Propagator& prop) {
+    auto pos = startingState.globalPosition();
+    auto dir = startingState.globalMomentum();
+    bool outwards = (pos.x()*dir.x() + pos.y()*dir.y()) > 0;
+
+    auto inout = outwards ? alongMomentum :  oppositeToMomentum;
+
+    return (prop.propagationDirection() == inout ? 0 : 1);
+    
   }
 
   /** returns 0 if endcap layer crossed from inside, ie from the side of the 
    *  interation region, 1 if from outside
    */
-  int endcapSide(const TrajectoryStateOnSurface& startingState, const Propagator& prop) const {
-    float zpos = startingState.globalPosition().z();
-    if (startingState.globalMomentum().z() * zpos > 0) {  // momentum points outwards
-      return (prop.propagationDirection() == alongMomentum ? 0 : 1);
-    }
-    else {  // momentum points inwards
-      return (prop.propagationDirection() == oppositeToMomentum ? 0 : 1);
-    }
+  static int endcapSide(const TrajectoryStateOnSurface& startingState, const Propagator& prop) {
+    auto zpos = startingState.globalPosition().z();
+    bool outwards = (startingState.globalMomentum().z() * zpos) > 0; 
+
+    auto inout = outwards ? alongMomentum :  oppositeToMomentum;
+
+    return (prop.propagationDirection() == inout ? 0 : 1);
+
   }
 
 };

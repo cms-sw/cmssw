@@ -14,7 +14,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSearchDetWithGroups {
+class PixelBarrelLayer GCC11_FINAL : public RodBarrelLayer {
  public:
   typedef PeriodicBinFinderInPhi<double>   BinFinderType;
 
@@ -28,12 +28,12 @@ class PixelBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSear
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
     
 
   // DetLayer interface
@@ -46,13 +46,13 @@ class PixelBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSear
   // In the future, to move common code in a common place!
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
-				      PropagationDirection propDir) const;
+				      PropagationDirection propDir) const __attribute__ ((hot));
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -70,7 +70,7 @@ class PixelBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSear
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const;
+			bool checkClosest) const __attribute__ ((hot));
 
   const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
     return (ind==0 ? theInnerComps : theOuterComps);}

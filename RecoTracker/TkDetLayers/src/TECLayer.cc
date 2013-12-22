@@ -18,8 +18,44 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
+namespace {
+
+  template<typename T>
+  BoundDisk*
+  computeDisk( vector<const T*>& petals) {
+  // Attention: it is assumed that the petals do belong to one layer, and are all
+  // of the same rmin/rmax extension !!  
+  
+    const BoundDiskSector&  diskSector = static_cast<const BoundDiskSector&>(petals.front()->surface());
+
+    float rmin = diskSector.innerRadius();
+    float rmax = diskSector.outerRadius();
+    
+    float theZmax(petals.front()->position().z());
+    float theZmin(theZmax);
+    for ( auto i = petals.begin(); i != petals.end(); i++ ) {
+      float zmin = (**i).position().z() - (**i).surface().bounds().thickness()/2.;
+      float zmax = (**i).position().z() + (**i).surface().bounds().thickness()/2.;
+      theZmax = max( theZmax, zmax);
+      theZmin = min( theZmin, zmin);
+    }
+    
+    float zPos = (theZmax+theZmin)/2.;
+    Surface::PositionType pos(0.,0.,zPos);
+    Surface::RotationType rot;
+    
+    return new BoundDisk( pos, rot, new SimpleDiskBounds(rmin, rmax,    
+							 theZmin-zPos, theZmax-zPos));
+  }
+
+}
+
+
+
+
 TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 		   vector<const TECPetal*>& outerPetals) : 
+  ForwardDetLayer(true),
   theFrontComps(innerPetals.begin(),innerPetals.end()), 
   theBackComps(outerPetals.begin(),outerPetals.end())
 {
@@ -58,7 +94,7 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 			  << this->specificSurface().outerRadius() ;
   
 
-  for(vector<const GeometricSearchDet*>::const_iterator it=theFrontComps.begin(); 
+  for(auto it=theFrontComps.begin(); 
       it!=theFrontComps.end(); it++){
     LogDebug("TkDetLayers") << "frontPetal phi,z,r: " 
 	 << (*it)->surface().position().phi() << " , "
@@ -66,7 +102,7 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 	 << (*it)->surface().position().perp() ;
   }
 
-  for(vector<const GeometricSearchDet*>::const_iterator it=theBackComps.begin(); 
+  for(auto it=theBackComps.begin(); 
       it!=theBackComps.end(); it++){
     LogDebug("TkDetLayers") << "backPetal phi,z,r: " 
 	 << (*it)->surface().position().phi() << " , "
@@ -81,8 +117,7 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 
 
 TECLayer::~TECLayer(){
-  vector<const GeometricSearchDet*>::const_iterator i;
-  for (i=theComps.begin(); i!=theComps.end(); i++) {
+  for (auto i=theComps.begin(); i!=theComps.end(); i++) {
     delete *i;
   }
 } 
@@ -110,7 +145,7 @@ TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     
 
     DetGroupElement nextGel( nextResult.front().front());  
-    int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide::endcapSide( nextGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					    crossings.closestIndex(), crossingSide);   
   }  
@@ -123,7 +158,7 @@ TECLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     searchNeighbors( tsos, prop, est, crossings.other(), phiWindow,
 		     nextResult, true); 
     
-    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide::endcapSide( closestGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result,
 					    crossings.closestIndex(), crossingSide);
   }
@@ -143,6 +178,7 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
 
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
+
   LogDebug("TkDetLayers") 
     << "in TECLayer,front crossing point: r,z,phi: (" 
     << gFrontPoint.perp() << ","
@@ -172,10 +208,10 @@ SubLayerCrossings TECLayer::computeCrossings(const TrajectoryStateOnSurface& sta
 
   
   // 0ss: frontDisk has index=0, backDisk has index=1
-  float frontDist = std::abs(Geom::deltaPhi( double(gFrontPoint.barePhi()), 
-					     double(theFrontComps[frontIndex]->surface().phi())));
-  float backDist = std::abs(Geom::deltaPhi( double(gBackPoint.barePhi()), 
-					    double(theBackComps[backIndex]->surface().phi())));
+  float frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), 
+					     theFrontComps[frontIndex]->surface().phi()) );
+  float backDist = std::abs(Geom::deltaPhi( gBackPoint.barePhi(), 
+					    theBackComps[backIndex]->surface().phi()) );
   
 
   if (frontDist < backDist) {
@@ -192,8 +228,8 @@ bool TECLayer::addClosest( const TrajectoryStateOnSurface& tsos,
 			   const SubLayerCrossing& crossing,
 			   vector<DetGroup>& result) const
 {
-  const vector<const GeometricSearchDet*>& sub( subLayer( crossing.subLayerIndex()));
-  const GeometricSearchDet* det(sub[crossing.closestDetIndex()]);
+  const auto & sub( subLayer( crossing.subLayerIndex()));
+  const auto  det(sub[crossing.closestDetIndex()]);
 
   LogDebug("TkDetLayers")  
     << "in TECLayer, adding petal at r,z,phi: (" 
@@ -202,6 +238,22 @@ bool TECLayer::addClosest( const TrajectoryStateOnSurface& tsos,
     << det->position().phi() << ")" << endl;
 
   return CompatibleDetToGroupAdder().add( *det, tsos, prop, est, result); 
+}
+
+
+namespace {
+  inline
+  bool overlap(float phi, const TECPetal& gsdet, float phiWin) {
+    
+    const BoundDiskSector &  diskSector = gsdet.specificSurface();
+    pair<float,float> phiRange(phi-phiWin,phi+phiWin);
+    pair<float,float> petalPhiRange(diskSector.phi() - 0.5f*diskSector.phiExtension(),
+				    diskSector.phi() + 0.5f*diskSector.phiExtension());
+    
+    
+    return rangesIntersect(phiRange, petalPhiRange, PhiLess());
+  }
+  
 }
 
 void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
@@ -213,15 +265,16 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				bool checkClosest) const
 {
   GlobalPoint gCrossingPos = crossing.position();
-  
-  const vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));
+  auto gphi = gCrossingPos.barePhi();  
+
+  const auto & sLayer( subLayer( crossing.subLayerIndex()));
  
   int closestIndex = crossing.closestDetIndex();
   int negStartIndex = closestIndex-1;
   int posStartIndex = closestIndex+1;
 
   if (checkClosest) { // must decide if the closest is on the neg or pos side
-    if ( PhiLess()( gCrossingPos.phi(), sLayer[closestIndex]->position().phi())) {
+    if ( PhiLess()( gphi, sLayer[closestIndex]->surface().phi())) {
       posStartIndex = closestIndex;
     }
     else {
@@ -234,58 +287,21 @@ void TECLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   typedef CompatibleDetToGroupAdder Adder;
   int half = sLayer.size()/2;  // to check if dets are called twice....
   for (int idet=negStartIndex; idet >= negStartIndex - half; idet--) {
-    const GeometricSearchDet & neighborPetal = *sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, neighborPetal, window)) break;
+    const auto & neighborPetal = *sLayer[binFinder.binIndex(idet)];
+    if (!overlap( gphi, neighborPetal, window)) break;
     if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
   for (int idet=posStartIndex; idet < posStartIndex + half; idet++) {
-    const GeometricSearchDet & neighborPetal = *sLayer[binFinder.binIndex(idet)];
-    if (!overlap( gCrossingPos, neighborPetal, window)) break;
+    const auto & neighborPetal = *sLayer[binFinder.binIndex(idet)];
+    if (!overlap( gphi, neighborPetal, window)) break;
     if (!Adder::add( neighborPetal, tsos, prop, est, result)) break;
     // maybe also add shallow crossing angle test here???
   }
 }
 
-bool TECLayer::overlap( const GlobalPoint& gpos, const GeometricSearchDet& gsdet, float phiWin) const
-{
-  float phi = gpos.barePhi();
-  const BoundDiskSector&  diskSector = static_cast<const BoundDiskSector&>(gsdet.surface());
-  pair<float,float> phiRange(phi-phiWin,phi+phiWin);
-  pair<float,float> petalPhiRange(diskSector.phi() - 0.5*diskSector.phiExtension(),
-				  diskSector.phi() + 0.5*diskSector.phiExtension());
-
-
-  return rangesIntersect(phiRange, petalPhiRange, PhiLess());
-}
 
 
 
-BoundDisk*
-TECLayer::computeDisk( vector<const GeometricSearchDet*>& petals) const
-{
-  // Attention: it is assumed that the petals do belong to one layer, and are all
-  // of the same rmin/rmax extension !!  
-  
-  const BoundDiskSector&  diskSector = static_cast<const BoundDiskSector&>(petals.front()->surface());
 
-  float rmin = diskSector.innerRadius();
-  float rmax = diskSector.outerRadius();
-  
-  float theZmax(petals.front()->position().z());
-  float theZmin(theZmax);
-  for ( vector<const GeometricSearchDet*>::const_iterator i = petals.begin(); i != petals.end(); i++ ) {
-    float zmin = (**i).position().z() - (**i).surface().bounds().thickness()/2.;
-    float zmax = (**i).position().z() + (**i).surface().bounds().thickness()/2.;
-    theZmax = max( theZmax, zmax);
-    theZmin = min( theZmin, zmin);
-  }
-
-  float zPos = (theZmax+theZmin)/2.;
-  PositionType pos(0.,0.,zPos);
-  RotationType rot;
-
-  return new BoundDisk( pos, rot, new SimpleDiskBounds(rmin, rmax,    
-				       		       theZmin-zPos, theZmax-zPos));
-}
 

@@ -20,7 +20,7 @@ using namespace std;
 
 MuRingForwardDoubleLayer::MuRingForwardDoubleLayer(const vector<const ForwardDetRing*>& frontRings,
                                        const vector<const ForwardDetRing*>& backRings) :
-
+  RingedForwardLayer(true),
   theFrontLayer(frontRings),
   theBackLayer(backRings),
   theRings(frontRings), // add back later

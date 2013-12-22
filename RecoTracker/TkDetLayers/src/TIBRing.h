@@ -10,29 +10,29 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
+class TIBRing GCC11_FINAL : public GeometricSearchDet{
  public:
-  TIBRing(std::vector<const GeomDet*>& theGeomDets);
-  ~TIBRing();
+  TIBRing(std::vector<const GeomDet*>& theGeomDets) __attribute__ ((cold));
+  ~TIBRing() __attribute__ ((cold));
   
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theCylinder;}  
 
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
 
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+	      const MeasurementEstimator&) const __attribute__ ((cold));
 
   
   virtual void 
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			  const Propagator& prop,
 			  const MeasurementEstimator& est,
-			  std::vector<DetGroup> & result) const;
+			  std::vector<DetGroup> & result) const __attribute__ ((hot));
 
  
   //--- Extension of the interface
@@ -44,12 +44,12 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
   //general private methods
 
   void checkPeriodicity(std::vector<const GeomDet*>::const_iterator first,
-			std::vector<const GeomDet*>::const_iterator last);
+			std::vector<const GeomDet*>::const_iterator last) __attribute__ ((cold));
 
   void checkRadius(std::vector<const GeomDet*>::const_iterator first,
-		   std::vector<const GeomDet*>::const_iterator last);
+		   std::vector<const GeomDet*>::const_iterator last) __attribute__ ((cold));
   
-  void computeHelicity();
+  void computeHelicity() __attribute__ ((cold));
 
   // methods for groupedCompatibleDets implementation
   struct SubRingCrossings {
@@ -69,15 +69,15 @@ class TIBRing GCC11_FINAL : public GeometricSearchDetWithGroups{
 			const MeasurementEstimator& est,
 			const SubRingCrossings& crossings,
 			float window, 
-			std::vector<DetGroup>& result) const;
+			std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   SubRingCrossings 
   computeCrossings( const TrajectoryStateOnSurface& startingState,
-		    PropagationDirection propDir) const;
+		    PropagationDirection propDir) const __attribute__ ((hot));
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+			   const MeasurementEstimator& est) const __attribute__ ((hot));
 
 
 

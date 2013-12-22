@@ -13,22 +13,22 @@
  */
 
 #pragma GCC visibility push(hidden)
-class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
+class TECLayer : public ForwardDetLayer  {
  public:
   TECLayer(std::vector<const TECPetal*>& innerPetals,
-	   std::vector<const TECPetal*>& outerPetals);
-  ~TECLayer();
+	   std::vector<const TECPetal*>& outerPetals) __attribute__ ((cold));
+  ~TECLayer() __attribute__ ((cold));
   
   // GeometricSearchDet interface
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
  
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::TEC;}
@@ -36,15 +36,17 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 
   
  private:
+
+
   // private methods for the implementation of groupedCompatibleDets()
   SubLayerCrossings   computeCrossings( const TrajectoryStateOnSurface& startingState,
-					PropagationDirection propDir) const;
+					PropagationDirection propDir) const __attribute__ ((hot));
 
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
 
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -52,24 +54,23 @@ class TECLayer : public ForwardDetLayer , public GeometricSearchDetWithGroups {
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const;
+			bool checkClosest) const __attribute__ ((hot));
   
 
-  bool overlap( const GlobalPoint& gpos, const GeometricSearchDet& petal, float window) const;
 
-  const std::vector<const GeometricSearchDet*>& subLayer( int ind) const {
+  const std::vector<const TECPetal*>& subLayer( int ind) const {
     return (ind==0 ? theFrontComps : theBackComps);
   }
 
 
  protected:
-  virtual BoundDisk* computeDisk( std::vector<const GeometricSearchDet*>& petals) const;
 
   std::vector<const GeometricSearchDet*> theComps;
-  std::vector<const GeometricSearchDet*> theFrontComps;
-  std::vector<const GeometricSearchDet*> theBackComps;
   std::vector<const GeomDet*> theBasicComps;
 
+  std::vector<const TECPetal*> theFrontComps;
+  std::vector<const TECPetal*> theBackComps;
+ 
 
   ReferenceCountingPointer<BoundDisk>  theFrontDisk;
   ReferenceCountingPointer<BoundDisk>  theBackDisk;
