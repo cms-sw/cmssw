@@ -107,8 +107,8 @@ std::tuple<bool,int,int>  TOBLayer::computeIndexes(GlobalPoint gInnerPoint, Glob
   
   innerDist *= PhiLess()( theInnerBinFinder.binPosition(innerIndex),gInnerPoint.barePhi()) ? -1.f : 1.f; 
   outerDist *= PhiLess()( theOuterBinFinder.binPosition(outerIndex),gOuterPoint.barePhi()) ? -1.f : 1.f; 
-  if (innerDist < 0.) { innerDist += Geom::ftwoPi();}
-  if (outerDist < 0.) { outerDist += Geom::ftwoPi();}
+  if (innerDist < 0.f) { innerDist += Geom::ftwoPi();}
+  if (outerDist < 0.f) { outerDist += Geom::ftwoPi();}
  
   return std::make_tuple(innerDist < outerDist,innerIndex, outerIndex);
 }
