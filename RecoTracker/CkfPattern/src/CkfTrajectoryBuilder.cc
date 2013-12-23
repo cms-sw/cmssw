@@ -239,17 +239,31 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	}
       }
 
-      // auto trajVal = [&](TempTrajectory const & a) {
-      //	return  (a.chiSquared() + a.lostHits()*theLostHitPenalty);
-      // };
+      auto trajVal = [&](TempTrajectory const & a) {
+      	return  (a.chiSquared() + a.lostHits()*theLostHitPenalty);
+      };
 
       // if ((int)newCand.size() > theMaxCand) std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' ' <<  trajVal(newCand.front());
+      int toCut = int(newCand.size()) - int(theMaxCand);
+      if (toCut>0) {
+        // move largest "toCut" to the end
+        for (int i=0; i<toCut; ++i)
+          std::pop_heap(newCand.begin(),newCand.end()-i,trajCandLess);
+        auto fval = trajVal(newCand.front());
+        // remove till equal to highest to keep
+        for (int i=0; i<toCut; ++i) {
+           if (fval==trajVal(newCand.back())) break;
+           newCand.pop_back();
+        }
+      }
+
+      /*
       while ((int)newCand.size() > theMaxCand) {
 	std::pop_heap(newCand.begin(),newCand.end(),trajCandLess);
 	// if ((int)newCand.size() == theMaxCand+1) std::cout << " " << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
 	newCand.pop_back();
        }
-      
+      */
 
       /*
       if ((int)newCand.size() > theMaxCand) {
