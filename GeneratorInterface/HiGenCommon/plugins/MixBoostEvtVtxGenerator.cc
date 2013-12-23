@@ -147,9 +147,6 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
 
 MixBoostEvtVtxGenerator::~MixBoostEvtVtxGenerator() 
 {
-  delete fVertex ;
-  if (boost_ != 0 ) delete boost_;
-  delete fRandom; 
 }
 
 CLHEP::HepRandomEngine& MixBoostEvtVtxGenerator::getEngine(){
