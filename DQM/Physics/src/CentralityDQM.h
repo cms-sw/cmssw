@@ -38,6 +38,7 @@ private:
   
   DQMStore* bei_;  
 
+  edm::InputTag centrality_;
   ///////////////////////////
   // Histograms
   ///////////////////////////

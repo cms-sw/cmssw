@@ -33,6 +33,9 @@ CentralityDQM::CentralityDQM(const edm::ParameterSet& ps){
   bei_->setCurrentFolder("Physics/Centrality");
   bookHistos(bei_);
 
+  centrality_ = ps.getParameter<edm::InputTag>("centrality_");
+
+
   // just to initialize
 }
 
@@ -109,27 +112,27 @@ void CentralityDQM::bookHistos(DQMStore* bei){
 //
 void CentralityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){ 
   using namespace edm;  
-  edm::Handle<reco::Centrality> centrality_;
-  iEvent.getByLabel("hiCentrality",centrality_); //_centralitytag comes from the cfg as an inputTag and is "hiCentrality"
+  edm::Handle<reco::Centrality> cent;
+  iEvent.getByLabel(centrality_, cent); //_centralitytag comes from the cfg as an inputTag and is "hiCentrality"
 
-  if (!centrality_.isValid()) return;
+  if (!cent.isValid()) return;
 
-  h_hiNpix->Fill(centrality_->multiplicityPixel());
-  h_hiNpixelTracks ->Fill( centrality_->NpixelTracks());
-  h_hiNtracks ->Fill( centrality_->Ntracks()); // 
-  h_hiHF ->Fill( centrality_->EtHFtowerSum()); //
-  h_hiHFplus ->Fill( centrality_->EtHFtowerSumPlus());
-  h_hiHFminus ->Fill( centrality_->EtHFtowerSumMinus());
-  h_hiHFplusEta4 ->Fill( centrality_->EtHFtruncatedPlus());
-  h_hiHFminusEta4 ->Fill( centrality_->EtHFtruncatedMinus());
-  h_hiZDC ->Fill( centrality_->zdcSum());
-  h_hiZDCplus ->Fill( centrality_->zdcSumPlus());
-  h_hiZDCminus ->Fill( centrality_->zdcSumMinus());
-  h_hiEEplus ->Fill( centrality_->EtEESumPlus());
-  h_hiEEminus ->Fill( centrality_->EtEESumMinus());
-  h_hiEE ->Fill( centrality_->EtEESum());
-  h_hiEB ->Fill( centrality_->EtEBSum());
-  h_hiET ->Fill( centrality_->EtMidRapiditySum());
+  h_hiNpix->Fill(cent->multiplicityPixel());
+  h_hiNpixelTracks ->Fill( cent->NpixelTracks());
+  h_hiNtracks ->Fill( cent->Ntracks()); // 
+  h_hiHF ->Fill( cent->EtHFtowerSum()); //
+  h_hiHFplus ->Fill( cent->EtHFtowerSumPlus());
+  h_hiHFminus ->Fill( cent->EtHFtowerSumMinus());
+  h_hiHFplusEta4 ->Fill( cent->EtHFtruncatedPlus());
+  h_hiHFminusEta4 ->Fill( cent->EtHFtruncatedMinus());
+  h_hiZDC ->Fill( cent->zdcSum());
+  h_hiZDCplus ->Fill( cent->zdcSumPlus());
+  h_hiZDCminus ->Fill( cent->zdcSumMinus());
+  h_hiEEplus ->Fill( cent->EtEESumPlus());
+  h_hiEEminus ->Fill( cent->EtEESumMinus());
+  h_hiEE ->Fill( cent->EtEESum());
+  h_hiEB ->Fill( cent->EtEBSum());
+  h_hiET ->Fill( cent->EtMidRapiditySum());
   
 }
 
