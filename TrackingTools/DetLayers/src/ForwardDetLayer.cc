@@ -137,5 +137,5 @@ ForwardDetLayer::compatible( const TrajectoryStateOnSurface& ts,
   // check r again;
   auto ri2 = std::max(rmin()-deltaR,0.f); ri2*=ri2;
   auto ro2 = rmax()+deltaR; ro2*=ro2;
-  return make_pair( r2>ri2 & r2<ro2 , myState);
+  return make_pair( (r2>ri2) & (r2<ro2), myState);
 }
