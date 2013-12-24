@@ -128,8 +128,6 @@ namespace edm {
     // Strip default comparator
     std::string const comparator(",std::less<");
     removeParameter(demangledName, comparator);
-    // Replace 'std::string' with 'std::basic_string<char>'.
-    replaceDelimitedString(demangledName, "std::string", "std::basic_string<char>");
     // Put const qualifier before identifier.
     constBeforeIdentifier(demangledName);
     // No two consecutive '>' 
