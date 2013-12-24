@@ -4,3 +4,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Catalog"/>
 <use   name="rootcore"/>
+<export>
+  <lib   name="1"/>
+</export>
