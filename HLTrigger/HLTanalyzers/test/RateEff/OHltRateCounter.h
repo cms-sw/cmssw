@@ -15,7 +15,7 @@ class OHltRateCounter
 {
 public:
 
-   OHltRateCounter(unsigned int size, unsigned int l1size);
+   OHltRateCounter(double size, double l1size);
    
    virtual ~OHltRateCounter() {}
 
@@ -42,117 +42,117 @@ public:
    int getIDofRunLSCounter(int Run, int LumiBlock);
 
    // Helper functions
-   static inline float eff(int a, int b)
+   static inline double eff(int a, int b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      float af = float(a), bf = float(b), effi = af/bf;
+      double af = double(a), bf = double(b), effi = af/bf;
       return effi;
    }
    
-   static inline float effErr(int a, int b)
+   static inline double effErr(int a, int b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      float af = float(a), bf = float(b), r = af/bf;
-      float unc = sqrt(af + (r*r*bf))/bf;
+      double af = double(a), bf = double(b), r = af/bf;
+      double unc = sqrt(af + (r*r*bf))/bf;
       return unc;
    }
    
-   static inline float effErrb(int a, int b)
+   static inline double effErrb(int a, int b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      float af = float(a), bf = float(b), r = af/bf;
-      float unc = sqrt(af - (r*r*bf))/bf;
+      double af = double(a), bf = double(b), r = af/bf;
+      double unc = sqrt(af - (r*r*bf))/bf;
       return unc;
    }
    
-   static inline float eff(float a, float b)
+   static inline double eff(double a, double b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      float af = float(a), bf = float(b), effi = af/bf;
+      double af = double(a), bf = double(b), effi = af/bf;
       return effi;
    }
    
-   static inline float effErr(float a, float b)
+   static inline double effErr(double a, double b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      float af = float(a), bf = float(b), r = af/bf;
-      float unc = sqrt(af + (r*r*bf))/bf;
+      double af = double(a), bf = double(b), r = af/bf;
+      double unc = sqrt(af + (r*r*bf))/bf;
       return unc;
    }
    
-   static inline float effErrb(float a, float b)
+   static inline double effErrb(double a, double b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      float af = float(a), bf = float(b), r = af/bf;
-      float unc = sqrt(af - (r*r*bf))/bf;
+      double af = double(a), bf = double(b), r = af/bf;
+      double unc = sqrt(af - (r*r*bf))/bf;
       return unc;
    }
 
-   static inline float errRate2(float a, float b)
+   static inline double errRate2(double a, double b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      float af = float(a), bf = float(b);
-      float unc = af/(bf*bf);
+      double af = double(a), bf = double(b);
+      double unc = af/(bf*bf);
 
-      //float unc = sqrt(af + (r*r*bf) )/bf;
-      return unc;
-   }
-   
-   static inline float errRate2(int a, int b)
-   {
-      if (b==0.)
-      {
-         return -1.;
-      }
-      float af = float(a), bf = float(b);
-      float unc = af/(bf*bf);
-
-      //float unc = sqrt(af + (r*r*bf) )/bf;
+      //double unc = sqrt(af + (r*r*bf) )/bf;
       return unc;
    }
    
-   static inline float errRate2(int a, float b)
+   static inline double errRate2(int a, int b)
    {
       if (b==0.)
       {
          return -1.;
       }
-      float af = float(a), bf = float(b);
-      float unc = af/(bf*bf);
+      double af = double(a), bf = double(b);
+      double unc = af/(bf*bf);
 
-      //float unc = sqrt(af + (r*r*bf) )/bf;
+      //double unc = sqrt(af + (r*r*bf) )/bf;
+      return unc;
+   }
+   
+   static inline double errRate2(int a, double b)
+   {
+      if (b==0.)
+      {
+         return -1.;
+      }
+      double af = double(a), bf = double(b);
+      double unc = af/(bf*bf);
+
+      //double unc = sqrt(af + (r*r*bf) )/bf;
       return unc;
    }
 
    // Data
-   std::vector<int> iCount;
-   std::vector<int> iL1Count;
-   std::vector<int> sPureCount;
-   std::vector<int> pureCount;
-   std::vector< std::vector<int> > overlapCount;
-   std::vector<int> prescaleCount;
-   std::vector<int> prescaleCountL1;
+   std::vector<double> iCount;
+   std::vector<double> iL1Count;
+   std::vector<double> sPureCount;
+   std::vector<double> pureCount;
+   std::vector< std::vector<double> > overlapCount;
+   std::vector<double> prescaleCount;
+   std::vector<double> prescaleCountL1;
 
    std::vector< std::vector<int> > perLumiSectionCount;
    std::vector<int> perLumiSectionTotCount;

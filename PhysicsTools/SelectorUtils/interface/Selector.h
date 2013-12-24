@@ -10,7 +10,7 @@
   The user can then turn individual cuts on and off at will. 
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.13 2010/08/09 13:50:05 srappocc Exp $
+  \version  $Id: Selector.h,v 1.14 2013/05/27 12:59:15 eulisse Exp $
 */
 
 
@@ -271,8 +271,8 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
     return getPasses( index_type(&bits_,s) );
   }
   double getPasses( index_type const &i ) const {
-    cut_flow_map::iterator found = cutFlow_.end();
-    for ( cut_flow_map::iterator cutsBegin = cutFlow_.begin(),
+    cut_flow_map::const_iterator found = cutFlow_.end();
+    for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
             cutsEnd = cutFlow_.end(), icut = cutsBegin;
           icut != cutsEnd && found == cutsEnd; ++icut ) {
       if ( icut->first == i ) {

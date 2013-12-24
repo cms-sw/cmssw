@@ -97,6 +97,9 @@ void TauValidation::beginJob()
     TauSpinEffectsZ_Zs   = dbe->book1D("TauSpinEffectsZZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
     TauSpinEffectsH_Zs   = dbe->book1D("TauSpinEffectsHZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
 
+    TauSpinEffectsZ_X= dbe->book1D("TauSpinEffectsZX","X of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsH_X= dbe->book1D("TauSpinEffectsH_X","X of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsH_X->setAxisTitle("X");
+
     TauSpinEffectsZ_Xf   = dbe->book1D("TauSpinEffectsZXf","X of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
     TauSpinEffectsH_Xf   = dbe->book1D("TauSpinEffectsHXf","X of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
 
@@ -555,6 +558,10 @@ void TauValidation::spinEffectsZ(const HepMC::GenParticle* boson, double weight)
 	int charge = (int) pd->charge();
 	LVtau.Boost(-1*Zboson.BoostVector());
 	LVpi.Boost(-1*Zboson.BoostVector());
+	if(tauDecayChannel(*des) == pi){
+	  if(abs(boson->pdg_id())==PdtPdgMini::Z0) TauSpinEffectsZ_X->Fill(LVpi.P()/LVtau.E(),weight);
+	  if(abs(boson->pdg_id())==PdtPdgMini::Higgs0) TauSpinEffectsH_X->Fill(LVpi.P()/LVtau.E(),weight);
+	}
 	if(charge<0){x1=LVpi.P()/LVtau.E(); taum=LVtau;}
 	else{ x2=LVpi.P()/LVtau.E();}
      }

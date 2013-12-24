@@ -22,11 +22,12 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     import time
     import sys
     import ROOT       
-    
+    from math import sqrt, log10, floor
+
     # the fundamental structure: the key is the evt number the value is a list containing
     # VSIZE deltaVSIZE RSS deltaRSS
     data=[]
-    
+    report = '' 
     # open file and read it and fill the structure!
     logfile=open(logfile_name,'r')
     logfile_lines=logfile.readlines()
@@ -34,6 +35,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
 
     # we get the info we need!
     i=0
+    parse_report=True
     while i < len(logfile_lines):
         line=logfile_lines[i]
         if 'TimeEvent>' in line:
@@ -42,8 +44,28 @@ def manipulate_log(outdir,logfile_name,secsperbin):
             event_number=int(line_content_list[1])
             seconds=float(line_content_list[3])
             data.append((event_number,seconds))
+        elif parse_report and'TimeReport' in line:
+            # add an empty line before report's tables
+            if '[sec]' in line:
+                report+='\n'
+                report += line.replace('TimeReport', '')
+            # remove two non-informative lines
+            elif 'headings' in line:
+               i+=1
+               continue
+            # parsing last summaries
+            elif 'complete' in line:
+               report += '\n'
+               report += line.replace('TimeReport', '')
+               for k in range(12):
+                   report += logfile_lines[i]
+                   i+=1
+               parse_report=False
+            # add simple report line
+            else:
+               report += line.replace('TimeReport', '') 
         i+=1
-                                              
+
     # init Graph and histo
     
     # The Graphs 
@@ -72,7 +94,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     
     nbins=int(interval/secsperbin)
     
-    print 'Minval=',min_val,' maxval=',max_val, ' interval=',interval
+    print 'Minval =', min_val,' maxval =',max_val, ' interval =',interval
     
     histo=ROOT.TH1F('Seconds per event','Seconds per event',nbins,min_val,max_val)
     histo.GetXaxis().SetTitle("s")    
@@ -109,8 +131,21 @@ def manipulate_log(outdir,logfile_name,secsperbin):
         total+=secs
         evt_counter+=1
         
-    print 'Total Time=', total
-        
+    average=total/evt_counter
+    
+    sum=0.
+    for i in range(evt_counter):
+        sum+=(data[i][1]-average)**2
+    uncertainty= sqrt(sum/(evt_counter*(evt_counter-1)))
+ 
+    # round uncertainty to the most significant digit
+    #rounded_uncertainty=round(uncertainty, -int(floor(log10(uncertainty))))
+    #print 'Rounded uncertainty=' , rounded_uncertainty  
+
+    print 'Total Time =', total
+    print 'Average Time =', average    
+    print 'Uncertainty of Average Time =', average, '+/-', uncertainty
+
     #A line which represents the average is drawn in the TGraph
     avg=histo.GetMean()
     avg_line=ROOT.TLine(1,avg,last_event,avg)
@@ -123,7 +158,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     graph.Draw("ALP")
     avg_line.Draw("Same")
     
-    graph_canvas.Print("%s/graph.gif" %outdir,"gif")
+    graph_canvas.Print("%s/graph.png" %outdir,"png")
     
     # write it on file
     graph.Write()
@@ -133,7 +168,7 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     histo_canvas.cd()
     histo.Draw('')
 
-    histo_canvas.Print("%s/histo.gif" %outdir,"gif")
+    histo_canvas.Print("%s/histo.png" %outdir,"png")
     
     # write it on file
     histo.Write()
@@ -146,15 +181,16 @@ def manipulate_log(outdir,logfile_name,secsperbin):
     titlestring='<b>Report executed with release %s on %s.</b>\n<br>\n<hr>\n'\
                                    %(os.environ['CMSSW_VERSION'],time.asctime())
         
-    html_file_name='%s/%s.html' %(outdir,logfile_name[:-4])# a way to say the string until its last but 4th char
+    html_file_name='%s/%s_TimingReport.html' %(outdir,logfile_name[:-4])# a way to say the string until its last but 4th char
     html_file=open(html_file_name,'w')
     html_file.write('<html>\n<body>\n'+\
                     titlestring)
     html_file.write('<table>\n'+\
-                    '<tr><td><img  src=graph.gif></img></td></tr>'+\
-                    '<tr><td><img  src=histo.gif></img></td></tr>'+\
+                    '<tr>\n<td><img  src=graph.png></img></td>\n'+\
+                    '<td><img  src=histo.png></img></td>\n</tr>\n'+\
                     '</table>\n')
-    html_file.write('\n</body>\n</html>')
+    html_file.write('<hr>\n<h2>Time Report</h2>\n<pre>\n' + report + '</pre>\n')
+    html_file.write('</body>\n</html>')
     html_file.close()    
     
     

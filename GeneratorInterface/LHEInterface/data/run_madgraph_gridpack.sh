@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #set -o verbose
+set -e
 
 echo "   ______________________________________     "
 echo "         Running Madgraph5....                "
@@ -40,45 +41,74 @@ echo "%MSG-MG5 number of events requested = $nevt"
 rnum=${12}
 echo "%MSG-MG5 random seed used for the run = $rnum"
 
-# retrieve the wanted gridpack from the official repository 
-
-fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_gridpack.tar.gz 
+# retrieve the wanted gridpack from the official repository
+## || true is a temporary workaround to work with option -e and overcome the fact that the exist code of fn-fileget is 1 even if it succeeds
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_gridpack.tar.gz || true
 
 # force the f77 compiler to be the CMS defined one
-
 ln -sf `which gfortran` f77
 ln -sf `which gfortran` g77
 PATH=`pwd`:${PATH}
 
 tar xzf ${name}_gridpack.tar.gz ; rm -f ${name}_gridpack.tar.gz ; cd madevent
+## rename addmasses.py to addmasses.py.no
 
-## compile according to MG version 1.3.30 or 1.4.3 
-version=`cat MGMEVersion.txt | grep -c "1.4"`
+find . -name addmasses.py -exec mv {} {}.no \;
 
-if [ "$version" -eq "0" ] ; then
-#./bin/compile
-#./bin/clean4grid
-mv bin/addmasses.py bin/addmasses.py.no
+########### BEGIN - REPLACE process ################
+# REPLACE script is runned automatically by run.sh if REPLACE dir is found ###
+# REPLACE will replace el with el/mu/taus by default, if you need something else you need to edit the replace_card1.dat
+if [ ${replace} == true ] ; then
+  echo "%MSG-MG5: REPLACE is not working on SLC6 nodes and had been disabled." 
+  echo "%MSG-MG5: Please produce your gridpack with explicit lepton flavours in the proc_card.dat"
+#########THE USE OF REPLACE HAS BEEN DISABLED!
+#########this is due to a clash between zlib in cmssw and Compress::Zlib in SLC6 nodes 
+#    cd ..
+#    mkdir REPLACE
+#    cat > replace_card1.dat <<EOF
+## Enter here any particles you want replaced in the event file after ME run
+## In the syntax PID : PID1 PID2 PID3 ...
+## End with "done" or <newline>
+#11:11 13 15
+#-12: -12 -14 -16
+#-11:-11 -13 -15
+#12: 12 14 16
+#done
+#EOF
+#    cp  ./madevent/bin/replace.pl  ./replace_card1.dat  ./REPLACE/
+#    chmod a+x ./REPLACE/replace.pl
+#    cd -
+  exit 1
+fi	
+########## END - REPLACE #########################
+
+
+###### BEGIN - DECAY process #################
+# Decay is runned automatically by run.sh if DECAY dir is found
+# To avoid compilation problem DECAY dir has been created and compiled when gridpack is created
+# if not needed DECAY dir is deleted
+
+if [ "${decay}" != true ] ; then
+    rm -rf DECAY
+else
+  cd ..
+  cp  -r ./madevent/bin/internal/DECAY .
+  cd -
 fi
 
-if [ "$version" -eq "1" ] ; then
-#./bin/change_compiler.py
-#./bin/compile
-#./bin/clean4grid
-mv bin/internal/addmasses.py bin/internal/addmasses.py.no
-fi
-
-
-cd ..
+######END - DECAY #####
 
 # run the production stage
+cd ..
 ./run.sh ${nevt} ${rnum}
+
+ls -al
 
 file="events"
 
 if [ ! -f ${file}.lhe.gz ]; then
         echo "%MSG-MG5 events.lhe.gz file is not in the same folder with run.sh script, abort  !!! "
-        exit
+        exit 1
 
 fi
 
@@ -96,7 +126,6 @@ echo
 if [ -f ${file}.lhe ] ; then
         seed=`awk 'BEGIN{FS=" = gseed  "}/gseed/{print $1}' ${file}.lhe`
         number_event=`grep -c "</event>" ${file}.lhe`
-        echo "seed is" $seed
 fi
 
 if [ $seed -eq $rnum ] ;then
@@ -116,51 +145,6 @@ fi
 #_______________________________________________________________________________________
 # post-process the LHE file.
 
-#__________________________________________
-# DECAY process
-if [ "${decay}" == true ] ; then
-
-    echo "%MSG-MG5 Running DECAY..."
-    bm=`grep -c "# MB" ${file}.lhe`
-    zero=0;
-    if [ $bm -eq $zero ] ;then
-      sed 's/  5 0.000000 # b : 0.0/  5  4.800000 # b/' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
-    fi
-
-    if [ $bm -gt $zero ] ;then
-      sed  's/5 0.000000e+00 # MB/5 4.800000e+00 # MB/g' ${file}.lhe > ${file}_in.lhe ; rm -f ${file}.lhe
-    fi
-    # if you want to do not-inclusive top-decays you have to modify the switch in the decay_1.in and decay_2.in
-    for (( i = 1; i <=2; i++)) ; do
-        if [ -f ${file}.lhe ] ; then
-           mv ${file}.lhe ${file}_in.lhe
-        fi
-        madevent/bin/decay < madevent/bin/decay_$i\.in
-     done
-fi
-
-#__________________________________________
-# REPLACE process
-# REPLACE will replace el with el/mu/taus by default, if you need something else you need to edit the replace_card1.dat
-
-cat > replace_card1.dat <<EOF
-# Enter here any particles you want replaced in the event file after ME run
-# In the syntax PID : PID1 PID2 PID3 ...
-# End with "done" or <newline>
-11:11 13 15
--12: -12 -14 -16
--11:-11 -13 -15
-12: 12 14 16
-done
-EOF
-
-if [ ${replace} == true ] ; then
-    echo "%MSG-MG5 Runnig REPLACE..."
-	if [ -f ${file}.lhe ] ; then
-		mv ${file}.lhe ${file}_in.lhe
-	fi
-	perl madevent/bin/replace.pl ${file}_in.lhe ${file}.lhe < replace_card1.dat
-fi	
 
 #__________________________________________
 # wjets/zjets

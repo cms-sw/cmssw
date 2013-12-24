@@ -111,7 +111,7 @@ class TauValidation : public edm::EDAnalyzer
 	  *TauSpinEffectsW_X, *TauSpinEffectsW_UpsilonRho, *TauSpinEffectsW_UpsilonA1,*TauSpinEffectsW_eX,*TauSpinEffectsW_muX,
 	  *TauSpinEffectsHpm_X, *TauSpinEffectsHpm_UpsilonRho, *TauSpinEffectsHpm_UpsilonA1,*TauSpinEffectsHpm_eX,*TauSpinEffectsHpm_muX, 
 	  *TauSpinEffectsZ_MVis, *TauSpinEffectsZ_Zs, *TauSpinEffectsZ_Xf, *TauSpinEffectsZ_Xb, 
-	  *TauSpinEffectsZ_eX, *TauSpinEffectsZ_muX,
+	  *TauSpinEffectsZ_eX, *TauSpinEffectsZ_muX, *TauSpinEffectsZ_X, *TauSpinEffectsH_X,
 	  *TauSpinEffectsH_MVis, *TauSpinEffectsH_Zs, *TauSpinEffectsH_Xf, *TauSpinEffectsH_Xb,
 	  *TauSpinEffectsH_eX, *TauSpinEffectsH_muX,
 	  *TauBremPhotonsN,*TauBremPhotonsPt,*TauBremPhotonsPtSum,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtSum;

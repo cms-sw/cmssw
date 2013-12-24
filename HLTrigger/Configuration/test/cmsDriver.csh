@@ -12,7 +12,7 @@ rehash
 #
 # gen sim input files for Monte-Carlo tests
 set InputGenSimGRun = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
-set InputGenSimHIon =  /store/relval/CMSSW_5_3_6/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_V10-v1/0004/CE7B8599-EA2C-E211-A254-003048D375AA.root
+set InputGenSimHIon = /store/relval/CMSSW_5_3_6/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_V10-v1/0004/CE7B8599-EA2C-E211-A254-003048D375AA.root
 set InputGenSimPIon = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
 #
 # lhc raw input files for Real-Data tests
@@ -212,7 +212,7 @@ foreach gtag ( STARTUP DATA )
 
     if ( $gtag == DATA ) then
 
-    set RTAG = auto:com10_${table}
+    set RTAG = $GTAG
 
     echo
     echo "Creating HLT+RECO $name"
