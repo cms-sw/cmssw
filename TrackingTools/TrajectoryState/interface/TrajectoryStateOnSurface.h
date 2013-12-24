@@ -218,6 +218,11 @@ public:
 	       const SurfaceType& aSurface,
 	       const MagneticField* field,
 	       const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+
+  void update( const LocalTrajectoryParameters& p,
+               const SurfaceSide side);
+
+
   /** Mutator from local parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
    *  For multi-states the weight should be specified explicitely.
@@ -230,6 +235,13 @@ public:
                const MagneticField* field,
                const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
                double weight = 1.);
+
+  void update( const LocalTrajectoryParameters& p,
+               const LocalTrajectoryError& err,
+               const SurfaceSide side);
+
+
+
 
 };
 
