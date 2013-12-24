@@ -144,20 +144,22 @@ TOBRod::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   HelixBarrelPlaneCrossingByCircle crossing( startPos, startDir, rho, propDir);
 
-  std::pair<bool,double> innerPath = crossing.pathLength( *theInnerPlane);
-  if (!innerPath.first) return SubLayerCrossings();
-
-  GlobalPoint gInnerPoint( crossing.position(innerPath.second));
-  int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.z());
-  float innerDist = fabs( theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.z());
-  SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
 
   std::pair<bool,double> outerPath = crossing.pathLength( *theOuterPlane);
   if (!outerPath.first) return SubLayerCrossings();
-
   GlobalPoint gOuterPoint( crossing.position(outerPath.second));
+
+  std::pair<bool,double> innerPath = crossing.pathLength( *theInnerPlane);
+  if (!innerPath.first) return SubLayerCrossings();
+  GlobalPoint gInnerPoint( crossing.position(innerPath.second));
+
+
+  int innerIndex = theInnerBinFinder.binIndex(gInnerPoint.z());
+  float innerDist = std::abs( theInnerBinFinder.binPosition(innerIndex) - gInnerPoint.z());
+  SubLayerCrossing innerSLC( 0, innerIndex, gInnerPoint);
+
   int outerIndex = theOuterBinFinder.binIndex(gOuterPoint.z());
-  float outerDist = fabs( theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.z());
+  float outerDist = std::abs( theOuterBinFinder.binPosition(outerIndex) - gOuterPoint.z());
   SubLayerCrossing outerSLC( 1, outerIndex, gOuterPoint);
 
   if (innerDist < outerDist) {

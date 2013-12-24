@@ -12,32 +12,30 @@ TrapezoidalPlaneBounds::TrapezoidalPlaneBounds( float be, float te,
   // angle of the trapezoid for faster inside() implementation.
 
   offset = a * (te+be) / (te-be);  // check sign if te < be !!! 
-  tan_a = te / fabs(offset + a);
+  tan_a = te / std::abs(offset + a);
 }
 
 
 int TrapezoidalPlaneBounds::yAxisOrientation() const {
-  int yAx = 1;
-  if(hbotedge>htopedge) yAx = -1;
-  return yAx;
+  return (hbotedge>htopedge) ? -1 : 1;
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local2DPoint& p) const {
-  return fabs(p.y()) < hapothem && 
-    fabs(p.x())/fabs(p.y()+offset) < tan_a;
+  return (std::abs(p.y()) < hapothem) & 
+    (std::abs(p.x()) < tan_a*std::abs(p.y()+offset));
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p) const {
-  return fabs(p.y()) < hapothem &&
-    fabs(p.x())/fabs(p.y()+offset) < tan_a &&
-    fabs(p.z()) < hthickness;
+  return ((std::abs(p.y()) < hapothem) & (std::abs(p.z()) < hthickness)) && std::abs(p.x()) < tan_a*std::abs(p.y()+offset);
 }
 
 bool TrapezoidalPlaneBounds::inside( const Local3DPoint& p,
 				     const LocalError& err, float scale) const {
-  TrapezoidalPlaneBounds tmp( hbotedge + sqrt(err.xx())*scale,
-			      htopedge + sqrt(err.xx())*scale,
-			      hapothem + sqrt(err.yy())*scale,
+  if (scale>=0 && inside(p)) return true;
+
+  TrapezoidalPlaneBounds tmp( hbotedge + std::sqrt(err.xx())*scale,
+			      htopedge + std::sqrt(err.xx())*scale,
+			      hapothem + std::sqrt(err.yy())*scale,
 			      hthickness);
   return tmp.inside(p);
 }

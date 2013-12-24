@@ -186,7 +186,7 @@ CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     if(nextResult.empty())    return;
     
     DetGroupElement nextGel( nextResult.front().front());  
-    int crossingSide = LayerCrossingSide().endcapSide( nextGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide::endcapSide( nextGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					    crossings.closestIndex(), crossingSide);
   } else {
@@ -201,7 +201,7 @@ CompositeTECPetal::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     searchNeighbors( tsos, prop, est, crossings.other(), window,
 		     nextResult, true); 
     
-    int crossingSide = LayerCrossingSide().endcapSide( closestGel.trajectoryState(), prop);
+    int crossingSide = LayerCrossingSide::endcapSide( closestGel.trajectoryState(), prop);
     DetGroupMerger::orderAndMergeTwoLevels( std::move(closestResult), std::move(nextResult), result, 
 					    crossings.closestIndex(), crossingSide);
   }
@@ -211,45 +211,47 @@ SubLayerCrossings
 CompositeTECPetal::computeCrossings(const TrajectoryStateOnSurface& startingState,
 				   PropagationDirection propDir) const
 {
-  double rho( startingState.transverseCurvature());
   
   HelixPlaneCrossing::PositionType startPos( startingState.globalPosition() );
   HelixPlaneCrossing::DirectionType startDir( startingState.globalMomentum() );
-  HelixForwardPlaneCrossing crossing(startPos,startDir,rho,propDir);
-  pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
 
+  auto rho = startingState.transverseCurvature();
+
+  HelixForwardPlaneCrossing crossing(startPos,startDir,rho,propDir);
+
+  pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
   if (!frontPath.first) return SubLayerCrossings();
 
+  pair<bool,double> backPath = crossing.pathLength(*theBackSector);
+  if (!backPath.first) return SubLayerCrossings();
+
   GlobalPoint gFrontPoint(crossing.position(frontPath.second));
+  GlobalPoint gBackPoint( crossing.position(backPath.second));
+
+
   LogDebug("TkDetLayers") 
     << "in TECPetal,front crossing : r,z,phi: (" 
     << gFrontPoint.perp() << ","
     << gFrontPoint.z() << "," 
     << gFrontPoint.phi() << ")";
   
-
-  int frontIndex = findBin(gFrontPoint.perp(),0);
-  float frontDist = fabs( theFrontPars[frontIndex].theR - gFrontPoint.perp());
-  SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
-
-
-
-  pair<bool,double> backPath = crossing.pathLength( *theBackSector);
-
-  if (!backPath.first) return SubLayerCrossings();
-  
-
-  GlobalPoint gBackPoint( crossing.position(backPath.second));
   LogDebug("TkDetLayers") 
     << "in TECPetal,back crossing r,z,phi: (" 
     << gBackPoint.perp() << ","
     << gBackPoint.z() << "," 
     << gBackPoint.phi() << ")" ;
 
+
+
+  int frontIndex = findBin(gFrontPoint.perp(),0);
+  SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
+
   int backIndex = findBin(gBackPoint.perp(),1);
-  float backDist = std::abs( theBackPars[backIndex].theR - gBackPoint.perp());
-  
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
+  
+  auto frontDist = std::abs( theFrontPars[frontIndex].theR - gFrontPoint.perp());
+  auto backDist = std::abs( theBackPars[backIndex].theR - gBackPoint.perp());
+  
   
   
   // 0ss: frontDisk has index=0, backDisk has index=1

@@ -150,28 +150,32 @@ CompositeTECWedge::computeCrossings( const TrajectoryStateOnSurface& startingSta
   pair<bool,double> frontPath = crossing.pathLength( *theFrontSector);
   if (!frontPath.first) return SubLayerCrossings();
 
-  GlobalPoint gFrontPoint( crossing.position(frontPath.second));
-  LogDebug("TkDetLayers") << "in TECWedge,front crossing r,z,phi: (" 
-       << gFrontPoint.perp() << ","
-       << gFrontPoint.z() << "," 
-       << gFrontPoint.phi() << ")" ;
-
-
-  int frontIndex = findClosestDet(gFrontPoint,0); 
-  SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
-
   pair<bool,double> backPath = crossing.pathLength( *theBackSector);
   if (!backPath.first) return SubLayerCrossings();
 
+  GlobalPoint gFrontPoint( crossing.position(frontPath.second));
   GlobalPoint gBackPoint( crossing.position(backPath.second));
+
+
+  LogDebug("TkDetLayers") 
+    << "in TECWedge,front crossing r,z,phi: (" 
+    << gFrontPoint.perp() << ","
+    << gFrontPoint.z() << "," 
+    << gFrontPoint.phi() << ")" ;
+  
   LogDebug("TkDetLayers") 
     << "in TECWedge,back crossing r,z,phi: (" 
     << gBackPoint.perp() << ","
     << gBackPoint.z() << "," 
     << gBackPoint.phi() << ")" << endl;
   
+ 
+  int frontIndex = findClosestDet(gFrontPoint,0); 
+  SubLayerCrossing frontSLC( 0, frontIndex, gFrontPoint);
+  
   int backIndex = findClosestDet(gBackPoint,1);
   SubLayerCrossing backSLC( 1, backIndex, gBackPoint);
+
 
   auto frontDist = std::abs(Geom::deltaPhi( gFrontPoint.barePhi(), 
 					    theFrontDets[frontIndex]->surface().phi()));
