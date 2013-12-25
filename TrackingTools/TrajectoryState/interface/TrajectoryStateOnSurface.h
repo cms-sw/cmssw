@@ -220,7 +220,7 @@ public:
 	       const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
 
   void update( const LocalTrajectoryParameters& p,
-               const SurfaceSide side);
+               const SurfaceSide side) { unsharedData().update(p, side);}
 
 
   /** Mutator from local parameters, errors and surface. For surfaces 
@@ -238,7 +238,7 @@ public:
 
   void update( const LocalTrajectoryParameters& p,
                const LocalTrajectoryError& err,
-               const SurfaceSide side);
+               const SurfaceSide side) {unsharedData().update(p, err, side);}
 
 
 

@@ -269,7 +269,7 @@ public:
                        const SurfaceSide side ) ;
 
   // update in place and in the very same place
-  virtual void update( const LocalTrajectoryParameters& p, const SurfaceSide side ) ;
+  virtual void update( const LocalTrajectoryParameters& p, const SurfaceSide side ) GCC11_FINAL;
                        
 
 
@@ -283,7 +283,7 @@ public:
   // update in place and in the very same place
  virtual void update( const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
-                       const SurfaceSide side);
+                       const SurfaceSide side) GCC11_FINAL;
 
 
 
