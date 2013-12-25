@@ -239,10 +239,11 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	}
       }
 
+
+      /*
       auto trajVal = [&](TempTrajectory const & a) {
       	return  a.chiSquared() + a.lostHits()*theLostHitPenalty;
       };
-
 
       // safe (stable?) logig: always sort, kill exceeding only if worse than last to keep
       // if ((int)newCand.size() > theMaxCand) std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' ' <<  trajVal(newCand.front());
@@ -268,15 +269,18 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	// std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
       }
 
-      /* intermedeate login: always sort,  kill all exceeding
+      */
+
+      
+      // intermedeate login: always sort,  kill all exceeding
       while ((int)newCand.size() > theMaxCand) {
 	std::pop_heap(newCand.begin(),newCand.end(),trajCandLess);
 	// if ((int)newCand.size() == theMaxCand+1) std::cout << " " << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
 	newCand.pop_back();
        }
-      */
-
-      /*   original logic: sort only if > theMaxCand, kill all exceeding
+      
+      /*
+      //   original logic: sort only if > theMaxCand, kill all exceeding
       if ((int)newCand.size() > theMaxCand) {
 	std::sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
 	// std::partial_sort( newCand.begin(), newCand.begin()+theMaxCand, newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
