@@ -240,9 +240,11 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
       }
 
       auto trajVal = [&](TempTrajectory const & a) {
-      	return  (a.chiSquared() + a.lostHits()*theLostHitPenalty);
+      	return  a.chiSquared() + a.lostHits()*theLostHitPenalty;
       };
 
+
+      // safe (stable?) logig: always sort, kill exceeding only if worse than last to keep
       // if ((int)newCand.size() > theMaxCand) std::cout << "TrajVal " << theMaxCand  << ' ' << newCand.size() << ' ' <<  trajVal(newCand.front());
       int toCut = int(newCand.size()) - int(theMaxCand);
       if (toCut>0) {
@@ -255,9 +257,18 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
            if (fval==trajVal(newCand.back())) break;
            newCand.pop_back();
         }
+	//assert((int)newCand.size() >= theMaxCand);
+	//std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back());
+
+	// std::make_heap(newCand.begin(),newCand.end(),trajCandLess);
+        // push_heap again the one left
+        for (auto iter = newCand.begin()+theMaxCand+1; iter<=newCand.end(); ++iter  )
+	  std::push_heap(newCand.begin(),iter,trajCandLess);
+
+	// std::cout << "; " << newCand.size() << ' ' << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
       }
 
-      /*
+      /* intermedeate login: always sort,  kill all exceeding
       while ((int)newCand.size() > theMaxCand) {
 	std::pop_heap(newCand.begin(),newCand.end(),trajCandLess);
 	// if ((int)newCand.size() == theMaxCand+1) std::cout << " " << trajVal(newCand.front())  << " " << trajVal(newCand.back()) << std::endl;
@@ -265,7 +276,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
        }
       */
 
-      /*
+      /*   original logic: sort only if > theMaxCand, kill all exceeding
       if ((int)newCand.size() > theMaxCand) {
 	std::sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
 	// std::partial_sort( newCand.begin(), newCand.begin()+theMaxCand, newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
