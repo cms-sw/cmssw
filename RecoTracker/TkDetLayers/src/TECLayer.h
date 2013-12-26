@@ -75,7 +75,7 @@ class TECLayer : public ForwardDetLayer  {
   ReferenceCountingPointer<BoundDisk>  theFrontDisk;
   ReferenceCountingPointer<BoundDisk>  theBackDisk;
 
-  typedef PeriodicBinFinderInPhi<double>   BinFinderPhi;
+  typedef PeriodicBinFinderInPhi<float>   BinFinderPhi;
 
   BinFinderPhi theFrontBinFinder;
   BinFinderPhi theBackBinFinder;

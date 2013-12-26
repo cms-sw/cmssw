@@ -34,7 +34,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer {
 
  private:  
   // methods for groupedCompatibleDets implementation
-  int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
+  static int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade);
 
   struct SubTurbineCrossings {
     SubTurbineCrossings(): isValid(false){}
@@ -58,9 +58,9 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer {
     computeCrossings( const TrajectoryStateOnSurface& startingState,
 		      PropagationDirection propDir) const __attribute__ ((hot));
 
-  float computeWindowSize( const GeomDet* det, 
-			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+  static  float computeWindowSize( const GeomDet* det, 
+				   const TrajectoryStateOnSurface& tsos, 
+				   const MeasurementEstimator& est);
   
  private:
   typedef PeriodicBinFinderInPhi<float>   BinFinderType;
