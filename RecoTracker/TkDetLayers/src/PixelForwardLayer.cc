@@ -145,15 +145,15 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int quarter = theComps.size()/4;
  
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
-    vector<DetGroup> tmp1;
+    std::vector<DetGroup> tmp1;
     const GeometricSearchDet* neighbor = theComps[theBinFinder.binIndex(idet)];
     // if (!overlap( gCrossingPos, *neighbor, window)) break; // mybe not needed?
     // maybe also add shallow crossing angle test here???
     if (!Adder::add( *neighbor, tsos, prop, est, tmp1)) break;
     int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet)],
 				      theComps[theBinFinder.binIndex(idet+1)] );
-    vector<DetGroup> tmp2; tmp2.swap(result);
-    vector<DetGroup> newResult;
+    std::vector<DetGroup> tmp2; tmp2.swap(result);
+    std::vector<DetGroup> newResult;
     Merger::orderAndMergeTwoLevels( std::move(tmp1), std::move(tmp2), newResult, theHelicity, crossingSide);
     result.swap(newResult);
   }
@@ -165,8 +165,8 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
     if (!Adder::add( *neighbor, tsos, prop, est, tmp1)) break;
     int theHelicity = computeHelicity(theComps[theBinFinder.binIndex(idet-1)],
 				      theComps[theBinFinder.binIndex(idet)] );
-    vector<DetGroup> tmp2; tmp2.swap(result);
-    vector<DetGroup> newResult;
+    std::vector<DetGroup> tmp2; tmp2.swap(result);
+    std::vector<DetGroup> newResult;
     Merger::orderAndMergeTwoLevels(std::move(tmp2), std::move(tmp1), newResult, theHelicity, crossingSide);
     result.swap(newResult);
   }
@@ -175,8 +175,7 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 int 
 PixelForwardLayer::computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const
 {  
-  if( fabs(firstBlade->position().z()) < fabs(secondBlade->position().z()) ) return 0;
-  return 1;
+  return std::abs(firstBlade->position().z()) < std::abs(secondBlade->position().z()) ? 0 : 1;
 }
 
 PixelForwardLayer::SubTurbineCrossings 
@@ -187,7 +186,8 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   HelixPlaneCrossing::PositionType startPos( startingState.globalPosition());
   HelixPlaneCrossing::DirectionType startDir( startingState.globalMomentum());
-  float rho( startingState.transverseCurvature());
+  
+  auto rho = startingState.transverseCurvature();
 
   HelixArbitraryPlaneCrossing turbineCrossing( startPos, startDir, rho,
 					       propDir);
@@ -201,7 +201,8 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   HelixPlaneCrossing::PositionType  turbinePoint( turbineCrossing.position(thePath.second));
   HelixPlaneCrossing::DirectionType turbineDir( turbineCrossing.direction(thePath.second));
-  int closestIndex = theBinFinder.binIndex(turbinePoint.phi());
+
+  int closestIndex = theBinFinder.binIndex(turbinePoint.barePhi());
 
   const Plane& closestPlane( static_cast<const Plane&>( 
     theComps[closestIndex]->surface()));
@@ -212,10 +213,11 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
   LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
     
-  float closestDist = closestPos.x(); // use fact that local X perp to global Y
+  auto closestDist = closestPos.x(); // use fact that local X perp to global Y
 
   //int next = turbinePoint.phi() - closestPlane.position().phi() > 0 ? closest+1 : closest-1;
-  int nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ? 
+
+  int nextIndex = PhiLess()( closestPlane.phi(), turbinePoint.barePhi()) ? 
     closestIndex+1 : closestIndex-1;
 
   const Plane& nextPlane( static_cast<const Plane&>( 
@@ -224,9 +226,9 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
   LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
 
-  float nextDist = nextPos.x();
+  auto nextDist = nextPos.x();
 
-  if (fabs(closestDist) < fabs(nextDist)) {
+  if ( std::abs(closestDist) < std::abs(nextDist)) {
     return SubTurbineCrossings( closestIndex, nextIndex, nextDist);
   }
   else {

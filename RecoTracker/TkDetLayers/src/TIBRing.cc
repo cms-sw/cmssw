@@ -194,8 +194,8 @@ void TIBRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
   int crossingSide = LayerCrossingSide::barrelSide( tsos, prop);
   typedef DetGroupMerger Merger;
   
-  int negStart = min( crossings.closestIndex, crossings.nextIndex) - 1;
-  int posStart = max( crossings.closestIndex, crossings.nextIndex) + 1;
+  int negStart = std::min( crossings.closestIndex, crossings.nextIndex) - 1;
+  int posStart = std::max( crossings.closestIndex, crossings.nextIndex) + 1;
   
   int quarter = theDets.size()/4;
   for (int idet=negStart; idet >= negStart - quarter+1; idet--) {
@@ -232,7 +232,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
 
   GlobalPoint startPos( startingState.globalPosition());
   GlobalVector startDir( startingState.globalMomentum());
-  double rho( startingState.transverseCurvature());
+  auto rho = startingState.transverseCurvature();
 
   HelixBarrelCylinderCrossing cylCrossing( startPos, startDir, rho,
 					   propDir,specificSurface(),

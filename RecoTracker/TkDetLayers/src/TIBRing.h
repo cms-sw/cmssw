@@ -83,7 +83,7 @@ class TIBRing GCC11_FINAL : public GeometricSearchDet{
 
 
  private:
-  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
+  typedef PeriodicBinFinderInPhi<float>   BinFinderType;
   BinFinderType    theBinFinder;
 
   std::vector<const GeomDet*> theDets;

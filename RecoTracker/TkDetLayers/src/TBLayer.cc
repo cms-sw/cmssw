@@ -27,7 +27,7 @@ TBLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   addClosest( tsos, prop, est, crossings.closest(), closestResult);
   // for TIB this differs from compatibleDets logic, which checks next in such cases!!!
   if (closestResult.empty()){
-    if (isTOB()) addClosest( tsos, prop, est, crossings.other(), result);
+    if (!isTIB()) addClosest( tsos, prop, est, crossings.other(), result);
     return;
   }
 
@@ -84,10 +84,10 @@ SubLayerCrossings TBLayer::computeCrossings( const TrajectoryStateOnSurface& sta
 }
 
 bool TBLayer::addClosest( const TrajectoryStateOnSurface& tsos,
-				      const Propagator& prop,
-				      const MeasurementEstimator& est,
-				      const SubLayerCrossing& crossing,
-			   std::vector<DetGroup>& result) const
+			  const Propagator& prop,
+			  const MeasurementEstimator& est,
+			  const SubLayerCrossing& crossing,
+			  std::vector<DetGroup>& result) const
 {
 
   auto const & sub =  subLayer( crossing.subLayerIndex());

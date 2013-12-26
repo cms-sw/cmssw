@@ -20,8 +20,8 @@ public:
      theOffset = theRmin + (theRmax-theRmin)/2. ;
    }
    
-   virtual float length()    const { return theRmax-theRmin*cos(thePhiExt/2.);}
-   virtual float width()     const { return 2*theRmax*sin(thePhiExt/2.);}
+   virtual float length()    const { return theRmax-theRmin*std::cos(0.5f*thePhiExt);}
+   virtual float width()     const { return 2.f*theRmax*std::sin(0.5*thePhiExt);}
    virtual float thickness() const { return theZmax-theZmin;}
  
    virtual bool inside( const Local3DPoint& p) const;
