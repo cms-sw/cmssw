@@ -247,8 +247,8 @@ namespace {
     
     const BoundDiskSector &  diskSector = gsdet.specificSurface();
     pair<float,float> phiRange(phi-phiWin,phi+phiWin);
-    pair<float,float> petalPhiRange(diskSector.phi() - 0.5f*diskSector.phiExtension(),
-				    diskSector.phi() + 0.5f*diskSector.phiExtension());
+    pair<float,float> petalPhiRange(diskSector.phi() - diskSector.phiHalfExtension(),
+				    diskSector.phi() + diskSector.phiHalfExtension());
     
     
     return rangesIntersect(phiRange, petalPhiRange, PhiLess());
