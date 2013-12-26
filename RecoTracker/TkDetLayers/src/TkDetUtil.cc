@@ -1,32 +1,11 @@
 #include "TkDetUtil.h"
-#include "TrackingTools/DetLayers/interface/PhiLess.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 
 
 namespace tkDetUtil {
-
-  namespace {
-    struct PhiLess {
-      bool operator()(float a, float b) const {
-	return Geom::phiLess(a,b);
-      }
-    };
-  }
-
-  bool overlapInPhi( const GlobalPoint& crossPoint,const GeomDet & det, float phiWindow) 
-  {
-    float phi = crossPoint.barePhi();
-    std::pair<float,float> phiRange(phi-phiWindow, phi+phiWindow);
-    std::pair<float,float> detPhiRange = det.surface().phiSpan(); 
-    //   return rangesIntersect( phiRange, detPhiRange, boost::function<bool(float,float)>(&Geom::phiLess));
-    return rangesIntersect( phiRange, detPhiRange, PhiLess());
-  }
- 
 
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -37,7 +16,6 @@ namespace tkDetUtil {
       est.maximalLocalDisplacement( tsos, startPlane);
     return calculatePhiWindow( maxDistance, tsos, startPlane);
   }
-
 
 
   float 

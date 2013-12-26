@@ -17,7 +17,7 @@ public:
      theRmin(rmin), theRmax(rmax), theZmin(zmin), theZmax(zmax), thePhiExt(phiExt) {
      if ( theRmin > theRmax) std::swap( theRmin, theRmax);
      if ( theZmin > theZmax) std::swap( theZmin, theZmax);
-     theOffset = theRmin + (theRmax-theRmin)/2. ;
+     theOffset = theRmin +  0.5f*(theRmax-theRmin);
    }
    
    virtual float length()    const { return theRmax-theRmin*std::cos(0.5f*thePhiExt);}

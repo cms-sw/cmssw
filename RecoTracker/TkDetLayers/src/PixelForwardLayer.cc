@@ -74,7 +74,7 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 					  const Propagator& prop,
 					   const MeasurementEstimator& est,
 					   std::vector<DetGroup> & result) const {
-  vector<DetGroup> closestResult;
+  std::vector<DetGroup> closestResult;
   SubTurbineCrossings  crossings; 
 
   crossings = computeCrossings( tsos, prop.propagationDirection());
@@ -173,7 +173,7 @@ PixelForwardLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 }
 
 int 
-PixelForwardLayer::computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const
+PixelForwardLayer::computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade)
 {  
   return std::abs(firstBlade->position().z()) < std::abs(secondBlade->position().z()) ? 0 : 1;
 }
@@ -204,8 +204,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
 
   int closestIndex = theBinFinder.binIndex(turbinePoint.barePhi());
 
-  const Plane& closestPlane( static_cast<const Plane&>( 
-    theComps[closestIndex]->surface()));
+  const Plane& closestPlane( static_cast<const Plane&>(theComps[closestIndex]->surface()));
 
 
   HelixArbitraryPlaneCrossing2Order theBladeCrossing(turbinePoint, turbineDir, rho);
@@ -239,8 +238,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
 float 
 PixelForwardLayer::computeWindowSize( const GeomDet* det, 
 				      const TrajectoryStateOnSurface& tsos, 
-				      const MeasurementEstimator& est) const
-{
+				      const MeasurementEstimator& est) {
   return est.maximalLocalDisplacement(tsos, det->surface()).x();
 }
 
