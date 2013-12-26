@@ -54,6 +54,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
+  std::cout << "Building the geometry service" << std::endl;
   LogDebug("GEMGeometryBuilderFromDDD") <<"Building the geometry service";
   GEMGeometry* geometry = new GEMGeometry();
 
@@ -65,6 +66,7 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
   LogDebug("GEMGeometryBuilderFromDDD") <<"start the loop"; 
   int nChambers(0);
+  int maxStation(1);
   while (doSubDets)
   {
     // Get the Base Muon Number
@@ -81,6 +83,8 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     // chamber id for this partition. everything is the same; but partition number is 0.
     GEMDetId chamberId(rollDetId.chamberId());
     LogDebug("GEMGeometryBuilderFromDDD") << "GEM chamber rawId: " << chamberId.rawId() << ", detId: " << chamberId;
+    const int stationId(rollDetId.station());
+    if (stationId > maxStation) maxStation = stationId;
     
     if (rollDetId.roll()==1) ++nChambers;
 
@@ -158,69 +162,77 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   }
   
   auto& partitions(geometry->etaPartitions());
-  int nEtaPartitions((int)partitions.size()/nChambers);
-
   // build the chambers and add them to the geometry
   std::vector<GEMDetId> vDetId;
   vDetId.clear();
+  int oldRollNumber = 1;
   for (unsigned i=1; i<=partitions.size(); ++i){
     GEMDetId detId(partitions.at(i-1)->id());
-    vDetId.push_back(detId);
-    if (i%nEtaPartitions==0){
+    const int rollNumber(detId.roll());
+    // new batch of eta partitions --> new chamber
+    if (rollNumber < oldRollNumber || i == partitions.size()) {
+      // don't forget the last partition for the last chamber
+      if (i == partitions.size()) vDetId.push_back(detId);
+
       GEMDetId fId(vDetId.front());
       GEMDetId chamberId(fId.chamberId());
-      //region(),fId.ring(),fId.station(),fId.layer(),fId.chamber(),0);
-
       // compute the overall boundplane using the first eta partition
       const GEMEtaPartition* p(geometry->etaPartition(fId));
       const BoundPlane& bps = p->surface();
       BoundPlane* bp = const_cast<BoundPlane*>(&bps);
       ReferenceCountingPointer<BoundPlane> surf(bp);
-    
+      
       GEMChamber* ch = new GEMChamber(chamberId, surf); 
-      LogDebug("GEMGeometryBuilderFromDDD") << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions";
-
+      LogDebug("GEMGeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions" << std::endl;
+      
       for(auto id : vDetId){
-	LogDebug("GEMGeometryBuilderFromDDD") << "Adding eta partition " << id << " to GEM chamber";
+	LogDebug("GEMGeometryBuilderFromDDD") << "Adding eta partition " << id << " to GEM chamber" << std::endl;
 	ch->add(const_cast<GEMEtaPartition*>(geometry->etaPartition(id)));
       }
 
-      LogDebug("GEMGeometryBuilderFromDDD") << "Adding the chamber to the geometry";
+      LogDebug("GEMGeometryBuilderFromDDD") << "Adding the chamber to the geometry" << std::endl;
       geometry->add(ch);
       vDetId.clear();
     }
+    vDetId.push_back(detId);
+    oldRollNumber = rollNumber;
   }
-
+  
   auto& chambers(geometry->chambers());
+  // construct super chambers
   for (unsigned i=0; i<chambers.size(); ++i){
     const BoundPlane& bps = chambers.at(i)->surface();
     BoundPlane* bp = const_cast<BoundPlane*>(&bps);
     ReferenceCountingPointer<BoundPlane> surf(bp);
     GEMDetId detIdL1(chambers.at(i)->id());
-    LogDebug("GEMGeometryBuilderFromDDD") << "First chamber for super chamber: " << detIdL1;
-
     if (detIdL1.layer()==2) continue;
     GEMDetId detIdL2(detIdL1.region(),detIdL1.ring(),detIdL1.station(),2,detIdL1.chamber(),0);
-    LogDebug("GEMGeometryBuilderFromDDD") << "Second chamber for super chamber: " << detIdL2;
     auto ch2 = geometry->chamber(detIdL2);
 
-    LogDebug("GEMGeometryBuilderFromDDD") << "Creating new GEM super chamber out of chambers.";
+    LogDebug("GEMGeometryBuilderFromDDD") << "First chamber for super chamber: " << detIdL1 << std::endl;
+    LogDebug("GEMGeometryBuilderFromDDD") << "Second chamber for super chamber: " << detIdL2 << std::endl;
+
+    LogDebug("GEMGeometryBuilderFromDDD") << "Creating new GEM super chamber out of chambers." << std::endl;
     GEMSuperChamber* sch = new GEMSuperChamber(detIdL1, surf); 
     sch->add(const_cast<GEMChamber*>(chambers.at(i)));
     sch->add(const_cast<GEMChamber*>(ch2));
 
-    LogDebug("GEMGeometryBuilderFromDDD") << "Adding the super chamber to the geometry.";
+    LogDebug("GEMGeometryBuilderFromDDD") << "Adding the super chamber to the geometry." << std::endl;
     geometry->add(sch);
   }
-  
+
   auto& superChambers(geometry->superChambers());
-	  
   // construct the regions, stations and rings. 
+  std::cout << "maxStation " << maxStation << std::endl;
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re); 
-    for (int st=1; st<=1; ++st) {
+    for (int st=1; st<=maxStation; ++st) {
       GEMStation* station = new GEMStation(re, st); 
-      station->setName("GE" + std::to_string(re) + "/" + std::to_string(st)); 
+      std::string name("GE" + std::to_string(re) + "/" + std::to_string(st));
+      // Closest (furthest) super chambers in GE2/1 are called GE2/1s (GE2/1l)
+      if (st==2) name = "GE" + std::to_string(re) + "/" + std::to_string(st) + "s";
+      if (st==3) name = "GE" + std::to_string(re) + "/" + std::to_string(st-1) + "l";
+      station->setName(name); 
       for (int ri=1; ri<=1; ++ri) {
 	GEMRing* ring = new GEMRing(re, st, ri); 
 	for (unsigned sch=0; sch<superChambers.size(); ++sch){
@@ -241,6 +253,5 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     LogDebug("GEMGeometryBuilderFromDDD") << "Adding region " << re << " to the geometry " << std::endl;
     geometry->add(region);
   }
-
   return geometry;
 }
