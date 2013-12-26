@@ -15,7 +15,6 @@
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/NavigableLayer.h"
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 

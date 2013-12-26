@@ -35,6 +35,9 @@ class TBLayer: public BarrelDetLayer {
 			       std::vector<DetGroup> & result) const final __attribute__ ((hot));
 
 
+  // DetLayer interface
+  virtual SubDetector subDetector() const final {return me;}
+
 
 protected:
 
@@ -64,7 +67,7 @@ protected:
 
   bool isTIB() const { return me==GeomDetEnumerators::TIB;}
   bool isTOB() const { return me==GeomDetEnumerators::TOB;}
-
+  bool isPixel() const { return me==GeomDetEnumerators::PixelBarrel;}
 
   virtual void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				const Propagator& prop,

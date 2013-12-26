@@ -17,11 +17,6 @@ class TIBLayer GCC11_FINAL : public TBLayer {
 	   std::vector<const TIBRing*>& outerRings) __attribute__ ((cold));
 
   ~TIBLayer() __attribute__ ((cold));
-  
-
-  // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::TIB;}
-
 
  private:
   // private methods for the implementation of groupedCompatibleDets()

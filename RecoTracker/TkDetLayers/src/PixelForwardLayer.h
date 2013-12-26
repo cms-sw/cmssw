@@ -37,7 +37,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer {
   int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
 
   struct SubTurbineCrossings {
-    SubTurbineCrossings(): isValid(false){};
+    SubTurbineCrossings(): isValid(false){}
     SubTurbineCrossings( int ci, int ni, float nd) : 
       isValid(true),closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
     
@@ -63,7 +63,7 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer {
 			   const MeasurementEstimator& est) const;
   
  private:
-  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
+  typedef PeriodicBinFinderInPhi<float>   BinFinderType;
   BinFinderType    theBinFinder;
 
   std::vector<const GeometricSearchDet*> theComps;

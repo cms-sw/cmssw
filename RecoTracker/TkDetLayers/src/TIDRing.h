@@ -72,7 +72,7 @@ class TIDRing GCC11_FINAL : public GeometricSearchDet {
   ReferenceCountingPointer<BoundDisk> theFrontDisk;
   ReferenceCountingPointer<BoundDisk> theBackDisk;
 
-  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
+  typedef PeriodicBinFinderInPhi<float>   BinFinderType;
 
   BinFinderType theFrontBinFinder;
   BinFinderType theBackBinFinder;
