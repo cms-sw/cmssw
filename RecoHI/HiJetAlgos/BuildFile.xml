@@ -4,6 +4,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="RecoJets/JetProducers"/>
 <use   name="DataFormats/HeavyIonEvent"/>
+<Flags CXXFLAGS="-frounding-math"/>
 <export>
   <lib   name="1"/>
 </export>
