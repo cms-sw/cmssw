@@ -176,6 +176,11 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
       GEMDetId fId(vDetId.front());
       GEMDetId chamberId(fId.chamberId());
+      // compute the overall boundplane using the first eta partition
+      const GEMEtaPartition* p(geometry->etaPartition(fId));
+      const BoundPlane& bps = p->surface();
+      BoundPlane* bp = const_cast<BoundPlane*>(&bps);
+      ReferenceCountingPointer<BoundPlane> surf(bp);
       
       GEMChamber* ch = new GEMChamber(chamberId, surf); 
       LogDebug("GEMGeometryBuilderFromDDD")  << "Creating chamber " << chamberId << " with " << vDetId.size() << " eta partitions" << std::endl;
@@ -218,15 +223,15 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
   auto& superChambers(geometry->superChambers());
   // construct the regions, stations and rings. 
+  std::cout << "maxStation " << maxStation << std::endl;
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re); 
     for (int st=1; st<=maxStation; ++st) {
-      GEMStation* station = new GEMStation(re, st);
-      std::string sign( re==-1 ? "-" : "");
-      std::string name("GE" + sign + std::to_string(st) + "/1");
+      GEMStation* station = new GEMStation(re, st); 
+      std::string name("GE" + std::to_string(re) + "/" + std::to_string(st));
       // Closest (furthest) super chambers in GE2/1 are called GE2/1s (GE2/1l)
-      if (st==2) name = "GE" + sign + std::to_string(st) + "/1s";
-      if (st==3) name = "GE" + sign + std::to_string(st-1) + "/1l";
+      if (st==2) name = "GE" + std::to_string(re) + "/" + std::to_string(st) + "s";
+      if (st==3) name = "GE" + std::to_string(re) + "/" + std::to_string(st-1) + "l";
       station->setName(name); 
       for (int ri=1; ri<=1; ++ri) {
 	GEMRing* ring = new GEMRing(re, st, ri); 

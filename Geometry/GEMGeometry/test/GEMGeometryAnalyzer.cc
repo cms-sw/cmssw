@@ -117,11 +117,11 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   if (flagNonUniqueChID or flagNonUniqueChRawID)
     ofos << " -- WARNING: non unique chamber Ids!!!" << endl;
 
-  ofos << myName() << ": Begin iteration over geometry..." << std::endl;
-  ofos << "iter " << dashedLine_ << std::endl;
+  ofos << myName() << ": Begin iteration over geometry..." << endl;
+  ofos << "iter " << dashedLine_ << endl;
   
   //----------------------- Global GEMGeometry TEST -------------------------------------------------------
-  ofos << myName() << "Begin GEMGeometry structure TEST" << std::endl;
+  ofos << myName() << "Begin GEMGeometry structure TEST" << endl;
   
   for (auto region : pDD->regions()) {
     ofos << "  GEMRegion " << region->region() << " has " << region->nStations() << " stations." << endl;
@@ -218,7 +218,7 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	      double dphi(cstripN - cstrip1);
 	      if (dphi < 0.) dphi += 360.;
 	      double deta(abs(beta - teta));
-	      const bool printDetails(true);
+	      const bool printDetails(false);
 	      if (printDetails)
 		ofos << "    \tType: " << type << endl
 		     << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
