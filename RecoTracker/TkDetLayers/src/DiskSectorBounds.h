@@ -14,14 +14,14 @@ class DiskSectorBounds GCC11_FINAL : public Bounds {
 public:
   
    DiskSectorBounds( float rmin, float rmax, float zmin, float zmax, float phiExt) : 
-     theRmin(rmin), theRmax(rmax), theZmin(zmin), theZmax(zmax), thePhiExt(phiExt) {
+     theRmin(rmin), theRmax(rmax), theZmin(zmin), theZmax(zmax), thePhiExtH(0.5f*phiExt) {
      if ( theRmin > theRmax) std::swap( theRmin, theRmax);
      if ( theZmin > theZmax) std::swap( theZmin, theZmax);
      theOffset = theRmin +  0.5f*(theRmax-theRmin);
    }
    
-   virtual float length()    const { return theRmax-theRmin*std::cos(0.5f*thePhiExt);}
-   virtual float width()     const { return 2.f*theRmax*std::sin(0.5*thePhiExt);}
+   virtual float length()    const { return theRmax-theRmin*std::cos(thePhiExtH);}
+   virtual float width()     const { return 2.f*theRmax*std::sin(thePhiExtH);}
    virtual float thickness() const { return theZmax-theZmin;}
  
    virtual bool inside( const Local3DPoint& p) const;
@@ -38,14 +38,14 @@ public:
  
    float innerRadius() const {return theRmin;}
    float outerRadius() const {return theRmax;}
-   float phiExtension() const {return thePhiExt;}
+   float phiHalfExtension() const {return thePhiExtH;}
  
  private:
    float theRmin;
    float theRmax;
    float theZmin;
    float theZmax;
-   float thePhiExt;
+   float thePhiExtH;
    float theOffset;
  };
  

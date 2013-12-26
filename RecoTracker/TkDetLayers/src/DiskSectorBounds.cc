@@ -8,18 +8,19 @@ bool DiskSectorBounds::inside( const Local3DPoint& p) const {
   // and rotated  x/y axis
   Local3DPoint tmp( p.y()+theOffset, -p.x(), p.z());
   
-  return  std::abs(tmp.barePhi()) <= 0.5f*thePhiExt &&
-    tmp.perp() >= theRmin && tmp.perp() <= theRmax &&
-    tmp.z() >= theZmin && tmp.z() <= theZmax ;
-
+  return 
+    ( (tmp.z() >= theZmin) & (tmp.z() <= theZmax)  &
+      (tmp.perp2() >= theRmin*theRmin) & (tmp.perp2() <= theRmax*theRmax) 
+      ) &&
+    (std::abs(tmp.barePhi()) <= thePhiExtH);
 }
 
 bool DiskSectorBounds::inside( const Local3DPoint& p, const LocalError& err, float scale) const {
 
   if ( (p.z() < theZmin) | (p.z() > theZmax)) return false;
 
-  Local3DPoint tmp( p.x(), p.y()+ theOffset, p.z());
-  auto perp2 = tmp.perp2();
+  Local2DPoint tmp( p.x(), p.y()+ theOffset);
+  auto perp2 = tmp.mag2();
   auto perp = std::sqrt(perp2);
 
   // this is not really correct, should consider also the angle of the error ellipse
@@ -30,11 +31,12 @@ bool DiskSectorBounds::inside( const Local3DPoint& p, const LocalError& err, flo
    // x direction in this system is now r, phi is y
  
    float deltaR = scale*std::sqrt(rotatedErr.xx());
-   float deltaPhi = std::atan( scale*std::sqrt(rotatedErr.yy())/perp);
+   float deltaPhi = std::atan( scale*std::sqrt(rotatedErr.yy()/perp2));
 
    float tmpPhi = std::acos( tmp.y() / perp);
-   
-   return  (perp >= std::max(theRmin-deltaR, 0.f)) & (perp <= theRmax+deltaR) 
-     & (tmpPhi <= thePhiExt + deltaPhi) ;  
+
+   // the previous code (tmpPhi <= thePhiExt + deltaPhi) was wrong
+   return ( (perp >= std::max(theRmin-deltaR, 0.f)) & (perp <= theRmax+deltaR) )
+     && (tmpPhi <= thePhiExtH + deltaPhi) ;  
 
 }
