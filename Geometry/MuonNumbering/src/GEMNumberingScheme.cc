@@ -56,10 +56,15 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   
   if (num.getBaseNo(theRegionLevel) == 0) region = 1;
   else                                    region =-1;
-  //station = num.getBaseNo(theStationLevel)+1;
-  station = num.getSuperNo(theStationLevel);
+
+  // ring 2 is used to get the layer 3 and 4 of the GE2/1 chamber
+  // due to the limitation in the GEMDetId that foresees just 2 layers
+  // Station number will become 3.
+  ring    = num.getSuperNo(theRingLevel);
+  station = num.getSuperNo(theStationLevel)+ring-1;
+  // GEM are only on the first ring
+  ring = 1;
   
-  ring    = num.getBaseNo(theRingLevel)+1;
   roll    = num.getBaseNo(theRollLevel)+1;
   const int copyno = num.getBaseNo(theSectorLevel) + 1;
   if (copyno < 50) {
@@ -94,7 +99,7 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   
   
 #ifdef LOCAL_DEBUG
-  std::cout << " DetId " << id << std::endl;
+  std::cout << id.rawId() << " DetId " << id << std::endl;
 #endif
       
   return id.rawId();
