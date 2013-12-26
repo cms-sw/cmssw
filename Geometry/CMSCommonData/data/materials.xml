@@ -247,44 +247,6 @@
     <rMaterial name="materials:Water"/>
    </MaterialFraction>   
   </CompositeMaterial>
-  <CompositeMaterial name="Heavy Boron concrete" density="3.574*g/cm3" symbol=" " method="mixture by weight">
-   <MaterialFraction fraction="0.5192746">
-    <rMaterial name="materials:Iron"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.34702">
-    <rMaterial name="materials:Oxygen"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.0080099">
-    <rMaterial name="materials:Aluminium"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.0296094">
-    <rMaterial name="materials:Silicon"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.0684299">
-    <rMaterial name="materials:Calcium"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.006620977">
-    <rMaterial name="materials:Bor 10"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.008010562">
-    <rMaterial name="materials:Hydrogen"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.004774732">
-    <rMaterial name="materials:Titanium"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.004804022">
-    <rMaterial name="materials:Magnesium"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.000555229">
-    <rMaterial name="materials:Manganese"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.001653212">
-    <rMaterial name="materials:Potassium"/>
-   </MaterialFraction>
-   <MaterialFraction fraction="0.000118189">
-    <rMaterial name="materials:Sodium"/>
-   </MaterialFraction>   
-  </CompositeMaterial>
   <CompositeMaterial name="Air" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.7494">
     <rMaterial name="materials:Nitrogen"/>
@@ -4460,6 +4422,47 @@
    </MaterialFraction>
    <MaterialFraction fraction="0.0045">
     <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_Rdout_Brd" density="1.79*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.98667">
+    <rMaterial name="materials:G10"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.01333">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_Kapton_Cu" density="1.24*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9836">
+    <rMaterial name="materials:Kapton"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0164">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_GEM_Gas" density="1.8*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.60">
+    <rMaterial name="materials:Argon"/>
+    </MaterialFraction>
+   <MaterialFraction fraction="0.083">
+    <rMaterial name="materials:Carbon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.145">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.172">
+    <rMaterial name="materials:Fluorine"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="M_GEM_Foil" density="1.74*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.6565">
+    <rMaterial name="materials:Kapton"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1013">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.2422">
+    <rMaterial name="materials:M_GEM_Gas"/>
    </MaterialFraction>
   </CompositeMaterial>
  </MaterialSection>

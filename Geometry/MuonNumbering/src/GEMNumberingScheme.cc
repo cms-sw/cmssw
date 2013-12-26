@@ -32,7 +32,7 @@ void GEMNumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
 #endif
 }
 
-int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
+int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
 
 #ifdef LOCAL_DEBUG
   std::cout << "GEMNumbering "<<num.getLevels()<<std::endl;
@@ -57,9 +57,10 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   if (num.getBaseNo(theRegionLevel) == 0) region = 1;
   else                                    region =-1;
 
-  // ring 2 is used to get the layer 3 and 4 of the GE2/1 chamber
-  // due to the limitation in the GEMDetId that foresees just 2 layers
-  // Station number will become 3.
+  // All GEM super chambers in stations 1 and 2 are on ring 1. 
+  // The long super chambers in station 2 are assigned *station 3* due 
+  // to the current limitation in the definition of the GEMDetId, 
+  // i.e. only 2 layers available per station.
   ring    = num.getSuperNo(theRingLevel);
   station = num.getSuperNo(theStationLevel)+ring-1;
   // GEM are only on the first ring
