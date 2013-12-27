@@ -6,8 +6,6 @@
  *
  * EDAnalyzer to test the GlobalTrackingGeometry.
  *
- *  $Date: 2006/07/25 09:47:59 $
- *  $Revision: 1.1 $
  *  \author M. Sani
  */
 
