@@ -339,17 +339,17 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	    momentumTP = tp->momentum();
 	    vertexTP = tp->vertex();
 	    //Calcualte the impact parameters w.r.t. PCA
-	    TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,*tp);
-	    TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,*tp);
+            TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
+            TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
 	    dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
 	    dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2()) * momentum.z()/sqrt(momentum.perp2());
 	  }
 	//If the TrackingParticle is comics, get the momentum and vertex at PCA
 	if(parametersDefiner=="CosmicParametersDefinerForTP")
 	  {
-	    if(! cosmictpSelector(*tp,&bs,event,setup)) continue;	
-	    momentumTP = parametersDefinerTP->momentum(event,setup,*tp);
-	    vertexTP = parametersDefinerTP->vertex(event,setup,*tp);
+            if(! cosmictpSelector(tpr,&bs,event,setup)) continue;        
+            momentumTP = parametersDefinerTP->momentum(event,setup,tpr);
+            vertexTP = parametersDefinerTP->vertex(event,setup,tpr);
 	    dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
 	    dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2()) * momentumTP.z()/sqrt(momentumTP.perp2());
 	  }
@@ -669,8 +669,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  h_charge[w]->Fill( track->charge() );
 	  
 	  //Get tracking particle parameters at point of closest approach to the beamline
-	  TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,*(tpr.get()));
-	  TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));
+          TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,tpr) ;
+          TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,tpr);
 	  double ptSim = sqrt(momentumTP.perp2());
 	  double qoverpSim = tpr->charge()/sqrt(momentumTP.x()*momentumTP.x()+momentumTP.y()*momentumTP.y()+momentumTP.z()*momentumTP.z());
 	  double thetaSim = momentumTP.theta();
