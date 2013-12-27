@@ -31,7 +31,7 @@ void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCon
   /// Calculate average coordinates col/row for inner Cluster
   double averageRow = 0.0;
   double averageCol = 0.0;
-  const std::vector< Ref_PixelDigi_ > &lhits0 = aTTStub.getClusterPtr(0)->getHits();
+  const std::vector< Ref_PixelDigi_ > &lhits0 = aTTStub.getClusterRef(0)->getHits();
   if ( lhits0.size() != 0 )
   {
     for ( hitIter = lhits0.begin();
@@ -51,7 +51,7 @@ void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCon
   /// Calculate average coordinates col/row for outer Cluster
   averageRow = 0.0;
   averageCol = 0.0;
-  const std::vector< Ref_PixelDigi_ > &lhits1 = aTTStub.getClusterPtr(1)->getHits();
+  const std::vector< Ref_PixelDigi_ > &lhits1 = aTTStub.getClusterRef(1)->getHits();
   if ( lhits1.size() != 0 )
   {
     for ( hitIter = lhits1.begin();
@@ -73,8 +73,8 @@ void TTStubAlgorithm_window< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aCon
 
     /// Calculate output
     /// NOTE this assumes equal pitch in both sensors!
-    MeasurementPoint mp0 = aTTStub.getClusterPtr(0)->findAverageLocalCoordinates();
-    MeasurementPoint mp1 = aTTStub.getClusterPtr(1)->findAverageLocalCoordinates();
+    MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+    MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
     aDisplacement = 2*(mp1.x() - mp0.x()); /// In HALF-STRIP units!
 
     /// By default, assigned as ZERO

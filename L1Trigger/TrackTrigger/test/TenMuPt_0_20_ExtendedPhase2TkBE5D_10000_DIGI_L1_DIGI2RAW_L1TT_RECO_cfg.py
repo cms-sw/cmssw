@@ -27,13 +27,13 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('file:TenMuPt_0_20_ExtendedPhase2TkBE5D_10000_GEN_SIM.root')
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/p/pozzo/workspace0/public/VALIDATION_6_2_0_SLHC1/TenMuPt_0_20_ExtendedPhase2TkBE5D_10000_GEN_SIM.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -62,6 +62,18 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 
 # Additional output definition
 
+#process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions",
+#    moduleNames = cms.untracked.vstring('default'),
+#    default = cms.untracked.PSet(
+#        enableOverFlowEx = cms.untracked.bool(True),
+#        enableDivByZeroEx = cms.untracked.bool(True),
+#        enableInvalidEx = cms.untracked.bool(True),
+#        enableUnderFlowEx = cms.untracked.bool(True)
+#    ),
+#    setPrecisionDouble = cms.untracked.bool(True),
+#    reportSettings = cms.untracked.bool(False)
+#)
+
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
@@ -83,7 +95,8 @@ process.eca_step = cms.Path(process.eca)
 # Schedule definition
 process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.digi2raw_step,
 process.L1TrackTrigger_step,process.L1TTAssociator_step,
-process.reconstruction_step,process.endjob_step,process.FEVTDEBUGoutput_step)#,process.eca_step)
+process.reconstruction_step,
+process.endjob_step,process.FEVTDEBUGoutput_step)#,process.eca_step)
 
 # customisation of the process.
 

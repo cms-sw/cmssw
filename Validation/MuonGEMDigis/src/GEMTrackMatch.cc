@@ -6,26 +6,14 @@
 #include <TMath.h>
 #include <TH1F.h>
 
-const float PI=TMath::Pi();
 
 
-struct MySimTrack
-{
-  Float_t pt, eta, phi;
-  Char_t gem_sh_layer1, gem_sh_layer2;
-  Char_t gem_dg_layer1, gem_dg_layer2;
-  Char_t gem_pad_layer1, gem_pad_layer2;
-  Float_t gem_lx_even, gem_ly_even;
-  Float_t gem_lx_odd, gem_ly_odd;
-  Char_t has_gem_dg_l1, has_gem_dg_l2;
-  Char_t has_gem_pad_l1, has_gem_pad_l2;
-  Char_t has_gem_sh_l1, has_gem_sh_l2;
-};
 
 
 
 GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
 {
+   const float PI=TMath::Pi();
    cfg_= cfg; 
    simInputLabel_= simInputLabel;
    dbe_= dbe;
@@ -33,40 +21,38 @@ GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::Par
    minEta_ = cfg_.getUntrackedParameter<double>("gemDigiMinEta",1.55);
    maxEta_ = cfg_.getUntrackedParameter<double>("gemDigiMaxEta",2.18);
    buildLUT();
-   track_eta =  new TH1F("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
-   track_phi =  new TH1F("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
-   track_dg_eta =  new TH1F("track_dg_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
-   track_sh_eta =  new TH1F("track_sh_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
+   track_eta =  dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
+   track_phi =  dbe_->book1D("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
 
-   dg_eta[0] = new TH1F("dg_eta_l1","dg_eta_l1",140,1.5,2.2);
-   dg_eta[1] = new TH1F("dg_eta_l2","dg_eta_l2",140,1.5,2.2);
-   dg_eta[2] = new TH1F("dg_eta_l1or2","dg_eta_l1or2",140,1.5,2.2);
-   dg_eta[3] = new TH1F("dg_eta_l1and2","dg_eta_l1and2",140,1.5,2.2);
+   dg_eta[0] = dbe_->book1D("dg_eta_l1","dg_eta_l1",140,1.5,2.2);
+   dg_eta[1] = dbe_->book1D("dg_eta_l2","dg_eta_l2",140,1.5,2.2);
+   dg_eta[2] = dbe_->book1D("dg_eta_l1or2","dg_eta_l1or2",140,1.5,2.2);
+   dg_eta[3] = dbe_->book1D("dg_eta_l1and2","dg_eta_l1and2",140,1.5,2.2);
 
-   dg_sh_eta[0] = new TH1F("dg_sh_eta_l1","dg_sh_eta_l1",140,1.5,2.2);
-   dg_sh_eta[1] = new TH1F("dg_sh_eta_l2","dg_sh_eta_l2",140,1.5,2.2);
-   dg_sh_eta[2] = new TH1F("dg_sh_eta_l1or2","dg_sh_eta_l1or2",140,1.5,2.2);
-   dg_sh_eta[3] = new TH1F("dg_sh_eta_l1and2","dg_sh_eta_l1and2",140,1.5,2.2);
+   dg_sh_eta[0] = dbe_->book1D("dg_sh_eta_l1","dg_sh_eta_l1",140,1.5,2.2);
+   dg_sh_eta[1] = dbe_->book1D("dg_sh_eta_l2","dg_sh_eta_l2",140,1.5,2.2);
+   dg_sh_eta[2] = dbe_->book1D("dg_sh_eta_l1or2","dg_sh_eta_l1or2",140,1.5,2.2);
+   dg_sh_eta[3] = dbe_->book1D("dg_sh_eta_l1and2","dg_sh_eta_l1and2",140,1.5,2.2);
 
-   dg_phi[0] = new TH1F("dg_phi_l1","dg_phi_l1",100,-PI,PI);
-   dg_phi[1] = new TH1F("dg_phi_l2","dg_phi_l2",100,-PI,PI);
-   dg_phi[2] = new TH1F("dg_phi_l1or2","dg_phi_l1or2",100,-PI,PI);
-   dg_phi[3] = new TH1F("dg_phi_l1and2","dg_phi_l1and2",100,-PI,PI);
+   dg_phi[0] = dbe_->book1D("dg_phi_l1","dg_phi_l1",100,-PI,PI);
+   dg_phi[1] = dbe_->book1D("dg_phi_l2","dg_phi_l2",100,-PI,PI);
+   dg_phi[2] = dbe_->book1D("dg_phi_l1or2","dg_phi_l1or2",100,-PI,PI);
+   dg_phi[3] = dbe_->book1D("dg_phi_l1and2","dg_phi_l1and2",100,-PI,PI);
   
-   dg_sh_phi[0] = new TH1F("dg_sh_phi_l1","dg_sh_phi_l1",100,-PI,PI);
-   dg_sh_phi[1] = new TH1F("dg_sh_phi_l2","dg_sh_phi_l2",100,-PI,PI);
-   dg_sh_phi[2] = new TH1F("dg_sh_phi_l1or2","dg_sh_phi_l1or2",100,-PI,PI);
-   dg_sh_phi[3] = new TH1F("dg_sh_phi_l1and2","dg_sh_phi_l1and2",100,-PI,PI);
+   dg_sh_phi[0] = dbe_->book1D("dg_sh_phi_l1","dg_sh_phi_l1",100,-PI,PI);
+   dg_sh_phi[1] = dbe_->book1D("dg_sh_phi_l2","dg_sh_phi_l2",100,-PI,PI);
+   dg_sh_phi[2] = dbe_->book1D("dg_sh_phi_l1or2","dg_sh_phi_l1or2",100,-PI,PI);
+   dg_sh_phi[3] = dbe_->book1D("dg_sh_phi_l1and2","dg_sh_phi_l1and2",100,-PI,PI);
 
-   pad_eta[0] = new TH1F("pad_eta_l1","pad_eta_l1",140,1.5,2.2);
-   pad_eta[1] = new TH1F("pad_eta_l2","pad_eta_l2",140,1.5,2.2);
-   pad_eta[2] = new TH1F("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
-   pad_eta[3] = new TH1F("copad_eta","copad_eta",140,1.5,2.2);
+   pad_eta[0] = dbe_->book1D("pad_eta_l1","pad_eta_l1",140,1.5,2.2);
+   pad_eta[1] = dbe_->book1D("pad_eta_l2","pad_eta_l2",140,1.5,2.2);
+   pad_eta[2] = dbe_->book1D("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
+   pad_eta[3] = dbe_->book1D("copad_eta","copad_eta",140,1.5,2.2);
 
-   pad_phi[0] = new TH1F("pad_phi_l1","pad_phi_l1",100,-PI,PI);
-   pad_phi[1] = new TH1F("pad_phi_l2","pad_phi_l2",100,-PI,PI);
-   pad_phi[2] = new TH1F("pad_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
-   pad_phi[3] = new TH1F("copad_phi","copad_phi",100,-PI,PI);
+   pad_phi[0] = dbe_->book1D("pad_phi_l1","pad_phi_l1",100,-PI,PI);
+   pad_phi[1] = dbe_->book1D("pad_phi_l2","pad_phi_l2",100,-PI,PI);
+   pad_phi[2] = dbe_->book1D("pad_phi_l1or2","pad_phi_l1or2",100,-PI,PI);
+   pad_phi[3] = dbe_->book1D("copad_phi","copad_phi",100,-PI,PI);
 
    dg_lx_even        = dbe_->book1D("dg_lx_even","dg_lx_even",100,-100,100); 
    dg_lx_even_l1     = dbe_->book1D("dg_lx_even_l1","dg_lx_even_l1",100,-100,100);
@@ -102,6 +88,7 @@ GEMTrackMatch::~GEMTrackMatch() {
 
 bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
 {
+
   // SimTrack selection
   if (t.noVertex())   return false; 
   if (t.noGenpart()) return false;
@@ -109,12 +96,14 @@ bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
   if (t.momentum().pt() < 5 ) return false;
   float eta = fabs(t.momentum().eta());
   if (eta > maxEta_ || eta < minEta_ ) return false; // no GEMs could be in such eta
+
   return true;
 }
 
 
 void GEMTrackMatch::buildLUT()
 {
+  
   const int maxChamberId_ = GEMDetId().maxChamberId; 
   std::vector<int> pos_ids;
   pos_ids.push_back(GEMDetId(1,1,1,1,maxChamberId_,1).rawId());
@@ -134,6 +123,7 @@ void GEMTrackMatch::buildLUT()
   }
   positiveLUT_ = std::make_pair(phis,pos_ids);
   negativeLUT_ = std::make_pair(phis,neg_ids);
+
 }
 
 
@@ -153,23 +143,35 @@ void GEMTrackMatch::setGeometry(const GEMGeometry* geom)
   radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
   chamberHeight_ = gp_top.perp() - gp_bottom.perp();
 
-  std::cout<<"radiusCenter"<<radiusCenter_<<std::endl;
 }  
 
 
 std::pair<int,int> GEMTrackMatch::getClosestChambers(int region, float phi)
 {
+  
   auto& phis(positiveLUT_.first);
   auto upper = std::upper_bound(phis.begin(), phis.end(), phi);
-//  std::cout << "lower = " << upper - phis.begin() << std::endl;
-//  std::cout << "upper = " << upper - phis.begin() + 1 << std::endl;
   auto& LUT = (region == 1 ? positiveLUT_.second : negativeLUT_.second);
+
+
   return std::make_pair(LUT.at(upper - phis.begin()), (LUT.at((upper - phis.begin() + 1)%36)));
 }
 
 
 void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  struct MySimTrack
+  {
+    Float_t pt, eta, phi;
+    Char_t gem_sh_layer1, gem_sh_layer2;
+    Char_t gem_dg_layer1, gem_dg_layer2;
+    Char_t gem_pad_layer1, gem_pad_layer2;
+    Float_t gem_lx_even, gem_ly_even;
+    Float_t gem_lx_odd, gem_ly_odd;
+    Char_t has_gem_dg_l1, has_gem_dg_l2;
+    Char_t has_gem_pad_l1, has_gem_pad_l2;
+    Char_t has_gem_sh_l1, has_gem_sh_l2;
+  };
   MySimTrack track_;
 
   iEvent.getByLabel(simInputLabel_, sim_tracks);
@@ -178,6 +180,7 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
 
+
   for (auto& t: sim_trks)
   {
     if (!isSimTrackGood(t)) 
@@ -185,7 +188,7 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     //{ printf("skip!!\n"); continue; }
     
     // match hits and digis to this SimTrack
-    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+    SimTrackDigiMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
 
     const SimHitMatcher& match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();
@@ -224,9 +227,12 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
 
+
     // ** GEM Digis, Pads and CoPads ** //
 
+
     auto gem_dg_ids_ch = match_gd.chamberIds();
+
     for(auto d: gem_dg_ids_ch)
     {
       GEMDetId id(d);
@@ -244,7 +250,6 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     track_eta->Fill( fabs( track_.eta)  );
-    track_dg_eta->Fill( fabs( track_.eta));
     if ( track_.gem_dg_layer1 > 0 ) {
       dg_eta[0]->Fill ( fabs( track_.eta ) );
     }
@@ -262,8 +267,6 @@ void GEMTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
 
-    track_sh_eta->Fill( fabs( track_.eta));
-  
     if ( track_.gem_sh_layer1 > 0 ) {
       dg_sh_eta[0]->Fill ( fabs(track_.eta)); 
     }

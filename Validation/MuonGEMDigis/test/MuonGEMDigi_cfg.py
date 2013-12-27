@@ -37,7 +37,6 @@ from DQMServices.Examples.test.ConverterTester_cfi import *
 DQMStore = cms.Service("DQMStore")
 
 dqmSaver.convention = 'Offline'
-dqmSaver.workflow = '/MuonGEMDigisV/Workflow/DIGI'
 
 process.MEtoEDMConverter.Verbosity= cms.untracked.int32(1)
 process.MEtoEDMConverter.Frequency= cms.untracked.int32(1)

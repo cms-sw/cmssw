@@ -18,6 +18,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
@@ -42,32 +43,32 @@ class TTStubAssociationMap
     /// Helper methods: findABC( ... )
 
     /// Maps
-    std::map< edm::Ptr< TTStub< T > >, edm::Ptr< TrackingParticle > > getTTStubToTrackingParticleMap() const
+    std::map< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > >, edm::Ptr< TrackingParticle > > getTTStubToTrackingParticleMap() const
       { return stubToTrackingParticleMap; }
-    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTStub< T > > > > getTrackingParticleToTTStubsMap() const
+    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > > getTrackingParticleToTTStubsMap() const
       { return trackingParticleToStubVectorMap; }
 
-    void setTTStubToTrackingParticleMap( std::map< edm::Ptr< TTStub< T > >, edm::Ptr< TrackingParticle > > aMap )
+    void setTTStubToTrackingParticleMap( std::map< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > >, edm::Ptr< TrackingParticle > > aMap )
       { stubToTrackingParticleMap = aMap; }
-    void setTrackingParticleToTTStubsMap( std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTStub< T > > > > aMap )
+    void setTrackingParticleToTTStubsMap( std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > > aMap )
       { trackingParticleToStubVectorMap = aMap; }
     void setTTClusterAssociationMap( edm::RefProd< TTClusterAssociationMap< T > > aCluAssoMap )
       { theClusterAssociationMap = aCluAssoMap; }
 
     /// Operations
-    edm::Ptr< TrackingParticle >           findTrackingParticlePtr( edm::Ptr< TTStub< T > > aStub ) const;
-    std::vector< edm::Ptr< TTStub< T > > > findTTStubPtrs( edm::Ptr< TrackingParticle > aTrackingParticle ) const;
+    edm::Ptr< TrackingParticle >                                                findTrackingParticlePtr( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > findTTStubRefs( edm::Ptr< TrackingParticle > aTrackingParticle ) const;
 
     /// MC Truth methods
-    bool isGenuine( edm::Ptr< TTStub< T > > aStub ) const;
-    bool isCombinatoric( edm::Ptr< TTStub< T > > aStub ) const;
-    bool isUnknown( edm::Ptr< TTStub< T > > aStub ) const;
+    bool isGenuine( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const;
+    bool isCombinatoric( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const;
+    bool isUnknown( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const;
 
   private:
     /// Data members
-    std::map< edm::Ptr< TTStub< T > >, edm::Ptr< TrackingParticle > >                stubToTrackingParticleMap;
-    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ptr< TTStub< T > > > > trackingParticleToStubVectorMap;
-    edm::RefProd< TTClusterAssociationMap< T > >                                     theClusterAssociationMap;
+    std::map< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > >, edm::Ptr< TrackingParticle > >                stubToTrackingParticleMap;
+    std::map< edm::Ptr< TrackingParticle >, std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > > trackingParticleToStubVectorMap;
+    edm::RefProd< TTClusterAssociationMap< T > >                                                                          theClusterAssociationMap;
 
 }; /// Close class
 
@@ -96,7 +97,7 @@ TTStubAssociationMap< T >::~TTStubAssociationMap(){}
 
 /// Operations
 template< typename T >
-edm::Ptr< TrackingParticle > TTStubAssociationMap< T >::findTrackingParticlePtr( edm::Ptr< TTStub< T > > aStub ) const
+edm::Ptr< TrackingParticle > TTStubAssociationMap< T >::findTrackingParticlePtr( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const
 {
   if ( stubToTrackingParticleMap.find( aStub ) != stubToTrackingParticleMap.end() )
   {
@@ -109,21 +110,21 @@ edm::Ptr< TrackingParticle > TTStubAssociationMap< T >::findTrackingParticlePtr(
 }
 
 template< typename T >
-std::vector< edm::Ptr< TTStub< T > > > TTStubAssociationMap< T >::findTTStubPtrs( edm::Ptr< TrackingParticle > aTrackingParticle ) const
+std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > TTStubAssociationMap< T >::findTTStubRefs( edm::Ptr< TrackingParticle > aTrackingParticle ) const
 {
   if ( trackingParticleToStubVectorMap.find( aTrackingParticle ) != trackingParticleToStubVectorMap.end() )
   {
     return trackingParticleToStubVectorMap.find( aTrackingParticle )->second;
   }
 
-  std::vector< edm::Ptr< TTStub< T > > > tempVector;
+  std::vector< edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > > tempVector;
   tempVector.clear();
   return tempVector;
 }
 
 /// MC truth
 template< typename T >
-bool TTStubAssociationMap< T >::isGenuine( edm::Ptr< TTStub< T > > aStub ) const
+bool TTStubAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const
 {
   /// Check if there is a SimTrack
   if ( (this->findTrackingParticlePtr( aStub )).isNull() )
@@ -133,7 +134,7 @@ bool TTStubAssociationMap< T >::isGenuine( edm::Ptr< TTStub< T > > aStub ) const
 }
 
 template< typename T >
-bool TTStubAssociationMap< T >::isCombinatoric( edm::Ptr< TTStub< T > > aStub ) const
+bool TTStubAssociationMap< T >::isCombinatoric( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const
 {
   /// Defined by exclusion
   if ( this->isGenuine( aStub ) )
@@ -146,10 +147,10 @@ bool TTStubAssociationMap< T >::isCombinatoric( edm::Ptr< TTStub< T > > aStub ) 
 }
 
 template< typename T >
-bool TTStubAssociationMap< T >::isUnknown( edm::Ptr< TTStub< T > > aStub ) const
+bool TTStubAssociationMap< T >::isUnknown( edm::Ref< edmNew::DetSetVector< TTStub< T > >, TTStub< T > > aStub ) const
 {
   /// UNKNOWN means that both clusters are unknown
-  std::vector< edm::Ptr< TTCluster< T > > > theseClusters = aStub->getClusterPtrs();
+  std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > theseClusters = aStub->getClusterRefs();
 
   /// Sanity check
   if ( theClusterAssociationMap.isNull() )

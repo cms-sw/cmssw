@@ -21,7 +21,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 
-#include "Validation/MuonGEMDigis/interface/SimTrackMatchManager.h"
+#include "Validation/MuonGEMDigis/interface/SimTrackDigiMatchManager.h"
 
 
 class GEMTrackMatch 
@@ -36,21 +36,6 @@ public:
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry* geom); 
 
-  TH1F** GetDgEta()  { return dg_eta;    }
-  TH1F** GetPadEta() { return pad_eta;   }
-  TH1F** GetShEta()  { return dg_sh_eta; }
-
-  TH1F** GetDgPhi()  { return dg_phi;    }
-  TH1F** GetPadPhi() { return pad_phi;   }
-  TH1F** GetShPhi()  { return dg_sh_phi; }
-
-
-  TH1F* GetTrackEta()  { return track_eta; }
-  TH1F* GetTrackDgEta()  { return track_dg_eta; }
-  TH1F* GetTrackShEta()  { return track_sh_eta; }
-  TH1F* GetTrackPhi()  { return track_phi; }
-  
-
 
  private:
 
@@ -59,27 +44,22 @@ public:
   DQMStore* dbe_; 
   const GEMGeometry* theGEMGeometry;   
 
-  MonitorElement* theEff_eta_dg_l1;
   
-  TH1F* track_eta;
-  TH1F* track_phi;
+  MonitorElement* track_eta;
+  MonitorElement* track_phi;
 
-  TH1F* track_dg_eta;
-  TH1F* track_sh_eta;
+  MonitorElement* track_dg_eta;
+  MonitorElement* track_sh_eta;
 
-  TH1F* dg_eta[4];
-
-
-  TH1F* dg_sh_eta[4]; 
+  MonitorElement* dg_eta[4];
+  MonitorElement* dg_sh_eta[4]; 
 
 
-  TH1F* dg_phi[4];
-  
-  TH1F* dg_sh_phi[4]; 
+  MonitorElement* dg_phi[4];
+  MonitorElement* dg_sh_phi[4]; 
 
-  TH1F* pad_eta[4];
-
-  TH1F* pad_phi[4];
+  MonitorElement* pad_eta[4];
+  MonitorElement* pad_phi[4];
 
 
   MonitorElement* dg_lx_even;

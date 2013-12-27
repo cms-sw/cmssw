@@ -15,26 +15,6 @@ DEFINE_FWK_MODULE( TTClusterBuilder_PixelDigi_ );
 typedef TTStubBuilder< Ref_PixelDigi_ > TTStubBuilder_PixelDigi_;
 DEFINE_FWK_MODULE( TTStubBuilder_PixelDigi_ );
 
-#include "L1Trigger/TrackTrigger/plugins/TTTrackBuilder.h"
-typedef TTTrackBuilder< Ref_PixelDigi_ > TTTrackBuilder_PixelDigi_;
-DEFINE_FWK_MODULE( TTTrackBuilder_PixelDigi_ );
-
-
-/// The Track Finding Algorithms
-
-#include "L1Trigger/TrackTrigger/interface/TTTrackAlgorithm_trackletLB.h"
-typedef ES_TTTrackAlgorithm_trackletLB< Ref_PixelDigi_ > TTTrackAlgorithm_trackletLB_PixelDigi_;
-DEFINE_FWK_EVENTSETUP_MODULE( TTTrackAlgorithm_trackletLB_PixelDigi_ );
-
-#include "L1Trigger/TrackTrigger/interface/TTTrackAlgorithm_trackletBE.h"
-typedef ES_TTTrackAlgorithm_trackletBE< Ref_PixelDigi_ > TTTrackAlgorithm_trackletBE_PixelDigi_;
-DEFINE_FWK_EVENTSETUP_MODULE( TTTrackAlgorithm_trackletBE_PixelDigi_ );
-
-#include "L1Trigger/TrackTrigger/interface/TTTrackAlgorithm_AMBE.h"
-typedef ES_TTTrackAlgorithm_AMBE<Ref_PixelDigi_ > TTTrackAlgorithm_AMBE_PixelDigi_;
-DEFINE_FWK_EVENTSETUP_MODULE( TTTrackAlgorithm_AMBE_PixelDigi_ );
-
-
 /// The Stub Finding Algorithms
 
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_a.h"

@@ -1,0 +1,1171 @@
+<config name="top" version="1">
+ <config name="CommonPreferences" version="1">
+  <config name="     " version="0">
+    <string>2</string>
+  </config>
+  <config name="Show y=0 points as markers" version="0">
+    <string>0</string>
+  </config>
+  <config name="backgroundColIdx" version="0">
+    <string>1</string>
+  </config>
+  <config name="Brightness" version="0">
+    <string>0</string>
+  </config>
+  <config name="Transparency 2D" version="0">
+    <string>50</string>
+  </config>
+  <config name="Transparency 3D" version="0">
+    <string>90</string>
+  </config>
+  <config name="GeometryColor 0 " version="0">
+    <string>1032</string>
+  </config>
+  <config name="GeometryColor 1 " version="0">
+    <string>1033</string>
+  </config>
+  <config name="GeometryColor 2 " version="0">
+    <string>1026</string>
+  </config>
+  <config name="GeometryColor 3 " version="0">
+    <string>1017</string>
+  </config>
+  <config name="GeometryColor 4 " version="0">
+    <string>1025</string>
+  </config>
+  <config name="GeometryColor 5 " version="0">
+    <string>1022</string>
+  </config>
+  <config name="ScaleMode" version="0">
+    <string>1</string>
+  </config>
+  <config name="EnergyToLength [GeV/m]" version="0">
+    <string>50</string>
+  </config>
+  <config name="MaximumLength [m]" version="0">
+    <string>3</string>
+  </config>
+  <config name="PlotEt" version="0">
+    <string>1</string>
+  </config>
+ </config>
+ <config name="EventItems" version="1">
+  <config name="ECal" version="6">
+   <config name="type" version="0">
+     <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>towerMaker</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>$.emEt()&gt;0.2</string>
+   </config>
+   <config name="color" version="0">
+     <string>1008</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>2</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>ECal</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="HCal" version="6">
+   <config name="type" version="0">
+     <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>towerMaker</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>$.hadEt()+$.outerEt()&gt;0.2</string>
+   </config>
+   <config name="color" version="0">
+     <string>1005</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>2</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>HCal</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="Jets" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::PFJet&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>ak5PFJets</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>$.pt()&gt;20</string>
+   </config>
+   <config name="color" version="0">
+     <string>1000</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>3</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Jets</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="Draw Labels in RhoPhi View" version="0">
+       <string>0</string>
+     </config>
+     <config name="Draw Labels in RhoZ View" version="0">
+       <string>0</string>
+     </config>
+     <config name="Label Offset" version="0">
+       <string>2.1</string>
+     </config>
+    </config>
+   </config>
+  </config>
+  <config name="Tracks" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::Track&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>generalTracks</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>$.pt()&gt;1</string>
+   </config>
+   <config name="color" version="0">
+     <string>1009</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>1</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Tracks</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="Muons" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::Muon&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>muons</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>$.isStandAloneMuon()</string>
+   </config>
+   <config name="color" version="0">
+     <string>1008</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>5</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Muons</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="Electrons" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::GsfElectron&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>gsfElectrons</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>$.hadronicOverEm()&lt;0.05</string>
+   </config>
+   <config name="color" version="0">
+     <string>1007</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>3</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Electrons</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="Vertices" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::Vertex&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>offlinePrimaryVertices</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1000</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>10</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Vertices</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="Draw Tracks" version="0">
+       <string>0</string>
+     </config>
+     <config name="Draw Ellipse" version="0">
+       <string>0</string>
+     </config>
+     <config name="Scale Ellipse" version="0">
+       <string>3</string>
+     </config>
+    </config>
+   </config>
+  </config>
+  <config name="BeamSpot" version="6">
+   <config name="type" version="0">
+     <string>reco::BeamSpot</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>offlineBeamSpot</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1002</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>12</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Beam Spot</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="DT-segments" version="6">
+   <config name="type" version="0">
+     <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>dt4DSegments</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1005</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>1</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>DT-segments</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="CSC-segments" version="6">
+   <config name="type" version="0">
+     <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>cscSegments</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1005</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>1</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>CSC-segments</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="Photons" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::Photon&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>photons</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>hadronicOverEm &lt; 0.2</string>
+   </config>
+   <config name="color" version="0">
+     <string>1009</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>1</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Photons</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="MET" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::MET&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>tcMet</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string>et()&gt;20</string>
+   </config>
+   <config name="color" version="0">
+     <string>1008</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>11</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>recoMET</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+  <config name="Conversions" version="6">
+   <config name="type" version="0">
+     <string>std::vector&lt;reco::Conversion&gt;</string>
+   </config>
+   <config name="moduleLabel" version="0">
+     <string>conversions</string>
+   </config>
+   <config name="productInstanceLabel" version="0">
+     <string></string>
+   </config>
+   <config name="processName" version="0">
+     <string></string>
+   </config>
+   <config name="filterExpression" version="0">
+     <string></string>
+   </config>
+   <config name="color" version="0">
+     <string>1016</string>
+   </config>
+   <config name="isVisible" version="0">
+     <string>t</string>
+   </config>
+   <config name="layer" version="0">
+     <string>13</string>
+   </config>
+   <config name="purpose" version="0">
+     <string>Conversions</string>
+   </config>
+   <config name="transparency" version="0">
+     <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+   </config>
+  </config>
+ </config>
+ <config name="EventNavigator" version="1">
+  <config name="EventFilters" version="1">
+   <config name="------Filter[0]------" version="1">
+    <config name="expression" version="0">
+      <string>$Tracks.pt()&gt;1</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>1</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+   </config>
+   <config name="------Filter[1]------" version="1">
+    <config name="expression" version="0">
+      <string>$Jets.pt()&gt;100</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>0</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+   </config>
+   <config name="------Filter[2]------" version="1">
+    <config name="expression" version="0">
+      <string>$Muons@.size()&gt;3</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>0</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+   </config>
+   <config name="------Filter[3]------" version="1">
+    <config name="expression" version="0">
+      <string>HLT_Mu9</string>
+    </config>
+    <config name="enabled" version="0">
+      <string>0</string>
+    </config>
+    <config name="comment" version="0">
+      <string></string>
+    </config>
+    <config name="triggerProcess" version="0">
+      <string>HLT</string>
+    </config>
+   </config>
+  </config>
+  <config name="EventFilter_mode" version="0">
+    <string>1</string>
+  </config>
+  <config name="EventFilter_enabled" version="0">
+    <string>0</string>
+  </config>
+ </config>
+ <config name="GUI" version="1">
+  <config name="main window" version="3">
+   <config name="x" version="0">
+     <string>32</string>
+   </config>
+   <config name="y" version="0">
+     <string>47</string>
+   </config>
+   <config name="width" version="0">
+     <string>1081</string>
+   </config>
+   <config name="height" version="0">
+     <string>805</string>
+   </config>
+   <config name="summaryWeight" version="0">
+     <string>0.0911815</string>
+   </config>
+   <config name="leftWeight" version="0">
+     <string>0.983784</string>
+   </config>
+   <config name="rightWeight" version="0">
+     <string>1.01622</string>
+   </config>
+  </config>
+  <config name="views" version="1">
+   <config name="3D RecHit" version="8">
+    <config name="Image Scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Overlay Event Info" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Logo" version="0">
+      <string>0</string>
+    </config>
+    <config name="Smooth points" version="0">
+      <string>0</string>
+    </config>
+    <config name="Point size" version="0">
+      <string>1</string>
+    </config>
+    <config name="Smooth lines" version="0">
+      <string>0</string>
+    </config>
+    <config name="Line width" version="0">
+      <string>1</string>
+    </config>
+    <config name="Outline width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Wireframe width scale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show Camera Guide" version="0">
+      <string>0</string>
+    </config>
+    <config name="UseGlobalEnergyScale" version="0">
+      <string>1</string>
+    </config>
+    <config name="Show Muon Barrel" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Muon Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Pixel Barrel" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Pixel Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Tracker Barrel" version="0">
+      <string>0</string>
+    </config>
+    <config name="Show Tracker Endcap" version="0">
+      <string>0</string>
+    </config>
+    <config name="Render Style" version="0">
+      <string>0</string>
+    </config>
+    <config name="View dependent Clip" version="0">
+      <string>0</string>
+    </config>
+    <config name="Enable Tooltips" version="0">
+      <string>0</string>
+    </config>
+    <config name="EventInfoTextSize" version="0">
+      <string>0.03</string>
+    </config>
+    <config name="EventInfoPosX" version="0">
+      <string>0.05</string>
+    </config>
+    <config name="EventInfoPosY" version="0">
+      <string>0.95</string>
+    </config>
+    <config name="LogoSize" version="0">
+      <string>0.2</string>
+    </config>
+    <config name="LogoPosX" version="0">
+      <string>0.02</string>
+    </config>
+    <config name="LogoPosY" version="0">
+      <string>0.98</string>
+    </config>
+    <config name="ScaleMode" version="0">
+      <string>1</string>
+    </config>
+    <config name="EnergyToLength [GeV/m]" version="0">
+      <string>50</string>
+    </config>
+    <config name="MaximumLength [m]" version="0">
+      <string>3</string>
+    </config>
+    <config name="PlotEt" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrix0Plain3D" version="0">
+      <string>0.434711</string>
+    </config>
+    <config name="cameraMatrix1Plain3D" version="0">
+      <string>-0.775731</string>
+    </config>
+    <config name="cameraMatrix2Plain3D" version="0">
+      <string>0.457456</string>
+    </config>
+    <config name="cameraMatrix3Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix4Plain3D" version="0">
+      <string>0.872362</string>
+    </config>
+    <config name="cameraMatrix5Plain3D" version="0">
+      <string>0.488862</string>
+    </config>
+    <config name="cameraMatrix6Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix7Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix8Plain3D" version="0">
+      <string>-0.223633</string>
+    </config>
+    <config name="cameraMatrix9Plain3D" version="0">
+      <string>0.399068</string>
+    </config>
+    <config name="cameraMatrix10Plain3D" version="0">
+      <string>0.889232</string>
+    </config>
+    <config name="cameraMatrix11Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrix12Plain3D" version="0">
+      <string>87937.2</string>
+    </config>
+    <config name="cameraMatrix13Plain3D" version="0">
+      <string>-156922</string>
+    </config>
+    <config name="cameraMatrix14Plain3D" version="0">
+      <string>92538.3</string>
+    </config>
+    <config name="cameraMatrix15Plain3D" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrixBase0Plain3D" version="0">
+      <string>-1</string>
+    </config>
+    <config name="cameraMatrixBase1Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase2Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase3Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase4Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase5Plain3D" version="0">
+      <string>-0</string>
+    </config>
+    <config name="cameraMatrixBase6Plain3D" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrixBase7Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase8Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase9Plain3D" version="0">
+      <string>1</string>
+    </config>
+    <config name="cameraMatrixBase10Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase11Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase12Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase13Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase14Plain3D" version="0">
+      <string>0</string>
+    </config>
+    <config name="cameraMatrixBase15Plain3D" version="0">
+      <string>1</string>
+    </config>
+    <config name="Plain3D FOV" version="0">
+      <string>0.149144</string>
+    </config>
+   </config>
+   <config name="Geometry Table" version="1">
+    <config name="TopNodeIndex" version="0">
+      <string>-1</string>
+    </config>
+    <config name="ExpandList:" version="0">
+      <string>1</string>
+    </config>
+    <config name="EnableHighlight" version="0">
+      <string>1</string>
+    </config>
+    <config name="Mode:" version="0">
+      <string>0</string>
+    </config>
+    <config name="Materials:" version="0">
+      <string></string>
+    </config>
+    <config name="HideTopNode" version="0">
+      <string>1</string>
+    </config>
+    <config name="VisLevel:" version="0">
+      <string>3</string>
+    </config>
+    <config name="IgnoreVisLevelOnFilter" version="0">
+      <string>1</string>
+    </config>
+    <config name="Viewers" version="1">
+     <config name="3D RecHit" version="1">
+     </config>
+    </config>
+   </config>
+   <config name="Overlap Table" version="1">
+    <config name="TopNodeIndex" version="0">
+      <string>-1</string>
+    </config>
+    <config name="ExpandList:" version="0">
+      <string>1</string>
+    </config>
+    <config name="EnableHighlight" version="0">
+      <string>1</string>
+    </config>
+    <config name="Path:" version="0">
+      <string>/cms:World_1/cms:CMSE_1</string>
+    </config>
+    <config name="Precision" version="0">
+      <string>0.08</string>
+    </config>
+    <config name="Overlap" version="0">
+      <string>1</string>
+    </config>
+    <config name="Extrusion" version="0">
+      <string>1</string>
+    </config>
+    <config name="DrawPoints" version="0">
+      <string>1</string>
+    </config>
+    <config name="PointSize:" version="0">
+      <string>1</string>
+    </config>
+    <config name="Viewers" version="1">
+     <config name="3D RecHit" version="1">
+     </config>
+    </config>
+   </config>
+  </config>
+  <config name="view area" version="3">
+   <config name="3D RecHit" version="3">
+    <config name="weight" version="0">
+      <string>0.983784</string>
+    </config>
+    <config name="undocked" version="0">
+      <string>0</string>
+    </config>
+   </config>
+   <config name="Geometry Table" version="3">
+    <config name="weight" version="0">
+      <string>1</string>
+    </config>
+    <config name="undocked" version="0">
+      <string>0</string>
+    </config>
+   </config>
+   <config name="Overlap Table" version="3">
+    <config name="weight" version="0">
+      <string>1</string>
+    </config>
+    <config name="undocked" version="0">
+      <string>0</string>
+    </config>
+   </config>
+  </config>
+  <config name="controllers" version="1">
+  </config>
+ </config>
+ <config name="L1TriggerTables" version="1">
+ </config>
+ <config name="Tables" version="1">
+  <config name="CaloRecHit" version="1">
+    <string>id</string>
+    <string>detid.rawId</string>
+    <string>0</string>
+    <string>energy</string>
+    <string>energy</string>
+    <string>3</string>
+    <string>time</string>
+    <string>time</string>
+    <string>3</string>
+    <string>flags</string>
+    <string>flags</string>
+    <string>0</string>
+  </config>
+  <config name="CaloTower" version="1">
+    <string>emEt</string>
+    <string>emEt</string>
+    <string>1</string>
+    <string>hadEt</string>
+    <string>hadEt</string>
+    <string>1</string>
+    <string>et</string>
+    <string>et</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+  </config>
+  <config name="edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;" version="1">
+    <string>number of segments</string>
+    <string>size</string>
+    <string>0</string>
+  </config>
+  <config name="edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;" version="1">
+    <string>number of segments</string>
+    <string>size</string>
+    <string>0</string>
+  </config>
+  <config name="reco::CaloJet" version="1">
+    <string>Pt</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>ECAL</string>
+    <string>p4().E() * emEnergyFraction()</string>
+    <string>1</string>
+    <string>HCAL</string>
+    <string>p4().E() * energyFractionHadronic()</string>
+    <string>1</string>
+    <string>emf</string>
+    <string>emEnergyFraction()</string>
+    <string>3</string>
+    <string>size_eta</string>
+    <string>sqrt(etaetaMoment)</string>
+    <string>3</string>
+    <string>size_phi</string>
+    <string>sqrt(phiphiMoment)</string>
+    <string>3</string>
+  </config>
+  <config name="reco::GenParticle" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>status</string>
+    <string>status</string>
+    <string>0</string>
+    <string>pdgId</string>
+    <string>pdgId</string>
+    <string>0</string>
+  </config>
+  <config name="reco::GsfElectron" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>E/p</string>
+    <string>eSuperClusterOverP</string>
+    <string>3</string>
+    <string>H/E</string>
+    <string>hadronicOverEm</string>
+    <string>3</string>
+    <string>fbrem</string>
+    <string>(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()</string>
+    <string>3</string>
+    <string>dei</string>
+    <string>deltaEtaSuperClusterTrackAtVtx()</string>
+    <string>3</string>
+    <string>dpi</string>
+    <string>deltaPhiSuperClusterTrackAtVtx()</string>
+    <string>3</string>
+    <string>charge</string>
+    <string>charge</string>
+    <string>0</string>
+  </config>
+  <config name="reco::Jet" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+  </config>
+  <config name="reco::MET" version="1">
+    <string>MET</string>
+    <string>et</string>
+    <string>1</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>sumEt</string>
+    <string>sumEt</string>
+    <string>1</string>
+    <string>mEtSig</string>
+    <string>mEtSig</string>
+    <string>3</string>
+  </config>
+  <config name="reco::Muon" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>global</string>
+    <string>isGlobalMuon</string>
+    <string>-2</string>
+    <string>tracker</string>
+    <string>isTrackerMuon</string>
+    <string>-2</string>
+    <string>SA</string>
+    <string>isStandAloneMuon</string>
+    <string>-2</string>
+    <string>calo</string>
+    <string>isCaloMuon</string>
+    <string>-2</string>
+    <string>tr pt</string>
+    <string>track().pt()</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>matches</string>
+    <string>numberOfMatches('SegmentArbitration')</string>
+    <string>0</string>
+    <string>d0</string>
+    <string>track().d0()</string>
+    <string>3</string>
+    <string>d0 / d0Err</string>
+    <string>track().d0() / track().d0Error()</string>
+    <string>3</string>
+    <string>charge</string>
+    <string>charge</string>
+    <string>0</string>
+  </config>
+  <config name="reco::Photon" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>H/E</string>
+    <string>hadronicOverEm</string>
+    <string>3</string>
+  </config>
+  <config name="reco::Track" version="1">
+    <string>pT</string>
+    <string>pt</string>
+    <string>1</string>
+    <string>eta</string>
+    <string>eta</string>
+    <string>3</string>
+    <string>phi</string>
+    <string>phi</string>
+    <string>3</string>
+    <string>d0</string>
+    <string>d0</string>
+    <string>5</string>
+    <string>d0Err</string>
+    <string>d0Error</string>
+    <string>5</string>
+    <string>dz</string>
+    <string>dz</string>
+    <string>5</string>
+    <string>dzErr</string>
+    <string>dzError</string>
+    <string>5</string>
+    <string>vx</string>
+    <string>vx</string>
+    <string>5</string>
+    <string>vy</string>
+    <string>vy</string>
+    <string>5</string>
+    <string>vz</string>
+    <string>vz</string>
+    <string>5</string>
+    <string>pixel hits</string>
+    <string>hitPattern().numberOfValidPixelHits()</string>
+    <string>0</string>
+    <string>strip hits</string>
+    <string>hitPattern().numberOfValidStripHits()</string>
+    <string>0</string>
+    <string>chi2</string>
+    <string>chi2</string>
+    <string>3</string>
+    <string>ndof</string>
+    <string>ndof</string>
+    <string>0</string>
+    <string>charge</string>
+    <string>charge</string>
+    <string>0</string>
+  </config>
+  <config name="reco::Vertex" version="1">
+    <string>x</string>
+    <string>x</string>
+    <string>5</string>
+    <string>xError</string>
+    <string>xError</string>
+    <string>5</string>
+    <string>y</string>
+    <string>y</string>
+    <string>5</string>
+    <string>yError</string>
+    <string>yError</string>
+    <string>5</string>
+    <string>z</string>
+    <string>z</string>
+    <string>5</string>
+    <string>zError</string>
+    <string>zError</string>
+    <string>5</string>
+    <string>tracks</string>
+    <string>tracksSize</string>
+    <string>0</string>
+    <string>chi2</string>
+    <string>chi2</string>
+    <string>3</string>
+    <string>ndof</string>
+    <string>ndof</string>
+    <string>3</string>
+  </config>
+  <config name="typeNames" version="1">
+    <string>CaloRecHit</string>
+    <string>CaloTower</string>
+    <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
+    <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
+    <string>reco::CaloJet</string>
+    <string>reco::GenParticle</string>
+    <string>reco::GsfElectron</string>
+    <string>reco::Jet</string>
+    <string>reco::MET</string>
+    <string>reco::Muon</string>
+    <string>reco::Photon</string>
+    <string>reco::Track</string>
+    <string>reco::Vertex</string>
+  </config>
+ </config>
+ <config name="TriggerTables" version="1">
+ </config>
+</config>
