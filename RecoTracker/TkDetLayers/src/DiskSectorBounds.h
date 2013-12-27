@@ -7,7 +7,7 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include <algorithm>
 #include <cmath>
-
+#include <cassert>
 
 #pragma GCC visibility push(hidden)
 class DiskSectorBounds GCC11_FINAL : public Bounds {
@@ -15,6 +15,7 @@ public:
   
    DiskSectorBounds( float rmin, float rmax, float zmin, float zmax, float phiExt) : 
      theRmin(rmin), theRmax(rmax), theZmin(zmin), theZmax(zmax), thePhiExtH(0.5f*phiExt) {
+     assert(thePhiExtH>0);
      if ( theRmin > theRmax) std::swap( theRmin, theRmax);
      if ( theZmin > theZmax) std::swap( theZmin, theZmax);
      theOffset = theRmin +  0.5f*(theRmax-theRmin);
