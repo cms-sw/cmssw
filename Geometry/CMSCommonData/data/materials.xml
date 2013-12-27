@@ -247,6 +247,44 @@
     <rMaterial name="materials:Water"/>
    </MaterialFraction>   
   </CompositeMaterial>
+  <CompositeMaterial name="Heavy Boron concrete" density="3.574*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.5192746">
+    <rMaterial name="materials:Iron"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.34702">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0080099">
+    <rMaterial name="materials:Aluminium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0296094">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0684299">
+    <rMaterial name="materials:Calcium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.006620977">
+    <rMaterial name="materials:Bor 10"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.008010562">
+    <rMaterial name="materials:Hydrogen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.004774732">
+    <rMaterial name="materials:Titanium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.004804022">
+    <rMaterial name="materials:Magnesium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.000555229">
+    <rMaterial name="materials:Manganese"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.001653212">
+    <rMaterial name="materials:Potassium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.000118189">
+    <rMaterial name="materials:Sodium"/>
+   </MaterialFraction>   
+  </CompositeMaterial>
   <CompositeMaterial name="Air" density="1.214*mg/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.7494">
     <rMaterial name="materials:Nitrogen"/>
