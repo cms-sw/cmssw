@@ -1,6 +1,8 @@
 /*
  * \file GlobalTrackingGeometryTest.cc
  *
+ *  $Date: 2011/09/27 12:06:32 $
+ *  $Revision: 1.5 $
  *  \author M. Sani
  */
 
@@ -18,6 +20,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 #include <Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h>
 
 #include <DataFormats/DetId/interface/DetId.h>
@@ -107,6 +110,31 @@ void GlobalTrackingGeometryTest::analyzeRPC(const GlobalTrackingGeometry* geo, c
     std::cout << "RPC det: GlobalTrackingGeometry succesfully tested." << std::endl;
 }
 
+void GlobalTrackingGeometryTest::analyzeGEM(const GlobalTrackingGeometry* geo, const GEMGeometry* gemGeometry) {
+
+    for(GEMGeometry::DetUnitContainer::const_iterator itGEM = gemGeometry->detUnits().begin(); 
+        itGEM != gemGeometry->detUnits().end(); itGEM++) {
+        
+        DetId detId = (*itGEM)->geographicalId();
+        
+        // Check idToDetUnit
+        const GeomDetUnit* gdu = geo->idToDetUnit(detId);
+	    assert(gdu == (*itGEM));
+    }
+    std::cout << "GEM detUnit: GlobalTrackingGeometry succesfully tested." << std::endl;
+    
+    for(GEMGeometry::DetContainer::const_iterator itGEM = gemGeometry->dets().begin(); 
+        itGEM != gemGeometry->dets().end(); itGEM++) {
+    
+        DetId detId = (*itGEM)->geographicalId();
+
+	    // Check idToDet
+	    const GeomDet* gd = geo->idToDet(detId);
+        assert(gd == (*itGEM));
+    }
+    std::cout << "GEM det: GlobalTrackingGeometry succesfully tested." << std::endl;
+}
+
 void GlobalTrackingGeometryTest::analyzeTracker(const GlobalTrackingGeometry* geo, const TrackerGeometry* tkGeometry) {
 
     for(TrackerGeometry::DetUnitContainer::const_iterator itTk = tkGeometry->detUnits().begin(); 
@@ -178,10 +206,21 @@ void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const ed
     } catch (...) {
       std::cout << "N/A" << std::endl;
     }
+    
+    DetId detId5(DetId::Muon, 4); 
+    const GEMGeometry* gemGeometry = 0;
+    std::cout << "Pointer to GEM Geometry: ";
+    try {
+       gemGeometry = (const GEMGeometry*) geo->slaveGeometry(detId5);
+       std::cout <<  gemGeometry << std::endl;
+    } catch (...) {
+       std::cout << "N/A" << std::endl;
+    }
         
     if (cscGeometry) analyzeCSC(geo.product(), cscGeometry);
     if (dtGeometry) analyzeDT(geo.product(), dtGeometry);
     if (rpcGeometry) analyzeRPC(geo.product(), rpcGeometry);
+    if (gemGeometry) analyzeGEM(geo.product(), gemGeometry);
     if (trackerGeometry) analyzeTracker(geo.product(), trackerGeometry);    
 }
 

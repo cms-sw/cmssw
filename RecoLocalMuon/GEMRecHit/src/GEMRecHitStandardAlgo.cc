@@ -1,6 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
+ *  $Date: 2013/04/24 17:16:35 $
+ *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN
  */
 
@@ -18,18 +20,13 @@ GEMRecHitStandardAlgo::GEMRecHitStandardAlgo(const edm::ParameterSet& config) :
 {
 }
 
-
-
-GEMRecHitStandardAlgo::~GEMRecHitStandardAlgo()
+GEMRecHitStandardAlgo::~GEMRecHitStandardAlgo() 
 {
 }
 
-
-
-void GEMRecHitStandardAlgo::setES(const edm::EventSetup& setup) {
+void GEMRecHitStandardAlgo::setES(const edm::EventSetup& setup) 
+{
 }
-
-
 
 // First Step
 bool GEMRecHitStandardAlgo::compute(const GEMEtaPartition& roll,
@@ -45,7 +42,7 @@ bool GEMRecHitStandardAlgo::compute(const GEMEtaPartition& roll,
   LocalPoint loctemp2(centreOfCluster,0.,0.);
  
   Point = loctemp2;
-  error = roll.localError((cluster.firstStrip()+cluster.lastStrip())/2.);
+  error = roll.localError((cluster.firstStrip()+cluster.lastStrip())/2., cluster.clusterSize());
   return true;
 }
 
