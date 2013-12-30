@@ -114,6 +114,8 @@ private:
   void preallocate(edm::service::SystemBounds const &);
   void postEndJob();
   void preGlobalBeginRun(edm::GlobalContext const &);
+  void preStreamBeginRun(edm::StreamContext const &);
+  void postStreamEndRun(edm::StreamContext const &);
   void postGlobalEndRun(edm::GlobalContext const &);
   void preModuleBeginJob(edm::ModuleDescription const &);
   void preSourceEvent(  edm::StreamID );
@@ -297,6 +299,7 @@ private:
   unsigned int                                  m_concurrent_runs;
   unsigned int                                  m_concurrent_streams;
   unsigned int                                  m_concurrent_threads;
+  unsigned int                                  m_module_id;                    // pseudo module id for the FastTimerService, needed by the thread-safe DQMStore
 
   const double                                  m_dqm_eventtime_range;
   const double                                  m_dqm_eventtime_resolution;
