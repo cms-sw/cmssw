@@ -74,21 +74,19 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
 	      {
 		EBRecHitCollection::const_iterator itcheck=ebRecHits->find(id);
 		if(itcheck!=ebRecHits->end())
-		  energyHit= itcheck->energy();
-		// The cluster shapes do not take into account the RecHit fraction !   		
-		// * pfclust[icl]->hitsAndFractions()[index].second;
+                  // The cluster shapes MUST take into account the RecHit fraction !
+		  energyHit= itcheck->energy()*pfclust[icl]->hitsAndFractions()[index].second;;
 	      }
 	    if(id.det()==DetId::Ecal && id.subdetId()==EcalEndcap)
 	      {
 		EERecHitCollection::const_iterator itcheck=eeRecHits->find(id);
 		if(itcheck!=eeRecHits->end())
-		  energyHit= itcheck->energy();
-		// The cluster shapes do not take into account the RecHit fraction !   		
-		//               * pfclust[icl]->hitsAndFractions()[index].second;
+                  // The cluster shapes MUST take into account the RecHit fraction !
+		  energyHit= itcheck->energy()*pfclust[icl]->hitsAndFractions()[index].second;
 	      }
 	  }
 	else
-	  energyHit = RefPFRecHit->energy();
+	  energyHit = RefPFRecHit->energy()*it->fraction();
 
 	//only for the first cluster (from GSF) find the seed
 	if(icl==0) {
