@@ -41,7 +41,8 @@ void SuperClusterShapeAlgo::Calculate_Covariances(const reco::SuperCluster &pass
       continue;
     }
     GlobalPoint position = this_cell->getPosition();
-    double energyHit = rHit->energy();
+    //take into account energy fractions
+    double energyHit = rHit->energy()*hit->second;
     
     //form differences
     double dPhi = position.phi() - scPhi;
