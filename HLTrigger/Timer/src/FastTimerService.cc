@@ -1072,15 +1072,20 @@ void FastTimerService::preModuleEventDelayedGet(edm::StreamContext const & sc, e
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
-  // check if the signal has interrupted a module or not
-  //  - if it is, pause the time for that module, and prepare timing a new module
-  //  - otherwise, ignore it
-  { // if-scope
+  // if the ModuleCallingContext state is "Pefetching", the module is not running,
+  // and is asking for its dependencies due to a "consumes" declaration.
+  // we can ignore this signal.
+
+  // if the ModuleCallingContext state is "Running", the module was running:
+  // it declared its dependencies as "mayConsume", and is now calling getByToken/getByLabel.
+  // we pause the timer for this module, and resume it later in the postModuleEventDelayedGet signal.
+
+  // if the ModuleCallingContext state is "Invalid", we ignore the signal.
+  if (mcc.state() == edm::ModuleCallingContext::State::kRunning) {
     ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
     if (keyval != stream.fast_modules.end()) {
       ModuleInfo & module = * keyval->second;
-      if (module.timer.state() == FastTimer::State::kRunning)
-        module.timer.pause();
+      module.timer.pause();
     } else {
       // should never get here
       if (md == nullptr)
@@ -1100,15 +1105,12 @@ void FastTimerService::postModuleEventDelayedGet(edm::StreamContext const & sc, 
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
-  // check if the signal has interrupted a module or not
-  //  - if it is, reasume the timing for the original module
-  //  - otherwise, ignore it
-  { // if-scope
+  // see the description of the possible ModuleCallingContext states in preModuleEventDelayedGet, above.
+  if (mcc.state() == edm::ModuleCallingContext::State::kRunning) {
     ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
     if (keyval != stream.fast_modules.end()) {
       ModuleInfo & module = * keyval->second;
-      if (module.timer.state() == FastTimer::State::kPaused)
-        module.timer.resume();
+      module.timer.resume();
     } else {
       // should never get here
       if (md == nullptr)
