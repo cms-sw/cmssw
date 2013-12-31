@@ -485,6 +485,10 @@ FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
   m_stream.resize(m_concurrent_streams);
 
   m_module_id = edm::ModuleDescription::getUniqueID();
+  for (auto & stream: m_stream) {
+    stream.fast_modules.resize(    m_module_id, nullptr);
+    stream.fast_moduletypes.resize(m_module_id, nullptr);
+  }
 }
 
 
@@ -676,8 +680,13 @@ FastTimerService::postGlobalEndRun(edm::GlobalContext const &)
 void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) {
   // allocate a counter for each module and module type
   for (auto & stream: m_stream) {
-    stream.fast_modules[& module]     = & stream.modules[module.moduleLabel()];;
-    stream.fast_moduletypes[& module] = & stream.moduletypes[module.moduleName()];
+    if (module.id() >= stream.fast_modules.size())
+      stream.fast_modules.resize(module.id() + 1, nullptr);
+    if (module.id() >= stream.fast_moduletypes.size())
+      stream.fast_moduletypes.resize(module.id() + 1, nullptr);
+
+    stream.fast_modules[module.id()]     = & stream.modules[module.moduleLabel()];;
+    stream.fast_moduletypes[module.id()] = & stream.moduletypes[module.moduleName()];
   }
 }
 
@@ -1017,18 +1026,22 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
 }
 
 void FastTimerService::preModuleEvent(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
-  edm::ModuleDescription const * md = mcc.moduleDescription();
-  unsigned int sid = sc.streamID().value();
-  auto & stream = m_stream[sid];
-
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
+  if (mcc.moduleDescription() == nullptr) {
+    edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: invalid module";
+    return;
+  }
+
+  edm::ModuleDescription const & md = * mcc.moduleDescription();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+
   // time each module
   { // if-scope
-    ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
-    if (keyval != stream.fast_modules.end()) {
-      ModuleInfo & module = * keyval->second;
+    if (md.id() < stream.fast_modules.size()) {
+      ModuleInfo & module = * stream.fast_modules[md.id()];
       module.run_in_path = stream.current_path;
       module.timer.start();
       stream.current_module = & module;
@@ -1037,70 +1050,68 @@ void FastTimerService::preModuleEvent(edm::StreamContext const & sc, edm::Module
         stream.first_module_in_path = & module;
     } else {
       // should never get here
-      if (md == nullptr)
-        edm::LogError("FastTimerService") << "FastTimerService::preModuleEvent: invalid module";
-      else
-        edm::LogError("FastTimerService") << "FastTimerService::preModuleEvent: unexpected module " << md->moduleLabel();
+      edm::LogError("FastTimerService") << "FastTimerService::preModuleEvent: unexpected module " << md.moduleLabel();
     }
   }
 
 }
 
 void FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
-  edm::ModuleDescription const * md = mcc.moduleDescription();
-  unsigned int sid = sc.streamID().value();
-  auto & stream = m_stream[sid];
-
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
+
+  if (mcc.moduleDescription() == nullptr) {
+    edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: invalid module";
+    return;
+  }
+
+  edm::ModuleDescription const & md = * mcc.moduleDescription();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
 
   double active = 0.;
 
   // time and account each module
   { // if-scope
-    ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
-    if (keyval != stream.fast_modules.end()) {
-      ModuleInfo & module = * keyval->second;
+    if (md.id() < stream.fast_modules.size()) {
+      ModuleInfo & module = * stream.fast_modules[md.id()];
       module.timer.stop();
-      module.time_active = module.timer.seconds();
-      module.summary_active += module.time_active;
-      active = module.time_active;
+      active = module.timer.seconds();
+      module.time_active     = active;
+      module.summary_active += active;
       // plots are filled post event processing
     } else {
       // should never get here
-      if (md == nullptr)
-        edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: invalid module";
-      else
-        edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: unexpected module " << md->moduleLabel();
+      edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: unexpected module " << md.moduleLabel();
     }
   }
 
-  // FIXME move this to post event processing
   { // if-scope
-    ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_moduletypes.find(md);
-    if (keyval != stream.fast_moduletypes.end()) {
-      ModuleInfo & module = * keyval->second;
+    if (md.id() < stream.fast_moduletypes.size()) {
+      ModuleInfo & module = * stream.fast_moduletypes[md.id()];
       module.time_active    += active;
       module.summary_active += active;
       // plots are filled post event processing
     } else {
       // should never get here
-      if (md == nullptr)
-        edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: invalid module";
-      else
-        edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: unexpected module " << md->moduleLabel();
+      edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: unexpected module " << md.moduleLabel();
     }
   }
 
 }
 
 void FastTimerService::preModuleEventDelayedGet(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
-  edm::ModuleDescription const * md = mcc.moduleDescription();
-  unsigned int sid = sc.streamID().value();
-  auto & stream = m_stream[sid];
-
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
+
+  if (mcc.moduleDescription() == nullptr) {
+    edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: invalid module";
+    return;
+  }
+
+  edm::ModuleDescription const & md = * mcc.moduleDescription();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
 
   // if the ModuleCallingContext state is "Pefetching", the module is not running,
   // and is asking for its dependencies due to a "consumes" declaration.
@@ -1111,42 +1122,40 @@ void FastTimerService::preModuleEventDelayedGet(edm::StreamContext const & sc, e
   // we pause the timer for this module, and resume it later in the postModuleEventDelayedGet signal.
 
   // if the ModuleCallingContext state is "Invalid", we ignore the signal.
+
   if (mcc.state() == edm::ModuleCallingContext::State::kRunning) {
-    ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
-    if (keyval != stream.fast_modules.end()) {
-      ModuleInfo & module = * keyval->second;
+    if (md.id() < stream.fast_modules.size()) {
+      ModuleInfo & module = * stream.fast_modules[md.id()];
       module.timer.pause();
     } else {
       // should never get here
-      if (md == nullptr)
-        edm::LogError("FastTimerService") << "FastTimerService::preModuleEventDelayedGet: invalid module";
-      else
-        edm::LogError("FastTimerService") << "FastTimerService::preModuleEventDelayedGet: unexpected module " << md->moduleLabel();
+      edm::LogError("FastTimerService") << "FastTimerService::preModuleEventDelayedGet: unexpected module " << md.moduleLabel();
     }
   }
 
 }
 
 void FastTimerService::postModuleEventDelayedGet(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
-  edm::ModuleDescription const * md = mcc.moduleDescription();
-  unsigned int sid = sc.streamID().value();
-  auto & stream = m_stream[sid];
-
   // this is ever called only if m_enable_timing_modules = true
   assert(m_enable_timing_modules);
 
+  if (mcc.moduleDescription() == nullptr) {
+    edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: invalid module";
+    return;
+  }
+
+  edm::ModuleDescription const & md = * mcc.moduleDescription();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+
   // see the description of the possible ModuleCallingContext states in preModuleEventDelayedGet, above.
   if (mcc.state() == edm::ModuleCallingContext::State::kRunning) {
-    ModuleMap<ModuleInfo*>::iterator keyval = stream.fast_modules.find(md);
-    if (keyval != stream.fast_modules.end()) {
-      ModuleInfo & module = * keyval->second;
+    if (md.id() < stream.fast_modules.size()) {
+      ModuleInfo & module = * stream.fast_modules[md.id()];
       module.timer.resume();
     } else {
       // should never get here
-      if (md == nullptr)
-        edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: invalid module";
-      else
-        edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: unexpected module " << md->moduleLabel();
+      edm::LogError("FastTimerService") << "FastTimerService::postModuleEventDelayedGet: unexpected module " << md.moduleLabel();
     }
   }
 
@@ -1201,11 +1210,20 @@ double FastTimerService::currentEventTime(edm::StreamID sid) const {
 
 // query the time spent in a module (available after the module has run)
 double FastTimerService::queryModuleTime(edm::StreamID sid, const edm::ModuleDescription & module) const {
-  ModuleMap<ModuleInfo *>::const_iterator keyval = m_stream[sid].fast_modules.find(& module);
-  if (keyval != m_stream[sid].fast_modules.end()) {
-    return keyval->second->time_active;
+  if (module.id() < m_stream[sid].fast_modules.size()) {
+    return m_stream[sid].fast_modules[module.id()]->time_active;
   } else {
     edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module " << module.moduleLabel();
+    return 0.;
+  }
+}
+
+// query the time spent in a module (available after the module has run)
+double FastTimerService::queryModuleTime(edm::StreamID sid, unsigned int id) const {
+  if (id < m_stream[sid].fast_modules.size()) {
+    return m_stream[sid].fast_modules[id]->time_active;
+  } else {
+    edm::LogError("FastTimerService") << "FastTimerService::queryModuleTime: unexpected module id " << id;
     return 0.;
   }
 }

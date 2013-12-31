@@ -87,6 +87,7 @@ public:
 
   // query the time spent in a module/path (available after it has run)
   double queryModuleTime(edm::StreamID, const edm::ModuleDescription &) const;
+  double queryModuleTime(edm::StreamID, unsigned int id) const;
   double queryModuleTimeByLabel(edm::StreamID, const std::string &) const;
   double queryModuleTimeByType(edm::StreamID, const std::string &) const;
   double queryPathActiveTime(edm::StreamID, const std::string &) const;
@@ -271,7 +272,7 @@ private:
   };
 
   template <typename T> using PathMap   = std::unordered_map<std::string, T>;
-  template <typename T> using ModuleMap = std::unordered_map<edm::ModuleDescription const *, T>;
+  template <typename T> using ModuleMap = std::vector<T>;                       // key on ModuleDescription::id()
 
   // timer configuration
   bool                                          m_use_realtime;
@@ -523,8 +524,8 @@ private:
     PathMap<PathInfo>                               paths;
     std::unordered_map<std::string, ModuleInfo>     modules;
     std::unordered_map<std::string, ModuleInfo>     moduletypes;
-    ModuleMap<ModuleInfo *>                         fast_modules;               // these assume that ModuleDescription are stored in the same object through the whole job,
-    ModuleMap<ModuleInfo *>                         fast_moduletypes;           // which is true only *after* the edm::Worker constructors have run
+    ModuleMap<ModuleInfo *>                         fast_modules;               // these assume that module ids are constant throughout the whole job,
+    ModuleMap<ModuleInfo *>                         fast_moduletypes;
 
     StreamData() :
       // timers
