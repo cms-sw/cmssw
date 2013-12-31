@@ -259,33 +259,35 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
     }
 
     // plots by path
-    booker.setCurrentFolder(m_dqm_path);
-    stream.dqm_paths_active_time     = booker.bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-    stream.dqm_paths_active_time     ->StatOverflows(true);
-    stream.dqm_paths_active_time     ->SetYTitle("processing time [ms]");
-    stream.dqm_paths_total_time      = booker.bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-    stream.dqm_paths_total_time      ->StatOverflows(true);
-    stream.dqm_paths_total_time      ->SetYTitle("processing time [ms]");
-    stream.dqm_paths_exclusive_time  = booker.bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-    stream.dqm_paths_exclusive_time  ->StatOverflows(true);
-    stream.dqm_paths_exclusive_time  ->SetYTitle("processing time [ms]");
-    stream.dqm_paths_interpaths      = booker.bookProfile("paths_interpaths",     "Time spent between each path",       size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-    stream.dqm_paths_interpaths      ->StatOverflows(true);
-    stream.dqm_paths_interpaths      ->SetYTitle("processing time [ms]");
+    if (m_enable_timing_paths) {
+      booker.setCurrentFolder(m_dqm_path);
+      stream.dqm_paths_active_time     = booker.bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_paths_active_time     ->StatOverflows(true);
+      stream.dqm_paths_active_time     ->SetYTitle("processing time [ms]");
+      stream.dqm_paths_total_time      = booker.bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_paths_total_time      ->StatOverflows(true);
+      stream.dqm_paths_total_time      ->SetYTitle("processing time [ms]");
+      stream.dqm_paths_exclusive_time  = booker.bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_paths_exclusive_time  ->StatOverflows(true);
+      stream.dqm_paths_exclusive_time  ->SetYTitle("processing time [ms]");
+      stream.dqm_paths_interpaths      = booker.bookProfile("paths_interpaths",     "Time spent between each path",       size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_paths_interpaths      ->StatOverflows(true);
+      stream.dqm_paths_interpaths      ->SetYTitle("processing time [ms]");
 
-    for (uint32_t i = 0; i < size_p; ++i) {
-      std::string const & label = tns.getTrigPath(i);
-      stream.dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-      stream.dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-      stream.dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-      stream.dqm_paths_interpaths     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-    }
-    for (uint32_t i = 0; i < size_e; ++i) {
-      std::string const & label = tns.getEndPath(i);
-      stream.dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-      stream.dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-      stream.dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-      stream.dqm_paths_interpaths     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      for (uint32_t i = 0; i < size_p; ++i) {
+        std::string const & label = tns.getTrigPath(i);
+        stream.dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        stream.dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        stream.dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        stream.dqm_paths_interpaths     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+      }
+      for (uint32_t i = 0; i < size_e; ++i) {
+        std::string const & label = tns.getEndPath(i);
+        stream.dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        stream.dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        stream.dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        stream.dqm_paths_interpaths     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+      }
     }
 
     // per-lumisection plots
@@ -836,8 +838,9 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
   }
 
   // fill the interpath overhead plot
-  for (unsigned int i = 0; i <= stream.paths.size(); ++i)
-    stream.dqm_paths_interpaths->Fill(i, stream.timing.paths_interpaths[i] * 1000.);
+  if (m_enable_timing_paths)
+    for (unsigned int i = 0; i <= stream.paths.size(); ++i)
+      stream.dqm_paths_interpaths->Fill(i, stream.timing.paths_interpaths[i] * 1000.);
 
   if (m_enable_dqm_summary)
     stream.dqm.fill(stream.timing);
