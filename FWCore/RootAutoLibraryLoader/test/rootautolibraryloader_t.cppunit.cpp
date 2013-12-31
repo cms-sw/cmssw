@@ -47,7 +47,7 @@ void testRootAutoLibraryLoader::testString()
    }
    edm::RootAutoLibraryLoader* loader = createLoader();
    
-   CPPUNIT_ASSERT(0!=loader->GetClass("edm::Wrapper<std::basic_string<char> >", true));
+   CPPUNIT_ASSERT(0!=loader->GetClass("edm::Wrapper<std::string>", true));
    
    CPPUNIT_ASSERT(0==loader->GetClass("ThisClassDoesNotExist",true));
 }
