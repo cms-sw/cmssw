@@ -155,44 +155,7 @@ TypeWithDict(const type_info& ti, long property /*= 0L*/)
     class_ = TClass::GetClass(ti);
   }
   if (gInterpreter->Type_IsEnum(type_)) {
-    // Get the containing class, if any.
-    TType* TTy = gInterpreter->Type_GetParent(type_);
-    if (TTy != nullptr) {
-      // The enum is a class member.
-      TypeWithDict Tycl(*gInterpreter->Type_TypeInfo(TTy));
-      if (Tycl.class_ == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(const type_info&, long): "
-                "Enum parent is not a class!\n");
-        abort();
-      }
-      TObject* tobj =
-        Tycl.class_->GetListOfEnums()->FindObject(unscopedName().c_str());
-      if (tobj == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(const type_info&, long): "
-                "Enum not found in containing class!\n");
-        abort();
-      }
-      enum_ = reinterpret_cast<TEnum*>(tobj);
-    }
-    else {
-      // Must be a namespace member.
-      TObject* tobj = gROOT->GetListOfEnums()->FindObject(name().c_str());
-      if (tobj == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(const type_info&, long): "
-                "Enum not found in global namespace!\n");
-        abort();
-      }
-      enum_ = reinterpret_cast<TEnum*>(tobj);
-    }
-    if (enum_ == nullptr) {
-      // FIXME: Replace this with an exception!
-      fprintf(stderr, "TypeWithDict(const type_info&, long): "
-              "enum_ not set for enum type!\n");
-      abort();
-    }
+    processEnumeration();
   }
 }
 
@@ -251,42 +214,8 @@ TypeWithDict(TType* ttype, long property /*= 0L*/)
     // Must be a class, struct, or union.
     class_ = TClass::GetClass(*ti_);
   }
-  if (gInterpreter->Type_IsEnum(ttype)) {
-    TType* TTy = gInterpreter->Type_GetParent(type_);
-    if (TTy != nullptr) {
-      TypeWithDict Tycl(*gInterpreter->Type_TypeInfo(TTy));
-      if (Tycl.class_ == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(TType*, long): "
-                "Enum parent is not a class!\n");
-        abort();
-      }
-      TObject* tobj =
-        Tycl.class_->GetListOfEnums()->FindObject(unscopedName().c_str());
-      if (tobj == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(TType*, long): "
-                "Enum not found in containing class!\n");
-        abort();
-      }
-      enum_ = reinterpret_cast<TEnum*>(tobj);
-    }
-    else {
-      TObject* tobj = gROOT->GetListOfEnums()->FindObject(name().c_str());
-      if (tobj == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(TType*, long): "
-                "Enum not found in global namespace!\n");
-        abort();
-      }
-      enum_ = reinterpret_cast<TEnum*>(tobj);
-    }
-    if (enum_ == nullptr) {
-      // FIXME: Replace this with an exception!
-      fprintf(stderr, "TypeWithDict(TType*, long): "
-              "enum_ not set for enum type!\n");
-      abort();
-    }
+  if (gInterpreter->Type_IsEnum(type_)) {
+    processEnumeration();
   }
 }
 
@@ -516,15 +445,6 @@ name() const
 {
   if (type_ == nullptr) {
     return "undefined";
-  }
-  if (isConst()) {
-    if (!isReference()) {
-      return "const " + TypeID(*ti_).className();
-    }
-    return "const " + TypeID(*ti_).className() + "&";
-  }
-  if (isReference()) {
-    return TypeID(*ti_).className() + "&";
   }
   return TypeID(*ti_).className();
 }
@@ -896,6 +816,60 @@ destruct(void* address, bool dealloc) const
   }
 }
 
+void
+TypeWithDict::processEnumeration() {
+  TType* TTy = gInterpreter->Type_GetParent(type_);
+  if (TTy != nullptr) {
+    // The enum is a class member.
+    TypeWithDict Tycl(*gInterpreter->Type_TypeInfo(TTy));
+    if (Tycl.class_ == nullptr) {
+      // FIXME: Replace this with an exception!
+      fprintf(stderr, "TypeWithDict(const type_info&, long): "
+              "Enum parent is not a class!\n");
+      abort();
+    }
+    TObject* tobj =
+      Tycl.class_->GetListOfEnums()->FindObject(unscopedName().c_str());
+    if (tobj == nullptr) {
+      // FIXME: Replace this with an exception!
+      fprintf(stderr, "TypeWithDict(const type_info&, long): "
+              "Enum not found in containing class!\n");
+      abort();
+    }
+    enum_ = reinterpret_cast<TEnum*>(tobj);
+  } else if (name().size() != unscopedName().size()) {
+    // Must be a namespace member.
+    assert(name().size() >= unscopedName().size() + 2);
+    std::string theNamespace(name().substr(0, name().size() - unscopedName().size() - 2));
+    TClass* cl = TClass::GetClass(theNamespace.c_str());
+    assert(cl != nullptr);
+    TObject* tobj = cl->GetListOfEnums()->FindObject(unscopedName().c_str());
+    if (tobj == nullptr) {
+      // FIXME: Replace this with an exception!
+      fprintf(stderr, "TypeWithDict(const type_info&, long): "
+              "Enum not found in named namespace!\n");
+      abort();
+    }
+    enum_ = reinterpret_cast<TEnum*>(tobj);
+  } else {
+    // Must be a global namespace member.
+    //gROOT->GetListOfEnums()->Dump();
+    TObject* tobj = gROOT->GetListOfEnums()->FindObject(name().c_str());
+    if (tobj == nullptr) {
+      // FIXME: Replace this with an exception!
+      fprintf(stderr, "TypeWithDict(const type_info&, long): "
+              "Enum not found in global namespace!\n");
+      abort();
+    }
+    enum_ = reinterpret_cast<TEnum*>(tobj);
+  }
+  if (enum_ == nullptr) {
+    // FIXME: Replace this with an exception!
+    fprintf(stderr, "TypeWithDict(const type_info&, long): "
+            "enum_ not set for enum type!\n");
+    abort();
+  }
+}
 //-------------------------------------------------------------
 //
 //
