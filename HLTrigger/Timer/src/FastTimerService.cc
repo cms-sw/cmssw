@@ -582,12 +582,16 @@ FastTimerService::postEndJob()
 void
 FastTimerService::postStreamEndRun(edm::StreamContext const & sc)
 {
-  if (not m_enable_dqm)
-    return;
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
 
-  DQMStore * store = edm::Service<DQMStore>().operator->();
-  assert(store);
-  store->mergeAndResetMEsRunSummaryCache(sc.eventID().run(), sc.streamID().value(), m_module_id);
+  if (m_enable_dqm) {
+    DQMStore * store = edm::Service<DQMStore>().operator->();
+    assert(store);
+    store->mergeAndResetMEsRunSummaryCache(sc.eventID().run(), sid, m_module_id);
+  }
+
+  stream.reset();
 }
 
 

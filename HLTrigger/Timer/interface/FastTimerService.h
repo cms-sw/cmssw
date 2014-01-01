@@ -164,7 +164,7 @@ private:
       timer.reset();
       time_active = 0.;
       summary_active = 0.;
-      // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
+      // the DQM plots are owned by the DQMStore
       dqm_active = nullptr;
       run_in_path = nullptr;
       counter = 0;
@@ -239,7 +239,6 @@ private:
 
     // reset the timers and DQM plots
     void reset() {
-      modules.clear();
       timer.reset();
       time_active = 0.;
       time_exclusive = 0.;
@@ -258,7 +257,7 @@ private:
       index = 0;
       accept = false;
 
-      // the DAQ destroys and re-creates the DQM and DQMStore services at each reconfigure, so we don't need to clean them up
+      // the DQM plots are owned by the DQMStore
       dqm_active = nullptr;
       dqm_premodules = nullptr;
       dqm_intermodules = nullptr;
@@ -431,6 +430,7 @@ private:
     { }
 
     void reset() {
+      // the DQM plots are owned by the DQMStore
       presource     = nullptr;
       source        = nullptr;
       preevent      = nullptr;
@@ -473,6 +473,7 @@ private:
     { }
 
     void reset() {
+      // the DQM plots are owned by the DQMStore
       presource     = nullptr;
       source        = nullptr;
       preevent      = nullptr;
@@ -556,6 +557,37 @@ private:
       fast_modules(),
       fast_moduletypes()
     { }
+
+    void reset() {
+      // timers
+      timer_event.reset();
+      timer_source.reset();
+      timer_paths.reset();
+      timer_endpaths.reset();
+      timer_path.reset();
+      timer_last_path = FastTimer::Clock::time_point();
+      // time accounting per-event
+      timing.reset();
+      // overall plots
+      dqm.reset();
+      dqm_byls.reset();
+      dqm_byluminosity.reset();
+      // plots by path - the DQM plots are owned by the DQMStore
+      dqm_paths_active_time     = nullptr;
+      dqm_paths_total_time      = nullptr;
+      dqm_paths_exclusive_time  = nullptr;
+      dqm_paths_interpaths      = nullptr;
+      // per-path, per-module and per-module-type accounting
+      current_path              = nullptr;
+      current_module            = nullptr;
+      first_module_in_path      = nullptr;
+      for (auto & keyval: paths)
+        keyval.second.reset();
+      for (auto & keyval: modules)
+        keyval.second.reset();
+      for (auto & keyval: moduletypes)
+        keyval.second.reset();
+    }
 
   };
 
