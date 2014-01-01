@@ -196,8 +196,8 @@ namespace edm {
     setSplitLevel(invalidSplitLevel);
     setBasketSize(invalidBasketSize);
     TClassAttributeMap* wp = wrappedType().getClass()->GetAttributeMap();
-    if (wp && wp->HasKey("persistent") && strcmp(wp->GetPropertyAsString("persistent"), "false")) {
-      // Set transient if persistent != "false".
+    if (wp && wp->HasKey("persistent") && !strcmp(wp->GetPropertyAsString("persistent"), "false")) {
+      // Set transient if persistent == "false".
       setTransient(true);
       return;
     }
