@@ -268,12 +268,24 @@ public:
                        const MagneticField* field,
                        const SurfaceSide side ) ;
 
+  // update in place and in the very same place
+  virtual void update( const LocalTrajectoryParameters& p, const SurfaceSide side ) GCC11_FINAL;
+                       
+
+
   virtual void update( const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
                        const SurfaceType& aSurface,
                        const MagneticField* field,
                        const SurfaceSide side,
                        double weight ) ;
+
+  // update in place and in the very same place
+ virtual void update( const LocalTrajectoryParameters& p,
+                       const LocalTrajectoryError& err,
+                       const SurfaceSide side) GCC11_FINAL;
+
+
 
 public:
   virtual std::vector<TrajectoryStateOnSurface> components() const;

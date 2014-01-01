@@ -12,7 +12,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer, public GeometricSearchDetWithGroups {
+class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer {
 
  public:
   PixelForwardLayerPhase1(std::vector<const PixelBlade*>& blades);
@@ -22,12 +22,12 @@ class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer, public Geome
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
   
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}

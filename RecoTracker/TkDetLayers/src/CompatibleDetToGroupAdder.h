@@ -26,14 +26,14 @@ public:
 	    const TrajectoryStateOnSurface& tsos, 
 	    const Propagator& prop,
 	    const MeasurementEstimator& est,
-	    std::vector<DetGroup>& result);
+	    std::vector<DetGroup>& result) __attribute__ ((hot));
   
 
   static bool add( const GeomDet& det,
 	    const TrajectoryStateOnSurface& tsos, 
 	    const Propagator& prop,
 	    const MeasurementEstimator& est,
-	    std::vector<DetGroup>& result);
+	    std::vector<DetGroup>& result) __attribute__ ((hot));
 
 };
 

@@ -23,6 +23,7 @@ using namespace std;
 typedef GeometricSearchDet::DetWithState DetWithState;
 
 PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const PixelBlade*>& blades):
+  ForwardDetLayer(true),
   theComps(blades.begin(),blades.end())
 {
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();

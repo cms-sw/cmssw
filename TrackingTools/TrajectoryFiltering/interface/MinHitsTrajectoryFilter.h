@@ -10,7 +10,7 @@
  *  implement the minimal P_t cut.
  */
 
-class MinHitsTrajectoryFilter : public TrajectoryFilter {
+class MinHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
 
   explicit MinHitsTrajectoryFilter( int minHits=-1):theMinHits( minHits) {}
@@ -28,11 +28,10 @@ public:
 protected:
 
   template<class T> bool QF(const T & traj) const{
-    if (traj.foundHits() >= theMinHits) return true;
-    else return false;
+    return (traj.foundHits() >= theMinHits);
   }
 
-  float theMinHits;
+  int theMinHits;
 
 };
 

@@ -82,19 +82,21 @@ BarrelDetLayer::compatible( const TrajectoryStateOnSurface& ts,
   TrajectoryStateOnSurface myState = prop.propagate( ts, specificSurface());
   if unlikely(!myState.isValid()) return make_pair( false, myState);
   
+
+  // check z assuming symmetric bounds around position().z()
+  auto z0 = std::abs(myState.globalPosition().z()-specificSurface().position().z());
+  auto deltaZ = 0.5f*bounds().length();
+  if (z0<deltaZ) return make_pair( true, myState);
+
   // take into account the thickness of the layer
-  float deltaZ = 0.5f* surface().bounds().thickness() *
+  deltaZ += 0.5f*bounds().thickness() *
     std::abs(myState.globalDirection().z())/myState.globalDirection().perp();
 
-  // take into account the error on the predicted state
+  // take also into account the error on the predicted state
   const float nSigma = 3.;
-  if (myState.hasError()) {
+  if (myState.hasError())
     deltaZ += nSigma * sqrt( myState.cartesianError().position().czz());
-  }
   //
-  // check z assuming symmetric bounds around position().z()
-  //
-  deltaZ += 0.5f*surface().bounds().length();
-  return make_pair(fabs(myState.globalPosition().z()-surface().position().z())<deltaZ,
-		   myState);  
+  //  check z again
+  return make_pair(z0<deltaZ, myState);
 }
