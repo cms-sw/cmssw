@@ -726,6 +726,10 @@ private:
   // associate to a path all the modules it contains
   void fillPathMap(unsigned int pid, std::string const & name, std::vector<std::string> const & modules);
 
+  // print a timing summary for the run or job
+  void printSummary(Timing const & summary, std::string const & label) const;
+  void printProcessSummary(Timing const & total, TimingPerProcess const & summary, std::string const & label, std::string const & process) const;
+
   // assign a "process id" to a process, given its ProcessContext
   static
   unsigned int processID(edm::ProcessContext const *);
