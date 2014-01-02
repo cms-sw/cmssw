@@ -27,12 +27,6 @@ typedef int clockid_t;
 #include <boost/format.hpp>
 
 // CMSSW headers
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
-#include "FWCore/ServiceRegistry/interface/PathContext.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ServiceRegistry/interface/StreamContext.h"
-#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -62,6 +56,7 @@ void fill_dups(std::vector<std::string> & dups, unsigned int size) {
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
   // configuration
+  // FIXME - reimplement support for cpu time vs. real time
   m_use_realtime(                config.getUntrackedParameter<bool>(     "useRealTimeClock"         ) ),
   m_enable_timing_paths(         config.getUntrackedParameter<bool>(     "enableTimingPaths"        ) ),
   m_enable_timing_modules(       config.getUntrackedParameter<bool>(     "enableTimingModules"      ) ),
@@ -86,7 +81,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_concurrent_runs(             0 ),
   m_concurrent_streams(          0 ),
   m_concurrent_threads(          0 ),
-  // assign a pseudo module id to the FastTimerService
   m_module_id(                   edm::ModuleDescription::invalidID() ),
   m_dqm_eventtime_range(         config.getUntrackedParameter<double>(   "dqmTimeRange"             ) ),            // ms
   m_dqm_eventtime_resolution(    config.getUntrackedParameter<double>(   "dqmTimeResolution"        ) ),            // ms
@@ -99,17 +93,16 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_dqm_ls_range(                config.getUntrackedParameter<uint32_t>( "dqmLumiSectionsRange"     ) ),            // lumisections
   m_dqm_path(                    config.getUntrackedParameter<std::string>("dqmPath" ) ),
   m_luminosity_label(            config.getUntrackedParameter<edm::InputTag>("luminosityProduct") ),                // SCAL unpacker
-  // caching
-  m_first_path(),
-  m_last_path(),
-  m_first_endpath(),
-  m_last_endpath(),
   m_is_first_event(true),
+  // description of the process(es)
+  m_process(),
+  // DQM - these are initialized at preStreamBeginRun(), to make sure the DQM service has been loaded
+  m_stream(),
   // per-run and per-job summaries
   m_run_summary(),
   m_job_summary(),
-  // DQM - these are initialized at preStreamBeginRun(), to make sure the DQM service has been loaded
-  m_stream()
+  m_run_summary_perprocess(),
+  m_job_summary_perprocess()
 {
   // enable timers if required by DQM plots
   m_enable_timing_paths     = m_enable_timing_paths         or
@@ -132,20 +125,24 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   m_enable_timing_exclusive = m_enable_timing_exclusive     or
                               m_enable_dqm_bypath_exclusive;
 
-  registry.watchPreallocate(       this, & FastTimerService::preallocate );
-  registry.watchPreModuleBeginJob( this, & FastTimerService::preModuleBeginJob );
-  registry.watchPreGlobalBeginRun( this, & FastTimerService::preGlobalBeginRun );
-  registry.watchPreStreamBeginRun( this, & FastTimerService::preStreamBeginRun );
-  registry.watchPostEndJob(        this, & FastTimerService::postEndJob );
-  registry.watchPostStreamEndRun(  this, & FastTimerService::postStreamEndRun );
-  registry.watchPostGlobalEndRun(  this, & FastTimerService::postGlobalEndRun );
-  registry.watchPreSourceEvent(    this, & FastTimerService::preSourceEvent );
-  registry.watchPostSourceEvent(   this, & FastTimerService::postSourceEvent );
-  registry.watchPreEvent(          this, & FastTimerService::preEvent );
-  registry.watchPostEvent(         this, & FastTimerService::postEvent );
+
+  registry.watchPreallocate(        this, & FastTimerService::preallocate );
+  registry.watchPreModuleBeginJob(  this, & FastTimerService::preModuleBeginJob );
+  registry.watchPreGlobalBeginRun(  this, & FastTimerService::preGlobalBeginRun );
+  registry.watchPreStreamBeginRun(  this, & FastTimerService::preStreamBeginRun );
+  registry.watchPostStreamBeginRun( this, & FastTimerService::postStreamBeginRun );
+  registry.watchPostStreamEndRun(   this, & FastTimerService::postStreamEndRun );
+  registry.watchPostStreamBeginLumi(this, & FastTimerService::postStreamBeginLumi );
+  registry.watchPostStreamEndLumi(  this, & FastTimerService::postStreamEndLumi );
+  registry.watchPostEndJob(         this, & FastTimerService::postEndJob );
+  registry.watchPostGlobalEndRun(   this, & FastTimerService::postGlobalEndRun );
+  registry.watchPreSourceEvent(     this, & FastTimerService::preSourceEvent );
+  registry.watchPostSourceEvent(    this, & FastTimerService::postSourceEvent );
+  registry.watchPreEvent(           this, & FastTimerService::preEvent );
+  registry.watchPostEvent(          this, & FastTimerService::postEvent );
   // watch per-path events
-  registry.watchPrePathEvent(      this, & FastTimerService::prePathEvent );
-  registry.watchPostPathEvent(     this, & FastTimerService::postPathEvent );
+  registry.watchPrePathEvent(       this, & FastTimerService::prePathEvent );
+  registry.watchPostPathEvent(      this, & FastTimerService::postPathEvent );
   // watch per-module events if enabled
   if (m_enable_timing_modules) {
     registry.watchPreModuleEvent(            this, & FastTimerService::preModuleEvent );
@@ -159,51 +156,85 @@ FastTimerService::~FastTimerService()
 {
 }
 
-void FastTimerService::preGlobalBeginRun(edm::GlobalContext const &)
+void FastTimerService::preGlobalBeginRun(edm::GlobalContext const & gc)
 {
+  unsigned int pid = processID(gc.processContext());
+
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
 
   // cache the names of the first and last path and endpath
-  if (not m_skip_first_path and not tns.getTrigPaths().empty()) {
-    m_first_path = tns.getTrigPaths().front();
-    m_last_path  = tns.getTrigPaths().back();
-  } else if (m_skip_first_path and tns.getTrigPaths().size() > 1) {
-    m_first_path = tns.getTrigPaths().at(1);
-    m_last_path  = tns.getTrigPaths().back();
+  if (m_process.size() <= pid)
+    m_process.resize(pid+1);
+  m_process[pid].name = gc.processContext()->processName();
+  if (m_skip_first_path and pid == 0) {
+    // skip the first path
+    if (tns.getTrigPaths().size() > 1) {
+      m_process[pid].first_path = tns.getTrigPaths().at(1);
+      m_process[pid].last_path  = tns.getTrigPaths().back();
+    }
+  } else {
+    if (not tns.getTrigPaths().empty()) {
+      m_process[pid].first_path = tns.getTrigPaths().front();
+      m_process[pid].last_path  = tns.getTrigPaths().back();
+    }
   }
   if (not tns.getEndPaths().empty()) {
-    m_first_endpath = tns.getEndPaths().front();
-    m_last_endpath  = tns.getEndPaths().back();
+    m_process[pid].first_endpath = tns.getEndPaths().front();
+    m_process[pid].last_endpath  = tns.getEndPaths().back();
   }
 
   uint32_t size_p = tns.getTrigPaths().size();
   uint32_t size_e = tns.getEndPaths().size();
   uint32_t size = size_p + size_e;
+  // resize the path maps
+  for (auto & stream: m_stream)
+    if (stream.paths.size() <= pid)
+      stream.paths.resize(pid+1);
   for (uint32_t i = 0; i < size_p; ++i) {
     std::string const & label = tns.getTrigPath(i);
     for (auto & stream: m_stream)
-      stream.paths[label].index = i;
+      stream.paths[pid][label].index = i;
   }
   for (uint32_t i = 0; i < size_e; ++i) {
     std::string const & label = tns.getEndPath(i);
     for (auto & stream: m_stream)
-      stream.paths[label].index = size_p + i;
+      stream.paths[pid][label].index = size_p + i;
   }
-  for (auto & stream: m_stream)
-    stream.timing.paths_interpaths.assign(size + 1, 0);
-  for (auto & timing: m_run_summary)
-    timing.paths_interpaths.assign(size + 1, 0);
-  m_job_summary.paths_interpaths.assign(size + 1, 0);
+  for (auto & stream: m_stream) {
+    // resize the stream buffers to account the number of subprocesses
+    if (stream.timing_perprocess.size() <= pid)
+      stream.timing_perprocess.resize(pid+1);
+    stream.timing_perprocess[pid].paths_interpaths.assign(size + 1, 0.);
+    // resize the stream plots to account the number of subprocesses
+    if (stream.dqm_perprocess.size() <= pid)
+      stream.dqm_perprocess.resize(pid+1);
+    if (stream.dqm_perprocess_byls.size() <= pid)
+      stream.dqm_perprocess_byls.resize(pid+1);
+    if (stream.dqm_perprocess_byluminosity.size() <= pid)
+      stream.dqm_perprocess_byluminosity.resize(pid+1);
+    if (stream.dqm_paths.size() <= pid)
+      stream.dqm_paths.resize(pid+1);
+  }
+  for (auto & summary: m_run_summary_perprocess) {
+    if (summary.size() <= pid)
+      summary.resize(pid+1);
+    summary[pid].paths_interpaths.assign(size + 1, 0);
+  }
+  if (m_job_summary_perprocess.size() <= pid)
+    m_job_summary_perprocess.resize(pid+1);
+  m_job_summary_perprocess[pid].paths_interpaths.assign(size + 1, 0.);
 
   // associate to each path all the modules it contains
   for (uint32_t i = 0; i < tns.getTrigPaths().size(); ++i)
-    fillPathMap( tns.getTrigPath(i), tns.getTrigPathModules(i) );
+    fillPathMap( pid, tns.getTrigPath(i), tns.getTrigPathModules(i) );
   for (uint32_t i = 0; i < tns.getEndPaths().size(); ++i)
-    fillPathMap( tns.getEndPath(i), tns.getEndPathModules(i) );
+    fillPathMap( pid, tns.getEndPath(i), tns.getEndPathModules(i) );
 }
 
 void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
 {
+  std::string const & process_name = sc.processContext()->processName();
+  unsigned int pid = processID(sc.processContext());
   unsigned int sid = sc.streamID().value();
   auto & stream = m_stream[sid];
 
@@ -231,141 +262,172 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
 
     // event summary plots
     if (m_enable_dqm_summary) {
-      if (m_enable_dqm_bynproc)
-        booker.setCurrentFolder((boost::format("%s/Running %d processes") % m_dqm_path % m_concurrent_threads).str());
-      else
+      // whole event
+      if (pid == 0) {
         booker.setCurrentFolder(m_dqm_path);
-      stream.dqm.event         = booker.book1D("event",        "Event processing time",         eventbins,  0., m_dqm_eventtime_range)->getTH1F();
-      stream.dqm.event         ->StatOverflows(true);
-      stream.dqm.event         ->SetXTitle("processing time [ms]");
-      stream.dqm.presource     = booker.book1D("presource",    "Pre-Source processing time",    modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-      stream.dqm.presource     ->StatOverflows(true);
-      stream.dqm.presource     ->SetXTitle("processing time [ms]");
-      stream.dqm.source        = booker.book1D("source",       "Source processing time",        modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-      stream.dqm.source        ->StatOverflows(true);
-      stream.dqm.source        ->SetXTitle("processing time [ms]");
-      stream.dqm.preevent      = booker.book1D("preevent",     "Pre-Event processing time",     modulebins, 0., m_dqm_moduletime_range)->getTH1F();
-      stream.dqm.preevent      ->StatOverflows(true);
-      stream.dqm.preevent      ->SetXTitle("processing time [ms]");
-      stream.dqm.all_paths     = booker.book1D("all_paths",    "Paths processing time",         eventbins,  0., m_dqm_eventtime_range)->getTH1F();
-      stream.dqm.all_paths     ->StatOverflows(true);
-      stream.dqm.all_paths     ->SetXTitle("processing time [ms]");
-      stream.dqm.all_endpaths  = booker.book1D("all_endpaths", "EndPaths processing time",      pathbins,   0., m_dqm_pathtime_range)->getTH1F();
-      stream.dqm.all_endpaths  ->StatOverflows(true);
-      stream.dqm.all_endpaths  ->SetXTitle("processing time [ms]");
-      stream.dqm.interpaths    = booker.book1D("interpaths",   "Time spent between paths",      pathbins,   0., m_dqm_eventtime_range)->getTH1F();
-      stream.dqm.interpaths    ->StatOverflows(true);
-      stream.dqm.interpaths    ->SetXTitle("processing time [ms]");
+        stream.dqm.presource     = booker.book1D("presource",    "Pre-Source processing time",    modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+        stream.dqm.presource     ->StatOverflows(true);
+        stream.dqm.presource     ->SetXTitle("processing time [ms]");
+        stream.dqm.source        = booker.book1D("source",       "Source processing time",        modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+        stream.dqm.source        ->StatOverflows(true);
+        stream.dqm.source        ->SetXTitle("processing time [ms]");
+        stream.dqm.preevent      = booker.book1D("preevent",     "Pre-Event processing time",     modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+        stream.dqm.preevent      ->StatOverflows(true);
+        stream.dqm.preevent      ->SetXTitle("processing time [ms]");
+        stream.dqm.event         = booker.book1D("event",        "Event processing time",         eventbins,  0., m_dqm_eventtime_range)->getTH1F();
+        stream.dqm.event         ->StatOverflows(true);
+        stream.dqm.event         ->SetXTitle("processing time [ms]");
+      }
+
+      // per subprocess
+      booker.setCurrentFolder(m_dqm_path + "/process " + process_name);
+      stream.dqm_perprocess[pid].preevent      = booker.book1D("preevent",     "Pre-Event processing time",     modulebins, 0., m_dqm_moduletime_range)->getTH1F();
+      stream.dqm_perprocess[pid].preevent      ->StatOverflows(true);
+      stream.dqm_perprocess[pid].preevent      ->SetXTitle("processing time [ms]");
+      stream.dqm_perprocess[pid].event         = booker.book1D("event",        "Event processing time",         eventbins,  0., m_dqm_eventtime_range)->getTH1F();
+      stream.dqm_perprocess[pid].event         ->StatOverflows(true);
+      stream.dqm_perprocess[pid].event         ->SetXTitle("processing time [ms]");
+      stream.dqm_perprocess[pid].all_paths     = booker.book1D("all_paths",    "Paths processing time",         eventbins,  0., m_dqm_eventtime_range)->getTH1F();
+      stream.dqm_perprocess[pid].all_paths     ->StatOverflows(true);
+      stream.dqm_perprocess[pid].all_paths     ->SetXTitle("processing time [ms]");
+      stream.dqm_perprocess[pid].all_endpaths  = booker.book1D("all_endpaths", "EndPaths processing time",      pathbins,   0., m_dqm_pathtime_range)->getTH1F();
+      stream.dqm_perprocess[pid].all_endpaths  ->StatOverflows(true);
+      stream.dqm_perprocess[pid].all_endpaths  ->SetXTitle("processing time [ms]");
+      stream.dqm_perprocess[pid].interpaths    = booker.book1D("interpaths",   "Time spent between paths",      pathbins,   0., m_dqm_eventtime_range)->getTH1F();
+      stream.dqm_perprocess[pid].interpaths    ->StatOverflows(true);
+      stream.dqm_perprocess[pid].interpaths    ->SetXTitle("processing time [ms]");
     }
 
     // plots by path
     if (m_enable_timing_paths) {
-      booker.setCurrentFolder(m_dqm_path);
-      stream.dqm_paths_active_time     = booker.bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_paths_active_time     ->StatOverflows(true);
-      stream.dqm_paths_active_time     ->SetYTitle("processing time [ms]");
-      stream.dqm_paths_total_time      = booker.bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_paths_total_time      ->StatOverflows(true);
-      stream.dqm_paths_total_time      ->SetYTitle("processing time [ms]");
-      stream.dqm_paths_exclusive_time  = booker.bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_paths_exclusive_time  ->StatOverflows(true);
-      stream.dqm_paths_exclusive_time  ->SetYTitle("processing time [ms]");
-      stream.dqm_paths_interpaths      = booker.bookProfile("paths_interpaths",     "Time spent between each path",       size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_paths_interpaths      ->StatOverflows(true);
-      stream.dqm_paths_interpaths      ->SetYTitle("processing time [ms]");
+      booker.setCurrentFolder(m_dqm_path + "/process " + process_name);
+      stream.dqm_paths[pid].active_time     = booker.bookProfile("paths_active_time",    "Additional time spent in each path", size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_paths[pid].active_time     ->StatOverflows(true);
+      stream.dqm_paths[pid].active_time     ->SetYTitle("processing time [ms]");
+      stream.dqm_paths[pid].total_time      = booker.bookProfile("paths_total_time",     "Total time spent in each path",      size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_paths[pid].total_time      ->StatOverflows(true);
+      stream.dqm_paths[pid].total_time      ->SetYTitle("processing time [ms]");
+      stream.dqm_paths[pid].exclusive_time  = booker.bookProfile("paths_exclusive_time", "Exclusive time spent in each path",  size, -0.5, size-0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_paths[pid].exclusive_time  ->StatOverflows(true);
+      stream.dqm_paths[pid].exclusive_time  ->SetYTitle("processing time [ms]");
+      stream.dqm_paths[pid].interpaths      = booker.bookProfile("paths_interpaths",     "Time spent between each path",     size+1, -0.5, size+0.5, pathbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_paths[pid].interpaths      ->StatOverflows(true);
+      stream.dqm_paths[pid].interpaths      ->SetYTitle("processing time [ms]");
 
       for (uint32_t i = 0; i < size_p; ++i) {
         std::string const & label = tns.getTrigPath(i);
-        stream.dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-        stream.dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-        stream.dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
-        stream.dqm_paths_interpaths     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        stream.dqm_paths[pid].active_time    ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        stream.dqm_paths[pid].total_time     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        stream.dqm_paths[pid].exclusive_time ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
+        stream.dqm_paths[pid].interpaths     ->GetXaxis()->SetBinLabel(i + 1, label.c_str());
       }
       for (uint32_t i = 0; i < size_e; ++i) {
         std::string const & label = tns.getEndPath(i);
-        stream.dqm_paths_active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-        stream.dqm_paths_total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-        stream.dqm_paths_exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
-        stream.dqm_paths_interpaths     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        stream.dqm_paths[pid].active_time    ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        stream.dqm_paths[pid].total_time     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        stream.dqm_paths[pid].exclusive_time ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
+        stream.dqm_paths[pid].interpaths     ->GetXaxis()->SetBinLabel(i + size_p + 1, label.c_str());
       }
     }
 
     // per-lumisection plots
     if (m_enable_dqm_byls) {
-      if (m_enable_dqm_bynproc)
-        booker.setCurrentFolder((boost::format("%s/Running %d processes") % m_dqm_path % m_concurrent_threads).str());
-      else
+      if (pid == 0) {
+        // whole event
         booker.setCurrentFolder(m_dqm_path);
-      stream.dqm_byls.event        = booker.bookProfile("event_byls",        "Event processing time, by LumiSection",       m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byls.event        ->StatOverflows(true);
-      stream.dqm_byls.event        ->SetXTitle("lumisection");
-      stream.dqm_byls.event        ->SetYTitle("processing time [ms]");
-      stream.dqm_byls.presource    = booker.bookProfile("presource_byls",    "Pre-Source processing time, by LumiSection",  m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byls.presource    ->StatOverflows(true);
-      stream.dqm_byls.presource    ->SetXTitle("lumisection");
-      stream.dqm_byls.presource    ->SetYTitle("processing time [ms]");
-      stream.dqm_byls.source       = booker.bookProfile("source_byls",       "Source processing time, by LumiSection",      m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byls.source       ->StatOverflows(true);
-      stream.dqm_byls.source       ->SetXTitle("lumisection");
-      stream.dqm_byls.source       ->SetYTitle("processing time [ms]");
-      stream.dqm_byls.preevent     = booker.bookProfile("preevent_byls",     "Pre-Event processing time, by LumiSection",   m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byls.preevent     ->StatOverflows(true);
-      stream.dqm_byls.preevent     ->SetXTitle("lumisection");
-      stream.dqm_byls.preevent     ->SetYTitle("processing time [ms]");
-      stream.dqm_byls.all_paths    = booker.bookProfile("all_paths_byls",    "Paths processing time, by LumiSection",       m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byls.all_paths    ->StatOverflows(true);
-      stream.dqm_byls.all_paths    ->SetXTitle("lumisection");
-      stream.dqm_byls.all_paths    ->SetYTitle("processing time [ms]");
-      stream.dqm_byls.all_endpaths = booker.bookProfile("all_endpaths_byls", "EndPaths processing time, by LumiSection",    m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byls.all_endpaths ->StatOverflows(true);
-      stream.dqm_byls.all_endpaths ->SetXTitle("lumisection");
-      stream.dqm_byls.all_endpaths ->SetYTitle("processing time [ms]");
-      stream.dqm_byls.interpaths   = booker.bookProfile("interpaths_byls",   "Time spent between paths, by LumiSection",    m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byls.interpaths   ->StatOverflows(true);
-      stream.dqm_byls.interpaths   ->SetXTitle("lumisection");
-      stream.dqm_byls.interpaths   ->SetYTitle("processing time [ms]");
+        stream.dqm_byls.presource    = booker.bookProfile("presource_byls",    "Pre-Source processing time, by LumiSection",  m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byls.presource    ->StatOverflows(true);
+        stream.dqm_byls.presource    ->SetXTitle("lumisection");
+        stream.dqm_byls.presource    ->SetYTitle("processing time [ms]");
+        stream.dqm_byls.source       = booker.bookProfile("source_byls",       "Source processing time, by LumiSection",      m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byls.source       ->StatOverflows(true);
+        stream.dqm_byls.source       ->SetXTitle("lumisection");
+        stream.dqm_byls.source       ->SetYTitle("processing time [ms]");
+        stream.dqm_byls.preevent     = booker.bookProfile("preevent_byls",     "Pre-Event processing time, by LumiSection",   m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byls.preevent     ->StatOverflows(true);
+        stream.dqm_byls.preevent     ->SetXTitle("lumisection");
+        stream.dqm_byls.preevent     ->SetYTitle("processing time [ms]");
+        stream.dqm_byls.event        = booker.bookProfile("event_byls",        "Event processing time, by LumiSection",       m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byls.event        ->StatOverflows(true);
+        stream.dqm_byls.event        ->SetXTitle("lumisection");
+        stream.dqm_byls.event        ->SetYTitle("processing time [ms]");
+      }
+
+      // per subprocess
+      booker.setCurrentFolder(m_dqm_path + "/process " + process_name);
+      stream.dqm_perprocess_byls[pid].preevent     = booker.bookProfile("preevent_byls",     "Pre-Event processing time, by LumiSection",   m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byls[pid].preevent     ->StatOverflows(true);
+      stream.dqm_perprocess_byls[pid].preevent     ->SetXTitle("lumisection");
+      stream.dqm_perprocess_byls[pid].preevent     ->SetYTitle("processing time [ms]");
+      stream.dqm_perprocess_byls[pid].event        = booker.bookProfile("event_byls",        "Event processing time, by LumiSection",       m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byls[pid].event        ->StatOverflows(true);
+      stream.dqm_perprocess_byls[pid].event        ->SetXTitle("lumisection");
+      stream.dqm_perprocess_byls[pid].event        ->SetYTitle("processing time [ms]");
+      stream.dqm_perprocess_byls[pid].all_paths    = booker.bookProfile("all_paths_byls",    "Paths processing time, by LumiSection",       m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byls[pid].all_paths    ->StatOverflows(true);
+      stream.dqm_perprocess_byls[pid].all_paths    ->SetXTitle("lumisection");
+      stream.dqm_perprocess_byls[pid].all_paths    ->SetYTitle("processing time [ms]");
+      stream.dqm_perprocess_byls[pid].all_endpaths = booker.bookProfile("all_endpaths_byls", "EndPaths processing time, by LumiSection",    m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byls[pid].all_endpaths ->StatOverflows(true);
+      stream.dqm_perprocess_byls[pid].all_endpaths ->SetXTitle("lumisection");
+      stream.dqm_perprocess_byls[pid].all_endpaths ->SetYTitle("processing time [ms]");
+      stream.dqm_perprocess_byls[pid].interpaths   = booker.bookProfile("interpaths_byls",   "Time spent between paths, by LumiSection",    m_dqm_ls_range, 0.5, m_dqm_ls_range+0.5, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byls[pid].interpaths   ->StatOverflows(true);
+      stream.dqm_perprocess_byls[pid].interpaths   ->SetXTitle("lumisection");
+      stream.dqm_perprocess_byls[pid].interpaths   ->SetYTitle("processing time [ms]");
     }
 
     // plots vs. instantaneous luminosity
     if (m_enable_dqm_byluminosity) {
-      if (m_enable_dqm_bynproc)
-        booker.setCurrentFolder((boost::format("%s/Running %d processes") % m_dqm_path % m_concurrent_threads).str());
-      else
+      if (pid == 0) {
+        // whole event
         booker.setCurrentFolder(m_dqm_path);
-      stream.dqm_byluminosity.event        = booker.bookProfile("event_byluminosity",        "Event processing time vs. instantaneous luminosity",        lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byluminosity.event        ->StatOverflows(true);
-      stream.dqm_byluminosity.event        ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-      stream.dqm_byluminosity.event        ->SetYTitle("processing time [ms]");
-      stream.dqm_byluminosity.presource    = booker.bookProfile("presource_byluminosity",    "Pre-Source processing time vs. instantaneous luminosity",   lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byluminosity.presource    ->StatOverflows(true);
-      stream.dqm_byluminosity.presource    ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-      stream.dqm_byluminosity.presource    ->SetYTitle("processing time [ms]");
-      stream.dqm_byluminosity.source       = booker.bookProfile("source_byluminosity",       "Source processing time vs. instantaneous luminosity",       lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byluminosity.source       ->StatOverflows(true);
-      stream.dqm_byluminosity.source       ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-      stream.dqm_byluminosity.source       ->SetYTitle("processing time [ms]");
-      stream.dqm_byluminosity.preevent     = booker.bookProfile("preevent_byluminosity",     "Pre-Event processing time vs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byluminosity.preevent     ->StatOverflows(true);
-      stream.dqm_byluminosity.preevent     ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-      stream.dqm_byluminosity.preevent     ->SetYTitle("processing time [ms]");
-      stream.dqm_byluminosity.all_paths    = booker.bookProfile("all_paths_byluminosity",    "Paths processing time vs. instantaneous luminosity",        lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byluminosity.all_paths    ->StatOverflows(true);
-      stream.dqm_byluminosity.all_paths    ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-      stream.dqm_byluminosity.all_paths    ->SetYTitle("processing time [ms]");
-      stream.dqm_byluminosity.all_endpaths = booker.bookProfile("all_endpaths_byluminosity", "EndPaths processing time vs. instantaneous luminosity",     lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byluminosity.all_endpaths ->StatOverflows(true);
-      stream.dqm_byluminosity.all_endpaths ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-      stream.dqm_byluminosity.all_endpaths ->SetYTitle("processing time [ms]");
-      stream.dqm_byluminosity.interpaths   = booker.bookProfile("interpaths_byluminosity",   "Time spent between paths vs. instantaneous luminosity",     lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
-      stream.dqm_byluminosity.interpaths   ->StatOverflows(true);
-      stream.dqm_byluminosity.interpaths   ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
-      stream.dqm_byluminosity.interpaths   ->SetYTitle("processing time [ms]");
+        stream.dqm_byluminosity.presource    = booker.bookProfile("presource_byluminosity",    "Pre-Source processing time vs. instantaneous luminosity",   lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byluminosity.presource    ->StatOverflows(true);
+        stream.dqm_byluminosity.presource    ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+        stream.dqm_byluminosity.presource    ->SetYTitle("processing time [ms]");
+        stream.dqm_byluminosity.source       = booker.bookProfile("source_byluminosity",       "Source processing time vs. instantaneous luminosity",       lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byluminosity.source       ->StatOverflows(true);
+        stream.dqm_byluminosity.source       ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+        stream.dqm_byluminosity.source       ->SetYTitle("processing time [ms]");
+        stream.dqm_byluminosity.preevent     = booker.bookProfile("preevent_byluminosity",     "Pre-Event processing time vs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byluminosity.preevent     ->StatOverflows(true);
+        stream.dqm_byluminosity.preevent     ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+        stream.dqm_byluminosity.preevent     ->SetYTitle("processing time [ms]");
+        stream.dqm_byluminosity.event        = booker.bookProfile("event_byluminosity",        "Event processing time vs. instantaneous luminosity",        lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+        stream.dqm_byluminosity.event        ->StatOverflows(true);
+        stream.dqm_byluminosity.event        ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+        stream.dqm_byluminosity.event        ->SetYTitle("processing time [ms]");
+      }
+
+      // per subprocess
+      booker.setCurrentFolder(m_dqm_path + "/process " + process_name);
+      stream.dqm_perprocess_byluminosity[pid].preevent     = booker.bookProfile("preevent_byluminosity",     "Pre-Event processing time vs. instantaneous luminosity",    lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byluminosity[pid].preevent     ->StatOverflows(true);
+      stream.dqm_perprocess_byluminosity[pid].preevent     ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+      stream.dqm_perprocess_byluminosity[pid].preevent     ->SetYTitle("processing time [ms]");
+      stream.dqm_perprocess_byluminosity[pid].event        = booker.bookProfile("event_byluminosity",        "Event processing time vs. instantaneous luminosity",        lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byluminosity[pid].event        ->StatOverflows(true);
+      stream.dqm_perprocess_byluminosity[pid].event        ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+      stream.dqm_perprocess_byluminosity[pid].event        ->SetYTitle("processing time [ms]");
+      stream.dqm_perprocess_byluminosity[pid].all_paths    = booker.bookProfile("all_paths_byluminosity",    "Paths processing time vs. instantaneous luminosity",        lumibins, 0., m_dqm_luminosity_range, eventbins, 0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byluminosity[pid].all_paths    ->StatOverflows(true);
+      stream.dqm_perprocess_byluminosity[pid].all_paths    ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+      stream.dqm_perprocess_byluminosity[pid].all_paths    ->SetYTitle("processing time [ms]");
+      stream.dqm_perprocess_byluminosity[pid].all_endpaths = booker.bookProfile("all_endpaths_byluminosity", "EndPaths processing time vs. instantaneous luminosity",     lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byluminosity[pid].all_endpaths ->StatOverflows(true);
+      stream.dqm_perprocess_byluminosity[pid].all_endpaths ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+      stream.dqm_perprocess_byluminosity[pid].all_endpaths ->SetYTitle("processing time [ms]");
+      stream.dqm_perprocess_byluminosity[pid].interpaths   = booker.bookProfile("interpaths_byluminosity",   "Time spent between paths vs. instantaneous luminosity",     lumibins, 0., m_dqm_luminosity_range, pathbins,  0., std::numeric_limits<double>::infinity(), " ")->getTProfile();
+      stream.dqm_perprocess_byluminosity[pid].interpaths   ->StatOverflows(true);
+      stream.dqm_perprocess_byluminosity[pid].interpaths   ->SetXTitle("instantaneous luminosity [10^{30} cm^{-2}s^{-1}]");
+      stream.dqm_perprocess_byluminosity[pid].interpaths   ->SetYTitle("processing time [ms]");
     }
 
     // per-path and per-module accounting
     if (m_enable_timing_paths) {
       booker.setCurrentFolder(m_dqm_path + "/Paths");
-      for (auto & keyval: stream.paths) {
+      for (auto & keyval: stream.paths[pid]) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;
 
@@ -475,15 +537,20 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
 
 
 void
-FastTimerService::preallocate(edm::service::SystemBounds const& bounds)
+FastTimerService::preallocate(edm::service::SystemBounds const & bounds)
 {
   m_concurrent_runs    = bounds.maxNumberOfConcurrentRuns();
   m_concurrent_streams = bounds.maxNumberOfStreams();
   m_concurrent_threads = bounds.maxNumberOfThreads();
 
+  if (m_enable_dqm_bynproc)
+    m_dqm_path += (boost::format("/Running %d processes") % m_concurrent_threads).str();
+
   m_run_summary.resize(m_concurrent_runs);
+  m_run_summary_perprocess.resize(m_concurrent_runs);
   m_stream.resize(m_concurrent_streams);
 
+  // assign a pseudo module id to the FastTimerService
   m_module_id = edm::ModuleDescription::getUniqueID();
   for (auto & stream: m_stream) {
     stream.fast_modules.resize(    m_module_id, nullptr);
@@ -578,6 +645,12 @@ FastTimerService::postEndJob()
   */
 }
 
+void
+FastTimerService::postStreamBeginRun(edm::StreamContext const & sc) {
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+  stream.timer_last_transition = FastTimer::Clock::now();
+}
 
 void
 FastTimerService::postStreamEndRun(edm::StreamContext const & sc)
@@ -592,8 +665,22 @@ FastTimerService::postStreamEndRun(edm::StreamContext const & sc)
   }
 
   stream.reset();
+  stream.timer_last_transition = FastTimer::Clock::now();
 }
 
+void
+FastTimerService::postStreamBeginLumi(edm::StreamContext const & sc) {
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+  stream.timer_last_transition = FastTimer::Clock::now();
+}
+
+void
+FastTimerService::postStreamEndLumi(edm::StreamContext const & sc) {
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+  stream.timer_last_transition = FastTimer::Clock::now();
+}
 
 void
 FastTimerService::postGlobalEndRun(edm::GlobalContext const &)
@@ -695,22 +782,23 @@ void FastTimerService::preModuleBeginJob(edm::ModuleDescription const & module) 
 }
 
 void FastTimerService::preEvent(edm::StreamContext const & sc) {
+  unsigned int pid = processID(sc.processContext());
   unsigned int sid = sc.streamID().value();
   auto & stream = m_stream[sid];
 
   // new event, reset the per-event counter
   stream.timer_event.start();
 
-  // account the time spent after the source
-  stream.timing.preevent = delta(stream.timer_source.getStopTime(), stream.timer_event.getStartTime());
+  // account the time spent between the last transition and the beginning of the event
+  stream.timing_perprocess[pid].preevent = delta(stream.timer_last_transition, stream.timer_event.getStartTime());
 
   // clear the event counters
-  stream.timing.event        = 0;
-  stream.timing.all_paths    = 0;
-  stream.timing.all_endpaths = 0;
-  stream.timing.interpaths   = 0;
-  stream.timing.paths_interpaths.assign(m_stream[sid].paths.size() + 1, 0);
-  for (auto & keyval : m_stream[sid].paths) {
+  stream.timing_perprocess[pid].event        = 0;
+  stream.timing_perprocess[pid].all_paths    = 0;
+  stream.timing_perprocess[pid].all_endpaths = 0;
+  stream.timing_perprocess[pid].interpaths   = 0;
+  stream.timing_perprocess[pid].paths_interpaths.assign(stream.paths[pid].size() + 1, 0);
+  for (auto & keyval : stream.paths[pid]) {
     keyval.second.timer.reset();
     keyval.second.time_active       = 0.;
     keyval.second.time_exclusive    = 0.;
@@ -719,18 +807,6 @@ void FastTimerService::preEvent(edm::StreamContext const & sc) {
     keyval.second.time_postmodules  = 0.;
     keyval.second.time_total        = 0.;
   }
-  for (auto & keyval : m_stream[sid].modules) {
-    keyval.second.timer.reset();
-    keyval.second.time_active       = 0.;
-    keyval.second.run_in_path       = nullptr;
-    keyval.second.counter           = 0;
-  }
-  for (auto & keyval : m_stream[sid].moduletypes) {
-    keyval.second.timer.reset();
-    keyval.second.time_active       = 0.;
-    keyval.second.run_in_path       = nullptr;
-    keyval.second.counter           = 0;
-  }
 
   // copy the start event timestamp as the end of the previous path
   // used by the inter-path overhead measurement
@@ -738,27 +814,41 @@ void FastTimerService::preEvent(edm::StreamContext const & sc) {
 }
 
 void FastTimerService::postEvent(edm::StreamContext const & sc) {
+  unsigned int pid = processID(sc.processContext());
   unsigned int sid = sc.streamID();
   unsigned int rid = sc.runIndex();
   auto & stream = m_stream[sid];
 
   // stop the per-event timer, and account event time
   stream.timer_event.stop();
-  stream.timing.event = stream.timer_event.seconds();
+  stream.timer_last_transition = stream.timer_event.getStopTime();
+  stream.timing_perprocess[pid].event = stream.timer_event.seconds();
 
   // the last part of inter-path overhead is the time between the end of the last (end)path and the end of the event processing
   double interpaths = delta(stream.timer_last_path, stream.timer_event.getStopTime());
-  stream.timing.interpaths += interpaths;
-  stream.timing.paths_interpaths[stream.paths.size()] = interpaths;
+  stream.timing_perprocess[pid].interpaths += interpaths;
+  stream.timing_perprocess[pid].paths_interpaths.back() = interpaths;
 
   // keep track of the total number of events and add this event's time to the per-run and per-job summary
-  stream.timing.count = 1;
-  m_run_summary[rid] += stream.timing;
-  m_job_summary += stream.timing;
+  m_run_summary_perprocess[rid][pid] += stream.timing_perprocess[pid];
+  m_job_summary_perprocess[pid]      += stream.timing_perprocess[pid];
+
+  // account the whole event timing details
+  if (pid+1 == m_process.size()) {
+    stream.timing.count    = 1;
+    stream.timing.preevent = stream.timing_perprocess[0].preevent;
+    stream.timing.event    = stream.timing_perprocess[0].event;
+    for (unsigned int i = 1; i < m_process.size(); ++i) {
+      stream.timing.event = stream.timing_perprocess[i].preevent;
+      stream.timing.event += stream.timing_perprocess[i].event;
+    }
+    m_run_summary[rid] += stream.timing;
+    m_job_summary      += stream.timing;
+  }
 
   // elaborate "exclusive" modules
   if (m_enable_timing_exclusive) {
-    for (auto & keyval: stream.paths) {
+    for (auto & keyval: stream.paths[pid]) {
       PathInfo & pathinfo = keyval.second;
       pathinfo.time_exclusive = pathinfo.time_overhead;
 
@@ -773,6 +863,20 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
     }
   }
 
+  // fill the information per module type
+  // note: this is done here because during event processing two theads could try to update the same module type at the same time
+  // note: this is done only for the last subprocess, to avoid double conuting the modules' contributions
+  if ((m_enable_timing_modules) and (pid+1 == m_process.size())) {
+    for (unsigned int i = 0; i < stream.fast_modules.size(); ++i) 
+      // check for null pointers - there is no guarantee that all module ids are valid and used
+      if (stream.fast_modules[i]) {
+        double active = stream.fast_modules[i]->time_active;
+        ModuleInfo & moduletype = * stream.fast_moduletypes[i];
+        moduletype.time_active    += active;
+        moduletype.summary_active += active;
+      }
+  }
+
   // done processing the first event
   m_is_first_event = false;
 
@@ -783,18 +887,18 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
   // fill plots for per-event time by path
   if (m_enable_timing_paths) {
 
-    for (auto & keyval: stream.paths) {
+    for (auto & keyval: stream.paths[pid]) {
       PathInfo & pathinfo = keyval.second;
 
-      stream.dqm_paths_active_time->Fill(pathinfo.index, pathinfo.time_active * 1000.);
+      stream.dqm_paths[pid].active_time->Fill(pathinfo.index, pathinfo.time_active * 1000.);
       if (m_enable_dqm_bypath_active)
         pathinfo.dqm_active->Fill(pathinfo.time_active * 1000.);
 
-      stream.dqm_paths_exclusive_time->Fill(pathinfo.index, pathinfo.time_exclusive * 1000.);
+      stream.dqm_paths[pid].exclusive_time->Fill(pathinfo.index, pathinfo.time_exclusive * 1000.);
       if (m_enable_dqm_bypath_exclusive)
         pathinfo.dqm_exclusive->Fill(pathinfo.time_exclusive * 1000.);
 
-      stream.dqm_paths_total_time->Fill(pathinfo.index, pathinfo.time_total * 1000.);
+      stream.dqm_paths[pid].total_time->Fill(pathinfo.index, pathinfo.time_total * 1000.);
       if (m_enable_dqm_bypath_total)
         pathinfo.dqm_total->Fill(pathinfo.time_total * 1000.);
 
@@ -835,7 +939,8 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
   }
 
   // fill plots for per-event time by module
-  if (m_enable_dqm_bymodule) {
+  // note: this is done only for the last subprocess, to avoid filling the same plots multiple times
+  if ((m_enable_dqm_bymodule) and (pid+1 == m_process.size())) {
     for (auto & keyval : stream.modules) {
       ModuleInfo & module = keyval.second;
       module.dqm_active->Fill(module.time_active * 1000.);
@@ -843,7 +948,8 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
   }
 
   // fill plots for per-event time by module type
-  if (m_enable_dqm_bymoduletype) {
+  // note: this is done only for the last subprocess, to avoid filling the same plots multiple times
+  if ((m_enable_dqm_bymoduletype) and (pid+1 == m_process.size())) {
     for (auto & keyval : stream.moduletypes) {
       ModuleInfo & module = keyval.second;
       module.dqm_active->Fill(module.time_active * 1000.);
@@ -852,74 +958,98 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
 
   // fill the interpath overhead plot
   if (m_enable_timing_paths)
-    for (unsigned int i = 0; i <= stream.paths.size(); ++i)
-      stream.dqm_paths_interpaths->Fill(i, stream.timing.paths_interpaths[i] * 1000.);
+    for (unsigned int i = 0; i <= stream.paths[pid].size(); ++i)
+      stream.dqm_paths[pid].interpaths->Fill(i, stream.timing_perprocess[pid].paths_interpaths[i] * 1000.);
 
-  if (m_enable_dqm_summary)
-    stream.dqm.fill(stream.timing);
+  if (m_enable_dqm_summary) {
+    if (pid+1 == m_process.size())
+      stream.dqm.fill(stream.timing);
+    stream.dqm_perprocess[pid].fill(stream.timing_perprocess[pid]);
+  }
 
   if (m_enable_dqm_byls) {
     unsigned int ls = sc.eventID().luminosityBlock();
-    stream.dqm_byls.fill(ls, stream.timing );
+    if (pid+1 == m_process.size())
+      stream.dqm_byls.fill(ls, stream.timing );
+    stream.dqm_perprocess_byls[pid].fill(ls, stream.timing_perprocess[pid]);
   }
 
   if (m_enable_dqm_byluminosity) {
     float luminosity = 0.;
-    /*
-     * FIXME - find an alternative approach, the new signals do not pass the actual Event here
+    /* FIXME - find an alternative approach, the new signals do not pass the actual Event here
     edm::Handle<LumiScalersCollection> h_luminosity;
     if (event.getByLabel(m_luminosity_label, h_luminosity) and not h_luminosity->empty())
       luminosity = h_luminosity->front().instantLumi();   // in units of 1e30 cm-2s-1
     */
-    stream.dqm_byluminosity.fill(luminosity, stream.timing);
+    if (pid+1 == m_process.size())
+      stream.dqm_byluminosity.fill(luminosity, stream.timing);
+    stream.dqm_perprocess_byluminosity[pid].fill(luminosity, stream.timing_perprocess[pid]);
   }
 
 }
 
 void FastTimerService::preSourceEvent(edm::StreamID sid) {
   auto & stream = m_stream[sid];
-  stream.timer_source.start();
-
-  // account the time spent before the source
-  stream.timing.presource = (m_is_first_event) ? 0. : delta(stream.timer_event.getStopTime(), stream.timer_source.getStartTime());
 
   // clear the event counters
-  stream.timing.source = 0.;
-  stream.timing.preevent = 0.;
+  stream.timing.reset();
+  stream.timer_source.start();
+
+  // clear the event counters
+  // note: this is done here and not in preEvent to avoid clearing the counter before each subprocess
+  for (auto & keyval : stream.modules) {
+    keyval.second.timer.reset();
+    keyval.second.time_active       = 0.;
+    keyval.second.run_in_path       = nullptr;
+    keyval.second.counter           = 0;
+  }
+  for (auto & keyval : stream.moduletypes) {
+    keyval.second.timer.reset();
+    keyval.second.time_active       = 0.;
+    keyval.second.run_in_path       = nullptr;
+    keyval.second.counter           = 0;
+  }
+
+  // account the time spent before the source
+  stream.timing.presource = delta(stream.timer_last_transition, stream.timer_source.getStartTime());
 }
 
 void FastTimerService::postSourceEvent(edm::StreamID sid) {
   auto & stream = m_stream[sid];
   stream.timer_source.stop();
+  stream.timer_last_transition = stream.timer_source.getStopTime();
 
+  // account the time spent in the source
   stream.timing.source = stream.timer_source.seconds();
 }
 
 
 void FastTimerService::prePathEvent(edm::StreamContext const & sc, edm::PathContext const & pc) {
   std::string const & path = pc.pathName();
+  unsigned int pid = processID(sc.processContext());
   unsigned int sid = sc.streamID();
   auto & stream = m_stream[sid];
 
-  // prepare to measure the time spent between the beginning of the path and the execution of the first module
-  stream.first_module_in_path = nullptr;
-
-  PathMap<PathInfo>::iterator keyval = stream.paths.find(path);
-  if (keyval != stream.paths.end()) {
+  auto keyval = stream.paths[pid].find(path);
+  if (keyval != stream.paths[pid].end()) {
     stream.current_path = & keyval->second;
   } else {
     // should never get here
-    stream.current_path = 0;
+    stream.current_path = nullptr;
     edm::LogError("FastTimerService") << "FastTimerService::prePathEvent: unexpected path " << path;
+    return;
   }
+
+  // prepare to measure the time spent between the beginning of the path and the execution of the first module
+  stream.current_path->first_module = nullptr;
 
   // time each (end)path
   stream.current_path->timer.start();
 
-  if (path == m_first_path) {
+  if (path == m_process[pid].first_path) {
     // this is the first path, start the "all paths" counter
     stream.timer_paths.setStartTime(stream.current_path->timer.getStartTime());
-  } else if (path == m_first_endpath) {
+  } else if (path == m_process[pid].first_endpath) {
     // this is the first endpath, start the "all paths" counter
     stream.timer_endpaths.setStartTime(stream.current_path->timer.getStartTime());
   }
@@ -927,15 +1057,21 @@ void FastTimerService::prePathEvent(edm::StreamContext const & sc, edm::PathCont
   // measure the inter-path overhead as the time elapsed since the end of preiovus path
   // (or the beginning of the event, if this is the first path - see preEvent)
   double interpaths = delta(stream.timer_last_path, stream.current_path->timer.getStartTime());
-  stream.timing.interpaths += interpaths;
-  stream.timing.paths_interpaths[stream.current_path->index] = interpaths;
+  stream.timing_perprocess[pid].interpaths += interpaths;
+  stream.timing_perprocess[pid].paths_interpaths[stream.current_path->index] = interpaths;
 }
 
 
 void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathContext const & pc, edm::HLTPathStatus const & status) {
   std::string const & path = pc.pathName();
-  unsigned int        sid = sc.streamID().value();
-  auto &              stream = m_stream[sid];
+  unsigned int pid = processID(sc.processContext());
+  unsigned int sid = sc.streamID().value();
+  auto & stream = m_stream[sid];
+
+  if (stream.current_path == nullptr) {
+    edm::LogError("FastTimerService") << "FastTimerService::postPathEvent: unexpected path " << path;
+    return;
+  }
 
   // time each (end)path
   stream.current_path->timer.stop();
@@ -982,7 +1118,7 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
 
       }
 
-      if (stream.first_module_in_path == nullptr) {
+      if (stream.current_path->first_module == nullptr) {
         // no modules were active during this path, account all the time as overhead
         pre      = 0.;
         inter    = 0.;
@@ -990,7 +1126,7 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
         overhead = active;
       } else {
         // extract overhead information
-        pre      = delta(stream.current_path->timer.getStartTime(),  stream.first_module_in_path->timer.getStartTime());
+        pre      = delta(stream.current_path->timer.getStartTime(),  stream.current_path->first_module->timer.getStartTime());
         post     = delta(stream.current_module->timer.getStopTime(), stream.current_path->timer.getStopTime());
         inter    = active - pre - current - post;
         // take care of numeric precision and rounding errors - the timer is less precise than nanosecond resolution
@@ -1017,14 +1153,14 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
     }
   }
 
-  if (path == m_last_path) {
+  if (path == m_process[pid].last_path) {
     // this is the last path, stop and account the "all paths" counter
     stream.timer_paths.setStopTime(stream.current_path->timer.getStopTime());
-    stream.timing.all_paths = stream.timer_paths.seconds();
-  } else if (path == m_last_endpath) {
+    stream.timing_perprocess[pid].all_paths = stream.timer_paths.seconds();
+  } else if (path == m_process[pid].last_endpath) {
     // this is the last endpath, stop and account the "all endpaths" counter
     stream.timer_endpaths.setStopTime(stream.current_path->timer.getStopTime());
-    stream.timing.all_endpaths = stream.timer_endpaths.seconds();
+    stream.timing_perprocess[pid].all_endpaths = stream.timer_endpaths.seconds();
   }
 
 }
@@ -1043,21 +1179,18 @@ void FastTimerService::preModuleEvent(edm::StreamContext const & sc, edm::Module
   auto & stream = m_stream[sid];
 
   // time each module
-  { // if-scope
-    if (md.id() < stream.fast_modules.size()) {
-      ModuleInfo & module = * stream.fast_modules[md.id()];
-      module.run_in_path = stream.current_path;
-      module.timer.start();
-      stream.current_module = & module;
-      // used to measure the time spent between the beginning of the path and the execution of the first module
-      if (stream.first_module_in_path == nullptr)
-        stream.first_module_in_path = & module;
-    } else {
-      // should never get here
-      edm::LogError("FastTimerService") << "FastTimerService::preModuleEvent: unexpected module " << md.moduleLabel();
-    }
+  if (md.id() < stream.fast_modules.size()) {
+    ModuleInfo & module = * stream.fast_modules[md.id()];
+    module.run_in_path = stream.current_path;
+    module.timer.start();
+    stream.current_module = & module;
+    // used to measure the time spent between the beginning of the path and the execution of the first module
+    if (stream.current_path->first_module == nullptr)
+      stream.current_path->first_module = & module;
+  } else {
+    // should never get here
+    edm::LogError("FastTimerService") << "FastTimerService::preModuleEvent: unexpected module " << md.moduleLabel();
   }
-
 }
 
 void FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
@@ -1076,32 +1209,17 @@ void FastTimerService::postModuleEvent(edm::StreamContext const & sc, edm::Modul
   double active = 0.;
 
   // time and account each module
-  { // if-scope
-    if (md.id() < stream.fast_modules.size()) {
-      ModuleInfo & module = * stream.fast_modules[md.id()];
-      module.timer.stop();
-      active = module.timer.seconds();
-      module.time_active     = active;
-      module.summary_active += active;
-      // plots are filled post event processing
-    } else {
-      // should never get here
-      edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: unexpected module " << md.moduleLabel();
-    }
+  if (md.id() < stream.fast_modules.size()) {
+    ModuleInfo & module = * stream.fast_modules[md.id()];
+    module.timer.stop();
+    active = module.timer.seconds();
+    module.time_active     = active;
+    module.summary_active += active;
+    // plots are filled post event processing
+  } else {
+    // should never get here
+    edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: unexpected module " << md.moduleLabel();
   }
-
-  { // if-scope
-    if (md.id() < stream.fast_moduletypes.size()) {
-      ModuleInfo & module = * stream.fast_moduletypes[md.id()];
-      module.time_active    += active;
-      module.summary_active += active;
-      // plots are filled post event processing
-    } else {
-      // should never get here
-      edm::LogError("FastTimerService") << "FastTimerService::postModuleEvent: unexpected module " << md.moduleLabel();
-    }
-  }
-
 }
 
 void FastTimerService::preModuleEventDelayedGet(edm::StreamContext const & sc, edm::ModuleCallingContext const & mcc) {
@@ -1166,10 +1284,10 @@ void FastTimerService::postModuleEventDelayedGet(edm::StreamContext const & sc, 
 }
 
 // associate to a path all the modules it contains
-void FastTimerService::fillPathMap(std::string const & name, std::vector<std::string> const & modules) {
+void FastTimerService::fillPathMap(unsigned int pid, std::string const & name, std::vector<std::string> const & modules) {
   for (auto & stream: m_stream) {
 
-    std::vector<ModuleInfo *> & pathmap = stream.paths[name].modules;
+    std::vector<ModuleInfo *> & pathmap = stream.paths[pid][name].modules;
     pathmap.clear();
     pathmap.reserve( modules.size() );
     std::unordered_set<ModuleInfo const *> pool;        // keep track of inserted modules
@@ -1256,6 +1374,7 @@ double FastTimerService::queryModuleTimeByType(edm::StreamID sid, const std::str
   }
 }
 
+/* FIXME re-implement taking into account subprocesses
 // query the time spent in a path (available after the path has run)
 double FastTimerService::queryPathActiveTime(edm::StreamID sid, const std::string & path) const {
   PathMap<PathInfo>::const_iterator keyval = m_stream[sid].paths.find(path);
@@ -1288,12 +1407,19 @@ double FastTimerService::queryPathTotalTime(edm::StreamID sid, const std::string
     return 0.;
   }
 }
+*/
 
 // query the time spent in the current event's source (available during event processing)
 double FastTimerService::querySourceTime(edm::StreamID sid) const {
   return m_stream[sid].timing.source;
 }
 
+// query the time spent processing the current event (available after the event has been processed)
+double FastTimerService::queryEventTime(edm::StreamID sid) const {
+  return m_stream[sid].timing.event;
+}
+
+/* FIXME re-implement taking into account subprocesses
 // query the time spent in the current event's paths (available during endpaths)
 double FastTimerService::queryPathsTime(edm::StreamID sid) const {
   return m_stream[sid].timing.all_paths;
@@ -1303,11 +1429,7 @@ double FastTimerService::queryPathsTime(edm::StreamID sid) const {
 double FastTimerService::queryEndPathsTime(edm::StreamID sid) const {
   return m_stream[sid].timing.all_endpaths;
 }
-
-// query the time spent processing the current event (available after the event has been processed)
-double FastTimerService::queryEventTime(edm::StreamID sid) const {
-  return m_stream[sid].timing.event;
-}
+*/
 
 // describe the module's configuration
 void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
@@ -1344,4 +1466,17 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<edm::InputTag>( "luminosityProduct", edm::InputTag("hltScalersRawToDigi"));
   desc.addUntracked<std::vector<unsigned int> >("supportedProcesses", { })->setComment("deprecated: this parameter is ignored");
   descriptions.add("FastTimerService", desc);
+}
+
+// assign a "process id" to a process, given its ProcessContext
+unsigned int FastTimerService::processID(edm::ProcessContext const * context)
+{
+  unsigned int pid = 0;
+
+  // iterate through the chain of ProcessContext until we reach the topmost process
+  while (context->isSubProcess()) {
+    context = & context->parentProcessContext();
+    ++pid;
+  }
+  return pid;
 }
