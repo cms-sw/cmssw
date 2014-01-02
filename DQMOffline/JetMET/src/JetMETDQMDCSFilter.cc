@@ -11,6 +11,10 @@
 
 #include <iostream>
  
+using namespace edm;
+using namespace std;
+using namespace reco;
+
 //
 // -- Constructor
 //
@@ -18,6 +22,11 @@ JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset, edm::Con
    verbose_       = pset.getUntrackedParameter<bool>( "DebugOn", false );
    detectorTypes_ = pset.getUntrackedParameter<std::string>( "DetectorTypes", "ecal:hcal");
    filter_        = pset.getUntrackedParameter<bool>( "Filter", true );
+   DCSStatusLabel_= edm::InputTag("scalersRawToDigi");
+   //DCSStatusLabel_ = pset.getParameter<edm::InputTag>("scalersRawToDigi");  
+   //DCSStatusToken_ = consumes<reco::PFJetCollection>(DCSStatusLabel_);
+ 
+
    detectorOn_    = false;
    if (verbose_) std::cout << "JetMETDQMDCSFilter constructor: " << detectorTypes_ << std::endl;
 

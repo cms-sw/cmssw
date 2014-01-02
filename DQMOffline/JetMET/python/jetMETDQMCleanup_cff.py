@@ -4,9 +4,7 @@ cleaningParameters = cms.PSet(
 
     vertexLabel  = cms.InputTag("offlinePrimaryVertices"),
     gtLabel      = cms.InputTag("gtDigis"),
-
-    HLT_PhysDec   = cms.string("HLT_PhysicsDeclared"),
-    
+  
     trigSelection = cms.PSet(
         andOr         = cms.bool( False ),
         #dbLabel       = cms.string( 'jetmet_trigsel' ), # will be discussed below (DB)
@@ -29,9 +27,6 @@ cleaningParameters = cms.PSet(
         andOrHlt       = cms.bool( False ),
         errorReplyHlt  = cms.bool( False ),
     ),
-    techTrigsAND    = cms.vuint32(),
-    techTrigsOR     = cms.vuint32(),
-    techTrigsNOT    = cms.vuint32(),
     
     #Turn on extra checks
     doPrimaryVertexCheck   = cms.bool(True),

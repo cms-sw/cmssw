@@ -55,8 +55,11 @@
 #include <memory>
 #include <TLorentzVector.h>
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 
 using namespace reco;
+using namespace edm;
+using namespace std;
 
 CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 {
@@ -83,6 +86,8 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
   Nevents = 0;
   // get ahold of back-end interface
   dbe_ = edm::Service<DQMStore>().operator->();
+
+
 
   if (dbe_) {
  
@@ -186,15 +191,23 @@ void CaloTowerAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
 
 void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+
   // Get HLT Results
   edm::Handle<edm::TriggerResults> TheHLTResults;
   iEvent.getByToken( HLTResultsLabel_ , TheHLTResults);
 
-  bool EventPasses = true;
+ // **** Get the TriggerResults container
+  //triggerResultsToken_= consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel));
+  //edm::Handle<edm::TriggerResults> triggerResults;
+  //iEvent.getByToken(triggerResultsToken_, triggerResults);
 
+
+  bool EventPasses = true;
   // Make sure handle is valid
   if( TheHLTResults.isValid() && hltselection_ )
     {
+ 
       //Get HLT Names
       const edm::TriggerNames & TheTriggerNames = iEvent.triggerNames(*TheHLTResults);
       
@@ -249,7 +262,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     return;
   }
 
-
+  //HBHENoiseFilterResultToken_=consumes<HBHENoiseFilter>(edm::InputTag(HBHENoiseFilterResultLabel_));
   edm::Handle<bool> HBHENoiseFilterResultHandle;
   iEvent.getByToken(HBHENoiseFilterResultLabel_, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
@@ -262,7 +275,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   if(!bHcalNoiseFilter) return;
 
-  edm::View<Candidate>::const_iterator towerCand = towers->begin();
+  //edm::View<Candidate>::const_iterator towerCand = towers->begin();
   
   // ==========================================================
   // Fill Histograms!
@@ -286,15 +299,14 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       MaxEt_EtaRing[i] = 0;
     }
 
-  //rcr for (calotower = towerCollection->begin(); calotower != towerCollection->end(); calotower++) {
-    
-  for ( ; towerCand != towers->end(); towerCand++)
+  for (CaloTowerCollection::const_iterator calotower = towers->begin(); calotower != towers->end(); calotower++) 
+    //for ( ; towerCand != towers->end(); towerCand++)
     {
-      const Candidate* candidate = &(*towerCand);
-      if (candidate) 
-	{
-	  const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
-	  if (calotower){
+      // const Candidate* candidate = &(*towerCand);
+      //if (candidate) 
+      //{
+      //const CaloTower* calotower = dynamic_cast<const CaloTower*> (candidate);
+      //if (calotower){
 	  //math::RhoEtaPhiVector Momentum = calotower->momentum();
 	  double Tower_ET = calotower->et();
 	  //double Tower_Energy  = calotower->energy();
@@ -349,9 +361,9 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  if (Tower_ieta > CTmax_ieta) CTmax_ieta = Tower_ieta;
 	  if (Tower_iphi < CTmin_iphi) CTmin_iphi = Tower_iphi;
 	  if (Tower_iphi > CTmax_iphi) CTmax_iphi = Tower_iphi;
-	  } //end if (calotower) ..
-	} // end if(candidate) ...
-      
+	  //} //end if (calotower) ..
+	  //} // end if(candidate) ...
+    
     } // end loop over towers
   
       // Fill eta-ring MET quantities
@@ -375,7 +387,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	}
     } // ietaring
   }   // allhist_
-  
+ 
   edm::LogInfo("OutputInfo") << "CT ieta range: " << CTmin_ieta << " " << CTmax_ieta;
   edm::LogInfo("OutputInfo") << "CT iphi range: " << CTmin_iphi << " " << CTmax_iphi;
   

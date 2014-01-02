@@ -20,7 +20,12 @@ jetDQMParameters = cms.PSet(
     ptMax       = cms.double(500.0),
     ptMin       = cms.double(20.0),
 
-    ptThreshold = cms.double(20.),
+    pVBin       = cms.int32(100),
+    pVMax       = cms.double(100.0),
+    pVMin       = cms.double(0.0),
+
+    ptThreshold     = cms.double(20.),
+    ptThresholdUnc  = cms.double(17.5),
     asymmetryThirdJetCut = cms.double(30),
     balanceThirdJetCut   = cms.double(0.2),
     n90HitsMin  = cms.int32(-1),
@@ -48,35 +53,21 @@ jetDQMParameters = cms.PSet(
         ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
         eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
     ),
-##ok i have to add here parameters which will be used only
-##in the case of PFjets
-    fillpfJIDPassFrac = cms.int32(0),
+
+    #PF specific cleaning values
     ThisCHFMin = cms.double(-999.),
     ThisNHFMax = cms.double(999.),
     ThisCEFMax = cms.double(999.),
     ThisNEFMax = cms.double(999.),
     TightCHFMin = cms.double(0.0),
-    TightNHFMax = cms.double(1.0),
+    TightNHFMax = cms.double(0.9),
     TightCEFMax = cms.double(1.0),
-    TightNEFMax = cms.double(1.0),
+    TightNEFMax = cms.double(0.9),
     LooseCHFMin = cms.double(0.0),
-    LooseNHFMax = cms.double(0.9),
+    LooseNHFMax = cms.double(1.0),
     LooseCEFMax = cms.double(1.0),
-    LooseNEFMax = cms.double(0.9)
+    LooseNEFMax = cms.double(1.0)
 )
 
 
-cleanedJetDQMParameters = jetDQMParameters.clone(
-    fillJIDPassFrac   = cms.int32(0),
-    ptThreshold = cms.double(20.),
-    asymmetryThirdJetCut = cms.double(30),
-    balanceThirdJetCut   = cms.double(0.2),
-    n90HitsMin  = cms.int32(2),
-    fHPDMax     = cms.double(0.98),
-    resEMFMin   = cms.double(0.01),
-    fillpfJIDPassFrac = cms.int32(1),
-    ThisCHFMin = cms.double(0.0),
-    ThisNHFMax = cms.double(0.9),
-    ThisCEFMax = cms.double(1.0),
-    ThisNEFMax = cms.double(0.9)
-)
+

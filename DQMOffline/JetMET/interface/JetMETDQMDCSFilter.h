@@ -9,6 +9,17 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
+#include "DataFormats/Scalers/interface/DcsStatus.h" 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 
 class JetMETDQMDCSFilter {
 
@@ -24,6 +35,10 @@ class JetMETDQMDCSFilter {
   bool filter_;
   bool detectorOn_;
   std::string detectorTypes_;
+  //edm::EDGetTokenT<reco::PFJetCollection>DCSStatusToken_;
+
+  edm::InputTag DCSStatusLabel_;
+
 
 };
 

@@ -53,7 +53,8 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-                              '/store/relval/CMSSW_5_3_0/Jet/RECO/GR_R_53_V1_RelVal_jet2011A-v1/0000/0CB634B9-4199-E111-9E1B-002618943863.root').split(",")
+                              #'/store/relval/CMSSW_7_0_0_pre8/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PU_START70_V2_eg-v1/00000/FEFD7ED7-D952-E311-962B-0025905A605E.root'
+'/store/relval/CMSSW_5_3_6-GR_R_53_V15_RelVal_jet2012B/JetHT/RECO/v2/00000/FEC61CBE-062A-E211-AA5D-0026189438E4.root').split(",")
 ###                              '/store/relval/CMSSW_5_2_0_pre4/Jet/RECO/GR_R_52_V1_RelVal_jet2011B-v1/0034/7E4E91B0-C651-E111-9197-001A92971B36.root').split(",")
 ###                              '/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v2/000/150/314/D28FA8E9-4EEA-DF11-9B2A-000423D987E0.root').split(",")
 ###                              '/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
@@ -105,17 +106,21 @@ if iscosmics =="True":
 else:
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
 
-process.jetMETAnalyzer.OutputMEsInRootFile = cms.bool(True)
-process.jetMETAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
-process.jetMETAnalyzer.processname = cms.string(trigger_set)
+#change values for first jet and met analyzer parameterset -> all other parametersets are cloned from these
+
+process.jetAnalyzerAk5CaloUncleaned.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+process.jetAnalyzerAk5CaloUncleaned.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
+process.jetAnalyzerAk5CaloUncleaned.processname = cms.string(trigger_set)
+process.tcMetAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+process.tcMetAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
+process.tcMetAnalyzer.processname = cms.string(trigger_set)
 #process.jetMETAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","","HLT8E29")
 #process.jetMETAnalyzer.processname = cms.string("HLT8E29")
 
-if allhist=="True":
-  process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(False)
-  process.jetMETAnalyzer.DoJetPtCleaning = cms.untracked.bool(False)
-  process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(False)
+#if allhist=="True":
+#  process.jetMETAnalyzer.DoJetPtAnalysis = cms.untracked.bool(False)
+#  process.jetMETAnalyzer.DoJetPtCleaning = cms.untracked.bool(False)
+#  process.jetMETAnalyzer.DoIterativeCone = cms.untracked.bool(False)
 
 #process.jetMETAnalyzer.caloMETAnalysis.verbose = cms.int32(1)
 
@@ -162,7 +167,7 @@ process.Timing = cms.Service("Timing")
 
 ## # Comment this out or reconfigure to see error messages 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('jetMETAnalyzer'),
+    debugModules = cms.untracked.vstring('METAnalyzer'),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -195,6 +200,8 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True) ## default is false
 
 )
+
+process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 if iscosmics=="True":
   process.p = cms.Path(#process.BeamHaloId

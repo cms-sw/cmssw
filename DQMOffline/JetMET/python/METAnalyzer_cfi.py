@@ -1,18 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.JetMET.jptDQMConfig_cff import *      # parameters for jpt analyzer
+#from DQMOffline.JetMET.jptDQMConfig_cff import *      # parameters for jpt analyzer
 from DQMOffline.JetMET.jetDQMConfig_cff import *      # parameters for all jet analyzers
-from DQMOffline.JetMET.metDQMConfig_cff import *      # parameters for all met analyzers
+#from DQMOffline.JetMET.metDQMConfig_cff import *      # parameters for all met analyzers
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cleanup
 
-jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
+jetMETAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     #
     # Output files
     #
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('jetMETMonitoring.root'),
-
+    METType=cms.untracked.string('calo'),
     #
     #
     #

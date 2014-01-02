@@ -15,8 +15,8 @@ ECALRecHitAnalyzer::ECALRecHitAnalyzer(const edm::ParameterSet& iConfig)
   EERecHitsLabel_  = consumes<EERecHitCollection> (iConfig.getParameter<edm::InputTag>("EERecHitsLabel"));
   FolderName_      = iConfig.getUntrackedParameter<std::string>("FolderName");
   debug_           = iConfig.getParameter<bool>("Debug");
-
-
+  EBRecHitsToken_= consumes<EcalRecHitCollection>(edm::InputTag(EBRecHitsLabel_));
+  EERecHitsToken_= consumes<EcalRecHitCollection>(edm::InputTag(EERecHitsLabel_));
 }
 
 void ECALRecHitAnalyzer::endJob() {
