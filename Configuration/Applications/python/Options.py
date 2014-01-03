@@ -106,7 +106,8 @@ expertSettings.add_option("--beamspot",
 
 expertSettings.add_option("--customise",
                           help="Specify the file where the code to modify the process object is stored.",
-                          default="",
+                          default=[],
+                          action="append",
                           dest="customisation_file")
 expertSettings.add_option("--customise_commands",
                           help="Specify a string of commands",

@@ -740,7 +740,9 @@ class ConfigBuilder(object):
     def addCustomise(self):
         """Include the customise code """
 
-        custOpt=self._options.customisation_file.split(",")
+	custOpt=[]
+	for c in self._options.customisation_file:
+		custOpt.extend(c.split(","))
 	custMap={}
 	for opt in custOpt:
 		if opt=='': continue
