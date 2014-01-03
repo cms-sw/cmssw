@@ -5,7 +5,7 @@
 using namespace edm;
 using namespace std;
 
-TECPetal* TECPetalBuilder::build(GeometricDetPtr aTECPetal,
+TECPetal* TECPetalBuilder::build(const GeometricDetPtr aTECPetal,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   auto theGeometricWedges = aTECPetal->components();

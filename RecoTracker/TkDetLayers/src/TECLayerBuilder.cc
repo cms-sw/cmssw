@@ -4,7 +4,7 @@
 using namespace edm;
 using namespace std;
 
-TECLayer* TECLayerBuilder::build(GeometricDetPtr aTECLayer,
+TECLayer* TECLayerBuilder::build(const GeometricDetPtr aTECLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   auto theGeometricDetPetals = aTECLayer->components();

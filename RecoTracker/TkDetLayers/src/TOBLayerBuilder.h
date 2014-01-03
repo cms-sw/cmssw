@@ -15,7 +15,7 @@
 class TOBLayerBuilder {  
  public:
   TOBLayerBuilder(){};
-  TOBLayer* build(GeometricDetPtr aTOBLayer,
+  TOBLayer* build(const GeometricDetPtr aTOBLayer,
 		  const TrackerGeometry* theGeomDetGeometry);
 
   

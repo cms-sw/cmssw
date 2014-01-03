@@ -5,7 +5,7 @@
 using namespace edm;
 using namespace std;
 
-TECWedge* TECWedgeBuilder::build(GeometricDetPtr aTECWedge,
+TECWedge* TECWedgeBuilder::build(const GeometricDetPtr aTECWedge,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   auto theGeometricDets = aTECWedge->components();

@@ -7,7 +7,7 @@
 using namespace edm;
 using namespace std;
 
-TIBLayer* TIBLayerBuilder::build(GeometricDetPtr aTIBLayer,
+TIBLayer* TIBLayerBuilder::build(const GeometricDetPtr aTIBLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   auto theGeometricRods = aTIBLayer->components();

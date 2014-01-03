@@ -7,7 +7,7 @@
 using namespace edm;
 using namespace std;
 
-TOBLayer* TOBLayerBuilder::build(GeometricDetPtr aTOBLayer,
+TOBLayer* TOBLayerBuilder::build(const GeometricDetPtr aTOBLayer,
 				 const TrackerGeometry* theGeomDetGeometry){
 
   auto theGeometricDetRods = aTOBLayer->components();

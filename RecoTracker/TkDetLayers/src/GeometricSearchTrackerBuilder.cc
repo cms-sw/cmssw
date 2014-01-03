@@ -19,7 +19,7 @@
 using namespace std;
 
 GeometricSearchTracker*
-GeometricSearchTrackerBuilder::build(GeometricDetPtr theGeometricTracker,
+GeometricSearchTrackerBuilder::build(const GeometricDetPtr theGeometricTracker,
 				     const TrackerGeometry* theGeomDetGeometry)
 {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;

@@ -4,7 +4,7 @@
 using namespace edm;
 using namespace std;
 
-TIDLayer* TIDLayerBuilder::build(GeometricDetPtr aTIDLayer,
+TIDLayer* TIDLayerBuilder::build(const GeometricDetPtr aTIDLayer,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   auto theGeometricRings = aTIDLayer->components();

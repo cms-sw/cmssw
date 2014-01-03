@@ -4,7 +4,7 @@ using namespace edm;
 using namespace std;
 
 
-PixelRod* PixelRodBuilder::build(GeometricDetPtr aRod,
+PixelRod* PixelRodBuilder::build(const GeometricDetPtr aRod,
 				 const TrackerGeometry* theGeomDetGeometry)
 {
   auto allGeometricDets = aRod->components();  
