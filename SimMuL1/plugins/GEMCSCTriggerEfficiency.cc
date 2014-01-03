@@ -2726,9 +2726,6 @@ GEMCSCTriggerEfficiency::cleanUp()
 void 
 GEMCSCTriggerEfficiency::propagateToCSCStations(MatchCSCMuL1 *match)
 {
-  // do not propagate for hight etas
-  if (fabs(match->strk->momentum().eta())>2.6) return;
-
   TrajectoryStateOnSurface tsos;
 
   // z planes
