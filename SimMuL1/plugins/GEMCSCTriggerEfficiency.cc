@@ -106,6 +106,8 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
 
   minNHitsShared_ = iConfig.getUntrackedParameter<int>("minNHitsShared", -1);
   minNHitsChamber_ = iConfig.getUntrackedParameter<int>("minNHitsChamber", 4);
+  minNStWithMinNHitsChambers_ = iConfig.getUntrackedParameter< int >("minNStWithMinNHitsChambers", 0);
+  requireME1With4Hits_ = iConfig.getUntrackedParameter< bool >("requireME1With4Hits",false);
   
   minDeltaYAnode_    = iConfig.getUntrackedParameter<double>("minDeltaYAnode", -1.);
   minDeltaYCathode_  = iConfig.getUntrackedParameter<double>("minDeltaYCathode", -1.);
@@ -171,9 +173,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   //if (defaultME1a) gangedME1a = true;
 
   addGhostLCTs_ = iConfig.getUntrackedParameter< bool >("addGhostLCTs",true);
-
-  minNStWith4Hits_ = iConfig.getUntrackedParameter< int >("minNStWith4Hits", 0);
-  requireME1With4Hits_ = iConfig.getUntrackedParameter< bool >("requireME1With4Hits",false);
 
   minSimTrackDR_ = iConfig.getUntrackedParameter<double>("minSimTrackDR", 0.);
 
@@ -1320,6 +1319,8 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     match->minBxMPLCT = minBxMPLCT_;
     match->maxBxMPLCT = maxBxMPLCT_;
     
+    // propagate the simtrack to the globalZ positions of CSC station 1,2,3 and 4
+    // and store them in the match object
     propagateToCSCStations(match);
     
     // match SimHits and do some checks
@@ -1481,8 +1482,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       bool eta_1b = mugeo::isME1bEtaRegion(steta, 1.6, 2.12);
       bool eta_gem_1b = mugeo::isME1bEtaRegion(steta, 1.64, 2.05);
 
+      // get the number of stations with at least minNHitsChamber_ hits in the chamber
+      unsigned nst_with_hits = match->nStationsWithHits(minNHitsChamber_);
 
-      unsigned nst_with_hits = match->nStationsWithHits();
+      // were station 1,2,3  or 4 hit if at least minNHitsChamber_ were required?
       bool has_hits_in_st[5] = {0, match->hasHitsInStation(1,minNHitsChamber_), 
                                 match->hasHitsInStation(2,minNHitsChamber_), 
                                 match->hasHitsInStation(3,minNHitsChamber_), 
@@ -1508,8 +1511,12 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   	    }
   	  okNmplct = mpcStations.size();
   	}
+
+      // was an MPC reconstructed in station 1,2,3 or 4?
       bool has_mpcs_in_st[5] = {0, has_hits_in_st[1] && okME1mplct, has_hits_in_st[2] && okME2mplct,
-  				has_hits_in_st[3] && okME3mplct, has_hits_in_st[4] && okME4mplct};
+                                has_hits_in_st[3] && okME3mplct, has_hits_in_st[4] && okME4mplct};
+
+      // total number of stations with reconstructed MPCs
       unsigned nst_with_mpcs = has_mpcs_in_st[1] + has_mpcs_in_st[2] + has_mpcs_in_st[3] + has_mpcs_in_st[4];
 
       if (pt_ok) {
@@ -1576,13 +1583,14 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       bool tffid_ok = false;
       if ( tfc ) tffid_ok = ( eta_ok && tfc->l1cand->quality_packed() > 1 );
 
-      // require chambers with at least 4 layers with simhits in at least minNStWith4Hits stations
-      if ( nst_with_hits < minNStWith4Hits_ ) continue;
-      
+      // require chambers with at least minNHitsChamber_ layers with 
+      // simhits in at least minNStWithMinNHitsChambers_ stations
+      if ( nst_with_hits < (unsigned) minNStWithMinNHitsChambers_ ) continue;
+
       // at least one chamber in ME1 with 4 hits
       if (requireME1With4Hits_ && !has_hits_in_st[1]) continue;
       
-
+      
       bool eta_high = ( fabs(steta) >= 2.1 &&  fabs(steta) <= 2.4 );
 
 
