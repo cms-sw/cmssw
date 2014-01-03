@@ -10,6 +10,8 @@
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -157,7 +159,10 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   PFSuperClusterCollectionEndcapWithPreshower_ = iConfig.getParameter<string>("PFSuperClusterCollectionEndcapWithPreshower");
 
   produces<reco::SuperClusterCollection>(PFSuperClusterCollectionBarrel_);  
-  produces<reco::SuperClusterCollection>(PFSuperClusterCollectionEndcapWithPreshower_);   
+  produces<reco::SuperClusterCollection>(PFSuperClusterCollectionEndcapWithPreshower_);
+  produces<reco::CaloClusterCollection>(PFBasicClusterCollectionBarrel_);
+  produces<reco::CaloClusterCollection>(PFBasicClusterCollectionEndcap_);
+  produces<reco::CaloClusterCollection>(PFBasicClusterCollectionPreshower_);  
 }
 
 
@@ -187,6 +192,93 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
 					  *psAssociationHandle);
   superClusterAlgo_.run();
 
+  //build collections of output CaloClusters from the used PFClusters
+  std::auto_ptr<reco::CaloClusterCollection> caloClustersEB(new reco::CaloClusterCollection);
+  std::auto_ptr<reco::CaloClusterCollection> caloClustersEE(new reco::CaloClusterCollection);
+  std::auto_ptr<reco::CaloClusterCollection> caloClustersES(new reco::CaloClusterCollection);
+  
+  std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapEB; //maps of pfclusters to caloclusters 
+  std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapEE;
+  std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapES;
+  
+  //fill calocluster collections and maps
+  for( auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
+    for (reco::CaloCluster_iterator pfclus = ebsc.clustersBegin(); pfclus!=ebsc.clustersEnd(); ++pfclus) {
+      if (!pfClusterMapEB.count(*pfclus)) {
+        reco::CaloCluster caloclus(**pfclus);
+        caloClustersEB->push_back(caloclus);
+        pfClusterMapEB[*pfclus] = caloClustersEB->size() - 1;
+      }
+      else {
+        throw cms::Exception("PFECALSuperClusterProducer::produce")
+            << "Found an EB pfcluster matched to more than one EB supercluster!" 
+            << std::dec << std::endl;
+      }
+    }
+  }
+  for( auto& eesc : *(superClusterAlgo_.getEEOutputSCCollection()) ) {
+    for (reco::CaloCluster_iterator pfclus = eesc.clustersBegin(); pfclus!=eesc.clustersEnd(); ++pfclus) {
+      if (!pfClusterMapEE.count(*pfclus)) {
+        reco::CaloCluster caloclus(**pfclus);
+        caloClustersEE->push_back(caloclus);
+        pfClusterMapEE[*pfclus] = caloClustersEE->size() - 1;
+      }
+      else {
+        throw cms::Exception("PFECALSuperClusterProducer::produce")
+            << "Found an EE pfcluster matched to more than one EE supercluster!" 
+            << std::dec << std::endl;
+      }
+    }
+    for (reco::CaloCluster_iterator pfclus = eesc.preshowerClustersBegin(); pfclus!=eesc.preshowerClustersEnd(); ++pfclus) {
+      if (!pfClusterMapES.count(*pfclus)) {
+        reco::CaloCluster caloclus(**pfclus);
+        caloClustersES->push_back(caloclus);
+        pfClusterMapES[*pfclus] = caloClustersES->size() - 1;
+      }
+      else {
+        throw cms::Exception("PFECALSuperClusterProducer::produce")
+            << "Found an ES pfcluster matched to more than one EE supercluster!" 
+            << std::dec << std::endl;
+      }
+    }
+  }
+  
+  //put calocluster output collections in event and get orphan handles to create ptrs
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEB = iEvent.put(caloClustersEB,PFBasicClusterCollectionBarrel_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEE = iEvent.put(caloClustersEE,PFBasicClusterCollectionEndcap_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(caloClustersES,PFBasicClusterCollectionPreshower_);
+  
+  //relink superclusters to output caloclusters
+  for( auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
+    edm::Ptr<reco::CaloCluster> seedptr(caloClusHandleEB,pfClusterMapEB[ebsc.seed()]);
+    ebsc.setSeed(seedptr);
+    
+    reco::CaloClusterPtrVector clusters;
+    for (reco::CaloCluster_iterator pfclus = ebsc.clustersBegin(); pfclus!=ebsc.clustersEnd(); ++pfclus) {
+      edm::Ptr<reco::CaloCluster> clusptr(caloClusHandleEB,pfClusterMapEB[*pfclus]);
+      clusters.push_back(clusptr);
+    }
+    ebsc.setClusters(clusters);
+  }
+  for( auto& eesc : *(superClusterAlgo_.getEEOutputSCCollection()) ) {
+    edm::Ptr<reco::CaloCluster> seedptr(caloClusHandleEE,pfClusterMapEE[eesc.seed()]);
+    eesc.setSeed(seedptr);
+    
+    reco::CaloClusterPtrVector clusters;
+    for (reco::CaloCluster_iterator pfclus = eesc.clustersBegin(); pfclus!=eesc.clustersEnd(); ++pfclus) {
+      edm::Ptr<reco::CaloCluster> clusptr(caloClusHandleEE,pfClusterMapEE[*pfclus]);
+      clusters.push_back(clusptr);
+    }
+    eesc.setClusters(clusters);
+    
+    reco::CaloClusterPtrVector psclusters;
+    for (reco::CaloCluster_iterator pfclus = eesc.preshowerClustersBegin(); pfclus!=eesc.preshowerClustersEnd(); ++pfclus) {
+      edm::Ptr<reco::CaloCluster> clusptr(caloClusHandleES,pfClusterMapES[*pfclus]);
+      psclusters.push_back(clusptr);
+    }
+    eesc.setPreshowerClusters(psclusters);  
+  }  
+    
   if( use_regression ) {    
     regr_->varCalc()->setEvent(iEvent);
     double cor = 0.0;
