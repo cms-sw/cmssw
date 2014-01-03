@@ -292,6 +292,7 @@ private:
 
   bool addGhostLCTs_;
   
+  int minNStWithMinNHitsChambers_;
   bool minNStWith4Hits_;
   bool requireME1With4Hits_;
   
