@@ -10,9 +10,7 @@ using namespace reco;
 
 
 
-PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *>& pfclust,
-				       const EBRecHitCollection * ebRecHits,
-				       const EERecHitCollection * eeRecHits){
+PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *>& pfclust) {
 
 
   double numeratorEtaWidth = 0.;
@@ -61,32 +59,8 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
       for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); 
 	    it != PFRecHits.end(); ++it) {
 	const PFRecHitRef& RefPFRecHit = it->recHitRef(); 
-	double energyHit=0;
-	// if the PFRecHit is not available, try to get it from the collections
-	//	if(!RefPFRecHit.isAvailable() && ebRecHits && eeRecHits )
-	if(ebRecHits && eeRecHits )
-	  {
-	    //	    std::cout << " Recomputing " << std::endl;
-	    unsigned index=it-PFRecHits.begin();
-	    DetId id=pfclust[icl]->hitsAndFractions()[index].first;
-	    // look for the hit; do not forget to multiply by the fraction
-	    if(id.det()==DetId::Ecal && id.subdetId()==EcalBarrel)
-	      {
-		EBRecHitCollection::const_iterator itcheck=ebRecHits->find(id);
-		if(itcheck!=ebRecHits->end())
-                  // The cluster shapes MUST take into account the RecHit fraction !
-		  energyHit= itcheck->energy()*pfclust[icl]->hitsAndFractions()[index].second;;
-	      }
-	    if(id.det()==DetId::Ecal && id.subdetId()==EcalEndcap)
-	      {
-		EERecHitCollection::const_iterator itcheck=eeRecHits->find(id);
-		if(itcheck!=eeRecHits->end())
-                  // The cluster shapes MUST take into account the RecHit fraction !
-		  energyHit= itcheck->energy()*pfclust[icl]->hitsAndFractions()[index].second;
-	      }
-	  }
-	else
-	  energyHit = RefPFRecHit->energy()*it->fraction();
+        //compute rechit energy taking into account fractions
+	double energyHit = RefPFRecHit->energy()*it->fraction();
 
 	//only for the first cluster (from GSF) find the seed
 	if(icl==0) {
@@ -96,7 +70,6 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
 	    SeedDetID = RefPFRecHit->detId();
 	  }
 	}
-
 
 	double dPhi = RefPFRecHit->position().phi() - scPhi;
 	if (dPhi > + TMath::Pi()) { dPhi = TMath::TwoPi() - dPhi; }
