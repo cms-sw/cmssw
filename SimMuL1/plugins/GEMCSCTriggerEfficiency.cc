@@ -1106,7 +1106,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     // ignore muons with huge eta
     if (fabs(mceta)>10) continue;
 
-    if (debugMC) std::cout << "Is good MC muon: " << numberMCTr++ << " with pt: " << mcpt << ", eta: " << mceta << ", and phi: " << mcphi << std::endl;
+    if (debugMC) std::cout << "Is good MC muon: " << numberMCTr << " with pt: " << mcpt << ", eta: " << mceta << ", and phi: " << mcphi << std::endl;
       
     // match with SimTrack
     edm::SimTrackContainer::const_iterator matchSimTr = simTracks.end();
