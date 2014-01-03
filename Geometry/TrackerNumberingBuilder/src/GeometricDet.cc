@@ -201,6 +201,7 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   _ddname(onePGD._name, onePGD._ns),//, "fromdb");
   _type(type),
   _params(),
+  _geographicalID(onePGD._geographicalID),
 #ifdef GEOMTRICDETDEBUG
   _parents(), // will remain empty... hate wasting the space but want all methods to work.
   _volume(onePGD._volume),
@@ -222,7 +223,6 @@ GeometricDet::GeometricDet ( const PGeometricDet::Item& onePGD, GeometricEnumTyp
   _fromDD(false)
 #endif
 {
-  setGeographicalID(onePGD._geographicalID);
   //std::cout << "GeometricDet4" << std::endl;
   
   if(onePGD._shape==1||onePGD._shape==3){ //The parms vector is neede only in the case of box or trap shape
@@ -282,7 +282,7 @@ GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
 void GeometricDet::deepComponents(ConstGeometricDetContainer & cont) const {
   //std::cout << "const deepComponents2" << std::endl;
   if (isLeaf()) {
-    cont.push_back(GeometricDetPtr(this->clone().get()));
+    cont.push_back(GeometricDetPtr(clone().release()));
   } else {
       for(auto it=_container.begin();it!=_container.end();++it) {
           (*it)->deepComponents(cont);

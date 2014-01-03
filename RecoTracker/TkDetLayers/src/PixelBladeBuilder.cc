@@ -7,8 +7,8 @@
 using namespace edm;
 using namespace std;
                                      
-PixelBlade* PixelBladeBuilder:: build(GeometricDetPtr geometricDetFrontPanel,
-				      GeometricDetPtr geometricDetBackPanel,
+PixelBlade* PixelBladeBuilder:: build(const GeometricDetPtr geometricDetFrontPanel,
+				      const GeometricDetPtr geometricDetBackPanel,
 				      const TrackerGeometry* theGeomDetGeometry)
 {
   auto frontGeometricDets = geometricDetFrontPanel->components();  

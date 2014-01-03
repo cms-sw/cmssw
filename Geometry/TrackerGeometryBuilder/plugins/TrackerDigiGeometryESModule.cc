@@ -110,7 +110,8 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
   
   TrackerGeomBuilderFromGeometricDet builder;
-  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), m_pSet ));
+  auto ptr = GeometricDetPtr(const_cast<GeometricDet*>(&(*gD)));
+  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(ptr, m_pSet ));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!

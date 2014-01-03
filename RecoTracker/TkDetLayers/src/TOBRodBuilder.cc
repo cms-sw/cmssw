@@ -4,8 +4,8 @@
 using namespace edm;
 using namespace std;
 
-TOBRod* TOBRodBuilder::build(GeometricDetPtr negTOBRod,
-			     GeometricDetPtr posTOBRod,
+TOBRod* TOBRodBuilder::build(const GeometricDetPtr negTOBRod,
+			     const GeometricDetPtr posTOBRod,
 			     const TrackerGeometry* theGeomDetGeometry)
 {  
   vector<GeometricDetPtr>  theNegativeGeometricDets;

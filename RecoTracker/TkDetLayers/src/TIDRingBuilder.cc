@@ -3,7 +3,7 @@
 using namespace edm;
 using namespace std;
 
-TIDRing* TIDRingBuilder::build(GeometricDetPtr aTIDRing,
+TIDRing* TIDRingBuilder::build(const GeometricDetPtr aTIDRing,
 			 const TrackerGeometry* theGeomDetGeometry)
 {
   auto theGeometricDets = aTIDRing->components();

@@ -4,7 +4,7 @@
 using namespace std;
 using namespace edm;
 
-PixelBarrelLayer* PixelBarrelLayerBuilder::build(GeometricDetPtr aPixelBarrelLayer,
+PixelBarrelLayer* PixelBarrelLayerBuilder::build(const GeometricDetPtr aPixelBarrelLayer,
 						 const TrackerGeometry* theGeomDetGeometry)
 {
   // This builder is very similar to TOBLayer one. Most of the code should be put in a 

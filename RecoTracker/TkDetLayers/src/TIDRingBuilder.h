@@ -15,7 +15,7 @@
 class TIDRingBuilder {  
  public:
   TIDRingBuilder(){};
-  TIDRing* build(GeometricDetPtr aTIDRing,
+  TIDRing* build(const GeometricDetPtr aTIDRing,
 		 const TrackerGeometry* theGeomDetGeometry);
 
   

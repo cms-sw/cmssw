@@ -16,7 +16,7 @@ class GeometricSearchTrackerBuilder {
   GeometricSearchTrackerBuilder() {};
   ~GeometricSearchTrackerBuilder() {}; 
   
-  GeometricSearchTracker* build(GeometricDetPtr theGeometricTracker,
+  GeometricSearchTracker* build(const GeometricDetPtr theGeometricTracker,
 				const TrackerGeometry* theGeomDetGeometry);
 };
 
