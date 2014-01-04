@@ -599,30 +599,9 @@ def drawplot_etastep(fname, pu, dname="tf"):
     ##gStyle.SetStatH(0.08)
     gStyle.SetStatW(0.07)
     gStyle.SetStatH(0.06)
-
     gStyle.SetOptStat(0)
-
     gStyle.SetTitleStyle(0)
 
-    """
-    if (strcmp(dname,"")>0) sprintf(d1,"_%s",dname)
-    if (strcmp(pu,"")>0)    sprintf(d2,"_%s",pu)
-    sprintf(pdir,"pic%s%s",d1,d2)
-
-    if (interactive){
-      if( gSystem.AccessPathName(pdir)==0 ) {
-        cout<<"directory "<<pdir<<" exists, removing it!"<<endl
-        char cmd[111]
-        sprintf(cmd,"rm -r %s",pdir)
-        if (gSystem.Exec(cmd) != 0) {cout<<"can't remode directory! exiting..."<<endl return}
-      }
-      gSystem.MakeDirectory(pdir)
-    }
-
-    ##TFile *f = TFile::Open("piluphisto.root")
-    """
-    print "opening ",fname
-    f = TFile.Open(fname)
 
     """
     ## directory inside of root file:
