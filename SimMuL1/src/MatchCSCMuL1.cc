@@ -59,6 +59,11 @@ MatchCSCMuL1::MatchCSCMuL1(const SimTrack  *s, const SimVertex *v, const CSCGeom
 
 
 //_____________________________________________________________________________
+/*
+ * Add a simhit to the vector of simhits, hitsMapLayer and hitsMapChamber
+ *
+ * @param h   The simhit
+ */
 void 
 MatchCSCMuL1::addSimHit(PSimHit & h)
 {
@@ -84,6 +89,12 @@ MatchCSCMuL1::keyStation()
 
 
 //_____________________________________________________________________________
+/*
+ * Return the position vector of the propagated simtrack in ME11, ME1, ME2 or ME3
+ *
+ * @param st   The station number
+ * @return     The position vector of the propagated simtrack 
+ */
 math::XYZVectorD
 MatchCSCMuL1::vAtStation(int st)
 {
@@ -126,6 +137,10 @@ MatchCSCMuL1::deltaRSmart(double to_eta, double to_phi)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the number of simhits in the event
+ * Option to count only muon simhits 
+ */
 int 
 MatchCSCMuL1::nSimHits()
 {
@@ -137,6 +152,10 @@ MatchCSCMuL1::nSimHits()
 
 
 //_____________________________________________________________________________
+/*
+ * Return the detIds with simhits
+ * Option to count only detIds with muon simhits
+ */
 std::vector<int> 
 MatchCSCMuL1::detsWithHits()
 {
@@ -150,6 +169,15 @@ MatchCSCMuL1::detsWithHits()
 
 
 //_____________________________________________________________________________
+/*
+ * Return the chambers with hits in a particular station, ring and with a 
+ * minimum number of simhits
+ *
+ * @param station    The station number
+ * @param ring       The ring number
+ * @param minNHits   Minimum number of simhits
+ * @return           The chamber numbers
+ */
 std::vector<int> 
 MatchCSCMuL1::chambersWithHits(int station, int ring, unsigned minNHits)
 {
@@ -175,6 +203,10 @@ MatchCSCMuL1::chambersWithHits(int station, int ring, unsigned minNHits)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the simhits for a particular detId
+ * INFO: this function is in use
+ */
 std::vector<PSimHit>
 MatchCSCMuL1::layerHits(int detId)
 {
@@ -189,6 +221,9 @@ MatchCSCMuL1::layerHits(int detId)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the simhits for a particular detId
+ */
 std::vector<PSimHit>
 MatchCSCMuL1::chamberHits(int detId)
 {
@@ -208,6 +243,10 @@ MatchCSCMuL1::chamberHits(int detId)
 
 
 //_____________________________________________________________________________
+/*
+ * Return all simhits in the event
+ * Option to return only muon simhits
+ */
 std::vector<PSimHit> 
 MatchCSCMuL1::allSimHits()
 {
@@ -221,6 +260,14 @@ MatchCSCMuL1::allSimHits()
 
 
 //_____________________________________________________________________________
+/*
+ * Return the number of layers with a minimum number of hits in the chamber
+ * The minimum number of layers is specified elsewhere
+ * There is an option to only consider muon simhits in the counting of the layers
+ * 
+ * @param detId   The detId
+ * @return        The number of layers with hits
+ */
 int
 MatchCSCMuL1::numberOfLayersWithHitsInChamber(int detId)
 {
@@ -282,15 +329,32 @@ MatchCSCMuL1::wireGroupAndStripInChamber( int detId )
 
 
 //_____________________________________________________________________________
+/*
+ * Has the simtrack at least one chamber with the minimum number of hits 
+ * 
+ * @param st        The station number
+ * @param minNHits  The minimum number of hits
+ * @return          True if it has a least one such chamber
+ */
 bool
 MatchCSCMuL1::hasHitsInStation(int st, unsigned minNHits) // st=0 - any,  st=1,2,3,4 - ME1-4
 {
+  // why is ring number by default equal to 0
   std::vector<int> chIds = chambersWithHits(st,0,minNHits);
   return chIds.size()!=0;
 }
 
 
 //_____________________________________________________________________________
+/*
+ * Get the number of stations with the minimum number of hits
+ * @param me1       Station 1 flag        
+ * @param me2       Station 2 flag     
+ * @param me3       Station 3 flag     
+ * @param me4       Station 4 flag     
+ * @param minNHits  The minimum number of hits
+ * @return          The number of stations
+ */
 unsigned
 MatchCSCMuL1::nStationsWithHits(bool me1, bool me2, bool me3, bool me4, unsigned minNHits)
 {
@@ -302,6 +366,9 @@ MatchCSCMuL1::nStationsWithHits(bool me1, bool me2, bool me3, bool me4, unsigned
 
 
 //_____________________________________________________________________________
+/*
+ * Return the ALCTs in the readout 
+ */
 std::vector< MatchCSCMuL1::ALCT > 
 MatchCSCMuL1::ALCTsInReadOut()
 {
@@ -313,6 +380,9 @@ MatchCSCMuL1::ALCTsInReadOut()
 
 
 //_____________________________________________________________________________
+/*
+ * Return the ALCTs in the readout 
+ */
 std::vector< MatchCSCMuL1::ALCT >
 MatchCSCMuL1::vALCTs(bool readout)
 {
@@ -322,6 +392,10 @@ MatchCSCMuL1::vALCTs(bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the chamber Ids with ALCTs 
+ * @param readout   Do ALCTs have to be in the readout BX window?
+ */
 std::vector<int>
 MatchCSCMuL1::chambersWithALCTs(bool readout)
 {
@@ -334,6 +408,11 @@ MatchCSCMuL1::chambersWithALCTs(bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the ALCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do ALCTs have to be in the readout BX window?
+ */
 std::vector<MatchCSCMuL1::ALCT>
 MatchCSCMuL1::chamberALCTs( int detId, bool readout )
 {
@@ -349,6 +428,11 @@ MatchCSCMuL1::chamberALCTs( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the BXs with ALCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do ALCTs have to be in the readout BX window?
+ */
 std::vector<int> 
 MatchCSCMuL1::bxsWithALCTs( int detId, bool readout )
 {
@@ -361,6 +445,14 @@ MatchCSCMuL1::bxsWithALCTs( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the ALCTs in a particular chamber for a particular BX
+ * Specify whether the ALCTs have to be in the readout
+ * @param detId     The detId
+ * @param bx        The BX
+ * @param readout   Do ALCTs have to be in the readout BX window?
+ * 
+ */
 std::vector<MatchCSCMuL1::ALCT> 
 MatchCSCMuL1::chamberALCTsInBx( int detId, int bx, bool readout )
 {
@@ -373,6 +465,9 @@ MatchCSCMuL1::chamberALCTsInBx( int detId, int bx, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the CLCTs in the readout 
+ */
 std::vector< MatchCSCMuL1::CLCT >
 MatchCSCMuL1::CLCTsInReadOut()
 {
@@ -384,6 +479,9 @@ MatchCSCMuL1::CLCTsInReadOut()
 
 
 //_____________________________________________________________________________
+/*
+ * Return the CLCTs in the readout 
+ */
 std::vector< MatchCSCMuL1::CLCT >
 MatchCSCMuL1::vCLCTs(bool readout)
 {
@@ -393,6 +491,10 @@ MatchCSCMuL1::vCLCTs(bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the chamber Ids with CLCTs 
+ * @param readout   Do CLCTs have to be in the readout BX window?
+ */
 std::vector<int>
 MatchCSCMuL1::chambersWithCLCTs( bool readout)
 {
@@ -404,6 +506,11 @@ MatchCSCMuL1::chambersWithCLCTs( bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the CLCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do CLCTs have to be in the readout BX window?
+ */
 std::vector<MatchCSCMuL1::CLCT>
 MatchCSCMuL1::chamberCLCTs( int detId, bool readout )
 {
@@ -419,6 +526,11 @@ MatchCSCMuL1::chamberCLCTs( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the BXs with CLCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do CLCTs have to be in the readout BX window?
+ */
 std::vector<int>
 MatchCSCMuL1::bxsWithCLCTs( int detId, bool readout )
 {
@@ -430,6 +542,11 @@ MatchCSCMuL1::bxsWithCLCTs( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the BXs with CLCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do CLCTs have to be in the readout BX window?
+ */
 std::vector<MatchCSCMuL1::CLCT>
 MatchCSCMuL1::chamberCLCTsInBx( int detId, int bx, bool readout )
 {
@@ -442,6 +559,9 @@ MatchCSCMuL1::chamberCLCTsInBx( int detId, int bx, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the LCTs in the readout 
+ */
 std::vector< MatchCSCMuL1::LCT >
 MatchCSCMuL1::LCTsInReadOut()
 {
@@ -453,6 +573,9 @@ MatchCSCMuL1::LCTsInReadOut()
 
 
 //_____________________________________________________________________________
+/*
+ * Return the LCTs in the readout 
+ */
 std::vector< MatchCSCMuL1::LCT >
 MatchCSCMuL1::vLCTs(bool readout)
 {
@@ -462,6 +585,10 @@ MatchCSCMuL1::vLCTs(bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the chamber Ids with LCTs 
+ * @param readout   Do LCTs have to be in the readout BX window?
+ */
 std::vector<int>
 MatchCSCMuL1::chambersWithLCTs( bool readout )
 {
@@ -473,6 +600,11 @@ MatchCSCMuL1::chambersWithLCTs( bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the LCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do LCTs have to be in the readout BX window?
+ */
 std::vector<MatchCSCMuL1::LCT>
 MatchCSCMuL1::chamberLCTs( int detId, bool readout )
 {
@@ -488,6 +620,11 @@ MatchCSCMuL1::chamberLCTs( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the LCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do LCTs have to be in the readout BX window?
+ */
 std::vector<MatchCSCMuL1::LCT*>
 MatchCSCMuL1::chamberLCTsp( int detId, bool readout )
 {
@@ -504,6 +641,11 @@ MatchCSCMuL1::chamberLCTsp( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the BXs with LCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do LCTs have to be in the readout BX window?
+ */
 std::vector<int>
 MatchCSCMuL1::bxsWithLCTs( int detId, bool readout )
 {
@@ -516,6 +658,14 @@ MatchCSCMuL1::bxsWithLCTs( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the LCTs in a particular chamber for a particular BX
+ * Specify whether the LCTs have to be in the readout
+ * @param detId     The detId
+ * @param bx        The BX
+ * @param readout   Do LCTs have to be in the readout BX window?
+ * 
+ */
 std::vector<MatchCSCMuL1::LCT>
 MatchCSCMuL1::chamberLCTsInBx( int detId, int bx, bool readout )
 {
@@ -528,6 +678,9 @@ MatchCSCMuL1::chamberLCTsInBx( int detId, int bx, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the MPC LCTs in the readout 
+ */
 std::vector< MatchCSCMuL1::MPLCT >
 MatchCSCMuL1::MPLCTsInReadOut()
 {
@@ -539,6 +692,9 @@ MatchCSCMuL1::MPLCTsInReadOut()
 
 
 //_____________________________________________________________________________
+/*
+ * Return the MPC LCTs in the readout 
+ */
 std::vector< MatchCSCMuL1::MPLCT >
 MatchCSCMuL1::vMPLCTs(bool readout)
 {
@@ -548,6 +704,10 @@ MatchCSCMuL1::vMPLCTs(bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the chamber Ids with MPC LCTs 
+ * @param readout   Do MPC LCTs have to be in the readout BX window?
+ */
 std::vector<int>
 MatchCSCMuL1::chambersWithMPLCTs(bool readout)
 {
@@ -559,6 +719,11 @@ MatchCSCMuL1::chambersWithMPLCTs(bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the MPC LCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do MPC LCTs have to be in the readout BX window?
+ */
 std::vector<MatchCSCMuL1::MPLCT>
 MatchCSCMuL1::chamberMPLCTs( int detId, bool readout )
 {
@@ -574,6 +739,11 @@ MatchCSCMuL1::chamberMPLCTs( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the BXs with MPC LCTs for a particular detId
+ * @param detId     The detId
+ * @param readout   Do MPC LCTs have to be in the readout BX window?
+ */
 std::vector<int>
 MatchCSCMuL1::bxsWithMPLCTs( int detId, bool readout )
 {
@@ -586,6 +756,14 @@ MatchCSCMuL1::bxsWithMPLCTs( int detId, bool readout )
 
 
 //_____________________________________________________________________________
+/*
+ * Return the MPC LCTs in a particular chamber for a particular BX
+ * Specify whether the MPC LCTs have to be in the readout
+ * @param detId     The detId
+ * @param bx        The BX
+ * @param readout   Do MPC LCTs have to be in the readout BX window?
+ * 
+ */
 std::vector<MatchCSCMuL1::MPLCT>
 MatchCSCMuL1::chamberMPLCTsInBx( int detId, int bx, bool readout )
 {
@@ -818,6 +996,10 @@ MatchCSCMuL1::print (const char msg[300], bool psimtr, bool psimh,
 
 
 //_____________________________________________________________________________
+/*
+ * Get the best ALCT for a particular chamber; best is defined as the ALCT with 
+ * the least difference in wire group number
+ */
 MatchCSCMuL1::ALCT * 
 MatchCSCMuL1::bestALCT(CSCDetId id, bool readout)
 {
@@ -836,6 +1018,10 @@ MatchCSCMuL1::bestALCT(CSCDetId id, bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Get the best CLCT for a particular chamber; best is defined as the CLCT with 
+ * the least difference in strip number
+ */
 MatchCSCMuL1::CLCT * 
 MatchCSCMuL1::bestCLCT(CSCDetId id, bool readout)
 {
@@ -854,12 +1040,16 @@ MatchCSCMuL1::bestCLCT(CSCDetId id, bool readout)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the best TrackFinder track from a collection of TFTracks
+ * Option to sort the TFTracks according to pt
+ */
 MatchCSCMuL1::TFTRACK * 
 MatchCSCMuL1::bestTFTRACK(std::vector< TFTRACK > & tracks, bool sortPtFirst)
 {
   if (tracks.size()==0) return NULL;
   
-//  determine max # of matched stubs
+  // determine max # of matched stubs in the TFTrack collection
   int maxNMatchedMPC = 0;
   for (unsigned i=0; i<tracks.size(); i++) 
   {
@@ -868,7 +1058,7 @@ MatchCSCMuL1::bestTFTRACK(std::vector< TFTRACK > & tracks, bool sortPtFirst)
       if (tracks[i].mplcts[s]->deltaOk) nst++;
     if (nst>maxNMatchedMPC) maxNMatchedMPC = nst;
   }
-// collect tracks with max # of matched stubs
+  // collect tracks with max # of matched stubs
   std::vector<unsigned> bestMatchedTracks;
   for (unsigned i=0; i<tracks.size(); i++) 
   {
@@ -877,11 +1067,14 @@ MatchCSCMuL1::bestTFTRACK(std::vector< TFTRACK > & tracks, bool sortPtFirst)
       if (tracks[i].mplcts[s]->deltaOk) nst++;
     if (nst==maxNMatchedMPC) bestMatchedTracks.push_back(i);
   }
+
+  // already found the best TFTrack
   if (bestMatchedTracks.size()==1) return &(tracks[bestMatchedTracks[0]]);
   
-// first sort by quality
+  // case when you have more than 1 best TFTrack
+  // first sort by quality
   double qBase  = 1000000.;
-// then sort by Pt inside the cone (if sortPtFirst), then sort by DR
+  // then sort by Pt inside the cone (if sortPtFirst), then sort by DR
   double ptBase = 0.;
   if (sortPtFirst) ptBase = 1000.;
   unsigned maxI = 99;
@@ -902,12 +1095,16 @@ MatchCSCMuL1::bestTFTRACK(std::vector< TFTRACK > & tracks, bool sortPtFirst)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the best TrackFinder candidate from a collection of TFCands
+ * Option to sort the TFCands according to pt
+ */
 MatchCSCMuL1::TFCAND * 
 MatchCSCMuL1::bestTFCAND(std::vector< TFCAND > & cands, bool sortPtFirst)
 {
   if (cands.size()==0) return NULL;
 
-//  determine max # of matched stubs
+  // determine max # of matched stubs
   int maxNMatchedMPC = 0;
   for (unsigned i=0; i<cands.size(); i++) 
   {
@@ -917,7 +1114,8 @@ MatchCSCMuL1::bestTFCAND(std::vector< TFCAND > & cands, bool sortPtFirst)
       if (cands[i].tftrack->mplcts[s]->deltaOk) nst++;
     if (nst>maxNMatchedMPC) maxNMatchedMPC = nst;
   }
-// collect tracks with max # of matched stubs
+
+  // collect tracks with max # of matched stubs
   std::vector<unsigned> bestMatchedTracks;
   if (maxNMatchedMPC>0) {
     for (unsigned i=0; i<cands.size(); i++) 
@@ -931,9 +1129,9 @@ MatchCSCMuL1::bestTFCAND(std::vector< TFCAND > & cands, bool sortPtFirst)
     if (bestMatchedTracks.size()==1) return &(cands[bestMatchedTracks[0]]);
   }
   
-// first sort by quality
+  // first sort by quality
   double qBase  = 1000000.;
-// then sort by Pt inside the cone (if sortPtFirst), then sort by DR
+  // then sort by Pt inside the cone (if sortPtFirst), then sort by DR
   double ptBase = 0.;
   if (sortPtFirst) ptBase = 1000.;
   unsigned maxI = 99;
@@ -945,6 +1143,7 @@ MatchCSCMuL1::bestTFCAND(std::vector< TFCAND > & cands, bool sortPtFirst)
       for (unsigned m=0;m<bestMatchedTracks.size();m++) if (bestMatchedTracks[m]==i) gotit=1;
       if (!gotit) continue;
     }
+    // quality criterium you apply to get the best TFCand
     double rr = qBase*cands[i].l1cand->quality_packed() + ptBase*cands[i].l1cand->pt_packed() + 1./(0.01 + cands[i].dr);
     if (rr > maxRank) { maxRank = rr; maxI = i;}
   }
@@ -954,6 +1153,10 @@ MatchCSCMuL1::bestTFCAND(std::vector< TFCAND > & cands, bool sortPtFirst)
 
 
 //_____________________________________________________________________________
+/*
+ * Return the best GMT Regional Candidate from a collection of GMT Regional Candidates
+ * Option to sort the GMT Regional Candidates to pt
+ */
 MatchCSCMuL1::GMTREGCAND * 
 MatchCSCMuL1::bestGMTREGCAND(std::vector< GMTREGCAND > & cands, bool sortPtFirst)
 {
@@ -965,6 +1168,7 @@ MatchCSCMuL1::bestGMTREGCAND(std::vector< GMTREGCAND > & cands, bool sortPtFirst
   double maxRank = -999999.;
   for (unsigned i=0; i<cands.size(); i++) 
   {
+    // quality criterium to sort the GMT Regional candidates
     double rr = ptBase*cands[i].pt + 1./(0.01 + cands[i].dr);
     if (rr > maxRank) { maxRank = rr; maxI = i;}
   }
@@ -974,6 +1178,10 @@ MatchCSCMuL1::bestGMTREGCAND(std::vector< GMTREGCAND > & cands, bool sortPtFirst
 
 
 //_____________________________________________________________________________
+/*
+ * Return the best GMT Candidate from a collection of GMT Candidates
+ * Option to sort the GMT Candidates to pt
+ */
 MatchCSCMuL1::GMTCAND * 
 MatchCSCMuL1::bestGMTCAND(std::vector< GMTCAND > & cands, bool sortPtFirst)
 {
@@ -985,6 +1193,7 @@ MatchCSCMuL1::bestGMTCAND(std::vector< GMTCAND > & cands, bool sortPtFirst)
   double maxRank = -999999.;
   for (unsigned i=0; i<cands.size(); i++) 
   {
+    // quality criterium to sort the GMT candidates
     double rr = ptBase*cands[i].pt + 1./(0.01 + cands[i].dr);
     if (rr > maxRank) { maxRank = rr; maxI = i;}
   }
@@ -1114,6 +1323,9 @@ MatchCSCMuL1::TFTRACK::init(const csc::L1Track *t, CSCTFPtLUT* ptLUT,
 
 
 //_____________________________________________________________________________
+/*
+ * Has this TFTrack a stub in station 1,2,3,4 or in the muon barrel?
+ */
 bool 
 MatchCSCMuL1::TFTRACK::hasStub(int st)
 {
@@ -1127,6 +1339,9 @@ MatchCSCMuL1::TFTRACK::hasStub(int st)
 
 
 //_____________________________________________________________________________
+/*
+ * Has this TFTrack a good CSC stub?
+ */
 bool 
 MatchCSCMuL1::TFTRACK::hasStubCSCOk(int st)
 {
@@ -1140,6 +1355,9 @@ MatchCSCMuL1::TFTRACK::hasStubCSCOk(int st)
 
 
 //_____________________________________________________________________________
+/*
+ * How many stubs does this TFTrack has?
+ */
 unsigned int 
 MatchCSCMuL1::TFTRACK::nStubs(bool mb1, bool me1, bool me2, bool me3, bool me4)
 {
@@ -1148,6 +1366,9 @@ MatchCSCMuL1::TFTRACK::nStubs(bool mb1, bool me1, bool me2, bool me3, bool me4)
 
 
 //_____________________________________________________________________________
+/*
+ * How many good CSC stubs does this TFTrack has?
+ */
 unsigned int 
 MatchCSCMuL1::TFTRACK::nStubsCSCOk(bool mb1, bool me1, bool me2, bool me3, bool me4)
 {
@@ -1156,6 +1377,9 @@ MatchCSCMuL1::TFTRACK::nStubsCSCOk(bool mb1, bool me1, bool me2, bool me3, bool 
 
 
 //_____________________________________________________________________________
+/*
+ * Does this track has the necessary number of stubs?
+ */
 bool 
 MatchCSCMuL1::TFTRACK::passStubsMatch(int minLowHStubs, int minMidHStubs, int minHighHStubs)
 {
