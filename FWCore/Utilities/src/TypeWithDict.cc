@@ -40,7 +40,13 @@ byName(string const& name, long property /*= 0L*/)
   //       separately.
   TType* type = gInterpreter->Type_Factory(name);
   if (!gInterpreter->Type_IsValid(type)) {
-    return TypeWithDict();
+    // This can happen if no dictionary has been loaded for the class or enum.
+    // If this is a class, trigger the loading of the dictionary.
+    TClass* theClass = TClass::GetClass(name.c_str());
+    if(theClass == nullptr || theClass->GetTypeInfo() == nullptr) {
+      return TypeWithDict();
+    }
+    return TypeWithDict(theClass, property);
   }
   return TypeWithDict(type, property);
 }
