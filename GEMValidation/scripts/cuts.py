@@ -1,15 +1,56 @@
 from ROOT import *
 
 #_______________________________________________________________________________
-def AND(cut1,cut2):
+def ANDtwo(cut1,cut2):
+    """AND of two TCuts in PyROOT"""
     return TCut("(%s) && (%s)"%(cut1.GetTitle(),cut2.GetTitle()))
 
+
 #_______________________________________________________________________________
-def OR(cut1,cut2):
+def ORtwo(cut1,cut2):
+    """OR of two TCuts in PyROOT"""
     return TCut("(%s) || (%s)"%(cut1.GetTitle(),cut2.GetTitle()))
 
 
 #_______________________________________________________________________________
+def AND(*arg):
+    """AND of any number of TCuts in PyROOT"""
+    length = len(arg)
+    if length == 0:
+        print "ERROR: invalid number of arguments"
+        return
+    if length == 1:
+        return arg[0] 
+    if length==2:
+        return ANDtwo(arg[0],arg[1])
+    if length>2:
+        result = arg[0]
+        for i in range(1,len(arg)):
+            result = ANDtwo(result,arg[i])
+        return result
+
+
+#_______________________________________________________________________________
+def OR(*arg): 
+    """OR of any number of TCuts in PyROOT"""
+    length = len(arg)
+    if length == 0:
+        print "ERROR: invalid number of arguments"
+        return
+    if length == 1:
+        return arg[0] 
+    if length==2:
+        return ORtwo(arg[0],arg[1])
+    if length>2:
+        result = arg[0]
+        for i in range(1,len(arg)):
+            result = ORtwo(result,arg[i])
+        return result
+
+
+#_______________________________________________________________________________
+nocut = TCut("")
+
 rm1 = TCut("region==-1")
 rp1 = TCut("region==1")
 l1 = TCut("layer==1")
