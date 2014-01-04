@@ -202,7 +202,7 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapES;
   
   //fill calocluster collections and maps
-  for( auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
+  for( const auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
     for (reco::CaloCluster_iterator pfclus = ebsc.clustersBegin(); pfclus!=ebsc.clustersEnd(); ++pfclus) {
       if (!pfClusterMapEB.count(*pfclus)) {
         reco::CaloCluster caloclus(**pfclus);
@@ -216,7 +216,7 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
       }
     }
   }
-  for( auto& eesc : *(superClusterAlgo_.getEEOutputSCCollection()) ) {
+  for( const auto& eesc : *(superClusterAlgo_.getEEOutputSCCollection()) ) {
     for (reco::CaloCluster_iterator pfclus = eesc.clustersBegin(); pfclus!=eesc.clustersEnd(); ++pfclus) {
       if (!pfClusterMapEE.count(*pfclus)) {
         reco::CaloCluster caloclus(**pfclus);
