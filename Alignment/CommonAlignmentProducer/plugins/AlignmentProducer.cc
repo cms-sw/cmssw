@@ -647,7 +647,8 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
      edm::ESHandle<GeometricDet> geometricDet;
      iSetup.get<IdealGeometryRecord>().get( geometricDet );
      TrackerGeomBuilderFromGeometricDet trackerBuilder;
-     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*geometricDet), theParameterSet ));
+     auto ptr = GeometricDetPtr(const_cast<GeometricDet*>(&(*geometricDet)));
+     theTracker = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(ptr, theParameterSet ));
    }
 
    if (doMuon_) {
