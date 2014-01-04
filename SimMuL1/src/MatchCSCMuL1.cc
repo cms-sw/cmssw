@@ -1293,7 +1293,7 @@ MatchCSCMuL1::TFTRACK::init(const csc::L1Track *t, CSCTFPtLUT* ptLUT,
   // convert the Pt in human readable values (GeV/c)
   pt  = muPtScale->getPtScale()->getLowEdge(trPtBit); 
 
-  if (trPtBit!=pt_packed) std::cout<<" trPtBit!=pt_packed: "<<trPtBit<<"!="<<pt_packed<<"  pt="<<pt<<" eta="<<eta<<std::endl;
+  //if (trPtBit!=pt_packed) std::cout<<" trPtBit!=pt_packed: "<<trPtBit<<"!="<<pt_packed<<"  pt="<<pt<<" eta="<<eta<<std::endl;
 
   bool sc_debug = 0;
   if (sc_debug && deltaOk2){
