@@ -6,6 +6,152 @@
    ...
 }
 {
+   TBB_WorkerRun
+   Helgrind:Race
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   TBB_ServerWakeSome
+   Helgrind:Race
+   fun:_ZN3tbb8internal3rml14private_server9wake_someEi
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   TBB_EnqueueTask
+   Helgrind:Race
+   fun:_ZN3tbb8internal5arena12enqueue_taskERNS_4taskElRNS0_10FastRandomE
+   fun:_ZN3edm14EventProcessor19readAndProcessEventEv
+   ...
+}
+{
+   TBB_malloc
+   Helgrind:Race
+   ...
+   fun:_ZN3rml8internalL18internalPoolMallocEPNS0_10MemoryPoolEm
+   fun:scalable_aligned_malloc
+   ...
+}
+{
+   TBB_MarketAreaInNeed
+   Helgrind:Race
+   fun:_ZN3tbb8internal6market13arena_in_needEv
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_MarketAreaInNeed2
+   Helgrind:Race
+   fun:_ZN3tbb8internal6market13arena_in_needERNS0_14intrusive_listINS0_5arenaEEERNS0_19intrusive_list_baseIS4_S3_E8iteratorE
+   fun:_ZN3tbb8internal6market13arena_in_needEv
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_ReceiveOrStealTask
+   Helgrind:Race
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERlb
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_LocalWaitForAll
+   Helgrind:Race
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_GenericSchedulerAllocateTask
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler13allocate_taskEmPNS_4taskEPNS_18task_group_contextE
+   fun:_ZN3edm14EventProcessor19readAndProcessEventEv
+   ...
+}
+{
+   TBB_StreamProcessingTaskExecute
+   Helgrind:Race
+   fun:_ZN3edm20StreamProcessingTask7executeEv
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_GenericSchedulerConst1
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_schedulerC1EPNS0_5arenaEm
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18allocate_schedulerEPNS0_5arenaEm
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   ...
+}
+{
+   TBB_GenericSchedulerConst2
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_schedulerC2EPNS0_5arenaEm
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18allocate_schedulerEPNS0_5arenaEm
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   ...
+}
+{
+   TBB_GenericSchedulerAllocateTask1
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler13allocate_taskEmPNS_4taskEPNS_18task_group_contextE
+   fun:_ZN3tbb8internal17generic_schedulerC1EPNS0_5arenaEm
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18allocate_schedulerEPNS0_5arenaEm
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   ...
+}
+{
+   TBB_GenericSchedulerAllocateTask2
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler13allocate_taskEmPNS_4taskEPNS_18task_group_contextE
+   fun:_ZN3tbb8internal17generic_schedulerC2EPNS0_5arenaEm
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18allocate_schedulerEPNS0_5arenaEm
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   ...
+}
+{
+   TBB_GenericSchedulerCreateWorker
+   Helgrind:Race
+   fun:_ZN3tbb8internal17generic_scheduler13create_workerERNS0_6marketEm
+   fun:_ZN3tbb8internal6market14create_one_jobEv
+   ...
+}
+{
+   TBB_ArenaProcess
+   Helgrind:Race
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   ...
+}
+{
+   TBB_MarketAdjustDemand
+   Helgrind:Race
+   fun:_ZN3tbb8internal6market13adjust_demandERNS0_5arenaEi
+   fun:_ZN3tbb8internal5arena14is_out_of_workEv
+   ...
+}
+{
+   TBB_ReceiveOrStealTask
+   Helgrind:Race
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERlb
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   ...
+}
+{
+   EventSetupDataProxyGet
+   Helgrind:Race
+   fun:_ZNK3edm10eventsetup9DataProxy3getERKNS0_16EventSetupRecordERKNS0_7DataKeyEb
+   fun:_ZNK3edm10eventsetup16EventSetupRecord12getFromProxyERKNS0_7DataKeyERPKNS0_20ComponentDescriptionEb
+   ...
+}
+{
    EndLumiReset
    Helgrind:Race
    fun:_ZN3edm6Worker5resetEv
@@ -41,6 +187,20 @@
    ...
 }
 {
+   WriteLumi
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor9writeLumiERKNS_4HashILi2EEEjj
+   ...
+}
+{
+   EndRun
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor6endRunERKN12statemachine3RunEb
+   ...
+}
+{
    EndRunReset
    Helgrind:Race
    fun:_ZN3edm6Worker5resetEv
@@ -69,6 +229,13 @@
    ...
 }
 {
+   WriteRun
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor8writeRunERKN12statemachine3RunE
+   ...
+}
+{
    EventProcessor_closeOutputFiles
    Helgrind:Race
    ...
@@ -92,6 +259,13 @@
    Helgrind:Race
    fun:_ZN3edm20ModuleCallingContext10setContextENS0_5StateERKNS_13ParentContextEPKS0_
    fun:_ZN3edm6Worker9endStreamENS_8StreamIDERNS_13StreamContextE
+   ...
+}
+{
+   EndJob
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor6endJobEv
    ...
 }
 {
@@ -133,5 +307,24 @@
    Helgrind:Race
    ...
    fun:_ZN3edm17ParentageRegistry12insertMappedERKNS_9ParentageE
+   ...
+}
+{
+   ParentageRegistryGetMapped
+   Helgrind:Race
+   fun:_ZNK3edm17ParentageRegistry9getMappedERKNS_4HashILi5EEERNS_9ParentageE
+   ...
+}
+{
+   ParentageRegistryGetMapped2
+   Helgrind:Race
+   fun:_ZNK3edm17ParentageRegistry9getMappedERKNS_4HashILi5EEE
+   ...
+}
+{
+   TBB_ProcessThreadShutdown
+   Helgrind:Race
+   ...
+   fun:_ZN3rml8internal10MemoryPool21processThreadShutdownEPNS0_7TLSDataE
    ...
 }
