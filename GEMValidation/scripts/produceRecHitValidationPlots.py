@@ -14,7 +14,7 @@ ROOT.gROOT.SetBatch(1)
 
 if __name__ == "__main__":  
 
-  inputFile = '/cmshome/calabria/ValidationPlots2/CMSSW_6_1_2_SLHC6_patch1/src/GEMCode/GEMValidation/test/gem_localrec_ana.root'
+  inputFile = '/cmshome/calabria/ProvaMelone3/CMSSW_6_2_0_SLHC2/src/GEMCode/GEMValidation/test/gem_localrec_ana.root'
   targetDir = './'
   
   ## extension for figures - add more?
@@ -55,6 +55,13 @@ if __name__ == "__main__":
 	   "h_", "(38,0,38)", "chamber", TCut(""), TCut(""), "P", kBlue);
   draw_geff2(targetDir, "recHitEfficiencyGlobalPhi", ext, treeHits, treeSimHits, "Local Reco Efficiency vs. phi;#phi", 
 	   "h_", "(100,-TMath::Pi,+TMath::Pi)", "globalPhi", TCut(""), TCut(""), "P", kBlue);
+
+  draw_1D(targetDir, "clsDistribution", ext, treeHits, "CLS; CLS; entries", 
+	   "h_", "(11,-0.5,10.5)", "clusterSize", TCut(""), "");
+
+  draw_1D(targetDir, "bxDistribution", ext, treeHits, "BX; BX; entries", 
+	   "h_", "(11,-5.5,5.5)", "bx", TCut(""), "");
+
   draw_1D(targetDir, "recHitPullX", ext, treeHits, "(x_{sim} - x_{rec}) / #sigma_{rec}; (x_{sim} - x_{rec}) / #sigma_{rec}; entries", 
 	   "h_", "(100,-50,+50)", "pull", TCut(""), "");
 
@@ -66,6 +73,18 @@ if __name__ == "__main__":
 	   "h_", "(100,-50,+50)", "pull", AND(rp1,l1), "");
   draw_1D(targetDir, "recHitPullX_rp1_l2", ext, treeHits, "(x_{sim} - x_{rec}) / #sigma_{rec} region'1, layer2; (x_{sim} - x_{rec}) / #sigma_{rec}; entries", 
 	   "h_", "(100,-50,+50)", "pull", AND(rp1,l2), "");
+
+  draw_1D(targetDir, "recHitDPhi", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut(""), "");
+
+  draw_1D(targetDir, "recHitDPhi_rm1_l1", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rm1,l1), "");
+  draw_1D(targetDir, "recHitDPhi_rm1_l2", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rm1,l2), "");
+  draw_1D(targetDir, "recHitDPhi_rp1_l1", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rp1,l1), "");
+  draw_1D(targetDir, "recHitDPhi_rp1_l2", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rp1,l2), "");
 
   draw_geff2(targetDir, "recHitEfficiencyPerChamber_rm1_l1", ext, treeHits, treeSimHits, "Local Reco Efficiency vs. chamber : region-1, layer1;chamber", 
 	   "h_", "(38,0,38)", "chamber", AND(rm1,l1),AND(rm1,l1), "P", kBlue);

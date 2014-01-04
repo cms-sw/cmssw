@@ -72,10 +72,22 @@ GEMRecHitMatcher::matchRecHitsToSimTrack(const GEMRecHitCollection& rechits)
       // check that the rechit is within BX range
       if (d->BunchX() < minBXGEM_ || d->BunchX() > maxBXGEM_) continue;
       // check that it matches a strip that was hit by SimHits from our track
-      if (hit_strips.find(d->firstClusterStrip()) == hit_strips.end()) continue;
+
+      int firstStrip = d->firstClusterStrip();
+      int cls = d->clusterSize();
+      bool stripFound = false;
+
+      for(int i = firstStrip; i < (firstStrip + cls); i++){
+
+	if (hit_strips.find(i) != hit_strips.end()) stripFound = true;
+        //std::cout<<i<<" "<<firstStrip<<" "<<cls<<" "<<stripFound<<std::endl;
+	
+      }
+
+      if (!stripFound) continue;
       if (verbose()) cout<<"oki"<<endl;
 
-      auto myrechit = make_digi(id, d->firstClusterStrip(), d->BunchX(), GEM_STRIP);
+      auto myrechit = make_digi(id, d->firstClusterStrip(), d->BunchX(), GEM_STRIP, d->clusterSize());
       detid_to_recHits_[id].push_back(myrechit);
       chamber_to_recHits_[ p_id.chamberId().rawId() ].push_back(myrechit);
       superchamber_to_recHits_[ superch_id() ].push_back(myrechit);
