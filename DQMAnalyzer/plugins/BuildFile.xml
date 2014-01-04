@@ -1,0 +1,49 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="RecoMuon/TrackingTools"/>
+<use name="TrackingTools/TransientTrack"/>
+
+<use name="DataFormats/GEMRecHit"/>
+
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/MuonDetId"/>
+
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/Records"/>
+<use name="MagneticField/Records"/>
+<use name="MagneticField/Engine"/>
+<use name="SimDataFormats/GeneratorProducts "/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="SimDataFormats/TrackingAnalysis" />
+<use name="RecoMuon/DetLayers"/>
+<use name="RecoMuon/Records"/>
+
+<use name="RecoMuon/StandAloneTrackFinder"/>
+<use name="TrackingTools/DetLayers"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrajectorySeed"/>
+<use name="DQMServices/Core"/>
+<use name="DQMServices/ClientConfig"/>
+
+<use name="DataFormats/FEDRawData"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/RunInfo"/>
+<use name="CondCore/DBCommon"/>
+<use name="CondCore/PopCon"/>
+
+<use name="rootcore"/>
+<use name="rootgraphics"/>
+<use name="root"/>
+<use name="boost"/>
+<use name="CLHEP"/>
+<flags EDM_PLUGIN="1"/>

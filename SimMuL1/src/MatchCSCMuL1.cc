@@ -286,7 +286,7 @@ bool
 MatchCSCMuL1::hasHitsInStation(int st, unsigned minNHits) // st=0 - any,  st=1,2,3,4 - ME1-4
 {
   std::vector<int> chIds = chambersWithHits(st,0,minNHits);
-  return chIds.size()==0;
+  return chIds.size()!=0;
 }
 
 

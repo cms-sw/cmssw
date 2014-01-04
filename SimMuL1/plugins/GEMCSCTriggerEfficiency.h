@@ -238,6 +238,7 @@ private:
   bool doStrictSimHitToTrackMatch_;
   bool matchAllTrigPrimitivesInChamber_;
   int minNHitsShared_;
+  int minNHitsChamber_;
   double minDeltaYAnode_;
   double minDeltaYCathode_;
   int minDeltaWire_;
@@ -263,6 +264,7 @@ private:
   double maxSimTrEta_;
   bool invertSimTrPhiEta_;
   bool bestPtMatch_;
+  bool onlyForwardMuons_;
 
   int minBX_;
   int maxBX_;
@@ -290,6 +292,7 @@ private:
 
   bool addGhostLCTs_;
   
+  int minNStWithMinNHitsChambers_;
   bool minNStWith4Hits_;
   bool requireME1With4Hits_;
   

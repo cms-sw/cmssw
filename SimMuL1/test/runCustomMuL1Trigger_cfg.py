@@ -101,10 +101,8 @@ process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
 tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
 tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
 tmb.gemMatchDeltaBX = cms.untracked.int32(1)
-lct_store_gemdphi = True
-if lct_store_gemdphi:
-    tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
-    tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
+
+lct_keep_soft_stubs = False
 dphi_lct_pad98 = {
     'pt05' : { 'odd' :   0.0220351 , 'even' :  0.00930056 },
     'pt06' : { 'odd' :   0.0182579 , 'even' :  0.00790009 },
@@ -114,8 +112,15 @@ dphi_lct_pad98 = {
     'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
     'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
 }
-tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
-tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
+if ptdphi == 'pt0':
+    lct_keep_soft_stubs = True
+if lct_keep_soft_stubs:
+    tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
+    tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
+    tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
+else:
+    tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
+    tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
 
 ## upgrade CSC TrackFinder 
 process.load('L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi')
@@ -130,7 +135,7 @@ process.l1extraParticles.produceMuonParticles = cms.bool(True)
 process.l1extraParticles.produceCaloParticles = cms.bool(False)
 process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
-addPileUp = True
+addPileUp = False
 if addPileUp:
     # list of MinBias files for pileup has to be provided
     path = os.getenv( "CMSSW_BASE" ) + "/src/GEMCode/SimMuL1/test/"
@@ -153,7 +158,7 @@ if addPileUp:
 process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
   inputCommands = cms.untracked.vstring('keep  *_*_*_*'),
-  fileNames = cms.untracked.vstring('file:out_sim.root')
+  fileNames = cms.untracked.vstring('file:out_digi.root')
 )
 
 import os
@@ -181,7 +186,7 @@ if not physics:
     
 ## output commands 
 theOutDir = ''
-theFileName = 'out_digi.root'
+theFileName = 'out_L1.root'
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(theOutDir + theFileName),
     outputCommands = cms.untracked.vstring('keep  *_*_*_*')
