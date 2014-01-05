@@ -79,6 +79,8 @@ class PFECALSuperClusterProducer : public edm::EDProducer {
   std::string PFSuperClusterCollectionEndcap_;
   std::string PFBasicClusterCollectionPreshower_;
   std::string PFSuperClusterCollectionEndcapWithPreshower_;
+  std::string PFClusterAssociationEBEE_;
+  std::string PFClusterAssociationES_;
 
 };
 
