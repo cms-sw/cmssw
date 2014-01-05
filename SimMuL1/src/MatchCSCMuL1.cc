@@ -348,10 +348,10 @@ MatchCSCMuL1::hasHitsInStation(int st, unsigned minNHits) // st=0 - any,  st=1,2
 //_____________________________________________________________________________
 /*
  * Get the number of stations with the minimum number of hits
- * @param me1       Station 1 flag        
- * @param me2       Station 2 flag     
- * @param me3       Station 3 flag     
- * @param me4       Station 4 flag     
+ * @param me1       Station 1 flag: default is true        
+ * @param me2       Station 2 flag: default is true     
+ * @param me3       Station 3 flag: default is true     
+ * @param me4       Station 4 flag: default is true     
  * @param minNHits  The minimum number of hits
  * @return          The number of stations
  */
