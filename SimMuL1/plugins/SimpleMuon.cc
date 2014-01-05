@@ -249,7 +249,7 @@ const double SimpleMuon::PT_THRESHOLDS_FOR_ETA[N_PT_THRESHOLDS] = {10,15,30,40,5
 //
 SimpleMuon::SimpleMuon(const edm::ParameterSet& iConfig)
 {
-  doStrictSimHitToTrackMatch_ = iConfig.getUntrackedParameter<bool>("doStrictSimHitToTrackMatch", false);
+  doStrictSimHitToTrackMatch_ = iConfig.getUntrackedParameter<bool>("doStrictSimHitToTrackMatch", true);
 
   minBxALCT_ = iConfig.getUntrackedParameter< int >("minBxALCT",5);
   maxBxALCT_ = iConfig.getUntrackedParameter< int >("maxBxALCT",7);
@@ -748,6 +748,85 @@ SimpleMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       */
     
     
+      //------------------------------------------------------------------------------------------------
+      //                               CSC SimHits
+      //------------------------------------------------------------------------------------------------
+      std::vector<PSimHit> cscSimHits(match->allSimHits());
+      if (cscSimHits.size()==0) {
+        std::cout << "WARNING: CSC SimHit collection is empty" << std::endl;
+        continue;
+      }
+      
+      vint trk_csc_sh_detUnitId;
+      vint trk_csc_sh_particleType;
+      vfloat trk_csc_sh_lx;
+      vfloat trk_csc_sh_ly;
+      vfloat trk_csc_sh_energyLoss;
+      vfloat trk_csc_sh_pabs;
+      vfloat trk_csc_sh_timeOfFlight;
+      vfloat trk_csc_sh_gx;
+      vfloat trk_csc_sh_gy;
+      vfloat trk_csc_sh_gz;
+      vfloat trk_csc_sh_gr;
+      vfloat trk_csc_sh_geta;
+      vfloat trk_csc_sh_gphi;
+      vint trk_csc_sh_strip;
+      vint trk_csc_sh_wire;
+
+      trk_csc_sh_detUnitId.clear();
+      trk_csc_sh_particleType.clear();
+      trk_csc_sh_lx.clear();
+      trk_csc_sh_ly.clear();
+      trk_csc_sh_energyLoss.clear();
+      trk_csc_sh_pabs.clear();
+      trk_csc_sh_timeOfFlight.clear();
+      trk_csc_sh_gx.clear();
+      trk_csc_sh_gy.clear();
+      trk_csc_sh_gz.clear();
+      trk_csc_sh_gr.clear();
+      trk_csc_sh_geta.clear();
+      trk_csc_sh_gphi.clear();
+      trk_csc_sh_strip.clear();
+      trk_csc_sh_wire.clear();
+      
+      for (unsigned i=0; i<cscSimHits.size();i++) {
+        auto mySimHit(cscSimHits.at(i));
+
+        trk_csc_sh_detUnitId.push_back(mySimHit.detUnitId());
+        trk_csc_sh_particleType.push_back(mySimHit.particleType());
+        trk_csc_sh_lx.push_back(mySimHit.localPosition().x());
+        trk_csc_sh_ly.push_back(mySimHit.localPosition().y());
+        trk_csc_sh_energyLoss.push_back(mySimHit.energyLoss());
+        trk_csc_sh_pabs.push_back(mySimHit.pabs());
+        trk_csc_sh_timeOfFlight.push_back(mySimHit.timeOfFlight());
+        const LocalPoint hitLP(mySimHit.localPosition());
+        const GlobalPoint hitGP(cscGeometry->idToDet(mySimHit.detUnitId())->surface().toGlobal(hitLP));
+    
+        trk_csc_sh_gx.push_back(hitGP.x());
+        trk_csc_sh_gy.push_back(hitGP.y());
+        trk_csc_sh_gz.push_back(hitGP.z());
+        trk_csc_sh_gr.push_back(hitGP.perp());
+        trk_csc_sh_geta.push_back(hitGP.eta());
+        trk_csc_sh_gphi.push_back(hitGP.phi());
+//         trk_csc_sh_strip.push_back(mySimHit);
+//         trk_csc_sh_wire.push_back(mySimHit);
+      }
+      etrk_.csc_sh_detUnitId.push_back(trk_csc_sh_detUnitId);
+      etrk_.csc_sh_particleType.push_back(trk_csc_sh_particleType);
+      etrk_.csc_sh_lx.push_back(trk_csc_sh_lx);
+      etrk_.csc_sh_ly.push_back(trk_csc_sh_ly);
+      etrk_.csc_sh_energyLoss.push_back(trk_csc_sh_energyLoss);
+      etrk_.csc_sh_pabs.push_back(trk_csc_sh_pabs);
+      etrk_.csc_sh_timeOfFlight.push_back(trk_csc_sh_timeOfFlight);
+      etrk_.csc_sh_gx.push_back(trk_csc_sh_gx);
+      etrk_.csc_sh_gy.push_back(trk_csc_sh_gy);
+      etrk_.csc_sh_gz.push_back(trk_csc_sh_gz);
+      etrk_.csc_sh_gr.push_back(trk_csc_sh_gr);
+      etrk_.csc_sh_geta.push_back(trk_csc_sh_geta);
+      etrk_.csc_sh_gphi.push_back(trk_csc_sh_gphi);
+//       csc_sh_strip.push_back(trk_);
+//       csc_sh_wire.push_back(trk_);
+      
       //------------------------------------------------------------------------------------------------
       //                               ALCTs in the readout 
       //------------------------------------------------------------------------------------------------
@@ -1982,7 +2061,7 @@ SimpleMuon::matchSimTrack2LCTs(MatchCSCMuL1 *match, const CSCCorrelatedLCTDigiCo
                     nmclct++;
                   }
               if (nmclct>1) {
-                std::cout<<"+++ ALARM in LCT: number of matching CLCTs is more than one: "<<nmclct<<std::endl;
+                //std::cout<<"+++ ALARM in LCT: number of matching CLCTs is more than one: "<<nmclct<<std::endl;
                 // choose the smallest bx one
                 int mbx=999, mnn=0;
                 for (int nn=0; nn<nmclct;nn++) if (vmclct[nn]->getBX()<mbx)
@@ -1991,7 +2070,7 @@ SimpleMuon::matchSimTrack2LCTs(MatchCSCMuL1 *match, const CSCCorrelatedLCTDigiCo
                     mnn=nn;
                   }
                 mclct = vmclct[mnn];
-                std::cout<<"+++ ALARM in LCT: number of matching CLCTs is more than one: "<<nmclct<<"  choosing one with bx="<<mbx<<std::endl;
+                //std::cout<<"+++ ALARM in LCT: number of matching CLCTs is more than one: "<<nmclct<<"  choosing one with bx="<<mbx<<std::endl;
               }
             }
       
