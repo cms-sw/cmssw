@@ -107,6 +107,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   minNHitsShared_ = iConfig.getUntrackedParameter<int>("minNHitsShared", -1);
   minNHitsChamber_ = iConfig.getUntrackedParameter<int>("minNHitsChamber", 4);
   minNStWithMinNHitsChambers_ = iConfig.getUntrackedParameter< int >("minNStWithMinNHitsChambers", 0);
+  requireME1WithMinNHitsChambers_ = iConfig.getUntrackedParameter< bool >("requireME1WithMinNHitsChambers",false);
   requireME1With4Hits_ = iConfig.getUntrackedParameter< bool >("requireME1With4Hits",false);
   
   minDeltaYAnode_    = iConfig.getUntrackedParameter<double>("minDeltaYAnode", -1.);
@@ -775,6 +776,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   h_gmtxqu_nompc = fs->make<TH1D>("h_gmtxqu_nompc","h_gmtxqu_nompc",11,-0.5, 10.5);
   h_gmtxisrpc_nompc = fs->make<TH1D>("h_gmtxisrpc_nompc","h_gmtxisrpc_nompc",4,-0.5, 3.5);
 
+  h_n_simHits = fs->make<TH1D>("h_n_simHits", "h_n_simHits", 41,-0.5,40.5);
   h_n_alct = fs->make<TH1D>("h_n_alct", "h_n_alct", 9,-0.5,8.5);
   h_n_clct = fs->make<TH1D>("h_n_clct", "h_n_clct", 9,-0.5,8.5);
   h_n_lct = fs->make<TH1D>("h_n_lct", "h_n_lct", 9,-0.5,8.5);
@@ -1107,7 +1109,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (fabs(mceta)>10) continue;
 
     if (debugMC) std::cout << "Is good MC muon: " << numberMCTr << " with pt: " << mcpt << ", eta: " << mceta << ", and phi: " << mcphi << std::endl;
-      
+    
     // match with SimTrack
     edm::SimTrackContainer::const_iterator matchSimTr = simTracks.end();
     double minDeltaRSimTr = 999.;
@@ -1273,8 +1275,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
 
-  // main loop over muon SimTracks:
+  // clear the vector of matches 
+  matches.clear();
   
+  // main loop over muon SimTracks:
   int numberSimTr=0;
   for (edm::SimTrackContainer::const_iterator istrk = simTracks.begin(); istrk != simTracks.end(); ++istrk)
   {
@@ -1319,8 +1323,9 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     match->minBxMPLCT = minBxMPLCT_;
     match->maxBxMPLCT = maxBxMPLCT_;
     
-    // propagate the simtrack to the globalZ positions of CSC station 1,2,3 and 4
+    // propagate the simtrack to the globalZ positions of CSC station 1,2 and 3
     // and store them in the match object
+    // is this actually being used at the moment?
     propagateToCSCStations(match);
     
     // match SimHits and do some checks
@@ -1409,8 +1414,8 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     else {
       std::cout<<"  in stations ";
       for (std::set<int>::iterator ich = ch_overlap.begin(); ich!= ch_overlap.end(); ich++) {
-	CSCDetId chId (*ich);
-	std::cout<<chId.station()<<" ";
+        CSCDetId chId (*ich);
+        std::cout<<chId.station()<<" ";
       }
       std::cout<<std::endl;
     }
@@ -1425,11 +1430,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       //if (id.endcap() != 1) continue;
       const CSCALCTDigiCollection::Range& range = (*adetUnitIt).second;
       for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
-	{
-	  if ((*digiIt).isValid()) detALCT[id.rawId()].push_back(*digiIt);
-	}
+        {
+          if ((*digiIt).isValid()) detALCT[id.rawId()].push_back(*digiIt);
+        }
     } // loop CSCALCTDigiCollection
-
+  
   std::map<int, std::vector<CSCCLCTDigi> > detCLCT;
   detCLCT.clear();
   for (CSCCLCTDigiCollection::DigiRangeIterator  cdetUnitIt = clcts->begin(); cdetUnitIt != clcts->end(); cdetUnitIt++)
@@ -1456,11 +1461,6 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	}
     }
   
-
-
-  
-//   unsigned inefTF = 0;
-  
   for (unsigned int im=0; im<matches.size(); im++) 
     {
       if (debugINHISTOS ) std::cout<<"HISTOS for trk "<<im<<std::endl;
@@ -1472,6 +1472,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       stpt = sqrt(match->strk->momentum().perp2());
       steta = match->strk->momentum().eta();
       stphi = normalizedPhi( match->strk->momentum().phi() );
+
       if (debugALLEVENT) std::cout  << "pt "  << stpt << " eta "  << steta << " phi "  << stphi << std::endl;
 
       const bool pt_ok = fabs(stpt) > minSimTrPt_;
@@ -1490,28 +1491,28 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                                 match->hasHitsInStation(2,minNHitsChamber_), 
                                 match->hasHitsInStation(3,minNHitsChamber_), 
                                 match->hasHitsInStation(4,minNHitsChamber_)};
-
+      
       bool okME1mplct = 0, okME2mplct = 0, okME3mplct = 0, okME4mplct = 0;
       int okNmplct = 0;
       int has_mplct_me1b = 0;
       std::vector<MatchCSCMuL1::MPLCT> rMPLCTs = match->MPLCTsInReadOut();
       if (rMPLCTs.size())
-  	{
-  	  // count matched
-  	  std::set<int> mpcStations;
-  	  for (unsigned i=0; i<rMPLCTs.size();i++)
-  	    {
-  	      if (!(rMPLCTs[i].deltaOk)) continue;
-  	      mpcStations.insert(rMPLCTs[i].id.station());
-  	      if (rMPLCTs[i].id.station() == 1) okME1mplct = 1;
-  	      if (rMPLCTs[i].id.station() == 2) okME2mplct = 1;
-  	      if (rMPLCTs[i].id.station() == 3) okME3mplct = 1;
-  	      if (rMPLCTs[i].id.station() == 4) okME4mplct = 1;
-  	      if (rMPLCTs[i].id.station() == 1 && rMPLCTs[i].id.ring() == 1) ++has_mplct_me1b;
-  	    }
-  	  okNmplct = mpcStations.size();
-  	}
-
+      {
+        // count the number of reconstructed MPCs
+        std::set<int> mpcStations;
+        for (unsigned i=0; i<rMPLCTs.size();i++)
+          {
+            if (!(rMPLCTs[i].deltaOk)) continue;
+            mpcStations.insert(rMPLCTs[i].id.station());
+            if (rMPLCTs[i].id.station() == 1) okME1mplct = 1;
+            if (rMPLCTs[i].id.station() == 2) okME2mplct = 1;
+            if (rMPLCTs[i].id.station() == 3) okME3mplct = 1;
+            if (rMPLCTs[i].id.station() == 4) okME4mplct = 1;
+            if (rMPLCTs[i].id.station() == 1 && rMPLCTs[i].id.ring() == 1) ++has_mplct_me1b;
+          }
+        okNmplct = mpcStations.size();
+      }
+      
       // was an MPC reconstructed in station 1,2,3 or 4?
       bool has_mpcs_in_st[5] = {0, has_hits_in_st[1] && okME1mplct, has_hits_in_st[2] && okME2mplct,
                                 has_hits_in_st[3] && okME3mplct, has_hits_in_st[4] && okME4mplct};
@@ -1520,65 +1521,78 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       unsigned nst_with_mpcs = has_mpcs_in_st[1] + has_mpcs_in_st[2] + has_mpcs_in_st[3] + has_mpcs_in_st[4];
 
       if (pt_ok) {
-  	h_eta_initial0->Fill(steta);
+        h_eta_initial0->Fill(steta);
+        
+        h_n_simHits->Fill(match->simHits.size());
+        h_n_alct->Fill(match->ALCTsInReadOut().size());
+        h_n_clct->Fill(match->CLCTsInReadOut().size());
+        h_n_lct->Fill(match->LCTsInReadOut().size());
+        h_n_mplct->Fill(match->MPLCTsInReadOut().size());
+        h_n_tftrack->Fill(match->TFTRACKs.size());
+        h_n_tftrack_all->Fill(match->TFTRACKsAll.size());
+        h_n_tfcand->Fill(match->TFCANDs.size());
+        h_n_tfcand_all->Fill(match->TFCANDsAll.size());
+        h_n_gmtregcand->Fill(match->GMTREGCANDs.size());
+        h_n_gmtregcand_all->Fill(match->GMTREGCANDsAll.size());
+        h_n_gmtcand->Fill(match->GMTCANDs.size());
+        h_n_gmtcand_all->Fill(match->GMTCANDsAll.size());
+    
+        // SimHIts:
+        if (has_hits_in_st[1]) h_eta_me1_initial->Fill(steta);
+        if (has_hits_in_st[2]) h_eta_me2_initial->Fill(steta);
+        if (has_hits_in_st[3]) h_eta_me3_initial->Fill(steta);
+        if (has_hits_in_st[4]) h_eta_me4_initial->Fill(steta);
+        
+        if (nst_with_hits>0) h_eta_initial_1st->Fill(steta);
+        if (nst_with_hits>1) h_eta_initial_2st->Fill(steta);
+        if (nst_with_hits>2) h_eta_initial_3st->Fill(steta);
+        
+        if (has_hits_in_st[1] && nst_with_hits>1) h_eta_me1_initial_2st->Fill(steta);
+        if (has_hits_in_st[1] && nst_with_hits>2) h_eta_me1_initial_3st->Fill(steta);
+        
+        // MPC:
+        if (has_mpcs_in_st[1]) h_eta_me1_mpc->Fill(steta);
+        if (has_mpcs_in_st[2]) h_eta_me2_mpc->Fill(steta);
+        if (has_mpcs_in_st[3]) h_eta_me3_mpc->Fill(steta);
+        if (has_mpcs_in_st[4]) h_eta_me4_mpc->Fill(steta);
 
-  	// SimHIts:
-  	if (has_hits_in_st[1]) h_eta_me1_initial->Fill(steta);
-  	if (has_hits_in_st[2]) h_eta_me2_initial->Fill(steta);
-  	if (has_hits_in_st[3]) h_eta_me3_initial->Fill(steta);
-  	if (has_hits_in_st[4]) h_eta_me4_initial->Fill(steta);
-      
-  	if (nst_with_hits>0) h_eta_initial_1st->Fill(steta);
-  	if (nst_with_hits>1) h_eta_initial_2st->Fill(steta);
-  	if (nst_with_hits>2) h_eta_initial_3st->Fill(steta);
-
-  	if (has_hits_in_st[1] && nst_with_hits>1) h_eta_me1_initial_2st->Fill(steta);
-  	if (has_hits_in_st[1] && nst_with_hits>2) h_eta_me1_initial_3st->Fill(steta);
-
-  	// MPC:
-  	if (has_mpcs_in_st[1]) h_eta_me1_mpc->Fill(steta);
-  	if (has_mpcs_in_st[2]) h_eta_me2_mpc->Fill(steta);
-  	if (has_mpcs_in_st[3]) h_eta_me3_mpc->Fill(steta);
-  	if (has_mpcs_in_st[4]) h_eta_me4_mpc->Fill(steta);
-
-  	if (nst_with_mpcs>0) h_eta_mpc_1st->Fill(steta);
-  	if (nst_with_mpcs>1) h_eta_mpc_2st->Fill(steta);
-  	if (nst_with_mpcs>2) h_eta_mpc_3st->Fill(steta);
-
-  	if (has_mpcs_in_st[1] && nst_with_mpcs>1) h_eta_me1_mpc_2st->Fill(steta);
-  	if (has_mpcs_in_st[1] && nst_with_mpcs>2) h_eta_me1_mpc_3st->Fill(steta);
+        if (nst_with_mpcs>0) h_eta_mpc_1st->Fill(steta);
+        if (nst_with_mpcs>1) h_eta_mpc_2st->Fill(steta);
+        if (nst_with_mpcs>2) h_eta_mpc_3st->Fill(steta);
+        
+        if (has_mpcs_in_st[1] && nst_with_mpcs>1) h_eta_me1_mpc_2st->Fill(steta);
+        if (has_mpcs_in_st[1] && nst_with_mpcs>2) h_eta_me1_mpc_3st->Fill(steta);
       }
       if (eta_ok) {
-  	h_pt_initial0->Fill(stpt);
-
-  	// SimHIts:
-  	if (has_hits_in_st[1]) h_pt_me1_initial->Fill(stpt);
-  	if (has_hits_in_st[2]) h_pt_me2_initial->Fill(stpt);
-  	if (has_hits_in_st[3]) h_pt_me3_initial->Fill(stpt);
-  	if (has_hits_in_st[4]) h_pt_me4_initial->Fill(stpt);
-      
-  	if (nst_with_hits>0) h_pt_initial_1st->Fill(stpt);
-  	if (nst_with_hits>1) h_pt_initial_2st->Fill(stpt);
-  	if (nst_with_hits>2) h_pt_initial_3st->Fill(stpt);
-
-  	if (has_hits_in_st[1] && nst_with_hits>1) h_pt_me1_initial_2st->Fill(stpt);
-  	if (has_hits_in_st[1] && nst_with_hits>2) h_pt_me1_initial_3st->Fill(stpt);
-
-  	// MPC:
-  	if (has_mpcs_in_st[1]) h_pt_me1_mpc->Fill(stpt);
-  	if (has_mpcs_in_st[2]) h_pt_me2_mpc->Fill(stpt);
-  	if (has_mpcs_in_st[3]) h_pt_me3_mpc->Fill(stpt);
-  	if (has_mpcs_in_st[4]) h_pt_me4_mpc->Fill(stpt);
-
-  	if (nst_with_mpcs>0) h_pt_mpc_1st->Fill(stpt);
-  	if (nst_with_mpcs>1) h_pt_mpc_2st->Fill(stpt);
-  	if (nst_with_mpcs>2) h_pt_mpc_3st->Fill(stpt);
-
-  	if (has_mpcs_in_st[1] && nst_with_mpcs>1) h_pt_me1_mpc_2st->Fill(stpt);
-  	if (has_mpcs_in_st[1] && nst_with_mpcs>2) h_pt_me1_mpc_3st->Fill(stpt);
+        h_pt_initial0->Fill(stpt);
+        
+        // SimHIts:
+        if (has_hits_in_st[1]) h_pt_me1_initial->Fill(stpt);
+        if (has_hits_in_st[2]) h_pt_me2_initial->Fill(stpt);
+        if (has_hits_in_st[3]) h_pt_me3_initial->Fill(stpt);
+        if (has_hits_in_st[4]) h_pt_me4_initial->Fill(stpt);
+        
+        if (nst_with_hits>0) h_pt_initial_1st->Fill(stpt);
+        if (nst_with_hits>1) h_pt_initial_2st->Fill(stpt);
+        if (nst_with_hits>2) h_pt_initial_3st->Fill(stpt);
+        
+        if (has_hits_in_st[1] && nst_with_hits>1) h_pt_me1_initial_2st->Fill(stpt);
+        if (has_hits_in_st[1] && nst_with_hits>2) h_pt_me1_initial_3st->Fill(stpt);
+        
+        // MPC:
+        if (has_mpcs_in_st[1]) h_pt_me1_mpc->Fill(stpt);
+        if (has_mpcs_in_st[2]) h_pt_me2_mpc->Fill(stpt);
+        if (has_mpcs_in_st[3]) h_pt_me3_mpc->Fill(stpt);
+        if (has_mpcs_in_st[4]) h_pt_me4_mpc->Fill(stpt);
+        
+        if (nst_with_mpcs>0) h_pt_mpc_1st->Fill(stpt);
+        if (nst_with_mpcs>1) h_pt_mpc_2st->Fill(stpt);
+        if (nst_with_mpcs>2) h_pt_mpc_3st->Fill(stpt);
+        
+        if (has_mpcs_in_st[1] && nst_with_mpcs>1) h_pt_me1_mpc_2st->Fill(stpt);
+        if (has_mpcs_in_st[1] && nst_with_mpcs>2) h_pt_me1_mpc_3st->Fill(stpt);
       }
-
-
+      
       MatchCSCMuL1::TFCAND * tfc = match->bestTFCAND(match->TFCANDs, bestPtMatch_);
       bool tffid_ok = false;
       if ( tfc ) tffid_ok = ( eta_ok && tfc->l1cand->quality_packed() > 1 );
@@ -1587,12 +1601,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       // simhits in at least minNStWithMinNHitsChambers_ stations
       if ( nst_with_hits < (unsigned) minNStWithMinNHitsChambers_ ) continue;
 
-      // at least one chamber in ME1 with 4 hits
-      if (requireME1With4Hits_ && !has_hits_in_st[1]) continue;
-      
+      // does at least 1 chamber in station 1 have the minimal number of hits?
+      if (requireME1WithMinNHitsChambers_ && !has_hits_in_st[1]) continue;
       
       bool eta_high = ( fabs(steta) >= 2.1 &&  fabs(steta) <= 2.4 );
-
 
       MatchCSCMuL1::TFCAND * tfcAll = match->bestTFCAND(match->TFCANDsAll, bestPtMatch_);
       bool tffidAll_ok = false;
@@ -1642,7 +1654,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       if (eta_ok) h_pt_initial->Fill(stpt);
       if (eta_high) h_pth_initial->Fill(stpt);
-      if (pt_ok) h_eta_initial->Fill(steta);
+      if (pt_ok)  h_eta_initial->Fill(steta);
       if (etapt_ok) h_phi_initial->Fill(stphi);
 
       if (eta_1b) h_pt_initial_1b->Fill(stpt);
@@ -2688,18 +2700,6 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	}
 
 
-      h_n_alct->Fill(rALCTs.size());
-      h_n_clct->Fill(rCLCTs.size());
-      h_n_lct->Fill(rLCTs.size());
-      h_n_mplct->Fill(rMPLCTs.size());
-      h_n_tftrack->Fill(match->TFTRACKs.size());
-      h_n_tftrack_all->Fill(match->TFTRACKsAll.size());
-      h_n_tfcand->Fill(match->TFCANDs.size());
-      h_n_tfcand_all->Fill(match->TFCANDsAll.size());
-      h_n_gmtregcand->Fill(match->GMTREGCANDs.size());
-      h_n_gmtregcand_all->Fill(match->GMTREGCANDsAll.size());
-      h_n_gmtcand->Fill(match->GMTCANDs.size());
-      h_n_gmtcand_all->Fill(match->GMTCANDsAll.size());
 
     }
 
@@ -2775,6 +2775,7 @@ GEMCSCTriggerEfficiency::matchSimTrack2SimHits( MatchCSCMuL1 * match,
 
   // match SimHits to SimTracks
   std::vector<PSimHit> matchingSimHits = hitsFromSimTrack(match->familyIds, theCSCSimHitMap);
+  
   for (unsigned i=0; i<matchingSimHits.size();i++) {
     if (goodChambersOnly_)
       if ( theStripConditions->isInBadChamber( CSCDetId( matchingSimHits[i].detUnitId() ) ) ) continue; // skip 'bad' chamber
