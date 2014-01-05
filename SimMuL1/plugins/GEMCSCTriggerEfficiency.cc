@@ -1483,7 +1483,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       bool eta_gem_1b = mugeo::isME1bEtaRegion(steta, 1.64, 2.05);
 
       // get the number of stations with at least minNHitsChamber_ hits in the chamber
-      unsigned nst_with_hits = match->nStationsWithHits(minNHitsChamber_);
+      unsigned nst_with_hits = match->nStationsWithHits(1,1,1,1,minNHitsChamber_);
 
       // were station 1,2,3  or 4 hit if at least minNHitsChamber_ were required?
       bool has_hits_in_st[5] = {0, match->hasHitsInStation(1,minNHitsChamber_), 
