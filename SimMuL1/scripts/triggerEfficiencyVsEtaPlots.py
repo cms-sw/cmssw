@@ -104,15 +104,15 @@ def cscStationOccupanciesVsEta():
     
     etareb = 1
     yrange = [0.,1.04]
-    xrange = [0.86,2.5]
+    xrange = [1.4,2.55]
 
-    c = TCanvas("c","c",900,800 ) 
+    c = TCanvas("c","c",1280,720) 
     c.Divide(2,2,0.0001,0.0001)
-    
-    h_eff_eta_me1_initial = setEffHisto("h_eta_me1_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): SimHits#geq4 in ME1 (MC 20<p_{T}<100)","MC #eta","",xrange,yrange)
-    h_eff_eta_me2_initial = setEffHisto("h_eta_me2_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): SimHits#geq4 in ME2 (MC 20<p_{T}<100)","MC #eta","",xrange,yrange)
-    h_eff_eta_me3_initial = setEffHisto("h_eta_me3_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): SimHits#geq4 in ME3 (MC 20<p_{T}<100)","MC #eta","",xrange,yrange)
-    h_eff_eta_me4_initial = setEffHisto("h_eta_me4_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): SimHits#geq4 in ME4 (MC 20<p_{T}<100)","MC #eta","",xrange,yrange)
+
+    h_eff_eta_me1_initial = setEffHisto("h_eta_me1_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME1","Sim track #eta","Efficiency",xrange,yrange)
+    h_eff_eta_me2_initial = setEffHisto("h_eta_me2_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME2","Sim track #eta","Efficiency",xrange,yrange)
+    h_eff_eta_me3_initial = setEffHisto("h_eta_me3_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME3","Sim track #eta","Efficiency",xrange,yrange)
+    h_eff_eta_me4_initial = setEffHisto("h_eta_me4_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME4","Sim track #eta","Efficiency",xrange,yrange)
     
     c.cd(1) ; h_eff_eta_me1_initial.Draw("hist")
     c.cd(2) ; h_eff_eta_me2_initial.Draw("hist")
@@ -129,25 +129,25 @@ def cscStationOccupanciesMatchedVsEta_2():
     
     etareb = 1
     yrange = [0.,1.04]
-    xrange = [0.86,2.5]
+    xrange = [1.4,2.55]
 
-    c = TCanvas("c","c",1000,600 ) 
+    c = TCanvas("c","c",1280,720) 
 
-    h_eta_initial_1st = setEffHisto("h_eta_initial_1st","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): SimHits#geq4 in #geqN CSC stations","MC #eta","",xrange,yrange)
-    h_eta_initial_2st = setEffHisto("h_eta_initial_2st","h_eta_initial",dir, etareb, kRed+1, 1, 2, "","MC #eta","",xrange,yrange)
-    h_eta_initial_3st = setEffHisto("h_eta_initial_3st","h_eta_initial",dir, etareb, kGreen+1, 1, 2, "","MC #eta","",xrange,yrange)
+    h_eta_initial_1st = setEffHisto("h_eta_initial_1st","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in #geq N CSC stations","Sim track #eta","Efficiency",xrange,yrange)
+    h_eta_initial_2st = setEffHisto("h_eta_initial_2st","h_eta_initial",dir, etareb, kRed+1, 1, 2, "","Sim track #eta","",xrange,yrange)
+    h_eta_initial_3st = setEffHisto("h_eta_initial_3st","h_eta_initial",dir, etareb, kGreen+1, 1, 2, "","Sim track #eta","",xrange,yrange)
 
     h_eta_initial_1st.Draw("hist")
     h_eta_initial_2st.Draw("hist same")
     h_eta_initial_3st.Draw("hist same")
 
-    l_eff_eta_simh = TLegend(0.15,0.7,0.7,0.9,"","brNDC")
+    l_eff_eta_simh = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_simh.SetBorderSize(0)
     l_eff_eta_simh.SetFillStyle(0)
-    l_eff_eta_simh.SetHeader("Efficiency for #mu with p_{T}>20 to leave #geq4 SimHits in")
-    l_eff_eta_simh.AddEntry(h_eta_initial_1st,"#geq1 CSC stations","pl")
-    l_eff_eta_simh.AddEntry(h_eta_initial_2st,"#geq2 CSC stations","pl")
-    l_eff_eta_simh.AddEntry(h_eta_initial_3st,"#geq3 CSC stations","pl")
+    l_eff_eta_simh.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in")
+    l_eff_eta_simh.AddEntry(h_eta_initial_1st,"#geq 1 CSC station","pl")
+    l_eff_eta_simh.AddEntry(h_eta_initial_2st,"#geq 2 CSC stations","pl")
+    l_eff_eta_simh.AddEntry(h_eta_initial_3st,"#geq 3 CSC stations","pl")
     l_eff_eta_simh.Draw()
 
     c.SaveAs("%sc_eff_eta_simh%s"%(output_dir,ext))
@@ -160,25 +160,25 @@ def cscStationOccupanciesMatchedVsEta_3():
     
     etareb = 1
     yrange = [0.,1.04]
-    xrange = [0.86,2.5]
+    xrange = [1.4,2.55]
 
-    c = TCanvas("c","c",1000,600 ) 
+    c = TCanvas("c","c",1280,720) 
 
-    h_eta_me1_initial_ = setEffHisto("h_eta_me1_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, "eff(#eta): SimHits#geq4 in ME1 plus more stations","MC #eta","",xrange,yrange)
-    h_eta_me1_initial_2st = setEffHisto("h_eta_me1_initial_2st","h_eta_initial0",dir, etareb, kRed+1, 1, 2, "","MC #eta","",xrange,yrange)
-    h_eta_me1_initial_3st = setEffHisto("h_eta_me1_initial_3st","h_eta_initial0",dir, etareb, kGreen+1, 1, 2, "","MC #eta","",xrange,yrange)
+    h_eta_me1_initial_ = setEffHisto("h_eta_me1_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME1 plus more stations","Sim track #eta","Efficiency",xrange,yrange)
+    h_eta_me1_initial_2st = setEffHisto("h_eta_me1_initial_2st","h_eta_initial0",dir, etareb, kRed+1, 1, 2, "","Sim track #eta","",xrange,yrange)
+    h_eta_me1_initial_3st = setEffHisto("h_eta_me1_initial_3st","h_eta_initial0",dir, etareb, kGreen+1, 1, 2, "","Sim track #eta","",xrange,yrange)
 
     h_eta_me1_initial_.Draw("hist")
     h_eta_me1_initial_2st.Draw("hist same")
     h_eta_me1_initial_3st.Draw("hist same")
 
-    l_eff_eta_simh_me1 = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    l_eff_eta_simh_me1 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_simh_me1.SetBorderSize(0)
     l_eff_eta_simh_me1.SetFillStyle(0)
-    l_eff_eta_simh_me1.SetHeader("Efficiency for #mu with p_{T}>20 to leave #geq4 SimHits in")
+    l_eff_eta_simh_me1.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in")
     l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_,"ME1","pl")
-    l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_2st,"ME1 + #geq1 stations","pl")
-    l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_3st,"ME1 + #geq2 stations","pl")
+    l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_2st,"ME1 + #geq 1 CSC station","pl")
+    l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_3st,"ME1 + #geq 2 CSC stations","pl")
     l_eff_eta_simh_me1.Draw()
 
     c.SaveAs("%sc_eff_eta_simh_me1%s"%(output_dir,ext))
@@ -193,15 +193,15 @@ def cscStationOccupanciesMatchedMpcVsEta():
     
     etareb = 1
     yrange = [0.,1.04]
-    xrange = [0.86,2.5]
+    xrange = [1.4,2.55]
 
-    c = TCanvas("c","c",900,800 ) 
+    c = TCanvas("c","c",1280,720) 
     c.Divide(2,2,0.0001,0.0001)
     
-    h_eff_eta_me1_mpc = setEffHisto("h_eta_me1_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): matched MPC in ME1 (MC 20<p_{T}<100)","MC #eta","",xrange,yrange)
-    h_eff_eta_me2_mpc = setEffHisto("h_eta_me2_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): matched MPC in ME2 (MC 20<p_{T}<100)","MC #eta","",xrange,yrange)
-    h_eff_eta_me3_mpc = setEffHisto("h_eta_me3_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): matched MPC in ME3 (MC 20<p_{T}<100)","MC #eta","",xrange,yrange)
-    h_eff_eta_me4_mpc = setEffHisto("h_eta_me4_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "eff(#eta): matched MPC in ME4 (MC 20<p_{T}<100)","MC #eta","",xrange,yrange)
+    h_eff_eta_me1_mpc = setEffHisto("h_eta_me1_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME1","Sim track #eta","Efficiency",xrange,yrange)
+    h_eff_eta_me2_mpc = setEffHisto("h_eta_me2_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME2","Sim track #eta","Efficiency",xrange,yrange)
+    h_eff_eta_me3_mpc = setEffHisto("h_eta_me3_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME3","Sim track #eta","Efficiency",xrange,yrange)
+    h_eff_eta_me4_mpc = setEffHisto("h_eta_me4_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME4","Sim track #eta","Efficiency",xrange,yrange)
 
     c.cd(1) ; h_eff_eta_me1_mpc.Draw("hist")
     c.cd(2) ; h_eff_eta_me2_mpc.Draw("hist")
@@ -221,26 +221,26 @@ def cscStationOccupanciesMatchedMpcVsEta_2():
     
     etareb = 1
     yrange = [0.,1.04]
-    xrange = [0.86,2.5]
+    xrange = [1.4,2.55]
 
-    c = TCanvas("c","c",1000,600 ) 
+    c = TCanvas("c","c",1280,720) 
     c.cd()
 
-    h_eta_mpc_1st = setEffHisto("h_eta_mpc_1st","h_eta_initial0",dir, etareb, kBlue, 1, 2, "eff(#eta): matched MPC in #geqN CSC stations","MC #eta","",xrange,yrange)
-    h_eta_mpc_2st = setEffHisto("h_eta_mpc_2st","h_eta_initial0",dir, etareb, kBlue, 9, 2, "","MC #eta","",xrange,yrange)
-    h_eta_mpc_3st = setEffHisto("h_eta_mpc_3st","h_eta_initial0",dir, etareb, kBlue, 2, 2, "","MC #eta","",xrange,yrange)
+    h_eta_mpc_1st = setEffHisto("h_eta_mpc_1st","h_eta_initial0",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub(s) in #geq N CSC stations","Sim track #eta","Efficiency",xrange,yrange)
+    h_eta_mpc_2st = setEffHisto("h_eta_mpc_2st","h_eta_initial0",dir, etareb, kBlue, 9, 2, "","Sim track #eta","Efficiency",xrange,yrange)
+    h_eta_mpc_3st = setEffHisto("h_eta_mpc_3st","h_eta_initial0",dir, etareb, kBlue, 2, 2, "","Sim track #eta","Efficiency",xrange,yrange)
 
     h_eta_mpc_1st.Draw("hist")
     h_eta_mpc_2st.Draw("hist same")
     h_eta_mpc_3st.Draw("hist same")
 
-    l_eff_eta_mpc = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    l_eff_eta_mpc = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_mpc.SetBorderSize(0)
     l_eff_eta_mpc.SetFillStyle(0)
-    l_eff_eta_mpc.SetHeader("Efficiency for #mu with p_{T}>20 to have matched MPCs in")
-    l_eff_eta_mpc.AddEntry(h_eta_mpc_1st,"#geq1 CSC stations","pl")
-    l_eff_eta_mpc.AddEntry(h_eta_mpc_2st,"#geq2 CSC stations","pl")
-    l_eff_eta_mpc.AddEntry(h_eta_mpc_3st,"#geq3 CSC stations","pl")
+    l_eff_eta_mpc.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to match MPC stub in")
+    l_eff_eta_mpc.AddEntry(h_eta_mpc_1st,"#geq 1 CSC station","pl")
+    l_eff_eta_mpc.AddEntry(h_eta_mpc_2st,"#geq 2 CSC stations","pl")
+    l_eff_eta_mpc.AddEntry(h_eta_mpc_3st,"#geq 3 CSC stations","pl")
     l_eff_eta_mpc.Draw()
 
     c.SaveAs("%sc_eff_eta_mpc%s"%(output_dir,ext))
@@ -254,26 +254,26 @@ def cscStationOccupanciesMatchedMpcVsEta_3():
     
     etareb = 1
     yrange = [0.,1.04]
-    xrange = [0.86,2.5]
+    xrange = [1.4,2.55]
 
-    c = TCanvas("c","c",1000,600 ) 
+    c = TCanvas("c","c",1280,720) 
     c.cd()
 
-    h_eta_mpc_1st_r = setEffHisto("h_eta_mpc_1st","h_eta_initial_1st",dir, etareb, kBlue, 1, 2, "eff(#eta): matched MPC if SimHits#geq4 in #geqN CSC stations","MC #eta","",xrange,yrange)
-    h_eta_mpc_2st_r = setEffHisto("h_eta_mpc_2st","h_eta_initial_2st",dir, etareb, kRed+1, 1, 2, "","MC #eta","",xrange,yrange)
-    h_eta_mpc_3st_r = setEffHisto("h_eta_mpc_3st","h_eta_initial_3st",dir, etareb, kGreen+1, 1, 2, "","MC #eta","",xrange,yrange)
+    h_eta_mpc_1st_r = setEffHisto("h_eta_mpc_1st","h_eta_initial_1st",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub if it has #geq 4 sim hits in #geq N CSC stations","Sim track #eta","Efficiency",xrange,yrange)
+    h_eta_mpc_2st_r = setEffHisto("h_eta_mpc_2st","h_eta_initial_2st",dir, etareb, kRed+1, 1, 2, "","Sim track #eta","Efficiency",xrange,yrange)
+    h_eta_mpc_3st_r = setEffHisto("h_eta_mpc_3st","h_eta_initial_3st",dir, etareb, kGreen+1, 1, 2, "","Sim track #eta","Efficiency",xrange,yrange)
 
     h_eta_mpc_1st_r.Draw("hist")
     h_eta_mpc_2st_r.Draw("hist same")
     h_eta_mpc_3st_r.Draw("hist same")
 
-    l_eff_eta_mpc_relative = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    l_eff_eta_mpc_relative = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_mpc_relative.SetBorderSize(0)
     l_eff_eta_mpc_relative.SetFillStyle(0)
-    l_eff_eta_mpc_relative.SetHeader("Efficiency for #mu with p_{T}>20 to have matched MPCs if it has SimHits#geq4 in")
-    l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_1st_r,"#geq1 CSC stations","pl")
-    l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_2st_r,"#geq2 CSC stations","pl")
-    l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_3st_r,"#geq3 CSC stations","pl")
+    l_eff_eta_mpc_relative.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to match MPC stub if it has #geq 4 sim hits in")
+    l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_1st_r,"#geq 1 CSC station","pl")
+    l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_2st_r,"#geq 2 CSC stations","pl")
+    l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_3st_r,"#geq 3 CSC stations","pl")
     l_eff_eta_mpc_relative.Draw()
 
     c.SaveAs("%sc_eff_eta_mpc_relative%s"%(output_dir,ext))
@@ -1667,11 +1667,8 @@ if __name__ == "__main__":
 
     ## global variables
     input_dir = "files/"
-    #file_name = "gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root"
-    #file_name = 'gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_replicateVadimOldResults.root'
-    file_name = "gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_replicateVadimOldResults_dphiCut.root"
-    #file_name = "gem_trigger_eff_ana_forAysen.root"
-    output_dir = "plots/"
+    file_name = "hp_dimu_CMSSW_6_2_0_SLHC5_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff.test.pt20.root"
+    output_dir = "plots_pt20/"
     ext = ".png"
 
     simTrackToAlctMatchingEfficiencyVsEtaME1()

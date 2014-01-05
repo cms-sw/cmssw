@@ -174,7 +174,7 @@ MatchCSCMuL1::detsWithHits()
  * minimum number of simhits
  *
  * @param station    The station number
- * @param ring       The ring number
+ * @param ring       The ring number - if 0, it will look in all rings. 
  * @param minNHits   Minimum number of simhits
  * @return           The chamber numbers
  */
@@ -339,7 +339,6 @@ MatchCSCMuL1::wireGroupAndStripInChamber( int detId )
 bool
 MatchCSCMuL1::hasHitsInStation(int st, unsigned minNHits) // st=0 - any,  st=1,2,3,4 - ME1-4
 {
-  // why is ring number by default equal to 0
   std::vector<int> chIds = chambersWithHits(st,0,minNHits);
   return chIds.size()!=0;
 }
@@ -348,10 +347,10 @@ MatchCSCMuL1::hasHitsInStation(int st, unsigned minNHits) // st=0 - any,  st=1,2
 //_____________________________________________________________________________
 /*
  * Get the number of stations with the minimum number of hits
- * @param me1       Station 1 flag        
- * @param me2       Station 2 flag     
- * @param me3       Station 3 flag     
- * @param me4       Station 4 flag     
+ * @param me1       Station 1 flag: default is true        
+ * @param me2       Station 2 flag: default is true     
+ * @param me3       Station 3 flag: default is true     
+ * @param me4       Station 4 flag: default is true     
  * @param minNHits  The minimum number of hits
  * @return          The number of stations
  */
@@ -1293,7 +1292,7 @@ MatchCSCMuL1::TFTRACK::init(const csc::L1Track *t, CSCTFPtLUT* ptLUT,
   // convert the Pt in human readable values (GeV/c)
   pt  = muPtScale->getPtScale()->getLowEdge(trPtBit); 
 
-  if (trPtBit!=pt_packed) std::cout<<" trPtBit!=pt_packed: "<<trPtBit<<"!="<<pt_packed<<"  pt="<<pt<<" eta="<<eta<<std::endl;
+  //if (trPtBit!=pt_packed) std::cout<<" trPtBit!=pt_packed: "<<trPtBit<<"!="<<pt_packed<<"  pt="<<pt<<" eta="<<eta<<std::endl;
 
   bool sc_debug = 0;
   if (sc_debug && deltaOk2){

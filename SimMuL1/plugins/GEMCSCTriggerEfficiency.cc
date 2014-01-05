@@ -1473,6 +1473,8 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       steta = match->strk->momentum().eta();
       stphi = normalizedPhi( match->strk->momentum().phi() );
 
+      if (debugALLEVENT) std::cout  << "pt "  << stpt << " eta "  << steta << " phi "  << stphi << std::endl;
+
       const bool pt_ok = fabs(stpt) > minSimTrPt_;
       const bool eta_ok = ( fabs(steta) >= minSimTrEta_ &&  fabs(steta) <= maxSimTrEta_);
       //const bool phi_ok = minSimTrPhi_ <= stphi && stphi <= maxSimTrPhi_;
@@ -1482,7 +1484,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       bool eta_gem_1b = mugeo::isME1bEtaRegion(steta, 1.64, 2.05);
 
       // get the number of stations with at least minNHitsChamber_ hits in the chamber
-      unsigned nst_with_hits = match->nStationsWithHits(minNHitsChamber_);
+      unsigned nst_with_hits = match->nStationsWithHits(1,1,1,1,minNHitsChamber_);
 
       // were station 1,2,3  or 4 hit if at least minNHitsChamber_ were required?
       bool has_hits_in_st[5] = {0, match->hasHitsInStation(1,minNHitsChamber_), 
@@ -1787,7 +1789,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      }
 	  }
 	if(okME1alct) {
-    std::cout << "okME1alct OK" << std::endl;
+    	  if (debugALCT) std::cout << "okME1alct OK" << std::endl;
 	  h_eta_me1_after_alct->Fill(steta);
 	  h_phi_me1_after_alct->Fill(stphi);
 	}
@@ -2791,7 +2793,7 @@ GEMCSCTriggerEfficiency::matchSimTrack2SimHits( MatchCSCMuL1 * match,
     }
   if (doStrictSimHitToTrackMatch_ && stNhist != match->simHits.size()) 
     {
-      std::cout <<" ALARM!!! matchSimTrack2SimHits: stNhist != stHits.size()  ---> "<<stNhist <<" != "<<match->simHits.size()<<std::endl;
+      if (debugALLEVENT) std::cout <<" ALARM!!! matchSimTrack2SimHits: stNhist != stHits.size()  ---> "<<stNhist <<" != "<<match->simHits.size()<<std::endl;
       stNhist = 0;
       if (debugALLEVENT) for (edm::PSimHitContainer::const_iterator hit = allCSCSimHits->begin();  hit != allCSCSimHits->end();  ++hit) 
 			   if (hit->trackId() == match->strk->trackId()) {
@@ -3606,7 +3608,7 @@ GEMCSCTriggerEfficiency::matchSimtrack2TFTRACKs( MatchCSCMuL1 *match,
 	  const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
 	  for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
 	    {
-	      if (!((*digiIt).isValid())) std::cout<<"ALARM!!! matchSimtrack2TFTRACKs: L1CSCTrack.MPLCT is not valid id="<<id.rawId()<<" "<<id<<std::endl;
+	      if (!((*digiIt).isValid()) && debugALLEVENT) std::cout<<"ALARM!!! matchSimtrack2TFTRACKs: L1CSCTrack.MPLCT is not valid id="<<id.rawId()<<" "<<id<<std::endl;
 
 	      bool me1a_case = (defaultME1a && id.station()==1 && id.ring()==1 && (*digiIt).getStrip() > 127);
 	      if (me1a_case){
