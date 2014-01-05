@@ -174,7 +174,7 @@ MatchCSCMuL1::detsWithHits()
  * minimum number of simhits
  *
  * @param station    The station number
- * @param ring       The ring number
+ * @param ring       The ring number - if 0, it will look in all rings. 
  * @param minNHits   Minimum number of simhits
  * @return           The chamber numbers
  */
@@ -339,7 +339,6 @@ MatchCSCMuL1::wireGroupAndStripInChamber( int detId )
 bool
 MatchCSCMuL1::hasHitsInStation(int st, unsigned minNHits) // st=0 - any,  st=1,2,3,4 - ME1-4
 {
-  // why is ring number by default equal to 0
   std::vector<int> chIds = chambersWithHits(st,0,minNHits);
   return chIds.size()!=0;
 }
