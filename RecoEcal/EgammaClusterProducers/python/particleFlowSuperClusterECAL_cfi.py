@@ -25,7 +25,7 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
     PFBasicClusterCollectionEndcap = cms.string("particleFlowBasicClusterECALEndcap"),                                       
     PFSuperClusterCollectionEndcap = cms.string("particleFlowSuperClusterECALEndcap"),
-    PFBasicClusterCollectionPreshower = cms.string("particleFlowSuperClusterECALPreshower"),
+    PFBasicClusterCollectionPreshower = cms.string("particleFlowBasicClusterECALPreshower"),
     PFSuperClusterCollectionEndcapWithPreshower = cms.string("particleFlowSuperClusterECALEndcapWithPreshower"),                                          
 
     #use preshower ?
@@ -89,7 +89,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
     PFBasicClusterCollectionEndcap = cms.string("particleFlowBasicClusterECALEndcap"),                                       
     PFSuperClusterCollectionEndcap = cms.string("particleFlowSuperClusterECALEndcap"),
-    PFBasicClusterCollectionPreshower = cms.string("particleFlowSuperClusterECALPreshower"),
+    PFBasicClusterCollectionPreshower = cms.string("particleFlowBasicClusterECALPreshower"),
     PFSuperClusterCollectionEndcapWithPreshower = cms.string("particleFlowSuperClusterECALEndcapWithPreshower"),                                          
 
     #use preshower ?
