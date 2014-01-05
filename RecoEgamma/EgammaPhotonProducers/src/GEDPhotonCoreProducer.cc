@@ -128,8 +128,8 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
 
     if ( validPixelSeeds_) {
       for( unsigned int icp = 0;  icp < pixelSeedHandle->size(); icp++) {
-        reco::ElectronSeedRef cpRef(reco::ElectronSeedRef(pixelSeedHandle,icp));
-        if (!( refinedSC.id() == cpRef->caloCluster().id() && refinedSC.key() == cpRef->caloCluster().key() )) continue; 
+        reco::ElectronSeedRef cpRef(pixelSeedHandle,icp);
+        if (!( boxSC.id() == cpRef->caloCluster().id() && boxSC.key() == cpRef->caloCluster().key() )) continue; 
         newCandidate.addElectronPixelSeed(cpRef);     
       } 
     }
