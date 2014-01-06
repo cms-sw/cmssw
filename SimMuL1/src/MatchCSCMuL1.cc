@@ -357,10 +357,10 @@ MatchCSCMuL1::hasHitsInStation(int st, int ri, unsigned minNHits) // st=0 - any,
 unsigned
 MatchCSCMuL1::nStationsWithHits(bool me1, bool me2, bool me3, bool me4, unsigned minNHits)
 {
-  return ( (me1 & hasHitsInStation(1,minNHits))
-         + (me2 & hasHitsInStation(2,minNHits))
-         + (me3 & hasHitsInStation(3,minNHits))
-         + (me4 & hasHitsInStation(4,minNHits)) );
+  return ( (me1 & hasHitsInStation(1,0,minNHits))
+         + (me2 & hasHitsInStation(2,0,minNHits))
+         + (me3 & hasHitsInStation(3,0,minNHits))
+         + (me4 & hasHitsInStation(4,0,minNHits)) );
 }
 
 
