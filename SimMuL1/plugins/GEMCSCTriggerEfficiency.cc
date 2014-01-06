@@ -108,6 +108,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   minNHitsChamber_ = iConfig.getUntrackedParameter<int>("minNHitsChamber", 4);
   minNStWithMinNHitsChambers_ = iConfig.getUntrackedParameter< int >("minNStWithMinNHitsChambers", 0);
   requireME1WithMinNHitsChambers_ = iConfig.getUntrackedParameter< bool >("requireME1WithMinNHitsChambers",false);
+  requireME11WithMinNHitsChambers_ = iConfig.getUntrackedParameter< bool >("requireME11WithMinNHitsChambers",false);
   requireME1With4Hits_ = iConfig.getUntrackedParameter< bool >("requireME1With4Hits",false);
   
   minDeltaYAnode_    = iConfig.getUntrackedParameter<double>("minDeltaYAnode", -1.);
@@ -380,6 +381,7 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   h_eta_initial0 = fs->make<TH1D>("h_eta_initial0","h_eta_initial0",N_ETA_BINS, ETA_START, ETA_END);
  h_eta_initial = fs->make<TH1D>("h_eta_initial","h_eta_initial",N_ETA_BINS, ETA_START, ETA_END);
 
+  h_eta_me11_initial = fs->make<TH1D>("h_eta_me11_initial","h_eta_me11_initial",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_initial = fs->make<TH1D>("h_eta_me1_initial","h_eta_me1_initial",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me2_initial = fs->make<TH1D>("h_eta_me2_initial","h_eta_me2_initial",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me3_initial = fs->make<TH1D>("h_eta_me3_initial","h_eta_me3_initial",N_ETA_BINS, ETA_START, ETA_END);
@@ -637,6 +639,15 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   h_eta_me1_after_alctclct_okClct = fs->make<TH1D>("h_eta_me1_after_alctclct_okClct","h_eta_me1_after_alctclct_okClct",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_alctclct_okAlctClct = fs->make<TH1D>("h_eta_me1_after_alctclct_okAlctClct","h_eta_me1_after_alctclct_okAlctClct",N_ETA_BINS, ETA_START, ETA_END);
 
+  h_eta_me11_after_alct = fs->make<TH1D>("h_eta_me11_after_alct","h_eta_me11_after_alct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_alct_okAlct = fs->make<TH1D>("h_eta_me11_after_alct_okAlct","h_eta_me11_after_alct_okAlct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_clct = fs->make<TH1D>("h_eta_me11_after_clct","h_eta_me11_after_clct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_clct_okClct = fs->make<TH1D>("h_eta_me11_after_clct_okClct","h_eta_me11_after_clct_okClct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_alctclct = fs->make<TH1D>("h_eta_me11_after_alctclct","h_eta_me11_after_alctclct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_alctclct_okAlct = fs->make<TH1D>("h_eta_me11_after_alctclct_okAlct","h_eta_me11_after_alctclct_okAlct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_alctclct_okClct = fs->make<TH1D>("h_eta_me11_after_alctclct_okClct","h_eta_me11_after_alctclct_okClct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_alctclct_okAlctClct = fs->make<TH1D>("h_eta_me11_after_alctclct_okAlctClct","h_eta_me11_after_alctclct_okAlctClct",N_ETA_BINS, ETA_START, ETA_END);
+
   h_eta_me1_after_lct = fs->make<TH1D>("h_eta_me1_after_lct","h_eta_me1_after_lct",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_lct_okAlct = fs->make<TH1D>("h_eta_me1_after_lct_okAlct","h_eta_me1_after_lct_okAlct",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_lct_okAlctClct = fs->make<TH1D>("h_eta_me1_after_lct_okAlctClct","h_eta_me1_after_lct_okAlctClct",N_ETA_BINS, ETA_START, ETA_END);
@@ -644,6 +655,14 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   h_eta_me1_after_lct_okClctAlct = fs->make<TH1D>("h_eta_me1_after_lct_okClctAlct","h_eta_me1_after_lct_okClctAlct",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_mplct_okAlctClct = fs->make<TH1D>("h_eta_me1_after_mplct_okAlctClct","h_eta_me1_after_mplct_okAlctClct",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_mplct_okAlctClct_plus = fs->make<TH1D>("h_eta_me1_after_mplct_okAlctClct_plus","h_eta_me1_after_mplct_okAlctClct_plus",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_lct = fs->make<TH1D>("h_eta_me11_after_lct","h_eta_me11_after_lct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_lct_okAlct = fs->make<TH1D>("h_eta_me11_after_lct_okAlct","h_eta_me11_after_lct_okAlct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_lct_okAlctClct = fs->make<TH1D>("h_eta_me11_after_lct_okAlctClct","h_eta_me11_after_lct_okAlctClct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_lct_okClct = fs->make<TH1D>("h_eta_me11_after_lct_okClct","h_eta_me11_after_lct_okClct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_lct_okClctAlct = fs->make<TH1D>("h_eta_me11_after_lct_okClctAlct","h_eta_me11_after_lct_okClctAlct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_mplct_okAlctClct = fs->make<TH1D>("h_eta_me11_after_mplct_okAlctClct","h_eta_me11_after_mplct_okAlctClct",N_ETA_BINS, ETA_START, ETA_END);
+  h_eta_me11_after_mplct_okAlctClct_plus = fs->make<TH1D>("h_eta_me11_after_mplct_okAlctClct_plus","h_eta_me11_after_mplct_okAlctClct_plus",N_ETA_BINS, ETA_START, ETA_END);
+
   h_eta_me1_after_tf_ok = fs->make<TH1D>("h_eta_me1_after_tf_ok","h_eta_me1_after_tf_ok",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_tf_ok_pt10 = fs->make<TH1D>("h_eta_me1_after_tf_ok_pt10","h_eta_me1_after_tf_ok_pt10",N_ETA_BINS, ETA_START, ETA_END);
   h_eta_me1_after_tf_ok_plus = fs->make<TH1D>("h_eta_me1_after_tf_ok_plus","h_eta_me1_after_tf_ok_plus",N_ETA_BINS, ETA_START, ETA_END);
@@ -1398,7 +1417,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::set<int> ch_sets[5];
   unsigned int im=0;
   for (; im<matches.size() && im<5; im++) {
-    ch_vecs[im] = matches[im]->chambersWithHits();
+    ch_vecs[im] = matches[im]->chambersWithHits(0,0,minNHitsChamber_);
     ch_sets[im].insert(ch_vecs[im].begin(), ch_vecs[im].end());
   }
   std::set<int> ch_overlap;
@@ -1487,11 +1506,17 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       unsigned nst_with_hits = match->nStationsWithHits(1,1,1,1,minNHitsChamber_);
 
       // were station 1,2,3  or 4 hit if at least minNHitsChamber_ were required?
-      bool has_hits_in_st[5] = {0, match->hasHitsInStation(1,minNHitsChamber_), 
-                                match->hasHitsInStation(2,minNHitsChamber_), 
-                                match->hasHitsInStation(3,minNHitsChamber_), 
-                                match->hasHitsInStation(4,minNHitsChamber_)};
-      
+      // ring 0 means "all rings"
+      bool has_hits_in_st[5] = {0, match->hasHitsInStation(1,0,minNHitsChamber_), 
+                                match->hasHitsInStation(2,0,minNHitsChamber_), 
+                                match->hasHitsInStation(3,0,minNHitsChamber_), 
+                                match->hasHitsInStation(4,0,minNHitsChamber_)};
+
+      // hits in ME11 station?
+      // ME1/a is assigned to ring 4!!
+      bool has_hits_in_me11 = (match->hasHitsInStation(1,1,minNHitsChamber_) or 
+                               match->hasHitsInStation(1,4,minNHitsChamber_) );
+
       bool okME1mplct = 0, okME2mplct = 0, okME3mplct = 0, okME4mplct = 0;
       int okNmplct = 0;
       int has_mplct_me1b = 0;
@@ -1538,6 +1563,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
         h_n_gmtcand_all->Fill(match->GMTCANDsAll.size());
     
         // SimHIts:
+        if (has_hits_in_me11) h_eta_me11_initial->Fill(steta);
         if (has_hits_in_st[1]) h_eta_me1_initial->Fill(steta);
         if (has_hits_in_st[2]) h_eta_me2_initial->Fill(steta);
         if (has_hits_in_st[3]) h_eta_me3_initial->Fill(steta);
@@ -1595,14 +1621,17 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       
       MatchCSCMuL1::TFCAND * tfc = match->bestTFCAND(match->TFCANDs, bestPtMatch_);
       bool tffid_ok = false;
-      if ( tfc ) tffid_ok = ( eta_ok && tfc->l1cand->quality_packed() > 1 );
+      if ( tfc ) tffid_ok = ( eta_ok and tfc->l1cand->quality_packed() > 1 );
 
       // require chambers with at least minNHitsChamber_ layers with 
       // simhits in at least minNStWithMinNHitsChambers_ stations
       if ( nst_with_hits < (unsigned) minNStWithMinNHitsChambers_ ) continue;
 
       // does at least 1 chamber in station 1 have the minimal number of hits?
-      if (requireME1WithMinNHitsChambers_ && !has_hits_in_st[1]) continue;
+      if (requireME1WithMinNHitsChambers_ and !has_hits_in_st[1]) continue;
+
+      // hits in ME11
+      if (requireME11WithMinNHitsChambers_ and !has_hits_in_me11) continue;
       
       bool eta_high = ( fabs(steta) >= 2.1 &&  fabs(steta) <= 2.4 );
 
@@ -1633,9 +1662,6 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       h_pt_vs_nlct ->Fill(stpt, match->LCTs.size());
       h_pt_vs_nmplct ->Fill(stpt, match->MPLCTs.size());
 
-
-
-
       //============ Initial ==================
 
       if (tftAll) {
@@ -1660,7 +1686,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (eta_1b) h_pt_initial_1b->Fill(stpt);
       if (eta_gem_1b) h_pt_initial_gem_1b->Fill(stpt);
 
-      std::vector<int> chIds = match->chambersWithHits();
+      std::vector<int> chIds = match->chambersWithHits(0,0,minNHitsChamber_);
       std::vector<int> fillIds;
       if (pt_ok) 
 	for (size_t ch = 0; ch < chIds.size(); ch++)
@@ -1716,7 +1742,9 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       //============ ALCTs ==================
       if (debugINHISTOS) std::cerr<<" check: on to ALCT "<<std::endl;
       std::vector<MatchCSCMuL1::ALCT> ME1ALCTsOk;
+      std::vector<MatchCSCMuL1::ALCT> ME11ALCTsOk;
       bool hasME1alct = 0;
+      bool hasME11alct = 0;
       std::vector<MatchCSCMuL1::ALCT> rALCTs = match->ALCTsInReadOut();
       if (rALCTs.size()) 
       {
@@ -1771,35 +1799,53 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	// This is important to flag the quality of ALCTs in ME1
 	bool okME1alct = 0, okME1alctg=0;
+  bool okME11alct = 0, okME11alctg=0;
 	if (pt_ok) 
 	  for (unsigned i=0; i<rALCTs.size();i++)
 	  {
 	    if (rALCTs[i].id.station() == 1)
 	      {
-		if (debugINHISTOS) std::cout<<" ALCT check: station "<<1<<std::endl;
-		okME1alct = 1;
-		hasME1alct = 1;
-		if (debugINHISTOS) std::cout<<" dw="<<rALCTs[i].deltaWire<<" md=["<<minDeltaWire_<<","<< maxDeltaWire_<<"]"<<std::endl;
-		if (minDeltaWire_ <= rALCTs[i].deltaWire && rALCTs[i].deltaWire <= maxDeltaWire_)
-		{
-		  okME1alctg = 1;
-		  ME1ALCTsOk.push_back(rALCTs[i]);
-		  if (debugINHISTOS) std::cout<<" ALCT good "<<1<<std::endl;
-		}
-	      }
+          if (debugINHISTOS) std::cout<<" ALCT check: station "<<1<<std::endl;
+          okME1alct = 1;
+          hasME1alct = 1;
+          // special check for ME11
+          if (rALCTs[i].id.ring() == 1 or rALCTs[i].id.ring() == 4) { 
+            okME11alct = 1;
+            hasME11alct = 1;
+          }
+          if (debugINHISTOS) std::cout<<" dw="<<rALCTs[i].deltaWire<<" md=["<<minDeltaWire_<<","<< maxDeltaWire_<<"]"<<std::endl;
+          if (minDeltaWire_ <= rALCTs[i].deltaWire && rALCTs[i].deltaWire <= maxDeltaWire_)
+            {
+              if (debugINHISTOS) std::cout<<" ALCT good "<<1<<std::endl;
+              okME1alctg = 1;
+              ME1ALCTsOk.push_back(rALCTs[i]);
+              // special check for ME11
+              if (rALCTs[i].id.ring() == 1 or rALCTs[i].id.ring() == 4) { 
+                okME11alctg = 1;
+                ME11ALCTsOk.push_back(rALCTs[i]);
+              }
+            }
+	      }      
 	  }
 	if(okME1alct) {
-    	  if (debugALCT) std::cout << "okME1alct OK" << std::endl;
+    if (debugALCT) std::cout << "okME1alct OK" << std::endl;
 	  h_eta_me1_after_alct->Fill(steta);
 	  h_phi_me1_after_alct->Fill(stphi);
 	}
+	if(okME11alct) {
+    if (debugALCT) std::cout << "okME1alct OK" << std::endl;
+	  h_eta_me11_after_alct->Fill(steta);
+	}
+	if(okME11alctg) {
+      h_eta_me11_after_alct_okAlct->Fill(steta);
+    }
 	if(okME1alctg) 
-        {
-	  h_eta_me1_after_alct_okAlct->Fill(steta);
-	  h_phi_me1_after_alct_okAlct->Fill(stphi);
-	  
-	  std::vector<int> chIDs = match->chambersWithALCTs();
-	  for (size_t ch = 0; ch < chIDs.size(); ch++)
+    {
+      h_eta_me1_after_alct_okAlct->Fill(steta);
+      h_phi_me1_after_alct_okAlct->Fill(stphi);
+      
+      std::vector<int> chIDs = match->chambersWithALCTs();
+      for (size_t ch = 0; ch < chIDs.size(); ch++)
 	  {
 	    CSCDetId chId(chIDs[ch]);
 	    int csct = getCSCType( chId );
@@ -1847,7 +1893,9 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       if (debugINHISTOS) std::cerr<<" check: on to CLCT "<<std::endl;
       std::vector<MatchCSCMuL1::CLCT> ME1CLCTsOk;
+      std::vector<MatchCSCMuL1::CLCT> ME11CLCTsOk;
       bool hasME1clct = 0;
+      bool hasME11clct = 0;
       std::vector<MatchCSCMuL1::CLCT> rCLCTs = match->CLCTsInReadOut();
       if (rCLCTs.size()) 
       {
@@ -1873,6 +1921,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  }
 	
 	bool okME1clct = 0, okME1clctg=0;
+	bool okME11clct = 0, okME11clctg=0;
 	if (pt_ok) 
 	  for (unsigned i=0; i<rCLCTs.size();i++)
 	  {
@@ -1881,37 +1930,63 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      if (debugINHISTOS) std::cout<<" CLCT check: station "<<1<<std::endl;
 	      okME1clct = 1;
 	      hasME1clct = 1;
+        if (rCLCTs[i].id.ring() == 1 or rCLCTs[i].id.ring() == 4) { 
+          okME11clct = 1;
+          hasME11clct = 1;
+        }
 	      if (debugINHISTOS) std::cout<<" ds="<<abs(rCLCTs[i].deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
 	      if (abs(rCLCTs[i].deltaStrip) <= minDeltaStrip_)
-		{
-		  okME1clctg = 1;
-		  ME1CLCTsOk.push_back(rCLCTs[i]);
-		  if (debugINHISTOS) std::cout<<" CLCT good "<<1<<std::endl;
-		}
+          {
+            okME1clctg = 1;
+            ME1CLCTsOk.push_back(rCLCTs[i]);
+            if (rCLCTs[i].id.ring() == 1 or rCLCTs[i].id.ring() == 4) {
+              okME11clctg = 1;
+              ME11CLCTsOk.push_back(rCLCTs[i]);
+            }
+            if (debugINHISTOS) std::cout<<" CLCT good "<<1<<std::endl;
+          }
 	    }
 	  }
 	if(okME1clct) {
 	  h_eta_me1_after_clct->Fill(steta);
 	  h_phi_me1_after_clct->Fill(stphi);
 	}
-
+	if(okME11clct) {
+	  h_eta_me11_after_clct->Fill(steta);
+	}
+	if(okME11clctg) {
+	  h_eta_me11_after_clct_okClct->Fill(steta);
+  }
 	if(okME1clctg) {
 	  h_eta_me1_after_clct_okClct->Fill(steta);
 	  h_phi_me1_after_clct_okClct->Fill(stphi);
 	}
-      }
+      } // end of check on rCLCTs.size()
+
     
       if (hasME1alct && hasME1clct) {
 	h_eta_me1_after_alctclct->Fill(steta);
 	h_phi_me1_after_alctclct->Fill(stphi);
       }
+      if (hasME11alct && hasME11clct) { 
+        h_eta_me11_after_alctclct->Fill(steta);
+      }
       if (ME1ALCTsOk.size() && hasME1clct) {
 	h_eta_me1_after_alctclct_okAlct->Fill(steta);
 	h_phi_me1_after_alctclct_okAlct->Fill(stphi);
       }
+      if (ME11ALCTsOk.size() && hasME11clct) {
+        h_eta_me11_after_alctclct_okAlct->Fill(steta);
+      }
       if (ME1CLCTsOk.size() && hasME1alct) {
 	h_eta_me1_after_alctclct_okClct->Fill(steta);
 	h_phi_me1_after_alctclct_okClct->Fill(stphi);
+      }
+      if (ME11CLCTsOk.size() && hasME11alct) {
+        h_eta_me11_after_alctclct_okClct->Fill(steta);
+      }
+      if (ME11ALCTsOk.size() && ME11CLCTsOk.size()) {
+        h_eta_me11_after_alctclct_okAlctClct->Fill(steta);
       }
       if (ME1ALCTsOk.size() && ME1CLCTsOk.size()) 
       	{
@@ -1978,6 +2053,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 
       	  bool okME1lct = 0, okME1alct=0, okME1alctclct=0, okME1clct=0, okME1clctalct=0;
+      	  bool okME11lct = 0, okME11alct=0, okME11alctclct=0, okME11clct=0, okME11clctalct=0;
       	  std::vector<MatchCSCMuL1::LCT> ME1LCTsOkCLCTNo, ME1LCTsOkCLCTOkALCTNo;
       	  if (pt_ok) 
 	    for (unsigned i=0; i<rLCTs.size();i++)
@@ -1986,17 +2062,20 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	      {
 		if (debugINHISTOS) std::cout<<" LCT check: station "<<1<<std::endl;
 		okME1lct = 1;
+    if (rLCTs[i].id.ring() == 1 or rLCTs[i].id.ring() == 4) okME11lct = 1;
 		if (debugINHISTOS && rLCTs[i].alct) std::cout<<" dw="<<abs(rLCTs[i].alct->deltaWire)<<" md="<<minDeltaWire_<<std::endl;
 		if (debugINHISTOS && rLCTs[i].clct) std::cout<<" ds="<<abs(rLCTs[i].clct->deltaStrip)<<" md="<<minDeltaStrip_<<std::endl;
 		
 		if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
 		{
 		  okME1alct = 1;
+      if (rLCTs[i].id.ring() == 1 or rLCTs[i].id.ring() == 4) okME11alct = 1;
 		  if (debugINHISTOS) std::cout<<" LCT check: alct good "<<1<<std::endl;
 		  if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
 		  {
 		    if (debugINHISTOS) std::cout<<" LCT check: alct-clct good "<<1<<std::endl;
 		    okME1alctclct = 1;
+        if (rLCTs[i].id.ring() == 1 or rLCTs[i].id.ring() == 4) okME11alctclct = 1;
 		    //ME1LCTsOk.push_back(rLCTs[i]);
 		    //if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
 		  }
@@ -2005,11 +2084,13 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 		if (rLCTs[i].clct && rLCTs[i].clct->deltaOk)
 		  {
 		    okME1clct = 1;
+        if (rLCTs[i].id.ring() == 1 or rLCTs[i].id.ring() == 4) okME11clct = 1;
 		    if (debugINHISTOS) std::cout<<" LCT check: clct good "<<1<<std::endl;
 		    if (rLCTs[i].alct && rLCTs[i].alct->deltaOk)
 		      {
 		      if (debugINHISTOS) std::cout<<" LCT check: clct-alct good "<<1<<std::endl;
 		      okME1clctalct = 1;
+          if (rLCTs[i].id.ring() == 1 or rLCTs[i].id.ring() == 4) okME11clctalct = 1;
 		      ME1LCTsOk.push_back(rLCTs[i]);
 		      if (debugINHISTOS) std::cout<<" LCT check: lct pushed "<<1<<std::endl;
 		      }
@@ -2022,15 +2103,29 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    h_eta_me1_after_lct->Fill(steta);
 	    h_phi_me1_after_lct->Fill(stphi);
 	  }
+      	  if(okME11lct) {
+            h_eta_me11_after_lct->Fill(steta);
+          }
       	  if(okME1alct){ 
 	    h_eta_me1_after_lct_okAlct->Fill(steta);
 	    h_phi_me1_after_lct_okAlct->Fill(stphi);
-	  }	    
+          }	    
+      	  if(okME11alct){ 
+            h_eta_me11_after_lct_okAlct->Fill(steta);
+          }
       	  if(okME1clct) {
 	    h_eta_me1_after_lct_okClct->Fill(steta);
 	    h_phi_me1_after_lct_okClct->Fill(stphi);
 	  }	    
-      	  if(okME1alctclct) 
+      	  if(okME11clct) {
+            h_eta_me11_after_lct_okClct->Fill(steta);
+          }
+
+      	  if(okME11alctclct) 
+      	    {
+              h_eta_me11_after_lct_okAlctClct->Fill(steta);
+            }
+              if(okME1alctclct) 
       	    {
       	      h_eta_me1_after_lct_okAlctClct->Fill(steta);
       	      h_phi_me1_after_lct_okAlctClct->Fill(stphi);
@@ -2049,9 +2144,12 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       		}
       	    }
       	  if(okME1clctalct) {
-	    h_eta_me1_after_lct_okClctAlct->Fill(steta);
-	    h_phi_me1_after_lct_okClctAlct->Fill(stphi);
-	  }
+            h_eta_me1_after_lct_okClctAlct->Fill(steta);
+            h_phi_me1_after_lct_okClctAlct->Fill(stphi);
+          }
+      	  if(okME11clctalct) {
+            h_eta_me11_after_lct_okClctAlct->Fill(steta);
+          }
       	  if (debugINHISTOS) std::cout<<" LCT check: histo filled "<<1<<std::endl;
 	  
 	  
