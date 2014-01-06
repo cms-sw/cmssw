@@ -930,11 +930,16 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     
     
     // insert in collection (remove and return if below threshold)
-    collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, GlobalVector(towerP4), towerP4[3], mass2, emPoint, hadPoint);
+    if unlikely ( (towerP4[3]==0) & (E_outer>0)  ) {
+      collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, CaloTower::PolarLorentzVector(0,hadPoint.eta(), hadPoint.phi(),0),  emPoint, hadPoint);
+    } else {
+      collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, GlobalVector(towerP4), towerP4[3], mass2, emPoint, hadPoint);
+    }
     auto & caloTower = collection.back();
 
     // if (!massless) std::cout << "massive " << id <<' ' << mass1 <<' ' << mass2 <<' ' <<  caloTower.mass() << std::endl;
     // std::cout << "CaloTowerVI " <<theMomConstrMethod <<' ' << id <<' '<< E_em <<' '<< E_had <<' '<< E_outer <<' '<< GlobalVector(towerP4) <<' '<< towerP4[3] <<' '<< emPoint <<' '<< hadPoint << std::endl;
+    //if (towerP4[3]==0) std::cout << "CaloTowerVIzero " << theEcutTower << ' ' << collection.back().eta() <<' '<< collection.back().phi() << std::endl;
 
     if(caloTower.energy() < theEcutTower) { collection.pop_back(); return;}
     
