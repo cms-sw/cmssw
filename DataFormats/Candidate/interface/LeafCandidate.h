@@ -158,7 +158,7 @@ namespace reco {
     /// energy                                                                            
     virtual double energy() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.E(); }
     /// transverse energy                                                                 
-    virtual double et() const GCC11_FINAL { cachePolar(); return p4Polar_.Et(); }
+    virtual double et() const GCC11_FINAL { cachePolar(); return (pt_<=0) ? 0 :  p4Polar_.Et(); }
     /// mass                                                                              
     virtual float mass() const GCC11_FINAL { return mass_; }
     /// mass squared                                                                      
