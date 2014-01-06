@@ -14,7 +14,8 @@ ROOT.gROOT.SetBatch(1)
 
 if __name__ == "__main__":  
 
-  inputFile = '/cmshome/calabria/ValidationPlots2/CMSSW_6_1_2_SLHC6_patch1/src/GEMCode/GEMValidation/test/gem_localrec_ana.root'
+  inputFile = 'gem_localrec_ana.root'
+  outputFile = 'gem_localrec_ana_tmp.root'
   targetDir = './'
   
   ## extension for figures - add more?
@@ -51,10 +52,28 @@ if __name__ == "__main__":
   if not treeSimHits:
     sys.exit('Tree %s does not exist.' %(treeSimHits))
 
+  fileOut = TFile.Open(outputFile, "RECREATE")
+
   draw_geff2(targetDir, "recHitEfficiencyPerChamber", ext, treeHits, treeSimHits, "Local Reco Efficiency vs. chamber;chamber", 
 	   "h_", "(38,0,38)", "chamber", TCut(""), TCut(""), "P", kBlue);
   draw_geff2(targetDir, "recHitEfficiencyGlobalPhi", ext, treeHits, treeSimHits, "Local Reco Efficiency vs. phi;#phi", 
 	   "h_", "(100,-TMath::Pi,+TMath::Pi)", "globalPhi", TCut(""), TCut(""), "P", kBlue);
+
+  draw_1D(targetDir, "clsDistribution", ext, treeHits, "CLS; CLS; entries", 
+	   "h_", "(11,-0.5,10.5)", "clusterSize", TCut(""), "");
+
+  draw_1D(targetDir, "clsDistribution_rm1_l1", ext, treeHits, "CLS region-1, layer1; CLS; entries", 
+	   "h_", "(11,-0.5,10.5)", "clusterSize", AND(rm1,l1), "");
+  draw_1D(targetDir, "clsDistribution_rm1_l2", ext, treeHits, "CLS region-1, layer2; CLS; entries", 
+	   "h_", "(11,-0.5,10.5)", "clusterSize", AND(rp1,l2), "");
+  draw_1D(targetDir, "clsDistribution_rp1_l1", ext, treeHits, "CLS region1, layer1; CLS; entries", 
+	   "h_", "(11,-0.5,10.5)", "clusterSize", AND(rm1,l1), "");
+  draw_1D(targetDir, "clsDistribution_rp1_l2", ext, treeHits, "CLS region1, layer2; CLS; entries", 
+	   "h_", "(11,-0.5,10.5)", "clusterSize", AND(rp1,l2), "");
+
+  draw_1D(targetDir, "bxDistribution", ext, treeHits, "BX; BX; entries", 
+	   "h_", "(11,-5.5,5.5)", "bx", TCut(""), "");
+
   draw_1D(targetDir, "recHitPullX", ext, treeHits, "(x_{sim} - x_{rec}) / #sigma_{rec}; (x_{sim} - x_{rec}) / #sigma_{rec}; entries", 
 	   "h_", "(100,-50,+50)", "pull", TCut(""), "");
 
@@ -66,6 +85,18 @@ if __name__ == "__main__":
 	   "h_", "(100,-50,+50)", "pull", AND(rp1,l1), "");
   draw_1D(targetDir, "recHitPullX_rp1_l2", ext, treeHits, "(x_{sim} - x_{rec}) / #sigma_{rec} region'1, layer2; (x_{sim} - x_{rec}) / #sigma_{rec}; entries", 
 	   "h_", "(100,-50,+50)", "pull", AND(rp1,l2), "");
+
+  draw_1D(targetDir, "recHitDPhi", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut(""), "");
+
+  draw_1D(targetDir, "recHitDPhi_rm1_l1", ext, treeHits, "#phi_{rec} - #phi_{sim} region-1, layer1; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rm1,l1), "");
+  draw_1D(targetDir, "recHitDPhi_rm1_l2", ext, treeHits, "#phi_{rec} - #phi_{sim} region-1, layer2; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rm1,l2), "");
+  draw_1D(targetDir, "recHitDPhi_rp1_l1", ext, treeHits, "#phi_{rec} - #phi_{sim} region1, layer1; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rp1,l1), "");
+  draw_1D(targetDir, "recHitDPhi_rp1_l2", ext, treeHits, "#phi_{rec} - #phi_{sim} region1, layer2; #phi_{rec} - #phi_{sim} [rad]; entries", 
+	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rp1,l2), "");
 
   draw_geff2(targetDir, "recHitEfficiencyPerChamber_rm1_l1", ext, treeHits, treeSimHits, "Local Reco Efficiency vs. chamber : region-1, layer1;chamber", 
 	   "h_", "(38,0,38)", "chamber", AND(rm1,l1),AND(rm1,l1), "P", kBlue);
@@ -98,6 +129,30 @@ if __name__ == "__main__":
 	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rp1,l1), "COLZ")
   draw_occ(targetDir, "strip_rh_phistrip_rp1_l2", ext, treeHits, "GEM RecHit occupancy: region1 layer2; #phi [rad]; strip", 
 	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rp1,l2), "COLZ")
+
+  draw_1D_adv(targetDir, "strip_rh_tot", ext, treeHits, "GEM RecHit occupancy per strip number;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", TCut(""))
+
+  draw_1D_adv(targetDir, "strip_rh_rm1_l1_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer1;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rm1,l1))
+  draw_1D_adv(targetDir, "strip_rh_rm1_l2_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer2;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rm1,l2))
+  draw_1D_adv(targetDir, "strip_rh_rp1_l1_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer1;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rp1,l1))
+  draw_1D_adv(targetDir, "strip_rh_rp1_l2_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer2;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rp1,l2))
+
+  draw_2D_adv(targetDir, "roll_vs_strip_rh", ext, treeHits, "GEM RecHit occupancy per roll and strip number;strip number;roll", 
+	  "h_", "(384,0.5,384.5,8,0.5,8.5)", "firstClusterStrip:roll", TCut(""), "COLZ")
+
+  draw_2D_adv(targetDir, "roll_vs_strip_rh_rm1_l1", ext, treeHits, "GEM RecHit occupancy per roll and strip number, region-1 layer1;strip number;roll", 
+	  "h_", "(384,0.5,384.5,8,0.5,8.5)", "firstClusterStrip:roll", AND(rm1,l1), "COLZ")
+  draw_2D_adv(targetDir, "roll_vs_strip_rh_rm1_l2", ext, treeHits, "GEM RecHit occupancy per roll and strip number, region-1 layer2;strip number;roll", 
+	  "h_", "(384,0.5,384.5,8,0.5,8.5)", "firstClusterStrip:roll", AND(rm1,l2), "COLZ")
+  draw_2D_adv(targetDir, "roll_vs_strip_rh_rp1_l1", ext, treeHits, "GEM RecHit occupancy per roll and strip number, region1 layer1;strip number;roll", 
+	  "h_", "(384,0.5,384.5,8,0.5,8.5)", "firstClusterStrip:roll", AND(rp1,l1), "COLZ")
+  draw_2D_adv(targetDir, "roll_vs_strip_rh_rp1_l2", ext, treeHits, "GEM RecHit occupancy per roll and strip number, region1 layer2;strip number;roll", 
+	  "h_", "(384,0.5,384.5,8,0.5,8.5)", "firstClusterStrip:roll", AND(rp1,l2), "COLZ")
  
   draw_1D(targetDir, "strip_rh_rm1_l1", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer1;strip number;entries", 
 	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rm1,l1))
@@ -170,4 +225,7 @@ if __name__ == "__main__":
 	    "Eff. for a SimTrack to have an associated GEM RecHit in l1 and l2 with a matched SimHit;SimTrack #phi [rad];Eff.", 
 	    "h_", "(100,-3.141592654,3.141592654)", "phi", AND(ok_eta,AND(ok_gL1sh,ok_gL2sh)),
             AND(ok_gL2rh,ok_gL1rh), "P", kBlue)
+
+  file.Close()
+  fileOut.Close()
   
