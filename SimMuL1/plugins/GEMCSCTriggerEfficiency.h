@@ -293,6 +293,7 @@ private:
   bool addGhostLCTs_;
   
   int minNStWithMinNHitsChambers_;
+  bool requireME1WithMinNHitsChambers_;
   bool minNStWith4Hits_;
   bool requireME1With4Hits_;
   
@@ -916,6 +917,7 @@ private:
   TH1D * h_xtrabx;
   TH1D * h_xtradr;
 
+  TH1D * h_n_simHits;
   TH1D * h_n_alct;
   TH1D * h_n_clct;
   TH1D * h_n_lct;

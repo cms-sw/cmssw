@@ -130,8 +130,8 @@ CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts)
     }
     if (chamber_to_clcts_[id].size() > 2)
     {
-      cout<<"WARNING!!! too many CLCTs "<<chamber_to_clcts_[id].size()<<" in "<<ch_id<<endl;
-      for (auto &c: chamber_to_clcts_[id]) cout<<"  "<<c<<endl;
+      //cout<<"WARNING!!! too many CLCTs "<<chamber_to_clcts_[id].size()<<" in "<<ch_id<<endl;
+      //for (auto &c: chamber_to_clcts_[id]) cout<<"  "<<c<<endl;
     }
   }
 
@@ -203,22 +203,22 @@ CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts)
 
       if (chamber_to_alct_.find(id) != chamber_to_alct_.end())
       {
-        cout<<"WARNING!!! there already was matching ALCT "<<chamber_to_alct_[id]<<endl;
-        cout<<"   new digi: "<<mydigi<<endl;
+        //cout<<"WARNING!!! there already was matching ALCT "<<chamber_to_alct_[id]<<endl;
+        //cout<<"   new digi: "<<mydigi<<endl;
 
         // decide which one to choose
         int q_old = digi_quality(chamber_to_alct_[id]);
         int q_new = digi_quality(mydigi);
         if (q_old > q_new) continue; // keep old
-        cout<<"   new chosen"<<endl;
+        //cout<<"   new chosen"<<endl;
       }
 
       chamber_to_alct_[id] = mydigi;
     }
     if (chamber_to_alcts_[id].size() > 2)
     {
-      cout<<"WARNING!!! too many ALCTs "<<chamber_to_alcts_[id].size()<<" in "<<ch_id<<endl;
-      for (auto &a: chamber_to_alcts_[id]) cout<<"  "<<a<<endl;
+      //cout<<"WARNING!!! too many ALCTs "<<chamber_to_alcts_[id].size()<<" in "<<ch_id<<endl;
+      //for (auto &a: chamber_to_alcts_[id]) cout<<"  "<<a<<endl;
     }
   }
 
@@ -308,7 +308,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
           auto lct21 = lct22;
           digi_wg(lct21) = wg1;
           lcts_tmp.push_back(lct21);
-          cout<<"added ghosts"<<endl<<lct11<<"    "<<lct22<<endl <<lct12<<"    "<<lct21<<endl;
+          //cout<<"added ghosts"<<endl<<lct11<<"    "<<lct22<<endl <<lct12<<"    "<<lct21<<endl;
         }
       }
     } // lcts_in_det
@@ -351,8 +351,8 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
 
       if (chamber_to_lct_.find(id) != chamber_to_lct_.end())
       {
-        cout<<"ALARM!!! there already was matching LCT "<<chamber_to_lct_[id]<<endl;
-        cout<<"   new digi: "<<lct<<endl;
+        //cout<<"ALARM!!! there already was matching LCT "<<chamber_to_lct_[id]<<endl;
+        //cout<<"   new digi: "<<lct<<endl;
       }
       chamber_to_lct_[id] = lct;
     }
@@ -445,7 +445,7 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
           auto lct21 = lct22;
           digi_wg(lct21) = wg1;
           mplcts_tmp.push_back(lct21);
-          cout<<"added ghosts"<<endl<<lct11<<"    "<<lct22<<endl <<lct12<<"    "<<lct21<<endl;
+          //cout<<"added ghosts"<<endl<<lct11<<"    "<<lct22<<endl <<lct12<<"    "<<lct21<<endl;
         }
       }
     } // mplcts_in_det
@@ -488,8 +488,8 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
 
       if (chamber_to_lct_.find(id) != chamber_to_lct_.end())
       {
-        cout<<"ALARM!!! there already was matching LCT "<<chamber_to_lct_[id]<<endl;
-        cout<<"   new digi: "<<lct<<endl;
+        //cout<<"ALARM!!! there already was matching LCT "<<chamber_to_lct_[id]<<endl;
+        //cout<<"   new digi: "<<lct<<endl;
       }
       chamber_to_lct_[id] = lct;
     }

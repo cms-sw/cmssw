@@ -12,7 +12,7 @@ process = cms.Process('GEMCSCTRGANA')
 cmssw = os.getenv( "CMSSW_VERSION" )
 
 ## steering
-events = 1000
+events = 50000
 defaultEmu = False
 ganged = True
 ganged = False
@@ -23,7 +23,7 @@ globalTag = 'upgrade2019'
 
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
-suffix = '_gem98_pt2-50_PU0_pt40_new'
+suffix = '_gem98_pt2-50_PU0_pt0_new'
 inputDir = files[suffix]
 theInputFiles = []
 import os
@@ -40,6 +40,7 @@ for d in range(len(inputDir)):
   ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/... 
   theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
     
+theInputFiles = theInputFiles[:60]
 ##inputFiles = ['file:out_SingleMuPt10Fwd_GEM2019_8PartIncRad_DIGI_L1.root']
 print "InputFiles: ", theInputFiles
 
