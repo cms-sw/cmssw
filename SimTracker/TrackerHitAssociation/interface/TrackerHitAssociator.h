@@ -77,10 +77,10 @@ class TrackerHitAssociator {
   void associateSimpleRecHitCluster(const SiStripCluster* clust,
 				    const uint32_t& detID,
 				    std::vector<SimHitIdpr>& theSimtrackid,
-				    std::vector<PSimHit>& simhit);
+				    std::vector<PSimHit>& clusterSimHits);
   void associateSimpleRecHitCluster(const SiStripCluster* clust,
 				    const uint32_t& detID,
-				    std::vector<PSimHit>& simhit);
+				    std::vector<PSimHit>& clusterSimHits);
   void associateSimpleRecHitCluster(const SiStripCluster* clust,
 				    const uint32_t& detID,
 				    std::vector<SimHitIdpr>& simtrackid);
@@ -98,6 +98,7 @@ class TrackerHitAssociator {
   typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
   typedef simhit_map::iterator simhit_map_iterator;
   simhit_map SimHitMap;
+  simhit_map SimHitSubdetMap;
   std::vector<PSimHit> thePixelHits;
  
  private:
@@ -108,7 +109,7 @@ class TrackerHitAssociator {
   //ADDED NOW AS A PRIVATE MEMBER
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
-  MixCollection<PSimHit>  TrackerHits;
+  /* MixCollection<PSimHit>  TrackerHits; */
 
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
