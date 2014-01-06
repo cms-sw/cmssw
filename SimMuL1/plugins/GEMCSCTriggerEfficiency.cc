@@ -1417,7 +1417,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::set<int> ch_sets[5];
   unsigned int im=0;
   for (; im<matches.size() && im<5; im++) {
-    ch_vecs[im] = matches[im]->chambersWithHits();
+    ch_vecs[im] = matches[im]->chambersWithHits(0,0,minNHitsChamber_);
     ch_sets[im].insert(ch_vecs[im].begin(), ch_vecs[im].end());
   }
   std::set<int> ch_overlap;
@@ -1686,7 +1686,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       if (eta_1b) h_pt_initial_1b->Fill(stpt);
       if (eta_gem_1b) h_pt_initial_gem_1b->Fill(stpt);
 
-      std::vector<int> chIds = match->chambersWithHits();
+      std::vector<int> chIds = match->chambersWithHits(0,0,minNHitsChamber_);
       std::vector<int> fillIds;
       if (pt_ok) 
 	for (size_t ch = 0; ch < chIds.size(); ch++)
