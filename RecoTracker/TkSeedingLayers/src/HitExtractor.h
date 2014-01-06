@@ -5,6 +5,7 @@
 #include <iterator>
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm { class Event; class EventSetup; }
 namespace ctfseeding { class SeedingLayer; }

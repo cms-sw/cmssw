@@ -208,9 +208,9 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     }
     
     
-    double STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
-    MeasurementPoint STEREOpointini(STEREOpointX,-0.5);
-    MeasurementPoint STEREOpointend(STEREOpointX,0.5);
+    auto STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
+    MeasurementPoint STEREOpointini(STEREOpointX,-0.5f);
+    MeasurementPoint STEREOpointend(STEREOpointX,0.5f);
     
     LocalPoint locp1 = partnertopol.localPosition(STEREOpointini);
     LocalPoint locp2 = partnertopol.localPosition(STEREOpointend);
@@ -255,9 +255,9 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     SiStripRecHit2D const & monoRH = CollectorHelper::monoHit(monoRHiter);
     
     // position of the initial and final point of the strip (RPHI cluster) in local strip coordinates
-    double RPHIpointX = topol.measurementPosition(monoRH.localPositionFast()).x();
-    MeasurementPoint RPHIpointini(RPHIpointX,-0.5);
-    MeasurementPoint RPHIpointend(RPHIpointX,0.5);
+    auto RPHIpointX = topol.measurementPosition(monoRH.localPositionFast()).x();
+    MeasurementPoint RPHIpointini(RPHIpointX,-0.5f);
+    MeasurementPoint RPHIpointend(RPHIpointX,0.5f);
     
     // position of the initial and final point of the strip in local coordinates (mono det)
     //StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
@@ -314,7 +314,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
       HelpertRecHit2DLocalPos::updateWithAPE(tmpError,*stripdet);
       MeasurementError errormonoRH=topol.measurementError(monoRH.localPositionFast(),tmpError);
       
-      double pitch=topol.localPitch(monoRH.localPositionFast());
+      auto pitch=topol.localPitch(monoRH.localPositionFast());
       monoRH.setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
     }
 
