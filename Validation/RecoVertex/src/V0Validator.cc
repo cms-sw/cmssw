@@ -32,11 +32,27 @@ const double protonMassSquared = protonMass*protonMass;
 
 
 
-V0Validator::V0Validator(const edm::ParameterSet& iConfig) : 
-  theDQMRootFileName(iConfig.getParameter<std::string>("DQMRootFileName")),
-  k0sCollectionTag(iConfig.getParameter<edm::InputTag>("kShortCollection")),
-  lamCollectionTag(iConfig.getParameter<edm::InputTag>("lambdaCollection")),
-  dirName(iConfig.getParameter<std::string>("dirName")) {
+V0Validator::V0Validator(const edm::ParameterSet& iConfig)
+  : theDQMRootFileName(iConfig.getParameter<std::string>("DQMRootFileName"))
+  , dirName(iConfig.getParameter<std::string>("dirName"))
+  , recoRecoToSimCollectionToken_( consumes<reco::RecoToSimCollection>( edm::InputTag( std::string( "trackingParticleRecoTrackAsssociation" ) ) ) )
+  , recoSimToRecoCollectionToken_( consumes<reco::SimToRecoCollection>( edm::InputTag( std::string( "trackingParticleRecoTrackAsssociation" ) ) ) )
+  , trackingParticleCollection_Eff_Token_( consumes<TrackingParticleCollection>( edm::InputTag( std::string( "mix" )
+											      , std::string( "MergedTrackTruth" )
+												)
+										 )
+					   )
+  , trackingParticleCollectionToken_( consumes<TrackingParticleCollection>( edm::InputTag( std::string( "mix" )
+											 , std::string( "MergedTrackTruth" )
+											   )
+									    )
+				      )
+  , edmView_recoTrack_Token_( consumes< edm::View<reco::Track> >( edm::InputTag( std::string( "generalTracks" ) ) ) )
+  , edmSimTrackContainerToken_( consumes<edm::SimTrackContainer>( edm::InputTag( std::string( "g4SimHits" ) ) ) )
+  , edmSimVertexContainerToken_( consumes<edm::SimVertexContainer>( edm::InputTag( std::string( "g4SimHits" ) ) ) )
+  , vec_recoVertex_Token_( consumes< std::vector<reco::Vertex> >( edm::InputTag( std::string( "offlinePrimaryVertices" ) ) ) )
+  , recoVertexCompositeCandidateCollection_k0s_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "kShortCollection" ) ) )
+  , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "lambdaCollection" ) ) ) {
   genLam = genK0s = realLamFoundEff = realK0sFoundEff = lamCandFound = 
     k0sCandFound = noTPforK0sCand = noTPforLamCand = realK0sFound = realLamFound = 0;
   theDQMstore = edm::Service<DQMStore>().operator->();
@@ -466,15 +482,15 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //reco::SimToRecoCollection simRecColl;
    
   Handle<reco::RecoToSimCollection > recotosimCollectionH;
-  iEvent.getByLabel("trackingParticleRecoTrackAsssociation", recotosimCollectionH);
+  iEvent.getByToken( recoRecoToSimCollectionToken_, recotosimCollectionH );
   //recSimColl= *( recotosimCollectionH.product() ); 
   
   Handle<reco::SimToRecoCollection> simtorecoCollectionH;
-  iEvent.getByLabel("trackingParticleRecoTrackAsssociation", simtorecoCollectionH);
+  iEvent.getByToken( recoSimToRecoCollectionToken_, simtorecoCollectionH );
   //simRecColl= *( simtorecoCollectionH.product() );
 
   edm::Handle<TrackingParticleCollection>  TPCollectionEff ;
-  iEvent.getByLabel("mix", "MergedTrackTruth", TPCollectionEff);
+  iEvent.getByToken( trackingParticleCollection_Eff_Token_, TPCollectionEff );
   const TrackingParticleCollection tPCeff = *( TPCollectionEff.product() );
 
   edm::ESHandle<TrackAssociatorBase> associatorByHits;
@@ -488,29 +504,25 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // Get tracks
   Handle< View<reco::Track> > trackCollectionH;
-  iEvent.getByLabel("generalTracks", trackCollectionH);
+  iEvent.getByToken( edmView_recoTrack_Token_, trackCollectionH );
 
   Handle<SimTrackContainer> simTrackCollection;
-  iEvent.getByLabel("g4SimHits", simTrackCollection);
+  iEvent.getByToken( edmSimTrackContainerToken_, simTrackCollection );
   const SimTrackContainer simTC = *(simTrackCollection.product());
 
   Handle<SimVertexContainer> simVertexCollection;
-  iEvent.getByLabel("g4SimHits", simVertexCollection);
+  iEvent.getByToken( edmSimVertexContainerToken_, simVertexCollection );
   const SimVertexContainer simVC = *(simVertexCollection.product());
 
   //Get tracking particles
   //  -->tracks
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  iEvent.getByLabel("mix", "MergedTrackTruth", TPCollectionH);
+  iEvent.getByToken( trackingParticleCollectionToken_, TPCollectionH );
   const View<reco::Track>  tC = *( trackCollectionH.product() );
-
-//  edm::Handle<TrackingVertexCollection>  TVCollectionH ;
-//  iEvent.getByLabel("trackingParticles","VertexTruth",TVCollectionH);
-//  const TrackingVertexCollection tVC   = *(TVCollectionH.product());
 
   // Select the primary vertex, create a new reco::Vertex to hold it
   edm::Handle< std::vector<reco::Vertex> > primaryVtxCollectionH;
-  iEvent.getByLabel("offlinePrimaryVertices", primaryVtxCollectionH);
+  iEvent.getByToken( vec_recoVertex_Token_, primaryVtxCollectionH );
   const reco::VertexCollection primaryVertexCollection   = *(primaryVtxCollectionH.product());
 
   reco::Vertex* thePrimary = 0;
@@ -539,10 +551,8 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //get the V0s;   
   edm::Handle<reco::VertexCompositeCandidateCollection> k0sCollection;
   edm::Handle<reco::VertexCompositeCandidateCollection> lambdaCollection;
-  //iEvent.getByLabel("generalV0Candidates", "Kshort", k0sCollection);
-  //iEvent.getByLabel("generalV0Candidates", "Lambda", lambdaCollection);
-  iEvent.getByLabel(k0sCollectionTag, k0sCollection);
-  iEvent.getByLabel(lamCollectionTag, lambdaCollection);
+  iEvent.getByToken( recoVertexCompositeCandidateCollection_k0s_Token_, k0sCollection );
+  iEvent.getByToken( recoVertexCompositeCandidateCollection_lambda_Token_, lambdaCollection );
 
   //make vector of pair of trackingParticles to hold good V0 candidates
   std::vector< pair<TrackingParticleRef, TrackingParticleRef> > trueK0s;

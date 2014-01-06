@@ -13,6 +13,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
 
@@ -36,12 +37,7 @@ namespace cms
   {
     if(calculateSignificance_)
       {
-	jetsLabel_ = iConfig.getParameter<edm::InputTag>("jets");
 	jetToken_ = consumes<edm::View<reco::PFJet> >(iConfig.getParameter<edm::InputTag>("jets"));
-      }
-
-    if (calculateSignificance_)
-      {
 	resolutions_ = new metsig::SignAlgoResolutions(iConfig);
       }
 
@@ -57,13 +53,15 @@ namespace cms
     event.getByToken(inputToken_, input);
 
     METAlgo algo;
-    CommonMETData commonMETdata = algo.run(input, globalThreshold_);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold_);
+
+    const math::XYZTLorentzVector p4(commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
+    const math::XYZPoint vtx(0.0, 0.0, 0.0);
 
     PFSpecificAlgo pf;
+    SpecificPFMETData specific = pf.run(*input.product());
 
-    std::auto_ptr<reco::PFMETCollection> pfmetcoll;
-    pfmetcoll.reset(new reco::PFMETCollection);
-    reco::PFMET pfmet = pf.addInfo(input, commonMETdata);
+    reco::PFMET pfmet(specific, commonMETdata.sumet, p4, vtx);
 
     if(calculateSignificance_)
       {
@@ -75,6 +73,9 @@ namespace cms
 	pfsignalgo.addPFJets(jets.product());
 	pfmet.setSignificanceMatrix(pfsignalgo.mkSignifMatrix(input));
       }
+
+    std::auto_ptr<reco::PFMETCollection> pfmetcoll;
+    pfmetcoll.reset(new reco::PFMETCollection);
 
     pfmetcoll->push_back(pfmet);
     event.put(pfmetcoll);

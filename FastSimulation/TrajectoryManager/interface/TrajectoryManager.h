@@ -86,9 +86,9 @@ class TrajectoryManager
 		      int trackID, int partID, const TrackerTopology *tTopo);
 
 /// Propagate the particle through the calorimeters
-  void propagateToCalorimeters(ParticlePropagator& PP, 
-			       int fsimi);
-
+  void propagateToCalorimeters(ParticlePropagator& PP,
+                               int fsimi,
+                               RandomEngineAndDistribution const*);
 
   /// Propagate a particle to a given tracker layer 
   /// (for electron pixel matching mostly)
@@ -111,7 +111,7 @@ class TrajectoryManager
  private:
 
   /// Decay the particle and update the SimEvent with daughters 
-  void updateWithDaughters(ParticlePropagator& PP, int fsimi);
+  void updateWithDaughters(ParticlePropagator& PP, int fsimi, RandomEngineAndDistribution const*);
 
   /// Move, rescale and rotate all daughters after propagation, material effects and decay of the mother.
   void moveAllDaughters(int fsimi, const Rotation& r, double rescale);

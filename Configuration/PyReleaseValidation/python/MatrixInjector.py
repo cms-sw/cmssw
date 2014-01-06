@@ -157,8 +157,12 @@ class MatrixInjector(object):
             wmsplit['DIGIPU']=4
             wmsplit['DIGIPU1']=4
             wmsplit['RECOPU1']=1
+            wmsplit['DIGIUP15_PU50']=1
+            wmsplit['RECOUP15_PU50']=1
+            wmsplit['DIGIUP15_PU25']=1
+            wmsplit['RECOUP15_PU25']=1
             wmsplit['DIGIHISt3']=5
-            wmsplit['RECOHISt4']=5
+            wmsplit['RECODSplit']=1
             wmsplit['SingleMuPt10_ID']=1
             wmsplit['DIGI_ID']=1
             wmsplit['RECO_ID']=1
@@ -265,7 +269,11 @@ class MatrixInjector(object):
                                 chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
                             if '--pileup' in s[2][index]:
                                 processStrPrefix='PU_'
-                                
+                                if   (  s[2][index].split()[  s[2][index].split().index('--pileup')+1 ]  ).find('50ns')  > 0 :
+                                    processStrPrefix='PU50ns_'
+                                elif (  s[2][index].split()[  s[2][index].split().index('--pileup')+1 ]  ).find('25ns')  > 0 :
+                                    processStrPrefix='PU25ns_'
+
                             if acqEra:
                                 #chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
                                 chainDict['AcquisitionEra'][step]=chainDict['CMSSWVersion']

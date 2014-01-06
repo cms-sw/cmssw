@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <memory>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,7 +12,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CLHEP/Random/RandFlat.h"
 
 #include "EvtGen/EvtGen.hh"     
 #include "EvtGenBase/EvtId.hh"
@@ -31,9 +31,10 @@
 #include "EvtGenBase/EvtSecondary.hh"
 #include "EvtGenModels/EvtPythia.hh"
 
+class myEvtRandomEngine;
+
 namespace CLHEP {
   class HepRandomEngine;
-  class RandFlat;
 }
 
 namespace HepMC {
@@ -60,6 +61,8 @@ namespace gen {
       void go_through_daughters(EvtParticle* part);
       void update_candlist( int theIndex, HepMC::GenParticle *thePart );
   
+      void setRandomEngine(CLHEP::HepRandomEngine* v);
+
       // from Pythia
       // void call_pygive(const std::string& iParm );
 
@@ -69,7 +72,6 @@ namespace gen {
       
       std::vector<int> m_PDGs;
       
-      CLHEP::RandFlat* m_flat;   
       EvtGen *m_EvtGen;
       std::vector<EvtId> forced_Evt;     // EvtId's of particles with forced decay
       std::vector<int> forced_Hep;       // HepId's of particles with forced decay
@@ -87,10 +89,15 @@ namespace gen {
       
       int nlist; 
       HepMC::GenParticle *listp[10]; 
-      int index[10];                     // list of candidates to be forced  
-       
+      int index[10];                     // list of candidates to be forced
+
+      myEvtRandomEngine* the_engine;
+
+      bool useDefault;
+      std::string decay_table_s;
+      std::string pdt_s;
+      std::string user_decay_s;
+      std::vector<std::string> forced_names;
    };
-
 }
-
 #endif

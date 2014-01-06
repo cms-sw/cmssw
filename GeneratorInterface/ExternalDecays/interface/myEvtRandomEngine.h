@@ -18,9 +18,11 @@
 #ifndef MYEVTRANDOMENGINE_HH
 #define MYEVTRANDOMENGINE_HH
 
-//#include "CLHEP/config/CLHEP.h"
-#include "CLHEP/Random/RandomEngine.h"
 #include "EvtGenBase/EvtRandomEngine.hh"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class myEvtRandomEngine : public EvtRandomEngine  
 {
@@ -33,11 +35,14 @@ public:
 
   virtual double random();
 
+  void setRandomEngine(CLHEP::HepRandomEngine* v) { the_engine = v; }
+
+  CLHEP::HepRandomEngine* engine() const { return the_engine; }
+
 private:
 
+  void throwNullPtr() const;
+
   CLHEP::HepRandomEngine* the_engine;
-
 };
-
 #endif
-

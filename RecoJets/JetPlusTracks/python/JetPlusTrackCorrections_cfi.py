@@ -33,7 +33,7 @@ JPTZSPCorrectorICone5 = cms.PSet(
     
     # Electrons
     UseElectrons    = cms.bool(True),
-    Electrons       = cms.InputTag("gsfElectrons"),
+    Electrons       = cms.InputTag("gedGsfElectrons"),
     ElectronIds     = cms.InputTag("JPTeidTight"),
     
     # Filtering tracks using quality

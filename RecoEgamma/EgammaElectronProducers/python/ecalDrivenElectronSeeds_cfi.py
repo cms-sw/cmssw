@@ -7,8 +7,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff import *
 
 ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
-    barrelSuperClusters = cms.InputTag("correctedHybridSuperClusters"),
-    endcapSuperClusters = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+    barrelSuperClusters = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
+    endcapSuperClusters = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
     SeedConfiguration = cms.PSet(
         ecalDrivenElectronSeedsParameters,
 #        OrderedHitsFactoryPSet = cms.PSet(

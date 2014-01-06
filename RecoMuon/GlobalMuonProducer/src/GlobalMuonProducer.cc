@@ -25,14 +25,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-// Input and output collection
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 using namespace edm;
 using namespace std;
@@ -51,6 +43,12 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
+  staMuonsToken=consumes<reco::TrackCollection>(parameterSet.getParameter<InputTag>("MuonCollectionLabel"));
+  staMuonsTrajToken=consumes<std::vector<Trajectory> >(parameterSet.getParameter<InputTag>("MuonCollectionLabel").label()); 
+  staAssoMapToken=consumes<TrajTrackAssociationCollection>(parameterSet.getParameter<InputTag>("MuonCollectionLabel").label()); 
+  updatedStaAssoMapToken=consumes<reco::TrackToTrackMap>(parameterSet.getParameter<InputTag>("MuonCollectionLabel").label());
+ 
+
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -62,8 +60,9 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   theService = new MuonServiceProxy(serviceParameters);
   
   // instantiate the concrete trajectory builder in the Track Finder
-  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,theService);
-  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+  edm::ConsumesCollector iC = consumesCollector();
+  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,iC,theService);
+  GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService,iC);
 
   theTrackFinder = new MuonTrackFinder(gmtb, mtl);
 
@@ -102,11 +101,11 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   // Take the STA muon container(s)
   Handle<reco::TrackCollection> staMuons;
-  event.getByLabel(theSTACollectionLabel,staMuons);
+  event.getByToken(staMuonsToken,staMuons);
 
   Handle<vector<Trajectory> > staMuonsTraj;
 
-  LogTrace(metname) << "Taking " << staMuons->size() << " Stand Alone Muons "<<theSTACollectionLabel<<endl;
+  LogTrace(metname) << "Taking " << staMuons->size() << " Stand Alone Muons "<<endl;
 
   vector<MuonTrajectoryBuilder::TrackCand> staTrackCands;
 
@@ -114,7 +113,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   edm::Handle<reco::TrackToTrackMap> updatedStaAssoMap;
 
-  if( event.getByLabel(theSTACollectionLabel.label(), staMuonsTraj) && event.getByLabel(theSTACollectionLabel.label(),staAssoMap) && event.getByLabel(theSTACollectionLabel.label(),updatedStaAssoMap) ) {    
+  if( event.getByToken(staMuonsTrajToken, staMuonsTraj) && event.getByToken(staAssoMapToken,staAssoMap) && event.getByToken(updatedStaAssoMapToken,updatedStaAssoMap) ) {    
     
     for(TrajTrackAssociationCollection::const_iterator it = staAssoMap->begin(); it != staAssoMap->end(); ++it){	
       const Ref<vector<Trajectory> > traj = it->key;

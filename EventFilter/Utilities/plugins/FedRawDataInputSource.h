@@ -40,6 +40,7 @@ private:
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
   int cacheNextEvent();
   edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
+  void closeCurrentFile();
   int openNextFile();
   int searchForNextFile();
   bool grabNextJsonFile(boost::filesystem::path const&);

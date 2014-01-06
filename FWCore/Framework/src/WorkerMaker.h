@@ -35,7 +35,6 @@ protected:
     ModuleDescription createModuleDescription(MakeModuleParams const& p) const;
 
     void throwConfigurationException(ModuleDescription const& md,
-                                     signalslot::Signal<void(ModuleDescription const&)>& post,
                                      cms::Exception & iException) const;
 
     void throwValidationException(MakeModuleParams const& p,

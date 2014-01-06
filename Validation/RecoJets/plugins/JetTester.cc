@@ -18,7 +18,6 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   mRecoJetPtThreshold            (iConfig.getParameter<double>              ("recoJetPtThreshold")),
   mMatchGenPtThreshold           (iConfig.getParameter<double>              ("matchGenPtThreshold")),
   mGenEnergyFractionThreshold    (iConfig.getParameter<double>              ("genEnergyFractionThreshold")),
-  mReverseEnergyFractionThreshold(iConfig.getParameter<double>              ("reverseEnergyFractionThreshold")),
   mRThreshold                    (iConfig.getParameter<double>              ("RThreshold")),
   JetCorrectionService           (iConfig.getParameter<std::string>         ("JetCorrections"))
 {
@@ -355,7 +354,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
     mNJetsEta_E_20_40 = dbe->book1D("NJetsEta_E_20_40", "NJetsEta_E 20<Pt<40",  15,    0,   15);
     mNJetsEta_B_40 = dbe->book1D("NJetsEta_B", "NJetsEta_B 40<Pt",  15,    0,   15);
     mNJetsEta_E_40 = dbe->book1D("NJetsEta_E", "NJetsEta_E 40<Pt",  15,    0,   15);
-    mNJets_40 = dbe->book1D("NJets", "NJets 40<Pt",  15,    0,   15);
+    mNJets_40 = dbe->book1D("NJets", "NJets 40>Pt",  15,    0,   15);
     mNJets1 = dbe->bookProfile("NJets1", "Number of jets above Pt threshold", 100, 0,  200, 100, 0, 50, "s");
     mNJets2 = dbe->bookProfile("NJets2", "Number of jets above Pt threshold", 100, 0, 4000, 100, 0, 50, "s");
 

@@ -118,7 +118,7 @@ egHLTOffDoubleEleEt10SWCuts.barrel.cuts = "et"
 egHLTOffDoubleEleEt10SWCuts.endcap.minEt = 10.
 egHLTOffDoubleEleEt10SWCuts.endcap.cuts = "et"
 
-#photons
+#gedPhotons
 egHLTOffPhoEt10Cuts = cms.PSet(egHLTOffBasePhoTrigCuts)
 egHLTOffPhoEt10Cuts.trigName = "hltL1NonIsoHLTNonIsoSinglePhotonEt10HcalIsolFilter"
 egHLTOffPhoEt10Cuts.barrel.minEt = 10.

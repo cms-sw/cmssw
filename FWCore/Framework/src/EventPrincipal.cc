@@ -165,23 +165,13 @@ namespace edm {
     phb->putProduct(edp, productProvenance);
   }
 
-  void
-  EventPrincipal::resolveProduct_(ProductHolderBase const& phb, bool fillOnDemand,
-                                  ModuleCallingContext const* mcc) const {
-    // Try unscheduled production.
-    if(phb.onDemand()) {
-      if(fillOnDemand) {
-        unscheduledFill(phb.resolvedModuleLabel(),
-                        mcc);
-      }
-      return;
-    }
-
+   void
+  EventPrincipal::readFromSource_(ProductHolderBase const& phb, ModuleCallingContext const* mcc) const {
     if(phb.branchDescription().produced()) return; // nothing to do.
     if(phb.product()) return; // nothing to do.
     if(phb.productUnavailable()) return; // nothing to do.
     if(!reader()) return; // nothing to do.
-
+    
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
     {
@@ -193,9 +183,9 @@ namespace edm {
           postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
         }
       });
-
+      
       WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
-
+      
       // Now fix up the ProductHolder
       checkUniquenessAndType(edp, &phb);
       phb.putProduct(edp);
@@ -240,7 +230,7 @@ namespace edm {
     return streamID_.value();
   }
 
-  static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductPtr const phb) {
+  static void throwProductDeletedException(ProductID const& pid, edm::EventPrincipal::ConstProductHolderPtr const phb) {
     ProductDeletedException exception;
     exception<<"get by product ID: The product with given id: "<<pid
     <<"\ntype: "<<phb->productType()
@@ -253,7 +243,7 @@ namespace edm {
   BasicHandle
   EventPrincipal::getByProductID(ProductID const& pid) const {
     BranchID bid = pidToBid(pid);
-    ConstProductPtr const phb = getProductHolder(bid, true, false, nullptr);
+    ConstProductHolderPtr const phb = getProductHolder(bid);
     if(phb == nullptr) {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
@@ -273,11 +263,14 @@ namespace edm {
       return BasicHandle(makeHandleExceptionFactory([pid]()->std::shared_ptr<cms::Exception> {
         std::shared_ptr<cms::Exception> whyFailed(std::make_shared<Exception>(errors::ProductNotFound, "InvalidID"));
         *whyFailed
-        << "get by product ID: no product with given id: " << pid << "\n"
-        << "onDemand production failed to produce it.\n";
+        << "get by ProductID: could not get product with id: " << pid << "\n"
+        << "Unscheduled execution not allowed to get via ProductID.\n";
         return whyFailed;
       }));
     }
+    ProductHolderBase::ResolveStatus status;
+    phb->resolveProduct(status,false,nullptr);
+
     return BasicHandle(phb->productData());
   }
 

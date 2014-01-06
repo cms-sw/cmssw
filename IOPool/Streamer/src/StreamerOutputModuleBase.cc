@@ -184,7 +184,7 @@ namespace edm {
                            getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
-                           (uint32)serializeDataBuffer_.adler32_chksum(), host_name_));
+                           (uint32)serializeDataBuffer_.adler32_chksum()));
 
     // copy data into the destination message
     unsigned char* src = serializeDataBuffer_.bufferPointer();

@@ -1,4 +1,6 @@
+<use name="FWCore/Concurrency"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
 <use name="GeneratorInterface/Pythia6Interface"/>
 <use name="heppdt"/>
 <use name="SimGeneral/HepPDTRecord"/>

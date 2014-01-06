@@ -425,27 +425,19 @@ namespace edm {
     addProduct_(productHolder);
   }
 
-  Principal::ConstProductPtr
-  Principal::getProductHolder(BranchID const& bid, bool resolveProd, bool fillOnDemand,
-                              ModuleCallingContext const* mcc) const {
+  Principal::ConstProductHolderPtr
+  Principal::getProductHolder(BranchID const& bid) const {
     ProductHolderIndex index = preg_->indexFrom(bid);
     if(index == ProductHolderIndexInvalid){
-       return ConstProductPtr();
+       return ConstProductHolderPtr();
     }
-    return getProductByIndex(index, resolveProd, fillOnDemand, mcc);
+    return getProductHolderByIndex(index);
   }
 
-  Principal::ConstProductPtr
-  Principal::getProductByIndex(ProductHolderIndex const& index, bool resolveProd, bool fillOnDemand,
-                               ModuleCallingContext const* mcc) const {
+  Principal::ConstProductHolderPtr
+  Principal::getProductHolderByIndex(ProductHolderIndex const& index) const {
 
-    ConstProductPtr const phb = productHolders_[index].get();
-    if(nullptr == phb) {
-      return phb;
-    }
-    if(resolveProd && !phb->productUnavailable()) {
-      this->resolveProduct(*phb, fillOnDemand, mcc);
-    }
+    ConstProductHolderPtr const phb = productHolders_[index].get();
     return phb;
   }
 
@@ -605,26 +597,11 @@ namespace edm {
             continue;
           }
 
-          //NOTE sometimes 'productHolder->productUnavailable()' is true if was already deleted
-          if(productHolder->productWasDeleted()) {
-            throwProductDeletedException("findProducts",
-                                         typeID,
-                                         bd.moduleLabel(),
-                                         bd.productInstanceName(),
-                                         bd.processName());
-          }
-
-          // Skip product if not available.
-          if(!productHolder->productUnavailable()) {
-
-            this->resolveProduct(*productHolder, true, mcc);
-            // If the product is a dummy filler, product holder will now be marked unavailable.
-            // Unscheduled execution can fail to produce the EDProduct so check
-            if(productHolder->product() && !productHolder->productUnavailable() && !productHolder->onDemand()) {
-              // Found a good match, save it
-              BasicHandle bh(productHolder->productData());
-              results.push_back(bh);
-            }
+          ProductHolderBase::ResolveStatus resolveStatus;
+          ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, mcc);
+          if(productData) {
+            // Skip product if not available.
+            results.emplace_back(*productData);
           }
         }
       }
@@ -738,7 +715,7 @@ namespace edm {
   OutputHandle
   Principal::getForOutput(BranchID const& bid, bool getProd,
                           ModuleCallingContext const* mcc) const {
-    ConstProductPtr const phb = getProductHolder(bid, getProd, true, mcc);
+    ConstProductHolderPtr const phb = getProductHolder(bid);
     if(phb == nullptr) {
       throwProductNotFoundException("getForOutput", errors::LogicError, bid);
     }
@@ -747,6 +724,10 @@ namespace edm {
                                    phb->moduleLabel(),
                                    phb->productInstanceName(),
                                    phb->processName());
+    }
+    if(getProd) {
+      ProductHolderBase::ResolveStatus status;
+      phb->resolveProduct(status,false,mcc);
     }
     if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
       return OutputHandle();
@@ -757,20 +738,17 @@ namespace edm {
   Provenance
   Principal::getProvenance(BranchID const& bid,
                            ModuleCallingContext const* mcc) const {
-    ConstProductPtr const phb = getProductHolder(bid, false, true, mcc);
+    ConstProductHolderPtr const phb = getProductHolder(bid);
     if(phb == nullptr) {
       throwProductNotFoundException("getProvenance", errors::ProductNotFound, bid);
     }
 
     if(phb->onDemand()) {
-      unscheduledFill(phb->branchDescription().moduleLabel(), mcc);
+      ProductHolderBase::ResolveStatus status;
+      if(not phb->resolveProduct(status,false,mcc) ) {
+        throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
+      }
     }
-    // We already tried to produce the unscheduled products above
-    // If they still are not there, then throw
-    if(phb->onDemand()) {
-      throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
-    }
-
     return *phb->provenance();
   }
 

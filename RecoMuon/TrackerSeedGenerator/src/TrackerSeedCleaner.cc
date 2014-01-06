@@ -52,7 +52,7 @@ void TrackerSeedCleaner::init(const MuonServiceProxy *service){
 //
 void TrackerSeedCleaner::setEvent(const edm::Event& event)
 {
- event.getByLabel(theBeamSpotTag, bsHandle_);
+ event.getByToken(beamspotToken_, bsHandle_);
 }
 
 //

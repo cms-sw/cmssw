@@ -128,7 +128,7 @@ const std::pair<unsigned short, double>  SiStripDetInfoFileReader::getNumberOfAp
   }
   else{
 
-    static std::pair<unsigned short, double> defaultValue(0,0);
+    std::pair<unsigned short, double> defaultValue(0,0.);
     edm::LogWarning("SiStripDetInfoFileReader::getNumberOfApvsAndStripLength - Unable to find requested detid. Returning invalid data ")<<endl; 
     return defaultValue;
 
@@ -147,7 +147,7 @@ const float & SiStripDetInfoFileReader::getThickness(uint32_t detId) const{
   }
   else{
 
-    static float defaultValue=0;
+    static const float defaultValue=0;
     edm::LogWarning("SiStripDetInfoFileReader::getThickness - Unable to find requested detid. Returning invalid data ")<<endl; 
     return defaultValue;
 

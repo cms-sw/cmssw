@@ -33,7 +33,6 @@
 
 //#include "DataFormats/TrackReco/src/classes.h"
 
-#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
     

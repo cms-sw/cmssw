@@ -824,7 +824,7 @@ void EEClusterTaskExtras::analyze(const Event& e, const EventSetup& c) {
 
    } else {
 
-      LogWarning("EEClusterTaskExtras") << "SuperClusterCollection not available";
+     //      LogWarning("EEClusterTaskExtras") << "SuperClusterCollection not available";
 
    }
 

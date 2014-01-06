@@ -3,6 +3,8 @@
 
 namespace gen {
 
+const std::vector<std::string> BaseHadronizer::theSharedResources;
+
 BaseHadronizer::BaseHadronizer( edm::ParameterSet const& ps )
 {
 

@@ -6,14 +6,13 @@ import FWCore.ParameterSet.Config as cms
 #                                  JetType = cms.untracked.string('calo'),
 #                                  OutputFile = cms.untracked.string('JetTester.root'),
 #                                  src            = cms.InputTag("kt6PFJets"),
-#                                  srcRho         = cms.InputTag("kt6PFJets","rho"),
+#                                  srcRho         = cms.InputTag("fixedGridRhoFastjetAll"),
 #                                  srcGen         = cms.InputTag("kt6GenJets"),
 #                                  JetCorrections = cms.string(""),
 #                                  recoJetPtThreshold = cms.double(40),
 #                                  genEnergyFractionThreshold     = cms.double(0.05),
 #                                  matchGenPtThreshold                 = cms.double(20.0),
-#                                  RThreshold                     = cms.double(0.3),
-#                                  reverseEnergyFractionThreshold = cms.double(0.5)
+#                                  RThreshold                     = cms.double(0.3)
 #                                  )
 
 ## kt6 Calo jets - UnCorr
@@ -22,14 +21,13 @@ import FWCore.ParameterSet.Config as cms
 #                                    JetType = cms.untracked.string('calo'),
 #                                    OutputFile = cms.untracked.string('JetTester.root'),
 #                                    src            = cms.InputTag("kt6CaloJets"),                                   
-#                                    srcRho         = cms.InputTag("kt6CaloJets","rho"),
+#                                    srcRho         = cms.InputTag("fixedGridRhoFastjetAllCalo"),
 #                                    srcGen         = cms.InputTag("kt6GenJets"),
 #                                    JetCorrections = cms.string(""),
 #                                    recoJetPtThreshold = cms.double(40),
 #                                    genEnergyFractionThreshold     = cms.double(0.05),
 #                                    matchGenPtThreshold                 = cms.double(20.0),
-#                                    RThreshold                     = cms.double(0.3),
-#                                    reverseEnergyFractionThreshold = cms.double(0.5)
+#                                    RThreshold                     = cms.double(0.3)
 #                                    )
 
 # AntiKt5 Calo jets
@@ -44,8 +42,7 @@ JetAnalyzerAk5Calo = cms.EDAnalyzer("JetTester",
                                     recoJetPtThreshold = cms.double(40),
                                     genEnergyFractionThreshold     = cms.double(0.05),
                                     matchGenPtThreshold                 = cms.double(20.0),
-                                    RThreshold                     = cms.double(0.3),
-                                    reverseEnergyFractionThreshold = cms.double(0.5)
+                                    RThreshold                     = cms.double(0.3)
                                     )
 
 ## AntiKt7 Calo jets
@@ -60,8 +57,7 @@ JetAnalyzerAk5Calo = cms.EDAnalyzer("JetTester",
 #                                    recoJetPtThreshold = cms.double(40),
 #                                    genEnergyFractionThreshold     = cms.double(0.05),
 #                                    matchGenPtThreshold                 = cms.double(20.0),
-#                                    RThreshold                     = cms.double(0.3),
-#                                    reverseEnergyFractionThreshold = cms.double(0.5)
+#                                    RThreshold                     = cms.double(0.3)
 #                                    )
 #
 
@@ -77,8 +73,7 @@ JetAnalyzerAk5PF = cms.EDAnalyzer("JetTester",
                                   recoJetPtThreshold = cms.double(40),
                                   genEnergyFractionThreshold     = cms.double(0.05),                                    
                                   matchGenPtThreshold                 = cms.double(20.0),           
-                                  RThreshold                     = cms.double(0.3),              
-                                  reverseEnergyFractionThreshold = cms.double(0.5)
+                                  RThreshold                     = cms.double(0.3)
                                   )
 
 # AntiKt5 JPT jets
@@ -93,8 +88,7 @@ JetAnalyzerAk5JPT = cms.EDAnalyzer("JetTester",
                                    recoJetPtThreshold = cms.double(40),
                                    genEnergyFractionThreshold     = cms.double(0.05),
                                    matchGenPtThreshold                 = cms.double(20.0),
-                                   RThreshold                     = cms.double(0.3),
-                                   reverseEnergyFractionThreshold = cms.double(0.5)
+                                   RThreshold                     = cms.double(0.3)
                                    )
 # AntiKt5 PF CHS jets
 #-------------------------------------------------------------------------------
@@ -108,8 +102,7 @@ JetAnalyzerAk5PFCHS = cms.EDAnalyzer("JetTester",
                                   recoJetPtThreshold = cms.double(40),
                                   genEnergyFractionThreshold     = cms.double(0.05),                                    
                                   matchGenPtThreshold                 = cms.double(20.0),           
-                                  RThreshold                     = cms.double(0.3),              
-                                  reverseEnergyFractionThreshold = cms.double(0.5)
+                                  RThreshold                     = cms.double(0.3) 
                                   )
 ## AntiKt8 PF  jets
 ##-------------------------------------------------------------------------------
@@ -124,8 +117,7 @@ JetAnalyzerAk5PFCHS = cms.EDAnalyzer("JetTester",
 #                                  recoJetPtThreshold = cms.double(40),
 #                                  genEnergyFractionThreshold     = cms.double(0.05),                                    
 #                                  matchGenPtThreshold                 = cms.double(20.0),           
-#                                  RThreshold                     = cms.double(0.3),              
-#                                  reverseEnergyFractionThreshold = cms.double(0.5)
+#                                  RThreshold                     = cms.double(0.3)
 #                                  )
 ## AntiKt8 PF CHS jets
 ##-------------------------------------------------------------------------------
@@ -140,8 +132,7 @@ JetAnalyzerAk5PFCHS = cms.EDAnalyzer("JetTester",
 #                                  recoJetPtThreshold = cms.double(40),
 #                                  genEnergyFractionThreshold     = cms.double(0.05),                                    
 #                                  matchGenPtThreshold                 = cms.double(20.0),           
-#                                  RThreshold                     = cms.double(0.3),              
-#                                  reverseEnergyFractionThreshold = cms.double(0.5)
+#                                  RThreshold                     = cms.double(0.3)
 #                                  )
 ## CA8 PF CHS jets
 ##-------------------------------------------------------------------------------
@@ -156,8 +147,7 @@ JetAnalyzerAk5PFCHS = cms.EDAnalyzer("JetTester",
 #                                  recoJetPtThreshold = cms.double(40),
 #                                  genEnergyFractionThreshold     = cms.double(0.05),                                    
 #                                  matchGenPtThreshold                 = cms.double(20.0),           
-#                                  RThreshold                     = cms.double(0.3),              
-#                                  reverseEnergyFractionThreshold = cms.double(0.5)
+#                                  RThreshold                     = cms.double(0.3)
 #                                  )
-#
+
 

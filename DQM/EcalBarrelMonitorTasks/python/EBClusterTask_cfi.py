@@ -5,8 +5,8 @@ ecalBarrelClusterTask = cms.EDAnalyzer("EBClusterTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),    
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    BasicClusterCollection = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    SuperClusterCollection = cms.InputTag("correctedHybridSuperClusters"),
+    BasicClusterCollection = cms.InputTag("particleFlowClusterECAL"),
+    SuperClusterCollection = cms.InputTag("particleFlowSuperClusterECAL", "particleFlowSuperClusterECALBarrel"),
     EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
 

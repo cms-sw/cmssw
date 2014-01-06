@@ -35,7 +35,7 @@ defaultOptions.evt_type = ""
 defaultOptions.filein = ""
 defaultOptions.dbsquery=""
 defaultOptions.secondfilein = ""
-defaultOptions.customisation_file = ""
+defaultOptions.customisation_file = []
 defaultOptions.customise_commands = ""
 defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
@@ -740,7 +740,9 @@ class ConfigBuilder(object):
     def addCustomise(self):
         """Include the customise code """
 
-        custOpt=self._options.customisation_file.split(",")
+	custOpt=[]
+	for c in self._options.customisation_file:
+		custOpt.extend(c.split(","))
 	custMap={}
 	for opt in custOpt:
 		if opt=='': continue
@@ -1445,7 +1447,7 @@ class ConfigBuilder(object):
                     self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
-		self._options.customisation_file+=",HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC"
+		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
 
 	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
@@ -1649,7 +1651,7 @@ class ConfigBuilder(object):
 		    self.executeAndRemember("process.mix.playback = True")
 		    self.executeAndRemember("process.mix.digitizers = cms.PSet()")
                     self.executeAndRemember("for a in process.aliases: delattr(process, a)")
-                    self._options.customisation_file+=",SimGeneral/MixingModule/fullMixCustomize_cff.setCrossingFrameOn"
+                    self._options.customisation_file.append("SimGeneral/MixingModule/fullMixCustomize_cff.setCrossingFrameOn")
 
 	    if hasattr(self.process,"genstepfilter") and len(self.process.genstepfilter.triggerConditions):
 		    #will get in the schedule, smoothly

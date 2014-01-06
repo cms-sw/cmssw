@@ -10,21 +10,22 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
 #include <vector>
 
 //____________________________________________________________________________||
-class CorrectedPFMETProducer2 : public edm::EDProducer  
+class AddCorrectionsToCaloMET : public edm::EDProducer
 {
 
 public:
 
-  explicit CorrectedPFMETProducer2(const edm::ParameterSet& cfg)
+  explicit AddCorrectionsToCaloMET(const edm::ParameterSet& cfg)
     : token_(consumes<METCollection>(cfg.getParameter<edm::InputTag>("src")))
   {
+
   std::vector<edm::InputTag> corrInputTags = cfg.getParameter<std::vector<edm::InputTag> >("srcCorrections");
   for (std::vector<edm::InputTag>::const_iterator inputTag = corrInputTags.begin(); inputTag != corrInputTags.end(); ++inputTag)
       {
@@ -34,11 +35,11 @@ public:
     produces<METCollection>("");
   }
 
-  ~CorrectedPFMETProducer2() { }
-    
+  ~AddCorrectionsToCaloMET() { }
+
 private:
 
-  typedef std::vector<reco::PFMET> METCollection;
+  typedef std::vector<reco::CaloMET> METCollection;
 
   edm::EDGetTokenT<METCollection> token_;
   std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens_;
@@ -48,11 +49,11 @@ private:
     edm::Handle<METCollection> srcMETCollection;
     evt.getByToken(token_, srcMETCollection);
 
-    const reco::PFMET& srcMET = (*srcMETCollection)[0];
+    const reco::CaloMET& srcMET = (*srcMETCollection)[0];
 
     CorrMETData correction = readAndSumCorrections(evt, es);
 
-    reco::PFMET outMET = applyCorrection(srcMET, correction);
+    reco::CaloMET outMET = applyCorrection(srcMET, correction);
 
     std::auto_ptr<METCollection> product(new METCollection);
     product->push_back(outMET);
@@ -70,15 +71,18 @@ private:
 	ret += (*corr);
       }
 
+
     return ret;
   }
 
-  reco::PFMET applyCorrection(const reco::PFMET& srcMET, const CorrMETData& correction)
+  reco::CaloMET applyCorrection(const reco::CaloMET& srcMET, const CorrMETData& correction)
   {
-    return reco::PFMET(srcMET.getSpecific(), srcMET.sumEt() + correction.sumet, constructP4From(srcMET, correction), srcMET.vertex());
+    std::vector<CorrMETData> corrections = srcMET.mEtCorr();
+    corrections.push_back(correction);
+    return reco::CaloMET(srcMET.getSpecific(), srcMET.sumEt() + correction.sumet, corrections, constructP4From(srcMET, correction), srcMET.vertex());
   }
 
-  reco::Candidate::LorentzVector constructP4From(const reco::PFMET& met, const CorrMETData& correction)
+  reco::Candidate::LorentzVector constructP4From(const reco::CaloMET& met, const CorrMETData& correction)
   {
     double px = met.px() + correction.mex;
     double py = met.py() + correction.mey;
@@ -89,5 +93,4 @@ private:
 
 //____________________________________________________________________________||
 
-DEFINE_FWK_MODULE(CorrectedPFMETProducer2);
-
+DEFINE_FWK_MODULE(AddCorrectionsToCaloMET);

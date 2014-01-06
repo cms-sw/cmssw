@@ -237,7 +237,7 @@ namespace edm {
 	<< principal_.productRegistry()
 	<< '\n';
     }
-    ProductHolderBase const*  phb = principal_.getProductByIndex(index, false, false, nullptr);
+    ProductHolderBase const*  phb = principal_.getProductHolderByIndex(index);
     assert(phb != nullptr);
     return phb->branchDescription();
   }

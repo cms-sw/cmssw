@@ -41,6 +41,9 @@ class L3TkMuonProducer : public edm::EDProducer {
   
   // L3/GLB Collection Label
   edm::InputTag theL3CollectionLabel; 
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
+
 
   //psuedo ref is L2 or L1 ref.
   typedef std::pair<unsigned int,unsigned int> pseudoRef;

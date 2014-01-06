@@ -1,26 +1,4 @@
 #include "TSGFromL2Muon.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
-#include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <vector>
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
-#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedCleaner.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   : theConfig(cfg), theService(0), theRegionBuilder(0), theTkSeedGenerator(0), theSeedCleaner(0)
@@ -48,15 +26,18 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg)
   edm::ParameterSet seedGenPSet = theConfig.getParameter<edm::ParameterSet>("TkSeedGenerator");
   std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
 
-  theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet);  
+  edm::ConsumesCollector iC  = consumesCollector();
+  theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet,iC);  
   
   //seed cleaner
   edm::ParameterSet trackerSeedCleanerPSet = theConfig.getParameter<edm::ParameterSet>("TrackerSeedCleaner");
   //to activate or not the cleaner
   if (!trackerSeedCleanerPSet.empty()){
-    theSeedCleaner = new TrackerSeedCleaner(trackerSeedCleanerPSet);
+    theSeedCleaner = new TrackerSeedCleaner(trackerSeedCleanerPSet,iC);
   }
 
+
+  l2muonToken = consumes<reco::TrackCollection>(theL2CollectionLabel);
 }
 
 TSGFromL2Muon::~TSGFromL2Muon()
@@ -96,7 +77,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
   //retrieve L2 track collection
   edm::Handle<reco::TrackCollection> l2muonH;
-  ev.getByLabel(theL2CollectionLabel ,l2muonH); 
+  ev.getByToken(l2muonToken ,l2muonH); 
 
   // produce trajectoryseed collection
   unsigned int imu=0;
