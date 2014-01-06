@@ -14,6 +14,16 @@ gMinEta = 1.45
 gMaxEta = 2.5
 
 #_______________________________________________________________________________
+def drawPULabel(x=0.17, y=0.15, font_size=0.):
+  """Label for pile-up"""
+  tex = TLatex(x, y,"PU0")
+  if (font_size > 0.):
+      tex.SetFontSize(font_size)
+  tex.SetNDC()
+  tex.Draw("same")
+  return tex
+
+#_______________________________________________________________________________
 def setEffHisto(num_name, den_name, dir, nrebin, lcolor, lstyle, lwidth,
                 htitle, xtitle, ytitle, x_range, y_range):
     """Set efficiency histogram"""
@@ -115,10 +125,10 @@ def cscStationOccupanciesVsEta():
     h_eff_eta_me3_initial = setEffHisto("h_eta_me3_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME3","Sim track #eta","Efficiency",xrange,yrange)
     h_eff_eta_me4_initial = setEffHisto("h_eta_me4_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME4","Sim track #eta","Efficiency",xrange,yrange)
     
-    c.cd(1) ; h_eff_eta_me1_initial.Draw("hist")
-    c.cd(2) ; h_eff_eta_me2_initial.Draw("hist")
-    c.cd(3) ; h_eff_eta_me3_initial.Draw("hist")
-    c.cd(4) ; h_eff_eta_me4_initial.Draw("hist")
+    c.cd(1) ; h_eff_eta_me1_initial.Draw("hist") ; tex1 = drawPULabel()
+    c.cd(2) ; h_eff_eta_me2_initial.Draw("hist") ; tex2 = drawPULabel()
+    c.cd(3) ; h_eff_eta_me3_initial.Draw("hist") ; tex3 = drawPULabel()
+    c.cd(4) ; h_eff_eta_me4_initial.Draw("hist") ; tex4 = drawPULabel()
     
     c.SaveAs("%sc_eff_eta_simh_by_st%s"%(output_dir,ext))
 
@@ -149,6 +159,7 @@ def cscStationOccupanciesMatchedVsEta_2():
     l_eff_eta_simh.AddEntry(h_eta_initial_1st,"#geq 1 CSC station","pl")
     l_eff_eta_simh.AddEntry(h_eta_initial_2st,"#geq 2 CSC stations","pl")
     l_eff_eta_simh.AddEntry(h_eta_initial_3st,"#geq 3 CSC stations","pl")
+    tex = drawPULabel()
     l_eff_eta_simh.Draw()
 
     c.SaveAs("%sc_eff_eta_simh%s"%(output_dir,ext))
@@ -180,6 +191,7 @@ def cscStationOccupanciesMatchedVsEta_3():
     l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_,"ME1","pl")
     l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_2st,"ME1 + #geq 1 CSC station","pl")
     l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_3st,"ME1 + #geq 2 CSC stations","pl")
+    tex = drawPULabel()
     l_eff_eta_simh_me1.Draw()
 
     c.SaveAs("%sc_eff_eta_simh_me1%s"%(output_dir,ext))
@@ -204,10 +216,10 @@ def cscStationOccupanciesMatchedMpcVsEta():
     h_eff_eta_me3_mpc = setEffHisto("h_eta_me3_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME3","Sim track #eta","Efficiency",xrange,yrange)
     h_eff_eta_me4_mpc = setEffHisto("h_eta_me4_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME4","Sim track #eta","Efficiency",xrange,yrange)
 
-    c.cd(1) ; h_eff_eta_me1_mpc.Draw("hist")
-    c.cd(2) ; h_eff_eta_me2_mpc.Draw("hist")
-    c.cd(3) ; h_eff_eta_me3_mpc.Draw("hist")
-    c.cd(4) ; h_eff_eta_me4_mpc.Draw("hist")
+    c.cd(1) ; h_eff_eta_me1_mpc.Draw("hist") ; tex1 = drawPULabel()
+    c.cd(2) ; h_eff_eta_me2_mpc.Draw("hist") ; tex2 = drawPULabel()
+    c.cd(3) ; h_eff_eta_me3_mpc.Draw("hist") ; tex3 = drawPULabel()
+    c.cd(4) ; h_eff_eta_me4_mpc.Draw("hist") ; tex4 = drawPULabel()
     
     c.SaveAs("%sc_eff_eta_mpc_by_st%s"%(output_dir,ext))
 
@@ -240,6 +252,7 @@ def cscStationOccupanciesMatchedMpcVsEta_2():
     l_eff_eta_mpc.AddEntry(h_eta_mpc_1st,"#geq 1 CSC station","pl")
     l_eff_eta_mpc.AddEntry(h_eta_mpc_2st,"#geq 2 CSC stations","pl")
     l_eff_eta_mpc.AddEntry(h_eta_mpc_3st,"#geq 3 CSC stations","pl")
+    tex = drawPULabel()
     l_eff_eta_mpc.Draw()
 
     c.SaveAs("%sc_eff_eta_mpc%s"%(output_dir,ext))
@@ -273,6 +286,7 @@ def cscStationOccupanciesMatchedMpcVsEta_3():
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_1st_r,"#geq 1 CSC station","pl")
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_2st_r,"#geq 2 CSC stations","pl")
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_3st_r,"#geq 3 CSC stations","pl")
+    tex = drawPULabel()
     l_eff_eta_mpc_relative.Draw()
 
     c.SaveAs("%sc_eff_eta_mpc_relative%s"%(output_dir,ext))
@@ -314,6 +328,7 @@ def tfCandidateTriggerEfficiencyVsEta():
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_q2,"Q#geq2, p_{T}^{TF}>10","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_q3,"Q=3","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_q3,"Q=3, p_{T}^{TF}>10","pl")
+    tex = drawPULabel()
     leg.Draw()
 
     c.SaveAs("%sh_eff_eta_tf_q%s"%(output_dir,ext))
@@ -392,6 +407,7 @@ def cscStubMatchingEfficiencyVsEtaSummary():
     gh.GetXaxis().SetTitleOffset(0.7)
     gh.GetYaxis().SetLabelOffset(0.015)
     """
+    tex = drawPULabel()
 
     c.SaveAs("%sh_eff_eta_me1_steps_stubs%s"%(output_dir,ext))
 
@@ -429,6 +445,7 @@ def cscTFMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus,"TF track with matched stubs in ME1+one","pl")
     leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in ME1+one","pl")
     leg.Draw()
+    tex = drawPULabel()
 
     c.SaveAs("%sh_eff_eta_me1_tf%s"%(output_dir,ext))
 
@@ -461,6 +478,7 @@ def cscTFCandMatchingEfficiencyVsEta():
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus,"TF track with matched stubs in 2st","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl")
     leg.Draw()
+    tex = drawPULabel()
 
     c.SaveAs("%sh_eff_eta_tf%s"%(output_dir,ext))
 
@@ -498,6 +516,7 @@ def cscTFCandMatchingEfficiencyVsEta_2():
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_3st1a,"TF track with matched stubs in 2st","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_3st1a,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl")
     leg.Draw()
+    tex = drawPULabel()
 
     c.SaveAs("%sh_eff_eta_tf_3st1a%s"%(output_dir,ext))
 
@@ -551,6 +570,7 @@ def cscTFCandMatchingEfficiencyVsEta_3():
     ##leg.AddEntry(h_eff_eta_after_xtra_dr,"(dashed lines correspond to p_{T}>10)","")
     leg.Draw()
 
+    tex = drawPULabel()
     c.SaveAs("%sh_eff_eta_steps_full10_tf%s"%(output_dir,ext))
 
 
@@ -589,6 +609,7 @@ def cscMpcTFCandGmtTriggerEfficiencyVsEta():
     ##leg.AddEntry(h_eff_eta_after_xtra_dr,"(dashed lines correspond to p_{T}>10)","")
     leg.Draw()
 
+    tex = drawPULabel()
     c.SaveAs("%sh_eff_eta_steps_full10%s"%(output_dir,ext))
     
 
@@ -1355,6 +1376,7 @@ def simTrackToAlctMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_alct,"any ALCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_alct_okAlct,"correct ALCT","pl")
     leg.Draw()
+    tex = drawPULabel()
     c.Print("%ssimTrackToAlctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
@@ -1386,6 +1408,7 @@ def simTrackToAlctMatchingEfficiencyVsEtaME11():
     leg.AddEntry(h_eff_eta_me11_after_alct,"any ALCT","pl")
     leg.AddEntry(h_eff_eta_me11_after_alct_okAlct,"correct ALCT","pl")
     leg.Draw()
+    tex = drawPULabel()
     c.Print("%ssimTrackToAlctMatchingEfficiencyVsEtaME11%s"%(output_dir, ext))
 
 
@@ -1420,6 +1443,7 @@ def simTrackToClctMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_clct,"any CLCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_clct_okClct,"correct CLCT","pl")
     leg.Draw()
+    tex = drawPULabel()
     c.Print("%ssimTrackToClctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
@@ -1451,6 +1475,7 @@ def simTrackToClctMatchingEfficiencyVsEtaME11():
     leg.AddEntry(h_eff_eta_me11_after_clct,"any CLCT","pl")
     leg.AddEntry(h_eff_eta_me11_after_clct_okClct,"correct CLCT","pl")
     leg.Draw()
+    tex = drawPULabel()
     c.Print("%ssimTrackToClctMatchingEfficiencyVsEtaME11%s"%(output_dir, ext))
 
 
@@ -1501,8 +1526,9 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_alctclct_okAlct,"correct ALCT & any CLCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_alctclct_okClct,"any ALCT & correct CLCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_alctclct_okAlctClct,"correct ALCT & correct CLCT","pl")
-
     leg.Draw()
+
+    tex = drawPULabel()
     c.Print("%ssimTrackToAlctClctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
@@ -1552,8 +1578,9 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME11():
     leg.AddEntry(h_eff_eta_me11_after_alctclct_okAlct,"correct ALCT & any CLCT","pl")
     leg.AddEntry(h_eff_eta_me11_after_alctclct_okClct,"any ALCT & correct CLCT","pl")
     leg.AddEntry(h_eff_eta_me11_after_alctclct_okAlctClct,"correct ALCT & correct CLCT","pl")
-
     leg.Draw()
+
+    tex = drawPULabel()
     c.Print("%ssimTrackToAlctClctMatchingEfficiencyVsEtaME11%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
@@ -1596,6 +1623,7 @@ def simTrackToLctMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_lct_okAlctClct,"correct LCT, ALCT-to-CLCT","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToLctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
@@ -1638,6 +1666,7 @@ def simTrackToLctMatchingEfficiencyVsEtaME11():
     leg.AddEntry(h_eff_eta_me11_after_lct_okAlctClct,"correct LCT, ALCT-to-CLCT","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToLctMatchingEfficiencyVsEtaME11%s"%(output_dir, ext))
 
 
@@ -1670,6 +1699,7 @@ def simTrackToMpcLctMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_mplct_okAlctClct,"Good MPC LCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_mplct_okAlctClct_plus,"  + has two MPC matched","pl")
     leg.Draw()
+    tex = drawPULabel()
     c.Print("%ssimTrackToMpcLctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
@@ -1714,6 +1744,7 @@ def simTrackToTFTrackMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus_pt10,"a TF Track with p_{T}>10, and with a stub in ME1 and another station","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToTFTrackMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 
@@ -1763,6 +1794,7 @@ def simTrackToAlctMatchingEfficiencyVsPhiME1():
     leg.AddEntry(h_eff_phi_me1_after_lct_okAlctClct,"LCT with correct ALCT and CLCT","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToALctMatchingEfficiencyVsPhiME1%s"%(output_dir, ext))
 
     
@@ -1803,6 +1835,7 @@ def simTrackToAlctMatchingEfficiencyVsWGME11():
     leg.AddEntry(h_eff_wg_me11_after_lct_okAlctClct,"Good LCT","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToALctMatchingEfficiencyVsWGME11%s"%(output_dir, ext))
 
     
