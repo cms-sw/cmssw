@@ -119,7 +119,8 @@ class TkRadialStripTopology GCC11_FINAL : public RadialStripTopology {
    * whereas values 1, 2, ... nstrips correspond to the upper phi edges of
    * the strips.
    */
-  float stripAngle(float strip) const;
+  float stripAngle(float strip) const { return   yAxisOrientation() * (phiOfOneEdge() +  strip * angularWidth()) ;}
+
 
   /** 
    * Total number of strips 
@@ -246,6 +247,8 @@ class TkRadialStripTopology GCC11_FINAL : public RadialStripTopology {
   float theTanOfOneEdge;   // the positive tangent of the above...
   float theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
   float yCentre; // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
+  double theRadialSigma;    // radial sigma^2( uniform prob density along strip)
+
 };
 
 #endif

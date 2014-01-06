@@ -11,9 +11,6 @@
 class ForwardDetRingOneZ : public ForwardDetRing {
 public:
 
-  /// Dummy constructor
-  ForwardDetRingOneZ(){};
-
   /// Construct from iterators on Det*.
   ForwardDetRingOneZ( std::vector<const GeomDet*>::const_iterator first,
 		      std::vector<const GeomDet*>::const_iterator last);

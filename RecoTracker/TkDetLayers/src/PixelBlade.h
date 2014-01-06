@@ -12,30 +12,30 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
+class PixelBlade GCC11_FINAL : public GeometricSearchDet {
  public:
 
   PixelBlade(std::vector<const GeomDet*>& frontDets,
-	     std::vector<const GeomDet*>& backDets  );
+	     std::vector<const GeomDet*>& backDets  ) __attribute__ ((cold));
 
-  ~PixelBlade();
+  ~PixelBlade() __attribute__ ((cold));
   
   // GeometricSearchDet interface
   virtual const BoundSurface& surface() const {return *theDiskSector;}
 
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
 
   std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const;
+	      const MeasurementEstimator&) const  __attribute__ ((cold));
   
   virtual void 
   groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			  const Propagator& prop,
 			  const MeasurementEstimator& est,
-			  std::vector<DetGroup> & result) const;
+			  std::vector<DetGroup> & result) const __attribute__ ((hot));
   
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}
@@ -44,13 +44,13 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
   // private methods for the implementation of groupedCompatibleDets()
 
   SubLayerCrossings computeCrossings( const TrajectoryStateOnSurface& tsos,
-				      PropagationDirection propDir) const;
+				      PropagationDirection propDir) const __attribute__ ((hot));
   
   bool addClosest( const TrajectoryStateOnSurface& tsos,
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot));
   
   float computeWindowSize( const GeomDet* det, 
 			   const TrajectoryStateOnSurface& tsos, 
@@ -63,7 +63,7 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const;
+			bool checkClosest) const __attribute__ ((hot));
 
   bool overlap( const GlobalPoint& gpos, const GeomDet& det, float phiWin) const;
 

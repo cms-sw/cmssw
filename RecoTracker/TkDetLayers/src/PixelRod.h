@@ -18,7 +18,7 @@ class PixelRod GCC11_FINAL : public DetRodOneR{
   
   // GeometricSearchDet interface
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const;
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
@@ -28,7 +28,7 @@ class PixelRod GCC11_FINAL : public DetRodOneR{
   compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 		  const Propagator& prop, 
 		  const MeasurementEstimator& est,
-		  std::vector<DetWithState> & result) const;
+		  std::vector<DetWithState> & result) const __attribute__ ((hot));
 
   virtual void  
   groupedCompatibleDetsV( const TrajectoryStateOnSurface&,
@@ -36,8 +36,6 @@ class PixelRod GCC11_FINAL : public DetRodOneR{
 			 const MeasurementEstimator&,
 			 std::vector<DetGroup> &) const;
 
-
-  virtual bool hasGroups() const {return false;}
 
  private:
   BinFinderType theBinFinder;
