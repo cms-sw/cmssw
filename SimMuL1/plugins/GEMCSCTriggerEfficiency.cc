@@ -1487,11 +1487,18 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       unsigned nst_with_hits = match->nStationsWithHits(1,1,1,1,minNHitsChamber_);
 
       // were station 1,2,3  or 4 hit if at least minNHitsChamber_ were required?
-      bool has_hits_in_st[5] = {0, match->hasHitsInStation(1,minNHitsChamber_), 
-                                match->hasHitsInStation(2,minNHitsChamber_), 
-                                match->hasHitsInStation(3,minNHitsChamber_), 
-                                match->hasHitsInStation(4,minNHitsChamber_)};
-      
+      // ring 0 means "all rings"
+      bool has_hits_in_st[5] = {0, match->hasHitsInStation(1,0,minNHitsChamber_), 
+                                match->hasHitsInStation(2,0,minNHitsChamber_), 
+                                match->hasHitsInStation(3,0,minNHitsChamber_), 
+                                match->hasHitsInStation(4,0,minNHitsChamber_)};
+      std::cout << has_hits_in_st[1] << " " << has_hits_in_st[2] << " " 
+                << has_hits_in_st[3] << " " << has_hits_in_st[4] << std::endl;
+
+      // hits in ME11 station?
+      bool has_hits_in_me11 = match->hasHitsInStation(1,1,minNHitsChamber_);
+      std::cout << "has_hits_in_me11 " << has_hits_in_me11 << std::endl;
+
       bool okME1mplct = 0, okME2mplct = 0, okME3mplct = 0, okME4mplct = 0;
       int okNmplct = 0;
       int has_mplct_me1b = 0;

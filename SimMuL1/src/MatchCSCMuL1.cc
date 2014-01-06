@@ -337,9 +337,9 @@ MatchCSCMuL1::wireGroupAndStripInChamber( int detId )
  * @return          True if it has a least one such chamber
  */
 bool
-MatchCSCMuL1::hasHitsInStation(int st, unsigned minNHits) // st=0 - any,  st=1,2,3,4 - ME1-4
+MatchCSCMuL1::hasHitsInStation(int st, int ri, unsigned minNHits) // st=0 - any,  st=1,2,3,4 - ME1-4
 {
-  std::vector<int> chIds = chambersWithHits(st,0,minNHits);
+  std::vector<int> chIds = chambersWithHits(st,ri,minNHits);
   return chIds.size()!=0;
 }
 
