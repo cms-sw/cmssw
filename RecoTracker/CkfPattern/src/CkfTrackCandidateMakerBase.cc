@@ -297,7 +297,7 @@ namespace cms{
       
       if (theSeedCleaner) theSeedCleaner->done();
    
-        std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
+      // std::cout << "VICkfPattern " << "rawResult trajectories found = " << rawResult.size() << std::endl;
 
    
       // Step E: Clean the results to avoid duplicate tracks
@@ -415,7 +415,8 @@ namespace cms{
 						    << "number of Seed: " << collseed->size()<<endl
       						    <<PrintoutHelper::regressionTest(*tracker,unsmoothedResult);
 
-      std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
+      assert(viTotHits>=0); // just to use it...
+      // std::cout << "VICkfPattern result " << output->size() << " " << viTotHits << std::endl;
      
       if (theTrajectoryOutput){ outputT->swap(unsmoothedResult);}
 
