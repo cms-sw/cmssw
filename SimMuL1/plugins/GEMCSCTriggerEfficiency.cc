@@ -1837,7 +1837,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       h_phi_me1_after_alct_okAlct->Fill(stphi);
       
       std::vector<int> chIDs = match->chambersWithALCTs();
-      std::vector<int> chWHIDs = match->chambersWithHits();
+      std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
       for (size_t ch = 0; ch < chIDs.size(); ch++)
 	  {
 	    if (std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end()) continue;
@@ -1976,7 +1976,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  //  This is important 
 	  
       	  std::vector<int> chIDs = match->chambersWithALCTs();
-      	  std::vector<int> chWHIDs = match->chambersWithHits();
+      	  std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
       	  for (size_t ch = 0; ch < chIDs.size(); ch++)
       	    {
 	      if (std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end()) continue;
@@ -2112,7 +2112,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	      h_phi_me1_after_lct_okAlctClct->Fill(stphi);
 	      
       	      std::vector<int> chIDs = match->chambersWithLCTs();
-      	      std::vector<int> chWHIDs = match->chambersWithHits();
+      	      std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
       	      for (size_t ch = 0; ch < chIDs.size(); ch++)
       		{
 		  if (std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end()) continue;
