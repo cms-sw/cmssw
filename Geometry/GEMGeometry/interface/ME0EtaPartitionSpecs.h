@@ -36,6 +36,8 @@ public:
 
   const std::string& detName() const;
 
+  const ME0Specs& parameters() const;
+
 private:
   
   /// topology of strips
