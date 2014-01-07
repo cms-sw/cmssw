@@ -171,7 +171,7 @@ def findDataSetFromSampleName(sampleSpec, version, cdToReleaseDir):
 
     datasetToSearchFor= knownDatasets[sampleSpec]['dataset'] % { "version": version }
 
-    dbs_cmd = 'dbs search --query="find dataset where dataset=' + datasetToSearchFor + ' and site=srm-cms.cern.ch and release = CMSSW_' + version + '" | grep "HLTDEBUG"'
+    dbs_cmd = 'das_client.py --query=dataset=' + datasetToSearchFor + ' | grep "HLTDEBUG"'
 
     cmssw_release_dir = findCMSSWreleaseDir(version)
 
