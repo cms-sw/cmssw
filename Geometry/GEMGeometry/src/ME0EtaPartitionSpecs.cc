@@ -71,7 +71,6 @@ ME0EtaPartitionSpecs::detName() const
   return _n;
 }
 
-
 const std::vector<float>&
 ME0EtaPartitionSpecs::parameters() const
 {
