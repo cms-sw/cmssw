@@ -30,7 +30,7 @@ void ME0NumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
 #endif
 }
 
-int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
+int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
 
 #ifdef LOCAL_DEBUG
   std::cout << "ME0Numbering "<<num.getLevels()<<std::endl;
@@ -40,7 +40,7 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
   }
 #endif
 
-  int maxLevel = theLayerLevel;
+  int maxLevel = theRollLevel;
   if (num.getLevels()!=maxLevel) {
     std::cout << "MuonME0NS::BNToUN "
 	      << "BaseNumber has " << num.getLevels() << " levels,"
@@ -56,9 +56,33 @@ int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
     region = 1;
   else                                    
     region =-1;
+  std::cout <<" The Region  Level is "<<theRegionLevel	
+	    <<" The Layer   Level is "<<theLayerLevel
+	    <<" The Sector  Level is "<<theSectorLevel
+	    <<" The Roll    Level is "<<theRollLevel
+	    <<std::endl;
   layer   = num.getBaseNo(theLayerLevel)+1;
-  roll=1;
-  chamber = num.getBaseNo(theSectorLevel) + 1;
+  roll    = num.getBaseNo(theRollLevel)+1;
+  const int copyno = num.getBaseNo(theSectorLevel) + 1;
+  if (copyno < 50) {
+    if (copyno%2 == 0) {
+      layer   = 2;
+      chamber = copyno-1;
+    } else {
+      layer   = 1;
+      chamber = copyno;
+    }
+  } else {
+    int copynp = copyno - 50;
+    if (copynp%2 != 0) {
+      layer   = 2;
+      chamber = copynp-1;
+    } else {
+      layer   = 1;
+      chamber = copynp;
+    }
+  }
+
   // collect all info
   
 #ifdef LOCAL_DEBUG
