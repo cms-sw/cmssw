@@ -6,6 +6,7 @@
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 
+
 #undef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitProj
 #undef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitLGL
 #ifdef RecoTracker_TransientTrackingRecHit_TSiStripMatchedRecHit_RefitLGL 
@@ -31,17 +32,7 @@ inline const LocalTrajectoryParameters & gluedToStereo(const TrajectoryStateOnSu
     return tsos.localParameters();
 }
 #endif
-namespace {
-  float sigmaPitch(LocalPoint const& pos, LocalError err, 
-		   GeomDetUnit const & stripdet) {
-    const StripTopology& topol=(const StripTopology&)stripdet.topology();
-    
-    HelpertRecHit2DLocalPos::updateWithAPE(err,stripdet);
-    MeasurementError error=topol.measurementError(pos,err);
-    auto pitch=topol.localPitch(pos);
-    return error.uu()*pitch*pitch;
-  }
-}
+
 TSiStripMatchedRecHit::RecHitPointer 
 TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 {
@@ -65,11 +56,11 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
     StripClusterParameterEstimator::LocalValues lvStereo = 
       theCPE->localParameters( stereoclust, *gdet->stereoDet(), gluedToStereo(ts, gdet));
       
-    auto sPitch = sigmaPitch(lvMono.first, lvMono.second,*gdet->monoDet());
+    auto sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(lvMono.first, lvMono.second,*gdet->monoDet());
     SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, sPitch,
 					       gdet->monoDet()->geographicalId(),
 					       orig->monoClusterRef());
-    sPitch = sigmaPitch(lvStereo.first, lvStereo.second, *gdet->stereoDet());
+    sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(lvStereo.first, lvStereo.second, *gdet->stereoDet());
     SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second, sPitch,
 						 gdet->stereoDet()->geographicalId(),
 						 orig->stereoClusterRef());
@@ -138,11 +129,11 @@ TSiStripMatchedRecHit::transientHits () const {
   StripClusterParameterEstimator::LocalValues lvStereo = 
     theCPE->localParameters( stereoclust, *gdet->stereoDet());
  
-  auto sPitch = sigmaPitch(lvMono.first, lvMono.second,*gdet->monoDet());
+  auto sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(lvMono.first, lvMono.second,*gdet->monoDet());
   SiStripRecHit2D monoHit = SiStripRecHit2D( lvMono.first, lvMono.second, sPitch,
 					     gdet->monoDet()->geographicalId(),
 					     orig->monoClusterRef());
-  sPitch = sigmaPitch(lvStereo.first, lvStereo.second, *gdet->stereoDet());
+  sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(lvStereo.first, lvStereo.second, *gdet->stereoDet());
   SiStripRecHit2D stereoHit = SiStripRecHit2D( lvStereo.first, lvStereo.second, sPitch,
 					       gdet->stereoDet()->geographicalId(),
 						 orig->stereoClusterRef());

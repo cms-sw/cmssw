@@ -168,7 +168,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     const SiStripRecHit2D & secondHit = CollectorHelper::stereoHit(seconditer);
     
     float sigmap22 =secondHit.sigmaPitch();
-    assert (sigmap22>=0);
+    // assert (sigmap22>=0);
     
     auto STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
     MeasurementPoint STEREOpointini(STEREOpointX,-0.5f);
@@ -270,7 +270,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     // FIXME: here for test...
     float sigmap12 = monoRH.sigmaPitch();
-    assert(sigmap12>=0); 
+    // assert(sigmap12>=0); 
 
     //float code
     float fc1(c1), fs1(s1);

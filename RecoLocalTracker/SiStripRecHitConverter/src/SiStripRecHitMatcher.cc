@@ -131,9 +131,8 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   double l1 = 1./(c1*c1+s1*s1);
 
  
-  // FIXME: here for test...
   auto sigmap12 = monoRH->sigmaPitch();
-  assert(sigmap12>=0);
+  // assert(sigmap12>=0);
 
 
   SimpleHitIterator seconditer;  
@@ -202,9 +201,8 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
     double l2 = 1./(c2*c2+s2*s2);
 
 
-    // FIXME: here for test...
-    double sigmap22 = (*seconditer)->sigmaPitch();
-    assert(sigmap22>=0);
+    auto sigmap22 = (*seconditer)->sigmaPitch();
+    // assert(sigmap22>=0);
 
     double diff=(c1*s2-c2*s1);
     double invdet2=1/(diff*diff*l1*l2);
@@ -295,9 +293,8 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double l1 = 1./(c1*c1+s1*s1);
 
  
-  // FIXME: here for test...
   auto sigmap12 = monoRH->sigmaPitch();
-  assert(sigmap12>=0);
+  // assert(sigmap12>=0);
 
 
 
@@ -341,7 +338,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   
 
   auto sigmap22 = stereoRH->sigmaPitch();
-  assert (sigmap22>0);
+  // assert (sigmap22>0);
 
   double diff=(c1*s2-c2*s1);
   double invdet2=1/(diff*diff*l1*l2);
