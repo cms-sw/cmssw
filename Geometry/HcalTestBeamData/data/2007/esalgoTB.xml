@@ -1,0 +1,295 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="esalgoTB.xml" eval="true">
+		<Constant name="zElec" value="([escon:box_thick]-[escon:elec_thick])/2"/>
+		<Constant name="zCer" value="-([escon:box_thick]-[escon:ceramic_thick])/2"/>
+		<Constant name="zWaf" value="[zCer]+([escon:ceramic_thick]+[escon:waf_thick])/2"/>
+	</ConstantsSection>
+	<SolidSection label="esalgoTB.xml">
+		<Polycone name="SF" startPhi="-22.5*deg" deltaPhi="45*deg">
+			<ZSection z="-[escon:PRESH_Z_TOTAL]/2." rMax="[escon:PRESH_RMAX_FRONT]" rMin="[escon:R_MAX]"/>
+			<ZSection z="[escon:PRESH_MID_Z]" rMax="[escon:PRESH_RMAX_BACK]" rMin="[escon:R_MAX]"/>
+			<ZSection z="+[escon:PRESH_Z_TOTAL]/2." rMax="[escon:PRESH_RMAX_BACK]" rMin="[escon:R_MAX]"/>
+		</Polycone>
+		<Trapezoid name="SWED" dz="[escon:wedge_length]/2" theta="-[escon:wedge_angle]" phi="0" h1="[escon:wedge_width]/2" bl1="[escon:wedge_back_thick]/2" tl1="[escon:wedge_back_thick]/2" alp1="0" h2="[escon:wedge_width]/2" bl2="[escon:wedge_front_thick]/2" tl2="[escon:wedge_front_thick]/2" alp2="0"/>
+		<Box name="SFBX" dx="[escon:waf_width]/2" dy="[escon:ceramic_length]/2" dz="[escon:box_thick]/2"/>
+		<Box name="SFWX" dx="[escon:waf_width]/2" dy="[escon:waf_width]/2" dz="[escon:waf_thick]/2"/>
+		<Box name="SFAX" dx="[escon:waf_active]/2" dy="[escon:waf_active]/2" dz="[escon:waf_thick]/2"/>
+		<Box name="SFSX" dx="[escon:waf_active]/64" dy="[escon:waf_active]/2" dz="[escon:waf_thick]/2"/>
+		<Box name="SFCX" dx="[escon:ceramic_width]/2" dy="[escon:ceramic_length]/2" dz="[escon:ceramic_thick]/2"/>
+		<Box name="SFEX" dx="[escon:elec_width]/2" dy="[escon:elec_length]/2" dz="[escon:elec_thick]/2"/>
+		<Box name="SFBY" dy="[escon:waf_width]/2" dx="[escon:ceramic_length]/2" dz="[escon:box_thick]/2"/>
+		<Box name="SFWY" dx="[escon:waf_width]/2" dy="[escon:waf_width]/2" dz="[escon:waf_thick]/2"/>
+		<Box name="SFAY" dx="[escon:waf_active]/2" dy="[escon:waf_active]/2" dz="[escon:waf_thick]/2"/>
+		<Box name="SFSY" dx="[escon:waf_active]/2" dy="[escon:waf_active]/64" dz="[escon:waf_thick]/2"/>
+		<Box name="SFCY" dy="[escon:ceramic_width]/2" dx="[escon:ceramic_length]/2" dz="[escon:ceramic_thick]/2"/>
+		<Box name="SFEY" dx="[escon:elec_length]/2" dy="[escon:elec_width]/2" dz="[escon:elec_thick]/2"/>
+	</SolidSection>
+	<LogicalPartSection label="esalgoTB.xml">
+		<LogicalPart name="SF" category="unspecified">
+			<rSolid name="SF"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="SFSX" category="unspecified">
+			<rSolid name="SFSX"/>
+			<rMaterial name="materials:E_Silicon"/>
+		</LogicalPart>
+		<LogicalPart name="SFSY" category="unspecified">
+			<rSolid name="SFSY"/>
+			<rMaterial name="materials:E_Silicon"/>
+		</LogicalPart>
+		<!-- Aluminium wedge -->
+		<LogicalPart name="SWED" category="unspecified">
+			<rSolid name="SWED"/>
+			<rMaterial name="materials:E_Aluminium"/>
+		</LogicalPart>
+		<!-- X Layer of the Preshower -->
+		<!-- silicon/ceramics/electronics bounding box-->
+		<LogicalPart name="SFBX" category="unspecified">
+			<rSolid name="SFBX"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<!-- silicon wafer -->
+		<LogicalPart name="SFWX" category="unspecified">
+			<rSolid name="SFWX"/>
+			<rMaterial name="materials:E_Silicon"/>
+		</LogicalPart>
+		<!-- active silicon area -->
+		<LogicalPart name="SFAX" category="unspecified">
+			<rSolid name="SFAX"/>
+			<rMaterial name="materials:E_Silicon"/>
+		</LogicalPart>
+		<!-- ceramic -->
+		<LogicalPart name="SFCX" category="unspecified">
+			<rSolid name="SFCX"/>
+			<rMaterial name="materials:E_G10"/>
+		</LogicalPart>
+		<!-- electronics box -->
+		<LogicalPart name="SFEX" category="unspecified">
+			<rSolid name="SFEX"/>
+			<rMaterial name="materials:E_G10"/>
+		</LogicalPart>
+		<!-- Same again, for the Y layer;
+		     in principle these are the same parts as defined for the X layer,
+		     except: length <-> width  -->
+		<!-- silicon/ceramics/electronics bounding box-->
+		<LogicalPart name="SFBY" category="unspecified">
+			<rSolid name="SFBY"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<!-- silicon wafer -->
+		<LogicalPart name="SFWY" category="unspecified">
+			<rSolid name="SFWY"/>
+			<rMaterial name="materials:E_Silicon"/>
+		</LogicalPart>
+		<!-- active silicon area -->
+		<LogicalPart name="SFAY" category="unspecified">
+			<rSolid name="SFAY"/>
+			<rMaterial name="materials:E_Silicon"/>
+		</LogicalPart>
+		<!-- ceramic -->
+		<LogicalPart name="SFCY" category="unspecified">
+			<rSolid name="SFCY"/>
+			<rMaterial name="materials:E_G10"/>
+		</LogicalPart>
+		<!-- electronics box -->
+		<LogicalPart name="SFEY" category="unspecified">
+			<rSolid name="SFEY"/>
+			<rMaterial name="materials:E_G10"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<!-- Position part section -->
+	<PosPartSection label="esalgoTB.xml">
+		<PosPart copyNumber="1">
+			<rParent name="eregalgo:EREG"/>
+			<rChild name="esalgoTB:SF"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="3.0495*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="esalgoTB:SFBX"/>
+			<rChild name="esalgoTB:SFCX"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="[zCer]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="esalgoTB:SFBX"/>
+			<rChild name="esalgoTB:SFWX"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="-1.85*cm" z="[zWaf]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="esalgoTB:SFWX"/>
+			<rChild name="esalgoTB:SFAX"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="esalgoTB:SFBY"/>
+			<rChild name="esalgoTB:SFCY"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="0*fm" z="[zCer]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="esalgoTB:SFBY"/>
+			<rChild name="esalgoTB:SFWY"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="-1.85*cm" y="0*fm" z="[zWaf]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="esalgoTB:SFWY"/>
+			<rChild name="esalgoTB:SFAY"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="esalgoTB:SFBX"/>
+			<rChild name="esalgoTB:SFEX"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="0*fm" y="3.15*cm" z="[zElec]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="esalgoTB:SFBY"/>
+			<rChild name="esalgoTB:SFEY"/>
+			<rRotation name="rotations:000D"/>
+			<Translation x="3.15*cm" y="0*fm" z="[zElec]"/>
+		</PosPart>
+	</PosPartSection>
+	<RotationSection label="esalgoTB.xml">
+		<Rotation name="RM1305B" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="90*deg" phiZ="-180*deg"/>
+		<Rotation name="RM1301B" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="90*deg" phiZ="0*deg"/>
+		<Rotation name="RM1304B" thetaX="86.20004*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="3.79996*deg" phiZ="-180*deg"/>
+		<Rotation name="RM1300B" thetaX="86.20004*deg" phiX="180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="3.79996*deg" phiZ="0*deg"/>
+	</RotationSection>
+	<Algorithm name="hcal:DDEcalPreshowerAlgoTB">
+		<rParent name="esalgoTB:SF"/>
+		<Vector name="IQUAD_MAX" type="numeric" nEntries="20">
+			5,7,10,11,13,13,14,15,16,17,17,17,18,19,19,19,19,19,19,19
+		</Vector>
+		<Vector name="IQUAD_MIN" type="numeric" nEntries="20">
+			1,1,1,1,1,1,1,1,1,1,1,1,1,4,4,6,6,8,8,8
+		</Vector>
+		<Numeric name="waf_intra_col_sep" value="[escon:waf_intra_col_sep]"/>
+		<Numeric name="waf_inter_col_sep" value="[escon:waf_inter_col_sep]"/>
+		<Numeric name="wedge_length" value="[escon:wedge_length]"/>
+		<Numeric name="PRESH_Z_TOTAL" value="[escon:PRESH_Z_TOTAL]"/>
+		<Numeric name="waf_active" value="[escon:waf_active]"/>
+		<Numeric name="wedge_offset" value="[escon:wedge_offset]"/>
+		<Numeric name="ywedge_ceramic_diff" value="[escon:ywedge_ceramic_diff]"/>
+		<Numeric name="zwedge_ceramic_diff" value="[escon:zwedge_ceramic_diff]"/>
+		<!-- Presh 07 TB info -->
+		<!--  half X of 1st plane 127.05*mm postition of center in X 127.2*mm   -->
+		<!--  half Y of 1st plane 144.20*mm postition of center in Y 566.2*mm   -->
+		<!--  half X of 2nd plane 144.20*mm postition of center in X 95.6*mm   -->
+		<!--  half Y of 2nd plane 127.05*mm postition of center in Y 575.7*mm   -->
+		<!-- Shift of Presh prototype for 07 TB vs parent SF volume -->
+		<Numeric name="SF07vsSF_Xshift" value="100*cm"/>
+		<Numeric name="SF07vsSF_Yshift" value="-58*cm"/>
+		<!-- Shift of the second plane vs 1st -->
+		<Numeric name="2ndPlaneXshift" value="27.6*mm"/>
+		<!--  translation of 2nd plane vs 1st in X-->
+		<Numeric name="2ndPlaneYshift" value="-9.5*mm"/>
+		<!--  translation of 2nd plane vs 1st in Y-->
+		<Numeric name="absorbx" value="25*cm"/>
+		<!--  half legth of absorbers -->
+		<Numeric name="absorby" value="25*cm"/>
+		<!--  half width of absorbers -->
+		<Numeric name="trabsorbx" value="16*cm"/>
+		<!--  translation of absorbers -->
+		<Numeric name="trabsorby" value="58*cm"/>
+		<!--  translation of absorbers -->
+		<!--  Micromodules in X plane -->
+		<Vector name="MicromodulesX" type="numeric" nEntries="14"><!-- 226,227,228,229,
+			     260,261,262,263,
+			     294,295,296,297,
+			     329,330,331,332 -->
+			
+			227,228,
+			260,261,262,263,
+			294,295,296,297,
+			329,330,331,332
+			
+		</Vector>
+		<!--  Micromodules in Y plane -->
+		<Vector name="MicromodulesY" type="numeric" nEntries="16">
+			
+			455,456,457,458,
+			479,480,481,482,
+			503,504,505,506,
+			527,528,529,530
+			
+		</Vector>
+		<!-- END of Presh 07 TB info -->
+		<!-- a vector of inner radii of the presh-layers -->
+		<Vector name="R_MAX" type="numeric" nEntries="19">
+			[escon:R_MAX], <!--  1 -->
+			[escon:R_MAX], <!--  2 -->
+			[escon:R_MAX], <!--  5 -->
+			[escon:R_MAX], <!--  6 -->
+			45.7*cm, <!--  7 -->
+			[escon:R_MAX], <!--  8 -->
+			[escon:R_MAX], <!--  9 -->
+			[escon:R_MAX], <!-- 10 -->
+			[escon:R_MAX], <!-- 11 -->
+			[escon:R_MAX], <!-- 12 -->
+			[escon:R_MAX], <!-- 15 -->
+			[escon:R_MAX], <!-- 16 -->
+			45.7*cm, <!-- 17 -->
+			[escon:R_MAX], <!-- 18 -->
+			[escon:R_MAX], <!-- 19 -->
+			[escon:R_MAX], <!-- 20 -->
+			[escon:R_MAX], <!-- 21 -->
+			[escon:R_MAX], <!-- 22 -->
+			[escon:R_MAX] <!-- 24 -->
+		</Vector>
+		<!-- a vector of inner radii of the presh-layers -->
+		<Vector name="R_MIN" type="numeric" nEntries="19">
+			[escon:R_MIN], <!--  1 -->
+			[escon:R_MIN], <!--  2 -->
+			[escon:R_MIN], <!--  5 -->
+			[escon:R_MIN], <!--  6 -->
+			120*cm, <!--  7 -->
+			[escon:R_MIN], <!--  8 -->
+			[escon:R_MIN], <!--  9 -->
+			[escon:R_MIN], <!-- 10 -->
+			[escon:R_MIN], <!-- 11 -->
+			[escon:R_MIN], <!-- 12 -->
+			[escon:R_MIN], <!-- 15 -->
+			[escon:R_MIN], <!-- 16 -->
+			120*cm, <!-- 17 -->
+			[escon:R_MIN], <!-- 18 -->
+			[escon:R_MIN], <!-- 19 -->
+			[escon:R_MIN], <!-- 20 -->
+			[escon:R_MIN], <!-- 21 -->
+			[escon:R_MIN], <!-- 22 -->
+			[escon:R_MIN]+5*cm  <!-- 24 -->
+		</Vector>
+		<!-- a vector of layer thicknesses; simply for convenience -->
+		<Vector name="Layers" type="numeric" nEntries="19">
+			[escon:P1],  [escon:P2],  [escon:P5],  [escon:P6],  [escon:P7],
+			[escon:P8],  [escon:P9],  [escon:P10], [escon:P11], [escon:P12], 
+			[escon:P15], [escon:P16], [escon:P17], [escon:P18], [escon:P19],
+			[escon:P20], [escon:P21], [escon:P22], [escon:P24]
+		</Vector>
+		<String name="DummyMaterial" value="E_Air"/>
+		<Vector name="LayMat" type="string" nEntries="19">
+			E_G10, <!--  1 --> 
+			E_Air, <!--  2 -->
+			E_Aluminium, <!--  5 --> 
+			E_Aluminium, <!--  6 -->
+			E_Lead, <!--  7 --> 
+			E_Aluminium, <!--  8 --> 
+			E_Aluminium, <!--  9 -->
+			E_Air, <!--  10 --> 
+			E_Aluminium, <!--  11 --> 
+			E_Air, <!--  12 --> 
+			E_Aluminium, <!--  15 --> 
+			E_Aluminium, <!--  16 --> 
+			E_Lead, <!--  17 --> 
+			E_Aluminium, <!--  18 --> 
+			E_Aluminium, <!--  19 --> 
+			E_Air, <!--  20 --> 
+			E_Aluminium, <!--  21 -->  
+			E_Air, <!--  22 --> 
+			E_G10  <!--  24 -->
+		</Vector>
+	</Algorithm>
+</DDDefinition>
