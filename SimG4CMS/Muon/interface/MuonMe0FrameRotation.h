@@ -3,7 +3,7 @@
 
 /** \class MuonMe0FrameRotation
  *
- * implementation of FrameRotation for the muon gem
+ * implementation of FrameRotation for the muon ME0
  * 
  * \author Arno Straessner, CERN <arno.straessner@cern.ch>
  *
