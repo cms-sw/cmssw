@@ -63,6 +63,7 @@ ME0GeometryAnalyzer::~ME0GeometryAnalyzer()
 void
 ME0GeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
+  std::cout <<" HO HO "<<std::endl; 
   edm::ESHandle<ME0Geometry> pDD;
   iSetup.get<MuonGeometryRecord>().get(pDD);     
   
