@@ -58,12 +58,12 @@
   <PosPart copyNumber="1">
     <rParent name="mf:ME0RingP"/>
     <rChild name="me0:ME0P"/>
-    <Translation x="0*fm" y="0*fm" z="5.124*m" />
+    <Translation x="0*fm" y="0*fm" z="5.391*m" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="mf:ME0RingN"/>
     <rChild name="me0:ME0N"/>
-    <Translation x="0*fm" y="0*fm" z="5.124*m" />
+    <Translation x="0*fm" y="0*fm" z="5.391*m" />
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="ME0Box"/>

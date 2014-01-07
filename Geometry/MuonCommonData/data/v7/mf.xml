@@ -17,8 +17,8 @@
    <ZSection z="[cms:MuonBeamZ2]" rMin="[cms:MERmin3]" rMax="[cms:CMSR1]"/>
   </Polycone>
   <Polycone name="ME0Ring" startPhi="0*deg" deltaPhi="360*deg">
-   <ZSection z="5.3113*m  " rMin="0.2*m " rMax="2.73*m  "/>
-   <ZSection z="5.541*m  "  rMin="0.2*m " rMax="2.73*m  "/>
+   <ZSection z="5.241*m  " rMin="0.2*m " rMax="2.73*m  "/>
+   <ZSection z="5.541*m  " rMin="0.2*m " rMax="2.73*m  "/>
   </Polycone>
   <Polycone name="ME1Ring" startPhi="0*deg" deltaPhi="360*deg">
    <ZSection z="5.641*m  " rMin="1.3*m " rMax="2.8*m  "/>
