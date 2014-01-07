@@ -78,7 +78,6 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   {
     // Get the Base Muon Number
     MuonDDDNumbering mdddnum(muonConstants);
-    std::cout<<"Getting the Muon base Number"<<std::endl;
     LogDebug("ME0GeometryBuilderFromDDD") <<"Getting the Muon base Number";
     MuonBaseNumber mbn = mdddnum.geoHistoryToBaseNumber(fview.geoHistory());
 
