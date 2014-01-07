@@ -1,20 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.CMSCommonData.cmsExtendedGeometryHFLibraryXML_cfi")
+process.load("Geometry.HcalCommonData.testPhase0GeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
-process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('CaloSim', 
-        'EcalSim', 'G4cerr', 'G4cout', 'HCalGeom',
-        'HcalSim', 'HFShower'),
+    categories = cms.untracked.vstring('CaloSim', 'G4cout', 'G4cerr',
+                                       'HCalGeom', 'HcalSim', 'HFShower',
+                                       'SimTrackManager', 'SimG4CoreGeometry'), 
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
@@ -24,26 +26,29 @@ process.MessageLogger = cms.Service("MessageLogger",
         DEBUG = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
-        CaloSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        EcalSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
         G4cerr = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
         G4cout = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
+        SimTrackManager = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
+        SimG4CoreGeometry = cms.untracked.PSet(
+            limit = cms.untracked.int32(0)
+        ),
         HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        HcalSim = cms.untracked.PSet(
+        CaloSim = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
         HFShower = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(-1)
+        ),
+        HcalSim = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         )
     )
 )
@@ -53,10 +58,8 @@ process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
-process.Timing = cms.Service("Timing")
-
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(2)
 )
 
 process.source = cms.Source("EmptySource",
@@ -64,15 +67,15 @@ process.source = cms.Source("EmptySource",
     firstEvent      = cms.untracked.uint32(1)
 )
 
-process.generator = cms.EDProducer("FlatRandomEGunProducer",
+process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
-        MinEta = cms.double(3.25),
-        MaxEta = cms.double(3.50),
-        MinPhi = cms.double(-3.1415926),
-        MaxPhi = cms.double(3.1415926),
-        MinE   = cms.double(1000.00),
-        MaxE   = cms.double(1000.00)
+        MinEta = cms.double(-3.0),
+        MaxEta = cms.double(3.0),
+        MinPhi = cms.double(-3.14159265359),
+        MaxPhi = cms.double(3.14159265359),
+        MinPt  = cms.double(100.),
+        MaxPt  = cms.double(100.)
     ),
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
@@ -80,31 +83,26 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('simevent.root')
+    fileName = cms.untracked.string('simevent_QGSP_FTFP_BERT_EML.root')
 )
 
-process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('HFShower.root')
+process.Timing = cms.Service("Timing")
+
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+    oncePerEventMode = cms.untracked.bool(True),
+    showMallocInfo = cms.untracked.bool(True),
+    dump = cms.untracked.bool(True),
+    ignoreTotal = cms.untracked.int32(1)
 )
+
+process.Tracer = cms.Service("Tracer")
 
 process.common_maximum_timex = cms.PSet(
-    MaxTrackTime  = cms.double(500.0),
+    MaxTrackTime  = cms.double(1000.0),
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
-
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
-process.g4SimHits.Physics.DefaultCutValue   = 0.1
-process.g4SimHits.HCalSD.UseShowerLibrary   = False
-process.g4SimHits.HCalSD.UseParametrize     = False
-process.g4SimHits.HCalSD.UsePMTHits         = False
-process.g4SimHits.HCalSD.UseFibreBundleHits = False
-process.g4SimHits.HFShower.UseShowerLibrary = False
-process.g4SimHits.HFShower.UseHFGflash      = False
-process.g4SimHits.HFShower.TrackEM          = False
-process.g4SimHits.HFShower.OnlyLong         = False
-process.g4SimHits.HFShower.EminLibrary      = 0.0
-process.g4SimHits.HFShower.ApplyFiducialCut = True
-
+process.g4SimHits.Physics.Verbosity = 0
