@@ -79,8 +79,6 @@ namespace DataFormats_EgammaCandidates {
     // std::vector<std::pair<reco::PFCandidateRef,bool> > values_pfiso;
     //edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >  valueMap_iso; 
     //edm::Wrapper<edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > > > valueMap_iso_wr;
-    edm::Wrapper<edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > > valueMap_iso_wr;
-    edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >  valueMap_iso; 
 
     reco::Photon::FiducialFlags pff ;
     reco::Photon::ShowerShape pss ;
