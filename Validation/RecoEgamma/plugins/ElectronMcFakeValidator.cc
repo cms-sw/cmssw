@@ -1098,7 +1098,7 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
 
       // supercluster related distributions
       reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
-      if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed()) sclRef = bestGsfElectron.pflowSuperCluster();
+      if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed()) sclRef = bestGsfElectron.parentSuperCluster();
       if( sclRef.isNonnull() ) {
 	h1_scl_En_->Fill(sclRef->energy());      
 	double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());

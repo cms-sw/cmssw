@@ -1,7 +1,8 @@
 <lcgdict>
 
-  <class name="reco::PhotonCore" ClassVersion="10">
+  <class name="reco::PhotonCore" ClassVersion="11">
    <version ClassVersion="10" checksum="1420264349"/>
+   <version ClassVersion="11" checksum="3079004489"/>
   </class>
   <class name="reco::Photon" ClassVersion="13">
    <version ClassVersion="13" checksum="2963666409"/>
@@ -107,8 +108,9 @@
 
 
 
-  <class name="reco::GsfElectronCore" ClassVersion="10">
+  <class name="reco::GsfElectronCore" ClassVersion="11">
    <version ClassVersion="10" checksum="2226610106"/>
+   <version ClassVersion="11" checksum="2637403054"/>
   </class>
   <class name="std::vector<reco::GsfElectronCore>"/>  
   <class name="edm::reftobase::BaseHolder<reco::GsfElectronCore>"/>

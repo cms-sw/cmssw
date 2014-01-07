@@ -1877,7 +1877,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       cand.addElementInBlock(_currentblock,RO.primaryGSFs[0].first->index());
     }
     if( RO.parentSC ) {
-      xtra.setSuperClusterBoxRef(RO.parentSC->superClusterRef());      
+      xtra.setSuperClusterPFECALRef(RO.parentSC->superClusterRef());      
       // we'll set to the refined supercluster back up in the producer
       cand.setSuperClusterRef(RO.parentSC->superClusterRef());
       xtra.setSuperClusterRef(RO.parentSC->superClusterRef());      

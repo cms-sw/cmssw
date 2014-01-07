@@ -102,7 +102,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     // Retrieve stuff from the pfPhoton
     reco::PFCandidateEGammaExtraRef pfPhoRef =  candRef->egammaExtraRef();
     reco::SuperClusterRef  refinedSC= pfPhoRef->superClusterRef();
-    reco::SuperClusterRef  boxSC= pfPhoRef->superClusterBoxRef();
+    reco::SuperClusterRef  boxSC= pfPhoRef->superClusterPFECALRef();
     const reco::ConversionRefVector & doubleLegConv = pfPhoRef->conversionRef();
     reco::CaloClusterPtr refinedSCPtr= edm::refToPtr(refinedSC);
 
@@ -114,7 +114,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     newCandidate.setPFlowPhoton(true);
     newCandidate.setStandardPhoton(false);
     newCandidate.setSuperCluster(refinedSC);
-    newCandidate.setPflowSuperCluster(boxSC);
+    newCandidate.setParentSuperCluster(boxSC);
     // fill conversion infos
     
 
@@ -123,7 +123,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     } 
 
     //    std::cout << "newCandidate pf refined SC energy="<< newCandidate.superCluster()->energy()<<std::endl;
-    //std::cout << "newCandidate pf SC energy="<< newCandidate.pfSuperCluster()->energy()<<std::endl;
+    //std::cout << "newCandidate pf SC energy="<< newCandidate.parentSuperCluster()->energy()<<std::endl;
     //std::cout << "newCandidate  nconv2leg="<<newCandidate.conversions().size()<< std::endl;
 
     if ( validPixelSeeds_) {
@@ -161,7 +161,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     }
     // debug
     //    std::cout << "PhotonCoreCollection i="<<ipho<<" pf refined SC energy="<<gamIter->superCluster()->energy()<<std::endl;
-    //std::cout << "PhotonCoreCollection i="<<ipho<<" pf SC energy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    //std::cout << "PhotonCoreCollection i="<<ipho<<" pf SC energy="<<gamIter->parentSuperCluster()->energy()<<std::endl;
     //std::cout << "PhotonCoreCollection i="<<ipho<<" nconv2leg="<<gamIter->conversions().size()<<" nconv1leg="<<gamIter->conversionsOneLeg().size()<<std::endl;
     ipho++;
   }
