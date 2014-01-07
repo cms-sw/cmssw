@@ -83,8 +83,6 @@
   <class name="edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >"/> 
   <class name="edm::Wrapper<edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > > >"/>
    -->
-  <class name="edm::Wrapper<edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > >"/>
-  <class name="edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
 
 
   <class name="std::vector<reco::Electron>"/>
