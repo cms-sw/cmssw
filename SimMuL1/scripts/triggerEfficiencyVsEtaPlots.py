@@ -1843,7 +1843,7 @@ def simTrackToAlctMatchingEfficiencyVsWGME11():
     fullTitle = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
     etareb = 1
-    yrange = [0.6,1.2]
+    yrange = [0.8,1.04]
     xrange = [0,100]    
 
     h_eff_wg_me11_after_alct_okAlct = setEffHisto("h_wg_me11_after_alct_okAlct","h_wg_me11_initial",dir, etareb, kRed, 0, 2, "","","",xrange,yrange)
@@ -1859,7 +1859,7 @@ def simTrackToAlctMatchingEfficiencyVsWGME11():
     h_eff_wg_me11_after_alctclct_okAlctClct.Draw("same hist")
     h_eff_wg_me11_after_lct_okAlctClct.Draw("same hist")
 
-    leg = TLegend(0.2,0.2,0.926,0.4,"","brNDC")
+    leg = TLegend(0.5,0.2,1.0,0.4,"","brNDC")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     #leg.SetNColumns(3)
@@ -1905,13 +1905,13 @@ if __name__ == "__main__":
     #file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_postBuxFix.root"
     file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff.root"
     file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_bugfix_initial.root"
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff.test.root"
+    file_name = "hp_dimu_CMSSW_6_2_0_SLHC5_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff.test.root"
     output_dir = "plots/"
 
-    reuseOutputDirectory = True
+    reuseOutputDirectory = False
     if not reuseOutputDirectory:
         output_dir = mkdir("forPresentationPU000_Pt00_postBugFix")
-    output_dir = "forPresentationPU000_Pt00_postBugFix_20140104_082335/"
+    else: output_dir = "forPresentationPU000_Pt00_postBugFix_20140104_082335/"
 
     ext = ".png"
 

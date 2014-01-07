@@ -1699,15 +1699,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  if(detMPLCT.find(chIds[ch]) != detMPLCT.end()) h_cscdet_of_chamber_w_mplct->Fill( csct );
 
 	  if (csct==0 || csct==3) {
-	    // check that if the same WG is hit in ME1/b and ME1/a
-	    // then fill it only once from ME1/b
 	    int wg = match->wireGroupAndStripInChamber(chIds[ch]).first;
-	    if (wg>=10 && wg<=18) {
-	      if (csct==3) {
-		CSCDetId di(chId.endcap(),chId.station(),1,chId.chamber(),0);
-		if (wg == match->wireGroupAndStripInChamber(di.rawId()).first) continue;
-	      }
-	    }
 	    h_wg_me11_initial->Fill(wg);
 	  }
 	}
@@ -1845,27 +1837,14 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       h_phi_me1_after_alct_okAlct->Fill(stphi);
       
       std::vector<int> chIDs = match->chambersWithALCTs();
+      std::vector<int> chWHIDs = match->chambersWithHits();
       for (size_t ch = 0; ch < chIDs.size(); ch++)
 	  {
+	    if (std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end()) continue;
 	    CSCDetId chId(chIDs[ch]);
 	    int csct = getCSCType( chId );
 	    if (!(csct==0 || csct==3)) continue;
-	    bool has_alct=0;
-	    for (size_t i=0; i<ME1ALCTsOk.size(); i++) if (ME1ALCTsOk[i].id.rawId()==(unsigned int)chIDs[ch]) has_alct=1;
-	    if (has_alct==0) continue;
-	    // check that if the same WG has ALCT in ME1/b and ME1/a
-      	  	// then fill it only once from ME1/b
 	    int wg = match->wireGroupAndStripInChamber(chIDs[ch]).first;
-	    if (wg>=10 && wg<=18)
-	      {
-		if (csct==3) {
-		  CSCDetId di(chId.endcap(),chId.station(),1,chId.chamber(),0);
-		  bool has_me1b=0;
-		  for (size_t i=0; i<ME1ALCTsOk.size(); i++)
-		    if (ME1ALCTsOk[i].id==di && wg == match->wireGroupAndStripInChamber(di.rawId()).first ) has_me1b=1;
-		  if (has_me1b==1) continue;
-		}
-	      }
 	    h_wg_me11_after_alct_okAlct->Fill(wg);    // This is important to keep
 	  }
 	}
@@ -1997,8 +1976,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  //  This is important 
 	  
       	  std::vector<int> chIDs = match->chambersWithALCTs();
+      	  std::vector<int> chWHIDs = match->chambersWithHits();
       	  for (size_t ch = 0; ch < chIDs.size(); ch++)
       	    {
+	      if (std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end()) continue;
       	      CSCDetId chId(chIDs[ch]);
       	      int csct = getCSCType( chId );
       	      if (!(csct==0 || csct==3)) continue;
@@ -2131,8 +2112,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
       	      h_phi_me1_after_lct_okAlctClct->Fill(stphi);
 	      
       	      std::vector<int> chIDs = match->chambersWithLCTs();
+      	      std::vector<int> chWHIDs = match->chambersWithHits();
       	      for (size_t ch = 0; ch < chIDs.size(); ch++)
       		{
+		  if (std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end()) continue;
       		  CSCDetId chId(chIDs[ch]);
       		  int csct = getCSCType( chId );
       		  if (!(csct==0 || csct==3)) continue;
