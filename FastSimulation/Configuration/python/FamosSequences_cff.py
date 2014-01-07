@@ -351,9 +351,6 @@ elif(CaloMode==2):
         caloTowersRec
         )
 elif(CaloMode==3):
-    
-    dump = cms.EDAnalyzer("EventContentAnalyzer") #TEMP
-
     if(MixingMode==1):
         simulationSequence = cms.Sequence(
             offlineBeamSpot+
@@ -372,6 +369,7 @@ elif(CaloMode==3):
             vertexreco
             )
     else:
+        dump = cms.EDAnalyzer("EventContentAnalyzer") #TEMP
         simulationSequence = cms.Sequence(
             offlineBeamSpot+
             famosSimHits+
@@ -388,6 +386,7 @@ elif(CaloMode==3):
             )
         trackDigiVertexSequence = cms.Sequence(
             trackReco+
+            dump+
             digitizationSequence+
             vertexreco
             )
