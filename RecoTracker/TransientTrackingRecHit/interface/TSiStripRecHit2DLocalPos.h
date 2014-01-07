@@ -85,12 +85,24 @@ public:
   }
   
   
+
+  static   float sigmaPitch(LocalPoint const& pos, LocalError err, 
+		   GeomDetUnit const & stripdet) {
+    const StripTopology& topol=(const StripTopology&)stripdet.topology();
+    
+    HelpertRecHit2DLocalPos::updateWithAPE(err,stripdet);
+    MeasurementError error=topol.measurementError(pos,err);
+    auto pitch=topol.localPitch(pos);
+    return error.uu()*pitch*pitch;
+  }
+
   
 private:
   
   const StripClusterParameterEstimator* theCPE;
   SiStripRecHit2D              theHitData;
  
+
 
  
   TSiStripRecHit2DLocalPos (const GeomDet * geom, const SiStripRecHit2D* rh,
@@ -113,7 +125,8 @@ private:
     LogDebug("TSiStripRecHit2DLocalPos")<<"calculating coarse position/error.";
     if (gdu){
       StripClusterParameterEstimator::LocalValues lval= theCPE->localParameters(rh->stripCluster(), *gdu);
-      theHitData = SiStripRecHit2D(lval.first, lval.second, geom->geographicalId(),rh->omniCluster());
+      auto sPitch = sigmaPitch(lval.first, lval.second, *gdu);
+      theHitData = SiStripRecHit2D(lval.first, lval.second, sPitch,geom->geographicalId(),rh->omniCluster());
     } else{
       edm::LogError("TSiStripRecHit2DLocalPos")<<" geomdet does not cast into geomdet unit. cannot create strip local parameters.";
     theHitData = SiStripRecHit2D(*rh);
@@ -126,7 +139,7 @@ private:
 			    const OmniClusterRef & clust,
 			    const StripClusterParameterEstimator* cpe) :
     TValidTrackingRecHit(det), 
-    theCPE(cpe), theHitData(pos, err, det->geographicalId(), clust) {} 
+    theCPE(cpe), theHitData(pos, err, sigmaPitch(pos, err, *dynamic_cast<const GeomDetUnit*>(det)), det->geographicalId(), clust) {} 
     
   virtual TSiStripRecHit2DLocalPos* clone() const {
     return new TSiStripRecHit2DLocalPos(*this);

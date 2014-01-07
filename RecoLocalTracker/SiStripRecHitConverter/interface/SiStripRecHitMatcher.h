@@ -168,15 +168,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     const SiStripRecHit2D & secondHit = CollectorHelper::stereoHit(seconditer);
     
     float sigmap22 =secondHit.sigmaPitch();
-    if (sigmap22<0) {
-      LocalError tmpError( secondHit.localPositionErrorFast());
-      HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
-      MeasurementError errorstereoRH=partnertopol.measurementError(secondHit.localPositionFast(),tmpError);
-      
-      double pitch=partnertopol.localPitch(secondHit.localPositionFast());
-      secondHit.setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
-    }
-    
+    assert (sigmap22>=0);
     
     auto STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
     MeasurementPoint STEREOpointini(STEREOpointX,-0.5f);
@@ -278,15 +270,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     // FIXME: here for test...
     float sigmap12 = monoRH.sigmaPitch();
-    if (sigmap12<0) {
-      
-      LocalError tmpError(monoRH.localPositionErrorFast());
-      HelpertRecHit2DLocalPos::updateWithAPE(tmpError,*stripdet);
-      MeasurementError errormonoRH=topol.measurementError(monoRH.localPositionFast(),tmpError);
-      
-      auto pitch=topol.localPitch(monoRH.localPositionFast());
-      monoRH.setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
-    }
+    assert(sigmap12>=0); 
 
     //float code
     float fc1(c1), fs1(s1);

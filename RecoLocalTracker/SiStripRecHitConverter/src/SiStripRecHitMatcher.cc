@@ -132,29 +132,9 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 
  
   // FIXME: here for test...
-  double sigmap12 = monoRH->sigmaPitch();
-  if (sigmap12<0) {
-    //AlgebraicSymMatrix tmpMatrix = monoRH->parametersError();
-    /*
-    std::cout << "DEBUG START" << std::endl;
-    std::cout << "APE mono,stereo,glued : " 
-	      << stripdet->alignmentPositionError()->globalError().cxx()  << " , "
-	      << partnerstripdet->alignmentPositionError()->globalError().cxx()  << " , "
-	      << gluedDet->alignmentPositionError()->globalError().cxx()  << std::endl;
-    */
-    LocalError tmpError(monoRH->localPositionErrorFast());
-    HelpertRecHit2DLocalPos::updateWithAPE(tmpError,*stripdet);
-    MeasurementError errormonoRH=topol.measurementError(monoRH->localPositionFast(),tmpError);
-    /*
-    std::cout << "localPosError.xx(), helper.xx(), param.xx(): "
-	 << monoRH->localPositionError().xx() << " , "
-	 << monoRH->parametersError()[0][0] << " , "
-	 << tmpMatrix[0][0] << std::endl;
-    */
-    //MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
-    double pitch=topol.localPitch(monoRH->localPositionFast());
-    monoRH->setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
-  }
+  auto sigmap12 = monoRH->sigmaPitch();
+  assert(sigmap12>=0);
+
 
   SimpleHitIterator seconditer;  
 
@@ -224,15 +204,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 
     // FIXME: here for test...
     double sigmap22 = (*seconditer)->sigmaPitch();
-    if (sigmap22<0) {
-      //AlgebraicSymMatrix tmpMatrix = (*seconditer)->parametersError();
-      LocalError tmpError((*seconditer)->localPositionErrorFast());
-      HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
-      MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPositionFast(),tmpError);
-      //MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),(*seconditer)->localPositionError());
-      double pitch=partnertopol.localPitch((*seconditer)->localPositionFast());
-      (*seconditer)->setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
-    }
+    assert(sigmap22>=0);
 
     double diff=(c1*s2-c2*s1);
     double invdet2=1/(diff*diff*l1*l2);
@@ -324,14 +296,8 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
 
  
   // FIXME: here for test...
-  double sigmap12 = monoRH->sigmaPitch();
-  if (sigmap12<0) {
-    LocalError tmpError(monoRH->localPositionErrorFast());
-    HelpertRecHit2DLocalPos::updateWithAPE(tmpError,*stripdet);
-    MeasurementError errormonoRH=topol.measurementError(monoRH->localPositionFast(),tmpError);
-    auto pitch=topol.localPitch(monoRH->localPositionFast());
-    monoRH->setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
-  }
+  auto sigmap12 = monoRH->sigmaPitch();
+  assert(sigmap12>=0);
 
 
 
@@ -373,15 +339,9 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   double l2 = 1./(c2*c2+s2*s2);
   
   
-  // FIXME: here for test...
-  double sigmap22 = stereoRH->sigmaPitch();
-  if (sigmap22<0) {
-    LocalError tmpError(stereoRH->localPositionErrorFast());
-    HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
-    MeasurementError errorstereoRH=partnertopol.measurementError(stereoRH->localPositionFast(),tmpError);
-    auto pitch=partnertopol.localPitch(stereoRH->localPositionFast());
-    stereoRH->setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
-  }
+
+  auto sigmap22 = stereoRH->sigmaPitch();
+  assert (sigmap22>0);
 
   double diff=(c1*s2-c2*s1);
   double invdet2=1/(diff*diff*l1*l2);
