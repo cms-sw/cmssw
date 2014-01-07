@@ -35,7 +35,7 @@ bool MuonSlaveSD::format()
     sort(hits_.begin(),hits_.end(), FormatRpcHits());
   } else if (detector->isGem()) {
     sort(hits_.begin(),hits_.end(), FormatGemHits());
-  } else if (detector->isMe0()) {
+  } else if (detector->isME0()) {
     sort(hits_.begin(),hits_.end(), FormatMe0Hits());
   } 
   return true;
