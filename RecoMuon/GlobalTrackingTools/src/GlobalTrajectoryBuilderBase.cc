@@ -498,17 +498,19 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
           LocalError scaledError(rotError.xx() * scl_x * scl_x, 0, rotError.yy() * scl_y * scl_y);
           error = scaledError.rotate(-angle);
           MuonTransientTrackingRecHit* mtt_rechit;
+  	  auto sPitch = TSiStripRecHit2DLocalPos::sigmaPitch(pos,error,*Tstrip->detUnit());
           if (strip->cluster().isNonnull()) {
             //// the implemetantion below works with cloning
             //// to get a RecHitPointer to SiStripRecHit2D, the only  method that works is
             //// RecHitPointer MuonTransientTrackingRecHit::build(const GeomDet*,const TrackingRecHit*)
-            SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,strip->sigmaPitch(),
+            SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,sPitch,
                                                       (*lone_tec)->geographicalId().rawId(),
                                                       strip->cluster());
             *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
           }
           else {
-            SiStripRecHit2D* st = new SiStripRecHit2D(pos,error, strip->sigmaPitch(),
+            
+            SiStripRecHit2D* st = new SiStripRecHit2D(pos,error, sPitch,
                                                       (*lone_tec)->geographicalId().rawId(),
                                                       strip->cluster_regional());
             *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
