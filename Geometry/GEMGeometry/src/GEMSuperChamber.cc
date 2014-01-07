@@ -13,10 +13,6 @@ GEMDetId GEMSuperChamber::id() const {
   return detId_;
 }
 
-const std::vector<GEMDetId>& GEMSuperChamber::ids() const {
-  return detIds_;
-}
-
 bool GEMSuperChamber::operator==(const GEMSuperChamber& sch) const {
   return this->id()==sch.id();
 }

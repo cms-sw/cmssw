@@ -82,20 +82,8 @@ class GEMGeometry : public TrackingGeometry {
   /// Return a GEMRing
   const GEMRing* ring(int region, int station, int ring) const;
 
-  // Return a GEMRegion 
-  const GEMRegion* region(int region) const;
-
-  // Return a GEMStation
-  const GEMStation* station(int region, int station) const;
-
-  /// Return a GEMRing
-  const GEMRing* ring(int region, int station, int ring) const;
-
-  // Return a GEMSuperChamber given one of its layer detids
-  const GEMSuperChamber* superChamber(GEMDetId id) const;
-
   // Return a GEMSuperChamber given its id
-  //const GEMSuperChamber* superChamber(GEMDetId id) const;
+  const GEMSuperChamber* superChamber(GEMDetId id) const;
 
   // Return a GEMChamber given its id
   const GEMChamber* chamber(GEMDetId id) const;
