@@ -60,13 +60,10 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   LogDebug("ME0GeometryBuilderFromDDD") << "About to run through the ME0 structure\n" 
 					<<" First logical part "
 					<<fview.logicalPart().name().name();
-
-
   bool doSubDets = fview.firstChild();
- 
   LogDebug("ME0GeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
 
-   LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
+  LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
   while (doSubDets)
   {
     // Get the Base Muon Number
