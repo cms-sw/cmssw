@@ -109,5 +109,18 @@
     <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="0*mm"/>
   </Algorithm>
+  <Algorithm name="muon:DDGEMAngular">
+    <rParent name="ME0N"/>
+    <String name="ChildName" value="ME0Box"/>
+    <String name="RotNameSpace" value="me0"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="1"/>
+    <Numeric name="invert"      value="1"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value="0*mm"/>
+  </Algorithm>
 
 </DDDefinition>
