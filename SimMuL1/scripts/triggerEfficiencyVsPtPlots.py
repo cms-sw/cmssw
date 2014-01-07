@@ -111,7 +111,7 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
     hdir = "SimMuL1StrictAll"
 
   ##f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root"
-    f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root"
+    f_def =      filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root"
     f_g98_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt10_pat2.root"
     f_g98_pt15 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt15_pat2.root"
     f_g98_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root"
@@ -133,8 +133,7 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
     h3s = "h_pt_after_tfcand_eta1b_3s"
     h2s1b = "h_pt_after_tfcand_eta1b_2s1b"
     h3s1b = "h_pt_after_tfcand_eta1b_3s1b"
-    
-    
+        
     h_eff_tf0_2s  = getEffHisto(f_def, hdir, h2s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
     h_eff_tf0_3s  = getEffHisto(f_def, hdir, h3s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
     h_eff_tf0_2s1b  = getEffHisto(f_def, hdir, h2s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
@@ -630,14 +629,6 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
 
 
 
-##################################################################################################
-#                                                  
-#                         P L O T S   W I T H   V A R I A B L E   P T    
-#
-##################################################################################################
-
-
-
 #_______________________________________________________________________________
 def gem_eff_draw_gem1b(input_dir, file_name, output_dir, ext):
     """Draw trigger efficiency plots"""
@@ -871,15 +862,14 @@ def eff_pt_tf(output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
     c.SaveAs("test.png")
 
 
+########################################################################################
 
-##################################################################################################
-#                                                  
-#                           P L O T S   W I T H   F I X E D   P T    
-#
-##################################################################################################
+# Requires only a single input file
+
+########################################################################################
 
 #_______________________________________________________________________________
-def eff_pt_tf(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_pt_tf():
 
     dir = getRootDirectory(input_dir, file_name, dir_name)
 
@@ -907,7 +897,7 @@ def eff_pt_tf(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEf
 
 
 #_______________________________________________________________________________
-def eff_pt_tf_eta1b_2s(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_pt_tf_eta1b_2s():
 
     dir = getRootDirectory(input_dir, file_name, dir_name)
 
@@ -943,7 +933,7 @@ def eff_pt_tf_eta1b_2s(input_dir, file_name, output_dir, ext, dir_name = "GEMCSC
 
 
 #_______________________________________________________________________________
-def eff_pt_tf_eta1b_2s1b(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_pt_tf_eta1b_2s1b():
 
     dir = getRootDirectory(input_dir, file_name, dir_name)
 
@@ -979,7 +969,7 @@ def eff_pt_tf_eta1b_2s1b(input_dir, file_name, output_dir, ext, dir_name = "GEMC
     
 
 #_______________________________________________________________________________
-def eff_pt_tf_eta1b_3s(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_pt_tf_eta1b_3s():
     
     dir = getRootDirectory(input_dir, file_name, dir_name)
 
@@ -1015,7 +1005,7 @@ def eff_pt_tf_eta1b_3s(input_dir, file_name, output_dir, ext, dir_name = "GEMCSC
 
 
 #_______________________________________________________________________________
-def eff_pt_tf_eta1b_3s1b(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_pt_tf_eta1b_3s1b():
     
     dir = getRootDirectory(input_dir, file_name, dir_name)
 
@@ -1051,7 +1041,7 @@ def eff_pt_tf_eta1b_3s1b(input_dir, file_name, output_dir, ext, dir_name = "GEMC
 
 
 #_______________________________________________________________________________
-def eff_pth_tf(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_pth_tf():
     
     dir = getRootDirectory(input_dir, file_name, dir_name)
 
@@ -1079,7 +1069,7 @@ def eff_pth_tf(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerE
 
 
 #_______________________________________________________________________________
-def eff_pth_tf_3st1a(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_pth_tf_3st1a():
     
     dir = getRootDirectory(input_dir, file_name, dir_name)
     
@@ -1107,7 +1097,7 @@ def eff_pth_tf_3st1a(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTr
 
 
 #_______________________________________________________________________________
-def eff_pt_tf_q(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_pt_tf_q():
 
     dir = getRootDirectory(input_dir, file_name, dir_name)
 
@@ -1146,7 +1136,7 @@ def eff_pt_tf_q(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTrigger
         
 
 #_______________________________________________________________________________
-def do_h_pt_after_tfcand_ok_plus_pt10(input_dir, file_name, output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
+def do_h_pt_after_tfcand_ok_plus_pt10():
 
     dir = getRootDirectory(input_dir, file_name, dir_name)
     
@@ -1209,11 +1199,18 @@ if __name__ == "__main__":
     f_g98_pt20 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root"
     f_g98_pt30 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt30_pat2.root"
     f_g98_pt40 = "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt40_pat2.root"
+
+    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt20_new_eff.root"
+    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_postBuxFix.root"
+
     
-    reuseOutputDirectory = True
+    reuseOutputDirectory = False
     if not reuseOutputDirectory:
-        output_dir = mkdir("myTtest")
-        
+        output_dir = mkdir("myTest")
+    
+    output_dir = "forPresentationPU000_Pt00_postBugFix_20131230_145747/"
+    dir_name = 'GEMCSCTriggerEfficiency'
+    """
     do_h_pt_after_tfcand_ok_plus_pt10(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
     eff_pt_tf_q(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
     eff_pth_tf_3st1a(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
@@ -1223,5 +1220,17 @@ if __name__ == "__main__":
     eff_pt_tf_eta1b_2s1b(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
     eff_pt_tf_eta1b_2s(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
     eff_pt_tf(input_dir, f_g98_pt10, output_dir, ".png", "SimMuL1StrictAll")
+    """
+
+    do_h_pt_after_tfcand_ok_plus_pt10()
+    eff_pt_tf_q()
+    eff_pth_tf_3st1a()
+    eff_pth_tf()
+    eff_pt_tf_eta1b_3s1b()
+    eff_pt_tf_eta1b_3s()
+    eff_pt_tf_eta1b_2s1b()
+    eff_pt_tf_eta1b_2s()
+    eff_pt_tf()
+
     
 
