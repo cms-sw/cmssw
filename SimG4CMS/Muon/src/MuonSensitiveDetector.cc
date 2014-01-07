@@ -59,7 +59,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   } else if (detector->isGem()) {
     //    cout << "MuonFrameRotation create MuonGemFrameRotation"<<endl;
     theRotation=new MuonGemFrameRotation( cpv );
-  } else if (detector->isMe0()) {
+  } else if (detector->isME0()) {
     //    cout << "MuonFrameRotation create MuonMe0FrameRotation"<<endl;
     theRotation=new MuonMe0FrameRotation( cpv );
   }  else {
