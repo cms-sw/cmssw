@@ -196,6 +196,13 @@ MatchCSCMuL1::chambersWithHits(int station, int ring, unsigned minNHits)
         layersWithHits.insert(hid.layer());
       }
     if (layersWithHits.size()>=minNHits) chambers.insert( mapItr->first );
+    // if chamber is ME1b then add layers with hits in corresponding ME1a
+    if (cid.station() == 1 && cid.ring() == 1) {
+	CSCDetId ME1aId(cid.endcap(),cid.station(),4,cid.chamber(),0);
+	if (layersWithHits.size()+
+            numberOfLayersWithHitsInChamber(ME1aId.rawId())
+            >= minNHits) chambers.insert( mapItr->first );
+    }
   }
   std::vector<int> result( chambers.begin() , chambers.end() );
   return result;
