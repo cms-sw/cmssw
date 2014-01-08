@@ -4,7 +4,6 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("Geometry.HGCalCommonData.testCFCXML_cfi")
-#process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 

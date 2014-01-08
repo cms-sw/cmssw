@@ -22,23 +22,13 @@
     <ZSection z="-[z2HE]" rMin="[rMin5]"   rMax="[rOutHB]"/>
     <ZSection z="-[z2HE]" rMin="[rMin2HE]" rMax="[rOutHB]"/>
     <ZSection z="-[z1HE]" rMin="[rMin1HE]" rMax="[rOutHB]"/>
+    <ZSection z="-[z1HE]" rMin="[rMin1]"   rMax="[rOutHB]"/>
+    <ZSection z="[z1HE]"  rMin="[rMin1]"   rMax="[rOutHB]"/>
     <ZSection z="[z1HE]"  rMin="[rMin1HE]" rMax="[rOutHB]"/>
     <ZSection z="[z2HE]"  rMin="[rMin2HE]" rMax="[rOutHB]"/>
     <ZSection z="[z2HE]"  rMin="[rMin5]"   rMax="[rOutHB]"/>
     <ZSection z="[z6HB]"  rMin="[rMin5]"   rMax="[rOutHB]"/>
   </Polyhedra>
-  <!-- 
-  <Polyhedra name="HCal" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
-    <ZSection z="-[z6HB]" rMin="[rMin5]" rMax="[rOutHB]"/>
-    <ZSection z="-[z5HB]" rMin="[rMin5]" rMax="[rOutHB]"/>
-    <ZSection z="-[z4HB]" rMin="[rMin4]" rMax="[rOutHB]"/>
-    <ZSection z="-[z3HB]" rMin="[rMin1]" rMax="[rOutHB]"/>
-    <ZSection z="[z3HB]"  rMin="[rMin1]" rMax="[rOutHB]"/>
-    <ZSection z="[z4HB]"  rMin="[rMin4]" rMax="[rOutHB]"/>
-    <ZSection z="[z5HB]"  rMin="[rMin5]" rMax="[rOutHB]"/>
-    <ZSection z="[z6HB]"  rMin="[rMin5]" rMax="[rOutHB]"/>
-  </Polyhedra>
-  -->
 </SolidSection>
 
 <LogicalPartSection label="hcalalgo.xml">

@@ -191,6 +191,7 @@ void HcalDDDRecConstants::loadSimConst(const HcalDDDSimConstants& hcons) {
     int laymax = (imx > 0) ? layerGroup[i][imx-1] : 0;
     if (i < iEtaMax[0]) {
       int laymax0 = (imx > 16) ? layerGroup[i][16] : laymax;
+      if (i+1 == iEtaMax[0] && laymax0 > 2) laymax0 = 2;
       std::cout << "HB " << i << " " << imx << " " << laymax << " " << laymax0 << std::endl;
       if (maxDepth[0] < laymax0) maxDepth[0] = laymax0;
     }
