@@ -1497,7 +1497,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  double d0 = -1 * trkit->dxy( bspot );
 	  htrkD0    = _dbe->get(DirName+"/"+"METTask_trackD0");     if (htrkD0 && htrkD0->getRootObject())        htrkD0->Fill( d0 );
 	}
-      }else{std::cout<<"tracks not valied"<<std::endl;}
+      }else{std::cout<<"tracks not valid"<<std::endl;}
 
       if(electron_h.isValid()) {
 	for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {

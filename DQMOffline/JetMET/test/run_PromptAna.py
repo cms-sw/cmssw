@@ -60,7 +60,7 @@ else:
 ###                              '/store/hidata/HIRun2010/HIAllPhysics/RECO/PromptReco-v2/000/150/314/D28FA8E9-4EEA-DF11-9B2A-000423D987E0.root').split(",")
 ###                              '/store/data/Commissioning09/MinimumBias/RECO/v4/000/102/347/F85D1BC6-A06A-DE11-BDF8-0019B9F581C9.root').split(",")
 ###                              '/store/data/CRAFT09/Calo/RECO/v1/000/112/220/F0B768A4-5E93-DE11-B222-000423D94524.root').split(",")
-
+)
 print 'List of input files'
 print inputfiles
 #-----
@@ -187,6 +187,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 
+#process.load('RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi')
+
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
@@ -206,14 +208,16 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 if iscosmics=="True":
   process.p = cms.Path(#process.BeamHaloId
+#                       process.fixedGridRhoFastjetAllCalo
                        process.jetMETDQMOfflineSourceCosmic
                      * process.dqmStoreStats
 ###                     * process.MEtoEDMConverter
                      )
 else:
   process.p = cms.Path(#process.BeamHaloId
+#                       process.fixedGridRhoFastjetAllCalo
                        process.jetMETDQMOfflineSource
-                       * process.dqmStoreStats
+                     * process.dqmStoreStats
 ###                       * process.MEtoEDMConverter
                      )
 

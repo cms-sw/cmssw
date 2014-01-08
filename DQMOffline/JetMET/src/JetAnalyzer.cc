@@ -1019,8 +1019,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (isPFJet && (!pfJets.isValid() || !bPrimaryVertex || !(DCSFilterPF->filter(iEvent, iSetup)))) return;
   }
   unsigned int collSize=-1;
-  
-
 
   if (isCaloJet)
     {
