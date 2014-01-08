@@ -2,20 +2,24 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MyRawToDigi")
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+#process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+#process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.Services_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
 
 process.source = cms.Source("PoolSource",
 # fileNames =  cms.untracked.vstring('file:rawdata.root')
-# fileNames =  cms.untracked.vstring('file:/scratch/dkotlins/COSMIC/RAW/002C2E77-8CD5-DE11-9533-000423D944FC.root')
 fileNames =  cms.untracked.vstring(
-  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/2EF61B7D-F216-E211-98C3-001D09F28D54.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/2EF61B7D-F216-E211-98C3-001D09F28D54.root",
+  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/208/686/A88F66A0-393F-E211-9287-002481E0D524.root",
  )
 )
-
-process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # Cabling
 #  include "CalibTracker/Configuration/data/Tracker_FakeConditions.cff"
@@ -33,7 +37,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #))
 
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
+# Choose the global tag here:
 process.GlobalTag.globaltag = "GR_P_V40::All"
 
 
@@ -54,7 +58,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName =  cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/digis.root'),
+#    fileName =  cms.untracked.string('file:digis.root'),
+    fileName =  cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/data/digis/digis_1k.root'),
     outputCommands = cms.untracked.vstring("drop *","keep *_siPixelDigis_*_*")
 )
 
