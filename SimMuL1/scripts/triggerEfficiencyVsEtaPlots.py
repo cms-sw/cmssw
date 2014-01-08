@@ -1396,8 +1396,8 @@ def simTrackToAlctMatchingEfficiencyVsEtaME1():
     topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
 
     c = TCanvas("h_eff_eta_me1_after_alct","h_eff_eta_me1_after_alct",1000,600 )     
     c.cd()
@@ -1461,8 +1461,8 @@ def simTrackToClctMatchingEfficiencyVsEtaME1():
     topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_initial_1st",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_initial_1st",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
 
     c = TCanvas("h_eff_eta_me1_after_clct","h_eff_eta_me1_after_clct",1000,600 )     
     c.cd()
@@ -1527,14 +1527,14 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
     topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_initial",dir, etareb, kRed+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_initial",dir, etareb, kRed+1, 1, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alctclct = setEffHisto("h_eta_me1_after_alctclct","h_eta_initial",dir, etareb, kGreen+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okAlct = setEffHisto("h_eta_me1_after_alctclct_okAlct","h_eta_initial",dir, etareb, kGreen+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okClct = setEffHisto("h_eta_me1_after_alctclct_okClct","h_eta_initial",dir, etareb, kOrange+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okAlctClct = setEffHisto("h_eta_me1_after_alctclct_okAlctClct","h_eta_initial",dir, etareb, kOrange+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_me1_initial",dir, etareb, kRed+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_me1_initial",dir, etareb, kRed+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alctclct = setEffHisto("h_eta_me1_after_alctclct","h_eta_me1_initial",dir, etareb, kGreen+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okAlct = setEffHisto("h_eta_me1_after_alctclct_okAlct","h_eta_me1_initial",dir, etareb, kGreen+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okClct = setEffHisto("h_eta_me1_after_alctclct_okClct","h_eta_me1_initial",dir, etareb, kOrange+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okAlctClct = setEffHisto("h_eta_me1_after_alctclct_okAlctClct","h_eta_me1_initial",dir, etareb, kOrange+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
 
     c = TCanvas("","",1000,600 )     
     c.cd()
