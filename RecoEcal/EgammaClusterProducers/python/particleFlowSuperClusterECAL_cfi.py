@@ -16,6 +16,7 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
+    BeamSpot = cms.InputTag("offlineBeamSpot"),    
     vertexCollection = cms.InputTag("offlinePrimaryVertices"),
     #rechit collections for lazytools
     ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
@@ -38,6 +39,9 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     useRegression = cms.bool(False), #regressions are mustache only
     regressionKeyEB = cms.string('pfecalsc_EBCorrection'),
     regressionKeyEE = cms.string('pfecalsc_EECorrection'),
+    
+    #threshold for final SuperCluster Et
+    thresh_SCEt = cms.double(4.0),    
     
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(3.0),
@@ -84,6 +88,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     #PFClusters collection
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
+    BeamSpot = cms.InputTag("offlineBeamSpot"),
                                               
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
@@ -106,6 +111,9 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
        ),
+       
+    #threshold for final SuperCluster Et
+    thresh_SCEt = cms.double(4.0),
     
     # threshold in ECAL
     thresh_PFClusterSeedBarrel = cms.double(1.0),

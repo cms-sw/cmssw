@@ -47,12 +47,10 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
 
-  use_regression = iConfig.getParameter<bool>("useRegression"); 
-  const edm::ParameterSet regconf = 
-    iConfig.getParameterSet("regressionConfig");
-  regr_.reset(new PFSCRegressionCalc(regconf));
-  regr_->varCalc()->setTokens(regconf,consumesCollector());
-  
+  superClusterAlgo_.setUseRegression(iConfig.getParameter<bool>("useRegression")); 
+    
+  superClusterAlgo_.setTokens(iConfig,consumesCollector());
+   
   std::string _typename = iConfig.getParameter<std::string>("ClusteringType");
   if( _typename == ClusterType__BOX ) {
     _theclusteringtype = PFECALSuperClusterAlgo::kBOX;
@@ -114,6 +112,8 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   superClusterAlgo_.setUseETForSeeding(seedThresholdIsET);
   superClusterAlgo_.setUseDynamicDPhi(useDynamicDPhi);
 
+  superClusterAlgo_.setThreshSuperClusterEt( iConfig.getParameter<double>("thresh_SCEt") );
+  
   superClusterAlgo_.setThreshPFClusterSeedBarrel( threshPFClusterSeedBarrel );
   superClusterAlgo_.setThreshPFClusterBarrel( threshPFClusterBarrel );
 
@@ -142,13 +142,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 
   bool applyCrackCorrections_ = iConfig.getParameter<bool>("applyCrackCorrections");
   superClusterAlgo_.setCrackCorrections(applyCrackCorrections_);
-
-
-  
-  inputTagPFClusters_ = 
-    consumes<edm::View<reco::PFCluster> >(iConfig.getParameter<InputTag>("PFClusters"));
-  inputTagPFClustersES_ = 
-    consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<InputTag>("ESAssociation"));
   
   PFBasicClusterCollectionBarrel_ = iConfig.getParameter<string>("PFBasicClusterCollectionBarrel");
   PFSuperClusterCollectionBarrel_ = iConfig.getParameter<string>("PFSuperClusterCollectionBarrel");
@@ -176,28 +169,18 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
 PFECALSuperClusterProducer::~PFECALSuperClusterProducer() {}
 
 void PFECALSuperClusterProducer::
-beginRun(const edm::Run& iR, const edm::EventSetup& iE) {
-  if(!use_regression) return;
-  regr_->update(iE); 
+beginLuminosityBlock(LuminosityBlock const& iL, EventSetup const& iE) {
+  superClusterAlgo_.update(iE); 
 }
 
 
 void PFECALSuperClusterProducer::produce(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup) {
   
-
-  //Load the pfcluster collections
-  edm::Handle<edm::View<reco::PFCluster> > pfclustersHandle;
-  iEvent.getByToken( inputTagPFClusters_, pfclustersHandle );  
-
-  edm::Handle<reco::PFCluster::EEtoPSAssociation > psAssociationHandle;
-  iEvent.getByToken( inputTagPFClustersES_,  psAssociationHandle);
-
   // do clustering
-  superClusterAlgo_.loadAndSortPFClusters(*pfclustersHandle,
-					  *psAssociationHandle);
+  superClusterAlgo_.loadAndSortPFClusters(iEvent);
   superClusterAlgo_.run();
-
+  
   //build collections of output CaloClusters from the used PFClusters
   std::auto_ptr<reco::CaloClusterCollection> caloClustersEB(new reco::CaloClusterCollection);
   std::auto_ptr<reco::CaloClusterCollection> caloClustersEE(new reco::CaloClusterCollection);
@@ -309,19 +292,6 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
   edm::ValueMap<reco::CaloClusterPtr>::Filler fillerES(*pfClusterAssociationES);
   fillerES.insert(caloClusHandleES, clusptrsES.begin(), clusptrsES.end());  
   fillerES.fill();  
-    
-  if( use_regression ) {    
-    regr_->varCalc()->setEvent(iEvent);
-    double cor = 0.0;
-    for( auto& ebsc : *(superClusterAlgo_.getEBOutputSCCollection()) ) {
-      cor = regr_->getCorrection(ebsc);
-      ebsc.setEnergy(cor*ebsc.energy());
-    }
-    for( auto& eesc : *(superClusterAlgo_.getEEOutputSCCollection()) ) {
-      cor = regr_->getCorrection(eesc);      
-      eesc.setEnergy(cor*eesc.energy());
-    }
-  }
 
   //store in the event
   iEvent.put(pfClusterAssociationEBEE,PFClusterAssociationEBEE_);
