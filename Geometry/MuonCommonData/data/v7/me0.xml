@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
  <ConstantsSection label="me0.xml" eval="true">
-   <Constant name="rPos"  value="154.*cm"/>
+   <Constant name="rPos"  value="149.535*cm"/>
    <Constant name="z10"   value="-12.35*cm"/> 
    <Constant name="z20"   value="([z10]+5*cm)"/> 
    <Constant name="z30"   value="([z20]+5*cm)"/> 
@@ -11,8 +11,8 @@
  </ConstantsSection>
  <SolidSection label="me0.xml">
   <Tubs name="ME0" rMin="30*cm  " rMax="2.73*m  " dz="15.*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <Trd1 name="ME0Box" dz="117.42*cm" dy1="15*cm" dy2="15*cm" dx1="5.29*cm" dx2="47.41*cm" />
-  <Trd1 name="ME0L" dz="117.42*cm" dy1="0.3*cm" dy2="0.3*cm" dx1="5.29*cm" dx2="47.41*cm" />
+  <Trd1 name="ME0Box" dz="119.355*cm" dy1="15*cm" dy2="15*cm" dx1="5.29*cm" dx2="47.41*cm" />
+  <Trd1 name="ME0L" dz="119.355*cm" dy1="0.3*cm" dy2="0.3*cm" dx1="5.29*cm" dx2="47.41*cm" />
  </SolidSection>
 
  <LogicalPartSection label="me0.xml">
