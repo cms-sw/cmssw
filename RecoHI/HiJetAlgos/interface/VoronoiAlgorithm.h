@@ -103,7 +103,6 @@ public:
 	~VoronoiAlgorithm(void)
 	{
 	}
-
 	/**
 	 * Add a new unsubtracted particle to the current event
 	 *

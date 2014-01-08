@@ -390,18 +390,20 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      if(zdcAvailable){
 	for( size_t ihit = 0; ihit<hits->size(); ++ ihit){
 	   const ZDCRecHit & rechit = (*hits)[ ihit ];
-	   if(rechit.id().zside() > 0 )
+	   if(rechit.id().zside() > 0 ){
 	     if(lowGainZDC_){
 	       creco->zdcSumPlus_ += rechit.lowGainEnergy();
 	     }else{
 	       creco->zdcSumPlus_ += rechit.energy();
 	     }
-	   if(rechit.id().zside() < 0)
+	   }
+	   if(rechit.id().zside() < 0){
              if(lowGainZDC_){
 	      creco->zdcSumMinus_ += rechit.lowGainEnergy();
 	     }else{
 	       creco->zdcSumMinus_ += rechit.energy();
 	     }
+	   }
 	}
      }else{
 	creco->zdcSumPlus_ = -9;
