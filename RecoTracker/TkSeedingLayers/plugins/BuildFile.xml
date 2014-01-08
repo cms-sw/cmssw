@@ -1,4 +1,5 @@
 <use   name="RecoTracker/TkSeedingLayers"/>
+<use   name="RecoTracker/SeedingLayerSetsHits"/>
 <library   file="*.cc" name="RecoTrackerTkSeedingLayersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
