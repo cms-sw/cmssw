@@ -3515,6 +3515,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                 const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
                 CSCDetId cid = id;
 
+                std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
+                CSCDetId chId(id.endcap(),id.station(),id.ring(),id.chamber(),0);
+                int rawId = chId.rawId();
+                if (std::find(chWHIDs.begin(),chWHIDs.end(),rawId)==chWHIDs.end()) continue;
+
                 for (CSCCorrelatedLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
                 {
                     if (!(*digiIt).isValid()) continue;
