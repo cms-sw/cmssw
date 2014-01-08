@@ -199,9 +199,9 @@ MatchCSCMuL1::chambersWithHits(int station, int ring, unsigned minNHits)
         // if chamber is ME1b then add layers with hits in corresponding ME1a
         if (cid.station() == 1 && cid.ring() == 1) {
             CSCDetId ME1aId(cid.endcap(),cid.station(),4,cid.chamber(),0);
-            if (layersWithHits.size()+
-                    numberOfLayersWithHitsInChamber(ME1aId.rawId())
-                    >= minNHits) chambers.insert( mapItr->first );
+            if (layersWithHits.size() < minNHits &&
+                (unsigned int)numberOfLayersWithHitsInChamber(ME1aId.rawId()) < minNHits && 
+                layersWithHits.size()+numberOfLayersWithHitsInChamber(ME1aId.rawId()) >= minNHits) chambers.insert( mapItr->first );
         }
     }
     std::vector<int> result( chambers.begin() , chambers.end() );
@@ -295,7 +295,7 @@ MatchCSCMuL1::numberOfLayersWithHitsInChamber(int detId)
     std::pair<int,int>
 MatchCSCMuL1::wireGroupAndStripInChamber( int detId )
 {
-    std::pair<int,int> err_pair(-1,-1);
+    std::pair<int,int> err_pair(-99,-99);
 
     std::vector<PSimHit> hits = chamberHits( detId );
     unsigned n = hits.size();
