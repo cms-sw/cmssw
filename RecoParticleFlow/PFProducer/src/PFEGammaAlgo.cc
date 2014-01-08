@@ -519,18 +519,21 @@ namespace {
     }
     return cluster_list;
   }
-  inline void addPFClusterToROSafe(const ClusterElement* cl,
-				   PFEGammaAlgo::ProtoEGObject& RO) {
+  bool addPFClusterToROSafe(const ClusterElement* cl,
+			    PFEGammaAlgo::ProtoEGObject& RO) {
     if( !RO.ecalclusters.size() ) {
       RO.ecalclusters.push_back(std::make_pair(cl,true));      
+      return true;
     } else {
       const PFLayer::Layer clayer = cl->clusterRef()->layer();
       const PFLayer::Layer blayer = 
 	RO.ecalclusters.back().first->clusterRef()->layer();
       if( clayer == blayer ) {
 	RO.ecalclusters.push_back(std::make_pair(cl,true));      
+	return true;
       }
     }
+    return false;
   }
   
   // sets the cluster best associated to the GSF track
@@ -1584,11 +1587,12 @@ linkRefinableObjectPrimaryGSFTrackToECAL(ProtoEGObject& RO) {
 	<< "Found a cluster not already in RO by GSF extrapolation"
 	<< " at ECAL surface!" << std::endl
 	<< *elemascluster << std::endl;
-      addPFClusterToROSafe(elemascluster,RO);              
-      attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
-      RO.localMap.push_back(ElementMap::value_type(primgsf.first,elemascluster));
-      RO.localMap.push_back(ElementMap::value_type(elemascluster,primgsf.first));
-      ecal->second = false;    
+      if( addPFClusterToROSafe(elemascluster,RO) ) {
+	attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);      
+	RO.localMap.push_back(ElementMap::value_type(primgsf.first,elemascluster));
+	RO.localMap.push_back(ElementMap::value_type(elemascluster,primgsf.first));
+	ecal->second = false;    
+      }
     }    
   }
 }
@@ -1667,18 +1671,19 @@ PFEGammaAlgo::linkKFTrackToECAL(const KFFlaggedElement& kfflagged,
   for( auto ecalitr = ECALbegin; ecalitr != notmatched_blk; ++ecalitr ) {
     const PFClusterElement* elemascluster = 
       docast(const PFClusterElement*,ecalitr->first);
-    addPFClusterToROSafe(elemascluster,RO);
-    attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);	  
-    ecalitr->second = false;
-    
-    LOGDRESSED("PFEGammaAlgo::linkKFTracktoECAL()") 
+    if( addPFClusterToROSafe(elemascluster,RO) ) {
+      attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);	  
+      ecalitr->second = false;
+      
+      LOGDRESSED("PFEGammaAlgo::linkKFTracktoECAL()") 
 	<< "Found a cluster not in RO by KF extrapolation"
 	<< " at ECAL surface!" << std::endl
 	<< *elemascluster << std::endl;
-    RO.localMap.push_back(ElementMap::value_type(elemascluster,
-						 kfflagged.first));
-    RO.localMap.push_back( ElementMap::value_type(kfflagged.first,
-						  elemascluster));
+      RO.localMap.push_back(ElementMap::value_type(elemascluster,
+						   kfflagged.first));
+      RO.localMap.push_back( ElementMap::value_type(kfflagged.first,
+						    elemascluster));
+    }
   }  
 }
 
@@ -1737,15 +1742,16 @@ linkRefinableObjectBremTangentsToECAL(ProtoEGObject& RO) {
 	}	
 	const PFClusterElement* elemasclus =
 	  docast(const PFClusterElement*,ecal->first);    
-	addPFClusterToROSafe(elemasclus,RO);
-	attachPSClusters(elemasclus,RO.ecal2ps[elemasclus]);
-	
-	RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
-	RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
-	ecal->second = false;
-	LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
-	  << "Found a cluster not already associated by brem extrapolation"
-	  << " at ECAL surface!" << std::endl;
+	if( addPFClusterToROSafe(elemasclus,RO) ) {
+	  attachPSClusters(elemasclus,RO.ecal2ps[elemasclus]);
+	  
+	  RO.localMap.push_back( ElementMap::value_type(ecal->first,bremflagged.first) );
+	  RO.localMap.push_back( ElementMap::value_type(bremflagged.first,ecal->first) );
+	  ecal->second = false;
+	  LOGDRESSED("PFEGammaAlgo::linkBremToECAL()") 
+	    << "Found a cluster not already associated by brem extrapolation"
+	    << " at ECAL surface!" << std::endl;
+	}
 	
       }
     }
@@ -1833,11 +1839,12 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
     for( auto ecal = ECALbegin; ecal != notmatched; ++ecal ) {
       const reco::PFBlockElementCluster* elemascluster =
 	docast(const reco::PFBlockElementCluster*,ecal->first);      
-      addPFClusterToROSafe(elemascluster,RO);
-      attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);
-      RO.localMap.push_back(ElementMap::value_type(skf.first,elemascluster));
-      RO.localMap.push_back(ElementMap::value_type(elemascluster,skf.first));
-      ecal->second = false;      
+      if( addPFClusterToROSafe(elemascluster,RO) ) {
+	attachPSClusters(elemascluster,RO.ecal2ps[elemascluster]);
+	RO.localMap.push_back(ElementMap::value_type(skf.first,elemascluster));
+	RO.localMap.push_back(ElementMap::value_type(elemascluster,skf.first));
+	ecal->second = false;      
+      }
     }
   }
 }
