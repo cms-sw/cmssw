@@ -107,145 +107,85 @@ def getEffHisto(fname, hdir, num_name, den_name, nrebin, lcolor, lstyle, lwidth,
     return heff
 
 
-#_______________________________________________________________________________
-def gem_eff_draw(input_dir, file_name, output_dir, ext):
-    """Rate the efficiency plots"""
-    gStyle.SetOptStat(0)
-    gStyle.SetTitleStyle(0)
-    
-    ptreb=2
 
-    filesDir = "files/"
-    plotDir = "plots/trigger_eff_vs_pt/"
-    ext = ".pdf"
+"""
+hini = "h_pt_initial_1b"
+h2s = "h_pt_after_tfcand_eta1b_2s"
+h3s = "h_pt_after_tfcand_eta1b_3s"
+h2s1b = "h_pt_after_tfcand_eta1b_2s1b"
+h3s1b = "h_pt_after_tfcand_eta1b_3s1b"
 
-    
-    hdir = "SimMuL1StrictAll"
+h_eff_tf0_2s  = getEffHisto(f_def, hdir, h2s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
+h_eff_tf0_3s  = getEffHisto(f_def, hdir, h3s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
+h_eff_tf0_2s1b  = getEffHisto(f_def, hdir, h2s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
+h_eff_tf0_3s1b  = getEffHisto(f_def, hdir, h3s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
 
-  ##f_def = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_def_pat2.root"
-    f_def =      filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem_dphi0_pat2.root"
-    f_g98_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt10_pat2.root"
-    f_g98_pt15 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt15_pat2.root"
-    f_g98_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt20_pat2.root"
-    f_g98_pt30 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt30_pat2.root"
-    f_g98_pt40 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem98_pt40_pat2.root"
-    
-    f_g95_pt10 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt10_pat2.root"
-    f_g95_pt20 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt20_pat2.root"
-    f_g95_pt30 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt30_pat2.root"
-    f_g95_pt40 = filesDir + "hp_dimu_6_0_1_POSTLS161_V12__pu000_w3_gem95_pt40_pat2.root"
-    
-    rpt = [0.,49.99]
-    yrange = [0.,1.04]
-    
-    htitle = "Efficiency for #mu in 1.6<|#eta|<2.12 to have TF trackp_{T}^{MC}"
-    
-    hini = "h_pt_initial_1b"
-    h2s = "h_pt_after_tfcand_eta1b_2s"
-    h3s = "h_pt_after_tfcand_eta1b_3s"
-    h2s1b = "h_pt_after_tfcand_eta1b_2s1b"
-    h3s1b = "h_pt_after_tfcand_eta1b_3s1b"
-        
-    h_eff_tf0_2s  = getEffHisto(f_def, hdir, h2s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    h_eff_tf0_3s  = getEffHisto(f_def, hdir, h3s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    h_eff_tf0_2s1b  = getEffHisto(f_def, hdir, h2s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    h_eff_tf0_3s1b  = getEffHisto(f_def, hdir, h3s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    
-    h_eff_tf10_2s  = getEffHisto(f_def, hdir, h2s + "_pt10", hini, ptreb, kGreen+4, 1, 2, htitle, rpt,yrange)
-    h_eff_tf10_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
-    h_eff_tf10_3s  = getEffHisto(f_def, hdir, h3s + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
-    h_eff_tf10_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
+h_eff_tf10_2s  = getEffHisto(f_def, hdir, h2s + "_pt10", hini, ptreb, kGreen+4, 1, 2, htitle, rpt,yrange)
+h_eff_tf10_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
+h_eff_tf10_3s  = getEffHisto(f_def, hdir, h3s + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
+h_eff_tf10_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
 
-    ##h_eff_tf15_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange)
-    ##h_eff_tf15_3s  = getEffHisto(f_def, hdir, h3s + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange)
-    ##h_eff_tf15_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange)
+##h_eff_tf15_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange)
+##h_eff_tf15_3s  = getEffHisto(f_def, hdir, h3s + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange)
+##h_eff_tf15_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt15", hini, ptreb, kBlue, 1, 2, htitle, rpt,yrange)
 
-    h_eff_tf20_2s  = getEffHisto(f_def, hdir, h2s + "_pt20", hini, ptreb, kOrange+4, 1, 2, htitle, rpt,yrange)
-    h_eff_tf20_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange)
-    h_eff_tf20_3s  = getEffHisto(f_def, hdir, h3s + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange)
-    h_eff_tf20_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange)
+h_eff_tf20_2s  = getEffHisto(f_def, hdir, h2s + "_pt20", hini, ptreb, kOrange+4, 1, 2, htitle, rpt,yrange)
+h_eff_tf20_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange)
+h_eff_tf20_3s  = getEffHisto(f_def, hdir, h3s + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange)
+h_eff_tf20_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 1, 2, htitle, rpt,yrange)
 
-    h_eff_tf30_2s  = getEffHisto(f_def, hdir, h2s + "_pt30", hini, ptreb, kRed+4, 1, 2, htitle, rpt,yrange)
-    h_eff_tf30_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange)
-    h_eff_tf30_3s  = getEffHisto(f_def, hdir, h3s + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange)
-    h_eff_tf30_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange)
+h_eff_tf30_2s  = getEffHisto(f_def, hdir, h2s + "_pt30", hini, ptreb, kRed+4, 1, 2, htitle, rpt,yrange)
+h_eff_tf30_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange)
+h_eff_tf30_3s  = getEffHisto(f_def, hdir, h3s + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange)
+h_eff_tf30_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 1, 2, htitle, rpt,yrange)
 
-    h_eff_tf40_2s  = getEffHisto(f_def, hdir, h2s + "_pt40", hini, ptreb, kViolet+4, 1, 2, htitle, rpt,yrange)
-    h_eff_tf40_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt40", hini, ptreb, kViolet, 1, 2, htitle, rpt,yrange)
-    h_eff_tf40_3s  = getEffHisto(f_def, hdir, h3s + "_pt40", hini, ptreb, kViolet, 1, 2, htitle, rpt,yrange)
-    h_eff_tf40_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt40", hini, ptreb, kViolet, 1, 2, htitle, rpt,yrange)
+h_eff_tf40_2s  = getEffHisto(f_def, hdir, h2s + "_pt40", hini, ptreb, kViolet+4, 1, 2, htitle, rpt,yrange)
+h_eff_tf40_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt40", hini, ptreb, kViolet, 1, 2, htitle, rpt,yrange)
+h_eff_tf40_3s  = getEffHisto(f_def, hdir, h3s + "_pt40", hini, ptreb, kViolet, 1, 2, htitle, rpt,yrange)
+h_eff_tf40_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt40", hini, ptreb, kViolet, 1, 2, htitle, rpt,yrange)
 
-    h_eff_tf10_gpt10_2s1b  = getEffHisto(f_g98_pt10, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 7, 2, htitle, rpt,yrange)
-    h_eff_tf10_gpt10_3s1b  = getEffHisto(f_g98_pt10, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 7, 2, htitle, rpt,yrange)
+h_eff_tf10_gpt10_2s1b  = getEffHisto(f_g98_pt10, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 7, 2, htitle, rpt,yrange)
+h_eff_tf10_gpt10_3s1b  = getEffHisto(f_g98_pt10, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 7, 2, htitle, rpt,yrange)
 
-    h_eff_tf15_gpt15_2s1b  = getEffHisto(f_g98_pt15, hdir, h2s1b + "_pt15", hini, ptreb, kBlue, 7, 2, htitle, rpt,yrange)
-    h_eff_tf15_gpt15_3s1b  = getEffHisto(f_g98_pt15, hdir, h3s1b + "_pt15", hini, ptreb, kBlue, 7, 2, htitle, rpt,yrange)
+h_eff_tf15_gpt15_2s1b  = getEffHisto(f_g98_pt15, hdir, h2s1b + "_pt15", hini, ptreb, kBlue, 7, 2, htitle, rpt,yrange)
+h_eff_tf15_gpt15_3s1b  = getEffHisto(f_g98_pt15, hdir, h3s1b + "_pt15", hini, ptreb, kBlue, 7, 2, htitle, rpt,yrange)
 
-    h_eff_tf20_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 7, 2, htitle, rpt,yrange)
-    h_eff_tf20_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 7, 2, htitle, rpt,yrange)
+h_eff_tf20_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 7, 2, htitle, rpt,yrange)
+h_eff_tf20_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 7, 2, htitle, rpt,yrange)
 
-    h_eff_tf30_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 7, 2, htitle, rpt,yrange)
-    h_eff_tf30_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 7, 2, htitle, rpt,yrange)
+h_eff_tf30_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 7, 2, htitle, rpt,yrange)
+h_eff_tf30_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 7, 2, htitle, rpt,yrange)
 
-    h_eff_tf40_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt40", hini, ptreb, kViolet, 7, 2, htitle, rpt,yrange)
-    h_eff_tf40_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt40", hini, ptreb, kViolet, 7, 2, htitle, rpt,yrange)
+h_eff_tf40_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt40", hini, ptreb, kViolet, 7, 2, htitle, rpt,yrange)
+h_eff_tf40_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt40", hini, ptreb, kViolet, 7, 2, htitle, rpt,yrange)
 
 
-    c2s1b = TCanvas("c2s1b","c2s1b",800,600) 
+h_eff_tf10_gpt15_2s1b  = getEffHisto(f_g98_pt15, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange)
+h_eff_tf10_gpt15_3s1b  = getEffHisto(f_g98_pt15, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange)
 
-    """
-    h_eff_gmt20_1b  = getEffHisto(f_def, hdir, "h_pt_after_gmt_eta1b_1mu_pt20", hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    h_eff_gmt30_1b  = getEffHisto(f_def, hdir, "h_pt_after_gmt_eta1b_1mu_pt30", hini, ptreb, kBlack-1, 1, 2, htitle, rpt, yrange)
-    h_eff_gmt40_1b  = getEffHisto(f_def, hdir, "h_pt_after_gmt_eta1b_1mu_pt40", hini, ptreb, kBlack-2, 1, 2, htitle, rpt, yrange)
-    h_eff_gmt20_1b.Draw("hist")
-    h_eff_gmt30_1b.Draw("hist same")
-    h_eff_gmt40_1b.Draw("hist same")
-    return
+h_eff_tf15_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange)
+h_eff_tf15_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange)
 
-    h_eff_tf40_3s.Draw("hist")
-    h_eff_tf40_3s1b.Draw("hist same")
-    h_eff_tf40_gpt40_3s1b.Draw("hist same")
-    return
-    """
+h_eff_tf20_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange)
+h_eff_tf20_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange)
+
+h_eff_tf30_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 3, 2, htitle, rpt,yrange)
+h_eff_tf30_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 3, 2, htitle, rpt,yrange)
 
 
-    h_eff_tf10_gpt15_2s1b  = getEffHisto(f_g98_pt15, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange)
-    h_eff_tf10_gpt15_3s1b  = getEffHisto(f_g98_pt15, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange)
+h_eff_tf10_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange)
+h_eff_tf10_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange)
 
-    h_eff_tf15_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange)
-    h_eff_tf15_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange)
+h_eff_tf15_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange)
+h_eff_tf15_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange)
 
-    h_eff_tf20_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange)
-    h_eff_tf20_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange)
+h_eff_tf20_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange)
+h_eff_tf20_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange)
 
-    h_eff_tf30_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt30", hini, ptreb, kRed, 3, 2, htitle, rpt,yrange)
-    h_eff_tf30_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt30", hini, ptreb, kRed, 3, 2, htitle, rpt,yrange)
+"""
 
-
-    h_eff_tf10_gpt20_2s1b  = getEffHisto(f_g98_pt20, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange)
-    h_eff_tf10_gpt20_3s1b  = getEffHisto(f_g98_pt20, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 3, 2, htitle, rpt,yrange)
-
-    h_eff_tf15_gpt30_2s1b  = getEffHisto(f_g98_pt30, hdir, h2s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange)
-    h_eff_tf15_gpt30_3s1b  = getEffHisto(f_g98_pt30, hdir, h3s1b + "_pt15", hini, ptreb, kViolet, 3, 2, htitle, rpt,yrange)
-
-    h_eff_tf20_gpt40_2s1b  = getEffHisto(f_g98_pt40, hdir, h2s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange)
-    h_eff_tf20_gpt40_3s1b  = getEffHisto(f_g98_pt40, hdir, h3s1b + "_pt20", hini, ptreb, kOrange, 3, 2, htitle, rpt,yrange)
-
-
-
-    c2s1b = TCanvas("c2s1b","c2s1b",800,600) 
-
-    ##h_eff_tf0_2s1b.Draw("hist")
-    h_eff_tf10_2s1b.Draw("hist")
-    ##h_eff_tf15_2s1b.Draw("hist same")
-    h_eff_tf20_2s1b.Draw("hist same")
-    h_eff_tf30_2s1b.Draw("hist same")
-    ##h_eff_tf40_2s1b.Draw("hist same")
-
-    h_eff_tf10_gpt10_2s1b.Draw("hist same")
-    h_eff_tf20_gpt20_2s1b.Draw("hist same")
-    h_eff_tf30_gpt30_2s1b.Draw("hist same")
-
+def temporary():
+  
     leg = TLegend(0.50,0.17,.999,0.57, "", "brNDC")
     leg.SetNColumns(2)
     leg.SetBorderSize(0)
@@ -292,7 +232,6 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
     c3s1b.Print(plotDir + "eff_3s1b" + ext)
 
 
-
     c3s_2s1b = TCanvas("c3s_2s1b","c3s_2s1b",800,600)
 
     h_eff_tf10_3s.Draw("hist")
@@ -319,45 +258,6 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
     leg.Draw()
 
     c3s_2s1b.Print(plotDir + "eff_3s_2s1b" + ext)
-
-
-
-
-    c3s_def = TCanvas("c3s_def","c3s_def",800,600)
-
-    h_eff_tf10_3s.Draw("hist")
-    h_eff_tf20_3s.Draw("hist same")
-    h_eff_tf30_3s.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track requires 3+ stubs and")
-    leg.AddEntry(h_eff_tf10_3s, "p_{T}^{TF}#geq10", "l")
-    leg.AddEntry(h_eff_tf20_3s, "p_{T}^{TF}#geq20", "l")
-    leg.AddEntry(h_eff_tf30_3s, "p_{T}^{TF}#geq30", "l")
-    leg.Draw()
-
-    c3s_def.Print(plotDir + "eff_3s_def" + ext)
-
-
-    c3s1b_def = TCanvas("c3s1b_def","c3s1b_def",800,600)
-
-    h_eff_tf10_3s1b.Draw("hist")
-    h_eff_tf20_3s1b.Draw("hist same")
-    h_eff_tf30_3s1b.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track requires 3+ stubs with ME1 and")
-    leg.AddEntry(h_eff_tf10_3s, "p_{T}^{TF}#geq10", "l")
-    leg.AddEntry(h_eff_tf20_3s, "p_{T}^{TF}#geq20", "l")
-    leg.AddEntry(h_eff_tf30_3s, "p_{T}^{TF}#geq30", "l")
-    leg.Draw()
-
-    c3s1b_def.Print(plotDir + "eff_3s1b_def" + ext)
-
 
 
     h_eff_tf10_2s.SetLineColor(kAzure+2)
@@ -388,160 +288,6 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
     h_eff_tf40_gpt40_2s1b.SetLineColor(kAzure+6)
     h_eff_tf40_gpt40_3s1b.SetLineColor(kAzure+7)
 
-
-    c2s_pt10_def = TCanvas("c2s_pt10_def","c2s_pt10_def",800,600)
-
-    h_eff_tf10_2s.Draw("hist")
-    h_eff_tf10_2s1b.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track: p_{T}^{TF}#geq10 and 2+ stubs")
-    leg.AddEntry(h_eff_tf10_2s, "anywhere", "l")
-    leg.AddEntry(h_eff_tf10_2s1b, "with ME1", "l")
-    leg.Draw()
-
-    c2s_pt10_def.Print(plotDir + "eff_2s_pt10_def" + ext)
-
-    h_eff_tf10_gpt10_2s1b.Draw("hist same")
-    leg.AddEntry(h_eff_tf10_gpt10_2s1b, "with (ME1 + GEM)", "l")
-    c2s_pt10_def.Print(plotDir + "eff_2s_pt10_gem" + ext)
-
-
-
-    c3s_pt10_def = TCanvas("c3s_pt10_def","c3s_pt10_def",800,600)
-
-    h_eff_tf10_3s.Draw("hist")
-    h_eff_tf10_3s1b.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track: p_{T}^{TF}#geq10 and 3+ stubs")
-    leg.AddEntry(h_eff_tf10_3s, "anywhere", "l")
-    leg.AddEntry(h_eff_tf10_3s1b, "with ME1", "l")
-    leg.Draw()
-
-    c3s_pt10_def.Print(plotDir + "eff_3s_pt10_def" + ext)
-
-    h_eff_tf10_gpt10_3s1b.Draw("hist same")
-    leg.AddEntry(h_eff_tf10_gpt10_3s1b, "with (ME1 + GEM)", "l")
-    c3s_pt10_def.Print(plotDir + "eff_3s_pt10_gem" + ext)
-
-
-
-
-    c2s_pt20_def = TCanvas("c2s_pt20_def","c2s_pt20_def",800,600)
-
-    h_eff_tf20_2s.Draw("hist")
-    h_eff_tf20_2s1b.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track: p_{T}^{TF}#geq20 and 2+ stubs")
-    leg.AddEntry(h_eff_tf20_2s, "anywhere", "l")
-    leg.AddEntry(h_eff_tf20_2s1b, "with ME1", "l")
-    leg.Draw()
-
-    c2s_pt20_def.Print(plotDir + "eff_2s_pt20_def" + ext)
-
-    h_eff_tf20_gpt20_2s1b.Draw("hist same")
-    leg.AddEntry(h_eff_tf20_gpt20_2s1b, "with (ME1 + GEM)", "l")
-    c2s_pt20_def.Print(plotDir + "eff_2s_pt20_gem" + ext)
-
-
-
-    c3s_pt20_def = TCanvas("c3s_pt20_def","c3s_pt20_def",800,600)
-
-    h_eff_tf20_3s.Draw("hist")
-    h_eff_tf20_3s1b.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track: p_{T}^{TF}#geq20 and 3+ stubs")
-    leg.AddEntry(h_eff_tf20_3s, "anywhere", "l")
-    leg.AddEntry(h_eff_tf20_3s1b, "with ME1", "l")
-    leg.Draw()
-
-    c3s_pt20_def.Print(plotDir + "eff_3s_pt20_def" + ext)
-
-    h_eff_tf20_gpt20_3s1b.Draw("hist same")
-    leg.AddEntry(h_eff_tf20_gpt20_3s1b, "with (ME1 + GEM)", "l")
-    c3s_pt20_def.Print(plotDir + "eff_3s_pt20_gem" + ext)
-
-
-
-    c2s_pt30_def = TCanvas("c2s_pt30_def","c2s_pt30_def",800,600)
-
-    h_eff_tf30_2s.Draw("hist")
-    h_eff_tf30_2s1b.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track: p_{T}^{TF}#geq30 and 2+ stubs")
-    leg.AddEntry(h_eff_tf30_2s, "anywhere", "l")
-    leg.AddEntry(h_eff_tf30_2s1b, "with ME1", "l")
-    leg.Draw()
-
-    c2s_pt30_def.Print(plotDir + "eff_2s_pt30_def" + ext)
-
-    h_eff_tf30_gpt30_2s1b.Draw("hist same")
-    leg.AddEntry(h_eff_tf30_gpt30_2s1b, "with (ME1 + GEM)", "l")
-    c2s_pt30_def.Print(plotDir + "eff_2s_pt30_gem" + ext)
-
-
-
-    c3s_pt30_def = TCanvas("c3s_pt30_def","c3s_pt30_def",800,600)
-
-    h_eff_tf30_3s.Draw("hist")
-    h_eff_tf30_3s1b.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track: p_{T}^{TF}#geq30 and 3+ stubs")
-    leg.AddEntry(h_eff_tf30_3s, "anywhere", "l")
-    leg.AddEntry(h_eff_tf30_3s1b, "with ME1", "l")
-    leg.Draw()
-
-    c3s_pt30_def.Print(plotDir + "eff_3s_pt30_def" + ext)
-
-    h_eff_tf30_gpt30_3s1b.Draw("hist same")
-    leg.AddEntry(h_eff_tf30_gpt30_3s1b, "with (ME1 + GEM)", "l")
-    c3s_pt30_def.Print(plotDir + "eff_3s_pt30_gem" + ext)
-
-
-
-    c2s_pt40_def = TCanvas("c2s_pt40_def","c2s_pt40_def",800,600)
-
-    h_eff_tf40_2s.Draw("hist")
-    h_eff_tf40_2s1b.Draw("hist same")
-
-    leg = TLegend(0.55,0.17,.999,0.57, "", "brNDC")
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("TF track: p_{T}^{TF}#geq40 and 2+ stubs")
-    leg.AddEntry(h_eff_tf40_2s, "anywhere", "l")
-    leg.AddEntry(h_eff_tf40_2s1b, "with ME1", "l")
-    leg.Draw()
-
-    c2s_pt40_def.Print(plotDir + "eff_2s_pt40_def" + ext)
-
-    h_eff_tf40_gpt40_2s1b.Draw("hist same")
-    leg.AddEntry(h_eff_tf40_gpt40_2s1b, "with (ME1 + GEM)", "l")
-    c2s_pt40_def.Print(plotDir + "eff_2s_pt40_gem" + ext)
-
-
-
-
-
-
-    ##return
-
     h_eff_tf10_gpt10_3s1b.SetLineColor(kBlue)
     h_eff_tf10_gpt15_3s1b.SetLineColor(kMagenta)
     h_eff_tf20_gpt20_3s1b.SetLineColor(kBlue+2)
@@ -554,8 +300,8 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
     h_eff_tf10_gpt10_3s1b.Draw("hist")
     h_eff_tf10_gpt15_3s1b.Draw("hist same")
 
-    ##h_eff_tf15_gpt15_3s1b.Draw("hist same")
-    ##h_eff_tf15_gpt20_3s1b.Draw("hist same")
+    h_eff_tf15_gpt15_3s1b.Draw("hist same")
+    h_eff_tf15_gpt20_3s1b.Draw("hist same")
 
     h_eff_tf20_gpt20_3s1b.Draw("hist same")
     h_eff_tf20_gpt30_3s1b.Draw("hist same")
@@ -622,42 +368,47 @@ def gem_eff_draw(input_dir, file_name, output_dir, ext):
     c3s_tight.Print(plotDir + "eff_3s_gemtightX" + ext)
 
 
-#_______________________________________________________________________________
-def eff_pt_tf(output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
-
-    c = TCanvas("c","c",1000,600 ) 
-    c.cd()
-
-    hegl = getEffHisto(f_def, hdir, hgl, hini, ptreb, kRed, 1, 2, htitle, rpt, yrange)
-    hegl.Draw("same hist")
-    heg = getEffHisto(f_def, hdir, hg, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    heg.Draw("same hist")
-
-    """
-    hini = "h_pt_initial_1b"
-    h2s = "h_pt_after_tfcand_eta1b_2s"
-    h3s = "h_pt_after_tfcand_eta1b_3s"
-    h2s1b = "h_pt_after_tfcand_eta1b_2s1b"
-    h3s1b = "h_pt_after_tfcand_eta1b_3s1b"
-
-
-    h_eff_tf0_2s  = getEffHisto(f_def, hdir, h2s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    h_eff_tf0_3s  = getEffHisto(f_def, hdir, h3s, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    h_eff_tf0_2s1b  = getEffHisto(f_def, hdir, h2s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-    h_eff_tf0_3s1b  = getEffHisto(f_def, hdir, h3s1b, hini, ptreb, kBlack, 1, 2, htitle, rpt, yrange)
-
-
-    h_eff_tf10_2s  = getEffHisto(f_def, hdir, h2s + "_pt10", hini, ptreb, kGreen+4, 1, 2, htitle, rpt,yrange)
-    h_eff_tf10_2s1b  = getEffHisto(f_def, hdir, h2s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
-    h_eff_tf10_3s  = getEffHisto(f_def, hdir, h3s + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
-    h_eff_tf10_3s1b  = getEffHisto(f_def, hdir, h3s1b + "_pt10", hini, ptreb, kGreen+2, 1, 2, htitle, rpt,yrange)
-    """
-    c.SaveAs("test.png")
-
 ################################################################################
 ################## Plots that require multiple input files #####################
+## GEM-CSC bending angle cut applied at L1CSC and used by the CSC TrackFinder ##
 ################################################################################
 
+
+#_______________________________________________________________________________
+def eff_Ns_ptX_gem_ptY(N, X, Y, gem_file, dir_name = "GEMCSCTriggerEfficiency"):
+
+  #### This function is not yet completed!
+  
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir_gem = getRootDirectory(input_dir, gem_name, dir_name)
+
+    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Simtrack p_{T}"
+    yTitle = "Efficiency"
+
+    c = TCanvas("c","c",1000,600)
+    c.cd()
+
+    h_eff_tfX_Ns =  setEffHisto("h_pt_after_tfcand_eta1b_%ds_pt%d"%(N,X), "h_pt_initial_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tfX_Ns1b =  setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt%d"%(N,X), "h_pt_initial_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tfX_gptY_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt40", "h_pt_initial_1b", dir_gem, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
+
+    h_eff_tfX_Ns.Draw("hist")
+    h_eff_tfX_Ns1b.Draw("hist same")
+    h_eff_tfX_gptY_Ns1b.Draw("hist same")
+    
+    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
+    leg.SetMargin(0.15)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq %d"%(X))
+    leg.AddEntry(h_eff_tfX_Ns, "#geq %d stubs"%(N), "l")
+    leg.AddEntry(h_eff_tfX_Ns1b, "#geq %d stubs, 1 in ME1/b"%(N), "l")
+    leg.AddEntry(h_eff_tfX_gptY_Ns1b, "#geq %d stubs, 1 in ME1/b, 1 GEM pad", "l")
+    leg.Draw()
+    etalabel = drawEtaLabel(1.64, 2.12)    
+
+    c.SaveAs("%seff_%ds_pt%d_gem_pt%d%s"%(output_dir,N,X,Y,ext))
 
 
 ################################################################################
@@ -665,8 +416,8 @@ def eff_pt_tf(output_dir, ext, dir_name = "GEMCSCTriggerEfficiency"):
 ################################################################################
 
 #_______________________________________________________________________________
-def eff_2s_pt10_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
+def eff_Ns1b_def(N, do1b, dir_name = "GEMCSCTriggerEfficiency"):
+
     dir = getRootDirectory(input_dir, file_name, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
@@ -674,27 +425,40 @@ def eff_2s_pt10_def(dir_name = "GEMCSCTriggerEfficiency"):
 
     c = TCanvas("c","c",1000,600)
     c.cd()
-
-    h_eff_tf10_2s =  setEffHisto("h_pt_after_tfcand_eta1b_2s_pt10", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf10_2s1b =  setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt10", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf10_2s.Draw("hist")
-    h_eff_tf10_2s1b.Draw("hist same")
     
+    if do1b:
+      arg1b = "1b"
+    else:
+      arg1b = ""
+      
+    h_eff_tf10_Ns = setEffHisto("h_pt_after_tfcand_eta1b_%ds%s_pt10"%(N,arg1b), "h_pt_initial_1b", dir, ptreb, kGreen+2, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_Ns = setEffHisto("h_pt_after_tfcand_eta1b_%ds%s_pt20"%(N,arg1b), "h_pt_initial_1b", dir, ptreb, kOrange, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf30_Ns = setEffHisto("h_pt_after_tfcand_eta1b_%ds%s_pt30"%(N,arg1b), "h_pt_initial_1b", dir, ptreb, kRed, 1,2, title, xTitle, yTitle, xrangept,yrange)
+
+    h_eff_tf10_Ns.Draw("hist")
+    h_eff_tf20_Ns.Draw("hist same")
+    h_eff_tf30_Ns.Draw("hist same")
+
+    if do1b:
+      leg1b = ", 1 in ME1/b"
+    else:
+      leg1b = ""
+
     leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq10")
-    leg.AddEntry(h_eff_tf10_2s, "#geq 2 stubs", "l")
-    leg.AddEntry(h_eff_tf10_2s1b, "#geq 2 stubs, 1 in ME1/b", "l")
+    leg.SetHeader("Efficiency for a muon to have a TF track with")
+    leg.AddEntry(h_eff_tf10_Ns, "p_{T}^{TF}#geq10, #geq %d stubs%s"%(N,leg1b), "l")
+    leg.AddEntry(h_eff_tf20_Ns, "p_{T}^{TF}#geq20, #geq %d stubs%s"%(N,leg1b), "l")
+    leg.AddEntry(h_eff_tf30_Ns, "p_{T}^{TF}#geq30, #geq %d stubs%s"%(N,leg1b), "l")
     leg.Draw()
     etalabel = drawEtaLabel(1.64, 2.12)    
 
-    c.SaveAs("%seff_2s_pt10_def%s"%(output_dir,ext))
+    c.SaveAs("%seff_%ds%s_def%s"%(output_dir,N,arg1b,ext))
 
 #_______________________________________________________________________________
-def eff_2s_pt15_def(dir_name = "GEMCSCTriggerEfficiency"):
+def eff_Ns_ptX_def(N, X, dir_name = "GEMCSCTriggerEfficiency"):
   
     dir = getRootDirectory(input_dir, file_name, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
@@ -704,259 +468,23 @@ def eff_2s_pt15_def(dir_name = "GEMCSCTriggerEfficiency"):
     c = TCanvas("c","c",1000,600)
     c.cd()
 
-    h_eff_tf15_2s =  setEffHisto("h_pt_after_tfcand_eta1b_2s_pt15", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf15_2s1b =  setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt15", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tfX_Ns =  setEffHisto("h_pt_after_tfcand_eta1b_%ds_pt%d"%(N,X), "h_pt_initial_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tfX_Ns1b =  setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt%d"%(N,X), "h_pt_initial_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
 
-    h_eff_tf15_2s.Draw("hist")
-    h_eff_tf15_2s1b.Draw("hist same")
+    h_eff_tfX_Ns.Draw("hist")
+    h_eff_tfX_Ns1b.Draw("hist same")
     
     leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq15")
-    leg.AddEntry(h_eff_tf15_2s, "#geq 2 stubs", "l")
-    leg.AddEntry(h_eff_tf15_2s1b, "#geq 2 stubs, 1 in ME1/b", "l")
+    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq %d"%(X))
+    leg.AddEntry(h_eff_tfX_Ns, "#geq %d stubs"%(N), "l")
+    leg.AddEntry(h_eff_tfX_Ns1b, "#geq %d stubs, 1 in ME1/b"%(N), "l")
     leg.Draw()
     etalabel = drawEtaLabel(1.64, 2.12)    
 
-    c.SaveAs("%seff_2s_pt15_def%s"%(output_dir,ext))
-
-#_______________________________________________________________________________
-def eff_2s_pt20_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
-    xTitle = "Simtrack p_{T}"
-    yTitle = "Efficiency"
-
-    c = TCanvas("c","c",1000,600)
-    c.cd()
-
-    h_eff_tf20_2s =  setEffHisto("h_pt_after_tfcand_eta1b_2s_pt20", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_2s1b =  setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt20", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf20_2s.Draw("hist")
-    h_eff_tf20_2s1b.Draw("hist same")
-    
-    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
-    leg.SetMargin(0.15)
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq20")
-    leg.AddEntry(h_eff_tf20_2s, "#geq 2 stubs", "l")
-    leg.AddEntry(h_eff_tf20_2s1b, "#geq 2 stubs, 1 in ME1/b", "l")
-    leg.Draw()
-    etalabel = drawEtaLabel(1.64, 2.12)    
-
-    c.SaveAs("%seff_2s_pt20_def%s"%(output_dir,ext))
-
-#_______________________________________________________________________________
-def eff_2s_pt30_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
-    xTitle = "Simtrack p_{T}"
-    yTitle = "Efficiency"
-
-    c = TCanvas("c","c",1000,600)
-    c.cd()
-
-    h_eff_tf30_2s =  setEffHisto("h_pt_after_tfcand_eta1b_2s_pt30", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf30_2s1b =  setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt30", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf30_2s.Draw("hist")
-    h_eff_tf30_2s1b.Draw("hist same")
-    
-    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
-    leg.SetMargin(0.15)
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq30")
-    leg.AddEntry(h_eff_tf30_2s, "#geq 2 stubs", "l")
-    leg.AddEntry(h_eff_tf30_2s1b, "#geq 2 stubs, 1 in ME1/b", "l")
-    leg.Draw()
-    etalabel = drawEtaLabel(1.64, 2.12)    
-
-    c.SaveAs("%seff_2s_pt30_def%s"%(output_dir,ext))
-
-#_______________________________________________________________________________
-def eff_2s_pt40_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
-    xTitle = "Simtrack p_{T}"
-    yTitle = "Efficiency"
-
-    c = TCanvas("c","c",1000,600)
-    c.cd()
-
-    h_eff_tf40_2s =  setEffHisto("h_pt_after_tfcand_eta1b_2s_pt40", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf40_2s1b =  setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt40", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf40_2s.Draw("hist")
-    h_eff_tf40_2s1b.Draw("hist same")
-    
-    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
-    leg.SetMargin(0.15)
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq40")
-    leg.AddEntry(h_eff_tf40_2s, "#geq 2 stubs", "l")
-    leg.AddEntry(h_eff_tf40_2s1b, "#geq 2 stubs, 1 in ME1/b", "l")
-    leg.Draw()
-    etalabel = drawEtaLabel(1.64, 2.12)    
-
-    c.SaveAs("%seff_2s_pt40_def%s"%(output_dir,ext))
-
-#_______________________________________________________________________________
-def eff_3s_pt10_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
-    xTitle = "Simtrack p_{T}"
-    yTitle = "Efficiency"
-
-    c = TCanvas("c","c",1000,600)
-    c.cd()
-
-    h_eff_tf10_3s =  setEffHisto("h_pt_after_tfcand_eta1b_3s_pt10", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf10_3s1b =  setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt10", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf10_3s.Draw("hist")
-    h_eff_tf10_3s1b.Draw("hist same")
-    
-    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
-    leg.SetMargin(0.15)
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq10")
-    leg.AddEntry(h_eff_tf10_3s, "#geq 3 stubs", "l")
-    leg.AddEntry(h_eff_tf10_3s1b, "#geq 3 stubs, 1 in ME1/b", "l")
-    leg.Draw()
-    etalabel = drawEtaLabel(1.64, 2.12)    
-
-    c.SaveAs("%seff_3s_pt10_def%s"%(output_dir,ext))
-
-#_______________________________________________________________________________
-def eff_3s_pt15_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
-    xTitle = "Simtrack p_{T}"
-    yTitle = "Efficiency"
-
-    c = TCanvas("c","c",1000,600)
-    c.cd()
-
-    h_eff_tf15_3s =  setEffHisto("h_pt_after_tfcand_eta1b_3s_pt15", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf15_3s1b =  setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt15", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf15_3s.Draw("hist")
-    h_eff_tf15_3s1b.Draw("hist same")
-    
-    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
-    leg.SetMargin(0.15)
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq15")
-    leg.AddEntry(h_eff_tf15_3s, "#geq 3 stubs", "l")
-    leg.AddEntry(h_eff_tf15_3s1b, "#geq 3 stubs, 1 in ME1/b", "l")
-    leg.Draw()
-    etalabel = drawEtaLabel(1.64, 2.12)    
-
-    c.SaveAs("%seff_3s_pt15_def%s"%(output_dir,ext))
-
-#_______________________________________________________________________________
-def eff_3s_pt20_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
-    xTitle = "Simtrack p_{T}"
-    yTitle = "Efficiency"
-
-    c = TCanvas("c","c",1000,600)
-    c.cd()
-
-    h_eff_tf20_3s =  setEffHisto("h_pt_after_tfcand_eta1b_3s_pt20", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_3s1b =  setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt20", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf20_3s.Draw("hist")
-    h_eff_tf20_3s1b.Draw("hist same")
-    
-    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
-    leg.SetMargin(0.15)
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq20")
-    leg.AddEntry(h_eff_tf20_3s, "#geq 3 stubs", "l")
-    leg.AddEntry(h_eff_tf20_3s1b, "#geq 3 stubs, 1 in ME1/b", "l")
-    leg.Draw()
-    etalabel = drawEtaLabel(1.64, 2.12)    
-
-    c.SaveAs("%seff_3s_pt20_def%s"%(output_dir,ext))
-
-#_______________________________________________________________________________
-def eff_3s_pt30_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
-    xTitle = "Simtrack p_{T}"
-    yTitle = "Efficiency"
-
-    c = TCanvas("c","c",1000,600)
-    c.cd()
-
-    h_eff_tf30_3s =  setEffHisto("h_pt_after_tfcand_eta1b_3s_pt30", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf30_3s1b =  setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt30", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf30_3s.Draw("hist")
-    h_eff_tf30_3s1b.Draw("hist same")
-    
-    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
-    leg.SetMargin(0.15)
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq30")
-    leg.AddEntry(h_eff_tf30_3s, "#geq 3 stubs", "l")
-    leg.AddEntry(h_eff_tf30_3s1b, "#geq 3 stubs, 1 in ME1/b", "l")
-    leg.Draw()
-    etalabel = drawEtaLabel(1.64, 2.12)    
-
-    c.SaveAs("%seff_3s_pt30_def%s"%(output_dir,ext))
-
-#_______________________________________________________________________________
-def eff_3s_pt40_def(dir_name = "GEMCSCTriggerEfficiency"):
-  
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
-    xTitle = "Simtrack p_{T}"
-    yTitle = "Efficiency"
-
-    c = TCanvas("c","c",1000,600)
-    c.cd()
-
-    h_eff_tf40_3s =  setEffHisto("h_pt_after_tfcand_eta1b_3s_pt40", "h_pt_initial_gem_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf40_3s1b =  setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt40", "h_pt_initial_gem_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-
-    h_eff_tf40_3s.Draw("hist")
-    h_eff_tf40_3s1b.Draw("hist same")
-    
-    leg = TLegend(0.55,0.2,.999,0.6, "", "brNDC")
-    leg.SetMargin(0.15)
-    leg.SetBorderSize(0)
-    leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq40")
-    leg.AddEntry(h_eff_tf40_3s, "#geq 3 stubs", "l")
-    leg.AddEntry(h_eff_tf40_3s1b, "#geq 3 stubs, 1 in ME1/b", "l")
-    leg.Draw()
-    etalabel = drawEtaLabel(1.64, 2.12)    
-
-    c.SaveAs("%seff_3s_pt40_def%s"%(output_dir,ext))
-
-#    h_eff_tf40_gpt40_3s1b.Draw("hist same")
-#    leg.AddEntry(h_eff_tf40_gpt40_3s1b, "with (ME1 + GEM)", "l")
-#    c.Print(plotDir + "eff_3s_pt40_gem" + ext)
+    c.SaveAs("%seff_%ds_pt%d_def%s"%(output_dir,N,X,ext))
 
 #_______________________________________________________________________________
 def eff_gem1b_basegem(dir_name = "GEMCSCTriggerEfficiency"):
@@ -1190,6 +718,61 @@ def eff_pt_tf():
     etalabel = drawEtaLabel(minEta, maxEta)    
     
     c.SaveAs("%seff_pt_tf%s"%(output_dir,ext))
+
+
+#_______________________________________________________________________________
+def eff_pt_tf_eta1b_Ns(N, do1b):
+
+    dir = getRootDirectory(input_dir, file_name, dir_name)
+    title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Simtrack p_{T}"
+    yTitle = "Efficiency"
+
+    if do1b:
+      arg1b = "1b"
+    else:
+      arg1b = ""
+      
+    if do1b:
+      leg1b = ", 1 in ME1/b"
+    else:
+      leg1b = ""
+
+
+    c = TCanvas("c","c",1000,600 ) 
+    c.cd()
+    
+    h_eff_pt_after_tfcand_eta1b_2s  = setEffHisto("h_pt_after_tfcand_eta1b_2s","h_pt_initial_1b",dir, ptreb, kBlack, 1,2, title, xTitle, yTitle ,xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s_pt10 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt10","h_pt_initial_1b",dir, ptreb, kGreen+2, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s_pt20 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt20","h_pt_initial_1b",dir, ptreb, kBlue, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s_pt25 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt25","h_pt_initial_1b",dir, ptreb, kOrange, 1,2, "","","",xrangept,yrange)
+    h_eff_pt_after_tfcand_eta1b_2s_pt30 = setEffHisto("h_pt_after_tfcand_eta1b_2s_pt30","h_pt_initial_1b",dir, ptreb, kRed, 1,2, "","","",xrangept,yrange)
+    
+    h_eff_pt_after_tfcand_eta1b_2s.GetXaxis().SetRangeUser(0.,49.99)
+    
+    h_eff_pt_after_tfcand_eta1b_2s.Draw("hist")
+    h_eff_pt_after_tfcand_eta1b_2s_pt10.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s_pt20.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s_pt25.Draw("same hist")
+    h_eff_pt_after_tfcand_eta1b_2s_pt30.Draw("same hist")
+    
+    leg = TLegend(0.5,0.15,0.99,0.5,"","brNDC")
+    leg.SetMargin(0.15)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetHeader("Efficiency for a muon to have TF track with")
+    leg.AddEntry(h_eff_pt_after_tfcand_eta1b_2s,"stubs in #geq 2 stations","pl")
+    leg.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt10,"p_{T}^{TF} #geq 10, stubs in #geq 2 stations","pl")
+    leg.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt20,"p_{T}^{TF} #geq 20, stubs in #geq 2 stations","pl")
+    leg.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt25,"p_{T}^{TF} #geq 25, stubs in #geq 2 stations","pl")
+    leg.AddEntry(h_eff_pt_after_tfcand_eta1b_2s_pt30,"p_{T}^{TF} #geq 30, stubs in #geq 2 stations","pl")
+    leg.Draw()
+    
+    etalabel = drawEtaLabel(1.6, 2.12, 0.75, 0.55)    
+    c.SaveAs("%sh_eff_pt_tf_eta1b_2s%s"%(output_dir,ext))
+
+
+
 
 
 #_______________________________________________________________________________
@@ -1571,21 +1154,28 @@ if __name__ == "__main__":
     eff_gem1b_baselctgem()
     eff_gem1b_basegem()
 
-    # additional cuts should be placed on simtrack pt to make sense
-    eff_2s_pt10_def()
-    eff_2s_pt15_def()
-    eff_2s_pt20_def()
-    eff_2s_pt30_def()
-    eff_2s_pt40_def()
+    ## TFTrack efficiencies
+    ## 1st argument is min number of stubs
+    ## 2nd argument is min pt TFTrack 
+    eff_Ns_ptX_def(2,10)
+    eff_Ns_ptX_def(2,15)
+    eff_Ns_ptX_def(2,20)
+    eff_Ns_ptX_def(2,30)
+    eff_Ns_ptX_def(2,40)
 
-    eff_3s_pt10_def()
-    eff_3s_pt15_def()
-    eff_3s_pt20_def()
-    eff_3s_pt30_def()
-    eff_3s_pt40_def()
+    eff_Ns_ptX_def(3,10)
+    eff_Ns_ptX_def(3,15)
+    eff_Ns_ptX_def(3,20)
+    eff_Ns_ptX_def(3,30)
+    eff_Ns_ptX_def(3,40)
   
+    eff_Ns1b_def(2,False)
+    eff_Ns1b_def(2,False)
+    eff_Ns1b_def(3,True)
+    eff_Ns1b_def(3,True)
 
-    ## plots that require mutiple input files
+
+    ### some histogram definitions I'm going to keep for the time being
     hini = "h_pt_initial_gem_1b"
     hini_g = "h_pt_gem_1b"
     hini_gl = "h_pt_lctgem_1b"
