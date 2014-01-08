@@ -12,6 +12,8 @@ MuonSubDetector::MuonSubDetector(std::string name)
     detector=rpc;
   } else if (name=="MuonGEMHits") {
     detector=gem;
+  } else if (name=="MuonME0Hits") {
+    detector=me0;
   } else {
     std::cout << "MuonSubDetector::MuonSubDetector does not recognize ";
     std::cout << name <<std::endl;
