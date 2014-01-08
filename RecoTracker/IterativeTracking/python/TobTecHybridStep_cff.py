@@ -23,22 +23,22 @@ tobTecStepSeedLayersTripl = cms.ESProducer("SeedingLayersESProducer",
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-         skipClusters   = cms.InputTag('tobTecStepClusters')
+         skipClusters   = cms.InputTag('tobTecStepSeedClusters')
     ),
     #ITOB = cms.PSet(
     #     TTRHBuilder    = cms.string('WithTrackAngle'),
     #     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-    #     skipClusters   = cms.InputTag('myTobTecHybridStepClusters'),
+    #     skipClusters   = cms.InputTag('tobTecStepSeedClusters'),
     #     MinAbsZ = cms.double(85.0)
     #),
     MTOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
-         skipClusters   = cms.InputTag('tobTecStepClusters'),
+         skipClusters   = cms.InputTag('tobTecStepSeedClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
     #TEC = cms.PSet(
     #    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-    #    skipClusters = cms.InputTag('tobTecStepClusters'),
+    #    skipClusters = cms.InputTag('tobTecStepSeedClusters'),
     #    useRingSlector = cms.bool(True),
     #    TTRHBuilder = cms.string('WithTrackAngle'),
     #    minRing = cms.int32(5),
@@ -46,7 +46,7 @@ tobTecStepSeedLayersTripl = cms.ESProducer("SeedingLayersESProducer",
     #),
     MTEC = cms.PSet(
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-        skipClusters = cms.InputTag('tobTecStepClusters'),
+        skipClusters = cms.InputTag('tobTecStepSeedClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(6),
@@ -101,11 +101,11 @@ tobTecStepSeedLayersPair = cms.ESProducer("SeedingLayersESProducer",
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-         skipClusters   = cms.InputTag('tobTecStepClusters')
+         skipClusters   = cms.InputTag('tobTecStepSeedClusters')
     ),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('tobTecStepClusters'),
+        skipClusters = cms.InputTag('tobTecStepSeedClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(5),
@@ -135,6 +135,7 @@ tobTecStepSeeds.seedCollections = cms.VInputTag(cms.InputTag('tobTecStepSeedsTri
 
 
 TobTecStep = cms.Sequence(tobTecStepClusters*
+                          tobTecStepSeedClusters*
                           tobTecStepSeedsTripl*
                           tobTecStepSeedsPair*
                           tobTecStepSeeds*

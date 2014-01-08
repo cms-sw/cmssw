@@ -14,8 +14,10 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     'TID1_pos+TID2_pos+MTID3_pos','TID1_neg+TID2_neg+MTID3_neg',#ring 3 (mono)
     'TID1_pos+TID2_pos+TID3_pos','TID1_neg+TID2_neg+TID3_neg',#ring 1-2 (matched)
     #TID+TEC RING 1-3
-    'TID2_pos+TID3_pos+TEC1_pos','TID2_neg+TID3_neg+TEC1_neg',
+    'TID2_pos+TID3_pos+TEC1_pos','TID2_neg+TID3_neg+TEC1_neg',#ring 1-2 (matched)
     'TID3_pos+TEC1_pos+TEC2_pos','TID3_neg+TEC1_neg+TEC2_neg',
+    'TID2_pos+TID3_pos+MTEC1_pos','TID2_neg+TID3_neg+MTEC1_neg',#ring 3(-4) (mono)
+    'TID3_pos+TEC1_pos+MTEC2_pos','TID3_neg+TEC1_neg+MTEC2_neg',
     #TEC RING 1-3
     'TEC1_pos+TEC2_pos+TEC3_pos','TEC1_neg+TEC2_neg+TEC3_neg',
     'TEC2_pos+TEC3_pos+TEC4_pos','TEC2_neg+TEC3_neg+TEC4_neg',
@@ -25,16 +27,16 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     TIB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-         skipClusters   = cms.InputTag('pixelLessStepClusters')
+         skipClusters   = cms.InputTag('pixelLessStepSeedClusters')
     ),
     MTIB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
-         skipClusters   = cms.InputTag('pixelLessStepClusters'),
+         skipClusters   = cms.InputTag('pixelLessStepSeedClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
     TID = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
+        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -42,7 +44,7 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     ),
     MTID = cms.PSet(
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
+        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(3),
@@ -50,11 +52,19 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     ),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
+        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
+    ),
+    MTEC = cms.PSet(
+        rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
+        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'),
+        minRing = cms.int32(3),
+        maxRing = cms.int32(3)
     )
 )
 # SEEDS
@@ -93,10 +103,10 @@ pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
 )
 
-PixelLessStep = cms.Sequence(
-    pixelLessStepClusters*
-    pixelLessStepSeeds*
-    pixelLessStepTrackCandidates*
-    pixelLessStepTracks*
-    pixelLessStepSelector
-)
+PixelLessStep = cms.Sequence(pixelLessStepClusters*
+                             pixelLessStepSeedClusters*
+                             pixelLessStepSeeds*
+                             pixelLessStepTrackCandidates*
+                             pixelLessStepTracks*
+                             pixelLessStepSelector*
+                             pixelLessStep)
