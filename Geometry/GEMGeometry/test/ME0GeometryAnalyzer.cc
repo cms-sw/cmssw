@@ -63,7 +63,6 @@ ME0GeometryAnalyzer::~ME0GeometryAnalyzer()
 void
 ME0GeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
-  std::cout <<" HO HO "<<std::endl; 
   edm::ESHandle<ME0Geometry> pDD;
   iSetup.get<MuonGeometryRecord>().get(pDD);     
   
@@ -175,7 +174,7 @@ ME0GeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
     if (dphi < 0.) dphi += 360.;
     */
     double deta(abs(beta - teta));
-    const bool printDetails(false);
+    const bool printDetails(true);
     if (printDetails)
       ofos << "    \tType: " << type << endl
 	   << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
