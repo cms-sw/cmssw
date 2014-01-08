@@ -2921,6 +2921,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                 //if (id.station()==1&&id.ring()==2) debugALCT=1;
                 CSCDetId id1a(id.endcap(),id.station(),4,id.chamber(),0);
 
+                std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
+                CSCDetId chId(id.endcap(),id.station(),id.ring(),id.chamber(),0);
+                int rawId = chId.rawId();
+                if (std::find(chWHIDs.begin(),chWHIDs.end(),rawId)==chWHIDs.end()) continue;
+
                 for (CSCALCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
                 {
                     checkNALCT[id.rawId()].push_back(*digiIt);
@@ -3125,6 +3130,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                 int nm=0;
                 CSCDetId cid = id;
 
+                std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
+                CSCDetId chId(id.endcap(),id.station(),id.ring(),id.chamber(),0);
+                int rawId = chId.rawId();
+                if (std::find(chWHIDs.begin(),chWHIDs.end(),rawId)==chWHIDs.end()) continue;
+
                 //if (id.station()==1&&id.ring()==2) debugCLCT=1;
 
                 for (CSCCLCTDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; digiIt++) 
@@ -3278,6 +3288,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                 const CSCDetId& id = (*detUnitIt).first;
                 const CSCCorrelatedLCTDigiCollection::Range& range = (*detUnitIt).second;
                 CSCDetId cid = id;
+
+                std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
+                CSCDetId chId(id.endcap(),id.station(),id.ring(),id.chamber(),0);
+                int rawId = chId.rawId();
+                if (std::find(chWHIDs.begin(),chWHIDs.end(),rawId)==chWHIDs.end()) continue;
 
                 //if (id.station()==1&&id.ring()==2) debugLCT=1;
 
