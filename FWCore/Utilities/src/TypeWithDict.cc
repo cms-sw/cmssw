@@ -524,7 +524,7 @@ const void*
 TypeWithDict::
 pointerToBaseType(const void* ptr, const TypeWithDict& derivedType) const
 {
-  if (this == &derivedType) {
+  if (this->ti_ == derivedType.ti_ || *this->ti_ == *derivedType.ti_) {
     return ptr;
   }
   int offset = derivedType.getBaseClassOffset(*this);
