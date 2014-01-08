@@ -59,54 +59,6 @@ def setEffHisto(num_name, den_name, dir, nrebin, lcolor, lstyle, lwidth,
     return heff
 
 
-#_______________________________________________________________________________
-def getEffHisto(fname, hdir, num_name, den_name, nrebin, lcolor, lstyle, lwidth, 
-                title, x_range, y_range):
-    fh = TFile.Open(fname)
-    
-    hd0 = fh.Get(hdir + "/" + den_name)
-    hn0 = fh.Get(hdir + "/" + num_name)
-    
-    hd = hd0.Clone(den_name+"_cln_"+fname)
-    hn = hn0.Clone(num_name+"_cln_"+fname)
-    hd.Sumw2()
-    hn.Sumw2()
-    
-    myRebin(hd, nrebin)
-    myRebin(hn, nrebin)
-    
-    heff = hn.Clone(num_name+"_eff_"+fname)
-    
-    hd.Sumw2()
-    heff.Sumw2()
-    
-    heff.Divide(heff,hd)
-    
-    heff.SetLineColor(lcolor)
-    heff.SetLineStyle(lstyle)
-    heff.SetLineWidth(lwidth)
-    
-    heff.SetTitle(title)
-    ##heff.GetXaxis().SetTitle(xtitle)
-    ##heff.GetYaxis().SetTitle(ytitle)
-    heff.GetXaxis().SetRangeUser(x_range[0],x_range[1])
-    heff.GetYaxis().SetRangeUser(y_range[0],y_range[1])
-    
-    heff.GetXaxis().SetTitleSize(0.07)
-    heff.GetXaxis().SetTitleOffset(0.7)
-    heff.GetYaxis().SetLabelOffset(0.015)
-    
-    heff.GetXaxis().SetLabelSize(0.05)
-    heff.GetYaxis().SetLabelSize(0.05)
-    
-    h1 = hn0
-    h2 = hd0
-    he = heff
-    
-    ##fh.Close()
-    return heff
-
-
 ################################################################################
 ################ Plots that require only a single input file ###################
 ################################################################################
@@ -144,7 +96,7 @@ def eff_Ns1b_def(N, do1b, dir_name = "GEMCSCTriggerEfficiency"):
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon to have a TF track with")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_tf10_Ns, "p_{T}^{TF}#geq10, #geq %d stubs%s"%(N,leg1b), "l")
     leg.AddEntry(h_eff_tf20_Ns, "p_{T}^{TF}#geq20, #geq %d stubs%s"%(N,leg1b), "l")
     leg.AddEntry(h_eff_tf30_Ns, "p_{T}^{TF}#geq30, #geq %d stubs%s"%(N,leg1b), "l")
@@ -174,7 +126,7 @@ def eff_Ns_ptX_def(N, X, dir_name = "GEMCSCTriggerEfficiency"):
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency to have a TF track with p_{T}^{TF}#geq %d"%(X))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with p_{T}^{TF}#geq %d"%(minSimPt,maxSimPt,X))
     leg.AddEntry(h_eff_tfX_Ns, "#geq %d stubs"%(N), "l")
     leg.AddEntry(h_eff_tfX_Ns1b, "#geq %d stubs, 1 in ME1/b"%(N), "l")
     leg.Draw()
@@ -213,10 +165,10 @@ def eff_gem1b_basegem(dir_name = "GEMCSCTriggerEfficiency"):
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon with %d < pt < %d to have"%(minSimPt, maxSimPt)) 
-    leg.AddEntry(hel, "an ME1/b LCT stub", "l")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have"%(minSimPt, maxSimPt)) 
+    leg.AddEntry(hel, "a stub in ME1/b", "l")
     leg.AddEntry(0, "", "")    
-    leg.AddEntry(hel, "a TF track with ME1/b stub", "")
+    leg.AddEntry(hel, "a TF track with a stub in ME1/b", "")
     leg.AddEntry(0, "", "")        
     leg.AddEntry(het2,     "p_{T}^{TF}#geq0, #geq 2 stubs", "l")
     leg.AddEntry(het2pt20, "p_{T}^{TF}#geq20, #geq 2 stubs", "l")
@@ -255,9 +207,9 @@ def eff_gem1b_baselctgem(dir_name = "GEMCSCTriggerEfficiency"):
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for muon to have TF track p_{T}^{TF}#geq20")
+    leg.SetHeader("Efficiency for muon with %d < p_{T} < %d to have TF track p_{T}^{TF}#geq20"%(minSimPt, maxSimPt))
     leg.AddEntry(het2pt20, "GEM baseline", "")
-    leg.AddEntry(helt2pt20, "GEM+LCT baseline", "")
+    leg.AddEntry(helt2pt20, "GEM+CSC baseline", "")
     leg.AddEntry(het2pt20, "#geq 2 stubs, 1 in ME1/b", "l")
     leg.AddEntry(helt2pt20, "#geq 2 stubs, 1 in ME1/b", "l")
     leg.AddEntry(het3pt20, "#geq 3 stubs, 1 in ME1/b", "l")
@@ -294,7 +246,7 @@ def eff_gem1b_basegem_dphi(dir_name = "GEMCSCTriggerEfficiency"):
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon to have a TF track p_{T}^{TF}#geq20")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track p_{T}^{TF}#geq20"%(minSimPt, maxSimPt))
     leg.AddEntry(helt2pt20, "without GEM #Delta#phi cut", "")
     leg.AddEntry(helt2pt20p, "with GEM #Delta#phi cut", "")
     leg.AddEntry(helt2pt20, "#geq 2 stubs, 1 in ME1/b", "l")
@@ -319,6 +271,7 @@ def eff_gem1b_baselpcgem_dphi(dir_name = "GEMCSCTriggerEfficiency"):
     c = TCanvas("c","c",1000,600 ) 
     c.cd()
 
+    ## the denominator also requires a GEM stub to be present!!!
     helt2pt20 =  setEffHisto("h_pt_after_tfcand_gem1b_2s1b_pt20", "h_pt_lctgem_1b", dir, ptreb, kBlue+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
     helt3pt20 =  setEffHisto("h_pt_after_tfcand_gem1b_3s1b_pt20", "h_pt_lctgem_1b", dir, ptreb, kMagenta+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
     helt2pt20p = setEffHisto("h_pt_after_tfcand_dphigem1b_2s1b_pt20", "h_pt_lctgem_1b", dir, ptreb, kBlue, 2,2, title, xTitle, yTitle, xrangept,yrange)
@@ -334,7 +287,7 @@ def eff_gem1b_baselpcgem_dphi(dir_name = "GEMCSCTriggerEfficiency"):
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon with ME1/b stub to have a TF track p_{T}^{TF}#geq20")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d (ME1/b baseline) to have a TF track p_{T}^{TF}#geq20"%(minSimPt, maxSimPt))
     leg.AddEntry(helt2pt20, "without GEM #Delta#phi cut", "")
     leg.AddEntry(helt2pt20p, "with GEM #Delta#phi cut", "")
     leg.AddEntry(helt2pt20, "#geq 2 stubs, 1 in ME1/b", "l")
@@ -374,7 +327,7 @@ def eff_gem1b_baselpcgem_123(dir_name = "GEMCSCTriggerEfficiency"):
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon to have a TF track with p_{T}^{TF}#geq20 with")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with p_{T}^{TF}#geq20"%(minSimPt, maxSimPt))
     leg.AddEntry(helt2pt20, "#geq 2 stubs, 1 stub in ME1/b", "l")
     leg.AddEntry(helt2pt20_123, "#geq 2 stubs (no ME1-4 tracks)", "l")
     leg.AddEntry(helt3pt20_13, "#geq 2 stubs (no ME1-2 and ME1-4)", "l")
@@ -406,10 +359,10 @@ def eff_pt_tf():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon to have")
-    leg.AddEntry(h_eff_pt_after_mpc_ok_plus,"reconstructed stubs in at least 2 stations","pl")
-    leg.AddEntry(h_eff_pt_after_tfcand_ok_plus,"a TF track with reconstructed stubs in at least 2 stations","pl")
-    leg.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10,"a TF track with p_{T}^{TF}>10 and reconstructed stubs in at least 2 stations","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have"%(minSimPt, maxSimPt))
+    leg.AddEntry(h_eff_pt_after_mpc_ok_plus,"#geq 2 stubs","pl")
+    leg.AddEntry(h_eff_pt_after_tfcand_ok_plus,"a TF track with #geq 2 stubs","pl")
+    leg.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10,"a TF track with p_{T}^{TF}>10 and #geq 2 stubs","pl")
     leg.Draw()
     etalabel = drawEtaLabel(minEta, maxEta)    
     
@@ -453,7 +406,7 @@ def eff_pt_tf_eta1b_Ns(N, do1b):
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon to have TF track with")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with "%(minSimPt, maxSimPt))
     leg.AddEntry(h_eff_pt_after_tfcand_eta1b_Ns,"#geq %d stubs"%(N),"pl")
     leg.AddEntry(h_eff_pt_after_tfcand_eta1b_Ns_pt10,"p_{T}^{TF} #geq 10, #geq %d stubs%s"%(N,leg1b),"pl")
     leg.AddEntry(h_eff_pt_after_tfcand_eta1b_Ns_pt20,"p_{T}^{TF} #geq 20, #geq %d stubs%s"%(N,leg1b),"pl")
@@ -487,10 +440,10 @@ def eff_pth_tf():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon to have")
-    leg.AddEntry(h_eff_pth_after_mpc_ok_plus,"MPC stubs reconstructed in 2 stations","pl")
-    leg.AddEntry(h_eff_pth_after_tfcand_ok_plus,"a TF track with reconstructed stubs in 2 stations","pl")
-    leg.AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10,"a TF track with p_{T}^{TF}>10 and reconstructed stubs in at least 2 stations","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have"%(minSimPt, maxSimPt))
+    leg.AddEntry(h_eff_pth_after_mpc_ok_plus,"#geq 2 stubs","pl")
+    leg.AddEntry(h_eff_pth_after_tfcand_ok_plus,"a TF track with #geq 2 stubs","pl")
+    leg.AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10,"a TF track with p_{T}^{TF}>10 and #geq 2 stubs","pl")
     leg.Draw()
 
     etalabel = drawEtaLabel(2.1, 2.45)    
@@ -520,10 +473,10 @@ def eff_pth_tf_3st1a():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon to have")
-    leg.AddEntry(h_eff_pth_after_mpc_ok_plus,"MPC stubs reconstructed in 2 stations","pl")
-    leg.AddEntry(h_eff_pth_after_tfcand_ok_plus_3st1a,"a TF track with reconstructed stubs in 3 stations, 1 in ME1/a","pl")
-    leg.AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10_3st1a,"a TF track with p_{T}^{TF}>10 and reconstructed stubs in 3 station, 1 in ME1/a","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have"%(minSimPt, maxSimPt))
+    leg.AddEntry(h_eff_pth_after_mpc_ok_plus,"#geq 2 stubs","pl")
+    leg.AddEntry(h_eff_pth_after_tfcand_ok_plus_3st1a,"a TF track with #geq 3 stubs, 1 in ME1/a","pl")
+    leg.AddEntry(h_eff_pth_after_tfcand_ok_plus_pt10_3st1a,"a TF track with p_{T}^{TF}>10 and #geq 3 stubs, 1 in ME1/a","pl")
     leg.Draw()
     etalabel = drawEtaLabel(2.1, 2.45)    
     
@@ -559,7 +512,7 @@ def eff_pt_tf_q():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon to have a TFTrack with 2 reconstructed stubs in")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TFTrack with #geq 2 stubs"%(minSimPt, maxSimPt))
     leg.AddEntry(h_eff_pt_after_tfcand_ok_plus_q1,"Q#geq1","pl")
     leg.AddEntry(h_eff_pt_after_tfcand_ok_plus_q2,"Q#geq2","pl")
     leg.AddEntry(h_eff_pt_after_tfcand_ok_plus_q3,"Q=3","pl")
@@ -597,7 +550,7 @@ def do_h_pt_after_tfcand_ok_plus_pt10():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with a TFTrack with 2 reconstructed stubs to pass p_{T}^{TF}>10")
+    leg.SetHeader("Efficiency for a muon  with %d < p_{T} < %d and a TFTrack with 2 stubs to pass p_{T}^{TF}>10"%(minSimPt, maxSimPt))
     leg.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10,"any Q","pl")
     leg.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q2,"Q#geq2","pl")
     leg.AddEntry(h_eff_pt_after_tfcand_ok_plus_pt10_q3,"Q=3","pl")
@@ -648,7 +601,7 @@ def eff_Ns1b(N, file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEff
     leg.SetNColumns(2)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon to have a TF track with #geq %d stubs, 1 in ME1/b"%(N))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with #geq %d stubs, 1 in ME1/b"%(minSimPt, maxSimPt,N))
     leg.AddEntry(h_eff_tf10_Ns1b, "Trigger p_{T}:", "")
     leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "with GEM:", "")
     leg.AddEntry(h_eff_tf10_Ns1b, "p_{T}^{TF}#geq10", "l")
@@ -696,9 +649,9 @@ def eff_3s_2s1b(file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEff
     leg.SetNColumns(2)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("TF track requires")
-    leg.AddEntry(h_eff_tf10_3s, "3+ stubs", "")
-    leg.AddEntry(h_eff_tf10_gpt10_2s1b, "2+ stubs with GEM in ME1", "")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with"%(minSimPt, maxSimPt,N))
+    leg.AddEntry(h_eff_tf10_3s, "#geq 3 stubs", "")
+    leg.AddEntry(h_eff_tf10_gpt10_2s1b, "#geq 3 stubs, 1 in ME1/b, and with GEM", "")
     leg.AddEntry(h_eff_tf10_3s, "p_{T}^{TF}#geq10", "l")
     leg.AddEntry(h_eff_tf10_gpt10_2s1b, "#Delta#phi for p_{T}=10", "l")
     leg.AddEntry(h_eff_tf20_3s, "p_{T}^{TF}#geq20", "l")
@@ -750,7 +703,7 @@ def eff_Ns_gemtight(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem4
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("TF track: #geq %d stubs, 1 in ME1/b"%(N))
+    leg.SetHeader("Eff. for a muon with %d < p_{T} < %d to have a TF track with #geq %d stubs, 1 in ME1/b"%(minSimPt, maxSimPt,N))
     leg.AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T}^{TF} cut and", "")
     leg.AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T}^{TF} cut and", "")
     leg.AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T} for #Delta#phi(GEM,CSC)", "")
@@ -802,7 +755,7 @@ def eff_Ns_gemtightX(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("TF track: #geq %d stubs, 1 in ME1/b"%(N))
+    leg.SetHeader("Eff. for a muon with %d < p_{T} < %d to have a TF track with #geq %d stubs, 1 in ME1/b"%(minSimPt, maxSimPt,N))
     leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "p_{T}^{TF} cut and", "")
     leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "p_{T}^{TF} cut and", "")
     leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "p_{T} for #Delta#phi(GEM,CSC)", "")
@@ -844,7 +797,8 @@ def eff_Ns_ptX_gem_ptY(N, X, Y, gem_file, dir_name = "GEMCSCTriggerEfficiency"):
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for muon to have a TF track with p_{T}^{TF}#geq %d"%(X))
+
+    leg.SetHeader("Efficiency for muon with %d < p_{T} < %d to have a TF track with p_{T}^{TF}#geq %d"%(minSimPt, maxSimPt, X))
     leg.AddEntry(h_eff_tfX_Ns, "#geq %d stubs"%(N), "l")
     leg.AddEntry(h_eff_tfX_Ns1b, "#geq %d stubs, 1 in ME1/b"%(N), "l")
     leg.AddEntry(h_eff_tfX_gptY_Ns1b, "#geq %d stubs, 1 in ME1/b, #Delta#phi(GEM,CSC) for p_{T}=%d"%(N,Y), "l")
