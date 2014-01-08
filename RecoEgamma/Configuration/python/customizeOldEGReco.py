@@ -232,6 +232,7 @@ def _customize_FastSim(process):
     if hasattr(process,'ecalDrivenElectronSeeds'):
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('correctedHybridSuperClusters')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+        process.ecalDrivenElectronSeeds.SeedConfiguration.ecalDrivenElectronSeedsParameters.SCEtCut = 4.0
     return process
 
 
