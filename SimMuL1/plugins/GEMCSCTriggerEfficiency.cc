@@ -408,16 +408,17 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
     h_eta_me1_mpc_3st = fs->make<TH1D>("h_eta_me1_mpc_3st","h_eta_me1_mpc_3st",N_ETA_BINS, ETA_START, ETA_END);
 
 
+    h_eta_vs_ncscsh = fs->make<TH2D>("h_eta_vs_ncscsh","h_eta_vs_ncscsh",N_ETA_BINS, ETA_START, ETA_END,41,-0.5,40.5); 
     h_eta_vs_nalct = fs->make<TH2D>("h_eta_vs_nalct","h_eta_vs_nalct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
     h_eta_vs_nclct = fs->make<TH2D>("h_eta_vs_nclct","h_eta_vs_nclct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
     h_eta_vs_nlct  = fs->make<TH2D>("h_eta_vs_nlct","h_eta_vs_nlct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
     h_eta_vs_nmplct  = fs->make<TH2D>("h_eta_vs_nmplct","h_eta_vs_nmplct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
 
+    h_pt_vs_ncscsh = fs->make<TH2D>("h_pt_vs_ncscsh","h_pt_vs_ncscsh",50, 0.,100.,41,-0.5,40.5); 
     h_pt_vs_nalct = fs->make<TH2D>("h_pt_vs_nalct","h_pt_vs_nalct",50, 0.,100.,13,-0.5,12.5);
     h_pt_vs_nclct = fs->make<TH2D>("h_pt_vs_nclct","h_pt_vs_nclct",50, 0.,100.,13,-0.5,12.5);
     h_pt_vs_nlct = fs->make<TH2D>("h_pt_vs_nlct","h_pt_vs_nlct",50, 0.,100.,13,-0.5,12.5);
     h_pt_vs_nmplct = fs->make<TH2D>("h_pt_vs_nmplct","h_pt_vs_nmplct",50, 0.,100.,13,-0.5,12.5);
-
 
     h_pt_after_alct = fs->make<TH1D>("h_pt_after_alct","h_pt_after_alct",N_PT_BINS, PT_START, PT_END);
     h_pt_after_clct = fs->make<TH1D>("h_pt_after_clct","h_pt_after_clct",N_PT_BINS, PT_START, PT_END);
@@ -1652,15 +1653,18 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
         if (lookAtTrackCondition_ != nokeey) continue;
 
-        h_eta_vs_nalct->Fill(steta, match->ALCTs.size());
-        h_eta_vs_nclct->Fill(steta, match->CLCTs.size()); 
-        h_eta_vs_nlct ->Fill(steta, match->LCTs.size());
-        h_eta_vs_nmplct ->Fill(steta, match->MPLCTs.size());
+        // fill these histograms only with stubs in the readout!
+        h_eta_vs_ncscsh->Fill(steta, match->simHits.size());
+        h_eta_vs_nalct->Fill(steta, match->ALCTsInReadOut().size());
+        h_eta_vs_nclct->Fill(steta, match->CLCTsInReadOut().size()); 
+        h_eta_vs_nlct->Fill(steta, match->LCTsInReadOut().size());
+        h_eta_vs_nmplct->Fill(steta, match->MPLCTsInReadOut().size());
 
-        h_pt_vs_nalct->Fill(stpt, match->ALCTs.size());
-        h_pt_vs_nclct->Fill(stpt, match->CLCTs.size());
-        h_pt_vs_nlct ->Fill(stpt, match->LCTs.size());
-        h_pt_vs_nmplct ->Fill(stpt, match->MPLCTs.size());
+        h_pt_vs_ncscsh->Fill(stpt, match->simHits.size());
+        h_pt_vs_nalct->Fill(stpt, match->ALCTsInReadOut().size());
+        h_pt_vs_nclct->Fill(stpt, match->CLCTsInReadOut().size());
+        h_pt_vs_nlct->Fill(stpt, match->LCTsInReadOut().size());
+        h_pt_vs_nmplct->Fill(stpt, match->MPLCTsInReadOut().size());
 
         //============ Initial ==================
 

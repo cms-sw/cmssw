@@ -357,11 +357,13 @@ private:
   TH2D * h_csctype_vs_alct_occup;
   TH2D * h_csctype_vs_clct_occup;
   
+  TH2D * h_eta_vs_ncscsh;
   TH2D * h_eta_vs_nalct;
   TH2D * h_eta_vs_nclct;
   TH2D * h_eta_vs_nlct;
   TH2D * h_eta_vs_nmplct;
   
+  TH2D * h_pt_vs_ncscsh;
   TH2D * h_pt_vs_nalct;
   TH2D * h_pt_vs_nclct;
   TH2D * h_pt_vs_nlct;
