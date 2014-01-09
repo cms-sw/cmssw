@@ -197,6 +197,12 @@ expertSettings.add_option("--himix",
                  default=defaultOptions.himix,
                  dest="himix")
                                                     
+expertSettings.add_option("--hisignal",
+                          help="Keep only the signal sim info in mixing.",
+                          action="store_true",
+                          default=defaultOptions.hisignal,
+                          dest="hisignal")
+
 expertSettings.add_option("--python_filename",
                           help="Change the name of the created config file ",
                           default='',
