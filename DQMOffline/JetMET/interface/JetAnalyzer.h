@@ -89,7 +89,7 @@ class JetAnalyzer : public edm::EDAnalyzer {
   static bool jetSortingRule(reco::Jet x, reco::Jet y) {return x.pt() > y.pt();}
 
  // JetID helper
-  reco::helper::JetIDHelper *jetID;
+  reco::helper::JetIDHelper * jetID_;
 
  /// Helper object to propagate tracks to the calo surface
   std::auto_ptr<jetAnalysis::TrackPropagatorToCalo> trackPropagator_;
@@ -101,84 +101,69 @@ class JetAnalyzer : public edm::EDAnalyzer {
   /// Helper object to calculate strip SoN for tracks
   //jetAnalysis::StripSignalOverNoiseCalculator sOverNCalculator_;
 
-  DQMStore* dbe;
+  DQMStore* dbe_;
 
   //try to put one collection as start
-  edm::InputTag mInputCollection;
-  edm::InputTag theTriggerResultsLabel;
+  edm::InputTag mInputCollection_;
+  edm::InputTag theTriggerResultsLabel_;
 
-  std::string     JetType;
-  std::string     mOutputFile;
+  std::string  jetType_;
+  std::string  mOutputFile_;
 
-  edm::EDGetTokenT<edm::TriggerResults>triggerResultsToken_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>>vertexToken_;
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>gtToken_;
-  edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
-  edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
-  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
+  edm::EDGetTokenT<edm::TriggerResults>           triggerResultsToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>>     vertexToken_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>  gtToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
+  edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
+  edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
 
   //Cleaning parameters
-  edm::ParameterSet theCleaningParameters;
-  edm::InputTag _theVertexLabel;
-  edm::InputTag _theGTLabel;
-  std::string _hlt_PhysDec;
+  edm::ParameterSet cleaningParameters_;
+  edm::InputTag vertexLabel_;
+  edm::InputTag gtLabel_;
 
   //check later if we need only one set of parameters
-  edm::ParameterSet parameters;
-  // Switch for verbosity
-  std::string jetname;
-  std::string _source;//check if it needs replacement
+  edm::ParameterSet parameters_;
 
-  std::string JetCorrectionService;
-
-  // Calo Jet Label
-  edm::InputTag theJetCollectionLabel;//try to put it after all done into one collection
-
-  // Calo Jet Label
-  edm::InputTag theCaloJetCollectionLabel;
- // Calo Jet Label
-  edm::InputTag thePFJetCollectionLabel;
+  std::string jetCorrectionService_;
 
   //histo binning parameters -> these are PART of ALL analyzers - move it up
-  int    etaBin;
-  double etaMin;
-  double etaMax;
+  int    etaBin_;
+  double etaMin_;
+  double etaMax_;
 
-  int    phiBin;
-  double phiMin;
-  double phiMax;
+  int    phiBin_;
+  double phiMin_;
+  double phiMax_;
 
-  int    ptBin;
-  double ptMin;
-  double ptMax;
+  int    ptBin_;
+  double ptMin_;
+  double ptMax_;
 
-  int    eBin;
-  double eMin;
-  double eMax;
+  int    eBin_;
+  double eMin_;
+  double eMax_;
 
-  int    pBin;
-  double pMin;
-  double pMax;
+  int    pBin_;
+  double pMin_;
+  double pMax_;
 
-  int nbinsPV;
-
-  double PVlow; 
-  double PVhigh;
+  int     nbinsPV_;
+  double  nPVlow_; 
+  double  nPVhigh_;
 
   //variables which are present both in 
-  int   _JetLoPass;
-  int   _JetHiPass;
-  int   _leadJetFlag;
-  double _ptThreshold;
-  double _ptThresholdUnc;
-  double _asymmetryThirdJetCut;
-  double _balanceThirdJetCut;
+  int    jetLoPass_;
+  int    jetHiPass_;
+  int    leadJetFlag_;
+  double ptThreshold_;
+  double ptThresholdUnc_;
+  double asymmetryThirdJetCut_;
+  double balanceThirdJetCut_;
 
-  int makedijetselection;
+  int makedijetselection_;
   //
-  int fillJIDPassFrac;
-  //OK here we CAN make it unified
-  int fillpfJIDPassFrac;
+  int fillJIDPassFrac_;
 
   //the histos
   MonitorElement* jetME;
@@ -273,26 +258,15 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mEFrac_profile;
 
 
-  bool _hlt_initialized;
+  bool hltInitialized_;
+  bool doPVCheck_;
 
-  std::vector<unsigned > _techTrigsAND;
-  std::vector<unsigned > _techTrigsOR;
-  std::vector<unsigned > _techTrigsNOT;
+  int     nvtxMin_;
+  int     vtxNdofMin_;
+  double  vtxZMax_;
 
-  bool _doPVCheck;
-  bool _doHLTPhysicsOn;
-
-  bool _tightBHFiltering;
-
-  int _nvtx_min;
-  int _vtxndof_min;
-  int _nvtxtrks_min;
-  double _vtxchi2_max;
-  double _vtxz_max;
-  //
-
-  int _LSBegin;
-  int _LSEnd;
+  int LSBegin_;
+  int LSEnd_;
 
   HLTConfigProvider hltConfig_;
   std::string processname_;
@@ -302,59 +276,34 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* cleanupME;
   MonitorElement* verticesME;
 
-  GenericTriggerEventFlag * _HighPtJetEventFlag;
-  GenericTriggerEventFlag * _LowPtJetEventFlag;
+  GenericTriggerEventFlag * highPtJetEventFlag_;
+  GenericTriggerEventFlag * lowPtJetEventFlag_;
 
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
 
-  bool theJetAnalyzerFlag;  
-  bool theIConeJetAnalyzerFlag;
-  bool theSConeJetAnalyzerFlag;
-  bool theJetCleaningFlag;
 
-  bool theJetPtAnalyzerFlag;
-  bool theJetPtCleaningFlag;
+  bool diJetSelectionFlag_;
+  bool jetCleaningFlag_;
 
-  bool thePFJetAnalyzerFlag;
-  bool thePFJetCleaningFlag;
-
-  bool theDiJetSelectionFlag;
-
-  bool theJPTJetAnalyzerFlag;
-  bool theJPTJetCleaningFlag;
-
-  /* bool theCaloMETAnalyzerFlag;
-
-  bool theTcMETAnalyzerFlag;
-
-  bool theMuCorrMETAnalyzerFlag;
-
-  bool thePfMETAnalyzerFlag;
-
-  bool theHTMHTAnalyzerFlag;
-  */
 
   //reorganize - find out first which parameters are contained in ALL analyzers for global variables
 
-  //seems these are CaloJetAnalyzer Only flags
-  int _theend;
   //JID cuts
-  double _fHPDMax;
-  double _resEMFMin;
-  int _n90HitsMin;
+  double  fHPDMax_;
+  double  resEMFMin_;
+  int     n90HitsMin_;
 
-  double _fHPDMaxLoose;
-  double _resEMFMinLoose;
-  int _n90HitsMinLoose;
-  double _fHPDMaxTight;
-  double _resEMFMinTight;
-  int _n90HitsMinTight;
-  double _sigmaEtaMinTight;
-  double _sigmaPhiMinTight; 
+  double  fHPDMaxLoose_;
+  double  resEMFMinLoose_;
+  int     n90HitsMinLoose_;
+  double  fHPDMaxTight_;
+  double  resEMFMinTight_;
+  int     n90HitsMinTight_;
+  double  sigmaEtaMinTight_;
+  double  sigmaPhiMinTight_; 
 
-  bool energycorrected;
-
+//  bool energycorrected;
  
 
   // CaloJet specific
@@ -465,18 +414,18 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mOutVertexTrackImpactPointJetDRHisto_;
 
   //now define PFJet only flags
-  double _ThisCHFMin;
-  double _ThisNHFMax;
-  double _ThisCEFMax;
-  double _ThisNEFMax;
-  double _LooseCHFMin;
-  double _LooseNHFMax;
-  double _LooseCEFMax;
-  double _LooseNEFMax;
-  double _TightCHFMin;
-  double _TightNHFMax;
-  double _TightCEFMax;
-  double _TightNEFMax;
+  double thisCHFMin_;
+  double thisNHFMax_;
+  double thisCEFMax_;
+  double thisNEFMax_;
+  double looseCHFMin_;
+  double looseNHFMax_;
+  double looseCEFMax_;
+  double looseNEFMax_;
+  double tightCHFMin_;
+  double tightNHFMax_;
+  double tightCEFMax_;
+  double tightNEFMax_;
 
   MonitorElement* mCHFrac_lowPt_Barrel;
   MonitorElement* mNHFrac_lowPt_Barrel;
@@ -644,9 +593,9 @@ class JetAnalyzer : public edm::EDAnalyzer {
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;
 
-  bool isCaloJet;
-  bool isJPTJet;
-  bool isPFJet;
+  bool isCaloJet_;
+  bool isJPTJet_;
+  bool isPFJet_;
 
 };
 #endif  

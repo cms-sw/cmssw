@@ -1,12 +1,18 @@
 #ifndef METAnalyzer_H
 #define METAnalyzer_H
 
-
-/** \class METAnalyzer
+/** \class JetMETAnalyzer
  *
- *  DQM monitoring source for MET (Mu corrected/TcMET)
+ *  DQM jetMET analysis monitoring
  *
- *  \author A.Apresyan - Caltech
+ *  \author F. Chlebana - Fermilab
+ *          K. Hatakeyama - Rockefeller University
+ *
+ *          Jan. '14: modified by
+ *
+ *          M. Artur Weber
+ *          R. Schoefbeck
+ *          V. Sordini
  */
 
 
@@ -91,7 +97,7 @@ class METAnalyzer : public edm::EDAnalyzer{
   void beginRun(const edm::Run&,  const edm::EventSetup&);
 
   /// Finish up a run
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore *dbe);
+  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe);
 
   // Fill MonitorElements
   void fillMESet(const edm::Event&, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET&);
@@ -103,83 +109,77 @@ class METAnalyzer : public edm::EDAnalyzer{
   bool selectWElectronEvent(const edm::Event&);
   bool selectWMuonEvent(const edm::Event&);
 
-  int evtCounter;
-
  private:
   // ----------member data ---------------------------
 
   edm::ParameterSet parameters;
   // Switch for verbosity
-  int _verbose;
+  int verbose_;
 
   //edm::ConsumesCollector iC;
 
-  DQMStore * dbe;
+  DQMStore * dbe_;
 
-  std::string MetType;
-  std::string mOutputFile;
+  std::string MetType_;
+  std::string mOutputFile_;
 
-  std::string _FolderName;
+  std::string FolderName_;
 
-  edm::InputTag theMETCollectionLabel;
-  edm::InputTag HcalNoiseRBXCollectionTag;
-  edm::InputTag theJetCollectionLabel;
-  edm::InputTag thePfJetCollectionLabel;
-  edm::InputTag BeamHaloSummaryTag;
-  edm::InputTag HBHENoiseFilterResultTag;
-  edm::InputTag vertexTag;
-  edm::InputTag gtTag;
+  edm::InputTag metCollectionLabel_;
+  edm::InputTag hcalNoiseRBXCollectionTag_;
+  edm::InputTag jetCollectionLabel_;
+  edm::InputTag beamHaloSummaryTag_;
+  edm::InputTag hbheNoiseFilterResultTag_;
+  edm::InputTag vertexTag_;
+  edm::InputTag gtTag_;
 
-  edm::EDGetTokenT<std::vector<reco::Vertex>>vertexToken_;
-  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>gtToken_;
-  edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
-  edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
-  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
+  edm::EDGetTokenT<std::vector<reco::Vertex>>     vertexToken_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>  gtToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
+  edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
+  edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
 
-  edm::EDGetTokenT<bool> HBHENoiseFilterResultToken_;
-  edm::EDGetTokenT<reco::BeamHaloSummary> BeamHaloSummaryToken_;
+  edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
+  edm::EDGetTokenT<reco::BeamHaloSummary>         beamHaloSummaryToken_;
 
-  edm::EDGetTokenT<reco::METCollection> tcMetToken_; 
-  edm::EDGetTokenT<reco::PFMETCollection> pfMetToken_;
-  edm::EDGetTokenT<reco::CaloMETCollection> caloMetToken_;
-  edm::EDGetTokenT<reco::HcalNoiseRBXCollection> HcalNoiseRBXToken_; 
+  edm::EDGetTokenT<reco::METCollection>           tcMetToken_; 
+  edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection>       caloMetToken_;
+  edm::EDGetTokenT<reco::HcalNoiseRBXCollection>  HcalNoiseRBXToken_; 
 
+  edm::InputTag inputTrackLabel_;
+  edm::InputTag inputMuonLabel_;
+  edm::InputTag inputElectronLabel_;
+  edm::InputTag inputBeamSpotLabel_;
+  edm::InputTag inputTCMETValueMap_;
 
+  edm::EDGetTokenT<edm::View <reco::Track> >        TrackToken_;
+  edm::EDGetTokenT<reco::MuonCollection>            MuonToken_;
+  edm::EDGetTokenT<edm::View <reco::GsfElectron> >  ElectronToken_;
+  edm::EDGetTokenT<reco::BeamSpot>                  BeamspotToken_;
 
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData>> tcMETValueMapToken_;
+  edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMetValueMapHandle_;
 
-  edm::InputTag inputTrackLabel;
-  edm::InputTag inputMuonLabel;
-  edm::InputTag inputElectronLabel;
-  edm::InputTag inputBeamSpotLabel;
-  edm::InputTag inputTCMETValueMap;
-
-  edm::EDGetTokenT<edm::View <reco::Track> >TrackToken_;
-  edm::EDGetTokenT<reco::MuonCollection> MuonToken_;
-  edm::EDGetTokenT<edm::View <reco::GsfElectron> >ElectronToken_;
-  edm::EDGetTokenT<reco::BeamSpot> BeamspotToken_;
-
-  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData>> tcMET_ValueMapToken_;
-  edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
-
-  edm::Handle< reco::MuonCollection > muon_h;
-  edm::Handle< edm::View<reco::Track> > track_h;
-  edm::Handle< edm::View<reco::GsfElectron > > electron_h;
-  edm::Handle< reco::BeamSpot > beamSpot_h;
+  edm::Handle< reco::MuonCollection >           muonHandle_;
+  edm::Handle< edm::View<reco::Track> >         trackHandle_;
+  edm::Handle< edm::View<reco::GsfElectron > >  electronHandle_;
+  edm::Handle< reco::BeamSpot >                 beamSpotHandle_;
 
 
-  edm::InputTag theTriggerResultsLabel;
-  edm::EDGetTokenT<edm::TriggerResults>triggerResultsToken_;
+  edm::InputTag                         triggerResultsLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
 
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
 
-  GenericTriggerEventFlag * _HighPtJetEventFlag;
-  GenericTriggerEventFlag * _LowPtJetEventFlag;
-  GenericTriggerEventFlag * _MinBiasEventFlag;
-  GenericTriggerEventFlag * _HighMETEventFlag;
-  //  GenericTriggerEventFlag * _LowMETEventFlag;
-  GenericTriggerEventFlag * _EleEventFlag;
-  GenericTriggerEventFlag * _MuonEventFlag;
+  GenericTriggerEventFlag * highPtJetEventFlag_;
+  GenericTriggerEventFlag * lowPtJetEventFlag_;
+  GenericTriggerEventFlag * minBiasEventFlag_;
+  GenericTriggerEventFlag * highMETEventFlag_;
+//GenericTriggerEventFlag * lowMETEventFlag_;
+  GenericTriggerEventFlag * eleEventFlag_;
+  GenericTriggerEventFlag * muonEventFlag_;
 
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
@@ -189,75 +189,61 @@ class METAnalyzer : public edm::EDAnalyzer{
   std::vector<std::string> elecExpr_;
   std::vector<std::string> minbiasExpr_;
 
-  edm::ParameterSet theCleaningParameters;
-  std::string _hlt_PhysDec;
+  edm::ParameterSet cleaningParameters_;
+  std::string hltPhysDec_;
 
-  int nbinsPV;
+  int    nbinsPV_;
+  double nPVMin_; 
+  double nPVMax_;
 
-  double PVlow; 
-  double PVup;
+  bool doPVCheck_;
+  bool doHLTPhysicsOn_;
 
+  bool tightBHFiltering_;
+  int  tightJetIDFiltering_;
 
-  bool _doPVCheck;
-  bool _doHLTPhysicsOn;
+  int    nvtxMin_;
+  int    vtxNdofMin_;
+  double vtxZMax_;
 
-  bool     _tightBHFiltering;
-  int      _tightJetIDFiltering;
-
-  int _nvtx_min;
-  int _nvtxtrks_min;
-  int _vtxndof_min;
-  double _vtxchi2_max;
-  double _vtxz_max;
-
-  int _trig_JetMB;
-  int _trig_HighPtJet;
-  int _trig_LowPtJet;
-  int _trig_MinBias;
-  int _trig_HighMET;
-  //  int _trig_LowMET;
-  int _trig_Ele;
-  int _trig_Muon;
-  int _trig_PhysDec;
+  int trigJetMB_;
+  int trigHighPtJet_;
+  int trigLowPtJet_;
+  int trigMinBias_;
+  int trigHighMET_;
+//int trigLowMET_;
+  int trigEle_;
+  int trigMuon_;
+  int trigPhysDec_;
 
 
-  double _highPtJetThreshold;
-  double _lowPtJetThreshold;
-  double _highMETThreshold;
-  //  double _lowMETThreshold;
-  //do low MET for caloMET too?
-  double _lowPFMETThreshold;
+  double highPtJetThreshold_;
+  double lowPtJetThreshold_;
+  double highMETThreshold_;
 
-  int _numPV;
+  int numPV_;
   // Et threshold for MET plots
-  double _etThreshold;
+  double etThreshold_;
 
   // HF calibration factor (in 31X applied by TcProducer)
   //delete altogether not used anymore
   double hfCalibFactor_;  //
 
   // JetID helper
-  reco::helper::JetIDHelper *jetID;
-
+  reco::helper::JetIDHelper * jetID_;
 
   // DCS filter
-  JetMETDQMDCSFilter *DCSFilter;
+  JetMETDQMDCSFilter *DCSFilter_;
 
   //
-  bool _allhist;
-  bool _allSelection;
-  bool _cleanupSelection;
+  bool allhist_;
+  bool allSelection_;
+  bool cleanupSelection_;
 
   //
-  std::vector<std::string> _FolderNames;
-
+  std::vector<std::string> folderNames_;
   //
-  math::XYZPoint bspot;
-
-
-
-  //
-  DQMStore *_dbe;
+  math::XYZPoint beamSpot_;
 
   //trigger histos
   // lines commented out have been removed to improve the bin usage of JetMET DQM
@@ -399,9 +385,9 @@ class METAnalyzer : public edm::EDAnalyzer{
   MonitorElement* meHFEMEtFraction_profile;
   MonitorElement* meHFEMEt_profile;
 
-  bool isCaloMet;
-  bool isTCMet;
-  bool isPFMet;
+  bool isCaloMet_;
+  bool isTCMet_;
+  bool isPFMet_;
 
 };
 #endif
