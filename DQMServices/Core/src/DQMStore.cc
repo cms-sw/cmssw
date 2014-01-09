@@ -550,7 +550,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 void
 DQMStore::print_trace (const std::string &dir, const std::string &name)
 {
-  static std::ofstream stream("histogramBookingBT.log");
+  std::ofstream stream("histogramBookingBT.log");
   void *array[10];
   size_t size;
   char **strings;
