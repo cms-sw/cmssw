@@ -197,7 +197,7 @@ JetAnalyzerAkVs7PF = cms.EDAnalyzer("PFJetTesterUnCorr",
 							    
 hiJetValidation = cms.Sequence(
      ak3HiCleanedGenJets
-   * ak3HiCleanedGenJets 
+   * ak5HiCleanedGenJets
    #* ak7HiCleanedGenJets
    * JetAnalyzerICPU5Calo
    #* JetAnalyzerICPU7Calo
