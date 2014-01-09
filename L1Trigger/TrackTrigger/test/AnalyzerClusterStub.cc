@@ -792,8 +792,8 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
   /// Loop over the input Clusters
   typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
   typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
-  for ( inputIter = PixelDigiTTClusterHandle->begin();
-        inputIter != PixelDigiTTClusterHandle->end();
+  for ( inputIter = PixelDigiTTClusterInclusiveHandle->begin();
+        inputIter != PixelDigiTTClusterInclusiveHandle->end();
         ++inputIter )
   {
     for ( contentIter = inputIter->begin();
@@ -801,7 +801,7 @@ void AnalyzerClusterStub::analyze(const edm::Event& iEvent, const edm::EventSetu
           ++contentIter )
     {
       /// Make the reference to be put in the map
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
+      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterInclusiveHandle, contentIter );
 
       StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
       unsigned int memberClu = tempCluRef->getStackMember();
