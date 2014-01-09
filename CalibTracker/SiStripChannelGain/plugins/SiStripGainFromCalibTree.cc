@@ -33,6 +33,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
@@ -119,17 +120,18 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
 
 
    private:
-      virtual void algoBeginJob      (const edm::EventSetup&);
+//      virtual void algoBeginJob      (const edm::EventSetup&);
+      virtual void algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup);
       virtual void algoEndJob        ();
       virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &);
 
               void algoAnalyzeTheTree();
               void algoComputeMPVandGain();
 
+              bool IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);
               void getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400);
               bool IsGoodLandauFit(double* FitResults); 
               void storeOnTree();
-
               void MakeCalibrationMap();
 
 
@@ -155,6 +157,8 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       bool         useCalibration;
       string       m_calibrationPath;
 
+      edm::InputTag theTracksLabel;
+      std::string  AlgoMode;
       std::string  OutputGains;
       vector<string> VInputFiles;
 
@@ -190,7 +194,9 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
 SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iConfig) : ConditionDBWriter<SiStripApvGain>(iConfig)
 {
    OutputGains         = iConfig.getParameter<std::string>("OutputGains");
+   theTracksLabel      = iConfig.getUntrackedParameter<edm::InputTag>("Tracks");
 
+   AlgoMode            = iConfig.getUntrackedParameter<std::string>("AlgoMode", "CalibTree");
    MinNrEntries        = iConfig.getUntrackedParameter<double>  ("minNrEntries"       ,  20);
    MaxMPVError         = iConfig.getUntrackedParameter<double>  ("maxMPVError"        ,  500.0);
    MaxChi2OverNDF      = iConfig.getUntrackedParameter<double>  ("maxChi2OverNDF"     ,  5.0);
@@ -216,11 +222,8 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
 }
 
-
-
-
-void
-SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
+void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
+//void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
    Charge_Vs_Index           = tfs->make<TH2F>("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
    Charge_Vs_Index_Absolute  = tfs->make<TH2F>("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
@@ -291,7 +294,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 		if(!FirstSetOfConstants){
 		   if(gainHandle->getNumberOfTags()!=2){printf("ERROR: NUMBER OF GAIN TAG IS EXPECTED TO BE 2\n");fflush(stdout);exit(0);};		   
 		   APV->PreviousGain  = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 1),1);
-                   printf("DETID = %7i APVID=%1i Previous Gain=%8.4f\n",APV->DetId,APV->APVId,APV->PreviousGain);
+                   //printf("DETID = %7i APVID=%1i Previous Gain=%8.4f\n",APV->DetId,APV->APVId,APV->PreviousGain);
 		}
 
                 APVsCollOrdered.push_back(APV);
@@ -311,19 +314,21 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
    ERun       = 0;
    GOOD       = 0;
    BAD        = 0;
-
-   algoAnalyzeTheTree();
-   algoComputeMPVandGain();
 }
 
 
-void
-SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
+//void
+//SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+//{   
+//}
 
 void 
 SiStripGainFromCalibTree::algoEndJob() {
+   printf("EndJob\n");
+   if(AlgoMode=="CalibTree")algoAnalyzeTheTree();
+   algoComputeMPVandGain();
+   storeOnTree();
+
 }
 
 
@@ -353,9 +358,9 @@ void SiStripGainFromCalibTree::getPeakOfLandau(TH1* InputHisto, double* FitResul
 }
 
 bool SiStripGainFromCalibTree::IsGoodLandauFit(double* FitResults){
-   if(FitResults[0] < 2             )return false;
-   if(FitResults[1] > MaxMPVError   )return false;
-   if(FitResults[4] > MaxChi2OverNDF)return false;
+   if(FitResults[0] <= 0             )return false;
+//   if(FitResults[1] > MaxMPVError   )return false;
+//   if(FitResults[4] > MaxChi2OverNDF)return false;
    return true;   
 }
 
@@ -364,7 +369,8 @@ void SiStripGainFromCalibTree::algoAnalyzeTheTree()
 {
    for(unsigned int i=0;i<VInputFiles.size();i++){
       printf("Openning file %3i/%3i --> %s\n",i+1, (int)VInputFiles.size(), (char*)(VInputFiles[i].c_str())); fflush(stdout);
-      TChain* tree = new TChain("gainCalibrationTree/tree");
+//      TChain* tree = new TChain("gainCalibrationTree/tree");
+      TChain* tree = new TChain("commonCalibrationTree/tree");
       tree->Add(VInputFiles[i].c_str());
 
       TString EventPrefix("");
@@ -556,22 +562,20 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
       APV->FitChi2     = FitResults[4];
       APV->NEntries    = Proj->GetEntries();
 
-      if(APV->FitMPV>0){
+//      if(APV->FitMPV>0){
+      if(IsGoodLandauFit(FitResults)){
           APV->Gain = APV->FitMPV / MPVmean;
           GOOD++;
       }else{
-          APV->Gain = 1;
+          APV->Gain = APV->PreviousGain;
           BAD++;
       }
       if(APV->Gain<=0)           APV->Gain  = 1;
-//      if(!FirstSetOfConstants)   APV->Gain *= APV->PreviousGain;
-
+//      if(!FirstSetOfConstants)   APV->Gain *= APV->PreviousGain; //commented because already done at the level of the cluster computation
 
       //printf("%5i/%5i:  %6i - %1i  %5E Entries --> MPV = %f +- %f\n",I,APVsColl.size(),APV->DetId, APV->APVId, Proj->GetEntries(), FitResults[0], FitResults[1]);fflush(stdout);
       delete Proj;
    }printf("\n");
-
-   storeOnTree();
 }
 
 
@@ -624,7 +628,15 @@ void SiStripGainFromCalibTree::storeOnTree()
    MyTree->Branch("isMasked"          ,&tree_isMasked   ,"isMasked/O");
 
 
-   FILE* Gains = fopen(OutputGains.c_str(),"w");
+   FILE* Gains = stdout;
+   if(AlgoMode!="PCL"){
+   fprintf(Gains,"NEvents   = %i\n",NEvent);
+   fprintf(Gains,"NTracks   = %i\n",NTrack);
+   fprintf(Gains,"NClusters = %i\n",NCluster);
+   fprintf(Gains,"Number of APVs = %lu\n",static_cast<unsigned long>(APVsColl.size()));
+   fprintf(Gains,"GoodFits = %i BadFits = %i ratio = %f\n",GOOD,BAD,(100.0*GOOD)/(GOOD+BAD));
+   Gains=fopen(OutputGains.c_str(),"w");
+   }
    fprintf(Gains,"NEvents   = %i\n",NEvent);
    fprintf(Gains,"NTracks   = %i\n",NTrack);
    fprintf(Gains,"NClusters = %i\n",NCluster);
@@ -634,8 +646,8 @@ void SiStripGainFromCalibTree::storeOnTree()
    for(unsigned int a=0;a<APVsCollOrdered.size();a++){
       stAPVGain* APV = APVsCollOrdered[a];
       if(APV==NULL)continue;
-//     printf(      "%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
-      fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain);
+//     printf(      "%i | %i | PreviousGain = %7.5f NewGain = %7.5f (#clusters=%8.0f)\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain, APV->NEntries);
+      fprintf(Gains,"%i | %i | PreviousGain = %7.5f NewGain = %7.5f (#clusters=%8.0f)\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain, APV->NEntries);
 
       tree_Index      = APV->Index;
       tree_Bin        = APV->Bin;
@@ -661,7 +673,7 @@ void SiStripGainFromCalibTree::storeOnTree()
 
       MyTree->Fill();
    }
-   fclose(Gains);
+   if(AlgoMode!="PCL")fclose(Gains);
 
 
 }
@@ -723,6 +735,212 @@ void SiStripGainFromCalibTree::MakeCalibrationMap(){
 
 }
 
+
+
+
+void
+SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+{
+   if(AlgoMode=="CalibTree")return;
+
+   if(NEvent==0){
+      SRun          = iEvent.id().run();
+   }
+   ERun             = iEvent.id().run();
+   NEvent++;
+
+  //FROM SHALLOW GAIN
+  edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
+  edm::ESHandle<SiStripGain> gainHandle;                     iSetup.get<SiStripGainRcd>().get(gainHandle);
+  edm::Handle<edm::View<reco::Track> > tracks;               iEvent.getByLabel(theTracksLabel, tracks);    
+  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByLabel(theTracksLabel, associations);
+
+  for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); association++) {
+       const Trajectory*  traj  = association->key.get();
+       const reco::Track* track = association->val.get();
+
+       //clean on the tracks
+       if(fabs(track->eta())          < MinTrackEta        )continue;
+       if(fabs(track->eta())          > MaxTrackEta        )continue;
+       if(track->p()                  < MinTrackMomentum   )continue;
+       if(track->p()                  > MaxTrackMomentum   )continue;
+       if(track->numberOfValidHits()  < MinTrackHits       )continue;
+       if(track->chi2()/track->ndof() > MaxTrackChiOverNdf )continue;
+       NTrack++;
+
+       vector<TrajectoryMeasurement> measurements = traj->measurements();
+       for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
+          TrajectoryStateOnSurface trajState = measurement_it->updatedState();
+          if( !trajState.isValid() ) continue;     
+
+          const TrackingRecHit*         hit                 = (*measurement_it->recHit()).hit();
+          const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
+          const SiStripRecHit2D*        sistripsimplehit    = dynamic_cast<const SiStripRecHit2D*>(hit);
+          const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+
+          const SiStripCluster*   Cluster = NULL;
+          uint32_t                DetId = 0;
+
+          for(unsigned int h=0;h<2;h++){
+            if(!sistripmatchedhit && h==1){
+               continue;
+            }else if(sistripmatchedhit  && h==0){
+               Cluster = &sistripmatchedhit->monoCluster();
+               DetId = sistripmatchedhit->monoId();
+            }else if(sistripmatchedhit  && h==1){
+               Cluster = &sistripmatchedhit->stereoCluster();;
+               DetId = sistripmatchedhit->stereoId();
+            }else if(sistripsimplehit){
+               Cluster = (sistripsimplehit->cluster()).get();
+               DetId = sistripsimplehit->geographicalId().rawId();
+            }else if(sistripsimple1dhit){
+               Cluster = (sistripsimple1dhit->cluster()).get();
+               DetId = sistripsimple1dhit->geographicalId().rawId();
+            }else{
+               continue;
+            }
+
+            LocalVector             trackDirection = trajState.localDirection();
+            double                  cosine         = trackDirection.z()/trackDirection.mag();
+            const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
+            int                     FirstStrip     = Cluster->firstStrip();
+            int                     APVId          = FirstStrip/128;
+            bool                    Saturation     = false;
+            bool                    Overlapping    = false;
+            unsigned int            charge         = 0;
+            double                  PrevGain       = -1;
+            stAPVGain* APV = APVsColl[(DetId<<3) | (FirstStrip/128)];
+            double                  Path           = (10.0*APV->Thickness)/fabs(cosine);
+
+
+            if(gainHandle.isValid()){ 
+               SiStripApvGain::Range detGainRange = gainHandle->getRange(DetId);
+               PrevGain = *(detGainRange.first + APVId);
+            }
+
+            for(unsigned int a=0;a<Ampls.size();a++){               
+               charge+=Ampls[a];
+               if(Ampls[a] >=254)Saturation =true;
+            }
+            double                   ChargeOverPath = (double)charge / Path ;
+
+            if(FirstStrip==0                                  )Overlapping=true;
+            if(FirstStrip==128                                )Overlapping=true;
+            if(FirstStrip==256                                )Overlapping=true;
+            if(FirstStrip==384                                )Overlapping=true;
+            if(FirstStrip==512                                )Overlapping=true;
+            if(FirstStrip==640                                )Overlapping=true;
+
+            if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlapping=true;
+            if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlapping=true;
+            if(FirstStrip<=383 && FirstStrip+Ampls.size()>383)Overlapping=true;
+            if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlapping=true;
+            if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlapping=true;
+
+            if(FirstStrip+Ampls.size()==127                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==255                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==383                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==511                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==639                   )Overlapping=true;
+            if(FirstStrip+Ampls.size()==767                   )Overlapping=true;
+
+            //cleaning on the cluster
+            if(IsFarFromBorder(&trajState,DetId, &iSetup)  == false           )continue;
+            if(Overlapping                                 == true            )continue;
+            if(Saturation  && !AllowSaturation                                )continue;
+            if(Ampls.size()                              > MaxNrStrips        )continue;
+            NCluster++;
+
+
+            int Charge = 0;
+            if(useCalibration || !FirstSetOfConstants){
+               bool Saturation = false;
+               for(unsigned int s=0;s<Ampls.size();s++){
+                  int StripCharge =  Ampls[s];
+                  if(useCalibration && !FirstSetOfConstants){ StripCharge=(int)(StripCharge*(APV->PreviousGain/APV->CalibGain));
+                  }else if(useCalibration){                   StripCharge=(int)(StripCharge/APV->CalibGain);
+                  }else if(!FirstSetOfConstants){             StripCharge=(int)(StripCharge*APV->PreviousGain);}
+                  if(StripCharge>1024){
+                     StripCharge = 255;
+                     Saturation = true;
+                  }else if(StripCharge>254){
+                     StripCharge = 254;
+                     Saturation = true;
+                  }
+                  Charge += StripCharge;
+               }
+               if(Saturation && !AllowSaturation)continue;
+            }else{
+               Charge = charge;
+            }
+
+            //printf("ChargeDifference = %i Vs %i with Gain = %f\n",(*charge)[i],Charge,APV->CalibGain);
+
+            double ClusterChargeOverPath   =  ( (double) Charge )/Path ;
+            if(Validation)     {ClusterChargeOverPath/=PrevGain;}
+            if(OldGainRemoving){ClusterChargeOverPath*=PrevGain;}
+            Charge_Vs_Index_Absolute->Fill(APV->Index,Charge);   
+            Charge_Vs_Index         ->Fill(APV->Index,ClusterChargeOverPath);
+
+
+                  if(APV->SubDet==StripSubdetector::TIB){ Charge_Vs_PathlengthTIB  ->Fill(Path,Charge);
+            }else if(APV->SubDet==StripSubdetector::TOB){ Charge_Vs_PathlengthTOB  ->Fill(Path,Charge);
+            }else if(APV->SubDet==StripSubdetector::TID){ 
+                     if(APV->Eta<0){                      Charge_Vs_PathlengthTIDM ->Fill(Path,Charge);
+               }else if(APV->Eta>0){                      Charge_Vs_PathlengthTIDP ->Fill(Path,Charge);
+               }
+            }else if(APV->SubDet==StripSubdetector::TEC){
+                     if(APV->Eta<0){
+                        if(APV->Thickness<0.04){          Charge_Vs_PathlengthTECM1->Fill(Path,Charge);
+                  }else if(APV->Thickness>0.04){          Charge_Vs_PathlengthTECM2->Fill(Path,Charge);
+                  }
+               }else if(APV->Eta>0){
+                        if(APV->Thickness<0.04){          Charge_Vs_PathlengthTECP1->Fill(Path,Charge);
+                  }else if(APV->Thickness>0.04){          Charge_Vs_PathlengthTECP2->Fill(Path,Charge);
+                  }
+               }
+            }
+
+          }//loop on  clusters
+       }//loop on measurements
+  }//loop on tracks
+
+}
+
+
+bool SiStripGainFromCalibTree::IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup)
+{ 
+  edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );
+
+  LocalPoint  HitLocalPos   = trajState->localPosition();
+  LocalError  HitLocalError = trajState->localError().positionError() ;
+
+  const GeomDetUnit* it = tkGeom->idToDetUnit(DetId(detid));
+  if (dynamic_cast<const StripGeomDetUnit*>(it)==0 && dynamic_cast<const PixelGeomDetUnit*>(it)==0) {
+     std::cout << "this detID doesn't seem to belong to the Tracker" << std::endl;
+     return false;
+  }
+
+  const BoundPlane plane = it->surface();
+  const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const RectangularPlaneBounds* rectangularBounds( dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
+
+  double DistFromBorder = 1.0;    
+  double HalfLength     = it->surface().bounds().length() /2.0;
+
+  if(trapezoidalBounds)
+  {
+      //std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters();
+     std::vector<float> const & parameters = (*trapezoidalBounds).parameters();
+     HalfLength     = parameters[3];
+  }else if(rectangularBounds){
+     HalfLength     = it->surface().bounds().length() /2.0;
+  }else{return false;}
+
+  if (fabs(HitLocalPos.y())+HitLocalError.yy() >= (HalfLength - DistFromBorder) ) return false;
+
+  return true;
+}
 
 
 
