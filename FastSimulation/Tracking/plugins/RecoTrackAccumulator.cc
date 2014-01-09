@@ -32,7 +32,6 @@ void RecoTrackAccumulator::initializeEvent(edm::Event const& e, edm::EventSetup 
 
   // this is needed to get the ProductId of the TrackExtra collection
   rTrackExtras=const_cast<edm::Event&>( e ).getRefBeforePut<reco::TrackExtraCollection>(GeneralTrackExtraOutput_);
-  //  rTracks=const_cast<edm::Event&>( e ).getRefBeforePut<reco::TrackCollection>(GeneralTrackOutput_);
 
 }
   
@@ -80,7 +79,8 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
       NewTrackList_->push_back(track);
       reco::TrackExtra tkExtra(tracksExtras->at(counter));
       NewTrackExtraList_->push_back(tkExtra);
-      NewTrackList_->back().setExtra( reco::TrackExtraRef(tracksExtras, track.extra().key(), true) );
+      //      NewTrackList_->back().setExtra( reco::TrackExtraRef(tracksExtras, track.extra().key(), true) );
+      NewTrackList_->back().setExtra( reco::TrackExtraRef( rTrackExtras, NewTrackExtraList_->size() - 1) );
       counter++;
     }
   }
