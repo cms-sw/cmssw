@@ -26,6 +26,7 @@
 </library>
 <library name="GeneratorInterfacePythia8Hadronisation" file="Pythia8Hadronisation.cc">
 	<use name="pythia8"/>
+        <use name="GeneratorInterface/Pythia8Interface"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
 <library name="GeneratorInterfaceLHECOMWeightProducer" file="LHECOMWeightProducer.cc">

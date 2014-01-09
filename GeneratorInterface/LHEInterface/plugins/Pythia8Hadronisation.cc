@@ -24,6 +24,11 @@
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/Hadronisation.h"
+#include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 using namespace Pythia8;
 
@@ -35,6 +40,9 @@ class Pythia8Hadronisation : public Hadronisation {
 	~Pythia8Hadronisation();
 
     private:
+
+        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8RndmEngine_.setRandomEngine(v); }
+
 	void doInit() override;
 	std::auto_ptr<HepMC::GenEvent> doHadronisation() override;
 	void newRunInfo(const boost::shared_ptr<LHERunInfo> &runInfo) override;
@@ -48,6 +56,8 @@ class Pythia8Hadronisation : public Hadronisation {
 	std::auto_ptr<Pythia>			pythia;
 	std::auto_ptr<LHAupLesHouches>		lhaUP;
 	std::auto_ptr<HepMC::I_Pythia8>		conv;
+
+        gen::P8RndmEngine p8RndmEngine_;
 };
 
 class Pythia8Hadronisation::LHAupLesHouches : public LHAup {
@@ -160,6 +170,8 @@ Pythia8Hadronisation::~Pythia8Hadronisation()
 void Pythia8Hadronisation::doInit()
 {
 	pythia.reset(new Pythia);
+        pythia->setRndmEnginePtr( &p8RndmEngine_ );
+
 	lhaUP.reset(new LHAupLesHouches(this));
 	conv.reset(new HepMC::I_Pythia8);
 
@@ -169,12 +181,6 @@ void Pythia8Hadronisation::doInit()
 			throw cms::Exception("PythiaError")
 				<< "Pythia did not accept \""
 				<< *iter << "\"." << std::endl;
-
-	edm::Service<edm::RandomNumberGenerator> rng;
-	std::ostringstream ss;
-	ss << "Random:seed = " << rng->mySeed();
-	pythia->readString(ss.str());
-	pythia->readString("Random:setSeed = on");
 }
 
 // naive Pythia8 HepMC status fixup

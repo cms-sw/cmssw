@@ -10,7 +10,7 @@
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 
 namespace CLHEP {
-   class RandGaussQ;
+  class HepRandomEngine;
 }
 
 class GaussEvtVtxGenerator : public BaseEvtVtxGenerator 
@@ -21,7 +21,7 @@ public:
 
   /// return a new event vertex
   //virtual CLHEP::Hep3Vector* newVertex();
-  virtual HepMC::FourVector* newVertex() ;
+  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
 
   virtual TMatrixD* GetInvLorentzBoost() {
 	  return 0;
@@ -50,7 +50,6 @@ private:
 private:
   double fSigmaX, fSigmaY, fSigmaZ;
   double fMeanX,  fMeanY,  fMeanZ;
-  CLHEP::RandGaussQ*  fRandom ;
   double fTimeOffset;
 };
 
