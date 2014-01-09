@@ -1,4 +1,3 @@
-
 /** Derived from DTGeometryAnalyzer by Nicola Amapane
  *
  *  \author M. Maggi - INFN Bari
