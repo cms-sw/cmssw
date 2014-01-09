@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripCalib = cms.EDFilter("SiStripGainFromCalibTree",
+SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
     OutputGains         = cms.string('Gains_ASCII.txt'),
 
     minTrackMomentum    = cms.untracked.double(2),
