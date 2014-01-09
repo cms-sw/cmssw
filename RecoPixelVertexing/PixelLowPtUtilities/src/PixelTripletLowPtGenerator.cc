@@ -19,11 +19,9 @@ using namespace ctfseeding;
 
 /*****************************************************************************/
 void PixelTripletLowPtGenerator::init(const HitPairGenerator & pairs,
-      const vector<SeedingLayer> & layers,
       LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
-  theLayers        = layers;
   theLayerCache    = layerCache;
 
   checkMultipleScattering = ps.getParameter<bool>("checkMultipleScattering");
@@ -32,6 +30,13 @@ void PixelTripletLowPtGenerator::init(const HitPairGenerator & pairs,
   rzTolerance             = ps.getParameter<double>("rzTolerance");
   maxAngleRatio           = ps.getParameter<double>("maxAngleRatio");
   builderName             = ps.getParameter<string>("TTRHBuilder");
+}
+
+/*****************************************************************************/
+void PixelTripletLowPtGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                                                  std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) {
+  thePairGenerator->setSeedingLayers(pairLayers);
+  theLayers = thirdLayers;
 }
 
 /*****************************************************************************/
@@ -87,7 +92,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
   // Set aliases
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size]; 
   for(int il=0; il<size; il++)
-    thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
+    thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, ev, es);
 
   // Get tracker
   getTracker(es);
@@ -120,8 +125,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
     // Look at all layers
     for(int il=0; il<size; il++)
     {
-      const SeedingLayer & layerwithhits = theLayers[il];
-      const DetLayer * layer = layerwithhits.detLayer();
+      const DetLayer * layer = theLayers[il].detLayer();
 
 #ifdef Debug
       cerr << "  check layer " << layer->subDetector()

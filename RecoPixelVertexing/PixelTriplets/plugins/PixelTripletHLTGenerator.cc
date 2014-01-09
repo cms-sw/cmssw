@@ -54,12 +54,16 @@ PixelTripletHLTGenerator::~PixelTripletHLTGenerator() {
 }
 
 void PixelTripletHLTGenerator::init( const HitPairGenerator & pairs,
-				     const std::vector<SeedingLayer> & layers,
 				     LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
-  theLayers = layers;
   theLayerCache = layerCache;
+}
+
+void PixelTripletHLTGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                                                std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) {
+  thePairGenerator->setSeedingLayers(pairLayers);
+  theLayers = thirdLayers;
 }
 
 void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region, 
@@ -98,7 +102,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   
   // fill the prediction vector
   for (int il=0; il!=size; ++il) {
-    thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
+    thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, ev, es);
     auto const & hits = *thirdHitMap[il];
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
     pred.initLayer(theLayers[il].detLayer());
