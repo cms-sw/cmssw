@@ -1,102 +1,8 @@
-///
-/// \class l1t::L1TCaloUpgrateToGCTConverter
-///
-/// Description: Emulator for the stage 1 jet algorithms.
-///
-///
-/// \author: R. Alex Barbieri MIT
-///
-
-
-// system include files
+#include "L1Trigger/L1TCalorimeter/plugins/L1TCaloUpgrateToGCTConverter.h"
 #include <boost/shared_ptr.hpp>
 
-// user include files
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//#include <vector>
-#include "DataFormats/L1Trigger/interface/BXVector.h"
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
-
-#include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
-#include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
-
-#include "DataFormats/L1Trigger/interface/EGamma.h"
-#include "DataFormats/L1Trigger/interface/Tau.h"
-#include "DataFormats/L1Trigger/interface/Jet.h"
-#include "DataFormats/L1Trigger/interface/EtSum.h"
-
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-
-#include <vector>
-
-typedef BXVector<l1t::EGamma> L1TEGammaCollection;
-typedef BXVector<l1t::Tau> L1TTauCollection;
-typedef BXVector<l1t::Jet> L1TJetCollection;
-typedef BXVector<l1t::EtSum> L1TEtSumCollection;
-
-using namespace std;
-using namespace edm;
-
-namespace l1t {
-
-//
-// class declaration
-//
-
-  class L1TCaloUpgrateToGCTConverter : public EDProducer {
-  public:
-    explicit L1TCaloUpgrateToGCTConverter(const ParameterSet&);
-    ~L1TCaloUpgrateToGCTConverter();
-
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
-
-  private:
-    virtual void produce(Event&, EventSetup const&);
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void beginRun(Run const&iR, EventSetup const&iE);
-    virtual void endRun(Run const& iR, EventSetup const& iE);
-
-      L1GctEmCandCollection ConvertToIsoEmCand(const L1TEGammaCollection::const_iterator);
-    L1GctEmCandCollection ConvertToNonIsoEmCand(const L1TEGammaCollection&);
-    L1GctJetCandCollection ConvertToCenJetCand(const L1TJetCollection&);
-    L1GctJetCandCollection ConvertToForJetCand(const L1TJetCollection&);
-    L1GctJetCandCollection ConvertToTauJetCand(const L1TTauCollection&);
-      
-    L1GctEtTotalCollection ConvertToEtTotal(const L1TEtSumCollection&);
-    L1GctEtHadCollection ConvertToEtHad(const L1TEtSumCollection&);
-    L1GctEtMissCollection ConvertToEtMiss(const L1TEtSumCollection&);
-    L1GctHtMissCollection ConvertToHtMiss(const L1TEtSumCollection&);
-    L1GctHFBitCountsCollection ConvertToHFBitCounts(const L1TEtSumCollection&);
-    L1GctHFRingEtSumsCollection ConvertToHFRingEtSums(const L1TEtSumCollection&);
-      
-    L1GctInternJetDataCollection ConvertToIntJet(const L1TJetCollection&);
-    L1GctInternEtSumCollection ConvertToIntEtSum(const L1TEtSumCollection&);
-    L1GctInternHtMissCollection ConvertToIntHtMiss(const L1TEtSumCollection&);
-      
-    EDGetToken EGammaToken_;
-    EDGetToken TauToken_;
-    EDGetToken JetToken_;
-    EDGetToken EtSumToken_;
-      
-     
-};
-
-  //
-  // constructors and destructor
-  //
-  L1TCaloUpgrateToGCTConverter::L1TCaloUpgrateToGCTConverter(const ParameterSet& iConfig)
+l1t::L1TCaloUpgrateToGCTConverter::L1TCaloUpgrateToGCTConverter(const ParameterSet& iConfig)
   {
    
    
@@ -116,36 +22,33 @@ namespace l1t {
     produces<L1GctHFBitCountsCollection>();
     produces<L1GctHFRingEtSumsCollection>();
       
-      // register what you consume and keep token for later access:
-      EGammaToken_ = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
-      TauToken_ = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
-      JetToken_ = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
-      EtSumToken_ = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
+    // register what you consume and keep token for later access:
+    EGammaToken_ = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
+    TauToken_ = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
+    JetToken_ = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
+    EtSumToken_ = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
 
    
   }
 
 
-  L1TCaloUpgrateToGCTConverter::~L1TCaloUpgrateToGCTConverter()
-  {
-  }
+l1t::L1TCaloUpgrateToGCTConverter::~L1TCaloUpgrateToGCTConverter()
+{
+}
 
 
 
-//
-// member functions
-//
 
 // ------------ method called to produce the data ------------
 void
-L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
+l1t::L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
 {
 
   LogDebug("l1t|stage 1 Converter") << "L1TCaloUpgrateToGCTConverter::produce function called...\n";
 
   //inputs
-    Handle<L1TEGammaCollection> EGamma;
-    e.getByToken(EGammaToken_,EGamma);
+  Handle<L1TEGammaCollection> EGamma;
+  e.getByToken(EGammaToken_,EGamma);
 
   Handle<L1TTauCollection> Tau;
   e.getByToken(TauToken_,Tau);
@@ -180,7 +83,84 @@ L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
     std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ( ));
     
     
-   // *isoEmResult = this->ConvertToIsoEmCand(EGamma);
+    
+    
+    //Finding the BX range for each input collection
+    int firstBxEGamma = EGamma->getFirstBX();
+    int lastBxEGamma = EGamma->getLastBX();
+    int firstBxTau = Tau->getFirstBX();
+    int lastBxTau = Tau->getLastBX();
+    int firstBxJet = Jet->getFirstBX();
+    int lastBxJet = Jet->getLastBX();
+    int firstBxEtSum = EtSum->getFirstBX();
+    int lastBxEtSum = EtSum->getLastBX();
+    
+    
+    //Looping over EGamma BXVector
+    for(int itBX=firstBxEGamma; itBX!=lastBxEGamma; ++itBX){
+        
+        //looping over EGamma elments with a specific BX
+        L1TEGammaCollection::const_iterator itEGamma = EGamma->begin(itBX);
+        for(; itEGamma != EGamma->end(itBX); ++itEGamma){
+            l1t::EGamma tmpEGamma = *itEGamma;
+            bool iso = tmpEGamma.hwIso();
+            
+            L1GctEmCand EmCand(itEGamma->hwPt(), itEGamma->hwPhi(), itEGamma->hwEta(), iso, 0, 0, itBX);             //L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso, uint16_t block, uint16_t index, int16_t bx);
+
+            if(iso) isoEmResult->push_back(EmCand);
+            else nonIsoEmResult->push_back(EmCand);
+        }
+
+    }
+    
+     //Looping over Tau BXVector
+    for(int itBX=firstBxTau; itBX!=lastBxTau; ++itBX){
+        
+        
+        //looping over Jet elments with a specific BX
+        L1TTauCollection::const_iterator itTau = Tau->begin(itBX);
+        for(; itTau != Tau->end(itBX); ++itTau){
+            
+            bool forward=0;
+            
+            L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(), true, forward,0, 0, itBX);     //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
+             tauJetResult->push_back(TauCand);
+            
+        }
+        
+        
+    }
+
+    
+     //Looping over Jet BXVector
+    for(int itBX=firstBxJet; itBX!=lastBxJet; ++itBX){
+       
+        
+        //looping over Jet elments with a specific BX
+        L1TJetCollection::const_iterator itJet = Jet->begin(itBX);
+        for(; itJet != Jet->end(itBX); ++itJet){
+            
+            bool forward=0;
+            
+            L1GctJetCand JetCand(itJet->hwPt(), itJet->hwPhi(), itJet->hwEta(), false, forward,0, 0, itBX);     //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
+            if(forward) forJetResult->push_back(JetCand);
+            else cenJetResult->push_back(JetCand);
+        }
+    }
+
+    
+    
+     //Looping over EtSum BXVector
+    for(int itBX=firstBxEtSum; itBX!=lastBxEtSum; ++itBX){
+        L1TEtSumCollection::const_iterator itEtSum = EtSum->begin(itBX);
+    }
+
+    
+    
+    
+    
+    //*isoEmResult =
+    //this->ConvertToNonIsoEmCand(EGamma);
   //  DataFormatter.ConvertToNonIsoEmCand(*EGamma, nonIsoEmResult);
   //  DataFormatter.ConvertToCenJetCand(*Jet, cenJetResult);
   //  DataFormatter.ConvertToForJetCand(*Jet, forJetResult);
@@ -201,11 +181,11 @@ L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
  
 
     
-    e.put(isoEmResult,"isoEm");
-    e.put(nonIsoEmResult,"nonIsoEm");
-    e.put(cenJetResult,"cenJets");
-    e.put(forJetResult,"forJets");
-    e.put(tauJetResult,"tauJets");
+    e.put(isoEmResult);
+    e.put(nonIsoEmResult);
+    e.put(cenJetResult);
+    e.put(forJetResult);
+    e.put(tauJetResult);
     e.put(etTotResult);
     e.put(etHadResult);
     e.put(etMissResult);
@@ -221,30 +201,32 @@ L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
 
 // ------------ method called once each job just before starting event loop ------------
 void
-L1TCaloUpgrateToGCTConverter::beginJob()
+l1t::L1TCaloUpgrateToGCTConverter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop ------------
 void
-L1TCaloUpgrateToGCTConverter::endJob() {
+l1t::L1TCaloUpgrateToGCTConverter::endJob() {
 }
 
 // ------------ method called when starting to processes a run ------------
 
-void L1TCaloUpgrateToGCTConverter::beginRun(Run const&iR, EventSetup const&iE){
+void
+l1t::L1TCaloUpgrateToGCTConverter::beginRun(Run const&iR, EventSetup const&iE){
 
 }
 
 // ------------ method called when ending the processing of a run ------------
-void L1TCaloUpgrateToGCTConverter::endRun(Run const& iR, EventSetup const& iE){
+void
+l1t::L1TCaloUpgrateToGCTConverter::endRun(Run const& iR, EventSetup const& iE){
 
 }
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void
-L1TCaloUpgrateToGCTConverter::fillDescriptions(ConfigurationDescriptions& descriptions) {
+l1t::L1TCaloUpgrateToGCTConverter::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
@@ -252,7 +234,7 @@ L1TCaloUpgrateToGCTConverter::fillDescriptions(ConfigurationDescriptions& descri
   descriptions.addDefault(desc);
 }
 
-} // namespace
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(l1t::L1TCaloUpgrateToGCTConverter);
