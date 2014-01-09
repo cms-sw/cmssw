@@ -90,7 +90,7 @@ void BXVector<T>::push_back( int bx, T object )
 
 // random access
 template < class T >
-T& BXVector<T>::at( int bx, int i ) const
+const T& BXVector<T>::at( int bx, int i ) const
 {
   return data_.at(bx).at(i);
 }

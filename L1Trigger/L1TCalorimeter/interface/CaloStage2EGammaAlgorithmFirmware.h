@@ -19,10 +19,10 @@
 namespace l1t {
 
   // Imp1 is for v1 and v2
-  class CaloStage2EGammaAlgorithmFirmware1 : public CaloStage2EGammaAlgorithm {
+  class CaloStage2EGammaAlgorithmFirmwareImp1 : public CaloStage2EGammaAlgorithm {
   public:
-    CaloStage2EGammaAlgorithmFirmware1(); //const CaloMainProcessorParams & dbPars);
-    virtual ~CaloStage2EGammaAlgorithmFirmware1();
+    CaloStage2EGammaAlgorithmFirmwareImp1(); //const CaloMainProcessorParams & dbPars);
+    virtual ~CaloStage2EGammaAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<CaloCluster> & clusters,
 			      std::vector<EGamma> & egammas);
     

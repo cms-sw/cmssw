@@ -20,13 +20,16 @@ using namespace std;
 
 l1t::CaloStage2MainProcessorFirmwareImp1::CaloStage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv ) :
   m_fwv(fwv)
-//   m_clusterAlgo( new CaloStage2ClusterAlgorithmFirmware1 ),
-//   m_egAlgo( new CaloStage2EGammaAlgorithmFirmware1 ),
-//   m_tauAlgo( new CaloStage2TauAlgorithmFirmware1 ),
-//   m_jetAlgo( new CaloStage2JetAlgorithmFirmware1 ),
-//   m_sumAlgo( new CaloStage2EtSumAlgorithmFirmware1 ),
-//   m_jetSumAlgo( new CaloStage2JetSumAlgorithmFirmware1 )
 {
+
+  m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1;
+  m_egAlgo = new CaloStage2EGammaAlgorithmFirmwareImp1;
+  m_tauClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1;
+  m_tauAlgo = new CaloStage2TauAlgorithmFirmwareImp1;
+  m_jetAlgo = new CaloStage2JetAlgorithmFirmwareImp1;
+  m_sumAlgo = new CaloStage2EtSumAlgorithmFirmwareImp1;
+  m_jetSumAlgo = new CaloStage2JetSumAlgorithmFirmwareImp1;
+  
 }
 
 l1t::CaloStage2MainProcessorFirmwareImp1::~CaloStage2MainProcessorFirmwareImp1()
@@ -41,13 +44,15 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
 						       std::vector<l1t::Jet> & jets,
 						       std::vector<l1t::EtSum> & etsums) {
 
-  std::vector<l1t::CaloCluster> clusters;
+  std::vector<l1t::CaloCluster> egClusters;
+  std::vector<l1t::CaloCluster> tauClusters;
   std::vector<l1t::EtSum> towersums;
   std::vector<l1t::EtSum> jetsums;
   
-  m_clusterAlgo->processEvent( towers, clusters );
-  m_egAlgo->processEvent( clusters, egammas );
-  m_tauAlgo->processEvent( clusters, taus );
+  m_egClusterAlgo->processEvent( towers, egClusters );
+  m_egAlgo->processEvent( egClusters, egammas );
+  m_egClusterAlgo->processEvent( towers, tauClusters );
+  m_tauAlgo->processEvent( tauClusters, taus );
   m_jetAlgo->processEvent( towers, jets );
   m_sumAlgo->processEvent( towers, towersums );
   m_jetSumAlgo->processEvent( jets, jetsums );  
