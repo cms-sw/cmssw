@@ -941,6 +941,16 @@ namespace edm {
   {
   }
 
+  IndexIntoFile::RunOrLumiIndexes::RunOrLumiIndexes() :
+    processHistoryIDIndex_(invalidIndex),
+    run_(invalidRun),
+    lumi_(invalidLumi),
+    indexToGetEntry_(invalidIndex),
+    beginEventNumbers_(-1),
+    endEventNumbers_(-1)
+  {
+  }
+
   IndexIntoFile::SortedRunOrLumiItr::SortedRunOrLumiItr(IndexIntoFile const* indexIntoFile, unsigned runOrLumi) :
     indexIntoFile_(indexIntoFile), runOrLumi_(runOrLumi) {
     assert(runOrLumi_ <= indexIntoFile_->runOrLumiEntries().size());

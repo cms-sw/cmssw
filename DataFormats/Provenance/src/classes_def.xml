@@ -1,4 +1,5 @@
 <lcgdict>
+ <enum name="edm::BranchType"/>
  <class name="edm::WrapperInterfaceBase"/>
  <class name="edm::ProductID" ClassVersion="11">
   <version ClassVersion="11" checksum="3913437934"/>
