@@ -3,6 +3,7 @@
 //
 #include <cstdlib>
 #include <fstream>
+#include <atomic>
 
 ora::TransactionMonitoringData::TransactionMonitoringData( boost::posix_time::ptime start ):
   m_start(start),
@@ -73,7 +74,7 @@ void ora::SessionMonitoringData::report( std::ostream& out ) const {
   }  
 }
 
-bool ora::Monitoring::s_enabled = false;
+std::atomic<bool> ora::Monitoring::s_enabled{false};
 
 ora::Monitoring& ora::Monitoring::get(){
   static ora::Monitoring s_mon;
@@ -83,13 +84,15 @@ ora::Monitoring& ora::Monitoring::get(){
 bool ora::Monitoring::isEnabled(){
   if(! s_enabled ){
     const char* envVar = ::getenv( "ORA_MONITORING_LEVEL" );
-    if( envVar && ::strcmp(envVar,"SESSION")==0 ) s_enabled = true;
+    bool expected = false;
+    if( envVar && ::strcmp(envVar,"SESSION")==0 ) s_enabled.compare_exchange_strong(expected,true,std::memory_order_acq_rel);
   }
   return s_enabled;
 }
 
 void ora::Monitoring::enable(){
-  s_enabled = true;
+  bool expected = false;
+  s_enabled.compare_exchange_strong(expected,true,std::memory_order_acq_rel);
 }
 
 const std::string& ora::Monitoring::outFileName(){
