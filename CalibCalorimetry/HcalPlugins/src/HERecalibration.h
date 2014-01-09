@@ -13,8 +13,6 @@
 #include <iostream>
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 
-#define nDepths_HERecalibration 7    // max number of HE relaibration depths
-
 class HERecalibration {
 
 public:
@@ -25,15 +23,17 @@ public:
   void  setDsegm(const std::vector<std::vector<int> >& m_segmentation);
 
 private:
-
+  // max number of HE relaibration depths
+  static const unsigned int nDepths = 7; 
+  
   void initialize();
   double iLumi;
   double cutoff_;
   HEDarkening darkening;
 
  // Tabulated mean energy values per layer and per depth
-  double dsegm[nEtaBins_HEDarkening][nScintLayers_HEDarkening];
-  double corr[nEtaBins_HEDarkening][nDepths_HERecalibration];
+  double dsegm[HEDarkening::nEtaBins][HEDarkening::nScintLayers];
+  double  corr[HEDarkening::nEtaBins][nDepths];
 
 };
 

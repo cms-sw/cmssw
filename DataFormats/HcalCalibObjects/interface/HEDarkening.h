@@ -9,11 +9,6 @@
 // Radius is radius from the beam line (cm) 
 //
 
-//  both two contsants are used in CalibCalorimetry/HcalPlugins HERecalibration
-#define nEtaBins_HEDarkening     14 // number of HE ieta bins for darkening 
-#define nScintLayers_HEDarkening 19 // max. number of HE scint. layers
-
-
 class HEDarkening {
 
 public:
@@ -22,9 +17,15 @@ public:
 
   float degradation(float intlumi, int ieta, int lay);
 
+  // 2 contsants below are used in CalibCalorimetry/HcalPlugins HERecalibration
+  // (1) number of HE ieta bins for darkening   
+  static const unsigned int nEtaBins = 14; 
+  // (2) max. number of HE scint. layers
+  static const unsigned int nScintLayers = 19;
+
 private:
   int ieta_shift;
-  float lumiscale[nEtaBins_HEDarkening][nScintLayers_HEDarkening];
+  float lumiscale[nEtaBins][nScintLayers];
 
 };
 
