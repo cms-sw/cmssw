@@ -4,7 +4,7 @@ Z0testValidation = cms.EDAnalyzer("HiggsValidation",
     hepmcCollection    = cms.InputTag("generator",""),
     pdg_id             = cms.int32(25),
     particleName       = cms.string("Higgs"),
-    monitorDecays      = cms.vstring("tau+tau","mu+mu","e+e","b+b","gamma+gamma","W+W","Z+Z"),
+    monitorDecays      = cms.vstring("tau+tau","mu+mu","e+e","b+b","gamma+gamma","W+W","Z+Z","Z+gamma"),
     UseWeightFromHepMC = cms.bool(True)
 )
 
