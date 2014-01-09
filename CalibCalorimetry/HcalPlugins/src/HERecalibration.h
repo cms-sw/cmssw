@@ -13,7 +13,7 @@
 #include <iostream>
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 
-#define nDepths  7    // with some safety margin (wrt 5)
+#define nDepths_HERecalibration 7    // max number of HE relaibration depths
 
 class HERecalibration {
 
@@ -32,8 +32,8 @@ private:
   HEDarkening darkening;
 
  // Tabulated mean energy values per layer and per depth
-  double dsegm[nEtaBins][nScintLayers];
-  double corr[nEtaBins][nDepths];
+  double dsegm[nEtaBins_HEDarkening][nScintLayers_HEDarkening];
+  double corr[nEtaBins_HEDarkening][nDepths_HERecalibration];
 
 };
 

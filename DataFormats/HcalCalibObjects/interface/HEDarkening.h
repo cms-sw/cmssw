@@ -9,8 +9,10 @@
 // Radius is radius from the beam line (cm) 
 //
 
-#define nEtaBins      14
-#define nScintLayers  19
+//  both two contsants are used in CalibCalorimetry/HcalPlugins HERecalibration
+#define nEtaBins_HEDarkening     14 // number of HE ieta bins for darkening 
+#define nScintLayers_HEDarkening 19 // max. number of HE scint. layers
+
 
 class HEDarkening {
 
@@ -22,7 +24,7 @@ public:
 
 private:
   int ieta_shift;
-  float lumiscale[nEtaBins][nScintLayers];
+  float lumiscale[nEtaBins_HEDarkening][nScintLayers_HEDarkening];
 
 };
 
