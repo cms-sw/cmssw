@@ -13,9 +13,7 @@
 #include <iostream>
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 
-#define maxEta    14   // ieta rings for HE 
-#define maxLay    19   // max.number of layers 
-#define maxDepth  7    // with some safety margin (wrt 5)
+#define nDepths  7    // with some safety margin (wrt 5)
 
 class HERecalibration {
 
@@ -34,8 +32,8 @@ private:
   HEDarkening darkening;
 
  // Tabulated mean energy values per layer and per depth
-  double dsegm[maxEta][maxLay];
-  double corr[maxEta][maxDepth];
+  double dsegm[nEtaBins][nScintLayers];
+  double corr[nEtaBins][nDepths];
 
 };
 

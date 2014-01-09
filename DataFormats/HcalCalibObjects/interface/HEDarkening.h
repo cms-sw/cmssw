@@ -9,8 +9,8 @@
 // Radius is radius from the beam line (cm) 
 //
 
-#define maxEta 14
-#define maxLay 19
+#define nEtaBins      14
+#define nScintLayers  19
 
 class HEDarkening {
 
@@ -22,7 +22,7 @@ public:
 
 private:
   int ieta_shift;
-  float lumiscale[maxEta][maxLay];
+  float lumiscale[nEtaBins][nScintLayers];
 
 };
 
