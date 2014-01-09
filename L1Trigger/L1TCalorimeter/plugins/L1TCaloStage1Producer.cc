@@ -120,6 +120,8 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
   LogDebug("l1t|stage 1 jets") << "L1TCaloStage1Producer::produce function called...\n";
 
+  return;
+
   //inputs
   Handle<BXVector<l1t::CaloRegion>> caloRegions;
   iEvent.getByToken(regionToken,caloRegions);
@@ -208,20 +210,20 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
 
     //m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
     //m_fwv = boost::shared_ptr<const FirmwareVersion>();
-    m_fwv = boost::shared_ptr<FirmwareVersion>(); //not const during testing
-    m_fwv->setFirmwareVersion(1); //hardcode for now, 1=HI, 2=PP
+    //m_fwv = boost::shared_ptr<FirmwareVersion>(); //not const during testing
+    //m_fwv->setFirmwareVersion(1); //hardcode for now, 1=HI, 2=PP
 
     // if (! m_dbpars){
     //   LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: could not retreive DB params from Event Setup\n";
     // }
 
     // Set the current algorithm version based on DB pars from database:
-    m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
+    //m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
 
-    if (! m_fw) {
+    //if (! m_fw) {
       // we complain here once per run
-      LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
-    }
+      //LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: firmware could not be configured.\n";
+    //}
   }
 
 
