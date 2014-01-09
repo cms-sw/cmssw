@@ -3,6 +3,7 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
 #include <vector>
 #include <cassert>
+#include <atomic>
 
 struct CSCCLCTDataWord {
   CSCCLCTDataWord(unsigned cfeb, unsigned tbin, unsigned data)
@@ -26,7 +27,7 @@ public:
   CSCCLCTData(int ncfebs, int ntbins, const unsigned short *e0bbuf);
 
   /** turns on/off debug flag for this class */
-  static void setDebug(const bool value) {debug = value;};
+  static void setDebug(const bool value) {bool expected=false; debug.compare_exchange_strong(expected,value,std::memory_order_acq_rel);};
 
   /// layers count from one
   std::vector<CSCComparatorDigi> comparatorDigis(int layer);
@@ -76,7 +77,7 @@ public:
   // helper for constructors
   void zero();
 
-  static bool debug;
+  static std::atomic<bool> debug;
   int ncfebs_;
   int ntbins_;
   int size_;

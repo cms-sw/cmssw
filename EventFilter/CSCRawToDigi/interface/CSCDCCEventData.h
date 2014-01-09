@@ -19,7 +19,7 @@ public:
 
   ~CSCDCCEventData();
 
-  static void setDebug(bool value) {debug = value;} 
+  static void setDebug(bool value) {bool expected=false; debug.compare_exchange_strong(expected,value,std::memory_order_acq_rel);} 
  
   /// accessor to dduData
   const std::vector<CSCDDUEventData> & dduData() const {return theDDUData;}
@@ -43,7 +43,7 @@ public:
   ///packs data into bits
   boost::dynamic_bitset<> pack();  
 
-  static bool debug;
+  static std::atomic<bool> debug;
 
 
 protected:

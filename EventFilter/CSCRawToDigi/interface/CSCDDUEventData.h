@@ -27,7 +27,7 @@ public:
 
   ~CSCDDUEventData();
 
-  static void setDebug(bool value) {debug = value;} 
+  static void setDebug(bool value) {bool expected=false; debug.compare_exchange_strong(expected,value,std::memory_order_acq_rel);} 
   static void setErrorMask(unsigned int value) {errMask = value;} 
 
   /// accessor to data
@@ -60,7 +60,7 @@ public:
   boost::dynamic_bitset<> pack();
 
   
-  static bool debug;
+  static std::atomic<bool> debug;
   static unsigned int errMask;
 
   /// a good test routine would be to unpack data, then pack it again.
