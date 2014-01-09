@@ -10,23 +10,23 @@
 //
 //
 
-#ifndef CaloJetAlgorithmFirmware_H
-#define CaloJetAlgorithmFirmware_H
+#ifndef CaloStage2JetSumAlgorithmFirmware_H
+#define CaloStage2JetSumAlgorithmFirmware_H
 
-#include "L1Trigger/L1TCalorimeter/interface/CaloJetAlgorithm.h"
-#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetSumAlgorithm.h"
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 namespace l1t {
 
   // Imp1 is for v1 and v2
-  class CaloJetAlgorithmFirmware1 : public CaloJetAlgorithm {
+  class CaloStage2JetSumAlgorithmFirmwareImp1 : public CaloStage2JetSumAlgorithm {
   public:
-    CaloJetAlgorithm1(const CaloMainProcessorParams & dbPars);
-    virtual ~CaloJetAlgorithmFirmware1();
-    virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
-			      std::vector<l1t::CaloCluster> & clusters);
+    CaloStage2JetSumAlgorithmFirmwareImp1();
+    virtual ~CaloStage2JetSumAlgorithmFirmwareImp1();
+    virtual void processEvent(const std::vector<l1t::Jet> & jets,
+			      std::vector<l1t::EtSum> & clusters);
   private:
-    CaloParams const & m_params;
+    //    CaloParams const & m_params;
   };
   
 }

@@ -56,7 +56,7 @@ class BXVector  {
   void push_back( int bx, T object );
 
   // random access
-  T& at( int bx, int i ) const;
+  const T& at( int bx, int i ) const;
 
   // iterator access by BX
   const_iterator begin( int bx ) const;

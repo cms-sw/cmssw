@@ -20,20 +20,18 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
-#include "DataFormats/L1Trigger/interface/BXVector.h"
-
 
 namespace l1t {
     
   class CaloStage2MainProcessor { 
   public:
-    virtual void processEvent(const BXVector<l1t::CaloTower> &,
- 							  BXVector<l1t::EGamma> & egammas,
-							  BXVector<l1t::Tau> & taus,
-							  BXVector<l1t::Jet> & jets,
-							  BXVector<l1t::EtSum> & etsums) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloTower> &,
+			      std::vector<l1t::EGamma> & egammas,
+			      std::vector<l1t::Tau> & taus,
+			      std::vector<l1t::Jet> & jets,
+			      std::vector<l1t::EtSum> & etsums) = 0;    
 
-    virtual ~CaloMainProcessor(){};
+    virtual ~CaloStage2MainProcessor(){};
   }; 
   
 } 
