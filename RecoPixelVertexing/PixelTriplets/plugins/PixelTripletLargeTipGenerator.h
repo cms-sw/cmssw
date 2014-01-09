@@ -10,7 +10,6 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "CombinedHitTripletGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
@@ -28,14 +27,15 @@ public:
 
   virtual ~PixelTripletLargeTipGenerator() { delete thePairGenerator; }
 
-  virtual void init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
+  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
+
+  void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
 
   virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs, 
       const edm::Event & ev, const edm::EventSetup& es);
 
   const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
-  const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
 
 private:
 
@@ -46,7 +46,7 @@ private:
 
 private:
   HitPairGenerator * thePairGenerator;
-  std::vector<ctfseeding::SeedingLayer> theLayers;
+  std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
   LayerCacheType * theLayerCache;
 
   bool useFixedPreFiltering;
