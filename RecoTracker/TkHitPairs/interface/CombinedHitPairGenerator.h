@@ -32,6 +32,8 @@ public:
   void  add(const ctfseeding::SeedingLayer & inner, 
 	      const ctfseeding::SeedingLayer & outer);
 
+  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) override;
+
   /// form base class
   virtual void hitPairs( const TrackingRegion& reg, 
       OrderedHitPairs & result, const edm::Event& ev, const edm::EventSetup& es);

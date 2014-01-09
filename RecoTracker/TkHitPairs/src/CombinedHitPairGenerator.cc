@@ -56,6 +56,10 @@ void CombinedHitPairGenerator::add( const SeedingLayer& inner, const SeedingLaye
   theGenerators.push_back( new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache, 0, theMaxElement));
 }
 
+void CombinedHitPairGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) {
+  assert(0 == "not implemented");
+}
+
 void CombinedHitPairGenerator::hitPairs(
    const TrackingRegion& region, OrderedHitPairs  & result,
    const edm::Event& ev, const edm::EventSetup& es)
