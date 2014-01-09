@@ -137,15 +137,12 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         #DebugOn = cms.untracked.bool(True),
         Filter = cms.untracked.bool(True)
         )
-
-
 )
 
 pfMetAnalyzer = tcMetAnalyzer.clone(
     METType=cms.untracked.string('pf'),
     METCollectionLabel     = cms.InputTag("pfMet"),
     JetCollectionLabel  = cms.InputTag("ak5PFJets"),
-
 )
 
 metAnalyzer = tcMetAnalyzer.clone(

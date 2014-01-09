@@ -223,8 +223,6 @@ JetAnalyzer::~JetAnalyzer() {
   delete DCSFilterForJetMonitoring_;
 }
 
-
-
 // ***********************************************************
 void JetAnalyzer::beginJob(void) {
   

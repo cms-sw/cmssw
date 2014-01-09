@@ -122,7 +122,6 @@ class METAnalyzer : public edm::EDAnalyzer{
 
   std::string MetType_;
   std::string mOutputFile_;
-
   std::string FolderName_;
 
   edm::InputTag metCollectionLabel_;
