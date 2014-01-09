@@ -1,60 +1,23 @@
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-
-using namespace std;
-using namespace ctfseeding;
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg)
-  : initialised(false), theConfig(cfg)
+  : theSeedingLayerSrc(cfg.getParameter<edm::InputTag>("SeedingLayers"))
 {
   theMaxElement = cfg.getParameter<unsigned int>("maxElement");
+  theGenerator.reset(new HitPairGeneratorFromLayerPair(0, 1, &theLayerCache, 0, theMaxElement));
 }
 
-void CombinedHitPairGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
+CombinedHitPairGenerator::CombinedHitPairGenerator(const CombinedHitPairGenerator& cb):
+  theSeedingLayerSrc(cb.theSeedingLayerSrc),
+  theGenerator(new HitPairGeneratorFromLayerPair(0, 1, &theLayerCache, 0, cb.theMaxElement))
 {
-  theMaxElement = cfg.getParameter<unsigned int>("maxElement");
-
-  std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
-  edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
-  es.get<TrackerDigiGeometryRecord>().get(layerBuilderName, layerBuilder);
-
-  SeedingLayerSets layerSets  =  layerBuilder->layers(es); 
-  init(layerSets);
+  theMaxElement = cb.theMaxElement;
 }
 
-void CombinedHitPairGenerator::init(const SeedingLayerSets & layerSets)
-{
-  initialised = true;
-  typedef SeedingLayerSets::const_iterator IL;
-  for (IL il=layerSets.begin(), ilEnd=layerSets.end(); il != ilEnd; ++il) {
-    const SeedingLayers & set = *il;
-    if (set.size() != 2) continue;
-    add( set[0], set[1] );
-  }
-}
-
-void CombinedHitPairGenerator::cleanup()
-{
-  Container::const_iterator it;
-  for (it = theGenerators.begin(); it!= theGenerators.end(); it++) {
-    delete (*it);
-  }
-  theGenerators.clear();
-}
-
-CombinedHitPairGenerator::~CombinedHitPairGenerator() { cleanup(); }
-
-void CombinedHitPairGenerator::add( const SeedingLayer& inner, const SeedingLayer& outer)
-{ 
-  theGenerators.push_back( new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache, 0, theMaxElement));
-}
+CombinedHitPairGenerator::~CombinedHitPairGenerator() {}
 
 void CombinedHitPairGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) {
   assert(0 == "not implemented");
@@ -64,15 +27,17 @@ void CombinedHitPairGenerator::hitPairs(
    const TrackingRegion& region, OrderedHitPairs  & result,
    const edm::Event& ev, const edm::EventSetup& es)
 {
-  if (theESWatcher.check(es) || !initialised ) {
-    cleanup();
-    init(theConfig,es);
+  edm::Handle<SeedingLayerSetsHits> hlayers;
+  ev.getByLabel(theSeedingLayerSrc, hlayers);
+  const SeedingLayerSetsHits& layers = *hlayers;
+  if(layers.numberOfLayersInSet() != 2)
+    throw cms::Exception("Configuration") << "CombinedHitPairGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 2, got " << layers.numberOfLayersInSet();
+
+  for(SeedingLayerSetsHits::SeedingLayerSet layerSet: layers) {
+    theGenerator->setSeedingLayers(layerSet);
+    theGenerator->hitPairs( region, result, ev, es);
   }
 
-  Container::const_iterator i;
-  for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
-    (**i).hitPairs( region, result, ev, es); 
-  }
   theLayerCache.clear();
 
   LogDebug("CombinedHitPairGenerator")<<" total number of pairs provided back CHPG : "<<result.size();
