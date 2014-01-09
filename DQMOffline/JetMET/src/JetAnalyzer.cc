@@ -104,8 +104,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   JetCorrectionService = pSet.getParameter<std::string> ("JetCorrections");
   
   isCaloJet = (std::string("calo")==JetType);
-  isJPTJet = (std::string("jpt") ==JetType);
-  isPFJet = (std::string("pf") ==JetType);
+  isJPTJet  = (std::string("jpt") ==JetType);
+  isPFJet   = (std::string("pf") ==JetType);
   
   if (isCaloJet) caloJetsToken_ = consumes<reco::CaloJetCollection>(mInputCollection);
   if (isJPTJet) jptJetsToken_ = consumes<reco::JPTJetCollection>(mInputCollection);
@@ -992,13 +992,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //check for collections AND DCS filters
   bool dcsDecision = DCSFilterForJetMonitoring_->filter(iEvent, iSetup);
+  bool jetCollectionIsValid = false;
+  if (isCaloJet)  jetCollectionIsValid = caloJets.isValid();
+  if (isJPTJet)   jetCollectionIsValid = jptJets.isValid();
+  if (isPFJet)    jetCollectionIsValid = pfJets.isValid();
 
-  bool jetCollectionValid = false;
-  if (isCaloJet)  jetCollectionValid = caloJets.isValid();
-  if (isJPTJet)   jetCollectionValid = jptJets.isValid();
-  if (isPFJet)    jetCollectionValid = pfJets.isValid();
-
-  if(theJetCleaningFlag && (!jetCollectionValid || !bPrimaryVertex || !dcsDecision)) return;
+  if (theJetCleaningFlag && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision)) return;
+//  cout<<mInputCollection.label()<<" dcsDecison "<<boolalpha<<dcsDecision<<" jetCollectionIsValid "<<jetCollectionIsValid<<" bPrimaryVertex "<<bPrimaryVertex<<" theJetCleaningFlag "<<theJetCleaningFlag<<" return? "<<(theJetCleaningFlag && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision))<<endl;
 
 //  //recheck everything here -> pfjets wrong at the moment
 //  if(theDiJetSelectionFlag){
@@ -1024,7 +1024,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
 
   double scale=-1;
-  
   //now start changes for jets
   std::vector<Jet> corJets;
   corJets.clear();
@@ -2246,9 +2245,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        
       }// dPhi > 2.7
     }// leading jet eta cut for asymmetry and balance calculations
-  
   }//at least two hard corrected jets
-  
 }
 
 // ***********************************************************
