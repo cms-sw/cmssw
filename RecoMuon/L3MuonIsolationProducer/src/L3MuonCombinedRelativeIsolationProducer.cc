@@ -14,6 +14,8 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
@@ -38,6 +40,8 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theConfig(par),
   theMuonCollectionLabel(par.getParameter<InputTag>("inputMuonCollection")),
   optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits")),
+  useCaloIso(par.existsAs<bool>("UseCaloIso") ?
+			  par.getParameter<bool>("UseCaloIso") : true),
   useRhoCorrectedCaloDeps(par.existsAs<bool>("UseRhoCorrectedCaloDeposits") ?
 			  par.getParameter<bool>("UseRhoCorrectedCaloDeposits") : false),
   theCaloDepsLabel(par.existsAs<InputTag>("CaloDepositsLabel") ?
@@ -64,10 +68,9 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   //
   // Calorimeters (ONLY if not previously computed)
   //
-  if( useRhoCorrectedCaloDeps==false ) {
+  if( useCaloIso && (useRhoCorrectedCaloDeps==false) ) {
     edm::ParameterSet caloExtractorPSet = theConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
 
-    theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
     std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
     caloExtractor = IsoDepositExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet, consumesCollector());
     //std::string caloDepositType = caloExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
@@ -77,6 +80,7 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   //
   edm::ParameterSet trkExtractorPSet = theConfig.getParameter<edm::ParameterSet>("TrkExtractorPSet");
 
+  theTrackPt_Min = theConfig.getParameter<double>("TrackPt_Min");
   std::string trkExtractorName = trkExtractorPSet.getParameter<std::string>("ComponentName");
   trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet, consumesCollector());
   //std::string trkDepositType = trkExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
@@ -127,7 +131,7 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
 
   // Take the SA container
   if (printDebug) std::cout  <<" Taking the muons: "<<theMuonCollectionLabel << std::endl;
-  Handle<TrackCollection> muons;
+  Handle<RecoChargedCandidateCollection> muons;
   event.getByLabel(theMuonCollectionLabel,muons);
 
   // Take calo deposits with rho corrections (ONLY if previously computed)
@@ -161,10 +165,10 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
   std::vector<IsoDeposit> caloDeps;
   std::vector<float> caloCorrDeps;  // if calo deposits with corrections available
 
-  if(useRhoCorrectedCaloDeps) {
+  if(useCaloIso && useRhoCorrectedCaloDeps) {
     caloCorrDeps.resize(nMuons, 0.);
   }
-  else {
+  else if (useCaloIso) {
     caloVetos.resize(nMuons);
     caloDeps.resize(nMuons);
   }
@@ -174,15 +178,16 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
 
   for (unsigned int i=0; i<nMuons; i++) {
 
-    TrackRef mu(muons,i);
+    RecoChargedCandidateRef candref(muons,i);
+    TrackRef mu = candref->track();
 
     trkDeps[i] = trkExtractor->deposit(event, eventSetup, *mu);
     trkVetos[i] = trkDeps[i].veto();
 
-    if( useRhoCorrectedCaloDeps ) {
-      caloCorrDeps[i] = (*caloDepWithCorrMap)[mu];
+    if( useCaloIso && useRhoCorrectedCaloDeps ) {
+      caloCorrDeps[i] = (*caloDepWithCorrMap)[candref];
     }
-    else {
+    else if (useCaloIso) {
       caloDeps[i] = caloExtractor->deposit(event, eventSetup, *mu);
       caloVetos[i] = caloDeps[i].veto();
     }
@@ -202,7 +207,7 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
   for(unsigned int iMu=0; iMu < nMuons; ++iMu){
 
     if (printDebug) std::cout  << "Muon number = " << iMu << std::endl;
-    const reco::Track* mu = &(*muons)[iMu];
+    TrackRef mu = (*muons)[iMu].track();
 
     // cuts
     const Cuts::CutSpec & cut = theCuts( mu->eta());
@@ -220,12 +225,12 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
     std::pair<double, int> trkIsoSumAndCount = trkDeposit.depositAndCountWithin(cut.conesize, trkVetos, theTrackPt_Min);
 
     double caloIsoSum = 0.;
-    if( useRhoCorrectedCaloDeps ) {
+    if( useCaloIso && useRhoCorrectedCaloDeps ) {
       caloIsoSum = caloCorrDeps[iMu];
       if(caloIsoSum<0.) caloIsoSum = 0.;
       if(printDebug) std::cout << "Rho-corrected calo deposit (min. 0) = " << caloIsoSum << std::endl;
     }
-    else {
+    else if (useCaloIso) {
       const IsoDeposit & caloDeposit = caloDeps[iMu];
       if (printDebug) std::cout  << caloDeposit.print();
       caloIsoSum = caloDeposit.depositWithin(cut.conesize, caloVetos);
@@ -260,7 +265,7 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
     depFillerTrk.fill();
     event.put(trkDepMap, "trkIsoDeposits");
 
-    if( useRhoCorrectedCaloDeps==false ) {
+    if( useCaloIso && (useRhoCorrectedCaloDeps==false) ) {
       reco::IsoDepositMap::Filler depFillerCalo(*caloDepMap);
       depFillerCalo.insert(muons, caloDeps.begin(), caloDeps.end());
       depFillerCalo.fill();
