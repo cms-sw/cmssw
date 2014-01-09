@@ -27,6 +27,7 @@ defaultOptions.scenarioOptions=['pp','cosmics','nocoll','HeavyIons']
 defaultOptions.harvesting= 'AtRunEnd'
 defaultOptions.gflash = False
 defaultOptions.himix = False
+defaultOptions.hisignal = False
 defaultOptions.number = -1
 defaultOptions.arguments = ""
 defaultOptions.name = "NO NAME GIVEN"
@@ -1313,6 +1314,11 @@ class ConfigBuilder(object):
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
 
+	if self._options.himix==True:
+		self.loadAndRemember("Configuration/StandardSequences/DigiHiMix_cff")
+		if self._options.hisignal==True:
+			self.loadAndRemember("Configuration/StandardSequences/DigiHiMixSignal_cff")
+			  
 	if self._options.restoreRNDSeeds:
 		self.executeAndRemember("process.mix.playback = True")
 

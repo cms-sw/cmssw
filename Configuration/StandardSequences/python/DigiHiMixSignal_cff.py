@@ -5,7 +5,3 @@ from Configuration.StandardSequences.DigiHiMix_cff import *
 mergedtruth.HepMCDataLabels = ['hiSignal']
 
 
-
-
-
-
