@@ -189,7 +189,7 @@ namespace edm {
       class SortedRunOrLumiItr;
       class IndexRunLumiEventKey;
 
-      typedef long long EntryNumber_t;
+      typedef long EntryNumber_t;
       static int const invalidIndex = -1;
       static RunNumber_t const invalidRun = 0U;
       static LuminosityBlockNumber_t const invalidLumi = 0U;
@@ -370,6 +370,7 @@ namespace edm {
 
       class RunOrLumiIndexes {
       public:
+        RunOrLumiIndexes();
         RunOrLumiIndexes(int processHistoryIDIndex, RunNumber_t run, LuminosityBlockNumber_t lumi, int indexToGetEntry);
 
         int processHistoryIDIndex() const {return processHistoryIDIndex_;}
@@ -779,6 +780,10 @@ namespace edm {
 
       class IndexRunKey {
       public:
+        IndexRunKey() :
+          processHistoryIDIndex_(invalidIndex),
+          run_(invalidRun) {
+        }
         IndexRunKey(int index, RunNumber_t run) :
           processHistoryIDIndex_(index),
           run_(run) {
@@ -804,6 +809,11 @@ namespace edm {
 
       class IndexRunLumiKey {
       public:
+        IndexRunLumiKey() :
+          processHistoryIDIndex_(invalidIndex),
+          run_(invalidRun),
+          lumi_(invalidLumi) {
+        }
         IndexRunLumiKey(int index, RunNumber_t run, LuminosityBlockNumber_t lumi) :
           processHistoryIDIndex_(index),
           run_(run),
@@ -835,6 +845,13 @@ namespace edm {
 
       class IndexRunLumiEventKey {
       public:
+        IndexRunLumiEventKey() :
+          processHistoryIDIndex_(invalidIndex),
+          run_(invalidRun),
+          lumi_(invalidLumi),
+          event_(invalidEvent) {
+        }
+
         IndexRunLumiEventKey(int index, RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) :
           processHistoryIDIndex_(index),
           run_(run),
