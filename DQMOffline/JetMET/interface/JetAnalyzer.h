@@ -8,6 +8,12 @@
  *
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
+ *
+ *          Jan. '14: modified by
+ *
+ *          M. Artur Weber
+ *          R. Schoefbeck
+ *          V. Sordini
  */
 
 
@@ -111,7 +117,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
   edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
 
-
   //Cleaning parameters
   edm::ParameterSet theCleaningParameters;
   edm::InputTag _theVertexLabel;
@@ -133,8 +138,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
   edm::InputTag theCaloJetCollectionLabel;
  // Calo Jet Label
   edm::InputTag thePFJetCollectionLabel;
-
-
 
   //histo binning parameters -> these are PART of ALL analyzers - move it up
   int    etaBin;
@@ -179,8 +182,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
 
   //the histos
   MonitorElement* jetME;
-
-
 
   // --- Used for Data Certification - use for Calo, PF and JPT jets
   MonitorElement* mPt;
@@ -589,18 +590,18 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement*   mMuMultiplicity_highPt_EndCap;
 
 
-  MonitorElement*mHFEFrac_lowPt_Forward;
-  MonitorElement*mHFHFrac_lowPt_Forward;
-  MonitorElement*mHFEFrac_mediumPt_Forward;
-  MonitorElement*mHFHFrac_mediumPt_Forward;
-  MonitorElement*mHFEFrac_highPt_Forward;
-  MonitorElement*mHFHFrac_highPt_Forward;
-  MonitorElement*mHFEEn_lowPt_Forward;
-  MonitorElement*mHFHEn_lowPt_Forward;
-  MonitorElement*mHFEEn_mediumPt_Forward;
-  MonitorElement*mHFHEn_mediumPt_Forward;
-  MonitorElement*mHFEEn_highPt_Forward;
-  MonitorElement*mHFHEn_highPt_Forward;
+  MonitorElement*   mHFEFrac_lowPt_Forward;
+  MonitorElement*   mHFHFrac_lowPt_Forward;
+  MonitorElement*   mHFEFrac_mediumPt_Forward;
+  MonitorElement*   mHFHFrac_mediumPt_Forward;
+  MonitorElement*   mHFEFrac_highPt_Forward;
+  MonitorElement*   mHFHFrac_highPt_Forward;
+  MonitorElement*   mHFEEn_lowPt_Forward;
+  MonitorElement*   mHFHEn_lowPt_Forward;
+  MonitorElement*   mHFEEn_mediumPt_Forward;
+  MonitorElement*   mHFHEn_mediumPt_Forward;
+  MonitorElement*   mHFEEn_highPt_Forward;
+  MonitorElement*   mHFHEn_highPt_Forward;
   MonitorElement*   mChMultiplicity_lowPt_Forward;
   MonitorElement*   mNeuMultiplicity_lowPt_Forward;
   MonitorElement*   mMuMultiplicity_lowPt_Forward;
@@ -640,10 +641,8 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mNeutralMultiplicity_profile;
   MonitorElement* mMuonMultiplicity_profile;
 
-  JetMETDQMDCSFilter * DCSFilterCalo; 
-  JetMETDQMDCSFilter * DCSFilterPF;
-  JetMETDQMDCSFilter * DCSFilterJPT;
-  JetMETDQMDCSFilter * DCSFilterAll;
+  JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
+  JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;
 
   bool isCaloJet;
   bool isJPTJet;

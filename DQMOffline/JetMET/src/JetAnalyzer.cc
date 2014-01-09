@@ -53,7 +53,7 @@ using namespace std;
 
 namespace jetAnalysis {
   
-  // Helpper class to propagate tracks to the calo surface using the same implementation as the JetTrackAssociator
+  // Helper class to propagate tracks to the calo surface using the same implementation as the JetTrackAssociator
   class TrackPropagatorToCalo
   {
    public:
@@ -102,9 +102,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   mOutputFile   = pSet.getParameter<std::string>("OutputFile");
   JetType = pSet.getParameter<std::string>("JetType");
   JetCorrectionService = pSet.getParameter<std::string> ("JetCorrections");
-  
-  
-  
   
   isCaloJet = (std::string("calo")==JetType);
   isJPTJet = (std::string("jpt") ==JetType);
@@ -156,7 +153,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   //energycorrected=false;
   
   theTriggerResultsLabel        = pSet.getParameter<edm::InputTag>("TriggerResultsLabel");
-  triggerResultsToken_= consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel));
+  triggerResultsToken_          = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel));
   //
   theDiJetSelectionFlag         = pSet.getUntrackedParameter<bool>("DoDiJetSelection", true);
   theJetCleaningFlag            = pSet.getUntrackedParameter<bool>("JetCleaningFlag", true);
@@ -168,12 +165,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   // ==========================================================
   //DCS information
   // ==========================================================
-  DCSFilterCalo = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterCalo"));
-  DCSFilterPF   = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterPF"));
-  DCSFilterJPT  = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterJPT"));
-  DCSFilterAll  = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterAll"));
-  
-  //
+  DCSFilterForJetMonitoring_  = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterForJetMonitoring"));
+  DCSFilterForDCSMonitoring_  = new JetMETDQMDCSFilter("ecal:hbhe:hf:ho:pixel:sistrip:es:muon");
   
   fillJIDPassFrac = pSet.getParameter<int>("fillJIDPassFrac");
   //makedijetselection = pSet.getParameter<int>("makedijetselection");
@@ -227,10 +220,8 @@ JetAnalyzer::~JetAnalyzer() {
   delete _HighPtJetEventFlag;
   delete _LowPtJetEventFlag;
 
-  delete DCSFilterCalo;
-  delete DCSFilterPF;
-  delete DCSFilterJPT;
-  delete DCSFilterAll;
+  delete DCSFilterForDCSMonitoring_;
+  delete DCSFilterForJetMonitoring_;
   
 
 }
@@ -980,53 +971,44 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     LogInfo("JetAnalyzer") << "JetAnalyzer: Could not find GT readout record" << std::endl;
     if (DEBUG) std::cout << "JetAnalyzer: Could not find GT readout record product" << std::endl;
   }
-  DCSFilterAll->filter(iEvent, iSetup);
+  DCSFilterForDCSMonitoring_->filter(iEvent, iSetup);
   if (bPrimaryVertex) cleanupME->Fill(0.5);
-  if ( DCSFilterAll->passPIX      ) cleanupME->Fill(1.5);
-  if ( DCSFilterAll->passSiStrip  ) cleanupME->Fill(2.5);
-  if ( DCSFilterAll->passECAL     ) cleanupME->Fill(3.5);
-  if ( DCSFilterAll->passES       ) cleanupME->Fill(4.5);
-  if ( DCSFilterAll->passHBHE     ) cleanupME->Fill(5.5);
-  if ( DCSFilterAll->passHF       ) cleanupME->Fill(6.5);
-  if ( DCSFilterAll->passHO       ) cleanupME->Fill(7.5);
-  if ( DCSFilterAll->passMuon     ) cleanupME->Fill(8.5);
+  if ( DCSFilterForDCSMonitoring_->passPIX      ) cleanupME->Fill(1.5);
+  if ( DCSFilterForDCSMonitoring_->passSiStrip  ) cleanupME->Fill(2.5);
+  if ( DCSFilterForDCSMonitoring_->passECAL     ) cleanupME->Fill(3.5);
+  if ( DCSFilterForDCSMonitoring_->passES       ) cleanupME->Fill(4.5);
+  if ( DCSFilterForDCSMonitoring_->passHBHE     ) cleanupME->Fill(5.5);
+  if ( DCSFilterForDCSMonitoring_->passHF       ) cleanupME->Fill(6.5);
+  if ( DCSFilterForDCSMonitoring_->passHO       ) cleanupME->Fill(7.5);
+  if ( DCSFilterForDCSMonitoring_->passMuon     ) cleanupME->Fill(8.5);
 
   edm::Handle<CaloJetCollection> caloJets;
   edm::Handle<JPTJetCollection> jptJets;
   edm::Handle<PFJetCollection> pfJets;
 
-
-
   if (isCaloJet) iEvent.getByToken(caloJetsToken_, caloJets);
   if (isJPTJet) iEvent.getByToken(jptJetsToken_, jptJets);
   if (isPFJet) iEvent.getByToken(pfJetsToken_, pfJets);
 
-
-  //take already primary vertex in
   //check for collections AND DCS filters
-  if (isCaloJet && !caloJets.isValid()) return;
-  if (isJPTJet && !jptJets.isValid()) return;
-  if (isPFJet && !pfJets.isValid()) return;
-  if(theJetCleaningFlag){
-    if (isCaloJet && (!caloJets.isValid() || !bPrimaryVertex || !(DCSFilterCalo->filter(iEvent, iSetup)))) return;
-    if (isJPTJet && (!jptJets.isValid() || !bPrimaryVertex || !(DCSFilterJPT->filter(iEvent, iSetup)))) return;
-    if (isPFJet && (!pfJets.isValid() || !bPrimaryVertex || !(DCSFilterPF->filter(iEvent, iSetup)))) return;
-  }
-  //recheck everything here -> pfjets wrong at the moment
-  if(theDiJetSelectionFlag){
-    if (isCaloJet && (!caloJets.isValid() || !bPrimaryVertex || !(DCSFilterCalo->filter(iEvent, iSetup)))) return;
-    if (isJPTJet && (!jptJets.isValid() || !bPrimaryVertex || !(DCSFilterJPT->filter(iEvent, iSetup)))) return;
-    if (isPFJet && (!pfJets.isValid() || !bPrimaryVertex || !(DCSFilterPF->filter(iEvent, iSetup)))) return;
-  }
-  unsigned int collSize=-1;
+  bool dcsDecision = DCSFilterForJetMonitoring_->filter(iEvent, iSetup);
 
-  if (isCaloJet)
-    {
-      collSize=caloJets->size();
-      //for (unsigned ijet=0; ijet<caloJets->size(); ijet++)
-      //recoJets.push_back((*caloJets)[ijet]);
-    }
-  
+  bool jetCollectionValid = false;
+  if (isCaloJet)  jetCollectionValid = caloJets.isValid();
+  if (isJPTJet)   jetCollectionValid = jptJets.isValid();
+  if (isPFJet)    jetCollectionValid = pfJets.isValid();
+
+  if(theJetCleaningFlag && (!jetCollectionValid || !bPrimaryVertex || !dcsDecision)) return;
+
+//  //recheck everything here -> pfjets wrong at the moment
+//  if(theDiJetSelectionFlag){
+//    if (isCaloJet && (!caloJets.isValid() || !bPrimaryVertex || !(DCSFilterCalo->filter(iEvent, iSetup)))) return;
+//    if (isJPTJet && (!jptJets.isValid()   || !bPrimaryVertex || !(DCSFilterJPT->filter(iEvent, iSetup)))) return;
+//    if (isPFJet && (!pfJets.isValid()     || !bPrimaryVertex || !(DCSFilterPF->filter(iEvent, iSetup)))) return;
+//  }
+
+  unsigned int collSize=-1;
+  if (isCaloJet)  collSize = caloJets->size();
   if (isJPTJet)
     {
       collSize=jptJets->size();
@@ -1038,12 +1020,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       //for (unsigned ijet=0; ijet<jptJets->size(); ijet++)
       //recoJets.push_back((*jptJets)[ijet]);
     }
-  
-  if (isPFJet) {
-    collSize=pfJets->size();
-    //for (unsigned ijet=0; ijet<pfJets->size(); ijet++)
-    //recoJets.push_back((*pfJets)[ijet]);
-  }
+  if (isPFJet) collSize=pfJets->size();
   
 
   double scale=-1;

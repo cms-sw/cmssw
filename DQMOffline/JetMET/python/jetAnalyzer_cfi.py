@@ -19,7 +19,6 @@ newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
 jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
 
-
     OutputFile = cms.string('jetMETMonitoring.root'),
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.string("newAk5CaloL2L3"),
@@ -68,31 +67,15 @@ jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     #
     jetAnalysis = jetDQMParameters.clone(),
 
-
     fillJIDPassFrac   = cms.int32(1),
 
     #
     # DCS
     #                             
-    DCSFilterCalo = cms.PSet(
+    DCSFilterForJetMonitoring = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
       #DebugOn = cms.untracked.bool(True),
-      Filter = cms.untracked.bool(True)
-    ),
-    DCSFilterPF = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-      #DebugOn = cms.untracked.bool(True),
-      Filter = cms.untracked.bool(True)
-    ),
-    DCSFilterJPT = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-      #DebugOn = cms.untracked.bool(True),
-      Filter = cms.untracked.bool(True)
-    ),
-    DCSFilterAll = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:ho:pixel:sistrip:es:muon"),
-      #DebugOn = cms.untracked.bool(True),
-      Filter = cms.untracked.bool(True)
+      alwaysPass = cms.untracked.bool(False)
     )
 )
 
@@ -118,14 +101,16 @@ jetAnalyzerAk5JPTCleaned=jetAnalyzerAk5CaloCleaned.clone(
     JetCorrections = cms.string("newAk5JPTL1FastL2L3"),
     jetsrc = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
     fillJIDPassFrac   = cms.int32(0),
-    JetCleaningFlag   = cms.untracked.bool(True),
+    JetCleaningFlag   = cms.untracked.bool(True)
 )
+jetAnalyzerAk5JPTCleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
 
 jetAnalyzerAk5PFUncleaned=jetAnalyzerAk5CaloUncleaned.clone(
     JetType = cms.string('pf'),#pf, calo or jpt
     JetCorrections = cms.string("newAk5PFL1FastL2L3"),
-    jetsrc = cms.InputTag("ak5PFJets"),
+    jetsrc = cms.InputTag("ak5PFJets")
 )
+jetAnalyzerAk5PFUncleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
 
 jetAnalyzerAk5PFCleaned=jetAnalyzerAk5PFUncleaned.clone(
     fillJIDPassFrac   = cms.int32(0),
