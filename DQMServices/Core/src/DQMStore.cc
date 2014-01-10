@@ -550,8 +550,7 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 void
 DQMStore::print_trace (const std::string &dir, const std::string &name)
 {
-/*
-  static std::ofstream stream("histogramBookingBT.log");
+  [[cms::thread_safe]] static std::ofstream stream("histogramBookingBT.log");
   void *array[10];
   size_t size;
   char **strings;
@@ -575,10 +574,8 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   else
     stream << "Skipping "<< dir << "/" << name
            << " with stack size " << size << "\n";
-*/
   /* In this case print the full stack trace, up to main or to the
    * maximum stack size, i.e. 10. */
-/*
   if (verbose_ > 4)
   {
     size_t i;
@@ -595,7 +592,6 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
       }
   }
   free (strings);
-*/
 }
 
 //////////////////////////////////////////////////////////////////////
