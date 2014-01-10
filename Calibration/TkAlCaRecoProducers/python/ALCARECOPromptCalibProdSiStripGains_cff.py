@@ -30,19 +30,13 @@ ALCARECOCalMinBiasFilterForSiStripGains.TriggerResultsTag = cms.InputTag("Trigge
 # ------------------------------------------------------------------------------
 # This is the sequence for track refitting of the track saved by SiStripCalMinBias
 # to have access to transient objects produced during RECO step and not saved
+
 # FIXME: should change names to make sure that there is no interference with any other part of the code when loading this cff
 # (since it will be loaded any time the AlCaReco definitions are loaded)
 
 
 from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
-
-# FIXME: the beam-spot should be kept in the AlCaReco (if not already there) and dropped from here
-from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
-from RecoTracker.TrackProducer.TrackRefitters_cff import *
-
-
-CalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("CalibrationTracks"))
-CalibrationTracks = AlignmentTrackSelector.clone(
+ALCARECOCalibrationTracks = AlignmentTrackSelector.clone(
     #    src = 'generalTracks',
     src = 'ALCARECOSiStripCalMinBias',
     filter = True,
@@ -52,50 +46,56 @@ CalibrationTracks = AlignmentTrackSelector.clone(
     chi2nMax = 10.,
     )
 
+# FIXME: the beam-spot should be kept in the AlCaReco (if not already there) and dropped from here
+from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
+
+from RecoTracker.TrackProducer.TrackRefitters_cff import *
+ALCARECOCalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOCalibrationTracks"))
+
 # refit and BS can be dropped if done together with RECO.
 # track filter can be moved in acalreco if no otehr users
-ALCARECOTrackFilterRefit = cms.Sequence(CalibrationTracks +
+ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOCalibrationTracks +
                                         offlineBeamSpot +
-                                        CalibrationTracksRefit )
+                                        ALCARECOCalibrationTracksRefit )
 
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
 
 # FIXME: the safest option would be to import the basic cfi from a place mantained by the developer
-SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
-                              OutputGains         = cms.string('Gains_ASCII.txt'),
-                              Tracks              = cms.untracked.InputTag('CalibrationTracksRefit'),
-                              AlgoMode            = cms.untracked.string('PCL'),
+ALCARECOSiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
+                                  OutputGains         = cms.string('Gains_ASCII.txt'),
+                                  Tracks              = cms.untracked.InputTag('ALCARECOCalibrationTracksRefit'),
+                                  AlgoMode            = cms.untracked.string('PCL'),
 
-                              #Gain quality cuts
-                              minNrEntries        = cms.untracked.double(25),
-                              maxChi2OverNDF      = cms.untracked.double(9999999.0),
-                              maxMPVError         = cms.untracked.double(25.0),
-                              
-                              #track/cluster quality cuts
-                              minTrackMomentum    = cms.untracked.double(2),
-                              maxNrStrips         = cms.untracked.uint32(8),
-                              
-                              Validation          = cms.untracked.bool(False),
-                              OldGainRemoving     = cms.untracked.bool(False),
-                              FirstSetOfConstants = cms.untracked.bool(True),
-                              
-                              CalibrationLevel    = cms.untracked.int32(0), # 0==APV, 1==Laser, 2==module
-                              
-                              InputFiles          = cms.vstring(),
-                              
-                              UseCalibration     = cms.untracked.bool(False),
-                              calibrationPath    = cms.untracked.string(""),
+                                  #Gain quality cuts
+                                  minNrEntries        = cms.untracked.double(25),
+                                  maxChi2OverNDF      = cms.untracked.double(9999999.0),
+                                  maxMPVError         = cms.untracked.double(25.0),
 
-                              SinceAppendMode     = cms.bool(True),
-                              IOVMode             = cms.string('Job'),
-                              Record              = cms.string('SiStripApvGainRcd'),
-                              doStoreOnDB         = cms.bool(True),
-                              )
+                                  #track/cluster quality cuts
+                                  minTrackMomentum    = cms.untracked.double(2),
+                                  maxNrStrips         = cms.untracked.uint32(8),
 
-SiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
-SiStripCalib.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
+                                  Validation          = cms.untracked.bool(False),
+                                  OldGainRemoving     = cms.untracked.bool(False),
+                                  FirstSetOfConstants = cms.untracked.bool(True),
+
+                                  CalibrationLevel    = cms.untracked.int32(0), # 0==APV, 1==Laser, 2==module
+
+                                  InputFiles          = cms.vstring(),
+
+                                  UseCalibration     = cms.untracked.bool(False),
+                                  calibrationPath    = cms.untracked.string(""),
+
+                                  SinceAppendMode     = cms.bool(True),
+                                  IOVMode             = cms.string('Job'),
+                                  Record              = cms.string('SiStripApvGainRcd'),
+                                  doStoreOnDB         = cms.bool(True),
+                                  )
+
+ALCARECOSiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
+ALCARECOSiStripCalib.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
 
 
 # ------------------------------------------------------------------------------
@@ -129,6 +129,6 @@ TFileService = cms.Service("TFileService",
 
 seqALCARECOPromptCalibProdSiStripGains = cms.Sequence(ALCARECOCalMinBiasFilterForSiStripGains *
                                                       ALCARECOTrackFilterRefit *
-                                                      SiStripCalib)
+                                                      ALCARECOSiStripCalib)
 
 
