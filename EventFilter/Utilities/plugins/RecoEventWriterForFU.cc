@@ -19,8 +19,11 @@ namespace evf {
   }
 
   void RecoEventWriterForFU::doOutputHeader(InitMsgView const& init_message) {
-    //Write the Init Message to Streamer file
-    stream_writer_preamble_->write(init_message);
+    //Write the Init Message to init file and close it
+    if ( stream_writer_preamble_.get() ) {
+      stream_writer_preamble_->write(init_message);
+      stream_writer_preamble_.reset();
+    }
   }
 
   void RecoEventWriterForFU::doOutputEvent(EventMsgView const& msg) {
