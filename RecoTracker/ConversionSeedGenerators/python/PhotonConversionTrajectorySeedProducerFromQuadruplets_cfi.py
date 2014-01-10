@@ -9,7 +9,7 @@ photonConvTrajSeedFromQuadruplets  = cms.EDProducer("PhotonConversionTrajectoryS
                                                   DoxcheckSeedCandidates = cms.bool(False),
                                                   OrderedHitsFactoryPSet = cms.PSet(
                                                       maxElement = cms.uint32(900000),
-                                                      SeedingLayers = cms.string('conv2LayerPairs')
+                                                      SeedingLayers = cms.InputTag('conv2LayerPairs')
                                                       ),
                                                   SeedComparitorPSet = cms.PSet(
                                                       ComponentName = cms.string('PixelClusterShapeSeedComparitor'), #'LowPtClusterShapeSeedComparitor') #none

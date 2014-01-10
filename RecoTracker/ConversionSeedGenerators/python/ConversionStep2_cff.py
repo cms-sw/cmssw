@@ -13,8 +13,7 @@ conv2Clusters = cms.EDProducer("TrackClusterRemover",
                               Common = cms.PSet(maxChi2 = cms.double(30.0))
                               )
 
-conv2LayerPairs = cms.ESProducer("SeedingLayersESProducer",
-                                ComponentName = cms.string('conv2LayerPairs'),
+conv2LayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 
@@ -292,6 +291,7 @@ conv2StepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multi
     ) #end of clone
 
 Conv2Step = cms.Sequence( conv2Clusters 
+                         + conv2LayerPairs
                          + photonConvTrajSeedFromQuadruplets 
                          + conv2TrackCandidates
                          + conv2StepTracks
