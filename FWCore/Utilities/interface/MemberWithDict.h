@@ -33,7 +33,7 @@ public:
   TypeWithDict declaringType() const;
   TypeWithDict typeOf() const;
   ObjectWithDict get() const;
-  ObjectWithDict get(const ObjectWithDict&) const;
+  ObjectWithDict get(ObjectWithDict const&) const;
 };
 
 } // namespace edm

@@ -44,8 +44,8 @@ public:
   TypeWithDict declaringType() const;
   size_t functionParameterSize(bool required = false) const;
   size_t size() const;
-  void invoke(const ObjectWithDict& obj, ObjectWithDict* ret = nullptr, const std::vector<void*>& values = std::vector<void*>()) const;
-  void invoke(ObjectWithDict* ret = nullptr, const std::vector<void*>& values = std::vector<void*>()) const;
+  void invoke(ObjectWithDict const& obj, ObjectWithDict* ret = nullptr, std::vector<void*> const& values = std::vector<void*>()) const;
+  void invoke(ObjectWithDict* ret = nullptr, std::vector<void*> const& values = std::vector<void*>()) const;
   IterWithDict<TMethodArg> begin() const;
   IterWithDict<TMethodArg> end() const;
 };
@@ -62,7 +62,7 @@ namespace edm {
 template<typename T>
 inline
 void
-invokeByName(T& retval, const TypeWithDict& theType, const std::string& name)
+invokeByName(T& retval, TypeWithDict const& theType, std::string const& name)
 {
   if (!bool(theType)) {
     fprintf(stderr, "FunctionWithDict: invokeByName<%s>: "

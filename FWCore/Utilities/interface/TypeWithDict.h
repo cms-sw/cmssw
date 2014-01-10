@@ -52,7 +52,7 @@ class TypeWithDict {
   friend class TypeDataMembers;
   friend class TypeFunctionMembers;
 private:
-  const std::type_info* ti_;
+  std::type_info const* ti_;
   TType* type_;
   TClass* class_;
   TEnum* enum_;
@@ -65,11 +65,11 @@ public:
   static TypeWithDict byName(std::string const& name, long property = 0L);
 public:
   TypeWithDict();
-  TypeWithDict& operator=(const TypeWithDict&);
-  TypeWithDict(const TypeWithDict&);
+  TypeWithDict& operator=(TypeWithDict const&);
+  TypeWithDict(TypeWithDict const&);
   // This copy constructor is for clearing const and reference.
-  explicit TypeWithDict(const TypeWithDict&, long property);
-  explicit TypeWithDict(const std::type_info&, long property = 0L);
+  explicit TypeWithDict(TypeWithDict const&, long property);
+  explicit TypeWithDict(std::type_info const&, long property = 0L);
   explicit TypeWithDict(TClass* type, long property = 0L);
   explicit TypeWithDict(TMethodArg* arg, long property = 0L);
   explicit TypeWithDict(TType* type, long property = 0L);
@@ -103,23 +103,23 @@ public:
   size_t arrayLength() const;
   size_t dataMemberSize() const;
   size_t functionMemberSize() const;
-  MemberWithDict dataMemberByName(const std::string&) const;
+  MemberWithDict dataMemberByName(std::string const&) const;
   // Note: Used only by FWCore/Modules/src/EventContentAnalyzer.cc
-  FunctionWithDict functionMemberByName(const std::string&) const;
+  FunctionWithDict functionMemberByName(std::string const&) const;
   // Note: Used only by Fireworks/Core/src/FWModelContextMenuHandler.cc:262
-  //FunctionWithDict functionMemberByName(const std::string& name, const TypeWithDict& signature, int mods, TypeMemberQuery memberQuery) const;
+  //FunctionWithDict functionMemberByName(std::string const& name, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
   TypeWithDict nestedType(char const*) const;
-  TypeWithDict nestedType(const std::string&) const;
+  TypeWithDict nestedType(std::string const&) const;
   TypeWithDict finalType() const;
   TypeWithDict toType() const;
   void print(std::ostream& os) const;
-  bool hasBase(const std::string&) const;
-  bool hasBase(const TypeWithDict& basety) const;
-  int getBaseClassOffset(const TypeWithDict& baseClass) const;
+  bool hasBase(std::string const&) const;
+  bool hasBase(TypeWithDict const& basety) const;
+  int getBaseClassOffset(TypeWithDict const& baseClass) const;
   TypeWithDict templateArgumentAt(size_t index) const;
-  const void* pointerToBaseType(const void* ptr, const TypeWithDict& derivedType) const;
-  const void* pointerToContainedType(const void* ptr, const TypeWithDict& derivedType) const;
-  int stringToEnumValue(const std::string&) const;
+  void const* pointerToBaseType(void const* ptr, TypeWithDict const& derivedType) const;
+  void const* pointerToContainedType(void const* ptr, TypeWithDict const& derivedType) const;
+  int stringToEnumValue(std::string const&) const;
   void* allocate() const;
   void deallocate(void* address) const;
   ObjectWithDict construct() const;
@@ -127,28 +127,28 @@ public:
 };
 
 // A related free function
-bool hasDictionary(const std::type_info&);
+bool hasDictionary(std::type_info const&);
 
-inline bool operator<(const TypeWithDict& a, const TypeWithDict& b)
+inline bool operator<(TypeWithDict const& a, TypeWithDict const& b)
 {
   return a.typeInfo().before(b.typeInfo());
 }
 
-bool operator==(const TypeWithDict& a, const TypeWithDict& b);
+bool operator==(TypeWithDict const& a, TypeWithDict const& b);
 
-inline bool operator!=(const TypeWithDict& a, const TypeWithDict& b)
+inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b)
 {
   return !(a == b);
 }
 
-std::ostream& operator<<(std::ostream& os, const TypeWithDict& id);
+std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);
 
 class TypeBases {
 private:
   TType* type_;
   TClass* class_;
 public:
-  explicit TypeBases(const TypeWithDict&);
+  explicit TypeBases(TypeWithDict const&);
   IterWithDict<TBaseClass> begin() const;
   IterWithDict<TBaseClass> end() const;
   size_t size() const;
@@ -159,7 +159,7 @@ private:
   TType* type_;
   TClass* class_;
 public:
-  explicit TypeDataMembers(const TypeWithDict&);
+  explicit TypeDataMembers(TypeWithDict const&);
   IterWithDict<TDataMember> begin() const;
   IterWithDict<TDataMember> end() const;
   size_t size() const;
@@ -170,7 +170,7 @@ private:
   TType* type_;
   TClass* class_;
 public:
-  explicit TypeFunctionMembers(const TypeWithDict&);
+  explicit TypeFunctionMembers(TypeWithDict const&);
   IterWithDict<TMethod> begin() const;
   IterWithDict<TMethod> end() const;
   size_t size() const;

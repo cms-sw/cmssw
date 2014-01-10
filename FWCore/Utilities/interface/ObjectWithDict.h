@@ -21,16 +21,16 @@ private:
   TType* type_;
   void* address_;
 public:
-  static ObjectWithDict byType(const TypeWithDict&);
+  static ObjectWithDict byType(TypeWithDict const&);
 public:
   ObjectWithDict();
-  explicit ObjectWithDict(const TypeWithDict&, void* address);
-  explicit ObjectWithDict(const std::type_info&, void* address);
+  explicit ObjectWithDict(TypeWithDict const&, void* address);
+  explicit ObjectWithDict(std::type_info const&, void* address);
   explicit operator bool() const;
   void* address() const;
   TypeWithDict typeOf() const;
   TypeWithDict dynamicType() const;
-  ObjectWithDict get(const std::string& memberName) const;
+  ObjectWithDict get(std::string const& memberName) const;
   //ObjectWithDict construct() const;
   void destruct(bool dealloc) const;
   template<typename T>
