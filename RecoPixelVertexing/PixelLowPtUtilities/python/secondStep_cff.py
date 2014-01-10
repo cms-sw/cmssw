@@ -25,8 +25,7 @@ secondStripRecHits.ClusterProducer = 'secondClusters'
 
 #################################
 # Secondary triplets
-secondLayerTriplets = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('SecondLayerTriplets'),
+SecondLayerTriplets = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2+BPix3',
         'BPix1+BPix2+FPix1_pos',
         'BPix1+BPix2+FPix1_neg',

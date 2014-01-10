@@ -22,6 +22,7 @@ firstStep  = cms.Sequence(PixelLayerTriplets
 secondStep = cms.Sequence(secondClusters
                         * secondPixelRecHits
                         * secondStripRecHits
+                        * SecondLayerTriplets
                         * pixelSecoTracks
                         * secoSeeds
                         * secoTrackCandidates
