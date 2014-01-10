@@ -148,9 +148,9 @@ class JetAnalyzer : public edm::EDAnalyzer {
   double pMin_;
   double pMax_;
 
-//  int     nbinsPV_;
-//  double  nPVlow_; 
-//  double  nPVhigh_;
+  int     nbinsPV_;
+  double  nPVlow_; 
+  double  nPVhigh_;
 
   //variables which are present both in 
   int    jetLoPass_;
@@ -259,10 +259,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
 
   bool hltInitialized_;
   bool doPVCheck_;
-
-  int     nvtxMin_;
-  int     vtxNdofMin_;
-  double  vtxZMax_;
 
   int LSBegin_;
   int LSEnd_;

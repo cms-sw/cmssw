@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 cleaningParameters = cms.PSet(
 
-    vertexLabel  = cms.InputTag("offlinePrimaryVertices"),
     gtLabel      = cms.InputTag("gtDigis"),
   
     trigSelection = cms.PSet(
@@ -30,6 +29,7 @@ cleaningParameters = cms.PSet(
     
     #Turn on extra checks
     doPrimaryVertexCheck   = cms.bool(True),
+    vertexCollection       = cms.InputTag( "goodOfflinePrimaryVerticesDQM" ), #From CommonTools/ParticleFlow/goodOfflinePrimaryVertices_cfi.py
     doHLTPhysicsOn         = cms.bool(False),
  
     #Switch on  tight filters for BeamHalo, JetID, HCALnoise
@@ -37,10 +37,3 @@ cleaningParameters = cms.PSet(
     tightJetIDFiltering = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
 )
 
-#process.goodVertices = cms.EDFilter(
-#            "VertexSelector",
-#            filter = cms.bool(False),
-#            src = cms.InputTag("offlinePrimaryVertices"),
-#            cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2")
-#          )
-#

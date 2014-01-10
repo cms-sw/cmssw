@@ -192,21 +192,12 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
   
-  doPVCheck_          = cleaningParameters_.getParameter<bool>("doPrimaryVertexCheck");
-  
-  vertexLabel_      = cleaningParameters_.getParameter<edm::InputTag>("vertexLabel");
+  doPVCheck_              = cleaningParameters_.getParameter<bool>("doPrimaryVertexCheck");
+  vertexLabel_      = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
+  vertexToken_      = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexLabel_));
+
   gtLabel_          = cleaningParameters_.getParameter<edm::InputTag>("gtLabel");
   gtToken_          = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(gtLabel_));
-  vertexToken_      = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexLabel_));
-  
-  //Vertex requirements
-  if (doPVCheck_) {
-//    nvtxMin_        = cleaningParameters_.getParameter<int>("nvtx_min");
-////    vtxNtrksMin_   = cleaningParameters_.getParameter<int>("nvtxtrks_min");
-//    vtxNdofMin_    = cleaningParameters_.getParameter<int>("vtxndof_min");
-////    vtxChi2Max_     = cleaningParameters_.getParameter<double>("vtxchi2_max");
-//    vtxZMax_        = cleaningParameters_.getParameter<double>("vtxz_max");
-  }
   
   std::string inputCollectionLabel(mInputCollection_.label());
   
@@ -909,41 +900,19 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // ==========================================================
   //Vertex information
+  Handle<VertexCollection> vertexHandle;
+  iEvent.getByToken(vertexToken_, vertexHandle);
 
-  int numPV = 0;
-  bool bPrimaryVertex = true;
-  if(doPVCheck_){
-    bPrimaryVertex = false;
-    Handle<reco::VertexCollection> vertexHandle;
-    iEvent.getByToken(vertexToken_, vertexHandle);
-
-    if (!vertexHandle.isValid()) {
-      LogInfo("JetAnalyzer") << "JetAnalyzer: Could not find vertex collection" << std::endl;
-      if (DEBUG) std::cout << "JetAnalyzer: Could not find vertex collection" << std::endl;
-    }
-
-    if ( vertexHandle.isValid() ){
-      reco::VertexCollection vertexCollection = *(vertexHandle.product());
-      int vertex_number     = vertexCollection.size();
-      reco::VertexCollection::const_iterator v = vertexCollection.begin();
-      for ( ; v != vertexCollection.end(); ++v) {
-//	double vertex_chi2    = v->normalizedChi2();
-	double vertex_ndof    = v->ndof();
-	bool   fakeVtx        = v->isFake();
-	double vertex_Z       = v->z();
-
-	if (  !fakeVtx
-//	      && vertex_number>=nvtxMin_
-//	      && vertex_ndof   >vtxNdofMin_
-////	      && vertex_chi2   <vtxChi2Max_
-//	      && fabs(vertex_Z)<vtxZMax_ 
-    ) {
-	  bPrimaryVertex = true;
-	  ++numPV;
-	}
-      }
-    }
+  if (!vertexHandle.isValid()) {
+    LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
+    if (DEBUG) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
   }
+  int numPV = 0;
+  if ( vertexHandle.isValid() ){
+    VertexCollection vertexCollection = *(vertexHandle.product());
+    numPV  = vertexCollection.size();
+  }
+  bool bPrimaryVertex = (numPV>0);
   verticesME->Fill(numPV);
   // ==========================================================
 

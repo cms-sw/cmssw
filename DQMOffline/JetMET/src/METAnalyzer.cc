@@ -76,9 +76,9 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
   //Vertex requirements
-  doPVCheck_          = cleaningParameters_.getParameter<bool>("doPrimaryVertexCheck");
-  vertexTag_  = cleaningParameters_.getParameter<edm::InputTag>("vertexLabel");
-  vertexToken_= consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexTag_));
+  doPVCheck_    = cleaningParameters_.getParameter<bool>("doPrimaryVertexCheck");
+  vertexTag_    = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
+  vertexToken_  = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexTag_));
 
   //Trigger parameters
   gtTag_          = cleaningParameters_.getParameter<edm::InputTag>("gtLabel");
@@ -166,15 +166,6 @@ void METAnalyzer::beginJob(){
   DCSFilter_ = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
 
 
-
-  if (doPVCheck_) {
-//    nvtxMin_        = cleaningParameters_.getParameter<int>("nvtx_min");
-////    vtxNtrksMin_   = cleaningParameters_.getParameter<int>("nvtxtrks_min");
-//    vtxNdofMin_    = cleaningParameters_.getParameter<int>("vtxndof_min");
-////    vtxChi2Max_     = cleaningParameters_.getParameter<double>("vtxchi2_max");
-//    vtxZMax_        = cleaningParameters_.getParameter<double>("vtxz_max");
-
-  }
 
   // misc
   verbose_      = parameters.getParameter<int>("verbose");
@@ -1133,40 +1124,19 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // ==========================================================
   //Vertex information
-  numPV_ = 0;
-  bool bPrimaryVertex = true;
-  if(doPVCheck_){
-    bPrimaryVertex = false;
-    Handle<VertexCollection> vertexHandle;
+  Handle<VertexCollection> vertexHandle;
+  iEvent.getByToken(vertexToken_, vertexHandle);
 
-    iEvent.getByToken(vertexToken_, vertexHandle);
-
-    if (!vertexHandle.isValid()) {
-      LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
-      if (verbose_) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
-    }
-
-    if ( vertexHandle.isValid() ){
-      VertexCollection vertexCollection = *(vertexHandle.product());
-      int vertex_number     = vertexCollection.size();
-      VertexCollection::const_iterator v = vertexCollection.begin();
-      for ( ; v != vertexCollection.end(); ++v) {
-      //	double vertex_chi2    = v->normalizedChi2();
-        double vertex_ndof    = v->ndof();
-        bool   fakeVtx        = v->isFake();
-        double vertex_Z       = v->z();
-        if (  !fakeVtx 
-//          && vertex_number>=nvtxMin_
-//          && vertex_ndof   >vtxNdofMin_
-//  //        && vertex_chi2   <vtxChi2Max_
-//          && fabs(vertex_Z)<vtxZMax_ 
-         ){
-          bPrimaryVertex = true;
-          ++numPV_;
-        }
-      }
-    }
+  if (!vertexHandle.isValid()) {
+    LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
+    if (verbose_) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
   }
+  numPV_ = 0;
+  if ( vertexHandle.isValid() ){
+    VertexCollection vertexCollection = *(vertexHandle.product());
+    numPV_  = vertexCollection.size();
+  }
+  bool bPrimaryVertex = (numPV_>0);
   // ==========================================================
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
