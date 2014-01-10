@@ -33,6 +33,7 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   CSCGeometry const* csc = nullptr;
   RPCGeometry const* rpc = nullptr;
   GEMGeometry const* gem = nullptr;
+  ME0Geometry const* me0 = nullptr;
 
   try {
     edm::ESHandle<TrackerGeometry> tkH;
@@ -80,12 +81,19 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
     }
 
+    try {
+      record.getRecord<MuonGeometryRecord>().get(me0);      
+    } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
+      // No GEM geo available
+      LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
+    }
+
   } catch (edm::eventsetup::NoRecordException<MuonGeometryRecord>& e){
     LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MuonGeometryRecord is available.";    
   }
 
   GlobalTrackingGeometryBuilder builder;
-  return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(tk, dt, csc, rpc, gem));
+  return boost::shared_ptr<GlobalTrackingGeometry>(builder.build(tk, dt, csc, rpc, gem, me0));
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GlobalTrackingGeometryESProducer);
