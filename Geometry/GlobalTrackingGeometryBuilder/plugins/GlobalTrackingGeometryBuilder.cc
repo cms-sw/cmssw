@@ -10,6 +10,7 @@
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
+#include <Geometry/GEMGeometry/interface/ME0Geometry.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 
 
@@ -26,7 +27,8 @@ GlobalTrackingGeometry* GlobalTrackingGeometryBuilder::build(const TrackerGeomet
 							     const DTGeometry* dt, 
 							     const CSCGeometry* csc, 
 							     const RPCGeometry* rpc, 
-							     const GEMGeometry* gem){
+							     const GEMGeometry* gem,
+							     const ME0Geometry* me0){
 
     // DO NOT CHANGE THE ORDER OF THE GEOMETRIES !!!!!!!  
     
@@ -37,6 +39,7 @@ GlobalTrackingGeometry* GlobalTrackingGeometryBuilder::build(const TrackerGeomet
     tkGeometries.push_back(csc);
     tkGeometries.push_back(rpc);
     tkGeometries.push_back(gem);
+    tkGeometries.push_back(me0);
     
     
     return new GlobalTrackingGeometry(tkGeometries);
