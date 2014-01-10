@@ -77,9 +77,7 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
     short counter = 0;
     for (auto const& track : *tracks) {
       NewTrackList_->push_back(track);
-      reco::TrackExtra tkExtra(tracksExtras->at(counter));
-      NewTrackExtraList_->push_back(tkExtra);
-      //      NewTrackList_->back().setExtra( reco::TrackExtraRef(tracksExtras, track.extra().key(), true) );
+      NewTrackExtraList_->push_back(tracksExtras->at(counter));
       NewTrackList_->back().setExtra( reco::TrackExtraRef( rTrackExtras, NewTrackExtraList_->size() - 1) );
       counter++;
     }
