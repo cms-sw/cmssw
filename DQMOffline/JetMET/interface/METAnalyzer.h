@@ -230,7 +230,7 @@ class METAnalyzer : public edm::EDAnalyzer{
   JetMETDQMDCSFilter *DCSFilter_;
 
 //  bool allSelection_;
-  bool cleanupSelection_;
+  bool addCleanedFolders_;
 
   //
   std::vector<std::string> folderNames_;

@@ -6,12 +6,9 @@ from DQMOffline.JetMET.jetMETDQMCleanup_cff import *
 
 tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
-    #
-    # Output files
-    #
-    OutputMEsInRootFile = cms.bool(False),
     OutputFile = cms.string('jetMETMonitoring.root'),
     METType=cms.untracked.string('tc'),
+    addCleanedFolders = cms.bool(True),
 
     METCollectionLabel     = cms.InputTag("tcMet"),
     JetCollectionLabel  = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
@@ -94,7 +91,6 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         errorReplyHlt  = cms.bool( False ),
     ),
 
-
     JetIDParams = cms.PSet(
         useRecHits = cms.bool(True),
         hbheRecHitsColl = cms.InputTag("hbhereco"),
@@ -116,14 +112,15 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
     pVMax       = cms.double(100.0),
     pVMin       = cms.double(0.0),
 
-    #    LowMETThreshold    = cms.double(30.),
-
     verbose     = cms.int32(0),
-#    printOut    = cms.int32(0),
 
     etThreshold  = cms.double(2.),
-#    allSelection = cms.bool(False),
-    cleanupSelection = cms.bool(True),
+
+    DCSFilter = cms.PSet(
+        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+        #DebugOn = cms.untracked.bool(True),
+        Filter = cms.untracked.bool(True)
+        ),
     
     #Parameters set for METAnalyzer --> but only used for TCMET
     InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
@@ -131,11 +128,6 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
     InputMuonLabel     = cms.InputTag("muons"),
     InputElectronLabel = cms.InputTag("gedGsfElectrons"),
     InputTCMETValueMap = cms.InputTag("muonTCMETValueMapProducer","muCorrData"),#muonMETValueMapProducer -> calomet vs muonTCMETValueMapProducer
-    DCSFilter = cms.PSet(
-        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-        #DebugOn = cms.untracked.bool(True),
-        Filter = cms.untracked.bool(True)
-        )
 )
 
 pfMetAnalyzer = tcMetAnalyzer.clone(
