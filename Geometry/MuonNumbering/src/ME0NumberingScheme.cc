@@ -30,7 +30,7 @@ void ME0NumberingScheme::initMe ( const MuonDDDConstants& muonConstants ) {
 #endif
 }
 
-int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
+int ME0NumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
 
 #ifdef LOCAL_DEBUG
   std::cout << "ME0Numbering "<<num.getLevels()<<std::endl;

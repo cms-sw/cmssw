@@ -35,6 +35,7 @@ private:
   void addDTGeometry( void );
   void addRPCGeometry( void );
   void addGEMGeometry( void );
+  void addME0Geometry( void );
   void addPixelBarrelGeometry( void );
   void addPixelForwardGeometry( void );
   void addTIBGeometry( void );
