@@ -30,7 +30,8 @@ public:
   ~HcalDDDSimConstants();
 
   HcalCellType::HcalCell    cell(int det, int zside, int depth, int etaR, 
-				 int iphi, bool corr=true) const;
+				 int iphi) const;
+  std::vector<std::pair<double,double> > getConstHBHE(const int type) const;
   std::pair<int,double>     getDetEta(double eta, int depth);
   int                       getEta(int det,int lay, double hetaR);
   std::pair<int,int>        getEtaDepth(int det, int etaR, int phi, int depth,
@@ -40,12 +41,14 @@ public:
   std::pair<int,int>        getiEtaRange(const int i) const
     {return std::pair<int,int>(etaMin[i],etaMax[i]);}
   std::vector<double>       getEtaTable() const {return etaTable;}
+  std::pair<int,int>        getModHalfHBHE(const int type) const;
   std::vector<int>          getNOff() const {return nOff;}
   double                    getPhiBin(const int i) const {return phibin[i];}
   std::pair<double,double>  getPhiCons(int det, int ieta);
   double                    getPhiOff(const int i) const {return phioff[i];}
   std::vector<HcalCellType> HcalCellTypes() const;
-  std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
+					  int depth=-1) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
   void                      printTiles() const;
   int                       unitPhi(int det, int etaR) const;
@@ -54,8 +57,8 @@ private:
   HcalDDDSimConstants();
   void loadSpecPars(const DDFilteredView& fv);
   void loadGeometry(const DDFilteredView& fv);
-  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &,
-				  int &) const;
+  std::vector<double>    getDDDArray(const std::string &, 
+				     const DDsvalues_type &, int &) const;
   unsigned       find (int element, std::vector<int>& array) const;
   double         deltaEta(int det, int eta, int depth) const;
   double         getEta(int det, int etaR, int zside, int depth=1) const;

@@ -30,16 +30,17 @@ public:
 
   /// get the subdetector
   HcalSubdetector subdet() const { return (HcalSubdetector)(subdetId()); }
+  bool oldFormat() const { return ((id_&0x800000)==0)?(true):(false); }
   /// get the z-side of the cell (1/-1)
-  int zside() const { return (id_&0x2000)?(1):(-1); }
+  int zside() const;
   /// get the absolute value of the cell ieta
-  int ietaAbs() const { return (id_>>7)&0x3f; }
+  int ietaAbs() const;
   /// get the cell ieta
   int ieta() const { return zside()*ietaAbs(); }
   /// get the cell iphi
-  int iphi() const { return id_&0x7F; }
+  int iphi() const;
   /// get the tower depth
-  int depth() const { return (id_>>14)&0x1F; }
+  int depth() const;
   /// get the smallest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_ieta_low() const { return ((ieta()-zside())*5)+zside(); }
   /// get the largest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)

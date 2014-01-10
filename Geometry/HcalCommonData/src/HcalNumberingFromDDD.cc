@@ -137,7 +137,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
 
 HcalCellType::HcalCell HcalNumberingFromDDD::cell(int det, int zside, 
 						  int depth, int etaR,
-						  int iphi, bool corr) const {
+						  int iphi) const {
 
-  return hcalConstants->cell(det,zside,depth,etaR,iphi,corr);
+  return hcalConstants->cell(det,zside,depth,etaR,iphi);
 }

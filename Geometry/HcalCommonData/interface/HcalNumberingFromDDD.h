@@ -36,7 +36,7 @@ public:
   HcalID         unitID(int det, int zside, int depth, int etaR, int phi, 
 			int lay=-1) const;
   HcalCellType::HcalCell cell(int det, int zside, int depth, int etaR, 
-			      int iphi, bool corr=true) const;
+			      int iphi) const;
 
 private:
 
