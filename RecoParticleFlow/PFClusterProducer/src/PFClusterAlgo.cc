@@ -1310,7 +1310,7 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
     //loop over full list of rechit fractions and add the back to the cluster only
     //if the fraction is above some reasonable threshold
     for (const auto &rhf : rhfracs) {
-      if (rhf.fraction()>1e-6) {
+      if (rhf.fraction()>1e-7) {
         curpfclusters[ic].addRecHitFraction(rhf);
       }
     }
