@@ -11,6 +11,9 @@ FixedGridRhoProducerFastjet::FixedGridRhoProducerFastjet(const edm::ParameterSet
 {
   pfCandidatesTag_ = iConfig.getParameter<edm::InputTag>("pfCandidatesTag");
   produces<double>();
+
+  input_pfcoll_token_ = consumes<edm::View<reco::PFCandidateCollection> >(pfCandidatesTag_);
+
 }
 
 FixedGridRhoProducerFastjet::~FixedGridRhoProducerFastjet(){} 
@@ -18,7 +21,7 @@ FixedGridRhoProducerFastjet::~FixedGridRhoProducerFastjet(){}
 void FixedGridRhoProducerFastjet::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
    edm::Handle<reco::PFCandidateCollection> pfColl;
-   iEvent.getByLabel(pfCandidatesTag_,pfColl);
+   iEvent.getByToken(input_pfcoll_token_, pfColl);
    std::vector<fastjet::PseudoJet> inputs;
    for ( reco::PFCandidateCollection::const_iterator ibegin = pfColl->begin(),
 	   iend = pfColl->end(), i = ibegin; i != iend; ++i ){

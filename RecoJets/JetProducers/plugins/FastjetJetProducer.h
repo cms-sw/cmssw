@@ -1,9 +1,12 @@
 #ifndef RecoJets_JetProducers_plugins_FastjetJetProducer_h
 #define RecoJets_JetProducers_plugins_FastjetJetProducer_h
 
+#include "RecoJets/JetProducers/interface/JetSpecific.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
-
-
 
 class FastjetJetProducer : public VirtualJetProducer
 {
@@ -50,6 +53,9 @@ protected:
   double zCut_;               /// for pruning: constituent minimum pt fraction of parent cluster
   double RcutFactor_;         /// for pruning: constituent dR * pt/2m < rcut_factor
 
+  // tokens for the data access
+  edm::EDGetTokenT<edm::View<reco::RecoChargedRefCandidate> > input_chrefcand_token_;
+  edm::EDGetTokenT<edm::View<reco::VertexCollection> > input_vertex_token_;
     
 };
 

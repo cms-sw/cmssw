@@ -19,6 +19,9 @@ class FixedGridRhoProducerFastjet : public edm::EDProducer {
 
   edm::InputTag pfCandidatesTag_;
   fastjet::GridMedianBackgroundEstimator bge_;
+
+  edm::EDGetTokenT<edm::View<reco::PFCandidateCollection> > input_pfcoll_token_;
+
 };
 
 
