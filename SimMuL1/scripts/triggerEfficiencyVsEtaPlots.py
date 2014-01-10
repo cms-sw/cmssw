@@ -1349,8 +1349,8 @@ def simTrackToAlctMatchingEfficiencyVsEtaME1():
     topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
 
     c = TCanvas("h_eff_eta_me1_after_alct","h_eff_eta_me1_after_alct",1000,600 )     
     c.cd()
@@ -1414,8 +1414,8 @@ def simTrackToClctMatchingEfficiencyVsEtaME1():
     topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_initial_1st",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_initial_1st",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
 
     c = TCanvas("h_eff_eta_me1_after_clct","h_eff_eta_me1_after_clct",1000,600 )     
     c.cd()
@@ -1480,14 +1480,14 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
     topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_initial",dir, etareb, kRed+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_initial",dir, etareb, kRed+1, 1, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alctclct = setEffHisto("h_eta_me1_after_alctclct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okAlct = setEffHisto("h_eta_me1_after_alctclct_okAlct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okClct = setEffHisto("h_eta_me1_after_alctclct_okClct","h_eta_initial",dir, etareb, kRed+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okAlctClct = setEffHisto("h_eta_me1_after_alctclct_okAlctClct","h_eta_initial",dir, etareb, kRed+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_me1_initial",dir, etareb, kRed+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_me1_initial",dir, etareb, kRed+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alctclct = setEffHisto("h_eta_me1_after_alctclct","h_eta_me1_initial",dir, etareb, kGreen+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okAlct = setEffHisto("h_eta_me1_after_alctclct_okAlct","h_eta_me1_initial",dir, etareb, kGreen+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okClct = setEffHisto("h_eta_me1_after_alctclct_okClct","h_eta_me1_initial",dir, etareb, kOrange+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okAlctClct = setEffHisto("h_eta_me1_after_alctclct_okAlctClct","h_eta_me1_initial",dir, etareb, kOrange+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
 
     c = TCanvas("","",1000,600 )     
     c.cd()
@@ -1796,7 +1796,7 @@ def simTrackToAlctMatchingEfficiencyVsWGME11():
     fullTitle = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
     etareb = 1
-    yrange = [0.6,1.2]
+    yrange = [0.8,1.04]
     xrange = [0,100]    
 
     h_eff_wg_me11_after_alct_okAlct = setEffHisto("h_wg_me11_after_alct_okAlct","h_wg_me11_initial",dir, etareb, kRed, 0, 2, "","","",xrange,yrange)
@@ -1812,7 +1812,7 @@ def simTrackToAlctMatchingEfficiencyVsWGME11():
     h_eff_wg_me11_after_alctclct_okAlctClct.Draw("same hist")
     h_eff_wg_me11_after_lct_okAlctClct.Draw("same hist")
 
-    leg = TLegend(0.2,0.2,0.926,0.4,"","brNDC")
+    leg = TLegend(0.5,0.2,1.0,0.4,"","brNDC")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     #leg.SetNColumns(3)
@@ -1861,15 +1861,11 @@ if __name__ == "__main__":
 
     output_dir = "plots/"
 
-    reuseOutputDirectory = True
+    reuseOutputDirectory = False
     if not reuseOutputDirectory:
         output_dir = mkdir("4simhit")
-    else:
-        output_dir = "myTest_20140109_172040/"
-#    output_dir = "forPresentationPU000_Pt00_postBugFix_20140104_082335/"
 
     ext = ".png"
-    ext = "_min%dSimHit_minSimPt%d.png"%(minSimHitChamber,minSimPt)
 
     simTrackToAlctMatchingEfficiencyVsEtaME1()
     simTrackToClctMatchingEfficiencyVsEtaME1()
@@ -1879,7 +1875,7 @@ if __name__ == "__main__":
     simTrackToTFTrackMatchingEfficiencyVsEtaME1()
     simTrackToAlctMatchingEfficiencyVsWGME11()
 
-    doME11 = True
+    doME11 = False
     if doME11:
         simTrackToAlctMatchingEfficiencyVsEtaME11()
         simTrackToClctMatchingEfficiencyVsEtaME11()

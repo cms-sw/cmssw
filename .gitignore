@@ -1,8 +1,10 @@
-# python artifacts
+.gitignore~
+*.root
+*.png
+*.pdf
 *.pyc
+*.cc~
+*.h~
+*.py~
+*.txt
 *__init__.py
-
-# eclipse artifacts
-.cproject
-.project
-.pydevproject
