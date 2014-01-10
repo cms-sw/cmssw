@@ -27,7 +27,7 @@ public:
 
   ~CSCDDUEventData();
 
-  static void setDebug(bool value) {bool expected=false; debug.compare_exchange_strong(expected,value,std::memory_order_acq_rel);} 
+  static void setDebug(bool value) {debug.store(value,std::memory_order_release);} 
   static void setErrorMask(unsigned int value) {errMask = value;} 
 
   /// accessor to data
