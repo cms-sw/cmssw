@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 # FastTimerService
 from HLTrigger.Timer.FastTimerService_cfi import *
 from HLTrigger.Timer.fastTimerServiceClient_cfi import *
+from HLTrigger.Timer.ftsLuminosityFromScalers_cfi import *
+from HLTrigger.Timer.ftsPileupFromScalers_cfi import *
 
 # DQM file saver
 dqmFileSaver = cms.EDAnalyzer( "DQMFileSaver",
@@ -23,4 +25,4 @@ dqmFileSaver = cms.EDAnalyzer( "DQMFileSaver",
     forceRunNumber    = cms.untracked.int32(-1),
 )
 
-DQMFileSaverOutput = cms.EndPath( fastTimerServiceClient + dqmFileSaver )
+DQMFileSaverOutput = cms.EndPath( ftsLuminosityFromScalers + ftsPileupFromScalers  + fastTimerServiceClient + dqmFileSaver )

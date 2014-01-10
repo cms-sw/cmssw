@@ -85,6 +85,13 @@ public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
   ~FastTimerService();
 
+  // reserve plots for timing vs. luminosity - these should only be called before any begin run (actually, before any preStreamBeginRun)
+  unsigned int reserveLuminosityPlots(std::string const & name, std::string const & title, std::string const & label, double range, double resolution);
+  unsigned int reserveLuminosityPlots(std::string && name, std::string && title, std::string && label, double range, double resolution);
+
+  // set the event luminosity
+  void setLuminosity(unsigned int stream_id, unsigned int luminosity_id, double value);
+
   // query the current module/path/event
   // Note: these functions incur in a "per-call timer overhead" (see above), currently of the order of 340ns
   double currentModuleTime(edm::StreamID) const;            // return the time spent since the last preModuleEvent() event
@@ -147,6 +154,31 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
+
+  struct LuminosityDescription {
+    std::string name;
+    std::string title;
+    std::string label;
+    double      range;
+    double      resolution;
+
+    LuminosityDescription(std::string const & _name, std::string const & _title, std::string const & _label, double _range, double _resolution) :
+      name(_name),
+      title(_title),
+      label(_label),
+      range(_range),
+      resolution(_resolution)
+    { }
+
+    LuminosityDescription(std::string && _name, std::string && _title, std::string const & _label, double _range, double _resolution) :
+      name(_name),
+      title(_title),
+      label(_label),
+      range(_range),
+      resolution(_resolution)
+    { }
+  };
+
 
   struct PathInfo;
 
@@ -313,7 +345,6 @@ private:
   const bool                                    m_enable_dqm_bymodule;          // require per-module timers
   const bool                                    m_enable_dqm_bymoduletype;      // require per-module timers
   const bool                                    m_enable_dqm_summary;
-  const bool                                    m_enable_dqm_byluminosity;
   const bool                                    m_enable_dqm_byls;
   const bool                                    m_enable_dqm_bynproc;
 
@@ -328,11 +359,7 @@ private:
   const double                                  m_dqm_pathtime_resolution;
   const double                                  m_dqm_moduletime_range;
   const double                                  m_dqm_moduletime_resolution;
-  const double                                  m_dqm_luminosity_range;
-  const double                                  m_dqm_luminosity_resolution;
-  const uint32_t                                m_dqm_ls_range;
   std::string                                   m_dqm_path;
-  const edm::InputTag                           m_luminosity_label;     // label of the per-Event luminosity EDProduct
 
   // job configuration and caching
   bool                                          m_is_first_event;
@@ -616,13 +643,14 @@ private:
     Timing                                          timing;
     std::vector<TimingPerProcess>                   timing_perprocess;
 
+    // luminosity per event
+    std::vector<double>                             luminosity;
+
     // overall plots
     SummaryPlots                                    dqm;                            // whole event summary plots
-    SummaryProfiles                                 dqm_byls;                       // whole event plots per lumisection
-    SummaryProfiles                                 dqm_byluminosity;               // whole event plots vs. instantaneous luminosity
+    std::vector<SummaryProfiles>                    dqm_byluminosity;               // whole event plots vs. "luminosity"
     std::vector<SummaryPlotsPerProcess>             dqm_perprocess;                 // per-process event summary plots
-    std::vector<SummaryProfilesPerProcess>          dqm_perprocess_byls;            // per-process plots per lumisection
-    std::vector<SummaryProfilesPerProcess>          dqm_perprocess_byluminosity;    // per-process plots vs. instantaneous luminosity
+    std::vector<std::vector<SummaryProfilesPerProcess>> dqm_perprocess_byluminosity;    // per-process plots vs. "luminosity"
 
     // plots by path
     std::vector<PathProfilesPerProcess>             dqm_paths;
@@ -647,12 +675,13 @@ private:
       timer_last_transition(),
       // time accounting per-event
       timing(),
+      timing_perprocess(),
+      // luminosity per event
+      luminosity(),
       // overall plots
       dqm(),
-      dqm_byls(),
       dqm_byluminosity(),
       dqm_perprocess(),
-      dqm_perprocess_byls(),
       dqm_perprocess_byluminosity(),
       // plots by path
       dqm_paths(),
@@ -678,16 +707,20 @@ private:
       timer_last_transition = FastTimer::Clock::time_point();
       // time accounting per-event
       timing.reset();
+      for (auto & timing: timing_perprocess)
+        timing.reset();
+      // luminosity per event
+      for (auto & lumi: luminosity)
+        lumi = 0;
       // overall plots
       dqm.reset();
-      dqm_byls.reset();
-      dqm_byluminosity.reset();
-      for (auto & plots: dqm_perprocess)
+      for (auto & plots: dqm_byluminosity)
         plots.reset();
-      for (auto & plots: dqm_perprocess_byls)
-        plots.reset();
-      for (auto & plots: dqm_perprocess_byluminosity)
-        plots.reset();
+      for (auto & perprocess_plots: dqm_perprocess)
+        perprocess_plots.reset();
+      for (auto & process_plots: dqm_perprocess_byluminosity)
+        for (auto & plots: process_plots)
+          plots.reset();
       // plots by path
       for (auto & plots: dqm_paths)
         plots.reset();
@@ -707,6 +740,9 @@ private:
 
   // process descriptions
   std::vector<ProcessDescription>               m_process;
+
+  // description of the luminosity axes
+  std::vector<LuminosityDescription>            m_dqm_luminosity;
 
   // stream data
   std::vector<StreamData>                       m_stream;

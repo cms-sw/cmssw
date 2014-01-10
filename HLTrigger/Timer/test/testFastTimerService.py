@@ -13,11 +13,10 @@ process.options = cms.untracked.PSet(
 )
 
 process.source.fileNames = (
-    '/store/group/comm_trigger/TriggerStudiesGroup/Timing/run207515/run207515_lumi840.root',
-    '/store/group/comm_trigger/TriggerStudiesGroup/Timing/run207515/run207515_lumi841.root',
+    '/store/group/comm_trigger/TriggerStudiesGroup/Timing/sample.root',
 )
 
-process.maxEvents.input = 1000
+process.maxEvents.input = -1
 
 # load and replace the FastTimerService
 if process.FastTimerService:
@@ -29,7 +28,7 @@ process.FastTimerService.enableTimingPaths        = True
 process.FastTimerService.enableTimingModules      = True
 process.FastTimerService.enableTimingExclusive    = True
 process.FastTimerService.enableTimingSummary      = True
-process.FastTimerService.skipFirstPath            = True
+process.FastTimerService.skipFirstPath            = False
 process.FastTimerService.enableDQM                = True
 process.FastTimerService.enableDQMbyPathActive    = True
 process.FastTimerService.enableDQMbyPathTotal     = True
@@ -43,3 +42,8 @@ process.FastTimerService.enableDQMbyLuminosity    = True
 process.FastTimerService.enableDQMbyLumiSection   = True
 process.FastTimerService.enableDQMbyProcesses     = True
 process.FastTimerService.enableDQMSummary         = True
+
+process.ftsLuminosityFromScalers.source = 'hltScalersRawToDigi'
+
+process.ftsPileupFromScalers.source = 'hltScalersRawToDigi'
+process.ftsPileupFromScalers.range  = 80
