@@ -78,7 +78,7 @@ class QuadrupletSeedMerger {
 
  public:
 
-  QuadrupletSeedMerger( );
+  explicit QuadrupletSeedMerger(const edm::ParameterSet& iConfig);
   ~QuadrupletSeedMerger();
 
   void update(const edm::EventSetup& );
@@ -89,7 +89,6 @@ class QuadrupletSeedMerger {
   void printHit( const TrackingRecHit* ) const;
   void printHit( const  TransientTrackingRecHit::ConstRecHitPointer& ) const;
   void printNtuplet( const SeedingHitSet& ) const;
-  void setLayerListName( std::string );
   void setMergeTriplets( bool );
   void setAddRemainingTriplets( bool );
   void setTTRHBuilderLabel( std::string );
@@ -102,10 +101,9 @@ class QuadrupletSeedMerger {
 
     // bool isValidQuadruplet( const SeedingHitSet&, const std::vector<SeedMergerPixelLayer>& ) const;
 
-  ctfseeding::SeedingLayerSets theLayerSets_;
+  SeedingLayerSetsBuilder theLayerBuilder_;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder_;
-  std::string layerListName_;
   bool isMergeTriplets_;
   bool isAddRemainingTriplets_;
   std::string theTTRHBuilderLabel_;

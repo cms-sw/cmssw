@@ -35,11 +35,10 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   // seed merger & its settings
   if ( cfg.exists("SeedMergerPSet")) {
     edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
-    theMerger_=new QuadrupletSeedMerger();
+    theMerger_=new QuadrupletSeedMerger(mergerPSet.getParameter<edm::ParameterSet>( "layerList" ));
     theMerger_->setTTRHBuilderLabel( mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" ) );
     theMerger_->setMergeTriplets( mergerPSet.getParameter<bool>( "mergeTriplets" ) );
     theMerger_->setAddRemainingTriplets( mergerPSet.getParameter<bool>( "addRemainingTriplets" ) );
-    theMerger_->setLayerListName( mergerPSet.getParameter<std::string>( "layerListName" ) );
   }
 
   edm::ParameterSet regfactoryPSet = 

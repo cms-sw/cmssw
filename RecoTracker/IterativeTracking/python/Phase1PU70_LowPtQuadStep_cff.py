@@ -34,6 +34,7 @@ lowPtQuadStepSeedLayers.FPix.skipClusters = cms.InputTag('lowPtQuadStepClusters'
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
+from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
 lowPtQuadStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
     RegionFactoryPSet = RegionPsetFomBeamSpotBlock.clone(
         ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
@@ -44,7 +45,7 @@ lowPtQuadStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.glo
             )
     ),
     SeedMergerPSet = cms.PSet(
-        layerListName = cms.string('PixelSeedMergerQuadruplets'),
+        layerList = PixelSeedMergerQuadruplets,
 	addRemainingTriplets = cms.bool(False),
 	mergeTriplets = cms.bool(True),
 	ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')
