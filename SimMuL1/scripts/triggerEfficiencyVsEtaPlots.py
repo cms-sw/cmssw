@@ -61,53 +61,6 @@ def setEffHisto(num_name, den_name, dir, nrebin, lcolor, lstyle, lwidth,
 
 
 #_______________________________________________________________________________
-def getEffHisto(fname, hdir, num_name, den_name, nrebin, lcolor, lstyle, lwidth, 
-                title, x_range, y_range):
-    fh = TFile.Open(fname)
-    
-    hd0 = fh.Get(hdir + "/" + den_name)
-    hn0 = fh.Get(hdir + "/" + num_name)
-    
-    hd = hd0.Clone(den_name+"_cln_"+fname)
-    hn = hn0.Clone(num_name+"_cln_"+fname)
-    hd.Sumw2()
-    hn.Sumw2()
-    
-    myRebin(hd, nrebin)
-    myRebin(hn, nrebin)
-    
-    heff = hn.Clone(num_name+"_eff_"+fname)
-    
-    hd.Sumw2()
-    heff.Sumw2()
-    
-    heff.Divide(heff,hd)
-    
-    heff.SetLineColor(lcolor)
-    heff.SetLineStyle(lstyle)
-    heff.SetLineWidth(lwidth)
-    
-    heff.SetTitle(title)
-    ##heff.GetXaxis().SetTitle(xtitle)
-    ##heff.GetYaxis().SetTitle(ytitle)
-    heff.GetXaxis().SetRangeUser(x_range[0],x_range[1])
-    heff.GetYaxis().SetRangeUser(y_range[0],y_range[1])
-    
-    heff.GetXaxis().SetTitleSize(0.07)
-    heff.GetXaxis().SetTitleOffset(0.7)
-    heff.GetYaxis().SetLabelOffset(0.015)
-    
-    heff.GetXaxis().SetLabelSize(0.05)
-    heff.GetYaxis().SetLabelSize(0.05)
-    
-    h1 = hn0
-    h2 = hd0
-    he = heff
-    
-    ##fh.Close()
-    return heff
-
-#_______________________________________________________________________________
 def cscStationOccupanciesVsEta():
     """Plot occupancy efficiencies in CSC stations 1-4"""
 
@@ -121,7 +74,7 @@ def cscStationOccupanciesVsEta():
     c.Divide(2,2,0.0001,0.0001)
     xTitle = "Simtrack #eta"
     yTitle = "Efficiency"
-    title = "Efficiency for simtrack with %d < p_{T} < 50 to have #geq 4 sim hits in ME"%(pt_cut)
+    title = "Efficiency for simtrack with %d < p_{T} < %d to have #geq %d simhits in ME"%(minSimPt,maxSimPt,minSimHitChamber)
 
     h_eff_eta_me1_initial = setEffHisto("h_eta_me1_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, title + "1", xTitle, yTitle, xrange,yrange)
     h_eff_eta_me2_initial = setEffHisto("h_eta_me2_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, title + "2", xTitle, yTitle, xrange,yrange)
@@ -161,7 +114,7 @@ def cscStationOccupanciesMatchedVsEta_2():
     l_eff_eta_simh = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_simh.SetBorderSize(0)
     l_eff_eta_simh.SetFillStyle(0)
-    l_eff_eta_simh.SetHeader("Efficiency for simtrack with %d < p_{T} < 50 to have #geq 4 simhits in"%(pt_cut))
+    l_eff_eta_simh.SetHeader("Efficiency for simtrack with %d < p_{T} < %d to have #geq %d simhits in"%(minSimPt,maxSimPt,minSimHitChamber))
     l_eff_eta_simh.AddEntry(h_eta_initial_1st,"#geq 1 CSC station","pl")
     l_eff_eta_simh.AddEntry(h_eta_initial_2st,"#geq 2 CSC stations","pl")
     l_eff_eta_simh.AddEntry(h_eta_initial_3st,"#geq 3 CSC stations","pl")
@@ -172,7 +125,7 @@ def cscStationOccupanciesMatchedVsEta_2():
 
 #_______________________________________________________________________________
 def cscStationOccupanciesMatchedVsEta_3():
-    """Plots the efficiency that a simtrack has at least 4 layers of simhits in CSC stations 1-3"""
+    """Plots the efficiency that a muon has at least 4 layers of simhits in CSC stations 1-3"""
     
     dir = getRootDirectory(input_dir, file_name)
     
@@ -197,7 +150,7 @@ def cscStationOccupanciesMatchedVsEta_3():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for sim track with %d < p_{T} < 50 to have #geq 4 sim hits in"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have #geq %d simhits in"%(minSimPt,maxSimPt,minSimHitChamber))
     leg.AddEntry(h_eta_me1_initial,"ME1","pl")
     leg.AddEntry(h_eta_me1_initial_2st,"ME1 + #geq 1 CSC station","pl")
     leg.AddEntry(h_eta_me1_initial_3st,"ME1 + #geq 2 CSC stations","pl")
@@ -233,7 +186,7 @@ def cscStationOccupanciesMatchedMpcVsEta():
     legend1 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     legend1.SetBorderSize(0)
     legend1.SetFillStyle(0)
-    legend1.SetHeader("Simtrack with %d < p_{T} < 50 to have a reconstructed MPC stub in ME1"%(pt_cut))
+    legend1.SetHeader("Simtrack with %d < p_{T} < %d to have a reconstructed MPC stub in ME1"%(minSimPt,maxSimPt))
     legend1.Draw("same")
 
     c.cd(2)
@@ -242,7 +195,7 @@ def cscStationOccupanciesMatchedMpcVsEta():
     legend2 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     legend2.SetBorderSize(0)
     legend2.SetFillStyle(0)
-    legend2.SetHeader("Simtrack with %d < p_{T} < 50 to have a reconstructed MPC stub in ME2"%(pt_cut))
+    legend2.SetHeader("Simtrack with %d < p_{T} < %d to have a reconstructed MPC stub in ME2"%(minSimPt,maxSimPt))
     legend2.Draw("same")
 
     c.cd(3)
@@ -251,7 +204,7 @@ def cscStationOccupanciesMatchedMpcVsEta():
     legend3 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     legend3.SetBorderSize(0)
     legend3.SetFillStyle(0)
-    legend3.SetHeader("Simtrack with %d < p_{T} < 50 to have a reconstructed MPC stub in ME3"%(pt_cut))
+    legend3.SetHeader("Simtrack with %d < p_{T} < %d to have a reconstructed MPC stub in ME3"%(minSimPt,maxSimPt))
     legend3.Draw("same")
 
     c.cd(4)
@@ -260,7 +213,7 @@ def cscStationOccupanciesMatchedMpcVsEta():
     legend4 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     legend4.SetBorderSize(0)
     legend4.SetFillStyle(0)
-    legend4.SetHeader("Simtrack with %d < p_{T} < 50 to have a reconstructed MPC stub in ME4"%(pt_cut))
+    legend4.SetHeader("Simtrack with %d < p_{T} < %d to have a reconstructed MPC stub in ME4"%(minSimPt,maxSimPt))
     legend4.Draw()
     
     c.SaveAs("%sc_eff_eta_mpc_by_st%s"%(output_dir,ext))
@@ -293,7 +246,7 @@ def cscStationOccupanciesMatchedMpcVsEta_2():
     l_eff_eta_mpc = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_mpc.SetBorderSize(0)
     l_eff_eta_mpc.SetFillStyle(0)
-    l_eff_eta_mpc.SetHeader("Simtrack with %d < p_{T} < 50 to have reconstructed MPC stubs in"%(pt_cut))
+    l_eff_eta_mpc.SetHeader("Simtrack with %d < p_{T} < %d to have reconstructed MPC stubs in"%(minSimPt,maxSimPt))
     l_eff_eta_mpc.AddEntry(h_eta_mpc_1st,"#geq 1 CSC station","pl")
     l_eff_eta_mpc.AddEntry(h_eta_mpc_2st,"#geq 2 CSC stations","pl")
     l_eff_eta_mpc.AddEntry(h_eta_mpc_3st,"#geq 3 CSC stations","pl")
@@ -330,7 +283,7 @@ def cscStationOccupanciesMatchedMpcVsEta_3():
     l_eff_eta_mpc_relative = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_mpc_relative.SetBorderSize(0)
     l_eff_eta_mpc_relative.SetFillStyle(0)
-    l_eff_eta_mpc_relative.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to have a reconstructed MPC stub in")
+    l_eff_eta_mpc_relative.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a reconstructed MPC stub in"%(minSimPt,maxSimPt))
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_1st_r,"#geq 1 CSC station","pl")
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_2st_r,"#geq 2 CSC stations","pl")
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_3st_r,"#geq 3 CSC stations","pl")
@@ -347,8 +300,8 @@ def tfCandidateTriggerEfficiencyVsEta():
     etareb = 1
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
-#    title = "Effiency for a simtrack to have a TFTrack with at least 2 MPC stubs and certain quality"
-    title = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+#    title = "Effiency for a muon to have a TFTrack with at least 2 MPC stubs and certain quality"
+    title = " " * 11 + "Probability for CSC TFTrack to use stubs" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack #eta"
     yTitle = "Efficiency"
     
@@ -374,7 +327,7 @@ dir, etareb, kBlue, 1,1, title, xTitle, yTitle, xrange,yrange)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a simtrack to have a TF track with matched stubs in 2st and ")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with matched stubs in 2st and "%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_q1,"Q#geq1","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_q1,"Q#geq1, p_{T}^{TF}>10","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_q2,"Q#geq2","pl")
@@ -425,7 +378,7 @@ def cscStubMatchingEfficiencyVsEtaSummary():
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have a reconstructed stub in station 1"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a reconstructed stub in station 1"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_alct,"an ALCT anywhere in the ME1 chamber","pl")
     leg.AddEntry(h_eff_eta_me1_after_alct_okAlct,"a good ALCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_clct,"a CLCT anywhere in the ME1 chamber","pl")
@@ -450,7 +403,7 @@ def cscTFMatchingEfficiencyVsEtaME1():
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
     title = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
-#    title = "Effiency for a simtrack with %d < p_{T} < 50 to have a reconstructed stub in station 1"%(pt_cut)
+#    title = "Effiency for a muon with %d < p_{T} < %d to have a reconstructed stub in station 1"%(minSimPt,maxSimPt)
     xTitle = "Simtrack #eta"
     yTitle = "Efficiency"
 
@@ -473,7 +426,7 @@ def cscTFMatchingEfficiencyVsEtaME1():
     leg.SetMargin(0.12)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have a"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_lct_okClctAlct,"LCT reconstructed in ME1","pl")
     leg.AddEntry(h_eff_eta_me1_after_mplct_okClctAlct_plus,"MPC LCT reconstructed in station 1 and another station","pl")
     leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus,"TF track with reconstructed stubs in station 1 and another station","pl")
@@ -494,7 +447,7 @@ def cscTFCandMatchingEfficiencyVsEta():
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
     title = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
-#    title = "Effiency for a simtrack with %d < p_{T} < 50 to have reconstructed stubs"%(pt_cut)
+#    title = "Effiency for a muon with %d < p_{T} < %d to have reconstructed stubs"%(minSimPt,maxSimPt)
     xTitle = "Simtrack #eta"
     yTitle = "Efficiency"
 
@@ -512,7 +465,7 @@ def cscTFCandMatchingEfficiencyVsEta():
     leg = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_after_mpc_ok_plus,"MPCs reconstructed in 2 stations","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus,"TF track with reconstructed stubs in 2 stations","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10,"TF track with p_{T}^{TF}>10 and reconstructed stubs in 2 stations","pl")
@@ -532,7 +485,7 @@ def cscTFCandMatchingEfficiencyVsEta_2():
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
     title = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
-#    title = "Effiency for a muon with %d < p_{T} < 50 to have reconstructed stubs in a at least 2 stations"%(pt_cut)
+#    title = "Effiency for a muon with %d < p_{T} < %d to have reconstructed stubs in a at least 2 stations"%(minSimPt,maxSimPt)
     xTitle = "Simtrack #eta"
     yTitle = "Efficiency"
 
@@ -555,7 +508,7 @@ def cscTFCandMatchingEfficiencyVsEta_2():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have stubs reconstructed in at least 2 stations"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have stubs reconstructed in at least 2 stations"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_after_mpc_ok_plus,"and MPC reconstructed in 2 stations","pl")
     leg.AddEntry(h_eff_eta_after_mpc_ok_plus_3st,"MPC reconstructed in 3 stations","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_3st1a,"TF track with reconstructed stubs in 3 stations, 1 inME1a","pl")
@@ -1301,7 +1254,7 @@ def drawplot_etastep(fname, pu, dname="tf"):
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
 
-    leg.SetHeader("Efficiency for muon with p_{T}>10")
+    leg.SetHeader("Efficiency for a muon with p_{T}>10")
     ##leg.AddEntry(NUL,"match to LCT:","")
     leg.AddEntry(h_eff_eta_me1_after_lct,"any LCT in ME1 chamber crossed by #mu","pl")
     leg.AddEntry(h_eff_eta_me1_after_lct_okAlct,"  + track's ALCT","pl")
@@ -1409,7 +1362,7 @@ def simTrackToAlctMatchingEfficiencyVsEtaME1():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have hits in station 1 and"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_alct,"a reconstructed ALCT anywhere in the chamber","pl")
     leg.AddEntry(h_eff_eta_me1_after_alct_okAlct,"a reconstructed ALCT within 2 wiregroups distance","pl")
     leg.Draw()
@@ -1441,7 +1394,7 @@ def simTrackToAlctMatchingEfficiencyVsEtaME11():
     leg.SetBorderSize(0)
     leg.SetMargin(0.15)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have hits in an ME11 chamber and"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in an ME11 chamber and"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me11_after_alct,"a reconstructed ALCT anywhere in the chamber","pl")
     leg.AddEntry(h_eff_eta_me11_after_alct_okAlct,"a reconstructed ALCT within 2 wiregroups distance","pl")
     leg.Draw()
@@ -1474,7 +1427,7 @@ def simTrackToClctMatchingEfficiencyVsEtaME1():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have hits in station 1 and"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_clct,"a reconstructed CLCT anywhere in the chamber","pl")
     leg.AddEntry(h_eff_eta_me1_after_clct_okClct,"a reconstructed CLCT within 2 strips distance","pl")
     leg.Draw()
@@ -1506,7 +1459,7 @@ def simTrackToClctMatchingEfficiencyVsEtaME11():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have hits in station 1 and"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me11_after_clct,"a reconstructed CLCT anywhere in the chamber","pl")
     leg.AddEntry(h_eff_eta_me11_after_clct_okClct,"a reconstructed CLCT within 2 strips distance","pl")
     leg.Draw()
@@ -1552,7 +1505,7 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to reconstruct stubs in an ME1 chamber"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to reconstruct stubs in an ME1 chamber"%(minSimPt,maxSimPt))
 #    leg.AddEntry(h_eff_eta_me1_after_clct,"any CLCT","pl")
 #    leg.AddEntry(h_eff_eta_me1_after_clct_okClct,"correct CLCT","pl")
 #    leg.AddEntry(h_eff_eta_me1_after_alct,"any ALCT","pl")
@@ -1604,7 +1557,7 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME11():
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to reconstruct stubs in an ME11 chamber"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to reconstruct stubs in an ME11 chamber"%(minSimPt,maxSimPt))
 #    leg.AddEntry(h_eff_eta_me11_after_clct,"any CLCT","pl")
 #    leg.AddEntry(h_eff_eta_me11_after_clct_okClct,"correct CLCT","pl")
 #    leg.AddEntry(h_eff_eta_me11_after_alct,"any ALCT","pl")
@@ -1650,7 +1603,7 @@ def simTrackToLctMatchingEfficiencyVsEtaME1():
     leg.SetFillStyle(0)
 
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to reconstruct an LCT in an ME11 chamber"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to reconstruct an LCT in an ME11 chamber"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_lct,"any LCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_lct_okAlct,"any LCT with correct ALCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_lct_okClct,"any LCT with correct CLCT","pl")
@@ -1693,7 +1646,7 @@ def simTrackToLctMatchingEfficiencyVsEtaME11():
     leg.SetFillStyle(0)
 
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to reconstruct an LCT in an ME11 chamber"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to reconstruct an LCT in an ME11 chamber"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me11_after_lct,"any LCT","pl")
     leg.AddEntry(h_eff_eta_me11_after_lct_okAlct,"any LCT with correct ALCT","pl")
     leg.AddEntry(h_eff_eta_me11_after_lct_okClct,"any LCT with correct CLCT","pl")
@@ -1730,7 +1683,7 @@ def simTrackToMpcLctMatchingEfficiencyVsEtaME1():
     leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have hits in station 1 and"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_mplct_okAlctClct,"at least 1 reconstructed MPC LCT in station 1","pl")
     leg.AddEntry(h_eff_eta_me1_after_mplct_okAlctClct_plus,"at least 2 reconstructed MPC LCTs, 1 in station 1","pl")
     leg.Draw()
@@ -1772,7 +1725,7 @@ def simTrackToTFTrackMatchingEfficiencyVsEtaME1():
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
 #    leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 to have hits in station 1 and"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_tf_ok,"a TF Track","pl")
     leg.AddEntry(h_eff_eta_me1_after_tf_ok_pt10,"a TF Track with p_{T}>10","pl")
     leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus,"a TF Track with a stub in station 1 and at least another station","pl")
@@ -1818,7 +1771,7 @@ def simTrackToAlctMatchingEfficiencyVsPhiME1():
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
 
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < 50 GeV to have hits in station 1 with"%(pt_cut))
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d GeV to have hits in station 1 with"%(minSimPt,maxSimPt))
 
     leg.AddEntry(h_eff_phi_me1_after_alct,"a reconstructed ALCT anywhere in an ME1 chamber","pl")
     leg.AddEntry(h_eff_phi_me1_after_alct_okAlct,"a reconstructed ALCT within 2 wiregroups distance (good ALCT)","pl")
@@ -1894,24 +1847,23 @@ if __name__ == "__main__":
 
     ## global variables
     input_dir = "files/"
-    #file_name = "gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_preTrig2.root"
-    #file_name = 'gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_replicateVadimOldResults.root'
-    #file_name = "gem_trigger_eff_ana-out_L1_MuonGun_neweta_PU100_Pt20_50k_digi_replicateVadimOldResults_dphiCut.root"
-    #file_name = "gem_trigger_eff_ana_forAysen.root"
     dphi_cut = 0
-    pt_cut = 2
-    #file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt%d_new_eff.root"%(dphi_cut)
     #file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu400_w3_gem98_pt2-50_PU400_pt0_new_eff.root"
-    #file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_postBuxFix.root"
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff.root"
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_bugfix_initial.root"
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC5_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff.test.root"
+    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_2simhits.root"
+#    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_3simhits.root"
+#    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_4simhits.root"
+    minEta = 1.45
+    maxEta = 2.5
+    minSimPt = 2
+    maxSimPt = 50
+    minSimHitChamber = 2
+
+
     output_dir = "plots/"
 
     reuseOutputDirectory = False
     if not reuseOutputDirectory:
-        output_dir = mkdir("forPresentationPU000_Pt00_postBugFix")
-    else: output_dir = "forPresentationPU000_Pt00_postBugFix_20140104_082335/"
+        output_dir = mkdir("4simhit")
 
     ext = ".png"
 
