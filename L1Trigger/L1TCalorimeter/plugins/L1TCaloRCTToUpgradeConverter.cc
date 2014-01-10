@@ -120,36 +120,36 @@ l1t::L1TCaloRCTToUpgradeConverter::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 /*
-void
-l1t::L1TCaloRCTToUpgradeConverter::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
+  void
+  l1t::L1TCaloRCTToUpgradeConverter::beginRun(edm::Run const&, edm::EventSetup const&)
+  {
+  }
 */
  
 // ------------ method called when ending the processing of a run  ------------
 /*
-void
-l1t::L1TCaloRCTToUpgradeConverter::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
+  void
+  l1t::L1TCaloRCTToUpgradeConverter::endRun(edm::Run const&, edm::EventSetup const&)
+  {
+  }
 */
  
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
-void
-l1t::L1TCaloRCTToUpgradeConverter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
-t&)
-{
-}
+  void
+  l1t::L1TCaloRCTToUpgradeConverter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
+  t&)
+  {
+  }
 */
  
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
-void
-l1t::L1TCaloRCTToUpgradeConverter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
-)
-{
-}
+  void
+  l1t::L1TCaloRCTToUpgradeConverter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
+  )
+  {
+  }
 */
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
