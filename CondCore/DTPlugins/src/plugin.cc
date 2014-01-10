@@ -37,14 +37,15 @@
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include "CondFormats/DataRecord/interface/DTLVStatusRcd.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
-#include "CondCore/CondDB/interface/KeyList.h"
+#include "CondCore/CondDB/interface/KeyListProxy.h"
 
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
 
 namespace cond {
-  template <> cond::BaseKeyed* createPayload<cond::BaseKeyed>( const std::string& payloadTypeName ){
+
+  template <> BaseKeyed* createPayload<BaseKeyed>( const std::string& payloadTypeName ){
     if( payloadTypeName == "DTKeyedConfig" ) return new DTKeyedConfig;
     throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
 		   "createPayload" );
@@ -67,3 +68,6 @@ REGISTER_PLUGIN(DTHVStatusRcd,DTHVStatus);
 REGISTER_PLUGIN(DTLVStatusRcd,DTLVStatus);
 REGISTER_PLUGIN(DTKeyedConfigContainerRcd, cond::BaseKeyed);
 REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd,cond::persistency::KeyList,DTKeyedConfigContainerRcd);
+
+
+

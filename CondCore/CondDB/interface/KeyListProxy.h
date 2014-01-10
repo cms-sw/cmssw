@@ -24,8 +24,8 @@ namespace cond {
       virtual ~PayloadProxy(){}
 
       // dereference (does not load)
-      const cond::KeyList & operator()() const {
-	return me; 
+      const KeyList & operator()() const {
+	return m_keyList; 
       }
         
       virtual void invalidateCache() {
@@ -33,22 +33,23 @@ namespace cond {
       }
 
       virtual void loadMore(CondGetter const & getter){
-      	me.init(getter.getTag(m_name));
+      	m_keyList.init(getter.get(m_name));
       }
 
 
     protected:
-      virtual bool loadPayload() {
-	bool ok = super::loadPayload();
-	me.load(super::operator()());
-	return ok;
+      virtual void loadPayload() {
+	super::loadPayload();
+	m_keyList.load(super::operator()());
       }
 
-  private:
+    private:
+      
+      std::string m_name;
+      KeyList m_keyList;
 
-    std::string m_name;
-    KeyList m_keyList;
+    };
+  }
 
-  };
 }
 #endif

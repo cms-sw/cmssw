@@ -16,13 +16,14 @@
 #include "CondFormats/Calibration/interface/EfficiencyPayloads.h"
 #include "CondFormats/DataRecord/interface/ExEfficiency.h"
 #include "CondFormats/Common/interface/BaseKeyed.h"
-#include "CondCore/CondDB/interface/KeyList.h"
+#include "CondCore/CondDB/interface/KeyListProxy.h"
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
 
 namespace cond {
-  template <> cond::BaseKeyed* createPayload<cond::BaseKeyed>( const std::string& payloadTypeName ){
+
+  template <> BaseKeyed* createPayload<BaseKeyed>( const std::string& payloadTypeName ){
     if( payloadTypeName == "condex::ConfI" ) return new condex::ConfI;
     if( payloadTypeName == "condex::ConfF" ) return new condex::ConfF;
     throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",

@@ -27,11 +27,15 @@
 namespace cond {
 
   namespace persistency {
+
+    //class IOVKeysDescription;
    
     class KeyList {
     public:
       
-      void init( IOVProxy& iovProxy );
+      //KeyList( const IOVKeysDescription* idescr=0 ); 
+
+      void init( IOVProxy iovProxy );
       
       void load( const std::vector<unsigned long long>& keys );
       

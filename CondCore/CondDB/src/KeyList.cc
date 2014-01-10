@@ -5,14 +5,20 @@ namespace cond {
 
   namespace persistency {
 
-    void KeyList::init(  IOVProxy& iovProxy ){
+    //KeyList::KeyList( const IOVKeysDescription*  ) {
+    //  std::cout <<"### Constructing..."<<std::endl;
+    //}
+
+    void KeyList::init(  IOVProxy iovProxy ){
       m_proxy = iovProxy;
       m_data.clear();
       m_objects.clear();
     }
 
     void KeyList::load( const std::vector<unsigned long long>& keys ){
-      Session s( m_proxy.session() );
+      std::shared_ptr<SessionImpl> simpl = m_proxy.session();
+      if( !simpl.get() ) cond::throwException("The KeyList has not been initialized.","KeyList::load");
+      Session s( simpl );
       s.transaction().start( true );
       m_data.clear();
       m_objects.resize(keys.size());
@@ -29,7 +35,6 @@ namespace cond {
       }
       s.transaction().commit();
     }
-
   }
 }
 
