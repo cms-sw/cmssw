@@ -34,7 +34,6 @@ ME0GeometryBuilderFromDDD::~ME0GeometryBuilderFromDDD()
 
 ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
 {
-  std::cout <<" >>>> Sto in ME0GeometryBuilderFromDDD::build" <<std::endl;
   std::string attribute = "ReadOutName"; // could come from .orcarc
   std::string value     = "MuonME0Hits";    // could come from .orcarc
   DDValue val(attribute, value, 0.0);
@@ -55,7 +54,6 @@ ME0Geometry* ME0GeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-  std::cout << "Building ME0 the geometry service" << std::endl;
   LogDebug("ME0GeometryBuilderFromDDD") <<"Building the geometry service";
   ME0Geometry* geometry = new ME0Geometry();
 
@@ -63,17 +61,12 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 					<<" First logical part "
 					<<fview.logicalPart().name().name();
 
-  std::cout << "About to run through the ME0 structure\n" 
-	    <<" First logical part "
-	    <<fview.logicalPart().name().name()
-	    <<std::endl;
 
   bool doSubDets = fview.firstChild();
-  std::cout<< "doSubDets = " << doSubDets<<std::endl;
+ 
   LogDebug("ME0GeometryBuilderFromDDD") << "doSubDets = " << doSubDets;
 
-  std::cout<<"start the loop"<<std::endl; 
-  LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
+   LogDebug("ME0GeometryBuilderFromDDD") <<"start the loop"; 
   while (doSubDets)
   {
     // Get the Base Muon Number
