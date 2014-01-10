@@ -168,11 +168,11 @@ void METAnalyzer::beginJob(){
 
 
   if (doPVCheck_) {
-    nvtxMin_        = cleaningParameters_.getParameter<int>("nvtx_min");
-//    vtxNtrksMin_   = cleaningParameters_.getParameter<int>("nvtxtrks_min");
-    vtxNdofMin_    = cleaningParameters_.getParameter<int>("vtxndof_min");
-//    vtxChi2Max_     = cleaningParameters_.getParameter<double>("vtxchi2_max");
-    vtxZMax_        = cleaningParameters_.getParameter<double>("vtxz_max");
+//    nvtxMin_        = cleaningParameters_.getParameter<int>("nvtx_min");
+////    vtxNtrksMin_   = cleaningParameters_.getParameter<int>("nvtxtrks_min");
+//    vtxNdofMin_    = cleaningParameters_.getParameter<int>("vtxndof_min");
+////    vtxChi2Max_     = cleaningParameters_.getParameter<double>("vtxchi2_max");
+//    vtxZMax_        = cleaningParameters_.getParameter<double>("vtxz_max");
 
   }
 
@@ -1155,11 +1155,12 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         double vertex_ndof    = v->ndof();
         bool   fakeVtx        = v->isFake();
         double vertex_Z       = v->z();
-        if (  !fakeVtx
-          && vertex_number>=nvtxMin_
-          && vertex_ndof   >vtxNdofMin_
-  //        && vertex_chi2   <vtxChi2Max_
-          && fabs(vertex_Z)<vtxZMax_ ) {
+        if (  !fakeVtx 
+//          && vertex_number>=nvtxMin_
+//          && vertex_ndof   >vtxNdofMin_
+//  //        && vertex_chi2   <vtxChi2Max_
+//          && fabs(vertex_Z)<vtxZMax_ 
+         ){
           bPrimaryVertex = true;
           ++numPV_;
         }

@@ -31,15 +31,16 @@ cleaningParameters = cms.PSet(
     #Turn on extra checks
     doPrimaryVertexCheck   = cms.bool(True),
     doHLTPhysicsOn         = cms.bool(False),
-    
-    #Vertex cleanup parameters
-    nvtx_min       = cms.int32(1), 
-#    nvtxtrks_min   = cms.int32(0), #not used by default
-    vtxndof_min    = cms.int32(4),
-#    vtxchi2_max    = cms.double(9999), #not used by default
-    vtxz_max       = cms.double(24.0),
-    
+ 
     #Switch on  tight filters for BeamHalo, JetID, HCALnoise
     tightBHFiltering    = cms.bool(False),
     tightJetIDFiltering = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
 )
+
+#process.goodVertices = cms.EDFilter(
+#            "VertexSelector",
+#            filter = cms.bool(False),
+#            src = cms.InputTag("offlinePrimaryVertices"),
+#            cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2")
+#          )
+#

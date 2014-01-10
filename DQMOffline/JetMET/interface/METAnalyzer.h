@@ -191,9 +191,9 @@ class METAnalyzer : public edm::EDAnalyzer{
   edm::ParameterSet cleaningParameters_;
   std::string hltPhysDec_;
 
-  int    nbinsPV_;
-  double nPVMin_; 
-  double nPVMax_;
+//  int    nbinsPV_;
+//  double nPVMin_; 
+//  double nPVMax_;
 
   bool doPVCheck_;
   bool doHLTPhysicsOn_;

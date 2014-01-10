@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.JetMET.jetDQMConfig_cff import *      # parameters for all jet analyzers
-from DQMOffline.JetMET.metDQMConfig_cff import *      # parameters for all met analyzers
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cleanup
 
 
