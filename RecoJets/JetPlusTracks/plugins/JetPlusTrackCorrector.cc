@@ -19,7 +19,7 @@ using namespace jpt;
 
 // -----------------------------------------------------------------------------
 //
-JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset ) 
+JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset, edm::ConsumesCollector&& iC ) 
   : verbose_( pset.getParameter<bool>("Verbose") ),
     vectorial_( pset.getParameter<bool>("VectorialCorrection") ),
     vecResponse_( pset.getParameter<bool>("UseResponseInVecCorr") ),
@@ -91,6 +91,15 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
        << " UseOutOfVertexTracks : " << ( useOutOfVertexTracks_ ? "true" : "false" );
     edm::LogWarning("JetPlusTrackCorrector") << ss.str();
   }
+
+  input_jetTracksAtVertex_token_ =  iC.consumes<edm::View<reco::JetTracksAssociation::Container> >(jetTracksAtVertex_); 
+  input_jetTracksAtCalo_token_ = iC.consumes<edm::View<reco::JetTracksAssociation::Container> >(jetTracksAtCalo_);
+  inut_reco_muons_token_ = iC.consumes<edm::View<RecoMuons> > (muons_);
+  input_pvCollection_token_ = iC.consumes<edm::View<reco::VertexCollection> >(srcPVs_);
+  input_reco_elecs_token_ = iC.consumes<edm::View<RecoElectrons> >(electrons_);
+  input_reco_elec_ids_token_ = iC.consumes<edm::View<RecoElectronIds> >( electronIds_);
+
+
 }
 
 // -----------------------------------------------------------------------------
@@ -303,7 +312,7 @@ bool JetPlusTrackCorrector::jtaUsingEventData( const reco::Jet& fJet,
  
   // Get Jet-track association at Vertex
   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtVertex;
-  event.getByLabel( jetTracksAtVertex_, jetTracksAtVertex ); 
+  event.getByToken(input_jetTracksAtVertex_token_, jetTracksAtVertex ); 
       
   if ( !jetTracksAtVertex.isValid() || jetTracksAtVertex.failedToGet() ) {
     if ( verbose_ && edm::isDebugEnabled() ) {
@@ -332,7 +341,7 @@ bool JetPlusTrackCorrector::jtaUsingEventData( const reco::Jet& fJet,
 
   // Get Jet-track association at Calo
   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;
-  event.getByLabel( jetTracksAtCalo_, jetTracksAtCalo );
+  event.getByToken(input_jetTracksAtCalo_token_, jetTracksAtCalo );
 
   if ( !jetTracksAtCalo.isValid() || jetTracksAtCalo.failedToGet() ) {
     if ( verbose_ && edm::isDebugEnabled() ) {
@@ -362,7 +371,7 @@ bool JetPlusTrackCorrector::jtaUsingEventData( const reco::Jet& fJet,
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::getMuons( const edm::Event& event, edm::Handle<RecoMuons>& reco_muons ) const {
-  event.getByLabel( muons_, reco_muons ); 
+  event.getByToken(inut_reco_muons_token_, reco_muons ); 
   if ( !reco_muons.isValid() || reco_muons.failedToGet() ) {
     edm::LogError("JetPlusTrackCorrector")
       << "[JetPlusTrackCorrector::" << __func__ << "]"
@@ -393,7 +402,7 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
 
    vertex_=reco::Particle::Point(0,0,0);
    edm::Handle<reco::VertexCollection> pvCollection;
-   event.getByLabel(srcPVs_,pvCollection);
+   event.getByToken(input_pvCollection_token_, pvCollection);
    if ( pvCollection.isValid() && pvCollection->size()>0 ) vertex_=pvCollection->begin()->position();
 
   // Get RECO muons
@@ -539,9 +548,9 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::getElectrons( const edm::Event& event, 
-					  edm::Handle<RecoElectrons>& reco_elecs,
+					  edm::Handle<RecoElectrons>& reco_elecs,     
 					  edm::Handle<RecoElectronIds>& reco_elec_ids ) const {
-  event.getByLabel( electrons_, reco_elecs ); 
+  event.getByToken(input_reco_elecs_token_, reco_elecs ); 
   if ( !reco_elecs.isValid() || reco_elecs.failedToGet() ) {
     edm::LogError("JetPlusTrackCorrector")
       << "[JetPlusTrackCorrector::" << __func__ << "]"
@@ -552,7 +561,7 @@ bool JetPlusTrackCorrector::getElectrons( const edm::Event& event,
       << electrons_.process() << "\"";
     return false;
   }
-  event.getByLabel( electronIds_, reco_elec_ids ); 
+  event.getByToken(input_reco_elec_ids_token_, reco_elec_ids ); 
   if ( !reco_elec_ids.isValid() || reco_elec_ids.failedToGet() ) {
     edm::LogError("JetPlusTrackCorrector")
       << "[JetPlusTrackCorrector::" << __func__ << "]"
