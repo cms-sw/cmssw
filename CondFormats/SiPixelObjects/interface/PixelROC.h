@@ -48,11 +48,25 @@ public:
   /// converts DU position to local. 
   /// If GlobalPixel is outside ROC the resulting LocalPixel is not inside ROC.
   /// (call to inside(..) recommended)
-  LocalPixel  toLocal(const GlobalPixel & gp) const;
+  LocalPixel  toLocal(const GlobalPixel & glo) const {
+    if (!theFrameConverter) initFrameConversion();
+    int rocRow = theFrameConverter->row().inverse(glo.row);
+    int rocCol = theFrameConverter->collumn().inverse(glo.col);
+    
+    LocalPixel::RocRowCol rocRowCol = {rocRow, rocCol};
+    return LocalPixel(rocRowCol);
+
+  }
 
   /// converts LocalPixel in ROC to DU coordinates. 
   /// LocalPixel must be inside ROC. Otherwise result is meaningless
-  GlobalPixel toGlobal(const LocalPixel & loc) const;
+  GlobalPixel toGlobal(const LocalPixel & loc) const {
+    if (!theFrameConverter) initFrameConversion();
+    GlobalPixel result;
+    result.col    = theFrameConverter->collumn().convert(loc.rocCol());
+    result.row    = theFrameConverter->row().convert(loc.rocRow());
+    return result;
+  }
 
   /// printout for debug
   std::string print(int depth = 0) const;

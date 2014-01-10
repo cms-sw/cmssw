@@ -88,74 +88,103 @@ void PixelDataFormatter::passFrameReverter(const SiPixelFrameReverter* reverter)
 
 void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
 {
+  using namespace sipixelobjects;
+
   debug = edm::MessageDrop::instance()->debugEnabled;
+
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
 
-  SiPixelFrameConverter * converter = (theCablingTree) ? 
-      new SiPixelFrameConverter(theCablingTree, fedId) : 0;
+  SiPixelFrameConverter converter(theCablingTree, fedId);
 
   // check CRC bit
-  const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);
-  bool CRC_OK = errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors);
-  
-  if(CRC_OK) {
-    // check headers
-    const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
-    bool moreHeaders = true;
-    while (moreHeaders) {
-      header++;
-      if (debug) LogTrace("")<<"HEADER:  " <<  print(*header);
-      bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
-      moreHeaders = headerStatus;
-    }
+  const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);  
+  if(!errorcheck.checkCRC(errorsInEvent, fedId, trailer, errors)) return;
 
-    // check trailers
-    bool moreTrailers = true;
-    trailer++;
-    while (moreTrailers) {
-      trailer--;
-      if (debug) LogTrace("")<<"TRAILER: " <<  print(*trailer);
-      bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
-      moreTrailers = trailerStatus;
-    }
+  // check headers
+  const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
+  bool moreHeaders = true;
+  while (moreHeaders) {
+    header++;
+    if (debug) LogTrace("")<<"HEADER:  " <<  print(*header);
+    bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
+    moreHeaders = headerStatus;
+  }
 
-    // data words
-    theWordCounter += 2*(nWords-2);
-    if (debug) LogTrace("")<<"data words: "<< (trailer-header-1);
-    for (const Word64* word = header+1; word != trailer; word++) {
-      if (debug) LogTrace("")<<"DATA:    " <<  print(*word);
-      Word32 w1 =  *word       & WORD32_mask;
-      Word32 w2 =  *word >> 32 & WORD32_mask;
-      if (w1==0) theWordCounter--;
-      if (w2==0) theWordCounter--;
+  // check trailers
+  bool moreTrailers = true;
+  trailer++;
+  while (moreTrailers) {
+    trailer--;
+    if (debug) LogTrace("")<<"TRAILER: " <<  print(*trailer);
+    bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
+    moreTrailers = trailerStatus;
+  }
 
-      // check status of word...
-      bool notErrorROC1 = errorcheck.checkROC(errorsInEvent, fedId, converter, w1, errors);
-      if (notErrorROC1) {
-        int status1 = word2digi(fedId, converter, includeErrors, useQualityInfo, w1, digis);
-        if (status1) {
-	    LogDebug("PixelDataFormatter::interpretRawData") 
-                    << "status #" <<status1<<" returned for word1";
-            errorsInEvent = true;
-	    errorcheck.conversionError(fedId, converter, status1, w1, errors);
-        }
+  // data words
+  theWordCounter += 2*(nWords-2);
+  if (debug) LogTrace("")<<"data words: "<< (trailer-header-1);
+
+  int link = -1;
+  int roc  = -1;
+  PixelROC const * rocp=nullptr;
+  bool skipROC=false;
+  DetDigis * detDigis=nullptr;
+  for (const Word64* word = header+1; word != trailer; word++) {
+    if (debug) LogTrace("")<<"DATA:    " <<  print(*word);
+
+    Word32 w[2] = { Word32(*word & WORD32_mask),  Word32(*word >> 32 & WORD32_mask) };
+
+    for (int i=0; i<2; ++i) {
+      auto ww = w[i];
+      if (ww==0) { theWordCounter--; continue;}
+      int nlink = (ww >> LINK_shift) & LINK_mask; 
+      int nroc  = (ww >> ROC_shift) & ROC_mask;
+
+      if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
+	link = nlink; roc=nroc;
+	skipROC = !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
+	if (skipROC) continue;
+	rocp = converter.toRoc(link,roc);
+	if (!rocp) {
+	  errorsInEvent = true;
+	  errorcheck.conversionError(fedId, &converter, 2, ww, errors);
+	  skipROC=true;
+	  continue;
+	}
+	auto rawId = rocp->rawId();
+	if (useQualityInfo&(nullptr!=badPixelInfo)) {
+	  short rocInDet = (short) rocp->idInDetUnit();
+	  skipROC = badPixelInfo->IsRocBad(rawId, rocInDet);
+	  if (skipROC) continue;
+	}
+	
+	skipROC= modulesToUnpack && ( modulesToUnpack->find(rawId) == modulesToUnpack->end());
+	if (skipROC) continue;
+	detDigis = &digis[rawId];
       }
-      bool notErrorROC2 = errorcheck.checkROC(errorsInEvent, fedId, converter, w2, errors);
-      if (notErrorROC2) {
-        int status2 = word2digi(fedId, converter, includeErrors, useQualityInfo, w2, digis);
-        if (status2) {
-	    LogDebug("PixelDataFormatter::interpretRawData") 
-                    << "status #" <<status2<<" returned for word2";
-            errorsInEvent = true;
-	    errorcheck.conversionError(fedId, converter, status2, w2, errors);
-        }
+      if (skipROC) continue;
+
+
+      int dcol = (ww >> DCOL_shift) & DCOL_mask;
+      int pxid = (ww >> PXID_shift) & PXID_mask;
+      int adc  = (ww >> ADC_shift) & ADC_mask;
+
+      LocalPixel::DcolPxid local = { dcol, pxid };
+      if (!local.valid()) {
+	LogDebug("PixelDataFormatter::interpretRawData") 
+	  << "status #3";
+	errorsInEvent = true;
+	errorcheck.conversionError(fedId, &converter, 3, ww, errors);
       }
+    
+      GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
+      (*detDigis).emplace_back(global.row, global.col, adc);
+      
+      if (debug)  LogTrace("") << (*detDigis).back();
     }
-  }  // end if(CRC_OK)
-  delete converter;
+  }
 }
-
 
 void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis) 
 {
@@ -250,6 +279,7 @@ int PixelDataFormatter::digi2word( cms_uint32_t detId, const PixelDigi& digi,
 }
 
 
+// obsolete...
 int PixelDataFormatter::word2digi(const int fedId, const SiPixelFrameConverter* converter, 
     const bool includeErrors, const bool useQuality, const Word32 & word, Digis & digis) const
 {
@@ -292,12 +322,11 @@ int PixelDataFormatter::word2digi(const int fedId, const SiPixelFrameConverter* 
 
   if (modulesToUnpack && modulesToUnpack->find(detIdx.rawId) == modulesToUnpack->end()) return 0;
 
-  PixelDigi pd(detIdx.row, detIdx.col, adc);
-  digis[detIdx.rawId].push_back(pd);
+  digis[detIdx.rawId].emplace_back(detIdx.row, detIdx.col, adc);
 
   theDigiCounter++;
 
-  if (debug)  LogTrace("") << print(pd);
+  if (debug)  LogTrace("") << digis[detIdx.rawId].back();
   return 0;
 }
 

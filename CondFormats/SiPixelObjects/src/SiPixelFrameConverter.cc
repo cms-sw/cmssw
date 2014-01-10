@@ -27,32 +27,21 @@ bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 }
 
 
-int SiPixelFrameConverter::toDetector(const ElectronicIndex & cabling, DetectorIndex & detector) const
-{
+PixelROC const * SiPixelFrameConverter::toRoc(int link, int roc) const {
   CablingPathToDetUnit path = {static_cast<unsigned int>(theFedId),
-                               static_cast<unsigned int>(cabling.link),
-                               static_cast<unsigned int>(cabling.roc)}; 
-  const PixelROC * roc = theMap->findItem(path);
-  if (!roc){
+                               static_cast<unsigned int>(link),
+                               static_cast<unsigned int>(roc)}; 
+  const PixelROC * rocp = theMap->findItem(path);
+  if (!rocp){
     stringstream stm;
     stm << "Map shows no fed="<<theFedId
-        <<", link="<<cabling.link
-        <<", roc="<<cabling.roc;
+        <<", link="<< link
+        <<", roc="<< roc;
     edm::LogWarning("SiPixelFrameConverter") << stm.str();
-    return 2;
   }
-  LocalPixel::DcolPxid local = { cabling.dcol, cabling.pxid };
-  if (!local.valid()) return 3;
-
-  GlobalPixel global = roc->toGlobal( LocalPixel(local) );
-  detector.rawId = roc->rawId();
-  detector.row   = global.row;
-  detector.col   = global.col;
-
-  return 0;
-
-
+  return rocp;
 }
+
 
 
 int SiPixelFrameConverter::toCabling(

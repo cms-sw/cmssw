@@ -41,25 +41,6 @@ PixelROC::swap(PixelROC& iOther)
   std::swap(theFrameConverter,iOther.theFrameConverter);
 }
 
-GlobalPixel PixelROC::toGlobal(const LocalPixel & loc) const 
-{
-  GlobalPixel result;
-  if (!theFrameConverter) initFrameConversion();
-  result.col    = theFrameConverter->collumn().convert(loc.rocCol());
-  result.row    = theFrameConverter->row().convert(loc.rocRow());
-  return result;
-}
-
-
-LocalPixel PixelROC::toLocal( const GlobalPixel& glo) const
-{
-  if (!theFrameConverter) initFrameConversion();
-  int rocRow = theFrameConverter->row().inverse(glo.row);
-  int rocCol = theFrameConverter->collumn().inverse(glo.col);
-
-  LocalPixel::RocRowCol rocRowCol = {rocRow, rocCol};
-  return LocalPixel(rocRowCol);
-}
 
 void PixelROC::initFrameConversion() const
 {

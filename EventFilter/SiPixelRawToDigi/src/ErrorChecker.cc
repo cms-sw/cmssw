@@ -114,6 +114,7 @@ bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameCo
 {
  int errorType = (errorWord >> ROC_shift) & ERROR_mask;
 
+ if (errorType<25) return true;
  switch (errorType) {
     case(25) : {
      LogDebug("")<<"  invalid ROC=25 found (errorType=25)";
