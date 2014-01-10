@@ -127,6 +127,7 @@ class JetAnalyzer : public edm::EDAnalyzer {
 
   std::string jetCorrectionService_;
 
+  int    verbose_;
   //histo binning parameters -> these are PART of ALL analyzers - move it up
   int    etaBin_;
   double etaMin_;

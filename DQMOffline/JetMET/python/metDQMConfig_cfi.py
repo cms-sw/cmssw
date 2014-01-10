@@ -119,11 +119,11 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
     #    LowMETThreshold    = cms.double(30.),
 
     verbose     = cms.int32(0),
-    printOut    = cms.int32(0),
+#    printOut    = cms.int32(0),
 
     etThreshold  = cms.double(2.),
     allHist      = cms.bool(False),
-    allSelection = cms.bool(False),
+#    allSelection = cms.bool(False),
     cleanupSelection = cms.bool(True),
     
     #Parameters set for METAnalyzer --> but only used for TCMET

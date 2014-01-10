@@ -52,8 +52,6 @@
 
 #include <string>
 
-#define DEBUG 0
-
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -191,7 +189,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   //jet cleanup parameters
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
-  
   doPVCheck_              = cleaningParameters_.getParameter<bool>("doPrimaryVertexCheck");
   vertexLabel_      = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
   vertexToken_      = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexLabel_));
@@ -233,6 +230,9 @@ void JetAnalyzer::beginJob(void) {
   //makedijetselection_=diJetSelectionFlag_;
 
   // monitoring of eta parameter
+  
+  verbose_= parameters_.getParameter<int>("verbose");
+
   etaBin_ = parameters_.getParameter<int>("etaBin");
   etaMin_ = parameters_.getParameter<double>("etaMin");
   etaMax_ = parameters_.getParameter<double>("etaMax");
@@ -889,10 +889,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   }
 
-  if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel_ << std::endl;
+  if (verbose_)  std::cout << "trigger label " << theTriggerResultsLabel_ << std::endl;
 
 
-  if (DEBUG) {
+  if (verbose_) {
     std::cout << ">>> Trigger  Lo = " <<  JetLoPass
 	      <<             " Hi = " <<  JetHiPass
 	      << std::endl;
@@ -905,7 +905,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if (!vertexHandle.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
-    if (DEBUG) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
+    if (verbose_) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
   }
   int numPV = 0;
   if ( vertexHandle.isValid() ){
@@ -916,14 +916,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   verticesME->Fill(numPV);
   // ==========================================================
 
-
   edm::Handle<L1GlobalTriggerReadoutRecord > gtReadoutRecord;
   iEvent.getByToken(gtToken_, gtReadoutRecord);
 
 
   if (!gtReadoutRecord.isValid()) {
     LogInfo("JetAnalyzer") << "JetAnalyzer: Could not find GT readout record" << std::endl;
-    if (DEBUG) std::cout << "JetAnalyzer: Could not find GT readout record product" << std::endl;
+    if (verbose_) std::cout << "JetAnalyzer: Could not find GT readout record product" << std::endl;
   }
   DCSFilterForDCSMonitoring_->filter(iEvent, iSetup);
   if (bPrimaryVertex) cleanupME->Fill(0.5);
@@ -954,28 +953,17 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (jetCleaningFlag_ && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision)) return;
 //  cout<<mInputCollection_.label()<<" dcsDecison "<<boolalpha<<dcsDecision<<" jetCollectionIsValid "<<jetCollectionIsValid<<" bPrimaryVertex "<<bPrimaryVertex<<" jetCleaningFlag "<<jetCleaningFlag<<" return? "<<(jetCleaningFlag && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision))<<endl;
 
-//  //recheck everything here -> pfjets wrong at the moment
-//  if(diJetSelectionFlag_){
-//    if (isCaloJet_ && (!caloJets.isValid() || !bPrimaryVertex || !(DCSFilterCalo->filter(iEvent, iSetup)))) return;
-//    if (isJPTJet_ && (!jptJets.isValid()   || !bPrimaryVertex || !(DCSFilterJPT->filter(iEvent, iSetup)))) return;
-//    if (isPFJet_ && (!pfJets.isValid()     || !bPrimaryVertex || !(DCSFilterPF->filter(iEvent, iSetup)))) return;
-//  }
-
   unsigned int collSize=-1;
   if (isCaloJet_)  collSize = caloJets->size();
-  if (isJPTJet_)
-    {
-      collSize=jptJets->size();
-      if(collSize>0){
-	//update the track propagator and strip noise calculator
-	trackPropagator_->update(iSetup);
-	//sOverNCalculator_->update(iSetup);
-      }
-      //for (unsigned ijet=0; ijet<jptJets->size(); ijet++)
-      //recoJets.push_back((*jptJets)[ijet]);
+  if (isJPTJet_) {
+    collSize=jptJets->size();
+    if(collSize>0){
+      //update the track propagator and strip noise calculator
+      trackPropagator_->update(iSetup);
+      //sOverNCalculator_->update(iSetup);
     }
+  }
   if (isPFJet_) collSize=pfJets->size();
-  
 
   double scale=-1;
   //now start changes for jets
@@ -1013,23 +1001,21 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(correctedJet.pt()>ptThresholdUnc_){
       pass_uncorrected=true;
     }
-    if (!jetCorrectionService_.empty())
-      {
-	const JetCorrector* corrector = JetCorrector::getJetCorrector(jetCorrectionService_, iSetup);
-	//for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
-	
-	if (isCaloJet_){
-	  scale = corrector->correction((*caloJets)[ijet], iEvent, iSetup);
-	}
-	if (isJPTJet_){
-	  scale = corrector->correction((*jptJets)[ijet], iEvent, iSetup);
-	}
-	if (isPFJet_){ 
-	  scale = corrector->correction((*pfJets)[ijet], iEvent, iSetup);
-	}
-	correctedJet.scaleEnergy(scale);	    
+    if (!jetCorrectionService_.empty()) {
+      const JetCorrector* corrector = JetCorrector::getJetCorrector(jetCorrectionService_, iSetup);
+      //for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
+      
+      if (isCaloJet_){
+        scale = corrector->correction((*caloJets)[ijet], iEvent, iSetup);
       }
-
+      if (isJPTJet_){
+        scale = corrector->correction((*jptJets)[ijet], iEvent, iSetup);
+      }
+      if (isPFJet_){ 
+        scale = corrector->correction((*pfJets)[ijet], iEvent, iSetup);
+      }
+      correctedJet.scaleEnergy(scale);	    
+    }
 
     if(correctedJet.pt()>pt1){
       pt3=pt2;
@@ -1038,12 +1024,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       ind2=ind1;
       pt1=correctedJet.pt();
       ind1=ijet;
-    }else if(correctedJet.pt()>pt2){
+    } else if(correctedJet.pt()>pt2){
       pt3=pt2;
       ind3=ind2;
       pt2=correctedJet.pt();
       ind2=ijet;
-    }else if(correctedJet.pt()>pt3){
+    } else if(correctedJet.pt()>pt3){
       pt3=correctedJet.pt();
       ind3=ijet;
     }

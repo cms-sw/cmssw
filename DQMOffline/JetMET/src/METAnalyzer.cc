@@ -165,13 +165,11 @@ void METAnalyzer::beginJob(){
   // ==========================================================
   DCSFilter_ = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
 
-
-
   // misc
   verbose_      = parameters.getParameter<int>("verbose");
   etThreshold_  = parameters.getParameter<double>("etThreshold"); // MET threshold
   allhist_      = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
-  allSelection_ = parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
+//  allSelection_ = parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
   cleanupSelection_ = parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
 
   FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
@@ -222,16 +220,16 @@ void METAnalyzer::beginJob(){
     if (*ic=="BasicCleanup")         bookMESet(DirName+"/"+*ic);
     if (*ic=="ExtraCleanup")         bookMESet(DirName+"/"+*ic);
     }
-    if (allSelection_){
-      if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
-      if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
-      if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
-      if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
-      if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
-      if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
-      if (*ic=="Triggers")             bookMESet(DirName+"/"+*ic);
-      if (*ic=="PV")                   bookMESet(DirName+"/"+*ic);
-    }
+//    if (allSelection_){
+//      if (*ic=="HcalNoiseFilter")      bookMESet(DirName+"/"+*ic);
+//      if (*ic=="JetIDMinimal")         bookMESet(DirName+"/"+*ic);
+//      if (*ic=="JetIDLoose")           bookMESet(DirName+"/"+*ic);
+//      if (*ic=="JetIDTight")           bookMESet(DirName+"/"+*ic);
+//      if (*ic=="BeamHaloIDTightPass")  bookMESet(DirName+"/"+*ic);
+//      if (*ic=="BeamHaloIDLoosePass")  bookMESet(DirName+"/"+*ic);
+//      if (*ic=="Triggers")             bookMESet(DirName+"/"+*ic);
+//      if (*ic=="PV")                   bookMESet(DirName+"/"+*ic);
+//    }
   }
 
   // MET information
@@ -1153,14 +1151,11 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool bBeamHaloID  = bBeamHaloIDLoosePass;
   bool bJetID       = true;
 
-
-
-  if      (tightBHFiltering_)       bBeamHaloID = bBeamHaloIDTightPass;
-
-  if      (tightJetIDFiltering_==1)  bJetID      = bJetIDMinimal;
-  else if (tightJetIDFiltering_==2)  bJetID      = bJetIDLoose;
-  else if (tightJetIDFiltering_==3)  bJetID      = bJetIDTight;
-  else if (tightJetIDFiltering_==-1) bJetID      = true;
+  if      (tightBHFiltering_)         bBeamHaloID = bBeamHaloIDTightPass;
+  if      (tightJetIDFiltering_==1)   bJetID      = bJetIDMinimal;
+  else if (tightJetIDFiltering_==2)   bJetID      = bJetIDLoose;
+  else if (tightJetIDFiltering_==3)   bJetID      = bJetIDTight;
+  else if (tightJetIDFiltering_==-1)  bJetID      = true;
 
   bool bBasicCleanup = bPrimaryVertex;
   bool bExtraCleanup = bBasicCleanup && bHcalNoise && bJetID && bBeamHaloID;
@@ -1174,15 +1169,15 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	if (*ic=="BasicCleanup" && bBasicCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
 	if (*ic=="ExtraCleanup" && bExtraCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
       }
-      if (allSelection_) {
-	if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-	if (*ic=="JetIDMinimal"         && bJetIDMinimal)           fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-	if (*ic=="JetIDLoose"           && bJetIDLoose)             fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-	if (*ic=="JetIDTight"           && bJetIDTight)             fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-	if (*ic=="BeamHaloIDTightPass"  && bBeamHaloIDTightPass)    fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-	if (*ic=="BeamHaloIDLoosePass"  && bBeamHaloIDLoosePass)    fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-	if (*ic=="PV"                   && bPrimaryVertex)          fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-      }
+//      if (allSelection_) {
+//	if (*ic=="HcalNoiseFilter"      && bHcalNoiseFilter )       fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+//	if (*ic=="JetIDMinimal"         && bJetIDMinimal)           fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+//	if (*ic=="JetIDLoose"           && bJetIDLoose)             fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+//	if (*ic=="JetIDTight"           && bJetIDTight)             fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+//	if (*ic=="BeamHaloIDTightPass"  && bBeamHaloIDTightPass)    fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+//	if (*ic=="BeamHaloIDLoosePass"  && bBeamHaloIDLoosePass)    fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+//	if (*ic=="PV"                   && bPrimaryVertex)          fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+//      }
     } // DCS
   }
 }

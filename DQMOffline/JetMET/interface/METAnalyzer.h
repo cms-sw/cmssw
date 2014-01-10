@@ -232,7 +232,7 @@ class METAnalyzer : public edm::EDAnalyzer{
 
   //
   bool allhist_;
-  bool allSelection_;
+//  bool allSelection_;
   bool cleanupSelection_;
 
   //
