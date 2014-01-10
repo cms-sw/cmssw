@@ -15,6 +15,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -95,6 +96,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addCSCGeometry();
   addRPCGeometry();
   addGEMGeometry();
+  addME0Geometry();
   addCaloGeometry();
 
   m_fwGeometry->idToName.resize( m_current + 1 );
@@ -265,6 +267,46 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       m_fwGeometry->idToName[current].topology[5] = roll->npads();
     }
   }
+}
+
+void
+FWRecoGeometryESProducer::addME0Geometry( void )
+{
+  //                                                                                                                               
+  // ME0 geometry                                                                                                                  
+  //   
+  std::cout <<" ************** Adding ME0 to fireworks"<<std::endl;
+
+  DetId detId( DetId::Muon, 5 );
+  std::cout <<" ************** ME0 Det ID "<<std::endl; 
+  const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
+  std::cout <<" ************** Get the ME0 Geometry "<<std::endl;
+  for( std::vector<ME0EtaPartition *>::const_iterator it = me0Geom->etaPartitions().begin(),
+	 end = me0Geom->etaPartitions().end();
+       it != end; ++it )
+    {
+      ME0EtaPartition* roll = (*it);
+      if( roll )
+	{
+	  unsigned int rawid = (*it)->geographicalId().rawId();
+	  std::cout <<" ************** Got the Chamber  "<<rawid<<std::endl;
+	  std::cout <<" roll "<< roll->id()<<std::endl; 
+	  unsigned int current = insert_id( rawid );
+	  fillShapeAndPlacement( current, roll );
+
+	  //const StripTopology& topo = roll->specificTopology();
+	  //  m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	  // m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	  //m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+
+	  //float height = topo.stripLength()/2;
+	  // LocalPoint  lTop( 0., height, 0.);
+	  //LocalPoint  lBottom( 0., -height, 0.);
+	  //m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	  //m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	  //m_fwGeometry->idToName[current].topology[5] = roll->npads();
+	}
+    }
 }
 
 
