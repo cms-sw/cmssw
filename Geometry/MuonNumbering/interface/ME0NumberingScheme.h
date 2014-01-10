@@ -16,7 +16,7 @@ public:
 
   virtual ~ME0NumberingScheme(){};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber);
   
 private:
   void initMe ( const MuonDDDConstants& muonConstants );
