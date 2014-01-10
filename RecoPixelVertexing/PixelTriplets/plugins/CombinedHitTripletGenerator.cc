@@ -4,11 +4,12 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 CombinedHitTripletGenerator::CombinedHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) :
-  theSeedingLayerSrc(cfg.getParameter<edm::InputTag>("SeedingLayers"))
+  theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers")))
 {
   edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");
   std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
@@ -23,7 +24,7 @@ void CombinedHitTripletGenerator::hitTriplets(
    const edm::Event& ev, const edm::EventSetup& es)
 {
   edm::Handle<SeedingLayerSetsHits> hlayers;
-  ev.getByLabel(theSeedingLayerSrc, hlayers);
+  ev.getByToken(theSeedingLayerToken, hlayers);
   const SeedingLayerSetsHits& layers = *hlayers;
   if(layers.numberOfLayersInSet() != 3)
     throw cms::Exception("Configuration") << "CombinedHitTripletGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 3, got " << layers.numberOfLayersInSet();

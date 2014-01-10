@@ -32,6 +32,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
   token_vertex      = iC.consumes<reco::VertexCollection>(_primaryVtxInputTag);
   token_bs          = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
   token_refitter    = iC.consumes<reco::TrackCollection>(_conf.getParameter<edm::InputTag>("TrackRefitter"));
+  theHitsGenerator.reset(new CombinedHitPairGeneratorForPhotonConversion(hitsfactoryPSet, iC));
   theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, std::move(iC));
   init();  
 }
@@ -43,15 +44,12 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajec
 
 void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 clear(){
-  if(theHitsGenerator!=NULL)
-    delete theHitsGenerator;
   if(theSeedCreator!=NULL)
     delete theSeedCreator;
 }
 
 void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 init(){
-  theHitsGenerator  = new CombinedHitPairGeneratorForPhotonConversion(hitsfactoryPSet);
   theSeedCreator    = new SeedForPhotonConversion1Leg(creatorPSet);
 }
 

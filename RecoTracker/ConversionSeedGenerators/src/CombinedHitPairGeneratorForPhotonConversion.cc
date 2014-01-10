@@ -1,10 +1,11 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/CombinedHitPairGeneratorForPhotonConversion.h"
 #include "RecoTracker/ConversionSeedGenerators/interface/HitPairGeneratorFromLayerPairForPhotonConversion.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonConversion(const edm::ParameterSet& cfg):
-  theSeedingLayerSrc(cfg.getParameter<edm::InputTag>("SeedingLayers"))
+CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonConversion(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC):
+  theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers")))
 {
   theMaxElement = cfg.getParameter<unsigned int>("maxElement");
   maxHitPairsPerTrackAndGenerator = cfg.getParameter<unsigned int>("maxHitPairsPerTrackAndGenerator");
@@ -12,7 +13,7 @@ CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonCo
 }
 
 CombinedHitPairGeneratorForPhotonConversion::CombinedHitPairGeneratorForPhotonConversion(const CombinedHitPairGeneratorForPhotonConversion & cb):
-  theSeedingLayerSrc(cb.theSeedingLayerSrc),
+  theSeedingLayerToken(cb.theSeedingLayerToken),
   maxHitPairsPerTrackAndGenerator(cb.maxHitPairsPerTrackAndGenerator)
 {
   theMaxElement = cb.theMaxElement;
@@ -42,7 +43,7 @@ void CombinedHitPairGeneratorForPhotonConversion::hitPairs(
 							   const edm::Event& ev, const edm::EventSetup& es)
 {
   edm::Handle<SeedingLayerSetsHits> hlayers;
-  ev.getByLabel(theSeedingLayerSrc, hlayers);
+  ev.getByToken(theSeedingLayerToken, hlayers);
   assert(hlayers->numberOfLayersInSet() == 2);
 
   OrderedHitPairs  resultTmp; // why is this needed?

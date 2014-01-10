@@ -5,11 +5,13 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 
 class TrackingRegion;
 class OrderedHitPairs;
 class HitPairGeneratorFromLayerPair;
+class SeedingLayerSetsHits;
 namespace edm { class Event; class EventSetup; }
 
 #include <memory>
@@ -24,7 +26,6 @@ public:
 
 public:
   CombinedHitPairGenerator(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
-  explicit CombinedHitPairGenerator(const edm::ParameterSet & cfg);
   virtual ~CombinedHitPairGenerator();
 
   void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) override;
@@ -40,7 +41,7 @@ public:
 private:
   CombinedHitPairGenerator(const CombinedHitPairGenerator & cb); 
 
-  edm::InputTag theSeedingLayerSrc;
+  edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
   LayerCacheType   theLayerCache;
 

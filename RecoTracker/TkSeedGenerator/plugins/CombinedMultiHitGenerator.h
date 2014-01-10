@@ -11,8 +11,10 @@
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class TrackingRegion;
+class SeedingLayerSetsHits;
 class MultiHitGeneratorFromPairAndLayers;
 
 namespace edm { class Event; }
@@ -33,7 +35,7 @@ public:
       const edm::Event & ev,  const edm::EventSetup& es);
 
 private:
-  edm::InputTag theSeedingLayerSrc;
+  edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
   LayerCacheType            theLayerCache;
 
