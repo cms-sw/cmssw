@@ -28,21 +28,17 @@
   <Trd1 name="REF2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.413*cm " dx2="56.053*cm "/>
   <Trd1 name="REF3" dz="30.2*cm " dy1="1*mm " dy2="1*mm " dx1="44.041*cm " dx2="49.325*cm "/>
   <Tubs name="RR3X" rMin="2.419*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-
-       <Tubs name="RT3G" rMin="2.419*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
-       <Trd1 name="RFGX" dz="39.1*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="43.076*cm " dx2="56.847*cm " />
-       <Trd1 name="RHGX" dz="39.05*cm " dy1="5*mm " dy2="5*mm " dx1="43.026*cm " dx2="56.797*cm " />
-       <Trd1 name="REG1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
-       <Trd1 name="REG2" dz="22.5*cm " dy1="1*mm " dy2="1*mm " dx1="43.023*cm " dx2="50.957*cm " />
-
+  <Tubs name="RT3G" rMin="2.419*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+  <Trd1 name="RFGX" dz="39.1*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="43.076*cm " dx2="56.847*cm " />
+  <Trd1 name="RHGX" dz="39.05*cm " dy1="5*mm " dy2="5*mm " dx1="43.026*cm " dx2="56.797*cm " />
+  <Trd1 name="REG1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
+  <Trd1 name="REG2" dz="22.5*cm " dy1="1*mm " dy2="1*mm " dx1="43.023*cm " dx2="50.957*cm " />
   <Tubs name="RR4X" rMin="2.644*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-
-       <Tubs name="RT4H" rMin="2.644*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
-       <Trd1 name="RFHX" dz="27.85*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="47.044*cm " dx2="56.847*cm " />
-       <Trd1 name="RHHX" dz="27.8*cm " dy1="5*mm " dy2="5*mm " dx1="46.994*cm " dx2="56.797*cm " />
-       <Trd1 name="REH1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
-       <Trd1 name="REH2" dz="11.25*cm " dy1="1*mm " dy2="1*mm " dx1="46.991*cm " dx2="50.957*cm " />
-
+  <Tubs name="RT4H" rMin="2.644*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+  <Trd1 name="RFHX" dz="27.85*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="47.044*cm " dx2="56.847*cm " />
+  <Trd1 name="RHHX" dz="27.8*cm " dy1="5*mm " dy2="5*mm " dx1="46.994*cm " dx2="56.797*cm " />
+  <Trd1 name="REH1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
+  <Trd1 name="REH2" dz="11.25*cm " dy1="1*mm " dy2="1*mm " dx1="46.991*cm " dx2="50.957*cm " />
  </SolidSection>
 
  <LogicalPartSection label="rpcf.xml">
@@ -576,7 +572,7 @@
 </Algorithm>
 
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4X"/>
+    <rParent name="rpcf:RR4XP"/>
     <String name="ChildName" value="RT4H"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
@@ -587,7 +583,29 @@
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4X"/>
+    <rParent name="rpcf:RR4XP"/>
+    <String name="ChildName" value="RT4H"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="zoffset"     value="2.2*cm"/>
+</Algorithm>
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="rpcf:RR4XN"/>
+    <String name="ChildName" value="RT4H"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="zoffset"     value="-2.2*cm"/>
+</Algorithm>
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="rpcf:RR4XN"/>
     <String name="ChildName" value="RT4H"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
