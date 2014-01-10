@@ -229,8 +229,6 @@ class METAnalyzer : public edm::EDAnalyzer{
   // DCS filter
   JetMETDQMDCSFilter *DCSFilter_;
 
-  //
-  bool allhist_;
 //  bool allSelection_;
   bool cleanupSelection_;
 

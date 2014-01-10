@@ -122,7 +122,6 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 #    printOut    = cms.int32(0),
 
     etThreshold  = cms.double(2.),
-    allHist      = cms.bool(False),
 #    allSelection = cms.bool(False),
     cleanupSelection = cms.bool(True),
     
@@ -149,7 +148,6 @@ metAnalyzer = tcMetAnalyzer.clone(
     METType=cms.untracked.string('calo'),
     METCollectionLabel     = cms.InputTag("met"),
     JetCollectionLabel  = cms.InputTag("ak5CaloJets"),
-    allHist = cms.bool(True),
     DCSFilter = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
       #DebugOn = cms.untracked.bool(True),

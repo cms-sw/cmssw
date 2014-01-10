@@ -155,7 +155,7 @@ void METAnalyzer::beginJob(){
   //_theGTLabel         = cleaningParameters_.getParameter<edm::InputTag>("gtLabel");
   //gtToken_= consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(_theGTLabel));
 
-//  doHLTPhysicsOn_ = cleaningParameters_.getParameter<bool>("doHLTPhysicsOn");
+//  doHkLTPhysicsOn_ = cleaningParameters_.getParameter<bool>("doHLTPhysicsOn");
 
   tightBHFiltering_     = cleaningParameters_.getParameter<bool>("tightBHFiltering");
   tightJetIDFiltering_  = cleaningParameters_.getParameter<int>("tightJetIDFiltering");
@@ -168,7 +168,6 @@ void METAnalyzer::beginJob(){
   // misc
   verbose_      = parameters.getParameter<int>("verbose");
   etThreshold_  = parameters.getParameter<double>("etThreshold"); // MET threshold
-  allhist_      = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
 //  allSelection_ = parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
   cleanupSelection_ = parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
 
@@ -440,7 +439,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 
 
 
-  if (allhist_){
+  if (isCaloMet_){
     if (bLumiSecPlot){
       hMExLS = dbe_->book2D("METTask_MEx_LS","METTask_MEx_LS",200,-200,200,50,0.,500.);
       hMExLS->setAxisTitle("MEx [GeV]",1);
@@ -1434,12 +1433,12 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       if (meHFEMEt_profile                  && meHFEMEt_profile                 ->getRootObject()) meHFEMEt_profile                 ->Fill(numPV_, pfHFEMEt);
     }
 
-    if (allhist_){
+    if (isCaloMet_){
       if (bLumiSecPlot){
 	hMExLS = dbe_->get(DirName+"/"+"METTask_MExLS"); if (hMExLS  &&  hMExLS->getRootObject())   hMExLS->Fill(MEx,myLuminosityBlock);
 	hMEyLS = dbe_->get(DirName+"/"+"METTask_MEyLS"); if (hMEyLS  &&  hMEyLS->getRootObject())   hMEyLS->Fill(MEy,myLuminosityBlock);
       }
-    } // allhist_
+    } 
 
     ////////////////////////////////////
     if (isTCMet_) {
