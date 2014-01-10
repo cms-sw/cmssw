@@ -45,6 +45,9 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
 
+// print statements
+//#include <stdio.h>
+
 using namespace std;
 using namespace edm;
 
@@ -210,8 +213,11 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
 
     //m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
     //m_fwv = boost::shared_ptr<const FirmwareVersion>();
-    m_fwv = boost::shared_ptr<FirmwareVersion>(); //not const during testing
+    //printf("Begin.\n");
+    m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+    //printf("Success m_fwv.\n");
     m_fwv->setFirmwareVersion(1); //hardcode for now, 1=HI, 2=PP
+    //printf("Success m_fwv version set.\n");
 
     // if (! m_dbpars){
     //   LogError("l1t|stage 1 jets") << "L1TCaloStage1Producer: could not retreive DB params from Event Setup\n";
@@ -219,6 +225,7 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
 
     // Set the current algorithm version based on DB pars from database:
     m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
+    //printf("Success create.\n");
 
     if (! m_fw) {
       // we complain here once per run
