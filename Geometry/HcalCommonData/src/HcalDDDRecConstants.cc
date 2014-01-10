@@ -12,7 +12,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define DebugLog
+//#define DebugLog
 
 HcalDDDRecConstants::HcalDDDRecConstants(const DDCompactView& cpv, 
 					 const HcalDDDSimConstants& hcons) {

@@ -10,7 +10,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
-#define DebugLog
+//#define DebugLog
 
 HcalNumberingFromDDD::HcalNumberingFromDDD(std::string & name,
 					   const DDCompactView & cpv) {

@@ -12,7 +12,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 
-#define DebugLog
+//#define DebugLog
 
 HcalDDDSimConstants::HcalDDDSimConstants( const DDCompactView& cpv ) {
 
