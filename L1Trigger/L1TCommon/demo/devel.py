@@ -21,6 +21,7 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     #fileNames = cms.untracked.vstring("/store/RelVal/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
     fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
+    #fileNames = cms.untracked.vstring("file:22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("file:test.root")
     )
 
@@ -33,16 +34,23 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
+process.RCTConverter = cms.EDProducer(
+    "l1t::L1TCaloRCTToUpgradeConverter",
+    regionTag = cms.InputTag("gctDigis"),
+    emTag = cms.InputTag("gctDigis"),
+    preSamples = cms.uint32(0),
+    postSamples = cms.uint32(0))
 
 process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
 process.caloStage1 = cms.EDProducer(
     "l1t::L1TCaloStage1Producer",
-    CaloRegions = cms.InputTag("caloRegions"),
-    CaloEmCands = cms.InputTag("caloEmCands")
+    CaloRegions = cms.InputTag("RCTConverter"),
+    CaloEmCands = cms.InputTag("RCTConverter")
     )
 
 process.digiStep = cms.Sequence(
-        process.caloTowers
+        process.RCTConverter
+        *process.caloTowers
         *process.caloStage1
         )
 
