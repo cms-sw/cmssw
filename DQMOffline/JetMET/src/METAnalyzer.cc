@@ -76,7 +76,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
   //Vertex requirements
-  doPVCheck_    = cleaningParameters_.getParameter<bool>("doPrimaryVertexCheck");
+  bypassAllPVChecks_    = cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
   vertexTag_    = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
   vertexToken_  = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexTag_));
 
@@ -155,7 +155,7 @@ void METAnalyzer::beginJob(){
   //_theGTLabel         = cleaningParameters_.getParameter<edm::InputTag>("gtLabel");
   //gtToken_= consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(_theGTLabel));
 
-  doHLTPhysicsOn_ = cleaningParameters_.getParameter<bool>("doHLTPhysicsOn");
+//  doHLTPhysicsOn_ = cleaningParameters_.getParameter<bool>("doHLTPhysicsOn");
 
   tightBHFiltering_     = cleaningParameters_.getParameter<bool>("tightBHFiltering");
   tightJetIDFiltering_  = cleaningParameters_.getParameter<int>("tightJetIDFiltering");
@@ -1134,7 +1134,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     VertexCollection vertexCollection = *(vertexHandle.product());
     numPV_  = vertexCollection.size();
   }
-  bool bPrimaryVertex = (numPV_>0);
+  bool bPrimaryVertex = (bypassAllPVChecks_ || (numPV_>0));
   // ==========================================================
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;

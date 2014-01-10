@@ -259,7 +259,7 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mEFrac_profile;
 
   bool hltInitialized_;
-  bool doPVCheck_;
+  bool bypassAllPVChecks_;
 
   int LSBegin_;
   int LSEnd_;

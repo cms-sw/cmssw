@@ -100,7 +100,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   : trackPropagator_(new jetAnalysis::TrackPropagatorToCalo)//,
     //sOverNCalculator_(new jetAnalysis::StripSignalOverNoiseCalculator)
 {
-  
   parameters_ = pSet.getParameter<edm::ParameterSet>("jetAnalysis");
   mInputCollection_           =    pSet.getParameter<edm::InputTag>       ("jetsrc");
   
@@ -189,7 +188,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   //jet cleanup parameters
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
-  doPVCheck_              = cleaningParameters_.getParameter<bool>("doPrimaryVertexCheck");
+  bypassAllPVChecks_= cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
   vertexLabel_      = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
   vertexToken_      = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexLabel_));
 
@@ -225,7 +224,7 @@ void JetAnalyzer::beginJob(void) {
     }
   }
 
-  fillJIDPassFrac_ = parameters_.getParameter<int>("fillJIDPassFrac");
+  fillJIDPassFrac_    = parameters_.getParameter<int>("fillJIDPassFrac");
   makedijetselection_ = parameters_.getParameter<int>("makedijetselection");
   //makedijetselection_=diJetSelectionFlag_;
 
@@ -912,7 +911,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     VertexCollection vertexCollection = *(vertexHandle.product());
     numPV  = vertexCollection.size();
   }
-  bool bPrimaryVertex = (numPV>0);
+  bool bPrimaryVertex = (bypassAllPVChecks_ || (numPV>0));
   verticesME->Fill(numPV);
   // ==========================================================
 

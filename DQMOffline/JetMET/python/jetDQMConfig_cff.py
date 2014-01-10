@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 jetDQMParameters = cms.PSet(
+    verbose     = cms.int32(0),
     eBin        = cms.int32(100),
     eMax        = cms.double(500.0),
     eMin        = cms.double(0.0),
