@@ -174,8 +174,9 @@ def customise_Reco(process,pileup):
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
         skipClusters = cms.InputTag("pixelPairStepClusters"),
     )
+    from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
-        layerListName = cms.string('PixelSeedMergerQuadruplets'),
+        layerList = PixelSeedMergerQuadruplets,
         addRemainingTriplets = cms.bool(False),
         mergeTriplets = cms.bool(True),
         ttrhBuilderLabel = cms.string('PixelTTRHBuilderWithoutAngle')

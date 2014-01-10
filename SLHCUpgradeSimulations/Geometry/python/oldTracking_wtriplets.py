@@ -22,6 +22,7 @@ from RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff import *
 
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
+from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
 pixelTriplets = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     #include "RecoTracker/PixelStubs/data/SeedComparitorWithPixelStubs.cfi"
     ClusterCheckPSet = cms.PSet( 
@@ -39,7 +40,7 @@ pixelTriplets = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
      SeedMergerPSet = cms.PSet(
         # layer list for the merger, as defined in (or modified from):
         # RecoPixelVertexing/PixelTriplets/python/quadrupletseedmerging_cff.py
-        layerListName = cms.string( "PixelSeedMergerQuadruplets" ),
+        layerList = PixelSeedMergerQuadruplets,
         # merge triplets -> quadruplets if applicable?
         mergeTriplets = cms.bool( True ),
         # add remaining (non-merged) triplets to merged output quadruplets?
