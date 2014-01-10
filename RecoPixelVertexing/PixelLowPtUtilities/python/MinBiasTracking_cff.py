@@ -32,6 +32,7 @@ secondStep = cms.Sequence(secondClusters
 thirdStep  = cms.Sequence( thirdClusters
                          * thirdPixelRecHits
                          * thirdStripRecHits
+                         * ThirdLayerPairs
                          * pixelTertTracks
                          * tertSeeds
                          * tertTrackCandidates

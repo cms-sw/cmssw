@@ -26,8 +26,7 @@ thirdStripRecHits.ClusterProducer = 'thirdClusters'
 
 #################################
 # Tertiary pairs
-thirdLayerPairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('ThirdLayerPairs'),
+ThirdLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2',
         'BPix1+BPix3',
         'BPix2+BPix3',
