@@ -69,21 +69,33 @@ public:
 	    double z2=D->stubs_[jSector][j].z();
 	    double phi2=D->stubs_[jSector][j].phi();
 	    
+	    if (r1>60.0||r2>60.0) continue;
+
 	    double deltaphi=phi1-phi2;
 
 	    if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
 	    if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
 	    assert(fabs(deltaphi)<0.5*two_pi);
 
-
+	    if (fabs(r1-r2)/fabs(z1-z2)<0.1) continue;
+	    
 	    double dist=sqrt(r2*r2+r1*r1-2*r1*r2*cos(deltaphi));
         
 	    double rinv=2*sin(deltaphi)/dist;
+
+	    double tmp=0.5*r1*rinv;
 	    
-	    double phi0=phi1+asin(0.5*r1*rinv);
+	    if (fabs(tmp)>=1.0) continue;
+	    
+	    double phi0=phi1+asin(tmp);
 
 	    if (phi0>0.5*two_pi) phi0-=two_pi;
 	    if (phi0<-0.5*two_pi) phi0+=two_pi;
+	    if (!(fabs(phi0)<0.5*two_pi)) {
+	      cout << "phi0 "<<phi0<<" "<<phi1<<" "<<r1<<" "<<rinv<<endl;
+	      cout << "r1 r2 deltaphi "<<r1<<" "<<r2<<" "<<deltaphi<<endl;
+	      cout << "z1 z2 "<<z1<<" "<<z2<<endl;
+	    }
 	    assert(fabs(phi0)<0.5*two_pi);
 
 	    double rhopsi1=2*asin(0.5*r1*rinv)/rinv;
@@ -103,6 +115,8 @@ public:
 	    tracklet.addStub(stubs_[iSector][i]);
 	    tracklet.addStub(D->stubs_[jSector][j]);
 
+	    //cout << "L1TDisk tracklet z() "<<tracklet.z()<<endl;
+
 	    tracklets_[iSector].push_back(tracklet);
 
 
@@ -116,20 +130,32 @@ public:
     }
   }
 
-  void findMatches(L1TDisk* D){
+  void findMatches(L1TDisk* D, double rphicut1, double rcut1, 
+		   double rphicut2=0.2, double rcut2=3.0){
+
+    double scale=1.0;
+
+    rphicut1*=scale;
+    rphicut2*=scale;
+    rcut1*=scale;
+    rcut2*=scale;
 
     for(int iSector=0;iSector<NSector_;iSector++){
-      for (int offset=-1;offset<2;offset++) {
-	int jSector=iSector+offset;
-	if (jSector<0) jSector+=NSector_;
-	if (jSector>=NSector_) jSector-=NSector_;
-	for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
-	  L1TTracklet& aTracklet=tracklets_[iSector][i];
-	  double rinv=aTracklet.rinv();
-	  double phi0=aTracklet.phi0();
-	  double z0=aTracklet.z0();
-	  double t=aTracklet.t();
+      for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
+	L1TTracklet& aTracklet=tracklets_[iSector][i];
+	double rinv=aTracklet.rinv();
+	double phi0=aTracklet.phi0();
+	double z0=aTracklet.z0();
+	double t=aTracklet.t();
 
+	double bestdist=2e30;
+	L1TStub tmp;
+
+	for (int offset=-1;offset<2;offset++) {
+	  int jSector=iSector+offset;
+	  if (jSector<0) jSector+=NSector_;
+	  if (jSector>=NSector_) jSector-=NSector_;
+	  
 	  for (unsigned int j=0;j<D->stubs_[jSector].size();j++) {
 	    double r=D->stubs_[jSector][j].r();
 	    double z=D->stubs_[jSector][j].z();
@@ -141,6 +167,31 @@ public:
 	    //  <<L->stubs_[jSector][j].phi()<<endl;
 
 	    
+	    double r_track=2.0*sin(0.5*rinv*(z-z0)/t)/rinv;
+	    double phi_track=phi0-0.5*rinv*(z-z0)/t;
+
+	    int iphi=D->stubs_[jSector][j].iphi();
+	    double width=4.608;
+	    double nstrip=508.0;
+	    if (r<60.0) {
+	      width=4.8;
+	      nstrip=480;
+	    }
+	    double Deltai=width*(iphi-nstrip)/nstrip;  //A bit of a hack...
+	    if (z>0.0) Deltai=-Deltai;
+	    
+
+	    double theta0=asin(Deltai/r);
+
+	    double Delta=Deltai-r_track*sin(theta0-(phi_track-phi));
+
+
+
+	    if (Delta!=Delta) {
+	      cout << "Error: "<<t<<" "<<rinv<<" "<<theta0<<endl;
+	      continue;
+	    }
+	    
 	    double phiproj=phi0-0.5*(z-z0)*rinv/t;
 	    double rproj=2.0*sin(0.5*(z-z0)*rinv/t)/rinv;
 
@@ -151,17 +202,40 @@ public:
 	    if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
 	    assert(fabs(deltaphi)<0.5*two_pi);
 
-	    double rdeltaphi=r*deltaphi;
+	    double rdeltaphi=Delta;
             double deltar=r-rproj;
 
-	    if (fabs(rdeltaphi)>1.0) continue;
-	    if (fabs(deltar)>2.0) continue;
+	    if (0&&fabs(Delta)<10.0&&fabs(deltar)<15.0) {
+	      static ofstream out("diskmatch.txt");
+	      out << aTracklet.r()<<" "<<aTracklet.z()<<" "<<r<<" "<<z<<" "
+		  <<Delta<<" "<<deltar<<endl;
+	    }
+
+	    double dist=0.0;
+
+	    if (r<60) {
+	      if (fabs(rdeltaphi)>rphicut1) continue;
+	      if (fabs(deltar)>rcut1) continue;
+	      dist=hypot(rdeltaphi/rphicut1,deltar/rcut1);
+	    }
+	    else {
+	      if (fabs(rdeltaphi)>rphicut2) continue;
+	      if (fabs(deltar)>rcut2) continue;
+	      dist=hypot(rdeltaphi/rphicut2,deltar/rcut2);
+	    }
+	    
+	    if (dist<bestdist){
+	      bestdist=dist;
+	      tmp=D->stubs_[jSector][j];
+	    }
 
 	    //cout << "rdeltaphi deltar:"<<rdeltaphi<<" "<<deltar<<endl;
 
-	    tracklets_[iSector][i].addStub(D->stubs_[jSector][j]);
-
 	  }
+	}
+	
+	if (bestdist<1e30) {
+	  tracklets_[iSector][i].addStub(tmp);
 	}
       }
     }
@@ -171,17 +245,21 @@ public:
   void findBarrelMatches(L1TGeomBase* L){
 
     for(int iSector=0;iSector<NSector_;iSector++){
-      for (int offset=-1;offset<2;offset++) {
-	int jSector=iSector+offset;
-	if (jSector<0) jSector+=NSector_;
-	if (jSector>=NSector_) jSector-=NSector_;
-	for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
-	  L1TTracklet& aTracklet=tracklets_[iSector][i];
-	  double rinv=aTracklet.rinv();
-	  double phi0=aTracklet.phi0();
-	  double z0=aTracklet.z0();
-	  double t=aTracklet.t();
+      for (unsigned int i=0;i<tracklets_[iSector].size();i++) {
+	L1TTracklet& aTracklet=tracklets_[iSector][i];
+	double rinv=aTracklet.rinv();
+	double phi0=aTracklet.phi0();
+	double z0=aTracklet.z0();
+	double t=aTracklet.t();
 
+	double bestdist=2e30;
+	L1TStub tmp;
+
+	for (int offset=-1;offset<2;offset++) {
+	  int jSector=iSector+offset;
+	  if (jSector<0) jSector+=NSector_;
+	  if (jSector>=NSector_) jSector-=NSector_;
+	  
 	  for (unsigned int j=0;j<L->stubs_[jSector].size();j++) {
 	    double r=L->stubs_[jSector][j].r();
 	    double z=L->stubs_[jSector][j].z();
@@ -206,14 +284,20 @@ public:
 	    double rdeltaphi=r*deltaphi;
             double deltaz=z-zproj;
 
-	    if (fabs(rdeltaphi)>1.0) continue;
-	    if (fabs(deltaz)>3.0) continue;
+	    if (fabs(rdeltaphi)>0.1) continue;
+	    if (fabs(deltaz)>5.0) continue; //LS modified from 0.5 to 5.0
 
-	    //cout << "rdeltaphi deltaz:"<<rdeltaphi<<" "<<deltaz<<endl;
-	    
-	    tracklets_[iSector][i].addStub(L->stubs_[jSector][j]);
+	    double dist=hypot(rdeltaphi/0.1,deltaz/5.0); //LS modified from 0.5 to 5.0
+
+	    if (dist<bestdist) {
+	      bestdist=dist;
+	      tmp=L->stubs_[jSector][j];
+	    }
 
 	  }
+	}
+	if (bestdist<1e30) {
+	  tracklets_[iSector][i].addStub(tmp);
 	}
       }
     }

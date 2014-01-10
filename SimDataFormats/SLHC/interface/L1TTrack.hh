@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "L1TConstants.hh"
+#include "L1TWord.hh"
 
 using namespace std;
 
@@ -23,14 +24,44 @@ public:
     t_=seed.t();
     stubs_=seed.getStubs();
 
-    //double frac;
+    double largestresid;
+    int ilargestresid;
 
-    //cout << "Constructed tracks with "<<stubs_.size()<<" stubs and simtrackid="
-    //	 << simtrackid(frac)<<endl;
+    for (int i=0;i<1;i++){
 
-    calculateDerivatives();
+      if (i>0) {
+	rinv_=rinvfit_;
+	phi0_=phi0fit_;
+	z0_=z0fit_;
+	t_=tfit_;
+      }
 
-    linearTrackFit();
+      calculateDerivatives();
+      
+      linearTrackFit();
+     
+
+    }
+
+    largestresid=-1.0;
+    ilargestresid=-1;
+
+    residuals(largestresid,ilargestresid);
+
+    //cout << "Chisq largestresid: "<<chisq()<<" "<<largestresid<<endl;
+
+    if (stubs_.size()>3&&chisq()>100.0&&largestresid>5.0) {
+      //cout << "Refitting track"<<endl;
+      stubs_.erase(stubs_.begin()+ilargestresid);
+      rinv_=rinvfit_;
+      phi0_=phi0fit_;
+      z0_=z0fit_;
+      t_=tfit_;
+      calculateDerivatives();
+      linearTrackFit();
+      residuals(largestresid,ilargestresid);
+    }
+
 
   }
 
@@ -85,8 +116,10 @@ public:
 
       double ri=stubs_[i].r();
       double zi=stubs_[i].z();
+
       double sigmax=stubs_[i].sigmax();
       double sigmaz=stubs_[i].sigmaz();
+
 
       //cout << "i layer "<<i<<" "<<stubs_[i].layer()<<endl;
 
@@ -109,19 +142,67 @@ public:
       else {
 	//here we handle a disk hit
 	//first we have the r position
-	D_[0][j]=(-2.0*sin(0.5*rinv_*(zi-z0_)/t_)
-		  +(zi-z0_)*cos(0.5*rinv_*(zi-z0_)/t_)/(rinv_*t_))/sigmaz;
-	D_[1][j]=0.0;
-	D_[2][j]=-(zi-z0_)*cos(0.5*rinv_*(zi-z0_)/t_)/(sigmaz*t_*t_);
-	D_[3][j]=-cos(0.5*rinv_*(zi-z0_)/t_)/(sigmaz*t_);
+
+	//int iphi=stubs_[i].iphi();
+	//double phistub=(5.0/ri)*(iphi-508)/508.0;  //A bit of a hack...
+
+	//cout << "iphi phistub rphistub: "<<100*stubs_[i].layer()+stubs_[i].module()<<" "<<iphi<<" "<<phistub<<" "
+	//     << ri*phistub<<" "<<stubs_[i].r()<<" "<<stubs_[i].phi()<<endl;
+
+	double r_track=2.0*sin(0.5*rinv_*(zi-z0_)/t_)/rinv_;
+	double phi_track=phi0_-0.5*rinv_*(zi-z0_)/t_;
+
+	int iphi=stubs_[i].iphi();
+	double phii=stubs_[i].phi();
+
+	double width=4.608;
+	double nstrip=508.0;
+	if (ri<60.0) {
+	  width=4.8;
+	  nstrip=480;
+	}
+	double Deltai=width*(iphi-nstrip)/nstrip;  //A bit of a hack...
+
+	if (stubs_[i].z()>0.0) Deltai=-Deltai;
+	double theta0=asin(Deltai/ri);
+
+	double rmultiplier=-sin(theta0-(phi_track-phii));
+	double phimultiplier=r_track*cos(theta0-(phi_track-phii));
+
+
+	double drdrinv=-2.0*sin(0.5*rinv_*(zi-z0_)/t_)/(rinv_*rinv_)
+			+(zi-z0_)*cos(0.5*rinv_*(zi-z0_)/t_)/(rinv_*t_);
+	double drdphi0=0;
+	double drdt=-(zi-z0_)*cos(0.5*rinv_*(zi-z0_)/t_)/(t_*t_);
+	double drdz0=-cos(0.5*rinv_*(zi-z0_)/t_)/t_;
+
+	double dphidrinv=-0.5*(zi-z0_)/t_;
+	double dphidphi0=1.0;
+	double dphidt=0.5*rinv_*(zi-z0_)/(t_*t_);
+	double dphidz0=0.5*rinv_/t_;
+	
+	D_[0][j]=drdrinv/sigmaz;
+	D_[1][j]=drdphi0/sigmaz;
+	D_[2][j]=drdt/sigmaz;
+	D_[3][j]=drdz0/sigmaz;
 	j++;
-	//second the phi position
-	D_[0][j]=-0.5*(zi-z0_)/(t_*(sigmax/ri));
-	D_[1][j]=1.0/(sigmax/ri);
-	D_[2][j]=-0.5*rinv_*(zi-z0_)/(t_*t_*(sigmax/ri));
-	D_[3][j]=0.5*rinv_/((sigmax/ri)*t_);
+	//second the rphi position
+	D_[0][j]=(phimultiplier*dphidrinv+rmultiplier*drdrinv)/sigmax;
+	D_[1][j]=(phimultiplier*dphidphi0+rmultiplier*drdphi0)/sigmax;
+	D_[2][j]=(phimultiplier*dphidt+rmultiplier*drdt)/sigmax;
+	D_[3][j]=(phimultiplier*dphidz0+rmultiplier*drdz0)/sigmax;
+        //old calculation
+	//D_[0][j]=-0.5*(zi-z0_)/(t_*(sigmax/ri));
+	//D_[1][j]=1.0/(sigmax/ri);
+	//D_[2][j]=-0.5*rinv_*(zi-z0_)/(t_*t_*(sigmax/ri));
+	//D_[3][j]=0.5*rinv_/((sigmax/ri)*t_);
 	j++;
       }
+
+      //cout << "Exact rinv derivative: "<<i<<" "<<D_[0][j-2]<<" "<<D_[0][j-1]<<endl;
+      //cout << "Exact phi0 derivative: "<<i<<" "<<D_[1][j-2]<<" "<<D_[1][j-1]<<endl;
+      //cout << "Exact t derivative   : "<<i<<" "<<D_[2][j-2]<<" "<<D_[2][j-1]<<endl;
+      //cout << "Exact z0 derivative  : "<<i<<" "<<D_[3][j-2]<<" "<<D_[3][j-1]<<endl;
 	
 	
     }
@@ -157,6 +238,93 @@ public:
 
   }
 
+  void residuals(double& largestresid,int& ilargestresid) {
+
+    unsigned int n=stubs_.size();
+
+    //Next calculate the residuals
+
+    double delta[40];
+
+    double chisq=0.0;
+
+    unsigned int j=0;
+
+    bool print=false;
+
+    if (print) cout << "Residuals ("<<chisq1_<<") ["<<0.003*3.8/rinvfit_<<"]: ";
+
+    largestresid=-1.0;
+    ilargestresid=-1;
+
+    for(unsigned int i=0;i<n;i++) {
+      double ri=stubs_[i].r();
+      double zi=stubs_[i].z();
+      double phii=stubs_[i].phi();
+      double sigmax=stubs_[i].sigmax();
+      double sigmaz=stubs_[i].sigmaz();
+
+      int layer=stubs_[i].layer();
+
+      if (layer<1000) {
+        //we are dealing with a barrel stub
+
+	double deltaphi=phi0fit_-asin(0.5*ri*rinvfit_)-phii;
+	if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
+	if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+	assert(fabs(deltaphi)<0.1*two_pi);
+
+	delta[j++]=ri*deltaphi/sigmax;
+	delta[j++]=(z0fit_+(2.0/rinvfit_)*tfit_*asin(0.5*ri*rinvfit_)-zi)/sigmaz;
+	
+      }
+      else {
+	//we are dealing with a disk hit
+
+	double r_track=2.0*sin(0.5*rinvfit_*(zi-z0fit_)/tfit_)/rinvfit_;
+	double phi_track=phi0fit_-0.5*rinvfit_*(zi-z0fit_)/tfit_;
+
+	int iphi=stubs_[i].iphi();
+
+	double width=4.608;
+	double nstrip=508.0;
+	if (ri<60.0) {
+	  width=4.8;
+	  nstrip=480;
+	}
+	double Deltai=width*(iphi-nstrip)/nstrip;  //A bit of a hack...
+
+	if (stubs_[i].z()>0.0) Deltai=-Deltai;
+
+	double theta0=asin(Deltai/ri);
+
+	double Delta=Deltai-r_track*sin(theta0-(phi_track-phii));
+
+	delta[j++]=(r_track-ri)/sigmaz;
+	delta[j++]=Delta/sigmax;
+      }
+
+      if (fabs(delta[j-2])>largestresid) {
+	largestresid=fabs(delta[j-2]);
+	ilargestresid=i;
+      }
+
+      if (fabs(delta[j-1])>largestresid) {
+	largestresid=fabs(delta[j-1]);
+	ilargestresid=i;
+      }
+      
+      if (print) cout << delta[j-2]<<" "<<delta[j-1]<<" ";
+
+      chisq+=delta[j-2]*delta[j-2]+delta[j-1]*delta[j-1];
+
+    }
+
+    if (print) cout <<" ("<<chisq<<")"<<endl;
+
+  }
+  
+
   void linearTrackFit() {
 
     unsigned int n=stubs_.size();
@@ -188,18 +356,133 @@ public:
 
 	delta[j++]=ri*deltaphi/sigmax;
 	delta[j++]=(z0_+(2.0/rinv_)*t_*asin(0.5*ri*rinv_)-zi)/sigmaz;
-	//cout << "delta[j-2] delta[j-1]:"<<delta[j-2]<<" "<<delta[j-1]<<endl;
+
+
+	//numerical derivative check
+
+	for (int iii=0;iii<0;iii++){
+
+	  double drinv=0.0;
+	  double dphi0=0.0;
+	  double dt=0.0;
+	  double dz0=0.0;
+
+	  if (iii==0) drinv=0.001*fabs(rinv_);
+	  if (iii==1) dphi0=0.001;
+	  if (iii==2) dt=0.001;
+	  if (iii==3) dz0=0.01;
+
+	  double deltaphi=phi0_+dphi0-asin(0.5*ri*(rinv_+drinv))-phii;
+	  if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
+	  if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+	  assert(fabs(deltaphi)<0.1*two_pi);
+
+	  double delphi=ri*deltaphi/sigmax;
+	  double deltaz=(z0_+dz0+(2.0/(rinv_+drinv))*(t_+dt)*asin(0.5*ri*(rinv_+drinv))-zi)/sigmaz;
+
+
+	  if (iii==0) cout << "Numerical rinv derivative: "<<i<<" "
+			   <<(delphi-delta[j-2])/drinv<<" "
+			   <<(deltaz-delta[j-1])/drinv<<endl;
+
+	  if (iii==1) cout << "Numerical phi0 derivative: "<<i<<" "
+			   <<(delphi-delta[j-2])/dphi0<<" "
+			   <<(deltaz-delta[j-1])/dphi0<<endl;
+
+	  if (iii==2) cout << "Numerical t derivative: "<<i<<" "
+			   <<(delphi-delta[j-2])/dt<<" "
+			   <<(deltaz-delta[j-1])/dt<<endl;
+
+	  if (iii==3) cout << "Numerical z0 derivative: "<<i<<" "
+			   <<(delphi-delta[j-2])/dz0<<" "
+			   <<(deltaz-delta[j-1])/dz0<<endl;
+
+	}
+
+
 
       }
       else {
 	//we are dealing with a disk hit
 
-	delta[j++]=(2.0*sin(0.5*rinv_*(zi-z0_)/t_)/rinv_-ri)/sigmaz;
-	double deltaphi=phi0_-0.5*rinv_*(zi-z0_)/t_-phii;
-	if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
-	if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
-	assert(fabs(deltaphi)<0.1*two_pi);
-	delta[j++]=deltaphi/(sigmax/ri);
+	double r_track=2.0*sin(0.5*rinv_*(zi-z0_)/t_)/rinv_;
+	//cout <<"t_track 1: "<<r_track<<endl;
+	double phi_track=phi0_-0.5*rinv_*(zi-z0_)/t_;
+
+	int iphi=stubs_[i].iphi();
+
+	double width=4.608;
+	double nstrip=508.0;
+	if (ri<60.0) {
+	  width=4.8;
+	  nstrip=480;
+	}
+	double Deltai=width*(iphi-nstrip)/nstrip;  //A bit of a hack...
+
+	if (stubs_[i].z()>0.0) Deltai=-Deltai;
+
+	double theta0=asin(Deltai/ri);
+
+	double Delta=Deltai-r_track*sin(theta0-(phi_track-phii));
+
+	delta[j++]=(r_track-ri)/sigmaz;
+	//double deltaphi=phi_track-phii;
+	//if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
+	//if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+	//assert(fabs(deltaphi)<0.1*two_pi);
+	//delta[j++]=deltaphi/(sigmax/ri);
+	delta[j++]=Delta/sigmax;
+
+	//numerical derivative check
+
+	for (int iii=0;iii<0;iii++){
+
+	  double drinv=0.0;
+	  double dphi0=0.0;
+	  double dt=0.0;
+	  double dz0=0.0;
+
+	  if (iii==0) drinv=0.001*fabs(rinv_);
+	  if (iii==1) dphi0=0.001;
+	  if (iii==2) dt=0.001;
+	  if (iii==3) dz0=0.01;
+
+	  r_track=2.0*sin(0.5*(rinv_+drinv)*(zi-(z0_+dz0))/(t_+dt))/(rinv_+drinv);
+	  //cout <<"t_track 2: "<<r_track<<endl;
+	  phi_track=phi0_+dphi0-0.5*(rinv_+drinv)*(zi-(z0_+dz0))/(t_+dt);
+	  
+	  iphi=stubs_[i].iphi();
+
+	  double width=4.608;
+	  double nstrip=508.0;
+	  if (ri<60.0) {
+	    width=4.8;
+	    nstrip=480;
+	  }
+	  Deltai=width*(iphi-nstrip)/nstrip;  //A bit of a hack...
+
+	  if (stubs_[i].z()>0.0) Deltai=-Deltai;
+	  theta0=asin(Deltai/ri);
+	  
+	  Delta=Deltai-r_track*sin(theta0-(phi_track-phii));
+
+	  if (iii==0) cout << "Numerical rinv derivative: "<<i<<" "
+			   <<((r_track-ri)/sigmaz-delta[j-2])/drinv<<" "
+			   <<(Delta/sigmax-delta[j-1])/drinv<<endl;
+
+	  if (iii==1) cout << "Numerical phi0 derivative: "<<i<<" "
+			   <<((r_track-ri)/sigmaz-delta[j-2])/dphi0<<" "
+			   <<(Delta/sigmax-delta[j-1])/dphi0<<endl;
+
+	  if (iii==2) cout << "Numerical t derivative: "<<i<<" "
+			   <<((r_track-ri)/sigmaz-delta[j-2])/dt<<" "
+			   <<(Delta/sigmax-delta[j-1])/dt<<endl;
+
+	  if (iii==3) cout << "Numerical z0 derivative: "<<i<<" "
+			   <<((r_track-ri)/sigmaz-delta[j-2])/dz0<<" "
+			   <<(Delta/sigmax-delta[j-1])/dz0<<endl;
+
+	}
 
       }
 
@@ -303,6 +586,13 @@ public:
 
   }
 
+  int npixelstrip() const {
+    int count=0;
+    for (unsigned int i=0;i<stubs_.size();i++){
+      if (stubs_[i].sigmaz()<0.5) count++; 
+    }
+    return count;
+  }
 
   L1TTracklet getSeed() const { return seed_; }
   vector<L1TStub> getStubs() const { return stubs_; }

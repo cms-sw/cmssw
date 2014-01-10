@@ -7,6 +7,30 @@
     L1TDisk* F[7];
     L1TDisk* B[7];
 
+    if (mode==4) {
+      NBarrel=6;
+      NDisk=5;
+      L[0]=new L1TBarrel(20.0,30.0,125.0,NSector);
+      L[1]=new L1TBarrel(30.0,40.0,125.0,NSector);
+      L[2]=new L1TBarrel(40.0,60.0,125.0,NSector);
+      L[3]=new L1TBarrel(60.0,80.0,125.0,NSector);
+      L[4]=new L1TBarrel(80.0,100.0,125.0,NSector);
+      L[5]=new L1TBarrel(100.0,120.0,125.0,NSector);
+
+      F[0]=new L1TDisk(125.0,150.0,NSector);
+      F[1]=new L1TDisk(150.0,175.0,NSector);
+      F[2]=new L1TDisk(175.0,210.0,NSector);
+      F[3]=new L1TDisk(210.0,250.0,NSector);
+      F[4]=new L1TDisk(250.0,275.0,NSector);
+
+      B[0]=new L1TDisk(-125.0,-150.0,NSector);
+      B[1]=new L1TDisk(-150.0,-175.0,NSector);
+      B[2]=new L1TDisk(-175.0,-210.0,NSector);
+      B[3]=new L1TDisk(-210.0,-250.0,NSector);
+      B[4]=new L1TDisk(-250.0,-275.0,NSector);
+      
+    }
+
 
     if (mode==3) {
       NBarrel=6;
@@ -69,7 +93,7 @@
 
 
 
-    cout << "looping over stubs"<<endl;
+    //cout << "looping over stubs: "<<ev.nstubs()<<endl;
       
     for (int j=0;j<ev.nstubs();j++){
 
@@ -117,16 +141,16 @@
       int module=stub.module();
 
       double sigmax=0.0029;
-      double sigmaz=0.036;
+      double sigmaz=0.0433;
 
       //cout << "stub x y z r:"<<stub.x()<<" "<<stub.y()<<" "<<stub.z()
       //	   <<" "<<hypot(stub.x(),stub.y())<<endl;
       
       if (mode!=1) {
-	if (hypot(stub.x(),stub.y())>54) sigmaz=1.44;  //HACK!!!
+	if (hypot(stub.x(),stub.y())>60) sigmaz=1.44;  //HACK!!!
       }
 
-      L1TStub aStub(simtrackid,-1,-1,layer,ladder,module,stub.x(),stub.y(),stub.z(),sigmax,sigmaz);
+      L1TStub aStub(simtrackid,stub.iphi(),stub.iz(),layer,ladder,module,stub.x(),stub.y(),stub.z(),sigmax,sigmaz,stub.pt()*stub.ptsign());
 
       //cout << "layer ladder module:"<<layer<<" "<<ladder<<" "<<module
       //	   << " "<<aStub.r()<<" "<<aStub.phi()<<" "<<aStub.z()<<endl;
@@ -150,13 +174,13 @@
 
     }
 
-    cout << "Will start finding tracks"<<endl;
+    //cout << "Will start finding tracks"<<endl;
 
     L1TTracks allTracks;
 
     if (mode==1) {
 
-      L[0]->findTracklets(L[1]);
+      L[0]->findTracklets(L[1],true);
       //cout << "start finding matches..."<<endl;
       L[0]->findMatches(L[2],0.075,0.6);
       L[0]->findMatches(L[3],0.075,0.6);
@@ -171,7 +195,7 @@
 
       allTracks.addTracks(L[0]->allTracks());
 
-      L[2]->findTracklets(L[3]);
+      L[2]->findTracklets(L[3],true);
       //cout << "start finding matches..."<<endl;
       L[2]->findMatches(L[0],0.075,0.6);
       L[2]->findMatches(L[1],0.075,0.6);
@@ -186,7 +210,7 @@
 
       allTracks.addTracks(L[2]->allTracks());
 
-      L[4]->findTracklets(L[5]);
+      L[4]->findTracklets(L[5],true);
       //cout << "start finding matches..."<<endl;
       L[4]->findMatches(L[0],0.15,2.0);
       L[4]->findMatches(L[1],0.15,2.0);
@@ -201,7 +225,7 @@
 
       allTracks.addTracks(L[4]->allTracks());
 
-      L[6]->findTracklets(L[7]);
+      L[6]->findTracklets(L[7],true);
       //cout << "start finding matches..."<<endl;
       L[6]->findMatches(L[0],0.15,2.0);
       L[6]->findMatches(L[1],0.15,2.0);
@@ -217,7 +241,7 @@
       allTracks.addTracks(L[6]->allTracks());
      
 
-      L[8]->findTracklets(L[9]);
+      L[8]->findTracklets(L[9],true);
       //cout << "start finding matches..."<<endl;
       L[8]->findMatches(L[0],0.15,2.0);
       L[8]->findMatches(L[1],0.15,2.0);
@@ -306,11 +330,14 @@
 
     if (mode==3) {
 
+    if (1){
       L[0]->findTracklets(L[1]);
-      L[0]->findMatches(L[2],1.0,5.0);
-      L[0]->findMatches(L[3],1.0,5.0);
-      L[0]->findMatches(L[4],1.0,5.0);
-      L[0]->findMatches(L[5],1.0,5.0);
+      L[0]->findTracklets(B[0]);
+      L[0]->findTracklets(F[0]);
+      L[0]->findMatches(L[2],0.075,0.5);
+      L[0]->findMatches(L[3],0.12,3.0);
+      L[0]->findMatches(L[4],0.15,3.0);
+      L[0]->findMatches(L[5],0.2,3.0);
       L[0]->findMatches(F[0]);
       L[0]->findMatches(F[1]);
       L[0]->findMatches(F[2]);
@@ -328,12 +355,16 @@
       L[0]->fitTracks();
       
       allTracks.addTracks(L[0]->allTracks());
-      
+    }      
+    
+    if(1){
       L[1]->findTracklets(L[2]);
-      L[1]->findMatches(L[0],1.0,5.0);
-      L[1]->findMatches(L[3],1.0,5.0);
-      L[1]->findMatches(L[4],1.0,5.0);
-      L[1]->findMatches(L[5],1.0,5.0);
+      L[1]->findTracklets(B[0]);
+      L[1]->findTracklets(F[0]);
+      L[1]->findMatches(L[0],0.04,0.5);
+      L[1]->findMatches(L[3],0.075,3.0);
+      L[1]->findMatches(L[4],0.1,3.0);
+      L[1]->findMatches(L[5],0.15,3.0);
       L[1]->findMatches(F[0]);
       L[1]->findMatches(F[1]);
       L[1]->findMatches(F[2]);
@@ -351,13 +382,16 @@
       L[1]->fitTracks();
       
       allTracks.addTracks(L[1]->allTracks());
-      
+    }
 
+    if(1){
       L[2]->findTracklets(L[3]);
-      L[2]->findMatches(L[1],1.0,5.0);
-      L[2]->findMatches(L[3],1.0,5.0);
-      L[2]->findMatches(L[4],1.0,5.0);
-      L[2]->findMatches(L[5],1.0,5.0);
+      L[2]->findTracklets(B[0]);
+      L[2]->findTracklets(F[0]);
+      L[2]->findMatches(L[0],0.025,5.0);
+      L[2]->findMatches(L[1],0.025,3.0);
+      L[2]->findMatches(L[4],0.03,8.0);
+      L[2]->findMatches(L[5],0.05,10.0);
       L[2]->findMatches(F[0]);
       L[2]->findMatches(F[1]);
       L[2]->findMatches(F[2]);
@@ -375,14 +409,42 @@
       L[2]->fitTracks();
       
       allTracks.addTracks(L[2]->allTracks());
+    }
+  
+    if(1){
+      L[3]->findTracklets(L[4]);
+      L[3]->findTracklets(B[0]);
+      L[3]->findTracklets(F[0]);
+      L[3]->findMatches(L[0],0.025,5.0);
+      L[3]->findMatches(L[1],0.025,3.0);
+      L[3]->findMatches(L[2],0.03,8.0);
+      L[3]->findMatches(L[5],0.05,10.0);
+      L[3]->findMatches(F[0]);
+      L[3]->findMatches(F[1]);
+      L[3]->findMatches(F[2]);
+      L[3]->findMatches(F[3]);
+      L[3]->findMatches(F[4]);
+      L[3]->findMatches(F[5]);
+      L[3]->findMatches(F[6]);
+      L[3]->findMatches(B[0]);
+      L[3]->findMatches(B[1]);
+      L[3]->findMatches(B[2]);
+      L[3]->findMatches(B[3]);
+      L[3]->findMatches(B[4]);
+      L[3]->findMatches(B[5]);
+      L[3]->findMatches(B[6]);
+      L[3]->fitTracks();
       
-      
+      allTracks.addTracks(L[3]->allTracks());
+    }
+  
+    if(1){      
       F[0]->findTracklets(F[1]);
-      F[0]->findMatches(F[2]);
-      F[0]->findMatches(F[3]);
-      F[0]->findMatches(F[4]);
-      F[0]->findMatches(F[5]);
-      F[0]->findMatches(F[6]);
+      F[0]->findMatches(F[2],0.05,0.5,0.05);
+      F[0]->findMatches(F[3],0.09,0.6,0.09);
+      F[0]->findMatches(F[4],0.1,1.0,0.1);
+      F[0]->findMatches(F[5],0.15,1.0,0.15);
+      F[0]->findMatches(F[6],0.15,1.0,0.15);
       F[0]->findBarrelMatches(L[0]);
       F[0]->findBarrelMatches(L[1]);
       F[0]->findBarrelMatches(L[2]);
@@ -392,13 +454,15 @@
       F[0]->fitTracks();
 
       allTracks.addTracks(F[0]->allTracks());
-      
+    }      
+
+    if(1){
       F[1]->findTracklets(F[2]);
-      F[1]->findMatches(F[0]);
-      F[1]->findMatches(F[3]);
-      F[1]->findMatches(F[4]);
-      F[1]->findMatches(F[5]);
-      F[1]->findMatches(F[6]);
+      F[1]->findMatches(F[0],0.04,0.4,0.04);
+      F[1]->findMatches(F[3],0.05,0.5,0.05);
+      F[1]->findMatches(F[4],0.075,0.5,0.075);
+      F[1]->findMatches(F[5],0.1,1.0,0.1);
+      F[1]->findMatches(F[6],0.1,1.0,0.1);
       F[1]->findBarrelMatches(L[0]);
       F[1]->findBarrelMatches(L[1]);
       F[1]->findBarrelMatches(L[2]);
@@ -408,13 +472,15 @@
       F[1]->fitTracks();
 
       allTracks.addTracks(F[1]->allTracks());
+    }  
 
+    if(1){
       F[2]->findTracklets(F[3]);
-      F[2]->findMatches(F[0]);
-      F[2]->findMatches(F[1]);
-      F[2]->findMatches(F[4]);
-      F[2]->findMatches(F[5]);
-      F[2]->findMatches(F[6]);
+      F[2]->findMatches(F[0],0.05,0.5,0.05);
+      F[2]->findMatches(F[1],0.04,0.5,0.04);
+      F[2]->findMatches(F[4],0.05,0.5,0.05);
+      F[2]->findMatches(F[5],0.05,0.8,0.05);
+      F[2]->findMatches(F[6],0.08,1.0,0.08);
       F[2]->findBarrelMatches(L[0]);
       F[2]->findBarrelMatches(L[1]);
       F[2]->findBarrelMatches(L[2]);
@@ -424,13 +490,15 @@
       F[2]->fitTracks();
       
       allTracks.addTracks(F[2]->allTracks());
+    }
 
+    if(1){
       F[3]->findTracklets(F[4]);
-      F[3]->findMatches(F[0]);
-      F[3]->findMatches(F[1]);
-      F[3]->findMatches(F[2]);
-      F[3]->findMatches(F[5]);
-      F[3]->findMatches(F[6]);
+      F[3]->findMatches(F[0],0.05,0.5,0.05);
+      F[3]->findMatches(F[1],0.05,0.5,0.05);
+      F[3]->findMatches(F[2],0.05,0.5,0.05);
+      F[3]->findMatches(F[5],0.05,0.8,0.05);
+      F[3]->findMatches(F[6],0.05,0.8,0.05);
       F[3]->findBarrelMatches(L[0]);
       F[3]->findBarrelMatches(L[1]);
       F[3]->findBarrelMatches(L[2]);
@@ -440,13 +508,15 @@
       F[3]->fitTracks();
       
       allTracks.addTracks(F[3]->allTracks());
+    }
 
+    if(1){
       F[4]->findTracklets(F[5]);
-      F[4]->findMatches(F[0]);
-      F[4]->findMatches(F[1]);
-      F[4]->findMatches(F[2]);
-      F[4]->findMatches(F[3]);
-      F[4]->findMatches(F[6]);
+      F[4]->findMatches(F[0],0.05,0.5,0.05);
+      F[4]->findMatches(F[1],0.05,0.5,0.05);
+      F[4]->findMatches(F[2],0.05,0.5,0.05);
+      F[4]->findMatches(F[3],0.05,0.5,0.05);
+      F[4]->findMatches(F[6],0.05,0.5,0.05);
       F[4]->findBarrelMatches(L[0]);
       F[4]->findBarrelMatches(L[1]);
       F[4]->findBarrelMatches(L[2]);
@@ -456,13 +526,15 @@
       F[4]->fitTracks();
       
       allTracks.addTracks(F[4]->allTracks());
-      
+    }      
+
+    if(1){
       F[5]->findTracklets(F[6]);
-      F[5]->findMatches(F[0]);
-      F[5]->findMatches(F[1]);
-      F[5]->findMatches(F[2]);
-      F[5]->findMatches(F[3]);
-      F[5]->findMatches(F[4]);
+      F[5]->findMatches(F[0],0.05,0.5,0.05);
+      F[5]->findMatches(F[1],0.05,0.5,0.05);
+      F[5]->findMatches(F[2],0.05,0.5,0.05);
+      F[5]->findMatches(F[3],0.05,0.5,0.05);
+      F[5]->findMatches(F[4],0.05,0.5,0.05);
       F[5]->findBarrelMatches(L[0]);
       F[5]->findBarrelMatches(L[1]);
       F[5]->findBarrelMatches(L[2]);
@@ -472,13 +544,15 @@
       F[5]->fitTracks();
       
       allTracks.addTracks(F[5]->allTracks());
-      
+    }      
+
+    if(1){
       B[0]->findTracklets(B[1]);
-      B[0]->findMatches(B[2]);
-      B[0]->findMatches(B[3]);
-      B[0]->findMatches(B[4]);
-      B[0]->findMatches(B[5]);
-      B[0]->findMatches(B[6]);
+      B[0]->findMatches(B[2],0.05,0.5,0.05);
+      B[0]->findMatches(B[3],0.08,0.6,0.08);
+      B[0]->findMatches(B[4],0.1,1.0,0.1);
+      B[0]->findMatches(B[5],0.15,1.0,0.15);
+      B[0]->findMatches(B[6],0.15,1.0,0.15);
       B[0]->findBarrelMatches(L[0]);
       B[0]->findBarrelMatches(L[1]);
       B[0]->findBarrelMatches(L[2]);
@@ -488,13 +562,15 @@
       B[0]->fitTracks();
       
       allTracks.addTracks(B[0]->allTracks());
-      
+    }      
+
+    if(1){
       B[1]->findTracklets(B[2]);
-      B[1]->findMatches(B[0]);
-      B[1]->findMatches(B[3]);
-      B[1]->findMatches(B[4]);
-      B[1]->findMatches(B[5]);
-      B[1]->findMatches(B[6]);
+      B[1]->findMatches(B[0],0.04,0.4,0.04);
+      B[1]->findMatches(B[3],0.05,0.5,0.05);
+      B[1]->findMatches(B[4],0.075,0.5,0.075);
+      B[1]->findMatches(B[5],0.1,1.0,0.1);
+      B[1]->findMatches(B[6],0.1,1.0,0.1);
       B[1]->findBarrelMatches(L[0]);
       B[1]->findBarrelMatches(L[1]);
       B[1]->findBarrelMatches(L[2]);
@@ -504,13 +580,15 @@
       B[1]->fitTracks();
       
       allTracks.addTracks(B[1]->allTracks());
+    }
       
+    if(1){  
       B[2]->findTracklets(B[3]);
-      B[2]->findMatches(B[0]);
-      B[2]->findMatches(B[1]);
-      B[2]->findMatches(B[4]);
-      B[2]->findMatches(B[5]);
-      B[2]->findMatches(B[6]);
+      B[2]->findMatches(B[0],0.05,0.5,0.05);
+      B[2]->findMatches(B[1],0.04,0.5,0.04);
+      B[2]->findMatches(B[4],0.05,0.5,0.05);
+      B[2]->findMatches(B[5],0.05,0.8,0.05);
+      B[2]->findMatches(B[6],0.08,1.0,0.08);
       B[2]->findBarrelMatches(L[0]);
       B[2]->findBarrelMatches(L[1]);
       B[2]->findBarrelMatches(L[2]);
@@ -520,13 +598,15 @@
       B[2]->fitTracks();
       
       allTracks.addTracks(B[2]->allTracks());
-      
+    }      
+
+    if(1){
       B[3]->findTracklets(B[4]);
-      B[3]->findMatches(B[0]);
-      B[3]->findMatches(B[1]);
-      B[3]->findMatches(B[2]);
-      B[3]->findMatches(B[5]);
-      B[3]->findMatches(B[6]);
+      B[3]->findMatches(B[0],0.05,0.5,0.05);
+      B[3]->findMatches(B[1],0.05,0.5,0.05);
+      B[3]->findMatches(B[2],0.05,0.5,0.05);
+      B[3]->findMatches(B[5],0.05,0.8,0.05);
+      B[3]->findMatches(B[6],0.05,0.8,0.05);
       B[3]->findBarrelMatches(L[0]);
       B[3]->findBarrelMatches(L[1]);
       B[3]->findBarrelMatches(L[2]);
@@ -536,13 +616,15 @@
       B[3]->fitTracks();
 
       allTracks.addTracks(B[3]->allTracks());
-      
+    }      
+
+    if(1){
       B[4]->findTracklets(B[5]);
-      B[4]->findMatches(B[0]);
-      B[4]->findMatches(B[1]);
-      B[4]->findMatches(B[2]);
-      B[4]->findMatches(B[3]);
-      B[4]->findMatches(B[6]);
+      B[4]->findMatches(B[0],0.05,0.5,0.05);
+      B[4]->findMatches(B[1],0.05,0.5,0.05);
+      B[4]->findMatches(B[2],0.05,0.5,0.05);
+      B[4]->findMatches(B[3],0.05,0.5,0.05);
+      B[4]->findMatches(B[6],0.05,0.5,0.05);
       B[4]->findBarrelMatches(L[0]);
       B[4]->findBarrelMatches(L[1]);
       B[4]->findBarrelMatches(L[2]);
@@ -552,13 +634,15 @@
       B[4]->fitTracks();
       
       allTracks.addTracks(B[4]->allTracks());
-      
+    }      
+
+    if(1){
       B[5]->findTracklets(B[6]);
-      B[5]->findMatches(B[0]);
-      B[5]->findMatches(B[1]);
-      B[5]->findMatches(B[2]);
-      B[5]->findMatches(B[3]);
-      B[5]->findMatches(B[4]);
+      B[5]->findMatches(B[0],0.05,0.5,0.05);
+      B[5]->findMatches(B[1],0.05,0.5,0.05);
+      B[5]->findMatches(B[2],0.05,0.5,0.05);
+      B[5]->findMatches(B[3],0.05,0.5,0.05);
+      B[5]->findMatches(B[4],0.05,0.5,0.05);
       B[5]->findBarrelMatches(L[0]);
       B[5]->findBarrelMatches(L[1]);
       B[5]->findBarrelMatches(L[2]);
@@ -568,24 +652,264 @@
       B[5]->fitTracks();
       
       allTracks.addTracks(B[5]->allTracks());
-    
     }
 
-    cout << "Done with track finding"<<endl;
+    }
+    if (mode==4) {
+
+    if (1){	 
+      L[0]->findTracklets(L[1]);
+      L[0]->findTracklets(B[0],50.0);
+      L[0]->findTracklets(F[0],50.0);
+      L[0]->findMatches(L[2],0.075,0.5);
+      L[0]->findMatches(L[3],0.12,3.0);
+      L[0]->findMatches(L[4],0.15,3.0);
+      L[0]->findMatches(L[5],0.2,3.0);
+      L[0]->findMatches(F[0]);
+      L[0]->findMatches(F[1]);
+      L[0]->findMatches(F[2]);
+      L[0]->findMatches(F[3]);
+      L[0]->findMatches(F[4]);
+      L[0]->findMatches(B[0]);
+      L[0]->findMatches(B[1]);
+      L[0]->findMatches(B[2]);
+      L[0]->findMatches(B[3]);
+      L[0]->findMatches(B[4]);
+      L[0]->fitTracks();
+      
+      allTracks.addTracks(L[0]->allTracks());
+    }      
+    
+    if(1){
+      L[1]->findTracklets(L[2]);
+      L[1]->findTracklets(B[0],70.0);
+      L[1]->findTracklets(F[0],70.0);
+      L[1]->findMatches(L[0],0.04,0.5);
+      L[1]->findMatches(L[3],0.075,3.0);
+      L[1]->findMatches(L[4],0.1,3.0);
+      L[1]->findMatches(L[5],0.15,3.0);
+      L[1]->findMatches(F[0]);
+      L[1]->findMatches(F[1]);
+      L[1]->findMatches(F[2]);
+      L[1]->findMatches(F[3]);
+      L[1]->findMatches(F[4]);
+      L[1]->findMatches(B[0]);
+      L[1]->findMatches(B[1]);
+      L[1]->findMatches(B[2]);
+      L[1]->findMatches(B[3]);
+      L[1]->findMatches(B[4]);
+      L[1]->fitTracks();
+      
+      allTracks.addTracks(L[1]->allTracks());
+    }
+
+    if(1){
+      L[2]->findTracklets(L[3]);
+      L[2]->findTracklets(B[0]);
+      L[2]->findTracklets(F[0]);
+      L[2]->findMatches(L[0],0.025,5.0);
+      L[2]->findMatches(L[1],0.025,3.0);
+      L[2]->findMatches(L[4],0.03,8.0);
+      L[2]->findMatches(L[5],0.05,10.0);
+      L[2]->findMatches(F[0]);
+      L[2]->findMatches(F[1]);
+      L[2]->findMatches(F[2]);
+      L[2]->findMatches(F[3]);
+      L[2]->findMatches(F[4]);
+      L[2]->findMatches(B[0]);
+      L[2]->findMatches(B[1]);
+      L[2]->findMatches(B[2]);
+      L[2]->findMatches(B[3]);
+      L[2]->findMatches(B[4]);
+      L[2]->fitTracks();
+      
+      allTracks.addTracks(L[2]->allTracks());
+    }
+  
+    if(1){
+      L[3]->findTracklets(L[4]);
+      L[3]->findTracklets(B[0]);
+      L[3]->findTracklets(F[0]);
+      L[3]->findMatches(L[0],0.025,5.0);
+      L[3]->findMatches(L[1],0.025,3.0);
+      L[3]->findMatches(L[2],0.03,8.0);
+      L[3]->findMatches(L[5],0.05,10.0);
+      L[3]->findMatches(F[0]);
+      L[3]->findMatches(F[1]);
+      L[3]->findMatches(F[2]);
+      L[3]->findMatches(F[3]);
+      L[3]->findMatches(F[4]);
+      L[3]->findMatches(B[0]);
+      L[3]->findMatches(B[1]);
+      L[3]->findMatches(B[2]);
+      L[3]->findMatches(B[3]);
+      L[3]->findMatches(B[4]);
+      L[3]->fitTracks();
+      
+      allTracks.addTracks(L[3]->allTracks());
+    }
+  
+    if(1){      
+      F[0]->findTracklets(F[1]);
+      F[0]->findMatches(F[2],0.05,0.5,0.05);
+      F[0]->findMatches(F[3],0.09,0.6,0.09);
+      F[0]->findMatches(F[4],0.1,1.0,0.1);
+      F[0]->findBarrelMatches(L[0]);
+      F[0]->findBarrelMatches(L[1]);
+      F[0]->findBarrelMatches(L[2]);
+      F[0]->findBarrelMatches(L[3]);
+      F[0]->findBarrelMatches(L[4]);
+      F[0]->findBarrelMatches(L[5]);
+      F[0]->fitTracks();
+
+      allTracks.addTracks(F[0]->allTracks());
+    }      
+
+    if(1){
+      F[1]->findTracklets(F[2]);
+      F[1]->findMatches(F[0],0.04,0.4,0.04);
+      F[1]->findMatches(F[3],0.05,0.5,0.05);
+      F[1]->findMatches(F[4],0.075,0.5,0.075);
+      F[1]->findBarrelMatches(L[0]);
+      F[1]->findBarrelMatches(L[1]);
+      F[1]->findBarrelMatches(L[2]);
+      F[1]->findBarrelMatches(L[3]);
+      F[1]->findBarrelMatches(L[4]);
+      F[1]->findBarrelMatches(L[5]);
+      F[1]->fitTracks();
+
+      allTracks.addTracks(F[1]->allTracks());
+    }  
+
+    if(1){
+      F[2]->findTracklets(F[3]);
+      F[2]->findMatches(F[0],0.05,0.5,0.05);
+      F[2]->findMatches(F[1],0.04,0.5,0.04);
+      F[2]->findMatches(F[4],0.05,0.5,0.05);
+      F[2]->findBarrelMatches(L[0]);
+      F[2]->findBarrelMatches(L[1]);
+      F[2]->findBarrelMatches(L[2]);
+      F[2]->findBarrelMatches(L[3]);
+      F[2]->findBarrelMatches(L[4]);
+      F[2]->findBarrelMatches(L[5]);
+      F[2]->fitTracks();
+      
+      allTracks.addTracks(F[2]->allTracks());
+    }
+
+    if(1){
+      F[3]->findTracklets(F[4]);
+      F[3]->findMatches(F[0],0.05,0.5,0.05);
+      F[3]->findMatches(F[1],0.05,0.5,0.05);
+      F[3]->findMatches(F[2],0.05,0.5,0.05);
+      F[3]->findBarrelMatches(L[0]);
+      F[3]->findBarrelMatches(L[1]);
+      F[3]->findBarrelMatches(L[2]);
+      F[3]->findBarrelMatches(L[3]);
+      F[3]->findBarrelMatches(L[4]);
+      F[3]->findBarrelMatches(L[5]);
+      F[3]->fitTracks();
+      
+      allTracks.addTracks(F[3]->allTracks());
+    }
+
+    if(1){
+      B[0]->findTracklets(B[1]);
+      B[0]->findMatches(B[2],0.05,0.5,0.05);
+      B[0]->findMatches(B[3],0.08,0.6,0.08);
+      B[0]->findMatches(B[4],0.1,1.0,0.1);
+      B[0]->findBarrelMatches(L[0]);
+      B[0]->findBarrelMatches(L[1]);
+      B[0]->findBarrelMatches(L[2]);
+      B[0]->findBarrelMatches(L[3]);
+      B[0]->findBarrelMatches(L[4]);
+      B[0]->findBarrelMatches(L[5]);
+      B[0]->fitTracks();
+      
+      allTracks.addTracks(B[0]->allTracks());
+    }      
+
+    if(1){
+      B[1]->findTracklets(B[2]);
+      B[1]->findMatches(B[0],0.04,0.4,0.04);
+      B[1]->findMatches(B[3],0.05,0.5,0.05);
+      B[1]->findMatches(B[4],0.075,0.5,0.075);
+      B[1]->findBarrelMatches(L[0]);
+      B[1]->findBarrelMatches(L[1]);
+      B[1]->findBarrelMatches(L[2]);
+      B[1]->findBarrelMatches(L[3]);
+      B[1]->findBarrelMatches(L[4]);
+      B[1]->findBarrelMatches(L[5]);
+      B[1]->fitTracks();
+      
+      allTracks.addTracks(B[1]->allTracks());
+    }
+      
+    if(1){  
+      B[2]->findTracklets(B[3]);
+      B[2]->findMatches(B[0],0.05,0.5,0.05);
+      B[2]->findMatches(B[1],0.04,0.5,0.04);
+      B[2]->findMatches(B[4],0.05,0.5,0.05);
+      B[2]->findBarrelMatches(L[0]);
+      B[2]->findBarrelMatches(L[1]);
+      B[2]->findBarrelMatches(L[2]);
+      B[2]->findBarrelMatches(L[3]);
+      B[2]->findBarrelMatches(L[4]);
+      B[2]->findBarrelMatches(L[5]);
+      B[2]->fitTracks();
+      
+      allTracks.addTracks(B[2]->allTracks());
+    }      
+
+    if(1){
+      B[3]->findTracklets(B[4]);
+      B[3]->findMatches(B[0],0.05,0.5,0.05);
+      B[3]->findMatches(B[1],0.05,0.5,0.05);
+      B[3]->findMatches(B[2],0.05,0.5,0.05);
+      B[3]->findBarrelMatches(L[0]);
+      B[3]->findBarrelMatches(L[1]);
+      B[3]->findBarrelMatches(L[2]);
+      B[3]->findBarrelMatches(L[3]);
+      B[3]->findBarrelMatches(L[4]);
+      B[3]->findBarrelMatches(L[5]);
+      B[3]->fitTracks();
+
+      allTracks.addTracks(B[3]->allTracks());
+    }      
+
+    }
+
+    //cout << "Done with track finding"<<endl;
     
     L1TTracks purgedTracks=allTracks.purged();
     
-    cout << "allTracks purgedTracks :"<<allTracks.size()<<" "
-	 <<purgedTracks.size()<<endl;
+    //cout << "allTracks purgedTracks :"<<allTracks.size()<<" "
+//	 <<purgedTracks.size()<<endl;
+
+    bool printTracks=true;	
 
     static ofstream out1("tracks.txt");
 
+    if (printTracks) {
 
-    out1 << "Event "<<ev.simtrack(0).pt()<<" "<<ev.simtrack(0).phi()
-	<<" "<<ev.simtrack(0).eta()<<endl;
+      int nsim=ev.nsimtracks();
+    
+      if (nsim>0) {
+          out1 << "Event "<<ev.simtrack(0).pt()<<" "<<ev.simtrack(0).phi()
+	       <<" "<<ev.simtrack(0).eta()<<endl;
+      }
+      else{	
+          out1 << "Event "<<999.99<<" "<<999.99
+	       <<" "<<999.99<<endl;	
+      }
+    }  
 
     for (unsigned int i=0;i<purgedTracks.size();i++){
       const L1TTrack& aTrack=purgedTracks.get(i);
+      //cout << "Purged track z0: "<<aTrack.z0()<<endl;
+      //for (unsigned int j=0;j<aTrack.nstub();j++){
+      //  cout << "Stub r,z :"<<aTrack.getStubs()[j].r()<<" "<<aTrack.getStubs()[j].z()<<endl; 				 	
+      //}     
       double frac=0.0;
       int simtrackid=aTrack.simtrackid(frac);
       int isimtrack=ev.getSimtrackFromSimtrackid(simtrackid);
@@ -600,18 +924,19 @@
 	simtracketa=simtrack.eta();
 	simtrackvz=simtrack.vz();
       }
-      out1 <<"Track "<<simtrackpt<<" "<<simtrackphi<<" "
-	   <<simtracketa<<" "<<simtrackvz<<" "
-	   <<aTrack.pt(mMagneticFieldStrength)<<" "<<aTrack.phi0()<<" "
-	   <<aTrack.eta()<<" "<<aTrack.z0()<<" "
-	   <<aTrack.ptseed(mMagneticFieldStrength)<<" "<<aTrack.phi0seed()<<" "
-	   <<aTrack.etaseed()<<" "<<aTrack.z0seed()<<" "
-	   <<aTrack.chisqdof()<<" "<<aTrack.nstub()<<endl;
-      
+      if (printTracks) {
+        out1 <<"Track "<<simtrackpt<<" "<<simtrackphi<<" "
+	     <<simtracketa<<" "<<simtrackvz<<" "
+	     <<aTrack.pt(mMagneticFieldStrength)<<" "<<aTrack.phi0()<<" "
+	     <<aTrack.eta()<<" "<<aTrack.z0()<<" "
+	     <<aTrack.ptseed(mMagneticFieldStrength)<<" "<<aTrack.phi0seed()<<" "
+	     <<aTrack.etaseed()<<" "<<aTrack.z0seed()<<" "
+	     <<aTrack.chisqdof()<<" "<<aTrack.nstub()<<endl;
+      }
     }
     
 
-    if (1) {
+    if (0) {
 
       static ofstream out("trackeff.txt");
       
@@ -634,6 +959,8 @@
 
 	bool match=false;
 
+        double chisq=-999.9;
+
 	for (unsigned itrack=0;itrack<purgedTracks.size();itrack++) {
 	  L1TTrack track=purgedTracks.get(itrack);
 	  
@@ -642,16 +969,17 @@
 
 	  //cout << "simtrackidmatch frac:"<<simtrackidmatch<<" "<<frac<<endl;
 
-	  if (simtrackidmatch==simtrackid&&frac>0.7) {
+	  if (simtrackidmatch==simtrackid&&frac>0.3) {
 	    //cout << "Found Track"<<endl;
 	    match=true;
+            chisq=track.chisq();
 	  }
 
 	}
 	
 	out << aSimTrack.pt() << " " << aSimTrack.eta() 
 	    << " " << aSimTrack.phi() << " " 
-	    << aSimTrack.type() << " " << r << " ";
+	    << aSimTrack.type() << " " << r << " " << chisq << " ";
 	
 	if (match) {
 	  out <<"1"<<endl;

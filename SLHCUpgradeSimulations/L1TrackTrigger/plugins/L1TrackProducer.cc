@@ -591,10 +591,11 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (geometry_=="LB_6PS") mode=1;
   if (geometry_=="LB_4PS_2SS") mode=2;
   if (geometry_=="BE") mode=3;
+  if (geometry_=="BE5D") mode=4;
 
 
 
-  assert(mode==1||mode==2||mode==3);
+  assert(mode==1||mode==2||mode==3||mode==4);
 
 #include "L1Tracking.icc"  
 
