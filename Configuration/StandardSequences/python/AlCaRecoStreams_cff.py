@@ -92,6 +92,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import *
 # stream for prompt-calibration @ Tier0
 ###############################################################
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_cff import *
+
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 
 
@@ -150,6 +152,7 @@ pathALCARECOTkAlCosmicsRegional0THLT = cms.Path(seqALCARECOTkAlCosmicsRegional0T
 pathALCARECOMuAlGlobalCosmicsInCollisions = cms.Path(seqALCARECOMuAlGlobalCosmicsInCollisions*ALCARECOMuAlGlobalCosmicsInCollisionsDQM)
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMuAlGlobalCosmicsDQM)
 pathALCARECOPromptCalibProd = cms.Path(seqALCARECOPromptCalibProd)
+pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiStripGains)
 pathALCARECOSiStripPCLHistos = cms.Path(seqALCARECOSiStripPCLHistos)
 
 # AlCaReco event content definitions:
@@ -465,6 +468,17 @@ ALCARECOStreamPromptCalibProd = cms.FilteredStream(
 	selectEvents = OutALCARECOPromptCalibProd.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+
+ALCARECOStreamPromptCalibProdSiStripGains = cms.FilteredStream(
+	responsible = 'Gianluca Cerminara',
+	name = 'PromptCalibProdSiStripGains',
+	paths  = (pathALCARECOPromptCalibProdSiStripGains),
+	content = OutALCARECOPromptCalibProdSiStripGains.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdSiStripGains.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
 
 ALCARECOStreamSiStripPCLHistos = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
