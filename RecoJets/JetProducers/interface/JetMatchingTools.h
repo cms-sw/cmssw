@@ -5,10 +5,12 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class Event;
@@ -24,7 +26,7 @@ class PCaloHit;
 
 class JetMatchingTools {
  public:
-  JetMatchingTools (const edm::Event& fEvent);
+  JetMatchingTools (const edm::Event& fEvent, edm::ConsumesCollector&& iC );
   ~JetMatchingTools ();
 
   /// get towers contributing to CaloJet
@@ -91,6 +93,19 @@ class JetMatchingTools {
   const edm::SimTrackContainer* mSimTrackCollection;
   const edm::SimVertexContainer* mSimVertexCollection;
   const reco::CandidateCollection* mGenParticleCollection;
+
+  edm::EDGetTokenT<edm::View<EBRecHitCollection> > input_ebrechits_token_;
+  edm::EDGetTokenT<edm::View<EERecHitCollection> > input_eerechits_token_;
+  edm::EDGetTokenT<edm::View<HBHERecHitCollection> > input_hbherechits_token_;
+  edm::EDGetTokenT<edm::View<HORecHitCollection> > input_horechits_token_;
+  edm::EDGetTokenT<edm::View<HFRecHitCollection> > input_hfrechits_token_;
+  edm::EDGetTokenT<edm::View<edm::PCaloHitContainer> > input_pcalohits_eecal_token_;
+  edm::EDGetTokenT<edm::View<edm::PCaloHitContainer> > input_pcalohits_ebcal_token_;
+  edm::EDGetTokenT<edm::View<edm::PCaloHitContainer> > input_pcalohits_hcal_token_;
+  edm::EDGetTokenT<edm::View<edm::SimTrackContainer> > input_simtrack_token_;
+  edm::EDGetTokenT<edm::View<edm::SimVertexContainer> > input_simvertex_token_;
+  edm::EDGetTokenT<edm::View<reco::CandidateCollection> > input_cands_token_;
+
 };
 
 #endif

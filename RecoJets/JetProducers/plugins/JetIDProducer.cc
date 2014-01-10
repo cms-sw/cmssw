@@ -17,8 +17,8 @@
 //
 JetIDProducer::JetIDProducer(const edm::ParameterSet& iConfig) :
   src_       ( iConfig.getParameter<edm::InputTag>("src") ),
-  helper_    ( iConfig ),
-  muHelper_  ( iConfig )
+  helper_    ( iConfig, consumesCollector() ),
+  muHelper_  ( iConfig, consumesCollector() )
 {
   produces< reco::JetIDValueMap >();
 
