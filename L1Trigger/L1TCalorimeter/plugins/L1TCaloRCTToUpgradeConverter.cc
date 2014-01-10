@@ -55,17 +55,19 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
   for (em=ems->begin(); em!=ems->end(); ++em) {
     
     // get physical units
-    double pt = 0.;
-    double eta = 0.;
-    double phi = 0.;
-    math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0. );
+    // double pt = 0.;
+    // double eta = 0.;
+    // double phi = 0.;
+    //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0. );
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 =
+      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
     
-    l1t::CaloStage1Cluster cluster; 
-    //   l1t::CaloStage1Cluster cluster(p4, 
-    // 				    (int) em->rank(),
-    // 				    (int) em->regionId().ieta(),
-    // 				    (int) em->regionId().iphi(),
-    //				    0);
+    //l1t::CaloStage1Cluster cluster; 
+    l1t::CaloStage1Cluster cluster(*p4, 
+				   (int) em->rank(),
+				   (int) em->regionId().ieta(),
+				   (int) em->regionId().iphi(),
+				   0);
     
     // create new format
     clusters->push_back( em->bx(), cluster );
@@ -77,22 +79,26 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
   for (rgn=rgns->begin(); rgn!=rgns->end(); ++rgn) {
     
     // get physical units
-    double pt = 0.;
-    double eta = 0.;
-    double phi = 0.;
-    math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0 );
+    // double pt = 0.;
+    // double eta = 0.;
+    // double phi = 0.;
+    //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0 );
+
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 =
+      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+
     
     // create new format
-    l1t::CaloRegion region;
-    //   l1t::CaloRegion region(p4,
-    // 			    0.,
-    // 			    0.,
-    // 			    (int) rgn->et(),
-    // 			    (int) rgn->id().ieta(),
-    // 			    (int) rgn->id().iphi(),
-    // 			    0,
-    // 			    0,
-    // 			    0);
+    //l1t::CaloRegion region;
+    l1t::CaloRegion region(*p4,
+			   0.,
+			   0.,
+			   (int) rgn->et(),
+			   (int) rgn->id().ieta(),
+			   (int) rgn->id().iphi(),
+			   0,
+			   0,
+			   0);
     
     // add to output
     regions->push_back( rgn->bx(), region );			 
