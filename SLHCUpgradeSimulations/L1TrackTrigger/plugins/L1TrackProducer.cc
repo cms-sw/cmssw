@@ -37,12 +37,9 @@
 //
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 #include "SimDataFormats/SLHC/interface/slhcevent.hh"
-//#include "SimDataFormats/SLHC/interface/L1TRod.hh"
-//#include "SimDataFormats/SLHC/interface/L1TSector.hh"
 #include "SimDataFormats/SLHC/interface/L1TBarrel.hh"
 #include "SimDataFormats/SLHC/interface/L1TDisk.hh"
 #include "SimDataFormats/SLHC/interface/L1TStub.hh"
-//#include "SimDataFormats/SLHC/interface/L1TWord.hh"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
@@ -52,6 +49,8 @@
 //
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+//
+#include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 //
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -297,9 +296,13 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   ////////////////////////
   // GET THE PRIMITIVES //
   edm::Handle<L1TkCluster_PixelDigi_Collection>  pixelDigiL1TkClusterHandle;
-  edm::Handle<L1TkStub_PixelDigi_Collection>     pixelDigiL1TkStubHandle;
+  //edm::Handle<L1TkStub_PixelDigi_Collection>     pixelDigiL1TkStubHandle;
   iEvent.getByLabel("L1TkClustersFromPixelDigis", pixelDigiL1TkClusterHandle);
-  iEvent.getByLabel("L1TkStubsFromPixelDigis", "StubsPass", pixelDigiL1TkStubHandle);
+  //iEvent.getByLabel("L1TkStubsFromPixelDigis", "StubsPass", pixelDigiL1TkStubHandle);
+
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
+  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted", TTStubHandle );
+
 
   cout << "Will loop over simtracks" <<endl;
 
@@ -468,88 +471,104 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   cout << "Will loop over stubs" << endl;
 
   /// Loop over L1TkStubs
-  L1TkStub_PixelDigi_Collection::const_iterator iterL1TkStub;
-  for ( iterL1TkStub = pixelDigiL1TkStubHandle->begin();
-	iterL1TkStub != pixelDigiL1TkStubHandle->end();
-	++iterL1TkStub ) {
+  edmNew::DetSetVector<TTStub<Ref_PixelDigi_> >::const_iterator iterStubDet;
+  for ( iterStubDet = TTStubHandle->begin();
+	iterStubDet != TTStubHandle->end();
+	++iterStubDet ) {
 
-    double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,&(*iterL1TkStub));
+    edmNew::DetSet<TTStub<Ref_PixelDigi_> >::const_iterator iterTTStub;
+    for ( iterTTStub = iterStubDet->begin();
+	  iterTTStub != iterStubDet->end();
+	  iterTTStub++ ) {
+
+      const TTStub<Ref_PixelDigi_>* stub=iterTTStub;
+
+      double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,stub);
         
-    if (stubPt>10000.0) stubPt=9999.99;
-    GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(&(*iterL1TkStub));
+      if (stubPt>10000.0) stubPt=9999.99;
+      GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
 
-    StackedTrackerDetId stubDetId = iterL1TkStub->getDetId();
-    unsigned int iStack = stubDetId.iLayer();
-    unsigned int iRing = stubDetId.iRing();
-    unsigned int iPhi = stubDetId.iPhi();
-    unsigned int iZ = stubDetId.iZ();
+      StackedTrackerDetId stubDetId = stub->getDetId();
+      unsigned int iStack = stubDetId.iLayer();
+      unsigned int iRing = stubDetId.iRing();
+      unsigned int iPhi = stubDetId.iPhi();
+      unsigned int iZ = stubDetId.iZ();
 
-    std::vector<bool> innerStack;
-    std::vector<int> irphi;
-    std::vector<int> iz;
-    std::vector<int> iladder;
-    std::vector<int> imodule;
-
-
-    if (iStack==999999) {
-      iStack=1000+iRing;
-    }
-
-
-    /// Get the Inner and Outer L1TkCluster
-    edm::Ptr<L1TkCluster_PixelDigi_> innerCluster = iterL1TkStub->getClusterPtr(0);
-
-    const DetId innerDetId = theStackedGeometry->idToDet( innerCluster->getDetId(), 0 )->geographicalId();
-
-    for (unsigned int ihit=0;ihit<innerCluster->getHits().size();ihit++){
-
-      std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(innerCluster->getHits().at(ihit)->channel());
-    
-      if (iStack<1000) {
-	innerStack.push_back(true);
-	irphi.push_back(rowcol.first);
-	iz.push_back(rowcol.second);
-	iladder.push_back(PXBDetId(innerDetId).ladder());
-	imodule.push_back(PXBDetId(innerDetId).module());
-      }
-      else {
-	innerStack.push_back(true);
-	irphi.push_back(rowcol.first);
-	iz.push_back(rowcol.second);
-	iladder.push_back(PXFDetId(innerDetId).disk());
-	imodule.push_back(PXFDetId(innerDetId).module());
-      }    
-    }
-
-
-    edm::Ptr<L1TkCluster_PixelDigi_> outerCluster = iterL1TkStub->getClusterPtr(1);
+      std::vector<bool> innerStack;
+      std::vector<int> irphi;
+      std::vector<int> iz;
+      std::vector<int> iladder;
+      std::vector<int> imodule;
       
-    const DetId outerDetId = theStackedGeometry->idToDet( outerCluster->getDetId(), 1 )->geographicalId();
 
-    for (unsigned int ihit=0;ihit<outerCluster->getHits().size();ihit++){
-
-      std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(outerCluster->getHits().at(ihit)->channel());
-    
-      if (iStack<1000) {
-	innerStack.push_back(false);
-	irphi.push_back(rowcol.first);
-	iz.push_back(rowcol.second);
-	iladder.push_back(PXBDetId(outerDetId).ladder());
-	imodule.push_back(PXBDetId(outerDetId).module());
+      if (iStack==999999) {
+	iStack=1000+iRing;
       }
-      else {
-	innerStack.push_back(false);
-	irphi.push_back(rowcol.first);
-	iz.push_back(rowcol.second);
-	iladder.push_back(PXFDetId(outerDetId).disk());
-	imodule.push_back(PXFDetId(outerDetId).module());
-      }    
-    }    
 
-    ev.addStub(iStack-1,iPhi,iZ,stubPt,
-	       stubPosition.x(),stubPosition.y(),stubPosition.z(),
-	       innerStack,irphi,iz,iladder,imodule);
+
+      /// Get the Inner and Outer L1TkCluster
+      std::vector< edm::Ref< edmNew::DetSetVector< TTCluster<Ref_PixelDigi_> >, TTCluster<Ref_PixelDigi_> > >  clusters = stub->getClusterRefs();
+
+      assert(clusters.size()==2);
+
+      edm::Ref< edmNew::DetSetVector< TTCluster<Ref_PixelDigi_> >, TTCluster<Ref_PixelDigi_> > innerClusters=clusters[0];
+
+      const DetId innerDetId = innerClusters->getDetId();
+
+      std::vector<Ref_PixelDigi_> hits=innerClusters->getHits();
+
+      for (unsigned int ihit=0;ihit<hits.size();ihit++){
+
+	std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(hits[ihit]->channel());
+	    
+	if (iStack<1000) {
+	  innerStack.push_back(true);
+	  irphi.push_back(rowcol.first);
+	  iz.push_back(rowcol.second);
+	  iladder.push_back(PXBDetId(innerDetId).ladder());
+	  imodule.push_back(PXBDetId(innerDetId).module());
+	}
+	else {
+	  innerStack.push_back(true);
+	  irphi.push_back(rowcol.first);
+	  iz.push_back(rowcol.second);
+	  iladder.push_back(PXFDetId(innerDetId).disk());
+	  imodule.push_back(PXFDetId(innerDetId).module());
+	}    
+      }
+
+      edm::Ref< edmNew::DetSetVector< TTCluster<Ref_PixelDigi_> >, TTCluster<Ref_PixelDigi_> > outerClusters=clusters[1];
+
+      const DetId outerDetId =outerClusters->getDetId();
+
+      hits=outerClusters->getHits();
+
+      for (unsigned int ihit=0;ihit<hits.size();ihit++){
+
+	std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(hits[ihit]->channel());
+
+    
+	if (iStack<1000) {
+	  innerStack.push_back(false);
+	  irphi.push_back(rowcol.first);
+	  iz.push_back(rowcol.second);
+	  iladder.push_back(PXBDetId(outerDetId).ladder());
+	  imodule.push_back(PXBDetId(outerDetId).module());
+	}
+	else {
+	  innerStack.push_back(false);
+	  irphi.push_back(rowcol.first);
+	  iz.push_back(rowcol.second);
+	  iladder.push_back(PXFDetId(outerDetId).disk());
+	  imodule.push_back(PXFDetId(outerDetId).module());
+	}    
+      }    
+
+      ev.addStub(iStack-1,iPhi,iZ,stubPt,
+		 stubPosition.x(),stubPosition.y(),stubPosition.z(),
+		 innerStack,irphi,iz,iladder,imodule);
         
+    }
   }
 
 
