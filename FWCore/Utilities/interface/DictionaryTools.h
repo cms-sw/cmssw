@@ -29,7 +29,7 @@ find_nested_type_named(std::string const& nested_type,
 
 inline
 bool
-value_type_of(const TypeWithDict& t, TypeWithDict& found_type)
+value_type_of(TypeWithDict const& t, TypeWithDict& found_type)
 {
   return find_nested_type_named("value_type", t, found_type);
 }
@@ -37,7 +37,7 @@ value_type_of(const TypeWithDict& t, TypeWithDict& found_type)
 
 inline
 bool
-wrapper_type_of(const TypeWithDict& possible_wrapper,
+wrapper_type_of(TypeWithDict const& possible_wrapper,
                 TypeWithDict& found_wrapped_type)
 {
   return find_nested_type_named("wrapped_type",
@@ -46,26 +46,26 @@ wrapper_type_of(const TypeWithDict& possible_wrapper,
 }
 
 bool
-is_RefVector(const TypeWithDict& possible_ref_vector,
+is_RefVector(TypeWithDict const& possible_ref_vector,
              TypeWithDict& value_type);
 
 bool
-is_PtrVector(const TypeWithDict& possible_ref_vector,
+is_PtrVector(TypeWithDict const& possible_ref_vector,
              TypeWithDict& value_type);
 bool
-is_RefToBaseVector(const TypeWithDict& possible_ref_vector,
+is_RefToBaseVector(TypeWithDict const& possible_ref_vector,
                    TypeWithDict& value_type);
 
-void checkDictionaries(const std::string& name, bool noComponents = false);
+void checkDictionaries(std::string const& name, bool noComponents = false);
 void throwMissingDictionariesException();
 void loadMissingDictionaries();
 StringSet& missingTypes();
 StringSet& foundTypes();
 
-void public_base_classes(const TypeWithDict& type,
+void public_base_classes(TypeWithDict const& type,
                          std::vector<TypeWithDict>& baseTypes);
 
-const std::string& dictionaryPlugInPrefix();
+std::string const& dictionaryPlugInPrefix();
 
 } // namespace edm
 

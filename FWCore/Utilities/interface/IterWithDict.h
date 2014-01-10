@@ -17,11 +17,11 @@ private:
   bool atEnd_;
 protected:
   void advance();
-  const TIter& iter() const;
+  TIter const& iter() const;
 public:
   IterWithDictBase();
   explicit IterWithDictBase(TList*);
-  bool operator!=(const IterWithDictBase&) const;
+  bool operator!=(IterWithDictBase const&) const;
 };
 
 template<typename T>
