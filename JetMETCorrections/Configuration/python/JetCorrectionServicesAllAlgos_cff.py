@@ -14,6 +14,7 @@ kt6CaloL1Offset = ak5CaloL1Offset.clone()
 ic5CaloL1Offset = ak5CaloL1Offset.clone()
 
 ak7PFL1Offset   = ak5PFL1Offset.clone()
+ak7PFCHSL1Offset   = ak5PFCHSL1Offset.clone()
 kt4PFL1Offset   = ak5PFL1Offset.clone()
 kt6PFL1Offset   = ak5PFL1Offset.clone()
 ic5PFL1Offset   = ak5PFL1Offset.clone()
@@ -27,6 +28,7 @@ kt6CaloL1Fastjet = ak5CaloL1Fastjet.clone()
 ic5CaloL1Fastjet = ak5CaloL1Fastjet.clone()
 
 ak7PFL1Fastjet   = ak5PFL1Fastjet.clone()
+ak7PFCHSL1Fastjet   = ak5PFCHSL1Fastjet.clone()
 kt4PFL1Fastjet   = ak5PFL1Fastjet.clone()
 kt6PFL1Fastjet   = ak5PFL1Fastjet.clone()
 ic5PFL1Fastjet   = ak5PFL1Fastjet.clone()
@@ -43,6 +45,7 @@ kt6CaloL2Relative = ak5CaloL2Relative.clone( algorithm = 'KT6Calo' )
 ic5CaloL2Relative = ak5CaloL2Relative.clone( algorithm = 'IC5Calo' )
 
 ak7PFL2Relative   = ak5PFL2Relative.clone  ( algorithm = 'AK7PF' )
+ak7PFCHSL2Relative   = ak5PFCHSL2Relative.clone  ( algorithm = 'AK7PFCHS' )
 kt4PFL2Relative   = ak5PFL2Relative.clone  ( algorithm = 'KT4PF' )
 kt6PFL2Relative   = ak5PFL2Relative.clone  ( algorithm = 'KT6PF' )
 ic5PFL2Relative   = ak5PFL2Relative.clone  ( algorithm = 'IC5PF' )
@@ -54,6 +57,7 @@ kt6CaloL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'KT6Calo' )
 ic5CaloL3Absolute = ak5CaloL3Absolute.clone( algorithm = 'IC5Calo' )
 
 ak7PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'AK7PF' )
+ak7PFCHSL3Absolute   = ak5PFCHSL3Absolute.clone  ( algorithm = 'AK7PFCHS' )
 kt4PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'KT4PF' )
 kt6PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'KT6PF' )
 ic5PFL3Absolute   = ak5PFL3Absolute.clone  ( algorithm = 'IC5PF' )
@@ -65,6 +69,7 @@ kt6CaloResidual   = ak5CaloResidual.clone()
 ic5CaloResidual   = ak5CaloResidual.clone()
 
 ak7PFResidual     = ak5PFResidual.clone()
+ak7PFCHSResidual     = ak5PFCHSResidual.clone()
 kt4PFResidual     = ak5PFResidual.clone()
 kt6PFResidual     = ak5PFResidual.clone()
 ic5PFResidual     = ak5PFResidual.clone()
@@ -130,6 +135,11 @@ ic5CaloL2L3 = cms.ESProducer(
 ak7PFL2L3 = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL2Relative','ak7PFL3Absolute')
+    )
+
+ak7PFCHSL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
+    correctors = cms.vstring('ak7PFCHSL2Relative','ak7PFCHSL3Absolute')
     )
 kt4PFL2L3 = cms.ESProducer(
     'JetCorrectionESChain',
@@ -214,6 +224,10 @@ ak7PFL2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL2Relative','ak7PFL3Absolute','ak7PFResidual')
     )
+ak7PFCHSL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
+    correctors = cms.vstring('ak7PFCHSL2Relative','ak7PFCHSL3Absolute','ak7PFCHSResidual')
+    )
 kt4PFL2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('kt4PFL2Relative','kt4PFL3Absolute','kt4PFResidual')
@@ -249,6 +263,10 @@ ak7PFL1L2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL1Offset','ak7PFL2Relative','ak7PFL3Absolute','ak7PFResidual')
     )
+ak7PFCHSL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
+    correctors = cms.vstring('ak7PFCHSL1Offset','ak7PFCHSL2Relative','ak7PFCHSL3Absolute','ak7PFCHSResidual')
+    )
 kt4PFL1L2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('kt4PFL1Offset','kt4PFL2Relative','kt4PFL3Absolute','kt4PFResidual')
@@ -280,6 +298,8 @@ ic5CaloL1FastL2L3.correctors.insert(0,'ak5CaloL1Fastjet')
 
 ak7PFL1FastL2L3 = ak7PFL2L3.clone()
 ak7PFL1FastL2L3.correctors.insert(0,'ak5PFL1Fastjet')
+ak7PFCHSL1FastL2L3 = ak7PFCHSL2L3.clone()
+ak7PFCHSL1FastL2L3.correctors.insert(0,'ak5PFCHSL1Fastjet')
 kt4PFL1FastL2L3 = kt4PFL2L3.clone()
 kt4PFL1FastL2L3.correctors.insert(0,'ak5PFL1Fastjet')
 kt6PFL1FastL2L3 = kt6PFL2L3.clone()
@@ -312,6 +332,11 @@ ak7PFL1FastL2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL1Fastjet','ak7PFL2Relative','ak7PFL3Absolute','ak7PFResidual')
     )
+ak7PFCHSL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
+    correctors = cms.vstring('ak7PFCHSL1Fastjet','ak7PFCHSL2Relative','ak7PFCHSL3Absolute','ak7PFCHSResidual')
+    )
+
 kt4PFL1FastL2L3Residual = cms.ESProducer(
     'JetCorrectionESChain',
     correctors = cms.vstring('kt4PFL1Fastjet','kt4PFL2Relative','kt4PFL3Absolute','kt4PFResidual')
