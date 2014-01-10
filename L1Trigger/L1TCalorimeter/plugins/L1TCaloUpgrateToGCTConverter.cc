@@ -117,12 +117,11 @@ l1t::L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
     for(int itBX=firstBxTau; itBX!=lastBxTau; ++itBX){
         
         
-        //looping over Jet elments with a specific BX
+        //looping over Tau elments with a specific BX
         L1TTauCollection::const_iterator itTau = Tau->begin(itBX);
         for(; itTau != Tau->end(itBX); ++itTau){
             
-            bool forward=0;
-            
+            bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
             L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(), true, forward,0, 0, itBX);     //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
              tauJetResult->push_back(TauCand);
             
@@ -140,8 +139,7 @@ l1t::L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
         L1TJetCollection::const_iterator itJet = Jet->begin(itBX);
         for(; itJet != Jet->end(itBX); ++itJet){
             
-            bool forward=0;
-            
+            bool forward=(itJet->hwEta() < 4 || itJet->hwEta() > 17);
             L1GctJetCand JetCand(itJet->hwPt(), itJet->hwPhi(), itJet->hwEta(), false, forward,0, 0, itBX);     //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
             if(forward) forJetResult->push_back(JetCand);
             else cenJetResult->push_back(JetCand);
@@ -236,5 +234,4 @@ l1t::L1TCaloUpgrateToGCTConverter::fillDescriptions(ConfigurationDescriptions& d
 
 
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(l1t::L1TCaloUpgrateToGCTConverter);
+
