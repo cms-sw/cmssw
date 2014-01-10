@@ -28,8 +28,7 @@ convStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverte
     ClusterProducer = 'convClusters'
     )
 
-convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
-                                ComponentName = cms.string('convLayerPairs'),
+convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 
@@ -309,6 +308,7 @@ convStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity
 #)
 
 convSequence = cms.Sequence( TrackRefitterStd * convFilter * convClusters * convPixelRecHits * convStripRecHits 
+                             * convLayerPairs
                              * photonConvTrajSeedFromQuadruplets 
                              *convTrackCandidates*convStepTracks
                              #*convStepLoose*convStepTight
