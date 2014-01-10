@@ -29,6 +29,7 @@ PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSe
    SeedComparitorPSet(conf.getParameter<edm::ParameterSet>("SeedComparitorPSet")),
    QuadCutPSet(conf.getParameter<edm::ParameterSet>("QuadCutPSet")),
    theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)){
+  theHitsGenerator.reset(new CombinedHitQuadrupletGeneratorForPhotonConversion(hitsfactoryPSet, iC));
 
   theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, std::move(iC));
   
@@ -44,15 +45,12 @@ PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::~PhotonConversionTraj
 
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 clear(){
-  if(theHitsGenerator!=NULL)
-    delete theHitsGenerator;
   if(theSeedCreator!=NULL)
     delete theSeedCreator;
 }
 
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 init(){
-  theHitsGenerator  = new CombinedHitQuadrupletGeneratorForPhotonConversion(hitsfactoryPSet);
   theSeedCreator    = new SeedForPhotonConversionFromQuadruplets(creatorPSet);
 }
 

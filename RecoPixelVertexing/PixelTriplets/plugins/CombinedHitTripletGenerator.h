@@ -11,12 +11,14 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include <string>
 #include <memory>
 
 class TrackingRegion;
 class HitTripletGeneratorFromPairAndLayers;
+class SeedingLayerSetsHits;
 
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
@@ -36,7 +38,7 @@ public:
       const edm::Event & ev,  const edm::EventSetup& es);
 
 private:
-  edm::InputTag theSeedingLayerSrc;
+  edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 
   LayerCacheType            theLayerCache;
 
