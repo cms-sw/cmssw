@@ -10,6 +10,10 @@ trackAccumulator = cms.PSet(
     GeneralTrackExtraInputPileup = cms.InputTag("generalTracks"),
     GeneralTrackExtraOutput = cms.string("generalTracks"),
 
+    HitInputSignal = cms.InputTag("generalTracksBeforeMixing"),
+    HitInputPileup = cms.InputTag("generalTracks"),
+    HitOutput = cms.string("generalTracks"),
+
     accumulatorType = cms.string("RecoTrackAccumulator"),
     makeDigiSimLinks = cms.untracked.bool(False)
     )
