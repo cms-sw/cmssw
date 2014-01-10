@@ -452,7 +452,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     streamId_(0),
     moduleId_(0),
     pwd_ (""),
-    ibooker_(0)
+    ibooker_(0),
+    stream("histogramBookingBT.log")
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
@@ -474,7 +475,8 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     streamId_(0),
     moduleId_(0),
     pwd_ (""),
-    ibooker_(0)
+    ibooker_(0),
+    stream("histogramBookingBT.log")
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
@@ -550,7 +552,6 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
 void
 DQMStore::print_trace (const std::string &dir, const std::string &name)
 {
-  [[cms::thread_safe]] static std::ofstream stream("histogramBookingBT.log");
   void *array[10];
   size_t size;
   char **strings;
