@@ -8,7 +8,7 @@ SeedGeneratorParameters = cms.PSet(
         ComponentName = cms.string('TSGFromOrderedHits'),
         OrderedHitsFactoryPSet = cms.PSet(
             ComponentName = cms.string('StandardHitPairGenerator'),
-            SeedingLayers = cms.string('PixelLayerPairs')
+            SeedingLayers = cms.InputTag('PixelLayerPairs')
         ),
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
