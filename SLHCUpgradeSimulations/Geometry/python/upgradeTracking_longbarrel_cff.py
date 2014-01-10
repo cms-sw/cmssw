@@ -17,7 +17,7 @@ pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngl
 pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )
 
 # new layer list (3/4 pixel seeding) in stepZero
-pixellayertriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                             'BPix2+BPix3+BPix4',
                                             'BPix1+BPix3+BPix4',
                                             'BPix1+BPix2+BPix4',

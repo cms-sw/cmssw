@@ -19,9 +19,7 @@ initialStepClusters = cms.EDProducer("TrackClusterRemover",
                                      )
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
-    ComponentName = 'initialStepSeedLayers'
-    )
+initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
 initialStepSeedLayers.BPix.skipClusters = cms.InputTag('initialStepClusters')
 initialStepSeedLayers.FPix.skipClusters = cms.InputTag('initialStepClusters')
 
@@ -139,6 +137,7 @@ initialStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerge
 
 # Final sequence
 InitialStep = cms.Sequence(initialStepClusters*
+                           initialStepSeedLayers*
                            initialStepSeeds*
                            initialStepTrackCandidates*
                            initialStepTracks*

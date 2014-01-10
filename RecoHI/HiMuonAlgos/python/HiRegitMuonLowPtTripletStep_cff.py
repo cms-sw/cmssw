@@ -23,9 +23,7 @@ hiRegitMuLowPtTripletStepClusters = RecoHI.HiTracking.hiRegitLowPtTripletStep_cf
 )
 
 # SEEDING LAYERS
-hiRegitMuLowPtTripletStepSeedLayers = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepSeedLayers.clone(
-    ComponentName = 'hiRegitMuLowPtTripletStepSeedLayers'
-    )
+hiRegitMuLowPtTripletStepSeedLayers = RecoHI.HiTracking.hiRegitLowPtTripletStep_cff.hiRegitLowPtTripletStepSeedLayers.clone()
 hiRegitMuLowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitMuLowPtTripletStepClusters')
 hiRegitMuLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuLowPtTripletStepClusters')
 
@@ -90,6 +88,7 @@ hiRegitMuLowPtTripletStepSelector               = RecoHI.HiTracking.hiRegitLowPt
 )
 
 hiRegitMuonLowPtTripletStep = cms.Sequence(hiRegitMuLowPtTripletStepClusters*
+                                           hiRegitMuLowPtTripletStepSeedLayers*
                                            hiRegitMuLowPtTripletStepSeeds*
                                            hiRegitMuLowPtTripletStepTrackCandidates*
                                            hiRegitMuLowPtTripletStepTracks*

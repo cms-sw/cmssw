@@ -9,7 +9,8 @@ from RecoVZero.VZeroFinding.VZeros_cff import *
 
 ###################################
 # First step, triplets, r=0.2 cm
-firstStep  = cms.Sequence(pixel3ProtoTracks
+firstStep  = cms.Sequence(PixelLayerTriplets
+                        * pixel3ProtoTracks
                         * pixel3Vertices
                         * pixel3PrimTracks
                         * primSeeds
