@@ -4,6 +4,7 @@ from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
+from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 
 hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
 
@@ -20,7 +21,7 @@ hiPixel3PrimTracks = cms.EDProducer("PixelTrackProducer",
     # Ordered Hits
     OrderedHitsFactoryPSet = cms.PSet( 
           ComponentName = cms.string( "StandardHitTripletGenerator" ),
-	  SeedingLayers = cms.string( "PixelLayerTriplets" ),
+	  SeedingLayers = cms.InputTag( "PixelLayerTriplets" ),
           GeneratorPSet = cms.PSet( 
 		PixelTripletHLTGenerator
           )

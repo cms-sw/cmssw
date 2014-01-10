@@ -101,7 +101,7 @@ def customise_Reco(process,pileup):
     process.convClusters.oldClusterRemovalInfo=cms.InputTag("mixedTripletStepClusters")
     process.convClusters.trajectories=cms.InputTag("mixedTripletStepTracks")
     process.convClusters.overrideTrkQuals= cms.InputTag("mixedTripletStep")
-    process.pixellayertriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
+    process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                                         'BPix2+BPix3+BPix4',
                                                         'BPix1+BPix3+BPix4',
                                                         'BPix1+BPix2+BPix4',

@@ -31,7 +31,7 @@ pixelTriplets = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     ),
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),
-        SeedingLayers = cms.string('PixelLayerTriplets'),
+        SeedingLayers = cms.InputTag('PixelLayerTriplets'),
         GeneratorPSet = cms.PSet(
             PixelTripletHLTGenerator
         )
@@ -64,7 +64,7 @@ pixelTriplets = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
 )
 ckfTrackCandidates.src = 'pixelTriplets'
 #ckfTrackCandidates.SeedProducer = 'pixelTriplets'
-oldTracking_wtriplets = cms.Sequence(pixelTriplets*ckfTrackCandidates*ctfWithMaterialTracks)
+oldTracking_wtriplets = cms.Sequence(PixelLayerTriplets*pixelTriplets*ckfTrackCandidates*ctfWithMaterialTracks)
 
 
 

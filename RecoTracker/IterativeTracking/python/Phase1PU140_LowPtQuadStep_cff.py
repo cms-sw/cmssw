@@ -19,8 +19,7 @@ lowPtQuadStepClusters = cms.EDProducer("TrackClusterRemover",
 
 # SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-lowPtQuadStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
-    ComponentName = cms.string('lowPtQuadStepSeedLayers'),
+lowPtQuadStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone(
     layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
                             'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
                             'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
@@ -176,6 +175,7 @@ lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
 
 # Final sequence
 LowPtQuadStep = cms.Sequence(lowPtQuadStepClusters*
+                                lowPtQuadStepSeedLayers*
                                 lowPtQuadStepSeeds*
                                 lowPtQuadStepTrackCandidates*
                                 lowPtQuadStepTracks*
