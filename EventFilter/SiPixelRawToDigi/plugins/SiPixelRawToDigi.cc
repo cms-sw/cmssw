@@ -169,29 +169,20 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     LogDebug("SiPixelRawToDigi") << "region2unpack #modules (BPIX,EPIX,total): "<<regions_->nBarrelModules()<<" "<<regions_->nForwardModules()<<" "<<regions_->nModules();
   }
 
-  typedef std::vector<unsigned int>::const_iterator IF;
-  for (IF aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
+  for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
     int fedId = *aFed;
 
     if (regions_ && !regions_->mayUnpackFED(fedId)) continue;
 
     if(debug) LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
-    PixelDataFormatter::Digis digis;
+
     PixelDataFormatter::Errors errors;
 
     //get event data for this fed
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
     //convert data to digi and strip off errors
-    formatter.interpretRawData( errorsInEvent, fedId, fedRawData, digis, errors);
-
-    //pack digi into collection
-    typedef PixelDataFormatter::Digis::iterator ID;
-    for (ID it = digis.begin(); it != digis.end(); it++) {
-      uint32_t detid = it->first;
-      edm::DetSet<PixelDigi>& detSet = collection->find_or_insert(detid);
-      detSet.data.insert(detSet.data.end(), it->second.begin(), it->second.end());
-    }
+    formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection, errors);
 
     //pack errors into collection
     if(includeErrors) {

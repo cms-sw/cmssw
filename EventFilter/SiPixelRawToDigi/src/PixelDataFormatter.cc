@@ -86,7 +86,7 @@ void PixelDataFormatter::passFrameReverter(const SiPixelFrameReverter* reverter)
   theFrameReverter = reverter;
 }
 
-void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
+void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& rawData, Collection & digis, Errors& errors)
 {
   using namespace sipixelobjects;
 
@@ -129,7 +129,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   int roc  = -1;
   PixelROC const * rocp=nullptr;
   bool skipROC=false;
-  DetDigis * detDigis=nullptr;
+  edm::DetSet<PixelDigi> * detDigis=nullptr;
   for (const Word64* word = header+1; word != trailer; word++) {
     if (debug) LogTrace("")<<"DATA:    " <<  print(*word);
 
@@ -153,15 +153,17 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  continue;
 	}
 	auto rawId = rocp->rawId();
+
 	if (useQualityInfo&(nullptr!=badPixelInfo)) {
 	  short rocInDet = (short) rocp->idInDetUnit();
 	  skipROC = badPixelInfo->IsRocBad(rawId, rocInDet);
 	  if (skipROC) continue;
 	}
-	
 	skipROC= modulesToUnpack && ( modulesToUnpack->find(rawId) == modulesToUnpack->end());
 	if (skipROC) continue;
-	detDigis = &digis[rawId];
+	
+	detDigis = &digis.find_or_insert(rawId);
+	if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
       }
       if (skipROC) continue;
 
@@ -180,12 +182,14 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       }
     
       GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
-      (*detDigis).emplace_back(global.row, global.col, adc);
+      (*detDigis).data.emplace_back(global.row, global.col, adc);
       
-      if (debug)  LogTrace("") << (*detDigis).back();
+      if (debug)  LogTrace("") << (*detDigis).data.back();
     }
   }
 }
+
+
 
 void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis) 
 {
