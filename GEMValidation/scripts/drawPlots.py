@@ -35,6 +35,56 @@ def draw_1D(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw, cut, op
   h.Draw(opt)
   h.SetMinimum(0.)
   c.SaveAs(target_dir + c_title + ext)
+
+def fill_hist(hist, array):
+  [hist.Fill(_) for _ in array] 
+
+def draw_1D_adv(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw, cut, opt = ""):
+  gStyle.SetStatStyle(0)
+  gStyle.SetOptStat(1110)
+  c = TCanvas("c","c",600,600)
+  c.Clear()
+  t.Draw(to_draw + ">>" + h_name + h_bins, cut)
+  h = TH1F(gDirectory.Get(h_name).Clone(h_name))
+  h.Reset()
+  if not h:
+    sys.exit('h does not exist')
+  cutString = cut.GetTitle()
+  t1 = t.CopyTree(Form(cutString))
+  for entry in t1:
+    vector = range(entry.firstClusterStrip, entry.firstClusterStrip + entry.clusterSize)
+    fill_hist(h, vector)
+  h.SetTitle(title)
+  h.SetLineWidth(2)
+  h.SetLineColor(kBlue)
+  h.Draw(opt)
+  h.SetMinimum(0.)
+  c.SaveAs(target_dir + c_title + ext)
+
+def fill_hist2(hist, array, arg):
+  [hist.Fill(_, arg) for _ in array] 
+
+def draw_2D_adv(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw, cut, opt = ""):
+  gStyle.SetStatStyle(0)
+  gStyle.SetOptStat(1110)
+  c = TCanvas("c","c",600,600)
+  c.Clear()
+  t.Draw(to_draw + ">>" + h_name + h_bins, cut)
+  h = TH2F(gDirectory.Get(h_name).Clone(h_name))
+  h.Reset()
+  if not h:
+    sys.exit('h does not exist')
+  cutString = cut.GetTitle()
+  t1 = t.CopyTree(Form(cutString))
+  for entry in t1:
+    vector = range(entry.firstClusterStrip, entry.firstClusterStrip + entry.clusterSize)
+    fill_hist2(h, vector, t.roll)
+  h.SetTitle(title)
+  h.SetLineWidth(2)
+  h.SetLineColor(kBlue)
+  h.Draw(opt)
+  h.SetMinimum(0.)
+  c.SaveAs(target_dir + c_title + ext)
   
 def draw_geff(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw,
               denom_cut, extra_num_cut, opt, color, marker_st = 1, marker_sz = 1):

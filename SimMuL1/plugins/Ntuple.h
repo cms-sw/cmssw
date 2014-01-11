@@ -110,8 +110,8 @@ struct MyNtuple
   vvfloat csc_sh_energyLoss;
   vvfloat csc_sh_pabs;
   vvfloat csc_sh_timeOfFlight;
-  vvint csc_sh_detId;
   vvfloat csc_sh_gx;
+  vvfloat csc_sh_gy;
   vvfloat csc_sh_gz;
   vvfloat csc_sh_gr;
   vvfloat csc_sh_geta;
@@ -256,8 +256,8 @@ TTree* MyNtuple::book(TTree *t, const std::string & name)
   t->Branch("csc_sh_energyLoss",&csc_sh_energyLoss);
   t->Branch("csc_sh_pabs",&csc_sh_pabs);
   t->Branch("csc_sh_timeOfFlight",&csc_sh_timeOfFlight);
-  t->Branch("csc_sh_detId",&csc_sh_detId);
   t->Branch("csc_sh_gx",&csc_sh_gx);
+  t->Branch("csc_sh_gy",&csc_sh_gy);
   t->Branch("csc_sh_gz",&csc_sh_gz);
   t->Branch("csc_sh_gr",&csc_sh_gr);
   t->Branch("csc_sh_geta",&csc_sh_geta);
@@ -363,8 +363,8 @@ void MyNtuple::initialize()
   csc_sh_energyLoss.clear();
   csc_sh_pabs.clear();
   csc_sh_timeOfFlight.clear();
-  csc_sh_detId.clear();
   csc_sh_gx.clear();
+  csc_sh_gy.clear();
   csc_sh_gz.clear();
   csc_sh_gr.clear();
   csc_sh_geta.clear();

@@ -239,6 +239,7 @@ private:
   bool doStrictSimHitToTrackMatch_;
   bool matchAllTrigPrimitivesInChamber_;
   int minNHitsShared_;
+  int minNHitsChamber_;
   double minDeltaYAnode_;
   double minDeltaYCathode_;
   int minDeltaWire_;
@@ -292,6 +293,9 @@ private:
 
   bool addGhostLCTs_;
   
+  int minNStWithMinNHitsChambers_;
+  bool requireME1WithMinNHitsChambers_;
+  bool requireME11WithMinNHitsChambers_;
   bool minNStWith4Hits_;
   bool requireME1With4Hits_;
   
@@ -621,6 +625,7 @@ private:
   TH1D * h_eta_initial0;
   TH1D * h_eta_initial;
   
+  TH1D * h_eta_me11_initial;
   TH1D * h_eta_me1_initial;
   TH1D * h_eta_me2_initial;
   TH1D * h_eta_me3_initial;
@@ -632,7 +637,6 @@ private:
 
   TH1D * h_eta_me1_initial_2st;
   TH1D * h_eta_me1_initial_3st;
-
 
   TH1D * h_eta_me1_mpc;
   TH1D * h_eta_me2_mpc;
@@ -733,6 +737,22 @@ private:
   //TH1D * h_eta_me1_after_tf_all;
   //TH1D * h_eta_me1_after_tf_all_pt10;
 
+  TH1D * h_eta_me11_after_alct;
+  TH1D * h_eta_me11_after_alct_okAlct;
+  TH1D * h_eta_me11_after_clct;
+  TH1D * h_eta_me11_after_clct_okClct;
+  TH1D * h_eta_me11_after_alctclct;
+  TH1D * h_eta_me11_after_alctclct_okAlct;
+  TH1D * h_eta_me11_after_alctclct_okClct;
+  TH1D * h_eta_me11_after_alctclct_okAlctClct;
+
+  TH1D * h_eta_me11_after_lct;
+  TH1D * h_eta_me11_after_lct_okAlct;
+  TH1D * h_eta_me11_after_lct_okAlctClct;
+  TH1D * h_eta_me11_after_lct_okClct;
+  TH1D * h_eta_me11_after_lct_okClctAlct;
+  TH1D * h_eta_me11_after_mplct_okAlctClct;
+  TH1D * h_eta_me11_after_mplct_okAlctClct_plus;
 
   TH1D * h_eta_me1_after_mplct_ok;
   TH1D * h_eta_me2_after_mplct_ok;
@@ -916,6 +936,7 @@ private:
   TH1D * h_xtrabx;
   TH1D * h_xtradr;
 
+  TH1D * h_n_simHits;
   TH1D * h_n_alct;
   TH1D * h_n_clct;
   TH1D * h_n_lct;

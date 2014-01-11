@@ -102,7 +102,10 @@ public:
   int numberOfLayersWithHitsInChamber( int detId );
   std::pair<int,int> wireGroupAndStripInChamber( int detId );
 
-  bool hasHitsInStation(int st, unsigned minNHits=4); // st=0 - any,  st=1,2,3,4 - ME1-4
+  // does simtrack has at least 4 simhits in a particular station and ring?
+  // st=0 - any,  st=1,2,3,4 - ME1-4
+  // ri=0 - any,  ri=1,2,3 - MEX/1-MEX/3
+  bool hasHitsInStation(int st, int ri=0, unsigned minNHits=4); 
   unsigned nStationsWithHits(bool me1=1, bool me2=1, bool me3=1, bool me4=1, unsigned minNHits=4);
 
   // 
