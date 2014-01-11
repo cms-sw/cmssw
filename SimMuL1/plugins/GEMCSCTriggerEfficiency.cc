@@ -224,6 +224,8 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
     assert(std::is_sorted(gemPTs_.begin(), gemPTs_.end()));
     assert(gemPTs_.size() == gemDPhisOdd_.size() && gemPTs_.size() == gemDPhisEven_.size());
 
+    mufiducial_ = new MuFiducial();
+    mufiducial_->buildGEMLUT();
 
     // *********************************** HISTOGRAMS ******************************************
     edm::Service<TFileService> fs;
