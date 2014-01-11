@@ -42,8 +42,3 @@ process.FastTimerService.enableDQMbyLuminosity    = True
 process.FastTimerService.enableDQMbyLumiSection   = True
 process.FastTimerService.enableDQMbyProcesses     = True
 process.FastTimerService.enableDQMSummary         = True
-
-process.ftsLuminosityFromScalers.source = 'hltScalersRawToDigi'
-
-process.ftsPileupFromScalers.source = 'hltScalersRawToDigi'
-process.ftsPileupFromScalers.range  = 80
