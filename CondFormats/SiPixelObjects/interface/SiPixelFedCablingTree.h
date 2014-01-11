@@ -2,7 +2,7 @@
 #define SiPixelFedCablingTree_H
 
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <string>
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
@@ -41,6 +41,6 @@ public:
 
 private:
   std::string theVersion; 
-  std::map<int, PixelFEDCabling> theFedCablings;
+  std::unordered_map<int, PixelFEDCabling> theFedCablings;
 };
 #endif

@@ -90,8 +90,6 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 {
   using namespace sipixelobjects;
 
-  debug = edm::MessageDrop::instance()->debugEnabled;
-
   int nWords = rawData.size()/sizeof(Word64);
   if (nWords==0) return;
 
@@ -106,7 +104,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   bool moreHeaders = true;
   while (moreHeaders) {
     header++;
-    if (debug) LogTrace("")<<"HEADER:  " <<  print(*header);
+    LogTrace("")<<"HEADER:  " <<  print(*header);
     bool headerStatus = errorcheck.checkHeader(errorsInEvent, fedId, header, errors);
     moreHeaders = headerStatus;
   }
@@ -116,14 +114,14 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   trailer++;
   while (moreTrailers) {
     trailer--;
-    if (debug) LogTrace("")<<"TRAILER: " <<  print(*trailer);
+    LogTrace("")<<"TRAILER: " <<  print(*trailer);
     bool trailerStatus = errorcheck.checkTrailer(errorsInEvent, fedId, nWords, trailer, errors);
     moreTrailers = trailerStatus;
   }
 
   // data words
   theWordCounter += 2*(nWords-2);
-  if (debug) LogTrace("")<<"data words: "<< (trailer-header-1);
+  LogTrace("")<<"data words: "<< (trailer-header-1);
 
   int link = -1;
   int roc  = -1;
@@ -131,7 +129,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   bool skipROC=false;
   edm::DetSet<PixelDigi> * detDigis=nullptr;
   for (const Word64* word = header+1; word != trailer; word++) {
-    if (debug) LogTrace("")<<"DATA:    " <<  print(*word);
+    LogTrace("")<<"DATA:    " <<  print(*word);
 
     Word32 w[2] = { Word32(*word & WORD32_mask),  Word32(*word >> 32 & WORD32_mask) };
 
@@ -184,7 +182,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
       GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
       (*detDigis).data.emplace_back(global.row, global.col, adc);
       
-      if (debug)  LogTrace("") << (*detDigis).data.back();
+      LogTrace("") << (*detDigis).data.back();
     }
   }
 }
