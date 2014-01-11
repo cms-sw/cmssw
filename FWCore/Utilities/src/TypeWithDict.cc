@@ -495,11 +495,17 @@ namespace edm {
     return FunctionWithDict(meth);
   }
 
-  //FunctionWithDict
-  //TypeWithDict::functionMemberByName(std::string const& member, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const {
-  //  return FunctionWithDict(type_.FunctionMemberByName(member, signature.type_,
-  //                          mods, static_cast<Reflex::EMEMBERQUERY>(memberQuery)));
-  //}
+  FunctionWithDict
+  TypeWithDict::functionMemberByName(std::string const& name, std::string const& proto, bool isConst) const {
+    if (class_ == nullptr) {
+      return FunctionWithDict();
+    }
+    TMethod* meth = class_->GetMethodWithPrototype(name.c_str(), proto.c_str(), /*objectIsConst=*/isConst, /*mode=*/ROOT::kExactMatch);
+    if (meth == nullptr) {
+      return FunctionWithDict();
+    }
+    return FunctionWithDict(meth);
+  }
 
   TypeWithDict
   TypeWithDict::finalType() const {

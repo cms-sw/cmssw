@@ -27,4 +27,9 @@ namespace edm {
     return TypeWithDict(baseClass_->GetClassPointer(), baseClass_->Property());
   }
 
+  size_t
+  BaseWithDict::offset() const {
+    return static_cast<size_t>(baseClass_->GetDelta());
+  }
+
 } // namespace edm

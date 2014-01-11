@@ -1,7 +1,10 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 
+#include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+
+#include <cxxabi.h>
 
 namespace edm {
 
@@ -60,6 +63,31 @@ namespace edm {
   ObjectWithDict::get(std::string const& memberName) const {
     return TypeWithDict(type_).dataMemberByName(memberName).get(*this);
   }
+
+  ObjectWithDict
+  ObjectWithDict::castObject(TypeWithDict const& to) const {
+    TypeWithDict from = typeOf();
+
+    // Same type
+    if (from == to) {
+      return *this;
+    }
+
+    if (to.hasBase(from)) { // down cast
+      // use the internal dynamic casting of the compiler (e.g. libstdc++.so)
+      void* address = abi::__dynamic_cast(address_, static_cast<abi::__class_type_info const*>(&from.typeInfo()), static_cast<abi::__class_type_info const*>(&to.typeInfo()), -1);
+      return ObjectWithDict(to, address);
+    }
+
+    if (from.hasBase(to)) { // up cast
+      size_t offset = from.getBaseClassOffset(to);
+      size_t address = reinterpret_cast<size_t>(address_) + offset;
+      return ObjectWithDict(to, reinterpret_cast<void*>(address));
+    }
+
+    // if everything fails return the dummy object
+    return ObjectWithDict();
+  } // castObject
 
   //ObjectWithDict
   //ObjectWithDict::construct() const {

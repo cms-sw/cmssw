@@ -7,7 +7,6 @@
 //
 #include "CoralBase/Blob.h"
 
-// #include "Reflex/Type.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "TClass.h"

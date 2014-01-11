@@ -46,7 +46,7 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
     buildBaseDataMembers( dataElement, relationalData, baseType, operationBuffer );
     for ( unsigned int j=0;j<baseType.dataMemberSize();j++){
       edm::MemberWithDict dataMember = ora::helper::DataMemberAt(baseType, j);      
-      DataElement& dataMemberElement = dataElement.addChild( dataMember.offset(), base.offsetFP() );
+      DataElement& dataMemberElement = dataElement.addChild( dataMember.offset(), /*base.offsetFP()*/ base.offset() );
       // Ignore the transients and the statics (how to deal with non-const statics?)
       if ( dataMember.isTransient() || dataMember.isStatic() ) continue;
       // Get the member type and resolve possible typedef chains
