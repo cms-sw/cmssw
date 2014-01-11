@@ -132,4 +132,5 @@ files['_gem98_pt2-50_PU0_pt30_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dild
 files['_gem98_pt2-50_PU0_pt40_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt40/871a2070c5b60d6753827956fe591827/']
 
 files['_gem98_pt2-50_PU400_pt0_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_Pt0_v2/778c771068e2388f44bc7bc981a2bd26/']
-files['_gem98_pt2-50_PU140_pt0_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_Pt0/2c2b78e2ec5d908d2c3bc3475ea38e05']
+## the PU140 sample was produced on top of 308a75f2d7dfbc94edbc02b4614326e079266b6a
+files['_gem98_pt2-50_PU140_pt0_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_Pt0/2c2b78e2ec5d908d2c3bc3475ea38e05/']
