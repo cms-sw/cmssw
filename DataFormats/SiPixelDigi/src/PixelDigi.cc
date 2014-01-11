@@ -10,7 +10,8 @@ void PixelDigi::init( int row, int col, int adc) {
   // may be smaller!
   if ( row < 0 || row > PixelChannelIdentifier::thePacking.max_row || 
        col < 0 || col > PixelChannelIdentifier::thePacking.max_column) {
-    std::cout << "PixelDigi constructor: row or column out packing range" << std::endl;
+    std::cout << "PixelDigi constructor: row or column out packing range " 
+	      << row << ' ' << col << std::endl;
   }
 
   // Set adc to max_adc in case of overflow

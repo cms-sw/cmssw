@@ -176,6 +176,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 	  << "status #3";
 	errorsInEvent = true;
 	errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+	continue;
       }
     
       GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
