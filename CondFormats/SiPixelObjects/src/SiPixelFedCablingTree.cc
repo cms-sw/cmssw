@@ -74,7 +74,7 @@ void SiPixelFedCablingTree::addItem(unsigned int fedId, unsigned int linkId, con
 }
 
 const sipixelobjects::PixelROC* SiPixelFedCablingTree::findItem(
-    const CablingPathToDetUnit & path) const
+								const CablingPathToDetUnit & path) const
 {
   const PixelROC* roc = 0;
   const PixelFEDCabling * aFed = fed(path.fed);
@@ -84,6 +84,18 @@ const sipixelobjects::PixelROC* SiPixelFedCablingTree::findItem(
   }
   return roc;
 }
+
+
+const sipixelobjects::PixelROC* SiPixelFedCablingTree::findItemInFed(
+								const CablingPathToDetUnit & path, 
+								const PixelFEDCabling * aFed) const
+{
+  const PixelROC* roc = 0;
+  const  PixelFEDLink * aLink = aFed->link(path.link);
+  if (aLink) roc = aLink->roc(path.roc);
+  return roc;
+}
+
 
 int SiPixelFedCablingTree::checkNumbering() const
 {

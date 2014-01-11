@@ -8,7 +8,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 
-class SiPixelFedCablingTree : public  SiPixelFedCabling {
+class SiPixelFedCablingTree final : public  SiPixelFedCabling {
 
 public:
   typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
@@ -34,8 +34,10 @@ public:
 
   virtual std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const;
 
-  virtual const sipixelobjects::PixelROC* findItem(
-     const sipixelobjects::CablingPathToDetUnit & path) const;  
+  virtual const sipixelobjects::PixelROC* findItem(const sipixelobjects::CablingPathToDetUnit & path) const;  
+
+  const sipixelobjects::PixelROC* findItemInFed(const sipixelobjects::CablingPathToDetUnit & path, 
+						const PixelFEDCabling * aFed) const;  
 
   int checkNumbering() const;
 

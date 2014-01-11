@@ -6,12 +6,20 @@
 #include "CondFormats/SiPixelObjects/interface/ElectronicIndex.h"
 #include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <boost/cstdint.hpp>
 
 class SiPixelFrameConverter {
 public:
+
+  typedef sipixelobjects::PixelFEDCabling PixelFEDCabling;
+
+  //  using PixelFEDCabling = sipixelobjects::PixelFEDCabling;
 
   SiPixelFrameConverter(const SiPixelFedCabling* map, int fedId); 
 
@@ -42,9 +50,10 @@ public:
                  const sipixelobjects::DetectorIndex & detector) const;
 
 private:
-
   int theFedId;
   const SiPixelFedCabling* theMap;
+  SiPixelFedCablingTree const * theTree;
+  const PixelFEDCabling * theFed;
   
 };
 #endif

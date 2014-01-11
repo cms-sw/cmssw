@@ -12,9 +12,10 @@ using namespace std;
 using namespace sipixelobjects;
 
 SiPixelFrameConverter::SiPixelFrameConverter(const SiPixelFedCabling* map, int fedId)
-  : theFedId(fedId), theMap(map)
-{ }
-
+  : theFedId(fedId), theMap(map),
+    theTree(dynamic_cast<SiPixelFedCablingTree const *>(map)),
+    theFed(theTree ? theTree->fed(fedId) : nullptr)
+{}
 
 bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 {
@@ -31,8 +32,8 @@ PixelROC const * SiPixelFrameConverter::toRoc(int link, int roc) const {
   CablingPathToDetUnit path = {static_cast<unsigned int>(theFedId),
                                static_cast<unsigned int>(link),
                                static_cast<unsigned int>(roc)}; 
-  const PixelROC * rocp = theMap->findItem(path);
-  if (!rocp){
+  const PixelROC * rocp = (theFed) ? theTree->findItemInFed(path, theFed) : theMap->findItem(path);
+  if unlikely(!rocp){
     stringstream stm;
     stm << "Map shows no fed="<<theFedId
         <<", link="<< link
