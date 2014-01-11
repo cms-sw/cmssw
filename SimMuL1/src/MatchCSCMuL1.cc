@@ -1,23 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    SimMuL1
-// Class:      MatchCSCMuL1
-// 
-/**\class MatchCSCMuL1 MatchCSCMuL1.cc MyCode/SimMuL1/src/MatchCSCMuL1.cc
-
-Description: Trigger Matching info for SimTrack in CSC
-
-Implementation:
-<Notes on implementation>
- */
-//
-// Original Author:  "Vadim Khotilovich"
-//         Created:  Mon May  5 20:50:43 CDT 2008
-// $Id$
-//
-//
-
-
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
 // system include files
@@ -170,6 +150,68 @@ MatchCSCMuL1::detsWithHits()
 
 //_____________________________________________________________________________
 /*
+ * Which csc detIds are associated to this simtrack?
+ * 
+ * Option to pick a specific station and/or ring
+ */
+std::set<int> 
+MatchCSCMuL1::cscDetIdsAssociated(int station, int ring)
+{
+  std::set<int> dets;
+  dets.clear();
+  for (auto det: gemGeometry->detIds()) {
+    CSCDetId id(det);
+    // specific station
+    if (station and (station != id.station())) continue;
+    // specific ring
+    if (ring and (ring != id.ring())) continue;
+    if (isCSCDetIdAssociated(det)) dets.insert(det.rawId());
+  }
+  return dets;
+}
+
+//_____________________________________________________________________________
+/*
+ * Which gem detIds are associated to this simtrack?
+ * 
+ * Option to pick a specific station and/or ring
+ */
+std::set<int> 
+MatchCSCMuL1::gemDetIdsAssociated(int station, int ring)
+{
+  std::set<int> dets;
+  dets.clear();
+  for (auto det: gemGeometry->detIds()) {
+    GEMDetId id(det);
+    // specific station
+    if (station and (station != id.station())) continue;
+    // specific ring
+    if (ring and (ring != id.ring())) continue;
+    if (isGEMDetIdAssociated(det)) dets.insert(det.rawId());
+  }
+  return dets;
+}
+
+//_____________________________________________________________________________
+bool
+MatchCSCMuL1::isCSCDetIdAssociated(CSCDetId id)
+{
+  // get global XYZ position of simtrack at station
+  //const int station(id.station());
+  //math::XYZVectorD simTrkPos(vAtStation(station));
+  
+  return true;
+}
+
+//_____________________________________________________________________________
+bool
+MatchCSCMuL1::isGEMDetIdAssociated(CSCDetId id)
+{
+  return true;
+}
+
+//_____________________________________________________________________________
+/*
  * Return the chambers with hits in a particular station, ring and with a 
  * minimum number of simhits
  *
@@ -178,7 +220,7 @@ MatchCSCMuL1::detsWithHits()
  * @param minNHits   Minimum number of simhits
  * @return           The chamber numbers
  */
-    std::vector<int> 
+std::vector<int> 
 MatchCSCMuL1::chambersWithHits(int station, int ring, unsigned minNHits)
 {
     std::set<int> chambers;
