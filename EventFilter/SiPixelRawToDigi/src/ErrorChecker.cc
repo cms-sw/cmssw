@@ -17,31 +17,33 @@ using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
 
-const int CRC_bits = 1;
-const int LINK_bits = 6;
-const int ROC_bits  = 5;
-const int DCOL_bits = 5;
-const int PXID_bits = 8;
-const int ADC_bits  = 8;
-const int OMIT_ERR_bits = 1;
-
-const int CRC_shift = 2;
-const int ADC_shift  = 0;
-const int PXID_shift = ADC_shift + ADC_bits;
-const int DCOL_shift = PXID_shift + PXID_bits;
-const int ROC_shift  = DCOL_shift + DCOL_bits;
-const int LINK_shift = ROC_shift + ROC_bits;
-const int OMIT_ERR_shift = 20;
-
-const cms_uint32_t dummyDetId = 0xffffffff;
-
-const ErrorChecker::Word64 CRC_mask = ~(~ErrorChecker::Word64(0) << CRC_bits);
-const ErrorChecker::Word32 ERROR_mask = ~(~ErrorChecker::Word32(0) << ROC_bits);
-const ErrorChecker::Word32 LINK_mask = ~(~ErrorChecker::Word32(0) << LINK_bits);
-const ErrorChecker::Word32 ROC_mask  = ~(~ErrorChecker::Word32(0) << ROC_bits);
-const ErrorChecker::Word32 DCOL_mask = ~(~ErrorChecker::Word32(0) << DCOL_bits);
-const ErrorChecker::Word32 PXID_mask = ~(~ErrorChecker::Word32(0) << PXID_bits);
-const ErrorChecker::Word32 OMIT_ERR_mask = ~(~ErrorChecker::Word32(0) << OMIT_ERR_bits);
+namespace {
+  constexpr int CRC_bits = 1;
+  constexpr int LINK_bits = 6;
+  constexpr int ROC_bits  = 5;
+  constexpr int DCOL_bits = 5;
+  constexpr int PXID_bits = 8;
+  constexpr int ADC_bits  = 8;
+  constexpr int OMIT_ERR_bits = 1;
+  
+  constexpr int CRC_shift = 2;
+  constexpr int ADC_shift  = 0;
+  constexpr int PXID_shift = ADC_shift + ADC_bits;
+  constexpr int DCOL_shift = PXID_shift + PXID_bits;
+  constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
+  constexpr int LINK_shift = ROC_shift + ROC_bits;
+  constexpr int OMIT_ERR_shift = 20;
+  
+  constexpr cms_uint32_t dummyDetId = 0xffffffff;
+  
+  constexpr ErrorChecker::Word64 CRC_mask = ~(~ErrorChecker::Word64(0) << CRC_bits);
+  constexpr ErrorChecker::Word32 ERROR_mask = ~(~ErrorChecker::Word32(0) << ROC_bits);
+  constexpr ErrorChecker::Word32 LINK_mask = ~(~ErrorChecker::Word32(0) << LINK_bits);
+  constexpr ErrorChecker::Word32 ROC_mask  = ~(~ErrorChecker::Word32(0) << ROC_bits);
+  constexpr ErrorChecker::Word32 DCOL_mask = ~(~ErrorChecker::Word32(0) << DCOL_bits);
+  constexpr ErrorChecker::Word32 PXID_mask = ~(~ErrorChecker::Word32(0) << PXID_bits);
+  constexpr ErrorChecker::Word32 OMIT_ERR_mask = ~(~ErrorChecker::Word32(0) << OMIT_ERR_bits);
+}  
 
 ErrorChecker::ErrorChecker() {
 
@@ -112,9 +114,9 @@ bool ErrorChecker::checkTrailer(bool& errorsInEvent, int fedId, int nWords, cons
 
 bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameConverter* converter, Word32& errorWord, Errors& errors)
 {
- int errorType = (errorWord >> ROC_shift) & ERROR_mask;
+  int errorType = (errorWord >> ROC_shift) & ERROR_mask;
+  if likely(errorType<25) return true;
 
- if (errorType<25) return true;
  switch (errorType) {
     case(25) : {
      LogDebug("")<<"  invalid ROC=25 found (errorType=25)";

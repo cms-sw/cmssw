@@ -141,7 +141,7 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
       if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
 	link = nlink; roc=nroc;
-	skipROC = !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
+	skipROC = likely(roc<25) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
 	if (skipROC) continue;
 	rocp = converter.toRoc(link,roc);
 	if (!rocp) {
