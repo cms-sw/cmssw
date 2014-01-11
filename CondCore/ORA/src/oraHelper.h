@@ -9,12 +9,12 @@
 namespace ora {
     namespace helper {
         
-        size_t BaseSize(const edm::TypeWithDict& objType) {
+        inline size_t BaseSize(const edm::TypeWithDict& objType) {
             edm::TypeBases bases(objType);  // Type Bases is defined in TypeWithDict.h.
             return bases.size();
         } // end BaseSize
         
-        edm::BaseWithDict BaseAt(const edm::TypeWithDict& objType, size_t index) {
+        inline edm::BaseWithDict BaseAt(const edm::TypeWithDict& objType, size_t index) {
             size_t indexWanted = index;
             size_t currentIndex = 0;
             edm::TypeBases bases(objType);
@@ -29,7 +29,7 @@ namespace ora {
             return baseWanted;
         } // end BaseAt
         
-        edm::MemberWithDict DataMemberAt(const edm::TypeWithDict& objType, size_t index) {
+        inline edm::MemberWithDict DataMemberAt(const edm::TypeWithDict& objType, size_t index) {
             size_t indexWanted = index;
             size_t currentIndex = 0;
             edm::TypeDataMembers bases(objType);
@@ -44,7 +44,7 @@ namespace ora {
             return baseWanted;
         } // end DataMemberAt
 
-        edm::FunctionWithDict FunctionMemberAt(const edm::TypeWithDict& objType, size_t index) {
+        inline edm::FunctionWithDict FunctionMemberAt(const edm::TypeWithDict& objType, size_t index) {
             size_t indexWanted = index;
             size_t currentIndex = 0;
             edm::TypeFunctionMembers bases(objType);
@@ -59,10 +59,10 @@ namespace ora {
             return baseWanted;
         } // end FunctionMemberAt
 
-        Reflex::PropertyList Properties( const edm::TypeWithDict& objType ) {
+        inline Reflex::PropertyList Properties( const edm::TypeWithDict& objType ) {
             return Reflex::PropertyList( objType );
         }
-        Reflex::PropertyList Properties( const edm::MemberWithDict& objType ) {
+        inline Reflex::PropertyList Properties( const edm::MemberWithDict& objType ) {
             return Reflex::PropertyList( objType );
         }
 

@@ -29,10 +29,11 @@
 
 #include <boost/thread.hpp>
 
-#include <Reflex/Reflex.h>
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
@@ -115,45 +116,42 @@ std::vector<VarProcessor*> MVAComputer::getProcessors() const
 	return processors;
 }
 
-void MVAComputer::addProcessor(const VarProcessor *proc)
+void MVAComputer::addProcessor(const VarProcessor* proc)
 {
-	cacheId = getNextMVAComputerCacheId();
-
-	ROOT::Reflex::Type baseType = ROOT::Reflex::GetType<VarProcessor>();
-	ROOT::Reflex::Type type =
-				ROOT::Reflex::Type::ByTypeInfo(typeid(*proc));
-	ROOT::Reflex::Type refType(type,
-				ROOT::Reflex::CONST & ROOT::Reflex::REFERENCE);
-	if (!type.Name().size())
-		throw cms::Exception("MVAComputerCalibration")
-			<< "Calibration class " << typeid(*proc).name()
-			<< " not registered with ROOT::Reflex."
-			<< std::endl;
-
-	ROOT::Reflex::Object obj =
-		ROOT::Reflex::Object(baseType, const_cast<void*>(
-			static_cast<const void*>(proc))).CastObject(type);
-
-	// find and call copy constructor
-	for(ROOT::Reflex::Member_Iterator iter = type.FunctionMember_Begin();
-	    iter != type.FunctionMember_End(); iter++) {
-		const ROOT::Reflex::Type &ctor = iter->TypeOf();
-		if (!iter->IsConstructor() ||
-		    ctor.FunctionParameterSize() != 1 ||
-		    ctor.FunctionParameterAt(0).Id() != refType.Id())
-			continue;
-
-		ROOT::Reflex::Object copy = type.Construct(ctor,
-			ROOT::Reflex::Tools::MakeVector<void*>(obj.Address()));
-
-		processors.push_back(static_cast<VarProcessor*>(copy.Address()));
-		return;
-	}
-
-	throw cms::Exception("MVAComputerCalibration")
-			<< "Calibration class " << typeid(*proc).name()
-			<< " has no copy ctor registered with ROOT::Reflex."
-			<< std::endl;
+  cacheId = getNextMVAComputerCacheId();
+  edm::TypeWithDict baseType(typeid(VarProcessor));
+  edm::TypeWithDict type(typeid(*proc));
+  if (!type.name().size()) {
+    throw cms::Exception("MVAComputerCalibration")
+      << "Calibration class "
+      << typeid(*proc).name()
+      << " does not have a dictionary."
+      << std::endl;
+  }
+  edm::TypeWithDict refType(type, kIsConstant | kIsReference);
+  edm::FunctionWithDict func = type.functionMemberByName(type.name(), refType.name(), false);
+  if (!func) {
+    throw cms::Exception("MVAComputerCalibration")
+      << "Calibration class "
+      << typeid(*proc).name()
+      << " does not have a copy constructor."
+      << std::endl;
+  }
+  std::vector<void*> args;
+  // Note: This is attempting to compensate if the actual processor type does
+  //       not have VarProcessor as its first base class.  Set the further
+  //       note below about why this is a waste of time.
+  edm::ObjectWithDict src = edm::ObjectWithDict(baseType, const_cast<VarProcessor*>(proc)).castObject(type);
+  void* src_p = src.address();
+  args.push_back(&src_p);
+  void* retval = 0;
+  // Note: The type arg does not really matter here.
+  edm::ObjectWithDict ret(type, &retval);
+  func.invoke(&ret, args);
+  // Note: This does *not* properly do the upcast this pointer adjustment,
+  //       it assumes that the actual class has VarProcessor as its first
+  //       base class.  This mistake was present in the original code.
+  processors.push_back(static_cast<VarProcessor*>(retval));
 }
 
 static MVAComputerContainer::CacheId getNextMVAComputerContainerCacheId()

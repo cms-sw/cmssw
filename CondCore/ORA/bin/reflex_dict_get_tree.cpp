@@ -169,5 +169,11 @@ int main ( int argc, char *argv[] )
     }
   }
 }
+#else // AP_NOT_FOR_RIGHT_NOW
+
+int main()
+{
+  return 0;
+}
 
 #endif // defined AP_NOT_FOR_RIGHT_NOW

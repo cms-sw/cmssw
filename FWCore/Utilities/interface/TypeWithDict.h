@@ -26,11 +26,6 @@ persisted across invocations of the program.
 
 class TType;
 
-namespace Reflex {
-  class Member;
-  class Type;
-}
-
 namespace edm {
 
 class FunctionWithDict;
@@ -40,12 +35,6 @@ class ObjectWithDict;
 class TypeBases;
 class TypeDataMembers;
 class TypeFunctionMembers;
-
-enum TypeMemberQuery {
-  //InheritedDefault = Reflex::INHERITEDMEMBERS_DEFAULT,
-  //InheritedNo = Reflex::INHERITEDMEMBERS_NO,
-  //InheritedAlso = Reflex::INHERITEDMEMBERS_ALSO
-};
 
 class TypeWithDict {
   friend class TypeBases;
@@ -108,6 +97,8 @@ public:
   FunctionWithDict functionMemberByName(std::string const&) const;
   // Note: Used only by Fireworks/Core/src/FWModelContextMenuHandler.cc:262
   //FunctionWithDict functionMemberByName(std::string const& name, TypeWithDict const& signature, int mods, TypeMemberQuery memberQuery) const;
+  // Note: Used only by CondFormats/PhysicsToolsObjects/src/MVAComputer.cc
+  FunctionWithDict functionMemberByName(std::string const& name, std::string const& proto, bool isConst) const;
   TypeWithDict nestedType(char const*) const;
   TypeWithDict nestedType(std::string const&) const;
   TypeWithDict finalType() const;
@@ -129,15 +120,13 @@ public:
 // A related free function
 bool hasDictionary(std::type_info const&);
 
-inline bool operator<(TypeWithDict const& a, TypeWithDict const& b)
-{
+inline bool operator<(TypeWithDict const& a, TypeWithDict const& b) {
   return a.typeInfo().before(b.typeInfo());
 }
 
 bool operator==(TypeWithDict const& a, TypeWithDict const& b);
 
-inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b)
-{
+inline bool operator!=(TypeWithDict const& a, TypeWithDict const& b) {
   return !(a == b);
 }
 

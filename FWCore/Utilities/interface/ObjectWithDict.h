@@ -30,13 +30,13 @@ public:
   void* address() const;
   TypeWithDict typeOf() const;
   TypeWithDict dynamicType() const;
+  ObjectWithDict castObject(TypeWithDict const&) const;
   ObjectWithDict get(std::string const& memberName) const;
   //ObjectWithDict construct() const;
   void destruct(bool dealloc) const;
   template<typename T>
   T
-  objectCast()
-  {
+  objectCast() {
     return *reinterpret_cast<T*>(address_);
   }
 };

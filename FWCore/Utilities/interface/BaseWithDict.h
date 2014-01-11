@@ -25,6 +25,7 @@ public:
   bool isPublic() const;
   std::string name() const;
   TypeWithDict typeOf() const;
+  size_t offset() const;
 };
 
 } // namespace edm
