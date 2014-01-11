@@ -66,7 +66,7 @@ def setEffHisto(num_name, den_name, dir, nrebin, lcolor, lstyle, lwidth,
 #_______________________________________________________________________________
 def eff_Ns1b_def(N, do1b, dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -108,7 +108,7 @@ def eff_Ns1b_def(N, do1b, dir_name = "GEMCSCTriggerEfficiency"):
 #_______________________________________________________________________________
 def eff_Ns_ptX_def(N, X, dir_name = "GEMCSCTriggerEfficiency"):
   
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -137,7 +137,7 @@ def eff_Ns_ptX_def(N, X, dir_name = "GEMCSCTriggerEfficiency"):
 #_______________________________________________________________________________
 def eff_gem1b_basegem(dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -183,7 +183,7 @@ def eff_gem1b_basegem(dir_name = "GEMCSCTriggerEfficiency"):
 #_______________________________________________________________________________
 def eff_gem1b_baselctgem(dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
 
     xTitle = "Simtrack p_{T}"
@@ -222,7 +222,7 @@ def eff_gem1b_baselctgem(dir_name = "GEMCSCTriggerEfficiency"):
 #_______________________________________________________________________________
 def eff_gem1b_basegem_dphi(dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
 
     xTitle = "Simtrack p_{T}"
@@ -262,7 +262,7 @@ def eff_gem1b_basegem_dphi(dir_name = "GEMCSCTriggerEfficiency"):
 #_______________________________________________________________________________
 def eff_gem1b_baselpcgem_dphi(dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
 
     xTitle = "Simtrack p_{T}"
@@ -303,7 +303,7 @@ def eff_gem1b_baselpcgem_dphi(dir_name = "GEMCSCTriggerEfficiency"):
 #_______________________________________________________________________________
 def eff_gem1b_baselpcgem_123(dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     htitle = "Efficiency for #mu (GEM+LCT) in 1.64<|#eta|<2.05 to have TF track with ME1/b stubp_{T}^{MC}"
 
@@ -340,7 +340,7 @@ def eff_gem1b_baselpcgem_123(dir_name = "GEMCSCTriggerEfficiency"):
 #_______________________________________________________________________________
 def eff_pt_tf():
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -372,7 +372,7 @@ def eff_pt_tf():
 #_______________________________________________________________________________
 def eff_pt_tf_eta1b_Ns(N, do1b):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -420,7 +420,7 @@ def eff_pt_tf_eta1b_Ns(N, do1b):
 #_______________________________________________________________________________
 def eff_pth_tf():
     
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -453,7 +453,7 @@ def eff_pth_tf():
 #_______________________________________________________________________________
 def eff_pth_tf_3st1a():
     
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -486,7 +486,7 @@ def eff_pth_tf_3st1a():
 #_______________________________________________________________________________
 def eff_pt_tf_q():
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -528,7 +528,7 @@ def eff_pt_tf_q():
 #_______________________________________________________________________________
 def do_h_pt_after_tfcand_ok_plus_pt10():
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
     yTitle = "Efficiency"
@@ -569,7 +569,7 @@ def do_h_pt_after_tfcand_ok_plus_pt10():
 #_______________________________________________________________________________
 def eff_Ns1b(N, file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEfficiency"):
   
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     dir_gem10 = getRootDirectory(input_dir, file_gem10, dir_name)
     dir_gem20 = getRootDirectory(input_dir, file_gem20, dir_name)
     dir_gem30 = getRootDirectory(input_dir, file_gem30, dir_name)
@@ -582,12 +582,12 @@ def eff_Ns1b(N, file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEff
     c.cd()
 
 #    h_eff_tf10_Ns =   setEffHisto("h_pt_after_tfcand_eta1b_%ds_pt%d"%(N), "h_pt_initial_1b", dir, ptreb, kAzure+3, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf10_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt30"%(N), "h_pt_initial_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)  
-    h_eff_tf10_gpt10_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem10, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf30_gpt30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt30"%(N), "h_pt_initial_1b", dir_gem30, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf10_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir, ptreb, kBlue+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf10_gpt10_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem10, ptreb, kBlue+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir, ptreb, kRed+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kRed+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt30"%(N), "h_pt_initial_1b", dir, ptreb, kGreen+1, 1,2, title, xTitle, yTitle, xrangept,yrange)  
+    h_eff_tf30_gpt30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt30"%(N), "h_pt_initial_1b", dir_gem30, ptreb, kGreen+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
 
     h_eff_tf10_Ns1b.Draw("hist")
     h_eff_tf20_Ns1b.Draw("hist same")
@@ -619,7 +619,7 @@ def eff_Ns1b(N, file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEff
 #_______________________________________________________________________________
 def eff_3s_2s1b(file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEfficiency"):
   
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     dir_gem10 = getRootDirectory(input_dir, file_gem10, dir_name)
     dir_gem20 = getRootDirectory(input_dir, file_gem20, dir_name)
     dir_gem30 = getRootDirectory(input_dir, file_gem30, dir_name)
@@ -631,12 +631,12 @@ def eff_3s_2s1b(file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEff
     c = TCanvas("c","c",1000,600)
     c.cd()
 
-    h_eff_tf10_3s = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt10", "h_pt_initial_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_3s = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt20", "h_pt_initial_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf30_3s = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt30", "h_pt_initial_1b", dir, ptreb, kAzure+7, 1,2, title, xTitle, yTitle, xrangept,yrange)  
-    h_eff_tf10_gpt10_2s1b = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt10", "h_pt_initial_1b", dir_gem10, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_gpt20_2s1b = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt20", "h_pt_initial_1b", dir_gem20, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf30_gpt30_2s1b = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt30", "h_pt_initial_1b", dir_gem30, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf10_3s = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt10", "h_pt_initial_1b", dir, ptreb, kBlue+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf10_gpt10_2s1b = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt10", "h_pt_initial_1b", dir_gem10, ptreb, kBlue+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_3s = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt20", "h_pt_initial_1b", dir, ptreb, kRed+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_gpt20_2s1b = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt20", "h_pt_initial_1b", dir_gem20, ptreb, kRed+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf30_3s = setEffHisto("h_pt_after_tfcand_eta1b_3s1b_pt30", "h_pt_initial_1b", dir, ptreb, kGreen+1, 1,2, title, xTitle, yTitle, xrangept,yrange)  
+    h_eff_tf30_gpt30_2s1b = setEffHisto("h_pt_after_tfcand_eta1b_2s1b_pt30", "h_pt_initial_1b", dir_gem30, ptreb, kGreen+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
 
     h_eff_tf10_3s.Draw("hist")
     h_eff_tf20_3s.Draw("hist same")
@@ -645,13 +645,15 @@ def eff_3s_2s1b(file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEff
     h_eff_tf20_gpt20_2s1b.Draw("hist same")
     h_eff_tf30_gpt30_2s1b.Draw("hist same")
 
+    N = 3
+
     leg = TLegend(0.50,0.17,.999,0.57, "", "brNDC")
     leg.SetNColumns(2)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with"%(minSimPt, maxSimPt,N))
-    leg.AddEntry(h_eff_tf10_3s, "#geq 3 stubs", "")
-    leg.AddEntry(h_eff_tf10_gpt10_2s1b, "#geq 3 stubs, 1 in ME1/b, and with GEM", "")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with"%(minSimPt, maxSimPt))
+    leg.AddEntry(h_eff_tf10_3s, "#geq %d stubs"%(N), "")
+    leg.AddEntry(h_eff_tf10_gpt10_2s1b, "#geq %d stubs, 1 in ME1/b, and with GE1/1 pad"%(N-1), "")
     leg.AddEntry(h_eff_tf10_3s, "p_{T}^{TF}#geq10", "l")
     leg.AddEntry(h_eff_tf10_gpt10_2s1b, "#Delta#phi for p_{T}=10", "l")
     leg.AddEntry(h_eff_tf20_3s, "p_{T}^{TF}#geq20", "l")
@@ -667,7 +669,7 @@ def eff_3s_2s1b(file_gem10, file_gem20, file_gem30, dir_name = "GEMCSCTriggerEff
 #_______________________________________________________________________________
 def eff_Ns_gemtight(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem40, dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     dir_gem10 = getRootDirectory(input_dir, file_gem10, dir_name)
     dir_gem15 = getRootDirectory(input_dir, file_gem15, dir_name)
     dir_gem20 = getRootDirectory(input_dir, file_gem20, dir_name)
@@ -681,14 +683,14 @@ def eff_Ns_gemtight(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem4
     c = TCanvas("c","c",1000,600)
     c.cd()
 
-    h_eff_tf10_gpt10_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem10, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf10_gpt15_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem15, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf15_gpt15_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt15"%(N), "h_pt_initial_1b", dir_gem15, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf15_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt15"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_gpt30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem30, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf30_gpt30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt30"%(N), "h_pt_initial_1b", dir_gem30, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf30_gpt40_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt30"%(N), "h_pt_initial_1b", dir_gem40, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf10_gpt10_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem10, ptreb, kBlue+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf10_gpt15_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem15, ptreb, kBlue+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf15_gpt15_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt15"%(N), "h_pt_initial_1b", dir_gem15, ptreb, kRed+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf15_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt15"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kRed+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kOrange, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_gpt30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem30, ptreb, kOrange, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf30_gpt30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt30"%(N), "h_pt_initial_1b", dir_gem30, ptreb, kGreen+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf30_gpt40_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt30"%(N), "h_pt_initial_1b", dir_gem40, ptreb, kGreen+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
 
     h_eff_tf10_gpt10_Ns1b.Draw("hist")
     h_eff_tf10_gpt15_Ns1b.Draw("hist same")
@@ -704,16 +706,19 @@ def eff_Ns_gemtight(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem4
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
     leg.SetHeader("Eff. for a muon with %d < p_{T} < %d to have a TF track with #geq %d stubs, 1 in ME1/b"%(minSimPt, maxSimPt,N))
-    leg.AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T}^{TF} cut and", "")
-    leg.AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T}^{TF} cut and", "")
-    leg.AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T} for #Delta#phi(GEM,CSC)", "")
-    leg.AddEntry(h_eff_tf10_gpt10_3s1b, "p_{T} for #Delta#phi(GEM,CSC)", "")
-    leg.AddEntry(h_eff_tf10_gpt10_3s1b, "#geq10 and 10", "l")
-    leg.AddEntry(h_eff_tf10_gpt15_3s1b, "#geq10 and 15", "l")
-    leg.AddEntry(h_eff_tf20_gpt20_3s1b, "#geq20 and 20", "l")
-    leg.AddEntry(h_eff_tf20_gpt30_3s1b, "#geq20 and 30", "l")
-    leg.AddEntry(h_eff_tf30_gpt30_3s1b, "#geq30 and 30", "l")
-    leg.AddEntry(h_eff_tf30_gpt40_3s1b, "#geq30 and 40", "l")
+    leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "p_{T}^{TF} cut and", "")
+    leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "p_{T}^{TF} cut and", "")
+    leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "p_{T} for #Delta#phi(GEM,CSC)", "")
+    leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "p_{T} for #Delta#phi(GEM,CSC)", "")
+
+    leg.AddEntry(h_eff_tf10_gpt10_Ns1b, "#geq10 and 10", "l")
+    leg.AddEntry(h_eff_tf10_gpt15_Ns1b, "#geq10 and 15", "l")
+    leg.AddEntry(h_eff_tf15_gpt15_Ns1b, "#geq10 and 10", "l")
+    leg.AddEntry(h_eff_tf15_gpt20_Ns1b, "#geq10 and 15", "l")
+    leg.AddEntry(h_eff_tf20_gpt20_Ns1b, "#geq20 and 20", "l")
+    leg.AddEntry(h_eff_tf20_gpt30_Ns1b, "#geq20 and 30", "l")
+    leg.AddEntry(h_eff_tf30_gpt30_Ns1b, "#geq30 and 30", "l")
+    leg.AddEntry(h_eff_tf30_gpt40_Ns1b, "#geq30 and 40", "l")
     leg.Draw()
     etalabel = drawEtaLabel(1.64, 2.12)    
 
@@ -723,7 +728,7 @@ def eff_Ns_gemtight(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem4
 #_______________________________________________________________________________
 def eff_Ns_gemtightX(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem40, dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
     dir_gem10 = getRootDirectory(input_dir, file_gem10, dir_name)
     dir_gem15 = getRootDirectory(input_dir, file_gem15, dir_name)
     dir_gem20 = getRootDirectory(input_dir, file_gem20, dir_name)
@@ -737,12 +742,12 @@ def eff_Ns_gemtightX(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem
     c = TCanvas("c","c",1000,600)
     c.cd()
 
-    h_eff_tf10_gpt10_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem10, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf10_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf15_gpt15_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt15"%(N), "h_pt_initial_1b", dir_gem15, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf15_gpt30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt15"%(N), "h_pt_initial_1b", dir_gem30, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
-    h_eff_tf20_gpt40_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem40, ptreb, kAzure+7, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf10_gpt10_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem10, ptreb, kBlue+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf10_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt10"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kBlue+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf15_gpt15_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt15"%(N), "h_pt_initial_1b", dir_gem15, ptreb, kRed+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf15_gpt30_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt15"%(N), "h_pt_initial_1b", dir_gem30, ptreb, kRed+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_gpt20_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem20, ptreb, kOrange+1, 1,2, title, xTitle, yTitle, xrangept,yrange)
+    h_eff_tf20_gpt40_Ns1b = setEffHisto("h_pt_after_tfcand_eta1b_%ds1b_pt20"%(N), "h_pt_initial_1b", dir_gem40, ptreb, kOrange+1, 2,2, title, xTitle, yTitle, xrangept,yrange)
 
     h_eff_tf10_gpt10_Ns1b.Draw("hist")
     h_eff_tf10_gpt20_Ns1b.Draw("hist same")
@@ -773,10 +778,10 @@ def eff_Ns_gemtightX(N, file_gem10, file_gem15, file_gem20, file_gem30, file_gem
 
 
 #_______________________________________________________________________________
-def eff_Ns_ptX_gem_ptY(N, X, Y, gem_file, dir_name = "GEMCSCTriggerEfficiency"):
+def eff_Ns_ptX_gem_ptY(N, X, Y, file_gem, dir_name = "GEMCSCTriggerEfficiency"):
 
-    dir = getRootDirectory(input_dir, file_name, dir_name)
-    dir_gem = getRootDirectory(input_dir, gem_name, dir_name)
+    dir = getRootDirectory(input_dir, file_def, dir_name)
+    dir_gem = getRootDirectory(input_dir, file_gem, dir_name)
 
     title = " " * 11 + "CSCTF Track efficiency" + " " * 35 + "CMS Simulation Preliminary"
     xTitle = "Simtrack p_{T}"
@@ -832,32 +837,39 @@ if __name__ == "__main__":
     ext = ".png"
 
     ## global variables
-    gMinEta = 1.45
-    gMaxEta = 2.5
     xrangept = [0.,50.]
     yrange = [0,1]
     ptreb = 2
     minEta = 1.45
-    maxEta = 2.5
+    maxEta = 2.4
     minSimPt = 2
     maxSimPt = 50
 
     ## input file without GEM,CSC bending angle cut
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt20_new_eff.root"
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_postBuxFix.root"
+    file_def = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt20_new_eff.root"
+    file_def = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_postBuxFix.root"
+    file_def = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_4simhit.root"
+    #file_def = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt10-50_PU0_pt0_new_eff_4simhits.root"
+    #file_def = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt20-50_PU0_pt0_new_eff_4simhits.root"
+    file_def = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt10-50_PU0_pt0_new_eff_4simhits_etalow21.root"
+    #file_def = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt10-50_PU0_pt0_new_eff_4simhits_etahigh21.root"    
     ## input files with various GEM,CSC bending angle cuts
-    file_gem10 = ""
-    file_gem15 = ""
-    file_gem20 = ""
-    file_gem30 = ""
-    file_gem40 = ""
+    file_def =  "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff.root"
+    file_gem5 =  "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt5_new_eff.root"
+    file_gem10 = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt10_new_eff.root"
+    file_gem15 = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt15_new_eff.root"
+    file_gem20 = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt20_new_eff.root"
+    file_gem30 = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt30_new_eff.root"
+    file_gem40 = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt40_new_eff.root"
     
     ## output directory definition
     reuseOutputDirectory = True
     if not reuseOutputDirectory:
-        output_dir = mkdir("myTest")
+      output_dir = mkdir("myTest")
     else:
-        output_dir = "myTest_20140107_044508/"
+      output_dir = "myTest_20140107_044508/"
+      output_dir = "myTest_20140108_233926/"
+      output_dir = "myTest_20140110_230540/"
         
     ## default name of the directory 
     dir_name = 'GEMCSCTriggerEfficiency'
@@ -907,7 +919,7 @@ if __name__ == "__main__":
     ## These functions require also the gem bending angle cut files
     ## Needs testing!!!
 
-    withMultipleFiles = False
+    withMultipleFiles = True
     if withMultipleFiles:      
       eff_Ns1b(2, file_gem10, file_gem20, file_gem30)
       eff_Ns1b(3, file_gem10, file_gem20, file_gem30)
