@@ -1,20 +1,20 @@
 <lcgdict>
- <class name="reco::parser::ExpressionBase" transient="true" />
- <class name="reco::parser::SelectorBase" transient="true" />
- <class name="reco::parser::ExpressionPtr" transient="true" />
- <class name="reco::parser::SelectorPtr" transient="true" />
- <class name="reco::parser::ExpressionPtrs" transient="true" />
- <class name="reco::parser::SelectorPtrs" transient="true" />
- <class name="helper::Parser" transient="true" />
- <class name="helper::ScannerBase" transient="true" />
+ <class name="reco::parser::ExpressionBase" persistent="false" />
+ <class name="reco::parser::SelectorBase" persistent="false" />
+ <class name="reco::parser::ExpressionPtr" persistent="false" />
+ <class name="reco::parser::SelectorPtr" persistent="false" />
+ <class name="reco::parser::ExpressionPtrs" persistent="false" />
+ <class name="reco::parser::SelectorPtrs" persistent="false" />
+ <class name="helper::Parser" persistent="false" />
+ <class name="helper::ScannerBase" persistent="false" />
  <!--
- <class name="fwlite::helper::CandScanner" transient="true" />
- <class name="CandidateSelector" transient="true" />
- <class name="CandidateFunction" transient="true" />
- <class name="std::vector<CandidateFunction>" transient="true" />
+ <class name="fwlite::helper::CandScanner" persistent="false" />
+ <class name="CandidateSelector" persistent="false" />
+ <class name="CandidateFunction" persistent="false" />
+ <class name="std::vector<CandidateFunction>" persistent="false" />
 
- <class name="Selector" transient="true" />
- <class name="CandidateSelector" transient="true" />
- <class name="CandidateSelector" transient="true" />
+ <class name="Selector" persistent="false" />
+ <class name="CandidateSelector" persistent="false" />
+ <class name="CandidateSelector" persistent="false" />
  -->
 </lcgdict>
