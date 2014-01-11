@@ -15,6 +15,8 @@
 
 #include <vector>
 #include <cmath>
+#include <map>
+#include <set>
 
 class CSCGeometry;
 class GEMGeometry;
@@ -127,6 +129,38 @@ public:
 
 private:
 
+};
+ 
+typedef std::map<int, std::vector<float> > fidLUT;
+ 
+class MuFiducial
+{
+ public:
+  MuFiducial() {}
+  ~MuFiducial() {}
+
+  void buildGEMLUT();
+  void buildCSCLUT();
+
+  fidLUT getGEMLUT() const;
+  fidLUT getCSCLUT() const;
+
+  const GEMGeometry* getGEMGeometry() const {return gemGeometry;}
+  const CSCGeometry* getCSCGeometry() const {return cscGeometry;}
+  void setGEMGeometry(const GEMGeometry* geom) {gemGeometry = geom;}
+  void setCSCGeometry(const CSCGeometry* geom) {cscGeometry = geom;}
+
+/*   std::set<int> gemDetIds(math::XYZVectorD); */
+/*   std::set<int> cscDetIds(math::XYZVectorD); */
+
+ private:
+  // Rmin, Rmax, PhiMin, PhiMax, Zmin, Zmax
+  fidLUT gemLUT_;
+  // Rmin, Rmax, PhiMin, PhiMax, Zmin, Zmax
+  fidLUT cscLUT_;
+
+  const CSCGeometry* cscGeometry;
+  const GEMGeometry* gemGeometry;
 };
 
 } // namespace

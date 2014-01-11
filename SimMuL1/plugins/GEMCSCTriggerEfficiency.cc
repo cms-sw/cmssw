@@ -36,7 +36,8 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "GEMCode/GEMValidation/src/SimTrackMatchManager.h"
-#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
+
+using namespace mugeo;
 
 
 // ================================================================================================
@@ -222,6 +223,10 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
   assert(gemPTs_.size() == gemDPhisOdd_.size() && gemPTs_.size() == gemDPhisEven_.size());
 
 
+  // make a look up table for the GEM and CSC chamber volumes
+  
+  mufiducial_ = new mugeo::MuFiducial();
+  mufiducial_->buildGEMLUT();
 
   // *********************************** HISTOGRAMS ******************************************
   edm::Service<TFileService> fs;
@@ -828,6 +833,7 @@ GEMCSCTriggerEfficiency::~GEMCSCTriggerEfficiency()
 
   if (theStripConditions) delete theStripConditions;
   theStripConditions = 0;
+
 }
 
 

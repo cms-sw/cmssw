@@ -150,6 +150,71 @@ MatchCSCMuL1::detsWithHits()
 
 
 //_____________________________________________________________________________
+/*
+ * Which csc detIds are associated to this simtrack?
+ * 
+ * Option to pick a specific station and/or ring
+ */
+/*
+std::vector<int> 
+MatchCSCMuL1::cscDetIdsAssociated(int station, int ring)
+{
+  std::set<int> dets;
+  dets.clear();
+  for (auto det: gemGeometry->detIds()) {
+    // specific station
+    if (station and (station != det.station())) continue;
+    // specific ring
+    if (ring and (ring != det.ring())) continue;
+    if (isCSCDetIdAssociated(det)) dets.insert(det.rawId());
+  }
+  return std::vector<int>(dets.begin(), dets.end()); 
+}
+*/
+//_____________________________________________________________________________
+/*
+ * Which gem detIds are associated to this simtrack?
+ * 
+ * Option to pick a specific station and/or ring
+ */
+/*
+std::vector<int> 
+MatchCSCMuL1::gemDetIdsAssociated(int station, int ring)
+{
+  std::set<int> dets;
+  dets.clear();
+  for (auto det: gemGeometry->detIds()) {
+    // specific station
+    if (station and (station != det.station())) continue;
+    // specific ring
+    if (ring and (ring != det.ring())) continue;
+    if (isGEMDetIdAssociated(det)) dets.insert(det.rawId());
+  }
+  return std::vector<int>(dets.begin(), dets.end()); 
+}
+
+//_____________________________________________________________________________
+bool
+MatchCSCMuL1::isCSCDetIdAssociated(CSCDetId id)
+{
+  // get global XYZ position of simtrack at station
+   const int station(id.station());
+   math::XYZVectorD simTrkPos(vAtStation(station));
+   // 
+  return true;
+  // add implementation
+}
+
+//_____________________________________________________________________________
+bool
+MatchCSCMuL1::isGEMDetIdAssociated(CSCDetId id)
+{
+  // add implementation
+  return true;
+}
+*/
+
+//_____________________________________________________________________________
 std::vector<int> 
 MatchCSCMuL1::chambersWithHits(int station, int ring, unsigned minNHits)
 {

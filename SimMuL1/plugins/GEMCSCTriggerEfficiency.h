@@ -64,6 +64,7 @@
 
 //#include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "GEMCode/SimMuL1/interface/PSimHitMap.h"
+#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
@@ -296,6 +297,7 @@ private:
   
   double minSimTrackDR_;
 
+  mugeo::MuFiducial* mufiducial_;
   
 // members
   std::vector<MatchCSCMuL1*> matches;
