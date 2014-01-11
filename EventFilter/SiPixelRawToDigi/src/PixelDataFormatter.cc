@@ -22,27 +22,27 @@
 using namespace std;
 using namespace edm;
 using namespace sipixelobjects;
+namespace {
+  constexpr int LINK_bits = 6;
+  constexpr int ROC_bits  = 5;
+  constexpr int DCOL_bits = 5;
+  constexpr int PXID_bits = 8;
+  constexpr int ADC_bits  = 8;
+  
+  constexpr int ADC_shift  = 0;
+  constexpr int PXID_shift = ADC_shift + ADC_bits;
+  constexpr int DCOL_shift = PXID_shift + PXID_bits;
+  constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
+  constexpr int LINK_shift = ROC_shift + ROC_bits;
+  
+  constexpr PixelDataFormatter::Word32 LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
+  constexpr PixelDataFormatter::Word32 ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
+  constexpr PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
+  constexpr PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
+  constexpr PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
 
-const int LINK_bits = 6;
-const int ROC_bits  = 5;
-const int DCOL_bits = 5;
-const int PXID_bits = 8;
-const int ADC_bits  = 8;
-
-const int ADC_shift  = 0;
-const int PXID_shift = ADC_shift + ADC_bits;
-const int DCOL_shift = PXID_shift + PXID_bits;
-const int ROC_shift  = DCOL_shift + DCOL_bits;
-const int LINK_shift = ROC_shift + ROC_bits;
-
-const PixelDataFormatter::Word32 LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
-const PixelDataFormatter::Word32 ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
-const PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
-const PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
-const PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
-
-const PixelDataFormatter::Word64 WORD32_mask = 0xffffffff;
-
+  constexpr PixelDataFormatter::Word64 WORD32_mask = 0xffffffff;
+}
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
   : theDigiCounter(0), theWordCounter(0), theCablingTree(map), badPixelInfo(0), modulesToUnpack(0)
