@@ -2,11 +2,13 @@
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 using std::cout;
 using std::endl;
@@ -195,4 +197,132 @@ void mugeo::MuGeometryAreas::calculateRPCDetectorAreas(const RPCGeometry* g)
   cout<<"= RPCf chamber sensitive areas (cm2):"<<endl;
   for (int i=0; i<=RPCF_TYPES; i++) cout<<"= "<<rpcf_type[i]<<" "<<rpcf_total_areas_cm2[i]/2./rpcf_radial_segm[i]<<endl;
   cout<<"========================"<<endl;
+}
+
+
+
+// ================================================================================================
+void mugeo::MuFiducial::buildGEMLUT()
+{
+  //  gemLUT_
+  auto etaPartitions = gemGeometry->etaPartitions();
+  for(auto roll: etaPartitions)
+  {
+    GEMDetId rId(roll->id());
+              
+    const BoundPlane& bSurface(roll->surface());
+    const StripTopology* topology(&(roll->specificTopology()));
+              
+    // base_bottom, base_top, height, strips, pads (all half length)
+    auto& parameters(roll->specs()->parameters());
+    float bottomEdge(parameters[0]);
+    float topEdge(parameters[1]);
+    float height(parameters[2]);
+    float nStrips(parameters[3]);
+              
+    LocalPoint  l1Top(topEdge, height, 0.);
+    LocalPoint  l2Top(-topEdge, height, 0.);
+    GlobalPoint g1Top(bSurface.toGlobal(l1Top));
+    GlobalPoint g2Top(bSurface.toGlobal(l2Top));
+              
+    LocalPoint  l1Bottom(bottomEdge, -height, 0.);
+    LocalPoint  l2Bottom(-bottomEdge, -height, 0.);
+    GlobalPoint g1Bottom(bSurface.toGlobal(l1Bottom));
+    GlobalPoint g2Bottom(bSurface.toGlobal(l2Bottom));
+              
+    double t1R(g1Top.perp());
+    double t2R(g2Top.perp());
+    double t1phi(static_cast<int>(g1Top.phi().degrees()));
+    double t2phi(static_cast<int>(g2Top.phi().degrees()));
+    if (t1phi < 0) t1phi += 360;
+    if (t2phi < 0) t2phi += 360;
+              
+    double b1R(g1Bottom.perp());
+    double b2R(g2Bottom.perp());
+    double b1phi(static_cast<int>(g1Bottom.phi().degrees()));
+    double b2phi(static_cast<int>(g2Bottom.phi().degrees()));
+    if (b1phi < 0) b1phi += 360;
+    if (b2phi < 0) b2phi += 360;
+              
+    // print info about edges
+    LocalPoint lEdge1(topology->localPosition(0.));
+    LocalPoint lEdgeN(topology->localPosition((float)nStrips));
+    double cstrip1(roll->toGlobal(lEdge1).phi().degrees());
+    double cstripN(roll->toGlobal(lEdgeN).phi().degrees());
+
+    std::cout << "Rmin " << b1R << " " << b2R << " " 
+	      << "Rmax " << t1R << " " << t2R << " " << std::endl
+	      << "bPhi " << b1phi << " " << b1phi << " "
+	      << "tPhi " << t1phi << " " << t1phi << " " << std::endl
+// 	      << "Zmin " << " " 
+// 	      << "Zmax " << " " 
+	      << "PhiMin " << cstrip1 << " " 
+	      << "PhiMax " << cstripN << " " << std::endl;
+      
+      
+//     //   gx, gy, gz, geta, gphi (center)
+//     double cx(gCentre.x());
+//     double cy(gCentre.y());
+//     double cz(gCentre.z());
+//     double ceta(gCentre.eta());
+//     int cphi(static_cast<int>(gCentre.phi().degrees()));
+//     if (cphi < 0) cphi += 360;
+              
+
+//     double tx(gTop.x());
+//     double ty(gTop.y());
+//     double tz(gTop.z());
+//     double teta(gTop.eta());
+//     double bx(gBottom.x());
+//     double by(gBottom.y());
+//     double bz(gBottom.z());
+
+
+    /*              
+    double dphi(cstripN - cstrip1);
+    if (dphi < 0.) dphi += 360.;
+    double deta(abs(beta - teta));
+    const bool printDetails(false);
+    if (printDetails)
+      ofos << "    \tType: " << type << endl
+	   << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
+	   << "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
+	   << "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
+	   << "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
+	   << "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
+	   << "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << endl;
+    */        
+
+
+
+//     GEMDetId id = p->id();
+//     int t = type(id);
+//     int part = id.roll();
+
+//     const TrapezoidalStripTopology* top = dynamic_cast<const TrapezoidalStripTopology*>(&(p->topology()));
+//     auto topPart(top->localPosition(0.));
+//     auto botPart(top->localPosition((float)p->nstrips()));
+//     GlobalPoint gp = g->idToDet(id)->surface().toGlobal(LocalPoint(0.,0.,0.));
+    
+
+//     float rollarea = top->stripLength() * (xmax - xmin);
+//     gem_total_areas_cm2[0] += rollarea;
+//     gem_total_areas_cm2[t] += rollarea;
+//     gem_total_part_areas_cm2[0][0] += rollarea;
+//     gem_total_part_areas_cm2[t][part] += rollarea;
+//     cout<<"Partition: "<<id.rawId()<<" "<<id<<" area: "<<rollarea<<" cm2"<<endl;
+
+//     gem_part_radius[t][part] = gp.perp();
+//     gem_part_halfheight[t][part] = top->stripLength()/2.;
+
+//     if (maxr[t] < gp.perp() + top->stripLength()/2.) maxr[t] = gp.perp() + top->stripLength()/2.;
+//     if (minr[t] > gp.perp() - top->stripLength()/2.) minr[t] = gp.perp() - top->stripLength()/2.;
+//   }
+    
+//     // pitch bottom, pitch top, pitch centre
+//     float pitch(roll->pitch());
+//     float topPitch(roll->localPitch(lTop));
+//     float bottomPitch(roll->localPitch(lBottom));
+              
+  }
 }

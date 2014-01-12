@@ -29,6 +29,7 @@ GEMCSCTriggerEfficiency = cms.EDAnalyzer("GEMCSCTriggerEfficiency",
     minNStWithMinHitsinChamber = cms.untracked.int32(0),
     requireME1With4Hits = cms.untracked.bool(False),
     requireME1WithMinNHitsChambers = cms.untracked.bool(False),
+    requireME11WithMinNHitsChambers = cms.untracked.bool(False),
     ## bending angles                                     
     gemPTs = cms.vdouble(0., 5., 6., 10., 15., 20., 30., 40.),
     gemDPhisOdd = cms.vdouble(1., 0.02203511, 0.0182579,   0.01066 , 0.00722795 , 0.00562598 , 0.00416544 , 0.00342827),
