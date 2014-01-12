@@ -32,9 +32,6 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "TauSpinner/SimpleParticle.h"
 
-using namespace edm;
-using namespace TauSpinner;
-
 class TauSpinnerCMS : public edm::EDProducer
 {
   
@@ -61,11 +58,18 @@ class TauSpinnerCMS : public edm::EDProducer
   static bool isTauSpinnerConfigure;
 
   // Additional funtionms for Reco (not provided by Tauola/TauSpinner authors)
-  int readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2,
-			    std::vector<SimpleParticle> &tau_daughters,std::vector<SimpleParticle> &tau2_daughters);
+  int readParticlesfromReco(edm::Event& e,
+                            TauSpinner::SimpleParticle &X,
+                            TauSpinner::SimpleParticle &tau,
+                            TauSpinner::SimpleParticle &tau2,
+                            std::vector<TauSpinner::SimpleParticle> &tau_daughters,
+                            std::vector<TauSpinner::SimpleParticle> &tau2_daughters);
   void GetLastSelf(const reco::GenParticle *Particle);
-  void GetRecoDaughters(const reco::GenParticle *Particle,std::vector<SimpleParticle> &daughters,int parentpdgid);
+  void GetRecoDaughters(const reco::GenParticle *Particle,
+                        std::vector<TauSpinner::SimpleParticle> &daughters,
+                        int parentpdgid);
   bool isFirst(const reco::GenParticle *Particle);
   double roundOff_;
+
 }; 
 #endif

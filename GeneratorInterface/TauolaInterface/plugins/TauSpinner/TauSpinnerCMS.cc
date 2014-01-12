@@ -1,11 +1,32 @@
 #include "GeneratorInterface/TauolaInterface/interface/TauSpinnerCMS.h"
-#include "GeneratorInterface/TauolaInterface/interface/read_particles_from_HepMC.h"
 
 //MC-TESTER header files
 #include "Tauola/Tauola.h"
 #include "TauSpinner/tau_reweight_lib.h"
 #include "TauSpinner/Tauola_wrapper.h"
+#include "GeneratorInterface/TauolaInterface/interface/read_particles_from_HepMC.h"
 #include "TLorentzVector.h"
+
+#include "CLHEP/Random/RandomEngine.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+using namespace edm;
+using namespace TauSpinner;
+
+CLHEP::HepRandomEngine* decayRandomEngine;
+/*extern "C" {
+  void ranmar_( float *rvec, int *lenv ){
+    for(int i = 0; i < *lenv; i++)
+      *rvec++ = decayRandomEngine->flat();
+    return;
+  }
+  
+   void rmarin_( int*, int*, int* ){
+    return;
+  }
+  }*/
 
 bool TauSpinnerCMS::isTauSpinnerConfigure=false;
 
@@ -27,6 +48,16 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   produces<double>("TauSpinnerWTFlip").setBranchAlias("TauSpinnerWTFlip");
   produces<double>("TauSpinnerWThplus").setBranchAlias("TauSpinnerWThplus");
   produces<double>("TauSpinnerWThminus").setBranchAlias("TauSpinnerWThminus");
+
+  Service<RandomNumberGenerator> rng;
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+          "which appears to be absent.  Please add that service to your configuration\n"
+      "or remove the modules that require it." << std::endl;
+  }
+  decayRandomEngine = &rng->getEngine();
+  
 }
 
 void TauSpinnerCMS::beginJob()
