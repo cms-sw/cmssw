@@ -22,8 +22,7 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HcalDetId(uint32_t rawid);
   /** Constructor from subdetector, signed tower ieta,iphi,and depth */
-  HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth);
-  HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth, bool oldFormat);
+  HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth, bool oldFormat = false);
   /** Constructor from a generic cell id */
   HcalDetId(const DetId& id);
   /** Assignment from a generic cell id */

@@ -10,13 +10,6 @@ HcalDetId::HcalDetId() : DetId() {
 HcalDetId::HcalDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth) : DetId(Hcal,subdet) {
-  // (no checking at this point!)
-  id_ |= (0x1000000) | ((depth&0xF)<<19) |
-    ((tower_ieta>0)?(0x800000|((tower_ieta&0x1FF)<<10)):(((-tower_ieta)&0x1FF)<<10)) |
-    (tower_iphi&0x3FF);
-}
-
 HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth, bool oldFormat) : DetId(Hcal,subdet) {
   // (no checking at this point!)
   if (oldFormat) {
