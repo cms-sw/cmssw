@@ -18,6 +18,12 @@ LumiCorrectionSource = cms.ESSource( "LumiCorrectionSource",
   connect       = cms.string('frontier://LumiCalc/CMS_LUMI_PROD'),
 )
 
+# Pixel clusters
+from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
+siPixelDigis.InputLabel = cms.InputTag('rawDataCollector')
+
+from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters
+
 # FastTimerService
 from HLTrigger.Timer.FastTimerService_cfi import *
 from HLTrigger.Timer.fastTimerServiceClient_cfi import *
@@ -42,6 +48,8 @@ ftsPileupFromLumiSummary.name  = cms.string('offlinepileup')
 ftsPileupFromLumiSummary.title = cms.string('offline pileup')
 ftsPileupFromLumiSummary.range = 80
 
+from HLTrigger.Timer.ftsLuminosityFromPixelClusters_cfi import *
+
 # DQM file saver
 dqmFileSaver = cms.EDAnalyzer( "DQMFileSaver",
 #   producer          = cms.untracked.string('DQM'),
@@ -61,4 +69,8 @@ dqmFileSaver = cms.EDAnalyzer( "DQMFileSaver",
     forceRunNumber    = cms.untracked.int32(-1),
 )
 
-DQMFileSaverOutput = cms.EndPath( scalersRawToDigi + ftsLuminosityFromScalers + ftsPileupFromScalers + lumiProducer + ftsLuminosityFromLumiSummary + ftsPileupFromLumiSummary + fastTimerServiceClient + dqmFileSaver )
+DQMFileSaverOutput = cms.EndPath(
+    scalersRawToDigi + ftsLuminosityFromScalers + ftsPileupFromScalers +
+    lumiProducer + ftsLuminosityFromLumiSummary + ftsPileupFromLumiSummary +
+    siPixelDigis + siPixelClusters + ftsLuminosityFromPixelClusters +
+    fastTimerServiceClient + dqmFileSaver )
