@@ -66,6 +66,7 @@ struct MyGEMSimHit
   Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
   Int_t strip;
   Float_t Phi_0, DeltaPhi, R_0;
+  Int_t countMatching;
 };
 
 struct MySimTrack
@@ -180,11 +181,11 @@ void GEMRecHitAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iS
   chamberHeight_ = gp_top.perp() - gp_bottom.perp();
 
   using namespace std;
-  cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
-  cout<<"r top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
+  //cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
+  //cout<<"r top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
   LocalPoint p0(0.,0.,0.);
-  cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
-  cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
+  //cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
+  //cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
 
   buildLUT();
 }
@@ -265,6 +266,7 @@ void GEMRecHitAnalyzer::bookGEMSimHitsTree()
   gem_sh_tree_->Branch("Phi_0", &gem_sh.Phi_0);
   gem_sh_tree_->Branch("DeltaPhi", &gem_sh.DeltaPhi);
   gem_sh_tree_->Branch("R_0", &gem_sh.R_0);
+  gem_sh_tree_->Branch("countMatching", &gem_sh.countMatching);
 }
 
 void GEMRecHitAnalyzer::bookSimTracksTree()
@@ -301,6 +303,7 @@ bool GEMRecHitAnalyzer::isGEMRecHitMatched(MyGEMRecHit gem_recHit_, MyGEMSimHit 
 
   Int_t gem_region = gem_recHit_.region;
   Int_t gem_layer = gem_recHit_.layer;
+  Int_t gem_station = gem_recHit_.station;
   Int_t gem_chamber = gem_recHit_.chamber;
   Int_t gem_roll = gem_recHit_.roll;
   Int_t gem_firstStrip = gem_recHit_.firstClusterStrip;
@@ -308,6 +311,7 @@ bool GEMRecHitAnalyzer::isGEMRecHitMatched(MyGEMRecHit gem_recHit_, MyGEMSimHit 
    
   Int_t gem_sh_region = gem_sh.region;
   Int_t gem_sh_layer = gem_sh.layer;
+  Int_t gem_sh_station = gem_sh.station;
   Int_t gem_sh_chamber = gem_sh.chamber;
   Int_t gem_sh_roll = gem_sh.roll;
   Int_t gem_sh_strip = gem_sh.strip;
@@ -321,7 +325,7 @@ bool GEMRecHitAnalyzer::isGEMRecHitMatched(MyGEMRecHit gem_recHit_, MyGEMSimHit 
  
   bool cond1, cond2, cond3;
 
-  if(gem_sh_region == gem_region && gem_sh_layer == gem_layer) cond1 = true;
+  if(gem_sh_region == gem_region && gem_sh_layer == gem_layer && gem_sh_station == gem_station) cond1 = true;
   else cond1 = false;
   if(gem_sh_chamber == gem_chamber && gem_sh_roll == gem_roll) cond2 = true;
   else cond2 = false;
@@ -336,10 +340,26 @@ bool GEMRecHitAnalyzer::isGEMRecHitMatched(MyGEMRecHit gem_recHit_, MyGEMSimHit 
 void GEMRecHitAnalyzer::analyzeGEM(const edm::Event& iEvent)
 {
 
+  std::vector<int> trackIds;
+  std::vector<int> trackType;
+  const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
+
+  for (auto& t: sim_trks)
+  {
+
+    if (!isSimTrackGood(t)) continue;
+    trackType.push_back(t.type());
+    trackIds.push_back(t.trackId());
+
+  }
+
   for (edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit != GEMHits->end(); ++itHit)
   {
 
    if(abs(itHit->particleType()) != 13) continue;
+   if(std::find(trackIds.begin(), trackIds.end(), itHit->trackId()) == trackIds.end()) continue;
+
+   //std::cout<<"Size "<<trackIds.size()<<" id1 "<<trackIds[0]<<" type1 "<<trackType[0]<<" id2 "<<trackIds[1]<<" type2 "<<trackType[1]<<std::endl;
 
    gem_sh.eventNumber = iEvent.id().event();
    gem_sh.detUnitId = itHit->detUnitId();
@@ -380,8 +400,9 @@ void GEMRecHitAnalyzer::analyzeGEM(const edm::Event& iEvent)
    //  gem_sh.strip=gem_geometry_->etaPartition(itHit->detUnitId())->strip(hitLP);
    const LocalPoint hitEP(itHit->entryPoint());
    gem_sh.strip = gem_geometry_->etaPartition(itHit->detUnitId())->strip(hitEP);
-   
-   gem_sh_tree_->Fill();
+
+   int count = 0;
+   //std::cout<<"SimHit: region "<<gem_sh.region<<" station "<<gem_sh.station<<" layer "<<gem_sh.layer<<" chamber "<<gem_sh.chamber<<" roll "<<gem_sh.roll<<" strip "<<gem_sh.strip<<" type "<<itHit->particleType()<<" id "<<itHit->trackId()<<std::endl;
 
    for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit != gemRecHits_->end(); ++recHit) 
    {
@@ -422,9 +443,19 @@ void GEMRecHitAnalyzer::analyzeGEM(const edm::Event& iEvent)
     gem_recHit_.globalZ_sim = gem_sh.globalZ;
     gem_recHit_.pull = (gem_sh.x - gem_recHit_.x) / gem_recHit_.xErr;
 
-    if(isGEMRecHitMatched(gem_recHit_, gem_sh)) gem_tree_->Fill();
+    if(gem_recHit_.bx != 0) continue;
+    if(isGEMRecHitMatched(gem_recHit_, gem_sh)){
+
+	//std::cout<<"RecHit: region "<<gem_recHit_.region<<" station "<<gem_recHit_.station<<" layer "<<gem_recHit_.layer<<" chamber "<<gem_recHit_.chamber<<" roll "<<gem_recHit_.roll<<" firstStrip "<<gem_recHit_.firstClusterStrip<<" cls "<<gem_recHit_.clusterSize<<" bx "<<gem_recHit_.bx<<std::endl;
+ 	gem_tree_->Fill();
+	count++;
+
+    }
 
    }
+
+   gem_sh.countMatching = count;
+   gem_sh_tree_->Fill();
 
   }
 
@@ -438,7 +469,7 @@ bool GEMRecHitAnalyzer::isSimTrackGood(const SimTrack &t)
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
   if (t.momentum().pt() < minPt_) return false;
   float eta = std::abs(t.momentum().eta());
-  if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
+  if (eta > 2.2 || eta < 1.5) return false; // no GEMs could be in such eta
   return true;
 }
 
@@ -502,11 +533,11 @@ void GEMRecHitAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& 
     track_.gem_trk_eta = gp_track.eta();
     track_.gem_trk_phi = gp_track.phi();
     track_.gem_trk_rho = gp_track.perp();
-    std::cout << "track eta phi rho = " << track_.gem_trk_eta << " " << track_.gem_trk_phi << " " << track_.gem_trk_rho << std::endl;
+    //std::cout << "track eta phi rho = " << track_.gem_trk_eta << " " << track_.gem_trk_phi << " " << track_.gem_trk_rho << std::endl;
     
     float track_angle = gp_track.phi().degrees();
     if (track_angle < 0.) track_angle += 360.;
-    std::cout << "track angle = " << track_angle << std::endl;
+    //std::cout << "track angle = " << track_angle << std::endl;
     const int track_region = (gp_track.z() > 0 ? 1 : -1);
     
     // closest chambers in phi
@@ -542,8 +573,8 @@ void GEMRecHitAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& 
     track_.gem_ly_even = lp_track_even_partition.y() + (gp_even_partition.perp() - radiusCenter_);
     track_.gem_ly_odd = lp_track_odd_partition.y() + (gp_odd_partition.perp() - radiusCenter_);
 
-    std::cout << track_.gem_lx_even << " " << track_.gem_ly_even << std::endl;
-    std::cout << track_.gem_lx_odd << " " << track_.gem_ly_odd << std::endl;
+    //std::cout << track_.gem_lx_even << " " << track_.gem_ly_even << std::endl;
+    //std::cout << track_.gem_lx_odd << " " << track_.gem_ly_odd << std::endl;
 
 
     auto gem_sh_ids_ch = match_sh.chamberIdsGEM();
@@ -677,8 +708,8 @@ GEMRecHitAnalyzer::getClosestChambers(int region, float phi)
 {
   auto& phis(positiveLUT_.first);
   auto upper = std::upper_bound(phis.begin(), phis.end(), phi);
-  std::cout << "lower = " << upper - phis.begin() << std::endl;
-  std::cout << "upper = " << upper - phis.begin() + 1 << std::endl;
+  //std::cout << "lower = " << upper - phis.begin() << std::endl;
+  //std::cout << "upper = " << upper - phis.begin() + 1 << std::endl;
   auto& LUT = (region == 1 ? positiveLUT_.second : negativeLUT_.second);
   return std::make_pair(LUT.at(upper - phis.begin()), (LUT.at((upper - phis.begin() + 1)%36)));
 }
