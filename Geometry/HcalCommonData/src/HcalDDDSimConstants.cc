@@ -14,37 +14,21 @@
 
 //#define DebugLog
 
-HcalDDDSimConstants::HcalDDDSimConstants( const DDCompactView& cpv ) {
+HcalDDDSimConstants::HcalDDDSimConstants() : tobeInitialized(true) {
+
+#ifdef DebugLog
+  edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::HcalDDDSimConstants constructor";
+#endif
+
+}
+
+HcalDDDSimConstants::HcalDDDSimConstants(const DDCompactView& cpv) : tobeInitialized(false) {
 
 #ifdef DebugLog
   edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::HcalDDDSimConstants ( const DDCompactView& cpv ) constructor";
 #endif
 
-  std::string attribute = "OnlyForHcalSimNumbering"; 
-  std::string value     = "any";
-  DDValue val(attribute, value, 0.0);
-  
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, DDSpecificsFilter::not_equals,
-		     DDSpecificsFilter::AND, true, // compare strings otherwise doubles
-		     true  // use merged-specifics or simple-specifics
-		     );
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool ok = fv.firstChild();
-
-  if (ok) {
-    //Load the SpecPars
-    loadSpecPars(fv);
-
-    //Load the Geometry parameters
-    loadGeometry(fv);
-  } else {
-    edm::LogError("HCalGeom") << "HcalDDDSimConstants: cannot get filtered "
-			      << " view for " << attribute << " not matching "
-			      << value;
-    throw cms::Exception("DDException") << "HcalDDDSimConstants: cannot match " << attribute << " to " << value;
-  }
+  initialize(cpv);
 
 #ifdef DebugLog
   std::vector<HcalCellType> cellTypes = HcalCellTypes();
@@ -60,11 +44,10 @@ HcalDDDSimConstants::~HcalDDDSimConstants() {
 #endif
 }
 
-HcalCellType::HcalCell HcalDDDSimConstants::cell(int det, int zside, 
+HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside, 
 						 int depth, int etaR,
-						 int iphi, bool corr) const {
+						 int iphi) const {
 
-  int idet = det;
   double etaMn = etaMin[0];
   double etaMx = etaMax[0];
   if (idet==static_cast<int>(HcalEndcap)) {
@@ -72,23 +55,16 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int det, int zside,
   } else if (idet==static_cast<int>(HcalForward)) {
     etaMn = etaMin[2]; etaMx = etaMax[2];
   }
-  if (corr) {
-    if (etaR >= nOff[2] && depth == 3 && idet == static_cast<int>(HcalBarrel))
-      idet = static_cast<int>(HcalEndcap);
-  }
   double eta = 0, deta = 0, phi = 0, dphi = 0, rz = 0, drz = 0;
   bool   ok = false, flagrz = true;
   if ((idet==static_cast<int>(HcalBarrel)||idet==static_cast<int>(HcalEndcap)||
        idet==static_cast<int>(HcalOuter)||idet==static_cast<int>(HcalForward))
-      && etaR >=etaMn && etaR <= etaMx)
-    ok = true;
-  if (idet == static_cast<int>(HcalEndcap)) {
-    if      (depth < 3 && etaR <= etaMin[1]) ok = false;
-    else if (depth > 2 && etaR == nOff[1])   ok = false;
-  }
+      && etaR >=etaMn && etaR <= etaMx && depth > 0)    ok = true;
+  if (idet == static_cast<int>(HcalEndcap) && depth>(int)(zHE.size()))ok=false;
+  else if (idet == static_cast<int>(HcalBarrel) && depth > 17)        ok=false;
+  else if (idet == static_cast<int>(HcalOuter) && depth != 4)         ok=false;
+  else if (idet == static_cast<int>(HcalForward) && depth > 2)        ok=false;
   if (ok) {
-    int maxlay = (int)(rHB.size());
-    if (idet == static_cast<int>(HcalEndcap)) maxlay = (int)(zHE.size());
     eta  = getEta(idet, etaR, zside, depth);
     deta = deltaEta(idet, etaR, depth);
     double fibin, fioff;
@@ -119,106 +95,71 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int det, int zside,
 			     << idet;
 #endif
       }
-      if (depth != 1 && depth != 2) {
-	ok     = false;
-#ifdef DebugLog
-	edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong depth " << depth
-			     << " in Detector " << idet;
-#endif
-      }
     } else if (etaR <= nEta) {
-      int depth0 = depths[0][etaR-1];
-      int kphi   = iphi + int((phioff[3]+0.1)/fibin);
-      kphi       = (kphi-1)%4 + 1;
-      if (etaR == nOff[0] && (kphi == 2 || kphi == 3)) depth0--;
-      int laymin, laymax;
-      if (depth == 1) {
-	laymin = 1;
-	if (idet==static_cast<int>(HcalEndcap)) laymin = 2;
-	laymax = depth0;
-	if (nOff.size() > 12) {
-	  if (etaR == nOff[6]) {
-	    laymin = nOff[7];
-	    laymax = nOff[8];
-	  } else if (etaR == nOff[9]) {
-	    laymin = nOff[10];
-	  }
-	}
-      } else if (depth == 2) {
-	laymin = depth0+1;
-        laymax = depths[1][etaR-1];
-	if (etaR==etaMax[0] && idet==static_cast<int>(HcalBarrel) &&
-	    nOff.size()>3) laymax = nOff[3];
-	if (nOff.size() > 12) {
-	  if (etaR == nOff[9]) laymax = nOff[11];
-	  if (etaR == nOff[6]) laymax = nOff[12];
-	}
-      } else  if (depth == 3) {
-	laymin = depths[1][etaR-1]+1;
-        laymax = depths[2][etaR-1];
-	if (etaR<=etaMin[1] && idet==static_cast<int>(HcalEndcap)) {
-	  if (nOff.size() > 4) laymin = nOff[4];
-	  if (nOff.size() > 5) laymax = nOff[5];
-	}
-      } else {
-	laymin = depths[2][etaR-1]+1;
-	laymax = maxlay;
-      }
-      if (idet == static_cast<int>(HcalOuter) && nOff.size() > 13) {
-	if (etaR > nOff[13] && laymin <= laymax) laymin = laymax;
+      int laymin(depth), laymax(depth);
+      if (idet == static_cast<int>(HcalOuter)) {
+	laymin = ((nOff.size() > 13) && (etaR > nOff[13])) ? ((int)(zHE.size())) : ((int)(zHE.size()))-1;
+	laymax = ((int)(zHE.size()));
       }
       double d1=0, d2=0;
-      if (laymin <= maxlay && laymax <= maxlay && laymin <= laymax) {
-	if (idet == static_cast<int>(HcalEndcap)) {
-	  flagrz = false;
-	  if (depth == 1 || laymin <= 1) d1 = zHE[laymin-1] - dzHE[laymin-1];
-	  else                           d1 = zHE[laymin-2] + dzHE[laymin-2];
-	  d2     = zHE[laymax-1] + dzHE[laymax-1];
-	} else {
-	  if (idet == static_cast<int>(HcalOuter) ||
-	      depth == 1 || laymin <=1) d1 = rHB[laymin-1] - drHB[laymin-1];
-	  else                          d1 = rHB[laymin-2] + drHB[laymin-1];
-	  d2     = rHB[laymax-1] + drHB[laymax-1];
-	}
-	rz     = 0.5*(d2+d1);
-	drz    = 0.5*(d2-d1);
+      if (idet == static_cast<int>(HcalEndcap)) {
+	flagrz = false;
+	d1     = zHE[laymin-1] - dzHE[laymin-1];
+	d2     = zHE[laymax-1] + dzHE[laymax-1];
       } else {
-	ok = false;
-#ifdef DebugLog
-	edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong depth " << depth
-			     << " (Layer minimum " << laymin << " maximum " 
-			     << laymax << " maxLay " << maxlay << ")";
-#endif
+	d1     = rHB[laymin-1] - drHB[laymin-1];
+	d2     = rHB[laymax-1] + drHB[laymax-1];
       }
+      rz     = 0.5*(d2+d1);
+      drz    = 0.5*(d2-d1);
     } else {
       ok = false;
 #ifdef DebugLog
-      edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong eta " << etaR
-			   << "/" << nEta << " Detector " << idet;
+      edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong depth " << depth
+			       << " or etaR " << etaR << " for detector " 
+			       << idet;
 #endif
     }
   } else {
     ok = false;
 #ifdef DebugLog
-    edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong eta " << etaR 
-			 << " det " << idet;
+    edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: wrong depth " << depth
+			     << " det " << idet;
 #endif
   }
   HcalCellType::HcalCell tmp(ok,eta,deta,phi,dphi,rz,drz,flagrz);
 
 #ifdef DebugLog
   edm::LogInfo("HCalGeom") << "HcalDDDSimConstants: det/side/depth/etaR/phi "
-		       << det  << "/" << zside << "/" << depth << "/" << etaR
-		       << "/" << iphi << " Cell Flag " << tmp.ok << " " 
-		       << tmp.eta << " " << tmp.deta << " phi " << tmp.phi 
-		       << " " << tmp.dphi << " r(z) " << tmp.rz  << " " 
-		       << tmp.drz << " " << tmp.flagrz;
+			   << idet  << "/" << zside << "/" << depth << "/" 
+			   << etaR << "/" << iphi << " Cell Flag " << tmp.ok 
+			   << " "  << tmp.eta << " " << tmp.deta << " phi " 
+			   << tmp.phi << " " << tmp.dphi << " r(z) " << tmp.rz
+			   << " "  << tmp.drz << " " << tmp.flagrz;
 #endif
   return tmp;
 }
 
+std::vector<std::pair<double,double> > HcalDDDSimConstants::getConstHBHE(const int type) const {
+
+  checkInitialized();
+  std::vector<std::pair<double,double> > gcons;
+  if (type == 0) {
+    for (unsigned int i=0; i<rHB.size(); ++i) {
+      gcons.push_back(std::pair<double,double>(rHB[i],drHB[i]));
+    }
+  } else {
+    for (unsigned int i=0; i<zHE.size(); ++i) {
+      gcons.push_back(std::pair<double,double>(zHE[i],dzHE[i]));
+    }
+  }
+  return gcons;
+}
+
+
 std::pair<int,double> HcalDDDSimConstants::getDetEta(double eta, int depth) {
 
+  checkInitialized();
   int    hsubdet(0), ieta(0);
   double etaR(0);
   double heta = fabs(eta);
@@ -242,6 +183,7 @@ std::pair<int,double> HcalDDDSimConstants::getDetEta(double eta, int depth) {
 
 int HcalDDDSimConstants::getEta(int det,int lay, double hetaR) {
 
+  checkInitialized();
   int    ieta(0);
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
     ieta    = etaMax[2];
@@ -266,6 +208,7 @@ int HcalDDDSimConstants::getEta(int det,int lay, double hetaR) {
 std::pair<int,int> HcalDDDSimConstants::getEtaDepth(int det, int etaR, int phi,
 						    int depth, int lay) {
 
+  checkInitialized();
   //Modify the depth index
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
   } else if (det == static_cast<int>(HcalOuter)) {
@@ -314,6 +257,15 @@ double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y,
     return eta;
   } else {
     return etaR;
+  }
+}
+
+std::pair<int,int> HcalDDDSimConstants::getModHalfHBHE(const int type) const {
+
+  if (type == 0) {
+    return std::pair<int,int>(nmodHB,nzHB);
+  } else {
+    return std::pair<int,int>(nmodHE,nzHE);
   }
 }
 
@@ -377,7 +329,8 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes() const{
   return cellTypes;
 }
 
-std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector subdet) const {
+std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector subdet,
+							     int ieta, int depthl) const {
 
   std::vector<HcalCellType> cellTypes;
   if (subdet == HcalForward) {
@@ -388,7 +341,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
   double hsize = 0;
   switch(subdet) {
   case HcalEndcap:
-    dmin = 1; dmax = 3; indx = 1; nz = nzHE; nmod = nmodHE;
+    dmin = 1; dmax = 1; indx = 1; nz = nzHE; nmod = nmodHE;
     break;
   case HcalForward:
     dmin = 1; dmax = 2; indx = 2; nz = 2; nmod = 18; 
@@ -397,12 +350,14 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
     dmin = 4; dmax = 4; indx = 0; nz = nzHB; nmod = nmodHB;
     break;
   default:
-    dmin = 1; dmax = 3; indx = 0; nz = nzHB; nmod = nmodHB;
+    dmin = 1; dmax = 1; indx = 0; nz = nzHB; nmod = nmodHB;
     break;
   }
+  if (depthl > 0) dmin = dmax = depthl;
+  int ietamin = (ieta>0) ? ieta : etaMin[indx];
+  int ietamax = (ieta>0) ? ieta : etaMax[indx];
 
   int phi = 1, zside  = 1;
-  bool cor = false;
 
   // Get the Cells 
   int subdet0 = static_cast<int>(subdet);
@@ -413,8 +368,8 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
       if (depth == 1) hsize = dzVcal;
       else            hsize = dzVcal-0.5*dlShort;
     }
-    for (int eta=etaMin[indx]; eta<= etaMax[indx]; eta++) {
-      HcalCellType::HcalCell temp1 = cell(subdet0,zside,depth,eta,phi,cor);
+    for (int eta=ietamin; eta<= ietamax; eta++) {
+      HcalCellType::HcalCell temp1 = cell(subdet0,zside,depth,eta,phi);
       if (temp1.ok) {
 	int units = unitPhi (subdet0, eta);
 	HcalCellType temp2(subdet, eta, phi, depth, temp1,
@@ -441,6 +396,38 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
   return cellTypes;
 }
 
+void HcalDDDSimConstants::initialize(const DDCompactView& cpv) {
+
+  tobeInitialized = false;
+
+  std::string attribute = "OnlyForHcalSimNumbering"; 
+  std::string value     = "any";
+  DDValue val(attribute, value, 0.0);
+  
+  DDSpecificsFilter filter;
+  filter.setCriteria(val, DDSpecificsFilter::not_equals,
+		     DDSpecificsFilter::AND, true, // compare strings otherwise doubles
+		     true  // use merged-specifics or simple-specifics
+		     );
+  DDFilteredView fv(cpv);
+  fv.addFilter(filter);
+  bool ok = fv.firstChild();
+
+  if (ok) {
+    //Load the SpecPars
+    loadSpecPars(fv);
+
+    //Load the Geometry parameters
+    loadGeometry(fv);
+  } else {
+    edm::LogError("HCalGeom") << "HcalDDDSimConstants: cannot get filtered "
+			      << " view for " << attribute << " not matching "
+			      << value;
+    throw cms::Exception("DDException") << "HcalDDDSimConstants: cannot match " << attribute << " to " << value;
+  }
+
+}
+
 unsigned int HcalDDDSimConstants::numberOfCells(HcalSubdetector subdet) const{
 
   unsigned int num = 0;
@@ -459,8 +446,18 @@ unsigned int HcalDDDSimConstants::numberOfCells(HcalSubdetector subdet) const{
   return num;
 }
 
+int HcalDDDSimConstants::phiNumber(int phi, int units) const {
+
+  int iphi_skip = phi;
+  if      (units==2) iphi_skip  = (phi-1)*2+1;
+  else if (units==4) iphi_skip  = (phi-1)*4-1;
+  if (iphi_skip < 0) iphi_skip += 72;
+  return iphi_skip;
+}
+
 void HcalDDDSimConstants::printTiles() const {
  
+  checkInitialized();
   std::cout << "Tile Information for HB:\n" << "========================\n\n";
   for (int eta=etaMin[0]; eta<= etaMax[0]; eta++) {
     int dmax = 1;
@@ -486,15 +483,23 @@ void HcalDDDSimConstants::printTiles() const {
 
 int HcalDDDSimConstants::unitPhi(int det, int etaR) const {
 
-  const double fiveDegInRad = 2*M_PI/72;
-  int units=0;
-  if (det == static_cast<int>(HcalForward))
-    units=int(phitable[etaR-etaMin[2]]/fiveDegInRad+0.5);
-  else 
-    units=int(phibin[etaR-1]/fiveDegInRad+0.5);
+  double dphi = (det == static_cast<int>(HcalForward)) ? phitable[etaR-etaMin[2]] : phibin[etaR-1];
+  return unitPhi(dphi);
+}
 
+int HcalDDDSimConstants::unitPhi(double dphi) const {
+
+  const double fiveDegInRad = 2*M_PI/72;
+  int units = int(dphi/fiveDegInRad+0.5);
   return units;
 }
+
+void HcalDDDSimConstants::checkInitialized() const {
+  if (tobeInitialized) {
+    edm::LogError("HcalGeom") << "HcalDDDSimConstants : ro be initialized correctly";
+    throw cms::Exception("DDException") << "HcalDDDSimConstants: to be initialized";
+  }
+} 
 
 void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
 
@@ -1137,13 +1142,13 @@ int HcalDDDSimConstants::getShift(HcalSubdetector subdet, int depth) const {
   int shift;
   switch(subdet) {
   case HcalEndcap:
-    shift = shiftHE[depth-1];
+    shift = (depth <= (int)(shiftHE.size())) ? shiftHE[depth-1] : shiftHE[0];
     break;
   case HcalForward:
     shift = shiftHF[depth-1];
     break;
   default:
-    shift = shiftHB[depth-1];
+    shift =  (depth <= (int)(shiftHB.size())) ? shiftHB[depth-1] : shiftHB[0];
     break;
   }
   return shift;
@@ -1154,13 +1159,13 @@ double HcalDDDSimConstants::getGain(HcalSubdetector subdet, int depth) const {
   double gain;
   switch(subdet) {
   case HcalEndcap:
-    gain = gainHE[depth-1];
+    gain = (depth <= (int)(gainHE.size())) ? gainHE[depth-1] : gainHE[0];
     break;
   case HcalForward:
     gain = gainHF[depth-1];
     break;
   default:
-    gain = gainHB[depth-1];
+    gain = (depth <= (int)(gainHB.size())) ? gainHB[depth-1] : gainHB[0];
     break;
   }
   return gain;

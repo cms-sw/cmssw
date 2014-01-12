@@ -125,6 +125,11 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
      }
      std::cout << ")" << std::endl;
    }
+   std::vector<HcalDDDRecConstants::HcalEtaBin> hbar = hdc.getEtaBins(0);
+   std::vector<HcalDDDRecConstants::HcalEtaBin> hcap = hdc.getEtaBins(1);
+   std::cout << "Topology Mode " << hdc.getTopoMode() 
+	     << " HB with " << hbar.size() << " eta sectors and HE with "
+	     << hcap.size() << " eta sectors" << std::endl;
 }
 
 

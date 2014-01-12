@@ -411,7 +411,7 @@
     <Numeric name="ModNumber"     value="1"/>
     <Numeric name="LayerType"     value="1"/>
     <Vector name="LayerNumber" type="numeric" nEntries="6"> 
-      13, 14, 15, 15, 17, 18 </Vector>
+      13, 14, 15, 16, 17, 18 </Vector>
     <Vector name="PhiName" type="string" nEntries="2"> Phi0, Phi1</Vector>
     <Vector name="LayerName" type="string" nEntries="6">
       Layer13, Layer14, Layer15, Layer16, Layer17, Layer18</Vector>

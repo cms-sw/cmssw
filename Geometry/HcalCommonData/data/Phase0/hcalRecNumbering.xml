@@ -5,6 +5,7 @@
   <SpecPar name="hcal">
     <PartSelector path="//HCal"/>
     <Parameter name="OnlyForHcalRecNumbering" value="HCAL" eval="false"/>
+    <Parameter name="TopologyMode" value="LHC" eval="false"/>
     <Parameter name="etagroup" value="1"/>
     <Parameter name="etagroup" value="1"/>
     <Parameter name="etagroup" value="1"/>
