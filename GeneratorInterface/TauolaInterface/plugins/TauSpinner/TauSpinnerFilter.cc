@@ -26,11 +26,8 @@ bool TauSpinnerFilter::filter(edm::Event& e, edm::EventSetup const& es){
   e.getByLabel(edm::InputTag("TauSpinnerGen","TauSpinnerWT"),WT);
   if(*(WT.product())>=0 && *(WT.product())<=4.0){
     double weight=(*(WT.product()));
-    std::cout << "TauSpinnerFilter::filter " << decayRandomEngine->flat() << " " 
-	      << decayRandomEngine->flat()*ntaus_*2.0 << " " << weight << std::endl;
-    if(decayRandomEngine->flat()*ntaus_*2.0<weight) return true;
+    if(decayRandomEngine->flat()*ntaus_*2.0<weight){return true;}
   }
-  std::cout << "TauSpinnerFilter::filter Failed" << std::endl;
   return false; 
 }
 
