@@ -256,7 +256,7 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
       int caloclusidx = pfClusterMapEB[*pfclus];
       reco::CaloClusterPtr clusptr(caloClusHandleEB,caloclusidx);
       clusters.push_back(clusptr);
-      clusptrsEB[caloclusidx] = clusptr;
+      clusptrsEB[caloclusidx] = *pfclus;
     }
     ebsc.setClusters(clusters);
   }
@@ -269,7 +269,7 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
       int caloclusidx = pfClusterMapEE[*pfclus];
       reco::CaloClusterPtr clusptr(caloClusHandleEE,caloclusidx);
       clusters.push_back(clusptr);
-      clusptrsEE[caloclusidx] = clusptr;
+      clusptrsEE[caloclusidx] = *pfclus;
     }
     eesc.setClusters(clusters);
     
@@ -278,7 +278,7 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent,
       int caloclusidx = pfClusterMapES[*pfclus];
       reco::CaloClusterPtr clusptr(caloClusHandleES,caloclusidx);
       psclusters.push_back(clusptr);
-      clusptrsES[caloclusidx] = clusptr;
+      clusptrsES[caloclusidx] = *pfclus;
     }
     eesc.setPreshowerClusters(psclusters);  
   }
