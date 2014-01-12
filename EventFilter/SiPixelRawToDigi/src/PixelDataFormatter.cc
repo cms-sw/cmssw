@@ -128,65 +128,82 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
   PixelROC const * rocp=nullptr;
   bool skipROC=false;
   edm::DetSet<PixelDigi> * detDigis=nullptr;
-  for (const Word64* word = header+1; word != trailer; word++) {
-    LogTrace("")<<"DATA:    " <<  print(*word);
 
-    Word32 w[2] = { Word32(*word & WORD32_mask),  Word32(*word >> 32 & WORD32_mask) };
+  const  Word32 * bw =(const  Word32 *)(header+1);
+  const  Word32 * ew =(const  Word32 *)(trailer);
+  if ( *(ew-1) == 0 ) { ew--;  theWordCounter--;}
+  for (auto word = bw; word < ew; ++word) {
+    LogTrace("")<<"DATA: " <<  print(*word);
 
-    for (int i=0; i<2; ++i) {
-      auto ww = w[i];
-      if (ww==0) { theWordCounter--; continue;}
-      int nlink = (ww >> LINK_shift) & LINK_mask; 
-      int nroc  = (ww >> ROC_shift) & ROC_mask;
-
-      if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
-	link = nlink; roc=nroc;
-	skipROC = likely(roc<25) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
-	if (skipROC) continue;
-	rocp = converter.toRoc(link,roc);
-	if (!rocp) {
-	  errorsInEvent = true;
-	  errorcheck.conversionError(fedId, &converter, 2, ww, errors);
-	  skipROC=true;
-	  continue;
-	}
-	auto rawId = rocp->rawId();
-
-	if (useQualityInfo&(nullptr!=badPixelInfo)) {
-	  short rocInDet = (short) rocp->idInDetUnit();
-	  skipROC = badPixelInfo->IsRocBad(rawId, rocInDet);
-	  if (skipROC) continue;
-	}
-	skipROC= modulesToUnpack && ( modulesToUnpack->find(rawId) == modulesToUnpack->end());
-	if (skipROC) continue;
-	
-	detDigis = &digis.find_or_insert(rawId);
-	if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
-      }
+    auto ww = *word;
+    //assert(ww==0);
+    if unlikely(ww==0) { theWordCounter--; continue;}
+    int nlink = (ww >> LINK_shift) & LINK_mask; 
+    int nroc  = (ww >> ROC_shift) & ROC_mask;
+    
+    if ( (nlink!=link) | (nroc!=roc) ) {  // new roc
+      link = nlink; roc=nroc;
+      skipROC = likely(roc<25) ? false : !errorcheck.checkROC(errorsInEvent, fedId, &converter, ww, errors);
       if (skipROC) continue;
-
-
-      int dcol = (ww >> DCOL_shift) & DCOL_mask;
-      int pxid = (ww >> PXID_shift) & PXID_mask;
-      int adc  = (ww >> ADC_shift) & ADC_mask;
-
-      LocalPixel::DcolPxid local = { dcol, pxid };
-      if (!local.valid()) {
-	LogDebug("PixelDataFormatter::interpretRawData") 
-	  << "status #3";
+      rocp = converter.toRoc(link,roc);
+      if unlikely(!rocp) {
 	errorsInEvent = true;
-	errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+	errorcheck.conversionError(fedId, &converter, 2, ww, errors);
+	skipROC=true;
 	continue;
       }
-    
-      GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
-      (*detDigis).data.emplace_back(global.row, global.col, adc);
+      auto rawId = rocp->rawId();
       
-      LogTrace("") << (*detDigis).data.back();
+      if (useQualityInfo&(nullptr!=badPixelInfo)) {
+	short rocInDet = (short) rocp->idInDetUnit();
+	skipROC = badPixelInfo->IsRocBad(rawId, rocInDet);
+	if (skipROC) continue;
+      }
+      skipROC= modulesToUnpack && ( modulesToUnpack->find(rawId) == modulesToUnpack->end());
+      if (skipROC) continue;
+      
+      detDigis = &digis.find_or_insert(rawId);
+      if ( (*detDigis).empty() ) (*detDigis).data.reserve(32); // avoid the first relocations
     }
+    if unlikely(skipROC) continue;
+    
+    
+    int dcol = (ww >> DCOL_shift) & DCOL_mask;
+    int pxid = (ww >> PXID_shift) & PXID_mask;
+    int adc  = (ww >> ADC_shift) & ADC_mask;
+    
+    LocalPixel::DcolPxid local = { dcol, pxid };
+    if unlikely(!local.valid()) {
+      LogDebug("PixelDataFormatter::interpretRawData") 
+	<< "status #3";
+      errorsInEvent = true;
+      errorcheck.conversionError(fedId, &converter, 3, ww, errors);
+      continue;
+    }
+    
+    GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
+    (*detDigis).data.emplace_back(global.row, global.col, adc);
+    
+    LogTrace("") << (*detDigis).data.back();
   }
+
 }
 
+void doVectorize(int const * __restrict__ w, int * __restrict__ row, int * __restrict__ col, int * __restrict__ valid, int N, PixelROC const * rocp) {
+  for (int i=0; i<N; ++i) {
+    auto ww = w[i];
+    int dcol = (ww >> DCOL_shift) & DCOL_mask;
+    int pxid = (ww >> PXID_shift) & PXID_mask;
+    // int adc  = (ww >> ADC_shift) & ADC_mask;
+    
+    LocalPixel::DcolPxid local = { dcol, pxid };
+    valid[i] = local.valid();
+    GlobalPixel global = rocp->toGlobal( LocalPixel(local) );
+    row[i]=global.row; col[i]=global.col;
+
+  }
+
+}
 
 
 void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis) 

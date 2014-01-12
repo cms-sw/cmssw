@@ -10,52 +10,22 @@ using namespace std;
 using namespace sipixelobjects;
 
 PixelROC::PixelROC(uint32_t du, int idDU, int idLk)
-  : theDetUnit(du), theIdDU(idDU), theIdLk(idLk), theFrameConverter(0)
-{}
+  : theDetUnit(du), theIdDU(idDU), theIdLk(idLk)
+{initFrameConversion();}
 
-PixelROC::PixelROC(const PixelROC & o)
-  : theDetUnit(o.theDetUnit), theIdDU(o.theIdDU), theIdLk(o.theIdLk),theFrameConverter(0)
-{
-  if(o.theFrameConverter) theFrameConverter = o.theFrameConverter->clone();
-}
-
-PixelROC::~PixelROC() 
-{
-  delete theFrameConverter;
-}
-
-const PixelROC&
-PixelROC::operator=(const PixelROC& iRHS)
-{
-  PixelROC temp(iRHS);
-  this->swap(temp);
-  return *this;
-}
-
-void
-PixelROC::swap(PixelROC& iOther)
-{
-  std::swap(theDetUnit,iOther.theDetUnit);
-  std::swap(theIdDU,iOther.theIdDU);
-  std::swap(theIdLk,iOther.theIdLk);
-  std::swap(theFrameConverter,iOther.theFrameConverter);
-}
-
-
-void PixelROC::initFrameConversion() const
+void PixelROC::initFrameConversion()
 {
   if ( PixelModuleName::isBarrel(theDetUnit) ) {
     PixelBarrelName barrelName(theDetUnit); 
-    theFrameConverter = new FrameConversion(barrelName, theIdDU);
+    theFrameConverter = FrameConversion(barrelName, theIdDU);
   } else {
     PixelEndcapName endcapName(theDetUnit);
-    theFrameConverter = new FrameConversion(endcapName, theIdDU); 
+    theFrameConverter =  FrameConversion(endcapName, theIdDU); 
   }
 }
 
 string PixelROC::print(int depth) const
 {
-  if (!theFrameConverter) initFrameConversion();
 
   ostringstream out;
   bool barrel = PixelModuleName::isBarrel(theDetUnit);

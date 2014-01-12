@@ -5,7 +5,17 @@
 #include <iostream>
 #include <algorithm>
 
+#include <iostream>
+
 using namespace sipixelobjects;
+
+
+void SiPixelFedCablingMap::initializeRocs() {
+  std::cout << "initialize PixelRocs" << std::endl;
+  for (auto & v : theMap) v.second.initFrameConversion();
+
+}
+
 
 bool SiPixelFedCablingMap::Key::operator < (const Key & other) const 
 {
