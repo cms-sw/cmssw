@@ -30,6 +30,13 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
     #SCBarrel = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),                                   
     #SCEndcap = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"), 
     
+    #since we are using ParticleFlow SuperClusters everywhere, match to PFClusters by reference using
+    #the required ValueMap
+    #n.b This requires that PF SuperCluseters are used for both the directly imported SuperClusters or photons
+    #AND for the imported electron seeds
+    SuperClusterMatchByRef = cms.bool(True),
+    PFClusterAssociationEBEE = cms.InputTag('particleFlowSuperClusterECAL:PFClusterAssociationEBEE'),
+    
     # input tracks
     GsfRecTracks = cms.InputTag("pfTrackElec"),
     ConvBremGsfRecTracks = cms.InputTag("pfTrackElec","Secondary"),

@@ -65,6 +65,7 @@ def _configurePFForGEDEGamma(process):
     #for later
     process.particleFlowBlock.SCBarrel = cms.InputTag('correctedHybridSuperClusters')
     process.particleFlowBlock.SCEndcap = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+    process.particleFlowBlock.SuperClusterMatchByRef = cms.bool(False)
     #add in conversions
     ## for PF
     
