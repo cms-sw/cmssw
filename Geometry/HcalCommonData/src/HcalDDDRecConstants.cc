@@ -15,12 +15,13 @@
 //#define DebugLog
 
 HcalDDDRecConstants::HcalDDDRecConstants(const DDCompactView& cpv, 
-					 const HcalDDDSimConstants& hcons) {
+					 const HcalDDDSimConstants& hconst) {
 
 #ifdef DebugLog
-  std::cout << "HcalDDDRecConstants::HcalDDDRecConstants (const DDCompactView& cpv, const HcalDDDSimConstants& hcons) constructor" << std::endl;
+  std::cout << "HcalDDDRecConstants::HcalDDDRecConstants (const DDCompactView& cpv, const HcalDDDSimConstants& hconst) constructor" << std::endl;
 #endif
 
+  hcons = &(hconst);
   std::string attribute = "OnlyForHcalRecNumbering"; 
   std::string value     = "any";
   DDValue val(attribute, value, 0.0);
@@ -39,7 +40,7 @@ HcalDDDRecConstants::HcalDDDRecConstants(const DDCompactView& cpv,
     loadSpecPars(fv);
 
     //Load the Sim Constants
-    loadSimConst(hcons);
+    loadSimConst();
   } else {
     edm::LogError("HCalGeom") << "HcalDDDRecConstants: cannot get filtered "
 			      << " view for " << attribute << " not matching "
@@ -122,9 +123,11 @@ HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet,int ieta,
   int    eta(ieta), phi(iphi), depth(idepth);
   if (subdet == static_cast<int>(HcalBarrel) || 
       subdet == static_cast<int>(HcalEndcap)) {
-    eta  = ietaMap[ieta-1];
-    phi  = (iphi-1)/phiGroup[eta-1]; ++phi;
-    depth= layerGroup[eta-1][lay-1];
+    eta      = ietaMap[ieta-1];
+    int phi0 = (iphi-1)/phiGroup[eta-1]; ++phi0;
+    int unit = hcons->unitPhi(phibin[eta-1]);
+    phi      = hcons->phiNumber(phi0,unit);
+    depth    = layerGroup[eta-1][lay-1];
     if (eta == iEtaMin[1]) {
       if (subdet == static_cast<int>(HcalBarrel)) {
 	if (depth > 2) depth = 2;
@@ -192,10 +195,10 @@ void HcalDDDRecConstants::loadSpecPars(const DDFilteredView& fv) {
   }
 }
 
-void HcalDDDRecConstants::loadSimConst(const HcalDDDSimConstants& hcons) {
+void HcalDDDRecConstants::loadSimConst() {
 
   for (int i=0; i<4; ++i) {
-    std::pair<int,int> ieta = hcons.getiEtaRange(i);
+    std::pair<int,int> ieta = hcons->getiEtaRange(i);
     iEtaMin[i] = ieta.first;
     iEtaMax[i] = ieta.second;
     maxDepth[i]= 0;
@@ -204,7 +207,7 @@ void HcalDDDRecConstants::loadSimConst(const HcalDDDSimConstants& hcons) {
   maxDepth[3] = 4;
 
   // First eta table
-  std::vector<double> etas = hcons.getEtaTable();
+  std::vector<double> etas = hcons->getEtaTable();
   etaTable.clear(); ietaMap.clear();
   int ieta(0), ietaHB(0), ietaHE(0);
   etaTable.push_back(etas[ieta]);
@@ -232,7 +235,7 @@ void HcalDDDRecConstants::loadSimConst(const HcalDDDSimConstants& hcons) {
   ieta = 0;
   phibin.clear(); 
   for (int i=0; i<nEta; ++i) {
-    double dphi = phiGroup[i]*hcons.getPhiBin(ieta);
+    double dphi = phiGroup[i]*hcons->getPhiBin(ieta);
     phibin.push_back(dphi);
     ieta += etaGroup[i];
   }
@@ -246,8 +249,8 @@ void HcalDDDRecConstants::loadSimConst(const HcalDDDSimConstants& hcons) {
   //Phi offsets for barrel and endcap & special constants
   phioff.clear();
   for (int i=0; i<4; ++i)
-    phioff.push_back(hcons.getPhiOff(i));
-  nOff = hcons.getNOff();
+    phioff.push_back(hcons->getPhiOff(i));
+  nOff = hcons->getNOff();
 
   //Now the depths
   for (int i=0; i<nEta; ++i) {
@@ -271,10 +274,10 @@ void HcalDDDRecConstants::loadSimConst(const HcalDDDSimConstants& hcons) {
 #endif
 
   //Now the geometry constants
-  std::pair<int,int> nmodz = hcons.getModHalfHBHE(0);
+  std::pair<int,int> nmodz = hcons->getModHalfHBHE(0);
   nModule[0] = nmodz.first;
   nHalves[0] = nmodz.second;
-  gconsHB    = hcons.getConstHBHE(0);
+  gconsHB    = hcons->getConstHBHE(0);
 #ifdef DebugLog
   std::cout << "HB with " << nModule[0] << " modules and " << nHalves[0]
 	    <<" halves and " << gconsHB.size() << " layers" << std::endl;
@@ -282,10 +285,10 @@ void HcalDDDRecConstants::loadSimConst(const HcalDDDSimConstants& hcons) {
     std::cout << "rHB[" << i << "] = " << gconsHB[i].first << " +- "
 	      << gconsHB[i].second << std::endl; 
 #endif
-  nmodz      = hcons.getModHalfHBHE(1);
+  nmodz      = hcons->getModHalfHBHE(1);
   nModule[1] = nmodz.first;
   nHalves[1] = nmodz.second;
-  gconsHE= hcons.getConstHBHE(1);
+  gconsHE= hcons->getConstHBHE(1);
 #ifdef DebugLog
   std::cout << "HE with " << nModule[1] << " modules and " << nHalves[1] 
 	    <<" halves and " << gconsHE.size() << " layers" << std::endl;

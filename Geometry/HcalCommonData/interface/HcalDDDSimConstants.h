@@ -26,6 +26,7 @@ class HcalDDDSimConstants {
 
 public:
 
+  HcalDDDSimConstants();
   HcalDDDSimConstants( const DDCompactView& cpv );
   ~HcalDDDSimConstants();
 
@@ -49,25 +50,29 @@ public:
   std::vector<HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
+  void                      initialize(const DDCompactView& cpv);
   unsigned int              numberOfCells(HcalSubdetector) const;
+  int                       phiNumber(int phi, int unit) const;
   void                      printTiles() const;
   int                       unitPhi(int det, int etaR) const;
+  int                       unitPhi(double dphi) const; 
        
 private:
-  HcalDDDSimConstants();
-  void loadSpecPars(const DDFilteredView& fv);
-  void loadGeometry(const DDFilteredView& fv);
-  std::vector<double>    getDDDArray(const std::string &, 
-				     const DDsvalues_type &, int &) const;
-  unsigned       find (int element, std::vector<int>& array) const;
-  double         deltaEta(int det, int eta, int depth) const;
-  double         getEta(int det, int etaR, int zside, int depth=1) const;
-  double         getEta(double r, double z) const;
-  int            getShift(HcalSubdetector subdet, int depth) const;
-  double         getGain (HcalSubdetector subdet, int depth) const;
-  void           printTileHB(int eta, int depth) const;
-  void           printTileHE(int eta, int depth) const;
+  void                checkInitialized() const;
+  void                loadSpecPars(const DDFilteredView& fv);
+  void                loadGeometry(const DDFilteredView& fv);
+  std::vector<double> getDDDArray(const std::string &, 
+				  const DDsvalues_type &, int &) const;
+  unsigned            find (int element, std::vector<int>& array) const;
+  double              deltaEta(int det, int eta, int depth) const;
+  double              getEta(int det, int etaR, int zside, int depth=1) const;
+  double              getEta(double r, double z) const;
+  int                 getShift(HcalSubdetector subdet, int depth) const;
+  double              getGain (HcalSubdetector subdet, int depth) const;
+  void                printTileHB(int eta, int depth) const;
+  void                printTileHE(int eta, int depth) const;
   
+  bool             tobeInitialized;
   static const int nEtaMax=100;
   static const int nDepthMax=9;
   int                 maxDepth[4]; // Maximum depths in HB/HE/HF/HO

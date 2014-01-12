@@ -23,6 +23,7 @@ public:
   HcalDetId(uint32_t rawid);
   /** Constructor from subdetector, signed tower ieta,iphi,and depth */
   HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth);
+  HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth, bool oldFormat);
   /** Constructor from a generic cell id */
   HcalDetId(const DetId& id);
   /** Assignment from a generic cell id */
@@ -30,7 +31,7 @@ public:
 
   /// get the subdetector
   HcalSubdetector subdet() const { return (HcalSubdetector)(subdetId()); }
-  bool oldFormat() const { return ((id_&0x800000)==0)?(true):(false); }
+  bool oldFormat() const { return ((id_&0x1000000)==0)?(true):(false); }
   /// get the z-side of the cell (1/-1)
   int zside() const;
   /// get the absolute value of the cell ieta

@@ -12,9 +12,22 @@ HcalDetId::HcalDetId(uint32_t rawid) : DetId(rawid) {
 
 HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth) : DetId(Hcal,subdet) {
   // (no checking at this point!)
-  id_ |= (0x800000) | ((depth&0xF)<<19) |
-    ((tower_ieta>0)?(0x400000|((tower_ieta&0x1FF)<<10)):(((-tower_ieta)&0x1FF)<<10)) |
+  id_ |= (0x1000000) | ((depth&0xF)<<19) |
+    ((tower_ieta>0)?(0x800000|((tower_ieta&0x1FF)<<10)):(((-tower_ieta)&0x1FF)<<10)) |
     (tower_iphi&0x3FF);
+}
+
+HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth, bool oldFormat) : DetId(Hcal,subdet) {
+  // (no checking at this point!)
+  if (oldFormat) {
+    id_ |= ((depth&0x1F)<<14) |
+      ((tower_ieta>0)?(0x2000|((tower_ieta&0x3F)<<7)):(((-tower_ieta)&0x3F)<<7)) |
+      (tower_iphi&0x7F);
+  } else {
+    id_ |= (0x1000000) | ((depth&0xF)<<19) |
+      ((tower_ieta>0)?(0x800000|((tower_ieta&0x1FF)<<10)):(((-tower_ieta)&0x1FF)<<10)) |
+      (tower_iphi&0x3FF);
+  }
 }
 
 HcalDetId::HcalDetId(const DetId& gen) {
@@ -45,7 +58,7 @@ HcalDetId& HcalDetId::operator=(const DetId& gen) {
 
 int HcalDetId::zside() const {
   if (oldFormat()) return (id_&0x2000)?(1):(-1);
-  else             return (id_&0x400000)?(1):(-1);
+  else             return (id_&0x800000)?(1):(-1);
 }
 
 int HcalDetId::ietaAbs() const { 

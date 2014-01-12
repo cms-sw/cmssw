@@ -115,10 +115,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
   }
 
   int units     = hcalConstants->unitPhi(det, etaDepth.first);
-  int iphi_skip = phi;
-  if      (units==2) iphi_skip  = (phi-1)*2+1;
-  else if (units==4) iphi_skip  = (phi-1)*4-1;
-  if (iphi_skip < 0) iphi_skip += 72;
+  int iphi_skip = hcalConstants->phiNumber(phi, units);
 
 #ifdef DebugLog
   edm::LogInfo("HCalGeom") << "HcalNumberingFromDDD: phi units=" <<  units  

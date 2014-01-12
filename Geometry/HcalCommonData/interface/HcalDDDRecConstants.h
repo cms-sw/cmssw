@@ -51,6 +51,7 @@ public:
     {return std::pair<double,double>(etaTable[i],etaTable[i+1]);}
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
 				    int idepth) const;
+  int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getNEta() const {return nEta;}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return phioff[i];}
@@ -59,11 +60,12 @@ public:
 private:
   HcalDDDRecConstants();
   void loadSpecPars(const DDFilteredView& fv);
-  void loadSimConst(const HcalDDDSimConstants& hcons);
+  void loadSimConst();
   std::vector<double> getDDDArray(const char *, const DDsvalues_type &, int &) const;
   std::string getDDDString(const std::string &, const DDsvalues_type &) const;
 
   static const int nEtaMax=100;
+  const HcalDDDSimConstants *hcons;
   std::string         modeTopo;   // Mode for topology
   std::vector<double> phioff;     // Phi offset for barrel, endcap, forward
   std::vector<int>    etaGroup;   // Eta Grouping
