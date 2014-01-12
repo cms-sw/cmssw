@@ -16,17 +16,7 @@ using namespace edm;
 using namespace TauSpinner;
 
 CLHEP::HepRandomEngine* decayRandomEngine;
-/*extern "C" {
-  void ranmar_( float *rvec, int *lenv ){
-    for(int i = 0; i < *lenv; i++)
-      *rvec++ = decayRandomEngine->flat();
-    return;
-  }
-  
-   void rmarin_( int*, int*, int* ){
-    return;
-  }
-  }*/
+
 
 bool TauSpinnerCMS::isTauSpinnerConfigure=false;
 
