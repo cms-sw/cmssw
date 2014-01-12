@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *
 
-#metDQMParameters = cms.PSet(
-
 tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     OutputFile = cms.string('jetMETMonitoring.root'),
@@ -21,14 +19,10 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     HLTPathsJetMB = cms.vstring(),
 #    When it is empty, it accepts all the triggers
-#    HLTPathsJetMB = cms.vstring(
-#        "HLT_L1Jet15","HLT_Jet30","HLT_Jet50","HLT_Jet80","HLT_Jet110","HLT_Jet180",
-#        "HLT_DiJetAve15","HLT_DiJetAve30","HLT_DiJetAve50","HLT_DiJetAve70",
-#        "HLT_DiJetAve130","HLT_DiJetAve220",
-#        "HLT_MinBias"),
 
-    highPtJetTrigger = cms.PSet(
-        andOr         = cms.bool( False ),
+    triggerSelectedSubFolders = cms.VPSet(
+    cms.PSet( label = cms.string('highPtJet'),
+        andOr         = cms.bool( False ),    #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_highptjet' ),
@@ -36,8 +30,8 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
-    lowPtJetTrigger = cms.PSet(
-        andOr         = cms.bool( False ),
+    cms.PSet(label = cms.string('lowPtJet'),
+        andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_lowptjet' ),
@@ -45,8 +39,8 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
-    minBiasTrigger = cms.PSet(
-        andOr         = cms.bool( False ),
+    cms.PSet(label = cms.string('minBias'),
+        andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_minbias' ),
@@ -54,8 +48,8 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
-    highMETTrigger = cms.PSet(
-        andOr         = cms.bool( False ),
+    cms.PSet(label = cms.string('highMET'),
+        andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_highmet' ),
@@ -63,32 +57,24 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
-    #    lowMETTrigger = cms.PSet(
-    #        andOr         = cms.bool( False ),
-    #        dbLabel        = cms.string("JetMETDQMTrigger"),
-    #        hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-    #        hltDBKey       = cms.string( 'jetmet_lowmet' ),
-    #        hltPaths       = cms.vstring( 'HLT_MET120_HBHENoiseFiltered_v*' ), 
-    #        andOrHlt       = cms.bool( True ),
-    #        errorReplyHlt  = cms.bool( False ),
-    #    ),
-    eleTrigger = cms.PSet(
-        #andOr         = cms.bool( False ),
+    cms.PSet(label = cms.string('singleEle'),
+        andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_ele' ),
-        hltPaths       = cms.vstring( 'HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v','HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v4','HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5','HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v6' ), 
-        #andOrHlt       = cms.bool( True ),
+        hltPaths       = cms.vstring('HLT_Ele27_WP80_v*' ), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
-    muonTrigger = cms.PSet(
-        #andOr         = cms.bool( False ),
+    cms.PSet(label = cms.string('singleMu'),
+        andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_muon' ),
-        hltPaths       = cms.vstring( 'HLT_IsoMu20_v','HLT_IsoMu20_v8','HLT_IsoMu20_v9','HLT_IsoMu20_v10' ), 
-        #andOrHlt       = cms.bool( True ),
+        hltPaths       = cms.vstring( 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*'), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
+    ) 
     ),
 
     JetIDParams = cms.PSet(

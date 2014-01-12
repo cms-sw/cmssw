@@ -104,10 +104,10 @@ class METAnalyzer : public edm::EDAnalyzer{
   void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET& ,bool);
   void makeRatePlot(std::string, double);
 
-  bool selectHighPtJetEvent(const edm::Event&);
-  bool selectLowPtJetEvent(const edm::Event&);
-  bool selectWElectronEvent(const edm::Event&);
-  bool selectWMuonEvent(const edm::Event&);
+//  bool selectHighPtJetEvent(const edm::Event&);
+//  bool selectLowPtJetEvent(const edm::Event&);
+//  bool selectWElectronEvent(const edm::Event&);
+//  bool selectWMuonEvent(const edm::Event&);
 
  private:
   // ----------member data ---------------------------
@@ -172,21 +172,35 @@ class METAnalyzer : public edm::EDAnalyzer{
   // list of Jet or MB HLT triggers
   std::vector<std::string > HLTPathsJetMBByName_;
 
-  GenericTriggerEventFlag * highPtJetEventFlag_;
-  GenericTriggerEventFlag * lowPtJetEventFlag_;
-  GenericTriggerEventFlag * minBiasEventFlag_;
-  GenericTriggerEventFlag * highMETEventFlag_;
-//GenericTriggerEventFlag * lowMETEventFlag_;
-  GenericTriggerEventFlag * eleEventFlag_;
-  GenericTriggerEventFlag * muonEventFlag_;
-
-  std::vector<std::string> highPtJetExpr_;
-  std::vector<std::string> lowPtJetExpr_;
-  std::vector<std::string> highMETExpr_;
-  //  std::vector<std::string> lowMETExpr_;
-  std::vector<std::string> muonExpr_;
-  std::vector<std::string> elecExpr_;
-  std::vector<std::string> minbiasExpr_;
+  edm::VParameterSet triggerSelectedSubFolders_;
+  std::vector<GenericTriggerEventFlag *>  triggerEventFlag_;
+  std::vector<std::vector<std::string> >  triggerExpr_;
+  std::vector<std::string >               triggerFolderLabels_;
+  std::vector<MonitorElement* >           triggerFolderME_;
+  std::vector<int>                        triggerFolderDecisions_;
+//  GenericTriggerEventFlag * highPtJetEventFlag_;
+//  GenericTriggerEventFlag * lowPtJetEventFlag_;
+//  GenericTriggerEventFlag * minBiasEventFlag_;
+//  GenericTriggerEventFlag * highMETEventFlag_;
+////GenericTriggerEventFlag * lowMETEventFlag_;
+//  GenericTriggerEventFlag * eleEventFlag_;
+//  GenericTriggerEventFlag * muonEventFlag_;
+//
+//  std::vector<std::string> highPtJetExpr_;
+//  std::vector<std::string> lowPtJetExpr_;
+//  std::vector<std::string> highMETExpr_;
+//  //  std::vector<std::string> lowMETExpr_;
+//  std::vector<std::string> muonExpr_;
+//  std::vector<std::string> elecExpr_;
+//  std::vector<std::string> minbiasExpr_;
+//  MonitorElement* hTriggerName_HighPtJet;
+//  MonitorElement* hTriggerName_LowPtJet;
+//  MonitorElement* hTriggerName_MinBias;
+//  MonitorElement* hTriggerName_HighMET;
+//  //  MonitorElement* hTriggerName_LowMET;
+//  MonitorElement* hTriggerName_Ele;
+//  MonitorElement* hTriggerName_Muon;
+  MonitorElement* hMETRate;
 
   edm::ParameterSet cleaningParameters_;
   std::string hltPhysDec_;
@@ -201,15 +215,14 @@ class METAnalyzer : public edm::EDAnalyzer{
   int  tightJetIDFiltering_;
 
   int trigJetMB_;
-  int trigHighPtJet_;
-  int trigLowPtJet_;
-  int trigMinBias_;
-  int trigHighMET_;
-//int trigLowMET_;
-  int trigEle_;
-  int trigMuon_;
+//  int trigHighPtJet_;
+//  int trigLowPtJet_;
+//  int trigMinBias_;
+//  int trigHighMET_;
+////int trigLowMET_;
+//  int trigEle_;
+//  int trigMuon_;
   int trigPhysDec_;
-
 
   double highPtJetThreshold_;
   double lowPtJetThreshold_;
@@ -242,19 +255,9 @@ class METAnalyzer : public edm::EDAnalyzer{
 
   //for all MET types
 
-  MonitorElement* hTriggerName_HighPtJet;
-  MonitorElement* hTriggerName_LowPtJet;
-  MonitorElement* hTriggerName_MinBias;
-  MonitorElement* hTriggerName_HighMET;
-  //  MonitorElement* hTriggerName_LowMET;
-  MonitorElement* hTriggerName_Ele;
-  MonitorElement* hTriggerName_Muon;
-  MonitorElement* hMETRate;
   //only in for PF
   MonitorElement* meTriggerName_PhysDec;
 
-  //for all MET types
-  MonitorElement* hmetME;
   //MonitorElement* hNevents;
   MonitorElement* hMEx;
   MonitorElement* hMEy;
