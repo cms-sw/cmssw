@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 L2MuonIsolations = cms.EDProducer("L2MuonIsolationProducer",
-    StandAloneCollectionLabel = cms.InputTag("L2Muons","UpdatedAtVtx"),
+    StandAloneCollectionLabel = cms.InputTag("hltL2MuonCandidates"),
     IsolatorPSet = cms.PSet( 
       ComponentName = cms.string( "SimpleCutsIsolator" ),
       ConeSizes = cms.vdouble(0.24, 0.24, 0.24, 0.24, 0.24, 
