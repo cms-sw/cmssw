@@ -61,10 +61,13 @@ public:
   const GEMGeometry* gemGeometry;
   
   // positions extrapolated to different stations
+  math::XYZVectorD pGE11;
   math::XYZVectorD pME11;
   math::XYZVectorD pME1;
+  math::XYZVectorD pGE21;
   math::XYZVectorD pME2;
   math::XYZVectorD pME3;
+  math::XYZVectorD pME4;
   int keyStation();
   math::XYZVectorD vAtStation(int st);
   math::XYZVectorD vSmart();

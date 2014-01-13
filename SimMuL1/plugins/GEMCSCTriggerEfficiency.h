@@ -309,11 +309,11 @@ private:
   std::map<unsigned,unsigned> trkId2Index;
 
   const CSCGeometry* cscGeometry;
+  const GEMGeometry* gemGeometry;
   const DTGeometry* dtGeometry;
   const RPCGeometry* rpcGeometry;
   edm::ESHandle<MuonDetLayerGeometry> muonGeometry;
 
-  const GEMGeometry* gemGeometry;
 
   edm::ParameterSet gemMatchCfg_;
   std::vector<double> gemPTs_, gemDPhisOdd_, gemDPhisEven_;

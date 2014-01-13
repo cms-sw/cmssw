@@ -224,8 +224,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
     assert(std::is_sorted(gemPTs_.begin(), gemPTs_.end()));
     assert(gemPTs_.size() == gemDPhisOdd_.size() && gemPTs_.size() == gemDPhisEven_.size());
 
-    mufiducial_ = new MuFiducial();
-    mufiducial_->buildGEMLUT();
 
     // *********************************** HISTOGRAMS ******************************************
     edm::Service<TFileService> fs;
@@ -921,6 +919,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry);
     cscGeometry = &*cscGeom;
 
+    edm::ESHandle< GEMGeometry > gemGeom;
+    iSetup.get< MuonGeometryRecord >().get(gemGeom);
+    gemGeometry = &*gemGeom;
+
     CSCTriggerGeometry::setGeometry(cscGeometry);
 
     // get conditions for bad chambers (don't need random engine)
@@ -932,6 +934,12 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     // Get the propagators
     iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyRK", propagatorAlong);
     iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
+
+    mufiducial_ = new MuFiducial();
+    mufiducial_->setGEMGeometry(gemGeometry);    
+    mufiducial_->setCSCGeometry(cscGeometry);
+    mufiducial_->buildGEMLUT();
+
 
     // ================================================================================================ 
 
@@ -1349,6 +1357,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
         // and store them in the match object
         // is this actually being used at the moment?
         propagateToCSCStations(match);
+
+        // check the detids in station 1
+        auto foundDets(mufiducial_->gemDetIds(match->pGE11));
+
 
         // match SimHits and do some checks
         matchSimTrack2SimHits(match, simTracks, simVertices, allCSCSimHits);
@@ -2817,11 +2829,20 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
             // z planes
             int endcap = (match->strk->momentum().eta() >= 0) ? 1 : -1;
+            double zGE11 = endcap*565.;
             double zME11 = endcap*585.;
             double zME1  = endcap*615.;
             double zME2  = endcap*830.;
-            double zME3  = endcap*935.;
+            double zME3  = endcap*944.75;
+            double zME4  = endcap*1034.32;
+            // https://github.com/cms-sw/cmssw/blob/CMSSW_7_0_X/Geometry/MuonCommonData/data/PhaseII/mf.xml#L4116
 
+            // extrapolate to GE1/1 surface
+            tsos = propagateSimTrackToZ(match->strk, match->svtx, zGE11);
+            if (tsos.isValid()) {
+                math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
+                match->pGE11 = vgp;
+            }
             // extrapolate to ME1/1 surface
             tsos = propagateSimTrackToZ(match->strk, match->svtx, zME11);
             if (tsos.isValid()) {
@@ -2845,6 +2866,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             if (tsos.isValid()) {
                 math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
                 match->pME3 = vgp;
+            }
+            tsos = propagateSimTrackToZ(match->strk, match->svtx, zME4);
+            if (tsos.isValid()) {
+                math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
+                match->pME4 = vgp;
             }
         }
 
