@@ -86,25 +86,37 @@ class DQMStore
   {
    public:
     friend class DQMStore;
-    MonitorElement * bookString(const char *name,
-                                const char *value);
-    MonitorElement * bookString(const std::string &name,
-                                const std::string &value);
-    MonitorElement * bookInt(const char *name);
-    MonitorElement * bookInt(const std::string &name);
-    MonitorElement * bookFloat(const char *name);
-    MonitorElement * bookFloat(const std::string &name);
-    MonitorElement * book1D(const std::string &name,
-                            const std::string &title,
-                            int nchX, double lowX, double highX);
-    MonitorElement * book2D(const std::string &name,
-                            const std::string &title,
-                            int nchX, double lowX, double highX,
-                            int nchY, double lowY, double highY);
-    MonitorElement * bookProfile(const std::string &name,
-                                 const std::string &title,
-                                 int nchX, double lowX, double highX,
-                                 int nchY, double lowY, double highY);
+
+    template <typename... Args>
+    MonitorElement * bookString(Args... args) {
+      return owner_->bookString(args...);
+    }
+
+    template <typename... Args>
+    MonitorElement * bookInt(Args... args) {
+      return owner_->bookInt(args...);
+    }
+
+    template <typename... Args>
+    MonitorElement * bookFloat(Args... args) {
+      return owner_->bookFloat(args...);
+    }
+
+    template <typename... Args>
+    MonitorElement * book1D(Args... args) {
+      return owner_->book1D(args...);
+    }
+
+    template <typename... Args>
+    MonitorElement * book2D(Args... args) {
+      return owner_->book2D(args...);
+    }
+
+    template <typename... Args>
+    MonitorElement * bookProfile(Args... args) {
+      return owner_->bookProfile(args...);
+    }
+
     void cd(void);
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
