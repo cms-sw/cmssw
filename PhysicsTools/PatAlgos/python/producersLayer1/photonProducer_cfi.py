@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patPhotons = cms.EDProducer("PATPhotonProducer",
     # input collection
-    photonSource = cms.InputTag("photons"),
+    photonSource = cms.InputTag("gedPhotons"),
                                  
     # user data to add
     userData = cms.PSet(
