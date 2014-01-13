@@ -53,6 +53,10 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/Scalers/interface/DcsStatus.h" 
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 namespace jetAnalysis {
   class TrackPropagatorToCalo;
@@ -88,8 +92,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
   // ----------member data ---------------------------
   static bool jetSortingRule(reco::Jet x, reco::Jet y) {return x.pt() > y.pt();}
 
- // JetID helper
-  reco::helper::JetIDHelper * jetID_;
 
  /// Helper object to propagate tracks to the calo surface
   std::auto_ptr<jetAnalysis::TrackPropagatorToCalo> trackPropagator_;
@@ -117,6 +119,9 @@ class JetAnalyzer : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
   edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
 
+  edm::InputTag inputJetIDValueMap;
+  edm::EDGetTokenT<edm::ValueMap <reco::JetID> >jetID_ValueMapToken_;
+
   //Cleaning parameters
   edm::ParameterSet cleaningParameters_;
   edm::InputTag vertexLabel_;
@@ -126,6 +131,24 @@ class JetAnalyzer : public edm::EDAnalyzer {
   edm::ParameterSet parameters_;
 
   std::string jetCorrectionService_;
+  std::string JetIDQuality_;
+  std::string JetIDVersion_;
+  JetIDSelectionFunctor::Quality_t jetidquality;
+  JetIDSelectionFunctor::Version_t jetidversion;
+  JetIDSelectionFunctor jetIDFunctor;
+  JetIDSelectionFunctor jetIDFunctorLoose;
+  JetIDSelectionFunctor jetIDFunctorTight;
+
+  PFJetIDSelectionFunctor::Quality_t pfjetidquality;
+  PFJetIDSelectionFunctor::Version_t pfjetidversion;
+
+  PFJetIDSelectionFunctor pfjetIDFunctor;
+  PFJetIDSelectionFunctor pfjetIDFunctorLoose;
+  PFJetIDSelectionFunctor pfjetIDFunctorTight;
+
+  pat::strbitset ret;
+  pat::strbitset retLoose;
+  pat::strbitset retTight;
 
   int    verbose_;
   //histo binning parameters -> these are PART of ALL analyzers - move it up
@@ -282,23 +305,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
   bool diJetSelectionFlag_;
   bool jetCleaningFlag_;
 
-
-  //reorganize - find out first which parameters are contained in ALL analyzers for global variables
-
-  //JID cuts
-  double  fHPDMax_;
-  double  resEMFMin_;
-  int     n90HitsMin_;
-
-  double  fHPDMaxLoose_;
-  double  resEMFMinLoose_;
-  int     n90HitsMinLoose_;
-  double  fHPDMaxTight_;
-  double  resEMFMinTight_;
-  int     n90HitsMinTight_;
-  double  sigmaEtaMinTight_;
-  double  sigmaPhiMinTight_; 
-
 //  bool energycorrected;
  
 
@@ -316,6 +322,7 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mfHPD;
   MonitorElement* mfRBX;
   MonitorElement* mresEMF;
+  MonitorElement* mEMF;
  
   // JPTJet specific
   // the jet analyzer

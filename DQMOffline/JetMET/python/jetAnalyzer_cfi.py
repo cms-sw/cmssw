@@ -48,8 +48,8 @@ jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
 
     #
     # Jet-related
-    #     
-                  
+    #   
+            
     DoDiJetSelection           = cms.untracked.bool(False),
 
     JetCleaningFlag            = cms.untracked.bool(False),
@@ -58,8 +58,18 @@ jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     LSEnd   = cms.int32(-1),                                
                                 
     #Cleanup parameters
-    CleaningParameters = cleaningParameters.clone(),
+    CleaningParameters = cleaningParameters.clone(
+        doPrimaryVertexCheck = cms.bool(False),
+        ),
 
+    #for JPT and CaloJetID  
+    InputJetIDValueMap         = cms.InputTag("ak5JetID"), 
+    #options for Calo and JPT: LOOSE,LOOSE_AOD,TIGHT,MINIMAL
+    #for PFJets: LOOSE,TIGHT
+    JetIDQuality               = cms.string("LOOSE"),
+    #options for Calo and JPT: PURE09,DQM09,CRAFT08
+    #for PFJets: FIRSTDATA
+    JetIDVersion               = cms.string("PURE09"),
     #
     # For jetAnalysis
     #
@@ -80,6 +90,9 @@ jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
 jetAnalyzerAk5CaloCleaned=jetAnalyzerAk5CaloUncleaned.clone(
     fillJIDPassFrac   = cms.int32(0),
     JetCleaningFlag   = cms.untracked.bool(True),
+    CleaningParameters = cleaningParameters.clone(
+        doPrimaryVertexCheck = cms.bool(True),
+    ),
     jetAnalysis=jetDQMParameters.clone(
         ptThreshold = cms.double(20.),
         asymmetryThirdJetCut = cms.double(30),
@@ -104,6 +117,14 @@ jetAnalyzerAk5JPTCleaned=jetAnalyzerAk5CaloCleaned.clone(
 jetAnalyzerAk5JPTCleaned.DCSFilterForJetMonitoring.DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon")
 
 jetAnalyzerAk5PFUncleaned=jetAnalyzerAk5CaloUncleaned.clone(
+    CleaningParameters = cleaningParameters.clone(
+        doPrimaryVertexCheck = cms.bool(True),
+    ),
+    #for PFJets: LOOSE,TIGHT
+    JetIDQuality               = cms.string("LOOSE"),
+    #options for Calo and JPT: PURE09,DQM09,CRAFT08
+    #for PFJets: FIRSTDATA
+    JetIDVersion               = cms.string("FIRSTDATA"),
     JetType = cms.string('pf'),#pf, calo or jpt
     JetCorrections = cms.string("newAk5PFL1FastL2L3"),
     jetsrc = cms.InputTag("ak5PFJets")

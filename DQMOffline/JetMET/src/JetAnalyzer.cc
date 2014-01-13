@@ -1,4 +1,4 @@
-/** \class JetMETAnalyzer
+/** \class JetAnalyzer
  *
  *  DQM jetMET analysis monitoring
  *
@@ -115,11 +115,62 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   if (isJPTJet_)   jptJetsToken_ = consumes<reco::JPTJetCollection>(mInputCollection_);
   if (isPFJet_)    pfJetsToken_ = consumes<reco::PFJetCollection>(mInputCollection_);
   
-  // Used for Jet DQM 
+  JetIDQuality_  = pSet.getParameter<string>("JetIDQuality");
+  JetIDVersion_  = pSet.getParameter<string>("JetIDVersion");
+
+  // JetID definitions for Calo and JPT Jets
   if(isJPTJet_ || isCaloJet_){
-    jetID_ = new reco::helper::JetIDHelper(parameters_.getParameter<ParameterSet>("JetIDParams"));
+    inputJetIDValueMap      = pSet.getParameter<edm::InputTag>("InputJetIDValueMap");
+    jetID_ValueMapToken_= consumes< edm::ValueMap<reco::JetID> >(inputJetIDValueMap);
+    if(JetIDVersion_== "PURE09"){
+      jetidversion = JetIDSelectionFunctor::PURE09;
+    }else if (JetIDVersion_== "DQM09"){
+      jetidversion = JetIDSelectionFunctor::DQM09;
+    }else if (JetIDVersion_=="CRAFT08"){
+      jetidversion = JetIDSelectionFunctor::CRAFT08;
+    }else{
+      std::cout<<"no Valid JetID version given"<<std::endl;
+    }
+    if(JetIDQuality_== "MINIMAL"){
+      jetidquality = JetIDSelectionFunctor::MINIMAL;
+    }else if (JetIDQuality_== "LOOSE_AOD"){
+      jetidquality = JetIDSelectionFunctor::LOOSE_AOD;
+    }else if (JetIDQuality_=="LOOSE"){
+      jetidquality = JetIDSelectionFunctor::LOOSE;
+    }else if (JetIDQuality_=="TIGHT"){
+      jetidquality = JetIDSelectionFunctor::TIGHT;
+    }else{
+      std::cout<<"no Valid JetID quality given"<<std::endl;
+    }
+    jetIDFunctor=JetIDSelectionFunctor( jetidversion, jetidquality);
+    jetIDFunctorLoose=JetIDSelectionFunctor( jetidversion, JetIDSelectionFunctor::LOOSE);
+    jetIDFunctorTight=JetIDSelectionFunctor( jetidversion, JetIDSelectionFunctor::TIGHT);
+    ret = jetIDFunctor.getBitTemplate(); 
+    retLoose = jetIDFunctorLoose.getBitTemplate(); 
+    retTight = jetIDFunctorTight.getBitTemplate(); 
   }
 
+  //Jet ID definitions for PFJets
+  if(isPFJet_){
+    if(JetIDVersion_== "FIRSTDATA"){
+      pfjetidversion = PFJetIDSelectionFunctor::FIRSTDATA;
+    }else{
+      std::cout<<"no valid PF JetID version given"<<std::endl;
+    }
+    if (JetIDQuality_=="LOOSE"){
+      pfjetidquality = PFJetIDSelectionFunctor::LOOSE;
+    }else if (JetIDQuality_=="TIGHT"){
+      pfjetidquality = PFJetIDSelectionFunctor::TIGHT;
+    }else{
+      std::cout<<"no Valid PFJetID quality given"<<std::endl;
+    }
+    pfjetIDFunctor=PFJetIDSelectionFunctor( pfjetidversion, pfjetidquality);
+    pfjetIDFunctorLoose=PFJetIDSelectionFunctor( pfjetidversion, PFJetIDSelectionFunctor::LOOSE);
+    pfjetIDFunctorTight=PFJetIDSelectionFunctor( pfjetidversion, PFJetIDSelectionFunctor::TIGHT);
+    ret = pfjetIDFunctor.getBitTemplate(); 
+    retLoose = pfjetIDFunctorLoose.getBitTemplate(); 
+    retTight = pfjetIDFunctorTight.getBitTemplate(); 
+  }
   //check later if some of those are also needed for PFJets
   leadJetFlag_ = 0;
   jetLoPass_   = 0;
@@ -128,32 +179,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   ptThresholdUnc_ = 20.;
   asymmetryThirdJetCut_ = 5.;
   balanceThirdJetCut_   = 0.2; 
-  
-  n90HitsMin_=0;
-  fHPDMax_=1.;
-  resEMFMin_=0.;
-  n90HitsMinLoose_ =0;
-  fHPDMaxLoose_=1.;
-  resEMFMinLoose_=0.;
-  n90HitsMinTight_ =0;
-  fHPDMaxTight_=1.;
-  resEMFMinTight_=0.;
-  sigmaEtaMinTight_=-999.;
-  sigmaPhiMinTight_=-999.;
-  
-  looseCHFMin_ = -999.;
-  looseNHFMax_ = -999.;
-  looseCEFMax_ = -999.;
-  looseNEFMax_ = -999.;
-  tightCHFMin_ = -999.;
-  tightNHFMax_ = -999.;
-  tightCEFMax_ = -999.;
-  tightNEFMax_ = -999.;
-  thisCHFMin_ = -999.;
-  thisNHFMax_ = -999.;
-  thisCEFMax_ = -999.;
-  thisNEFMax_ = -999.;
-  
+
   theTriggerResultsLabel_        = pSet.getParameter<edm::InputTag>("TriggerResultsLabel");
   triggerResultsToken_          = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel_));
   //
@@ -276,8 +302,8 @@ void JetAnalyzer::beginJob(void) {
   }
   mJetEnergyCorr= dbe_->book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
   mJetEnergyCorrVsEta= dbe_->bookProfile("JetEnergyCorrVsEta", "jet energy correction factor Vs eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
-  mHFrac        = dbe_->book1D("HFrac",        "HFrac",                120,   -0.1,    1.1);
-  mEFrac        = dbe_->book1D("EFrac",        "EFrac",                120,   -0.1,    1.1);
+  mHFrac        = dbe_->book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
+  mEFrac        = dbe_->book1D("EFrac",        "EFrac",                140,   -0.2,    1.2);
 
   mPt_uncor           = dbe_->book1D("Pt_uncor",           "pt for uncorrected jets",                 ptBin_,  ptThresholdUnc_,  ptMax_);
   mEta_uncor          = dbe_->book1D("Eta_uncor",          "eta for uncorrected jets",               etaBin_, etaMin_, etaMax_);
@@ -299,8 +325,8 @@ void JetAnalyzer::beginJob(void) {
   if(!isJPTJet_){
     mConstituents_profile = dbe_->bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
   }
-  mHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     120,   -0.1,    1.1);
-  mEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     120,   -0.1,    1.1);
+  mHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  mEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
 
   if(fillJIDPassFrac_==1){//fillJIDPassFrac_ defines a collection of cleaned jets, for which we will want to fill the cleaning passing fraction
     mLooseJIDPassFractionVSeta      = dbe_->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
@@ -372,8 +398,8 @@ void JetAnalyzer::beginJob(void) {
     if(!isJPTJet_){
       mConstituents_Forward    = dbe_->book1D("Constituents_Forward", "Constituents Forward", 50, 0, 100);
     }
-    mHFrac_Forward           = dbe_->book1D("HFrac_Forward", "HFrac Forward", 100, 0, 1);
-    mEFrac_Forward           = dbe_->book1D("EFrac_Forward", "EFrac Forward", 110, -0.05, 1.05);
+    mHFrac_Forward           = dbe_->book1D("HFrac_Forward", "HFrac Forward", 140, -0.2, 1.2);
+    mEFrac_Forward           = dbe_->book1D("EFrac_Forward", "EFrac Forward", 140, -0.2, 1.2);
     
     mPt_Barrel_Hi            = dbe_->book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
     mPhi_Barrel_Hi           = dbe_->book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
@@ -418,18 +444,6 @@ void JetAnalyzer::beginJob(void) {
   //
   //--- Calo jet selection only
   if(isCaloJet_) {
-    n90HitsMin_ = parameters_.getParameter<int>("n90HitsMin");
-    fHPDMax_ = parameters_.getParameter<double>("fHPDMax");
-    resEMFMin_ = parameters_.getParameter<double>("resEMFMin");
-    sigmaEtaMinTight_ = parameters_.getParameter<double>("sigmaEtaMinTight");
-    sigmaPhiMinTight_ = parameters_.getParameter<double>("sigmaPhiMinTight");
-    
-    n90HitsMinLoose_ = parameters_.getParameter<int>("n90HitsMinLoose");
-    fHPDMaxLoose_ = parameters_.getParameter<double>("fHPDMaxLoose");
-    resEMFMinLoose_ = parameters_.getParameter<double>("resEMFMinLoose");
-    n90HitsMinTight_ = parameters_.getParameter<int>("n90HitsMinTight");
-    fHPDMaxTight_ = parameters_.getParameter<double>("fHPDMaxTight");
-    resEMFMinTight_ = parameters_.getParameter<double>("resEMFMinTight");
 
     // CaloJet specific
     mMaxEInEmTowers         = dbe_->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100);
@@ -484,18 +498,6 @@ void JetAnalyzer::beginJob(void) {
   if(isJPTJet_) {
    jetME = dbe_->book1D("jetReco", "jetReco", 3, 1, 4);
    jetME->setBinLabel(3,"JPTJets",1);
-   n90HitsMin_ = parameters_.getParameter<int>("n90HitsMin");
-   fHPDMax_ = parameters_.getParameter<double>("fHPDMax");
-   resEMFMin_ = parameters_.getParameter<double>("resEMFMin");
-   sigmaEtaMinTight_ = parameters_.getParameter<double>("sigmaEtaMinTight");
-   sigmaPhiMinTight_ = parameters_.getParameter<double>("sigmaPhiMinTight");
-   
-   n90HitsMinLoose_ = parameters_.getParameter<int>("n90HitsMinLoose");
-   fHPDMaxLoose_ = parameters_.getParameter<double>("fHPDMaxLoose");
-   resEMFMinLoose_ = parameters_.getParameter<double>("resEMFMinLoose");
-   n90HitsMinTight_ = parameters_.getParameter<int>("n90HitsMinTight");
-   fHPDMaxTight_ = parameters_.getParameter<double>("fHPDMaxTight");
-   resEMFMinTight_ = parameters_.getParameter<double>("resEMFMinTight");
    if(makedijetselection_!=1){
      //jpt histograms
      mE   = dbe_->book1D("E", "E", eBin_, eMin_, eMax_);
@@ -506,6 +508,14 @@ void JetAnalyzer::beginJob(void) {
      mPx  = dbe_->book1D("Px", "Px", ptBin_, ptMin_, ptMax_);
      mPy  = dbe_->book1D("Py", "Py", ptBin_, ptMin_, ptMax_);
      mPz  = dbe_->book1D("Pz", "Pz", ptBin_, ptMin_, ptMax_);
+
+     //JetID variables
+     
+     mresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
+     mN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 50, 0., 50);
+     mfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
+     mfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
+     
      mnTracks  = dbe_->book1D("nTracks", "number of tracks for correction per jet", 100, 0, 100);
      mnTracksVsJetPt= dbe_->bookProfile("nTracksVSJetPt","number of tracks for correction per jet vs raw jet p_{T}",ptBin_, ptMin_, ptMax_,100,0,100);
      mnTracksVsJetEta= dbe_->bookProfile("nTracksVsJetEta","number of tracks for correction per jet vs jet #eta",etaBin_, etaMin_, etaMax_,100,0,100);
@@ -606,20 +616,6 @@ void JetAnalyzer::beginJob(void) {
     jetME = dbe_->book1D("jetReco", "jetReco", 3, 1, 4);
     jetME->setBinLabel(2,"PFJets",1);
 
-    tightCHFMin_ = parameters_.getParameter<double>("TightCHFMin");
-    tightNHFMax_ = parameters_.getParameter<double>("TightNHFMax");
-    tightCEFMax_ = parameters_.getParameter<double>("TightCEFMax");
-    tightNEFMax_ = parameters_.getParameter<double>("TightNEFMax");
-    looseCHFMin_ = parameters_.getParameter<double>("LooseCHFMin");
-    looseNHFMax_ = parameters_.getParameter<double>("LooseNHFMax");
-    looseCEFMax_ = parameters_.getParameter<double>("LooseCEFMax");
-    looseNEFMax_ = parameters_.getParameter<double>("LooseNEFMax");
-
-    thisCHFMin_ = parameters_.getParameter<double>("ThisCHFMin");
-    thisNHFMax_ = parameters_.getParameter<double>("ThisNHFMax");
-    thisCEFMax_ = parameters_.getParameter<double>("ThisCEFMax");
-    thisNEFMax_ = parameters_.getParameter<double>("ThisNEFMax");
-
     if(makedijetselection_!=1){
       //PFJet specific
       mCHFracVSeta_lowPt= dbe_->bookProfile("CHFracVSeta_lowPt","CHFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
@@ -693,8 +689,8 @@ void JetAnalyzer::beginJob(void) {
       mPhFracVSpT_EndCap= dbe_->bookProfile("PhFracVSpT_EndCap","PhFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
       mElFracVSpT_EndCap= dbe_->bookProfile("ElFracVSpT_EndCap","ElFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
       mMuFracVSpT_EndCap= dbe_->bookProfile("MuFracVSpT_EndCap","MuFracVSpT_EndCap",ptBin_, ptMin_, ptMax_,0.,1.2);
-      mHFHFracVSpT_Forward= dbe_->bookProfile("HFHFracVSpT_Forward","HFHFracVSpT_Forward",ptBin_, ptMin_, ptMax_,0.,1.2);
-      mHFEFracVSpT_Forward= dbe_->bookProfile("HFEFracVSpT_Forward","HFEFracVSpT_Forward",ptBin_, ptMin_, ptMax_,0.,1.2);
+      mHFHFracVSpT_Forward= dbe_->bookProfile("HFHFracVSpT_Forward","HFHFracVSpT_Forward",ptBin_, ptMin_, ptMax_,-0.2,1.2);
+      mHFEFracVSpT_Forward= dbe_->bookProfile("HFEFracVSpT_Forward","HFEFracVSpT_Forward",ptBin_, ptMin_, ptMax_,-0.2,1.2);
       //endcap monitoring
       //energy fractions
       mCHFrac_lowPt_EndCap     = dbe_->book1D("CHFrac_lowPt_EndCap", "CHFrac_lowPt_EndCap", 120, -0.1, 1.1);
@@ -740,12 +736,12 @@ void JetAnalyzer::beginJob(void) {
       mMuMultiplicity_highPt_EndCap    = dbe_->book1D("MuMultiplicity_highPt_EndCap", "MuMultiplicity_highPt_EndCap", 30,0,30);
       //forward monitoring
       //energy fraction
-      mHFEFrac_lowPt_Forward    = dbe_->book1D("HFEFrac_lowPt_Forward", "HFEFrac_lowPt_Forward", 120, -0.1, 1.1);
-      mHFHFrac_lowPt_Forward    = dbe_->book1D("HFHFrac_lowPt_Forward", "HFHFrac_lowPt_Forward", 120, -0.1, 1.1);
-      mHFEFrac_mediumPt_Forward = dbe_->book1D("HFEFrac_mediumPt_Forward", "HFEFrac_mediumPt_Forward", 120, -0.1, 1.1);
-      mHFHFrac_mediumPt_Forward = dbe_->book1D("HFHFrac_mediumPt_Forward", "HFHFrac_mediumPt_Forward", 120, -0.1, 1.1);
-      mHFEFrac_highPt_Forward   = dbe_->book1D("HFEFrac_highPt_Forward", "HFEFrac_highPt_Forward", 120, -0.1, 1.1);
-      mHFHFrac_highPt_Forward   = dbe_->book1D("HFHFrac_highPt_Forward", "HFHFrac_highPt_Forward", 120, -0.1, 1.1);
+      mHFEFrac_lowPt_Forward    = dbe_->book1D("HFEFrac_lowPt_Forward", "HFEFrac_lowPt_Forward", 140, -0.2, 1.2);
+      mHFHFrac_lowPt_Forward    = dbe_->book1D("HFHFrac_lowPt_Forward", "HFHFrac_lowPt_Forward", 140, -0.2, 1.2);
+      mHFEFrac_mediumPt_Forward = dbe_->book1D("HFEFrac_mediumPt_Forward", "HFEFrac_mediumPt_Forward", 140, -0.2, 1.2);
+      mHFHFrac_mediumPt_Forward = dbe_->book1D("HFHFrac_mediumPt_Forward", "HFHFrac_mediumPt_Forward", 140, -0.2, 1.2);
+      mHFEFrac_highPt_Forward   = dbe_->book1D("HFEFrac_highPt_Forward", "HFEFrac_highPt_Forward", 140, -0.2, 1.2);
+      mHFHFrac_highPt_Forward   = dbe_->book1D("HFHFrac_highPt_Forward", "HFHFrac_highPt_Forward", 140, -0.2, 1.2);
       //energies
       mHFEEn_lowPt_Forward    = dbe_->book1D("HFEEn_lowPt_Forward", "HFEEn_lowPt_Forward", ptBin_, ptMin_, ptMax_);
       mHFHEn_lowPt_Forward    = dbe_->book1D("HFHEn_lowPt_Forward", "HFHEn_lowPt_Forward", ptBin_, ptMin_, ptMax_);
@@ -942,6 +938,11 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (isJPTJet_) iEvent.getByToken(jptJetsToken_, jptJets);
   if (isPFJet_) iEvent.getByToken(pfJetsToken_, pfJets);
 
+  edm::Handle< edm::ValueMap<reco::JetID> >jetID_ValueMap_Handle;
+  if(isJPTJet_ || isCaloJet_){
+    iEvent.getByToken(jetID_ValueMapToken_,jetID_ValueMap_Handle);
+  }
+
   //check for collections AND DCS filters
   bool dcsDecision = DCSFilterForJetMonitoring_->filter(iEvent, iSetup);
   bool jetCollectionIsValid = false;
@@ -949,8 +950,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (isJPTJet_)   jetCollectionIsValid = jptJets.isValid();
   if (isPFJet_)    jetCollectionIsValid = pfJets.isValid();
 
+
   if (jetCleaningFlag_ && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision)) return;
-//  cout<<mInputCollection_.label()<<" dcsDecison "<<boolalpha<<dcsDecision<<" jetCollectionIsValid "<<jetCollectionIsValid<<" bPrimaryVertex "<<bPrimaryVertex<<" jetCleaningFlag "<<jetCleaningFlag<<" return? "<<(jetCleaningFlag && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision))<<endl;
 
   unsigned int collSize=-1;
   if (isCaloJet_)  collSize = caloJets->size();
@@ -1043,21 +1044,18 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       recoJets.push_back(correctedJet);
     }
     if(makedijetselection_!=1){
-      bool Thiscleaned=false;
+      bool Thiscleaned=true;
       bool Loosecleaned=false;
       bool Tightcleaned=false;
       //jet ID for calojets
       if (isCaloJet_) {
-	bool thisemfclean=true;
-	bool emfcleanLoose=true;
-	bool emfcleanTight=true;
-	jetID_->calculate(iEvent, (*caloJets)[ijet]);
-	thisemfclean=true;
-	if(jetID_->restrictedEMF()<resEMFMin_ && fabs((*caloJets)[ijet].eta())<2.6) thisemfclean=false;
-	if(jetID_->n90Hits()>=n90HitsMin_ && jetID_->fHPD()<fHPDMax_ && thisemfclean) Thiscleaned=true;
-	//loose and tight cleaning, used to fill the JetIDPAssFraction histos
-	if(jetID_->n90Hits()>=n90HitsMinLoose_ && jetID_->fHPD()<fHPDMaxLoose_ && emfcleanLoose) Loosecleaned=true;
-	if(jetID_->n90Hits()>=n90HitsMinTight_ && jetID_->fHPD()<fHPDMaxTight_ && sqrt((*caloJets)[ijet].etaetaMoment())>sigmaEtaMinTight_ && sqrt((*caloJets)[ijet].phiphiMoment())>sigmaPhiMinTight_ && emfcleanTight) Tightcleaned=true;
+	reco::CaloJetRef calojetref(caloJets, ijet);
+	reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
+	if(jetCleaningFlag_){
+	  Thiscleaned = jetIDFunctor((*caloJets)[ijet], jetID, ret );
+	}
+	Loosecleaned = jetIDFunctorLoose((*caloJets)[ijet], jetID, retLoose );
+	Tightcleaned = jetIDFunctorTight((*caloJets)[ijet], jetID, retTight );
 	if(Thiscleaned && pass_uncorrected){
 	  if (mPt_uncor)   mPt_uncor->Fill ((*caloJets)[ijet].pt());
 	  if (mEta_uncor)  mEta_uncor->Fill ((*caloJets)[ijet].eta());
@@ -1093,10 +1091,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if (mEmEnergyInEE)    mEmEnergyInEE->Fill ((*caloJets)[ijet].emEnergyInEE());
 	  if (mEmEnergyInHF)    mEmEnergyInHF->Fill ((*caloJets)[ijet].emEnergyInHF());
 	  
-	  if (mN90Hits)         mN90Hits->Fill (jetID_->n90Hits());
-	  if (mfHPD)            mfHPD->Fill (jetID_->fHPD());
-	  if (mresEMF)         mresEMF->Fill (jetID_->restrictedEMF());
-	  if (mfRBX)            mfRBX->Fill (jetID_->fRBX());
+	  if (mN90Hits)         mN90Hits->Fill (jetID.n90Hits);
+	  if (mfHPD)            mfHPD->Fill (jetID.fHPD);
+	  if (mresEMF)          mresEMF->Fill (jetID.restrictedEMF);
+	  if (mfRBX)            mfRBX->Fill (jetID.fRBX);
 	}
       }
       if(isJPTJet_){
@@ -1107,23 +1105,26 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	
 	try {
 	  const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
-	  jetID_->calculate(iEvent,*rawCaloJet);
-	  bool thisemfclean=true;
-	  bool emfcleanLoose=true;
-	  bool emfcleanTight=true;
-	  thisemfclean=true;
-	  if(jetID_->restrictedEMF()<resEMFMin_ && fabs((*rawCaloJet).eta())<2.6) thisemfclean=false;
-	  if(jetID_->n90Hits()>=n90HitsMin_ && jetID_->fHPD()<fHPDMax_ && thisemfclean) Thiscleaned=true;
-	  //loose and tight cleaning, used to fill the JetIDPAssFraction histos
-	  if(jetID_->n90Hits()>=n90HitsMinLoose_ && jetID_->fHPD()<fHPDMaxLoose_ && emfcleanLoose) Loosecleaned=true;
-	  if(jetID_->n90Hits()>=n90HitsMinTight_ && jetID_->fHPD()<fHPDMaxTight_ && sqrt((*rawCaloJet).etaetaMoment())>sigmaEtaMinTight_ && sqrt((*rawCaloJet).phiphiMoment())>sigmaPhiMinTight_ && emfcleanTight) Tightcleaned=true;
+	  reco::CaloJetRef const theCaloJetRef = (rawJet).castTo<reco::CaloJetRef>();
+	  reco::JetID jetID = (*jetID_ValueMap_Handle)[theCaloJetRef];
+	  if(jetCleaningFlag_){
+	    Thiscleaned = jetIDFunctor(*rawCaloJet, jetID, ret );
+	  }
+	  Loosecleaned = jetIDFunctorLoose(*rawCaloJet, jetID, retLoose );
+	  Tightcleaned = jetIDFunctorTight(*rawCaloJet, jetID, retTight );
+	  if(Thiscleaned &&  ( fabs(rawJet->eta()) < 2.1) && pass_corrected){
+	    if (mN90Hits)         mN90Hits->Fill (jetID.n90Hits);
+	    if (mfHPD)            mfHPD->Fill (jetID.fHPD);
+	    if (mresEMF)          mresEMF->Fill (jetID.restrictedEMF);
+	    if (mfRBX)            mfRBX->Fill (jetID.fRBX);
+	  }
 	} catch (const std::bad_cast&) {
 	  edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet. JPT Jet does not appear to have been built from a CaloJet. "
-						<< "Histograms not filled. ";
+					   << "Histograms not filled. ";
 	  return;
 	}
 	//plot JPT specific variables for <2.1 jets
-	if(Thiscleaned && pass_uncorrected&&  ( fabs(rawJet->eta()) < 2.1) ){
+	if(Thiscleaned && pass_uncorrected &&  ( fabs(rawJet->eta()) < 2.1) ){
 	  if (mPt_uncor)   mPt_uncor->Fill ((*jptJets)[ijet].pt());
 	  if (mEta_uncor)  mEta_uncor->Fill ((*jptJets)[ijet].eta());
 	  if (mPhi_uncor)  mPhi_uncor->Fill ((*jptJets)[ijet].phi());
@@ -1317,16 +1318,11 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
       }
       if(isPFJet_){
-	//calculate the jetID_
-	bool ThisCHFcleaned=true;
-	bool LooseCHFcleaned=true;
-	bool TightCHFcleaned=true;
-	if(((*pfJets)[ijet].chargedHadronEnergy()/(*pfJets)[ijet].energy())<=thisCHFMin_ && fabs((*pfJets)[ijet].eta())<2.4) ThisCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-	if(((*pfJets)[ijet].chargedHadronEnergy()/(*pfJets)[ijet].energy())<=looseCHFMin_ && fabs((*pfJets)[ijet].eta())<2.4) LooseCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-	if(((*pfJets)[ijet].chargedHadronEnergy()/(*pfJets)[ijet].energy())<=tightCHFMin_ && fabs((*pfJets)[ijet].eta())<2.4) TightCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-	if(ThisCHFcleaned && ((*pfJets)[ijet].neutralHadronEnergy()/(*pfJets)[ijet].energy())<thisNHFMax_ && ((*pfJets)[ijet].chargedEmEnergy()/(*pfJets)[ijet].energy())<thisCEFMax_ && ((*pfJets)[ijet].neutralEmEnergy()/(*pfJets)[ijet].energy())<thisNEFMax_) Thiscleaned=true;
-	if(LooseCHFcleaned && ((*pfJets)[ijet].neutralHadronEnergy()/(*pfJets)[ijet].energy())<looseNHFMax_ && ((*pfJets)[ijet].chargedEmEnergy()/(*pfJets)[ijet].energy())<looseCEFMax_ && ((*pfJets)[ijet].neutralEmEnergy()/(*pfJets)[ijet].energy())<looseNEFMax_) Loosecleaned=true;
-	if(TightCHFcleaned && ((*pfJets)[ijet].neutralHadronEnergy()/(*pfJets)[ijet].energy())<tightNHFMax_ && ((*pfJets)[ijet].chargedEmEnergy()/(*pfJets)[ijet].energy())<tightCEFMax_ && ((*pfJets)[ijet].neutralEmEnergy()/(*pfJets)[ijet].energy())<tightNEFMax_) Tightcleaned=true;
+	if(jetCleaningFlag_){
+	  Thiscleaned = pfjetIDFunctor((*pfJets)[ijet], ret );
+	}
+	Loosecleaned = pfjetIDFunctorLoose((*pfJets)[ijet],retLoose );
+	Tightcleaned = pfjetIDFunctorTight((*pfJets)[ijet],retTight );
 	if(Thiscleaned && pass_uncorrected){
 	  if (mPt_uncor)   mPt_uncor->Fill ((*pfJets)[ijet].pt());
 	  if (mEta_uncor)  mEta_uncor->Fill ((*pfJets)[ijet].eta());
@@ -1652,17 +1648,14 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   //for non dijet selection, otherwise numofjets==0
   if(numofjets>0){
- 
     //check ID of the leading jet
-    bool Thiscleaned=false;
-    bool thisemfclean=true;
-    bool ThisCHFcleaned=true;
+    bool Thiscleaned=true;
     if(isCaloJet_){
-      jetID_->calculate(iEvent, (*caloJets)[ind1]);
-      thisemfclean=true;
-      if(jetID_->restrictedEMF()<resEMFMin_ && fabs((*caloJets)[ind1].eta())<2.6) thisemfclean=false;
-      if(jetID_->n90Hits()>=n90HitsMin_ && jetID_->fHPD()<fHPDMax_ && thisemfclean) Thiscleaned=true;
-
+      reco::CaloJetRef calojetref1(caloJets, ind1);
+      reco::JetID jetID1 = (*jetID_ValueMap_Handle)[calojetref1];
+      if(jetCleaningFlag_){
+	Thiscleaned = jetIDFunctor((*caloJets)[ind1], jetID1, ret );
+      }
     }
     if(isJPTJet_){
       const edm::RefToBase<reco::Jet>&  rawJet1 = (*jptJets)[ind1].getCaloJetRef();
@@ -1671,10 +1664,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       //if ( fabs(rawJet->eta()) > 2.1) return;
       
       try {
-	const reco::CaloJet *rawCaloJet1 = dynamic_cast<const reco::CaloJet*>(&*rawJet1);
-	jetID_->calculate(iEvent,*rawCaloJet1);
-	  if(jetID_->restrictedEMF()<resEMFMin_ && fabs((*rawCaloJet1).eta())<2.6) thisemfclean=false;
-	  if(jetID_->n90Hits()>=n90HitsMin_ && jetID_->fHPD()<fHPDMax_ && thisemfclean) Thiscleaned=true;
+	const reco::CaloJet *rawCaloJet1 = dynamic_cast<const reco::CaloJet*>(&*rawJet1);	
+	reco::CaloJetRef const theCaloJetRef1 = (rawJet1).castTo<reco::CaloJetRef>();
+	reco::JetID jetID1 = (*jetID_ValueMap_Handle)[theCaloJetRef1];
+	if(jetCleaningFlag_){
+	  Thiscleaned = jetIDFunctor(*rawCaloJet1, jetID1, ret );
+	}
       } catch (const std::bad_cast&) {
 	edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet. JPT Jet does not appear to have been built from a CaloJet. "
 					 << "Histograms not filled. ";
@@ -1682,13 +1677,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
     if(isPFJet_){
-      ThisCHFcleaned=true;
-      //LooseCHFcleaned=true;
-      //TightCHFcleaned=true;
-      if(((*pfJets)[ind1].chargedHadronEnergy()/(*pfJets)[ind1].energy())<=thisCHFMin_ && fabs((*pfJets)[ind1].eta())<2.4) ThisCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-      //if(((*pfJets)[ind1].chargedHadronEnergy()/(*pfJets)[ind1].energy())<=looseCHFMin_ && fabs((*pfJets)[ind1].eta())<2.4) LooseCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-      //if(((*pfJets)[ind1].chargedHadronEnergy()/(*pfJets)[ind1].energy())<=tightCHFMin_ && fabs((*pfJets)[ind1].eta())<2.4) TightCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-      if(ThisCHFcleaned && ((*pfJets)[ind1].neutralHadronEnergy()/(*pfJets)[ind1].energy())<thisNHFMax_ && ((*pfJets)[ind1].chargedEmEnergy()/(*pfJets)[ind1].energy())<thisCEFMax_ && ((*pfJets)[ind1].neutralEmEnergy()/(*pfJets)[ind1].energy())<thisNEFMax_) Thiscleaned=true;
+      if(jetCleaningFlag_){
+	Thiscleaned = pfjetIDFunctor((*pfJets)[ind1], ret );
+      }
     }
     if(Thiscleaned){
       if (mEtaFirst) mEtaFirst->Fill ((recoJets)[0].eta());
@@ -1696,24 +1687,26 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (mPtFirst)  mPtFirst->Fill ((recoJets)[0].pt());
       if(numofjets>1) {
 	//first jet fine -> now check second jet
-	Thiscleaned=false;
+	Thiscleaned=true;
 	if(isCaloJet_){
-	  jetID_->calculate(iEvent, (*caloJets)[ind2]);
-	  thisemfclean=true;
-	  if(jetID_->restrictedEMF()<resEMFMin_ && fabs((*caloJets)[ind2].eta())<2.6) thisemfclean=false;
-	  if(jetID_->n90Hits()>=n90HitsMin_ && jetID_->fHPD()<fHPDMax_ && thisemfclean) Thiscleaned=true;
+	  reco::CaloJetRef calojetref2(caloJets, ind2);
+	  reco::JetID jetID2 = (*jetID_ValueMap_Handle)[calojetref2];
+	  if(jetCleaningFlag_){
+	    Thiscleaned = jetIDFunctor((*caloJets)[ind2], jetID2, ret );
+	  }
 	}
 	if(isJPTJet_){
 	  const edm::RefToBase<reco::Jet>&  rawJet2 = (*jptJets)[ind2].getCaloJetRef();
 	  //change that step here
 	  //check jet is correctable by JPT
-	  //if ( fabs(rawJet->eta()) > 2.1) return;
-	  
+	  //if ( fabs(rawJet->eta()) > 2.1) return;  
 	  try {
 	    const reco::CaloJet *rawCaloJet2 = dynamic_cast<const reco::CaloJet*>(&*rawJet2);
-	    jetID_->calculate(iEvent,*rawCaloJet2);
-	    if(jetID_->restrictedEMF()<resEMFMin_ && fabs((*rawCaloJet2).eta())<2.6) thisemfclean=false;
-	    if(jetID_->n90Hits()>=n90HitsMin_ && jetID_->fHPD()<fHPDMax_ && thisemfclean) Thiscleaned=true;
+	    reco::CaloJetRef const theCaloJetRef2 = (rawJet2).castTo<reco::CaloJetRef>();
+	    reco::JetID jetID2 = (*jetID_ValueMap_Handle)[theCaloJetRef2];
+	    if(jetCleaningFlag_){
+	      Thiscleaned = jetIDFunctor(*rawCaloJet2, jetID2, ret );
+	    }
 	  } catch (const std::bad_cast&) {
 	    edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet. JPT Jet does not appear to have been built from a CaloJet. "
 					     << "Histograms not filled. ";
@@ -1723,17 +1716,19 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mPtSecond->Fill(recoJets[1].pt());
 	  }
 	  if(numofjets>2){
+	    Thiscleaned=true;
 	    const edm::RefToBase<reco::Jet>&  rawJet3 = (*jptJets)[ind3].getCaloJetRef();
 	    //change that step here
 	    //check jet is correctable by JPT
 	    //if ( fabs(rawJet->eta()) > 2.1) return;
 	    
 	    try {
-	      thisemfclean=true;
 	      const reco::CaloJet *rawCaloJet3 = dynamic_cast<const reco::CaloJet*>(&*rawJet3);
-	      jetID_->calculate(iEvent,*rawCaloJet3);
-	      if(jetID_->restrictedEMF()<resEMFMin_ && fabs((*rawCaloJet3).eta())<2.6) thisemfclean=false;
-	      if(jetID_->n90Hits()>=n90HitsMin_ && jetID_->fHPD()<fHPDMax_ && thisemfclean) Thiscleaned=true;
+	      reco::CaloJetRef const theCaloJetRef3 = (rawJet3).castTo<reco::CaloJetRef>();
+	      reco::JetID jetID3 = (*jetID_ValueMap_Handle)[theCaloJetRef3];
+	      if(jetCleaningFlag_){
+		Thiscleaned = jetIDFunctor(*rawCaloJet3, jetID3, ret );
+	      }
 	    } catch (const std::bad_cast&) {
 	      edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet. JPT Jet does not appear to have been built from a CaloJet. "
 					       << "Histograms not filled. ";
@@ -1745,13 +1740,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
 	}
 	if(isPFJet_){
-	  ThisCHFcleaned=true;
-	  //LooseCHFcleaned=false;
-	  //TightCHFcleaned=false;
-	  if(((*pfJets)[ind2].chargedHadronEnergy()/(*pfJets)[ind2].energy())<=thisCHFMin_ && fabs((*pfJets)[ind2].eta())<2.4) ThisCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-	  //if(((*pfJets)[ind2].chargedHadronEnergy()/(*pfJets)[ind2].energy())<=looseCHFMin_ && fabs((*pfJets)[ind2].eta())<2.4) LooseCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-	  //if(((*pfJets)[ind2].chargedHadronEnergy()/(*pfJets)[ind2].energy())<=tightCHFMin_ && fabs((*pfJets)[ind2].eta())<2.4) TightCHFcleaned=false; //apply CHF>0 only if |eta|<2.4
-	  if(ThisCHFcleaned && ((*pfJets)[ind2].neutralHadronEnergy()/(*pfJets)[ind2].energy())<thisNHFMax_ && ((*pfJets)[ind2].chargedEmEnergy()/(*pfJets)[ind2].energy())<thisCEFMax_ && ((*pfJets)[ind2].neutralEmEnergy()/(*pfJets)[ind2].energy())<thisNEFMax_) Thiscleaned=true;
+	  if(jetCleaningFlag_){
+	    Thiscleaned = pfjetIDFunctor((*pfJets)[ind2], ret );
+	  }
 	}
 	if(Thiscleaned){
 	  double dphi=fabs((recoJets)[0].phi()-(recoJets)[1].phi());
@@ -1857,43 +1848,32 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	bool LoosecleanedSecondJet = false;
 	bool TightcleanedFirstJet = false;
 	bool TightcleanedSecondJet = false;
-	
 	if(isCaloJet_){
-	  bool emfcleanLooseFirstJet=true;
-	  bool emfcleanTightFirstJet=true;
-	  jetID_->calculate(iEvent, (*caloJets)[ind1]);
-	  if(jetID_->restrictedEMF()<resEMFMinLoose_ && fabs((*caloJets)[ind1].eta())<2.6) emfcleanLooseFirstJet=false;
-	  if(jetID_->restrictedEMF()<resEMFMinTight_ && fabs((*caloJets)[ind1].eta())<2.6) emfcleanTightFirstJet=false;
-	  if(jetID_->n90Hits()>=n90HitsMinLoose_ && jetID_->fHPD()<fHPDMaxLoose_ && emfcleanLooseFirstJet) LoosecleanedFirstJet=true;
-	  if(jetID_->n90Hits()>=n90HitsMinTight_ && jetID_->fHPD()<fHPDMaxTight_ && sqrt((*caloJets)[ind1].etaetaMoment())>sigmaEtaMinTight_ && sqrt((*caloJets)[ind1].phiphiMoment())>sigmaPhiMinTight_ && emfcleanTightFirstJet) TightcleanedFirstJet=true;
-	  if (mN90Hits)         mN90Hits->Fill (jetID_->n90Hits());
-	  if (mfHPD)            mfHPD->Fill (jetID_->fHPD());
-	  if (mresEMF)         mresEMF->Fill (jetID_->restrictedEMF());
-	  if (mfRBX)            mfRBX->Fill (jetID_->fRBX());	  
-	  bool emfcleanLooseSecondJet=true;
-	  bool emfcleanTightSecondJet=true;
- 	  jetID_->calculate(iEvent, (*caloJets)[ind2]);
-	  if(jetID_->restrictedEMF()<resEMFMinLoose_ && fabs((*caloJets)[ind2].eta())<2.6) emfcleanLooseSecondJet=false;
-	  if(jetID_->restrictedEMF()<resEMFMinTight_ && fabs((*caloJets)[ind2].eta())<2.6) emfcleanTightSecondJet=false;
-	  if(jetID_->n90Hits()>=n90HitsMinLoose_ && jetID_->fHPD()<fHPDMaxLoose_ && emfcleanLooseSecondJet) LoosecleanedSecondJet=true;
-	  if(jetID_->n90Hits()>=n90HitsMinTight_ && jetID_->fHPD()<fHPDMaxTight_ && sqrt((*caloJets)[ind2].etaetaMoment())>sigmaEtaMinTight_ && sqrt((*caloJets)[ind2].phiphiMoment())>sigmaPhiMinTight_ && emfcleanTightSecondJet) TightcleanedSecondJet=true;
-	  if (mN90Hits)         mN90Hits->Fill (jetID_->n90Hits());
-	  if (mfHPD)            mfHPD->Fill (jetID_->fHPD());
-	  if (mresEMF)         mresEMF->Fill (jetID_->restrictedEMF());
-	  if (mfRBX)            mfRBX->Fill (jetID_->fRBX());
+	  reco::CaloJetRef calojetref1(caloJets, ind1);
+	  reco::JetID jetID1 = (*jetID_ValueMap_Handle)[calojetref1];
+	  LoosecleanedFirstJet = jetIDFunctorLoose((*caloJets)[ind1], jetID1, retLoose );
+	  TightcleanedFirstJet = jetIDFunctorTight((*caloJets)[ind1], jetID1, retTight );
+	  reco::CaloJetRef calojetref2(caloJets, ind2);
+	  reco::JetID jetID2 = (*jetID_ValueMap_Handle)[calojetref2];
+	  LoosecleanedSecondJet = jetIDFunctorLoose((*caloJets)[ind2], jetID2, retLoose );	
+	  TightcleanedSecondJet  = jetIDFunctorTight((*caloJets)[ind2], jetID2, retTight );
+	  if (mN90Hits)         mN90Hits->Fill (jetID1.n90Hits);
+	  if (mfHPD)            mfHPD->Fill (jetID1.fHPD);
+	  if (mresEMF)         mresEMF->Fill (jetID1.restrictedEMF);
+	  if (mfRBX)            mfRBX->Fill (jetID1.fRBX);	  
+	  if (mN90Hits)         mN90Hits->Fill (jetID2.n90Hits);
+	  if (mfHPD)            mfHPD->Fill (jetID2.fHPD);
+	  if (mresEMF)         mresEMF->Fill (jetID2.restrictedEMF);
+	  if (mfRBX)            mfRBX->Fill (jetID2.fRBX);
 	}
 	if(isJPTJet_){
 	  const edm::RefToBase<reco::Jet>&  rawJet1 = (*jptJets)[ind1].getCaloJetRef();	
 	  try {
 	    const reco::CaloJet *rawCaloJet1 = dynamic_cast<const reco::CaloJet*>(&*rawJet1);
-	    jetID_->calculate(iEvent,*rawCaloJet1);
-	    bool emfcleanLooseFirstJet=true;
-	    bool emfcleanTightFirstJet=true;
-	    //loose and tight cleaning, used to fill the JetIDPAssFraction histos
-	    if(jetID_->restrictedEMF()<resEMFMinLoose_ && fabs((*rawCaloJet1).eta())<2.6) emfcleanLooseFirstJet=false;
-	    if(jetID_->restrictedEMF()<resEMFMinTight_ && fabs((*rawCaloJet1).eta())<2.6) emfcleanTightFirstJet=false;
-	    if(jetID_->n90Hits()>=n90HitsMinLoose_ && jetID_->fHPD()<fHPDMaxLoose_ && emfcleanLooseFirstJet) LoosecleanedFirstJet=true;
-	    if(jetID_->n90Hits()>=n90HitsMinTight_ && jetID_->fHPD()<fHPDMaxTight_ && sqrt((*rawCaloJet1).etaetaMoment())>sigmaEtaMinTight_ && sqrt((*rawCaloJet1).phiphiMoment())>sigmaPhiMinTight_ && emfcleanTightFirstJet) TightcleanedFirstJet=true;
+	    reco::CaloJetRef const theCaloJetRef1 = (rawJet1).castTo<reco::CaloJetRef>();
+	    reco::JetID jetID1 = (*jetID_ValueMap_Handle)[theCaloJetRef1];
+	    LoosecleanedFirstJet = jetIDFunctorLoose(*rawCaloJet1, jetID1, retLoose );
+	    TightcleanedFirstJet = jetIDFunctorTight(*rawCaloJet1, jetID1, retTight );  
 	  } catch (const std::bad_cast&) {
 	    edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet lead jet in dijet selection. JPT Jet does not appear to have been built from a CaloJet. "
 					     << "Histograms not filled. ";
@@ -1902,41 +1882,21 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  const edm::RefToBase<reco::Jet>&  rawJet2 = (*jptJets)[ind2].getCaloJetRef();	
 	  try {
 	    const reco::CaloJet *rawCaloJet2 = dynamic_cast<const reco::CaloJet*>(&*rawJet2);
-	    jetID_->calculate(iEvent,*rawCaloJet2);
-	    bool emfcleanLooseSecondJet=true;
-	    bool emfcleanTightSecondJet=true;
-	    //loose and tight cleaning, used to fill the JetIDPAssFraction histos
-	    if(jetID_->restrictedEMF()<resEMFMinLoose_ && fabs((*rawCaloJet2).eta())<2.6) emfcleanLooseSecondJet=false;
-	    if(jetID_->restrictedEMF()<resEMFMinTight_ && fabs((*rawCaloJet2).eta())<2.6) emfcleanTightSecondJet=false;
-	    if(jetID_->n90Hits()>=n90HitsMinLoose_ && jetID_->fHPD()<fHPDMaxLoose_ && emfcleanLooseSecondJet) LoosecleanedSecondJet=true;
-	    if(jetID_->n90Hits()>=n90HitsMinTight_ && jetID_->fHPD()<fHPDMaxTight_ && sqrt((*rawCaloJet2).etaetaMoment())>sigmaEtaMinTight_ && sqrt((*rawCaloJet2).phiphiMoment())>sigmaPhiMinTight_ && emfcleanTightSecondJet) TightcleanedSecondJet=true;
+	    reco::CaloJetRef const theCaloJetRef2 = (rawJet2).castTo<reco::CaloJetRef>();
+	    reco::JetID jetID2 = (*jetID_ValueMap_Handle)[theCaloJetRef2];
+	    LoosecleanedSecondJet = jetIDFunctorLoose(*rawCaloJet2, jetID2, retLoose );
+	    TightcleanedSecondJet = jetIDFunctorTight(*rawCaloJet2, jetID2, retTight );      
 	  } catch (const std::bad_cast&) {
 	    edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet lead jet in dijet selection. JPT Jet does not appear to have been built from a CaloJet. "
 					     << "Histograms not filled. ";
 	    return;
 	  }
-
 	}
 	if(isPFJet_){
-	  bool LooseCHFcleanedFirstJet =false;
-	  bool LooseCHFcleanedSecondJet=false;
-	  bool TightCHFcleanedFirstJet =false;
-	  bool TightCHFcleanedSecondJet=false;
-	  LooseCHFcleanedFirstJet=true;
-	  TightCHFcleanedFirstJet=true;
-	  if(((*pfJets)[ind1].chargedHadronEnergy()/(*pfJets)[ind1].energy())<=looseCHFMin_ && fabs((*pfJets)[ind1].eta())<2.4) LooseCHFcleanedFirstJet=false; //apply CHF>0 only if |eta|<2.4
-	  if(((*pfJets)[ind1].chargedHadronEnergy()/(*pfJets)[ind1].energy())<=tightCHFMin_ && fabs((*pfJets)[ind1].eta())<2.4) TightCHFcleanedFirstJet=false; //apply CHF>0 only if |eta|<2.4
-	  if(LooseCHFcleanedFirstJet && ((*pfJets)[ind1].neutralHadronEnergy()/(*pfJets)[ind1].energy())<looseNHFMax_ && ((*pfJets)[ind1].chargedEmEnergy()/(*pfJets)[ind1].energy())<looseCEFMax_ && ((*pfJets)[ind1].neutralEmEnergy()/(*pfJets)[ind1].energy())<looseNEFMax_) LoosecleanedFirstJet=true;
-	  if(TightCHFcleanedFirstJet && ((*pfJets)[ind1].neutralHadronEnergy()/(*pfJets)[ind1].energy())<tightNHFMax_ && ((*pfJets)[ind1].chargedEmEnergy()/(*pfJets)[ind1].energy())<tightCEFMax_ && ((*pfJets)[ind1].neutralEmEnergy()/(*pfJets)[ind1].energy())<tightNEFMax_) TightcleanedFirstJet=true;
-	  
-	  //second jet
-	  LooseCHFcleanedSecondJet=true;
-	  TightCHFcleanedSecondJet=true;
-	  if(((*pfJets)[ind2].chargedHadronEnergy()/(*pfJets)[ind2].energy())<=looseCHFMin_ && fabs((*pfJets)[ind2].eta())<2.4) LooseCHFcleanedSecondJet=false; //apply CHF>0 only if |eta|<2.4
-	  if(((*pfJets)[ind2].chargedHadronEnergy()/(*pfJets)[ind2].energy())<=tightCHFMin_ && fabs((*pfJets)[ind2].eta())<2.4) TightCHFcleanedSecondJet=false; //apply CHF>0 only if |eta|<2.4
-	  if(LooseCHFcleanedSecondJet && ((*pfJets)[ind2].neutralHadronEnergy()/(*pfJets)[ind2].energy())<looseNHFMax_ && ((*pfJets)[ind2].chargedEmEnergy()/(*pfJets)[ind2].energy())<looseCEFMax_ && ((*pfJets)[ind2].neutralEmEnergy()/(*pfJets)[ind2].energy())<looseNEFMax_) LoosecleanedSecondJet=true;
-	  if(TightCHFcleanedSecondJet && ((*pfJets)[ind2].neutralHadronEnergy()/(*pfJets)[ind2].energy())<tightNHFMax_ && ((*pfJets)[ind2].chargedEmEnergy()/(*pfJets)[ind2].energy())<tightCEFMax_ && ((*pfJets)[ind2].neutralEmEnergy()/(*pfJets)[ind2].energy())<tightNEFMax_) TightcleanedSecondJet=true;
-	  
+	  LoosecleanedFirstJet = pfjetIDFunctorLoose((*pfJets)[ind1], retLoose );	
+	  LoosecleanedSecondJet = pfjetIDFunctorLoose((*pfJets)[ind2], retLoose );
+	  TightcleanedFirstJet = pfjetIDFunctorTight((*pfJets)[ind1], retTight );	
+	  TightcleanedSecondJet = pfjetIDFunctorTight((*pfJets)[ind2], retTight );
 	}	  
 	if(LoosecleanedFirstJet && LoosecleanedSecondJet) { //only if both jets are (loose) cleaned
 	  //fill histos for first jet
@@ -2190,9 +2150,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 // ***********************************************************
 void JetAnalyzer::endJob(void) {
   
-  if(isJPTJet_ || isCaloJet_){
-    delete jetID_;
-  }
   LogTrace(metname)<<"[JetAnalyzer] Saving the histos";
 
 
