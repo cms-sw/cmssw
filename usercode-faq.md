@@ -187,7 +187,7 @@ If you simply have too many files with different people working on it and you
 are annoyed by the burden, you can have a look at [git sparse
 checkout](http://www.kernel.org/pub/software/scm/git/docs/git-read-tree.html#_sparse_checkout),
 which will hide unneeded bits, in particular you can look at what we plan to do
-in in CMSSW, via [git-addpkg](http://cms-sw.github.io/cmssw/git-addpkg).
+in in CMSSW, via [git-cms-addpkg](http://cms-sw.github.io/cmssw/git-cms-addpkg).
 
 If you start from a single repository and later want to split off a sub path of
 it in a separate repository, you can follow the instructions at:
