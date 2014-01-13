@@ -74,7 +74,7 @@ namespace l1t {
   {
     // register what you produce
     produces<BXVector<l1t::EGamma>>();
-    produces<BXVector<l1t::Muon>>();
+//    produces<BXVector<l1t::Muon>>();
     produces<BXVector<l1t::Tau>>();
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
@@ -109,7 +109,7 @@ L1TGlobalFakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //outputs
   std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::MuonBxCollection> muons (new l1t::MuonBxCollection(0, bxFirst, bxLast));
+//  std::auto_ptr<l1t::MuonBxCollection> muons (new l1t::MuonBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
@@ -119,7 +119,7 @@ L1TGlobalFakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    //Loop over the bx
    for(int i = bxFirst; i <= bxLast; i++) {
      std::auto_ptr< std::vector<l1t::EGamma> > localEGammas (new std::vector<l1t::EGamma>);
-     std::auto_ptr< std::vector<l1t::Muon> > localMuons (new std::vector<l1t::Muon>);
+//     std::auto_ptr< std::vector<l1t::Muon> > localMuons (new std::vector<l1t::Muon>);
      std::auto_ptr< std::vector<l1t::Tau> > localTaus (new std::vector<l1t::Tau>);
      std::auto_ptr< std::vector<l1t::Jet> > localJets (new std::vector<l1t::Jet>);
      std::auto_ptr< std::vector<l1t::EtSum> > localEtSums (new std::vector<l1t::EtSum>);
@@ -127,14 +127,54 @@ L1TGlobalFakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 // Simple hand-coded fake data for starters.
      int egPt   = 40 + i*10; //30 - 40 - 50 for bx -1 0 1
      int egEta  = 20;
-     int egPhi  = 19;
+     int egPhi  = 10;
      int egQual = 1;
      int egIso  = 0;
      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
      l1t::EGamma fakeEG(*egLorentz, egPt, egEta, egPhi, egQual, egIso); 
      localEGammas->push_back(fakeEG);       
+/*
+// Simple hand-coded fake data for starters.
+     int muPt   = 41 + i*10; //30 - 40 - 50 for bx -1 0 1
+     int muEta  = 21;
+     int muPhi  = 11;
+     int muQual = 1;
+     int muIso  = 0;
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *muLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+     l1t::Muon fakeMU(*muLorentz, muPt, muEta, muPhi, muQual, muIso); 
+     localMuons->push_back(fakeMU);      
+*/
+
+// Simple hand-coded fake data for starters.
+     int tauPt   = 42 + i*10; //30 - 40 - 50 for bx -1 0 1
+     int tauEta  = 22;
+     int tauPhi  = 12;
+     int tauQual = 1;
+     int tauIso  = 0;
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+     l1t::Tau fakeTAU(*tauLorentz, tauPt, tauEta, tauPhi, tauQual, tauIso); 
+     localTaus->push_back(fakeTAU);      
+
+// Simple hand-coded fake data for starters.
+     int jetPt   = 43 + i*10; //30 - 40 - 50 for bx -1 0 1
+     int jetEta  = 23;
+     int jetPhi  = 13;
+     int jetQual = 1;
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+     l1t::Jet fakeJET(*jetLorentz, jetPt, jetEta, jetPhi, jetQual); 
+     localJets->push_back(fakeJET);      
+
+// Simple hand-coded fake data for starters.
+     int etsumPt   = 44 + i*10; //30 - 40 - 50 for bx -1 0 1
+     int etsumEta  = 24;
+     int etsumPhi  = 14;
+     int etsumQual = 1;
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *etsumLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+     l1t::EtSum fakeETSUM(*etsumLorentz, l1t::EtSum::EtSumType::kMissingEt, etsumPt, etsumEta, etsumPhi, etsumQual); 
+     localEtSums->push_back(fakeETSUM);      
     
      for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)  egammas->push_back(i, *eg);
+//     for(std::vector<l1t::Muon>::const_iterator mu = localMuons->begin(); mu != localMuons->end(); ++mu)  muons->push_back(i, *mu);
      for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau) taus->push_back(i, *tau);
      for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet) jets->push_back(i, *jet);
      for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum) etsums->push_back(i, *etsum);   
@@ -143,6 +183,7 @@ L1TGlobalFakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
   iEvent.put(egammas);
+//  iEvent.put(muons);
   iEvent.put(taus);
   iEvent.put(jets);
   iEvent.put(etsums);
