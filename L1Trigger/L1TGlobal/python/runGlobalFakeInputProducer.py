@@ -39,7 +39,11 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 
 process.dumpGT = cms.EDAnalyzer("l1t::L1TGlobalInputTester",
-                egInputTag = cms.InputTag("fakeL1TGinput") 
+                egInputTag    = cms.InputTag("fakeL1TGinput"),
+		muInputTag    = cms.InputTag("fakeL1TGinput"),
+		tauInputTag   = cms.InputTag("fakeL1TGinput"),
+		jeteInputTag  = cms.InputTag("fakeL1TGinput"),
+		etSumInputTag = cms.InputTag("fakeL1TGinput") 
 		 )
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
