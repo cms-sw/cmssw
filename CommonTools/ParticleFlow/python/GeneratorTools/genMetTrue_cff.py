@@ -18,19 +18,13 @@ genParticlesForMETAllVisible = cms.EDFilter(
     )
     )                   
 
-genMetTrue = cms.EDProducer("METProducer",
+genMetTrue = cms.EDProducer("GenMETProducer",
     src = cms.InputTag("genParticlesForMETAllVisible"), ## Input  product label       
-
-    METType = cms.string('GenMET'), ## Output MET type        
-
     alias = cms.string('GenMETAllVisible'), ## Alias  for FWLite          
-
-    noHF = cms.bool(False), ## do not exclude HF
-
+    onlyFiducialParticles = cms.bool(False), ## Use only fiducial GenParticles
     globalThreshold = cms.double(0.0), ## Global Threshold for input objects
-
-    InputType = cms.string('CandidateCollection') ## Input  product type          
-
+    usePt   = cms.bool(True), ## using Pt instead Et
+    applyFiducialThresholdForFractions   = cms.bool(False),
 )
 
 genMetTrueSequence = cms.Sequence(
