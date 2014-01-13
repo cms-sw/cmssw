@@ -16,7 +16,7 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     TriggerResultsLabel  = cms.InputTag("TriggerResults::HLT"),
 
-    HLTPathsJetMB = cms.vstring(),
+#    HLTPathsJetMB = cms.vstring(),
 #    When it is empty, it accepts all the triggers
 
     triggerSelectedSubFolders = cms.VPSet(

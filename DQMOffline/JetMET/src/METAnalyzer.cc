@@ -38,7 +38,7 @@ using namespace math;
 
 // ***********************************************************
 METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
-
+  changed_ = true;
   parameters = pSet;
 
   mOutputFile_   = parameters.getParameter<std::string>("OutputFile");
@@ -160,7 +160,7 @@ METAnalyzer::~METAnalyzer() {
 void METAnalyzer::beginJob(){
 
   // trigger information
-  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
+//  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
 
   cleaningParameters_ = parameters.getParameter<ParameterSet>("CleaningParameters"),
 
@@ -270,6 +270,12 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 
   dbe_->setCurrentFolder(DirName);
 
+  allTriggerNames_ = hltConfig_.triggerNames();
+  hTrigger    = dbe_->book1D("triggerResults", "triggerResults", allTriggerNames_.size(), 0., allTriggerNames_.size()); 
+  for (unsigned i = 0; i< allTriggerNames_.size(); i++) {
+    hTrigger->setBinLabel(i, allTriggerNames_[i]);
+    std::cout<<"Setting label "<<i<<" "<<allTriggerNames_[i]<<std::endl;
+  }
   hMEx        = dbe_->book1D("MEx",        "MEx",        200, -500,  500);
   hMEy        = dbe_->book1D("MEy",        "MEy",        200, -500,  500);
   hMET        = dbe_->book1D("MET",        "MET",        200,    0, 1000);
@@ -439,6 +445,9 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 // ***********************************************************
 void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+  std::cout  << "Run " << iRun.run() << " hltconfig.init " 
+             << hltConfig_.init(iRun,iSetup,triggerResultsLabel_.process(),changed_) << " length: "<<hltConfig_.triggerNames().size()<<std::endl; 
+ 
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
   for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
     int pos = it - triggerFolderEventFlag_.begin();
@@ -600,7 +609,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       bool fd = (*it)->accept(iEvent, iSetup);
       triggerFolderDecisions_[pos] = fd;
     }
-//    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
+    allTriggerDecisions_.clear();
+    for (unsigned i=0;i<allTriggerNames_.size();++i)  {
+      allTriggerDecisions_.push_back((*triggerResults).accept(i)); 
+    }
 //    const unsigned int nTrig(triggerNames.size());
 //    for (unsigned i=0;i<nTrig;++i)  {
 //      for ( unsigned j = 0; j<triggerFolderExpr_.size(); j++) {
@@ -1142,6 +1154,11 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
   if (true){
 //  if (SumET>etThreshold_){
+    hTrigger = dbe_->get(DirName+"/"+"Trigger");if (hTrigger       && hTrigger->getRootObject()) {
+      for (unsigned i = 0; i<allTriggerNames_.size();i++){ 
+        hTrigger      ->Fill(i, allTriggerDecisions_[i]);
+      }
+    }
     hMEx    = dbe_->get(DirName+"/"+"MEx");     if (hMEx           && hMEx->getRootObject()){    hMEx          ->Fill(MEx);}
     hMEy    = dbe_->get(DirName+"/"+"MEy");     if (hMEy           && hMEy->getRootObject())     hMEy          ->Fill(MEy);
     hMET    = dbe_->get(DirName+"/"+"MET");     if (hMET           && hMET->getRootObject())     hMET          ->Fill(MET);
