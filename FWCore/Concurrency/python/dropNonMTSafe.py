@@ -12,6 +12,8 @@ def dropNonMTSafe(process):
   if hasattr(process, "FastTimerService"): del process.FastTimerService
   if hasattr(process, "SiStripDetInfoFileReader"): del process.SiStripDetInfoFileReader
   if hasattr(process, "TkDetMap"): del process.TkDetMap
+  if hasattr(process, "DQM"): del process.DQM
+  if hasattr(process, "PoolDBOutputService"): del process.PoolDBOutputService
   #drop items dependent on TkDetMap
   _dropFromPaths(process,"siStripFEDMonitor")
   _dropFromPaths(process,"SiStripMonitorDigi")
@@ -20,6 +22,7 @@ def dropNonMTSafe(process):
   _dropFromPaths(process,"SiStripMonitorClusterBPTX")
   _dropFromPaths(process,"siStripOfflineAnalyser")
   _dropFromPaths(process,"SiStripMonitorTrackCommon")
+  _dropFromPaths(process,"SiStripMonitorTrack_hi")
 
   process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(8),
                                        numberOfStreams = cms.untracked.uint32(0))
