@@ -11,7 +11,7 @@ using namespace sipixelobjects;
 
 
 void SiPixelFedCablingMap::initializeRocs() {
-  std::cout << "initialize PixelRocs" << std::endl;
+  //  std::cout << "initialize PixelRocs" << std::endl;
   for (auto & v : theMap) v.second.initFrameConversion();
 
 }
