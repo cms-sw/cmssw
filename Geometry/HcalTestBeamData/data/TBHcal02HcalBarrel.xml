@@ -1,0 +1,1702 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="TBHcal02HcalBarrel.xml">
+		<Polyhedra name="HcalBarrel" numSide="2" startPhi="350*deg" deltaPhi="40*deg">
+			<ZSection z="0*fm" rMin="1.777*m" rMax="2.8765*m"/>
+			<ZSection z="3.08587*m" rMin="1.777*m" rMax="2.8765*m"/>
+			<ZSection z="3.3476*m" rMin="1.9275*m" rMax="2.8765*m"/>
+			<ZSection z="3.6373*m" rMin="1.9275*m" rMax="2.8765*m"/>
+			<ZSection z="3.8256*m" rMin="2.0272*m" rMax="2.8765*m"/>
+			<ZSection z="4.017*m" rMin="2.28119*m" rMax="2.8765*m"/>
+			<ZSection z="4.017*m" rMin="2.28119*m" rMax="2.7545*m"/>
+			<ZSection z="4.332*m" rMin="2.69921*m" rMax="2.7545*m"/>
+		</Polyhedra>
+		<Polyhedra name="HcalBarrelHalf" numSide="2" startPhi="350*deg" deltaPhi="40*deg">
+			<ZSection z="0*fm" rMin="1.777*m" rMax="2.8765*m"/>
+			<ZSection z="3.08587*m" rMin="1.777*m" rMax="2.8765*m"/>
+			<ZSection z="3.3476*m" rMin="1.9275*m" rMax="2.8765*m"/>
+			<ZSection z="3.6373*m" rMin="1.9275*m" rMax="2.8765*m"/>
+			<ZSection z="3.8256*m" rMin="2.0272*m" rMax="2.8765*m"/>
+			<ZSection z="4.017*m" rMin="2.28119*m" rMax="2.8765*m"/>
+			<ZSection z="4.017*m" rMin="2.28119*m" rMax="2.7545*m"/>
+			<ZSection z="4.332*m" rMin="2.69921*m" rMax="2.7545*m"/>
+		</Polyhedra>
+		<Polyhedra name="HcalBarrelSector" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="1.777*m" rMax="2.8765*m"/>
+			<ZSection z="3.08587*m" rMin="1.777*m" rMax="2.8765*m"/>
+			<ZSection z="3.3476*m" rMin="1.9275*m" rMax="2.8765*m"/>
+			<ZSection z="3.6373*m" rMin="1.9275*m" rMax="2.8765*m"/>
+			<ZSection z="3.8256*m" rMin="2.0272*m" rMax="2.8765*m"/>
+			<ZSection z="4.017*m" rMin="2.28119*m" rMax="2.8765*m"/>
+			<ZSection z="4.017*m" rMin="2.28119*m" rMax="2.7545*m"/>
+			<ZSection z="4.332*m" rMin="2.69921*m" rMax="2.7545*m"/>
+		</Polyhedra>
+		<Polyhedra name="HcalBarrelLayer1" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="1.777*m" rMax="1.8515*m"/>
+			<ZSection z="3.08587*m" rMin="1.777*m" rMax="1.8515*m"/>
+			<ZSection z="3.21543*m" rMin="1.8515*m" rMax="1.8515*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer1In1" dx="7*mm" dy="7.98212*cm" dz="1.56032*m"/>
+		<Box name="HcalBarrelLayer1In1Plastic_1" dx="1*mm" dy="7.98212*cm" dz="1.56032*m"/>
+		<Box name="HcalBarrelLayer1In1Scintillator" dx="4*mm" dy="7.98212*cm" dz="1.56032*m"/>
+		<Box name="HcalBarrelLayer1In1Plastic_2" dx="500*mum" dy="7.98212*cm" dz="1.56032*m"/>
+		<Box name="HcalBarrelLayer1In2" dx="7*mm" dy="16.0629*cm" dz="1.59424*m"/>
+		<Box name="HcalBarrelLayer1In2Plastic_1" dx="1*mm" dy="16.0629*cm" dz="1.59424*m"/>
+		<Box name="HcalBarrelLayer1In2Scintillator" dx="4*mm" dy="16.0629*cm" dz="1.59424*m"/>
+		<Box name="HcalBarrelLayer1In2Plastic_2" dx="500*mum" dy="16.0629*cm" dz="1.59424*m"/>
+		<Box name="HcalBarrelLayer1In0" dx="1.925*cm" dy="15.5467*cm" dz="1.54293*m"/>
+		<Polyhedra name="HcalBarrelLayer2" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="1.8515*m" rMax="1.9115*m"/>
+			<ZSection z="3.21543*m" rMin="1.8515*m" rMax="1.9115*m"/>
+			<ZSection z="3.31977*m" rMin="1.9115*m" rMax="1.9115*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer2In1" dx="4.75*mm" dy="8.31527*cm" dz="1.62554*m"/>
+		<Box name="HcalBarrelLayer2In1Plastic_1" dx="1*mm" dy="8.31527*cm" dz="1.62554*m"/>
+		<Box name="HcalBarrelLayer2In1Scintillator" dx="2*mm" dy="8.31527*cm" dz="1.62554*m"/>
+		<Box name="HcalBarrelLayer2In1Plastic_2" dx="500*mum" dy="8.31527*cm" dz="1.62554*m"/>
+		<Box name="HcalBarrelLayer2In2" dx="4.75*mm" dy="16.6403*cm" dz="1.65162*m"/>
+		<Box name="HcalBarrelLayer2In2Plastic_1" dx="1*mm" dy="16.6403*cm" dz="1.65162*m"/>
+		<Box name="HcalBarrelLayer2In2Scintillator" dx="2*mm" dy="16.6403*cm" dz="1.65162*m"/>
+		<Box name="HcalBarrelLayer2In2Plastic_2" dx="500*mum" dy="16.6403*cm" dz="1.65162*m"/>
+		<Polyhedra name="HcalBarrelLayer3" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="1.9115*m" rMax="1.9715*m"/>
+			<ZSection z="3.31977*m" rMin="1.9115*m" rMax="1.9715*m"/>
+			<ZSection z="3.3476*m" rMin="1.9275*m" rMax="1.9715*m"/>
+			<ZSection z="3.6373*m" rMin="1.9275*m" rMax="1.9715*m"/>
+			<ZSection z="3.72041*m" rMin="1.9715*m" rMax="1.9715*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer3In1" dx="4.75*mm" dy="8.58178*cm" dz="1.8229*m"/>
+		<Box name="HcalBarrelLayer3In1Plastic_1" dx="1*mm" dy="8.58178*cm" dz="1.8229*m"/>
+		<Box name="HcalBarrelLayer3In1Scintillator" dx="2*mm" dy="8.58178*cm" dz="1.8229*m"/>
+		<Box name="HcalBarrelLayer3In1Plastic_2" dx="500*mum" dy="8.58178*cm" dz="1.8229*m"/>
+		<Box name="HcalBarrelLayer3In2" dx="4.75*mm" dy="17.1653*cm" dz="1.85123*m"/>
+		<Box name="HcalBarrelLayer3In2Plastic_1" dx="1*mm" dy="17.1653*cm" dz="1.85123*m"/>
+		<Box name="HcalBarrelLayer3In2Scintillator" dx="2*mm" dy="17.1653*cm" dz="1.85123*m"/>
+		<Box name="HcalBarrelLayer3In2Plastic_2" dx="500*mum" dy="17.1653*cm" dz="1.85123*m"/>
+		<Polyhedra name="HcalBarrelLayer4" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="1.9715*m" rMax="2.0315*m"/>
+			<ZSection z="3.72041*m" rMin="1.9715*m" rMax="2.0315*m"/>
+			<ZSection z="3.8256*m" rMin="2.0272*m" rMax="2.0315*m"/>
+			<ZSection z="3.82885*m" rMin="2.0315*m" rMax="2.0315*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer4In1" dx="4.75*mm" dy="8.8483*cm" dz="1.87956*m"/>
+		<Box name="HcalBarrelLayer4In1Plastic_1" dx="1*mm" dy="8.8483*cm" dz="1.87956*m"/>
+		<Box name="HcalBarrelLayer4In1Scintillator" dx="2*mm" dy="8.8483*cm" dz="1.87956*m"/>
+		<Box name="HcalBarrelLayer4In1Plastic_2" dx="500*mum" dy="8.8483*cm" dz="1.87956*m"/>
+		<Box name="HcalBarrelLayer4In2" dx="4.75*mm" dy="17.6902*cm" dz="1.90789*m"/>
+		<Box name="HcalBarrelLayer4In2Plastic_1" dx="1*mm" dy="17.6902*cm" dz="1.90789*m"/>
+		<Box name="HcalBarrelLayer4In2Scintillator" dx="2*mm" dy="17.6902*cm" dz="1.90789*m"/>
+		<Box name="HcalBarrelLayer4In2Plastic_2" dx="500*mum" dy="17.6902*cm" dz="1.90789*m"/>
+		<Polyhedra name="HcalBarrelLayer5" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.0315*m" rMax="2.0915*m"/>
+			<ZSection z="3.82885*m" rMin="2.0315*m" rMax="2.0915*m"/>
+			<ZSection z="3.87406*m" rMin="2.0915*m" rMax="2.0915*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer5In1" dx="4.75*mm" dy="9.11481*cm" dz="1.92215*m"/>
+		<Box name="HcalBarrelLayer5In1Plastic_1" dx="1*mm" dy="9.11481*cm" dz="1.92215*m"/>
+		<Box name="HcalBarrelLayer5In1Scintillator" dx="2*mm" dy="9.11481*cm" dz="1.92215*m"/>
+		<Box name="HcalBarrelLayer5In1Plastic_2" dx="500*mum" dy="9.11481*cm" dz="1.92215*m"/>
+		<Box name="HcalBarrelLayer5In2" dx="4.75*mm" dy="18.2151*cm" dz="1.93345*m"/>
+		<Box name="HcalBarrelLayer5In2Plastic_1" dx="1*mm" dy="18.2151*cm" dz="1.93345*m"/>
+		<Box name="HcalBarrelLayer5In2Scintillator" dx="2*mm" dy="18.2151*cm" dz="1.93345*m"/>
+		<Box name="HcalBarrelLayer5In2Plastic_2" dx="500*mum" dy="18.2151*cm" dz="1.93345*m"/>
+		<Polyhedra name="HcalBarrelLayer6" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.0915*m" rMax="2.1515*m"/>
+			<ZSection z="3.87406*m" rMin="2.0915*m" rMax="2.1515*m"/>
+			<ZSection z="3.91927*m" rMin="2.1515*m" rMax="2.1515*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer6In1" dx="4.75*mm" dy="9.38133*cm" dz="1.94475*m"/>
+		<Box name="HcalBarrelLayer6In1Plastic_1" dx="1*mm" dy="9.38133*cm" dz="1.94475*m"/>
+		<Box name="HcalBarrelLayer6In1Scintillator" dx="2*mm" dy="9.38133*cm" dz="1.94475*m"/>
+		<Box name="HcalBarrelLayer6In1Plastic_2" dx="500*mum" dy="9.38133*cm" dz="1.94475*m"/>
+		<Box name="HcalBarrelLayer6In2" dx="4.75*mm" dy="18.7401*cm" dz="1.95606*m"/>
+		<Box name="HcalBarrelLayer6In2Plastic_1" dx="1*mm" dy="18.7401*cm" dz="1.95606*m"/>
+		<Box name="HcalBarrelLayer6In2Scintillator" dx="2*mm" dy="18.7401*cm" dz="1.95606*m"/>
+		<Box name="HcalBarrelLayer6In2Plastic_2" dx="500*mum" dy="18.7401*cm" dz="1.95606*m"/>
+		<Polyhedra name="HcalBarrelLayer7" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.1515*m" rMax="2.2115*m"/>
+			<ZSection z="3.91927*m" rMin="2.1515*m" rMax="2.2115*m"/>
+			<ZSection z="3.96448*m" rMin="2.2115*m" rMax="2.2115*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer7In1" dx="4.75*mm" dy="9.64784*cm" dz="1.96736*m"/>
+		<Box name="HcalBarrelLayer7In1Plastic_1" dx="1*mm" dy="9.64784*cm" dz="1.96736*m"/>
+		<Box name="HcalBarrelLayer7In1Scintillator" dx="2*mm" dy="9.64784*cm" dz="1.96736*m"/>
+		<Box name="HcalBarrelLayer7In1Plastic_2" dx="500*mum" dy="9.64784*cm" dz="1.96736*m"/>
+		<Box name="HcalBarrelLayer7In2" dx="4.75*mm" dy="19.265*cm" dz="1.97866*m"/>
+		<Box name="HcalBarrelLayer7In2Plastic_1" dx="1*mm" dy="19.265*cm" dz="1.97866*m"/>
+		<Box name="HcalBarrelLayer7In2Scintillator" dx="2*mm" dy="19.265*cm" dz="1.97866*m"/>
+		<Box name="HcalBarrelLayer7In2Plastic_2" dx="500*mum" dy="19.265*cm" dz="1.97866*m"/>
+		<Polyhedra name="HcalBarrelLayer8" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.2115*m" rMax="2.2715*m"/>
+			<ZSection z="3.96448*m" rMin="2.2115*m" rMax="2.2715*m"/>
+			<ZSection z="4.0097*m" rMin="2.2715*m" rMax="2.2715*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer8In1" dx="4.75*mm" dy="9.91436*cm" dz="1.98997*m"/>
+		<Box name="HcalBarrelLayer8In1Plastic_1" dx="1*mm" dy="9.91436*cm" dz="1.98997*m"/>
+		<Box name="HcalBarrelLayer8In1Scintillator" dx="2*mm" dy="9.91436*cm" dz="1.98997*m"/>
+		<Box name="HcalBarrelLayer8In1Plastic_2" dx="500*mum" dy="9.91436*cm" dz="1.98997*m"/>
+		<Box name="HcalBarrelLayer8In2" dx="4.75*mm" dy="19.7899*cm" dz="2.00127*m"/>
+		<Box name="HcalBarrelLayer8In2Plastic_1" dx="1*mm" dy="19.7899*cm" dz="2.00127*m"/>
+		<Box name="HcalBarrelLayer8In2Scintillator" dx="2*mm" dy="19.7899*cm" dz="2.00127*m"/>
+		<Box name="HcalBarrelLayer8In2Plastic_2" dx="500*mum" dy="19.7899*cm" dz="2.00127*m"/>
+		<Polyhedra name="HcalBarrelLayer9" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.2715*m" rMax="2.3315*m"/>
+			<ZSection z="4.0097*m" rMin="2.2715*m" rMax="2.3315*m"/>
+			<ZSection z="4.05491*m" rMin="2.3315*m" rMax="2.3315*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer9In1" dx="4.75*mm" dy="10.1809*cm" dz="2.01257*m"/>
+		<Box name="HcalBarrelLayer9In1Plastic_1" dx="1*mm" dy="10.1809*cm" dz="2.01257*m"/>
+		<Box name="HcalBarrelLayer9In1Scintillator" dx="2*mm" dy="10.1809*cm" dz="2.01257*m"/>
+		<Box name="HcalBarrelLayer9In1Plastic_2" dx="500*mum" dy="10.1809*cm" dz="2.01257*m"/>
+		<Box name="HcalBarrelLayer9In2" dx="4.75*mm" dy="20.3149*cm" dz="2.02388*m"/>
+		<Box name="HcalBarrelLayer9In2Plastic_1" dx="1*mm" dy="20.3149*cm" dz="2.02388*m"/>
+		<Box name="HcalBarrelLayer9In2Scintillator" dx="2*mm" dy="20.3149*cm" dz="2.02388*m"/>
+		<Box name="HcalBarrelLayer9In2Plastic_2" dx="500*mum" dy="20.3149*cm" dz="2.02388*m"/>
+		<Polyhedra name="HcalBarrelLayer10" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.3315*m" rMax="2.3915*m"/>
+			<ZSection z="4.05491*m" rMin="2.3315*m" rMax="2.3915*m"/>
+			<ZSection z="4.10012*m" rMin="2.3915*m" rMax="2.3915*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer10In2" dx="4.75*mm" dy="20.8398*cm" dz="2.04648*m"/>
+		<Box name="HcalBarrelLayer10In2Plastic_1" dx="1*mm" dy="20.8398*cm" dz="2.04648*m"/>
+		<Box name="HcalBarrelLayer10In2Scintillator" dx="2*mm" dy="20.8398*cm" dz="2.04648*m"/>
+		<Box name="HcalBarrelLayer10In2Plastic_2" dx="500*mum" dy="20.8398*cm" dz="2.04648*m"/>
+		<Box name="HcalBarrelLayer10In1" dx="4.75*mm" dy="10.4474*cm" dz="2.03518*m"/>
+		<Box name="HcalBarrelLayer10In1Plastic_2" dx="500*mum" dy="10.4474*cm" dz="2.03518*m"/>
+		<Box name="HcalBarrelLayer10In1Plastic_1" dx="1*mm" dy="10.4474*cm" dz="2.03518*m"/>
+		<Box name="HcalBarrelLayer10In1Scintillator" dx="2*mm" dy="10.4474*cm" dz="2.03518*m"/>
+		<Polyhedra name="HcalBarrelLayer11" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.3915*m" rMax="2.4575*m"/>
+			<ZSection z="4.10012*m" rMin="2.3915*m" rMax="2.4575*m"/>
+			<ZSection z="4.14986*m" rMin="2.4575*m" rMax="2.4575*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer11In2" dx="4.75*mm" dy="21.4172*cm" dz="2.07135*m"/>
+		<Box name="HcalBarrelLayer11In2Plastic_1" dx="1*mm" dy="21.4172*cm" dz="2.07135*m"/>
+		<Box name="HcalBarrelLayer11In2Scintillator" dx="2*mm" dy="21.4172*cm" dz="2.07135*m"/>
+		<Box name="HcalBarrelLayer11In2Plastic_2" dx="500*mum" dy="21.4172*cm" dz="2.07135*m"/>
+		<Box name="HcalBarrelLayer11In1" dx="4.75*mm" dy="10.7272*cm" dz="2.05892*m"/>
+		<Box name="HcalBarrelLayer11In1Plastic_2" dx="500*mum" dy="10.7272*cm" dz="2.05892*m"/>
+		<Box name="HcalBarrelLayer11In1Plastic_1" dx="1*mm" dy="10.7272*cm" dz="2.05892*m"/>
+		<Box name="HcalBarrelLayer11In1Scintillator" dx="2*mm" dy="10.7272*cm" dz="2.05892*m"/>
+		<Polyhedra name="HcalBarrelLayer12" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.4575*m" rMax="2.5235*m"/>
+			<ZSection z="4.14986*m" rMin="2.4575*m" rMax="2.5235*m"/>
+			<ZSection z="4.19959*m" rMin="2.5235*m" rMax="2.5235*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer12In1" dx="4.75*mm" dy="11.0204*cm" dz="2.08378*m"/>
+		<Box name="HcalBarrelLayer12In1Plastic_1" dx="1*mm" dy="11.0204*cm" dz="2.08378*m"/>
+		<Box name="HcalBarrelLayer12In1Scintillator" dx="2*mm" dy="11.0204*cm" dz="2.08378*m"/>
+		<Box name="HcalBarrelLayer12In1Plastic_2" dx="500*mum" dy="11.0204*cm" dz="2.08378*m"/>
+		<Box name="HcalBarrelLayer12In2" dx="4.75*mm" dy="21.9947*cm" dz="2.09622*m"/>
+		<Box name="HcalBarrelLayer12In2Plastic_1" dx="1*mm" dy="21.9947*cm" dz="2.09622*m"/>
+		<Box name="HcalBarrelLayer12In2Scintillator" dx="2*mm" dy="21.9947*cm" dz="2.09622*m"/>
+		<Box name="HcalBarrelLayer12In2Plastic_2" dx="500*mum" dy="21.9947*cm" dz="2.09622*m"/>
+		<Polyhedra name="HcalBarrelLayer13" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.5235*m" rMax="2.5895*m"/>
+			<ZSection z="4.19959*m" rMin="2.5235*m" rMax="2.5895*m"/>
+			<ZSection z="4.24933*m" rMin="2.5895*m" rMax="2.5895*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer13In1" dx="4.75*mm" dy="11.3136*cm" dz="2.10865*m"/>
+		<Box name="HcalBarrelLayer13In1Plastic_1" dx="1*mm" dy="11.3136*cm" dz="2.10865*m"/>
+		<Box name="HcalBarrelLayer13In1Scintillator" dx="2*mm" dy="11.3136*cm" dz="2.10865*m"/>
+		<Box name="HcalBarrelLayer13In1Plastic_2" dx="500*mum" dy="11.3136*cm" dz="2.10865*m"/>
+		<Box name="HcalBarrelLayer13In2" dx="4.75*mm" dy="22.5721*cm" dz="2.12108*m"/>
+		<Box name="HcalBarrelLayer13In2Plastic_1" dx="1*mm" dy="22.5721*cm" dz="2.12108*m"/>
+		<Box name="HcalBarrelLayer13In2Scintillator" dx="2*mm" dy="22.5721*cm" dz="2.12108*m"/>
+		<Box name="HcalBarrelLayer13In2Plastic_2" dx="500*mum" dy="22.5721*cm" dz="2.12108*m"/>
+		<Polyhedra name="HcalBarrelLayer14" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.5895*m" rMax="2.6555*m"/>
+			<ZSection z="4.24933*m" rMin="2.5895*m" rMax="2.6555*m"/>
+			<ZSection z="4.29906*m" rMin="2.6555*m" rMax="2.6555*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer14In1" dx="4.75*mm" dy="11.6067*cm" dz="2.13352*m"/>
+		<Box name="HcalBarrelLayer14In1Plastic_1" dx="1*mm" dy="11.6067*cm" dz="2.13352*m"/>
+		<Box name="HcalBarrelLayer14In1Scintillator" dx="2*mm" dy="11.6067*cm" dz="2.13352*m"/>
+		<Box name="HcalBarrelLayer14In1Plastic_2" dx="500*mum" dy="11.6067*cm" dz="2.13352*m"/>
+		<Box name="HcalBarrelLayer14In2" dx="4.75*mm" dy="23.1495*cm" dz="2.14595*m"/>
+		<Box name="HcalBarrelLayer14In2Plastic_1" dx="1*mm" dy="23.1495*cm" dz="2.14595*m"/>
+		<Box name="HcalBarrelLayer14In2Scintillator" dx="2*mm" dy="23.1495*cm" dz="2.14595*m"/>
+		<Box name="HcalBarrelLayer14In2Plastic_2" dx="500*mum" dy="23.1495*cm" dz="2.14595*m"/>
+		<Polyhedra name="HcalBarrelLayer15" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.6555*m" rMax="2.7215*m"/>
+			<ZSection z="4.29906*m" rMin="2.6555*m" rMax="2.7215*m"/>
+			<ZSection z="4.332*m" rMin="2.69921*m" rMax="2.7215*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer15In1" dx="4.75*mm" dy="11.8999*cm" dz="2.15839*m"/>
+		<Box name="HcalBarrelLayer15In1Plastic_1" dx="1*mm" dy="11.8999*cm" dz="2.15839*m"/>
+		<Box name="HcalBarrelLayer15In1Scintillator" dx="2*mm" dy="11.8999*cm" dz="2.15839*m"/>
+		<Box name="HcalBarrelLayer15In1Plastic_2" dx="500*mum" dy="11.8999*cm" dz="2.15839*m"/>
+		<Box name="HcalBarrelLayer15In2" dx="4.75*mm" dy="23.7269*cm" dz="2.166*m"/>
+		<Box name="HcalBarrelLayer15In2Plastic_1" dx="1*mm" dy="23.7269*cm" dz="2.166*m"/>
+		<Box name="HcalBarrelLayer15In2Scintillator" dx="2*mm" dy="23.7269*cm" dz="2.166*m"/>
+		<Box name="HcalBarrelLayer15In2Plastic_2" dx="500*mum" dy="23.7269*cm" dz="2.166*m"/>
+		<Polyhedra name="HcalBarrelLayer16" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.7215*m" rMax="2.7875*m"/>
+			<ZSection z="4.017*m" rMin="2.7215*m" rMax="2.7875*m"/>
+			<ZSection z="4.017*m" rMin="2.7215*m" rMax="2.7545*m"/>
+			<ZSection z="4.332*m" rMin="2.7215*m" rMax="2.7545*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer16In1" dx="4.75*mm" dy="12.1931*cm" dz="2.166*m"/>
+		<Box name="HcalBarrelLayer16In1Plastic_1" dx="1*mm" dy="12.1931*cm" dz="2.166*m"/>
+		<Box name="HcalBarrelLayer16In1Scintillator" dx="2*mm" dy="12.1931*cm" dz="2.166*m"/>
+		<Box name="HcalBarrelLayer16In1Plastic_2" dx="500*mum" dy="12.1931*cm" dz="2.166*m"/>
+		<Box name="HcalBarrelLayer16In2" dx="4.75*mm" dy="24.3044*cm" dz="2.0085*m"/>
+		<Box name="HcalBarrelLayer16In2Plastic_1" dx="1*mm" dy="24.3044*cm" dz="2.0085*m"/>
+		<Box name="HcalBarrelLayer16In2Scintillator" dx="2*mm" dy="24.3044*cm" dz="2.0085*m"/>
+		<Box name="HcalBarrelLayer16In2Plastic_2" dx="500*mum" dy="24.3044*cm" dz="2.0085*m"/>
+		<Polyhedra name="HcalBarrelLayer17" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+			<ZSection z="0*fm" rMin="2.7875*m" rMax="2.8765*m"/>
+			<ZSection z="4.017*m" rMin="2.7875*m" rMax="2.8765*m"/>
+		</Polyhedra>
+		<Box name="HcalBarrelLayer17In2" dx="7*mm" dy="50.4736*cm" dz="2.0085*m"/>
+		<Box name="HcalBarrelLayer17In2Plastic_1" dx="1*mm" dy="50.4736*cm" dz="2.0085*m"/>
+		<Box name="HcalBarrelLayer17In2Scintillator" dx="4*mm" dy="50.4736*cm" dz="2.0085*m"/>
+		<Box name="HcalBarrelLayer17In2Plastic_2" dx="500*mum" dy="50.4736*cm" dz="2.0085*m"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal02HcalBarrel.xml">
+		<LogicalPart name="HcalBarrel" category="unspecified">
+			<rSolid name="HcalBarrel"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelHalf" category="unspecified">
+			<rSolid name="HcalBarrelHalf"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelSector" category="unspecified">
+			<rSolid name="HcalBarrelSector"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1" category="unspecified">
+			<rSolid name="HcalBarrelLayer1"/>
+			<rMaterial name="TBHcal02Materials:Iron"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer1In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer1In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer1In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer1In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer1In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer1In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer1In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer1In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer1In0" category="unspecified">
+			<rSolid name="HcalBarrelLayer1In0"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2" category="unspecified">
+			<rSolid name="HcalBarrelLayer2"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer2In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer2In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer2In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer2In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer2In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer2In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer2In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer2In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer2In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3" category="unspecified">
+			<rSolid name="HcalBarrelLayer3"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer3In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer3In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer3In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer3In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer3In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer3In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer3In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer3In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer3In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4" category="unspecified">
+			<rSolid name="HcalBarrelLayer4"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer4In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer4In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer4In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer4In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer4In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer4In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer4In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer4In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer4In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5" category="unspecified">
+			<rSolid name="HcalBarrelLayer5"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer5In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer5In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer5In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer5In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer5In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer5In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer5In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer5In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer5In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6" category="unspecified">
+			<rSolid name="HcalBarrelLayer6"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer6In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer6In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer6In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer6In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer6In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer6In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer6In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer6In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer6In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7" category="unspecified">
+			<rSolid name="HcalBarrelLayer7"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer7In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer7In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer7In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer7In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer7In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer7In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer7In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer7In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer7In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8" category="unspecified">
+			<rSolid name="HcalBarrelLayer8"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer8In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer8In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer8In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer8In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer8In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer8In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer8In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer8In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer8In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9" category="unspecified">
+			<rSolid name="HcalBarrelLayer9"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer9In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer9In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer9In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer9In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer9In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer9In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer9In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer9In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer9In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10" category="unspecified">
+			<rSolid name="HcalBarrelLayer10"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer10In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer10In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer10In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer10In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer10In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer10In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer10In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer10In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer10In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11" category="unspecified">
+			<rSolid name="HcalBarrelLayer11"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer11In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer11In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer11In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer11In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer11In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer11In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer11In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer11In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer11In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12" category="unspecified">
+			<rSolid name="HcalBarrelLayer12"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer12In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer12In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer12In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer12In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer12In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer12In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer12In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer12In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer12In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13" category="unspecified">
+			<rSolid name="HcalBarrelLayer13"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer13In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer13In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer13In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer13In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer13In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer13In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer13In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer13In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer13In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14" category="unspecified">
+			<rSolid name="HcalBarrelLayer14"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer14In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer14In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer14In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer14In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer14In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer14In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer14In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer14In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer14In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15" category="unspecified">
+			<rSolid name="HcalBarrelLayer15"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer15In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer15In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer15In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer15In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer15In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer15In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer15In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer15In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer15In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16" category="unspecified">
+			<rSolid name="HcalBarrelLayer16"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16In1" category="unspecified">
+			<rSolid name="HcalBarrelLayer16In1"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16In1Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer16In1Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16In1Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer16In1Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16In1Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer16In1Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer16In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer16In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer16In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer16In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer16In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer17" category="unspecified">
+			<rSolid name="HcalBarrelLayer17"/>
+			<rMaterial name="TBHcal02Materials:Brass"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer17In2" category="unspecified">
+			<rSolid name="HcalBarrelLayer17In2"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer17In2Plastic_1" category="unspecified">
+			<rSolid name="HcalBarrelLayer17In2Plastic_1"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer17In2Scintillator" category="sensitive">
+			<rSolid name="HcalBarrelLayer17In2Scintillator"/>
+			<rMaterial name="TBHcal02Materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalBarrelLayer17In2Plastic_2" category="unspecified">
+			<rSolid name="HcalBarrelLayer17In2Plastic_2"/>
+			<rMaterial name="TBHcal02Materials:Polyethylene"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="TBHcal02HcalBarrel.xml">
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02:HadronCalorimeter"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrel"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrel"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelHalf"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelHalf"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelHalf"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rRotation name="TBHcal02Rotations:R2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In1"/>
+			<Translation x="1.804*m" y="23.7038*cm" z="1.56032*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In1"/>
+			<Translation x="1.804*m" y="-23.7038*cm" z="1.56032*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In1Plastic_1"/>
+			<Translation x="-3*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="0">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In1Scintillator"/>
+			<Translation x="2*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In1Plastic_2"/>
+			<Translation x="6.5*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In2"/>
+			<Translation x="1.8225*m" y="0*fm" z="1.59424*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In2Plastic_1"/>
+			<Translation x="-3*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="0">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In2Scintillator"/>
+			<Translation x="2*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In2Plastic_2"/>
+			<Translation x="6.5*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer1In0"/>
+			<Translation x="1.79625*m" y="0*fm" z="1.54293*m"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In1"/>
+			<Translation x="1.87675*m" y="24.6931*cm" z="1.62554*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In1"/>
+			<Translation x="1.87675*m" y="-24.6931*cm" z="1.62554*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In2"/>
+			<Translation x="1.90675*m" y="0*fm" z="1.65162*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer2In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer2In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In1"/>
+			<Translation x="1.93675*m" y="25.4846*cm" z="1.8229*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In1"/>
+			<Translation x="1.93675*m" y="-25.4846*cm" z="1.8229*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In2"/>
+			<Translation x="1.96675*m" y="0*fm" z="1.85123*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer3In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer3In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In1"/>
+			<Translation x="1.99675*m" y="26.276*cm" z="1.87956*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In1"/>
+			<Translation x="1.99675*m" y="-26.276*cm" z="1.87956*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In2"/>
+			<Translation x="2.02675*m" y="0*fm" z="1.90789*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="31">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer4In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer4In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In1"/>
+			<Translation x="2.05675*m" y="27.0675*cm" z="1.92215*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In1"/>
+			<Translation x="2.05675*m" y="-27.0675*cm" z="1.92215*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="41">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In2"/>
+			<Translation x="2.08675*m" y="0*fm" z="1.93345*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="41">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer5In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer5In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In1"/>
+			<Translation x="2.11675*m" y="27.8589*cm" z="1.94475*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In1"/>
+			<Translation x="2.11675*m" y="-27.8589*cm" z="1.94475*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="51">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In2"/>
+			<Translation x="2.14675*m" y="0*fm" z="1.95606*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="51">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer6In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer6In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In1"/>
+			<Translation x="2.17675*m" y="28.6504*cm" z="1.96736*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In1"/>
+			<Translation x="2.17675*m" y="-28.6504*cm" z="1.96736*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="61">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In2"/>
+			<Translation x="2.20675*m" y="0*fm" z="1.97866*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="61">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer7In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer7In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In1"/>
+			<Translation x="2.23675*m" y="29.4418*cm" z="1.98997*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In1"/>
+			<Translation x="2.23675*m" y="-29.4418*cm" z="1.98997*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="71">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In2"/>
+			<Translation x="2.26675*m" y="0*fm" z="2.00127*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="71">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer8In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer8In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In1"/>
+			<Translation x="2.29675*m" y="30.2333*cm" z="2.01257*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In1"/>
+			<Translation x="2.29675*m" y="-30.2333*cm" z="2.01257*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="81">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In2"/>
+			<Translation x="2.32675*m" y="0*fm" z="2.02388*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="81">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer9In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer9In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In2"/>
+			<Translation x="2.38675*m" y="0*fm" z="2.04648*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="91">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In1"/>
+			<Translation x="2.35675*m" y="31.0247*cm" z="2.03518*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In1"/>
+			<Translation x="2.35675*m" y="-31.0247*cm" z="2.03518*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="91">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer10In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer10In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In2"/>
+			<Translation x="2.45275*m" y="0*fm" z="2.07135*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="101">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In1"/>
+			<Translation x="2.41975*m" y="31.8557*cm" z="2.05892*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In1"/>
+			<Translation x="2.41975*m" y="-31.8557*cm" z="2.05892*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="101">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer11In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer11In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In1"/>
+			<Translation x="2.48575*m" y="32.7263*cm" z="2.08378*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In1"/>
+			<Translation x="2.48575*m" y="-32.7263*cm" z="2.08378*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="111">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In2"/>
+			<Translation x="2.51875*m" y="0*fm" z="2.09622*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="111">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer12In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer12In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In1"/>
+			<Translation x="2.55175*m" y="33.5969*cm" z="2.10865*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In1"/>
+			<Translation x="2.55175*m" y="-33.5969*cm" z="2.10865*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="121">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In2"/>
+			<Translation x="2.58475*m" y="0*fm" z="2.12108*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="121">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer13In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer13In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In1"/>
+			<Translation x="2.61775*m" y="34.4675*cm" z="2.13352*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In1"/>
+			<Translation x="2.61775*m" y="-34.4675*cm" z="2.13352*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="131">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In2"/>
+			<Translation x="2.65075*m" y="0*fm" z="2.14595*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="131">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer14In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer14In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In1"/>
+			<Translation x="2.68375*m" y="35.3381*cm" z="2.15839*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In1"/>
+			<Translation x="2.68375*m" y="-35.3381*cm" z="2.15839*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="141">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In2"/>
+			<Translation x="2.71675*m" y="0*fm" z="2.166*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="141">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer15In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer15In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In1"/>
+			<Translation x="2.74975*m" y="36.2087*cm" z="2.166*m"/>
+		</PosPart>
+		<PosPart copyNumber="3002">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In1"/>
+			<Translation x="2.74975*m" y="-36.2087*cm" z="2.166*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In1Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="151">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In1Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16In1"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In1Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In2"/>
+			<Translation x="2.78275*m" y="0*fm" z="2.0085*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In2Plastic_1"/>
+			<Translation x="-1.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="151">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In2Scintillator"/>
+			<Translation x="1.75*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer16In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer16In2Plastic_2"/>
+			<Translation x="4.25*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="17">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelSector"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer17"/>
+		</PosPart>
+		<PosPart copyNumber="3003">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer17"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer17In2"/>
+			<Translation x="2.8695*m" y="0*fm" z="2.0085*m"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer17In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer17In2Plastic_1"/>
+			<Translation x="-4.5*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="162">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer17In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer17In2Scintillator"/>
+			<Translation x="500*mum" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02HcalBarrel:HcalBarrelLayer17In2"/>
+			<rChild name="TBHcal02HcalBarrel:HcalBarrelLayer17In2Plastic_2"/>
+			<Translation x="5*mm" y="0*fm" z="0*fm"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

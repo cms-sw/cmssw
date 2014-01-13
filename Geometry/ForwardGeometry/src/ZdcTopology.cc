@@ -240,6 +240,7 @@ int ZdcTopology::ncells(HcalZDCDetId::Section section) const{
   case(HcalZDCDetId::EM)  : ncells = ICH_EM_MAX; break;
   case(HcalZDCDetId::HAD) : ncells = ICH_HAD_MAX; break; 
   case(HcalZDCDetId::LUM) : ncells = ICH_LUM_MAX; break;
+  case(HcalZDCDetId::RPD) : ncells = 0; break;
   case(HcalZDCDetId::Unknown) : ncells =0; break;
   }
   return ncells;
@@ -251,6 +252,7 @@ int ZdcTopology::firstCell(HcalZDCDetId::Section section)const {
   case(HcalZDCDetId::EM) : firstCell = firstEMModule_ ; break;
   case(HcalZDCDetId::HAD) : firstCell = firstHADModule_; break; 
   case(HcalZDCDetId::LUM) : firstCell = firstLUMModule_; break;
+  case(HcalZDCDetId::RPD) : firstCell = 0; break;
   case(HcalZDCDetId::Unknown) : firstCell  = 0; break;
   }
   return firstCell;
@@ -262,6 +264,7 @@ int ZdcTopology::lastCell(HcalZDCDetId::Section section) const {
   case(HcalZDCDetId::EM) : lastCell = lastEMModule_; break;
   case(HcalZDCDetId::HAD) : lastCell = lastHADModule_; break; 
   case(HcalZDCDetId::LUM) : lastCell = lastLUMModule_; break;
+  case(HcalZDCDetId::RPD) : lastCell = 0; break;
   case(HcalZDCDetId::Unknown) : lastCell  = 0; break;
   }
   return lastCell;

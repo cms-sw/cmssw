@@ -1,0 +1,12 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="Geometry/HcalCommonData"/>
+<use   name="Geometry/Records"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DetectorDescription/Core"/>
+<flags   EDM_PLUGIN="1"/>
+<library file="HcalSimNumberingInitialization.cc" name="GeometryHcalSimNumberingPlugins">
+</library>
+<library file="HcalRecNumberingInitialization.cc" name="GeometryHcalRecmNumberingPlugins">
+</library>
