@@ -282,9 +282,9 @@ void ElectronAnalyzer::book()
   std::string matchingObjectType ;
   // if (std::string::npos!=matchingObjectCollection_.label().find("SuperCluster",0))
     { matchingObjectType = "SC" ; }
-  // if (matchingObjectType=="")
+  if (matchingObjectType=="")
    { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
-  // else
+  else
    { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
 //  std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
 //  h1_matchingObject_Num = bookH1withSumw2("matchingObject_Num",htitle,nbinfhits,0.,fhitsmax,xtitle) ;
