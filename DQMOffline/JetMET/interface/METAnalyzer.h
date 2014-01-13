@@ -111,7 +111,6 @@ class METAnalyzer : public edm::EDAnalyzer{
 
  private:
   // ----------member data ---------------------------
-
   edm::ParameterSet parameters;
   // Switch for verbosity
   int verbose_;
@@ -214,7 +213,7 @@ class METAnalyzer : public edm::EDAnalyzer{
   bool tightBHFiltering_;
   int  tightJetIDFiltering_;
 
-  int trigJetMB_;
+//  int trigJetMB_;
 //  int trigHighPtJet_;
 //  int trigLowPtJet_;
 //  int trigMinBias_;
@@ -222,7 +221,7 @@ class METAnalyzer : public edm::EDAnalyzer{
 ////int trigLowMET_;
 //  int trigEle_;
 //  int trigMuon_;
-  int trigPhysDec_;
+//  int trigPhysDec_;
 
   double highPtJetThreshold_;
   double lowPtJetThreshold_;
@@ -242,10 +241,6 @@ class METAnalyzer : public edm::EDAnalyzer{
   // DCS filter
   JetMETDQMDCSFilter *DCSFilter_;
 
-//  bool allSelection_;
-  bool addCleanedFolders_;
-
-  //
   std::vector<std::string> folderNames_;
   //
   math::XYZPoint beamSpot_;

@@ -6,7 +6,6 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     OutputFile = cms.string('jetMETMonitoring.root'),
     METType=cms.untracked.string('tc'),
-    addCleanedFolders = cms.bool(True),
 
     METCollectionLabel     = cms.InputTag("tcMet"),
     JetCollectionLabel  = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
@@ -25,44 +24,44 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         andOr         = cms.bool( False ),    #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltDBKey       = cms.string( 'jetmet_highptjet' ),
-        hltPaths       = cms.vstring( 'HLT_PFJet400_v*' ), 
-        andOrHlt       = cms.bool( True ),
+#        hltDBKey       = cms.string( 'jetmet_highptjet' ), #overrides hltPaths!
+        hltPaths       = cms.vstring( 'HLT_PFJet400' ), 
+        andOrHlt       = cms.bool( True ),#ineffective: Always OR
         errorReplyHlt  = cms.bool( False ),
     ),
     cms.PSet(label = cms.string('lowPtJet'),
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltDBKey       = cms.string( 'jetmet_lowptjet' ),
-        hltPaths       = cms.vstring( 'HLT_PFJet80_v*' ), 
-        andOrHlt       = cms.bool( True ),
-        errorReplyHlt  = cms.bool( False ),
+#        hltDBKey       = cms.string( 'jetmet_lowptjet' ),#overrides hltPaths!
+        hltPaths       = cms.vstring( 'HLT_PFJet80' ), 
+        andOrHlt       = cms.bool( True ),#ineffective: Always OR
+        errorReplyHlt  = cms.bool( True ),
     ),
-    cms.PSet(label = cms.string('minBias'),
+    cms.PSet(label = cms.string('zeroBias'),
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltDBKey       = cms.string( 'jetmet_minbias' ),
-        hltPaths       = cms.vstring( 'HLT_L1Tech_BSC_minBias_threshold1_v*' ), 
-        andOrHlt       = cms.bool( True ),
+        hltDBKey       = cms.string( 'jetmet_minbias' ),#overrides hltPaths!
+        hltPaths       = cms.vstring( 'HLT_ZeroBias' ), 
+        andOrHlt       = cms.bool( True ),#ineffective: Always OR
         errorReplyHlt  = cms.bool( False ),
     ),
     cms.PSet(label = cms.string('highMET'),
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltDBKey       = cms.string( 'jetmet_highmet' ),
-        hltPaths       = cms.vstring( 'HLT_MET400_v*' ), 
-        andOrHlt       = cms.bool( True ),
+#        hltDBKey       = cms.string( 'jetmet_highmet' ),#overrides hltPaths!
+        hltPaths       = cms.vstring( 'HLT_MET400' ), 
+        andOrHlt       = cms.bool( True ),#ineffective: Always OR
         errorReplyHlt  = cms.bool( False ),
     ),
     cms.PSet(label = cms.string('singleEle'),
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltDBKey       = cms.string( 'jetmet_ele' ),
-        hltPaths       = cms.vstring('HLT_Ele27_WP80_v*' ), 
+#        hltDBKey       = cms.string( 'jetmet_ele' ),#overrides hltPaths!
+        hltPaths       = cms.vstring('HLT_Ele27_WP80' ), #ineffective: Always OR
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -70,9 +69,9 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltDBKey       = cms.string( 'jetmet_muon' ),
-        hltPaths       = cms.vstring( 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*'), 
-        andOrHlt       = cms.bool( True ),
+#        hltDBKey       = cms.string( 'jetmet_muon' ),#overrides hltPaths!
+        hltPaths       = cms.vstring( 'HLT_IsoMu24_eta2p1', 'HLT_IsoMu24'), 
+        andOrHlt       = cms.bool( True ),#ineffective: Always OR
         errorReplyHlt  = cms.bool( False ),
     ) 
     ),

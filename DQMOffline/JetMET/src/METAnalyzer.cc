@@ -90,8 +90,8 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   // Other data collections
   jetCollectionLabel_       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
   if (isCaloMet_) caloJetsToken_ = consumes<reco::CaloJetCollection>(jetCollectionLabel_);
-  if (isTCMet_) jptJetsToken_ = consumes<reco::JPTJetCollection>(jetCollectionLabel_);
-  if (isPFMet_) pfJetsToken_ = consumes<reco::PFJetCollection>(jetCollectionLabel_);
+  if (isTCMet_)   jptJetsToken_ = consumes<reco::JPTJetCollection>(jetCollectionLabel_);
+  if (isPFMet_)   pfJetsToken_ = consumes<reco::PFJetCollection>(jetCollectionLabel_);
 
   hcalNoiseRBXCollectionTag_   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
   HcalNoiseRBXToken_ = consumes<reco::HcalNoiseRBXCollection>(hcalNoiseRBXCollectionTag_);
@@ -174,7 +174,6 @@ void METAnalyzer::beginJob(){
   // misc
   verbose_      = parameters.getParameter<int>("verbose");
   etThreshold_  = parameters.getParameter<double>("etThreshold"); // MET threshold
-  addCleanedFolders_ = parameters.getParameter<bool>("addCleanedFolders");  // Plot with all sets of event selection
 
   FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
 
@@ -193,17 +192,13 @@ void METAnalyzer::beginJob(){
   std::string DirName = "JetMET/MET/"+metCollectionLabel_.label();
   dbe_->setCurrentFolder(DirName);
 
-  folderNames_.push_back("All");
-  folderNames_.push_back("BasicCleanup");
-  folderNames_.push_back("ExtraCleanup");
+  folderNames_.push_back("Uncleaned");
+  folderNames_.push_back("Cleaned");
+  folderNames_.push_back("DiJet");
 
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
        ic != folderNames_.end(); ic++){
-    if (*ic=="All")                  bookMESet(DirName+"/"+*ic);
-    if (addCleanedFolders_){
-    if (*ic=="BasicCleanup")         bookMESet(DirName+"/"+*ic);
-    if (*ic=="ExtraCleanup")         bookMESet(DirName+"/"+*ic);
-    }
+    bookMESet(DirName+"/"+*ic);
   }
 }
 
@@ -226,7 +221,7 @@ void METAnalyzer::bookMESet(std::string DirName)
 {
 
   bool bLumiSecPlot=false;
-  if (DirName.find("All")!=std::string::npos) bLumiSecPlot=true;
+  if (DirName.find("Uncleaned")!=std::string::npos) bLumiSecPlot=true;
   bookMonitorElement(DirName,bLumiSecPlot);
 
   for (unsigned i = 0; i<triggerEventFlag_.size(); i++) {
@@ -408,8 +403,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
     meHFEMEt_profile                 ->setAxisTitle("nvtx", 1);
   }
 
-
-
   if (isCaloMet_){
     if (bLumiSecPlot){
       hMExLS = dbe_->book2D("MEx_LS","MEx_LS",200,-200,200,50,0.,500.);
@@ -443,9 +436,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
     hMEyCorrection       = dbe_->book1D("MEyCorrection", "MEyCorrection", 100, -500.0,500.0);
     hMuonCorrectionFlag  = dbe_->book1D("CorrectionFlag","CorrectionFlag", 5, -0.5, 4.5);
   }
-
-
-
 }
 
 // ***********************************************************
@@ -456,8 +446,12 @@ void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
     int pos = it - triggerEventFlag_.begin();
     if ((*it)->on()) {
       (*it)->initRun( iRun, iSetup );
-      if ((*it)->expressionsFromDB((*it)->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-        triggerExpr_[pos] = (*it)->expressionsFromDB((*it)->hltDBKey(), iSetup);
+      if (triggerSelectedSubFolders_[pos].exists(std::string("hltDBKey"))) {
+//        std::cout<<"Looking for hltDBKey for"<<triggerFolderLabels_[pos]<<std::endl;
+        if ((*it)->expressionsFromDB((*it)->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+          triggerExpr_[pos] = (*it)->expressionsFromDB((*it)->hltDBKey(), iSetup);
+      }
+//      for (unsigned j = 0; j<triggerExpr_[pos].size(); j++) std::cout<<"pos "<<pos<<" "<<triggerFolderLabels_[pos]<<" triggerExpr_"<<triggerExpr_[pos][j]<<std::endl;
     }
   }
 //  if ( highPtJetEventFlag_->on() ) highPtJetEventFlag_->initRun( iRun, iSetup );
@@ -524,7 +518,6 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
         makeRatePlot(DirName+"/"+triggerFolderLabels_[pos],totltime);
       }
     }
-    
 //      if ( highPtJetEventFlag_->on() )
 //	makeRatePlot(DirName+"/"+"triggerName_HighJetPt",totltime);
 //      if ( lowPtJetEventFlag_->on() )
@@ -606,11 +599,15 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
     const unsigned int nTrig(triggerNames.size());
-    for (unsigned int i=0;i<nTrig;++i)  {
-      for ( std::vector<std::vector<std::string> >::const_iterator it = triggerExpr_.begin(); it!= triggerExpr_.end(); it++) {
-        int pos = it - triggerExpr_.begin();
-        if (triggerNames.triggerName(i).find((*it)[0].substr(0,(*it)[0].rfind("_v")+2))!=std::string::npos && (*triggerResults).accept(i))
-          triggerFolderDecisions_[pos] = true; 
+    for (unsigned i=0;i<nTrig;++i)  {
+      for ( unsigned j = 0; j<triggerExpr_.size(); j++) {
+        for ( unsigned k = 0; k<triggerExpr_[j].size(); k++) {
+//          std::cout<<"At trigger: "<<i<<" "<<triggerNames.triggerName(i)<<" testing for " <<triggerExpr_[j][k]<<" fired? "<<(*triggerResults).accept(i)<<" decision now "<<triggerFolderDecisions_[j]<<std::endl;
+          if (std::strstr(triggerNames.triggerName(i).c_str(), (triggerExpr_[j][k]+"_v").c_str())) {
+            if ((*triggerResults).accept(i)) triggerFolderDecisions_[j] = true; 
+//            std::cout<<"At trigger: "<<i<<" "<<triggerNames.triggerName(i)<<" testing for " <<triggerExpr_[j][k]<<" fired? "<<(*triggerResults).accept(i)<<" decision now "<<triggerFolderDecisions_[j]<<std::endl;
+          }
+        }
       }
       //FIXME store decision here
 //        if (triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0,highPtJetExpr_[0].rfind("_v")+2))!=std::string::npos && (*triggerResults).accept(i))#FIXME
@@ -627,29 +624,36 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //	  trigEle_=true;
 //        else if (triggerNames.triggerName(i).find(minbiasExpr_[0].substr(0,minbiasExpr_[0].rfind("_v")+2))!=std::string::npos && (*triggerResults).accept(i))
 //	  trigMinBias_=true;
-      }
-
-    // count number of requested Jet or MB HLT paths which have fired
-    for (unsigned int i=0; i!=HLTPathsJetMBByName_.size(); i++) {
-      unsigned int triggerIndex = triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
-      if (triggerIndex<(*triggerResults).size()) {
-	if ((*triggerResults).accept(triggerIndex)) {
-	  trigJetMB_++;
-	}
-      }
     }
-    // for empty input vectors (n==0), take all HLT triggers!
-    if (HLTPathsJetMBByName_.size()==0) trigJetMB_=(*triggerResults).size()-1;
-
-    if (triggerNames.triggerIndex(hltPhysDec_)   != triggerNames.size() &&
-	(*triggerResults).accept(triggerNames.triggerIndex(hltPhysDec_)))   trigPhysDec_=1;
-  } else {
-
-    edm::LogInfo("MetAnalyzer") << "TriggerResults::HLT not found, "
-      "automatically select events";
-
-    // TriggerResults object not found. Look at all events.
-    trigJetMB_=1;
+    
+//    for (std::vector<GenericTriggerEventFlag *>::const_iterator it =  triggerEventFlag_.begin(); it!=triggerEventFlag_.end();it++) {
+//      unsigned pos = it - triggerEventFlag_.begin();
+//      bool fd = (*it)->accept(iEvent, iSetup);
+//      bool md = triggerFolderDecisions_[pos];
+//      std::cout <<triggerFolderLabels_[pos]<<" FlagDecision "<<(*it)->accept(iEvent, iSetup)<<" myDecision: "<<triggerFolderDecisions_[pos]<<std::endl;
+//      if (fd!=md) std::cout<<"Warning! Inconsistent!"<<std::endl;
+//    }
+//    // count number of requested Jet or MB HLT paths which have fired
+//    for (unsigned int i=0; i!=HLTPathsJetMBByName_.size(); i++) {
+//      unsigned int triggerIndex = triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
+//      if (triggerIndex<(*triggerResults).size()) {
+//        if ((*triggerResults).accept(triggerIndex)) {
+//          trigJetMB_++;
+//        }
+//      }
+//    }
+//    // for empty input vectors (n==0), take all HLT triggers!
+//    if (HLTPathsJetMBByName_.size()==0) trigJetMB_=(*triggerResults).size()-1;
+//
+//    if (triggerNames.triggerIndex(hltPhysDec_)   != triggerNames.size() &&
+//      (*triggerResults).accept(triggerNames.triggerIndex(hltPhysDec_)))   trigPhysDec_=1;
+//      } else {
+//
+//    edm::LogInfo("MetAnalyzer") << "TriggerResults::HLT not found, "
+//      "automatically select events";
+//
+//    // TriggerResults object not found. Look at all events.
+//    trigJetMB_=1;
   }
 
   // ==========================================================
@@ -662,15 +666,15 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if(isTCMet_){
     iEvent.getByToken(tcMetToken_, tcmetcoll);
-    if(isTCMet_ && !tcmetcoll.isValid()) return;
+    if(!tcmetcoll.isValid()) return;
   }
   if(isCaloMet_){
     iEvent.getByToken(caloMetToken_, calometcoll);
-    if(isCaloMet_ && !calometcoll.isValid()) return;
+    if(!calometcoll.isValid()) return;
   }
   if(isPFMet_){
     iEvent.getByToken(pfMetToken_, pfmetcoll);
-    if(isPFMet_ && !pfmetcoll.isValid()) return;
+    if(!pfmetcoll.isValid()) return;
   }
 
   const MET *met=NULL;
@@ -707,7 +711,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(!beamSpotHandle_.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
 
     beamSpot_ = ( beamSpotHandle_.isValid() ) ? beamSpotHandle_->position() : math::XYZPoint(0, 0, 0);
-
   }
 
   // ==========================================================
@@ -720,7 +723,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (verbose_) std::cout << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
   }
 
-
   edm::Handle<bool> HBHENoiseFilterResultHandle;
   iEvent.getByToken(hbheNoiseFilterResultToken_, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
@@ -732,6 +734,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool bJetIDMinimal=true;
   bool bJetIDLoose=true;
   bool bJetIDTight=true;
+/* FIXME : Matthias, I left the following code for you! I think it shouldn't be much longer than 10-20 lines using the JetIDSelectionFunctor
 
   if(isCaloMet_){
     edm::Handle<reco::CaloJetCollection> caloJets;
@@ -740,16 +743,12 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       LogDebug("") << "METAnalyzer: Could not find jet product" << std::endl;
       if (verbose_) std::cout << "METAnalyzer: Could not find jet product" << std::endl;
     }
-    
-
     // JetID
     
     if (verbose_) std::cout << "caloJet JetID starts" << std::endl;
-    
     //
     // --- Minimal cuts
     //
-
     for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
 	 cal!=caloJets->end(); ++cal){
       jetID_->calculate(iEvent, *cal);
@@ -993,7 +992,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (verbose_) std::cout << "TCMET JetID ends" << std::endl;
     }
   }
-
+*/
   // ==========================================================
   // HCAL Noise filter
 
@@ -1068,12 +1067,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
        ic != folderNames_.end(); ic++){
-    if (*ic=="All")                                             fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+    if (*ic=="Uncleaned")                                       fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
     if (DCSFilter_->filter(iEvent, iSetup)) {
-      if (addCleanedFolders_){
-	if (*ic=="BasicCleanup" && bBasicCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-	if (*ic=="ExtraCleanup" && bExtraCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-      }
+    if (*ic=="Cleaned" && bBasicCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+    if (*ic=="Dijet" && bExtraCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
     } // DCS
   }
 }
@@ -1087,7 +1084,7 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   dbe_->setCurrentFolder(DirName);
 
   bool bLumiSecPlot=false;
-  if (DirName.find("All")) bLumiSecPlot=true;
+  if (DirName.find("Uncleaned")) bLumiSecPlot=true;
 
   for (unsigned i = 0; i<triggerFolderLabels_.size(); i++) {
     if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, pfmet, calomet, bLumiSecPlot);
