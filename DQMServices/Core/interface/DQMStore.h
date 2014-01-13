@@ -87,34 +87,40 @@ class DQMStore
    public:
     friend class DQMStore;
 
+    // for the supported syntaxes, see the declarations of DQMStore::bookString
     template <typename... Args>
-    MonitorElement * bookString(Args... args) {
-      return owner_->bookString(args...);
+    MonitorElement * bookString(Args && ... args) {
+      return owner_->bookString(std::forward<Args>(args)...);
     }
 
+    // for the supported syntaxes, see the declarations of DQMStore::bookInt
     template <typename... Args>
-    MonitorElement * bookInt(Args... args) {
-      return owner_->bookInt(args...);
+    MonitorElement * bookInt(Args && ... args) {
+      return owner_->bookInt(std::forward<Args>(args)...);
     }
 
+    // for the supported syntaxes, see the declarations of DQMStore::bookFloat
     template <typename... Args>
-    MonitorElement * bookFloat(Args... args) {
-      return owner_->bookFloat(args...);
+    MonitorElement * bookFloat(Args && ... args) {
+      return owner_->bookFloat(std::forward<Args>(args)...);
     }
 
+    // for the supported syntaxes, see the declarations of DQMStore::book1D
     template <typename... Args>
-    MonitorElement * book1D(Args... args) {
-      return owner_->book1D(args...);
+    MonitorElement * book1D(Args && ... args) {
+      return owner_->book1D(std::forward<Args>(args)...);
     }
 
+    // for the supported syntaxes, see the declarations of DQMStore::book2D
     template <typename... Args>
-    MonitorElement * book2D(Args... args) {
-      return owner_->book2D(args...);
+    MonitorElement * book2D(Args && ... args) {
+      return owner_->book2D(std::forward<Args>(args)...);
     }
 
+    // for the supported syntaxes, see the declarations of DQMStore::bookProfile
     template <typename... Args>
-    MonitorElement * bookProfile(Args... args) {
-      return owner_->bookProfile(args...);
+    MonitorElement * bookProfile(Args && ... args) {
+      return owner_->bookProfile(std::forward<Args>(args)...);
     }
 
     void cd(void);
