@@ -46,10 +46,8 @@ using namespace edm;
 
 SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
-  // rawin_( conf_.getParameter<edm::InputTag>( "RawInput" ) ),
   rawin_( consumes<FEDRawDataCollection>( conf_.getParameter<edm::InputTag>( "RawInput" ) ) ),
-  // errin_( conf_.getParameter<edm::InputTag>( "ErrorInput" ) ),
-  errin_( consumes<SiPixelRawDataError>( conf_.getParameter<edm::InputTag>( "ErrorInput" ) ) ),
+  errin_( consumes<edm::DetSetVector<SiPixelRawDataError> >( conf_.getParameter<edm::InputTag>( "ErrorInput" ) ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   dirName_( conf_.getUntrackedParameter<std::string>("DirName","Pixel/FEDIntegrity/") )
@@ -102,11 +100,9 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   eventNo++;
   // get raw input data
   edm::Handle< FEDRawDataCollection >  rawinput;
-  // iEvent.getByLabel( rawin_, rawinput );
   iEvent.getByToken( rawin_, rawinput );
   // get error input data
   edm::Handle< edm::DetSetVector<SiPixelRawDataError> >  errorinput;
-  // iEvent.getByLabel( errin_, errorinput );
   iEvent.getByToken( errin_, errorinput );
   if (!errorinput.isValid()) return;
 

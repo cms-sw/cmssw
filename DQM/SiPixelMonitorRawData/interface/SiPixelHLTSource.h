@@ -58,10 +58,8 @@
 
     private:
        edm::ParameterSet conf_;
-       // edm::InputTag rawin_;
        edm::EDGetTokenT<FEDRawDataCollection> rawin_;
-       // edm::InputTag errin_;
-       edm::EDGetTokenT<SiPixelRawDataError> errin_;
+       edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError> > errin_;
        edm::ESHandle<TrackerGeometry> pDD;
        bool saveFile;
        bool slowDown;
