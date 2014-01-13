@@ -7,7 +7,6 @@
  *  This class is an HLTFilter (-> EDFilter) implementing
  *  the isolation filtering for HLT muons
  *
- *  \author J. Alcaraz
  *
  */
 
