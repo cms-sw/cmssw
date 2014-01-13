@@ -100,16 +100,16 @@ namespace l1t {
     
        //Loop over EGamma
        for(std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(i); eg != egammas->end(i); ++eg) {
-           printf("BX=%i  Pt %i Eta %i Phi %i Qual %i  Iso %i \n",i,eg->hwPt(),eg->hwEta(),eg->hwPhi(),eg->hwQual(),mu->hwIso());
+           printf("BX=%i  Pt %i Eta %i Phi %i Qual %i  \n",i,eg->hwPt(),eg->hwEta(),eg->hwPhi(),eg->hwQual());
        }    
 
        //Loop over Muons
        for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
-          printf("BX=%i  Pt %i Eta %i Phi %i Qual %i  Iso %i \n",i,mu->hwPt(),mu->hwEta(),mu->hwPhi(),mu->hwQual(),mu->hwIso());
+          printf("BX=%i  Pt %i Eta %i Phi %i Qual %i  \n",i,mu->hwPt(),mu->hwEta(),mu->hwPhi(),mu->hwQual());
        }
                   //Dump Content
-       for(std::vector<l1t::Tau>::const_iterator tau = taus->btauin(i); tau != taus->end(i); ++tau) {
-           printf("BX=%i  Pt %i Eta %i Phi %i Qual %i  Iso %i \n",i,tau->hwPt(),tau->hwEta(),tau->hwPhi(),tau->hwQual(),tau->hwIso());
+       for(std::vector<l1t::Tau>::const_iterator tau = taus->begin(i); tau != taus->end(i); ++tau) {
+           printf("BX=%i  Pt %i Eta %i Phi %i Qual %i  \n",i,tau->hwPt(),tau->hwEta(),tau->hwPhi(),tau->hwQual());
        }        
 
        //Loop over Jets
@@ -117,7 +117,7 @@ namespace l1t {
           printf("BX=%i  Pt %i Eta %i Phi %i Qual %i \n",i,jet->hwPt(),jet->hwEta(),jet->hwPhi(),jet->hwQual());
        }
                   //Dump Content
-       for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->betsumin(i); etsum != etsums->end(i); ++etsum) {
+       for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
            printf("BX=%i  Pt %i Eta %i Phi %i Qual %i \n",i,etsum->hwPt(),etsum->hwEta(),etsum->hwPhi(),etsum->hwQual());
        }        
 
