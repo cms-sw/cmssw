@@ -75,12 +75,6 @@ private:
 
 
   /// object to monitor
-  
-  // edm::InputTag  jets_;
-  // edm::InputTag  ec_;
-  // edm::InputTag  hbhe_;
-  // edm::InputTag  ho_;
-  // edm::InputTag  hf_;
   edm::EDGetTokenT<reco::CaloJetCollection> jets_;
   edm::EDGetTokenT<EcalRecHitCollection>    ec_;
   edm::EDGetTokenT<HBHERecHitCollection>    hbhe_;

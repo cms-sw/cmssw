@@ -143,7 +143,6 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
    Float_t etVetoJet; 
 
    edm::Handle<CaloJetCollection> jets;
-   // iEvent.getByLabel(jets_,jets);
    iEvent.getByToken(jets_,jets);
    
   if(!jets.isValid()){
@@ -181,7 +180,6 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
 
       Handle<EcalRecHitCollection> ec;
-      // iEvent.getByLabel(ec_,ec);
       iEvent.getByToken(ec_,ec);
       
   if(!ec.isValid()){
@@ -200,7 +198,6 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
 
       Handle<HBHERecHitCollection> hbhe;
-      // iEvent.getByLabel(hbhe_, hbhe);
       iEvent.getByToken(hbhe_, hbhe);
 
   if(!hbhe.isValid()){
@@ -217,7 +214,6 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
    
       Handle<HORecHitCollection> ho;
-      // iEvent.getByLabel(ho_, ho);
       iEvent.getByToken(ho_, ho);
 
   if(!ho.isValid()){
@@ -237,7 +233,6 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent,
 
 
       Handle<HFRecHitCollection> hf;
-      // iEvent.getByLabel(hf_, hf);
       iEvent.getByToken(hf_, hf);
 
   if(!hf.isValid()){

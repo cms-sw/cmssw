@@ -62,7 +62,6 @@ using namespace edm;
 // constructors and destructor
 //
 DQMHOAlCaRecoStream::DQMHOAlCaRecoStream(const edm::ParameterSet& iConfig) :
-  // hoCalibVariableCollectionTag(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag")) {
   hoCalibVariableCollectionTag(consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))) {
 
   //now do what ever initialization is needed
@@ -103,7 +102,6 @@ DQMHOAlCaRecoStream::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<HOCalibVariableCollection>HOCalib;
   bool isCosMu = true;
   
-  // iEvent.getByLabel(hoCalibVariableCollectionTag, HOCalib); 
   iEvent.getByToken(hoCalibVariableCollectionTag, HOCalib); 
 
   if(!HOCalib.isValid()){

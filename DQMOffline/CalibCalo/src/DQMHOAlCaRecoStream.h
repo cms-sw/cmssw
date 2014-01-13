@@ -55,7 +55,6 @@ class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
   double m_highEdge;
 
   bool saveToFile_;
-  // edm::InputTag hoCalibVariableCollectionTag;
   edm::EDGetTokenT<HOCalibVariableCollection> hoCalibVariableCollectionTag;
 
       // ----------member data ---------------------------
