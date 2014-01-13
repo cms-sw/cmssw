@@ -109,8 +109,8 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
   for (edm::VParameterSet::const_iterator it = triggerSelectedSubFolders_.begin(); it!= triggerSelectedSubFolders_.end(); it++) {
-    triggerEventFlag_.push_back(new GenericTriggerEventFlag( *it, consumesCollector() ));
-    triggerExpr_.push_back(it->getParameter<std::vector<std::string> >("hltPaths"));
+    triggerFolderEventFlag_.push_back(new GenericTriggerEventFlag( *it, consumesCollector() ));
+    triggerFolderExpr_.push_back(it->getParameter<std::vector<std::string> >("hltPaths"));
     triggerFolderLabels_.push_back(it->getParameter<std::string>("label"));
   }
 
@@ -145,7 +145,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 // ***********************************************************
 METAnalyzer::~METAnalyzer() {
 
-  for (std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerEventFlag_.begin(); it!= triggerEventFlag_.end(); it++) {
+  for (std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
     delete *it;
   }
 
@@ -194,10 +194,11 @@ void METAnalyzer::beginJob(){
   folderNames_.push_back("Cleaned");
   folderNames_.push_back("DiJet");
 
-  for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
-       ic != folderNames_.end(); ic++){
-    bookMESet(DirName+"/"+*ic);
-  }
+//  for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
+//       ic != folderNames_.end(); ic++){
+//    bookMESet(DirName+"/"+*ic);
+//  }
+  bookMESet(DirName+"/Cleaned");
 }
 
 // ***********************************************************
@@ -222,10 +223,10 @@ void METAnalyzer::bookMESet(std::string DirName)
   if (DirName.find("Uncleaned")!=std::string::npos) bLumiSecPlot=true;
   bookMonitorElement(DirName,bLumiSecPlot);
 
-  for (unsigned i = 0; i<triggerEventFlag_.size(); i++) {
-    if (triggerEventFlag_[i]->on()) {
+  for (unsigned i = 0; i<triggerFolderEventFlag_.size(); i++) {
+    if (triggerFolderEventFlag_[i]->on()) {
       bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],false);
-      triggerFolderME_.push_back(dbe_->bookString("triggerFolder_"+triggerFolderLabels_[i], triggerExpr_[i][0]));
+//      triggerFolderME_.push_back(dbe_->bookString("triggerFolder_"+triggerFolderLabels_[i], triggerFolderExpr_[i][0]));
     }
   }
 
@@ -440,16 +441,16 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
-  for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerEventFlag_.begin(); it!= triggerEventFlag_.end(); it++) {
-    int pos = it - triggerEventFlag_.begin();
+  for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
+    int pos = it - triggerFolderEventFlag_.begin();
     if ((*it)->on()) {
       (*it)->initRun( iRun, iSetup );
       if (triggerSelectedSubFolders_[pos].exists(std::string("hltDBKey"))) {
 //        std::cout<<"Looking for hltDBKey for"<<triggerFolderLabels_[pos]<<std::endl;
         if ((*it)->expressionsFromDB((*it)->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-          triggerExpr_[pos] = (*it)->expressionsFromDB((*it)->hltDBKey(), iSetup);
+          triggerFolderExpr_[pos] = (*it)->expressionsFromDB((*it)->hltDBKey(), iSetup);
       }
-//      for (unsigned j = 0; j<triggerExpr_[pos].size(); j++) std::cout<<"pos "<<pos<<" "<<triggerFolderLabels_[pos]<<" triggerExpr_"<<triggerExpr_[pos][j]<<std::endl;
+//      for (unsigned j = 0; j<triggerFolderExpr_[pos].size(); j++) std::cout<<"pos "<<pos<<" "<<triggerFolderLabels_[pos]<<" triggerFolderExpr_"<<triggerFolderExpr_[pos][j]<<std::endl;
     }
   }
 //  if ( highPtJetEventFlag_->on() ) highPtJetEventFlag_->initRun( iRun, iSetup );
@@ -510,8 +511,8 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
     DirName = dirName+*ic;
 
     makeRatePlot(DirName,totltime);
-    for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerEventFlag_.begin(); it!= triggerEventFlag_.end(); it++) {
-      int pos = it - triggerEventFlag_.begin();
+    for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
+      int pos = it - triggerFolderEventFlag_.begin();
       if ((*it)->on()) {
         makeRatePlot(DirName+"/"+triggerFolderLabels_[pos],totltime);
       }
@@ -584,7 +585,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //  trigMuon_=0;
 //  trigPhysDec_=0;
   std::vector<int> triggerFolderDecisions;
-  triggerFolderDecisions_ = std::vector<int> (triggerEventFlag_.size(), 0);
+  triggerFolderDecisions_ = std::vector<int> (triggerFolderEventFlag_.size(), 0);
   // **** Get the TriggerResults container
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(triggerResultsToken_, triggerResults);
@@ -595,18 +596,23 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     int ntrigs = (*triggerResults).size();
     if (verbose_) std::cout << "ntrigs=" << ntrigs << std::endl;
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
-    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-    const unsigned int nTrig(triggerNames.size());
-    for (unsigned i=0;i<nTrig;++i)  {
-      for ( unsigned j = 0; j<triggerExpr_.size(); j++) {
-        for ( unsigned k = 0; k<triggerExpr_[j].size(); k++) {
-//          std::cout<<"At trigger: "<<i<<" "<<triggerNames.triggerName(i)<<" testing for " <<triggerExpr_[j][k]<<" fired? "<<(*triggerResults).accept(i)<<" decision now "<<triggerFolderDecisions_[j]<<std::endl;
-          if (std::strstr(triggerNames.triggerName(i).c_str(), (triggerExpr_[j][k]+"_v").c_str())) {
-            if ((*triggerResults).accept(i)) triggerFolderDecisions_[j] = true; 
-//            std::cout<<"At trigger: "<<i<<" "<<triggerNames.triggerName(i)<<" testing for " <<triggerExpr_[j][k]<<" fired? "<<(*triggerResults).accept(i)<<" decision now "<<triggerFolderDecisions_[j]<<std::endl;
-          }
-        }
-      }
+    for (std::vector<GenericTriggerEventFlag *>::const_iterator it =  triggerFolderEventFlag_.begin(); it!=triggerFolderEventFlag_.end();it++) {
+      unsigned pos = it - triggerFolderEventFlag_.begin();
+      bool fd = (*it)->accept(iEvent, iSetup);
+      triggerFolderDecisions_[pos] = fd;
+    }
+//    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
+//    const unsigned int nTrig(triggerNames.size());
+//    for (unsigned i=0;i<nTrig;++i)  {
+//      for ( unsigned j = 0; j<triggerFolderExpr_.size(); j++) {
+//        for ( unsigned k = 0; k<triggerFolderExpr_[j].size(); k++) {
+////          std::cout<<"At trigger: "<<i<<" "<<triggerNames.triggerName(i)<<" testing for " <<triggerFolderExpr_[j][k]<<" fired? "<<(*triggerResults).accept(i)<<" decision now "<<triggerFolderDecisions_[j]<<std::endl;
+//          if (std::strstr(triggerNames.triggerName(i).c_str(), (triggerFolderExpr_[j][k]+"_v").c_str())) {
+//            if ((*triggerResults).accept(i)) triggerFolderDecisions_[j] = true; 
+////            std::cout<<"At trigger: "<<i<<" "<<triggerNames.triggerName(i)<<" testing for " <<triggerFolderExpr_[j][k]<<" fired? "<<(*triggerResults).accept(i)<<" decision now "<<triggerFolderDecisions_[j]<<std::endl;
+//          }
+//        }
+//      }
       //FIXME store decision here
 //        if (triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0,highPtJetExpr_[0].rfind("_v")+2))!=std::string::npos && (*triggerResults).accept(i))#FIXME
 //	  trigHighPtJet_=true;
@@ -622,10 +628,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //	  trigEle_=true;
 //        else if (triggerNames.triggerName(i).find(minbiasExpr_[0].substr(0,minbiasExpr_[0].rfind("_v")+2))!=std::string::npos && (*triggerResults).accept(i))
 //	  trigMinBias_=true;
-    }
     
-//    for (std::vector<GenericTriggerEventFlag *>::const_iterator it =  triggerEventFlag_.begin(); it!=triggerEventFlag_.end();it++) {
-//      unsigned pos = it - triggerEventFlag_.begin();
+//    for (std::vector<GenericTriggerEventFlag *>::const_iterator it =  triggerFolderEventFlag_.begin(); it!=triggerFolderEventFlag_.end();it++) {
+//      unsigned pos = it - triggerFolderEventFlag_.begin();
 //      bool fd = (*it)->accept(iEvent, iSetup);
 //      bool md = triggerFolderDecisions_[pos];
 //      std::cout <<triggerFolderLabels_[pos]<<" FlagDecision "<<(*it)->accept(iEvent, iSetup)<<" myDecision: "<<triggerFolderDecisions_[pos]<<std::endl;
@@ -728,7 +733,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     LogDebug("") << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
     if (verbose_) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
   }
-
 
   // ==========================================================
   bool bJetID = true;

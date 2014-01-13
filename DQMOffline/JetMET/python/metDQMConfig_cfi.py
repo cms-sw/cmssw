@@ -25,8 +25,8 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_highptjet' ), #overrides hltPaths!
-        hltPaths       = cms.vstring( 'HLT_PFJet400' ), 
-        andOrHlt       = cms.bool( True ),#ineffective: Always OR
+        hltPaths       = cms.vstring( 'HLT_PFJet400_v*' ), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
     cms.PSet(label = cms.string('lowPtJet'),
@@ -34,8 +34,8 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_lowptjet' ),#overrides hltPaths!
-        hltPaths       = cms.vstring( 'HLT_PFJet80' ), 
-        andOrHlt       = cms.bool( True ),#ineffective: Always OR
+        hltPaths       = cms.vstring( 'HLT_PFJet80_v*' ), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( True ),
     ),
     cms.PSet(label = cms.string('zeroBias'),
@@ -43,8 +43,8 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_minbias' ),#overrides hltPaths!
-        hltPaths       = cms.vstring( 'HLT_ZeroBias' ), 
-        andOrHlt       = cms.bool( True ),#ineffective: Always OR
+        hltPaths       = cms.vstring( 'HLT_ZeroBias_v*' ), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
     cms.PSet(label = cms.string('highMET'),
@@ -52,8 +52,8 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_highmet' ),#overrides hltPaths!
-        hltPaths       = cms.vstring( 'HLT_MET400' ), 
-        andOrHlt       = cms.bool( True ),#ineffective: Always OR
+        hltPaths       = cms.vstring( 'HLT_MET400_v*' ), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
     cms.PSet(label = cms.string('singleEle'),
@@ -61,7 +61,7 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_ele' ),#overrides hltPaths!
-        hltPaths       = cms.vstring('HLT_Ele27_WP80' ), #ineffective: Always OR
+        hltPaths       = cms.vstring('HLT_Ele27_WP80_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -70,8 +70,8 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
 #        hltDBKey       = cms.string( 'jetmet_muon' ),#overrides hltPaths!
-        hltPaths       = cms.vstring( 'HLT_IsoMu24_eta2p1', 'HLT_IsoMu24'), 
-        andOrHlt       = cms.bool( True ),#ineffective: Always OR
+        hltPaths       = cms.vstring( 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu24_v*'), 
+        andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ) 
     ),

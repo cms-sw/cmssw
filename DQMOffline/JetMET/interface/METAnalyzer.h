@@ -172,11 +172,12 @@ class METAnalyzer : public edm::EDAnalyzer{
   std::vector<std::string > HLTPathsJetMBByName_;
 
   edm::VParameterSet triggerSelectedSubFolders_;
-  std::vector<GenericTriggerEventFlag *>  triggerEventFlag_;
-  std::vector<std::vector<std::string> >  triggerExpr_;
+  std::vector<GenericTriggerEventFlag *>  triggerFolderEventFlag_;
+  std::vector<std::vector<std::string> >  triggerFolderExpr_;
   std::vector<std::string >               triggerFolderLabels_;
-  std::vector<MonitorElement* >           triggerFolderME_;
   std::vector<int>                        triggerFolderDecisions_;
+//  std::vector<MonitorElement* >           triggerFolderME_;
+
 //  GenericTriggerEventFlag * highPtJetEventFlag_;
 //  GenericTriggerEventFlag * lowPtJetEventFlag_;
 //  GenericTriggerEventFlag * minBiasEventFlag_;
