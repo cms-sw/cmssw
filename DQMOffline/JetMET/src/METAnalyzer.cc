@@ -194,11 +194,10 @@ void METAnalyzer::beginJob(){
   folderNames_.push_back("Cleaned");
   folderNames_.push_back("DiJet");
 
-//  for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
-//       ic != folderNames_.end(); ic++){
-//    bookMESet(DirName+"/"+*ic);
-//  }
-  bookMESet(DirName+"/Cleaned");
+  for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
+       ic != folderNames_.end(); ic++){
+    bookMESet(DirName+"/"+*ic);
+  }
 }
 
 // ***********************************************************
@@ -218,18 +217,18 @@ void METAnalyzer::endJob() {
 // ***********************************************************
 void METAnalyzer::bookMESet(std::string DirName)
 {
-
   bool bLumiSecPlot=false;
   if (DirName.find("Uncleaned")!=std::string::npos) bLumiSecPlot=true;
   bookMonitorElement(DirName,bLumiSecPlot);
 
-  for (unsigned i = 0; i<triggerFolderEventFlag_.size(); i++) {
-    if (triggerFolderEventFlag_[i]->on()) {
-      bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],false);
-//      triggerFolderME_.push_back(dbe_->bookString("triggerFolder_"+triggerFolderLabels_[i], triggerFolderExpr_[i][0]));
+  if (DirName.find("Cleaned")!=std::string::npos) {
+    for (unsigned i = 0; i<triggerFolderEventFlag_.size(); i++) {
+      if (triggerFolderEventFlag_[i]->on()) {
+        bookMonitorElement(DirName+"/"+triggerFolderLabels_[i],false);
+  //      triggerFolderME_.push_back(dbe_->bookString("triggerFolder_"+triggerFolderLabels_[i], triggerFolderExpr_[i][0]));
+      }
     }
   }
-
 //  if ( highPtJetEventFlag_->on() ) {
 //    bookMonitorElement(DirName+"/"+"HighPtJet",false);
 //    hTriggerName_HighPtJet = dbe_->bookString("triggerName_HighPtJet", highPtJetExpr_[0]);
@@ -1073,9 +1072,12 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 
   bool bLumiSecPlot=false;
   if (DirName.find("Uncleaned")) bLumiSecPlot=true;
+  fillMonitorElement(iEvent, DirName, std::string(""), met, pfmet, calomet, bLumiSecPlot);
 
-  for (unsigned i = 0; i<triggerFolderLabels_.size(); i++) {
-    if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, pfmet, calomet, bLumiSecPlot);
+  if (DirName.find("Cleaned")) {
+    for (unsigned i = 0; i<triggerFolderLabels_.size(); i++) {
+      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, pfmet, calomet, false);
+    }
   }
 
 //  if (trigJetMB_)
@@ -1098,26 +1100,26 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 
 // ***********************************************************
 void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName,
-					 std::string TriggerTypeName,
+					 std::string subFolderName,
 				     const reco::MET& met, const reco::PFMET & pfmet, const reco::CaloMET &calomet, bool bLumiSecPlot)
 {
 
-//  if (TriggerTypeName=="HighPtJet") {
+//  if (subFolderName=="HighPtJet") {
 //    if (!selectHighPtJetEvent(iEvent)) return;
 //  }
-//  else if (TriggerTypeName=="LowPtJet") {
+//  else if (subFolderName=="LowPtJet") {
 //    if (!selectLowPtJetEvent(iEvent)) return;
 //  }
-//  else if (TriggerTypeName=="HighMET") {
+//  else if (subFolderName=="HighMET") {
 //    if (met.pt()<highMETThreshold_) return;
 //  }
-//  //  else if (TriggerTypeName=="LowMET") {
+//  //  else if (subFolderName=="LowMET") {
 //  //    if (met.pt()<_lowMETThreshold) return;
 //  //  }
-//  else if (TriggerTypeName=="Ele") {
+//  else if (subFolderName=="Ele") {
 //    if (!selectWElectronEvent(iEvent)) return;
 //  }
-//  else if (TriggerTypeName=="Muon") {
+//  else if (subFolderName=="Muon") {
 //    if (!selectWMuonEvent(iEvent)) return;
 //  }
 
@@ -1134,7 +1136,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
   myLuminosityBlock = iEvent.luminosityBlock();
   //
 
-  if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
+  if (subFolderName!="") DirName = DirName +"/"+subFolderName;
 
 //  if (verbose_) std::cout << "etThreshold_ = " << etThreshold_ << std::endl;
 
