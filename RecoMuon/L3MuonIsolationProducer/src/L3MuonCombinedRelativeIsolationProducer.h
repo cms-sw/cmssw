@@ -41,6 +41,9 @@ private:
   // Option to write MuIsoDeposits into the event
   bool optOutputIsoDeposits;
 
+  //! flag to include or exclude calo iso from calculation
+  bool useCaloIso;
+
   // Option to use rho-corrected calo deposits (ONLY if already available)
   bool useRhoCorrectedCaloDeps;
   edm::InputTag theCaloDepsLabel;
