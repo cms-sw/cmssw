@@ -95,12 +95,10 @@ private:
   edm::InputTag  horecoMB;
   edm::EDGetTokenT<HFRecHitCollection>  hfrecoMB;
   
-  // edm::InputTag  hbherecoNoise;
   edm::EDGetTokenT<HBHERecHitCollection>  hbherecoNoise;
   edm::InputTag  horecoNoise;
   edm::EDGetTokenT<HFRecHitCollection>  hfrecoNoise;
 
-  // edm::InputTag rawInLabel_;
   edm::EDGetTokenT<FEDRawDataCollection> rawInLabel_;
   
   /// DQM folder name

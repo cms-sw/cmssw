@@ -51,10 +51,8 @@ eventCounter_(0)
   //
   folderName_   = ps.getUntrackedParameter<string>("FolderName","ALCAStreamHcalPhiSym");
   
-  // hbherecoMB    = ps.getParameter<edm::InputTag>("hbheInputMB");
   hbherecoMB    = consumes<HBHERecHitCollection>(ps.getParameter<edm::InputTag>("hbheInputMB"));
   horecoMB      = ps.getParameter<edm::InputTag>("hoInputMB");
-  // hfrecoMB      = ps.getParameter<edm::InputTag>("hfInputMB");
   hfrecoMB      = consumes<HFRecHitCollection>(ps.getParameter<edm::InputTag>("hfInputMB"));
   
   hbherecoNoise = consumes<HBHERecHitCollection>(ps.getParameter<edm::InputTag>("hbheInputNoise"));
@@ -315,7 +313,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
   eventCounter_++;
  
   edm::Handle<FEDRawDataCollection> rawIn;
-  // iEvent.getByLabel(rawInLabel_,rawIn);
   iEvent.getByToken(rawInLabel_,rawIn);
 
   if(!rawIn.isValid()){
@@ -375,7 +372,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
   hL1Id->Fill( (header.lvl1ID())%period_ );
  
   edm::Handle<HBHERecHitCollection> hbheNS;
-  // iEvent.getByLabel(hbherecoNoise, hbheNS);
   iEvent.getByToken(hbherecoNoise, hbheNS);
   
   if(!hbheNS.isValid()){
@@ -384,7 +380,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
   }
   
   edm::Handle<HBHERecHitCollection> hbheMB;
-  // iEvent.getByLabel(hbherecoMB, hbheMB);
   iEvent.getByToken(hbherecoMB, hbheMB);
   
   if(!hbheMB.isValid()){
@@ -393,7 +388,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
   }
   
   edm::Handle<HFRecHitCollection> hfNS;
-  // iEvent.getByLabel(hfrecoNoise, hfNS);
   iEvent.getByToken(hfrecoNoise, hfNS);
   
   if(!hfNS.isValid()){
@@ -402,7 +396,6 @@ void DQMHcalPhiSymAlCaReco::analyze(const Event& iEvent,
   }
   
   edm::Handle<HFRecHitCollection> hfMB;
-  // iEvent.getByLabel(hfrecoMB, hfMB);
   iEvent.getByToken(hfrecoMB, hfMB);
   
   if(!hfMB.isValid()){

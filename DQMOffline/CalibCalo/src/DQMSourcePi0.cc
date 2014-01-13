@@ -55,10 +55,6 @@ eventCounter_(0)
   dbe_ = Service<DQMStore>().operator->();
   folderName_ = ps.getUntrackedParameter<string>("FolderName","HLT/AlCaEcalPi0");
   prescaleFactor_ = ps.getUntrackedParameter<int>("prescaleFactor",1);
-  // productMonitoredEBpi0_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBpi0Tag");
-  // productMonitoredEBeta_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBetaTag");
-  // productMonitoredEEpi0_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEpi0Tag");
-  // productMonitoredEEeta_= ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEetaTag");
   productMonitoredEBpi0_= consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBpi0Tag"));
   productMonitoredEBeta_= consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEBetaTag"));
   productMonitoredEEpi0_= consumes<EcalRecHitCollection>(ps.getUntrackedParameter<edm::InputTag>("AlCaStreamEEpi0Tag"));
@@ -374,11 +370,6 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   edm::Handle<EcalRecHitCollection> rhEEpi0;
   edm::Handle<EcalRecHitCollection> rhEEeta;
  
-  // if(isMonEBpi0_) iEvent.getByLabel(productMonitoredEBpi0_, rhEBpi0); 
-  // if(isMonEBeta_) iEvent.getByLabel(productMonitoredEBeta_, rhEBeta); 
-  // if(isMonEEpi0_) iEvent.getByLabel(productMonitoredEEpi0_, rhEEpi0);
-  // if(isMonEEeta_) iEvent.getByLabel(productMonitoredEEeta_, rhEEeta);
-
   if(isMonEBpi0_) iEvent.getByToken(productMonitoredEBpi0_, rhEBpi0); 
   if(isMonEBeta_) iEvent.getByToken(productMonitoredEBeta_, rhEBeta); 
   if(isMonEEpi0_) iEvent.getByToken(productMonitoredEEpi0_, rhEEpi0);
