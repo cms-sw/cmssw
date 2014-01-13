@@ -2172,7 +2172,7 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
   double posX(0), posY(0), posZ(0),
     rawSCEnergy(0), corrSCEnergy(0), corrPSEnergy(0),
     PS1_clus_sum(0), PS2_clus_sum(0),
-    ePS1(0), ePS2(0);
+    ePS1(0), ePS2(0), ps1_energy(0.0), ps2_energy(0.0); 
   for( auto& clus : RO.ecalclusters ) {
     ePS1 = 0;
     ePS2 = 0;
@@ -2203,6 +2203,8 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 
     rawSCEnergy  += cluseraw;
     corrSCEnergy += cluscalibe;    
+    ps1_energy   += ePS1;
+    ps2_energy   += ePS2;
     corrPSEnergy += ePS1 + ePS2;    
   }
   posX /= rawSCEnergy;
@@ -2211,11 +2213,13 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 
   // now build the supercluster
   reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ)); 
-  double ps1_energy(0.0), ps2_energy(0.0);
+
   clusptr = 
     edm::refToPtr<reco::PFClusterCollection>(RO.ecalclusters.front().
 					     first->clusterRef());
   new_sc.setSeed(clusptr);
+  new_sc.setPreshowerEnergyPlane1(ps1_energy);
+  new_sc.setPreshowerEnergyPlane2(ps2_energy);
   new_sc.setPreshowerEnergy(corrPSEnergy); 
   for( const auto& clus : RO.ecalclusters ) {
     clusptr = 
@@ -2240,11 +2244,7 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 				       reco::CaloClusterPtr(psclus));
       if( found_pscluster == new_sc.preshowerClustersEnd() ) {
 #endif		  
-	const double psenergy = psclus->energy();
-	const PFLayer::Layer pslayer = psclus->layer();
 	new_sc.addPreshowerCluster(psclus);
-	ps1_energy += (PFLayer::PS1 == pslayer)*psenergy;
-	ps2_energy += (PFLayer::PS2 == pslayer)*psenergy;
 #ifdef PFFLOW_DEBUG
       } else {
 	throw cms::Exception("PFECALSuperClusterAlgo::buildSuperCluster")
@@ -2255,8 +2255,6 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 #endif
     }    
   }
-  new_sc.setPreshowerEnergyPlane1(ps1_energy);
-  new_sc.setPreshowerEnergyPlane2(ps2_energy);
   
   // calculate linearly weighted cluster widths
   PFClusterWidthAlgo pfwidth(bare_ptrs);
