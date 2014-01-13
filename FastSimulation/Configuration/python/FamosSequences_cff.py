@@ -206,6 +206,9 @@ from RecoEgamma.Configuration.RecoEgamma_cff import egammaHighLevelRecoPostPF
 allConversions.src = 'gsfGeneralConversionTrackMerger'
 famosConversionSequence = cms.Sequence(conversionTrackSequenceNoEcalSeeded*allConversionSequence)
 
+if (MixingMode==2):
+    generalConversionTrackProducer.TrackProducer = 'generalTracksBeforeMixing'
+    
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
 from TrackingTools.GsfTracking.FwdElectronPropagator_cfi import *
 import TrackingTools.GsfTracking.GsfElectronFit_cfi
@@ -369,7 +372,7 @@ elif(CaloMode==3):
             vertexreco
             )
     else:
-        #dump = cms.EDAnalyzer("EventContentAnalyzer") #TEMP
+        dump = cms.EDAnalyzer("EventContentAnalyzer") #TEMP
         simulationSequence = cms.Sequence(
             offlineBeamSpot+
             famosSimHits+
@@ -386,7 +389,7 @@ elif(CaloMode==3):
             )
         trackDigiVertexSequence = cms.Sequence(
             trackReco+
-            #dump+
+            dump+ #TEMP
             digitizationSequence+
             vertexreco
             )
