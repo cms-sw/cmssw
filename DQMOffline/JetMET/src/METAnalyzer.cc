@@ -69,6 +69,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   //Vertex requirements
   bypassAllPVChecks_    = cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
+  bypassAllDCSChecks_    = cleaningParameters_.getParameter<bool>("bypassAllDCSChecks");
   vertexTag_    = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
   vertexToken_  = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexTag_));
 
@@ -163,9 +164,6 @@ void METAnalyzer::beginJob(){
 
   cleaningParameters_ = parameters.getParameter<ParameterSet>("CleaningParameters"),
 
-  tightBHFiltering_     = cleaningParameters_.getParameter<bool>("tightBHFiltering");
-  tightJetIDFiltering_  = cleaningParameters_.getParameter<int>("tightJetIDFiltering");
-
   // ==========================================================
   //DCS information
   // ==========================================================
@@ -173,13 +171,13 @@ void METAnalyzer::beginJob(){
 
   // misc
   verbose_      = parameters.getParameter<int>("verbose");
-  etThreshold_  = parameters.getParameter<double>("etThreshold"); // MET threshold
+//  etThreshold_  = parameters.getParameter<double>("etThreshold"); // MET threshold
 
   FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
 
-  highPtJetThreshold_ = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
-  lowPtJetThreshold_  = parameters.getParameter<double>("LowPtJetThreshold");  // Low Pt Jet threshold
-  highMETThreshold_   = parameters.getParameter<double>("HighMETThreshold");   // High MET threshold
+//  highPtJetThreshold_ = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
+//  lowPtJetThreshold_  = parameters.getParameter<double>("LowPtJetThreshold");  // Low Pt Jet threshold
+//  highMETThreshold_   = parameters.getParameter<double>("HighMETThreshold");   // High MET threshold
 
   //
   if(isCaloMet_ || isTCMet_){
@@ -731,10 +729,16 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (verbose_) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
   }
 
+
+  // ==========================================================
+  bool bJetID = true;
+  bool bDiJetID = true;
+// Jet ID -------------------------------------------------------
+//
+/* FIXME : Matthias, I left the following code for you! I think it shouldn't be much longer than 10-20 lines using the JetIDSelectionFunctor
   bool bJetIDMinimal=true;
   bool bJetIDLoose=true;
   bool bJetIDTight=true;
-/* FIXME : Matthias, I left the following code for you! I think it shouldn't be much longer than 10-20 lines using the JetIDSelectionFunctor
 
   if(isCaloMet_){
     edm::Handle<reco::CaloJetCollection> caloJets;
@@ -996,7 +1000,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // HCAL Noise filter
 
-  bool bHcalNoiseFilter = HBHENoiseFilterResult;
+  bool bHBHENoiseFilter = HBHENoiseFilterResult;
 
   // ==========================================================
   // Get BeamHaloSummary
@@ -1007,21 +1011,15 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     std::cout << "BeamHaloSummary doesn't exist" << std::endl;
   }
 
-  bool bBeamHaloIDTightPass = true;
-  bool bBeamHaloIDLoosePass = true;
+  bool bBeamHaloID = true;
 
   if(!TheBeamHaloSummary.isValid()) {
 
   const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
 
-  if( !TheSummary.EcalLooseHaloId()  && !TheSummary.HcalLooseHaloId() &&
-      !TheSummary.CSCLooseHaloId()   && !TheSummary.GlobalLooseHaloId() )
-    bBeamHaloIDLoosePass = false;
-
   if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() &&
       !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
-    bBeamHaloIDTightPass = false;
-
+    bBeamHaloID = false;
   }
 
   // ==========================================================
@@ -1048,30 +1046,16 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     LogDebug("") << "CaloMETAnalyzer: Could not find GT readout record" << std::endl;
     if (verbose_) std::cout << "CaloMETAnalyzer: Could not find GT readout record product" << std::endl;
   }
+  // DCS Filter
+  bool bDCSFilter = (bypassAllDCSChecks_ || DCSFilter_->filter(iEvent, iSetup));
   // ==========================================================
   // Reconstructed MET Information - fill MonitorElements
 
-  bool bHcalNoise   = bHcalNoiseFilter;
-  bool bBeamHaloID  = bBeamHaloIDLoosePass;
-  bool bJetID       = true;
-
-  if      (tightBHFiltering_)         bBeamHaloID = bBeamHaloIDTightPass;
-  if      (tightJetIDFiltering_==1)   bJetID      = bJetIDMinimal;
-  else if (tightJetIDFiltering_==2)   bJetID      = bJetIDLoose;
-  else if (tightJetIDFiltering_==3)   bJetID      = bJetIDTight;
-  else if (tightJetIDFiltering_==-1)  bJetID      = true;
-
-  bool bBasicCleanup = bPrimaryVertex;
-  bool bExtraCleanup = bBasicCleanup && bHcalNoise && bJetID && bBeamHaloID;
-
-
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
        ic != folderNames_.end(); ic++){
-    if (*ic=="Uncleaned")                                       fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-    if (DCSFilter_->filter(iEvent, iSetup)) {
-    if (*ic=="Cleaned" && bBasicCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-    if (*ic=="Dijet" && bExtraCleanup)                   fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-    } // DCS
+    if ((*ic=="Uncleaned")  &&(isCaloMet_ || bPrimaryVertex))     fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+    if ((*ic=="Cleaned")    &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bBeamHaloID&&bJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+    if ((*ic=="Dijet" )     &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bBeamHaloID&&bDiJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
   }
 }
 
@@ -1148,10 +1132,11 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
   if (TriggerTypeName!="") DirName = DirName +"/"+TriggerTypeName;
 
-  if (verbose_) std::cout << "etThreshold_ = " << etThreshold_ << std::endl;
+//  if (verbose_) std::cout << "etThreshold_ = " << etThreshold_ << std::endl;
 
-  if (SumET>etThreshold_){
-    hMEx    = dbe_->get(DirName+"/"+"MEx");     if (hMEx           && hMEx->getRootObject()){     hMEx          ->Fill(MEx);}
+  if (true){
+//  if (SumET>etThreshold_){
+    hMEx    = dbe_->get(DirName+"/"+"MEx");     if (hMEx           && hMEx->getRootObject()){    hMEx          ->Fill(MEx);}
     hMEy    = dbe_->get(DirName+"/"+"MEy");     if (hMEy           && hMEy->getRootObject())     hMEy          ->Fill(MEy);
     hMET    = dbe_->get(DirName+"/"+"MET");     if (hMET           && hMET->getRootObject())     hMET          ->Fill(MET);
     hMETPhi = dbe_->get(DirName+"/"+"METPhi");  if (hMETPhi        && hMETPhi->getRootObject())  hMETPhi       ->Fill(METPhi);
@@ -1182,7 +1167,6 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       hMETHPDNoise   = dbe_->get(DirName+"/"+"METHPDNoise");    if (hMETHPDNoise   && hMETHPDNoise->getRootObject())   hMETHPDNoise->Fill(MET);
       hMETRBXNoise   = dbe_->get(DirName+"/"+"METRBXNoise");    if (hMETRBXNoise   && hMETRBXNoise->getRootObject())   hMETRBXNoise->Fill(MET);
     }
-
 
     if(isCaloMet_){
       //const reco::CaloMETCollection *calometcol = calometcoll.product();

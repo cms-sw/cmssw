@@ -209,9 +209,7 @@ class METAnalyzer : public edm::EDAnalyzer{
   double nPVMax_;
 
   bool bypassAllPVChecks_;
-
-  bool tightBHFiltering_;
-  int  tightJetIDFiltering_;
+  bool bypassAllDCSChecks_;
 
 //  int trigJetMB_;
 //  int trigHighPtJet_;
@@ -223,13 +221,13 @@ class METAnalyzer : public edm::EDAnalyzer{
 //  int trigMuon_;
 //  int trigPhysDec_;
 
-  double highPtJetThreshold_;
-  double lowPtJetThreshold_;
-  double highMETThreshold_;
+//  double highPtJetThreshold_;
+//  double lowPtJetThreshold_;
+//  double highMETThreshold_;
 
   int numPV_;
   // Et threshold for MET plots
-  double etThreshold_;
+//  double etThreshold_;
 
   // HF calibration factor (in 31X applied by TcProducer)
   //delete altogether not used anymore

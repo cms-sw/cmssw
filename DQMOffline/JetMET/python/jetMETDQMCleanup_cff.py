@@ -29,11 +29,9 @@ cleaningParameters = cms.PSet(
     
     #Turn on extra checks
     bypassAllPVChecks   = cms.bool(False),
+    bypassAllDCSChecks   = cms.bool(False),
     vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQM" ), #From CommonTools/ParticleFlow/goodOfflinePrimaryVertices_cfi.py
 #    doHLTPhysicsOn      = cms.bool(False),
  
-    #Switch on  tight filters for BeamHalo, JetID, HCALnoise
-    tightBHFiltering    = cms.bool(False),
-    tightJetIDFiltering = cms.int32(-1), #-1 off, 0 minimal, 1 loose, 2 tight
 )
 

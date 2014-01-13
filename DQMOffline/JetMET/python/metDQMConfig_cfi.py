@@ -89,9 +89,9 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
     HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),
     BeamHaloSummaryLabel       = cms.InputTag("BeamHaloSummary"),    
 
-    HighPtJetThreshold = cms.double(60.),
-    LowPtJetThreshold  = cms.double(15.),
-    HighMETThreshold   = cms.double(110.),
+#    HighPtJetThreshold = cms.double(60.),
+#    LowPtJetThreshold  = cms.double(15.),
+#    HighMETThreshold   = cms.double(110.),
 
     pVBin       = cms.int32(100),
     pVMax       = cms.double(100.0),
@@ -99,7 +99,7 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     verbose     = cms.int32(0),
 
-    etThreshold  = cms.double(2.),
+#    etThreshold  = cms.double(2.),
 
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
