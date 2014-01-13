@@ -48,7 +48,8 @@ using namespace edm;
 
 SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
-  src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  // src_( conf_.getParameter<edm::InputTag>( "src" ) ),
+  src_( consumes<SiPixelRawDataError>( conf_.getParameter<edm::InputTag>( "src" ) ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
   isPIB( conf_.getUntrackedParameter<bool>("isPIB",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
@@ -110,7 +111,8 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   //std::cout<<"Event number: "<<eventNo<<std::endl;
   // get input data
   edm::Handle< edm::DetSetVector<SiPixelRawDataError> >  input;
-  iEvent.getByLabel( src_, input );
+  // iEvent.getByLabel( src_, input );
+  iEvent.getByToken( src_, input );
   if (!input.isValid()) return; 
 
   // Get DQM interface

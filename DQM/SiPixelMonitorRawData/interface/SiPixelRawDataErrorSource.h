@@ -66,7 +66,8 @@
 
     private:
        edm::ParameterSet conf_;
-       edm::InputTag src_;
+       // edm::InputTag src_;
+       edm::EDGetTokenT<SiPixelRawDataError> src_;
        bool saveFile;
        bool isPIB;
        bool slowDown;

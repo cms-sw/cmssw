@@ -32,7 +32,7 @@
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -58,8 +58,10 @@
 
     private:
        edm::ParameterSet conf_;
-       edm::InputTag rawin_;
-       edm::InputTag errin_;
+       // edm::InputTag rawin_;
+       edm::EDGetTokenT<FEDRawDataCollection> rawin_;
+       // edm::InputTag errin_;
+       edm::EDGetTokenT<SiPixelRawDataError> errin_;
        edm::ESHandle<TrackerGeometry> pDD;
        bool saveFile;
        bool slowDown;
