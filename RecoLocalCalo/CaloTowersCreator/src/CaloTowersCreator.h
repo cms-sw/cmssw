@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 
 
@@ -72,6 +73,7 @@ private:
   edm::ESWatcher<HcalSeverityLevelComputerRcd> hcalSevLevelWatcher_;
   edm::ESWatcher<HcalChannelQualityRcd> hcalChStatusWatcher_;
   edm::ESWatcher<IdealGeometryRecord> caloTowerConstituentsWatcher_;
+  edm::ESWatcher<EcalSeverityLevelAlgoRcd>  ecalSevLevelWatcher_;
 
 };
 

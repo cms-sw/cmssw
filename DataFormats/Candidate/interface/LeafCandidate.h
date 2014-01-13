@@ -13,6 +13,8 @@
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
 
 namespace reco {
   
@@ -32,6 +34,9 @@ namespace reco {
     typedef math::XYZVector Vector;
 
     typedef unsigned int index;
+
+    static double magd(GlobalVector v) { return std::sqrt(double(v.x())*double(v.x()) + double(v.y())*double(v.y()) + double(v.z())*double(v.z()) );}
+    static double dmass(GlobalVector v, double e) { double m2 = e*e-magd(v); return m2>0 ? std::sqrt(m2) : 0;}
 
     /// default constructor                                                               
     LeafCandidate() : 
@@ -65,19 +70,39 @@ namespace reco {
     LeafCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ) {
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ), p4Cartesian_(p4),
+      cachePolarFixed_( false ), cacheCartesianFixed_( true ) {
       if ( integerCharge ) qx3_ *= 3;
     }
     /// constructor from values                                                           
     LeafCandidate( Charge q, const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
       qx3_( q ), pt_( p4.pt() ), eta_( p4.eta() ), phi_( p4.phi() ), mass_( p4.mass() ),
-      vertex_( vtx ), pdgId_( pdgId ), status_( status ),
-      cachePolarFixed_( false ), cacheCartesianFixed_( false ){
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ), p4Polar_(p4),
+      cachePolarFixed_( true ), cacheCartesianFixed_( false ){
       if ( integerCharge ) qx3_ *= 3;
     }
     
+    /// constructor from values  
+    LeafCandidate( Charge q, const GlobalVector & p3, float iEnergy, bool massless, const Point & vtx = Point( 0, 0, 0 ),
+		   int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      qx3_( q ), pt_( p3.perp() ), eta_( p3.eta() ), phi_( p3.phi() ), mass_(massless ? 0. :  dmass(p3,iEnergy) ),
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ),  p4Polar_(pt_,eta_,phi_,mass_),  p4Cartesian_(p3.x(),p3.y(),p3.z(), massless ? magd(p3) : iEnergy),
+      cachePolarFixed_( true ), cacheCartesianFixed_( true ) {
+      if ( integerCharge ) qx3_ *= 3;
+    }
+
+
+    /// constructor from values
+    LeafCandidate( Charge q, const GlobalVector & p3, float iEnergy, float imass, const Point & vtx = Point( 0, 0, 0 ),
+                   int pdgId = 0, int status = 0, bool integerCharge = true ) :
+      qx3_( q ), pt_( p3.perp() ), eta_( p3.eta() ), phi_( p3.phi() ), mass_(imass),
+      vertex_( vtx ), pdgId_( pdgId ), status_( status ),  p4Polar_(pt_,eta_,phi_,mass_),  p4Cartesian_(p3.x(),p3.y(),p3.z(), iEnergy),
+      cachePolarFixed_( true ), cacheCartesianFixed_( true ) {
+      if ( integerCharge ) qx3_ *= 3;
+    }
+
+
     /// destructor
     virtual ~LeafCandidate();
     /// first daughter const_iterator
@@ -133,7 +158,7 @@ namespace reco {
     /// energy                                                                            
     virtual double energy() const GCC11_FINAL { cacheCartesian(); return p4Cartesian_.E(); }
     /// transverse energy                                                                 
-    virtual double et() const GCC11_FINAL { cachePolar(); return p4Polar_.Et(); }
+    virtual double et() const GCC11_FINAL { cachePolar(); return (pt_<=0) ? 0 :  p4Polar_.Et(); }
     /// mass                                                                              
     virtual float mass() const GCC11_FINAL { return mass_; }
     /// mass squared                                                                      

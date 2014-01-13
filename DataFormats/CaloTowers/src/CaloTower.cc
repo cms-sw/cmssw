@@ -21,12 +21,36 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
   emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
 
 
+
 CaloTower::CaloTower(const CaloTowerDetId& id,
 		     double emE, double hadE, double outerE,
 		     int ecal_tp, int hcal_tp,
 		     const LorentzVector& p4,
 		     const GlobalPoint& emPos, const GlobalPoint& hadPos) : 
   LeafCandidate(0, p4, Point(0,0,0)),  
+  id_(id),
+  emPosition_(emPos), hadPosition_(hadPos),
+  emE_(emE), hadE_(hadE), outerE_(outerE),
+  emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
+
+
+CaloTower::CaloTower(CaloTowerDetId id,
+		     float emE, float hadE, float outerE,
+		     int ecal_tp, int hcal_tp,
+		     GlobalVector p3, float iEnergy, bool massless,
+		     GlobalPoint emPos, GlobalPoint hadPos) : 
+  LeafCandidate(0, p3, iEnergy, massless, Point(0,0,0)),  
+  id_(id),
+  emPosition_(emPos), hadPosition_(hadPos),
+  emE_(emE), hadE_(hadE), outerE_(outerE),
+  emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
+
+CaloTower::CaloTower(CaloTowerDetId id,
+                     float emE, float hadE, float outerE,
+                     int ecal_tp, int hcal_tp,
+                     GlobalVector p3, float iEnergy, float imass,
+                     GlobalPoint emPos, GlobalPoint hadPos) :
+  LeafCandidate(0, p3, iEnergy, imass, Point(0,0,0)),
   id_(id),
   emPosition_(emPos), hadPosition_(hadPos),
   emE_(emE), hadE_(hadE), outerE_(outerE),

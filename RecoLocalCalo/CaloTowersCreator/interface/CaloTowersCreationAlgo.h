@@ -111,6 +111,8 @@ public:
   // The key is the calotower id.
   void makeHcalDropChMap();
 
+  void makeEcalBadChs();
+
   void begin();
   void process(const HBHERecHitCollection& hbhe);
   void process(const HORecHitCollection& ho);
@@ -192,9 +194,9 @@ public:
   GlobalPoint hadSegmentShwrPos(DetId detId, float fracDepth);
   // "effective" point for the EM/HAD shower in CaloTower
   //  position based on non-zero energy cells
-  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId,double> >& metaContains,
+  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId,float> >& metaContains,
     float fracDepth, double hadE);
-  GlobalPoint emShwrPos(const std::vector<std::pair<DetId,double> >& metaContains, 
+  GlobalPoint emShwrPos(const std::vector<std::pair<DetId,float> >& metaContains, 
     float fracDepth, double totEmE);
 
   // overloaded function to get had position based on all had cells in the tower
@@ -202,21 +204,23 @@ public:
   GlobalPoint hadShwPosFromCells(DetId frontCell, DetId backCell, float fracDepth);
 
   // for Chris
-  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId,double> >& metaContains, 
+  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId,float> >& metaContains, 
     float fracDepth, double totEmE);
 
 
 private:
 
   struct MetaTower {
-    MetaTower();
-    double E, E_em, E_had, E_outer;
+    MetaTower(){}
+    bool empty() const { return metaConstituents.empty();}
     // contains also energy of RecHit
-    std::vector< std::pair<DetId, double> > metaConstituents;
-    double emSumTimeTimesE, hadSumTimeTimesE, emSumEForTime, hadSumEForTime; // Sum(Energy x Timing) : intermediate container
+    std::vector< std::pair<DetId, float> > metaConstituents;
+    CaloTowerDetId id;
+    float E=0, E_em=0, E_had=0, E_outer=0;
+    float emSumTimeTimesE=0, hadSumTimeTimesE=0, emSumEForTime=0, hadSumEForTime=0; // Sum(Energy x Timing) : intermediate container
 
     // needed to set CaloTower status word
-    int numBadEcalCells, numRecEcalCells, numProbEcalCells, numBadHcalCells, numRecHcalCells, numProbHcalCells; 
+    int numBadEcalCells=0, numRecEcalCells=0, numProbEcalCells=0, numBadHcalCells=0, numRecHcalCells=0, numProbHcalCells=0; 
 
  };
 
@@ -315,13 +319,17 @@ private:
   
 
   // internal map
-  typedef std::map<CaloTowerDetId, MetaTower> MetaTowerMap;
+  typedef std::vector<MetaTower> MetaTowerMap;
   MetaTowerMap theTowerMap;
+  unsigned int theTowerMapSize=0;
 
   // Number of channels in the tower that were not used in RecHit production (dead/off,...).
   // These channels are added to the other "bad" channels found in the recHit collection. 
   typedef std::map<CaloTowerDetId, int> HcalDropChMap;
   HcalDropChMap hcalDropChMap;
+
+  // Number of bad Ecal channel in each tower
+  unsigned short ecalBadChs[CaloTowerDetId::kSizeForDenseIndexing];
 
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file
