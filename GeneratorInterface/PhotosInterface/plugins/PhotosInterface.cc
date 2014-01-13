@@ -1,13 +1,10 @@
-
 #include <iostream>
-
-// #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
-
-#include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosInterface.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-// #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_HEPEVT.h"
@@ -18,6 +15,11 @@ using namespace edm;
 using namespace std;
 
 
+namespace PhotosInterfaceVar {
+  CLHEP::HepRandomEngine* decayRandomEngine;
+}
+
+
 extern "C"{
 
    void phoini_( void );
@@ -25,14 +27,8 @@ extern "C"{
 
    double phoran_(int *idummy)
    {
-      return decayRandomEngine->flat();
+     return PhotosInterfaceVar::decayRandomEngine->flat();
    }
-/*
-   double phoranc_(int *idummy)
-   {
-      return decayRandomEngine->flat();
-   }
-*/
 
    extern struct {
       // bool qedrad[NMXHEP];
@@ -40,6 +36,7 @@ extern "C"{
    } phoqed_;
 
 }
+
 
 
 PhotosInterface::PhotosInterface()
@@ -56,6 +53,11 @@ PhotosInterface::PhotosInterface( const edm::ParameterSet& )
    fSpecialSettings.push_back("QED-brem-off:all");
    fIsInitialized = false;
 }
+
+void PhotosInterface::SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){
+  PhotosInterfaceVar::decayRandomEngine=decayRandomEngine;
+}
+
 
 void PhotosInterface::configureOnlyFor( int ipdg )
 {
@@ -468,136 +470,4 @@ bool PhotosInterface::isTauLeptonicDecay( HepMC::GenVertex* vtx )
 
 }
 
-/* very first version... but Phptos seems to want a SINGLE vertex, nor a branch
-
-void PhotosInterface::applyToBranch( HepMC::GenEvent* evt, int vtxbcode )
-{
-
-   HepMC::GenVertex* vtx = evt->barcode_to_vertex( vtxbcode );
-   
-   vtx->print();
-   
-   // special case - do nothing
-   // we don't brem off tau since it'll be done by master generator,
-   // and within tau leptonic decays the brem is done by tauola
-   //
-   if ( fAvoidTauLeptonicDecays && isTauLeptonicDecay( vtx ) ) return;
-   
-   std::vector<int> secVtxStore;
-   secVtxStore.clear();
-   
-   // first, flush out HEPEVT & tmp barcode storage
-   //
-   HepMC::HEPEVT_Wrapper::zero_everything();
-   fBarcodes.clear();
-
-   // form 1st level vertex
-   //
-   // add incoming particle
-   //
-   int index = 1;      
-   HepMC::HEPEVT_Wrapper::set_id( index, (*(vtx->particles_in_const_begin()))->pdg_id() );
-   HepMC::FourVector vec4;
-   vec4 = (*(vtx->particles_in_const_begin()))->momentum();
-   HepMC::HEPEVT_Wrapper::set_momentum( index, vec4.x(), vec4.y(), vec4.z(), vec4.e() );
-   HepMC::HEPEVT_Wrapper::set_mass( index, (*(vtx->particles_in_const_begin()))->generated_mass() );
-   HepMC::HEPEVT_Wrapper::set_position( index, vtx->position().x(), vtx->position().y(),
-                                                  vtx->position().z(), vtx->position().t() );
-   HepMC::HEPEVT_Wrapper::set_status( index, (*(vtx->particles_in_const_begin()))->status() );
-   HepMC::HEPEVT_Wrapper::set_parents( index, 0, 0 );
-   fBarcodes.push_back( (*(vtx->particles_in_const_begin()))->barcode() );
-
-   int lastDau = 1;
-   for ( HepMC::GenVertex::particle_iterator pitr=vtx->particles_begin(HepMC::children);
-         pitr != vtx->particles_end(HepMC::children); ++pitr) 
-   {
-
-      // put particles into HEPEVT - form 1st level vertex
-      //
-      if ( (*pitr)->status() == 1 || (*pitr)->end_vertex() )
-      {
-	    index++;
-	    vec4 = (*pitr)->momentum();
-	    HepMC::HEPEVT_Wrapper::set_id( index, (*pitr)->pdg_id() );
-            HepMC::HEPEVT_Wrapper::set_momentum( index, vec4.x(), vec4.y(), vec4.z(), vec4.e() );
-	    HepMC::HEPEVT_Wrapper::set_mass( index, (*pitr)->generated_mass() );
-	    vec4 = (*pitr)->production_vertex()->position();
-            HepMC::HEPEVT_Wrapper::set_position( index, vec4.x(), vec4.y(), vec4.z(), vec4.t() );
-	    HepMC::HEPEVT_Wrapper::set_status( index, (*pitr)->status() );
-	    HepMC::HEPEVT_Wrapper::set_parents( index, 1, 1 );
-	    fBarcodes.push_back( (*pitr)->barcode() );
-	    lastDau++;
-      }
-      
-      if ( (*pitr)->end_vertex() )
-      {
-         secVtxStore.push_back( (*pitr)->end_vertex()->barcode() );
-      }      
-   }
-      
-   if ( lastDau < 2 ) lastDau = 2;
-   HepMC::HEPEVT_Wrapper::set_children ( 1, 2, lastDau );                                                           
-      
-   // now look down the branch for more vertices, if any
-   //
-   unsigned int vcounter = 0;  
-   int firstDau = lastDau + 1;  
-   int index1 = index;   	    
-   while ( vcounter < secVtxStore.size() )
-   { 
-      HepMC::GenVertex* theVtx = evt->barcode_to_vertex( secVtxStore[vcounter] );
-      for ( HepMC::GenVertex::particle_iterator pitr1=theVtx->particles_begin(HepMC::children);
-                        pitr1 != theVtx->particles_end(HepMC::children); ++pitr1) 
-      {
-         if ( (*pitr1)->status() == 1 || (*pitr1)->end_vertex() )
-         {
-	    index++;
-	    vec4 = (*pitr1)->momentum();
-	    HepMC::HEPEVT_Wrapper::set_id( index, (*pitr1)->pdg_id() );
-            HepMC::HEPEVT_Wrapper::set_momentum( index, vec4.x(), vec4.y(), vec4.z(), vec4.e() );
-	    HepMC::HEPEVT_Wrapper::set_mass( index, (*pitr1)->generated_mass() );
-	    vec4 = (*pitr1)->production_vertex()->position();
-            HepMC::HEPEVT_Wrapper::set_position( index, vec4.x(), vec4.y(), vec4.z(), vec4.t() );
-	    HepMC::HEPEVT_Wrapper::set_status( index, (*pitr1)->status() );
-	    HepMC::HEPEVT_Wrapper::set_parents( index, index1, index1 );
-	    fBarcodes.push_back( (*pitr1)->barcode() );
-	    lastDau++;
-         }
-         if ( (*pitr1)->end_vertex() )
-         {
-            secVtxStore.push_back( (*pitr1)->end_vertex()->barcode() );
-	 }
-      }
-      index1 += 1;
-      HepMC::HEPEVT_Wrapper::set_children ( index1, firstDau, lastDau );
-      index1 = index;
-      firstDau = lastDau + 1;
-      vcounter++;
-   } 
-   
-   // finally, set number of entries (NHEP) in HEPEVT
-   //
-   int nentries = index;
-   HepMC::HEPEVT_Wrapper::set_number_entries( nentries );  
-
-   // test printout
-   HepMC::HEPEVT_Wrapper::print_hepevt();   
-
-   // don't start from the first one since it's going to be
-   // the incoming particles (e.g. tau) which is already
-   // treated by the brem from master generator
-   //
-   index = 2;
-   // oh well, maybe 2 was a bad idea...
-   index = 1;
-   photos_( index );
-
-   HepMC::HEPEVT_Wrapper::print_hepevt();   
-   
-   attachParticles( evt, vtx, nentries );
-     
-   return;
-
-}
-*/
-
+DEFINE_EDM_PLUGIN(PhotosFactory, gen::PhotosInterface, "Photos2155");

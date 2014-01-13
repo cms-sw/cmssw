@@ -1,0 +1,15 @@
+<library file="*.cc,*.cpp,*.f" name="EventGenFactory">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="GeneratorInterface/EvtGenInterface"/>
+  <use name="GeneratorInterface/Pythia6Interface"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="heppdt"/>
+  <use name="clhep"/>
+  <use name="hepmc"/>
+  <use name="evtgenlhc"/>
+  <use name="photos"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

@@ -11,38 +11,31 @@ class GenEvent;
 
 namespace gen {
 
-class TauolaInterface;
-class EvtGenInterface;
-class PhotosInterface;
+  class EvtGenInterfaceBase;
+  class TauolaInterfaceBase;
+  class PhotosInterfaceBase;
 
    class ExternalDecayDriver 
    {
       public:
-         
 	 // ctor & dtor
 	 ExternalDecayDriver( const edm::ParameterSet& );
 	 ~ExternalDecayDriver();
 	 
 	 void init( const edm::EventSetup& );
-
 	 const std::vector<int>&         operatesOnParticles() { return fPDGs; }
 	 const std::vector<std::string>& specialSettings()     { return fSpecialSettings; }
-	 
 	 HepMC::GenEvent* decay( HepMC::GenEvent* );
-	 
 	 void statistics() const;
       
       private:
-      	 
 	 bool                     fIsInitialized;
-	 TauolaInterface*         fTauolaInterface;
-	 EvtGenInterface*         fEvtGenInterface;
-	 PhotosInterface*         fPhotosInterface;
+	 TauolaInterfaceBase*     fTauolaInterface;
+	 EvtGenInterfaceBase*     fEvtGenInterface;
+	 PhotosInterfaceBase*     fPhotosInterface;
 	 std::vector<int>         fPDGs;
 	 std::vector<std::string> fSpecialSettings;
-         
    };
-
 }
 
 #endif
