@@ -36,8 +36,8 @@ void TkAlCaRecoMonitor::beginJob() {
 
   std::string histname;  //for naming the histograms according to algorithm used
 
-  trackProducer_ = conf_.getParameter<edm::InputTag>("TrackProducer");
-  referenceTrackProducer_ = conf_.getParameter<edm::InputTag>("ReferenceTrackProducer");
+  trackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
+  referenceTrackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("ReferenceTrackProducer"));
 
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
@@ -142,7 +142,7 @@ void TkAlCaRecoMonitor::beginJob() {
 
   histname = "AlCaRecoTrackEfficiency_";
   AlCaRecoTrackEfficiency_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackEfficiencyBin, TrackEfficiencyMin, TrackEfficiencyMax);
-  AlCaRecoTrackEfficiency_->setAxisTitle("n("+trackProducer_.label()+") / n("+referenceTrackProducer_.label()+")");
+  // needs to be fixed: AlCaRecoTrackEfficiency_->setAxisTitle("n("+trackProducer_.label()+") / n("+referenceTrackProducer_.label()+")");
 
   int zBin =  conf_.getParameter<unsigned int>("HitMapsZBin"); //300
   double zMax = conf_.getParameter<double>("HitMapZMax"); //300.0; //cm
@@ -184,14 +184,16 @@ void TkAlCaRecoMonitor::beginJob() {
 void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<reco::TrackCollection> trackCollection;
-  iEvent.getByLabel(trackProducer_, trackCollection);
+  // iEvent.getByLabel(trackProducer_, trackCollection);
+  iEvent.getByToken(trackProducer_, trackCollection);
   if (!trackCollection.isValid()){
     edm::LogError("Alignment")<<"invalid trackcollection encountered!";
     return;
   }
 
   edm::Handle<reco::TrackCollection> referenceTrackCollection;
-  iEvent.getByLabel(referenceTrackProducer_, referenceTrackCollection);
+  // iEvent.getByLabel(referenceTrackProducer_, referenceTrackCollection);
+  iEvent.getByToken(referenceTrackProducer_, referenceTrackCollection);
   if (!trackCollection.isValid()){
     edm::LogError("Alignment")<<"invalid reference track-collection encountered!";
     return;
@@ -212,8 +214,10 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<reco::CaloJetCollection> jets;
   if(runsOnReco_){
-    edm::InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
-    iEvent.getByLabel(jetCollection, jets);
+    // edm::InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
+    edm::EDGetTokenT<reco::CaloJetCollection> jetCollection = consumes<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
+    // iEvent.getByLabel(jetCollection, jets);
+    iEvent.getByToken(jetCollection, jets);
     if(! jets.isValid()){
       edm::LogError("Alignment")<<"no jet collection found in event!";
     }

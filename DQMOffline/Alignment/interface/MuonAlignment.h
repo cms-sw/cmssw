@@ -122,10 +122,15 @@ private:
     RecHitVector doMatching(const reco::Track &, edm::Handle<DTRecSegment4DCollection> &, edm::Handle<CSCSegmentCollection> &, intDVector *, intDVector *, edm::ESHandle<GlobalTrackingGeometry> &); 
 
     // Muon Track Label
-    edm::InputTag theMuonCollectionLabel;
+    // edm::InputTag theMuonCollectionLabel;
+    edm::EDGetTokenT<reco::TrackCollection> theMuonCollectionLabel;
 
-    edm::InputTag theRecHits4DTagDT;
-    edm::InputTag theRecHits4DTagCSC;
+    // edm::InputTag theRecHits4DTagDT;
+    edm::EDGetTokenT<DTRecSegment4DCollection> theRecHits4DTagDT;
+
+    // edm::InputTag theRecHits4DTagCSC;
+    edm::EDGetTokenT<CSCSegmentCollection> theRecHits4DTagCSC;
+
     std::string trackRefitterType;
  
     // residual histos residual range
