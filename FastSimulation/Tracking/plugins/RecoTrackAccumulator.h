@@ -54,16 +54,11 @@ class RecoTrackAccumulator : public DigiAccumulatorMixMod
   reco::TrackExtraRefProd rTrackExtras;
   TrackingRecHitRefProd rHits;
 
-  edm::InputTag GeneralTrackInputSignal_;
-  edm::InputTag GeneralTrackInputPileup_;
+  edm::InputTag InputSignal_;
+  edm::InputTag InputPileup_;
+
   std::string GeneralTrackOutput_;
-
-  edm::InputTag HitInputSignal_;
-  edm::InputTag HitInputPileup_;
   std::string HitOutput_;
-
-  edm::InputTag GeneralTrackExtraInputSignal_;
-  edm::InputTag GeneralTrackExtraInputPileup_;
   std::string GeneralTrackExtraOutput_;
 
 };

@@ -3,14 +3,10 @@
 #include "FWCore/Framework/interface/one/EDProducer.h"
 
 RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
-  GeneralTrackInputSignal_(conf.getParameter<edm::InputTag>("GeneralTrackInputSignal")),
-  GeneralTrackInputPileup_(conf.getParameter<edm::InputTag>("GeneralTrackInputPileup")),
+  InputSignal_(conf.getParameter<edm::InputTag>("InputSignal")),
+  InputPileup_(conf.getParameter<edm::InputTag>("InputPileup")),
   GeneralTrackOutput_(conf.getParameter<std::string>("GeneralTrackOutput")),
-  HitInputSignal_(conf.getParameter<edm::InputTag>("HitInputSignal")),
-  HitInputPileup_(conf.getParameter<edm::InputTag>("HitInputPileup")),
   HitOutput_(conf.getParameter<std::string>("HitOutput")),
-  GeneralTrackExtraInputSignal_(conf.getParameter<edm::InputTag>("GeneralTrackExtraInputSignal")),
-  GeneralTrackExtraInputPileup_(conf.getParameter<edm::InputTag>("GeneralTrackExtraInputPileup")),
   GeneralTrackExtraOutput_(conf.getParameter<std::string>("GeneralTrackExtraOutput"))
 {
 
@@ -18,13 +14,9 @@ RecoTrackAccumulator::RecoTrackAccumulator(const edm::ParameterSet& conf, edm::o
   mixMod.produces<TrackingRecHitCollection>(HitOutput_);
   mixMod.produces<reco::TrackExtraCollection>(GeneralTrackExtraOutput_);
 
-  iC.consumes<reco::TrackCollection>(GeneralTrackInputSignal_);
-  iC.consumes<TrackingRecHitCollection>(HitInputSignal_);
-  iC.consumes<reco::TrackExtraCollection>(GeneralTrackExtraInputSignal_);
-
-  iC.consumes<reco::TrackCollection>(GeneralTrackInputPileup_);
-  iC.consumes<TrackingRecHitCollection>(HitInputPileup_);
-  iC.consumes<reco::TrackExtraCollection>(GeneralTrackExtraInputPileup_);
+  iC.consumes<reco::TrackCollection>(InputSignal_);
+  iC.consumes<TrackingRecHitCollection>(InputSignal_);
+  iC.consumes<reco::TrackExtraCollection>(InputSignal_);
 }
   
 RecoTrackAccumulator::~RecoTrackAccumulator() {
@@ -49,9 +41,9 @@ void RecoTrackAccumulator::accumulate(edm::Event const& e, edm::EventSetup const
   edm::Handle<reco::TrackCollection> tracks;
   edm::Handle<TrackingRecHitCollection> hits;
   edm::Handle<reco::TrackExtraCollection> trackExtras;
-  e.getByLabel(GeneralTrackInputSignal_, tracks);
-  e.getByLabel(HitInputSignal_, hits);
-  e.getByLabel(GeneralTrackExtraInputSignal_, trackExtras);
+  e.getByLabel(InputSignal_, tracks);
+  e.getByLabel(InputSignal_, hits);
+  e.getByLabel(InputSignal_, trackExtras);
 
   // Call the templated version that does the same for both signal and pileup events
   accumulateEvent( e, iSetup, tracks, trackExtras, hits );
@@ -65,9 +57,9 @@ void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventS
     edm::Handle<reco::TrackCollection> tracks;
     edm::Handle<TrackingRecHitCollection> hits;
     edm::Handle<reco::TrackExtraCollection> trackExtras;
-    e.getByLabel(GeneralTrackInputPileup_, tracks);
-    e.getByLabel(HitInputPileup_, hits);
-    e.getByLabel(GeneralTrackExtraInputPileup_, trackExtras);
+    e.getByLabel(InputPileup_, tracks);
+    e.getByLabel(InputPileup_, hits);
+    e.getByLabel(InputPileup_, trackExtras);
     
     // Call the templated version that does the same for both signal and pileup events
     accumulateEvent( e, iSetup, tracks, trackExtras, hits );
@@ -78,6 +70,7 @@ void RecoTrackAccumulator::accumulate(PileUpEventPrincipal const& e, edm::EventS
 void RecoTrackAccumulator::finalizeEvent(edm::Event& e, const edm::EventSetup& iSetup) {
   
   e.put( NewTrackList_, GeneralTrackOutput_ );
+  e.put( NewHitList_, HitOutput_ );
   e.put( NewTrackExtraList_, GeneralTrackExtraOutput_ );
 
 }
