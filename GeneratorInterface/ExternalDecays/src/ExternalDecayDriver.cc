@@ -18,8 +18,7 @@ using namespace edm;
 
 CLHEP::HepRandomEngine* decayRandomEngine;
 
-ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
-  : hastauolapp(false),
+ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset ) :
      fIsInitialized(false),
      fTauolaInterface(0),
      fEvtGenInterface(0),
