@@ -41,9 +41,9 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
     # photon ID
     addPhotonID = cms.bool(True),
     photonIDSources = cms.PSet(
-             PhotonCutBasedIDLoose = cms.InputTag('PhotonIDProd',
+             PhotonCutBasedIDLoose = cms.InputTag('PhotonIDProdGED',
                                                   'PhotonCutBasedIDLoose'),
-             PhotonCutBasedIDTight = cms.InputTag('PhotonIDProd',
+             PhotonCutBasedIDTight = cms.InputTag('PhotonIDProdGED',
                                                   'PhotonCutBasedIDTight')
            ),
     # mc matching
