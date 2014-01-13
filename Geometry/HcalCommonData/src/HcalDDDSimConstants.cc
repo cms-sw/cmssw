@@ -98,7 +98,7 @@ HcalCellType::HcalCell HcalDDDSimConstants::cell(int idet, int zside,
     } else if (etaR <= nEta) {
       int laymin(depth), laymax(depth);
       if (idet == static_cast<int>(HcalOuter)) {
-	laymin = ((nOff.size() > 13) && (etaR > nOff[13])) ? ((int)(zHE.size())) : ((int)(zHE.size()))-1;
+	laymin = (etaR > nOff[2]) ? ((int)(zHE.size())) : ((int)(zHE.size()))-1;
 	laymax = ((int)(zHE.size()));
       }
       double d1=0, d2=0;
@@ -195,8 +195,8 @@ int HcalDDDSimConstants::getEta(int det,int lay, double hetaR) {
       if (hetaR > etaTable[i]) ieta = i + 1;
     if (det == static_cast<int>(HcalBarrel)) {
       if (ieta > etaMax[0])  ieta = etaMax[0];
-      if (lay == 18 && nOff.size() > 13) {
-	if (hetaR > etaHO[1] && ieta == nOff[13]) ieta++;
+      if (lay == 18) {
+	if (hetaR > etaHO[1] && ieta == nOff[2]) ieta++;
       }
     } else {
       if (ieta <= etaMin[1]) ieta = etaMin[1];
@@ -252,8 +252,10 @@ double HcalDDDSimConstants::getEtaHO(double& etaR, double& x, double& y,
       }
     }
     eta = (z >= 0. ? eta : -eta);
-    //  std::cout << "R " << r << " Z " << z << " eta " << etaR << ":" << eta <<"\n";
-    //  if (eta != etaR) std::cout << "**** Check *****\n";
+#ifdef DebugLog
+    std::cout << "R " << r << " Z " << z << " eta " << etaR <<":" <<eta <<"\n";
+    if (eta != etaR) std::cout << "**** Check *****\n";
+#endif
     return eta;
   } else {
     return etaR;
@@ -341,7 +343,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
   double hsize = 0;
   switch(subdet) {
   case HcalEndcap:
-    dmin = 1; dmax = 1; indx = 1; nz = nzHE; nmod = nmodHE;
+    dmin = 1; dmax = 19; indx = 1; nz = nzHE; nmod = nmodHE;
     break;
   case HcalForward:
     dmin = 1; dmax = 2; indx = 2; nz = 2; nmod = 18; 
@@ -350,7 +352,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
     dmin = 4; dmax = 4; indx = 0; nz = nzHB; nmod = nmodHB;
     break;
   default:
-    dmin = 1; dmax = 1; indx = 0; nz = nzHB; nmod = nmodHB;
+    dmin = 1; dmax = 17; indx = 0; nz = nzHB; nmod = nmodHB;
     break;
   }
   if (depthl > 0) dmin = dmax = depthl;
@@ -374,15 +376,15 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(HcalSubdetector sub
 	int units = unitPhi (subdet0, eta);
 	HcalCellType temp2(subdet, eta, phi, depth, temp1,
 			   shift, gain, nz, nmod, hsize, units);
-	if (subdet == HcalOuter && nOff.size() > 17) {
-	  if (eta == nOff[15]) {
+	if (subdet == HcalOuter) {
+	  if (eta == nOff[4]) {
 	    std::vector<int> missPlus, missMinus;
-	    int kk = 18;
-	    for (int miss=0; miss<nOff[16]; miss++) {
+	    int kk = 7;
+	    for (int miss=0; miss<nOff[5]; miss++) {
 	      missPlus.push_back(nOff[kk]);
 	      kk++;
 	    }
-	    for (int miss=0; miss<nOff[17]; miss++) {
+	    for (int miss=0; miss<nOff[6]; miss++) {
 	      missMinus.push_back(nOff[kk]);
 	      kk++;
 	    }
@@ -983,8 +985,8 @@ void HcalDDDSimConstants::loadGeometry(const DDFilteredView& _fv) {
     etaHO[3] = etaTable[10];
   }
 #ifdef DebugLog
-  edm::LogInfo("HCalGeom") << "HO Eta boundaries " << etaHO[0] << " " << etaHO[1]
-		       << " " << etaHO[2] << " " << etaHO[3];
+  std::cout << "HO Eta boundaries " << etaHO[0] << " " << etaHO[1]
+	    << " " << etaHO[2] << " " << etaHO[3] << std::endl;
   std::cout << "HO Parameters " << rminHO << " " << zho.size();
   for (int i=0; i<4; ++i) std::cout << " eta[" << i << "] = " << etaHO[i];
   for (unsigned int i=0; i<zho.size(); ++i) std::cout << " zho[" << i << "] = " << zho[i];
@@ -1062,14 +1064,14 @@ double HcalDDDSimConstants::deltaEta(int det, int etaR, int depth) const {
     if (etaR > 0 && etaR < nEta) {
       if (etaR == nOff[1]-1 && depth > 2) {
 	tmp = 0.5*(etaTable[etaR+1]-etaTable[etaR-1]);
-      } else if (det == static_cast<int>(HcalOuter) && nOff.size() > 13) {
-	if (etaR == nOff[13]) {
+      } else if (det == static_cast<int>(HcalOuter)) {
+	if (etaR == nOff[2]) {
 	  tmp = 0.5*(etaHO[0]-etaTable[etaR-1]);
-	} else if (etaR == nOff[13]+1) {
+	} else if (etaR == nOff[2]+1) {
 	  tmp = 0.5*(etaTable[etaR]-etaHO[1]);
-	} else if (etaR == nOff[14]) {
+	} else if (etaR == nOff[3]) {
 	  tmp = 0.5*(etaHO[2]-etaTable[etaR-1]);
-	} else if (etaR == nOff[14]+1) {
+	} else if (etaR == nOff[3]+1) {
 	  tmp = 0.5*(etaTable[etaR]-etaHO[3]);
 	} else {
 	  tmp = 0.5*(etaTable[etaR]-etaTable[etaR-1]);
@@ -1101,14 +1103,14 @@ double HcalDDDSimConstants::getEta(int det, int etaR, int zside,
     if (etaR > 0 && etaR < nEta) {
       if (etaR == nOff[1]-1 && depth > 2) {
 	tmp = 0.5*(etaTable[etaR+1]+etaTable[etaR-1]);
-      } else if (det == static_cast<int>(HcalOuter) && nOff.size() > 13) {
-	if (etaR == nOff[13]) {
+      } else if (det == static_cast<int>(HcalOuter)) {
+	if (etaR == nOff[2]) {
 	  tmp = 0.5*(etaHO[0]+etaTable[etaR-1]);
-	} else if (etaR == nOff[13]+1) {
+	} else if (etaR == nOff[2]+1) {
 	  tmp = 0.5*(etaTable[etaR]+etaHO[1]);
-	} else if (etaR == nOff[14]) {
+	} else if (etaR == nOff[3]) {
 	  tmp = 0.5*(etaHO[2]+etaTable[etaR-1]);
-	} else if (etaR == nOff[14]+1) {
+	} else if (etaR == nOff[3]+1) {
 	  tmp = 0.5*(etaTable[etaR]+etaHO[3]);
 	} else {
 	  tmp = 0.5*(etaTable[etaR]+etaTable[etaR-1]);
@@ -1142,13 +1144,16 @@ int HcalDDDSimConstants::getShift(HcalSubdetector subdet, int depth) const {
   int shift;
   switch(subdet) {
   case HcalEndcap:
-    shift = (depth <= (int)(shiftHE.size())) ? shiftHE[depth-1] : shiftHE[0];
+    shift = shiftHE[0];
     break;
   case HcalForward:
     shift = shiftHF[depth-1];
     break;
+  case HcalOuter:
+    shift = shiftHB[3];
+    break;
   default:
-    shift =  (depth <= (int)(shiftHB.size())) ? shiftHB[depth-1] : shiftHB[0];
+    shift = shiftHB[0];
     break;
   }
   return shift;
@@ -1159,13 +1164,16 @@ double HcalDDDSimConstants::getGain(HcalSubdetector subdet, int depth) const {
   double gain;
   switch(subdet) {
   case HcalEndcap:
-    gain = (depth <= (int)(gainHE.size())) ? gainHE[depth-1] : gainHE[0];
+    gain = gainHE[0];
     break;
   case HcalForward:
     gain = gainHF[depth-1];
     break;
+  case HcalOuter:
+    gain = gainHB[3];
+    break;
   default:
-    gain = (depth <= (int)(gainHB.size())) ? gainHB[depth-1] : gainHB[0];
+    gain = gainHB[0];
     break;
   }
   return gain;

@@ -157,18 +157,7 @@
     <Parameter name="layerGroupEta17" value="5"/>
     <Parameter name="layerGroupEta17" value="5"/>
     <Parameter name="noff" value="15"/>
-    <Parameter name="noff" value="29"/>
-    <Parameter name="noff" value="15"/>
-    <Parameter name="noff" value="9"/>
-    <Parameter name="noff" value="5"/>
-    <Parameter name="noff" value="10"/>
-    <Parameter name="noff" value="17"/>
-    <Parameter name="noff" value="3"/>
-    <Parameter name="noff" value="15"/>
-    <Parameter name="noff" value="18"/>
-    <Parameter name="noff" value="1"/>
-    <Parameter name="noff" value="18"/>
-    <Parameter name="noff" value="19"/>
+    <Parameter name="noff" value="99"/>
     <Parameter name="noff" value="4"/>
     <Parameter name="noff" value="10"/>
     <Parameter name="noff" value="5"/>
@@ -199,8 +188,8 @@
     <Parameter name="gparHF" value="1115.0*cm"/>
     <Parameter name="gparHF" value="0.375*cm"/>
     <Parameter name="gparHF" value="1137.0*cm"/>
-    <Parameter name="Layer0Wt" value="0.5"/>
-    <Parameter name="Layer0Wt" value="0.5"/>
+    <Parameter name="Layer0Wt" value="1.2"/>
+    <Parameter name="Layer0Wt" value="1.2"/>
     <Parameter name="HBGains" value="117.0"/>
     <Parameter name="HBGains" value="117.0"/>
     <Parameter name="HBGains" value="117.0"/>

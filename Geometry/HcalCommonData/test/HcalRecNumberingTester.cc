@@ -130,6 +130,10 @@ void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
    std::cout << "Topology Mode " << hdc.getTopoMode() 
 	     << " HB with " << hbar.size() << " eta sectors and HE with "
 	     << hcap.size() << " eta sectors" << std::endl;
+   std::vector<HcalCellType> hbcell = hdc.HcalCellTypes(HcalBarrel);
+   std::vector<HcalCellType> hecell = hdc.HcalCellTypes(HcalEndcap);
+   std::cout << "HB with " << hbcell.size() << " cells and HE with "
+	     << hecell.size() << " cells" << std::endl;
 }
 
 

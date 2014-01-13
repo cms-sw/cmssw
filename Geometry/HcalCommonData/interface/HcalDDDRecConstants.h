@@ -36,12 +36,12 @@ public:
     HcalID(int et=0, int fi=0, int d=0) : eta(et), phi(fi), depth(d) {}
   };
   struct HcalEtaBin {
-    int    nPhi, depthStart;
+    int    ieta, nPhi, depthStart;
     double etaMin, etaMax, phi0, dphi;
     std::vector<std::pair<int, int> > layer;
-    HcalEtaBin(double et1=0, double et2=0, int nf=0, double fi0=0,
-	       double df=0) : nPhi(nf),depthStart(0), etaMin(et1), etaMax(et2),
-			      phi0(fi0), dphi(df) {}
+    HcalEtaBin(int eta=0, double et1=0, double et2=0, int nf=0, double fi0=0,
+	       double df=0) : ieta(eta), nPhi(nf),depthStart(0), etaMin(et1), 
+			      etaMax(et2), phi0(fi0), dphi(df) {}
   };
 
   std::vector<int>          getDepth(const int i) const {return layerGroup[i];}
@@ -56,6 +56,8 @@ public:
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return phioff[i];}
   std::string               getTopoMode() const {return modeTopo;}
+  std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
+  unsigned int              numberOfCells(HcalSubdetector) const;
        
 private:
   HcalDDDRecConstants();
@@ -69,6 +71,7 @@ private:
   std::string         modeTopo;   // Mode for topology
   std::vector<double> phioff;     // Phi offset for barrel, endcap, forward
   std::vector<int>    etaGroup;   // Eta Grouping
+  std::vector<std::pair<int,int> > etaSimValu; // eta ranges at Sim stage
   std::vector<double> etaTable;   // Eta table 
   std::vector<int>    ietaMap;    // Map Sim level ieta to Rec level ieta
   int                 iEtaMin[4], iEtaMax[4]; // Minimum and maximum eta
