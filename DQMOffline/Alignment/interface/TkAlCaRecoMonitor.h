@@ -65,9 +65,7 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   bool runsOnReco_;
   bool useSignedR_;
 
-  // edm::InputTag trackProducer_;
   edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
-  // edm::InputTag referenceTrackProducer_;
   edm::EDGetTokenT<reco::TrackCollection> referenceTrackProducer_;
   double daughterMass_;
   std::map<int,int> binByRawId_;

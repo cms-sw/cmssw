@@ -238,18 +238,15 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     // Get the RecoMuons collection from the event
     edm::Handle<reco::TrackCollection> muons;
-    // iEvent.getByLabel(theMuonCollectionLabel, muons);
     iEvent.getByToken(theMuonCollectionLabel, muons);
 
     // Get the 4D DTSegments
     edm::Handle<DTRecSegment4DCollection> all4DSegmentsDT;
-    // iEvent.getByLabel(theRecHits4DTagDT, all4DSegmentsDT);
     iEvent.getByToken(theRecHits4DTagDT, all4DSegmentsDT);
     DTRecSegment4DCollection::const_iterator segmentDT;
 
     // Get the 4D CSCSegments
     edm::Handle<CSCSegmentCollection> all4DSegmentsCSC;
-    // iEvent.getByLabel(theRecHits4DTagCSC, all4DSegmentsCSC);
     iEvent.getByToken(theRecHits4DTagCSC, all4DSegmentsCSC);
     CSCSegmentCollection::const_iterator segmentCSC;
   

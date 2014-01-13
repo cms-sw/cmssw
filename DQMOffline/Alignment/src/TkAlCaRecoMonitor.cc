@@ -184,7 +184,6 @@ void TkAlCaRecoMonitor::beginJob() {
 void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   edm::Handle<reco::TrackCollection> trackCollection;
-  // iEvent.getByLabel(trackProducer_, trackCollection);
   iEvent.getByToken(trackProducer_, trackCollection);
   if (!trackCollection.isValid()){
     edm::LogError("Alignment")<<"invalid trackcollection encountered!";
@@ -192,7 +191,6 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   edm::Handle<reco::TrackCollection> referenceTrackCollection;
-  // iEvent.getByLabel(referenceTrackProducer_, referenceTrackCollection);
   iEvent.getByToken(referenceTrackProducer_, referenceTrackCollection);
   if (!trackCollection.isValid()){
     edm::LogError("Alignment")<<"invalid reference track-collection encountered!";
@@ -216,7 +214,6 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(runsOnReco_){
     // edm::InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
     edm::EDGetTokenT<reco::CaloJetCollection> jetCollection = consumes<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
-    // iEvent.getByLabel(jetCollection, jets);
     iEvent.getByToken(jetCollection, jets);
     if(! jets.isValid()){
       edm::LogError("Alignment")<<"no jet collection found in event!";
