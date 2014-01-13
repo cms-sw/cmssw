@@ -299,15 +299,14 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
         || i->data_.streamId != streamId
         || i->data_.moduleId != moduleId)
       break;
-    MonitorElement global_me(*i);
 
     // Handle Run-based histograms only.
-
-    if (global_me.getLumiFlag()) {
+    if (i->getLumiFlag()) {
       ++i;
       continue;
     }
 
+    MonitorElement global_me(*i);
     global_me.globalize();
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
     if (me != data_.end()) {
@@ -352,15 +351,14 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
         || i->data_.streamId != streamId
         || i->data_.moduleId != moduleId)
       break;
-    MonitorElement global_me(*i);
 
     // Handle LS-based histograms only.
-
-    if (!global_me.getLumiFlag()) {
+    if (not i->getLumiFlag()) {
       ++i;
       continue;
     }
 
+    MonitorElement global_me(*i);
     global_me.globalize();
     global_me.setLumi(lumi);
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
