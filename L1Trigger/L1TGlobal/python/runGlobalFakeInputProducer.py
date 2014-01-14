@@ -12,7 +12,7 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 # Select the Message Logger output you would like to see:
 #
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
+process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
 process.maxEvents = cms.untracked.PSet(

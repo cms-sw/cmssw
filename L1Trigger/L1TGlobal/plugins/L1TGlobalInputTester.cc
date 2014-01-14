@@ -95,35 +95,46 @@ namespace l1t {
   Handle<BXVector<l1t::EtSum>> etsums;
   iEvent.getByToken(etsumToken,etsums); 
  
+    printf("\n -------------------------------------- \n");
+    printf(" ***********  New Event  ************** \n");
+    printf(" -------------------------------------- \n"); 
  //Loop over BX
     for(int i = egammas->getFirstBX(); i <= egammas->getLastBX(); ++i) {
     
+       printf("\n ========== BX %i =============================\n",i);
+    
        //Loop over EGamma
+       printf(" ------ EGammas --------\n");
        for(std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(i); eg != egammas->end(i); ++eg) {
-           printf("BX=%i EG Pt %i Eta %i Phi %i Qual %i  \n",i,eg->hwPt(),eg->hwEta(),eg->hwPhi(),eg->hwQual());
+           printf("   Pt %i Eta %i Phi %i Qual %i  Isol %i\n",eg->hwPt(),eg->hwEta(),eg->hwPhi(),eg->hwQual(),eg->hwIso());
        }    
 
        //Loop over Muons
+       printf("\n ------ Muons --------\n");
        for(std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
-           printf("BX=%i  Muon Pt %i Eta %i Phi %i Qual %i  \n",i,mu->hwPt(),mu->hwEta(),mu->hwPhi(),mu->hwQual());
+           printf("   Pt %i Eta %i Phi %i Qual %i  Iso %i \n",mu->hwPt(),mu->hwEta(),mu->hwPhi(),mu->hwQual(),mu->hwIso());
        }
 
-                  //Dump Content
+       //Loop over Taus
+       printf("\n ------ Taus ----------\n");
        for(std::vector<l1t::Tau>::const_iterator tau = taus->begin(i); tau != taus->end(i); ++tau) {
-           printf("BX=%i  Tau Pt %i Eta %i Phi %i Qual %i  \n",i,tau->hwPt(),tau->hwEta(),tau->hwPhi(),tau->hwQual());
+           printf("   Pt %i Eta %i Phi %i Qual %i  Iso %i \n",tau->hwPt(),tau->hwEta(),tau->hwPhi(),tau->hwQual(),tau->hwIso());
        }        
 
        //Loop over Jets
+       printf("\n ------ Jets ----------\n");
        for(std::vector<l1t::Jet>::const_iterator jet = jets->begin(i); jet != jets->end(i); ++jet) {
-          printf("BX=%i  Jet Pt %i Eta %i Phi %i Qual %i \n",i,jet->hwPt(),jet->hwEta(),jet->hwPhi(),jet->hwQual());
+          printf("   Pt %i Eta %i Phi %i Qual %i \n",jet->hwPt(),jet->hwEta(),jet->hwPhi(),jet->hwQual());
        }
                   //Dump Content
+	printf("\n ------ EtSums ----------\n");	  
        for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
-            printf("BX=%i  EtSum Pt %i Eta %i Phi %i Qual %i \n",i,etsum->hwPt(),etsum->hwEta(),etsum->hwPhi(),etsum->hwQual());
+            printf("   Pt %i Eta %i Phi %i Qual %i \n",etsum->hwPt(),etsum->hwEta(),etsum->hwPhi(),etsum->hwQual());
        }        
-
+       
 
     }
+    printf("\n");
   }
 
 }
