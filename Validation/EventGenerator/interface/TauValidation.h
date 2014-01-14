@@ -5,6 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
+ *  $Date: 2013/02/20 12:02:32 $
+ *  $Revision: 1.18 $
  *
  */
 
@@ -76,8 +78,8 @@ class TauValidation : public edm::EDAnalyzer
 	int findMother(const HepMC::GenParticle*);
 	bool isLastTauinChain(const HepMC::GenParticle* tau);
 	void rtau(const HepMC::GenParticle*,int,int, double weight);
-	void spinEffects(const HepMC::GenParticle*,int,int,std::vector<HepMC::GenParticle*> &part,double weight);
-	void spinEffectsZ(const HepMC::GenParticle* boson, double weight);
+	void spinEffectsWHpm(const HepMC::GenParticle*,int,int,std::vector<HepMC::GenParticle*> &part,double weight);
+	void spinEffectsZH(const HepMC::GenParticle* boson, double weight);
 	double leadingPionMomentum(const HepMC::GenParticle*, double weight);
 	double visibleTauEnergy(const HepMC::GenParticle*);
 	TLorentzVector leadingPionP4(const HepMC::GenParticle*);
@@ -111,8 +113,11 @@ class TauValidation : public edm::EDAnalyzer
 	  *TauSpinEffectsZ_MVis, *TauSpinEffectsZ_Zs, *TauSpinEffectsZ_Xf, *TauSpinEffectsZ_Xb, 
 	  *TauSpinEffectsZ_eX, *TauSpinEffectsZ_muX, *TauSpinEffectsZ_X, *TauSpinEffectsH_X,
 	  *TauSpinEffectsH_MVis, *TauSpinEffectsH_Zs, *TauSpinEffectsH_Xf, *TauSpinEffectsH_Xb,
-	  *TauSpinEffectsH_eX, *TauSpinEffectsH_muX,
-	  *TauBremPhotonsN,*TauBremPhotonsPt,*TauBremPhotonsPtSum,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtSum;
+	  *TauSpinEffectsH_eX, *TauSpinEffectsH_muX, *TauSpinEffectsH_rhorhoAcoplanarityplus,  *TauSpinEffectsH_rhorhoAcoplanarityminus,
+	  *TauBremPhotonsN,*TauBremPhotonsPt,*TauBremPhotonsPtSum,*TauFSRPhotonsN,*TauFSRPhotonsPt,*TauFSRPhotonsPtSum,
+	  *TauSpinEffectsH_pipiAcoplanarity,*TauSpinEffectsH_pipiAcollinearity,*TauSpinEffectsH_pipiAcollinearityzoom, *DecayLength,
+	  *LifeTime;
+
 	unsigned int NJAKID;
 	MonitorElement *JAKID;
 	std::vector<std::vector<MonitorElement *> > JAKInvMass;
