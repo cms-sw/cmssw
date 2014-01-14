@@ -169,7 +169,7 @@ process.Timing = cms.Service("Timing")
 
 ## # Comment this out or reconfigure to see error messages 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('Analyzer'),
+    debugModules = cms.untracked.vstring('tcMetAnalyzer'),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)

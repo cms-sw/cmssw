@@ -45,6 +45,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   triggerResultsLabel_        = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
   triggerResultsToken_= consumes<edm::TriggerResults>(edm::InputTag(triggerResultsLabel_));
+  jetCorrectionService_ = pSet.getParameter<std::string> ("JetCorrections");
 
   isCaloMet_ = (std::string("calo")==MetType_);
   isTCMet_ = (std::string("tc") ==MetType_);
@@ -52,6 +53,17 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   // MET information
   metCollectionLabel_       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
+
+  if(isTCMet_ || isCaloMet_){
+    inputJetIDValueMap      = pSet.getParameter<edm::InputTag>("InputJetIDValueMap");
+    jetID_ValueMapToken_= consumes< edm::ValueMap<reco::JetID> >(inputJetIDValueMap);
+    jetIDFunctorLoose=JetIDSelectionFunctor(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE);
+  }
+  if(isPFMet_){
+    pfjetIDFunctorLoose=PFJetIDSelectionFunctor(PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE);
+  }
+  ptThreshold_ = parameters.getParameter<double>("ptThreshold");
+
 
   if(isPFMet_){
     pfMetToken_= consumes<reco::PFMETCollection>(edm::InputTag(metCollectionLabel_));
@@ -65,6 +77,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   hTriggerLabelsIsSet_ = false;
   //jet cleanup parameters
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
+
 
   //Vertex requirements
   bypassAllPVChecks_    = cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
@@ -178,11 +191,6 @@ void METAnalyzer::beginJob(){
 //  lowPtJetThreshold_  = parameters.getParameter<double>("LowPtJetThreshold");  // Low Pt Jet threshold
 //  highMETThreshold_   = parameters.getParameter<double>("HighMETThreshold");   // High MET threshold
 
-  //
-  if(isCaloMet_ || isTCMet_){
-    jetID_ = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
-  }
-
   // DQStore stuff
   dbe_ = edm::Service<DQMStore>().operator->();
   LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
@@ -201,9 +209,6 @@ void METAnalyzer::beginJob(){
 
 // ***********************************************************
 void METAnalyzer::endJob() {
-  if(isTCMet_ || isCaloMet_){
-    delete jetID_;
-  }
   delete DCSFilter_;
 
  if(!mOutputFile_.empty() && &*edm::Service<DQMStore>()){
@@ -768,272 +773,130 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   // ==========================================================
-  bool bJetID = true;
-  bool bDiJetID = true;
-// Jet ID -------------------------------------------------------
-//
-/* FIXME : Matthias, I left the following code for you! I think it shouldn't be much longer than 10-20 lines using the JetIDSelectionFunctor
-  bool bJetIDMinimal=true;
-  bool bJetIDLoose=true;
-  bool bJetIDTight=true;
+  bool bJetID = false;
+  bool bDiJetID = false;
+  // Jet ID -------------------------------------------------------
+  //
 
-  if(isCaloMet_){
-    edm::Handle<reco::CaloJetCollection> caloJets;
+  edm::Handle<CaloJetCollection> caloJets;
+  edm::Handle<JPTJetCollection> jptJets;
+  edm::Handle<PFJetCollection> pfJets;
+
+  int collsize=-1;
+
+  if (isCaloMet_){
     iEvent.getByToken(caloJetsToken_, caloJets);
     if (!caloJets.isValid()) {
-      LogDebug("") << "METAnalyzer: Could not find jet product" << std::endl;
-      if (verbose_) std::cout << "METAnalyzer: Could not find jet product" << std::endl;
+      LogDebug("") << "METAnalyzer: Could not find calojet product" << std::endl;
+      if (verbose_) std::cout << "METAnalyzer: Could not find calojet product" << std::endl;
     }
-    // JetID
-    
-    if (verbose_) std::cout << "caloJet JetID starts" << std::endl;
-    //
-    // --- Minimal cuts
-    //
-    for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
-	 cal!=caloJets->end(); ++cal){
-      jetID_->calculate(iEvent, *cal);
-      if (cal->pt()>10.){
-	if (fabs(cal->eta())<=2.6 &&
-	    cal->emEnergyFraction()<=0.01) bJetIDMinimal=false;
-      }
-    }
-    
-    //
-    // --- Loose cuts, not  specific for now!
-    //
-    
-    for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
-	 cal!=caloJets->end(); ++cal){
-      jetID_->calculate(iEvent, *cal);
-      if (verbose_) std::cout << jetID_->n90Hits() << " "
-			      << jetID_->restrictedEMF() << " "
-			      << cal->pt() << std::endl;
-      if (cal->pt()>10.){
-	//
-	// for all regions
-	if (jetID_->n90Hits()<2)  bJetIDLoose=false;
-	if (jetID_->fHPD()>=0.98) bJetIDLoose=false;
-	//if (jetID_->restrictedEMF()<0.01) bJetIDLoose=false;
-	//
-	// for non-forward
-	if (fabs(cal->eta())<2.55){
-	  if (cal->emEnergyFraction()<=0.01) bJetIDLoose=false;
-	}
-	// for forward
-	else {
-	  if (cal->emEnergyFraction()<=-0.9) bJetIDLoose=false;
-	  if (cal->pt()>80.){
-	    if (cal->emEnergyFraction()>= 1.0) bJetIDLoose=false;
-	  }
-	} // forward vs non-forward
-      }   // pt>10 GeV/c
-    }     // calor-jets loop
-    
-    //
-    // --- Tight cuts
-    //
-    bJetIDTight=bJetIDLoose;
-    for (reco::CaloJetCollection::const_iterator cal = caloJets->begin();
-	 cal!=caloJets->end(); ++cal){
-      jetID_->calculate(iEvent, *cal);
-      if (cal->pt()>25.){
-	//
-	// for all regions
-	if (jetID_->fHPD()>=0.95) bJetIDTight=false;
-	//
-	// for 1.0<|eta|<1.75
-	if (fabs(cal->eta())>=1.00 && fabs(cal->eta())<1.75){
-	  if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false;
-	}
-	//
-	// for 1.75<|eta|<2.55
-	else if (fabs(cal->eta())>=1.75 && fabs(cal->eta())<2.55){
-	  if (cal->pt()>80. && cal->emEnergyFraction()>=1.) bJetIDTight=false;
-	}
-	//
-	// for 2.55<|eta|<3.25
-	else if (fabs(cal->eta())>=2.55 && fabs(cal->eta())<3.25){
-	  if (cal->pt()< 50.                   && cal->emEnergyFraction()<=-0.3) bJetIDTight=false;
-	  if (cal->pt()>=50. && cal->pt()< 80. && cal->emEnergyFraction()<=-0.2) bJetIDTight=false;
-	  if (cal->pt()>=80. && cal->pt()<340. && cal->emEnergyFraction()<=-0.1) bJetIDTight=false;
-	  if (cal->pt()>=340.                  && cal->emEnergyFraction()<=-0.1
-	      && cal->emEnergyFraction()>=0.95) bJetIDTight=false;
-	}
-	//
-	// for 3.25<|eta|
-	else if (fabs(cal->eta())>=3.25){
-	  if (cal->pt()< 50.                   && cal->emEnergyFraction()<=-0.3
-	      && cal->emEnergyFraction()>=0.90) bJetIDTight=false;
-	  if (cal->pt()>=50. && cal->pt()<130. && cal->emEnergyFraction()<=-0.2
-	      && cal->emEnergyFraction()>=0.80) bJetIDTight=false;
-	  if (cal->pt()>=130.                  && cal->emEnergyFraction()<=-0.1
-	      && cal->emEnergyFraction()>=0.70) bJetIDTight=false;
-	}
-      }   // pt>10 GeV/c
-    }     // calor-jets loop
-    
-    if (verbose_) std::cout << "caloJet JetID ends" << std::endl;
+    collsize=caloJets->size();
   }
-  if(isTCMet_){
-    edm::Handle<reco::JPTJetCollection> jptJets;
+  if (isTCMet_){
     iEvent.getByToken(jptJetsToken_, jptJets);
-    if (!jptJets.isValid()) {
-      LogDebug("") << "METAnalyzer: Could not find JPT jet product" << std::endl;
-      if (verbose_) std::cout << "METAnalyzer: Could not find JPT jet product" << std::endl;
+    if (!caloJets.isValid()) {
+      LogDebug("") << "METAnalyzer: Could not find jptjet product" << std::endl;
+      if (verbose_) std::cout << "METAnalyzer: Could not find jptjet product" << std::endl;
     }
+    collsize=jptJets->size();
+  }
 
-    for (reco::JPTJetCollection::const_iterator jpt = jptJets->begin();
-	 jpt!=jptJets->end(); ++jpt){
-      const edm::RefToBase<reco::Jet>&  rawJet = jpt->getCaloJetRef();
-      const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
-      
-      jetID_->calculate(iEvent, *rawCaloJet);
-      if (jpt->pt()>10.){
-	//ID of JPT jets depend 
-	if (fabs(rawCaloJet->eta())<=2.6 &&
-	    rawCaloJet->emEnergyFraction()<=0.01) bJetIDMinimal=false;
+  edm::Handle< edm::ValueMap<reco::JetID> >jetID_ValueMap_Handle;
+  if(isTCMet_ || isCaloMet_){
+    iEvent.getByToken(jetID_ValueMapToken_,jetID_ValueMap_Handle);
+  }
+
+  if (isPFMet_){ iEvent.getByToken(pfJetsToken_, pfJets);
+    if (!pfJets.isValid()) {
+      LogDebug("") << "METAnalyzer: Could not find pfjet product" << std::endl;
+      if (verbose_) std::cout << "METAnalyzer: Could not find pfjet product" << std::endl;
+    }
+    collsize=pfJets->size();
+  }
+
+  unsigned int ind1=-1;
+  double pt1=-1;
+  bool pass_jetID1=false;
+  unsigned int ind2=-1;
+  double pt2=-1;
+  bool pass_jetID2=false;
+
+  //do loose jet ID-> check threshold on corrected jets
+  for (int ijet=0; ijet<collsize; ijet++) {
+    double pt_jet=-10;
+    double scale=1.;
+    bool iscleaned=false;
+    if (!jetCorrectionService_.empty()) {
+      const JetCorrector* corrector = JetCorrector::getJetCorrector(jetCorrectionService_, iSetup);	 
+      if(isCaloMet_){
+	scale = corrector->correction((*caloJets)[ijet], iEvent, iSetup);
+      }
+      if(isTCMet_){
+	scale = corrector->correction((*jptJets)[ijet], iEvent, iSetup);
+      }
+      if(isPFMet_){
+	scale = corrector->correction((*pfJets)[ijet], iEvent, iSetup);
       }
     }
-    
-    //
-    // --- Loose cuts, not  specific for now!
-    //
-    
-    for (reco::JPTJetCollection::const_iterator jpt = jptJets->begin();
-	 jpt!=jptJets->end(); ++jpt){
-      const edm::RefToBase<reco::Jet>&  rawJet = jpt->getCaloJetRef();
-      const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
-      jetID_->calculate(iEvent,*rawCaloJet);
-      if (verbose_) std::cout << jetID_->n90Hits() << " "
-			      << jetID_->restrictedEMF() << " "
-			      << jpt->pt() << std::endl;
-      //calculate ID for JPT jets above 10
-      if (jpt->pt()>10.){
-	//for ID itself calojet is the relevant quantity
-	// for all regions
-	if (jetID_->n90Hits()<2)  bJetIDLoose=false;
-	if (jetID_->fHPD()>=0.98) bJetIDLoose=false;
-	//if (jetID_->restrictedEMF()<0.01) bJetIDLoose=false;
-	//
-	// for non-forward
-	if (fabs(rawCaloJet->eta())<2.55){
-	  if (rawCaloJet->emEnergyFraction()<=0.01) bJetIDLoose=false;
+    if(isCaloMet_){
+	pt_jet=scale*(*caloJets)[ijet].pt();
+	if(pt_jet> ptThreshold_){
+	  reco::CaloJetRef calojetref(caloJets, ijet);
+	  reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
+	  iscleaned = jetIDFunctorLoose((*caloJets)[ijet], jetID);
 	}
-	// for forward
-	else {
-	  if (rawCaloJet->emEnergyFraction()<=-0.9) bJetIDLoose=false;
-	  if (rawCaloJet->pt()>80.){
-	    if (rawCaloJet->emEnergyFraction()>= 1.0) bJetIDLoose=false;
-	  }
-	} // forward vs non-forward
-      }   // pt>10 GeV/c
-    }     // rawCaloJetor-jets loop
-    
-    //
-    // --- Tight cuts
-    //
-    bJetIDTight=bJetIDLoose;
-    for (reco::JPTJetCollection::const_iterator jpt = jptJets->begin();
-	 jpt!=jptJets->end(); ++jpt){
-      const edm::RefToBase<reco::Jet>&  rawJet = jpt->getCaloJetRef();
-      const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
-      jetID_->calculate(iEvent, *rawCaloJet);
-      if (jpt->pt()>25.){
-	//
-	// for all regions
-	if (jetID_->fHPD()>=0.95) bJetIDTight=false;
-	//
-	// for 1.0<|eta|<1.75
-	if (fabs(rawCaloJet->eta())>=1.00 && fabs(rawCaloJet->eta())<1.75){
-	  if (rawCaloJet->pt()>80. && rawCaloJet->emEnergyFraction()>=1.) bJetIDTight=false;
-	}
-	//
-	// for 1.75<|eta|<2.55
-	else if (fabs(rawCaloJet->eta())>=1.75 && fabs(rawCaloJet->eta())<2.55){
-	  if (rawCaloJet->pt()>80. && rawCaloJet->emEnergyFraction()>=1.) bJetIDTight=false;
-	}
-	//
-	// for 2.55<|eta|<3.25
-	else if (fabs(rawCaloJet->eta())>=2.55 && fabs(rawCaloJet->eta())<3.25){
-	  if (rawCaloJet->pt()< 50.                   && rawCaloJet->emEnergyFraction()<=-0.3) bJetIDTight=false;
-	  if (rawCaloJet->pt()>=50. && rawCaloJet->pt()< 80. && rawCaloJet->emEnergyFraction()<=-0.2) bJetIDTight=false;
-	  if (rawCaloJet->pt()>=80. && rawCaloJet->pt()<340. && rawCaloJet->emEnergyFraction()<=-0.1) bJetIDTight=false;
-	  if (rawCaloJet->pt()>=340.                  && rawCaloJet->emEnergyFraction()<=-0.1
-	      && rawCaloJet->emEnergyFraction()>=0.95) bJetIDTight=false;
-	}
-	//
-	// for 3.25<|eta|
-	else if (fabs(rawCaloJet->eta())>=3.25){
-	  if (rawCaloJet->pt()< 50.                   && rawCaloJet->emEnergyFraction()<=-0.3
-	      && rawCaloJet->emEnergyFraction()>=0.90) bJetIDTight=false;
-	  if (rawCaloJet->pt()>=50. && rawCaloJet->pt()<130. && rawCaloJet->emEnergyFraction()<=-0.2
-	      && rawCaloJet->emEnergyFraction()>=0.80) bJetIDTight=false;
-	  if (rawCaloJet->pt()>=130.                  && rawCaloJet->emEnergyFraction()<=-0.1
-	      && rawCaloJet->emEnergyFraction()>=0.70) bJetIDTight=false;
-	}
-      }   // pt>10 GeV/c
-    }     // rawCaloJetor-jets loop
+    }
+    if(isTCMet_){
+      pt_jet=scale*(*jptJets)[ijet].pt();
+      if(pt_jet> ptThreshold_){
+	const edm::RefToBase<reco::Jet>&  rawJet = (*jptJets)[ijet].getCaloJetRef();
+	const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
+	reco::CaloJetRef const theCaloJetRef = (rawJet).castTo<reco::CaloJetRef>();
+	reco::JetID jetID = (*jetID_ValueMap_Handle)[theCaloJetRef];
+	iscleaned = jetIDFunctorLoose(*rawCaloJet, jetID);
+      }
+    }
     if(isPFMet_){
-      edm::Handle<reco::PFJetCollection> pfJets;
-      iEvent.getByToken(pfJetsToken_, pfJets);
-      if (!pfJets.isValid()) {
-	LogDebug("") << "METAnalyzer: Could not find PF jet product" << std::endl;
-	if (verbose_) std::cout << "METAnalyzer: Could not find PF jet product" << std::endl;
+      pt_jet=scale*(*pfJets)[ijet].pt();
+      if(pt_jet> ptThreshold_){
+	iscleaned = pfjetIDFunctorLoose((*pfJets)[ijet]);
       }
-      
-      for (reco::PFJetCollection::const_iterator pf = pfJets->begin();
-	   pf!=pfJets->end(); ++pf){
-	if (pf->pt()>10.){
-	  //ID of JPT jets depend 
-	  if((pf->neutralHadronEnergyFraction() + pf->HFHadronEnergyFraction())>=1)bJetIDMinimal=false;
-	  if((pf->photonEnergyFraction() + pf->HFEMEnergyFraction())>=1)bJetIDMinimal=false;
-	  if(pf->nConstituents()<2)bJetIDMinimal=false;
-	  if (fabs(pf->eta())<=2.4){
-	    if(pf->electronEnergyFraction()>=1)bJetIDMinimal=false;
-	    if( pf->chargedHadronEnergyFraction ()<=0) bJetIDMinimal=false;
-	  }
-	}
-      }
-    //
-    // --- Loose cuts, not  specific for now!
-    //
-
-     for (reco::PFJetCollection::const_iterator pf = pfJets->begin();
-	   pf!=pfJets->end(); ++pf){
-	if (pf->pt()>10.){
-	  //ID of JPT jets depend 
-	  if((pf->neutralHadronEnergyFraction() + pf->HFHadronEnergyFraction())>=0.99)bJetIDLoose=false;
-	  if((pf->photonEnergyFraction() + pf->HFEMEnergyFraction())>=0.99)bJetIDLoose=false;
-	  if(pf->nConstituents()<2)bJetIDLoose=false;
-	  if (fabs(pf->eta())<=2.4){
-	    if(pf->electronEnergyFraction()>=0.99)bJetIDLoose=false;
-	    if( pf->chargedHadronEnergyFraction ()<=0) bJetIDLoose=false;
-	  }
-	}
-      }
-    
-    //
-    // --- Tight cuts
-    //
-    bJetIDTight=bJetIDLoose;
-       for (reco::PFJetCollection::const_iterator pf = pfJets->begin();
-	   pf!=pfJets->end(); ++pf){
-	if (pf->pt()>10.){
-	  //ID of JPT jets depend 
-	  if((pf->neutralHadronEnergyFraction() + pf->HFHadronEnergyFraction())>=0.90)bJetIDTight=false;
-	  if((pf->photonEnergyFraction() + pf->HFEMEnergyFraction())>=0.90)bJetIDTight=false;
-	  if(pf->nConstituents()<2)bJetIDTight=false;
-	  if (fabs(pf->eta())<=2.4){
-	    if(pf->electronEnergyFraction()>=0.99)bJetIDTight=false;
-	    if( pf->chargedHadronEnergyFraction ()<=0) bJetIDTight=false;
-	  }
-	}
-      }
-    if (verbose_) std::cout << "TCMET JetID ends" << std::endl;
+    }
+    if(iscleaned){
+      bJetID=true;
+    }
+    if(pt_jet>pt1){
+      pt2=pt1;
+      ind2=ind1;
+      pass_jetID2=pass_jetID1;
+      pt1=pt_jet;
+      ind1=ijet;
+      pass_jetID1=iscleaned;
+    }else if (pt_jet>pt2){
+      pt2=pt_jet;
+      ind2=ijet;
+      pass_jetID2=iscleaned;
     }
   }
-*/
+  if(pass_jetID1 && pass_jetID2){
+    double dphi=-1.0;
+    if(isCaloMet_){
+      dphi=fabs((*caloJets)[ind1].phi()-(*caloJets)[ind2].phi());
+    }
+    if(isTCMet_){
+      dphi=fabs((*jptJets)[ind1].phi()-(*jptJets)[ind2].phi());
+    }
+    if(isPFMet_){
+      dphi=fabs((*pfJets)[ind1].phi()-(*pfJets)[ind2].phi());
+    }
+    if(dphi>acos(-1.)){
+      dphi=2*acos(-1.)-dphi;
+    }
+    if(dphi>2.7){
+      bDiJetID=true;
+    }
+  }
+
   // ==========================================================
   // HCAL Noise filter
 
@@ -1092,7 +955,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        ic != folderNames_.end(); ic++){
     if ((*ic=="Uncleaned")  &&(isCaloMet_ || bPrimaryVertex))     fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
     if ((*ic=="Cleaned")    &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bBeamHaloID&&bJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
-    if ((*ic=="Dijet" )     &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bBeamHaloID&&bDiJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
+    if ((*ic=="DiJet" )     &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bBeamHaloID&&bDiJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet);
   }
 }
 
@@ -1109,6 +972,12 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   fillMonitorElement(iEvent, DirName, std::string(""), met, pfmet, calomet, bLumiSecPlot);
 
   if (DirName.find("Cleaned")) {
+    for (unsigned i = 0; i<triggerFolderLabels_.size(); i++) {
+      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, pfmet, calomet, false);
+    }
+  }
+
+if (DirName.find("DiJet")) {
     for (unsigned i = 0; i<triggerFolderLabels_.size(); i++) {
       if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, pfmet, calomet, false);
     }

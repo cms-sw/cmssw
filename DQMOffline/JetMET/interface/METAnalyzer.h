@@ -68,6 +68,10 @@
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
 #include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
+#include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+
 
 //class METAnalyzer : public METAnalyzerBase {
 class METAnalyzer : public edm::EDAnalyzer{
@@ -156,6 +160,18 @@ class METAnalyzer : public edm::EDAnalyzer{
   edm::EDGetTokenT<edm::View <reco::GsfElectron> >  ElectronToken_;
   edm::EDGetTokenT<reco::BeamSpot>                  BeamspotToken_;
 
+  edm::InputTag inputJetIDValueMap;
+  edm::EDGetTokenT<edm::ValueMap <reco::JetID> >jetID_ValueMapToken_;
+
+  JetIDSelectionFunctor jetIDFunctorLoose;
+  PFJetIDSelectionFunctor pfjetIDFunctorLoose;
+
+  std::string jetCorrectionService_;
+
+  double ptThreshold_;
+
+ 
+
   edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData>> tcMETValueMapToken_;
   edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMetValueMapHandle_;
 
@@ -235,9 +251,6 @@ class METAnalyzer : public edm::EDAnalyzer{
   // HF calibration factor (in 31X applied by TcProducer)
   //delete altogether not used anymore
   double hfCalibFactor_;  //
-
-  // JetID helper
-  reco::helper::JetIDHelper * jetID_;
 
   // DCS filter
   JetMETDQMDCSFilter *DCSFilter_;

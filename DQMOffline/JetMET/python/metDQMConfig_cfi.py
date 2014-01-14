@@ -2,13 +2,29 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *
 
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5CaloL2L3,ak5CaloL2Relative,ak5CaloL3Absolute
+newAk5CaloL2L3 = ak5CaloL2L3.clone()
+
+from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak7CaloL2L3,ak7CaloL2Relative,ak7CaloL3Absolute
+newAk7CaloL2L3 = ak7CaloL2L3.clone()
+
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5PFL1FastL2L3,ak5PFL1Fastjet,ak5PFL2Relative,ak5PFL3Absolute
+newAk5PFL1FastL2L3 = ak5PFL1FastL2L3.clone()
+
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1FastL2L3,ak5JPTL1Fastjet,ak5JPTL2Relative,ak5JPTL3Absolute
+newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
+
+
 tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     OutputFile = cms.string('jetMETMonitoring.root'),
     METType=cms.untracked.string('tc'),
-
     METCollectionLabel     = cms.InputTag("tcMet"),
+
     JetCollectionLabel  = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
+    JetCorrections = cms.string("newAk5JPTL1FastL2L3"),
+    InputJetIDValueMap         = cms.InputTag("ak5JetID"), 
+    ptThreshold                =cms.double(30),
     
     FolderName = cms.untracked.string("JetMET/MET/"),
 
@@ -75,15 +91,6 @@ tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
         errorReplyHlt  = cms.bool( False ),
     ) 
     ),
-
-    JetIDParams = cms.PSet(
-        useRecHits = cms.bool(True),
-        hbheRecHitsColl = cms.InputTag("hbhereco"),
-        hoRecHitsColl   = cms.InputTag("horeco"),
-        hfRecHitsColl   = cms.InputTag("hfreco"),
-        ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-        eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
-    ),
     
     HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"),
     HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),
@@ -119,12 +126,14 @@ pfMetAnalyzer = tcMetAnalyzer.clone(
     METType=cms.untracked.string('pf'),
     METCollectionLabel     = cms.InputTag("pfMet"),
     JetCollectionLabel  = cms.InputTag("ak5PFJets"),
+    JetCorrections = cms.string("newAk5PFL1FastL2L3"),
 )
 
 metAnalyzer = tcMetAnalyzer.clone(
     METType=cms.untracked.string('calo'),
     METCollectionLabel     = cms.InputTag("met"),
     JetCollectionLabel  = cms.InputTag("ak5CaloJets"),
+    JetCorrections = cms.string("newAk5CaloL2L3"),
     DCSFilter = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
       #DebugOn = cms.untracked.bool(True),

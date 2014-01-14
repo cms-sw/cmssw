@@ -974,7 +974,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   int numofjets=0;
 
-  for (unsigned ijet=0; ijet<collSize; ijet++) {
+  for (unsigned int ijet=0; ijet<collSize; ijet++) {
     //bool thiscleaned=false;
     Jet correctedJet;
     bool pass_uncorrected=false;
