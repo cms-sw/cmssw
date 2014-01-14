@@ -8,8 +8,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
+//#include "CondCore/DBCommon/interface/DbSession.h"
+//#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 
 #include "CondTools/L1Trigger/interface/Exception.h"
 
@@ -73,15 +73,13 @@ class WriterProxyT : public WriterProxy
 		throw cond::Exception( "DataWriter: PoolDBOutputService not available."
 				       ) ;
 	      }
-	    cond::DbSession session = poolDb->session();
-	    cond::DbScopedTransaction tr(session);
+	    cond::persistency::Session session = poolDb->session();
+	    cond::persistency::TransactionScope tr(session.transaction());
 	    // if throw transaction will unroll
 	    tr.start(false);
 
 	    boost::shared_ptr<Type> pointer(new Type (*(handle.product ())));
-	    std::string payloadToken =  session.storeObject( pointer.get(),
-							     cond::classNameForTypeId(typeid(Type))
-							     );
+	    std::string payloadToken =  session.storePayload( *pointer );
 	    tr.commit();
 	    return payloadToken ;
         }
