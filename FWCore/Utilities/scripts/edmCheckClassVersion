@@ -2,6 +2,10 @@
 import string
 from optparse import OptionParser
 
+# Disable for ROOT6 for now
+import sys
+sys.exit(0)
+
 class XmlParser(object):
     """Parses a classes_def.xml file looking for class declarations that contain
     ClassVersion attributes. Once found looks for sub-elements named 'version'
@@ -230,10 +234,6 @@ if options.generate and not foundRootDoesNotMatchError and not missingDict:
         out +=newLine
 
     outFile.writelines(out)
-
-# Disable for ROOT6 for now
-import sys
-sys.exit(0)
 
 if (len(foundErrors)>0 and not options.generate) or (options.generate and foundRootDoesNotMatchError) or missingDict:
    import sys
