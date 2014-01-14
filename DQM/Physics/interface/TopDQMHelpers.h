@@ -268,7 +268,7 @@ bool SelectionStep<Object>::select(const edm::Event& event)
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
-  if(!electronId_.isUninitialized()){
+  if(!electronId_.isUnitialized()){
     if( !event.getByToken(electronId_, electronId) ) return false;
   }
 
@@ -278,7 +278,7 @@ bool SelectionStep<Object>::select(const edm::Event& event)
     // special treatment for electrons
     if(dynamic_cast<const reco::GsfElectron*>(&*obj)){
       unsigned int idx = obj-src->begin();
-      if( electronId_.isUninitialized() ? true : ((int)(*electronId)[src->refAt(idx)] & eidPattern_) ){   
+      if( electronId_.isUnitialized() ? true : ((int)(*electronId)[src->refAt(idx)] & eidPattern_) ){   
 	if(select_(*obj))++n;
       }
     }
@@ -305,7 +305,7 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
   
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
-  if(!electronId_.isUninitialized()){
+  if(!electronId_.isUnitialized()){
     if( !event.getByToken(electronId_, electronId) ) return false;
   }
   
@@ -329,7 +329,7 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
         if(select_(*obj)){
           if(elecs_gsf->refAt(idx_gsf).isNonnull()){
             int eID = (int)(*electronId)[elecs_gsf->refAt(idx_gsf)];
-            if( electronId_.isUninitialized() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) )
+            if( electronId_.isUnitialized() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) )
               ++n;
 	    
           }
@@ -342,7 +342,7 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
     else if(dynamic_cast<const reco::GsfElectron*>(&*obj)){
       unsigned int idx = obj-src->begin();
       int eID = (int)(*electronId)[src->refAt(idx)];
-      if( electronId_.isUninitialized() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) ){
+      if( electronId_.isUnitialized() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) ){
         if(select_(*obj))++n;
       }
     }
@@ -367,7 +367,7 @@ bool SelectionStep<Object>::selectVertex(const edm::Event& event)
 
   // load electronId value map if configured such
   edm::Handle<edm::ValueMap<float> > electronId;
-  if(!electronId_.isUninitialized()) {
+  if(!electronId_.isUnitialized()) {
     if( !event.getByToken(electronId_, electronId) ) return false;
   }
 
@@ -396,7 +396,7 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
   edm::Handle<edm::View<reco::Jet> > bjets;
   edm::Handle<reco::JetTagCollection> btagger;
   edm::Handle<edm::View<reco::Vertex> > pvertex; 
-  if(!btagLabel_.isUninitialized()){ 
+  if(!btagLabel_.isUnitialized()){ 
     if( !event.getByToken(src_, bjets) ) return false;
     if( !event.getByToken(btagLabel_, btagger) ) return false;
     if( !event.getByToken(pvs_, pvertex) ) return false;
@@ -437,7 +437,7 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
     // check for chosen btag discriminator to be above the
     // corresponding working point if configured such
     unsigned int idx = obj-src->begin();
-    if( btagLabel_.isUninitialized() ? true : (*btagger)[bjets->refAt(idx)]>btagWorkingPoint_ ){   
+    if( btagLabel_.isUnitialized() ? true : (*btagger)[bjets->refAt(idx)]>btagWorkingPoint_ ){   
       bool passedJetID=true;
       // check jetID for calo jets
       if( jetIDSelect_ && dynamic_cast<const reco::CaloJet*>(src->refAt(idx).get())){
