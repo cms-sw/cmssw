@@ -96,10 +96,7 @@ jetAnalyzerAk5CaloCleaned=jetAnalyzerAk5CaloUncleaned.clone(
     jetAnalysis=jetDQMParameters.clone(
         ptThreshold = cms.double(20.),
         asymmetryThirdJetCut = cms.double(30),
-        balanceThirdJetCut   = cms.double(0.2),
-        n90HitsMin  = cms.int32(2),
-        fHPDMax     = cms.double(0.98),
-        resEMFMin   = cms.double(0.01),  
+        balanceThirdJetCut   = cms.double(0.2), 
        )  
 )
 
@@ -138,10 +135,6 @@ jetAnalyzerAk5PFCleaned=jetAnalyzerAk5PFUncleaned.clone(
         ptThreshold = cms.double(20.),
         asymmetryThirdJetCut = cms.double(30),
         balanceThirdJetCut   = cms.double(0.2),
-        ThisCHFMin = cms.double(0.0),
-        ThisNHFMax = cms.double(1.0),
-        ThisCEFMax = cms.double(1.0),
-        ThisNEFMax = cms.double(1.0),
         )
 )
 

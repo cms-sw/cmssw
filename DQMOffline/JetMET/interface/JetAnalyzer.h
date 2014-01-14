@@ -56,7 +56,6 @@
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
 
 namespace jetAnalysis {
   class TrackPropagatorToCalo;
@@ -146,10 +145,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
   PFJetIDSelectionFunctor pfjetIDFunctorLoose;
   PFJetIDSelectionFunctor pfjetIDFunctorTight;
 
-  pat::strbitset ret;
-  pat::strbitset retLoose;
-  pat::strbitset retTight;
-
   int    verbose_;
   //histo binning parameters -> these are PART of ALL analyzers - move it up
   int    etaBin_;
@@ -184,8 +179,6 @@ class JetAnalyzer : public edm::EDAnalyzer {
   double ptThresholdUnc_;
   double asymmetryThirdJetCut_;
   double balanceThirdJetCut_;
-
-  int makedijetselection_;
   //
   int fillJIDPassFrac_;
 

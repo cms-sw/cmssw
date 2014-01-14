@@ -29,45 +29,7 @@ jetDQMParameters = cms.PSet(
     ptThresholdUnc  = cms.double(17.5),
     asymmetryThirdJetCut = cms.double(30),
     balanceThirdJetCut   = cms.double(0.2),
-    n90HitsMin  = cms.int32(-1),
-    fHPDMax     = cms.double(1.),
-    resEMFMin   = cms.double(0.),
     fillJIDPassFrac   = cms.int32(1),
-
-    n90HitsMinLoose  = cms.int32(1),
-    fHPDMaxLoose     = cms.double(0.98),
-    resEMFMinLoose   = cms.double(0.01),    
-    n90HitsMinTight  = cms.int32(4),
-    fHPDMaxTight     = cms.double(0.98),
-    resEMFMinTight   = cms.double(0.01),
-
-    sigmaEtaMinTight   = cms.double(0.01),    
-    sigmaPhiMinTight   = cms.double(0.01),
-    
-    makedijetselection  = cms.int32(0),
-
-    JetIDParams  = cms.PSet(
-        useRecHits      = cms.bool(True),
-        hbheRecHitsColl = cms.InputTag("hbhereco"),
-        hoRecHitsColl   = cms.InputTag("horeco"),
-        hfRecHitsColl   = cms.InputTag("hfreco"),
-        ebRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
-        eeRecHitsColl   = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
-    ),
-
-    #PF specific cleaning values
-    ThisCHFMin = cms.double(-999.),
-    ThisNHFMax = cms.double(999.),
-    ThisCEFMax = cms.double(999.),
-    ThisNEFMax = cms.double(999.),
-    TightCHFMin = cms.double(0.0),
-    TightNHFMax = cms.double(0.9),
-    TightCEFMax = cms.double(1.0),
-    TightNEFMax = cms.double(0.9),
-    LooseCHFMin = cms.double(0.0),
-    LooseNHFMax = cms.double(1.0),
-    LooseCEFMax = cms.double(1.0),
-    LooseNEFMax = cms.double(1.0)
 )
 
 
