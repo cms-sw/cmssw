@@ -55,6 +55,10 @@ rm1 = TCut("region==-1")
 rp1 = TCut("region==1")
 l1 = TCut("layer==1")
 l2 = TCut("layer==2")
+l3 = TCut("layer==3")
+l4 = TCut("layer==4")
+l5 = TCut("layer==5")
+l6 = TCut("layer==6")
 
 eta_min = 1.64
 eta_max = 2.12
