@@ -7,7 +7,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
-#include "RecoJets/JetProducers/interface/JetSpecific.h"
 #include "RecoJets/JetProducers/interface/BackgroundEstimator.h"
 #include "RecoJets/JetProducers/interface/VirtualJetProducerHelper.h"
 
@@ -280,6 +279,9 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   produces<double>("rho");
   produces<double>("sigma");
 
+  input_vertex_token_ = consumes<edm::View<reco::VertexCollection> >(srcPVs_);
+  input_candidateview_token_ = consumes<edm::View<reco::CandidateView> >(src_);
+  input_candidatefwdptr_token_ = consumes<edm::View<std::vector<edm::FwdPtr<reco::PFCandidate> > > >(src_);
   
 }
 
@@ -316,7 +318,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   if ( (makeCaloJet(jetTypeE) || makePFJet(jetTypeE)) &&doPVCorrection_) {
     LogDebug("VirtualJetProducer") << "Adding PV info\n";
     edm::Handle<reco::VertexCollection> pvCollection;
-    iEvent.getByLabel(srcPVs_,pvCollection);
+    iEvent.getByToken(input_vertex_token_ , pvCollection);
     if (pvCollection->size()>0) vertex_=pvCollection->begin()->position();
   }
 
@@ -336,13 +338,13 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   edm::Handle<reco::CandidateView> inputsHandle;
   edm::Handle< std::vector<edm::FwdPtr<reco::PFCandidate> > > pfinputsHandleAsFwdPtr; 
   
-  bool isView = iEvent.getByLabel(src_,inputsHandle);
+  bool isView = iEvent.getByToken(input_candidateview_token_, inputsHandle);
   if ( isView ) {
     for (size_t i = 0; i < inputsHandle->size(); ++i) {
       inputs_.push_back(inputsHandle->ptrAt(i));
     }
   } else {
-    iEvent.getByLabel(src_,pfinputsHandleAsFwdPtr);
+    iEvent.getByToken(input_candidatefwdptr_token_, pfinputsHandleAsFwdPtr);
     for (size_t i = 0; i < pfinputsHandleAsFwdPtr->size(); ++i) {
       if ( (*pfinputsHandleAsFwdPtr)[i].ptr().isAvailable() ) {
 	inputs_.push_back( (*pfinputsHandleAsFwdPtr)[i].ptr() );

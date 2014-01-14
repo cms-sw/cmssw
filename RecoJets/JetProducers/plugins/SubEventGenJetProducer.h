@@ -37,10 +37,11 @@ namespace cms
     // overridden inputTowers method. Resets fjCompoundJets_ and 
     // calls VirtualJetProducer::inputTowers
     virtual void inputTowers();
+
+  private:
+    edm::EDGetTokenT<edm::View<reco::CandidateView> > input_cand_token_;
+  
   };
-
-
-
   
 }
 

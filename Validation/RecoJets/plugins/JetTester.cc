@@ -785,7 +785,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
       // Match RecoJets to GenJets
       //------------------------------------------------------------------------
-      JetMatchingTools jetMatching(mEvent);
+      JetMatchingTools jetMatching(mEvent, consumesCollector());
 
       if (!(mInputGenCollection.label().empty())) {
       for (GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
