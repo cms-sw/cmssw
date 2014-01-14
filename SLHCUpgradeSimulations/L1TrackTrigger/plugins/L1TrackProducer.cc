@@ -160,7 +160,7 @@ public:
 protected:
                      
 private:
-  GeometryMap geom;
+
   int eventnum;
 
   /// Containers of parameters passed by python configuration file

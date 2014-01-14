@@ -4,8 +4,6 @@
 #include <iostream>
 #include <assert.h>
 
-#include "L1TConstants.hh"
-#include "L1TWord.hh"
 
 using namespace std;
 
@@ -142,12 +140,6 @@ public:
       else {
 	//here we handle a disk hit
 	//first we have the r position
-
-	//int iphi=stubs_[i].iphi();
-	//double phistub=(5.0/ri)*(iphi-508)/508.0;  //A bit of a hack...
-
-	//cout << "iphi phistub rphistub: "<<100*stubs_[i].layer()+stubs_[i].module()<<" "<<iphi<<" "<<phistub<<" "
-	//     << ri*phistub<<" "<<stubs_[i].r()<<" "<<stubs_[i].phi()<<endl;
 
 	double r_track=2.0*sin(0.5*rinv_*(zi-z0_)/t_)/rinv_;
 	double phi_track=phi0_-0.5*rinv_*(zi-z0_)/t_;
