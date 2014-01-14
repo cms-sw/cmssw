@@ -33,7 +33,7 @@ namespace l1t {
     
     void setType(EtSumType type);
     
-    EtSumType getType();
+    EtSumType getType() const;
       
   private:
     

@@ -27,7 +27,7 @@ namespace l1t {
     void setHwIso(int iso);
 
     // methods to retrieve integer values
-    int hwIso();
+    int hwIso() const;
     
   private:
     

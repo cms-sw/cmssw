@@ -23,7 +23,7 @@ void l1t::Tau::setHwIso(int iso)
   hwIso_ = iso;
 }
 
-int l1t::Tau::hwIso()
+int l1t::Tau::hwIso()  const
 {
   return hwIso_;
 }
