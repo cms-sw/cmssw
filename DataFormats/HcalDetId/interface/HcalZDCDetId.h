@@ -17,7 +17,7 @@
   */
 class HcalZDCDetId : public DetId {
 public:
-  enum Section { Unknown=0, EM=1, HAD=2, LUM=3 };
+  enum Section { Unknown=0, EM=1, HAD=2, LUM=3, RPD=4 };
   // 1 => CaloTower, 3 => Castor
   static const int SubdetectorId = 2;
 
@@ -33,13 +33,13 @@ public:
   HcalZDCDetId& operator=(const DetId& id);
 
   /// get the z-side of the cell (1/-1)
-  int zside() const { return (id_&0x40)?(1):(-1); }
+  int zside() const;
   /// get the section
-  Section section() const { return (Section)((id_>>4)&0x3); }
+  Section section() const;
   /// get the depth (1 for EM, channel + 1 for HAD, not sure yet for LUM, leave as default)
-  int depth() const { return (((id_>>4)&0x3)==1)?(1):((((id_>>4)&0x3)==2)?((id_&0xF)+1):(id_&0xF)); }
+  int depth() const;
   /// get the channel 
-  int channel() const { return id_&0xF; }
+  int channel() const;
 
   uint32_t denseIndex() const ;
 
@@ -54,7 +54,8 @@ public:
       enum { kDepEM  = 5,
 	     kDepHAD = 4,
 	     kDepLUM = 2,
-	     kDepTot = kDepEM + kDepHAD + kDepLUM };
+	     kDepRPD = 16,
+	     kDepTot = kDepEM + kDepHAD + kDepLUM + kDepRPD };
 
    public:
 
