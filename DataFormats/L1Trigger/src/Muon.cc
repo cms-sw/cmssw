@@ -52,27 +52,27 @@ void l1t::Muon::setHwTag(int tag)
 }
 
 
-int l1t::Muon::hwCharge()
+int l1t::Muon::hwCharge() const
 {
   return hwCharge_;
 }
 
-int l1t::Muon::hwChargeValid()
+int l1t::Muon::hwChargeValid() const
 {
   return hwChargeValid_;
 }
 
-int l1t::Muon::hwIso()
+int l1t::Muon::hwIso() const
 {
   return hwIso_;
 }
 
-int l1t::Muon::hwMip()
+int l1t::Muon::hwMip() const
 {
   return hwMip_;
 }
 
-int l1t::Muon::hwTag()
+int l1t::Muon::hwTag() const
 {
   return hwTag_;
 }

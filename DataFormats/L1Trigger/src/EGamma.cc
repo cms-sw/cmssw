@@ -23,7 +23,7 @@ void l1t::EGamma::setHwIso(int iso)
   hwIso_ = iso;
 }
 
-int l1t::EGamma::hwIso()
+int l1t::EGamma::hwIso() const
 {
   return hwIso_;
 }
