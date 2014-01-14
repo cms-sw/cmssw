@@ -318,7 +318,6 @@ class GeometricDet {
   DDName _ddname;
   GeometricEnumType _type;
   std::vector<double> _params;
-  //FIXME
   DetId _geographicalID;
 #ifdef GEOMETRICDETDEBUG
   GeoHistory _parents;
