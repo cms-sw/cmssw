@@ -233,7 +233,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/totemt1.xml',
         'Geometry/ForwardCommonData/data/totemt2.xml', 
         'Geometry/ForwardCommonData/data/ionpump.xml', 
-        'Geometry/MuonCommonData/data/muonNumbering.xml', 
+        'Geometry/MuonCommonData/data/muonNumbering.xml')+cms.vstring( 
         'Geometry/TrackerCommonData/data/trackerStructureTopology.xml', 
         'Geometry/TrackerSimData/data/trackersens.xml', 
         'Geometry/TrackerRecoData/data/trackerRecoMaterial.xml', 
