@@ -164,7 +164,6 @@ class METAnalyzer : public edm::EDAnalyzer{
   edm::Handle< edm::View<reco::GsfElectron > >  electronHandle_;
   edm::Handle< reco::BeamSpot >                 beamSpotHandle_;
 
-  bool changed_;
   HLTConfigProvider hltConfig_;
   edm::InputTag                         triggerResultsLabel_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
@@ -251,7 +250,7 @@ class METAnalyzer : public edm::EDAnalyzer{
   // lines commented out have been removed to improve the bin usage of JetMET DQM
 
   //for all MET types
-
+  bool hTriggerLabelsIsSet_;
   //only in for PF
 //  MonitorElement* meTriggerName_PhysDec;
   MonitorElement* hTrigger;

@@ -38,7 +38,6 @@ using namespace math;
 
 // ***********************************************************
 METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
-  changed_ = true;
   parameters = pSet;
 
   mOutputFile_   = parameters.getParameter<std::string>("OutputFile");
@@ -63,7 +62,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
  if(isTCMet_){
     tcMetToken_= consumes<reco::METCollection>(edm::InputTag(metCollectionLabel_));
   }
-
+  hTriggerLabelsIsSet_ = false;
   //jet cleanup parameters
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
@@ -270,12 +269,12 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 
   dbe_->setCurrentFolder(DirName);
 
-  allTriggerNames_ = hltConfig_.triggerNames();
-  hTrigger    = dbe_->book1D("triggerResults", "triggerResults", allTriggerNames_.size(), 0., allTriggerNames_.size()); 
-  for (unsigned i = 0; i< allTriggerNames_.size(); i++) {
-    hTrigger->setBinLabel(i, allTriggerNames_[i]);
-    std::cout<<"Setting label "<<i<<" "<<allTriggerNames_[i]<<std::endl;
-  }
+  hTrigger    = dbe_->book1D("triggerResults", "triggerResults", 500, 0, 500); 
+//  hTrigger    = dbe_->book1D("triggerResults", "triggerResults", allTriggerNames_.size(), 0, allTriggerNames_.size()); 
+//  for (unsigned i = 0; i< allTriggerNames_.size(); i++) {
+//    hTrigger->setBinLabel(i, allTriggerNames_[i]);
+//    std::cout<<"Setting label "<<i<<" "<<allTriggerNames_[i]<<std::endl;
+//  }
   hMEx        = dbe_->book1D("MEx",        "MEx",        200, -500,  500);
   hMEy        = dbe_->book1D("MEy",        "MEy",        200, -500,  500);
   hMET        = dbe_->book1D("MET",        "MET",        200,    0, 1000);
@@ -445,9 +444,31 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
 // ***********************************************************
 void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-  std::cout  << "Run " << iRun.run() << " hltconfig.init " 
-             << hltConfig_.init(iRun,iSetup,triggerResultsLabel_.process(),changed_) << " length: "<<hltConfig_.triggerNames().size()<<std::endl; 
- 
+//  std::cout  << "Run " << iRun.run() << " hltconfig.init " 
+//             << hltConfig_.init(iRun,iSetup,triggerResultsLabel_.process(),changed_) << " length: "<<hltConfig_.triggerNames().size()<<" changed "<<changed_<<std::endl; 
+  bool changed(true);
+  if (hltConfig_.init(iRun,iSetup,triggerResultsLabel_.process(),changed)) {
+    if (changed) {
+      hltConfig_.dump("ProcessName");
+      hltConfig_.dump("GlobalTag");
+      hltConfig_.dump("TableName");
+//      hltConfig_.dump("Streams");
+//      hltConfig_.dump("Datasets");
+//      hltConfig_.dump("PrescaleTable");
+//      hltConfig_.dump("ProcessPSet");
+    }
+  } else {
+    std::cout << "HLTEventAnalyzerAOD::analyze:"
+              << " config extraction failure with process name "
+              << triggerResultsLabel_.process() << std::endl;
+  }
+
+  allTriggerNames_.clear();
+  for (unsigned i = 0; i<hltConfig_.size();i++) {
+    allTriggerNames_.push_back(hltConfig_.triggerName(i));
+  }
+//  std::cout<<"Length: "<<allTriggerNames_.size()<<std::endl;
+
   triggerSelectedSubFolders_ = parameters.getParameter<edm::VParameterSet>("triggerSelectedSubFolders");
   for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
     int pos = it - triggerFolderEventFlag_.begin();
@@ -612,6 +633,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     allTriggerDecisions_.clear();
     for (unsigned i=0;i<allTriggerNames_.size();++i)  {
       allTriggerDecisions_.push_back((*triggerResults).accept(i)); 
+//      std::cout<<"TR "<<(*triggerResults).size()<<" "<<(*triggerResults).accept(i)<<" "<<allTriggerNames_[i]<<std::endl;
     }
 //    const unsigned int nTrig(triggerNames.size());
 //    for (unsigned i=0;i<nTrig;++i)  {
@@ -1151,14 +1173,26 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
   if (subFolderName!="") DirName = DirName +"/"+subFolderName;
 
 //  if (verbose_) std::cout << "etThreshold_ = " << etThreshold_ << std::endl;
-
+//  unsigned c(0);
   if (true){
 //  if (SumET>etThreshold_){
-    hTrigger = dbe_->get(DirName+"/"+"Trigger");if (hTrigger       && hTrigger->getRootObject()) {
-      for (unsigned i = 0; i<allTriggerNames_.size();i++){ 
-        hTrigger      ->Fill(i, allTriggerDecisions_[i]);
+    hTrigger = dbe_->get(DirName+"/triggerResults");
+//    std::cout<<"Hello"<<c++<<":"<<hTrigger <<std::endl;//":"<< hTrigger->getRootObject()<<std::endl;
+    if (hTrigger       && hTrigger->getRootObject()) {
+//      std::cout<<"Hello"<<c++<<std::endl;
+      for (unsigned i = 0; i<allTriggerDecisions_.size();i++){ 
+//        std::cout<<"Hello"<<c++<<":"<<i<<":"<< allTriggerDecisions_[i]<<":"<<allTriggerDecisions_[i]<<std::endl;
+        hTrigger->Fill(i + .5, allTriggerDecisions_[i]);
+        if (!hTriggerLabelsIsSet_) {
+          hTrigger->setBinLabel(i+1, allTriggerNames_[i]);//Can't be done in beginJob (no trigger list). Can't be done in beginRun (would have to anticipate folder structure).FIXME doesn't work
+        }
+//        std::cout<<"Filling decision "<<allTriggerNames_[i]<<" "<<allTriggerDecisions_[i]<<std::endl;
+      }
+      if (!hTriggerLabelsIsSet_) for (unsigned i = allTriggerDecisions_.size(); i<500;i++){ 
+        hTrigger->setBinLabel(i+1, "");//Can't be done in beginJob (no trigger list). Can't be done in beginRun (would have to anticipate folder structure).
       }
     }
+    hTriggerLabelsIsSet_ = true;
     hMEx    = dbe_->get(DirName+"/"+"MEx");     if (hMEx           && hMEx->getRootObject()){    hMEx          ->Fill(MEx);}
     hMEy    = dbe_->get(DirName+"/"+"MEy");     if (hMEy           && hMEy->getRootObject())     hMEy          ->Fill(MEy);
     hMET    = dbe_->get(DirName+"/"+"MET");     if (hMET           && hMET->getRootObject())     hMET          ->Fill(MET);
