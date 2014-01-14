@@ -6,6 +6,7 @@
 #include <map>
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include <iostream>
+#include <atomic>
 
 namespace ora {
 
@@ -50,7 +51,7 @@ namespace ora {
 
     void report( std::ostream& out );
   private:
-    static bool s_enabled;
+    static std::atomic<bool> s_enabled;
  
   private:
     // 
