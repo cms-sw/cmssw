@@ -29,6 +29,7 @@ if __name__ == "__main__":
   ## Trees
   analyzer = "GEMSimHitAnalyzer"
   simHits = "GEMSimHits"
+  simHits = "ME0SimHits"
   simTracks = "Tracks"
 
   ## muon selection
@@ -59,19 +60,36 @@ if __name__ == "__main__":
     suff = histSuffix[i]
  
     draw_occ(targetDir, "sh_xy_rm1_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, layer1;globalX [cm];globalY [cm]", 
- 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,AND(l1,sel)), "COLZ")
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l1,sel), "COLZ")
     draw_occ(targetDir, "sh_xy_rm1_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, layer2;globalX [cm];globalY [cm]", 
- 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,AND(l2,sel)), "COLZ")
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l2,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_l3" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, layer3;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l3,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_l4" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, layer4;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l4,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_l5" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, layer5;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l5,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_l6" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, layer6;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l6,sel), "COLZ")
+
     draw_occ(targetDir, "sh_xy_rp1_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region1, layer1;globalX [cm];globalY [cm]", 
- 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,AND(l1,sel)), "COLZ")
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l1,sel), "COLZ")
     draw_occ(targetDir, "sh_xy_rp1_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region1, layer2;globalX [cm];globalY [cm]", 
- 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,AND(l2,sel)), "COLZ")
-    
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l2,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_l3" + suff, ext, treeHits, pre + " SimHit occupancy: region1, layer3;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l3,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_l4" + suff, ext, treeHits, pre + " SimHit occupancy: region1, layer4;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l4,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_l5" + suff, ext, treeHits, pre + " SimHit occupancy: region1, layer5;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l5,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_l6" + suff, ext, treeHits, pre + " SimHit occupancy: region1, layer6;globalX [cm];globalY [cm]", 
+ 	     "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l6,sel), "COLZ")
+
     draw_occ(targetDir, "sh_zr_rm1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1;globalZ [cm];globalR [cm]", 
-             "h_", "(200,-573,-564,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rm1,sel), "COLZ")
+             "h_", "(200,-573,-100,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rm1,sel), "COLZ")
     draw_occ(targetDir, "sh_zr_rp1" + suff, ext, treeHits, pre + " SimHit occupancy: region1;globalZ [cm];globalR [cm]", 
- 	     "h_", "(200,564,573,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rp1,sel), "COLZ")
-4
+ 	     "h_", "(200,100,573,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rp1,sel), "COLZ")
+
     draw_1D(targetDir, "sh_tof_rm1_l1" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer1;Time of flight [ns];entries", 
             "h_", "(40,18,22)", "timeOfFlight", AND(rm1,AND(l1,sel)))
     draw_1D(targetDir, "sh_tof_rm1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer2;Time of flight [ns];entries", 
