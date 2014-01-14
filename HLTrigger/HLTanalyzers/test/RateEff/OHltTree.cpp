@@ -286,8 +286,8 @@ void OHltTree::Loop(
       // Get PU weight
       if (cfg->isMCPUreweight == true) 
 	{
-	  MyWeight = LumiWeights_.weight( recoNVrt );
-	  //MCPVwithPU->Fill(recoNVrt, MyWeight);
+	  MyWeight = LumiWeights_.weight( genNVrt );
+	  //MCPVwithPU->Fill(genNVrt, MyWeight);
 	}
       //////////////////////////////////////////////////////////////////
       // Loop over trigger paths and do rate counting
