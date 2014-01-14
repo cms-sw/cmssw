@@ -66,9 +66,12 @@ namespace cond {
       //
       GTProxy& operator=( const GTProxy& rhs );
       
-      // loads in memory the gtag information and the tags
-      void load( const std::string& gtName );
+      // loads in memory the gtag information and the tags. to be resurrected after the changeover.
+      //void load( const std::string& gtName );
       
+      // overloading for pre- and post-fix. Used in the ORA implementation
+      void load( const std::string& gtName, const std::string& preFix="", const std::string& postFix="" );
+
       // reset the data in memory and execute again the queries for the current tag 
       void reload();
       
