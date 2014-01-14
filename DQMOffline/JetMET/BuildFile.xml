@@ -32,6 +32,7 @@
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/SiStripCluster"/>
 <use   name="DataFormats/SiStripDetId"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
