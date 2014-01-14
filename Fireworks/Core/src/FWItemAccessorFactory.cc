@@ -206,8 +206,8 @@ bool
 FWItemAccessorFactory::hasAccessor(const TClass *iClass, std::string &result)
 {
    const std::vector<edmplugin::PluginInfo> &available 
-      = FWItemAccessorRegistry::get()->available();
-   
+       = edmplugin::PluginManager::get()->categoryToInfos().find("cmsShow FWItemAccessorBase")->second; 
+
    for (size_t i = 0, e = available.size(); i != e; ++i)
    {
       std::string name = available[i].name_;

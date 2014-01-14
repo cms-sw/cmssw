@@ -3,6 +3,8 @@
  <use name="DataFormats/CSCRecHit"/>
  <use name="DataFormats/DTDigi"/>
  <use name="DataFormats/RPCDigi"/> 
+ <use name="DataFormats/GEMRecHit"/> 
+ <use name="DataFormats/GEMDigi"/> 
  <use name="DataFormats/DTRecHit"/>
  <use name="DataFormats/MuonDetId"/>
  <use name="DataFormats/MuonReco"/>
