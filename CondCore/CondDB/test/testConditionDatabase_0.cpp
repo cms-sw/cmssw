@@ -35,19 +35,24 @@ int run( const std::string& connectionString ){
     std::string d("abcd1234");
     cond::Hash p3 = session.storePayload( d, boost::posix_time::microsec_clock::universal_time() );
 
-    IOVEditor editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber ); 
-    editor.setDescription("Test with MyTestData class");
-    editor.insert( 1, p0 );
-    editor.insert( 100, p1 );
-    std::cout <<"# inserted 2 iovs..."<<std::endl;
-    editor.flush();
-    std::cout <<"# iov changes flushed..."<<std::endl;
+    IOVEditor editor;
+    if( !session.existsIov( "MyNewIOV" ) ){
+      editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber ); 
+      editor.setDescription("Test with MyTestData class");
+      editor.insert( 1, p0 );
+      editor.insert( 100, p1 );
+      std::cout <<"# inserted 2 iovs..."<<std::endl;
+      editor.flush();
+      std::cout <<"# iov changes flushed..."<<std::endl;
+    }
 
-    editor = session.createIov<std::string>( "StringData", cond::timestamp );
-    editor.setDescription("Test with std::string class");
-    editor.insert( 1000000, p3 );
-    editor.insert( 2000000, p3 );
-    editor.flush();
+    if( !session.existsIov( "StringData" ) ){
+      editor = session.createIov<std::string>( "StringData", cond::timestamp );
+      editor.setDescription("Test with std::string class");
+      editor.insert( 1000000, p3 );
+      editor.insert( 2000000, p3 );
+      editor.flush();
+    }
 
     session.transaction().commit();
     std::cout <<"# iov changes committed!..."<<std::endl;
@@ -55,7 +60,8 @@ int run( const std::string& connectionString ){
     session.transaction().start();
 
     IOVProxy proxy = session.readIov( "MyNewIOV" );
-    std::cout <<"## iov size="<<proxy.size()<<std::endl;
+    std::cout <<"## iov loaded size="<<proxy.loadedSize()<<std::endl;
+    std::cout <<"## iov sequence size="<<proxy.sequenceSize()<<std::endl;
     IOVProxy::Iterator iovIt = proxy.find( 57 );
     if( iovIt == proxy.end() ){
       std::cout <<"#0 not found!"<<std::endl;

@@ -17,7 +17,7 @@
 //-------------------------------
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
-#include "CondCore/IOVService/interface/KeyList.h"
+#include "CondCore/CondDB/interface/KeyList.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -61,12 +61,12 @@ void DTKeyedConfigDBDump::analyze( const edm::Event& e,
     //record not found
     std::cout <<"Record \"DTKeyedConfigListRcd "<<"\" does not exist "<<std::endl;
   }
-  edm::ESHandle<cond::KeyList> klh;
+  edm::ESHandle<cond::persistency::KeyList> klh;
   std::cout<<"got eshandle"<<std::endl;
   c.get<DTKeyedConfigListRcd>().get(klh);
   std::cout<<"got context"<<std::endl;
-  cond::KeyList const &  kl= *klh.product();
-  cond::KeyList* kp = const_cast<cond::KeyList*>( &kl );
+  cond::persistency::KeyList const &  kl= *klh.product();
+  cond::persistency::KeyList* kp = const_cast<cond::persistency::KeyList*>( &kl );
   std::vector<unsigned long long> nkeys;
   nkeys.push_back( 999999999 );
   std::cout << "now load" << std::endl;

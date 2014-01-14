@@ -17,12 +17,10 @@
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 
 
-#include "CondCore/DBCommon/interface/DbTransaction.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
-#include "CondCore/IOVService/interface/KeyList.h"
+#include "CondCore/CondDB/interface/KeyList.h"
 
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -41,7 +39,7 @@
 //-------------------
 // Initializations --
 //-------------------
-cond::KeyList* DTUserKeyedConfigHandler::keyList = 0;
+cond::persistency::KeyList* DTUserKeyedConfigHandler::keyList = 0;
 
 //----------------
 // Constructors --
@@ -122,12 +120,10 @@ void DTUserKeyedConfigHandler::getNewObjects() {
 
   std::cout << "configure DbConnection" << std::endl;
   //  conn->configure( cond::CmsDefaults );
-  connection.configuration().setAuthenticationPath( onlineAuthentication );
+  connection.setAuthenticationPath( onlineAuthentication );
   connection.configure();
-  std::cout << "create DbSession" << std::endl;
-  isession = connection.createSession();
-  std::cout << "open session" << std::endl;
-  isession.open( onlineConnect );
+  std::cout << "create/open DbSession" << std::endl;
+  isession = connection.createSession( onlineConnect  );
   std::cout << "start transaction" << std::endl;
   isession.transaction().start();
   
@@ -463,7 +459,7 @@ bool DTUserKeyedConfigHandler::userDiscardedKey( int key ) {
   return true;
 }
 
-void DTUserKeyedConfigHandler::setList( cond::KeyList* list ) {
+void DTUserKeyedConfigHandler::setList( cond::persistency::KeyList* list ) {
   keyList = list;
 }
 

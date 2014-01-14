@@ -66,15 +66,13 @@ DataWriter::writeKeyList( L1TriggerKeyList* keyList,
 			     ) ;
     }
 
-  cond::DbSession session = poolDb->session();
-  cond::DbScopedTransaction tr(session);
-  tr.start(false);
+  cond::persistency::Session session = poolDb->session();
+  cond::persistency::TransactionScope tr(session.transaction());
+  tr.start( false );
 
   // Write L1TriggerKeyList payload and save payload token before committing
   boost::shared_ptr<L1TriggerKeyList> pointer(keyList);
-  std::string payloadToken = session.storeObject(pointer.get(),
-						 cond::classNameForTypeId(typeid(L1TriggerKeyList))
-						 );
+  std::string payloadToken = session.storePayload(*pointer );
 			
   // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
   // confused.
@@ -164,30 +162,16 @@ DataWriter::payloadToken( const std::string& recordName,
   std::string iovTag = poolDb->tag( recordName ) ;
 
   // Get IOV token for tag.
-  cond::DbSession session = poolDb->session();
-  cond::DbScopedTransaction tr(session);
-  tr.start(true);
-  cond::MetaData metadata(session ) ;
-  std::string iovToken ;
-  if( metadata.hasTag( iovTag ) )
-    {
-      iovToken = metadata.getToken( iovTag ) ;
-    }
-  if( iovToken.empty() )
-    {
-      return std::string() ;
-    }
+  cond::persistency::Session session = poolDb->session();
+  cond::persistency::IOVProxy iov = session.readIov( iovTag );
+  session.transaction().start();
 
-  // Get payload token for run number.
-
-  cond::IOVProxy iov( session );
-  iov.load(iovToken ) ;
   std::string payloadToken("");
-  cond::IOVProxy::const_iterator iP = iov.find( runNumber );
+  auto iP = iov.find( runNumber );
   if( iP != iov.end() ){
-    payloadToken = iP->token(); 
+    payloadToken = (*iP).payloadId; 
   }
-  tr.commit() ;
+  session.transaction().commit() ;
   return payloadToken ;
 }
 

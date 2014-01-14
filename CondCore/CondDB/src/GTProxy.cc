@@ -11,10 +11,16 @@ namespace cond {
     public: 
       
       GTProxyData():
+	name(""),
+	preFix(""),
+        postFix(""),
 	tagList(){
       }
       
       std::string name;
+      // will become useless after the transition...
+      std::string preFix;
+      std::string postFix;
       cond::Time_t validity;
       boost::posix_time::ptime snapshotTime;
       // tag list
@@ -85,6 +91,7 @@ namespace cond {
       return *this;
     }
     
+    /** this will be the final function 
     void GTProxy::load( const std::string& gtName ){
       // clear
       reset();
@@ -96,10 +103,29 @@ namespace cond {
       }
       m_data->name = gtName;
       
-      // load the full iov sequence in this case!
       m_session->gtSchema().gtMapTable().select( m_data->name, m_data->tagList );
       
     }
+    **/
+
+      // overloading for pre- and post-fix. Used in the ORA implementation
+    void GTProxy::load( const std::string& gtName, const std::string& pref, const std::string& postf ){
+      // clear
+      reset();
+      
+      checkSession( "GTProxy::load" );
+      
+      if(!m_session->gtSchema().gtTable().select( gtName, m_data->validity, m_data->snapshotTime ) ){
+	throwException( "Global Tag \""+gtName+"\" has not been found in the database.","GTProxy::load");
+      }
+      m_data->name = gtName;
+      m_data->preFix = pref;
+      m_data->postFix = postf;
+
+      m_session->gtSchema().gtMapTable().select( m_data->name, pref, postf, m_data->tagList );
+
+    }
+
     
     void GTProxy::reload(){
       load( m_data->name );

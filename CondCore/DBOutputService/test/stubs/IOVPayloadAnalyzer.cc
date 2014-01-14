@@ -41,9 +41,9 @@ void IOVPayloadAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& 
   //if(mydbservice->currentTime()%5==0){
   mydbservice->writeOne(myped,mydbservice->currentTime(),
 			m_record,false);
-  cond::TagInfo tinfo;
-  mydbservice->tagInfo( m_record, tinfo );
-  std::cout <<" tinfo name="<<tinfo.name<<" token="<<tinfo.lastPayloadToken<<std::endl;
+  //cond::TagInfo tinfo;
+  //mydbservice->tagInfo( m_record, tinfo );
+  //std::cout <<" tinfo name="<<tinfo.name<<" token="<<tinfo.lastPayloadToken<<std::endl;
   //}
 }
 void IOVPayloadAnalyzer::endJob(){ 
