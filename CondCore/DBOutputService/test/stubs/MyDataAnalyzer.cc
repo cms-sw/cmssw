@@ -64,6 +64,7 @@ void MyDataAnalyzer::endJob(){
       std::cout<<"done"<<std::endl;
     }
     //example for log reading
+    /**
     const cond::Logger& logreader=mydbservice->queryLog();
     cond::LogDBEntry result;
     logreader.LookupLastEntryByProvenance("mynullsource",result);
@@ -93,7 +94,8 @@ void MyDataAnalyzer::endJob(){
     pooldb.transaction().start(true);
     boost::shared_ptr<Pedestals> myinstance = pooldb.getTypedObject<Pedestals>( taginfo.lastPayloadToken);
     std::cout<<"size of items "<<myinstance->m_pedestals.size()<<std::endl;
-    pooldb.transaction().commit();
+    pooldb.transaction().commit();    
+    **/
   }catch(const cond::Exception& er){
     throw cms::Exception("DBOutputServiceUnitTestFailure","failed MyDataAnalyzer",er);
     //std::cout<<er.what()<<std::endl;

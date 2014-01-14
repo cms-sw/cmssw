@@ -28,6 +28,14 @@ class TBufferFile;
 
 namespace cond {
 
+  // default payload factory
+  template <typename T> T* createPayload( const std::string& payloadTypeName ){
+    if( demangledName( typeid(T) )!= payloadTypeName ) 
+      throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
+		     "createPayload" );
+    return new T;
+  }
+
   // Archives for the streaming based on ROOT.
 
   // output
@@ -97,8 +105,6 @@ namespace cond {
   // format. Only a cast is required in this case - Used by the ORA backed, will be dropped in the future.
   template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, const Binary& payloadData, bool unpackingOnly = false){
     // for the moment we fail if types don't match... later we will check for base types...
-    if( demangledName( typeid(T) )!= payloadType ) throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"",
-								  "deserialize" );
     boost::shared_ptr<T> payload;
     if( !unpackingOnly ){
       std::stringbuf sbuf;
