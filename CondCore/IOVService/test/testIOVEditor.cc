@@ -27,6 +27,7 @@ int main(){
       cond::DbScopedTransaction transaction(pooldb);
       transaction.start(false);
       unsigned int pos=0;
+      editor.createIOVContainerIfNecessary();
       editor.create(cond::timestamp,9);
       pos=editor.append(1,"pay01tok");
       std::cout<<"insertd 1 payload at position "<<pos<<std::endl;

@@ -19,6 +19,7 @@ int main(){
     pooldb.open("sqlite_file:mytest.db"); 
     cond::IOVEditor editor( pooldb );
     pooldb.transaction().start(false);
+    editor.createIOVContainerIfNecessary();
     editor.create(cond::timestamp,1);
     for(int i=0; i<5; ++i){
       std::cout<<"creating test payload obj"<<i<<std::endl;

@@ -18,9 +18,9 @@ void HERecalibration::setDsegm( const std::vector<std::vector<int>>& m_segmentat
 
   //  std::cout << std::endl << " HERecalibration->setDsegm" << std::endl;
 
-  for (int ieta = 0; ieta < maxEta; ieta++) {
+  for (unsigned int ieta = 0; ieta < HEDarkening::nEtaBins; ieta++) {
     //    std::cout << "["<< ieta << "]  ieta =" << ieta + 16 << "  ";
-    for(int ilay = 0; ilay < maxLay; ilay++) {
+    for(unsigned int ilay = 0; ilay < HEDarkening::nScintLayers; ilay++) {
       dsegm[ieta][ilay] = m_segmentation[ieta+15][ilay]; // 0 not used
       //      std::cout << dsegm [ieta][ilay];
     }
@@ -43,17 +43,17 @@ double HERecalibration::getCorr(int ieta, int idepth) {
 
 void HERecalibration::initialize() {
 
-  double dval[maxEta][maxDepth];  // conversion of lval into depths-averaged values - denominator (including degradation for iLumi) 
-  double nval[maxEta][maxDepth];  // conversion of lval into depths-averaged values - numerator (no degradation)
+  double dval[HEDarkening::nEtaBins][nDepths];  // conversion of lval into depths-averaged values - denominator (including degradation for iLumi) 
+  double nval[HEDarkening::nEtaBins][nDepths];  // conversion of lval into depths-averaged values - numerator (no degradation)
 
-  for (int j = 0; j < maxEta; j++) {
-    for (int k = 0; k < maxDepth; k++) {
+  for (unsigned int j = 0; j < HEDarkening::nEtaBins; j++) {
+    for (unsigned int k = 0; k < nDepths; k++) {
       dval[j][k] = 0.0;
       nval[j][k] = 0.0;
     }
   }
 
-  double lval[maxEta][maxLay]    // raw table of mean energy in each layer for each ieta at 0 lumi
+  double lval[HEDarkening::nEtaBins][HEDarkening::nScintLayers]    // raw table of mean energy in each layer for each ieta at 0 lumi
     = {
       {0.000000,0.000000,0.001078,0.008848,0.014552,0.011611,0.008579,0.003211,0.002964,0.001775,0.001244,0.000194,0.000159,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000}, //tower 16
       {0.107991,0.110127,0.081192,0.050552,0.032968,0.022363,0.012158,0.009392,0.006228,0.003650,0.003512,0.001384,0.002693,0.000171,0.000012,0.000000,0.000000,0.000000,0.000000}, //tower 17
@@ -75,10 +75,10 @@ void HERecalibration::initialize() {
 
   //  std::cout << std::endl << " >>> DVAL evaluation " << std::endl;
 
-  for (int ieta = 0; ieta < maxEta; ieta++) {
+  for (unsigned int ieta = 0; ieta < HEDarkening::nEtaBins; ieta++) {
   
     //fill sum(means(layer,0)) and sum(means(layer,lumi)) for each depth
-    for(int ilay = 0; ilay < maxLay; ilay++) {
+    for(unsigned int ilay = 0; ilay < HEDarkening::nScintLayers; ilay++) {
       int idepth = dsegm[ieta][ilay]; // idepth = 0 - not used!
       nval[ieta][idepth] += lval[ieta][ilay];
       dval[ieta][idepth] += lval[ieta][ilay]*darkening.degradation(iLumi,ieta+16,ilay-1); //be careful of eta and layer numbering
@@ -91,22 +91,22 @@ void HERecalibration::initialize() {
     }
    
     //compute factors, w/ safety checks
-	for(int idepth = 0; idepth < maxDepth; idepth++){
-	  if(dval[ieta][idepth] > 0) corr[ieta][idepth] = nval[ieta][idepth]/dval[ieta][idepth];
-	  else corr[ieta][idepth] = 1.0;
-	  
-	  if(corr[ieta][idepth] < 1.0) corr[ieta][idepth] = 1.0;
-	  /*
-          if (idepth > 0 && idepth <= 3) {
-	        std::cout << "nval[" << ieta << "][" << idepth << "]"
-	  	    << " = " << nval[ieta][idepth] << " - "
+    for(unsigned int idepth = 0; idepth < nDepths; idepth++){
+      if(dval[ieta][idepth] > 0) corr[ieta][idepth] = nval[ieta][idepth]/dval[ieta][idepth];
+      else corr[ieta][idepth] = 1.0;
+      
+      if(corr[ieta][idepth] < 1.0) corr[ieta][idepth] = 1.0;
+      /*
+	if (idepth > 0 && idepth <= 3) {
+	std::cout << "nval[" << ieta << "][" << idepth << "]"
+	<< " = " << nval[ieta][idepth] << " - "
 	  	    << "dval["<< ieta << "][" << idepth << "]"
 	  	    << " = " << dval[ieta][idepth] 
-	  	      << "    corr = " << corr[ieta][idepth] << std::endl;
-          }
-	  */
-	}
-   
+		    << "    corr = " << corr[ieta][idepth] << std::endl;
+		    }
+      */
+    }
+    
   }
 
 
