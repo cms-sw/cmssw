@@ -3,10 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace evf {
-  RecoEventWriterForFU::RecoEventWriterForFU(edm::ParameterSet const& ps) :
-    stream_writer_preamble_(0),
-    stream_writer_events_(0)
-  {
+  RecoEventWriterForFU::RecoEventWriterForFU(edm::ParameterSet const& ps) {
   }
 
   RecoEventWriterForFU::~RecoEventWriterForFU() {
@@ -47,6 +44,10 @@ namespace evf {
 
   void RecoEventWriterForFU::setOutputFile(std::string const& events){
     stream_writer_events_.reset(new StreamerOutputFile(events));
+  }
+
+  void RecoEventWriterForFU::closeOutputFile(){
+    stream_writer_events_.reset();
   }
 
 } //namespace edm
