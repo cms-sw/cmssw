@@ -230,6 +230,29 @@ unsigned int HcalDDDRecConstants::numberOfCells(HcalSubdetector subdet) const {
 
 }
 
+unsigned int HcalDDDRecConstants::nCells(HcalSubdetector subdet) const {
+
+  if (subdet == HcalBarrel || subdet == HcalEndcap) {
+    int isub   = (subdet == HcalBarrel) ? 0 : 1;
+    std::vector<HcalDDDRecConstants::HcalEtaBin> etabins = getEtaBins(isub);
+    unsigned int ncell(0);
+    for (unsigned int i=0; i<etabins.size(); ++i) {
+      ncell += (((unsigned int)(etabins[i].nPhi))*(etabins[i].layer.size()));
+    }
+    return ncell;
+  } else if (subdet == HcalOuter) {
+    return kHOSizePreLS1;
+  } else if (subdet == HcalForward) {
+    return kHFSizePreLS1;
+  } else {
+    return 0;
+  }
+}
+
+unsigned int HcalDDDRecConstants::nCells() const {
+  return (nCells(HcalBarrel)+nCells(HcalEndcap)+nCells(HcalOuter)+nCells(HcalForward));
+}
+
 void HcalDDDRecConstants::loadSpecPars(const DDFilteredView& fv) {
 
   DDsvalues_type sv(fv.mergedSpecifics());

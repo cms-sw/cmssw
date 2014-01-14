@@ -58,6 +58,8 @@ public:
   std::string               getTopoMode() const {return modeTopo;}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
+  unsigned int              nCells(HcalSubdetector) const;
+  unsigned int              nCells() const;
        
 private:
   HcalDDDRecConstants();
@@ -84,6 +86,7 @@ private:
   std::vector<std::pair<double,double> > gconsHB; // Geometry constatnts HB
   std::vector<std::pair<double,double> > gconsHE; // Geometry constatnts HE
   int                 nModule[2], nHalves[2];     // Modules, Halves for HB/HE
+  enum { kHOSizePreLS1 = 2160, kHFSizePreLS1 = 1728 } ;
 };
 
 #endif
