@@ -139,6 +139,14 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 
   if (EScales.instanceLabel=="") produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(EScales.instanceLabel);
+
+  /*
+  std::cout << "VI Producer " 
+	    << (useRejectedHitsOnly_ ? "use rejectOnly " : " ")
+	    << (allowMissingInputs_ ? "allowMissing " : " " )
+	    <<  nLabels << ' ' << severitynames.size() 
+	    << std::endl;
+  */
 }
 
 void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
@@ -205,9 +213,16 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setUseRejectedRecoveredHcalHits(useRejectedRecoveredHcalHits_);
   algo_.setUseRejectedRecoveredEcalHits(useRejectedRecoveredEcalHits_);
 
-
-
-
+  /*
+  std::cout << "VI Produce: " 
+	    << (useRejectedHitsOnly_ ? "use rejectOnly " : " ")
+	    << (allowMissingInputs_ ? "allowMissing " : " " )
+	    << (theRecoveredEcalHitsAreUsed_ ? "use RecoveredEcal ": " " )
+	    <<  toks_ecal_.size()
+	    << ' ' << theEcalSeveritiesToBeExcluded_.size()
+	    << ' ' << theEcalSeveritiesToBeUsedInBadTowers_.size() 
+	    << std::endl;
+  */
 
   algo_.begin(); // clear the internal buffer
 

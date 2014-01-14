@@ -23,6 +23,7 @@
 
 // need if we want to store the handles
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <tuple>
 
 
 #include <map>
@@ -46,6 +47,9 @@ class DetId;
 
 class CaloTowersCreationAlgo {
 public:
+
+  int nalgo=-1;
+
   CaloTowersCreationAlgo();
 
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
@@ -141,7 +145,8 @@ public:
   // Called in assignHit to check if the energy should be added to
   // calotower, and how to flag the channel
   unsigned int hcalChanStatusForCaloTower(const CaloRecHit* hit);
-  unsigned int ecalChanStatusForCaloTower(const CaloRecHit* hit);
+  
+  std::tuple<unsigned int,bool> ecalChanStatusForCaloTower(const CaloRecHit* hit);
 
   // Channel flagging is based on acceptable severity levels specified in the
   // configuration file. These methods are used to pass the values read in

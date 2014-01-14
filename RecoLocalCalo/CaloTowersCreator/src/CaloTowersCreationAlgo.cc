@@ -235,6 +235,9 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
     theMomEEDepth(momEEDepth)
 
 {
+  // static int N = 0;
+  // std::cout << "VI Algo " << ++N << std::endl; 
+  // nalgo=N;
 }
 
 
@@ -292,6 +295,9 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
   result.reserve(theTowerMapSize);
   // auto k=0U;
+  //  if (!theEbHandle.isValid()) std::cout << "VI ebHandle not valid" << std::endl;
+  // if (!theEeHandle.isValid()) std::cout << "VI eeHandle not valid" << std::endl;
+
   for(auto const & mt : theTowerMap ) { 
     // Convert only if there is at least one constituent in the metatower. 
     // The check of constituents size in the coverted tower is still needed!
@@ -412,9 +418,12 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
 void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
   DetId detId = recHit->detid();
 
-  unsigned int chStatusForCT = (detId.det()==DetId::Hcal)?
-    hcalChanStatusForCaloTower(recHit) :
-    ecalChanStatusForCaloTower(recHit);
+  unsigned int chStatusForCT;
+  bool ecalIsBad=false;
+  if (detId.det()==DetId::Hcal) 
+    chStatusForCT = hcalChanStatusForCaloTower(recHit);
+  else
+    std::tie(chStatusForCT,ecalIsBad) = ecalChanStatusForCaloTower(recHit);
 
   // this is for skipping channls: mostly needed for the creation of
   // bad towers from hits i the bad channel collections.
@@ -523,12 +532,30 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
 	else  passEmThreshold = (energy >= threshold);
       }
 
+      CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
+      if (towerDetId.null()) return;
+      MetaTower & tower = find(towerDetId);
+
+
+      // count bad cells and avoid double counting with those from DB (Recovered are counted bad)
+
+      // somehow misses some
+      // if ( (chStatusForCT == CaloTowersCreationAlgo::BadChan) & (!ecalIsBad) ) ++tower.numBadEcalCells; 
+
+      // a bit slower...
+      if ( chStatusForCT == CaloTowersCreationAlgo::BadChan ) {
+	auto thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel(detId);
+	// check if the Ecal severity is ok to keep
+        auto sevit = std::find(theEcalSeveritiesToBeExcluded.begin(),
+			       theEcalSeveritiesToBeExcluded.end(),
+			       thisEcalSevLvl);
+	if (sevit==theEcalSeveritiesToBeExcluded.end()) ++tower.numBadEcalCells;  // notinDB
+      }
+      
 
       //      if (chStatusForCT != CaloTowersCreationAlgo::BadChan && energy >= threshold) {
       if (chStatusForCT != CaloTowersCreationAlgo::BadChan && passEmThreshold) {
-        CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-        if (towerDetId.null()) return;
-        MetaTower & tower = find(towerDetId);
+
         tower.E_em += e;
         tower.E += e;
         
@@ -970,8 +997,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     // for ECAL the number of all bad channels is obtained here -----------------------
 
-    /* old hyper slow algorithm    
-
+    /*
+    // old hyper slow algorithm    
     // get all possible constituents of the tower
     std::vector<DetId> allConstituents = theTowerConstituentsMap->constituentsOf(id);
 
@@ -1000,11 +1027,25 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
      }
      
      // compare with fast version
-     auto  numBadEcalChanNew = ecalBadChs[id.denseIndex()];
-     if (numBadEcalChanNew!=numBadEcalChan) std::cout << "wrong " << id << " " << numBadEcalChanNew << " " << numBadEcalChan << " " << mt.numBadEcalCells << std::endl;
-     */
+ 
+   //  hcal: 
+    int inEcals[2] = {0,0};
+    for (std::vector<std::pair<DetId,float> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) {
+      DetId detId = i->first;
+      if(detId.det() == DetId::Ecal){
+	if( detId.subdetId()==EcalBarrel ) inEcals[0] =1;
+	else if( detId.subdetId()==EcalEndcap ) inEcals[1] =1;
+      }
+    }
 
-     numBadEcalChan = ecalBadChs[id.denseIndex()];
+     auto  numBadEcalChanNew = ecalBadChs[id.denseIndex()]+mt.numBadEcalCells; // - mt.numRecEcalCells
+     if (int(numBadEcalChanNew)!=int(numBadEcalChan)) { 
+       std::cout << "VI wrong " << ((inEcals[1]==1) ? "EE" : "" ) << id << " " << numBadEcalChanNew << " " << numBadEcalChan 
+		 << " " << mt.numBadEcalCells << " " << mt.numRecEcalCells << std::endl;
+     }
+     */
+     
+     numBadEcalChan =  ecalBadChs[id.denseIndex()]+mt.numBadEcalCells; // - mt.numRecEcalCells
 
     //--------------------------------------------------------------------------------------
 
@@ -1043,7 +1084,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     caloTower.setConstituents(std::move(contains));
     caloTower.setHottestCellE(maxCellE);
 
-    // std::cout << "CaloTowerVI " << caloTower.id() << ' ' << caloTower.pt() << ' ' << caloTower.et() << ' ' << caloTower.mass() << ' '<< caloTower.constituentsSize() <<' '<< caloTower.towerStatusWord() << std::endl;
+    // std::cout << "CaloTowerVI " << nalgo << ' ' << caloTower.id() << ((inEcals[1]==1) ? "EE " : " " )  << caloTower.pt() << ' ' << caloTower.et() << ' ' << caloTower.mass() << ' '
+    //           << caloTower.constituentsSize() <<' '<< caloTower.towerStatusWord() << std::endl;
 
 } 
 
@@ -1447,6 +1489,8 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
 
 void CaloTowersCreationAlgo::makeEcalBadChs() {
 
+  // std::cout << "VI making EcalBadChs ";
+
   // for ECAL the number of all bad channels is obtained here -----------------------
   
   for (auto ind=0U; ind<CaloTowerDetId::kSizeForDenseIndexing; ++ind) {
@@ -1464,15 +1508,8 @@ void CaloTowersCreationAlgo::makeEcalBadChs() {
 	 ac_it!=allConstituents.end(); ++ac_it) {
       
       if (ac_it->det()!=DetId::Ecal) continue;
-      
-      int thisEcalSevLvl = -999;
-      
-      if (ac_it->subdetId() == EcalBarrel) {
-	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it);
-      }
-      else if (ac_it->subdetId() == EcalEndcap) {
-	thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it);
-      }
+            
+      auto thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it);
       
       // check if the Ecal severity is ok to keep
       std::vector<int>::const_iterator sevit = std::find(theEcalSeveritiesToBeExcluded.begin(),
@@ -1482,7 +1519,18 @@ void CaloTowersCreationAlgo::makeEcalBadChs() {
 	++numBadEcalChan;
       }
      }
-   }
+
+    // if (0!=numBadEcalChan) std::cout << id << ":" << numBadEcalChan << ", ";
+  }
+
+  /*
+  int tot=0;
+  for (auto ind=0U; ind<CaloTowerDetId::kSizeForDenseIndexing; ++ind) {
+    if (ecalBadChs[ind]!=0) ++tot; 
+  }
+  std::cout << " | " << tot << std::endl;
+  */
+
 }
 
 
@@ -1550,7 +1598,7 @@ unsigned int CaloTowersCreationAlgo::hcalChanStatusForCaloTower(const CaloRecHit
 
 
 
-unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit* hit) {
+std::tuple<unsigned int,bool>  CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit* hit) {
 
   // const DetId id = hit->detid();
 
@@ -1580,6 +1628,7 @@ unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit
   // exclude problematic channels as defined by ECAL.
   // For definitions of ECAL severity levels see RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h
 
+  bool isBad = (severityLevel == EcalSeverityLevel::kBad);
 
   bool isRecovered = (severityLevel == EcalSeverityLevel::kRecovered);
 
@@ -1603,42 +1652,38 @@ unsigned int CaloTowersCreationAlgo::ecalChanStatusForCaloTower(const CaloRecHit
       if (accepted  ||
 	  std::find(theEcalSeveritiesToBeUsedInBadTowers.begin(), theEcalSeveritiesToBeUsedInBadTowers.end(), severityLevel)
 	  == theEcalSeveritiesToBeUsedInBadTowers.end())
-	return CaloTowersCreationAlgo::IgnoredChan;
+	return std::make_tuple(CaloTowersCreationAlgo::IgnoredChan,isBad);
       // this hit was either already accepted, or is not eligible for inclusion
     }    
     else {
       
       if (theRecoveredEcalHitsAreUsed || !useRejectedRecoveredEcalHits) {
 	// skip recovered hits either because they were already used or because there was an explicit instruction
-	return CaloTowersCreationAlgo::IgnoredChan;
+	return std::make_tuple(CaloTowersCreationAlgo::IgnoredChan,isBad);;
       }
       else if (useRejectedRecoveredEcalHits) {
-	return CaloTowersCreationAlgo::RecoveredChan;
+	return std::make_tuple(CaloTowersCreationAlgo::RecoveredChan,isBad);
       }  
   
     }  // recovered channels
 
     // clasify channels as problematic
-    return CaloTowersCreationAlgo::ProblematicChan;
+    return std::make_tuple(CaloTowersCreationAlgo::ProblematicChan,isBad);
 
   }  // treatment of rejected hits
 
 
 
   // for normal reconstruction
-  if (severityLevel == EcalSeverityLevel::kGood) return CaloTowersCreationAlgo::GoodChan;
+  if (severityLevel == EcalSeverityLevel::kGood) return std::make_tuple(CaloTowersCreationAlgo::GoodChan,false);
 
   if (isRecovered) {
-    return (theRecoveredEcalHitsAreUsed) ? 
-      CaloTowersCreationAlgo::RecoveredChan : CaloTowersCreationAlgo::BadChan;
+    return  std::make_tuple( (theRecoveredEcalHitsAreUsed) ? 
+     CaloTowersCreationAlgo::RecoveredChan : CaloTowersCreationAlgo::BadChan, true);
   }  
   else {
-    if (!accepted) {
-      return CaloTowersCreationAlgo::BadChan;
-    }
-    else {
-      return CaloTowersCreationAlgo::ProblematicChan;
-    }
+    return  std::make_tuple(accepted ? CaloTowersCreationAlgo::ProblematicChan : CaloTowersCreationAlgo::BadChan,isBad);
+
   }
 
 
