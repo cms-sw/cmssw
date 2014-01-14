@@ -10,7 +10,9 @@
    <class name="susybsm::HSCParticleRefProd"/>
    <class name="susybsm::HSCParticleRefVector"/>
    <class name="edm::Wrapper<susybsm::HSCParticleCollection>"/>
-   <class name="susybsm::TracksEcalRecHitsMap"/>
+   <class name="susybsm::TracksEcalRecHitsMap">
+      <field name="transientMap_" transient="true"/>
+   </class>
    <class name="edm::Wrapper<susybsm::TracksEcalRecHitsMap>"/>
    <class name="susybsm::HSCPIsolation" ClassVersion="10">
     <version ClassVersion="10" checksum="3676296078"/>
