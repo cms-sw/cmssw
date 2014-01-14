@@ -367,9 +367,8 @@ namespace SingleTopTChannelLepton {
     if( !event.getByToken(pvs_, pvs) ) return;
     unsigned int pvMult = 0;
     for(edm::View<reco::Vertex>::const_iterator pv=pvs->begin(); pv!=pvs->end(); ++pv){
-      if(!pvSelect_ || (*pvSelect_)(*pv)){
+      if(!pvSelect_ || (*pvSelect_)(*pv))
 	pvMult++;
-      }
     }
     fill("pvMult_",    pvMult   );
     
@@ -381,11 +380,11 @@ namespace SingleTopTChannelLepton {
        ------------------------------------------------------------
     */
     
-    /*    reco::BeamSpot beamSpot;
+    reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
     if( !event.getByToken("offlineBeamSpot",recoBeamSpotHandle)) return;
     beamSpot = *recoBeamSpotHandle;
-    */
+    
     
     // fill monitoring plots for electrons
     edm::Handle<edm::View<reco::GsfElectron> > elecs_gsf;
@@ -419,7 +418,7 @@ namespace SingleTopTChannelLepton {
       if (!electronId_.isUnitialized()) 
 	eID = (int)(*electronId)[elecs_gsf->refAt(idx_gsf)];
       
-      if( electronId_.isUnitialized()  ? true : ( (eID  & eidPattern_) && (eID >=5)) ){ // NEED TO CHECK 
+      if( electronId_.isUnitialized()  ? true : ( (eID  & eidPattern_) && (eID >=5)) ){ 
 	if(!elecSelect || (*elecSelect)(*elec_it)){
 	  double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
 	  
@@ -480,7 +479,6 @@ namespace SingleTopTChannelLepton {
     */
     
     if( !event.getByToken(muons_, muons )) return;
-    
     for(muonit = muons->begin(); muonit != muons->end(); ++muonit){    // for now, to use Reco::Muon need to substitute  muonit with muon
                                                                        // and comment the MuonRef and PFCandidate parts
 
@@ -509,9 +507,6 @@ namespace SingleTopTChannelLepton {
 	  
 	  
 	  if( mMult==0 ){
-	    //  cout << "BEFORE  Muon - PFRelIso:  " <<  (muon->pfIsolationR04().sumChargedHadronPt +
-	    //				      muon->pfIsolationR04().sumNeutralHadronEt + muon->pfIsolationR04().sumPhotonEt)/muon->pt() 
-	    // << "   pt: " << muon->pt() << endl;
 	    // restrict to leading muon
 	    fill("muonPt_"     , muon->pt() );
 	    fill("muonEta_"    , muon->eta());
@@ -633,10 +628,8 @@ namespace SingleTopTChannelLepton {
       if( includeBTag_ ){
 	// fill b-discriminators
 	edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);	
-	//	cout << "btag: "  << (*btagVtx)[jetRef] << "   jet eta: " << monitorJet.eta()  <<  endl; 
 	if( (*btagVtx)[jetRef]>btagVtxWP_ ) ++multBVtx; 
 	if( (*btagCombVtx)[jetRef]>btagCombVtxWP_ ) ++multBCombVtx; 
-	//	cout << "btag: "  << (*btagPur)[jetRef] << "   jet eta: " << monitorJet.eta()  <<  endl; 
 	if( (*btagPur)[jetRef]>btagPurWP_ ){
 	  if (multBPur == 0){
 	    TaggedJetCand = monitorJet;
