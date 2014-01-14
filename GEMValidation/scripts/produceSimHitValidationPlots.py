@@ -93,6 +93,33 @@ if __name__ == "__main__":
                "h_", "(80,-555,-515,120,20,280)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rm1,sel), "COLZ")
       draw_occ(targetDir, "sh_zr_rp1" + suff, ext, treeHits, pre + " SimHit occupancy: region1;globalZ [cm];globalR [cm]", 
                "h_", "(80,515,555,120,20,280)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rp1,sel), "COLZ")
+
+      draw_1D(targetDir, "sh_tof_rm1_l1" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer1;Time of flight [ns];entries", 
+              "h_", "(40,15,19)", "timeOfFlight", AND(rm1,l1,sel))
+      draw_1D(targetDir, "sh_tof_rm1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer2;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rm1,l2,sel))
+      draw_1D(targetDir, "sh_tof_rm1_l3" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer3;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rm1,l3,sel))
+      draw_1D(targetDir, "sh_tof_rm1_l4" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer4;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rm1,l4,sel))
+      draw_1D(targetDir, "sh_tof_rm1_l5" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer5;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rm1,l5,sel))
+      draw_1D(targetDir, "sh_tof_rm1_l6" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer6;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rm1,l6,sel))
+      
+      draw_1D(targetDir, "sh_tof_rp1_l1" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer1;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rp1,l1,sel))
+      draw_1D(targetDir, "sh_tof_rp1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer2;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rp1,l2,sel))
+      draw_1D(targetDir, "sh_tof_rp1_l3" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer3;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rp1,l3,sel))
+      draw_1D(targetDir, "sh_tof_rp1_l4" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer4;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rp1,l4,sel))
+      draw_1D(targetDir, "sh_tof_rp1_l5" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer5;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rp1,l5,sel))
+      draw_1D(targetDir, "sh_tof_rp1_l6" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer6;Time of flight [ns];entries", 
+              "h_", "(40,15,22)", "timeOfFlight", AND(rp1,l6,sel))
+
     ####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####
 
     """
@@ -111,7 +138,7 @@ if __name__ == "__main__":
     "h_", "(200,-573,-564,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rm1,sel), "COLZ")
     draw_occ(targetDir, "sh_zr_rp1" + suff, ext, treeHits, pre + " SimHit occupancy: region1;globalZ [cm];globalR [cm]",
     "h_", "(200,564,573,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rp1,sel), "COLZ")
-    """    
+    
     draw_1D(targetDir, "sh_tof_rm1_l1" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer1;Time of flight [ns];entries", 
             "h_", "(40,18,22)", "timeOfFlight", AND(rm1,l1,sel))
     draw_1D(targetDir, "sh_tof_rm1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer2;Time of flight [ns];entries", 
@@ -120,6 +147,7 @@ if __name__ == "__main__":
             "h_", "(40,18,22)", "timeOfFlight", AND(rp1,l1,sel))
     draw_1D(targetDir, "sh_tof_rp1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer2;Time of flight [ns];entries", 
             "h_", "(40,18,22)", "timeOfFlight", AND(rp1,l2,sel))
+    """    
 
 
     ## momentum plot
