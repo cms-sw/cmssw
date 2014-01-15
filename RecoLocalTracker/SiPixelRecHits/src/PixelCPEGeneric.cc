@@ -155,7 +155,12 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 LocalPoint
 PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const 
 {
+
+  if(MYDEBUG) cout<<" in PixelCPEGeneric:localPosition - "<<endl; //dk
+
   computeLorentzShifts();  //!< correctly compute lorentz shifts in X and Y
+
+
   if ( UseErrorsFromTemplates_ )
     {
       templID_ = templateDBobject_->getTemplateID(theDet->geographicalId().rawId());
@@ -283,11 +288,12 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
     cout << "\t >>> Generic:: processing X" << endl;
 #endif
 
+  float chargeWidth = (lorentzShiftInCmX_ * widthLAFraction_);
   float xPos = 
     generic_position_formula( cluster.sizeX(),
 			      Q_f_X, Q_l_X, 
 			      local_URcorn_LLpix.x(), local_LLcorn_URpix.x(),
-			      0.5*lorentzShiftInCmX_,   // 0.5 * lorentz shift in 
+			      chargeWidth,   // lorentz shift in cm
 			      cotalpha_,
 			      thePitchX,
 			      theRecTopol->isItBigPixelInX( cluster.minPixelRow() ),
@@ -297,33 +303,42 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
                               the_size_cutX);           // cut for eff charge width &&&
 
 
- #ifdef EDM_ML_DEBUG
+  // apply the lorentz offset correction 			     
+  xPos = xPos + (0.5 * lorentzShiftInCmX_);
+
+#ifdef EDM_ML_DEBUG
   if (theVerboseLevel > 20) 
     cout << "\t >>> Generic:: processing Y" << endl;
 #endif
 
+  chargeWidth = (lorentzShiftInCmY_ * widthLAFraction_);
   float yPos = 
     generic_position_formula( cluster.sizeY(),
 			      Q_f_Y, Q_l_Y, 
 			      local_URcorn_LLpix.y(), local_LLcorn_URpix.y(),
-			      0.5*lorentzShiftInCmY_,   // 0.5 * lorentz shift in cm
+			      chargeWidth,   // lorentz shift in cm
 			      cotbeta_,
-			      thePitchY,   // 0.5 * lorentz shift (may be 0)
+			      thePitchY,  
 			      theRecTopol->isItBigPixelInY( cluster.minPixelCol() ),
 			      theRecTopol->isItBigPixelInY( cluster.maxPixelCol() ),
 			      the_eff_charge_cut_lowY,
                               the_eff_charge_cut_highY,
                               the_size_cutY);           // cut for eff charge width &&&
-			     
-  // Apply irradiation corrections.
+
+  // apply the lorentz offset correction 			     
+  yPos = yPos + (0.5 * lorentzShiftInCmY_);
+
+  // Apply irradiation corrections. NOT USED FOR NOW
   if ( IrradiationBiasCorrection_ )
     {
       if ( cluster.sizeX() == 1 )
 	{
 	  
+	  // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
+	  xPos = xPos - (0.5 * lorentzShiftInCmX_);
+
 	  // Find if pixel is double (big). 
-	  bool bigInX = theRecTopol->isItBigPixelInX( cluster.maxPixelRow() );
-	  
+	  bool bigInX = theRecTopol->isItBigPixelInX( cluster.maxPixelRow() );	  
 	  if ( !bigInX ) 
 	    {
 	      //cout << "Apply correction dx1 = " << dx1 << " to xPos = " << xPos << endl;
@@ -344,9 +359,11 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
   if ( cluster.sizeY() == 1 )
     {
       
+      // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
+      yPos = yPos - (0.5 * lorentzShiftInCmY_);
+
       // Find if pixel is double (big). 
-      bool bigInY = theRecTopol->isItBigPixelInY( cluster.maxPixelCol() );
-      
+      bool bigInY = theRecTopol->isItBigPixelInY( cluster.maxPixelCol() );      
       if ( !bigInY ) 
 	{
 	  //cout << "Apply correction dy1 = " << dy1 << " to yPos = " << yPos  << endl;
@@ -366,6 +383,8 @@ PixelCPEGeneric::localPosition(const SiPixelCluster& cluster) const
  
     } // if ( IrradiationBiasCorrection_ )
 	
+  if(MYDEBUG) cout<<" in PixelCPEGeneric:localPosition - pos = "<<xPos<<" "<<yPos<<endl; //dk
+
   //--- Now put the two together
   LocalPoint pos_in_local( xPos, yPos );
   return pos_in_local;
@@ -386,7 +405,7 @@ generic_position_formula( int size,                //!< Size of this projection.
 			  float Q_l,              //!< Charge in the last pixel.
 			  float upper_edge_first_pix, //!< As the name says.
 			  float lower_edge_last_pix,  //!< As the name says.
-			  float half_lorentz_shift,   //!< L-shift at half thickness
+			  float lorentz_shift,   //!< L-shift at half thickness
 			  float cot_angle,        //!< cot of alpha_ or beta_
 			  float pitch,            //!< thePitchX or thePitchY
 			  bool first_is_big,       //!< true if the first is big
@@ -396,6 +415,10 @@ generic_position_formula( int size,                //!< Size of this projection.
 			  float size_cut         //!< Use edge when size == cuts
 			 ) const
 {
+
+  if(MYDEBUG) cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
+
+  
   float geom_center = 0.5f * ( upper_edge_first_pix + lower_edge_last_pix );
 
   //--- The case of only one pixel in this projection is separate.  Note that
@@ -403,11 +426,7 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- center of the pixel.
   if ( size == 1 ) 
     {
-      // ggiurgiu@jhu.edu, 02/03/09 : for size = 1, the Lorentz shift is already accounted by the irradiation correction
-      if ( IrradiationBiasCorrection_ ) 
 	return geom_center;
-      else
-	return geom_center + half_lorentz_shift;
     }
 
 
@@ -419,8 +438,11 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- Predicted charge width from geometry
   float W_pred = 
     theThickness * cot_angle                     // geometric correction (in cm)
-    - 2.f * half_lorentz_shift;                    // (in cm) &&& check fpix!  
+    - lorentz_shift;                    // (in cm) &&& check fpix!  
+    //    - 2.f * half_lorentz_shift;                    // (in cm) &&& check fpix!  
   
+
+  if(MYDEBUG) cout<<" in PixelCPEGeneric:generic_position_formula - "<<W_inner<<" "<<W_pred<<endl; //dk
 
   //--- Total length of the two edge pixels (first+last)
   float sum_of_edge = 2.0f;
@@ -454,7 +476,10 @@ generic_position_formula( int size,                //!< Size of this projection.
 
   //--- Temporary fix for clusters with both first and last pixel with charge = 0
   if(Qsum==0) Qsum=1.0f;
-  float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
+  //float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff + half_lorentz_shift;
+  float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff;
+
+  if(MYDEBUG) cout<<" in PixelCPEGeneric:generic_position_formula - "<<hit_pos<<" "<<lorentz_shift*0.5<<endl; //dk
 
  #ifdef EDM_ML_DEBUG
   //--- Debugging output

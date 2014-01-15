@@ -53,6 +53,8 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
     probabilityQ_(0.0), qBin_(0),
     isOnEdge_(false), hasBadPixels_(false),
     spansTwoROCs_(false), hasFilledProb_(false),
+    useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
+    useLAWidthFromConfig_(false), useLAWidthFromDB_(false),
     loc_trk_pred_(0.0, 0.0, 0.0, 0.0)
 {
   //--- Lorentz angle tangent per Tesla
@@ -83,6 +85,20 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   //
   clusterProbComputationFlag_ 
     = (unsigned int) conf.getParameter<int>("ClusterProbComputationFlag");
+
+  lAOffset_ = conf.getUntrackedParameter<double>("lAOffset",0.0);
+  lAWidthBPix_  = conf.getUntrackedParameter<double>("lAWidthBPix",0.0);
+  lAWidthFPix_  = conf.getUntrackedParameter<double>("lAWidthFPix",0.0);
+  if(lAOffset_>0.0) useLAOffsetFromConfig_ = true;
+  if(lAWidthBPix_>0.0 || lAWidthFPix_>0.0) useLAWidthFromConfig_ = true;
+  useLAAlignmentOffsets_ = 
+    conf.getUntrackedParameter<bool>("useLAAlignmentOffsets",false);
+  useLAWidthFromDB_ = 
+    conf.getUntrackedParameter<bool>("useLAWidthFromDB",false);
+
+
+  cout<<" in PixelCPEBase:const - "<<theVerboseLevel<<" "
+      <<lAOffset_<<" "<<lAWidthBPix_<<" "<<lAWidthFPix_<<endl; //dk
   
 }
 
@@ -92,8 +108,11 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 void
 PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster ) const 
 {
+
+  if(MYDEBUG) cout<<" in PixelCPEBase:setTheDet - "<<endl; //dk
   if ( theDet != &det ) {
     
+
     //--- This is a new det unit, so cache it
     theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
     
@@ -107,19 +126,23 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     //--- theDet->type() returns a GeomDetType, which implements subDetector()
     thePart = theDet->type().subDetector();
     
-#ifdef EDM_ML_DEBUG
+    if(MYDEBUG) cout<<" in PixelCPEBase:setTheDet - in det "<<thePart<<endl; //dk
+
     switch ( thePart ) {
     case GeomDetEnumerators::PixelBarrel:
       // A barrel!  A barrel!
+      lAWidth_ = lAWidthBPix_;
       break;
     case GeomDetEnumerators::PixelEndcap:
       // A forward!  A forward!
+      lAWidth_ = lAWidthFPix_;
       break;
-    default:
-      throw cms::Exception("PixelCPEBase::setTheDet :")
-      	<< "PixelCPEBase: A non-pixel detector type in here?" ;
+     default:
+       // does one need this exception?
+       cout<<" something wrong"<<endl;
+      //throw cms::Exception("PixelCPEBase::setTheDet :")
+      //<< "PixelCPEBase: A non-pixel detector type in here?" ;
     }
-#endif
     
     //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
     //--- The call goes via BoundSurface, returned by theDet->surface(), but
@@ -155,31 +178,32 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     
     theSign = isFlipped() ? -1 : 1;
     
+    widthLAFraction_=1.0; // preset the LA fraction to 1. 
     
-    // will cache if not yest there (need some of the above)
+    // will cache if not yet there (need some of the above)
     theParam = &param();
     
-    // this "has wrong sign..."
     driftDirection_ = (*theParam).drift;
-    
-    
+    widthLAFraction_ = (*theParam).widthLAFraction;
+        
     //--- The Lorentz shift.
-    theLShiftX = lorentzShiftX();
-    
-    theLShiftY = lorentzShiftY();
+    //theLShiftX = lorentzShiftX();    
+    //theLShiftY = lorentzShiftY();
+
+    if(MYDEBUG) cout<<" in PixelCPEBase:setTheDet - "<<driftDirection_<<" 0"<<endl; //dk
     
     // testing 
-    if(thePart == GeomDetEnumerators::PixelBarrel) {
+    //if(thePart == GeomDetEnumerators::PixelBarrel) {
       //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
-      theLShiftY=0.;
-    }
+      //theLShiftY=0.;
+    //}
     
     LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
 			     << " thePart = " << thePart
 			     << " theThickness = " << theThickness
 			     << " thePitchX  = " << thePitchX 
-			     << " thePitchY  = " << thePitchY 
-			     << " theLShiftX  = " << theLShiftX;
+			     << " thePitchY  = " << thePitchY; 
+    //			     << " theLShiftX  = " << theLShiftX;
     
     
   }
@@ -195,11 +219,12 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   isOnEdge_ = theRecTopol->isItEdgePixelInX(minInX) | theRecTopol->isItEdgePixelInX(maxInX) |
     theRecTopol->isItEdgePixelInY(minInY) | theRecTopol->isItEdgePixelInY(maxInY) ;
   
+  // Comment out - UNUSED
   // Bad Pixels have their charge set to 0 in the clusterizer 
-  hasBadPixels_ = false;
-  for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
-    if(cluster.pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
-  }
+  //hasBadPixels_ = false;
+  //for(unsigned int i=0; i<cluster.pixelADC().size(); ++i) {
+  //if(cluster.pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
+  //}
   
   spansTwoROCs_ = theRecTopol->containsBigPixelInX(minInX,maxInX) |
     theRecTopol->containsBigPixelInY(minInY,maxInY);
@@ -215,6 +240,8 @@ void PixelCPEBase::
 computeAnglesFromTrajectory( const SiPixelCluster & cl,
 			     const LocalTrajectoryParameters & ltp) const
 {
+  if(MYDEBUG) cout<<" in PixelCPEBase:computeAnglesFromTrajectory - "<<endl; //dk
+
   loc_traj_param_ = ltp;
 
   LocalVector localDir = ltp.momentum();
@@ -392,6 +419,7 @@ PixelCPEBase::Param const & PixelCPEBase::param() const {
       LocalVector Bfield = theDet->surface().toLocal(magfield_->inTesla(theDet->surface().position()));
       p.drift = driftDirection(Bfield );
       p.bz = Bfield.z();
+      p.widthLAFraction = widthLAFraction_;
     }
   return p;
 }
@@ -402,32 +430,32 @@ PixelCPEBase::Param const & PixelCPEBase::param() const {
 // in the units of pitch.  (So note these are neither local nor measurement
 // units!)
 //-----------------------------------------------------------------------------
-float PixelCPEBase::lorentzShiftX() const 
-{
-  LocalVector dir = getDrift();
+// float PixelCPEBase::lorentzShiftX() const 
+// {
+//   LocalVector dir = getDrift();
 
-  // max shift in cm 
-  float xdrift = dir.x()/dir.z() * theThickness;  
-  // express the shift in units of pitch, 
-  // divide by 2 to get the average correction
-  float lshift = xdrift / (thePitchX*2.); 
+//   // max shift in cm 
+//   float xdrift = dir.x()/dir.z() * theThickness;  
+//   // express the shift in units of pitch, 
+//   // divide by 2 to get the average correction
+//   float lshift = xdrift / (thePitchX*2.); 
     
-  return lshift;  
+//   return lshift;  
   
 
-}
+// }
 
-float PixelCPEBase::lorentzShiftY() const 
-{
+// float PixelCPEBase::lorentzShiftY() const 
+// {
  
-  LocalVector dir = getDrift();
+//   LocalVector dir = getDrift();
   
-  float ydrift = dir.y()/dir.z() * theThickness;
-  float lshift = ydrift / (thePitchY * 2.f);
-  return lshift; 
+//   float ydrift = dir.y()/dir.z() * theThickness;
+//   float lshift = ydrift / (thePitchY * 2.f);
+//   return lshift; 
   
 
-}
+// }
 
 
 //-----------------------------------------------------------------------------
@@ -437,8 +465,6 @@ float PixelCPEBase::lorentzShiftY() const
 //  used in the digitizer (SiPixelDigitizerAlgorithm.cc).
 //  Assumption: setTheDet() has been called already.
 //
-//  Petar (2/23/07): uhm, actually, there is a bug in the sign for both X and Y!
-//  (The signs have been fixed in SiPixelDigitizer, but not in here.)
 //-----------------------------------------------------------------------------
 LocalVector 
 PixelCPEBase::driftDirection( GlobalVector bfield ) const {
@@ -452,12 +478,33 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const {
 LocalVector 
 PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   
-  
-  auto langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+  //auto langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+  // Use LA from DB or from config 
+  float langle = 0.;
+  if( !useLAOffsetFromConfig_ ) {  // get it from DB
+    langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
+  } else {  // from config file 
+    langle = lAOffset_;
+    if(MYDEBUG) cout<<" Will use LA Offset from config "<<langle<<endl;
+  } 
+ 
+  //We also need the LA values used for the charge width
+  // I do not know where to put it best, try here!
+  if(useLAWidthFromDB_) {  // get it from DB
+    //auto langleWidth = FromDB();  // does not yet exist
+    auto langleWidth = langle;  // for testing only
+    if(langle!=0.0) widthLAFraction_ = abs(langleWidth/langle);
+  } else if(useLAWidthFromConfig_) { // get from config 
+    if(langle!=0.0) widthLAFraction_ = abs(lAWidth_/langle);
+    if(MYDEBUG)  cout<<" Will use LA Width from config "<<lAWidth_<<endl;
+  } else { // get if from the offset LA (old method used until 2013)
+    widthLAFraction_ = 1.0; // use the same angle
+  }
+    
   float alpha2 = alpha2Order ?  langle*langle : 0;
 
+  if(MYDEBUG) cout<<" in PixelCPEBase:driftDirection - "<<langle<<" "<<Bfield<<endl; //dk
 
-  // &&& dir_x should have a "-" and dir_y a "+"
   // **********************************************************************
   // Our convention is the following:
   // +x is defined by the direction of the Lorentz drift!
@@ -465,8 +512,8 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
   // +y is defined by +x and +z, and it turns out to be always opposite to the +B field.
   // **********************************************************************
   
-  float dir_x =  ( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
-  float dir_y = -( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
+  float dir_x = -( langle * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
+  float dir_y =  ( langle * Bfield.x() - alpha2* Bfield.z()* Bfield.y() );
   float dir_z = -( 1.f + alpha2* Bfield.z()*Bfield.z() );
   auto scale = 1.f/std::abs( dir_z );  // same as 1 + alpha2*Bfield.z()*Bfield.z()
   LocalVector  dd(dir_x*scale, dir_y*scale, -1.f );  // last is -1 !
@@ -481,19 +528,30 @@ PixelCPEBase::driftDirection( LocalVector Bfield ) const {
 //-----------------------------------------------------------------------------
 void
 PixelCPEBase::computeLorentzShifts() const {
-  // this "has wrong sign..."  so "corrected below
-  driftDirection_ = getDrift();
+
+  if(MYDEBUG) cout<<" in PixelCPEBase:computeLorentzShifts - "<<driftDirection_<<endl; //dk
+
+  //driftDirection_ = getDrift();  // this is redundant
   
+  //if(MYDEBUG)  cout<<" in PixelCPEBase:computeLorentzShifts - "<<driftDirection_<<" "
+  //  <<getDrift()<<endl; //dk
+
   // Max shift (at the other side of the sensor) in cm 
-  lorentzShiftInCmX_ = -driftDirection_.x()/driftDirection_.z() * theThickness;  // &&& redundant
+  lorentzShiftInCmX_ = driftDirection_.x()/driftDirection_.z() * theThickness;  // 
   // Express the shift in units of pitch, 
   lorentzShiftX_ = lorentzShiftInCmX_ / thePitchX ; 
   
   // Max shift (at the other side of the sensor) in cm 
-  lorentzShiftInCmY_ = -driftDirection_.y()/driftDirection_.z() * theThickness;  // &&& redundant
+  lorentzShiftInCmY_ = driftDirection_.y()/driftDirection_.z() * theThickness;  //
   // Express the shift in units of pitch, 
   lorentzShiftY_ = lorentzShiftInCmY_ / thePitchY;
   
+  if(MYDEBUG)  cout<<" in PixelCPEBase:computeLorentzShifts - "
+		   <<lorentzShiftInCmX_<<" "
+		   <<lorentzShiftX_<<" "
+		   <<lorentzShiftInCmY_<<" "
+		   <<lorentzShiftY_<<" "
+		   <<endl; //dk
   
   LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
 			   << driftDirection_    ;
