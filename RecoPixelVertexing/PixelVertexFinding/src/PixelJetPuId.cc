@@ -75,7 +75,7 @@ class PixelJetPuId : public edm::EDFilter {
      edm::InputTag m_tracks;
      edm::InputTag m_jets;
      edm::EDGetTokenT<std::vector<reco::Track> > tracksToken;
-     edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken;
+     edm::EDGetTokenT<edm::View<reco::CaloJet> > jetsToken;
      edm::EDGetTokenT<reco::VertexCollection> primaryVertexToken;
 
      double m_MinTrackPt; 
@@ -107,7 +107,7 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
   m_tracks           = iConfig.getParameter<edm::InputTag>("tracks");
   tracksToken        = consumes<std::vector<reco::Track> >(m_tracks);
   m_jets             = iConfig.getParameter<edm::InputTag>("jets");
-  jetsToken          = consumes<edm::View<reco::Jet> >(m_jets);
+  jetsToken          = consumes<edm::View<reco::CaloJet> >(m_jets);
   m_primaryVertex    = iConfig.getParameter<edm::InputTag>("primaryVertex");
   primaryVertexToken = consumes<reco::VertexCollection>(m_primaryVertex);
 
@@ -167,7 +167,7 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(tracksToken, tracks);
    
    //get jets
-   Handle<edm::View<reco::Jet> > jets;
+   Handle<edm::View<reco::CaloJet> > jets;
    iEvent.getByToken(jetsToken, jets);
    
    //get primary vertices
@@ -183,7 +183,7 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
    	const reco::Vertex* pv = &*primaryVertex->begin();
    	//loop on jets
-	for(edm::View<reco::Jet>::const_iterator itJet = jets->begin();  itJet != jets->end(); itJet++ ) {
+	for(edm::View<reco::CaloJet>::const_iterator itJet = jets->begin();  itJet != jets->end(); itJet++ ) {
 
 		math::XYZVector jetMomentum = itJet->momentum();
 	        GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
@@ -216,11 +216,11 @@ PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			//if Sum(comp.trackPt)/CaloJetPt > minPtRatio or Sum(trackPt) > minPt  the jet is a signal jet
 			if(trMomentum.rho()/jetMomentum.rho() > m_MinGoodJetTrackPtRatio || trMomentum.rho() > m_MinGoodJetTrackPt ) 
 			{
-				pOut->push_back(* dynamic_cast<const reco::CaloJet *>(&(*itJet)));// fill it as signal jet
+				pOut->push_back(*itJet);        // fill it as signal jet
 			}
 			else//else it is a PUjet
 			{
-				pOut_PUjets->push_back(* dynamic_cast<const reco::CaloJet *>(&(*itJet)));// fill it as PUjets
+				pOut_PUjets->push_back(*itJet); // fill it as PUjets
 			}
 		}
 	 }

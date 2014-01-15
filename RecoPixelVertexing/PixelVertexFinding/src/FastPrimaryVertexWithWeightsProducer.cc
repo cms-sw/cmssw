@@ -459,7 +459,7 @@ std::auto_ptr<float > zClusterQuality(new float());
 *zClusterQuality=-1;
 if(nWeightedTot!=0)
 {
-   *zClusterQuality=nWeightedTotPeak / sqrt(nWeightedTot/(2*half_width_peak))); // where 30 is the beam spot lenght 
+   *zClusterQuality=nWeightedTotPeak / sqrt(nWeightedTot/(2*half_width_peak)); // where 30 is the beam spot lenght 
    iEvent.put(zClusterQuality);
 }
 else
