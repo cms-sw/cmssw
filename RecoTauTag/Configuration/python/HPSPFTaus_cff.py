@@ -647,13 +647,17 @@ hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits = cms.Sequence(
 hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
 
 
-from RecoTauTag.RecoTau.RecoTauCleaner_cfi import hpsPFTauProducerSansRefs
-hpsPFTauProducerSansRefs.src=cms.InputTag("combinatoricRecoTaus")
+from RecoTauTag.RecoTau.RecoTauCleaner_cfi import RecoTauCleaner
+hpsPFTauProducerSansRefs=RecoTauCleaner.clone(
+  src=cms.InputTag("combinatoricRecoTaus")
+  )
 
 
-from RecoTauTag.RecoTau.RecoTauPiZeroUnembedder_cfi import hpsPFTauProducer
+from RecoTauTag.RecoTau.RecoTauPiZeroUnembedder_cfi import RecoTauPiZeroUnembedder
 
-hpsPFTauProducer.src = cms.InputTag("hpsPFTauProducerSansRefs")
+hpsPFTauProducer=RecoTauPiZeroUnembedder.clone(
+  src = cms.InputTag("hpsPFTauProducerSansRefs")
+)
 
 
 produceHPSPFTaus = cms.Sequence(
