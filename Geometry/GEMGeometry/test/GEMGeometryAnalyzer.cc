@@ -218,7 +218,7 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	      double dphi(cstripN - cstrip1);
 	      if (dphi < 0.) dphi += 360.;
 	      double deta(abs(beta - teta));
-	      const bool printDetails(false);
+	      const bool printDetails(true);
 	      if (printDetails)
 		ofos << "    \tType: " << type << endl
 		     << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
