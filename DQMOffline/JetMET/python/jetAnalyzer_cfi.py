@@ -17,6 +17,7 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1Fa
 newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
 jetAnalyzerAk5CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
+    OutputMEsInRootFile = cms.bool(False),
     OutputFile = cms.string('jetMETMonitoring.root'),
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.string("newAk5CaloL2L3"),

@@ -124,6 +124,7 @@ class METAnalyzer : public edm::EDAnalyzer{
   DQMStore * dbe_;
 
   std::string MetType_;
+  bool outputMEsInRootFile;
   std::string mOutputFile_;
   std::string FolderName_;
 

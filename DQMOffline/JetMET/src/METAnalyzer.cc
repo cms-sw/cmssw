@@ -40,6 +40,7 @@ using namespace math;
 METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
+  outputMEsInRootFile   = parameters.getParameter<bool>("OutputMEsInRootFile");
   mOutputFile_   = parameters.getParameter<std::string>("OutputFile");
   MetType_ = parameters.getUntrackedParameter<std::string>("METType");
 
@@ -211,9 +212,9 @@ void METAnalyzer::beginJob(){
 void METAnalyzer::endJob() {
   delete DCSFilter_;
 
- if(!mOutputFile_.empty() && &*edm::Service<DQMStore>()){
+ if(outputMEsInRootFile){
       //dbe->save(mOutputFile_);
-    edm::Service<DQMStore>()->save(mOutputFile_);
+    dbe_->save(mOutputFile_);
   }
 
 }

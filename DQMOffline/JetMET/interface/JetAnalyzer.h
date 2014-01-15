@@ -109,6 +109,7 @@ class JetAnalyzer : public edm::EDAnalyzer {
   edm::InputTag theTriggerResultsLabel_;
 
   std::string  jetType_;
+  bool outputMEsInRootFile;
   std::string  mOutputFile_;
 
   edm::EDGetTokenT<edm::TriggerResults>           triggerResultsToken_;
@@ -135,15 +136,19 @@ class JetAnalyzer : public edm::EDAnalyzer {
   JetIDSelectionFunctor::Quality_t jetidquality;
   JetIDSelectionFunctor::Version_t jetidversion;
   JetIDSelectionFunctor jetIDFunctor;
-  JetIDSelectionFunctor jetIDFunctorLoose;
-  JetIDSelectionFunctor jetIDFunctorTight;
 
   PFJetIDSelectionFunctor::Quality_t pfjetidquality;
   PFJetIDSelectionFunctor::Version_t pfjetidversion;
 
   PFJetIDSelectionFunctor pfjetIDFunctor;
-  PFJetIDSelectionFunctor pfjetIDFunctorLoose;
-  PFJetIDSelectionFunctor pfjetIDFunctorTight;
+
+  std::vector<std::string> folderNames_;
+
+  std::string DirName;
+
+  // Book MonitorElements
+  void bookMESetSelection(std::string);
+  //void bookMonitorElement(std::string, bool);
 
   int    verbose_;
   //histo binning parameters -> these are PART of ALL analyzers - move it up
@@ -585,6 +590,19 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mChargedMultiplicity_profile;
   MonitorElement* mNeutralMultiplicity_profile;
   MonitorElement* mMuonMultiplicity_profile;
+
+  //Monitor Elements for special selections
+  /*
+  MonitorElement* sPt;
+  MonitorElement* sEta;
+  MonitorElement* sPhi;
+  MonitorElement* sConstituents;
+  MonitorElement* sJetEnergyCorr;
+  MonitorElement* sJetEnergyCorrVsEta;
+  MonitorElement* sHFrac;
+  MonitorElement* sEFrac;
+  */
+
 
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;

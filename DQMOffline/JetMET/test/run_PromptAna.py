@@ -109,10 +109,11 @@ else:
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
 
 #change values for first jet and met analyzer parameterset -> all other parametersets are cloned from these
-
+process.jetAnalyzerAk5CaloUncleaned.OutputMEsInRootFile = cms.bool(True)
 process.jetAnalyzerAk5CaloUncleaned.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
 process.jetAnalyzerAk5CaloUncleaned.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
 process.jetAnalyzerAk5CaloUncleaned.processname = cms.string(trigger_set)
+process.tcMetAnalyzer.OutputMEsInRootFile = cms.bool(True)
 process.tcMetAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
 process.tcMetAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
 process.tcMetAnalyzer.processname = cms.string(trigger_set)

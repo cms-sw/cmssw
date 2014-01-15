@@ -101,6 +101,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
     //sOverNCalculator_(new jetAnalysis::StripSignalOverNoiseCalculator)
 {
   parameters_ = pSet.getParameter<edm::ParameterSet>("jetAnalysis");
+  outputMEsInRootFile   = pSet.getParameter<bool>("OutputMEsInRootFile");
   mInputCollection_           =    pSet.getParameter<edm::InputTag>       ("jetsrc");
   
   mOutputFile_   = pSet.getParameter<std::string>("OutputFile");
@@ -143,8 +144,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
       std::cout<<"no Valid JetID quality given"<<std::endl;
     }
     jetIDFunctor=JetIDSelectionFunctor( jetidversion, jetidquality);
-    jetIDFunctorLoose=JetIDSelectionFunctor( jetidversion, JetIDSelectionFunctor::LOOSE);
-    jetIDFunctorTight=JetIDSelectionFunctor( jetidversion, JetIDSelectionFunctor::TIGHT);
+
   }
 
   //Jet ID definitions for PFJets
@@ -162,8 +162,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
       std::cout<<"no Valid PFJetID quality given"<<std::endl;
     }
     pfjetIDFunctor=PFJetIDSelectionFunctor( pfjetidversion, pfjetidquality);
-    pfjetIDFunctorLoose=PFJetIDSelectionFunctor( pfjetidversion, PFJetIDSelectionFunctor::LOOSE);
-    pfjetIDFunctorTight=PFJetIDSelectionFunctor( pfjetidversion, PFJetIDSelectionFunctor::TIGHT);
   }
   //check later if some of those are also needed for PFJets
   leadJetFlag_ = 0;
@@ -235,11 +233,12 @@ void JetAnalyzer::beginJob(void) {
   }else{
     if(jetCleaningFlag_){
       dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
+      DirName = "JetMET/Jet/Cleaned"+mInputCollection_.label();
     }else{
       dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
+      DirName = "JetMET/Jet/Uncleaned"+mInputCollection_.label();
     }
   }
-
   fillJIDPassFrac_    = parameters_.getParameter<int>("fillJIDPassFrac");
 
   // monitoring of eta parameter
@@ -318,11 +317,9 @@ void JetAnalyzer::beginJob(void) {
   mHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
   mEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
 
-  if(fillJIDPassFrac_==1){//fillJIDPassFrac_ defines a collection of cleaned jets, for which we will want to fill the cleaning passing fraction
-    mLooseJIDPassFractionVSeta      = dbe_->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mLooseJIDPassFractionVSpt       = dbe_->bookProfile("LooseJIDPassFractionVSpt","LooseJIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
-    mTightJIDPassFractionVSeta      = dbe_->bookProfile("TightJIDPassFractionVSeta","TightJIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mTightJIDPassFractionVSpt       = dbe_->bookProfile("TightJIDPassFractionVSpt","TightJIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+  if(!jetCleaningFlag_){//fillJIDPassFrac_ defines a collection of cleaned jets, for which we will want to fill the cleaning passing fraction
+    mLooseJIDPassFractionVSeta      = dbe_->bookProfile("JetIDPassFractionVSeta","JetIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mLooseJIDPassFractionVSpt       = dbe_->bookProfile("JetIDPassFractionVSpt","JetIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
   }
 
   if (!diJetSelectionFlag_ ){
@@ -447,44 +444,14 @@ void JetAnalyzer::beginJob(void) {
       mEmEnergyInEE           = dbe_->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50);
       mEmEnergyInHF           = dbe_->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100);
     }
-
-  
     //JetID variables
-  
     mresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
     mN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 50, 0., 50);
     mfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
     mfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
-    
   }
 
-  //
-  //--- Calo jet selection only
-  if(isCaloJet_) {
-    jetME = dbe_->book1D("jetReco", "jetReco", 3, 1, 4);
-    jetME->setBinLabel(1,"CaloJets",1);
-    // CaloJet specific
-    mMaxEInEmTowers         = dbe_->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100);
-    mMaxEInHadTowers        = dbe_->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100);
-    if(!diJetSelectionFlag_ ) {
-      mHadEnergyInHO          = dbe_->book1D("HadEnergyInHO", "HadEnergyInHO", 100, 0, 10);
-      mHadEnergyInHB          = dbe_->book1D("HadEnergyInHB", "HadEnergyInHB", 100, 0, 50);
-      mHadEnergyInHF          = dbe_->book1D("HadEnergyInHF", "HadEnergyInHF", 100, 0, 50);
-      mHadEnergyInHE          = dbe_->book1D("HadEnergyInHE", "HadEnergyInHE", 100, 0, 100);
-      mEmEnergyInEB           = dbe_->book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50);
-      mEmEnergyInEE           = dbe_->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50);
-      mEmEnergyInHF           = dbe_->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100);
-    }
 
-  
-    //JetID variables
-  
-    mresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
-    mN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 50, 0., 50);
-    mfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
-    mfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
-    
-  }
   if(isJPTJet_) {
    jetME = dbe_->book1D("jetReco", "jetReco", 3, 1, 4);
    jetME->setBinLabel(3,"JPTJets",1);
@@ -787,6 +754,16 @@ void JetAnalyzer::beginJob(void) {
 
   }
 
+  if(jetCleaningFlag_){
+    //so far we have only one additional selection -> implement to make it expandable
+    /*folderNames_.push_back("DiJet");
+    //book for each of these selection default histograms
+    for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
+	 ic != folderNames_.end(); ic++){
+      bookMESetSelection(DirName+"/"+*ic);
+      }*/
+  }
+
   dbe_->setCurrentFolder("JetMET");
   lumisecME = dbe_->book1D("lumisec", "lumisec", 500, 0., 500.);
   cleanupME = dbe_->book1D("cleanup", "cleanup", 10, 0., 10.);
@@ -803,6 +780,103 @@ void JetAnalyzer::beginJob(void) {
   verticesME = dbe_->book1D("vertices", "vertices", 100, 0, 100);
 
 
+
+}
+
+void JetAnalyzer::bookMESetSelection(std::string DirName)
+{
+  dbe_->setCurrentFolder(DirName);
+  /*
+  // Generic jet parameters
+  sPt           = dbe_->book1D("Pt",           "pt",                 ptBin_,  ptMin_,  ptMax_);
+  sEta          = dbe_->book1D("Eta",          "eta",               etaBin_, etaMin_, etaMax_);
+  sPhi          = dbe_->book1D("Phi",          "phi",               phiBin_, phiMin_, phiMax_);
+  if(!isJPTJet_){
+    sConstituents = dbe_->book1D("Constituents", "# of constituents",     50,      0,    100);
+  }
+  sJetEnergyCorr= dbe_->book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
+  sJetEnergyCorrVsEta= dbe_->bookProfile("JetEnergyCorrVsEta", "jet energy correction factor Vs eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
+  sHFrac        = dbe_->book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
+  sEFrac        = dbe_->book1D("EFrac",        "EFrac",                140,   -0.2,    1.2);
+
+  sDPhi                   = dbe_->book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
+  sDijetAsymmetry                   = dbe_->book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
+  sDijetBalance                     = dbe_->book1D("DijetBalance",   "DijetBalance",   100, -2., 2.);
+
+  // Book NPV profiles
+  //----------------------------------------------------------------------------
+  sPt_profile           = dbe_->bookProfile("Pt_profile",           "pt",                nbinsPV_, nPVlow_, nPVhigh_,   ptBin_,  ptMin_,  ptMax_);
+  sEta_profile          = dbe_->bookProfile("Eta_profile",          "eta",               nbinsPV_, nPVlow_, nPVhigh_,  etaBin_, etaMin_, etaMax_);
+  sPhi_profile          = dbe_->bookProfile("Phi_profile",          "phi",               nbinsPV_, nPVlow_, nPVhigh_,  phiBin_, phiMin_, phiMax_);
+  if(!isJPTJet_){
+    sConstituents_profile = dbe_->bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
+  }
+  sHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  sEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  // Set NPV profiles x-axis title
+  //----------------------------------------------------------------------------
+  sPt_profile          ->setAxisTitle("nvtx",1);
+  sEta_profile         ->setAxisTitle("nvtx",1);
+  sPhi_profile         ->setAxisTitle("nvtx",1);
+  if(!isJPTJet_){
+    sConstituents_profile->setAxisTitle("nvtx",1);
+  }
+  sHFrac_profile       ->setAxisTitle("nvtx",1);
+  sEFrac_profile       ->setAxisTitle("nvtx",1);
+
+  //
+  //--- Calo jet selection only
+  if(isCaloJet_) {
+    // CaloJet specific
+    sMaxEInEmTowers         = dbe_->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100);
+    sMaxEInHadTowers        = dbe_->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100);
+    //JetID variables
+    sresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
+    sN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 50, 0., 50);
+    sfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
+    sfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
+    
+  }
+
+  if(isPFJet_){ 
+    //barrel histograms for PFJets
+    // energy fractions
+    sCHFrac     = dbe_->book1D("CHFrac", "CHFrac", 120, -0.1, 1.1);
+    sNHFrac     = dbe_->book1D("NHFrac", "NHFrac", 120, -0.1, 1.1);
+    sPhFrac     = dbe_->book1D("PhFrac", "PhFrac", 120, -0.1, 1.1);
+    sElFrac     = dbe_->book1D("ElFrac", "ElFrac", 120, -0.1, 1.1);
+    sMuFrac     = dbe_->book1D("MuFrac", "MuFrac", 120, -0.1, 1.1);
+    sNeutralEmEnergy     = dbe_->book1D("NeutralEmEnergy",     "neutral EM energy",     100, 0, 100);
+    sChargedMultiplicity = dbe_->book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
+    sNeutralMultiplicity = dbe_->book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
+    sMuonMultiplicity    = dbe_->book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
+    
+    
+    // Book NPV profiles
+    //----------------------------------------------------------------------------
+    sCHFrac_profile = dbe_->bookProfile("CHFrac_profile", "charged HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    sNHFrac_profile = dbe_->bookProfile("NHFrac_profile", "neutral HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    sElFrac_profile     = dbe_->bookProfile("ElFrac_profile",     "Electron Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    sMuFrac_profile     = dbe_->bookProfile("MuFrac_profile",     "Muon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    sphFrac_profile     = dbe_->bookProfile("PhFrac_profile",     "Photon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    sChargedMultiplicity_profile = dbe_->bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    sNeutralMultiplicity_profile = dbe_->bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    sMuonMultiplicity_profile    = dbe_->bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    
+    // Set NPV profiles x-axis title
+    //----------------------------------------------------------------------------
+    sCHFrac_profile->setAxisTitle("nvtx",1);
+    sNHFrac_profile->setAxisTitle("nvtx",1);
+    sElFrac_profile    ->setAxisTitle("nvtx",1);
+    sMuFrac_profile    ->setAxisTitle("nvtx",1);
+    sPhFrac_profile    ->setAxisTitle("nvtx",1);
+    sChargedMultiplicity_profile->setAxisTitle("nvtx",1);
+    sNeutralMultiplicity_profile->setAxisTitle("nvtx",1);
+    sMuonMultiplicity_profile   ->setAxisTitle("nvtx",1);
+    
+    sNeutralFraction     = dbe_->book1D("NeutralConstituentsFraction","Neutral Constituens Fraction",100,0,1);
+  }
+  */
 }
 
 // ***********************************************************
@@ -845,6 +919,19 @@ void JetAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  //set general folders first --> change later on for different folders
+  if(diJetSelectionFlag_){
+    dbe_->setCurrentFolder("JetMET/Jet/DiJets"+mInputCollection_.label());
+  }else{
+    if(jetCleaningFlag_){
+      dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
+      DirName = "JetMET/Jet/Cleaned"+mInputCollection_.label();
+    }else{
+      dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
+      DirName = "JetMET/Jet/Uncleaned"+mInputCollection_.label();
+    }
+  }
+  
   // *** Fill lumisection ME
   int myLuminosityBlock;
   myLuminosityBlock = iEvent.luminosityBlock();
@@ -919,7 +1006,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if ( DCSFilterForDCSMonitoring_->passHF       ) cleanupME->Fill(6.5);
   if ( DCSFilterForDCSMonitoring_->passHO       ) cleanupME->Fill(7.5);
   if ( DCSFilterForDCSMonitoring_->passMuon     ) cleanupME->Fill(8.5);
-
+  
   edm::Handle<CaloJetCollection> caloJets;
   edm::Handle<JPTJetCollection> jptJets;
   edm::Handle<PFJetCollection> pfJets;
@@ -968,12 +1055,17 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   unsigned int ind3=-1;
   double pt3=-1;
 
+  bool cleaned_first_jet=false;
+  bool cleaned_second_jet=false;
+  bool cleaned_third_jet=false;
+
   //now start changes for jets
   std::vector<Jet> recoJets;
   recoJets.clear();
 
   int numofjets=0;
 
+  
   for (unsigned int ijet=0; ijet<collSize; ijet++) {
     //bool thiscleaned=false;
     Jet correctedJet;
@@ -1007,23 +1099,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       correctedJet.scaleEnergy(scale);	    
     }
 
-    if(correctedJet.pt()>pt1){
-      pt3=pt2;
-      ind3=ind2;
-      pt2=pt1;
-      ind2=ind1;
-      pt1=correctedJet.pt();
-      ind1=ijet;
-    } else if(correctedJet.pt()>pt2){
-      pt3=pt2;
-      ind3=ind2;
-      pt2=correctedJet.pt();
-      ind2=ijet;
-    } else if(correctedJet.pt()>pt3){
-      pt3=correctedJet.pt();
-      ind3=ijet;
-    }
-
     if(correctedJet.pt()> ptThreshold_){
       pass_corrected=true;
     }
@@ -1034,28 +1109,26 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       recoJets.push_back(correctedJet);
     }
     if(!diJetSelectionFlag_ ){
+      bool jetpassid=true;
       bool Thiscleaned=true;
-      bool Loosecleaned=false;
-      bool Tightcleaned=false;
       //jet ID for calojets
       if (isCaloJet_) {
 	reco::CaloJetRef calojetref(caloJets, ijet);
 	reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
+	jetpassid = jetIDFunctor((*caloJets)[ijet], jetID);
 	if(jetCleaningFlag_){
-	  Thiscleaned = jetIDFunctor((*caloJets)[ijet], jetID);
+	  Thiscleaned=jetpassid;
 	}
-	Loosecleaned = jetIDFunctorLoose((*caloJets)[ijet], jetID);
-	Tightcleaned = jetIDFunctorTight((*caloJets)[ijet], jetID);
 	if(Thiscleaned && pass_uncorrected){
-	  if (mPt_uncor)   mPt_uncor->Fill ((*caloJets)[ijet].pt());
-	  if (mEta_uncor)  mEta_uncor->Fill ((*caloJets)[ijet].eta());
-	  if (mPhi_uncor)  mPhi_uncor->Fill ((*caloJets)[ijet].phi());
+	  mPt_uncor = dbe_->get(DirName+"/"+"Pt_uncor"); if (mPt_uncor && mPt_uncor->getRootObject())   mPt_uncor->Fill ((*caloJets)[ijet].pt());
+	  mEta_uncor = dbe_->get(DirName+"/"+"Eta_uncor"); if (mEta_uncor && mEta_uncor->getRootObject()) mEta_uncor->Fill ((*caloJets)[ijet].eta());
+	  mPhi_uncor = dbe_->get(DirName+"/"+"Phi_uncor"); if (mPhi_uncor && mPhi_uncor->getRootObject()) mPhi_uncor->Fill ((*caloJets)[ijet].phi());
 	  if(!isJPTJet_){
-	    if (mConstituents_uncor) mConstituents_uncor->Fill ((*caloJets)[ijet].nConstituents());
+	    mConstituents_uncor = dbe_->get(DirName+"/"+"Constituents_uncor"); if (mConstituents_uncor && mConstituents_uncor->getRootObject()) mConstituents_uncor->Fill ((*caloJets)[ijet].nConstituents());
 	  }
 	}
 	//now do calojet specific fractions and histograms ->H and E fracs
-	if(Thiscleaned && pass_corrected){//at the moment softer than loose ID
+	if(Thiscleaned && pass_corrected){//if cleaning requested->jet passes a loose ID
 	  if (mHFrac)        mHFrac->Fill ((*caloJets)[ijet].energyFractionHadronic());
 	  if (mEFrac)        mEFrac->Fill ((*caloJets)[ijet].emEnergyFraction());
 	  if (mHFrac_profile)        mHFrac_profile       ->Fill(numPV, (*caloJets)[ijet].energyFractionHadronic());
@@ -1097,11 +1170,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
 	  reco::CaloJetRef const theCaloJetRef = (rawJet).castTo<reco::CaloJetRef>();
 	  reco::JetID jetID = (*jetID_ValueMap_Handle)[theCaloJetRef];
+	  jetpassid = jetIDFunctor(*rawCaloJet, jetID);
 	  if(jetCleaningFlag_){
-	    Thiscleaned = jetIDFunctor(*rawCaloJet, jetID);
+	    Thiscleaned = jetpassid;
 	  }
-	  Loosecleaned = jetIDFunctorLoose(*rawCaloJet, jetID);
-	  Tightcleaned = jetIDFunctorTight(*rawCaloJet, jetID);
 	  if(Thiscleaned &&  ( fabs(rawJet->eta()) < 2.1) && pass_corrected){
 	    if (mN90Hits)         mN90Hits->Fill (jetID.n90Hits);
 	    if (mfHPD)            mfHPD->Fill (jetID.fHPD);
@@ -1308,11 +1380,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
       }
       if(isPFJet_){
+	jetpassid = pfjetIDFunctor((*pfJets)[ijet]);
 	if(jetCleaningFlag_){
-	  Thiscleaned = pfjetIDFunctor((*pfJets)[ijet]);
+	  Thiscleaned = jetpassid;
 	}
-	Loosecleaned = pfjetIDFunctorLoose((*pfJets)[ijet]);
-	Tightcleaned = pfjetIDFunctorTight((*pfJets)[ijet]);
 	if(Thiscleaned && pass_uncorrected){
 	  if (mPt_uncor)   mPt_uncor->Fill ((*pfJets)[ijet].pt());
 	  if (mEta_uncor)  mEta_uncor->Fill ((*pfJets)[ijet].eta());
@@ -1521,50 +1592,72 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	}//cleaned PFJets
       }//PFJet specific loop
+      //IDs have been defined by now
+
       //if only uncorrected jets but no corrected jets over threshold pass on
       if(!pass_corrected){
 	continue;
-      }        
+      }      
+      if(correctedJet.pt()>pt1){
+	pt3=pt2;
+	ind3=ind2;
+	cleaned_third_jet=cleaned_second_jet;
+	pt2=pt1;
+	ind2=ind1;
+	cleaned_second_jet=cleaned_first_jet;
+	pt1=correctedJet.pt();
+	ind1=ijet;
+	cleaned_first_jet=jetpassid;
+      } else if(correctedJet.pt()>pt2){
+	pt3=pt2;
+	ind3=ind2;
+	cleaned_third_jet=cleaned_second_jet;
+	pt2=correctedJet.pt();
+	ind2=ijet;
+	cleaned_second_jet=jetpassid;
+      } else if(correctedJet.pt()>pt3){
+	pt3=correctedJet.pt();
+	ind3=ijet;
+	cleaned_third_jet=jetpassid;
+      }
+      if(cleaned_third_jet){
+      }
       //after jettype specific variables are filled -> perform histograms for all jets
-      if(fillJIDPassFrac_==1) {
-	if(Loosecleaned) {
+      //fill JetID efficiencies if uncleaned selection is chosen
+      if(!jetCleaningFlag_){
+	if(jetpassid) {
 	  mLooseJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
 	  mLooseJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
 	} else {
 	  mLooseJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
 	  mLooseJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
 	}
-	//TIGHT
-	if(Tightcleaned) {
-	  mTightJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
-	  mTightJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
-	} else {
-	  mTightJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
-	  mTightJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
-	}
       }
       //here we so far consider calojets ->check for PFJets and JPT jets again
       if(Thiscleaned && pass_corrected){//might be softer than loose jet ID 
 	numofjets++;
+	
 	if(isCaloJet_){
-	  jetME->Fill(1);
+	  //jetME->Fill(1);
 	  mJetEnergyCorr->Fill(correctedJet.pt()/(*caloJets)[ijet].pt());
 	  mJetEnergyCorrVsEta->Fill(correctedJet.eta(),correctedJet.pt()/(*caloJets)[ijet].pt());
 	}
 	if(isPFJet_){
-	  jetME->Fill(2);
+	  //jetME->Fill(2);
 	  mJetEnergyCorr->Fill(correctedJet.pt()/(*pfJets)[ijet].pt());
 	  mJetEnergyCorrVsEta->Fill(correctedJet.eta(),correctedJet.pt()/(*pfJets)[ijet].pt());
 	}
 	if(isJPTJet_){
-	  jetME->Fill(3);
+	  //jetME->Fill(3);
 	  mJetEnergyCorr->Fill(correctedJet.pt()/(*jptJets)[ijet].pt());
 	  mJetEnergyCorrVsEta->Fill(correctedJet.eta(),correctedJet.pt()/(*jptJets)[ijet].pt());
 	}
 	// --- Event passed the low pt jet trigger
 	if (jetLoPass_ == 1) {
+	  
 	  if (mPhi_Lo) mPhi_Lo->Fill (correctedJet.phi());
 	  if (mPt_Lo)  mPt_Lo->Fill (correctedJet.pt());
+	  
 	}
 	// --- Event passed the high pt jet trigger
 	if (jetHiPass_ == 1) {
@@ -1583,7 +1676,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }	    
 	  if (mEta_Hi && correctedJet.pt()>100.) mEta_Hi->Fill (correctedJet.eta());
 	  if (mPhi_Hi) mPhi_Hi->Fill (correctedJet.phi());
-	  if (mPt_Hi)  mPt_Hi->Fill (correctedJet.pt());
+	  if (mPt_Hi)  mPt_Hi->Fill (correctedJet.pt());			    
 	}
 	if (mPt)   mPt->Fill (correctedJet.pt());
 	if (mPt_1) mPt_1->Fill (correctedJet.pt());
@@ -1625,16 +1718,17 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(!isJPTJet_){
 	    if (mConstituents_Forward)    mConstituents_Forward->Fill(correctedJet.nConstituents());
 	  }
-	}
-      }  
+	  }
+      }
     }// the selection of all jets --> inclusive selection
   }//loop over uncorrected jets 
+  
   if(!diJetSelectionFlag_ ){
     if (mNJets) mNJets->Fill (numofjets);
     if (mNJets_profile) mNJets_profile->Fill(numPV, numofjets);
   }
   sort(recoJets.begin(),recoJets.end(),jetSortingRule);
-
+  
   //for non dijet selection, otherwise numofjets==0
   if(numofjets>0){
     //check ID of the leading jet
@@ -1815,11 +1909,11 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    }// dPhi > 2.7
 	  }// leading jet eta cut for asymmetry and balance calculations
 	  //end here test try for 3 jet asymmetry blabla
-	}	
-      }
+	  }	
+	}
     }
   }//leading jet histograms for non dijet selection
- 
+  
 
   //dijet selection -> recoJets selection ensures jet hard enough and corrected (if possible)
   if(recoJets.size()>1 && diJetSelectionFlag_ ){
@@ -1835,17 +1929,13 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if(fabs(dphi)>2.1){
 	bool LoosecleanedFirstJet = false;
 	bool LoosecleanedSecondJet = false;
-	bool TightcleanedFirstJet = false;
-	bool TightcleanedSecondJet = false;
 	if(isCaloJet_){
 	  reco::CaloJetRef calojetref1(caloJets, ind1);
 	  reco::JetID jetID1 = (*jetID_ValueMap_Handle)[calojetref1];
-	  LoosecleanedFirstJet = jetIDFunctorLoose((*caloJets)[ind1], jetID1);
-	  TightcleanedFirstJet = jetIDFunctorTight((*caloJets)[ind1], jetID1);
+	  LoosecleanedFirstJet = jetIDFunctor((*caloJets)[ind1], jetID1);
 	  reco::CaloJetRef calojetref2(caloJets, ind2);
 	  reco::JetID jetID2 = (*jetID_ValueMap_Handle)[calojetref2];
-	  LoosecleanedSecondJet = jetIDFunctorLoose((*caloJets)[ind2], jetID2);	
-	  TightcleanedSecondJet  = jetIDFunctorTight((*caloJets)[ind2], jetID2);
+	  LoosecleanedSecondJet = jetIDFunctor((*caloJets)[ind2], jetID2);	
 	  if (mN90Hits)         mN90Hits->Fill (jetID1.n90Hits);
 	  if (mfHPD)            mfHPD->Fill (jetID1.fHPD);
 	  if (mresEMF)         mresEMF->Fill (jetID1.restrictedEMF);
@@ -1861,8 +1951,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    const reco::CaloJet *rawCaloJet1 = dynamic_cast<const reco::CaloJet*>(&*rawJet1);
 	    reco::CaloJetRef const theCaloJetRef1 = (rawJet1).castTo<reco::CaloJetRef>();
 	    reco::JetID jetID1 = (*jetID_ValueMap_Handle)[theCaloJetRef1];
-	    LoosecleanedFirstJet = jetIDFunctorLoose(*rawCaloJet1, jetID1);
-	    TightcleanedFirstJet = jetIDFunctorTight(*rawCaloJet1, jetID1);  
+	    LoosecleanedFirstJet = jetIDFunctor(*rawCaloJet1, jetID1);
 	  } catch (const std::bad_cast&) {
 	    edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet lead jet in dijet selection. JPT Jet does not appear to have been built from a CaloJet. "
 					     << "Histograms not filled. ";
@@ -1873,8 +1962,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    const reco::CaloJet *rawCaloJet2 = dynamic_cast<const reco::CaloJet*>(&*rawJet2);
 	    reco::CaloJetRef const theCaloJetRef2 = (rawJet2).castTo<reco::CaloJetRef>();
 	    reco::JetID jetID2 = (*jetID_ValueMap_Handle)[theCaloJetRef2];
-	    LoosecleanedSecondJet = jetIDFunctorLoose(*rawCaloJet2, jetID2);
-	    TightcleanedSecondJet = jetIDFunctorTight(*rawCaloJet2, jetID2);      
+	    LoosecleanedSecondJet = jetIDFunctor(*rawCaloJet2, jetID2);    
 	  } catch (const std::bad_cast&) {
 	    edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet lead jet in dijet selection. JPT Jet does not appear to have been built from a CaloJet. "
 					     << "Histograms not filled. ";
@@ -1882,10 +1970,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
 	}
 	if(isPFJet_){
-	  LoosecleanedFirstJet = pfjetIDFunctorLoose((*pfJets)[ind1]);	
-	  LoosecleanedSecondJet = pfjetIDFunctorLoose((*pfJets)[ind2]);
-	  TightcleanedFirstJet = pfjetIDFunctorTight((*pfJets)[ind1]);	
-	  TightcleanedSecondJet = pfjetIDFunctorTight((*pfJets)[ind2]);
+	  LoosecleanedFirstJet = pfjetIDFunctor((*pfJets)[ind1]);	
+	  LoosecleanedSecondJet = pfjetIDFunctor((*pfJets)[ind2]);
 	}	  
 	if(LoosecleanedFirstJet && LoosecleanedSecondJet) { //only if both jets are (loose) cleaned
 	  //fill histos for first jet
@@ -2038,22 +2124,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      mLooseJIDPassFractionVSeta->Fill(recoJets[1].eta(),0.);
 	      mLooseJIDPassFractionVSpt->Fill(recoJets[1].pt(),0.);
 	    }
-	    //TIGHT JID
-	    if(TightcleanedFirstJet) {
-	      mTightJIDPassFractionVSeta->Fill(recoJets[0].eta(),1.);
-	      mTightJIDPassFractionVSpt->Fill(recoJets[0].pt(),1.);
-	    } else {
-	      mTightJIDPassFractionVSeta->Fill(recoJets[0].eta(),0.);
-	      mTightJIDPassFractionVSpt->Fill(recoJets[0].pt(),0.);
-	    }
-	    if(TightcleanedSecondJet) {
-	      mTightJIDPassFractionVSeta->Fill(recoJets[1].eta(),1.);
-	      mTightJIDPassFractionVSpt->Fill(recoJets[1].pt(),1.);
-	    } else {
-	      mTightJIDPassFractionVSeta->Fill(recoJets[1].eta(),0.);
-	      mTightJIDPassFractionVSpt->Fill(recoJets[1].pt(),0.);
-	    }
-
          }//if fillJIDPassFrac_
 	}//two leading jets loose cleaned
       }//DPhi cut
@@ -2134,6 +2204,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }// dPhi > 2.7
     }// leading jet eta cut for asymmetry and balance calculations
   }//at least two hard corrected jets
+  
 }
 
 // ***********************************************************
@@ -2145,9 +2216,9 @@ void JetAnalyzer::endJob(void) {
   //--- Jet
 
 
-  if(!mOutputFile_.empty() && &*edm::Service<DQMStore>()){
+  if(outputMEsInRootFile){
       //dbe_->save(mOutputFile_);
-    edm::Service<DQMStore>()->save(mOutputFile_);
+    dbe_->save(mOutputFile_);
   }
   
 }
