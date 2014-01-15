@@ -25,9 +25,13 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-MuCorrMETAnalyzer::MuCorrMETAnalyzer(const edm::ParameterSet& pSet) {
+MuCorrMETAnalyzer::MuCorrMETAnalyzer(const edm::ParameterSet& pSet, edm::ConsumesCollector&& iC) {
 
   parameters = pSet;
+
+  //
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
+
 
 }
 
@@ -68,9 +72,6 @@ void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
   _lowPtMuCorrJetThreshold = parameters.getParameter<double>("LowPtMuCorrJetThreshold");   // Low Pt Jet threshold
   _highMuCorrMETThreshold = parameters.getParameter<double>("HighMuCorrMETThreshold");     // High MET threshold
   //  _lowMuCorrMETThreshold = parameters.getParameter<double>("LowMuCorrMETThreshold");       // Low MET threshold
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // DQStore stuff
   LogTrace(metname)<<"[MuCorrMETAnalyzer] Parameters initialization";

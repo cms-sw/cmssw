@@ -34,6 +34,28 @@
 #include "fftjet/AbsVectorRecombinationAlg.hh"
 #include "fftjet/SparseClusteringTree.hh"
 
+// Additional FFTJet headers
+#include "fftjet/VectorRecombinationAlgFactory.hh"
+#include "fftjet/RecombinationAlgFactory.hh"
+
+#include "DataFormats/JetReco/interface/FFTCaloJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTGenJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTPFJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTJPTJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTBasicJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTTrackJetCollection.h"
+#include "DataFormats/JetReco/interface/FFTJetProducerSummary.h"
+#include "RecoJets/FFTJetProducers/interface/FFTJetParameterParser.h"
+
+#include "RecoJets/FFTJetAlgorithms/interface/clusteringTreeConverters.h"
+#include "RecoJets/FFTJetAlgorithms/interface/jetConverters.h"
+#include "RecoJets/FFTJetAlgorithms/interface/matchOneToOne.h"
+#include "RecoJets/FFTJetAlgorithms/interface/JetToPeakDistance.h"
+#include "RecoJets/FFTJetAlgorithms/interface/adjustForPileup.h"
+
+#include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
+
+
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -186,8 +208,8 @@ private:
 
     // The following methods do most of the work.
     // The following function tells us if the grid was rebuilt.
-    static bool loadEnergyFlow(
-        const edm::Event& iEvent, const edm::InputTag& label,
+    bool loadEnergyFlow(
+        const edm::Event& iEvent,
         std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow);
     void buildGridAlg();
     void prepareRecombinationScales();
@@ -208,13 +230,12 @@ private:
     // and fills the pile-up grid. Can be overriden if
     // necessary.
     virtual void determinePileupDensityFromConfig(
-        const edm::Event& iEvent, const edm::InputTag& label,
+        const edm::Event& iEvent,
         std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
     // Similar function for getting pile-up shape from the database
     virtual void determinePileupDensityFromDB(
         const edm::Event& iEvent, const edm::EventSetup& iSetup,
-        const edm::InputTag& label,
         std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density);
 
     // The following function builds the pile-up estimate
@@ -402,6 +423,14 @@ private:
     std::vector<fftjet::AbsKernel2d*> memFcns2dVec;
     std::vector<double> doubleBuf;
     std::vector<unsigned> cellCountsVec;
+
+    // Tokens for data access
+    edm::EDGetTokenT<edm::View<reco::PattRecoTree<fftjetcms::Real,reco::PattRecoPeak<fftjetcms::Real> > > > input_recotree_token_;
+    edm::EDGetTokenT<edm::View<std::vector<reco::FFTAnyJet<reco::GenJet> > > > input_genjet_token_;
+    edm::EDGetTokenT<edm::View<reco::DiscretizedEnergyFlow> > input_energyflow_token_;
+    edm::EDGetTokenT<edm::View<reco::FFTJetPileupSummary> > input_pusummary_token_;
+
+
 };
 
 #endif // RecoJets_FFTJetProducers_FFTJetProducer_h

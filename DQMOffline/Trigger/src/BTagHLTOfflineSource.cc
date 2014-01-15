@@ -62,7 +62,7 @@ BTagHLTOfflineSource::BTagHLTOfflineSource(const edm::ParameterSet& iConfig):
   plotEff_      = iConfig.getUntrackedParameter< bool >("plotEff", false);
   nameForEff_   = iConfig.getUntrackedParameter< bool >("nameForEff", true);
 
-  jetID = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
+  jetID = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
   
   // plotting paramters
   MuonTrigPaths_ = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMuon");

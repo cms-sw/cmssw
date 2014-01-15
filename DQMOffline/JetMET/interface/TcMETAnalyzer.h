@@ -14,6 +14,7 @@
 #include <fstream>
 #include "TMath.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMOffline/JetMET/interface/TcMETAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,7 +38,7 @@ class TcMETAnalyzer : public TcMETAnalyzerBase {
  public:
 
   /// Constructor
-  TcMETAnalyzer(const edm::ParameterSet&);
+  TcMETAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
   
   /// Destructor
   virtual ~TcMETAnalyzer();

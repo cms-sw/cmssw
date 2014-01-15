@@ -25,9 +25,11 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-TcMETAnalyzer::TcMETAnalyzer(const edm::ParameterSet& pSet) {
+TcMETAnalyzer::TcMETAnalyzer(const edm::ParameterSet& pSet, edm::ConsumesCollector&& iC) {
 
   parameters = pSet;
+
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
 
 }
 
@@ -68,9 +70,6 @@ void TcMETAnalyzer::beginJob(DQMStore * dbe) {
   _lowPtTcJetThreshold = parameters.getParameter<double>("LowPtTcJetThreshold");   // Low Pt Jet threshold
   _highTcMETThreshold = parameters.getParameter<double>("HighTcMETThreshold");     // High MET threshold
   _lowTcMETThreshold = parameters.getParameter<double>("LowTcMETThreshold");       // Low MET threshold
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // DQStore stuff
   LogTrace(metname)<<"[TcMETAnalyzer] Parameters initialization";

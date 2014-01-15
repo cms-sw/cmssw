@@ -61,6 +61,9 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet, ConsumesCollector&& 
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
 
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
+
+
 }
 
 // ***********************************************************
@@ -139,9 +142,6 @@ void PFMETAnalyzer::beginJob(DQMStore * dbe) {
   _highPtPFJetThreshold = parameters.getParameter<double>("HighPtJetThreshold");
   _lowPtPFJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");
   _highPFMETThreshold   = parameters.getParameter<double>("HighMETThreshold");
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // DQStore stuff
   LogTrace(metname)<<"[PFMETAnalyzer] Parameters initialization";

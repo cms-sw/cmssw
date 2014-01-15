@@ -57,6 +57,9 @@ CaloMETAnalyzer::CaloMETAnalyzer(const edm::ParameterSet& pSet, ConsumesCollecto
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
 
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
+
+
 }
 
 // ***********************************************************
@@ -140,9 +143,6 @@ void CaloMETAnalyzer::beginJob(DQMStore * dbe) {
   _lowPtJetThreshold = parameters.getParameter<double>("LowPtJetThreshold"); // Low Pt Jet threshold
   _highMETThreshold = parameters.getParameter<double>("HighMETThreshold"); // High MET threshold
   //  _lowMETThreshold = parameters.getParameter<double>("LowMETThreshold"); // Low MET threshold
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // DQStore stuff
   LogTrace(metname)<<"[CaloMETAnalyzer] Parameters initialization";

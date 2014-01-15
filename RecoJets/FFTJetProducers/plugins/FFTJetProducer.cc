@@ -24,10 +24,6 @@
 // Header for this class
 #include "RecoJets/FFTJetProducers/plugins/FFTJetProducer.h"
 
-// Additional FFTJet headers
-#include "fftjet/VectorRecombinationAlgFactory.hh"
-#include "fftjet/RecombinationAlgFactory.hh"
-
 // Framework include files
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,24 +32,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/JetReco/interface/FFTCaloJetCollection.h"
-#include "DataFormats/JetReco/interface/FFTGenJetCollection.h"
-#include "DataFormats/JetReco/interface/FFTPFJetCollection.h"
-#include "DataFormats/JetReco/interface/FFTJPTJetCollection.h"
-#include "DataFormats/JetReco/interface/FFTBasicJetCollection.h"
-#include "DataFormats/JetReco/interface/FFTTrackJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/JetReco/interface/FFTJetProducerSummary.h"
-
-#include "RecoJets/FFTJetProducers/interface/FFTJetParameterParser.h"
-
-#include "RecoJets/FFTJetAlgorithms/interface/clusteringTreeConverters.h"
-#include "RecoJets/FFTJetAlgorithms/interface/jetConverters.h"
-#include "RecoJets/FFTJetAlgorithms/interface/matchOneToOne.h"
-#include "RecoJets/FFTJetAlgorithms/interface/JetToPeakDistance.h"
-#include "RecoJets/FFTJetAlgorithms/interface/adjustForPileup.h"
-
-#include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
@@ -198,6 +177,12 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
     checkConfig(iniScales, "invalid set of scales");
     std::sort(iniScales->begin(), iniScales->end(), std::greater<double>());
 
+    input_recotree_token_ = consumes<edm::View<reco::PattRecoTree<fftjetcms::Real,reco::PattRecoPeak<fftjetcms::Real> > > >(treeLabel);
+    input_genjet_token_ = consumes<edm::View<std::vector<reco::FFTAnyJet<reco::GenJet> > > >(genJetsLabel);
+    input_energyflow_token_ = consumes<edm::View<reco::DiscretizedEnergyFlow> >(treeLabel);
+    input_pusummary_token_ = consumes<edm::View<reco::FFTJetPileupSummary> >(pileupLabel);
+
+
     // Most of the configuration has to be performed inside
     // the "beginJob" method. This is because chaining of the
     // parsers between this base class and the derived classes
@@ -219,7 +204,7 @@ void FFTJetProducer::loadSparseTreeData(const edm::Event& iEvent)
 
     // Get the input
     edm::Handle<StoredTree> input;
-    iEvent.getByLabel(treeLabel, input);
+    iEvent.getByToken(input_recotree_token_, input);
 
     if (!input->isSparse())
         throw cms::Exception("FFTJetBadConfig") 
@@ -241,7 +226,7 @@ void FFTJetProducer::genJetPreclusters(
     typedef std::vector<InputJet> InputCollection;
 
     edm::Handle<InputCollection> input;
-    iEvent.getByLabel(genJetsLabel, input);
+    iEvent.getByToken(input_genjet_token_, input);
 
     const unsigned sz = input->size();
     preclusters->reserve(sz);
@@ -444,11 +429,11 @@ void FFTJetProducer::buildGridAlg()
 
 
 bool FFTJetProducer::loadEnergyFlow(
-    const edm::Event& iEvent, const edm::InputTag& label,
+    const edm::Event& iEvent, 
     std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow)
 {
     edm::Handle<reco::DiscretizedEnergyFlow> input;
-    iEvent.getByLabel(label, input);
+    iEvent.getByToken(input_energyflow_token_, input);
 
     // Make sure that the grid is compatible with the stored one
     bool rebuildGrid = flow.get() == NULL;
@@ -774,7 +759,7 @@ void FFTJetProducer::produce(edm::Event& iEvent,
     {
         if (reuseExistingGrid)
         {
-            if (loadEnergyFlow(iEvent, treeLabel, energyFlow))
+            if (loadEnergyFlow(iEvent, energyFlow))
                 buildGridAlg();
         }
         else
@@ -864,9 +849,9 @@ void FFTJetProducer::produce(edm::Event& iEvent,
     {
         if (loadPileupFromDB)
             determinePileupDensityFromDB(iEvent, iSetup,
-                                         pileupLabel, pileupEnergyFlow);
+                                         pileupEnergyFlow);
         else
-            determinePileupDensityFromConfig(iEvent, pileupLabel,
+            determinePileupDensityFromConfig(iEvent,
                                              pileupEnergyFlow);
         determinePileup();
         assert(pileup.size() == recoJets.size());
@@ -1106,11 +1091,11 @@ void FFTJetProducer::setJetStatusBit(RecoFFTJet* jet,
 
 
 void FFTJetProducer::determinePileupDensityFromConfig(
-    const edm::Event& iEvent, const edm::InputTag& label,
+    const edm::Event& iEvent, 
     std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
 {
     edm::Handle<reco::FFTJetPileupSummary> summary;
-    iEvent.getByLabel(label, summary);
+    iEvent.getByToken(input_pusummary_token_, summary);
 
     const reco::FFTJetPileupSummary& s(*summary);
     const AbsPileupCalculator& calc(*pileupDensityCalc);
@@ -1144,7 +1129,6 @@ void FFTJetProducer::determinePileupDensityFromConfig(
 
 void FFTJetProducer::determinePileupDensityFromDB(
     const edm::Event& iEvent, const edm::EventSetup& iSetup,
-    const edm::InputTag& label,
     std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& density)
 {
     edm::ESHandle<FFTJetLookupTableSequence> h;
@@ -1154,7 +1138,7 @@ void FFTJetProducer::determinePileupDensityFromDB(
         (*h)[pileupTableCategory][pileupTableName];
 
     edm::Handle<reco::FFTJetPileupSummary> summary;
-    iEvent.getByLabel(label, summary);
+    iEvent.getByToken(input_pusummary_token_, summary);
 
     const float rho = summary->pileupRho();
     const bool phiDependent = f->minDim() == 3U;

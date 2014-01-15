@@ -14,6 +14,7 @@
 #include <fstream>
 #include "TMath.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQMOffline/JetMET/interface/MuCorrMETAnalyzerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,7 +38,7 @@ class MuCorrMETAnalyzer : public MuCorrMETAnalyzerBase {
  public:
 
   /// Constructor
-  MuCorrMETAnalyzer(const edm::ParameterSet&);
+  MuCorrMETAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
   
   /// Destructor
   virtual ~MuCorrMETAnalyzer();
