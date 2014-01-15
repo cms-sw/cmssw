@@ -353,9 +353,9 @@ std::set<uint32_t> mugeo::MuFiducial::gemDetIds(math::XYZVectorD p)
     if (not(it->second.at(0) <= r and r <= it->second.at(1))) continue;
     // phi match
     if (not(it->second.at(2) <= phi and phi <= it->second.at(3))) continue;
-     std::cout << "detId " << it->first << " " << it->second.at(0) <<  " "<<it->second.at(1)<<" " 
-               << it->second.at(2)<< " " << it->second.at(3) << " " << GEMDetId(it->first).region() << std::endl;
-     std::cout << "match!!!" << std::endl;
+//      std::cout << "detId " << it->first << " " << it->second.at(0) <<  " "<<it->second.at(1)<<" " 
+//                << it->second.at(2)<< " " << it->second.at(3) << " " << GEMDetId(it->first).region() << std::endl;
+//      std::cout << "match!!!" << std::endl;
   }
   return result;
 }
