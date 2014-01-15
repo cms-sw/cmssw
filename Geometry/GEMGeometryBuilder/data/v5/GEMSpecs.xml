@@ -3,10 +3,12 @@
   <SpecParSection label="GEMSpecs.xml">
     <SpecPar name="nStrips32" eval="true">
       <PartSelector path="//GHA1.."/>
+      <PartSelector path="//GHA2.."/>
       <Parameter name="nStrips" value="384"/>
     </SpecPar>
     <SpecPar name="nPads32" eval="true">
       <PartSelector path="//GHA1.."/>
+      <PartSelector path="//GHA2.."/>
       <Parameter name="nPads" value="96"/>
     </SpecPar>
   </SpecParSection>
