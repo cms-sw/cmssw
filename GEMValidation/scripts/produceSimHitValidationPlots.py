@@ -122,22 +122,37 @@ if __name__ == "__main__":
 
     ####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####
 
-    """
-    draw_occ(targetDir, "sh_xy_rm1_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, layer1;globalX [cm];globalY [cm]",
-    "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l1,sel), "COLZ")
-    draw_occ(targetDir, "sh_xy_rm1_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, layer2;globalX [cm];globalY [cm]",
-    "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l2,sel), "COLZ")
-    draw_occ(targetDir, "sh_xy_rp1_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region1, layer1;globalX [cm];globalY [cm]",
-    "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l1,sel), "COLZ")
-    draw_occ(targetDir, "sh_xy_rp1_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region1, layer2;globalX [cm];globalY [cm]",
-    "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l2,sel), "COLZ")
-    """
+    draw_occ(targetDir, "sh_xy_rm1_st1_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer1;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,st1,l1,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_st1_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer2;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,st1,l2,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st1_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station1 ,layer1;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,st1,l1,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st1_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station1, layer2;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,st1,l2,sel), "COLZ")
     
-    """
+    draw_occ(targetDir, "sh_xy_rm1_st2_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station2, layer1;globalX [cm];globalY [cm]",
+             "h_", "(100,-280,280,100,-280,280)", "globalY:globalX", AND(rm1,st2,l1,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_st2_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station2, layer2;globalX [cm];globalY [cm]",
+             "h_", "(100,-280,280,100,-280,280)", "globalY:globalX", AND(rm1,st2,l2,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st2_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station2, layer1;globalX [cm];globalY [cm]",
+             "h_", "(100,-280,280,100,-280,280)", "globalY:globalX", AND(rp1,st2,l1,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st2_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station2, layer2;globalX [cm];globalY [cm]",
+             "h_", "(100,-280,280,100,-280,280)", "globalY:globalX", AND(rp1,st2,l2,sel), "COLZ")
+   
+    draw_occ(targetDir, "sh_xy_rm1_st3_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station3, layer1;globalX [cm];globalY [cm]",
+             "h_", "(100,-280,280,100,-280,280)", "globalY:globalX", AND(rm1,st3,l1,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rm1_st3_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station3, layer2;globalX [cm];globalY [cm]",
+             "h_", "(100,-280,280,100,-280,280)", "globalY:globalX", AND(rm1,st3,l2,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st3_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station3, layer1;globalX [cm];globalY [cm]",
+             "h_", "(100,-280,280,100,-280,280)", "globalY:globalX", AND(rp1,st3,l1,sel), "COLZ")
+    draw_occ(targetDir, "sh_xy_rp1_st3_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region1, station3, layer2;globalX [cm];globalY [cm]",
+             "h_", "(100,-280,280,100,-280,280)", "globalY:globalX", AND(rp1,st3,l2,sel), "COLZ")
+
     draw_occ(targetDir, "sh_zr_rm1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1;globalZ [cm];globalR [cm]",
-    "h_", "(200,-573,-564,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rm1,sel), "COLZ")
+             "h_", "(200,-573,-564,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rm1,sel), "COLZ")
     draw_occ(targetDir, "sh_zr_rp1" + suff, ext, treeHits, pre + " SimHit occupancy: region1;globalZ [cm];globalR [cm]",
-    "h_", "(200,564,573,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rp1,sel), "COLZ")
+             "h_", "(200,564,573,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", AND(rp1,sel), "COLZ")
     
     draw_1D(targetDir, "sh_tof_rm1_l1" + suff, ext, treeHits, pre + " SimHit TOF: region-1, layer1;Time of flight [ns];entries", 
             "h_", "(40,18,22)", "timeOfFlight", AND(rm1,l1,sel))
@@ -147,7 +162,6 @@ if __name__ == "__main__":
             "h_", "(40,18,22)", "timeOfFlight", AND(rp1,l1,sel))
     draw_1D(targetDir, "sh_tof_rp1_l2" + suff, ext, treeHits, pre + " SimHit TOF: region1, layer2;Time of flight [ns];entries", 
             "h_", "(40,18,22)", "timeOfFlight", AND(rp1,l2,sel))
-    """    
 
 
     ## momentum plot
