@@ -64,6 +64,7 @@
 
 //#include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "GEMCode/SimMuL1/interface/PSimHitMap.h"
+#include "GEMCode/SimMuL1/interface/MuGeometryHelpers.h"
 
 #include "GEMCode/SimMuL1/interface/MatchCSCMuL1.h"
 
@@ -300,6 +301,7 @@ private:
   
   double minSimTrackDR_;
 
+  mugeo::MuFiducial* mufiducial_;
   
 // members
   std::vector<MatchCSCMuL1*> matches;
@@ -307,11 +309,11 @@ private:
   std::map<unsigned,unsigned> trkId2Index;
 
   const CSCGeometry* cscGeometry;
+  const GEMGeometry* gemGeometry;
   const DTGeometry* dtGeometry;
   const RPCGeometry* rpcGeometry;
   edm::ESHandle<MuonDetLayerGeometry> muonGeometry;
 
-  const GEMGeometry* gemGeometry;
 
   edm::ParameterSet gemMatchCfg_;
   std::vector<double> gemPTs_, gemDPhisOdd_, gemDPhisEven_;
@@ -357,11 +359,13 @@ private:
   TH2D * h_csctype_vs_alct_occup;
   TH2D * h_csctype_vs_clct_occup;
   
+  TH2D * h_eta_vs_ncscsh;
   TH2D * h_eta_vs_nalct;
   TH2D * h_eta_vs_nclct;
   TH2D * h_eta_vs_nlct;
   TH2D * h_eta_vs_nmplct;
   
+  TH2D * h_pt_vs_ncscsh;
   TH2D * h_pt_vs_nalct;
   TH2D * h_pt_vs_nclct;
   TH2D * h_pt_vs_nlct;

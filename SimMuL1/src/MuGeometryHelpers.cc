@@ -2,12 +2,16 @@
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 
+#include <utility>
+using namespace std;
 using std::cout;
 using std::endl;
 using namespace mugeo;
@@ -195,4 +199,163 @@ void mugeo::MuGeometryAreas::calculateRPCDetectorAreas(const RPCGeometry* g)
   cout<<"= RPCf chamber sensitive areas (cm2):"<<endl;
   for (int i=0; i<=RPCF_TYPES; i++) cout<<"= "<<rpcf_type[i]<<" "<<rpcf_total_areas_cm2[i]/2./rpcf_radial_segm[i]<<endl;
   cout<<"========================"<<endl;
+}
+
+
+
+// ================================================================================================
+void mugeo::MuFiducial::buildGEMLUT()
+{
+  auto etaPartitions = gemGeometry->etaPartitions();
+  for(auto roll: etaPartitions)
+  {
+    GEMDetId rId(roll->id());
+              
+    const BoundPlane& bSurface(roll->surface());
+    //    const StripTopology* topology(&(roll->specificTopology()));
+              
+    // base_bottom, base_top, height, strips, pads (all half length)
+    auto& parameters(roll->specs()->parameters());
+    float bottomEdge(parameters[0]);
+    float topEdge(parameters[1]);
+    float height(parameters[2]);
+    //    float nStrips(parameters[3]);
+              
+    LocalPoint  l1Top(-topEdge, height, 0.);
+    //    LocalPoint  l2Top(topEdge, height, 0.);
+    GlobalPoint g1Top(bSurface.toGlobal(l1Top));
+    //    GlobalPoint g2Top(bSurface.toGlobal(l2Top));
+              
+    //    LocalPoint  l1Bottom(-bottomEdge, -height, 0.);
+    LocalPoint  l2Bottom(bottomEdge, -height, 0.);
+    //    GlobalPoint g1Bottom(bSurface.toGlobal(l1Bottom));
+    GlobalPoint g2Bottom(bSurface.toGlobal(l2Bottom));
+              
+    double t1R(g1Top.perp());
+//     double t2R(g2Top.perp());
+    double t1phi(static_cast<double>(g1Top.phi().degrees()));
+//     double t2phi(static_cast<double>(std::round(g2Top.phi().degrees())));
+    if (t1phi < 0) t1phi += 360;
+//     if (t2phi < 0) t2phi += 360;
+    
+    double b2R(g2Bottom.perp());
+//     double b2R(g2Bottom.perp());
+    double b2phi(static_cast<double>(g2Bottom.phi().degrees()));
+//     double b2phi(static_cast<double>(std::round(g2Bottom.phi().degrees())));
+    if (b2phi < 0) b2phi += 360;
+//     if (b2phi < 0) b2phi += 360;
+
+    double phiMin;
+    double phiMax;
+
+    if (rId.chamber() % 2==0 && rId.region()==1){
+      phiMin = b2phi; phiMax = t1phi;
+    }
+    else if (rId.chamber() % 2!=0 && rId.region()==-1){
+      //phiMin = t1phi; phiMax = b2phi;
+      phiMin = b2phi; phiMax = t1phi;
+    }
+    else if (rId.chamber() % 2!=0 && rId.region()==1){
+      //      phiMin = b2phi; phiMax = t1phi;
+      phiMin = t1phi; phiMax = b2phi;
+    }
+    else {
+      //phiMin = b2phi; phiMax = t1phi;
+      phiMin = t1phi; phiMax = b2phi;
+    }
+
+    if (rId.chamber() % 2==0) std::cout << "even chamber " <<  rId << " "<<phiMin << " "<<phiMax<< std::endl;
+    else                      std::cout << "odd chamber " <<  rId << " "<<phiMin << " "<<phiMax << std::endl;
+
+    
+    std::vector<double> values;
+    values.push_back(b2R);
+    values.push_back(t1R);
+    values.push_back(phiMin);
+    values.push_back(phiMax);
+    values.push_back(0.);
+    values.push_back(0.);
+    
+    gemLUT_[rId.rawId()] = values;
+  }
+}
+
+// ================================================================================================
+void mugeo::MuFiducial::buildCSCLUT()
+{
+  auto chambers = cscGeometry->chambers();
+  for(auto ch: chambers)
+  {    
+    CSCDetId rId(ch->id());
+    const BoundPlane& bSurface(ch->surface());
+    auto layer1 = ch->layer(1);
+
+    //    CSCDetId id = layer1->id();
+    //    int ctype = id.iChamberType();
+
+    const CSCWireTopology*  wire_topo  = layer1->geometry()->wireTopology();
+    const CSCStripTopology* strip_topo = layer1->geometry()->topology();
+    float b = wire_topo->narrowWidthOfPlane();
+    float t = wire_topo->wideWidthOfPlane();
+    float w_h   = wire_topo->lengthOfPlane();
+    float s_h = fabs(strip_topo->yLimitsOfStripPlane().first - strip_topo->yLimitsOfStripPlane().second);
+    float h = (w_h < s_h)? w_h : s_h;
+
+    LocalPoint  l1Top(-t/2., h/2., 0.);
+    LocalPoint  l2Top(t/2., h/2., 0.);
+    GlobalPoint g1Top(bSurface.toGlobal(l1Top));
+    GlobalPoint g2Top(bSurface.toGlobal(l2Top));
+              
+    LocalPoint  l1Bottom(-b/.2, -h/2., 0.);
+    LocalPoint  l2Bottom(b/.2, -h/2., 0.);
+    GlobalPoint g1Bottom(bSurface.toGlobal(l1Bottom));
+    GlobalPoint g2Bottom(bSurface.toGlobal(l2Bottom));
+              
+    double t1R(g1Top.perp());
+//     double t2R(g2Top.perp());
+    double t1phi(static_cast<double>(std::round(g1Top.phi().degrees())));
+//     double t2phi(static_cast<double>(std::round(g2Top.phi().degrees())));
+    if (t1phi < 0) t1phi += 360;
+//     if (t2phi < 0) t2phi += 360;
+    
+    double b1R(g1Bottom.perp());
+//     double b2R(g2Bottom.perp());
+    double b1phi(static_cast<double>(std::round(g1Bottom.phi().degrees())));
+//     double b2phi(static_cast<double>(std::round(g2Bottom.phi().degrees())));
+    if (b1phi < 0) b1phi += 360;
+//     if (b2phi < 0) b2phi += 360;
+    
+    std::vector<double> values;
+    values.push_back(b1R);
+    values.push_back(t1R);
+    values.push_back(b1phi);
+    values.push_back(t1phi);
+    values.push_back(0.);
+    values.push_back(0.);
+    
+    cscLUT_[rId.rawId()] = values;
+  }
+}
+
+std::set<uint32_t> mugeo::MuFiducial::gemDetIds(math::XYZVectorD p)
+{
+  std::set<uint32_t> result;
+  const double r(p.Rho());
+  double phi(p.Phi()*180./TMath::Pi()); //.degrees()
+  if (phi < 0) phi += 360.;
+  //  std::cout << "r " << r << " phi " << phi << " z " << p.z() << std::endl;
+  
+  for (auto it=gemLUT_.begin(); it!=gemLUT_.end(); ++it){
+    // check if R and phi are withing limits
+    // z match
+    if (p.z()*(GEMDetId(it->first).region())<0) continue;
+    // r match
+    if (not(it->second.at(0) <= r and r <= it->second.at(1))) continue;
+    // phi match
+    if (not(it->second.at(2) <= phi and phi <= it->second.at(3))) continue;
+     std::cout << "detId " << it->first << " " << it->second.at(0) <<  " "<<it->second.at(1)<<" " 
+               << it->second.at(2)<< " " << it->second.at(3) << " " << GEMDetId(it->first).region() << std::endl;
+     std::cout << "match!!!" << std::endl;
+  }
+  return result;
 }

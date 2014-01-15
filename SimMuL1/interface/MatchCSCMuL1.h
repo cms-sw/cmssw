@@ -1,26 +1,6 @@
 #ifndef SimMuL1_MatchCSCMuL1_h
 #define SimMuL1_MatchCSCMuL1_h
 
-// -*- C++ -*-
-//
-// Package:    SimMuL1
-// Class:      MatchCSCMuL1
-// 
-/**\class MatchCSCMuL1 MatchCSCMuL1.hh MyCode/SimMuL1/src/MatchCSCMuL1.hh
-
- Description: Trigger Matching info for SimTrack in CSC
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  "Vadim Khotilovich"
-//         Created:  Mon May  5 20:50:43 CDT 2008
-// $Id:$
-//
-//
-
-
 // system include files
 #include <vector>
 #include <map>
@@ -42,6 +22,7 @@
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
+#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
@@ -77,19 +58,28 @@ public:
   const SimVertex *svtx;
 
   const CSCGeometry* cscGeometry;
+  const GEMGeometry* gemGeometry;
   
   // positions extrapolated to different stations
+  math::XYZVectorD pGE11;
   math::XYZVectorD pME11;
   math::XYZVectorD pME1;
+  math::XYZVectorD pGE21;
   math::XYZVectorD pME2;
   math::XYZVectorD pME3;
+  math::XYZVectorD pME4;
   int keyStation();
   math::XYZVectorD vAtStation(int st);
   math::XYZVectorD vSmart();
   double deltaRAtStation(int station, double to_eta, double to_phi);
   double deltaRSmart(double to_eta, double to_phi);
   
-
+  // geometry
+  const GEMGeometry* getGEMGeometry() const {return gemGeometry;}
+  const CSCGeometry* getCSCGeometry() const {return cscGeometry;}
+  void setGEMGeometry(const GEMGeometry* geom) {gemGeometry = geom;}
+  void setCSCGeometry(const CSCGeometry* geom) {cscGeometry = geom;}
+  
   // strk's ID is first element, followed by IDs of its children SimTracks
   std::vector<unsigned> familyIds;
   
@@ -104,6 +94,11 @@ public:
   int nSimHits();
   std::vector<int> detsWithHits();
   std::vector<int> chambersWithHits(int station=0, int ring=0, unsigned minNHits=4);
+  // get the detIds that could have been crossed by the simtrack
+  std::set<int> cscDetIdsAssociated(int station=0, int ring=0);
+  std::set<int> gemDetIdsAssociated(int station=0, int ring=0);
+  bool isCSCDetIdAssociated(CSCDetId id);
+  bool isGEMDetIdAssociated(CSCDetId id);
   std::vector<PSimHit> layerHits( int detId );
   std::vector<PSimHit> chamberHits( int detId );
   std::vector<PSimHit> allSimHits();
