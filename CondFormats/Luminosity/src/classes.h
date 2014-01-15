@@ -5,4 +5,4 @@ namespace {
     std::vector<lumi::HLTInfo>::iterator tmp2;
     std::vector<lumi::TriggerInfo>::iterator tmp3;
   };
-}
+
