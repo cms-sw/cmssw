@@ -31,6 +31,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -43,6 +44,17 @@
 
 #include "TTree.h"
 
+
+struct MyME0SimHit
+{  
+  Int_t eventNumber;
+  Int_t detUnitId, particleType;
+  Float_t x, y, energyLoss, pabs, timeOfFlight;
+  Int_t region, layer, chamber, roll;
+  Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
+  Int_t strip;
+  Float_t Phi_0, DeltaPhi, R_0;
+};
 
 struct MyGEMSimHit
 {  
@@ -107,11 +119,13 @@ private:
   void bookCSCSimHitsTree();
   void bookRPCSimHitsTree();
   void bookGEMSimHitsTree();
+  void bookME0SimHitsTree();
   void bookSimTracksTree();
   
   void analyzeCSC( const edm::Event& iEvent );
   void analyzeRPC( const edm::Event& iEvent );
-  void analyzeGEM( const edm::Event& iEvent );
+  void analyzeGEM( const edm::Event& iEvent ); 
+  void analyzeME0( const edm::Event& iEvent );
   bool isSimTrackGood(const SimTrack &t);
   void analyzeTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void buildLUT();
@@ -120,26 +134,31 @@ private:
   TTree* csc_sh_tree_;
   TTree* rpc_sh_tree_;
   TTree* gem_sh_tree_;
+  TTree* me0_sh_tree_;
   TTree* track_tree_;
   
   const CSCGeometry* csc_geometry;
   const RPCGeometry* rpc_geometry;
   const GEMGeometry* gem_geometry_;
+  const ME0Geometry* me0_geometry_;
   
   MyCSCSimHit csc_sh;
   MyRPCSimHit rpc_sh;
   MyGEMSimHit gem_sh;
+  MyME0SimHit me0_sh;
   MySimTrack  track;
 
   edm::Handle<edm::PSimHitContainer> CSCHits;
   edm::Handle<edm::PSimHitContainer> RPCHits;
   edm::Handle<edm::PSimHitContainer> GEMHits;
+  edm::Handle<edm::PSimHitContainer> ME0Hits;
   edm::Handle<edm::SimTrackContainer> simTracks;
   edm::Handle<edm::SimVertexContainer> simVertices;
 
   edm::ESHandle<CSCGeometry> csc_geom;
   edm::ESHandle<RPCGeometry> rpc_geom;
   edm::ESHandle<GEMGeometry> gem_geom;
+  edm::ESHandle<ME0Geometry> me0_geom;
  
   edm::ParameterSet cfg_;
   std::string simInputLabel_;
@@ -162,6 +181,7 @@ GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& ps)
   bookCSCSimHitsTree();
   bookRPCSimHitsTree();
   bookGEMSimHitsTree();
+  bookME0SimHitsTree();
   bookSimTracksTree();
 }
 
@@ -175,6 +195,9 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
 {
   iSetup.get<MuonGeometryRecord>().get(gem_geom);
   gem_geometry_ = &*gem_geom;
+
+  iSetup.get<MuonGeometryRecord>().get(me0_geom);
+  me0_geometry_ = &*me0_geom;
 
   iSetup.get<MuonGeometryRecord>().get(csc_geom);
   csc_geometry = &*csc_geom;
@@ -215,6 +238,9 @@ void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), GEMHits);
   if(GEMHits->size()) analyzeGEM( iEvent );
+
+  iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonME0Hits"), ME0Hits);
+  if(ME0Hits->size()) analyzeME0( iEvent );
 
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonCSCHits"), CSCHits);
   if(CSCHits->size()) analyzeCSC( iEvent );
@@ -310,6 +336,35 @@ void GEMSimHitAnalyzer::bookGEMSimHitsTree()
 }
 
 
+void GEMSimHitAnalyzer::bookME0SimHitsTree()
+{
+  edm::Service< TFileService > fs;
+  me0_sh_tree_ = fs->make< TTree >("ME0SimHits", "ME0SimHits");
+  me0_sh_tree_->Branch("eventNumber", &me0_sh.eventNumber);
+  me0_sh_tree_->Branch("detUnitId", &me0_sh.detUnitId);
+  me0_sh_tree_->Branch("particleType", &me0_sh.particleType);
+  me0_sh_tree_->Branch("x", &me0_sh.x);
+  me0_sh_tree_->Branch("y", &me0_sh.y);
+  me0_sh_tree_->Branch("energyLoss", &me0_sh.energyLoss);
+  me0_sh_tree_->Branch("pabs", &me0_sh.pabs);
+  me0_sh_tree_->Branch("timeOfFlight", &me0_sh.timeOfFlight);
+  me0_sh_tree_->Branch("region", &me0_sh.region);
+  me0_sh_tree_->Branch("chamber", &me0_sh.chamber);
+  me0_sh_tree_->Branch("layer", &me0_sh.layer);
+  me0_sh_tree_->Branch("roll", &me0_sh.roll);
+  me0_sh_tree_->Branch("globalR", &me0_sh.globalR);
+  me0_sh_tree_->Branch("globalEta", &me0_sh.globalEta);
+  me0_sh_tree_->Branch("globalPhi", &me0_sh.globalPhi);
+  me0_sh_tree_->Branch("globalX", &me0_sh.globalX);
+  me0_sh_tree_->Branch("globalY", &me0_sh.globalY);
+  me0_sh_tree_->Branch("globalZ", &me0_sh.globalZ);
+  me0_sh_tree_->Branch("strip", &me0_sh.strip);
+  me0_sh_tree_->Branch("Phi_0", &me0_sh.Phi_0);
+  me0_sh_tree_->Branch("DeltaPhi", &me0_sh.DeltaPhi);
+  me0_sh_tree_->Branch("R_0", &me0_sh.R_0);
+}
+
+
 void GEMSimHitAnalyzer::bookSimTracksTree()
 {
   edm::Service< TFileService > fs;
@@ -382,6 +437,53 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
     gem_sh_tree_->Fill();
   }
 }
+
+void GEMSimHitAnalyzer::analyzeME0( const edm::Event& iEvent )
+{
+  for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit)
+  {
+    me0_sh.eventNumber = iEvent.id().event();
+    me0_sh.detUnitId = itHit->detUnitId();
+    me0_sh.particleType = itHit->particleType();
+    me0_sh.x = itHit->localPosition().x();
+    me0_sh.y = itHit->localPosition().y();
+    me0_sh.energyLoss = itHit->energyLoss();
+    me0_sh.pabs = itHit->pabs();
+    me0_sh.timeOfFlight = itHit->timeOfFlight();
+    
+    const ME0DetId id(itHit->detUnitId());
+    
+    me0_sh.region = id.region();
+    me0_sh.layer = id.layer();
+    me0_sh.chamber = id.chamber();
+    me0_sh.roll = id.roll();
+
+    const LocalPoint p0(0., 0., 0.);
+    const GlobalPoint Gp0(me0_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(p0));
+
+    me0_sh.Phi_0 = Gp0.phi();
+    me0_sh.R_0 = Gp0.perp();
+    me0_sh.DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+ 
+    const LocalPoint hitLP(itHit->localPosition());
+    const GlobalPoint hitGP(me0_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
+    me0_sh.globalR = hitGP.perp();
+    me0_sh.globalEta = hitGP.eta();
+    me0_sh.globalPhi = hitGP.phi();
+    me0_sh.globalX = hitGP.x();
+    me0_sh.globalY = hitGP.y();
+    me0_sh.globalZ = hitGP.z();
+
+    //  Now filling strip info using entry point rather than local position to be
+    //  consistent with digi strips. To change back, just switch the comments - WHF
+    //  me0_sh.strip=me0_geometry_->etaPartition(itHit->detUnitId())->strip(hitLP);
+    const LocalPoint hitEP(itHit->entryPoint());
+    me0_sh.strip=me0_geometry_->etaPartition(itHit->detUnitId())->strip(hitEP);
+    
+    me0_sh_tree_->Fill();
+  }
+}
+
 
 void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
 {
