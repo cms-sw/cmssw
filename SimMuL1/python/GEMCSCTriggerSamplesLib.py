@@ -127,7 +127,7 @@ files['_pt2-50_PU0'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2
 files['_pt2-50_PU100'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU100/5b1cfdf8efbee9c68913c0719b4df889/']
 files['_pt2-50_PU140'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU140/cadd04af78260520bc45436035aa2787/']
 
-## trigger files
+## trigger files - these files use the gangedME1a TrackFinder instead of ungangedME1a TrackFinder
 files['_gem98_pt2-50_PU0_pt0_new'] =  ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt0/871a2070c5b60d6753827956fe591827/']
 files['_gem98_pt2-50_PU0_pt5_new'] =  ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt5/871a2070c5b60d6753827956fe591827/']
 files['_gem98_pt2-50_PU0_pt6_new'] =  ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt6/871a2070c5b60d6753827956fe591827/']
