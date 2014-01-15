@@ -417,7 +417,7 @@
   <SpecPar name="MuonGEMEndcap">
    <PartSelector path="//GE11.*"/>
    <Parameter name="CopyNoTag" value="[mg_ring]"/>
-   <Parameter name="CopyNoOffset" value="2*[super]"/>
+   <Parameter name="CopyNoOffset" value="1*[super]"/>
   </SpecPar>
   <SpecPar name="MuonGEMSector">
    <PartSelector path="//GEMBox11"/>
