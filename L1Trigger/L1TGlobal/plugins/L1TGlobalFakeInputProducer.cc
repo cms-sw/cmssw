@@ -65,6 +65,39 @@ namespace l1t {
     //boost::shared_ptr<const FirmwareVersion> m_fwv;
     //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
 
+    // Parameters for EG
+    std::vector<int> fEgBx;
+    std::vector<int> fEgHwPt;
+    std::vector<int> fEgHwPhi;
+    std::vector<int> fEgHwEta;
+    std::vector<int> fEgIso;
+    
+    // Parameters for Mu
+    std::vector<int> fMuBx;
+    std::vector<int> fMuHwPt;
+    std::vector<int> fMuHwPhi;
+    std::vector<int> fMuHwEta;
+    std::vector<int> fMuIso;
+
+    // Parameters for Tau
+    std::vector<int> fTauBx;
+    std::vector<int> fTauHwPt;
+    std::vector<int> fTauHwPhi;
+    std::vector<int> fTauHwEta;
+    std::vector<int> fTauIso;    
+
+    // Parameters for Jet
+    std::vector<int> fJetBx;
+    std::vector<int> fJetHwPt;
+    std::vector<int> fJetHwPhi;
+    std::vector<int> fJetHwEta;
+
+    // Parameters for EtSum
+    std::vector<int> fEtSumBx;
+    std::vector<int> fEtSumHwPt;
+    std::vector<int> fEtSumHwPhi;
+
+
   };
 
   //
@@ -78,6 +111,53 @@ namespace l1t {
     produces<BXVector<l1t::Tau>>();
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
+
+
+// Setup Parameter Set for EG
+    ParameterSet eg_params = iConfig.getUntrackedParameter<ParameterSet>("egParams");
+    
+    fEgBx    = eg_params.getUntrackedParameter< vector<int> >("egBx");
+    fEgHwPt  = eg_params.getUntrackedParameter< vector<int> >("egHwPt");
+    fEgHwPhi = eg_params.getUntrackedParameter< vector<int> >("egHwPhi");
+    fEgHwEta = eg_params.getUntrackedParameter< vector<int> >("egHwEta");
+    fEgIso   = eg_params.getUntrackedParameter< vector<int> >("egIso");
+
+
+// Setup Parameter Set for Muon
+    ParameterSet mu_params = iConfig.getUntrackedParameter<ParameterSet>("muParams");
+    
+    fMuBx    = mu_params.getUntrackedParameter< vector<int> >("muBx");
+    fMuHwPt  = mu_params.getUntrackedParameter< vector<int> >("muHwPt");
+    fMuHwPhi = mu_params.getUntrackedParameter< vector<int> >("muHwPhi");
+    fMuHwEta = mu_params.getUntrackedParameter< vector<int> >("muHwEta");
+    fMuIso   = mu_params.getUntrackedParameter< vector<int> >("muIso");
+
+
+// Setup Parameter Set for taus
+    ParameterSet tau_params = iConfig.getUntrackedParameter<ParameterSet>("tauParams");
+    
+    fTauBx    = tau_params.getUntrackedParameter< vector<int> >("tauBx");
+    fTauHwPt  = tau_params.getUntrackedParameter< vector<int> >("tauHwPt");
+    fTauHwPhi = tau_params.getUntrackedParameter< vector<int> >("tauHwPhi");
+    fTauHwEta = tau_params.getUntrackedParameter< vector<int> >("tauHwEta");
+    fTauIso   = tau_params.getUntrackedParameter< vector<int> >("tauIso");
+
+
+// Setup Parameter Set for jet
+    ParameterSet jet_params = iConfig.getUntrackedParameter<ParameterSet>("jetParams");
+    
+    fJetBx    = jet_params.getUntrackedParameter< vector<int> >("jetBx");
+    fJetHwPt  = jet_params.getUntrackedParameter< vector<int> >("jetHwPt");
+    fJetHwPhi = jet_params.getUntrackedParameter< vector<int> >("jetHwPhi");
+    fJetHwEta = jet_params.getUntrackedParameter< vector<int> >("jetHwEta");
+
+// Setup Parameter Set for EtSums
+    ParameterSet etsum_params = iConfig.getUntrackedParameter<ParameterSet>("etsumParams");
+    
+    fEtSumBx    = etsum_params.getUntrackedParameter< vector<int> >("etsumBx");
+    fEtSumHwPt  = etsum_params.getUntrackedParameter< vector<int> >("etsumHwPt");
+    fEtSumHwPhi = etsum_params.getUntrackedParameter< vector<int> >("etsumHwPhi");
+
 
     // set cache id to zero, will be set at first beginRun:
     m_paramsCacheId = 0;
@@ -101,11 +181,9 @@ L1TGlobalFakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   LogDebug("l1t|Global") << "L1TGlobalFakeInputProducer::produce function called...\n";
 
-  // Set the range of BX
+  // Set the range of BX....TO DO...move to Params or determine from param set.
   int bxFirst = -2;
   int bxLast  = 2;
-
-  
 
   //outputs
   std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
@@ -114,65 +192,50 @@ L1TGlobalFakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
 
-  
-   //Loop over the bx
-   for(int i = bxFirst; i <= bxLast; i++) {
+// Put EG into Collections
+   for(unsigned int it=0; it<fEgBx.size(); it++) {
 
-// Simple hand-coded fake data for starters.
-     int egPt   = 40 + i*10; //30 - 40 - 50 for bx -1 0 1
-     int egEta  = 20;
-     int egPhi  = 10;
-     int egQual = 1;
-     int egIso  = 0;
      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-     l1t::EGamma fakeEG(*egLorentz, egPt, egEta, egPhi, egQual, egIso); 
-     egammas->push_back(i, fakeEG);       
-
-// Simple hand-coded fake data for starters.
-     int muPt   = 41 + i*10; //30 - 40 - 50 for bx -1 0 1
-     int muEta  = 21;
-     int muPhi  = 11;
-     int muQual = 1;
-     int muCharge = 1;
-     int muChargeValid = 1;
-     int muIso  = 0;
-     int muMIP  = 1;
-     int muTag  = 0;
-     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *muLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-     l1t::Muon fakeMU(*muLorentz, muPt, muEta, muPhi, muQual, muCharge, muChargeValid, muIso, muMIP, muTag); 
-     muons->push_back(i,fakeMU);      
-
-
-// Simple hand-coded fake data for starters.
-     int tauPt   = 42 + i*10; //30 - 40 - 50 for bx -1 0 1
-     int tauEta  = 22;
-     int tauPhi  = 12;
-     int tauQual = 1;
-     int tauIso  = 0;
-     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-     l1t::Tau fakeTAU(*tauLorentz, tauPt, tauEta, tauPhi, tauQual, tauIso); 
-     taus->push_back(i,fakeTAU);      
-
-// Simple hand-coded fake data for starters.
-     int jetPt   = 43 + i*10; //30 - 40 - 50 for bx -1 0 1
-     int jetEta  = 23;
-     int jetPhi  = 13;
-     int jetQual = 1;
-     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-     l1t::Jet fakeJET(*jetLorentz, jetPt, jetEta, jetPhi, jetQual); 
-     jets->push_back(i,fakeJET);      
-
-// Simple hand-coded fake data for starters.
-     int etsumPt   = 44 + i*10; //30 - 40 - 50 for bx -1 0 1
-     int etsumEta  = 24;
-     int etsumPhi  = 14;
-     int etsumQual = 1;
-     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *etsumLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-     l1t::EtSum fakeETSUM(*etsumLorentz, l1t::EtSum::EtSumType::kMissingEt, etsumPt, etsumEta, etsumPhi, etsumQual); 
-     etsums->push_back(i,fakeETSUM);      
+     l1t::EGamma fakeEG(*egLorentz, fEgHwPt.at(it), fEgHwEta.at(it),fEgHwPhi.at(it), 0, fEgIso.at(it)); 
+     egammas->push_back(fEgBx.at(it), fakeEG);  
 
    }
 
+// Put Muons into Collections
+   for(unsigned int it=0; it<fMuBx.size(); it++) {
+
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *muLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+     l1t::Muon fakeMU(*muLorentz, fMuHwPt.at(it), fMuHwEta.at(it),fMuHwPhi.at(it), 0, 0, 0, fMuIso.at(it)); 
+     muons->push_back(fMuBx.at(it), fakeMU);  
+
+   }
+
+// Put Taus into Collections
+   for(unsigned int it=0; it<fTauBx.size(); it++) {
+
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+     l1t::Tau fakeTAU(*tauLorentz, fTauHwPt.at(it), fTauHwEta.at(it),fTauHwPhi.at(it), 0, fTauIso.at(it)); 
+     taus->push_back(fTauBx.at(it), fakeTAU);  
+
+   }
+
+// Put Jets into Collections
+   for(unsigned int it=0; it<fJetBx.size(); it++) {
+
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+     l1t::Jet fakeJET(*jetLorentz, fJetHwPt.at(it), fJetHwEta.at(it),fJetHwPhi.at(it), 0); 
+     jets->push_back(fJetBx.at(it), fakeJET);  
+     
+   }  
+
+// Put EtSums into Collections
+   for(unsigned int it=0; it<fEtSumBx.size(); it++) {
+
+     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *etsumLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+     l1t::EtSum fakeETSUM(*etsumLorentz, l1t::EtSum::EtSumType::kMissingEt,fEtSumHwPt.at(it), 0,fEtSumHwPhi.at(it), 0); 
+     etsums->push_back(fEtSumBx.at(it), fakeETSUM);  
+
+   }
 
   iEvent.put(egammas);
   iEvent.put(muons);

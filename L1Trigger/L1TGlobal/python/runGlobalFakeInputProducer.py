@@ -50,7 +50,46 @@ process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
 
 # Fake the input
-process.fakeL1TGinput  = cms.EDProducer("l1t::L1TGlobalFakeInputProducer")
+process.fakeL1TGinput  = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
+
+# Note: There is no error checking on these parameters...you are responsible. 
+                       egParams = cms.untracked.PSet(
+		           egBx    = cms.untracked.vint32(-2, -1,  0,  0,  1,  2),
+			   egHwPt  = cms.untracked.vint32(10, 20, 30, 61, 40, 50),
+			   egHwPhi = cms.untracked.vint32(11, 21, 31, 61, 41, 51),
+			   egHwEta = cms.untracked.vint32(12, 22, 32, 62, 42, 52),
+			   egIso   = cms.untracked.vint32( 0,  0,  1,  1,  0,  0)
+		       ),
+		       
+                       muParams = cms.untracked.PSet(
+		           muBx    = cms.untracked.vint32(),
+			   muHwPt  = cms.untracked.vint32(),
+			   muHwPhi = cms.untracked.vint32(),
+			   muHwEta = cms.untracked.vint32(),
+			   muIso   = cms.untracked.vint32()
+		       ),
+
+                       tauParams = cms.untracked.PSet(
+		           tauBx    = cms.untracked.vint32(),
+			   tauHwPt  = cms.untracked.vint32(),
+			   tauHwPhi = cms.untracked.vint32(),
+			   tauHwEta = cms.untracked.vint32(),
+			   tauIso   = cms.untracked.vint32()
+		       ),
+		       
+                       jetParams = cms.untracked.PSet(
+		           jetBx    = cms.untracked.vint32(  0,   0),
+			   jetHwPt  = cms.untracked.vint32(100, 200),
+			   jetHwPhi = cms.untracked.vint32( 10,  20),
+			   jetHwEta = cms.untracked.vint32( 11,  21)
+		       ),
+		       
+                       etsumParams = cms.untracked.PSet(
+		           etsumBx    = cms.untracked.vint32( -2, -1,   0,  1,  2),
+			   etsumHwPt  = cms.untracked.vint32(  2,  1, 204,  3,  4),  
+			   etsumHwPhi = cms.untracked.vint32(  2,  1,  20,  3,  4)
+		       )		       		       		       		       
+                    )
 
 
 process.p1 = cms.Path(
