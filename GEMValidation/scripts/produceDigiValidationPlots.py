@@ -19,12 +19,16 @@ if __name__ == "__main__":
   inputFile = str(sys.argv[1])
   if len(inputFile) < 3:
       inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/CMSSW_6_2_0_pre5/src/gem_digi_ana.root'
+      inputFile = '/afs/cern.ch/user/d/dildick/work/GEM/fixStripsPads/test2/CMSSW_6_2_0_SLHC5/src/gem_digi_ana.root'
   targetDir = './'
   ## extension for figures - add more?
   ext = ".png"
   
-  ## npads
-  npads = 96
+  ## strips and pads
+  nstripsGE11 = 384
+  nstripsGE11 = 768
+  npadsGE11 = 96
+  npadsGE21 = 192
 
   ## Trees
   analyzer = "GEMDigiAnalyzer"
@@ -74,15 +78,33 @@ if __name__ == "__main__":
   draw_occ(targetDir, "strip_dg_phistrip_rp1_l2", ext, treeDigis, "Digi occupancy: region1 layer2; phi [rad]; strip", 
 	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "strip:g_phi", AND(rp1,l2), "COLZ")
  
-  draw_1D(targetDir, "strip_dg_rm1_l1", ext, treeDigis, "Digi occupancy per strip number, region-1 layer1;strip number;entries", 
-	  "h_", "(384,0.5,384.5)", "strip", AND(rm1,l1))
-  draw_1D(targetDir, "strip_dg_rm1_l2", ext, treeDigis, "Digi occupancy per strip number, region-1 layer2;strip number;entries", 
-	  "h_", "(384,0.5,384.5)", "strip", AND(rm1,l2))
-  draw_1D(targetDir, "strip_dg_rp1_l1", ext, treeDigis, "Digi occupancy per strip number, region1 layer1;strip number;entries", 
-	  "h_", "(384,0.5,384.5)", "strip", AND(rp1,l1))
-  draw_1D(targetDir, "strip_dg_rp1_l2", ext, treeDigis, "Digi occupancy per strip number, region1 layer2;strip number;entries", 
-	  "h_", "(384,0.5,384.5)", "strip", AND(rp1,l2))
+  draw_1D(targetDir, "strip_dg_rm1_st1_l1", ext, treeDigis, "Digi occupancy per strip number, region-1 station1 layer1;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "strip", AND(rm1,st1,l1))
+  draw_1D(targetDir, "strip_dg_rm1_st1_l2", ext, treeDigis, "Digi occupancy per strip number, region-1 station1 layer2;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "strip", AND(rm1,st1,l2))
+  draw_1D(targetDir, "strip_dg_rp1_st1_l1", ext, treeDigis, "Digi occupancy per strip number, region1 station1 layer1;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "strip", AND(rp1,st1,l1))
+  draw_1D(targetDir, "strip_dg_rp1_st1_l2", ext, treeDigis, "Digi occupancy per strip number, region1 station1 layer2;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "strip", AND(rp1,st1,l2))
   
+  draw_1D(targetDir, "strip_dg_rm1_st2_l1", ext, treeDigis, "Digi occupancy per strip number, region-1 station2 layer1;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "strip", AND(rm1,st2,l1))
+  draw_1D(targetDir, "strip_dg_rm1_st2_l2", ext, treeDigis, "Digi occupancy per strip number, region-1 station2 layer2;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "strip", AND(rm1,st2,l2))
+  draw_1D(targetDir, "strip_dg_rp1_st2_l1", ext, treeDigis, "Digi occupancy per strip number, region1 station2 layer1;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "strip", AND(rp1,st2,l1))
+  draw_1D(targetDir, "strip_dg_rp1_st2_l2", ext, treeDigis, "Digi occupancy per strip number, region1 station2 layer2;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "strip", AND(rp1,st2,l2))
+
+  draw_1D(targetDir, "strip_dg_rm1_st3_l1", ext, treeDigis, "Digi occupancy per strip number, region-1 station3 layer1;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "strip", AND(rm1,st3,l1))
+  draw_1D(targetDir, "strip_dg_rm1_st3_l2", ext, treeDigis, "Digi occupancy per strip number, region-1 station3 layer2;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "strip", AND(rm1,st3,l2))
+  draw_1D(targetDir, "strip_dg_rp1_st3_l1", ext, treeDigis, "Digi occupancy per strip number, region1 station3 layer1;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "strip", AND(rp1,st3,l1))
+  draw_1D(targetDir, "strip_dg_rp1_st3_l2", ext, treeDigis, "Digi occupancy per strip number, region1 station3 layer2;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "strip", AND(rp1,st3,l2))
+
   ## Bunch crossing plots
   draw_bx(targetDir, "strip_digi_bx_rm1_l1", ext, treeDigis, "Bunch crossing: region-1, layer1;bunch crossing;entries", 
 	  "h_", "(11,-5.5,5.5)", "bx", AND(rm1,l1))
@@ -112,25 +134,61 @@ if __name__ == "__main__":
   draw_occ(targetDir, "pad_dg_zr_rp1", ext, treePads, "Pad occupancy: region1; globalZ [cm]; globalR [cm]", 
 	   "h_", "(200,564,573,55,130,240)", "g_r:g_z", rp1, "COLZ")
 
-  draw_occ(targetDir, "pad_dg_phipad_rm1_l1", ext, treePads, "Pad occupancy: region-1 layer1; phi [rad]; pad", 
-	   "h_", "(280,-3.141592654,3.141592654, %f" %(npads/2.) + ",0, %f" %(npads) + ")", "pad:g_phi", AND(rm1,l1), "COLZ")
-  draw_occ(targetDir, "pad_dg_phipad_rm1_l2", ext, treePads, "Pad occupancy: region-1 layer2; phi [rad]; pad", 
-	   "h_", "(280,-3.141592654,3.141592654, %f" %(npads/2.) + ",0, %f" %(npads) + ")", "pad:g_phi", AND(rm1,l2), "COLZ")
-  draw_occ(targetDir, "pad_dg_phipad_rp1_l1", ext, treePads, "Pad occupancy: region1 layer1; phi [rad]; pad", 
-	   "h_", "(280,-3.141592654,3.141592654, %f" %(npads/2.) + ",0, %f" %(npads) + ")", "pad:g_phi", AND(rp1,l1), "COLZ")
-  draw_occ(targetDir, "pad_dg_phipad_rp1_l2", ext, treePads, "Pad occupancy: region1 layer2; phi [rad]; pad", 
-	   "h_", "(280,-3.141592654,3.141592654, %f" %(npads/2.) + ",0, %f" %(npads) + ")", "pad:g_phi", AND(rp1,l2), "COLZ")
- 
-  draw_1D(targetDir, "pad_dg_rm1_l1", ext, treePads, "Digi occupancy per pad number, region-1 layer1;pad number;entries", 
-	  "h_", "( %f" %(npads) + ",0.5, %f" %(npads + 0.5) + ")", "pad", AND(rm1,l1))
-  draw_1D(targetDir, "pad_dg_rm1_l2", ext, treePads, "Digi occupancy per pad number, region-1 layer2;pad number;entries", 
-	  "h_", "( %f" %(npads) + ",0.5, %f" %(npads + 0.5) + ")", "pad", AND(rm1,l2))
-  draw_1D(targetDir, "pad_dg_rp1_l1", ext, treePads, "Digi occupancy per pad number, region1 layer1;pad number;entries", 
-	  "h_", "( %f" %(npads) + ",0.5, %f" %(npads + 0.5) + ")", "pad", AND(rp1,l1))
-  draw_1D(targetDir, "pad_dg_rp1_l2", ext, treePads, "Digi occupancy per pad number, region1 layer2;pad number;entries", 
-	  "h_", "( %f" %(npads) + ",0.5, %f" %(npads + 0.5) + ")", "pad", AND(rp1,l2))
+  draw_occ(targetDir, "pad_dg_phipad_rm1_st1_l1", ext, treePads, "Pad occupancy: region-1 station1 layer1; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE11/2.) + ",0, %f" %(npadsGE11) + ")", "pad:g_phi", AND(rm1,st1,l1), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rm1_st1_l2", ext, treePads, "Pad occupancy: region-1 station1 layer2; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE11/2.) + ",0, %f" %(npadsGE11) + ")", "pad:g_phi", AND(rm1,st1,l2), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rp1_st1_l1", ext, treePads, "Pad occupancy: region1 station1 layer1; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE11/2.) + ",0, %f" %(npadsGE11) + ")", "pad:g_phi", AND(rp1,st1,l1), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rp1_st1_l2", ext, treePads, "Pad occupancy: region1 station1 layer2; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE11/2.) + ",0, %f" %(npadsGE11) + ")", "pad:g_phi", AND(rp1,st1,l2), "COLZ")
 
-  ## Bunch crossing plots
+  draw_occ(targetDir, "pad_dg_phipad_rm1_st2_l1", ext, treePads, "Pad occupancy: region-1 station2 layer1; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE21/2.) + ",0, %f" %(npadsGE21) + ")", "pad:g_phi", AND(rm1,st2,l1), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rm1_st2_l2", ext, treePads, "Pad occupancy: region-1 station2 layer2; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE21/2.) + ",0, %f" %(npadsGE21) + ")", "pad:g_phi", AND(rm1,st2,l2), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rp1_st2_l1", ext, treePads, "Pad occupancy: region1 station2 layer1; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE21/2.) + ",0, %f" %(npadsGE21) + ")", "pad:g_phi", AND(rp1,st2,l1), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rp1_st2_l2", ext, treePads, "Pad occupancy: region1 station2 layer2; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE21/2.) + ",0, %f" %(npadsGE21) + ")", "pad:g_phi", AND(rp1,st2,l2), "COLZ")
+
+  draw_occ(targetDir, "pad_dg_phipad_rm1_st3_l1", ext, treePads, "Pad occupancy: region-1 station3 layer1; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE21/2.) + ",0, %f" %(npadsGE21) + ")", "pad:g_phi", AND(rm1,st3,l1), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rm1_st3_l2", ext, treePads, "Pad occupancy: region-1 station3 layer2; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE21/2.) + ",0, %f" %(npadsGE21) + ")", "pad:g_phi", AND(rm1,st3,l2), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rp1_st3_l1", ext, treePads, "Pad occupancy: region1 station3 layer1; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE21/2.) + ",0, %f" %(npadsGE21) + ")", "pad:g_phi", AND(rp1,st3,l1), "COLZ")
+  draw_occ(targetDir, "pad_dg_phipad_rp1_st3_l2", ext, treePads, "Pad occupancy: region1 station3 layer2; phi [rad]; pad", 
+	   "h_", "(280,-3.141592654,3.141592654, %f" %(npadsGE21/2.) + ",0, %f" %(npadsGE21) + ")", "pad:g_phi", AND(rp1,st3,l2), "COLZ")
+
+  draw_1D(targetDir, "pad_dg_rm1_st1_l1", ext, treePads, "Digi occupancy per pad number, region-1 station1 layer1;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rm1,st1,l1))
+  draw_1D(targetDir, "pad_dg_rm1_st1_l2", ext, treePads, "Digi occupancy per pad number, region-1 station1 layer2;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rm1,st1,l2))
+  draw_1D(targetDir, "pad_dg_rp1_st1_l1", ext, treePads, "Digi occupancy per pad number, region1 station1 layer1;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rp1,st1,l1))
+  draw_1D(targetDir, "pad_dg_rp1_st1_l2", ext, treePads, "Digi occupancy per pad number, region1 station1 layer2;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rp1,st1,l2))
+
+  draw_1D(targetDir, "pad_dg_rm1_st2_l1", ext, treePads, "Digi occupancy per pad number, region-1 station2 layer1;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rm1,st2,l1))
+  draw_1D(targetDir, "pad_dg_rm1_st2_l2", ext, treePads, "Digi occupancy per pad number, region-1 station2 layer2;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rm1,st2,l2))
+  draw_1D(targetDir, "pad_dg_rp1_st2_l1", ext, treePads, "Digi occupancy per pad number, region1 station2 layer1;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rp1,st2,l1))
+  draw_1D(targetDir, "pad_dg_rp1_st2_l2", ext, treePads, "Digi occupancy per pad number, region1 station2 layer2;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rp1,st2,l2))
+
+    draw_1D(targetDir, "pad_dg_rm1_st3_l1", ext, treePads, "Digi occupancy per pad number, region-1 station3 layer1;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rm1,st3,l1))
+  draw_1D(targetDir, "pad_dg_rm1_st3_l2", ext, treePads, "Digi occupancy per pad number, region-1 station3 layer2;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rm1,st3,l2))
+  draw_1D(targetDir, "pad_dg_rp1_st3_l1", ext, treePads, "Digi occupancy per pad number, region1 station3 layer1;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rp1,st3,l1))
+  draw_1D(targetDir, "pad_dg_rp1_st3_l2", ext, treePads, "Digi occupancy per pad number, region1 station3 layer2;pad number;entries", 
+	  "h_", "( %f" %(npadsGE11) + ",0.5, %f" %(npadsGE11 + 0.5) + ")", "pad", AND(rp1,st3,l2))
+
+## Bunch crossing plots
   draw_bx(targetDir, "pad_dg_bx_rm1_l1", ext, treePads, "Bunch crossing: region-1, layer1;bunch crossing;entries", 
 	  "h_", "(11,-5.5,5.5)", "bx", AND(rm1,l1))
   draw_bx(targetDir, "pad_dg_bx_rm1_l2", ext, treePads, "Bunch crossing: region-1, layer2;bunch crossing;entries", 
