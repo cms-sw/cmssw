@@ -29,21 +29,23 @@ namespace evf
 
     void setInitMessageFile(std::string const&);
     void setOutputFile(std::string const&);
+    void closeOutputFile();
+
     void doOutputHeader(InitMsgBuilder const& init_message);    
     void doOutputHeader(InitMsgView const& init_message);    
 
     void doOutputEvent(EventMsgBuilder const& msg);
     void doOutputEvent(EventMsgView const& msg);
 
-    void start(){}
+    void start(){};
     void stop(){};
 
     uint32 get_adler32() const { return stream_writer_events_->adler32();}
 
   private:
 
-    std::auto_ptr<StreamerOutputFile> stream_writer_preamble_;
-    std::auto_ptr<StreamerOutputFile> stream_writer_events_;
+    boost::shared_ptr<StreamerOutputFile> stream_writer_preamble_;
+    boost::shared_ptr<StreamerOutputFile> stream_writer_events_;
 
   };
 }

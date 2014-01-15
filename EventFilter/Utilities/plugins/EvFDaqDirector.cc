@@ -618,6 +618,7 @@ namespace evf {
   }
   
   void EvFDaqDirector::unlockAndCloseMergeStream() {
+    fflush(data_rw_stream);
     fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_fulk);
     fclose(data_rw_stream);
   }
