@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <SolidSection label="shashlikmodule.xml">
+  <Box name ="ShashlikModule" dz="1*m" dy="1*m" dx="1*m" />
+ </SolidSection>
+ 
+ <LogicalPartSection label="shashlikmodule.xml">
+  <LogicalPart name="ShashlikModule" category="unspecified">
+    <rSolid name="ShashlikModule"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <Algorithm name="shashlik:DDShashlikModule">
+  <rParent name="shashlikmodule:ShashlikModule"/>
+  <String name="ChildName" value="shashlikcapsule:ShashlikCapsule"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo"  value="2"/>
+  <Numeric name="invert"      value="1"/>
+  <Numeric name="stepAngle"   value="20*deg"/>
+  <Numeric name="startAngle"  value="0*deg"/>
+  <Numeric name="rPosition"   value="10*cm"/>
+  <Numeric name="zoffset"     value="10*cm"/>
+ </Algorithm>
+
+</DDDefinition>
