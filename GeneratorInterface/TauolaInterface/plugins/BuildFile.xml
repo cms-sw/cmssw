@@ -12,13 +12,3 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library   file="TauSpinner/*.cc" name="TauSpinnerInterface">
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="SimDataFormats/GeneratorProducts"/>
-  <use name="tauolapp"/>
-  <use name="lhapdf"/>
-  <use name="root"/>
-  <use name="clhep"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
