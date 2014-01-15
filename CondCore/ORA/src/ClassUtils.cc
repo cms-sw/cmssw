@@ -60,6 +60,10 @@ bool ora::ClassUtils::checkMappedType( const edm::TypeWithDict& type,
     return mappedTypeName=="int";
   } else if ( isTypeOraVector( type ) ){
     return isTypeNameOraVector( mappedTypeName );
+  } else if ( type.qualifiedName()=="Long64_t" ){
+    return (mappedTypeName=="Long64_t" || mappedTypeName=="long long");
+  } else if ( type.qualifiedName()=="unsigned Long64_t" ){
+    return (mappedTypeName=="unsigned Long64_t" || mappedTypeName=="unsigned long long");
   } else {
     return type.qualifiedName()==mappedTypeName;
   }
@@ -418,7 +422,7 @@ edm::TypeWithDict ora::ClassUtils::containerSubType(const edm::TypeWithDict& typ
 edm::TypeWithDict ora::ClassUtils::resolvedType(const edm::TypeWithDict& typ){
   edm::TypeWithDict resolvedType = typ;
   while(resolvedType.isTypedef()){
-    resolvedType = resolvedType.toType();
+    resolvedType = resolvedType.finalType();
   }
   return resolvedType;
 }
