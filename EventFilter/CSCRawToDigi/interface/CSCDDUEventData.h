@@ -27,7 +27,7 @@ public:
 
   ~CSCDDUEventData();
 
-  static void setDebug(bool value) {debug.store(value,std::memory_order_release);} 
+  static void setDebug(bool value) {debug = value;} 
   static void setErrorMask(unsigned int value) {errMask = value;} 
 
   /// accessor to data

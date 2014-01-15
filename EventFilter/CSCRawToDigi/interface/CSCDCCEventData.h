@@ -19,7 +19,7 @@ public:
 
   ~CSCDCCEventData();
 
-  static void setDebug(bool value) {debug.store(value,std::memory_order_release);} 
+  static void setDebug(bool value) {debug = value;} 
  
   /// accessor to dduData
   const std::vector<CSCDDUEventData> & dduData() const {return theDDUData;}

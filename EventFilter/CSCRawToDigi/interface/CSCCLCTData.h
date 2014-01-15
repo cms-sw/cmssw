@@ -27,7 +27,7 @@ public:
   CSCCLCTData(int ncfebs, int ntbins, const unsigned short *e0bbuf);
 
   /** turns on/off debug flag for this class */
-  static void setDebug(const bool value) {debug.store(value,std::memory_order_release);};
+  static void setDebug(const bool value) {debug = value;};
 
   /// layers count from one
   std::vector<CSCComparatorDigi> comparatorDigis(int layer);
