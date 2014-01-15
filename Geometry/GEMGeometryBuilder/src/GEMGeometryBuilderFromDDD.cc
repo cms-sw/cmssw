@@ -223,7 +223,6 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
   auto& superChambers(geometry->superChambers());
   // construct the regions, stations and rings. 
-  std::cout << "maxStation " << maxStation << std::endl;
   for (int re = -1; re <= 1; re = re+2) {
     GEMRegion* region = new GEMRegion(re); 
     for (int st=1; st<=maxStation; ++st) {
