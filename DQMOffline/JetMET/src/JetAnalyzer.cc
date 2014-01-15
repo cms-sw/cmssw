@@ -288,7 +288,8 @@ void JetAnalyzer::beginJob(void) {
     mConstituents = dbe_->book1D("Constituents", "# of constituents",     50,      0,    100);
   }
   mJetEnergyCorr= dbe_->book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
-  mJetEnergyCorrVsEta= dbe_->bookProfile("JetEnergyCorrVsEta", "jet energy correction factor Vs eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
+  mJetEnergyCorrVSEta= dbe_->bookProfile("JetEnergyCorrVSEta", "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
+  mJetEnergyCorrVSPt= dbe_->bookProfile("JetEnergyCorrVSPt", "jet energy correction factor VS pt", ptBin_, ptMin_,ptMax_, 0.0,3.0);
   mHFrac        = dbe_->book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
   mEFrac        = dbe_->book1D("EFrac",        "EFrac",                140,   -0.2,    1.2);
 
@@ -320,6 +321,7 @@ void JetAnalyzer::beginJob(void) {
   if(!jetCleaningFlag_){//fillJIDPassFrac_ defines a collection of cleaned jets, for which we will want to fill the cleaning passing fraction
     mLooseJIDPassFractionVSeta      = dbe_->bookProfile("JetIDPassFractionVSeta","JetIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
     mLooseJIDPassFractionVSpt       = dbe_->bookProfile("JetIDPassFractionVSpt","JetIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mLooseJIDPassFractionVSptNoHF   = dbe_->bookProfile("JetIDPassFractionVSptNoHF","JetIDPassFractionVSptNoHF",ptBin_, ptMin_, ptMax_,0.,1.2);
   }
 
   if (!diJetSelectionFlag_ ){
@@ -377,8 +379,8 @@ void JetAnalyzer::beginJob(void) {
     if(!isJPTJet_){
       mConstituents_EndCap     = dbe_->book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100);
     }
-    mHFrac_EndCap            = dbe_->book1D("HFrac_Endcap", "HFrac EndCap", 100, 0, 1);
-    mEFrac_EndCap            = dbe_->book1D("EFrac_Endcap", "EFrac EndCap", 110, -0.05, 1.05);
+    mHFrac_EndCap            = dbe_->book1D("HFrac_EndCap", "HFrac EndCap", 100, 0, 1);
+    mEFrac_EndCap            = dbe_->book1D("EFrac_EndCap", "EFrac EndCap", 110, -0.05, 1.05);
     
     //mPt_Forward_Lo           = dbe_->book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 20, 0, 100);  
     //mPhi_Forward_Lo          = dbe_->book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
@@ -431,6 +433,8 @@ void JetAnalyzer::beginJob(void) {
   //
   //--- Calo jet selection only
   if(isCaloJet_) {
+    jetME = dbe_->book1D("jetReco", "jetReco", 3, 1, 4);
+    jetME->setBinLabel(1,"CaloJets",1);
 
     // CaloJet specific
     mMaxEInEmTowers         = dbe_->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100);
@@ -462,9 +466,9 @@ void JetAnalyzer::beginJob(void) {
      mP   = dbe_->book1D("P", "P", ptBin_, ptMin_, ptMax_);
      mPtSecond = dbe_->book1D("PtSecond", "PtSecond", ptBin_, ptMin_, ptMax_);
      mPtThird = dbe_->book1D("PtThird", "PtThird", ptBin_, ptMin_, ptMax_);
-     mPx  = dbe_->book1D("Px", "Px", ptBin_, ptMin_, ptMax_);
-     mPy  = dbe_->book1D("Py", "Py", ptBin_, ptMin_, ptMax_);
-     mPz  = dbe_->book1D("Pz", "Pz", ptBin_, ptMin_, ptMax_);
+     mPx  = dbe_->book1D("Px", "Px", ptBin_, 0., ptMax_);
+     mPy  = dbe_->book1D("Py", "Py", ptBin_, 0., ptMax_);
+     mPz  = dbe_->book1D("Pz", "Pz", ptBin_, 0., ptMax_);
 
      //JetID variables
      
@@ -474,89 +478,89 @@ void JetAnalyzer::beginJob(void) {
      mfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
      
      mnTracks  = dbe_->book1D("nTracks", "number of tracks for correction per jet", 100, 0, 100);
-     mnTracksVsJetPt= dbe_->bookProfile("nTracksVSJetPt","number of tracks for correction per jet vs raw jet p_{T}",ptBin_, ptMin_, ptMax_,100,0,100);
-     mnTracksVsJetEta= dbe_->bookProfile("nTracksVsJetEta","number of tracks for correction per jet vs jet #eta",etaBin_, etaMin_, etaMax_,100,0,100);
-     mnTracksVsJetPt ->setAxisTitle("raw JetPt",1);
-     mnTracksVsJetEta ->setAxisTitle("raw JetEta",1);
+     mnTracksVSJetPt= dbe_->bookProfile("nTracksVSJetPt","number of tracks for correction per jet vs raw jet p_{T}",ptBin_, ptMin_, ptMax_,100,0,100);
+     mnTracksVSJetEta= dbe_->bookProfile("nTracksVSJetEta","number of tracks for correction per jet vs jet #eta",etaBin_, etaMin_, etaMax_,100,0,100);
+     mnTracksVSJetPt ->setAxisTitle("raw JetPt",1);
+     mnTracksVSJetEta ->setAxisTitle("raw JetEta",1);
      //define meaningful limits
 
      //ntrackbins,0,ntrackbins
-     mnallPionsTracksPerJet=dbe_->book1D("nallPionTracks", "number of pion tracks for correction per jet", 100, 0, 100);
+     mnallPionTracksPerJet=dbe_->book1D("nallPionTracks", "number of pion tracks for correction per jet", 100, 0, 100);
      //trackptbins,0,trackptmax
      //introduce etamax?
-     mallPionsTracksPt=dbe_->book1D("allPionTrackPt", "pion track p_{T}", 100, 0., 50.);
-     mallPionsTracksEta=dbe_->book1D("allPionTrackEta", "pion track #eta", 50, -2.5, 2.5);
+     mallPionTracksPt=dbe_->book1D("allPionTracksPt", "pion track p_{T}", 100, 0., 50.);
+     mallPionTracksEta=dbe_->book1D("allPionTracksEta", "pion track #eta", 50, -2.5, 2.5);
      //phibins,phimax,phimin
-     mallPionsTracksPhi=dbe_->book1D("allPionTracksPhi", "pion track #phi", phiBin_,phiMin_, phiMax_);
+     mallPionTracksPhi=dbe_->book1D("allPionTracksPhi", "pion track #phi", phiBin_,phiMin_, phiMax_);
      //etabins/etamax/etamin
-     mallPionsTracksPtVsEta=dbe_->bookProfile("allPionTracksPtVsEta", "pion track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
+     mallPionTracksPtVSEta=dbe_->bookProfile("allPionTracksPtVSEta", "pion track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnInVertexInCaloPionsTracksPerJet=dbe_->book1D("nInVertexInCaloPionTracks", "number of pion in cone at calo and vertexs for correction per jet", 100, 0, 100);
-     mInVertexInCaloPionsTracksPt=dbe_->book1D("InVertexInCaloPionTrackPt", "pion in cone at calo and vertex p_{T}", 100, 0., 50.);
-     mInVertexInCaloPionsTracksEta=dbe_->book1D("InVertexInCaloPionTrackEta", "pion in cone at calo and vertex #eta", 50, -2.5, 2.5);
-     mInVertexInCaloPionsTracksPhi=dbe_->book1D("InVertexInCaloPionTracksPhi", "pion in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
-     mInVertexInCaloPionsTracksPtVsEta=dbe_->bookProfile("InVertexInCaloPionTracksPtVsEta", "pion in cone at calo and vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnInVertexInCaloPionTracksPerJet=dbe_->book1D("nInVertexInCaloPionTracks", "number of pion in cone at calo and vertexs for correction per jet", 100, 0, 100);
+     mInVertexInCaloPionTracksPt=dbe_->book1D("InVertexInCaloPionTracksPt", "pion in cone at calo and vertex p_{T}", 100, 0., 50.);
+     mInVertexInCaloPionTracksEta=dbe_->book1D("InVertexInCaloPionTracksEta", "pion in cone at calo and vertex #eta", 50, -2.5, 2.5);
+     mInVertexInCaloPionTracksPhi=dbe_->book1D("InVertexInCaloPionTracksPhi", "pion in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
+     mInVertexInCaloPionTracksPtVSEta=dbe_->bookProfile("InVertexInCaloPionTracksPtVSEta", "pion in cone at calo and vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
      //monitor element trackDirectionJetDRHisto
      //monitor element trackImpactPointJetDRHisto
-     mnOutVertexInCaloPionsTracksPerJet=dbe_->book1D("nOutVertexInCaloPionTracks", "number of pion in cone at calo and out at vertex for correction per jet", 100, 0, 100);
-     mOutVertexInCaloPionsTracksPt=dbe_->book1D("OutVertexInCaloPionTrackPt", "pion in cone at calo and out at vertex p_{T}", 100, 0., 50.);
-     mOutVertexInCaloPionsTracksEta=dbe_->book1D("OutVertexInCaloPionTrackEta", "pion in cone at calo and out at vertex #eta", 50, -2.5, 2.5);
-     mOutVertexInCaloPionsTracksPhi=dbe_->book1D("OutVertexInCaloPionTracksPhi", "pion in cone at calo and out at vertex #phi", phiBin_,phiMin_, phiMax_);
-     mOutVertexInCaloPionsTracksPtVsEta=dbe_->bookProfile("OutVertexInCaloPionTracksPtVsEta", "pion in cone at calo and out at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnOutVertexInCaloPionTracksPerJet=dbe_->book1D("nOutVertexInCaloPionTracks", "number of pion in cone at calo and out at vertex for correction per jet", 100, 0, 100);
+     mOutVertexInCaloPionTracksPt=dbe_->book1D("OutVertexInCaloPionTracksPt", "pion in cone at calo and out at vertex p_{T}", 100, 0., 50.);
+     mOutVertexInCaloPionTracksEta=dbe_->book1D("OutVertexInCaloPionTracksEta", "pion in cone at calo and out at vertex #eta", 50, -2.5, 2.5);
+     mOutVertexInCaloPionTracksPhi=dbe_->book1D("OutVertexInCaloPionTracksPhi", "pion in cone at calo and out at vertex #phi", phiBin_,phiMin_, phiMax_);
+     mOutVertexInCaloPionTracksPtVSEta=dbe_->bookProfile("OutVertexInCaloPionTracksPtVSEta", "pion in cone at calo and out at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnInVertexOutCaloPionsTracksPerJet=dbe_->book1D("nInVertexOutCaloPionTracks", "number of pions out cone at calo and and in cone at vertex for correction per jet", 100, 0, 100);
-     mInVertexOutCaloPionsTracksPt=dbe_->book1D("InVertexOutCaloPionTrackPt", "pion out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
-     mInVertexOutCaloPionsTracksEta=dbe_->book1D("InVertexOutCaloPionTrackEta", "pion out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
-     mInVertexOutCaloPionsTracksPhi=dbe_->book1D("InVertexOutCaloPionTracksPhi", "pion out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-     mInVertexOutCaloPionsTracksPtVsEta=dbe_->bookProfile("InVertexOutCaloPionTracksPtVsEta", "pion out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnInVertexOutCaloPionTracksPerJet=dbe_->book1D("nInVertexOutCaloPionTracks", "number of pions out cone at calo and and in cone at vertex for correction per jet", 100, 0, 100);
+     mInVertexOutCaloPionTracksPt=dbe_->book1D("InVertexOutCaloPionTracksPt", "pion out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
+     mInVertexOutCaloPionTracksEta=dbe_->book1D("InVertexOutCaloPionTracksEta", "pion out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
+     mInVertexOutCaloPionTracksPhi=dbe_->book1D("InVertexOutCaloPionTracksPhi", "pion out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+     mInVertexOutCaloPionTracksPtVSEta=dbe_->bookProfile("InVertexOutCaloPionTracksPtVSEta", "pion out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnallMuonsTracksPerJet=dbe_->book1D("nallMuonTracks", "number of muon tracks for correction per jet", 10, 0, 10);
-     mallMuonsTracksPt=dbe_->book1D("allMuonTrackPt", "muon track p_{T}", 100, 0., 50.);
-     mallMuonsTracksEta=dbe_->book1D("allMuonTrackEta", "muon track #eta", 50, -2.5, 2.5);
-     mallMuonsTracksPhi=dbe_->book1D("allMuonTracksPhi", "muon track #phi", phiBin_,phiMin_, phiMax_);
-     mallMuonsTracksPtVsEta=dbe_->bookProfile("allMuonTracksPtVsEta", "muon track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnallMuonTracksPerJet=dbe_->book1D("nallMuonTracks", "number of muon tracks for correction per jet", 10, 0, 10);
+     mallMuonTracksPt=dbe_->book1D("allMuonTracksPt", "muon track p_{T}", 100, 0., 50.);
+     mallMuonTracksEta=dbe_->book1D("allMuonTrackEta", "muon track #eta", 50, -2.5, 2.5);
+     mallMuonTracksPhi=dbe_->book1D("allMuonTracksPhi", "muon track #phi", phiBin_,phiMin_, phiMax_);
+     mallMuonTracksPtVSEta=dbe_->bookProfile("allMuonTracksPtVSEta", "muon track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
  
-     mnInVertexInCaloMuonsTracksPerJet=dbe_->book1D("nInVertexInCaloMuonTracks", "number of muons in cone at calo and vertex for correction per jet", 10, 0, 10);
-     mInVertexInCaloMuonsTracksPt=dbe_->book1D("InVertexInCaloMuonTrackPt", "muon in cone at calo and vertex p_{T}", 100, 0., 50.);
-     mInVertexInCaloMuonsTracksEta=dbe_->book1D("InVertexInCaloMuonTrackEta", "muon in cone at calo and vertex #eta", 50, -2.5, 2.5);
-     mInVertexInCaloMuonsTracksPhi=dbe_->book1D("InVertexInCaloMuonTracksPhi", "muon in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
-     mInVertexInCaloMuonsTracksPtVsEta=dbe_->bookProfile("InVertexInCaloMuonTracksPtVsEta", "muon in cone at calo and vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnInVertexInCaloMuonTracksPerJet=dbe_->book1D("nInVertexInCaloMuonTracks", "number of muons in cone at calo and vertex for correction per jet", 10, 0, 10);
+     mInVertexInCaloMuonTracksPt=dbe_->book1D("InVertexInCaloMuonTracksPt", "muon in cone at calo and vertex p_{T}", 100, 0., 50.);
+     mInVertexInCaloMuonTracksEta=dbe_->book1D("InVertexInCaloMuonTracksEta", "muon in cone at calo and vertex #eta", 50, -2.5, 2.5);
+     mInVertexInCaloMuonTracksPhi=dbe_->book1D("InVertexInCaloMuonTracksPhi", "muon in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
+     mInVertexInCaloMuonTracksPtVSEta=dbe_->bookProfile("InVertexInCaloMuonTracksPtVSEta", "muon in cone at calo and vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnOutVertexInCaloMuonsTracksPerJet=dbe_->book1D("nOutVertexInCaloMuonTracks", "number of muons in cone at calo and out cone at vertex for correction per jet", 10, 0, 10);
-     mOutVertexInCaloMuonsTracksPt=dbe_->book1D("OutVertexInCaloMuonTrackPt", "muon in cone at calo and out cone at vertex p_{T}", 100, 0., 50.);
-     mOutVertexInCaloMuonsTracksEta=dbe_->book1D("OutVertexInCaloMuonTrackEta", "muon in cone at calo and out cone at vertex #eta", 50, -2.5, 2.5);
-     mOutVertexInCaloMuonsTracksPhi=dbe_->book1D("OutVertexInCaloMuonTracksPhi", "muon in cone at calo and out cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-     mOutVertexInCaloMuonsTracksPtVsEta=dbe_->bookProfile("OutVertexInCaloMuonTracksPtVsEta", "muon oin cone at calo and out cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnOutVertexInCaloMuonTracksPerJet=dbe_->book1D("nOutVertexInCaloMuonTracks", "number of muons in cone at calo and out cone at vertex for correction per jet", 10, 0, 10);
+     mOutVertexInCaloMuonTracksPt=dbe_->book1D("OutVertexInCaloMuonTracksPt", "muon in cone at calo and out cone at vertex p_{T}", 100, 0., 50.);
+     mOutVertexInCaloMuonTracksEta=dbe_->book1D("OutVertexInCaloMuonTracksEta", "muon in cone at calo and out cone at vertex #eta", 50, -2.5, 2.5);
+     mOutVertexInCaloMuonTracksPhi=dbe_->book1D("OutVertexInCaloMuonTracksPhi", "muon in cone at calo and out cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+     mOutVertexInCaloMuonTracksPtVSEta=dbe_->bookProfile("OutVertexInCaloMuonTracksPtVSEta", "muon oin cone at calo and out cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnInVertexOutCaloMuonsTracksPerJet=dbe_->book1D("nInVertexOutCaloMuonTracks", "number of muons out cone at calo and in cone at vertex for correction per jet", 10, 0, 10);
-     mInVertexOutCaloMuonsTracksPt=dbe_->book1D("InVertexOutCaloMuonTrackPt", "muon out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
-     mInVertexOutCaloMuonsTracksEta=dbe_->book1D("InVertexOutCaloMuonTrackEta", "muon out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
-     mInVertexOutCaloMuonsTracksPhi=dbe_->book1D("InVertexOutCaloMuonTracksPhi", "muon out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-     mInVertexOutCaloMuonsTracksPtVsEta=dbe_->bookProfile("InVertexOutCaloMuonTracksPtVsEta", "muon out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnInVertexOutCaloMuonTracksPerJet=dbe_->book1D("nInVertexOutCaloMuonTracks", "number of muons out cone at calo and in cone at vertex for correction per jet", 10, 0, 10);
+     mInVertexOutCaloMuonTracksPt=dbe_->book1D("InVertexOutCaloMuonTracksPt", "muon out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
+     mInVertexOutCaloMuonTracksEta=dbe_->book1D("InVertexOutCaloMuonTracksEta", "muon out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
+     mInVertexOutCaloMuonTracksPhi=dbe_->book1D("InVertexOutCaloMuonTracksPhi", "muon out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+     mInVertexOutCaloMuonTracksPtVSEta=dbe_->bookProfile("InVertexOutCaloMuonTracksPtVSEta", "muon out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnallElectronsTracksPerJet=dbe_->book1D("nallElectronTracks", "number of electron tracks for correction per jet", 10, 0, 10);
-     mallElectronsTracksPt=dbe_->book1D("allElectronTrackPt", "electron track p_{T}", 100, 0., 50.);
-     mallElectronsTracksEta=dbe_->book1D("allElectronTrackEta", "electron track #eta", 50, -2.5, 2.5);
-     mallElectronsTracksPhi=dbe_->book1D("allElectronTracksPhi", "electron track #phi", phiBin_,phiMin_, phiMax_);
-     mallElectronsTracksPtVsEta=dbe_->bookProfile("allElectronTracksPtVsEta", "electron track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnallElectronTracksPerJet=dbe_->book1D("nallElectronTracks", "number of electron tracks for correction per jet", 10, 0, 10);
+     mallElectronTracksPt=dbe_->book1D("allElectronTracksPt", "electron track p_{T}", 100, 0., 50.);
+     mallElectronTracksEta=dbe_->book1D("allElectronTracksEta", "electron track #eta", 50, -2.5, 2.5);
+     mallElectronTracksPhi=dbe_->book1D("allElectronTracksPhi", "electron track #phi", phiBin_,phiMin_, phiMax_);
+     mallElectronTracksPtVSEta=dbe_->bookProfile("allElectronTracksPtVSEta", "electron track p_{T} vs track #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnInVertexInCaloElectronsTracksPerJet=dbe_->book1D("nInVertexInCaloElectronTracks", "number of electrons in cone at calo and vertex for correction per jet", 10, 0, 10);
-     mInVertexInCaloElectronsTracksPt=dbe_->book1D("InVertexInCaloElectronTrackPt", "electron in cone at calo and vertex p_{T}", 100, 0., 50.);
-     mInVertexInCaloElectronsTracksEta=dbe_->book1D("InVertexInCaloElectronTrackEta", "electron in cone at calo and vertex #eta", 50, -2.5, 2.5);
-     mInVertexInCaloElectronsTracksPhi=dbe_->book1D("InVertexInCaloElectronTracksPhi", "electron in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
-     mInVertexInCaloElectronsTracksPtVsEta=dbe_->bookProfile("InVertexInCaloElectronTracksPtVsEta", "electron in cone at calo and vertex  p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnInVertexInCaloElectronTracksPerJet=dbe_->book1D("nInVertexInCaloElectronTracks", "number of electrons in cone at calo and vertex for correction per jet", 10, 0, 10);
+     mInVertexInCaloElectronTracksPt=dbe_->book1D("InVertexInCaloElectronTracksPt", "electron in cone at calo and vertex p_{T}", 100, 0., 50.);
+     mInVertexInCaloElectronTracksEta=dbe_->book1D("InVertexInCaloElectronTracksEta", "electron in cone at calo and vertex #eta", 50, -2.5, 2.5);
+     mInVertexInCaloElectronTracksPhi=dbe_->book1D("InVertexInCaloElectronTracksPhi", "electron in cone at calo and vertex #phi", phiBin_,phiMin_, phiMax_);
+     mInVertexInCaloElectronTracksPtVSEta=dbe_->bookProfile("InVertexInCaloElectronTracksPtVSEta", "electron in cone at calo and vertex  p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnOutVertexInCaloElectronsTracksPerJet=dbe_->book1D("nOutVertexInCaloElectronTracks", "number of electrons in cone at calo and out cone at vertex for correction per jet", 10, 0, 10);
-     mOutVertexInCaloElectronsTracksPt=dbe_->book1D("OutVertexInCaloElectronTrackPt", "electron in cone at calo and out cone at vertex p_{T}", 100, 0., 50.);
-     mOutVertexInCaloElectronsTracksEta=dbe_->book1D("OutVertexInCaloElectronTrackEta", "electron in cone at calo and out cone at vertex #eta", 50, -2.5, 2.5);
-     mOutVertexInCaloElectronsTracksPhi=dbe_->book1D("OutVertexInCaloElectronTracksPhi", "electron in cone at calo and out cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-     mOutVertexInCaloElectronsTracksPtVsEta=dbe_->bookProfile("OutVertexInCaloElectronTracksPtVsEta", "electron in cone at calo and out cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnOutVertexInCaloElectronTracksPerJet=dbe_->book1D("nOutVertexInCaloElectronTracks", "number of electrons in cone at calo and out cone at vertex for correction per jet", 10, 0, 10);
+     mOutVertexInCaloElectronTracksPt=dbe_->book1D("OutVertexInCaloElectronTracksPt", "electron in cone at calo and out cone at vertex p_{T}", 100, 0., 50.);
+     mOutVertexInCaloElectronTracksEta=dbe_->book1D("OutVertexInCaloElectronTracksEta", "electron in cone at calo and out cone at vertex #eta", 50, -2.5, 2.5);
+     mOutVertexInCaloElectronTracksPhi=dbe_->book1D("OutVertexInCaloElectronTracksPhi", "electron in cone at calo and out cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+     mOutVertexInCaloElectronTracksPtVSEta=dbe_->bookProfile("OutVertexInCaloElectronTracksPtVSEta", "electron in cone at calo and out cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
 
-     mnInVertexOutCaloElectronsTracksPerJet=dbe_->book1D("nInVertexOutCaloElectronTracks", "number of electrons out cone at calo and in cone at vertex for correction per jet", 10, 0, 10);
-     mInVertexOutCaloElectronsTracksPt=dbe_->book1D("InVertexOutCaloElectronTrackPt", "electron out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
-     mInVertexOutCaloElectronsTracksEta=dbe_->book1D("InVertexOutCaloElectronTrackEta", "electron out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
-     mInVertexOutCaloElectronsTracksPhi=dbe_->book1D("InVertexOutCaloElectronTracksPhi", "electron out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
-     mInVertexOutCaloElectronsTracksPtVsEta=dbe_->bookProfile("InVertexOutCaloElectronTracksPtVsEta", "electron out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
+     mnInVertexOutCaloElectronTracksPerJet=dbe_->book1D("nInVertexOutCaloElectronTracks", "number of electrons out cone at calo and in cone at vertex for correction per jet", 10, 0, 10);
+     mInVertexOutCaloElectronTracksPt=dbe_->book1D("InVertexOutCaloElectronTracksPt", "electron out cone at calo and in cone at vertex p_{T}", 100, 0., 50.);
+     mInVertexOutCaloElectronTracksEta=dbe_->book1D("InVertexOutCaloElectronTracksEta", "electron out cone at calo and in cone at vertex #eta", 50, -2.5, 2.5);
+     mInVertexOutCaloElectronTracksPhi=dbe_->book1D("InVertexOutCaloElectronTracksPhi", "electron out cone at calo and in cone at vertex #phi", phiBin_,phiMin_, phiMax_);
+     mInVertexOutCaloElectronTracksPtVSEta=dbe_->bookProfile("InVertexOutCaloElectronTracksPtVSEta", "electron out cone at calo and in cone at vertex p_{T} vs #eta", 50, -2.5, 2.5,100,0.,50.);
 
      mInCaloTrackDirectionJetDRHisto_      = dbe_->book1D("InCaloTrackDirectionJetDR",
 							"#Delta R between track direction at vertex and jet axis (track in cone at calo)",50,0.,2.0);
@@ -610,30 +614,30 @@ void JetAnalyzer::beginJob(void) {
       mMuFrac_highPt_Barrel    = dbe_->book1D("MuFrac_highPt_Barrel", "MuFrac_highPt_Barrel", 120, -0.1, 1.1);
       
       //energies
-      mCHEn_lowPt_Barrel     = dbe_->book1D("CHEn_lowPt_Barrel", "CHEn_lowPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mNHEn_lowPt_Barrel     = dbe_->book1D("NHEn_lowPt_Barrel", "NHEn_lowPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mPhEn_lowPt_Barrel     = dbe_->book1D("PhEn_lowPt_Barrel", "PhEn_lowPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mElEn_lowPt_Barrel     = dbe_->book1D("ElEn_lowPt_Barrel", "ElEn_lowPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mMuEn_lowPt_Barrel     = dbe_->book1D("MuEn_lowPt_Barrel", "MuEn_lowPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mCHEn_mediumPt_Barrel  = dbe_->book1D("CHEn_mediumPt_Barrel", "CHEn_mediumPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mNHEn_mediumPt_Barrel  = dbe_->book1D("NHEn_mediumPt_Barrel", "NHEn_mediumPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mPhEn_mediumPt_Barrel  = dbe_->book1D("PhEn_mediumPt_Barrel", "PhEn_mediumPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mElEn_mediumPt_Barrel  = dbe_->book1D("ElEn_mediumPt_Barrel", "ElEn_mediumPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mMuEn_mediumPt_Barrel  = dbe_->book1D("MuEn_mediumPt_Barrel", "MuEn_mediumPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mCHEn_highPt_Barrel    = dbe_->book1D("CHEn_highPt_Barrel", "CHEn_highPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mNHEn_highPt_Barrel    = dbe_->book1D("NHEn_highPt_Barrel", "NHEn_highPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mPhEn_highPt_Barrel    = dbe_->book1D("PhEn_highPt_Barrel", "PhEn_highPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mElEn_highPt_Barrel    = dbe_->book1D("ElEn_highPt_Barrel", "ElEn_highPt_Barrel", ptBin_, ptMin_, ptMax_);
-      mMuEn_highPt_Barrel    = dbe_->book1D("MuEn_highPt_Barrel", "MuEn_highPt_Barrel", ptBin_, ptMin_, ptMax_);
+      mCHEn_lowPt_Barrel     = dbe_->book1D("CHEn_lowPt_Barrel", "CHEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+      mNHEn_lowPt_Barrel     = dbe_->book1D("NHEn_lowPt_Barrel", "NHEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+      mPhEn_lowPt_Barrel     = dbe_->book1D("PhEn_lowPt_Barrel", "PhEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+      mElEn_lowPt_Barrel     = dbe_->book1D("ElEn_lowPt_Barrel", "ElEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+      mMuEn_lowPt_Barrel     = dbe_->book1D("MuEn_lowPt_Barrel", "MuEn_lowPt_Barrel", ptBin_, 0., ptMax_);
+      mCHEn_mediumPt_Barrel  = dbe_->book1D("CHEn_mediumPt_Barrel", "CHEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+      mNHEn_mediumPt_Barrel  = dbe_->book1D("NHEn_mediumPt_Barrel", "NHEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+      mPhEn_mediumPt_Barrel  = dbe_->book1D("PhEn_mediumPt_Barrel", "PhEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+      mElEn_mediumPt_Barrel  = dbe_->book1D("ElEn_mediumPt_Barrel", "ElEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+      mMuEn_mediumPt_Barrel  = dbe_->book1D("MuEn_mediumPt_Barrel", "MuEn_mediumPt_Barrel", ptBin_, 0., ptMax_);
+      mCHEn_highPt_Barrel    = dbe_->book1D("CHEn_highPt_Barrel", "CHEn_highPt_Barrel", ptBin_, 0., ptMax_);
+      mNHEn_highPt_Barrel    = dbe_->book1D("NHEn_highPt_Barrel", "NHEn_highPt_Barrel", ptBin_, 0., ptMax_);
+      mPhEn_highPt_Barrel    = dbe_->book1D("PhEn_highPt_Barrel", "PhEn_highPt_Barrel", ptBin_, 0., ptMax_);
+      mElEn_highPt_Barrel    = dbe_->book1D("ElEn_highPt_Barrel", "ElEn_highPt_Barrel", ptBin_, 0., ptMax_);
+      mMuEn_highPt_Barrel    = dbe_->book1D("MuEn_highPt_Barrel", "MuEn_highPt_Barrel", ptBin_, 0., ptMax_);
       //multiplicities
       mChMultiplicity_lowPt_Barrel    = dbe_->book1D("ChMultiplicity_lowPt_Barrel", "ChMultiplicity_lowPt_Barrel", 30,0,30);
-      mNeuMultiplicity_lowPt_Barrel   = dbe_->book1D("NeuMultiplicity_lowPt_Barrel", "NeuMultiplicity_lowPt_Barrel", 30,0,30);
+      mNeutMultiplicity_lowPt_Barrel   = dbe_->book1D("NeutMultiplicity_lowPt_Barrel", "NeutMultiplicity_lowPt_Barrel", 30,0,30);
       mMuMultiplicity_lowPt_Barrel    = dbe_->book1D("MuMultiplicity_lowPt_Barrel", "MuMultiplicity_lowPt_Barrel", 30,0,30);
       mChMultiplicity_mediumPt_Barrel    = dbe_->book1D("ChMultiplicity_mediumPt_Barrel", "ChMultiplicity_mediumPt_Barrel", 30,0,30);
-      mNeuMultiplicity_mediumPt_Barrel   = dbe_->book1D("NeuMultiplicity_mediumPt_Barrel", "NeuMultiplicity_mediumPt_Barrel", 30,0,30);
+      mNeutMultiplicity_mediumPt_Barrel   = dbe_->book1D("NeutMultiplicity_mediumPt_Barrel", "NeutMultiplicity_mediumPt_Barrel", 30,0,30);
       mMuMultiplicity_mediumPt_Barrel    = dbe_->book1D("MuMultiplicity_mediumPt_Barrel", "MuMultiplicity_mediumPt_Barrel", 30,0,30);
       mChMultiplicity_highPt_Barrel    = dbe_->book1D("ChMultiplicity_highPt_Barrel", "ChMultiplicity_highPt_Barrel", 30,0,30);
-      mNeuMultiplicity_highPt_Barrel   = dbe_->book1D("NeuMultiplicity_highPt_Barrel", "NeuMultiplicity_highPt_Barrel", 30,0,30);
+      mNeutMultiplicity_highPt_Barrel   = dbe_->book1D("NeutMultiplicity_highPt_Barrel", "NeutMultiplicity_highPt_Barrel", 30,0,30);
       mMuMultiplicity_highPt_Barrel    = dbe_->book1D("MuMultiplicity_highPt_Barrel", "MuMultiplicity_highPt_Barrel", 30,0,30);
       //
       mCHFracVSpT_Barrel= dbe_->bookProfile("CHFracVSpT_Barrel","CHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
@@ -666,30 +670,30 @@ void JetAnalyzer::beginJob(void) {
       mElFrac_highPt_EndCap    = dbe_->book1D("ElFrac_highPt_EndCap", "ElFrac_highPt_EndCap", 120, -0.1, 1.1);
       mMuFrac_highPt_EndCap    = dbe_->book1D("MuFrac_highPt_EndCap", "MuFrac_highPt_EndCap", 120, -0.1, 1.1);
       //energies
-      mCHEn_lowPt_EndCap     = dbe_->book1D("CHEn_lowPt_EndCap", "CHEn_lowPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mNHEn_lowPt_EndCap     = dbe_->book1D("NHEn_lowPt_EndCap", "NHEn_lowPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mPhEn_lowPt_EndCap     = dbe_->book1D("PhEn_lowPt_EndCap", "PhEn_lowPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mElEn_lowPt_EndCap     = dbe_->book1D("ElEn_lowPt_EndCap", "ElEn_lowPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mMuEn_lowPt_EndCap     = dbe_->book1D("MuEn_lowPt_EndCap", "MuEn_lowPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mCHEn_mediumPt_EndCap  = dbe_->book1D("CHEn_mediumPt_EndCap", "CHEn_mediumPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mNHEn_mediumPt_EndCap  = dbe_->book1D("NHEn_mediumPt_EndCap", "NHEn_mediumPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mPhEn_mediumPt_EndCap  = dbe_->book1D("PhEn_mediumPt_EndCap", "PhEn_mediumPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mElEn_mediumPt_EndCap  = dbe_->book1D("ElEn_mediumPt_EndCap", "ElEn_mediumPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mMuEn_mediumPt_EndCap  = dbe_->book1D("MuEn_mediumPt_EndCap", "MuEn_mediumPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mCHEn_highPt_EndCap    = dbe_->book1D("CHEn_highPt_EndCap", "CHEn_highPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mNHEn_highPt_EndCap    = dbe_->book1D("NHEn_highPt_EndCap", "NHEn_highPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mPhEn_highPt_EndCap    = dbe_->book1D("PhEn_highPt_EndCap", "PhEn_highPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mElEn_highPt_EndCap    = dbe_->book1D("ElEn_highPt_EndCap", "ElEn_highPt_EndCap", ptBin_, ptMin_, ptMax_);
-      mMuEn_highPt_EndCap    = dbe_->book1D("MuEn_highPt_EndCap", "MuEn_highPt_EndCap", ptBin_, ptMin_, ptMax_);
+      mCHEn_lowPt_EndCap     = dbe_->book1D("CHEn_lowPt_EndCap", "CHEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+      mNHEn_lowPt_EndCap     = dbe_->book1D("NHEn_lowPt_EndCap", "NHEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+      mPhEn_lowPt_EndCap     = dbe_->book1D("PhEn_lowPt_EndCap", "PhEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+      mElEn_lowPt_EndCap     = dbe_->book1D("ElEn_lowPt_EndCap", "ElEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+      mMuEn_lowPt_EndCap     = dbe_->book1D("MuEn_lowPt_EndCap", "MuEn_lowPt_EndCap", ptBin_, 0., ptMax_);
+      mCHEn_mediumPt_EndCap  = dbe_->book1D("CHEn_mediumPt_EndCap", "CHEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+      mNHEn_mediumPt_EndCap  = dbe_->book1D("NHEn_mediumPt_EndCap", "NHEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+      mPhEn_mediumPt_EndCap  = dbe_->book1D("PhEn_mediumPt_EndCap", "PhEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+      mElEn_mediumPt_EndCap  = dbe_->book1D("ElEn_mediumPt_EndCap", "ElEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+      mMuEn_mediumPt_EndCap  = dbe_->book1D("MuEn_mediumPt_EndCap", "MuEn_mediumPt_EndCap", ptBin_, 0., ptMax_);
+      mCHEn_highPt_EndCap    = dbe_->book1D("CHEn_highPt_EndCap", "CHEn_highPt_EndCap", ptBin_, 0., ptMax_);
+      mNHEn_highPt_EndCap    = dbe_->book1D("NHEn_highPt_EndCap", "NHEn_highPt_EndCap", ptBin_, 0., ptMax_);
+      mPhEn_highPt_EndCap    = dbe_->book1D("PhEn_highPt_EndCap", "PhEn_highPt_EndCap", ptBin_, 0., ptMax_);
+      mElEn_highPt_EndCap    = dbe_->book1D("ElEn_highPt_EndCap", "ElEn_highPt_EndCap", ptBin_, 0., ptMax_);
+      mMuEn_highPt_EndCap    = dbe_->book1D("MuEn_highPt_EndCap", "MuEn_highPt_EndCap", ptBin_, 0., ptMax_);
       //multiplicities
       mChMultiplicity_lowPt_EndCap    = dbe_->book1D("ChMultiplicity_lowPt_EndCap", "ChMultiplicity_lowPt_EndCap", 30,0,30);
-      mNeuMultiplicity_lowPt_EndCap   = dbe_->book1D("NeuMultiplicity_lowPt_EndCap", "NeuMultiplicity_lowPt_EndCap", 30,0,30);
+      mNeutMultiplicity_lowPt_EndCap   = dbe_->book1D("NeutMultiplicity_lowPt_EndCap", "NeutMultiplicity_lowPt_EndCap", 30,0,30);
       mMuMultiplicity_lowPt_EndCap    = dbe_->book1D("MuMultiplicity_lowPt_EndCap", "MuMultiplicity_lowPt_EndCap", 30,0,30);
       mChMultiplicity_mediumPt_EndCap    = dbe_->book1D("ChMultiplicity_mediumPt_EndCap", "ChMultiplicity_mediumPt_EndCap", 30,0,30);
-      mNeuMultiplicity_mediumPt_EndCap   = dbe_->book1D("NeuMultiplicity_mediumPt_EndCap", "NeuMultiplicity_mediumPt_EndCap", 30,0,30);
+      mNeutMultiplicity_mediumPt_EndCap   = dbe_->book1D("NeutMultiplicity_mediumPt_EndCap", "NeutMultiplicity_mediumPt_EndCap", 30,0,30);
       mMuMultiplicity_mediumPt_EndCap    = dbe_->book1D("MuMultiplicity_mediumPt_EndCap", "MuMultiplicity_mediumPt_EndCap", 30,0,30);
       mChMultiplicity_highPt_EndCap    = dbe_->book1D("ChMultiplicity_highPt_EndCap", "ChMultiplicity_highPt_EndCap", 30,0,30);
-      mNeuMultiplicity_highPt_EndCap   = dbe_->book1D("NeuMultiplicity_highPt_EndCap", "NeuMultiplicity_highPt_EndCap", 30,0,30);
+      mNeutMultiplicity_highPt_EndCap   = dbe_->book1D("NeutMultiplicity_highPt_EndCap", "NeutMultiplicity_highPt_EndCap", 30,0,30);
       mMuMultiplicity_highPt_EndCap    = dbe_->book1D("MuMultiplicity_highPt_EndCap", "MuMultiplicity_highPt_EndCap", 30,0,30);
       //forward monitoring
       //energy fraction
@@ -700,22 +704,19 @@ void JetAnalyzer::beginJob(void) {
       mHFEFrac_highPt_Forward   = dbe_->book1D("HFEFrac_highPt_Forward", "HFEFrac_highPt_Forward", 140, -0.2, 1.2);
       mHFHFrac_highPt_Forward   = dbe_->book1D("HFHFrac_highPt_Forward", "HFHFrac_highPt_Forward", 140, -0.2, 1.2);
       //energies
-      mHFEEn_lowPt_Forward    = dbe_->book1D("HFEEn_lowPt_Forward", "HFEEn_lowPt_Forward", ptBin_, ptMin_, ptMax_);
-      mHFHEn_lowPt_Forward    = dbe_->book1D("HFHEn_lowPt_Forward", "HFHEn_lowPt_Forward", ptBin_, ptMin_, ptMax_);
-      mHFEEn_mediumPt_Forward = dbe_->book1D("HFEEn_mediumPt_Forward", "HFEEn_mediumPt_Forward", ptBin_, ptMin_, ptMax_);
-      mHFHEn_mediumPt_Forward = dbe_->book1D("HFHEn_mediumPt_Forward", "HFHEn_mediumPt_Forward", ptBin_, ptMin_, ptMax_);
-      mHFEEn_highPt_Forward   = dbe_->book1D("HFEEn_highPt_Forward", "HFEEn_highPt_Forward", ptBin_, ptMin_, ptMax_);
-      mHFHEn_highPt_Forward   = dbe_->book1D("HFHEn_highPt_Forward", "HFHEn_highPt_Forward", ptBin_, ptMin_, ptMax_);
+      mHFEEn_lowPt_Forward    = dbe_->book1D("HFEEn_lowPt_Forward", "HFEEn_lowPt_Forward", ptBin_, 0., ptMax_);
+      mHFHEn_lowPt_Forward    = dbe_->book1D("HFHEn_lowPt_Forward", "HFHEn_lowPt_Forward", ptBin_, 0., ptMax_);
+      mHFEEn_mediumPt_Forward = dbe_->book1D("HFEEn_mediumPt_Forward", "HFEEn_mediumPt_Forward", ptBin_, 0., ptMax_);
+      mHFHEn_mediumPt_Forward = dbe_->book1D("HFHEn_mediumPt_Forward", "HFHEn_mediumPt_Forward", ptBin_, 0., ptMax_);
+      mHFEEn_highPt_Forward   = dbe_->book1D("HFEEn_highPt_Forward", "HFEEn_highPt_Forward", ptBin_, 0., ptMax_);
+      mHFHEn_highPt_Forward   = dbe_->book1D("HFHEn_highPt_Forward", "HFHEn_highPt_Forward", ptBin_, 0., ptMax_);
       //multiplicities
       mChMultiplicity_lowPt_Forward     = dbe_->book1D("ChMultiplicity_lowPt_Forward", "ChMultiplicity_lowPt_Forward", 30,0,30);
-      mNeuMultiplicity_lowPt_Forward    = dbe_->book1D("NeuMultiplicity_lowPt_Forward", "NeuMultiplicity_lowPt_Forward", 30,0,30);
-      mMuMultiplicity_lowPt_Forward     = dbe_->book1D("MuMultiplicity_lowPt_Forward", "MuMultiplicity_lowPt_Forward", 30,0,30);
+      mNeutMultiplicity_lowPt_Forward    = dbe_->book1D("NeutMultiplicity_lowPt_Forward", "NeutMultiplicity_lowPt_Forward", 30,0,30);
       mChMultiplicity_mediumPt_Forward  = dbe_->book1D("ChMultiplicity_mediumPt_Forward", "ChMultiplicity_mediumPt_Forward", 30,0,30);
-      mNeuMultiplicity_mediumPt_Forward = dbe_->book1D("NeuMultiplicity_mediumPt_Forward", "NeuMultiplicity_mediumPt_Forward", 30,0,30);
-      mMuMultiplicity_mediumPt_Forward  = dbe_->book1D("MuMultiplicity_mediumPt_Forward", "MuMultiplicity_mediumPt_Forward", 30,0,30);
+      mNeutMultiplicity_mediumPt_Forward = dbe_->book1D("NeutMultiplicity_mediumPt_Forward", "NeutMultiplicity_mediumPt_Forward", 30,0,30);
       mChMultiplicity_highPt_Forward    = dbe_->book1D("ChMultiplicity_highPt_Forward", "ChMultiplicity_highPt_Forward", 30,0,30);
-      mNeuMultiplicity_highPt_Forward   = dbe_->book1D("NeuMultiplicity_highPt_Forward", "NeuMultiplicity_highPt_Forward", 30,0,30);
-      mMuMultiplicity_highPt_Forward    = dbe_->book1D("MuMultiplicity_highPt_Forward", "MuMultiplicity_highPt_Forward", 30,0,30);
+      mNeutMultiplicity_highPt_Forward   = dbe_->book1D("NeutMultiplicity_highPt_Forward", "NeutMultiplicity_highPt_Forward", 30,0,30);
     }
     
     mChargedHadronEnergy = dbe_->book1D("mChargedHadronEnergy", "charged HAD energy",    100, 0, 100);
@@ -756,12 +757,12 @@ void JetAnalyzer::beginJob(void) {
 
   if(jetCleaningFlag_){
     //so far we have only one additional selection -> implement to make it expandable
-    /*folderNames_.push_back("DiJet");
+    folderNames_.push_back("DiJet");
     //book for each of these selection default histograms
     for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
 	 ic != folderNames_.end(); ic++){
       bookMESetSelection(DirName+"/"+*ic);
-      }*/
+    }
   }
 
   dbe_->setCurrentFolder("JetMET");
@@ -786,97 +787,96 @@ void JetAnalyzer::beginJob(void) {
 void JetAnalyzer::bookMESetSelection(std::string DirName)
 {
   dbe_->setCurrentFolder(DirName);
-  /*
   // Generic jet parameters
-  sPt           = dbe_->book1D("Pt",           "pt",                 ptBin_,  ptMin_,  ptMax_);
-  sEta          = dbe_->book1D("Eta",          "eta",               etaBin_, etaMin_, etaMax_);
-  sPhi          = dbe_->book1D("Phi",          "phi",               phiBin_, phiMin_, phiMax_);
+  mPt           = dbe_->book1D("Pt",           "pt",                 ptBin_,  ptMin_,  ptMax_);
+  mEta          = dbe_->book1D("Eta",          "eta",               etaBin_, etaMin_, etaMax_);
+  mPhi          = dbe_->book1D("Phi",          "phi",               phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    sConstituents = dbe_->book1D("Constituents", "# of constituents",     50,      0,    100);
+    mConstituents = dbe_->book1D("Constituents", "# of constituents",     50,      0,    100);
   }
-  sJetEnergyCorr= dbe_->book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
-  sJetEnergyCorrVsEta= dbe_->bookProfile("JetEnergyCorrVsEta", "jet energy correction factor Vs eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
-  sHFrac        = dbe_->book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
-  sEFrac        = dbe_->book1D("EFrac",        "EFrac",                140,   -0.2,    1.2);
+  mJetEnergyCorr= dbe_->book1D("JetEnergyCorr", "jet energy correction factor", 50, 0.0,3.0);
+  mJetEnergyCorrVSEta= dbe_->bookProfile("JetEnergyCorrVSEta", "jet energy correction factor VS eta", etaBin_, etaMin_,etaMax_, 0.0,3.0);
+  mHFrac        = dbe_->book1D("HFrac",        "HFrac",                140,   -0.2,    1.2);
+  mEFrac        = dbe_->book1D("EFrac",        "EFrac",                140,   -0.2,    1.2);
 
-  sDPhi                   = dbe_->book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
-  sDijetAsymmetry                   = dbe_->book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
-  sDijetBalance                     = dbe_->book1D("DijetBalance",   "DijetBalance",   100, -2., 2.);
+  mDPhi                   = dbe_->book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
+  mDijetAsymmetry                   = dbe_->book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
+  mDijetBalance                     = dbe_->book1D("DijetBalance",   "DijetBalance",   100, -2., 2.);
 
   // Book NPV profiles
   //----------------------------------------------------------------------------
-  sPt_profile           = dbe_->bookProfile("Pt_profile",           "pt",                nbinsPV_, nPVlow_, nPVhigh_,   ptBin_,  ptMin_,  ptMax_);
-  sEta_profile          = dbe_->bookProfile("Eta_profile",          "eta",               nbinsPV_, nPVlow_, nPVhigh_,  etaBin_, etaMin_, etaMax_);
-  sPhi_profile          = dbe_->bookProfile("Phi_profile",          "phi",               nbinsPV_, nPVlow_, nPVhigh_,  phiBin_, phiMin_, phiMax_);
+  mPt_profile           = dbe_->bookProfile("Pt_profile",           "pt",                nbinsPV_, nPVlow_, nPVhigh_,   ptBin_,  ptMin_,  ptMax_);
+  mEta_profile          = dbe_->bookProfile("Eta_profile",          "eta",               nbinsPV_, nPVlow_, nPVhigh_,  etaBin_, etaMin_, etaMax_);
+  mPhi_profile          = dbe_->bookProfile("Phi_profile",          "phi",               nbinsPV_, nPVlow_, nPVhigh_,  phiBin_, phiMin_, phiMax_);
   if(!isJPTJet_){
-    sConstituents_profile = dbe_->bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
+    mConstituents_profile = dbe_->bookProfile("Constituents_profile", "# of constituents", nbinsPV_, nPVlow_, nPVhigh_,      50,      0,    100);
   }
-  sHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
-  sEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
-  // Set NPV profiles x-axis title
+  mHFrac_profile        = dbe_->bookProfile("HFrac_profile",        "HFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  mEFrac_profile        = dbe_->bookProfile("EFrac_profile",        "EFrac",             nbinsPV_, nPVlow_, nPVhigh_,     140,   -0.2,    1.2);
+  // met NPV profiles x-axis title
   //----------------------------------------------------------------------------
-  sPt_profile          ->setAxisTitle("nvtx",1);
-  sEta_profile         ->setAxisTitle("nvtx",1);
-  sPhi_profile         ->setAxisTitle("nvtx",1);
+  mPt_profile          ->setAxisTitle("nvtx",1);
+  mEta_profile         ->setAxisTitle("nvtx",1);
+  mPhi_profile         ->setAxisTitle("nvtx",1);
   if(!isJPTJet_){
-    sConstituents_profile->setAxisTitle("nvtx",1);
+    mConstituents_profile->setAxisTitle("nvtx",1);
   }
-  sHFrac_profile       ->setAxisTitle("nvtx",1);
-  sEFrac_profile       ->setAxisTitle("nvtx",1);
+  mHFrac_profile       ->setAxisTitle("nvtx",1);
+  mEFrac_profile       ->setAxisTitle("nvtx",1);
 
   //
-  //--- Calo jet selection only
+  //--- Calo jet melection only
   if(isCaloJet_) {
-    // CaloJet specific
-    sMaxEInEmTowers         = dbe_->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100);
-    sMaxEInHadTowers        = dbe_->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100);
+    // CaloJet mpecific
+    mMaxEInEmTowers         = dbe_->book1D("MaxEInEmTowers", "MaxEInEmTowers", 100, 0, 100);
+    mMaxEInHadTowers        = dbe_->book1D("MaxEInHadTowers", "MaxEInHadTowers", 100, 0, 100);
     //JetID variables
-    sresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
-    sN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 50, 0., 50);
-    sfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
-    sfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
+    mresEMF                 = dbe_->book1D("resEMF", "resEMF", 50, 0., 1.);
+    mN90Hits                = dbe_->book1D("N90Hits", "N90Hits", 50, 0., 50);
+    mfHPD                   = dbe_->book1D("fHPD", "fHPD", 50, 0., 1.);
+    mfRBX                   = dbe_->book1D("fRBX", "fRBX", 50, 0., 1.);
     
   }
 
   if(isPFJet_){ 
     //barrel histograms for PFJets
     // energy fractions
-    sCHFrac     = dbe_->book1D("CHFrac", "CHFrac", 120, -0.1, 1.1);
-    sNHFrac     = dbe_->book1D("NHFrac", "NHFrac", 120, -0.1, 1.1);
-    sPhFrac     = dbe_->book1D("PhFrac", "PhFrac", 120, -0.1, 1.1);
-    sElFrac     = dbe_->book1D("ElFrac", "ElFrac", 120, -0.1, 1.1);
-    sMuFrac     = dbe_->book1D("MuFrac", "MuFrac", 120, -0.1, 1.1);
-    sNeutralEmEnergy     = dbe_->book1D("NeutralEmEnergy",     "neutral EM energy",     100, 0, 100);
-    sChargedMultiplicity = dbe_->book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
-    sNeutralMultiplicity = dbe_->book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
-    sMuonMultiplicity    = dbe_->book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
+    mCHFrac     = dbe_->book1D("CHFrac", "CHFrac", 120, -0.1, 1.1);
+    mNHFrac     = dbe_->book1D("NHFrac", "NHFrac", 120, -0.1, 1.1);
+    mPhFrac     = dbe_->book1D("PhFrac", "PhFrac", 120, -0.1, 1.1);
+    mElFrac     = dbe_->book1D("ElFrac", "ElFrac", 120, -0.1, 1.1);
+    mMuFrac     = dbe_->book1D("MuFrac", "MuFrac", 120, -0.1, 1.1);
+    mNeutralEmEnergy     = dbe_->book1D("NeutralEmEnergy",     "neutral EM energy",     100, 0, 100);
+    mChargedMultiplicity = dbe_->book1D("ChargedMultiplicity", "charged multiplicity ", 100, 0, 100);
+    mNeutralMultiplicity = dbe_->book1D("NeutralMultiplicity", "neutral multiplicity",  100, 0, 100);
+    mMuonMultiplicity    = dbe_->book1D("MuonMultiplicity",    "muon multiplicity",     100, 0, 100);
     
     
     // Book NPV profiles
     //----------------------------------------------------------------------------
-    sCHFrac_profile = dbe_->bookProfile("CHFrac_profile", "charged HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    sNHFrac_profile = dbe_->bookProfile("NHFrac_profile", "neutral HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    sElFrac_profile     = dbe_->bookProfile("ElFrac_profile",     "Electron Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    sMuFrac_profile     = dbe_->bookProfile("MuFrac_profile",     "Muon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    sphFrac_profile     = dbe_->bookProfile("PhFrac_profile",     "Photon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
-    sChargedMultiplicity_profile = dbe_->bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    sNeutralMultiplicity_profile = dbe_->bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
-    sMuonMultiplicity_profile    = dbe_->bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mCHFrac_profile = dbe_->bookProfile("CHFrac_profile", "charged HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mNHFrac_profile = dbe_->bookProfile("NHFrac_profile", "neutral HAD fraction profile",   nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mElFrac_profile     = dbe_->bookProfile("ElFrac_profile",     "Electron Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mMuFrac_profile     = dbe_->bookProfile("MuFrac_profile",     "Muon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mPhFrac_profile     = dbe_->bookProfile("PhFrac_profile",     "Photon Fraction Profile",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 1);
+    mChargedMultiplicity_profile = dbe_->bookProfile("ChargedMultiplicity_profile", "charged multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mNeutralMultiplicity_profile = dbe_->bookProfile("NeutralMultiplicity_profile", "neutral multiplicity", nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
+    mMuonMultiplicity_profile    = dbe_->bookProfile("MuonMultiplicity_profile",    "muon multiplicity",    nbinsPV_, nPVlow_, nPVhigh_, 100, 0, 100);
     
-    // Set NPV profiles x-axis title
+    // met NPV profiles x-axis title
     //----------------------------------------------------------------------------
-    sCHFrac_profile->setAxisTitle("nvtx",1);
-    sNHFrac_profile->setAxisTitle("nvtx",1);
-    sElFrac_profile    ->setAxisTitle("nvtx",1);
-    sMuFrac_profile    ->setAxisTitle("nvtx",1);
-    sPhFrac_profile    ->setAxisTitle("nvtx",1);
-    sChargedMultiplicity_profile->setAxisTitle("nvtx",1);
-    sNeutralMultiplicity_profile->setAxisTitle("nvtx",1);
-    sMuonMultiplicity_profile   ->setAxisTitle("nvtx",1);
+    mCHFrac_profile->setAxisTitle("nvtx",1);
+    mNHFrac_profile->setAxisTitle("nvtx",1);
+    mElFrac_profile    ->setAxisTitle("nvtx",1);
+    mMuFrac_profile    ->setAxisTitle("nvtx",1);
+    mPhFrac_profile    ->setAxisTitle("nvtx",1);
+    mChargedMultiplicity_profile->setAxisTitle("nvtx",1);
+    mNeutralMultiplicity_profile->setAxisTitle("nvtx",1);
+    mMuonMultiplicity_profile   ->setAxisTitle("nvtx",1);
     
-    sNeutralFraction     = dbe_->book1D("NeutralConstituentsFraction","Neutral Constituens Fraction",100,0,1);
+    mNeutralFraction     = dbe_->book1D("NeutralConstituentsFraction","Neutral Constituens Fraction",100,0,1);
   }
-  */
+ 
 }
 
 // ***********************************************************
@@ -1129,35 +1129,35 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	}
 	//now do calojet specific fractions and histograms ->H and E fracs
 	if(Thiscleaned && pass_corrected){//if cleaning requested->jet passes a loose ID
-	  if (mHFrac)        mHFrac->Fill ((*caloJets)[ijet].energyFractionHadronic());
-	  if (mEFrac)        mEFrac->Fill ((*caloJets)[ijet].emEnergyFraction());
-	  if (mHFrac_profile)        mHFrac_profile       ->Fill(numPV, (*caloJets)[ijet].energyFractionHadronic());
-	  if (mEFrac_profile)        mEFrac_profile       ->Fill(numPV, (*caloJets)[ijet].emEnergyFraction());
+	  mHFrac = dbe_->get(DirName+"/"+"HFrac"); if (mHFrac && mHFrac->getRootObject())        mHFrac->Fill ((*caloJets)[ijet].energyFractionHadronic());
+	  mEFrac = dbe_->get(DirName+"/"+"EFrac"); if (mEFrac && mHFrac->getRootObject())        mEFrac->Fill ((*caloJets)[ijet].emEnergyFraction());
+	  mHFrac_profile = dbe_->get(DirName+"/"+"HFrac_profile"); if (mHFrac_profile && mHFrac_profile->getRootObject())        mHFrac_profile       ->Fill(numPV, (*caloJets)[ijet].energyFractionHadronic());
+	  mEFrac_profile = dbe_->get(DirName+"/"+"EFrac_profile"); if (mEFrac_profile && mEFrac_profile->getRootObject())        mEFrac_profile       ->Fill(numPV, (*caloJets)[ijet].emEnergyFraction());
 	  if (fabs((*caloJets)[ijet].eta()) <= 1.3) {	
-	    if (mHFrac_Barrel)           mHFrac_Barrel->Fill((*caloJets)[ijet].energyFractionHadronic());	
-	    if (mEFrac_Barrel)           mEFrac_Barrel->Fill((*caloJets)[ijet].emEnergyFraction());	
+	    mHFrac_Barrel = dbe_->get(DirName+"/"+"HFrac_Barrel"); if (mHFrac_Barrel && mHFrac_Barrel->getRootObject())           mHFrac_Barrel->Fill((*caloJets)[ijet].energyFractionHadronic());	
+	    mEFrac_Barrel = dbe_->get(DirName+"/"+"EFrac_Barrel"); if (mEFrac_Barrel && mEFrac_Barrel->getRootObject())           mEFrac_Barrel->Fill((*caloJets)[ijet].emEnergyFraction());	
 	  }else if(fabs((*caloJets)[ijet].eta()) <3.0){
-	    if (mHFrac_EndCap)           mHFrac_EndCap->Fill((*caloJets)[ijet].energyFractionHadronic());	
-	    if (mEFrac_EndCap)           mEFrac_EndCap->Fill((*caloJets)[ijet].emEnergyFraction());
+	    mHFrac_EndCap = dbe_->get(DirName+"/"+"HFrac_EndCap"); if (mHFrac_EndCap && mHFrac_EndCap->getRootObject())           mHFrac_EndCap->Fill((*caloJets)[ijet].energyFractionHadronic());	
+	    mEFrac_EndCap = dbe_->get(DirName+"/"+"EFrac_EndCap"); if (mEFrac_EndCap && mEFrac_EndCap->getRootObject())           mEFrac_EndCap->Fill((*caloJets)[ijet].emEnergyFraction());
 	  }else{
-	    if (mHFrac_Forward)           mHFrac_Forward->Fill((*caloJets)[ijet].energyFractionHadronic());	
-	    if (mEFrac_Forward)           mEFrac_Forward->Fill((*caloJets)[ijet].emEnergyFraction());
+	    mHFrac_Forward = dbe_->get(DirName+"/"+"HFrac_Forward"); if (mHFrac_Forward && mHFrac_Forward->getRootObject())           mHFrac_Forward->Fill((*caloJets)[ijet].energyFractionHadronic());	
+	    mEFrac_Forward = dbe_->get(DirName+"/"+"EFrac_Forward"); if (mEFrac_Forward && mEFrac_Forward->getRootObject())           mEFrac_Forward->Fill((*caloJets)[ijet].emEnergyFraction());
 	  }
-	  if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill ((*caloJets)[ijet].maxEInEmTowers());
-	  if (mMaxEInHadTowers) mMaxEInHadTowers->Fill ((*caloJets)[ijet].maxEInHadTowers());
+	  mMaxEInEmTowers = dbe_->get(DirName+"/"+"MaxEInEmTowers"); if (mMaxEInEmTowers && mMaxEInEmTowers->getRootObject())  mMaxEInEmTowers->Fill ((*caloJets)[ijet].maxEInEmTowers());
+	  mMaxEInHadTowers = dbe_->get(DirName+"/"+"MaxEInHadTowers"); if (mMaxEInHadTowers && mMaxEInHadTowers->getRootObject()) mMaxEInHadTowers->Fill ((*caloJets)[ijet].maxEInHadTowers());
 	  
-	  if (mHadEnergyInHO)   mHadEnergyInHO->Fill ((*caloJets)[ijet].hadEnergyInHO());
-	  if (mHadEnergyInHB)   mHadEnergyInHB->Fill ((*caloJets)[ijet].hadEnergyInHB());
-	  if (mHadEnergyInHF)   mHadEnergyInHF->Fill ((*caloJets)[ijet].hadEnergyInHF());
-	  if (mHadEnergyInHE)   mHadEnergyInHE->Fill ((*caloJets)[ijet].hadEnergyInHE());
-	  if (mEmEnergyInEB)    mEmEnergyInEB->Fill ((*caloJets)[ijet].emEnergyInEB());
-	  if (mEmEnergyInEE)    mEmEnergyInEE->Fill ((*caloJets)[ijet].emEnergyInEE());
-	  if (mEmEnergyInHF)    mEmEnergyInHF->Fill ((*caloJets)[ijet].emEnergyInHF());
+	  mHadEnergyInHO = dbe_->get(DirName+"/"+"HadEnergyInHO"); if (mHadEnergyInHO && mHadEnergyInHO->getRootObject())   mHadEnergyInHO->Fill ((*caloJets)[ijet].hadEnergyInHO());
+	  mHadEnergyInHB = dbe_->get(DirName+"/"+"HadEnergyInHB"); if (mHadEnergyInHB && mHadEnergyInHB->getRootObject())   mHadEnergyInHB->Fill ((*caloJets)[ijet].hadEnergyInHB());
+	  mHadEnergyInHF = dbe_->get(DirName+"/"+"HadEnergyInHF"); if (mHadEnergyInHF && mHadEnergyInHF->getRootObject())   mHadEnergyInHF->Fill ((*caloJets)[ijet].hadEnergyInHF());
+	  mHadEnergyInHE = dbe_->get(DirName+"/"+"HadEnergyInHE"); if (mHadEnergyInHE && mHadEnergyInHE->getRootObject())   mHadEnergyInHE->Fill ((*caloJets)[ijet].hadEnergyInHE());
+	  mEmEnergyInEB = dbe_->get(DirName+"/"+"EmEnergyInEB"); if (mEmEnergyInEB && mEmEnergyInEB->getRootObject())    mEmEnergyInEB->Fill ((*caloJets)[ijet].emEnergyInEB());
+	  mEmEnergyInEE = dbe_->get(DirName+"/"+"EmEnergyInEE"); if (mEmEnergyInEE && mEmEnergyInEE->getRootObject())    mEmEnergyInEE->Fill ((*caloJets)[ijet].emEnergyInEE());
+	  mEmEnergyInHF = dbe_->get(DirName+"/"+"EmEnergyInHF"); if (mEmEnergyInHF && mEmEnergyInHF->getRootObject())    mEmEnergyInHF->Fill ((*caloJets)[ijet].emEnergyInHF());
 	  
-	  if (mN90Hits)         mN90Hits->Fill (jetID.n90Hits);
-	  if (mfHPD)            mfHPD->Fill (jetID.fHPD);
-	  if (mresEMF)          mresEMF->Fill (jetID.restrictedEMF);
-	  if (mfRBX)            mfRBX->Fill (jetID.fRBX);
+	  mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject()) mN90Hits->Fill (jetID.n90Hits);
+	  mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())             mfHPD->Fill (jetID.fHPD);
+	  mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())     mresEMF->Fill (jetID.restrictedEMF);
+	  mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())             mfRBX->Fill (jetID.fRBX);
 	}
       }
       if(isJPTJet_){
@@ -1174,11 +1174,11 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(jetCleaningFlag_){
 	    Thiscleaned = jetpassid;
 	  }
-	  if(Thiscleaned &&  ( fabs(rawJet->eta()) < 2.1) && pass_corrected){
-	    if (mN90Hits)         mN90Hits->Fill (jetID.n90Hits);
-	    if (mfHPD)            mfHPD->Fill (jetID.fHPD);
-	    if (mresEMF)          mresEMF->Fill (jetID.restrictedEMF);
-	    if (mfRBX)            mfRBX->Fill (jetID.fRBX);
+	  if(Thiscleaned /*&&  ( fabs(rawJet->eta()) < 2.1)*/ && pass_corrected){
+	    mN90Hits = dbe_->get(DirName+"/"+"N90Hits"); if (mN90Hits && mN90Hits->getRootObject())   mN90Hits->Fill (jetID.n90Hits);
+	    mfHPD = dbe_->get(DirName+"/"+"fHPD"); if (mfHPD && mfHPD->getRootObject())               mfHPD->Fill (jetID.fHPD);
+	    mresEMF = dbe_->get(DirName+"/"+"resEMF"); if (mresEMF && mresEMF->getRootObject())       mresEMF->Fill (jetID.restrictedEMF);
+	    mfRBX = dbe_->get(DirName+"/"+"fRBX"); if (mfRBX && mfRBX->getRootObject())               mfRBX->Fill (jetID.fRBX);
 	  }
 	} catch (const std::bad_cast&) {
 	  edm::LogError("JetPlusTrackDQM") << "Failed to cast raw jet to CaloJet. JPT Jet does not appear to have been built from a CaloJet. "
@@ -1186,40 +1186,39 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  return;
 	}
 	//plot JPT specific variables for <2.1 jets
-	if(Thiscleaned && pass_uncorrected &&  ( fabs(rawJet->eta()) < 2.1) ){
-	  if (mPt_uncor)   mPt_uncor->Fill ((*jptJets)[ijet].pt());
-	  if (mEta_uncor)  mEta_uncor->Fill ((*jptJets)[ijet].eta());
-	  if (mPhi_uncor)  mPhi_uncor->Fill ((*jptJets)[ijet].phi());
+	if(Thiscleaned && pass_uncorrected /*&&  ( fabs(rawJet->eta()) < 2.1)*/ ){
+	  mPt_uncor = dbe_->get(DirName+"/"+"Pt_uncor"); if (mPt_uncor && mPt_uncor->getRootObject()) if (mPt_uncor)   mPt_uncor->Fill ((*jptJets)[ijet].pt());
+	  mEta_uncor = dbe_->get(DirName+"/"+"Eta_uncor"); if (mEta_uncor && mEta_uncor->getRootObject()) mEta_uncor->Fill ((*jptJets)[ijet].eta());
+	  mPhi_uncor = dbe_->get(DirName+"/"+"Phi_uncor"); if (mPhi_uncor && mPhi_uncor->getRootObject()) mPhi_uncor->Fill ((*jptJets)[ijet].phi());
 	  if(!isJPTJet_){
-	    if (mConstituents_uncor) mConstituents_uncor->Fill ((*jptJets)[ijet].nConstituents());
+	    mConstituents_uncor = dbe_->get(DirName+"/"+"Constituents_uncor"); if (mConstituents_uncor && mConstituents_uncor->getRootObject()) mConstituents_uncor->Fill ((*jptJets)[ijet].nConstituents());
 	  }
 	}
-	if(Thiscleaned &&  ( fabs(rawJet->eta()) < 2.1) && pass_corrected){
-	  if (mHFrac)        mHFrac->Fill ((*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());
+	if(Thiscleaned &&  /*( fabs(rawJet->eta()) < 2.1) && */pass_corrected){
+	  mHFrac = dbe_->get(DirName+"/"+"HFrac"); if (mHFrac && mHFrac->getRootObject()) if (mHFrac)        mHFrac->Fill ((*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());
 	  //if (mEFrac)        mEFrac->Fill ((*jptJets)[ijet].chargedEmEnergyFraction() +(*jptJets)[ijet].neutralEmEnergyFraction());
-	  if (mEFrac)        mEFrac->Fill (1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());
-	  if (mHFrac_profile)        mHFrac_profile       ->Fill(numPV, (*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());
-	  if (mEFrac_profile)        mEFrac_profile       ->Fill(numPV, 1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());
+	  mEFrac = dbe_->get(DirName+"/"+"EFrac"); if (mEFrac && mHFrac->getRootObject())       mEFrac->Fill (1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());
+	  mHFrac_profile = dbe_->get(DirName+"/"+"HFrac_profile"); if (mHFrac_profile && mHFrac_profile->getRootObject())  mHFrac_profile  ->Fill(numPV, (*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());
+	  mEFrac_profile = dbe_->get(DirName+"/"+"EFrac_profile"); if (mEFrac_profile && mEFrac_profile->getRootObject())  mEFrac_profile  ->Fill(numPV, 1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());
 	  if (fabs((*jptJets)[ijet].eta()) <= 1.3) {	
-	    if (mHFrac_Barrel)           mHFrac_Barrel->Fill((*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());	
-	    if (mEFrac_Barrel)           mEFrac_Barrel->Fill(1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());	
+	    mHFrac_Barrel = dbe_->get(DirName+"/"+"HFrac_Barrel"); if (mHFrac_Barrel && mHFrac_Barrel->getRootObject())  mHFrac_Barrel->Fill((*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());	
+	    mEFrac_Barrel = dbe_->get(DirName+"/"+"EFrac_Barrel"); if (mEFrac_Barrel && mEFrac_Barrel->getRootObject())  mEFrac_Barrel->Fill(1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());	
 	  }else if(fabs((*jptJets)[ijet].eta()) <3.0){
-	    if (mHFrac_EndCap)           mHFrac_EndCap->Fill((*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());	
-	    if (mEFrac_EndCap)           mEFrac_EndCap->Fill(1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());
+	    mHFrac_EndCap = dbe_->get(DirName+"/"+"HFrac_EndCap"); if (mHFrac_EndCap && mHFrac_EndCap->getRootObject())     mHFrac_EndCap->Fill((*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());	
+	    mEFrac_EndCap = dbe_->get(DirName+"/"+"EFrac_EndCap"); if (mEFrac_EndCap && mEFrac_EndCap->getRootObject())     mEFrac_EndCap->Fill(1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());
 	  }else{
-	    if (mHFrac_Forward)           mHFrac_Forward->Fill((*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());	
-	    if (mEFrac_Forward)           mEFrac_Forward->Fill(1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());
+	    mHFrac_Forward = dbe_->get(DirName+"/"+"HFrac_Forward"); if (mHFrac_Forward && mHFrac_Forward->getRootObject())   mHFrac_Forward->Fill((*jptJets)[ijet].chargedHadronEnergyFraction()+(*jptJets)[ijet].neutralHadronEnergyFraction());	
+	    mEFrac_Forward = dbe_->get(DirName+"/"+"EFrac_Forward"); if (mEFrac_Forward && mEFrac_Forward->getRootObject())      mEFrac_Forward->Fill(1.-(*jptJets)[ijet].chargedHadronEnergyFraction()-(*jptJets)[ijet].neutralHadronEnergyFraction());
 	  }
-	  if (mE) mE->Fill ((*jptJets)[ijet].energy());	
-	  if (mPx) mE->Fill ((*jptJets)[ijet].px());	
-	  if (mPy) mE->Fill ((*jptJets)[ijet].py());	
-	  if (mPz) mE->Fill ((*jptJets)[ijet].pz());	
-	  if (mP) mE->Fill ((*jptJets)[ijet].p());	
-	  if (mEt) mE->Fill ((*jptJets)[ijet].et());
-	  if(mnTracks) mnTracks->Fill((*jptJets)[ijet].chargedMultiplicity());
-	  if(mnTracksVsJetPt) mnTracksVsJetPt->Fill(rawJet->pt(),(*jptJets)[ijet].chargedMultiplicity());
-
-	  if(mnTracksVsJetEta)mnTracksVsJetEta->Fill(rawJet->eta(),(*jptJets)[ijet].chargedMultiplicity());
+	  mE = dbe_->get(DirName+"/"+"E"); if (mE && mE->getRootObject()) mE->Fill ((*jptJets)[ijet].energy());	
+	  mPx = dbe_->get(DirName+"/"+"Px"); if (mPx && mPx->getRootObject()) mPx->Fill ((*jptJets)[ijet].px());	
+	  mPy = dbe_->get(DirName+"/"+"Py"); if (mPy && mPy->getRootObject()) mPy->Fill ((*jptJets)[ijet].py());	
+	  mPz = dbe_->get(DirName+"/"+"Pz"); if (mPz && mPz->getRootObject()) mPz->Fill ((*jptJets)[ijet].pz());	
+	  mP = dbe_->get(DirName+"/"+"P"); if (mP && mP->getRootObject())     mP->Fill ((*jptJets)[ijet].p());	
+	  mEt = dbe_->get(DirName+"/"+"Et"); if (mEt && mEt->getRootObject()) mEt->Fill ((*jptJets)[ijet].et());
+	  mnTracks = dbe_->get(DirName+"/"+"nTracks"); if (mnTracks && mnTracks->getRootObject()) mnTracks->Fill((*jptJets)[ijet].chargedMultiplicity());
+	  mnTracksVSJetPt = dbe_->get(DirName+"/"+"nTracksVSJetPt"); if (mnTracksVSJetPt && mEt->getRootObject()) mnTracksVSJetPt->Fill(rawJet->pt(),(*jptJets)[ijet].chargedMultiplicity());
+	  mnTracksVSJetEta = dbe_->get(DirName+"/"+"nTracksVSJetEta"); if (mnTracksVSJetEta && mnTracksVSJetEta->getRootObject()) mnTracksVSJetEta->Fill(rawJet->eta(),(*jptJets)[ijet].chargedMultiplicity());
 	  const reco::TrackRefVector& pionsInVertexInCalo = (*jptJets)[ijet].getPionsInVertexInCalo();
 	  const reco::TrackRefVector& pionsInVertexOutCalo = (*jptJets)[ijet].getPionsInVertexOutCalo();
 	  const reco::TrackRefVector& pionsOutVertexInCalo = (*jptJets)[ijet].getPionsOutVertexInCalo();
@@ -1229,153 +1228,156 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  const reco::TrackRefVector& electronsInVertexInCalo = (*jptJets)[ijet].getElecsInVertexInCalo();
 	  const reco::TrackRefVector& electronsInVertexOutCalo = (*jptJets)[ijet].getElecsInVertexOutCalo();
 	  const reco::TrackRefVector& electronsOutVertexInCalo = (*jptJets)[ijet].getElecsOutVertexInCalo();
-	  if(mnallPionsTracksPerJet) mnallPionsTracksPerJet->Fill(pionsInVertexInCalo.size()+pionsInVertexOutCalo.size()+pionsOutVertexInCalo.size());
-	  if(mnInVertexInCaloPionsTracksPerJet) mnInVertexInCaloPionsTracksPerJet->Fill(pionsInVertexInCalo.size());
-	  if(mnOutVertexInCaloPionsTracksPerJet) mnOutVertexInCaloPionsTracksPerJet->Fill(pionsOutVertexInCalo.size());
-	  if(mnInVertexOutCaloPionsTracksPerJet) mnInVertexOutCaloPionsTracksPerJet->Fill(pionsInVertexOutCalo.size());
+	  
+	  mnallPionTracksPerJet = dbe_->get(DirName+"/"+"nallPionTracks"); if(mnallPionTracksPerJet && mnallPionTracksPerJet->getRootObject()) mnallPionTracksPerJet->Fill(pionsInVertexInCalo.size()+pionsInVertexOutCalo.size()+pionsOutVertexInCalo.size());
+	  mnInVertexInCaloPionTracksPerJet = dbe_->get(DirName+"/"+"nInVertexInCaloPionTracks"); if(mnInVertexInCaloPionTracksPerJet && mnInVertexInCaloPionTracksPerJet->getRootObject()) mnInVertexInCaloPionTracksPerJet->Fill(pionsInVertexInCalo.size());
+	  mnOutVertexInCaloPionTracksPerJet = dbe_->get(DirName+"/"+"nOutVertexInCaloPionTracks"); if(mnOutVertexInCaloPionTracksPerJet && mnOutVertexInCaloPionTracksPerJet->getRootObject()) mnOutVertexInCaloPionTracksPerJet->Fill(pionsOutVertexInCalo.size());
+	  mnInVertexOutCaloPionTracksPerJet = dbe_->get(DirName+"/"+"nInVertexOutCaloPionTracks"); if(mnInVertexOutCaloPionTracksPerJet && mnInVertexOutCaloPionTracksPerJet->getRootObject()) mnInVertexOutCaloPionTracksPerJet->Fill(pionsInVertexOutCalo.size());
+	  
 	  for (reco::TrackRefVector::const_iterator iTrack = pionsInVertexInCalo.begin(); iTrack != pionsInVertexInCalo.end(); ++iTrack) {
-	    if(mallPionsTracksPt)mallPionsTracksPt->Fill((*iTrack)->pt());
-	    if(mallPionsTracksEta)mallPionsTracksEta->Fill((*iTrack)->eta());
-	    if(mallPionsTracksPhi)mallPionsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallPionsTracksPtVsEta)mallPionsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mInVertexInCaloPionsTracksPt)mInVertexInCaloPionsTracksPt->Fill((*iTrack)->pt());
-	    if(mInVertexInCaloPionsTracksEta)mInVertexInCaloPionsTracksEta->Fill((*iTrack)->eta());
-	    if(mInVertexInCaloPionsTracksPhi)mInVertexInCaloPionsTracksPhi->Fill((*iTrack)->phi());
-	    if(mInVertexInCaloPionsTracksPtVsEta)mInVertexInCaloPionsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallPionTracksPt = dbe_->get(DirName+"/"+"allPionTracksPt"); if(mallPionTracksPt && mallPionTracksPt->getRootObject()) mallPionTracksPt->Fill((*iTrack)->pt());
+	    mallPionTracksEta = dbe_->get(DirName+"/"+"allPionTracksEta"); if(mallPionTracksEta && mallPionTracksEta->getRootObject()) mallPionTracksEta->Fill((*iTrack)->eta());
+	    mallPionTracksPhi = dbe_->get(DirName+"/"+"allPionTracksPhi"); if(mallPionTracksPhi && mallPionTracksPhi->getRootObject()) mallPionTracksPhi->Fill((*iTrack)->phi());
+	    mallPionTracksPtVSEta = dbe_->get(DirName+"/"+"allPionTracksPtVSEta"); if(mallPionTracksPtVSEta && mallPionTracksPtVSEta->getRootObject()) mallPionTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mInVertexInCaloPionTracksPt = dbe_->get(DirName+"/"+"InVertexInCaloPionTracksPt"); if(mInVertexInCaloPionTracksPt && mInVertexInCaloPionTracksPt->getRootObject()) mInVertexInCaloPionTracksPt->Fill((*iTrack)->pt());
+	    mInVertexInCaloPionTracksEta = dbe_->get(DirName+"/"+"InVertexInCaloPionTracksEta"); if(mInVertexInCaloPionTracksEta && mInVertexInCaloPionTracksEta->getRootObject()) mInVertexInCaloPionTracksEta->Fill((*iTrack)->eta());
+	    mInVertexInCaloPionTracksPhi = dbe_->get(DirName+"/"+"InVertexInCaloPionTracksPhi"); if(mInVertexInCaloPionTracksPhi && mInVertexInCaloPionTracksPhi->getRootObject()) mInVertexInCaloPionTracksPhi->Fill((*iTrack)->phi());
+	    mInVertexInCaloPionTracksPtVSEta = dbe_->get(DirName+"/"+"InVertexInCaloPionTracksPtVSEta"); if(mInVertexInCaloPionTracksPtVSEta && mInVertexInCaloPionTracksPtVSEta->getRootObject()) mInVertexInCaloPionTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mInCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"InCaloTrackDirectionJetDR"); if(mInCaloTrackDirectionJetDRHisto_ && mInCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mInVertexTrackImpactPointJetDRHisto_)mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	     mInVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"InVertexTrackImpactPointJetDR"); if( mInVertexTrackImpactPointJetDRHisto_ &&  mInVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
 	  }
 	  for (reco::TrackRefVector::const_iterator iTrack = pionsInVertexOutCalo.begin(); iTrack != pionsInVertexOutCalo.end(); ++iTrack) {
-	    if(mallPionsTracksPt)mallPionsTracksPt->Fill((*iTrack)->pt());
-	    if(mallPionsTracksEta)mallPionsTracksEta->Fill((*iTrack)->eta());
-	    if(mallPionsTracksPhi)mallPionsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallPionsTracksPtVsEta)mallPionsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mInVertexOutCaloPionsTracksPt)mInVertexOutCaloPionsTracksPt->Fill((*iTrack)->pt());
-	    if(mInVertexOutCaloPionsTracksEta)mInVertexOutCaloPionsTracksEta->Fill((*iTrack)->eta());
-	    if(mInVertexOutCaloPionsTracksPhi)mInVertexOutCaloPionsTracksPhi->Fill((*iTrack)->phi());
-	    if(mInVertexOutCaloPionsTracksPtVsEta)mInVertexOutCaloPionsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallPionTracksPt = dbe_->get(DirName+"/"+"allPionTracksPt"); if(mallPionTracksPt && mallPionTracksPt->getRootObject()) mallPionTracksPt->Fill((*iTrack)->pt());
+	    mallPionTracksEta = dbe_->get(DirName+"/"+"allPionTracksEta"); if(mallPionTracksEta && mallPionTracksEta->getRootObject()) mallPionTracksEta->Fill((*iTrack)->eta());
+	    mallPionTracksPhi = dbe_->get(DirName+"/"+"allPionTracksPhi"); if(mallPionTracksPhi && mallPionTracksPhi->getRootObject()) mallPionTracksPhi->Fill((*iTrack)->phi());
+	    mallPionTracksPtVSEta = dbe_->get(DirName+"/"+"allPionTracksPtVSEta"); if(mallPionTracksPtVSEta && mallPionTracksPtVSEta->getRootObject()) mallPionTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mInVertexOutCaloPionTracksPt = dbe_->get(DirName+"/"+"InVertexOutCaloPionTracksPt"); if(mInVertexOutCaloPionTracksPt && mInVertexOutCaloPionTracksPt->getRootObject()) mInVertexOutCaloPionTracksPt->Fill((*iTrack)->pt());
+	    mInVertexOutCaloPionTracksEta = dbe_->get(DirName+"/"+"InVertexOutCaloPionTracksEta"); if(mInVertexOutCaloPionTracksEta && mInVertexOutCaloPionTracksEta->getRootObject()) mInVertexOutCaloPionTracksEta->Fill((*iTrack)->eta());
+	    mInVertexOutCaloPionTracksPhi = dbe_->get(DirName+"/"+"InVertexOutCaloPionTracksPhi"); if(mInVertexOutCaloPionTracksPhi && mInVertexOutCaloPionTracksPhi->getRootObject()) mInVertexOutCaloPionTracksPhi->Fill((*iTrack)->phi());
+	    mInVertexOutCaloPionTracksPtVSEta = dbe_->get(DirName+"/"+"InVertexOutCaloPionTracksPtVSEta"); if(mInVertexOutCaloPionTracksPtVSEta && mInVertexOutCaloPionTracksPtVSEta->getRootObject()) mInVertexOutCaloPionTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mOutCaloTrackDirectionJetDRHisto_)mOutCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mOutCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"OutCaloTrackDirectionJetDR"); if(mOutCaloTrackDirectionJetDRHisto_ && mOutCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mOutCaloTrackDirectionJetDRHisto_)mOutCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mInVertexTrackImpactPointJetDRHisto_)mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	     mInVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"InVertexTrackImpactPointJetDR"); if( mInVertexTrackImpactPointJetDRHisto_ &&  mInVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
 	  }
 	  for (reco::TrackRefVector::const_iterator iTrack = pionsOutVertexInCalo.begin(); iTrack != pionsOutVertexInCalo.end(); ++iTrack) {
-	    if(mallPionsTracksPt)mallPionsTracksPt->Fill((*iTrack)->pt());
-	    if(mallPionsTracksEta)mallPionsTracksEta->Fill((*iTrack)->eta());
-	    if(mallPionsTracksPhi)mallPionsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallPionsTracksPtVsEta)mallPionsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mOutVertexInCaloPionsTracksPt)mOutVertexInCaloPionsTracksPt->Fill((*iTrack)->pt());
-	    if(mOutVertexInCaloPionsTracksEta)mOutVertexInCaloPionsTracksEta->Fill((*iTrack)->eta());
-	    if(mOutVertexInCaloPionsTracksPhi)mOutVertexInCaloPionsTracksPhi->Fill((*iTrack)->phi());
-	    if(mOutVertexInCaloPionsTracksPtVsEta)mOutVertexInCaloPionsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallPionTracksPt = dbe_->get(DirName+"/"+"allPionTracksPt"); if(mallPionTracksPt && mallPionTracksPt->getRootObject()) mallPionTracksPt->Fill((*iTrack)->pt());
+	    mallPionTracksEta = dbe_->get(DirName+"/"+"allPionTracksEta"); if(mallPionTracksEta && mallPionTracksEta->getRootObject()) mallPionTracksEta->Fill((*iTrack)->eta());
+	    mallPionTracksPhi = dbe_->get(DirName+"/"+"allPionTracksPhi"); if(mallPionTracksPhi && mallPionTracksPhi->getRootObject()) mallPionTracksPhi->Fill((*iTrack)->phi());
+	    mallPionTracksPtVSEta = dbe_->get(DirName+"/"+"allPionTracksPtVSEta"); if(mallPionTracksPtVSEta && mallPionTracksPtVSEta->getRootObject()) mallPionTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mOutVertexInCaloPionTracksPt = dbe_->get(DirName+"/"+"OutVertexInCaloPionTracksPt"); if(mOutVertexInCaloPionTracksPt && mOutVertexInCaloPionTracksPt->getRootObject()) mOutVertexInCaloPionTracksPt->Fill((*iTrack)->pt());
+	    mOutVertexInCaloPionTracksEta = dbe_->get(DirName+"/"+"OutVertexInCaloPionTracksEta"); if(mOutVertexInCaloPionTracksEta && mOutVertexInCaloPionTracksEta->getRootObject()) mOutVertexInCaloPionTracksEta->Fill((*iTrack)->eta());
+	    mOutVertexInCaloPionTracksPhi = dbe_->get(DirName+"/"+"OutVertexInCaloPionTracksPhi"); if(mOutVertexInCaloPionTracksPhi && mOutVertexInCaloPionTracksPhi->getRootObject()) mOutVertexInCaloPionTracksPhi->Fill((*iTrack)->phi());
+	    mOutVertexInCaloPionTracksPtVSEta = dbe_->get(DirName+"/"+"OutVertexInCaloPionTracksPtVSEta"); if(mOutVertexInCaloPionTracksPtVSEta && mOutVertexInCaloPionTracksPtVSEta->getRootObject()) mOutVertexInCaloPionTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mInCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"InCaloTrackDirectionJetDR"); if(mInCaloTrackDirectionJetDRHisto_ && mInCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mOutVertexTrackImpactPointJetDRHisto_)mOutVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
-	  }//muon track histos
-
-	  if(mnallMuonsTracksPerJet) mnallMuonsTracksPerJet->Fill(muonsInVertexInCalo.size()+muonsInVertexOutCalo.size()+muonsOutVertexInCalo.size());
-	  if(mnInVertexInCaloMuonsTracksPerJet) mnInVertexInCaloMuonsTracksPerJet->Fill(muonsInVertexInCalo.size());
-	  if(mnOutVertexInCaloMuonsTracksPerJet) mnOutVertexInCaloMuonsTracksPerJet->Fill(muonsOutVertexInCalo.size());
-	  if(mnInVertexOutCaloMuonsTracksPerJet) mnInVertexOutCaloMuonsTracksPerJet->Fill(muonsInVertexOutCalo.size());
+	     mOutVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"OutVertexTrackImpactPointJetDR"); if( mOutVertexTrackImpactPointJetDRHisto_ &&  mOutVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mOutVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	  }
+	  //muon track histos
+	  mnallMuonTracksPerJet = dbe_->get(DirName+"/"+"nallMuonTracks"); if(mnallMuonTracksPerJet && mnallMuonTracksPerJet->getRootObject()) mnallMuonTracksPerJet->Fill(muonsInVertexInCalo.size()+muonsInVertexOutCalo.size()+muonsOutVertexInCalo.size());
+	  mnInVertexInCaloMuonTracksPerJet = dbe_->get(DirName+"/"+"nInVertexInCaloMuonTracks"); if(mnInVertexInCaloMuonTracksPerJet && mnInVertexInCaloMuonTracksPerJet->getRootObject()) mnInVertexInCaloMuonTracksPerJet->Fill(muonsInVertexInCalo.size());
+	  mnOutVertexInCaloMuonTracksPerJet = dbe_->get(DirName+"/"+"nOutVertexInCaloMuonTracks"); if(mnOutVertexInCaloMuonTracksPerJet && mnOutVertexInCaloMuonTracksPerJet->getRootObject()) mnOutVertexInCaloMuonTracksPerJet->Fill(muonsOutVertexInCalo.size());
+	  mnInVertexOutCaloMuonTracksPerJet = dbe_->get(DirName+"/"+"nInVertexOutCaloMuonTracks"); if(mnInVertexOutCaloMuonTracksPerJet && mnInVertexOutCaloMuonTracksPerJet->getRootObject()) mnInVertexOutCaloMuonTracksPerJet->Fill(muonsInVertexOutCalo.size());
 	  for (reco::TrackRefVector::const_iterator iTrack = muonsInVertexInCalo.begin(); iTrack != muonsInVertexInCalo.end(); ++iTrack) {
-	    if(mallMuonsTracksPt)mallMuonsTracksPt->Fill((*iTrack)->pt());
-	    if(mallMuonsTracksEta)mallMuonsTracksEta->Fill((*iTrack)->eta());
-	    if(mallMuonsTracksPhi)mallMuonsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallMuonsTracksPtVsEta)mallMuonsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mInVertexInCaloMuonsTracksPt)mInVertexInCaloMuonsTracksPt->Fill((*iTrack)->pt());
-	    if(mInVertexInCaloMuonsTracksEta)mInVertexInCaloMuonsTracksEta->Fill((*iTrack)->eta());
-	    if(mInVertexInCaloMuonsTracksPhi)mInVertexInCaloMuonsTracksPhi->Fill((*iTrack)->phi());
-	    if(mInVertexInCaloMuonsTracksPtVsEta)mInVertexInCaloMuonsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallMuonTracksPt = dbe_->get(DirName+"/"+"allMuonTracksPt"); if(mallMuonTracksPt && mallMuonTracksPt->getRootObject()) mallMuonTracksPt->Fill((*iTrack)->pt());
+	    mallMuonTracksEta = dbe_->get(DirName+"/"+"allMuonTracksEta"); if(mallMuonTracksEta && mallMuonTracksEta->getRootObject()) mallMuonTracksEta->Fill((*iTrack)->eta());
+	    mallMuonTracksPhi = dbe_->get(DirName+"/"+"allMuonTracksPhi"); if(mallMuonTracksPhi && mallMuonTracksPhi->getRootObject()) mallMuonTracksPhi->Fill((*iTrack)->phi());
+	    mallMuonTracksPtVSEta = dbe_->get(DirName+"/"+"allMuonTracksPtVSEta"); if(mallMuonTracksPtVSEta && mallMuonTracksPtVSEta->getRootObject()) mallMuonTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mInVertexInCaloMuonTracksPt = dbe_->get(DirName+"/"+"InVertexInCaloMuonTracksPt"); if(mInVertexInCaloMuonTracksPt && mInVertexInCaloMuonTracksPt->getRootObject()) mInVertexInCaloMuonTracksPt->Fill((*iTrack)->pt());
+	    mInVertexInCaloMuonTracksEta = dbe_->get(DirName+"/"+"InVertexInCaloMuonTracksEta"); if(mInVertexInCaloMuonTracksEta && mInVertexInCaloMuonTracksEta->getRootObject()) mInVertexInCaloMuonTracksEta->Fill((*iTrack)->eta());
+	    mInVertexInCaloMuonTracksPhi = dbe_->get(DirName+"/"+"InVertexInCaloMuonTracksPhi"); if(mInVertexInCaloMuonTracksPhi && mInVertexInCaloMuonTracksPhi->getRootObject()) mInVertexInCaloMuonTracksPhi->Fill((*iTrack)->phi());
+	    mInVertexInCaloMuonTracksPtVSEta = dbe_->get(DirName+"/"+"InVertexInCaloMuonTracksPtVSEta"); if(mInVertexInCaloMuonTracksPtVSEta && mInVertexInCaloMuonTracksPtVSEta->getRootObject()) mInVertexInCaloMuonTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mInCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"InCaloTrackDirectionJetDR"); if(mInCaloTrackDirectionJetDRHisto_ && mInCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mInVertexTrackImpactPointJetDRHisto_)mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	     mInVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"InVertexTrackImpactPointJetDR"); if( mInVertexTrackImpactPointJetDRHisto_ &&  mInVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
 	  }
 	  for (reco::TrackRefVector::const_iterator iTrack = muonsInVertexOutCalo.begin(); iTrack != muonsInVertexOutCalo.end(); ++iTrack) {
-	    if(mallMuonsTracksPt)mallMuonsTracksPt->Fill((*iTrack)->pt());
-	    if(mallMuonsTracksEta)mallMuonsTracksEta->Fill((*iTrack)->eta());
-	    if(mallMuonsTracksPhi)mallMuonsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallMuonsTracksPtVsEta)mallMuonsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mInVertexOutCaloMuonsTracksPt)mInVertexOutCaloMuonsTracksPt->Fill((*iTrack)->pt());
-	    if(mInVertexOutCaloMuonsTracksEta)mInVertexOutCaloMuonsTracksEta->Fill((*iTrack)->eta());
-	    if(mInVertexOutCaloMuonsTracksPhi)mInVertexOutCaloMuonsTracksPhi->Fill((*iTrack)->phi());
-	    if(mInVertexOutCaloMuonsTracksPtVsEta)mInVertexOutCaloMuonsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallMuonTracksPt = dbe_->get(DirName+"/"+"allMuonTracksPt"); if(mallMuonTracksPt && mallMuonTracksPt->getRootObject()) mallMuonTracksPt->Fill((*iTrack)->pt());
+	    mallMuonTracksEta = dbe_->get(DirName+"/"+"allMuonTracksEta"); if(mallMuonTracksEta && mallMuonTracksEta->getRootObject()) mallMuonTracksEta->Fill((*iTrack)->eta());
+	    mallMuonTracksPhi = dbe_->get(DirName+"/"+"allMuonTracksPhi"); if(mallMuonTracksPhi && mallMuonTracksPhi->getRootObject()) mallMuonTracksPhi->Fill((*iTrack)->phi());
+	    mallMuonTracksPtVSEta = dbe_->get(DirName+"/"+"allMuonTracksPtVSEta"); if(mallMuonTracksPtVSEta && mallMuonTracksPtVSEta->getRootObject()) mallMuonTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mInVertexOutCaloMuonTracksPt = dbe_->get(DirName+"/"+"InVertexOutCaloMuonTracksPt"); if(mInVertexOutCaloMuonTracksPt && mInVertexOutCaloMuonTracksPt->getRootObject()) mInVertexOutCaloMuonTracksPt->Fill((*iTrack)->pt());
+	    mInVertexOutCaloMuonTracksEta = dbe_->get(DirName+"/"+"InVertexOutCaloMuonTracksEta"); if(mInVertexOutCaloMuonTracksEta && mInVertexOutCaloMuonTracksEta->getRootObject()) mInVertexOutCaloMuonTracksEta->Fill((*iTrack)->eta());
+	    mInVertexOutCaloMuonTracksPhi = dbe_->get(DirName+"/"+"InVertexOutCaloMuonTracksPhi"); if(mInVertexOutCaloMuonTracksPhi && mInVertexOutCaloMuonTracksPhi->getRootObject()) mInVertexOutCaloMuonTracksPhi->Fill((*iTrack)->phi());
+	    mInVertexOutCaloMuonTracksPtVSEta = dbe_->get(DirName+"/"+"InVertexOutCaloMuonTracksPtVSEta"); if(mInVertexOutCaloMuonTracksPtVSEta && mInVertexOutCaloMuonTracksPtVSEta->getRootObject()) mInVertexOutCaloMuonTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mOutCaloTrackDirectionJetDRHisto_)mOutCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mOutCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"OutCaloTrackDirectionJetDR"); if(mOutCaloTrackDirectionJetDRHisto_ && mOutCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mOutCaloTrackDirectionJetDRHisto_)mOutCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mInVertexTrackImpactPointJetDRHisto_)mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	     mInVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"InVertexTrackImpactPointJetDR"); if( mInVertexTrackImpactPointJetDRHisto_ &&  mInVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
 	  }
 	  for (reco::TrackRefVector::const_iterator iTrack = muonsOutVertexInCalo.begin(); iTrack != muonsOutVertexInCalo.end(); ++iTrack) {
-	    if(mallMuonsTracksPt)mallMuonsTracksPt->Fill((*iTrack)->pt());
-	    if(mallMuonsTracksEta)mallMuonsTracksEta->Fill((*iTrack)->eta());
-	    if(mallMuonsTracksPhi)mallMuonsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallMuonsTracksPtVsEta)mallMuonsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mOutVertexInCaloMuonsTracksPt)mOutVertexInCaloMuonsTracksPt->Fill((*iTrack)->pt());
-	    if(mOutVertexInCaloMuonsTracksEta)mOutVertexInCaloMuonsTracksEta->Fill((*iTrack)->eta());
-	    if(mOutVertexInCaloMuonsTracksPhi)mOutVertexInCaloMuonsTracksPhi->Fill((*iTrack)->phi());
-	    if(mOutVertexInCaloMuonsTracksPtVsEta)mOutVertexInCaloMuonsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallMuonTracksPt = dbe_->get(DirName+"/"+"allMuonTracksPt"); if(mallMuonTracksPt && mallMuonTracksPt->getRootObject()) mallMuonTracksPt->Fill((*iTrack)->pt());
+	    mallMuonTracksEta = dbe_->get(DirName+"/"+"allMuonTracksEta"); if(mallMuonTracksEta && mallMuonTracksEta->getRootObject()) mallMuonTracksEta->Fill((*iTrack)->eta());
+	    mallMuonTracksPhi = dbe_->get(DirName+"/"+"allMuonTracksPhi"); if(mallMuonTracksPhi && mallMuonTracksPhi->getRootObject()) mallMuonTracksPhi->Fill((*iTrack)->phi());
+	    mallMuonTracksPtVSEta = dbe_->get(DirName+"/"+"allMuonTracksPtVSEta"); if(mallMuonTracksPtVSEta && mallMuonTracksPtVSEta->getRootObject()) mallMuonTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mOutVertexInCaloMuonTracksPt = dbe_->get(DirName+"/"+"OutVertexInCaloMuonTracksPt"); if(mOutVertexInCaloMuonTracksPt && mOutVertexInCaloMuonTracksPt->getRootObject()) mOutVertexInCaloMuonTracksPt->Fill((*iTrack)->pt());
+	    mOutVertexInCaloMuonTracksEta = dbe_->get(DirName+"/"+"OutVertexInCaloMuonTracksEta"); if(mOutVertexInCaloMuonTracksEta && mOutVertexInCaloMuonTracksEta->getRootObject()) mOutVertexInCaloMuonTracksEta->Fill((*iTrack)->eta());
+	    mOutVertexInCaloMuonTracksPhi = dbe_->get(DirName+"/"+"OutVertexInCaloMuonTracksPhi"); if(mOutVertexInCaloMuonTracksPhi && mOutVertexInCaloMuonTracksPhi->getRootObject()) mOutVertexInCaloMuonTracksPhi->Fill((*iTrack)->phi());
+	    mOutVertexInCaloMuonTracksPtVSEta = dbe_->get(DirName+"/"+"OutVertexInCaloMuonTracksPtVSEta"); if(mOutVertexInCaloMuonTracksPtVSEta && mOutVertexInCaloMuonTracksPtVSEta->getRootObject()) mOutVertexInCaloMuonTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mInCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"InCaloTrackDirectionJetDR"); if(mInCaloTrackDirectionJetDRHisto_ && mInCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mOutVertexTrackImpactPointJetDRHisto_)mOutVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
-	  }//electron track histos
-	  if(mnallElectronsTracksPerJet) mnallElectronsTracksPerJet->Fill(electronsInVertexInCalo.size()+electronsInVertexOutCalo.size()+electronsOutVertexInCalo.size());
-	  if(mnInVertexInCaloElectronsTracksPerJet) mnInVertexInCaloElectronsTracksPerJet->Fill(electronsInVertexInCalo.size());
-	  if(mnOutVertexInCaloElectronsTracksPerJet) mnOutVertexInCaloElectronsTracksPerJet->Fill(electronsOutVertexInCalo.size());
-	  if(mnInVertexOutCaloElectronsTracksPerJet) mnInVertexOutCaloElectronsTracksPerJet->Fill(electronsInVertexOutCalo.size());
+	     mOutVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"OutVertexTrackImpactPointJetDR"); if( mOutVertexTrackImpactPointJetDRHisto_ &&  mOutVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mOutVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	  }
+	  //electron track histos
+	  mnallElectronTracksPerJet = dbe_->get(DirName+"/"+"nallElectronTracks"); if(mnallElectronTracksPerJet && mnallElectronTracksPerJet->getRootObject()) mnallElectronTracksPerJet->Fill(electronsInVertexInCalo.size()+electronsInVertexOutCalo.size()+electronsOutVertexInCalo.size());
+	  mnInVertexInCaloElectronTracksPerJet = dbe_->get(DirName+"/"+"nInVertexInCaloElectronTracks"); if(mnInVertexInCaloElectronTracksPerJet && mnInVertexInCaloElectronTracksPerJet->getRootObject()) mnInVertexInCaloElectronTracksPerJet->Fill(electronsInVertexInCalo.size());
+	  mnOutVertexInCaloElectronTracksPerJet = dbe_->get(DirName+"/"+"nOutVertexInCaloElectronTracks"); if(mnOutVertexInCaloElectronTracksPerJet && mnOutVertexInCaloElectronTracksPerJet->getRootObject()) mnOutVertexInCaloElectronTracksPerJet->Fill(electronsOutVertexInCalo.size());
+	  mnInVertexOutCaloElectronTracksPerJet = dbe_->get(DirName+"/"+"nInVertexOutCaloElectronTracks"); if(mnInVertexOutCaloElectronTracksPerJet && mnInVertexOutCaloElectronTracksPerJet->getRootObject()) mnInVertexOutCaloElectronTracksPerJet->Fill(electronsInVertexOutCalo.size());
 	  for (reco::TrackRefVector::const_iterator iTrack = electronsInVertexInCalo.begin(); iTrack != electronsInVertexInCalo.end(); ++iTrack) {
-	    if(mallElectronsTracksPt)mallElectronsTracksPt->Fill((*iTrack)->pt());
-	    if(mallElectronsTracksEta)mallElectronsTracksEta->Fill((*iTrack)->eta());
-	    if(mallElectronsTracksPhi)mallElectronsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallElectronsTracksPtVsEta)mallElectronsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mInVertexInCaloElectronsTracksPt)mInVertexInCaloElectronsTracksPt->Fill((*iTrack)->pt());
-	    if(mInVertexInCaloElectronsTracksEta)mInVertexInCaloElectronsTracksEta->Fill((*iTrack)->eta());
-	    if(mInVertexInCaloElectronsTracksPhi)mInVertexInCaloElectronsTracksPhi->Fill((*iTrack)->phi());
-	    if(mInVertexInCaloElectronsTracksPtVsEta)mInVertexInCaloElectronsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallElectronTracksPt = dbe_->get(DirName+"/"+"allElectronTracksPt"); if(mallElectronTracksPt && mallElectronTracksPt->getRootObject()) mallElectronTracksPt->Fill((*iTrack)->pt());
+	    mallElectronTracksEta = dbe_->get(DirName+"/"+"allElectronTracksEta"); if(mallElectronTracksEta && mallElectronTracksPhi->getRootObject()) mallElectronTracksEta->Fill((*iTrack)->eta());
+	    mallElectronTracksPhi = dbe_->get(DirName+"/"+"allElectronTracksPhi"); if(mallElectronTracksPhi && mallElectronTracksEta->getRootObject()) mallElectronTracksPhi->Fill((*iTrack)->phi());
+	    mallElectronTracksPtVSEta = dbe_->get(DirName+"/"+"allElectronTracksPtVSEta"); if(mallElectronTracksPtVSEta && mallElectronTracksPtVSEta->getRootObject()) mallElectronTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mInVertexInCaloElectronTracksPt = dbe_->get(DirName+"/"+"InVertexInCaloElectronTracksPt"); if(mInVertexInCaloElectronTracksPt && mInVertexInCaloElectronTracksPt->getRootObject()) mInVertexInCaloElectronTracksPt->Fill((*iTrack)->pt());
+	    mInVertexInCaloElectronTracksEta = dbe_->get(DirName+"/"+"InVertexInCaloElectronTracksEta"); if(mInVertexInCaloElectronTracksEta && mInVertexInCaloElectronTracksEta->getRootObject()) mInVertexInCaloElectronTracksEta->Fill((*iTrack)->eta());
+	    mInVertexInCaloElectronTracksPhi = dbe_->get(DirName+"/"+"InVertexInCaloElectronTracksPhi"); if(mInVertexInCaloElectronTracksPhi && mInVertexInCaloElectronTracksPhi->getRootObject()) mInVertexInCaloElectronTracksPhi->Fill((*iTrack)->phi());
+	    mInVertexInCaloElectronTracksPtVSEta = dbe_->get(DirName+"/"+"InVertexInCaloElectronTracksPtVSEta"); if(mInVertexInCaloElectronTracksPtVSEta && mInVertexInCaloElectronTracksPtVSEta->getRootObject()) mInVertexInCaloElectronTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mInCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"InCaloTrackDirectionJetDR"); if(mInCaloTrackDirectionJetDRHisto_ && mInCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mInVertexTrackImpactPointJetDRHisto_)mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	     mInVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"InVertexTrackImpactPointJetDR"); if( mInVertexTrackImpactPointJetDRHisto_ &&  mInVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
 	  }
 	  for (reco::TrackRefVector::const_iterator iTrack = electronsInVertexOutCalo.begin(); iTrack != electronsInVertexOutCalo.end(); ++iTrack) {
-	    if(mallElectronsTracksPt)mallElectronsTracksPt->Fill((*iTrack)->pt());
-	    if(mallElectronsTracksEta)mallElectronsTracksEta->Fill((*iTrack)->eta());
-	    if(mallElectronsTracksPhi)mallElectronsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallElectronsTracksPtVsEta)mallElectronsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mInVertexOutCaloElectronsTracksPt)mInVertexOutCaloElectronsTracksPt->Fill((*iTrack)->pt());
-	    if(mInVertexOutCaloElectronsTracksEta)mInVertexOutCaloElectronsTracksEta->Fill((*iTrack)->eta());
-	    if(mInVertexOutCaloElectronsTracksPhi)mInVertexOutCaloElectronsTracksPhi->Fill((*iTrack)->phi());
-	    if(mInVertexOutCaloElectronsTracksPtVsEta)mInVertexOutCaloElectronsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallElectronTracksPt = dbe_->get(DirName+"/"+"allElectronTracksPt"); if(mallElectronTracksPt && mallElectronTracksPt->getRootObject()) mallElectronTracksPt->Fill((*iTrack)->pt());
+	    mallElectronTracksEta = dbe_->get(DirName+"/"+"allElectronTracksEta"); if(mallElectronTracksEta && mallElectronTracksEta->getRootObject()) mallElectronTracksEta->Fill((*iTrack)->eta());
+	    mallElectronTracksPhi = dbe_->get(DirName+"/"+"allElectronTracksPhi"); if(mallElectronTracksPhi && mallElectronTracksPhi->getRootObject()) mallElectronTracksPhi->Fill((*iTrack)->phi());
+	    mallElectronTracksPtVSEta = dbe_->get(DirName+"/"+"allElectronTracksPtVSEta"); if(mallElectronTracksPtVSEta && mallElectronTracksPtVSEta->getRootObject()) mallElectronTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mInVertexOutCaloElectronTracksPt = dbe_->get(DirName+"/"+"InVertexOutCaloElectronTracksPt"); if(mInVertexOutCaloElectronTracksPt && mInVertexOutCaloElectronTracksPt->getRootObject()) mInVertexOutCaloElectronTracksPt->Fill((*iTrack)->pt());
+	    mInVertexOutCaloElectronTracksEta = dbe_->get(DirName+"/"+"InVertexOutCaloElectronTracksEta"); if(mInVertexOutCaloElectronTracksEta && mInVertexOutCaloElectronTracksEta->getRootObject()) mInVertexOutCaloElectronTracksEta->Fill((*iTrack)->eta());
+	    mInVertexOutCaloElectronTracksPhi = dbe_->get(DirName+"/"+"InVertexOutCaloElectronTracksPhi"); if(mInVertexOutCaloElectronTracksPhi && mInVertexOutCaloElectronTracksPhi->getRootObject()) mInVertexOutCaloElectronTracksPhi->Fill((*iTrack)->phi());
+	    mInVertexOutCaloElectronTracksPtVSEta = dbe_->get(DirName+"/"+"InVertexOutCaloElectronTracksPtVSEta"); if(mInVertexOutCaloElectronTracksPtVSEta && mInVertexOutCaloElectronTracksPtVSEta->getRootObject()) mInVertexOutCaloElectronTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mOutCaloTrackDirectionJetDRHisto_)mOutCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mOutCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"OutCaloTrackDirectionJetDR"); if(mOutCaloTrackDirectionJetDRHisto_ && mOutCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mOutCaloTrackDirectionJetDRHisto_)mOutCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mInVertexTrackImpactPointJetDRHisto_)mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	     mInVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"InVertexTrackImpactPointJetDR"); if( mInVertexTrackImpactPointJetDRHisto_ &&  mInVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mInVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
 	  }
 	  for (reco::TrackRefVector::const_iterator iTrack = electronsOutVertexInCalo.begin(); iTrack != electronsOutVertexInCalo.end(); ++iTrack) {
-	    if(mallElectronsTracksPt)mallElectronsTracksPt->Fill((*iTrack)->pt());
-	    if(mallElectronsTracksEta)mallElectronsTracksEta->Fill((*iTrack)->eta());
-	    if(mallElectronsTracksPhi)mallElectronsTracksPhi->Fill((*iTrack)->phi());
-	    if(mallElectronsTracksPtVsEta)mallElectronsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
-	    if(mOutVertexInCaloElectronsTracksPt)mOutVertexInCaloElectronsTracksPt->Fill((*iTrack)->pt());
-	    if(mOutVertexInCaloElectronsTracksEta)mOutVertexInCaloElectronsTracksEta->Fill((*iTrack)->eta());
-	    if(mOutVertexInCaloElectronsTracksPhi)mOutVertexInCaloElectronsTracksPhi->Fill((*iTrack)->phi());
-	    if(mOutVertexInCaloElectronsTracksPtVsEta)mOutVertexInCaloElectronsTracksPtVsEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mallElectronTracksPt = dbe_->get(DirName+"/"+"allElectronTracksPt"); if(mallElectronTracksPt && mallElectronTracksPt->getRootObject()) mallElectronTracksPt->Fill((*iTrack)->pt());
+	    mallElectronTracksEta = dbe_->get(DirName+"/"+"allElectronTracksEta"); if(mallElectronTracksEta && mallElectronTracksEta->getRootObject()) mallElectronTracksEta->Fill((*iTrack)->eta());
+	    mallElectronTracksPhi = dbe_->get(DirName+"/"+"allElectronTracksPhi"); if(mallElectronTracksPhi && mallElectronTracksPhi->getRootObject()) mallElectronTracksPhi->Fill((*iTrack)->phi());
+	    mallElectronTracksPtVSEta = dbe_->get(DirName+"/"+"allElectronTracksPtVSEta"); if(mallElectronTracksPtVSEta && mallElectronTracksPtVSEta->getRootObject()) mallElectronTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
+	    mOutVertexInCaloElectronTracksPt = dbe_->get(DirName+"/"+"OutVertexInCaloElectronTracksPt"); if(mOutVertexInCaloElectronTracksPt && mOutVertexInCaloElectronTracksPt->getRootObject()) mOutVertexInCaloElectronTracksPt->Fill((*iTrack)->pt());
+	    mOutVertexInCaloElectronTracksEta = dbe_->get(DirName+"/"+"OutVertexInCaloElectronTracksEta"); if(mOutVertexInCaloElectronTracksEta && mOutVertexInCaloElectronTracksEta->getRootObject()) mOutVertexInCaloElectronTracksEta->Fill((*iTrack)->eta());
+	    mOutVertexInCaloElectronTracksPhi = dbe_->get(DirName+"/"+"OutVertexInCaloElectronTracksPhi"); if(mOutVertexInCaloElectronTracksPhi && mOutVertexInCaloElectronTracksPhi->getRootObject()) mOutVertexInCaloElectronTracksPhi->Fill((*iTrack)->phi());
+	    mOutVertexInCaloElectronTracksPtVSEta = dbe_->get(DirName+"/"+"OutVertexInCaloElectronTracksPtVSEta"); if(mOutVertexInCaloElectronTracksPtVSEta && mOutVertexInCaloElectronTracksPtVSEta->getRootObject()) mOutVertexInCaloElectronTracksPtVSEta->Fill((*iTrack)->eta(),(*iTrack)->pt());
 	    const double trackDirectionJetDR = deltaR(rawJet->eta(),rawJet->phi(),(*iTrack)->eta(),(*iTrack)->phi());
-	    if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
+	    mInCaloTrackDirectionJetDRHisto_= dbe_->get(DirName+"/"+"InCaloTrackDirectionJetDR"); if(mInCaloTrackDirectionJetDRHisto_ && mInCaloTrackDirectionJetDRHisto_ ->getRootObject()) if(mInCaloTrackDirectionJetDRHisto_)mInCaloTrackDirectionJetDRHisto_->Fill(trackDirectionJetDR);
 	    math::XYZPoint point =trackPropagator_->impactPoint(**iTrack);
 	    const double impactPointJetDR = deltaR(rawJet->eta(),rawJet->phi(), point.Eta(),point.Phi());
-	    if(mOutVertexTrackImpactPointJetDRHisto_)mOutVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
+	     mOutVertexTrackImpactPointJetDRHisto_= dbe_->get(DirName+"/"+"OutVertexTrackImpactPointJetDR"); if( mOutVertexTrackImpactPointJetDRHisto_ &&  mOutVertexTrackImpactPointJetDRHisto_ ->getRootObject()) mOutVertexTrackImpactPointJetDRHisto_->Fill(impactPointJetDR);
 	  }
 	}
       }
@@ -1385,210 +1387,196 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  Thiscleaned = jetpassid;
 	}
 	if(Thiscleaned && pass_uncorrected){
-	  if (mPt_uncor)   mPt_uncor->Fill ((*pfJets)[ijet].pt());
-	  if (mEta_uncor)  mEta_uncor->Fill ((*pfJets)[ijet].eta());
-	  if (mPhi_uncor)  mPhi_uncor->Fill ((*pfJets)[ijet].phi());
+	  mPt_uncor = dbe_->get(DirName+"/"+"Pt_uncor"); if (mPt_uncor && mPt_uncor->getRootObject()) if (mPt_uncor)   mPt_uncor->Fill ((*pfJets)[ijet].pt());
+	  mEta_uncor = dbe_->get(DirName+"/"+"Eta_uncor"); if (mEta_uncor && mEta_uncor->getRootObject()) if (mEta_uncor)  mEta_uncor->Fill ((*pfJets)[ijet].eta());
+	  mPhi_uncor = dbe_->get(DirName+"/"+"Phi_uncor"); if (mPhi_uncor && mPhi_uncor->getRootObject()) if (mPhi_uncor)  mPhi_uncor->Fill ((*pfJets)[ijet].phi());
 	  if(!isJPTJet_){
-	    if (mConstituents_uncor) mConstituents_uncor->Fill ((*pfJets)[ijet].nConstituents());
+	    mConstituents_uncor = dbe_->get(DirName+"/"+"Constituents_uncor"); if (mConstituents_uncor && mConstituents_uncor->getRootObject()) if (mConstituents_uncor) mConstituents_uncor->Fill ((*pfJets)[ijet].nConstituents());
 	  }
 	}
 	if(Thiscleaned && pass_corrected){
-	  if (mHFrac)        mHFrac->Fill ((*pfJets)[ijet].chargedHadronEnergyFraction()+(*pfJets)[ijet].neutralHadronEnergyFraction()+(*pfJets)[ijet].HFHadronEnergyFraction ());
-	  if (mEFrac)        mEFrac->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() +(*pfJets)[ijet].neutralEmEnergyFraction()+(*pfJets)[ijet].HFEMEnergyFraction ());
+	  mHFrac = dbe_->get(DirName+"/"+"HFrac"); if (mHFrac && mHFrac->getRootObject()) mHFrac->Fill ((*pfJets)[ijet].chargedHadronEnergyFraction()+(*pfJets)[ijet].neutralHadronEnergyFraction()+(*pfJets)[ijet].HFHadronEnergyFraction ());
+	  mEFrac = dbe_->get(DirName+"/"+"EFrac"); if (mEFrac && mHFrac->getRootObject()) mEFrac->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() +(*pfJets)[ijet].neutralEmEnergyFraction()+(*pfJets)[ijet].HFEMEnergyFraction ());
 	  if ((*pfJets)[ijet].pt()<= 50) {
-	    if (mCHFracVSeta_lowPt) mCHFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedHadronEnergyFraction());
-	    if (mNHFracVSeta_lowPt) mNHFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralHadronEnergyFraction());
-	    if (mPhFracVSeta_lowPt) mPhFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralEmEnergyFraction());
-	    if (mElFracVSeta_lowPt) mElFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedEmEnergyFraction());
-	    if (mMuFracVSeta_lowPt) mMuFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedMuEnergyFraction());
+	    mCHFracVSeta_lowPt = dbe_->get(DirName+"/"+"CHFracVSeta_lowPt"); if (mCHFracVSeta_lowPt &&  mCHFracVSeta_lowPt->getRootObject()) mCHFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mNHFracVSeta_lowPt = dbe_->get(DirName+"/"+"NHFracVSeta_lowPt"); if (mNHFracVSeta_lowPt &&  mNHFracVSeta_lowPt->getRootObject()) mNHFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralHadronEnergyFraction());
+	    mPhFracVSeta_lowPt = dbe_->get(DirName+"/"+"PhFracVSeta_lowPt"); if (mPhFracVSeta_lowPt &&  mPhFracVSeta_lowPt->getRootObject()) mPhFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralEmEnergyFraction());
+	    mElFracVSeta_lowPt = dbe_->get(DirName+"/"+"ElFracVSeta_lowPt"); if (mElFracVSeta_lowPt &&  mElFracVSeta_lowPt->getRootObject()) mElFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedEmEnergyFraction());
+	    mMuFracVSeta_lowPt = dbe_->get(DirName+"/"+"MuFracVSeta_lowPt"); if (mMuFracVSeta_lowPt &&  mMuFracVSeta_lowPt->getRootObject()) mMuFracVSeta_lowPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedMuEnergyFraction());
 	  }
 	  if ((*pfJets)[ijet].pt()>50. && (*pfJets)[ijet].pt()<=140.) {
-	    if (mCHFracVSeta_mediumPt) mCHFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedHadronEnergyFraction());
-	    if (mNHFracVSeta_mediumPt) mNHFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralHadronEnergyFraction());
-	    if (mPhFracVSeta_mediumPt) mPhFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralEmEnergyFraction());
-	    if (mElFracVSeta_mediumPt) mElFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedEmEnergyFraction());
-	    if (mMuFracVSeta_mediumPt) mMuFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedMuEnergyFraction());
+	    mCHFracVSeta_mediumPt = dbe_->get(DirName+"/"+"CHFracVSeta_mediumPt"); if (mCHFracVSeta_mediumPt &&  mCHFracVSeta_mediumPt->getRootObject()) mCHFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mNHFracVSeta_mediumPt = dbe_->get(DirName+"/"+"NHFracVSeta_mediumPt"); if (mNHFracVSeta_mediumPt &&  mNHFracVSeta_mediumPt->getRootObject()) mNHFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralHadronEnergyFraction());
+	    mPhFracVSeta_mediumPt = dbe_->get(DirName+"/"+"PhFracVSeta_mediumPt"); if (mPhFracVSeta_mediumPt &&  mPhFracVSeta_mediumPt->getRootObject()) mPhFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralEmEnergyFraction());
+	    mElFracVSeta_mediumPt = dbe_->get(DirName+"/"+"ElFracVSeta_mediumPt"); if (mElFracVSeta_mediumPt &&  mElFracVSeta_mediumPt->getRootObject()) mElFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedEmEnergyFraction());
+	    mMuFracVSeta_mediumPt = dbe_->get(DirName+"/"+"MuFracVSeta_mediumPt"); if (mMuFracVSeta_mediumPt &&  mMuFracVSeta_mediumPt->getRootObject()) mMuFracVSeta_mediumPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedMuEnergyFraction());
 	  }
 	  if ((*pfJets)[ijet].pt()>140.) {
-	    if (mCHFracVSeta_highPt) mCHFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedHadronEnergyFraction());
-	    if (mNHFracVSeta_highPt) mNHFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralHadronEnergyFraction());
-	    if (mPhFracVSeta_highPt) mPhFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralEmEnergyFraction());
-	    if (mElFracVSeta_highPt) mElFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedEmEnergyFraction());
-	    if (mMuFracVSeta_highPt) mMuFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedMuEnergyFraction());
+	    mCHFracVSeta_highPt = dbe_->get(DirName+"/"+"CHFracVSeta_highPt"); if (mCHFracVSeta_highPt &&  mCHFracVSeta_highPt->getRootObject()) mCHFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mNHFracVSeta_highPt = dbe_->get(DirName+"/"+"NHFracVSeta_highPt"); if (mNHFracVSeta_highPt &&  mNHFracVSeta_highPt->getRootObject()) mNHFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralHadronEnergyFraction());
+	    mPhFracVSeta_highPt = dbe_->get(DirName+"/"+"PhFracVSeta_highPt"); if (mPhFracVSeta_highPt &&  mPhFracVSeta_highPt->getRootObject()) mPhFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].neutralEmEnergyFraction());
+	    mElFracVSeta_highPt = dbe_->get(DirName+"/"+"ElFracVSeta_highPt"); if (mElFracVSeta_highPt &&  mElFracVSeta_highPt->getRootObject()) mElFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedEmEnergyFraction());
+	    mMuFracVSeta_highPt = dbe_->get(DirName+"/"+"MuFracVSeta_highPt"); if (mMuFracVSeta_highPt &&  mMuFracVSeta_highPt->getRootObject()) mMuFracVSeta_highPt->Fill((*pfJets)[ijet].eta(),(*pfJets)[ijet].chargedMuEnergyFraction());
 	  }
 	  if (fabs((*pfJets)[ijet].eta()) <= 1.3) {
-	    if (mHFrac_Barrel)        mHFrac_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction() + (*pfJets)[ijet].neutralHadronEnergyFraction() );
-	    if (mEFrac_Barrel)        mEFrac_Barrel->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() + (*pfJets)[ijet].neutralEmEnergyFraction());
-	    //fractions
+	     mHFrac_Barrel = dbe_->get(DirName+"/"+"HFrac_Barrel"); if (mHFrac_Barrel && mHFrac_Barrel->getRootObject())   mHFrac_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction() + (*pfJets)[ijet].neutralHadronEnergyFraction() );
+	     mEFrac_Barrel = dbe_->get(DirName+"/"+"EFrac_Barrel"); if (mEFrac_Barrel && mEFrac_Barrel->getRootObject())   mEFrac_Barrel->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() + (*pfJets)[ijet].neutralEmEnergyFraction());
+	    //fractions for barrel
 	    if ((*pfJets)[ijet].pt()<=50.) {
-	      if (mCHFrac_lowPt_Barrel) mCHFrac_lowPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	      if (mNHFrac_lowPt_Barrel) mNHFrac_lowPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	      if (mPhFrac_lowPt_Barrel) mPhFrac_lowPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
-	      if (mElFrac_lowPt_Barrel) mElFrac_lowPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
-	      if (mMuFrac_lowPt_Barrel) mMuFrac_lowPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
-	      //
-	      if (mCHEn_lowPt_Barrel) mCHEn_lowPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergy());
-	      if (mNHEn_lowPt_Barrel) mNHEn_lowPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergy());
-	      if (mPhEn_lowPt_Barrel) mPhEn_lowPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergy());
-	      if (mElEn_lowPt_Barrel) mElEn_lowPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergy());
-	      if (mMuEn_lowPt_Barrel) mMuEn_lowPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mCHFrac_lowPt_Barrel = dbe_->get(DirName+"/"+"CHFrac_lowPt_Barrel"); if (mCHFrac_lowPt_Barrel &&  mCHFrac_lowPt_Barrel->getRootObject()) mCHFrac_lowPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	      mNHFrac_lowPt_Barrel = dbe_->get(DirName+"/"+"NHFrac_lowPt_Barrel"); if (mNHFrac_lowPt_Barrel &&  mNHFrac_lowPt_Barrel->getRootObject()) mNHFrac_lowPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	      mPhFrac_lowPt_Barrel = dbe_->get(DirName+"/"+"PhFrac_lowPt_Barrel"); if (mPhFrac_lowPt_Barrel &&  mPhFrac_lowPt_Barrel->getRootObject()) mPhFrac_lowPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
+	      mElFrac_lowPt_Barrel = dbe_->get(DirName+"/"+"ElFrac_lowPt_Barrel"); if (mElFrac_lowPt_Barrel &&  mElFrac_lowPt_Barrel->getRootObject()) mElFrac_lowPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
+	      mMuFrac_lowPt_Barrel = dbe_->get(DirName+"/"+"MuFrac_lowPt_Barrel"); if (mMuFrac_lowPt_Barrel &&  mMuFrac_lowPt_Barrel->getRootObject()) mMuFrac_lowPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
+  	      mCHEn_lowPt_Barrel = dbe_->get(DirName+"/"+"CHEn_lowPt_Barrel"); if (mCHEn_lowPt_Barrel &&  mCHEn_lowPt_Barrel->getRootObject()) mCHEn_lowPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergy());
+	      mNHEn_lowPt_Barrel = dbe_->get(DirName+"/"+"NHEn_lowPt_Barrel"); if (mNHEn_lowPt_Barrel &&  mNHEn_lowPt_Barrel->getRootObject()) mNHEn_lowPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergy());
+	      mPhEn_lowPt_Barrel = dbe_->get(DirName+"/"+"PhEn_lowPt_Barrel"); if (mPhEn_lowPt_Barrel &&  mPhEn_lowPt_Barrel->getRootObject()) mPhEn_lowPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergy());
+	      mElEn_lowPt_Barrel = dbe_->get(DirName+"/"+"ElEn_lowPt_Barrel"); if (mElEn_lowPt_Barrel &&  mElEn_lowPt_Barrel->getRootObject()) mElEn_lowPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergy());
+	      mMuEn_lowPt_Barrel = dbe_->get(DirName+"/"+"MuEn_lowPt_Barrel"); if (mMuEn_lowPt_Barrel &&  mMuEn_lowPt_Barrel->getRootObject()) mMuEn_lowPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mChMultiplicity_lowPt_Barrel = dbe_->get(DirName+"/"+"ChMultiplicity_lowPt_Barrel"); if(mChMultiplicity_lowPt_Barrel && mChMultiplicity_lowPt_Barrel->getRootObject())  mChMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_lowPt_Barrel = dbe_->get(DirName+"/"+"NeutMultiplicity_lowPt_Barrel"); if(mNeutMultiplicity_lowPt_Barrel && mNeutMultiplicity_lowPt_Barrel->getRootObject())  mNeutMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
+	      mMuMultiplicity_lowPt_Barrel = dbe_->get(DirName+"/"+"MuMultiplicity_lowPt_Barrel"); if(mMuMultiplicity_lowPt_Barrel && mMuMultiplicity_lowPt_Barrel->getRootObject())  mMuMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
 	    }
 	    if ((*pfJets)[ijet].pt()>50. && (*pfJets)[ijet].pt()<=140.) {
-	      if (mCHFrac_mediumPt_Barrel) mCHFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	      if (mNHFrac_mediumPt_Barrel) mNHFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	      if (mPhFrac_mediumPt_Barrel) mPhFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
-	      if (mElFrac_mediumPt_Barrel) mElFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
-	      if (mMuFrac_mediumPt_Barrel) mMuFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
-	      if (mCHEn_mediumPt_Barrel) mCHEn_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergy());
-	      if (mNHEn_mediumPt_Barrel) mNHEn_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergy());
-	      if (mPhEn_mediumPt_Barrel) mPhEn_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergy());
-	      if (mElEn_mediumPt_Barrel) mElEn_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergy());
-	      if (mMuEn_mediumPt_Barrel) mMuEn_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mCHFrac_mediumPt_Barrel = dbe_->get(DirName+"/"+"CHFrac_mediumPt_Barrel"); if (mCHFrac_mediumPt_Barrel &&  mCHFrac_mediumPt_Barrel->getRootObject()) mCHFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	      mNHFrac_mediumPt_Barrel = dbe_->get(DirName+"/"+"NHFrac_mediumPt_Barrel"); if (mNHFrac_mediumPt_Barrel &&  mNHFrac_mediumPt_Barrel->getRootObject()) mNHFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	      mPhFrac_mediumPt_Barrel = dbe_->get(DirName+"/"+"PhFrac_mediumPt_Barrel"); if (mPhFrac_mediumPt_Barrel &&  mPhFrac_mediumPt_Barrel->getRootObject()) mPhFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
+	      mElFrac_mediumPt_Barrel = dbe_->get(DirName+"/"+"ElFrac_mediumPt_Barrel"); if (mElFrac_mediumPt_Barrel &&  mElFrac_mediumPt_Barrel->getRootObject()) mElFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
+	      mMuFrac_mediumPt_Barrel = dbe_->get(DirName+"/"+"MuFrac_mediumPt_Barrel"); if (mMuFrac_mediumPt_Barrel &&  mMuFrac_mediumPt_Barrel->getRootObject()) mMuFrac_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
+  	      mCHEn_mediumPt_Barrel = dbe_->get(DirName+"/"+"CHEn_mediumPt_Barrel"); if (mCHEn_mediumPt_Barrel &&  mCHEn_mediumPt_Barrel->getRootObject()) mCHEn_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergy());
+	      mNHEn_mediumPt_Barrel = dbe_->get(DirName+"/"+"NHEn_mediumPt_Barrel"); if (mNHEn_mediumPt_Barrel &&  mNHEn_mediumPt_Barrel->getRootObject()) mNHEn_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergy());
+	      mPhEn_mediumPt_Barrel = dbe_->get(DirName+"/"+"PhEn_mediumPt_Barrel"); if (mPhEn_mediumPt_Barrel &&  mPhEn_mediumPt_Barrel->getRootObject()) mPhEn_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergy());
+	      mElEn_mediumPt_Barrel = dbe_->get(DirName+"/"+"ElEn_mediumPt_Barrel"); if (mElEn_mediumPt_Barrel &&  mElEn_mediumPt_Barrel->getRootObject()) mElEn_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergy());
+	      mMuEn_mediumPt_Barrel = dbe_->get(DirName+"/"+"MuEn_mediumPt_Barrel"); if (mMuEn_mediumPt_Barrel &&  mMuEn_mediumPt_Barrel->getRootObject()) mMuEn_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mChMultiplicity_mediumPt_Barrel = dbe_->get(DirName+"/"+"ChMultiplicity_mediumPt_Barrel"); if(mChMultiplicity_mediumPt_Barrel && mChMultiplicity_mediumPt_Barrel->getRootObject())  mChMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_mediumPt_Barrel = dbe_->get(DirName+"/"+"NeutMultiplicity_mediumPt_Barrel"); if(mNeutMultiplicity_mediumPt_Barrel && mNeutMultiplicity_mediumPt_Barrel->getRootObject())  mNeutMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
+	      mMuMultiplicity_mediumPt_Barrel = dbe_->get(DirName+"/"+"MuMultiplicity_mediumPt_Barrel"); if(mMuMultiplicity_mediumPt_Barrel && mMuMultiplicity_mediumPt_Barrel->getRootObject())  mMuMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
 	    }
 	    if ((*pfJets)[ijet].pt()>140.) {
-	      if (mCHFrac_highPt_Barrel) mCHFrac_highPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	      if (mNHFrac_highPt_Barrel) mNHFrac_highPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	      if (mPhFrac_highPt_Barrel) mPhFrac_highPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
-	      if (mElFrac_highPt_Barrel) mElFrac_highPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
-	      if (mMuFrac_highPt_Barrel) mMuFrac_highPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
-	      //
-	      if (mCHEn_highPt_Barrel) mCHEn_highPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergy());
-	      if (mNHEn_highPt_Barrel) mNHEn_highPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergy());
-	      if (mPhEn_highPt_Barrel) mPhEn_highPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergy());
-	      if (mElEn_highPt_Barrel) mElEn_highPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergy());
-	      if (mMuEn_highPt_Barrel) mMuEn_highPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mCHFrac_highPt_Barrel = dbe_->get(DirName+"/"+"CHFrac_highPt_Barrel"); if (mCHFrac_highPt_Barrel &&  mCHFrac_highPt_Barrel->getRootObject()) mCHFrac_highPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	      mNHFrac_highPt_Barrel = dbe_->get(DirName+"/"+"NHFrac_highPt_Barrel"); if (mNHFrac_highPt_Barrel &&  mNHFrac_highPt_Barrel->getRootObject()) mNHFrac_highPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	      mPhFrac_highPt_Barrel = dbe_->get(DirName+"/"+"PhFrac_highPt_Barrel"); if (mPhFrac_highPt_Barrel &&  mPhFrac_highPt_Barrel->getRootObject()) mPhFrac_highPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
+	      mElFrac_highPt_Barrel = dbe_->get(DirName+"/"+"ElFrac_highPt_Barrel"); if (mElFrac_highPt_Barrel &&  mElFrac_highPt_Barrel->getRootObject()) mElFrac_highPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
+	      mMuFrac_highPt_Barrel = dbe_->get(DirName+"/"+"MuFrac_highPt_Barrel"); if (mMuFrac_highPt_Barrel &&  mMuFrac_highPt_Barrel->getRootObject()) mMuFrac_highPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
+  	      mCHEn_highPt_Barrel = dbe_->get(DirName+"/"+"CHEn_highPt_Barrel"); if (mCHEn_highPt_Barrel &&  mCHEn_highPt_Barrel->getRootObject()) mCHEn_highPt_Barrel->Fill((*pfJets)[ijet].chargedHadronEnergy());
+	      mNHEn_highPt_Barrel = dbe_->get(DirName+"/"+"NHEn_highPt_Barrel"); if (mNHEn_highPt_Barrel &&  mNHEn_highPt_Barrel->getRootObject()) mNHEn_highPt_Barrel->Fill((*pfJets)[ijet].neutralHadronEnergy());
+	      mPhEn_highPt_Barrel = dbe_->get(DirName+"/"+"PhEn_highPt_Barrel"); if (mPhEn_highPt_Barrel &&  mPhEn_highPt_Barrel->getRootObject()) mPhEn_highPt_Barrel->Fill((*pfJets)[ijet].neutralEmEnergy());
+	      mElEn_highPt_Barrel = dbe_->get(DirName+"/"+"ElEn_highPt_Barrel"); if (mElEn_highPt_Barrel &&  mElEn_highPt_Barrel->getRootObject()) mElEn_highPt_Barrel->Fill((*pfJets)[ijet].chargedEmEnergy());
+	      mMuEn_highPt_Barrel = dbe_->get(DirName+"/"+"MuEn_highPt_Barrel"); if (mMuEn_highPt_Barrel &&  mMuEn_highPt_Barrel->getRootObject()) mMuEn_highPt_Barrel->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mChMultiplicity_highPt_Barrel = dbe_->get(DirName+"/"+"ChMultiplicity_highPt_Barrel"); if(mChMultiplicity_highPt_Barrel && mChMultiplicity_highPt_Barrel->getRootObject())  mChMultiplicity_highPt_Barrel->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_highPt_Barrel = dbe_->get(DirName+"/"+"NeutMultiplicity_highPt_Barrel"); if(mNeutMultiplicity_highPt_Barrel && mNeutMultiplicity_highPt_Barrel->getRootObject())  mNeutMultiplicity_highPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
+	      mMuMultiplicity_highPt_Barrel = dbe_->get(DirName+"/"+"MuMultiplicity_highPt_Barrel"); if(mMuMultiplicity_highPt_Barrel && mMuMultiplicity_highPt_Barrel->getRootObject())  mMuMultiplicity_highPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
 	    }
-	    if(mChMultiplicity_lowPt_Barrel)  mChMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_lowPt_Barrel)  mNeuMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_lowPt_Barrel)  mMuMultiplicity_lowPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
-	    if(mChMultiplicity_mediumPt_Barrel)  mChMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_mediumPt_Barrel)  mNeuMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_mediumPt_Barrel)  mMuMultiplicity_mediumPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
-	    if(mChMultiplicity_highPt_Barrel)  mChMultiplicity_highPt_Barrel->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_highPt_Barrel)  mNeuMultiplicity_highPt_Barrel->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_highPt_Barrel)  mMuMultiplicity_highPt_Barrel->Fill((*pfJets)[ijet].muonMultiplicity());
-	    //
-	    if (mCHFracVSpT_Barrel) mCHFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedHadronEnergyFraction());
-	    if (mNHFracVSpT_Barrel) mNHFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].neutralHadronEnergyFraction());
-	    if (mPhFracVSpT_Barrel) mPhFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].neutralEmEnergyFraction());
-	    if (mElFracVSpT_Barrel) mElFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedEmEnergyFraction());
-	    if (mMuFracVSpT_Barrel) mMuFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedMuEnergyFraction());
+	    mCHFracVSpT_Barrel = dbe_->get(DirName+"/"+"CHFracVSpT_Barrel"); if(mCHFracVSpT_Barrel && mCHFracVSpT_Barrel->getRootObject()) mCHFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mNHFracVSpT_Barrel = dbe_->get(DirName+"/"+"NHFracVSpT_Barrel");if (mNHFracVSpT_Barrel && mNHFracVSpT_Barrel->getRootObject()) mNHFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].neutralHadronEnergyFraction());
+	    mPhFracVSpT_Barrel = dbe_->get(DirName+"/"+"PhFracVSpT_Barrel");if (mPhFracVSpT_Barrel && mPhFracVSpT_Barrel->getRootObject()) mPhFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].neutralEmEnergyFraction());
+	    mElFracVSpT_Barrel = dbe_->get(DirName+"/"+"ElFracVSpT_Barrel");if (mElFracVSpT_Barrel && mElFracVSpT_Barrel->getRootObject()) mElFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedEmEnergyFraction());
+	    mMuFracVSpT_Barrel = dbe_->get(DirName+"/"+"MuFracVSpT_Barrel");if (mMuFracVSpT_Barrel && mMuFracVSpT_Barrel->getRootObject()) mMuFracVSpT_Barrel->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedMuEnergyFraction());
 	  }else if(fabs((*pfJets)[ijet].eta()) <= 3) {
-	    if (mHFrac_EndCap)           mHFrac_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction() + (*pfJets)[ijet].neutralHadronEnergyFraction()+(*pfJets)[ijet].HFHadronEnergyFraction ());
-	    if (mEFrac_EndCap)           mEFrac_EndCap->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() + (*pfJets)[ijet].neutralEmEnergyFraction()+(*pfJets)[ijet].HFEMEnergyFraction ());
-	    //fractions
+	    mHFrac_EndCap = dbe_->get(DirName+"/"+"HFrac_EndCap"); if (mHFrac_EndCap && mHFrac_EndCap->getRootObject())   mHFrac_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction() + (*pfJets)[ijet].neutralHadronEnergyFraction()+(*pfJets)[ijet].HFHadronEnergyFraction ());
+	    mEFrac_EndCap = dbe_->get(DirName+"/"+"EFrac_EndCap"); if (mEFrac_EndCap && mEFrac_EndCap->getRootObject())    mEFrac_EndCap->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() + (*pfJets)[ijet].neutralEmEnergyFraction()+(*pfJets)[ijet].HFEMEnergyFraction ());
+	    //fractions for endcap
 	    if ((*pfJets)[ijet].pt()<=50.) {
-	      if (mCHFrac_lowPt_EndCap) mCHFrac_lowPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	      if (mNHFrac_lowPt_EndCap) mNHFrac_lowPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	      if (mPhFrac_lowPt_EndCap) mPhFrac_lowPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
-	      if (mElFrac_lowPt_EndCap) mElFrac_lowPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
-	      if (mMuFrac_lowPt_EndCap) mMuFrac_lowPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
-	      //
-	      if (mCHEn_lowPt_EndCap) mCHEn_lowPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
-	      if (mNHEn_lowPt_EndCap) mNHEn_lowPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergy());
-	      if (mPhEn_lowPt_EndCap) mPhEn_lowPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergy());
-	      if (mElEn_lowPt_EndCap) mElEn_lowPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergy());
-	      if (mMuEn_lowPt_EndCap) mMuEn_lowPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergy());
-	    }else if ((*pfJets)[ijet].pt()>50. && (*pfJets)[ijet].pt()<=140.) {
-	      if (mCHFrac_mediumPt_EndCap) mCHFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	      if (mNHFrac_mediumPt_EndCap) mNHFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	      if (mPhFrac_mediumPt_EndCap) mPhFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
-	      if (mElFrac_mediumPt_EndCap) mElFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
-	      if (mMuFrac_mediumPt_EndCap) mMuFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
-	      //
-	      if (mCHEn_mediumPt_EndCap) mCHEn_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
-	      if (mNHEn_mediumPt_EndCap) mNHEn_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergy());
-	      if (mPhEn_mediumPt_EndCap) mPhEn_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergy());
-	      if (mElEn_mediumPt_EndCap) mElEn_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergy());
-	      if (mMuEn_mediumPt_EndCap) mMuEn_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergy());
-	    }else if ((*pfJets)[ijet].pt()>140.) {
-	      if (mCHFrac_highPt_EndCap) mCHFrac_highPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
-	      if (mNHFrac_highPt_EndCap) mNHFrac_highPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
-	      if (mPhFrac_highPt_EndCap) mPhFrac_highPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
-	      if (mElFrac_highPt_EndCap) mElFrac_highPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
-	      if (mMuFrac_highPt_EndCap) mMuFrac_highPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
-	      //
-	      if (mCHEn_highPt_EndCap) mCHEn_highPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
-	      if (mNHEn_highPt_EndCap) mNHEn_highPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergy());
-	      if (mPhEn_highPt_EndCap) mPhEn_highPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergy());
-	      if (mElEn_highPt_EndCap) mElEn_highPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergy());
-	      if (mMuEn_highPt_EndCap) mMuEn_highPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergy());
-	    }
-	    if(mChMultiplicity_lowPt_EndCap)  mChMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_lowPt_EndCap)  mNeuMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_lowPt_EndCap)  mMuMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
-	    if(mChMultiplicity_mediumPt_EndCap)  mChMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_mediumPt_EndCap)  mNeuMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_mediumPt_EndCap)  mMuMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
-	    if(mChMultiplicity_highPt_EndCap)  mChMultiplicity_highPt_EndCap->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_highPt_EndCap)  mNeuMultiplicity_highPt_EndCap->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_highPt_EndCap)  mMuMultiplicity_highPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
-	    //
-	    if (mCHFracVSpT_EndCap) mCHFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedHadronEnergyFraction());
-	    if (mNHFracVSpT_EndCap) mNHFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].neutralHadronEnergyFraction());
-	    if (mPhFracVSpT_EndCap) mPhFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].neutralEmEnergyFraction());
-	    if (mElFracVSpT_EndCap) mElFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedEmEnergyFraction());
-	    if (mMuFracVSpT_EndCap) mMuFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedMuEnergyFraction());
-	    
-	  }else{
-	    if (mHFrac_Forward)           mHFrac_Forward->Fill((*pfJets)[ijet].chargedHadronEnergyFraction() + (*pfJets)[ijet].neutralHadronEnergyFraction()+(*pfJets)[ijet].HFHadronEnergyFraction ());	
-	    if (mEFrac_Forward)           mEFrac_Forward->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() + (*pfJets)[ijet].neutralEmEnergyFraction()+(*pfJets)[ijet].HFEMEnergyFraction ());
-	    //fractions
-	    if ((*pfJets)[ijet].pt()<=50.) {
-	      if(mHFEFrac_lowPt_Forward) mHFEFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
-	      if(mHFHFrac_lowPt_Forward) mHFHFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
-	      //
-	      if(mHFEEn_lowPt_Forward) mHFEEn_lowPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
-	      if(mHFHEn_lowPt_Forward) mHFHEn_lowPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
+	      mCHFrac_lowPt_EndCap = dbe_->get(DirName+"/"+"CHFrac_lowPt_EndCap"); if (mCHFrac_lowPt_EndCap &&  mCHFrac_lowPt_EndCap->getRootObject()) mCHFrac_lowPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	      mNHFrac_lowPt_EndCap = dbe_->get(DirName+"/"+"NHFrac_lowPt_EndCap"); if (mNHFrac_lowPt_EndCap &&  mNHFrac_lowPt_EndCap->getRootObject()) mNHFrac_lowPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	      mPhFrac_lowPt_EndCap = dbe_->get(DirName+"/"+"PhFrac_lowPt_EndCap"); if (mPhFrac_lowPt_EndCap &&  mPhFrac_lowPt_EndCap->getRootObject()) mPhFrac_lowPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
+	      mElFrac_lowPt_EndCap = dbe_->get(DirName+"/"+"ElFrac_lowPt_EndCap"); if (mElFrac_lowPt_EndCap &&  mElFrac_lowPt_EndCap->getRootObject()) mElFrac_lowPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
+	      mMuFrac_lowPt_EndCap = dbe_->get(DirName+"/"+"MuFrac_lowPt_EndCap"); if (mMuFrac_lowPt_EndCap &&  mMuFrac_lowPt_EndCap->getRootObject()) mMuFrac_lowPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
+  	      mCHEn_lowPt_EndCap = dbe_->get(DirName+"/"+"CHEn_lowPt_EndCap"); if (mCHEn_lowPt_EndCap &&  mCHEn_lowPt_EndCap->getRootObject()) mCHEn_lowPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
+	      mNHEn_lowPt_EndCap = dbe_->get(DirName+"/"+"NHEn_lowPt_EndCap"); if (mNHEn_lowPt_EndCap &&  mNHEn_lowPt_EndCap->getRootObject()) mNHEn_lowPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergy());
+	      mPhEn_lowPt_EndCap = dbe_->get(DirName+"/"+"PhEn_lowPt_EndCap"); if (mPhEn_lowPt_EndCap &&  mPhEn_lowPt_EndCap->getRootObject()) mPhEn_lowPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergy());
+	      mElEn_lowPt_EndCap = dbe_->get(DirName+"/"+"ElEn_lowPt_EndCap"); if (mElEn_lowPt_EndCap &&  mElEn_lowPt_EndCap->getRootObject()) mElEn_lowPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergy());
+	      mMuEn_lowPt_EndCap = dbe_->get(DirName+"/"+"MuEn_lowPt_EndCap"); if (mMuEn_lowPt_EndCap &&  mMuEn_lowPt_EndCap->getRootObject()) mMuEn_lowPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mChMultiplicity_lowPt_EndCap = dbe_->get(DirName+"/"+"ChMultiplicity_lowPt_EndCap"); if(mChMultiplicity_lowPt_EndCap && mChMultiplicity_lowPt_EndCap->getRootObject())  mChMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_lowPt_EndCap = dbe_->get(DirName+"/"+"NeutMultiplicity_lowPt_EndCap"); if(mNeutMultiplicity_lowPt_EndCap && mNeutMultiplicity_lowPt_EndCap->getRootObject())  mNeutMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].neutralMultiplicity());
+	      mMuMultiplicity_lowPt_EndCap = dbe_->get(DirName+"/"+"MuMultiplicity_lowPt_EndCap"); if(mMuMultiplicity_lowPt_EndCap && mMuMultiplicity_lowPt_EndCap->getRootObject())  mMuMultiplicity_lowPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
 	    }
 	    if ((*pfJets)[ijet].pt()>50. && (*pfJets)[ijet].pt()<=140.) {
-	      if(mHFEFrac_mediumPt_Forward) mHFEFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
-	      if(mHFHFrac_mediumPt_Forward) mHFHFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
-	      //
-	      if(mHFEEn_mediumPt_Forward) mHFEEn_mediumPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
-	      if(mHFHEn_mediumPt_Forward) mHFHEn_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
+	      mCHFrac_mediumPt_EndCap = dbe_->get(DirName+"/"+"CHFrac_mediumPt_EndCap"); if (mCHFrac_mediumPt_EndCap &&  mCHFrac_mediumPt_EndCap->getRootObject()) mCHFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	      mNHFrac_mediumPt_EndCap = dbe_->get(DirName+"/"+"NHFrac_mediumPt_EndCap"); if (mNHFrac_mediumPt_EndCap &&  mNHFrac_mediumPt_EndCap->getRootObject()) mNHFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	      mPhFrac_mediumPt_EndCap = dbe_->get(DirName+"/"+"PhFrac_mediumPt_EndCap"); if (mPhFrac_mediumPt_EndCap &&  mPhFrac_mediumPt_EndCap->getRootObject()) mPhFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
+	      mElFrac_mediumPt_EndCap = dbe_->get(DirName+"/"+"ElFrac_mediumPt_EndCap"); if (mElFrac_mediumPt_EndCap &&  mElFrac_mediumPt_EndCap->getRootObject()) mElFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
+	      mMuFrac_mediumPt_EndCap = dbe_->get(DirName+"/"+"MuFrac_mediumPt_EndCap"); if (mMuFrac_mediumPt_EndCap &&  mMuFrac_mediumPt_EndCap->getRootObject()) mMuFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
+  	      mCHEn_mediumPt_EndCap = dbe_->get(DirName+"/"+"CHEn_mediumPt_EndCap"); if (mCHEn_mediumPt_EndCap &&  mCHEn_mediumPt_EndCap->getRootObject()) mCHEn_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
+	      mNHEn_mediumPt_EndCap = dbe_->get(DirName+"/"+"NHEn_mediumPt_EndCap"); if (mNHEn_mediumPt_EndCap &&  mNHEn_mediumPt_EndCap->getRootObject()) mNHEn_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergy());
+	      mPhEn_mediumPt_EndCap = dbe_->get(DirName+"/"+"PhEn_mediumPt_EndCap"); if (mPhEn_mediumPt_EndCap &&  mPhEn_mediumPt_EndCap->getRootObject()) mPhEn_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergy());
+	      mElEn_mediumPt_EndCap = dbe_->get(DirName+"/"+"ElEn_mediumPt_EndCap"); if (mElEn_mediumPt_EndCap &&  mElEn_mediumPt_EndCap->getRootObject()) mElEn_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergy());
+	      mMuEn_mediumPt_EndCap = dbe_->get(DirName+"/"+"MuEn_mediumPt_EndCap"); if (mMuEn_mediumPt_EndCap &&  mMuEn_mediumPt_EndCap->getRootObject()) mMuEn_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mChMultiplicity_mediumPt_EndCap = dbe_->get(DirName+"/"+"ChMultiplicity_mediumPt_EndCap"); if(mChMultiplicity_mediumPt_EndCap && mChMultiplicity_mediumPt_EndCap->getRootObject())  mChMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_mediumPt_EndCap = dbe_->get(DirName+"/"+"NeutMultiplicity_mediumPt_EndCap"); if(mNeutMultiplicity_mediumPt_EndCap && mNeutMultiplicity_mediumPt_EndCap->getRootObject())  mNeutMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralMultiplicity());
+	      mMuMultiplicity_mediumPt_EndCap = dbe_->get(DirName+"/"+"MuMultiplicity_mediumPt_EndCap"); if(mMuMultiplicity_mediumPt_EndCap && mMuMultiplicity_mediumPt_EndCap->getRootObject())  mMuMultiplicity_mediumPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
 	    }
 	    if ((*pfJets)[ijet].pt()>140.) {
-	      if(mHFEFrac_highPt_Forward) mHFEFrac_highPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
-	      if(mHFHFrac_highPt_Forward) mHFHFrac_highPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
-	      //
-	      if(mHFEEn_highPt_Forward) mHFEEn_highPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
-	      if(mHFHEn_highPt_Forward) mHFHEn_highPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
+	      mCHFrac_highPt_EndCap = dbe_->get(DirName+"/"+"CHFrac_highPt_EndCap"); if (mCHFrac_highPt_EndCap &&  mCHFrac_highPt_EndCap->getRootObject()) mCHFrac_highPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	      mNHFrac_highPt_EndCap = dbe_->get(DirName+"/"+"NHFrac_highPt_EndCap"); if (mNHFrac_highPt_EndCap &&  mNHFrac_highPt_EndCap->getRootObject()) mNHFrac_highPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
+	      mPhFrac_highPt_EndCap = dbe_->get(DirName+"/"+"PhFrac_highPt_EndCap"); if (mPhFrac_highPt_EndCap &&  mPhFrac_highPt_EndCap->getRootObject()) mPhFrac_highPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
+	      mElFrac_highPt_EndCap = dbe_->get(DirName+"/"+"ElFrac_highPt_EndCap"); if (mElFrac_highPt_EndCap &&  mElFrac_highPt_EndCap->getRootObject()) mElFrac_highPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
+	      mMuFrac_highPt_EndCap = dbe_->get(DirName+"/"+"MuFrac_highPt_EndCap"); if (mMuFrac_highPt_EndCap &&  mMuFrac_highPt_EndCap->getRootObject()) mMuFrac_highPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
+  	      mCHEn_highPt_EndCap = dbe_->get(DirName+"/"+"CHEn_highPt_EndCap"); if (mCHEn_highPt_EndCap &&  mCHEn_highPt_EndCap->getRootObject()) mCHEn_highPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
+	      mNHEn_highPt_EndCap = dbe_->get(DirName+"/"+"NHEn_highPt_EndCap"); if (mNHEn_highPt_EndCap &&  mNHEn_highPt_EndCap->getRootObject()) mNHEn_highPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergy());
+	      mPhEn_highPt_EndCap = dbe_->get(DirName+"/"+"PhEn_highPt_EndCap"); if (mPhEn_highPt_EndCap &&  mPhEn_highPt_EndCap->getRootObject()) mPhEn_highPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergy());
+	      mElEn_highPt_EndCap = dbe_->get(DirName+"/"+"ElEn_highPt_EndCap"); if (mElEn_highPt_EndCap &&  mElEn_highPt_EndCap->getRootObject()) mElEn_highPt_EndCap->Fill((*pfJets)[ijet].chargedEmEnergy());
+	      mMuEn_highPt_EndCap = dbe_->get(DirName+"/"+"MuEn_highPt_EndCap"); if (mMuEn_highPt_EndCap &&  mMuEn_highPt_EndCap->getRootObject()) mMuEn_highPt_EndCap->Fill((*pfJets)[ijet].chargedMuEnergy());
+	      mChMultiplicity_highPt_EndCap = dbe_->get(DirName+"/"+"ChMultiplicity_highPt_EndCap"); if(mChMultiplicity_highPt_EndCap && mChMultiplicity_highPt_EndCap->getRootObject())  mChMultiplicity_highPt_EndCap->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_highPt_EndCap = dbe_->get(DirName+"/"+"NeutMultiplicity_highPt_EndCap"); if(mNeutMultiplicity_highPt_EndCap && mNeutMultiplicity_highPt_EndCap->getRootObject())  mNeutMultiplicity_highPt_EndCap->Fill((*pfJets)[ijet].neutralMultiplicity());
+	      mMuMultiplicity_highPt_EndCap = dbe_->get(DirName+"/"+"MuMultiplicity_highPt_EndCap"); if(mMuMultiplicity_highPt_EndCap && mMuMultiplicity_highPt_EndCap->getRootObject())  mMuMultiplicity_highPt_EndCap->Fill((*pfJets)[ijet].muonMultiplicity());
 	    }
-	    if(mChMultiplicity_lowPt_Forward)  mChMultiplicity_lowPt_Forward->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_lowPt_Forward)  mNeuMultiplicity_lowPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_lowPt_Forward)  mMuMultiplicity_lowPt_Forward->Fill((*pfJets)[ijet].muonMultiplicity());
-	    if(mChMultiplicity_mediumPt_Forward)  mChMultiplicity_mediumPt_Forward->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_mediumPt_Forward)  mNeuMultiplicity_mediumPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_mediumPt_Forward)  mMuMultiplicity_mediumPt_Forward->Fill((*pfJets)[ijet].muonMultiplicity());
-	    if(mChMultiplicity_highPt_Forward)  mChMultiplicity_highPt_Forward->Fill((*pfJets)[ijet].chargedMultiplicity());
-	    if(mNeuMultiplicity_highPt_Forward)  mNeuMultiplicity_highPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
-	    if(mMuMultiplicity_highPt_Forward)  mMuMultiplicity_highPt_Forward->Fill((*pfJets)[ijet].muonMultiplicity());
-	    if(mHFHFracVSpT_Forward) mHFHFracVSpT_Forward->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].HFHadronEnergyFraction());
-	    if(mHFEFracVSpT_Forward) mHFEFracVSpT_Forward->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].HFEMEnergyFraction());
+	    mCHFracVSpT_EndCap = dbe_->get(DirName+"/"+"CHFracVSpT_EndCap"); if(mCHFracVSpT_EndCap && mCHFracVSpT_EndCap->getRootObject()) mCHFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedHadronEnergyFraction());
+	    mNHFracVSpT_EndCap = dbe_->get(DirName+"/"+"NHFracVSpT_EndCap");if (mNHFracVSpT_EndCap && mNHFracVSpT_EndCap->getRootObject()) mNHFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].neutralHadronEnergyFraction());
+	    mPhFracVSpT_EndCap = dbe_->get(DirName+"/"+"PhFracVSpT_EndCap");if (mPhFracVSpT_EndCap && mPhFracVSpT_EndCap->getRootObject()) mPhFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].neutralEmEnergyFraction());
+	    mElFracVSpT_EndCap = dbe_->get(DirName+"/"+"ElFracVSpT_EndCap");if (mElFracVSpT_EndCap && mElFracVSpT_EndCap->getRootObject()) mElFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedEmEnergyFraction());
+	    mMuFracVSpT_EndCap = dbe_->get(DirName+"/"+"MuFracVSpT_EndCap");if (mMuFracVSpT_EndCap && mMuFracVSpT_EndCap->getRootObject()) mMuFracVSpT_EndCap->Fill((*pfJets)[ijet].pt(),(*pfJets)[ijet].chargedMuEnergyFraction());
+	  }else{
+	    mHFrac_Forward = dbe_->get(DirName+"/"+"HFrac_Forward"); if (mHFrac_Forward && mHFrac_Forward->getRootObject())    mHFrac_Forward->Fill((*pfJets)[ijet].chargedHadronEnergyFraction() + (*pfJets)[ijet].neutralHadronEnergyFraction()+(*pfJets)[ijet].HFHadronEnergyFraction ());	
+	    mEFrac_Forward = dbe_->get(DirName+"/"+"EFrac_Forward"); if (mEFrac_Forward && mEFrac_Forward->getRootObject()) mEFrac_Forward->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() + (*pfJets)[ijet].neutralEmEnergyFraction()+(*pfJets)[ijet].HFEMEnergyFraction ());
+	    //fractions
+	    if ((*pfJets)[ijet].pt()<=50.) {
+	      mHFEFrac_lowPt_Forward = dbe_->get(DirName+"/"+"HFEFrac_lowPt_Forward"); if(mHFEFrac_lowPt_Forward && mHFEFrac_lowPt_Forward->getRootObject()) mHFEFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
+	      mHFEFrac_lowPt_Forward = dbe_->get(DirName+"/"+"HFEFrac_lowPt_Forward"); if(mHFHFrac_lowPt_Forward && mHFHFrac_lowPt_Forward->getRootObject()) mHFHFrac_lowPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
+	      mHFEEn_lowPt_Forward = dbe_->get(DirName+"/"+"HFEEn_lowPt_Forward");     if(mHFEEn_lowPt_Forward && mHFEEn_lowPt_Forward->getRootObject())     mHFEEn_lowPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
+	      mHFHEn_lowPt_Forward = dbe_->get(DirName+"/"+"HFHEn_lowPt_Forward");    if(mHFHEn_lowPt_Forward && mHFHEn_lowPt_Forward->getRootObject())     mHFHEn_lowPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
+	      mChMultiplicity_lowPt_Barrel = dbe_->get(DirName+"/"+"ChMultiplicity_lowPt_Barrel"); if(mChMultiplicity_lowPt_Forward && mChMultiplicity_lowPt_Forward->getRootObject())  mChMultiplicity_lowPt_Forward->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_lowPt_Barrel = dbe_->get(DirName+"/"+"NeutMultiplicity_lowPt_Barrel"); if(mNeutMultiplicity_lowPt_Forward && mNeutMultiplicity_lowPt_Forward->getRootObject())  mNeutMultiplicity_lowPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
+	    }
+	    if ((*pfJets)[ijet].pt()>50. && (*pfJets)[ijet].pt()<=140.) {
+	      mHFEFrac_mediumPt_Forward = dbe_->get(DirName+"/"+"HFEFrac_mediumPt_Forward"); if(mHFEFrac_mediumPt_Forward && mHFEFrac_mediumPt_Forward->getRootObject()) mHFEFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
+	      mHFEFrac_mediumPt_Forward = dbe_->get(DirName+"/"+"HFEFrac_mediumPt_Forward"); if(mHFHFrac_mediumPt_Forward && mHFHFrac_mediumPt_Forward->getRootObject()) mHFHFrac_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
+	      mHFEEn_mediumPt_Forward = dbe_->get(DirName+"/"+"HFEEn_mediumPt_Forward");     if(mHFEEn_mediumPt_Forward && mHFEEn_mediumPt_Forward->getRootObject())     mHFEEn_mediumPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
+	      mHFHEn_mediumPt_Forward = dbe_->get(DirName+"/"+"HFHEn_mediumPt_Forward");    if(mHFHEn_mediumPt_Forward && mHFHEn_mediumPt_Forward->getRootObject())     mHFHEn_mediumPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
+	      mChMultiplicity_mediumPt_Barrel = dbe_->get(DirName+"/"+"ChMultiplicity_mediumPt_Barrel"); if(mChMultiplicity_mediumPt_Forward && mChMultiplicity_mediumPt_Forward->getRootObject())  mChMultiplicity_mediumPt_Forward->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_mediumPt_Barrel = dbe_->get(DirName+"/"+"NeutMultiplicity_mediumPt_Barrel"); if(mNeutMultiplicity_mediumPt_Forward && mNeutMultiplicity_mediumPt_Forward->getRootObject())  mNeutMultiplicity_mediumPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
+	    }
+	    if ((*pfJets)[ijet].pt()>140.) {
+	      mHFEFrac_highPt_Forward = dbe_->get(DirName+"/"+"HFEFrac_highPt_Forward"); if(mHFEFrac_highPt_Forward && mHFEFrac_highPt_Forward->getRootObject()) mHFEFrac_highPt_Forward->Fill((*pfJets)[ijet].HFEMEnergyFraction());
+	      mHFEFrac_highPt_Forward = dbe_->get(DirName+"/"+"HFEFrac_highPt_Forward"); if(mHFHFrac_highPt_Forward && mHFHFrac_highPt_Forward->getRootObject()) mHFHFrac_highPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergyFraction());
+	      mHFEEn_highPt_Forward = dbe_->get(DirName+"/"+"HFEEn_highPt_Forward");     if(mHFEEn_highPt_Forward && mHFEEn_highPt_Forward->getRootObject())     mHFEEn_highPt_Forward->Fill((*pfJets)[ijet].HFEMEnergy());
+	      mHFHEn_highPt_Forward = dbe_->get(DirName+"/"+"HFHEn_highPt_Forward");    if(mHFHEn_highPt_Forward && mHFHEn_highPt_Forward->getRootObject())     mHFHEn_highPt_Forward->Fill((*pfJets)[ijet].HFHadronEnergy());
+	      mChMultiplicity_highPt_Barrel = dbe_->get(DirName+"/"+"ChMultiplicity_highPt_Barrel"); if(mChMultiplicity_highPt_Forward && mChMultiplicity_highPt_Forward->getRootObject())  mChMultiplicity_highPt_Forward->Fill((*pfJets)[ijet].chargedMultiplicity());
+	      mNeutMultiplicity_highPt_Barrel = dbe_->get(DirName+"/"+"NeutMultiplicity_highPt_Barrel"); if(mNeutMultiplicity_highPt_Forward && mNeutMultiplicity_highPt_Forward->getRootObject())  mNeutMultiplicity_highPt_Forward->Fill((*pfJets)[ijet].neutralMultiplicity());
+	    }
 	  }
-	  if (mChargedHadronEnergy)  mChargedHadronEnergy->Fill ((*pfJets)[ijet].chargedHadronEnergy());
-	  if (mNeutralHadronEnergy)  mNeutralHadronEnergy->Fill ((*pfJets)[ijet].neutralHadronEnergy());
-	  if (mChargedEmEnergy) mChargedEmEnergy->Fill((*pfJets)[ijet].chargedEmEnergy());
-	  if (mChargedMuEnergy) mChargedMuEnergy->Fill ((*pfJets)[ijet].chargedMuEnergy ());
-	  if (mNeutralEmEnergy) mNeutralEmEnergy->Fill((*pfJets)[ijet].neutralEmEnergy());
-	  if (mChargedMultiplicity ) mChargedMultiplicity->Fill((*pfJets)[ijet].chargedMultiplicity());
-	  if (mNeutralMultiplicity ) mNeutralMultiplicity->Fill((*pfJets)[ijet].neutralMultiplicity());
-	  if (mMuonMultiplicity )mMuonMultiplicity->Fill ((*pfJets)[ijet]. muonMultiplicity());
+	  mChargedHadronEnergy = dbe_->get(DirName+"/"+"mChargedHadronEnergy"); if (mChargedHadronEnergy && mChargedHadronEnergy->getRootObject())  mChargedHadronEnergy->Fill ((*pfJets)[ijet].chargedHadronEnergy());
+	  mNeutralHadronEnergy = dbe_->get(DirName+"/"+"mNeutralHadronEnergy"); if (mNeutralHadronEnergy && mNeutralHadronEnergy->getRootObject())  mNeutralHadronEnergy->Fill ((*pfJets)[ijet].neutralHadronEnergy());
+	  mChargedEmEnergy = dbe_->get(DirName+"/"+"mChargedEmEnergy"); if (mChargedEmEnergy && mChargedEmEnergy->getRootObject()) mChargedEmEnergy->Fill((*pfJets)[ijet].chargedEmEnergy());
+	  mChargedMuEnergy = dbe_->get(DirName+"/"+"mChargedMuEnergy"); if (mChargedMuEnergy && mChargedMuEnergy->getRootObject()) mChargedMuEnergy->Fill ((*pfJets)[ijet].chargedMuEnergy ());
+	  mNeutralEmEnergy = dbe_->get(DirName+"/"+"mNeutralEmEnergy"); if (mNeutralEmEnergy && mNeutralEmEnergy->getRootObject()) mNeutralEmEnergy->Fill((*pfJets)[ijet].neutralEmEnergy());
+	  mChargedMultiplicity = dbe_->get(DirName+"/"+"mChargedMultiplicity"); if (mChargedMultiplicity && mChargedMultiplicity->getRootObject()) mChargedMultiplicity->Fill((*pfJets)[ijet].chargedMultiplicity());
+	  mNeutralMultiplicity = dbe_->get(DirName+"/"+"mNeutralMultiplicity"); if (mNeutralMultiplicity && mNeutralMultiplicity->getRootObject()) mNeutralMultiplicity->Fill((*pfJets)[ijet].neutralMultiplicity());
+	  mMuonMultiplicity = dbe_->get(DirName+"/"+"mMuonMultiplicity"); if (mMuonMultiplicity && mMuonMultiplicity->getRootObject()) mMuonMultiplicity->Fill ((*pfJets)[ijet]. muonMultiplicity());
 	  //_______________________________________________________
-	  if (mNeutralFraction) mNeutralFraction->Fill ((double)(*pfJets)[ijet].neutralMultiplicity()/(double)(*pfJets)[ijet].nConstituents());
+	  mNeutralFraction = dbe_->get(DirName+"/"+"mNeutralFraction");if (mNeutralFraction && mNeutralFraction->getRootObject()) mNeutralFraction->Fill ((double)(*pfJets)[ijet].neutralMultiplicity()/(double)(*pfJets)[ijet].nConstituents());
 
-	  if (mHFrac_profile)        mHFrac_profile       ->Fill(numPV, (*pfJets)[ijet].chargedHadronEnergyFraction() + (*pfJets)[ijet].neutralHadronEnergyFraction());
-	  if (mEFrac_profile)        mEFrac_profile       ->Fill(numPV, (*pfJets)[ijet].chargedEmEnergyFraction()     + (*pfJets)[ijet].neutralEmEnergyFraction());
+	  mHFrac_profile = dbe_->get(DirName+"/"+"HFrac_profile"); if (mHFrac_profile && mHFrac_profile->getRootObject()) mHFrac_profile       ->Fill(numPV, (*pfJets)[ijet].chargedHadronEnergyFraction() + (*pfJets)[ijet].neutralHadronEnergyFraction());
+	  mEFrac_profile = dbe_->get(DirName+"/"+"EFrac_profile"); if (mEFrac_profile && mEFrac_profile->getRootObject()) mEFrac_profile       ->Fill(numPV, (*pfJets)[ijet].chargedEmEnergyFraction()     + (*pfJets)[ijet].neutralEmEnergyFraction());
 	  
-	  if (mChargedHadronEnergy_profile) mChargedHadronEnergy_profile->Fill(numPV, (*pfJets)[ijet].chargedHadronEnergy());
-	  if (mNeutralHadronEnergy_profile) mNeutralHadronEnergy_profile->Fill(numPV, (*pfJets)[ijet].neutralHadronEnergy());
-	  if (mChargedEmEnergy_profile)     mChargedEmEnergy_profile    ->Fill(numPV, (*pfJets)[ijet].chargedEmEnergy());
-	  if (mChargedMuEnergy_profile)     mChargedMuEnergy_profile    ->Fill(numPV, (*pfJets)[ijet].chargedMuEnergy ());
-	  if (mNeutralEmEnergy_profile)     mNeutralEmEnergy_profile    ->Fill(numPV, (*pfJets)[ijet].neutralEmEnergy());
-	  if (mChargedMultiplicity_profile) mChargedMultiplicity_profile->Fill(numPV, (*pfJets)[ijet].chargedMultiplicity());
-	  if (mNeutralMultiplicity_profile) mNeutralMultiplicity_profile->Fill(numPV, (*pfJets)[ijet].neutralMultiplicity());
-	  if (mMuonMultiplicity_profile)    mMuonMultiplicity_profile   ->Fill(numPV, (*pfJets)[ijet].muonMultiplicity());
+	  mChargedHadronEnergy_profile = dbe_->get(DirName+"/"+"mChargedHadronEnergy_profile"); if (mChargedHadronEnergy_profile && mChargedHadronEnergy_profile->getRootObject()) mChargedHadronEnergy_profile->Fill(numPV, (*pfJets)[ijet].chargedHadronEnergy());
+	  mNeutralHadronEnergy_profile = dbe_->get(DirName+"/"+"mNeutralHadronEnergy_profile");if (mNeutralHadronEnergy_profile && mNeutralHadronEnergy_profile->getRootObject()) mNeutralHadronEnergy_profile->Fill(numPV, (*pfJets)[ijet].neutralHadronEnergy());
+	  mChargedEmEnergy_profile = dbe_->get(DirName+"/"+"mChargedEmEnergy_profile"); if (mChargedEmEnergy_profile && mChargedEmEnergy_profile->getRootObject())     mChargedEmEnergy_profile    ->Fill(numPV, (*pfJets)[ijet].chargedEmEnergy());
+	  mChargedMuEnergy_profile = dbe_->get(DirName+"/"+"mChargedMuEnergy_profile");if (mChargedMuEnergy_profile && mChargedMuEnergy_profile->getRootObject())     mChargedMuEnergy_profile    ->Fill(numPV, (*pfJets)[ijet].chargedMuEnergy ());
+	  mNeutralEmEnergy_profile = dbe_->get(DirName+"/"+"mNeutralEmEnergy_profile");if (mNeutralEmEnergy_profile && mNeutralEmEnergy_profile->getRootObject())     mNeutralEmEnergy_profile    ->Fill(numPV, (*pfJets)[ijet].neutralEmEnergy());
+	  mChargedMultiplicity_profile = dbe_->get(DirName+"/"+"mChargedMultiplicity_profile"); if (mChargedMultiplicity_profile && mChargedMultiplicity_profile->getRootObject()) mChargedMultiplicity_profile->Fill(numPV, (*pfJets)[ijet].chargedMultiplicity());
+	  mNeutralMultiplicity_profile = dbe_->get(DirName+"/"+"mNeutralMultiplicity_profile");if (mNeutralMultiplicity_profile && mNeutralMultiplicity_profile->getRootObject()) mNeutralMultiplicity_profile->Fill(numPV, (*pfJets)[ijet].neutralMultiplicity());
+	  mMuonMultiplicity_profile = dbe_->get(DirName+"/"+"mMuonMultiplicity_profile"); if (mMuonMultiplicity_profile && mMuonMultiplicity_profile->getRootObject())    mMuonMultiplicity_profile   ->Fill(numPV, (*pfJets)[ijet].muonMultiplicity());
 
 	}//cleaned PFJets
       }//PFJet specific loop
@@ -1626,11 +1614,17 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       //fill JetID efficiencies if uncleaned selection is chosen
       if(!jetCleaningFlag_){
 	if(jetpassid) {
-	  mLooseJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
-	  mLooseJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
+	  mLooseJIDPassFractionVSeta = dbe_->get(DirName+"/"+"JetIDPassFractionVSeta"); if (mLooseJIDPassFractionVSeta && mLooseJIDPassFractionVSeta->getRootObject())  mLooseJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
+	  mLooseJIDPassFractionVSpt = dbe_->get(DirName+"/"+"JetIDPassFractionVSpt"); if (mLooseJIDPassFractionVSpt && mLooseJIDPassFractionVSpt->getRootObject()) mLooseJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
+	  if(correctedJet.eta()<3.0){
+	    mLooseJIDPassFractionVSptNoHF= dbe_->get(DirName+"/"+"JetIDPassFractionVSptNoHF"); if (mLooseJIDPassFractionVSptNoHF && mLooseJIDPassFractionVSptNoHF->getRootObject()) mLooseJIDPassFractionVSptNoHF->Fill(correctedJet.pt(),1.);
+	  }
 	} else {
-	  mLooseJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
-	  mLooseJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
+	  mLooseJIDPassFractionVSeta = dbe_->get(DirName+"/"+"JetIDPassFractionVSeta"); if (mLooseJIDPassFractionVSeta && mLooseJIDPassFractionVSeta->getRootObject()) mLooseJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
+	  mLooseJIDPassFractionVSpt = dbe_->get(DirName+"/"+"JetIDPassFractionVSpt"); if (mLooseJIDPassFractionVSpt && mLooseJIDPassFractionVSpt->getRootObject()) mLooseJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
+	  if(correctedJet.eta()<3.0){
+	    mLooseJIDPassFractionVSptNoHF= dbe_->get(DirName+"/"+"JetIDPassFractionVSptNoHF"); if (mLooseJIDPassFractionVSptNoHF && mLooseJIDPassFractionVSptNoHF->getRootObject()) mLooseJIDPassFractionVSptNoHF->Fill(correctedJet.pt(),0.);
+	  }
 	}
       }
       //here we so far consider calojets ->check for PFJets and JPT jets again
@@ -1638,94 +1632,83 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	numofjets++;
 	
 	if(isCaloJet_){
-	  //jetME->Fill(1);
-	  mJetEnergyCorr->Fill(correctedJet.pt()/(*caloJets)[ijet].pt());
-	  mJetEnergyCorrVsEta->Fill(correctedJet.eta(),correctedJet.pt()/(*caloJets)[ijet].pt());
+	  jetME = dbe_->get(DirName+"/"+"jetReco"); if(jetME && jetME->getRootObject()) jetME->Fill(1);
+	  mJetEnergyCorr = dbe_->get(DirName+"/"+"JetEnergyCorr"); if(mJetEnergyCorr && mJetEnergyCorr->getRootObject()) mJetEnergyCorr->Fill(correctedJet.pt()/(*caloJets)[ijet].pt());
+	  mJetEnergyCorrVSEta = dbe_->get(DirName+"/"+"JetEnergyCorrVSEta"); if(mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject()) mJetEnergyCorrVSEta->Fill(correctedJet.eta(),correctedJet.pt()/(*caloJets)[ijet].pt());
+	  mJetEnergyCorrVSPt = dbe_->get(DirName+"/"+"JetEnergyCorrVSPt"); if(mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject()) mJetEnergyCorrVSPt->Fill(correctedJet.pt(),correctedJet.pt()/(*caloJets)[ijet].pt());
 	}
 	if(isPFJet_){
-	  //jetME->Fill(2);
-	  mJetEnergyCorr->Fill(correctedJet.pt()/(*pfJets)[ijet].pt());
-	  mJetEnergyCorrVsEta->Fill(correctedJet.eta(),correctedJet.pt()/(*pfJets)[ijet].pt());
+	  jetME = dbe_->get(DirName+"/"+"jetReco"); if(jetME && jetME->getRootObject()) jetME->Fill(2);
+	  mJetEnergyCorr = dbe_->get(DirName+"/"+"JetEnergyCorr"); if(mJetEnergyCorr && mJetEnergyCorr->getRootObject()) mJetEnergyCorr->Fill(correctedJet.pt()/(*pfJets)[ijet].pt());
+	  mJetEnergyCorrVSEta = dbe_->get(DirName+"/"+"JetEnergyCorrVSEta"); if(mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject())mJetEnergyCorrVSEta->Fill(correctedJet.eta(),correctedJet.pt()/(*pfJets)[ijet].pt());
+	  mJetEnergyCorrVSPt = dbe_->get(DirName+"/"+"JetEnergyCorrVSPt"); if(mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject()) mJetEnergyCorrVSPt->Fill(correctedJet.pt(),correctedJet.pt()/(*pfJets)[ijet].pt());
 	}
 	if(isJPTJet_){
-	  //jetME->Fill(3);
-	  mJetEnergyCorr->Fill(correctedJet.pt()/(*jptJets)[ijet].pt());
-	  mJetEnergyCorrVsEta->Fill(correctedJet.eta(),correctedJet.pt()/(*jptJets)[ijet].pt());
+	  jetME = dbe_->get(DirName+"/"+"jetReco"); if(jetME && jetME->getRootObject()) jetME->Fill(3);
+	  mJetEnergyCorr = dbe_->get(DirName+"/"+"JetEnergyCorr"); if(mJetEnergyCorr && mJetEnergyCorr->getRootObject()) mJetEnergyCorr->Fill(correctedJet.pt()/(*jptJets)[ijet].pt());
+	  mJetEnergyCorrVSEta = dbe_->get(DirName+"/"+"JetEnergyCorrVSEta"); if(mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject())mJetEnergyCorrVSEta->Fill(correctedJet.eta(),correctedJet.pt()/(*jptJets)[ijet].pt());
+	  mJetEnergyCorrVSPt = dbe_->get(DirName+"/"+"JetEnergyCorrVSPt"); if(mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject()) mJetEnergyCorrVSPt->Fill(correctedJet.pt(),correctedJet.pt()/(*jptJets)[ijet].pt());
 	}
 	// --- Event passed the low pt jet trigger
-	if (jetLoPass_ == 1) {
-	  
-	  if (mPhi_Lo) mPhi_Lo->Fill (correctedJet.phi());
-	  if (mPt_Lo)  mPt_Lo->Fill (correctedJet.pt());
+	if (jetLoPass_ == 1) {	  
+	  mPhi_Lo = dbe_->get(DirName+"/"+"Phi_Lo"); if (mPhi_Lo && mPhi_Lo->getRootObject()) mPhi_Lo->Fill (correctedJet.phi());
+	  mPt_Lo = dbe_->get(DirName+"/"+"Pt_Lo"); if (mPt_Lo && mPt_Lo->getRootObject())  mPt_Lo->Fill (correctedJet.pt());
 	  
 	}
 	// --- Event passed the high pt jet trigger
-	if (jetHiPass_ == 1) {
-	  if (fabs(correctedJet.eta()) <= 1.3) {
-	    if (mPt_Barrel_Hi && correctedJet.pt()>100.)          mPt_Barrel_Hi->Fill(correctedJet.pt());
-	    if (mEta_Hi && correctedJet.pt()>100.)          mEta_Hi->Fill(correctedJet.eta());
-	    if (mPhi_Barrel_Hi)          mPhi_Barrel_Hi->Fill(correctedJet.phi());
-	  }else if (fabs(correctedJet.eta()) <= 3) {
-	    if (mPt_EndCap_Hi && correctedJet.pt()>100.)           mPt_EndCap_Hi->Fill(correctedJet.pt());
-	    if (mEta_Hi && correctedJet.pt()>100.)          mEta_Hi->Fill(correctedJet.eta());
-	    if (mPhi_EndCap_Hi)          mPhi_EndCap_Hi->Fill(correctedJet.phi());
-	  }else{
-	    if (mPt_Forward_Hi && correctedJet.pt()>100.)           mPt_Forward_Hi->Fill(correctedJet.pt());
-	    if (mEta_Hi && correctedJet.pt()>100.)          mEta_Hi->Fill(correctedJet.eta());
-	    if (mPhi_Forward_Hi)          mPhi_Forward_Hi->Fill(correctedJet.phi());	
-	  }	    
-	  if (mEta_Hi && correctedJet.pt()>100.) mEta_Hi->Fill (correctedJet.eta());
-	  if (mPhi_Hi) mPhi_Hi->Fill (correctedJet.phi());
-	  if (mPt_Hi)  mPt_Hi->Fill (correctedJet.pt());			    
+	if (jetHiPass_ == 1&& correctedJet.pt()>100. ) {
+	  mEta_Hi = dbe_->get(DirName+"/"+"Eta_Hi"); if (mEta_Hi && mEta_Hi->getRootObject()) mEta_Hi->Fill (correctedJet.eta());
+	  mPhi_Hi = dbe_->get(DirName+"/"+"Phi_Hi"); if (mPhi_Hi && mPhi_Hi->getRootObject()) mPhi_Hi->Fill (correctedJet.phi());
+	  mPt_Hi = dbe_->get(DirName+"/"+"Pt_Hi"); if (mPt_Hi && mPt_Hi->getRootObject()) mPt_Hi->Fill (correctedJet.pt());		     		    
 	}
-	if (mPt)   mPt->Fill (correctedJet.pt());
-	if (mPt_1) mPt_1->Fill (correctedJet.pt());
-	if (mPt_2) mPt_2->Fill (correctedJet.pt());
-	if (mPt_3) mPt_3->Fill (correctedJet.pt());
-	if (mEta)  mEta->Fill (correctedJet.eta());
-	if (mPhi)  mPhi->Fill (correctedJet.phi());	 
+	mPt = dbe_->get(DirName+"/"+"Pt"); if (mPt && mPt->getRootObject()) mPt->Fill (correctedJet.pt());
+	mPt_1 = dbe_->get(DirName+"/"+"Pt_1"); if (mPt_1 && mPt_1->getRootObject())  mPt_1->Fill (correctedJet.pt());
+	mPt_2 = dbe_->get(DirName+"/"+"Pt_2"); if (mPt_2 && mPt_2->getRootObject()) mPt_2->Fill (correctedJet.pt());
+	mPt_3 = dbe_->get(DirName+"/"+"Pt_3"); if (mPt_3 && mPt_3->getRootObject()) mPt_3->Fill (correctedJet.pt());
+	mEta = dbe_->get(DirName+"/"+"Eta"); if (mEta && mEta->getRootObject()) mEta->Fill (correctedJet.eta());
+	mPhi = dbe_->get(DirName+"/"+"Phi"); if (mPhi && mPhi->getRootObject())  mPhi->Fill (correctedJet.phi());	 
 	
-	if (mPhiVSEta) mPhiVSEta->Fill(correctedJet.eta(),correctedJet.phi());
+	mPhiVSEta = dbe_->get(DirName+"/"+"PhiVSEta"); if (mPhiVSEta && mPhiVSEta->getRootObject()) mPhiVSEta->Fill(correctedJet.eta(),correctedJet.phi());
 	if(!isJPTJet_){
-	  if (mConstituents) mConstituents->Fill (correctedJet.nConstituents());
+	  mConstituents = dbe_->get(DirName+"/"+"Constituents"); if (mConstituents && mConstituents->getRootObject()) mConstituents->Fill (correctedJet.nConstituents());
 	}
 	// Fill NPV profiles
 	//--------------------------------------------------------------------
-	if (mPt_profile)           mPt_profile          ->Fill(numPV, correctedJet.pt());
-	if (mEta_profile)          mEta_profile         ->Fill(numPV, correctedJet.eta());
-	if (mPhi_profile)          mPhi_profile         ->Fill(numPV, correctedJet.phi());
+	mPt_profile = dbe_->get(DirName+"/"+"Pt_profile"); if (mPt_profile && mPt_profile->getRootObject())  mPt_profile ->Fill(numPV, correctedJet.pt());
+	mEta_profile = dbe_->get(DirName+"/"+"Eta_profile"); if (mEta_profile && mEta_profile->getRootObject())  mEta_profile         ->Fill(numPV, correctedJet.eta());
+	mPhi_profile = dbe_->get(DirName+"/"+"Phi_profile"); if (mPhi_profile && mPhi_profile->getRootObject())  mPhi_profile         ->Fill(numPV, correctedJet.phi());
 	if(!isJPTJet_){
-	  if (mConstituents_profile) mConstituents_profile->Fill(numPV, correctedJet.nConstituents());
+	  mConstituents_profile = dbe_->get(DirName+"/"+"Constituents_profile"); if (mConstituents_profile && mConstituents_profile->getRootObject())  mConstituents_profile->Fill(numPV, correctedJet.nConstituents());
 	}
 	if (fabs(correctedJet.eta()) <= 1.3) {
-	  if (mPt_Barrel)   mPt_Barrel->Fill (correctedJet.pt());
-	  if (mPhi_Barrel)  mPhi_Barrel->Fill (correctedJet.phi());
+	  mPt_Barrel = dbe_->get(DirName+"/"+"Pt_Barrel"); if (mPt_Barrel && mPt_Barrel->getRootObject()) mPt_Barrel->Fill (correctedJet.pt());
+	  mPhi_Barrel = dbe_->get(DirName+"/"+"Phi_Barrel"); if (mPhi_Barrel && mPhi_Barrel->getRootObject()) mPhi_Barrel->Fill (correctedJet.phi());
 	  //if (mE_Barrel)    mE_Barrel->Fill (correctedJet.energy());
 	  if(!isJPTJet_){
-	    if (mConstituents_Barrel)    mConstituents_Barrel->Fill(correctedJet.nConstituents());
+	   mConstituents_Barrel = dbe_->get(DirName+"/"+"Constituents_Barrel"); if (mConstituents_Barrel && mConstituents_Barrel->getRootObject()) mConstituents_Barrel->Fill(correctedJet.nConstituents());
 	  }
 	}else if (fabs(correctedJet.eta()) <= 3) {
-	  if (mPt_EndCap)   mPt_EndCap->Fill (correctedJet.pt());
-	  if (mPhi_EndCap)  mPhi_EndCap->Fill (correctedJet.phi());
+	  mPt_EndCap = dbe_->get(DirName+"/"+"Pt_EndCap"); if (mPt_EndCap && mPt_EndCap->getRootObject()) mPt_EndCap->Fill (correctedJet.pt());
+	  mPhi_EndCap = dbe_->get(DirName+"/"+"Phi_EndCap"); if (mPhi_EndCap && mPhi_EndCap->getRootObject())  mPhi_EndCap->Fill (correctedJet.phi());
 	  //if (mE_EndCap)    mE_EndCap->Fill (correctedJet.energy());
 	  if(!isJPTJet_){
-	    if (mConstituents_EndCap)    mConstituents_EndCap->Fill(correctedJet.nConstituents());
+	    mConstituents_EndCap = dbe_->get(DirName+"/"+"Constituents_EndCap"); if (mConstituents_EndCap && mConstituents_EndCap->getRootObject())  mConstituents_EndCap->Fill(correctedJet.nConstituents());
 	  }
 	}else{
-	  if (mPt_Forward)   mPt_Forward->Fill (correctedJet.pt());
-	  if (mPhi_Forward)  mPhi_Forward->Fill (correctedJet.phi());
+	  mPt_Forward = dbe_->get(DirName+"/"+"Pt_Forward"); if (mPt_Forward && mPt_Forward->getRootObject()) mPt_Forward->Fill (correctedJet.pt());
+	  mPhi_Forward = dbe_->get(DirName+"/"+"Phi_Forward"); if (mPhi_Forward && mPhi_Forward->getRootObject()) mPhi_Forward->Fill (correctedJet.phi());
 	  //if (mE_Forward)    mE_Forward->Fill (correctedJet.energy());
 	  if(!isJPTJet_){
-	    if (mConstituents_Forward)    mConstituents_Forward->Fill(correctedJet.nConstituents());
+	    mConstituents_Forward = dbe_->get(DirName+"/"+"Constituents_Forward"); if (mConstituents_Forward && mConstituents_Forward->getRootObject())   mConstituents_Forward->Fill(correctedJet.nConstituents());
 	  }
-	  }
+	}
       }
     }// the selection of all jets --> inclusive selection
   }//loop over uncorrected jets 
   
   if(!diJetSelectionFlag_ ){
-    if (mNJets) mNJets->Fill (numofjets);
-    if (mNJets_profile) mNJets_profile->Fill(numPV, numofjets);
+    mNJets = dbe_->get(DirName+"/"+"NJets"); if (mNJets && mNJets->getRootObject())  mNJets->Fill (numofjets);
+    mNJets_profile = dbe_->get(DirName+"/"+"NJets_profile"); if (mNJets_profile && mNJets_profile->getRootObject())  mNJets_profile->Fill(numPV, numofjets);
   }
   sort(recoJets.begin(),recoJets.end(),jetSortingRule);
   
@@ -1765,9 +1748,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
     }
     if(Thiscleaned){
-      if (mEtaFirst) mEtaFirst->Fill ((recoJets)[0].eta());
-      if (mPhiFirst) mPhiFirst->Fill ((recoJets)[0].phi());
-      if (mPtFirst)  mPtFirst->Fill ((recoJets)[0].pt());
+      mEtaFirst = dbe_->get(DirName+"/"+"EtaFirst"); if (mEtaFirst && mEtaFirst->getRootObject())  mEtaFirst->Fill ((recoJets)[0].eta());
+      mPhiFirst = dbe_->get(DirName+"/"+"PhiFirst"); if (mPhiFirst && mPhiFirst->getRootObject())  mPhiFirst->Fill ((recoJets)[0].phi());
+      mPtFirst = dbe_->get(DirName+"/"+"PtFirst"); if (mPtFirst && mPtFirst->getRootObject())  mPtFirst->Fill ((recoJets)[0].pt());
       if(numofjets>1) {
 	//first jet fine -> now check second jet
 	Thiscleaned=true;
@@ -1796,7 +1779,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    return;
 	  }
 	  if(Thiscleaned){
-	    mPtSecond->Fill(recoJets[1].pt());
+	    mPtSecond = dbe_->get(DirName+"/"+"PtSecond"); if (mPtSecond && mPtSecond->getRootObject())  mPtSecond->Fill(recoJets[1].pt());
 	  }
 	  if(numofjets>2){
 	    Thiscleaned=true;
@@ -1818,7 +1801,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      return;
 	    }
 	    if(Thiscleaned){
-	      mPtThird->Fill(recoJets[2].pt());
+	     mPtThird = dbe_->get(DirName+"/"+"PtThird"); if (mPtThird && mPtThird->getRootObject())  mPtThird->Fill(recoJets[2].pt());
 	    }
 	  }
 	}
@@ -1832,7 +1815,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if(dphi>acos(-1.)){
 	    dphi=2*acos(-1.)-dphi;
 	  }
-	  if (mDPhi) mDPhi->Fill (dphi);
+	  mDPhi = dbe_->get(DirName+"/"+"DPhi"); if (mDPhi && mDPhi->getRootObject())  mDPhi->Fill (dphi);
 	  //try here now the three jet dijet asymmetry stuff
 	  if (fabs(recoJets[0].eta() < 1.4)) {
 	    double pt_dijet = (recoJets[0].pt() + recoJets[1].pt())/2;      
@@ -1841,7 +1824,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      dPhiDJ=2*acos(-1.)-dPhiDJ;
 	    }
 	    if (dPhiDJ > 2.7) {
-
 	      double pt_probe;
 	      double pt_barrel;
 	      int jet1, jet2;
@@ -1876,7 +1858,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		}
 		if(thirdJetCut){
 		  double dijetAsymmetry =(recoJets[jet1].pt() - recoJets[jet2].pt()) / (recoJets[jet1].pt() + recoJets[jet2].pt());
-		  mDijetAsymmetry->Fill(dijetAsymmetry);
+		  mDijetAsymmetry = dbe_->get(DirName+"/"+"DijetAsymmetry"); if (mDijetAsymmetry && mDijetAsymmetry->getRootObject()) mDijetAsymmetry->Fill(dijetAsymmetry);
 		}// end restriction on third jet pt in asymmetry calculation
 		
 	      }
@@ -1904,7 +1886,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      }
 	      if (thirdJetCut) {
 		double dijetBalance = (pt_probe - pt_barrel) / pt_dijet;
-		mDijetBalance->Fill(dijetBalance);
+		mDijetBalance = dbe_->get(DirName+"/"+"DijetBalance"); if (mDijetBalance && mDijetBalance->getRootObject()) mDijetBalance->Fill(dijetBalance);
 	      }// end restriction on third jet pt ratio in balance calculation
 	    }// dPhi > 2.7
 	  }// leading jet eta cut for asymmetry and balance calculations

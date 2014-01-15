@@ -203,7 +203,8 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mConstituents_uncor;
 
   MonitorElement* mJetEnergyCorr;
-  MonitorElement* mJetEnergyCorrVsEta;
+  MonitorElement* mJetEnergyCorrVSEta;
+  MonitorElement* mJetEnergyCorrVSPt;
 
   MonitorElement* mConstituents;
   MonitorElement* mHFrac;
@@ -262,8 +263,7 @@ class JetAnalyzer : public edm::EDAnalyzer {
 
   MonitorElement* mLooseJIDPassFractionVSeta;
   MonitorElement* mLooseJIDPassFractionVSpt;
-  MonitorElement* mTightJIDPassFractionVSeta;
-  MonitorElement* mTightJIDPassFractionVSpt;
+  MonitorElement* mLooseJIDPassFractionVSptNoHF;
 
   //dijet analysis quantities
   MonitorElement* mDijetBalance;
@@ -334,80 +334,80 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mPy;
   MonitorElement* mPz;
   MonitorElement* mnTracks;
-  MonitorElement* mnTracksVsJetPt;
-  MonitorElement* mnTracksVsJetEta;
+  MonitorElement* mnTracksVSJetPt;
+  MonitorElement* mnTracksVSJetEta;
 
-  MonitorElement* mnallPionsTracksPerJet;
-  MonitorElement* mallPionsTracksPt;
-  MonitorElement* mallPionsTracksPhi;
-  MonitorElement* mallPionsTracksEta;
-  MonitorElement* mallPionsTracksPtVsEta;
+  MonitorElement* mnallPionTracksPerJet;
+  MonitorElement* mallPionTracksPt;
+  MonitorElement* mallPionTracksPhi;
+  MonitorElement* mallPionTracksEta;
+  MonitorElement* mallPionTracksPtVSEta;
 
-  MonitorElement* mnInVertexInCaloPionsTracksPerJet;
-  MonitorElement* mInVertexInCaloPionsTracksPt;
-  MonitorElement* mInVertexInCaloPionsTracksPhi;
-  MonitorElement* mInVertexInCaloPionsTracksEta;
-  MonitorElement* mInVertexInCaloPionsTracksPtVsEta;
+  MonitorElement* mnInVertexInCaloPionTracksPerJet;
+  MonitorElement* mInVertexInCaloPionTracksPt;
+  MonitorElement* mInVertexInCaloPionTracksPhi;
+  MonitorElement* mInVertexInCaloPionTracksEta;
+  MonitorElement* mInVertexInCaloPionTracksPtVSEta;
 
-  MonitorElement* mnOutVertexInCaloPionsTracksPerJet;
-  MonitorElement* mOutVertexInCaloPionsTracksPt;
-  MonitorElement* mOutVertexInCaloPionsTracksPhi;
-  MonitorElement* mOutVertexInCaloPionsTracksEta;
-  MonitorElement* mOutVertexInCaloPionsTracksPtVsEta;
+  MonitorElement* mnOutVertexInCaloPionTracksPerJet;
+  MonitorElement* mOutVertexInCaloPionTracksPt;
+  MonitorElement* mOutVertexInCaloPionTracksPhi;
+  MonitorElement* mOutVertexInCaloPionTracksEta;
+  MonitorElement* mOutVertexInCaloPionTracksPtVSEta;
 
-  MonitorElement* mnInVertexOutCaloPionsTracksPerJet;
-  MonitorElement* mInVertexOutCaloPionsTracksPt;
-  MonitorElement* mInVertexOutCaloPionsTracksPhi;
-  MonitorElement* mInVertexOutCaloPionsTracksEta;
-  MonitorElement* mInVertexOutCaloPionsTracksPtVsEta;
+  MonitorElement* mnInVertexOutCaloPionTracksPerJet;
+  MonitorElement* mInVertexOutCaloPionTracksPt;
+  MonitorElement* mInVertexOutCaloPionTracksPhi;
+  MonitorElement* mInVertexOutCaloPionTracksEta;
+  MonitorElement* mInVertexOutCaloPionTracksPtVSEta;
 
-  MonitorElement* mnallMuonsTracksPerJet;
-  MonitorElement* mallMuonsTracksPt;
-  MonitorElement* mallMuonsTracksPhi;
-  MonitorElement* mallMuonsTracksEta;
-  MonitorElement* mallMuonsTracksPtVsEta;
+  MonitorElement* mnallMuonTracksPerJet;
+  MonitorElement* mallMuonTracksPt;
+  MonitorElement* mallMuonTracksPhi;
+  MonitorElement* mallMuonTracksEta;
+  MonitorElement* mallMuonTracksPtVSEta;
 
-  MonitorElement* mnInVertexInCaloMuonsTracksPerJet;
-  MonitorElement* mInVertexInCaloMuonsTracksPt;
-  MonitorElement* mInVertexInCaloMuonsTracksPhi;
-  MonitorElement* mInVertexInCaloMuonsTracksEta;
-  MonitorElement* mInVertexInCaloMuonsTracksPtVsEta;
+  MonitorElement* mnInVertexInCaloMuonTracksPerJet;
+  MonitorElement* mInVertexInCaloMuonTracksPt;
+  MonitorElement* mInVertexInCaloMuonTracksPhi;
+  MonitorElement* mInVertexInCaloMuonTracksEta;
+  MonitorElement* mInVertexInCaloMuonTracksPtVSEta;
 
-  MonitorElement* mnOutVertexInCaloMuonsTracksPerJet;
-  MonitorElement* mOutVertexInCaloMuonsTracksPt;
-  MonitorElement* mOutVertexInCaloMuonsTracksPhi;
-  MonitorElement* mOutVertexInCaloMuonsTracksEta;
-  MonitorElement* mOutVertexInCaloMuonsTracksPtVsEta;
+  MonitorElement* mnOutVertexInCaloMuonTracksPerJet;
+  MonitorElement* mOutVertexInCaloMuonTracksPt;
+  MonitorElement* mOutVertexInCaloMuonTracksPhi;
+  MonitorElement* mOutVertexInCaloMuonTracksEta;
+  MonitorElement* mOutVertexInCaloMuonTracksPtVSEta;
 
-  MonitorElement* mnInVertexOutCaloMuonsTracksPerJet;
-  MonitorElement* mInVertexOutCaloMuonsTracksPt;
-  MonitorElement* mInVertexOutCaloMuonsTracksPhi;
-  MonitorElement* mInVertexOutCaloMuonsTracksEta;
-  MonitorElement* mInVertexOutCaloMuonsTracksPtVsEta;
+  MonitorElement* mnInVertexOutCaloMuonTracksPerJet;
+  MonitorElement* mInVertexOutCaloMuonTracksPt;
+  MonitorElement* mInVertexOutCaloMuonTracksPhi;
+  MonitorElement* mInVertexOutCaloMuonTracksEta;
+  MonitorElement* mInVertexOutCaloMuonTracksPtVSEta;
 
-  MonitorElement* mnallElectronsTracksPerJet;
-  MonitorElement* mallElectronsTracksPt;
-  MonitorElement* mallElectronsTracksPhi;
-  MonitorElement* mallElectronsTracksEta;
-  MonitorElement* mallElectronsTracksPtVsEta;
+  MonitorElement* mnallElectronTracksPerJet;
+  MonitorElement* mallElectronTracksPt;
+  MonitorElement* mallElectronTracksPhi;
+  MonitorElement* mallElectronTracksEta;
+  MonitorElement* mallElectronTracksPtVSEta;
 
-  MonitorElement* mnInVertexInCaloElectronsTracksPerJet;
-  MonitorElement* mInVertexInCaloElectronsTracksPt;
-  MonitorElement* mInVertexInCaloElectronsTracksPhi;
-  MonitorElement* mInVertexInCaloElectronsTracksEta;
-  MonitorElement* mInVertexInCaloElectronsTracksPtVsEta;
+  MonitorElement* mnInVertexInCaloElectronTracksPerJet;
+  MonitorElement* mInVertexInCaloElectronTracksPt;
+  MonitorElement* mInVertexInCaloElectronTracksPhi;
+  MonitorElement* mInVertexInCaloElectronTracksEta;
+  MonitorElement* mInVertexInCaloElectronTracksPtVSEta;
 
-  MonitorElement* mnOutVertexInCaloElectronsTracksPerJet;
-  MonitorElement* mOutVertexInCaloElectronsTracksPt;
-  MonitorElement* mOutVertexInCaloElectronsTracksPhi;
-  MonitorElement* mOutVertexInCaloElectronsTracksEta;
-  MonitorElement* mOutVertexInCaloElectronsTracksPtVsEta;
+  MonitorElement* mnOutVertexInCaloElectronTracksPerJet;
+  MonitorElement* mOutVertexInCaloElectronTracksPt;
+  MonitorElement* mOutVertexInCaloElectronTracksPhi;
+  MonitorElement* mOutVertexInCaloElectronTracksEta;
+  MonitorElement* mOutVertexInCaloElectronTracksPtVSEta;
 
-  MonitorElement* mnInVertexOutCaloElectronsTracksPerJet;
-  MonitorElement* mInVertexOutCaloElectronsTracksPt;
-  MonitorElement* mInVertexOutCaloElectronsTracksPhi;
-  MonitorElement* mInVertexOutCaloElectronsTracksEta;
-  MonitorElement* mInVertexOutCaloElectronsTracksPtVsEta;
+  MonitorElement* mnInVertexOutCaloElectronTracksPerJet;
+  MonitorElement* mInVertexOutCaloElectronTracksPt;
+  MonitorElement* mInVertexOutCaloElectronTracksPhi;
+  MonitorElement* mInVertexOutCaloElectronTracksEta;
+  MonitorElement* mInVertexOutCaloElectronTracksPtVSEta;
 
   MonitorElement* mInCaloTrackDirectionJetDRHisto_;
   MonitorElement* mOutCaloTrackDirectionJetDRHisto_;
@@ -459,13 +459,13 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mElEn_highPt_Barrel;
   MonitorElement* mMuEn_highPt_Barrel;
   MonitorElement* mChMultiplicity_lowPt_Barrel;
-  MonitorElement* mNeuMultiplicity_lowPt_Barrel;
+  MonitorElement* mNeutMultiplicity_lowPt_Barrel;
   MonitorElement* mMuMultiplicity_lowPt_Barrel;
   MonitorElement* mChMultiplicity_mediumPt_Barrel;
-  MonitorElement* mNeuMultiplicity_mediumPt_Barrel;
+  MonitorElement* mNeutMultiplicity_mediumPt_Barrel;
   MonitorElement* mMuMultiplicity_mediumPt_Barrel;
   MonitorElement* mChMultiplicity_highPt_Barrel;
-  MonitorElement* mNeuMultiplicity_highPt_Barrel;
+  MonitorElement* mNeutMultiplicity_highPt_Barrel;
   MonitorElement* mMuMultiplicity_highPt_Barrel;
 
   MonitorElement*  mCHFracVSpT_Barrel;
@@ -530,13 +530,13 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mMuEn_highPt_EndCap;
 
   MonitorElement*   mChMultiplicity_lowPt_EndCap;
-  MonitorElement*   mNeuMultiplicity_lowPt_EndCap;
+  MonitorElement*   mNeutMultiplicity_lowPt_EndCap;
   MonitorElement*   mMuMultiplicity_lowPt_EndCap;
   MonitorElement*   mChMultiplicity_mediumPt_EndCap;
-  MonitorElement*   mNeuMultiplicity_mediumPt_EndCap;
+  MonitorElement*   mNeutMultiplicity_mediumPt_EndCap;
   MonitorElement*   mMuMultiplicity_mediumPt_EndCap;
   MonitorElement*   mChMultiplicity_highPt_EndCap;
-  MonitorElement*   mNeuMultiplicity_highPt_EndCap;
+  MonitorElement*   mNeutMultiplicity_highPt_EndCap;
   MonitorElement*   mMuMultiplicity_highPt_EndCap;
 
 
@@ -553,14 +553,11 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement*   mHFEEn_highPt_Forward;
   MonitorElement*   mHFHEn_highPt_Forward;
   MonitorElement*   mChMultiplicity_lowPt_Forward;
-  MonitorElement*   mNeuMultiplicity_lowPt_Forward;
-  MonitorElement*   mMuMultiplicity_lowPt_Forward;
+  MonitorElement*   mNeutMultiplicity_lowPt_Forward;
   MonitorElement*   mChMultiplicity_mediumPt_Forward;
-  MonitorElement*   mNeuMultiplicity_mediumPt_Forward;
-  MonitorElement*   mMuMultiplicity_mediumPt_Forward;
+  MonitorElement*   mNeutMultiplicity_mediumPt_Forward;
   MonitorElement*   mChMultiplicity_highPt_Forward;
-  MonitorElement*   mNeuMultiplicity_highPt_Forward;
-  MonitorElement*   mMuMultiplicity_highPt_Forward;
+  MonitorElement*   mNeutMultiplicity_highPt_Forward;
 
   MonitorElement* mChargedHadronEnergy;
   MonitorElement* mNeutralHadronEnergy;
@@ -592,16 +589,17 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mMuonMultiplicity_profile;
 
   //Monitor Elements for special selections
-  /*
-  MonitorElement* sPt;
-  MonitorElement* sEta;
-  MonitorElement* sPhi;
-  MonitorElement* sConstituents;
-  MonitorElement* sJetEnergyCorr;
-  MonitorElement* sJetEnergyCorrVsEta;
-  MonitorElement* sHFrac;
-  MonitorElement* sEFrac;
-  */
+  //for special selections
+  MonitorElement* mCHFrac;
+  MonitorElement* mNHFrac;
+  MonitorElement* mPhFrac;
+  MonitorElement* mElFrac;
+  MonitorElement* mMuFrac;
+  MonitorElement* mCHFrac_profile;
+  MonitorElement* mNHFrac_profile;
+  MonitorElement* mPhFrac_profile;
+  MonitorElement* mElFrac_profile;
+  MonitorElement* mMuFrac_profile;
 
 
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;

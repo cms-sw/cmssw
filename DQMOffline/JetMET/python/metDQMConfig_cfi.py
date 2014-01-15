@@ -16,7 +16,7 @@ newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
 
 tcMetAnalyzer = cms.EDAnalyzer("METAnalyzer",
-
+    OutputMEsInRootFile = cms.bool(False),
     OutputFile = cms.string('jetMETMonitoring.root'),
     METType=cms.untracked.string('tc'),
     METCollectionLabel     = cms.InputTag("tcMet"),
