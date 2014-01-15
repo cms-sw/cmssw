@@ -33,17 +33,19 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('SiPixelClusterizer'),
+#    debugModules = cms.untracked.vstring('SiPixelClusterizer'),
+    debugModules = cms.untracked.vstring('SiPixelRecHits'),
     destinations = cms.untracked.vstring('cout'),
 #    destinations = cms.untracked.vstring("log","cout"),
     cout = cms.untracked.PSet(
 #       threshold = cms.untracked.string('INFO')
-#       threshold = cms.untracked.string('ERROR')
-        threshold = cms.untracked.string('WARNING')
+       threshold = cms.untracked.string('ERROR')
+#        threshold = cms.untracked.string('WARNING')
+#        threshold = cms.untracked.string('DEBUG')
     )
 #    log = cms.untracked.PSet(
 #        threshold = cms.untracked.string('DEBUG')
@@ -80,8 +82,8 @@ process.GlobalTag.globaltag = 'MC_70_V1::All'
 
 process.o1 = cms.OutputModule("PoolOutputModule",
 #        outputCommands = cms.untracked.vstring('drop *','keep *_*_*_TrackTest'),
-#        fileName = cms.untracked.string('file:tracks.root'),
-       fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/tracks/tracks1.root'),
+        fileName = cms.untracked.string('file:tracks.root'),
+#       fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/tracks/tracks1.root'),
 #    splitLevel = cms.untracked.int32(0),
 #    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
@@ -157,11 +159,13 @@ process.myTracking = cms.Sequence(process.InitialStep*
                           process.conversionStepTracks
                           )
 
+# run full tracking
 # trackingGlobalReco does not work, needs EarlyMuons for muon seeding.
 # ckftracks & iterTracking does not work as well  (same problem).
 process.p1 = cms.Path(process.siPixelRawData*process.SiStripDigiToRaw*process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco)
 
 
+# unused 
 # Path and EndPath definitions
 #process.raw2digi_step = cms.Path(process.RawToDigi)
 #process.reconstruction_step = cms.Path(process.reconstruction)

@@ -40,8 +40,16 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     LoadTemplatesFromDB = cms.bool(True),                                       
 
     # petar, for clusterProbability() from TTRHs
-    ClusterProbComputationFlag = cms.int32(0)         
+    ClusterProbComputationFlag = cms.int32(0),
 
+    # new parameters added in 1/14, dk         
+    #lAOffset = cms.untracked.double(0.0),
+    lAOffset = cms.untracked.double(0.098),
+    #lAWidthBPix = cms.untracked.double(0.0),
+    #lAWidthFPix = cms.untracked.double(0.0),
+    lAWidthBPix = cms.untracked.double(0.098),
+    lAWidthFPix = cms.untracked.double(0.058),
+    # useLAWidthFromDB = cms.untracked.bool("False"),                                      
                                            
 )
 

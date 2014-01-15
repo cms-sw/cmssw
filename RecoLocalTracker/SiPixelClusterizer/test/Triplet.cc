@@ -10,7 +10,9 @@
 // Original Author:  Daniel Pitzl, DESY,,
 //         Created:  Sat Feb 12 12:12:42 CET 2011
 // $Id$
-//
+// d.k.
+// Split into a sperate call.
+// 
 
 // system include files:
 #include <memory>
@@ -72,6 +74,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include <TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h>
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+
+//#define SIM // use for single muon simulations 
 
 //
 // class declaration:
@@ -368,7 +372,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   const double wt = 180/pi;
   const double twopi = 2*pi;
   const double pihalf = 2*atan(1);
-  const double sqrtpihalf = sqrt(pihalf);
+  //const double sqrtpihalf = sqrt(pihalf);
   
   myCounters::neve++;
 
@@ -394,11 +398,11 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   iEvent.getByLabel( "offlineBeamSpot", rbs );
 
   XYZPoint bsP = XYZPoint(0,0,0);
-  int ibs = 0;
+  //int ibs = 0;
 
   if( !rbs.failedToGet() && rbs.isValid() ){
 
-    ibs = 1;
+    //ibs = 1;
     h000->Fill( rbs->betaStar() );
     h001->Fill( rbs->emittanceX() );
     h002->Fill( rbs->BeamWidthX()*1e4 );
@@ -492,8 +496,9 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   h022->Fill( maxSumPt );
 
+#ifndef SIM
   if( maxSumPt < 1 ) return;
-
+#endif
   if( maxSumPt < 1 ) vtxP = vtxN;
 
   /*
@@ -507,16 +512,16 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   h024->Fill( vtxP.y() );
   h025->Fill( vtxP.z() );
 
-  double xbs = 0;
-  double ybs = 0;
-  if( ibs ) {
-    xbs = bsP.x();
-    ybs = bsP.y();
-  }
-  else {
-    xbs = vtxP.x();
-    ybs = vtxP.y();
-  }
+  //double xbs = 0;
+  //double ybs = 0;
+  //if( ibs ) {
+  //xbs = bsP.x();
+  //ybs = bsP.y();
+  //}
+  //else {
+  //xbs = vtxP.x();
+  //ybs = vtxP.y();
+  //}
   //
   //--------------------------------------------------------------------
   // MET:
@@ -709,7 +714,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     double dip = iTrack->lambda();
     double z0  = iTrack->dz();
     double tet = pihalf - dip;
-    double eta = iTrack->eta();
+    //double eta = iTrack->eta();
     //
     // transient track:
     //
@@ -753,25 +758,25 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
     double cf = cos(phi);
     double sf = sin(phi);
-    double xdca =  dca * sf;
-    double ydca = -dca * cf;
+    //double xdca =  dca * sf;
+    //double ydca = -dca * cf;
 
-    double tt = tan(tet);
+    //double tt = tan(tet);
 
-    double rinv = -kap; // Karimaki                                           
-    double rho = 1/kap;
+    //double rinv = -kap; // Karimaki                                           
+    //double rho = 1/kap;
     double erd = 1.0 - kap*dca;
     double drd = dca * ( 0.5*kap*dca - 1.0 ); // 0.5 * kap * dca**2 - dca;
     double hkk = 0.5*kap*kap;
     //
     // track w.r.t. beam (cirmov):
     //
-    double dp = -xbs*sf + ybs*cf + dca;
-    double dl = -xbs*cf - ybs*sf;
-    double sa = 2*dp + rinv*(dp*dp+dl*dl);
-    double dcap = sa / ( 1 + sqrt(1 + rinv*sa) );// distance to beam
-    double ud = 1 + rinv*dca;
-    double phip = atan2( -rinv*xbs + ud*sf, rinv*ybs + ud*cf );//direction
+    //double dp = -xbs*sf + ybs*cf + dca;
+    //double dl = -xbs*cf - ybs*sf;
+    //double sa = 2*dp + rinv*(dp*dp+dl*dl);
+    //double dcap = sa / ( 1 + sqrt(1 + rinv*sa) );// distance to beam
+    //double ud = 1 + rinv*dca;
+    //double phip = atan2( -rinv*xbs + ud*sf, rinv*ybs + ud*cf );//direction
     //
     // track at R(PXB1), from FUNPHI, FUNLEN:
     //
@@ -947,7 +952,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       int n1 = 0;
       int n2 = 0;
       int n3 = 0;
-      double phiN2 = 0;
+      //double phiN2 = 0;
 
       for( trackingRecHit_iterator irecHit = iTrack->recHitsBegin();
       	   irecHit != iTrack->recHitsEnd(); ++irecHit){
@@ -991,7 +996,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	  h065->Fill( gZ );
 
 	  //	  GeomDet* igeomdet = trecHit->det();
-	  double phiN = trecHit->det()->surface().normalVector().barePhi();//normal vector
+	  //double phiN = trecHit->det()->surface().normalVector().barePhi();//normal vector
 
           if( subDet == PixelSubdetector::PixelBarrel ||
               subDet == StripSubdetector::TIB ||
@@ -1063,7 +1068,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	      x2 = gX;
 	      y2 = gY;
 	      z2 = gZ;
-	      phiN2 = phiN;
+	      //phiN2 = phiN;
 
 	      h201->Fill( ilad );// 1..32
 	      h202->Fill( imod );//1..8
@@ -1206,10 +1211,10 @@ void Triplet::triplets(double x1,double y1,double z1,double x2,double y2,double 
 		       double ptsig, double & dca2,double & dz2) {
   using namespace std;
   const double pi = 4*atan(1);
-  const double wt = 180/pi;
+  //const double wt = 180/pi;
   const double twopi = 2*pi;
-  const double pihalf = 2*atan(1);
-  const double sqrtpihalf = sqrt(pihalf);    
+  //const double pihalf = 2*atan(1);
+  //const double sqrtpihalf = sqrt(pihalf);    
 
   double pt = abs(ptsig);
   //double rho = pt/0.0114257;
@@ -1220,7 +1225,7 @@ void Triplet::triplets(double x1,double y1,double z1,double x2,double y2,double 
   double rinv = -kap; // Karimaki                                           
 
 
-  double f2 = atan2( y2, x2 );//position angle
+  //double f2 = atan2( y2, x2 );//position angle
 
   //h406->Fill( hp.numberOfValidTrackerHits() );
   //h407->Fill( hp.numberOfValidPixelBarrelHits() );
@@ -1273,8 +1278,8 @@ void Triplet::triplets(double x1,double y1,double z1,double x2,double y2,double 
   double num = ( y3 - y0 ) * ( x1 - x0 ) - ( x3 - x0 ) * ( y1 - y0 );
   double den = ( x1 - x0 ) * ( x3 - x0 ) + ( y1 - y0 ) * ( y3 - y0 );
   double tandip = kap * ( z3 - z1 ) / atan( num / den );
-  double udip = atan(tandip);
-  double utet = pihalf - udip;
+  //double udip = atan(tandip);
+  //double utet = pihalf - udip;
   //
   // To get phi0 in the right intervall one must differ two cases
   // with positve and negative kap:
