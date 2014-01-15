@@ -264,8 +264,8 @@ void mugeo::MuFiducial::buildGEMLUT()
       phiMin = t1phi; phiMax = b2phi;
     }
 
-    if (rId.chamber() % 2==0) std::cout << "even chamber " <<  rId << " "<<phiMin << " "<<phiMax<< std::endl;
-    else                      std::cout << "odd chamber " <<  rId << " "<<phiMin << " "<<phiMax << std::endl;
+//     if (rId.chamber() % 2==0) std::cout << "even chamber " <<  rId << " "<<phiMin << " "<<phiMax<< std::endl;
+//     else                      std::cout << "odd chamber " <<  rId << " "<<phiMin << " "<<phiMax << std::endl;
 
     
     std::vector<double> values;
