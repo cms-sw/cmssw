@@ -31,16 +31,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -48,28 +40,14 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "CommonTools/Clustering1D/interface/Clusterizer1DCommons.h"
-#include "CommonTools/Clustering1D/interface/Cluster1DMerger.h"
-#include "CommonTools/Clustering1D/interface/TrivialWeightEstimator.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
 #include "RecoPixelVertexing/PixelVertexFinding/interface/FindPeakFastPV.h"
-
-#define HaveMtv
-#define HaveFsmw
-#define HaveDivisive
-#ifdef HaveMtv
-#include "CommonTools/Clustering1D/interface/MtvClusterizer1D.h"
-#endif
-#ifdef HaveFsmw
-#include "CommonTools/Clustering1D/interface/FsmwClusterizer1D.h"
-#endif
-#ifdef HaveDivisive
-#include "CommonTools/Clustering1D/interface/DivisiveClusterizer1D.h"
-#endif
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -128,7 +106,7 @@ class FastPrimaryVertexWithWeightsProducer : public edm::EDProducer {
    
 // PARAMETERS USED TO FIND THE FASTPV AS PEAK IN THE Z-PROJECTIONS DISTRIBUTION
   // First Iteration: look for a cluster with a width = m_zClusterWidth_step1
-  double m_zClusterWidth_step1; // cluster width in step1
+  double m_zClusterWidth_step1;          // cluster width in step1
 
   // Second Iteration: use only z-projections with weight > weightCut_step2 and look for a cluster with a width = m_zClusterWidth_step2, within of weightCut_step2 of the previous result 
   double m_zClusterWidth_step2; 	// cluster width in step2
@@ -136,8 +114,8 @@ class FastPrimaryVertexWithWeightsProducer : public edm::EDProducer {
   double m_weightCut_step2;		// minimum z-projections weight required in step2
 
   // Third Iteration: use only z-projections with weight > weightCut_step3 and look for a cluster with a width = m_zClusterWidth_step3, within of weightCut_step3 of the previous result 
-  double m_zClusterWidth_step3; 		// cluster width in step2
-  double m_zClusterSearchArea_step3;	// cluster width in step2
+  double m_zClusterWidth_step3; 	// cluster width in step3
+  double m_zClusterSearchArea_step3;	// cluster width in step3
   double m_weightCut_step3; 		// minimum z-projections weight required in step3
   
 };
