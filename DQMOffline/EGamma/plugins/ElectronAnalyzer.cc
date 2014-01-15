@@ -280,10 +280,12 @@ void ElectronAnalyzer::book()
 
   // matching object
   std::string matchingObjectType ;
-  // if (std::string::npos!=matchingObjectCollection_.label().find("SuperCluster",0))
+  Labels l;
+  labelsForToken(matchingObjectCollection_,l);
+  if (std::string::npos != std::string(l.module).find("SuperCluster",0))
     { matchingObjectType = "SC" ; }
   if (matchingObjectType=="")
-   { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
+    { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
   else
    { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
 //  std::string htitle = "# "+matchingObjectType+"s", xtitle = "N_{"+matchingObjectType+"}" ;
@@ -315,18 +317,7 @@ void ElectronAnalyzer::book()
 void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup & iSetup )
 {
   nEvents_++ ;
-//  if (!trigger(iEvent)) return ;
-//  nAfterTrigger_++ ;
 
-//  edm::Handle<SuperClusterCollection> barrelSCs ;
-//  iEvent.getByLabel("correctedHybridSuperClusters",barrelSCs) ;
-//  edm::Handle<SuperClusterCollection> endcapsSCs ;
-//  iEvent.getByLabel("correctedMulti5x5SuperClustersWithPreshower",endcapsSCs) ;
-//  std::cout<<"[ElectronMcSignalValidator::analyze]"
-//    <<"Event "<<iEvent.id()
-//    <<" has "<<barrelSCs.product()->size()<<" barrel superclusters"
-//    <<" and "<<endcapsSCs.product()->size()<<" endcaps superclusters" ;
-//
   edm::Handle<GsfElectronCollection> gsfElectrons ;
   iEvent.getByToken(electronCollection_,gsfElectrons) ;
   edm::Handle<reco::SuperClusterCollection> recoClusters ;

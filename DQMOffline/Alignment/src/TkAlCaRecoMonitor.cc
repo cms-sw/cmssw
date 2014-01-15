@@ -18,7 +18,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/Alignment/interface/TkAlCaRecoMonitor.h"
 
-#include <DataFormats/JetReco/interface/CaloJet.h>
 #include <DataFormats/Math/interface/deltaR.h>
 
 #include <string>
@@ -38,6 +37,7 @@ void TkAlCaRecoMonitor::beginJob() {
 
   trackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
   referenceTrackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("ReferenceTrackProducer"));
+  jetCollection_ = mayConsume<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
 
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
@@ -142,7 +142,10 @@ void TkAlCaRecoMonitor::beginJob() {
 
   histname = "AlCaRecoTrackEfficiency_";
   AlCaRecoTrackEfficiency_ = dqmStore_->book1D(histname+AlgoName, histname+AlgoName, TrackEfficiencyBin, TrackEfficiencyMin, TrackEfficiencyMax);
-  // needs to be fixed: AlCaRecoTrackEfficiency_->setAxisTitle("n("+trackProducer_.label()+") / n("+referenceTrackProducer_.label()+")");
+  Labels l_tp, l_rtp;
+  labelsForToken(referenceTrackProducer_, l_rtp);
+  labelsForToken(trackProducer_, l_tp);
+  AlCaRecoTrackEfficiency_->setAxisTitle("n("+std::string(l_tp.module)+") / n("+std::string(l_rtp.module)+")");
 
   int zBin =  conf_.getParameter<unsigned int>("HitMapsZBin"); //300
   double zMax = conf_.getParameter<double>("HitMapZMax"); //300.0; //cm
@@ -212,9 +215,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<reco::CaloJetCollection> jets;
   if(runsOnReco_){
-    // edm::InputTag jetCollection = conf_.getParameter<edm::InputTag>("CaloJetCollection");
-    edm::EDGetTokenT<reco::CaloJetCollection> jetCollection = consumes<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
-    iEvent.getByToken(jetCollection, jets);
+    iEvent.getByToken(jetCollection_, jets);
     if(! jets.isValid()){
       edm::LogError("Alignment")<<"no jet collection found in event!";
     }

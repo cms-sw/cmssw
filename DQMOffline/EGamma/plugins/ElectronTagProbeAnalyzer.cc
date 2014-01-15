@@ -225,7 +225,9 @@ void ElectronTagProbeAnalyzer::book()
 
   // matching object
   std::string matchingObjectType ;
-  //if (std::string::npos!=matchingObjectCollection_.label().find("SuperCluster",0))
+  Labels l;
+  labelsForToken(matchingObjectCollection_,l);
+  if (std::string::npos != std::string(l.module).find("SuperCluster",0))
    { matchingObjectType = "SC" ; }
   if (matchingObjectType=="")
    { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
