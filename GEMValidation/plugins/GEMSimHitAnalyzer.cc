@@ -31,7 +31,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+//#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -140,7 +140,7 @@ private:
   const CSCGeometry* csc_geometry;
   const RPCGeometry* rpc_geometry;
   const GEMGeometry* gem_geometry_;
-  const ME0Geometry* me0_geometry_;
+  //  const ME0Geometry* me0_geometry_;
   
   MyCSCSimHit csc_sh;
   MyRPCSimHit rpc_sh;
@@ -151,14 +151,14 @@ private:
   edm::Handle<edm::PSimHitContainer> CSCHits;
   edm::Handle<edm::PSimHitContainer> RPCHits;
   edm::Handle<edm::PSimHitContainer> GEMHits;
-  edm::Handle<edm::PSimHitContainer> ME0Hits;
+//  edm::Handle<edm::PSimHitContainer> ME0Hits;
   edm::Handle<edm::SimTrackContainer> simTracks;
   edm::Handle<edm::SimVertexContainer> simVertices;
 
   edm::ESHandle<CSCGeometry> csc_geom;
   edm::ESHandle<RPCGeometry> rpc_geom;
   edm::ESHandle<GEMGeometry> gem_geom;
-  edm::ESHandle<ME0Geometry> me0_geom;
+  // edm::ESHandle<ME0Geometry> me0_geom;
  
   edm::ParameterSet cfg_;
   std::string simInputLabel_;
@@ -196,8 +196,8 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
   iSetup.get<MuonGeometryRecord>().get(gem_geom);
   gem_geometry_ = &*gem_geom;
 
-  iSetup.get<MuonGeometryRecord>().get(me0_geom);
-  me0_geometry_ = &*me0_geom;
+//   iSetup.get<MuonGeometryRecord>().get(me0_geom);
+//   me0_geometry_ = &*me0_geom;
 
   iSetup.get<MuonGeometryRecord>().get(csc_geom);
   csc_geometry = &*csc_geom;
@@ -239,8 +239,8 @@ void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), GEMHits);
   if(GEMHits->size()) analyzeGEM( iEvent );
 
-  iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonME0Hits"), ME0Hits);
-  if(ME0Hits->size()) analyzeME0( iEvent );
+//   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonME0Hits"), ME0Hits);
+//   if(ME0Hits->size()) analyzeME0( iEvent );
 
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonCSCHits"), CSCHits);
   if(CSCHits->size()) analyzeCSC( iEvent );
@@ -440,6 +440,7 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
 
 void GEMSimHitAnalyzer::analyzeME0( const edm::Event& iEvent )
 {
+  /*
   for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit)
   {
     me0_sh.eventNumber = iEvent.id().event();
@@ -482,6 +483,7 @@ void GEMSimHitAnalyzer::analyzeME0( const edm::Event& iEvent )
     
     me0_sh_tree_->Fill();
   }
+  */
 }
 
 
