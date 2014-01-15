@@ -121,6 +121,7 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
     unsigned int iMu=0;
     for (; iMu<nMu; iMu++) 
     {
+      MuonDeposits = 0;
       RecoChargedCandidateRef candref(mucands,iMu);
       LogDebug("HLTMuonPFIsoFilter") << "candref isNonnull " << candref.isNonnull(); 
 
