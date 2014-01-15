@@ -74,6 +74,7 @@ class L2MuonSeedGenerator : public edm::EDProducer {
   const double theL1MaxEta;
   const unsigned theL1MinQuality;
   const bool useOfflineSeed;
+  const bool useUnassociatedL1;
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy *theService;  

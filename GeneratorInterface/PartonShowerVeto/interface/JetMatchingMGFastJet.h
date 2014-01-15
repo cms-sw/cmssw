@@ -1,7 +1,6 @@
 #ifndef gen_JetMatchingMGFastJet_h
 #define gen_JetMatchingMGFastJet_h
 
-
 // 
 //  Julia V. Yarba, Feb.10, 2013
 //
@@ -10,11 +9,8 @@
 //  somewhat differently, and is also using FastJet package 
 //  instead of Pythia8's native SlowJet
 //
-//  At this point, we inherit from JetMatchingMadgraph,
-//  mainly to use parameters input machinery
-//
 
-#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingMadgraph.h"
+#include "GeneratorInterface/PartonShowerVeto/interface/JetMatching.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LHECommonBlocks.h"
@@ -33,30 +29,50 @@
 
 namespace gen
 {
-class JetMatchingMGFastJet : public JetMatchingMadgraph
+class JetMatchingMGFastJet : public JetMatching
 {
 
    public:
    
-      JetMatchingMGFastJet(const edm::ParameterSet& params) : JetMatchingMadgraph(params), 
-                                                              fJetFinder(0),  
-							      fIsInit(false) 
-							      { fDJROutFlag = params.getParameter<int>("outTree_flag"); }
+      JetMatchingMGFastJet(const edm::ParameterSet& params);
+
       ~JetMatchingMGFastJet() { if (fJetFinder) delete fJetFinder; }
             
       const std::vector<int>* getPartonList() { return typeIdx; }
    
    protected:
-      virtual void init( const lhef::LHERunInfo* runInfo ) { if (fIsInit) return; JetMatchingMadgraph::init(runInfo); 
-                                                             initAfterBeams(); fIsInit=true; return; }
-      bool initAfterBeams();
-      void beforeHadronisation( const lhef::LHEEvent* );
-      void beforeHadronisationExec() { return; }
+
+      virtual void init( const lhef::LHERunInfo* runInfo );
+
+      virtual bool initAfterBeams();
+      virtual void beforeHadronisation( const lhef::LHEEvent* );
+      virtual void beforeHadronisationExec() { return; }
       
-      int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput );
-   
+      virtual int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput );
+
+      virtual double getJetEtaMax() const;
+
    private:
                
+      //parameters staff from Madgraph
+
+      template<typename T>
+      static T parseParameter(const std::string &value);
+      template<typename T>
+      static T getParameter(const std::map<std::string, std::string> &params,
+                            const std::string &var, const T &defValue = T());
+      template<typename T>
+      T getParameter(const std::string &var, const T &defValue = T()) const;
+
+      template<typename T>
+      static void updateOrDie(
+                      const std::map<std::string, std::string> &params,
+                      T &param, const std::string &name);
+
+      std::map<std::string, std::string>      mgParams;
+
+      // ----------------------------
+
       enum vetoStatus { NONE, LESS_JETS, MORE_JETS, HARD_JET, UNMATCHED_PARTON };
       enum partonTypes { ID_TOP=6, ID_GLUON=21, ID_PHOTON=22 };
      
@@ -64,12 +80,6 @@ class JetMatchingMGFastJet : public JetMatchingMadgraph
       double clFact;
       int nQmatch;
       
-      //
-      // these 2 below are legacy but keep here for now
-      //
-      //int ktScheme;
-      //int showerKt;
-
       // Master switch for merging
       bool   doMerge;
 
@@ -81,13 +91,17 @@ class JetMatchingMGFastJet : public JetMatchingMadgraph
       double coneRadius, etaJetMax ;
 
       // Merging procedure control flag(s)
-      // (there're also inclusive, exclusive, and soup/auto in JetMatchingMadgraph)
+      // (there're also inclusive, exclusive, and soup/auto in JetMatchingMGFastJet)
       //
       bool fExcLocal; // this is similar to memaev_.iexc
 
       // Sort final-state of incoming process into light/heavy jets and 'other'
       std::vector < int > typeIdx[3];
             
+      bool runInitialized;
+      bool soup;
+      bool exclusive;
+
       // 
       // FastJets tool(s)
       //
