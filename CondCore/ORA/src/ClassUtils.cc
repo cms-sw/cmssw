@@ -420,9 +420,8 @@ edm::TypeWithDict ora::ClassUtils::containerSubType(const edm::TypeWithDict& typ
 }
 
 edm::TypeWithDict ora::ClassUtils::resolvedType(const edm::TypeWithDict& typ){
-  edm::TypeWithDict resolvedType = typ;
-  while(resolvedType.isTypedef()){
-    resolvedType = resolvedType.finalType();
+  if (typ.isTypedef()){
+    return typ.finalType();
   }
-  return resolvedType;
+  return typ;
 }
