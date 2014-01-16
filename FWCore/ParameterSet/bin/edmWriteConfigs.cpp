@@ -148,7 +148,6 @@ namespace {
 
 int main (int argc, char **argv)
 try {
-/*
   boost::filesystem::path initialWorkingDirectory =
     boost::filesystem::initial_path<boost::filesystem::path>();
 
@@ -316,7 +315,6 @@ try {
       << std::endl;
     return 1;
   }
-*/
   return 0;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;
