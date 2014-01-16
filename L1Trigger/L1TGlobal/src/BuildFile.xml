@@ -4,7 +4,9 @@
 <use name="DataFormats/L1TCalorimeter"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
+<use name="xerces-c"/>
 <export>
   <lib name="1"/>
 </export>
+<flags ADD_SUBDIR="1"/>
 
