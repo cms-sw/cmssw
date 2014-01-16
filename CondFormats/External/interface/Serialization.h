@@ -7,10 +7,13 @@
 
 // std::vector used in DataFormats/EcalDetId/interface/EcalContainer.h
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/map.hpp>
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
+#include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
@@ -84,6 +87,41 @@ void serialize(Archive & ar, EcalContainer<DetIdT, T> & obj, const unsigned int 
 {
     split_free(ar, obj, v);
 }
+
+// DataFormats/HLTReco/interface/HLTPrescaleTable.h
+template<class Archive>
+void save(Archive & ar, const trigger::HLTPrescaleTable & obj, const unsigned int)
+{
+    auto set = obj.set();
+    auto lab = obj.labels();
+    auto tab = obj.table();
+    ar & boost::serialization::make_nvp("set_"   , set );
+    ar & boost::serialization::make_nvp("labels_", lab );
+    ar & boost::serialization::make_nvp("table_" , tab );  
+}
+
+template<class Archive>
+void load(Archive & ar, trigger::HLTPrescaleTable & obj, const unsigned int)
+{
+    // FIXME: avoid copying if we are OK getting a non-const reference
+    unsigned int set_;
+    std::vector<std::string> labels_;
+    std::map<std::string,std::vector<unsigned int> > table_;
+
+    ar & boost::serialization::make_nvp("set_"   , set_ );
+    ar & boost::serialization::make_nvp("labels_", labels_ );
+    ar & boost::serialization::make_nvp("table_" , table_ );  
+    trigger::HLTPrescaleTable tmp(set_, labels_, table_);
+    obj = tmp;
+
+}
+
+template<class Archive>
+void serialize(Archive & ar, trigger::HLTPrescaleTable & obj, const unsigned int v)
+{
+    split_free(ar, obj, v);
+}
+
 
 
 // DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h
@@ -230,6 +268,20 @@ struct access<EcalContainer<DetIdT, T>>
     {
         return true
             and (equal(first.items(), second.items()))
+        ;
+    }
+};
+
+// DataFormats/HLTReco/interface/HLTPrescaleTable.h
+template <>
+struct access<trigger::HLTPrescaleTable>
+{
+    static bool equal_(const trigger::HLTPrescaleTable & first, const trigger::HLTPrescaleTable & second)
+    {
+        return true
+            and (equal(first.set(), second.set()))
+            and (equal(first.labels(), second.labels()))
+            and (equal(first.table(), second.table()))
         ;
     }
 };
