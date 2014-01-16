@@ -3,7 +3,7 @@
 <use   name="CondFormats/SiPixelObjects"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <library    name="SiPixelObjectsTest" file="*.cc">
-  <flags   EDM_PLUGIN="1"/>
+    <flags   EDM_PLUGIN="1"/>
 </library>
 
 <bin file="testSerializationSiPixelObjects.cpp">
