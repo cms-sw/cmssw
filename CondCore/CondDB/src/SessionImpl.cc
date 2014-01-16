@@ -135,8 +135,9 @@ namespace cond {
       }
     }
     
-    bool SessionImpl::isTransactionActive() const {
+    bool SessionImpl::isTransactionActive( bool deep ) const {
       if( !transaction ) return false;
+      if( !deep ) return true;
       return transaction->isActive();
     }
 
