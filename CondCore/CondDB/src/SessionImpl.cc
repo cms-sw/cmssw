@@ -61,8 +61,9 @@ namespace cond {
       coralSession(){
     }
 
-    SessionImpl::SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session ):
-      coralSession( session ){
+    SessionImpl::SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionStr ):
+      coralSession( session ),
+      connectionString( connectionStr ){
     }
 
     SessionImpl::~SessionImpl(){
@@ -134,8 +135,9 @@ namespace cond {
       }
     }
     
-    bool SessionImpl::isTransactionActive() const {
+    bool SessionImpl::isTransactionActive( bool deep ) const {
       if( !transaction ) return false;
+      if( !deep ) return true;
       return transaction->isActive();
     }
 

@@ -60,6 +60,7 @@ class PFBlockProducer : public edm::EDProducer {
   edm::InputTag   inputTagEGPhotons_;
   edm::InputTag   inputTagSCBarrel_;
   edm::InputTag   inputTagSCEndcap_;  
+  edm::InputTag   inputTagPFClusterAssociationEBEE_;
   
   // Link track and HCAL clusters to HO clusters ?
   bool useHO_;
@@ -75,6 +76,9 @@ class PFBlockProducer : public edm::EDProducer {
   
   /// use SuperClusters ? 
   bool useSuperClusters_;  
+  
+  //match superclusters by ref
+  bool superClusterMatchByRef_;
   
   /// switch on/off Conversions
   bool  useConversions_;  

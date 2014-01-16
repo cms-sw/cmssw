@@ -33,7 +33,8 @@ namespace cond {
       public:
 	//
 	Iterator();
-	Iterator( IOVContainer::const_iterator current, IOVContainer::const_iterator end, cond::TimeType timeType );
+	Iterator( IOVContainer::const_iterator current, IOVContainer::const_iterator end, 
+		  cond::TimeType timeType, cond::Time_t endOfValidity );
 	Iterator( const Iterator& rhs );
 	
 	//
@@ -54,6 +55,7 @@ namespace cond {
 	IOVContainer::const_iterator m_current;
 	IOVContainer::const_iterator m_end;
 	cond::TimeType m_timeType;
+	cond::Time_t m_endOfValidity;
       };
       
     public:
@@ -88,6 +90,9 @@ namespace cond {
       cond::Time_t endOfValidity() const;
       
       cond::Time_t lastValidatedTime() const;
+
+      // returns true if at least one IOV is in the sequence.
+      bool isEmpty() const;
       
       // start the iteration. it referes to the LOADED iov sequence subset, which consists in two consecutive groups - or the entire sequence if it has been requested.
       // returns data only when a find or a load( tag, true ) have been at least called once. 
@@ -106,19 +111,27 @@ namespace cond {
       // otherwise, a new query will be executed using the resolved group boundaries.
       // throws if the target time cannot be found.
       cond::Iov_t getInterval( cond::Time_t time );
+
+      // it does NOT use the cache, every time it performs a new query.
+      cond::Iov_t getLast();
       
-      // the size of the LOADED iov sequence subset. Matches the real iov size if a load( tag, true ) has been called.
-      int size() const;
+      // the size of the LOADED iov sequence subset. Matches the sequence size if a load( tag, true ) has been called.
+      int loadedSize() const;
       
+      // the size of the entire iov sequence. Peforms a query at every call.
+      int sequenceSize() const;
+
       // for reporting
       size_t numberOfQueries() const;
       
       // for debugging
       std::pair<cond::Time_t,cond::Time_t> loadedGroup() const; 
-      
+
+      // maybe will be removed with a re-design of the top level interface (ESSources )
+      const std::shared_ptr<SessionImpl>& session() const;
       
     private:
-      void checkSession( const std::string& ctx );
+      void checkTransaction( const std::string& ctx ) const ;
       void fetchSequence( cond::Time_t lowerGroup, cond::Time_t higherGroup );
       
     private:

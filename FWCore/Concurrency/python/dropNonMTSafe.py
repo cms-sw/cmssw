@@ -25,5 +25,7 @@ def dropNonMTSafe(process):
   _dropFromPaths(process,"SiStripMonitorTrack_hi")
 
   process.options = cms.untracked.PSet(numberOfThreads = cms.untracked.uint32(8),
+                                       sizeOfStackForThreadsInKB = cms.untracked.uint32(10*1024),
                                        numberOfStreams = cms.untracked.uint32(0))
+                                       
   return process

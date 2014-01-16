@@ -65,6 +65,7 @@ def _configurePFForGEDEGamma(process):
     #for later
     process.particleFlowBlock.SCBarrel = cms.InputTag('correctedHybridSuperClusters')
     process.particleFlowBlock.SCEndcap = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+    process.particleFlowBlock.SuperClusterMatchByRef = cms.bool(False)
     #add in conversions
     ## for PF
     
@@ -181,11 +182,13 @@ def _customize_FastSim(process):
     process.famosParticleFlowSequence.insert(8,process.pfPhotonTranslatorSequence)
     process.famosParticleFlowSequence.insert(8,process.pfElectronTranslatorSequence)
 
-    process.reducedEcalRecHitsES. EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+    process.reducedEcalRecHitsES.interestingDetIds = cms.VInputTag()
     process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFEB)
     process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFEE)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFES)
     process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedEB)
     process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedEE)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedES)
 
     process.interestingGedEleIsoDetIdEB.emObjectLabel = cms.InputTag('gsfElectrons')
     process.interestingGedEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')
@@ -230,6 +233,7 @@ def _customize_FastSim(process):
     if hasattr(process,'ecalDrivenElectronSeeds'):
         process.ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('correctedHybridSuperClusters')
         process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+        process.ecalDrivenElectronSeeds.SeedConfiguration.ecalDrivenElectronSeedsParameters.SCEtCut = 4.0
     return process
 
 
@@ -239,11 +243,13 @@ def _customize_Reco(process):
     process.particleFlowReco.insert(8,process.pfPhotonTranslatorSequence)
     process.particleFlowReco.insert(8,process.pfElectronTranslatorSequence)
 
-    process.reducedEcalRecHitsES. EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower')
+    process.reducedEcalRecHitsES.interestingDetIds = cms.VInputTag()
     process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFEB)
     process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFEE)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdPFES)
     process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedEB)
     process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedEE)
+    process.reducedEcalRecHitsSequence.remove(process.interestingEcalDetIdRefinedES)
 
     process.interestingGedEleIsoDetIdEB.emObjectLabel = cms.InputTag('gsfElectrons')
     process.interestingGedEleIsoDetIdEE.emObjectLabel = cms.InputTag('gsfElectrons')

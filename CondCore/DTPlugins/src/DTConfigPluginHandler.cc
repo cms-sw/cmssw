@@ -16,10 +16,7 @@
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
-#include "CondCore/IOVService/interface/KeyList.h"
-#include "CondCore/IOVService/interface/IOVProxy.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/CondDB/interface/KeyList.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -113,10 +110,10 @@ int DTConfigPluginHandler::get( const DTKeyedConfigListRcd& keyRecord,
   }
 
 // get dummy brick list
-  edm::ESHandle<cond::KeyList> klh;
+  edm::ESHandle<cond::persistency::KeyList> klh;
   keyRecord.get( klh );
-  cond::KeyList const &  kl= *klh.product();
-  cond::KeyList* keyList = const_cast<cond::KeyList*>( &kl );
+  cond::persistency::KeyList const &  kl= *klh.product();
+  cond::persistency::KeyList* keyList = const_cast<cond::persistency::KeyList*>( &kl );
   if ( keyList == 0 ) return 999;
 
   std::vector<unsigned long long> checkedKeys;

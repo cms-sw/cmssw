@@ -239,7 +239,7 @@ namespace cond {
   void IOVEditor::reportError( std::string message, 
                                cond::Time_t time) const {
     std::ostringstream out;
-    out << "Error in";
+    out << "Error in ";
     debugInfo(out);
     out << "\n" <<  message << " for time:  " << time;
     throw cond::Exception(out.str());

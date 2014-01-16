@@ -20,33 +20,33 @@
 setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
-setenv FASTSIM False
+setenv FASTSIM True
 setenv UPGRADE False
 ## TYPE options: Photons, GEDPhotons
 ## ANALYZERNAME options: PhotonValidator, oldpfPhotonValidator, pfPhotonValidator
-#setenv TYPE Photons
-#setenv ANALYZERNAME PhotonValidator
-setenv TYPE GEDPhotons
-setenv ANALYZERNAME pfPhotonValidator
+setenv TYPE Photons
+setenv ANALYZERNAME PhotonValidator
+#setenv TYPE GEDPhotons
+#setenv ANALYZERNAME pfPhotonValidator
 
 
 setenv CMSSWver1 7_0_0
 setenv CMSSWver2 7_0_0
 setenv OLDRELEASE 7_0_0
 setenv NEWRELEASE 7_0_0
-setenv OLDPRERELEASE pre6
-setenv NEWPRERELEASE pre8
+setenv OLDPRERELEASE pre8
+setenv NEWPRERELEASE pre9
 setenv UPGRADEVER  UPG2017
 setenv LHCENERGY   14
 
 
 if ( $STARTUP == True &&  $FASTSIM == False) then
-setenv OLDGLOBALTAG PU_PRE_ST62_V8-v1
-setenv NEWGLOBALTAG PU_START70_V2_amend-v4
+setenv OLDGLOBALTAG PU_START70_V2_amend-v4
+setenv NEWGLOBALTAG PU_START70_V2-v4
 else if (  $STARTUP == True  && $FASTSIM == True) then
-setenv OLDGLOBALTAG PRE_ST62_V8_FastSim-v1
-setenv NEWGLOBALTAG START70_V1_FastSim-v1
-endif
+setenv OLDGLOBALTAG START70_V2_amend_FastSim-v6 
+setenv NEWGLOBALTAG START70_V2_FastSim-v4
+ endif
 
 
 
@@ -394,17 +394,31 @@ cat > scaledhistosGEDspecific <<EOF
   eResRegr2convAll
   eResRegr2convBarrel
   eResRegr2convEndcap
+  chargedHadIsoBarrel
+  chargedHadIsoEndcap
+  neutralHadIsoBarrel
+  neutralHadIsoEndcap
+  photonIsoBarrel
+  photonIsoEndcap
+  pfMVABarrel
+  pfMVAEndcap
+  nCluOutMustacheBarrel
+  nCluOutMustacheEndcap
+EOF
+
+
+cat > scaledhistosGEDspecificLogScale <<EOF
   photonIsoBarrel
   photonIsoEndcap
   chargedHadIsoBarrel
   chargedHadIsoEndcap
   neutralHadIsoBarrel
   neutralHadIsoEndcap
-  pfMVABarrel
-  pfMVAEndcap
-  nCluOutMustacheBarrel
-  nCluOutMustacheEndcap
+
+
 EOF
+
+
 
 cat > efficiencyForConvertedPhotons <<EOF
 
@@ -730,6 +744,9 @@ Double_t nold=$i->GetEntries();
 if ( $i==scEAll || $i==phoEAll ) {  
 $i->GetYaxis()->SetRangeUser(0.,2000.);
 }
+if ($i==chargedHadIsoBarrel || $i==chargedHadIsoBarrel ) {
+$i->GetXaxis()->SetRangeUser(0.,12.);
+}
 $i->SetStats(0);
 $i->SetMinimum(0.);
 if ( mnew > mold+sqrt(mold) )  { 
@@ -780,6 +797,43 @@ l->Draw();
 c$i->SaveAs("gifs/$i.gif");
 //TString gifName=TString("gifs/$i")+"_ratio.gif";
 //c$i->SaveAs(gifName);
+EOF
+  setenv N `expr $N + 1`
+end
+
+
+
+foreach i (`cat scaledhistosGEDspecificLogScale`)
+  cat > temp$N.C <<EOF
+TCanvas *cc$i = new TCanvas("cc$i");
+cc$i->cd();
+cc$i->SetFillColor(10);
+cc$i->SetLogy();
+//file_new->cd("DQMData/EgammaV/${ANALYZERNAME}/Photons");
+file_new->cd("$HISTOPATHNAME_Photons");
+Double_t nnew=$i->GetEntries();
+//file_old->cd("DQMData/EgammaV/${ANALYZERNAME}/Photons");
+file_old->cd("$HISTOPATHNAME_Photons");
+if ( $i==hcalTowerSumEtConeDR04Barrel ||  $i==hcalTowerSumEtConeDR04Endcap  ) {  
+$i->GetXaxis()->SetRangeUser(0.,10.);
+}
+Double_t nold=$i->GetEntries();
+$i->SetStats(0);
+$i->SetMinimum(1);
+$i->SetLineColor(kPink+8);
+$i->SetFillColor(kPink+8);
+$i->Draw();
+//file_new->cd("DQMData/EgammaV/${ANALYZERNAME}/Photons");
+file_new->cd("$HISTOPATHNAME_Photons");
+Double_t nnew=$i->GetEntries();
+$i->SetStats(0);
+$i->SetLineColor(kBlack);
+$i->SetMarkerColor(kBlack);
+$i->SetMarkerStyle(20);
+$i->SetMarkerSize(1);
+$i->Draw("e1same");
+cc$i->SaveAs("gifs/log$i.gif");
+
 EOF
   setenv N `expr $N + 1`
 end
@@ -1324,6 +1378,7 @@ rm  validationPlotsTemplate.html
 
 rm scaledhistosForPhotons
 rm scaledhistosGEDspecific
+rm scaledhistosGEDspecificLogScale
 rm unscaledhistosForPhotons
 rm scaledhistosForConvertedPhotons
 rm scaledhistosForConvertedPhotonsLogScale

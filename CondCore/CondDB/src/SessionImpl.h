@@ -41,7 +41,7 @@ namespace cond {
       typedef enum { THROW, DO_NOT_THROW, CREATE } FailureOnOpeningPolicy;
     public:
       SessionImpl();
-      explicit SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session );
+      SessionImpl( boost::shared_ptr<coral::ISessionProxy>& session, const std::string& connectionString );
       ~SessionImpl();
       
       void close();
@@ -49,7 +49,7 @@ namespace cond {
       void startTransaction( bool readOnly=true );
       void commitTransaction();
       void rollbackTransaction();
-      bool isTransactionActive() const;
+      bool isTransactionActive( bool deep=true ) const;
 
       void openIovDb( FailureOnOpeningPolicy policy = THROW );
       void openGTDb();

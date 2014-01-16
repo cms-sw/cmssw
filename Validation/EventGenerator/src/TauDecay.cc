@@ -195,7 +195,7 @@ void TauDecay::ClassifyDecayMode(unsigned int &JAK_ID,unsigned int &TauBitMask){
     JAK_ID=JAK_PION;
     return;
   }
-  if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==1 && n_K==0 && n_K0L==0 && n_K0S==0 && n_nu==1 && n_rho==1){
+  if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==1 && n_K==0 && n_K0L==0 && n_K0S==0 && n_nu==1 /*&& n_rho==1*/){
     JAK_ID=JAK_RHO_PIPI0;
     return;
   }

@@ -6,5 +6,7 @@ from Validation.RecoEgamma.photonValidationSequence_cff import *
 photonValidation.isRunCentrally = True
 photonValidation.fastSim = True
 
+pfPhotonValidation.isRunCentrally = True
+pfPhotonValidation.fastSim = True
 
-egammaFastSimValidation = cms.Sequence(photonValidation)
+egammaFastSimValidation = cms.Sequence(photonValidation*pfPhotonValidation)

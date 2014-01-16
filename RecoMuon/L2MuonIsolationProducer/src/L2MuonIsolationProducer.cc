@@ -18,6 +18,8 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
@@ -83,8 +85,8 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
   // Take the SA container
   LogDebug(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
-  Handle<TrackCollection> tracks;
-  event.getByLabel(theSACollectionLabel,tracks);
+  Handle<RecoChargedCandidateCollection> muons;
+  event.getByLabel(theSACollectionLabel,muons);
 
   // Find deposits and load into event
   LogDebug(metname)<<" Get energy around";
@@ -92,15 +94,22 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   std::auto_ptr<edm::ValueMap<bool> > isoMap( new edm::ValueMap<bool> ());
   std::auto_ptr<edm::ValueMap<float> > isoFloatMap( new edm::ValueMap<float> ());
 
-  theExtractor->fillVetos(event,eventSetup,*tracks);
+  unsigned int nMuons = muons->size();
+  std::vector<IsoDeposit> deps(nMuons);
+  std::vector<bool> isos(nMuons, false);
+  std::vector<float> isoFloats(nMuons, 0);
 
-  unsigned int nTracks = tracks->size();
-  std::vector<IsoDeposit> deps(nTracks);
-  std::vector<bool> isos(nTracks, false);
-  std::vector<float> isoFloats(nTracks, 0);
+  // fill track collection to use for vetos calculation
+  TrackCollection muonTracks;
+  for (unsigned int i=0; i<nMuons; i++) {
+    TrackRef tk = (*muons)[i].track();
+    muonTracks.push_back(*tk);
+  }
 
-  for (unsigned int i=0; i<nTracks; i++) {
-      TrackRef tk(tracks,i);
+  theExtractor->fillVetos(event,eventSetup,muonTracks);
+
+  for (unsigned int i=0; i<nMuons; i++) {
+    TrackRef tk = (*muons)[i].track();
 
       deps[i] = theExtractor->deposit(event, eventSetup, *tk);
 
@@ -116,19 +125,19 @@ void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
 
   //!do the business of filling iso map
   reco::IsoDepositMap::Filler depFiller(*depMap);
-  depFiller.insert(tracks, deps.begin(), deps.end());
+  depFiller.insert(muons, deps.begin(), deps.end());
   depFiller.fill();
   event.put(depMap);
 
   if (optOutputDecision){
     edm::ValueMap<bool> ::Filler isoFiller(*isoMap);
-    isoFiller.insert(tracks, isos.begin(), isos.end());
+    isoFiller.insert(muons, isos.begin(), isos.end());
     isoFiller.fill();//! annoying -- I will forget it at some point
     event.put(isoMap);
 
     if (optOutputIsolatorFloat){
       edm::ValueMap<float> ::Filler isoFloatFiller(*isoFloatMap);
-      isoFloatFiller.insert(tracks, isoFloats.begin(), isoFloats.end());
+      isoFloatFiller.insert(muons, isoFloats.begin(), isoFloats.end());
       isoFloatFiller.fill();//! annoying -- I will forget it at some point
       event.put(isoFloatMap);
     }

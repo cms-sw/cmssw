@@ -2,7 +2,7 @@
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 namespace {
-  std::string sep(". ");
+  const std::string sep(". ");
 }
 
 namespace cond {

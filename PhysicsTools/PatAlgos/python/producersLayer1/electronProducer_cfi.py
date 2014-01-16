@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patElectrons = cms.EDProducer("PATElectronProducer",
     # input collection
-    electronSource = cms.InputTag("gsfElectrons"),
+    electronSource = cms.InputTag("gedGsfElectrons"),
 
     # use particle flow instead of std reco
     useParticleFlow  =  cms.bool( False ),
