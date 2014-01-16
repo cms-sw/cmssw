@@ -122,8 +122,9 @@ files['_gem_dphi_pat2_PU100'] = [
     '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_110K/',
     '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_128K/']
     
-## digi input files    
-files['_pt2-50_PU0'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU0/9e33cbc002806b332ab48cacc6a9f5e2/']
+## digi input files
+files['_pt2-50'] =       ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M/44fc94d06eea2c4b806abb23aafd8260/']
+files['_pt2-50_PU0'] =   ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU0/9e33cbc002806b332ab48cacc6a9f5e2/']
 files['_pt2-50_PU100'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU100/5b1cfdf8efbee9c68913c0719b4df889/']
 files['_pt2-50_PU140'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU140/cadd04af78260520bc45436035aa2787/']
 
