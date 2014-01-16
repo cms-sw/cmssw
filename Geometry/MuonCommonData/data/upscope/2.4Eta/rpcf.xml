@@ -1,5 +1,33 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="rpcf.xml" eval="true">
+  <Constant name="dyGap" value="1.0*mm"/>
+  <Constant name="dxTop" value="57.0*cm"/>
+  <Constant name="Angle" value="10.0*deg"/>
+  <Constant name="slope" value="tan([Angle])"/>
+  <Constant name="dzS1"  value="14.05*cm"/>
+  <Constant name="dzS2"  value="14.05*cm"/>
+  <Constant name="dzS3"  value="14.05*cm"/>
+  <Constant name="dzS4"  value="14.05*cm"/>
+  <Constant name="dzS5"  value="14.05*cm"/>
+  <Constant name="dzGap" value="0.5*cm"/>
+  <Constant name="dzIn"  value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+4*[dzGap])"/>
+  <Constant name="z10"   value="([dzIn]-[dzS1])"/> 
+  <Constant name="z20"   value="([z10]-[dzS1]-2*[dzGap]-[dzS2])"/> 
+  <Constant name="z30"   value="([z20]-[dzS2]-2*[dzGap]-[dzS3])"/> 
+  <Constant name="z40"   value="([z30]-[dzS3]-2*[dzGap]-[dzS4])"/> 
+  <Constant name="z50"   value="([z40]-[dzS4]-2*[dzGap]-[dzS5])"/> 
+  <Constant name="dx11"  value="([dxTop]-[slope]*([dzIn]-[z10]+[dzS1]))"/>
+  <Constant name="dx12"  value="([dxTop]-[slope]*([dzIn]-[z10]-[dzS1]))"/>
+  <Constant name="dx21"  value="([dxTop]-[slope]*([dzIn]-[z20]+[dzS2]))"/>
+  <Constant name="dx22"  value="([dxTop]-[slope]*([dzIn]-[z20]-[dzS2]))"/>
+  <Constant name="dx31"  value="([dxTop]-[slope]*([dzIn]-[z30]+[dzS3]))"/>
+  <Constant name="dx32"  value="([dxTop]-[slope]*([dzIn]-[z30]-[dzS3]))"/>
+  <Constant name="dx41"  value="([dxTop]-[slope]*([dzIn]-[z40]+[dzS4]))"/>
+  <Constant name="dx42"  value="([dxTop]-[slope]*([dzIn]-[z40]-[dzS4]))"/>
+  <Constant name="dx51"  value="([dxTop]-[slope]*([dzIn]-[z50]+[dzS5]))"/>
+  <Constant name="dx52"  value="([dxTop]-[slope]*([dzIn]-[z50]-[dzS5]))"/>
+ </ConstantsSection>
 
  <SolidSection label="rpcf.xml">
   <Tubs name="RR12" rMin="2.745*m  " rMax="4.644*m  " dz="5.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -28,7 +56,7 @@
   <Trd1 name="REF2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.413*cm " dx2="56.053*cm "/>
   <Trd1 name="REF3" dz="30.2*cm " dy1="1*mm " dy2="1*mm " dx1="44.041*cm " dx2="49.325*cm "/>
   <Tubs name="RR3X" rMin="3.29*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="RR3XX" rMin="1.53*m  " rMax="3.29*m  " dz="7.15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RR3XX" rMin="1.53*m  " rMax="3.29*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="RT3G" rMin="1.53*m  " rMax="3.29*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
   <Trd1 name="RFGX" dz="84.55*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="27*cm " dx2="56.847*cm " />
   <Trd1 name="RHGX" dz="84.5*cm " dy1="5*mm " dy2="5*mm " dx1="26.95*cm " dx2="56.797*cm " />
@@ -37,12 +65,16 @@
   <Trd1 name="REG3" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="39.*cm " dx2="44.46*cm " />
   <Trd1 name="REG4" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="33.17*cm " dx2="38.83*cm " />
   <Trd1 name="REG5" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="27.33*cm " dx2="32.99*cm " />
-  <Tubs name="RR4X" rMin="2.644*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="RT4H" rMin="2.644*m  " rMax="3.29*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
-  <Trd1 name="RFHX" dz="27.85*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="47.044*cm " dx2="56.847*cm " />
-  <Trd1 name="RHHX" dz="27.8*cm " dy1="5*mm " dy2="5*mm " dx1="46.994*cm " dx2="56.797*cm " />
-  <Trd1 name="REH1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
-  <Trd1 name="REH2" dz="11.25*cm " dy1="1*mm " dy2="1*mm " dx1="46.991*cm " dx2="50.957*cm " />
+  <Tubs name="RR4X" rMin="3.29*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RR4XX" rMin="1.79*m  " rMax="3.29*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RT4H" rMin="1.79*m  " rMax="3.29*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+  <Trd1 name="RFHX" dz="72.5*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="31.56*cm " dx2="57.13*cm " />
+  <Trd1 name="RHHX" dz="72.45*cm " dy1="5*mm " dy2="5*mm " dx1="31.56*cm " dx2="57.13*cm " />
+  <Trd1 name="REH1" dz="[dzS1]" dy1="[dyGap]" dy2="[dyGap]" dx1="[dx11]" dx2="[dx12]" />
+  <Trd1 name="REH2" dz="[dzS2]" dy1="[dyGap]" dy2="[dyGap]" dx1="[dx21]" dx2="[dx22]" />
+  <Trd1 name="REH3" dz="[dzS3]" dy1="[dyGap]" dy2="[dyGap]" dx1="[dx31]" dx2="[dx32]" />
+  <Trd1 name="REH4" dz="[dzS4]" dy1="[dyGap]" dy2="[dyGap]" dx1="[dx41]" dx2="[dx42]" />
+  <Trd1 name="REH5" dz="[dzS5]" dy1="[dyGap]" dy2="[dyGap]" dx1="[dx51]" dx2="[dx52]" />
  </SolidSection>
 
  <LogicalPartSection label="rpcf.xml">
@@ -204,6 +236,14 @@
     <rSolid name="RR4X"/>
     <rMaterial name="materials:ME_free_space"/>
   </LogicalPart>
+  <LogicalPart name="RR4XXP" category="unspecified">
+    <rSolid name="RR4XX"/>
+    <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RR4XXN" category="unspecified">
+    <rSolid name="RR4XX"/>
+    <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
 
   <LogicalPart name="RT4H" category="unspecified">
     <rSolid name="RT4H"/>
@@ -223,6 +263,18 @@
   </LogicalPart>
   <LogicalPart name="REH2" category="unspecified">
     <rSolid name="REH2"/>
+    <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REH3" category="unspecified">
+    <rSolid name="REH3"/>
+    <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REH4" category="unspecified">
+    <rSolid name="REH4"/>
+    <rMaterial name="materials:M_RPC_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="REH5" category="unspecified">
+    <rSolid name="REH5"/>
     <rMaterial name="materials:M_RPC_Gas"/>
   </LogicalPart>
 
@@ -401,13 +453,13 @@
    <rParent name="mf:ME3RingP"/>
    <rChild name="rpcf:RR3XX"/>
    <rRotation name="rotations:R005"/>
-   <Translation x="0*fm " y="0*fm " z="25.6*cm "/>
+   <Translation x="0*fm " y="0*fm " z="21.95*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME3RingN"/>
    <rChild name="rpcf:RR3XX"/>
    <rRotation name="rotations:R005"/>
-   <Translation x="0*fm " y="0*fm " z="25.6*cm "/>
+   <Translation x="0*fm " y="0*fm " z="21.95*cm "/>
   </PosPart>
  
   <PosPart copyNumber="1">
@@ -459,12 +511,24 @@
    <rRotation name="rotations:R005"/>
    <Translation x="0*fm " y="0*fm " z="29.175*cm " />
   </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="rpcf:RR4XXP"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="22.875*cm " />
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="rpcf:RR4XXN"/>
+   <rRotation name="rotations:R005"/>
+   <Translation x="0*fm " y="0*fm " z="22.875*cm " />
+  </PosPart>
 
   <PosPart copyNumber="1">
    <rParent name="rpcf:RT4H"/>
    <rChild name="rpcf:RFHX"/>
    <rRotation name="rotations:90XD"/>
-   <Translation x="2.943*m  " y="0*fm " z="0*fm " />
+   <Translation x="2.515*m  " y="0*fm " z="0*fm " />
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RFHX"/>
@@ -473,12 +537,27 @@
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHHX"/>
    <rChild name="rpcf:REH1"/>
-   <Translation x="0*fm " y="0*fm " z="11.75*cm " />
+   <Translation x="0*fm " y="0*fm " z="57.4*cm " />
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="rpcf:RHHX"/>
    <rChild name="rpcf:REH2"/>
-   <Translation x="0*fm " y="0*fm " z="-16.55*cm " />
+   <Translation x="0*fm " y="0*fm " z="28.7*cm " />
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="rpcf:RHHX"/>
+   <rChild name="rpcf:REH3"/>
+   <Translation x="0*fm " y="0*fm " z="0*cm " />
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="rpcf:RHHX"/>
+   <rChild name="rpcf:REH4"/>
+   <Translation x="0*fm " y="0*fm " z="-28.7*cm " />
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="rpcf:RHHX"/>
+   <rChild name="rpcf:REH5"/>
+   <Translation x="0*fm " y="0*fm " z="-57.4*cm " />
   </PosPart>
 
 </PosPartSection>
@@ -559,7 +638,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
     <Numeric name="startAngle"  value="0*deg"/>
-    <Numeric name="zoffset"     value="-5.1*cm"/>
+    <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR3XX"/>
@@ -570,7 +649,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
     <Numeric name="startAngle"  value="20*deg"/>
-    <Numeric name="zoffset"     value="-1.1*cm"/>
+    <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
 
 <Algorithm name="muon:DDMuonAngular">
@@ -619,7 +698,7 @@
 </Algorithm>
 
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4XP"/>
+    <rParent name="rpcf:RR4XXP"/>
     <String name="ChildName" value="RT4H"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
@@ -630,7 +709,7 @@
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4XP"/>
+    <rParent name="rpcf:RR4XXP"/>
     <String name="ChildName" value="RT4H"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
@@ -641,7 +720,7 @@
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4XN"/>
+    <rParent name="rpcf:RR4XXN"/>
     <String name="ChildName" value="RT4H"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
@@ -652,7 +731,7 @@
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4XN"/>
+    <rParent name="rpcf:RR4XXN"/>
     <String name="ChildName" value="RT4H"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
