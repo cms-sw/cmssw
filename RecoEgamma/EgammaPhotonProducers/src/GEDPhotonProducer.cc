@@ -41,6 +41,15 @@
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 
+namespace {
+  inline double ptFast( const double energy, 
+			const math::XYZPoint& position,
+			const math::XYZPoint& origin ) {
+    const auto v = position - origin;
+    return energy*std::sqrt(v.perp2()/v.mag2());
+  }
+}
+
 GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) : 
 
   conf_(config)
@@ -462,10 +471,12 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
     
+    
+
     // SC energy preselection
     if (parentSCRef.isNonnull() &&
-	parentSCRef->energy()/cosh(parentSCRef->eta()) <= preselCutValues[0] ) continue;
-    // calculate HoE
+	ptFast(parentSCRef->energy(),parentSCRef->position(),math::XYZPoint(0,0,0)) <= preselCutValues[0] ) continue;
+    // calculate HoE    
 
     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
     EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
@@ -630,7 +641,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   
     // SC energy preselection
     if (parentSCRef.isNonnull() &&
-	parentSCRef->energy()/cosh(parentSCRef->eta()) <= preselCutValues[0] ) continue;
+	ptFast(parentSCRef->energy(),parentSCRef->position(),math::XYZPoint(0,0,0)) <= preselCutValues[0] ) continue;
     reco::Photon newCandidate(*phoRef);
     iSC++;    
   

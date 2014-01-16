@@ -24,6 +24,15 @@
  #include "CLHEP/Geometry/Transform3D.h"  
 #include <cfloat>
 
+namespace {
+  inline double ptFast( const double energy, 
+			const math::XYZPoint& position,
+			const math::XYZPoint& origin ) {
+    const auto v = position - origin;
+    return energy*std::sqrt(v.perp2()/v.mag2());
+  }
+}
+
 
 OutInConversionSeedFinder::OutInConversionSeedFinder( const edm::ParameterSet& conf ): ConversionSeedFinder( conf ), conf_(conf)  
 {
@@ -83,16 +92,18 @@ void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::Cal
     //for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
     nSeedsPerBC_=0;
 
+    const reco::CaloCluster& theBC = allBC->at(i);
+    const math::XYZPoint& rawBCpos = theBC.position();
 
-    theBCPosition_ = GlobalPoint(allBC->ptrAt(i)->position().x(), allBC->ptrAt(i)->position().y(), allBC->ptrAt(i)->position().z() ) ;
+    theBCPosition_ = GlobalPoint( rawBCpos.x(), rawBCpos.y(), rawBCpos.z() ) ;
     float theBcEta=  theBCPosition_.eta();
     float theBcPhi=  theBCPosition_.phi();
     //    float  dPhi= theBcPhi-theSCPhi;
-    theBCEnergy_=allBC->ptrAt(i)->energy();        
+    theBCEnergy_=theBC.energy();        
 
     float EtOrECut = bcEcut_;
     if ( useEtCut_ ) {
-      theBCEnergy_=(allBC->ptrAt(i)->energy()/cosh(allBC->ptrAt(i)->eta())); 
+      theBCEnergy_= ptFast(theBCEnergy_,rawBCpos,math::XYZPoint(0,0,0));
       EtOrECut = bcEtcut_;
     }   
 
@@ -164,7 +175,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::CaloClusterPtr&  aBC )  c
   nSeedsPerBC_=0;
 
   // theBCEnergy_=aBC->energy();
-  theBCEnergy_=(aBC->energy()/cosh(aBC->eta()));
+  theBCEnergy_= ptFast(aBC->energy(),aBC->position(),math::XYZPoint(0,0,0));
   theBCPosition_ = GlobalPoint(aBC->position().x(), aBC->position().y(), aBC->position().z() ) ;
   float theBcEta=  theBCPosition_.eta();
   float theBcPhi=  theBCPosition_.phi();
