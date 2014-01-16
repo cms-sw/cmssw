@@ -51,7 +51,7 @@ namespace cond {
     }
     
     void GTEditor::load( const std::string& gtName ){
-      checkSession( "GTEditor::load" );
+      checkTransaction( "GTEditor::load" );
       
       // loads the current header data in memory
       if( !m_session->gtSchema().gtTable().select( gtName, m_data->validity, m_data->description, m_data->release, m_data->snapshotTime ) ){
@@ -128,7 +128,7 @@ namespace cond {
     
     bool GTEditor::flush( const boost::posix_time::ptime& operationTime ){
       bool ret = false;
-      checkSession( "GTEditor::flush" );
+      checkTransaction( "GTEditor::flush" );
       if( m_data->change ){
 	if( m_data->description.empty() ) throwException( "A non-empty Description string is mandatory.","GTEditor::flush" );
 	if( m_data->release.empty() ) throwException( "A non-empty Release string is mandatory.","GTEditor::flush" );
@@ -159,8 +159,9 @@ namespace cond {
     }
     
     
-    void GTEditor::checkSession( const std::string& ctx ){
+    void GTEditor::checkTransaction( const std::string& ctx ){
       if( !m_session.get() ) throwException("The session is not active.",ctx );
+      if( !m_session->isTransactionActive( false ) ) throwException("The transaction is not active.",ctx );
     }
     
   }

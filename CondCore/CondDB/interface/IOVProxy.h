@@ -131,7 +131,7 @@ namespace cond {
       const std::shared_ptr<SessionImpl>& session() const;
       
     private:
-      void checkSession( const std::string& ctx );
+      void checkTransaction( const std::string& ctx ) const ;
       void fetchSequence( cond::Time_t lowerGroup, cond::Time_t higherGroup );
       
     private:
