@@ -44,7 +44,7 @@ SubEventGenJetProducer::SubEventGenJetProducer(edm::ParameterSet const& conf):
    produces<reco::BasicJetCollection>();
   // the subjet collections are set through the config file in the "jetCollInstanceName" field.
 
-   input_cand_token_ = consumes<edm::View<reco::CandidateView> >(src_);
+   input_cand_token_ = consumes<reco::CandidateView>(src_);
 
 }
 

@@ -71,7 +71,7 @@ JetPlusTrackProducer::JetPlusTrackProducer(const edm::ParameterSet& iConfig)
    produces<reco::JPTJetCollection>().setBranchAlias(alias); 
 
    input_jets_token_ = consumes<edm::View<reco::CaloJet> >(src);
-   input_vertex_token_ = consumes<edm::View<reco::VertexCollection> >(srcPVs_);
+   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
       
    
 }

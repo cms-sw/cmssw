@@ -16,7 +16,7 @@ FixedGridRhoProducer::FixedGridRhoProducer(const edm::ParameterSet& iConfig) {
   }
   produces<double>();
 
-  input_pfcoll_token_ = consumes<edm::View<reco::PFCandidateCollection> >(pfCandidatesTag_);
+  input_pfcoll_token_ = consumes<reco::PFCandidateCollection>(pfCandidatesTag_);
 
 }
 

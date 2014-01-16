@@ -135,11 +135,11 @@ namespace reco {
 
       static std::atomic<int> sanity_checks_left_;
 
-      edm::EDGetTokenT<edm::View<HBHERecHitCollection> > input_HBHERecHits_token_;
-      edm::EDGetTokenT<edm::View<HORecHitCollection> > input_HORecHits_token_;
-      edm::EDGetTokenT<edm::View<HFRecHitCollection> > input_HFRecHits_token_;
-      edm::EDGetTokenT<edm::View<EBRecHitCollection> > input_EBRecHits_token_;
-      edm::EDGetTokenT<edm::View<EERecHitCollection> > input_EERecHits_token_;
+      edm::EDGetTokenT<HBHERecHitCollection> input_HBHERecHits_token_;
+      edm::EDGetTokenT<HORecHitCollection> input_HORecHits_token_;
+      edm::EDGetTokenT<HFRecHitCollection> input_HFRecHits_token_;
+      edm::EDGetTokenT<EBRecHitCollection> input_EBRecHits_token_;
+      edm::EDGetTokenT<EERecHitCollection> input_EERecHits_token_;
 
 
     };

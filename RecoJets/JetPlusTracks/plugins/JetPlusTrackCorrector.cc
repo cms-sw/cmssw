@@ -92,12 +92,12 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset, edm
     edm::LogWarning("JetPlusTrackCorrector") << ss.str();
   }
 
-  input_jetTracksAtVertex_token_ =  iC.consumes<edm::View<reco::JetTracksAssociation::Container> >(jetTracksAtVertex_); 
-  input_jetTracksAtCalo_token_ = iC.consumes<edm::View<reco::JetTracksAssociation::Container> >(jetTracksAtCalo_);
-  inut_reco_muons_token_ = iC.consumes<edm::View<RecoMuons> > (muons_);
-  input_pvCollection_token_ = iC.consumes<edm::View<reco::VertexCollection> >(srcPVs_);
-  input_reco_elecs_token_ = iC.consumes<edm::View<RecoElectrons> >(electrons_);
-  input_reco_elec_ids_token_ = iC.consumes<edm::View<RecoElectronIds> >( electronIds_);
+  input_jetTracksAtVertex_token_ =  iC.consumes<reco::JetTracksAssociation::Container>(jetTracksAtVertex_); 
+  input_jetTracksAtCalo_token_ = iC.consumes<reco::JetTracksAssociation::Container>(jetTracksAtCalo_);
+  inut_reco_muons_token_ = iC.consumes<RecoMuons> (muons_);
+  input_pvCollection_token_ = iC.consumes<reco::VertexCollection>(srcPVs_);
+  input_reco_elecs_token_ = iC.consumes<RecoElectrons>(electrons_);
+  input_reco_elec_ids_token_ = iC.consumes<RecoElectronIds>( electronIds_);
 
 
 }

@@ -53,7 +53,7 @@ InputGenJetsParticleSelector::InputGenJetsParticleSelector(const edm::ParameterS
 
   produces <reco::GenParticleRefVector> ();
 
-  input_genpartcoll_token_ = consumes<edm::View<reco::GenParticleCollection> >(inTag);
+  input_genpartcoll_token_ = consumes<reco::GenParticleCollection>(inTag);
       
 }
 

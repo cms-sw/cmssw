@@ -94,17 +94,17 @@ class JetMatchingTools {
   const edm::SimVertexContainer* mSimVertexCollection;
   const reco::CandidateCollection* mGenParticleCollection;
 
-  edm::EDGetTokenT<edm::View<EBRecHitCollection> > input_ebrechits_token_;
-  edm::EDGetTokenT<edm::View<EERecHitCollection> > input_eerechits_token_;
-  edm::EDGetTokenT<edm::View<HBHERecHitCollection> > input_hbherechits_token_;
-  edm::EDGetTokenT<edm::View<HORecHitCollection> > input_horechits_token_;
-  edm::EDGetTokenT<edm::View<HFRecHitCollection> > input_hfrechits_token_;
-  edm::EDGetTokenT<edm::View<edm::PCaloHitContainer> > input_pcalohits_eecal_token_;
-  edm::EDGetTokenT<edm::View<edm::PCaloHitContainer> > input_pcalohits_ebcal_token_;
-  edm::EDGetTokenT<edm::View<edm::PCaloHitContainer> > input_pcalohits_hcal_token_;
-  edm::EDGetTokenT<edm::View<edm::SimTrackContainer> > input_simtrack_token_;
-  edm::EDGetTokenT<edm::View<edm::SimVertexContainer> > input_simvertex_token_;
-  edm::EDGetTokenT<edm::View<reco::CandidateCollection> > input_cands_token_;
+  edm::EDGetTokenT<EBRecHitCollection> input_ebrechits_token_;
+  edm::EDGetTokenT<EERecHitCollection> input_eerechits_token_;
+  edm::EDGetTokenT<HBHERecHitCollection> input_hbherechits_token_;
+  edm::EDGetTokenT<HORecHitCollection> input_horechits_token_;
+  edm::EDGetTokenT<HFRecHitCollection> input_hfrechits_token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> input_pcalohits_eecal_token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> input_pcalohits_ebcal_token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> input_pcalohits_hcal_token_;
+  edm::EDGetTokenT<edm::SimTrackContainer> input_simtrack_token_;
+  edm::EDGetTokenT<edm::SimVertexContainer> input_simvertex_token_;
+  edm::EDGetTokenT<reco::CandidateCollection> input_cands_token_;
 
 };
 

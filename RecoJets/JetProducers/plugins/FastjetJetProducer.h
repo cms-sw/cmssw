@@ -55,7 +55,7 @@ protected:
 
   // tokens for the data access
   edm::EDGetTokenT<edm::View<reco::RecoChargedRefCandidate> > input_chrefcand_token_;
-  edm::EDGetTokenT<edm::View<reco::VertexCollection> > input_vertex_token_;
+  edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
     
 };
 

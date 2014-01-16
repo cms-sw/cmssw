@@ -53,11 +53,11 @@ reco::helper::JetIDHelper::JetIDHelper( edm::ParameterSet const & pset, edm::Con
   }
   initValues();
 
-  input_HBHERecHits_token_ = iC.consumes<edm::View<HBHERecHitCollection> >(hbheRecHitsColl_); 
-  input_HORecHits_token_ = iC.consumes<edm::View<HORecHitCollection> >(hoRecHitsColl_);   
-  input_HFRecHits_token_ = iC.consumes<edm::View<HFRecHitCollection> >(hfRecHitsColl_);   
-  input_EBRecHits_token_ = iC.consumes<edm::View<EBRecHitCollection> >(ebRecHitsColl_);   
-  input_EERecHits_token_ = iC.consumes<edm::View<EERecHitCollection> >(eeRecHitsColl_);   
+  input_HBHERecHits_token_ = iC.consumes<HBHERecHitCollection>(hbheRecHitsColl_); 
+  input_HORecHits_token_ = iC.consumes<HORecHitCollection>(hoRecHitsColl_);   
+  input_HFRecHits_token_ = iC.consumes<HFRecHitCollection>(hfRecHitsColl_);   
+  input_EBRecHits_token_ = iC.consumes<EBRecHitCollection>(ebRecHitsColl_);   
+  input_EERecHits_token_ = iC.consumes<EERecHitCollection>(eeRecHitsColl_);   
 
 
 }

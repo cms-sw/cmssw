@@ -140,7 +140,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
 
   std::cout << "got input tag " << src_.label() << std::endl;
   input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
-  input_vertex_token_ = consumes<edm::View<reco::VertexCollection> >(srcPVs_);
+  input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
 
 }
 
@@ -177,7 +177,7 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
 {
 
     // read in the track candidates
-    edm::Handle<edm::View<reco::RecoChargedRefCandidate> > inputsHandle;
+  edm::Handle<edm::View<reco::RecoChargedRefCandidate> > inputsHandle;
     iEvent.getByToken(input_chrefcand_token_, inputsHandle);
 
     // make collection with pointers so we can play around with it

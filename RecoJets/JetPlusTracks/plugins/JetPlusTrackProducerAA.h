@@ -85,8 +85,8 @@ class JetPlusTrackProducerAA : public edm::EDProducer {
 //=>
 
       edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
-      edm::EDGetTokenT<edm::View<reco::VertexCollection> > input_vertex_token_;  
-      edm::EDGetTokenT<edm::View<reco::TrackCollection> > input_tracks_token_;
-      edm::EDGetTokenT<edm::View<std::vector<reco::TrackExtrapolation> > > input_extrapolations_token_;
+      edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;  
+      edm::EDGetTokenT<reco::TrackCollection> input_tracks_token_;
+      edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > input_extrapolations_token_;
 
 };

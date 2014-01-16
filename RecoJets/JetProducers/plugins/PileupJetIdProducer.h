@@ -70,9 +70,9 @@ private:
 	std::vector<JetCorrectorParameters> jetCorPars_;
 
         edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
-        edm::EDGetTokenT<edm::View<reco::VertexCollection> > input_vertex_token_;
-        edm::EDGetTokenT<edm::View<edm::ValueMap<StoredPileupJetIdentifier> > > input_vm_pujetid_token_;
-        edm::EDGetTokenT<edm::View<double> > input_rho_token_;
+        edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+        edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier> > input_vm_pujetid_token_;
+        edm::EDGetTokenT<double> input_rho_token_;
 
 };
 

@@ -39,7 +39,7 @@ reco::helper::JetMuonHitsIDHelper::JetMuonHitsIDHelper( edm::ParameterSet const 
   numberOfHitsRPC_ = 0;
   rpcRecHits_ = pset.getParameter<edm::InputTag>("rpcRecHits");
 
-  input_rpchits_token_ = iC.consumes<edm::View<RPCRecHitCollection> >(rpcRecHits_);
+  input_rpchits_token_ = iC.consumes<RPCRecHitCollection>(rpcRecHits_);
  
 }
 

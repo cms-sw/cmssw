@@ -58,7 +58,7 @@ class JetIDProducer : public edm::EDProducer {
       reco::helper::JetIDHelper     helper_;      // jet id helper algorithm
       reco::helper::JetMuonHitsIDHelper muHelper_;    // jet id from muon rechits helper algorithm
       
-      edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
+      edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jet_token_;
 
 };
 

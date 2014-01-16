@@ -22,7 +22,7 @@ JetIDProducer::JetIDProducer(const edm::ParameterSet& iConfig) :
 {
   produces< reco::JetIDValueMap >();
 
-  input_jet_token_ = consumes<edm::View<reco::Jet> >(src_);
+  input_jet_token_ = consumes<edm::View<reco::CaloJet> >(src_);
 
 }
 

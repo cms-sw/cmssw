@@ -53,9 +53,9 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 	}
 
 	input_jet_token_ = consumes<edm::View<reco::Jet> >(jets_);
-	input_vertex_token_ = consumes<edm::View<reco::VertexCollection> >(vertexes_);
-        input_vm_pujetid_token_ = consumes<edm::View<edm::ValueMap<StoredPileupJetIdentifier> > >(jetids_);
-        input_rho_token_ = consumes<edm::View<double> >(rho_); 
+	input_vertex_token_ = consumes<reco::VertexCollection>(vertexes_);
+        input_vm_pujetid_token_ = consumes<edm::ValueMap<StoredPileupJetIdentifier> >(jetids_);
+        input_rho_token_ = consumes<double>(rho_); 
 
 }
 

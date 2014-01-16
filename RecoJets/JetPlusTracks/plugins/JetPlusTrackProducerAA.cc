@@ -97,9 +97,9 @@ JetPlusTrackProducerAA::JetPlusTrackProducerAA(const edm::ParameterSet& iConfig)
    produces<reco::JPTJetCollection>().setBranchAlias(alias); 
 
    input_jets_token_ = consumes<edm::View<reco::CaloJet> >(src);
-   input_vertex_token_ = consumes<edm::View<reco::VertexCollection> >(srcPVs_);
-   input_tracks_token_ = consumes<edm::View<reco::TrackCollection> >(mTracks);
-   input_extrapolations_token_ = consumes<edm::View<std::vector<reco::TrackExtrapolation> > >(mExtrapolations);
+   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
+   input_tracks_token_ = consumes<reco::TrackCollection>(mTracks);
+   input_extrapolations_token_ = consumes<std::vector<reco::TrackExtrapolation> >(mExtrapolations);
 }
 
 

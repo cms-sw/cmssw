@@ -425,10 +425,10 @@ private:
     std::vector<unsigned> cellCountsVec;
 
     // Tokens for data access
-    edm::EDGetTokenT<edm::View<reco::PattRecoTree<fftjetcms::Real,reco::PattRecoPeak<fftjetcms::Real> > > > input_recotree_token_;
-    edm::EDGetTokenT<edm::View<std::vector<reco::FFTAnyJet<reco::GenJet> > > > input_genjet_token_;
-    edm::EDGetTokenT<edm::View<reco::DiscretizedEnergyFlow> > input_energyflow_token_;
-    edm::EDGetTokenT<edm::View<reco::FFTJetPileupSummary> > input_pusummary_token_;
+    edm::EDGetTokenT<reco::PattRecoTree<fftjetcms::Real,reco::PattRecoPeak<fftjetcms::Real> > > input_recotree_token_;
+    edm::EDGetTokenT<std::vector<reco::FFTAnyJet<reco::GenJet> > > input_genjet_token_;
+    edm::EDGetTokenT<reco::DiscretizedEnergyFlow> input_energyflow_token_;
+    edm::EDGetTokenT<reco::FFTJetPileupSummary> input_pusummary_token_;
 
 
 };

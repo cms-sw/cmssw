@@ -39,7 +39,7 @@ namespace cms
     virtual void inputTowers();
 
   private:
-    edm::EDGetTokenT<edm::View<reco::CandidateView> > input_cand_token_;
+    edm::EDGetTokenT<reco::CandidateView> input_cand_token_;
   
   };
   

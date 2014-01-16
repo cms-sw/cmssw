@@ -50,7 +50,7 @@ namespace reco {
       int numberOfHits4RPC_;
       int numberOfHitsRPC_;
 
-      edm::EDGetTokenT<edm::View<RPCRecHitCollection> > input_rpchits_token_;
+      edm::EDGetTokenT<RPCRecHitCollection> input_rpchits_token_;
 
     };
   }

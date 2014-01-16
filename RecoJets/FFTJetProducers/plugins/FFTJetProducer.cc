@@ -177,10 +177,10 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
     checkConfig(iniScales, "invalid set of scales");
     std::sort(iniScales->begin(), iniScales->end(), std::greater<double>());
 
-    input_recotree_token_ = consumes<edm::View<reco::PattRecoTree<fftjetcms::Real,reco::PattRecoPeak<fftjetcms::Real> > > >(treeLabel);
-    input_genjet_token_ = consumes<edm::View<std::vector<reco::FFTAnyJet<reco::GenJet> > > >(genJetsLabel);
-    input_energyflow_token_ = consumes<edm::View<reco::DiscretizedEnergyFlow> >(treeLabel);
-    input_pusummary_token_ = consumes<edm::View<reco::FFTJetPileupSummary> >(pileupLabel);
+    input_recotree_token_ = consumes<reco::PattRecoTree<fftjetcms::Real,reco::PattRecoPeak<fftjetcms::Real> > >(treeLabel);
+    input_genjet_token_ = consumes<std::vector<reco::FFTAnyJet<reco::GenJet> > >(genJetsLabel);
+    input_energyflow_token_ = consumes<reco::DiscretizedEnergyFlow>(treeLabel);
+    input_pusummary_token_ = consumes<reco::FFTJetPileupSummary>(pileupLabel);
 
 
     // Most of the configuration has to be performed inside

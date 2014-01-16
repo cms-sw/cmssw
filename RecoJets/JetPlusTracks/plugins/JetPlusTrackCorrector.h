@@ -454,12 +454,12 @@ class JetPlusTrackCorrector {
   // ---------- Private data members ----------
 
  private:
-  edm::EDGetTokenT<edm::View<reco::JetTracksAssociation::Container> > input_jetTracksAtVertex_token_;
-  edm::EDGetTokenT<edm::View<reco::JetTracksAssociation::Container> > input_jetTracksAtCalo_token_;
-  edm::EDGetTokenT<edm::View<RecoMuons> > inut_reco_muons_token_;
-  edm::EDGetTokenT<edm::View<reco::VertexCollection> > input_pvCollection_token_;
-  edm::EDGetTokenT<edm::View<RecoElectrons> > input_reco_elecs_token_;     
-  edm::EDGetTokenT<edm::View<RecoElectronIds> > input_reco_elec_ids_token_;
+  edm::EDGetTokenT<reco::JetTracksAssociation::Container> input_jetTracksAtVertex_token_;
+  edm::EDGetTokenT<reco::JetTracksAssociation::Container> input_jetTracksAtCalo_token_;
+  edm::EDGetTokenT<RecoMuons> inut_reco_muons_token_;
+  edm::EDGetTokenT<reco::VertexCollection> input_pvCollection_token_;
+  edm::EDGetTokenT<RecoElectrons> input_reco_elecs_token_;     
+  edm::EDGetTokenT<RecoElectronIds> input_reco_elec_ids_token_;
 
 };
 

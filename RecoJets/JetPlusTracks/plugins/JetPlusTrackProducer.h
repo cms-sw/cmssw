@@ -61,6 +61,6 @@ class JetPlusTrackProducer : public edm::EDProducer {
       double                 ptCUT;
 
       edm::EDGetTokenT<edm::View<reco::CaloJet> > input_jets_token_;
-      edm::EDGetTokenT<edm::View<reco::VertexCollection> > input_vertex_token_;  
+      edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;  
     
 };

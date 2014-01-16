@@ -19,7 +19,7 @@ class FixedGridRhoProducer : public edm::EDProducer {
   FixedGridEnergyDensity::EtaRegion myEtaRegion;
   FixedGridEnergyDensity* algo; 
 
-  edm::EDGetTokenT<edm::View<reco::PFCandidateCollection> > input_pfcoll_token_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> input_pfcoll_token_;
 
 };
 
