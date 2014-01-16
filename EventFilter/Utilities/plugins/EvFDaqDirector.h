@@ -12,7 +12,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
-
+#include <random>
 //system headers
 //#include <sys/types.h>
 #include <sys/stat.h>
@@ -128,6 +128,12 @@ namespace evf{
       struct flock fu_rw_fulk;
       struct flock data_rw_flk;
       struct flock data_rw_fulk;
+
+      timeval ts_runstart;//srecko
+      std::random_device rnd;
+      std::mt19937 *rndEng;
+      std::uniform_int_distribution<> *rndDist;
+
   };
 }
 
