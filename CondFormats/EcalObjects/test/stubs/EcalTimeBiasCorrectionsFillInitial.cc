@@ -16,6 +16,10 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+
+#include "CondFormats/Serialization/interface/SerializationEqual.h"
+#include "CondFormats/EcalObjects/interface/Serialization.h"
+
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
