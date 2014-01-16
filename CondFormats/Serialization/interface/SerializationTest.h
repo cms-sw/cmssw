@@ -1,5 +1,5 @@
-#ifndef CondFormats_Common_SerializationTest_H
-#define CondFormats_Common_SerializationTest_H
+#ifndef CondFormats_Serialization_SerializationTest_H
+#define CondFormats_Serialization_SerializationTest_H
 
 #include <string>
 #include <iostream>
