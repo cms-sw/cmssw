@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,22 +53,16 @@
 // class declaration
 //
 
-class PixelJetPuId : public edm::EDFilter {
+class PixelJetPuId : public edm::EDProducer {
    public:
-      explicit PixelJetPuId(const edm::ParameterSet&);
-      ~PixelJetPuId();
+      PixelJetPuId(const edm::ParameterSet&);
+      virtual ~PixelJetPuId();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&);
       
-      virtual bool beginRun(edm::Run&, edm::EventSetup const&);
-      virtual bool endRun(edm::Run&, edm::EventSetup const&);
-      virtual bool beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual bool endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
      edm::InputTag m_primaryVertex;
@@ -90,13 +84,6 @@ class PixelJetPuId : public edm::EDFilter {
      double m_MinGoodJetTrackPtRatio; 
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -129,8 +116,7 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
 }
 
 
-PixelJetPuId::~PixelJetPuId()
-{}
+PixelJetPuId::~PixelJetPuId() {}
 
 
 void
@@ -155,119 +141,78 @@ PixelJetPuId::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 //
 
 // ------------ method called on each new Event  ------------
-bool
-PixelJetPuId::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void PixelJetPuId::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
-   std::auto_ptr<std::vector<reco::CaloJet> > pOut_PUjets(new std::vector<reco::CaloJet> );
-   
+  using namespace edm;
+  std::auto_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet> );
+  std::auto_ptr<std::vector<reco::CaloJet> > pOut_PUjets(new std::vector<reco::CaloJet> );
+  
    //get tracks
-   Handle<std::vector<reco::Track> > tracks;
-   iEvent.getByToken(tracksToken, tracks);
+  Handle<std::vector<reco::Track> > tracks;
+  iEvent.getByToken(tracksToken, tracks);
    
-   //get jets
-   Handle<edm::View<reco::CaloJet> > jets;
-   iEvent.getByToken(jetsToken, jets);
+  //get jets
+  Handle<edm::View<reco::CaloJet> > jets;
+  iEvent.getByToken(jetsToken, jets);
    
-   //get primary vertices
-   Handle<reco::VertexCollection> primaryVertex;
-   iEvent.getByToken(primaryVertexToken, primaryVertex);
+  //get primary vertices
+  Handle<reco::VertexCollection> primaryVertex;
+  iEvent.getByToken(primaryVertexToken, primaryVertex);
 
-   //get Transient Track Builder
-   edm::ESHandle<TransientTrackBuilder> builder;
-   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  //get Transient Track Builder
+  edm::ESHandle<TransientTrackBuilder> builder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
 
-   //loop on trackIPTagInfos
-   if(primaryVertex->size()>0)
-   {
-   	const reco::Vertex* pv = &*primaryVertex->begin();
-   	//loop on jets
-	for(edm::View<reco::CaloJet>::const_iterator itJet = jets->begin();  itJet != jets->end(); itJet++ ) {
-
-		math::XYZVector jetMomentum = itJet->momentum();
-	        GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
-
-		math::XYZVector trMomentum;
-		      
-		//loop on tracks
-		if(fabs(itJet->eta())>m_mineta_fwjets)
-		{
-			if((m_fwjets) && (itJet->et()>m_minet_fwjets))
-				pOut->push_back(* dynamic_cast<const reco::CaloJet *>(&(*itJet)));// fill forward jet as signal jet
-		}
-		else 
-		{
-			for(std::vector<reco::Track>::const_iterator itTrack = tracks->begin(); itTrack != tracks->end(); ++itTrack) 
-			{
-			  float deltaR=reco::deltaR2( jetMomentum.eta(), jetMomentum.phi(), itTrack->eta(), itTrack->phi() );
-			  if(deltaR<0.5)
-			  {
-				reco::TransientTrack transientTrack = builder->build(*itTrack);
-		     		float jetTrackDistance = -((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
-		     		
-				//select the tracks compabible with the jet
-				if(( itTrack->pt() > m_MinTrackPt) && ( itTrack->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance<m_MaxTrackDistanceToJet))
-				{
-					trMomentum += itTrack->momentum(); //calculate the Sum(trackPt)
-				}
-			  }
-			}
-			//if Sum(comp.trackPt)/CaloJetPt > minPtRatio or Sum(trackPt) > minPt  the jet is a signal jet
-			if(trMomentum.rho()/jetMomentum.rho() > m_MinGoodJetTrackPtRatio || trMomentum.rho() > m_MinGoodJetTrackPt ) 
-			{
-				pOut->push_back(*itJet);        // fill it as signal jet
-			}
-			else//else it is a PUjet
-			{
-				pOut_PUjets->push_back(*itJet); // fill it as PUjets
-			}
-		}
-	 }
-   }
-   iEvent.put(pOut);
-   iEvent.put(pOut_PUjets,"PUjets");
- 
-   return true;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-PixelJetPuId::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-PixelJetPuId::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-bool 
-PixelJetPuId::beginRun(edm::Run&, edm::EventSetup const&)
-{ 
-  return true;
-}
-
-// ------------ method called when ending the processing of a run  ------------
-bool 
-PixelJetPuId::endRun(edm::Run&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-bool 
-PixelJetPuId::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-bool 
-PixelJetPuId::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-  return true;
+  //loop on trackIPTagInfos
+  if(primaryVertex->size()>0)
+    {
+      const reco::Vertex* pv = &*primaryVertex->begin();
+      //loop on jets
+      for(edm::View<reco::CaloJet>::const_iterator itJet = jets->begin();  itJet != jets->end(); itJet++ ) {
+	
+	math::XYZVector jetMomentum = itJet->momentum();
+	GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
+	
+	math::XYZVector trMomentum;
+		
+	//loop on tracks
+	if(fabs(itJet->eta())>m_mineta_fwjets)
+	  {
+	    if((m_fwjets) && (itJet->et()>m_minet_fwjets))
+	      pOut->push_back(*itJet);// fill forward jet as signal jet
+	  }
+	else 
+	  {
+	    for(std::vector<reco::Track>::const_iterator itTrack = tracks->begin(); itTrack != tracks->end(); ++itTrack) 
+	      {
+		float deltaR=reco::deltaR2( jetMomentum.eta(), jetMomentum.phi(), itTrack->eta(), itTrack->phi() );
+		if(deltaR<0.5)
+		  {
+		    reco::TransientTrack transientTrack = builder->build(*itTrack);
+		    float jetTrackDistance = -((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
+		    
+		    //select the tracks compabible with the jet
+		    if(( itTrack->pt() > m_MinTrackPt) && ( itTrack->normalizedChi2() < m_MaxTrackChi2) && (jetTrackDistance<m_MaxTrackDistanceToJet))
+		      {
+			trMomentum += itTrack->momentum(); //calculate the Sum(trackPt)
+		      }
+		  }
+	      }
+	    //if Sum(comp.trackPt)/CaloJetPt > minPtRatio or Sum(trackPt) > minPt  the jet is a signal jet
+	    if(trMomentum.rho()/jetMomentum.rho() > m_MinGoodJetTrackPtRatio || trMomentum.rho() > m_MinGoodJetTrackPt ) 
+	      {
+		pOut->push_back(*itJet);        // fill it as signal jet
+	      }
+	    else//else it is a PUjet
+	      {
+		pOut_PUjets->push_back(*itJet); // fill it as PUjets
+	      }
+	  }
+      }
+    }
+  iEvent.put(pOut);
+  iEvent.put(pOut_PUjets,"PUjets");
+  
 }
 
 //define this as a plug-in
