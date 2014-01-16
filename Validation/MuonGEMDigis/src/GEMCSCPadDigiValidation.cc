@@ -14,16 +14,16 @@ GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
 ,  theCSCPad_xy_rp1_l1( dbe_->book2D("pad_dg_xy_rp1_l1", "Digi occupancy: region  1, layer1;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260))
 ,  theCSCPad_xy_rp1_l2( dbe_->book2D("pad_dg_xy_rp1_l2", "Digi occupancy: region  1, layer2;globalX [cm]; globalY[cm]", 260,-260,260,260,-260,260))
 
-,  theCSCPad_phipad_rm1_l1( dbe_->book2D("pad_dg_phipad_rm1_l1", "Digi occupancy: region -1, layer1; pad number; phi [rad]", nPads/2,0,nPads,280,-TMath::Pi(),TMath::Pi()))
-,  theCSCPad_phipad_rm1_l2( dbe_->book2D("pad_dg_phipad_rm1_l2", "Digi occupancy: region -1, layer2; pad number; phi [rad]", nPads/2,0,nPads,280,-TMath::Pi(),TMath::Pi()))
-,  theCSCPad_phipad_rp1_l1( dbe_->book2D("pad_dg_phipad_rp1_l1", "Digi occupancy: region  1, layer1; pad number; phi [rad]", nPads/2,0,nPads,280,-TMath::Pi(),TMath::Pi()))
-,  theCSCPad_phipad_rp1_l2( dbe_->book2D("pad_dg_phipad_rp1_l2", "Digi occupancy: region  1, layer2; pad number; phi [rad]", nPads/2,0,nPads,280,-TMath::Pi(),TMath::Pi()))
+,  theCSCPad_phipad_rm1_l1( dbe_->book2D("pad_dg_phipad_rm1_l1", "Digi occupancy: region -1, layer1; phi [rad]; pad number",280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads))
+,  theCSCPad_phipad_rm1_l2( dbe_->book2D("pad_dg_phipad_rm1_l2", "Digi occupancy: region -1, layer2; phi [rad]; pad number",280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads))
+,  theCSCPad_phipad_rp1_l1( dbe_->book2D("pad_dg_phipad_rp1_l1", "Digi occupancy: region  1, layer1; phi [rad]; pad number",280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads))
+,  theCSCPad_phipad_rp1_l2( dbe_->book2D("pad_dg_phipad_rp1_l2", "Digi occupancy: region  1, layer2; phi [rad]; pad number",280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads))
 
 
-,  theCSCPad_rm1_l1( dbe_->book1D("pad_dg_rm1_l1", "Digi occupancy per stip number: region -1, layer1;pad number; entries", nPads,0.5,nPads+0.5))
-,  theCSCPad_rm1_l2( dbe_->book1D("pad_dg_rm1_l2", "Digi occupancy per stip number: region -1, layer2;pad number; entries", nPads,0.5,nPads+0.5))
-,  theCSCPad_rp1_l1( dbe_->book1D("pad_dg_rp1_l1", "Digi occupancy per stip number: region  1, layer1;pad number; entries", nPads,0.5,nPads+0.5))
-,  theCSCPad_rp1_l2( dbe_->book1D("pad_dg_rp1_l2", "Digi occupancy per stip number: region  1, layer2;pad number; entries", nPads,0.5,nPads+0.5))
+,  theCSCPad_rm1_l1( dbe_->book1D("pad_dg_rm1_l1", "Digi occupancy per pad number: region -1, layer1;pad number; entries", nPads,0.5,nPads+0.5))
+,  theCSCPad_rm1_l2( dbe_->book1D("pad_dg_rm1_l2", "Digi occupancy per pad number: region -1, layer2;pad number; entries", nPads,0.5,nPads+0.5))
+,  theCSCPad_rp1_l1( dbe_->book1D("pad_dg_rp1_l1", "Digi occupancy per pad number: region  1, layer1;pad number; entries", nPads,0.5,nPads+0.5))
+,  theCSCPad_rp1_l2( dbe_->book1D("pad_dg_rp1_l2", "Digi occupancy per pad number: region  1, layer2;pad number; entries", nPads,0.5,nPads+0.5))
 
 
 ,  theCSCPad_bx_rm1_l1( dbe_->book1D("pad_dg_bx_rm1_l1", "Bunch crossing: region -1, layer1; bunch crossing ; entries", 11,-5.5,5.5))
@@ -32,8 +32,8 @@ GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
 ,  theCSCPad_bx_rp1_l2( dbe_->book1D("pad_dg_bx_rp1_l2", "Bunch crossing: region  1, layer2; bunch crossing ; entries", 11,-5.5,5.5))
 
 
-,  theCSCPad_zr_rm1( dbe_->book2D("pad_dg_zr_rm1", "Digi occupancy: region-1; globalR [cm] ; globalZ [cm] ", 55,130,240,200,-573,-564))
-,  theCSCPad_zr_rp1( dbe_->book2D("pad_dg_zr_rp1", "Digi occupancy: region 1; globalR [cm] ; globalZ [cm] ", 55,130,240,200, 564, 573))
+,  theCSCPad_zr_rm1( dbe_->book2D("pad_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,55,130,240))
+,  theCSCPad_zr_rp1( dbe_->book2D("pad_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200,564,573,55,130,240))
 {
 
 }
@@ -96,16 +96,16 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
 
       // fill hist
       if ( region== -1 ) {
-                theCSCPad_zr_rm1->Fill(g_r,g_z);
+                theCSCPad_zr_rm1->Fill(g_z,g_r);
 	if ( layer == 1 ) {
 	        theCSCPad_xy_rm1_l1->Fill(g_x,g_y); 
-          theCSCPad_phipad_rm1_l1->Fill(pad,g_phi);
+          theCSCPad_phipad_rm1_l1->Fill(g_phi, pad);
                    theCSCPad_rm1_l1->Fill(pad);
                 theCSCPad_bx_rm1_l1->Fill(bx);
         }
         else if ( layer ==2 ) {
                 theCSCPad_xy_rm1_l2->Fill(g_x,g_y);
-          theCSCPad_phipad_rm1_l2->Fill(pad,g_phi);
+          theCSCPad_phipad_rm1_l2->Fill(g_phi,pad);
                    theCSCPad_rm1_l2->Fill(pad);
                 theCSCPad_bx_rm1_l2->Fill(bx);
         }
@@ -114,17 +114,17 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
 	}
       }
       else if ( region == 1 ) {
-                theCSCPad_zr_rp1->Fill(g_r,g_z);
+                theCSCPad_zr_rp1->Fill(g_z,g_r);
 
         if ( layer == 1 ) {
                 theCSCPad_xy_rp1_l1->Fill(g_x,g_y);
-          theCSCPad_phipad_rp1_l1->Fill(pad,g_phi);
+          theCSCPad_phipad_rp1_l1->Fill(g_phi,pad);
                    theCSCPad_rp1_l1->Fill(pad);
                 theCSCPad_bx_rp1_l1->Fill(bx);
         }
         else if ( layer == 2 ) {
                 theCSCPad_xy_rp1_l2->Fill(g_x,g_y);
-          theCSCPad_phipad_rp1_l2->Fill(pad,g_phi);
+          theCSCPad_phipad_rp1_l2->Fill(g_phi,pad);
                    theCSCPad_rp1_l2->Fill(pad);
                 theCSCPad_bx_rp1_l2->Fill(bx);
         }

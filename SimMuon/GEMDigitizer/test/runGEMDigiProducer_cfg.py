@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMDIGI")
@@ -18,7 +19,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(100)
 )
 
 process.options = cms.untracked.PSet(

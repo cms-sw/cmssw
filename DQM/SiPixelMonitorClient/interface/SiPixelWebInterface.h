@@ -37,11 +37,12 @@ public:
 
   void handleEDARequest(xgi::Input* in,
                         xgi::Output* out, 
-			int niter);  
+			int niter,
+                        bool isUpgrade);  
   
   SiPixelActionType getActionFlag() {return theActionFlag;}
   void setActionFlag(SiPixelActionType flag) {theActionFlag = flag;}
-  void performAction();
+  void performAction(bool isUpgrade);
 
   bool readConfiguration(int& tkmap_freq, 
                          int& summary_freq);

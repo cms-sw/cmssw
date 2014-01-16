@@ -45,7 +45,13 @@ private:
   GEMCSCPadDigiValidation* theGEMCSCPadDigiValidation;
   GEMCSCCoPadDigiValidation* theGEMCSCCoPadDigiValidation;
   GEMTrackMatch* theGEMTrackMatch;
-  
+
+    
+  edm::InputTag stripLabel_;
+  edm::InputTag cscPadLabel_;
+  edm::InputTag cscCopadLabel_;
+  std::string simInputLabel_;
+  edm::ParameterSet simTrackMatching_;
 
   void buildLUT();
   std::pair<int,int> getClosestChambers(int region, float phi);
@@ -65,7 +71,6 @@ private:
 
   //edm::ParameterSet cfg_;
   //float minPt_;
-  float   radiusCenter_, chamberHeight_;
 
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;

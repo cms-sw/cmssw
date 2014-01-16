@@ -14,7 +14,7 @@ process.source = cms.Source("PoolSource",
 
 process.load("GeneratorInterface.RivetInterface.rivetAnalyzer_cfi")
 
-process.rivetAnalyzer.AnalysisNames = cms.vstring('MC_LES_HOUCHES_SYSTEMATICS_CMS','CMS_EWK_10_012')
+process.rivetAnalyzer.AnalysisNames = cms.vstring('CMS_EWK_10_012')
 
 process.p = cms.Path(process.rivetAnalyzer)
 

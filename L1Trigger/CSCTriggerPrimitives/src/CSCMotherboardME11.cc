@@ -63,8 +63,9 @@ const int CSCMotherboardME11::lut_wg_vs_hs_me1b[48][2] = {
 // 1st index: pt value = {5,10,15,20,30,40}
 // 2nd index: bending angle for odd numbered chambers
 // 3rd index: bending angle for even numbered chambers
-const double CSCMotherboardME11::lut_pt_vs_dphi_gemcsc[6][3] = {
-  {5.,  0.02203511, 0.00930056}, 
+const double CSCMotherboardME11::lut_pt_vs_dphi_gemcsc[7][3] = {
+  {5.,  0.02203511, 0.00930056},
+  {6 ,  0.0182579 , 0.00790009},
   {10., 0.01066000, 0.00483286},
   {15., 0.00722795, 0.00363230},
   {20., 0.00562598, 0.00304878},
@@ -119,6 +120,9 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
     pref[m]   = pref[0] + m/2;
   }
 
+  /// Do GEM matching?
+  do_gem_matching = tmbParams.getUntrackedParameter<bool>("doGemMatching", true);
+  
   /// GEM matching dphi and deta
   gem_match_delta_phi_odd = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiOdd", 0.0055);
   gem_match_delta_phi_even = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiEven", 0.0031);
@@ -335,7 +339,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of ALCT-centric matching
 
   // possibly use some discrimination from GEMs
-  if (gemPads != nullptr) matchGEMPads(gemPads);
+  if (gemPads != nullptr &&  do_gem_matching) matchGEMPads(gemPads);
 
 
   // reduction of nLCTs per each BX
@@ -723,15 +727,8 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
   int npads = 0;
   
   int region = (theEndcap == 1) ? 1: -1;
-  auto chamber1(gem_g->chamber(GEMDetId(region, 1, 1, 1, chamber, 0)));
-  auto chamber2(gem_g->chamber(GEMDetId(region, 1, 1, 2, chamber, 0))); 
-
-  std::vector<const GEMChamber*> superChamber;
-  superChamber.clear();
-  superChamber.push_back(chamber1);
-  superChamber.push_back(chamber2);
-
-  for (auto ch : superChamber)
+  const GEMSuperChamber* superChamber(gem_g->superChamber(GEMDetId(region, csc_id.ring(), csc_id.station(), 1, chamber, 0)));
+  for (auto ch : superChamber->chambers())
   {
     for (auto roll : ch->etaPartitions() )
     {
@@ -829,14 +826,28 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
           {
             gem_matched = true;
             min_dphi = dphi;
+
             //gem_bx = id_pad.second->bx();
           }
         }
         if (gem_matched)
         {
           if (debug_gem_matching) std::cout<<" GOT MATCHED GEM!"<<std::endl;
-          //lct.setGEMBX(gem_bx);
           lct.setGEMDPhi(min_dphi);
+	  // assing the bit value
+	  int oddEven = int(not is_odd) + 1;
+	  int numberOfBendAngles(sizeof lut_pt_vs_dphi_gemcsc / sizeof *lut_pt_vs_dphi_gemcsc);
+	  int iFound = 0;
+	  if (abs(min_dphi) < lut_pt_vs_dphi_gemcsc[numberOfBendAngles-1][oddEven]) iFound = numberOfBendAngles;
+	  else {
+	    for (int i=0; i< numberOfBendAngles-1; ++i) {
+	      if (debug_gem_matching) std::cout<<"is_odd "<<is_odd <<" min_dphi "<<abs(min_dphi)<<" bend angle lib "<<i<<" "<<lut_pt_vs_dphi_gemcsc[i][oddEven]<< std::endl;
+	      if (abs(min_dphi) < lut_pt_vs_dphi_gemcsc[i][oddEven] and abs(min_dphi) > lut_pt_vs_dphi_gemcsc[i+1][oddEven]) 
+		iFound = i+1;
+	    }
+	  }
+	  lct.setGEMDphi(iFound);
+	  if (debug_gem_matching) std::cout<<"found bend angle "<<abs(min_dphi)<<" "<<lct.getGEMDphi()<<" "<<lut_pt_vs_dphi_gemcsc[iFound][oddEven]<<" "<<iFound << std::endl;
         }
         else
         {

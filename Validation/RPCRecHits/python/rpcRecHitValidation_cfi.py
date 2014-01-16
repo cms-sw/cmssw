@@ -5,6 +5,7 @@ rpcRecHitV = cms.EDAnalyzer("RPCRecHitValid",
     simHit = cms.InputTag("g4SimHits", "MuonRPCHits"),
     recHit = cms.InputTag("rpcRecHits"),
     simTrack = cms.InputTag("mix", "MergedTrackTruth"),
+    simHitAssoc = cms.InputTag("simHitTPAssocProducer"),
     muon = cms.InputTag("muons"),
 )
 

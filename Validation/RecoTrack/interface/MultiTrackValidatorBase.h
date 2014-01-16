@@ -23,7 +23,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelector.h"
-#include "CommonTools/RecoAlgos/interface/TrackingParticleSelector.h"
+#include "SimGeneral/TrackingAnalysis/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
 
 #include <DQMServices/Core/interface/DQMStore.h>

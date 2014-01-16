@@ -6,7 +6,7 @@ process.load("EcalTrivialAlignment_cfi")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 #process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
 #process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb/'
-process.CondDBCommon.connect = 'sqlite_file:EBAlign_2010.db'
+process.CondDBCommon.connect = 'sqlite_file:EBAlign_2011_rereco.db'
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
@@ -26,7 +26,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
        cms.PSet(
           record = cms.string('EBAlignmentRcd'),
-          tag = cms.string('EBAlignment_measured_v01_offline')
+          tag = cms.string('EBAlignment_measured_v08_offline')
        )
     )
 )

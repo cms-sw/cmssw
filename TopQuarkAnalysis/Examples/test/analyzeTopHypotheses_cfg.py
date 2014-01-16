@@ -27,23 +27,24 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+## std sequence for PAT
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## use genParticles to select only muon+jets events
 process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
 process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.electron = False
-
-## standard PAT sequence
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
@@ -76,9 +77,5 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTopHypothesis.root')
 )
 
-## end path   
-process.path = cms.Path(#process.ttSemiLeptonicFilter *
-                        process.patDefaultSequence *
-                        process.makeGenEvt *
-                        process.makeTtSemiLepEvent *
-                        process.analyzeHypotheses)
+## end path
+process.path = cms.Path(process.analyzeHypotheses)

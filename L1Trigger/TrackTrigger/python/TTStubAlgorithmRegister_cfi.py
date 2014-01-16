@@ -46,9 +46,9 @@ TTStubAlgorithm_tab2013_PixelDigi_ = cms.ESProducer("TTStubAlgorithm_tab2013_Pix
      cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
      cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2.0, 2.0, 2.0, 2.5, 3.0, 3.0, 3.5, 2.5, 3.0, 3.5, 4.0, 5.0, 5.5 ) ), #D1
      cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 1.5, 2.0, 2.0, 2.5, 2.5, 3.0, 3.0, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 ) ), #D2 ...
-     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2.0, 2.0, 2.0, 2.0, 2.5, 2.5, 2.0, 2.0, 3.0, 3.0, 3.5, 4.0 ) ),
-     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 2.0, 2.0, 2.0, 2.0, 2.5, 3.0, 2.0, 2.0, 2.5, 3.0, 3.5 ) ),
-     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 2.0, 2.0, 2.5, 3.0 ) ), # missing rings are not taken into account in numbering, so everything
+     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 1.5, 2.0, 2.0, 2.0, 2.0, 2.5, 2.5, 2.0, 2.0, 3.0, 3.0, 3.5, 4.0, 4.5 ) ),
+     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 2.0, 2.0, 2.0, 2.0, 2.5, 3.0, 2.0, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ) ),
+     cms.PSet( EndcapCut = cms.vdouble( 0, 1.5, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 2.0, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0 ) ), # missing rings are not taken into account in numbering, so everything
                                                                                                       # always starts from 1 to N, with increasing r
    )
 )

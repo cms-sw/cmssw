@@ -649,6 +649,9 @@ void  PhotonValidator::beginJob() {
     //
     dbe_->setCurrentFolder("EgammaV/"+fName_+"/Photons");
 
+    histname="nOfflineVtx";
+    h_nRecoVtx_ = dbe_->book1D(histname,"# of Offline Vertices",80, -0.5, 79.5);
+
     h_phoEta_[0] = dbe_->book1D("phoEta"," Photon Eta ",etaBin,etaMin, etaMax) ;
     h_phoPhi_[0] = dbe_->book1D("phoPhi"," Photon  Phi ",phiBin,phiMin,phiMax) ;
 
@@ -1064,9 +1067,7 @@ void  PhotonValidator::beginJob() {
 
     dbe_->setCurrentFolder("EgammaV/"+fName_+"/ConversionInfo");
 
-    histname="nOfflineVtx";
-    h_nRecoVtx_ = dbe_->book1D(histname,"# of Offline Vertices",30, -0.5, 29.5);
-
+  
     histname="nConv";
     h_nConv_[0][0] = dbe_->book1D(histname+"All","Number Of Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
     h_nConv_[0][1] = dbe_->book1D(histname+"Barrel","Number Of Conversions per isolated candidates per events: Ecal Barrel  ",10,-0.5, 9.5);

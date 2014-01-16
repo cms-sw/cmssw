@@ -20,7 +20,7 @@ ShiftedPFCandidateProducerForNoPileUpPFMEt::ShiftedPFCandidateProducerForNoPileU
   jetCorrUncertaintyTag_ = cfg.getParameter<std::string>("jetCorrUncertaintyTag");
   if ( cfg.exists("jetCorrInputFileName") ) {
     jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
-    if ( !jetCorrInputFileName_.isLocal()) throw cms::Exception("ShiftedJetProducerT") 
+    if ( jetCorrInputFileName_.location() == edm::FileInPath::Unknown) throw cms::Exception("ShiftedJetProducerT") 
       << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
     std::cout << "Reading JEC parameters = " << jetCorrUncertaintyTag_  
 	      << " from file = " << jetCorrInputFileName_.fullPath() << "." << std::endl;

@@ -43,6 +43,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -797,6 +798,17 @@ info(const DetId& id) {
                          << detId.roll();
                      break;
 	       }
+	    }
+	    break;
+            case MuonSubdetId::GEM:
+	    {
+	       GEMDetId detId(id.rawId());
+	       oss << "GEM chamber (region, station, ring, chamber, layer): "
+		   << detId.region() << ", "
+		   << detId.station() << ", "
+		   << detId.ring() << ", "
+		   << detId.chamber() << ", "
+		   << detId.layer();
 	    }
 	    break;
 	 }

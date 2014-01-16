@@ -71,14 +71,12 @@ class Reco(Scenario):
         options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM'+dqmStep+',ENDJOB'
         dictIO(options,args)
         options.conditions = globalTag
-        
+        options.filein = 'tobeoverwritten.xyz'
+        if 'inputSource' in args:
+            options.fileType = args['inputSource']
         process = cms.Process('RECO')
-        cb = ConfigBuilder(options, process = process, with_output = True)
+        cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
-        # Input source
-        process.source = cms.Source("NewEventStreamFileReader",
-            fileNames = cms.untracked.vstring()
-        )
         cb.prepare()
 
         addMonitoring(process)
