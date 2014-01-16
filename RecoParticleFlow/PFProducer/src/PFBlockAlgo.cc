@@ -35,7 +35,9 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 				 int nuclearInteractionsPurity,
 				 bool useEGPhotons,
 				 std::vector<double>& photonSelectionCuts,
-				 bool useSuperClusters) {
+				 bool useSuperClusters,
+                                 bool superClusterMatchByRef
+                               ) {
   
   DPtovPtCut_    = DPtovPtCut;
   NHitCut_       = NHitCut;
@@ -57,7 +59,7 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 
 
   useSuperClusters_ = useSuperClusters;
-    
+  superClusterMatchByRef_ = superClusterMatchByRef;
 }
 
 // Glowinski & Gouzevitch
@@ -1040,14 +1042,22 @@ PFBlockAlgo::testSuperClusterPFCluster(const SuperClusterRef& ecal1,
   
   double dist = -1;
   
-  bool overlap=ClusterClusterMapping::overlap(*ecal1,*ecal2);
-  
-  if(overlap) 	{
-    dist=LinkByRecHit::computeDist( ecal1->position().eta(),
-				    ecal1->position().phi(), 
-				    ecal2->positionREP().Eta(), 
-				    ecal2->positionREP().Phi() );
-    return dist;
+  if(superClusterMatchByRef_) {
+    //loop over supercluster CaloClusters, look up PFCluster ptrs in value map, and match by ref
+    for (reco::CaloCluster_iterator caloclus = ecal1->clustersBegin(); caloclus!=ecal1->clustersEnd(); ++caloclus) {
+      bool overlap = ClusterClusterMapping::overlap(ecal2, *ecal1,*pfclusterassoc_);
+      if (overlap) dist = 0.001;
+    }
+  }
+  else {
+    bool overlap=ClusterClusterMapping::overlap(*ecal1,*ecal2);
+    
+    if(overlap) 	{
+      dist=LinkByRecHit::computeDist( ecal1->position().eta(),
+                                      ecal1->position().phi(), 
+                                      ecal2->positionREP().Eta(), 
+                                      ecal2->positionREP().Phi() );
+    }
   }
   return dist;
 }

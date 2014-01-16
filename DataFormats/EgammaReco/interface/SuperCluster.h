@@ -95,6 +95,15 @@ namespace reco {
     /// set reference to seed BasicCluster
     void setSeed( const CaloClusterPtr & r ) { seed_ = r; }
 
+    //(re)-set clusters
+    void setClusters(const CaloClusterPtrVector &clusters) { 
+      clusters_ = clusters;
+      computeRawEnergy();
+    }
+    
+    //(re)-set preshower clusters
+    void setPreshowerClusters(const CaloClusterPtrVector &clusters) { preshowerClusters_ = clusters; }
+    
     /// add reference to constituent BasicCluster
     void addCluster( const CaloClusterPtr & r ) { 
       clusters_.push_back( r ); 

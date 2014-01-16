@@ -362,6 +362,8 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
   
     // preselection based in Et and H/E cut. 
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
+    if (aClus->eta() > 1.479 && aClus->eta() < 1.556 ) continue;
+
     const reco::CaloCluster*   pClus=&(*aClus);
     const reco::SuperCluster*  sc=dynamic_cast<const reco::SuperCluster*>(pClus);
     double scEt = sc->energy()/cosh(sc->eta());  
