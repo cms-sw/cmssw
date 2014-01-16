@@ -360,9 +360,9 @@ void DTUserKeyedConfigHandler::chkConfigList(
       std::cout << "key list " <<  keyList << std::endl;
       keyList->load( checkedKeys );
       std::cout << "get brick..." << std::endl;
-      const DTKeyedConfig* brickCheck =
+      boost::shared_ptr<DTKeyedConfig> brickCheck =
                            keyList->get<DTKeyedConfig>( 0 );
-      if ( brickCheck != 0 ) {
+      if ( brickCheck.get() ) {
 	brickFound = ( brickCheck->getId() == brickConfigId );
       }
     }
