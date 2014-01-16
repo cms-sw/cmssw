@@ -9,6 +9,10 @@ namespace cond {
     //  std::cout <<"### Constructing..."<<std::endl;
     //}
 
+    // const cond::BaseKeyed* KeyList::elem(int n) const {
+    //     return get<cond::BaseKeyed>( n );
+    // }
+
     void KeyList::init(  IOVProxy iovProxy ){
       m_proxy = iovProxy;
       m_data.clear();

@@ -56,10 +56,7 @@ namespace cond {
 	return boost::static_pointer_cast<T>( m_objects[n] ).get();
       }
 
-      const cond::BaseKeyed* elem(int n) const {
-	return get<cond::BaseKeyed>( n );
-      }
-
+      // const cond::BaseKeyed* elem(int n) const;
 
       int size() const { return m_objects.size();}
 
