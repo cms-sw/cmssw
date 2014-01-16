@@ -1,6 +1,11 @@
+
+#include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/Serialization/interface/SerializationTest.h"
+#include "CondFormats/External/interface/Serialization.h"
 
 #include "CondFormats/SiPixelObjects/interface/Serialization.h"
+
+#include "../src/headers.h"
 
 int main()
 {
@@ -12,6 +17,7 @@ int main()
     testSerialization<SiPixelCPEGenericErrorParm::DbEntryBinSize>();
     testSerialization<SiPixelCalibConfiguration>();
     testSerialization<SiPixelDbItem>();
+    testSerialization<SiPixelDisabledModules>();
     //testSerialization<SiPixelFedCabling>(); abstract
     testSerialization<SiPixelFedCablingMap>();
     testSerialization<SiPixelFedCablingMap::Key>();
