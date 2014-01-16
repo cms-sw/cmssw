@@ -438,9 +438,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
     hmuChi2   = dbe_->book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
     hmuD0     = dbe_->book1D("muonD0", "muonD0", 50, -1, 1);
 
-    hMETIonFeedbck      = dbe_->book1D("METIonFeedbck", "METIonFeedbck" ,200,0,1000);
-    hMETHPDNoise        = dbe_->book1D("METHPDNoise",   "METHPDNoise"   ,200,0,1000);
-    hMETRBXNoise        = dbe_->book1D("METRBXNoise",   "METRBXNoise"   ,200,0,1000);
     hMExCorrection       = dbe_->book1D("MExCorrection", "MExCorrection", 100, -500.0,500.0);
     hMEyCorrection       = dbe_->book1D("MEyCorrection", "MEyCorrection", 100, -500.0,500.0);
     hMuonCorrectionFlag  = dbe_->book1D("CorrectionFlag","CorrectionFlag", 5, -0.5, 4.5);
@@ -1085,15 +1082,6 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     if (meMEy_profile   && meMEy_profile  ->getRootObject()) meMEy_profile  ->Fill(numPV_, MEy);
     if (meMET_profile   && meMET_profile  ->getRootObject()) meMET_profile  ->Fill(numPV_, MET);
     if (meSumET_profile && meSumET_profile->getRootObject()) meSumET_profile->Fill(numPV_, SumET);
- 
-    //hMETIonFeedbck = dbe_->get(DirName+"/"+"METIonFeedbck");  if (hMETIonFeedbck && hMETIonFeedbck->getRootObject())  hMETIonFeedbck->Fill(MET);
-    //hMETHPDNoise   = dbe_->get(DirName+"/"+"METHPDNoise");    if (hMETHPDNoise   && hMETHPDNoise->getRootObject())    hMETHPDNoise->Fill(MET);
-    //comment out like already done before for TcMET and PFMET
-    if(isTCMet_ || metCollectionLabel_.label() == "corMetGlobalMuons"){
-      hMETIonFeedbck = dbe_->get(DirName+"/"+"METIonFeedbck");  if (hMETIonFeedbck && hMETIonFeedbck->getRootObject()) hMETIonFeedbck->Fill(MET);
-      hMETHPDNoise   = dbe_->get(DirName+"/"+"METHPDNoise");    if (hMETHPDNoise   && hMETHPDNoise->getRootObject())   hMETHPDNoise->Fill(MET);
-      hMETRBXNoise   = dbe_->get(DirName+"/"+"METRBXNoise");    if (hMETRBXNoise   && hMETRBXNoise->getRootObject())   hMETRBXNoise->Fill(MET);
-    }
 
     if(isCaloMet_){
       //const reco::CaloMETCollection *calometcol = calometcoll.product();

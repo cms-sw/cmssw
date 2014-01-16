@@ -595,12 +595,15 @@ class JetAnalyzer : public edm::EDAnalyzer {
   MonitorElement* mPhFrac;
   MonitorElement* mElFrac;
   MonitorElement* mMuFrac;
+  MonitorElement* mHFEMFrac;
+  MonitorElement* mHFHFrac;
   MonitorElement* mCHFrac_profile;
   MonitorElement* mNHFrac_profile;
   MonitorElement* mPhFrac_profile;
   MonitorElement* mElFrac_profile;
   MonitorElement* mMuFrac_profile;
-
+  MonitorElement* mHFEMFrac_profile;
+  MonitorElement* mHFHFrac_profile;
 
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;

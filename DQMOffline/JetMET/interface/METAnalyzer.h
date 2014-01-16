@@ -326,11 +326,6 @@ class METAnalyzer : public edm::EDAnalyzer{
   MonitorElement* hCaloMEyCorrection;
   MonitorElement* hCaloMuonCorrectionFlag;
 
-  //muon corrected met, TCMet --> do we want those
-  MonitorElement* hMETIonFeedbck;
-  MonitorElement* hMETHPDNoise;
-  MonitorElement* hMETRBXNoise;
-
 
   //is filled for TCMET
   MonitorElement* htrkPt;
