@@ -311,6 +311,15 @@ void EcalTPGWeights::serialize(Archive & ar, const unsigned int)
 }
 
 template <class Archive>
+void EcalTimeBiasCorrections::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(EBTimeCorrAmplitudeBins);
+    ar & BOOST_SERIALIZATION_NVP(EBTimeCorrShiftBins);
+    ar & BOOST_SERIALIZATION_NVP(EETimeCorrAmplitudeBins);
+    ar & BOOST_SERIALIZATION_NVP(EETimeCorrShiftBins);
+}
+
+template <class Archive>
 void EcalTimeDependentCorrections::serialize(Archive & ar, const unsigned int)
 {
     ar & BOOST_SERIALIZATION_NVP(value_map);
@@ -854,6 +863,20 @@ struct access<EcalTPGWeights>
             and (equal(first.w2_, second.w2_))
             and (equal(first.w3_, second.w3_))
             and (equal(first.w4_, second.w4_))
+        ;
+    }
+};
+
+template <>
+struct access<EcalTimeBiasCorrections>
+{
+    static bool equal_(const EcalTimeBiasCorrections & first, const EcalTimeBiasCorrections & second)
+    {
+        return true
+            and (equal(first.EBTimeCorrAmplitudeBins, second.EBTimeCorrAmplitudeBins))
+            and (equal(first.EBTimeCorrShiftBins, second.EBTimeCorrShiftBins))
+            and (equal(first.EETimeCorrAmplitudeBins, second.EETimeCorrAmplitudeBins))
+            and (equal(first.EETimeCorrShiftBins, second.EETimeCorrShiftBins))
         ;
     }
 };
