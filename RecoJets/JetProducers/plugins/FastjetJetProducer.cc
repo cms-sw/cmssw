@@ -62,6 +62,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     useFiltering_(false),
     useTrimming_(false),
     usePruning_(false),
+    useCMSBoostedTauSeedingAlgorithm_(false),
     muCut_(-1.0),
     yCut_(-1.0),
     rFilt_(-1.0),
@@ -125,7 +126,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     dRMax_ = -1.0;
     maxDepth_ = -1;
     useExplicitGhosts_ = true;
-
 
     if ( iConfig.exists("useMassDropTagger") ) {
       useMassDropTagger_ = true;
