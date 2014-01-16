@@ -32,12 +32,14 @@
 namespace {
   struct dictionary {
 
+    l1t::L1CandidateBxCollection l1CandidateBxColl;
     l1t::EGammaBxCollection eGammaBxColl;
     l1t::EtSumBxCollection  etSumBxColl;
     l1t::JetBxCollection    jetBxColl;
     l1t::MuonBxCollection   muonBxColl;
     l1t::TauBxCollection    tauBxColl;
 
+    edm::Wrapper<l1t::L1CandidateBxCollection> w_l1CandidateBxColl;
     edm::Wrapper<l1t::EGammaBxCollection> w_eGammaBxColl;
     edm::Wrapper<l1t::EtSumBxCollection>  w_etSumBxColl;
     edm::Wrapper<l1t::JetBxCollection>    w_jetBxColl;

@@ -1,4 +1,10 @@
 <lcgdict>
+  <class name="l1t::L1Candidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="3913507703"/>
+  </class>
+  <class name="l1t::L1CandidateBxCollection"/>
+  <class name="edm::Wrapper<l1t::L1CandidateBxCollection>"/>
+
   <class name="l1t::Jet" ClassVersion="10">
    <version ClassVersion="10" checksum="4108627301"/>
   </class>

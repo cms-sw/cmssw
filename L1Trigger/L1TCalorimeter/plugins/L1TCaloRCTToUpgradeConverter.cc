@@ -42,7 +42,7 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
   // store new formats
   std::auto_ptr<BXVector<l1t::CaloStage1Cluster> > clusters (new l1t::CaloStage1ClusterBxCollection);
   std::auto_ptr<BXVector<l1t::CaloRegion> > regions (new l1t::CaloRegionBxCollection);
-  
+
   // get old formats
   edm::Handle<L1CaloEmCollection> ems;
   edm::Handle<L1CaloRegionCollection> rgns;
@@ -104,7 +104,10 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
     regions->push_back( rgn->bx(), region );			 
     
   }
-  
+
+  iEvent.put(clusters);
+  iEvent.put(regions);
+    
 }
 
 // ------------ method called once each job just before starting event loop  ------------

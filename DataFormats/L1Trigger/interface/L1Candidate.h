@@ -3,8 +3,11 @@
 
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 namespace l1t {
+
+  class L1Candidate;
+  typedef BXVector<L1Candidate> L1CandidateBxCollection;
 
 	// All L1 data formats which encode physically meaningful quantities inherit from Candidate
   class L1Candidate : public reco::LeafCandidate {
