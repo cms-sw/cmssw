@@ -973,17 +973,17 @@ void GsfElectronAlgo::addPflowInfo()
     setPflowPreselectionFlag(*el) ;
 
     // Shower Shape of pflow cluster
-    if (!((*el)->pflowSuperCluster().isNull()))
+    if (!((*el)->parentSuperCluster().isNull()))
      {
       reco::GsfElectron::ShowerShape pflowShowerShape ;
-      calculateShowerShape((*el)->pflowSuperCluster(),true,pflowShowerShape) ;
+      calculateShowerShape((*el)->parentSuperCluster(),true,pflowShowerShape) ;
       (*el)->setPfShowerShape(pflowShowerShape) ;
      }
     else if ((*el)->passingPflowPreselection())
      { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
 
     // PfBrem
-    SuperClusterRef sc = (*el)->pflowSuperCluster() ;
+    SuperClusterRef sc = (*el)->parentSuperCluster() ;
     if (!(sc.isNull()))
      {
 

@@ -1081,7 +1081,8 @@ void PFRootEventManager::readOptions(const char* file,
 				nuclearInteractionsPurity,
 				useEGPhotons_,
 				PhotonSelectionCuts,
-				false
+				false,
+                                false
 			      ); 
   }  
   catch( std::exception& err ) {
@@ -3144,6 +3145,7 @@ void PFRootEventManager::particleFlow() {
   edm::OrphanHandle< reco::SuperClusterCollection > ebsch( &ebsc_, edm::ProductID(12) ) ;
   edm::OrphanHandle< reco::SuperClusterCollection > eesch( &eesc_, edm::ProductID(12) ) ;
   
+  edm::OrphanHandle< edm::ValueMap<reco::CaloClusterPtr> > pfclusassoch;
   
   vector<bool> trackMask;
   fillTrackMask( trackMask, recTracks_ );
@@ -3172,7 +3174,7 @@ void PFRootEventManager::particleFlow() {
     pfBlockAlgo_.setInput( trackh, gsftrackh, convBremGsftrackh,
 			   muonh, nuclearh, displacedtrackh, convh, v0,
 			   ecalh, hcalh, hoh, hfemh, hfhadh, psh, 
-			   photonh, ebsch, eesch, trackMask,gsftrackMask, 
+			   photonh, ebsch, eesch, pfclusassoch, trackMask,gsftrackMask, 
 			   ecalMask, hcalMask, hoMask, hfemMask, hfhadMask, psMask,photonMask,scmask );
   else    
     pfBlockAlgo_.setInput( trackh, muonh, ecalh, hcalh, hfemh, hfhadh, psh, hoh,
