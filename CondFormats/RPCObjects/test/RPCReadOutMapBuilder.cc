@@ -17,6 +17,9 @@
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
 #include "CondFormats/RPCObjects/interface/ChamberStripSpec.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/RPCObjects/interface/Serialization.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 

@@ -6,6 +6,9 @@
 #include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
 #include "CondFormats/RPCObjects/interface/L1RPCHwConfig.h"
 
+#include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
+#include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
+
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/RPCObjects/interface/RPCClusterSize.h"
 #include "CondFormats/RPCObjects/interface/RPCDQMObject.h"

@@ -4,7 +4,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include "CondFormats/External/interface/Serialization.h"
+// #include "CondFormats/External/interface/Serialization.h"
 
 #include "../src/headers.h"
 
@@ -166,6 +166,19 @@ void RPCDQMObject::DQMObjectItem::serialize(Archive & ar, const unsigned int)
 }
 
 template <class Archive>
+void RPCDeadStrips::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(DeadVec);
+}
+
+template <class Archive>
+void RPCDeadStrips::DeadItem::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(rawId);
+    ar & BOOST_SERIALIZATION_NVP(strip);
+}
+
+template <class Archive>
 void RPCEMap::serialize(Archive & ar, const unsigned int)
 {
     ar & BOOST_SERIALIZATION_NVP(theVersion);
@@ -213,6 +226,19 @@ void RPCEMap::tbItem::serialize(Archive & ar, const unsigned int)
 {
     ar & BOOST_SERIALIZATION_NVP(theNum);
     ar & BOOST_SERIALIZATION_NVP(nLinks);
+}
+
+template <class Archive>
+void RPCMaskedStrips::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(MaskVec);
+}
+
+template <class Archive>
+void RPCMaskedStrips::MaskItem::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(rawId);
+    ar & BOOST_SERIALIZATION_NVP(strip);
 }
 
 template <class Archive>
@@ -714,6 +740,29 @@ struct access<RPCDQMObject::DQMObjectItem>
 };
 
 template <>
+struct access<RPCDeadStrips>
+{
+    static bool equal_(const RPCDeadStrips & first, const RPCDeadStrips & second)
+    {
+        return true
+            and (equal(first.DeadVec, second.DeadVec))
+        ;
+    }
+};
+
+template <>
+struct access<RPCDeadStrips::DeadItem>
+{
+    static bool equal_(const RPCDeadStrips::DeadItem & first, const RPCDeadStrips::DeadItem & second)
+    {
+        return true
+            and (equal(first.rawId, second.rawId))
+            and (equal(first.strip, second.strip))
+        ;
+    }
+};
+
+template <>
 struct access<RPCEMap>
 {
     static bool equal_(const RPCEMap & first, const RPCEMap & second)
@@ -789,6 +838,29 @@ struct access<RPCEMap::tbItem>
         return true
             and (equal(first.theNum, second.theNum))
             and (equal(first.nLinks, second.nLinks))
+        ;
+    }
+};
+
+template <>
+struct access<RPCMaskedStrips>
+{
+    static bool equal_(const RPCMaskedStrips & first, const RPCMaskedStrips & second)
+    {
+        return true
+            and (equal(first.MaskVec, second.MaskVec))
+        ;
+    }
+};
+
+template <>
+struct access<RPCMaskedStrips::MaskItem>
+{
+    static bool equal_(const RPCMaskedStrips::MaskItem & first, const RPCMaskedStrips::MaskItem & second)
+    {
+        return true
+            and (equal(first.rawId, second.rawId))
+            and (equal(first.strip, second.strip))
         ;
     }
 };
