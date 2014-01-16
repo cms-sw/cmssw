@@ -9,6 +9,8 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/Calibration/interface/Serialization.h"
 
 #include "MyDataAnalyzer.h"
 #include <cstdlib>

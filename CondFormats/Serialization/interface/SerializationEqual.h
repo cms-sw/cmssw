@@ -1,5 +1,5 @@
-#ifndef CondFormats_Common_SerializationEqual_H
-#define CondFormats_Common_SerializationEqual_H
+#ifndef CondFormats_Serialization_SerializationEqual_H
+#define CondFormats_Serialization_SerializationEqual_H
 
 #include <typeinfo>
 #include <type_traits>
