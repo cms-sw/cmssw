@@ -5,10 +5,6 @@ namespace cond {
 
   namespace persistency {
 
-    //KeyList::KeyList( const IOVKeysDescription*  ) {
-    //  std::cout <<"### Constructing..."<<std::endl;
-    //}
-
     void KeyList::init(  IOVProxy iovProxy ){
       m_proxy = iovProxy;
       m_data.clear();
