@@ -55,6 +55,7 @@ void LHESource::nextEvent()
 
 	bool newFileOpened = false;
 	partonLevel = reader->next(&newFileOpened);
+
 	if(newFileOpened) incrementFileIndex();
 	if (!partonLevel)
 			return;
@@ -110,8 +111,13 @@ bool LHESource::produce(edm::Event &event)
 
 	std::auto_ptr<LHEEventProduct> product(
 			new LHEEventProduct(*partonLevel->getHEPEUP()));
-	if (partonLevel->getPDF())
-		product->setPDF(*partonLevel->getPDF());
+	if (partonLevel->getPDF()) {
+	  product->setPDF(*partonLevel->getPDF());
+        }		
+	std::for_each(partonLevel->weights().begin(),
+		      partonLevel->weights().end(),
+		      boost::bind(&LHEEventProduct::addWeight,
+				  product.get(), _1));
 	std::for_each(partonLevel->getComments().begin(),
 	              partonLevel->getComments().end(),
 	              boost::bind(&LHEEventProduct::addComment,
