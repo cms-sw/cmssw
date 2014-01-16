@@ -1298,8 +1298,23 @@ PFClusterAlgo::buildPFClusters( const std::vector< unsigned >& topocluster,
   
   // There we go
   // add all clusters to the list of pfClusters.
+  // But first clean the clusters so that rechits with negligible fraction
+  // are removed.
   for(unsigned ic=0; ic<curpfclusters.size(); ic++) {
 
+    //copy full list of RecHitFractions
+    std::vector< reco::PFRecHitFraction > rhfracs = curpfclusters[ic].recHitFractions();
+    //reset cluster
+    curpfclusters[ic].reset();
+    
+    //loop over full list of rechit fractions and add the back to the cluster only
+    //if the fraction is above some reasonable threshold
+    for (const auto &rhf : rhfracs) {
+      if (rhf.fraction()>1e-7) {
+        curpfclusters[ic].addRecHitFraction(rhf);
+      }
+    }
+    
     calculateClusterPosition(curpfclusters[ic], curpfclusterswodepthcor[ic], 
                              true, posCalcNCrystal);
 

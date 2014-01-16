@@ -1420,7 +1420,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     // supercluster related distributions
     reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
     //if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed())
-    // { sclRef = bestGsfElectron.pflowSuperCluster() ; }
+    // { sclRef = bestGsfElectron.parentSuperCluster() ; }
 
     h1_scl_En->Fill(bestGsfElectron.ecalEnergy());
     if (bestGsfElectron.isEB())  h1_scl_EoEtrue_barrel->Fill(bestGsfElectron.ecalEnergy()/mcIter->p());
@@ -1480,7 +1480,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     if (bestGsfElectron.isEB() && bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_barrel->Fill(bestGsfElectron.scE5x5());
     if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())h1_scl_E5x5_eg_endcaps->Fill(bestGsfElectron.scE5x5());
     float pfEnergy=0. ;
-    if (!bestGsfElectron.pflowSuperCluster().isNull()) pfEnergy = bestGsfElectron.pflowSuperCluster()->energy();
+    if (!bestGsfElectron.parentSuperCluster().isNull()) pfEnergy = bestGsfElectron.parentSuperCluster()->energy();
     h2_scl_EoEtruePfVsEg->Fill(bestGsfElectron.ecalEnergy()/mcIter->p(),pfEnergy/mcIter->p());
 
     // track related distributions

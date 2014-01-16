@@ -91,7 +91,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
   bool found ;
   for ( eleCore = electrons.begin() ; eleCore != electrons.end() ; eleCore++ )
    {
-//    (*eleCore)->setPflowSuperCluster((*pfClusterTracksH_)[(*eleCore)->gsfTrack()]) ;
+//    (*eleCore)->setParentSuperCluster((*pfClusterTracksH_)[(*eleCore)->gsfTrack()]) ;
     found = false ;
     for
      ( pfCoreIter = pfCoresCollection->begin() ;
@@ -107,7 +107,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
         else
          {
           found = true ;
-          (*eleCore)->setPflowSuperCluster(pfCoreIter->pflowSuperCluster()) ;
+          (*eleCore)->setParentSuperCluster(pfCoreIter->parentSuperCluster()) ;
          }
        }
      }

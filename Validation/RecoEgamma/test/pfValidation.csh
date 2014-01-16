@@ -19,12 +19,13 @@
 
 setenv ANALYZERNAME1 PhotonValidator
 setenv ANALYZERNAME2 pfPhotonValidator
-setenv TYPE GEDPhotons
+#setenv TYPE GEDPhotons
+setenv TYPE fullGEDPhotons
 setenv COMPAREWITH Photons
 setenv CMSSWver1 7_0_0
 setenv RELEASE   7_0_0
-setenv PRERELEASE pre8
-setenv FULLGLOBALTAG START70_V2_amend-v4
+setenv PRERELEASE pre9
+setenv FULLGLOBALTAG START70_V2_gedEG-v2
 
 
 setenv RELEASE ${RELEASE}_${PRERELEASE}
@@ -127,7 +128,7 @@ cd $OUTDIR
 #The list of histograms to be compared for each TYPE can be configured below:
 
 
-if ( $TYPE == oldpfPhotons || $TYPE == GEDPhotons ) then
+if ( $TYPE == oldpfPhotons || $TYPE == GEDPhotons  || $TYPE == fullGEDPhotons  ) then
 
 
 cat > efficiencyForPhotons <<EOF
