@@ -17,5 +17,3 @@
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 
-<use name="TrackingTools/IPTools"/>
-<use name="TrackingTools/TransientTrack"/>
