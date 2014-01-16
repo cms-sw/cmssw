@@ -81,11 +81,9 @@ if use6part:
     process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v2/gemf.xml')
 
 ## upgrade CSC geometry customizations
-runCSCforSLHC = True
-if runCSCforSLHC:
-    from SLHCUpgradeSimulations.Configuration.muonCustoms import *
-    process = unganged_me1a_geometry(process)
-    process = digitizer_timing_pre3_median(process)
+from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry, digitizer_timing_pre3_median
+process = unganged_me1a_geometry(process)
+process = digitizer_timing_pre3_median(process)
 
 ## upgrade CSC L1 customizations: GEM-CSC emulator
 process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi')
@@ -122,10 +120,9 @@ else:
     tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
     tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
 
-## upgrade CSC TrackFinder 
-process.load('L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi')
-process.csctfTrackDigisUngangedME1a.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
-process.csctfTrackDigisUngangedME1a.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis","MPCSORTED")
+## upgrade CSC TrackFinder
+from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
+process = customise_csc_L1TrackFinder(process)
 
 ## upgrade L1Extra step
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Extra_allsim

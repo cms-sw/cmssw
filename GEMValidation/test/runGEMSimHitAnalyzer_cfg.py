@@ -6,7 +6,9 @@ process = cms.Process("GEMSIMANA")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023HGCalReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023HGCal_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -31,7 +33,7 @@ process.GEMSimHitAnalyzer.simTrackMatching.cscALCTInput = ""
 process.GEMSimHitAnalyzer.simTrackMatching.cscLCTInput = ""
 process.GEMSimHitAnalyzer.simTrackMatching.gemRecHitInput = ""
  
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 

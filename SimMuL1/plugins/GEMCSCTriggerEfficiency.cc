@@ -224,8 +224,6 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
     assert(std::is_sorted(gemPTs_.begin(), gemPTs_.end()));
     assert(gemPTs_.size() == gemDPhisOdd_.size() && gemPTs_.size() == gemDPhisEven_.size());
 
-    mufiducial_ = new MuFiducial();
-    mufiducial_->buildGEMLUT();
 
     // *********************************** HISTOGRAMS ******************************************
     edm::Service<TFileService> fs;
@@ -410,16 +408,17 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
     h_eta_me1_mpc_3st = fs->make<TH1D>("h_eta_me1_mpc_3st","h_eta_me1_mpc_3st",N_ETA_BINS, ETA_START, ETA_END);
 
 
+    h_eta_vs_ncscsh = fs->make<TH2D>("h_eta_vs_ncscsh","h_eta_vs_ncscsh",N_ETA_BINS, ETA_START, ETA_END,41,-0.5,40.5); 
     h_eta_vs_nalct = fs->make<TH2D>("h_eta_vs_nalct","h_eta_vs_nalct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
     h_eta_vs_nclct = fs->make<TH2D>("h_eta_vs_nclct","h_eta_vs_nclct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
     h_eta_vs_nlct  = fs->make<TH2D>("h_eta_vs_nlct","h_eta_vs_nlct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
     h_eta_vs_nmplct  = fs->make<TH2D>("h_eta_vs_nmplct","h_eta_vs_nmplct",N_ETA_BINS, ETA_START, ETA_END,13,-0.5,12.5); 
 
+    h_pt_vs_ncscsh = fs->make<TH2D>("h_pt_vs_ncscsh","h_pt_vs_ncscsh",50, 0.,100.,41,-0.5,40.5); 
     h_pt_vs_nalct = fs->make<TH2D>("h_pt_vs_nalct","h_pt_vs_nalct",50, 0.,100.,13,-0.5,12.5);
     h_pt_vs_nclct = fs->make<TH2D>("h_pt_vs_nclct","h_pt_vs_nclct",50, 0.,100.,13,-0.5,12.5);
     h_pt_vs_nlct = fs->make<TH2D>("h_pt_vs_nlct","h_pt_vs_nlct",50, 0.,100.,13,-0.5,12.5);
     h_pt_vs_nmplct = fs->make<TH2D>("h_pt_vs_nmplct","h_pt_vs_nmplct",50, 0.,100.,13,-0.5,12.5);
-
 
     h_pt_after_alct = fs->make<TH1D>("h_pt_after_alct","h_pt_after_alct",N_PT_BINS, PT_START, PT_END);
     h_pt_after_clct = fs->make<TH1D>("h_pt_after_clct","h_pt_after_clct",N_PT_BINS, PT_START, PT_END);
@@ -920,6 +919,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     iSetup.get<MuonRecoGeometryRecord>().get(muonGeometry);
     cscGeometry = &*cscGeom;
 
+    edm::ESHandle< GEMGeometry > gemGeom;
+    iSetup.get< MuonGeometryRecord >().get(gemGeom);
+    gemGeometry = &*gemGeom;
+
     CSCTriggerGeometry::setGeometry(cscGeometry);
 
     // get conditions for bad chambers (don't need random engine)
@@ -931,6 +934,12 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
     // Get the propagators
     iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyRK", propagatorAlong);
     iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
+
+    mufiducial_ = new MuFiducial();
+    mufiducial_->setGEMGeometry(gemGeometry);    
+    mufiducial_->setCSCGeometry(cscGeometry);
+    mufiducial_->buildGEMLUT();
+
 
     // ================================================================================================ 
 
@@ -1349,6 +1358,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
         // is this actually being used at the moment?
         propagateToCSCStations(match);
 
+        // check the detids in station 1
+        auto foundDets(mufiducial_->gemDetIds(match->pGE11));
+
+
         // match SimHits and do some checks
         matchSimTrack2SimHits(match, simTracks, simVertices, allCSCSimHits);
 
@@ -1654,15 +1667,18 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
         }
         if (lookAtTrackCondition_ != nokeey) continue;
 
-        h_eta_vs_nalct->Fill(steta, match->ALCTs.size());
-        h_eta_vs_nclct->Fill(steta, match->CLCTs.size()); 
-        h_eta_vs_nlct ->Fill(steta, match->LCTs.size());
-        h_eta_vs_nmplct ->Fill(steta, match->MPLCTs.size());
+        // fill these histograms only with stubs in the readout!
+        h_eta_vs_ncscsh->Fill(steta, match->simHits.size());
+        h_eta_vs_nalct->Fill(steta, match->ALCTsInReadOut().size());
+        h_eta_vs_nclct->Fill(steta, match->CLCTsInReadOut().size()); 
+        h_eta_vs_nlct->Fill(steta, match->LCTsInReadOut().size());
+        h_eta_vs_nmplct->Fill(steta, match->MPLCTsInReadOut().size());
 
-        h_pt_vs_nalct->Fill(stpt, match->ALCTs.size());
-        h_pt_vs_nclct->Fill(stpt, match->CLCTs.size());
-        h_pt_vs_nlct ->Fill(stpt, match->LCTs.size());
-        h_pt_vs_nmplct ->Fill(stpt, match->MPLCTs.size());
+        h_pt_vs_ncscsh->Fill(stpt, match->simHits.size());
+        h_pt_vs_nalct->Fill(stpt, match->ALCTsInReadOut().size());
+        h_pt_vs_nclct->Fill(stpt, match->CLCTsInReadOut().size());
+        h_pt_vs_nlct->Fill(stpt, match->LCTsInReadOut().size());
+        h_pt_vs_nmplct->Fill(stpt, match->MPLCTsInReadOut().size());
 
         //============ Initial ==================
 
@@ -2813,11 +2829,20 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
             // z planes
             int endcap = (match->strk->momentum().eta() >= 0) ? 1 : -1;
+            double zGE11 = endcap*565.;
             double zME11 = endcap*585.;
             double zME1  = endcap*615.;
             double zME2  = endcap*830.;
-            double zME3  = endcap*935.;
+            double zME3  = endcap*944.75;
+            double zME4  = endcap*1034.32;
+            // https://github.com/cms-sw/cmssw/blob/CMSSW_7_0_X/Geometry/MuonCommonData/data/PhaseII/mf.xml#L4116
 
+            // extrapolate to GE1/1 surface
+            tsos = propagateSimTrackToZ(match->strk, match->svtx, zGE11);
+            if (tsos.isValid()) {
+                math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
+                match->pGE11 = vgp;
+            }
             // extrapolate to ME1/1 surface
             tsos = propagateSimTrackToZ(match->strk, match->svtx, zME11);
             if (tsos.isValid()) {
@@ -2841,6 +2866,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             if (tsos.isValid()) {
                 math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
                 match->pME3 = vgp;
+            }
+            tsos = propagateSimTrackToZ(match->strk, match->svtx, zME4);
+            if (tsos.isValid()) {
+                math::XYZVectorD vgp( tsos.globalPosition().x(), tsos.globalPosition().y(), tsos.globalPosition().z() );
+                match->pME4 = vgp;
             }
         }
 
