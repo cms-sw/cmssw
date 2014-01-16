@@ -113,7 +113,7 @@ namespace cond {
       // clear
       reset();
       
-      checkSession( "GTProxy::load" );
+      checkTransaction( "GTProxy::load" );
       
       if(!m_session->gtSchema().gtTable().select( gtName, m_data->validity, m_data->snapshotTime ) ){
 	throwException( "Global Tag \""+gtName+"\" has not been found in the database.","GTProxy::load");
@@ -149,8 +149,9 @@ namespace cond {
       return m_data.get() ? m_data->snapshotTime : boost::posix_time::ptime();
     }
     
-    void GTProxy::checkSession( const std::string& ctx ){
+    void GTProxy::checkTransaction( const std::string& ctx ){
       if( !m_session.get() ) throwException("The session is not active.",ctx );
+      if( !m_session->isTransactionActive( false ) ) throwException("The transaction is not active.",ctx );
     }
     
     GTProxy::Iterator GTProxy::begin() const {

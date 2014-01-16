@@ -94,7 +94,7 @@ namespace cond {
       int size() const;
       
     private:
-      void checkSession( const std::string& ctx );
+      void checkTransaction( const std::string& ctx );
       
     private:
       std::shared_ptr<GTProxyData> m_data;
