@@ -307,7 +307,7 @@ if __name__ == "__main__":
             OR(ok_gL2dg,ok_gL1dg), "P", kBlue)
   draw_geff(targetDir, "eff_phi_track_dg_gem_l1and2", ext, treeTracks, 
 	    "Eff. for a SimTrack to have an associated GEM Digi in l1 and l2 with a matched SimHit;SimTrack #phi [rad];Eff.", 
-	    "h_", "(100,-3.141592654,3.141592654)", "phi", AND(ok_eta,AND(ok_gL1sh,ok_gL2sh)),
+	    "h_", "(100,-3.141592654,3.141592654)", "phi", AND(ok_eta,ok_gL1sh,ok_gL2sh),
             AND(ok_gL2dg,ok_gL1dg), "P", kBlue)
 
   ## pads
@@ -370,7 +370,7 @@ if __name__ == "__main__":
             AND(ok_gL1pad,ok_gL2pad), "P", kBlue)
   draw_geff(targetDir, "eff_phi_track_copad_sh_gem", ext, treeTracks, 
 	    "Eff. for a SimTrack to have an associated GEM CoPad with a matched SimHit;SimTrack #phi [rad];Eff.", 
-	    "h_", "(100,-3.141592654,3.141592654)", "phi", AND(ok_eta,AND(ok_gL1sh,ok_gL2sh)),
+	    "h_", "(100,-3.141592654,3.141592654)", "phi", AND(ok_eta,ok_gL1sh,ok_gL2sh),
             AND(ok_gL2pad,ok_gL1pad), "P", kBlue)
 
 
