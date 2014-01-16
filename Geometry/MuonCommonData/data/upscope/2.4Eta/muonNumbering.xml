@@ -240,6 +240,8 @@
   <SpecPar name="MuonRpcEndcap4">
    <PartSelector path="//RR4XP"/>
    <PartSelector path="//RR4XN"/>
+   <PartSelector path="//RR4XXP"/>
+   <PartSelector path="//RR4XXN"/>
    <Parameter name="CopyNoTag" value="[mr_eplane]"/>
    <Parameter name="CopyNoOffset" value="4*[super]"/>
   </SpecPar>
