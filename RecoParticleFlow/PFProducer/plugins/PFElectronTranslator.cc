@@ -564,7 +564,7 @@ void PFElectronTranslator::createGsfElectronCores(reco::GsfElectronCoreCollectio
       std::map<reco::GsfTrackRef,reco::SuperClusterRef>::const_iterator 
 	itcheck=scMap_.find(GsfTrackRef_[iGSF]);
       if(itcheck!=scMap_.end())
-	myElectronCore.setPflowSuperCluster(itcheck->second);
+	myElectronCore.setParentSuperCluster(itcheck->second);
       gsfElectronCores.push_back(myElectronCore);
     }
 }
@@ -613,7 +613,7 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection 
 
       // Mustache
       reco::Mustache myMustache;
-      myMustache.MustacheID(*(myElectron. pflowSuperCluster()), myMvaInput.nClusterOutsideMustache, myMvaInput.etOutsideMustache );
+      myMustache.MustacheID(*(myElectron. parentSuperCluster()), myMvaInput.nClusterOutsideMustache, myMvaInput.etOutsideMustache );
 
       myElectron.setMvaInput(myMvaInput);
 

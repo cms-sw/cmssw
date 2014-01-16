@@ -376,7 +376,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   /*
   int ipho=0;
   for (reco::PhotonCoreCollection::const_iterator gamIter = pcRefProd->begin(); gamIter != pcRefProd->end(); ++gamIter){
-    std::cout << "PhotonCore i="<<ipho<<" energy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    std::cout << "PhotonCore i="<<ipho<<" energy="<<gamIter->parentSuperCluster()->energy()<<std::endl;
     //for (unsigned int i=0; i<)
 
     std::cout << "PhotonCore i="<<ipho<<" nconv2leg="<<gamIter->conversions().size()<<" nconv1leg="<<gamIter->conversionsOneLeg().size()<<std::endl;
@@ -457,7 +457,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   /*
   ipho=0;
   for (reco::PhotonCollection::const_iterator gamIter = photonRefProd->begin(); gamIter != photonRefProd->end(); ++gamIter){
-    std::cout << "Photon i="<<ipho<<" pfEnergy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    std::cout << "Photon i="<<ipho<<" pfEnergy="<<gamIter->parentSuperCluster()->energy()<<std::endl;
     
     const reco::ConversionRefVector & conv = gamIter->conversions();
     cout << "conversions obtained : conv.size()="<< conv.size()<<endl;
@@ -811,7 +811,7 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
       
       myPhotonCore.setPFlowPhoton(true);
       myPhotonCore.setStandardPhoton(false);
-      myPhotonCore.setPflowSuperCluster(SCref);
+      myPhotonCore.setParentSuperCluster(SCref);
       myPhotonCore.setSuperCluster(egSCRef_[iphot]);
 
       reco::ElectronSeedRefVector pixelSeeds = egPhotonRef_[iphot]->electronPixelSeeds();
@@ -902,13 +902,13 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
       //std::cout << "vtx made" << std::endl;
 
-      math::XYZVector direction =  PCref->pfSuperCluster()->position() - vtx;
+      math::XYZVector direction =  PCref->parentSuperCluster()->position() - vtx;
 
       //It could be that pfSC energy gives not the best resolution : use smaller agregates for some cases ?
-      math::XYZVector P3 = direction.unit() * PCref->pfSuperCluster()->energy();
-      LorentzVector P4(P3.x(), P3.y(), P3.z(), PCref->pfSuperCluster()->energy());
+      math::XYZVector P3 = direction.unit() * PCref->parentSuperCluster()->energy();
+      LorentzVector P4(P3.x(), P3.y(), P3.z(), PCref->parentSuperCluster()->energy());
 
-      reco::Photon myPhoton(P4, PCref->pfSuperCluster()->position(), PCref, vtx);
+      reco::Photon myPhoton(P4, PCref->parentSuperCluster()->position(), PCref, vtx);
       //cout << "photon created"<<endl;
 
 
@@ -968,7 +968,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       reco::Photon::PflowIDVariables myPFVariables;
 
       reco::Mustache myMustache;
-      myMustache.MustacheID(*(myPhoton.pfSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache );
+      myMustache.MustacheID(*(myPhoton.parentSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache );
       myPFVariables.mva = pfPhotonMva_[iphot];
       myPhoton.setPflowIDVariables(myPFVariables);
 
@@ -984,36 +984,36 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       //Algorithms from EcalClusterTools could be adapted to PF photons ? (not based on 5x5 BC)
       //It happens that energy computed in eg e5x5 is greater than pfSC energy (EcalClusterTools gathering energies from adjacent crystals even if not belonging to the SC)
       const EcalRecHitCollection* hits = 0 ;
-      int subdet = PCref->pfSuperCluster()->seed()->hitsAndFractions()[0].first.subdetId();
+      int subdet = PCref->parentSuperCluster()->seed()->hitsAndFractions()[0].first.subdetId();
       if (subdet==EcalBarrel) hits = barrelRecHits;
       else if  (subdet==EcalEndcap) hits = endcapRecHits;
       const CaloGeometry* geometry = theCaloGeom_.product();
 
-      float maxXtal =   EcalClusterTools::eMax( *(PCref->pfSuperCluster()->seed()), &(*hits) );
+      float maxXtal =   EcalClusterTools::eMax( *(PCref->parentSuperCluster()->seed()), &(*hits) );
       //cout << "maxXtal="<<maxXtal<<endl;
-      float e1x5    =   EcalClusterTools::e1x5(  *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      float e1x5    =   EcalClusterTools::e1x5(  *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       //cout << "e1x5="<<e1x5<<endl;
-      float e2x5    =   EcalClusterTools::e2x5Max(  *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      float e2x5    =   EcalClusterTools::e2x5Max(  *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       //cout << "e2x5="<<e2x5<<endl;
-      float e3x3    =   EcalClusterTools::e3x3(  *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      float e3x3    =   EcalClusterTools::e3x3(  *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       //cout << "e3x3="<<e3x3<<endl;
-      float e5x5    =   EcalClusterTools::e5x5( *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      float e5x5    =   EcalClusterTools::e5x5( *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       //cout << "e5x5="<<e5x5<<endl;
-      std::vector<float> cov =  EcalClusterTools::covariances( *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology), geometry); 
+      std::vector<float> cov =  EcalClusterTools::covariances( *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology), geometry); 
       float sigmaEtaEta = sqrt(cov[0]);
       //cout << "sigmaEtaEta="<<sigmaEtaEta<<endl;
-      std::vector<float> locCov =  EcalClusterTools::localCovariances( *(PCref->pfSuperCluster()->seed()), &(*hits), &(*topology)); 
+      std::vector<float> locCov =  EcalClusterTools::localCovariances( *(PCref->parentSuperCluster()->seed()), &(*hits), &(*topology)); 
       float sigmaIetaIeta = sqrt(locCov[0]);
       //cout << "sigmaIetaIeta="<<sigmaIetaIeta<<endl;
-      //float r9 =e3x3/(PCref->pfSuperCluster()->rawEnergy());
+      //float r9 =e3x3/(PCref->parentSuperCluster()->rawEnergy());
 
 
       // calculate HoE
       const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
       EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
       EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
-      double HoE1=towerIso1.getTowerESum(&(*PCref->pfSuperCluster()))/PCref->pfSuperCluster()->energy();
-      double HoE2=towerIso2.getTowerESum(&(*PCref->pfSuperCluster()))/PCref->pfSuperCluster()->energy(); 
+      double HoE1=towerIso1.getTowerESum(&(*PCref->parentSuperCluster()))/PCref->pfSuperCluster()->energy();
+      double HoE2=towerIso2.getTowerESum(&(*PCref->parentSuperCluster()))/PCref->pfSuperCluster()->energy(); 
       //cout << "HoE1="<<HoE1<<endl;
       //cout << "HoE2="<<HoE2<<endl;  
 

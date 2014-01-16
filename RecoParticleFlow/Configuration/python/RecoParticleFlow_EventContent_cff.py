@@ -107,8 +107,6 @@ RecoParticleFlowAOD = cms.PSet(
     'keep recoPFRecHits_particleFlowRecHitHCAL_Cleaned_*',
     'keep recoPFRecHits_particleFlowRecHitHO_Cleaned_*',
     'keep recoPFRecHits_particleFlowRecHitPS_Cleaned_*',
-    'keep recoPFClusters_particleFlowClusterECAL_*_*',
-    'keep recoPFClusters_particleFlowClusterPS_*_*',
     #'keep recoPFCandidates_*_*_*',
     'keep recoCaloClusters_particleFlowEGamma_*_*',
     'keep recoSuperClusters_particleFlowEGamma_*_*',    

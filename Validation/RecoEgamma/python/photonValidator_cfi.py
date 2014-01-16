@@ -59,7 +59,7 @@ photonValidation = cms.EDAnalyzer("PhotonValidator",
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
 #
-    r9Bin = cms.int32(100),
+    r9Bin = cms.int32(200),
     r9Min = cms.double(0.0),
     r9Max = cms.double(1.1),
 #
