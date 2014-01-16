@@ -25,8 +25,12 @@
 #include "TLorentzVector.h"
 
 TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet& iConfig) {
-  dqmStore_ = edm::Service<DQMStore>().operator->();
   conf_ = iConfig;
+  trackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
+  referenceTrackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("ReferenceTrackProducer"));
+  jetCollection_ = mayConsume<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
+  
+  dqmStore_ = edm::Service<DQMStore>().operator->();
 }
 
 TkAlCaRecoMonitor::~TkAlCaRecoMonitor() { } 
@@ -34,10 +38,6 @@ TkAlCaRecoMonitor::~TkAlCaRecoMonitor() { }
 void TkAlCaRecoMonitor::beginJob() {
 
   std::string histname;  //for naming the histograms according to algorithm used
-
-  trackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
-  referenceTrackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("ReferenceTrackProducer"));
-  jetCollection_ = mayConsume<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
 
   std::string AlgoName     = conf_.getParameter<std::string>("AlgoName");
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName"); 
