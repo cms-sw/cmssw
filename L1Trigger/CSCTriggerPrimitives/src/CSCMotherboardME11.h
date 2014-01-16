@@ -77,7 +77,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   static const int lut_wg_vs_hs_me1b[48][2];
   static const int lut_wg_vs_hs_me1a[48][2];
   static const int lut_wg_vs_hs_me1ag[48][2];
-  static const double lut_pt_vs_dphi_gemcsc[6][3];
+  static const double lut_pt_vs_dphi_gemcsc[7][3];
 
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool smartME1aME1b, disableME1a, gangedME1a;
