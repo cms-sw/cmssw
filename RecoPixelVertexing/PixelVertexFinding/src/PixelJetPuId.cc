@@ -46,8 +46,6 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
-
-//     double dR2this = deltaR2( jetEta, jetPhi, trkEta, trkPhi );
      
 //
 // class declaration
@@ -185,8 +183,8 @@ void PixelJetPuId::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  {
 	    for(std::vector<reco::Track>::const_iterator itTrack = tracks->begin(); itTrack != tracks->end(); ++itTrack) 
 	      {
-		float deltaR=reco::deltaR2( jetMomentum.eta(), jetMomentum.phi(), itTrack->eta(), itTrack->phi() );
-		if(deltaR<0.5)
+		double deltaR2 = reco::deltaR2( jetMomentum, *itTrack );
+		if(deltaR2<0.25)
 		  {
 		    reco::TransientTrack transientTrack = builder->build(*itTrack);
 		    float jetTrackDistance = -((IPTools::jetTrackDistance(transientTrack, direction, *pv)).second).value();
