@@ -23,10 +23,8 @@ namespace cond {
     }
     
     void BasePayloadProxy::reload(){
-      m_session.transaction().start(true);
-      m_iovProxy.reload();
-      m_session.transaction().commit();
-      invalidateCache();    
+      std::string tag = m_iovProxy.tag();
+      if( !tag.empty() ) loadTag( tag );
     }
     
     ValidityInterval BasePayloadProxy::setIntervalFor(cond::Time_t time, bool load) {

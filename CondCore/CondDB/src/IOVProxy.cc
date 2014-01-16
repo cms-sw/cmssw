@@ -124,7 +124,7 @@ namespace cond {
       // clear
       reset();
       
-      checkSession( "IOVProxy::load" );
+      checkTransaction( "IOVProxy::load" );
       std::string dummy;
       if(!m_session->iovSchema().tagTable().select( tag, m_data->timeType, m_data->payloadType, 
 						    m_data->endOfValidity, dummy, m_data->lastValidatedTime ) ){
@@ -145,7 +145,7 @@ namespace cond {
     }
     
     void IOVProxy::reload(){
-      load( m_data->tag );
+      if(m_data.get() && !m_data->tag.empty()) load( m_data->tag );
     }
     
     void IOVProxy::reset(){
@@ -182,8 +182,9 @@ namespace cond {
       return m_data.get() ? ( m_data->sinceGroups.size()==0 && m_data->iovSequence.size()==0 ) : true; 
     }
     
-    void IOVProxy::checkSession( const std::string& ctx ){
+    void IOVProxy::checkTransaction( const std::string& ctx ) const {
       if( !m_session.get() ) throwException("The session is not active.",ctx );
+      if( !m_session->isTransactionActive( false ) ) throwException("The transaction is not active.",ctx );
     }
     
     void IOVProxy::fetchSequence( cond::Time_t lowerGroup, cond::Time_t higherGroup ){
@@ -227,7 +228,7 @@ namespace cond {
     }
     
     IOVProxy::Iterator IOVProxy::find(cond::Time_t time) {
-      checkSession( "IOVProxy::find" );
+      checkTransaction( "IOVProxy::find" );
       // first check the available iov cache:
       // case 0 empty cache ( the first request )
       
@@ -274,6 +275,7 @@ namespace cond {
     }
 
     cond::Iov_t IOVProxy::getLast(){
+      checkTransaction( "IOVProxy::find" );
       cond::Iov_t ret;
       if( m_session->iovSchema().iovTable().getLastIov( m_data->tag, ret.since, ret.payloadId ) ){
 	ret.till = cond::time::MAX_VAL;
@@ -286,6 +288,7 @@ namespace cond {
     }
     
     int IOVProxy::sequenceSize() const {
+      checkTransaction( "IOVProxy::find" );
       size_t ret = 0;
       m_session->iovSchema().iovTable().getSize( m_data->tag, ret );
       return ret;
