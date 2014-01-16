@@ -91,13 +91,13 @@ class CSCCorrelatedLCTDigi
   float getGEMDPhi() const {return gemDPhi;}
 
   /// LCT phi - gem pad phi for ME11
-  float getGEMDphi() const {return gemDphi;}
+  float getGEMDPhiBits() const {return gemDPhiBits;}
 
   /// set gem pad deltaPhi for ME11
   void setGEMDPhi(const float dphi) {gemDPhi = dphi;}
 
   /// set gem pad deltaPhi for ME11
-  void setGEMDphi(const uint16_t dphi) {gemDphi = dphi;}
+  void setGEMDPhiBits(const uint16_t dphi) {gemDPhiBits = dphi;}
 
  private:
   uint16_t trknmb;
@@ -113,7 +113,7 @@ class CSCCorrelatedLCTDigi
   uint16_t syncErr;
   uint16_t cscID;
   float gemDPhi;
-  uint16_t gemDphi;
+  uint16_t gemDPhiBits;
 };
 
 std::ostream & operator<<(std::ostream & o, const CSCCorrelatedLCTDigi& digi);
