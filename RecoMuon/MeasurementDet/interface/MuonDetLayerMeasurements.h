@@ -46,13 +46,6 @@ class MuonDetLayerMeasurements {
 			   bool enableCSC = true,
 			   bool enableRPC = true,
 			   bool enableGEM = true);
-  //CALABRIA: This is temporary just not to modify also all the files regarding seeding
-  MuonDetLayerMeasurements(edm::InputTag dtlabel,
-			   edm::InputTag csclabel,
-			   edm::InputTag rpclabel,
-			   bool enableDT = true,
-			   bool enableCSC = true,
-			   bool enableRPC = true);
   
   virtual ~MuonDetLayerMeasurements();
   
