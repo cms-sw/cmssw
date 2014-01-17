@@ -41,7 +41,6 @@
 
 #include <iostream>
 
-const bool MYDEBUG = false;
 
 class RectangularPixelTopology;
 class MagneticField;
@@ -53,7 +52,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     Param() : bz(-9e10f) {}
     float bz; // local Bz
     LocalVector drift;
-    float widthLAFraction; // Width-LA to Offset-LA
   };
 
 public:
@@ -76,7 +74,6 @@ public:
 				      const GeomDetUnit    & det ) const 
     {
       nRecHitsTotal_++ ;
-      if(MYDEBUG) std::cout<<" in PixelCPEBase:localParameters(all) - "<<nRecHitsTotal_<<std::endl;  //dk
       setTheDet( det, cl );
       computeAnglesFromDetPosition(cl);
       
@@ -84,8 +81,6 @@ public:
       LocalPoint lp = localPosition( cl);
       LocalError le = localError( cl);        
       
-    if(MYDEBUG) std::cout<<" in PixelCPEBase:localParameters(all) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
-
       return std::make_pair( lp, le );
     }
   
@@ -97,17 +92,12 @@ public:
 			       const LocalTrajectoryParameters & ltp) const 
   {
     nRecHitsTotal_++ ;
-
-    if(MYDEBUG)  std::cout<<" in PixelCPEBase:localParameters(on track) - "<<nRecHitsTotal_<<std::endl;  //dk
-
     setTheDet( det, cl );
     computeAnglesFromTrajectory(cl, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
     LocalPoint lp = localPosition( cl); 
     LocalError le = localError( cl);        
-
-    if(MYDEBUG) std::cout<<" in PixelCPEBase:localParameters(on track) - "<<lp.x()<<" "<<lp.y()<<std::endl;  //dk
     
     return std::make_pair( lp, le );
   } 
@@ -192,8 +182,8 @@ public:
   mutable float theNumOfCol;
   mutable float theDetZ;
   mutable float theDetR;
-  //mutable float theLShiftX;
-  //mutable float theLShiftY;
+  mutable float theLShiftX;
+  mutable float theLShiftY;
   mutable float theSign;
 
   //--- Cluster-level quantities (may need more)
@@ -231,25 +221,20 @@ public:
   unsigned int clusterProbComputationFlag_ ;
 
   //---------------------------
+
+  // [Petar, 2/23/07]
+  // Since the sign of the Lorentz shift appears to
+  // be computed *incorrectly* (i.e. there's a bug) we add new variables
+  // so that we can study the effect of the bug.
   mutable LocalVector driftDirection_;  // drift direction cached // &&&
-  //mutable float lorentzShiftX_;   // a FULL shift, in pitch units 
-  //mutable float lorentzShiftY_;   // a FULL shift,
+  mutable float lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
+  mutable float lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
   mutable float lorentzShiftInCmX_;   // a FULL shift, in cm
   mutable float lorentzShiftInCmY_;   // a FULL shift, in cm
 
-  // Added new members
-  //   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
-  float lAOffset_; // la used to calculate the offset from configuration (for testing) 
-  float lAWidthBPix_;  // la used to calculate the cluster width from conf.  
-  float lAWidthFPix_;  // la used to calculate the cluster width from conf.
-  mutable float lAWidth_;  // la used to calculate the cluster width from conf.
-  bool useLAAlignmentOffsets_; // lorentz angle offsets detrmined by alignment
-  bool useLAOffsetFromConfig_; // lorentz angle used to calculate the offset
-  bool useLAWidthFromConfig_; // lorentz angle used to calculate the cluster width
-  bool useLAWidthFromDB_;     // lorentz angle used to calculate the cluster width
-  mutable float widthLAFraction_; // ratio of with-LA to offset-LA 
 
   //--- Global quantities
+//   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
 
   mutable const MagneticField * magfield_;          // magnetic field
@@ -284,7 +269,7 @@ protected:
 
   LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
   LocalVector driftDirection       ( LocalVector bfield ) const ; //wrong sign
-  //LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
+  LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
   void computeLorentzShifts() const ;
 
   bool isFlipped() const;              // is the det flipped or not?
@@ -296,10 +281,10 @@ protected:
  
 
   //--- The Lorentz shift correction
-  //float lorentzShiftX() const;
-  //float lorentzShiftY() const;
-
-
+  float lorentzShiftX() const;
+  float lorentzShiftY() const;
+ 
+  
   LocalVector const & getDrift() const {return  driftDirection_ ;}
  
 
