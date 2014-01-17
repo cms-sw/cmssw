@@ -247,14 +247,11 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   {
     const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
   
-    for( std::vector<GEMEtaPartition *>::const_iterator it = gemGeom->etaPartitions().begin(),
-						       end = gemGeom->etaPartitions().end(); 
-	 it != end; ++it )
+    for(auto roll : gemGeom->etaPartitions())
     { 
-      GEMEtaPartition* roll = (*it);
       if( roll )
       {
-	unsigned int rawid = (*it)->geographicalId().rawId();
+	unsigned int rawid = roll->geographicalId().rawId();
 	unsigned int current = insert_id( rawid );
 	fillShapeAndPlacement( current, roll );
 
@@ -284,41 +281,40 @@ FWRecoGeometryESProducer::addME0Geometry( void )
   //                                                                                                                               
   // ME0 geometry                                                                                                                  
   //   
-  std::cout <<" ************** Adding ME0 to fireworks"<<std::endl;
 
   DetId detId( DetId::Muon, 5 );
-  std::cout <<" ************** ME0 Det ID "<<std::endl; 
-  const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
-  std::cout <<" ************** Get the ME0 Geometry "<<std::endl;
-  for( std::vector<ME0EtaPartition *>::const_iterator it = me0Geom->etaPartitions().begin(),
-	 end = me0Geom->etaPartitions().end();
-       it != end; ++it )
-    {
-      ME0EtaPartition* roll = (*it);
+  try 
+  {
+    const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
+  
+    for(auto roll : me0Geom->etaPartitions())
+    { 
       if( roll )
-	{
-	  unsigned int rawid = (*it)->geographicalId().rawId();
-	  std::cout <<" ************** Got the Chamber  "<<rawid<<std::endl;
-	  std::cout <<" roll "<< roll->id()<<std::endl; 
-	  unsigned int current = insert_id( rawid );
-	  fillShapeAndPlacement( current, roll );
-
-	  //const StripTopology& topo = roll->specificTopology();
-	  //  m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-	  // m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-	  //m_fwGeometry->idToName[current].topology[2] = topo.pitch();
-
-	  //float height = topo.stripLength()/2;
-	  // LocalPoint  lTop( 0., height, 0.);
-	  //LocalPoint  lBottom( 0., -height, 0.);
-	  //m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
-	  //m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
-	  //m_fwGeometry->idToName[current].topology[5] = roll->npads();
-	}
+      {
+	unsigned int rawid = roll->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, roll );
+	  
+	//const StripTopology& topo = roll->specificTopology();
+	//  m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	// m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	//m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+	
+	//float height = topo.stripLength()/2;
+	// LocalPoint  lTop( 0., height, 0.);
+	//LocalPoint  lBottom( 0., -height, 0.);
+	//m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	//m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	//m_fwGeometry->idToName[current].topology[5] = roll->npads();
+      }
     }
-}
-
-
+  }
+  catch( cms::Exception &exception )
+  {
+    edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
+  }
+}  
+  
 void
 FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
 {
