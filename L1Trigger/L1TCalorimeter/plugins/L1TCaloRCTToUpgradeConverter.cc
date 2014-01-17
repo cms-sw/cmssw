@@ -13,7 +13,7 @@
 
 #include <vector>
 
-#include <stdio.h>
+//#include <stdio.h>
 
 l1t::L1TCaloRCTToUpgradeConverter::L1TCaloRCTToUpgradeConverter(const edm::ParameterSet& ps) {
 
@@ -25,10 +25,6 @@ l1t::L1TCaloRCTToUpgradeConverter::L1TCaloRCTToUpgradeConverter(const edm::Param
 
   firstBx_ = -ps.getParameter<unsigned>("preSamples");
   lastBx_  =  ps.getParameter<unsigned>("postSamples");
-
-  // printf("firstBX: %i\n",firstBx_);
-  // printf("lastBX: %i\n",lastBx_);
-
 
 }
 
@@ -78,7 +74,6 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
 
     // create new format
     emcands->push_back( em->bx(), EmCand );
-    //printf("em bx: %i\n",em->bx());
 
   }
 
@@ -110,7 +105,6 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
 
     // add to output
     regions->push_back( rgn->bx(), region );
-    //printf("reg bx: %i\n",rgn->bx());
 
   }
 

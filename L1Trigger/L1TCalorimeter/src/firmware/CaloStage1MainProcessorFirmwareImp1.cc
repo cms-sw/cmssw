@@ -20,10 +20,10 @@ CaloStage1MainProcessorFirmwareImp1::~CaloStage1MainProcessorFirmwareImp1(){};
 
 void CaloStage1MainProcessorFirmwareImp1::processEvent(const std::vector<CaloEmCand> & emcands,
 						       const std::vector<CaloRegion> & regions,
-						       std::vector<EGamma> & egammas,
-						       std::vector<Tau> & taus,
-						       std::vector<Jet> & jets,
-						       std::vector<EtSum> & etsums){
+						       std::vector<EGamma> * egammas,
+						       std::vector<Tau> * taus,
+						       std::vector<Jet> * jets,
+						       std::vector<EtSum> * etsums){
 
   if (m_fwv.firmwareVersion() == 1) { //HI algo
     m_jetAlgo = new CaloStage1JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo

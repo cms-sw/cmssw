@@ -14,6 +14,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 //#include "DataFormats/Candidate/interface/LeafCandidate.h"
+//#include <stdio.h>
 
 using namespace std;
 using namespace l1t;
@@ -23,19 +24,20 @@ CaloStage1JetAlgorithmImpHI::CaloStage1JetAlgorithmImpHI(/*const CaloParams & db
 
 CaloStage1JetAlgorithmImpHI::~CaloStage1JetAlgorithmImpHI(){};
 
-void puSubtraction(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> subRegions);
+void puSubtraction(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> *subRegions);
 
 void CaloStage1JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
-					       std::vector<l1t::Jet> & jets){
+					       std::vector<l1t::Jet> * jets){
 
-  std::vector<l1t::CaloRegion> subRegions;
+  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   puSubtraction(regions, subRegions);
   slidingWindowJetFinder(subRegions, jets);
 
+  delete subRegions;
 }
 
 // NB PU is not in the physical scale!!  Needs to be multiplied by regionLSB
-void puSubtraction(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> subRegions)
+void puSubtraction(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> *subRegions)
 {
   int puLevelHI[L1CaloRegionDetId::N_ETA];
   double r_puLevelHI[L1CaloRegionDetId::N_ETA];
@@ -66,6 +68,6 @@ void puSubtraction(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t
       new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
     CaloRegion newSubRegion(*lorentz, 0, 0, subPt, subEta, subPhi, 0, 0, 0);
-    subRegions.push_back(newSubRegion);
+    subRegions->push_back(newSubRegion);
   }
 }

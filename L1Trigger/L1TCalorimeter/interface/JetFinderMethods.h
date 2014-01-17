@@ -18,8 +18,8 @@
 namespace l1t {
 
   int deltaGctPhi(const CaloRegion & region, const CaloRegion & neighbor);
-  void slidingWindowJetFinder(const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::Jet> & jets);
+  void slidingWindowJetFinder(const std::vector<l1t::CaloRegion> * regions,
+			      std::vector<l1t::Jet> * jets);
 }
 
 #endif

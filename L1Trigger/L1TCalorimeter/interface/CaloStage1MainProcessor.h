@@ -31,10 +31,10 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<CaloEmCand> &,
 			      const std::vector<CaloRegion> &,
-			      std::vector<EGamma> & egammas,
-			      std::vector<Tau> & taus,
-			      std::vector<Jet> & jets,
-			      std::vector<EtSum> & etsums) = 0;
+			      std::vector<EGamma> * egammas,
+			      std::vector<Tau> * taus,
+			      std::vector<Jet> * jets,
+			      std::vector<EtSum> * etsums) = 0;
 
     virtual ~CaloStage1MainProcessor(){};
   };

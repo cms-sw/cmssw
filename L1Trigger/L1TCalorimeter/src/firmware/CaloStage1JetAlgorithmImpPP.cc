@@ -23,15 +23,16 @@ CaloStage1JetAlgorithmImpPP::CaloStage1JetAlgorithmImpPP(/*const CaloParams & db
 
 CaloStage1JetAlgorithmImpPP::~CaloStage1JetAlgorithmImpPP(){};
 
-void puSubtractionPP(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> subRegions);
+void puSubtractionPP(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> * subRegions);
 
 
 void CaloStage1JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
-					       std::vector<l1t::Jet> & jets){
+					       std::vector<l1t::Jet> * jets){
 
-  std::vector<l1t::CaloRegion> subRegions;
+  std::vector<l1t::CaloRegion> * subRegions = new std::vector<l1t::CaloRegion>();
   puSubtractionPP(regions, subRegions);
   slidingWindowJetFinder(subRegions, jets);
+  delete subRegions;
 
   // std::vector<l1t::CaloRegion>::const_iterator incell;
   // for (incell = regions.begin(); incell != regions.end(); ++incell){
@@ -41,7 +42,7 @@ void CaloStage1JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion
 }
 
 // NB PU is not in the physical scale!!  Needs to be multiplied by regionLSB
-void puSubtractionPP(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> subRegions)
+void puSubtractionPP(const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::CaloRegion> * subRegions)
 {
   // do nothing for now
 }

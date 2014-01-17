@@ -18,7 +18,7 @@ namespace l1t {
   class CaloStage1JetAlgorithm {
   public:
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::Jet> & jets) = 0;
+			      std::vector<l1t::Jet> * jets) = 0;
 
     virtual ~CaloStage1JetAlgorithm(){};
 

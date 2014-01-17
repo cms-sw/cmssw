@@ -145,18 +145,17 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //producer is responsible for splitting the BXVector into pieces for
   //the firmware to handle
-
-  for(int i = bxFirst; i < bxLast; ++i)
+  for(int i = bxFirst; i <= bxLast; ++i)
   {
     //make local inputs
-    std::auto_ptr<std::vector<l1t::CaloRegion>> localRegions (new std::vector<l1t::CaloRegion>);
-    std::auto_ptr<std::vector<l1t::CaloEmCand>> localEmCands (new std::vector<l1t::CaloEmCand>);
+    std::vector<l1t::CaloRegion> *localRegions = new std::vector<l1t::CaloRegion>();
+    std::vector<l1t::CaloEmCand> *localEmCands = new std::vector<l1t::CaloEmCand>();
 
     //make local outputs
-    std::auto_ptr<std::vector<l1t::EGamma>> localEGammas (new std::vector<l1t::EGamma>);
-    std::auto_ptr<std::vector<l1t::Tau>> localTaus (new std::vector<l1t::Tau>);
-    std::auto_ptr<std::vector<l1t::Jet>> localJets (new std::vector<l1t::Jet>);
-    std::auto_ptr<std::vector<l1t::EtSum>> localEtSums (new std::vector<l1t::EtSum>);
+    std::vector<l1t::EGamma> *localEGammas = new std::vector<l1t::EGamma>();
+    std::vector<l1t::Tau> *localTaus = new std::vector<l1t::Tau>();
+    std::vector<l1t::Jet> *localJets = new std::vector<l1t::Jet>();
+    std::vector<l1t::EtSum> *localEtSums = new std::vector<l1t::EtSum>();
 
     // copy over the inputs -> there must be a better way to do this
     for(std::vector<l1t::CaloRegion>::const_iterator region = caloRegions->begin(i); region != caloRegions->end(i); ++region)
@@ -166,8 +165,7 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //run the firmware on one event
     m_fw->processEvent(*localEmCands, *localRegions,
-		       *localEGammas, *localTaus, *localJets, *localEtSums);
-
+		       localEGammas, localTaus, localJets, localEtSums);
 
     // copy the output into the BXVector -> there must be a better way
     for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
@@ -178,7 +176,16 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
       jets->push_back(i, *jet);
     for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
+
+    delete localRegions;
+    delete localEmCands;
+    delete localEGammas;
+    delete localTaus;
+    delete localJets;
+    delete localEtSums;
+
   }
+
 
   iEvent.put(egammas);
   iEvent.put(taus);

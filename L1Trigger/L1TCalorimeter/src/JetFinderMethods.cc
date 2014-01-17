@@ -26,10 +26,10 @@ namespace l1t {
     return diff;
   }
 
-  void slidingWindowJetFinder(const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::Jet> & jets)
+  void slidingWindowJetFinder(const std::vector<l1t::CaloRegion> * regions,
+			      std::vector<l1t::Jet> * jets)
   {
-    for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
+    for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       double regionET = region->hwPt(); //regionPhysicalEt(*region);
       double neighborN_et = 0;
       double neighborS_et = 0;
@@ -40,7 +40,7 @@ namespace l1t {
       double neighborNW_et = 0;
       double neighborSE_et = 0;
       unsigned int nNeighbors = 0;
-      for(std::vector<CaloRegion>::const_iterator neighbor = regions.begin(); neighbor != regions.end(); neighbor++) {
+      for(std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
 	double neighborET = neighbor->hwPt(); //regionPhysicalEt(*neighbor);
 	if(deltaGctPhi(*region, *neighbor) == 1 &&
 	   (region->hwEta()    ) == neighbor->hwEta()) {
@@ -137,7 +137,7 @@ namespace l1t {
 	l1t::Jet theJet(*jetLorentz, jetET, jetEta, jetPhi);
 	//l1t::Jet theJet(0, jetET, jetEta, jetPhi);
 
-	jets.push_back(theJet);
+	jets->push_back(theJet);
       }
     }
   }
