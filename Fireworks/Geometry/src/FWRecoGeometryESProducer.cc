@@ -111,12 +111,8 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
 {
   DetId detId( DetId::Muon, 2 ); 
   const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<CSCChamber*>::const_iterator it = cscGeometry->chambers().begin(),
-					       end = cscGeometry->chambers().end(); 
-       it != end; ++it )
+  for(auto chamber : cscGeometry->chambers())
   {
-    const CSCChamber *chamber = *it;
-    
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId();
@@ -125,12 +121,8 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
       //
       // CSC layers geometry
       //
-      for( std::vector< const CSCLayer* >::const_iterator lit = chamber->layers().begin(),
-							 lend = chamber->layers().end(); 
-	   lit != lend; ++lit )
+      for(auto layer : chamber->layers())
       {
-	const CSCLayer* layer = *lit;
-    
 	if( layer )
 	{
 	  unsigned int rawid = layer->geographicalId();
@@ -163,12 +155,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   //
   // DT chambers geometry
   //
-  for( std::vector<DTChamber *>::const_iterator it = dtGeometry->chambers().begin(),
-					       end = dtGeometry->chambers().end(); 
-       it != end; ++it )
+  for(auto chamber : dtGeometry->chambers())
   {
-    const DTChamber *chamber = *it;
-    
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId().rawId();
@@ -178,12 +166,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   }
 
   // Fill in DT layer parameters
-  for( std::vector<DTLayer*>::const_iterator it = dtGeometry->layers().begin(),
-					    end = dtGeometry->layers().end(); 
-       it != end; ++it )
+  for(auto layer : dtGeometry->layers())
   {
-    const DTLayer* layer = *it;
-     
     if( layer )
     {
       unsigned int rawid = layer->id().rawId();
@@ -215,23 +199,28 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
   // RPC rolls geometry
   //
   DetId detId( DetId::Muon, 3 );
-  const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<RPCRoll *>::const_iterator it = rpcGeom->rolls().begin(),
-					     end = rpcGeom->rolls().end(); 
-       it != end; ++it )
-  {
-    RPCRoll* roll = (*it);
-    if( roll )
-    {
-      unsigned int rawid = roll->geographicalId().rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, roll );
 
-      const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-      m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-      m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+  try 
+  {
+    const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
+    for(auto roll : rpcGeom->rolls())
+    {
+      if( roll )
+      {
+	unsigned int rawid = roll->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, roll );
+	
+	const StripTopology& topo = roll->specificTopology();
+	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+      }
     }
+  }
+  catch( cms::Exception &exception )
+  {
+    edm::LogInfo("FWRecoGeometry") << "failed to produce RPC geometry " << exception.what() << std::endl;
   }
 }
 
