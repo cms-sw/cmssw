@@ -20,7 +20,7 @@ from RecoTracker.TrackProducer.CTFPixelLess_cff import *
 from RecoTracker.TrackProducer.CTFCombinedSeeds_cff import *
 ctfTracksNoOverlaps = cms.Sequence(ckfTrackCandidatesNoOverlaps*ctfNoOverlaps)
 ctfTracksPixelLess = cms.Sequence(pixelLessLayerPairs4PixelLessTracking*globalPixelLessSeeds*ckfTrackCandidatesPixelLess*ctfPixelLess)
-ctfTracksCombinedSeeds = cms.Sequence(globalSeedsFromPairsWithVertices*PixelLayerTriplets*globalSeedsFromTriplets*globalCombinedSeeds*ckfTrackCandidatesCombinedSeeds*ctfCombinedSeeds)
+ctfTracksCombinedSeeds = cms.Sequence(MixedLayerPairs*globalSeedsFromPairsWithVertices*PixelLayerTriplets*globalSeedsFromTriplets*globalCombinedSeeds*ckfTrackCandidatesCombinedSeeds*ctfCombinedSeeds)
 
 #
 # Regional reconstruction for cosmics
