@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This is standard pixel-triplet seeding, but making use of TEC disks
 # in forward region to boost acceptance.
 
-mixedlayertriplets = cms.ESProducer("SeedingLayersESProducer",
+MixedLayerTriplets = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2+BPix3', 
         'BPix1+BPix2+FPix1_pos', 
         'BPix1+BPix2+FPix1_neg', 
@@ -20,7 +20,6 @@ mixedlayertriplets = cms.ESProducer("SeedingLayersESProducer",
         'FPix1_neg+FPix2_neg+TEC1_neg', 
         'FPix1_pos+FPix2_pos+TEC2_pos', 
         'FPix1_neg+FPix2_neg+TEC2_neg'),
-    ComponentName = cms.string('MixedLayerTriplets'),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         TTRHBuilder = cms.string('WithTrackAngle')
