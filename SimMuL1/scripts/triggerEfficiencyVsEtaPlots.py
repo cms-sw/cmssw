@@ -9,14 +9,30 @@ sys.argv.append( '-b' )
 import ROOT
 ROOT.gROOT.SetBatch(1)
 
-## global variables
-gMinEta = 1.45
-gMaxEta = 2.5
+#_______________________________________________________________________________
+def drawALCTTriggerLabel(x=0.17, y=0.25, font_size=0.):
+  """Label for pile-up"""
+  tex = TLatex(x, y,"ALCT pre-trigger = %d; ALCT trigger = %d"%(alctPreTrigger, alctTrigger))
+  if (font_size > 0.):
+      tex.SetFontSize(font_size)
+  tex.SetNDC()
+  tex.Draw("same")
+  return tex
 
 #_______________________________________________________________________________
 def drawPULabel(x=0.17, y=0.2, font_size=0.):
   """Label for pile-up"""
-  tex = TLatex(x, y,"PU0")
+  tex = TLatex(x, y,"PU0 = %d"%(pu))
+  if (font_size > 0.):
+      tex.SetFontSize(font_size)
+  tex.SetNDC()
+  tex.Draw("same")
+  return tex
+
+#_______________________________________________________________________________
+def drawCLCTTriggerLabel(x=0.17, y=0.25, font_size=0.):
+  """Label for pile-up"""
+  tex = TLatex(x, y,"CLCT pre-trigger = %d; CLCT trigger = %d"%(clctPreTrigger, clctTrigger))
   if (font_size > 0.):
       tex.SetFontSize(font_size)
   tex.SetNDC()
@@ -1866,7 +1882,13 @@ if __name__ == "__main__":
     minSimPt = 10
     maxSimPt = 50
     minSimHitChamber = 4
+    clctPreTrigger = 3
+    clctTrigger = 4
+    alctPreTrigger = 3
+    alctTrigger = 4
 
+    pu = 140
+    
     output_dir = "plots/"
 
     reuseOutputDirectory = False
