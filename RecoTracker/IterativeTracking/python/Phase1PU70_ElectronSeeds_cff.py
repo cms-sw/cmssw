@@ -14,8 +14,7 @@ pixelPairStepSeedClusterMask = seedClusterRemover.clone(
     oldClusterRemovalInfo = cms.InputTag("highPtTripletStepSeedClusterMask")
 )
 
-tripletElectronSeedLayers = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('tripletElectronSeedLayers'),
+tripletElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
                             'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
                             'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
@@ -51,7 +50,7 @@ tripletElectronSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.g
     )
     )
 )
-tripletElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('tripletElectronSeedLayers')
+tripletElectronSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('tripletElectronSeedLayers')
 tripletElectronSeeds.ClusterCheckPSet.doClusterCheck = cms.bool(False)
 tripletElectronSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(0)
 
@@ -76,5 +75,6 @@ newCombinedSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCom
 electronSeedsSeq = cms.Sequence(initialStepSeedClusterMask*
                                 highPtTripletStepSeedClusterMask*
                                 pixelPairStepSeedClusterMask*
+                                tripletElectronSeedLayers*
                                 tripletElectronSeeds*
                                 newCombinedSeeds)

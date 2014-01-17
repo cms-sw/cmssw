@@ -8,7 +8,7 @@ from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import *
 seedGeneratorFromRegionHitsEDProducer = cms.EDProducer("SeedGeneratorFromRegionHitsEDProducer",
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string(''),
-        SeedingLayers = cms.string(''),
+        SeedingLayers = cms.InputTag(''),
         maxElement = cms.uint32(1000000)
     ),
     SeedComparitorPSet = cms.PSet(

@@ -24,8 +24,7 @@ hiMixedTripletClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # SEEDING LAYERS
-hiMixedTripletSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
-                                             ComponentName = cms.string('hiMixedTripletSeedLayersA'),
+hiMixedTripletSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
                                              layerList = cms.vstring('FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg'),
                                                                      #'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
                                    BPix = cms.PSet(
@@ -68,8 +67,7 @@ hiMixedTripletSeedsA.ClusterCheckPSet.MaxNumberOfCosmicClusters = 50000000
 
 
 # SEEDING LAYERS
-hiMixedTripletSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
-                                   ComponentName = cms.string('hiMixedTripletSeedLayersB'),
+hiMixedTripletSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
                                    layerList = cms.vstring(
     #'BPix1+BPix2+TIB1',
     #'BPix1+BPix2+TIB2',    
@@ -198,7 +196,9 @@ hiMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiT
 
 hiMixedTripletStep = cms.Sequence(
                           hiMixedTripletClusters*
+                          hiMixedTripletSeedLayersA*
                           hiMixedTripletSeedsA*
+                          hiMixedTripletSeedLayersB*
                           hiMixedTripletSeedsB*
                           hiMixedTripletSeeds*
                           hiMixedTripletTrackCandidates*
