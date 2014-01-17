@@ -51,8 +51,10 @@ source="reco::PFCandidateRefVector selectedSignalPFCands_;"
 target="selectedSignalPFCands_"
 include="DataFormats/Common/interface/RefToPtr.h">
     <![CDATA[
-for(size_t it=0; it<onfile.selectedSignalPFCands_.size();it++)
- selectedSignalPFCands_.at(it) = edm::refToPtr(onfile.selectedSignalPFCands_.at(it));
+   selectedSignalPFCands_.reserve(onfile.selectedSignalPFCands_.size());
+for(auto const& ref : onfile.selectedSignalPFCands_) { 
+   selectedSignalPFCands_.push_back(edm::refToPtr(ref));
+}
 ]]>
 </ioread>
 
@@ -62,9 +64,10 @@ source="reco::PFCandidateRefVector selectedSignalPFChargedHadrCands_;"
 target="selectedSignalPFChargedHadrCands_"
 include="DataFormats/Common/interface/RefToPtr.h">
     <![CDATA[
-for(size_t it=0; it<onfile.selectedSignalPFChargedHadrCands_.size();it++)
- selectedSignalPFChargedHadrCands_.at(it) =
- edm::refToPtr(onfile.selectedSignalPFChargedHadrCands_.at(it));
+selectedSignalPFChargedHadrCands_.reserve(onfile.selectedSignalPFChargedHadrCands_.size());
+for(auto const& ref : onfile.selectedSignalPFChargedHadrCands_) { 
+   selectedSignalPFChargedHadrCands_.push_back(edm::refToPtr(ref));
+}
 ]]>
 </ioread>
 
@@ -74,9 +77,10 @@ source="reco::PFCandidateRefVector selectedSignalPFNeutrHadrCands_;"
 target="selectedSignalPFNeutrHadrCands_"
 include="DataFormats/Common/interface/RefToPtr.h">
     <![CDATA[
-for(size_t it=0; it<onfile.selectedSignalPFNeutrHadrCands_.size();it++)
- selectedSignalPFNeutrHadrCands_.at(it) =
- edm::refToPtr(onfile.selectedSignalPFNeutrHadrCands_.at(it));
+selectedSignalPFNeutrHadrCands_.reserve(onfile.selectedSignalPFNeutrHadrCands_.size());
+for(auto const& ref : onfile.selectedSignalPFNeutrHadrCands_) { 
+   selectedSignalPFNeutrHadrCands_.push_back(edm::refToPtr(ref));
+}
 ]]>
 </ioread>
 
@@ -86,9 +90,10 @@ source="reco::PFCandidateRefVector selectedSignalPFGammaCands_;"
 target="selectedSignalPFGammaCands_"
 include="DataFormats/Common/interface/RefToPtr.h">
     <![CDATA[
-for(size_t it=0; it<onfile.selectedSignalPFGammaCands_.size();it++)
- selectedSignalPFGammaCands_.at(it) =
- edm::refToPtr(onfile.selectedSignalPFGammaCands_.at(it));
+selectedSignalPFGammaCands_.reserve(onfile.selectedSignalPFGammaCands_.size());
+for(auto const& ref : onfile.selectedSignalPFGammaCands_) { 
+   selectedSignalPFGammaCands_.push_back(edm::refToPtr(ref));
+}
 ]]>
 </ioread>
 
@@ -98,9 +103,10 @@ source="reco::PFCandidateRefVector selectedIsolationPFCands_;"
 target="selectedIsolationPFCands_"
 include="DataFormats/Common/interface/RefToPtr.h">
     <![CDATA[
-for(size_t it=0; it<onfile.selectedIsolationPFCands_.size();it++)
- selectedIsolationPFCands_.at(it) =
- edm::refToPtr(onfile.selectedIsolationPFCands_.at(it));
+   selectedIsolationPFCands_.reserve(onfile.selectedIsolationPFCands_.size());
+for(auto const& ref : onfile.selectedIsolationPFCands_) { 
+   selectedIsolationPFCands_.push_back(edm::refToPtr(ref));
+}
 ]]>
 </ioread>
 
@@ -110,10 +116,10 @@ source="reco::PFCandidateRefVector selectedIsolationPFChargedHadrCands_;"
 target="selectedIsolationPFChargedHadrCands_"
 include="DataFormats/Common/interface/RefToPtr.h">
     <![CDATA[
-for(size_t it=0;
- it<onfile.selectedIsolationPFChargedHadrCands_.size();it++)
- selectedIsolationPFChargedHadrCands_.at(it) =
- edm::refToPtr(onfile.selectedIsolationPFChargedHadrCands_.at(it));
+selectedIsolationPFChargedHadrCands_.reserve(onfile.selectedIsolationPFChargedHadrCands_.size());
+for(auto const& ref : onfile.selectedIsolationPFChargedHadrCands_) { 
+   selectedIsolationPFChargedHadrCands_.push_back(edm::refToPtr(ref));
+}
 ]]>
 </ioread>
 
@@ -123,10 +129,10 @@ source="reco::PFCandidateRefVector selectedIsolationPFNeutrHadrCands_;"
 target="selectedIsolationPFNeutrHadrCands_"
 include="DataFormats/Common/interface/RefToPtr.h">
     <![CDATA[
-for(size_t it=0;
- it<onfile.selectedIsolationPFNeutrHadrCands_.size();it++)
- selectedIsolationPFNeutrHadrCands_.at(it) =
- edm::refToPtr(onfile.selectedIsolationPFNeutrHadrCands_.at(it));
+selectedIsolationPFNeutrHadrCands_.reserve(onfile.selectedIsolationPFNeutrHadrCands_.size());
+for(auto const& ref : onfile.selectedIsolationPFNeutrHadrCands_) { 
+   selectedIsolationPFNeutrHadrCands_.push_back(edm::refToPtr(ref));
+}
 ]]>
 </ioread>
 
@@ -136,11 +142,65 @@ source="reco::PFCandidateRefVector selectedIsolationPFGammaCands_;"
 target="selectedIsolationPFGammaCands_"
 include="DataFormats/Common/interface/RefToPtr.h">
     <![CDATA[
-for(size_t it=0; it<onfile.selectedIsolationPFGammaCands_.size();it++)
- selectedIsolationPFGammaCands_.at(it) =
- edm::refToPtr(onfile.selectedIsolationPFGammaCands_.at(it));
+selectedIsolationPFGammaCands_.reserve(onfile.selectedIsolationPFGammaCands_.size());
+for(auto const& ref : onfile.selectedIsolationPFGammaCands_) { 
+   selectedIsolationPFGammaCands_.push_back(edm::refToPtr(ref));
+}
 ]]>
 </ioread>
+
+
+
+
+<!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
+<!-- source="reco::PFCandidateRefVector selectedIsolationPFCands_;" -->
+<!--  targetClass="reco::PFTau" -->
+<!-- target="selectedIsolationPFCands_" -->
+<!-- include="DataFormats/Common/interface/RefToPtr.h"> -->
+<!--     <![CDATA[ -->
+<!-- for(size_t it=0; it<onfile.selectedIsolationPFCands_.size();it++) -->
+<!--  selectedIsolationPFCands_.at(it) = -->
+<!--  edm::refToPtr(onfile.selectedIsolationPFCands_.at(it)); -->
+<!-- ]]> -->
+<!-- </ioread> -->
+
+<!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
+<!-- source="reco::PFCandidateRefVector selectedIsolationPFChargedHadrCands_;" -->
+<!--  targetClass="reco::PFTau" -->
+<!-- target="selectedIsolationPFChargedHadrCands_" -->
+<!-- include="DataFormats/Common/interface/RefToPtr.h"> -->
+<!--     <![CDATA[ -->
+<!-- for(size_t it=0; -->
+<!--  it<onfile.selectedIsolationPFChargedHadrCands_.size();it++) -->
+<!--  selectedIsolationPFChargedHadrCands_.at(it) = -->
+<!--  edm::refToPtr(onfile.selectedIsolationPFChargedHadrCands_.at(it)); -->
+<!-- ]]> -->
+<!-- </ioread> -->
+
+<!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
+<!-- source="reco::PFCandidateRefVector selectedIsolationPFNeutrHadrCands_;" -->
+<!--  targetClass="reco::PFTau" -->
+<!-- target="selectedIsolationPFNeutrHadrCands_" -->
+<!-- include="DataFormats/Common/interface/RefToPtr.h"> -->
+<!--     <![CDATA[ -->
+<!-- for(size_t it=0; -->
+<!--  it<onfile.selectedIsolationPFNeutrHadrCands_.size();it++) -->
+<!--  selectedIsolationPFNeutrHadrCands_.at(it) = -->
+<!--  edm::refToPtr(onfile.selectedIsolationPFNeutrHadrCands_.at(it)); -->
+<!-- ]]> -->
+<!-- </ioread> -->
+
+<!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
+<!-- source="reco::PFCandidateRefVector selectedIsolationPFGammaCands_;" -->
+<!--  targetClass="reco::PFTau" -->
+<!-- target="selectedIsolationPFGammaCands_" -->
+<!-- include="DataFormats/Common/interface/RefToPtr.h"> -->
+<!--     <![CDATA[ -->
+<!-- for(size_t it=0; it<onfile.selectedIsolationPFGammaCands_.size();it++) -->
+<!--  selectedIsolationPFGammaCands_.at(it) = -->
+<!--  edm::refToPtr(onfile.selectedIsolationPFGammaCands_.at(it)); -->
+<!-- ]]> -->
+<!-- </ioread> -->
 
 
   <class name="reco::PFTauDecayMode" ClassVersion="10">

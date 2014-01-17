@@ -23,6 +23,7 @@
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
 #include "DataFormats/TauReco/interface/PFJetChargedHadronAssociation.h"
@@ -34,6 +35,7 @@
 #include <vector>
 #include <map>
 #include "TLorentzVector.h"
+
 
 namespace DataFormats_TauReco {
   struct dictionary2 {
@@ -97,3 +99,6 @@ namespace DataFormats_TauReco {
     edm::Wrapper<reco::CaloTauDiscriminator>         calodi_w;
   };
 }
+
+
+
