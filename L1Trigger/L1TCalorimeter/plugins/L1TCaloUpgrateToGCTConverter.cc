@@ -4,14 +4,13 @@
 
 l1t::L1TCaloUpgrateToGCTConverter::L1TCaloUpgrateToGCTConverter(const ParameterSet& iConfig)
   {
-   
-   
+
     
     produces<L1GctEmCandCollection>("isoEm");
     produces<L1GctEmCandCollection>("nonIsoEm");
     produces<L1GctJetCandCollection>("cenJets");
     produces<L1GctJetCandCollection>("forJets");
-    produces<L1GctJetCandCollection>("tauJets");
+    produces<L1GctJetCandCollection>("tauJets");  
     produces<L1GctInternJetDataCollection>();
     produces<L1GctEtTotalCollection>();
     produces<L1GctEtHadCollection>();
@@ -23,10 +22,10 @@ l1t::L1TCaloUpgrateToGCTConverter::L1TCaloUpgrateToGCTConverter(const ParameterS
     produces<L1GctHFRingEtSumsCollection>();
       
     // register what you consume and keep token for later access:
-    EGammaToken_ = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
-    TauToken_ = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
-    JetToken_ = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("CaloRegions"));
-    EtSumToken_ = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("CaloEmCands"));
+    EGammaToken_ = consumes<L1TEGammaCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+    TauToken_ = consumes<L1TTauCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+    JetToken_ = consumes<L1TJetCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+    EtSumToken_ = consumes<L1TEtSumCollection>(iConfig.getParameter<InputTag>("InputCollection"));
 
    
   }
@@ -81,9 +80,7 @@ l1t::L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
     std::auto_ptr<L1GctInternJetDataCollection> internalJetResult   (new L1GctInternJetDataCollection( ));
     std::auto_ptr<L1GctInternEtSumCollection>   internalEtSumResult (new L1GctInternEtSumCollection  ( ));
     std::auto_ptr<L1GctInternHtMissCollection>  internalHtMissResult(new L1GctInternHtMissCollection ( ));
-    
-    
-    
+   
     
     //Finding the BX range for each input collection
     int firstBxEGamma = EGamma->getFirstBX();
@@ -94,21 +91,23 @@ l1t::L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
     int lastBxJet = Jet->getLastBX();
     int firstBxEtSum = EtSum->getFirstBX();
     int lastBxEtSum = EtSum->getLastBX();
-    
+   
     
     //Looping over EGamma BXVector
     for(int itBX=firstBxEGamma; itBX!=lastBxEGamma; ++itBX){
-        
+        cout << "Doing Egamma bx " << itBX << endl;
+		
         //looping over EGamma elments with a specific BX
         L1TEGammaCollection::const_iterator itEGamma = EGamma->begin(itBX);
         for(; itEGamma != EGamma->end(itBX); ++itEGamma){
-            l1t::EGamma tmpEGamma = *itEGamma;
-            bool iso = tmpEGamma.hwIso();
+            bool iso = itEGamma->hwIso();
             
             L1GctEmCand EmCand(itEGamma->hwPt(), itEGamma->hwPhi(), itEGamma->hwEta(), iso, 0, 0, itBX);             //L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso, uint16_t block, uint16_t index, int16_t bx);
 
             if(iso) isoEmResult->push_back(EmCand);
             else nonIsoEmResult->push_back(EmCand);
+	    cout << "pushed  Egamma bx " << itBX << endl;
+
         }
 
     }
@@ -176,24 +175,23 @@ l1t::L1TCaloUpgrateToGCTConverter::produce(Event& e, const EventSetup& es)
   //  DataFormatter.ConvertToIntHtMiss(EtSum,internalHtMissResult);
 
     
- 
 
+  e.put(isoEmResult,"isoEm");
+  e.put(nonIsoEmResult,"nonIsoEm");
+  e.put(cenJetResult,"cenJets");
+  e.put(forJetResult,"forJets");
+  e.put(tauJetResult,"tauJets");
+  e.put(etTotResult);
+  e.put(etHadResult);
+  e.put(etMissResult);
+  e.put(htMissResult);
+  e.put(hfBitCountResult);
+  e.put(hfRingEtSumResult);
+
+  e.put(internalJetResult);
+  e.put(internalEtSumResult);
+  e.put(internalHtMissResult);
     
-    e.put(isoEmResult);
-    e.put(nonIsoEmResult);
-    e.put(cenJetResult);
-    e.put(forJetResult);
-    e.put(tauJetResult);
-    e.put(etTotResult);
-    e.put(etHadResult);
-    e.put(etMissResult);
-    e.put(htMissResult);
-    e.put(hfBitCountResult);
-    e.put(hfRingEtSumResult);
-    
-    e.put(internalJetResult);
-    e.put(internalEtSumResult);
-    e.put(internalHtMissResult);
     
 }
 
