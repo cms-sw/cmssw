@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -79,6 +80,9 @@ private:
  std::string EEHitsCollection;
  std::string ValidationCollection;
  
+ edm::EDGetTokenT<edm::PCaloHitContainer> EEHitsToken;
+ edm::EDGetTokenT<PEcalValidInfo> ValidationCollectionToken;
+
  bool verbose_;
  
  DQMStore* dbe_;
