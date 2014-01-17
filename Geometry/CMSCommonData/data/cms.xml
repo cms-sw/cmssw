@@ -10,7 +10,8 @@
 		<Constant name="CMSZ1" value="[cmsextent:CMSZ1]"/>
 		<Constant name="CMSZ2" value="[cmsextent:CMSZ2]"/>
 		<Constant name="TrackCalorR" value="1.233*m"/>
-		<Constant name="CalorMuonR" value="2.950*m"/>
+		<Constant name="CalorMuonR"  value="2.950*m"/>
+		<Constant name="CalorMuonR2" value="2.810*m"/>
 		<Constant name="TrackBeamZ1" value="1.948*m"/>
 		<Constant name="TrackBeamZ2" value="2.935*m"/>
 		<Constant name="TrackBeamR1" value="3.15*cm"/>
@@ -20,6 +21,7 @@
 		<Constant name="TrackLumiR1" value="7.70*cm"/>
 		<Constant name="CalorBeamZ1" value="3.180*m"/>
 		<Constant name="CalorBeamZ2" value="5.541*m"/>
+		<Constant name="CalorBeamZ3" value="5.245*m"/>
 		<Constant name="CalorBeamR1" value="8.00*cm"/>
 		<Constant name="CalorBeamR2" value="8.93*cm"/>
 		<Constant name="MuonBeamZ0" value="6.50*m"/>

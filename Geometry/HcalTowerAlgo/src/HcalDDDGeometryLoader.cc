@@ -13,12 +13,11 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 //#define DebugLog
 
 HcalDDDGeometryLoader::HcalDDDGeometryLoader(const DDCompactView & cpv) {
-  std::string name = "HcalHits";
-  numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
+  hcalConstants = new HcalDDDSimConstants(cpv);
 }
 
 HcalDDDGeometryLoader::~HcalDDDGeometryLoader() {
-  delete numberingFromDDD;
+  delete hcalConstants;
 }
 
 
@@ -32,10 +31,10 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
   ReturnType geom ( gDDD );
 
   if ( geom->cornersMgr() == 0 ) {
-     const unsigned int count (numberingFromDDD->numberOfCells(HcalBarrel ) +
-			       numberingFromDDD->numberOfCells(HcalEndcap ) +
-			       numberingFromDDD->numberOfCells(HcalForward) +
-			       numberingFromDDD->numberOfCells(HcalOuter  ) );
+     const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
+			       hcalConstants->numberOfCells(HcalEndcap ) +
+			       hcalConstants->numberOfCells(HcalForward) +
+			       hcalConstants->numberOfCells(HcalOuter  ) );
      geom->allocateCorners( count ) ;
   }
 
@@ -54,10 +53,10 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo) {
    ReturnType geom ( gDDD );
 
    if( geom->cornersMgr() == 0 ) {
-      const unsigned int count (numberingFromDDD->numberOfCells(HcalBarrel ) +
-				numberingFromDDD->numberOfCells(HcalEndcap ) +
-				numberingFromDDD->numberOfCells(HcalForward) +
-				numberingFromDDD->numberOfCells(HcalOuter  ) );
+      const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
+				hcalConstants->numberOfCells(HcalEndcap ) +
+				hcalConstants->numberOfCells(HcalForward) +
+				hcalConstants->numberOfCells(HcalOuter  ) );
      geom->allocateCorners( count ) ;
    }
    if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
@@ -74,7 +73,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 				 CaloSubdetectorGeometry* geom           ) {
 
   // start by making the new HcalDetIds
-  std::vector<HcalCellType> hcalCells = numberingFromDDD->HcalCellTypes(subdet);
+  std::vector<HcalCellType> hcalCells = hcalConstants->HcalCellTypes(subdet);
   geometryDDD->insertCell(hcalCells);
 #ifdef DebugLog
   LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill gets " 
