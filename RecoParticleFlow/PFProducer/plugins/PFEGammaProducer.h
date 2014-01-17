@@ -127,6 +127,9 @@ class PFEGammaProducer : public edm::EDProducer {
   
   /// particle flow algorithm
   std::unique_ptr<PFEGammaAlgo>      pfeg_;
+  
+  std::string ebeeClustersCollection_;
+  std::string esClustersCollection_;
 
 };
 

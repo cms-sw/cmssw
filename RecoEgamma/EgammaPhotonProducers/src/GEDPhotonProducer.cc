@@ -438,6 +438,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
   for(unsigned int lSC=0; lSC < photonCoreHandle->size(); lSC++) {
 
     reco::PhotonCoreRef coreRef(reco::PhotonCoreRef(photonCoreHandle, lSC));
+    reco::SuperClusterRef parentSCRef = coreRef->parentSuperCluster();
     reco::SuperClusterRef scRef=coreRef->superCluster();
 
   
@@ -462,7 +463,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     
     // SC energy preselection
-    if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
+    if (parentSCRef.isNonnull() &&
+	parentSCRef->energy()/cosh(parentSCRef->eta()) <= preselCutValues[0] ) continue;
     // calculate HoE
 
     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
@@ -613,6 +615,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
   for(unsigned int lSC=0; lSC < photonHandle->size(); lSC++) {
     reco::PhotonRef phoRef(reco::PhotonRef(photonHandle, lSC));
+    reco::SuperClusterRef parentSCRef = phoRef->parentSuperCluster();
     reco::SuperClusterRef scRef=phoRef->superCluster();
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
     if (subdet==EcalBarrel) { 
@@ -626,7 +629,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 
   
     // SC energy preselection
-    if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
+    if (parentSCRef.isNonnull() &&
+	parentSCRef->energy()/cosh(parentSCRef->eta()) <= preselCutValues[0] ) continue;
     reco::Photon newCandidate(*phoRef);
     iSC++;    
   
