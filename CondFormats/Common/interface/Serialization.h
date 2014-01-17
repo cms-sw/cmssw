@@ -4,9 +4,11 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include "CondFormats/External/interface/Serialization.h"
+#include "CondFormats/Serialization/interface/SerializationEqual.h"
 
-#include "../src/headers.h"
+// #include "CondFormats/External/interface/Serialization.h"
+
+#include "CondFormats/Common/src/headers.h"
 
 template <class Archive>
 void ConfObject::serialize(Archive & ar, const unsigned int)

@@ -2,9 +2,13 @@
 #include <iostream>
 #include <string>
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
 #include "CondFormats/Calibration/interface/Conf.h"
+
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/Calibration/interface/Serialization.h"
 
 class writeKeyed : public edm::EDAnalyzer {
  public:

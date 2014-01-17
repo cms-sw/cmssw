@@ -4,7 +4,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include "CondFormats/External/interface/Serialization.h"
+// #include "CondFormats/External/interface/Serialization.h"
 
 #include "../src/headers.h"
 
@@ -69,6 +69,12 @@ void SiPixelDbItem::serialize(Archive & ar, const unsigned int)
 }
 
 template <class Archive>
+void SiPixelDisabledModules::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(theDisabledModules);
+}
+
+template <class Archive>
 void SiPixelFedCabling::serialize(Archive & ar, const unsigned int)
 {
 }
@@ -122,6 +128,8 @@ void SiPixelGainCalibrationForHLT::serialize(Archive & ar, const unsigned int)
     ar & BOOST_SERIALIZATION_NVP(maxPed_);
     ar & BOOST_SERIALIZATION_NVP(minGain_);
     ar & BOOST_SERIALIZATION_NVP(maxGain_);
+    ar & BOOST_SERIALIZATION_NVP(pedPrecision);
+    ar & BOOST_SERIALIZATION_NVP(gainPrecision);
     ar & BOOST_SERIALIZATION_NVP(numberOfRowsToAverageOver_);
     ar & BOOST_SERIALIZATION_NVP(nBinsToUseForEncoding_);
     ar & BOOST_SERIALIZATION_NVP(deadFlag_);
@@ -320,6 +328,17 @@ struct access<SiPixelDbItem>
 };
 
 template <>
+struct access<SiPixelDisabledModules>
+{
+    static bool equal_(const SiPixelDisabledModules & first, const SiPixelDisabledModules & second)
+    {
+        return true
+            and (equal(first.theDisabledModules, second.theDisabledModules))
+        ;
+    }
+};
+
+template <>
 struct access<SiPixelFedCabling>
 {
     static bool equal_(const SiPixelFedCabling & first, const SiPixelFedCabling & second)
@@ -401,6 +420,8 @@ struct access<SiPixelGainCalibrationForHLT>
             and (equal(first.maxPed_, second.maxPed_))
             and (equal(first.minGain_, second.minGain_))
             and (equal(first.maxGain_, second.maxGain_))
+            and (equal(first.pedPrecision, second.pedPrecision))
+            and (equal(first.gainPrecision, second.gainPrecision))
             and (equal(first.numberOfRowsToAverageOver_, second.numberOfRowsToAverageOver_))
             and (equal(first.nBinsToUseForEncoding_, second.nBinsToUseForEncoding_))
             and (equal(first.deadFlag_, second.deadFlag_))

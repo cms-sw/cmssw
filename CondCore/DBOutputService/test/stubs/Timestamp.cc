@@ -4,6 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/Calibration/interface/Serialization.h"
 
 #include "Timestamp.h"
 #include <iostream>

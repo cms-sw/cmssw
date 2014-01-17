@@ -3,6 +3,9 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/Calibration/interface/Serialization.h"
+
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>

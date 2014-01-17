@@ -1,5 +1,5 @@
-#ifndef CondFormats_Common_Serializable_H
-#define CondFormats_Common_Serializable_H
+#ifndef CondFormats_Serialization_Serializable_H
+#define CondFormats_Serialization_Serializable_H
 
 #include <boost/serialization/access.hpp>
 

@@ -6,6 +6,7 @@
   <use   name="CondFormats/DataRecord"/>
   <library   file="RPCReadOutMapBuilder.cc" name="RPCReadOutMapBuilder">
     <flags   EDM_PLUGIN="1"/>
+    <flags CXXFLAGS="-ftemplate-depth=600"/>
   </library>
 </environment>
 <environment>
