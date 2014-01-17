@@ -13,8 +13,16 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
+#include <SimDataFormats/Track/interface/SimTrackContainer.h>
+#include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
+#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
+
 #include <vector>
 #include <cmath>
+#include <map>
+#include <set>
+
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 class CSCGeometry;
 class GEMGeometry;
@@ -127,6 +135,37 @@ public:
 
 private:
 
+};
+ 
+ typedef std::map<uint32_t, std::vector<double>> fidLUT;
+ 
+class MuFiducial
+{
+ public:
+  MuFiducial() {}
+  ~MuFiducial() {}
+
+  void buildGEMLUT();
+  void buildCSCLUT();
+
+  fidLUT getGEMLUT() const;
+  fidLUT getCSCLUT() const;
+  const GEMGeometry* getGEMGeometry() const {return gemGeometry;}
+  const CSCGeometry* getCSCGeometry() const {return cscGeometry;}
+  void setGEMGeometry(const GEMGeometry* geom) {gemGeometry = geom;}
+  void setCSCGeometry(const CSCGeometry* geom) {cscGeometry = geom;}
+  //
+  std::set<uint32_t> gemDetIds(math::XYZVectorD); 
+  std::set<uint32_t> cscDetIds(math::XYZVectorD); 
+
+ private:
+  // Rmin, Rmax, PhiMin, PhiMax, Zmin, Zmax
+  fidLUT gemLUT_;
+  // Rmin, Rmax, PhiMin, PhiMax, Zmin, Zmax
+  fidLUT cscLUT_;
+
+  const CSCGeometry* cscGeometry;
+  const GEMGeometry* gemGeometry;
 };
 
 } // namespace

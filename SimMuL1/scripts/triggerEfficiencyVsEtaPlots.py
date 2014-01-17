@@ -1,5 +1,6 @@
 from ROOT import * 
 from triggerPlotHelpers import *
+from mkdir import mkdir
 
 ## run quiet mode
 import sys
@@ -11,6 +12,16 @@ ROOT.gROOT.SetBatch(1)
 ## global variables
 gMinEta = 1.45
 gMaxEta = 2.5
+
+#_______________________________________________________________________________
+def drawPULabel(x=0.17, y=0.2, font_size=0.):
+  """Label for pile-up"""
+  tex = TLatex(x, y,"PU0")
+  if (font_size > 0.):
+      tex.SetFontSize(font_size)
+  tex.SetNDC()
+  tex.Draw("same")
+  return tex
 
 #_______________________________________________________________________________
 def setEffHisto(num_name, den_name, dir, nrebin, lcolor, lstyle, lwidth,
@@ -50,53 +61,6 @@ def setEffHisto(num_name, den_name, dir, nrebin, lcolor, lstyle, lwidth,
 
 
 #_______________________________________________________________________________
-def getEffHisto(fname, hdir, num_name, den_name, nrebin, lcolor, lstyle, lwidth, 
-                title, x_range, y_range):
-    fh = TFile.Open(fname)
-    
-    hd0 = fh.Get(hdir + "/" + den_name)
-    hn0 = fh.Get(hdir + "/" + num_name)
-    
-    hd = hd0.Clone(den_name+"_cln_"+fname)
-    hn = hn0.Clone(num_name+"_cln_"+fname)
-    hd.Sumw2()
-    hn.Sumw2()
-    
-    myRebin(hd, nrebin)
-    myRebin(hn, nrebin)
-    
-    heff = hn.Clone(num_name+"_eff_"+fname)
-    
-    hd.Sumw2()
-    heff.Sumw2()
-    
-    heff.Divide(heff,hd)
-    
-    heff.SetLineColor(lcolor)
-    heff.SetLineStyle(lstyle)
-    heff.SetLineWidth(lwidth)
-    
-    heff.SetTitle(title)
-    ##heff.GetXaxis().SetTitle(xtitle)
-    ##heff.GetYaxis().SetTitle(ytitle)
-    heff.GetXaxis().SetRangeUser(x_range[0],x_range[1])
-    heff.GetYaxis().SetRangeUser(y_range[0],y_range[1])
-    
-    heff.GetXaxis().SetTitleSize(0.07)
-    heff.GetXaxis().SetTitleOffset(0.7)
-    heff.GetYaxis().SetLabelOffset(0.015)
-    
-    heff.GetXaxis().SetLabelSize(0.05)
-    heff.GetYaxis().SetLabelSize(0.05)
-    
-    h1 = hn0
-    h2 = hd0
-    he = heff
-    
-    ##fh.Close()
-    return heff
-
-#_______________________________________________________________________________
 def cscStationOccupanciesVsEta():
     """Plot occupancy efficiencies in CSC stations 1-4"""
 
@@ -108,16 +72,19 @@ def cscStationOccupanciesVsEta():
 
     c = TCanvas("c","c",1280,720) 
     c.Divide(2,2,0.0001,0.0001)
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
+    title = "Efficiency for simtrack with %d < p_{T} < %d to have #geq %d simhits in ME"%(minSimPt,maxSimPt,minSimHitChamber)
 
-    h_eff_eta_me1_initial = setEffHisto("h_eta_me1_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME1","Sim track #eta","Efficiency",xrange,yrange)
-    h_eff_eta_me2_initial = setEffHisto("h_eta_me2_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME2","Sim track #eta","Efficiency",xrange,yrange)
-    h_eff_eta_me3_initial = setEffHisto("h_eta_me3_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME3","Sim track #eta","Efficiency",xrange,yrange)
-    h_eff_eta_me4_initial = setEffHisto("h_eta_me4_initial","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME4","Sim track #eta","Efficiency",xrange,yrange)
+    h_eff_eta_me1_initial = setEffHisto("h_eta_me1_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, title + "1", xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me2_initial = setEffHisto("h_eta_me2_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, title + "2", xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me3_initial = setEffHisto("h_eta_me3_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, title + "3", xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me4_initial = setEffHisto("h_eta_me4_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, title + "4", xTitle, yTitle, xrange,yrange)
     
-    c.cd(1) ; h_eff_eta_me1_initial.Draw("hist")
-    c.cd(2) ; h_eff_eta_me2_initial.Draw("hist")
-    c.cd(3) ; h_eff_eta_me3_initial.Draw("hist")
-    c.cd(4) ; h_eff_eta_me4_initial.Draw("hist")
+    c.cd(1) ; h_eff_eta_me1_initial.Draw("hist") ; tex1 = drawPULabel()
+    c.cd(2) ; h_eff_eta_me2_initial.Draw("hist") ; tex2 = drawPULabel()
+    c.cd(3) ; h_eff_eta_me3_initial.Draw("hist") ; tex3 = drawPULabel()
+    c.cd(4) ; h_eff_eta_me4_initial.Draw("hist") ; tex4 = drawPULabel()
     
     c.SaveAs("%sc_eff_eta_simh_by_st%s"%(output_dir,ext))
 
@@ -132,10 +99,13 @@ def cscStationOccupanciesMatchedVsEta_2():
     xrange = [1.4,2.55]
 
     c = TCanvas("c","c",1280,720) 
-
-    h_eta_initial_1st = setEffHisto("h_eta_initial_1st","h_eta_initial",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in #geq N CSC stations","Sim track #eta","Efficiency",xrange,yrange)
-    h_eta_initial_2st = setEffHisto("h_eta_initial_2st","h_eta_initial",dir, etareb, kRed+1, 1, 2, "","Sim track #eta","",xrange,yrange)
-    h_eta_initial_3st = setEffHisto("h_eta_initial_3st","h_eta_initial",dir, etareb, kGreen+1, 1, 2, "","Sim track #eta","",xrange,yrange)
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
+    title = " " * 11 + "CSC SimHits" + " " * 35 + "CMS Simulation Preliminary"
+    
+    h_eta_initial_1st = setEffHisto("h_eta_initial_1st","h_eta_initial0",dir, etareb, kBlue, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eta_initial_2st = setEffHisto("h_eta_initial_2st","h_eta_initial0",dir, etareb, kRed+1, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eta_initial_3st = setEffHisto("h_eta_initial_3st","h_eta_initial0",dir, etareb, kGreen+1, 1, 2, title, xTitle, yTitle, xrange,yrange)
 
     h_eta_initial_1st.Draw("hist")
     h_eta_initial_2st.Draw("hist same")
@@ -144,17 +114,18 @@ def cscStationOccupanciesMatchedVsEta_2():
     l_eff_eta_simh = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_simh.SetBorderSize(0)
     l_eff_eta_simh.SetFillStyle(0)
-    l_eff_eta_simh.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in")
+    l_eff_eta_simh.SetHeader("Efficiency for simtrack with %d < p_{T} < %d to have #geq %d simhits in"%(minSimPt,maxSimPt,minSimHitChamber))
     l_eff_eta_simh.AddEntry(h_eta_initial_1st,"#geq 1 CSC station","pl")
     l_eff_eta_simh.AddEntry(h_eta_initial_2st,"#geq 2 CSC stations","pl")
     l_eff_eta_simh.AddEntry(h_eta_initial_3st,"#geq 3 CSC stations","pl")
+    tex = drawPULabel()
     l_eff_eta_simh.Draw()
 
     c.SaveAs("%sc_eff_eta_simh%s"%(output_dir,ext))
 
 #_______________________________________________________________________________
 def cscStationOccupanciesMatchedVsEta_3():
-    """Plots the efficiency that a simtrack has at least 4 layers of simhits in CSC stations 1-3"""
+    """Plots the efficiency that a muon has at least 4 layers of simhits in CSC stations 1-3"""
     
     dir = getRootDirectory(input_dir, file_name)
     
@@ -163,23 +134,28 @@ def cscStationOccupanciesMatchedVsEta_3():
     xrange = [1.4,2.55]
 
     c = TCanvas("c","c",1280,720) 
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
+    title = " " * 11 + "CSC SimHits" + " " * 35 + "CMS Simulation Preliminary"
 
-    h_eta_me1_initial_ = setEffHisto("h_eta_me1_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, "Sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in ME1 plus more stations","Sim track #eta","Efficiency",xrange,yrange)
-    h_eta_me1_initial_2st = setEffHisto("h_eta_me1_initial_2st","h_eta_initial0",dir, etareb, kRed+1, 1, 2, "","Sim track #eta","",xrange,yrange)
-    h_eta_me1_initial_3st = setEffHisto("h_eta_me1_initial_3st","h_eta_initial0",dir, etareb, kGreen+1, 1, 2, "","Sim track #eta","",xrange,yrange)
+    h_eta_me1_initial = setEffHisto("h_eta_me1_initial","h_eta_initial0",dir, etareb, kBlue, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eta_me1_initial_2st = setEffHisto("h_eta_me1_initial_2st","h_eta_initial0",dir, etareb, kRed+1, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eta_me1_initial_3st = setEffHisto("h_eta_me1_initial_3st","h_eta_initial0",dir, etareb, kGreen+1, 1, 2, title, xTitle, yTitle, xrange,yrange)
 
-    h_eta_me1_initial_.Draw("hist")
+    h_eta_me1_initial.Draw("hist")
     h_eta_me1_initial_2st.Draw("hist same")
     h_eta_me1_initial_3st.Draw("hist same")
 
-    l_eff_eta_simh_me1 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
-    l_eff_eta_simh_me1.SetBorderSize(0)
-    l_eff_eta_simh_me1.SetFillStyle(0)
-    l_eff_eta_simh_me1.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to have #geq 4 sim hits in")
-    l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_,"ME1","pl")
-    l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_2st,"ME1 + #geq 1 CSC station","pl")
-    l_eff_eta_simh_me1.AddEntry(h_eta_me1_initial_3st,"ME1 + #geq 2 CSC stations","pl")
-    l_eff_eta_simh_me1.Draw()
+    leg = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
+    leg.SetMargin(0.15)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have #geq %d simhits in"%(minSimPt,maxSimPt,minSimHitChamber))
+    leg.AddEntry(h_eta_me1_initial,"ME1","pl")
+    leg.AddEntry(h_eta_me1_initial_2st,"ME1 + #geq 1 CSC station","pl")
+    leg.AddEntry(h_eta_me1_initial_3st,"ME1 + #geq 2 CSC stations","pl")
+    leg.Draw()
+    tex = drawPULabel()
 
     c.SaveAs("%sc_eff_eta_simh_me1%s"%(output_dir,ext))
 
@@ -187,8 +163,6 @@ def cscStationOccupanciesMatchedVsEta_3():
 def cscStationOccupanciesMatchedMpcVsEta():
     """Plot occupancy efficiencies with MPC matches in CSC stations 1-4"""
 
-    #### FIXME - these plots look very strange ####
-    
     dir = getRootDirectory(input_dir, file_name)
     
     etareb = 1
@@ -196,17 +170,51 @@ def cscStationOccupanciesMatchedMpcVsEta():
     xrange = [1.4,2.55]
 
     c = TCanvas("c","c",1280,720) 
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
+    title = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     c.Divide(2,2,0.0001,0.0001)
     
-    h_eff_eta_me1_mpc = setEffHisto("h_eta_me1_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME1","Sim track #eta","Efficiency",xrange,yrange)
-    h_eff_eta_me2_mpc = setEffHisto("h_eta_me2_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME2","Sim track #eta","Efficiency",xrange,yrange)
-    h_eff_eta_me3_mpc = setEffHisto("h_eta_me3_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME3","Sim track #eta","Efficiency",xrange,yrange)
-    h_eff_eta_me4_mpc = setEffHisto("h_eta_me4_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub in ME4","Sim track #eta","Efficiency",xrange,yrange)
+    h_eff_eta_me1_mpc = setEffHisto("h_eta_me1_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me2_mpc = setEffHisto("h_eta_me2_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me3_mpc = setEffHisto("h_eta_me3_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me4_mpc = setEffHisto("h_eta_me4_mpc","h_eta_initial",dir, etareb, kBlue, 1, 2, title, xTitle, yTitle, xrange,yrange)
 
-    c.cd(1) ; h_eff_eta_me1_mpc.Draw("hist")
-    c.cd(2) ; h_eff_eta_me2_mpc.Draw("hist")
-    c.cd(3) ; h_eff_eta_me3_mpc.Draw("hist")
-    c.cd(4) ; h_eff_eta_me4_mpc.Draw("hist")
+    c.cd(1)
+    h_eff_eta_me1_mpc.Draw("hist")
+    tex1 = drawPULabel()
+    legend1 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
+    legend1.SetBorderSize(0)
+    legend1.SetFillStyle(0)
+    legend1.SetHeader("Simtrack with %d < p_{T} < %d to have a reconstructed MPC stub in ME1"%(minSimPt,maxSimPt))
+    legend1.Draw("same")
+
+    c.cd(2)
+    h_eff_eta_me2_mpc.Draw("hist")
+    tex2 = drawPULabel()
+    legend2 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
+    legend2.SetBorderSize(0)
+    legend2.SetFillStyle(0)
+    legend2.SetHeader("Simtrack with %d < p_{T} < %d to have a reconstructed MPC stub in ME2"%(minSimPt,maxSimPt))
+    legend2.Draw("same")
+
+    c.cd(3)
+    h_eff_eta_me3_mpc.Draw("hist")
+    tex3 = drawPULabel()
+    legend3 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
+    legend3.SetBorderSize(0)
+    legend3.SetFillStyle(0)
+    legend3.SetHeader("Simtrack with %d < p_{T} < %d to have a reconstructed MPC stub in ME3"%(minSimPt,maxSimPt))
+    legend3.Draw("same")
+
+    c.cd(4)
+    h_eff_eta_me4_mpc.Draw("hist")
+    tex4 = drawPULabel()
+    legend4 = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
+    legend4.SetBorderSize(0)
+    legend4.SetFillStyle(0)
+    legend4.SetHeader("Simtrack with %d < p_{T} < %d to have a reconstructed MPC stub in ME4"%(minSimPt,maxSimPt))
+    legend4.Draw()
     
     c.SaveAs("%sc_eff_eta_mpc_by_st%s"%(output_dir,ext))
 
@@ -214,8 +222,6 @@ def cscStationOccupanciesMatchedMpcVsEta():
 #_______________________________________________________________________________
 def cscStationOccupanciesMatchedMpcVsEta_2():
     """Plot occupancy efficiencies with MPC matches in CSC stations 1-3"""
-
-    #### FIXME - these plots look very strange ####
 
     dir = getRootDirectory(input_dir, file_name)
     
@@ -225,10 +231,13 @@ def cscStationOccupanciesMatchedMpcVsEta_2():
 
     c = TCanvas("c","c",1280,720) 
     c.cd()
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
+    title = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
 
-    h_eta_mpc_1st = setEffHisto("h_eta_mpc_1st","h_eta_initial0",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub(s) in #geq N CSC stations","Sim track #eta","Efficiency",xrange,yrange)
-    h_eta_mpc_2st = setEffHisto("h_eta_mpc_2st","h_eta_initial0",dir, etareb, kBlue, 9, 2, "","Sim track #eta","Efficiency",xrange,yrange)
-    h_eta_mpc_3st = setEffHisto("h_eta_mpc_3st","h_eta_initial0",dir, etareb, kBlue, 2, 2, "","Sim track #eta","Efficiency",xrange,yrange)
+    h_eta_mpc_1st = setEffHisto("h_eta_mpc_1st","h_eta_initial0",dir, etareb, kBlue, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eta_mpc_2st = setEffHisto("h_eta_mpc_2st","h_eta_initial0",dir, etareb, kBlue, 9, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eta_mpc_3st = setEffHisto("h_eta_mpc_3st","h_eta_initial0",dir, etareb, kBlue, 2, 2, title, xTitle, yTitle, xrange,yrange)
 
     h_eta_mpc_1st.Draw("hist")
     h_eta_mpc_2st.Draw("hist same")
@@ -237,10 +246,11 @@ def cscStationOccupanciesMatchedMpcVsEta_2():
     l_eff_eta_mpc = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_mpc.SetBorderSize(0)
     l_eff_eta_mpc.SetFillStyle(0)
-    l_eff_eta_mpc.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to match MPC stub in")
+    l_eff_eta_mpc.SetHeader("Simtrack with %d < p_{T} < %d to have reconstructed MPC stubs in"%(minSimPt,maxSimPt))
     l_eff_eta_mpc.AddEntry(h_eta_mpc_1st,"#geq 1 CSC station","pl")
     l_eff_eta_mpc.AddEntry(h_eta_mpc_2st,"#geq 2 CSC stations","pl")
     l_eff_eta_mpc.AddEntry(h_eta_mpc_3st,"#geq 3 CSC stations","pl")
+    tex = drawPULabel()
     l_eff_eta_mpc.Draw()
 
     c.SaveAs("%sc_eff_eta_mpc%s"%(output_dir,ext))
@@ -255,13 +265,16 @@ def cscStationOccupanciesMatchedMpcVsEta_3():
     etareb = 1
     yrange = [0.,1.04]
     xrange = [1.4,2.55]
+    title = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
 
     c = TCanvas("c","c",1280,720) 
     c.cd()
 
-    h_eta_mpc_1st_r = setEffHisto("h_eta_mpc_1st","h_eta_initial_1st",dir, etareb, kBlue, 1, 2, "Matching sim track with 2 < p_{T} < 50 to MPC stub if it has #geq 4 sim hits in #geq N CSC stations","Sim track #eta","Efficiency",xrange,yrange)
-    h_eta_mpc_2st_r = setEffHisto("h_eta_mpc_2st","h_eta_initial_2st",dir, etareb, kRed+1, 1, 2, "","Sim track #eta","Efficiency",xrange,yrange)
-    h_eta_mpc_3st_r = setEffHisto("h_eta_mpc_3st","h_eta_initial_3st",dir, etareb, kGreen+1, 1, 2, "","Sim track #eta","Efficiency",xrange,yrange)
+    h_eta_mpc_1st_r = setEffHisto("h_eta_mpc_1st","h_eta_initial_1st",dir, etareb, kBlue, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eta_mpc_2st_r = setEffHisto("h_eta_mpc_2st","h_eta_initial_2st",dir, etareb, kRed+1, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eta_mpc_3st_r = setEffHisto("h_eta_mpc_3st","h_eta_initial_3st",dir, etareb, kGreen+1, 1, 2, title, xTitle, yTitle, xrange,yrange)
 
     h_eta_mpc_1st_r.Draw("hist")
     h_eta_mpc_2st_r.Draw("hist same")
@@ -270,10 +283,11 @@ def cscStationOccupanciesMatchedMpcVsEta_3():
     l_eff_eta_mpc_relative = TLegend(0.2,0.2,1.0,0.6,"","brNDC")
     l_eff_eta_mpc_relative.SetBorderSize(0)
     l_eff_eta_mpc_relative.SetFillStyle(0)
-    l_eff_eta_mpc_relative.SetHeader("Efficiency for sim track with 2 < p_{T} < 50 to match MPC stub if it has #geq 4 sim hits in")
+    l_eff_eta_mpc_relative.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a reconstructed MPC stub in"%(minSimPt,maxSimPt))
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_1st_r,"#geq 1 CSC station","pl")
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_2st_r,"#geq 2 CSC stations","pl")
     l_eff_eta_mpc_relative.AddEntry(h_eta_mpc_3st_r,"#geq 3 CSC stations","pl")
+    tex = drawPULabel()
     l_eff_eta_mpc_relative.Draw()
 
     c.SaveAs("%sc_eff_eta_mpc_relative%s"%(output_dir,ext))
@@ -286,16 +300,21 @@ def tfCandidateTriggerEfficiencyVsEta():
     etareb = 1
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
-
+#    title = "Effiency for a muon to have a TFTrack with at least 2 MPC stubs and certain quality"
+    title = " " * 11 + "Probability for CSC TFTrack to use stubs" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
+    
     c = TCanvas("c","c",1000,600 ) 
+    c.cd()
 
-    h_eff_eta_after_tfcand_ok_plus_q1   = setEffHisto("h_eta_after_tfcand_ok_plus_q1","h_eta_after_mpc_ok_plus",dir, etareb, kBlue, 1,1, "eff(#eta): TF quality studies (denom: 2MPCs)","#eta","",xrange,yrange)
-    h_eff_eta_after_tfcand_ok_plus_q2   = setEffHisto("h_eta_after_tfcand_ok_plus_q2","h_eta_after_mpc_ok_plus",dir, etareb, kCyan+2, 1,1, "","","",xrange,yrange)
-    h_eff_eta_after_tfcand_ok_plus_q3   = setEffHisto("h_eta_after_tfcand_ok_plus_q3","h_eta_after_mpc_ok_plus",dir, etareb, kMagenta+1, 1,1, "","","",xrange,yrange)
-
-    h_eff_eta_after_tfcand_ok_plus_pt10_q1   = setEffHisto("h_eta_after_tfcand_ok_plus_pt10_q1","h_eta_after_mpc_ok_plus",dir, etareb, kBlue, 2,2, "eff(#eta): TF quality studies (denom: 2MPCs)","#eta","",xrange,yrange)
-    h_eff_eta_after_tfcand_ok_plus_pt10_q2   = setEffHisto("h_eta_after_tfcand_ok_plus_pt10_q2","h_eta_after_mpc_ok_plus",dir, etareb, kCyan+2, 2,2, "","","",xrange,yrange)
-    h_eff_eta_after_tfcand_ok_plus_pt10_q3   = setEffHisto("h_eta_after_tfcand_ok_plus_pt10_q3","h_eta_after_mpc_ok_plus",dir, etareb, kMagenta+1, 2,2, "","","",xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_q1 = setEffHisto("h_eta_after_tfcand_ok_plus_q1","h_eta_after_mpc_ok_plus",
+dir, etareb, kBlue, 1,1, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_q2 = setEffHisto("h_eta_after_tfcand_ok_plus_q2","h_eta_after_mpc_ok_plus",dir, etareb, kCyan+2, 1,1, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_q3 = setEffHisto("h_eta_after_tfcand_ok_plus_q3","h_eta_after_mpc_ok_plus",dir, etareb, kMagenta+1, 1,1, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_pt10_q1 = setEffHisto("h_eta_after_tfcand_ok_plus_pt10_q1","h_eta_after_mpc_ok_plus",dir, etareb, kBlue, 2,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_pt10_q2 = setEffHisto("h_eta_after_tfcand_ok_plus_pt10_q2","h_eta_after_mpc_ok_plus",dir, etareb, kCyan+2, 2,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_pt10_q3 = setEffHisto("h_eta_after_tfcand_ok_plus_pt10_q3","h_eta_after_mpc_ok_plus",dir, etareb, kMagenta+1, 2,2, title, xTitle, yTitle, xrange,yrange)
 
     h_eff_eta_after_tfcand_ok_plus_q1.Draw("hist")
     h_eff_eta_after_tfcand_ok_plus_pt10_q1.Draw("same hist")
@@ -304,17 +323,18 @@ def tfCandidateTriggerEfficiencyVsEta():
     h_eff_eta_after_tfcand_ok_plus_q3.Draw("same hist")
     h_eff_eta_after_tfcand_ok_plus_pt10_q3.Draw("same hist")
 
-    leg = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
+    leg = TLegend(0.3,0.19,0.99,0.5,"","brNDC")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("TF track with matched stubs in 2st and ")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a TF track with matched stubs in 2st and "%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_q1,"Q#geq1","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_q1,"Q#geq1, p_{T}^{TF}>10","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_q2,"Q#geq2","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_q2,"Q#geq2, p_{T}^{TF}>10","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_q3,"Q=3","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_q3,"Q=3, p_{T}^{TF}>10","pl")
+    tex = drawPULabel()
     leg.Draw()
 
     c.SaveAs("%sh_eff_eta_tf_q%s"%(output_dir,ext))
@@ -327,19 +347,22 @@ def cscStubMatchingEfficiencyVsEtaSummary():
     dir = getRootDirectory(input_dir, file_name)
     
     etareb = 1
-    yrange = [0.,1.04]
+    yrange = [0.8,1.04]
     xrange = [1.4,2.5]
+    title = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
 
     c = TCanvas("c","c",1000,600 ) 
-
-    h_eff_eta_me1_after_lct = setEffHisto("h_eta_me1_after_lct","h_eta_initial",dir, etareb, kRed, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
-    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_initial",dir, etareb, kGreen+1, 2, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_initial",dir, etareb, kGreen+1, 1, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alctclct = setEffHisto("h_eta_me1_after_alctclct","h_eta_initial",dir, etareb, kYellow+2, 2, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okAlctClct = setEffHisto("h_eta_me1_after_alctclct_okAlctClct","h_eta_initial",dir, etareb, kYellow+2, 1,2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_lct_okClctAlct = setEffHisto("h_eta_me1_after_lct_okAlctClct","h_eta_initial",dir, etareb, kRed, 1,2, "","","",xrange,yrange)
+    c.cd()
+    h_eff_eta_me1_after_lct = setEffHisto("h_eta_me1_after_lct","h_eta_initial",dir, etareb, kRed, 2, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_initial",dir, etareb, kGreen+1, 2, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_initial",dir, etareb, kGreen+1, 1, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_alctclct = setEffHisto("h_eta_me1_after_alctclct","h_eta_initial",dir, etareb, kYellow+2, 2, 2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okAlctClct = setEffHisto("h_eta_me1_after_alctclct_okAlctClct","h_eta_initial",dir, etareb, kYellow+2, 1,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_lct_okClctAlct = setEffHisto("h_eta_me1_after_lct_okAlctClct","h_eta_initial",dir, etareb, kRed, 1,2, title, xTitle, yTitle, xrange,yrange)
 
     h_eff_eta_me1_after_lct.Draw("hist")
     h_eff_eta_me1_after_alct.Draw("same hist")
@@ -351,49 +374,22 @@ def cscStubMatchingEfficiencyVsEtaSummary():
     h_eff_eta_me1_after_lct.Draw("same hist")
     h_eff_eta_me1_after_lct_okClctAlct.Draw("same hist")
 
-    """
-    h_eff_eta_me1_after_lct_okClctAlct.Fit("pol0","R0","",1.63,2.38)
-    eff11 = (h_eff_eta_me1_after_lct_okClctAlct.GetFunction("pol0")).GetParameter(0)
-    print eff11
-    h_eff_eta_me1_after_lct_okClctAlct.Fit("pol0","R0","",1.63,2.05)
-    eff1b = (h_eff_eta_me1_after_lct_okClctAlct.GetFunction("pol0")).GetParameter(0)
-    h_eff_eta_me1_after_lct_okClctAlct.Fit("pol0","R0","",2.05,2.38)
-    eff1a = (h_eff_eta_me1_after_lct_okClctAlct.GetFunction("pol0")).GetParameter(0)
-    print eff11, eff1b, eff1a
-    """
-
-    leg = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    leg = TLegend(0.2,0.2,0.95,0.5,"","brNDC")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for #mu with p_{T}>20 crossing a ME1 chamber with")
-    leg.AddEntry(h_eff_eta_me1_after_alct,"any ALCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_alct_okAlct,"correct ALCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_clct,"any CLCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_clct_okClct,"correct CLCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_alctclct,"any ALCT and CLCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_alctclct_okAlctClct,"correct ALCT and CLCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_lct,"any LCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_lct_okClctAlct,"correct LCT","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a reconstructed stub in station 1"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_me1_after_alct,"an ALCT anywhere in the ME1 chamber","pl")
+    leg.AddEntry(h_eff_eta_me1_after_alct_okAlct,"a good ALCT","pl")
+    leg.AddEntry(h_eff_eta_me1_after_clct,"a CLCT anywhere in the ME1 chamber","pl")
+    leg.AddEntry(h_eff_eta_me1_after_clct_okClct,"a good CLCT","pl")
+    leg.AddEntry(h_eff_eta_me1_after_alctclct,"an ALCT and CLCT anywhere in the ME1 chamber","pl")
+    leg.AddEntry(h_eff_eta_me1_after_alctclct_okAlctClct,"a good ALCT and CLCT","pl")
+    leg.AddEntry(h_eff_eta_me1_after_lct,"an LCT anywhere in the ME1 chamber","pl")
+    leg.AddEntry(h_eff_eta_me1_after_lct_okClctAlct,"a good LCT","pl")
     leg.Draw()
 
-    """
-    if (interactive):
-    char ghn[111]
-    sprintf(ghn,"h_eff_eta_me1_after_lct_okClctAlct_%s",dname)
-    gh = (TH1F*)h_eff_eta_me1_after_lct_okClctAlct.Clone(ghn)
-    gh.GetYaxis().SetRangeUser(0.8,1.02)
-
-    gh.SetTitle("LCT finding efficiency in ME1 for #mu with p_{T}>10")
-    gh.GetXaxis().SetRangeUser(0.8,2.5)
-    gh.GetYaxis().SetRangeUser(0.,1.05)
-    gh.GetXaxis().SetTitle("#eta")
-    gh.GetYaxis().SetTitle("Eff.")
-    gh.GetXaxis().SetTitleSize(0.07)
-    gh.GetXaxis().SetTitleOffset(0.7)
-    gh.GetYaxis().SetLabelOffset(0.015)
-    """
-
+    tex = drawPULabel()
     c.SaveAs("%sh_eff_eta_me1_steps_stubs%s"%(output_dir,ext))
 
 
@@ -406,30 +402,37 @@ def cscTFMatchingEfficiencyVsEtaME1():
     etareb = 1
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
+    title = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+#    title = "Effiency for a muon with %d < p_{T} < %d to have a reconstructed stub in station 1"%(minSimPt,maxSimPt)
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
 
     c = TCanvas("c","c",1000,600 ) 
+    c.cd()
 
-    h_eff_eta_me1_after_lct_okClctAlct         = setEffHisto("h_eta_me1_after_lct_okAlctClct","h_eta_initial",dir, etareb, kRed, 1,2, "eff(#eta): ME1 TF studies", "#eta","",xrange,yrange)
-    h_eff_eta_me1_after_mplct_okClctAlct_plus = setEffHisto("h_eta_me1_after_mplct_okAlctClct_plus","h_eta_initial",dir, etareb, kBlack, 1,2, "","","",xrange,yrange)
-    ##h_eff_eta_after_tfcand_ok_plus      = setEffHisto("h_eta_after_tfcand_ok_plus","h_eta_initial",dir, etareb, kBlue, 1,2, "","","",xrange,yrange)
-    ##h_eff_eta_after_tfcand_ok_plus_pt10 = setEffHisto("h_eta_after_tfcand_ok_plus_pt10","h_eta_initial",dir, etareb, kBlue, 2,2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_tf_ok_plus	  = setEffHisto("h_eta_me1_after_tf_ok_plus","h_eta_initial",dir, etareb, kBlue, 1,2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_tf_ok_plus_pt10 = setEffHisto("h_eta_me1_after_tf_ok_plus_pt10","h_eta_initial",dir, etareb, kBlue, 2,2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_lct_okClctAlct = setEffHisto("h_eta_me1_after_lct_okAlctClct","h_eta_initial",dir, etareb, kRed, 1,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_mplct_okClctAlct_plus = setEffHisto("h_eta_me1_after_mplct_okAlctClct_plus","h_eta_initial",dir, etareb, kBlack, 1,2, title, xTitle, yTitle, xrange,yrange)
+    ##h_eff_eta_after_tfcand_ok_plus = setEffHisto("h_eta_after_tfcand_ok_plus","h_eta_initial",dir, etareb, kBlue, 1,2, title, xTitle, yTitle, xrange,yrange)
+    ##h_eff_eta_after_tfcand_ok_plus_pt10 = setEffHisto("h_eta_after_tfcand_ok_plus_pt10","h_eta_initial",dir, etareb, kBlue, 2,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_tf_ok_plus = setEffHisto("h_eta_me1_after_tf_ok_plus","h_eta_initial",dir, etareb, kBlue, 1,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_me1_after_tf_ok_plus_pt10 = setEffHisto("h_eta_me1_after_tf_ok_plus_pt10","h_eta_initial",dir, etareb, kBlue, 2,2, title, xTitle, yTitle, xrange,yrange)
 
     h_eff_eta_me1_after_lct_okClctAlct.Draw("hist")
     h_eff_eta_me1_after_mplct_okClctAlct_plus.Draw("same hist")
     h_eff_eta_me1_after_tf_ok_plus.Draw("same hist")
     h_eff_eta_me1_after_tf_ok_plus_pt10.Draw("same hist")
 
-    leg = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    leg = TLegend(0.2,0.2,0.926,0.535,"","brNDC")
+    leg.SetMargin(0.12)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Eff. for #mu with p_{T}>20 crossing ME1+one more station with")
-    leg.AddEntry(h_eff_eta_me1_after_lct_okClctAlct,"LCT matched in ME1","pl")
-    leg.AddEntry(h_eff_eta_me1_after_mplct_okClctAlct_plus,"MPC matched in ME1+one","pl")
-    leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus,"TF track with matched stubs in ME1+one","pl")
-    leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in ME1+one","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have a"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_me1_after_lct_okClctAlct,"LCT reconstructed in ME1","pl")
+    leg.AddEntry(h_eff_eta_me1_after_mplct_okClctAlct_plus,"MPC LCT reconstructed in station 1 and another station","pl")
+    leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus,"TF track with reconstructed stubs in station 1 and another station","pl")
+    leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus_pt10,"TF track with p_{T}^{TF}>10 and reconstructed stubs in station 1 and another station","pl")
     leg.Draw()
+    tex = drawPULabel()
 
     c.SaveAs("%sh_eff_eta_me1_tf%s"%(output_dir,ext))
 
@@ -443,12 +446,17 @@ def cscTFCandMatchingEfficiencyVsEta():
     etareb = 1
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
+    title = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+#    title = "Effiency for a muon with %d < p_{T} < %d to have reconstructed stubs"%(minSimPt,maxSimPt)
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
 
-    c = TCanvas("c","c",1000,600 ) 
+    c = TCanvas("c","c",1000,600) 
+    c.cd()
 
-    h_eff_eta_after_mpc_ok_plus = setEffHisto("h_eta_after_mpc_ok_plus","h_eta_initial",dir, etareb, kBlack, 1,2, "eff(#eta): TF studies","#eta","",xrange,yrange)
-    h_eff_eta_after_tfcand_ok_plus      = setEffHisto("h_eta_after_tfcand_ok_plus","h_eta_initial",dir, etareb, kBlue, 1,2, "","","",xrange,yrange)
-    h_eff_eta_after_tfcand_ok_plus_pt10 = setEffHisto("h_eta_after_tfcand_ok_plus_pt10","h_eta_initial",dir, etareb, kBlue, 2,2, "","","",xrange,yrange)
+    h_eff_eta_after_mpc_ok_plus = setEffHisto("h_eta_after_mpc_ok_plus","h_eta_initial",dir, etareb, kBlack, 1,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus      = setEffHisto("h_eta_after_tfcand_ok_plus","h_eta_initial",dir, etareb, kBlue, 1,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_pt10 = setEffHisto("h_eta_after_tfcand_ok_plus_pt10","h_eta_initial",dir, etareb, kBlue, 2,2, title, xTitle, yTitle, xrange,yrange)
 
     h_eff_eta_after_mpc_ok_plus.Draw("hist")
     h_eff_eta_after_tfcand_ok_plus.Draw("same hist")
@@ -457,11 +465,12 @@ def cscTFCandMatchingEfficiencyVsEta():
     leg = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Eff. for #mu with p_{T}>20 crossing #geq2 stations with")
-    leg.AddEntry(h_eff_eta_after_mpc_ok_plus,"MPC matched in 2stations","pl")
-    leg.AddEntry(h_eff_eta_after_tfcand_ok_plus,"TF track with matched stubs in 2st","pl")
-    leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_after_mpc_ok_plus,"MPCs reconstructed in 2 stations","pl")
+    leg.AddEntry(h_eff_eta_after_tfcand_ok_plus,"TF track with reconstructed stubs in 2 stations","pl")
+    leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10,"TF track with p_{T}^{TF}>10 and reconstructed stubs in 2 stations","pl")
     leg.Draw()
+    tex = drawPULabel()
 
     c.SaveAs("%sh_eff_eta_tf%s"%(output_dir,ext))
 
@@ -475,14 +484,19 @@ def cscTFCandMatchingEfficiencyVsEta_2():
     etareb = 1
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
+    title = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+#    title = "Effiency for a muon with %d < p_{T} < %d to have reconstructed stubs in a at least 2 stations"%(minSimPt,maxSimPt)
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
 
     c = TCanvas("c","c",1000,600 ) 
+    c.cd()
 
-    h_eff_eta_after_mpc_ok_plus = setEffHisto("h_eta_after_mpc_ok_plus","h_eta_initial",dir, etareb, kBlack, 1,2, "eff(#eta): TF studies (3TF stubs in ME1a)","#eta","",xrange,yrange)
-    h_eff_eta_after_mpc_ok_plus_3st = setEffHisto("h_eta_after_mpc_ok_plus_3st","h_eta_initial",dir, etareb, kOrange+2, 1,2, "","","",xrange,yrange)
-    ##h_eff_eta_after_mpc_ok_plus_3st1a = setEffHisto("h_eta_after_mpc_ok_plus_3st1a","h_eta_initial",dir, etareb, kBlack-4, 1,2, "","","",xrange,yrange)
-    h_eff_eta_after_tfcand_ok_plus_3st1a      = setEffHisto("h_eta_after_tfcand_ok_plus_3st1a","h_eta_initial",dir, etareb, kBlue, 1,2, "","","",xrange,yrange)
-    h_eff_eta_after_tfcand_ok_plus_pt10_3st1a = setEffHisto("h_eta_after_tfcand_ok_plus_pt10_3st1a","h_eta_initial",dir, etareb, kBlue, 2,2, "","","",xrange,yrange)
+    h_eff_eta_after_mpc_ok_plus = setEffHisto("h_eta_after_mpc_ok_plus","h_eta_initial",dir, etareb, kBlack, 1,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_mpc_ok_plus_3st = setEffHisto("h_eta_after_mpc_ok_plus_3st","h_eta_initial",dir, etareb, kOrange+2, 1,2, title, xTitle, yTitle, xrange,yrange)
+    ##h_eff_eta_after_mpc_ok_plus_3st1a = setEffHisto("h_eta_after_mpc_ok_plus_3st1a","h_eta_initial",dir, etareb, kBlack-4, 1,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_3st1a      = setEffHisto("h_eta_after_tfcand_ok_plus_3st1a","h_eta_initial",dir, etareb, kBlue, 1,2, title, xTitle, yTitle, xrange,yrange)
+    h_eff_eta_after_tfcand_ok_plus_pt10_3st1a = setEffHisto("h_eta_after_tfcand_ok_plus_pt10_3st1a","h_eta_initial",dir, etareb, kBlue, 2,2, title, xTitle, yTitle, xrange,yrange)
 
     h_eff_eta_after_mpc_ok_plus.Draw("hist")
     h_eff_eta_after_mpc_ok_plus_3st.Draw("same hist")
@@ -490,15 +504,17 @@ def cscTFCandMatchingEfficiencyVsEta_2():
     h_eff_eta_after_tfcand_ok_plus_3st1a.Draw("same hist")
     h_eff_eta_after_tfcand_ok_plus_pt10_3st1a.Draw("same hist")
 
-    leg = TLegend(0.347,0.19,0.926,0.45,"","brNDC")
+    leg = TLegend(0.25,0.19,0.926,0.45,"","brNDC")
+    leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Eff. for #mu with p_{T}>20 crossing #geq2 stations with")
-    leg.AddEntry(h_eff_eta_after_mpc_ok_plus,"MPC matched in 2stations","pl")
-    leg.AddEntry(h_eff_eta_after_mpc_ok_plus_3st,"MPC matched in 3stations","pl")
-    leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_3st1a,"TF track with matched stubs in 2st","pl")
-    leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_3st1a,"p_{T}^{TF}>10 TF track with matched stubs in 2st","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have stubs reconstructed in at least 2 stations"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_after_mpc_ok_plus,"and MPC reconstructed in 2 stations","pl")
+    leg.AddEntry(h_eff_eta_after_mpc_ok_plus_3st,"MPC reconstructed in 3 stations","pl")
+    leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_3st1a,"TF track with reconstructed stubs in 3 stations, 1 inME1a","pl")
+    leg.AddEntry(h_eff_eta_after_tfcand_ok_plus_pt10_3st1a,"TF track with p_{T}^{TF}>10 and reconstructed stubs in 3 stations, 1 inME1a","pl")
     leg.Draw()
+    tex = drawPULabel()
 
     c.SaveAs("%sh_eff_eta_tf_3st1a%s"%(output_dir,ext))
 
@@ -511,43 +527,50 @@ def cscTFCandMatchingEfficiencyVsEta_3():
     etareb = 1
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
+    title = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+#    title = "TFTrack efficiency studies" 
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
 
     c = TCanvas("c","c",1000,600 ) 
-
-    h_eff_eta_after_mpc = setEffHisto("h_eta_after_mpc","h_eta_initial",dir, etareb, kBlack, 1,2, "eff(#eta): TF studies (3TF stubs in ME1a)","#eta","",xrange,yrange)
+    c.cd()
+    h_eff_eta_after_mpc = setEffHisto("h_eta_after_mpc_ok","h_eta_initial",dir, etareb, kBlack, 1,2, title, xTitle, yTitle, xrange,yrange)
     h_eff_eta_after_mpc_st1 = setEffHisto("h_eta_after_mpc_st1","h_eta_initial",dir, etareb, kOrange+2, 1,2, "","","",xrange,yrange)
-    ##h_eff_eta_after_mpc_ok_plus_3st1a = setEffHisto("h_eta_after_mpc_ok_plus_3st1a","h_eta_initial",dir, etareb, kBlack-4, 1,2, "","","",xrange,yrange)
+    h_eff_eta_after_mpc_ok_plus_3st1a = setEffHisto("h_eta_after_mpc_ok_plus_3st1a","h_eta_initial",dir, etareb, kBlack-4, 1,2, "","","",xrange,yrange)
     h_eff_eta_after_tfcand_org_st1 = setEffHisto("h_eta_after_tfcand_org_st1","h_eta_initial",dir, etareb, kBlue, 1,2, "","","",xrange,yrange)
     h_eff_eta_after_tfcand_pt10 = setEffHisto("h_eta_after_tfcand_pt10","h_eta_initial",dir, etareb, kRed+1, 2,2, "","","",xrange,yrange)
     h_eff_eta_after_tfcand_my_st1 = setEffHisto("h_eta_after_tfcand_my_st1","h_eta_initial",dir, etareb, kGreen+1, 2,2, "","","",xrange,yrange)
     h_eff_eta_after_tfcand_my_st1_pt10 = setEffHisto("h_eta_after_tfcand_my_st1_pt10","h_eta_initial",dir, etareb, kPink+1, 2,2, "","","",xrange,yrange)
+ #   h_eff_eta_me1_after_mplct_okClctAlct = setEffHisto("h_eta_me1_after_mplct_okAlctClct","h_eta_initial",dir, etareb, kYellow+1, 1,2, "","","",xrange,yrange)
 
     h_eff_eta_after_mpc.Draw("hist")
     h_eff_eta_after_mpc_st1.Draw("same hist")
-    ##h_eff_eta_after_mpc_st1_good.Draw("same hist")
-    h_eff_eta_after_tfcand_org_st1.Draw("same hist")
+    #h_eff_eta_after_mpc_st1_good.Draw("same hist")
+    #h_eff_eta_after_tfcand_org_st1.Draw("same hist")
     ##h_eff_eta_after_tfcand_comm_st1.Draw("same hist")
-    h_eff_eta_after_tfcand_pt10.Draw("same hist")
-    h_eff_eta_after_tfcand_my_st1.Draw("same hist")
-    h_eff_eta_after_tfcand_my_st1_pt10.Draw("same hist")
+    #h_eff_eta_after_tfcand_pt10.Draw("same hist")
+    #h_eff_eta_after_tfcand_my_st1.Draw("same hist")
+    #h_eff_eta_after_tfcand_my_st1_pt10.Draw("same hist")
     ##h_eff_eta_after_xtra_dr_pt10.Draw("same hist")
 
-    leg = TLegend(0.2518248,0.263986,0.830292,0.5332168,"","brNDC")
+    leg = TLegend(0.2518,0.2,0.830292,0.5,"","brNDC")
+    leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetHeader("Efficiency after")
-    leg.AddEntry(h_eff_eta_after_mpc,"match to MPC","pl")
-    leg.AddEntry(h_eff_eta_after_mpc_st1,"match to MPC (at least one in ME1)","pl")
+    leg.SetHeader("Efficiency for a muon to have ")
+    leg.AddEntry(h_eff_eta_after_mpc,"at least one reconstructed MPC LCT","pl")
+    leg.AddEntry(h_eff_eta_after_mpc_st1,"at least one reconstructed MPC LCT (1 inME1)","pl")
     ##leg.AddEntry(h_eff_eta_after_mpc_st1_good,"match to MPC (at least one good in ME1)","pl")
-    leg.AddEntry(0,"match to MPC & TF track:","")
+    leg.AddEntry(0,"Efficiency for a muon to have a TFTrack and reconstructed stubs:","")
     leg.AddEntry(h_eff_eta_after_tfcand_pt10," (a) with additional TF cut p_{T}>10","pl")
     leg.AddEntry(h_eff_eta_after_tfcand_org_st1," (b) at least 1 original TF stub in ME1","pl")
-    leg.AddEntry(h_eff_eta_after_tfcand_my_st1," (c) at least 1 matched TF stub in ME1","pl")
-    leg.AddEntry(h_eff_eta_after_tfcand_my_st1_pt10," (d) at least 1 matched TF stub in ME1 and TF p_{T}>10","pl")
+    leg.AddEntry(h_eff_eta_after_tfcand_my_st1," (c) at least 1 reconstructed TF stub in ME1","pl")
+    leg.AddEntry(h_eff_eta_after_tfcand_my_st1_pt10," (d) at least 1 reconstructed TF stub in ME1 and TF p_{T}>10","pl")
     ##leg.AddEntry(h_eff_eta_after_tfcand_comm_st1," at least 1 my=original stub in St1","pl")
     ##leg.AddEntry(h_eff_eta_after_xtra_dr,"(dashed lines correspond to p_{T}>10)","")
     leg.Draw()
 
+    tex = drawPULabel()
     c.SaveAs("%sh_eff_eta_steps_full10_tf%s"%(output_dir,ext))
 
 
@@ -560,13 +583,17 @@ def cscMpcTFCandGmtTriggerEfficiencyVsEta():
     etareb = 1
     yrange = [0.,1.04]
     xrange = [1.4,2.5]
+#    title = "TFTrack efficiency studies" 
+    title = " " * 11 + "CSC GMT Track reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+    xTitle = "Simtrack #eta"
+    yTitle = "Efficiency"
 
     c = TCanvas("c","c",1000,600 ) 
-    
-    h_eff_eta_after_mpc = setEffHisto("h_eta_after_mpc","h_eta_initial",dir, etareb, kBlack, 1,2, "eff(#eta): TF studies","#eta","",xrange,yrange)
+    c.cd()
+    h_eff_eta_after_mpc =         setEffHisto("h_eta_after_mpc","h_eta_initial",dir, etareb, kBlack, 1,2, title, xTitle, yTitle, xrange,yrange)
     h_eff_eta_after_tfcand_pt10 = setEffHisto("h_eta_after_tfcand_pt10","h_eta_initial",dir, etareb, kBlue, 1,2, "","","",xrange,yrange)
     h_eff_eta_after_gmtreg_pt10 = setEffHisto("h_eta_after_gmtreg_pt10","h_eta_initial",dir, etareb, kRed+1, 2,2, "","","",xrange,yrange)
-    h_eff_eta_after_gmt_pt10 = setEffHisto("h_eta_after_gmt_pt10","h_eta_initial",dir, etareb, kGreen+1, 1,2, "","","",xrange,yrange)
+    h_eff_eta_after_gmt_pt10 =    setEffHisto("h_eta_after_gmt_pt10","h_eta_initial",dir, etareb, kGreen+1, 1,2, "","","",xrange,yrange)
 
     h_eff_eta_after_mpc.Draw("hist")
     h_eff_eta_after_tfcand_pt10.Draw("same hist")
@@ -574,26 +601,25 @@ def cscMpcTFCandGmtTriggerEfficiencyVsEta():
     h_eff_eta_after_gmt_pt10.Draw("same hist")
     ##h_eff_eta_after_xtra_dr_pt10.Draw("same hist")
     
-    leg = TLegend(0.2518248,0.263986,0.830292,0.5332168,"","brNDC")
+    leg = TLegend(0.2518248,0.2,0.830292,0.45,"","brNDC")
+    leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    
-    leg.SetHeader("With additional TF cut p_{T}>10 Efficiency after")
-    leg.AddEntry(h_eff_eta_after_mpc,"match to MPC","pl")
-    leg.AddEntry(h_eff_eta_after_tfcand_pt10,"match to MPC & TF track","pl")
-    leg.AddEntry(h_eff_eta_after_gmtreg_pt10,"match to MPC & TF trk & CSC GMT trk","pl")
-    leg.AddEntry(h_eff_eta_after_gmt_pt10,"match to MPC & TF trk & GMT trk","pl")
+    leg.SetHeader("Efficiency for a muon to have")
+    leg.AddEntry(h_eff_eta_after_mpc,"at least 1 reconstructed MPC LCT","pl")
+    leg.AddEntry(h_eff_eta_after_tfcand_pt10,"a TFTrack with p_{T} > 10 GeV","pl")
+    leg.AddEntry(h_eff_eta_after_gmtreg_pt10,"a CSC GMT Track with p_{T} > 10 GeV","pl") #match to MPC & TF trk & CSC GMT trk
+    leg.AddEntry(h_eff_eta_after_gmt_pt10,"a GMT Track with p_{T} > 10 GeV","pl") #match to MPC & TF trk & GMT trk
     ##leg.AddEntry(h_eff_eta_after_xtra_dr,"(dashed lines correspond to p_{T}>10)","")
     leg.Draw()
 
+    tex = drawPULabel()
     c.SaveAs("%sh_eff_eta_steps_full10%s"%(output_dir,ext))
     
 
 #_______________________________________________________________________________
 def drawplot_etastep(fname, pu, dname="tf"):
     
-    ## directory for plots is made as 
-    ## pdir = $PWD/pic[_{dname}]_{pu}
 
     ##gStyle.SetStatW(0.13)
     ##gStyle.SetStatH(0.08)
@@ -601,18 +627,6 @@ def drawplot_etastep(fname, pu, dname="tf"):
     gStyle.SetStatH(0.06)
     gStyle.SetOptStat(0)
     gStyle.SetTitleStyle(0)
-
-
-    """
-    ## directory inside of root file:
-    if (strcmp(pu,"StrictDirect")==0) sprintf(dir,"SimMuL1Strict")
-    if (strcmp(pu,"StrictChamber")==0) sprintf(dir,"SimMuL1StrictAll")
-    if (strcmp(pu,"NaturalDirect")==0) sprintf(dir,"SimMuL1")
-    if (strcmp(pu,"NaturalChamber")==0) sprintf(dir,"SimMuL1All")
-    if (strcmp(pu,"StrictDeltaY")==0) sprintf(dir,"SimMuL1StrictDY")
-    if (strcmp(pu,"NaturalDeltaY")==0) sprintf(dir,"SimMuL1DY")
-    if (strcmp(pu,"StrictChamber0")==0) sprintf(dir,"SimMuL1StrictAll0")
-    """
 
     etareb=1
     ptreb=2
@@ -1102,7 +1116,7 @@ def drawplot_etastep(fname, pu, dname="tf"):
     leg.SetHeader("Efficiency after")
     leg.AddEntry(NUL,"match to MPC:","")
     leg.AddEntry(h_eff_eta_after_mpc," at least one","pl")
-    leg.AddEntry(h_eff_eta_after_mpc_st1," at least one in ME1","pl")
+    leg.AddEntry(h_eff_eta_after_mpc_st1," at least 1 in ME1","pl")
     ##leg.AddEntry(h_eff_eta_after_mpc_st1_good,"match to MPC (at least one good in ME1)","pl")
     leg.AddEntry(NUL,"match to MPC & TF track:","")
     leg.AddEntry(h_eff_eta_after_tfcand_pt10," with additional TF cut p_{T}>10","pl")
@@ -1240,7 +1254,7 @@ def drawplot_etastep(fname, pu, dname="tf"):
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
 
-    leg.SetHeader("Efficiency for muon with p_{T}>10")
+    leg.SetHeader("Efficiency for a muon with p_{T}>10")
     ##leg.AddEntry(NUL,"match to LCT:","")
     leg.AddEntry(h_eff_eta_me1_after_lct,"any LCT in ME1 chamber crossed by #mu","pl")
     leg.AddEntry(h_eff_eta_me1_after_lct_okAlct,"  + track's ALCT","pl")
@@ -1332,11 +1346,11 @@ def simTrackToAlctMatchingEfficiencyVsEtaME1():
     xrange = [1.4,2.5]    
     xTitle = "SimTrack eta"
     yTitle = "Efficiency"
-    topTitle = " " * 11 + "CSC Stub matching" + " " * 35 + "CMS Simulation Preliminary"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
 
     c = TCanvas("h_eff_eta_me1_after_alct","h_eff_eta_me1_after_alct",1000,600 )     
     c.cd()
@@ -1345,15 +1359,47 @@ def simTrackToAlctMatchingEfficiencyVsEtaME1():
     h_eff_eta_me1_after_alct_okAlct.Draw("same hist")
 
     leg = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for #mu with p_{T}>20 crossing a ME1 chamber with")
-    leg.AddEntry(h_eff_eta_me1_after_alct,"any ALCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_alct_okAlct,"correct ALCT","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_me1_after_alct,"a reconstructed ALCT anywhere in the chamber","pl")
+    leg.AddEntry(h_eff_eta_me1_after_alct_okAlct,"a reconstructed ALCT within 2 wiregroups distance","pl")
     leg.Draw()
+    tex = drawPULabel()
     c.Print("%ssimTrackToAlctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
+#_______________________________________________________________________________
+def simTrackToAlctMatchingEfficiencyVsEtaME11():
+
+    dir = getRootDirectory(input_dir, file_name)
+
+    etareb = 1
+    yrange = [0.8,1.04]
+    xrange = [1.55,2.4]    
+    xTitle = "SimTrack eta"
+    yTitle = "Efficiency"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+
+    h_eff_eta_me11_after_alct = setEffHisto("h_eta_me11_after_alct","h_eta_me11_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me11_after_alct_okAlct = setEffHisto("h_eta_me11_after_alct_okAlct","h_eta_me11_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+
+    c = TCanvas("h_eff_eta_me11_after_alct","h_eff_eta_me11_after_alct",1000,600 )     
+    c.cd()
+    h_eff_eta_me11_after_alct.Draw("hist")
+    h_eff_eta_me11_after_alct_okAlct.Draw("same hist")
+
+    leg = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    leg.SetBorderSize(0)
+    leg.SetMargin(0.15)
+    leg.SetFillStyle(0)
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in an ME11 chamber and"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_me11_after_alct,"a reconstructed ALCT anywhere in the chamber","pl")
+    leg.AddEntry(h_eff_eta_me11_after_alct_okAlct,"a reconstructed ALCT within 2 wiregroups distance","pl")
+    leg.Draw()
+    tex = drawPULabel()
+    c.Print("%ssimTrackToAlctMatchingEfficiencyVsEtaME11%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
 def simTrackToClctMatchingEfficiencyVsEtaME1():
@@ -1365,11 +1411,11 @@ def simTrackToClctMatchingEfficiencyVsEtaME1():
     xrange = [1.4,2.5]    
     xTitle = "SimTrack eta"
     yTitle = "Efficiency"
-    topTitle = " " * 11 + "CSC Stub matching" + " " * 35 + "CMS Simulation Preliminary"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
 
     c = TCanvas("h_eff_eta_me1_after_clct","h_eff_eta_me1_after_clct",1000,600 )     
     c.cd()
@@ -1378,14 +1424,48 @@ def simTrackToClctMatchingEfficiencyVsEtaME1():
     h_eff_eta_me1_after_clct_okClct.Draw("same hist")
 
     leg = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for #mu with p_{T}>20 crossing a ME1 chamber with")
-    leg.AddEntry(h_eff_eta_me1_after_clct,"any CLCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_clct_okClct,"correct CLCT","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_me1_after_clct,"a reconstructed CLCT anywhere in the chamber","pl")
+    leg.AddEntry(h_eff_eta_me1_after_clct_okClct,"a reconstructed CLCT within 2 strips distance","pl")
     leg.Draw()
+    tex = drawPULabel()
     c.Print("%ssimTrackToClctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
+
+#_______________________________________________________________________________
+def simTrackToClctMatchingEfficiencyVsEtaME11():
+
+    dir = getRootDirectory(input_dir, file_name)
+
+    etareb = 1
+    yrange = [0.8,1.04]
+    xrange = [1.55,2.4]    
+    xTitle = "SimTrack eta"
+    yTitle = "Efficiency"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+
+    h_eff_eta_me11_after_clct = setEffHisto("h_eta_me11_after_clct","h_eta_me11_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me11_after_clct_okClct = setEffHisto("h_eta_me11_after_clct_okClct","h_eta_me11_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+
+    c = TCanvas("h_eff_eta_me11_after_clct","h_eff_eta_me11_after_clct",1000,600 )     
+    c.cd()
+    h_eff_eta_me11_after_clct.Draw("hist")
+    h_eff_eta_me11_after_clct_okClct.Draw("same hist")
+
+    leg = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    leg.SetMargin(0.15)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_me11_after_clct,"a reconstructed CLCT anywhere in the chamber","pl")
+    leg.AddEntry(h_eff_eta_me11_after_clct_okClct,"a reconstructed CLCT within 2 strips distance","pl")
+    leg.Draw()
+    tex = drawPULabel()
+    c.Print("%ssimTrackToClctMatchingEfficiencyVsEtaME11%s"%(output_dir, ext))
+
 
 #_______________________________________________________________________________
 def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
@@ -1394,20 +1474,20 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
 
     etareb = 1
     yrange = [0.8,1.04]
-    xrange = [1.4,2.5]    
+    xrange = [1.55,2.4]    
     xTitle = "SimTrack eta"
     yTitle = "Efficiency"
-    topTitle = " " * 11 + "CSC Stub matching" + " " * 35 + "CMS Simulation Preliminary"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
-    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_initial",dir, etareb, kRed+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_initial",dir, etareb, kRed+1, 1, 2, "","","",xrange,yrange)
-    h_eff_eta_me1_after_alctclct = setEffHisto("h_eta_me1_after_alctclct","h_eta_initial",dir, etareb, kGreen+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okAlct = setEffHisto("h_eta_me1_after_alctclct_okAlct","h_eta_initial",dir, etareb, kGreen+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okClct = setEffHisto("h_eta_me1_after_alctclct_okClct","h_eta_initial",dir, etareb, kOrange+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_alctclct_okAlctClct = setEffHisto("h_eta_me1_after_alctclct_okAlctClct","h_eta_initial",dir, etareb, kOrange+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct = setEffHisto("h_eta_me1_after_clct","h_eta_me1_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_clct_okClct = setEffHisto("h_eta_me1_after_clct_okClct","h_eta_me1_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alct = setEffHisto("h_eta_me1_after_alct","h_eta_me1_initial",dir, etareb, kRed+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alct_okAlct = setEffHisto("h_eta_me1_after_alct_okAlct","h_eta_me1_initial",dir, etareb, kRed+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_alctclct = setEffHisto("h_eta_me1_after_alctclct","h_eta_me1_initial",dir, etareb, kGreen+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okAlct = setEffHisto("h_eta_me1_after_alctclct_okAlct","h_eta_me1_initial",dir, etareb, kGreen+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okClct = setEffHisto("h_eta_me1_after_alctclct_okClct","h_eta_me1_initial",dir, etareb, kOrange+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me1_after_alctclct_okAlctClct = setEffHisto("h_eta_me1_after_alctclct_okAlctClct","h_eta_me1_initial",dir, etareb, kOrange+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
 
     c = TCanvas("","",1000,600 )     
     c.cd()
@@ -1425,7 +1505,7 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for #mu with p_{T}>20 crossing a ME1 chamber with")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to reconstruct stubs in an ME1 chamber"%(minSimPt,maxSimPt))
 #    leg.AddEntry(h_eff_eta_me1_after_clct,"any CLCT","pl")
 #    leg.AddEntry(h_eff_eta_me1_after_clct_okClct,"correct CLCT","pl")
 #    leg.AddEntry(h_eff_eta_me1_after_alct,"any ALCT","pl")
@@ -1434,10 +1514,62 @@ def simTrackToAlctClctMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_alctclct_okAlct,"correct ALCT & any CLCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_alctclct_okClct,"any ALCT & correct CLCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_alctclct_okAlctClct,"correct ALCT & correct CLCT","pl")
-
     leg.Draw()
+
+    tex = drawPULabel()
     c.Print("%ssimTrackToAlctClctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
+#_______________________________________________________________________________
+def simTrackToAlctClctMatchingEfficiencyVsEtaME11():
+
+    dir = getRootDirectory(input_dir, file_name)
+
+    etareb = 1
+    yrange = [0.8,1.04]
+    xrange = [1.55,2.4]    
+    xTitle = "SimTrack eta"
+    yTitle = "Efficiency"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+
+    h_eff_eta_me11_after_clct = setEffHisto("h_eta_me11_after_clct","h_eta_me11_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me11_after_clct_okClct = setEffHisto("h_eta_me11_after_clct_okClct","h_eta_me11_initial",dir, etareb, kBlue+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me11_after_alct = setEffHisto("h_eta_me11_after_alct","h_eta_me11_initial",dir, etareb, kRed+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me11_after_alct_okAlct = setEffHisto("h_eta_me11_after_alct_okAlct","h_eta_me11_initial",dir, etareb, kRed+1, 1, 2, "","","",xrange,yrange)
+    h_eff_eta_me11_after_alctclct = setEffHisto("h_eta_me11_after_alctclct","h_eta_me11_initial",dir, etareb, kGreen+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me11_after_alctclct_okAlct = setEffHisto("h_eta_me11_after_alctclct_okAlct","h_eta_me11_initial",dir, etareb, kGreen+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me11_after_alctclct_okClct = setEffHisto("h_eta_me11_after_alctclct_okClct","h_eta_me11_initial",dir, etareb, kOrange+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me11_after_alctclct_okAlctClct = setEffHisto("h_eta_me11_after_alctclct_okAlctClct","h_eta_me11_initial",dir, etareb, kOrange+1, 1, 2, title,xTitle,yTitle,xrange,yrange)
+
+    c = TCanvas("","",1000,600 )     
+    c.cd()
+#    h_eff_eta_me11_after_clct.Draw("hist")
+#    h_eff_eta_me11_after_clct.Draw("same hist")
+#    h_eff_eta_me11_after_clct_okClct.Draw("same hist")
+#    h_eff_eta_me11_after_alct.Draw("same hist")
+#    h_eff_eta_me11_after_alct_okAlct.Draw("same hist")
+    h_eff_eta_me11_after_alctclct.Draw("hist")
+    h_eff_eta_me11_after_alctclct_okAlct.Draw("same hist")
+    h_eff_eta_me11_after_alctclct_okClct.Draw("same hist")
+    h_eff_eta_me11_after_alctclct_okAlctClct.Draw("same hist")
+
+    leg = TLegend(0.3,0.15,0.926,0.4,"","brNDC")
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    leg.SetNColumns(2)
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to reconstruct stubs in an ME11 chamber"%(minSimPt,maxSimPt))
+#    leg.AddEntry(h_eff_eta_me11_after_clct,"any CLCT","pl")
+#    leg.AddEntry(h_eff_eta_me11_after_clct_okClct,"correct CLCT","pl")
+#    leg.AddEntry(h_eff_eta_me11_after_alct,"any ALCT","pl")
+#    leg.AddEntry(h_eff_eta_me11_after_alct_okAlct,"correct ALCT","pl")
+    leg.AddEntry(h_eff_eta_me11_after_alctclct,"any ALCT & any CLCT","pl")
+    leg.AddEntry(h_eff_eta_me11_after_alctclct_okAlct,"correct ALCT & any CLCT","pl")
+    leg.AddEntry(h_eff_eta_me11_after_alctclct_okClct,"any ALCT & correct CLCT","pl")
+    leg.AddEntry(h_eff_eta_me11_after_alctclct_okAlctClct,"correct ALCT & correct CLCT","pl")
+    leg.Draw()
+
+    tex = drawPULabel()
+    c.Print("%ssimTrackToAlctClctMatchingEfficiencyVsEtaME11%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
 def simTrackToLctMatchingEfficiencyVsEtaME1():
@@ -1449,14 +1581,14 @@ def simTrackToLctMatchingEfficiencyVsEtaME1():
     xrange = [1.4,2.5]    
     xTitle = "SimTrack eta"
     yTitle = "Efficiency"
-    topTitle = " " * 11 + "CSC Stub matching" + " " * 35 + "CMS Simulation Preliminary"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
     h_eff_eta_me1_after_lct = setEffHisto("h_eta_me1_after_lct","h_eta_initial",dir, etareb, kRed, 2, 2, topTitle,xTitle,yTitle,xrange,yrange)
-    h_eff_eta_me1_after_lct_okAlct = setEffHisto("h_eta_me1_after_lct_okAlct","h_eta_initial",dir, etareb, kRed+1, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
-    h_eff_eta_me1_after_lct_okClct = setEffHisto("h_eta_me1_after_lct_okClct","h_eta_initial",dir, etareb, kRed+2, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
-    h_eff_eta_me1_after_lct_okAlctClct = setEffHisto("h_eta_me1_after_lct_okAlctClct","h_eta_initial",dir, etareb, kRed+3, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
-    h_eff_eta_me1_after_lct_okClctAlct = setEffHisto("h_eta_me1_after_lct_okClctAlct","h_eta_initial",dir, etareb, kRed+4, 1,2, "","","",xrange,yrange)
+    h_eff_eta_me1_after_lct_okAlct = setEffHisto("h_eta_me1_after_lct_okAlct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
+    h_eff_eta_me1_after_lct_okClct = setEffHisto("h_eta_me1_after_lct_okClct","h_eta_initial",dir, etareb, kGreen+2, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
+    h_eff_eta_me1_after_lct_okAlctClct = setEffHisto("h_eta_me1_after_lct_okAlctClct","h_eta_initial",dir, etareb, kOrange+3, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
+    h_eff_eta_me1_after_lct_okClctAlct = setEffHisto("h_eta_me1_after_lct_okClctAlct","h_eta_initial",dir, etareb, kBlack, 1,2, "","","",xrange,yrange)
     
     c = TCanvas("h_eff_eta_me1_after_alct","h_eff_eta_me1_after_alct",1000,600 )     
     c.cd()
@@ -1471,7 +1603,7 @@ def simTrackToLctMatchingEfficiencyVsEtaME1():
     leg.SetFillStyle(0)
 
     leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for #mu with p_{T}>20 crossing a ME1 chamber with")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to reconstruct an LCT in an ME11 chamber"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_lct,"any LCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_lct_okAlct,"any LCT with correct ALCT","pl")
     leg.AddEntry(h_eff_eta_me1_after_lct_okClct,"any LCT with correct CLCT","pl")
@@ -1479,7 +1611,52 @@ def simTrackToLctMatchingEfficiencyVsEtaME1():
     leg.AddEntry(h_eff_eta_me1_after_lct_okAlctClct,"correct LCT, ALCT-to-CLCT","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToLctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
+
+#_______________________________________________________________________________
+def simTrackToLctMatchingEfficiencyVsEtaME11():
+
+    dir = getRootDirectory(input_dir, file_name)
+
+    etareb = 1
+    yrange = [0.8,1.04]
+    xrange = [1.55,2.4]    
+    xTitle = "SimTrack eta"
+    yTitle = "Efficiency"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
+    title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
+
+    h_eff_eta_me11_after_lct = setEffHisto("h_eta_me11_after_lct","h_eta_me11_initial",dir, etareb, kRed, 2, 2, topTitle,xTitle,yTitle,xrange,yrange)
+    h_eff_eta_me11_after_lct_okAlct = setEffHisto("h_eta_me1_after_lct_okAlct","h_eta_me11_initial",dir, etareb, kBlue+1, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
+    h_eff_eta_me11_after_lct_okClct = setEffHisto("h_eta_me1_after_lct_okClct","h_eta_me11_initial",dir, etareb, kGreen+2, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
+    h_eff_eta_me11_after_lct_okAlctClct = setEffHisto("h_eta_me1_after_lct_okAlctClct","h_eta_me11_initial",dir, etareb, kOrange+3, 2, 2, "eff(#eta): ME1 stub studies","#eta","",xrange,yrange)
+    h_eff_eta_me11_after_lct_okClctAlct = setEffHisto("h_eta_me1_after_lct_okClctAlct","h_eta_me11_initial",dir, etareb, kBlack, 1,2, "","","",xrange,yrange)
+    
+    c = TCanvas("h_eff_eta_me11_after_alct","h_eff_eta_me11_after_alct",1000,600 )     
+    c.cd()
+    h_eff_eta_me11_after_lct.Draw("hist")
+    h_eff_eta_me11_after_lct_okAlct.Draw("same hist")
+    h_eff_eta_me11_after_lct_okClct.Draw("same hist")
+    h_eff_eta_me11_after_lct_okAlctClct.Draw("same hist")
+    h_eff_eta_me11_after_lct_okClctAlct.Draw("same hist")
+
+    leg = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+
+    leg.SetNColumns(2)
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to reconstruct an LCT in an ME11 chamber"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_me11_after_lct,"any LCT","pl")
+    leg.AddEntry(h_eff_eta_me11_after_lct_okAlct,"any LCT with correct ALCT","pl")
+    leg.AddEntry(h_eff_eta_me11_after_lct_okClct,"any LCT with correct CLCT","pl")
+    leg.AddEntry(h_eff_eta_me11_after_lct_okClctAlct,"correct LCT, CLCT-to-ALCT","pl")
+    leg.AddEntry(h_eff_eta_me11_after_lct_okAlctClct,"correct LCT, ALCT-to-CLCT","pl")
+    leg.Draw()
+
+    tex = drawPULabel()
+    c.Print("%ssimTrackToLctMatchingEfficiencyVsEtaME11%s"%(output_dir, ext))
+
 
 #_______________________________________________________________________________
 def simTrackToMpcLctMatchingEfficiencyVsEtaME1():
@@ -1491,7 +1668,7 @@ def simTrackToMpcLctMatchingEfficiencyVsEtaME1():
     xrange = [1.4,2.5]    
     xTitle = "SimTrack eta"
     yTitle = "Efficiency"
-    topTitle = " " * 11 + "CSC Stub matching" + " " * 35 + "CMS Simulation Preliminary"
+    topTitle = " " * 11 + "CSC Stub reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
     h_eff_eta_me1_after_mplct_okAlctClct = setEffHisto("h_eta_me1_after_mplct_okAlctClct","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
@@ -1503,13 +1680,14 @@ def simTrackToMpcLctMatchingEfficiencyVsEtaME1():
     h_eff_eta_me1_after_mplct_okAlctClct_plus.Draw("same hist")
 
     leg = TLegend(0.347,0.222,0.926,0.535,"","brNDC")
+    leg.SetMargin(0.15)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for #mu with p_{T}>20 crossing a ME1 chamber with")
-    leg.AddEntry(h_eff_eta_me1_after_mplct_okAlctClct,"Good MPC LCT","pl")
-    leg.AddEntry(h_eff_eta_me1_after_mplct_okAlctClct_plus,"  + has two MPC matched","pl")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
+    leg.AddEntry(h_eff_eta_me1_after_mplct_okAlctClct,"at least 1 reconstructed MPC LCT in station 1","pl")
+    leg.AddEntry(h_eff_eta_me1_after_mplct_okAlctClct_plus,"at least 2 reconstructed MPC LCTs, 1 in station 1","pl")
     leg.Draw()
+    tex = drawPULabel()
     c.Print("%ssimTrackToMpcLctMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 #_______________________________________________________________________________
@@ -1522,12 +1700,12 @@ def simTrackToTFTrackMatchingEfficiencyVsEtaME1():
     dir = getRootDirectory(input_dir, file_name)
 
     etareb = 1
-    yrange = [0.6,1.05]
+    yrange = [0.0,1.05]
     xrange = [1.4,2.5]    
 
     xTitle = "SimTrack eta"
     yTitle = "Efficiency"
-    topTitle = " " * 11 + "CSC TFTrack matching" + " " * 35 + "CMS Simulation Preliminary"
+    topTitle = " " * 11 + "CSC TFTrack reconstruction" + " " * 35 + "CMS Simulation Preliminary"
     title = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
     h_eff_eta_me1_after_tf_ok = setEffHisto("h_eta_me1_after_tf_ok","h_eta_initial",dir, etareb, kBlue+1, 2, 2, title,xTitle,yTitle,xrange,yrange)
@@ -1543,17 +1721,18 @@ def simTrackToTFTrackMatchingEfficiencyVsEtaME1():
     h_eff_eta_me1_after_tf_ok_plus.Draw("same hist")
     h_eff_eta_me1_after_tf_ok_plus_pt10.Draw("same hist")
 
-    leg = TLegend(0.1,0.222,0.926,0.535,"","brNDC")
+    leg = TLegend(0.2,0.222,0.926,0.535,"","brNDC")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetNColumns(2)
-    leg.SetHeader("Efficiency for #mu with p_{T}>20 crossing a ME1 chamber with")
+#    leg.SetNColumns(2)
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d to have hits in station 1 and"%(minSimPt,maxSimPt))
     leg.AddEntry(h_eff_eta_me1_after_tf_ok,"a TF Track","pl")
     leg.AddEntry(h_eff_eta_me1_after_tf_ok_pt10,"a TF Track with p_{T}>10","pl")
-    leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus,"a TF Track with a stub in ME1 and at least another station","pl")
-    leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus_pt10,"a TF Track with p_{T}>10, and with a stub in ME1 and another station","pl")
+    leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus,"a TF Track with a stub in station 1 and at least another station","pl")
+    leg.AddEntry(h_eff_eta_me1_after_tf_ok_plus_pt10,"a TF Track with p_{T}>10, and with a stub in station 1 and another station","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToTFTrackMatchingEfficiencyVsEtaME1%s"%(output_dir, ext))
 
 
@@ -1592,17 +1771,17 @@ def simTrackToAlctMatchingEfficiencyVsPhiME1():
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
 
-    leg.SetNColumns(3)
-    leg.SetHeader("Efficiency for #mu with p_{T}>20 crossing a ME1 chamber with")
+    leg.SetHeader("Efficiency for a muon with %d < p_{T} < %d GeV to have hits in station 1 with"%(minSimPt,maxSimPt))
 
-    leg.AddEntry(h_eff_phi_me1_after_alct,"any ALCT","pl")
-    leg.AddEntry(h_eff_phi_me1_after_alct_okAlct,"Correct ALCT","pl")
-    leg.AddEntry(h_eff_phi_me1_after_clct,"any CLCT","pl")
+    leg.AddEntry(h_eff_phi_me1_after_alct,"a reconstructed ALCT anywhere in an ME1 chamber","pl")
+    leg.AddEntry(h_eff_phi_me1_after_alct_okAlct,"a reconstructed ALCT within 2 wiregroups distance (good ALCT)","pl")
+    leg.AddEntry(h_eff_phi_me1_after_clct,"a reconstructed CLCT anywhere in an ME1 chamber","pl")
     leg.AddEntry(h_eff_phi_me1_after_clct_okClct,"Correct CLCT","pl")
     leg.AddEntry(h_eff_phi_me1_after_lct,"any LCT","pl")
-    leg.AddEntry(h_eff_phi_me1_after_lct_okAlctClct,"LCT with correct ALCT and CLCT","pl")
+    leg.AddEntry(h_eff_phi_me1_after_lct_okAlctClct,"a reconstructed LCT with a good ALCT and CLCT","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToALctMatchingEfficiencyVsPhiME1%s"%(output_dir, ext))
 
     
@@ -1617,7 +1796,7 @@ def simTrackToAlctMatchingEfficiencyVsWGME11():
     fullTitle = "%s;%s;%s"%(topTitle,xTitle,yTitle)
 
     etareb = 1
-    yrange = [0.6,1.2]
+    yrange = [0.8,1.04]
     xrange = [0,100]    
 
     h_eff_wg_me11_after_alct_okAlct = setEffHisto("h_wg_me11_after_alct_okAlct","h_wg_me11_initial",dir, etareb, kRed, 0, 2, "","","",xrange,yrange)
@@ -1633,7 +1812,7 @@ def simTrackToAlctMatchingEfficiencyVsWGME11():
     h_eff_wg_me11_after_alctclct_okAlctClct.Draw("same hist")
     h_eff_wg_me11_after_lct_okAlctClct.Draw("same hist")
 
-    leg = TLegend(0.2,0.2,0.926,0.4,"","brNDC")
+    leg = TLegend(0.5,0.2,1.0,0.4,"","brNDC")
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
     #leg.SetNColumns(3)
@@ -1643,6 +1822,7 @@ def simTrackToAlctMatchingEfficiencyVsWGME11():
     leg.AddEntry(h_eff_wg_me11_after_lct_okAlctClct,"Good LCT","pl")
     leg.Draw()
 
+    tex = drawPULabel()
     c.Print("%ssimTrackToALctMatchingEfficiencyVsWGME11%s"%(output_dir, ext))
 
     
@@ -1667,8 +1847,24 @@ if __name__ == "__main__":
 
     ## global variables
     input_dir = "files/"
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC5_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff.test.pt20.root"
-    output_dir = "plots_pt20/"
+    dphi_cut = 0
+    #file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu400_w3_gem98_pt2-50_PU400_pt0_new_eff.root"
+    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_2simhits.root"
+#    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_3simhits.root"
+#    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_4simhits.root"
+    minEta = 1.45
+    maxEta = 2.5
+    minSimPt = 2
+    maxSimPt = 50
+    minSimHitChamber = 2
+
+
+    output_dir = "plots/"
+
+    reuseOutputDirectory = False
+    if not reuseOutputDirectory:
+        output_dir = mkdir("4simhit")
+
     ext = ".png"
 
     simTrackToAlctMatchingEfficiencyVsEtaME1()
@@ -1677,8 +1873,14 @@ if __name__ == "__main__":
     simTrackToLctMatchingEfficiencyVsEtaME1()
     simTrackToMpcLctMatchingEfficiencyVsEtaME1()
     simTrackToTFTrackMatchingEfficiencyVsEtaME1()
-    
     simTrackToAlctMatchingEfficiencyVsWGME11()
+
+    doME11 = False
+    if doME11:
+        simTrackToAlctMatchingEfficiencyVsEtaME11()
+        simTrackToClctMatchingEfficiencyVsEtaME11()
+        simTrackToAlctClctMatchingEfficiencyVsEtaME11()
+        simTrackToLctMatchingEfficiencyVsEtaME11()
 
     cscStationOccupanciesVsEta()
     cscStationOccupanciesMatchedVsEta_2()
