@@ -74,11 +74,14 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
 	}
         processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
       } else {
+/*
+        // FIXME: Commented out because ROOT6 does not yet support attributes on "field name=" lines.
         if( !isLoosePersistencyDataMember( dataMember ) ){
 	  throwException( "Data member \"" + dataMemberName +
                           "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
                           "ObjectStreamerBase::buildBaseDataMembers" );
 	}
+*/
       }
     }
   }
@@ -128,11 +131,14 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
       }
       processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
     } else {
+/*
+      // FIXME: Commented out because ROOT6 does not yet support attributes on "field name=" lines.
       if(!isLoosePersistencyDataMember( dataMember ) ){
         throwException( "Data member \"" + dataMemberName +
                         "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
                         "ObjectStreamerBase::buildDataMembers" );
       }
+*/
     }
   }
   return true;
