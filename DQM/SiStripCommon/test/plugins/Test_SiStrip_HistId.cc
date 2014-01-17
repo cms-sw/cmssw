@@ -46,7 +46,7 @@ void Test_SiStrip_HistId::analyze(const edm::Event& iEvent, const edm::EventSetu
 {
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
   edm::Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+  iEvent.getByToken("example",pIn);
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
