@@ -24,6 +24,8 @@
 - MuonFrameRotation
 - MuonG4Numbering
 - MuonRpcFrameRotation
+- MuonGemFrameRotation
+- MuonMe0FrameRotation
 - MuonSensitiveDetector
 - MuonSlaveSD
 - SimHitPrinter
