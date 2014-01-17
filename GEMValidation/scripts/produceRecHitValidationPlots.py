@@ -360,7 +360,7 @@ if __name__ == "__main__":
             OR(ok_gL2rh,ok_gL1rh), "P", kBlue)
   draw_geff(targetDir, "eff_phi_track_rh_gem_l1and2", ext, treeTracks, 
 	    "Eff. for a SimTrack to have an associated GEM RecHit in l1 and l2 with a matched SimHit;SimTrack #phi [rad];Eff.", 
-	    "h_", "(100,-3.141592654,3.141592654)", "phi", AND(ok_eta,AND(ok_gL1sh,ok_gL2sh)),
+	    "h_", "(100,-3.141592654,3.141592654)", "phi", AND(ok_eta,ok_gL1sh,ok_gL2sh)),
             AND(ok_gL2rh,ok_gL1rh), "P", kBlue)
 
   file.Close()
