@@ -8,7 +8,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessorFirmware.h"
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
-#include "CaloStage1JetAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmImp.h"
 
 using namespace std;
 using namespace l1t;

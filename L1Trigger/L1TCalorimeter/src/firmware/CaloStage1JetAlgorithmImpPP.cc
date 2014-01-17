@@ -7,7 +7,8 @@
 
 // This example implements algorithm version 1 and 2.
 
-#include "CaloStage1JetAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 
 // Taken from UCT code. Might not be appropriate. Refers to legacy L1 objects.
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -30,7 +31,7 @@ void CaloStage1JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion
 
   std::vector<l1t::CaloRegion> subRegions;
   puSubtractionPP(regions, subRegions);
-  findJets(subRegions, jets);
+  slidingWindowJetFinder(subRegions, jets);
 
   // std::vector<l1t::CaloRegion>::const_iterator incell;
   // for (incell = regions.begin(); incell != regions.end(); ++incell){
