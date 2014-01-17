@@ -544,12 +544,16 @@ hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr3Hits = cms.Sequence(
 # Define the HPS selection discriminator used in cleaning
 hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
 
-from RecoTauTag.RecoTau.RecoTauCleaner_cfi import hpsPFTauProducerSansRefs
-hpsPFTauProducerSansRefs.src=cms.InputTag("combinatoricRecoTaus")
+from RecoTauTag.RecoTau.RecoTauCleaner_cfi import RecoTauCleaner
+hpsPFTauProducerSansRefs=RecoTauCleaner.clone(
+      src=cms.InputTag("combinatoricRecoTaus")
+)
 
 
-from RecoTauTag.RecoTau.RecoTauPiZeroUnembedder_cfi import hpsPFTauProducer
-hpsPFTauProducer.src = cms.InputTag("hpsPFTauProducerSansRefs")
+from RecoTauTag.RecoTau.RecoTauPiZeroUnembedder_cfi import RecoTauPiZeroUnembedder
+hpsPFTauProducer=RecoTauPiZeroUnembedder.clone(
+  src = cms.InputTag("hpsPFTauProducerSansRefs")
+)
 
 
 from RecoTauTag.RecoTau.PFTauPrimaryVertexProducer_cfi      import *

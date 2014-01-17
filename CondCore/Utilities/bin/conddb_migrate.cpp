@@ -96,7 +96,7 @@ int cond::MigrateUtilities::execute(){
     std::string destTag("");
     if( session.checkMigrationLog( sourceConnect, t, destTag ) ){
       std::cout <<"    Tag already migrated." << std::endl;
-      session.transaction().commit();
+      session.transaction().rollback();
       continue;
     }
     destTag = t;
@@ -109,14 +109,16 @@ int cond::MigrateUtilities::execute(){
       }
     }
     if( session.existsIov( destTag ) ){
-      session.transaction().commit();
+      session.transaction().rollback();
       throwException("Tag \""+destTag+"\" already exists.","MigrateUtilities::execute");
     }
 
     std::cout <<"    Resolving source tag oid..."<<std::endl;
     std::string iovTok = metadata.getToken(t); 
-    if(iovTok.empty())
+    if(iovTok.empty()){
+      session.transaction().rollback();
       throw std::runtime_error(std::string("tag ")+t+std::string(" not found") );
+    }
     std::map<std::string,Hash> tokenToHash;
     size_t niovs = 0;
     std::set<Hash> pids;
@@ -125,7 +127,18 @@ int cond::MigrateUtilities::execute(){
     try{
       cond::IOVProxy sourceIov(sourcedb, iovTok);
       int tt = (int) sourceIov.timetype();
-      std::string payloadType = *(sourceIov.payloadClasses().begin());
+      if( sourceIov.size() == 0 ) {
+	std::cout <<"    No iov found. Skipping tag."<<std::endl;
+	session.transaction().rollback();
+	continue;
+      }
+      std::string payloadType("");
+      if( sourceIov.payloadClasses().size() > 0 ) { 
+	payloadType = *(sourceIov.payloadClasses().begin());
+      } else {
+	std::string tk = sourceIov.begin()->token();
+	payloadType = sourcedb.classNameForItem( tk );
+      }
       std::cout <<"    Importing tag. Size:"<<sourceIov.size()<<" timeType:"<<cond::timeTypeNames(tt)<<" payloadObjectType=\""<<payloadType<<"\""<<std::endl;
       editor = session.createIov( payloadType, destTag, (cond::TimeType)tt );
       editor.setDescription( "Tag "+t+" migrated from "+sourceConnect  );
@@ -159,7 +172,7 @@ int cond::MigrateUtilities::execute(){
     } catch ( const std::exception& e ){
       std::cout <<"    ERROR:"<<e.what()<<std::endl;
       std::cout <<"    Tag "<<t<<" will be skipped."<<std::endl;
-      session.transaction().commit();
+      session.transaction().rollback();
       continue;
     }
   }

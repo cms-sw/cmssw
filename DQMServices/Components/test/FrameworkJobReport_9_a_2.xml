@@ -6,7 +6,7 @@
 <PFN>file:test_9_a_1_inDQM.root</PFN>
 <Catalog></Catalog>
 <ModuleLabel>DQMoutput</ModuleLabel>
-<GUID>4A00F5F0-0C51-E311-8B66-003048F179A2</GUID>
+<GUID>E8D1E690-7078-E311-B3BF-003048F179A2</GUID>
 <Branches>
 </Branches>
 <OutputModuleClass>PoolOutputModule</OutputModuleClass>
@@ -33,9 +33,13 @@
 <PFN>file:test_9_a_1.root</PFN>
 <Catalog></Catalog>
 <ModuleLabel>FEVTDEBUGHLToutput</ModuleLabel>
-<GUID>88A539F1-0C51-E311-8B66-003048F179A2</GUID>
+<GUID>62AB2E91-7078-E311-B3BF-003048F179A2</GUID>
 <Branches>
   <Branch>csctfTrackStubCSCTriggerContainer_csctfTrackDigis__HLT.</Branch>
+  <Branch>CorrMETData_pfJetMETcorr_offset_HLT.</Branch>
+  <Branch>CorrMETData_pfchsMETcorr_type0_HLT.</Branch>
+  <Branch>CorrMETData_pfJetMETcorr_type1_HLT.</Branch>
+  <Branch>CorrMETData_pfJetMETcorr_type2_HLT.</Branch>
   <Branch>CrossingFramePlaybackInfoExtended_mix__HLT.</Branch>
   <Branch>EBDigiCollection_simEcalDigis_ebDigis_HLT.</Branch>
   <Branch>EEDigiCollection_simEcalDigis_eeDigis_HLT.</Branch>
@@ -64,6 +68,13 @@
   <Branch>PileupMixingContent_famosPileUp__HLT.</Branch>
   <Branch>double_fixedGridRhoAll__HLT.</Branch>
   <Branch>double_fixedGridRhoFastjetAll__HLT.</Branch>
+  <Branch>double_fixedGridRhoFastjetAllCalo__HLT.</Branch>
+  <Branch>double_fixedGridRhoFastjetCentralCalo__HLT.</Branch>
+  <Branch>double_fixedGridRhoFastjetCentralChargedPileUp__HLT.</Branch>
+  <Branch>double_fixedGridRhoFastjetCentralNeutral__HLT.</Branch>
+  <Branch>double_ak4CaloJets_rho_HLT.</Branch>
+  <Branch>double_ak4GenJets_rho_HLT.</Branch>
+  <Branch>double_ak4PFJetsCHS_rho_HLT.</Branch>
   <Branch>double_ak5CaloJets_rho_HLT.</Branch>
   <Branch>double_ak5GenJets_rho_HLT.</Branch>
   <Branch>double_ak5PFJets_rho_HLT.</Branch>
@@ -79,14 +90,11 @@
   <Branch>double_hltAntiKT5PFJetsForTaus_rho_HLT.</Branch>
   <Branch>double_iterativeCone5GenJets_rho_HLT.</Branch>
   <Branch>double_kt4GenJets_rho_HLT.</Branch>
-  <Branch>double_kt6CaloJets_rho_HLT.</Branch>
-  <Branch>double_kt6CaloJetsCentral_rho_HLT.</Branch>
   <Branch>double_kt6GenJets_rho_HLT.</Branch>
-  <Branch>double_kt6PFJets_rho_HLT.</Branch>
-  <Branch>double_kt6PFJetsCentralChargedPileUp_rho_HLT.</Branch>
-  <Branch>double_kt6PFJetsCentralNeutral_rho_HLT.</Branch>
-  <Branch>double_kt6PFJetsCentralNeutralTight_rho_HLT.</Branch>
   <Branch>double_pfJetsEI_rho_HLT.</Branch>
+  <Branch>double_ak4CaloJets_sigma_HLT.</Branch>
+  <Branch>double_ak4GenJets_sigma_HLT.</Branch>
+  <Branch>double_ak4PFJetsCHS_sigma_HLT.</Branch>
   <Branch>double_ak5CaloJets_sigma_HLT.</Branch>
   <Branch>double_ak5GenJets_sigma_HLT.</Branch>
   <Branch>double_ak5PFJets_sigma_HLT.</Branch>
@@ -102,12 +110,7 @@
   <Branch>double_hltAntiKT5PFJetsForTaus_sigma_HLT.</Branch>
   <Branch>double_iterativeCone5GenJets_sigma_HLT.</Branch>
   <Branch>double_kt4GenJets_sigma_HLT.</Branch>
-  <Branch>double_kt6CaloJets_sigma_HLT.</Branch>
-  <Branch>double_kt6CaloJetsCentral_sigma_HLT.</Branch>
   <Branch>double_kt6GenJets_sigma_HLT.</Branch>
-  <Branch>double_kt6PFJetsCentralChargedPileUp_sigma_HLT.</Branch>
-  <Branch>double_kt6PFJetsCentralNeutral_sigma_HLT.</Branch>
-  <Branch>double_kt6PFJetsCentralNeutralTight_sigma_HLT.</Branch>
   <Branch>double_pfJetsEI_sigma_HLT.</Branch>
   <Branch>recoPFJetsedmAssociation_pfTauPFJets08Region__HLT.</Branch>
   <Branch>L2MuonTrajectorySeedsToManyL2MuonTrajectorySeedsAssociation_hltL2Muons__HLT.</Branch>
@@ -123,8 +126,6 @@
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_hltBLifetimeL25AssociatorbbPhiL1FastJetFastPV__HLT.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_hltBLifetimeL3AssociatorbbPhiL1FastJetFastPV__HLT.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_hltPFTauJetTracksAssociator__HLT.</Branch>
-  <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_kt4JetTracksAssociatorAtCaloFace__HLT.</Branch>
-  <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_kt4JetTracksAssociatorAtVertex__HLT.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_pfAk5JetTracksAssociatorAtVertex__HLT.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_pfJetTrackAssociatorEI__HLT.</Branch>
   <Branch>recoJetedmRefToBaseProdrecoTracksrecoTrackrecoTracksTorecoTrackedmrefhelperFindUsingAdvanceedmRefVectorsAssociationVector_pfJetTracksAssociatorAtVertex__HLT.</Branch>
@@ -154,23 +155,24 @@
   <Branch>recoJetedmRefToBaseProdTofloatsAssociationVector_trackCountingHighEffBJetTags__HLT.</Branch>
   <Branch>recoJetedmRefToBaseProdTofloatsAssociationVector_trackCountingHighPurBJetTags__HLT.</Branch>
   <Branch>recoJetedmRefToBaseProdTorecoJetExtendedAssociationJetExtendedDatasAssociationVector_ak5JetExtender__HLT.</Branch>
-  <Branch>recoJetedmRefToBaseProdTorecoJetExtendedAssociationJetExtendedDatasAssociationVector_kt4JetExtender__HLT.</Branch>
   <Branch>RPCDigiSimLinkedmDetSetVector_simMuonRPCDigis_RPCDigiSimLink_HLT.</Branch>
   <Branch>StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_MuonCSCStripDigiSimLinks_HLT.</Branch>
   <Branch>StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_MuonCSCWireDigiSimLinks_HLT.</Branch>
   <Branch>DetIdedmEDCollection_interestingEcalDetIdEB__HLT.</Branch>
   <Branch>DetIdedmEDCollection_interestingEcalDetIdEBU__HLT.</Branch>
   <Branch>DetIdedmEDCollection_interestingEcalDetIdEE__HLT.</Branch>
-  <Branch>DetIdedmEDCollection_interestingEleIsoDetIdEB__HLT.</Branch>
-  <Branch>DetIdedmEDCollection_interestingEleIsoDetIdEE__HLT.</Branch>
+  <Branch>DetIdedmEDCollection_interestingEcalDetIdPFEB__HLT.</Branch>
+  <Branch>DetIdedmEDCollection_interestingEcalDetIdPFEE__HLT.</Branch>
+  <Branch>DetIdedmEDCollection_interestingEcalDetIdRefinedEB__HLT.</Branch>
+  <Branch>DetIdedmEDCollection_interestingEcalDetIdRefinedEE__HLT.</Branch>
   <Branch>DetIdedmEDCollection_interestingGamIsoDetIdEB__HLT.</Branch>
   <Branch>DetIdedmEDCollection_interestingGamIsoDetIdEE__HLT.</Branch>
+  <Branch>DetIdedmEDCollection_interestingGedEleIsoDetIdEB__HLT.</Branch>
+  <Branch>DetIdedmEDCollection_interestingGedEleIsoDetIdEE__HLT.</Branch>
+  <Branch>DetIdedmEDCollection_interestingGedGamIsoDetIdEB__HLT.</Branch>
+  <Branch>DetIdedmEDCollection_interestingGedGamIsoDetIdEE__HLT.</Branch>
   <Branch>DetIdedmEDCollection_interestingTrackEcalDetIds__HLT.</Branch>
   <Branch>DetIdedmEDCollection_muonEcalDetIds__HLT.</Branch>
-  <Branch>DetIdedmEDCollection_pfElectronInterestingEcalDetIdEB__HLT.</Branch>
-  <Branch>DetIdedmEDCollection_pfElectronInterestingEcalDetIdEE__HLT.</Branch>
-  <Branch>DetIdedmEDCollection_pfPhotonInterestingEcalDetIdEB__HLT.</Branch>
-  <Branch>DetIdedmEDCollection_pfPhotonInterestingEcalDetIdEE__HLT.</Branch>
   <Branch>edmHepMCProduct_generator__HLT.</Branch>
   <Branch>edmHepMCProduct_famosPileUp_PileUpEvents_HLT.</Branch>
   <Branch>TrackingRecHitsOwned_electronGsfTracks__HLT.</Branch>
@@ -249,8 +251,11 @@
   <Branch>ZDCDataFramesSorted_simHcalUnsuppressedDigis__HLT.</Branch>
   <Branch>edmTriggerResults_TriggerResults__HLT.</Branch>
   <Branch>booledmValueMap_PhotonIDProd_PhotonCutBasedIDLoose_HLT.</Branch>
+  <Branch>booledmValueMap_PhotonIDProdGED_PhotonCutBasedIDLoose_HLT.</Branch>
   <Branch>booledmValueMap_PhotonIDProd_PhotonCutBasedIDLooseEM_HLT.</Branch>
+  <Branch>booledmValueMap_PhotonIDProdGED_PhotonCutBasedIDLooseEM_HLT.</Branch>
   <Branch>booledmValueMap_PhotonIDProd_PhotonCutBasedIDTight_HLT.</Branch>
+  <Branch>booledmValueMap_PhotonIDProdGED_PhotonCutBasedIDTight_HLT.</Branch>
   <Branch>doubleedmValueMap_muons_muPFIsoValueCharged03_HLT.</Branch>
   <Branch>doubleedmValueMap_muons_muPFIsoValueCharged04_HLT.</Branch>
   <Branch>doubleedmValueMap_muons_muPFIsoValueChargedAll03_HLT.</Branch>
@@ -298,8 +303,8 @@
   <Branch>recoPFCandidateedmPtredmValueMap_particleFlow_muons_HLT.</Branch>
   <Branch>recoPFCandidateedmPtredmValueMap_particleFlow_photons_HLT.</Branch>
   <Branch>recoMuonsrecoMuonrecoMuonsrecoMuonedmrefhelperFindUsingAdvanceedmRefedmValueMap_muons_muons1stStep2muonsMap_HLT.</Branch>
+  <Branch>recoPhotonsrecoPhotonrecoPhotonsrecoPhotonedmrefhelperFindUsingAdvanceedmRefedmValueMap_gedPhotons_valMapPFEgammaCandToPhoton_HLT.</Branch>
   <Branch>recoPreIdsrecoPreIdrecoPreIdsrecoPreIdedmrefhelperFindUsingAdvanceedmRefedmValueMap_trackerDrivenElectronSeeds_preid_HLT.</Branch>
-  <Branch>recoSuperClustersrecoSuperClusterrecoSuperClustersrecoSuperClusteredmrefhelperFindUsingAdvanceedmRefedmValueMap_pfElectronTranslator_pf_HLT.</Branch>
   <Branch>floatedmValueMap_eidLoose__HLT.</Branch>
   <Branch>floatedmValueMap_eidRobustHighEnergy__HLT.</Branch>
   <Branch>floatedmValueMap_eidRobustLoose__HLT.</Branch>
@@ -307,7 +312,6 @@
   <Branch>floatedmValueMap_eidTight__HLT.</Branch>
   <Branch>floatedmValueMap_generalTracks_MVAVals_HLT.</Branch>
   <Branch>floatedmValueMap_hltIter4Merged_MVAVals_HLT.</Branch>
-  <Branch>floatedmValueMap_pfElectronTranslator_pf_HLT.</Branch>
   <Branch>recoIsoDepositedmValueMap_muIsoDepositJets__HLT.</Branch>
   <Branch>recoIsoDepositedmValueMap_muIsoDepositTk__HLT.</Branch>
   <Branch>recoIsoDepositedmValueMap_muIsoDepositCalByAssociatorTowers_ecal_HLT.</Branch>
@@ -326,8 +330,6 @@
   <Branch>recoJetIDedmValueMap_ak5JetID__HLT.</Branch>
   <Branch>recoJetIDedmValueMap_ak7JetID__HLT.</Branch>
   <Branch>recoJetIDedmValueMap_ic5JetID__HLT.</Branch>
-  <Branch>recoJetIDedmValueMap_kt4JetID__HLT.</Branch>
-  <Branch>recoJetIDedmValueMap_kt6JetID__HLT.</Branch>
   <Branch>recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_muCorrData_HLT.</Branch>
   <Branch>recoMuonMETCorrectionDataedmValueMap_muonTCMETValueMapProducer_muCorrData_HLT.</Branch>
   <Branch>recoMuonShoweredmValueMap_muonShowerInformation__HLT.</Branch>
@@ -338,6 +340,8 @@
   <Branch>recoMuonTimeExtraedmValueMap_muons1stStep_csc_HLT.</Branch>
   <Branch>recoMuonTimeExtraedmValueMap_muons_dt_HLT.</Branch>
   <Branch>recoMuonTimeExtraedmValueMap_muons1stStep_dt_HLT.</Branch>
+  <Branch>recoPFCandidatesrecoPFCandidaterecoPFCandidatesrecoPFCandidateedmrefhelperFindUsingAdvanceedmRefsedmValueMap_particleBasedIsolation_gedGsfElectrons_HLT.</Branch>
+  <Branch>recoPFCandidatesrecoPFCandidaterecoPFCandidatesrecoPFCandidateedmrefhelperFindUsingAdvanceedmRefsedmValueMap_particleBasedIsolation_gedPhotons_HLT.</Branch>
   <Branch>recoBeamSpot_offlineBeamSpot__HLT.</Branch>
   <Branch>recoJetPiZeroAssociation_pfJetsLegacyHPSPiZeros__HLT.</Branch>
   <Branch>recoPFTauDiscriminator_hpsPFTauDiscriminationByDeadECALElectronRejection__HLT.</Branch>
@@ -453,6 +457,9 @@
   <Branch>TrackingParticles_mix_MergedTrackTruth_HLT.</Branch>
   <Branch>TrackingVertexs_mix_MergedTrackTruth_HLT.</Branch>
   <Branch>TrajectorySeeds_ancientMuonSeed__HLT.</Branch>
+  <Branch>doubles_ak4CaloJets_rhos_HLT.</Branch>
+  <Branch>doubles_ak4GenJets_rhos_HLT.</Branch>
+  <Branch>doubles_ak4PFJetsCHS_rhos_HLT.</Branch>
   <Branch>doubles_ak5CaloJets_rhos_HLT.</Branch>
   <Branch>doubles_ak5GenJets_rhos_HLT.</Branch>
   <Branch>doubles_ak5PFJets_rhos_HLT.</Branch>
@@ -468,9 +475,11 @@
   <Branch>doubles_hltAntiKT5PFJetsForTaus_rhos_HLT.</Branch>
   <Branch>doubles_iterativeCone5GenJets_rhos_HLT.</Branch>
   <Branch>doubles_kt4GenJets_rhos_HLT.</Branch>
-  <Branch>doubles_kt6CaloJets_rhos_HLT.</Branch>
   <Branch>doubles_kt6GenJets_rhos_HLT.</Branch>
   <Branch>doubles_pfJetsEI_rhos_HLT.</Branch>
+  <Branch>doubles_ak4CaloJets_sigmas_HLT.</Branch>
+  <Branch>doubles_ak4GenJets_sigmas_HLT.</Branch>
+  <Branch>doubles_ak4PFJetsCHS_sigmas_HLT.</Branch>
   <Branch>doubles_ak5CaloJets_sigmas_HLT.</Branch>
   <Branch>doubles_ak5GenJets_sigmas_HLT.</Branch>
   <Branch>doubles_ak5PFJets_sigmas_HLT.</Branch>
@@ -486,7 +495,6 @@
   <Branch>doubles_hltAntiKT5PFJetsForTaus_sigmas_HLT.</Branch>
   <Branch>doubles_iterativeCone5GenJets_sigmas_HLT.</Branch>
   <Branch>doubles_kt4GenJets_sigmas_HLT.</Branch>
-  <Branch>doubles_kt6CaloJets_sigmas_HLT.</Branch>
   <Branch>doubles_kt6GenJets_sigmas_HLT.</Branch>
   <Branch>doubles_pfJetsEI_sigmas_HLT.</Branch>
   <Branch>recoPFCandidateedmFwdPtrs_particleFlowPtrs__HLT.</Branch>
@@ -534,10 +542,9 @@
   <Branch>recoCaloClusters_hfEMClusters__HLT.</Branch>
   <Branch>recoCaloClusters_hybridSuperClusters_hybridBarrelBasicClusters_HLT.</Branch>
   <Branch>recoCaloClusters_multi5x5SuperClusters_multi5x5EndcapBasicClusters_HLT.</Branch>
-  <Branch>recoCaloClusters_pfElectronTranslator_pf_HLT.</Branch>
-  <Branch>recoCaloClusters_pfPhotonTranslator_pfphot_HLT.</Branch>
   <Branch>recoCaloClusters_hybridSuperClusters_uncleanOnlyHybridBarrelBasicClusters_HLT.</Branch>
   <Branch>recoCaloClusters_multi5x5SuperClusters_uncleanOnlyMulti5x5EndcapBasicClusters_HLT.</Branch>
+  <Branch>recoCaloJets_ak4CaloJets__HLT.</Branch>
   <Branch>recoCaloJets_ak5CaloJets__HLT.</Branch>
   <Branch>recoCaloJets_ak7CaloJets__HLT.</Branch>
   <Branch>recoCaloJets_hltAntiKT5CaloJets__HLT.</Branch>
@@ -599,9 +606,6 @@
   <Branch>recoCaloJets_hltSelectorJets20L1FastJet__HLT.</Branch>
   <Branch>recoCaloJets_hltSelectorJetsHbbVBF__HLT.</Branch>
   <Branch>recoCaloJets_iterativeCone5CaloJets__HLT.</Branch>
-  <Branch>recoCaloJets_kt4CaloJets__HLT.</Branch>
-  <Branch>recoCaloJets_kt6CaloJets__HLT.</Branch>
-  <Branch>recoCaloJets_kt6CaloJetsCentral__HLT.</Branch>
   <Branch>recoCaloMETs_corMetGlobalMuons__HLT.</Branch>
   <Branch>recoCaloMETs_hltMet__HLT.</Branch>
   <Branch>recoCaloMETs_hltMetClean__HLT.</Branch>
@@ -612,7 +616,6 @@
   <Branch>recoCaloMuons_muons1stStep__HLT.</Branch>
   <Branch>recoConversions_allConversions__HLT.</Branch>
   <Branch>recoConversions_gedPhotonCore__HLT.</Branch>
-  <Branch>recoConversions_pfPhotonTranslator_pfphot_HLT.</Branch>
   <Branch>recoElectrons_hltActivityGsfElectrons__HLT.</Branch>
   <Branch>recoElectrons_hltEleAnyWP80PixelMatchElectronsL1Seeded__HLT.</Branch>
   <Branch>recoElectrons_hltL1SeededGsfElectrons__HLT.</Branch>
@@ -621,6 +624,7 @@
   <Branch>recoElectrons_hltPixelMatchElectronsActivity__HLT.</Branch>
   <Branch>recoElectrons_hltPixelMatchElectronsL1Seeded__HLT.</Branch>
   <Branch>recoElectronSeeds_electronMergedSeeds__HLT.</Branch>
+  <Branch>recoGenJets_ak4GenJets__HLT.</Branch>
   <Branch>recoGenJets_ak5GenJets__HLT.</Branch>
   <Branch>recoGenJets_ak8GenJets__HLT.</Branch>
   <Branch>recoGenJets_iterativeCone5GenJets__HLT.</Branch>
@@ -631,11 +635,7 @@
   <Branch>recoGenMETs_genMetTrue__HLT.</Branch>
   <Branch>recoGenParticles_genParticles__HLT.</Branch>
   <Branch>recoGsfElectrons_gedGsfElectrons__HLT.</Branch>
-  <Branch>recoGsfElectrons_gsfElectrons__HLT.</Branch>
-  <Branch>recoGsfElectrons_pfElectronTranslator_pf_HLT.</Branch>
   <Branch>recoGsfElectronCores_gedGsfElectronCores__HLT.</Branch>
-  <Branch>recoGsfElectronCores_gsfElectronCores__HLT.</Branch>
-  <Branch>recoGsfElectronCores_pfElectronTranslator_pf_HLT.</Branch>
   <Branch>recoGsfPFRecTracks_pfTrackElec__HLT.</Branch>
   <Branch>recoGsfPFRecTracks_pfTrackElec_Secondary_HLT.</Branch>
   <Branch>recoGsfTracks_electronGsfTracks__HLT.</Branch>
@@ -728,8 +728,6 @@
   <Branch>recoPFCandidates_pfIsolatedMuonsEI__HLT.</Branch>
   <Branch>recoPFCandidates_pfMuonsFromVertexEI__HLT.</Branch>
   <Branch>recoPFCandidates_pfPileUpAllChargedParticles__HLT.</Branch>
-  <Branch>recoPFCandidates_pfSelectedElectrons__HLT.</Branch>
-  <Branch>recoPFCandidates_pfSelectedPhotons__HLT.</Branch>
   <Branch>recoPFCandidates_hltParticleFlow_AddedMuonsAndHadrons_HLT.</Branch>
   <Branch>recoPFCandidates_hltParticleFlowForTaus_AddedMuonsAndHadrons_HLT.</Branch>
   <Branch>recoPFCandidates_particleFlowTmp_AddedMuonsAndHadrons_HLT.</Branch>
@@ -751,10 +749,7 @@
   <Branch>recoPFCandidates_hltParticleFlow_CleanedTrackerAndGlobalMuons_HLT.</Branch>
   <Branch>recoPFCandidates_hltParticleFlowForTaus_CleanedTrackerAndGlobalMuons_HLT.</Branch>
   <Branch>recoPFCandidates_particleFlowTmp_CleanedTrackerAndGlobalMuons_HLT.</Branch>
-  <Branch>recoPFCandidates_particleFlowTmp_electrons_HLT.</Branch>
   <Branch>recoPFCandidateEGammaExtras_particleFlowEGamma__HLT.</Branch>
-  <Branch>recoPFCandidateElectronExtras_particleFlowTmp__HLT.</Branch>
-  <Branch>recoPFCandidatePhotonExtras_particleFlowTmp__HLT.</Branch>
   <Branch>recoPFClusters_particleFlowClusterECAL__HLT.</Branch>
   <Branch>recoPFClusters_particleFlowClusterHCAL__HLT.</Branch>
   <Branch>recoPFClusters_particleFlowClusterHFEM__HLT.</Branch>
@@ -766,6 +761,7 @@
   <Branch>recoPFDisplacedVertexs_particleFlowDisplacedVertex__HLT.</Branch>
   <Branch>recoPFDisplacedVertexCandidates_particleFlowDisplacedVertexCandidate__HLT.</Branch>
   <Branch>recoPFJets_PFJetsFilter__HLT.</Branch>
+  <Branch>recoPFJets_ak4PFJetsCHS__HLT.</Branch>
   <Branch>recoPFJets_ak5PFJets__HLT.</Branch>
   <Branch>recoPFJets_ak5PFJetsCHS__HLT.</Branch>
   <Branch>recoPFJets_ak5PFJetsJEC__HLT.</Branch>
@@ -806,11 +802,6 @@
   <Branch>recoPFJets_hltPFJetsMatchedToCaloJets320Regional__HLT.</Branch>
   <Branch>recoPFJets_hltPFJetsMatchedToCaloJets50__HLT.</Branch>
   <Branch>recoPFJets_iterativeCone5PFJets__HLT.</Branch>
-  <Branch>recoPFJets_kt4PFJets__HLT.</Branch>
-  <Branch>recoPFJets_kt6PFJets__HLT.</Branch>
-  <Branch>recoPFJets_kt6PFJetsCentralChargedPileUp__HLT.</Branch>
-  <Branch>recoPFJets_kt6PFJetsCentralNeutral__HLT.</Branch>
-  <Branch>recoPFJets_kt6PFJetsCentralNeutralTight__HLT.</Branch>
   <Branch>recoPFJets_kt6PFJetsForRhoComputationVoronoi__HLT.</Branch>
   <Branch>recoPFJets_pfJetsEI__HLT.</Branch>
   <Branch>recoPFJets_ca15PFJetsCHSFiltered_SubJets_HLT.</Branch>
@@ -822,6 +813,9 @@
   <Branch>recoPFJets_recoTauAK5PFJets08Region_jets_HLT.</Branch>
   <Branch>recoPFMETs_pfMet__HLT.</Branch>
   <Branch>recoPFMETs_pfMetEI__HLT.</Branch>
+  <Branch>recoPFMETs_pfType01CorrectedMet__HLT.</Branch>
+  <Branch>recoPFMETs_pfType0CorrectedMet__HLT.</Branch>
+  <Branch>recoPFMETs_pfType1CorrectedMet__HLT.</Branch>
   <Branch>recoPFRecHits_particleFlowRecHitECAL__HLT.</Branch>
   <Branch>recoPFRecHits_particleFlowRecHitHCAL__HLT.</Branch>
   <Branch>recoPFRecHits_particleFlowRecHitHO__HLT.</Branch>
@@ -898,14 +892,12 @@
   <Branch>recoPFTauTagInfos_pfTauTagInfoProducer__HLT.</Branch>
   <Branch>recoPFV0s_pfV0__HLT.</Branch>
   <Branch>recoPhotons_gedPhotons__HLT.</Branch>
+  <Branch>recoPhotons_mustachePhotons__HLT.</Branch>
   <Branch>recoPhotons_photons__HLT.</Branch>
-  <Branch>recoPhotons_pfPhotonTranslator_pfphot_HLT.</Branch>
   <Branch>recoPhotonCores_gedPhotonCore__HLT.</Branch>
+  <Branch>recoPhotonCores_mustachePhotonCore__HLT.</Branch>
   <Branch>recoPhotonCores_photonCore__HLT.</Branch>
-  <Branch>recoPhotonCores_pfPhotonTranslator_pfphot_HLT.</Branch>
   <Branch>recoPreIds_trackerDrivenElectronSeeds_preid_HLT.</Branch>
-  <Branch>recoPreshowerClusters_pfElectronTranslator_pf_HLT.</Branch>
-  <Branch>recoPreshowerClusters_pfPhotonTranslator_pfphot_HLT.</Branch>
   <Branch>recoPreshowerClusters_multi5x5SuperClustersWithPreshower_preshowerXClusters_HLT.</Branch>
   <Branch>recoPreshowerClusters_multi5x5SuperClustersWithPreshower_preshowerYClusters_HLT.</Branch>
   <Branch>recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_multi5x5PreshowerXClustersShape_HLT.</Branch>
@@ -955,8 +947,6 @@
   <Branch>recoSuperClusters_multi5x5SuperClusters_multi5x5EndcapSuperClusters_HLT.</Branch>
   <Branch>recoSuperClusters_particleFlowSuperClusterECAL_particleFlowSuperClusterECALBarrel_HLT.</Branch>
   <Branch>recoSuperClusters_particleFlowSuperClusterECAL_particleFlowSuperClusterECALEndcapWithPreshower_HLT.</Branch>
-  <Branch>recoSuperClusters_pfElectronTranslator_pf_HLT.</Branch>
-  <Branch>recoSuperClusters_pfPhotonTranslator_pfphot_HLT.</Branch>
   <Branch>recoSuperClusters_hybridSuperClusters_uncleanOnlyHybridSuperClusters_HLT.</Branch>
   <Branch>recoSuperClusters_multi5x5SuperClusters_uncleanOnlyMulti5x5EndcapSuperClusters_HLT.</Branch>
   <Branch>recoTracks_generalTracks__HLT.</Branch>
@@ -2451,7 +2441,7 @@
 
 <DataType>MC</DataType>
 
-<BranchHash>b992841374af097a6178c388ece940d7</BranchHash>
+<BranchHash>af58a9203d53efea0f394ab643fcb3bd</BranchHash>
 
 <Runs>
 <Run ID="1">
@@ -2470,131 +2460,131 @@
     <Metric Name="Parameter-untracked-bool-stats" Value="true"/>
     <Metric Name="Parameter-untracked-string-cacheHint" Value="auto-detect"/>
     <Metric Name="Parameter-untracked-string-readHint" Value="auto-detect"/>
-    <Metric Name="ROOT-tfile-read-totalMegabytes" Value="5.81653"/>
-    <Metric Name="ROOT-tfile-write-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-close-maxMsecs" Value="0.037888"/>
+    <Metric Name="ROOT-tfile-read-totalMegabytes" Value="4.12614"/>
+    <Metric Name="ROOT-tfile-write-totalMegabytes" Value="0.00440598"/>
+    <Metric Name="Timing-file-close-maxMsecs" Value="0.050176"/>
     <Metric Name="Timing-file-close-minMsecs" Value="0.002816"/>
     <Metric Name="Timing-file-close-numOperations" Value="12"/>
     <Metric Name="Timing-file-close-numSuccessfulOperations" Value="12"/>
     <Metric Name="Timing-file-close-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-close-totalMsecs" Value="0.079616"/>
+    <Metric Name="Timing-file-close-totalMsecs" Value="0.097792"/>
     <Metric Name="Timing-file-construct-maxMsecs" Value="0.006144"/>
     <Metric Name="Timing-file-construct-minMsecs" Value="0"/>
     <Metric Name="Timing-file-construct-numOperations" Value="174"/>
     <Metric Name="Timing-file-construct-numSuccessfulOperations" Value="174"/>
     <Metric Name="Timing-file-construct-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-construct-totalMsecs" Value="0.113408"/>
-    <Metric Name="Timing-file-destruct-maxMsecs" Value="0.04096"/>
-    <Metric Name="Timing-file-destruct-minMsecs" Value="0"/>
+    <Metric Name="Timing-file-construct-totalMsecs" Value="0.093184"/>
+    <Metric Name="Timing-file-destruct-maxMsecs" Value="0.05504"/>
+    <Metric Name="Timing-file-destruct-minMsecs" Value="0.000768"/>
     <Metric Name="Timing-file-destruct-numOperations" Value="12"/>
     <Metric Name="Timing-file-destruct-numSuccessfulOperations" Value="12"/>
     <Metric Name="Timing-file-destruct-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-destruct-totalMsecs" Value="0.054016"/>
-    <Metric Name="Timing-file-flush-maxMsecs" Value="18.0191"/>
-    <Metric Name="Timing-file-flush-minMsecs" Value="0.803072"/>
+    <Metric Name="Timing-file-destruct-totalMsecs" Value="0.068096"/>
+    <Metric Name="Timing-file-flush-maxMsecs" Value="21.8212"/>
+    <Metric Name="Timing-file-flush-minMsecs" Value="0.711168"/>
     <Metric Name="Timing-file-flush-numOperations" Value="6"/>
     <Metric Name="Timing-file-flush-numSuccessfulOperations" Value="6"/>
     <Metric Name="Timing-file-flush-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-flush-totalMsecs" Value="39.5151"/>
-    <Metric Name="Timing-file-open-maxMsecs" Value="1.24518"/>
-    <Metric Name="Timing-file-open-minMsecs" Value="0.027904"/>
+    <Metric Name="Timing-file-flush-totalMsecs" Value="68.7012"/>
+    <Metric Name="Timing-file-open-maxMsecs" Value="3.47213"/>
+    <Metric Name="Timing-file-open-minMsecs" Value="0.02688"/>
     <Metric Name="Timing-file-open-numOperations" Value="174"/>
     <Metric Name="Timing-file-open-numSuccessfulOperations" Value="174"/>
     <Metric Name="Timing-file-open-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-open-totalMsecs" Value="7.56608"/>
-    <Metric Name="Timing-file-position-maxMsecs" Value="0.043008"/>
+    <Metric Name="Timing-file-open-totalMsecs" Value="9.70266"/>
+    <Metric Name="Timing-file-position-maxMsecs" Value="0.022016"/>
     <Metric Name="Timing-file-position-minMsecs" Value="0"/>
-    <Metric Name="Timing-file-position-numOperations" Value="8983"/>
-    <Metric Name="Timing-file-position-numSuccessfulOperations" Value="8983"/>
+    <Metric Name="Timing-file-position-numOperations" Value="8965"/>
+    <Metric Name="Timing-file-position-numSuccessfulOperations" Value="8965"/>
     <Metric Name="Timing-file-position-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-file-position-totalMsecs" Value="10.2257"/>
+    <Metric Name="Timing-file-position-totalMsecs" Value="11.7471"/>
     <Metric Name="Timing-file-prefetch-maxMsecs" Value="0"/>
     <Metric Name="Timing-file-prefetch-minMsecs" Value="0"/>
     <Metric Name="Timing-file-prefetch-numOperations" Value="0"/>
     <Metric Name="Timing-file-prefetch-numSuccessfulOperations" Value="0"/>
     <Metric Name="Timing-file-prefetch-totalMegabytes" Value="0"/>
     <Metric Name="Timing-file-prefetch-totalMsecs" Value="0"/>
-    <Metric Name="Timing-file-read-maxMsecs" Value="1.57901"/>
-    <Metric Name="Timing-file-read-minMsecs" Value="0.004096"/>
+    <Metric Name="Timing-file-read-maxMsecs" Value="0.802816"/>
+    <Metric Name="Timing-file-read-minMsecs" Value="0.00384"/>
     <Metric Name="Timing-file-read-numOperations" Value="1643"/>
     <Metric Name="Timing-file-read-numSuccessfulOperations" Value="1643"/>
     <Metric Name="Timing-file-read-totalMegabytes" Value="32.7387"/>
-    <Metric Name="Timing-file-read-totalMsecs" Value="34.4604"/>
+    <Metric Name="Timing-file-read-totalMsecs" Value="30.2761"/>
     <Metric Name="Timing-file-readv-maxMsecs" Value="0"/>
     <Metric Name="Timing-file-readv-minMsecs" Value="0"/>
     <Metric Name="Timing-file-readv-numOperations" Value="0"/>
     <Metric Name="Timing-file-readv-numSuccessfulOperations" Value="0"/>
     <Metric Name="Timing-file-readv-totalMegabytes" Value="0"/>
     <Metric Name="Timing-file-readv-totalMsecs" Value="0"/>
-    <Metric Name="Timing-file-write-maxMsecs" Value="1.91898"/>
-    <Metric Name="Timing-file-write-minMsecs" Value="0.001792"/>
-    <Metric Name="Timing-file-write-numOperations" Value="5268"/>
-    <Metric Name="Timing-file-write-numSuccessfulOperations" Value="5268"/>
-    <Metric Name="Timing-file-write-totalMegabytes" Value="9.44697"/>
-    <Metric Name="Timing-file-write-totalMsecs" Value="36.5051"/>
+    <Metric Name="Timing-file-write-maxMsecs" Value="2.83187"/>
+    <Metric Name="Timing-file-write-minMsecs" Value="0.002816"/>
+    <Metric Name="Timing-file-write-numOperations" Value="5250"/>
+    <Metric Name="Timing-file-write-numSuccessfulOperations" Value="5250"/>
+    <Metric Name="Timing-file-write-totalMegabytes" Value="9.35683"/>
+    <Metric Name="Timing-file-write-totalMsecs" Value="50.5513"/>
     <Metric Name="Timing-file-writev-maxMsecs" Value="0"/>
     <Metric Name="Timing-file-writev-minMsecs" Value="0"/>
     <Metric Name="Timing-file-writev-numOperations" Value="0"/>
     <Metric Name="Timing-file-writev-numSuccessfulOperations" Value="0"/>
     <Metric Name="Timing-file-writev-totalMegabytes" Value="0"/>
     <Metric Name="Timing-file-writev-totalMsecs" Value="0"/>
-    <Metric Name="Timing-tstoragefile-close-maxMsecs" Value="0.093952"/>
-    <Metric Name="Timing-tstoragefile-close-minMsecs" Value="0.005888"/>
+    <Metric Name="Timing-tstoragefile-close-maxMsecs" Value="0.139008"/>
+    <Metric Name="Timing-tstoragefile-close-minMsecs" Value="0.007936"/>
     <Metric Name="Timing-tstoragefile-close-numOperations" Value="12"/>
     <Metric Name="Timing-tstoragefile-close-numSuccessfulOperations" Value="12"/>
     <Metric Name="Timing-tstoragefile-close-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-close-totalMsecs" Value="0.183552"/>
-    <Metric Name="Timing-tstoragefile-construct-maxMsecs" Value="32.3878"/>
-    <Metric Name="Timing-tstoragefile-construct-minMsecs" Value="0.536064"/>
+    <Metric Name="Timing-tstoragefile-close-totalMsecs" Value="0.286208"/>
+    <Metric Name="Timing-tstoragefile-construct-maxMsecs" Value="28.2319"/>
+    <Metric Name="Timing-tstoragefile-construct-minMsecs" Value="0.512"/>
     <Metric Name="Timing-tstoragefile-construct-numOperations" Value="174"/>
     <Metric Name="Timing-tstoragefile-construct-numSuccessfulOperations" Value="174"/>
     <Metric Name="Timing-tstoragefile-construct-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-construct-totalMsecs" Value="141.283"/>
-    <Metric Name="Timing-tstoragefile-flush-maxMsecs" Value="18.0242"/>
-    <Metric Name="Timing-tstoragefile-flush-minMsecs" Value="0.807936"/>
+    <Metric Name="Timing-tstoragefile-construct-totalMsecs" Value="158.544"/>
+    <Metric Name="Timing-tstoragefile-flush-maxMsecs" Value="21.8268"/>
+    <Metric Name="Timing-tstoragefile-flush-minMsecs" Value="0.715776"/>
     <Metric Name="Timing-tstoragefile-flush-numOperations" Value="6"/>
     <Metric Name="Timing-tstoragefile-flush-numSuccessfulOperations" Value="6"/>
     <Metric Name="Timing-tstoragefile-flush-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-flush-totalMsecs" Value="39.5412"/>
-    <Metric Name="Timing-tstoragefile-read-maxMsecs" Value="1.5808"/>
+    <Metric Name="Timing-tstoragefile-flush-totalMsecs" Value="68.7265"/>
+    <Metric Name="Timing-tstoragefile-read-maxMsecs" Value="0.804864"/>
     <Metric Name="Timing-tstoragefile-read-minMsecs" Value="0.005888"/>
     <Metric Name="Timing-tstoragefile-read-numOperations" Value="1643"/>
     <Metric Name="Timing-tstoragefile-read-numSuccessfulOperations" Value="1643"/>
     <Metric Name="Timing-tstoragefile-read-totalMegabytes" Value="32.7387"/>
-    <Metric Name="Timing-tstoragefile-read-totalMsecs" Value="37.5857"/>
-    <Metric Name="Timing-tstoragefile-readActual-maxMsecs" Value="1.5808"/>
+    <Metric Name="Timing-tstoragefile-read-totalMsecs" Value="33.1799"/>
+    <Metric Name="Timing-tstoragefile-readActual-maxMsecs" Value="0.80384"/>
     <Metric Name="Timing-tstoragefile-readActual-minMsecs" Value="0.004864"/>
     <Metric Name="Timing-tstoragefile-readActual-numOperations" Value="1643"/>
     <Metric Name="Timing-tstoragefile-readActual-numSuccessfulOperations" Value="1643"/>
     <Metric Name="Timing-tstoragefile-readActual-totalMegabytes" Value="32.7387"/>
-    <Metric Name="Timing-tstoragefile-readActual-totalMsecs" Value="36.2353"/>
-    <Metric Name="Timing-tstoragefile-seek-maxMsecs" Value="0.041984"/>
+    <Metric Name="Timing-tstoragefile-readActual-totalMsecs" Value="31.7571"/>
+    <Metric Name="Timing-tstoragefile-seek-maxMsecs" Value="0.033024"/>
     <Metric Name="Timing-tstoragefile-seek-minMsecs" Value="0.000768"/>
-    <Metric Name="Timing-tstoragefile-seek-numOperations" Value="6911"/>
-    <Metric Name="Timing-tstoragefile-seek-numSuccessfulOperations" Value="6911"/>
+    <Metric Name="Timing-tstoragefile-seek-numOperations" Value="6893"/>
+    <Metric Name="Timing-tstoragefile-seek-numSuccessfulOperations" Value="6893"/>
     <Metric Name="Timing-tstoragefile-seek-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-seek-totalMsecs" Value="14.9752"/>
-    <Metric Name="Timing-tstoragefile-stat-maxMsecs" Value="0.031744"/>
+    <Metric Name="Timing-tstoragefile-seek-totalMsecs" Value="20.1452"/>
+    <Metric Name="Timing-tstoragefile-stat-maxMsecs" Value="0.020224"/>
     <Metric Name="Timing-tstoragefile-stat-minMsecs" Value="0.00384"/>
     <Metric Name="Timing-tstoragefile-stat-numOperations" Value="344"/>
     <Metric Name="Timing-tstoragefile-stat-numSuccessfulOperations" Value="344"/>
     <Metric Name="Timing-tstoragefile-stat-totalMegabytes" Value="0"/>
-    <Metric Name="Timing-tstoragefile-stat-totalMsecs" Value="2.0288"/>
-    <Metric Name="Timing-tstoragefile-write-maxMsecs" Value="1.92179"/>
+    <Metric Name="Timing-tstoragefile-stat-totalMsecs" Value="1.75309"/>
+    <Metric Name="Timing-tstoragefile-write-maxMsecs" Value="2.83802"/>
     <Metric Name="Timing-tstoragefile-write-minMsecs" Value="0.00384"/>
-    <Metric Name="Timing-tstoragefile-write-numOperations" Value="5268"/>
-    <Metric Name="Timing-tstoragefile-write-numSuccessfulOperations" Value="5268"/>
-    <Metric Name="Timing-tstoragefile-write-totalMegabytes" Value="9.44697"/>
-    <Metric Name="Timing-tstoragefile-write-totalMsecs" Value="46.8122"/>
-    <Metric Name="Timing-tstoragefile-writeActual-maxMsecs" Value="1.92"/>
+    <Metric Name="Timing-tstoragefile-write-numOperations" Value="5250"/>
+    <Metric Name="Timing-tstoragefile-write-numSuccessfulOperations" Value="5250"/>
+    <Metric Name="Timing-tstoragefile-write-totalMegabytes" Value="9.35683"/>
+    <Metric Name="Timing-tstoragefile-write-totalMsecs" Value="64.299"/>
+    <Metric Name="Timing-tstoragefile-writeActual-maxMsecs" Value="2.83494"/>
     <Metric Name="Timing-tstoragefile-writeActual-minMsecs" Value="0.002816"/>
-    <Metric Name="Timing-tstoragefile-writeActual-numOperations" Value="5268"/>
-    <Metric Name="Timing-tstoragefile-writeActual-numSuccessfulOperations" Value="5268"/>
-    <Metric Name="Timing-tstoragefile-writeActual-totalMegabytes" Value="9.44697"/>
-    <Metric Name="Timing-tstoragefile-writeActual-totalMsecs" Value="40.7373"/>
+    <Metric Name="Timing-tstoragefile-writeActual-numOperations" Value="5250"/>
+    <Metric Name="Timing-tstoragefile-writeActual-numSuccessfulOperations" Value="5250"/>
+    <Metric Name="Timing-tstoragefile-writeActual-totalMegabytes" Value="9.35683"/>
+    <Metric Name="Timing-tstoragefile-writeActual-totalMsecs" Value="56.4132"/>
     <Metric Name="Timing-tstoragefile-writeViaCache-maxMsecs" Value="0"/>
     <Metric Name="Timing-tstoragefile-writeViaCache-minMsecs" Value="0"/>
-    <Metric Name="Timing-tstoragefile-writeViaCache-numOperations" Value="5268"/>
+    <Metric Name="Timing-tstoragefile-writeViaCache-numOperations" Value="5250"/>
     <Metric Name="Timing-tstoragefile-writeViaCache-numSuccessfulOperations" Value="0"/>
     <Metric Name="Timing-tstoragefile-writeViaCache-totalMegabytes" Value="0"/>
     <Metric Name="Timing-tstoragefile-writeViaCache-totalMsecs" Value="0"/>

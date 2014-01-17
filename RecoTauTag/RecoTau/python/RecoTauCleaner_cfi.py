@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 
 
-hpsPFTauProducerSansRefs = cms.EDProducer(
+RecoTauCleaner = cms.EDProducer(
         "RecoTauCleaner",
             src = cms.InputTag("combinatoricRecoTaus"),
             cleaners = cms.VPSet(

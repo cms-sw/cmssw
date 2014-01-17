@@ -3,10 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace evf {
-  RecoEventWriterForFU::RecoEventWriterForFU(edm::ParameterSet const& ps) :
-    stream_writer_preamble_(0),
-    stream_writer_events_(0)
-  {
+  RecoEventWriterForFU::RecoEventWriterForFU(edm::ParameterSet const& ps) {
   }
 
   RecoEventWriterForFU::~RecoEventWriterForFU() {
@@ -19,8 +16,11 @@ namespace evf {
   }
 
   void RecoEventWriterForFU::doOutputHeader(InitMsgView const& init_message) {
-    //Write the Init Message to Streamer file
-    stream_writer_preamble_->write(init_message);
+    //Write the Init Message to init file and close it
+    if ( stream_writer_preamble_.get() ) {
+      stream_writer_preamble_->write(init_message);
+      stream_writer_preamble_.reset();
+    }
   }
 
   void RecoEventWriterForFU::doOutputEvent(EventMsgView const& msg) {
@@ -44,6 +44,10 @@ namespace evf {
 
   void RecoEventWriterForFU::setOutputFile(std::string const& events){
     stream_writer_events_.reset(new StreamerOutputFile(events));
+  }
+
+  void RecoEventWriterForFU::closeOutputFile(){
+    stream_writer_events_.reset();
   }
 
 } //namespace edm

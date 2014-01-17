@@ -33,6 +33,7 @@ namespace popcon {
     m_tagInfo.name = m_tag;
     if( !m_dbService->isNewTagRequest(m_record) ) {
       m_dbService->tagInfo(m_record,m_tagInfo);
+      /**
       // m_dbService->queryLog().LookupLastEntryByTag(m_tag, m_logDBEntry);
       if(m_IsDestDbCheckedInQueryLog) { 
 	m_dbService->queryLog().LookupLastEntryByTag(m_tag, connectionStr , m_logDBEntry);
@@ -41,14 +42,15 @@ namespace popcon {
 	m_dbService->queryLog().LookupLastEntryByTag(m_tag , m_logDBEntry);
 	std::cout << " ------ log info found in another db "  << "------" <<std::endl;
       }
+      **/
 
       edm::LogInfo ("PopCon") << "DB: " << connectionStr << "\n"
 			      << "TAG: " << m_tag 
 			      << ", last since/till: " <<  m_tagInfo.lastInterval.first
 			      << "/" << m_tagInfo.lastInterval.second
-			      << ", , size: " << m_tagInfo.size << "\n" 
-			      << "Last writer: " <<  m_logDBEntry.provenance 
-			      << ", size: " << m_logDBEntry.payloadIdx+1 << std::endl;
+			      << ", , size: " << m_tagInfo.size << "\n" ;
+	//<< "Last writer: " <<  m_logDBEntry.provenance 
+	//	      << ", size: " << m_logDBEntry.payloadIdx+1 << std::endl;
     } else {
       edm::LogInfo ("PopCon") << "DB: " << connectionStr << "\n"
 			      << "TAG: " << m_tag 

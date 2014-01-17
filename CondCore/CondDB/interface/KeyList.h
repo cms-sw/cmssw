@@ -1,7 +1,11 @@
 #ifndef CondCore_CondDB_KeyList_h
 #define CondCore_CondDB_KeyList_h
 
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/IOVProxy.h"
+#include "CondCore/CondDB/interface/Binary.h"
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondCore/CondDB/interface/Exception.h"
+#include "CondFormats/Common/interface/BaseKeyed.h"
 //
 #include<map>
 #include<vector>
@@ -23,13 +27,15 @@
 namespace cond {
 
   namespace persistency {
+
+    //class IOVKeysDescription;
    
     class KeyList {
     public:
       
-      explicit KeyList( Session& session );
+      //KeyList( const IOVKeysDescription* idescr=0 ); 
 
-      void init( const std::string& tag );
+      void init( IOVProxy iovProxy );
       
       void load( const std::vector<unsigned long long>& keys );
       
@@ -47,19 +53,22 @@ namespace cond {
 			    "KeyList::get");
 	  }
 	}
-	return boost::static_pointer_cast<T>( m_objects[n] );
+	return boost::static_pointer_cast<T>( m_objects[n] ).get();
       }
+
+      const cond::BaseKeyed* elem(int n) const {
+	return get<cond::BaseKeyed>( n );
+      }
+
 
       int size() const { return m_objects.size();}
 
     private:
-      // the tag of the full key collection
-      std::string m_tag;
       // the db session
-      Session m_session;
+      IOVProxy m_proxy;
       // the key selection
       mutable std::map<size_t,std::pair<std::string,cond::Binary> > m_data;
-      std::vector<boost::shared_ptr<void> > m_objects;
+      mutable std::vector<boost::shared_ptr<void> > m_objects;
       
     };
 
