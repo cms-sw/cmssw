@@ -122,8 +122,9 @@ files['_gem_dphi_pat2_PU100'] = [
     '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_110K/',
     '/pnfs/cms/WAX/11/store/user/lpcgem/khotilov/GEM_NuGun_PU100_L1_dphi_pat2_128K/']
     
-## digi input files    
-files['_pt2-50_PU0'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU0/9e33cbc002806b332ab48cacc6a9f5e2/']
+## digi input files
+files['_pt2-50'] =       ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M/44fc94d06eea2c4b806abb23aafd8260/']
+files['_pt2-50_PU0'] =   ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU0/9e33cbc002806b332ab48cacc6a9f5e2/']
 files['_pt2-50_PU100'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU100/5b1cfdf8efbee9c68913c0719b4df889/']
 files['_pt2-50_PU140'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU140/cadd04af78260520bc45436035aa2787/']
 
@@ -140,3 +141,8 @@ files['_gem98_pt2-50_PU0_pt40_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dild
 files['_gem98_pt2-50_PU400_pt0_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_Pt0_v2/778c771068e2388f44bc7bc981a2bd26/']
 ## the PU140 sample was produced on top of 308a75f2d7dfbc94edbc02b4614326e079266b6a
 files['_gem98_pt2-50_PU140_pt0_new'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_Pt0/2c2b78e2ec5d908d2c3bc3475ea38e05/']
+
+## high pile-up samples with lower pre-trigger and trigger requirements
+files['_pt2-50_PU140_dphi0_postCSCTFbug_preTrig33'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU140_dphi0_postCSCTFbug_preTrig33/d0fd7fba403ee11c4905a6945d9f68d1/']
+files['_pt2-50_PU400_dphi0_postCSCTFbug_preTrig33'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_postCSCTFbug_preTrig33/0af81cb7cc9545f400bd587be0115228/']
+files['_pt2-50_PU400_dphi0_postCSCTFbug_preTrig23'] = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_postCSCTFbug_preTrig23/ebcefef58e488d2ad86f71b9405ee5c7/']
