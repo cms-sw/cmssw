@@ -27,6 +27,10 @@ public:
   HcalDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HcalDetId& operator=(const DetId& id);
+  /** Comparison operator */
+  bool operator==(DetId id) const;
+  bool operator!=(DetId id) const;
+  bool operator<(DetId id) const;
 
   /// get the subdetector
   HcalSubdetector subdet() const { return (HcalSubdetector)(subdetId()); }

@@ -14,7 +14,7 @@ HcalZDCDetId::HcalZDCDetId(Section section, bool true_for_positive_eta, int chan
   if (true_for_positive_eta) id_|=0x100; // 1-bit 8:8 (range 0:1)
   id_|=channel&0x1F;     // 5-bits 0:4 (range 0:31)
   id_|=0x10000;          // 1-bit 16:16 (change of format)
-  std::cout << "HcalZDCDetID::HcalZDCDetId: id_ "<<std::hex << id_ << std::dec << ", section: " << section << ", channel: " << channel << " z " << true_for_positive_eta << std::endl;
+//std::cout << "HcalZDCDetID::HcalZDCDetId: id_ "<<std::hex << id_ << std::dec << ", section: " << section << ", channel: " << channel << " z " << true_for_positive_eta << std::endl;
 }
 
 HcalZDCDetId::HcalZDCDetId(const DetId& gen) {
@@ -30,6 +30,70 @@ HcalZDCDetId& HcalZDCDetId::operator=(const DetId& gen) {
   }
   id_=gen.rawId();
   return *this;
+}
+
+bool HcalZDCDetId::operator==(DetId gen) const {
+  uint32_t rawid = gen.rawId();
+  if (rawid == id_) return true;
+  int zsid, sec, chn;
+  if ((rawid&0x10000)==0) {
+    zsid = (rawid&0x40)?(1):(-1);
+    sec  = (rawid>>4)&0x3;
+    chn  = rawid&0xF;
+  } else {
+    zsid = (rawid&0x100)?(1):(-1);
+    sec  = (rawid>>5)&0x7;
+    chn  = rawid&0x1F;
+  }
+  bool result = (zsid==zside() && sec==section() && chn==channel());
+  return result;
+}
+
+bool HcalZDCDetId::operator!=(DetId gen) const {
+  uint32_t rawid = gen.rawId();
+  if (rawid == id_) return false;
+  int zsid, sec, chn;
+  if ((rawid&0x10000)==0) {
+    zsid = (rawid&0x40)?(1):(-1);
+    sec  = (rawid>>4)&0x3;
+    chn  = rawid&0xF;
+  } else {
+    zsid = (rawid&0x100)?(1):(-1);
+    sec  = (rawid>>5)&0x7;
+    chn  = rawid&0x1F;
+  }
+  bool result = (zsid!=zside() || sec!=section() || chn!=channel());
+  return result;
+}
+
+bool HcalZDCDetId::operator<(DetId gen) const {
+  uint32_t rawid = gen.rawId();
+  if ((rawid&0x10000)==(id_&0x10000)) {
+    return id_<rawid;
+  } else {
+    int zsid, sec, chn;
+    if ((rawid&0x10000)==0) {
+      zsid = (rawid&0x40)?(1):(-1);
+      sec  = (rawid>>4)&0x3;
+      chn  = rawid&0xF;
+    } else {
+      zsid = (rawid&0x100)?(1):(-1);
+      sec  = (rawid>>5)&0x7;
+      chn  = rawid&0x1F;
+    }
+    rawid = 0;
+    if ((id_&0x10000) == 0) {
+      rawid |= (sec&0x3)<<4; 
+      if (zsid > 0) rawid |= 0x40;
+      rawid |= chn&0xF;
+    } else {
+      rawid |= (sec&0x7)<<5; 
+      if (zsid > 0) rawid |= 0x100;
+      rawid |= chn&0x1F;
+      rawid |= 0x10000;
+    }
+    return (id_&0x1FFFF)<rawid;
+  }
 }
 
 int HcalZDCDetId::zside() const {
@@ -55,25 +119,36 @@ int HcalZDCDetId::channel() const {
 
 uint32_t HcalZDCDetId::denseIndex() const {
    const int se ( section() ) ;
-   return ( ( zside()<0 ? 0 : kDepTot ) + channel() - 1 +
-	    ( se == HAD  ? kDepEM :
-	      ( se == LUM ? kDepEM + kDepHAD :
-		( se == RPD ? kDepEM+kDepHAD+kDepLUM : 0) ) ) ) ;
+   uint32_t indx = channel() - 1;
+   if (se == RPD) {
+     indx += (2*kDepTot + zside()<0 ? 0 : kDepRPD);
+   } else {
+     indx += ( (zside()<0 ? 0 : kDepTot) + 
+	       ( se == HAD  ? kDepEM :
+		 ( se == LUM ? kDepEM + kDepHAD : 0) ) );
+   }
+   return indx;
 }
 
 HcalZDCDetId HcalZDCDetId::detIdFromDenseIndex( uint32_t di ) {
   if( validDenseIndex( di ) ) {
-    const bool lz ( di >= kDepTot ) ;
-    const uint32_t in ( di%kDepTot ) ;
-    const Section se ( in<kDepEM ? EM :
-		       ( in<kDepEM+kDepHAD ? HAD : 
-			 ( in<kDepEM+kDepHAD+kDepLUM ? LUM : RPD ) ) ) ;
-    const uint32_t dp ( EM == se ? in+1 :
-			( HAD == se ? in - kDepEM + 1 : 
-			  (LUM == se ? in - kDepEM - kDepHAD + 1 : 
-			   (RPD == se ? in - kDepEM - kDepHAD - kDepLUM + 1 : in - kDepEM-kDepHAD-kDepLUM+kDepRPD+1) )  ) ) ;
-    std::cout<<"HcalZDCDetID:: section: "<<se<<", lz: "<<lz<<", dp: "<<dp<<", from denseIndex: di: "<<di<<std::endl;
-    return HcalZDCDetId( se, lz, dp ) ;
+    if (di >= 2*kDepTot) {
+      const bool lz ( di >= kDepTot ) ;
+      const uint32_t in ( di%kDepTot ) ;
+      const Section se ( in<kDepEM ? EM :
+			 ( in<kDepEM+kDepHAD ? HAD : LUM ) );
+      const uint32_t dp ( EM == se ? in+1 :
+			  ( HAD == se ? in - kDepEM + 1 : in - kDepEM - kDepHAD + 1 ) );
+      return HcalZDCDetId( se, lz, dp ) ;
+//    std::cout<<"HcalZDCDetID:: section: "<<se<<", lz: "<<lz<<", dp: "<<dp<<", from denseIndex: di: "<<di<<std::endl;
+    } else {
+      const bool lz ( di >= 2*kDepTot+kDepRPD ) ;
+      const uint32_t in ((di-2*kDepTot)%kDepRPD );
+      const Section se (RPD);
+      const uint32_t dp ( in+1 );
+//    std::cout<<"HcalZDCDetID:: section: "<<se<<", lz: "<<lz<<", dp: "<<dp<<", from denseIndex: di: "<<di<<std::endl;
+      return HcalZDCDetId( se, lz, dp ) ;
+    }
   } else {
     return HcalZDCDetId() ;
   }

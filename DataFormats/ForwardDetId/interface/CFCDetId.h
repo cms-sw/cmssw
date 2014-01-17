@@ -12,8 +12,8 @@ public:
   CFCDetId();
   /** Create cellid from raw id (0=invalid tower id) */
   CFCDetId(uint32_t rawid);
-  /** Constructor from subdetector, signed ieta,iphi and depth */
-  CFCDetId(ForwardSubdetector subdet, int ieta, int iphi, int depth);
+  /** Constructor from subdetector, signed ieta,iphi, depth and type */
+  CFCDetId(ForwardSubdetector subdet, int ieta, int iphi, int depth, int type);
   /** Constructor from a generic cell id */
   CFCDetId(const DetId& id);
   /** Assignment from a generic cell id */
@@ -30,7 +30,9 @@ public:
   /// get the cell iphi
   int iphi() const { return id_&0x3FF; }
   /// get the tower depth
-  int depth() const { return (id_>>20)&0xF; }
+  int depth() const { return (id_>>21)&0x7; }
+  /// get the fibre type
+  int type() const { return (id_>>20)&0x1; }
 
   static const CFCDetId Undefined;
 

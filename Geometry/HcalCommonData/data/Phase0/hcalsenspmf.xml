@@ -7,7 +7,6 @@
     <PartSelector path="//HTS.*"/>
     <PartSelector path="//.*HES.*"/>
     <PartSelector path="//HVQX"/>
-    <PartSelector path="//HFFibre.*"/>
     <PartSelector path="//VcalElecCathode"/>
     <PartSelector path="//FibreBundle.*"/>
     <PartSelector path="//VcalFibreBundleL.*"/>

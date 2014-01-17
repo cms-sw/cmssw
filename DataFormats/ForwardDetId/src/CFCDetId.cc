@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <ostream>
 
-const CFCDetId CFCDetId::Undefined(ForwardEmpty,0,0,0);
+const CFCDetId CFCDetId::Undefined(ForwardEmpty,0,0,0,0);
 
 CFCDetId::CFCDetId() : DetId() {
 }
@@ -10,9 +10,10 @@ CFCDetId::CFCDetId() : DetId() {
 CFCDetId::CFCDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-CFCDetId::CFCDetId(ForwardSubdetector subdet, int ieta, int iphi, int depth) : DetId(Forward,subdet) {
+CFCDetId::CFCDetId(ForwardSubdetector subdet, int ieta, int iphi, int depth, 
+		   int type) : DetId(Forward,subdet) {
   // (no checking at this point!)
-  id_ |= ((depth&0xF)<<20) |
+  id_ |= ((depth&0x7)<<21) | ((type&0x1)<20) |
     ((ieta>0)?(0x1000000|((ieta&0x3FF)<<10)):(((-ieta)&0x3FF)<<10)) |
     (iphi&0x3FF);
 }
@@ -40,7 +41,7 @@ CFCDetId& CFCDetId::operator=(const DetId& gen) {
 
 std::ostream& operator<<(std::ostream& s,const CFCDetId& id) {
   switch (id.subdet()) {
-  case(ForwardCFC) : return s << "(CFC " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
+  case(ForwardCFC) : return s << "(CFC " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ',' << id.type() << ')';
   default : return s << id.rawId();
   }
 }

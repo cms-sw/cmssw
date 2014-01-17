@@ -31,6 +31,10 @@ public:
   HcalZDCDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HcalZDCDetId& operator=(const DetId& id);
+  /** Comparison operator */
+  bool operator==(DetId id) const;
+  bool operator!=(DetId id) const;
+  bool operator<(DetId id) const;
 
   /// get the z-side of the cell (1/-1)
   int zside() const;
@@ -54,12 +58,12 @@ public:
       enum { kDepEM  = 5,
 	     kDepHAD = 4,
 	     kDepLUM = 2,
-	     kDepRPD = 16,
-	     kDepTot = kDepEM + kDepHAD + kDepLUM + kDepRPD };
+	     kDepRPD = 12,
+	     kDepTot = kDepEM + kDepHAD + kDepLUM };
 
    public:
 
-      enum { kSizeForDenseIndexing = 2*kDepTot } ;
+      enum { kSizeForDenseIndexing = 2*kDepTot + 2*kDepRPD };
 
 };
 

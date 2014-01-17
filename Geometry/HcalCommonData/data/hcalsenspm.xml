@@ -7,6 +7,7 @@
     <PartSelector path="//HTS.*"/>
     <PartSelector path="//.*HES.*"/>
     <PartSelector path="//HVQX"/>
+    <PartSelector path="//HFFibre.*"/>
     <PartSelector path="//VcalElecCathode"/>
     <Parameter name="SensitiveDetector" value="HcalSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HcalHits" eval="false"/>
