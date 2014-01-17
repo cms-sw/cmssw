@@ -14,7 +14,7 @@ ROOT.gROOT.SetBatch(1)
 
 if __name__ == "__main__":  
 
-  inputFile = 'gem_localrec_ana.root'
+  inputFile = '/afs/cern.ch/work/c/calabria/private/SingleMuonGunProd_2023_3/CMSSW_6_2_0_SLHC5/src/GEMCode/GEMValidation/test/gem_localrec_ana.root'
   outputFile = 'gem_localrec_ana_tmp.root'
   targetDir = './'
   
@@ -127,25 +127,25 @@ if __name__ == "__main__":
   draw_1D(targetDir, "recHitDPhi_rp1_l2", ext, treeHits, "#phi_{rec} - #phi_{sim} region1, layer2; #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", AND(rp1,l2), "");
 
-  draw_1D(targetDir, "recHitDPhi_st1_cls1", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 1, cls = 1); entries", 
+  draw_1D(targetDir, "recHitDPhi_st1_cls1", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 1, cls = 1); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==1 && clusterSize==1"), "");
-  draw_1D(targetDir, "recHitDPhi_st1_cls2", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 1, cls = 2); entries", 
+  draw_1D(targetDir, "recHitDPhi_st1_cls2", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 1, cls = 2); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==1 && clusterSize==2"), "");
-  draw_1D(targetDir, "recHitDPhi_st1_cls3", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 1, cls = 3); entries", 
+  draw_1D(targetDir, "recHitDPhi_st1_cls3", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 1, cls = 3); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==1 && clusterSize==3"), "");
 
-  draw_1D(targetDir, "recHitDPhi_st2_cls1", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 2, cls = 1); entries", 
+  draw_1D(targetDir, "recHitDPhi_st2_cls1", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 2, cls = 1); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==2 && clusterSize==1"), "");
-  draw_1D(targetDir, "recHitDPhi_st2_cls2", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 2, cls = 2); entries", 
+  draw_1D(targetDir, "recHitDPhi_st2_cls2", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 2, cls = 2); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==2 && clusterSize==2"), "");
-  draw_1D(targetDir, "recHitDPhi_st2_cls3", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 2, cls = 3); entries", 
+  draw_1D(targetDir, "recHitDPhi_st2_cls3", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 2, cls = 3); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==2 && clusterSize==3"), "");
 
-  draw_1D(targetDir, "recHitDPhi_st3_cls1", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 3, cls = 1); entries", 
+  draw_1D(targetDir, "recHitDPhi_st3_cls1", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 3, cls = 1); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==3 && clusterSize==1"), "");
-  draw_1D(targetDir, "recHitDPhi_st3_cls2", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 3, cls = 2); entries", 
+  draw_1D(targetDir, "recHitDPhi_st3_cls2", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 3, cls = 2); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==3 && clusterSize==2"), "");
-  draw_1D(targetDir, "recHitDPhi_st3_cls3", ext, treeHits, "#phi_{rec} - #phi_{sim}; #phi_{rec} - #phi_{sim} [rad] (station 3, cls = 3); entries", 
+  draw_1D(targetDir, "recHitDPhi_st3_cls3", ext, treeHits, "#phi_{rec} - #phi_{sim} (station 3, cls = 3); #phi_{rec} - #phi_{sim} [rad]; entries", 
 	   "h_", "(100,-0.001,+0.001)", "(globalPhi - globalPhi_sim)", TCut("station==3 && clusterSize==3"), "");
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
@@ -200,14 +200,32 @@ if __name__ == "__main__":
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
-  draw_occ(targetDir, "strip_rh_phistrip_rm1_l1", ext, treeHits, "GEM RecHit occupancy: region-1 layer1; #phi [rad]; strip", 
-	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rm1,l1), "COLZ")
-  draw_occ(targetDir, "strip_rh_phistrip_rm1_l2", ext, treeHits, "GEM RecHit occupancy: region-1 layer2; #phi [rad]; strip", 
-	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rm1,l2), "COLZ")
-  draw_occ(targetDir, "strip_rh_phistrip_rp1_l1", ext, treeHits, "GEM RecHit occupancy: region1 layer1; #phi [rad]; strip", 
-	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rp1,l1), "COLZ")
-  draw_occ(targetDir, "strip_rh_phistrip_rp1_l2", ext, treeHits, "GEM RecHit occupancy: region1 layer2; #phi [rad]; strip", 
-	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rp1,l2), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rm1_st1_l1", ext, treeHits, "GEM RecHit occupancy: region-1 layer1 station1; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rm1,l1,st1), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rm1_st1_l2", ext, treeHits, "GEM RecHit occupancy: region-1 layer2 station1; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rm1,l2,st1), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rp1_st1_l1", ext, treeHits, "GEM RecHit occupancy: region1 layer1 station1; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rp1,l1,st1), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rp1_st1_l2", ext, treeHits, "GEM RecHit occupancy: region1 layer2 station1; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,192,0,384)", "firstClusterStrip:globalPhi", AND(rp1,l2,st1), "COLZ")
+
+  draw_occ(targetDir, "strip_rh_phistrip_rm1_st2_l1", ext, treeHits, "GEM RecHit occupancy: region-1 layer1 station2; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,384,0,768)", "firstClusterStrip:globalPhi", AND(rm1,l1,st2), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rm1_st2_l2", ext, treeHits, "GEM RecHit occupancy: region-1 layer2 station2; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,384,0,768)", "firstClusterStrip:globalPhi", AND(rm1,l2,st2), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rp1_st2_l1", ext, treeHits, "GEM RecHit occupancy: region1 layer1 station2; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,384,0,768)", "firstClusterStrip:globalPhi", AND(rp1,l1,st2), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rp1_st2_l2", ext, treeHits, "GEM RecHit occupancy: region1 layer2 station2; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,384,0,768)", "firstClusterStrip:globalPhi", AND(rp1,l2,st2), "COLZ")
+
+  draw_occ(targetDir, "strip_rh_phistrip_rm1_st3_l1", ext, treeHits, "GEM RecHit occupancy: region-1 layer1 station3; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,384,0,768)", "firstClusterStrip:globalPhi", AND(rm1,l1,st3), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rm1_st3_l2", ext, treeHits, "GEM RecHit occupancy: region-1 layer2 station3; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,384,0,768)", "firstClusterStrip:globalPhi", AND(rm1,l2,st3), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rp1_st3_l1", ext, treeHits, "GEM RecHit occupancy: region1 layer1 station3; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,384,0,768)", "firstClusterStrip:globalPhi", AND(rp1,l1,st3), "COLZ")
+  draw_occ(targetDir, "strip_rh_phistrip_rp1_st3_l2", ext, treeHits, "GEM RecHit occupancy: region1 layer2 station3; #phi [rad]; strip", 
+	   "h_", "(280,-3.141592654,3.141592654,384,0,768)", "firstClusterStrip:globalPhi", AND(rp1,l2,st3), "COLZ")
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
