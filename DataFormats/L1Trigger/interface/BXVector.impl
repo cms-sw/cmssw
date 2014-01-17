@@ -42,6 +42,7 @@ void BXVector<T>::setBXRange( int bxFirst, int bxLast )
 {
   bxFirst_ = bxFirst;
   bxLast_ = bxLast;
+  data_.resize(bxLast-bxFirst+1);
 }
 
 // set size for a given BX

@@ -27,9 +27,7 @@
 //#include <vector>
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
-//this doesn't exist yet 12/5/13 Alex
 //#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
-//this only exists in Jim's private repo?
 //#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
@@ -41,7 +39,6 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
-//#include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1FirmwareFactory.h"
 
@@ -136,10 +133,15 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxLast = caloRegions->getLastBX();
 
   //outputs
-  std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
+  std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection);
+  std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection);
+  std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
+  std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection);
+
+  egammas->setBXRange(bxFirst, bxLast);
+  taus->setBXRange(bxFirst, bxLast);
+  jets->setBXRange(bxFirst, bxLast);
+  etsums->setBXRange(bxFirst, bxLast);
 
   //producer is responsible for splitting the BXVector into pieces for
   //the firmware to handle
@@ -212,7 +214,7 @@ void L1TCaloStage1Producer::beginRun(Run const&iR, EventSetup const&iE){
     //iE.get<CaloParamsRcd>().get(parameters);
 
     //m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
-    //m_fwv = boost::shared_ptr<const FirmwareVersion>();
+    //m_fwv = boost::shared_ptr<const FirmwareVersion>(new FirmwareVersion());
     //printf("Begin.\n");
     m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
     //printf("Success m_fwv.\n");

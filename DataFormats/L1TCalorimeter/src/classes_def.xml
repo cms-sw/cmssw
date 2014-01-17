@@ -1,7 +1,7 @@
 <lcgdict>
-  <class name="l1t::CaloStage1Cluster" />
-  <class name="l1t::CaloStage1ClusterBxCollection"/>
-  <class name="edm::Wrapper<l1t::CaloStage1ClusterBxCollection>"/>
+  <class name="l1t::CaloEmCand" />
+  <class name="l1t::CaloEmCandBxCollection"/>
+  <class name="edm::Wrapper<l1t::CaloEmCandBxCollection>"/>
 
   <class name="l1t::CaloRegion" />
   <class name="l1t::CaloRegionBxCollection"/>

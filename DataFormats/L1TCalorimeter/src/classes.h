@@ -8,15 +8,15 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
-#include "DataFormats/L1TCalorimeter/interface/CaloStage1Cluster.h"
+#include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
 
 namespace {
   struct dictionary {
 
     l1t::CaloRegionBxCollection caloRegionBxColl;
-    l1t::CaloStage1ClusterBxCollection caloStage1ClusterBxColl;
+    l1t::CaloEmCandBxCollection caloEmCandBxColl;
 
     edm::Wrapper<l1t::CaloRegionBxCollection> w_caloRegionBxColl;
-    edm::Wrapper<l1t::CaloStage1ClusterBxCollection> w_caloStage1ClusterBxColl;
+    edm::Wrapper<l1t::CaloEmCandBxCollection> w_caloEmCandBxColl;
   };
 }
