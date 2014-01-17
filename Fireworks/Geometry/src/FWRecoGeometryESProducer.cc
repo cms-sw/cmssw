@@ -63,7 +63,7 @@
     }									\
   }                                                                     \
 									  
-FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& )
+FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& ps )
   : m_current( -1 )
 {
   setWhatProduced( this );
@@ -242,30 +242,39 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   // GEM geometry
   //
   DetId detId( DetId::Muon, 4 );
-  const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<GEMEtaPartition *>::const_iterator it = gemGeom->etaPartitions().begin(),
-						     end = gemGeom->etaPartitions().end(); 
-       it != end; ++it )
-  { 
-    GEMEtaPartition* roll = (*it);
-    if( roll )
-    {
-      unsigned int rawid = (*it)->geographicalId().rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, roll );
 
-      const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-      m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-      m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+  try 
+  {
+    const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+  
+    for( std::vector<GEMEtaPartition *>::const_iterator it = gemGeom->etaPartitions().begin(),
+						       end = gemGeom->etaPartitions().end(); 
+	 it != end; ++it )
+    { 
+      GEMEtaPartition* roll = (*it);
+      if( roll )
+      {
+	unsigned int rawid = (*it)->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, roll );
 
-      float height = topo.stripLength()/2;
-      LocalPoint  lTop( 0., height, 0.);
-      LocalPoint  lBottom( 0., -height, 0.);
-      m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
-      m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
-      m_fwGeometry->idToName[current].topology[5] = roll->npads();
+	const StripTopology& topo = roll->specificTopology();
+	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+
+	float height = topo.stripLength()/2;
+	LocalPoint  lTop( 0., height, 0.);
+	LocalPoint  lBottom( 0., -height, 0.);
+	m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	m_fwGeometry->idToName[current].topology[5] = roll->npads();
+      }
     }
+  }
+  catch( cms::Exception &exception )
+  {
+    edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
   }
 }
 
