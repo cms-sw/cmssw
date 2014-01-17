@@ -42,13 +42,7 @@ TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(!evt_info.isValid()) return;
   weight = evt_info->weight() ;
 
-  /*
-  // --- get TopQuarkAnalysis TtGenEvent
-  Handle<TtGenEvent> genEvt;
-  iEvent.getByLabel("genEvt", genEvt);
 
-  if(!genEvt.isValid())return;
-  */
 
   ///Gathering the HepMCProduct information
   edm::Handle<HepMCProduct> evt;
