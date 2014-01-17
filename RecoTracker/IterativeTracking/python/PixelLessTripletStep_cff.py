@@ -16,13 +16,16 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     #TID+TEC RING 1-3
     'TID2_pos+TID3_pos+TEC1_pos','TID2_neg+TID3_neg+TEC1_neg',#ring 1-2 (matched)
     'TID3_pos+TEC1_pos+TEC2_pos','TID3_neg+TEC1_neg+TEC2_neg',
-    'TID2_pos+TID3_pos+MTEC1_pos','TID2_neg+TID3_neg+MTEC1_neg',#ring 3(-4) (mono)
+    'TID2_pos+TID3_pos+MTEC1_pos','TID2_neg+TID3_neg+MTEC1_neg',#ring 3 (mono)
     'TID3_pos+TEC1_pos+MTEC2_pos','TID3_neg+TEC1_neg+MTEC2_neg',
     #TEC RING 1-3
     'TEC1_pos+TEC2_pos+TEC3_pos','TEC1_neg+TEC2_neg+TEC3_neg',
     'TEC2_pos+TEC3_pos+TEC4_pos','TEC2_neg+TEC3_neg+TEC4_neg',
+    'TEC2_pos+TEC3_pos+TEC5_pos','TEC2_neg+TEC3_neg+TEC5_neg',
+    'TEC2_pos+TEC3_pos+TEC6_pos','TEC2_neg+TEC3_neg+TEC6_neg',
     'TEC3_pos+TEC4_pos+TEC5_pos','TEC3_neg+TEC4_neg+TEC5_neg',
-    'TEC2_pos+TEC3_pos+TEC5_pos','TEC2_neg+TEC3_neg+TEC5_neg'
+    'TEC3_pos+TEC5_pos+TEC6_pos','TEC3_neg+TEC5_neg+TEC6_neg',
+    'TEC4_pos+TEC5_pos+TEC6_pos','TEC4_neg+TEC5_neg+TEC6_neg'
     ),
     TIB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
@@ -67,34 +70,22 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
         maxRing = cms.int32(3)
     )
 )
+
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 pixelLessStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
+#OrderedHitsFactory
 pixelLessStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'pixelLessStepSeedLayers'
 pixelLessStepSeeds.OrderedHitsFactoryPSet.ComponentName = 'StandardMultiHitGenerator'
-pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
-    useFixedPreFiltering = cms.bool(False),
-    maxElement = cms.uint32(100000),
-    ComponentName = cms.string('MultiHitGeneratorFromChi2'),
-    extraHitRPhitolerance = cms.double(0.2),
-    phiPreFiltering = cms.double(0.3),
-    extraHitRZtolerance = cms.double(0.25),
-    fnSigmaRZ = cms.double(2.0),
-    chi2VsPtCut = cms.bool(True),
-    pt_interv = cms.vdouble(0.7,1.0,2.0,5.0),
-    chi2_cuts = cms.vdouble(),
-    maxChi2 = cms.double(4.0),
-    extraPhiKDBox = cms.double(0.0),
-    refitHits = cms.bool(True),
-    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
-    debug = cms.bool(False),
-    detIdsToDebug = cms.vint32(0,0,0)
-)
+import RecoTracker.TkSeedGenerator.MultiHitGeneratorFromChi2_cfi
+pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = RecoTracker.TkSeedGenerator.MultiHitGeneratorFromChi2_cfi.MultiHitGeneratorFromChi2.clone()
+#SeedCreator
 pixelLessStepSeeds.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
+#RegionFactory
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.4
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
-#pixelLessStepSeeds.SeedCreatorPSet.OriginTransverseErrorMultiplier = 1.0 #2.0 this is not used according to kevin
+#SeedComparitor
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
