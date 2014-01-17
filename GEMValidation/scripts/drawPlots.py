@@ -78,7 +78,7 @@ def draw_2D_adv(target_dir, c_title, ext, t, title, h_name, h_bins, to_draw, cut
   t1 = t.CopyTree(Form(cutString))
   for entry in t1:
     vector = range(entry.firstClusterStrip, entry.firstClusterStrip + entry.clusterSize)
-    fill_hist2(h, vector, t.roll)
+    fill_hist2(h, vector, entry.roll)
   h.SetTitle(title)
   h.SetLineWidth(2)
   h.SetLineColor(kBlue)
