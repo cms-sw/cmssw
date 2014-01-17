@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="TBHcal04HFWedge.xml" eval="true">
+		<Constant name="dzHF" value="82.5*cm"/>
+		<Constant name="halfAngHF" value="10*deg"/>
+		<Constant name="rMinHF" value="12.5*cm"/>
+		<Constant name="rMaxHF" value="130.0*cm"/>
+		<Constant name="dxLowHF" value="([rMinHF]*tan([halfAngHF]))"/>
+		<Constant name="dxTopHF" value="([rMaxHF]*sin([halfAngHF]))"/>
+		<Constant name="dyHF" value="([rMaxHF]*cos([halfAngHF])-[rMinHF])/2"/>
+		<Constant name="yposHF" value="([dyHF])"/>
+		<Constant name="zposModule" value="1626.2*cm"/>
+		<Constant name="shiftSF" value="11.0*cm"/>
+		<Constant name="boxDx" value="0.50*cm"/>
+		<Constant name="boxDy" value="0.25*cm"/>
+		<Constant name="startY" value="(-[dyHF]+1.25*cm)"/>
+		<Constant name="holeDx" value="0.50*mm"/>
+		<Constant name="holeX" value="0.25*cm"/>
+		<Constant name="claddingR" value="0.45*mm"/>
+		<Constant name="fibreR" value="0.30*mm"/>
+		<Constant name="fibreLongL" value="164.90*cm"/>
+		<Constant name="fibreShortL" value="([fibreLongL]-2*[shiftSF])"/>
+		<Constant name="fibreLongZ" value="[fibreLongL]/2-[dzHF]"/>
+		<Constant name="fibreShortZ" value="[fibreShortL]/2-[dzHF]"/>
+	</ConstantsSection>
+	<SolidSection label="TBHcal04HFWedge.xml">
+		<Trapezoid name="HVQX" dz="[dzHF]" alp1="0*deg" bl1="[dxLowHF]" tl1="[dxTopHF]" h1="[dyHF]" alp2="0*deg" bl2="[dxLowHF]" tl2="[dxTopHF]" h2="[dyHF]" phi="0*deg" theta="0*deg"/>
+		<Box name="HFBox" dx="[boxDx]" dy="[boxDy]" dz="[dzHF]"/>
+		<Box name="HFHoleS" dx="[holeDx]" dy="[holeDx]" dz="[dzHF]"/>
+		<Box name="HFHoleL" dx="[holeDx]" dy="[holeDx]" dz="[dzHF]"/>
+		<Tubs name="HFCladS" rMin="0*fm" rMax="[claddingR]" dz="[fibreShortL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="HFCladL" rMin="0*fm" rMax="[claddingR]" dz="[fibreLongL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="HFFibreS" rMin="0*fm" rMax="[fibreR]" dz="[fibreShortL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="HFFibreL" rMin="0*fm" rMax="[fibreR]" dz="[fibreLongL]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal04HFWedge.xml">
+		<LogicalPart name="HVQX" category="unspecified">
+			<rSolid name="HVQX"/>
+			<rMaterial name="materials:Iron"/>
+		</LogicalPart>
+		<LogicalPart name="HFBox1" category="unspecified">
+			<rSolid name="HFBox"/>
+			<rMaterial name="materials:Iron"/>
+		</LogicalPart>
+		<LogicalPart name="HFBox2" category="unspecified">
+			<rSolid name="HFBox"/>
+			<rMaterial name="materials:Iron"/>
+		</LogicalPart>
+		<LogicalPart name="HFHoleS" category="unspecified">
+			<rSolid name="HFHoleS"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HFHoleL" category="unspecified">
+			<rSolid name="HFHoleL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HFCladS" category="unspecified">
+			<rSolid name="HFCladS"/>
+			<rMaterial name="hcalforwardmaterial:Plastic"/>
+		</LogicalPart>
+		<LogicalPart name="HFCladL" category="unspecified">
+			<rSolid name="HFCladL"/>
+			<rMaterial name="hcalforwardmaterial:Plastic"/>
+		</LogicalPart>
+		<LogicalPart name="HFFibreS" category="unspecified">
+			<rSolid name="HFFibreS"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+		<LogicalPart name="HFFibreL" category="unspecified">
+			<rSolid name="HFFibreL"/>
+			<rMaterial name="hcalforwardmaterial:Quartz"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="TBHcal04HFWedge.xml">
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HF:TBHCal"/>
+			<rChild name="TBHcal04HFWedge:HVQX"/>
+			<Translation x="0*fm" y="[dyHF]" z="[zposModule]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HFWedge:HFCladL"/>
+			<rChild name="TBHcal04HFWedge:HFFibreL"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04HFWedge:HFCladS"/>
+			<rChild name="TBHcal04HFWedge:HFFibreS"/>
+		</PosPart>
+		<PosPart copyNumber="5001">
+			<rParent name="TBHcal04HFWedge:HFHoleL"/>
+			<rChild name="TBHcal04HFWedge:HFCladL"/>
+			<Translation x="0*fm" y="0*fm" z="[fibreLongZ]"/>
+		</PosPart>
+		<PosPart copyNumber="5002">
+			<rParent name="TBHcal04HFWedge:HFHoleS"/>
+			<rChild name="TBHcal04HFWedge:HFCladS"/>
+			<Translation x="0*fm" y="0*fm" z="[fibreShortZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HFWedge:HFBox1"/>
+			<rChild name="TBHcal04HFWedge:HFHoleS"/>
+			<Translation x="-[holeX]" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HFWedge:HFBox1"/>
+			<rChild name="TBHcal04HFWedge:HFHoleL"/>
+			<Translation x="[holeX]" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HFWedge:HFBox2"/>
+			<rChild name="TBHcal04HFWedge:HFHoleL"/>
+			<Translation x="-[holeX]" y="0*fm" z="0*fm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HFWedge:HFBox2"/>
+			<rChild name="TBHcal04HFWedge:HFHoleS"/>
+			<Translation x="[holeX]" y="0*fm" z="0*fm"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="hcal:DDHCalForwardAlgo">
+		<rParent name="TBHcal04HFWedge:HVQX"/>
+		<String name="CellMaterial" value="materials:Iron"/>
+		<Numeric name="CellDx" value="[boxDx]"/>
+		<Numeric name="CellDy" value="[boxDy]"/>
+		<Numeric name="CellDz" value="[dzHF]"/>
+		<Numeric name="StartY" value="[startY]"/>
+		<Vector name="Child" type="string" nEntries="2">
+			TBHcal04HFWedge:HFBox1, TBHcal04HFWedge:HFBox2</Vector>
+		<Vector name="Number" type="numeric" nEntries="42">
+			3,  6,  6,  5,  6,  6,  5,  6,  6,  5,  6,  6,
+			5,  6,  6,  5,  6,  6,  5,  6,  6,  5,  6,  6,
+			5,  6,  6,  5,  6,  6,  5,  6,  6,  5,  6,  6,
+			5,  6,  6,  5,  6,  3
+		</Vector>
+		<Vector name="Size" type="numeric" nEntries="42">
+			4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+			16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+			28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+			40, 41, 42, 43, 44, 45
+		</Vector>
+		<Vector name="Type" type="numeric" nEntries="42">
+			1,  1,  0,  1,  1,  0,  1,  1,  0,  1,  1,  0,
+			1,  1,  0,  1,  1,  0,  1,  1,  0,  1,  1,  0,
+			1,  1,  0,  1,  1,  0,  1,  1,  0,  1,  1,  0,
+			1,  1,  0,  1,  1,  0
+		</Vector>
+		<Vector name="Child" type="string" nEntries="2">
+			TBHcal04HFWedge:HFBox1, TBHcal04HFWedge:HFBox2</Vector>
+		<Vector name="Number" type="numeric" nEntries="42">
+			3,  6,  6,  5,  6,  6,  5,  6,  6,  5,  6,  6,
+			5,  6,  6,  5,  6,  6,  5,  6,  6,  5,  6,  6,
+			5,  6,  6,  5,  6,  6,  5,  6,  6,  5,  6,  6,
+			5,  6,  6,  5,  6,  3
+		</Vector>
+		<Vector name="Size" type="numeric" nEntries="42">
+			4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+			16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+			28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+			40, 41, 42, 43, 44, 45
+		</Vector>
+		<Vector name="Type" type="numeric" nEntries="42">
+			1,  1,  0,  1,  1,  0,  1,  1,  0,  1,  1,  0,
+			1,  1,  0,  1,  1,  0,  1,  1,  0,  1,  1,  0,
+			1,  1,  0,  1,  1,  0,  1,  1,  0,  1,  1,  0,
+			1,  1,  0,  1,  1,  0
+		</Vector>
+	</Algorithm>
+</DDDefinition>
