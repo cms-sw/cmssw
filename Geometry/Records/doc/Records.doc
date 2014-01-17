@@ -47,6 +47,8 @@
 - PHcalRcd
 - PZdcRcd
 - RPCRecoGeometryRcd
+- GEMRecoGeometryRcd
+- ME0RecoGeometryRcd
 - TrackerDigiGeometryRecord
 - ZDCGeometryRecord
 

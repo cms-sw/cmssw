@@ -32,4 +32,7 @@
   <class name="GEMDetId" ClassVersion="10">
    <version ClassVersion="10" checksum="3587583837"/>
   </class>
+  <class name="ME0DetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="388194174"/>
+  </class>
 </lcgdict>

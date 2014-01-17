@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Ideal geometry, needed for transient ECAL alignement
-from Geometry.CMSCommonData.cmsExtendedGeometry2023HGCalXML_cfi import *
+from Configuration.Geometry.GeometryExtended2023_cff import *
 
 # Reconstruction geometry services
 #  Tracking Geometry
@@ -40,7 +40,6 @@ from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalTopology_cfi import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
-
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
