@@ -1,6 +1,5 @@
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerClass.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -20,16 +19,19 @@ extern "C" {
 }
 #endif
 
+namespace ParticleReplacerVar{
+  CLHEP::HepRandomEngine* decayRandomEngine; // adding static var to replace missing value from ExternalDecays
+}
+
 ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool verbose):
   ParticleReplacerBase(pset),
   generatorMode_(pset.getParameter<std::string>("generatorMode")),
-  tauola_(gen::TauolaInterface::getInstance()),
   printEvent_(verbose),
   outTree(0),
   maxNumberOfAttempts_(pset.getUntrackedParameter<int>("maxNumberOfAttempts", 1000))
 {
-	tauola_->setPSet(pset.getParameter< edm::ParameterSet>("TauolaOptions"));
-// 	using namespace reco;
+  tauola_ = (gen::TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp105", pset.getParameter< edm::ParameterSet>("TauolaOptions")));
+  // 	using namespace reco;
 	using namespace edm;
 	using namespace std;
 
@@ -147,8 +149,8 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
             "or remove the modules that require it." << std::endl;
         } 
         // this is a global variable defined in GeneratorInterface/ExternalDecays/src/ExternalDecayDriver.cc
-        decayRandomEngine = &rng->getEngine();
-
+        ParticleReplacerVar::decayRandomEngine = &rng->getEngine();
+	tauola_->SetDecayRandomEngine(ParticleReplacerVar::decayRandomEngine);
 	edm::LogInfo("Replacer") << "generatorMode = "<< generatorMode_<< "\n";
 
 	return;

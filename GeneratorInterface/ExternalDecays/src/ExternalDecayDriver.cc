@@ -44,6 +44,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset ) :
     }
     if( curSet == "Tauola" || curSet =="Tauolapp105"){
       fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp105", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fTauolaInterface->SetDecayRandomEngine(decayRandomEngine);
       fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
       fPhotosInterface->SetDecayRandomEngine(decayRandomEngine);
       fPhotosInterface->configureOnlyFor(15); 

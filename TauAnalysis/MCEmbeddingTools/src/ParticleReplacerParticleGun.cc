@@ -1,14 +1,24 @@
 #include "TauAnalysis/MCEmbeddingTools/interface/ParticleReplacerParticleGun.h"
 #include "TauAnalysis/MCEmbeddingTools/interface/extraPythia.h"
 
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "HepMC/PythiaWrapper.h"
 #include "HepMC/IO_HEPEVT.h"
 
+using namespace edm;
+
+namespace ParticleReplacerGunVar{
+  CLHEP::HepRandomEngine* decayRandomEngine; // adding static var to replace missing value from ExternalDecays
+}
+
+
 ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet& iConfig, bool verbose):
   ParticleReplacerBase(iConfig),
-  tauola_(gen::TauolaInterface::getInstance()),
   pythia_(iConfig),
   particleOrigin_(iConfig.getParameter<std::string>("particleOrigin")),
   forceTauPolarization_(iConfig.getParameter<std::string>("forceTauPolarization")),
@@ -18,8 +28,19 @@ ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet
   forceTauPlusHelicity_(iConfig.getParameter<int>("forceTauPlusHelicity")),
   forceTauMinusHelicity_(iConfig.getParameter<int>("forceTauMinusHelicity")),
   printout_(verbose) {
-  tauola_->setPSet(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola"));
-  srand(time(NULL)); // Should we use RandomNumberGenerator service?
+  tauola_ = (gen::TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp105", iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola"))); 
+  //srand(time(NULL)); // Should we use RandomNumberGenerator service? your require a random number generator here
+
+  edm::Service<RandomNumberGenerator> rng;
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+            "which appears to be absent.  Please add that service to your configuration\n"
+      "or remove the modules that require it." << std::endl;
+  }
+  // this is a global variable defined in GeneratorInterface/ExternalDecays/src/ExternalDecayDriver.cc
+  ParticleReplacerGunVar::decayRandomEngine = &rng->getEngine();
+  tauola_->SetDecayRandomEngine(ParticleReplacerGunVar::decayRandomEngine);
 
   if(forceTauPlusHelicity_ != 0) 
     edm::LogInfo("MuonReplacement") << "[ParticleReplacer::ParticleReplacer] "
