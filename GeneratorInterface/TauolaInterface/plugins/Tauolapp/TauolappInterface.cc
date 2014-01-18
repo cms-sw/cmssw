@@ -25,7 +25,7 @@ using namespace gen;
 using namespace edm;
 using namespace std;
 
-CLHEP::HepRandomEngine*  TauolappInterface::fRandomEngine;
+CLHEP::HepRandomEngine*  TauolappInterface::fRandomEngine = nullptr;
 
 TauolappInterface::TauolappInterface( const edm::ParameterSet& pset):
   fPolarization(false),

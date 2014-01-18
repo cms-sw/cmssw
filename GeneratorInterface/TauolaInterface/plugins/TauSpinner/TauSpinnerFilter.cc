@@ -6,11 +6,16 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 TauSpinnerFilter::TauSpinnerFilter(const edm::ParameterSet& pset):
-  ntaus_(0)
+  src_(pset.getParameter<edm::InputTag>("src"))
+  ,fRandomEngine(nullptr)
+  ,ntaus_(0)
 {
   if(pset.getParameter<int>("ntaus")==1)ntaus_=1.0;
   if(pset.getParameter<int>("ntaus")==2)ntaus_=2.0;
+  WTToken_=consumes<double>(src_);
+}
 
+bool TauSpinnerFilter::filter(edm::Event& e, edm::EventSetup const& es){
   edm::Service<edm::RandomNumberGenerator> rng;
   if(!rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -18,15 +23,13 @@ TauSpinnerFilter::TauSpinnerFilter(const edm::ParameterSet& pset):
       "which appears to be absent.  Please add that service to your configuration\n"
       "or remove the modules that require it." << std::endl;
   }
-  decayRandomEngine = &rng->getEngine();
-}
+  fRandomEngine = &rng->getEngine();
 
-bool TauSpinnerFilter::filter(edm::Event& e, edm::EventSetup const& es){
   edm::Handle<double> WT;
-  e.getByLabel(edm::InputTag("TauSpinnerGen","TauSpinnerWT"),WT);
+  e.getByToken(WTToken_,WT);
   if(*(WT.product())>=0 && *(WT.product())<=4.0){
     double weight=(*(WT.product()));
-    if(decayRandomEngine->flat()*ntaus_*2.0<weight){return true;}
+    if(fRandomEngine->flat()*ntaus_*2.0<weight){return true;}
   }
   return false; 
 }

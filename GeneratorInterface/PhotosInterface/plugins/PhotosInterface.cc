@@ -15,10 +15,7 @@ using namespace edm;
 using namespace std;
 
 
-namespace PhotosInterfaceVar {
-  CLHEP::HepRandomEngine* decayRandomEngine;
-}
-
+CLHEP::HepRandomEngine* PhotosInterface::fRandomEngine = nullptr;
 
 extern "C"{
 
@@ -27,7 +24,7 @@ extern "C"{
 
    double phoran_(int *idummy)
    {
-     return PhotosInterfaceVar::decayRandomEngine->flat();
+     return PhotosInterface::flat();
    }
 
    extern struct {
@@ -55,7 +52,7 @@ PhotosInterface::PhotosInterface( const edm::ParameterSet& )
 }
 
 void PhotosInterface::setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){
-  PhotosInterfaceVar::decayRandomEngine=decayRandomEngine;
+  fRandomEngine=decayRandomEngine;
 }
 
 
@@ -469,5 +466,17 @@ bool PhotosInterface::isTauLeptonicDecay( HepMC::GenVertex* vtx )
    return false;  
 
 }
+
+double PhotosInterface::flat()
+{
+  if ( !fRandomEngine ) {
+    throw cms::Exception("LogicError")
+      << "TauolaInterface::flat: Attempt to generate random number when engine pointer is null\n"
+      << "This might mean that the code was modified to generate a random number outside the\n"
+      << "event and beginLuminosityBlock methods, which is not allowed.\n";
+  }
+  return fRandomEngine->flat();
+}
+
 
 DEFINE_EDM_PLUGIN(PhotosFactory, gen::PhotosInterface, "Photos2155");

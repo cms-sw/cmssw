@@ -15,23 +15,12 @@
 using namespace edm;
 using namespace TauSpinner;
 
-CLHEP::HepRandomEngine* decayRandomEngine;
-/*extern "C" {
-  void ranmar_( float *rvec, int *lenv ){
-    for(int i = 0; i < *lenv; i++)
-      *rvec++ = decayRandomEngine->flat();
-    return;
-  }
-  
-   void rmarin_( int*, int*, int* ){
-    return;
-  }
-  }*/
-
-bool TauSpinnerCMS::isTauSpinnerConfigure=false;
+CLHEP::HepRandomEngine* TauSpinnerCMS::fRandomEngine= nullptr;
+bool                    TauSpinnerCMS::isTauSpinnerConfigure=false;
 
 TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
-  isReco_(pset.getParameter<bool>("isReco"))
+  EDProducer()
+  ,isReco_(pset.getParameter<bool>("isReco"))
   ,isTauolaConfigured_(pset.getParameter<bool>("isTauolaConfigured" ))
   ,isLHPDFConfigured_(pset.getParameter<bool>("isLHPDFConfigured" ))
   ,LHAPDFname_(pset.getUntrackedParameter("LHAPDFname",(string)("MSTW2008nnlo90cl.LHgrid")))
@@ -43,26 +32,28 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   ,nonSMN_(pset.getUntrackedParameter("nonSMN",(int)(0)))
   ,roundOff_(pset.getUntrackedParameter("roundOff",(double)(0.01)))
 {
+  //usesResource(edm::uniqueSharedResourceName());
+  usesResource(edm::SharedResourceNames::kTauola);
+
   produces<bool>("TauSpinnerWTisValid").setBranchAlias("TauSpinnerWTisValid");
   produces<double>("TauSpinnerWT").setBranchAlias("TauSpinnerWT");
   produces<double>("TauSpinnerWTFlip").setBranchAlias("TauSpinnerWTFlip");
   produces<double>("TauSpinnerWThplus").setBranchAlias("TauSpinnerWThplus");
   produces<double>("TauSpinnerWThminus").setBranchAlias("TauSpinnerWThminus");
 
-  Service<RandomNumberGenerator> rng;
-  if(!rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-          "which appears to be absent.  Please add that service to your configuration\n"
-      "or remove the modules that require it." << std::endl;
+  if(isReco_){
+    GenParticleCollectionToken_=consumes<reco::GenParticleCollection>(gensrc_);
   }
-  decayRandomEngine = &rng->getEngine();
-  
+  else{
+    hepmcCollectionToken_=consumes<HepMCProduct>(gensrc_);
+  }
 }
 
-void TauSpinnerCMS::beginJob()
-{
+void TauSpinnerCMS::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){}
+
+void TauSpinnerCMS::beginJob(){
   if(!isTauolaConfigured_){
+    Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
     Tauolapp::Tauola::initialize();
   }
   if(!isLHPDFConfigured_){
@@ -80,6 +71,16 @@ void TauSpinnerCMS::beginJob()
 }
 
 void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
+  Service<RandomNumberGenerator> rng;
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+          "which appears to be absent.  Please add that service to your configuration\n"
+      "or remove the modules that require it." << std::endl;
+  }
+  fRandomEngine = &rng->getEngine();
+
+
   double WT=1.0;
   double WTFlip=1.0;
   double polSM=-999; //range [-1,1]
@@ -90,9 +91,10 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
     stat=readParticlesfromReco(e,X,tau,tau2,tau_daughters,tau_daughters2);
   }
   else{
-    Handle< HepMCProduct > EvtHandle ;
-    e.getByLabel( "generator", EvtHandle ) ;
-    const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
+    edm::Handle<HepMCProduct> evt;
+    e.getByToken(hepmcCollectionToken_, evt);
+    //Get EVENT
+    HepMC::GenEvent *Evt = new HepMC::GenEvent(*(evt->GetEvent()));
     stat=readParticlesFromHepMC(Evt,X,tau,tau2,tau_daughters,tau_daughters2);
   }  
   if(MotherPDGID_<0 || abs(X.pdgid())==MotherPDGID_){
@@ -178,7 +180,7 @@ void TauSpinnerCMS::endJob(){}
 int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2, 
 					 std::vector<SimpleParticle> &tau_daughters,std::vector<SimpleParticle> &tau2_daughters){
   edm::Handle<reco::GenParticleCollection> genParticles;
-  e.getByLabel(gensrc_, genParticles);
+  e.getByToken(GenParticleCollectionToken_, genParticles);
   for(reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr!= genParticles->end(); ++itr){
     int pdgid=abs(itr->pdgId());
     if(pdgid==24 || pdgid==37 || pdgid ==25 || pdgid==36 || pdgid==22 || pdgid==23 ){
@@ -261,5 +263,17 @@ void TauSpinnerCMS::GetRecoDaughters(const reco::GenParticle *Particle,std::vect
     GetRecoDaughters(static_cast<const reco::GenParticle*>(dau),daughters,Particle->pdgId());
   }
 }
+
+double TauSpinnerCMS::flat()
+{
+  if ( !fRandomEngine ) {
+    throw cms::Exception("LogicError")
+      << "TauolaInterface::flat: Attempt to generate random number when engine pointer is null\n"
+      << "This might mean that the code was modified to generate a random number outside the\n"
+      << "event and beginLuminosityBlock methods, which is not allowed.\n";
+  }
+  return fRandomEngine->flat();
+}
+
 
 DEFINE_FWK_MODULE(TauSpinnerCMS);

@@ -1,4 +1,3 @@
-
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterface.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
@@ -24,11 +23,10 @@
 
 #include "CLHEP/Random/RandFlat.h"
 
+using namespace gen;
+using namespace edm;
 
-namespace PhotosRandomVar {
-  CLHEP::HepRandomEngine* decayRandomEngine;
-}
-
+CLHEP::HepRandomEngine* EvtGenInterface::fRandomEngine;
 
 extern "C"{
 
@@ -37,7 +35,7 @@ extern "C"{
 
   double phoran_(int *idummy)
   {
-    return PhotosRandomVar::decayRandomEngine->flat();
+    return EvtGenInterface::flat();
   }
   extern struct {
     // bool qedrad[NMXHEP];                                                                                                                                                                                                                  
@@ -46,8 +44,6 @@ extern "C"{
 
 }
 
-using namespace gen;
-using namespace edm;
 
 EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
 {
@@ -645,6 +641,16 @@ EvtGenInterface::update_candlist( int theIndex, HepMC::GenParticle *thePart )
 void
 EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
   the_engine->setRandomEngine(v);
-  PhotosRandomVar::decayRandomEngine=v;
+  fRandomEngine=v;
   m_Py6Service->setRandomEngine(v);
+}
+
+double EvtGenInterface::flat(){
+  if ( !fRandomEngine ) {
+    throw cms::Exception("LogicError")
+      << "TauolaInterface::flat: Attempt to generate random number when engine pointer is null\n"
+      << "This might mean that the code was modified to generate a random number outside the\n"
+      << "event and beginLuminosityBlock methods, which is not allowed.\n";
+  }
+  return fRandomEngine->flat();
 }

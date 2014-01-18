@@ -14,6 +14,7 @@
 
 
 <library   file="TauSpinner/*.cc" name="TauSpinnerInterface">
+  <use name="FWCore/Concurrency"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="SimDataFormats/GeneratorProducts"/>

@@ -20,10 +20,6 @@
 
 #include "CLHEP/Random/RandomEngine.h"
 
-//
-// class declaration
-//
-
 class TauSpinnerFilter : public edm::EDFilter {
  public:
   TauSpinnerFilter(const edm::ParameterSet&);
@@ -32,8 +28,10 @@ class TauSpinnerFilter : public edm::EDFilter {
   virtual bool filter(edm::Event& e, edm::EventSetup const& es);
 
  private:
-  CLHEP::HepRandomEngine* decayRandomEngine;
+  edm::InputTag src_;
+  CLHEP::HepRandomEngine* fRandomEngine;
   double ntaus_;
+  edm::EDGetTokenT<double> WTToken_;
 };
 
 #endif

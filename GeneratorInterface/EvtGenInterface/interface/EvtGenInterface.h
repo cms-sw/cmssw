@@ -29,14 +29,11 @@
 #include "EvtGenBase/EvtStdHep.hh"
 #include "EvtGenBase/EvtSecondary.hh"
 #include "EvtGenModels/EvtPythia.hh"
-
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"
 
 class myEvtRandomEngine;
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
 
 namespace HepMC {
   class GenParticle;
@@ -44,13 +41,11 @@ namespace HepMC {
 }
 
 namespace gen {
-
    class Pythia6Service;
 
-   class EvtGenInterface : public EvtGenInterfaceBase
-   {
-      public:
-      
+   class EvtGenInterface : public EvtGenInterfaceBase {
+     public:
+     
       // ctor & dtor
       EvtGenInterface( const edm::ParameterSet& );
       ~EvtGenInterface();
@@ -61,8 +56,8 @@ namespace gen {
       void addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC::GenEvent* theEvent, bool del_daug);
       void go_through_daughters(EvtParticle* part);
       void update_candlist( int theIndex, HepMC::GenParticle *thePart );
-  
       void setRandomEngine(CLHEP::HepRandomEngine* v);
+      static double flat();
 
       // from Pythia
       // void call_pygive(const std::string& iParm );
@@ -97,6 +92,8 @@ namespace gen {
       std::string pdt_s;
       std::string user_decay_s;
       std::vector<std::string> forced_names;
+
+      static CLHEP::HepRandomEngine* fRandomEngine;
    };
 }
 #endif
