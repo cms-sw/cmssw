@@ -257,6 +257,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  transTracks.push_back(transTrackBuilder->build(*iter));
 	}
 	bool FitOk(true);
+	if(transTracks.size()>0){
 	AdaptiveVertexFitter avf;
 	avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
 	try{
@@ -265,6 +266,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	}catch(...){
 	  FitOk=false;
 	}
+	}else FitOk=false;
 	if(FitOk)thePV=transVtx;
       }
       VertexRef VRef = reco::VertexRef(VertexRefProd_out, VertexCollection_out->size());

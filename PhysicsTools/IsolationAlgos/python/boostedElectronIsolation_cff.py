@@ -3,19 +3,19 @@ import FWCore.ParameterSet.Config as cms
 from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
 
 elPFIsoDepositChargedForBoostedElectrons = elPFIsoDepositCharged.clone(
-   src = cms.InputTag('gsfElectrons'),    
+   src = cms.InputTag('gedGsfElectrons'),    
 )
 elPFIsoDepositChargedAllForBoostedElectrons = elPFIsoDepositChargedAll.clone(
-   src = cms.InputTag('gsfElectrons'),   
+   src = cms.InputTag('gedGsfElectrons'),   
 )
 elPFIsoDepositNeutralForBoostedElectrons = elPFIsoDepositNeutral.clone(
-   src = cms.InputTag('gsfElectrons'),
+   src = cms.InputTag('gedGsfElectrons'),
 )
 elPFIsoDepositGammaForBoostedElectrons = elPFIsoDepositGamma.clone(
-   src = cms.InputTag('gsfElectrons'),
+   src = cms.InputTag('gedGsfElectrons'),
 )
 elPFIsoDepositPUForBoostedElectrons = elPFIsoDepositPU.clone(
-   src = cms.InputTag('gsfElectrons'),
+   src = cms.InputTag('gedGsfElectrons'),
 )
 boostedElectronPFIsolationSequence = cms.Sequence(
     elPFIsoDepositChargedForBoostedElectrons
