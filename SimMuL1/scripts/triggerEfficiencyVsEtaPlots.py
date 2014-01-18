@@ -33,6 +33,7 @@ def drawPULabel(x=0.17, y=0.2, font_size=0.):
 def drawCLCTTriggerLabel(x=0.17, y=0.25, font_size=0.):
   """Label for pile-up"""
   tex = TLatex(x, y,"CLCT pre-trigger = %d; CLCT trigger = %d"%(clctPreTrigger, clctTrigger))
+  tex = TLatex(x, y,"PU = %d"%(pu))
   if (font_size > 0.):
       tex.SetFontSize(font_size)
   tex.SetNDC()
@@ -1869,14 +1870,11 @@ if __name__ == "__main__":
 
     ## global variables
     input_dir = "files/"
+    input_dir = "/uscms_data/d3/dildick/work/testForInstructions/CMSSW_6_2_0_SLHC1/src/GEMCode/SimMuL1/test/"
     dphi_cut = 0
     #file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu400_w3_gem98_pt2-50_PU400_pt0_new_eff.root"
     file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_2simhits.root"
-#    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_3simhits.root"
-#    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_4simhits.root"
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU140_pt0_new_eff.root"
-    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt10-50_PU0_pt0_new_eff_4simhits.root"
-    #file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt20-50_PU0_pt0_new_eff_4simhits.root"
+    file_name = "hp_dimu_CMSSW_6_2_0_SLHC1_upgrade2019_pu000_w3_gem98_pt2-50_PU0_pt0_new_eff_postCSCTFbug-preTrig33.root"
     minEta = 1.45
     maxEta = 2.5
     minSimPt = 10
@@ -1893,7 +1891,7 @@ if __name__ == "__main__":
 
     reuseOutputDirectory = False
     if not reuseOutputDirectory:
-        output_dir = mkdir("PU0_pt10_forTFTrackPresentation")
+        output_dir = mkdir("PU140_dphi0_postCSCTFbug_preTrig33")
 
     ext = ".png"
 
