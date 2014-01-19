@@ -23,7 +23,7 @@ process.options = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     skipBadFiles = cms.untracked.bool( True ),
     fileNames = cms.untracked.vstring(
-'root://xrootd.unl.edu//store/mc/Summer13dr53X/QCD_Pt-30to50_MuEnrichedPt5_TuneZ2star_13TeV-pythia6/GEN-SIM-RAW/PU25bx25_START53_V19D-v1/20000/00C62B95-77E0-E211-8971-20CF305B04CC.root'
+'root://xrootd.unl.edu//store/mc/Summer13dr53X/QCD_Pt_30_80_EMEnriched_TuneZ2star_13TeV-pythia6/GEN-SIM-RAW/PU25bx25_START53_V19D-v1/20000/0042293B-89E1-E211-A506-485B39800B97.root'
     )
 )
 
@@ -62,39 +62,10 @@ process.hltbitanalysis.l1extramc                       = cms.string('l1extraPart
 process.hltbitanalysis.l1extramu                       = cms.string('l1extraParticles')
 
 
-process.genParticlesForFilter = cms.EDProducer("GenParticleProducer",
-    saveBarCodes = cms.untracked.bool(True),
-    src = cms.InputTag("generator"),
-    abortOnUnknownPDGCode = cms.untracked.bool(True)
-)
-
-process.bctoefilter = cms.EDFilter("BCToEFilter",
-                           filterAlgoPSet = cms.PSet(eTThreshold = cms.double(10),
-                                                     genParSource = cms.InputTag("genParticlesForFilter")
-                                                     )
-                           )
-
-
-process.emenrichingfilter = cms.EDFilter("EMEnrichingFilter",
-                                 filterAlgoPSet = cms.PSet(isoGenParETMin=cms.double(20.),
-                                                           isoGenParConeSize=cms.double(0.1),
-                                                           clusterThreshold=cms.double(20.),
-                                                           isoConeSize=cms.double(0.2),
-                                                           hOverEMax=cms.double(0.5),
-                                                           tkIsoMax=cms.double(5.),
-                                                           caloIsoMax=cms.double(10.),
-                                                           requireTrackMatch=cms.bool(False),
-                                                           genParSource = cms.InputTag("genParticlesForFilter")
-                                                           )
-                                 )
-
-
 if (gtDigisExist):
-    process.analyzeA = cms.Path((process.genParticlesForFilter + process.bctoefilter) * process.hltbitanalysis)
-    process.analyzeB = cms.Path((process.genParticlesForFilter + ~process.emenrichingfilter) * process.hltbitanalysis)
+    process.analyzeA = cms.Path(process.hltbitanalysis)
 else:
-    process.analyzeA = cms.Path(process.HLTBeginSequence * (process.genParticlesForFilter + process.bctoefilter) * process.hltbitanalysis)
-    process.analyzeB = cms.Path(process.HLTBeginSequence * (process.genParticlesForFilter + ~process.emenrichingfilter) * process.hltbitanalysis)
+    process.analyzeA = cms.Path(process.HLTBeginSequence * process.hltbitanalysis)
     process.hltbitanalysis.l1GtReadoutRecord = cms.InputTag( 'hltGtDigis','',process.name_() )
     
 # pdt
@@ -102,8 +73,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 # Schedule the whole thing
 process.schedule = cms.Schedule( 
-    process.analyzeA,
-    process.analyzeB)
+    process.analyzeA)
 
 #########################################################################################
 #

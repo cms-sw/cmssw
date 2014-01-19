@@ -5,7 +5,7 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2012/06/25 14:51:48 $
+ *  $Date: 2012/08/12 16:13:28 $
  *  $Revision: 1.1 $
  *
  */
@@ -68,7 +68,7 @@ class HiggsValidation : public edm::EDAnalyzer {
 	if((channels[i].first == abs(pid1) && channels[i].second == abs(pid2)) || 
 	   (channels[i].first == abs(pid2) && channels[i].second == abs(pid1))) return i+1;
       }
-      return channels.size()+1;
+      return undetermined();//channels.size()+1;
     }
 
     size_t size(){return channels.size() + 2;}
