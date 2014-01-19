@@ -1,11 +1,9 @@
 //--------------------------------------------------------------------------------------------------
-// $Id $
-//
 // AntiElectronIDMVA5
 //
 // Helper Class for applying MVA anti-electron discrimination
 //
-// Authors: I.Naranjo
+// Authors: I.Naranjo, C.Veelken
 //--------------------------------------------------------------------------------------------------
 
 #ifndef RECOTAUTAG_RECOTAU_AntiElectronIDMVA5GBR_H

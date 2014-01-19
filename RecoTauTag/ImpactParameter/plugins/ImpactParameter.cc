@@ -35,8 +35,8 @@ public:
   virtual void produce(edm::Event&, const edm::EventSetup&);
 private:
   ImpactParameterAlgorithm* algo;
-  std::string jetTrackSrc;
-  std::string vertexSrc;
+  edm::InputTag jetTrackSrc;
+  edm::InputTag vertexSrc;
   bool usingVertex;
 };
 
@@ -46,8 +46,8 @@ private:
 //
 ImpactParameter::ImpactParameter(const edm::ParameterSet& iConfig) {
 
-        jetTrackSrc = iConfig.getParameter<std::string>("JetTagProd");
-        vertexSrc   = iConfig.getParameter<std::string>("vertexSrc");
+        jetTrackSrc = iConfig.getParameter<edm::InputTag>("JetTagProd");
+        vertexSrc   = iConfig.getParameter<edm::InputTag>("vertexSrc");
         usingVertex = iConfig.getParameter<bool>("useVertex");
 
         algo = new ImpactParameterAlgorithm(iConfig);

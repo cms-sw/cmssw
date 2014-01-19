@@ -3,258 +3,229 @@
  * author: Ian M. Nugent
  * Humboldt Foundations
  */
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTauTag/ImpactParameter/interface/TrackHelixVertexFitter.h"
 #include "TDecompBK.h"
 #include <iostream>
 
-TrackHelixVertexFitter::TrackHelixVertexFitter(std::vector<TrackParticle> &particles_,TVector3 vguess):
-  isFit(false),
-  isConfigure(false),
-  nParticles(particles_.size()),
-  nPar((NFreeTrackPar-NFreeVertexPar)*particles_.size()+NFreeVertexPar),
-  nVal(TrackParticle::NHelixPar*particles_.size())
+using namespace tauImpactParameter;
+
+TrackHelixVertexFitter::TrackHelixVertexFitter(const std::vector<TrackParticle>& particles, const TVector3& vguess)
+  : isFit_(false),
+    isConfigured_(false),
+    nParticles_(particles.size()),
+    nPar_((NFreeTrackPar-NFreeVertexPar)*particles.size()+NFreeVertexPar),
+    nVal_(TrackParticle::NHelixPar*particles.size())
 {
-  particles=particles_;
-  par.ResizeTo(nPar,1);
-  parcov.ResizeTo(nPar,nPar);
-  val.ResizeTo(nVal,1);
-  cov.ResizeTo(nVal,nVal);
+  particles_=particles;
+  par_.ResizeTo(nPar_);
+  parcov_.ResizeTo(nPar_,nPar_);
+  val_.ResizeTo(nVal_);
+  cov_.ResizeTo(nVal_,nVal_);
   for(unsigned int p=0; p<particles.size();p++){
     for(unsigned int j=0; j<TrackParticle::NHelixPar;j++){
-      val(MeasuredValueIndex(j,p),0)=particles.at(p).Parameter(j);
+      val_(measuredValueIndex(j,p))=particles[p].parameter(j);
       for(unsigned int k=0; k<TrackParticle::NHelixPar;k++){
-	cov(MeasuredValueIndex(j,p),MeasuredValueIndex(k,p))=particles.at(p).Covariance(j,k);
+	cov_(measuredValueIndex(j,p),measuredValueIndex(k,p))=particles[p].covariance(j,k);
       }
     }
   }
-  TDecompBK Inverter(cov);
-  double det = cov.Determinant();
+  TDecompBK Inverter(cov_);
+  double det = cov_.Determinant();
   if(!Inverter.Decompose()){
-    std::cout << "TrackHelixVertexFitter::TrackHelixVertexFitter Fit failed: unable to invert SYM gain matrix " << det << " \n" << std::endl;
+    edm::LogWarning("TrackHelixVertexFitter::TrackHelixVertexFitter") << "Fit failed: unable to invert SYM gain matrix " << det << " \n" << std::endl;
     return;
   }
 
-
-  cov_inv.ResizeTo(nVal,nVal);
-  cov_inv=Inverter.Invert();
-  ndf=nVal-nPar;
+  cov_inv_.ResizeTo(nVal_,nVal_);
+  cov_inv_=Inverter.Invert();
+  ndf_=nVal_-nPar_;
   // Set Initial conditions within reason
-  par(x0,0)  = vguess.X(); parcov(x0,x0)=pow(1.0,2.0);
-  par(y0,0)  = vguess.Y(); parcov(y0,y0)=pow(1.0,2.0);
-  par(z0,0)  = vguess.Z(); parcov(z0,z0)=pow(1.0,2.0);
-  for(unsigned int p=0; p<particles.size();p++){
-    par(FreeParIndex(kappa0,p),0)  = val(MeasuredValueIndex(TrackParticle::kappa,p),0);
-    par(FreeParIndex(lambda0,p),0) = val(MeasuredValueIndex(TrackParticle::lambda,p),0);
-    par(FreeParIndex(phi0,p),0)    = val(MeasuredValueIndex(TrackParticle::phi,p),0);
-    //    
-    parcov(FreeParIndex(kappa0,p),FreeParIndex(kappa0,p))   = cov(MeasuredValueIndex(TrackParticle::kappa,p),MeasuredValueIndex(TrackParticle::kappa,p));
-    parcov(FreeParIndex(lambda0,p),FreeParIndex(lambda0,p)) = cov(MeasuredValueIndex(TrackParticle::lambda,p),MeasuredValueIndex(TrackParticle::lambda,p));
-    parcov(FreeParIndex(phi0,p),FreeParIndex(phi0,p))       = cov(MeasuredValueIndex(TrackParticle::phi,p),MeasuredValueIndex(TrackParticle::phi,p));
+  par_(x0) = vguess.X(); parcov_(x0,x0)=1.0;
+  par_(y0) = vguess.Y(); parcov_(y0,y0)=1.0;
+  par_(z0) = vguess.Z(); parcov_(z0,z0)=1.0;
+  for(unsigned int p=0; p<particles_.size();p++){
+    par_(freeParIndex(kappa0,p))  = val_(measuredValueIndex(TrackParticle::kappa,p));
+    par_(freeParIndex(lambda0,p)) = val_(measuredValueIndex(TrackParticle::lambda,p));
+    par_(freeParIndex(phi0,p))    = val_(measuredValueIndex(TrackParticle::phi,p));
+
+    parcov_(freeParIndex(kappa0,p),freeParIndex(kappa0,p))   = cov_(measuredValueIndex(TrackParticle::kappa,p),measuredValueIndex(TrackParticle::kappa,p));
+    parcov_(freeParIndex(lambda0,p),freeParIndex(lambda0,p)) = cov_(measuredValueIndex(TrackParticle::lambda,p),measuredValueIndex(TrackParticle::lambda,p));
+    parcov_(freeParIndex(phi0,p),freeParIndex(phi0,p))       = cov_(measuredValueIndex(TrackParticle::phi,p),measuredValueIndex(TrackParticle::phi,p));
   }
-  isConfigure=true;
-  ////////////////////////////////////////////////////////////////
-  // debug statements
-  /*
-  for(int i=0;i<val.GetNrows();i++) std::cout << "input Val " << val(i,0) << " " << TrackParticle::Name(i%TrackParticle::NHelixPar) << std::endl;
-  for(int i=0;i<cov.GetNrows();i++){
-    for(int j=0;j<cov.GetNrows();j++)  std::cout << cov(i,j) << " ";
-    std::cout << std::endl;
-  }
-  for(int i=0;i<par.GetNrows();i++) std::cout << "input Par " << par(i,0) << " " <<  FreeParName(i) << std::endl;
-  for(int i=0;i<parcov.GetNrows();i++){
-    for(int j=0;j<parcov.GetNrows();j++)  std::cout << parcov(i,j) << " ";
-    std::cout << std::endl;
-    }*/
-  ////////////////////////////////////////////////////////////////
+  isConfigured_=true;
 }
 
 TrackHelixVertexFitter::~TrackHelixVertexFitter(){}
 
-double TrackHelixVertexFitter::UpdateChisquare(TMatrixT<double> inpar){
-  TMatrixT<double> vprime=ComputePar(inpar);
-  TMatrixT<double> dalpha=vprime-val;
-  TMatrixT<double> dalphaT=dalpha;  dalphaT.T();
-  TMatrixT<double> chisquare=dalphaT*(cov_inv*dalpha);
-  return chisquare(0,0);
+double TrackHelixVertexFitter::updateChisquare(const TVectorT<double>& inpar){
+  TVectorT<double> vprime=computePar(inpar);
+  TVectorT<double> dalpha=vprime-val_;
+  double c2=dalpha*(cov_inv_*dalpha);
+  return c2;
 }
 
-std::vector<TrackParticle> TrackHelixVertexFitter::GetReFitTracks(){
+std::vector<TrackParticle> TrackHelixVertexFitter::getRefitTracks(){
   std::vector<TrackParticle> refitParticles;
-  for(unsigned int p=0;p<particles.size();p++){
-    TMatrixT<double> FreePar(NFreeTrackPar,1);
+  for(unsigned int p=0;p<particles_.size();p++){
+    TVectorT<double> FreePar(NFreeTrackPar);
     TMatrixTSym<double> FreeParCov(NFreeTrackPar);
     for(int i=0;i<FreeParCov.GetNrows();i++){
-      FreePar(i,0)=par(FreeParIndex(i,p),0);
+      FreePar(i)=par_(freeParIndex(i,p));
       for(int j=0;j<FreeParCov.GetNrows();j++){
-	FreeParCov(i,j)=parcov(FreeParIndex(i,p),FreeParIndex(j,p));
+	FreeParCov(i,j)=parcov_(freeParIndex(i,p),freeParIndex(j,p));
       }
     }
-    TMatrixT<double>    TrackPar=ComputePar(FreePar);
-    TMatrixTSym<double> TrackCov=ErrorMatrixPropagator::PropogateError(&TrackHelixVertexFitter::ComputePar,FreePar,FreeParCov);
-    refitParticles.push_back(TrackParticle(TrackPar,TrackCov,particles.at(p).PDGID(),particles.at(p).Mass(),particles.at(p).Charge(),particles.at(p).BField()));
-  }
-  return particles;
-}
-
-
-
-std::vector<LorentzVectorParticle> TrackHelixVertexFitter::GetReFitLorentzVectorParticles(){
-  std::vector<LorentzVectorParticle> refitParticles;
-  for(unsigned int p=0;p<particles.size();p++){
-    TMatrixT<double>    FreePar(NFreeTrackPar+NExtraPar+MassOffSet,1);
-    TMatrixTSym<double> FreeParCov(NFreeTrackPar+NExtraPar+MassOffSet);
-    for(int i=0;i<NFreeTrackPar;i++){
-      FreePar(i,0)=par(FreeParIndex(i,p),0);
-      for(int j=0;j<NFreeTrackPar;j++){
-        FreeParCov(i,j)=parcov(FreeParIndex(i,p),FreeParIndex(j,p));
-      }
-    }
-    FreePar(NFreeTrackPar+MassOffSet,0)=particles.at(p).Mass();
-    FreePar(NFreeTrackPar+BField0,0)=particles.at(p).BField();
-    TMatrixT<double>    LVPar=ComputeLorentzVectorPar(FreePar);
-    TMatrixTSym<double> LVCov=ErrorMatrixPropagator::PropogateError(&TrackHelixVertexFitter::ComputeLorentzVectorPar,FreePar,FreeParCov);
-    refitParticles.push_back(LorentzVectorParticle(LVPar,LVCov,particles.at(p).PDGID(),particles.at(p).Charge(),particles.at(p).BField()));
+    TVectorT<double>    TrackPar=computePar(FreePar);
+    TMatrixTSym<double> TrackCov=ErrorMatrixPropagator::propagateError(&TrackHelixVertexFitter::computePar,FreePar,FreeParCov);
+    refitParticles.push_back(TrackParticle(TrackPar,TrackCov,particles_[p].pdgId(),particles_[p].mass(),particles_[p].charge(),particles_[p].bField()));
   }
   return refitParticles;
 }
 
-LorentzVectorParticle TrackHelixVertexFitter::GetMother(int pdgid){
+std::vector<LorentzVectorParticle> TrackHelixVertexFitter::getRefitLorentzVectorParticles(){
+  std::vector<LorentzVectorParticle> refitParticles;
+  for(unsigned int p=0;p<particles_.size();p++){
+    TVectorT<double>    FreePar(NFreeTrackPar+NExtraPar+MassOffSet);
+    TMatrixTSym<double> FreeParCov(NFreeTrackPar+NExtraPar+MassOffSet);
+    for(int i=0;i<NFreeTrackPar;i++){
+      FreePar(i)=par_(freeParIndex(i,p));
+      for(int j=0;j<NFreeTrackPar;j++){
+        FreeParCov(i,j)=parcov_(freeParIndex(i,p),freeParIndex(j,p));
+      }
+    }
+    FreePar(NFreeTrackPar+MassOffSet)=particles_[p].mass();
+    FreePar(NFreeTrackPar+BField0)=particles_[p].bField();
+    TVectorT<double>    LVPar=computeLorentzVectorPar(FreePar);
+    TMatrixTSym<double> LVCov=ErrorMatrixPropagator::propagateError(&TrackHelixVertexFitter::computeLorentzVectorPar,FreePar,FreeParCov);
+    refitParticles.push_back(LorentzVectorParticle(LVPar,LVCov,particles_[p].pdgId(),particles_[p].charge(),particles_[p].bField()));
+  }
+  return refitParticles;
+}
+
+LorentzVectorParticle TrackHelixVertexFitter::getMother(int pdgid){
   double c(0),b(0);
-  TMatrixT<double>    FreePar(par.GetNrows()+NExtraPar+particles.size(),1);
-  TMatrixTSym<double> FreeParCov(par.GetNrows()+NExtraPar+particles.size());
-  for(int i=0;i<par.GetNrows();i++){
-    FreePar(i,0)=par(i,0);
-    for(int j=0;j<par.GetNrows();j++){FreeParCov(i,j)=parcov(i,j);}
+  TVectorT<double>    FreePar(par_.GetNrows()+NExtraPar+particles_.size());
+  TMatrixTSym<double> FreeParCov(par_.GetNrows()+NExtraPar+particles_.size());
+  for(int i=0;i<par_.GetNrows();i++){
+    FreePar(i)=par_(i);
+    for(int j=0;j<par_.GetNrows();j++){FreeParCov(i,j)=parcov_(i,j);}
   }
-  for(unsigned int p=0; p<particles.size();p++){
-    b=particles.at(p).BField();
-    c+=particles.at(p).Charge();
-    FreePar(par.GetNrows()+MassOffSet+p,0)=particles.at(p).Mass();
+  for(unsigned int p=0; p<particles_.size();p++){
+    b=particles_[p].bField();
+    c+=particles_[p].charge();
+    FreePar(par_.GetNrows()+MassOffSet+p)=particles_[p].mass();
   }
-  FreePar(par.GetNrows()+BField0,0)=b;
-  TMatrixT<double>    mpar=ComputeMotherLorentzVectorPar(FreePar);
-  TMatrixTSym<double> mcov=ErrorMatrixPropagator::PropogateError(&TrackHelixVertexFitter::ComputeMotherLorentzVectorPar,FreePar,FreeParCov);
+  FreePar(par_.GetNrows()+BField0)=b;
+  TVectorT<double>    mpar=computeMotherLorentzVectorPar(FreePar);
+  TMatrixTSym<double> mcov=ErrorMatrixPropagator::propagateError(&TrackHelixVertexFitter::computeMotherLorentzVectorPar,FreePar,FreeParCov);
   return LorentzVectorParticle(mpar,mcov,pdgid,c,b);
 }
 
-TVector3 TrackHelixVertexFitter::GetVertex(){
-  return TVector3(par(FreeParIndex(x0,0),0),par(FreeParIndex(y0,0),0),par(FreeParIndex(z0,0),0));
+TVector3 TrackHelixVertexFitter::getVertex(){
+  return TVector3(par_(freeParIndex(x0,0)),par_(freeParIndex(y0,0)),par_(freeParIndex(z0,0)));
 }
 
-TMatrixTSym<double> TrackHelixVertexFitter::GetVertexError(){
+TMatrixTSym<double> TrackHelixVertexFitter::getVertexError(){
   TMatrixTSym<double> c(NFreeVertexPar);
   for(unsigned int i=0;i<NFreeVertexPar;i++){
-    for(unsigned int j=0;j<NFreeVertexPar;j++){c(FreeParIndex(i,0),FreeParIndex(j,0))=parcov(FreeParIndex(i,0),FreeParIndex(j,0));}
+    for(unsigned int j=0;j<NFreeVertexPar;j++){c(freeParIndex(i,0),freeParIndex(j,0))=parcov_(freeParIndex(i,0),freeParIndex(j,0));}
   }
   return c;
 }
 
-void TrackHelixVertexFitter::Computedxydz(TMatrixT<double> &inpar,int p,double &kappa,double &lam,double &phi,double &x,double &y,double &z,double &s,double &dxy,double &dz){
-  kappa=inpar(FreeParIndex(kappa0,p),0);
-  lam=inpar(FreeParIndex(lambda0,p),0);
-  phi=inpar(FreeParIndex(phi0,p),0);
-  x=inpar(FreeParIndex(x0,p),0);
-  y=inpar(FreeParIndex(y0,p),0);
-  z=inpar(FreeParIndex(z0,p),0);
+void TrackHelixVertexFitter::computedxydz(const TVectorT<double>& inpar,int p,double& kappa,double& lam,double& phi,double& x,double& y,double& z,double& s,double& dxy,double& dz){
+  kappa=inpar(freeParIndex(kappa0,p));
+  lam=inpar(freeParIndex(lambda0,p));
+  phi=inpar(freeParIndex(phi0,p));
+  x=inpar(freeParIndex(x0,p));
+  y=inpar(freeParIndex(y0,p));
+  z=inpar(freeParIndex(z0,p));
   double v=(2.0*kappa*(x*cos(phi)+y*sin(phi)));
   double arcsinv=0;
-  //std::cout << "v " << v << std::endl;
   if(v>=1.0){arcsinv=TMath::Pi()/2;}
   else if(v<=-1.0){arcsinv=-TMath::Pi()/2;}
   else{arcsinv=asin(v);}
-  s=1.0/(2.0*kappa)*arcsinv;//asin(2.0*kappa*(x*cos(phi)+y*sin(phi)));
+  s=1.0/(2.0*kappa)*arcsinv;
   dxy=y*cos(phi)-x*sin(phi)-(1/kappa)*sin(kappa*s)*sin(kappa*s);
   dz=z-s*tan(lam);
-  ///////////////////////////////
-  // debug
-  /*  
-  std::cout << "kappa0 "   << inpar(FreeParIndex(kappa0,p),0)
-            << " lambda0 " << inpar(FreeParIndex(lambda0,p),0)
-            << " phi0 "    << inpar(FreeParIndex(phi0,p),0)
-            << "  x0 "     << inpar(FreeParIndex(x0,p),0)
-            << "  y0 "     << inpar(FreeParIndex(y0,p),0)
-            << "  z0 "     << inpar(FreeParIndex(z0,p),0) << std::endl;
-  std::cout << "arcsin " << asin(2*kappa*(x*cos(phi)+y*sin(phi))) << " c " << kappa << " cosphi " << cos(phi) << " sinphi " << sin(phi) << " F " << x*cos(phi)+y*sin(phi) << " s " << s << std::endl; 
-  std::cout << "kappa " << kappa << " lam " << lam << " phi " << phi << " x " << x << " y " << y << " z " << z << " s " << s <<  " v " << v << " dxy " << dxy << " dz " << dz << std::endl;
-  std::cout << "TrackHelixVertexFitter::Computedxydz done" << std::endl;
-  */
 }
 
-TMatrixT<double> TrackHelixVertexFitter::ComputePar(TMatrixT<double> &inpar){
+TVectorT<double> TrackHelixVertexFitter::computePar(const TVectorT<double>& inpar){
   int nparticles=(inpar.GetNrows()-NFreeVertexPar)/(NFreeTrackPar-NFreeVertexPar);
-  TMatrixT<double> helices(nparticles*TrackParticle::NHelixPar,1);
+  TVectorT<double> helices(nparticles*TrackParticle::NHelixPar);
   for(int p=0;p<nparticles;p++){
-    TMatrixT<double> TrackPar=ComputeTrackPar(inpar,p);
-    for(int i=0;i<TrackParticle::NHelixPar;i++){helices(MeasuredValueIndex(i,p),0)=TrackPar(i,0);}
+    TVectorT<double> TrackPar=computeTrackPar(inpar,p);
+    for(int i=0;i<TrackParticle::NHelixPar;i++){helices(measuredValueIndex(i,p))=TrackPar(i);}
   }
   return helices;
 }
 
-TMatrixT<double> TrackHelixVertexFitter::ComputeTrackPar(TMatrixT<double> &inpar, int p){
-  TMatrixT<double> helix(TrackParticle::NHelixPar,1);
+TVectorT<double> TrackHelixVertexFitter::computeTrackPar(const TVectorT<double>& inpar, int p){
+  TVectorT<double> helix(TrackParticle::NHelixPar);
   // copy parameters that are 1 to 1
   double kappa,lam,phi,x,y,z,s,dxy,dz;
-  TrackHelixVertexFitter::Computedxydz(inpar,p,kappa,lam,phi,x,y,z,s,dxy,dz);
-  helix(TrackParticle::kappa,0)=kappa;
-  helix(TrackParticle::lambda,0)=lam;
-  helix(TrackParticle::phi,0)=phi;
-  helix(TrackParticle::dxy,0)=dxy;
-  helix(TrackParticle::dz,0)=dz;
+  TrackHelixVertexFitter::computedxydz(inpar,p,kappa,lam,phi,x,y,z,s,dxy,dz);
+  helix(TrackParticle::kappa)  = kappa;
+  helix(TrackParticle::lambda) = lam;
+  helix(TrackParticle::phi)    = phi;
+  helix(TrackParticle::dxy)    = dxy;
+  helix(TrackParticle::dz)     = dz;
   return helix;
 }
 
-TMatrixT<double> TrackHelixVertexFitter::ComputeLorentzVectorPar(TMatrixT<double> &inpar){
-  int np(0), parsize(0); ParSizeInfo(inpar,np,parsize,true);
-  double B=inpar(parsize+BField0,0);
-  double massHypothesis=inpar(parsize+MassOffSet,0);
-  TMatrixT<double> LV(LorentzVectorParticle::NLorentzandVertexPar,1);
+TVectorT<double> TrackHelixVertexFitter::computeLorentzVectorPar(const TVectorT<double>& inpar){
+  int np(0), parsize(0); parSizeInfo(inpar,np,parsize,true);
+  double B=inpar(parsize+BField0);
+  double massHypothesis=inpar(parsize+MassOffSet);
+  TVectorT<double> LV(LorentzVectorParticle::NLorentzandVertexPar);
   double kappa,lam,phi,x,y,z,s,dxy,dz;
   int p=0;
-  TrackHelixVertexFitter::Computedxydz(inpar,p,kappa,lam,phi,x,y,z,s,dxy,dz);
-  LV(LorentzVectorParticle::px,0)=B*(1.0/fabs(kappa))*cos(2*s*kappa+phi);
-  LV(LorentzVectorParticle::py,0)=B*(1.0/fabs(kappa))*sin(2*s*kappa+phi);
-  LV(LorentzVectorParticle::pz,0)=B*(1.0/fabs(kappa))*tan(lam) ;
-  LV(LorentzVectorParticle::m,0) =massHypothesis;
-  LV(LorentzVectorParticle::vx,0)=x;
-  LV(LorentzVectorParticle::vy,0)=y;
-  LV(LorentzVectorParticle::vz,0)=z;
+  TrackHelixVertexFitter::computedxydz(inpar,p,kappa,lam,phi,x,y,z,s,dxy,dz);
+  LV(LorentzVectorParticle::px) = B*(1.0/fabs(kappa))*cos(2*s*kappa+phi);
+  LV(LorentzVectorParticle::py) = B*(1.0/fabs(kappa))*sin(2*s*kappa+phi);
+  LV(LorentzVectorParticle::pz) = B*(1.0/fabs(kappa))*tan(lam) ;
+  LV(LorentzVectorParticle::m)  = massHypothesis;
+  LV(LorentzVectorParticle::vx) = x;
+  LV(LorentzVectorParticle::vy) = y;
+  LV(LorentzVectorParticle::vz) = z;
   return LV;
 }
 
-TMatrixT<double> TrackHelixVertexFitter::ComputeMotherLorentzVectorPar(TMatrixT<double> &inpar){
-  TMatrixT<double> mother(LorentzVectorParticle::NLorentzandVertexPar,1);
+TVectorT<double> TrackHelixVertexFitter::computeMotherLorentzVectorPar(const TVectorT<double>& inpar){
+  TVectorT<double> mother(LorentzVectorParticle::NLorentzandVertexPar);
   double E(0);
-  int np(0), parsize(0); ParSizeInfo(inpar,np,parsize,true);
+  int np(0), parsize(0); parSizeInfo(inpar,np,parsize,true);
   for(int p=0;p<np;p++){
-    TMatrixT<double> particlepar(NFreeTrackPar+NExtraPar+MassOffSet,1);
-    for(int i=0;i<NFreeTrackPar;i++){particlepar(i,0)=inpar(FreeParIndex(i,p),0);}
-    particlepar(NFreeTrackPar+BField0,0)=inpar(parsize+BField0,0);
-    particlepar(NFreeTrackPar+MassOffSet,0)=inpar(parsize+MassOffSet+p,0);
-    TMatrixT<double> daughter=TrackHelixVertexFitter::ComputeLorentzVectorPar(particlepar);
-    mother(LorentzVectorParticle::px,0)+=daughter(LorentzVectorParticle::px,0);
-    mother(LorentzVectorParticle::py,0)+=daughter(LorentzVectorParticle::py,0);
-    mother(LorentzVectorParticle::pz,0)+=daughter(LorentzVectorParticle::pz,0);
-    mother(LorentzVectorParticle::vx,0)=daughter(LorentzVectorParticle::vx,0);
-    mother(LorentzVectorParticle::vy,0)=daughter(LorentzVectorParticle::vy,0);
-    mother(LorentzVectorParticle::vz,0)=daughter(LorentzVectorParticle::vz,0);
-    E+=sqrt((daughter(LorentzVectorParticle::px,0)*daughter(LorentzVectorParticle::px,0)+
-	     daughter(LorentzVectorParticle::py,0)*daughter(LorentzVectorParticle::py,0)+
-	     daughter(LorentzVectorParticle::pz,0)*daughter(LorentzVectorParticle::pz,0)+
-	     daughter(LorentzVectorParticle::m,0)*daughter(LorentzVectorParticle::m,0)));
+    TVectorT<double> particlepar(NFreeTrackPar+NExtraPar+MassOffSet);
+    for(int i=0;i<NFreeTrackPar;i++){particlepar(i)=inpar(freeParIndex(i,p));}
+    particlepar(NFreeTrackPar+BField0)=inpar(parsize+BField0);
+    particlepar(NFreeTrackPar+MassOffSet)=inpar(parsize+MassOffSet+p);
+    TVectorT<double> daughter=TrackHelixVertexFitter::computeLorentzVectorPar(particlepar);
+    mother(LorentzVectorParticle::px)+=daughter(LorentzVectorParticle::px);
+    mother(LorentzVectorParticle::py)+=daughter(LorentzVectorParticle::py);
+    mother(LorentzVectorParticle::pz)+=daughter(LorentzVectorParticle::pz);
+    mother(LorentzVectorParticle::vx)=daughter(LorentzVectorParticle::vx);
+    mother(LorentzVectorParticle::vy)=daughter(LorentzVectorParticle::vy);
+    mother(LorentzVectorParticle::vz)=daughter(LorentzVectorParticle::vz);
+    E+=sqrt((daughter(LorentzVectorParticle::px)*daughter(LorentzVectorParticle::px)+
+	     daughter(LorentzVectorParticle::py)*daughter(LorentzVectorParticle::py)+
+	     daughter(LorentzVectorParticle::pz)*daughter(LorentzVectorParticle::pz)+
+	     daughter(LorentzVectorParticle::m)*daughter(LorentzVectorParticle::m)));
   }
-  double P2=(mother(LorentzVectorParticle::px,0)*mother(LorentzVectorParticle::px,0)+
-	     mother(LorentzVectorParticle::py,0)*mother(LorentzVectorParticle::py,0)+
-	     mother(LorentzVectorParticle::pz,0)*mother(LorentzVectorParticle::pz,0));
-  mother(LorentzVectorParticle::m,0)=(E*E-P2)/sqrt(fabs(E*E-P2));
+  double P2=(mother(LorentzVectorParticle::px)*mother(LorentzVectorParticle::px)+
+	     mother(LorentzVectorParticle::py)*mother(LorentzVectorParticle::py)+
+	     mother(LorentzVectorParticle::pz)*mother(LorentzVectorParticle::pz));
+  mother(LorentzVectorParticle::m)=(E*E-P2)/sqrt(fabs(E*E-P2));
   return mother;
 }
 
-TString TrackHelixVertexFitter::FreeParName(int Par){
+TString TrackHelixVertexFitter::freeParName(int Par){
   int p(0);
   if(Par==x0)     return "x0";
   if(Par==y0)     return "y0";
   if(Par==z0)     return "z0";
-  for(p=0;p<nParticles;p++){
+  for(p=0;p<nParticles_;p++){
     if((Par-NFreeVertexPar)<(p+1)*(NFreeTrackPar-NFreeVertexPar))break;
   }
   TString n;
@@ -266,7 +237,7 @@ TString TrackHelixVertexFitter::FreeParName(int Par){
   return n;
 }
 
-void TrackHelixVertexFitter::ParSizeInfo(TMatrixT<double> &inpar, int &np, int &parsize, bool hasextras){
+void TrackHelixVertexFitter::parSizeInfo(const TVectorT<double>& inpar, int& np, int& parsize, bool hasextras){
   if(hasextras)np=(inpar.GetNrows()-NFreeVertexPar-NExtraPar)/(NFreeTrackPar+MassOffSet-NFreeVertexPar);
   else np=(inpar.GetNrows()-NFreeVertexPar)/(NFreeTrackPar-NFreeVertexPar);
   parsize=np*(NFreeTrackPar-NFreeVertexPar)+NFreeVertexPar;

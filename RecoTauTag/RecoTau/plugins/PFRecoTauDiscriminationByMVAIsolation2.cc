@@ -5,10 +5,6 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1.2.1 $
- *
- * $Id: PFRecoTauDiscriminationByMVAIsolation2.cc,v 1.1.2.1 2013/07/10 16:37:20 veelken Exp $
- *
  */
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"

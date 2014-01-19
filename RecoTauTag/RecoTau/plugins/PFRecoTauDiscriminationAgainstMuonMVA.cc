@@ -5,10 +5,6 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1.2.1 $
- *
- * $Id: PFRecoTauDiscriminationAgainstMuonMVA.cc,v 1.1.2.1 2013/07/10 16:37:17 veelken Exp $
- *
  */
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"

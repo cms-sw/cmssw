@@ -1,10 +1,11 @@
+#ifndef RecoTauTag_ImpactParameter_TauA1NuConstrainedFitter_h
+#define RecoTauTag_ImpactParameter_TauA1NuConstrainedFitter_h
+
 /* From SimpleFits Package
  * Designed an written by
  * author: Ian M. Nugent
  * Humboldt Foundations
  */
-#ifndef TauA1NuConstrainedFitter_H
-#define TauA1NuConstrainedFitter_H
 
 #include "RecoTauTag/ImpactParameter/interface/LagrangeMultipliersFitter.h"
 #include "TVector3.h"
@@ -13,44 +14,47 @@
 #include "RecoTauTag/ImpactParameter/interface/ErrorMatrixPropagator.h"
 #include <vector>
 
+namespace tauImpactParameter {
+
 class TauA1NuConstrainedFitter : public LagrangeMultipliersFitter, public MultiProngTauSolver{
  public:
-  TauA1NuConstrainedFitter(unsigned int ambiguity,LorentzVectorParticle A1,TVector3 PVertex, TMatrixTSym<double> VertexCov);
+  TauA1NuConstrainedFitter(unsigned int ambiguity,const LorentzVectorParticle& A1,const TVector3& PVertex, const TMatrixTSym<double>& VertexCov);
   virtual ~TauA1NuConstrainedFitter(){};
 
   enum Pars{tau_phi=0,tau_theta,a1_px,a1_py,a1_pz,a1_m,nu_px,nu_py,nu_pz,npar};
   enum ExpandedPars{a1_vx=9,a1_vy,a1_vz,nexpandedpar};
   enum OrignialPars{norigpar=13};
 
-  virtual bool Fit();
-  virtual double NConstraints(){return 3;}
-  virtual double NDF(){return 0;}
-  virtual int    NDaughters(){return 2;}
+  virtual bool fit();
+  virtual double nConstraints(){return 3;}
+  virtual double ndf(){return 0;}
+  virtual int    nDaughters(){return 2;}
 
-  std::vector<LorentzVectorParticle> GetReFitDaughters();
-  LorentzVectorParticle GetMother();
+  std::vector<LorentzVectorParticle> getRefitDaughters();
+  LorentzVectorParticle getMother();
 
  protected:
-  virtual TVectorD Value(TVectorD &v);
+  virtual TVectorD value(const TVectorD& v);
     
  private:
-  static TMatrixT<double> ComputeInitalExpPar(TMatrixT<double> &inpar);
-  static TMatrixT<double> ComputeExpParToPar(TMatrixT<double> &inpar);
-  static TMatrixT<double> ComputeNuLorentzVectorPar(TMatrixT<double> &inpar);
-  static TMatrixT<double> ComputeA1LorentzVectorPar(TMatrixT<double> &inpar);
-  static TMatrixT<double> ComputeMotherLorentzVectorPar(TMatrixT<double> &inpar);
-  void UpdateExpandedPar();
-  static void CovertParToObjects(TVectorD &v,TLorentzVector &a1,TLorentzVector &nu,double &phi,double &theta,TVector3 &TauDir);
+  static TVectorT<double> computeInitalExpPar(const TVectorT<double>& inpar);
+  static TVectorT<double> computeExpParToPar(const TVectorT<double>& inpar);
+  static TVectorT<double> computeNuLorentzVectorPar(const TVectorT<double>& inpar);
+  static TVectorT<double> computeA1LorentzVectorPar(const TVectorT<double>& inpar);
+  static TVectorT<double> computeMotherLorentzVectorPar(const TVectorT<double>& inpar);
+  void updateExpandedPar();
+  static void covertParToObjects(const TVectorD& v, TLorentzVector& a1, TLorentzVector& nu, double& phi, double& theta, TVector3& TauDir);
 
-  TMatrixT<double> exppar;
-  TMatrixTSym<double> expcov;
+  TVectorT<double> exppar_;
+  TMatrixTSym<double> expcov_;
   std::vector<LorentzVectorParticle> particles_;
-  int ConstraintMode;
+  int ConstraintMode_;
   unsigned int ambiguity_;
 
-  void SolveAmbiguityAnalytically();
-  static TMatrixT<double> FindThetaGJMax(TMatrixT<double> &inpar);
-  static TMatrixT<double> SetThetaGJMax(TMatrixT<double> &inpar);
-
+  void solveAmbiguityAnalytically();
+  static TVectorT<double> findThetaGJMax(const TVectorT<double>& inpar);
+  static TVectorT<double> setThetaGJMax(const TVectorT<double>& inpar);
 };
+
+}
 #endif

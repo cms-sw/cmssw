@@ -6,7 +6,6 @@
  *
  * Author: Christian Veelken, LLR
  *
- * $Id $
  */
 
 #include "RecoTauTag/RecoTau/interface/PFRecoTauChargedHadronPlugins.h"

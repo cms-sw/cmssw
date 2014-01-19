@@ -257,17 +257,20 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  transTracks.push_back(transTrackBuilder->build(*iter));
 	}
 	bool FitOk(true);
-	if(transTracks.size()>0){
-	AdaptiveVertexFitter avf;
-	avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
-	try{
-	  if(!useBeamSpot_){transVtx = avf.vertex(transTracks);}
-	  else{transVtx = avf.vertex(transTracks,*beamSpot);}
-	}catch(...){
-	  FitOk=false;
-	}
-	}else FitOk=false;
-	if(FitOk)thePV=transVtx;
+	if ( transTracks.size() >= 3 ) {
+	  AdaptiveVertexFitter avf;
+	  avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
+	  try {
+	    if ( !useBeamSpot_ ){
+	      transVtx = avf.vertex(transTracks);
+	    } else {
+	      transVtx = avf.vertex(transTracks, *beamSpot);
+	    }
+	  } catch (...) {
+	    FitOk = false;
+	  }
+	} else FitOk = false;
+	if ( FitOk ) thePV = transVtx;
       }
       VertexRef VRef = reco::VertexRef(VertexRefProd_out, VertexCollection_out->size());
       VertexCollection_out->push_back(thePV);

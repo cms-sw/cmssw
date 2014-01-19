@@ -1,10 +1,11 @@
+#ifndef RecoTauTag_ImpactParameter_ParticleBuilder_h
+#define RecoTauTag_ImpactParameter_ParticleBuilder_h
+
 /* From SimpleFits Package
  * Designed an written by
  * author: Ian M. Nugent
  * Humboldt Foundations
  */
-#ifndef ParticleBuilder_h
-#define ParticleBuilder_h
 
 #include "RecoTauTag/ImpactParameter/interface/TrackParticle.h"
 #include "RecoTauTag/ImpactParameter/interface/LorentzVectorParticle.h"
@@ -19,6 +20,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+namespace tauImpactParameter {
+
 class ParticleBuilder {
  public:
   enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
@@ -26,15 +29,16 @@ class ParticleBuilder {
   ParticleBuilder(){};
   ~ParticleBuilder(){};
 
-  static LorentzVectorParticle CreateLorentzVectorParticle(reco::TransientTrack &transTrk, edm::ESHandle<TransientTrackBuilder>  &transTrackBuilder,reco::Vertex &V, bool fromPerigee,bool useTrackHelixPropogation);
-  static TrackParticle CreateTrackParticle(reco::TransientTrack &transTrk,  edm::ESHandle<TransientTrackBuilder>  &transTrackBuilder, const GlobalPoint p,bool fromPerigee=true, bool useTrackHelixPropogation=true);
-  static reco::Vertex  GetVertex(LorentzVectorParticle p);
+  static LorentzVectorParticle createLorentzVectorParticle(const reco::TransientTrack& transTrk, const edm::ESHandle<TransientTrackBuilder>& transTrackBuilder, const reco::Vertex& V, bool fromPerigee, bool useTrackHelixPropagation);
+  static TrackParticle createTrackParticle(const reco::TransientTrack& transTrk, const edm::ESHandle<TransientTrackBuilder>& transTrackBuilder, const GlobalPoint& p, bool fromPerigee=true, bool useTrackHelixPropogation=true);
+  static reco::Vertex getVertex(const LorentzVectorParticle& p);
 
  private:
-  static TMatrixT<double> ConvertCMSSWTrackParToSFTrackPar(TMatrixT<double> &inpar);
-  static TMatrixT<double> ConvertCMSSWTrackPerigeeToSFTrackPar(TMatrixT<double> &inpar);
-
+  static TVectorT<double> convertCMSSWTrackParToSFTrackPar(const TVectorT<double>& inpar);
+  static TVectorT<double> convertCMSSWTrackPerigeeToSFTrackPar(const TVectorT<double>& inpar);
 };
+
+}
 #endif
 
 

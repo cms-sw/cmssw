@@ -162,12 +162,6 @@ hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminati
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
 
-hpsPFTauDiscriminationByRelLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone(
-    applySumPtCut = False,
-    applyRelativeSumPtCut = True,
-    relativeSumPtCut = 0.09
-)
-
 hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.clone(
     applySumPtCut = False,
     storeRawSumPt = cms.bool(True)
@@ -197,12 +191,6 @@ hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminat
 hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
 
-hpsPFTauDiscriminationByRelMediumCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.clone(
-    applySumPtCut = False,
-    applyRelativeSumPtCut = True,
-    relativeSumPtCut = 0.06
-)
-
 hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
@@ -215,17 +203,11 @@ hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminati
 hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
 
-hpsPFTauDiscriminationByRelTightCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr.clone(
-    applySumPtCut = False,
-    applyRelativeSumPtCut = True,
-    relativeSumPtCut = 0.03
-)
-
 hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr = cms.Sequence(
     hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr*
-    hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr*hpsPFTauDiscriminationByRelLooseCombinedIsolationDBSumPtCorr*    
-    hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr*hpsPFTauDiscriminationByRelMediumCombinedIsolationDBSumPtCorr*
-    hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr*hpsPFTauDiscriminationByRelTightCombinedIsolationDBSumPtCorr
+    hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr*
+    hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr*
+    hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr
 )
 
 #Charge isolation based on combined isolation

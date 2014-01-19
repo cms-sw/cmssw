@@ -60,15 +60,15 @@
 #include "Validation/EventGenerator/interface/PdtPdgMini.h"
 #include "RecoVertex/KinematicFit/interface/KinematicParticleVertexFitter.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticleFactoryFromTransientTrack.h"
-#include "RecoTauTag/ImpactParameter/interface/ParticleMassHelper.h"
+#include "RecoTauTag/ImpactParameter/interface/PDGInfo.h"
 #include "TLorentzVector.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-
 using namespace reco;
 using namespace edm;
 using namespace std;
+using namespace tauImpactParameter;
 
 class PFTau3ProngReco : public EDProducer {
  public:
@@ -94,6 +94,7 @@ class PFTau3ProngReco : public EDProducer {
   DiscCutPairVec discriminators_;
   std::auto_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
   int ndfPVT_;
+  KinematicParticleVertexFitter kpvFitter_;
 };
 
 PFTau3ProngReco::PFTau3ProngReco(const edm::ParameterSet& iConfig):
@@ -158,10 +159,9 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
       }
       if (passed && cut_.get()){passed = (*cut_)(*tau);}
       if (passed){
-	ParticleMassHelper PMH;
+	PDGInfo pdgInfo;
 	const reco::PFTauTransverseImpactParameterRef theTIP=TIPAV->value(tau.key());
 	const reco::VertexRef primaryVertex=theTIP->primaryVertex();
-	reco::Vertex pvtx=(*primaryVertex);
 	/////////////////////////////////
 	// Now compute the 3 prong Tau 
 	bool SecondaryVtxOK(false);
@@ -169,20 +169,18 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	if(theTIP->hasSecondaryVertex() && primaryVertex->ndof()>ndfPVT_){
 	  const VertexRef secVtx=theTIP->secondaryVertex();
           GlobalPoint sv(secVtx->position().x(),secVtx->position().y(),secVtx->position().z());
-	  reco::Vertex svtx=(*secVtx);
 	  double vtxchi2(0), vtxndf(1);
 	  if(useKalmanFit==Algorithm_){
 	    vtxchi2=secVtx->chi2();
 	    vtxndf=secVtx->ndof();
-	    std::vector<reco::Track> selectedTracks=secVtx->refittedTracks();
+	    const std::vector<reco::Track>& selectedTracks=secVtx->refittedTracks();
 	    std::vector<reco::TransientTrack> transTrkVect;
-	    for(unsigned int i = 0; i!=selectedTracks.size();i++) transTrkVect.push_back(transTrackBuilder->build(selectedTracks.at(i)));
+	    for(unsigned int i = 0; i!=selectedTracks.size();i++) transTrkVect.push_back(transTrackBuilder->build(selectedTracks[i]));
 	    KinematicParticleFactoryFromTransientTrack kinFactory;
-	    float piMassSigma(sqrt(pow(10.,-12.))), piChi(0.0), piNdf(0.0);
+	    float piMassSigma(1.e-6), piChi(0.0), piNdf(0.0);
 	    std::vector<RefCountedKinematicParticle> pions;
-	    for(unsigned int i = 0; i<transTrkVect.size();i++) pions.push_back(kinFactory.particle(transTrkVect.at(i),PMH.Get_piMass(),piChi,piNdf,sv,piMassSigma));
-	    KinematicParticleVertexFitter kpvFitter;
-	    RefCountedKinematicTree jpTree = kpvFitter.fit(pions);
+	    for(unsigned int i = 0; i<transTrkVect.size();i++) pions.push_back(kinFactory.particle(transTrkVect[i],pdgInfo.pi_mass(),piChi,piNdf,sv,piMassSigma));	   
+	    RefCountedKinematicTree jpTree = kpvFitter_.fit(pions);
 	    jpTree->movePointerToTheTop();
 	    const KinematicParameters parameters = jpTree->currentParticle()->currentState().kinematicParameters();
 	    AlgebraicSymMatrix77 cov=jpTree->currentParticle()->currentState().kinematicParametersError().matrix();
@@ -191,16 +189,21 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	    std::vector<reco::Track> Tracks;
 	    std::vector<LorentzVectorParticle> ReFitPions;
 	    for(unsigned int i=0;i<transTrkVect.size();i++){
-	      c+=transTrkVect.at(i).charge();
-	      ReFitPions.push_back(ParticleBuilder::CreateLorentzVectorParticle(transTrkVect.at(i),transTrackBuilder,svtx,true,true));
+	      c+=transTrkVect[i].charge();
+	      ReFitPions.push_back(ParticleBuilder::createLorentzVectorParticle(transTrkVect[i],transTrackBuilder,*secVtx,true,true));
 	    }
 	    // now covert a1 into LorentzVectorParticle
-	    TMatrixT<double>    a1_par(LorentzVectorParticle::NLorentzandVertexPar,1);
+	    TVectorT<double>    a1_par(LorentzVectorParticle::NLorentzandVertexPar);
 	    TMatrixTSym<double> a1_cov(LorentzVectorParticle::NLorentzandVertexPar);
-	    for(int i = 0; i<7; i++){a1_par(i,0)=parameters(i);for(int j = 0; j<7; j++){a1_cov(i,j)=cov(i,j);} }
+	    for(int i = 0; i<LorentzVectorParticle::NLorentzandVertexPar; i++){
+	      a1_par(i)=parameters(i);
+	      for(int j = 0; j<LorentzVectorParticle::NLorentzandVertexPar; j++){
+		a1_cov(i,j)=cov(i,j);
+	      } 
+	    }
 	    a1=LorentzVectorParticle(a1_par,a1_cov,abs(PdtPdgMini::a_1_plus)*c,c,transTrackBuilder->field()->inInverseGeV(sv).z());
 	    SecondaryVtxOK=true;
-	    PFTau3PS=reco::PFTau3ProngSummary(theTIP,a1.LV(),vtxchi2,vtxndf);
+	    PFTau3PS=reco::PFTau3ProngSummary(theTIP,a1.p4(),vtxchi2,vtxndf);
 	  }
 	  else if(useTrackHelix==Algorithm_){
 	    // use Track Helix
@@ -210,7 +213,7 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	    for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); ++iter) {
 	      if(iter->get()->trackRef().isNonnull()){
 		reco::TransientTrack transTrk=transTrackBuilder->build(iter->get()->trackRef());
-		pions.push_back(ParticleBuilder::CreateTrackParticle(transTrk,transTrackBuilder,pvpoint,true,true));
+		pions.push_back(ParticleBuilder::createTrackParticle(transTrk,transTrackBuilder,pvpoint,true,true));
 	      }
 	      else if(iter->get()->gsfTrackRef().isNonnull()){
 		//reco::TransientTrack transTrk=transTrackBuilder->build(iter->get()->gsfTrackRef());
@@ -219,11 +222,11 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	    }
 	    TVector3 pv(secVtx->position().x(),secVtx->position().y(),secVtx->position().z());
 	    Chi2VertexFitter chi2v(pions,pv);
-	    SecondaryVtxOK=chi2v.Fit();
-	    double c(0); for(unsigned int i=0;i<pions.size();i++){c+=pions.at(i).Charge();}
+	    SecondaryVtxOK=chi2v.fit();
+	    double c(0); for(unsigned int i=0;i<pions.size();i++){c+=pions[i].charge();}
 	    int pdgid=abs(PdtPdgMini::a_1_plus)*c;
-	    a1=chi2v.GetMother(pdgid);
-	    PFTau3PS =reco::PFTau3ProngSummary(theTIP,a1.LV(),vtxchi2,vtxndf);
+	    a1=chi2v.getMother(pdgid);
+	    PFTau3PS =reco::PFTau3ProngSummary(theTIP,a1.p4(),vtxchi2,vtxndf);
 	  }
 	}
 	if(SecondaryVtxOK){
@@ -232,23 +235,27 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	  TMatrixTSym<double> pvcov(LorentzVectorParticle::NVertex);
 	  math::Error<LorentzVectorParticle::NVertex>::type pvCov;
 	  primaryVertex->fill(pvCov);
-	  for(int i = 0; i<LorentzVectorParticle::NVertex; i++)for(int j = 0; j<LorentzVectorParticle::NVertex; j++){pvcov(i,j)=pvCov(i,j);pvcov(j,i)=pvCov(i,j);}
+	  for(int i = 0; i<LorentzVectorParticle::NVertex; i++){
+	    for(int j = 0; j<LorentzVectorParticle::NVertex; j++){
+	      pvcov(i,j)=pvCov(i,j);
+	    }
+	  }
 	  for(unsigned int i=0; i<PFTau3ProngSummary::nsolutions;i++){
 	    TauA1NuConstrainedFitter TauA1NU(i,a1,pv,pvcov);
-	    TauA1NU.SetMaxDelta(0.01);
-	    TauA1NU.SetNIterMax(1000);
-	    bool isFitOK=TauA1NU.Fit();
+	    TauA1NU.setMaxDelta(0.01);
+	    TauA1NU.setNIterMax(1000);
+	    bool isFitOK=TauA1NU.fit();
 	    if(TauA1NU.isConverged()){
-	      LorentzVectorParticle theTau=TauA1NU.GetMother();
-	      std::vector<LorentzVectorParticle> daughter=TauA1NU.GetReFitDaughters();
+	      LorentzVectorParticle theTau=TauA1NU.getMother();
+	      std::vector<LorentzVectorParticle> daughter=TauA1NU.getRefitDaughters();
 	      std::vector<TLorentzVector> daughter_p4;
 	      std::vector<int> daughter_charge,daughter_PDGID;
 	      for(unsigned int d=0;d<daughter.size();d++){
-		daughter_p4.push_back(daughter.at(d).LV());
-		daughter_charge.push_back((int)daughter.at(d).Charge());
-		daughter_PDGID.push_back(daughter.at(d).PDGID());
+		daughter_p4.push_back(daughter[d].p4());
+		daughter_charge.push_back((int)daughter[d].charge());
+		daughter_PDGID.push_back(daughter[d].pdgId());
 	      }
-	      PFTau3PS.AddSolution(i,theTau.LV(),daughter_p4,daughter_charge,daughter_PDGID,(isFitOK&&TauA1NU.isConverged()),TauA1NU.ChiSquare(),-999);
+	      PFTau3PS.AddSolution(i,theTau.p4(),daughter_p4,daughter_charge,daughter_PDGID,(isFitOK&&TauA1NU.isConverged()),TauA1NU.chiSquare(),-999);
 	    }
 	  }
 	}

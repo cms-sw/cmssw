@@ -26,6 +26,7 @@
 #include "RecoTauTag/RecoTau/interface/pfRecoTauChargedHadronAuxFunctions.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <vector>
 #include <cmath>
@@ -220,7 +221,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       reco::Candidate::LorentzVector diffP4;
       size_t numChargedHadrons = chargedHadrons.size();
       for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
-	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons.at(iChargedHadron);
+	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
 	if ( chargedHadron.getNeutralPFCandidates().size() >= 1 ) {
 	  PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	  setChargedHadronP4(chargedHadron_modified, scaleFactor);
@@ -265,7 +266,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       reco::Candidate::LorentzVector diffP4;
       size_t numChargedHadrons = chargedHadrons.size();
       for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
-	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons.at(iChargedHadron);
+	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
 	if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kPFNeutralHadron) ) {
 	  PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	  chargedHadron_modified.neutralPFCandidates_.clear();
@@ -319,9 +320,9 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 		    << " HCAL = " << (*signalPFCand)->hcalEnergy() << ","
 		    << " HO = " << (*signalPFCand)->hoEnergy() << std::endl;
 	}
-	if ( !std::isnan((*signalPFCand)->ecalEnergy()) ) allNeutralsSumEn += (*signalPFCand)->ecalEnergy();
-	if ( !std::isnan((*signalPFCand)->hcalEnergy()) ) allNeutralsSumEn += (*signalPFCand)->hcalEnergy();
-	if ( !std::isnan((*signalPFCand)->hoEnergy())   ) allNeutralsSumEn += (*signalPFCand)->hoEnergy();
+	if ( edm::isFinite((*signalPFCand)->ecalEnergy()) ) allNeutralsSumEn += (*signalPFCand)->ecalEnergy();
+	if ( edm::isFinite((*signalPFCand)->hcalEnergy()) ) allNeutralsSumEn += (*signalPFCand)->hcalEnergy();
+	if ( edm::isFinite((*signalPFCand)->hoEnergy())   ) allNeutralsSumEn += (*signalPFCand)->hoEnergy();
       }
       allNeutralsSumEn += addNeutralsSumP4.energy();
       if ( allNeutralsSumEn < 0. ) allNeutralsSumEn = 0.;
@@ -332,7 +333,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	// Adjust momenta of neutral PFCandidates merged into ChargedHadrons
 	size_t numChargedHadrons = chargedHadrons.size();
 	for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
-	  const PFRecoTauChargedHadron& chargedHadron = chargedHadrons.at(iChargedHadron);
+	  const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
 	  if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) ) {
 	    PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	    chargedHadron_modified.neutralPFCandidates_.clear();
@@ -376,7 +377,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	  // Adjust momenta of ChargedHadrons build from reco::Tracks to match sum of energy deposits in ECAL + HCAL + HO
 	  size_t numChargedHadrons = chargedHadrons.size();
 	  for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
-	    const PFRecoTauChargedHadron& chargedHadron = chargedHadrons.at(iChargedHadron);
+	    const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
 	    if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) ) {
 	      PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	      chargedHadron_modified.neutralPFCandidates_.clear();

@@ -1,26 +1,33 @@
+#ifndef RecoTauTag_ImpactParameter_Chi2VertexFitter_h
+#define RecoTauTag_ImpactParameter_Chi2VertexFitter_h
+
 /* From SimpleFits Package
  * Designed an written by
  * author: Ian M. Nugent
  * Humboldt Foundations
  */
 
-#ifndef Chi2VertexFitter_h
-#define Chi2VertexFitter_h
-
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/FCNBase.h"
 #include "RecoTauTag/ImpactParameter/interface/TrackHelixVertexFitter.h"
 
+namespace tauImpactParameter {
+
 class  Chi2VertexFitter : public TrackHelixVertexFitter {
  public:
-  Chi2VertexFitter(std::vector<TrackParticle> &particles,TVector3 vguess,double nsigma_=4.0):TrackHelixVertexFitter(particles,vguess),nsigma(nsigma_){};
+  Chi2VertexFitter(const std::vector<TrackParticle>& particles, const TVector3& vguess, double nsigma=4.0)
+    : TrackHelixVertexFitter(particles,vguess),
+      nsigma_(nsigma)
+  {};
   virtual ~Chi2VertexFitter(){};
 
-  virtual bool Fit();
+  virtual bool fit();
 
  private:   
-  double nsigma;
+  double nsigma_;
 };
+
+}
 #endif
 
 

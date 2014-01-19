@@ -7,14 +7,16 @@
 #include <iostream>
 #include "TMatrixTSym.h"
 
-void MultiProngTauSolver::quadratic(double &x_plus,double &x_minus,double a, double b, double c){
+using namespace tauImpactParameter;
+
+void MultiProngTauSolver::quadratic(double& x_plus,double& x_minus,double a, double b, double c){
   double R=b*b-4*a*c;
   if(R<0){R=0;}
   x_minus=(-b+sqrt(R))/(2.0*a); // opposite sign is smaller
   x_plus=(-b-sqrt(R))/(2.0*a);
 }
 
-void MultiProngTauSolver::AnalyticESolver(TLorentzVector &nu_plus,TLorentzVector &nu_minus,TLorentzVector A1){
+void MultiProngTauSolver::analyticESolver(TLorentzVector& nu_plus,TLorentzVector& nu_minus, const TLorentzVector& A1){
   double a=(A1.Pz()*A1.Pz())/(A1.E()*A1.E())-1.0;
   double K=(PDGInfo::tau_mass()*PDGInfo::tau_mass()-A1.M2()-2.0*A1.Pt()*A1.Pt())/(2.0*A1.E());
   double b=2.0*K*A1.Pz()/A1.E();
@@ -25,8 +27,8 @@ void MultiProngTauSolver::AnalyticESolver(TLorentzVector &nu_plus,TLorentzVector
   nu_minus.SetPxPyPzE(-A1.Px(),-A1.Py(),z_minus,sqrt(z_minus*z_minus+A1.Pt()*A1.Pt()));
 }
 
-void MultiProngTauSolver::NumericalESolver(TLorentzVector &nu_plus,TLorentzVector &nu_minus,TLorentzVector A1){
-  double rmin(-100), rmax(100), step(0.01), mtau2(pow(PDGInfo::tau_mass(),2.0)), z1(-999), z2(-999), zmin(-999), min(9999), prev(9999);
+void MultiProngTauSolver::numericalESolver(TLorentzVector& nu_plus,TLorentzVector& nu_minus, const TLorentzVector& A1){
+  double rmin(-100), rmax(100), step(0.01), mtau2(PDGInfo::tau_mass()*PDGInfo::tau_mass()), z1(-999), z2(-999), zmin(-999), min(9999), prev(9999);
   double z=rmin;
   TLorentzVector nu,tau;
   for(int i=0;i<=(int)(rmax-rmin)/step;i++){
@@ -49,16 +51,16 @@ void MultiProngTauSolver::NumericalESolver(TLorentzVector &nu_plus,TLorentzVecto
   }
 }
 
-void MultiProngTauSolver::SolvebyRotation(TVector3 TauDir,TLorentzVector A1, TLorentzVector &Tau_plus,TLorentzVector &Tau_minus,
-					  TLorentzVector &nu_plus,TLorentzVector &nu_minus, bool rotateback){
+void MultiProngTauSolver::solveByRotation(const TVector3& TauDir,const TLorentzVector& A1, TLorentzVector& Tau_plus,TLorentzVector& Tau_minus,
+					  TLorentzVector& nu_plus,TLorentzVector& nu_minus, bool rotateback){
   TLorentzVector A1rot=A1;
   double phi(TauDir.Phi()),theta(TauDir.Theta());
   A1rot.RotateZ(-phi);
   A1rot.RotateY(-theta);
   /////////////////////////////////////////////////////
-  //  NumericalESolver(nu_plus,nu_minus,A1rot); // for debugging AnalyticESolver (slow)
-  //AnalyticESolver(nu_plus,nu_minus,A1rot);
-  AnalyticESolver(nu_plus,nu_minus,A1rot);
+  //  numericalESolver(nu_plus,nu_minus,A1rot); // for debugging AnalyticESolver (slow)
+  //analyticESolver(nu_plus,nu_minus,A1rot);
+  analyticESolver(nu_plus,nu_minus,A1rot);
   /////////////////////////////////////////////////////
   if(rotateback){
     nu_plus.RotateY(theta);
@@ -75,26 +77,26 @@ void MultiProngTauSolver::SolvebyRotation(TVector3 TauDir,TLorentzVector A1, TLo
   }
 }
 
-bool MultiProngTauSolver::SetTauDirectionatThetaGJMax(TLorentzVector a1, double &theta,double &phi,double scale){
-  double thetaGJMax =ThetaGJMax(a1);
+bool MultiProngTauSolver::setTauDirectionatThetaGJMax(const TLorentzVector& a1, double& theta,double& phi,double scale){
+  double thetaGJMax_a1 =thetaGJMax(a1);
   double dtheta=(theta-a1.Theta());
   double dphi=fmod(fabs(phi-a1.Phi()),2*TMath::Pi());if(phi<a1.Phi())dphi*=-1.0;
   double dphitheta=sqrt(dtheta*dtheta+dphi*dphi);
-  if(thetaGJMax<dphitheta || scale<0){
-    theta=a1.Theta()+dtheta*(thetaGJMax/dphitheta)*fabs(scale);
-    phi=a1.Phi()+dphi*(thetaGJMax/dphitheta)*fabs(scale);
+  if(thetaGJMax_a1<dphitheta || scale<0){
+    theta=a1.Theta()+dtheta*(thetaGJMax_a1/dphitheta)*fabs(scale);
+    phi=a1.Phi()+dphi*(thetaGJMax_a1/dphitheta)*fabs(scale);
     return true;
   }
   return false;
 }
 
-double MultiProngTauSolver::ThetaGJMax(TLorentzVector a1){
+double MultiProngTauSolver::thetaGJMax(const TLorentzVector& a1){
   return asin(( PDGInfo::tau_mass()*PDGInfo::tau_mass()-a1.M2())/(2.0*PDGInfo::tau_mass()*fabs(a1.P())));
 }
 
-LorentzVectorParticle MultiProngTauSolver::EstimateNu(LorentzVectorParticle &a1,TVector3 pv,int ambiguity,TLorentzVector &tau){
-  TLorentzVector lorentzA1=a1.LV();
-  TVector3 sv=a1.Vertex();
+LorentzVectorParticle MultiProngTauSolver::estimateNu(const LorentzVectorParticle& a1, const TVector3& pv, int ambiguity, TLorentzVector& tau){
+  TLorentzVector lorentzA1=a1.p4();
+  TVector3 sv=a1.vertex();
   TVector3 tauFlghtDir=sv-pv;
   TLorentzVector nuGuess;
 
@@ -102,52 +104,44 @@ LorentzVectorParticle MultiProngTauSolver::EstimateNu(LorentzVectorParticle &a1,
   if(ambiguity==zero){
     double theta=tauFlghtDir.Theta();
     double phi=tauFlghtDir.Phi();
-    SetTauDirectionatThetaGJMax(lorentzA1,theta,phi);
+    setTauDirectionatThetaGJMax(lorentzA1,theta,phi);
     startingtauFlghtDir.SetMagThetaPhi(1.0,theta,phi);
   }
   TLorentzVector tau1,tau2,nu1,nu2;
-  SolvebyRotation(startingtauFlghtDir,lorentzA1,tau1,tau2,nu1,nu2);
+  solveByRotation(startingtauFlghtDir,lorentzA1,tau1,tau2,nu1,nu2);
   if(ambiguity==plus){  nuGuess=nu1; tau=tau1; }
   if(ambiguity==minus){ nuGuess=nu2; tau=tau1; } 
   if(ambiguity==zero){  nuGuess=nu1; tau=tau1; }
-  TMatrixT<double>    par(LorentzVectorParticle::NLorentzandVertexPar,10);
-  par(LorentzVectorParticle::vx,0)=a1.Parameter(LorentzVectorParticle::vx);
-  par(LorentzVectorParticle::vy,0)=a1.Parameter(LorentzVectorParticle::vy);
-  par(LorentzVectorParticle::vz,0)=a1.Parameter(LorentzVectorParticle::vz);
-  par(LorentzVectorParticle::px,0)=nuGuess.Px(); 
-  par(LorentzVectorParticle::py,0)=nuGuess.Py();
-  par(LorentzVectorParticle::pz,0)=nuGuess.Pz();
-  par(LorentzVectorParticle::m,0) =nuGuess.M();
+  TVectorT<double> par(LorentzVectorParticle::NLorentzandVertexPar,10);
+  par(LorentzVectorParticle::vx)=a1.parameter(LorentzVectorParticle::vx);
+  par(LorentzVectorParticle::vy)=a1.parameter(LorentzVectorParticle::vy);
+  par(LorentzVectorParticle::vz)=a1.parameter(LorentzVectorParticle::vz);
+  par(LorentzVectorParticle::px)=nuGuess.Px(); 
+  par(LorentzVectorParticle::py)=nuGuess.Py();
+  par(LorentzVectorParticle::pz)=nuGuess.Pz();
+  par(LorentzVectorParticle::m) =nuGuess.M();
   TMatrixTSym<double> Cov(LorentzVectorParticle::NLorentzandVertexPar);
-  TMatrixTSym<double> pvCov=a1.VertexCov();
+  TMatrixTSym<double> pvCov=a1.vertexCov();
   for(int i=0; i<LorentzVectorParticle::NLorentzandVertexPar; i++){
     for(int j=0; j<=i; j++){
       if(i<LorentzVectorParticle::NVertex) Cov(i,j)=pvCov(i,j);
       else Cov(i,j)=0;
     }
     double v=0;
-    if(i==LorentzVectorParticle::px || i==LorentzVectorParticle::py || i==LorentzVectorParticle::pz) v=10*par(i,0)*par(i,0);
+    if(i==LorentzVectorParticle::px || i==LorentzVectorParticle::py || i==LorentzVectorParticle::pz) v=10*par(i)*par(i);
     if(v<1000.0) v=1000.0; // try lowing to test impact
     Cov(i,i)+=v;
   }
-  return LorentzVectorParticle(par,Cov,PDGInfo::nu_tau,0,a1.BField());
+  return LorentzVectorParticle(par,Cov,PDGInfo::nu_tau,0,a1.bField());
 } 
 
-TMatrixT<double> MultiProngTauSolver::RotateToTauFrame(TMatrixT<double> &inpar){
-  TMatrixT<double> outpar(3,1);
-  TVector3 res(inpar(0,0),inpar(1,0),inpar(2,0));
-  TVector3 Uz;Uz.SetMagThetaPhi(1,inpar(4,0),inpar(3,0));
+TVectorT<double> MultiProngTauSolver::rotateToTauFrame(const TVectorT<double>& inpar){
+  TVectorT<double> outpar(3);
+  TVector3 res(inpar(0),inpar(1),inpar(2));
+  TVector3 Uz;Uz.SetMagThetaPhi(1,inpar(4),inpar(3));
   res.RotateUz(Uz);
-  /*  double phi=inpar(3,0);
-  double theta=inpar(4,0);
-  res.RotateZ(-phi);
-  TVector3 Y(0,1,0); 
-  TVector3 thetadir=res.Cross(Y); 
-  thetadir.RotateY(-theta);
-  res.RotateY(-theta);
-  res.RotateZ(thetadir.Phi());*/
-  outpar(0,0)=res.X();
-  outpar(1,0)=res.Y();
-  outpar(2,0)=res.Z();
+  outpar(0)=res.X();
+  outpar(1)=res.Y();
+  outpar(2)=res.Z();
   return outpar;
 }

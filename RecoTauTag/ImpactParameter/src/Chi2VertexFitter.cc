@@ -3,6 +3,7 @@
  * author: Ian M. Nugent
  * Humboldt Foundations
  */
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTauTag/ImpactParameter/interface/Chi2VertexFitter.h"
 #include "RecoTauTag/ImpactParameter/interface/ChiSquareFunctionUpdator.h"
 #include "Minuit2/FunctionMinimum.h"
@@ -20,19 +21,21 @@
 #include "Minuit2/ContoursError.h"
 #include <iostream>
 
-bool Chi2VertexFitter::Fit(){
-  if(isFit==true) return true;// do not refit
-  if(!isConfigure) return false; // do not fit if configuration failed
+using namespace tauImpactParameter;
+
+bool Chi2VertexFitter::fit(){
+  if(isFit_==true) return true;// do not refit
+  if(!isConfigured_) return false; // do not fit if configuration failed
   ChiSquareFunctionUpdator updator(this);
   ROOT::Minuit2::MnUserParameters MnPar;
-  for(int i=0;i<par.GetNrows();i++){
-    TString name=FreeParName(i);
+  for(int i=0;i<par_.GetNrows();i++){
+    TString name=freeParName(i);
     // if not limited (vhigh <= vlow)
-    MnPar.Add(name.Data(),par(i,0),sqrt(fabs(parcov(i,i))),par(i,0)-nsigma*sqrt(fabs(parcov(i,i))),par(i,0)+nsigma*sqrt(fabs(parcov(i,i))));
+    MnPar.Add(name.Data(),par_(i),sqrt(fabs(parcov_(i,i))),par_(i)-nsigma_*sqrt(fabs(parcov_(i,i))),par_(i)+nsigma_*sqrt(fabs(parcov_(i,i))));
   }
 
   unsigned int max=10;
-  int numberofcalls=200+par.GetNrows()*100+par.GetNrows()*par.GetNrows()*5;
+  int numberofcalls=200+par_.GetNrows()*100+par_.GetNrows()*par_.GetNrows()*5;
   double tolerance(0.01);
   double edmMin(0.001*updator.Up()*tolerance); 
 
@@ -43,23 +46,25 @@ bool Chi2VertexFitter::Fit(){
     min = minimize(i*numberofcalls,tolerance);
   }
   // give return flag based on status
-  if(min.IsAboveMaxEdm()){std::cout << "Found Vertex that is above EDM " << std::endl; return false;}
+  if(min.IsAboveMaxEdm()){edm::LogWarning("Chi2VertexFitter::Fit") << "Found Vertex that is above EDM " << std::endl; return false;}
   if(!min.IsValid()){
-    std::cout << "Chi2VertexFitter::Fit(): Failed min.IsValid()" << std::endl; 
-    if(!min.HasValidParameters()){std::cout << "Chi2VertexFitter::Fit(): Failed min.HasValidParameters()" << std::endl; }
-    if(!min.HasValidCovariance()){std::cout << "Chi2VertexFitter::Fit(): Failed min.HasValidCovariance()" << std::endl; }
-    if(!min.HesseFailed()){std::cout << "Chi2VertexFitter::Fit(): Failed min.HesseFailed()" << std::endl; }
-    if(!min.HasReachedCallLimit()){std::cout << "Chi2VertexFitter::Fit(): Failed min.HasReachedCallLimit()" << std::endl; }
+    edm::LogWarning("Chi2VertexFitter::Fit") << "Failed min.IsValid()" << std::endl; 
+    if(!min.HasValidParameters()){edm::LogWarning("Chi2VertexFitter::Fit") << "Failed min.HasValidParameters()" << std::endl; }
+    if(!min.HasValidCovariance()){edm::LogWarning("Chi2VertexFitter::Fit") << "Failed min.HasValidCovariance()" << std::endl; }
+    if(!min.HesseFailed()){edm::LogWarning("Chi2VertexFitter::Fit") << "Failed min.HesseFailed()" << std::endl; }
+    if(!min.HasReachedCallLimit()){edm::LogWarning("Chi2VertexFitter::Fit") << "Failed min.HasReachedCallLimit()" << std::endl; }
     return false;
   }
-  chi2=min.Fval();
+  chi2_=min.Fval();
   // Get output parameters
-  for(int i=0;i<par.GetNrows();i++){ par(i,0)=min.UserParameters().Value(i);}
+  for(int i=0;i<par_.GetNrows();i++){ par_(i)=min.UserParameters().Value(i);}
   // Get output covariance
-  for(int i=0;i<par.GetNrows();i++){
-    for(int j=0;j<par.GetNrows();j++){parcov(i,j)=min.UserCovariance()(i,j);}
+  for(int i=0;i<par_.GetNrows();i++){
+    for(int j=0;j<par_.GetNrows();j++){
+      parcov_(i,j)=min.UserCovariance()(i,j);
+    }
   }
 
-  isFit=true;
-  return isFit;
+  isFit_=true;
+  return isFit_;
 }
