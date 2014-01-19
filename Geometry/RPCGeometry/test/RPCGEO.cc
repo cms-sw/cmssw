@@ -99,9 +99,10 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   std::cout <<" Getting the RPC Geometry"<<std::endl;
+   std::cout <<" RPCGEO :: analyze :: Getting the RPC Geometry"<<std::endl;
    edm::ESHandle<RPCGeometry> rpcGeo;
    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
+   std::cout <<" RPCGEO :: analyze :: Got the RPC Geometry"<<std::endl;
 
    int StripsInCMS=0;
    int counterstripsBarrel=0;
@@ -137,7 +138,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
      }
    }
 
-   
+   std::cout <<" RPCGEO :: analyze :: Loop over RPC Chambers"<<std::endl;
    for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
      if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
        RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
@@ -207,6 +208,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	 }
        }
 
+       std::cout <<" RPCGEO :: analyze :: Loop over RPC Rolls"<<std::endl;
        for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	 RPCDetId rpcId = (*r)->id();
 	 int stripsinthisroll=(*r)->nstrips();
