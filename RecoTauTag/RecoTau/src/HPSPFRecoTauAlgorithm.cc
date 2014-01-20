@@ -1,5 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/HPSPFRecoTauAlgorithm.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "DataFormats/Math/interface/deltaR.h"
 using namespace reco;
 
 HPSPFRecoTauAlgorithm::HPSPFRecoTauAlgorithm():
@@ -464,44 +465,48 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
   if(useIsolationAnnulus_)
   {
     const std::vector<reco::PFCandidatePtr>& pfChargedHadrCands = tau.pfTauTagInfoRef()->PFChargedHadrCands();
+    double tauEta=tau.eta();
+    double tauPhi=tau.phi();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator pfChargedHadrCand = pfChargedHadrCands.begin();
 	  pfChargedHadrCand != pfChargedHadrCands.end(); ++pfChargedHadrCand ) {
-      double dR = ROOT::Math::VectorUtil::DeltaR(tau.p4(), (*pfChargedHadrCand)->p4());
+      double dR = reco::deltaR(tauEta, tauPhi, (*pfChargedHadrCand)->eta(), (*pfChargedHadrCand)->phi());
       if ( dR > tauCone && dR < chargeIsolationCone_ ) hadrons.push_back(*pfChargedHadrCand);
     }
 
     const std::vector<reco::PFCandidatePtr>& pfGammaCands = tau.pfTauTagInfoRef()->PFGammaCands();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator pfGammaCand = pfGammaCands.begin();
 	  pfGammaCand != pfGammaCands.end(); ++pfGammaCand ) {
-      double dR = ROOT::Math::VectorUtil::DeltaR(tau.p4(), (*pfGammaCand)->p4());
+      double dR = reco::deltaR(tauEta, tauPhi, (*pfGammaCand)->eta(), (*pfGammaCand)->phi());
       if ( dR > tauCone && dR < gammaIsolationCone_ ) gammas.push_back(*pfGammaCand);
     }
 
     const std::vector<reco::PFCandidatePtr>& pfNeutralHadrCands = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator pfNeutralHadrCand = pfNeutralHadrCands.begin();
 	  pfNeutralHadrCand != pfNeutralHadrCands.end(); ++pfNeutralHadrCand ) {
-      double dR = ROOT::Math::VectorUtil::DeltaR(tau.p4(), (*pfNeutralHadrCand)->p4());
+      double dR = reco::deltaR(tauEta, tauPhi, (*pfNeutralHadrCand)->eta(), (*pfNeutralHadrCand)->phi());
       if ( dR > tauCone && dR < neutrHadrIsolationCone_ ) hadrons.push_back(*pfNeutralHadrCand);
     }
   } else {
+    double tauEta=tau.eta();
+    double tauPhi=tau.phi();
     const std::vector<reco::PFCandidatePtr>& pfChargedHadrCands = tau.pfTauTagInfoRef()->PFChargedHadrCands();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator pfChargedHadrCand = pfChargedHadrCands.begin();
 	  pfChargedHadrCand != pfChargedHadrCands.end(); ++pfChargedHadrCand ) {
-      double dR = ROOT::Math::VectorUtil::DeltaR(tau.p4(), (*pfChargedHadrCand)->p4());
+      double dR = reco::deltaR(tauEta, tauPhi, (*pfChargedHadrCand)->eta(), (*pfChargedHadrCand)->phi());
       if ( dR < chargeIsolationCone_ ) hadrons.push_back(*pfChargedHadrCand);
     }
 
     const std::vector<reco::PFCandidatePtr>& pfGammaCands = tau.pfTauTagInfoRef()->PFGammaCands();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator pfGammaCand = pfGammaCands.begin();
 	  pfGammaCand != pfGammaCands.end(); ++pfGammaCand ) {
-      double dR = ROOT::Math::VectorUtil::DeltaR(tau.p4(), (*pfGammaCand)->p4());
+      double dR = reco::deltaR(tauEta, tauPhi, (*pfGammaCand)->eta(), (*pfGammaCand)->phi());
       if ( dR < gammaIsolationCone_ ) gammas.push_back(*pfGammaCand);
     }
 
     const std::vector<reco::PFCandidatePtr>& pfNeutralHadrCands = tau.pfTauTagInfoRef()->PFNeutrHadrCands();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator pfNeutralHadrCand = pfNeutralHadrCands.begin();
 	  pfNeutralHadrCand != pfNeutralHadrCands.end(); ++pfNeutralHadrCand ) {
-      double dR = ROOT::Math::VectorUtil::DeltaR(tau.p4(), (*pfNeutralHadrCand)->p4());
+      double dR = reco::deltaR(tauEta, tauPhi, (*pfNeutralHadrCand)->eta(), (*pfNeutralHadrCand)->phi());
       if ( dR < neutrHadrIsolationCone_ ) hadrons.push_back(*pfNeutralHadrCand);
     }
   }

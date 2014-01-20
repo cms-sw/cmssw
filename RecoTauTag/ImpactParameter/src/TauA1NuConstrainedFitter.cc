@@ -174,7 +174,7 @@ TVectorT<double> TauA1NuConstrainedFitter::computeMotherLorentzVectorPar(const T
   double outpar_py = outpar(LorentzVectorParticle::py);
   double outpar_pz = outpar(LorentzVectorParticle::pz);
   double P2=outpar_px*outpar_px + outpar_py*outpar_py + outpar_pz*outpar_pz;
-  outpar(LorentzVectorParticle::m)=sqrt(fabs(pow(sqrt(Enu2)+sqrt(Ea12),2.0)-P2));
+  outpar(LorentzVectorParticle::m)=sqrt(fabs(Enu2 + Ea12 + 2*sqrt(Enu2*Ea12)-P2));
   return outpar;
 }
 

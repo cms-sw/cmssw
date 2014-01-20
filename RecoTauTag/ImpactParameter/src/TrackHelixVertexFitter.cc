@@ -182,9 +182,11 @@ TVectorT<double> TrackHelixVertexFitter::computeLorentzVectorPar(const TVectorT<
   double kappa,lam,phi,x,y,z,s,dxy,dz;
   int p=0;
   TrackHelixVertexFitter::computedxydz(inpar,p,kappa,lam,phi,x,y,z,s,dxy,dz);
-  LV(LorentzVectorParticle::px) = B*(1.0/fabs(kappa))*cos(2*s*kappa+phi);
-  LV(LorentzVectorParticle::py) = B*(1.0/fabs(kappa))*sin(2*s*kappa+phi);
-  LV(LorentzVectorParticle::pz) = B*(1.0/fabs(kappa))*tan(lam) ;
+  double phi1 = 2*s*kappa+phi;
+  double bOverK = B*(1.0/fabs(kappa));
+  LV(LorentzVectorParticle::px) = bOverK*cos(phi1);
+  LV(LorentzVectorParticle::py) = bOverK*sin(phi1);
+  LV(LorentzVectorParticle::pz) = bOverK*tan(lam) ;
   LV(LorentzVectorParticle::m)  = massHypothesis;
   LV(LorentzVectorParticle::vx) = x;
   LV(LorentzVectorParticle::vy) = y;
