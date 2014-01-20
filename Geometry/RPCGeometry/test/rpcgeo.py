@@ -1,11 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
-process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
+# process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
+# process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
+# process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
-process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
+process.load("Configuration.Geometry.GeometryExtended2023RPCEtaUpscope_cff")
+process.load('Configuration.Geometry.GeometryExtended2023RPCEtaUpscopeReco_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
+#process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
