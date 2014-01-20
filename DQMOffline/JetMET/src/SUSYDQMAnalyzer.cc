@@ -75,23 +75,25 @@ SUSYDQMAnalyzer::SUSYDQMAnalyzer( const edm::ParameterSet& pSet)
   
   SUSYFolder = iConfig.getParameter<std::string>("folderName");
   dqm = edm::Service<DQMStore>().operator->();
+  // Load parameters 
+  thePFMETCollectionToken     = consumes<reco::PFMETCollection>   (iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel"));
+  theCaloMETCollectionToken   = consumes<reco::CaloMETCollection> (iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"));
+  theTCMETCollectionToken     = consumes<reco::METCollection>     (iConfig.getParameter<edm::InputTag>("TCMETCollectionLabel"));
+
+  theCaloJetCollectionToken   = consumes<reco::CaloJetCollection>   (iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel"));
+  theJPTJetCollectionToken    = consumes<reco::JPTJetCollection>    (iConfig.getParameter<edm::InputTag>("JPTJetCollectionLabel"));
+  thePFJetCollectionToken     = consumes<std::vector<reco::PFJet> > (iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel"));
+
+  _ptThreshold = iConfig.getParameter<double>("ptThreshold");
+  _maxNJets = iConfig.getParameter<double>("maxNJets");
+  _maxAbsEta = iConfig.getParameter<double>("maxAbsEta");
+
 }
 
 const char* SUSYDQMAnalyzer::messageLoggerCatregory = "SUSYDQM";
 
 void SUSYDQMAnalyzer::beginJob(void){
-  // Load parameters 
-  thePFMETCollectionLabel     = iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel");
-  theCaloMETCollectionLabel   = iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel");
-  theTCMETCollectionLabel     = iConfig.getParameter<edm::InputTag>("TCMETCollectionLabel");
 
-  theCaloJetCollectionLabel   = iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel");
-  theJPTJetCollectionLabel    = iConfig.getParameter<edm::InputTag>("JPTJetCollectionLabel");
-  thePFJetCollectionLabel     = iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel");
-
-  _ptThreshold = iConfig.getParameter<double>("ptThreshold");
-  _maxNJets = iConfig.getParameter<double>("maxNJets");
-  _maxAbsEta = iConfig.getParameter<double>("maxAbsEta");
 }
 
 void SUSYDQMAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
@@ -148,7 +150,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::Handle<reco::CaloJetCollection> CaloJetcoll;
 
-  iEvent.getByLabel(theCaloJetCollectionLabel, CaloJetcoll);
+  iEvent.getByToken(theCaloJetCollectionToken, CaloJetcoll);
 
   if(!CaloJetcoll.isValid()) return;
   
@@ -175,7 +177,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::Handle<reco::PFJetCollection> PFjetcoll;
 
-  iEvent.getByLabel(thePFJetCollectionLabel, PFjetcoll);
+  iEvent.getByToken(thePFJetCollectionToken, PFjetcoll);
 
   if(!PFjetcoll.isValid()) return;
 
@@ -201,7 +203,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   edm::Handle<reco::JPTJetCollection> JPTjetcoll;
 
-  iEvent.getByLabel(theJPTJetCollectionLabel, JPTjetcoll);
+  iEvent.getByToken(theJPTJetCollectionToken, JPTjetcoll);
 
   if(!JPTjetcoll.isValid()) return;
 
@@ -229,7 +231,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // Calo MET
 
   edm::Handle<reco::CaloMETCollection> calometcoll;
-  iEvent.getByLabel(theCaloMETCollectionLabel, calometcoll);
+  iEvent.getByToken(theCaloMETCollectionToken, calometcoll);
 
   if(!calometcoll.isValid()) return;
 
@@ -243,7 +245,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // PF MET
 
   edm::Handle<reco::PFMETCollection> pfmetcoll;
-  iEvent.getByLabel(thePFMETCollectionLabel, pfmetcoll);
+  iEvent.getByToken(thePFMETCollectionToken, pfmetcoll);
   
   if(!pfmetcoll.isValid()) return;
 
@@ -257,7 +259,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // TC MET
 
   edm::Handle<reco::METCollection> tcmetcoll;
-  iEvent.getByLabel(theTCMETCollectionLabel, tcmetcoll);
+  iEvent.getByToken(theTCMETCollectionToken, tcmetcoll);
   
   if(!tcmetcoll.isValid()) return;
 
