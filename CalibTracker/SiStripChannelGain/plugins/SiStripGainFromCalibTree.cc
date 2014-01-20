@@ -63,6 +63,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TFile.h"
 #include "TObjString.h"
@@ -137,6 +139,9 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
 
       SiStripApvGain* getNewObject();
       edm::Service<TFileService> tfs;
+
+  DQMStore* dbe;
+  
 
       double       MinNrEntries;
       double       MaxMPVError;
@@ -220,11 +225,19 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
    m_calibrationPath   = iConfig.getUntrackedParameter<string>("calibrationPath");
 
 
+   dbe = edm::Service<DQMStore>().operator->();
+
 }
 
 void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 //void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
+  
+  // FIXME: add a swithc: if the histos are not booked should be just retrieved from DQMStore so that tehy can be used in the fit
+
+  // FIXME: decide what should be the folder name following the convention already there for ALCARECOS
+  dbe->setCurrentFolder("AlCaReco/SiStripGains/");
+  //dbe->book1D(histoName,histoTitle, maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
    Charge_Vs_Index           = tfs->make<TH2F>("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
    Charge_Vs_Index_Absolute  = tfs->make<TH2F>("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
    Charge_Vs_PathlengthTIB   = tfs->make<TH2F>("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
