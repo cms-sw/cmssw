@@ -275,7 +275,7 @@ namespace cond {
     }
 
     cond::Iov_t IOVProxy::getLast(){
-      checkTransaction( "IOVProxy::find" );
+      checkTransaction( "IOVProxy::getLast" );
       cond::Iov_t ret;
       if( m_session->iovSchema().iovTable().getLastIov( m_data->tag, ret.since, ret.payloadId ) ){
 	ret.till = cond::time::MAX_VAL;
@@ -288,7 +288,7 @@ namespace cond {
     }
     
     int IOVProxy::sequenceSize() const {
-      checkTransaction( "IOVProxy::find" );
+      checkTransaction( "IOVProxy::sequenceSize" );
       size_t ret = 0;
       m_session->iovSchema().iovTable().getSize( m_data->tag, ret );
       return ret;

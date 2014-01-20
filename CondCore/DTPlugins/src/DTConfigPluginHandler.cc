@@ -117,13 +117,13 @@ int DTConfigPluginHandler::get( const DTKeyedConfigListRcd& keyRecord,
   if ( keyList == 0 ) return 999;
 
   std::vector<unsigned long long> checkedKeys;
-  const DTKeyedConfig* kBrick = 0;
+  boost::shared_ptr<DTKeyedConfig> kBrick;
   checkedKeys.push_back( cfgId );
   bool brickFound = false;
   try {
     keyList->load( checkedKeys );
     kBrick = keyList->get<DTKeyedConfig>( 0 );
-    if ( kBrick != 0 ) brickFound = ( kBrick->getId() == cfgId );
+    if ( kBrick.get() ) brickFound = ( kBrick->getId() == cfgId );
   }
   catch ( std::exception const & e ) {
   }
