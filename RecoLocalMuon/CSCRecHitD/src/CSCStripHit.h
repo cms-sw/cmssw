@@ -21,7 +21,7 @@ public:
   typedef std::vector<float> StripHitADCContainer;
   typedef std::vector<int> ChannelContainer;
 
-  CSCStripHit();
+  CSCStripHit(){}
   CSCStripHit( const CSCDetId& id, 
                const float& sHitPos, 
                const int& tmax, 
@@ -32,7 +32,7 @@ public:
                const int& closestMaximum,
                const short int& deadStrip);
 
-  ~CSCStripHit();
+  ~CSCStripHit(){}
 
   /// Required for storage in RangeMap
   CSCStripHit* clone() const { return new CSCStripHit( *this ); }

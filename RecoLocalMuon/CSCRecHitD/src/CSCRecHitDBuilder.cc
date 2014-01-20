@@ -50,6 +50,10 @@ CSCRecHitDBuilder::~CSCRecHitDBuilder() {
 void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCWireDigiCollection* wiredc,
                                CSCRecHit2DCollection& oc ) {
   LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] build entered";
+
+  if ( !geom_ ) throw cms::Exception("MissingGeometry") << "[CSCRecHitDBuilder::getLayer] Missing geometry" << std::endl;
+
+
   // Clean hit collections sorted by layer    
   std::vector<CSCDetId> stripLayer;
   std::vector<CSCDetId>::const_iterator sIt;
@@ -79,27 +83,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
 
   LogTrace("CSCRecHitBuilder") << "[CSCRecHitDBuilder] wire hits created";
 
-  // Make collection of strip only hits
-  
-  CSCStripHitCollection clean_soc;  
-  for ( CSCStripDigiCollection::DigiRangeIterator it = stripdc->begin(); it != stripdc->end(); ++it ){
-    const CSCDetId& id = (*it).first;
-    const CSCLayer* layer = getLayer( id );
-    const CSCStripDigiCollection::Range& rstripd = (*it).second;
-    
-    // Skip if no strip digis in this layer
-    if ( rstripd.second == rstripd.first ) continue;
-    
-    std::vector<CSCStripHit> rhv = hitsFromStripOnly_->runStrip( id, layer, rstripd);
-
-    if ( rhv.size() > 0 ) stripLayer.push_back( id );
-    
-    // Add the strip hits to master collection
-    clean_soc.put( id, rhv.begin(), rhv.end() );
-  }
-
-  LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] strip hits created";
-
+ 
 
   // Now create 2-D hits by looking at superposition of strip and wire hit in a layer
   //
@@ -113,28 +97,22 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
   int hits_in_layer = 0;
   CSCDetId old_id; 
 
-  // Now loop over each layer containing strip hits
-  for ( sIt=stripLayer.begin(); sIt != stripLayer.end(); ++sIt ) {
-
-    hitsInLayer.clear();
-    hits_in_layer = 0;
-   
-    std::vector<CSCStripHit> cscStripHit;
+  
+  for ( CSCStripDigiCollection::DigiRangeIterator it = stripdc->begin(); it != stripdc->end(); ++it ){
+    const CSCDetId& id = (*it).first;
+    const CSCLayer* layer = getLayer( id );
+    const CSCStripDigiCollection::Range& rstripd = (*it).second;
     
-    CSCRangeMapForRecHit acc;
-    CSCStripHitCollection::range range = clean_soc.get(acc.cscDetLayer(*sIt));
+    // Skip if no strip digis in this layer
+    if ( rstripd.second == rstripd.first ) continue;
 
-    // Create vector of strip hits for this layer    
-    for ( CSCStripHitCollection::const_iterator clean_soc = range.first; clean_soc != range.second; ++clean_soc)
-      cscStripHit.push_back(*clean_soc);
-
-    const CSCDetId& sDetId = (*sIt);
-    const CSCLayer* layer  = getLayer( sDetId );
-
+    const CSCDetId& sDetId = id;
+ 
     // This is used to test for gaps in layers and needs to be initialized here 
     if ( layer_idx == 0 ) {
       old_id = sDetId;
     }
+
 
     CSCDetId compId = sDetId;
     CSCWireDigiCollection::Range rwired = wiredc->get( sDetId );
@@ -149,7 +127,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       // wire digi ID point to ME1b. This is what is compared to the
       // strip digi ID below (and not used anywhere else). 
       // Later, rechits use the strip digi ID for construction.
-   
+      
       // It is ME1a but no wire digis there, so try ME1b...
       int endcap  = sDetId.endcap();
       int chamber = sDetId.chamber();
@@ -157,7 +135,20 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       CSCDetId idw( endcap, 1, 1, chamber, layer ); // Set idw to same layer in ME1b
       compId = idw;
     }
+ 
     
+    std::vector<CSCStripHit> cscStripHit = hitsFromStripOnly_->runStrip( id, layer, rstripd);
+
+    if (cscStripHit.empty()) continue;
+
+    hitsInLayer.clear();
+    hits_in_layer = 0;
+ 
+   
+ 
+    
+
+   
     // Now loop over wire hits
     for ( wIt=wireLayer.begin(); wIt != wireLayer.end(); ++wIt ) {
         
@@ -201,7 +192,8 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       }
     }
 
-    LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
+    //    LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
+    std::cout << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId << std::endl;
 
     // output vector of 2D rechits to collection
     if (hits_in_layer > 0) {
@@ -219,7 +211,6 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
 
 
 const CSCLayer* CSCRecHitDBuilder::getLayer( const CSCDetId& detId )  {
-  if ( !geom_ ) throw cms::Exception("MissingGeometry") << "[CSCRecHitDBuilder::getLayer] Missing geometry" << std::endl;
   return geom_->layer(detId);
 }
 
