@@ -25,11 +25,12 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
+  G4String attribute = "OnlyForHcalSimNumbering"; 
+  G4String value     = "any";
+  DDValue val(attribute, value, 0.0);
   DDSpecificsFilter filter0;
-  DDValue           ddv0(attribute,value,0);
-  filter0.setCriteria(ddv0,DDSpecificsFilter::equals);
+  filter0.setCriteria(val, DDSpecificsFilter::not_equals,
+		      DDSpecificsFilter::AND, true, true);
   DDFilteredView fv0(cpv);
   fv0.addFilter(filter0);
   if (fv0.firstChild()) {
