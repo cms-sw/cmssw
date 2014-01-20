@@ -171,7 +171,8 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
         if (hist_mini_cppath) {
           TAxis * axis = hist_mini_cppath->GetXaxis();
           if (axis) {
-            int bin_num = axis->FindBin(pathName.c_str());
+	    std::string pathNameNoVer = hlt_config_.removeVersion(PDsVectorPathsVector[iPD][iPath]);
+            int bin_num = axis->FindBin(pathNameNoVer.c_str());
             int bn = bin_num - 1;
             hist_mini_cppath->Fill(bn, 0);
             hist_mini_cppath->SetEntries(hist_mini_cppath->Integral());
@@ -670,7 +671,8 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
 
   if (hist_mini_cppath) {
     TAxis * axis = hist_mini_cppath->GetXaxis();
-    int bin_num = axis->FindBin(path.c_str());
+    std::string pathNameNoVer = hlt_config_.removeVersion(path);
+    int bin_num = axis->FindBin(pathNameNoVer.c_str());
     int bn = bin_num - 1;
     hist_mini_cppath->Fill(bn, 1);
   }
