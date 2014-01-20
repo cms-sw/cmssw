@@ -16,11 +16,10 @@ import FWCore.ParameterSet.Config as cms
 
 # Collection PFCandidates from a DR=0.8 cone about the jet axis and make new
 # faux jets with this collection
-recoTauAK5PFJets08Region = cms.EDProducer(
-    "RecoTauJetRegionProducer",
-    deltaR = cms.double(0.8),
-    src = cms.InputTag("ak5PFJets"),
-    pfSrc = cms.InputTag("particleFlow"),
+from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import \
+      RecoTauJetRegionProducer
+recoTauAK5PFJets08Region=RecoTauJetRegionProducer.clone(
+    src = cms.InputTag("ak5PFJets")
 )
 
 

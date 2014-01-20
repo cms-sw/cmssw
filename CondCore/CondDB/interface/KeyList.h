@@ -28,19 +28,15 @@ namespace cond {
 
   namespace persistency {
 
-    //class IOVKeysDescription;
-   
     class KeyList {
     public:
       
-      //KeyList( const IOVKeysDescription* idescr=0 ); 
-
       void init( IOVProxy iovProxy );
       
       void load( const std::vector<unsigned long long>& keys );
       
       template<typename T> 
-      T const * get(size_t n) const {
+      boost::shared_ptr<T> get(size_t n) const {
 	if( n> (size()-1) ) throwException( "Index outside the bounds of the key array.",
 					    "KeyList::get");
 	if( !m_objects[n] ){
@@ -53,13 +49,8 @@ namespace cond {
 			    "KeyList::get");
 	  }
 	}
-	return boost::static_pointer_cast<T>( m_objects[n] ).get();
+	return boost::static_pointer_cast<T>( m_objects[n] );
       }
-
-      const cond::BaseKeyed* elem(int n) const {
-	return get<cond::BaseKeyed>( n );
-      }
-
 
       int size() const { return m_objects.size();}
 
