@@ -5,7 +5,6 @@
 
 <center>
 <small>
-
 <!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/FWCore/Utilities/?cvsroot=CMSSW&only_with_tag=@PROJ_VERS@>CVS</a> - 
 <a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/FWCore/Utilities/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
