@@ -65,6 +65,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   MuonTrajectoryBuilder * trajectoryBuilder = 0;
   // instantiate the concrete trajectory builder in the Track Finder
+
   edm::ConsumesCollector  iC = consumesCollector();
   string typeOfBuilder = parameterSet.existsAs<string>("MuonTrajectoryBuilder") ? 
     parameterSet.getParameter<string>("MuonTrajectoryBuilder") : "StandAloneMuonTrajectoryBuilder";

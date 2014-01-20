@@ -51,14 +51,17 @@ L2MuonSeedGenerator::L2MuonSeedGenerator(const edm::ParameterSet& iConfig) :
   useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
   useUnassociatedL1(iConfig.existsAs<bool>("UseUnassociatedL1") ? 
 		    iConfig.getParameter<bool>("UseUnassociatedL1") : true){
-
-  gmtToken_ = consumes<L1MuGMTReadoutCollection>(theL1GMTReadoutCollection);
-  muCollToken_ = consumes<L1MuonParticleCollection>(theSource);
-
-  if(useOfflineSeed) {
-    theOfflineSeedLabel = iConfig.getUntrackedParameter<InputTag>("OfflineSeedLabel");
-    offlineSeedToken_ = consumes<edm::View<TrajectorySeed> >(theOfflineSeedLabel);
-  }
+//-ap ??? <<<<<<< HEAD
+//-ap ??? 
+//-ap ???   gmtToken_ = consumes<L1MuGMTReadoutCollection>(theL1GMTReadoutCollection);
+//-ap ???   muCollToken_ = consumes<L1MuonParticleCollection>(theSource);
+//-ap ??? 
+//-ap ???   if(useOfflineSeed) {
+//-ap ???     theOfflineSeedLabel = iConfig.getUntrackedParameter<InputTag>("OfflineSeedLabel");
+//-ap ???     offlineSeedToken_ = consumes<edm::View<TrajectorySeed> >(theOfflineSeedLabel);
+//-ap ???   }
+//-ap ??? =======
+//-ap ??? >>>>>>> apfeiffer1/merge-test
   
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
