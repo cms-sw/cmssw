@@ -88,6 +88,7 @@ class PFEGammaAlgo {
     // for manual brem recovery 
     std::vector<PFGSFFlaggedElement> secondaryGSFs;
     std::vector<PFKFFlaggedElement> secondaryKFs;    
+    std::vector<std::pair<reco::TrackRef, float> > singleLegConversions;
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
     ElementMap localMap;
@@ -380,7 +381,7 @@ private:
 //   std::vector<reco::SuperCluser> sCluster_;
   reco::PFCandidateEGammaExtraCollection egExtra_;  
 
-  bool EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
+  float EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
 			    const reco::Vertex& primaryvtx, 
 			    unsigned int track_index);
 };

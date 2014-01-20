@@ -63,6 +63,9 @@ class PFEGammaProducer : public edm::EDProducer {
   void setPFVertexParameters(bool useVertex,
 			     const reco::VertexCollection*  primaryVertices);	  
    
+  void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras, reco::ConversionCollection &oneLegConversions, const edm::RefProd<reco::ConversionCollection> &convProd);
+  
+  
   edm::EDGetTokenT<reco::PFBlockCollection>  inputTagBlocks_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
   edm::EDGetTokenT<reco::VertexCollection>  vertices_;
@@ -117,6 +120,7 @@ class PFEGammaProducer : public edm::EDProducer {
   
   std::auto_ptr< reco::PFCandidateCollection >          egCandidates_;
   std::auto_ptr<reco::PFCandidateEGammaExtraCollection> egExtra_;
+  std::auto_ptr<reco::ConversionCollection>             singleLegConv_;
   std::auto_ptr< reco::SuperClusterCollection >         sClusters_;  
 
   /// the unfiltered electron collection 
