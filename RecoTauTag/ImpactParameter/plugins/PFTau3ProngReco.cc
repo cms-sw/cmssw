@@ -190,7 +190,7 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	    std::vector<LorentzVectorParticle> ReFitPions;
 	    for(unsigned int i=0;i<transTrkVect.size();i++){
 	      c+=transTrkVect[i].charge();
-	      ReFitPions.push_back(ParticleBuilder::createLorentzVectorParticle(transTrkVect[i],transTrackBuilder,*secVtx,true,true));
+	      ReFitPions.push_back(ParticleBuilder::createLorentzVectorParticle(transTrkVect[i],*secVtx,true,true));
 	    }
 	    // now covert a1 into LorentzVectorParticle
 	    TVectorT<double>    a1_par(LorentzVectorParticle::NLorentzandVertexPar);
@@ -213,11 +213,11 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	    for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); ++iter) {
 	      if(iter->get()->trackRef().isNonnull()){
 		reco::TransientTrack transTrk=transTrackBuilder->build(iter->get()->trackRef());
-		pions.push_back(ParticleBuilder::createTrackParticle(transTrk,transTrackBuilder,pvpoint,true,true));
+		pions.push_back(ParticleBuilder::createTrackParticle(transTrk,pvpoint,true,true));
 	      }
 	      else if(iter->get()->gsfTrackRef().isNonnull()){
 		//reco::TransientTrack transTrk=transTrackBuilder->build(iter->get()->gsfTrackRef());
-		//pions.push_back(ParticleBuilder::CreateTrackParticle(transTrk,transTrackBuilder,pvpoint,true,true));
+		//pions.push_back(ParticleBuilder::CreateTrackParticle(transTrk,pvpoint,true,true));
 	      }
 	    }
 	    TVector3 pv(secVtx->position().x(),secVtx->position().y(),secVtx->position().z());

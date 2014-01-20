@@ -60,9 +60,9 @@ class PFTauPrimaryVertexProducer : public EDProducer {
   enum Alg{useInputPV=0, useFontPV};
 
   struct DiscCutPair{
-    DiscCutPair():cutFormula_(0){}
+    DiscCutPair():discr_(0),cutFormula_(0){}
     ~DiscCutPair(){delete cutFormula_;}
-    edm::Handle<reco::PFTauDiscriminator> handle_;
+    const reco::PFTauDiscriminator* discr_;
     edm::EDGetTokenT<reco::PFTauDiscriminator> inputToken_;
     double cut_;
     TFormula* cutFormula_;
@@ -164,7 +164,11 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
   reco::VertexRefProd VertexRefProd_out = iEvent.getRefBeforePut<reco::VertexCollection>("PFTauPrimaryVertices");
 
   // Load each discriminator
-  BOOST_FOREACH(DiscCutPair *disc, discriminators_) {iEvent.getByToken(disc->inputToken_, disc->handle_);}
+  BOOST_FOREACH(DiscCutPair *disc, discriminators_) {
+    edm::Handle<reco::PFTauDiscriminator> discr;
+    iEvent.getByToken(disc->inputToken_, discr);
+    disc->discr_ = &(*discr);
+  }
 
   // For each Tau Run Algorithim 
   if(Tau.isValid()){
@@ -191,8 +195,8 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
       BOOST_FOREACH(const DiscCutPair* disc, discriminators_) {
         // Check this discriminator passes
 	bool passedDisc = true;
-	if ( disc->cutFormula_ )passedDisc = (disc->cutFormula_->Eval((*disc->handle_)[tau]) > 0.5);
-	else passedDisc = ((*disc->handle_)[tau] > disc->cut_);
+	if ( disc->cutFormula_ )passedDisc = (disc->cutFormula_->Eval((*disc->discr_)[tau]) > 0.5);
+	else passedDisc = ((*disc->discr_)[tau] > disc->cut_);
         if ( !passedDisc ){passed = false; break;}
       }
       if (passed && cut_.get()){passed = (*cut_)(*tau);}
@@ -201,7 +205,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  if(useSelectedTaus_ || iPFTau==jPFTau){
 	    reco::PFTauRef RefPFTau(Tau, jPFTau);
 	    ///////////////////////////////////////////////////////////////////////////////////////////////
-	    // Get tracks form PFTau daugthers
+	    // Get tracks from PFTau daugthers
 	    const std::vector<edm::Ptr<reco::PFCandidate> > cands = RefPFTau->signalPFChargedHadrCands(); 
 	    for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
 	      if(iter->get()->trackRef().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(iter->get()->trackRef()));

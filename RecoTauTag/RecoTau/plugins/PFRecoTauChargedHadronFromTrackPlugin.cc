@@ -174,13 +174,14 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     else if ( track->charge() < 0. ) trackCharge_int = -1;
 
     const double chargedPionMass = 0.13957; // GeV
-    reco::Candidate::PolarLorentzVector p4_polar(track->pt(), track->eta(), track->phi(), chargedPionMass);
-    reco::Candidate::LorentzVector p4(p4_polar.px(), p4_polar.py(), p4_polar.pz(), p4_polar.E());
+    double chargedPionP  = track->p();
+    double chargedPionEn = TMath::Sqrt(chargedPionP*chargedPionP + chargedPionMass*chargedPionMass);
+    reco::Candidate::LorentzVector chargedPionP4(track->px(), track->py(), track->pz(), chargedPionEn);
 
     reco::Vertex::Point vtx(0.,0.,0.);
     if ( vertexAssociator_.associatedVertex(jet).isNonnull() ) vtx = vertexAssociator_.associatedVertex(jet)->position();
 
-    std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(trackCharge_int, p4, vtx, 0, true, PFRecoTauChargedHadron::kTrack));
+    std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(trackCharge_int, chargedPionP4, vtx, 0, true, PFRecoTauChargedHadron::kTrack));
     chargedHadron->track_ = edm::Ptr<reco::Track>(tracks, iTrack);
 
     // CV: Take code for propagating track to ECAL entrance 
@@ -193,8 +194,6 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     //     in order to run on AOD input
     //    (outerMomentum and outerPosition require access to reco::TrackExtra objects, which are available in RECO only)
     //
-    double chargedPionEn = sqrt(chargedPionMass*chargedPionMass + track->momentum().Mag2());
-    reco::Candidate::LorentzVector chargedPionP4(track->momentum().x(), track->momentum().y(), track->momentum().z(), chargedPionEn);
     XYZTLorentzVector chargedPionPos(track->referencePoint().x(), track->referencePoint().y(), track->referencePoint().z(), 0.);
     BaseParticlePropagator trackPropagator(RawParticle(chargedPionP4, chargedPionPos), 0., 0., magneticFieldStrength_.z());
     trackPropagator.setCharge(track->charge());

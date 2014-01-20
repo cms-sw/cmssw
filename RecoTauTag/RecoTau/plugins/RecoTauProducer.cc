@@ -155,7 +155,8 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   // Create output collection
   std::auto_ptr<reco::PFTauCollection> output(new reco::PFTauCollection());
-
+  output->reserve(jets.size());
+  
   // Loop over the jets and build the taus for each jet
   BOOST_FOREACH( reco::PFJetRef jetRef, jets ) {
     // Get the jet with extra constituents from an area around the jet
@@ -198,9 +199,6 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
       reco::tau::RecoTauBuilderPlugin::output_type taus((*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
       // Make sure all taus have their jetref set correctly
       std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, jetRef));
-      // Check this size of the taus built.
-      // Grow the vector if necessary
-      output->reserve(output->size() + taus.size());
       // Copy without selection
       if ( !outputSelector_.get() ) {
         output->insert(output->end(), taus.begin(), taus.end());

@@ -15,17 +15,22 @@ namespace reco { namespace tau { namespace cone {
 template<class CandType>
 class DeltaRFilter : public std::unary_function<CandType, bool> {
   public:
-    DeltaRFilter(const reco::Candidate::LorentzVector& axis,
-                 double min, double max): axis_(axis), min_(min), max_(max) {}
-    bool operator()(const CandType& b) const {
-      double deltaR = reco::deltaR<reco::Candidate::LorentzVector>
-          (axis_, b.p4());
-      return(deltaR >= min_ && deltaR < max_);
+    DeltaRFilter(const reco::Candidate::LorentzVector& axis, double min, double max)
+      : eta_(axis.eta()),
+        phi_(axis.phi()),
+        min2_(min*min), 
+        max2_(max*max) 
+    {}
+    bool operator()(const CandType& b) const 
+    {
+      double dR2 = deltaR2(b.eta(), b.phi(), eta_, phi_);
+      return (dR2 >= min2_ && dR2 < max2_);
     }
   private:
-    reco::Candidate::LorentzVector axis_;
-    const double min_;
-    const double max_;
+    double eta_;
+    double phi_;
+    const double min2_;
+    const double max2_;
 };
 
 // Wrapper around DeltaRFilter to support reference types like Ptr<>

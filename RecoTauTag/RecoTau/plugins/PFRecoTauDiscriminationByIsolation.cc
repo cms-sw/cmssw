@@ -349,8 +349,8 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
 
   // Check if we want a custom iso cone
   if ( customIsoCone_ >= 0. ) {
-    std::cout << "<PFRecoTauDiscriminationByIsolation::discriminate (moduleLabel = " << moduleLabel_ <<")>:" << std::endl;
-    std::cout << " customIsoCone = " << customIsoCone_ << std::endl;
+    //std::cout << "<PFRecoTauDiscriminationByIsolation::discriminate (moduleLabel = " << moduleLabel_ <<")>:" << std::endl;
+    //std::cout << " customIsoCone = " << customIsoCone_ << std::endl;
     DRFilter filter(pfTau->p4(), 0, customIsoCone_);
     std::vector<PFCandidatePtr> isoCharged_filter;
     std::vector<PFCandidatePtr> isoNeutral_filter;

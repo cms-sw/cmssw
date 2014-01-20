@@ -29,8 +29,8 @@ class ParticleBuilder {
   ParticleBuilder(){};
   ~ParticleBuilder(){};
 
-  static LorentzVectorParticle createLorentzVectorParticle(const reco::TransientTrack& transTrk, const edm::ESHandle<TransientTrackBuilder>& transTrackBuilder, const reco::Vertex& V, bool fromPerigee, bool useTrackHelixPropagation);
-  static TrackParticle createTrackParticle(const reco::TransientTrack& transTrk, const edm::ESHandle<TransientTrackBuilder>& transTrackBuilder, const GlobalPoint& p, bool fromPerigee=true, bool useTrackHelixPropogation=true);
+  static LorentzVectorParticle createLorentzVectorParticle(const reco::TransientTrack& transTrk, const reco::Vertex& V, bool fromPerigee, bool useTrackHelixPropagation);
+  static TrackParticle createTrackParticle(const reco::TransientTrack& transTrk, const GlobalPoint& p, bool fromPerigee=true, bool useTrackHelixPropogation=true);
   static reco::Vertex getVertex(const LorentzVectorParticle& p);
 
  private:

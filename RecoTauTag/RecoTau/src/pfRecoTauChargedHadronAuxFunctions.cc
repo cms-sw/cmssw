@@ -32,19 +32,24 @@ void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scal
     chargedHadronP += scaleFactor_neutralPFCands*(*neutralPFCand)->p();
   }
       
-  reco::Candidate::LorentzVector chargedHadronP4 = compChargedHadronP4(chargedHadronP, chargedHadronTheta, chargedHadronPhi);
+  reco::Candidate::LorentzVector chargedHadronP4 = compChargedHadronP4fromPThetaPhi(chargedHadronP, chargedHadronTheta, chargedHadronPhi);
   chargedHadron.setP4(chargedHadronP4);
 }
 
-reco::Candidate::LorentzVector compChargedHadronP4(double chargedHadronP, double chargedHadronTheta, double chargedHadronPhi)
+reco::Candidate::LorentzVector compChargedHadronP4fromPxPyPz(double chargedHadronPx, double chargedHadronPy, double chargedHadronPz)
 {
-  const double chargedPionMass = 0.13957; // GeV
-  double chargedHadronEn = sqrt(chargedHadronP*chargedHadronP + chargedPionMass*chargedPionMass);  
+  const double chargedPionMass = 0.13957; // GeV  
+  double chargedHadronEn = sqrt(chargedHadronPx*chargedHadronPx + chargedHadronPy*chargedHadronPy + chargedHadronPz*chargedHadronPz + chargedPionMass*chargedPionMass);  
+  reco::Candidate::LorentzVector chargedHadronP4(chargedHadronPx, chargedHadronPy, chargedHadronPz, chargedHadronEn);
+  return chargedHadronP4;
+}
+
+reco::Candidate::LorentzVector compChargedHadronP4fromPThetaPhi(double chargedHadronP, double chargedHadronTheta, double chargedHadronPhi)
+{
   double chargedHadronPx = chargedHadronP*TMath::Cos(chargedHadronPhi)*TMath::Sin(chargedHadronTheta);
   double chargedHadronPy = chargedHadronP*TMath::Sin(chargedHadronPhi)*TMath::Sin(chargedHadronTheta);
   double chargedHadronPz = chargedHadronP*TMath::Cos(chargedHadronTheta);    
-  reco::Candidate::LorentzVector chargedHadronP4(chargedHadronPx, chargedHadronPy, chargedHadronPz, chargedHadronEn);
-  return chargedHadronP4;
+  return compChargedHadronP4fromPxPyPz(chargedHadronPx, chargedHadronPy, chargedHadronPz);
 }
 
 }} // end namespace reco::tau
