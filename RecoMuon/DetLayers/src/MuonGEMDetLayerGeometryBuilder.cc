@@ -41,7 +41,8 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 	for(int roll = GEMDetId::minRollId+1; roll <= GEMDetId::maxRollId; ++roll) {
 	  rolls.push_back(roll);
 	}
-	for(int chamber = GEMDetId::minChamberId; chamber <= GEMDetId::maxChamberId; chamber++ ){	     chambers.push_back(chamber);
+	for(int chamber = GEMDetId::minChamberId; chamber <= GEMDetId::maxChamberId; chamber++ ){
+          chambers.push_back(chamber);
 	}
 
 	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          
@@ -124,7 +125,7 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
 
   // How should they be sorted?
   //    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractZ<GeometricSearchDet,float>());                                   
-  result = new MuRingForwardDoubleLayer(frontRings, backRings);
+  if(backRings.size()!=0 && frontRings.size()!=0) result = new MuRingForwardDoubleLayer(frontRings, backRings);
   //result = 0;
   
   LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
