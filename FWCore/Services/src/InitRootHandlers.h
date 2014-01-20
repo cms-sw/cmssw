@@ -1,6 +1,7 @@
 #ifndef FWCore_Services_InitRootHandlers_h
 #define FWCore_Services_InitRootHandlers_h
 
+#include <memory>
 #include "FWCore/Utilities/interface/RootHandlers.h"
 
 namespace edm {
@@ -26,6 +27,9 @@ namespace edm {
       bool resetErrHandler_;
       bool loadAllDictionaries_;
       bool autoLibraryLoader_;
+      std::shared_ptr<const void> sigBusHandler_;
+      std::shared_ptr<const void> sigSegvHandler_;
+      std::shared_ptr<const void> sigIllHandler_;
     };
 
     inline
