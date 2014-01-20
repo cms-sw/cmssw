@@ -26,15 +26,15 @@ hiCentrality = cms.EDFilter("reco::CentralityProducer",
                             srcBasicClustersEB = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
                             srcBasicClustersEE = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),
                             srcZDChits = cms.InputTag("zdcreco"),
-			    lowGainZDC = cms.untracked.bool(True),
+			    lowGainZDC = cms.untracked.bool(False),
                             srcPixelhits = cms.InputTag("siPixelRecHits"),
                             doPixelCut = cms.bool(False),
-                            srcTracks = cms.InputTag("hiSelectedTracks"),
-                            srcVertex= cms.InputTag("hiSelectedVertex"),
+                            srcTracks = cms.InputTag("generalTracks"),
+                            srcVertex= cms.InputTag("offlinePrimaryVertices"),
                             UseQuality = cms.bool(True),
                             TrackQuality = cms.string('highPurity'),
                             srcReUse = cms.InputTag("hiCentrality"),
-                            srcPixelTracks = cms.InputTag("hiPixel3PrimTracks")
+                            srcPixelTracks = cms.InputTag("pixelTracks")
                               )
 
 
