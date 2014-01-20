@@ -717,10 +717,9 @@ void PFEGammaAlgo::RunPFEG(const reco::PFBlockRef&  blockRef,
   buildAndRefineEGObjects(blockRef);
 }
 
-bool PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
+float PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
 					const reco::Vertex& primaryvtx, 
 					unsigned int track_index) {  
-  bool convtkfound=false;  
   const reco::PFBlock& block = *blockref;  
   const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();  
   //use this to store linkdata in the associatedElements function below  
@@ -765,8 +764,8 @@ bool PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref,
   //delta Phi between conversion vertex and track  
   del_phi=fabs(deltaPhi(vtx_phi, elements[track_index].trackRef()->innerMomentum().Phi()));  
   mvaValue = tmvaReader_->EvaluateMVA("BDT");  
-  if(mvaValue > cfg_.mvaConvCut) convtkfound=true;  
-  return convtkfound;  
+  
+  return mvaValue;
 }
 
 bool PFEGammaAlgo::isAMuon(const reco::PFBlockElement& pfbe) {
@@ -1767,14 +1766,17 @@ linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
     }
     // go through non-conv-identified kfs and check MVA to add conversions
     for( auto kf = notconvkf; kf != notmatchedkf; ++kf ) {
-      if( EvaluateSingleLegMVA(_currentblock, *cfg_.primaryVtx, 
-			       kf->first->index()) ) {
+      float mvaval = EvaluateSingleLegMVA(_currentblock, *cfg_.primaryVtx, 
+                               kf->first->index());
+      if(mvaval > cfg_.mvaConvCut) {
 	const reco::PFBlockElementTrack* elemaskf =
 	  docast(const reco::PFBlockElementTrack*,kf->first);
 	RO.secondaryKFs.push_back( std::make_pair(elemaskf,true) );
 	RO.localMap.push_back( ElementMap::value_type(ecal.first,elemaskf) );
 	RO.localMap.push_back( ElementMap::value_type(elemaskf,ecal.first) );
 	kf->second = false;
+        
+        RO.singleLegConversions.push_back(std::make_pair(elemaskf->trackRef(),mvaval));
       }
     }    
   }
@@ -1865,11 +1867,12 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       reco::ConversionRef convref = kf->convRef();
       if( convref.isNonnull() && convref.isAvailable() ) {
 	xtra.addConversionRef(convref);
-      } else {
-	xtra.addSingleLegConvTrackRef(kf->trackRef());
-	// just hack it for now FIXME
-	xtra.addSingleLegConvMva(-999.9f); 
       }
+    }
+    
+    //add single leg conversions
+    for (const auto &conv : RO.singleLegConversions) {
+      xtra.addSingleLegConvTrackRefMva(conv);
     }
 
     // build the refined supercluster from those clusters left in the cand
