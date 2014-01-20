@@ -76,7 +76,6 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   ofos << " GeomDetUnit DetIds\t"           <<pDD->detUnitIds().size() << endl;
   ofos << " eta partitions \t"              <<pDD->etaPartitions().size() << endl;
   ofos << " chambers       \t"              <<pDD->chambers().size() << endl;
-  ofos << " no. eta partitions \t"          <<pDD->etaPartitions().size()/pDD->chambers().size() << endl;
   ofos << " super chambers  \t"             <<pDD->superChambers().size() << endl;
   ofos << " rings  \t\t"                    <<pDD->rings().size() << endl;
   ofos << " stations  \t\t"                 <<pDD->stations().size() << endl;
@@ -97,10 +96,11 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
       }
     }
   }
+  // checking the number of strips and pads
   ofos << " total number of strips\t"<<nstrips << endl;
   ofos << " total number of pads  \t"<<npads << endl;
-  ofos << " flagNonUniqueRollID   \t"<<flagNonUniqueRollID << endl;
-  ofos << " flagNonUniqueRollRawID\t"<<flagNonUniqueRollRawID << endl;
+  if (flagNonUniqueRollID or flagNonUniqueRollRawID)
+    ofos << " -- WARNING: non unique roll Ids!!!" << endl;
 
   // checking uniqueness of chamber detIds
   bool flagNonUniqueChID = false;
@@ -113,10 +113,8 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
       }
     }
   }
-  ofos << " flagNonUniqueChID     \t"<<flagNonUniqueChID << endl;
-  ofos << " flagNonUniqueChRawID  \t"<<flagNonUniqueChRawID << endl;
-
-  // checking the number of strips and pads
+  if (flagNonUniqueChID or flagNonUniqueChRawID)
+    ofos << " -- WARNING: non unique chamber Ids!!!" << endl;
 
   ofos << myName() << ": Begin iteration over geometry..." << endl;
   ofos << "iter " << dashedLine_ << endl;
@@ -124,22 +122,22 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
   //----------------------- Global GEMGeometry TEST -------------------------------------------------------
   ofos << myName() << "Begin GEMGeometry structure TEST" << endl;
   
-  int j = 1;
-  
   for (auto region : pDD->regions()) {
     ofos << "  GEMRegion " << region->region() << " has " << region->nStations() << " stations." << endl;
     for (auto station : region->stations()) {
-      ofos << "  GEMStation " << station->getName() << " has " << station->nRings() << " rings." << endl;
+      ofos << "    GEMStation " << station->getName() << " has " << station->nRings() << " rings." << endl;
       for (auto ring : station->rings()) {
-	ofos << "  GEMRing " << ring->region() << " " << ring->station() << " " << ring->ring() << " has " << ring->nSuperChambers() << " super chambers." << endl;
+	ofos << "      GEMRing " << ring->region() << " " << ring->station() << " " << ring->ring() << " has " << ring->nSuperChambers() << " super chambers." << endl;
+	int i = 1;
 	for (auto sch : ring->superChambers()) {
 	  GEMDetId schId(sch->id());
-	  ofos << "  GEMSuperChamber " << j << ", GEMDetId = " << schId.rawId() << ", " << schId << " has " << sch->nChambers() << " chambers." << endl;
+	  ofos << "        GEMSuperChamber " << i << ", GEMDetId = " << schId.rawId() << ", " << schId << " has " << sch->nChambers() << " chambers." << endl;
 	  // checking the dimensions of each partition & chamber
+	  int j = 1;
 	  for (auto ch : sch->chambers()){
 	    GEMDetId chId(ch->id());
 	    int nRolls(ch->nEtaPartitions());
-	    ofos << "  GEMChamber " << j << ", GEMDetId = " << chId.rawId() << ", " << chId << " has " << nRolls << " eta partitions." << endl;
+	    ofos << "          GEMChamber " << j << ", GEMDetId = " << chId.rawId() << ", " << chId << " has " << nRolls << " eta partitions." << endl;
 	    
 	    int k = 1;
 	    auto& rolls(ch->etaPartitions());
@@ -158,7 +156,7 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	    
 	    for (auto roll : rolls){
 	      GEMDetId rId(roll->id());
-	      ofos<<"    GEMEtaPartition " << k << ", GEMDetId = " << rId.rawId() << ", " << rId << endl;
+	      ofos<<"            GEMEtaPartition " << k << ", GEMDetId = " << rId.rawId() << ", " << rId << endl;
 	      
 	      const BoundPlane& bSurface(roll->surface());
 	      const StripTopology* topology(&(roll->specificTopology()));
@@ -219,18 +217,21 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	      double dphi(cstripN - cstrip1);
 	      if (dphi < 0.) dphi += 360.;
 	      double deta(abs(beta - teta));
-	      ofos << "    \tType: " << type << endl
-		   << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
-		   << "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
-		   << "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
-		   << "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
-		   << "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
-		   << "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << endl;
+	      const bool printDetails(true);
+	      if (printDetails)
+		ofos << "    \tType: " << type << endl
+		     << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
+		     << "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
+		     << "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
+		     << "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
+		     << "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
+		     << "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << endl;
 	      
 	      ++k;
 	    }
 	    ++j;
 	  }
+	  ++i;
 	}
       }
     }
