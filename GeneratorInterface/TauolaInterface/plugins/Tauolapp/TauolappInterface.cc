@@ -27,6 +27,22 @@ using namespace std;
 
 CLHEP::HepRandomEngine*  TauolappInterface::fRandomEngine = nullptr;
 
+extern "C" {
+
+  void gen::ranmar_( float *rvec, int *lenv )
+  {
+    for(int i = 0; i < *lenv; i++)
+      *rvec++ = TauolappInterface::flat();
+    return;
+  }
+  
+  void gen::rmarin_( int*, int*, int* )
+  {
+    return;
+  }
+  
+}
+
 TauolappInterface::TauolappInterface( const edm::ParameterSet& pset):
   fPolarization(false),
   fPSet(0),
@@ -115,11 +131,9 @@ double TauolappInterface::flat()
    return fRandomEngine->flat();
 }
 
-HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt )
-{
-      
+HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
    if ( !fIsInitialized ) return evt;
-   
+   Tauolapp::Tauola::setRandomGenerator(gen::TauolappInterface::flat);   // rest tauola++ random number incase other modules use tauola++
    int NPartBefore = evt->particles_size();
    int NVtxBefore  = evt->vertices_size();
    

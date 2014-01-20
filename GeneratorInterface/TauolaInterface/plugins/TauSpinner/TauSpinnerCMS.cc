@@ -47,27 +47,43 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   else{
     hepmcCollectionToken_=consumes<HepMCProduct>(gensrc_);
   }
-}
 
-void TauSpinnerCMS::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){}
 
-void TauSpinnerCMS::beginJob(){
+  // random number generator needed for initalization
+  Service<RandomNumberGenerator> rng;
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
+      "which appears to be absent.  Please add that service to your configuration\n"
+      "or remove the modules that require it." << std::endl;
+  }
+  fRandomEngine = &rng->getEngine();
+
+  // Now for Tauola and TauSpinner
   if(!isTauolaConfigured_){
     Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
     Tauolapp::Tauola::initialize();
   }
   if(!isLHPDFConfigured_){
-    LHAPDF::initPDFSetByName(LHAPDFname_);   
+    LHAPDF::initPDFSetByName(LHAPDFname_);
   }
   if(!isTauSpinnerConfigure){
     isTauSpinnerConfigure=true;
-    bool Ipp = true;  // for pp collisions 
+    bool Ipp = true;  // for pp collisions
     // Initialize TauSpinner
     //Ipol - polarization of input sample
     //nonSM2 - nonstandard model calculations
     //nonSMN
     TauSpinner::initialize_spinner(Ipp,Ipol_,nonSM2_,nonSMN_,CMSEnergy_);
   }
+
+
+}
+
+void TauSpinnerCMS::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){}
+
+void TauSpinnerCMS::beginJob(){
+
 }
 
 void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
@@ -78,8 +94,8 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
           "which appears to be absent.  Please add that service to your configuration\n"
       "or remove the modules that require it." << std::endl;
   }
-  fRandomEngine = &rng->getEngine();
-
+  fRandomEngine = &rng->getEngine(e.streamID());
+  Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);  // rest tauola++ random number incase other modules use tauola++
 
   double WT=1.0;
   double WTFlip=1.0;
@@ -169,7 +185,6 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   std::auto_ptr<double> TauSpinnerWeighthminus(new double);
   *TauSpinnerWeighthminus = WThminus;
   e.put(TauSpinnerWeighthminus,"TauSpinnerWThminus");
-  
   return ;
 }  
 
@@ -268,7 +283,7 @@ double TauSpinnerCMS::flat()
 {
   if ( !fRandomEngine ) {
     throw cms::Exception("LogicError")
-      << "TauolaInterface::flat: Attempt to generate random number when engine pointer is null\n"
+      << "TauSpinnerCMS::flat: Attempt to generate random number when engine pointer is null\n"
       << "This might mean that the code was modified to generate a random number outside the\n"
       << "event and beginLuminosityBlock methods, which is not allowed.\n";
   }

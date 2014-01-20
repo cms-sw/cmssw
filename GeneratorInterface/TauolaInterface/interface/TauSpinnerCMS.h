@@ -46,7 +46,7 @@
 
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-class TauSpinnerCMS : public edm::one::EDProducer<edm::one::SharedResources>{
+class TauSpinnerCMS : public edm::one::EDProducer<edm::EndRunProducer,edm::one::SharedResources>{
  public:
   explicit TauSpinnerCMS( const edm::ParameterSet& ) ;
   virtual ~TauSpinnerCMS(){} // no need to delete ROOT stuff
