@@ -648,7 +648,7 @@ EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
 double EvtGenInterface::flat(){
   if ( !fRandomEngine ) {
     throw cms::Exception("LogicError")
-      << "TauolaInterface::flat: Attempt to generate random number when engine pointer is null\n"
+      << "EvtGenInterface::flat: Attempt to generate random number when engine pointer is null\n"
       << "This might mean that the code was modified to generate a random number outside the\n"
       << "event and beginLuminosityBlock methods, which is not allowed.\n";
   }
