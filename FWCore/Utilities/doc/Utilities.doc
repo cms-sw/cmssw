@@ -2,7 +2,6 @@
 /*!
 
 \page FWCore_Utilities Package FWCore/Utilities
-
 <center>
 <small>
 <!-- @PROJ_VERS@ will be substituted at build time, no need to touch -->
