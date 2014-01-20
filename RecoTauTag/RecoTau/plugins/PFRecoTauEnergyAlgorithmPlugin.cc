@@ -346,12 +346,12 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	    PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	    chargedHadron_modified.neutralPFCandidates_.clear();
 	    reco::Candidate::LorentzVector chargedHadronP4_modified(0.,0.,0.,0.);
-	    const edm::Ptr<Track>& chargedHadronTrack = chargedHadron.getTrack();
-	    if ( chargedHadronTrack.isNonnull() ) { 
-	      double chargedHadronP_modified     = chargedHadronTrack->p();
-	      double chargedHadronTheta_modified = chargedHadronTrack->theta();
-	      double chargedHadronPhi_modified   = chargedHadronTrack->phi();
-	      chargedHadronP4_modified = compChargedHadronP4fromPThetaPhi(chargedHadronP_modified, chargedHadronTheta_modified, chargedHadronPhi_modified);
+	    if ( (chargedHadron.getTrack()).isNonnull() ) {
+	      const Track& chargedHadronTrack = *(chargedHadron.getTrack());
+	      double chargedHadronPx_modified     = chargedHadronTrack.px();
+	      double chargedHadronPy_modified = chargedHadronTrack.py();
+	      double chargedHadronPz_modified   = chargedHadronTrack.pz();
+	      chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
 	    } else {
 	      edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
 		<< "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;

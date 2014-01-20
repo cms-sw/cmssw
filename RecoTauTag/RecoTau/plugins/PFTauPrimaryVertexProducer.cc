@@ -215,6 +215,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	}
 	// Get Muon tracks
 	if(RemoveMuonTracks_){
+
 	  if(Mu.isValid()) {
 	    for(reco::MuonCollection::size_type iMuon = 0; iMuon< Mu->size(); iMuon++){
 	      reco::MuonRef RefMuon(Mu, iMuon);
@@ -232,27 +233,30 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  }
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	// Get Non-Tau tracks 
+	// Get Non-Tau tracks
 	reco::TrackCollection nonTauTracks;
-	if (trackCollection.isValid()) {
-	  // remove tau tracks and only tracks associated with the vertex
-	  unsigned int idx = 0;
-	  for (reco::TrackCollection::const_iterator iTrk = trackCollection->begin(); iTrk != trackCollection->end(); ++iTrk, idx++) {
-	    reco::TrackRef tmpRef(trackCollection, idx);
-	    reco::TrackRef tmpRefForBase=tmpRef;
-	    bool isSigTrk = false;
-	    bool fromVertex=false;
-	    for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
-	      if (reco::TrackBaseRef(tmpRefForBase)==SignalTracks.at(sigTrk)){isSigTrk = true; break;}
+// 	if (trackCollection.isValid()) {
+// 	  // remove tau tracks and only tracks associated with the vertex
+// 	  unsigned int idx = 0;
+// 	  for (reco::TrackCollection::const_iterator iTrk = trackCollection->begin(); iTrk != trackCollection->end(); ++iTrk, idx++) {
+// 	    reco::TrackRef tmpRef(trackCollection, idx);
+// 	    reco::TrackRef tmpRefForBase=tmpRef;
+// 	    bool isSigTrk = false;
+// 	    bool fromVertex=false;
+// 	    for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
+// 	      if (reco::TrackBaseRef(tmpRefForBase)==SignalTracks.at(sigTrk)){isSigTrk = true; break;}
+// 	    }
+// 	  if (!isSigTrk) nonSigTracks.push_back(*iTrk);
+// 	  }
+// 	}
+	
+	for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
+	  for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
+	    if((*vtxTrkRef)!=SignalTracks[sigTrk] ){
+	      nonTauTracks.push_back(**vtxTrkRef);
 	    }
-	    for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
-	      if(thePV.trackWeight(*vtxTrkRef)>0 ){
-		if((*vtxTrkRef)==reco::TrackBaseRef(tmpRefForBase)){fromVertex=true; break;}
-	      }
-	    }
-	    if (!isSigTrk && fromVertex) nonTauTracks.push_back(*iTrk);
-	  }
-	}
+          }
+	}   
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Refit the vertex
 	TransientVertex transVtx;

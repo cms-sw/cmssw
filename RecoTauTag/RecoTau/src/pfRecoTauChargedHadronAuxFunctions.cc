@@ -9,30 +9,41 @@ namespace reco { namespace tau {
 
 void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scaleFactor_neutralPFCands)
 {
-  double chargedHadronP     = 0.;
-  double chargedHadronTheta = 0.;
-  double chargedHadronPhi   = 0.;
+  double chargedHadronP  = 0.;
+  double chargedHadronPx = 0.;
+  double chargedHadronPy = 0.;
+  double chargedHadronPz = 0.;
+  double SumNeutrals = 0.;
   if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate) ||
        chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron)   ) {
     const reco::PFCandidatePtr& chargedPFCand = chargedHadron.getChargedPFCandidate();
     assert(chargedPFCand.isNonnull());
     chargedHadronP     += chargedPFCand->p();
-    chargedHadronTheta  = chargedPFCand->theta();
-    chargedHadronPhi    = chargedPFCand->phi();
+    chargedHadronPx     = chargedPFCand->px();
+    chargedHadronPy     = chargedPFCand->py();
+    chargedHadronPz     = chargedPFCand->pz();
   } else if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kTrack) ) {
     const reco::PFRecoTauChargedHadron::TrackPtr& track = chargedHadron.getTrack();
     assert(track.isNonnull());
     chargedHadronP     += track->p();
-    chargedHadronTheta  = track->theta();
-    chargedHadronPhi    = track->phi();
+    chargedHadronPx     = track->px();
+    chargedHadronPy     = track->py();
+    chargedHadronPz     = track->pz();
   } else assert(0);
   const std::vector<reco::PFCandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
   for ( std::vector<reco::PFCandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
 	neutralPFCand != neutralPFCands.end(); ++neutralPFCand ) {
-    chargedHadronP += scaleFactor_neutralPFCands*(*neutralPFCand)->p();
+    SumNeutrals += (*neutralPFCand)->p();
   }
+  double noNeutrals=chargedHadronP;
+  chargedHadronP+=scaleFactor_neutralPFCands*SumNeutrals;
+  double ptRatio=chargedHadronP/noNeutrals;
+  chargedHadronPx*=ptRatio;
+  chargedHadronPy*=ptRatio;
+  chargedHadronPz*=ptRatio;
+  
       
-  reco::Candidate::LorentzVector chargedHadronP4 = compChargedHadronP4fromPThetaPhi(chargedHadronP, chargedHadronTheta, chargedHadronPhi);
+  reco::Candidate::LorentzVector chargedHadronP4 = compChargedHadronP4fromPxPyPz(chargedHadronPx, chargedHadronPy, chargedHadronPz);
   chargedHadron.setP4(chargedHadronP4);
 }
 
