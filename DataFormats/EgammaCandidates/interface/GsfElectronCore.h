@@ -7,6 +7,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
 #include <vector>
 
@@ -45,12 +46,22 @@ namespace reco
       bool ecalDrivenSeed() const { return isEcalDrivenSeed_ ; }
       bool trackerDrivenSeed() const { return isTrackerDrivenSeed_ ; }
 
+      /// get vector of references to  Conversion's
+      reco::ConversionRefVector conversions() const {return conversions_;} 
+      /// get vector of references to one leg Conversion's
+      reco::ConversionRefVector conversionsOneLeg() const {return conversionsOneLeg_;}       
+      
       // setters
       void setGsfTrack( const GsfTrackRef & gsfTrack ) { gsfTrack_ = gsfTrack ; }
       void setSuperCluster( const SuperClusterRef & scl ) { superCluster_ = scl ; }
       void setCtfTrack( const TrackRef & closestCtfTrack, float ctfGsfOverlap )
        { closestCtfTrack_ = closestCtfTrack ; ctfGsfOverlap_ = ctfGsfOverlap ; }
 
+      /// add  single ConversionRef to the vector of Refs
+      void addConversion( const reco::ConversionRef & r ) { conversions_.push_back(r); }
+      /// add  single ConversionRef to the vector of Refs
+      void addOneLegConversion( const reco::ConversionRef & r ) { conversionsOneLeg_.push_back(r); }       
+       
       // pflow eventual additionnal info
       const SuperClusterRef & parentSuperCluster() const { return parentSuperCluster_ ; }
       void setParentSuperCluster( const SuperClusterRef & scl ) { parentSuperCluster_ = scl ; }
@@ -61,6 +72,10 @@ namespace reco
       SuperClusterRef superCluster_ ;
       SuperClusterRef parentSuperCluster_ ;
       TrackRef closestCtfTrack_ ; // best matching ctf track
+      // vector of references to Conversions
+      reco::ConversionRefVector  conversions_;
+      //vector of references for 1-leg
+      reco::ConversionRefVector  conversionsOneLeg_;      
       float ctfGsfOverlap_ ; // fraction of common hits between the ctf and gsf tracks
       bool isEcalDrivenSeed_ ;
       bool isTrackerDrivenSeed_ ;
