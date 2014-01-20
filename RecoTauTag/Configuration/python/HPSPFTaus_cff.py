@@ -765,6 +765,7 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
    + hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT    
 )    
 
+
 produceHPSPFTaus = cms.Sequence(
     hpsSelectionDiscriminator
     #*hpsTightIsolationCleaner

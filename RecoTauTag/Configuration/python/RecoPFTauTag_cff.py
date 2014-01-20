@@ -16,10 +16,12 @@ import FWCore.ParameterSet.Config as cms
 
 # Collection PFCandidates from a DR=0.8 cone about the jet axis and make new
 # faux jets with this collection
-from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import RecoTauJetRegionProducer
+from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import \
+      RecoTauJetRegionProducer
 recoTauAK5PFJets08Region=RecoTauJetRegionProducer.clone(
     src = cms.InputTag("ak5PFJets")
-    )
+)
+
 
 
 # Reconstruct the pi zeros in our pre-selected jets.

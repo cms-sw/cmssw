@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 
-
 RecoTauCleaner = cms.EDProducer(
         "RecoTauCleaner",
             src = cms.InputTag("combinatoricRecoTaus"),
@@ -15,7 +14,7 @@ RecoTauCleaner = cms.EDProducer(
                     cms.PSet(
                 name = cms.string("leadStripPtLt2_5"),
                             plugin = cms.string("RecoTauStringCleanerPlugin"),
-                            selection = cms.string("signalPiZeroCandidates().size() = 0 | signalPiZeroCandidates().at(0).pt() > 2.5"),
+                            selection = cms.string("signalPiZeroCandidates().size() = 0 | signalPiZeroCandidates()[0].pt() > 2.5"),
                             selectionPassFunction = cms.string("0"),
                             selectionFailValue = cms.double(1e3)
                         ),

@@ -40,8 +40,14 @@ namespace {
 
   double getPFClusterEnergy(const PFClusterPtr& p) {
     return p->energy();
-  }
+  }  
 
+  inline double ptFast( const double energy, 
+			const math::XYZPoint& position,
+			const math::XYZPoint& origin ) {
+    const auto v = position - origin;
+    return energy*std::sqrt(v.perp2()/v.mag2());
+  }
 
   struct SumPSEnergy : public std::binary_function<double,
 						   const PFClusterPtr&,
@@ -63,8 +69,11 @@ namespace {
 
   struct GreaterByEt : public ClusBinaryFunction {
     bool operator()(const CalibClusterPtr& x, 
-		    const CalibClusterPtr& y) { 
-      return x->energy()/std::cosh(x->eta()) > y->energy()/std::cosh(y->eta());
+		    const CalibClusterPtr& y) {
+      const math::XYZPoint zero(0,0,0);
+      const double xpt = ptFast(x->energy(),x->the_ptr()->position(),zero);
+      const double ypt = ptFast(y->energy(),y->the_ptr()->position(),zero);
+      return xpt > ypt;
     }
   };
 
@@ -74,8 +83,9 @@ namespace {
     IsASeed(double thresh, bool useETcut = false) : 
       threshold(thresh), cutET(useETcut) {}
     bool operator()(const CalibClusterPtr& x) {
+      const math::XYZPoint zero(0,0,0);
       double e_or_et = x->energy();
-      if( cutET )  e_or_et /= std::cosh(x->eta());
+      if( cutET )  e_or_et = ptFast(e_or_et,x->the_ptr()->position(),zero);
       return e_or_et > threshold; 
     }
   };
@@ -408,6 +418,7 @@ buildSuperCluster(CalibClusterPtr& seed,
   
   // now build the supercluster
   reco::SuperCluster new_sc(corrSCEnergy,math::XYZPoint(posX,posY,posZ));   
+  new_sc.setCorrectedEnergy(corrSCEnergy);
   new_sc.setSeed(clustered.front()->the_ptr());
   new_sc.setPreshowerEnergy(corrPS1Energy+corrPS2Energy);
   new_sc.setPreshowerEnergyPlane1(corrPS1Energy);
@@ -469,8 +480,10 @@ buildSuperCluster(CalibClusterPtr& seed,
   //Note that Et is computed here with respect to the beamspot position
   //in order to be consistent with the cut applied in the
   //ElectronSeedProducer
-  double scetaBeamSpot = (new_sc.position()-beamSpot_->position()).eta();
-  if ( new_sc.energy()/cosh(scetaBeamSpot) > threshSuperClusterEt_ ) {
+  double scEtBS = 
+    ptFast(new_sc.energy(),new_sc.position(),beamSpot_->position());
+
+  if ( scEtBS > threshSuperClusterEt_ ) {
     switch( seed->the_ptr()->layer() ) {
     case PFLayer::ECAL_BARREL:
       superClustersEB_->push_back(new_sc);

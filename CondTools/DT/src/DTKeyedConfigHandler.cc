@@ -546,8 +546,8 @@ void DTKeyedConfigHandler::chkConfigList() {
     bool brickFound = false;
     try {
       keyList->load( checkedKeys );
-      const DTKeyedConfig* brickCheck = keyList->get<DTKeyedConfig>( 0 );
-      if ( brickCheck != 0 ) brickFound =
+      boost::shared_ptr<DTKeyedConfig> brickCheck = keyList->get<DTKeyedConfig>( 0 );
+      if ( brickCheck.get() ) brickFound =
                              ( brickCheck->getId() == brickConfigId );
     }
     catch ( std::exception e ) {
