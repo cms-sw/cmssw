@@ -25,7 +25,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
 #include <iostream>
-
+#include <cassert>
 
 CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
   
@@ -54,38 +54,9 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
   if ( !geom_ ) throw cms::Exception("MissingGeometry") << "[CSCRecHitDBuilder::getLayer] Missing geometry" << std::endl;
 
 
-  // Clean hit collections sorted by layer    
-  std::vector<CSCDetId> stripLayer;
-  std::vector<CSCDetId>::const_iterator sIt;
-  std::vector<CSCDetId> wireLayer;
-  std::vector<CSCDetId>::const_iterator wIt;
 
-  
-  // Make collection of wire only hits !  
-  CSCWireHitCollection clean_woc;
-  
-  for ( CSCWireDigiCollection::DigiRangeIterator it = wiredc->begin(); it != wiredc->end(); ++it ){
-    const CSCDetId& id = (*it).first;
-    const CSCLayer* layer = getLayer( id );
-    const CSCWireDigiCollection::Range rwired = wiredc->get( id );
-    // Skip if no wire digis in this layer
-    if ( rwired.second == rwired.first ) {
-	    continue; 
-    }
-          
-    std::vector<CSCWireHit> rhv = hitsFromWireOnly_->runWire( id, layer, rwired);
 
-    if ( rhv.size() > 0 ) wireLayer.push_back( id );
-    
-    // Add the wire hits to master collection
-    clean_woc.put( id, rhv.begin(), rhv.end() );
-  }
-
-  LogTrace("CSCRecHitBuilder") << "[CSCRecHitDBuilder] wire hits created";
-
- 
-
-  // Now create 2-D hits by looking at superposition of strip and wire hit in a layer
+  //  create 2-D hits by looking at superposition of strip and wire hit in a layer
   //
   // N.B.  I've sorted the hits from layer 1-6 always, so can test if there are "holes", 
   // that is layers without hits for a given chamber.
@@ -134,6 +105,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       int layer   = sDetId.layer();
       CSCDetId idw( endcap, 1, 1, chamber, layer ); // Set idw to same layer in ME1b
       compId = idw;
+      rwired = wiredc->get( compId );
     }
  
     
@@ -145,56 +117,37 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     hits_in_layer = 0;
  
    
- 
-    
+    // now build collection of wire only hits !  
+    std::vector<CSCWireHit> cscWireHit = hitsFromWireOnly_->runWire(compId, layer, rwired);
 
    
-    // Now loop over wire hits
-    for ( wIt=wireLayer.begin(); wIt != wireLayer.end(); ++wIt ) {
-        
-      const CSCDetId& wDetId  = (*wIt);
-        
-      // Because of ME1a, use the compId to make a comparison between strip and wire hit CSCDetId
-      if ((wDetId.endcap()  == compId.endcap() ) &&
-          (wDetId.station() == compId.station()) &&
-          (wDetId.ring()    == compId.ring()   ) &&
-          (wDetId.chamber() == compId.chamber()) &&
-          (wDetId.layer()   == compId.layer()  )) {
-          
-        // Create vector of wire hits for this layer
-        std::vector<CSCWireHit> cscWireHit;
-       
-        CSCRangeMapForRecHit acc2;
-        CSCWireHitCollection::range range = clean_woc.get(acc2.cscDetLayer(*wIt));
-      
-        for ( CSCWireHitCollection::const_iterator clean_woc = range.first; clean_woc != range.second; ++clean_woc)
-          cscWireHit.push_back(*clean_woc);
-
-        // Build 2D hit for all possible strip-wire pairs 
-        // overlapping within this layer
-
-        LogTrace("CSCRecHitBuilder")<< "[CSCRecHitDBuilder] found " << cscStripHit.size() << " strip and " 
-                             << cscWireHit.size()  << " wire hits in layer " << sDetId;
-
-        for (unsigned i = 0; i != cscStripHit.size(); ++i ) {
-          const CSCStripHit s_hit = cscStripHit[i];
-          for (unsigned j = 0; j != cscWireHit.size(); ++j ) {
-            const CSCWireHit w_hit = cscWireHit[j];
-            CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
-
-            bool isInFiducial = make2DHits_->isHitInFiducial( layer, rechit );
-            if ( isInFiducial ) {
-              hitsInLayer.push_back( rechit );
-              hits_in_layer++;
-            }
-          }
-        }
+    
+    // Build 2D hit for all possible strip-wire pairs 
+    // overlapping within this layer
+    
+    LogTrace("CSCRecHitBuilder")<< "[CSCRecHitDBuilder] found " << cscStripHit.size() << " strip and " 
+				<< cscWireHit.size()  << " wire hits in layer " << sDetId;
+    
+    for (unsigned i = 0; i != cscStripHit.size(); ++i ) {
+      const CSCStripHit s_hit = cscStripHit[i];
+      for (unsigned j = 0; j != cscWireHit.size(); ++j ) {
+	const CSCWireHit w_hit = cscWireHit[j];
+	CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
+	
+	bool isInFiducial = make2DHits_->isHitInFiducial( layer, rechit );
+	if ( isInFiducial ) {
+	  hitsInLayer.push_back( rechit );
+	  hits_in_layer++;
+	}
       }
     }
 
+  
+  
+
     //    LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
     std::cout << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId << std::endl;
-
+    
     // output vector of 2D rechits to collection
     if (hits_in_layer > 0) {
       oc.put( sDetId, hitsInLayer.begin(), hitsInLayer.end() );
