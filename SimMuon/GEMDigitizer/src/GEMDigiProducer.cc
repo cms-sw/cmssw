@@ -28,7 +28,6 @@
 GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
   : collectionXF_(ps.getParameter<std::string>("inputCollection"))
   , digiModelString_(ps.getParameter<std::string>("digiModelString"))
-  , neutronGammaRoll_(ps.getParameter<std::vector<double> > ("neutronGammaRoll"))
 {
   produces<GEMDigiCollection>();
   produces<StripDigiSimLinks>("GEM");
