@@ -5,12 +5,12 @@
 		<Constant name="zHGCal2" value="341.4*cm"/>
 		<Constant name="zHGCal3" value="390*cm"/>
 		<Constant name="zHGCal4" value="449.127*cm"/>
-		<Constant name="zHGCal5" value="531.4*cm"/>
+		<Constant name="zHGCal5" value="524.1*cm"/>
 		<Constant name="rMinHGCal1" value="31.641*cm"/>
 		<Constant name="rMinHGCal2" value="34.076*cm"/>
 		<Constant name="rMinHGCal3" value="38.93*cm"/>		
 		<Constant name="rMinHGCal4" value="44.84*cm"/>
-		<Constant name="rMinHGCal5" value="53.041*cm"/>
+		<Constant name="rMinHGCal5" value="52.09*cm"/>
 		<Constant name="rMaxHGCal1" value="159.0*cm"/>
 		<Constant name="rMaxHGCal2" value="169.68*cm"/>
 		<Constant name="rMaxHGCal3" value="191.156*cm"/>

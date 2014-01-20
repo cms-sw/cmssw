@@ -73,6 +73,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PSimHitContainer>("FP420SI");
     produces<edm::PSimHitContainer>("BSCHits");
     produces<edm::PSimHitContainer>("PLTHits");
+    produces<edm::PSimHitContainer>("BHMHits");
 
     produces<edm::PCaloHitContainer>("EcalHitsEB");
     produces<edm::PCaloHitContainer>("EcalHitsEE");
@@ -83,6 +84,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     produces<edm::PSimHitContainer>("MuonCSCHits");
     produces<edm::PSimHitContainer>("MuonRPCHits");
     produces<edm::PSimHitContainer>("MuonGEMHits");
+    produces<edm::PSimHitContainer>("MuonME0Hits");
     produces<edm::PCaloHitContainer>("CastorPL");
     produces<edm::PCaloHitContainer>("CastorFI");
     produces<edm::PCaloHitContainer>("CastorBU");

@@ -36,7 +36,6 @@ private:
   std::string digiModelString_;
   
   GEMDigiModel* gemDigiModel_;
-  std::vector<double> neutronGammaRoll_;
 
 };
 

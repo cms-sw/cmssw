@@ -414,14 +414,12 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 }
 
 std::vector<double> HFShowerParam::getDDDArray(const std::string & str, 
-                                               const DDsvalues_type & sv)
-{
+                                               const DDsvalues_type & sv) {
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShowerParam:getDDDArray called for " << str;
 #endif
   DDValue value(str);
-  if (DDfetch(&sv,value))
-  {
+  if (DDfetch(&sv,value)) {
 #ifdef DebugLog
     LogDebug("HFShower") << value;
 #endif
