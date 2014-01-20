@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="cfcsens.xml" eval="true">
+  <SpecPar name="cfc">
+    <PartSelector path="//CFCalV"/>
+    <Parameter name="SensitiveDetector" value="CFCSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="CFCHits" eval="false"/>
+    <Parameter name="RadiusTable" value="180*mm"/>
+    <Parameter name="RadiusTable" value="1800*mm"/>
+    <Parameter name="RadiusTable" value="2700*mm"/>
+    <Parameter name="XcellSize"   value="20*mm"/>
+    <Parameter name="XcellSize"   value="40*mm"/>
+    <Parameter name="YcellSize"   value="20*mm"/>
+    <Parameter name="YcellSize"   value="40*mm"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>
