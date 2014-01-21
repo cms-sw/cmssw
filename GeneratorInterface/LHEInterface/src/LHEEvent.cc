@@ -49,6 +49,9 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 			<< "Les Houches file contained invalid"
 			   " event header." << std::endl;
 
+	// store the original value of XWGTUP for the user
+	originalXWGTUP_ = hepeup.XWGTUP;
+
 	int idwtup = runInfo->getHEPRUP()->IDWTUP;
 	if (idwtup >= 0 && hepeup.XWGTUP < 0) {
 		edm::LogWarning("Generator|LHEInterface")
