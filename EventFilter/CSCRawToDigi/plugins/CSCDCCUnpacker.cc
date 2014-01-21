@@ -348,15 +348,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	      std::vector <CSCALCTDigi>  alctDigis =
 		cscData[iCSC].alctHeader()->ALCTDigis();
 		if(SuppressZeroLCT){
-	        std::vector<CSCALCTDigi> alctDigis_0;
+	          std::vector<CSCALCTDigi> alctDigis_0;
 	          for (int unsigned i=0; i<alctDigis.size(); ++i){
 	              if(alctDigis[i].isValid())
 		      alctDigis_0.push_back(alctDigis[i]);
 	          }
-	        alctProduct->put(std::make_pair(alctDigis_0.begin(), alctDigis_0.end()),layer);
+	          alctProduct->move(std::make_pair(alctDigis_0.begin(), alctDigis_0.end()),layer);
 		}
 		else
-		alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
+		  alctProduct->move(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 	    }
 		    
 		  
@@ -387,11 +387,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	              if(correlatedlctDigis[i].isValid())
 		    correlatedlctDigis_0.push_back(correlatedlctDigis[i]);
 	          }
-		corrlctProduct->put(std::make_pair(correlatedlctDigis_0.begin(),
+		  corrlctProduct->move(std::make_pair(correlatedlctDigis_0.begin(),
 						 correlatedlctDigis_0.end()),layer);
 		}
 		else
-         	  corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(),
+         	  corrlctProduct->move(std::make_pair(correlatedlctDigis.begin(),
 						 correlatedlctDigis.end()),layer);
 		      
 	      std::vector <CSCCLCTDigi>  clctDigis =
@@ -402,17 +402,17 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	            if(clctDigis[i].isValid())
 		  clctDigis_0.push_back(clctDigis[i]);
 	          }
-	        clctProduct->put(std::make_pair(clctDigis_0.begin(), clctDigis_0.end()),layer);
+	          clctProduct->move(std::make_pair(clctDigis_0.begin(), clctDigis_0.end()),layer);
 		}
 		else
-        	clctProduct->put(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
+        	clctProduct->move(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
 		
 	      /// fill cscrpc digi
 	      if (cscData[iCSC].tmbData()->checkSize()) {
 		if (cscData[iCSC].tmbData()->hasRPC()) {
 		  std::vector <CSCRPCDigi>  rpcDigis =
 		    cscData[iCSC].tmbData()->rpcData()->digis();
-		  rpcProduct->put(std::make_pair(rpcDigis.begin(), rpcDigis.end()),layer);
+		  rpcProduct->move(std::make_pair(rpcDigis.begin(), rpcDigis.end()),layer);
 		}
 	      } 
 	      else LogTrace("CSCDCCUnpacker|CSCRawToDigi") <<" TMBData check size failed!";
@@ -445,17 +445,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 	      // Allocate all ME1/1 wire digis to ring 1
 	      layer = pcrate->detId( vmecrate, dmb, 0, ilayer );
-
-	      std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
-	      
-	      wireProduct->put(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
-	      
+              {
+	        std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);	      
+	        wireProduct->move(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
+	      }
 	      for ( icfeb = 0; icfeb < 5; ++icfeb ) {
 		layer = pcrate->detId( vmecrate, dmb, icfeb,ilayer );
 		if (cscData[iCSC].cfebData(icfeb)) {
 		  std::vector<CSCStripDigi> stripDigis;
 		  cscData[iCSC].cfebData(icfeb)->digis(layer.rawId(),stripDigis);
-		  stripProduct->put(std::make_pair(stripDigis.begin(), 
+		  stripProduct->move(std::make_pair(stripDigis.begin(), 
 						   stripDigis.end()),layer);
 		}
 			      
@@ -465,7 +464,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  // Set cfeb=0, so that ME1/a and ME1/b comparators go to
 		  // ring 1.
 		  layer = pcrate->detId( vmecrate, dmb, 0, ilayer );
-		  comparatorProduct->put(std::make_pair(comparatorDigis.begin(), 
+		  comparatorProduct->move(std::make_pair(comparatorDigis.begin(), 
 							comparatorDigis.end()),layer);
 		}
 	      } // end of loop over cfebs
