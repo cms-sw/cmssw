@@ -193,7 +193,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
     if (length>=32){ ///if fed has data then unpack it
       CSCDCCExaminer* examiner = NULL;
-      std::stringstream examiner_out, examiner_err;
       goodEvent = true;
       if (useExaminer) {///examine event for integrity
 	// CSCDCCExaminer examiner;
@@ -487,12 +486,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
               << " Examiner errors:0x" << std::hex << examiner->errors()
               << " & 0x" << examinerMask
               << " = " << (examiner->errors()&examinerMask);
-            if (examinerMask&examiner->errors()) {
-              LogTrace("CSCDCCUnpacker|CSCRawToDigi")
-                << "Examiner output: " << examiner_out.str();
-              LogTrace("CSCDCCUnpacker|CSCRawToDigi")
-                << "Examiner errors: " << examiner_err.str();
-            }
           }
         }
 
