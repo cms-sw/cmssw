@@ -34,11 +34,11 @@ namespace l1t {
     void setHwTag(int tag);
 
     // methods to retrieve integer values
-    int hwCharge();
-    int hwChargeValid();
-    int hwIso();
-    int hwMip();
-    int hwTag();
+    int hwCharge() const;
+    int hwChargeValid() const;
+    int hwIso() const;
+    int hwMip() const;
+    int hwTag() const;
     
   private:
     

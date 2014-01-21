@@ -14,19 +14,19 @@
 #define CaloStage2JetAlgorithmFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetAlgorithm.h"
-#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
+//#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 
 namespace l1t {
 
   // Imp1 is for v1 and v2
-  class CaloStage2JetAlgorithmFirmware1 : public CaloStage2JetAlgorithm {
+  class CaloStage2JetAlgorithmFirmwareImp1 : public CaloStage2JetAlgorithm {
   public:
-    CaloStage2JetAlgorithm1(const CaloMainProcessorParams & dbPars);
-    virtual ~CaloStage2JetAlgorithmFirmware1();
-    virtual void processEvent(const std::vector<Tower> & towers,
-			      std::vector<Cluster> & clusters);
+    CaloStage2JetAlgorithmFirmwareImp1();
+    virtual ~CaloStage2JetAlgorithmFirmwareImp1();
+    virtual void processEvent(const std::vector<CaloTower> & towers,
+			      std::vector<Jet> & jets);
   private:
-    CaloParams const & m_params;
+    //    CaloParams const & m_params;
   };
   
 }
