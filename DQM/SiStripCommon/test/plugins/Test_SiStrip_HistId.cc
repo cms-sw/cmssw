@@ -27,13 +27,20 @@ class Test_SiStrip_HistId : public edm::EDAnalyzer {
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
    private:
+
+#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+  EDGetTokenT<ExampleData> example_;
+#endif
+
       // ----------member data ---------------------------
 };
 
 Test_SiStrip_HistId::Test_SiStrip_HistId(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-
+#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
+  example_ = consumes<ExampleData>(edm::InputTag("data"));
+#endif
 }
 
 
@@ -46,7 +53,7 @@ void Test_SiStrip_HistId::analyze(const edm::Event& iEvent, const edm::EventSetu
 {
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
   edm::Handle<ExampleData> pIn;
-   iEvent.getByLabel("example",pIn);
+  iEvent.getByToken(example_,pIn);
 #endif
 
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE

@@ -59,6 +59,75 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet, ConsumesCollector&& iC) 
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
   minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
 
+  // trigger information
+  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
+
+  theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters");
+    
+  //Trigger parameters
+  gtToken          = iC.consumes <L1GlobalTriggerReadoutRecord> (theCleaningParameters.getParameter<edm::InputTag>("gtLabel"));
+  _techTrigsAND  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsAND");
+  _techTrigsOR   = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsOR");
+  _techTrigsNOT  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
+
+  _doHLTPhysicsOn = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
+  _hlt_PhysDec    = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
+
+  _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
+  _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
+
+  // ==========================================================
+  //DCS information
+  // ==========================================================
+  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"), iC);
+
+  //Vertex requirements
+  _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
+  vertexToken         = iC.consumes <reco::VertexCollection> (theCleaningParameters.getParameter<edm::InputTag>("vertexLabel"));
+
+  if (_doPVCheck) {
+    _nvtx_min        = theCleaningParameters.getParameter<int>("nvtx_min");
+    _nvtxtrks_min    = theCleaningParameters.getParameter<int>("nvtxtrks_min");
+    _vtxndof_min     = theCleaningParameters.getParameter<int>("vtxndof_min");
+    _vtxchi2_max     = theCleaningParameters.getParameter<double>("vtxchi2_max");
+    _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
+  }
+
+  // MET information
+  theMETCollectionLabel       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
+  theMETCollectionToken       = iC.consumes <reco::METCollection> (theMETCollectionLabel);
+  _source                     = parameters.getParameter<std::string>("Source");
+
+  if (theMETCollectionLabel.label() == "tcMet" ) {
+    inputTrackToken         = iC.consumes <reco::Track > (parameters.getParameter<edm::InputTag>("InputTrackLabel"));
+    inputMuonToken          = iC.consumes <reco::MuonCollection > (parameters.getParameter<edm::InputTag>("InputMuonLabel"));
+    inputElectronToken      = iC.consumes <edm::View<reco::GsfElectron > > (parameters.getParameter<edm::InputTag>("InputElectronLabel"));
+    inputBeamSpotToken      = iC.consumes <reco::BeamSpot > (parameters.getParameter<edm::InputTag>("InputBeamSpotLabel"));
+  }
+
+  // Other data collections
+  theJetCollectionToken            = iC.consumes <reco::CaloJetCollection> (parameters.getParameter<edm::InputTag>("JetCollectionLabel"));
+  HcalNoiseRBXCollectionToken      = iC.consumes <HcalNoiseRBXCollection>  (parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection"));
+  BeamHaloSummaryToken             = iC.consumes <BeamHaloSummary>         (parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel"));
+  HBHENoiseFilterResultToken       = iC.consumes <bool >                   (parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel"));
+  muonMETValueMap_muCorrData_token = iC.consumes<edm::ValueMap<reco::MuonMETCorrectionData> > (edm::InputTag(std::string("muonTCMETValueMapProducer"),std::string("muCorrData")));
+  // misc
+  _verbose      = parameters.getParameter<int>("verbose");
+  _etThreshold  = parameters.getParameter<double>("etThreshold"); // MET threshold
+  _allhist      = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
+  _allSelection = parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
+  _cleanupSelection = parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
+
+  _FolderName              = parameters.getUntrackedParameter<std::string>("FolderName");
+
+  _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
+  _lowPtJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");   // Low Pt Jet threshold
+  _highMETThreshold   = parameters.getParameter<double>("HighMETThreshold");     // High MET threshold
+  //  _lowMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
+
+  //
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+
 }
 
 // ***********************************************************
@@ -78,74 +147,6 @@ void METAnalyzer::beginJob(DQMStore * dbe) {
 
   evtCounter = 0;
   metname = "METAnalyzer";
-
-  // trigger information
-  HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
-
-  theCleaningParameters = parameters.getParameter<ParameterSet>("CleaningParameters"),
-
-  //Trigger parameters
-  gtTag          = theCleaningParameters.getParameter<edm::InputTag>("gtLabel");
-  _techTrigsAND  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsAND");
-  _techTrigsOR   = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsOR");
-  _techTrigsNOT  = theCleaningParameters.getParameter<std::vector<unsigned > >("techTrigsNOT");
-
-  _doHLTPhysicsOn = theCleaningParameters.getParameter<bool>("doHLTPhysicsOn");
-  _hlt_PhysDec    = theCleaningParameters.getParameter<std::string>("HLT_PhysDec");
-
-  _tightBHFiltering     = theCleaningParameters.getParameter<bool>("tightBHFiltering");
-  _tightJetIDFiltering  = theCleaningParameters.getParameter<int>("tightJetIDFiltering");
-
-  // ==========================================================
-  //DCS information
-  // ==========================================================
-  DCSFilter = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"));
-
-  //Vertex requirements
-  _doPVCheck          = theCleaningParameters.getParameter<bool>("doPrimaryVertexCheck");
-  vertexTag  = theCleaningParameters.getParameter<edm::InputTag>("vertexLabel");
-
-  if (_doPVCheck) {
-    _nvtx_min        = theCleaningParameters.getParameter<int>("nvtx_min");
-    _nvtxtrks_min    = theCleaningParameters.getParameter<int>("nvtxtrks_min");
-    _vtxndof_min     = theCleaningParameters.getParameter<int>("vtxndof_min");
-    _vtxchi2_max     = theCleaningParameters.getParameter<double>("vtxchi2_max");
-    _vtxz_max        = theCleaningParameters.getParameter<double>("vtxz_max");
-  }
-
-  // MET information
-  theMETCollectionLabel       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
-  _source                     = parameters.getParameter<std::string>("Source");
-
-  if (theMETCollectionLabel.label() == "tcMet" ) {
-    inputTrackLabel         = parameters.getParameter<edm::InputTag>("InputTrackLabel");
-    inputMuonLabel          = parameters.getParameter<edm::InputTag>("InputMuonLabel");
-    inputElectronLabel      = parameters.getParameter<edm::InputTag>("InputElectronLabel");
-    inputBeamSpotLabel      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
-  }
-
-  // Other data collections
-  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
-  HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  BeamHaloSummaryTag          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
-  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
-
-  // misc
-  _verbose      = parameters.getParameter<int>("verbose");
-  _etThreshold  = parameters.getParameter<double>("etThreshold"); // MET threshold
-  _allhist      = parameters.getParameter<bool>("allHist");       // Full set of monitoring histograms
-  _allSelection = parameters.getParameter<bool>("allSelection");  // Plot with all sets of event selection
-  _cleanupSelection = parameters.getParameter<bool>("cleanupSelection");  // Plot with all sets of event selection
-
-  _FolderName              = parameters.getUntrackedParameter<std::string>("FolderName");
-
-  _highPtJetThreshold = parameters.getParameter<double>("HighPtJetThreshold"); // High Pt Jet threshold
-  _lowPtJetThreshold  = parameters.getParameter<double>("LowPtJetThreshold");   // Low Pt Jet threshold
-  _highMETThreshold   = parameters.getParameter<double>("HighMETThreshold");     // High MET threshold
-  //  _lowMETThreshold    = parameters.getParameter<double>("LowMETThreshold");       // Low MET threshold
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
 
   // DQStore stuff
   LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
@@ -527,7 +528,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // **** Get the MET container
   edm::Handle<reco::METCollection> metcoll;
-  iEvent.getByLabel(theMETCollectionLabel, metcoll);
+  iEvent.getByToken(theMETCollectionToken, metcoll);
 
   if(!metcoll.isValid()) {
     std::cout<<"Unable to find MET results for MET collection "<<theMETCollectionLabel<<std::endl;
@@ -545,11 +546,11 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if (theMETCollectionLabel.label() == "tcMet" ) {
 
-    iEvent.getByLabel(inputMuonLabel, muon_h);
-    iEvent.getByLabel(inputTrackLabel, track_h);
-    iEvent.getByLabel(inputElectronLabel, electron_h);
-    iEvent.getByLabel(inputBeamSpotLabel, beamSpot_h);
-    iEvent.getByLabel("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
+    iEvent.getByToken(inputMuonToken, muon_h);
+    iEvent.getByToken(inputTrackToken, track_h);
+    iEvent.getByToken(inputElectronToken, electron_h);
+    iEvent.getByToken(inputBeamSpotToken, beamSpot_h);
+    iEvent.getByToken(muonMETValueMap_muCorrData_token, tcMet_ValueMap_Handle);
 
     if(!muon_h.isValid())     edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
     if(!track_h.isValid())    edm::LogInfo("OutputInfo") << "falied to retrieve track data require by MET Task";
@@ -564,7 +565,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //
 
   edm::Handle<HcalNoiseRBXCollection> HRBXCollection;
-  iEvent.getByLabel(HcalNoiseRBXCollectionTag,HRBXCollection);
+  iEvent.getByToken(HcalNoiseRBXCollectionToken,HRBXCollection);
   if (!HRBXCollection.isValid()) {
     LogDebug("") << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
     if (_verbose) std::cout << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
@@ -572,7 +573,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
-  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  iEvent.getByToken(HBHENoiseFilterResultToken, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
   if (!HBHENoiseFilterResultHandle.isValid()) {
     LogDebug("") << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
@@ -581,7 +582,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "METAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "METAnalyzer: Could not find jet product" << std::endl;
@@ -696,7 +697,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // Get BeamHaloSummary
   edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
-  iEvent.getByLabel(BeamHaloSummaryTag, TheBeamHaloSummary) ;
+  iEvent.getByToken(BeamHaloSummaryToken, TheBeamHaloSummary) ;
 
   if (!TheBeamHaloSummary.isValid()) {
     std::cout << "BeamHaloSummary doesn't exist" << std::endl;
@@ -727,7 +728,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     bPrimaryVertex = false;
     Handle<VertexCollection> vertexHandle;
 
-    iEvent.getByLabel(vertexTag, vertexHandle);
+    iEvent.getByToken(vertexToken, vertexHandle);
 
     if (!vertexHandle.isValid()) {
       LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
@@ -756,7 +757,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
-  iEvent.getByLabel( gtTag, gtReadoutRecord);
+  iEvent.getByToken( gtToken, gtReadoutRecord);
 
   if (!gtReadoutRecord.isValid()) {
     LogDebug("") << "CaloMETAnalyzer: Could not find GT readout record" << std::endl;
@@ -1001,7 +1002,7 @@ bool METAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "METAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "METAnalyzer: Could not find jet product" << std::endl;
@@ -1023,7 +1024,7 @@ bool METAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "METAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "METAnalyzer: Could not find jet product" << std::endl;
