@@ -152,7 +152,9 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 	eventPrincipal.fillEventPrincipal(aux);
 
 	std::auto_ptr<LHEEventProduct> product(
-			new LHEEventProduct(*partonLevel->getHEPEUP()));
+		     new LHEEventProduct(*partonLevel->getHEPEUP(),
+					 partonLevel->originalXWGTUP())
+		     );
 	if (partonLevel->getPDF()) {
 		product->setPDF(*partonLevel->getPDF());
         }		
