@@ -50,7 +50,7 @@ class InputInfo(object):
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
         
-    def dbs(self):
+    def das(self):
         query_by = "block" if self.ib_block else "dataset"
         query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
         if len(self.run) is not 0:
@@ -890,9 +890,9 @@ steps['ZJetsLNu_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchT
 steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_8TeV_madgraph_pythia8_cff',step1GenDefaults,fi=5591)
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
-PU={'-n':10,'--pileup':'default','--pileup_input':'dbs:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
-PU25={'-n':10,'--pileup':'AVE_10_BX_25ns_m8','--pileup_input':'dbs:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[7],)}
-PU50={'-n':10,'--pileup':'AVE_20_BX_50ns_m8','--pileup_input':'dbs:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[7],)}
+PU={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
+PU25={'-n':10,'--pileup':'AVE_10_BX_25ns_m8','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[7],)}
+PU50={'-n':10,'--pileup':'AVE_20_BX_50ns_m8','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[7],)}
 PUFS={'--pileup':'default'}
 PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
 steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
@@ -1281,7 +1281,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--data':'',
                 '--scenario':'pp',
                 '--filein':'file:step2.root',
-                '--secondfilein':'filelist:step1_dbsquery.log'}
+                '--secondfilein':'filelist:step1_dasquery.log'}
 
 steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:com10_%s'%menu,'--filein':'file:step3.root'}, steps['SKIMD'] ])
 
@@ -1290,7 +1290,7 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--data':'',
                    '--scenario':'cosmics',
                    '--filein':'file:step2.root',
-                   '--secondfilein':'filelist:step1_dbsquery.log'}
+                   '--secondfilein':'filelist:step1_dasquery.log'}
                  
 
 #### for special wfs ###
@@ -1322,7 +1322,7 @@ steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
                                   '--process':'rereRECO',
                                   '--datatier':'AOD',
                                   '--eventcontent':'AOD',
-                                  '--secondfilein':'filelist:step1_dbsquery.log',
+                                  '--secondfilein':'filelist:step1_dasquery.log',
                                   },
                                  steps['RECOD']])
 
