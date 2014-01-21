@@ -48,19 +48,20 @@ CFCShowerLibrary::~CFCShowerLibrary() {
 
 void CFCShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 
-  G4String parName;
-  emPDG = theParticleTable->FindParticle(parName="e-")->GetPDGEncoding();
-  epPDG = theParticleTable->FindParticle(parName="e+")->GetPDGEncoding();
-  gammaPDG = theParticleTable->FindParticle(parName="gamma")->GetPDGEncoding();
-  pi0PDG = theParticleTable->FindParticle(parName="pi0")->GetPDGEncoding();
-  etaPDG = theParticleTable->FindParticle(parName="eta")->GetPDGEncoding();
-  nuePDG = theParticleTable->FindParticle(parName="nu_e")->GetPDGEncoding();
-  numuPDG = theParticleTable->FindParticle(parName="nu_mu")->GetPDGEncoding();
-  nutauPDG= theParticleTable->FindParticle(parName="nu_tau")->GetPDGEncoding();
-  anuePDG = theParticleTable->FindParticle(parName="anti_nu_e")->GetPDGEncoding();
-  anumuPDG= theParticleTable->FindParticle(parName="anti_nu_mu")->GetPDGEncoding();
-  anutauPDG= theParticleTable->FindParticle(parName="anti_nu_tau")->GetPDGEncoding();
-  geantinoPDG= theParticleTable->FindParticle(parName="geantino")->GetPDGEncoding();
+  emPDG      = theParticleTable->FindParticle("e-")->GetPDGEncoding();
+  epPDG      = theParticleTable->FindParticle("e+")->GetPDGEncoding();
+  gammaPDG   = theParticleTable->FindParticle("gamma")->GetPDGEncoding();
+  mumPDG     = theParticleTable->FindParticle("mu-")->GetPDGEncoding();
+  mupPDG     = theParticleTable->FindParticle("mu+")->GetPDGEncoding();
+  pi0PDG     = theParticleTable->FindParticle("pi0")->GetPDGEncoding();
+  etaPDG     = theParticleTable->FindParticle("eta")->GetPDGEncoding();
+  nuePDG     = theParticleTable->FindParticle("nu_e")->GetPDGEncoding();
+  numuPDG    = theParticleTable->FindParticle("nu_mu")->GetPDGEncoding();
+  nutauPDG   = theParticleTable->FindParticle("nu_tau")->GetPDGEncoding();
+  anuePDG    = theParticleTable->FindParticle("anti_nu_e")->GetPDGEncoding();
+  anumuPDG   = theParticleTable->FindParticle("anti_nu_mu")->GetPDGEncoding();
+  anutauPDG  = theParticleTable->FindParticle("anti_nu_tau")->GetPDGEncoding();
+  geantinoPDG= theParticleTable->FindParticle("geantino")->GetPDGEncoding();
 #ifdef DebugLog
   edm::LogInfo("CFCShower") << "CFCShowerLibrary: Particle codes for e- = " 
 			    << emPDG << ", e+ = " << epPDG << ", gamma = " 
@@ -74,11 +75,12 @@ void CFCShowerLibrary::initRun(G4ParticleTable * theParticleTable) {
 }
 
 
-std::vector<CFCShowerLibrary::Hit> CFCShowerLibrary::getHits(G4Step *,
-							     bool & ) {
+std::vector<CFCShowerLibrary::Hit> CFCShowerLibrary::getHits(G4Step * aStep,
+							     bool & ok) {
 
 
   std::vector<CFCShowerLibrary::Hit> hit;
-
+  G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  ok =  (parCode != mupPDG && parCode != mumPDG) ? true : false;
   return hit;
 }

@@ -19,6 +19,7 @@
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
 #include "G4VProcess.hh"
+#include "Randomize.hh"
 
 #include <iostream>
 #include <fstream>
@@ -54,7 +55,7 @@ CFCSD::CFCSD(G4String name, const DDCompactView & cpv,
 			 << " Application of Fiducial Cut " << applyFidCut;
 
   std::string attribute, value;
-  // Constants for Numbering Scheme
+  // Constants for Numbering Scheme, shower, attenuation length
   attribute = "Volume";
   value     = "CFC";
   DDSpecificsFilter filter0;
@@ -74,6 +75,15 @@ CFCSD::CFCSD(G4String name, const DDCompactView & cpv,
   lambLim = getDDDArray("LambdaLimit",sv0);
   gpar    = getDDDArray("GeomParCFC",sv0);
   showerLibrary = new CFCShowerLibrary(p, gpar);
+  nBinAtt = (int)(attL.size());
+  edm::LogInfo("CFCSim") << "CFCSD: " << nBinAtt << " attenuation lengths "
+			 << "for lambda in the range " << lambLim[0] << ":"
+			 << lambLim[1];
+  for (int i=0; i<nBinAtt; ++i) 
+    edm::LogInfo("CFCSim") << "attL[" << i << "] = " << attL[i];
+  edm::LogInfo("CFCSim") << "CFCSD: " << gpar.size() << " geometry parameters";
+  for (unsigned int i=0; i<gpar.size(); ++i) 
+    edm::LogInfo("CFCSim") << "gpar[" << i << "] = " << gpar[i];
 }
 
 CFCSD::~CFCSD() { 
@@ -190,10 +200,7 @@ bool CFCSD::isItinFidVolume (G4ThreeVector& hitPoint) {
   bool flag = true;
   if (applyFidCut) {
     // Take a decision of selecting/rejecting based on local position
-#ifdef DebugLog
-    edm::LogInfo("CFCSim") << "CFCSD::isItinFidVolume: for hit point " 
-			   << hitPoint;
-#endif
+    if (hitPoint.z() < gpar[0] || hitPoint.z() > gpar[1]) flag = false;
   }
 #ifdef DebugLog
     edm::LogInfo("CFCSim") << "CFCSD::isItinFidVolume: point " << hitPoint
@@ -235,10 +242,12 @@ void CFCSD::getFromLibrary (G4Step* aStep) {
 #endif
   for (unsigned int i=0; i<hits.size(); ++i) {
     G4ThreeVector hitPoint = hits[i].position;
-    if (isItinFidVolume (hitPoint)) {
-      int type              = hits[i].type;
-      double time           = hits[i].time;
-      unsigned int unitID   = setDetUnitId(module, hitPoint, iz, type);
+    unsigned int  unitID   = setDetUnitId(module, hitPoint, iz, hits[i].type);
+    double        zv       = fiberL(hitPoint);
+    double        att      = attLength(hits[i].lambda);
+    double        rn       = G4UniformRand();
+    if (isItinFidVolume (hitPoint) && unitID > 0 && rn <= exp(-att*zv)) {
+      double time          = hits[i].time + tShift(hitPoint);
       currentID.setID(unitID, time, primaryID, 0);
    
       // check if it is in the same unit and timeslice as the previous one
@@ -261,11 +270,11 @@ void CFCSD::getFromLibrary (G4Step* aStep) {
 }
 
 int CFCSD::setTrackID (G4Step* aStep) {
-  theTrack     = aStep->GetTrack();
 
-  double etrack = preStepPoint->GetKineticEnergy();
+  theTrack         = aStep->GetTrack();
+  double etrack    = preStepPoint->GetKineticEnergy();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
-  int      primaryID = trkInfo->getIDonCaloSurface();
+  int    primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) {
 #ifdef DebugLog
     edm::LogInfo("CFCSim") << "CFCSD: Problem with primaryID **** set by "
@@ -278,4 +287,42 @@ int CFCSD::setTrackID (G4Step* aStep) {
     resetForNewPrimary(preStepPoint->GetPosition(), etrack);
 
   return primaryID;
+}
+
+double CFCSD::attLength(double lambda) {
+
+  int i = int(nBinAtt*(lambda - lambLim[0])/(lambLim[1]-lambLim[0]));
+  int j =i;
+  if (i >= nBinAtt) j = nBinAtt-1;
+  else if (i < 0)   j = 0;
+  double att = attL[j];
+#ifdef DebugLog
+  edm::LogInfo("CFCSim") << "CFCSD::attLength for Lambda " << lambda
+			 << " index " << i  << ":" << j << " Att. Length " 
+			 << att;
+#endif
+  return att;
+}
+
+double CFCSD::tShift(G4ThreeVector point) {
+
+  double zFibre = fiberL(point);
+  double time   = zFibre/cFibre;
+#ifdef DebugLog
+  edm::LogInfo("CFCSim") << "HFFibre::tShift for point " << point
+			 << " (traversed length = " << zFibre/cm  << " cm) = " 
+			 << time/ns << " ns";
+#endif
+  return time;
+}
+
+double CFCSD::fiberL(G4ThreeVector point) {
+
+  double zFibre = gpar[1]-point.z();
+  if (zFibre < 0) zFibre = 0;
+#ifdef DebugLog
+  edm::LogInfo("CFCSim") << "HFFibre::fiberL for point " << point << " = "
+			 << zFibre/cm  << " cm";
+#endif
+  return zFibre;
 }

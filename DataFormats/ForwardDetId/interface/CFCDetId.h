@@ -22,9 +22,9 @@ public:
   /// get the subdetector
   ForwardSubdetector subdet() const { return (ForwardSubdetector)(subdetId()); }
   /// get the z-side of the cell (1/-1)
-  int zside() const { return (id_&0x1000000)?(1):(-1); }
+  int zside() const { return (id_&0x80000)?(1):(-1); }
   /// get the absolute value of the cell ieta
-  int ietaAbs() const { return (id_>>11)&0x1FF; }
+  int ietaAbs() const { return (id_>>11)&0xFF; }
   /// get the cell ieta
   int ieta() const { return zside()*ietaAbs(); }
   /// get the module #

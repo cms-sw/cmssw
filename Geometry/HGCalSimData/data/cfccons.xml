@@ -3,7 +3,7 @@
 
 <SpecParSection label="cfccons.xml" eval="true">
   <SpecPar name="cfc">
-    <PartSelector path="//CFC"/>
+    <PartSelector path="//CFCal"/>
     <Parameter name="Volume" value="CFC" eval="false"/>
     <Parameter name="RadiusTable" value="180*mm"/>
     <Parameter name="RadiusTable" value="1800*mm"/>
@@ -44,6 +44,8 @@
     <Parameter name="AttenuationLength" value="0.3839422E-03/cm"/>
     <Parameter name="LambdaLimit"       value="300.0"/>
     <Parameter name="LambdaLimit"       value="600.0"/>
+    <Parameter name="GeomParCFC"        value="318.0*cm"/>
+    <Parameter name="GeomParCFC"        value="520.0*cm"/>
   </SpecPar>
 </SpecParSection>
 </DDDefinition>

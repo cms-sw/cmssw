@@ -34,9 +34,10 @@ public:
 
   struct Hit {
     Hit() {}
-    G4ThreeVector             position;  // local coordinate
-    int                       type;
-    double                    time;
+    G4ThreeVector     position;  // local coordinate
+    int               type;
+    double            lambda;
+    double            time;
   };
 
   void                initRun(G4ParticleTable * theParticleTable);
@@ -47,7 +48,7 @@ private:
   std::vector<double> gpar;
   TFile*              hfile;
 
-  int                 emPDG, epPDG, gammaPDG;
+  int                 emPDG, epPDG, gammaPDG, mumPDG, mupPDG;
   int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
   int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 

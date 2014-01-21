@@ -46,10 +46,13 @@ private:
   bool                          isItinFidVolume (G4ThreeVector&);
   void                          getFromLibrary(G4Step * step);
   int                           setTrackID(G4Step * step);
+  double                        attLength(double lambda);
+  double                        tShift(G4ThreeVector point);
+  double                        fiberL(G4ThreeVector point);
 
   CFCNumberingScheme*           numberingScheme;
   CFCShowerLibrary *            showerLibrary;
-  G4int                         mumPDG, mupPDG; 
+  G4int                         mumPDG, mupPDG, nBinAtt; 
   double                        eminHit, cFibre;
   bool                          applyFidCut;
   std::vector<double>           attL, lambLim, gpar;
