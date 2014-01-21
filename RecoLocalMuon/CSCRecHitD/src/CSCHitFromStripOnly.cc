@@ -164,27 +164,26 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     std::vector<int> theL1AStrips;
     for(int ila=0; ila<(int)theStrips.size(); ila++){
        bool stripMatchCounter=false;
-       for ( CSCStripDigiCollection::const_iterator itl1 = rstripd.first; itl1 != rstripd.second; ++itl1 ) {
+       for ( auto itl1 = rstripd.first; itl1 != rstripd.second; ++itl1 ) {
 	   int stripNproto = (*itl1).getStrip();
            if( !ganged() ){
    	     if(theStrips[ila]==stripNproto){
                stripMatchCounter=true;
-	       std::vector<int> L1AP=(*itl1).getL1APhase();
+               auto sz = (*itl1).getOverlappedSample().size();
 	       int L1AbitOnPlace=0;
-	       for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
-	          L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
+	       for(auto iBit=0UL; iBit<sz; iBit++){
+		 L1AbitOnPlace |=  ( (*itl1).getL1APhase(iBit) << (15-iBit));		
 	       }
 	       theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
 	     }
-           }
-           else{
+           } else{
              for(int tripl=0; tripl<3; ++tripl){
 	       if(theStrips[ila]==(stripNproto+tripl*16)){
-                 stripMatchCounter=true;
-	         std::vector<int> L1AP=(*itl1).getL1APhase();
-	         int L1AbitOnPlace=0;
-	         for(int iBit=0; iBit<(int)L1AP.size(); iBit++){
-	           L1AbitOnPlace=L1AbitOnPlace|(L1AP[iBit] << (15-iBit));		
+		 stripMatchCounter=true;
+		 auto sz = (*itl1).getOverlappedSample().size();
+		 int L1AbitOnPlace=0;
+		 for(auto iBit=0UL; iBit<sz; iBit++){
+		   L1AbitOnPlace |= ( (*itl1).getL1APhase(iBit) << (15-iBit));		
 	         }
 	         theL1AStrips.push_back(theStrips[ila] | L1AbitOnPlace);
 	       }
@@ -363,14 +362,12 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
   thePulseHeightMap.resize(100); //@@ WHY NOT JUST 80?
 
   // for storing sca pulseheights once they may no longer be integer (e.g. after ped subtraction)
-  std::vector<float> sca;
-  sca.reserve(8);
   for ( CSCStripDigiCollection::const_iterator it = rstripd.first; it != rstripd.second; ++it ) {
     int  thisChannel        = (*it).getStrip(); 
-    std::vector<int> scaRaw = (*it).getADCCounts();
-    sca.clear();
+    std::vector<int>  scaRaw = (*it).getADCCounts();
+    std::vector<float> sca(scaRaw.size());
     // Fill sca from scaRaw, implicitly converting to float
-    std::copy( scaRaw.begin(), scaRaw.end(), std::back_inserter( sca ));
+    std::copy( scaRaw.begin(), scaRaw.end(), sca.begin());
 
     //@@ Find bin with largest pulseheight (_before_ ped subtraction - shouldn't matter, right?)
     int tmax =  std::max_element( sca.begin(), sca.end() ) - sca.begin(); // counts from 0
@@ -383,7 +380,7 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     std::for_each( scaRaw.begin(), scaRaw.end(), CSCSubtractPedestal( ped ) );
 
     //@@ Max in first 3 or last time bins is unacceptable, if so set to zero (why?)
-    float phmax = 0.;
+    float phmax = 0.f;
     if ( tmax > 2 && tmax < 7 ) {
       phmax = sca[tmax];
     }
@@ -393,13 +390,15 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     // but note that both sca & scaRaw are pedestal-subtracted.)
 
     // From StripDigi, thisChannel labels strip channel. Values phmax, tmax, scaRaw, sca belong to thisChannel
-    thePulseHeightMap[thisChannel-1] = CSCStripData( thisChannel, phmax, tmax, scaRaw, sca );
+    thePulseHeightMap[thisChannel-1] = std::move(CSCStripData( thisChannel, phmax, tmax, std::move(scaRaw), std::move(sca) ));
     if ( useCalib ) thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
 
     // for ganged ME1a need to duplicate values on istrip=thisChannel to iStrip+16 and iStrip+32
     if ( ganged() ) {
       for ( int j = 1; j < 3; ++j ) {  
-	thePulseHeightMap[thisChannel-1+16*j] = CSCStripData( thisChannel+16*j, phmax, tmax, scaRaw, sca );
+	thePulseHeightMap[thisChannel-1+16*j] = std::move(CSCStripData( thisChannel+16*j, phmax, tmax, 
+									thePulseHeightMap[thisChannel-1].phRaw(), 
+									thePulseHeightMap[thisChannel-1].ph() ));
 	if ( useCalib ) thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
       }
     }

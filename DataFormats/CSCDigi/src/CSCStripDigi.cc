@@ -36,17 +36,6 @@ CSCStripDigi::CSCStripDigi ():
 {
 }
 
-std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
-
-
-/// Get L1A Phase
-std::vector<int> CSCStripDigi::getL1APhase() const {
-     std::vector<int> L1APhaseResult;  
-     for (int i=0; i<(int)getOverlappedSample().size(); i++) {
-          L1APhaseResult.push_back((getOverlappedSample()[i]>>8) & 0x1);}
-     return  L1APhaseResult;   	  
-}
-
 // Comparison
 bool
 CSCStripDigi::operator == (const CSCStripDigi& digi) const {
@@ -56,15 +45,6 @@ CSCStripDigi::operator == (const CSCStripDigi& digi) const {
   return true;
 }
 
-// Getters
-//int CSCStripDigi::getStrip() const { return strip; }
-//std::vector<int> CSCStripDigi::getADCCounts() const { return ADCCounts; }
-
-
-// Setters
-//void CSCStripDigi::setStrip(int istrip) {
-//  strip = istrip;
-//}
 
 
 void CSCStripDigi::setADCCounts(const std::vector<int>&vADCCounts) {

@@ -37,15 +37,25 @@ public:
   int getStrip() const { return strip;}
 
   /// Get ADC readings
-  std::vector<int> getADCCounts() const ;
-  
+  std::vector<int> const & getADCCounts() const { return ADCCounts; }
+
+
   /// Get L1APhase from OverlappedSample (9th bit)
-  std::vector<int> getL1APhase() const ; 
+  std::vector<int> getL1APhase() const {
+     std::vector<int> L1APhaseResult(getOverlappedSample().size());
+     for (int i=0; i<(int)getOverlappedSample().size(); i++) 
+          L1APhaseResult[i] = (getOverlappedSample()[i]>>8) & 0x1;
+     return  L1APhaseResult;
+  }
+  
+  int getL1APhase(int i) const {
+     return (getOverlappedSample()[i]>>8) & 0x1;
+  }
   
   /// Other getters
-  std::vector<uint16_t> getADCOverflow() const {return ADCOverflow;}
-  std::vector<uint16_t> getOverlappedSample() const {return OverlappedSample;}
-  std::vector<uint16_t> getErrorstat() const {return Errorstat;}
+  std::vector<uint16_t> const & getADCOverflow() const {return ADCOverflow;}
+  std::vector<uint16_t> const & getOverlappedSample() const {return OverlappedSample;}
+  std::vector<uint16_t> const & getErrorstat() const {return Errorstat;}
 
   // Set the strip number
   void setStrip(int istrip) { strip = istrip; }
@@ -57,7 +67,7 @@ public:
   void print() const;
 
   ///methods for calibrations
-  float pedestal() const {return 0.5*(ADCCounts[0]+ADCCounts[1]);}
+  float pedestal() const {return 0.5f*(ADCCounts[0]+ADCCounts[1]);}
   float amplitude() const {return ADCCounts[4]-pedestal();}
 
 private:

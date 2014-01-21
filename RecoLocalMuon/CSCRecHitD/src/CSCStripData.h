@@ -22,10 +22,15 @@ class CSCStripData
    *
    * Note that _raw_ pulseheights are int.
    */
-  CSCStripData() : istrip_(-1), phmax_(0.), tmax_(-1), phRaw_( ntbins_ ), ph_( ntbins_ ) {};
+  CSCStripData() : istrip_(-1), phmax_(0.f), tmax_(-1) {}
   CSCStripData( int istrip,  float phmax,  int tmax, const std::vector<int>& phRaw, const std::vector<float>& ph ) :
-      istrip_(istrip), phmax_(phmax), tmax_(tmax), phRaw_(phRaw), ph_(ph) {};
-   
+      istrip_(istrip), phmax_(phmax), tmax_(tmax), phRaw_(phRaw), ph_(ph) {}
+
+  CSCStripData( int istrip,  float phmax,  int tmax, std::vector<int> && phRaw, std::vector<float> && ph ) :
+    istrip_(istrip), phmax_(phmax), tmax_(tmax), phRaw_(std::move(phRaw)), ph_(std::move(ph)) {}
+
+  void reset() { phmax_=0.f;tmax_= -1;}
+
   /// strip to which these data belong (counts from 1)
   int   strip() const {return istrip_;}
   /// maximum pulseheight in one SCA time bin

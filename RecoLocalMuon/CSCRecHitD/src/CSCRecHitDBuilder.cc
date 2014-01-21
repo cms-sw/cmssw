@@ -109,7 +109,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     }
  
     
-    std::vector<CSCStripHit> cscStripHit = hitsFromStripOnly_->runStrip( id, layer, rstripd);
+    std::vector<CSCStripHit> const & cscStripHit = hitsFromStripOnly_->runStrip( id, layer, rstripd);
 
     if (cscStripHit.empty()) continue;
 
@@ -118,7 +118,7 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
  
    
     // now build collection of wire only hits !  
-    std::vector<CSCWireHit> cscWireHit = hitsFromWireOnly_->runWire(compId, layer, rwired);
+    std::vector<CSCWireHit> const & cscWireHit = hitsFromWireOnly_->runWire(compId, layer, rwired);
 
    
     
@@ -128,10 +128,8 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     LogTrace("CSCRecHitBuilder")<< "[CSCRecHitDBuilder] found " << cscStripHit.size() << " strip and " 
 				<< cscWireHit.size()  << " wire hits in layer " << sDetId;
     
-    for (unsigned i = 0; i != cscStripHit.size(); ++i ) {
-      const CSCStripHit s_hit = cscStripHit[i];
-      for (unsigned j = 0; j != cscWireHit.size(); ++j ) {
-	const CSCWireHit w_hit = cscWireHit[j];
+    for (auto const & s_hit : cscStripHit) {
+      for (auto const & w_hit : cscWireHit) {
 	CSCRecHit2D rechit = make2DHits_->hitFromStripAndWire(sDetId, layer, w_hit, s_hit);
 	
 	bool isInFiducial = make2DHits_->isHitInFiducial( layer, rechit );

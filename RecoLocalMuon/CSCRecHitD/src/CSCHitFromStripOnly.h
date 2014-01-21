@@ -88,7 +88,7 @@ class CSCHitFromStripOnly
   float gainWeight[80];
 
   // The specific pedestal calculator
-	CSCPedestalChoice* calcped_;
+  CSCPedestalChoice* calcped_;
 
   // The cuts for forming the strip hits are described in the config file
   bool useCalib;
