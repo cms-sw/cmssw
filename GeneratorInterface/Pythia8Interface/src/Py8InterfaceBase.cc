@@ -1,9 +1,3 @@
-//#include <iostream>
-//#include <sstream>
-//#include <string>
-//#include <memory>
-//#include <stdint.h>
-
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 #include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"

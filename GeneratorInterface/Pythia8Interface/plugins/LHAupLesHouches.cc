@@ -33,7 +33,7 @@ bool LHAupLesHouches::setInit()
 }
 
 
-bool LHAupLesHouches::setEvent(int inProcId)
+bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
 {
   if (!event) return false;
 	

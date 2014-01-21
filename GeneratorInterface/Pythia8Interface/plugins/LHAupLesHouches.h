@@ -6,14 +6,14 @@
 #include <memory>
 #include <assert.h>
 
-#include <boost/shared_ptr.hpp>
+#include "boost/shared_ptr.hpp"
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
-#include <Pythia.h>
-#include <LesHouches.h>
-#include <HepMCInterface.h>
+#include "Pythia8/Pythia.h"
+#include "Pythia8/LesHouches.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
@@ -34,7 +34,7 @@ class LHAupLesHouches : public Pythia8::LHAup {
   private:
 
     bool setInit();
-    bool setEvent(int idProcIn);
+    bool setEvent(int idProcIn, double mRecalculate = -1.);
 
     //boost::shared_ptr<lhef::LHERunInfo> runInfo;
     lhef::LHERunInfo* runInfo;
