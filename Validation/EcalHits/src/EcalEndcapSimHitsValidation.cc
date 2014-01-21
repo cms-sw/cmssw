@@ -19,6 +19,8 @@ EcalEndcapSimHitsValidation::EcalEndcapSimHitsValidation(const edm::ParameterSet
   EEHitsCollection(ps.getParameter<std::string>("EEHitsCollection")),
   ValidationCollection(ps.getParameter<std::string>("ValidationCollection")){   
 
+  EEHitsToken               = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(g4InfoLabel),std::string(EEHitsCollection)));
+  ValidationCollectionToken = consumes <PEcalValidInfo>         (edm::InputTag(std::string(g4InfoLabel),std::string(ValidationCollection)));
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
@@ -173,13 +175,13 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event& e, const edm::EventS
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
   edm::Handle<edm::PCaloHitContainer> EcalHitsEE;
-  e.getByLabel(g4InfoLabel,EEHitsCollection,EcalHitsEE);
+  e.getByToken(EEHitsToken,EcalHitsEE);
 
   // Do nothing if no EndCap data available
   if( ! EcalHitsEE.isValid() ) return;
 
   edm::Handle<PEcalValidInfo> MyPEcalValidInfo;
-  e.getByLabel(g4InfoLabel,ValidationCollection,MyPEcalValidInfo);
+  e.getByToken(ValidationCollectionToken,MyPEcalValidInfo);
 
   std::vector<PCaloHit> theEECaloHits;
   theEECaloHits.insert(theEECaloHits.end(), EcalHitsEE->begin(), EcalHitsEE->end());
