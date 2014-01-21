@@ -268,13 +268,14 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
 	
   if ( tmax > 2 && tmax < 7 ) { // for time bins 3-6
     int ibin = thisStrip-1;
-		
-    std::copy( thePulseHeightMap[ibin].ph().begin()+istart, 
-	 thePulseHeightMap[ibin].ph().begin()+istop+1, adc.begin() );
-			
-    std::copy( thePulseHeightMap[ibin].phRaw().begin()+istart, 
-	 thePulseHeightMap[ibin].phRaw().begin()+istop+1, adcRaw.begin() );
-  } 
+    if (thePulseHeightMap[ibin].valid()) {
+      std::copy( thePulseHeightMap[ibin].ph().begin()+istart, 
+		 thePulseHeightMap[ibin].ph().begin()+istop+1, adc.begin() );
+      
+      std::copy( thePulseHeightMap[ibin].phRaw().begin()+istart, 
+		 thePulseHeightMap[ibin].phRaw().begin()+istop+1, adcRaw.begin() );
+    } 
+  }
   else {
     adc[0] = 0.1;
     adc[1] = 0.1;
@@ -316,18 +317,21 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
         if ( tmax > 2 && tmax < 7 ) { // for time bin tmax from 3-6
 	  int ibin = testStrip-1;
 	  int jbin = centerStrip-1;
-	  std::copy(thePulseHeightMap[ibin].ph().begin()+istart, 
-	       thePulseHeightMap[ibin].ph().begin()+istop+1, adc1.begin());
-				
-	  std::copy(thePulseHeightMap[ibin].phRaw().begin()+istart, 
-	       thePulseHeightMap[ibin].phRaw().begin()+istop+1, adcRaw1.begin());
-										
-	  std::copy(thePulseHeightMap[jbin].ph().begin()+istart, 
-	       thePulseHeightMap[jbin].ph().begin()+istop+1, adc2.begin());  
-						
-	  std::copy(thePulseHeightMap[jbin].phRaw().begin()+istart, 
-	       thePulseHeightMap[jbin].phRaw().begin()+istop+1, adcRaw2.begin());
-	} 
+	  if (thePulseHeightMap[ibin].valid()) { 
+	    std::copy(thePulseHeightMap[ibin].ph().begin()+istart, 
+		      thePulseHeightMap[ibin].ph().begin()+istop+1, adc1.begin());				
+	    std::copy(thePulseHeightMap[ibin].phRaw().begin()+istart, 
+		      thePulseHeightMap[ibin].phRaw().begin()+istop+1, adcRaw1.begin());
+	  }
+
+	  if (thePulseHeightMap[jbin].valid()) { 
+	    std::copy(thePulseHeightMap[jbin].ph().begin()+istart, 
+		      thePulseHeightMap[jbin].ph().begin()+istop+1, adc2.begin());  
+	    
+	    std::copy(thePulseHeightMap[jbin].phRaw().begin()+istart, 
+		      thePulseHeightMap[jbin].phRaw().begin()+istop+1, adcRaw2.begin());
+	  } 
+	}
 	else {
 	  adc1.assign(4, 0.1);
 	  adcRaw1 = adc1;
@@ -358,15 +362,20 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
   // Loop over strip digis in one CSCLayer and fill PulseHeightMap with pedestal-subtracted
   // SCA pulse heights.
   
-  thePulseHeightMap.clear();
-  thePulseHeightMap.resize(100); //@@ WHY NOT JUST 80?
+ 
+  for (auto & ph : thePulseHeightMap) ph.reset();
 
   // for storing sca pulseheights once they may no longer be integer (e.g. after ped subtraction)
   for ( CSCStripDigiCollection::const_iterator it = rstripd.first; it != rstripd.second; ++it ) {
     int  thisChannel        = (*it).getStrip(); 
-    std::vector<int>  scaRaw = (*it).getADCCounts();
-    std::vector<float> sca(scaRaw.size());
+    auto & stripData = thePulseHeightMap[thisChannel-1];
+    auto & scaRaw = stripData.phRaw_;
+    auto & sca = stripData.ph_;
+
+    auto const &  scaOri = (*it).getADCCounts();
+    assert(scaOri.size()==8);
     // Fill sca from scaRaw, implicitly converting to float
+    std::copy( scaOri.begin(), scaOri.end(), scaRaw.begin());
     std::copy( scaRaw.begin(), scaRaw.end(), sca.begin());
 
     //@@ Find bin with largest pulseheight (_before_ ped subtraction - shouldn't matter, right?)
@@ -384,22 +393,23 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     if ( tmax > 2 && tmax < 7 ) {
       phmax = sca[tmax];
     }
+    stripData.phmax_ = phmax;
+    stripData.tmax_ = tmax;
+
 		
     // Fill the map, possibly apply gains from cond data, and unfold ME1A channels
     // (To apply gains use CSCStripData::op*= which scales only the non-raw sca ph's;
     // but note that both sca & scaRaw are pedestal-subtracted.)
 
     // From StripDigi, thisChannel labels strip channel. Values phmax, tmax, scaRaw, sca belong to thisChannel
-    thePulseHeightMap[thisChannel-1] = std::move(CSCStripData( thisChannel, phmax, tmax, std::move(scaRaw), std::move(sca) ));
-    if ( useCalib ) thePulseHeightMap[thisChannel-1] *= gainWeight[thisChannel-1];
+    if ( useCalib ) stripData *= gainWeight[thisChannel-1];
 
     // for ganged ME1a need to duplicate values on istrip=thisChannel to iStrip+16 and iStrip+32
     if ( ganged() ) {
       for ( int j = 1; j < 3; ++j ) {  
 	thePulseHeightMap[thisChannel-1+16*j] = std::move(CSCStripData( thisChannel+16*j, phmax, tmax, 
-									thePulseHeightMap[thisChannel-1].phRaw(), 
-									thePulseHeightMap[thisChannel-1].ph() ));
-	if ( useCalib ) thePulseHeightMap[thisChannel-1+16*j] *= gainWeight[thisChannel-1];
+									stripData.phRaw(), 
+									stripData.ph() )); // already calibrated!
       }
     }
 

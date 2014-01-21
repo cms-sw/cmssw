@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
+#include <array>
 
 class CSCLayer;
 class CSCStripDigi;
@@ -35,7 +36,7 @@ class CSCHitFromStripOnly
   
  public:
 
-  typedef std::vector<CSCStripData> PulseHeightMap;
+  typedef std::array<CSCStripData,100> PulseHeightMap;
   
   explicit CSCHitFromStripOnly( const edm::ParameterSet& ps );
   
