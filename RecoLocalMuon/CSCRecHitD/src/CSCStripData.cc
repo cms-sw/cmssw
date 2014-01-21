@@ -20,5 +20,3 @@ std::ostream & operator<<(std::ostream & os, const CSCStripData & data) {
   return os;     
 }
 
-// Define space for static 
-const int CSCStripData::ntbins_;
