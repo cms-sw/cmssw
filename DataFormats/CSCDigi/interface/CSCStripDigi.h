@@ -18,17 +18,31 @@ class CSCStripDigi{
 
 public:
 
-  // Construct from the strip number and all the other data members.
-  CSCStripDigi (const int & strip, const std::vector<int> & ADCCounts, const std::vector<uint16_t> & ADCOverflow,
-	        const std::vector<uint16_t> & Overlap,
-		const std::vector<uint16_t> & Errorstat);
+   // Construct from the strip number and all the other data members.
+  CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts, const std::vector<uint16_t> & vADCOverflow, const std::vector<uint16_t> & vOverlap, 
+                const std::vector<uint16_t> & vErrorstat ) :
+    strip(istrip),
+    ADCCounts(vADCCounts),
+    ADCOverflow(vADCOverflow),
+    OverlappedSample(vOverlap),
+    Errorstat(vErrorstat) {}
 
   // Construct from the strip number and the ADC readings.
-  CSCStripDigi (const int & strip, const  std::vector<int> & ADCCounts);
+  CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts):
+    strip(istrip),
+    ADCCounts(vADCCounts),
+    ADCOverflow(8,0),
+    OverlappedSample(8,0),
+    Errorstat(8,0){}
 
 
-  // Default construction.
-  CSCStripDigi ();
+  CSCStripDigi ():
+    strip(0),
+    ADCCounts(8,0),
+    ADCOverflow(8,0),
+    OverlappedSample(8,0),
+    Errorstat(8,0){}
+
 
   // Digis are equal if they are on the same strip and have same ADC readings
   bool operator==(const CSCStripDigi& digi) const;

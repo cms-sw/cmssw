@@ -1,6 +1,11 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCExaminer.h"
-#include <string.h>
+#include <cstring>
 #include <iomanip>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <cassert>
+
+
 using namespace std;
 
 void CSCDCCExaminer::crcALCT(bool enable){
@@ -40,8 +45,8 @@ void CSCDCCExaminer::modeDDU(bool enable){
 }
 
 
-CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask):nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES),examinerMask(mask){
-  cout.redirect(std::cout); cerr.redirect(std::cerr);
+CSCDCCExaminer::CSCDCCExaminer(ExaminerMaskType mask)
+:nERRORS(29),nWARNINGS(5),nPAYLOADS(12),nSTATUSES(23),sERROR(nERRORS),sWARNING(nWARNINGS),sERROR_(nERRORS),sWARNING_(nWARNINGS),sDMBExpectedPayload(nPAYLOADS),sDMBEventStaus(nSTATUSES),examinerMask(mask){
 
   sERROR[0] = " Any errors                                       ";
   sERROR[1] = " DDU Trailer Missing                              ";
@@ -296,8 +301,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  bERROR|=0x2000000;
 	  fERROR[0]=true;
 	  bERROR|=0x1;
-	  cerr<<"\n\nDCC Header Occurrence ";
-	  cerr<<"  ERROR 25    "<<sERROR[25]<<endl;
+	  edm::LogWarning("CSCDCCExaminer")<<"\n\nDCC Header Occurrence ";
+	  edm::LogWarning("CSCDCCExaminer")<<"  ERROR 25    "<<sERROR[25]<<endl;
 	  fDDU_Header = false;
 
 	  // go backward for 3 DDU words ( buf2, buf1, and buf0 )
@@ -326,8 +331,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       bERROR    |= 0x100000;
 	  // fCHAMB_ERR[20].insert(currentChamber);
 	  // bCHAMB_ERR[currentChamber] |= 0x100000;
-      cerr<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
-      cerr<<"  ERROR 20 "<<sERROR[20]<<endl;
+      edm::LogWarning("CSCDCCExaminer")<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
+      edm::LogWarning("CSCDCCExaminer")<<"  ERROR 20 "<<sERROR[20]<<endl;
     }
 
     // == DDU Header found
@@ -344,8 +349,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	bERROR|=0x2;
 	fERROR[0] = true;
 	bERROR|=0x1;
-	cerr<<"\n\nDDU Header Occurrence = "<<cntDDU_Headers;
-	cerr<<"  ERROR 1    "<<sERROR[1]<<endl;
+	edm::LogWarning("CSCDCCExaminer")<<"\n\nDDU Header Occurrence = "<<cntDDU_Headers;
+	edm::LogWarning("CSCDCCExaminer")<<"  ERROR 1    "<<sERROR[1]<<endl;
 	fDDU_Header = false;
 
 	// Part of work for chambers that hasn't been done in absent trailer
@@ -358,8 +363,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	  bCHAMB_ERR[currentChamber] |= 0x20;
 	  fCHAMB_ERR[0].insert(currentChamber);
 	  bCHAMB_ERR[currentChamber] |= 0x1;
-	  cerr<<"\n\nDDU Header Occurrence = "<<cntDDU_Headers;
-	  cerr<<"  ERROR 5    "<<sERROR[5]<<endl;
+	  edm::LogWarning("CSCDCCExaminer")<<"\n\nDDU Header Occurrence = "<<cntDDU_Headers;
+	  edm::LogWarning("CSCDCCExaminer")<<"  ERROR 5    "<<sERROR[5]<<endl;
 	}	// One of DMB Trailers is missing ( or both )
 	fDMB_Header  = false;
 	fDMB_Trailer = false;
@@ -400,8 +405,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	// == Counted extraneous words between last DDU Trailer and this DDU Header
 	fWARNING[0]=true;
 	bWARNING|=0x1;
-	cerr<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
-	cerr<<"  WARNING 0 "<<sWARNING[0]<<" "<<DDU_WordsSinceLastTrailer<<" extra 64-bit words"<<endl;
+	edm::LogWarning("CSCDCCExaminer")<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
+	edm::LogWarning("CSCDCCExaminer")<<"  WARNING 0 "<<sWARNING[0]<<" "<<DDU_WordsSinceLastTrailer<<" extra 64-bit words"<<endl;
       }
 
       sourceID      = ((buf_1[1]&0xF)<<8) | ((buf_1[0]&0xFF00)>>8);
@@ -452,14 +457,14 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       if( (buf_1[3]&0xF000)!=0x5000 ){
         fWARNING[1]=true;
         bWARNING|=0x2;
-        cerr<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
-		cerr<<"  WARNING 1 "<<sWARNING[1]<<". What must have been Header 1: 0x"<<std::hex<<buf_1[0]<<" 0x"<<buf_1[1]<<" 0x"<<buf_1[2]<<" 0x"<<buf_1[3]<<std::dec<<endl;
+        edm::LogWarning("CSCDCCExaminer")<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
+		edm::LogWarning("CSCDCCExaminer")<<"  WARNING 1 "<<sWARNING[1]<<". What must have been Header 1: 0x"<<std::hex<<buf_1[0]<<" 0x"<<buf_1[1]<<" 0x"<<buf_1[2]<<" 0x"<<buf_1[3]<<std::dec<<endl;
       }
 
       ++cntDDU_Headers;
       DDU_WordsSinceLastHeader=0; // Reset counter of DDU Words since last DDU Header
-      cout<<"\n----------------------------------------------------------"<<endl;
-      cout<<"DDU  Header Occurrence "<<cntDDU_Headers<< " L1A = " << ( ((buf_1[2]&0xFFFF) + ((buf_1[3]&0x00FF) << 16)) ) <<endl;
+      LogTrace("CSCDCCExaminer")<<"\n----------------------------------------------------------"<<endl;
+      LogTrace("CSCDCCExaminer")<<"DDU  Header Occurrence "<<cntDDU_Headers<< " L1A = " << ( ((buf_1[2]&0xFFFF) + ((buf_1[3]&0x00FF) << 16)) ) <<endl;
     }
 
     // == DMB Header found
@@ -536,14 +541,14 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       dmbSize   [sourceID][currentChamber] = 4;
 
       // Print DMB_ID from DMB Header
-      cout<< "Crate=" << setw(3) << setfill('0') << ((buf0[1]>>4)&0x00FF) << " DMB="<<setw(2)<<setfill('0')<<(buf0[1]&0x000F)<<" ";
+      LogTrace("CSCDCCExaminer")<< "Crate=" << setw(3) << setfill('0') << ((buf0[1]>>4)&0x00FF) << " DMB="<<setw(2)<<setfill('0')<<(buf0[1]&0x000F)<<" ";
       // Print ALCT_DAV and TMB_DAV from DMB Header
-      //cout<<setw(1)<<((buf0[0]&0x0020)>>5)<<" "<<((buf0[0]&0x0040)>>6)<<" ";
-      cout<<setw(1)<<((buf0[0]&0x0200)>>9)<<" "<<((buf0[0]&0x0800)>>11)<<" "; //change of format 16.09.05
+      //LogTrace("CSCDCCExaminer")<<setw(1)<<((buf0[0]&0x0020)>>5)<<" "<<((buf0[0]&0x0040)>>6)<<" ";
+      LogTrace("CSCDCCExaminer")<<setw(1)<<((buf0[0]&0x0200)>>9)<<" "<<((buf0[0]&0x0800)>>11)<<" "; //change of format 16.09.05
       // Print CFEB_DAV from DMB Header
-      cout<<setw(1)<<((buf0[0]&0x0010)>>4)<<((buf0[0]&0x0008)>>3)<<((buf0[0]&0x0004)>>2)<<((buf0[0]&0x0002)>>1)<<(buf0[0]&0x0001);
+      LogTrace("CSCDCCExaminer")<<setw(1)<<((buf0[0]&0x0010)>>4)<<((buf0[0]&0x0008)>>3)<<((buf0[0]&0x0004)>>2)<<((buf0[0]&0x0002)>>1)<<(buf0[0]&0x0001);
       // Print DMB Header Tag
-      cout << " {";
+      LogTrace("CSCDCCExaminer") << " {";
 
       // Set variables if we are waiting ALCT, TMB and CFEB records to be present in event
       DAV_ALCT = (buf0[0]&0x0200)>>9;
@@ -602,10 +607,10 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
                 }
             }
 
-//        std::cout << " Number of Wire Groups: " << nWG_round_up << std::endl;
-///        std::cout << " ALCT_ZSE: " << ALCT_ZSE << std::endl; 
-//        std::cout << " raw_tbins: " << std::dec << raw_tbins << std::endl;
-//        std::cout << " LCT Tbins: " << lct_tbins << std::endl;        
+//        LogTrace("CSCDCCExaminer") << " Number of Wire Groups: " << nWG_round_up << std::endl;
+///        LogTrace("CSCDCCExaminer") << " ALCT_ZSE: " << ALCT_ZSE << std::endl; 
+//        LogTrace("CSCDCCExaminer") << " raw_tbins: " << std::dec << raw_tbins << std::endl;
+//        LogTrace("CSCDCCExaminer") << " LCT Tbins: " << lct_tbins << std::endl;        
 
         //  Data block sizes:
         //   3 words of Vertex ID register + 5 words of config. register bits:
@@ -619,11 +624,11 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         //   raw hit dump size:
         int raw_hit_dump_size=(!raw_overflow ? nWG_round_up*6*raw_tbins : 0 );
 
-        //std::cout << " Raw Hit Dump: " << std::dec << raw_hit_dump_size << std::endl;
+        //LogTrace("CSCDCCExaminer") << " Raw Hit Dump: " << std::dec << raw_hit_dump_size << std::endl;
 
         ALCT_WordsExpected += config_size + colreg_size + hot_ch_size + alct_0_1_size + raw_hit_dump_size;
 
-        cout<<" <A";
+        LogTrace("CSCDCCExaminer")<<" <A";
     } else {
         // Old ALCT data format
 
@@ -648,10 +653,10 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
                         ((buf0[3]&0x0010)>>4)+((buf0[3]&0x0020)>>5)+
                         ((buf0[3]&0x0040)>>6) ) * 12 + 12;
               }
-              cout<<" <A";
+              LogTrace("CSCDCCExaminer")<<" <A";
         }
     }
-    //std::cout << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
+    //LogTrace("CSCDCCExaminer") << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
 
     if( (buf0[0]&0xFFFF)==0xDB0C ){
         fTMB_Header              = true;
@@ -664,7 +669,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         if ( (buf1[1]&0x3000) == 0x3000) { TMB_WordsExpected = 12; }  // Short Header Only
         if ( (buf1[1]&0x3000) == 0x0000) { TMB_WordsExpected = 48; }  // Long Header Only
 
-        cout << " <T";
+        LogTrace("CSCDCCExaminer") << " <T";
     } else {
         // == TMB Header found right after DMB Header or right after ALCT Trailer
         if(   (buf0 [0]&0xFFFF)==0x6B0C && (
@@ -691,7 +696,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
                 TMB_WordsExpected = 28 + TMB_Tbins * ((buf1[0]&0x00E0)>>5) * 6;
             }
 
-			cout << " <T";
+			LogTrace("CSCDCCExaminer") << " <T";
 		}
 	}
     // New TMB format => very long header Find Firmware revision
@@ -740,9 +745,9 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 
       /// Print Out ALCT word counting
 /*
-      std::cout << " ALCT Word Since Last Header: " << ALCT_WordsSinceLastHeader << std::endl;
-      std::cout << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
-      std::cout << " ALCT Word Since Last Header Zero Supressed: " << ALCT_WordsSinceLastHeaderZeroSuppressed <<
+      LogTrace("CSCDCCExaminer") << " ALCT Word Since Last Header: " << ALCT_WordsSinceLastHeader << std::endl;
+      LogTrace("CSCDCCExaminer") << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
+      LogTrace("CSCDCCExaminer") << " ALCT Word Since Last Header Zero Supressed: " << ALCT_WordsSinceLastHeaderZeroSuppressed <<
       std::endl;
 */
       /// Check calculated CRC sum against reported
@@ -766,7 +771,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       ALCT_WordCount = (buf0[3]&0x07FF);
       //ALCT_WordCount = (buf0[3]&0x0FFF);
       CFEB_SampleWordCount = 0;
-      cout << "A> ";
+      LogTrace("CSCDCCExaminer") << "A> ";
     }
 
     // Calculation of CRC sum ( algorithm is written by Madorsky )
@@ -932,7 +937,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	TMB_WordsExpected += 22;
 
       CFEB_SampleWordCount = 0;
-      cout << "T> ";
+      LogTrace("CSCDCCExaminer") << "T> ";
     }
 
     if( fTMB_Header && checkCrcTMB ){
@@ -959,9 +964,9 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
               ( (buf0[3]&buf0[0])==0x0000 && (buf0[3]+buf0[0])==0x7FFF ) // 2007 format
               ) ){
 
-      if((CFEB_SampleCount%8)  == 0   ){ cout<<" <"; }
-      if( CFEB_SampleWordCount == 100 ){ cout<<"+";  }
-      if( CFEB_SampleWordCount != 100 ){ cout<<"-";
+      if((CFEB_SampleCount%8)  == 0   ){ LogTrace("CSCDCCExaminer")<<" <"; }
+      if( CFEB_SampleWordCount == 100 ){ LogTrace("CSCDCCExaminer")<<"+";  }
+      if( CFEB_SampleWordCount != 100 ){ LogTrace("CSCDCCExaminer")<<"-";
       fERROR[16] = true;
       bERROR    |= 0x10000;
       fCHAMB_ERR[16].insert(currentChamber);
@@ -973,7 +978,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       ++CFEB_SampleCount;
 
       if( (CFEB_SampleCount%8)==0 ){
-	cout<<">";
+	LogTrace("CSCDCCExaminer")<<">";
 	CFEB_BSampleCount=0;
 	// Count CFEBs
 	DAV_CFEB--;
@@ -998,14 +1003,14 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
     if( (buf0[0]&0xF000)==0xB000 && (buf0[1]&0xF000)==0xB000 && (buf0[2]&0xF000)==0xB000 && (buf0[3]&0xF000)==0xB000 ){
       bCHAMB_STATUS[currentChamber] |= 0x400000;
 
-      if( (CFEB_SampleCount%8)==0 ){ cout<<" <"; }
-      cout<<"B";
+      if( (CFEB_SampleCount%8)==0 ){ LogTrace("CSCDCCExaminer")<<" <"; }
+      LogTrace("CSCDCCExaminer")<<"B";
 
       ++CFEB_SampleCount;
       ++CFEB_BSampleCount;
 
       if( (CFEB_SampleCount%8)==0 ){
-	cout << ">";
+	LogTrace("CSCDCCExaminer") << ">";
 	CFEB_BSampleCount=0;
 	DAV_CFEB--;
       }
@@ -1066,7 +1071,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       }
 
       // Print DMB F-Trailer marker
-      cout << " }";
+      LogTrace("CSCDCCExaminer") << " }";
     }
 
     // == DMB E-Trailer found
@@ -1119,8 +1124,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       fDMB_Trailer = false;
 
      // Print DMB E-Trailer marker
-      cout<<" DMB="<<(buf0[1]&0x000F);
-      cout << "; "
+      LogTrace("CSCDCCExaminer")<<" DMB="<<(buf0[1]&0x000F);
+      LogTrace("CSCDCCExaminer") << "; "
            << ALCT_WordsSinceLastHeader << "-"
            << ALCT_WordCount << "-"
            << ALCT_WordsExpected
@@ -1155,8 +1160,8 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       currentChamber=-1;
 /*
       // Print DMB E-Trailer marker
-      cout<<" DMB="<<(buf0[1]&0x000F);
-      cout << "; "
+      LogTrace("CSCDCCExaminer")<<" DMB="<<(buf0[1]&0x000F);
+      LogTrace("CSCDCCExaminer") << "; "
 	   << ALCT_WordsSinceLastHeader << "-"
 	   << ALCT_WordCount << "-"
 	   << ALCT_WordsExpected
@@ -1176,7 +1181,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       //				fERROR[0]  = true;
       //				fERROR[21] = true;
       //				bERROR|=0x200000;
-      //				//cerr<<"  ERROR 21   "<<sERROR[21]<<endl;
+      //				//edm::LogWarning("CSCDCCExaminer")<<"  ERROR 21   "<<sERROR[21]<<endl;
       //			}
       //			headerDAV_Active = -1;
 /////////////////////////////////////////////////////////
@@ -1199,7 +1204,7 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
       fDDU_Header=false;
 
       if( fDMB_Header || fDMB_Trailer ){
-       // std::cout << " Ex-Err: DMB (Header, Trailer) " << std::endl;
+       // LogTrace("CSCDCCExaminer") << " Ex-Err: DMB (Header, Trailer) " << std::endl;
 	fERROR[5] = true;
 	bERROR   |= 0x20;
 	fCHAMB_ERR[5].insert(currentChamber);
@@ -1247,23 +1252,23 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	bERROR    |= 0x1000000;
       }
 
-      cout<<"DDU Trailer Occurrence "<<cntDDU_Trailers<<endl;
-      cout<<"----------------------------------------------------------"<<endl;
-      cout<<"DDU 64-bit words = Actual - DDUcounted ="<<DDU_WordsSinceLastHeader+4<<"-"<<DDU_WordCount<<endl;
+      LogTrace("CSCDCCExaminer")<<"DDU Trailer Occurrence "<<cntDDU_Trailers<<endl;
+      LogTrace("CSCDCCExaminer")<<"----------------------------------------------------------"<<endl;
+      LogTrace("CSCDCCExaminer")<<"DDU 64-bit words = Actual - DDUcounted ="<<DDU_WordsSinceLastHeader+4<<"-"<<DDU_WordCount<<endl;
 
       // increment statistics Errors and Warnings (i=0 case is handled in DDU Header)
       for(int err=1; err<nERRORS; ++err){
 	if( fERROR[err] ){
 	  fERROR[0] = true;
 	  bERROR |= 0x1;
-	  cerr<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
-	  cerr<<"  ERROR "<<err<<"  " <<sERROR[err]<<endl;
+	  edm::LogWarning("CSCDCCExaminer")<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
+	  edm::LogWarning("CSCDCCExaminer")<<"  ERROR "<<err<<"  " <<sERROR[err]<<endl;
 	}
       }
       for(int wrn=1; wrn<nWARNINGS; ++wrn){
 	if( fWARNING[wrn] ){
-	  cout<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
-	  cout<<"  WARNING "<<wrn<<"  "<<sWARNING[wrn]<<endl;
+	  LogTrace("CSCDCCExaminer")<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
+	  LogTrace("CSCDCCExaminer")<<"  WARNING "<<wrn<<"  "<<sWARNING[wrn]<<endl;
 	}
       }
 
@@ -1419,10 +1424,10 @@ void CSCDCCExaminer::checkDAVs()
 
 void CSCDCCExaminer::checkTriggerHeadersAndTrailers()
 {   /*
-    std::cout << " Ex-ALCT-Word-count " << std::endl;
-    std::cout << " ALCT Words Since Last Header: " <<  ALCT_WordsSinceLastHeader << std::endl;
-    std::cout << " ALCT Word Count: " <<  ALCT_WordCount << std::endl;
-    std::cout << " ALCT Words Expected: " << ALCT_WordsExpected << std::endl;
+    LogTrace("CSCDCCExaminer") << " Ex-ALCT-Word-count " << std::endl;
+    LogTrace("CSCDCCExaminer") << " ALCT Words Since Last Header: " <<  ALCT_WordsSinceLastHeader << std::endl;
+    LogTrace("CSCDCCExaminer") << " ALCT Word Count: " <<  ALCT_WordCount << std::endl;
+    LogTrace("CSCDCCExaminer") << " ALCT Words Expected: " << ALCT_WordsExpected << std::endl;
     */
   if( !fALCT_Header && ( ALCT_WordsSinceLastHeader!=ALCT_WordCount || ALCT_WordsSinceLastHeader!=ALCT_WordsExpected )
     && ALCT_ZSE==0 ){

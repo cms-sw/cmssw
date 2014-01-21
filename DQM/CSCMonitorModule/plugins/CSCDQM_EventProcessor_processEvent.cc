@@ -88,13 +88,13 @@ void EventProcessor::processEvent(const char* data, const int32_t dataSize, cons
 
   if (config->getBINCHECKER_OUTPUT())
     {
-      binChecker.output1().show();
-      binChecker.output2().show();
+      // binChecker.output1().show();
+      / binChecker.output2().show();
     }
   else
     {
-      binChecker.output1().hide();
-      binChecker.output2().hide();
+      // binChecker.output1().hide();
+      // binChecker.output2().hide();
     }
 
   binChecker.setMask(config->getBINCHECK_MASK());
@@ -220,13 +220,13 @@ void EventProcessor::processEvent(const char* data, const int32_t dataSize, cons
 
           if (config->getBINCHECKER_OUTPUT())
             {
-              binChecker.output1().show();
-              binChecker.output2().show();
+              // binChecker.output1().show();
+              // binChecker.output2().show();
             }
           else
             {
-              binChecker.output1().hide();
-              binChecker.output2().hide();
+              // binChecker.output1().hide();
+              // binChecker.output2().hide();
             }
 
           binChecker.setMask(config->getBINCHECK_MASK());
