@@ -9,6 +9,7 @@
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1SingleTrackHI.h"
 
 using namespace std;
 using namespace l1t;
@@ -29,11 +30,14 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const std::vector<CaloEmC
     m_jetAlgo = new CaloStage1JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
   } else if( m_fwv.firmwareVersion() == 2 ) { //PP algorithm
     m_jetAlgo = new CaloStage1JetAlgorithmImpPP(/*m_db*/); //fwv =2 => PP algo
-  } else{ // undefined fwv version
+  } else if( m_fwv.firmwareVersion() == 3 ) {
+    m_tauAlgo = new CaloStage1SingleTrackHI(/*m_db*/);
+  }  else{ // undefined fwv version
     edm::LogError("FWVersionError")
       << "Undefined firmware version passed to CaloStage1MainProcessorFirmwareImp1" << std::endl;
     return;
   }
 
   m_jetAlgo->processEvent(regions, jets);
+  m_tauAlgo->processEvent(regions, taus);
 }

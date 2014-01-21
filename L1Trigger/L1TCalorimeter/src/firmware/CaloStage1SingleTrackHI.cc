@@ -1,6 +1,4 @@
-#include "CaloStage1SingleTrackHI.h"
-//#include "CaloStage1JetAlgorithmImp.h"
-
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1SingleTrackHI.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 using namespace std;

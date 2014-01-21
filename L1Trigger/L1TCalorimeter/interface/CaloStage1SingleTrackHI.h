@@ -3,6 +3,9 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1TauAlgorithm.h"
 
+//	This is the implementation of the CaloStage1TauAlgorithm abstract base class.
+//	This class will be used to find sngle high pt tracks in heavy ion collisions.
+
 namespace l1t {
   
   class CaloStage1SingleTrackHI : CaloStage1TauAlgorithm { 
