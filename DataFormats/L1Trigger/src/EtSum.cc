@@ -22,7 +22,7 @@ void l1t::EtSum::setType(EtSumType type)
   type_ = type;
 }
 
-l1t::EtSum::EtSumType l1t::EtSum::getType()
+l1t::EtSum::EtSumType l1t::EtSum::getType() const
 {
   return type_;
 }

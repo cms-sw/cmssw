@@ -17,6 +17,20 @@ l1t::L1Candidate::L1Candidate( const LorentzVector& p4,
 
 }
 
+l1t::L1Candidate::L1Candidate( const PolarLorentzVector& p4,
+			       int pt,
+			       int eta,
+			       int phi,
+			       int qual )
+  : LeafCandidate( ( char ) 0, p4 ),
+    hwPt_(pt),
+    hwEta_(eta),
+    hwPhi_(phi),
+    hwQual_(qual)
+{
+
+}
+
 l1t::L1Candidate::~L1Candidate()
 {
 

@@ -3,9 +3,10 @@
 
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 
 namespace l1t {
-  
+
   class CaloRegion : public L1Candidate {
     
   public:
@@ -43,6 +44,8 @@ namespace l1t {
     
   };
   
+  typedef BXVector<CaloRegion> CaloRegionBxCollection;  
+
 }
 
 #endif

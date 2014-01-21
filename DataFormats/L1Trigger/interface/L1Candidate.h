@@ -3,17 +3,27 @@
 
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
-
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 namespace l1t {
+
+  class L1Candidate;
+  typedef BXVector<L1Candidate> L1CandidateBxCollection;
 
 	// All L1 data formats which encode physically meaningful quantities inherit from Candidate
   class L1Candidate : public reco::LeafCandidate {
 
   public:
+
     L1Candidate();
 
     // construct from *both* physical and integer values
     L1Candidate( const LorentzVector& p4,
+		 int pt=0,
+		 int eta=0,
+		 int phi=0,
+		 int qual=0);
+
+    L1Candidate( const PolarLorentzVector& p4,
 		 int pt=0,
 		 int eta=0,
 		 int phi=0,

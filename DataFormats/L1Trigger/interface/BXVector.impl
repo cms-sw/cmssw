@@ -10,7 +10,7 @@ BXVector<T>::BXVector( int size,      // number of objects per BX
   :
     bxFirst_(bxFirst),
     bxLast_(bxLast),
-    data_(bxLast-bxFirst, std::vector<T>(size))
+    data_(bxLast-bxFirst+1, std::vector<T>(size))
 {
 
 }
@@ -42,13 +42,14 @@ void BXVector<T>::setBXRange( int bxFirst, int bxLast )
 {
   bxFirst_ = bxFirst;
   bxLast_ = bxLast;
+  data_.resize(bxLast-bxFirst+1);
 }
 
 // set size for a given BX
 template < class T >
 void BXVector<T>::resize( int bx, int size )
 {
-  data_.at(bx).resize(size);
+  data_.at(indexFromBX(bx)).resize(size);
 }
 
 // set size for all BXs
@@ -78,35 +79,35 @@ int BXVector<T>::getLastBX() const
 template < class T >
 unsigned BXVector<T>::size( int bx ) const
 {
-  return data_.at(bx).size();
+  return data_.at(indexFromBX(bx)).size();
 }
 
 // add element with given BX index
 template < class T >
 void BXVector<T>::push_back( int bx, T object )
 {
-  data_.at(bx).push_back(object);
+  data_.at(indexFromBX(bx)).push_back(object);
 }
 
 // random access
 template < class T >
-T& BXVector<T>::at( int bx, int i ) const
+const T& BXVector<T>::at( int bx, int i ) const
 {
-  return data_.at(bx).at(i);
+  return data_.at(indexFromBX(bx)).at(i);
 }
 
 // iterator access by BX
 template < class T >
 typename BXVector<T>::const_iterator BXVector<T>::begin( int bx ) const
 {
-  return data_.at(bx).begin();
+  return data_.at(indexFromBX(bx)).begin();
 }
 
 // iterator access by BX
 template < class T >
 typename BXVector<T>::const_iterator BXVector<T>::end( int bx ) const
 {
-  return data_.at(bx).end();
+  return data_.at(indexFromBX(bx)).end();
 }
 
 

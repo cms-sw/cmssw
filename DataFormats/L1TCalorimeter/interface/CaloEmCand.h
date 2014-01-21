@@ -4,9 +4,9 @@
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 
 namespace l1t {
-  
+
   class CaloEmCand : public L1Candidate {
-    
+
   public:
     CaloEmCand(){}
     CaloEmCand( const LorentzVector& p4,
@@ -15,14 +15,16 @@ namespace l1t {
 		int phi=0,
 		int qual=0
 		);
-    
+
     ~CaloEmCand();
 
   private:
     //
-    
+
   };
-  
+
+  typedef BXVector<CaloEmCand> CaloEmCandBxCollection;
+
 }
 
 #endif
