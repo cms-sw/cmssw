@@ -9,9 +9,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#include <random>
-#include <errno.h>
-
+//#define DEBUG
 using std::stringstream;
 
 namespace evf {
@@ -78,20 +76,6 @@ namespace evf {
     data_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
     data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
-	      gettimeofday(&ts_runstart,0);//srecko
-
-    //dev/urandom seed
-    {
-      /*int byte_count = 64;
-      char data[64];
-      FILE *fp;
-      fp = fopen("/dev/urandom", "r");
-      fread(&data, 1, byte_count, fp);
-      fclose(fp);*/
-    }
-    rndEng = new std::mt19937(rnd());
-    rndDist = new std::uniform_int_distribution<> (1,200000);
-
 
     reg.watchPreBeginRun(this, &EvFDaqDirector::preBeginRun);
     reg.watchPostEndRun(this, &EvFDaqDirector::postEndRun);
@@ -192,8 +176,6 @@ namespace evf {
 
 	bu_run_dir_ = bu_base_dir_ + "/" + run_string_;
 	std::string fulockfile = bu_run_dir_ + "/fu.lock";
-	//sleep(60);//hack
-	//std::string fulockfile = "/testmount/fu.lock"; //hack
 	openFULockfileStream(fulockfile, false);
       }
 
@@ -341,55 +323,29 @@ namespace evf {
   bool EvFDaqDirector::updateFuLock(unsigned int& ls, std::string& nextFile,
 				    bool& eorSeen) {
     // close and reopen the stream / fd
-    close(fu_readwritelock_fd_);//srecko
-    //fsync(fu_readwritelock_fd_);
+    close(fu_readwritelock_fd_);
     std::string fulockfile = bu_run_dir_ + "/fu.lock";
-    //std::string fulockfile = "/testmount/fu.lock";//hack
-    //srecko
-    //if (fu_readwritelock_fd_==-1)
     fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR | O_NONBLOCK, S_IRWXU);
-    //fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR, S_IRWXU);
     if (fu_readwritelock_fd_ == -1)
       edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock "
 		<< strerror(errno);
     else
       edm::LogInfo("EvFDaqDirector") << "created filedesc for fureadwritelock "
 		<< fu_readwritelock_fd_;
-    ////////fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
+    fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
     edm::LogInfo("EvFDaqDirector") << "Reopened the fw FD & STREAM";
 
-    timeval ts_lockstart;
-    gettimeofday(&ts_lockstart,0);
-    char       timebuf[80];
-    struct tm  now = *localtime( & ts_lockstart.tv_sec );
-    strftime(timebuf, sizeof(timebuf), "%Y-%m-%d.%X", &now);
-
     int retval = -1;
-    int lastErr=0;
     while (retval==-1) {
-      //fsync(fu_readwritelock_fd_);
-//      int sleepTime=(*rndDist)(*rndEng);
-//      usleep(sleepTime);
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
-      if (retval==-1) {usleep(50000);lastErr=errno;}
-      if (lastErr==0) lastErr=errno;
+      if (retval==-1) usleep(50000);
     }
-
-    //usleep(10000);
-    //int retval = fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_flk);
-
+#ifdef DEBUG
     timeval ts_lockend;
     gettimeofday(&ts_lockend,0);
-    int tsecdiff = ts_lockend.tv_sec - ts_lockstart.tv_sec;
-    now = *localtime( & ts_lockend.tv_sec );
-    char       timebuf2[80];
-    strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d.%X", &now);
-
     if(retval!=0) return false;
+#endif
 
-    eorSeen = false;
-    struct stat buf;
-    eorSeen = (stat(getEoRFilePath().c_str(), &buf) == 0);
     bool valid = false;
 
     // if the stream is readable
@@ -456,43 +412,29 @@ namespace evf {
     } else
       edm::LogError("EvFDaqDirector") << "fu read/write lock stream is invalid " << strerror(errno);
 
+#ifdef DEBUG
     timeval ts_preunlock;
-     gettimeofday(&ts_preunlock,0);
-     int tsecdiff2 = ts_preunlock.tv_sec - ts_lockend.tv_sec;
-     double tsecdiff2f=tsecdiff2+double(ts_preunlock.tv_usec - ts_lockend.tv_usec)/1000000;
-
+    gettimeofday(&ts_preunlock,0);
+    int locked_period_int = ts_preunlock.tv_sec - ts_lockend.tv_sec;
+    double locked_period=locked_period_int+double(ts_preunlock.tv_usec - ts_lockend.tv_usec)/1000000;
+#endif
 
     //release lock at this point
     int retvalu=-1;
-    while (retvalu) {
-      retvalu=fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_fulk);
-      if (retvalu) usleep(50000);
+    retvalu=fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_fulk);
+    if (retvalu==-1) edm::LogError("EvFDaqDirector") << "Error unlocking the fu.lock " << strerror(errno);
+
+#ifdef DEBUG
+    edm::LogInfo("EvFDaqDirector") << "Waited during lock:" << locked_period;
+#endif
+
+    eorSeen = false;
+    if (!valid) {
+
+      struct stat buf;
+      eorSeen = (stat(getEoRFilePath().c_str(), &buf) == 0);
+
     }
-    
-    //int retvalu = fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_fulk);
-
-
-    if (retval && ls>1) edm::LogWarning("EvFDaqDirector") << "Unusual lock return value " << retval ;
-    if (tsecdiff)
-    //if (!retval && ls>1) edm::LogWarning("EvFDaqDirector") << "Waited for lock long: " << tsecdiff << " sec (time-time%10:" << tsecdiff-tsecdiff%10 << " sec)  at: " << timebuf << "   released at " << timebuf2 << " c:" << cntDbg++ <<" err:"<< strerror(lastErr);
-    if (!retval && ls>1) edm::LogWarning("EvFDaqDirector") << "Waited for lock long at: " << timebuf <<"+"<<ts_lockstart.tv_usec<<"us "<< " ,released at " << timebuf2 <<"+"<<ts_lockend.tv_usec<<"us "<< " ,waited:" << tsecdiff << " s";
-//    if (!retval && ls>1 && tsecdiff>5) edm::LogWarning("EvFDaqDirector") << "LongLockTakenAt: "    << timefs1 << " len:" <<tsecdiff;
-//    if (!retval && ls>1 && tsecdiff>5) edm::LogWarning("EvFDaqDirector") << "LongLockReleasedAt: " << timefs2 << " len:" <<tsecdiff;
-    if (!tsecdiff) 
-    if (!retval && ls>1) edm::LogInfo("EvFDaqDirector") << "Waited for lock shortly: " << ts_lockend.tv_usec - ts_lockstart.tv_usec << " usec";
-    if (retval) edm::LogWarning("EvFDaqDirector") << "Locking problem ret:" << retval;
-    //if locking fails just return here 
-
-
-
-    //fsync(fu_readwritelock_fd_);
-    //close(fu_readwritelock_fd_);
-      timeval ts_postunlock;
-     gettimeofday(&ts_postunlock,0);
-     int tsecdiff3 = ts_postunlock.tv_sec - ts_preunlock.tv_sec;
-     double tsecdiff3f=tsecdiff3+double(ts_postunlock.tv_usec - ts_preunlock.tv_usec)/1000000;
-    edm::LogInfo("EvFDaqDirector") << "Waited during lock: " << tsecdiff2 << " f:" << tsecdiff2f << " / "<< tsecdiff3 << " f:" << tsecdiff3f << " sec, retvalu: " << retvalu;
-
     return valid;
   }
 
@@ -540,12 +482,10 @@ namespace evf {
     struct stat buf;
     std::string lockfile = bu_base_dir_;
     lockfile += "/fu.lock";
-    //lockfile = "/testmount/fu.lock";//hack
     bool retval = (stat(lockfile.c_str(), &buf) == 0);
     if (!retval) {
       close(fu_readwritelock_fd_);
       close(fu_readwritelock_fd_); // why the second close ?
-//      fu_readwritelock_fd_=-1;//srecko
     }
     std::cout << "stat of lockfile returned " << retval << std::endl;
     return retval;
