@@ -9,7 +9,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
-#define DebugLog
+//#define DebugLog
 
 HcalNumberingScheme::HcalNumberingScheme() : CaloNumberingScheme(0) {
   edm::LogInfo("HcalSim") << "Creating HcalNumberingScheme";
@@ -28,7 +28,6 @@ uint32_t HcalNumberingScheme::getUnitID(const HcalNumberingFromDDD::HcalID id){
   //pack it into an integer
   // to be consistent with HcalDetId convention
   uint32_t index = HcalDetId(subdet,etaR,id.phis,id.depth).rawId();
-  std::cout << "HcalNumberingScheme det = " << id.subdet << " depth/lay = " << id.depth << "/" << id.lay << " zside = " << id.zside << " eta/R = " << id.etaR << " phi = " << id.phis << " oldphi = " << id.phi << " packed index = 0x" << std::hex << index << std::dec << HcalDetId(index) << std::endl;
 #ifdef DebugLog
   edm::LogInfo("HcalSim") << "HcalNumberingScheme det = " << id.subdet 
 			  << " depth/lay = " << id.depth << "/" << id.lay 

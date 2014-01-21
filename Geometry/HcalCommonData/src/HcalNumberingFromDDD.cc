@@ -56,7 +56,6 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
     }
   }
 
-  std::cout << "HcalNumberingFromDDD: point = " << point << " det " << det << ":" << hsubdet << " eta/R " << etaR << " phi " << hphi << std::endl;
 #ifdef DebugLog
   LogDebug("HCalGeom") << "HcalNumberingFromDDD: point = " << point << " det " 
 		       << det << ":" << hsubdet << " eta/R " << etaR << " phi "
@@ -124,7 +123,6 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
                        << "  iphi_skip= " << iphi_skip; 
 #endif
   HcalNumberingFromDDD::HcalID tmp(det,zside,etaDepth.second,etaDepth.first,phi,iphi_skip,lay);
-  std::cout << "HcalNumberingFromDDD: det = " << det << " " << tmp.subdet << " zside = " << tmp.zside << " depth = " << tmp.depth << " eta/R = " << tmp.etaR << " phi = " << tmp.phi << " layer = " << tmp.lay << std::endl;
 
 #ifdef DebugLog
   LogDebug("HCalGeom") << "HcalNumberingFromDDD: det = " << det << " " 
