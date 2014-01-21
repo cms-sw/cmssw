@@ -98,14 +98,14 @@ template <typename IndexType, typename DigiType>
 
 template <typename IndexType, 
 	  typename DigiType>
-
 class MuonDigiCollection {
   
 public:
 
   MuonDigiCollection(){}
 
-  void swap(MuonDigiCollection<IndexType,DigiType> & rh) { std::swap(data_,rh.data_);}
+//  void swap(MuonDigiCollection<IndexType,DigiType> & rh) { std::swap(data_,rh.data_);}
+  void swap(MuonDigiCollection & rh) { std::swap(data_,rh.data_);}
 
   typedef typename std::vector<DigiType>::const_iterator const_iterator;
   typedef typename std::pair<const_iterator,const_iterator> Range;
@@ -167,6 +167,7 @@ private:
 
 template <typename IndexType,
           typename DigiType>
+inline
 void swap(MuonDigiCollection<IndexType,DigiType> & rh,
           MuonDigiCollection<IndexType,DigiType> & lh){ rh.swap(lh);}
 
