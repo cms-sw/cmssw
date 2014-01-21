@@ -700,6 +700,16 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
     h_wg_me11_after_alctclct_okAlctClct = fs->make<TH1D>("h_wg_me11_after_alctclct_okAlctClct","h_wg_me11_after_alctclct_okAlctClct",50, -1,49);
     h_wg_me11_after_lct_okAlctClct = fs->make<TH1D>("h_wg_me11_after_lct_okAlctClct","h_wg_me11_after_lct_okAlctClct",50, -1,49);
 
+
+    h_strip_me1a_initial = fs->make<TH1D>("h_strip_me1a_initial","h_strip_me1a_initial",49, -1,48);
+    h_strip_me1b_initial = fs->make<TH1D>("h_strip_me1b_initial","h_strip_me1b_initial",65, -1,64);
+    h_strip_me1a_after_clct = fs->make<TH1D>("h_strip_me1a_after_clct","h_strip_me1a_after_clct",49, -1,48);
+    h_strip_me1b_after_clct = fs->make<TH1D>("h_strip_me1b_after_clct","h_strip_me1b_after_clct",65, -1,64);
+    h_strip_me1a_after_clct_okClct = fs->make<TH1D>("h_strip_me1a_after_clct_okClct","h_strip_me1a_after_clct_okClct",49, -1,48);
+    h_strip_me1b_after_clct_okClct = fs->make<TH1D>("h_strip_me1b_after_clct_okClct","h_strip_me1b_after_clct_okClct",65, -1,64);
+
+
+
     h_phi_initial  = fs->make<TH1D>("h_phi_initial","h_phi_initial",128, -M_PI,M_PI);
     h_phi_after_alct  = fs->make<TH1D>("h_phi_after_alct","h_phi_after_alct",128, -M_PI,M_PI);
     h_phi_after_clct  = fs->make<TH1D>("h_phi_after_clct","h_phi_after_clct",128, -M_PI,M_PI);
@@ -1649,6 +1659,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (requireME11WithMinNHitsChambers_ and !has_hits_in_me11) continue;
 
         bool eta_high = ( fabs(steta) >= 2.1 &&  fabs(steta) <= 2.4 );
+       // bool pt_high = ( stpt > 20 );
+//	bool pt_low = ( stpt <10 );
+        
+       	//if (!pt_high)    continue;
 
         MatchCSCMuL1::TFCAND * tfcAll = match->bestTFCAND(match->TFCANDsAll, bestPtMatch_);
         bool tffidAll_ok = false;
@@ -1706,6 +1720,10 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         std::vector<int> chIds = match->chambersWithHits(0,0,minNHitsChamber_);
         std::vector<int> fillIds;
+	int n_strip_me1a = 0;
+	int n_strip_me1b = 0;
+	int n_strip_me1a_after_clct = 0;
+	int n_strip_me1b_after_clct = 0;
         if (pt_ok) 
             for (size_t ch = 0; ch < chIds.size(); ch++)
             {
@@ -1718,7 +1736,19 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
                 if (csct==0 || csct==3) {
                     int wg = match->wireGroupAndStripInChamber(chIds[ch]).first;
+		    int strip = match->wireGroupAndStripInChamber(chIds[ch]).second-1;
+		    
                     h_wg_me11_initial->Fill(wg);
+                  if (csct==3)   
+		  {
+		      h_strip_me1a_initial->Fill(strip);
+		      n_strip_me1a++;
+		  }
+	          if (csct==0)   
+	            { 
+		       h_strip_me1b_initial->Fill(strip);
+                       n_strip_me1b++;
+	             }
                 }
             }
 
@@ -1947,6 +1977,32 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             if(okME1clct) {
                 h_eta_me1_after_clct->Fill(steta);
                 h_phi_me1_after_clct->Fill(stphi);
+
+
+                std::vector<int> chIDs = match->chambersWithCLCTs();
+                std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
+                for (size_t ch = 0; ch < chIDs.size(); ch++)
+                {
+                    if (std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end()) continue;
+                    CSCDetId chId(chIDs[ch]);
+                    int csct = getCSCType( chId );
+                    if (!(csct==0 || csct==3)) continue;
+                    int strip = match->wireGroupAndStripInChamber(chIDs[ch]).second-1;
+		    if (csct==3)   
+		    { 
+			h_strip_me1a_after_clct->Fill(strip);
+			n_strip_me1a_after_clct++;
+		    }
+		    if (csct==0)  
+		    {
+			h_strip_me1b_after_clct->Fill(strip);
+			n_strip_me1b_after_clct++;
+		    }
+		    chWHIDs.erase(std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch]));
+		    std::cout << " chIDs : " << chIDs[ch] << " " 
+	//		<< std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end() 
+			<< " strip: "<< strip << std::endl;
+                }
             }
             if(okME11clct) {
                 h_eta_me11_after_clct->Fill(steta);
@@ -1957,10 +2013,25 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             if(okME1clctg) {
                 h_eta_me1_after_clct_okClct->Fill(steta);
                 h_phi_me1_after_clct_okClct->Fill(stphi);
+
+                
+                std::vector<int> chIDs = match->chambersWithCLCTs();
+                std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
+                for (size_t ch = 0; ch < chIDs.size(); ch++)
+                {
+                    if (std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end()) continue;
+                    CSCDetId chId(chIDs[ch]);
+                    int csct = getCSCType( chId );
+                    if (!(csct==0 || csct==3)) continue;
+                    int strip = match->wireGroupAndStripInChamber(chIDs[ch]).second-1;
+		    if (csct==3)   h_strip_me1a_after_clct_okClct->Fill(strip);
+		    if (csct==0)   h_strip_me1b_after_clct_okClct->Fill(strip);
+		    chWHIDs.erase(std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch]));
+                }
             }
         } // end of check on rCLCTs.size()
-
-
+        
+        
         if (hasME1alct && hasME1clct) {
             h_eta_me1_after_alctclct->Fill(steta);
             h_phi_me1_after_alctclct->Fill(stphi);
@@ -2015,6 +2086,15 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             }
         }
 
+	std::cout << " n_strip_me1a: " << n_strip_me1a << std::endl;
+	std::cout << " n_strip_me1a_after_clct: " << n_strip_me1a_after_clct << std::endl;
+	std::cout << " n_strip_me1b: " << n_strip_me1b << std::endl;
+	std::cout << " n_strip_me1b_after_clct: " << n_strip_me1b_after_clct << std::endl;
+	if ((n_strip_me1a < n_strip_me1a_after_clct) || (n_strip_me1b < n_strip_me1b_after_clct))
+	{
+	    std::cout << "===========  BUG Simtrack ==============" << std::endl;
+            match->print("BUG IN ME1a/ME1b",1,1,1,1,1,1);	    
+         }
 
         // Comment it out (but keep it for later debug)
 

@@ -24,7 +24,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
 options.register ('pu',
-                  100,
+                  0,
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.float,
                   "PU: 100  default")
@@ -57,7 +57,7 @@ if hasattr(sys, "argv") == True:
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -94,8 +94,9 @@ process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag('simMuonC
 ## GEM-CSC bending angle library
 process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
 process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-#process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPretrig = 3
-process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPretrig = 3
+process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 4
+#process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
 tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
 tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
 tmb.gemMatchDeltaBX = cms.untracked.int32(1)
