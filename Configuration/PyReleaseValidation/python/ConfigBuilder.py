@@ -325,7 +325,7 @@ class ConfigBuilder(object):
 			if entry.startswith("filelist:"):
 				filesFromList(entry[9:],self.process.source)
 			elif entry.startswith("dbs:") or entry.startswith("das:"):
-				filesFromDASQuery('find file where dataset = %s'%(entry[4:]),self.process.source)
+				filesFromDASQuery('file dataset = %s'%(entry[4:]),self.process.source)
 			else:
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
@@ -336,7 +336,7 @@ class ConfigBuilder(object):
 				if entry.startswith("filelist:"):
 					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
 				elif entry.startswith("dbs:") or entry.startswith("das:"):
-					self.process.source.secondaryFileNames.extend((filesFromDASQuery('find file where dataset = %s'%(entry[4:])))[0])
+					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:])))[0])
 				else:
 					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
 
@@ -617,7 +617,7 @@ class ConfigBuilder(object):
 		mixingDict.pop('file')
 		if self._options.pileup_input:
 			if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
-				mixingDict['F']=filesFromDASQuery('find file where dataset = %s'%(self._options.pileup_input[4:],))[0]
+				mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
 			else:
 				mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
