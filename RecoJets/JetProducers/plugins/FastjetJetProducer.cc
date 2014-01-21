@@ -138,7 +138,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
 
   }
 
-  std::cout << "got input tag " << src_.label() << std::endl;
   input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
 
