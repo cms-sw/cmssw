@@ -92,7 +92,22 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
 
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
-  muonRecoCollectionName_ = iConfig.getUntrackedParameter("muonRecoCollectionName", std::string("muons"));
+  triggerSummaryToken     = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
+  triggerResultsToken     = consumes <TriggerResults> (triggerResultsLabel_);
+  triggerSummaryFUToken   = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
+  triggerResultsFUToken   = consumes <TriggerResults> (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
+  muonRecoCollectionToken = consumes <reco::MuonCollection> (iConfig.getUntrackedParameter("muonRecoCollectionName", std::string("muons")));
+
+  beamSpotToken           = consumes <reco::BeamSpot> (std::string("offlineBeamSpot"));
+  gsfElectronToken        = consumes <reco::GsfElectronCollection> (std::string("gsfElectrons"));
+  tauProdToken            = consumes <std::vector<reco::PFTau> > (std::string("caloRecoTauProducer"));
+  iC5calojetToken         = consumes <reco::CaloJetCollection> (std::string("iterativeCone5CaloJets"));
+  jlipBtagToken           = consumes <reco::JetTagCollection> (std::string("jetProbabilityBJetTags"));
+  softMuBtagToken         = consumes <reco::JetTagCollection> (std::string("softMuonBJetTags"));
+  METToken                = consumes <reco::CaloMETCollection> (std::string("met"));
+  photonToken             = consumes <reco::PhotonCollection> (std::string("photons"));
+  pixelTrackToken         = consumes <reco::TrackCollection> (std::string("pixelTracks"));
+  hpsPFTauProdToken       = consumes <std::vector<reco::PFTau> > (std::string("hpsPFTauProducer"));
 
   electronEtaMax_ = iConfig.getUntrackedParameter<double>("electronEtaMax",2.5);
   electronEtMin_ = iConfig.getUntrackedParameter<double>("electronEtMin",3.0);
@@ -184,9 +199,9 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
 
   // Tau discriminators
   ////////////////////////////
-  tauDscrmtrLabel1_ = iConfig.getUntrackedParameter("tauDscrmtrLabel1", std::string("shrinkingConePFTauDiscriminationByLeadingTrackFinding"));
-  tauDscrmtrLabel2_ = iConfig.getUntrackedParameter("tauDscrmtrLabel2", std::string("shrinkingConePFTauDiscriminationByLeadingTrackPtCut"));
-  tauDscrmtrLabel3_ = iConfig.getUntrackedParameter("tauDscrmtrLabel3", std::string("shrinkingConePFTauDiscriminationByIsolation"));
+  tauDscrmtr1Token = consumes <reco::PFTauDiscriminator>  (iConfig.getUntrackedParameter("tauDscrmtrLabel1", std::string("shrinkingConePFTauDiscriminationByLeadingTrackFinding")));
+  tauDscrmtr2Token = consumes <reco::PFTauDiscriminator>  (iConfig.getUntrackedParameter("tauDscrmtrLabel2", std::string("shrinkingConePFTauDiscriminationByLeadingTrackPtCut")));
+  tauDscrmtr3Token = consumes <reco::PFTauDiscriminator>  (iConfig.getUntrackedParameter("tauDscrmtrLabel3", std::string("shrinkingConePFTauDiscriminationByIsolation")));
 
   specialPaths_ = iConfig.getParameter<std::vector<std::string > >("SpecialPaths");
 
@@ -204,10 +219,11 @@ FourVectorHLTOffline::FourVectorHLTOffline(const edm::ParameterSet& iConfig): cu
   ME_HLT_CUSTOM_BX = NULL;
 
   jetID = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
-
-    recHitsEBTag_ = iConfig.getUntrackedParameter<edm::InputTag>("RecHitsEBTag",edm::InputTag("reducedEcalRecHitsEB"));
-      recHitsEETag_ = iConfig.getUntrackedParameter<edm::InputTag>("RecHitsEETag",edm::InputTag("reducedEcalRecHitsEE"));
-
+  
+  recHitsEBTag_ = iConfig.getUntrackedParameter<edm::InputTag>("RecHitsEBTag",edm::InputTag("reducedEcalRecHitsEB"));
+  recHitsEETag_ = iConfig.getUntrackedParameter<edm::InputTag>("RecHitsEETag",edm::InputTag("reducedEcalRecHitsEE"));
+  recHitsEBToken    = consumes <edm::SortedCollection<EcalRecHit> > (recHitsEBTag_);
+  recHitsEEToken    = consumes <edm::SortedCollection<EcalRecHit> > (recHitsEETag_);
   
 }
 
@@ -243,54 +259,24 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   ++nev_;
   LogDebug("FourVectorHLTOffline")<< " analyze...." ;
 
-
-  
-  /*
-  Handle<GenParticleCollection> genParticles;
-  iEvent.getByLabel("genParticles", genParticles);
-  if(!genParticles.isValid()) { 
-    edm::LogInfo("FourVectorHLTOffline") << "genParticles not found, "
-      "skipping event"; 
-    return;
-  }
-
-  Handle<GenJetCollection> genJets;
-  iEvent.getByLabel("iterativeCone5GenJets",genJets);
-  if(!genJets.isValid()) { 
-    edm::LogInfo("FourVectorHLTOffline") << "genJets not found, "
-      "skipping event"; 
-    return;
-  }
-
-  Handle<GenMETCollection> genMets;
-  iEvent.getByLabel("genMetTrue",genMets);
-  if(!genMets.isValid()) { 
-    edm::LogInfo("FourVectorHLTOffline") << "genMets not found, "
-      "skipping event"; 
-    return;
-  }
-  */
-
   edm::Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(triggerResultsLabel_,triggerResults);
+  iEvent.getByToken(triggerResultsToken,triggerResults);
   if(!triggerResults.isValid()) {
-    edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-   iEvent.getByLabel(triggerResultsLabelFU,triggerResults);
+    iEvent.getByToken(triggerResultsFUToken,triggerResults);
   if(!triggerResults.isValid()) {
     edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
       "skipping event"; 
     return;
-   }
+  }
   }
   fTriggerResults = triggerResults;
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
   int npath = triggerResults->size();
 
-  iEvent.getByLabel(triggerSummaryLabel_,fTriggerObj); 
+  iEvent.getByToken(triggerSummaryToken,fTriggerObj); 
   if(!fTriggerObj.isValid()) {
 
-    edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerSummaryLabelFU,fTriggerObj);
+    iEvent.getByToken(triggerSummaryFUToken,fTriggerObj);
 
     if(!fTriggerObj.isValid()) {
 
@@ -302,62 +288,62 @@ FourVectorHLTOffline::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   // Beam spot
-  if (!iEvent.getByLabel(InputTag("offlineBeamSpot"), fBeamSpotHandle)) {
+  if (!iEvent.getByToken(beamSpotToken, fBeamSpotHandle)) {
         edm::LogInfo("") << ">>> No beam spot found !!!";
   }
 
   edm::Handle<reco::MuonCollection> muonHandle;
-  iEvent.getByLabel(muonRecoCollectionName_,muonHandle);
+  iEvent.getByToken(muonRecoCollectionToken,muonHandle);
   if(!muonHandle.isValid())  
     edm::LogInfo("FourVectorHLTOffline") << "muonHandle not found, ";
   selectMuons(muonHandle);
 
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  iEvent.getByLabel("gsfElectrons",gsfElectrons); 
+  iEvent.getByToken(gsfElectronToken,gsfElectrons); 
   if(!gsfElectrons.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "gsfElectrons not found, ";
   selectElectrons(iEvent, iSetup, gsfElectrons);
 
   //edm::Handle<reco::CaloTauCollection> tauHandle;
   edm::Handle<reco::PFTauCollection> tauHandle;
-  iEvent.getByLabel("caloRecoTauProducer",tauHandle);
+  iEvent.getByToken(tauProdToken,tauHandle);
   if(!tauHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "tauHandle not found, ";
   //selectTaus(tauHandle);
   selectTaus(iEvent);
 
   edm::Handle<reco::CaloJetCollection> jetHandle;
-  iEvent.getByLabel("iterativeCone5CaloJets",jetHandle);
+  iEvent.getByToken(iC5calojetToken,jetHandle);
   if(!jetHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "jetHandle not found, ";
   selectJets(iEvent,jetHandle);
 
    // Get b tag information
  edm::Handle<reco::JetTagCollection> bTagIPHandle;
- iEvent.getByLabel("jetProbabilityBJetTags", bTagIPHandle);
+ iEvent.getByToken(jlipBtagToken, bTagIPHandle);
  if (!bTagIPHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "mTagIPHandle trackCountingHighEffJetTags not found, ";
 
    // Get b tag information
  edm::Handle<reco::JetTagCollection> bTagMuHandle;
- iEvent.getByLabel("softMuonBJetTags", bTagMuHandle);
+ iEvent.getByToken(softMuBtagToken, bTagMuHandle);
  if (!bTagMuHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "bTagMuHandle  not found, ";
 
   edm::Handle<reco::CaloMETCollection> metHandle;
-  iEvent.getByLabel("met",metHandle);
+  iEvent.getByToken(METToken,metHandle);
   if(!metHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "metHandle not found, ";
   selectMet(metHandle);
 
   edm::Handle<reco::PhotonCollection> photonHandle;
-  iEvent.getByLabel("photons",photonHandle);
+  iEvent.getByToken(photonToken,photonHandle);
   if(!photonHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "photonHandle not found, ";
   selectPhotons(photonHandle);
 
   edm::Handle<reco::TrackCollection> trackHandle;
-  iEvent.getByLabel("pixelTracks",trackHandle);
+  iEvent.getByToken(pixelTrackToken,trackHandle);
   if(!trackHandle.isValid()) 
     edm::LogInfo("FourVectorHLTOffline") << "trackHandle not found, ";
 
@@ -2359,10 +2345,10 @@ void FourVectorHLTOffline::selectElectrons(const edm::Event& iEvent, const edm::
     {
       
       edm::Handle< EcalRecHitCollection > pEBRecHits;
-      iEvent.getByLabel( recHitsEBTag_, pEBRecHits );
+      iEvent.getByToken( recHitsEBToken, pEBRecHits );
 
       edm::Handle< EcalRecHitCollection > pEERecHits;
-      iEvent.getByLabel( recHitsEETag_, pEERecHits );
+      iEvent.getByToken( recHitsEEToken, pEERecHits );
 
       if(pEBRecHits.isValid() && pEERecHits.isValid()) {
       
@@ -2523,15 +2509,15 @@ void FourVectorHLTOffline::selectTaus(const edm::Event& iEvent)
 
   //first read the tau collection
   edm::Handle<reco::PFTauCollection> tauHandle;  
-  iEvent.getByLabel("hpsPFTauProducer",tauHandle);
+  iEvent.getByToken(hpsPFTauProdToken,tauHandle);
 
   //Now access a discriminator and see if it passed the tag
   edm::Handle<reco::PFTauDiscriminator> dscrmt1H;
-  iEvent.getByLabel(tauDscrmtrLabel1_,dscrmt1H);
+  iEvent.getByToken(tauDscrmtr1Token,dscrmt1H);
   edm::Handle<reco::PFTauDiscriminator> dscrmt2H;
-  iEvent.getByLabel(tauDscrmtrLabel2_,dscrmt2H);
+  iEvent.getByToken(tauDscrmtr2Token,dscrmt2H);
   edm::Handle<reco::PFTauDiscriminator> dscrmt3H;
-  iEvent.getByLabel(tauDscrmtrLabel3_,dscrmt3H);
+  iEvent.getByToken(tauDscrmtr3Token,dscrmt3H);
 
   if(tauHandle.isValid() && dscrmt1H.isValid() && dscrmt2H.isValid() && dscrmt3H.isValid()) { 
 
