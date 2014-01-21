@@ -33,12 +33,12 @@ ElectronTagProbeAnalyzer::ElectronTagProbeAnalyzer( const edm::ParameterSet & co
  {
   // general, collections
   Selection_ = conf.getParameter<int>("Selection");
-  electronCollection_ = conf.getParameter<edm::InputTag>("ElectronCollection");
-  matchingObjectCollection_ = conf.getParameter<edm::InputTag>("MatchingObjectCollection");
-  trackCollection_ = conf.getParameter<edm::InputTag>("TrackCollection");
-  vertexCollection_ = conf.getParameter<edm::InputTag>("VertexCollection");
-  gsftrackCollection_ = conf.getParameter<edm::InputTag>("GsfTrackCollection");
-  beamSpotTag_ = conf.getParameter<edm::InputTag>("BeamSpot");
+  electronCollection_ = consumes<GsfElectronCollection>(conf.getParameter<edm::InputTag>("ElectronCollection"));
+  matchingObjectCollection_ = consumes<SuperClusterCollection>(conf.getParameter<edm::InputTag>("MatchingObjectCollection"));
+  trackCollection_ = consumes<TrackCollection>(conf.getParameter<edm::InputTag>("TrackCollection"));
+  vertexCollection_ = consumes<VertexCollection>(conf.getParameter<edm::InputTag>("VertexCollection"));
+  gsftrackCollection_ = consumes<GsfTrackCollection>(conf.getParameter<edm::InputTag>("GsfTrackCollection"));
+  beamSpotTag_ = consumes<BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpot"));
   readAOD_ = conf.getParameter<bool>("ReadAOD");
 
   // tag and probe
@@ -225,7 +225,9 @@ void ElectronTagProbeAnalyzer::book()
 
   // matching object
   std::string matchingObjectType ;
-  if (std::string::npos!=matchingObjectCollection_.label().find("SuperCluster",0))
+  Labels l;
+  labelsForToken(matchingObjectCollection_,l);
+  if (std::string::npos != std::string(l.module).find("SuperCluster",0))
    { matchingObjectType = "SC" ; }
   if (matchingObjectType=="")
    { edm::LogError("ElectronMcFakeValidator::beginJob")<<"Unknown matching object type !" ; }
@@ -250,17 +252,17 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
   nEvents_++ ;
 
   edm::Handle<GsfElectronCollection> gsfElectrons ;
-  iEvent.getByLabel(electronCollection_,gsfElectrons) ;
+  iEvent.getByToken(electronCollection_,gsfElectrons) ;
   edm::Handle<reco::SuperClusterCollection> recoClusters ;
-  iEvent.getByLabel(matchingObjectCollection_,recoClusters) ;
+  iEvent.getByToken(matchingObjectCollection_,recoClusters) ;
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(trackCollection_,tracks);
+  iEvent.getByToken(trackCollection_,tracks);
   edm::Handle<reco::GsfTrackCollection> gsfTracks;
-  iEvent.getByLabel(gsftrackCollection_,gsfTracks);
+  iEvent.getByToken(gsftrackCollection_,gsfTracks);
   edm::Handle<reco::VertexCollection> vertices;
-  iEvent.getByLabel(vertexCollection_,vertices);
+  iEvent.getByToken(vertexCollection_,vertices);
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle ;
-  iEvent.getByLabel(beamSpotTag_,recoBeamSpotHandle) ;
+  iEvent.getByToken(beamSpotTag_,recoBeamSpotHandle) ;
   const BeamSpot bs = *recoBeamSpotHandle ;
 
   int ievt = iEvent.id().event();
