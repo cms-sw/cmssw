@@ -143,8 +143,8 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
   
   
 
-    //    LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
-    std::cout << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId << std::endl;
+    LogTrace("CSCRecHitDBuilder") << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId;
+    // std::cout << "[CSCRecHitDBuilder] " << hits_in_layer << " rechits found in layer " << sDetId << std::endl;
     
     // output vector of 2D rechits to collection
     if (hits_in_layer > 0) {
