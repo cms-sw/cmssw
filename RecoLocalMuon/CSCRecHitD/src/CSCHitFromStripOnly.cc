@@ -407,9 +407,7 @@ void CSCHitFromStripOnly::fillPulseHeights( const CSCStripDigiCollection::Range&
     // for ganged ME1a need to duplicate values on istrip=thisChannel to iStrip+16 and iStrip+32
     if ( ganged() ) {
       for ( int j = 1; j < 3; ++j ) {  
-	thePulseHeightMap[thisChannel-1+16*j] = std::move(CSCStripData( thisChannel+16*j, phmax, tmax, 
-									stripData.phRaw(), 
-									stripData.ph() )); // already calibrated!
+	thePulseHeightMap[thisChannel-1+16*j] = stripData;
       }
     }
 
@@ -526,12 +524,12 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   float sum  = 0.;
   float sum_w= 0.;
 
-  std::vector<float> w(4);
-  std::vector<float> wRaw(4);
+  //  std::vector<float> w(4);
+  // std::vector<float> wRaw(4);
   
   for ( size_t i = 0; i != data.size(); ++i ) {
-    w = data[i].ph();
-    wRaw = data[i].phRaw();
+    auto const & w = data[i].ph();
+    auto const & wRaw = data[i].phRaw();
 
     // (Require ADC to be > 0.)
     // No later studies suggest that this only do harm
