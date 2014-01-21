@@ -89,7 +89,7 @@ void EventProcessor::processEvent(const char* data, const int32_t dataSize, cons
   if (config->getBINCHECKER_OUTPUT())
     {
       // binChecker.output1().show();
-      / binChecker.output2().show();
+      // binChecker.output2().show();
     }
   else
     {
