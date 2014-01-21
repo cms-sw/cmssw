@@ -1776,7 +1776,7 @@ linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
 	RO.localMap.push_back( ElementMap::value_type(elemaskf,ecal.first) );
 	kf->second = false;
         
-        RO.singleLegConversions.push_back(std::make_pair(elemaskf->trackRef(),mvaval));
+        RO.singleLegConversionMvaMap.insert(std::make_pair(elemaskf, mvaval));
       }
     }    
   }
@@ -1868,13 +1868,20 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       if( convref.isNonnull() && convref.isAvailable() ) {
 	xtra.addConversionRef(convref);
       }
+      else {
+        //single leg conversions
+        
+        //look for stored mva value in map or else recompute
+        const auto &mvavalmapped = RO.singleLegConversionMvaMap.find(kf);
+        //FIXME: Abuse single mva value to store both provenance and single leg mva score
+        //by storing 3.0 + mvaval
+        float mvaval = mvavalmapped!=RO.singleLegConversionMvaMap.end() ? mvavalmapped->second : 3.0 + EvaluateSingleLegMVA(_currentblock, *cfg_.primaryVtx, 
+                                kf->index());
+        
+        xtra.addSingleLegConvTrackRefMva(std::make_pair(kf->trackRef(),mvaval));
+      }
     }
     
-    //add single leg conversions
-    for (const auto &conv : RO.singleLegConversions) {
-      xtra.addSingleLegConvTrackRefMva(conv);
-    }
-
     // build the refined supercluster from those clusters left in the cand
     refinedscs_.push_back(buildRefinedSuperCluster(RO));
     

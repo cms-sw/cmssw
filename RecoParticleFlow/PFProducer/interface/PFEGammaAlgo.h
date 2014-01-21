@@ -69,7 +69,9 @@ class PFEGammaAlgo {
     std::vector<PFKFFlaggedElement> > GSFToTrackMap;
   typedef std::unordered_map<const PFClusterElement*, 
     std::vector<PFClusterFlaggedElement> > ClusterMap;  
-
+  typedef std::unordered_map<const PFKFElement*, 
+    float > KFValMap;  
+    
   struct ProtoEGObject {
     ProtoEGObject() : parentSC(NULL) {}
     reco::PFBlockRef parentBlock;
@@ -88,7 +90,7 @@ class PFEGammaAlgo {
     // for manual brem recovery 
     std::vector<PFGSFFlaggedElement> secondaryGSFs;
     std::vector<PFKFFlaggedElement> secondaryKFs;    
-    std::vector<std::pair<reco::TrackRef, float> > singleLegConversions;
+    KFValMap singleLegConversionMvaMap;
     // for track-HCAL cluster linking
     std::vector<PFClusterFlaggedElement> hcalClusters;
     ElementMap localMap;
