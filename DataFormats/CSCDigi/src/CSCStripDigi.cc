@@ -5,36 +5,8 @@
  */
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 
-// Constructors
-CSCStripDigi::CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts, const std::vector<uint16_t> & vADCOverflow, const std::vector<uint16_t> & vOverlap, const std::vector<uint16_t> & vErrorstat ):
-  strip(istrip),
-  ADCCounts(vADCCounts),
-  ADCOverflow(vADCOverflow),
-  OverlappedSample(vOverlap),
-  Errorstat(vErrorstat)
-{
-}
-
-CSCStripDigi::CSCStripDigi (const int & istrip, const std::vector<int> & vADCCounts):
-  strip(istrip),
-  ADCCounts(vADCCounts),
-  ADCOverflow(8,0),
-  OverlappedSample(8,0),
-  Errorstat(8,0)
-{
-}
-
-
-CSCStripDigi::CSCStripDigi ():
-  strip(0),
-  ADCCounts(8,0),
-  ADCOverflow(8,0),
-  OverlappedSample(8,0),
-  Errorstat(8,0)
-{
-}
 
 // Comparison
 bool
