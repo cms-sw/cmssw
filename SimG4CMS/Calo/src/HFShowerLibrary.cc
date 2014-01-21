@@ -103,11 +103,12 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			   << probMax << "  Back propagation of light prob. "
                            << backProb ;
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
+  G4String attribute = "OnlyForHcalSimNumbering"; 
+  G4String value     = "any";
+  DDValue val(attribute, value, 0.0);
   DDSpecificsFilter filter;
-  DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
+  filter.setCriteria(val, DDSpecificsFilter::not_equals,
+		     DDSpecificsFilter::AND, true, true);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   bool dodet = fv.firstChild();
@@ -123,11 +124,9 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			     << " cm and rMax " << rMax/cm;
 
     //Delta phi
-    int nEta   = -1;
-    std::vector<double> etaTable = getDDDArray("etaTable",sv,nEta);
-    int nPhi   = nEta + nR - 2;
-    std::vector<double> phibin   = getDDDArray("phibin",sv,nPhi);
-    dphi       = phibin[nEta-1];
+    int nPhi   = nR - 1;
+    std::vector<double> phibin   = getDDDArray("phitable",sv,nPhi);
+    dphi       = phibin[0];
     edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
 			     << dphi/deg;
 

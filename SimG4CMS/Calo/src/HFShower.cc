@@ -34,11 +34,12 @@ HFShower::HFShower(std::string & name, const DDCompactView & cpv,
   edm::LogInfo("HFShower") << "HFShower:: Maximum probability cut off " 
                            << probMax << " Check flag " << chkFibre;
 
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
+  G4String attribute = "OnlyForHcalSimNumbering"; 
+  G4String value     = "any";
+  DDValue val(attribute, value, 0.0);
   DDSpecificsFilter filter;
-  DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
+  filter.setCriteria(val, DDSpecificsFilter::not_equals,
+		     DDSpecificsFilter::AND, true, true);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   bool dodet = fv.firstChild();
