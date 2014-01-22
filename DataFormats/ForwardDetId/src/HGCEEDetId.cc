@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <ostream>
 
-const HGCEEDetId HGCEEDetId::Undefined(ForwardEmpty,0,0,0,0,0);
+const HGCEEDetId HGCEEDetId::Undefined(ForwardEmpty,0,0,0,0);
 
 HGCEEDetId::HGCEEDetId() : DetId() {
 }
@@ -11,10 +11,10 @@ HGCEEDetId::HGCEEDetId(uint32_t rawid) : DetId(rawid) {
 }
 
 HGCEEDetId::HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int mod,
-		       int cellx, int celly) : DetId(Forward,subdet) {
+		       int cell) : DetId(Forward,subdet) {
   // (no checking at this point!)
-  id_ |= (((zp>0) ? 0x1000000 : 0) | ((lay&0x3F)<<18) | ((mod&0x3F)<12) |
-	  ((cellx&0x3F)<<6) | (celly&0x3F));
+  id_ |= (((zp>0) ? 0x1000000 : 0) | ((lay&0x1F)<<19) | ((mod&0x1F)<14) |
+	  (cell&0x7FFF));
 }
 
 HGCEEDetId::HGCEEDetId(const DetId& gen) {
@@ -40,7 +40,7 @@ HGCEEDetId& HGCEEDetId::operator=(const DetId& gen) {
 
 std::ostream& operator<<(std::ostream& s,const HGCEEDetId& id) {
   switch (id.subdet()) {
-  case(HGCEE) : return s << "(HGCEE " << id.zside() << ',' << id.layer() << ',' << id.module() << ',' << id.cellX() << ',' << id.cellY() << ')';
+  case(HGCEE) : return s << "(HGCEE " << id.zside() << ',' << id.layer() << ',' << id.module() << ',' << id.cell() << ')';
   default : return s << id.rawId();
   }
 }
