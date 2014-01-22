@@ -22,11 +22,6 @@ public:
 
 private:
 
-  int           m_nRow;         // nRows in a supermodule
-  int           m_nCol;         // nCols in a supermodule
-  double        m_taperAngle;   // taper angle of individual Shashlik module
-
-
   double        m_startAngle;   // Start angle 
   double        m_stepAngle;    // Step  angle
   int           m_invert;       // Inverted or forward
