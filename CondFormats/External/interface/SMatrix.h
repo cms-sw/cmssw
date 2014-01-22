@@ -24,19 +24,17 @@ namespace serialization {
  * by Boost Serialization.
  */
 
-// Math/SMatrix.h
-template <typename T, unsigned int D1, unsigned int D2, class R>
-struct access<ROOT::Math::SMatrix<T, D1, D2, R>>
+
+// Math/SMatrix.h                                                                                                                                                                                          
+template<class Archive, typename T, unsigned int D1, unsigned int D2, class R>
+void serialize(Archive & ar, ROOT::Math::SMatrix<T, D1, D2, R> & obj, const unsigned int)
 {
-    static bool equal_(const ROOT::Math::SMatrix<T, D1, D2, R> & first, const ROOT::Math::SMatrix<T, D1, D2, R> & second)
-    {
-        return std::equal(first.begin(), first.end(), second.begin(),
-            [](decltype(*first.begin()) a, decltype(a) b) -> bool {
-                return equal(a, b);
-            }
-        );
-    }
-};
+  unsigned int i = 0;
+  for (auto & value : obj) {
+    ar & boost::serialization::make_nvp(std::to_string(i).c_str(), value);
+    ++i;
+  }
+}
 
 } // namespace serialization
 } // namespace boost

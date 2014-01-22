@@ -196,7 +196,8 @@
 #include "CondFormats/Common/interface/BaseKeyed.h"
 //#include "CondFormats/Common/interface/KeyList.h"
 
-// Serialization (serialize() and equal())
+// Serialization (serialize() and equal()) -- /Common/ first
+#include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/Serialization/interface/SerializationEqual.h"
 #include "CondFormats/Alignment/interface/Serialization.h"
 #include "CondFormats/BTauObjects/interface/Serialization.h"
@@ -204,14 +205,12 @@
 #include "CondFormats/CSCObjects/interface/Serialization.h"
 #include "CondFormats/Calibration/interface/Serialization.h"
 #include "CondFormats/CastorObjects/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/DQMObjects/interface/Serialization.h"
 #include "CondFormats/DTObjects/interface/Serialization.h"
 #include "CondFormats/ESObjects/interface/Serialization.h"
 #include "CondFormats/EcalCorrections/interface/Serialization.h"
 #include "CondFormats/EcalObjects/interface/Serialization.h"
 #include "CondFormats/EgammaObjects/interface/Serialization.h"
-#include "CondFormats/External/interface/Serialization.h"
 #include "CondFormats/GeometryObjects/interface/Serialization.h"
 #include "CondFormats/HIObjects/interface/Serialization.h"
 #include "CondFormats/HLTObjects/interface/Serialization.h"
