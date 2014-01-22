@@ -1,5 +1,6 @@
 #include "CondFormats/Serialization/interface/SerializationTest.h"
 
+#include "CondCore/CondDB/interface/Serialization.h"
 #include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/External/interface/SMatrix.h"
 #include "CondFormats/External/interface/EcalDetID.h"

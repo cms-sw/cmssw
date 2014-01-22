@@ -58,6 +58,7 @@
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/CSCObjects/interface/Serialization.h"
 
 namespace cond {

@@ -11,7 +11,11 @@
 #include <boost/serialization/map.hpp>
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
+
+// for base class
+#include "CondFormats/External/interface/DetID.h"
 
 namespace boost {
 namespace serialization {
@@ -28,6 +32,13 @@ namespace serialization {
 // DataFormats/EcalDetId/interface/EBDetId.h
 template<class Archive>
 void serialize(Archive & ar, EBDetId & obj, const unsigned int)
+{
+    ar & boost::serialization::make_nvp("DetId", boost::serialization::base_object<DetId>(obj));;
+}
+
+// DataFormats/EcalDetId/interface/EEDetId.h
+template<class Archive>
+void serialize(Archive & ar, EEDetId & obj, const unsigned int)
 {
     ar & boost::serialization::make_nvp("DetId", boost::serialization::base_object<DetId>(obj));;
 }
@@ -72,7 +83,19 @@ struct access<EBDetId>
         ;
     }
 };
-
+  
+// DataFormats/EcalDetId/interface/EEDetId.h
+template <>
+struct access<EEDetId>
+{
+    static bool equal_(const EEDetId & first, const EEDetId & second)
+    {
+        return true
+            and (equal(static_cast<const DetId &>(first), static_cast<const DetId &>(second)))
+        ;
+    }
+};
+  
 // DataFormats/EcalDetId/interface/EcalContainer.h
 template <typename DetIdT, typename T>
 struct access<EcalContainer<DetIdT, T>>
@@ -80,7 +103,7 @@ struct access<EcalContainer<DetIdT, T>>
     static bool equal_(const EcalContainer<DetIdT, T> & first, const EcalContainer<DetIdT, T> & second)
     {
         return true
-            and (equal(first.items(), second.items()))
+	  and (equal(first.items(), second.items()))
         ;
     }
 };
