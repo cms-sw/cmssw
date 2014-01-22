@@ -31,13 +31,13 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const std::vector<CaloEmC
   } else if( m_fwv.firmwareVersion() == 2 ) { //PP algorithm
     m_jetAlgo = new CaloStage1JetAlgorithmImpPP(/*m_db*/); //fwv =2 => PP algo
   } else if( m_fwv.firmwareVersion() == 3 ) {
-    m_tauAlgo = new CaloStage1SingleTrackHI(/*m_db*/);
+    //m_tauAlgo = new CaloStage1SingleTrackHI(/*m_db*/);
   }  else{ // undefined fwv version
     edm::LogError("FWVersionError")
       << "Undefined firmware version passed to CaloStage1MainProcessorFirmwareImp1" << std::endl;
     return;
   }
 
-  m_jetAlgo->processEvent(regions, jets);
-  m_tauAlgo->processEvent(regions, taus);
+  //m_jetAlgo->processEvent(regions, jets);
+  //m_tauAlgo->processEvent(regions, taus);
 }

@@ -69,8 +69,8 @@ void findRegions(const std::vector<l1t::CaloRegion> & sr, std::vector<l1t::Tau> 
 		if (regionET > regionETMax)
 		{
 			regionETMax = regionET;
-			regionETMaxEta = *region.hwEta();
-			regionETMaxPhi = *region.hwPhi();
+			//regionETMaxEta = *region.hwEta();
+			//regionETMaxPhi = *region.hwPhi();
 		}
 			
 	}
@@ -83,7 +83,8 @@ void findRegions(const std::vector<l1t::CaloRegion> & sr, std::vector<l1t::Tau> 
 
 double regionPhysicalEt(const l1t::CaloRegion& cand) 
 	{
-      	return regionLSB_*cand.hwPt();
+	  //return regionLSB_*cand.hwPt();
+	  return 0.0;
    	};
 
 
