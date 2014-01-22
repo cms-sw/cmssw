@@ -80,10 +80,6 @@
     <rSolid name="CFCal"/>
     <rMaterial name="materials:Air"/>
   </LogicalPart>
-  <LogicalPart name="CFCal" category="unspecified">
-    <rSolid name="CFCal"/>
-    <rMaterial name="materials:Air"/>
-  </LogicalPart>
   <LogicalPart name="CFCalS" category="unspecified">
     <rSolid name="CFCalS"/>
     <rMaterial name="materials:StainlessSteel"/>
@@ -97,7 +93,7 @@
 <PosPartSection label="cfc.xml">
   <PosPart copyNumber="1">
     <rParent name="caloBase:CALO"/>
-    <rChild name="CFCal"/>
+    <rChild name="cfc:CFCal"/>
     <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="2">
