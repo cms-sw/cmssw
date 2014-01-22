@@ -55,7 +55,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   birk3            = m_HC.getParameter<double>("BirkC3");
   useShowerLibrary = m_HC.getParameter<bool>("UseShowerLibrary");
   useParam         = m_HC.getParameter<bool>("UseParametrize");
-  testNumber  = m_HC.getParameter<bool>("TestNumberingScheme");
+  testNumber       = m_HC.getParameter<bool>("TestNumberingScheme");
   usePMTHit        = m_HC.getParameter<bool>("UsePMTHits");
   betaThr          = m_HC.getParameter<double>("BetaThreshold");
   eminHitHB        = m_HC.getParameter<double>("EminHitHB")*MeV;
@@ -254,11 +254,12 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     if (fibre1LV.size() > 0 || fibre2LV.size() > 0) 
       showerBundle = new HFShowerFibreBundle (name, cpv, p);
 
-    attribute = "ReadOutName";
-    value     = name;
+    attribute = "OnlyForHcalSimNumbering"; 
+    value     = "any";
     DDSpecificsFilter filter6;
     DDValue           ddv6(attribute,value,0);
-    filter6.setCriteria(ddv6,DDSpecificsFilter::equals);
+    filter6.setCriteria(ddv6, DDSpecificsFilter::not_equals,
+			DDSpecificsFilter::AND, true, true);
     DDFilteredView fv6(cpv);
     fv6.addFilter(filter6);
     if (fv6.firstChild()) {
@@ -277,10 +278,12 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   }
 
   //Material list for HB/HE/HO sensitive detectors
-  attribute = "ReadOutName";
+  attribute = "OnlyForHcalSimNumbering"; 
+  value     = "any";
   DDSpecificsFilter filter2;
-  DDValue           ddv2(attribute,name,0);
-  filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
+  DDValue           ddv2(attribute,value,0);
+  filter2.setCriteria(ddv2, DDSpecificsFilter::not_equals,
+		      DDSpecificsFilter::AND, true, true);
   DDFilteredView fv2(cpv);
   fv2.addFilter(filter2);
   bool dodet = fv2.firstChild();
