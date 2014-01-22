@@ -654,6 +654,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
                       << aHit->getEM()/GeV << " GeV (EM) and " 
                       << aHit->getHadr()/GeV << " GeV (Hadr)";
 #endif
+
   return ok;
 }
 
