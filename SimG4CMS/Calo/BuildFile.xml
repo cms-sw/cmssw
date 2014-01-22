@@ -4,6 +4,7 @@
 <use   name="SimG4Core/Notification"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/HcalCalibObjects"/>
 <use   name="SimDataFormats/SimHitMaker"/>

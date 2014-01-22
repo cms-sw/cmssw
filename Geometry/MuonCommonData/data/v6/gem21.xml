@@ -331,19 +331,19 @@
     <Trd1 name="GRAXL" dz="[dzCardL]" dy1="[dyReadOut]" dy2="[dyReadOut]" dx1="[dxBotCardL]" dx2="[dxTopCard]" />
   </SolidSection>
   <LogicalPartSection label="gem21.xml">
-    <LogicalPart name="GE21SP" category="unspecified">
+    <LogicalPart name="GEMDisk21SP" category="unspecified">
       <rSolid name="GE21S"/>
       <rMaterial name="materials:ME_free_space"/>
     </LogicalPart>
-    <LogicalPart name="GE21SN" category="unspecified">
+    <LogicalPart name="GEMDisk21SN" category="unspecified">
       <rSolid name="GE21S"/>
       <rMaterial name="materials:ME_free_space"/>
     </LogicalPart>
-    <LogicalPart name="GE21LP" category="unspecified">
+    <LogicalPart name="GEMDisk21LP" category="unspecified">
       <rSolid name="GE21L"/>
       <rMaterial name="materials:ME_free_space"/>
     </LogicalPart>
-    <LogicalPart name="GE21LN" category="unspecified">
+    <LogicalPart name="GEMDisk21LN" category="unspecified">
       <rSolid name="GE21L"/>
       <rMaterial name="materials:ME_free_space"/>
     </LogicalPart>
@@ -685,22 +685,22 @@
   <PosPartSection label="gem21.xml">
 		<PosPart copyNumber="1">
 			<rParent name="mf:ME2RingP"/>
-			<rChild name="GE21SP"/>
+			<rChild name="GEMDisk21SP"/>
 			<Translation x="0*fm" y="0*fm" z="7.865*m + [hthick] " />
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="mf:ME2RingN"/>
-			<rChild name="GE21SN"/>
+			<rChild name="GEMDisk21SN"/>
 			<Translation x="0*fm" y="0*fm" z="7.865*m + [hthick] " />
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="mf:ME2RingP"/>
-			<rChild name="GE21LP"/>
+			<rChild name="GEMDisk21LP"/>
 			<Translation x="0*fm" y="0*fm" z="7.865*m + 3*[hthick]" />
 		</PosPart>
 		<PosPart copyNumber="1">
 			<rParent name="mf:ME2RingN"/>
-			<rChild name="GE21LN"/>
+			<rChild name="GEMDisk21LN"/>
 			<Translation x="0*fm" y="0*fm" z="7.865*m + 3*[hthick]" />
 		</PosPart>
 		<PosPart copyNumber="1">
@@ -1372,7 +1372,7 @@
   </PosPartSection>
 	
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21SP"/>
+    <rParent name="GEMDisk21SP"/>
     <String name="ChildName" value="GEMBox21"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1385,7 +1385,7 @@
     <Numeric name="zoffset"     value="+28.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21SP"/>
+    <rParent name="GEMDisk21SP"/>
     <String name="ChildName" value="GEMBox21"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1398,7 +1398,7 @@
     <Numeric name="zoffset"     value=" -9.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21SP"/>
+    <rParent name="GEMDisk21SP"/>
     <String name="ChildName" value="GEMBox21"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1411,7 +1411,7 @@
     <Numeric name="zoffset"     value=" +9.50*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21SP"/>
+    <rParent name="GEMDisk21SP"/>
     <String name="ChildName" value="GEMBox21"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1426,7 +1426,7 @@
 
 
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21LP"/>
+    <rParent name="GEMDisk21LP"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1439,7 +1439,7 @@
     <Numeric name="zoffset"     value="+28.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21LP"/>
+    <rParent name="GEMDisk21LP"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1452,7 +1452,7 @@
     <Numeric name="zoffset"     value=" -9.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21LP"/>
+    <rParent name="GEMDisk21LP"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1465,7 +1465,7 @@
     <Numeric name="zoffset"     value=" +9.50*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21LP"/>
+    <rParent name="GEMDisk21LP"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1479,7 +1479,7 @@
   </Algorithm>
 
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21SN"/>
+    <rParent name="GEMDisk21SN"/>
     <String name="ChildName" value="GEMBox21"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1492,7 +1492,7 @@
     <Numeric name="zoffset"     value="+28.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21SN"/>
+    <rParent name="GEMDisk21SN"/>
     <String name="ChildName" value="GEMBox21"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1505,7 +1505,7 @@
     <Numeric name="zoffset"     value=" -9.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21SN"/>
+    <rParent name="GEMDisk21SN"/>
     <String name="ChildName" value="GEMBox21"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1518,7 +1518,7 @@
     <Numeric name="zoffset"     value=" +9.50*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21SN"/>
+    <rParent name="GEMDisk21SN"/>
     <String name="ChildName" value="GEMBox21"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1533,7 +1533,7 @@
       
 
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21LN"/>
+    <rParent name="GEMDisk21LN"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1546,7 +1546,7 @@
     <Numeric name="zoffset"     value="+28.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21LN"/>
+    <rParent name="GEMDisk21LN"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1559,7 +1559,7 @@
     <Numeric name="zoffset"     value=" -9.70*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21LN"/>
+    <rParent name="GEMDisk21LN"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
@@ -1572,7 +1572,7 @@
     <Numeric name="zoffset"     value=" +9.50*mm"/>
   </Algorithm>
   <Algorithm name="muon:DDGEMAngular">
-    <rParent name="GE21LN"/>
+    <rParent name="GEMDisk21LN"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
     <Numeric name="n" value="9"/>
