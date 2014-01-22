@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEODUMP")
-process.load("Geometry.HGCalCommonData.testShashlikModuleXML_cfi")
+process.load("Geometry.HGCalCommonData.testShashlikSupermoduleXML_cfi")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
