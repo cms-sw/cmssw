@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -20,8 +21,9 @@
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 #include "GeneratorInterface/SherpaInterface/interface/SherpackFetcher.h"
+
+#include "CLHEP/Random/RandomEngine.h"
 
 class SherpaHadronizer : public gen::BaseHadronizer {
 public:
@@ -40,7 +42,9 @@ public:
   const char *classname() const { return "SherpaHadronizer"; }
   
 private:
-  
+
+  virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+
   std::string SherpaProcess;
   std::string SherpaChecksum;
   std::string SherpaPath;
@@ -51,19 +55,22 @@ private:
   unsigned int	maxEventsToPrint;
   
   SHERPA::Sherpa Generator;
-  CLHEP::HepRandomEngine* randomEngine;
-  
 };
 
 class CMS_SHERPA_RNG: public ATOOLS::External_RNG {
 public:
-  CMS_SHERPA_RNG(){randomEngine = &gen::getEngineReference();};
+  CMS_SHERPA_RNG() : randomEngine(nullptr) { }
+  void setRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
 private: 
   CLHEP::HepRandomEngine* randomEngine;
   double Get() override;
 };
 
-
+void SherpaHadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v) {
+  CMS_SHERPA_RNG* cmsSherpaRng = dynamic_cast<CMS_SHERPA_RNG*>(ATOOLS::ran->GetExternalRng());
+  assert(cmsSherpaRng != nullptr);
+  cmsSherpaRng->setRandomEngine(v);
+}
 
 SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params),
@@ -250,10 +257,17 @@ ATOOLS::External_RNG *CMS_SHERPA_RNG_Getter::operator()(const ATOOLS::RNG_Key &)
 void CMS_SHERPA_RNG_Getter::PrintInfo(std::ostream &str,const size_t) const
 { str<<"CMS_SHERPA_RNG interface"; }
 
-double CMS_SHERPA_RNG::Get(){
-   return randomEngine->flat();
-   }
-   
+double CMS_SHERPA_RNG::Get() {
+  if(randomEngine == nullptr) {
+    throw edm::Exception(edm::errors::LogicError)
+      << "The Sherpa code attempted to a generate random number while\n"
+      << "the engine pointer was null. This might mean that the code\n"
+      << "was modified to generate a random number outside the event and\n"
+      << "beginLuminosityBlock methods, which is not allowed.\n";
+  }
+  return randomEngine->flat();
+}
+
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 typedef edm::GeneratorFilter<SherpaHadronizer, gen::ExternalDecayDriver> SherpaGeneratorFilter;

@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 #include <map>
 #include <string>
@@ -16,7 +15,9 @@ namespace HepMC {
   class GenVertex;
 }
 
-extern CLHEP::HepRandomEngine* _amptRandomEngine;
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace gen
 {
@@ -50,6 +51,8 @@ namespace gen
 
   private:
     
+    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+
     void					add_heavy_ion_rec(HepMC::GenEvent *evt);
     HepMC::GenParticle*	                        build_ampt( int index, int barcode );	
     HepMC::GenVertex*                           build_ampt_vertex(int i, int id);
