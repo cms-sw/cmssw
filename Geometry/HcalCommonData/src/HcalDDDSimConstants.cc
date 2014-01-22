@@ -11,7 +11,6 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-
 //#define DebugLog
 
 HcalDDDSimConstants::HcalDDDSimConstants() : tobeInitialized(true) {
