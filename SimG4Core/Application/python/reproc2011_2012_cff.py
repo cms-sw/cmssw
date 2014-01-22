@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 def customiseG4(process):
 
+  hasattr(process,'g4SimHits'):  
+
     process.g4SimHits.Physics.type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML_New')
 
     # use HF shower library instead of GFlash parameterization
