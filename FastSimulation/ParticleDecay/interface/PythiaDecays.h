@@ -7,8 +7,8 @@
 // Needed for Pythia8
 #include <HepMC/GenEvent.h>
 #include <HepMC/GenParticle.h> 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include <Pythia8/Pythia.h>
+#include <Pythia8/Pythia8ToHepMC.h>
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
