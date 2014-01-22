@@ -2,6 +2,9 @@
 #include "CondTools/DT/test/validate/DTT0ValidateHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/DTObjects/interface/Serialization.h"
+
 typedef popcon::PopConAnalyzer<DTT0ValidateHandler> DTT0ValidateDBWrite;
 
 

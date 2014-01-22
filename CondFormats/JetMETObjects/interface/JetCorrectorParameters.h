@@ -214,6 +214,7 @@ class JetCorrectorParametersCollection {
   collection_type                        correctionsL7_;
 
  COND_SERIALIZABLE;
+
 };
 
 

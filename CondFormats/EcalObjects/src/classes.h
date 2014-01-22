@@ -1,8 +1,5 @@
 #include "CondFormats/EcalObjects/src/headers.h"
 
-
-
-
 namespace CondFormats_EcalObjects {
   struct dictionary {
     

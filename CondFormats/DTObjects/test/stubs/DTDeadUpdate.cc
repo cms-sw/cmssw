@@ -21,6 +21,10 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/DTObjects/interface/Serialization.h"
+
+
 namespace edmtest {
 
   DTDeadUpdate::DTDeadUpdate(edm::ParameterSet const& p): dSum( 0 ) {

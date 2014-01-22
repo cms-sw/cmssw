@@ -1,5 +1,4 @@
 #include "CondFormats/JetMETObjects/src/headers.h"
-
  
 JetCorrectorParameters corr;
 JetCorrectorParameters::Definitions def;

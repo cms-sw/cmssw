@@ -11,6 +11,9 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Serialization.h"
+
 namespace cond {
   template <> PerformancePayload* createPayload<PerformancePayload>( const std::string& payloadTypeName ){
     if( payloadTypeName == "PerformancePayloadFromTFormula" ) return new PerformancePayloadFromTFormula;

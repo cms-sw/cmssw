@@ -6,6 +6,11 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/External/interface/L1GtLogicParser.h"
+#include "CondFormats/L1TObjects/interface/Serialization.h"
+
 #include <utility>
 
 namespace l1t

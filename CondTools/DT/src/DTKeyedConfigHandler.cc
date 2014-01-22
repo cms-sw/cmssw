@@ -16,7 +16,6 @@
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
@@ -29,6 +28,9 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
+
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/DTObjects/interface/Serialization.h"
 
 //---------------
 // C++ Headers --

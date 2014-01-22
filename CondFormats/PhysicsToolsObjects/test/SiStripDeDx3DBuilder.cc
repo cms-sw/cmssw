@@ -10,6 +10,8 @@
 
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Serialization.h"
 
 #include <iostream>
 #include <fstream>

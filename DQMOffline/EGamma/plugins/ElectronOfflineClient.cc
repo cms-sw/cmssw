@@ -3,6 +3,11 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/External/interface/CLHEP.h"
+
 #include <string>
 
 ElectronOfflineClient::ElectronOfflineClient( const edm::ParameterSet & conf )

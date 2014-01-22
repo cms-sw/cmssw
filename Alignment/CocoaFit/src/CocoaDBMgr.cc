@@ -32,6 +32,12 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignInfo.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/External/interface/CLHEP.h"
+#include "CondFormats/OptAlignObjects/interface/Serialization.h"
+#include "CondFormats/Alignment/interface/Serialization.h"
+
 CocoaDBMgr* CocoaDBMgr::instance = 0;
 
 //----------------------------------------------------------------------

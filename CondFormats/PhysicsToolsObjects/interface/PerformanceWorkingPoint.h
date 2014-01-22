@@ -1,7 +1,6 @@
 #ifndef PerformanceWorkingPoint_h
 #define PerformanceWorkingPoint_h
 
-
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "string"

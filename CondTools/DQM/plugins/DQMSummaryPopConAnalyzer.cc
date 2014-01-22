@@ -2,6 +2,9 @@
 #include "CondTools/DQM/interface/DQMSummarySourceHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/DQMObjects/interface/Serialization.h"
+
 typedef popcon::PopConAnalyzer<popcon::DQMSummarySourceHandler> DQMSummaryPopConAnalyzer;
 //define this as a plug-in
 DEFINE_FWK_MODULE(DQMSummaryPopConAnalyzer);

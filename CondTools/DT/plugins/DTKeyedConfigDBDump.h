@@ -23,6 +23,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/DTObjects/interface/Serialization.h"
+
 //---------------
 // C++ Headers --
 //---------------

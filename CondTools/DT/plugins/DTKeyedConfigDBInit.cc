@@ -21,6 +21,9 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
 
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/Common/interface/Serialization.h"
+
 //---------------
 // C++ Headers --
 //---------------
