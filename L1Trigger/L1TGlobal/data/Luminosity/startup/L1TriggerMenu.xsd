@@ -1,0 +1,722 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!--
+
+    XML Schema Definition for the L1 trigge menu.
+
+    ************************************************************************
+      THIS IS ONLY A PRELIMINARY PROPOSAL OF THE L1 MENU INTERFACE.
+      IMPLEMENTATION OF THE SPECIFIC CONDITION ATTRIBUTES IS MISSING.
+    ************************************************************************
+
+    Structure showing all complex type instances:
+
+        l1TriggerMenu (l1t:L1TriggerMenu)
+        ├── meta (l1t:Meta)
+        │   ├── name (l1t:MenuName)
+        │   ├── scalesKey (l1t:ScalesKey)
+        │   ├── firmwareVersion (l1t:FirmwareVersion)
+        │   ├── description (l1t:Description)
+        │   └── history (l1t:History)
+        │       └── revision (l1t:Revision)
+        │           ├── author (l1t:Label)
+        │           └── datetime (l1t:DateTime)
+        ├── conditions (l1t:ConditionList)
+        │   ├── condCalorimeter (l1t:CalorimeterCondition)
+        │   │   ├── name (l1t:ConditionName)
+        │   │   ├── description (l1t:Description)
+        │   │   ├── locked (xs:boolean)
+        │   │   ├── type (l1t:CalorimeterConditionType)
+        │   │   ├── etComparison (l1t:ConditionEtComparison)
+        │   │   ├── objectType (l1t:CalorimeterObjectType)
+        │   │   ├── objectParameters (l1t:CalorimeterObjectParameters)
+        │   │   │   └── objectParameter (l1t:CalorimeterObjectParameter)
+        │   │   │       ├── etThreshold (l1t:Threshold)
+        │   │   │       ├── phiRange (l1t:Range) (1-2]
+        │   │   │       │   ├── begin (xs:unsignedInt)
+        │   │   │       │   └── end (xs:unsignedInt)
+        │   │   │       └── etaRange (l1t:Range) (1-2]
+        │   │   │           ├── begin xs:unsignedInt()
+        │   │   │           └── end (xs:unsignedInt)
+        │   │   ├── deltaRanges (l1t:DeltaRanges)
+        │   │   │   ├── deltaEtaRange (l1t:Range)
+        │   │   │   │   ├── begin (xs:unsignedInt)
+        │   │   │   │   └── end (xs:unsignedInt)
+        │   │   │   └── deltaPhiRange (l1t:Range)
+        │   │   │       ├── begin (xs:unsignedInt)
+        │   │   │       └── end (xs:unsignedInt)
+        │   │   └── relativeBx (l1t:RelativeBx)
+        │   ├── condMuon (l1t:MuonCondition) ( to be defined ]
+        │   │   ├── name (xs:string)
+        │   │   ├── description (l1t:Description)
+        │   │   └── locked (xs:boolean)
+        │   ├── condEnergySum (l1t:EnergySumCondition) ( to be defined ]
+        │   │   ├── name (xs:string)
+        │   │   ├── description (l1t:Description)
+        │   │   └── locked (xs:boolean)
+        │   ├── condCorrelation (l1t:CorrelationCondition) ( to be defined ]
+        │   │   ├── name (xs:string)
+        │   │   ├── description (l1t:Description)
+        │   │   └── locked (xs:boolean)
+        │   ├── condInvariantMass (l1t:InvariantMassCondition) ( to be defined ]
+        │   │   ├── name (xs:string)
+        │   │   ├── description (l1t:Description)
+        │   │   └── locked (xs:boolean)
+        │   ├── condDeltaR (l1t:DeltaRCondition) ( to be defined ]
+        │   │   ├── name (xs:string)
+        │   │   ├── description (l1t:Description)
+        │   │   └── locked (xs:boolean)
+        └── algorithms (l1t:AlgorithmList)
+            └── algorithm (l1t:Algorithm)
+                ├── name (l1t:AlgorithmName)
+                ├── index (l1t:AlgorithmIndex)
+                ├── equation (l1t:AlgorithmEquation)
+                ├── description (l1t:Description)
+                └── locked (xs:boolean)
+
+    ************************************************************************
+
+    Virtual base complex type for all conditions:
+
+        Condition (l1t:abstract)
+        ├── name (xs:string)
+        ├── description (l1t:Description)
+        └── locked (xs:boolean)
+
+    Condition complex types:
+
+        CalorimeterCondition (l1t:Condition)
+        MuonCondition (l1t:Condition)
+        EnergySumCondition (l1t:Condition)
+        CorrelationCondition (l1t:Condition)
+        InvariantMassCondition (l1t:Condition)
+        DeltaRCondition (l1t:Condition)
+
+    All basic simple types:
+
+        DateTime (xs:dateTime)
+        Label (l1t:string)
+        Description (xs:string)
+
+    All complex type Meta specific simple types:
+
+        MenuName (xs:string)
+        ScalesKey (xs:string)
+        FirmwareVersion (xs:unsignedInt)
+
+    All complex type Meta specific complex types:
+
+        History
+        Author
+
+    All basic type Condition and derivates specific simple types:
+
+        ConditionEtComparison (xs:string)
+        Threshold (xs:unsignedInt)
+
+    All complex type Condition and derivates specific simple types:
+
+        Range
+
+    All simple type Algorithm specific simple types:
+
+        AlgorithmName (xs:string)
+        AlgorithmIndex (xs:unsignedInt)
+        AlgorithmEquation (xs:string)
+
+    ************************************************************************
+
+    The XML is using namespace l1t requiring full qualified elements.
+
+    Important: all numeric integer values like hardware indexes are stored
+    using type xs:unsignedInt as xs:hexBinary is not supported well by created
+    XML bindings.
+
+    ************************************************************************
+
+    A valid example XML file will look like this:
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <l1t:l1TriggerMenu xmlns:l1t="http://www.cern.ch/l1t"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
+          <l1t:meta>
+            <l1t:name>L1Menu_example</l1t:name>
+            <l1t:scalesKey>L1T_Scales_example</l1t:scalesKey>
+            <l1t:firmwareVersion>42</l1t:firmwareVersion>
+            <l1t:description>This a an example trigger menu.</l1t:description>
+            <l1t:history>
+              <l1t:revision username="john" hostname="gtslc6.local">
+                <l1t:author>John Doe</l1t:author>
+                <l1t:datetime>2013-07-06T15:33:24</l1t:datetime>
+              </l1t:revision>
+            </l1t:history>
+          </l1t:meta>
+          <l1t:conditions>
+            <l1t:condCalorimeter>
+              <l1t:name>SingelJet_0x0</l1t:name>
+              <l1t:description>An example single jet condition.</l1t:description>
+              <l1t:locked>false</l1t:locked>
+              <l1t:type>single</l1t:type>
+              <l1t:etComparison>ge</l1t:etComparison>
+              <l1t:objectType>jet</l1t:objectType>
+              <l1t:objectParameters>
+                <l1t:objectParameter>
+                  <l1t:etThreshold>0</l1t:etThreshold>
+                  <l1t:phiRange>
+                    <l1t:begin>0</l1t:begin>
+                    <l1t:end>1</l1t:end>
+                  </l1t:phiRange>
+                  <l1t:etaRange>
+                    <l1t:begin>2</l1t:begin>
+                    <l1t:end>3</l1t:end>
+                  </l1t:etaRange>
+                </l1t:objectParameter>
+              </l1t:objectParameters>
+              <l1t:relativeBx>0</l1t:relativeBx>
+            </l1t:condCalorimeter>
+          </l1t:conditions>
+          <l1t:algorithms>
+            <l1t:algorithm>
+              <l1t:name>L1_SingleJet</l1t:name>
+              <l1t:index>42</l1t:index>
+              <l1t:equation>SingelJet_0x0 OR SingelJet_0x0</l1t:equation>
+              <l1t:description>An example algorithm wit a nonsense equation.</l1t:description>
+              <l1t:locked>false</l1t:locked>
+            </l1t:algorithm>
+          </l1t:algorithms>
+        </l1t:l1TriggerMenu>
+
+    ************************************************************************
+
+    A valid example XML of a complete empty (l1t:new created) menu:
+
+        <?xml version="1.0" encoding="UTF-8"?>
+        <l1t:l1TriggerMenu xmlns:l1t="http://www.cern.ch/l1t"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
+          <l1t:meta>
+            <l1t:name>L1Menu_</l1t:name>
+            <l1t:scalesKey>L1T_Scales_</l1t:scalesKey>
+            <l1t:firmwareVersion>0</l1t:firmwareVersion>
+            <l1t:description></l1t:description>
+            <l1t:history>
+              <l1t:revision>
+                <l1t:author></l1t:author>
+                <l1t:datetime>2014-01-01T00:00:00</l1t:datetime>
+              </l1t:revision>
+            </l1t:history>
+          </l1t:meta>
+          <l1t:conditions></l1t:conditions>
+          <l1t:algorithms></l1t:algorithms>
+        </l1t:l1TriggerMenu>
+
+    ************************************************************************
+
+    The above example menu implements a single calorimeter condition
+    (SingelJet_0x0) and a single algorithm (L1_SingleJet) assigned to
+    index 42. Both condition and algorithm are not locked (editable).
+    This example serves as reference.
+
+    ************************************************************************
+
+-->
+
+<xs:schema targetNamespace="http://www.cern.ch/l1t"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:l1t="http://www.cern.ch/l1t"
+  elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+  <!--
+
+    Simple types used in the entire L1 trigger menu.
+
+  -->
+
+  <xs:simpleType name="DateTime">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Time stamp containing date and time information in the following form
+        "YYYY-MM-DDThh:mm:ss".
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:dateTime">
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Label">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for general purpose labels like author names, maximum length is
+        limited to 50 characters in compliance to the database.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Description">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for description texts, maximum length is limited to 500
+        characters in compliance to the database.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="500"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+
+    Simple types used inside complex type Meta.
+
+  -->
+
+  <xs:simpleType name="MenuName">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for L1T-Menu name, maximum length is limited to 460 characters in
+        compliance to the database. Allowed characters are a-z, A-Z, underscores
+        and numbers. The string must begin with "L1Menu_".
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="460"/>
+      <xs:pattern value="L1Menu_([A-Za-z0-9_])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ScalesKey">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for scales database key, maximum length is limited to 256
+        characters in compliance to the database. Allowed characters are a-z,
+        A-Z, underscores and numbers. The string must begin with "L1T_Scales_".
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="256"/>
+      <xs:pattern value="L1T_Scales_([A-Za-z0-9_])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FirmwareVersion">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unsigned integer of 32 bit for firmware version.
+        Note: the format of firmware version tracking still need to be specified.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:unsignedInt">
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+
+    Complex types used inside complex type Meta.
+
+  -->
+
+  <xs:complexType name="History">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        A list of authors that applied changes to the menu.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence maxOccurs="unbounded">
+      <xs:element name="revision" type="l1t:Revision"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Revision">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Documents a new revision, stores the authors or editors name and a
+        timestamp of the last changes. Optional attributes are the username and
+        hostname of the machine used to apply the changes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="author" type="l1t:Label"/>
+      <xs:element name="datetime" type="l1t:DateTime"/>
+    </xs:sequence>
+    <xs:attribute name="username" type="l1t:Label"/>
+    <xs:attribute name="hostname" type="l1t:Label"/>
+  </xs:complexType>
+
+  <!--
+
+    Simple types used with complex type Condition derivates.
+
+  -->
+
+  <xs:simpleType name="ConditionEtComparison">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Defines the comparison mode for the transversal energy value.
+         * equal (l1t:==)
+         * greater_equal (l1t:>=)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="eq"/>
+      <xs:enumeration value="ge"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RelativeBx">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Relative bunch crossing offset for input data. Allowed range is -2 up to
+        +2.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="-2"/>
+      <xs:maxInclusive value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+
+    Simple types used inside complex type CalorimeterCondition.
+
+  -->
+
+  <xs:simpleType name="ConditionName">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for condition name, maximum length is limited to 256 characters
+        in compliance to the database. Allowed characters are a-z, A-Z,
+        underscores and numbers.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="256"/>
+      <xs:pattern value="([A-Za-z0-9_])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CalorimeterConditionType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Enumeration of different calorimeter condition types.
+         * single object condition
+         * double objects condition
+         * triple objects condition
+         * quad objects condition
+         * double objects condition with spatial correlation
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="single"/>
+      <xs:enumeration value="double"/>
+      <xs:enumeration value="triple"/>
+      <xs:enumeration value="quad"/>
+      <xs:enumeration value="double_wsc"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CalorimeterObjectType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Type of calorimeter object types.
+         * eg
+         * jet
+         * tau
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="eg"/>
+      <xs:enumeration value="jet"/>
+      <xs:enumeration value="tau"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Threshold">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Threshold of transversal energy for conditions.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+
+  <!--
+
+    Simple types used inside complex type Algorithm.
+
+  -->
+
+  <xs:simpleType name="AlgorithmName">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for algorithm name, maximum length is limited to 300 characters
+        in compliance to the database. Allowed characters are a-z, A-Z,
+        underscores and numbers.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="300"/>
+      <xs:pattern value="([A-Za-z0-9_])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlgorithmIndex">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Unsigned integer of 32 bit for algorithm index. limited in range from 0
+        up to 511.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:unsignedInt">
+      <xs:minInclusive value="0"/>
+      <xs:maxExclusive value="512"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AlgorithmEquation">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        String for algorithm logical equation, maximum length is limited to 500
+        characters in compliance to the database. Allowed characters are a-z,
+        A-Z, underscores, numbers, white spaces and braces.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="500"/>
+      <xs:pattern value="([A-Za-z0-9/(/)_/ ])*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+
+    Complex types of the L1 trigger menu.
+
+  -->
+
+  <xs:complexType name="Meta">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Meta container containing the menu name and other meta data entries.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="name" type="l1t:MenuName"/>
+      <xs:element name="scalesKey" type="l1t:ScalesKey"/>
+      <xs:element name="firmwareVersion" type="l1t:FirmwareVersion"/>
+      <xs:element name="description" type="l1t:Description"/>
+      <xs:element name="history" type="l1t:History"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ConditionList">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        List container holding all condition instances.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="condCalorimeter" type="l1t:CalorimeterCondition"/>
+      <xs:element name="condMuon" type="l1t:MuonCondition"/>
+      <xs:element name="condEnergySum" type="l1t:EnergySumCondition"/>
+      <xs:element name="condCorrelation" type="l1t:CorrelationCondition"/>
+      <xs:element name="condInvariantMass" type="l1t:InvariantMassCondition"/>
+      <xs:element name="condDeltaR" type="l1t:DeltaRCondition"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="Condition" abstract="true">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Condition type base definition (l1t:virtual). It contains all common
+        condition attributes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="1" maxOccurs="1">
+      <xs:element name="name" type="l1t:ConditionName"/>
+      <xs:element name="description" type="l1t:Description"/>
+      <xs:element name="locked" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Range">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Range for eta and phi used by different condition types.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="begin" type="xs:unsignedInt"/>
+      <xs:element name="end" type="xs:unsignedInt"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DeltaRanges">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Container holding eta and phi delta ranges to be used with spatial
+        correlations.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="deltaEtaRange" type="l1t:Range"/>
+      <xs:element name="deltaPhiRange" type="l1t:Range"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CalorimeterObjectParameter">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Universal object parameter set to be used for eg, jet and tau objects.
+        Phi and eta ranges can occur up to two times (up to two windows) or can
+        be omitted (full range is used).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="etThreshold" type="l1t:Threshold"/>
+      <xs:element name="phiRange" type="l1t:Range" minOccurs="0" maxOccurs="2"/>
+      <xs:element name="etaRange" type="l1t:Range" minOccurs="0" maxOccurs="2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CalorimeterObjectParameters">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Container capable of storing up to 4 object parameter sets.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence maxOccurs="4">
+      <xs:element name="objectParameter" type="l1t:CalorimeterObjectParameter"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CalorimeterCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Calorimeter condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition">
+        <xs:sequence>
+          <xs:element name="type" type="l1t:CalorimeterConditionType"/>
+          <xs:element name="etComparison" type="l1t:ConditionEtComparison"/>
+          <xs:element name="objectType" type="l1t:CalorimeterObjectType"/>
+          <xs:element name="objectParameters" type="l1t:CalorimeterObjectParameters"/>
+          <xs:element name="deltaRanges" type="l1t:DeltaRanges" minOccurs="0"/>
+          <xs:element name="relativeBx" type="l1t:RelativeBx"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MuonCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Muon condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="EnergySumCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Muon condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CorrelationCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Correlation condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="InvariantMassCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Invariant mass condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="DeltaRCondition">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Delta R condition type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="l1t:Condition"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Algorithm">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        Algorithm container holding the name, index and equation.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="1" maxOccurs="1">
+      <xs:element name="name" type="l1t:AlgorithmName"/>
+      <xs:element name="index" type="l1t:AlgorithmIndex"/>
+      <xs:element name="equation" type="l1t:AlgorithmEquation"/>
+      <xs:element name="description" type="l1t:Description"/>
+      <xs:element name="locked" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AlgorithmList">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        List container holding all algorithm instances. It is limited to the
+        maximum amount of algorithms in compliance with the hardware limits.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence minOccurs="0" maxOccurs="512">
+      <xs:element name="algorithm" type="l1t:Algorithm"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="L1TriggerMenu">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+        The main L1 trigger menu container holding meta data, conditions and
+        algorithms. The version attribute controls the interface version of
+        the L1 trigger menu.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="meta" type="l1t:Meta"/>
+      <xs:element name="conditions" type="l1t:ConditionList"/>
+      <xs:element name="algorithms" type="l1t:AlgorithmList"/>
+    </xs:sequence>
+    <xs:attribute name="version" type="xs:string" fixed="0.4" use="required"/>
+  </xs:complexType>
+
+  <!--
+
+    Root element instance for the L1 trigger menu.
+
+  -->
+
+  <xs:element name="l1TriggerMenu" type="l1t:L1TriggerMenu"/>
+
+</xs:schema>
