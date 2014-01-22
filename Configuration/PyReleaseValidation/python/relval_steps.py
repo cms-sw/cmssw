@@ -1046,8 +1046,6 @@ step3Defaults = {
                   }
 
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
-#wmsplit['DIGIPU']=4
-#wmsplit['DIGIPU1']=4
 
 #for 2015
 step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
@@ -1055,7 +1053,7 @@ step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--magField'    : '38T_PostLS1',
                  '-n':'10',
                  '--datatier':'GEN-SIM-RECO,DQM',
-                 '--eventcontent':'FEVTDEBUGHLT,DQM',
+                 '--eventcontent':'RECOSIM,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                  '--geometry' : 'Extended2015'
                  }
@@ -1080,6 +1078,7 @@ steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_%s
 steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
+steps['RECOPRODUP15']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Up2015Defaults])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},stCond,step3Defaults])
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+EcalCalPhiSym,VALIDATION,DQM'},stCond,step3Defaults])
