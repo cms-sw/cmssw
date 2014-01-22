@@ -13,17 +13,22 @@ DTMeantimerPatternReco2DAlgo_ParamDrift = cms.PSet(
         # Parameters for the updator
         # this is the RecHit1D algo!!
         DTParametrizedDriftAlgo,
-        segmCleanerMode = cms.int32(1),
         AlphaMaxPhi = cms.double(1.0),
-        MaxChi2 = cms.double(8.0),
-        MaxT0 = cms.double(50.0),
-        MaxAllowedHits = cms.uint32(50),
-        # Parameters for the cleaner
-        nSharedHitsMax = cms.int32(2),
         AlphaMaxTheta = cms.double(0.1),
+        MaxChi2 = cms.double(8.0),
+        MaxAllowedHits = cms.uint32(50),
         debug = cms.untracked.bool(False),
+
+        # Parameters for the cleaner
+        segmCleanerMode = cms.int32(1),
+        nSharedHitsMax = cms.int32(2),
         nUnSharedHitsMin = cms.int32(2),
-        MinT0 = cms.double(-10.0)
+
+        # Parameters for  T0 fit segment in the Updator 
+        performT0_vdriftSegCorrection = cms.bool(False),
+        hit_afterT0_resolution = cms.double(0.03),
+        performT0SegCorrection = cms.bool(False),
+        perform_delta_rejecting = cms.bool(False)
     ),
     Reco2DAlgoName = cms.string('DTMeantimerPatternReco')
 )

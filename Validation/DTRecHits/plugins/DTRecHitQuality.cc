@@ -30,8 +30,15 @@
 using namespace std;
 using namespace edm;
 
-
-
+// In phi SLs, The dependency on X and angle is specular in positive 
+// and negative wheels. Since positive and negative wheels are filled 
+// together into the same plots, it is useful to mirror negative wheels 
+// so that the actual dependency can be observerd instead of an artificially 
+// simmetrized one.
+// Set mirrorMinusWheels to avoid this.
+namespace {
+  bool mirrorMinusWheels = true;
+}
 
 // Constructor
 DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
@@ -52,11 +59,9 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   doStep3 = pset.getUntrackedParameter<bool>("doStep3", false);
   doall = pset.getUntrackedParameter<bool>("doall", false);
   local = pset.getUntrackedParameter<bool>("local", true);
-  // if(doall) doStep1
-  // Create the root file
-  //theFile = new TFile(rootFileName.c_str(), "RECREATE");
-  //theFile->cd();
+}
 
+void DTRecHitQuality::beginRun(const edm::Run& iRun, const edm::EventSetup &setup) {
 
   // ----------------------                 
   // get hold of back-end interface 
@@ -350,7 +355,7 @@ float DTRecHitQuality::simHitDistFromWire(const DTLayer* layer,
   return fabs(xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z()));//FIXME: check...
 }
 
-// Compute SimHit impact angle (in direction perp to wire)
+// Compute SimHit impact angle (in direction perp to wire), in the SL RF 
 float DTRecHitQuality::simHitImpactAngle(const DTLayer* layer,
                                          DTWireId wireId,
                                          const PSimHit& hit) {
@@ -367,7 +372,10 @@ float DTRecHitQuality::simHitDistFromFE(const DTLayer* layer,
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
   float wireLenght=layer->specificTopology().cellLenght();
-  return (entryP.y()+exitP.y())/2.+wireLenght;
+  // FIXME: should take only wireLenght/2.;
+  // moreover, pos+cellLenght/2. is shorter than the distance from FE.
+  // In fact it would make more sense to make plots vs y.
+  return (entryP.y()+exitP.y())/2.+wireLenght; 
 }
 
 
@@ -422,6 +430,9 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       wireAndSHits != simHitsPerWire.end();
       wireAndSHits++) {
     DTWireId wireId = (*wireAndSHits).first;
+    int wheel = wireId.wheel();
+    int sl = wireId.superLayer();
+
     vector<PSimHit> simHitsInCell = (*wireAndSHits).second;
 
     // Get the layer
@@ -472,77 +483,83 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       float recHitWireDist =  recHitDistFromWire(*theBestRecHit, layer);
       if(debug)
         cout << "    SimHit distance from wire: " << simHitWireDist << endl
-          << "    SimHit distance from FE: " << simHitFEDist << endl
-          << "    SimHit distance angle " << simHitTheta << endl
-          << "    RecHit distance from wire: " << recHitWireDist << endl;
+	     << "    SimHit distance from FE:   " << simHitFEDist << endl
+	     << "    SimHit angle in layer RF:  " << simHitTheta << endl
+	     << "    RecHit distance from wire: " << recHitWireDist << endl;
       float recHitErr = recHitPositionError(*theBestRecHit);
       HRes1DHit *hRes = 0;
       HRes1DHit *hResTot = 0;
+
+      // Mirror angle in phi so that + and - wheels can be plotted together
+      if (mirrorMinusWheels && wheel<0 && sl!=2){
+	simHitTheta *= -1.;
+	// Note: local X, if used, would have to be mirrored as well
+      }
 
       // Fill residuals and pulls
       // Select the histo to be filled
       if(step == 1) {
         // Step 1
-        if(wireId.superLayer() != 2) {
+        if(sl != 2) {
           hResTot = hRes_S1RPhi;
-          if(wireId.wheel() == 0)
+          if(wheel == 0)
             hRes = hRes_S1RPhi_W0;
-          if(abs(wireId.wheel()) == 1)
+          if(abs(wheel) == 1)
             hRes = hRes_S1RPhi_W1;
-          if(abs(wireId.wheel()) == 2)
+          if(abs(wheel) == 2)
             hRes = hRes_S1RPhi_W2;
         } else {
           hResTot = hRes_S1RZ;
-          if(wireId.wheel() == 0)
+          if(wheel == 0)
             hRes = hRes_S1RZ_W0;
-          if(abs(wireId.wheel()) == 1)
+          if(abs(wheel) == 1)
             hRes = hRes_S1RZ_W1;
-          if(abs(wireId.wheel()) == 2)
+          if(abs(wheel) == 2)
             hRes = hRes_S1RZ_W2;
         }
 
       } else if(step == 2) {
         // Step 2
-        if(wireId.superlayer() != 2) {
+        if(sl != 2) {
           hRes = hRes_S2RPhi;
-          if(wireId.wheel() == 0)
+          if(wheel == 0)
             hRes = hRes_S2RPhi_W0;
-          if(abs(wireId.wheel()) == 1)
+          if(abs(wheel) == 1)
             hRes = hRes_S2RPhi_W1;
-          if(abs(wireId.wheel()) == 2)
+          if(abs(wheel) == 2)
             hRes = hRes_S2RPhi_W2;
         } else {
           hResTot = hRes_S2RZ;
-          if(wireId.wheel() == 0)
+          if(wheel == 0)
             hRes = hRes_S2RZ_W0;
-          if(abs(wireId.wheel()) == 1)
+          if(abs(wheel) == 1)
             hRes = hRes_S2RZ_W1;
-          if(abs(wireId.wheel()) == 2)
+          if(abs(wheel) == 2)
             hRes = hRes_S2RZ_W2;
         }
 
       } else if(step == 3) {
         // Step 3
-        if(wireId.superlayer() != 2) {
+        if(sl != 2) {
           hResTot = hRes_S3RPhi;
-          if(wireId.wheel() == 0)
+          if(wheel == 0)
             hRes = hRes_S3RPhi_W0;
-          if(abs(wireId.wheel()) == 1)
+          if(abs(wheel) == 1)
             hRes = hRes_S3RPhi_W1;
-          if(abs(wireId.wheel()) == 2)
+          if(abs(wheel) == 2)
             hRes = hRes_S3RPhi_W2;
-	  if (local) hRes_S3RPhiWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),simHitGlobalPos.phi(),recHitErr,wireId.station());
+	  if (local) hRes_S3RPhiWS[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),simHitGlobalPos.phi(),recHitErr,wireId.station());
 	  
         } else {
           hResTot = hRes_S3RZ;
-          if(wireId.wheel() == 0)
+          if(wheel == 0)
             hRes = hRes_S3RZ_W0;
-          if(abs(wireId.wheel()) == 1)
+          if(abs(wheel) == 1)
             hRes = hRes_S3RZ_W1;
-          if(abs(wireId.wheel()) == 2)
+          if(abs(wheel) == 2)
             hRes = hRes_S3RZ_W2;
 
-	  if (local) hRes_S3RZWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),simHitGlobalPos.phi(),recHitErr,wireId.station());
+	  if (local) hRes_S3RZWS[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitTheta, simHitFEDist, recHitWireDist, simHitGlobalPos.eta(),simHitGlobalPos.phi(),recHitErr,wireId.station());
         }
       }
       // Fill
@@ -559,48 +576,48 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
       HEff1DHit *hEffTot = 0;
       if(step == 1) {
 	// Step 1
-	if(wireId.superlayer() != 2) {
+	if(sl != 2) {
 	  hEff = hEff_S1RPhi;
-	  if (local) hEff_S1RPhiWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+	  if (local) hEff_S1RPhiWS[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 	} else {
 	  hEffTot = hEff_S1RZ;
-	  if(wireId.wheel() == 0)
+	  if(wheel == 0)
 	    hEff = hEff_S1RZ_W0;
-	  if(abs(wireId.wheel()) == 1)
+	  if(abs(wheel) == 1)
 	    hEff = hEff_S1RZ_W1;
-	  if(abs(wireId.wheel()) == 2)
+	  if(abs(wheel) == 2)
 	    hEff = hEff_S1RZ_W2;
-	  if (local) hEff_S1RZWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+	  if (local) hEff_S1RZWS[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 	}
 	
       } else if(step == 2) {
 	// Step 2
-	if(wireId.superlayer() != 2) {
+	if(sl != 2) {
 	  hEff = hEff_S2RPhi;
 	} else {
 	  hEffTot = hEff_S2RZ;
-	  if(wireId.wheel() == 0)
+	  if(wheel == 0)
 	    hEff = hEff_S2RZ_W0;
-	  if(abs(wireId.wheel()) == 1)
+	  if(abs(wheel) == 1)
 	    hEff = hEff_S2RZ_W1;
-	  if(abs(wireId.wheel()) == 2)
+	  if(abs(wheel) == 2)
 	    hEff = hEff_S2RZ_W2;
 	}
 	
       } else if(step == 3) {
 	// Step 3
-	if(wireId.superlayer() != 2) {
+	if(sl != 2) {
 	  hEff = hEff_S3RPhi;
-	  if (local) hEff_S3RPhiWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+	  if (local) hEff_S3RPhiWS[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 	} else {
 	  hEffTot = hEff_S3RZ;
-	  if(wireId.wheel() == 0)
+	  if(wheel == 0)
 	    hEff = hEff_S3RZ_W0;
-	  if(abs(wireId.wheel()) == 1)
+	  if(abs(wheel) == 1)
 	    hEff = hEff_S3RZ_W1;
-	  if(abs(wireId.wheel()) == 2)
+	  if(abs(wheel) == 2)
 	    hEff = hEff_S3RZ_W2;
-	  if (local) hEff_S3RZWS[abs(wireId.wheel())][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
+	  if (local) hEff_S3RZWS[abs(wheel)][wireId.station()-1]->Fill(simHitWireDist, simHitGlobalPos.eta(), simHitGlobalPos.phi(), recHitReconstructed);
 	}
 
       }

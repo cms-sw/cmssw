@@ -60,10 +60,13 @@ class DTSegmentCand{
     virtual unsigned int nHits() const { return theHits.size(); }
 
     /// the chi2 (NOT chi2/NDOF) of the fit
-    virtual double chi2() const {return theChi2; }
+    virtual double chi2() const { return theChi2; }
 
     /// the chi2/NDOF of the fit
-    virtual double chi2ndof() const {return theChi2/(nHits()-2.); }
+    virtual double chi2ndof() const { return theChi2/(nHits()-2.); }
+
+    /// the t0 of the segment
+    virtual double t0() const { return thet0; }
 
     /// equality operator based on position, direction, chi2 and nHits
     virtual bool operator==(const DTSegmentCand& seg);
@@ -89,7 +92,7 @@ class DTSegmentCand{
     virtual void setPosition(LocalPoint& pos) { thePosition=pos; }
 
     /// set direction
-    virtual void setDirection(LocalVector& dir) { theDirection = dir ; }
+    virtual void setDirection(LocalVector& dir) { theDirection = dir; }
 
     /// add hits to the hit list.
     virtual void add(DTHitPairForFit* hit, DTEnums::DTCellSide code) ;
@@ -98,7 +101,10 @@ class DTSegmentCand{
     virtual void removeHit(AssPoint hit) ;
 
     /// set chi2
-    virtual void setChi2(double& chi2) { theChi2 = chi2 ;}
+    virtual void setChi2(double& chi2) { theChi2 = chi2; }
+
+    /// set t0
+    virtual void sett0(double& t0) { thet0 = t0; }
 
     /// number of shared hit pair with other segment candidate
     virtual int nSharedHitPairs(const DTSegmentCand& seg) const;
@@ -136,6 +142,7 @@ class DTSegmentCand{
     LocalPoint  thePosition;  // in SL frame
     LocalVector theDirection; // in SL frame
     double theChi2;           // chi2 of the fit
+    double thet0;             // the t0 offset
 
     /// mat[1][1]=sigma (dx/dz)
     /// mat[2][2]=sigma (x)
