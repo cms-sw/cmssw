@@ -14,8 +14,7 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HGCEEDetId(uint32_t rawid);
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
-  HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int mod, 
-	     int cellx, int celly);
+  HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int mod, int cell);
   /** Constructor from a generic cell id */
   HGCEEDetId(const DetId& id);
   /** Assignment from a generic cell id */
@@ -26,12 +25,11 @@ public:
   /// get the z-side of the cell (1/-1)
   int zside() const { return (id_&0x1000000)?(1):(-1); }
   /// get the absolute value of the cell #'s in x and y
-  int cellX() const { return (id_>>6)&0x3F; }
-  int cellY() const { return id_&0x3F; }
+  int cell() const { return id_&0x7FFF; }
   /// get the module #
-  int module() const { return (id_>>12)&0x3F; }
+  int module() const { return (id_>>14)&0x1F; }
   /// get the layer #
-  int layer() const { return (id_>>18)&0x3F; }
+  int layer() const { return (id_>>19)&0x1F; }
 
   static const HGCEEDetId Undefined;
 
