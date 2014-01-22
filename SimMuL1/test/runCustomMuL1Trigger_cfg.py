@@ -100,7 +100,6 @@ tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
 tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
 tmb.gemMatchDeltaBX = cms.untracked.int32(1)
 
-lct_keep_soft_stubs = False
 dphi_lct_pad98 = {
     'pt05' : { 'odd' :   0.0220351 , 'even' :  0.00930056 },
     'pt06' : { 'odd' :   0.0182579 , 'even' :  0.00790009 },
@@ -110,15 +109,13 @@ dphi_lct_pad98 = {
     'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
     'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
 }
+
+tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
+tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
 if ptdphi == 'pt0':
-    lct_keep_soft_stubs = True
-if lct_keep_soft_stubs:
     tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
     tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
     tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
-else:
-    tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
-    tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
 
 ## upgrade CSC TrackFinder
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
@@ -132,8 +129,8 @@ process.l1extraParticles.produceMuonParticles = cms.bool(True)
 process.l1extraParticles.produceCaloParticles = cms.bool(False)
 process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
-addPileUp = False
-if addPileUp:
+## add pile-up to the digi step
+if pu is not 0:
     # list of MinBias files for pileup has to be provided
     path = os.getenv( "CMSSW_BASE" ) + "/src/GEMCode/SimMuL1/test/"
     ff = open('%sfilelist_minbias_61M_good.txt'%(path), "r")
