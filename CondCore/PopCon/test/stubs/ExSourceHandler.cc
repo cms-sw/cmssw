@@ -10,6 +10,10 @@
 #include<string>
 #include <sstream>
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/Calibration/interface/Serialization.h"
+
 
 namespace {
 

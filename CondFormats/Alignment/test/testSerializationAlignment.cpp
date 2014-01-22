@@ -1,5 +1,7 @@
 #include "CondFormats/Serialization/interface/SerializationTest.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/External/interface/CLHEP.h"
 #include "CondFormats/Alignment/interface/Serialization.h"
 
 int main()

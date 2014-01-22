@@ -18,6 +18,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DTObjects/test/stubs/DTMtimeWrite.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/DTObjects/interface/Serialization.h"
+
 #include <string>
 #include <map>
 #include <iostream>

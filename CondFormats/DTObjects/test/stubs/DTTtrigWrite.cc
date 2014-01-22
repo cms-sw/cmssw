@@ -18,6 +18,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DTObjects/test/stubs/DTTtrigWrite.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/DTObjects/interface/Serialization.h"
+
 #include <string>
 #include <map>
 #include <iostream>

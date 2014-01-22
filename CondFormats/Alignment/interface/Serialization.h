@@ -4,7 +4,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include "CondFormats/External/interface/Serialization.h"
+// #include "CondFormats/External/interface/Serialization.h"
+#include "CondFormats/External/interface/CLHEP.h"
 
 #include "../src/headers.h"
 

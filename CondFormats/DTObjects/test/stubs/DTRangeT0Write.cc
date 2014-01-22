@@ -18,6 +18,9 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DTObjects/test/stubs/DTRangeT0Write.h"
 #include "CondFormats/DTObjects/interface/DTRangeT0.h"
 
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/DTObjects/interface/Serialization.h"
+
 #include <string>
 #include <map>
 #include <iostream>

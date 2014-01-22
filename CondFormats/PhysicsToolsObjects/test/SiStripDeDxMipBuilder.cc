@@ -1,8 +1,12 @@
 #include "CondFormats/PhysicsToolsObjects/test/SiStripDeDxMipBuilder.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram2D.h"
 //#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+
 #include <iostream>
 #include <fstream>
+
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/PhysicsToolsObjects/interface/Serialization.h"
 
 SiStripDeDxMipBuilder::SiStripDeDxMipBuilder( const edm::ParameterSet& iConfig ){}
   //  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),

@@ -81,8 +81,8 @@ namespace cond {
     return *this;
   }
 
-  typedef cond::serialization::InputArchive InputArchive;
-  typedef cond::serialization::OutputArchive OutputArchive;
+  typedef cond::serialization::InputArchive  CondInputArchive;
+  typedef cond::serialization::OutputArchive CondOutputArchive;
 
   // call for the serialization. Setting packingOnly = TRUE the data will stay in the original memory layout 
   // ( no serialization in this case ). This option is used by the ORA backend - will be dropped after the changeover
@@ -92,7 +92,7 @@ namespace cond {
     if( !packingOnly ){
       // save data to buffer
       std::ostringstream buffer;
-      OutputArchive oa( buffer );
+      CondOutputArchive oa( buffer );
       oa << payload;
       //TODO: avoid (2!!) copies
       ret.copy( buffer.str() );

@@ -20,6 +20,8 @@
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/Common/interface/Serialization.h"
+#include "CondFormats/Calibration/interface/Serialization.h"
 
 namespace cond {
 
