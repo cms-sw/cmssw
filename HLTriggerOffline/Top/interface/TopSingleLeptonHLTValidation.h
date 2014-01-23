@@ -40,7 +40,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-//#include "TH1.h"
 
 //
 // class declaration
