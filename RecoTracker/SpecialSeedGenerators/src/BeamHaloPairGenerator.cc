@@ -14,19 +14,15 @@ BeamHaloPairGenerator::BeamHaloPairGenerator(const edm::ParameterSet& conf, edm:
 } 
 
 
-SeedingLayerSets BeamHaloPairGenerator::init(const edm::EventSetup& es){
-  	SeedingLayerSets lss = theLayerBuilder.layers(es);
-	return lss;	
-}
-
-
 const OrderedSeedingHits& BeamHaloPairGenerator::run(const TrackingRegion& region,
                           			    const edm::Event& e,
                               			    const edm::EventSetup& es){
 	hitPairs.clear();
-	SeedingLayerSets lss = init(es);
+        if(theLayerBuilder.check(es)) {
+          theLss = theLayerBuilder.layers(es);
+        }
 	SeedingLayerSets::const_iterator iLss;
-	for (iLss = lss.begin(); iLss != lss.end(); iLss++){
+	for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
 		SeedingLayers ls = *iLss;
 		if (ls.size() != 2){
                 	throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 2 ";

@@ -12,19 +12,16 @@ GenericPairGenerator::GenericPairGenerator(const edm::ParameterSet& conf, edm::C
 } 
 
 
-SeedingLayerSets GenericPairGenerator::init(const edm::EventSetup& es){
-	return theLsb.layers(es);
-}
-
-
 const OrderedSeedingHits& GenericPairGenerator::run(const TrackingRegion& region,
                           			    const edm::Event& e,
                               			    const edm::EventSetup& es){
 	hitPairs.clear();
 	hitPairs.reserve(0);
-	SeedingLayerSets lss = init(es);
+        if(theLsb.check(es)) {
+          theLss = theLsb.layers(es);
+        }
 	SeedingLayerSets::const_iterator iLss;
-	for (iLss = lss.begin(); iLss != lss.end(); iLss++){
+	for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
 		SeedingLayers ls = *iLss;
 		if (ls.size() != 2){
                 	throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 2 ";
