@@ -1,7 +1,7 @@
 from HLTriggerOffline.Tau.Validation.HLTTauPostValidation_cfi import *
 from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
 from HLTriggerOffline.Egamma.EgammaPostProcessor_cfi import *
-from HLTriggerOffline.Top.HLTTopPostVal_cff import *
+from HLTriggerOffline.Top.topHLTValidation_cff import *
 from HLTriggerOffline.Common.FourVectorHLTriggerOfflineClient_cfi import *
 from HLTriggerOffline.HeavyFlavor.heavyFlavorValidationHarvestingSequence_cff import *
 from HLTriggerOffline.JetMET.Validation.JetMETPostProcessor_cff import *
@@ -16,7 +16,7 @@ hltpostvalidation = cms.Sequence(
      HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
-    +HLTTopPostVal
+    +topHLTriggerValidation
     +hltriggerFourVectorClient
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
@@ -32,7 +32,7 @@ hltpostvalidation_fastsim = cms.Sequence(
     +HLTTauPostVal
     +EgammaPostVal
     +hltriggerFourVectorClient
-    +HLTTopPostVal
+    +topHLTriggerValidation
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
     #+HLTAlCaPostVal
@@ -42,7 +42,7 @@ hltpostvalidation_fastsim = cms.Sequence(
 
 hltpostvalidation_preprod = cms.Sequence( 
     HLTTauPostVal
-    +HLTTopPostVal
+    +topHLTriggerValidation
     +hltriggerFourVectorClient
     +heavyFlavorValidationHarvestingSequence
     +SusyExoPostVal
