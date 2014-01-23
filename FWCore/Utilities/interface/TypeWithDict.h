@@ -85,6 +85,7 @@ public:
   std::string qualifiedName() const;
   std::string unscopedName() const;
   std::string name() const;
+  std::string unscopedNameWithTypedef() const;
   std::string userClassName() const;
   std::string friendlyClassName() const;
   std::string templateName() const;

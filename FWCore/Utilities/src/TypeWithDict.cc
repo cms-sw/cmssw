@@ -25,6 +25,7 @@
 #include <typeinfo>
 
 #include <cxxabi.h>
+#include <iostream>
 
 namespace edm {
 
@@ -388,6 +389,14 @@ namespace edm {
       return "undefined";
     }
     return TypeID(*ti_).className();
+  }
+
+  std::string
+  TypeWithDict::unscopedNameWithTypedef() const {
+    if (type_ == nullptr) {
+      return "undefined";
+    }
+    return stripNamespace(gInterpreter->Type_QualifiedName(type_));
   }
 
   std::string
