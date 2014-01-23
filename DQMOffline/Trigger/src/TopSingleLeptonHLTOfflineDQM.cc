@@ -243,10 +243,6 @@ namespace HLTOfflineDQMTopSingleLepton {
       edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefsHandle;
       if(!event.getByToken(triggerEventWithRefsTag_,triggerEventWithRefsHandle)) return;
 
-      /*      cout << "Processing event " << event.eventAuxiliary().run() << " "
-              << event.eventAuxiliary().luminosityBlock() << " "
-              << event.eventAuxiliary().event()<< endl;
-              */
       /*
          ------------------------------------------------------------
 
@@ -256,7 +252,11 @@ namespace HLTOfflineDQMTopSingleLepton {
          */
       // fill monitoring plots for primary verices
       edm::Handle<edm::View<reco::Vertex> > pvs;
-      if( !event.getByToken(pvs_, pvs) ) return;
+      if( !event.getByToken(pvs_, pvs) ) {
+        edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
+            << "Vertex collection not found \n";
+        return;
+      }
       unsigned int pvMult = 0;
       for(edm::View<reco::Vertex>::const_iterator pv=pvs->begin(); pv!=pvs->end(); ++pv){
         if(!pvSelect_ || (*pvSelect_)(*pv))
@@ -274,7 +274,11 @@ namespace HLTOfflineDQMTopSingleLepton {
 
       // fill monitoring plots for electrons
       edm::Handle<edm::View<reco::GsfElectron> > elecs;
-      if( !event.getByToken(elecs_, elecs) ) return;
+      if( !event.getByToken(elecs_, elecs) ) {
+        edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
+            << "Electron collection not found \n";
+        return;
+      }
 
       // check availability of electron id
       edm::Handle<edm::ValueMap<float> > electronId; 
@@ -308,7 +312,11 @@ namespace HLTOfflineDQMTopSingleLepton {
       unsigned int mMultIso=0;
       edm::Handle<edm::View<reco::Muon> > muons;
       std::vector<const reco::Muon*> isoMuons;
-      if( !event.getByToken(muons_, muons) ) return;
+      if( !event.getByToken(muons_, muons) ) {
+        edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
+            << "Muon collection not found \n";
+        return;
+      }
       reco::Muon mu;
       for(edm::View<reco::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
         // restrict to globalMuons
@@ -363,7 +371,11 @@ namespace HLTOfflineDQMTopSingleLepton {
       unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0;
 
       edm::Handle<edm::View<reco::Jet> > jets; 
-      if( !event.getByToken(jets_, jets) ) return;
+      if( !event.getByToken(jets_, jets) ) {
+        edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
+            << "Jet collection not found \n";
+        return;
+      }
 
       edm::Handle<reco::JetIDValueMap> jetID; 
       if(jetIDSelect_){ 
@@ -491,12 +503,7 @@ namespace HLTOfflineDQMTopSingleLepton {
         }
         if (!isInteresting) continue;
         // dump infos on the considered trigger path 
-        //        cout << " Trigger : Name = " << triggerNames.triggerNames()[i] << endl ; 
         const unsigned int triggerIndex = event.triggerNames(*triggerTable).triggerIndex(triggerNames.triggerNames()[i]);
-        /*        cout << "           Status = "
-                  << " WasRun(" << triggerTable->wasrun(triggerIndex)
-                  << ") Accept(" << triggerTable->accept(triggerIndex)
-                  << ") Error(" << triggerTable->error(triggerIndex) <<  ")" << endl; */
         // get modules for the considered trigger path
         const vector<string>& moduleLabels(hltConfig.moduleLabels(triggerIndex));
         const unsigned int moduleIndex(triggerTable->index(triggerIndex));
@@ -540,15 +547,7 @@ namespace HLTOfflineDQMTopSingleLepton {
           const string& moduleLabelElec(moduleLabels[kElec]);
           const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
           const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"","HLT")));
-          /*          cout << " Filter in slot " << kElec << " - label/type " << moduleLabelElec << "/" << moduleTypeElec << endl;
-                      cout << " Filter packed up at: " << filterIndexElec << endl;
-                      cout << "  Accepted objects:" << endl; */
           triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
-          /*const unsigned int nElectrons(electronIds_.size());
-            cout << "   Electrons: " << nElectrons << "  - the objects: # id pt" << endl;
-            cout << "   0 " << electronIds_[0]
-            << " " << electronRefs_[0]->pt()
-            << endl; */
           for (unsigned int inde = 0; inde < isoElecs.size(); inde++) {
             double deltar = deltaR(*electronRefs_[0],*isoElecs[inde]); 
             if (deltar < eDeltaRMin) {
@@ -557,7 +556,6 @@ namespace HLTOfflineDQMTopSingleLepton {
             }
           }
           if (eDeltaRMin < DRMIN) lMatched = true;
-          //          cout << "reco electron n° " << eIndMatched << " - deltaR = " << eDeltaRMin << " - isMatched = " << lMatched << endl;
         }
         // access to hlt muons
         muonIds_.clear(); muonRefs_.clear();
@@ -567,15 +565,7 @@ namespace HLTOfflineDQMTopSingleLepton {
           const string& moduleLabelMuon(moduleLabels[kMuon]);
           const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
           const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"","HLT")));
-          /*          cout << " Filter in slot " << kMuon << " - label/type " << moduleLabelMuon << "/" << moduleTypeMuon << endl;
-                      cout << " Filter packed up at: " << filterIndexMuon << endl;
-                      cout << "  Accepted objects:" << endl; */
           triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
-          /*const unsigned int nMuons(muonIds_.size());
-            cout << "   Muons: " << nMuons << "  - the objects: # id pt" << endl;
-            cout << "   0 " << muonIds_[0]
-            << " " << muonRefs_[0]->pt()
-            << endl; */
           for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
             double deltar = deltaR(*muonRefs_[0],*isoMuons[indm]); 
             if (deltar < mDeltaRMin) {
@@ -584,7 +574,6 @@ namespace HLTOfflineDQMTopSingleLepton {
             }
           }
           if (mDeltaRMin < DRMIN) lMatched = true;
-          //          cout << "reco muon n° " << mIndMatched << " - deltaR = " << mDeltaRMin << " - isMatched = " << lMatched << endl;
         }
         // access to hlt pf jets
         const unsigned int nPFJets(pfjetIds_.size());
@@ -599,17 +588,7 @@ namespace HLTOfflineDQMTopSingleLepton {
           const string& moduleLabelJet(moduleLabels[kJet]);
           const string  moduleTypeJet(hltConfig.moduleType(moduleLabelJet));
           const unsigned int filterIndexJet(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelJet,"","HLT")));
-          /*          cout << " Filter in slot " << kJet << " - label/type " << moduleLabelJet << "/" << moduleTypeJet << endl;
-                      cout << " Filter packed up at: " << filterIndexJet << endl;
-                      cout << "  Accepted objects:" << endl; */
           triggerEventWithRefsHandle->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);
-          /*const unsigned int nPFJets(pfjetIds_.size());
-            cout << "   PFJets: " << nPFJets << "  - the objects: # id pt" << endl;
-            for (unsigned int l=0; l!=nPFJets; ++l) {
-            cout << "   " << l << " " << pfjetIds_[l]
-            << " " << pfjetRefs_[l]->pt()
-            << endl;
-            }*/
           for (unsigned int indj = 0; indj < correctedJets.size(); indj++) {
             double deltar1 = deltaR(*pfjetRefs_[0],correctedJets[indj]); 
             if (deltar1 < j1DeltaRMin) {j1DeltaRMin = deltar1; j1IndMatched = indj;}
@@ -730,17 +709,16 @@ TopSingleLeptonHLTOfflineDQM::beginRun(edm::Run const & iRun, edm::EventSetup co
   using namespace std;
   using namespace edm;
 
-  //  cout << " New run in TopSingleLeptonHLTOfflineDQM::beginRun() " << endl;
-
   std::string processName = "HLT"; 
 
   bool changed(true);
-  if ( !hltConfig_.init(iRun,iSetup,processName,changed)) {
-    cout << "TopSingleLeptonHLTOfflineDQM::beginRun:"
-      << " config extraction failure with process name "
-      << processName << endl;
+  if (!hltConfig_.init(iRun,iSetup,processName,changed)) {
+        edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
+            << "Config extraction failure with process name "
+            << processName
+            << "\n";
+        return;
   }
-
 }
 
   void 
@@ -766,8 +744,6 @@ TopSingleLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventS
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if(selection_.find(key)!=selection_.end()){
 
-      //std::cout << " Processing : selectionOrder = " << type.c_str() << std::endl; 
-
       if(type=="empty"){
         selection_[key].second->fill(event, setup, hltConfig_, triggerPaths_);
         continue;
@@ -782,8 +758,6 @@ TopSingleLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventS
       for(std::vector<std::string>::const_iterator selIt2=selectionOrder_.begin(); selIt2<=selIt; ++selIt2){
         std::string key2 = selectionStep(*selIt2), type2 = objectType(*selIt2);
         if(selection_.find(key2)==selection_.end()) continue;
-
-        //std::cout << " Processing : selectionOrder2 = " << type2.c_str() << std::endl; 
 
         if(type2=="Hlt" || type2=="empty" ) continue;
         if (!selectmap_[type2]->select(event)) passSel=false;
