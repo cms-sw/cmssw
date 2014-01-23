@@ -41,18 +41,21 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   theMuonCollectionLabel(par.getParameter<InputTag>("inputMuonCollection")),
   optOutputIsoDeposits(par.getParameter<bool>("OutputMuIsoDeposits")),
   useCaloIso(par.existsAs<bool>("UseCaloIso") ?
-			  par.getParameter<bool>("UseCaloIso") : true),
+	     par.getParameter<bool>("UseCaloIso") : true),
   useRhoCorrectedCaloDeps(par.existsAs<bool>("UseRhoCorrectedCaloDeposits") ?
 			  par.getParameter<bool>("UseRhoCorrectedCaloDeposits") : false),
   theCaloDepsLabel(par.existsAs<InputTag>("CaloDepositsLabel") ?
-		   par.getParameter<InputTag>("CaloDepositsLabel") :
-		   InputTag("hltL3CaloMuonCorrectedIsolations")),
+                   par.getParameter<InputTag>("CaloDepositsLabel") :
+                   InputTag("hltL3CaloMuonCorrectedIsolations")),
   caloExtractor(0),
   trkExtractor(0),
   theTrackPt_Min(-1),
   printDebug (par.getParameter<bool>("printDebug"))
   {
   LogDebug("RecoMuon|L3MuonCombinedRelativeIsolationProducer")<<" L3MuonCombinedRelativeIsolationProducer CTOR";
+
+  theMuonCollectionToken = consumes<RecoChargedCandidateCollection>(theMuonCollectionLabel);
+  theCaloDepsToken = consumes<edm::ValueMap<float> >(theCaloDepsLabel);
 
   if (optOutputIsoDeposits) {
     produces<reco::IsoDepositMap>("trkIsoDeposits");
@@ -84,8 +87,6 @@ L3MuonCombinedRelativeIsolationProducer::L3MuonCombinedRelativeIsolationProducer
   std::string trkExtractorName = trkExtractorPSet.getParameter<std::string>("ComponentName");
   trkExtractor = IsoDepositExtractorFactory::get()->create( trkExtractorName, trkExtractorPSet, consumesCollector());
   //std::string trkDepositType = trkExtractorPSet.getUntrackedParameter<std::string>("DepositLabel"); // N.B. Not used in the following!
-
-
 
   //
   // Cuts for track isolation
@@ -123,6 +124,68 @@ L3MuonCombinedRelativeIsolationProducer::~L3MuonCombinedRelativeIsolationProduce
   if (trkExtractor) delete trkExtractor;
 }
 
+/// ParameterSet descriptions
+void L3MuonCombinedRelativeIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("UseRhoCorrectedCaloDeposits",false);
+  desc.add<bool>("UseCaloIso",true);
+  desc.add<edm::InputTag>("CaloDepositsLabel",edm::InputTag("hltL3CaloMuonCorrectedIsolations"));
+  desc.add<edm::InputTag>("inputMuonCollection",edm::InputTag("hltL3MuonCandidates"));
+  desc.add<bool>("OutputMuIsoDeposits",true);
+  desc.add<double>("TrackPt_Min",-1.0);
+  desc.add<bool>("printDebug",false);
+  edm::ParameterSetDescription cutsPSet;
+  {
+    cutsPSet.add<std::vector<double> >("ConeSizes",std::vector<double>(1, 0.24));
+    cutsPSet.add<std::string>("ComponentName","SimpleCuts");
+    cutsPSet.add<std::vector<double> >("Thresholds",std::vector<double>(1, 0.1));
+    cutsPSet.add<int>("maxNTracks",-1);
+    cutsPSet.add<std::vector<double> >("EtaBounds",std::vector<double>(1, 2.411));
+    cutsPSet.add<bool>("applyCutsORmaxNTracks",false);
+  }
+  desc.add<edm::ParameterSetDescription>("CutsPSet",cutsPSet);
+  edm::ParameterSetDescription trkExtractorPSet;
+  {
+    trkExtractorPSet.add<double>("Chi2Prob_Min", -1.0);
+    trkExtractorPSet.add<double>("Chi2Ndof_Max", 1.0E64);
+    trkExtractorPSet.add<double>("Diff_z",0.2);
+    trkExtractorPSet.add<edm::InputTag>("inputTrackCollection",edm::InputTag("hltPixelTracks"));
+    trkExtractorPSet.add<double>("ReferenceRadius",6.0);
+    trkExtractorPSet.add<edm::InputTag>("BeamSpotLabel",edm::InputTag("hltOnlineBeamSpot"));
+    trkExtractorPSet.add<std::string>("ComponentName","PixelTrackExtractor");
+    trkExtractorPSet.add<double>("DR_Max",0.24);
+    trkExtractorPSet.add<double>("Diff_r",0.1);
+    trkExtractorPSet.add<bool>("VetoLeadingTrack",true);
+    trkExtractorPSet.add<double>("DR_VetoPt",0.025);
+    trkExtractorPSet.add<double>("DR_Veto",0.01);
+    trkExtractorPSet.add<unsigned int>("NHits_Min",0);
+    trkExtractorPSet.add<double>("Pt_Min",-1.0);
+    trkExtractorPSet.addUntracked<std::string>("DepositLabel","PXLS");
+    trkExtractorPSet.add<std::string>("BeamlineOption","BeamSpotFromEvent");
+    trkExtractorPSet.add<bool>("PropagateTracksToRadius",true);
+    trkExtractorPSet.add<double>("PtVeto_Min",2.0);
+  }
+  desc.add<edm::ParameterSetDescription>("TrkExtractorPSet",trkExtractorPSet);
+  edm::ParameterSetDescription caloExtractorPSet;
+  {
+    caloExtractorPSet.add<double>("DR_Veto_H",0.1);
+    caloExtractorPSet.add<bool>("Vertex_Constraint_Z",false);
+    caloExtractorPSet.add<double>("Threshold_H",0.5);
+    caloExtractorPSet.add<std::string>("ComponentName","CaloExtractor");
+    caloExtractorPSet.add<double>("Threshold_E",0.2);
+    caloExtractorPSet.add<double>("DR_Max",0.24);
+    caloExtractorPSet.add<double>("DR_Veto_E",0.07);
+    caloExtractorPSet.add<double>("Weight_E",1.5);
+    caloExtractorPSet.add<bool>("Vertex_Constraint_XY",false);
+    caloExtractorPSet.addUntracked<std::string>("DepositLabel","EcalPlusHcal");
+    caloExtractorPSet.add<edm::InputTag>("CaloTowerCollectionLabel",edm::InputTag("hltTowerMakerForMuons"));
+    caloExtractorPSet.add<double>("Weight_H",1.0);
+  }
+  desc.add<edm::ParameterSetDescription>("CaloExtractorPSet",caloExtractorPSet);
+  descriptions.add("hltL3MuonIsolations", desc);
+}
+
+
 void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
   std::string metname = "RecoMuon|L3MuonCombinedRelativeIsolationProducer";
 
@@ -132,12 +195,12 @@ void L3MuonCombinedRelativeIsolationProducer::produce(Event& event, const EventS
   // Take the SA container
   if (printDebug) std::cout  <<" Taking the muons: "<<theMuonCollectionLabel << std::endl;
   Handle<RecoChargedCandidateCollection> muons;
-  event.getByLabel(theMuonCollectionLabel,muons);
+  event.getByToken(theMuonCollectionToken,muons);
 
   // Take calo deposits with rho corrections (ONLY if previously computed)
   Handle< edm::ValueMap<float> > caloDepWithCorrMap;
   if( useRhoCorrectedCaloDeps )
-    event.getByLabel(theCaloDepsLabel, caloDepWithCorrMap);
+    event.getByToken(theCaloDepsToken, caloDepWithCorrMap);
 
   std::auto_ptr<reco::IsoDepositMap> caloDepMap( new reco::IsoDepositMap());
   std::auto_ptr<reco::IsoDepositMap> trkDepMap( new reco::IsoDepositMap());
