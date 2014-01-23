@@ -511,7 +511,16 @@ private:
 
   TH1D * h_pt_after_alct;
   TH1D * h_pt_after_clct;
+
+  TH1D * h_pt_me1_after_alct;
+  TH1D * h_pt_me1_after_clct;
+
+  TH1D * h_pt_me1_after_alct_okAlct;
+  TH1D * h_pt_me1_after_clct_okClct;
+
   TH1D * h_pt_after_lct;
+  TH1D * h_pt_me1_after_lct_okAlctClct;
+
   TH1D * h_pt_after_mpc;
   TH1D * h_pt_after_mpc_ok_plus;
   TH1D * h_pt_after_tftrack;
@@ -774,6 +783,13 @@ private:
   TH1D * h_wg_me11_after_alct_okAlct;
   TH1D * h_wg_me11_after_alctclct_okAlctClct;
   TH1D * h_wg_me11_after_lct_okAlctClct;
+
+  TH1D * h_strip_me1a_initial;
+  TH1D * h_strip_me1b_initial;
+  TH1D * h_strip_me1a_after_clct;
+  TH1D * h_strip_me1b_after_clct;
+  TH1D * h_strip_me1a_after_clct_okClct;
+  TH1D * h_strip_me1b_after_clct_okClct;
 
   TH1D * h_bx_after_alct;
   TH1D * h_bx_after_clct;
