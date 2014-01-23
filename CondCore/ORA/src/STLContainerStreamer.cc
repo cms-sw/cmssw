@@ -47,15 +47,15 @@ bool ora::STLContainerWriter::build( DataElement& offset,
   m_recordId.clear();
   // allocate for the index...
   m_recordId.push_back(0);
-    
+
   RelationalStreamerFactory streamerFactory( m_schema );
-  
+
   // first open the insert on the extra table...
   m_insertOperation = &operationBuffer.newMultiRecordInsert( m_mappingElement.tableName() );
   const std::vector<std::string>& columns = m_mappingElement.columnNames();
   if( !columns.size() ){
     throwException( "Id columns not found in the mapping.",
-                    "STLContainerWriter::build");    
+                    "STLContainerWriter::build");
   }
   for( size_t i=0; i<columns.size(); i++ ){
     m_insertOperation->addId( columns[ i ] );
@@ -64,10 +64,10 @@ bool ora::STLContainerWriter::build( DataElement& offset,
   m_offset = &offset;
 
   m_arrayHandler.reset( ArrayHandlerFactory::newArrayHandler( m_objectType ) );
-  
+
   edm::TypeWithDict valueType;
   if ( m_associative ){
-    
+
     edm::TypeWithDict keyType = ClassUtils::containerKeyType(m_objectType);
     edm::TypeWithDict keyResolvedType = ClassUtils::resolvedType(keyType);
     if ( ! keyType || !keyResolvedType ) {
@@ -97,13 +97,18 @@ bool ora::STLContainerWriter::build( DataElement& offset,
                     m_objectType.qualifiedName() + "\"",
                     "STLContainerWriter::build" );
   }
-  
+
   std::string valueName = valueType.name();
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
-    throwException( "Item for \"" + valueName + "\" not found in the mapping element",
-                    "STLContainerWriter::build" );
+    // Try again with the name of a possible typedef
+    valueName = valueType.unscopedNameWithTypedef();
+    iMe = m_mappingElement.find( valueName );
+    if ( iMe == m_mappingElement.end() ) {
+      throwException( "Item for \"" + valueName + "\" not found in the mapping element",
+                      "STLContainerWriter::build" );
+    }
   }
 
   m_dataWriter.reset( streamerFactory.newWriter( valueResolvedType, iMe->second ) );
@@ -119,7 +124,7 @@ void ora::STLContainerWriter::setRecordId( const std::vector<int>& identity ){
   }
   m_recordId.push_back( 0 );
 }
-      
+
 void ora::STLContainerWriter::write( int oid,
                                      const void* inputData ){
 
@@ -154,12 +159,12 @@ void ora::STLContainerWriter::write( int oid,
                       "STLContainerWriter::write" );
     }
   }
-  
+
   void* data = m_offset->address( inputData );
-  
+
   // Use the iterator to loop over the elements of the container.
   size_t containerSize = m_arrayHandler->size( data  );
-  
+
   if ( containerSize == 0 ) return;
 
   size_t startElementIndex = m_arrayHandler->startElementIndex( data );
@@ -191,7 +196,7 @@ void ora::STLContainerWriter::write( int oid,
 
     m_dataWriter->write( oid, componentData );
     bulkInsert.processNextIteration();
-   
+
     // Increment the iterator
     iteratorHandler->increment();
   }
@@ -255,7 +260,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
   m_recordId.push_back(0);
 
   RelationalStreamerFactory streamerFactory( m_schema );
-  
+
   // first open the insert on the extra table...
   m_query.reset( new MultiRecordSelectOperation( m_mappingElement.tableName(), m_schema.storageSchema() ));
 
@@ -265,7 +270,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
     m_query->addId( recIdCols[ i ] );
     m_query->addOrderId( recIdCols[ i ] );
   }
-  
+
   m_offset = &offset;
 
   m_arrayHandler.reset( ArrayHandlerFactory::newArrayHandler( m_objectType ) );
@@ -292,7 +297,7 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
 
     m_keyReader.reset( streamerFactory.newReader( keyResolvedType, iMe->second ) );
     m_keyReader->build( m_localElement, *m_query );
-    
+
     valueType = ClassUtils::containerDataType(m_objectType);
   } else {
     valueType = ClassUtils::containerValueType(m_objectType);
@@ -305,13 +310,18 @@ bool ora::STLContainerReader::build( DataElement& offset, IRelationalData& ){
                     m_objectType.qualifiedName() + "\"",
                     "STLContainerReader::build" );
   }
-  
+
   std::string valueName = valueType.name();
   // Retrieve the relevant mapping element
   MappingElement::iterator iMe = m_mappingElement.find( valueName );
   if ( iMe == m_mappingElement.end() ) {
-    throwException( "Item for \"" + valueName + "\" not found in the mapping element",
-                    "STLContainerReader::build" );
+    // Try again with the name of a possible typedef
+    valueName = valueType.unscopedNameWithTypedef();
+    iMe = m_mappingElement.find( valueName );
+    if ( iMe == m_mappingElement.end() ) {
+      throwException( "Item for \"" + valueName + "\" not found in the mapping element",
+                      "STLContainerReader::build" );
+    }
   }
 
   m_dataReader.reset( streamerFactory.newReader( valueResolvedType, iMe->second ) );
@@ -351,7 +361,7 @@ void ora::STLContainerReader::read( void* destinationData ) {
 
   const edm::TypeWithDict& iteratorReturnType = m_arrayHandler->iteratorReturnType();
   U_Primitives primitiveStub;
-  
+
   edm::TypeWithDict keyType;
   edm::MemberWithDict firstMember;
   edm::MemberWithDict secondMember;
@@ -370,9 +380,9 @@ void ora::STLContainerReader::read( void* destinationData ) {
                       "STLContainerReader::read" );
     }
   }
-  
+
   bool isElementFundamental = iteratorReturnType.isFundamental();
-  
+
   m_arrayHandler->clear( address );
 
   size_t cursorSize = m_query->selectionSize(m_recordId, m_recordId.size()-1);
@@ -397,7 +407,7 @@ void ora::STLContainerReader::read( void* destinationData ) {
       keyData = static_cast< char* >( objectData ) + firstMember.offset();
       m_keyReader->setRecordId( m_recordId );
       m_keyReader->read( keyData );
-      
+
       componentData = static_cast< char* >( objectData ) + secondMember.offset();
     }
     m_dataReader->setRecordId( m_recordId );
