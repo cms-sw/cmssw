@@ -2,7 +2,6 @@
  *
  * See header file for documentation
  *
- *  \author J. Alcaraz
  *
  */   
 
@@ -107,9 +106,12 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
     std::vector< Handle<edm::ValueMap<double> > > depMap(nDep);
     
     //get hold of rho of the event
-    Handle <double>  RhoCorr;
-	iEvent.getByToken(rhoToken_, RhoCorr);
-	const double Rho = *RhoCorr.product();
+    double Rho = 0;
+    if (doRho_){
+      Handle <double>  RhoCorr;
+  	  iEvent.getByToken(rhoToken_, RhoCorr);
+	  Rho = *RhoCorr.product();
+    }
  
     for (unsigned int i=0;i!=nDep;++i) iEvent.getByLabel (depTag_[i],depMap[i]);
 
