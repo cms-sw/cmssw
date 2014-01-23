@@ -100,7 +100,6 @@ RecoEgammaAOD = cms.PSet(
         'keep floatedmValueMap_eidLoose_*_*',
         'keep floatedmValueMap_eidTight_*_*',
         'keep recoPhotonCores_gedPhotonCore_*_*',
-        'keep recoConversions_gedPhotonCore_*_*',
         'keep recoPhotons_gedPhotons_*_*',
         'keep *_particleBasedIsolation_*_*',
         'drop *_gedPhotons_valMapPFEgammaCandToPhoton_*',
