@@ -26,7 +26,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -44,7 +43,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-//#include "TH1.h"
 
 //
 // class declaration
