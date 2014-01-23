@@ -1729,10 +1729,6 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         std::vector<int> chIds = match->chambersWithHits(0,0,minNHitsChamber_);
         std::vector<int> fillIds;
-	int n_strip_me1a = 0;
-	int n_strip_me1b = 0;
-	int n_strip_me1a_after_clct = 0;
-	int n_strip_me1b_after_clct = 0;
         if (pt_ok) 
             for (size_t ch = 0; ch < chIds.size(); ch++)
             {
@@ -1747,21 +1743,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                     int wg = match->wireGroupAndStripInChamber(chIds[ch]).first;
 		    int strip = match->wireGroupAndStripInChamber(chIds[ch]).second-1;
 		    
-		   
                     h_wg_me11_initial->Fill(wg);
-                  if (csct==3)   
-		  {
-		      h_strip_me1a_initial->Fill(strip);
-		      n_strip_me1a++;
-		      if(strip==0||strip==47)  match->print("strip=0orstrip=47",1,1,1,1,1,1);
-		  }
-	          if (csct==0)   
-	            { 
-		       h_strip_me1b_initial->Fill(strip);
-                       n_strip_me1b++;
-		      if(strip==0||strip==63)  match->print("strip=0orstrip=63",1,1,1,1,1,1);
+
+                  if (csct==3)    h_strip_me1a_initial->Fill(strip);
+	          if (csct==0)    h_strip_me1b_initial->Fill(strip);
 	             }
-                }
             }
 
 
@@ -2003,20 +1989,11 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                     int csct = getCSCType( chId );
                     if (!(csct==0 || csct==3)) continue;
                     int strip = match->wireGroupAndStripInChamber(chIDs[ch]).second-1;
-		    if (csct==3)   
-		    { 
-			h_strip_me1a_after_clct->Fill(strip);
-			n_strip_me1a_after_clct++;
-		    }
-		    if (csct==0)  
-		    {
-			h_strip_me1b_after_clct->Fill(strip);
-			n_strip_me1b_after_clct++;
-		    }
+
+		    if (csct==3)   	h_strip_me1a_after_clct->Fill(strip);
+		    if (csct==0)  	h_strip_me1b_after_clct->Fill(strip);
+
 		    chWHIDs.erase(std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch]));
-		    std::cout << " chIDs : " << chIDs[ch] << " " 
-	//		<< std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch])==chWHIDs.end() 
-			<< " strip: "<< strip << std::endl;
                 }
             }
             if(okME11clct) {
@@ -2041,6 +2018,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                     int strip = match->wireGroupAndStripInChamber(chIDs[ch]).second-1;
 		    if (csct==3)   h_strip_me1a_after_clct_okClct->Fill(strip);
 		    if (csct==0)   h_strip_me1b_after_clct_okClct->Fill(strip);
+
 		    chWHIDs.erase(std::find(chWHIDs.begin(),chWHIDs.end(),chIDs[ch]));
                 }
             }
@@ -2101,15 +2079,6 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             }
         }
 
-	//std::cout << " n_strip_me1a: " << n_strip_me1a << std::endl;
-	//std::cout << " n_strip_me1a_after_clct: " << n_strip_me1a_after_clct << std::endl;
-	//std::cout << " n_strip_me1b: " << n_strip_me1b << std::endl;
-	//std::cout << " n_strip_me1b_after_clct: " << n_strip_me1b_after_clct << std::endl;
-	//if ((n_strip_me1a < n_strip_me1a_after_clct) || (n_strip_me1b < n_strip_me1b_after_clct))
-	//{
-	 //   std::cout << "===========  BUG Simtrack ==============" << std::endl;
-         //   match->print("BUG IN ME1a/ME1b",1,1,1,1,1,1);	    
-        // }
 
         // Comment it out (but keep it for later debug)
 
