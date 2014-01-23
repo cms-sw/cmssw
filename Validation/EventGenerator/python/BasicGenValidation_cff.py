@@ -36,7 +36,7 @@ wValidation_seq = cms.Sequence(wEleValidation+wMuoValidation)
 tauValidation_seq = cms.Sequence(tauValidation)
 genLeptons_seq = cms.Sequence(genParticlesShortList*genParticlesMuons*genParticlesElectrons*genParticlesNeutrinos)
 analyzeGenLeptons_seq = cms.Sequence(analyzeGenMuons*analyzeGenElecs*analyzeGenNtrns)
-TTbarfull_seq = cms.Sequence(TTbarAnalyzeSpinCorr*makeGenEvt*analyzeTopKinematics*genLeptons_seq*analyzeGenLeptons_seq*analyzeGenJets)
+TTbarfull_seq = cms.Sequence(TTbarAnalyzeSpinCorr*analyzeTopKinematics*genLeptons_seq*analyzeGenLeptons_seq*analyzeGenJets)
 
 # master sequences for different processes/topologies validation
 

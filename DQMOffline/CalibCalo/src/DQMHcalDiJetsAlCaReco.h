@@ -14,6 +14,13 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
+
 class DQMStore;
 class MonitorElement;
 
@@ -68,12 +75,11 @@ private:
 
 
   /// object to monitor
-  
-  edm::InputTag  jets_;
-  edm::InputTag  ec_;
-  edm::InputTag  hbhe_;
-  edm::InputTag  ho_;
-  edm::InputTag  hf_;
+  edm::EDGetTokenT<reco::CaloJetCollection> jets_;
+  edm::EDGetTokenT<EcalRecHitCollection>    ec_;
+  edm::EDGetTokenT<HBHERecHitCollection>    hbhe_;
+  edm::EDGetTokenT<HORecHitCollection>      ho_;
+  edm::EDGetTokenT<HFRecHitCollection>      hf_;
   
   /// DQM folder name
   std::string folderName_; 
