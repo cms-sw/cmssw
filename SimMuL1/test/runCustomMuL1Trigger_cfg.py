@@ -94,11 +94,15 @@ process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag('simMuonC
 ## GEM-CSC bending angle library
 process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
 process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-#process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPretrig = 3
 process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+# pre-trigger and trigger
+process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPretrig = 3
+process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 4
 tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
 tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
 tmb.gemMatchDeltaBX = cms.untracked.int32(1)
+tmb.printAvailablePads = cms.untracked.bool(False)
+tmb.dropLowQualityCLCTsNoGEMs = cms.untracked.bool(True)
 
 lct_keep_soft_stubs = False
 dphi_lct_pad98 = {
@@ -132,8 +136,7 @@ process.l1extraParticles.produceMuonParticles = cms.bool(True)
 process.l1extraParticles.produceCaloParticles = cms.bool(False)
 process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
-addPileUp = False
-if addPileUp:
+if pu is not 0:
     # list of MinBias files for pileup has to be provided
     path = os.getenv( "CMSSW_BASE" ) + "/src/GEMCode/SimMuL1/test/"
     ff = open('%sfilelist_minbias_61M_good.txt'%(path), "r")
@@ -155,18 +158,29 @@ if addPileUp:
 process.source = cms.Source("PoolSource",
   duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
   inputCommands = cms.untracked.vstring('keep  *_*_*_*'),
-  fileNames = cms.untracked.vstring('file:out_digi.root')
+  fileNames = cms.untracked.vstring('file:out_sim.root')
 )
 
+## use files given a list of input directories
+from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
 import os
-useInputDir = False
+useInputDir = True
 if useInputDir:
-    #inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT5_1M_v1/DigiL1CSC-MuonGunPt5_1M/82325e40d6202e6fec2dd983c477f3ca/'
-    inputDir = '/uscms_data/d3/dildick/work/testForInstructions/CMSSW_6_2_0_SLHC1/src/digiFiles/GEM_NeutrinoGun_110K_pu100_DIGI_L1/'
-    ls = os.listdir(inputDir)
-    process.source.fileNames = cms.untracked.vstring(
-        ['file:' + inputDir[:] + x for x in ls if x.endswith('root')]
-    )
+    suffix = '_pt2-50'
+    inputDir = files[suffix]
+    theInputFiles = []
+    for d in range(len(inputDir)):
+        my_dir = inputDir[d]
+        if not os.path.isdir(my_dir):
+            print "ERROR: This is not a valid directory: ", my_dir
+            if d==len(inputDir)-1:
+                print "ERROR: No input files were selected"
+                exit()
+            continue
+        ls = os.listdir(my_dir)
+        theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
+    ## define the new input files
+    process.source.fileNames = cms.untracked.vstring(*theInputFiles)
 
 physics = True
 if not physics:
