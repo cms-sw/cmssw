@@ -108,7 +108,7 @@ HiCentralityBiasFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
 
-   CLHEP::HepRandomEngine& engine = rng_->getEngine();
+   CLHEP::HepRandomEngine& engine = rng_->getEngine(iEvent.streamID());
 
    Handle<HepMCProduct> mc;
    iEvent.getByLabel(hepmcSrc_,mc);
