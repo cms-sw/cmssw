@@ -422,7 +422,16 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
 
     h_pt_after_alct = fs->make<TH1D>("h_pt_after_alct","h_pt_after_alct",N_PT_BINS, PT_START, PT_END);
     h_pt_after_clct = fs->make<TH1D>("h_pt_after_clct","h_pt_after_clct",N_PT_BINS, PT_START, PT_END);
+
+    h_pt_me1_after_alct = fs->make<TH1D>("h_pt_me1_after_alct","h_pt_me1_after_alct",N_PT_BINS, PT_START, PT_END);
+    h_pt_me1_after_clct = fs->make<TH1D>("h_pt_me1_after_clct","h_pt_me1_after_clct",N_PT_BINS, PT_START, PT_END);
+    h_pt_me1_after_alct_okAlct = fs->make<TH1D>("h_pt_me1_after_alct_okAlct","h_pt_me1_after_alct_okAlct",N_PT_BINS, PT_START, PT_END);
+    h_pt_me1_after_clct_okClct = fs->make<TH1D>("h_pt_me1_after_clct_okClct","h_pt_me1_after_clct_okClct",N_PT_BINS, PT_START, PT_END);
+
     h_pt_after_lct = fs->make<TH1D>("h_pt_after_lct","h_pt_after_lct",N_PT_BINS, PT_START, PT_END);
+    h_pt_me1_after_lct_okAlctClct = fs->make<TH1D>("h_pt_me1_after_lct_okAlctClct","h_pt_me1_after_lct_okAlctClct",N_PT_BINS, PT_START, PT_END);
+
+
     h_pt_after_mpc = fs->make<TH1D>("h_pt_after_mpc","h_pt_after_mpc",N_PT_BINS, PT_START, PT_END);
     h_pt_after_mpc_ok_plus = fs->make<TH1D>("h_pt_after_mpc_ok_plus","h_pt_after_mpc_ok_plus",N_PT_BINS, PT_START, PT_END);
     h_pt_me1_after_mpc_ok_plus = fs->make<TH1D>("h_pt_after_mpc_me1_plus","h_pt_me1_after_mpc_ok_plus",N_PT_BINS, PT_START, PT_END);
@@ -701,12 +710,12 @@ GEMCSCTriggerEfficiency::GEMCSCTriggerEfficiency(const edm::ParameterSet& iConfi
     h_wg_me11_after_lct_okAlctClct = fs->make<TH1D>("h_wg_me11_after_lct_okAlctClct","h_wg_me11_after_lct_okAlctClct",50, -1,49);
 
 
-    h_strip_me1a_initial = fs->make<TH1D>("h_strip_me1a_initial","h_strip_me1a_initial",49, -1,48);
-    h_strip_me1b_initial = fs->make<TH1D>("h_strip_me1b_initial","h_strip_me1b_initial",65, -1,64);
-    h_strip_me1a_after_clct = fs->make<TH1D>("h_strip_me1a_after_clct","h_strip_me1a_after_clct",49, -1,48);
-    h_strip_me1b_after_clct = fs->make<TH1D>("h_strip_me1b_after_clct","h_strip_me1b_after_clct",65, -1,64);
-    h_strip_me1a_after_clct_okClct = fs->make<TH1D>("h_strip_me1a_after_clct_okClct","h_strip_me1a_after_clct_okClct",49, -1,48);
-    h_strip_me1b_after_clct_okClct = fs->make<TH1D>("h_strip_me1b_after_clct_okClct","h_strip_me1b_after_clct_okClct",65, -1,64);
+    h_strip_me1a_initial = fs->make<TH1D>("h_strip_me1a_initial","h_strip_me1a_initial",48, -0.5,47.5);
+    h_strip_me1b_initial = fs->make<TH1D>("h_strip_me1b_initial","h_strip_me1b_initial",64, -0.5,63.5);
+    h_strip_me1a_after_clct = fs->make<TH1D>("h_strip_me1a_after_clct","h_strip_me1a_after_clct",48, -0.5,47.5);
+    h_strip_me1b_after_clct = fs->make<TH1D>("h_strip_me1b_after_clct","h_strip_me1b_after_clct",64, -0.5,63.5);
+    h_strip_me1a_after_clct_okClct = fs->make<TH1D>("h_strip_me1a_after_clct_okClct","h_strip_me1a_after_clct_okClct",48, -0.5,47.5);
+    h_strip_me1b_after_clct_okClct = fs->make<TH1D>("h_strip_me1b_after_clct_okClct","h_strip_me1b_after_clct_okClct",64, -0.5,63.5);
 
 
 
@@ -1738,16 +1747,19 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                     int wg = match->wireGroupAndStripInChamber(chIds[ch]).first;
 		    int strip = match->wireGroupAndStripInChamber(chIds[ch]).second-1;
 		    
+		   
                     h_wg_me11_initial->Fill(wg);
                   if (csct==3)   
 		  {
 		      h_strip_me1a_initial->Fill(strip);
 		      n_strip_me1a++;
+		      if(strip==0||strip==47)  match->print("strip=0orstrip=47",1,1,1,1,1,1);
 		  }
 	          if (csct==0)   
 	            { 
 		       h_strip_me1b_initial->Fill(strip);
                        n_strip_me1b++;
+		      if(strip==0||strip==63)  match->print("strip=0orstrip=63",1,1,1,1,1,1);
 	             }
                 }
             }
@@ -1871,6 +1883,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                 if (debugALCT) std::cout << "okME1alct OK" << std::endl;
                 h_eta_me1_after_alct->Fill(steta);
                 h_phi_me1_after_alct->Fill(stphi);
+	        h_pt_me1_after_alct->Fill(stpt);	
             }
             if(okME11alct) {
                 if (debugALCT) std::cout << "okME1alct OK" << std::endl;
@@ -1883,6 +1896,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             {
                 h_eta_me1_after_alct_okAlct->Fill(steta);
                 h_phi_me1_after_alct_okAlct->Fill(stphi);
+                h_pt_me1_after_alct_okAlct->Fill(stpt);
 
                 std::vector<int> chIDs = match->chambersWithALCTs();
                 std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
@@ -1977,6 +1991,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             if(okME1clct) {
                 h_eta_me1_after_clct->Fill(steta);
                 h_phi_me1_after_clct->Fill(stphi);
+		h_pt_me1_after_clct->Fill(stpt);
 
 
                 std::vector<int> chIDs = match->chambersWithCLCTs();
@@ -2013,7 +2028,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             if(okME1clctg) {
                 h_eta_me1_after_clct_okClct->Fill(steta);
                 h_phi_me1_after_clct_okClct->Fill(stphi);
-
+                h_pt_me1_after_clct_okClct->Fill(stpt);
                 
                 std::vector<int> chIDs = match->chambersWithCLCTs();
                 std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
@@ -2086,15 +2101,15 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             }
         }
 
-	std::cout << " n_strip_me1a: " << n_strip_me1a << std::endl;
-	std::cout << " n_strip_me1a_after_clct: " << n_strip_me1a_after_clct << std::endl;
-	std::cout << " n_strip_me1b: " << n_strip_me1b << std::endl;
-	std::cout << " n_strip_me1b_after_clct: " << n_strip_me1b_after_clct << std::endl;
-	if ((n_strip_me1a < n_strip_me1a_after_clct) || (n_strip_me1b < n_strip_me1b_after_clct))
-	{
-	    std::cout << "===========  BUG Simtrack ==============" << std::endl;
-            match->print("BUG IN ME1a/ME1b",1,1,1,1,1,1);	    
-         }
+	//std::cout << " n_strip_me1a: " << n_strip_me1a << std::endl;
+	//std::cout << " n_strip_me1a_after_clct: " << n_strip_me1a_after_clct << std::endl;
+	//std::cout << " n_strip_me1b: " << n_strip_me1b << std::endl;
+	//std::cout << " n_strip_me1b_after_clct: " << n_strip_me1b_after_clct << std::endl;
+	//if ((n_strip_me1a < n_strip_me1a_after_clct) || (n_strip_me1b < n_strip_me1b_after_clct))
+	//{
+	 //   std::cout << "===========  BUG Simtrack ==============" << std::endl;
+         //   match->print("BUG IN ME1a/ME1b",1,1,1,1,1,1);	    
+        // }
 
         // Comment it out (but keep it for later debug)
 
@@ -2208,6 +2223,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             {
                 h_eta_me1_after_lct_okAlctClct->Fill(steta);
                 h_phi_me1_after_lct_okAlctClct->Fill(stphi);
+                h_pt_me1_after_lct_okAlctClct->Fill(stpt);
 
                 std::vector<int> chIDs = match->chambersWithLCTs();
                 std::vector<int> chWHIDs = match->chambersWithHits(0,0,minNHitsChamber_);
@@ -2227,6 +2243,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
             if(okME1clctalct) {
                 h_eta_me1_after_lct_okClctAlct->Fill(steta);
                 h_phi_me1_after_lct_okClctAlct->Fill(stphi);
+		
             }
             if(okME11clctalct) {
                 h_eta_me11_after_lct_okClctAlct->Fill(steta);
@@ -2363,7 +2380,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
         float gem_dphi_even = -99.;
         if (match->TFCANDs.size()) 
         {
-            if (tfc==NULL) std::cout<<" ALARM: tfc==NULL !!!"<<std::endl;
+           // if (tfc==NULL) std::cout<<" ALARM: tfc==NULL !!!"<<std::endl;
 
             double tfc_pt = tfc->tftrack->pt;
             unsigned ntf_stubs = tfc->tftrack->nStubs();
@@ -2704,7 +2721,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         if (match->TFCANDsAll.size()) 
         {
-            if (tfcAll==NULL) std::cout<<" ALARM: tfcAll==NULL !!!"<<std::endl;
+           // if (tfcAll==NULL) std::cout<<" ALARM: tfcAll==NULL !!!"<<std::endl;
 
             if (eta_ok) h_pt_after_tfcand_all->Fill(stpt);
 
@@ -3852,7 +3869,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                     }
                 }
                 if (debugTFTRACK) std::cout<<"------- # of matched: CSCCorrelatedLCTDigis="<<mtftrack.trgids.size()<<"  MPLCTs="<<mtftrack.ids.size()<<std::endl;
-                if (mtftrack.trgids.size()==1 && mtftrack.l1trk->mb1ID()==0 ){
+            /*    if (mtftrack.trgids.size()==1 && mtftrack.l1trk->mb1ID()==0 ){
                     char msg[400];
                     sprintf(msg, "TF track: nstubs=%lu  nmatchstubs=%lu", mtftrack.trgids.size(), mtftrack.ids.size());
                     mtftrack.print(msg);
@@ -3862,7 +3879,7 @@ GEMCSCTriggerEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup
                         MatchCSCMuL1::MPLCT & mplct = match->MPLCTs[i];
                         if (mplct.deltaOk) std::cout<<"   "<<mplct.id<<"  wg="<<mplct.trgdigi->getKeyWG()<<"  str="<<mplct.trgdigi->getStrip()<<std::endl;
                     }
-                }
+                }*/
                 if (mtftrack.dr < 0.2) match->TFTRACKsAll.push_back(mtftrack);
 
                 mtftrack.deltaOk1 = mtftrack.deltaOk2 = mtftrack.deltaOkME1 = 0;

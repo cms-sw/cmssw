@@ -20,6 +20,36 @@ process.load("Configuration.StandardSequences.L1Extra_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring("log", "debug", "errors"),
+    statistics = cms.untracked.vstring("stat"),
+    # No constraint on log.txt content...
+    log = cms.untracked.PSet(
+        extension = cms.untracked.string(".txt"),
+        lineLength = cms.untracked.int32(132),
+        noLineBreaks = cms.untracked.bool(True)
+    ),
+    debug = cms.untracked.PSet(
+        extension = cms.untracked.string(".txt"),
+        threshold = cms.untracked.string("DEBUG"),
+        lineLength = cms.untracked.int32(132),
+        noLineBreaks = cms.untracked.bool(True)
+    ),
+    errors = cms.untracked.PSet(
+        extension = cms.untracked.string(".txt"),
+        threshold = cms.untracked.string("ERROR")
+    ),
+    stat = cms.untracked.PSet(
+        extension = cms.untracked.string(".txt"),
+        threshold = cms.untracked.string("INFO")
+    ),
+    # turn on the following to get LogDebug output
+    # ============================================
+    # debugModules = cms.untracked.vstring("*"),
+    debugModules = cms.untracked.vstring("simCscTriggerPrimitiveDigis")
+
+    )
+
 ################### Take inputs from crab.cfg file ##############
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
@@ -57,7 +87,7 @@ if hasattr(sys, "argv") == True:
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -95,7 +125,7 @@ process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag('simMuonC
 process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
 process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
 process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPretrig = 3
-process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 4
+process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
 #process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
 tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
 tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
@@ -133,7 +163,7 @@ process.l1extraParticles.produceMuonParticles = cms.bool(True)
 process.l1extraParticles.produceCaloParticles = cms.bool(False)
 process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
-addPileUp = False
+addPileUp = True
 if addPileUp:
     # list of MinBias files for pileup has to be provided
     path = os.getenv( "CMSSW_BASE" ) + "/src/GEMCode/SimMuL1/test/"
@@ -160,10 +190,11 @@ process.source = cms.Source("PoolSource",
 )
 
 import os
-useInputDir = False
+useInputDir = True
 if useInputDir:
     #inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT5_1M_v1/DigiL1CSC-MuonGunPt5_1M/82325e40d6202e6fec2dd983c477f3ca/'
-    inputDir = '/uscms_data/d3/dildick/work/testForInstructions/CMSSW_6_2_0_SLHC1/src/digiFiles/GEM_NeutrinoGun_110K_pu100_DIGI_L1/'
+    inputDir = '/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU140/cadd04af78260520bc45436035aa2787/'
+    #inputDir = '/uscms_data/d3/dildick/work/testForInstructions/CMSSW_6_2_0_SLHC1/src/digiFiles/GEM_NeutrinoGun_110K_pu100_DIGI_L1/'
     ls = os.listdir(inputDir)
     process.source.fileNames = cms.untracked.vstring(
         ['file:' + inputDir[:] + x for x in ls if x.endswith('root')]
