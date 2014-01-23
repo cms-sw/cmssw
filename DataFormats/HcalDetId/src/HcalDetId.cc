@@ -17,8 +17,8 @@ HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int
       ((tower_ieta>0)?(0x2000|((tower_ieta&0x3F)<<7)):(((-tower_ieta)&0x3F)<<7)) |
       (tower_iphi&0x7F);
   } else {
-    id_ |= (0x1000000) | ((depth&0xF)<<19) |
-      ((tower_ieta>0)?(0x800000|((tower_ieta&0x1FF)<<10)):(((-tower_ieta)&0x1FF)<<10)) |
+    id_ |= (0x1000000) | ((depth&0xF)<<20) |
+      ((tower_ieta>0)?(0x80000|((tower_ieta&0x1FF)<<10)):(((-tower_ieta)&0x1FF)<<10)) |
       (tower_iphi&0x3FF);
   }
 }
@@ -60,10 +60,10 @@ bool HcalDetId::operator==(DetId gen) const {
     phi  = rawid&0x7F;
     dep  = (rawid>>14)&0x1F;
   } else {
-    zsid = (rawid&0x800000)?(1):(-1);
+    zsid = (rawid&0x80000)?(1):(-1);
     eta  = (rawid>>10)&0x1FF;
     phi  = rawid&0x3FF;
-    dep  = (rawid>>19)&0xF;
+    dep  = (rawid>>20)&0xF;
   }
   bool result=(zsid==zside() && eta==ietaAbs() && phi==iphi() && dep==depth());
   return result;
@@ -79,10 +79,10 @@ bool HcalDetId::operator!=(DetId gen) const {
     phi  = rawid&0x7F;
     dep  = (rawid>>14)&0x1F;
   } else {
-    zsid = (rawid&0x800000)?(1):(-1);
+    zsid = (rawid&0x80000)?(1):(-1);
     eta  = (rawid>>10)&0x1FF;
     phi  = rawid&0x3FF;
-    dep  = (rawid>>19)&0xF;
+    dep  = (rawid>>20)&0xF;
   }
   bool result=(zsid!=zside() || eta!=ietaAbs() || phi!=iphi() || dep!=depth());
   return result;
@@ -100,10 +100,10 @@ bool HcalDetId::operator<(DetId gen) const {
       phi  = rawid&0x7F;
       dep  = (rawid>>14)&0x1F;
     } else {
-      zsid = (rawid&0x800000)?(1):(-1);
+      zsid = (rawid&0x80000)?(1):(-1);
       eta  = (rawid>>10)&0x1FF;
       phi  = rawid&0x3FF;
-      dep  = (rawid>>19)&0xF;
+      dep  = (rawid>>20)&0xF;
     }
     rawid = 0;
     if ((id_&0x1000000) == 0) {
@@ -111,8 +111,8 @@ bool HcalDetId::operator<(DetId gen) const {
 	((zsid>0)?(0x2000|((eta&0x3F)<<7)):((eta&0x3F)<<7)) |
 	(phi&0x7F);
     } else {
-      rawid |= (0x1000000) | ((dep&0xF)<<19) |
-	((zsid>0)?(0x800000|((eta&0x1FF)<<10)):((eta&0x1FF)<<10)) |
+      rawid |= (0x1000000) | ((dep&0xF)<<20) |
+	((zsid>0)?(0x80000|((eta&0x1FF)<<10)):((eta&0x1FF)<<10)) |
 	(phi&0x3FF);
     }
     return (id_&0x1FFFFFF)<rawid;
@@ -121,7 +121,7 @@ bool HcalDetId::operator<(DetId gen) const {
 
 int HcalDetId::zside() const {
   if (oldFormat()) return (id_&0x2000)?(1):(-1);
-  else             return (id_&0x800000)?(1):(-1);
+  else             return (id_&0x80000)?(1):(-1);
 }
 
 int HcalDetId::ietaAbs() const { 
@@ -136,7 +136,7 @@ int HcalDetId::iphi() const {
 
 int HcalDetId::depth() const {
   if (oldFormat())  return (id_>>14)&0x1F;
-  else              return (id_>>19)&0xF;
+  else              return (id_>>20)&0xF;
 }
 
 int HcalDetId::crystal_iphi_low() const { 
