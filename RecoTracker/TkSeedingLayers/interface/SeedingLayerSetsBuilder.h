@@ -6,12 +6,15 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
 #include <string>
 #include <vector>
 namespace edm { class EventSetup; class ConsumesCollector;}
+class TrackerRecoGeometryRecord;
+class TransientRecHitRecord;
 
 class SeedingLayerSetsBuilder {
 
@@ -24,13 +27,17 @@ public:
 
   ctfseeding::SeedingLayerSets layers(const edm::EventSetup& es) const; 
 
+  bool check(const edm::EventSetup& es);
+
 private:
   std::vector<std::vector<std::string> > layerNamesInSets(
     const std::vector<std::string> & namesPSet) ;
   edm::ParameterSet layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const;
   std::map<std::string,int> nameToId;
 
-private:
+  edm::ESWatcher<TrackerRecoGeometryRecord> geometryWatcher_;
+  edm::ESWatcher<TransientRecHitRecord> trhWatcher_;
+
   struct LayerSpec { 
     LayerSpec();
     ~LayerSpec();

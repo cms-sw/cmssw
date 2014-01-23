@@ -355,3 +355,10 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
   }
   return result;
 }
+
+bool SeedingLayerSetsBuilder::check(const edm::EventSetup& es) {
+  // We want to evaluate both in the first invocation (to properly
+  // initialize ESWatcher), and this way we avoid one branch compared
+  // to || (should be tiny effect)
+  return geometryWatcher_.check(es) | trhWatcher_.check(es);
+}
