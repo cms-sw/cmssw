@@ -194,6 +194,16 @@ public:
   const_iterator end() const { return const_iterator(this, layerSetIndices_.end()); }
   const_iterator cend() const { return end(); }
 
+  // for more efficient edm::Event::put()
+  void swap(SeedingLayerSetsHits& other) {
+    std::swap(nlayers_, other.nlayers_);
+    layerSetIndices_.swap(other.layerSetIndices_);
+    layerHitRanges_.swap(other.layerHitRanges_);
+    layerNames_.swap(other.layerNames_);
+    layerDets_.swap(other.layerDets_);
+    rechits_.swap(other.rechits_);
+  }
+
   void print() const;
 
 private:
