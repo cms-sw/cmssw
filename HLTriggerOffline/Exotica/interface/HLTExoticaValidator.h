@@ -4,11 +4,11 @@
 /** \class HLTExoticaValidator
  *  Generate histograms for trigger efficiencies Exotica related
  *  Documentation available on the CMS TWiki:
- *  https://twiki.cern.ch/twiki/bin/view/CMS/ExoticaWGHLTValidate
+ *  https://twiki.cern.ch/twiki/bin/view/CMS/EXOTICATriggerValidation
  *
  *  \author  Thiago R. Fernandez Perez Tomei 
  *           Based and adapted from:
- *           Duarte Campderros code from HLTriggerOffline/Higgs and 
+ *           J. Duarte Campderros code from HLTriggerOffline/Higgs and 
  *           J. Klukas, M. Vander Donckt and J. Alcaraz code 
  *           from the HLTriggerOffline/Muon package.
  */
@@ -28,12 +28,12 @@
 
 class EVTColContainer;
 
-//! The HLTExoticaValidator module is the main module of the
-//! package. More discussion to come.
+/// The HLTExoticaValidator module is the main module of the
+/// package. More discussion to come.
 class HLTExoticaValidator : public edm::EDAnalyzer 
 {
 	public:
-		//! Constructor
+		/// Constructor
 	      	HLTExoticaValidator(const edm::ParameterSet &);
 	      	~HLTExoticaValidator();
 
@@ -45,15 +45,15 @@ class HLTExoticaValidator : public edm::EDAnalyzer
 		virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup);
 		virtual void endJob();
 
-		//! Input from configuration file
+		/// Copy (to be modified) of the input ParameterSet from configuration file.
 		edm::ParameterSet _pset;
-		//! the names of the subanalyses
+		/// The names of the subanalyses
 		std::vector<std::string> _analysisnames;
 		
-		//! The instances of the class which do the real work
+		/// The instances of the class which do the real work
 		std::vector<HLTExoticaSubAnalysis> _analyzers;
 				
-		//! The container with all the collections needed
+		/// The container with all the collections needed
 		EVTColContainer * _collections;
 		
 		// Access to the DQM

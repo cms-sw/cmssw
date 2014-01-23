@@ -4,12 +4,13 @@
 /** \class HLTExoticaSubAnalysis
  *  Generate histograms for trigger efficiencies Exotica related
  *  Documentation available on the CMS TWiki:
- *  https://twiki.cern.ch/twiki/bin/view/CMS/ExoticaWGHLTValidate
+ *  https://twiki.cern.ch/twiki/bin/view/CMS/EXOTICATriggerValidation
  *
- *  \author  J. Duarte Campderros (based and adapted on J. Klukas,
- *           M. Vander Donckt and J. Alcaraz code from the 
- *           HLTriggerOffline/Muon package)
- *
+ *  \author  Thiago R. Fernandez Perez Tomei 
+ *           Based and adapted from:
+ *           J. Duarte Campderros code from HLTriggerOffline/Higgs
+ *           J. Klukas, M. Vander Donckt and J. Alcaraz code 
+ *           from the HLTriggerOffline/Muon package.
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -19,7 +20,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"

@@ -1,10 +1,10 @@
-#ifndef HLTRIGGEROFFLINE_HIGGS_MATCHSTRUCT_CC
-#define HLTRIGGEROFFLINE_HIGGS_MATCHSTRUCT_CC
+#ifndef HLTRIGGEROFFLINE_EXOTICA_MATCHSTRUCT_CC
+#define HLTRIGGEROFFLINE_EXOTICA_MATCHSTRUCT_CC
 
 /** \class MatchStruct
  *  Generate histograms for trigger efficiencies Exotica related
  *  Documentation available on the CMS TWiki:
- *  https://twiki.cern.ch/twiki/bin/view/CMS/ExoticaWGHLTValidate
+ *  https://twiki.cern.ch/twiki/bin/view/CMS/EXOTICATriggerValidation
  *
  *  \author  J. Duarte Campderros
  *
@@ -15,17 +15,20 @@
 
 #include "TLorentzVector.h"
 
-#include<vector>
+#include <vector>
 
-// Matching structure: helper structure to match gen/reco candidates with
-// hlt trigger objects
+/// MatchStruct helper structure to match gen/reco candidates with
+/// HLT trigger objects
 struct MatchStruct 
 {
 	unsigned int objType;
 	float pt;
 	float eta;
 	float phi;
+        // Isn't this, like, absolutely dangerous??? 
 	const void * thepointer;
+  
+        /// Default constructor
 	MatchStruct():
 		objType(0),
 		pt(0),
@@ -34,6 +37,8 @@ struct MatchStruct
 		thepointer(0)
 	{
 	}
+  
+        /// Constructor from candidate
 	MatchStruct(const reco::Candidate * cand, const unsigned int & obj) :
 		objType(obj),
 		pt(cand->pt()),
@@ -43,7 +48,9 @@ struct MatchStruct
 
 	{
 	}
-	// FIXME: If finally the track is disappeared, then recover the last code...
+	
+        /// Constructor from track
+        // FIXME: If finally the track is disappeared, then recover the last code...
 	MatchStruct(const reco::Track * cand, const unsigned int & obj) :
 		objType(obj),
 		pt(cand->pt()),
@@ -62,7 +69,7 @@ struct MatchStruct
 	}
 };
 
-//! Helper structure to order MatchStruct
+/// Helper structure to order MatchStruct
 struct matchesByDescendingPt 
 {
 	bool operator() (MatchStruct a, MatchStruct b) 

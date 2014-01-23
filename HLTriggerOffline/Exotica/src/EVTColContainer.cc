@@ -1,17 +1,16 @@
-#ifndef HLTRIGGEROFFLINE_HIGGS_EVTCOLCONTAINER
-#define HLTRIGGEROFFLINE_HIGGS_EVTCOLCONTAINER
+#ifndef HLTRIGGEROFFLINE_EXOTICA_EVTCOLCONTAINER_CC
+#define HLTRIGGEROFFLINE_EXOTICA_EVTCOLCONTAINER_CC
 
 /** \class EVTColContainer
- *  Generate histograms for trigger efficiencies Exotica related
- *  Documentation available on the CMS TWiki:
- *  https://twiki.cern.ch/twiki/bin/view/CMS/ExoticaWGHLTValidate
+ * 
+ *  Class to manage all the object collections in
+ *  the Exotica Validation package.
  *
  *  \author  J. Duarte Campderros
  *
  */
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h" // TO BE DEPRECATED
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -29,7 +28,7 @@
 #include<vector>
 #include<map>
 
-//! container with all the objects needed
+/// container with all the objects needed
 struct EVTColContainer
 {
 	enum 
@@ -52,7 +51,6 @@ struct EVTColContainer
 	const std::vector<reco::PFMET> * pfMETs;
 	const std::vector<reco::PFTau> * pfTaus;
 	const std::vector<reco::PFJet> * jets;
-	const trigger::TriggerEventWithRefs * rawTriggerEvent;
 	const edm::TriggerResults   * triggerResults ;
 	EVTColContainer():
 		nOfCollections(6),
@@ -65,11 +63,10 @@ struct EVTColContainer
 		pfMETs(0),
 		pfTaus(0),
 		jets(0),
-		rawTriggerEvent(0),
 		triggerResults(0)
 	{
 	}
-	//! 
+	/// 
 	bool isAllInit()
 	{
 		return (nInitialized == nOfCollections);
@@ -77,18 +74,19 @@ struct EVTColContainer
 
 	bool isCommonInit()
 	{
-		return (rawTriggerEvent != 0);
+	  return false;
 	}
-	//! 
+
+	/// Reset: clear all collections
 	void reset()
 	{
 		nInitialized = 0;
 		genParticles = 0;
 		muons = 0; electrons = 0; photons = 0;  pfMETs = 0; pfTaus = 0;jets = 0; 
-		rawTriggerEvent = 0;
 		triggerResults = 0;
 	}
-	//! Setter: multiple overloaded function
+
+	/// Setter: multiple overloaded function
 	void set(const reco::MuonCollection * v)
 	{
 		muons = v;
@@ -119,7 +117,7 @@ struct EVTColContainer
 		jets = v;
 		++nInitialized;
 	}
-	//! Get size of collections
+	/// Get size of collections
 	const unsigned int getSize(const unsigned int & objtype) const
 	{
 		unsigned int size = 0;
