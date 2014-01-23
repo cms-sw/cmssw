@@ -199,13 +199,15 @@ protected:
   bool                            useDeterministicSeed_; // If desired, use a deterministic seed to fastjet
   unsigned int                    minSeed_;              // minimum seed to use, useful for MC generation
 
-private:
+ private:
   std::auto_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition
 
   // tokens for the data access
-  edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
   edm::EDGetTokenT<reco::CandidateView> input_candidateview_token_;
   edm::EDGetTokenT<std::vector<edm::FwdPtr<reco::PFCandidate> > > input_candidatefwdptr_token_;
+
+ protected:
+  edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
 
 };
 

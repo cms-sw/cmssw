@@ -139,7 +139,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
   }
 
   input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
-  input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
 
 }
 

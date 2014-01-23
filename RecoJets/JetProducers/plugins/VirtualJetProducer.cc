@@ -279,7 +279,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   produces<double>("rho");
   produces<double>("sigma");
 
-  input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
+  if (!srcPVs_.label().empty()) input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
   input_candidateview_token_ = consumes<reco::CandidateView>(src_);
   input_candidatefwdptr_token_ = consumes<std::vector<edm::FwdPtr<reco::PFCandidate> > >(src_);
   
