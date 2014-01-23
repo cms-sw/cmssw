@@ -14,20 +14,17 @@ GenericTripletGenerator::GenericTripletGenerator(const edm::ParameterSet& conf, 
 } 
 
 
-SeedingLayerSets GenericTripletGenerator::init(const edm::EventSetup& es){
-	return theLsb.layers(es);
-}
-
-
 const OrderedSeedingHits& GenericTripletGenerator::run(const TrackingRegion& region,
                               				     const edm::Event& e,
                               				     const edm::EventSetup& es){
 	hitTriplets.clear();
 	hitTriplets.reserve(0);
-	SeedingLayerSets lss = init(es);
+        if(theLsb.check(es)) {
+          theLss = theLsb.layers(es);
+        }
 	SeedingLayerSets::const_iterator iLss;
 	std::map<float, OrderedHitTriplet> radius_triplet_map;
-	for (iLss = lss.begin(); iLss != lss.end(); iLss++){
+	for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
 		SeedingLayers ls = *iLss;
 		if (ls.size() != 3){
                 	throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 3 ";

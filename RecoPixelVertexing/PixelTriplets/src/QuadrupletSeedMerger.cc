@@ -106,7 +106,9 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   const TrackerTopology *tTopo=tTopoHand.product();
   
   // the list of layers on which quadruplets should be formed
-  ctfseeding::SeedingLayerSets theLayerSets_ = theLayerBuilder_.layers( es ); // this is a vector<vector<SeedingLayer> >
+  if(theLayerBuilder_.check(es)) {
+    theLayerSets_ = theLayerBuilder_.layers( es ); // this is a vector<vector<SeedingLayer> >
+  }
 
   
   // make a working copy of the input triplets

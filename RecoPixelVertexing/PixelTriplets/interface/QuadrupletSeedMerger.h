@@ -103,6 +103,7 @@ class QuadrupletSeedMerger {
     // bool isValidQuadruplet( const SeedingHitSet&, const std::vector<SeedMergerPixelLayer>& ) const;
 
   SeedingLayerSetsBuilder theLayerBuilder_;
+  ctfseeding::SeedingLayerSets theLayerSets_;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry_;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder_;
   bool isMergeTriplets_;
