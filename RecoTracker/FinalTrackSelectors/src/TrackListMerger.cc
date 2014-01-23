@@ -593,14 +593,12 @@ namespace cms
       mvaVec.push_back(trackMVAs[i]);
       if (selected[i]>1 ) {
 	outputTrks->back().setQualityMask(selected[i]-10);
-	if (trkUpdated[i]) {
+	if (trkUpdated[i]) 
 	  outputTrks->back().setQuality(qualityToSet_);
-	}
       }
       //might duplicate things, but doesnt hurt
-      if ( selected[i]==1 ) {
+      if ( selected[i]==1 ) 
 	outputTrks->back().setQualityMask(trackQuals[i]);
-      }
 
       // if ( beVerb ) std::cout << "selected " << outputTrks->back().pt() << " " << outputTrks->back().qualityMask() << " " << selected[i] << std::endl;
 
