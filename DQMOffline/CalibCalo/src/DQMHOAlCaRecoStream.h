@@ -2,6 +2,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/HcalCalibObjects/interface/HOCalibVariables.h"
+
 class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
    public:
       explicit DQMHOAlCaRecoStream(const edm::ParameterSet&);
@@ -53,7 +55,7 @@ class DQMHOAlCaRecoStream : public edm::EDAnalyzer {
   double m_highEdge;
 
   bool saveToFile_;
-  edm::InputTag hoCalibVariableCollectionTag;
+  edm::EDGetTokenT<HOCalibVariableCollection> hoCalibVariableCollectionTag;
 
       // ----------member data ---------------------------
 
