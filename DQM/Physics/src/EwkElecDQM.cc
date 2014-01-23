@@ -38,6 +38,27 @@ using namespace reco;
 
 EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
       // Input collections
+  /*
+  trigToken_(consumes<edm::TriggerResults>(
+	       cfg.getUntrackedParameter<edm::InputTag> ("TrigTag",
+	                                 edm::InputTag("TriggerResults::HLT")))),
+  elecToken_(consumes<edm::View<reco::GsfElectron> >(
+		cfg.getUntrackedParameter<edm::InputTag> ("ElecTag",
+		                                edm::InputTag("gsfElectrons")))),
+  metToken_(consumes<edm::View<reco::MET> >(
+		cfg.getUntrackedParameter<edm::InputTag> ("METTag",
+							  edm::InputTag("met")))),
+  jetToken_(consumes<edm::View<reco::Jet> >(
+		cfg.getUntrackedParameter<edm::InputTag> ("JetTag",
+				      	  edm::InputTag("sisCone5CaloJets")))),
+  vertexToken_(consumes<edm::View<reco::Vertex> >(
+		   cfg.getUntrackedParameter<edm::InputTag> ("VertexTag",
+					edm::InputTag("offlinePrimaryVertices")))),
+  beamSpotToken_(consumes<reco::BeamSpot>(
+		   cfg.getUntrackedParameter<edm::InputTag> ("BeamSpotTag",
+					edm::InputTag("offlineBeamSpot")))),
+  */
+
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       //      muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       elecTag_(cfg.getUntrackedParameter<edm::InputTag> ("ElecTag", edm::InputTag("gsfElectrons"))), 
@@ -45,11 +66,13 @@ EwkElecDQM::EwkElecDQM( const ParameterSet & cfg ) :
       //      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
       vertexTag_    (cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
+      beamSpotTag_  (cfg.getUntrackedParameter<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"))),
 
       // Main cuts 
       //      muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
       //elecTrig_(cfg.getUntrackedParameter<std::vector< std::string > >("ElecTrig", "HLT_Ele10_SW_L1R")), 
       elecTrig_(cfg.getUntrackedParameter<std::vector< std::string > >("ElecTrig")), 
+
       //      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 10.)),
       //      etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
@@ -129,7 +152,6 @@ void EwkElecDQM::beginJob() {
 void EwkElecDQM::init_histograms() {
 
   char chtitle[256] = "";
-  for (int i=0; i<2; ++i) {
     
     //             pt_before_ = theDbe->book1D("PT_BEFORECUTS","Muon transverse momentum (global muon) [GeV],100,0.,100.);
     //             pt_after_ = theDbe->book1D("PT_LASTCUT","Muon transverse momentum (global muon) [GeV],100,0.,100.);
@@ -265,8 +287,6 @@ void EwkElecDQM::init_histograms() {
 // 	     jet2_et_after       = theDbe->book1D("JETET2_AFTERCUTS",chtitle, 20, 0., 200.0);
 	     
 
-
-      }
 }
 
 
@@ -358,7 +378,9 @@ void EwkElecDQM::endRun(const Run& r, const EventSetup&) {
   LogVerbatim("") << ">>>>>> SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
 
-void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
+//inline void HERE(const char *msg) { std::cout << msg << "\n"; }
+
+void EwkElecDQM::analyze (const Event & ev, const EventSetup &iSet) {
       
       // Reset global event selection flags
       bool rec_sel = false;
@@ -369,6 +391,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 
 //       // Muon collection
 //       Handle<View<Muon> > muonCollection;
+//       if (!ev.getByToken(muonToken_, muonCollection)) {
 //       if (!ev.getByLabel(muonTag_, muonCollection)) {
 //             LogWarning("") << ">>> Muon collection does not exist !!!";
 //             return;
@@ -377,6 +400,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 
       // Electron collection
       Handle<View<GsfElectron> > electronCollection;
+      //if (!ev.getByToken(elecToken_, electronCollection)) {
       if (!ev.getByLabel(elecTag_, electronCollection)) {
 	//LogWarning("") << ">>> Electron collection does not exist !!!";
 	return;
@@ -385,7 +409,8 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
-      if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
+      //if (!ev.getByToken(beamSpotToken_, beamSpotHandle)) {
+      if (!ev.getByLabel(beamSpotTag_, beamSpotHandle)) {
 	//LogWarning("") << ">>> No beam spot found !!!";
 	return;
       }
@@ -393,6 +418,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       double met_px = 0.;
       double met_py = 0.;
       Handle<View<MET> > metCollection;
+      //if (!ev.getByToken(metToken_, metCollection)) {
       if (!ev.getByLabel(metTag_, metCollection)) {
 	//LogWarning("") << ">>> MET collection does not exist !!!";
 	return;
@@ -416,19 +442,21 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       // Vertices in the event
       int npvCount = 0;
       Handle<View<reco::Vertex> > vertexCollection;
-           if (!ev.getByLabel(vertexTag_, vertexCollection)) {
-                 LogError("") << ">>> Vertex collection does not exist !!!";
-                 return;
-            }
+      //if (!ev.getByToken(vertexToken_, vertexCollection)) {
+      if (!ev.getByLabel(vertexTag_, vertexCollection)) {
+	LogError("") << ">>> Vertex collection does not exist !!!";
+	return;
+      }
       for (unsigned int i=0; i<vertexCollection->size(); i++) {
-            const Vertex& vertex = vertexCollection->at(i);
-            if (vertex.isValid()) npvCount++;
+	const Vertex& vertex = vertexCollection->at(i);
+	if (vertex.isValid()) npvCount++;
       }
       npvs_before_->Fill(npvCount);
 
 
       // Trigger
       Handle<TriggerResults> triggerResults;
+      //if (!ev.getByToken(trigToken_, triggerResults)) {
       if (!ev.getByLabel(trigTag_, triggerResults)) {
 	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
 	return;
@@ -449,6 +477,7 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       if (triggerResults->accept(itrig1)) trigger_fired = true;
       */
       //suggested replacement: lm250909
+      /* Fix buggy trigger logic
       for (unsigned int i=0; i<triggerResults->size(); i++) 
 	{
 	  std::string trigName = trigNames.triggerName(i);	  
@@ -478,7 +507,35 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
 	      if(triggerResults->accept(i) && !prescaled) trigger_fired=true;
 
 	}
+      */
 
+      // get the prescale set for this event
+      const int prescaleSet=hltConfigProvider_.prescaleSet(ev,iSet);
+      if (prescaleSet==-1) {
+        LogTrace("") << "Failed to determine prescaleSet\n";
+	//std::cout << "Failed to determine prescaleSet. Check cmsRun GlobalTag\n";
+        return;
+      }
+
+      for (unsigned int i=0; (i<triggerResults->size()) && (trigger_fired==false); i++) {
+        // skip trigger, if it did not fire
+        if (!triggerResults->accept(i)) continue;
+	
+        // skip trigger, if it is not on our list
+        bool found=false;
+        const std::string trigName = trigNames.triggerName(i);
+        for(unsigned int index=0; index<elecTrig_.size() && found==false; index++) {
+          if ( trigName.find(elecTrig_.at(index)) == 0 ) found=true;
+        }
+        if(!found) continue;
+
+        // skip trigger, if it is prescaled
+        if (hltConfigProvider_.prescaleValue(prescaleSet,trigName) != 1)
+          continue;
+
+        //std::cout << "found unprescaled trigger that fired: " << trigName << "\n";
+        trigger_fired=true;
+      }
 
       LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( " ;
       for (unsigned int k = 0; k < elecTrig_.size(); k++)
@@ -488,23 +545,9 @@ void EwkElecDQM::analyze (const Event & ev, const EventSetup &) {
       LogTrace("") << ")";
       trig_before_->Fill(trigger_fired);
 
-//       // Loop to reject/control Z->mumu is done separately
-//       unsigned int nmuonsForZ1 = 0;
-//       unsigned int nmuonsForZ2 = 0;
-//       for (unsigned int i=0; i<muonCollectionSize; i++) {
-//             const Muon& mu = muonCollection->at(i);
-//             if (!mu.isGlobalMuon()) continue;
-//             double pt = mu.pt();
-//             if (pt>ptThrForZ1_) nmuonsForZ1++;
-//             if (pt>ptThrForZ2_) nmuonsForZ2++;
-//       }
-//       LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
-//       LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
-//       nz1_before_->Fill(nmuonsForZ1);
-//       nz2_before_->Fill(nmuonsForZ2);
-      
       // Jet collection
       Handle<View<Jet> > jetCollection;
+      //if (!ev.getByToken(jetToken_, jetCollection)) {
       if (!ev.getByLabel(jetTag_, jetCollection)) {
 	//LogError("") << ">>> JET collection does not exist !!!";
 	return;

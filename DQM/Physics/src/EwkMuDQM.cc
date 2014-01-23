@@ -18,7 +18,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h" 
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
@@ -40,19 +40,44 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       muonTag_      (cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
       metTag_       (cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
       jetTag_       (cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
-      phoTag_       (cfg.getUntrackedParameter<edm::InputTag> ("phoTag", edm::InputTag("photons"))),
-      pfPhoTag_     (cfg.getUntrackedParameter<edm::InputTag> ("pfPhoTag", edm::InputTag("pfPhotonTranslator","pfPhot"))),
+      phoTag_       (cfg.getUntrackedParameter<edm::InputTag> ("PhoTag", edm::InputTag("photons"))),
       vertexTag_    (cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
-      trigPathNames_(cfg.getUntrackedParameter<std::vector <std::string> >("TrigPathNames")),           
+      beamSpotTag_  (cfg.getUntrackedParameter<edm::InputTag> ("BeamSpotTag", edm::InputTag("offlineBeamSpot"))),
+
+      /*
+      trigToken_    (consumes<edm::TriggerResults> (
+		       cfg.getUntrackedParameter<edm::InputTag> ("TrigTag",
+								 edm::InputTag("TriggerResults::HLT")))),
+      muonToken_    (consumes<edm::View<reco::Muon> > (
+		       cfg.getUntrackedParameter<edm::InputTag> ("MuonTag",
+								 edm::InputTag("muons")))),
+      metToken_     (consumes<edm::View<reco::MET> > (
+		       cfg.getUntrackedParameter<edm::InputTag> ("METTag",
+								 edm::InputTag("pfmet")))),
+      jetToken_       (consumes<edm::View<reco::Jet> > (
+			 cfg.getUntrackedParameter<edm::InputTag> ("JetTag",
+								   edm::InputTag("ak5PFJets")))),
+      phoToken_       (consumes<edm::View<reco::Photon> > (
+		       cfg.getUntrackedParameter<edm::InputTag> ("PhoTag",
+								 edm::InputTag("photons")))),
+      vertexToken_    (consumes<edm::View<reco::Vertex> > (
+		       cfg.getUntrackedParameter<edm::InputTag> ("VertexTag",
+								 edm::InputTag("offlinePrimaryVertices")))),
+      beamSpotToken_  (consumes<reco::BeamSpot> (
+		       cfg.getUntrackedParameter<edm::InputTag> ("beamSpotTag",
+								 edm::InputTag("offlineBeamSpot")))),
+      */
+
+      trigPathNames_(cfg.getUntrackedParameter<std::vector <std::string> >("TrigPathNames")),
 
       // Muon quality cuts
-      isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),  // Glb muon also tracker muon 
-      dxyCut_           (cfg.getUntrackedParameter<double>("DxyCut", 0.2)),            // dxy < 0.2 cm 
+      isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),  // Glb muon also tracker muon
+      dxyCut_           (cfg.getUntrackedParameter<double>("DxyCut", 0.2)),            // dxy < 0.2 cm
       normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)), // chi2/ndof (of global fit) <10.0
-      trackerHitsCut_   (cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),        // Tracker Hits >10 
+      trackerHitsCut_   (cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),        // Tracker Hits >10
       pixelHitsCut_     (cfg.getUntrackedParameter<int>("PixelHitsCut", 1)),           // Pixel Hits >0
-      muonHitsCut_      (cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),            // Valid Muon Hits >0 
-      nMatchesCut_      (cfg.getUntrackedParameter<int>("NMatchesCut", 2)),            // At least 2 Chambers with matches 
+      muonHitsCut_      (cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),            // Valid Muon Hits >0
+      nMatchesCut_      (cfg.getUntrackedParameter<int>("NMatchesCut", 2)),            // At least 2 Chambers with matches
 
       // W-boson cuts 
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
@@ -72,15 +97,15 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
 
       // Z selection
       dimuonMassMin_(cfg.getUntrackedParameter<double>("dimuonMassMin", 80.)),
-      dimuonMassMax_(cfg.getUntrackedParameter<double>("dimuonMassMax", 120.)), 
+      dimuonMassMax_(cfg.getUntrackedParameter<double>("dimuonMassMax", 120.)),
 
       // Top rejection
       eJetMin_     (cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
-      nJetMax_     (cfg.getUntrackedParameter<int>("NJetMax", 999999)), 
+      nJetMax_     (cfg.getUntrackedParameter<int>("NJetMax", 999999)),
 
-      // Photon cuts 
+      // Photon cuts
       ptThrForPhoton_(cfg.getUntrackedParameter<double>("ptThrForPhoton",5.)),
-      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999)) 
+      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999))
 {
   isValidHltConfig_ = false;
 
@@ -121,8 +146,8 @@ void EwkMuDQM::init_histograms() {
   eta_before_ = theDbe->book1D("ETA_BEFORECUTS","Muon pseudo-rapidity",50,-2.5,2.5);
   eta_after_ = theDbe->book1D("ETA_AFTERWCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
 
-  dxy_before_ = theDbe->book1D("DXY_BEFORECUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
-  dxy_after_ = theDbe->book1D("DXY_AFTERWCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  dxy_before_ = theDbe->book1D("DXY_BEFORECUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
+  dxy_after_ = theDbe->book1D("DXY_AFTERWCUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
 
   goodewkmuon_before_ = theDbe->book1D("GOODEWKMUON_BEFORECUTS","Quality-muon flag",2,-0.5,1.5);
   goodewkmuon_after_ = theDbe->book1D("GOODEWKMUON_AFTERWCUTS","Quality-muon flag",2,-0.5,1.5);
@@ -194,7 +219,7 @@ void EwkMuDQM::init_histograms() {
 
   pt1_afterZ_ = theDbe->book1D("PT1_AFTERZCUTS","Muon transverse momentum (global muon) [GeV]",100,0.,100.);
   eta1_afterZ_ = theDbe->book1D("ETA1_AFTERZCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
-  dxy1_afterZ_ = theDbe->book1D("DXY1_AFTERZCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  dxy1_afterZ_ = theDbe->book1D("DXY1_AFTERZCUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
   goodewkmuon1_afterZ_ = theDbe->book1D("GOODEWKMUON1_AFTERZCUTS","Quality-muon flag",2,-0.5,1.5);
 
   if (isRelativeIso_) {
@@ -217,7 +242,7 @@ void EwkMuDQM::init_histograms() {
 
   pt2_afterZ_ = theDbe->book1D("PT2_AFTERZCUTS","Muon transverse momentum (global muon) [GeV]",100,0.,100.);
   eta2_afterZ_ = theDbe->book1D("ETA2_AFTERZCUTS","Muon pseudo-rapidity",50,-2.5,2.5);
-  dxy2_afterZ_ = theDbe->book1D("DXY2_AFTERZCUTS","Muon transverse distance to beam spot [cm]",1000,-0.5,0.5);
+  dxy2_afterZ_ = theDbe->book1D("DXY2_AFTERZCUTS","Muon transverse distance to beam spot [cm]",100,-0.5,0.5);
   goodewkmuon2_afterZ_ = theDbe->book1D("GOODEWKMUON2_AFTERZCUTS","Quality-muon flag",2,-0.5,1.5);
   ztrig_afterZ_ = theDbe->book1D("ZTRIG_AFTERZCUTS","Trigger response (boolean of muon triggers)",2,-0.5,1.5); 
   dimuonmass_before_= theDbe->book1D("DIMUONMASS_BEFORECUTS","DiMuonMass (2 globals)",100,0,200);
@@ -234,12 +259,9 @@ void EwkMuDQM::init_histograms() {
   ngoodmuons_ = theDbe->book1D("NGoodMuons","Number of muons passing the quality criteria",10,-0.5,9.5);
 
   nph_ = theDbe->book1D("nph","Number of photons in the event",20,0.,20.); 
-  //npfph_ = theDbe->book1D("npfph","Number of PF photons in the event",20,0.,20.); 
-  phPt_ = theDbe->book1D("phPt","Photon transverse momentum [GeV]",1000,0.,1000.);
-  //pfphPt_ = theDbe->book1D("pfphPt","PF Photon transverse momentum [GeV]",1000,0.,1000.); 
+  phPt_ = theDbe->book1D("phPt","Photon transverse momentum [GeV]",100,0.,1000.);
   snprintf(chtitle, 255, "Photon pseudorapidity (pT>%4.1f)",ptThrForPhoton_);
   phEta_ = theDbe->book1D("phEta",chtitle,100,-2.5,2.5); 
-  //pfphEta_ = theDbe->book1D("pfphEta","PF Photon pseudorapidity",100,-2.5,2.5); 
 
 }
 
@@ -255,6 +277,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       
       // Muon collection
       Handle<View<Muon> > muonCollection;
+      //if (!ev.getByToken(muonToken_, muonCollection)) {
       if (!ev.getByLabel(muonTag_, muonCollection)) {
 	//LogWarning("") << ">>> Muon collection does not exist !!!";
 	return;
@@ -263,7 +286,8 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
-      if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
+      //if (!ev.getByToken(beamSpotToken_, beamSpotHandle)) {
+      if (!ev.getByLabel(beamSpotTag_, beamSpotHandle)) {
 	//LogWarning("") << ">>> No beam spot found !!!";
 	return;
       }
@@ -305,6 +329,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       // MET
       Handle<View<MET> > metCollection;
+      //if (!ev.getByToken(metToken_, metCollection)) {
       if (!ev.getByLabel(metTag_, metCollection)) {
 	//LogWarning("") << ">>> MET collection does not exist !!!";
 	return;
@@ -316,10 +341,11 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       // Vertices in the event
       Handle<View<reco::Vertex> > vertexCollection;
-           if (!ev.getByLabel(vertexTag_, vertexCollection)) {
-                 LogError("") << ">>> Vertex collection does not exist !!!";
-                 return;
-            }
+      //if (!ev.getByToken(vertexToken_, vertexCollection)) {
+      if (!ev.getByLabel(vertexTag_, vertexCollection)) {
+	LogError("") << ">>> Vertex collection does not exist !!!";
+	return;
+      }
       unsigned int vertexCollectionSize = vertexCollection->size();
 
       
@@ -334,6 +360,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
 
       bool trigger_fired = false;
       Handle<TriggerResults> triggerResults;
+      //if (!ev.getByToken(trigToken_, triggerResults)) {
       if (!ev.getByLabel(trigTag_, triggerResults)) {
 	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
 	return;
@@ -341,7 +368,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
       //  LogWarning("")<<"Loop over triggers";
 
-
+      /* change faulty logic of triggering
       for (unsigned int i=0; i<triggerResults->size(); i++)
       {
               const std::string trigName = trigNames.triggerName(i);
@@ -361,11 +388,61 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             
               if( triggerResults->accept(i) && !prescaled){   trigger_fired=true;}
                         // LogWarning("")<<"TrigNo: "<<i<<"  "<<found<<"  "<<trigName<<" ---> FIRED";}
-      }     
+      }
+      */
+
+      // get the prescale set for this event
+      const int prescaleSet=hltConfigProvider_.prescaleSet(ev,iSet);
+      if (prescaleSet==-1) {
+        LogTrace("") << "Failed to determine prescaleSet\n";
+        //std::cout << "Failed to determine prescaleSet. Check the GlobalTag in cfg\n";
+        return;
+      }
+
+      for (unsigned int i=0; (i<triggerResults->size()) && (trigger_fired==false); i++) {
+        // skip trigger, if it did not fire
+        if (!triggerResults->accept(i)) continue;
+
+        // skip trigger, if it is not on our list
+        bool found=false;
+        const std::string trigName = trigNames.triggerName(i);
+	for(unsigned int index=0; index<trigPathNames_.size() && found==false; index++) {
+          if ( trigName.find(trigPathNames_.at(index)) == 0 ) found=true;
+        }
+        if(!found) continue;
+
+        // skip trigger, if it is prescaled
+	if (prescaleSet!=-1) {
+	  if (hltConfigProvider_.prescaleValue(prescaleSet,trigName) != 1)
+	    continue;
+	}
+	else {
+	  // prescaleSet is not known. 
+	  // This branch is not needed, if prescaleSet=-1 forces to skip event
+	  int prescaled=0;
+	  for (unsigned int ps=0; 
+	       !prescaled && (ps<hltConfigProvider_.prescaleSize()); 
+	       ++ps) {
+	    if (hltConfigProvider_.prescaleValue(ps, trigName) != 1) {
+	      prescaled=1;
+	    }
+	  }
+	  if (prescaled) {
+	    //std::cout << "trigger prescaled\n";
+	    continue;
+	  }
+	}
+
+        //std::cout << "found unprescaled trigger that fired: " << trigName << "\n";
+	trigger_fired=true;
+      }
+      //if (trigger_fired) std::cout << "\n\tGot Trigger\n";
+
       trig_before_->Fill(trigger_fired);
 
       // Jet collection
       Handle<View<Jet> > jetCollection;
+      //if (!ev.getByToken(jetToken_, jetCollection)) {
       if (!ev.getByLabel(jetTag_, jetCollection)) {
 	//LogError("") << ">>> JET collection does not exist !!!";
 	return;
@@ -400,9 +477,10 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
       }
       //Photon Collection
       Handle<View<Photon> > photonCollection;
+      //if(!ev.getByToken(phoToken_,photonCollection)){
       if(!ev.getByLabel(phoTag_,photonCollection)){
-      //LogError("")
-      return;
+	//LogError("")
+	return;
       }
       unsigned int ngam=0;
       

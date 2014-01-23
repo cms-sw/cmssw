@@ -7,7 +7,9 @@ ewkMuDQM = cms.EDAnalyzer("EwkMuDQM",
       MuonTag = cms.untracked.InputTag("muons"),
       METTag = cms.untracked.InputTag("pfMet"),
       JetTag = cms.untracked.InputTag("ak5PFJets"),
+      PhoTag = cms.untracked.InputTag("photons"),
       VertexTag= cms.untracked.InputTag("offlinePrimaryVertices"),
+      BeamSpotTag = cms.untracked.InputTag("offlineBeamSpot"),
       TrigPathNames = cms.untracked.vstring("HLT_Mu","HLT_DoubleMu","HLT_IsoMu"),
 
       # Main cuts ->

@@ -30,13 +30,21 @@ public:
   void init_histograms();
 private:
 
-  edm::InputTag trigTag_;
   //  edm::InputTag muonTag_;
+  edm::InputTag trigTag_;
   edm::InputTag elecTag_;
   edm::InputTag metTag_;
-   bool metIncludesMuons_;
   edm::InputTag jetTag_;
   edm::InputTag vertexTag_;
+  edm::InputTag beamSpotTag_;
+  // bool metIncludesMuons_;
+
+  //edm::EDGetTokenT<edm::TriggerResults> trigToken_;
+  //edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecToken_;
+  //edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+  //edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+  //edm::EDGetTokenT<edm::View<reco::Vertex> > vertexToken_;
+  //edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
   //  const std::string muonTrig_;
   const std::vector<std::string> elecTrig_;
@@ -58,10 +66,10 @@ private:
   double hcalIsoCutEndcap_;
   double trkIsoCutBarrel_;
   double trkIsoCutEndcap_;
-   double mtMin_;
-   double mtMax_;
-   double metMin_;
-   double metMax_;
+  double mtMin_;
+  double mtMax_;
+  double metMin_;
+  double metMax_;
   //  double acopCut_;
 
   //  double dxyCut_;
