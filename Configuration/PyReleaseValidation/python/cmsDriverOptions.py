@@ -163,6 +163,11 @@ expertSettings.add_option("--pileup",
                   default=defaultOptions.pileup,
                   dest="pileup")
 
+expertSettings.add_option("--pileup_input",
+                          help="define the pile up files to mix with",
+                          default=None,
+                          dest="pileup_input")
+
 expertSettings.add_option("--datamix",
                   help="What datamix config to use. Default=DataOnSim.",
                   default=defaultOptions.datamix,
@@ -230,10 +235,15 @@ expertSettings.add_option("--particle_table",
                           default=defaultOptions.particleTable,
                           dest="particleTable")
 
-expertSettings.add_option("--dbsquery",
-                          help="Allow to define the source.fileNames from the dbs search command",
+expertSettings.add_option("--dasquery",
+                          help="Allow to define the source.fileNames from the das search command",
                           default='',
-                          dest="dbsquery")
+                          dest="dasquery")
+
+expertSettings.add_option("--dbsquery",
+                          help="Deprecated. Please use dasquery option. Functions for backward compatibility",
+                          default='',
+                          dest="dasquery")
 
 expertSettings.add_option("--lazy_download",
                   help="Enable lazy downloading of input files",
