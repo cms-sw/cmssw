@@ -43,6 +43,8 @@ L3MuonIsolationProducer::L3MuonIsolationProducer(const ParameterSet& par) :
   {
   LogDebug("RecoMuon|L3MuonIsolationProducer")<<" L3MuonIsolationProducer CTOR";
 
+  theMuonCollectionToken = consumes<RecoChargedCandidateCollection>(theMuonCollectionLabel);
+
   if (optOutputIsoDeposits) produces<reco::IsoDepositMap>();
   produces<edm::ValueMap<bool> >();
 
@@ -99,7 +101,7 @@ void L3MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup
   // Take the SA container
   LogTrace(metname)<<" Taking the muons: "<<theMuonCollectionLabel;
   Handle<TrackCollection> muons;
-  event.getByLabel(theMuonCollectionLabel,muons);
+  event.getByToken(theMuonCollectionToken,muons);
 
   std::auto_ptr<reco::IsoDepositMap> depMap( new reco::IsoDepositMap());
   std::auto_ptr<edm::ValueMap<bool> > isoMap( new edm::ValueMap<bool> ());
