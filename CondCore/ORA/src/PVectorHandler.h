@@ -7,7 +7,7 @@
 // externals
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
-#include "RflxCollProxy.h"
+#include "TCollectionProxyInfo.h"
 
 namespace ora {
 
@@ -16,8 +16,8 @@ namespace ora {
 
     public:
     /// Constructor
-    PVectorIteratorHandler( const Reflex::Environ<long>& collEnv,
-                            Reflex::CollFuncTable& collProxy,
+    PVectorIteratorHandler( ROOT::TCollectionProxyInfo::Environ<long>& collEnv,
+                            ROOT::TCollectionProxyInfo& collProxy,
                             const edm::TypeWithDict& iteratorReturnType,
                             size_t startElement );
 
@@ -39,10 +39,10 @@ namespace ora {
     edm::TypeWithDict m_returnType;
 
     /// Structure containing parameters of the collection instance
-    Reflex::Environ<long> m_collEnv;
+    ROOT::TCollectionProxyInfo::Environ<long>& m_collEnv;
 
     /// Proxy of the generic collection
-    Reflex::CollFuncTable& m_collProxy;
+    ROOT::TCollectionProxyInfo& m_collProxy;
 
     /// Current element object pointer
     void* m_currentElement;
@@ -100,10 +100,10 @@ namespace ora {
       bool m_isAssociative;
 
       /// Structure containing parameters of the collection instance
-      Reflex::Environ<long> m_collEnv;
+      ROOT::TCollectionProxyInfo::Environ<long> m_collEnv;
 
       /// Proxy of the generic collection
-      std::auto_ptr<Reflex::CollFuncTable> m_collProxy;
+      std::auto_ptr<ROOT::TCollectionProxyInfo> m_collProxy;
 
       size_t m_persistentSizeAttributeOffset;
 
