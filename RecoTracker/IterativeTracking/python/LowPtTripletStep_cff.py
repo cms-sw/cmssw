@@ -120,9 +120,7 @@ lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
     GBRForestLabel = cms.string('MVASelectorIter1'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-        #RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'lowPtTripletStepLoose',
-            #preFilterName = '',
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'lowPtTripletStepTight',
