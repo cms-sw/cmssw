@@ -65,6 +65,8 @@ private:
   TH1F *hPtSim; 
   TH1F *hPres;
   TH1F *h1_Pres;
+  TH1F *h1_PresMuon;
+  TH1F *h1_PresMuon2;
   TH1F *hPTDiff;
   TH1F *hPTDiff2;
   TH2F *hPTDiffvsEta;
@@ -73,6 +75,7 @@ private:
   TH1F *hRecEta;
   TH1F *hDeltaEta;
   TH1F *hDeltaPhi;
+  TH1F *hDeltaPhiMuon;
   TH1F *hDeltaPhiPlus;
   TH1F *hDeltaPhiMinus;
   TH1F *hSimPhi;
@@ -83,11 +86,14 @@ private:
   TH1F *hNumGEMSimHits;
   TH1F *hNumCSCSimHits;
   TH1F *hNumGEMRecHits;
+  TH1F *hNumGEMRecHitsMuon;
   TH1F *hNumCSCRecHits;
   TH2F *hPtResVsPt;
   TH2F *hInvPtResVsPt;
+  TH2F *hInvPtResVsPtMuon;
   TH2F *hPtResVsEta;
   TH2F *hInvPtResVsEta;
+  TH2F * hInvPtResVsEtaMuon;
   TH2F *hPtResVsPtNoCharge;
   TH2F *hInvPtResVsPtNoCharge;
   TH2F *hPtResVsEtaNoCharge;
@@ -125,6 +131,9 @@ private:
   TH2F *hRecPhi2DPlusLayer2;
   TH2F *hRecPhi2DMinusLayer2;  
   TH2F *hDeltaCharge;
+  TH2F *hDeltaChargeMuon;
+  TH2F *hDeltaChargeVsEta;
+  TH2F *hDeltaChargeVsEtaMuon;
   TH2F *hCharge;
   TH2F *hDeltaPhiVsSimTrackPhi;
   TH2F *hDeltaPhiVsSimTrackPhi2;
@@ -137,6 +146,18 @@ private:
   TH1F *hCSCorGEM;
   TH1F *hSimTrackMatch;
   TH1F *hRecHitMatching;
+  TH1F *hRecHitParMatching;
+  TH2F *hDRMatchVsPt;
+  TH2F *hDRMatchVsPtMuon;
+  TH1F *hMatchedSimHits;
+  TH2F *hRecoTracksWithMatchedRecHits;
+  TH2F *hDeltaQvsDeltaPt;
+  TH2F *hCheckGlobalTracksVsPt;
+  TH2F *hCheckTracksVsPt;
+  TH2F *hPtResVsPtRes;
+  TH1F *hDeltaPtRes;
+  TH1F *hCountPresence;
+
   // Counters
   int numberOfSimTracks;
   int numberOfRecTracks;
