@@ -57,8 +57,9 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   }
 
 #ifdef DebugLog
-  edm::LogInfo("HCalGeom") << "HcalNumberingFromDDD: point = " << point << " det "
-		       << hsubdet << " eta/R " << etaR << " phi " << hphi;
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: point = " << point << " det " 
+		       << det << ":" << hsubdet << " eta/R " << etaR << " phi "
+		       << hphi;
 #endif
   HcalNumberingFromDDD::HcalID tmp = unitID(hsubdet,etaR,hphi,depth,lay);
   return tmp;
@@ -95,7 +96,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   if (iphi > nphi) iphi = 1;
 
 #ifdef DebugLog
-  edm::LogInfo("HCalGeom") << "HcalNumberingFromDDD: etaR = " << etaR << " : "
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: etaR = " << etaR << " : "
 		       << zside << "/" << ieta << " phi " << hphi << " : "
 		       << iphi;
 #endif
@@ -118,13 +119,13 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
   int iphi_skip = hcalConstants->phiNumber(phi, units);
 
 #ifdef DebugLog
-  edm::LogInfo("HCalGeom") << "HcalNumberingFromDDD: phi units=" <<  units  
-                       <<  "  iphi_skip=" << iphi_skip; 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: phi units= " << units  
+                       << "  iphi_skip= " << iphi_skip; 
 #endif
   HcalNumberingFromDDD::HcalID tmp(det,zside,etaDepth.second,etaDepth.first,phi,iphi_skip,lay);
 
 #ifdef DebugLog
-  edm::LogInfo("HCalGeom") << "HcalNumberingFromDDD: det = " << det << " " 
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: det = " << det << " " 
 		       << tmp.subdet << " zside = " << tmp.zside << " depth = "
 		       << tmp.depth << " eta/R = " << tmp.etaR << " phi = " 
 		       << tmp.phi << " layer = " << tmp.lay;
