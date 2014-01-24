@@ -12,7 +12,7 @@ process = cms.Process('GEMCSCTRGANA')
 cmssw = os.getenv( "CMSSW_VERSION" )
 
 ## steering
-events = 50000
+events = 20000
 defaultEmu = False
 ganged = True
 ganged = False
@@ -21,10 +21,20 @@ sample='dimu'
 globalTag = 'upgrade2019'
 #sample='minbias'
 
+
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
 suffix = '_gem98_pt2-50_PU0_pt0_new'
-inputDir = files[suffix]
+#inputDir = ['/pnfs/cms/WAX/11/store/user/tahuang/tahuang/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt0_LCT2_pretrig3_trig3/2870967ad07ae794d9cb1e9e71d09436/']
+#inputDir = ['/pnfs/cms/WAX/11/store/user/tahuang/SingleMuPt2-50Fwdv2_PU400_Pt40_LCT2/']
+#inputDir = ['/pnfs/cms/WAX/11/store/user/tahuang/tahuang/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt0_LCT2_pretrig3_trig4/d3cb9b9144f8497302cf438c373309ee/']
+#inputDir = ['/pnfs/cms/WAX/11/store/user/tahuang/SingleMuPt2-50Fwdv2_PU400_Pt0_LCT2_pretrig3_trig3/tahuang/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_Pt0_LCT2_pretrig3_trig3/2870967ad07ae794d9cb1e9e71d09436/']
+#inputDir = ['/pnfs/cms/WAX/11/store/user/tahuang/tahuang/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_Pt0_LCT2_pretrig2_trig3/22f68d6bad7781e290b0c453c8528041/']
+inputDir = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_Pt0_v2/778c771068e2388f44bc7bc981a2bd26/']
+#inputDir = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU0_Pt0/871a2070c5b60d6753827956fe591827/']
+#inputDir = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_postCSCTFbug_preTrig33/0af81cb7cc9545f400bd587be0115228/']
+#inputDir = ['/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_dphi0_postCSCTFbug_preTrig23/ebcefef58e488d2ad86f71b9405ee5c7/']
+#inputDir = ['/pnfs/cms/WAX/11/store/user/tahuang/tahuang/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_L1_PU400_Pt0_LCT2_pretrig3_trig4/d3cb9b9144f8497302cf438c373309ee/']
 theInputFiles = []
 import os
 for d in range(len(inputDir)):
@@ -40,7 +50,6 @@ for d in range(len(inputDir)):
   ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/... 
   theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
     
-theInputFiles = theInputFiles[:60]
 ##inputFiles = ['file:out_SingleMuPt10Fwd_GEM2019_8PartIncRad_DIGI_L1.root']
 print "InputFiles: ", theInputFiles
 
@@ -56,8 +65,8 @@ if w==61:
     readout_windows = [ [5,10],[1,11],[1,11],[1,11] ]
  
 ## output
-outputFileName = 'hp_' + sample + "_" + cmssw + "_" + globalTag + "_pu%s"%(pileup) + '_w%d'%(w) + suffix + '_eff.test.root'
-#outputFileName = 'gem_trigger_eff_ana.root'
+#outputFileName = 'hp_' + sample + "_" + cmssw + "_" + globalTag + "_pu%s"%(pileup) + '_w%d'%(w) + suffix + '_eff.test.root'
+outputFileName = 'Sven_trigger_eff_PU400_pretrig3_trig4_lct2_CLCTVSStrip.root'
 print "outputFile:", outputFileName
 
 # import of standard configurations
@@ -122,6 +131,9 @@ process.GEMCSCTriggerEfficiency.minBxLCT = readout_windows[2][0]
 process.GEMCSCTriggerEfficiency.maxBxLCT = readout_windows[2][1]
 process.GEMCSCTriggerEfficiency.minBxMPLCT = readout_windows[3][0]
 process.GEMCSCTriggerEfficiency.maxBxMPLCT = readout_windows[3][1]
+process.GEMCSCTriggerEfficiency.minNHitsChamber = cms.untracked.int32(2)
+process.GEMCSCTriggerEfficiency.requireME1WithMinNHitsChambers = cms.untracked.bool(True)
+process.GEMCSCTriggerEfficiency.minSimTrPt = cms.untracked.double(2)
 process.GEMCSCTriggerEfficiency.simTrackMatching.gemRecHitInput = ""
 #SimTrackMatching.verboseSimHit = 1
 #SimTrackMatching.verboseGEMDigi = 1
