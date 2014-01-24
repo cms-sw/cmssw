@@ -334,7 +334,33 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
        fJetMatchingHook->init ( lheRunInfo() );
     }
     
+    //pythia 8 doesn't currently support reading SLHA table from lhe header in memory
+    //so dump it to a temp file and set the appropriate pythia parameters to read it
+    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
+    const char *fname = std::tmpnam(NULL);;
+    bool doslha = !slha.empty();
+    
+    if (doslha) {
+      std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
+      std::string block;
+      for(std::vector<std::string>::const_iterator iter = slha.begin();
+        iter != slha.end(); ++iter) {
+              file << *iter;
+      }
+      file.close();
+
+      std::string lhareadcmd = "SLHA:readFrom = 2";    
+      std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
+
+      fMasterGen->readString(lhareadcmd);    
+      fMasterGen->readString(lhafilecmd); 
+    }
+    
     fMasterGen->init(lhaUP.get());
+    
+    if (doslha) {
+      std::remove( fname );
+    }
 
   }
   
