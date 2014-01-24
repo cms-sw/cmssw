@@ -21,8 +21,8 @@ public:
   virtual unsigned int getUnitID(const G4Step* aStep) const ;
 
   /** pack the Unit ID for Zdc <br>
-   *  z = 1,2 = -z,+z; subDet = 1,2,3 = EM,Lum,HAD; fiber = 1-96 (EM,HAD), 1 (Lum);
-   *  channel = 1-5 (EM), layer# (Lum), 1-3 (HAD)
+   *  z = 1,2 = -z,+z; subDet = 1,2,3,4 = EM,HAD,Lum,Flow; fiber = 1-96 (EM,HAD), 1 (Lum,Flow);
+   *  channel = 1-5 (EM), layer# (Lum), 1-3 (HAD), 1-16 (Flow)
    */
   static unsigned int packZdcIndex(int subDet, int layer, int fiber, int channel, int z);
 

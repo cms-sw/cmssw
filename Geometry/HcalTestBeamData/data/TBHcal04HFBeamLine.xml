@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="TBHcal04HFBeamLine.xml" eval="true">
+		<Constant name="motherDxby2" value="14.0*cm"/>
+		<Constant name="motherDyby2" value="14.0*cm"/>
+		<Constant name="motherDzby2" value="15.262*m"/>
+		<Constant name="beamX" value="0.0*m"/>
+		<Constant name="beamY" value="0.0*m"/>
+		<Constant name="beamZ" value="0.0*m"/>
+		<Constant name="chamberX" value="5.0*cm"/>
+		<Constant name="chamberY" value="5.0*cm"/>
+		<Constant name="chamberZ" value="0.5*cm"/>
+		<Constant name="chamberWZ" value="0.1*cm"/>
+		<Constant name="chamb1Z" value="5.0*cm"/>
+		<Constant name="chamb2Z" value="105.1*cm"/>
+		<Constant name="chamb3Z" value="304.9*cm"/>
+		<Constant name="chamb4Z" value="1351.5*cm"/>
+		<Constant name="chamb5Z" value="1476.2*cm"/>
+		<Constant name="triggerX" value="7.0*cm"/>
+		<Constant name="triggerY" value="7.0*cm"/>
+		<Constant name="triggerZ" value="0.5*cm"/>
+		<Constant name="trigger2X" value="7.0*cm"/>
+		<Constant name="trigger2Y" value="7.0*cm"/>
+		<Constant name="trigger3X" value="7.0*cm"/>
+		<Constant name="trigger3Y" value="7.0*cm"/>
+		<Constant name="trigger4X" value="1.0*cm"/>
+		<Constant name="trigger4Y" value="2.0*cm"/>
+		<Constant name="trigger4Z" value="0.25*cm"/>
+		<Constant name="trigger5X" value="2.0*cm"/>
+		<Constant name="trigger5Y" value="1.0*cm"/>
+		<Constant name="trigger6X" value="4.0*cm"/>
+		<Constant name="trigger6Y" value="4.0*cm"/>
+		<Constant name="trigger6Z" value="0.25*cm"/>
+		<Constant name="trigger6R" value="2.0*cm"/>
+		<Constant name="trig1Z" value="158.0*cm"/>
+		<Constant name="trig2Z" value="168.0*cm"/>
+		<Constant name="trig3Z" value="184.0*cm"/>
+		<Constant name="trig4Z" value="250.0*cm"/>
+		<Constant name="trig5Z" value="1412.85*cm"/>
+		<Constant name="trig6Z" value="1422.85*cm"/>
+		<Constant name="trig7Z" value="1417.85*cm"/>
+	</ConstantsSection>
+	<SolidSection label="TBHcal04HFBeamLine.xml">
+		<Box name="HcalTestBeamLine" dx="[motherDxby2]" dy="[motherDyby2]" dz="[motherDzby2]"/>
+		<Box name="HcalTestBeamLineTrigger1" dx="[triggerX]" dy="[triggerY]" dz="[triggerZ]"/>
+		<Box name="HcalTestBeamLineTrigger2" dx="[trigger2X]" dy="[trigger2Y]" dz="[triggerZ]"/>
+		<Box name="HcalTestBeamLineTrigger3" dx="[trigger3X]" dy="[trigger3Y]" dz="[triggerZ]"/>
+		<Box name="HcalTestBeamLineTrigger4" dx="[trigger4X]" dy="[trigger4Y]" dz="[trigger4Z]"/>
+		<Box name="HcalTestBeamLineTrigger5" dx="[trigger5X]" dy="[trigger5Y]" dz="[trigger4Z]"/>
+		<UnionSolid name="HcalTestBeamLineTrigger4+5">
+			<rSolid name="HcalTestBeamLineTrigger4"/>
+			<rSolid name="HcalTestBeamLineTrigger5"/>
+		</UnionSolid>
+		<Box name="HcalTestBeamLineTrigger6" dx="[trigger6X]" dy="[trigger6Y]" dz="[trigger6Z]"/>
+		<Tubs name="HcalTestBeamLineTrigger6Disk" rMin="0*fm" rMax="[trigger6R]" dz="[trigger6Z]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<SubtractionSolid name="HcalTestBeamLineMuonVeto">
+			<rSolid name="HcalTestBeamLineTrigger6"/>
+			<rSolid name="HcalTestBeamLineTrigger6Disk"/>
+		</SubtractionSolid>
+		<Box name="HcalTestBeamLineChamber" dx="[chamberX]" dy="[chamberY]" dz="[chamberZ]"/>
+		<Box name="HcalTestBeamLineWirePlane" dx="[chamberX]" dy="[chamberY]" dz="[chamberWZ]"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal04HFBeamLine.xml">
+		<LogicalPart name="HcalTestBeamLine" category="unspecified">
+			<rSolid name="HcalTestBeamLine"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineTrigger1" category="unspecified">
+			<rSolid name="HcalTestBeamLineTrigger1"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineTrigger2" category="unspecified">
+			<rSolid name="HcalTestBeamLineTrigger2"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineTrigger3" category="unspecified">
+			<rSolid name="HcalTestBeamLineTrigger3"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineTrigger4" category="unspecified">
+			<rSolid name="HcalTestBeamLineTrigger4+5"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineMuonVeto" category="unspecified">
+			<rSolid name="HcalTestBeamLineMuonVeto"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineChamber" category="unspecified">
+			<rSolid name="HcalTestBeamLineChamber"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTestBeamLineWirePlane" category="unspecified">
+			<rSolid name="HcalTestBeamLineWirePlane"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<RotationSection label="TBHcal04HFBeamLine.xml">
+		<Rotation name="R1" phiX="90*deg" thetaX="90*deg" phiY="180*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+	</RotationSection>
+	<PosPartSection label="TBHcal04HFBeamLine.xml">
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HF:TBHCal"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<Translation x="[beamX]" y="[beamY]" z="[beamZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineTrigger1"/>
+			<Translation x="0*fm" y="0*fm" z="[trig1Z]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineTrigger2"/>
+			<Translation x="0*fm" y="0*fm" z="[trig2Z]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineTrigger3"/>
+			<Translation x="0*fm" y="0*fm" z="[trig3Z]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineTrigger1"/>
+			<Translation x="0*fm" y="0*fm" z="[trig4Z]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineTrigger4"/>
+			<Translation x="0*fm" y="0*fm" z="[trig5Z]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineTrigger4"/>
+			<Translation x="0*fm" y="0*fm" z="[trig6Z]"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineMuonVeto"/>
+			<Translation x="0*fm" y="0*fm" z="[trig7Z]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLineChamber"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineWirePlane"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineChamber"/>
+			<Translation x="0*fm" y="0*fm" z="[chamb1Z]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineChamber"/>
+			<Translation x="0*fm" y="0*fm" z="[chamb2Z]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineChamber"/>
+			<Translation x="0*fm" y="0*fm" z="[chamb3Z]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineChamber"/>
+			<Translation x="0*fm" y="0*fm" z="[chamb4Z]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal04HFBeamLine:HcalTestBeamLine"/>
+			<rChild name="TBHcal04HFBeamLine:HcalTestBeamLineChamber"/>
+			<Translation x="0*fm" y="0*fm" z="[chamb5Z]"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

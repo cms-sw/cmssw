@@ -42,7 +42,7 @@ MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(const GEMGeometry& geo) {
 	  rolls.push_back(roll);
 	}
 	for(int chamber = GEMDetId::minChamberId; chamber <= GEMDetId::maxChamberId; chamber++ ){
-          chambers.push_back(chamber);
+	  chambers.push_back(chamber);
 	}
 
 	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          

@@ -3,8 +3,6 @@
 
 /** \class MuonSubdetId
  *
- *  $Date: 2012/09/25 13:35:20 $
- *  $Revision: 1.4 $
  * \author Stefano ARGIRO
  */
 
@@ -15,6 +13,7 @@ public:
   static const int CSC=2;
   static const int RPC=3; 
   static const int GEM=4; 
+  static const int ME0=5; 
 };
 
 #endif
