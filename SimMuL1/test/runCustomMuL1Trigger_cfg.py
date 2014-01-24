@@ -157,15 +157,32 @@ process.source = cms.Source("PoolSource",
 )
 
 import os
+from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
 useInputDir = True
 if useInputDir:
-    #inputDir = '/pnfs/cms/WAX/11/store/user/lpcgem/dildick/dildick/pT5_1M_v1/DigiL1CSC-MuonGunPt5_1M/82325e40d6202e6fec2dd983c477f3ca/'
-    inputDir = '/pnfs/cms/WAX/11/store/user/dildick/dildick/SingleMuPt2-50Fwdv2_1M/SingleMuPt2-50Fwdv2_1M_DIGI_L1CSC_PU140/cadd04af78260520bc45436035aa2787/'
-    #inputDir = '/uscms_data/d3/dildick/work/testForInstructions/CMSSW_6_2_0_SLHC1/src/digiFiles/GEM_NeutrinoGun_110K_pu100_DIGI_L1/'
-    ls = os.listdir(inputDir)
-    process.source.fileNames = cms.untracked.vstring(
-        ['file:' + inputDir[:] + x for x in ls if x.endswith('root')]
-    )
+    ## input
+    suffix = '_gem98_pt2-50_PU0_pt0_new'
+    inputDir = files[suffix]
+    theInputFiles = []
+    import os
+    for d in range(len(inputDir)):
+        my_dir = inputDir[d]
+        if not os.path.isdir(my_dir):
+            print "ERROR: This is not a valid directory: ", my_dir
+            if d==len(inputDir)-1:
+                print "ERROR: No input files were selected"
+                exit()
+            continue
+        print "Proceed to next directory"
+        ls = os.listdir(my_dir)
+        ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/... 
+        theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
+    
+print "InputFiles: ", theInputFiles
+
+process.source.fileNames = cms.untracked.vstring(
+    *theInputFiles
+)
 
 physics = True
 if not physics:
