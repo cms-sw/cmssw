@@ -119,9 +119,6 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
     pref[m]   = pref[0] + m/2;
   }
 
-  /// Do GEM matching?
-  do_gem_matching = tmbParams.getUntrackedParameter<bool>("doGemMatching", true);
-  
   /// GEM matching dphi and deta
   gem_match_delta_phi_odd = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiOdd", 0.0055);
   gem_match_delta_phi_even = tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiEven", 0.0031);
@@ -209,6 +206,13 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   alctV = alct->run(wiredc); // run anodeLCT
   clctV1b = clct->run(compdc); // run cathodeLCT in ME1/b
   clctV1a = clct1a->run(compdc); // run cathodeLCT in ME1/a
+
+  bool runCSCTriggerWithGEMs(false);
+  if (gem_g != nullptr) {
+    if (infoV >= 0) edm::LogInfo("L1CSCTPEmulatorSetupInfo")
+      << "+++ run() called for GEM-CSC integrated trigger! +++ \n";
+    runCSCTriggerWithGEMs = true;
+  }
 
   //int n_clct_a=0, n_clct_b=0;
   //if (clct1a->bestCLCT[6].isValid() && clct1a->bestCLCT[6].getBX()==6) n_clct_a++;
@@ -338,7 +342,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of ALCT-centric matching
 
   // possibly use some discrimination from GEMs
-  if (gemPads != nullptr &&  do_gem_matching) matchGEMPads(gemPads);
+  if (gemPads != nullptr and  runCSCTriggerWithGEMs) matchGEMPads(gemPads);
 
 
   // reduction of nLCTs per each BX
@@ -717,12 +721,10 @@ void CSCMotherboardME11::matchGEMPads(const GEMCSCPadDigiCollection* gemPads)
   // "key" layer id is used to calculate global position of stub
   CSCDetId key_id(csc_id.endcap(), csc_id.station(), csc_id.ring(), csc_id.chamber(), CSCConstants::KEY_CLCT_LAYER);
 
-
   // retrieve GEM pad digis from a corresponding GEM superchamber and pack them into
   // map< bx , vector<gemid, pad> >
   // smearing the bx if necessary according to the value of gem_match_delta_bx
   std::map<int , std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > pads;
-  // TODO: "magic" numbers galore!!! FIXME it's only for 6 partitions geometry right now
   int npads = 0;
   
   int region = (theEndcap == 1) ? 1: -1;
