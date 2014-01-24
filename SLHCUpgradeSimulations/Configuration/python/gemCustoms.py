@@ -7,7 +7,7 @@ def customise(process):
         process=customise_RawToDigi(process)
     if hasattr(process,'reconstruction'):
         process=customise_Reco(process)
-               
+
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'dqmoffline_step'):
@@ -16,7 +16,7 @@ def customise(process):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process,float(n))
-    
+
     return process
 
 def customise_DigiToRaw(process):
@@ -30,17 +30,32 @@ def customise_Digi(process):
         initialSeed = cms.untracked.uint32(1234567),
         engineName = cms.untracked.string('HepJamesRandom')
         )
-    
+
     process.mix.mixObjects.mixSH.crossingFrames.append('MuonGEMHits')
     process.mix.mixObjects.mixSH.input.append(cms.InputTag("g4SimHits","MuonGEMHits"))
     process.mix.mixObjects.mixSH.subdets.append('MuonGEMHits')
-    
+
     process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
     process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
     process.muonDigi += process.simMuonGEMDigis
     process.muonDigi += process.simMuonGEMCSCPadDigis
 
     process=outputCustoms(process)
+    return process
+
+def customise_L1Emulator(process):
+    process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
+    process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+    tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
+    tmb.doGemMatching = cms.untracked.bool(True)
+    tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
+    tmb.gemMatchDeltaBX = cms.untracked.int32(1)
+    lct_store_gemdphi = True
+    if lct_store_gemdphi:
+        tmb.gemClearNomatchLCTs = cms.untracked.bool(False)
+	tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
+        tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
     return process
 
 def customise_DQM(process,pileup):
@@ -50,7 +65,7 @@ def customise_Validation(process):
     return process
 
 def customise_harvesting(process):
-    return (process)        
+    return (process)
 
 def customise_Reco(process):
     process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
