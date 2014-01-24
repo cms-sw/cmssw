@@ -74,6 +74,7 @@ for an in _config.analysis:
 	vstr = s.__getattribute__("hltPathsToCheck")
 	map(lambda x: triggers.add(x.replace("_v","")),vstr)
 triggers = list(triggers)
+print triggers
 #------------------------------------------------------------
 
 # Generating the list with all the efficiencies
@@ -89,6 +90,11 @@ hltExoticaPostHighPtDimuon = hltExoticaPostProcessor.clone()
 hltExoticaPostHighPtDimuon.subDirs = ['HLT/Exotica/HighPtDimuon']
 hltExoticaPostHighPtDimuon.efficiencyProfile = efficiency_strings
 
+hltExoticaPostHighPtDielectron = hltExoticaPostProcessor.clone()
+hltExoticaPostHighPtDielectron.subDirs = ['HLT/Exotica/HighPtDielectron']
+hltExoticaPostHighPtDielectron.efficiencyProfile = efficiency_strings
+
 hltExoticaPostProcessors = cms.Sequence(
-		hltExoticaPostHighPtDimuon
+		hltExoticaPostHighPtDimuon +
+		hltExoticaPostHighPtDielectron
 )

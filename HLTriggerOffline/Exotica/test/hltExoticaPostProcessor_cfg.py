@@ -5,7 +5,7 @@ process = cms.Process("EDMtoMEConvert")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 2000
 
-process.load('Configuration.StandardSequences.EDMtoMEAtJobEnd_cff')
+process.load("Configuration.StandardSequences.EDMtoMEAtJobEnd_cff")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("HLTriggerOffline.Exotica.HLTExoticaPostVal_cff")
 #process.load("HLTriggerOffline.Exotica.HLTExoticaQualityTester_cfi")
@@ -21,8 +21,7 @@ process.source = cms.Source("PoolSource",
 
 process.postprocessor_path = cms.Path(
 		process.HLTExoticaPostVal
-		#   process.hltExoticaPostProcessors #*
-    #    process.hltExoticaQualityTester
+                #* process.hltExoticaQualityTester
 )
 
 process.edmtome_path = cms.Path(process.EDMtoME)
