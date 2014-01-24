@@ -22,17 +22,12 @@ using namespace ctfseeding;
 using namespace std;
 using namespace edm;
 
-HitExtractorSTRP::HitExtractorSTRP(SeedingLayer::Side & side, int idLayer, edm::ConsumesCollector& iC):
-  HitExtractorSTRP(nullptr, side, idLayer, iC)
+HitExtractorSTRP::HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer):
+  theLayerSubDet(subdet), theSide(side), theIdLayer(idLayer),
+  minAbsZ(0), theMinRing(1), theMaxRing(0),
+  hasMatchedHits(false), hasRPhiHits(false), hasStereoHits(false),
+  hasRingSelector(false), hasSimpleRphiHitsCleaner(true)
 {}
-
-HitExtractorSTRP::HitExtractorSTRP( const DetLayer* detLayer, 
-    SeedingLayer::Side & side, int idLayer, edm::ConsumesCollector& iC)
-  : theLayer(detLayer), theSide(side), theIdLayer(idLayer),
-    minAbsZ(0), theMinRing(1), theMaxRing(0),
-    hasMatchedHits(false), hasRPhiHits(false), hasStereoHits(false),
-    hasRingSelector(false), hasSimpleRphiHitsCleaner(true)
-{ }
 
 void HitExtractorSTRP::useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) {
   theSkipClusters = iC.consumes<SkipClustersCollection>(m);
@@ -144,7 +139,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   //
   // TIB
   //
-  if (theLayer->subDetector() == GeomDetEnumerators::TIB) {
+  if (theLayerSubDet == GeomDetEnumerators::TIB) {
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByToken( theMatchedHits, matchedHits);
@@ -179,7 +174,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   //
   // TID
   //
-  else if (theLayer->subDetector() == GeomDetEnumerators::TID) {
+  else if (theLayerSubDet == GeomDetEnumerators::TID) {
       if (hasMatchedHits) {
           edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
           ev.getByToken( theMatchedHits, matchedHits);
@@ -227,7 +222,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   //
   // TOB
   //
-  else if (theLayer->subDetector() == GeomDetEnumerators::TOB) {
+  else if (theLayerSubDet == GeomDetEnumerators::TOB) {
     if (hasMatchedHits) {
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByToken( theMatchedHits, matchedHits);
@@ -273,7 +268,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   //
   // TEC
   //
-  else if (theLayer->subDetector() == GeomDetEnumerators::TEC) {
+  else if (theLayerSubDet == GeomDetEnumerators::TEC) {
       if (hasMatchedHits) {
           edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
           ev.getByToken( theMatchedHits, matchedHits);

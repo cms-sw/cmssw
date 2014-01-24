@@ -24,11 +24,8 @@ class HitExtractorSTRP : public HitExtractor {
 public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-  HitExtractorSTRP(SeedingLayer::Side & side, int idLayer, edm::ConsumesCollector& iC);
-  HitExtractorSTRP( const DetLayer* detLayer,  SeedingLayer::Side & side, int idLayer, edm::ConsumesCollector& iC);
+  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer);
   virtual ~HitExtractorSTRP(){}
-
-  void setDetLayer(const DetLayer *detLayer) { theLayer = detLayer; }
 
   virtual HitExtractor::Hits hits( const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const;
   virtual HitExtractorSTRP * clone() const { return new HitExtractorSTRP(*this); }
@@ -60,7 +57,7 @@ private:
   typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > SkipClustersCollection;
   void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) override;
 private:
-  const DetLayer * theLayer;
+  const GeomDetEnumerators::SubDetector theLayerSubDet;
   SeedingLayer::Side theSide;
   mutable const SeedingLayer * theSLayer;
   int theIdLayer;
