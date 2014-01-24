@@ -7,7 +7,7 @@ def customise(process):
         process=customise_RawToDigi(process)
     if hasattr(process,'reconstruction'):
         process=customise_Reco(process)
-   if hasattr(process,'L1simulation_step'):
+    if hasattr(process,'L1simulation_step'):
        process=customise_L1Emulator(process)
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
