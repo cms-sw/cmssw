@@ -123,8 +123,8 @@ void STAMuonAnalyzer::beginJob(){
   if(isGlobalMuon_){
 
 	bins = 400;
-	min = -2;
-	max = +2;
+	min = -3;
+	max = +3;
 
   }
 
@@ -167,13 +167,13 @@ void STAMuonAnalyzer::beginJob(){
   hNumGEMRecHitsMuon = new TH1F("NumGEMRecHitsMuon","NumGEMRecHitsMuon",10,0,10);
   hNumCSCRecHits = new TH1F("NumCSCRecHits","NumCSCRecHits",10,0,10);
 
-  //Double_t nbins[] = {0,10,30,50,100,150,200,300,500,750,1000};
   hRecoPtVsSimPt = new TH2F("RecoPtVsSimPt","p_{T}^{Reco} vs. p_{T}^{Sim}",261,-2.5,1302.5,261,-2.5,1302.5);
   hDeltaPtVsSimPt = new TH2F("DeltaPtVsSimPt","(p_{T}^{Reco} - p_{T}^{Sim}) vs. p_{T}^{Sim}",261,-2.5,1302.5,500,-500,500);
 
   hPtResVsPt = new TH2F("PtResVsPt","p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
   hInvPtResVsPt = new TH2F("InvPtResVsPt","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
   hInvPtResVsPtMuon = new TH2F("InvPtResVsPtMuon","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
+  hInvPtResVsPtSel = new TH2F("InvPtResVsPtSel","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
 
   hPtResVsPtNoCharge = new TH2F("PtResVsPtNoCharge","p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
   hInvPtResVsPtNoCharge = new TH2F("InvPtResVsPtNoCharge","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
@@ -297,6 +297,7 @@ void STAMuonAnalyzer::endJob(){
   hPtResVsEta->Write();
   hInvPtResVsEta->Write();
   hInvPtResVsEtaMuon->Write();
+  hInvPtResVsPtSel->Write();
   hPtResVsPtNoCharge->Write();
   hInvPtResVsPtNoCharge->Write();
   hPtResVsEtaNoCharge->Write();
@@ -1255,18 +1256,23 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 		if(muon.pt != -999){
 
    			std::vector<double> residuals;
-			residuals.push_back(muon.pt - muon.globalPt);
-			residuals.push_back(muon.pt - muon.standAlonePt);
-			residuals.push_back(muon.pt - muon.trackerPt);
-			residuals.push_back(muon.pt - muon.pickyPt);
-			residuals.push_back(muon.pt - muon.dytPt);
-			residuals.push_back(muon.pt - muon.tpfmsPt);
+			residuals.push_back(abs(muon.pt - muon.globalPt));
+			residuals.push_back(abs(muon.pt - muon.standAlonePt));
+			residuals.push_back(abs(muon.pt - muon.trackerPt));
+			residuals.push_back(abs(muon.pt - muon.pickyPt));
+			residuals.push_back(abs(muon.pt - muon.dytPt));
+			residuals.push_back(abs(muon.pt - muon.tpfmsPt));
 
 			vector<double>::const_iterator it;
 			it = min_element(residuals.begin(), residuals.end());
 			int idx = it - residuals.begin();
 
-			if(idx == 0) hCheckTracksVsPt->Fill(simPt, 0.5);
+			if(idx == 0){
+
+				hCheckTracksVsPt->Fill(simPt, 0.5);
+				hInvPtResVsPtSel->Fill(simPt,(muQ/muPt - qGen/simPt)/(qGen/simPt));
+
+			}
 			else if(idx == 1) hCheckTracksVsPt->Fill(simPt, 1.5);
 			else if(idx == 2) hCheckTracksVsPt->Fill(simPt, 2.5);
 			else if(idx == 3) hCheckTracksVsPt->Fill(simPt, 3.5);

@@ -93,7 +93,8 @@ private:
   TH2F *hInvPtResVsPtMuon;
   TH2F *hPtResVsEta;
   TH2F *hInvPtResVsEta;
-  TH2F * hInvPtResVsEtaMuon;
+  TH2F *hInvPtResVsEtaMuon;
+  TH2F *hInvPtResVsPtSel;
   TH2F *hPtResVsPtNoCharge;
   TH2F *hInvPtResVsPtNoCharge;
   TH2F *hPtResVsEtaNoCharge;
