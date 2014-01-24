@@ -1,6 +1,8 @@
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
+#include "GeneratorInterface/Core/interface/FortranInstance.h"
+
 #include "GeneratorInterface/ExternalDecays/interface/EvtGenInterface.h"
 #include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
 #include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
@@ -34,6 +36,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
          fEvtGenInterface = new gen::EvtGenInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
          exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
          exSharedResources.emplace_back(edm::SharedResourceNames::kPythia6);
+         exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
       }
       else if ( curSet == "Tauola" )
       {
