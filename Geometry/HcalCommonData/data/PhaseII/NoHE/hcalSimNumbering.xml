@@ -6,7 +6,6 @@
     <PartSelector path="//HBS.*"/>
     <PartSelector path="//HTS.*"/>
     <PartSelector path="//HVQF"/>
-    <PartSelector path="//HFFibre.*"/>
     <Parameter name="OnlyForHcalSimNumbering" value="HCAL" eval="false"/>
     <Parameter name="phioff" value="0.0*deg"/>
     <Parameter name="phioff" value="0.0*deg"/>
