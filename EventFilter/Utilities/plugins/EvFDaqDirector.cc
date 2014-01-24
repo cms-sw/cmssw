@@ -1,8 +1,11 @@
-#include "EvFDaqDirector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FastMonitoringService.h"
+
+#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
+#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+
 #include <iostream>
 #include <sstream>
 #include <sys/time.h>
@@ -76,8 +79,8 @@ namespace evf {
     data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
-    reg.watchPreBeginRun(this, &EvFDaqDirector::preBeginRun);
-    reg.watchPostEndRun(this, &EvFDaqDirector::postEndRun);
+    reg.watchGlobalPreBeginRun(this, &EvFDaqDirector::preBeginRun);
+    reg.watchGlobalPostEndRun(this, &EvFDaqDirector::postEndRun);
 
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run_;
@@ -181,7 +184,8 @@ namespace evf {
 
   }
 
-  void EvFDaqDirector::postEndRun(edm::Run const& run, edm::EventSetup const& es) {
+//  void EvFDaqDirector::postEndRun(edm::Run const& run, edm::EventSetup const& es) {
+  void EvFDaqDirector::postEndRun(edm::GlobalContext globalContext const&) {
     close(bu_readlock_fd_);
     close(bu_writelock_fd_);
     if (directorBu_) {
@@ -190,9 +194,10 @@ namespace evf {
     }
   }
 
-  void EvFDaqDirector::preBeginRun(edm::RunID const& id, edm::Timestamp const& ts) {
+//  void EvFDaqDirector::preBeginRun(edm::GlobalContextedm::RunID const& id, edm::Timestamp const& ts) {
+  void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
 
-    assert(run_ == id.run());
+//    assert(run_ == id.run());
 
     // check if run dir exists or make it.
     umask(0);

@@ -1,7 +1,7 @@
 #include "TH1D.h"
 
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/stream/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -14,7 +14,7 @@
 #include <string>
 
 namespace evf{
-    class ExceptionGenerator : public edm::EDAnalyzer
+    class ExceptionGenerator : public edm::stream::EDAnalyzer
     {
     public:
       static const int menu_items = 14;

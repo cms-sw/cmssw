@@ -29,9 +29,9 @@
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
-#include "FedRawDataInputSource.h"
-#include "FastMonitoringService.h"
-#include "EvFDaqDirector.h"
+#include "EventFilter/Utilities/plugins/FedRawDataInputSource.h"
+#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 
 //JSON file reader
 #include "EventFilter/Utilities/interface/reader.h"
@@ -328,14 +328,14 @@ int FedRawDataInputSource::searchForNextFile()
 
   edm::LogInfo("FedRawDataInputSource") << "Asking for next file... to the DaqDirector";
   evf::FastMonitoringService*fms = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
-  fms->startedLookingForFile();
+  if (fms) fms->startedLookingForFile();
   bool fileIsOKToGrab = edm::Service<evf::EvFDaqDirector>()->updateFuLock(ls,nextFile,eorFileSeen_);
 
   if (fileIsOKToGrab) {
 
     edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
 
-    fms->stoppedLookingForFile();
+    if (fms) fms->stoppedLookingForFile();
 
     boost::filesystem::path jsonFile(nextFile);
     jsonFile.replace_extension(".jsn");
@@ -381,38 +381,36 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
     boost::filesystem::ifstream ij(jsonDestPath);
     Json::Value deserializeRoot;
     Json::Reader reader;
-    if (!reader.parse(ij, deserializeRoot)) {
+
+    if (!reader.parse(ij, deserializeRoot))
       throw std::runtime_error("Cannot deserialize input JSON file");
+
+    //read BU JSON
+    std::string data;
+    DataPoint dp;
+    dp.deserialize(deserializeRoot);
+    bool success = false;
+    for (unsigned int i=0;i<dpd_.getNames.size()) {
+      if (dpd_.getNames.at(i)=="NEvents")
+	if (i<dp.getData().size()) {
+	  data = dp.getData()[i];
+	  success=true;
+	}
     }
-    else {
-      //read BU JSON
-      std::string data;
-      DataPoint dp;
-      dp.deserialize(deserializeRoot);
-      bool success = false;
-      for (unsigned int i=0;i<dpd_.getNames.size()) {
-	if (dpd_.getNames.at(i)=="NEvents")
-	  if (i<dp.getData().size()) {
-	    data = dp.getData()[i];
-	    success=true;
-	  }
-      }
-      if (!success)
-	if (dp.getData().size())
-	  data = dp.getData()[0];
-	else 
-	  throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
-	    " error reading number of events from BU JSON: No input value" << data;
-      try {
-	currentInputEventCount_ = boost::lexical_cast<unsigned int>(data);
-      }
-      catch( boost::bad_lexical_cast const& ) {
+    if (!success)
+      if (dp.getData().size())
+	data = dp.getData()[0];
+      else 
 	throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
-	  " error reading number of events from BU JSON. Input value is " << data;
+	  " error reading number of events from BU JSON: No input value" << data;
+    try {
+      currentInputEventCount_ = boost::lexical_cast<unsigned int>(data);
+    }
+    catch( boost::bad_lexical_cast const& ) {
+      throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
+	" error reading number of events from BU JSON. Input value is " << data;
       }
       //currentInputEventCount_=atoi(data.c_str());
-    }
-    
     return true;
   }
 
