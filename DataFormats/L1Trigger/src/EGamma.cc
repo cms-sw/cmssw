@@ -7,8 +7,7 @@ l1t::EGamma::EGamma( const LorentzVector& p4,
 		     int phi,
 		     int qual,
 		     int iso )
-  : L1Candidate(p4, pt, eta, phi, qual),
-    hwIso_(iso)
+  : L1Candidate(p4, pt, eta, phi, qual, iso)
 {
   
 }
@@ -18,12 +17,4 @@ l1t::EGamma::~EGamma()
 
 }
 
-void l1t::EGamma::setHwIso(int iso)
-{
-  hwIso_ = iso;
-}
 
-int l1t::EGamma::hwIso() const
-{
-  return hwIso_;
-}

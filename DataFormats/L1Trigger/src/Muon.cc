@@ -11,10 +11,9 @@ l1t::Muon::Muon( const LorentzVector& p4,
 		 int iso,
 		 int mip,
 		 int tag )
-  : L1Candidate(p4, pt, eta, phi, qual),
+  : L1Candidate(p4, pt, eta, phi, qual, iso),
     hwCharge_(charge),
     hwChargeValid_(chargeValid),
-    hwIso_(iso),
     hwMip_(mip),
     hwTag_(tag)
 {
@@ -36,11 +35,6 @@ void l1t::Muon::setHwChargeValid(int valid)
   hwChargeValid_ = valid;
 }
 
-void l1t::Muon::setHwIso(int iso)
-{
-  hwIso_ = iso;
-}
-
 void l1t::Muon::setHwMip(int mip)
 {
   hwMip_ = mip;
@@ -60,11 +54,6 @@ int l1t::Muon::hwCharge() const
 int l1t::Muon::hwChargeValid() const
 {
   return hwChargeValid_;
-}
-
-int l1t::Muon::hwIso() const
-{
-  return hwIso_;
 }
 
 int l1t::Muon::hwMip() const

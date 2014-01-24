@@ -7,12 +7,14 @@ l1t::L1Candidate::L1Candidate( const LorentzVector& p4,
 			       int pt,
 			       int eta,
 			       int phi,
-			       int qual )
+			       int qual,
+			       int iso )
   : LeafCandidate( ( char ) 0, p4 ),
     hwPt_(pt),
     hwEta_(eta),
     hwPhi_(phi),
-    hwQual_(qual)
+    hwQual_(qual),
+    hwIso_(iso)    
 {
 
 }
@@ -21,12 +23,14 @@ l1t::L1Candidate::L1Candidate( const PolarLorentzVector& p4,
 			       int pt,
 			       int eta,
 			       int phi,
-			       int qual )
+			       int qual,
+			       int iso )
   : LeafCandidate( ( char ) 0, p4 ),
     hwPt_(pt),
     hwEta_(eta),
     hwPhi_(phi),
-    hwQual_(qual)
+    hwQual_(qual),
+    hwIso_(iso)
 {
 
 }
@@ -51,6 +55,11 @@ void l1t::L1Candidate::setHwPhi(int phi)
   hwPhi_ = phi;
 }
 
+void l1t::L1Candidate::setHwIso(int iso)
+{
+  hwIso_ = iso;
+}
+
 void l1t::L1Candidate::setHwQual(int qual)
 {
   hwQual_ = qual;
@@ -71,8 +80,15 @@ int l1t::L1Candidate::hwPhi() const
   return hwPhi_;
 }
 
+int l1t::L1Candidate::hwIso() const
+{
+  return hwIso_;
+}
 
 int l1t::L1Candidate::hwQual() const
 {
   return hwQual_;
 }
+
+
+

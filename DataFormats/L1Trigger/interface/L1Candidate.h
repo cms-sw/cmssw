@@ -21,13 +21,15 @@ namespace l1t {
 		 int pt=0,
 		 int eta=0,
 		 int phi=0,
-		 int qual=0);
+		 int qual=0,
+		 int iso=0);
 
     L1Candidate( const PolarLorentzVector& p4,
 		 int pt=0,
 		 int eta=0,
 		 int phi=0,
-		 int qual=0);
+		 int qual=0,
+		 int iso=0);
 
     ~L1Candidate();
 
@@ -37,12 +39,14 @@ namespace l1t {
     void setHwEta(int eta);
     void setHwPhi(int phi);
     void setHwQual(int qual);
+    void setHwIso(int iso);
 
     // methods to retrieve integer values
     int hwPt() const;
     int hwEta() const;
     int hwPhi() const;
     int hwQual() const;
+    int hwIso() const;
 
   private:
 
@@ -51,6 +55,7 @@ namespace l1t {
     int hwEta_;
     int hwPhi_;
     int hwQual_;
+    int hwIso_;
 
   };
 

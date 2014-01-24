@@ -24,18 +24,13 @@ namespace l1t {
     
     ~EGamma();		
 
-    // set integer values
-    void setHwIso(int iso);
-
-    // methods to retrieve integer values
-    int hwIso() const;
     
   private:
     
     // additional hardware quantities common to L1 global jet
     // there are currently none
     
-    int hwIso_;
+
     
   };
   

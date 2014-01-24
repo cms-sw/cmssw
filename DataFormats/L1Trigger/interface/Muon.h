@@ -29,14 +29,12 @@ namespace l1t {
     // set integer values
     void setHwCharge(int charge);
     void setHwChargeValid(int valid);
-    void setHwIso(int iso);
     void setHwMip(int mip);
     void setHwTag(int tag);
 
     // methods to retrieve integer values
     int hwCharge() const;
     int hwChargeValid() const;
-    int hwIso() const;
     int hwMip() const;
     int hwTag() const;
     
@@ -45,7 +43,6 @@ namespace l1t {
     // additional hardware quantities common to L1 global jet
     int hwCharge_;
     int hwChargeValid_;
-    int hwIso_;
     int hwMip_;
     int hwTag_;
     
