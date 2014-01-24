@@ -9,8 +9,11 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include<cmath>
+#include<iostream>
 
 namespace condex {
+
+
 
   /* very simple base class
    * trivial inheritance, no template tricks 
@@ -19,6 +22,7 @@ namespace condex {
   public:
     Efficiency(){}
     virtual ~Efficiency(){}
+    virtual void initialize(){ std::cout << "initializing base class Efficiency" <<std::endl;}
     float operator()(float pt, float eta) const {
       return value(pt,eta);
     }
