@@ -4,6 +4,7 @@
 <use name="DataFormats/L1TCalorimeter"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="CondFormats/DataRecord"/>
+<use name="L1Trigger/GlobalTrigger"/>
 <use name="xerces-c"/>
 <export>
   <lib name="1"/>
