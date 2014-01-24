@@ -1,21 +1,28 @@
 <lcgdict>
 
-    <class name="edm::Ptr<TrackingParticle>" />
-    <class name="std::vector<edm::Ptr<TrackingParticle>>" />
+  <class name="edm::Ptr<TrackingParticle>" />
+  <class name="std::vector<edm::Ptr<TrackingParticle>>" />
 
-    <class pattern="TTClusterAssociationMap*" />
-    <class pattern="edm::Wrapper<TTClusterAssociationMap*>" />
 
-    <class pattern="std::map<edm::Ptr<TTCluster*>,std::vector<edm::Ptr<TrackingParticle>>>" />
-    <class pattern="std::map<edm::Ptr<TrackingParticle>,std::vector<edm::Ptr<TTCluster*>>>" />
-    <class pattern="edm::RefProd<TTClusterAssociationMap*>" />
 
-    <class pattern="TTStubAssociationMap*" />
-    <class pattern="edm::Wrapper<TTStubAssociationMap*>" />
+  <class pattern="TTClusterAssociationMap<*>" />
+  <class pattern="edm::Wrapper<TTClusterAssociationMap<*>>" />
+  <class pattern="std::map<edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>,std::vector<edm::Ptr<TrackingParticle>>>" />
+  <class pattern="std::map<edm::Ptr<TrackingParticle>,std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<*>>,TTCluster<*>,edmNew::DetSetVector<TTCluster<*>>::FindForDetSetVector>>>" />
+  <class pattern="edm::RefProd<TTClusterAssociationMap<*>>" />
 
-    <class pattern="std::map<edm::Ptr<TTStub*>,edm::Ptr<TrackingParticle>>" />
-    <class pattern="std::map<edm::Ptr<TrackingParticle>,std::vector<edm::Ptr<TTStub*>>>" />
-    <class pattern="edm::RefProd<TTStubAssociationMap*>" />
+
+
+  <class pattern="TTStubAssociationMap<*>" />
+  <class pattern="edm::Wrapper<TTStubAssociationMap<*>>" />
+  <class pattern="std::map<edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>,edm::Ptr<TrackingParticle>>" />
+  <class pattern="std::map<edm::Ptr<TrackingParticle>,std::vector<edm::Ref<edmNew::DetSetVector<TTStub<*>>,TTStub<*>,edmNew::DetSetVector<TTStub<*>>::FindForDetSetVector>>>" />
+  <class pattern="edm::RefProd<TTStubAssociationMap<*>>" />
+
+
+
+
+
 
     <class pattern="TTTrackAssociationMap*" />
     <class pattern="edm::Wrapper<TTTrackAssociationMap*>" />

@@ -7,8 +7,8 @@
  *  The main purpose is to provide the methods idToDetUnit(DetId) and idToDet(DetId)
  *  that allow to get an element of the geometry given its DetId, regardless of wich subdetector it belongs.
  * 
- *  The slave geometries (TrackerGeometry, DTGeometry, CSCGeometry, RPCGeometry) are accessible with the method
- *  slaveGeometry(DetId).
+ *  The slave geometries (TrackerGeometry, DTGeometry, CSCGeometry, RPCGeometry, GEMGeometry) are accessible 
+ *  with the method slaveGeometry(DetId).
  *
  *  $Date: 2012/07/24 13:48:28 $
  *  $Revision: 1.7 $

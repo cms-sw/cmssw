@@ -43,7 +43,7 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 #Good Bunch Crossings
 process.bptxAnd = process.hltLevel1GTSeed.clone(L1TechTriggerSeeding = cms.bool(True), L1SeedsLogicalExpression = cms.string('0'))
 #BSCNOBEAMHALO
-process.bit40 = process.hltLevel1GTSeed.clone(L1TechTriggerSeeding = cms.bool(True), L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))'))
+#process.bit40 = process.hltLevel1GTSeed.clone(L1TechTriggerSeeding = cms.bool(True), L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))'))
 
 #Physics declared
 process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
@@ -189,7 +189,7 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfile
  ## PATH
  ##
 process.p = cms.Path(
-process.triggerSelection*
+#process.triggerSelection*
 process.offlineBeamSpot*process.HighPuritySelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
 *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
@@ -244,7 +244,7 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 #Good Bunch Crossings
 process.bptxAnd = process.hltLevel1GTSeed.clone(L1TechTriggerSeeding = cms.bool(True), L1SeedsLogicalExpression = cms.string('0'))
 #BSCNOBEAMHALO
-process.bit40 = process.hltLevel1GTSeed.clone(L1TechTriggerSeeding = cms.bool(True), L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))'))
+#process.bit40 = process.hltLevel1GTSeed.clone(L1TechTriggerSeeding = cms.bool(True), L1SeedsLogicalExpression = cms.string('(40 OR 41) AND NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))'))
 
 #Physics declared
 process.load('HLTrigger.special.hltPhysicsDeclared_cfi')
@@ -390,7 +390,7 @@ process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfile
  ## PATH
  ##
 process.p = cms.Path(
-process.triggerSelection*
+#process.triggerSelection*
 process.offlineBeamSpot*process.HighPuritySelector*process.TrackRefitter1*process.TrackerTrackHitFilter*process.HitFilteredTracks
 *process.AlignmentTrackSelector*process.TrackRefitter2*process.seqTrackerOfflineValidation.oO[offlineValidationMode]Oo.)
 
@@ -533,7 +533,7 @@ process.TrackerTrackHitFilter.usePixelQualityFlag= True
 #no triger on bunch crossing bit 0
 
 
-process.triggerSelection=cms.Sequence(process.bit40)
+# process.triggerSelection=cms.Sequence(process.bit40)
 
 """
 

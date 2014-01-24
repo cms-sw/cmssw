@@ -1,58 +1,90 @@
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMDIGI")
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
-
-#process.Timing = cms.Service("Timing")
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2019_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
+process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
-process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi')
-#process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr10v01XML_cfi')
-process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
-process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
-process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
-process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff')
-process.load('Geometry.DTGeometryBuilder.idealForDigiDtGeometryDB_cff')
-process.load('Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff')
-process.load('Geometry.GEMGeometry.gemGeometry_cfi')
-
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'POSTLS161_V12::All'
-#process.GlobalTag.globaltag = 'DESIGN60_V5::All'
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
+
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
+)
+
+process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
 
 # GEM digitizer
 process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
-
 # GEM-CSC trigger pad digi producer
 process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
 
-# customization of the process.pdigi sequence to add the GEM digitizer 
+# customization of the process.pdigi sequence to add the GEM digitizer
 from SimMuon.GEMDigitizer.customizeGEMDigi import *
-process = customize_digi_addGEM(process)  # run all detectors digi
-#process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
+#process = customize_digi_addGEM(process)  # run all detectors digi
+process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
 #process = customize_digi_addGEM_gem_only(process)  # only GEM digi
+
+runCSCforSLHC = True
+if runCSCforSLHC:
+    # upgrade CSC customizations
+    from SLHCUpgradeSimulations.Configuration.muonCustoms import *
+    process = unganged_me1a_geometry(process)
+    process = digitizer_timing_pre3_median(process)
+
+addCSCstubs = True
+if addCSCstubs:
+    # unganged local stubs emulator:
+    process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi')
+    process.simCscTriggerPrimitiveDigis = process.cscTriggerPrimitiveDigisPostLS1.clone()
+
+addPileUp = False
+if addPileUp:
+    # list of MinBias files for pileup has to be provided
+    ff = open('filelist_pileup.txt', "r")
+    pu_files = ff.read().split('\n')
+    ff.close()
+    pu_files = filter(lambda x: x.endswith('.root'),  pu_files)
+
+    process.mix.input = cms.SecSource("PoolSource",
+        nbPileupEvents = cms.PSet(
+             #### THIS IS AVERAGE PILEUP NUMBER THAT YOU NEED TO CHANGE
+            averageNumber = cms.double(50)
+        ),
+        type = cms.string('poisson'),
+        sequential = cms.untracked.bool(False),
+        fileNames = cms.untracked.vstring(*pu_files)
+    )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:out_sim.root'
+#        'file:out_sim.root'
+'root://eoscms//eos/cms/store/user/mileva/gemTest/singleMuPt1000_gen_sim_merged620slhc/gensimMuPt1000Merged.root'
+
     )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string( 
-        'file:out_digi.root'
+    fileName = cms.untracked.string(
+        'file:out_digi_sven.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',
+        #'drop CastorDataFramesSorted_simCastorDigis_*_GEMDIGI'
         # drop all CF stuff
         ##'drop *_mix_*_*',
         # drop tracker simhits
@@ -75,20 +107,19 @@ process.output = cms.OutputModule("PoolOutputModule",
     )
 )
 
-#process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
 
-process.digi_step    = cms.Path(process.pdigi)
+process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
+
+if addCSCstubs:
+    process.digi_step    = cms.Path(process.pdigi * process.simCscTriggerPrimitiveDigis)
+else:
+    process.digi_step    = cms.Path(process.pdigi)
+
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)
-
 
 process.schedule = cms.Schedule(
     process.digi_step,
     process.endjob_step,
     process.out_step
 )
-
-#file = open('runGEMDigiProducer.py','w')
-#file.write(str(process.dumpPython()))
-#file.close()
-

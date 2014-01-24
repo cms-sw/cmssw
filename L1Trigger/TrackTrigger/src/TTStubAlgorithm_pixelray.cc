@@ -51,8 +51,8 @@ void TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::PatternHitCorrelation( bool &aC
 
       /// Calculate output
       /// NOTE this assumes equal pitch in both sensors!
-      MeasurementPoint mp0 = aTTStub.getClusterPtr(0)->findAverageLocalCoordinates();
-      MeasurementPoint mp1 = aTTStub.getClusterPtr(1)->findAverageLocalCoordinates();
+      MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+      MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
       aDisplacement = 2*(mp1.x() - mp0.x()); /// In HALF-STRIP units!
 
       /// By default, assigned as ZERO
@@ -77,13 +77,13 @@ std::pair< double, double >* TTStubAlgorithm_pixelray< Ref_PixelDigi_ >::GetPixe
   const GeomDetUnit* innerDet = stackedTracker->idToDetUnit( aTTStub.getDetId(), 0 );
   const GeomDetUnit* outerDet = stackedTracker->idToDetUnit( aTTStub.getDetId(), 1 );
 
-  MeasurementPoint innerAvg = aTTStub.getClusterPtr(0)->findAverageLocalCoordinates();
-  MeasurementPoint outerAvg = aTTStub.getClusterPtr(1)->findAverageLocalCoordinates();
+  MeasurementPoint innerAvg = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+  MeasurementPoint outerAvg = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
 
-  StackedTrackerDetId innerDetId( aTTStub.getClusterPtr(0)->getDetId() );
-  StackedTrackerDetId outerDetId( aTTStub.getClusterPtr(1)->getDetId() );
-  unsigned int innerStackMember = aTTStub.getClusterPtr(0)->getStackMember();
-  unsigned int outerStackMember = aTTStub.getClusterPtr(1)->getStackMember();
+  StackedTrackerDetId innerDetId( aTTStub.getClusterRef(0)->getDetId() );
+  StackedTrackerDetId outerDetId( aTTStub.getClusterRef(1)->getDetId() );
+  unsigned int innerStackMember = aTTStub.getClusterRef(0)->getStackMember();
+  unsigned int outerStackMember = aTTStub.getClusterRef(1)->getStackMember();
   unsigned int innerStack = innerDetId.iLayer();
   unsigned int outerStack = outerDetId.iLayer();
   unsigned int innerLadderPhi = innerDetId.iPhi();

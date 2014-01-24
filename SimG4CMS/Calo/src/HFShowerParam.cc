@@ -28,7 +28,7 @@
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
                              edm::ParameterSet const & p) : showerLibrary(0), 
-                                                            fibre(0), gflash(0),
+                                                            fibre(0),gflash(0),
                                                             fillHisto(false) { 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeV");
@@ -79,11 +79,12 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   }
 #endif
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
+  G4String attribute = "OnlyForHcalSimNumbering"; 
+  G4String value     = "any";
+  DDValue val(attribute, value, 0.0);
   DDSpecificsFilter filter;
-  DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
+  filter.setCriteria(val, DDSpecificsFilter::not_equals,
+		     DDSpecificsFilter::AND, true, true);
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   bool dodet = fv.firstChild();
@@ -414,14 +415,12 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 }
 
 std::vector<double> HFShowerParam::getDDDArray(const std::string & str, 
-                                               const DDsvalues_type & sv)
-{
+                                               const DDsvalues_type & sv) {
 #ifdef DebugLog
   LogDebug("HFShower") << "HFShowerParam:getDDDArray called for " << str;
 #endif
   DDValue value(str);
-  if (DDfetch(&sv,value))
-  {
+  if (DDfetch(&sv,value)) {
 #ifdef DebugLog
     LogDebug("HFShower") << value;
 #endif

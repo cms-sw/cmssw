@@ -24,21 +24,26 @@ process.options = cms.untracked.PSet(
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
+process.options = cms.untracked.PSet(
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
+)
+
+## configure geometry & conditions
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
-
-## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+## std sequence for PAT
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## std sequence for ttGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
 
-## filter for full-hadronic 
+## filter for full-hadronic
 process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
 
 ## configure mva trainer
@@ -64,6 +69,5 @@ process.leadingJetSelection = process.countPatJets.clone(src = 'selectedPatJets'
 
 ## produce pat objects and ttGenEvt and make mva training
 process.p = cms.Path(process.ttFullHadronicFilter *
-                     process.patDefaultSequence *
                      process.leadingJetSelection *
                      process.saveTrainTree)

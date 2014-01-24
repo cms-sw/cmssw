@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<RotationSection label="TBHcalEndcap.xml">
+		<Rotation name="R2" phiX="10*deg" thetaX="90*deg" phiY="100*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+	</RotationSection>
+	<Algorithm name="hcal:DDHCalEndcapAlgo">
+		<rParent name="TBHcal:HCal"/>
+		<Numeric name="IdOffset" value="4000"/>
+		<!--#. Endcap Hadron Calorimeter (for test beam) description file
+		     #.       ******************
+		     #.       *                 *
+		     #.     ***                  *
+		     #.     *                     *
+		     #.     *                      *
+		     #.     *                     **
+		     #.     *                     *
+		     #.     *                     *
+		     #.     *                     *
+		     #.     *                     *
+		     #.     *                     *
+		     #.     *\\\\\\\\\\           *
+		     #.                 \\\\\\\\\\*
+		     #.              
+		     #. General Volume
+		     #. Material     Phi Section     zFront  zEnd    ziNose  ziL0Nose
+		     #.              ziBody  ziL0Bod z0Beam  ZiDip   dzStep  gap     z1
+		     #.              r1      rout    boxDept drEnd   etamin  angBot  angGap
+		     -->
+		<String name="MotherName" value="HE"/>
+		<String name="MaterialName" value="materials:Air"/>
+		<String name="Rotation" value="TBHcalEndcap:R2"/>
+		<Numeric name="Sector" value="18"/>
+		<Numeric name="SectorTot" value="1"/>
+		<Numeric name="Endcap" value="1"/>
+		<String name="RotHalf" value="180D"/>
+		<String name="RotNameSpace" value="hcalrotations"/>
+		<Numeric name="ZFront" value="3919.5*mm"/>
+		<Numeric name="ZEnd" value="5541.0*mm"/>
+		<Numeric name="ZiNose" value="3975.0*mm"/>
+		<Numeric name="ZiL0Nose" value="3919.5*mm"/>
+		<Numeric name="ZiBody" value="4045.0*mm"/>
+		<Numeric name="ZiL0Body" value="4006.5*mm"/>
+		<Numeric name="Z0Beam" value="2283.0*mm"/>
+		<Numeric name="ZiDip" value="5193.0*mm"/>
+		<Numeric name="DzStep" value="88.0*mm"/>
+		<Numeric name="Gap" value="140.0*mm"/>
+		<Numeric name="Z1" value="4349.5*mm"/>
+		<Numeric name="R1" value="2477.97*mm"/>
+		<Numeric name="Rout" value="2639.0*mm"/>
+		<Numeric name="HEboxDepth" value="180.0*mm"/>
+		<Numeric name="DrEnd" value="10.0*mm"/>
+		<Numeric name="Etamin" value="1.566"/>
+		<Numeric name="AngBot" value="5.7*deg"/>
+		<Numeric name="AngGap" value="53.0*deg"/>
+		<Numeric name="TolPos" value="0.90*mm"/>
+		<Numeric name="TolAbs" value="0.75*mm"/>
+		<Numeric name="ZShift" value="-73.58*mm"/>
+		<Numeric name="ZShiftHac2" value="35.0*mm"/>
+		<!--
+		     #. Modules
+		     #. Absorber     Modules
+		     #. Material     Type    Section Thick   Trim    LayerN  Layers
+		     -->
+		<String name="AbsMat" value="materials:H_Brass"/>
+		<Numeric name="Modules" value="6"/>
+		<Vector name="ModuleName" type="string" nEntries="6">
+			Part0, Part1, Part2, Part3, Part4, Part5</Vector>
+		<Vector name="ModuleMat" type="string" nEntries="6">
+			materials:Air,     materials:Air,     materials:H_Brass,
+			materials:H_Brass, materials:H_Brass, materials:H_Brass</Vector>
+		<Vector name="ModuleType" type="numeric" nEntries="6">
+			0, 0, 1, 1, 1, 1
+		</Vector>
+		<Vector name="SectionModule" type="numeric" nEntries="6">
+			2, 2, 2, 3, 2, 4
+		</Vector>
+		<Vector name="ModuleThick" type="numeric" nEntries="6">
+			43.5*mm, 43.5*mm, 17.0*mm,  9.0*mm,  9.0*mm,  9.0*mm
+		</Vector>
+		<Vector name="TrimLeft" type="numeric" nEntries="6">
+			0.5*mm,  0.5*mm,  0.5*mm,  0.5*mm,  0.5*mm,  0.5*mm
+		</Vector>
+		<Vector name="TrimRight" type="numeric" nEntries="6">
+			1.5*mm,  1.5*mm,  0.5*mm,  0.5*mm,  0.5*mm,  0.5*mm
+		</Vector>
+		<Vector name="EquipModule" type="numeric" nEntries="6">
+			0,  0,  0,  1,  1,  1
+		</Vector>
+		<Vector name="LayerN" type="numeric" nEntries="6">
+			1,  1,  1,  5,  6,  6
+		</Vector>
+		<Vector name="LayerN0" type="numeric" nEntries="2">
+			0, 0
+		</Vector>
+		<Vector name="LayerN1" type="numeric" nEntries="2">
+			0, 1
+		</Vector>
+		<Vector name="LayerN2" type="numeric" nEntries="1">
+			1
+		</Vector>
+		<Vector name="LayerN3" type="numeric" nEntries="5">
+			2,  3,  4,  5,  6
+		</Vector>
+		<Vector name="LayerN4" type="numeric" nEntries="6">
+			7,  8,  9, 10, 11, 12
+		</Vector>
+		<Vector name="LayerN5" type="numeric" nEntries="6">
+			13, 14, 15, 16, 17, 18
+		</Vector>
+		<!--
+		     #. Layers
+		     #. Plastic              
+		     #. Scintillator         RotMatrix       Layers
+		     #.              Thickness       ScintThick
+		     -->
+		<Numeric name="PhiSections" value="2"/>
+		<Vector name="PhiName" type="string" nEntries="2">
+			Phi0, Phi1</Vector>
+		<Numeric name="Layers" value="19"/>
+		<Vector name="LayerName" type="string" nEntries="19">
+			Layer00, Layer01, Layer02, Layer03, Layer04, Layer05,
+			Layer06, Layer07, Layer08, Layer09, Layer10, Layer11,
+			Layer12, Layer13, Layer14, Layer15, Layer16, Layer17,
+			Layer18</Vector>
+		<Vector name="LayerType" type="numeric" nEntries="19">
+			0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+		</Vector>
+		<Vector name="LayerT" type="numeric" nEntries="19">
+			12.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm,
+			7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm,
+			7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm, 7.0*mm
+		</Vector>
+		<Vector name="ScintT" type="numeric" nEntries="19">
+			3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm,
+			3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm,
+			3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm, 3.7*mm
+		</Vector>
+		<String name="ScintMat" value="materials:Scintillator"/>
+		<String name="PlastMat" value="materials:Polyethylene"/>
+		<String name="RotMat" value="YXZ4"/>
+	</Algorithm>
+</DDDefinition>

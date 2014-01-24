@@ -25,7 +25,7 @@ process.RandomNumberGeneratorService.generator = cms.PSet(
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 
-process.generator = cms.EDProducer("LHEProducer",
+process.generator = cms.EDFilter("LHEProducer",
 	eventsToPrint = cms.untracked.uint32(1),
 
 	hadronisation = cms.PSet(
@@ -49,7 +49,7 @@ process.p0 = cms.Path(
 	process.pgen
 )
 
-process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
+process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 process.genParticles.abortOnUnknownPDGCode = False
 

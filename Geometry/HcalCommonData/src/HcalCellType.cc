@@ -52,6 +52,30 @@ HcalCellType::HcalCellType(const HcalCellType &right) {
   theMissingPhiMinus        = right.theMissingPhiMinus;
 }
 
+const HcalCellType& HcalCellType::operator=(const HcalCellType &right) {
+
+  theDetType                = right.theDetType;
+  theEtaBin                 = right.theEtaBin;
+  theDepthSegment           = right.theDepthSegment;
+  theNumberOfPhiBins        = right.theNumberOfPhiBins;
+  theNumberOfZ              = right.theNumberOfZ;
+  theActualReadoutDirection = right.theActualReadoutDirection;
+  theUnitPhi                = right.theUnitPhi;
+  theRzFlag                 = right.theRzFlag;
+  theEtaMin                 = right.theEtaMin;
+  theEtaMax                 = right.theEtaMax;
+  thePhiOffset              = right.thePhiOffset;
+  thePhiBinWidth            = right.thePhiBinWidth;
+  theDepthMin               = right.theDepthMin;
+  theDepthMax               = right.theDepthMax;
+  theHalfSize               = right.theHalfSize;
+  theSamplingFactor         = right.theSamplingFactor;
+  theMissingPhiPlus         = right.theMissingPhiPlus;
+  theMissingPhiMinus        = right.theMissingPhiMinus;
+
+  return *this;
+}
+
 HcalCellType::~HcalCellType() {}
 
 void HcalCellType::setMissingPhi(std::vector<int>& v1, std::vector<int>& v2) {
@@ -63,6 +87,25 @@ int HcalCellType::nPhiMissingBins() const {
   int tmp = (int)(theMissingPhiPlus.size());
   if (theNumberOfZ > 1)  tmp += (int)(theMissingPhiMinus.size());
   return tmp;
+}
+
+void HcalCellType::setEta(int bin, double etamin, double etamax) {
+  theEtaBin = bin;
+  theEtaMin = etamin;
+  theEtaMax = etamax;
+}
+
+void HcalCellType::setDepth(int bin, double dmin, double dmax) {
+  theDepthSegment = bin;
+  theDepthMin     = dmin;
+  theDepthMax     = dmax;
+}
+
+void HcalCellType::setPhi(int bins, int unit, double dphi, double phioff) {
+  theNumberOfPhiBins = bins;
+  theUnitPhi         = unit;
+  thePhiBinWidth     = dphi;
+  thePhiOffset       = phioff;
 }
 
 std::ostream& operator<<(std::ostream& os, const HcalCellType& cell) {

@@ -33,8 +33,9 @@ class AdaptedDict(dict):
         - `dict_item`: method which is used for finally setting the item
         """
 
-        if "__name__" in self and self["__name__"]=="validation" and key in self:
-            the_value = self[key]+self.getSep()+value
+        if "__name__" in self and self["__name__"]=="validation" \
+                and key in self and value!=self[key][0]:
+            the_value = [self[key][0]+self.getSep()+value[0]]
         else:
             the_value = value
         dict_setitem(self, key, the_value)

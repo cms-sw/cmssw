@@ -1,0 +1,632 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <SolidSection label="mfshield.xml">
+  <Polycone name="SupportTubeForHE" startPhi="0*deg" deltaPhi="360*deg">
+   <ZSection z="5.541*m  " rMin="67.5*cm " rMax="2.51*m  "/>
+   <ZSection z="5.641*m  " rMin="67.5*cm " rMax="2.51*m  "/>
+   <ZSection z="5.641*m  " rMin="67.5*cm " rMax="1.3*m  "/>
+   <ZSection z="5.674*m  " rMin="67.5*cm " rMax="1.3*m  "/>
+   <ZSection z="5.674*m  " rMin="67.5*cm " rMax="85*cm "/>
+   <ZSection z="6590*mm" rMin="67.5*cm " rMax="85*cm "/>
+   <ZSection z="6.835*m  " rMin="701*mm" rMax="85*cm "/>
+  </Polycone>
+  <Tubs name="ShieldingBoronPoly_1_ME0" rMin="200*mm" rMax="250*mm" dz="15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME0" rMin="250*mm" rMax="300*mm" dz="15*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME1" rMin="965*mm" rMax="1240*mm" dz="2*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME1" rMin="965*mm" rMax="1240*mm" dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_ME1" rMin="85.1*cm " rMax="88.1*cm " dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_ME1" rMin="88.2*cm " rMax="89.5*cm " dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_ME1" rMin="89.6*cm " rMax="941*mm" dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_ME1" rMin="942*mm" rMax="955*mm" dz="148.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_4_ME1" rMin="85.1*cm " rMax="88.1*cm " dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_4_ME1" rMin="88.2*cm " rMax="89.5*cm " dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_5_ME1" rMin="89.6*cm " rMax="931*mm" dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_5_ME1" rMin="932*mm" rMax="945*mm" dz="136*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_6_ME1" rMin="945.1*mm" rMax="2330*mm" dz="5*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_6_ME1" rMin="945.1*mm" rMax="2330*mm" dz="11.9*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ZStopSpace" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ZStop_1_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="346.25*deg" deltaPhi="3.0999999*deg"/>
+  <Tubs name="ZStop_2_ZStopSpaceDivision" rMin="4.694*m  " rMax="4.955*m  " dz="32*cm " startPhi="10.75*deg" deltaPhi="3.0999999*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME2" rMin="1.305*m  " rMax="1.906*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME2" rMin="1.305*m  " rMax="1.906*m  " dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_ME2" rMin="1.142*m  " rMax="1.217*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_ME2" rMin="1.218*m  " rMax="1.238*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_ME2" rMin="1.239*m  " rMax="1.264*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_ME2" rMin="1.265*m  " rMax="1.278*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME3" rMin="1.362*m  " rMax="1.437*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME3" rMin="1.438*m  " rMax="1.468*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_ME3" rMin="1.469*m  " rMax="1.494*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_ME3" rMin="1.5*m  " rMax="1.508*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_ME3" rMin="1.53*m  " rMax="2.394*m  " dz="6.49995*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_ME3" rMin="1.532*m  " rMax="2.394*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME4" rMin="1.532*m  " rMax="1.607*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_1_ME4" rMin="1.608*m  " rMax="1.646*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_2_ME4" rMin="1.647*m  " rMax="1.672*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_2_ME4" rMin="1.673*m  " rMax="1.686*m  " dz="31.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingAntinomyLead_3_ME4" rMin="1.7*m  " rMax="2.478*m  " dz="6.5*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_3_ME4" rMin="1.7*m  " rMax="2.478*m  " dz="2.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="ShieldingBoronPoly_1_ME" rMin="1.13*m  " rMax="2.15*m  " dz="5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+ </SolidSection>
+
+ <LogicalPartSection label="mfshield.xml">
+  <LogicalPart name="SupportTubeForHE" category="unspecified">
+   <rSolid name="SupportTubeForHE"/>
+   <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME0" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME0"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME0" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME0"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_4_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_4_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_4_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_4_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_5_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_5_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_5_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_5_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_6_ME1" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_6_ME1"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_6_ME1" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_6_ME1"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ZStopSpace" category="unspecified">
+   <rSolid name="ZStopSpace"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="ZStop_1_ZStopSpaceDivision" category="unspecified">
+   <rSolid name="ZStop_1_ZStopSpaceDivision"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ZStop_2_ZStopSpaceDivision" category="unspecified">
+   <rSolid name="ZStop_2_ZStopSpaceDivision"/>
+   <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME2" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME2"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME2" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME2"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_ME2" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_ME2"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_ME2" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_ME2"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_ME2" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_ME2"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_ME2" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_ME2"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME3" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME3"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME3" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME3"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_ME3" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_ME3"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_ME3" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_ME3"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_ME3" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_ME3"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_ME3" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_ME3"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME4" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME4"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_1_ME4" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_1_ME4"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_2_ME4" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_2_ME4"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_2_ME4" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_2_ME4"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingAntinomyLead_3_ME4" category="unspecified">
+   <rSolid name="ShieldingAntinomyLead_3_ME4"/>
+   <rMaterial name="materials:AntiLead"/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_3_ME4" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_3_ME4"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+  <LogicalPart name="ShieldingBoronPoly_1_ME" category="unspecified">
+   <rSolid name="ShieldingBoronPoly_1_ME"/>
+   <rMaterial name="materials:Boron Polyethyl."/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <PosPartSection label="mfshield.xml">
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mfshield:SupportTubeForHE"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mfshield:SupportTubeForHE"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME0RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5391*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME0RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5391*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5698*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5724.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_2_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_2_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_3_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_3_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_4_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_4_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_5_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_5_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_6_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6316*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:ME1RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_6_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6333*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME0RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5391*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME0RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME0"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5391*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5698*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5724.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_2_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_2_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_3_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_3_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="5834.5*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_4_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_4_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_5_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_5_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6209*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_6_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6316*mm"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+   <rParent name="mf:ME1RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_6_ME1"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6333*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mfshield:ZStopSpace"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.945*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mfshield:ZStopSpace"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.945*m "/>
+  </PosPart>
+  <Division name="mfshield:ZStopSpaceDivision" parent="mfshield:ZStopSpace" axis="phi" offset="-15*deg" width="30*deg"/>
+  <PosPart copyNumber="1">
+   <rParent name="mfshield:ZStopSpaceDivision"/>
+   <rChild name="mfshield:ZStop_1_ZStopSpaceDivision"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mfshield:ZStopSpaceDivision"/>
+   <rChild name="mfshield:ZStop_2_ZStopSpaceDivision"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-30.25*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-27.1*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_2_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_2_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_3_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME2RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_3_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-30.25*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-27.1*cm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_2_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_2_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_3_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME2RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_3_ME2"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm+8.1925*m "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_2_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_2_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_3_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="27.1*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME3RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_3_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="30.25*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_2_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_2_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="-2.5*mm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_3_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="27.1*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME3RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_3_ME3"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="30.25*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_2_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_2_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_3_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="28.025*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME4RingP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_3_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="31.175*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_1_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_2_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_2_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="6.75*mm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mfshield:ShieldingAntinomyLead_3_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="28.025*cm "/>
+  </PosPart>
+  <PosPart copyNumber="3">
+   <rParent name="mf:ME4RingN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_3_ME4"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="31.175*cm "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEP"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="10.805*m  "/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="mf:MEN"/>
+   <rChild name="mfshield:ShieldingBoronPoly_1_ME"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="0*fm " y="0*fm " z="10.805*m  "/>
+  </PosPart>
+ </PosPartSection>
+</DDDefinition>

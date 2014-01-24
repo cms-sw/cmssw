@@ -16,6 +16,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 template< typename T >
 class TTStub
@@ -32,9 +33,9 @@ class TTStub
     /// Helper methods: findABC( ... )
 
     /// Clusters composing the Stub
-    std::vector< edm::Ptr< TTCluster< T > > > getClusterPtrs() const                                 { return theClusters; }
-    const edm::Ptr< TTCluster< T > >&         getClusterPtr( unsigned int hitIdentifier ) const;
-    void                                      addClusterPtr( edm::Ptr< TTCluster< T > > aTTCluster ) { theClusters.push_back( aTTCluster ); }
+    std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > > getClusterRefs() const { return theClusterRefs; }
+    const edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >&         getClusterRef( unsigned int hitIdentifier ) const;
+    void addClusterRef( edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > aTTCluster ) { theClusterRefs.push_back( aTTCluster ); }
 
     /// Detector element
     DetId getDetId() const         { return theDetId; }
@@ -57,10 +58,11 @@ class TTStub
 
   private:
     /// Data members
-    DetId                                     theDetId;
-    std::vector< edm::Ptr< TTCluster< T > > > theClusters;
-    int                                       theDisplacement;
-    int                                       theOffset;
+    DetId theDetId;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > >
+        theClusterRefs;
+    int theDisplacement;
+    int theOffset;
 
 }; /// Close class
 
@@ -77,7 +79,7 @@ TTStub< T >::TTStub()
 {
   /// Set default data members
   theDetId = 0;
-  theClusters.clear();
+  theClusterRefs.clear();
   theDisplacement = 999999;
   theOffset = 0;
 }
@@ -90,7 +92,7 @@ TTStub< T >::TTStub( DetId aDetId )
   this->setDetId( aDetId );
 
   /// Set default data members
-  theClusters.clear();
+  theClusterRefs.clear();
   theDisplacement = 999999;
   theOffset = 0;
 }
@@ -99,14 +101,14 @@ TTStub< T >::TTStub( DetId aDetId )
 template< typename T >
 TTStub< T >::~TTStub(){}
 
-/// Get the Pointer to a Cluster
+/// Get the Reference to a Cluster
 template< typename T >
-const edm::Ptr< TTCluster< T > >& TTStub< T >::getClusterPtr( unsigned int hitIdentifier ) const
+const edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >& TTStub< T >::getClusterRef( unsigned int hitIdentifier ) const
 {
   /// Look for the TTCluster with the stack member corresponding to the argument
-  typename std::vector< edm::Ptr< TTCluster< T > > >::const_iterator clusIter;
-  for ( clusIter = theClusters.begin();
-        clusIter != theClusters.end();
+  typename std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > >::const_iterator clusIter;
+  for ( clusIter = theClusterRefs.begin();
+        clusIter != theClusterRefs.end();
         ++clusIter )
   {
     if ( (*clusIter)->getStackMember() == hitIdentifier )
@@ -115,10 +117,10 @@ const edm::Ptr< TTCluster< T > >& TTStub< T >::getClusterPtr( unsigned int hitId
     }
   }
 
-  /// In case no TTCluster is found, return a NULL edm::Ptr
+  /// In case no TTCluster is found, return a NULL edm::Ref
   /// (hopefully code doesn't reach this point)
-  edm::Ptr< TTCluster< T > >* tmpCluPtr = new edm::Ptr< TTCluster< T > >();
-  return *tmpCluPtr;
+  edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >* tmpCluRef = new edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > >();
+  return *tmpCluRef;
 }
 
 /// Trigger info
@@ -138,11 +140,17 @@ void TTStub< T >::setTriggerOffset( int anOffset ) { theOffset = anOffset; }
 template< typename T >
 double TTStub< T >::getTriggerPosition() const
 {
-  return this->getClusterPtr(0)->findAverageLocalCoordinates().x();
+  return this->getClusterRef(0)->findAverageLocalCoordinates().x();
 }
 
 template< typename T >
-double TTStub< T >::getTriggerBend() const { return 0.5*( theDisplacement - theOffset ); }
+double TTStub< T >::getTriggerBend() const
+{
+  if ( theDisplacement == 999999 )
+    return theDisplacement;
+
+  return 0.5*( theDisplacement - theOffset );
+}
 
 /// Information
 template< typename T >
@@ -157,14 +165,15 @@ std::string TTStub< T >::print( unsigned int i ) const
   std::stringstream output;
   output<<padding<<"TTStub:\n";
   padding+='\t';
-  output << padding << "DetId: " << theDetId.rawId() << '\n';
+  output << padding << "DetId: " << theDetId.rawId() << ", position: " << this->getTriggerPosition();
+  output << ", bend: " << this->getTriggerBend() << '\n';
   unsigned int iClu = 0;
-  typename std::vector< edm::Ptr< TTCluster< T > > >::const_iterator clusIter;
-  for ( clusIter = theClusters.begin();
-        clusIter!= theClusters.end();
+  typename std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< T > >, TTCluster< T > > >::const_iterator clusIter;
+  for ( clusIter = theClusterRefs.begin();
+        clusIter!= theClusterRefs.end();
         ++clusIter )
   {
-    output << padding << "cluster: " << iClu++ << ", member: " << (*clusIter)->getStackMember();
+    output << padding << "cluster: " << iClu++ << ", member: " << (*clusIter)->getStackMember() << ", address: " << (*clusIter).get();
     output << ", cluster size: " << (*clusIter)->getHits().size() << '\n';
   }
 

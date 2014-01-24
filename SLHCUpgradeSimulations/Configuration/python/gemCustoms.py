@@ -11,11 +11,11 @@ def customise(process):
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'dqmoffline_step'):
-        process=customise_DQM(process,n)
+        process=customise_DQM(process)
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
-        process=customise_Validation(process,float(n))
+        process=customise_Validation(process)
 
     return process
 
@@ -58,7 +58,7 @@ def customise_L1Emulator(process):
         tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
     return process
 
-def customise_DQM(process,pileup):
+def customise_DQM(process):
     return process
 
 def customise_Validation(process):

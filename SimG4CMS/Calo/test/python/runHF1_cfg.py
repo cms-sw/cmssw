@@ -3,8 +3,12 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.CMSCommonData.cmsExtendedGeometryHFParametrizeXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometryXML_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.HcalCommonData.hcalNumberingInitialization_cfi")
+#process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+#process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -53,7 +57,7 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(200)
+    input = cms.untracked.int32(50)
 )
 
 process.source = cms.Source("EmptySource",
@@ -68,8 +72,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
         MaxEta = cms.double(3.50),
         MinPhi = cms.double(-3.1415926),
         MaxPhi = cms.double(3.1415926),
-        MinE   = cms.double(1000.00),
-        MaxE   = cms.double(1000.00)
+        MinE   = cms.double(100.00),
+        MaxE   = cms.double(100.00)
     ),
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
@@ -90,12 +94,16 @@ process.common_maximum_timex = cms.PSet(
     MaxTrackTimes = cms.vdouble()
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
+process.HcalSimHitsAnalyser = cms.EDAnalyzer("HcalSimHitsValidation",
+    outputFile = cms.untracked.string('HcalSimHitsValidation.root')
+)
+
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.HcalSimHitsAnalyser)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.DefaultCutValue   = 0.1
-process.g4SimHits.HCalSD.UseShowerLibrary   = False
-process.g4SimHits.HCalSD.UseParametrize     = True
+process.g4SimHits.HCalSD.UseShowerLibrary   = True
+process.g4SimHits.HCalSD.UseParametrize     = False
 process.g4SimHits.HCalSD.UsePMTHits         = True
 process.g4SimHits.HCalSD.UseFibreBundleHits = True
 process.g4SimHits.HFShower.UseShowerLibrary = False

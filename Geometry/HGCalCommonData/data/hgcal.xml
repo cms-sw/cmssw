@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="hgcal.xml" eval="true">
+		<Constant name="zHGCal1" value="317.0*cm"/>
+		<Constant name="zHGCal2" value="341.4*cm"/>
+		<Constant name="zHGCal3" value="390*cm"/>
+		<Constant name="zHGCal4" value="449.127*cm"/>
+		<Constant name="zHGCal5" value="524.1*cm"/>
+		<Constant name="rMinHGCal1" value="31.641*cm"/>
+		<Constant name="rMinHGCal2" value="34.076*cm"/>
+		<Constant name="rMinHGCal3" value="38.93*cm"/>		
+		<Constant name="rMinHGCal4" value="44.84*cm"/>
+		<Constant name="rMinHGCal5" value="52.09*cm"/>
+		<Constant name="rMaxHGCal1" value="159.0*cm"/>
+		<Constant name="rMaxHGCal2" value="169.68*cm"/>
+		<Constant name="rMaxHGCal3" value="191.156*cm"/>
+		<Constant name="rMaxHGCal4" value="273.76*cm"/>		
+	</ConstantsSection>
+	<SolidSection label="hgcal.xml">
+		<Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>
+			<ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+			<ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
+			<ZSection z="[zHGCal5]" rMin="[rMinHGCal5]" rMax="[rMaxHGCal4]"/>
+		</Polycone>
+		<Polycone name="HGCalEE" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>
+			<ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]"/>
+		</Polycone>
+		<Polycone name="HGCalHE" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]"/>
+			<ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+			<ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
+			<ZSection z="[zHGCal5]" rMin="[rMinHGCal5]" rMax="[rMaxHGCal4]"/>
+		</Polycone>
+	</SolidSection>
+	<LogicalPartSection label="hgcal.xml">
+		<LogicalPart name="HGCal" category="unspecified">
+			<rSolid name="HGCal"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HGCalEE" category="unspecified">
+			<rSolid name="HGCalEE"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="HGCalHE" category="unspecified">
+			<rSolid name="HGCalHE"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="hgcal.xml">
+		<PosPart copyNumber="1">
+			<rParent name="caloBase:CALO"/>
+			<rChild name="HGCal"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="caloBase:CALO"/>
+			<rChild name="HGCal"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="HGCal"/>
+			<rChild name="HGCalEE"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="HGCal"/>
+			<rChild name="HGCalHE"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

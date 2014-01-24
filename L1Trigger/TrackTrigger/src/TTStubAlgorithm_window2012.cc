@@ -18,8 +18,8 @@ void TTStubAlgorithm_window2012< Ref_PixelDigi_ >::PatternHitCorrelation( bool &
 {
   /// Calculate average coordinates col/row for inner/outer Cluster
   /// These are already corrected for being at the center of each pixel
-  MeasurementPoint mp0 = aTTStub.getClusterPtr(0)->findAverageLocalCoordinates();
-  MeasurementPoint mp1 = aTTStub.getClusterPtr(1)->findAverageLocalCoordinates();
+  MeasurementPoint mp0 = aTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+  MeasurementPoint mp1 = aTTStub.getClusterRef(1)->findAverageLocalCoordinates();
 
   /// Get the module position in global coordinates
   StackedTrackerDetId stDetId( aTTStub.getDetId() );

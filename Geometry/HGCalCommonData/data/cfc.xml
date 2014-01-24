@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="cfc.xml" eval="true">
+  <Constant name="zCFCal1"     value="317.0*cm"/>
+  <Constant name="zCFCal2"     value="375.1*cm"/>
+  <Constant name="zCFCal3"     value="390.0*cm"/>
+  <Constant name="zCFCal4"     value="452.0*cm"/>
+  <Constant name="zCFCal5"     value="520.0*cm"/>
+  <Constant name="rMinCFCal1"  value="[etaMax:slope]*[zCFCal1]"/>
+  <Constant name="rMinCFCal2"  value="[etaMax:slope]*[zCFCal2]"/>
+  <Constant name="rMinCFCal3"  value="[etaMax:slope]*[zCFCal3]"/>
+  <Constant name="rMinCFCal4"  value="[etaMax:slope]*[zCFCal4]"/>
+  <Constant name="rMinCFCal5"  value="[etaMax:slope]*[zCFCal5]"/>
+  <Constant name="rMaxCFCal1"  value="158.00*cm"/>
+  <Constant name="rMaxCFCal2"  value="177.50*cm"/>
+  <Constant name="rMaxCFCal3"  value="190.30*cm"/>
+  <Constant name="rMaxCFCal4"  value="272.50*cm"/>
+  <Constant name="slope2"      value="([rMaxCFCal2]-[rMaxCFCal1])/([zCFCal2]-[zCFCal1])"/>
+  <Constant name="slope3"      value="([rMaxCFCal3]-[rMaxCFCal2])/([zCFCal3]-[zCFCal2])"/>
+  <Constant name="thickFront"  value="10*mm"/>    
+  <Constant name="thickBack"   value="0*mm"/>
+  <Constant name="thickTop1"   value="10*mm"/>
+  <Constant name="thickTop2"   value="15*mm"/>
+  <Constant name="thickTop3"   value="80*mm"/>
+  <Constant name="thickDown"   value="20*mm"/>
+  <Constant name="zCFCalAct1"  value="([zCFCal1]+[thickFront])"/>
+  <Constant name="zCFCalAct5"  value="([zCFCal5]-[thickBack])"/>
+  <Constant name="rMinCFCAct1" value="([etaMax:slope]*[zCFCalAct1]+[thickDown])"/>
+  <Constant name="rMinCFCAct2" value="([rMinCFCal2]+[thickDown])"/>
+  <Constant name="rMinCFCAct3" value="([rMinCFCal3]+[thickDown])"/>
+  <Constant name="rMinCFCAct4" value="([rMinCFCal4]+[thickDown])"/>
+  <Constant name="rMinCFCAct5" value="([etaMax:slope]*[zCFCalAct5]+[thickDown])"/>
+  <Constant name="rMaxCFCAct1" value="([slope2]*[thickFront]+[rMaxCFCal1]-[thickTop1])"/>
+  <Constant name="rMaxCFCAct2" value="([slope2]*([zCFCal2]-[zCFCal1])+[rMaxCFCal1]-[thickTop1])"/>
+  <Constant name="rMaxCFCAct3" value="([rMaxCFCal3]-[thickTop2])"/>
+  <Constant name="rMaxCFCAct4" value="([rMaxCFCal4]-[thickTop3])"/>
+</ConstantsSection>
+
+<MaterialSection label="cfc.xml">
+  <CompositeMaterial name="Absorber" density="7.30*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.80">
+    <rMaterial name="materials:Brass"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.19">
+    <rMaterial name="materials:Quartz"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.01">
+    <rMaterial name="materials:Air"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+ 
+ <SolidSection label="cfc.xml">
+  <Polyhedra name="CFCal" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zCFCal1]" rMin="[rMinCFCal1]" rMax="[rMaxCFCal1]"/>
+    <ZSection z="[zCFCal2]" rMin="[rMinCFCal2]" rMax="[rMaxCFCal2]"/>
+    <ZSection z="[zCFCal3]" rMin="[rMinCFCal3]" rMax="[rMaxCFCal3]"/>
+    <ZSection z="[zCFCal4]" rMin="[rMinCFCal4]" rMax="[rMaxCFCal4]"/>
+    <ZSection z="[zCFCal5]" rMin="[rMinCFCal5]" rMax="[rMaxCFCal4]"/>
+  </Polyhedra>
+  <Polyhedra name="CFCalS" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+    <ZSection z="[zCFCal1]" rMin="[rMinCFCal1]" rMax="[rMaxCFCal1]"/>
+    <ZSection z="[zCFCal2]" rMin="[rMinCFCal2]" rMax="[rMaxCFCal2]"/>
+    <ZSection z="[zCFCal3]" rMin="[rMinCFCal3]" rMax="[rMaxCFCal3]"/>
+    <ZSection z="[zCFCal4]" rMin="[rMinCFCal4]" rMax="[rMaxCFCal4]"/>
+    <ZSection z="[zCFCal5]" rMin="[rMinCFCal5]" rMax="[rMaxCFCal4]"/>
+  </Polyhedra>
+  <Polyhedra name="CFCalV" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+    <ZSection z="[zCFCalAct1]" rMin="[rMinCFCAct1]" rMax="[rMaxCFCAct1]"/>
+    <ZSection z="[zCFCal2]"    rMin="[rMinCFCAct2]" rMax="[rMaxCFCAct2]"/>
+    <ZSection z="[zCFCal3]"    rMin="[rMinCFCAct3]" rMax="[rMaxCFCAct3]"/>
+    <ZSection z="[zCFCal4]"    rMin="[rMinCFCAct4]" rMax="[rMaxCFCAct4]"/>
+    <ZSection z="[zCFCalAct5]" rMin="[rMinCFCAct5]" rMax="[rMaxCFCAct4]"/>
+  </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="cfc.xml">
+  <LogicalPart name="CFCal" category="unspecified">
+    <rSolid name="CFCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="CFCalS" category="unspecified">
+    <rSolid name="CFCalS"/>
+    <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="CFCalV" category="unspecified">
+    <rSolid name="CFCalV"/>
+    <rMaterial name="cfc:Absorber"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="cfc.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="cfc:CFCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="cfc:CFCal"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <Algorithm name="global:DDAngular">
+    <rParent name="cfc:CFCal"/>
+    <String  name="ChildName"   value="cfc:CFCalS"/>
+    <Numeric name="N"           value="18"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo"  value="1"/>
+    <Numeric name="RangeAngle"  value="360*deg"/>
+    <Numeric name="StartAngle"  value="20*deg"/>
+    <Numeric name="Radius"      value="0"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+  <PosPart copyNumber="1">
+    <rParent name="cfc:CFCalS"/>
+    <rChild name="cfc:CFCalV"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

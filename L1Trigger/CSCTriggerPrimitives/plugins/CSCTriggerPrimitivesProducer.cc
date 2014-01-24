@@ -79,7 +79,12 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 
     edm::ESHandle<GEMGeometry> h_gem;
     setup.get<MuonGeometryRecord>().get(h_gem);
-    lctBuilder_->setGEMGeometry(&*h_gem);
+    if (&*h_gem) {
+      lctBuilder_->setGEMGeometry(&*h_gem);
+    } else {
+      edm::LogWarning("L1CSCTPEmulatorNoGEMGeometry") 
+	<< "+++ Warning: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
+    }
   }
 
   // Find conditions data for bad chambers.

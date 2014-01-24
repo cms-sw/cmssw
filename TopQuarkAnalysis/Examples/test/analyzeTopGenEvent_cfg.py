@@ -21,7 +21,8 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## load modules to produce the TtGenEvent
@@ -35,7 +36,6 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('analyzeTopGenEvent.root')
 )
 
-## end path   
-process.p1 = cms.Path(process.makeGenEvt *
-                      process.analyzeTopGenEvent)
+## end path
+process.p1 = cms.Path(process.analyzeTopGenEvent)
 
