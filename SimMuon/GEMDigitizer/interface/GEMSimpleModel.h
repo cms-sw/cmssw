@@ -13,7 +13,6 @@
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
 
 class GEMGeometry;
-
 namespace CLHEP
 {
   class HepRandomEngine;
@@ -50,7 +49,8 @@ private:
   double averageShapingTime_;
   double timeResolution_;
   double timeJitter_;
-  double timeCalibrationOffset_;
+  double timeCalibrationOffset1_;
+  double timeCalibrationOffset23_;
   double averageNoiseRate_;
   double averageClusterSize_;
   double signalPropagationSpeed_;
@@ -59,7 +59,9 @@ private:
   int minBunch_;
   int maxBunch_;
   bool digitizeOnlyMuons_;
-  std::vector<double> neutronGammaRoll_;
+  std::vector<double> neutronGammaRoll1_;
+  std::vector<double> neutronGammaRoll2_;
+  std::vector<double> neutronGammaRoll3_;
   bool doNoiseCLS_;
   double minPabsNoiseCLS_;
   bool simulateIntrinsicNoise_;
@@ -74,6 +76,5 @@ private:
 
 };
 #endif
-
 
 
