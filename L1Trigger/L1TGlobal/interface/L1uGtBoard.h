@@ -28,8 +28,13 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 
+// Trigger Objects
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -60,28 +65,48 @@ public:
 public:
 
     /// receive data from Global Muon Trigger
-    void receiveGmtObjectData(
+    void receiveCaloObjectData(
         edm::Event&,
-        const edm::InputTag&, const int iBxInEvent,
+        const edm::InputTag&, 
+        const bool receiveEG, const int nrL1EG,
+	const bool receiveTau, const int nrL1Tau,	
+	const bool receiveJet, const int nrL1Jet,
+	const bool receiveETM, const bool receiveETT, const bool receiveHTT, const bool receiveHTM);
+
+    void receiveMuonObjectData(
+        edm::Event&,
+        const edm::InputTag&, 
         const bool receiveMu, const int nrL1Mu);
 
 
     /// initialize the class (mainly reserve)
-    void init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1CenJet, const int nrL1ForJet  );
+    void init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet);
 
-    /// run the uGT
-    void run(edm::Event& iEvent, const edm::EventSetup& evSetup,
+    /// run the uGT GTL (Conditions and Algorithms)
+    void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent, std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
         const int nrL1Tau,	
-        const int nrL1CenJet,
-        const int nrL1ForJet,
-        const int nrL1JetCounts,
-        const int ifMuEtaNumberBits,
-        const int ifCaloEtaNumberBits);
+        const int nrL1Jet,
+        const int nrL1JetCounts);
+
+    /// run the uGT FDL (Apply Prescales and Veto)
+    void runFDL(edm::Event& iEvent, 
+        const std::vector<int>& prescaleFactorsAlgoTrig,
+        const std::vector<unsigned int>& triggerMaskAlgoTrig,
+        const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
+        const int totalBxInEvent,
+        const int iBxInEvent,
+        const unsigned int numberPhysTriggers,
+        const unsigned int numberDaqPartitions,
+        const int pfAlgoSetIndex,
+        const bool algorithmTriggersUnprescaled,
+        const bool algorithmTriggersUnmasked
+        );
+
 
     /// clear uGT
     void reset();
@@ -102,10 +127,72 @@ public:
     }
 
     /// return global muon trigger candidate
-    inline const std::vector<const L1MuGMTCand*>* getCandL1Mu() const
+    inline const std::vector<const l1t::Muon*>* getCandL1Mu() const
     {
         return m_candL1Mu;
     }
+
+    /// pointer to EG data list
+    inline const std::vector<const l1t::L1Candidate*>* getCandL1EG() const
+    {
+        return m_candL1EG;
+    }
+
+    /// pointer to Jet data list
+    inline const std::vector<const l1t::L1Candidate*>* getCandL1Jet() const
+    {
+        return m_candL1Jet;
+    }
+    
+
+    /// pointer to Tau data list
+    inline const std::vector<const l1t::L1Candidate*>* getCandL1Tau() const
+    {
+        return m_candL1Tau;
+    }
+
+    /// pointer to ETM data list
+    inline const l1t::EtSum* getCandL1ETM() const
+    {
+        return m_candETM;
+    }
+
+    /// pointer to ETT data list
+    inline const l1t::EtSum* getCandL1ETT() const
+    {
+        return m_candETT;
+    }
+
+    /// pointer to HTT data list
+    inline const l1t::EtSum* getCandL1HTT() const
+    {
+        return m_candHTT;
+    }
+
+    /// pointer to HTM data list
+    inline const l1t::EtSum* getCandL1HTM() const
+    {
+        return m_candHTM;
+    }
+
+    /// pointer to JetCounts data list
+    inline const l1t::EtSum* getCandL1JetCounts() const
+    {
+        return m_candJetCounts;
+    }
+
+    /// pointer to HfBitCounts data list
+    inline const l1t::EtSum* getCandL1HfBitCounts() const
+    {
+        return m_candHfBitCounts;
+    }
+
+    /// pointer to HfRingEtSums data list
+    inline const l1t::EtSum* getCandL1HfRingEtSums() const
+    {
+        return m_candHfRingEtSums;
+    }
+
 
 public:
 
@@ -133,7 +220,19 @@ private:
 
 private:
 
-    std::vector<const L1MuGMTCand*>* m_candL1Mu;
+    std::vector<const l1t::Muon*>* m_candL1Mu;
+    std::vector<const l1t::L1Candidate*>* m_candL1EG;
+    std::vector<const l1t::L1Candidate*>* m_candL1Tau;
+    std::vector<const l1t::L1Candidate*>* m_candL1Jet;
+    const l1t::EtSum* m_candETM;
+    const l1t::EtSum* m_candETT;
+    const l1t::EtSum* m_candHTM;
+    const l1t::EtSum* m_candHTT;
+    const l1t::EtSum* m_candJetCounts;
+    const l1t::EtSum* m_candHfBitCounts;
+    const l1t::EtSum* m_candHfRingEtSums;
+
+
 
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;

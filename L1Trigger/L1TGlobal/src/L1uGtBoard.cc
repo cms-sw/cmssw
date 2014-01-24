@@ -77,7 +77,7 @@
 
 // constructor
 l1t::L1uGtBoard::L1uGtBoard() :
-    m_candL1Mu( new std::vector<const L1MuGMTCand*>),
+    m_candL1Mu( new std::vector<const l1t::Muon*>),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -107,7 +107,7 @@ l1t::L1uGtBoard::~L1uGtBoard() {
 }
 
 // operations
-void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1CenJet, const int nrL1ForJet ) {
+void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet) {
 
     m_candL1Mu->reserve(nrL1Mu);
 
@@ -122,15 +122,36 @@ void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const
 
 }
 
+
+
+// receive data from Calorimeter
+void l1t::L1uGtBoard::receiveCaloObjectData(edm::Event& iEvent,
+        const edm::InputTag& caloInputTag, 
+        const bool receiveEG, const int nrL1EG,
+	const bool receiveTau, const int nrL1Tau,	
+	const bool receiveJet, const int nrL1Jet,
+	const bool receiveETM, const bool receiveETT, const bool receiveHTT, const bool receiveHTM) {
+
+    if (m_verbosity) {
+        LogDebug("l1t|Global")
+                << "\n**** L1uGtBoard receiving Calo Data "
+                <<  "\n     from input tag " << caloInputTag << "\n"
+                << std::endl;
+
+    }
+
+}
+
+
 // receive data from Global Muon Trigger
-void l1t::L1uGtBoard::receiveGmtObjectData(edm::Event& iEvent,
-    const edm::InputTag& muGmtInputTag, const int iBxInEvent, const bool receiveMu,
+void l1t::L1uGtBoard::receiveMuonObjectData(edm::Event& iEvent,
+    const edm::InputTag& muInputTag, const bool receiveMu,
     const int nrL1Mu) {
 
     if (m_verbosity) {
         LogDebug("l1t|Global")
-                << "\n**** L1uGtBoard receiving muon data for BxInEvent = "
-                << iBxInEvent << "\n     from input tag " << muGmtInputTag << "\n"
+                << "\n**** L1uGtBoard receiving muon data = "
+                << "\n     from input tag " << muInputTag << "\n"
                 << std::endl;
 
     }
@@ -140,18 +161,20 @@ void l1t::L1uGtBoard::receiveGmtObjectData(edm::Event& iEvent,
     // get data from Global Muon Trigger
     if (receiveMu) {
 
+/*
         edm::Handle<std::vector<L1MuGMTCand> > muonData;
-        iEvent.getByLabel(muGmtInputTag, muonData);
+        iEvent.getByLabel(muInputTag, muonData);
 
         if (!muonData.isValid()) {
             if (m_verbosity) {
                 edm::LogWarning("L1GlobalTrigger")
                         << "\nWarning: std::vector<L1MuGMTCand> with input tag "
-                        << muGmtInputTag
+                        << muInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
         } else {
+
 
             std::vector<L1MuGMTCand>::const_iterator itMuon;
             for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++) {
@@ -166,16 +189,18 @@ void l1t::L1uGtBoard::receiveGmtObjectData(edm::Event& iEvent,
             }
 
         }
+*/
     }
 
     if (m_verbosity && m_isDebugEnabled) {
-        printGmtData(iBxInEvent);
+//  *** Needs fixing
+//        printGmtData(iBxInEvent);
     }
 
 }
 
 // run GTL
-void l1t::L1uGtBoard::run(
+void l1t::L1uGtBoard::runGTL(
         edm::Event& iEvent, const edm::EventSetup& evSetup,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
@@ -183,10 +208,9 @@ void l1t::L1uGtBoard::run(
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1EG,
+	const int nrL1Tau,
 	const int nrL1Jet,
-        const int nrL1CenJet, const int nrL1ForJet, 
-        const int nrL1JetCounts,
-        const int ifMuEtaNumberBits, const int ifCaloEtaNumberBits) {
+        const int nrL1JetCounts) {
 
 
 	// get / update the trigger menu from the EventSetup
@@ -761,6 +785,32 @@ void l1t::L1uGtBoard::run(
 
 }
 
+
+// run GTL
+void l1t::L1uGtBoard::runFDL(edm::Event& iEvent, 
+        const std::vector<int>& prescaleFactorsAlgoTrig,
+        const std::vector<unsigned int>& triggerMaskAlgoTrig,
+        const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
+        const int totalBxInEvent,
+        const int iBxInEvent,
+        const unsigned int numberPhysTriggers,
+        const unsigned int numberDaqPartitions,
+        const int pfAlgoSetIndex,
+        const bool algorithmTriggersUnprescaled,
+        const bool algorithmTriggersUnmasked ){
+
+
+    if (m_verbosity) {
+        LogDebug("l1t|Global")
+                << "\n**** L1uGtBoard apply Final Decision Logic "
+                << std::endl;
+
+    }
+
+
+
+}
+
 // clear GTL
 void l1t::L1uGtBoard::reset() {
 
@@ -782,14 +832,14 @@ void l1t::L1uGtBoard::printGmtData(const int iBxInEvent) const {
     LogTrace("l1t|Global")
             << "Number of GMT muons = " << nrL1Mu << "\n"
             << std::endl;
-
+/*
     for (std::vector<const L1MuGMTCand*>::const_iterator iter =
             m_candL1Mu->begin(); iter != m_candL1Mu->end(); iter++) {
 
         LogTrace("l1t|Global") << *(*iter) << std::endl;
 
     }
-
+*/
     LogTrace("l1t|Global") << std::endl;
 
 }

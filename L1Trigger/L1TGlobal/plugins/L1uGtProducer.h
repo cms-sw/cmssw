@@ -10,14 +10,12 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- * \author: Vasile Mihai Ghete - HEPHY Vienna
+ * \author: Brian Winer  Ohio State
  *
  * $Date$
  * $Revision$
  *
- * The CMSSW implementation of the L1 Global Trigger emulator
- * uses concepts and code from the ORCA L1 Global Trigger simulation,
- * authors: N. Neumeister, M. Fierro, M. Eder  - HEPHY Vienna.
+ * The CMSSW implementation based on Legacy System Code
  *
  */
 
@@ -28,11 +26,6 @@
 #include <boost/cstdint.hpp>
 
 // user include files
-
-/*
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
-*/
 
 // Upgrade Board
 #include "L1Trigger/L1TGlobal/interface/L1uGtBoard.h"
@@ -45,14 +38,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-/*
-// forward classes
-class L1uGtProducerPSB;
-class L1uGtProducerGTL;
-class L1uGtProducerFDL;
-*/
-//class L1uGtBoard;
 
 class L1GtStableParameters;
 class L1GtParameters;
@@ -75,26 +60,11 @@ public:
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
-/*  *** Need to redefine Board
-    // return pointer to PSB
-    inline const L1uGtProducerPSB* gtPSB() const
+    // return pointer to uGt Board  QUESTION: Is this used anywhere?
+    inline const L1uGtBoard* gtBrd() const
     {
-        return m_gtPSB;
-    }
-
-    // return pointer to GTL
-    inline const L1uGtProducerGTL* gtGTL() const
-    {
-        return m_gtGTL;
-    }
-
-    // return pointer to FDL
-    inline const L1uGtProducerFDL* gtFDL() const
-    {
-        return m_gtFDL;
-    }
-*/    
-    
+        return m_uGtBrd;
+    }    
 
 private:
 
@@ -111,13 +81,12 @@ private:
     unsigned int m_numberDaqPartitions;
 
     /// number of objects of each type
-    ///    { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
+    ///    { Mu, NoIsoEG, IsoEG, Jet, Tau, ETM, ETT, HTT, JetCounts };
     int m_nrL1Mu;
     int m_nrL1EG;
     int m_nrL1Tau;    
 
-    int m_nrL1CenJet;
-    int m_nrL1ForJet;
+    int m_nrL1Jet;
 
 //  *** ??? Do we still need this?
     int m_nrL1JetCounts;
@@ -177,10 +146,10 @@ private:
     L1uGtBoard* m_uGtBrd;
 
     /// input tag for muon collection from GMT
-    edm::InputTag m_muGmtInputTag;
+    edm::InputTag m_muInputTag;
 
     /// input tag for calorimeter collections from GCT
-    edm::InputTag m_caloGctInputTag;
+    edm::InputTag m_caloInputTag;
 
     /// logical flag to produce the L1 GT DAQ readout record
     bool m_produceL1GtDaqRecord;

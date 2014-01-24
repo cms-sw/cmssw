@@ -41,6 +41,9 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 */
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+
+
 // Trigger Objects
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
@@ -105,8 +108,8 @@
 // constructors
 //  *** Drop some of these??  ****
 l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
-            m_muGmtInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
-            m_caloGctInputTag(parSet.getParameter<edm::InputTag> ("GctInputTag")),
+            m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
+            m_caloInputTag(parSet.getParameter<edm::InputTag> ("caloInputTag")),
 
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
             m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),
@@ -131,8 +134,8 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
         LogDebug("l1t|Global") << std::endl;
 
         LogTrace("lt1|Global")
-                << "\nInput tag for muon collection from GMT:         " << m_muGmtInputTag
-                << "\nInput tag for calorimeter collections from GCT: " << m_caloGctInputTag
+                << "\nInput tag for muon collection from GMT:         " << m_muInputTag
+                << "\nInput tag for calorimeter collections from GCT: " << m_caloInputTag
                 << std::endl;
 
 
@@ -215,8 +218,7 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
     m_nrL1EG = 0;
     m_nrL1Tau = 0;
 
-    m_nrL1CenJet = 0;
-    m_nrL1ForJet = 0;
+    m_nrL1Jet = 0;
 
 
     m_nrL1JetCounts = 0;
@@ -284,8 +286,8 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
         m_nrL1Tau= static_cast<int> (m_l1GtStablePar->gtNumberL1TauJet());
 
 
-        m_nrL1CenJet = static_cast<int> (m_l1GtStablePar->gtNumberL1CenJet());
-        m_nrL1ForJet = static_cast<int> (m_l1GtStablePar->gtNumberL1ForJet());
+// ********* Do we need to change the StablePar class?
+        m_nrL1Jet = static_cast<int> (m_l1GtStablePar->gtNumberL1CenJet());
 
         m_nrL1JetCounts = static_cast<int> (m_l1GtStablePar->gtNumberL1JetCounts());
 
@@ -296,7 +298,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 
         // Initialize Board
-        m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1CenJet, m_nrL1ForJet  );
+        m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet  );
 
         //
         m_l1GtStableParCacheID = l1GtStableParCacheID;
@@ -434,7 +436,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 
 
-/*  **** For now Leave out Masks  *****
+/*  **** For now Leave out Veto Masks  *****
     unsigned long long l1GtTmVetoAlgoCacheID =
         evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().cacheIdentifier();
 
@@ -466,8 +468,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     bool receiveMu = false;
     bool receiveEG = true;
     bool receiveTau = false;    
-    bool receiveCenJet = true;
-    bool receiveForJet = false;
+    bool receiveJet = true;
     bool receiveETM = false;
     bool receiveETT = false;
     bool receiveHTT = false;
@@ -478,7 +479,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 // Use these variables in a trivial way to test compilation
     if(receiveMu | receiveEG | receiveTau | 
-       receiveCenJet | receiveForJet |
+       receiveJet | 
        receiveETM | receiveETT | receiveHTT | receiveHTM |
        receiveJetCounts | receiveHfBitCounts |
        receiveHfRingEtSums) receiveEG = true;
@@ -640,11 +641,11 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
         new L1uGtProducerReadoutRecord(
             m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
 
-
-    // * produce the L1uGtProducerObjectMapRecord
-    std::auto_ptr<L1uGtProducerObjectMapRecord> gtObjectMapRecord(
-        new L1uGtProducerObjectMapRecord() );
 */
+    // * produce the L1uGtProducerObjectMapRecord
+    std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
+        new L1GlobalTriggerObjectMapRecord() );
+
 
     // fill the boards not depending on the BxInEvent in the L1 GT DAQ record
     // GMT, PSB and FDL depend on BxInEvent
@@ -759,29 +760,23 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     LogDebug("lt1|Global") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
     //
 
+
+// Load the input onto the uGt Board
+     m_uGtBrd->receiveCaloObjectData(iEvent, m_caloInputTag,
+        			     receiveEG, m_nrL1EG,
+        			     receiveTau, m_nrL1Tau,				     
+        			     receiveJet, m_nrL1Jet,
+        			     receiveETM, receiveETT, receiveHTT, receiveHTM     );
+
+     m_uGtBrd->receiveMuonObjectData(iEvent, m_muInputTag,
+                                     receiveMu, m_nrL1Mu  );
+
+
     // loop over BxInEvent
     for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
             ++iBxInEvent) {
 
-        // * receive GCT object data via PSBs
-        //LogDebug("lt1|Global")
-        //<< "\nL1uGtProducer : receiving PSB data for bx = " << iBxInEvent << "\n"
-        //<< std::endl;
 
-/*  Drop Should collect all input as a BXVector on MP7 Board
-        m_gtPSB->receiveGctObjectData(
-            iEvent,
-            m_caloGctInputTag, iBxInEvent,
-            receiveNoIsoEG, m_nrL1NoIsoEG,
-            receiveIsoEG, m_nrL1IsoEG,
-            receiveCenJet, m_nrL1CenJet,
-            receiveForJet, m_nrL1ForJet,
-            receiveTauJet, m_nrL1TauJet,
-            receiveETM, receiveETT, receiveHTT, receiveHTM,
-            receiveJetCounts,
-            receiveHfBitCounts,
-            receiveHfRingEtSums);
-*/
 
 /*  OUTPUT RECORD
         if (m_produceL1GtDaqRecord && m_writePsbL1GtDaqRecord) {
@@ -790,63 +785,43 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
                     m_alternativeNrBxBoardDaq, boardMaps, iBxInEvent, gtDaqReadoutRecord);
         }
 */
-        // * receive GMT object data via GTL
-        //LogDebug("lt1|Global")
-        //<< "\nL1uGtProducer : receiving GMT data for bx = " << iBxInEvent << "\n"
-        //<< std::endl;
 
-/* Drop Should collect all input as a BXVector on MP7 Board
-        m_gtGTL->receiveGmtObjectData(iEvent, m_muGmtInputTag, iBxInEvent,
-                receiveMu, m_nrL1Mu);
-*/
-        // * run GTL
-        //LogDebug("lt1|Global")
-        //<< "\nL1uGtProducer : running GTL for bx = " << iBxInEvent << "\n"
-        //<< std::endl;
+        //  run GTL
+        LogDebug("lt1|Global")
+         << "\nL1uGtProducer : running GTL  for bx = " << iBxInEvent << "\n"
+         << std::endl;
 
 
-/* *** Needs changing to Run of MP7 Board
-        m_gtGTL->run(iEvent, evSetup, m_gtPSB,
+//  Run the GTL for this BX
+        m_uGtBrd->runGTL(iEvent, evSetup, 
             m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord,
             m_numberPhysTriggers,
             m_nrL1Mu,
-            m_nrL1NoIsoEG,
-            m_nrL1IsoEG,
-            m_nrL1CenJet,
-            m_nrL1ForJet,
-            m_nrL1TauJet,
-            m_nrL1JetCounts,
-            m_ifMuEtaNumberBits,
-            m_ifCaloEtaNumberBits);
-*/
-        //LogDebug("lt1|Global")
-        //<< "\n AlgorithmOR\n" << m_gtGTL->getAlgorithmOR() << "\n"
-        //<< std::endl;
+            m_nrL1EG,
+	    m_nrL1Tau,
+            m_nrL1Jet,
+	    m_nrL1JetCounts  );
 
-        // * run FDL
-        //LogDebug("lt1|Global")
-        //<< "\nL1uGtProducer : running FDL for bx = " << iBxInEvent << "\n"
-        //<< std::endl;
 
-/*  *** Need changing to Run/FDL on MP7 Board
-        m_gtFDL->run(iEvent,
-                prescaleFactorsAlgoTrig, prescaleFactorsTechTrig,
-                m_triggerMaskAlgoTrig, m_triggerMaskTechTrig,
-                m_triggerMaskVetoAlgoTrig, m_triggerMaskVetoTechTrig,
-                boardMaps, m_emulateBxInEvent, iBxInEvent,
-                m_numberPhysTriggers, m_numberTechnicalTriggers,
+        //  run FDL
+        LogDebug("lt1|Global")
+          << "\nL1uGtProducer : running FDL for bx = " << iBxInEvent << "\n"
+          << std::endl;
+
+//  Run the Final Decision Logic for this BX
+        m_uGtBrd->runFDL(iEvent,
+                prescaleFactorsAlgoTrig, 
+                m_triggerMaskAlgoTrig, 
+                m_triggerMaskVetoAlgoTrig,
+                m_emulateBxInEvent, iBxInEvent,
+                m_numberPhysTriggers, 
                 m_numberDaqPartitions,
-                m_gtGTL, m_gtPSB,
                 pfAlgoSetIndex,
-                pfTechSetIndex,
                 m_algorithmTriggersUnprescaled,
-                m_algorithmTriggersUnmasked,
-                m_technicalTriggersUnprescaled,
-                m_technicalTriggersUnmasked,
-                m_technicalTriggersVetoUnmasked
+                m_algorithmTriggersUnmasked
                 );
 
-*/
+
 
 /* *** OUTPUT RECORD
         if (m_produceL1GtDaqRecord && ( daqNrFdlBoards > 0 )) {
@@ -857,15 +832,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 */
 
 
-/*  *** Change to be MP7 Board
-        // reset
-        m_gtPSB->reset();
-        m_gtGTL->reset();
-        m_gtFDL->reset();
-*/
-        //LogDebug("lt1|Global") << "\n Reset PSB, GTL, FDL\n" << std::endl;
-
-    }
+    } //End Loop over Bx
 
 /* OUTPUT Record
     if ( receiveMu ) {
@@ -874,21 +841,21 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
         //LogDebug("lt1|Global")
         //<< "\n**** "
         //<< "\n  Persistent reference for L1MuGMTReadoutCollection with input tag: "
-        //<< m_muGmtInputTag
+        //<< m_muInputTag
         //<< "\n**** \n"
         //<< std::endl;
 
         // get L1MuGMTReadoutCollection reference and set it in GT record
 
         edm::Handle<L1MuGMTReadoutCollection> gmtRcHandle;
-        iEvent.getByLabel(m_muGmtInputTag, gmtRcHandle);
+        iEvent.getByLabel(m_muInputTag, gmtRcHandle);
 
 
 
         if (!gmtRcHandle.isValid()) {
             if (m_verbosity) {
                 edm::LogWarning("L1uGtProducer")
-                        << "\nWarning: L1MuGMTReadoutCollection with input tag " << m_muGmtInputTag
+                        << "\nWarning: L1MuGMTReadoutCollection with input tag " << m_muInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
