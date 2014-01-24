@@ -7,7 +7,8 @@ def customise(process):
         process=customise_RawToDigi(process)
     if hasattr(process,'reconstruction'):
         process=customise_Reco(process)
-
+   if hasattr(process,'L1simulation_step'):
+       process=customise_L1Emulator(process)
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'dqmoffline_step'):
@@ -48,7 +49,6 @@ def customise_L1Emulator(process):
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
     process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    tmb.doGemMatching = cms.untracked.bool(True)
     tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
     tmb.gemMatchDeltaBX = cms.untracked.int32(1)
     lct_store_gemdphi = True
