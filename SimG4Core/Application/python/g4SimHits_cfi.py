@@ -379,6 +379,21 @@ g4SimHits = cms.EDProducer("OscarProducer",
     BHMSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)
     ),
+    CFCSD = cms.PSet(
+        Verbosity        = cms.untracked.int32(0),
+        TimeSliceUnit    = cms.int32(1),
+        IgnoreTrackID    = cms.bool(False),
+        EminHit          = cms.double(0.0),
+        CFibre           = cms.double(0.5),
+        ApplyFiducialCut = cms.bool(True),
+        FileName         = cms.FileInPath('SimG4CMS/Calo/data/hfshowerlibrary_lhep_140_edm.root'),
+    ),
+    HGCSD = cms.PSet(
+        Verbosity        = cms.untracked.int32(0),
+        TimeSliceUnit    = cms.int32(1),
+        IgnoreTrackID    = cms.bool(False),
+        EminHit          = cms.double(0.0),
+    ),
     PltSD = cms.PSet(
         EnergyThresholdForPersistencyInGeV = cms.double(0.2),
         EnergyThresholdForHistoryInGeV = cms.double(0.05)
