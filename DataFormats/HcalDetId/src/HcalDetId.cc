@@ -139,6 +139,20 @@ int HcalDetId::depth() const {
   else              return (id_>>20)&0xF;
 }
 
+uint32_t HcalDetId::otherForm() const {
+  uint32_t rawId = (id_&0xFE000000);
+  if (oldFormat()) {
+    rawId |= (0x1000000) | ((depth()&0xF)<<20) |
+      ((ieta()>0)?(0x80000|((ieta()&0x1FF)<<10)):(((-ieta())&0x1FF)<<10)) |
+      (iphi()&0x3FF);
+  } else {
+    rawId |= ((depth()&0x1F)<<14) |
+      ((ieta()>0)?(0x2000|((ieta()&0x3F)<<7)):(((-ieta())&0x3F)<<7)) |
+      (iphi()&0x7F);
+  }
+  return rawId;
+}
+
 int HcalDetId::crystal_iphi_low() const { 
   int simple_iphi=((iphi()-1)*5)+1; 
   simple_iphi+=10;
