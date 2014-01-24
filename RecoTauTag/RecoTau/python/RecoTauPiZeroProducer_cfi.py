@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauPiZeroBuilderPlugins_cfi as builders
 import RecoTauTag.RecoTau.RecoTauPiZeroQualityPlugins_cfi as ranking
 
-ak5PFJetsRecoTauGreedyPiZeros = cms.EDProducer(
+ak4PFJetsRecoTauGreedyPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = cms.InputTag("ak4PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
@@ -17,16 +17,16 @@ ak5PFJetsRecoTauGreedyPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsRecoTauPiZeros = cms.EDProducer(
+ak4PFJetsRecoTauPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = cms.InputTag("ak4PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
         builders.combinatoricPhotonPairs,
         #builders.strips
-        builders.modStrips 
+        builders.modStrips
     ),
     ranking = cms.VPSet(
         ranking.nearPiZeroMassBarrel, # Prefer pi zeros +- 0.05 GeV correct mass
@@ -35,9 +35,9 @@ ak5PFJetsRecoTauPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
+ak4PFJetsLegacyTaNCPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = cms.InputTag("ak4PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
@@ -50,15 +50,15 @@ ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsLegacyHPSPiZeros = cms.EDProducer(
+ak4PFJetsLegacyHPSPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = cms.InputTag("ak4PFJets"),
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 0'),
     builders = cms.VPSet(
         #builders.strips
-        builders.modStrips 
+        builders.modStrips
     ),
     ranking = cms.VPSet(
         ranking.isInStrip

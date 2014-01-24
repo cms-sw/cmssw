@@ -19,15 +19,15 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import \
       RecoTauJetRegionProducer
 recoTauAK5PFJets08Region=RecoTauJetRegionProducer.clone(
-    src = cms.InputTag("ak5PFJets")
+    src = cms.InputTag("ak4PFJets")
 )
 
 
 
 # Reconstruct the pi zeros in our pre-selected jets.
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
-         ak5PFJetsLegacyHPSPiZeros
-ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
+         ak4PFJetsLegacyHPSPiZeros
+ak4PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
 
 
 #-------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ ak5PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
 from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import \
         combinatoricRecoTaus
 
-combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJets")
+combinatoricRecoTaus.jetSrc = cms.InputTag("ak4PFJets")
 
 
 #-------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ combinatoricRecoTaus.jetSrc = cms.InputTag("ak5PFJets")
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import *
 
-combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak5PFJetsLegacyHPSPiZeros")
+combinatoricRecoTaus.piZeroSrc = cms.InputTag("ak4PFJetsLegacyHPSPiZeros")
 
 #-------------------------------------------------------------------------------
 #------------------ PFTauTagInfo workaround ------------------------------------
@@ -59,8 +59,8 @@ from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import \
         pfRecoTauTagInfoProducer
 from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi \
         import ic5PFJetTracksAssociatorAtVertex
-ak5PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
-ak5PFJetTracksAssociatorAtVertex.jets = cms.InputTag("ak5PFJets")
+ak4PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
+ak4PFJetTracksAssociatorAtVertex.jets = cms.InputTag("ak4PFJets")
 tautagInfoModifer = cms.PSet(
     name = cms.string("TTIworkaround"),
     plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
@@ -79,7 +79,7 @@ recoTauPileUpVertices = cms.EDFilter(
 
 
 recoTauCommonSequence = cms.Sequence(
-    ak5PFJetTracksAssociatorAtVertex *
+    ak4PFJetTracksAssociatorAtVertex *
     recoTauAK5PFJets08Region*
     recoTauPileUpVertices*
     pfRecoTauTagInfoProducer
@@ -89,7 +89,7 @@ recoTauCommonSequence = cms.Sequence(
 
 # Produce only classic HPS taus
 recoTauClassicHPSSequence = cms.Sequence(
-    ak5PFJetsLegacyHPSPiZeros *
+    ak4PFJetsLegacyHPSPiZeros *
     combinatoricRecoTaus *
     produceAndDiscriminateHPSPFTaus
 )

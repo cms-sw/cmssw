@@ -10,8 +10,8 @@
 
 namespace TopDiLeptonOffline {
 
-  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) : 
-   label_(label), eidPattern_(0), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), 
+  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg) :
+   label_(label), eidPattern_(0), elecIso_(0), elecSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0),
    lowerEdge_(-1.), upperEdge_(-1.), elecMuLogged_(0), diMuonLogged_(0), diElecLogged_(0)
   {
     // sources have to be given; this PSet is not optional
@@ -34,7 +34,7 @@ namespace TopDiLeptonOffline {
       if( elecExtras.existsAs<std::string>("isolation") ){
 	elecIso_= new StringCutObjectSelector<reco::GsfElectron>(elecExtras.getParameter<std::string>("isolation"));
       }
-      // electronId is optional; in case it's not found the 
+      // electronId is optional; in case it's not found the
       // InputTag will remain empty
       if( elecExtras.existsAs<edm::ParameterSet>("electronId") ){
 	edm::ParameterSet elecId=elecExtras.getParameter<edm::ParameterSet>("electronId");
@@ -59,7 +59,7 @@ namespace TopDiLeptonOffline {
     // jetExtras are optional; they may be omitted or empty
     if( cfg.existsAs<edm::ParameterSet>("jetExtras") ){
       edm::ParameterSet jetExtras=cfg.getParameter<edm::ParameterSet>("jetExtras");
-      // jetCorrector is optional; in case it's not found 
+      // jetCorrector is optional; in case it's not found
       // the InputTag will remain empty
       if( jetExtras.existsAs<std::string>("jetCorrector") ){
 	jetCorrector_= jetExtras.getParameter<std::string>("jetCorrector");
@@ -71,7 +71,7 @@ namespace TopDiLeptonOffline {
 	jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
       }
       // select is optional; in case it's not found no
-      // selection will be applied (only implemented for 
+      // selection will be applied (only implemented for
       // CaloJets at the moment)
       if( jetExtras.existsAs<std::string>("select") ){
 	jetSelect_= jetExtras.getParameter<std::string>("select");
@@ -94,7 +94,7 @@ namespace TopDiLeptonOffline {
     }
 
     // setup the verbosity level for booking histograms;
-    // per default the verbosity level will be set to 
+    // per default the verbosity level will be set to
     // STANDARD. This will also be the chosen level in
     // the case when the monitoring PSet is not found
     verbosity_=STANDARD;
@@ -111,7 +111,7 @@ namespace TopDiLeptonOffline {
     book(cfg.getParameter<std::string>("directory"));
   }
 
-  void 
+  void
   MonitorEnsemble::book(std::string directory)
   {
     //set up the current directory path
@@ -134,7 +134,7 @@ namespace TopDiLeptonOffline {
     hists_["invMassWC_"   ] = store_->book1D("InvMassWC"   , "M_{WC}(L1, L2)"          ,       80,   0.,     320.);
     // invariant mass of same charge lepton pair (log10 for low mass region, only filled for same flavor)
     hists_["invMassWCLog_"] = store_->book1D("InvMassLogWC", "log_{10}(M_{WC})"        ,       80,   .1,      2.5);
-    // decay channel [1]: muon/muon, [2]:elec/elec, [3]:elec/muon 
+    // decay channel [1]: muon/muon, [2]:elec/elec, [3]:elec/muon
     hists_["decayChannel_"] = store_->book1D("DecayChannel", "Decay Channel"           ,        3,    0,        3);
     // trigger efficiency estimates for the electron muon channel
     hists_["elecMuEff_"   ] = store_->book1D("ElecMuEff"   , "Eff(e/#mu paths)"        ,  nElecMu,   0.,  nElecMu);
@@ -149,7 +149,7 @@ namespace TopDiLeptonOffline {
     // pt of the 2. leading lepton
     hists_["lep2Pt_"      ] = store_->book1D("Lep2Pt"      , "pt(lep2)"                ,       50,   0.,     200.);
     // multiplicity of jets with pt>30 (corrected to L2+L3)
-    hists_["jetMult_"     ] = store_->book1D("JetMult"     , "N_{30}(jet)"             ,       21, -0.5,      20.5); 
+    hists_["jetMult_"     ] = store_->book1D("JetMult"     , "N_{30}(jet)"             ,       21, -0.5,      20.5);
     // MET (calo)
     hists_["metCalo_"     ] = store_->book1D("METCalo"     , "MET_{Calo}"              ,       50,   0.,     200.);
 
@@ -165,7 +165,7 @@ namespace TopDiLeptonOffline {
 
     // --- [VERBOSE] --- //
     // mean eta of the candidate leptons
-    hists_["sumEtaL1L2_"  ] = store_->book1D("SumEtaL1L2"  , "<#eta>(lep1, lep2)"      ,       100,  -5.,       5.); 
+    hists_["sumEtaL1L2_"  ] = store_->book1D("SumEtaL1L2"  , "<#eta>(lep1, lep2)"      ,       100,  -5.,       5.);
     // deltaEta between the 2 candidate leptons
     hists_["dEtaL1L2_"    ] = store_->book1D("DEtaL1L2"    , "#Delta#eta(lep1,lep2)"   ,       80,  -4.,       4.);
     // deltaPhi between the 2 candidate leptons
@@ -179,7 +179,7 @@ namespace TopDiLeptonOffline {
     // relative isolation of the candidate muon (depending on the decay channel)
     hists_["muonRelIso_"  ] = store_->book1D("MuonRelIso"  , "Iso_{Rel}(#mu)"          ,       50,   0.,       1.);
     // pt of the 1. leading jet (corrected to L2+L3)
-    hists_["jet1Pt_"      ] = store_->book1D("Jet1Pt"      , "pt_{L2L3}(jet1)"         ,       60,   0.,     300.);   
+    hists_["jet1Pt_"      ] = store_->book1D("Jet1Pt"      , "pt_{L2L3}(jet1)"         ,       60,   0.,     300.);
     // pt of the 2. leading jet (corrected to L2+L3)
     hists_["jet2Pt_"      ] = store_->book1D("Jet2Pt"      , "pt_{L2L3}(jet2)"         ,       60,   0.,     300.);
     // MET (PF)
@@ -214,12 +214,12 @@ namespace TopDiLeptonOffline {
     // track isolation of the candidate electron (depending on the decay channel)
     hists_["elecTrkIso_"  ] = store_->book1D("ElecTrkIso"  , "Iso_{Trk}(e)"            ,       50,   0.,       1.);
     // eta of the leading jet
-    hists_["jet1Eta_"     ] = store_->book1D("Jet1Eta"     , "#eta(jet1)"              ,       30,  -5.,       5.); 
+    hists_["jet1Eta_"     ] = store_->book1D("Jet1Eta"     , "#eta(jet1)"              ,       30,  -5.,       5.);
     // eta of the 2. leading jet
     hists_["jet2Eta_"     ] = store_->book1D("Jet2Eta"     , "#eta(jet2)"              ,       30,  -5.,       5.);
     // pt of the 1. leading jet (not corrected)
-    hists_["jet1PtRaw_"   ] = store_->book1D("Jet1PtRaw"   , "pt_{Raw}(jet1)"          ,       60,   0.,     300.);   
-    // pt of the 2. leading jet (not corrected)     
+    hists_["jet1PtRaw_"   ] = store_->book1D("Jet1PtRaw"   , "pt_{Raw}(jet1)"          ,       60,   0.,     300.);
+    // pt of the 2. leading jet (not corrected)
     hists_["jet2PtRaw_"   ] = store_->book1D("Jet2PtRaw"   , "pt_{Raw}(jet2)"          ,       60,   0.,     300.);
     // deltaEta between the 2 leading jets
     hists_["dEtaJet1Jet2_"] = store_->book1D("DEtaJet1Jet2", "#Delta#eta(jet1,jet2)"   ,       80,  -4.,       4.);
@@ -245,39 +245,39 @@ namespace TopDiLeptonOffline {
     hists_["elecMuLogger_"] = store_->book2D("ElecMuLogger", "Logged ElecMu Events"    ,        8,   0.,       8.,   10,   0.,   10.);
 
     // set bin labels for trigger monitoring
-    loggerBinLabels(std::string("diMuonLogger_")); 
-    loggerBinLabels(std::string("diElecLogger_")); 
+    loggerBinLabels(std::string("diMuonLogger_"));
+    loggerBinLabels(std::string("diElecLogger_"));
     loggerBinLabels(std::string("elecMuLogger_"));
     return;
   }
 
-  void 
-  MonitorEnsemble::fill(const edm::Event& event, const edm::EventSetup& setup, 
-			edm::Handle<edm::TriggerResults> triggerTable, edm::Handle<edm::View<reco::Muon> > muons, 
-			edm::Handle<edm::ValueMap<float> > electronId, edm::Handle<edm::View<reco::GsfElectron> > elecs, 
+  void
+  MonitorEnsemble::fill(const edm::Event& event, const edm::EventSetup& setup,
+			edm::Handle<edm::TriggerResults> triggerTable, edm::Handle<edm::View<reco::Muon> > muons,
+			edm::Handle<edm::ValueMap<float> > electronId, edm::Handle<edm::View<reco::GsfElectron> > elecs,
 			edm::Handle<edm::View<reco::Jet> > jets, edm::Handle<reco::JetIDValueMap> jetID,
 			std::vector< edm::Handle<edm::View<reco::MET> > > mets)
   {
-    // fetch trigger event if configured such 
+    // fetch trigger event if configured such
     if(!triggerTable_.label().empty()) {
       if( !triggerTable.isValid() ) return;
     }
 
     /*
     ------------------------------------------------------------
-    
+
     Run and Inst. Luminosity information (Inst. Lumi. filled now with a dummy value=5.0)
-    
+
     ------------------------------------------------------------
     */
-    
+
     if (!event.eventAuxiliary().run()) return;
-    fill("RunNumb_", event.eventAuxiliary().run());   
-    
+    fill("RunNumb_", event.eventAuxiliary().run());
+
     double dummy=5.; fill("InstLumi_", dummy);
-     
-    
-    /* 
+
+
+    /*
     ------------------------------------------------------------
 
     Muon Selection
@@ -292,7 +292,7 @@ namespace TopDiLeptonOffline {
 
     for(edm::View<reco::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
       // restrict to globalMuons
-      if( muon->isGlobalMuon() ){ 
+      if( muon->isGlobalMuon() ){
 	fill("muonDelZ_" , muon->globalTrack()->vz());
 	fill("muonDelXY_", muon->globalTrack()->vx(), muon->globalTrack()->vy());
 	// apply preselection
@@ -307,7 +307,7 @@ namespace TopDiLeptonOffline {
     }
     fill("muonMultIso_", isoMuons.size());
 
-    /* 
+    /*
     ------------------------------------------------------------
 
     Electron Selection
@@ -339,7 +339,7 @@ namespace TopDiLeptonOffline {
     }
     fill("elecMultIso_", isoElecs.size());
 
-    /* 
+    /*
     ------------------------------------------------------------
 
     Jet Selection
@@ -354,16 +354,16 @@ namespace TopDiLeptonOffline {
 	corrector = JetCorrector::getJetCorrector(jetCorrector_, setup);
       }
       else{
-	edm::LogVerbatim( "TopHLTDiLeptonOfflineDQM" ) 
+	edm::LogVerbatim( "TopHLTDiLeptonOfflineDQM" )
 	  << "\n"
 	  << "------------------------------------------------------------------------------------- \n"
-	  << " No JetCorrectionsRecord available from EventSetup:                                   \n" 
+	  << " No JetCorrectionsRecord available from EventSetup:                                   \n"
 	  << "  - Jets will not be corrected.                                                       \n"
 	  << "  - If you want to change this add the following lines to your cfg file:              \n"
 	  << "                                                                                      \n"
 	  << "  ## load jet corrections                                                             \n"
 	  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
-	  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+	  << "  process.prefer(\"ak4CaloL2L3\")                                                     \n"
 	  << "                                                                                      \n"
 	  << "------------------------------------------------------------------------------------- \n";
       }
@@ -374,7 +374,7 @@ namespace TopDiLeptonOffline {
     std::vector<reco::Jet> leadingJets;
     if( !jets.isValid() ) return;
 
-    if(jetIDSelect_){ 
+    if(jetIDSelect_){
       if( !jetID.isValid() ) return;
     }
 
@@ -391,7 +391,7 @@ namespace TopDiLeptonOffline {
       else if(dynamic_cast<const reco::PFJet*>(&*jet)){
 	reco::PFJet sel= dynamic_cast<const reco::PFJet&>(*jet); sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
 	StringCutObjectSelector<reco::PFJet> jetSelect(jetSelect_); if(!jetSelect(sel)) continue;
-      } 
+      }
       else{
 	reco::Jet sel = *jet; sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
 	StringCutObjectSelector<reco::Jet> jetSelect(jetSelect_); if(!jetSelect(sel)) continue;
@@ -424,7 +424,7 @@ namespace TopDiLeptonOffline {
 	if( isoElecs.empty() || isoMuons[0]->pt()>isoElecs[0]->pt() ){
 	  fill("dEtaJet1Lep1_" , isoMuons[0]->eta()-leadingJets[0].eta());
 	  fill("dPhiJet1Lep1_" , reco::deltaPhi(isoMuons[0]->phi() , leadingJets[0].phi()));
-	} 
+	}
       }
       if( !isoElecs.empty() ){
 	if( isoMuons.empty() || isoElecs[0]->pt()>isoMuons[0]->pt() ){
@@ -434,8 +434,8 @@ namespace TopDiLeptonOffline {
       }
     }
     fill("jetMult_", mult);
-    
-    /* 
+
+    /*
     ------------------------------------------------------------
 
     MET Selection
@@ -443,7 +443,7 @@ namespace TopDiLeptonOffline {
     ------------------------------------------------------------
     */
 
-    // buffer for event logging 
+    // buffer for event logging
     reco::MET caloMET;
     //for(std::vector<edm::InputTag>::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
     //for(  met_=mets_.begin(); met_!=mets_.end(); ++met_){
@@ -454,7 +454,7 @@ namespace TopDiLeptonOffline {
       if(met->begin()!=met->end()){
 	unsigned int idx=i;
 	if(idx==0){
-	  caloMET=*met->begin(); 
+	  caloMET=*met->begin();
 	  fill("metCalo_", met->begin()->et());
 	  if(!leadingJets.empty()){
 	    fill("dEtaJet1MET_" , leadingJets[0].eta()-met->begin()->eta());
@@ -464,7 +464,7 @@ namespace TopDiLeptonOffline {
 	    if( isoElecs.empty() || isoMuons[0]->pt()>isoElecs[0]->pt() ){
 	      fill("dEtaLep1MET_" , isoMuons[0]->eta()-met->begin()->eta());
 	      fill("dPhiLep1MET_" , reco::deltaPhi(isoMuons[0]->phi(), met->begin()->phi()));
-	    } 
+	    }
 	  }
 	  if( !isoElecs.empty() ){
 	    if( isoMuons.empty() || isoElecs[0]->pt()>isoMuons[0]->pt() ){
@@ -479,7 +479,7 @@ namespace TopDiLeptonOffline {
     }
 
 
-    /* 
+    /*
     ------------------------------------------------------------
 
     Event Monitoring
@@ -494,11 +494,11 @@ namespace TopDiLeptonOffline {
       fill("decayChannel_", 0.5);
       double mass = (isoElecs[0]->p4()+isoMuons[0]->p4()).mass();
       if( (lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass<upperEdge_) ){
-        
-	fill("dEtaL1L2_"  , isoElecs[0]->eta()-isoMuons[0]->eta()); 
-	fill("sumEtaL1L2_", (isoElecs[0]->eta()+isoMuons[0]->eta())/2); 
-	fill("dPhiL1L2_"  , reco::deltaPhi(isoElecs[0]->phi(), isoMuons[0]->eta())); 
-	fill("elecPt_", isoElecs[0]->pt()); fill("muonPt_", isoMuons[0]->pt()); 
+
+	fill("dEtaL1L2_"  , isoElecs[0]->eta()-isoMuons[0]->eta());
+	fill("sumEtaL1L2_", (isoElecs[0]->eta()+isoMuons[0]->eta())/2);
+	fill("dPhiL1L2_"  , reco::deltaPhi(isoElecs[0]->phi(), isoMuons[0]->eta()));
+	fill("elecPt_", isoElecs[0]->pt()); fill("muonPt_", isoMuons[0]->pt());
 	fill("lep1Pt_", isoElecs[0]->pt()>isoMuons[0]->pt() ? isoElecs[0]->pt() : isoMuons[0]->pt());
 	fill("lep2Pt_", isoElecs[0]->pt()>isoMuons[0]->pt() ? isoMuons[0]->pt() : isoElecs[0]->pt());
 	// fill plots for trigger monitoring
@@ -506,15 +506,15 @@ namespace TopDiLeptonOffline {
 	if(elecMuLogged_<=hists_.find("elecMuLogger_")->second->getNbinsY()){
 	  // log runnumber, lumi block, event number & some
 	  // more pysics infomation for interesting events
-	  fill("elecMuLogger_", 0.5, elecMuLogged_+0.5, event.eventAuxiliary().run()); 
-	  fill("elecMuLogger_", 1.5, elecMuLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-	  fill("elecMuLogger_", 2.5, elecMuLogged_+0.5, event.eventAuxiliary().event()); 
-	  fill("elecMuLogger_", 3.5, elecMuLogged_+0.5, isoMuons[0]->pt()); 
-	  fill("elecMuLogger_", 4.5, elecMuLogged_+0.5, isoElecs[0]->pt()); 
-	  if(leadingJets.size()>0) fill("elecMuLogger_", 5.5, elecMuLogged_+0.5, leadingJets[0].pt()); 
-	  if(leadingJets.size()>1) fill("elecMuLogger_", 6.5, elecMuLogged_+0.5, leadingJets[1].pt()); 
-	  fill("elecMuLogger_", 7.5, elecMuLogged_+0.5, caloMET.et()); 
-	  ++elecMuLogged_; 
+	  fill("elecMuLogger_", 0.5, elecMuLogged_+0.5, event.eventAuxiliary().run());
+	  fill("elecMuLogger_", 1.5, elecMuLogged_+0.5, event.eventAuxiliary().luminosityBlock());
+	  fill("elecMuLogger_", 2.5, elecMuLogged_+0.5, event.eventAuxiliary().event());
+	  fill("elecMuLogger_", 3.5, elecMuLogged_+0.5, isoMuons[0]->pt());
+	  fill("elecMuLogger_", 4.5, elecMuLogged_+0.5, isoElecs[0]->pt());
+	  if(leadingJets.size()>0) fill("elecMuLogger_", 5.5, elecMuLogged_+0.5, leadingJets[0].pt());
+	  if(leadingJets.size()>1) fill("elecMuLogger_", 6.5, elecMuLogged_+0.5, leadingJets[1].pt());
+	  fill("elecMuLogger_", 7.5, elecMuLogged_+0.5, caloMET.et());
+	  ++elecMuLogged_;
 	}
       }
     }
@@ -524,29 +524,29 @@ namespace TopDiLeptonOffline {
       fill("decayChannel_", 1.5);
       int charge = isoMuons[0]->charge()*isoMuons[1]->charge();
       double mass = (isoMuons[0]->p4()+isoMuons[1]->p4()).mass();
-      
+
       fill(charge<0 ? "invMass_"    : "invMassWC_"    , mass       );
       fill(charge<0 ? "invMassLog_" : "invMassWCLog_" , log10(mass));
       if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<mass && mass<upperEdge_) ){
         fill("dEtaL1L2_"  , isoMuons[0]->eta()-isoMuons[1]->eta() );
 	fill("sumEtaL1L2_", (isoMuons[0]->eta()+isoMuons[1]->eta())/2);
 	fill("dPhiL1L2_", reco::deltaPhi(isoMuons[0]->phi(),isoMuons[1]->phi()) );
-	fill("muonPt_", isoMuons[0]->pt()); fill("muonPt_", isoMuons[1]->pt()); 
-	fill("lep1Pt_", isoMuons[0]->pt()); fill("lep2Pt_", isoMuons[1]->pt()); 
+	fill("muonPt_", isoMuons[0]->pt()); fill("muonPt_", isoMuons[1]->pt());
+	fill("lep1Pt_", isoMuons[0]->pt()); fill("lep2Pt_", isoMuons[1]->pt());
 	// fill plots for trigger monitoring
 	if(!triggerTable_.label().empty()) fill(event, *triggerTable, "diMuon", diMuonPaths_);
 	if(diMuonLogged_<=hists_.find("diMuonLogger_")->second->getNbinsY()){
 	  // log runnumber, lumi block, event number & some
 	  // more pysics infomation for interesting events
-	  fill("diMuonLogger_", 0.5, diMuonLogged_+0.5, event.eventAuxiliary().run()); 
-	  fill("diMuonLogger_", 1.5, diMuonLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-	  fill("diMuonLogger_", 2.5, diMuonLogged_+0.5, event.eventAuxiliary().event()); 
-	  fill("diMuonLogger_", 3.5, diMuonLogged_+0.5, isoMuons[0]->pt()); 
-	  fill("diMuonLogger_", 4.5, diMuonLogged_+0.5, isoMuons[1]->pt()); 
-	  if(leadingJets.size()>0) fill("diMuonLogger_", 5.5, diMuonLogged_+0.5, leadingJets[0].pt()); 
-	  if(leadingJets.size()>1) fill("diMuonLogger_", 6.5, diMuonLogged_+0.5, leadingJets[1].pt()); 
-	  fill("diMuonLogger_", 7.5, diMuonLogged_+0.5, caloMET.et()); 
-	  ++diMuonLogged_; 
+	  fill("diMuonLogger_", 0.5, diMuonLogged_+0.5, event.eventAuxiliary().run());
+	  fill("diMuonLogger_", 1.5, diMuonLogged_+0.5, event.eventAuxiliary().luminosityBlock());
+	  fill("diMuonLogger_", 2.5, diMuonLogged_+0.5, event.eventAuxiliary().event());
+	  fill("diMuonLogger_", 3.5, diMuonLogged_+0.5, isoMuons[0]->pt());
+	  fill("diMuonLogger_", 4.5, diMuonLogged_+0.5, isoMuons[1]->pt());
+	  if(leadingJets.size()>0) fill("diMuonLogger_", 5.5, diMuonLogged_+0.5, leadingJets[0].pt());
+	  if(leadingJets.size()>1) fill("diMuonLogger_", 6.5, diMuonLogged_+0.5, leadingJets[1].pt());
+	  fill("diMuonLogger_", 7.5, diMuonLogged_+0.5, caloMET.et());
+	  ++diMuonLogged_;
 	}
       }
     }
@@ -562,25 +562,25 @@ namespace TopDiLeptonOffline {
 	fill("dEtaL1L2_"  , isoElecs[0]->eta()-isoElecs[1]->eta() );
 	fill("sumEtaL1L2_", (isoElecs[0]->eta()+isoElecs[1]->eta())/2);
 	fill("dPhiL1L2_"  , reco::deltaPhi(isoElecs[0]->phi(),isoElecs[1]->phi()) );
-	fill("elecPt_", isoElecs[0]->pt()); fill("elecPt_", isoElecs[1]->pt()); 
-	fill("lep1Pt_", isoElecs[0]->pt()); fill("lep2Pt_", isoElecs[1]->pt()); 
+	fill("elecPt_", isoElecs[0]->pt()); fill("elecPt_", isoElecs[1]->pt());
+	fill("lep1Pt_", isoElecs[0]->pt()); fill("lep2Pt_", isoElecs[1]->pt());
 	if(diElecLogged_<=hists_.find("diElecLogger_")->second->getNbinsY()){
 	  // log runnumber, lumi block, event number & some
 	  // more pysics infomation for interesting events
-	  fill("diElecLogger_", 0.5, diElecLogged_+0.5, event.eventAuxiliary().run()); 
-	  fill("diElecLogger_", 1.5, diElecLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-	  fill("diElecLogger_", 2.5, diElecLogged_+0.5, event.eventAuxiliary().event()); 
-	  fill("diElecLogger_", 3.5, diElecLogged_+0.5, isoElecs[0]->pt()); 
-	  fill("diElecLogger_", 4.5, diElecLogged_+0.5, isoElecs[1]->pt()); 
-	  if(leadingJets.size()>0) fill("diElecLogger_", 5.5, diElecLogged_+0.5, leadingJets[0].pt()); 
-	  if(leadingJets.size()>1) fill("diElecLogger_", 6.5, diElecLogged_+0.5, leadingJets[1].pt()); 
-	  fill("diElecLogger_", 7.5, diElecLogged_+0.5, caloMET.et()); 
-	  ++diElecLogged_; 
+	  fill("diElecLogger_", 0.5, diElecLogged_+0.5, event.eventAuxiliary().run());
+	  fill("diElecLogger_", 1.5, diElecLogged_+0.5, event.eventAuxiliary().luminosityBlock());
+	  fill("diElecLogger_", 2.5, diElecLogged_+0.5, event.eventAuxiliary().event());
+	  fill("diElecLogger_", 3.5, diElecLogged_+0.5, isoElecs[0]->pt());
+	  fill("diElecLogger_", 4.5, diElecLogged_+0.5, isoElecs[1]->pt());
+	  if(leadingJets.size()>0) fill("diElecLogger_", 5.5, diElecLogged_+0.5, leadingJets[0].pt());
+	  if(leadingJets.size()>1) fill("diElecLogger_", 6.5, diElecLogged_+0.5, leadingJets[1].pt());
+	  fill("diElecLogger_", 7.5, diElecLogged_+0.5, caloMET.et());
+	  ++diElecLogged_;
 	}
       }
    }
   }
-  
+
 }
 
 TopHLTDiLeptonOfflineDQM::TopHLTDiLeptonOfflineDQM(const edm::ParameterSet& cfg): triggerTable_(""), vertex_(""), vertexSelect_(0), beamspotSelect_(0)
@@ -602,7 +602,7 @@ TopHLTDiLeptonOfflineDQM::TopHLTDiLeptonOfflineDQM(const edm::ParameterSet& cfg)
     triggerTable_=trigger.getParameter<edm::InputTag>("src");
     triggerTableToken_ = consumes<edm::TriggerResults>(trigger.getParameter<edm::InputTag>("src"));
     triggerPaths_=trigger.getParameter<std::vector<std::string> >("select");
-  } 
+  }
   if( presel.existsAs<edm::ParameterSet>("vertex" ) ){
     edm::ParameterSet vertex=presel.getParameter<edm::ParameterSet>("vertex");
     vertex_= vertex.getParameter<edm::InputTag>("src");
@@ -619,7 +619,7 @@ TopHLTDiLeptonOfflineDQM::TopHLTDiLeptonOfflineDQM(const edm::ParameterSet& cfg)
   // elecExtras are optional; they may be omitted or empty
   if( cfg.existsAs<edm::ParameterSet>("elecExtras") ){
     edm::ParameterSet elecExtras=cfg.getParameter<edm::ParameterSet>("elecExtras");
-    // electronId is optional; in case it's not found the 
+    // electronId is optional; in case it's not found the
     // InputTag will remain empty
     if( elecExtras.existsAs<edm::ParameterSet>("electronId") ){
       edm::ParameterSet elecId=elecExtras.getParameter<edm::ParameterSet>("electronId");
@@ -645,9 +645,9 @@ TopHLTDiLeptonOfflineDQM::TopHLTDiLeptonOfflineDQM(const edm::ParameterSet& cfg)
   }
 }
 
-void 
+void
 TopHLTDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup& setup)
-{ 
+{
   edm::Handle<edm::TriggerResults> triggerTable;
   edm::Handle<std::vector<reco::Vertex> > vertex;
   edm::Handle<reco::BeamSpot> beamspot;
@@ -655,13 +655,13 @@ TopHLTDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup
   edm::Handle<edm::View<reco::Muon> > muons;
   event.getByToken(muonsToken_, muons);
 
-  edm::Handle<edm::ValueMap<float> > electronId; 
+  edm::Handle<edm::ValueMap<float> > electronId;
   event.getByToken(electronIdToken_, electronId);
 
   edm::Handle<edm::View<reco::GsfElectron> > elecs;
   event.getByToken(elecsToken_, elecs);
 
-  edm::Handle<edm::View<reco::Jet> > jets; 
+  edm::Handle<edm::View<reco::Jet> > jets;
   event.getByToken(jetsToken_, jets);
 
   edm::Handle<reco::JetIDValueMap> jetID;
@@ -703,7 +703,7 @@ TopHLTDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup
       }
       if(type=="elecs"){
 	SelectionStepHLT<reco::GsfElectron> step(selection_[key].first, consumesCollector());
-	if(step.select(event)){ 
+	if(step.select(event)){
 	  selection_[key].second->fill(event, setup, triggerTable, muons, electronId, elecs, jets, jetID, mets);
 	} else break;
       }
