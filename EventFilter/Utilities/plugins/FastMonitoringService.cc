@@ -22,11 +22,11 @@ namespace evf{
     ,encModule_(33)
     ,encPath_(0)
   	,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
-    //,rootDirectory_(iPS.getUntrackedParameter<string>("rootDirectory", "/data"))
-    ,microstateDefPath_(iPS.getUntrackedParameter<string>("microstateDefPath", "/tmp/def.jsd"))
-    ,outputDefPath_(iPS.getUntrackedParameter<string>("outputDefPath", "/tmp/def.jsd"))
-    ,fastName_(iPS.getUntrackedParameter<string>("fastName", "states"))
-    ,slowName_(iPS.getUntrackedParameter<string>("slowName", "lumi"))
+    //,rootDirectory_(iPS.getUntrackedParameter<std::string>("rootDirectory", "/data"))
+    ,microstateDefPath_(iPS.getUntrackedParameter<std::string>("microstateDefPath", "/tmp/def.jsd"))
+    ,outputDefPath_(iPS.getUntrackedParameter<std::string>("outputDefPath", "/tmp/def.jsd"))
+    ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "states"))
+    ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "lumi"))
   {
     fmt_.m_data.macrostate_=FastMonitoringThread::sInit;
     fmt_.m_data.ministate_=&nopath_;
@@ -54,22 +54,6 @@ namespace evf{
       encModule_.updateReserved((void*)(reservedMicroStateNames+i));
     encPath_.update((void*)&nopath_);
     encModule_.completeReservedWithDummies();
-
-    fmt_.m_data.macrostateJ_.setName("Macrostate");
-    fmt_.m_data.ministateJ_.setName("Ministate");
-    fmt_.m_data.microstateJ_.setName("Microstate");
-    fmt_.m_data.processedJ_.setName("Processed");
-    fmt_.m_data.throughputJ_.setName("Throughput");
-    fmt_.m_data.avgLeadTimeJ_.setName("AverageLeadTime");
-    fmt_.m_data.filesProcessedDuringLumi_.setName("FilesProcessed");
-    vector<JsonMonitorable*> monParams;
-    monParams.push_back(&fmt_.m_data.macrostateJ_);
-    monParams.push_back(&fmt_.m_data.ministateJ_);
-    monParams.push_back(&fmt_.m_data.microstateJ_);
-    monParams.push_back(&fmt_.m_data.processedJ_);
-    monParams.push_back(&fmt_.m_data.throughputJ_);
-    monParams.push_back(&fmt_.m_data.avgLeadTimeJ_);
-    monParams.push_back(&fmt_.m_data.filesProcessedDuringLumi_);
 
     // The run dir should be set via the configuration
     // For now, just grab the latest run directory available
@@ -106,8 +90,7 @@ namespace evf{
 			<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
 			<< std::endl;
 
-    fmt_.m_data.jsonMonitor_.reset(
-			new FastMonitor(monParams, microstateDefPath_));
+    fmt_.resetFastMonitor(microstateDefPath_);
 
     fmt_.start(&FastMonitoringService::dowork,this);
   }

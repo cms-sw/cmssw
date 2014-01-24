@@ -6,9 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/DataPointMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
 
 #include <fstream>
 #include <stdio.h>
@@ -47,9 +45,9 @@ class RawEventFileWriterForBU
  private:
 
   IntJ perLumiEventCount_;
-  DataPointMonitor* lumiMon_;
+  FastMonitor* lumiMon_;
   IntJ perFileEventCount_;
-  DataPointMonitor* perFileMon_;
+  FastMonitor* perFileMon_;
 
   std::auto_ptr<std::ofstream> ost_;
   int outfd_;

@@ -5,14 +5,14 @@
  *      Author: aspataru
  */
 
-#include "../interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
+
+#include <assert.h>
 
 using namespace jsoncollector;
-using std::string;
 
-bool JSONSerializer::serialize(JsonSerializable* pObj, string& output) {
-	if (pObj == NULL)
-		return false;
+bool JSONSerializer::serialize(JsonSerializable* pObj, std::string& output) {
+	assert(pObj!=nullptr);
 
 	Json::Value serializeRoot;
 	pObj->serialize(serializeRoot);
@@ -23,9 +23,8 @@ bool JSONSerializer::serialize(JsonSerializable* pObj, string& output) {
 	return true;
 }
 
-bool JSONSerializer::deserialize(JsonSerializable* pObj, string& input) {
-	if (pObj == NULL)
-		return false;
+bool JSONSerializer::deserialize(JsonSerializable* pObj, std::string& input) {
+	assert(pObj!=nullptr);
 
 	Json::Value deserializeRoot;
 	Json::Reader reader;
@@ -37,3 +36,4 @@ bool JSONSerializer::deserialize(JsonSerializable* pObj, string& input) {
 
 	return true;
 }
+

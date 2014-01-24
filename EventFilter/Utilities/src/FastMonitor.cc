@@ -6,7 +6,6 @@
  */
 
 #include "EventFilter/Utilities/interface/FastMonitor.h"
-#include "EventFilter/Utilities/interface/ObjectMerger.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/Utils.h"
@@ -14,91 +13,165 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+#include <tbb/concurrent_queue.h>
 
 using namespace jsoncollector;
-using std::string;
-using std::vector;
-using std::ofstream;
-using std::fstream;
-using std::endl;
 
-FastMonitor::FastMonitor(const vector<JsonMonitorable*>& monitorableVariables,
-		string defPath) :
-	snappedOnce_(false), monitorableVars_(monitorableVariables),
-			defPath_(defPath) {
+FastMonitor::FastMonitor(const std::vector<JsonMonitorable*>& monitorableVariables, 
+		const std::vector<JsonMonConfig>& varsConfig,
+		std::string const& defPath, unsigned int numberOfStreams, bool startImmediately) :
+//	monitorableVars_(monitorableVariables),
+	defPath_(defPath),
+	nStreams_(numberOfStreams),
+	startImmediately_(startImmediately)
+{
 
-	ObjectMerger::getDataPointDefinitionFor(defPath_, dpd_);
-	if (dpd_.isPopulated()) {
-		for (unsigned int i = 0; i < dpd_.getLegend().size(); i++) {
-			string toBeMonitored = dpd_.getLegend()[i].getName();
-			monitoredVars_.push_back(getVarForName(toBeMonitored));
+	//get host and PID info
+	getHostAndPID(sourceInfo_);
+
+	//TODO:make configurable if we assert on missing variable, missing definition and wrong operation
+
+	//first load definition file
+	DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
+
+	//populate our internal config information for variables
+	dpd_.populateMonConfig(monConfig_);
+	monConfig_.setSourceInfoPtr(&sourceInfo_);
+	monConfig_.setDefinitionPtr(&defPath_)
+
+	//populate vectors that provide per-stream measurement
+	for (unsigned int s=0;s<nStreams_;s++) {
+		std::vector<JsonMonitorable*> sv;
+		monitoredVars_.push_back(sv);
+		for (unsigned int j=0;j<monConfig_.size();j++)
+			monitoredVars_.at(s).push_back(nullptr);
+	}
+
+	//TODO:allow per-process (global) measurements..
+
+	//populate it also with variable information from module/service
+	for (auto i : monConfig_) {
+		std::string & toBeMonitored = i.getName();
+		assert(monitorableVariables.size()==varsConfig.size();
+		for (unsigned int j=0;j< monitorableVars_.size();j++) 
+		{
+			if (i.getVarName()==varsConfig[j].getVarName())
+			{
+				for (unsigned int s=0;s<nStreams_;s++)
+					monitoredVars_.at(s).at(i) = monitorableVars[j];
+				i.setMonType(varsConfig[j].getMonType());
+				i.setNAifZero(varsConfig[j].getNAifZero());
+				i.setNBins(varsConfig[j].getNBins());
+			}
 		}
 	}
+	//TODO:correctness checks
+
+	//create data point which also accumulates stuff
+//	todo: create in begin lumi 
+//
+	for (unsigned int s=0;s<nStreams_;s++) {
+		lumitracker_[i]=0;
+		accDpQueues_.push_back(tbb::concurrent_queue<DataPoint> cq);
+		if (startImmediately_) {//start measuring first set immediately
+			accDpQueues_[s].push(new DataPoint(monitoredVars_[i], &monConfig_ , 50U, 100U,1));
+			lumiTracker_[i]=1;
+		}
+
+	}
+	//accumulatedDp_.reset(new DataPoint("", defPath_, monitoredVars_[i], &MonConfig , 50U, 100U));//some limits...
 }
 
 FastMonitor::~FastMonitor() {
 }
 
-void FastMonitor::snap(bool outputCSVFile, string path) {
-	std::stringstream ss;
-	for (unsigned int i = 0; i < monitoredVars_.size(); i++) {
-		if (i == monitoredVars_.size() - 1) {
-			ss << monitoredVars_[i]->toString();
-			break;
-		}
-		ss << monitoredVars_[i]->toString() << ",";
-	}
+void FastMonitor::snap(bool outputCSVFile, std::string const& path, unsigned int streamID, unsigned int lumi) {
 
+	//check if luminosity increased and queue another
+	if (lumiTracker_[streamID]<lumi) push(new DataPoint)
 	if (outputCSVFile) {
-		ofstream outputFile;
-		outputFile.open(path.c_str(), fstream::out | fstream::trunc);
-		outputFile << defPath_ << endl;
+		//old style (should only be done in case of outputCSVFile=true)
+		std::stringstream ss;
+		for (unsigned int i = 0; i < monitoredVars_.size(); i++) {
+			if (i == monitoredVars_.size() - 1) {
+				ss << monitoredVars_[i]->toString();
+				break;
+			}
+			ss << monitoredVars_[i]->toString() << ",";
+		}
+
+		std::ofstream outputFile;
+		outputFile.open(path.c_str(), std::fstream::out | std::fstream::trunc);
+		outputFile << defPath_ << std::endl;
 		outputFile << ss.str();
-		outputFile << endl;
+		outputFile << std::endl;
 		outputFile.close();
 	}
 
-	string inputStringCSV = ss.str();
-	accumulatedCSV_.push_back(inputStringCSV);
+	accumulatedDp_->snap();
 }
-//@@EM THIS IS HORRRRRRRRRIBLE: store the histo in FMS and just spit it out here
-void FastMonitor::outputFullHistoDataPoint(string path) {
-	if (accumulatedCSV_.size() > 0) {
-	  std::cout << "accumulatedCSV_.size()=" <<  accumulatedCSV_.size() << std::endl;
-	  assert(accumulatedCSV_.size()<100);
-		vector<DataPoint*> dpToMerge;
 
-		for (unsigned int i = 0; i < accumulatedCSV_.size(); i++) {
-			string currentCSV = accumulatedCSV_[i];
-			DataPoint* currentDP = ObjectMerger::csvToJson(currentCSV, &dpd_,
-					defPath_);
-			string hpid;
-			Utils::getHostAndPID(hpid);
-			currentDP->setSource(hpid);
-			dpToMerge.push_back(currentDP);
-		}
+void FastMonitor::outputFullHistoDataPoint(std::string const& path, unsigned int streamID) {
 
-		string outputJSONAsString;
-		string msg;
+	std::cout << "SNAP updates: " <<  accumulatedDp_->getUpdates() << std::endl;
 
-		DataPoint* mergedDP = ObjectMerger::merge(dpToMerge, msg, true);
-		mergedDP->setSource(dpToMerge[0]->getSource());
+	//this should really be removed
+	//assert(accumulatedDp_.getUpdates()<100);
 
-		for (unsigned int i = 0; i < dpToMerge.size(); i++)
-			delete dpToMerge[i];
+	//prepare some machine and process info
+	std::string hpid;
+	Utils::getHostAndPID(hpid);
+	accumulatedDp_->setSource(hpid);
 
-		JSONSerializer::serialize(mergedDP, outputJSONAsString);
-		FileIO::writeStringToFile(path, outputJSONAsString);
+	std::string outputJSONAsString;
+	//JSONSerializer::serialize(&*accumulatedDp_, outputJSONAsString);
 
-		accumulatedCSV_.clear();
-		snappedOnce_ = false;
+	accumulatedDp_->resetAccumulator();
+	FileIO::writeStringToFile(path, outputJSONAsString);
+}
 
+void FastMonitor::getHostAndPID(std::string& sHPid)
+{
+	std::stringstream hpid;
+	int pid = (int) getpid();
+	char hostname[128];
+	gethostname(hostname, sizeof hostname);
+	hpid << hostname << "_" << pid;
+	sHPid = hpid.str();
+}
+
+
+/* @SM:PROBABLY WON't NEED THIS ANYMORE
+DataPoint* ObjectMerger::csvToJson(string& olCSV, DataPointDefinition* dpd,
+		string defPath) {
+
+	DataPoint* dp = new DataPoint();
+	dp->setDefinition(defPath);
+
+	vector<string> tokens;
+	std::istringstream ss(olCSV);
+	while (!ss.eof()) {
+		string field;
+		getline(ss, field, ',');
+		tokens.push_back(field);
 	}
-}
 
-JsonMonitorable* FastMonitor::getVarForName(string name) const {
-	for (unsigned int i = 0; i < monitorableVars_.size(); i++)
-		if (name.compare(monitorableVars_[i]->getName()) == 0)
-			return monitorableVars_[i];
-	return 0;
+	dp->resetData();
+
+	for (unsigned int i = 0; i < tokens.size(); i++) {
+		string currentOpName = dpd->getLegendFor(i).getOperation();
+		int index = atoi(tokens[i].c_str());
+		if (currentOpName.compare(Operations::HISTO) == 0) {
+			vector<int> histo;
+			Utils::bumpIndex(histo, index);
+			string histoStr;
+			Utils::valueArrayToString<int>(histo, histoStr);
+			dp->addToData(histoStr);
+		} else
+			dp->addToData(tokens[i]);
+	}
+
+	return dp;
 }
+*/
+

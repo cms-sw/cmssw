@@ -10,7 +10,6 @@
 #include <stdio.h>
 
 //#define DEBUG
-using std::stringstream;
 
 namespace evf {
 
@@ -126,7 +125,7 @@ namespace evf {
 	//make or find monitor base dir
 	//@@EM make sure this is still needed
 
-	stringstream ost;
+	std::stringstream ost;
 	ost << bu_run_dir_ << "/" << monitor_base_dir_;
 	monitor_base_dir_ = ost.str() + "_OLD";
 	retval = mkdir(monitor_base_dir_.c_str(),
@@ -569,11 +568,11 @@ namespace evf {
 	  
 	  if (testModeNoBuilderUnit_) {
 	    // rename ended lumi to + 2
-	    string sourceEol = getEoLSFilePathOnBU(startingLumi);
+            std::string sourceEol = getEoLSFilePathOnBU(startingLumi);
 	    
-	    string destEol = getEoLSFilePathOnBU(startingLumi+2);
+	    std::string destEol = getEoLSFilePathOnBU(startingLumi+2);
 	    
-	    string cpCmd = "cp " + sourceEol + " " + destEol;
+	    std::string cpCmd = "cp " + sourceEol + " " + destEol;
 	    edm::LogInfo("EvFDaqDirector") << " testmode: Running copy cmd = " << cpCmd;
 	    int rc = system(cpCmd.c_str());
 	    if (rc != 0) {

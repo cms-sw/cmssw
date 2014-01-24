@@ -8,8 +8,9 @@
 #ifndef JSONSERIALIZER_H_
 #define JSONSERIALIZER_H_
 
+#include "EventFilter/Utilities/interface/JsonSerializable.h"
+
 #include <string>
-#include "JsonSerializable.h"
 
 namespace jsoncollector {
 class JSONSerializer {

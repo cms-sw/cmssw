@@ -29,15 +29,19 @@
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
-#include "EventFilter/Utilities/interface/FileIO.h"
-
 #include "FedRawDataInputSource.h"
 #include "FastMonitoringService.h"
 #include "EvFDaqDirector.h"
 
+//JSON file reader
+#include "EventFilter/Utilities/interface/reader.h"
+
+#include <boost/lexical_cast.hpp>
+
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                              edm::InputSourceDescription const& desc) :
   edm::RawInputSource(pset, desc),
+  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", "/tmp/def.jsd")),
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
@@ -54,7 +58,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   eorFileSeen_(false),
   dataBuffer_(new unsigned char[1024 * 1024 * eventChunkSize_]),
   bufferCursor_(dataBuffer_),
-  bufferLeft_(0)
+  bufferLeft_(0),
+  dpd_(nullptr)
 {
   char thishost[256];
   gethostname(thishost, 255); 
@@ -66,6 +71,9 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   setNewRun();
   setRunAuxiliary(new edm::RunAuxiliary(runNumber_, edm::Timestamp::beginOfTime(),
 					edm::Timestamp::invalidTimestamp()));
+
+  dpd_ = new DataPointDefinition();
+  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
 }
 
 FedRawDataInputSource::~FedRawDataInputSource()
@@ -112,7 +120,7 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
     || luminosityBlockAuxiliary()->luminosityBlock() != lumiSection) {
 
     if ( currentLumiSection_ > 0 ) {
-      const string fuEoLS =
+      const std::string fuEoLS =
         edm::Service<evf::EvFDaqDirector>()->getEoLSFilePathOnFU(currentLumiSection_);
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
@@ -372,14 +380,37 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
     currentInputJson_ = jsonDestPath; // store location for later deletion.
     boost::filesystem::ifstream ij(jsonDestPath);
     Json::Value deserializeRoot;
-    DataPoint dp;
-    if(!reader_.parse(ij,deserializeRoot)){
+    Json::Reader reader;
+    if (!reader.parse(ij, deserializeRoot)) {
       throw std::runtime_error("Cannot deserialize input JSON file");
     }
     else {
+      //read BU JSON
+      std::string data;
+      DataPoint dp;
       dp.deserialize(deserializeRoot);
-      std::string data = dp.getData()[0];
-      currentInputEventCount_=atoi(data.c_str()); //all this is horrible...
+      bool success = false;
+      for (unsigned int i=0;i<dpd_.getNames.size()) {
+	if (dpd_.getNames.at(i)=="NEvents")
+	  if (i<dp.getData().size()) {
+	    data = dp.getData()[i];
+	    success=true;
+	  }
+      }
+      if (!success)
+	if (dp.getData().size())
+	  data = dp.getData()[0];
+	else 
+	  throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
+	    " error reading number of events from BU JSON: No input value" << data;
+      try {
+	currentInputEventCount_ = boost::lexical_cast<unsigned int>(data);
+      }
+      catch( boost::bad_lexical_cast const& ) {
+	throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
+	  " error reading number of events from BU JSON. Input value is " << data;
+      }
+      //currentInputEventCount_=atoi(data.c_str());
     }
     
     return true;

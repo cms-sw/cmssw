@@ -4,19 +4,17 @@
  *  Created on: 1 Oct 2012
  *      Author: secre
  */
-
-#include "../interface/Utils.h"
+/*
+#include "EventFilter/Utilities/interface/Utils.h"
 #include <sstream>
 #include <cstdlib>
 #include <unistd.h>
+#include <algorithm>
 
 using namespace jsoncollector;
-using std::string;
-using std::vector;
-using std::stringstream;
-using std::atof;
-
-vector<string> Utils::vectorDoubleToString(const vector<double>& doubleVector) {
+*/
+/* not used
+vector<string> Utils::vectorDoubleToString(const vector<double> & doubleVector) {
 	vector<string> strVector;
 	stringstream ss;
 	for (unsigned int i = 0; i < doubleVector.size(); i++) {
@@ -39,24 +37,14 @@ bool Utils::matchExactly(string s1, string s2) {
 		return true;
 	return false;
 }
-
-void Utils::getHostAndPID(string& sHPid) {
-	stringstream hpid;
-	int pid = (int) getpid();
-	char hostname[128];
-	gethostname(hostname, sizeof hostname);
-	hpid << hostname << "_" << pid;
-	sHPid = hpid.str();
-}
-
+*/
+/*
 void Utils::stringToIntArray(vector<int>& theArray, const string& theString) {
-	// remove [] and whitespace
-	string mod = theString;
-	mod = mod.substr(1, mod.size() - 1);
-
-	string mod2;
-	mod2.resize(mod.size());
-	std::remove_copy(mod.begin(), mod.end(), mod2.begin(), ' ');
+	// remove whitespace and []
+	string mod;
+	mod.resize(theString.size());
+	std::remove_copy(theString.begin(), theString.end(), mod.begin(), ' ');
+	string mod2 = mod.substr(1, mod.size() - 1);
 
 	// parse
 	std::stringstream ss(mod2);
@@ -67,19 +55,6 @@ void Utils::stringToIntArray(vector<int>& theArray, const string& theString) {
 		if (peek == ',')
 			ss.ignore();
 	}
-}
-
-void Utils::intArrayToString(vector<int>& theArray, string& theString) {
-	stringstream ss;
-	ss << "[";
-	for (unsigned int i = 0; i < theArray.size() - 1; i++) {
-		ss << theArray[i];
-		ss << ",";
-	}
-	if (theArray.size() > 0)
-		ss << theArray[theArray.size() - 1] << "]";
-
-	theString = ss.str();
 }
 
 void Utils::bumpIndex(vector<int>& theVector, unsigned int index) {
@@ -101,3 +76,4 @@ void Utils::bumpIndex(vector<int>& theVector, unsigned int index) {
 		theVector = biggerVector;
 	}
 }
+*/

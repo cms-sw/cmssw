@@ -163,8 +163,8 @@ namespace evf{
       Encoding encPath_;
 
       int sleepTime_;
-      string /*rootDirectory_,*/ microstateDefPath_, outputDefPath_;
-      string fastName_, fastPath_, slowName_;
+      std::string /*rootDirectory_,*/ microstateDefPath_, outputDefPath_;
+      std::string fastName_, fastPath_, slowName_;
       timeval lumiStartTime_, lumiStopTime_;
       timeval fileLookStart_, fileLookStop_;
       std::vector<double> leadTimes_;

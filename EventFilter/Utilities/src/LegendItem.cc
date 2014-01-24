@@ -4,7 +4,7 @@
  *  Created on: Sep 24, 2012
  *      Author: aspataru
  */
-
+/*
 #include "../interface/LegendItem.h"
 
 using namespace jsoncollector;
@@ -16,3 +16,4 @@ LegendItem::LegendItem(string name, string operation) :
 
 LegendItem::~LegendItem() {
 }
+*/

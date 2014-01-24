@@ -1,17 +1,16 @@
 #ifndef EVF_FASTMONITORINGTHREAD
 #define EVF_FASTMONITORINGTHREAD
 
+#include "EventFilter/Utilities/interface/FastMonitor.h"
+
 #include "boost/thread/thread.hpp"
 
 #include <iostream>
 #include <vector>
 
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/FastMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
+
 
 using namespace jsoncollector;
-using std::vector;
 
 namespace evf{
 
@@ -19,6 +18,7 @@ namespace evf{
 
   class FastMonitoringThread{
   public:
+    // a copy of the Framework/EventProcessor states 
     enum Macrostate { sInit = 0, sJobReady, sRunGiven, sRunning, sStopping,
 		      sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid,MCOUNT}; 
     struct MonitorData
@@ -48,11 +48,32 @@ namespace evf{
       boost::shared_ptr<FastMonitor> jsonMonitor_;
 
     };
-    // a copy of the Framework/EventProcessor states 
 
+    //constructor
+    FastMonitoringThread() : m_stoprequest(false){
 
-    FastMonitoringThread() : m_stoprequest(false){}
-      
+      //set up monitorables here
+      m_data.macrostateJ_.setName("Macrostate");
+      m_data.ministateJ_.setName("Ministate");
+      m_data.microstateJ_.setName("Microstate");
+      m_data.processedJ_.setName("Processed");
+      m_data.throughputJ_.setName("Throughput");
+      m_data.avgLeadTimeJ_.setName("AverageLeadTime");
+      m_data.filesProcessedDuringLumi_.setName("FilesProcessed");
+
+      monParams.push_back(&m_data.macrostateJ_);
+      monParams.push_back(&m_data.ministateJ_);
+      monParams.push_back(&m_data.microstateJ_);
+      monParams.push_back(&m_data.processedJ_);
+      monParams.push_back(&m_data.throughputJ_);
+      monParams.push_back(&m_data.avgLeadTimeJ_);
+      monParams.push_back(&m_data.filesProcessedDuringLumi_);
+    }
+
+    void resetFastMonitor(std::string const& microStateDefPath) {
+      m_data.jsonMonitor_.reset(new FastMonitor(monParams,microStateDefPath));
+    }
+
     void start(void (FastMonitoringService::*fp)(),FastMonitoringService *cp){
       assert(!m_thread);
       m_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(fp,cp)));
@@ -70,6 +91,8 @@ namespace evf{
     MonitorData m_data;
     boost::mutex lock_;
     boost::mutex monlock_;
+
+    std::vector<JsonMonitorable*> monParams;
 
     friend class FastMonitoringService;
   };

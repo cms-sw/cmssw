@@ -13,14 +13,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/DataPointMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
-#include "EventFilter/Utilities/interface/reader.h"
-
 class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
+class jsoncollector::DataPointDefinition_;
 
 class FedRawDataInputSource: public edm::RawInputSource {
 
@@ -48,6 +44,8 @@ private:
   bool eofReached() const;
   int readNextChunkIntoBuffer();
   void renameToNextFree() const;
+
+  std::string defPath_;
 
   const unsigned int eventChunkSize_; // for buffered read-ahead
 
@@ -79,7 +77,8 @@ private:
   unsigned char *bufferCursor_;
   uint32_t bufferLeft_;
 
-  Json::Reader reader_;
+  jsoncollector::DataPointDefinition_ *dpd_;
+
 };
 
 #endif // EventFilter_Utilities_FedRawDataInputSource_h

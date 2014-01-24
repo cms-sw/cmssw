@@ -14,13 +14,15 @@ namespace jsoncollector {
 class LegendItem {
 
 public:
-	LegendItem(std::string name, std::string operation);
-	virtual ~LegendItem();
 
-	std::string getName() const {
+	LegendItem(std::string name, std::string operation) :
+	name_(name), operation_(operation) {}
+	virtual ~LegendItem() {}
+
+	std::string const& getName() const {
 		return name_;
 	}
-	std::string getOperation() const {
+	std::string const& getOperation() const {
 		return operation_;
 	}
 

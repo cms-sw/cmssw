@@ -5,10 +5,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
-
-#include "../interface/JsonMonitorable.h"
-#include "../interface/DataPointMonitor.h"
-#include "../interface/JSONSerializer.h"
+#include "EventFilter/Utilities/interface/FastMonitor.h"
 
 
 #ifdef linux
@@ -17,6 +14,7 @@
 #include <thread>
 #endif
 
+#include <memory>
 #include <fstream>
 #include <deque>
 #include <string.h>
@@ -78,7 +76,7 @@ class MTRawEventFileWriterForBU
   //std::string name_;
   //unsigned int count_;
   IntJ perLumiEventCount_;
-  DataPointMonitor* lumiMon_;
+  std::unique_ptr<FastMonitor> lumiMon_;
 
   unsigned int numWriters_;
   unsigned int eventBufferSize_;
@@ -105,6 +103,6 @@ class MTRawEventFileWriterForBU
   unsigned char * fileHeader_;
 
   std::vector<IntJ*> perFileCounters_;
-  std::vector<DataPointMonitor*> perFileMonitors_;
+  std::vector<sdt::unique_ptr<FastMonitor>> perFileMonitors_;
 };
 #endif

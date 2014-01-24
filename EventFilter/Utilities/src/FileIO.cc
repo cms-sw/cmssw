@@ -5,7 +5,7 @@
  *      Author: aspataru
  */
 
-#include "../interface/FileIO.h"
+#include "EventFilter/Utilities/interface/FileIO.h"
 
 #include <iostream>
 #include <fstream>
@@ -17,20 +17,15 @@
 #include <cstring>
 
 using namespace jsoncollector;
-using std::string;
-using std::ofstream;
-using std::vector;
-using std::ifstream;
-using std::strlen;
 
-void FileIO::writeStringToFile(string& filename, string& content) {
-	ofstream outputFile;
+void FileIO::writeStringToFile(std::string& filename, std::string& content) {
+	std::ofstream outputFile;
 	outputFile.open(filename.c_str());
 	outputFile << content;
 	outputFile.close();
 }
 
-bool FileIO::readStringFromFile(string& filename, string& content) {
+bool FileIO::readStringFromFile(std::string& filename, std::string& content) {
 	if (!fileExists(filename))
 		return false;
 
@@ -47,7 +42,8 @@ bool FileIO::readStringFromFile(string& filename, string& content) {
 	return true;
 }
 
-bool FileIO::fileExists(string& path) {
+bool FileIO::fileExists(std::string& path) {
 	ifstream ifile(path.c_str());
 	return ifile;
 }
+

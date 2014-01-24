@@ -10,17 +10,25 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <stdint.h>
-#include "JsonSerializable.h"
+#include <assert.h>
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/JsonSerializable.h"
+
 
 namespace jsoncollector {
 class DataPoint: public JsonSerializable {
 
 public:
-	DataPoint();
-	DataPoint(std::string source, std::string definition,
-			const std::vector<std::string>& data);
-	virtual ~DataPoint();
+
+	DataPoint() :{ }
+
+	DataPoint(std::string source, std::string definition) :	source_(source), definition_(source) { }
+
+	DataPoint(	std::vector<JsonMonitorable*> const& data, 
+			std::vector<JsonMonConfigData> const& monConfig,
+			unsigned int expectedUpdates = 1, unsigned int maxUpdates = 0);
 
 	/**
 	 * JSON serialization procedure for this class
@@ -31,27 +39,29 @@ public:
 	 */
 	virtual void deserialize(Json::Value& root);
 
-	std::string getSource() const {
-		return source_;
-	}
-	std::string getDefinition() const {
-		return definition_;
-	}
-	std::vector<std::string> getData() const {
+	std::vector<std::string>& getData() const {
 		return data_;
 	}
 
-	void setSource(std::string source) {
-		source_ = source;
+	//static members for serialization of multiple DataPoints
+        static void serialize( tbb::concurrent_vector<DataPoint*> & dataPoints, std::vector<JsonMonitorableConfig>& config);
+
+	static std::string mergeAndSerializeMonitorables(tbb::concurrent_vector<DataPoint*> & dataPoints,
+		std::vector<JsonMonitorableConfig>& config, unsigned int index);
+
+	void snap();
+
+	void resetAccumulators() {
+		for (auto& i : dataNative_) i->resetValue();
+		updates_=0;
 	}
-	void setDefinition(std::string definition) {
-		definition_ = definition;
-	}
-	void addToData(std::string data) {
-		data_.push_back(data);
-	}
-	void resetData() {
-		data_.clear();
+
+	unsigned int getUpdates() {return updates_;}
+
+	JsonMonitorable *monitorableAt(unsigned int index) {
+		if (monitored_.size()>index)
+			return dataNative_[index].get();
+		else return nullptr;
 	}
 
 	// JSON field names
@@ -60,8 +70,14 @@ public:
 	static const std::string DATA;
 
 protected:
-	std::string source_, definition_;
+	//old
+	std::string definition_;
+	std::string source_;
 	std::vector<std::string> data_;
+
+	std::vector<std::unique_ptr<JsonMonitorable>> dataNative_;
+	const std::vector<JsonMonitorable*> *monitored_;
+	unsigned int updates_;
 
 };
 }

@@ -47,8 +47,8 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps): l
   vector<JsonMonitorable*> lumiMonParams;
   lumiMonParams.push_back(&perLumiEventCount_);
 
-  // create a DataPointMonitor using vector of monitorable parameters and a path to a JSON Definition file
-  lumiMon_ = new DataPointMonitor(lumiMonParams, jsonDefLocation_);
+  // create a FastMonitor using vector of monitorable parameters and a path to a JSON Definition file
+  lumiMon_ = new FastMonitor(lumiMonParams, jsonDefLocation_);
 
 
   perFileEventCount_.value() = 0;
@@ -58,7 +58,7 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps): l
   vector<JsonMonitorable*> fileMonParams;
   fileMonParams.push_back(&perFileEventCount_);
 
-  perFileMon_ = new DataPointMonitor(fileMonParams, jsonDefLocation_);
+  perFileMon_ = new FastMonitor(fileMonParams, jsonDefLocation_);
   instance = this;
 
   // SIGINT Handler
@@ -168,14 +168,13 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   if (!oldFileName.empty()) {
     //rename(oldFileName.c_str(),destinationDir_.c_str());
 
-    DataPoint dp;
-    perFileMon_->snap(dp);
-    string output;
-    JSONSerializer::serialize(&dp, output);
+    perFileMon_->snap(false,"",0);//streamID 0
+
     std::stringstream ss;
     ss << destinationDir_ << "/" << oldFileName.substr(oldFileName.rfind("/") + 1, oldFileName.size() - oldFileName.rfind("/") - 5) << ".jsn";
     string path = ss.str();
-    FileIO::writeStringToFile(path, output);
+
+    perFileMon_->outputFullHistoDataPoint(path, 0);//use first stream
     //now that the json file is there, move the raw file
     int fretval = rename(oldFileName.c_str(),(destinationDir_+oldFileName.substr(oldFileName.rfind("/"))).c_str());
     // if (debug_)
@@ -202,21 +201,18 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
 void RawEventFileWriterForBU::endOfLS(int ls)
 {
   //writing empty EoLS file (will be filled with information)
-  // create a DataPoint object and take a snapshot of the monitored data into it
-  DataPoint dp;
-  lumiMon_->snap(dp);
+  //take snapshot of the monitored data into it
+
+  lumiMon_->snap(false,"",0);//streamID 0
 
   std::ostringstream ostr;
   ostr << destinationDir_ << "/EoLS_" << std::setfill('0') << std::setw(4) << ls << ".jsn";
   int outfd_ = open(ostr.str().c_str(), O_WRONLY | O_CREAT,  S_IRWXU | S_IRWXG | S_IRWXO);
   if(outfd_!=0){close(outfd_); outfd_=0;}
 
-  // serialize the DataPoint and output it
-  string output;
-  JSONSerializer::serialize(&dp, output);
-
   string path = ostr.str();
-  FileIO::writeStringToFile(path, output);
+  // serialize the DataPoint and output it
+  lumiMon_->outputFullHistoDataPoint(path, 0);//use first stream
 
   perLumiEventCount_ = 0;
 }
