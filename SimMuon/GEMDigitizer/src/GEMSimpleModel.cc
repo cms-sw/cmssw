@@ -25,7 +25,8 @@ GEMDigiModel(config)
 , averageShapingTime_(config.getParameter<double> ("averageShapingTime"))
 , timeResolution_(config.getParameter<double> ("timeResolution"))
 , timeJitter_(config.getParameter<double> ("timeJitter"))
-, timeCalibrationOffset_(config.getParameter<double> ("timeCalibrationOffset"))
+, timeCalibrationOffset1_(config.getParameter<double> ("timeCalibrationOffset1"))
+, timeCalibrationOffset23_(config.getParameter<double> ("timeCalibrationOffset23"))
 , averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
 , averageClusterSize_(config.getParameter<double> ("averageClusterSize"))
 , signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))
@@ -34,7 +35,9 @@ GEMDigiModel(config)
 , minBunch_(config.getParameter<int> ("minBunch"))
 , maxBunch_(config.getParameter<int> ("maxBunch"))
 , digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons"))
-, neutronGammaRoll_(config.getParameter<std::vector<double>>("neutronGammaRoll"))
+, neutronGammaRoll1_(config.getParameter<std::vector<double>>("neutronGammaRoll1"))
+, neutronGammaRoll2_(config.getParameter<std::vector<double>>("neutronGammaRoll2"))
+, neutronGammaRoll3_(config.getParameter<std::vector<double>>("neutronGammaRoll3"))
 , doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
 , scaleLumi_(config.getParameter<double> ("scaleLumi"))
 {
@@ -109,16 +112,14 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
   if (!roll)
   {
     throw cms::Exception("Geometry")
-        << "GEMSimpleModel::getSimHitBx() - GEM simhit id does not match any GEM roll id: " << id
-        << "\n";
+        << "GEMSimpleModel::getSimHitBx() - GEM simhit id does not match any GEM roll id: " << id << "\n";
     return 999;
   }
 
   if (roll->id().region() == 0)
   {
     throw cms::Exception("Geometry")
-        << "GEMSimpleModel::getSimHitBx() - this GEM id is from barrel, which cannot happen: "
-        << roll->id() << "\n";
+        << "GEMSimpleModel::getSimHitBx() - this GEM id is from barrel, which cannot happen: " << roll->id() << "\n";
   }
 
   const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
@@ -136,7 +137,17 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
   const float randomResolutionTime(gauss2_->fire(0., timeResolution_));
 
   const float simhitTime(tof + averageShapingTime_ + randomResolutionTime + averagePropagationTime + randomJitterTime);
-  const float referenceTime(timeCalibrationOffset_ + halfStripLength / signalPropagationSpeedTrue + averageShapingTime_);
+
+  float referenceTime = 0.;
+  if (id.station() == 1)
+  {
+    referenceTime = timeCalibrationOffset1_ + halfStripLength / signalPropagationSpeedTrue + averageShapingTime_;
+  }
+  if (id.station() == 2 || id.station() == 3)
+  {
+    referenceTime = timeCalibrationOffset23_ + halfStripLength / signalPropagationSpeedTrue + averageShapingTime_;
+  }
+
   const float timeDifference(cosmics_ ? (simhitTime - referenceTime) / COSMIC_PAR : simhitTime - referenceTime);
 
   // assign the bunch crossing
@@ -163,16 +174,29 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 
   if (gemId.region() == 0)
   {
-    throw cms::Exception("Geometry")
-        << "GEMSynchronizer::simulateNoise() - this GEM id is from barrel, which cannot happen.";
+    throw cms::Exception("Geometry") << "GEMSynchronizer::simulateNoise() - this GEM id is from barrel, which cannot happen.";
   }
+
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
   const float striplength(top_->stripLength());
   trStripArea = (roll->pitch()) * striplength;
   trArea = trStripArea * nstrips;
 
   const int nBxing(maxBunch_ - minBunch_ + 1);
-  double averageNoiseRatePerRoll = neutronGammaRoll_[rollNumb - 1];
+  double averageNoiseRatePerRoll = 0.;
+
+  if(gemId.station() == 1)
+  {
+    averageNoiseRatePerRoll = neutronGammaRoll1_[rollNumb - 1];
+  }
+  if(gemId.station() == 2)
+  {
+    averageNoiseRatePerRoll = neutronGammaRoll2_[rollNumb - 1];
+  }
+  if(gemId.station() == 3)
+  {
+    averageNoiseRatePerRoll = neutronGammaRoll3_[rollNumb - 1];
+  }
 
   //simulate intrinsic noise
   if(simulateIntrinsicNoise_)
@@ -181,6 +205,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
     for(int j = 0; j < nstrips; ++j)
     {
       const int n_intrHits = poisson_->fire(aveIntrinsicNoisPerStrip);
+    
       for (int k = 0; k < n_intrHits; k++ )
       {
         const int time_hit(static_cast<int> (flat2_->fire(nBxing)) + minBunch_);
@@ -193,6 +218,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
   //simulate bkg contribution
   const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9 * scaleLumi_);
   const int n_hits(poisson_->fire(averageNoise));
+
   for (int i = 0; i < n_hits; ++i)
   {
     const int centralStrip(static_cast<int> (flat1_->fire(1, nstrips)));
@@ -215,7 +241,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
       if (clusterSize % 2 != 0)
       {
         int clsR = (clusterSize - 1) / 2;
-        for (int i = 1; i < clsR; ++i)
+        for (int i = 1; i <= clsR; ++i)
         {
           if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i > 0))
             cluster_.push_back(std::pair<int, int>(centralStrip - i, time_hit));
@@ -230,7 +256,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
         {
           if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 > 0))
             cluster_.push_back(std::pair<int, int>(centralStrip - 1, time_hit));
-          for (int i = 1; i < clsR; ++i)
+          for (int i = 1; i <= clsR; ++i)
           {
             if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 - i > 0))
               cluster_.push_back(std::pair<int, int>(centralStrip - 1 - i, time_hit));
@@ -253,8 +279,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
   return;
 }
 
-std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll,
-    const PSimHit* simHit, const int bx)
+std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll, const PSimHit* simHit, const int bx)
 {
   const StripTopology& topology = roll->specificTopology();
   const LocalPoint& hit_position(simHit->localPosition());
@@ -290,7 +315,7 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
   if (clusterSize % 2 != 0)
   {
     int clsR = (clusterSize - 1) / 2;
-    for (int i = 1; i < clsR; ++i)
+    for (int i = 1; i <= clsR; ++i)
     {
       if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i > 0))
         cluster_.push_back(std::pair<int, int>(centralStrip - i, bx));
@@ -306,7 +331,7 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
     {
       if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 > 0))
         cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
-      for (int i = 1; i < clsR; ++i)
+      for (int i = 1; i <= clsR; ++i)
       {
         if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 - i > 0))
           cluster_.push_back(std::pair<int, int>(centralStrip - 1 - i, bx));
@@ -318,7 +343,7 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
     {
       if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
         cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
-      for (int i = 1; i < clsR; ++i)
+      for (int i = 1; i <= clsR; ++i)
       {
         if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))
           cluster_.push_back(std::pair<int, int>(centralStrip + 1 + i, bx));
