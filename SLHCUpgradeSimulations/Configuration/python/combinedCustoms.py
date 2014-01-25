@@ -27,8 +27,8 @@ def cust_phase2_BE5D(process):
 
 def cust_phase2_BE(process):
     process=customisePostLS1(process)
-    process=customise_HcalPhase1(process)
     process=customiseBE(process)
+    process=customise_HcalPhase1(process)
     process=customise_ev_BE(process)
     return process
 
