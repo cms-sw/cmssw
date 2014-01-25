@@ -83,7 +83,7 @@ void testCutParser::checkAll() {
   reco::TrackBase::CovarianceMatrix cov(e, e + 15);
   trk = reco::Track(chi2, ndof, v, p, -1, cov);
 
-  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, SiStripRecHit2D::ClusterRef());
+  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, 0, SiStripRecHit2D::ClusterRef());
 
   edm::TypeWithDict t(typeid(reco::Track));
   o = edm::ObjectWithDict(t, & trk);
@@ -196,8 +196,7 @@ void testCutParser::checkAll() {
   checkHit( "hasPositionAndError" , false, hitThrow );
   CPPUNIT_ASSERT(hitOk.localPosition().x() == 1);
   checkHit( ".99 < localPosition.x < 1.01", true, hitOk);
-  CPPUNIT_ASSERT_THROW(hitThrow.localPosition().x(), cms::Exception);
-  CPPUNIT_ASSERT_THROW( checkHit(".99 < localPosition.x < 1.01", true, hitThrow) , cms::Exception);
+  checkHit( ".99 < localPosition.x < 1.01", false, hitThrow);
 
   // check underscores
   checkHit("cluster_regional.isNull()",true,hitOk);

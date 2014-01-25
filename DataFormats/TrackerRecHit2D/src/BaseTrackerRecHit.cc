@@ -25,22 +25,12 @@ bool BaseTrackerRecHit::hasPositionAndError() const {
            (pos_.x()  != 0) || (pos_.y()  != 0) || (pos_.z()  != 0);
 }
 
-LocalPoint BaseTrackerRecHit::localPosition() const {
-    if (!hasPositionAndError()) throwExceptionUninitialized("localPosition");
-    return pos_;
-}
-
-LocalError BaseTrackerRecHit::localPositionError() const{ 
-    if (!hasPositionAndError()) throwExceptionUninitialized("localPositionError");
-    return err_;
-}
-
 
 
 void
 BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const 
 {
-  if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+  // if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
   AlgebraicVector1 & pars = holder.params<1>();
   pars[0] = pos_.x(); 
   
@@ -57,7 +47,7 @@ BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const
 void
 BaseTrackerRecHit::getKfComponents2D( KfComponentsHolder & holder ) const 
 {
-  if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
+  //if (!hasPositionAndError()) throwExceptionUninitialized("getKfComponents");
    AlgebraicVector2 & pars = holder.params<2>();
    pars[0] = pos_.x(); 
    pars[1] = pos_.y();

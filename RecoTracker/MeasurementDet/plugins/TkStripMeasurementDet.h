@@ -190,7 +190,8 @@ private:
     const GeomDetUnit& gdu( specificGeomDet());
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it){
-      res.push_back(SiStripRecHit2D( it->first, it->second, rawId(), cluster));
+
+      res.push_back(SiStripRecHit2D( it->first, it->second, TSiStripRecHit2DLocalPos::sigmaPitch(it->first, it->second,gdu), rawId(), cluster));
     }
   }
  
