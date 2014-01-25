@@ -179,7 +179,7 @@ public:
   /// Get number of layers in each SeedingLayerSets
   unsigned int numberOfLayersInSet() const { return nlayers_; }
   /// Get the number of SeedingLayerSets
-  unsigned int size() const { return layerSetIndices_.size() / nlayers_; }
+  unsigned int size() const { return nlayers_ > 0 ? layerSetIndices_.size() / nlayers_ : 0; }
 
   /// Get the SeedingLayerSet at a given index
   SeedingLayerSet operator[](LayerSetIndex index) const {
