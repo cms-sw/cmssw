@@ -57,6 +57,8 @@ namespace cond {
       cond::DbSession m_session;
     };
 
+    static const char* NEW_CONDDB("NEW_CONDDB");
+
     SessionImpl::SessionImpl():
       coralSession(){
     }
@@ -86,27 +88,27 @@ namespace cond {
 
     void SessionImpl::startTransaction( bool readOnly ){
       if( !transaction.get() ){ 
-	transaction.reset( new CondDBTransaction( coralSession ) );
-	coralSession->transaction().start( readOnly );
-	iovSchemaHandle.reset( new IOVSchema( coralSession->nominalSchema() ) );
-	gtSchemaHandle.reset( new GTSchema( coralSession->nominalSchema() ) );  		       
-	std::unique_ptr<IIOVSchema> iovSchema( new IOVSchema( coralSession->nominalSchema() ) );
-	std::unique_ptr<IGTSchema> gtSchema( new GTSchema( coralSession->nominalSchema() ) );
-	if( !iovSchemaHandle->exists() ){
-	  cond::DbConnection oraConnection;
-	  cond::DbSession oraSession =  oraConnection.createSession();
-	  oraSession.open( coralSession, connectionString ); 
-	  std::unique_ptr<IIOVSchema> oraIovSchema( new OraIOVSchema( oraSession ) );
-	  std::unique_ptr<IGTSchema> oraGtSchema( new OraGTSchema( oraSession ) );
-	  oraSession.transaction().start( readOnly );
-	  // try if it is an old iov or GT schema
-	  if( oraIovSchema->exists() ||  oraGtSchema->exists() ){
-	    iovSchemaHandle = std::move(oraIovSchema);
-	    gtSchemaHandle = std::move(oraGtSchema);
-	    transaction.reset( new OraTransaction( oraSession ) );
-	  } 
+	cond::DbConnection oraConnection;
+	cond::DbSession oraSession =  oraConnection.createSession();
+	oraSession.open( coralSession, connectionString ); 
+	transaction.reset( new OraTransaction( oraSession ) );
+	oraSession.transaction().start( readOnly );
+	iovSchemaHandle.reset( new OraIOVSchema( oraSession ) );
+	gtSchemaHandle.reset( new OraGTSchema( oraSession ) );  		       
+	if( !iovSchemaHandle->exists() && !gtSchemaHandle->exists() ){
+	  std::unique_ptr<IIOVSchema> iovSchema( new IOVSchema( coralSession->nominalSchema() ) );
+	  std::unique_ptr<IGTSchema> gtSchema( new GTSchema( coralSession->nominalSchema() ) );
+	  bool newCondDb = iovSchema->exists();
+	  if( !newCondDb && !readOnly ){
+	    const char* new_conddb_env = ::getenv( NEW_CONDDB );
+	    if( new_conddb_env ) newCondDb = true;
+	  }
+	  if( newCondDb ){
+	    iovSchemaHandle = std::move(iovSchema);
+	    gtSchemaHandle = std::move(gtSchema);
+	    transaction.reset( new CondDBTransaction( coralSession ) );
+	  }
 	}
-        
       } else {
 	if(!readOnly ) throwException( "An update transaction is already active.",
 				       "SessionImpl::startTransaction" );
