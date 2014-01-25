@@ -5,8 +5,8 @@
  *      Author: aspataru
  */
 
-#include "EvenFilter/Utilities/interfaces/JsonMonitorable"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
+#include "EvenFilter/Utilities/interfaces/JsonMonitorable"
 
 using namespace jsoncollector;
 

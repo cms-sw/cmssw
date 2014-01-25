@@ -101,12 +101,15 @@ namespace evf{
       static const std::string nopath_;
       FastMonitoringService(const edm::ParameterSet&,edm::ActivityRegistry&);
       ~FastMonitoringService();
-      
+     
+      void FastMonitoringService::preallocate(edm::service::SystemBounds const &) {
+
       std::string makePathLegenda();
       std::string makeModuleLegenda();
       void preModuleBeginJob(const edm::ModuleDescription& desc);
 
       void prePathBeginRun(const std::string& pathName);
+
       void postBeginRun(edm::Run const&, edm::EventSetup const&);
 
       void postBeginJob();
@@ -117,30 +120,32 @@ namespace evf{
       void preProcessPath(const std::string& pathName);
       void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
       void postEventProcessing(const edm::Event&, const edm::EventSetup&);
-      
+
       void preSourceEvent(edm::StreamID);
       void postSourceEvent(edm::StreamID);
-      
+
       void preModule(const edm::ModuleDescription&);
       void postModule(const edm::ModuleDescription&);
 
       void jobFailure();
 
-      void setMicroState(Microstate); // this is still needed for use in special functions like DQM which are in turn framework services. - the string pointer needs to be interpreted at each call.
+      //OBSOLETE
+      void setMicroState(Microstate); // this is still needed for use in special functions like DQM which are in turn framework services. - the string
+
       void accummulateFileSize(unsigned long fileSize);
       void startedLookingForFile();
       void stoppedLookingForFile();
       unsigned int getEventsProcessedForLumi(unsigned int lumi);
       std::string getOutputDefPath() const { return outputDefPath_; }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
-      
+
     private:
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
-		while (!fmt_.m_stoprequest) {
-			std::cout << "Current states: Ms=" << fmt_.m_data.macrostate_
-					<< " ms=" << encPath_.encode(fmt_.m_data.ministate_)
-					<< " us=" << encModule_.encode(fmt_.m_data.microstate_)
-					<< std::endl;
+               while (!fmt_.m_stoprequest) {
+                       std::cout << "Current states: Ms=" << fmt_.m_data.macrostate_
+                                       << " ms=" << encPath_.encode(fmt_.m_data.ministate_)
+                                       << " us=" << encModule_.encode(fmt_.m_data.microstate_)
+                                       << std::endl;
 
 			// lock the monitor
 			fmt_.monlock_.lock();

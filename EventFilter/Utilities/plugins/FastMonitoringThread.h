@@ -21,22 +21,28 @@ namespace evf{
     // a copy of the Framework/EventProcessor states 
     enum Macrostate { sInit = 0, sJobReady, sRunGiven, sRunning, sStopping,
 		      sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid,MCOUNT}; 
-    struct MonitorData
+    struct StreamMonitorData
     {
-      Macrostate macrostate_;
-      const void *ministate_;
-      const void *microstate_;
-      unsigned int eventnumber_;
-      unsigned int processed_;
-      // accummulated size of processed files over a lumi (in Bytes)
-      unsigned long accuSize_;
+
+      Macrostate macrostate_; //is global
+      unsigned long accuSize_; //input source
       unsigned int lumisection_; //only updated on beginLumi signal
+      unsigned int
+
+      std::vector<const void*> ministate_;
+      std::vector<const void*> microstate_;
+//      std::vector<unsigned int> eventnumber_;
+      std::vector<unsigned int> processed_;
+
+      // accummulated size of processed files over a lumi (in Bytes)
+      std::vector<unsigned int> streamlumisection_; //only updated on beginLumi signal
       unsigned int prescaleindex_; // ditto
 
       // Micro, mini, macrostate numbers
       IntJ macrostateJ_;
-      IntJ ministateJ_;
-      IntJ microstateJ_;
+      //TODO:stream macro state
+      std::vector<IntJ> ministateJ_;
+      std::vector<IntJ> microstateJ_;
       // Processed events count
       IntJ processedJ_;
       // Throughput, MB/s
@@ -45,7 +51,8 @@ namespace evf{
       DoubleJ avgLeadTimeJ_;
       // Number of files processed during lumi section
       IntJ filesProcessedDuringLumi_;
-      boost::shared_ptr<FastMonitor> jsonMonitor_;
+      boost::shared_ptr<FastMonitor> jsonMonitor_;//for per-stream measurements
+      boost::shared_ptr<FastMonitor> jsonGlobalMonitor_;//for global measurements
 
     };
 
@@ -53,6 +60,7 @@ namespace evf{
     FastMonitoringThread() : m_stoprequest(false){
 
       //set up monitorables here
+
       m_data.macrostateJ_.setName("Macrostate");
       m_data.ministateJ_.setName("Ministate");
       m_data.microstateJ_.setName("Microstate");
@@ -68,6 +76,16 @@ namespace evf{
       monParams.push_back(&m_data.throughputJ_);
       monParams.push_back(&m_data.avgLeadTimeJ_);
       monParams.push_back(&m_data.filesProcessedDuringLumi_);
+
+
+      m_data.macrostateJ_.setName("Macrostate");
+      m_data.ministateJ_.setName("Ministate");
+      m_data.microstateJ_.setName("Microstate");
+      m_data.processedJ_.setName("Processed");
+      m_data.throughputJ_.setName("Throughput");
+      m_data.avgLeadTimeJ_.setName("AverageLeadTime");
+      m_data.filesProcessedDuringLumi_.setName("FilesProcessed");
+
     }
 
     void resetFastMonitor(std::string const& microStateDefPath) {
@@ -88,7 +106,7 @@ namespace evf{
 
     volatile bool m_stoprequest;
     boost::shared_ptr<boost::thread> m_thread;
-    MonitorData m_data;
+    std::vector<MonitorData> m_data;
     boost::mutex lock_;
     boost::mutex monlock_;
 

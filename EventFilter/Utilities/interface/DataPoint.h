@@ -8,26 +8,28 @@
 #ifndef DATAPOINT_H_
 #define DATAPOINT_H_
 
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/JsonSerializable.h"
+
 #include <string>
 #include <vector>
 #include <memory>
 #include <stdint.h>
 #include <assert.h>
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/JsonSerializable.h"
 
+#include <tbb/concurrent_vector.h>
 
 namespace jsoncollector {
 class DataPoint: public JsonSerializable {
 
 public:
 
-	DataPoint() :{ }
+	DataPoint() { }
 
-	DataPoint(std::string source, std::string definition) :	source_(source), definition_(source) { }
+	DataPoint(std::string const& source, std::string const& definition) :	source_(source), definition_(source) { }
 
 	DataPoint(	std::vector<JsonMonitorable*> const& data, 
-			std::vector<JsonMonConfigData> const& monConfig,
+			std::vector<JsonMonConfig> const& monConfig,
 			unsigned int expectedUpdates = 1, unsigned int maxUpdates = 0);
 
 	/**
@@ -39,15 +41,15 @@ public:
 	 */
 	virtual void deserialize(Json::Value& root);
 
-	std::vector<std::string>& getData() const {
+	std::vector<std::string>& getData() {
 		return data_;
 	}
 
 	//static members for serialization of multiple DataPoints
-        static void serialize( tbb::concurrent_vector<DataPoint*> & dataPoints, std::vector<JsonMonitorableConfig>& config);
+        static void serialize( tbb::concurrent_vector<DataPoint*> & dataPoints, std::vector<JsonMonConfig>& config);
 
 	static std::string mergeAndSerializeMonitorables(tbb::concurrent_vector<DataPoint*> & dataPoints,
-		std::vector<JsonMonitorableConfig>& config, unsigned int index);
+		std::vector<JsonMonConfig>& config, unsigned int index);
 
 	void snap();
 
@@ -59,7 +61,7 @@ public:
 	unsigned int getUpdates() {return updates_;}
 
 	JsonMonitorable *monitorableAt(unsigned int index) {
-		if (monitored_.size()>index)
+		if (index<dataNative_.size())
 			return dataNative_[index].get();
 		else return nullptr;
 	}
@@ -71,8 +73,8 @@ public:
 
 protected:
 	//old
-	std::string definition_;
 	std::string source_;
+	std::string definition_;
 	std::vector<std::string> data_;
 
 	std::vector<std::unique_ptr<JsonMonitorable>> dataNative_;

@@ -12,7 +12,7 @@
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/DataPoint.h"
 
-class tbb::concurrent_queue;
+#include <tbb/concurrent_queue.h>
 
 namespace jsoncollector {
 

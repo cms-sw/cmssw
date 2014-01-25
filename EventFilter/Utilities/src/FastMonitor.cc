@@ -13,7 +13,6 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
-#include <tbb/concurrent_queue.h>
 
 using namespace jsoncollector;
 

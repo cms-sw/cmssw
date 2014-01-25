@@ -30,8 +30,8 @@ namespace evf{
       
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg ); 
       ~EvFDaqDirector(){}
-      void preBeginRun(edm::GlobalContext globalContext const&);
-      void postEndRun(edm::GlobalContext globalContext const&);
+      void preBeginRun(edm::GlobalContext const& globalContext);
+      void postEndRun(edm::GlobalContext const& globalContext);
       //void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts);
       //void postEndRun(edm::Run const& run, edm::EventSetup const& es);
       std::string &baseDir(){return base_dir_;}

@@ -28,27 +28,29 @@ namespace evf{
     ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "states"))
     ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "lumi"))
   {
+    //TODO:move to when getting stream information
     fmt_.m_data.macrostate_=FastMonitoringThread::sInit;
     fmt_.m_data.ministate_=&nopath_;
     fmt_.m_data.microstate_=&reservedMicroStateNames[mInvalid];
     fmt_.m_data.lumisection_ = 0;
     fmt_.m_data.accuSize_ = 0;
     fmt_.m_data.filesProcessedDuringLumi_ = 0;
-    reg.watchPreModuleBeginJob(this,&FastMonitoringService::preModuleBeginJob);  
-    reg.watchPreBeginLumi(this,&FastMonitoringService::preBeginLumi);
-    reg.watchPreEndLumi(this,&FastMonitoringService::preEndLumi);
+    registry.watchPreallocate(this, &FastMonitoringService::preallocate);
+    reg.watchPreModuleBeginJob(this,&FastMonitoringService::preModuleBeginJob);
+    reg.watchPreGlobalBeginLumi(this,&FastMonitoringService::preBeginLumi);
+    reg.watchPreGlobalEndLumi(this,&FastMonitoringService::preEndLumi);
     reg.watchPrePathBeginRun(this,&FastMonitoringService::prePathBeginRun);
     reg.watchPostBeginJob(this,&FastMonitoringService::postBeginJob);
     reg.watchPostBeginRun(this,&FastMonitoringService::postBeginRun);
     reg.watchPostEndJob(this,&FastMonitoringService::postEndJob);
     reg.watchPreProcessPath(this,&FastMonitoringService::preProcessPath);
-    reg.watchPreProcessEvent(this,&FastMonitoringService::preEventProcessing);
-    reg.watchPostProcessEvent(this,&FastMonitoringService::postEventProcessing);
-    reg.watchPreSourceEvent(this,&FastMonitoringService::preSourceEvent);
-    reg.watchPostSourceEvent(this,&FastMonitoringService::postSourceEvent);
+    reg.watchPreProcessEvent(this,&FastMonitoringService::preEventProcessing);//should be stream
+    reg.watchPostProcessEvent(this,&FastMonitoringService::postEventProcessing);//-""-
+    reg.watchPreSourceEvent(this,&FastMonitoringService::preSourceEvent);//source
+    reg.watchPostSourceEvent(this,&FastMonitoringService::postSourceEvent);//-""-
   
-    reg.watchPreModule(this,&FastMonitoringService::preModule);
-    reg.watchPostModule(this,&FastMonitoringService::postModule);
+    reg.watchPreModuleEvent(this,&FastMonitoringService::preModule);//should be stream
+    reg.watchPostModuleEvent(this,&FastMonitoringService::postModule);
     reg.watchJobFailure(this,&FastMonitoringService::jobFailure);
     for(unsigned int i = 0; i < (mCOUNT); i++)
       encModule_.updateReserved((void*)(reservedMicroStateNames+i));
@@ -98,6 +100,10 @@ namespace evf{
 
   FastMonitoringService::~FastMonitoringService()
   {
+  }
+
+  void FastMonitoringService::preallocate(edm::service::SystemBounds const & bounds) {
+    //TODO:allocate what depends on number of streams
   }
 
   void FastMonitoringService::preModuleBeginJob(const edm::ModuleDescription& desc)
@@ -230,16 +236,16 @@ namespace evf{
     fmt_.monlock_.unlock();
   }
 
-  void FastMonitoringService::preSourceEvent(edm::StreamID)
+  void FastMonitoringService::preSourceEvent(edm::StreamID strid)
   {
     //    boost::mutex::scoped_lock sl(lock_);
-    fmt_.m_data.microstate_ = &reservedMicroStateNames[mIdle];
+    fmt_.m_data.microstate_[strid] = &reservedMicroStateNames[mIdle];
   }
 
   void FastMonitoringService::postSourceEvent(edm::StreamID)
   {
     //    boost::mutex::scoped_lock sl(lock_);
-    fmt_.m_data.microstate_ = &reservedMicroStateNames[mFwkOvh];
+    fmt_.m_data.microstate_[strid] = &reservedMicroStateNames[mFwkOvh];
   }
 
   void FastMonitoringService::preModule(const edm::ModuleDescription& desc)
@@ -258,11 +264,14 @@ namespace evf{
     //    boost::mutex::scoped_lock sl(lock_);
     fmt_.m_data.macrostate_ = FastMonitoringThread::sError;
   }
+  /*
+
   void FastMonitoringService::setMicroState(Microstate m)
   {
     //    boost::mutex::scoped_lock sl(lock_);
     fmt_.m_data.microstate_ = &reservedMicroStateNames[m];
   }
+  */
 
   void FastMonitoringService::accummulateFileSize(unsigned long fileSize) {
 	fmt_.monlock_.lock();

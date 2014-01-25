@@ -8,14 +8,13 @@
 #ifndef DATAPOINTDEFINITION_H_
 #define DATAPOINTDEFINITION_H_
 
+#include "EventFilter/Utilities/interface/JsonSerializable.h"
 #include <string>
 #include <vector>
-//#include "JsonSerializable.h"
 
 namespace jsoncollector {
 
 class JsonMonConfig;
-class JsonSerializable;
 
 class DataPointDefinition: public JsonSerializable {
 
@@ -41,8 +40,8 @@ public:
 	/**
 	 * Returns a LegendItem object ref at the specified index
 	 */
-	std::vector<std::string> const& getNames(unsigned int index) {return varName_;}
-	std::vector<std::string> const& getOperations(unsigned int index) {return opNames;}
+	std::vector<std::string> const& getNames() {return varNames_;}
+	std::vector<std::string> const& getOperations() {return opNames_;}
 
 	/**
 	 * Loads a DataPointDefinition from a specified reference

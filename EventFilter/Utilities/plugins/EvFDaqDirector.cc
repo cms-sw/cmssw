@@ -79,8 +79,8 @@ namespace evf {
     data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
-    reg.watchGlobalPreBeginRun(this, &EvFDaqDirector::preBeginRun);
-    reg.watchGlobalPostEndRun(this, &EvFDaqDirector::postEndRun);
+    reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
+    reg.watchPostGlobalEndRun(this, &EvFDaqDirector::postEndRun);
 
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run_;
@@ -185,7 +185,7 @@ namespace evf {
   }
 
 //  void EvFDaqDirector::postEndRun(edm::Run const& run, edm::EventSetup const& es) {
-  void EvFDaqDirector::postEndRun(edm::GlobalContext globalContext const&) {
+  void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {
     close(bu_readlock_fd_);
     close(bu_writelock_fd_);
     if (directorBu_) {
