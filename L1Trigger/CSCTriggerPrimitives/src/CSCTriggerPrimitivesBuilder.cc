@@ -8,8 +8,6 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Id: CSCTriggerPrimitivesBuilder.cc,v 1.22 2012/12/05 21:14:23 khotilov Exp $
-//
 //   Modifications:
 //
 //-----------------------------------------------------------------------------
@@ -24,6 +22,7 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 
 //------------------
 // Static variables
@@ -165,6 +164,7 @@ void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters*
 void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 					const CSCWireDigiCollection* wiredc,
 					const CSCComparatorDigiCollection* compdc,
+					const GEMCSCPadDigiCollection* gemPads,
 					CSCALCTDigiCollection& oc_alct,
 					CSCCLCTDigiCollection& oc_clct,
                                         CSCCLCTPreTriggerCollection & oc_pretrig,
@@ -209,10 +209,19 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             if (stat==1 && ring==1 && smartME1aME1b)
             {
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
- 
+
+              tmb11->setCSCGeometry(csc_g);
+	      if (gem_g != nullptr) {
+		tmb11->setGEMGeometry(gem_g);
+	      } 
+	      else {
+ 		LogTrace("L1CSCTrigger") 
+ 		  << "GEM geometry is unavailable. Running CSC-only trigger algorithm.";
+	      }
+	      
               //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
  
-              tmb11->run(wiredc,compdc);
+              tmb11->run(wiredc, compdc, gemPads);
               std::vector<CSCCorrelatedLCTDigi> lctV = tmb11->readoutLCTs1b();
               std::vector<CSCCorrelatedLCTDigi> lctV1a = tmb11->readoutLCTs1a();
  
