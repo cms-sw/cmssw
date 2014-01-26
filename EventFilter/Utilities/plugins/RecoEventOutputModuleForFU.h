@@ -103,7 +103,11 @@ namespace evf {
     monParams.push_back(&accepted_);
     monParams.push_back(&filelist_);
     
-    jsonMonitor_.reset(new FastMonitor(monParams, jsonDefPath_));
+    jsonMonitor_.reset(new FastMonitor(jsonDefPath_));
+    jsonMonitor_.registerGlobalMonitorVariable(&processed_,false);
+    jsonMonitor_.registerGlobalMonitorVariable(&accepted_,false);
+    jsonMonitor_.registerGlobalMonitorVariable(&filelist_,false);
+    jsonMonitor_.commit(nullptr);
   }
   
   template<typename Consumer>
@@ -194,10 +198,10 @@ namespace evf {
 
     // output jsn file
     if(processed_.value()!=0){
-	jsonMonitor_->snap(false, "");
+	jsonMonitor_->snap(false, "",ls.luminosityBlock());
 	const std::string outputJsonNameStream =
 	  edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
-	jsonMonitor_->outputFullHistoDataPoint(outputJsonNameStream);
+	jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock);
     }
 
     // reset monitoring params

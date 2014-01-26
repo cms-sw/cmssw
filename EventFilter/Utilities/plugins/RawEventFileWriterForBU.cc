@@ -43,22 +43,18 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps): l
   // set names of the variables to be matched with JSON Definition
   perLumiEventCount_.setName("NEvents");
 
-  // create a vector of all monitorable parameters to be passed to the monitor
-  vector<JsonMonitorable*> lumiMonParams;
-  lumiMonParams.push_back(&perLumiEventCount_);
-
-  // create a FastMonitor using vector of monitorable parameters and a path to a JSON Definition file
-  lumiMon_ = new FastMonitor(lumiMonParams, jsonDefLocation_);
+  // create a FastMonitor using monitorable parameters and a path to a JSON Definition file
+  lumiMon_ = new FastMonitor(jsonDefLocation_);
+  lumiMon_->registerGlobalMonitorVariable(&perLumiEventCount_,false);
+  lumiMon_->commit(nullptr);
 
 
   perFileEventCount_.value() = 0;
   perFileEventCount_.setName("NEvents");
-
-  // create a vector of all monitorable parameters to be passed to the monitor
-  vector<JsonMonitorable*> fileMonParams;
-  fileMonParams.push_back(&perFileEventCount_);
-
-  perFileMon_ = new FastMonitor(fileMonParams, jsonDefLocation_);
+  // create a FastMonitor using monitorable parameters and a path to a JSON Definition file
+  perFileMon_ = new FastMonitor(jsonDefLocation_);
+  perFileMon_->registerGlobalMonitorVariable(&perFileEventCount_,false);
+  perFileMon_->commit(nullptr);
   instance = this;
 
   // SIGINT Handler
@@ -168,13 +164,13 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   if (!oldFileName.empty()) {
     //rename(oldFileName.c_str(),destinationDir_.c_str());
 
-    perFileMon_->snap(false,"",0);//streamID 0
+    perFileMon_->snap(false, "",ls);
 
     std::stringstream ss;
     ss << destinationDir_ << "/" << oldFileName.substr(oldFileName.rfind("/") + 1, oldFileName.size() - oldFileName.rfind("/") - 5) << ".jsn";
     string path = ss.str();
 
-    perFileMon_->outputFullHistoDataPoint(path, 0);//use first stream
+    perFileMon_->outputFullJSON(path, ls);//TODO probably should discard old lumi count
     //now that the json file is there, move the raw file
     int fretval = rename(oldFileName.c_str(),(destinationDir_+oldFileName.substr(oldFileName.rfind("/"))).c_str());
     // if (debug_)
@@ -203,7 +199,7 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   //writing empty EoLS file (will be filled with information)
   //take snapshot of the monitored data into it
 
-  lumiMon_->snap(false,"",0);//streamID 0
+  lumiMon_->snap(false,"",ls);
 
   std::ostringstream ostr;
   ostr << destinationDir_ << "/EoLS_" << std::setfill('0') << std::setw(4) << ls << ".jsn";
@@ -212,7 +208,7 @@ void RawEventFileWriterForBU::endOfLS(int ls)
 
   string path = ostr.str();
   // serialize the DataPoint and output it
-  lumiMon_->outputFullHistoDataPoint(path, 0);//use first stream
+  lumiMon_->outputFullJSON(path, ls);
 
   perLumiEventCount_ = 0;
 }

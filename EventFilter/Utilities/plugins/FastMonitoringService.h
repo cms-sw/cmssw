@@ -115,6 +115,8 @@ namespace evf{
       void postGlobalBeginRun(edm::GlobalContext const&);
       void preGlobalBeginLumi(edm::GlobalContext const&);
       void preGlobalEndLumi(edm::GlobalContext const&);
+      void postGlobalEndLumi(edm::GlobalContext const&);
+
       void preStreamBeginLumi(edm::Streamcontext const&);
       void preStreamEndLumi(edm::Streamcontext const&);
       void prePathEvent(edm::StreamContext const&, const edm::PathContext const&);
@@ -143,7 +145,7 @@ namespace evf{
 	// update monitored content
 	fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
-	//update following vars unless we are in the middle of lumi transition (todo:pick up what's there)
+	//update following vars unless we are in the middle of lumi transition (todo:be able to collect despite)
 	if (!isGlobalLumiTransition) {
 	  //these are stored maps, try if there's element for last globalLumi
 	  auto itd = throughput_.find(foLumi);
@@ -211,6 +213,7 @@ namespace evf{
       timeval fileLookStart_, fileLookStop_;//this stuff should be better calculated by input source
 
       std::atomic<unsigned int> lastGlobalLumi_;
+      std::queue<unsigned int> lastGlobalLumisClosed_;
       std::atomic<bool> isGlobalLumiTransition_;
       unsigned int lumiFromSource_;//possibly atomic
 
@@ -230,7 +233,8 @@ namespace evf{
       std::vector<double> leadTimes_;
 
       //for output module
-      std::unordered_map<unsigned int, int> processedEventsPerLumi_;
+      //std::unordered_map<unsigned int, int> processedEventsPerLumi_;
+      std::map<unsigned int, int> processedEventsPerLumi_;
 
       boost::filesystem::path workingDirectory_, runDirectory_;
     };

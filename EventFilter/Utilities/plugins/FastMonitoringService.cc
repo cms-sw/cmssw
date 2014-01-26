@@ -42,6 +42,7 @@ namespace evf{
 
     reg.watchPreGlobalBeginLumi(this,&FastMonitoringService::preGlobalBeginLumi);//global lumi
     reg.watchPreGlobalEndLumi(this,&FastMonitoringService::preGlobalEndLumi);
+    reg.watchPostGlobalEndLumi(this,&FastMonitoringService::postGlobalEndLumi);
 
     reg.watchPreStreamBeginLumi(this,&FastMonitoringService::preStreamBeginLumi);//stream lumi
     reg.watchPreStreamEndLumi(this,&FastMonitoringService::preStreamEndLumi);
@@ -148,7 +149,7 @@ namespace evf{
        microstate_.push_back(&reservedMicroStateNames[mInvalid]);
     }
  
-    //TODO: we could do fastpath of output, inputSource vars, processed=0 and m*states, i.e. start from lumi=1;
+    //TODO: we could do fastpath output even before seeing lumi
     lastGlobalLumi_=0;//this means no fast path before begingGlobalLumi (for now), 
     isGlobalLumiTransition_=true;
     lumiFromSource_=0;
@@ -196,7 +197,6 @@ namespace evf{
   }
 
 
-  //TODO:find alternative way to get path names
   void FastMonitoringService::prePathBeginRun(const std::string& pathName)
   {
     return ;
@@ -208,17 +208,18 @@ namespace evf{
 
   void FastMonitoringService::postGlobalBeginRun(edm::GlobalContext const& gc)
   {
-    return;
     std::cout << "path legenda*****************" << std::endl;
-//    std::cout << makePathLegenda()   << std::endl; //TODO
     macrostate_ = FastMonitoringThread::sRunning;
+    //TODO:we don't have names yet
+    return;
+    std::cout << makePathLegenda()   << std::endl;
   }
 
 
   //start new lumi (can be before last global end lumi)
   void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)//edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
   {
-	  std::cout << "FastMonitoringService: Pre-begin LUMI: " << iID.luminosityBlock() << std::endl;
+	  std::cout << "FastMonitoringService: Pre-begin LUMI: " << gc.luminosityBlockID().luminosityBlock() << std::endl;
 
 	  fmt_.monlock_.lock();
 
@@ -227,8 +228,15 @@ namespace evf{
 	  unsigned int newLumi = gc.luminosityBlockID().luminosityBlock();
 
 	  lumiStartTime_[newLumi]=timeval;
-	  if (lastGlobalLumi_>0) {
-		  //wipe out old map entries as they aren't needed (TODO)
+	  while (!lastGlobalLumisClosed_.empty()) {
+		  //wipe out old map entries as they aren't needed and slow down access
+		  unsigned int oldLumi = lastGlobalLumisClosed_.pop();
+		  lumiStartTime_.erase(oldLumi);
+		  throughput_.erase(oldLumi);
+		  avgLeadTime_.erase(oldLumi);
+		  filesProcessedDuringLumi_.erase(oldLumi);
+		  accuSize_.eraee(oldLumi);
+		  processedEventsPerLumi_.erase(oldLumi);
 	  }
 	  lastGlobaLumi_= newLumi;
 	  isGlobalLumiTransition_=false;
@@ -236,7 +244,7 @@ namespace evf{
   }
 
   //global end lumi
-  void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)//edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
+  void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)
   {
 	  unsigned int lumi = gc.luminosityBlockID().luminosityBlock();
 	  std::cout << "FastMonitoringService: LUMI: " << lumi << " ended! Writing JSON information..." << std::endl;
@@ -266,27 +274,24 @@ namespace evf{
 	  boost::filesystem::path slow = workingDirectory_;
 	  slow /= slowFileName.str();
 
-	  //retrieve one result we need (todo check if it's found)
+	  //retrieve one result we need (todo: sanity check if it's found)
 	  intJ lumiProcessedJ = fmt_.m_data.jsonMonitor->getMergedIntJforLumi("Processed",lumi);//TODO
 	  processedEventsPerLumi_[lumi] = lumiProcessedJ.value();//fmt_.m_data.processedJ_.value();
 
 	  //full global and stream merge&output for this lumi
-	  fmt_.m_data.jsonMonitor_->outputFullHistoDataPoint(slow.string());//full global and stream merge&output for this lumi
-	  fmt_.m_data.jsonMonitor_->discardCollected(lumi);//TODO:see what we do between next beginLumi
-
-	  //cleanup of global per lumi info
-	  fmt_.m_data.avgLeadTime_.erase(lumi);
-	  fmt_.m_data.filesProcessedDuringLumi_.erase(lumi);
-
-	  //not directly monitored:
-	  accuSize_.erase(lumi);
-	  globallumi_.erase(lumi);//safe ?
+	  fmt_.m_data.jsonMonitor_->outputFullJSON(slow.string(),lumi);//full global and stream merge and JSON write for this lumi
+	  fmt_.m_data.jsonMonitor_->discardCollected(lumi);//we don't do further updates for this lumi
 
 	  isGlobalLumiTransition_=true;
 	  fmt_.monlock_.unlock();
   }
 
-  //TODO add another concurrent queue here
+  void FastMonitoringService::postGlobalEndLumi(edm::GlobalContext const& gc)
+  {
+    //mark closed lumis (still keep map entries until next one)
+    lastGlobalLumisClosed_.push(gc.luminosityBlockID().luminosityBlock());
+  }
+
   void FastMonitoringService::preStreamBeginLumi(edm::Streamcontext const& sc)
   {
     std::cout << "FastMonitoringService: Pre-begin LUMI: " << iID.luminosityBlock() << std::endl;
@@ -301,7 +306,6 @@ namespace evf{
     fmt_.monlock_.unlock();
   }
 
-  //todo:where does input belong here? queue next?
   void FastMonitoringService::preStreamEndLumi(edm::Streamcontext const& gc)
   {
     std::cout << "FastMonitoringService: Pre-begin LUMI: " << iID.luminosityBlock() << std::endl;
@@ -425,11 +429,11 @@ namespace evf{
 
   //needs multithreading-aware output module
   unsigned int FastMonitoringService::getEventsProcessedForLumi(unsigned int lumi) {
-	if (processedEventsPerLumi_[lumi]!=std::map::endl) {
-	  return processedEventsPerLumi_[lumi];//should delete this entry in postGlobalEndLumi?
+	if (processedEventsPerLumi_.find(lumi)!=std::map::end) {
+	  return processedEventsPerLumi_[lumi];
 	}
 	else {
-		std::cout << "output module wants deleted info " << std::endl;/TODO:info message
+		std::cout << "ERROR: output module wants deleted info " << std::endl;
 		return 0;
 }
 

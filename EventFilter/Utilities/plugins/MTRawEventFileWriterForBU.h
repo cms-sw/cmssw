@@ -60,7 +60,7 @@ class MTRawEventFileWriterForBU
 
   inline void queueEvent(const char* buffer,unsigned long size);
   inline void queueEvent(boost::shared_array<unsigned char> & msg);
-  void dispatchThreads(std::string fileBase, unsigned int instances, std::string suffix);
+  void dispatchThreads(std::string fileBase, unsigned int instances, std::string suffix, unsigned int ls);
 
   void finishThreads()
   {
@@ -71,7 +71,7 @@ class MTRawEventFileWriterForBU
 #endif
   }
   //opens file and waits for events
-  void threadRunner(std::string fileName, unsigned int instance);
+  void threadRunner(std::string fileName, unsigned int instance, unsigned int ls);
 
   //std::string name_;
   //unsigned int count_;
