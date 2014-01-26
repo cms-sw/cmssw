@@ -536,7 +536,7 @@ namespace evf {
     if (previousFileSize_ != 0) {
       FastMonitoringService *mss = (FastMonitoringService *) (edm::Service<
 							      evf::MicroStateService>().operator->());
-      mss->accummulateFileSize(previousFileSize_);
+      mss->accumulateFileSize(previousFileSize_);
       previousFileSize_ = 0;
     }
 

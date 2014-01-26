@@ -23,36 +23,41 @@ namespace evf{
 		      sShuttingDown, sDone, sJobEnded, sError, sErrorEnded, sEnd, sInvalid,MCOUNT}; 
     struct StreamMonitorData
     {
-
-      Macrostate macrostate_; //is global
-      unsigned long accuSize_; //input source
-      unsigned int lumisection_; //only updated on beginLumi signal
-      unsigned int
-
-      std::vector<const void*> ministate_;
-      std::vector<const void*> microstate_;
-//      std::vector<unsigned int> eventnumber_;
-      std::vector<unsigned int> processed_;
-
-      // accummulated size of processed files over a lumi (in Bytes)
-      std::vector<unsigned int> streamlumisection_; //only updated on beginLumi signal
-      unsigned int prescaleindex_; // ditto
-
-      // Micro, mini, macrostate numbers
+      //global state
+      Macrostate macrostate_ = FastMonitoringThread::sInit;
       IntJ macrostateJ_;
-      //TODO:stream macro state
-      std::vector<IntJ> ministateJ_;
-      std::vector<IntJ> microstateJ_;
-      // Processed events count
-      IntJ processedJ_;
+
+      //per lumi global (we get this from elsewhere..
+      //unsigned int lumisection_ = 0; //only updated on beginLumi signal
+      // accummulated size of processed files over a lumi (in Bytes)
+
       // Throughput, MB/s
       DoubleJ throughputJ_;
       // Average time to obtain a file to read (ms)
       DoubleJ avgLeadTimeJ_;
       // Number of files processed during lumi section
-      IntJ filesProcessedDuringLumi_;
-      boost::shared_ptr<FastMonitor> jsonMonitor_;//for per-stream measurements
-      boost::shared_ptr<FastMonitor> jsonGlobalMonitor_;//for global measurements
+      std::map<unsigned int,IntJ> filesProcessedDuringLumi_;
+
+      //stream
+
+      // Micro, mini, macrostate numbers
+      std::vector<const void*> ministate_;
+      std::vector<IntJ> ministateJ_; //stream
+
+      std::vector<const void*> microstate_;
+      std::vector<IntJ> microstateJ_; //stream
+
+      // Processed events count
+      std::vector<unsigned int> processed_;
+      std::vector<IntJ> processedJ_;
+
+      std::vector<unsigned int> streamlumi_ = 0; //maybe will need this for updates...?
+      //std::vector<unsigned int> eventnumber_;
+      //unsigned int prescaleindex_; // ditto
+
+      //monitored for JSON
+
+      boost::shared_ptr<FastMonitor> jsonMonitor_;//collector
 
     };
 
@@ -70,9 +75,11 @@ namespace evf{
       m_data.filesProcessedDuringLumi_.setName("FilesProcessed");
 
       monParams.push_back(&m_data.macrostateJ_);
+
       monParams.push_back(&m_data.ministateJ_);
       monParams.push_back(&m_data.microstateJ_);
       monParams.push_back(&m_data.processedJ_);
+
       monParams.push_back(&m_data.throughputJ_);
       monParams.push_back(&m_data.avgLeadTimeJ_);
       monParams.push_back(&m_data.filesProcessedDuringLumi_);

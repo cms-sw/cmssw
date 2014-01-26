@@ -130,9 +130,9 @@ namespace evf{
       void jobFailure();
 
       //OBSOLETE
-      void setMicroState(Microstate); // this is still needed for use in special functions like DQM which are in turn framework services. - the string
+      //void setMicroState(Microstate); // this is still needed for use in special functions like DQM which are in turn framework services.
 
-      void accummulateFileSize(unsigned long fileSize);
+      void accumulateFileSize(unsigned long fileSize);
       void startedLookingForFile();
       void stoppedLookingForFile();
       unsigned int getEventsProcessedForLumi(unsigned int lumi);
@@ -149,10 +149,10 @@ namespace evf{
 
 			// lock the monitor
 			fmt_.monlock_.lock();
+			fmt_.m_data.processedJ_ = fmt_.m_data.processed_;
 			fmt_.m_data.macrostateJ_ = fmt_.m_data.macrostate_;
 			fmt_.m_data.ministateJ_ = encPath_.encode(fmt_.m_data.ministate_);
-			fmt_.m_data.microstateJ_ = encModule_.encode(
-					fmt_.m_data.microstate_);
+			fmt_.m_data.microstateJ_ = encModule_.encode(fmt_.m_data.microstate_);
 
 			fmt_.m_data.jsonMonitor_->snap(true, fastPath_);
 			fmt_.monlock_.unlock();
@@ -167,13 +167,20 @@ namespace evf{
       Encoding encModule_;
       Encoding encPath_;
 
+      unsigned int nStreams_;
       int sleepTime_;
       std::string /*rootDirectory_,*/ microstateDefPath_, outputDefPath_;
       std::string fastName_, fastPath_, slowName_;
-      timeval lumiStartTime_, lumiStopTime_;
-      timeval fileLookStart_, fileLookStop_;
+
+      std::map<unsigned int, timeval> lumiStartTime_, lumiStopTime_;//needed for multiplexed begin/end lumis
+      timeval fileLookStart_, fileLookStop_;//this stuff should be better calculated by input source
+
+      std::map<unsigned int, bool> lumisection_;
+
       std::vector<double> leadTimes_;
+      std::map<unsigned int, unsigned long> accuSize_;
       std::unordered_map<unsigned int, int> processedEventsPerLumi_;
+
       boost::filesystem::path workingDirectory_, runDirectory_;
     };
 

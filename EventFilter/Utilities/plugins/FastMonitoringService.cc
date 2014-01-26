@@ -21,37 +21,40 @@ namespace evf{
     MicroStateService(iPS,reg)
     ,encModule_(33)
     ,encPath_(0)
-  	,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
+    ,nStreams_(0)//until initialized
+    ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
     //,rootDirectory_(iPS.getUntrackedParameter<std::string>("rootDirectory", "/data"))
     ,microstateDefPath_(iPS.getUntrackedParameter<std::string>("microstateDefPath", "/tmp/def.jsd"))
     ,outputDefPath_(iPS.getUntrackedParameter<std::string>("outputDefPath", "/tmp/def.jsd"))
     ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "states"))
     ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "lumi"))
   {
-    //TODO:move to when getting stream information
-    fmt_.m_data.macrostate_=FastMonitoringThread::sInit;
-    fmt_.m_data.ministate_=&nopath_;
-    fmt_.m_data.microstate_=&reservedMicroStateNames[mInvalid];
-    fmt_.m_data.lumisection_ = 0;
-    fmt_.m_data.accuSize_ = 0;
-    fmt_.m_data.filesProcessedDuringLumi_ = 0;
-    registry.watchPreallocate(this, &FastMonitoringService::preallocate);
-    reg.watchPreModuleBeginJob(this,&FastMonitoringService::preModuleBeginJob);
-    reg.watchPreGlobalBeginLumi(this,&FastMonitoringService::preBeginLumi);
+    registry.watchPreallocate(this, &FastMonitoringService::preallocate);//receiving information on number of threads
+
+    reg.watchPreModuleBeginJob(this,&FastMonitoringService::preModuleBeginJob);//global
+
+    reg.watchPreGlobalBeginLumi(this,&FastMonitoringService::preBeginLumi);//global lumi
     reg.watchPreGlobalEndLumi(this,&FastMonitoringService::preEndLumi);
-    reg.watchPrePathBeginRun(this,&FastMonitoringService::prePathBeginRun);
+
+    reg.watchPreStreamBeginLumi(this,&FastMonitoringService::preBeginLumi);//stream lumi
+    reg.watchPreStreamEndLumi(this,&FastMonitoringService::preEndLumi);
+
+    reg.watchPrePathBeginRun(this,&FastMonitoringService::prePathBeginRun);//there is no equivalent of this (will need to get it at first event..)
     reg.watchPostBeginJob(this,&FastMonitoringService::postBeginJob);
     reg.watchPostBeginRun(this,&FastMonitoringService::postBeginRun);
     reg.watchPostEndJob(this,&FastMonitoringService::postEndJob);
     reg.watchPreProcessPath(this,&FastMonitoringService::preProcessPath);
-    reg.watchPreProcessEvent(this,&FastMonitoringService::preEventProcessing);//should be stream
-    reg.watchPostProcessEvent(this,&FastMonitoringService::postEventProcessing);//-""-
-    reg.watchPreSourceEvent(this,&FastMonitoringService::preSourceEvent);//source
-    reg.watchPostSourceEvent(this,&FastMonitoringService::postSourceEvent);//-""-
+    reg.watchPreEvent(this,&FastMonitoringService::preEventProcessing);//stream
+    reg.watchPostEvent(this,&FastMonitoringService::postEventProcessing);//stream
+
+    reg.watchPreSourceEvent(this,&FastMonitoringService::preSourceEvent);//source (with streamID of requestor)
+    reg.watchPostSourceEvent(this,&FastMonitoringService::postSourceEvent);//source (with streamID )
   
     reg.watchPreModuleEvent(this,&FastMonitoringService::preModule);//should be stream
-    reg.watchPostModuleEvent(this,&FastMonitoringService::postModule);
-    reg.watchJobFailure(this,&FastMonitoringService::jobFailure);
+    reg.watchPostModuleEvent(this,&FastMonitoringService::postModule);//
+
+    reg.watchJobFailure(this,&FastMonitoringService::jobFailure);//global
+
     for(unsigned int i = 0; i < (mCOUNT); i++)
       encModule_.updateReserved((void*)(reservedMicroStateNames+i));
     encPath_.update((void*)&nopath_);
@@ -102,16 +105,30 @@ namespace evf{
   {
   }
 
-  void FastMonitoringService::preallocate(edm::service::SystemBounds const & bounds) {
-    //TODO:allocate what depends on number of streams
+  void FastMonitoringService::preallocate(edm::service::SystemBounds const & bounds)
+  {
+    nStreams_=bounds.maxNumberOfStreams();
+    nthreads_=bounds.maxNumberOfThreads();
+
+    for (unsigned int i=0;i<nStreams_;i++) {
+       fmt_.m_data.ministate_.push_back(&nopath_);
+       fmt_.m_data.microstate_.push_back(&reservedMicroStateNames[mInvalid]);
+       fmt_.m_data.streamlumi.push_back(0);
+    }
+    fmt_.m_data.processed_=0;
+    //fmt_.m_data.macrostate_=FastMonitoringThread::sInit;
+    //fmt_.m_data.lumisection_ = 0;
+    //fmt_.m_data.accuSize_ = 0;
+    //fmt_.m_data.filesProcessedDuringLumi_ = 0;
   }
 
+  //new output module name is stream
   void FastMonitoringService::preModuleBeginJob(const edm::ModuleDescription& desc)
   {
     //build a map of modules keyed by their module description address
     //here we need to treat output modules in a special way so they can be easily singled out
-    if(desc.moduleName() == "ShmStreamConsumer" || desc.moduleName() == "EventStreamFileWriter" || 
-       desc.moduleName() == "PoolOutputModule")
+    if(desc.moduleName() == "Stream" || desc.moduleName() == "ShmStreamConsumer" ||
+       desc.moduleName() == "EventStreamFileWriter" || desc.moduleName() == "PoolOutputModule")
       encModule_.updateReserved((void*)&desc);
     else
       encModule_.update((void*)&desc);
@@ -178,56 +195,101 @@ namespace evf{
     fmt_.stop();
   }
 
-  void FastMonitoringService::preBeginLumi(edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
+  //start new lumi (can be before last global end lumi)
+  void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)//edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
   {
 	  std::cout << "FastMonitoringService: Pre-begin LUMI: " << iID.luminosityBlock() << std::endl;
+	  timeval lumiStartTime_;
+	  gettimeofday(&lumiStartTime, 0);
+
 	  fmt_.monlock_.lock();
-	  fmt_.m_data.lumisection_ = (unsigned int) iID.luminosityBlock();
-	  gettimeofday(&lumiStartTime_, 0);
+	  //insert
+	  lumiStartTime_[gc.luminosityBlockID().luminosityBlock()]=timeval;
+	  fmt_.m_data.lumisection_[gc.luminosityBlockID().luminosityBlock()] = true;//needed?
 	  fmt_.monlock_.unlock();
   }
 
-  void FastMonitoringService::preEndLumi(edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
+  //global end lumi
+  void FastMonitoringService::preEndLumi(edm::GlobalContext const& gc)//edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
   {
-	  std::cout << "FastMonitoringService: LUMI: " << iID.luminosityBlock() << " ended! Writing JSON information..." << std::endl;
-	  fmt_.monlock_.lock();
-	  gettimeofday(&lumiStopTime_, 0);
+	  unsigned int lumi = gc.luminosityBlockID().luminosityBlock();
+	  std::cout << "FastMonitoringService: LUMI: " << lumi << " ended! Writing JSON information..." << std::endl;
+	  timeval lumiStopTime;
+	  gettimeofday(&lumiStopTime, 0);
 
+	  fmt_.monlock_.lock();
 	  // Compute throughput
-	  unsigned int secondsForLumi = lumiStopTime_.tv_sec - lumiStartTime_.tv_sec;
-	  fmt_.m_data.throughputJ_.value() = double(fmt_.m_data.accuSize_) / double(secondsForLumi) / double(1024*1024);
+	  unsigned int secondsForLumi = lumiStopTime_.tv_sec - lumiStartTime_[lumi].tv_sec;
+	  unsigned long accuSize = accuSize_[lumi]==map::endl ? 0 : accuSize_[lumi];
+	  double throughput = double(accuSize) / double(secondsForLumi) / double(1024*1024);
+	  //store to registered variable
+	  fmt_.m_data.throughputJ_.value() = throughput;
 
 	  std::cout
 			<< ">>> >>> FastMonitoringService: processed event count for this lumi = "
 			<< fmt_.m_data.processedJ_.value() << " time = " << secondsForLumi
-			<< " size = " << fmt_.m_data.accuSize_ << " thr = " << fmt_.m_data.throughputJ_.value() << std::endl;
-	  fmt_.m_data.jsonMonitor_->snap(true, fastPath_);
+			<< " size = " << accuSize << " thr = " << throughput << std::endl;
+
+	  fmt_.m_data.jsonMonitor_->snap(true, fastPath_);//do a global snap here (TODO)
+
 	  // create file name for slow monitoring file
 	  std::stringstream slowFileName;
 	  slowFileName << slowName_ << "_ls" << std::setfill('0') << std::setw(4)
-			<< fmt_.m_data.lumisection_ << "_pid" << std::setfill('0')
+			<< lumi << "_pid" << std::setfill('0')
 			<< std::setw(5) << getpid() << ".jsn";
 	  boost::filesystem::path slow = workingDirectory_;
 	  slow /= slowFileName.str();
-	  fmt_.m_data.jsonMonitor_->outputFullHistoDataPoint(slow.string());
-	  processedEventsPerLumi_[fmt_.m_data.lumisection_] = fmt_.m_data.processedJ_.value();
 
-	  fmt_.m_data.processedJ_ = 0;
-	  fmt_.m_data.accuSize_ = 0;
-	  fmt_.m_data.throughputJ_ = 0;
-	  fmt_.m_data.avgLeadTimeJ_ = 0;
-	  fmt_.m_data.filesProcessedDuringLumi_ = 0;
+	  //retrieve one result we need (todo check if it's found)
+	  intJ lumiProcessedJ = fmt_.m_data.jsonMonitor->getMergedIntJforLumi("name",lumi);//TODO
+	  processedEventsPerLumi_[lumi] = lumiProcessedJ.value();//fmt_.m_data.processedJ_.value();
+
+	  //full global and stream merge&output for this lumi
+	  fmt_.m_data.jsonMonitor_->outputFullHistoDataPoint(slow.string());//full global and stream merge&output for this lumi
+	  fmt_.m_data.jsonMonitor_->discardCollected(lumi);//TODO:see what we do between next beginLumi
+
+
+	  //cleanup of global per lumi info
+	  fmt_.m_data.avgLeadTimeJ_.erase(lumi);
+	  fmt_.m_data.filesProcessedDuringLumi_.erase(lumi);
+
+	  //not directly monitored:
+	  accuSize_.erase(lumi);
 	  leadTimes_.clear();
+	  fmt_.m_data.lumisection_.erase(lumi);//safe ?
+
 	  fmt_.monlock_.unlock();
   }
 
-  void FastMonitoringService::preEventProcessing(const edm::EventID& iID,
-					     const edm::Timestamp& iTime)
+  //TODO add another concurrent queue here
+  void FastMonitoringService::preStreamBeginLumi(edm::Streamcontext const& gc)//edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
+  {
+	  std::cout << "FastMonitoringService: Pre-begin LUMI: " << iID.luminosityBlock() << std::endl;
+	  fmt_.monlock_.lock();
+	  fmt_.m_data.streamlumi_[sc.streamID().value()] = sc.luminosityBlockID().luminosityBlock();
+	  //gettimeofday(&streamlumiStartTime_, 0);
+	  fmt_.monlock_.unlock();
+  }
+
+  //todo:where does input belong here? queue next?
+  void FastMonitoringService::preStreamEndLumi(edm::Streamcontext const& gc)//edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime)
+  {
+	  std::cout << "FastMonitoringService: Pre-begin LUMI: " << iID.luminosityBlock() << std::endl;
+	  fmt_.monlock_.lock();
+	  fmt_.m_data.streamlumi_[sc.streamID().value()] = sc.luminosityBlockID().luminosityBlock();
+	  //gettimeofday(&streamlumiStartTime_, 0);
+	  fmt_.monlock_.unlock();
+  }
+
+
+
+  void FastMonitoringService::preEventProcessing(StreamContext const&) //const edm::EventID& iID,const edm::Timestamp& iTime)
   {
     //    boost::mutex::scoped_lock sl(lock_);
   }
 
-  void FastMonitoringService::postEventProcessing(const edm::Event& e, const edm::EventSetup&)
+  //@SM: this is OK
+  void FastMonitoringService::postEventProcessing(StreamContext const&)//const edm::Event& e, const edm::EventSetup&)
   {
     //    boost::mutex::scoped_lock sl(lock_);
     fmt_.m_data.microstate_ = &reservedMicroStateNames[mFwkOvh];
@@ -236,51 +298,61 @@ namespace evf{
     fmt_.monlock_.unlock();
   }
 
-  void FastMonitoringService::preSourceEvent(edm::StreamID strid)
+  void FastMonitoringService::preSourceEvent(edm::StreamID sid)
   {
-    //    boost::mutex::scoped_lock sl(lock_);
-    fmt_.m_data.microstate_[strid] = &reservedMicroStateNames[mIdle];
+    fmt_.m_data.microstate_[sid.value()] = &reservedMicroStateNames[mIdle];
   }
 
-  void FastMonitoringService::postSourceEvent(edm::StreamID)
+  void FastMonitoringService::postSourceEvent(edm::StreamID sid)
   {
-    //    boost::mutex::scoped_lock sl(lock_);
-    fmt_.m_data.microstate_[strid] = &reservedMicroStateNames[mFwkOvh];
+    fmt_.m_data.microstate_[sid.value()] = &reservedMicroStateNames[mFwkOvh];
   }
 
-  void FastMonitoringService::preModule(const edm::ModuleDescription& desc)
+  void FastMonitoringService::preModule(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) //const edm::ModuleDescription& desc)
   {
-    //    boost::mutex::scoped_lock sl(lock_);
-    fmt_.m_data.microstate_ = &desc;
+    fmt_.m_data.microstate_[sc.streamID().value()] = &(mcc.moduleDescription());
   }
 
-  void FastMonitoringService::postModule(const edm::ModuleDescription& desc)
+  void FastMonitoringService::postModule(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) //const edm::ModuleDescription& desc)
   {
-    //    boost::mutex::scoped_lock sl(lock_);
-    fmt_.m_data.microstate_ = &desc;
+    fmt_.m_data.microstate_[sc.streamID().value()] = &(mcc.moduleDescription());
   }
+
   void FastMonitoringService::jobFailure()
   {
-    //    boost::mutex::scoped_lock sl(lock_);
     fmt_.m_data.macrostate_ = FastMonitoringThread::sError;
   }
-  /*
 
+  //this is for old-fashioned service that is not thread safe and can block other streams
+  //(we assume the worst case - everything is blocked)
   void FastMonitoringService::setMicroState(Microstate m)
   {
-    //    boost::mutex::scoped_lock sl(lock_);
-    fmt_.m_data.microstate_ = &reservedMicroStateNames[m];
+    for (int i=0;i<nStreams_;i++)
+    fmt_.m_data.microstate_[i] = &reservedMicroStateNames[m];
   }
-  */
 
-  void FastMonitoringService::accummulateFileSize(unsigned long fileSize) {
+  //this is for another service that is thread safe or rarely blocks other streams
+  void FastMonitoringService::setMicroState(edm::StreamID sid, Microstate m)
+  {
+    fmt_.m_data.microstate_[i] = &reservedMicroStateNames[m];
+  }
+
+  //from source - needs changes to source to track per-lumi file processing
+  void FastMonitoringService::accumulateFileSize(unsigned int lumi, unsigned long fileSize) {
 	fmt_.monlock_.lock();
 	//std::cout << "--> ACCUMMULATING size: " << fileSize << std::endl;
-	fmt_.m_data.accuSize_ += fileSize;
-	fmt_.m_data.filesProcessedDuringLumi_.value()++;
+	if (accuSize_[lumi]==map::endl) accuSize_[lumi] = fileSize;
+	else accuSize_[lumi] += fileSize;
+
+	if (fmt_.m_data.filesProcessedDuringLumi_[lumi]==map::endl)
+	  mt_.m_data.filesProcessedDuringLumi_[lumi].value() = fileSize;
+	else
+	  fmt_.m_data.filesProcessedDuringLumi_[lumi].value()++;
 	fmt_.monlock_.unlock();
   }
 
+  //this seems to assign the elapsed time to previous lumi if there is a boundary
+  //can be improved, especially with threaded input reading
   void FastMonitoringService::startedLookingForFile() {
 	  gettimeofday(&fileLookStart_, 0);
 	  /*
@@ -309,8 +381,9 @@ namespace evf{
 	  }
   }
 
+  //needs multithreading-aware output module
   unsigned int FastMonitoringService::getEventsProcessedForLumi(unsigned int lumi) {
-	return processedEventsPerLumi_[lumi];
+	return processedEventsPerLumi_[lumi];//should delete this entry in postGlobalEndLumi
 }
 
 } //end namespace evf
