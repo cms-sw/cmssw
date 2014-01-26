@@ -54,7 +54,7 @@ process.softPFElectronsTagInfos.jets          = newjetID
 process.AK5byRef.jets                         = newjetID
 if whichJets=="ak5PF":
     process.ak5JetsJEC.src = 'ak5PFJets'
-    process.ak5JetsJEC.correctors = ['ak5PFL1L2L3']
+    process.ak5JetsJEC.correctors = ['ak5PFL1FastL2L3']
 ###
 print "inputTag : ", process.myak5JetTracksAssociatorAtVertex.jets
 ###
