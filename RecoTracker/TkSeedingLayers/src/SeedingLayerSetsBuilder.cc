@@ -322,7 +322,7 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
       }
     }
     else {
-      edm::LogError("SeedingLayerSetsBuilder") << "Did not find DetLayer for layer " << theLayerNames[layer.nameIndex];
+      throw cms::Exception("Configuration") << "Did not find DetLayer for layer " << theLayerNames[layer.nameIndex];
     }
 
     theLayerDets[i] = detLayer;
@@ -338,21 +338,16 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es)
 
   for(size_t i=0, n=theLayerSetIndices.size(); i<n; i += theNumberOfLayersInSet) {
     Set set;
-    bool setOK = true;
     for(size_t j=0; j<theNumberOfLayersInSet; ++j) {
       const unsigned short layerIndex = theLayerSetIndices[i+j];
       const LayerSpec& layer = theLayers[layerIndex];
       const DetLayer *detLayer = theLayerDets[layerIndex];
-      if(!detLayer) {
-        setOK = false;
-        continue;
-      }
 
       edm::ESHandle<TransientTrackingRecHitBuilder> builder;
       es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
       set.push_back( SeedingLayer( theLayerNames[layer.nameIndex], layerIndex, detLayer, builder.product(), layer.extractor.get()));
     }
-    if(setOK) result.push_back(set);
+    result.push_back(set);
   }
   return result;
 }
