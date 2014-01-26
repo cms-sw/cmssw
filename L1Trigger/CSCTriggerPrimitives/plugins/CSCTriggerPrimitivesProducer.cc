@@ -142,13 +142,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
       << " Skipping production of CSC TP digis +++\n";
   }
   // Fill output collections if valid input collections are available.
-  if (wireDigis.isValid() && compDigis.isValid()) {   
-    const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
-    lctBuilder_->build(temp,
-		       wireDigis.product(), compDigis.product(), gemPads,
-		       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
-    if (!checkBadChambers_)
-      delete temp;
+  if (wireDigis.isValid() && compDigis.isValid()) {
+    std::shared_ptr<const CSCBadChambers> temp( checkBadChambers_ ?
+                                                std::shared_ptr<const CSCBadChambers>{pBadChambers.product(), [](const void*){}} :
+                                                std::make_shared<const CSCBadChambers>());
+    lctBuilder_->build(temp.get(),
+                       wireDigis.product(), compDigis.product(), gemPads,
+                       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
   }
 
   // Put collections in event.
