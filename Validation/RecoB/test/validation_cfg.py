@@ -65,6 +65,19 @@ if runOnMC:
     process.bTagValidation.allHistograms = True 
     process.bTagValidation.applyPtHatWeight = False
     process.bTagValidation.flavPlots = "allbcl" #if contains "noall" plots for all jets not booked, if contains "dusg" all histograms booked, default : all, b, c, udsg, ni
+    #process.bTagValidation.ptRecJetMin = cms.double(20.)
+    process.bTagValidation.genJetsMatched = cms.InputTag("patJetGenJetMatch")
+    process.bTagValidation.doPUid = cms.bool(True)
+    process.ak5GenJetsForPUid = cms.EDFilter("GenJetSelector",
+                                             src = cms.InputTag("ak5GenJets"),
+                                             cut = cms.string('pt > 8.'),
+                                             filter = cms.bool(False)
+                                             )
+    process.load("PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi")
+    process.patJetGenJetMatch.src = newjetID
+    process.patJetGenJetMatch.matched = cms.InputTag("ak5GenJetsForPUid")
+    process.patJetGenJetMatch.maxDeltaR = cms.double(0.25)
+    process.patJetGenJetMatch.resolveAmbiguities = cms.bool(True)
 else :
     process.ak5JetsJEC.correctors[0] += 'Residual'
     process.load("DQMOffline.RecoB.bTagAnalysisData_cfi")
@@ -79,7 +92,7 @@ process.source = cms.Source("PoolSource",
 process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.JECAlgo * process.btagSequence)
 
 if runOnMC:
-    process.dqmSeq = cms.Sequence(process.flavourSeq * process.bTagValidation * process.dqmSaver)
+    process.dqmSeq = cms.Sequence(process.ak5GenJetsForPUid * process.patJetGenJetMatch * process.flavourSeq * process.bTagValidation * process.dqmSaver)
 else:
     process.dqmSeq = cms.Sequence(process.bTagAnalysis * process.dqmSaver)
 
