@@ -102,64 +102,96 @@ namespace evf{
       FastMonitoringService(const edm::ParameterSet&,edm::ActivityRegistry&);
       ~FastMonitoringService();
      
-      void FastMonitoringService::preallocate(edm::service::SystemBounds const &) {
-
       std::string makePathLegenda();
       std::string makeModuleLegenda();
-      void preModuleBeginJob(const edm::ModuleDescription& desc);
 
-      void prePathBeginRun(const std::string& pathName);
-
-      void postBeginRun(edm::Run const&, edm::EventSetup const&);
-
+      void preallocate(edm::service::SystemBounds const&);
+      void jobFailure();
+      void preModuleBeginJob(edm::ModuleDescription const&);
       void postBeginJob();
       void postEndJob();
+      void prePathBeginRun(const std::string& pathName);//!
 
-      void preBeginLumi(edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime);
-      void preEndLumi(edm::LuminosityBlockID const& iID, edm::Timestamp const& iTime);
-      void preProcessPath(const std::string& pathName);
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
-      void postEventProcessing(const edm::Event&, const edm::EventSetup&);
-
+      void postGlobalBeginRun(edm::GlobalContext const&);
+      void preGlobalBeginLumi(edm::GlobalContext const&);
+      void preGlobalEndLumi(edm::GlobalContext const&);
+      void preStreamBeginLumi(edm::Streamcontext const&);
+      void preStreamEndLumi(edm::Streamcontext const&);
+      void prePathEvent(edm::StreamContext const&, const edm::PathContext const&);
+      void preEvent(edm::StreamContext const&);
+      void postEvent(edm::StreamContext const&);
       void preSourceEvent(edm::StreamID);
       void postSourceEvent(edm::StreamID);
-
-      void preModule(const edm::ModuleDescription&);
-      void postModule(const edm::ModuleDescription&);
-
-      void jobFailure();
+      void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
+      void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
       //OBSOLETE
-      //void setMicroState(Microstate); // this is still needed for use in special functions like DQM which are in turn framework services.
+      void setMicroState(Microstate); // this is still needed for use in special functions like DQM which are in turn framework services.
+      void setMicroState(edm::StreamID, Microstate);
 
-      void accumulateFileSize(unsigned long fileSize);
+      void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();
-      void stoppedLookingForFile();
+      void stoppedLookingForFile(unsigned int lumi);
       unsigned int getEventsProcessedForLumi(unsigned int lumi);
       std::string getOutputDefPath() const { return outputDefPath_; }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
 
     private:
+
+      void doSnapshot(bool outputCSV) {
+
+	// update monitored content
+	fmt_.m_data.fastMacrostateJ_ = macrostate_;
+
+	//update following vars unless we are in the middle of lumi transition
+	if (!isGlobalLumiTransition) {
+	  //these are stored maps, try if there's element for last globalLumi
+	  auto itd = throughput_.find(lastGlobalLumi_);
+	  if (itd!=std::map:end) {
+	    fmt_.m_data.fastThroughputJ_ = *it;//throughput_[lastGlobalLumi_];
+	    else fmt_.m_data.fastThroughputJ_=0.;
+	  }
+
+	  itd = avgLeadTime_.find(lastGlobalLumi_);
+	  if (itd != std::map:end) {
+	    fmt_.m_data.fastAvgLeadTimeJ_ = *it;//avgLeadTime_[lastGlobalLumi_];
+	    else fmt_.m_data.fastAvgLeadTimeJ_=0.;
+	  }
+
+	  auto iti = filesProcessed_.find(lastGlobalLumi_);
+	  if (iti != std::map:end) {
+	    fmt_.m_data.fastFilesProcessedJ_ = *it;//filesProcessed_[lastGlobalLumi_];
+	    else fmt_.m_data.fastFilesProcessedJ_=0;
+	  }
+	}
+
+	//decode mini/microstate using what is latest stored per stream()
+	for (unsigned int i=0;i<nStreams;i++) {
+	  fmt_.m_data.ministateDecoded_[i] = 0;//not supported for now
+	  //fmt_.m_data.ministateDecoded_[i] = encPath_.encode(fmt_.m_data.ministate_[i]);
+	  fmt_.m_data.microstateDecoded_[i] = encModule_.encode(fmt_.m_data.microstate_[i]);
+	}
+
+	//do a snapshot, also output fast CSV
+	fmt_.jsonMonitor_->snap(outputCSV, fastPath_,lastGlobalLumi_);
+      }
+
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
-               while (!fmt_.m_stoprequest) {
-                       std::cout << "Current states: Ms=" << fmt_.m_data.macrostate_
-                                       << " ms=" << encPath_.encode(fmt_.m_data.ministate_)
-                                       << " us=" << encModule_.encode(fmt_.m_data.microstate_)
-                                       << std::endl;
+	while (!fmt_.m_stoprequest) {
+	  std::cout << "Current states: Ms=" << fmt_.m_data.macrostate_;
+	  if (nStreams_==1)//only makes sense for 1 thread
+	    std::cout << " ms=" << encPath_.encode(fmt_.m_data.ministate_)
+	      << " us=" << encModule_.encode(fmt_.m_data.microstate_)
+	  std::cout << std::endl;
 
-			// lock the monitor
-			fmt_.monlock_.lock();
-			fmt_.m_data.processedJ_ = fmt_.m_data.processed_;
-			fmt_.m_data.macrostateJ_ = fmt_.m_data.macrostate_;
-			fmt_.m_data.ministateJ_ = encPath_.encode(fmt_.m_data.ministate_);
-			fmt_.m_data.microstateJ_ = encModule_.encode(fmt_.m_data.microstate_);
+	  // lock the monitor
+	  fmt_.monlock_.lock();
+	  //do a snapshot, also output fast CSV
+          doSnapshot(true);
+	  fmt_.monlock_.unlock();
 
-			fmt_.m_data.jsonMonitor_->snap(true, fastPath_);
-			fmt_.monlock_.unlock();
-
-			//::sleep(1);
-			::sleep(sleepTime_);
-		}
+	  ::sleep(sleepTime_);
+	}
       }
 
       //the actual monitoring thread is held by a separate class object for ease of maintenance
@@ -172,13 +204,31 @@ namespace evf{
       std::string /*rootDirectory_,*/ microstateDefPath_, outputDefPath_;
       std::string fastName_, fastPath_, slowName_;
 
-      std::map<unsigned int, timeval> lumiStartTime_, lumiStopTime_;//needed for multiplexed begin/end lumis
+      //variables that are used by/monitored by FastMonitoringThread / FastMonitor
+
+      std::map<unsigned int, timeval> lumiStartTime_// ,lumiStopTime_;//needed for multiplexed begin/end lumis
       timeval fileLookStart_, fileLookStop_;//this stuff should be better calculated by input source
 
-      std::map<unsigned int, bool> lumisection_;
+      std::atomic<unsigned int> lastGlobalLumi_;
+      std::atomic<bool> isGlobalLumiTransition_;
+      unsigned int lumiFromSource_;//possibly atomic
 
-      std::vector<double> leadTimes_;
+      //global state
+      Macrostate macrostate_;
+
+      //per stream
+      std::vector<const void*> ministate_;
+      std::vector<const void*> microstate_;
+
+      //variables measuring source statistics (global)
+      std::map<unsigned int, double> throughput_;
+      std::map<unsigned int, unsigned int> avgLeadTime_;
+      std::map<unsigned int, unsigned int> filesProcessedDuringLumi_;
+      //helpers for source statistics:
       std::map<unsigned int, unsigned long> accuSize_;
+      std::vector<double> leadTimes_;
+
+      //for output module
       std::unordered_map<unsigned int, int> processedEventsPerLumi_;
 
       boost::filesystem::path workingDirectory_, runDirectory_;
