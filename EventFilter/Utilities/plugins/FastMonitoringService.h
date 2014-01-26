@@ -138,32 +138,33 @@ namespace evf{
 
     private:
 
-      void doSnapshot(bool outputCSV) {
+      void doSnapshot(bool outputCSV, unsigned int forLumi) {
 
 	// update monitored content
 	fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
-	//update following vars unless we are in the middle of lumi transition
+	//update following vars unless we are in the middle of lumi transition (todo:pick up what's there)
 	if (!isGlobalLumiTransition) {
 	  //these are stored maps, try if there's element for last globalLumi
-	  auto itd = throughput_.find(lastGlobalLumi_);
+	  auto itd = throughput_.find(foLumi);
 	  if (itd!=std::map:end) {
 	    fmt_.m_data.fastThroughputJ_ = *it;//throughput_[lastGlobalLumi_];
 	    else fmt_.m_data.fastThroughputJ_=0.;
 	  }
 
-	  itd = avgLeadTime_.find(lastGlobalLumi_);
+	  itd = avgLeadTime_.find(forLumi);
 	  if (itd != std::map:end) {
 	    fmt_.m_data.fastAvgLeadTimeJ_ = *it;//avgLeadTime_[lastGlobalLumi_];
 	    else fmt_.m_data.fastAvgLeadTimeJ_=0.;
 	  }
 
-	  auto iti = filesProcessed_.find(lastGlobalLumi_);
+	  auto iti = filesProcessed_.find(forLumi);
 	  if (iti != std::map:end) {
 	    fmt_.m_data.fastFilesProcessedJ_ = *it;//filesProcessed_[lastGlobalLumi_];
 	    else fmt_.m_data.fastFilesProcessedJ_=0;
 	  }
 	}
+	else return; //skip snapshot if it happens in lumi transition
 
 	//decode mini/microstate using what is latest stored per stream()
 	for (unsigned int i=0;i<nStreams;i++) {
@@ -173,7 +174,7 @@ namespace evf{
 	}
 
 	//do a snapshot, also output fast CSV
-	fmt_.jsonMonitor_->snap(outputCSV, fastPath_,lastGlobalLumi_);
+	fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi);
       }
 
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
@@ -187,7 +188,7 @@ namespace evf{
 	  // lock the monitor
 	  fmt_.monlock_.lock();
 	  //do a snapshot, also output fast CSV
-          doSnapshot(true);
+          doSnapshot(true,lastGlobalLumi_);
 	  fmt_.monlock_.unlock();
 
 	  ::sleep(sleepTime_);
@@ -222,7 +223,7 @@ namespace evf{
 
       //variables measuring source statistics (global)
       std::map<unsigned int, double> throughput_;
-      std::map<unsigned int, unsigned int> avgLeadTime_;
+      std::map<unsigned int, double> avgLeadTime_;
       std::map<unsigned int, unsigned int> filesProcessedDuringLumi_;
       //helpers for source statistics:
       std::map<unsigned int, unsigned long> accuSize_;

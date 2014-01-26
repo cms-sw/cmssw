@@ -29,6 +29,8 @@ namespace evf{
       DoubleJ fastAvgLeadTimeJ_;
       IntJ fastFilesProcessedJ_;
 
+      unsigned int varIndexThrougput_;
+
       //per stream
       std::vector<unsigned int> microstateDecoded_;
       std::vector<unsigned int> ministateDecoded_;
@@ -73,7 +75,7 @@ namespace evf{
       void registerVariables(FastMonitor &fm, unsigned int nStreams) {
 	//tell FM to track these global variables(for fast and slow monitoring)
         fm.registerGlobalMonitorable(&fastMacrostateJ_,true);
-        fm.registerGlobalMonitorable(&fastThroughputJ_,false);
+        varIndexThroughput_ = fm.registerGlobalMonitorable(&fastThroughputJ_,false);
         fm.registerGlobalMonitorable(&fastAvgLeadTimeJ_,false);
         fm.registerGlobalMonitorable(&fastFilesProcessedJ_,false);
 
@@ -118,7 +120,6 @@ namespace evf{
     volatile bool m_stoprequest;
     boost::shared_ptr<boost::thread> m_thread;
     MonitorData m_data;
-    boost::mutex lock_;
     boost::mutex monlock_;
 
     std::auto_ptr<FastMonitor> jsonMonitor_;

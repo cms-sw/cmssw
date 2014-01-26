@@ -247,7 +247,7 @@ namespace evf{
 	  // Compute throughput
 	  unsigned int secondsForLumi = lumiStopTime.tv_sec - lumiStartTime_[lumi].tv_sec;
 	  unsigned long accuSize = accuSize_[lumi]==map::endl ? 0 : accuSize_[lumi];
-	  double throughput = double(accuSize) / double(secondsForLumi) / double(1024*1024);
+	  double throughput_ = double(accuSize) / double(secondsForLumi) / double(1024*1024);
 	  //store to registered variable
 	  fmt_.m_data.throughputJ_.value() = throughput;
 
