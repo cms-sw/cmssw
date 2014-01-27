@@ -42,7 +42,7 @@ class L1MuDTTFParameters {
   public:
 
     /// constructor
-    L1MuDTTFParameters() {}
+    L1MuDTTFParameters() { reset(); }
 
     /// destructor
     virtual ~L1MuDTTFParameters() {}
