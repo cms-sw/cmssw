@@ -362,6 +362,17 @@ bool SeedingLayerSetsBuilder::check(const edm::EventSetup& es) {
   return geometryWatcher_.check(es) | trhWatcher_.check(es);
 }
 
-ctfseeding::SeedingLayer::Hits SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es, unsigned short layerIndex) const {
-  return theLayers[layerIndex].extractor->hits(*theTTRHBuilders[layerIndex], ev, es);
+std::pair<std::vector<unsigned int>, ctfseeding::SeedingLayer::Hits> SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es) const {
+  std::pair<std::vector<unsigned int>, ctfseeding::SeedingLayer::Hits> ret;
+  ret.first.reserve(theLayers.size());
+  for(unsigned int i=0; i<theLayers.size(); ++i) {
+    // The index of the first hit of this layer
+    ret.first.push_back(ret.second.size());
+
+    // Obtain and copy the hits
+    ctfseeding::SeedingLayer::Hits tmp = theLayers[i].extractor->hits(*theTTRHBuilders[i], ev, es);
+    std::copy(tmp.begin(), tmp.end(), std::back_inserter(ret.second));
+  }
+
+  return ret;
 }
