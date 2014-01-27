@@ -34,52 +34,53 @@
   <class name="pat::Tau"  ClassVersion="12">
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
-   <field name="signalPFCandsTransientRefVector_" transient="true"/>
-   <field name="signalPFChargedHadrCandsTransientRefVector_" transient="true"/>
-   <field name="signalPFNeutralHadrCandsTransientRefVector_" transient="true"/>
-   <field name="signalPFGammaCandsTransientRefVector_" transient="true"/>
-   <field name="isolationPFCandsTransientRefVector_" transient="true"/>
-   <field name="isolationPFChargedHadrCandsTransientRefVector_" transient="true"/>
-   <field name="isolationPFNeutralHadrCandsTransientRefVector_" transient="true"/>
-   <field name="isolationPFGammaCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFCandsTransientPtrs_" transient="true"/>
+   <field name="signalPFChargedHadrCandsTransientPtrs_" transient="true"/>
+   <field name="signalPFNeutralHadrCandsTransientPtrs_" transient="true"/>
+   <field name="signalPFGammaCandsTransientPtrs_" transient="true"/>
+   <field name="isolationPFCandsTransientPtrs_" transient="true"/>
+   <field name="isolationPFChargedHadrCandsTransientPtrs_" transient="true"/>
+   <field name="isolationPFNeutralHadrCandsTransientPtrs_" transient="true"/>
+   <field name="isolationPFGammaCandsTransientPtrs_" transient="true"/>
    <version ClassVersion="12" checksum="2900944238"/>
    <version ClassVersion="11" checksum="3100353428"/>
    <version ClassVersion="10" checksum="2244564938"/>
   </class>
   <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
-  <class name="edm::AtomicPtrCache<reco::TrackRefVector>"/>
-  <class name="edm::AtomicPtrCache<reco::PFCandidateRefVector>" />
+   <class name="edm::AtomicPtrCache<reco::TrackRefVector>"/>
+   <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >" />
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationTracksTransientRefVector_">
   <![CDATA[isolationTracksTransientRefVector_.reset();]]>
   </ioread>
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalTracksTransientRefVector_">
   <![CDATA[signalTracksTransientRefVector_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFCandsTransientRefVector_">
-  <![CDATA[signalPFCandsTransientRefVector_.reset();]]>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFCandsTransientPtrs_">
+  <![CDATA[signalPFCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFChargedHadrCandsTransientRefVector_">
-  <![CDATA[signalPFChargedHadrCandsTransientRefVector_.reset();]]>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFChargedHadrCandsTransientPtrs_">
+  <![CDATA[signalPFChargedHadrCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFNeutralHadrCandsTransientRefVector_">
-  <![CDATA[signalPFNeutralHadrCandsTransientRefVector_.reset();]]>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFNeutralHadrCandsTransientPtrs_">
+  <![CDATA[signalPFNeutralHadrCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFGammaCandsTransientRefVector_">
-  <![CDATA[signalPFGammaCandsTransientRefVector_.reset();]]>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFGammaCandsTransientPtrs_">
+  <![CDATA[signalPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFCandsTransientRefVector_">
-  <![CDATA[isolationPFCandsTransientRefVector_.reset();]]>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFCandsTransientPtrs_">
+  <![CDATA[isolationPFCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFChargedHadrCandsTransientRefVector_">
-  <![CDATA[isolationPFChargedHadrCandsTransientRefVector_.reset();]]>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFChargedHadrCandsTransientPtrs_">
+  <![CDATA[isolationPFChargedHadrCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFNeutralHadrCandsTransientRefVector_">
-  <![CDATA[isolationPFNeutralHadrCandsTransientRefVector_.reset();]]>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFNeutralHadrCandsTransientPtrs_">
+  <![CDATA[isolationPFNeutralHadrCandsTransientPtrs_.reset();]]>
   </ioread>
-  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFGammaCandsTransientRefVector_">
-  <![CDATA[isolationPFGammaCandsTransientRefVector_.reset();]]>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFGammaCandsTransientPtrs_">
+  <![CDATA[isolationPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
-  <class name="pat::tau::TauPFSpecific"  ClassVersion="12">
+  <class name="pat::tau::TauPFSpecific"  ClassVersion="13">
+   <version ClassVersion="13" checksum="3129436753"/>
    <version ClassVersion="12" checksum="941745608"/>
    <version ClassVersion="11" checksum="3975939304"/>
    <version ClassVersion="10" checksum="2617942038"/>
