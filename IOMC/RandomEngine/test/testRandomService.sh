@@ -62,7 +62,7 @@ pushd ${LOCAL_TMP_DIR}
   rm -rf stream2LastEvent.txt
 
   cmsRun ${LOCAL_TEST_DIR}/testMultiStream_cfg.py > testMultiStreamDump.txt || die "cmsRun testMultiStream_cfg.py" $?
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testMultiStreamDump.txt  testMultiStreamDump.txt || die "comparing testMultiStreamDump.txt" $?
+  diff -I "TrackTSelector" ${LOCAL_TEST_DIR}/unit_test_outputs/testMultiStreamDump.txt  testMultiStreamDump.txt || die "comparing testMultiStreamDump.txt" $?
 
   echo " "
   echo "RandomNumberGeneratorService multistream test replay from event"
