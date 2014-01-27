@@ -7,32 +7,32 @@
 #include <sstream>
 
 SeedingLayerSetsHits::SeedingLayerSetsHits(): nlayers_(0), layerSetIndices_(nullptr), layerNames_(nullptr) {}
-SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers, const std::vector<LayerSetIndex> *layerSetIndices, const std::vector<std::string> *layerNames, const std::vector<const DetLayer *>& layerDets):
+SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers,
+                                           const std::vector<LayerSetIndex> *layerSetIndices,
+                                           const std::vector<std::string> *layerNames,
+                                           const std::vector<const DetLayer *>& layerDets):
   nlayers_(nlayers),
   layerSetIndices_(layerSetIndices),
-  layerHitRanges_(layerNames->size(), std::make_pair(std::numeric_limits<unsigned int>::max(), std::numeric_limits<unsigned int>::max())),
   layerNames_(layerNames),
   layerDets_(layerDets)
 {}
 SeedingLayerSetsHits::~SeedingLayerSetsHits() {}
 
-void SeedingLayerSetsHits::setHits(LayerIndex layerIndex, const Hits& hits) {
-  assert(layerIndex < layerHitRanges_.size());
-  Range& range = layerHitRanges_[layerIndex];
-  range.first = rechits_.size();
-  rechits_.reserve(rechits_.size()+hits.size());
-  std::copy(hits.begin(), hits.end(), std::back_inserter(rechits_));
-  range.second = rechits_.size();
 
-  //std::cout << "  added " << hits.size() << " hits to layer " << layerIndex << " range " << range.first << " " << range.second << std::endl;
+
+void SeedingLayerSetsHits::swapHits(std::vector<HitIndex>& layerHitIndices, Hits& hits) {
+  layerHitIndices_.swap(layerHitIndices);
+  rechits_.swap(hits);
 }
 
 SeedingLayerSetsHits::Hits SeedingLayerSetsHits::hits(LayerIndex layerIndex) const {
-  const Range& range = layerHitRanges_[layerIndex];
+  HitIndex begin = layerHitIndices_[layerIndex];
+  ++layerIndex;
+  HitIndex end = layerIndex < layerHitIndices_.size() ? layerHitIndices_[layerIndex] : rechits_.size();
 
   Hits ret;
-  ret.reserve(range.second-range.first);
-  std::copy(rechits_.begin()+range.first, rechits_.begin()+range.second, std::back_inserter(ret));
+  ret.reserve(end-begin);
+  std::copy(rechits_.begin()+begin, rechits_.begin()+end, std::back_inserter(ret));
   return ret;
 }
 
