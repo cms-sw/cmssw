@@ -24,10 +24,10 @@ const string DataPoint::SOURCE = "source";
 const string DataPoint::DEFINITION = "definition";
 const string DataPoint::DATA = "data";
 
+
+
 DataPoint::DataPoint(
-		std::vector<JsonMonitorable*> const& monVars, 
-		std::vector<JsonMonConfigData> const& monConfig,
-		unsigned int expectedUpdates, unsigned int maxUpdates):
+		//unsigned int expectedUpdates, unsigned int maxUpdates):
 		monitored_(&monVars) {
 		monitored_ = &monVars;
 		for (unsigned int i=0; i< monVars.size();i++) {
@@ -70,15 +70,30 @@ DataPoint::DataPoint(
 DataPoint::~DataPoint() {
 }
 
-//Serialized and deserializer to/from string array
+/*
+ *
+ * Method implementation for simple DataPoint usage
+ *
+ */
+
 
 void DataPoint::serialize(Json::Value& root) const {
+
 	root[SOURCE] = getSource();
 	root[DEFINITION] = getDefinition();
-	else {
-		for (unsigned int i = 0; i < getData().size(); i++)
-			root[DATA].append(getData()[i]);
+	for (unsigned int i=0;i<getData().size();i++)
+		root[DATA].append(getData()[i]);
+}
+
+
+
+void DataPoint::serialize(Json::Value& root, bool rootInit, std::string const&input) const {
+
+	if (rootInit) {
+	  root[SOURCE] = getSource();
+	  root[DEFINITION] = getDefinition();
 	}
+	root[DATA].append(input);
 }
 
 void DataPoint::deserialize(Json::Value& root) {
@@ -91,6 +106,25 @@ void DataPoint::deserialize(Json::Value& root) {
 		}
 	}
 }
+
+/*
+ *
+ * Method implementation for new monitoring
+ *
+ * */
+
+
+void DataPoint::serialize(Json::Value& root, bool rootInit, std::string const&input) const {
+
+	if (rootInit) {
+	  root[SOURCE] = getSource();
+	  root[DEFINITION] = getDefinition();
+	}
+	root[DATA].append(input);
+}
+
+
+
 
 //snap and in-place merge: new
 //todo: maybe speed this up very slightly by not using dynamic_cast stuff

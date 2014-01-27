@@ -140,7 +140,7 @@ namespace evf{
 
     private:
 
-      void doSnapshot(bool outputCSV, unsigned int forLumi) {
+      void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobal) {
 
 	// update monitored content
 	fmt_.m_data.fastMacrostateJ_ = macrostate_;
@@ -170,13 +170,13 @@ namespace evf{
 
 	//decode mini/microstate using what is latest stored per stream()
 	for (unsigned int i=0;i<nStreams;i++) {
-	  fmt_.m_data.ministateDecoded_[i] = 0;//not supported for now
-	  //fmt_.m_data.ministateDecoded_[i] = encPath_.encode(fmt_.m_data.ministate_[i]);
+//	  fmt_.m_data.ministateDecoded_[i] = 0;//maybe supported now --> 
+	  fmt_.m_data.ministateDecoded_[i] = encPath_.encode(fmt_.m_data.ministate_[i]);
 	  fmt_.m_data.microstateDecoded_[i] = encModule_.encode(fmt_.m_data.microstate_[i]);
 	}
 
 	//do a snapshot, also output fast CSV
-	fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi);
+	fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi,isGlobal);
       }
 
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
@@ -190,7 +190,7 @@ namespace evf{
 	  // lock the monitor
 	  fmt_.monlock_.lock();
 	  //do a snapshot, also output fast CSV
-          doSnapshot(true,lastGlobalLumi_);
+          doSnapshot(true,lastGlobalLumi_,false);
 	  fmt_.monlock_.unlock();
 
 	  ::sleep(sleepTime_);

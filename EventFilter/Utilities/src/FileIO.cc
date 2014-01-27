@@ -18,6 +18,7 @@
 
 using namespace jsoncollector;
 
+//TODO: open options, return succes/failure itd.
 void FileIO::writeStringToFile(std::string& filename, std::string& content) {
 	std::ofstream outputFile;
 	outputFile.open(filename.c_str());

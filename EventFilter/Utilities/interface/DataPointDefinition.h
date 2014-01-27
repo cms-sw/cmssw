@@ -49,7 +49,10 @@ public:
 	static bool getDataPointDefinitionFor(std::string defFilePath,
 			DataPointDefinition& def);
 
-	void populateMonConfig(std::vector<JsonMonConfig>& monConfig);
+	void setSourceInfo(std::string sourceInfo) {sourceInfo_=sourceInfo;}
+	std::string & getSourceInfo() {return sourceInfo_;}
+	std::string & getDefFilePath() {return defFilePath_;}
+	//void populateMonConfig(std::vector<JsonMonConfig>& monConfig);
 
 	//known JSON operation names
 	static const std::string SUM;
@@ -66,6 +69,8 @@ public:
 private:
 	std::vector<std::string> varNames_;
 	std::vector<std::string> opNames_;
+	std::string sourceInfo_;
+	std::string defFilePath_;
 };
 }
 

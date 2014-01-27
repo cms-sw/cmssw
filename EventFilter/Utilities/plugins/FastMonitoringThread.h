@@ -34,7 +34,7 @@ namespace evf{
       //per stream
       std::vector<unsigned int> microstateDecoded_;
       std::vector<unsigned int> ministateDecoded_;
-      std::vector<unsigned int> processed_;
+      std::vector<std::atomic<unsigned int>> processed_;
 
       //tracking luminosity of a stream
       std::vector<std::atomic<unsigned int>> streamLumi_;
@@ -91,7 +91,7 @@ namespace evf{
 	//tell FM to track these int vectors
         fm.registerStreamMonitorableUIntVec("Ministate", &ministateDecoded_,true,0);//what is 0 for ?
         fm.registerStreamMonitorableUIntVec("Microstate",&microstateDecoded_,true,0);
-        fm.registerStreamMonitorableUIntVec("Processed",&processed_,false,0);
+        fm.registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm.commit(&streamLumi_);
       }

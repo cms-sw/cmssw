@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-#include <tbb/concurrent_vector.h>
+//#include <tbb/concurrent_vector.h>
 
 namespace jsoncollector {
 class DataPoint: public JsonSerializable {
@@ -26,16 +26,16 @@ public:
 
 	DataPoint() { }
 
-	DataPoint(std::string const& source, std::string const& definition) :	source_(source), definition_(source) { }
+	DataPoint(std::string const& source, std::string const& definition) :	source_(source), definition_(definition) { }
 
-	DataPoint(	std::vector<JsonMonitorable*> const& data, 
-			std::vector<JsonMonConfig> const& monConfig,
-			unsigned int expectedUpdates = 1, unsigned int maxUpdates = 0);
+	//TODO: expected/maxUpdates still useful ? = unsigned int expectedUpdates = 1, unsigned int maxUpdates = 0
 
 	/**
 	 * JSON serialization procedure for this class
 	 */
+
 	virtual void serialize(Json::Value& root) const;
+
 	/**
 	 * JSON deserialization procedure for this class
 	 */
@@ -45,41 +45,72 @@ public:
 		return data_;
 	}
 
-	//static members for serialization of multiple DataPoints
-        static void serialize( tbb::concurrent_vector<DataPoint*> & dataPoints, std::vector<JsonMonConfig>& config);
+	/**
+	 * Functions specific to new monitoring implementation
+	 */
 
-	static std::string mergeAndSerializeMonitorables(tbb::concurrent_vector<DataPoint*> & dataPoints,
-		std::vector<JsonMonConfig>& config, unsigned int index);
+	void serialize(Json::Value& root, bool rootInit, std::string const& input) const;
 
-	void snap();
+	//take new update for lumi
+	void snap(unsigned int lumi,bool isGlobalUpdate=false);
 
-	void resetAccumulators() {
-		for (auto& i : dataNative_) i->resetValue();
-		updates_=0;
+	//set to track a variable
+	void trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdates);
+
+	//set to track a vector of variables
+	void trackVector(std::string const& name, std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates);
+
+	//variable not found by the service, but want to output something to JSON
+	void trackDummy(std::string const& name, bool setNAifZeroUpdates)
+	{
+		isDummy_=true;
+		setNAifZeroUpdates_=true;
 	}
 
+	//sets which operation is going to be performed on data (specified by JSON def)
+	void setOperation(OperationType opType);
+
+	//only used if per-stream DP
+	void setStreamLumiPtr(std::vector<std::atomic<unsigned int>> *streamLumiPtr) {
+	  streamLumiPtr_=streamLumiPtr;
+	}
+
+	//pointed object should be available until discard
+	JsonMonitorable * mergeAndRetrieve(unsigned int forLumi);
+
+	//uses move semantics in C++2011
+	std::string mergeAndSerialize(JsonValue& jsonRoot, bool initRoot);
+
+	void discardCollected(unsigned int forLumi);
+
+/*
 	unsigned int getUpdates() {return updates_;}
 
-	JsonMonitorable *monitorableAt(unsigned int index) {
-		if (index<dataNative_.size())
-			return dataNative_[index].get();
-		else return nullptr;
-	}
-
+*/
 	// JSON field names
 	static const std::string SOURCE;
 	static const std::string DEFINITION;
 	static const std::string DATA;
 
 protected:
-	//old
+	//for simple usage
 	std::string source_;
 	std::string definition_;
 	std::vector<std::string> data_;
 
-	std::vector<std::unique_ptr<JsonMonitorable>> dataNative_;
-	const std::vector<JsonMonitorable*> *monitored_;
-	unsigned int updates_;
+	//per stream queue of pointers to mon collectors
+	std::vector<std::queue<std::auto_ptr<JsonMonitorable>>> dataNative_;
+	//lumi for each queue entry
+	std::vector<std::queue<unsigned int>> queuedStreamLumi_;
+
+	bool isStream_ = false;
+	bool isAtomic_ = false;
+	bool isDummy_ = false;
+	bool NAifZeroUpdates_ = false;
+	
+	MonType varType;
+	OperationType opType;
+	std::vector<std::atomic<unsigned int>> *streamLumiPtr_ = nullptr;
 
 };
 }

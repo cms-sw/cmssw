@@ -259,7 +259,7 @@ namespace evf{
 			<< fmt_.m_data.processedJ_.value() << " time = " << secondsForLumi
 			<< " size = " << accuSize << " thr = " << throughput << std::endl;
 
-	  doSnapshot(true,lumi);
+	  doSnapshot(true,lumi,true);
 
 	  // create file name for slow monitoring file
 	  std::stringstream slowFileName;
@@ -270,8 +270,9 @@ namespace evf{
 	  slow /= slowFileName.str();
 
 	  //retrieve one result we need (todo: sanity check if it's found)
-	  intJ lumiProcessedJ = fmt_.m_data.jsonMonitor->getMergedIntJforLumi("Processed",lumi);//TODO
-	  processedEventsPerLumi_[lumi] = lumiProcessedJ.value();//fmt_.m_data.processedJ_.value();
+	  IntJ* lumiProcessedJptr = std::dynamic_cast<IntJ*>(fmt_.jsonMonitor->getMergedVarForLumi("Processed",lumi));
+          assert(lumiProcessedJpr!=nullptr);
+	  processedEventsPerLumi_[lumi] = lumiProcessedJ->value();
 
 	  //full global and stream merge&output for this lumi
 	  fmt_.m_data.jsonMonitor_->outputFullJSON(slow.string(),lumi);//full global and stream merge and JSON write for this lumi
@@ -352,9 +353,10 @@ namespace evf{
   void FastMonitoringService::postEvent(edm::StreamContext const& sc)
   {
     fmt_.m_data.microstate_ = &reservedMicroStateNames[mFwkOvh];
-    fmt_.monlock_.lock();
-    fmt_.m_data.processed_[sc.streamID()].value()++;
-    fmt_.monlock_.unlock();
+    //fmt_.monlock_.lock();
+    //do atomic "release" - any subsequent "acquire" read should pick this up
+    fmt_.m_data.processed_[sc.streamID()].store(++processed_[sc.streamID()],std::memory_order_release);
+    //fmt_.monlock_.unlock();
   }
 
   void FastMonitoringService::preSourceEvent(edm::StreamID sid)

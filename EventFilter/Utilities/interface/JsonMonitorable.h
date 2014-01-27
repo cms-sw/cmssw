@@ -32,17 +32,8 @@ public:
 		if (nBins) binBuffer_.reset(new unsigned int[nBins]);
 	}
 
-	MonType getMonType() {return monType_;}
-	void setMonType(MonType monType) {monType_ = monType;}
-
-	OperationType getOperationType() {return operationType_;}
-	void setOperationType(OperationType operationType) {operationType_ = operationType;}
-
 	std::string const& getName() {return name_;}
 	void setName(std::string const& name) {name_ = name;}
-
-	bool getNAifZero() {return NAifZero_;}
-	void setNAifZero(bool NAifZero) {NAifZero_ = NAifZero;}
 
 	//histograms
 	unsigned int getNBins() {return nBins_;}
@@ -53,18 +44,16 @@ public:
 	}
 
 	std::auto_ptr<unsigned int> getBinBuffer() {return binBuffer_;}
-
+/*
 	std::string *getSourceInfoPtr() {return sourceInfoPtr_;}
 	void setSourceInfoPtr(std::string *sPtr) {sourceInfoPtr_=sPtr;}
 
 	std::string *definitionPtr() {return definitionPtr_;}
 	void setDefinitionPtr(std::string *dPtr) {definitionPtr_=dPtr;}
+*/
 
 private:
-	MonType monType_;
-	OperationType operationType_;
 	std::string name_;
-	bool NAifZero_;
 	unsigned int nBins_;
 	std::auto_ptr<unsigned int> binBuffer_;//maybe separate this out to be cleaner
 	std::string *sourceInfoPtr_;
@@ -99,13 +88,6 @@ class IntJ: public JsonMonitorable {
 public:
 	IntJ() : JsonMonitorable(), theVar_(0) {}
 
-//	IntJ(int initVal) : theVar_(initVal), updates_(0), notSame_(0) {}
-
-//	IntJ(const IntJ& other) {
-//		theVar_ = other.value();
-//		updates_ = other.getUpdates();
-//		notSame_ = other.getNotSame();
-//	}
 	virtual ~IntJ() {}
 
 	virtual std::string toString() const {
@@ -126,10 +108,12 @@ public:
 	int & value() {
 		return theVar_;
 	}
+	/*
 	void add(int added) {
 		theVar_+=added;
 		updates_++;
 	}
+	*/
 
 private:
 	int theVar_;
@@ -141,16 +125,6 @@ class DoubleJ: public JsonMonitorable {
 public:
 	DoubleJ() : JsonMonitorable(), theVar_(0) {}
 
-//	DoubleJ(double initVar) {
-//		theVar_ = initVar;
-//		updates_ = 0;
-//		notSame_ = 0;
-//	}
-//	DoubleJ(const DoubleJ& other) {
-//		theVar_ = other.value();
-//		updates_ = other.getUpdates();
-//		notSame_ = other.getNotSame();
-//	}
 	virtual ~DoubleJ() {}
 
 	virtual std::string toString() const {
@@ -171,10 +145,6 @@ public:
 	double & value() {
 		return theVar_;
 	}
-	void add(double added) {
-		theVar_+=added;
-		updates_++;
-	}
 
 private:
 	double theVar_;
@@ -186,16 +156,6 @@ class StringJ: public JsonMonitorable {
 public:
 	StringJ() :  JsonMonitorable() {}
 
-//	StringJ(std::string initVal) {
-//		theVar_ = initVal;
-//		updates_ = 0;
-//		notSame_ = 0;
-//	}
-//	StringJ(const StringJ& other) {
-//		theVar_ = other.value();
-//		updates_ = other.getUpdates();
-//		notSame_ = other.getNotSame();
-//	}
 	virtual ~StringJ() {}
 
 	virtual std::string toString() const {
@@ -214,10 +174,12 @@ public:
 	std::string & value() {
 		return theVar_;
 	}
+	/*
 	void concatenate(std::string const& added) {
 		theVar_+=added;
 		updates_++;
 	}
+	*/
 
 private:
 	std::string theVar_;
@@ -234,12 +196,6 @@ public:
 		if (maxUpdates_ && maxUpdates_<expectedSize_) expectedSize_=maxUpdates_;
 		histo_.reserve(expectedSize_);
 	}
-//	HistoJ(const HistoJ& other) {
-//		histo_  = other.value();
-//		expectedSize_ = other.getExpectedSize();
-//		updates_ = other.getUpdates();
-//		maxUpdates_ = other.getMaxUpdates();
-//	}
 	virtual ~HistoJ() {}
 
 	std::string toCSV() const {

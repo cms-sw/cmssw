@@ -22,7 +22,7 @@ const std::string DataPointDefinition::OPERATION = "operation";
 
 
 //static member
-bool ObjectMerger::getDataPointDefinitionFor(string defFilePath,
+bool ObjectMerger::getDataPointDefinitionFor(std::string defFilePath, std::string sourceInfo,
 		DataPointDefinition& dpd) {
 	string dpdString;
 	bool readOK = FileIO::readStringFromFile(defFilePath, dpdString);
@@ -33,6 +33,7 @@ bool ObjectMerger::getDataPointDefinitionFor(string defFilePath,
 		return false;
 	}
 	JSONSerializer::deserialize(&dpd, dpdString);
+	dpd.setSourceInfo(sourceInfo);
 	return true;
 
 
@@ -61,15 +62,27 @@ bool DataPointDefinition::isPopulated() const {
 	return false;
 }
 
-void DataPointDefinition::populateMonitorableConfig(std::vector<JsonMonConfig> & monConfig) {
-	for (unsigned int i = 0; i < varNames_.size(); i++) {
-		OperationType opType=OPUNKNOWN;
-		if (opNames_.at(i)== DataPointDefinition::SUM) opType=OPSUM;
-		if (opNames_.at(i)== DataPointDefinition::AVG) opType=OPAVG;
-		if (opNames_.at(i)== DataPointDefinition::SAME) opType=OPSAME;
-		if (opNames_.at(i)== DataPointDefinition::HISTO) opType=OPHISTO;
-		if (opNames_.at(i)== DataPointDefinition::CAT) opType=OPCAT;
-		JsonMonConfig jmc(TYPEUNDEFINED, opType, varNames_.at(i), const& name, false ,0);
-		monConfig.push_back(jmc);
-	}
+
+OperationType DataPointDefinition::getOperationFor(unsigned int index) {
+	OperationType opType=OPUNKNOWN;
+	if (opNames_.at(index)== DataPointDefinition::SUM) opType=OPSUM;
+	if (opNames_.at(index)== DataPointDefinition::AVG) opType=OPAVG;
+	if (opNames_.at(index)== DataPointDefinition::SAME) opType=OPSAME;
+	if (opNames_.at(index)== DataPointDefinition::HISTO) opType=OPHISTO;
+	if (opNames_.at(index)== DataPointDefinition::CAT) opType=OPCAT;
+	return opType;
+}
+/*
+   void DataPointDefinition::populateMonitorableConfig(std::vector<JsonMonConfig> & monConfig) {
+   for (unsigned int i = 0; i < varNames_.size(); i++) {
+   OperationType opType=OPUNKNOWN;
+   if (opNames_.at(i)== DataPointDefinition::SUM) opType=OPSUM;
+   if (opNames_.at(i)== DataPointDefinition::AVG) opType=OPAVG;
+   if (opNames_.at(i)== DataPointDefinition::SAME) opType=OPSAME;
+   if (opNames_.at(i)== DataPointDefinition::HISTO) opType=OPHISTO;
+   if (opNames_.at(i)== DataPointDefinition::CAT) opType=OPCAT;
+   JsonMonConfig jmc(TYPEUNDEFINED, opType, varNames_.at(i), const& name, false ,0);
+   monConfig.push_back(jmc);
+   }
+   */
 }

@@ -57,18 +57,25 @@ public:
 private:
 
 	std::string defPath_;
-	std::string sourceInfo_;
 	unsigned int nStreams_;
+
+	std::string sourceInfo_;
 	DataPointDefinition dpd_;
 
-	std::vector<DataPoint*> jsonPtrAtIndex_;
-	JsonMonConfig monConfig_;
+	std::vector<DataPoint*> dataPoints_;
+	std::vector<unsigned int> jsonDpIndex_;
+	std::vector<DataPoint*> orphanedDps_;
+	std::vector<std::string,unsigned int> dpNameMap_;
 
-	std::vector<DataPointCollector> monitored_;//each var is one vector entry
+	unsigned int recentSnaps_ = 0;
+	unsigned int regDpCount_ = 0;
+//	JsonMonConfig monConfig_;
+
+//	std::vector<DataPoint*> dataPoints_;//each var is one vector entry//rename to DataPointCollector
 
 	//	std::vector<JsonMonitorable*> monitorableVars_;
-	std::vector<std::vector<JsonMonitorable*>> monitoredVars_; //per stream
-	std::vector<tbb::concurrent_queue<DataPoint*>> accDpQueues_;//per stream tbb queues
+//	std::vector<std::vector<JsonMonitorable*>> monitoredVars_; //per stream
+//	std::vector<tbb::concurrent_queue<DataPoint*>> accDpQueues_;//per stream tbb queues
 };
 
 }
