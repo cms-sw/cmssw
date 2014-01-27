@@ -52,6 +52,18 @@ bool ora::ClassUtils::isType( const edm::TypeWithDict& type,
   return ret;
 }
 
+static
+void
+replaceString(std::string& name, std::string const& from, std::string const& to) {
+  // from must not be a substring of to.
+  std::string::size_type length = from.size();
+  std::string::size_type pos = 0;
+  while((pos = name.find(from, pos)) != std::string::npos) {
+     name.replace(pos, length, to);
+  }
+}
+
+
 bool ora::ClassUtils::checkMappedType( const edm::TypeWithDict& type, 
 				                       const std::string& mappedTypeName ){
   if( isTypeString( type ) ){
@@ -60,13 +72,15 @@ bool ora::ClassUtils::checkMappedType( const edm::TypeWithDict& type,
     return mappedTypeName=="int";
   } else if ( isTypeOraVector( type ) ){
     return isTypeNameOraVector( mappedTypeName );
-  } else if ( type.qualifiedName()=="Long64_t" ){
-    return (mappedTypeName=="Long64_t" || mappedTypeName=="long long");
-  } else if ( type.qualifiedName()=="unsigned Long64_t" ){
-    return (mappedTypeName=="unsigned Long64_t" || mappedTypeName=="unsigned long long");
-  } else {
-    return type.qualifiedName()==mappedTypeName;
+  } else if ( type.qualifiedName() == mappedTypeName ) {
+    return true;
   }
+  // ROOT 6 uses these typedefs in names.
+  std::string typeName(mappedTypeName); 
+  replaceString(typeName, "unsigned long long", "ULong64_t");
+  replaceString(typeName, "long long", "Long64_t");
+  replaceString(typeName, "std::basic_string<char> ", "std::string");
+  return (type.qualifiedName() == typeName );
 }
 
 bool ora::ClassUtils::findBaseType( edm::TypeWithDict& type, edm::TypeWithDict& baseType, size_t& func ){
