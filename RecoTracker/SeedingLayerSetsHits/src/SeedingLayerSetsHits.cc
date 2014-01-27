@@ -6,35 +6,21 @@
 #include <limits>
 #include <sstream>
 
-SeedingLayerSetsHits::SeedingLayerSetsHits(): SeedingLayerSetsHits(0) {}
-SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned int nlayers): nlayers_(nlayers) {}
+SeedingLayerSetsHits::SeedingLayerSetsHits(): nlayers_(0), layerSetIndices_(nullptr), layerNames_(nullptr) {}
+SeedingLayerSetsHits::SeedingLayerSetsHits(unsigned short nlayers, const std::vector<LayerSetIndex> *layerSetIndices, const std::vector<std::string> *layerNames, const std::vector<const DetLayer *>& layerDets):
+  nlayers_(nlayers),
+  layerSetIndices_(layerSetIndices),
+  layerHitRanges_(layerNames->size(), std::make_pair(std::numeric_limits<unsigned int>::max(), std::numeric_limits<unsigned int>::max())),
+  layerNames_(layerNames),
+  layerDets_(layerDets)
+{}
 SeedingLayerSetsHits::~SeedingLayerSetsHits() {}
 
-std::pair<SeedingLayerSetsHits::LayerIndex, bool> SeedingLayerSetsHits::insertLayer(const std::string& layerName, const DetLayer *layerDet) {
-  std::pair<LayerIndex, bool> index = insertLayer_(layerName, layerDet);
-  layerSetIndices_.push_back(index.first);
-  return index;
-}
-
-std::pair<SeedingLayerSetsHits::LayerIndex, bool> SeedingLayerSetsHits::insertLayer_(const std::string& layerName, const DetLayer *layerDet) {
-  auto found = std::find(layerNames_.begin(), layerNames_.end(), layerName);
-  // insert if not found
-  if(found == layerNames_.end()) {
-    layerNames_.push_back(layerName);
-    layerDets_.push_back(layerDet);
-    const auto max = std::numeric_limits<unsigned int>::max();
-    layerHitRanges_.emplace_back(max, max);
-    //std::cout << "Inserted layer " << layerName << " to index " << layerNames_.size()-1 << std::endl;
-    return std::make_pair(layerNames_.size()-1, true);
-  }
-  //std::cout << "Encountered layer " << layerName << " index " << found-layerNames_.begin() << std::endl;
-  return std::make_pair(found-layerNames_.begin(), false);
-}
-
-void SeedingLayerSetsHits::insertLayerHits(LayerIndex layerIndex, const Hits& hits) {
+void SeedingLayerSetsHits::setHits(LayerIndex layerIndex, const Hits& hits) {
   assert(layerIndex < layerHitRanges_.size());
   Range& range = layerHitRanges_[layerIndex];
   range.first = rechits_.size();
+  rechits_.reserve(rechits_.size()+hits.size());
   std::copy(hits.begin(), hits.end(), std::back_inserter(rechits_));
   range.second = rechits_.size();
 
