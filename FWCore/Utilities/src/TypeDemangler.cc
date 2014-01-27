@@ -132,10 +132,10 @@ namespace edm {
     constBeforeIdentifier(demangledName);
     // No two consecutive '>' 
     replaceString(demangledName, ">>", "> >");
-    // For ROOT 6 and beyond, replace 'long long' with 'Long64_t'
-    replaceString(demangledName, "long long", "Long64_t");
     // For ROOT 6 and beyond, replace 'unsigned long long' with 'ULong64_t'
     replaceString(demangledName, "unsigned long long", "ULong64_t");
+    // For ROOT 6 and beyond, replace 'long long' with 'Long64_t'
+    replaceString(demangledName, "long long", "Long64_t");
     return demangledName;
   }
 }
