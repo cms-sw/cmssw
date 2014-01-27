@@ -12,7 +12,7 @@
 
 #include <string>
 #include <vector>
-namespace edm { class EventSetup; class ConsumesCollector;}
+namespace edm { class Event; class EventSetup; class ConsumesCollector;}
 class TrackerRecoGeometryRecord;
 class TransientRecHitRecord;
 class TransientTrackingRecHitBuilder;
@@ -30,6 +30,15 @@ public:
 
   bool check(const edm::EventSetup& es);
   void updateEventSetup(const edm::EventSetup& es);
+
+  typedef unsigned short LayerSetIndex;
+  unsigned short numberOfLayersInSet() const { return theNumberOfLayersInSet; }
+  const std::vector<LayerSetIndex>& layerSetIndices() const { return theLayerSetIndices; }
+
+  unsigned short numberOfLayers() const { return theLayers.size(); }
+  const std::vector<std::string>& layerNames() const { return theLayerNames; }
+  const std::vector<const DetLayer *>& layerDets() const { return theLayerDets; }
+  ctfseeding::SeedingLayer::Hits hits(const edm::Event& ev, const edm::EventSetup& es, unsigned short layerIndex) const;
 
 private:
   std::vector<std::vector<std::string> > layerNamesInSets(
@@ -54,7 +63,6 @@ private:
 
     std::string print(const std::vector<std::string>& names) const;
   }; 
-  typedef unsigned short LayerSetIndex;
   unsigned short theNumberOfLayersInSet;
   std::vector<LayerSetIndex> theLayerSetIndices; // indices to theLayers to form the layer sets
   std::vector<std::string> theLayerNames;

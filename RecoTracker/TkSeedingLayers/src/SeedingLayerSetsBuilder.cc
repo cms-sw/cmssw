@@ -361,3 +361,7 @@ bool SeedingLayerSetsBuilder::check(const edm::EventSetup& es) {
   // to || (should be tiny effect)
   return geometryWatcher_.check(es) | trhWatcher_.check(es);
 }
+
+ctfseeding::SeedingLayer::Hits SeedingLayerSetsBuilder::hits(const edm::Event& ev, const edm::EventSetup& es, unsigned short layerIndex) const {
+  return theLayers[layerIndex].extractor->hits(*theTTRHBuilders[layerIndex], ev, es);
+}
