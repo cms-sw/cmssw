@@ -22,7 +22,7 @@ public:
   ~SeedingLayerImpl() {  }
 
   SeedingLayer::Hits hits(const SeedingLayer &sl, const edm::Event& ev, 
-			  const edm::EventSetup& es) const { return theHitExtractor->hits(sl,ev,es);  }
+			  const edm::EventSetup& es) const { return theHitExtractor->hits(*theTTRHBuilder, ev, es);  }
 
   std::string name() const { return theName; }
 

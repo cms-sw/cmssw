@@ -20,16 +20,16 @@ void HitExtractorPIX::useSkipClusters_(const edm::InputTag & m, edm::ConsumesCol
   theSkipClusters = iC.consumes<SkipClustersCollection>(m);
 }
 
-HitExtractor::Hits HitExtractorPIX::hits(const SeedingLayer & sl,const edm::Event& ev, const edm::EventSetup& es) const
+HitExtractor::Hits HitExtractorPIX::hits(const TransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& ev, const edm::EventSetup& es) const
 {
   HitExtractor::Hits result;
   TrackerLayerIdAccessor accessor;
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   ev.getByToken( theHitProducer, pixelHits);
   if (theSide==SeedingLayer::Barrel) {
-    range2SeedingHits( *pixelHits, result, accessor.pixelBarrelLayer(theIdLayer), sl, es );
+    range2SeedingHits( *pixelHits, result, accessor.pixelBarrelLayer(theIdLayer), ttrhBuilder, es );
   } else {
-    range2SeedingHits( *pixelHits, result, accessor.pixelForwardDisk(theSide,theIdLayer), sl, es );
+    range2SeedingHits( *pixelHits, result, accessor.pixelForwardDisk(theSide,theIdLayer), ttrhBuilder, es );
   }
 
 
