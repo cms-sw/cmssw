@@ -238,9 +238,11 @@ void l1t::L1uGtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
 
     XERCES_CPP_NAMESPACE_USE
 
+      std::cout << " ====> parseXmlFile test 1 " << std::endl;
     // resize the vector of condition maps
     // the number of condition chips should be correctly set before calling parseXmlFile
     m_conditionMap.resize(m_numberConditionChips);
+      std::cout << " ====> parseXmlFile test 2 " << std::endl;
 
     m_vecMuonTemplate.resize(m_numberConditionChips);
     m_vecCaloTemplate.resize(m_numberConditionChips);
@@ -256,6 +258,7 @@ void l1t::L1uGtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_corMuonTemplate.resize(m_numberConditionChips);
     m_corCaloTemplate.resize(m_numberConditionChips);
     m_corEnergySumTemplate.resize(m_numberConditionChips);
+      std::cout << " ====> parseXmlFile test 3 " << std::endl;
 
     // set the name of the trigger menu name:
     //     defXmlFile, stripped of absolute path and .xml
@@ -265,21 +268,26 @@ void l1t::L1uGtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     size_t xmlPos = m_triggerMenuName.find_last_of("/");
     m_triggerMenuName.erase(m_triggerMenuName.begin(), m_triggerMenuName.begin()
             + xmlPos + 1);
+      std::cout << " ====> parseXmlFile test 4 " << std::endl;
 
     xmlPos = m_triggerMenuName.find_last_of(".");
     m_triggerMenuName.erase(m_triggerMenuName.begin() + xmlPos, m_triggerMenuName.end());
 
     // error handler for xml-parser
     m_xmlErrHandler = 0;
+      std::cout << " ====> parseXmlFile test 5 " << std::endl;
 
     std::auto_ptr<l1t::L1TriggerMenu> tm(l1t::l1TriggerMenu(defXmlFile));
+      std::cout << " ====> parseXmlFile test 6 " << std::endl;
 
     LogTrace("L1uGtTriggerMenuXmlParser") << "\nOpening XML-File: \n  " << defXmlFile << std::endl;
 
     l1t::ConditionList conditions = tm->conditions();
+      std::cout << " ====> parseXmlFile test 7 " << std::endl;
 
     workXML( tm );
-    
+          std::cout << " ====> parseXmlFile test 8 " << std::endl;
+
 //     if ((parser = initXML(defXmlFile)) != 0) {
 //         workXML(parser);
 //     }
@@ -1526,6 +1534,9 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     std::string type = "single";//l1t2string( condMu.type() );
     std::string name = l1t2string( condMu.name() );
 
+    if( particle=="mu" ) particle = "muon";
+    if( type=="single" ) type = "1_s";
+
     std::cout << " ****************************************** " << std::endl;
     std::cout << "      DARRENS TEST OUTPUT (in parseMuon)  " << std::endl;
     std::cout << " condition = " << condition << std::endl;
@@ -1533,133 +1544,153 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     std::cout << " type      = " << type << std::endl;
     std::cout << " name      = " << name << std::endl;
 
-//     if (particle != m_xmlConditionAttrObjectMu) {
-//         edm::LogError("L1uGtTriggerMenuXmlParser") << "Wrong particle for muon-condition ("
-//             << particle << ")" << std::endl;
-//         return false;
-//     }
+    if (particle != m_xmlConditionAttrObjectMu) {
+        edm::LogError("L1uGtTriggerMenuXmlParser") << "Wrong particle for muon-condition ("
+            << particle << ")" << std::endl;
+        return false;
+    }
 
-//     int nrObj = getNumFromType(type);
-//     if (nrObj < 0) {
-//         edm::LogError("L1uGtTriggerMenuXmlParser") << "Unknown type for muon-condition (" << type
-//             << ")" << "\nCan not determine number of trigger objects. " << std::endl;
-//         return false;
-//     }
+    int nrObj = getNumFromType(type);
+    if (nrObj < 0) {
+        edm::LogError("L1uGtTriggerMenuXmlParser") << "Unknown type for muon-condition (" << type
+            << ")" << "\nCan not determine number of trigger objects. " << std::endl;
+        return false;
+    }
 
 //     // get greater equal flag
 
-//     int intGEq = getGEqFlag(node, m_xmlTagPtHighThreshold);
-//     if (intGEq < 0) {
-//         edm::LogError("L1uGtTriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
-//             << std::endl;
-//         return false;
-//     }
-//     // set the boolean value for the ge_eq mode
-//     bool gEq = (intGEq != 0);
+    // temp values DP
+    int intGEq = 1;//getGEqFlag(node, m_xmlTagPtHighThreshold);
+    if (intGEq < 0) {
+        edm::LogError("L1uGtTriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
+            << std::endl;
+        return false;
+    }
+    // set the boolean value for the ge_eq mode
+    bool gEq = (intGEq != 0);
 
 //     // get values
 
-//     // temporary storage of the parameters
-//     std::vector<L1GtMuonTemplate::ObjectParameter> objParameter(nrObj);
-//     L1GtMuonTemplate::CorrelationParameter corrParameter;
+    // temporary storage of the parameters
+    std::vector<L1GtMuonTemplate::ObjectParameter> objParameter(nrObj);
+    L1GtMuonTemplate::CorrelationParameter corrParameter;
 
-//     // need at least two values for deltaPhi
-//     std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
+    // need at least two values for deltaPhi
+    std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
 
+    boost::uint64_t dst;
+
+    // need this for future DP
 //     // get ptHighThreshold values and fill into structure
 //     if ( !getConditionChildValuesOld(node, m_xmlTagPtHighThreshold, nrObj, tmpValues) ) {
 //         return false;
 //     }
 
-//     for (int i = 0; i < nrObj; i++) {
-//         objParameter[i].ptHighThreshold = tmpValues[i];
+    for (int i = 0; i < nrObj; i++) {
+      getXMLHexTextValue("0a", dst);
 
-//         //LogTrace("L1uGtTriggerMenuXmlParser")
-//         //<< "      Muon pT high threshold (hex) for muon " << i << " = "
-//         //<< std::hex << objParameter[i].ptHighThreshold << std::dec
-//         //<< std::endl;
-//     }
+      objParameter[i].ptHighThreshold = dst;//tmpValues[i];
 
+//       LogTrace("L1uGtTriggerMenuXmlParser")
+//         << "      Muon pT high threshold (hex) for muon " << i << " = "
+//         << std::hex << objParameter[i].ptHighThreshold << std::dec
+//         << std::endl;
+    }
+
+    // need this for future DP
 //     // get ptLowThreshold values  and fill into structure
 //     if ( !getConditionChildValuesOld(node, m_xmlTagPtLowThreshold, nrObj, tmpValues) ) {
 //         return false;
 //     }
 
-//     for (int i = 0; i < nrObj; i++) {
-//         //LogTrace("L1uGtTriggerMenuXmlParser")
-//         //<< "        Muon pT low threshold word (hex) for muon " << i << " = "
-//         //<< std::hex << tmpValues[i] << std::dec
-//         //<< std::endl;
+    for (int i = 0; i < nrObj; i++) {
+        //LogTrace("L1uGtTriggerMenuXmlParser")
+        //<< "        Muon pT low threshold word (hex) for muon " << i << " = "
+        //<< std::hex << tmpValues[i] << std::dec
+        //<< std::endl;
 
-//         // TODO FIXME stupid format in def.xml...
-//         // one takes mip bit also, therefore one divide by 16
-//         tmpValues[i] = (tmpValues[i])/16;
+        // TODO FIXME stupid format in def.xml...
+        // one takes mip bit also, therefore one divide by 16
+    // need this for future DP
+      //tmpValues[i] = (tmpValues[i])/16;
 
-//         objParameter[i].ptLowThreshold = tmpValues[i];
+    // need this for future DP
+        getXMLHexTextValue("0", dst);
+	objParameter[i].ptLowThreshold = dst;//tmpValues[i];
 
-//         //LogTrace("L1uGtTriggerMenuXmlParser")
-//         //<< "      Muon pT low threshold (hex) for muon  " << i << " = "
-//         //<< std::hex << objParameter[i].ptLowThreshold << std::dec
-//         //<< std::endl;
-//     }
+        //LogTrace("L1uGtTriggerMenuXmlParser")
+        //<< "      Muon pT low threshold (hex) for muon  " << i << " = "
+        //<< std::hex << objParameter[i].ptLowThreshold << std::dec
+        //<< std::endl;
+    }
 
+    // need this for future DP
 //     // get qualityRange and fill into structure
 //     if ( !getConditionChildValuesOld(node, m_xmlTagQuality, nrObj, tmpValues) ) {
 //         return false;
 //     }
 
-//     for (int i = 0; i < nrObj; i++) {
-//         objParameter[i].qualityRange = tmpValues[i];
+    for (int i = 0; i < nrObj; i++) {
+    // need this for future DP
+        getXMLHexTextValue("f0", dst);
+      objParameter[i].qualityRange = dst;//tmpValues[i];
 
-//         //LogTrace("L1uGtTriggerMenuXmlParser")
-//         //<< "      qualityRange mask (hex) for muon " << i << " = "
-//         //<< std::hex << objParameter[i].qualityRange << std::dec
-//         //<< std::endl;
-//     }
+        //LogTrace("L1uGtTriggerMenuXmlParser")
+        //<< "      qualityRange mask (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].qualityRange << std::dec
+        //<< std::endl;
+    }
 
+    // need this for future DP
 //     // get etaRange and fill into structure
 //     if ( !getConditionChildValuesOld(node, m_xmlTagEta, nrObj, tmpValues) ) {
 //         return false;
 //     }
 
-//     for (int i = 0; i < nrObj; i++) {
+    for (int i = 0; i < nrObj; i++) {
 
-//         objParameter[i].etaRange = tmpValues[i];
+        getXMLHexTextValue("FFFFFFFFFFFFFFFF", dst);
+        objParameter[i].etaRange = dst;//tmpValues[i];
 
-//         //LogTrace("L1uGtTriggerMenuXmlParser")
-//         //<< "      etaRange (hex) for muon " << i << " = "
-//         //<< std::hex << objParameter[i].etaRange << std::dec
-//         //<< std::endl;
-//     }
+        //LogTrace("L1uGtTriggerMenuXmlParser")
+        //<< "      etaRange (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].etaRange << std::dec
+        //<< std::endl;
+    }
 
+    // need this for future DP
 //     // get phiHigh values and fill into structure
 //     if ( !getConditionChildValuesOld(node, m_xmlTagPhiHigh, nrObj, tmpValues) ) {
 //         return false;
 //     }
 
-//     for (int i = 0; i < nrObj; i++) {
-//         objParameter[i].phiHigh = tmpValues[i];
+    for (int i = 0; i < nrObj; i++) {
+      getXMLHexTextValue("8f", dst);
+      objParameter[i].phiHigh = dst;//tmpValues[i];
 
-//         //LogTrace("L1uGtTriggerMenuXmlParser")
-//         //<< "      phiHigh (hex) for muon " << i << " = "
-//         //<< std::hex << objParameter[i].phiHigh << std::dec
-//         //<< std::endl;
-//     }
+        //LogTrace("L1uGtTriggerMenuXmlParser")
+        //<< "      phiHigh (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].phiHigh << std::dec
+        //<< std::endl;
+    }
 
+    // need this for future DP
 //     // get phiLow values and fill into structure
 //     if ( !getConditionChildValuesOld(node, m_xmlTagPhiLow, nrObj, tmpValues) ) {
 //         return false;
 //     }
 
-//     for (int i = 0; i < nrObj; i++) {
-//         objParameter[i].phiLow = tmpValues[i];
+    for (int i = 0; i < nrObj; i++) {
+      getXMLHexTextValue("00", dst);
+      objParameter[i].phiLow = dst;//tmpValues[i];
 
-//         //LogTrace("L1uGtTriggerMenuXmlParser")
-//         //<< "      phiLow (hex) for muon " << i << " = "
-//         //<< std::hex << objParameter[i].phiLow << std::dec
-//         //<< std::endl;
-//     }
+        //LogTrace("L1uGtTriggerMenuXmlParser")
+        //<< "      phiLow (hex) for muon " << i << " = "
+        //<< std::hex << objParameter[i].phiLow << std::dec
+        //<< std::endl;
+    }
 
+    // need this for future DP
 //     // get charge correlation and fill into structure
 //     if ( !getXMLHexTextValueOld(findXMLChild(node->getFirstChild(), m_xmlTagChargeCorrelation),
 //         tmpValues[0]) ) {
@@ -1670,19 +1701,21 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 //         return false;
 //     }
 
-//     corrParameter.chargeCorrelation = tmpValues[0];
+    getXMLHexTextValue("1", dst);
+    corrParameter.chargeCorrelation = dst;//tmpValues[0];
 
 //     //LogTrace("L1uGtTriggerMenuXmlParser")
 //     //<< "      charge correlation" << " = "
 //     //<< std::hex << corrParameter.chargeCorrelation << std::dec
 //     //<< std::endl;
 
-//     // get mip and iso bits and fill into structure
+    // get mip and iso bits and fill into structure
 
-//     std::vector<bool> tmpMip(nrObj);
-//     std::vector<bool> tmpEnableIso(nrObj);
-//     std::vector<bool> tmpRequestIso(nrObj);
+    std::vector<bool> tmpMip(nrObj);
+    std::vector<bool> tmpEnableIso(nrObj);
+    std::vector<bool> tmpRequestIso(nrObj);
 
+    // need this for future DP
 //     if ( !getMuonMipIsoBits(node, nrObj, tmpMip, tmpEnableIso, tmpRequestIso) ) {
 //         edm::LogError("L1uGtTriggerMenuXmlParser")
 //             << "    Could not get mip and iso bits from muon condition (" << name << ")"
@@ -1690,16 +1723,17 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 //         return false;
 //     }
 
-//     for (int i = 0; i < nrObj; i++) {
-//         objParameter[i].enableMip = tmpMip[i];
-//         objParameter[i].enableIso = tmpEnableIso[i];
-//         objParameter[i].requestIso = tmpRequestIso[i];
-//     }
+    for (int i = 0; i < nrObj; i++) {
+      objParameter[i].enableMip = false;//tmpMip[i];
+      objParameter[i].enableIso = false;//tmpEnableIso[i];
+      objParameter[i].requestIso = false;//tmpRequestIso[i];
+    }
 
-//     // indicates if a correlation is used
-//     bool wscVal = (type == m_xmlConditionAttrType2wsc );
+    // indicates if a correlation is used
+    bool wscVal = (type == m_xmlConditionAttrType2wsc );
 
-//     if (wscVal) {
+    if (wscVal) {
+    // need this for future DP
 //         // get deltaEtaRange
 //         if ( !getConditionChildValuesOld(node, m_xmlTagDeltaEta, 1, tmpValues) ) {
 //             return false;
@@ -1734,60 +1768,67 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 //         //LogTrace("L1uGtTriggerMenuXmlParser")
 //         //<< "        deltaPhiMaxbits (dec) = " << maxbits
 //         //<< std::endl;
-//     }
+    }
 
-//     // get the type of the condition, as defined in enum, from the condition type
-//     // as defined in the XML file
-//     L1GtConditionType cType = getTypeFromType(type);
-//     //LogTrace("L1uGtTriggerMenuXmlParser")
-//     //<< "      Condition type (enum value) = " << cType
-//     //<< std::endl;
+    // get the type of the condition, as defined in enum, from the condition type
+    // as defined in the XML file
+    L1GtConditionType cType = getTypeFromType(type);
+    //LogTrace("L1uGtTriggerMenuXmlParser")
+    //<< "      Condition type (enum value) = " << cType
+    //<< std::endl;
 
-//     if (cType == TypeNull) {
-//         edm::LogError("L1uGtTriggerMenuXmlParser")
-//             << "Type for muon condition id TypeNull - it means not defined in the XML file."
-//             << "\nNumber of trigger objects is set to zero. " << std::endl;
-//         return false;
-//     }
+    if (cType == TypeNull) {
+        edm::LogError("L1uGtTriggerMenuXmlParser")
+            << "Type for muon condition id TypeNull - it means not defined in the XML file."
+            << "\nNumber of trigger objects is set to zero. " << std::endl;
+        return false;
+    }
 
-//     // object types - all muons
-//     std::vector<L1GtObject> objType(nrObj, Mu);
+    // object types - all muons
+    std::vector<L1GtObject> objType(nrObj, Mu);
 
-//     // now create a new CondMuonition
+    // now create a new CondMuonition
 
-//     L1GtMuonTemplate muonCond(name);
+    L1GtMuonTemplate muonCond(name);
 
-//     muonCond.setCondType(cType);
-//     muonCond.setObjectType(objType);
-//     muonCond.setCondGEq(gEq);
-//     muonCond.setCondChipNr(chipNr);
+    muonCond.setCondType(cType);
+    muonCond.setObjectType(objType);
+    muonCond.setCondGEq(gEq);
+    muonCond.setCondChipNr(chipNr);
 
-//     muonCond.setConditionParameter(objParameter, corrParameter);
+    muonCond.setConditionParameter(objParameter, corrParameter);
 
-//     if (edm::isDebugEnabled() ) {
-//         std::ostringstream myCoutStream;
-//         muonCond.print(myCoutStream);
-//         LogTrace("L1uGtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
-//     }
+    std::cout << "===> parseMuon test 0" << std::endl;
+    if (edm::isDebugEnabled() || true ) {
+        std::ostringstream myCoutStream;
+        muonCond.print(myCoutStream);
+        LogTrace("L1uGtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
+    }
+    std::cout << "===> parseMuon test 1" << std::endl;
 
-//     // insert condition into the map and into muon template vector
-//     if ( !insertConditionIntoMap(muonCond, chipNr)) {
+    // insert condition into the map and into muon template vector
+    if ( !insertConditionIntoMap(muonCond, chipNr)) {
+    std::cout << "===> parseMuon test 2" << std::endl;
 
-//         edm::LogError("L1uGtTriggerMenuXmlParser")
-//                 << "    Error: duplicate condition (" << name << ")"
-//                 << std::endl;
-//         return false;
-//     }
-//     else {
-//         if (corrFlag) {
-//             (m_corMuonTemplate[chipNr]).push_back(muonCond);
+        edm::LogError("L1uGtTriggerMenuXmlParser")
+                << "    Error: duplicate condition (" << name << ")"
+                << std::endl;
+        return false;
+    }
+    else {
+    std::cout << "===> parseMuon test 3" << std::endl;
+        if (corrFlag) {
+            (m_corMuonTemplate[chipNr]).push_back(muonCond);
+    std::cout << "===> parseMuon test 4" << std::endl;
 
-//         }
-//         else {
-//             (m_vecMuonTemplate[chipNr]).push_back(muonCond);
-//         }
+        }
+        else {
+            (m_vecMuonTemplate[chipNr]).push_back(muonCond);
+    std::cout << "===> parseMuon test 5" << std::endl;
 
-//     }
+        }
+
+    }
 
     //
     return true;
@@ -4097,7 +4138,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::workXML( std::auto_ptr<l1t::L1TriggerMenu> 
 
 
     // FIXD add checks of menu
-
+      std::cout << " ====> test0 " << std::endl;
     // clear possible old maps
     clearMaps();
 
@@ -4105,15 +4146,18 @@ bool l1t::L1uGtTriggerMenuXmlParser::workXML( std::auto_ptr<l1t::L1TriggerMenu> 
     l1t::ConditionList conditions = tm->conditions();
     l1t::AlgorithmList algorithms = tm->algorithms();
 
+      std::cout << " ====> test1 " << std::endl;
     if ( !parseId( meta ) ) {
       clearMaps();
       return false;
     }
 
+      std::cout << " ====> test2 " << std::endl;
     if ( !parseConditions( conditions ) ) {
         clearMaps();
         return false;
     }
+      std::cout << " ====> test3 " << std::endl;
 
     if ( !parseAlgorithms( algorithms ) ) {
         clearMaps();

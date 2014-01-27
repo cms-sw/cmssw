@@ -130,7 +130,7 @@ boost::shared_ptr<L1GtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTr
     std::cout << "\t numberTechTriggers = " << numberTechTriggers << std::endl;
     std::cout << "\t numberL1JetCounts = " << numberL1JetCounts << std::endl;
 
-    l1t::L1uGtTriggerMenuXmlParser gtXmlParser = L1uGtTriggerMenuXmlParser();
+    l1t::L1uGtTriggerMenuXmlParser gtXmlParser = l1t::L1uGtTriggerMenuXmlParser();
 
     gtXmlParser.setGtNumberConditionChips(numberConditionChips);
     gtXmlParser.setGtPinsOnConditionChip(pinsOnConditionChip);

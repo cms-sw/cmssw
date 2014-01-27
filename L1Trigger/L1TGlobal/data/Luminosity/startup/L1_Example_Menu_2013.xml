@@ -20,6 +20,11 @@
       </l1t:history>
    </l1t:meta>
    <l1t:conditions>
+    <l1t:condMuon>
+      <l1t:name>SingleMuon_0xf</l1t:name>
+      <l1t:description>An example single muon condition.</l1t:description>
+      <l1t:locked>0</l1t:locked>
+    </l1t:condMuon>
      <l1t:condCalorimeter>
        <l1t:name>SingleJet_0x0_fullrange</l1t:name>
        <l1t:description>An example single jet condition with full range phi and eta (no windows).</l1t:description>
@@ -198,6 +203,13 @@
        <l1t:index>7</l1t:index>
        <l1t:equation>SingleJet_0x0</l1t:equation>
        <l1t:description>An example algorithm for a single central jet condition.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+     <l1t:algorithm>
+       <l1t:name>L1_SingleMu</l1t:name>
+       <l1t:index>8</l1t:index>
+       <l1t:equation>SingleMuon_0xf</l1t:equation>
+       <l1t:description>An example algorithm for a single muon condition.</l1t:description>
        <l1t:locked>false</l1t:locked>
      </l1t:algorithm>
    </l1t:algorithms>
