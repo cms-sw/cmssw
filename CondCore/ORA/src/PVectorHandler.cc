@@ -63,7 +63,7 @@ ora::PVectorHandler::PVectorHandler( const edm::TypeWithDict& dictionary ):
   if(privateVectorAttribute){
     assert(!strcmp("ora::PVector<cond::IOVElement>",m_type.qualifiedName().c_str()));
     m_vecAttributeOffset = privateVectorAttribute.offset();
-    ROOT::TCollectionProxyInfo* collProxyPtr = ROOT::TCollectionProxyInfo::Generate(ROOT::TCollectionProxyInfo::Pushback<ora::PVector<cond::IOVElement> >());
+    ROOT::TCollectionProxyInfo* collProxyPtr = ROOT::TCollectionProxyInfo::Generate(ROOT::TCollectionProxyInfo::Pushback<std::vector<cond::IOVElement> >());
     m_collProxy.reset( collProxyPtr );
     if(! m_collProxy.get() ){
       throwException( "Cannot find \"createTCollectionProxyInfo\" function for type \""+m_type.qualifiedName()+"\"",
