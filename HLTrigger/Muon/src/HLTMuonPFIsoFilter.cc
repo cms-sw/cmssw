@@ -134,7 +134,7 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
       TrackRef tk = candref->get<TrackRef>();
       LogDebug("HLTMuonPFIsoFilter") << "tk isNonNull " << tk.isNonnull();
 
-       //get the deposits and evaluate relIso if noDeltaBeta correction is applied
+       //get the deposits and evaluate relIso if only the charged component is considered
 	  if (onlyCharged_){
 		for(unsigned int iDep=0;iDep!=nDep;++iDep)
 		{
@@ -147,39 +147,18 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 		MuonDeposits = MuonDeposits/tk->pt();
 	  }
 	  else {
-		if (!doRho_)
+		//get all the deposits 
+	    for(unsigned int iDep=0;iDep!=nDep;++iDep)
 		{
-		  for(unsigned int iDep=0;iDep!=nDep;++iDep)
-		  {
-			const edm::ValueMap<double> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
-			LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << " (" << candref->charge()*candref->pt() << ") " << ", eta= " << tk->eta() << " (" << candref->eta() << ") " << "; has deposit["<<iDep<<"]: " << muonDeposit;
-
-			MuonDeposits += muonDeposit; 
-		  }
-		  MuonDeposits = MuonDeposits/tk->pt();
-		}
+		  const edm::ValueMap<double> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
+		  LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << " (" << candref->charge()*candref->pt() << ") " << ", eta= " << tk->eta() << " (" << candref->eta() << ") " << "; has deposit["<<iDep<<"]: " << muonDeposit;
+  		  MuonDeposits += muonDeposit;
+        }
+        //apply rho correction 
+ 	    if (doRho_) MuonDeposits -=  effArea_*Rho;
+  	    MuonDeposits = MuonDeposits/tk->pt();
+ 	  }
 	  
-		//get the deposits and evaluate relIso if rho correction is applied
-		else 
-		{
-		  double neutralDeposits = 0.;
-		  for(unsigned int iDep=0;iDep!=nDep;++iDep)
-		  {
-			const edm::ValueMap<double> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
-			LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << " (" << candref->charge()*candref->pt() << ") " << ", eta= " << tk->eta() << " (" << candref->eta() << ") " << "; has deposit["<<iDep<<"]: " << muonDeposit;
-
-			std::size_t foundCharged = depTag_[iDep].label().find("Charged");
-			if (foundCharged!=std::string::npos)  MuonDeposits += muonDeposit; 
-		  
-			std::size_t foundGamma = depTag_[iDep].label().find("Gamma");
-			if (foundGamma!=std::string::npos) neutralDeposits += muonDeposit;
-
-			std::size_t foundNeutral = depTag_[iDep].label().find("Neutral");
-			if (foundNeutral!=std::string::npos) neutralDeposits += muonDeposit;
-		  }
-		  MuonDeposits = (MuonDeposits + neutralDeposits - effArea_*Rho )/tk->pt();
-		}
-      }
       
       //get the selection
       if (MuonDeposits < maxIso_) isos[iMu] = true;
