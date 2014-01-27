@@ -234,7 +234,7 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg, edm::Consumes
   cfg.exists("min") ? min_= cfg.getParameter<int>("min") : min_= -1;
   cfg.exists("max") ? max_= cfg.getParameter<int>("max") : max_= -1;
   //cout<<"// read electron extras if they exist"<<endl;
-  std::string mygSF = "gsfElectrons";
+  std::string mygSF = "gedGsfElectrons";
   gsfEs_ = iC.consumes<edm::View<reco::GsfElectron> >(cfg.getUntrackedParameter<edm::InputTag>("myGSF", mygSF));
   if(cfg.existsAs<edm::ParameterSet>("electronId")){ 
     edm::ParameterSet elecId=cfg.getParameter<edm::ParameterSet>("electronId");
@@ -320,15 +320,18 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
       reco::PFCandidate objtmp = dynamic_cast<const reco::PFCandidate&>(*obj);
       
       if (objtmp.muonRef().isNonnull() && type == "muon") {
+
         if(select_(*obj)){++n;
         }
       }
-      
       else if (objtmp.gsfElectronRef().isNonnull() && type == "electron") {
         if( !event.getByToken(gsfEs_, elecs_gsf) ) continue;
         if(select_(*obj)){
           if(elecs_gsf->refAt(idx_gsf).isNonnull()){
-            int eID = (int)(*electronId)[elecs_gsf->refAt(idx_gsf)];
+	    int eID=0;
+	    if (!electronId_.isUninitialized()){
+	      eID = (int)(*electronId)[elecs_gsf->refAt(idx_gsf)];
+	    }
             if( electronId_.isUninitialized() ? true : ( (eID & eidPattern_)  && (eID >= 5) ) )
               ++n;
 	    
