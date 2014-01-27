@@ -51,7 +51,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GtMuonCondition.h"
+
 #include "L1Trigger/GlobalTrigger/interface/L1GtCaloCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtEnergySumCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
@@ -62,9 +62,14 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtExternalCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtCorrelationCondition.h"
 
-/*  *** Comment out for Now
+
+// Conditions for uGt
+#include "L1Trigger/L1TGlobal/interface/L1uGtMuonCondition.h"
+
+
+//   *** Comment out what do we do with this.
 #include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
-*/
+
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -77,7 +82,7 @@
 
 // constructor
 l1t::L1uGtBoard::L1uGtBoard() :
-    m_candL1Mu( new std::vector<const l1t::Muon*>),
+    m_candL1Mu( new BXVector<const l1t::Muon*>),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -109,7 +114,7 @@ l1t::L1uGtBoard::~L1uGtBoard() {
 // operations
 void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet) {
 
-    m_candL1Mu->reserve(nrL1Mu);
+    m_candL1Mu->resizeAll(nrL1Mu);
 
     // FIXME move from bitset to std::vector<bool> to be able to use
     // numberPhysTriggers from EventSetup
@@ -139,6 +144,7 @@ void l1t::L1uGtBoard::receiveCaloObjectData(edm::Event& iEvent,
                 << std::endl;
 
     }
+    printf(" L1uGtBoard does not yet implement receiveCaloOjbectData!!!! \n");
 
 }
 
@@ -161,36 +167,33 @@ void l1t::L1uGtBoard::receiveMuonObjectData(edm::Event& iEvent,
     // get data from Global Muon Trigger
     if (receiveMu) {
 
-/*
-        edm::Handle<std::vector<L1MuGMTCand> > muonData;
+        edm::Handle<BXVector<l1t::Muon>> muonData;
         iEvent.getByLabel(muInputTag, muonData);
 
         if (!muonData.isValid()) {
             if (m_verbosity) {
-                edm::LogWarning("L1GlobalTrigger")
-                        << "\nWarning: std::vector<L1MuGMTCand> with input tag "
+                edm::LogWarning("l1t|Global")
+                        << "\nWarning: BXVector<l1t::Muon> with input tag "
                         << muInputTag
                         << "\nrequested in configuration, but not found in the event.\n"
                         << std::endl;
             }
         } else {
 
+           // bx in muon data
+           for(int i = muonData->getFirstBX(); i <= muonData->getLastBX(); ++i) {
+  
+              //Loop over Muons in this bx
+              for(std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
+           
+	        (*m_candL1Mu).push_back(i,&(*mu));
+	        LogDebug("l1t|Global") << "Muon  Pt" << mu->hwPt() << "Eta  " << mu->hwPt() << " Phi " << mu->hwPhi() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
+              } //end loop over muons in bx
+	   } //end loop over bx   
 
-            std::vector<L1MuGMTCand>::const_iterator itMuon;
-            for (itMuon = muonData->begin(); itMuon != muonData->end(); itMuon++) {
-                if ((*itMuon).bx() == iBxInEvent) {
+        } //end if over valid muon data
 
-                    (*m_candL1Mu).push_back(&(*itMuon));
-                    //LogTrace("l1t|Global") << (*itMuon)
-                    //        << std::endl;
-
-                }
-
-            }
-
-        }
-*/
-    }
+    } //end if ReveiveMuon data
 
     if (m_verbosity && m_isDebugEnabled) {
 //  *** Needs fixing
@@ -337,25 +340,29 @@ void l1t::L1uGtBoard::runGTL(
             switch ((itCond->second)->condCategory()) {
                 case CondMuon: {
 
-/*  Don't access conditions for now
-                    L1GtMuonCondition* muCondition = new L1GtMuonCondition(itCond->second, this,
+                    // BLW Not sure what to do with this for now
+		    const int ifMuEtaNumberBits = 0;
+		    
+                    L1uGtMuonCondition* muCondition = new L1uGtMuonCondition(itCond->second, this,
                             nrL1Mu, ifMuEtaNumberBits);
 
                     muCondition->setVerbosity(m_verbosity);
-                    muCondition->setGtCorrParDeltaPhiNrBins(
-                            (m_gtEtaPhiConversions->gtObjectNrBinsPhi(Mu)) / 2
-                                    + 1);
+                  // BLW Comment out for now
+		  //  muCondition->setGtCorrParDeltaPhiNrBins(
+                  //          (m_gtEtaPhiConversions->gtObjectNrBinsPhi(Mu)) / 2
+                  //                  + 1);
+		  // BLW Need to pass the bx we are working on.
                     muCondition->evaluateConditionStoreResult();
 
-                    cMapResults[itCond->first] = muCondition;
+                   // BLW COmment out for now 
+                   // cMapResults[itCond->first] = muCondition;
 
                     if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
                         muCondition->print(myCout);
 
                         LogTrace("l1t|Global") << myCout.str() << std::endl;
-                    }
-*/
+                    }		    
                     //delete muCondition;
 
                 }
@@ -814,7 +821,8 @@ void l1t::L1uGtBoard::runFDL(edm::Event& iEvent,
 // clear GTL
 void l1t::L1uGtBoard::reset() {
 
-    m_candL1Mu->clear();
+//  *******BXVector does not have a clear method
+//    m_candL1Mu->clear();
 
     m_gtlDecisionWord.reset();
     m_gtlAlgorithmOR.reset();
@@ -828,7 +836,7 @@ void l1t::L1uGtBoard::printGmtData(const int iBxInEvent) const {
             << "\nL1GlobalTrigger: GMT data received for BxInEvent = "
             << iBxInEvent << std::endl;
 
-    int nrL1Mu = m_candL1Mu->size();
+    int nrL1Mu = m_candL1Mu->size(iBxInEvent);
     LogTrace("l1t|Global")
             << "Number of GMT muons = " << nrL1Mu << "\n"
             << std::endl;

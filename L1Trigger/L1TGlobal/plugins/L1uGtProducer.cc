@@ -43,13 +43,13 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
-
+/*
 // Trigger Objects
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-
+*/
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -73,22 +73,9 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-//#include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
-
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
-//#include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
-//#include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoTechTrigRcd.h"
-
-
-/*  Modify to new Board ?
-#include "L1Trigger/GlobalTrigger/interface/L1uGtProducerPSB.h"
-#include "L1Trigger/GlobalTrigger/interface/L1uGtProducerGTL.h"
-#include "L1Trigger/GlobalTrigger/interface/L1uGtProducerFDL.h"
-*/
-
 
 
 /* ** Unknow Drop?/Change?
@@ -113,7 +100,6 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
 
             m_produceL1GtDaqRecord(parSet.getParameter<bool> ("ProduceL1GtDaqRecord")),
             m_produceL1GtObjectMapRecord(parSet.getParameter<bool> ("ProduceL1GtObjectMapRecord")),
-            m_writePsbL1GtDaqRecord(parSet.getParameter<bool> ("WritePsbL1GtDaqRecord")),
 
             m_emulateBxInEvent(parSet.getParameter<int> ("EmulateBxInEvent")),
             m_recordLength(parSet.getParameter<std::vector<int> > ("RecordLength")),
@@ -282,11 +268,13 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
         // number of objects of each type
         m_nrL1Mu = static_cast<int> (m_l1GtStablePar->gtNumberL1Mu());
+	
+// ***** Doe we need to change the StablePar class for generic. EG	
         m_nrL1EG = static_cast<int> (m_l1GtStablePar->gtNumberL1NoIsoEG());
         m_nrL1Tau= static_cast<int> (m_l1GtStablePar->gtNumberL1TauJet());
 
 
-// ********* Do we need to change the StablePar class?
+// ********* Do we need to change the StablePar class for generic jet?
         m_nrL1Jet = static_cast<int> (m_l1GtStablePar->gtNumberL1CenJet());
 
         m_nrL1JetCounts = static_cast<int> (m_l1GtStablePar->gtNumberL1JetCounts());
@@ -504,128 +492,8 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
             //               in the record and ActiveBoardsMap, and active
             if ((iActiveBit < 0) || activeBoard) {
 
-                switch (itBoard->gtBoardType()) {
+// ******  Decide what board manipulation (if any we want here)
 
-                    case GTFE: {
-                            daqNrGtfeBoards++;
-                        }
-
-                        break;
-                    case FDL: {
-                            daqNrFdlBoards++;
-                        }
-
-                        break;
-                    case PSB: {
-                            daqNrPsbBoards++;
-
-                            // get the objects coming to this PSB
-                            std::vector<L1GtPsbQuad> quadInPsb = itBoard->gtQuadInPsb();
-                            for (std::vector<L1GtPsbQuad>::const_iterator
-                                    itQuad = quadInPsb.begin();
-                                    itQuad != quadInPsb.end(); ++itQuad) {
-
-                                switch (*itQuad) {
-
-                                    case TechTr: {
-                                            receiveTechTr = true;
-                                        }
-
-                                        break;
-                                    case NoIsoEGQ: {
-                                            receiveNoIsoEG = true;
-                                        }
-
-                                        break;
-                                    case IsoEGQ: {
-                                            receiveIsoEG = true;
-                                        }
-
-                                        break;
-                                    case CenJetQ: {
-                                            receiveCenJet = true;
-                                        }
-
-                                        break;
-                                    case ForJetQ: {
-                                            receiveForJet = true;
-                                        }
-
-                                        break;
-                                    case TauJetQ: {
-                                            receiveTauJet = true;
-                                        }
-
-                                        break;
-                                    case ESumsQ: {
-                                            receiveETM = true;
-                                            receiveETT = true;
-                                            receiveHTT = true;
-                                            receiveHTM = true;
-                                        }
-
-                                        break;
-                                    case JetCountsQ: {
-                                            receiveJetCounts = true;
-                                        }
-
-                                        break;
-                                    case CastorQ: {
-                                            // obsolete
-                                        }
-
-                                        break;
-                                    case BptxQ: {
-                                            // obsolete
-                                        }
-
-                                        break;
-                                    case GtExternalQ: {
-                                            receiveExternal = true;
-                                        }
-
-                                        break;
-                                    case HfQ: {
-                                            receiveHfBitCounts = true;
-                                            receiveHfRingEtSums = true;
-                                        }
-
-                                        break;
-                                        // FIXME add MIP/Iso bits
-                                    default: {
-                                            // do nothing
-                                        }
-
-                                        break;
-                                }
-
-                            }
-
-                        }
-
-                        break;
-                    case GMT: {
-                            daqNrGmtBoards++;
-                            receiveMu = true;
-                        }
-
-                        break;
-                    case TCS: {
-                            daqNrTcsBoards++;
-                        }
-
-                        break;
-                    case TIM: {
-                            daqNrTimBoards++;
-                        }
-
-                        break;
-                    default: {
-                            // do nothing, all blocks are given in GtBoardType enum
-                        }
-
-                        break;
-                }
             }
         }
 
@@ -642,7 +510,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
             m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
 
 */
-    // * produce the L1uGtProducerObjectMapRecord
+    // * produce the L1GlobalTriggerObjectMapRecord
     std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
         new L1GlobalTriggerObjectMapRecord() );
 
@@ -761,7 +629,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     //
 
 
-// Load the input onto the uGt Board
+// Load the calorimeter input onto the uGt Board
      m_uGtBrd->receiveCaloObjectData(iEvent, m_caloInputTag,
         			     receiveEG, m_nrL1EG,
         			     receiveTau, m_nrL1Tau,				     
@@ -775,16 +643,6 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     // loop over BxInEvent
     for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
             ++iBxInEvent) {
-
-
-
-/*  OUTPUT RECORD
-        if (m_produceL1GtDaqRecord && m_writePsbL1GtDaqRecord) {
-            m_gtPSB->fillPsbBlock(
-                    iEvent, m_activeBoardsGtDaq, recordLength0, recordLength1,
-                    m_alternativeNrBxBoardDaq, boardMaps, iBxInEvent, gtDaqReadoutRecord);
-        }
-*/
 
         //  run GTL
         LogDebug("lt1|Global")
@@ -824,8 +682,8 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 
 /* *** OUTPUT RECORD
-        if (m_produceL1GtDaqRecord && ( daqNrFdlBoards > 0 )) {
-            m_gtFDL->fillDaqFdlBlock(iBxInEvent,
+        if (m_produceL1GtDaqRecord) {
+            m_uGtBrd->fillDaqFdlBlock(iBxInEvent,
                     m_activeBoardsGtDaq, recordLength0, recordLength1, m_alternativeNrBxBoardDaq,
                     boardMaps, gtDaqReadoutRecord);
         }
@@ -834,39 +692,6 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
     } //End Loop over Bx
 
-/* OUTPUT Record
-    if ( receiveMu ) {
-
-
-        //LogDebug("lt1|Global")
-        //<< "\n**** "
-        //<< "\n  Persistent reference for L1MuGMTReadoutCollection with input tag: "
-        //<< m_muInputTag
-        //<< "\n**** \n"
-        //<< std::endl;
-
-        // get L1MuGMTReadoutCollection reference and set it in GT record
-
-        edm::Handle<L1MuGMTReadoutCollection> gmtRcHandle;
-        iEvent.getByLabel(m_muInputTag, gmtRcHandle);
-
-
-
-        if (!gmtRcHandle.isValid()) {
-            if (m_verbosity) {
-                edm::LogWarning("L1uGtProducer")
-                        << "\nWarning: L1MuGMTReadoutCollection with input tag " << m_muInputTag
-                        << "\nrequested in configuration, but not found in the event.\n"
-                        << std::endl;
-            }
-        } else {
-
-            gtDaqReadoutRecord->setMuCollectionRefProd(gmtRcHandle);
-
-        }
-
-    }
-*/
 
 /* *** Debugging Section ***
     if ( m_verbosity && m_isDebugEnabled ) {
@@ -881,10 +706,10 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
         myCoutStream.str("");
         myCoutStream.clear();
 
-        const std::vector<L1uGtProducerObjectMap> objMapVec =
+        const std::vector<L1GlobalTriggerObjectMap> objMapVec =
             gtObjectMapRecord->gtObjectMap();
 
-        for (std::vector<L1uGtProducerObjectMap>::const_iterator
+        for (std::vector<L1GlobalTriggerObjectMap>::const_iterator
                 it = objMapVec.begin(); it != objMapVec.end(); ++it) {
 
             (*it).print(myCoutStream);

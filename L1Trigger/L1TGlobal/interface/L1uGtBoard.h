@@ -127,7 +127,7 @@ public:
     }
 
     /// return global muon trigger candidate
-    inline const std::vector<const l1t::Muon*>* getCandL1Mu() const
+    inline const BXVector<const l1t::Muon*>* getCandL1Mu() const
     {
         return m_candL1Mu;
     }
@@ -220,7 +220,7 @@ private:
 
 private:
 
-    std::vector<const l1t::Muon*>* m_candL1Mu;
+    BXVector<const l1t::Muon*>* m_candL1Mu;
     std::vector<const l1t::L1Candidate*>* m_candL1EG;
     std::vector<const l1t::L1Candidate*>* m_candL1Tau;
     std::vector<const l1t::L1Candidate*>* m_candL1Jet;

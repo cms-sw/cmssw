@@ -106,7 +106,7 @@ private:
     void copy(const L1uGtMuonCondition& cp);
 
     /// load muon candidates
-    const l1t::Muon* getCandidate(const int indexCand) const;
+    const l1t::Muon* getCandidate(const int bx, const int indexCand) const;
 
     /// function to check a single object if it matches a condition
     const bool checkObjectParameter(const int iCondition,

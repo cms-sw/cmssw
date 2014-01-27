@@ -129,15 +129,18 @@ void l1t::L1uGtMuonCondition::setGtCorrParDeltaPhiNrBins(
 
 
 // try all object permutations and check spatial correlations, if required
-const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
+const bool l1t::L1uGtMuonCondition::evaluateCondition() const {  
+ 
+    // BLW Need to pass this as an argument
+    const int bxEval=0;   //BLW Change for BXVector
 
     // number of trigger objects in the condition
     int nObjInCond = m_gtMuonTemplate->nrObjects();
 
     // the candidates
-    const std::vector<const l1t::Muon*>* candVec = m_gtGTL->getCandL1Mu();
+    const BXVector<const l1t::Muon*>* candVec = m_gtGTL->getCandL1Mu();  //BLW Change for BXVector
 
-    int numberObjects = candVec->size();
+    int numberObjects = candVec->size(bxEval);  //BLW Change for BXVector
     //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
@@ -185,7 +188,7 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
 
-            tmpResult &= checkObjectParameter(i, *(*candVec)[index[i]]);
+            tmpResult &= checkObjectParameter(i,  *(candVec->at(bxEval,index[i]) )); //BLW Change for BXVector
             objectsInComb.push_back(index[i]);
 
         }
@@ -210,10 +213,10 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
 
             for (int i = 0; i < nObjInCond; i++) {
                 // check valid charge - skip if invalid charge
-                bool chargeValid = (*candVec)[index[i]]->hwChargeValid();
+                int chargeValid = (candVec->at(bxEval,index[i]))->hwChargeValid(); //BLW Change for BXVector
                 tmpResult &= chargeValid;
 
-                if ( !chargeValid) {
+                if ( chargeValid==0) { //BLW type change for New Muon Class
                     continue;
                 }
             }
@@ -225,8 +228,8 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
             if (nObjInCond == 1) { // one object condition
 
                 // D2..enable pos, D1..enable neg
-                if ( ! ( ( (chargeCorr & 4) != 0 && (*candVec)[index[0]]->charge()> 0 )
-                    || ( (chargeCorr & 2) != 0 && (*candVec)[index[0]]->charge() < 0 ) )) {
+                if ( ! ( ( (chargeCorr & 4) != 0 && (candVec->at(bxEval,index[0]))->charge()> 0 )   //BLW Change for BXVector
+                    || ( (chargeCorr & 2) != 0 &&   (candVec->at(bxEval,index[0]))->charge() < 0 ) )) {       //BLW Change for BXVector
 
                     continue;
                 }
@@ -237,7 +240,7 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
                 // find out if signs are equal
                 bool equalSigns = true;
                 for (int i = 0; i < nObjInCond-1; i++) {
-                    if ((*candVec)[index[i]]->charge() != (*candVec)[index[i+1]]->charge()) {
+                    if ((candVec->at(bxEval,index[i]))->charge() != (candVec->at(bxEval,index[i+1]))->charge()) { //BLW Change for BXVector
                         equalSigns = false;
                         break;
                     }
@@ -259,7 +262,7 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
                     unsigned int posCount = 0;
 
                     for (int i = 0; i < nObjInCond; i++) {
-                        if ((*candVec)[index[i]]->charge()> 0) {
+                        if ((candVec->at(bxEval,index[i]))->charge()> 0) {  //BLW Change for BXVector
                             posCount++;
                         }
                     }
@@ -304,8 +307,8 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
             int scaleEta = 1 << (m_ifMuEtaNumberBits - 1);
 
             for (int i = 0; i < ObjInWscComb; ++i) {
-                signBit[i] = ((*candVec)[index[i]]->hwEta() & scaleEta)>>(m_ifMuEtaNumberBits - 1);
-                signedEta[i] = ((*candVec)[index[i]]->hwEta() )%scaleEta;
+                signBit[i] = ((candVec->at(bxEval,index[i]))->hwEta() & scaleEta)>>(m_ifMuEtaNumberBits - 1);  //BLW Change for BXVector
+                signedEta[i] = ((candVec->at(bxEval,index[i]))->hwEta() )%scaleEta;      //BLW Change for BXVector
 
                 if (signBit[i] == 1) {
                     signedEta[i] = (-1)*signedEta[i];
@@ -324,11 +327,11 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
             // check candDeltaPhi
 
             // calculate absolute value of candDeltaPhi
-            if ((*candVec)[index[0]]->hwPhi()> (*candVec)[index[1]]->hwPhi()) {
-                candDeltaPhi = (*candVec)[index[0]]->hwPhi() - (*candVec)[index[1]]->hwPhi();
+            if ((candVec->at(bxEval,index[0]))->hwPhi()> (candVec->at(bxEval,index[1]))->hwPhi()) {     //BLW Change for BXVector
+                candDeltaPhi = (candVec->at(bxEval,index[0]))->hwPhi() - (candVec->at(bxEval,index[1]))->hwPhi();  //BLW Change for BXVector
             }
             else {
-                candDeltaPhi = (*candVec)[index[1]]->hwPhi() - (*candVec)[index[0]]->hwPhi();
+                candDeltaPhi = (candVec->at(bxEval,index[1]))->hwPhi() - (candVec->at(bxEval,index[0]))->hwPhi();   //BLW Change for BXVector
             }
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
@@ -395,9 +398,9 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
 }
 
 // load muon candidates
-const l1t::Muon* l1t::L1uGtMuonCondition::getCandidate(const int indexCand) const {
+const l1t::Muon* l1t::L1uGtMuonCondition::getCandidate(const int bx, const int indexCand) const {
 
-    return (*(m_gtGTL->getCandL1Mu()))[indexCand];
+    return (m_gtGTL->getCandL1Mu())->at(bx,indexCand);  //BLW Change for BXVector
 }
 
 /**
