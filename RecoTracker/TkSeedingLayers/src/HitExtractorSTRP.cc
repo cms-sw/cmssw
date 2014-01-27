@@ -55,18 +55,20 @@ bool HitExtractorSTRP::skipThis(OmniClusterRef const& clus,
 }
 
 
-void HitExtractorSTRP::project(TransientTrackingRecHit::ConstRecHitPointer & ptr,
+void HitExtractorSTRP::project(const TransientTrackingRecHitBuilder& ttrhBuilder,
+			       TransientTrackingRecHit::ConstRecHitPointer & ptr,
 			       const SiStripRecHit2D * hit,
 			       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const{
   
   if (failProjection) {replaceMe=0; return;}
   TrackingRecHitProjector<ProjectedRecHit2D> proj;
-  TransientTrackingRecHit::RecHitPointer sHit=theSLayer->hitBuilder()->build(hit);
+  TransientTrackingRecHit::RecHitPointer sHit=ttrhBuilder.build(hit);
   replaceMe=proj.project( *sHit, *ptr->det());
   if (!replaceMe) LogDebug("HitExtractorSTRP")<<"projection failed.";
 }
 
-bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,
+bool HitExtractorSTRP::skipThis(const TransientTrackingRecHitBuilder& ttrhBuilder,
+                                TransientTrackingRecHit::ConstRecHitPointer & ptr,
 				edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask,
 				TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const {
   const SiStripMatchedRecHit2D * hit = (SiStripMatchedRecHit2D *) ptr->hit();
@@ -82,8 +84,8 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
     //FIX use clusters directly
     auto const & s= hit->stereoHit();
     auto const & m= hit->monoHit();
-    if (rejectSt) project(ptr,&s,replaceMe);
-    else if (rejectMono) project(ptr,&m,replaceMe);
+    if (rejectSt) project(ttrhBuilder, ptr,&s,replaceMe);
+    else if (rejectMono) project(ttrhBuilder, ptr,&m,replaceMe);
     if (!replaceMe) return true; //means that the projection failed, and needs to be skipped
     if (rejectSt)
       LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the mono hit got projected onto: "<<replaceMe->hit()->geographicalId().rawId()<<" key: "<<hit->monoClusterRef().key();
@@ -95,7 +97,8 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
 }
 
 
-void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits,
+void HitExtractorSTRP::cleanedOfClusters( const TransientTrackingRecHitBuilder& ttrhBuilder,
+					  const edm::Event& ev, HitExtractor::Hits & hits,
 					  bool matched,
 					  unsigned int cleanFrom)const{
   LogDebug("HitExtractorPIX")<<"getting: "<<hits.size()<<" in input.";
@@ -113,7 +116,7 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
       newHits.push_back(replaceMe);
       continue;
     }
-    if (matched && skipThis(hits[iH],stripClusterMask,replaceMe)){
+    if (matched && skipThis(ttrhBuilder, hits[iH],stripClusterMask,replaceMe)){
       LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->hit()->geographicalId().rawId();
       skipped++;
       continue;
@@ -130,11 +133,10 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
   hits.swap(newHits);
 }
 
-HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Event& ev, const edm::EventSetup& es) const
+HitExtractor::Hits HitExtractorSTRP::hits(const TransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& ev, const edm::EventSetup& es) const
 {
   HitExtractor::Hits result;
   TrackerLayerIdAccessor accessor;
-  theSLayer=&sl;
   unsigned int cleanFrom=0;
   //
   // TIB
@@ -144,8 +146,8 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       edm::Handle<SiStripMatchedRecHit2DCollection> matchedHits;
       ev.getByToken( theMatchedHits, matchedHits);
       if (skipClusters) cleanFrom=result.size();
-      range2SeedingHits( *matchedHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
-      if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
+      range2SeedingHits( *matchedHits, result, accessor.stripTIBLayer(theIdLayer), ttrhBuilder, es); 
+      if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,true,cleanFrom);
     }
     if (hasRPhiHits) {
       edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -153,21 +155,21 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       if (hasMatchedHits){ 
 	if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
 	  if (skipClusters) cleanFrom=result.size();
-          range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
-	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+          range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), ttrhBuilder, es); 
+	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
 	}
       } else {
 	if (skipClusters) cleanFrom=result.size();
-        range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
-	if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+        range2SeedingHits( *rphiHits, result, accessor.stripTIBLayer(theIdLayer), ttrhBuilder, es); 
+	if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
       }
     }
     if (hasStereoHits) {
       edm::Handle<SiStripRecHit2DCollection> stereoHits;
       ev.getByToken( theStereoHits, stereoHits);
       if (skipClusters) cleanFrom=result.size();
-      range2SeedingHits( *stereoHits, result, accessor.stripTIBLayer(theIdLayer), sl, es); 
-      if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+      range2SeedingHits( *stereoHits, result, accessor.stripTIBLayer(theIdLayer), ttrhBuilder, es); 
+      if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
     }
   }
   
@@ -184,10 +186,10 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-		result.push_back( sl.hitBuilder()->build(hit) ); 
+		result.push_back( ttrhBuilder.build(hit) ); 
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
+	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,true,cleanFrom);
       }
       if (hasRPhiHits) {
           edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -199,10 +201,10 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
               int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( sl.hitBuilder()->build(hit) );
+                  result.push_back( ttrhBuilder.build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
       }
       if (hasStereoHits) {
           edm::Handle<SiStripRecHit2DCollection> stereoHits;
@@ -213,10 +215,10 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( sl.hitBuilder()->build(hit) );
+                  result.push_back( ttrhBuilder.build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
       }
   }
   //
@@ -232,14 +234,14 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
 	SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
 	for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
 	  for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-	    TransientTrackingRecHit::ConstRecHitPointer ttrh = sl.hitBuilder()->build(hit);
+	    TransientTrackingRecHit::ConstRecHitPointer ttrh = ttrhBuilder.build(hit);
 	    if (fabs(ttrh->globalPosition().z())>=minAbsZ) result.push_back( ttrh ); 
 	  }
 	}
       } else {
-	range2SeedingHits( *matchedHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
+	range2SeedingHits( *matchedHits, result, accessor.stripTOBLayer(theIdLayer), ttrhBuilder, es); 
       }
-      if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
+      if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,true,cleanFrom);
     }
     if (hasRPhiHits) {
       edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -247,21 +249,21 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
       if (hasMatchedHits){ 
 	if (!hasSimpleRphiHitsCleaner){ // this is a brutal "cleaning". Add something smarter in the future
 	  if (skipClusters) cleanFrom=result.size();
-          range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
-	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+          range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), ttrhBuilder, es); 
+	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
 	}
       } else {
 	if (skipClusters) cleanFrom=result.size();
-        range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
-	if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+        range2SeedingHits( *rphiHits, result, accessor.stripTOBLayer(theIdLayer), ttrhBuilder, es); 
+	if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
       }
     }
     if (hasStereoHits) {
       edm::Handle<SiStripRecHit2DCollection> stereoHits;
       ev.getByToken( theStereoHits, stereoHits);
       if (skipClusters) cleanFrom=result.size();
-      range2SeedingHits( *stereoHits, result, accessor.stripTOBLayer(theIdLayer), sl, es); 
-      if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+      range2SeedingHits( *stereoHits, result, accessor.stripTOBLayer(theIdLayer), ttrhBuilder, es); 
+      if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
     }
   }
 
@@ -278,10 +280,10 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back(  sl.hitBuilder()->build(hit) );
+                  result.push_back(  ttrhBuilder.build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,true,cleanFrom);
+	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,true,cleanFrom);
       }
       if (hasRPhiHits) {
           edm::Handle<SiStripRecHit2DCollection> rphiHits;
@@ -293,10 +295,10 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
               int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( sl.hitBuilder()->build(hit) );
+                  result.push_back( ttrhBuilder.build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
 
       }
       if (hasStereoHits) {
@@ -308,10 +310,10 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.push_back( sl.hitBuilder()->build(hit) );
+                  result.push_back( ttrhBuilder.build(hit) );
               }
           }
-	  if (skipClusters) cleanedOfClusters(ev,result,false,cleanFrom);
+	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
       }
   }
   LogDebug("HitExtractorSTRP")<<" giving: "<<result.size()<<" out";
