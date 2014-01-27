@@ -62,10 +62,16 @@ process.caloStage1 = cms.EDProducer(
     CaloEmCands = cms.InputTag("RCTConverter")
     )
 
+process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgrateToGCTConverter",
+    InputCollection = cms.InputTag("caloStage1")
+    )
+
+
 process.digiStep = cms.Sequence(
         process.RCTConverter
 #        *process.caloTowers
         *process.caloStage1
+        *process.GCTConverter
         )
 
 
