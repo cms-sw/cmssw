@@ -20,7 +20,9 @@
 
 
 #include "DataFormats/TauReco/interface/BaseTau.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -30,7 +32,6 @@
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
-
 // Define typedefs for convenience
 namespace pat {
   class Tau;
@@ -55,7 +56,7 @@ namespace pat {
 
     public:
 
-      typedef std::pair<std::string,float> IdPair;
+      typedef std::pair<std::string, float> IdPair;
 
       /// default constructor
       Tau();
@@ -157,43 +158,52 @@ namespace pat {
       const reco::PFJetRef & pfJetRef() const { return pfSpecific().pfJetRef_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRef leadPFChargedHadrCand() const;
+      reco::PFRecoTauChargedHadronRef leadTauChargedHadronCandidate() const;
+      /// Method copied from reco::PFTau. 
+      /// Throws an exception if this pat::Tau was not made from a reco::PFTau
+      const reco::PFCandidatePtr leadPFChargedHadrCand() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       float leadPFChargedHadrCandsignedSipt() const { return pfSpecific().leadPFChargedHadrCandsignedSipt_; }
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRef leadPFNeutralCand() const;
+      const reco::PFCandidatePtr leadPFNeutralCand() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRef leadPFCand() const;
+      const reco::PFCandidatePtr leadPFCand() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & signalPFCands() const;
+      const std::vector<reco::PFCandidatePtr>& signalPFCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & signalPFChargedHadrCands() const;
+      const std::vector<reco::PFCandidatePtr>& signalPFChargedHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & signalPFNeutrHadrCands() const;
+      const std::vector<reco::PFCandidatePtr>& signalPFNeutrHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & signalPFGammaCands() const;
+      const std::vector<reco::PFCandidatePtr>& signalPFGammaCands() const;
+      /// Method copied from reco::PFTau. 
+      /// Throws an exception if this pat::Tau was not made from a reco::PFTau
+      const std::vector<reco::PFRecoTauChargedHadron> & signalTauChargedHadronCandidates() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const std::vector<reco::RecoTauPiZero> & signalPiZeroCandidates() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & isolationPFCands() const;
+      const std::vector<reco::PFCandidatePtr>& isolationPFCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & isolationPFChargedHadrCands() const;
+      const std::vector<reco::PFCandidatePtr>& isolationPFChargedHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & isolationPFNeutrHadrCands() const;
+      const std::vector<reco::PFCandidatePtr>& isolationPFNeutrHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const reco::PFCandidateRefVector & isolationPFGammaCands() const;
+      const std::vector<reco::PFCandidatePtr>& isolationPFGammaCands() const;
+      /// Method copied from reco::PFTau. 
+      /// Throws an exception if this pat::Tau was not made from a reco::PFTau
+      const std::vector<reco::PFRecoTauChargedHadron> & isolationTauChargedHadronCandidates() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const std::vector<reco::RecoTauPiZero> & isolationPiZeroCandidates() const;
@@ -242,6 +252,24 @@ namespace pat {
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       bool muonDecision() const { return pfSpecific().muonDecision_; }
+      
+      /// ---- Tau lifetime information ----
+      /// Filled from PFTauTIPAssociation.
+      /// Throws an exception if this pat::Tau was not made from a reco::PFTau	
+      const reco::PFTauTransverseImpactParameter::Point& dxy_PCA() const { return pfSpecific().dxy_PCA_; }
+      double dxy() const { return pfSpecific().dxy_; }
+      double dxy_error() const { return pfSpecific().dxy_error_; }
+      double dxy_Sig() const;
+      const reco::VertexRef& primaryVertex() const { return pfSpecific().pv_; }
+      const reco::PFTauTransverseImpactParameter::Point& primaryVertexPos() const { return pfSpecific().pvPos_; }
+      const reco::PFTauTransverseImpactParameter::CovMatrix& primaryVertexCov() const { return pfSpecific().pvCov_; }
+      bool hasSecondaryVertex() const { return pfSpecific().hasSV_; }
+      const reco::PFTauTransverseImpactParameter::Vector& flightLength() const { return pfSpecific().flightLength_; } 
+      double flightLengthSig() const { return pfSpecific().flightLengthSig_; }
+      reco::PFTauTransverseImpactParameter::CovMatrix flightLengthCov() const;
+      const reco::VertexRef& secondaryVertex() const { return pfSpecific().sv_; }
+      const reco::PFTauTransverseImpactParameter::Point& secondaryVertexPos() const { return pfSpecific().svPos_; }
+      const reco::PFTauTransverseImpactParameter::CovMatrix& secondaryVertexCov() const { return pfSpecific().svCov_; }
 
       /// Methods copied from reco::Jet.
       /// (accessible from reco::CaloTau/reco::PFTau via reco::CaloTauTagInfo/reco::PFTauTagInfo)
@@ -336,7 +364,7 @@ namespace pat {
       /// initialize the jet to a given JEC level during creation starting from Uncorrected
       void initializeJEC(unsigned int level, const unsigned int set = 0);
 
-    private:
+  private:
       // ---- for content embedding ----
       bool embeddedIsolationTracks_;
       std::vector<reco::Track> isolationTracks_;
@@ -356,28 +384,28 @@ namespace pat {
 
       std::vector<reco::PFCandidate> signalPFCands_;
       bool embeddedSignalPFCands_;
-      edm::AtomicPtrCache<reco::PFCandidateRefVector> signalPFCandsTransientRefVector_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > signalPFCandsTransientPtrs_;
       std::vector<reco::PFCandidate> signalPFChargedHadrCands_;
       bool embeddedSignalPFChargedHadrCands_;
-      edm::AtomicPtrCache<reco::PFCandidateRefVector> signalPFChargedHadrCandsTransientRefVector_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > signalPFChargedHadrCandsTransientPtrs_;
       std::vector<reco::PFCandidate> signalPFNeutralHadrCands_;
       bool embeddedSignalPFNeutralHadrCands_;
-      edm::AtomicPtrCache<reco::PFCandidateRefVector> signalPFNeutralHadrCandsTransientRefVector_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > signalPFNeutralHadrCandsTransientPtrs_;
       std::vector<reco::PFCandidate> signalPFGammaCands_;
       bool embeddedSignalPFGammaCands_;
-      edm::AtomicPtrCache<reco::PFCandidateRefVector> signalPFGammaCandsTransientRefVector_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > signalPFGammaCandsTransientPtrs_;
       std::vector<reco::PFCandidate> isolationPFCands_;
       bool embeddedIsolationPFCands_;
-      edm::AtomicPtrCache<reco::PFCandidateRefVector> isolationPFCandsTransientRefVector_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > isolationPFCandsTransientPtrs_;
       std::vector<reco::PFCandidate> isolationPFChargedHadrCands_;
       bool embeddedIsolationPFChargedHadrCands_;
-      edm::AtomicPtrCache<reco::PFCandidateRefVector> isolationPFChargedHadrCandsTransientRefVector_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > isolationPFChargedHadrCandsTransientPtrs_;
       std::vector<reco::PFCandidate> isolationPFNeutralHadrCands_;
       bool embeddedIsolationPFNeutralHadrCands_;
-      edm::AtomicPtrCache<reco::PFCandidateRefVector> isolationPFNeutralHadrCandsTransientRefVector_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > isolationPFNeutralHadrCandsTransientPtrs_;
       std::vector<reco::PFCandidate> isolationPFGammaCands_;
       bool embeddedIsolationPFGammaCands_;
-      edm::AtomicPtrCache<reco::PFCandidateRefVector> isolationPFGammaCandsTransientRefVector_;
+      edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > isolationPFGammaCandsTransientPtrs_;
 
       // ---- matched GenJet holder ----
       std::vector<reco::GenJet> genJet_;

@@ -1,7 +1,7 @@
 #ifndef ElementsInCone_h
 #define ElementsInCone_h
 
-#include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Math/interface/angle.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -10,15 +10,23 @@ template <typename T, typename M, typename C>
   class ElementsInCone {
    public:
     ElementsInCone() {}
-    ~ElementsInCone() {}  
-    const edm::RefVector<C> operator()(const T& coneAxis,const M& coneMetric,double coneSize,const edm::RefVector<C>& elements)const{
-      edm::RefVector<C> elementsInCone;
-      for(typename edm::RefVector<C>::const_iterator element=elements.begin();element!=elements.end();++element) {
+    ~ElementsInCone() {}
+    const std::vector<edm::Ptr<C> > operator()(const T& coneAxis,const M& coneMetric,double coneSize, std::vector<edm::Ptr<C> > elements)const{
+      std::vector<edm::Ptr<C> > elementsInCone;
+      for(typename std::vector<edm::Ptr<C> >::const_iterator element=elements.begin();element!=elements.end();++element) {
 	double distance = coneMetric(coneAxis,(*element)->momentum());
 	if (distance<=coneSize)elementsInCone.push_back(*element);
       }
-      return elementsInCone;      
+      return elementsInCone;
     }
+  /*   const edm::RefVector<C> operator()(const T& coneAxis,const M& coneMetric,double coneSize,const edm::RefVector<C>& elements)const{ */
+/*       edm::RefVector<C> elementsInCone; */
+/*       for(typename edm::RefVector<C>::const_iterator element=elements.begin();element!=elements.end();++element) { */
+/*         double distance = coneMetric(coneAxis,(*element)->momentum()); */
+/*         if (distance<=coneSize)elementsInCone.push_back(*element); */
+/*       } */
+/*       return elementsInCone; */
+/*     } */
 };
 
 template <typename T, typename M> 
