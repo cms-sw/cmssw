@@ -21,33 +21,34 @@
 
 namespace reco { namespace tau {
 
-class RecoTauStringCleanerPlugin : public RecoTauCleanerPlugin {
-  public:
+class RecoTauStringCleanerPlugin : public RecoTauCleanerPlugin 
+{
+ public:
   explicit RecoTauStringCleanerPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-    ~RecoTauStringCleanerPlugin() {}
-    double operator()(const PFTauRef& tau) const override;
-  private:
-    const StringCutObjectSelector<PFTau> selector_;
-    const StringObjectFunction<PFTau> function_;
-    double failResult_;
+  ~RecoTauStringCleanerPlugin() {}
+  double operator()(const PFTauRef& tau) const override;
+
+ private:
+  const StringCutObjectSelector<PFTau> selector_;
+  const StringObjectFunction<PFTau> function_;
+  double failResult_;
 };
 
-RecoTauStringCleanerPlugin::RecoTauStringCleanerPlugin(
-    const edm::ParameterSet& pset, edm::ConsumesCollector &&iC): RecoTauCleanerPlugin(pset,std::move(iC)),
+RecoTauStringCleanerPlugin::RecoTauStringCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
+  : RecoTauCleanerPlugin(pset,std::move(iC)),
     selector_(pset.getParameter<std::string>("selection")),
     function_(pset.getParameter<std::string>("selectionPassFunction")),
-    failResult_(pset.getParameter<double>("selectionFailValue")) {}
+    failResult_(pset.getParameter<double>("selectionFailValue")) 
+{}
 
-double RecoTauStringCleanerPlugin::operator()(const PFTauRef& cand) const {
-  if(selector_(*cand))
-    return function_(*cand);
-  else
-    return failResult_;
+double RecoTauStringCleanerPlugin::operator()(const PFTauRef& cand) const 
+{
+  if ( selector_(*cand) ) return function_(*cand);
+  else return failResult_;
 }
 
 }} // end namespace reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN(RecoTauCleanerPluginFactory,
-                  reco::tau::RecoTauStringCleanerPlugin,
-                  "RecoTauStringCleanerPlugin");
+
+DEFINE_EDM_PLUGIN(RecoTauCleanerPluginFactory, reco::tau::RecoTauStringCleanerPlugin, "RecoTauStringCleanerPlugin");

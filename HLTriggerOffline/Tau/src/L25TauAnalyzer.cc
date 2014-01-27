@@ -218,7 +218,7 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       pfTauEta = thePFTaus->at(pfTauIt).eta(); 						  
       pfTauPhi = thePFTaus->at(pfTauIt).eta(); 
       
-      const PFCandidateRef& thePFTauLeadTrack = thePFTaus->at(pfTauIt).leadPFChargedHadrCand(); 
+      const reco::PFCandidatePtr& thePFTauLeadTrack = thePFTaus->at(pfTauIt).leadPFChargedHadrCand(); 
       if(thePFTauLeadTrack.isNonnull()){
         pfTauHasLeadTrk = true;
         pfTauNProngs = thePFTaus->at(pfTauIt).signalPFChargedHadrCands().size();			      
@@ -227,17 +227,17 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         pfTauGammaIso = thePFTaus->at(pfTauIt).isolationPFGammaCandsEtSum();
       }
       
-      const PFCandidateRefVector& theSignalCands = thePFTaus->at(pfTauIt).signalPFChargedHadrCands();
-      for(PFCandidateRefVector::const_iterator vIt = theSignalCands.begin(); vIt != theSignalCands.end(); ++vIt){
+      const vector<reco::PFCandidatePtr>& theSignalCands = thePFTaus->at(pfTauIt).signalPFChargedHadrCands();
+      for(vector<reco::PFCandidatePtr>::const_iterator vIt = theSignalCands.begin(); vIt != theSignalCands.end(); ++vIt){
         pftauSignalTrkDeltaR = ROOT::Math::VectorUtil::DeltaR((*vIt)->trackRef()->momentum(), thePFTauLeadTrack->momentum());
 	if(pftauSignalTrkDeltaR > _signalCone) pfTauInBounds = false;
       }
     
-      const PFCandidateRefVector& theIsoCands = thePFTaus->at(pfTauIt).isolationPFChargedHadrCands();
+      const vector<reco::PFCandidatePtr>& theIsoCands = thePFTaus->at(pfTauIt).isolationPFChargedHadrCands();
       pfTauNTrkIso = theIsoCands.size();
       float PFTauLeadIsoPt = 0.;
       Track thePFTauLeadIsoTrk;      
-      for(PFCandidateRefVector::const_iterator vIt = theIsoCands.begin(); vIt != theIsoCands.end(); ++vIt){
+      for(vector<reco::PFCandidatePtr>::const_iterator vIt = theIsoCands.begin(); vIt != theIsoCands.end(); ++vIt){
         pftauIsoTrkDeltaR = ROOT::Math::VectorUtil::DeltaR((*vIt)->trackRef()->momentum(), thePFTauLeadTrack->momentum());
 	if(pftauIsoTrkDeltaR < _isolationCone) pfTauInBounds = false;
 	pfTauIsoTrkPt = (*vIt)->trackRef()->pt();		      
@@ -463,7 +463,7 @@ void L25TauAnalyzer::printInfo(const reco::PFTau& thePFTau, const reco::Isolated
   }
   nIsoTrk = 0;
   std::cout << "Tracks in PFTau Iso: (Pt:Eta:Phi)\n";
-  for(PFCandidateRefVector::const_iterator isoIt = thePFTau.isolationPFChargedHadrCands().begin(); 
+  for(vector<reco::PFCandidatePtr>::const_iterator isoIt = thePFTau.isolationPFChargedHadrCands().begin(); 
      isoIt != thePFTau.isolationPFChargedHadrCands().end(); ++isoIt){
     nIsoTrk++;
     cout << nIsoTrk << "\t" 
