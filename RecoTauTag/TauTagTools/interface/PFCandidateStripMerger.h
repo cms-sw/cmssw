@@ -19,7 +19,7 @@ class PFCandidateStripMerger : public PFCandidateMergerBase
   PFCandidateStripMerger(const edm::ParameterSet&);
   ~PFCandidateStripMerger();
 
-  std::vector<reco::PFCandidateRefVector> mergeCandidates(const reco::PFCandidateRefVector&);
+  std::vector<std::vector<reco::PFCandidatePtr>> mergeCandidates(const std::vector<reco::PFCandidatePtr>&);
 
  private:
 
@@ -29,7 +29,7 @@ class PFCandidateStripMerger : public PFCandidateMergerBase
   
 
   //Private Methods
-  bool candidateMatches(const reco::PFCandidateRef&);
+  bool candidateMatches(const reco::PFCandidatePtr&);
 
 
 };
