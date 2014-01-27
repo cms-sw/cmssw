@@ -26,7 +26,7 @@ class JetCorrectorParameters
     {
       public:
         //-------- Constructors -------------- 
-        Definitions() {}
+        Definitions() : mIsResponse(false) {}
         Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula, bool fIsResponse); 
         Definitions(const std::string& fLine); 
         //-------- Member functions ----------

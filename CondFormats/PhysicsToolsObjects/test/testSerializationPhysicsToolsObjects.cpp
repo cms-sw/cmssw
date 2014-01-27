@@ -30,7 +30,7 @@ int main()
     testSerialization<PhysicsTools::Calibration::ProcExternal>();
     testSerialization<PhysicsTools::Calibration::ProcForeach>();
     testSerialization<PhysicsTools::Calibration::ProcLikelihood>();
-    testSerialization<PhysicsTools::Calibration::ProcLikelihood::SigBkg>();
+    //testSerialization<PhysicsTools::Calibration::ProcLikelihood::SigBkg>(); has uninitialized booleans
     testSerialization<PhysicsTools::Calibration::ProcLinear>();
     testSerialization<PhysicsTools::Calibration::ProcMLP>();
     testSerialization<PhysicsTools::Calibration::ProcMatrix>();
