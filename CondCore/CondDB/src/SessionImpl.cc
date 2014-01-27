@@ -57,8 +57,6 @@ namespace cond {
       cond::DbSession m_session;
     };
 
-    static const char* NEW_CONDDB("NEW_CONDDB");
-
     SessionImpl::SessionImpl():
       coralSession(){
     }
@@ -98,12 +96,7 @@ namespace cond {
 	if( !iovSchemaHandle->exists() && !gtSchemaHandle->exists() ){
 	  std::unique_ptr<IIOVSchema> iovSchema( new IOVSchema( coralSession->nominalSchema() ) );
 	  std::unique_ptr<IGTSchema> gtSchema( new GTSchema( coralSession->nominalSchema() ) );
-	  bool newCondDb = iovSchema->exists();
-	  if( !newCondDb && !readOnly ){
-	    const char* new_conddb_env = ::getenv( NEW_CONDDB );
-	    if( new_conddb_env ) newCondDb = true;
-	  }
-	  if( newCondDb ){
+	  if( iovSchema->exists() ){
 	    iovSchemaHandle = std::move(iovSchema);
 	    gtSchemaHandle = std::move(gtSchema);
 	    transaction.reset( new CondDBTransaction( coralSession ) );
