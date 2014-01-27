@@ -236,6 +236,13 @@ namespace evf{
       //std::unordered_map<unsigned int, int> processedEventsPerLumi_;
       std::map<unsigned int, int> processedEventsPerLumi_;
 
+
+      
+      boost::mutex initPathsLock_;
+      unsigned long firstEventId_ = 0;
+      std::atomic<bool> collectedPathList_ = false;
+      std::vector<bool> pathNamesReady_;
+
       boost::filesystem::path workingDirectory_, runDirectory_;
     };
 

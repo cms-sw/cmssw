@@ -16,27 +16,35 @@
 
 using namespace jsoncollector;
 
-FastMonitor::FastMonitor(const std::vector<JsonMonitorable*>& monitorableVariables, 
-		const std::vector<JsonMonConfig>& varsConfig,
-		std::string const& defPath, unsigned int numberOfStreams, bool startImmediately) :
-//	monitorableVars_(monitorableVariables),
+FastMonitor::FastMonitor(std::string const& defPath) :
 	defPath_(defPath),
-	nStreams_(numberOfStreams),
-	startImmediately_(startImmediately)
 {
 
 	//get host and PID info
 	getHostAndPID(sourceInfo_);
 
-	//TODO:make configurable if we assert on missing variable, missing definition and wrong operation
+	//TODO:strict checking
 
 	//first load definition file
 	DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
 
-	//populate our internal config information for variables
+	for (int i=0;i<dpd_.getNumberOfElements();i++) {
+	  jsonPtrAtIndex_.push_back(nullptr);
+	}
+
+}
+
+void FastMonitor::registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates) {
+
+	unsigned int jsonIndex;
+	dpd.isValid(newMonitorable,jsonIndex);
+	DataPoint *dp = new DataPoint(dpd_,defPath_,sourceInfo_,newMonitorable);//DP detects everything else
+	dataPoints.push_back(dp);
+}
+
 	dpd_.populateMonConfig(monConfig_);
-	monConfig_.setSourceInfoPtr(&sourceInfo_);
-	monConfig_.setDefinitionPtr(&defPath_)
+//	monConfig_.setSourceInfoPtr(&sourceInfo_);
+//	monConfig_.setDefinitionPtr(&defPath_)
 
 	//populate vectors that provide per-stream measurement
 	for (unsigned int s=0;s<nStreams_;s++) {

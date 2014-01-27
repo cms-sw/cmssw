@@ -147,6 +147,7 @@ namespace evf{
        fmt_.m_data.streamLumi_.push_back(0);
        ministate_.push_back(&nopath_);
        microstate_.push_back(&reservedMicroStateNames[mInvalid]);
+       pathNamesReady_.push_back(false);
     }
  
     //TODO: we could do fastpath output even before seeing lumi
@@ -181,9 +182,8 @@ namespace evf{
 
   void FastMonitoringService::postBeginJob()
   {
-    //    boost::mutex::scoped_lock sl(lock_);
-    std::cout << "path legenda*****************" << std::endl;
-    std::cout << makePathLegenda()   << std::endl;
+    //std::cout << "path legenda*****************" << std::endl;
+   // std::cout << makePathLegenda()   << std::endl;
     std::cout << "module legenda***************" << std::endl;
     std::cout << makeModuleLegenda() << std::endl;
     fmt_.m_data.macrostate_ = FastMonitoringThread::sJobReady;
@@ -191,7 +191,6 @@ namespace evf{
 
   void FastMonitoringService::postEndJob()
   {
-    //    boost::mutex::scoped_lock sl(lock_);
     macrostate_ = FastMonitoringThread::sJobEnded;
     fmt_.stop();
   }
@@ -208,11 +207,7 @@ namespace evf{
 
   void FastMonitoringService::postGlobalBeginRun(edm::GlobalContext const& gc)
   {
-    std::cout << "path legenda*****************" << std::endl;
     macrostate_ = FastMonitoringThread::sRunning;
-    //TODO:we don't have names yet
-    return;
-    std::cout << makePathLegenda()   << std::endl;
   }
 
 
@@ -318,13 +313,35 @@ namespace evf{
 
   void FastMonitoringService::prePathEvent(edm::StreamContext const& sc, const edm::PathContext const& pc)
   {
-/* do nothing for now
-    //bonus track, now monitoring path execution too...
-    if (firstEvent) {
-	    sc.eventID().event()
+    //"lock-free" update paths (will see if CMSSW shitches threads, i.e. enforces memory barrier in this case)
+    if (!pathNamesReady_[sc.streamID().value])
+    if (!collectedPathList_) {
+      //if paths are not updated, collect path names from the first stream
+      if (sc.streamID().value()!=0) {
+	pathNamesReady_[sc.streamID().value()]=true;
+	return;//skip update
+      }
+      if (firstEventId_==0) 
+	firstEventId_==sc.eventID().value();
+      initPathsLock_.lock();
+      if (sc.eventID().value()==firstEventId_)
+      {
+	  encPath_.update((void*)&pc.pathName());
+	initPathsLock_.unlock();
+	return;
+      }
+      else {
+	//finished collecting path names
+        //print paths
+	std::cout << "path legenda*****************" << std::endl;
+	std::cout << makePathLegenda()   << std::endl;
+
+	collectedPathList_=true;//this is not atomic but will propagate through caches eventually
+	initPathsLock_.unlock();
+	pathNamesReady_[0]=true;
+      }
     }
     ministate_ = &(pc.pathName());
-    */
   }
 
 
