@@ -38,9 +38,8 @@ void SeedingLayersEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
                                                                     &builder_.layerSetIndices(),
                                                                     &builder_.layerNames(),
                                                                     builder_.layerDets()));
-  for(unsigned short i=0; i<builder_.numberOfLayers(); ++i) {
-    prod->setHits(i, builder_.hits(iEvent, iSetup, i));
-  }
+  std::pair<std::vector<unsigned int>, ctfseeding::SeedingLayer::Hits> idxHits = builder_.hits(iEvent, iSetup);
+  prod->swapHits(idxHits.first, idxHits.second);
   //prod->print();
 
   iEvent.put(prod);
