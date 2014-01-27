@@ -89,9 +89,9 @@ namespace evf{
 
 	fm.setNStreams(nStreams);
 	//tell FM to track these int vectors
-        fm.registerStreamMonitorableIntVec("Ministate", &ministateDecoded_,true,0);
-        fm.registerStreamMonitorableIntVec("Microstate",&microstateDecoded_,true,0);
-        fm.registerStreamMonitorableIntVec("Processed",&processed_,false,0);
+        fm.registerStreamMonitorableUIntVec("Ministate", &ministateDecoded_,true,0);//what is 0 for ?
+        fm.registerStreamMonitorableUIntVec("Microstate",&microstateDecoded_,true,0);
+        fm.registerStreamMonitorableUIntVec("Processed",&processed_,false,0);
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm.commit(&streamLumi_);
       }
