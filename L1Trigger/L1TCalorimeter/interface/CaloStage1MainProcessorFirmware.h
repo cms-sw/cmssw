@@ -15,7 +15,9 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1MainProcessor.h"
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
+
 #include "CaloStage1JetAlgorithm.h"
+#include "CaloStage1TauAlgorithm.h"
 
 namespace l1t {
 
@@ -35,7 +37,7 @@ namespace l1t {
     FirmwareVersion const & m_fwv;
 
     //CaloStage1EGammaAlgorithm* m_egAlgo;
-    //CaloStage1TauAlgoritmh* m_tauAlgo;
+    CaloStage1TauAlgorithm* m_tauAlgo;
     CaloStage1JetAlgorithm* m_jetAlgo;
     //CaloStage1EtSumAlgorithm* m_sumAlgo;
 

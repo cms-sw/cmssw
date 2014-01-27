@@ -9,7 +9,7 @@
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage1JetAlgorithmImp.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage1SingleTrackHI.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloStage1TauAlgorithmImp.h"
 
 using namespace std;
 using namespace l1t;
@@ -28,8 +28,10 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const std::vector<CaloEmC
 
   if (m_fwv.firmwareVersion() == 1) { //HI algo
     m_jetAlgo = new CaloStage1JetAlgorithmImpHI(/*m_db*/); //fwv =1 => HI algo
+    m_tauAlgo = new CaloStage1SingleTrackHI(/*m_db*/);
   } else if( m_fwv.firmwareVersion() == 2 ) { //PP algorithm
     m_jetAlgo = new CaloStage1JetAlgorithmImpPP(/*m_db*/); //fwv =2 => PP algo
+    m_tauAlgo = new CaloStage1SingleTrackHI(/*m_db*/); //only for now
   } else if( m_fwv.firmwareVersion() == 3 ) {
     //m_tauAlgo = new CaloStage1SingleTrackHI(/*m_db*/);
   }  else{ // undefined fwv version
@@ -38,6 +40,6 @@ void CaloStage1MainProcessorFirmwareImp1::processEvent(const std::vector<CaloEmC
     return;
   }
 
-  //m_jetAlgo->processEvent(regions, jets);
-  //m_tauAlgo->processEvent(regions, taus);
+  m_jetAlgo->processEvent(regions, jets);
+  m_tauAlgo->processEvent(emcands, regions, taus);
 }

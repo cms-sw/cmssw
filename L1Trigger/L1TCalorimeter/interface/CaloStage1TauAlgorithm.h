@@ -22,17 +22,17 @@
 #include <vector>
 
 namespace l1t {
-    
-  class CaloStage1TauAlgorithm { 
+
+  class CaloStage1TauAlgorithm {
   public:
     virtual void processEvent(//const std::vector<l1t::CaloStage1Cluster> & clusters,
-			      const std::vector<l1t::CaloEmCand> & clusters,	
+			      const std::vector<l1t::CaloEmCand> & clusters,
 			      const std::vector<l1t::CaloRegion> & regions,
-			      std::vector<l1t::Tau> & taus) = 0;    
+			      std::vector<l1t::Tau> * taus) = 0;
 
     virtual ~CaloStage1TauAlgorithm(){};
-  }; 
-  
-} 
+  };
+
+}
 
 #endif

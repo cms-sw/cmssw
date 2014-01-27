@@ -158,9 +158,11 @@ L1TCaloStage1Producer::produce(Event& iEvent, const EventSetup& iSetup)
     std::vector<l1t::EtSum> *localEtSums = new std::vector<l1t::EtSum>();
 
     // copy over the inputs -> there must be a better way to do this
-    for(std::vector<l1t::CaloRegion>::const_iterator region = caloRegions->begin(i); region != caloRegions->end(i); ++region)
+    for(std::vector<l1t::CaloRegion>::const_iterator region = caloRegions->begin(i);
+	region != caloRegions->end(i); ++region)
       localRegions->push_back(*region);
-    for(std::vector<l1t::CaloEmCand>::const_iterator emcand = caloEmCands->begin(i); emcand != caloEmCands->end(i); ++emcand)
+    for(std::vector<l1t::CaloEmCand>::const_iterator emcand = caloEmCands->begin(i);
+	emcand != caloEmCands->end(i); ++emcand)
       localEmCands->push_back(*emcand);
 
     //run the firmware on one event
