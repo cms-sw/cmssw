@@ -6,6 +6,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
+#include <cstdio>
 
 #include <boost/bind.hpp>
 
@@ -26,6 +27,8 @@
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 
 #include "XMLUtils.h"
+
+#include "boost/lexical_cast.hpp"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -94,11 +97,13 @@ class LHEReader::StringSource : public LHEReader::Source {
 
 class LHEReader::XMLHandler : public XMLDocument::Handler {
     public:
+  typedef std::vector<std::pair<std::string,std::string> > wgt_info;
 	XMLHandler() :
 		impl(0), gotObject(kNone), mode(kNone),
-		xmlHeader(0), headerOk(false) {}
+		xmlHeader(0), xmlEvent(0), headerOk(false) {}
 	~XMLHandler()
-	{ if (xmlHeader) xmlHeader->release(); }
+	{ if (xmlHeader) xmlHeader->release(); 
+	  if (xmlEvent) xmlEvent->release();   }
 
 	enum Object {
 		kNone = 0,
@@ -108,7 +113,9 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 		kEvent
 	};
 
-	void reset() { headerOk = false; }
+        void reset() { headerOk = false; weightsinevent.clear();}
+
+        const wgt_info& weightInfo() const {return weightsinevent;}
 
     protected:
 	void startElement(const XMLCh *const uri,
@@ -131,9 +138,11 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	Object				gotObject;
 	Object				mode;
 	DOMDocument			*xmlHeader;
-	std::vector<DOMElement*>	xmlNodes;
+        DOMDocument			*xmlEvent;
+        std::vector<DOMElement*>	xmlNodes,xmlEventNodes;
 	bool				headerOk;
 	std::vector<LHERunInfo::Header>	headers;
+        wgt_info weightsinevent;
 };
 
 static void attributesToDom(DOMElement *dom, const Attributes &attributes)
@@ -168,110 +177,169 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
                                          const XMLCh *const qname,
                                          const Attributes &attributes)
 {
-	std::string name((const char*)XMLSimpleStr(qname));
+  std::string name((const char*)XMLSimpleStr(qname));
 
-	if (!headerOk) {
-		if (name != "LesHouchesEvents")
-			throw cms::Exception("InvalidFormat")
-				<< "LHE file has invalid header" << std::endl;
-		headerOk = true;
-		return;
-	}
+  if (!headerOk) {
+    if (name != "LesHouchesEvents")
+      throw cms::Exception("InvalidFormat")
+	<< "LHE file has invalid header" << std::endl;
+    headerOk = true;
+    return;
+  }
+  
+  if (mode == kHeader) {	  
+    DOMElement *elem = xmlHeader->createElement(qname);
+    attributesToDom(elem, attributes);
+    xmlNodes.back()->appendChild(elem);
+    xmlNodes.push_back(elem);
+    return;
+  } else if ( mode == kEvent ) {
+    DOMElement *elem = xmlEvent->createElement(qname);    
+    attributesToDom(elem, attributes);
 
-	if (mode == kHeader) {
-		DOMElement *elem = xmlHeader->createElement(qname);
-		attributesToDom(elem, attributes);
-		xmlNodes.back()->appendChild(elem);
-		xmlNodes.push_back(elem);
-		return;
-	} else if (mode != kNone)
-		throw cms::Exception("InvalidFormat")
-			<< "LHE file has invalid format" << std::endl;
-
-	if (name == "header") {
-		if (!impl)
-			impl = DOMImplementationRegistry::getDOMImplementation(
-							XMLUniStr("Core"));
-		xmlHeader = impl->createDocument(0, qname, 0);
-		xmlNodes.resize(1);
-		xmlNodes[0] = xmlHeader->getDocumentElement();
-		mode = kHeader;
-	} if (name == "init")
-		mode = kInit;
-	else if (name == "event")
-		mode = kEvent;
-
-	if (mode == kNone)
-		throw cms::Exception("InvalidFormat")
-			<< "LHE file has invalid format" << std::endl;
-
-	buffer.clear();
+    if( name == "rwgt" ) {
+      xmlEventNodes[0]->appendChild(elem);
+    } else if (name == "wgt") {
+      xmlEventNodes[1]->appendChild(elem);
+    }
+    xmlEventNodes.push_back(elem);
+    return;
+  } else if (mode != kNone) {
+    throw cms::Exception("InvalidFormat")
+      << "LHE file has invalid format" << std::endl;
+  }
+  
+  if (name == "header") {
+    if (!impl)
+      impl = DOMImplementationRegistry::getDOMImplementation(
+							  XMLUniStr("Core"));
+    xmlHeader = impl->createDocument(0, qname, 0);
+    xmlNodes.resize(1);
+    xmlNodes[0] = xmlHeader->getDocumentElement();
+    mode = kHeader;
+  } if (name == "init") {
+      mode = kInit;
+  } else if (name == "event") {
+    if (!impl)
+      impl = DOMImplementationRegistry::getDOMImplementation(
+							  XMLUniStr("Core"));
+    if(xmlEvent)  xmlEvent->release();
+    xmlEvent = impl->createDocument(0, qname, 0);
+    weightsinevent.resize(0);
+    xmlEventNodes.resize(1);
+    xmlEventNodes[0] = xmlEvent->getDocumentElement();
+    mode = kEvent;    
+  }
+  
+  if (mode == kNone)
+    throw cms::Exception("InvalidFormat")
+      << "LHE file has invalid format" << std::endl;
+  
+  buffer.clear();
 }
 
 void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
                                        const XMLCh *const localname,
                                        const XMLCh *const qname)
 {
-	if (mode) {
-		if (mode == kHeader && xmlNodes.size() > 1) {
-			xmlNodes.resize(xmlNodes.size() - 1);
-			return;
-		} else if (mode == kHeader) {
-			std::auto_ptr<DOMWriter> writer(
-				static_cast<DOMImplementationLS*>(
+  std::string name((const char*)XMLSimpleStr(qname));
+  
+  if (mode) {
+
+    if (mode == kHeader && xmlNodes.size() > 1) {
+      xmlNodes.resize(xmlNodes.size() - 1);
+      return;
+    } else if (mode == kHeader) {
+      std::auto_ptr<DOMWriter> writer(
+				      static_cast<DOMImplementationLS*>(
                                                 impl)->createDOMWriter());
-			writer->setEncoding(XMLUniStr("UTF-8"));
+      writer->setEncoding(XMLUniStr("UTF-8"));
+      
+      for(DOMNode *node = xmlNodes[0]->getFirstChild();
+	  node; node = node->getNextSibling()) {
+	XMLSimpleStr buffer(writer->writeToString(*node));
 
-			for(DOMNode *node = xmlNodes[0]->getFirstChild();
-			    node; node = node->getNextSibling()) {
-				XMLSimpleStr buffer(
-					writer->writeToString(*node));
+	std::string type;
+	const char *p, *q;
+	DOMElement *elem;
+	
+	switch(node->getNodeType()) {
+	case DOMNode::ELEMENT_NODE:	  
+	    elem = static_cast<DOMElement*>(node);
+	    type = (const char*)XMLSimpleStr(
+					     elem->getTagName());
+	    p = std::strchr((const char*)buffer,
+			    '>') + 1;
+	    q = std::strrchr(p, '<');	 
+	  break;
+	case DOMNode::COMMENT_NODE:
+	  type = "";
+	  p = buffer + 4;
+	  q = buffer + strlen(buffer) - 3;
+	  break;
+	default:
+	  type = "<>";
+	  p = buffer +
+	    std::strspn(buffer, " \t\r\n");
+	  if (!*p)
+	    continue;
+	  q = p + strlen(p);
+	}	
+	LHERunInfo::Header header(type);
+	fillHeader(header, p, q - p);
+	headers.push_back(header);	
+      }
+      
+      xmlHeader->release();
+      xmlHeader = 0;
+    }
 
-				std::string type;
-				const char *p, *q;
-				DOMElement *elem;
+    if( name == "rwgt" && mode == kEvent ) return;
+    if( name == "wgt" && mode == kEvent ) return; 
 
-				switch(node->getNodeType()) {
-				    case DOMNode::ELEMENT_NODE:
-					elem = static_cast<DOMElement*>(node);
-					type = (const char*)XMLSimpleStr(
-							elem->getTagName());
-					p = std::strchr((const char*)buffer,
-					                '>') + 1;
-					q = std::strrchr(p, '<');
-				    	break;
-				    case DOMNode::COMMENT_NODE:
-					type = "";
-					p = buffer + 4;
-					q = buffer + strlen(buffer) - 3;
-					break;
-				    default:
-					type = "<>";
-					p = buffer +
-					    std::strspn(buffer, " \t\r\n");
-					if (!*p)
-						continue;
-					q = p + strlen(p);
-				}
-
-				LHERunInfo::Header header(type);
-				fillHeader(header, p, q - p);
-				headers.push_back(header);
-			}
-
-			xmlHeader->release();
-			xmlHeader = 0;
-		}
-
-		if (gotObject != kNone)
-			throw cms::Exception("InvalidState")
-				<< "Unexpected pileup in"
-				    " LHEReader::XMLHandler::endElement"
-				<< std::endl;
-
-		gotObject = mode;
-		mode = kNone;
+    if (name == "event" && 
+	mode == kEvent && 
+	xmlEventNodes.size() >= 1) { // handling of weights in LHE file
+      for(DOMNode *node = xmlEventNodes[0]->getFirstChild();
+	  node; node = node->getNextSibling()) {
+	switch( node->getNodeType() ) {
+	case DOMNode::ELEMENT_NODE: // rwgt
+	  for(DOMNode *rwgt = xmlEventNodes[1]->getFirstChild();
+	      rwgt; rwgt = rwgt->getNextSibling()) {
+	    DOMNode* attr = rwgt->getAttributes()->item(0);
+	    XMLSimpleStr atname(attr->getNodeValue());
+	    XMLSimpleStr weight(rwgt->getFirstChild()->getNodeValue());
+	    switch( rwgt->getNodeType() ) {
+	    case DOMNode::ELEMENT_NODE:
+	      weightsinevent.push_back(std::make_pair((const char*)atname,
+						      (const char*)weight));
+	      break;	    
+	    default:	    	  
+	      break;
+	    }	  
+	  }
+	  break;
+	case DOMNode::TEXT_NODE: // event information
+	  {
+	    XMLSimpleStr data(node->getNodeValue());
+	    buffer.append(data);
+	  }
+	  break;
+	default:
+	  break;
 	}
+      }      
+    }
+
+    if (gotObject != kNone)
+      throw cms::Exception("InvalidState")
+	<< "Unexpected pileup in"
+	" LHEReader::XMLHandler::endElement"
+	<< std::endl;
+    
+    gotObject = mode;
+    mode = kNone;
+  }
 }
 
 void LHEReader::XMLHandler::characters(const XMLCh *const data_,
@@ -281,21 +349,26 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 		DOMText *text = xmlHeader->createTextNode(data_);
 		xmlNodes.back()->appendChild(text);
 		return;
-	}
+	}	
 
 	if (XMLSimpleStr::isAllSpaces(data_, length))
 		return;
 
 	unsigned int offset = 0;
 	while(offset < length && XMLSimpleStr::isSpace(data_[offset]))
-		offset++;
+		offset++;	
 
-	XMLSimpleStr data(data_ + offset);
+	if( mode == kEvent ) {
+	  DOMText *text = xmlEvent->createTextNode(data_+offset);
+	  xmlEventNodes.back()->appendChild(text);
+	  return;
+	}	
 
 	if (mode == kNone)
 		throw cms::Exception("InvalidFormat")
 			<< "LHE file has invalid format" << std::endl;
 
+	XMLSimpleStr data(data_ + offset);
 	buffer.append(data);
 }
 
@@ -344,7 +417,6 @@ LHEReader::~LHEReader()
 
   boost::shared_ptr<LHEEvent> LHEReader::next(bool* newFileOpened)
   {
-
     while(curDoc.get() || curIndex < fileURLs.size() || (fileURLs.size() == 0 && strName != "" ) ) {
       if (!curDoc.get()) {
         if ( fileURLs.size() > 0 ) {
@@ -369,7 +441,7 @@ LHEReader::~LHEReader()
         data.str(handler->buffer);
         handler->buffer.clear();
       }
-      
+        
       switch(event) {
       case XMLHandler::kNone:
         if (!curDoc->parse()) {
@@ -409,13 +481,21 @@ LHEReader::~LHEReader()
           return boost::shared_ptr<LHEEvent>();
         else if (maxEvents > 0)
           maxEvents--;
-        
-        return boost::shared_ptr<LHEEvent>(
-                                           new LHEEvent(curRunInfo, data));
-      }
+
+	boost::shared_ptr<LHEEvent> lheevent;
+	lheevent.reset(new LHEEvent(curRunInfo, data));
+	const XMLHandler::wgt_info& info = handler->weightsinevent;
+	for( size_t i=0; i< info.size(); ++i ) {
+	  std::string snum = info[i].second.substr(0,info[i].second.size()-1);
+	  double num = -1.0;
+	  sscanf(snum.c_str(),"%le",&num);	  
+	  lheevent->addWeight(gen::WeightsInfo(info[i].first,num));
 	}
+        return lheevent;
+      }
+    }
     
-	return boost::shared_ptr<LHEEvent>();
+    return boost::shared_ptr<LHEEvent>();
   }
   
 } // namespace lhef
