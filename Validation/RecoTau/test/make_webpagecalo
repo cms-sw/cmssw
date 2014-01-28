@@ -1,0 +1,236 @@
+#!/usr/bin/env python
+
+import os
+import sys
+
+#define paths
+#--------------------------------------------
+
+mpath = os.getcwd()
+
+def usage():
+     print
+     print 'Usage: '+ sys.argv[0]+ ' <test release> + < reference release > + < TauID product > + < Number of prongs >'
+     print 'e.g.: ' + sys.argv[0]+ ' CMSSW_2_2_0_pre1 CMSSW_2_1_10 pftau HadronicTauOneAndThreeProng '
+     print 
+     return 0
+   
+if __name__ == "__main__":
+
+   testRelease = ""
+   referenceRelease = ""
+   tauidproduct = ""
+   numberofprongs = ""
+   
+   if len(sys.argv)==1 or len(sys.argv) == 2 or len(sys.argv) == 3 or len(sys.argv) == 4 or len(sys.argv)>6:
+	   usage()
+	   sys.exit()
+   if len(sys.argv)==5:
+        try:
+            testRelease = sys.argv[1]
+            referenceRelease = sys.argv[2]
+            tauidproduct = sys.argv[3]
+            numberofprongs = sys.argv[4]            
+        except ValueError:
+            usage()
+            sys.exit()
+
+   
+   outputfilelog = sys.argv[0].replace(".py",".log")
+   outputfilelog = outputfilelog.replace("./","")
+
+   print  tauidproduct  + " " + testRelease + " " + numberofprongs + " " + referenceRelease
+   print 
+   
+   outputwebpage = tauidproduct + "_" + testRelease + "_" + numberofprongs + ".html"
+   
+   print outputwebpage
+   
+   try:
+    outputfile = open(outputwebpage, "w") 
+#	print "Output html file is being written" 
+   except IOError:
+	print " error opening " + outputwebpage
+	sys.exit()
+   outputfile.write('''<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html>\n''') 
+   outputfile.write('''<head><title>CMSSW Release Validation</title>\n''')
+   outputfile.write('''    <link rel="stylesheet" type="text/css" media="print" href="../css/print.css">\n''')
+   outputfile.write('''    <style type="text/css" media="screen">\n''')
+   outputfile.write('''    @import url("../css/layout.css");\n''')
+   outputfile.write('''    @import url("../css/content.css");\n''')
+   outputfile.write('''    @import url("../css/docbook.css");\n''')
+   outputfile.write('''    </style>\n''')
+   outputfile.write('''    <meta name="MSSmartTagsPreventParsing" content="TRUE">\n''')
+   outputfile.write('''</head>\n\n''')
+   outputfile.write('''<body>\n''')
+
+   outputfile.write('''<div id="fedora-header"><!-- DIV_I -->\n''')
+   outputfile.write('''   <div id="fedora-header-logo">\n''')
+   outputfile.write('''      <strong><big>CMSSW Release Validation</big></strong>\n''')
+   outputfile.write('''      <br>\n''')
+   outputfile.write('''      <div align="right"><a href="mailto:ricardo@fnal.gov">ricardo@fnal.gov</a></div>\n''')
+   outputfile.write('''   </div>\n''')
+   outputfile.write('''   <div id="fedora-header-items">\n''')
+   outputfile.write('''      <span class="fedora-header-icon">\n''')
+   outputfile.write('''     [<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTauCodeValidation" alt="">About this page</a>]<br>\n''')
+   outputfile.write('''     <strong><tt class="link-internal"></tt>\n''')					        
+   outputfile.write('''     </strong>\n''')
+   outputfile.write('''     </span>\n''')
+   outputfile.write('''   </div>\n''')
+   outputfile.write('''</div><!-- DIV_I -->\n''')
+   outputfile.write('''<div id="fedora-nav"></div>\n\n''')
+
+   outputfile.write('''         <div> <!-- DIV-4 -->\n''')
+   outputfile.write('''         <br>\n''')       
+   outputfile.write('''         <center><strong>Validation plots of ''' + tauidproduct + '''</strong></center>\n''')
+   outputfile.write('''         <center><strong>Step by Step Efficiency ''' + testRelease + '''</strong></center>\n''')
+   outputfile.write('''         <table border="1" cellpadding="4" align="center">\n''')
+   outputfile.write('''         <tbody align="center">\n''')
+   outputfile.write('''         <center>\n''')
+   outputfile.write('''         <tr>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/TauIdEffStepByStepeta.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/TauIdEffStepByStepeta.png" width="290" border="0" alt="TauIdEffStepByStepeta.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/TauIdEffStepByStepphi.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/TauIdEffStepByStepphi.png" width="290" border="0" alt="TauIdEffStepByStepphi.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/TauIdEffStepBySteppt.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/TauIdEffStepBySteppt.png" width="290" border="0" alt="TauIdEffStepBySteppt.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/TauIdEffStepByStepenergy.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/TauIdEffStepByStepenergy.png" width="290" border="0" alt="TauIdEffStepByStepenergy.png"></a>\n''')
+   outputfile.write('''         </tr>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </tbody>\n''')
+   outputfile.write('''         </table>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </div><!-- DIV-4 -->\n''')
+   outputfile.write('''         <div></div>\n''')
+   
+   outputfile.write('''         <div> <!-- DIV-4 -->\n''')
+   outputfile.write('''         <br>\n''')       
+   outputfile.write('''         <center><strong>CaloJet Efficiency (matching deltaR less than 0.15 compared to ''' + referenceRelease + ''')</strong></center>\n''')
+   outputfile.write('''         <table border="1" cellpadding="4" align="center">\n''')
+   outputfile.write('''         <tbody align="center">\n''')
+   outputfile.write('''         <center>\n''')
+   outputfile.write('''         <tr>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/CaloJetMatchingEffeta.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/CaloJetMatchingEffeta.png" width="290" border="0" alt="CaloJetMatchingEffeta.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/CaloJetMatchingEffphi.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/CaloJetMatchingEffphi.png" width="290" border="0" alt="CaloJetMatchingEffphi.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/CaloJetMatchingEffpt.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/CaloJetMatchingEffpt.png" width="290" border="0" alt="CaloJetMatchingEffpt.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/CaloJetMatchingEffenergy.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/CaloJetMatchingEffenergy.png" width="290" border="0" alt="CaloJetMatchingEffenergy.png"></a>\n''')
+   outputfile.write('''         </tr>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </tbody>\n''')
+   outputfile.write('''         </table>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </div><!-- DIV-4 -->\n''')
+   outputfile.write('''         <div></div>\n''')
+
+#   outputfile.write('''         <div> <!-- DIV-4 -->\n''')
+#   outputfile.write('''         <br>\n''')       
+#   outputfile.write('''         <center><strong>Finding Leading Track Efficiency  (compared to ''' + referenceRelease + ''')</strong></center>\n''')
+#   outputfile.write('''         <table border="1" cellpadding="4" align="center">\n''')
+#   outputfile.write('''         <tbody align="center">\n''')
+#   outputfile.write('''         <center>\n''')
+#   outputfile.write('''         <tr>\n''')
+#   outputfile.write('''         <td><a href="''' + tauidproduct + '''/LeadingTrackFindingEffeta.png">\n''')
+#   outputfile.write('''            <img src="''' + tauidproduct + '''/LeadingTrackFindingEffeta.png" width="290" border="0" alt="LeadingTrackFindingEffeta.png"></a>\n''')
+#   outputfile.write('''         <td><a href="''' + tauidproduct + '''/LeadingTrackFindingEffphi.png">\n''')
+#   outputfile.write('''            <img src="''' + tauidproduct + '''/LeadingTrackFindingEffphi.png" width="290" border="0" alt="LeadingTrackFindingEffphi.png"></a>\n''')
+#   outputfile.write('''         <td><a href="''' + tauidproduct + '''/LeadingTrackFindingEffpt.png">\n''')
+#   outputfile.write('''            <img src="''' + tauidproduct + '''/LeadingTrackFindingEffpt.png" width="290" border="0" alt="LeadingTrackFindingEffpt.png"></a>\n''')
+#   outputfile.write('''         <td><a href="''' + tauidproduct + '''/LeadingTrackFindingEffenergy.png">\n''')
+#   outputfile.write('''            <img src="''' + tauidproduct + '''/LeadingTrackFindingEffenergy.png" width="290" border="0" alt="LeadingTrackFindingEffenergy.png"></a>\n''')
+#   outputfile.write('''         </tr>\n''')
+#   outputfile.write('''         </center>\n''')
+#   outputfile.write('''         </tbody>\n''')
+#   outputfile.write('''         </table>\n''')
+#   outputfile.write('''         </center>\n''')
+#   outputfile.write('''         </div><!-- DIV-4 -->\n''')
+#   outputfile.write('''         <div></div>\n''')
+
+   outputfile.write('''         <div> <!-- DIV-4 -->\n''')
+   outputfile.write('''         <br>\n''')       
+   outputfile.write('''         <center><strong>Leading Track Pt Efficiency (compared to ''' + referenceRelease + ''')</strong></center>\n''')
+   outputfile.write('''         <table border="1" cellpadding="4" align="center">\n''')
+   outputfile.write('''         <tbody align="center">\n''')
+   outputfile.write('''         <center>\n''')
+   outputfile.write('''         <tr>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/LeadingTrackPtCutEffeta.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/LeadingTrackPtCutEffeta.png" width="290" border="0" alt="LeadingTrackPtCutEffeta.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/LeadingTrackPtCutEffphi.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/LeadingTrackPtCutEffphi.png" width="290" border="0" alt="LeadingTrackPtCutEffphi.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/LeadingTrackPtCutEffpt.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/LeadingTrackPtCutEffpt.png" width="290" border="0" alt="LeadingTrackPtCutEffpt.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/LeadingTrackPtCutEffenergy.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/LeadingTrackPtCutEffenergy.png" width="290" border="0" alt="LeadingTrackPtCutEffenergy.png"></a>\n''')
+   outputfile.write('''         </tr>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </tbody>\n''')
+   outputfile.write('''         </table>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </div><!-- DIV-4 -->\n''')
+   outputfile.write('''         <div></div>\n''')
+
+   outputfile.write('''         <div> <!-- DIV-4 -->\n''')
+   outputfile.write('''         <br>\n''')       
+   outputfile.write('''         <center><strong> Isolation (track and ECAL) Efficiency  (compared to ''' + referenceRelease + ''')</strong></center>\n''')
+   outputfile.write('''         <table border="1" cellpadding="4" align="center">\n''')
+   outputfile.write('''         <tbody align="center">\n''')
+   outputfile.write('''         <center>\n''')
+   outputfile.write('''         <tr>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/IsolationEffeta.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/IsolationEffeta.png" width="290" border="0" alt="IsolationEffeta.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/IsolationEffphi.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/IsolationEffphi.png" width="290" border="0" alt="IsolationEffphi.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/IsolationEffpt.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/IsolationEffpt.png" width="290" border="0" alt="IsolationEffpt.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/IsolationEffenergy.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/IsolationEffenergy.png" width="290" border="0" alt="IsolationEffenergy.png"></a>\n''')
+   outputfile.write('''         </tr>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </tbody>\n''')
+   outputfile.write('''         </table>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </div><!-- DIV-4 -->\n''')
+   outputfile.write('''         <div></div>\n''')
+
+   outputfile.write('''         <div> <!-- DIV-4 -->\n''')
+   outputfile.write('''         <br>\n''')       
+   outputfile.write('''         <center><strong>Electron Rejection Efficiency  (compared to ''' + referenceRelease + ''')</strong></center>\n''')
+   outputfile.write('''         <table border="1" cellpadding="4" align="center">\n''')
+   outputfile.write('''         <tbody align="center">\n''')
+   outputfile.write('''         <center>\n''')
+   outputfile.write('''         <tr>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/AgainstElectronEffeta.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/AgainstElectronEffeta.png" width="290" border="0" alt="AgainstElectronEffeta.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/AgainstElectronEffphi.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/AgainstElectronEffphi.png" width="290" border="0" alt="AgainstElectronEffphi.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/AgainstElectronEffpt.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/AgainstElectronEffpt.png" width="290" border="0" alt="AgainstElectronEffpt.png"></a>\n''')
+   outputfile.write('''         <td><a href="''' + tauidproduct + '''/AgainstElectronEffenergy.png">\n''')
+   outputfile.write('''            <img src="''' + tauidproduct + '''/AgainstElectronEffenergy.png" width="290" border="0" alt="AgainstElectronEffenergy.png"></a>\n''')
+   outputfile.write('''         </tr>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </tbody>\n''')
+   outputfile.write('''         </table>\n''')
+   outputfile.write('''         </center>\n''')
+   outputfile.write('''         </div><!-- DIV-4 -->\n''')
+   outputfile.write('''         <div></div>\n''')
+   
+   outputfile.write('''     </div> <!-- DIV-3 -->\n''')   
+   
+   outputfile.write('''</div> <!-- DIV-2 -->\n''')
+   outputfile.write('''<div class="fedora-coner-br">&nbsp;</div>\n''')
+   outputfile.write('''<div class="fedora-coner-bl">&nbsp;</div>\n''')
+   outputfile.write('''<!-- content END -->\n\n''')
+   outputfile.write('''<!-- footer BEGIN -->\n''')
+   outputfile.write('''<div id="fedora-footer">\n''')
+   outputfile.write('''Ricardo Vasquez Sierra\n''')
+   outputfile.write('''<br>\n''')
+   outputfile.write('''Fermilab/UCDavis\n''')
+   outputfile.write('''<br>\n''')
+   outputfile.write('''</div>\n''')
+   outputfile.write('''<!-- footer END -->\n''')
+   outputfile.write('''</body></html>\n''')

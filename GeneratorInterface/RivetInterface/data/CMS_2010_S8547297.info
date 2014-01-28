@@ -1,0 +1,14 @@
+Name: CMS_2010_S8547297
+Year: 2010
+Summary: Uncorrected Charged Particles Spectra at sqrt(s)=0.9 and 2.36 TeV
+Experiment: CMS
+Collider: CERN LHC
+SpiresID: 8547297
+Status: CMS INTERNAL Rivet Routine
+Authors:
+ - A. Knutsson
+ 
+References:
+ - JHEP 1002:041,2010
+ - doi:10.1007/JHEP02(2010)041
+Disable single and double diffractive events.

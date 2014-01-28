@@ -1,0 +1,29 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="deDiffInXRange_ErrorFlag">
+	 <TYPE>ContentsXRange</TYPE> 
+	 <PARAM name="error">0.80</PARAM>
+	 <PARAM name="warning">0.95</PARAM>
+	 <PARAM name="xmin">0.0</PARAM>
+	 <PARAM name="xmax">1.0</PARAM>
+</QTEST>
+
+<QTEST name="GCTAgreement">
+	 <TYPE>ContentsXRange</TYPE> 
+	 <PARAM name="error">0.99</PARAM>
+	 <PARAM name="warning">0.99</PARAM>
+	 <PARAM name="xmin">0.0</PARAM>
+	 <PARAM name="xmax">1.0</PARAM>
+</QTEST>
+
+
+<LINK name="*ErrorFlag*">
+	<TestName activate="true">deDiffInXRange_ErrorFlag</TestName>
+</LINK>
+
+<LINK name="GCTErrorFlag">
+	<TestName activate="true">GCTAgreement</TestName>
+</LINK>
+
+
+</TESTSCONFIGURATION>

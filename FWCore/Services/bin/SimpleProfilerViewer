@@ -1,0 +1,104 @@
+#!/usr/bin/env python
+from Tkinter import *
+import sys
+#look for our own modules in the directory which holds the application
+import os.path
+sys.path.append(os.path.dirname(sys.argv[0]))
+import profilereader
+
+class Application(Frame):
+    def __init__(self,filePrefix):
+        Frame.__init__(self)
+        self.profile = profilereader.ProfileData(filePrefix,sys.stdout)
+        top=self.winfo_toplevel() 
+        top.rowconfigure(0, weight=1) 
+        top.columnconfigure(0, weight=1)
+        self.grid(sticky=N+S+E+W)
+        self.rowconfigure(1,weight=1)
+        self.columnconfigure(0,weight=1)
+        firstFunc = self.profile.idToFunctionInfo[0]
+        funcInfoFrame=Frame(self)
+        funcInfoFrame.grid(column=0,row=0,sticky=E+W)
+        summary =     'function name: '
+        summary += '\n# of samples ending with function: '
+        summary += '\n# of samples containing func+desc: '
+        summary += '\n% of samples ending with function: '
+        summary += '\n% of samples containing func+desc: '
+        funcInfoLabels = Label(funcInfoFrame,text=summary,justify=RIGHT)
+        funcInfoLabels.grid(column=0,row=0)
+        self.funcInfo = Label(funcInfoFrame,text=firstFunc.name,justify=LEFT)
+        self.funcInfo.grid(column=1,row=0,sticky=W)
+        jump = Frame(self)
+        jump.grid(column=0,row=1,sticky=N+S+E+W)
+        jump.rowconfigure(1,weight=1)
+        callerColumnIndex = 1
+        callerYScrollerColumnIndex = 0
+        jump.columnconfigure(callerColumnIndex,weight=1)
+        jump.columnconfigure(2,weight=1)
+        Label(jump,text="Distribution to Callers:").grid(column=callerColumnIndex,row=0)
+        Label(jump,text="Contribution from Descendants:").grid(column=2,row=0)
+        callersY = Scrollbar(jump, orient=VERTICAL)
+        callersY.grid(row=1,column=callerYScrollerColumnIndex,sticky=N+S)
+        callersX = Scrollbar(jump, orient=HORIZONTAL)
+        callersX.grid(row=2,column=callerColumnIndex, sticky=E+W)
+        self.callers = Listbox(jump, selectmode=SINGLE, xscrollcommand=callersX.set,
+                               yscrollcommand=callersY.set)
+        self.callers.grid(column=callerColumnIndex,row=1,sticky=N+W+S+E)
+        callersX['command']=self.callers.xview
+        callersY['command']=self.callers.yview
+
+        calleesY = Scrollbar(jump, orient=VERTICAL)
+        calleesY.grid(row=1,column=3,sticky=N+S)
+        calleesX = Scrollbar(jump, orient=HORIZONTAL)
+        calleesX.grid(row=2,column=2, sticky=E+W)
+        self.callees = Listbox(jump, selectmode=SINGLE,
+                               xscrollcommand=calleesX.set,
+                               yscrollcommand=calleesY.set)
+        self.callees.grid(column=2,row=1,sticky=N+E+W+S)
+        calleesX['command']=self.callees.xview
+        calleesY['command']=self.callees.yview
+        self.moveToFunction(firstFunc.name)
+        self.callees.bind('<Double-Button-1>',self.selectCallee)
+        self.callees.bind('<KeyRelease-Return>',self.selectCallee)
+        self.callers.bind('<Double-Button-1>',self.selectCaller)
+        self.callers.bind('<KeyRelease-Return>',self.selectCaller)
+        #for callee in firstFunc.calleeList:
+        #    self.callees.insert(END,callee.name)
+    def moveToFunction(self,funcName):
+        funcInfo = self.profile.idToFunctionInfo[self.profile.functionNameToId[funcName]]
+        self.callers.delete(0,self.callers.size())
+        self.callees.delete(0,self.callees.size())
+        summary = funcInfo.name
+        summary += '\n'+str(funcInfo.leafCount)
+        summary += '\n'+str(funcInfo.countOfFunctPlusChildWithRecursion)
+        summary += '\n'+str(funcInfo.fractionInFunctionOnly*100)[:6]+"%"
+        summary += '\n'+str(funcInfo.fractionInPath*100)[:6]+"%"
+        self.funcInfo['text']=summary
+        for frac,callee in funcInfo.calleeList:
+            self.callees.insert(END,str(frac*100)[:4]+"% "+callee.name)
+        for frac,caller in funcInfo.callerList:
+            self.callers.insert(END,str(frac*100)[0:4]+"% "+caller.name)
+    def selectCallee(self,dummy):
+        selected = self.callees.curselection()
+        if selected:
+            funcName = self.callees.get(selected[0]).split("%")[1].strip()
+            self.moveToFunction(funcName)
+    def selectCaller(self,dummy):
+        selected = self.callers.curselection()
+        if selected:
+            funcName = self.callers.get(selected[0]).split("%")[1].strip()
+            self.moveToFunction(funcName)
+
+import optparse
+    
+#usage = "%prog [options] []"
+usage = "%prog <a file from SimpleProfiler Service>"
+parser = optparse.OptionParser(usage=usage)
+#parser.add_option("--test", action="store_true", dest="test", default=False, help="run the builtin application tests")
+(options,args) = parser.parse_args()
+if 1 != len(args):
+    parser.error("incorrect number of arguments")
+
+app = Application(args[0])
+app.master.title("SimpleProfilerViewer ("+args[0]+")")
+app.mainloop()

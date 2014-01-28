@@ -1,0 +1,38 @@
+# L7 parton corrections for KT4 algorithm
+# [gJ] (gluons from diJet mixture)
+# [qJ] (uds quarks from diJet mixture)
+# [cJ] (c quark from diJet mixture)
+# [bJ] (b quark from diJet mixture)
+# [jJ] (diJet jet mixture)
+# [qT] (uds quarks from ttbar events)
+# [cT] (c quark from ttbar events)
+# [bT] (b quark from ttbar events)
+# [jT] (ttbar jet mixture)
+# etamin etamax #ofparameters ptmin ptmax   p[0] --> p[7]
+[gJ]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.418759555    0.852751255    0.994874835   -0.001889241   -0.000427915    0.000121163    0.000278223   -0.000000020  
+[qJ]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.807502151   -0.678518951    0.995840371   -0.004947964    0.001613500   -0.000128135   -0.000270041    0.000000262  
+[cJ]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -1.275444984    3.751887321    0.998052478   -0.003270526    0.000990592   -0.000068744   -0.000071195    0.000000105  
+[bJ]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.847303748    3.869308233    1.001341820   -0.001365620    0.004481285   -0.000785796   -0.001149542    0.000005012  
+[jJ]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.403147429   -0.671547055    0.997462630    0.014635116   -0.004856487    0.000393638    0.000208175   -0.000000043  
+[qT]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.486622483   -1.535649776    1.006623387    0.011515109   -0.004657600    0.000508388   -0.000430894   -0.000000494  
+[cT]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.504773021   -0.860530853    1.006170630    0.010594103   -0.002506618    0.000100031   -0.001025974    0.000003188  
+[bT]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -3.296015263   38.802101135    0.993419170   -0.075307794    0.020770581   -0.000790173    0.003321709   -0.000039056  
+[tT]
+{1  JetEta  2  JetPt  JetEta  1/([0]*x+[1])+[2]+([3]+[4]*log(x)+[5]*log(x)*log(x))*abs(y)+([6]+[7]*x)*y*y Response L7Parton}
+  -999  999   12   10   99999  -999  999    -0.491921008   -1.106969953    1.010163069   -0.022226211    0.016136287   -0.002345808   -0.001523080    0.000010856  

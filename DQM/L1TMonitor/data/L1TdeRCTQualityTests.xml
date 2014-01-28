@@ -1,0 +1,113 @@
+<TESTSCONFIGURATION>
+
+<QTEST name="Eff2DTest">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">.8</PARAM>
+        <PARAM name="maxMean">1.01</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">0</PARAM>
+        <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+        <PARAM name="error">0.9999</PARAM>
+        <PARAM name="warning">0.9999</PARAM>
+</QTEST>
+                                                                                
+<QTEST name="Eff1DTest">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">.8</PARAM>
+	<PARAM name="ymax">1.01</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+	<PARAM name="error">0.997</PARAM>
+	<PARAM name="warning">0.997</PARAM>
+</QTEST>
+
+<QTEST name="Ineff2DTest">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">0.0</PARAM>
+        <PARAM name="maxMean">.2</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">0</PARAM>
+        <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+        <PARAM name="error">0.994</PARAM>
+        <PARAM name="warning">0.994</PARAM>
+</QTEST>
+                                                                                
+<QTEST name="Ineff1DTest">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.0</PARAM>
+	<PARAM name="ymax">0.2</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+	<PARAM name="error">0.997</PARAM>
+	<PARAM name="warning">0.997</PARAM>
+</QTEST>
+
+<QTEST name="Overeff2DTest">
+        <TYPE>ContentsWithinExpected</TYPE>
+        <PARAM name="minMean">0.0</PARAM>
+        <PARAM name="maxMean">.2</PARAM>
+        <PARAM name="minRMS">0</PARAM>
+        <PARAM name="maxRMS">0</PARAM>
+        <PARAM name="toleranceMean">0</PARAM>
+        <PARAM name="minEntries">0</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+        <PARAM name="error">0.997</PARAM>
+        <PARAM name="warning">0.997</PARAM>
+</QTEST>
+                                                                                
+<QTEST name="Overeff1DTest">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.0</PARAM>
+	<PARAM name="ymax">0.2</PARAM>
+        <PARAM name="useEmptyBins">0</PARAM>
+	<PARAM name="error">0.999</PARAM>
+	<PARAM name="warning">0.999</PARAM>
+</QTEST>
+
+<QTEST name="ChannelTest">
+	<TYPE>ContentsXRange</TYPE>	
+	<PARAM name="xmin">-0.5</PARAM>
+	<PARAM name="xmax">0.5</PARAM>
+	<PARAM name="error">0.95</PARAM>
+	<PARAM name="warning">0.95</PARAM>
+</QTEST>
+
+<LINK name="*Eff1">
+	<TestName activate="true">Eff2DTest</TestName>
+</LINK>
+
+<LINK name="*Eff2">
+	<TestName activate="true">Eff2DTest</TestName>
+</LINK>
+
+<LINK name="*Eff2D">
+	<TestName activate="true">Eff2DTest</TestName>
+</LINK>
+
+<LINK name="*oneD">
+	<TestName activate="true">Eff1DTest</TestName>
+</LINK>
+
+<LINK name="*Ineff">
+	<TestName activate="true">Ineff2DTest</TestName>
+</LINK>
+
+<LINK name="*Ineff1D">
+	<TestName activate="true">Ineff1DTest</TestName>
+</LINK>
+
+<LINK name="*Overeff">
+	<TestName activate="true">Overeff2DTest</TestName>
+</LINK>
+
+<LINK name="*Overeff1D">
+	<TestName activate="true">Overeff1DTest</TestName>
+</LINK>
+
+<LINK name="*Chnl*">
+	<TestName activate="true">ChannelTest</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>

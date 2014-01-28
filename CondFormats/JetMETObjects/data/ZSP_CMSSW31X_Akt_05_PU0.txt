@@ -1,0 +1,19 @@
+#     ZSP corrections JETS for antiKt R=0.5
+#
+#     Simulation Release CMSSW_3_1_2, Reconstruction Release CMSSW_3_1_2,
+#     CaloTowers using Scheme B cell energy cuts, No Pileup.
+#
+#     ECAL and HCAL RecHIts without ZSP
+#     File provided by Olga Kodolova in November 2009
+#     New parametrization is used (type of parametrization = 2)
+# Eta | type | NPU | Params (4) 
+ 0.5 2 0. 0.303030 -0.0506810 0.195743 -0.00555103 
+ 1.0 2 0. 0.310909 -0.0515861 0.192556 -0.00563831
+ 1.5 2 0. 0.316887 -0.0536700 0.215457 -0.00560792
+ 2.0 2 0. 0.348219 -0.0512316 0.247449 -0.00568121
+ 2.5 2 0. 0.388878 -0.0547846 0.143083 -0.00639574
+ 3.0 2 0. 0.313802 -0.0578049 0.088744 -0.00885688
+ 3.5 2 0. 0. 0.  0.  0.
+ 4.0 2 0. 0. 0.  0.  0.
+ 4.5 2 0. 0. 0.  0.  0.
+ 5.0 2 0. 0. 0.  0.  0.

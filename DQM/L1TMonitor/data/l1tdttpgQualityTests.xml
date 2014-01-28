@@ -1,0 +1,19 @@
+<TESTSCONFIGURATION>
+
+
+<QTEST name="deDiffInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="error">1.0</PARAM>
+	<PARAM name="warning">0.0</PARAM>
+	<PARAM name="ymin">0.0</PARAM>
+	<PARAM name="ymax">1.0</PARAM>
+</QTEST>
+
+ 
+
+
+<LINK name="*test*">
+	<TestName activate="false">deDiffInRange</TestName>
+</LINK>
+
+</TESTSCONFIGURATION>

@@ -1,0 +1,80 @@
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGJPL_T'),
+    label = cms.untracked.string('MISTAGJPL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGJPL_WP'),
+    label = cms.untracked.string('MISTAGJPL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGJPM_T'),
+    label = cms.untracked.string('MISTAGJPM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGJPM_WP'),
+    label = cms.untracked.string('MISTAGJPM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGJPT_T'),
+    label = cms.untracked.string('MISTAGJPT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGJPT_WP'),
+    label = cms.untracked.string('MISTAGJPT_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGSSVM_T'),
+    label = cms.untracked.string('MISTAGSSVM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGSSVM_WP'),
+    label = cms.untracked.string('MISTAGSSVM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGTCHEL_T'),
+    label = cms.untracked.string('MISTAGTCHEL_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGTCHEL_WP'),
+    label = cms.untracked.string('MISTAGTCHEL_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGTCHEM_T'),
+    label = cms.untracked.string('MISTAGTCHEM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGTCHEM_WP'),
+    label = cms.untracked.string('MISTAGTCHEM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGTCHPM_T'),
+    label = cms.untracked.string('MISTAGTCHPM_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGTCHPM_WP'),
+    label = cms.untracked.string('MISTAGTCHPM_WP')
+    ),
+    cms.PSet(
+    record = cms.string('PerformancePayloadRecord'),
+    tag = cms.string('MISTAGTCHPT_T'),
+    label = cms.untracked.string('MISTAGTCHPT_T')
+    ),
+    cms.PSet(
+    record = cms.string('PerformanceWPRecord'),
+    tag = cms.string('MISTAGTCHPT_WP'),
+    label = cms.untracked.string('MISTAGTCHPT_WP')
+    ),

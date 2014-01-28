@@ -1,0 +1,6 @@
+destDB oracle://cms_orcoff_prep/CMS_COND_PHYSICSTOOLS 
+inputtag TEMPLATE 
+tag TEMPLATE 
+since 
+till 
+usertext First version for Oct09 exercise 

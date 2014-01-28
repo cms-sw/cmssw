@@ -1,0 +1,49 @@
+<TESTSCONFIGURATION>
+
+
+<QTEST name="testdeDiffInYRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="error">0.95</PARAM>
+	<PARAM name="warning">1.00</PARAM>
+	<PARAM name="ymin">0.0</PARAM>
+	<PARAM name="ymax">70.0</PARAM>
+</QTEST>
+
+ 
+<QTEST name="testdeDiffInXRange">
+	 <TYPE>ContentsXRange</TYPE> 
+	 <PARAM name="error">0.10</PARAM>
+	 <PARAM name="warning">0.20</PARAM>
+	 <PARAM name="xmin">0.0</PARAM>
+	 <PARAM name="xmax">500.0</PARAM>
+</QTEST>
+
+
+<QTEST name="testdeDiffInRange2DProfile">
+	<TYPE>ContentsWithinExpectedProf2D</TYPE>
+	<PARAM name="error">0.90</PARAM>
+	<PARAM name="warning">1.00</PARAM>
+	<PARAM name="minMean">0.0</PARAM>
+	<PARAM name="maxMean">70.0</PARAM>
+	<PARAM name="minRMS">0.0</PARAM>
+	<PARAM name="maxRMS">0.0</PARAM>
+	<PARAM name="toleranceMean">0.00</PARAM>
+	<PARAM name="minEntries">100</PARAM>
+</QTEST>
+
+
+
+<LINK name="*ecalEtMapDiff1D_proj">
+	<TestName activate="true">testdeDiffInYRange</TestName>
+	<TestName activate="true">testdeDiffInXRange</TestName>
+</LINK>
+
+
+
+<LINK name="*EcalEtMapDiff">
+	<TestName activate="true">testdeDiffInRange2DProfile</TestName>
+</LINK>
+
+
+
+</TESTSCONFIGURATION>

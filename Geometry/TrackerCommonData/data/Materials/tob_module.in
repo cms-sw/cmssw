@@ -1,0 +1,1805 @@
+TOB MODULES
+============
+
+$$  This includes all the volumes that make up the TOB modules
+$$  as well as the electronics on the rods !
+
+
+Input file for mixture.f
+Start new mixtures with a '#' in the first column
+Start the components with a '*' in the first column
+You can type any kind of comment in as long as you don't start it
+with '#' or '*' !
+.....................................................................
+For mixture declaration: Name of Mixture, Name of GMIX for title file, 
+                         Monte Carlo Volume, MC Area
+For items in a compound: Item number, Comment, Material (has to be 
+                 written exactly as in material.input file), 
+                 Volume, Multiplicity, Type
+      Type is one of the following:  SUP for support
+                                     SEN for sensitive volumes
+                                     CAB for cables
+                                     COL for cooling
+                                     ELE for electronics
+..................................................................... 
+
+
+o Pitch adapter, r-phi
+  --------------------
+MCVolume: (8.6 x 1.25 x 0.11) cm^3
+
+(1) Glass pitch adapter
+	material is Schott D263 Borosilicate Glass, density = 2.51 g/cm^3
+		properties taken from http://www.schott.com/fpd/english/products/fpd/d263t.html
+		and http://www.osti.gov/bridge/servlets/purl/10117627-uo1lPX/webviewable/10117627.pdf
+		(TIB: CORNING 1737F density = 2.54 g/cm^3)
+	Borosilicate Glass chemical composition: http://www.qvf.com/en/Equipment_1/Borosilicate%20glass/Composition.shtml
+	dimensions 9.64 x 1.25 x 0.0550 cm^3 = 0.66275 cm^3 (TIB: 300 um, TID/TOB/TEC: 550 um thickness)
+		[WAS dimensions 9.64 x 1.25 x 0.03 cm^3 = 0.3615 cm^3]
+(2) Pitch adapter spacers
+	dimensions 86x3x0.635 mm^3 + 60x3x0.635 mm^3 = 278.13 mm^3 = 0.27813 cm^3
+		[WAS (NOMEX)    0.24 cm^3]
+		[WAS (3) Carbon fibre support piece dimensions 8.6 x 1.18 x 0.06 cm^3]
+......................................................................
+# "TOB Pitch Adapter r-phi"  "TOB_PA_rphi"        1.1825   10.75
+* 1 "Glass pitch adapter"    "Borosilicate_Glass" 0.66275   1    ELE 
+* 2 "Spacer"                 "Ceramic"            0.27813   1    SUP
+......................................................................
+====================================================================== 
+
+o Pitch adapter, stereo
+  --------------------
+MCVolume: (0.78*8.6*0.11 + 0.5 * 0.863*8.6*0.11) cm^3 = 1.146 cm^3
+
+(1) Glass pitch adapter 
+	material is Schott D263 Borosilicate Glass, density = 2.51 g/cm^3
+		properties taken from http://www.schott.com/fpd/english/products/fpd/d263t.html
+		and http://www.osti.gov/bridge/servlets/purl/10117627-uo1lPX/webviewable/10117627.pdf
+		(TIB: CORNING 1737F density = 2.54 g/cm^3)
+	Borosilicate Glass chemical composition: http://www.qvf.com/en/Equipment_1/Borosilicate%20glass/Composition.shtml
+	dimensions: [ ( 0.9 x 9.6 x 0.0550 ) + 0.5 x ( 0.9 x 9.6 x 0.0550 ) ] cm^3 = 0.7128 cm^3 (TIB: 300 um, TID/TOB/TEC: 550 um thickness)
+		[WAS dimensions 0.9*9.6*0.03 + 0.5 * 0.9*9.6*0.03 = 0.389 cm^3]
+(2) Pitch adapter spacers
+	dimensions 86x3x0.635 mm^3 + 60x3x0.635 mm^3 = 278.13 mm^3 = 0.27813 cm^3
+		[WAS (NOMEX)    0.24 cm^3]
+		[WAS (3) Carbon fibre support piece dimensions 8.6 x 1.18 x 0.06 cm^3]
+		[WAS (3) Carbon fibre frame piece      
+			    0.8*8.0*1.5*0.06 = 0.576 cm^3 ]
+........................................................................
+# "TOB Pitch Adapter stereo"  "TOB_PA_ster"        1.146     10.42
+* 1 "Glass pitch adapter"     "Borosilicate_Glass" 0.7128     1    ELE
+* 2 "Spacer"                  "Ceramic"            0.27813    1    SUP
+........................................................................
+======================================================================== 
+
+o Module end plate
+  ----------------
+Carbon fiber endplate where electronics sits on top
+MCVolume: (12 x 4.5 x 0.0625) cm^3 
+(1) CF
+	dimensions from EDM file CMSTKOBM0026 version AA
+	{ [ 39 x 119.7] + 2 x [ 6 x 29.9 ] - 2 x [ pi x (8.4 / 2)^2 ] - 2 x [ pi x (3.5 / 2)^2 ] - 4 x [ pi x (1.6 / 2)^2 ] } mm^2 x 0.625 mm =
+	= 4888.98 mm^2 x 0.625 mm = 3055.61 mm^3
+		[WAS dimensions: 12 x 4.7 x 0.06 cm = 3.384 cm^3]
+
+(2) 3D Label
+	Plastic (kapton): m = 0.020 g
+		density = 1.40 g/cm^3
+		--> volume = 0.0143 cm^3
+
+
+...................................................................
+# "TOB module end plate"    "TOB_frame_ele"      3.375   54.0
+* 1 "CF plate"              "Carbon fibre str."  3.05561  1    SUP
+* 2 "Module 3D Label"       "T_Kapton"           0.0143   1    ELE
+...................................................................
+===================================================================
+
+o Ceramic Hybrid Support
+	[WAS CF Hybrid Support]
+  --------------
+MCVolume: (8.6 x 3.71 x 0.0380) cm^3 = 1.2124 cm^3
+		[WAS MCVolume: 7 x 3.33 x 0.06 = 1.3986 cm^3]
+(1) Ceramic plate
+	dimensions: [ (37.1-11.8)x72 + 11.8x86] mm^2 x 0.380 mm =
+	= 2836.4 mm^2 x 0.380 mm = 1077.832 mm^3
+		[WAS (1) CF dimensions: 7 x 3.4 x 0.06 = 1.428 cm^3]
+....................................................................
+# "TOB hybrid support"       "TOB_hybrid_supp"    1.3986   23.31
+* 1 "Hybrid support"         "Ceramic"            1.077832  1   SUP
+....................................................................
+====================================================================
+
+o Aluminium cooling I 
+  -------------------
+Al piece at sensor middle
+This one includes the screw !
+MCVolume: (1.6 x 2 x 0.03) cm^3
+
+(1) Al heat spreader   
+	dimensions from EDM file CMSTKOBM0025 version 0
+	{ [ 16 x 20 ] - [ pi x (2/2)^2 ] } mm^2 x 0.300 mm 
+	= 316.8584 mm^2 x 0.300 mm = 95.0575 mm^3
+		[WAS 0.096 cm^3]
+	[THIS MATERIAL HAS BEEN CREATED APART
+		(2) CF compensator
+			dimensions from EDM file CMSTKOBM0035 version AA
+			{ [ 16 x 26 ] - [ pi x (10 / 2)^2 ] } mm^2 x 0.300 mm =
+			= 337.46 mm^2 x 0.300 mm = 101.238 mm^3
+				[WAS 0.15  cm^3]
+	]
+(2-3) Screw: 0.009 cm^3 Stainless Steel,
+             0.02  cm^3 Al washer
+.....................................................................
+# "TOB Module Cooling 1"   "TOB_mod_cool1"      0.096       3.2
+* 1 "Al heat spreader"     "Aluminium"          0.0950575   1    COL
+* 2 "Steel screw"          "Steel-008"          0.009       1    COL
+* 3 "Al washer"            "Aluminium"          0.02        1    COL
+.....................................................................
+=====================================================================
+
+[WAS
+	o Aluminium cooling II 
+	  --------------------
+	Al piece at sensor middle
+	No screw !
+	MCVolume: (1.5 x 2.8 x 0.03) cm
+	
+	(1) Al heat spreader   
+		dimensions from EDM file CMSTKOBM0025 version 0
+		{ [ 16 x 20 ] - [ pi x (2/2)^2 ] } mm^2 x 0.300 mm 
+		= 316.8584 mm^2 x 0.300 mm = 95.0575 mm^3
+			[WAS 0.096 cm^3]
+		[THIS MATERIAL HAS BEEN CREATED APART
+			(2) CF compensator
+				dimensions from EDM file CMSTKOBM0035 version AA
+				{ [ 16 x 26 ] - [ pi x (10 / 2)^2 ] } mm^2 x 0.300 mm =
+				= 337.46 mm^2 x 0.300 mm = 101.238 mm^3
+					[WAS 0.15  cm^3]
+		]
+	....................................................................
+	# "TOB Module Cooling 2"   "TOB_mod_cool2"      0.126       4.2
+	* 1 "Al heat spreader"     "Aluminium"          0.0950575   1   COL
+	....................................................................
+	====================================================================
+NO MORE NEEDED, ALL THE SPREADER ARE THE SAME
+]
+
+o Aluminium cooling III
+	[WAS o Aluminium cooling III ]
+  ---------------------
+Al and locator piece at hybrid sides
+This one includes the screw !
+MCVolume: (1.5 x 2.8 x 0.03) cm^3
+
+(1) Al heat spreader   
+	dimensions from EDM file CMSTKOBM0024 version 0
+	{ [ 15 x 28 ] - (8 x 8 / 2) - [ pi x (2/2)^2 ] } mm^2 x 0.300 mm
+	= 384.8584 mm^2 x 0.300 mm = 115.4575 mm^3
+		[WAS 0.116 cm^3]
+	[THIS MATERIAL HAS BEEN CREATED APART
+		(2) CF compensator
+			dimensions from EDM file CMSTKOBM0035 version AA
+			{ [ 16 x 26 ] - [ pi x (10 / 2)^2 ] } mm^2 x 0.300 mm =
+			= 337.46 mm^2 x 0.300 mm = 101.238 mm^3
+				[WAS 0.15  cm^3]
+	]
+(2-3) Screw: 0.009 cm^3 Stainless Steel,
+             0.02  cm^3 Al washer
+(4) CuBe/brass -> take all Cu for now:
+             (0.0044 * 3) cm^3
+...................................................................
+# "TOB Module Cooling 2"   "TOB_mod_cool2"      0.126      4.2
+* 1 "Al heat spreader"     "Aluminium"          0.1154575  1   COL
+* 2 "Steel screw"          "Steel-008"          0.009      1   COL
+* 3 "Al washer"            "Aluminium"          0.02       1   COL
+* 4 "Cu locator"           "Copper"             0.0044     3   SUP
+...................................................................
+===================================================================
+
+o Carbon Fibre Compensator (cooling)
+  --------------------
+MCVolume: (1.6 x 2.6 x 0.03) cm^3
+
+(1) CF compensator
+	dimensions from EDM file CMSTKOBM0035 version AA
+	{ [ 16 x 26 ] - [ pi x (10 / 2)^2 ] } mm^2 x 0.300 mm =
+	= 337.46 mm^2 x 0.300 mm = 101.238 mm^3
+............................................................................
+# "TOB Module Cooling Compensator"   "TOB_mod_comp"        0.1248    4.16
+* 1 "CF Compensator"                 "Carbon fibre str."   0.101238  1  COL
+............................................................................
+============================================================================
+
+
+
+o Module side rail I rphi (heavier side)
+  ---------------------------------------
+Volumes from single-sided modules. Also used for double-sided modules
+MCVolume: (1.7 x 21 x 0.08) cm^3
+
+(1) Carbon fiber leg
+	dimensions from EDM file CMSTKOBM0026 version AA
+	{ [ 15.1 x 210 ] + [ 4.0 x 122 ] + 2 x [ 1.5 x 22.5 ] - [ pi x (8.4 / 2)^2 ] - [ pi x ( 2.5 / 2 )^2 ] } mm^2 x 0.625 mm =
+	= 3666.17 x 0.625 mm^3 = 2291.36 mm^3
+    		[WAS 21 x 1.7 x 0.06 cm = 2.14 cm^3]
+
+Data taken from G.Magazzù measurements: http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/Kapton_MB.htm
+EDMS Code EP 680-1174-080-A (ss) and EP 680-1174-060-D (ds)
+(2-3) DS or SS rphi Bias
+	Kapton:	m = 0.552 g
+		density = 1.4 g/cm^3
+		--> volume = 0.394 cm^3
+	Copper:	m = 0.088 g
+		density = 8.96 g/cm^3
+		--> volume = 0.010 cm^3
+
+(4) HV wire (115 mm)
+	Copper:	m = (0.14+0.10) g = 0.24 g
+		density = 8.96 g/cm^3
+		--> volume = 0.027 cm^3
+
+(5) Transparent Sleeve
+	Polyethylene:
+		m = 0.040 g
+		density = 0.95 g/cm^3
+		--> volume = 0.042 cm^3
+
+(6) Soldering (Sn/Pb alloy)
+	BGA196 (Ball Grid Array), Sn/Pb/Ag 62/36/2:
+		m = 0.030 g
+		density = 8.82 g/cm^3
+		--> volume = 0.0034 cm^3
+
+(7) Thermistor Caps
+	Kapton:	m = 0.010 g
+		density = 1.4 g/cm^3
+		--> volume = 0.0071 cm^3
+	
+(8) Thermistor Stiffeners
+	FR4:    m = 0.040 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.021 cm^3
+	
+(9) SMD Capacitors
+	BaTiO3:	m = 0.090 g
+		density = 6.02 g/cm^3
+		--> volume = 0.015 cm^3
+
+(10) SMD Resistors
+	Al2O3:	m = 0.050 g
+		density = 3.96525 g/cm^3
+		--> volume = 0.0126 cm^3
+
+	[WAS: 
+		(2) Kapton 
+		    from Bill's table: ~0.5 cm^3
+		(3) Copper traces  
+		    Robert: Cu is approx 15 um thick => 0.01 cm^3 (just a guess)
+		(4) Components: 
+		    Caps:  1 x 1206  3 x 1.5 x 1.5 mm^3
+		           1 x 1210  3.2 x 2.5 x 1.5  mm^3
+		    Rs:    2 x 1206 
+		           3 x 0603  1.6 x 0.8 x 0.8  mm (thermistors)
+	]
+
+..........................................................................
+# "TOB side rail active rphi" "TOB_sid_rail1"            2.856   35.7 
+* 1 "CF leg"                  "Carbon fibre str."        2.29136  1   SUP   
+* 2 "Bias Kapton"             "T_Kapton"                 0.394    1   ELE
+* 3 "Bias Copper"             "Copper"                   0.010    1   ELE
+* 4 "HV Wire"                 "Copper"                   0.027    1   ELE
+* 5 "Transparent Sleeve"      "Polyethylene"             0.042    1   ELE
+* 6 "Soldering"               "BGA"                      0.0034   1   ELE
+* 7 "Thermistor Caps"         "T_Kapton"                 0.0071   1   ELE
+* 8 "Thermistor Stiffeners"   "T_G10"                    0.021    1   ELE
+* 9 "Capacitors"              "Barium_Titanate"          0.015    1   ELE
+* 10 "Resistors"              "Ceramic"                  0.0126   1   ELE
+..........................................................................
+========================================================================== 
+
+o Module side rail II rphi (lighter side)
+  ----------------------------------------
+Volumes from single-sided modules. Also used for double-sided modules
+MCVolume: (1.7 x 21 x 0.08) cm^3
+
+(1) Carbon fiber leg
+	dimensions from EDM file CMSTKOBM0026 version AA
+	{ [ 15.1 x 210 ] + [ 4.0 x 122 ] + 2 x [ 1.5 x 22.5 ] - [ pi x (8.4 / 2)^2 ] - [ pi x ( 2.5 / 2 )^2 ] } mm^2 x 0.625 mm =
+	= 3666.17 x 0.625 mm^3 = 2291.36 mm^3
+    		[WAS 21 x 1.7 x 0.06 cm = 2.14 cm^3]
+
+Data taken from G.Magazzù measurements: http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/Kapton_MB.htm
+EDMS Code EP 680-1174-090-A (ss) and EP 680-1174-050-C (ds)
+(2-3) DS or SS rphi Insulator
+	Kapton:	m = 0.402 g
+		density = 1.4 g/cm^3
+		--> volume = 0.287 cm^3
+	Copper:	m = 0.041 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0046 cm^3
+
+	[WAS: 
+		(2) Kapton 
+		    from Bill's table: ~0.45 cm^3
+		(3) Copper: 2 x 20x8 mm^2 x 17 um = 0.00544 cm^3
+	]
+
+
+........................................................................
+# "TOB side rail passive rphi"  "TOB_sid_rail2"        2.856   35.7 
+* 1 "CF leg"                    "Carbon fibre str."    2.29136  1   SUP   
+* 2 "Insulator Kapton"          "T_Kapton"             0.287    1   ELE
+* 3 "Insulator Copper"          "Copper"               0.0046   1   ELE
+........................................................................
+========================================================================
+
+
+o Module side rail I stereo (heavier side)
+  ---------------------------------------
+Volumes from single-sided modules. Also used for double-sided modules
+MCVolume: (1.7 x 21 x 0.08) cm^3
+
+(1) Carbon fiber leg
+	dimensions from EDM file CMSTKOBM0026 version AA
+	{ [ 15.1 x 210 ] + [ 4.0 x 122 ] + 2 x [ 1.5 x 22.5 ] - [ pi x (8.4 / 2)^2 ] - [ pi x ( 2.5 / 2 )^2 ] } mm^2 x 0.625 mm =
+	= 3666.17 x 0.625 mm^3 = 2291.36 mm^3
+    		[WAS 21 x 1.7 x 0.06 cm = 2.14 cm^3]
+
+Data taken from G.Magazzù measurements: http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/Kapton_MB.htm
+EDMS Code EP 680-1174-080-A
+(2-3) DS or SS rphi Bias (different with respect to rphi)
+	Kapton:	m = 0.514 g
+		density = 1.4 g/cm^3
+		--> volume = 0.367 cm^3
+	Copper:	m = 0.088 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0098 cm^3
+
+(4) HV wire (115 mm)
+	Copper:	m = (0.14+0.10) g = 0.24 g
+		density = 8.96 g/cm^3
+		--> volume = 0.027 cm^3
+
+(5) Transparent Sleeve
+	Polyethylene:
+		m = 0.040 g
+		density = 0.95 g/cm^3
+		--> volume = 0.042 cm^3
+
+(6) Soldering (Sn/Pb alloy)
+	BGA196 (Ball Grid Array), Sn/Pb/Ag 62/36/2:
+		m = 0.030 g
+		density = 8.82 g/cm^3
+		--> volume = 0.0034 cm^3
+
+(7) Thermistor Caps
+	Kapton:	m = 0.010 g
+		density = 1.4 g/cm^3
+		--> volume = 0.0071 cm^3
+	
+(8) Thermistor Stiffeners
+	FR4:    m = 0.040 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.021 cm^3
+	
+(9) SMD Capacitors
+	BaTiO3:	m = 0.090 g
+		density = 6.02 g/cm^3
+		--> volume = 0.015 cm^3
+
+(10) SMD Resistors
+	Al2O3:	m = 0.050 g
+		density = 3.96525 g/cm^3
+		--> volume = 0.0126 cm^3
+
+	[WAS: 
+		(2) Kapton 
+		    from Bill's table: ~0.5 cm^3
+		(3) Copper traces  
+		    Robert: Cu is approx 15 um thick => 0.01 cm^3 (just a guess)
+		(4) Components: 
+		    Caps:  1 x 1206  3 x 1.5 x 1.5 mm^3
+		           1 x 1210  3.2 x 2.5 x 1.5  mm^3
+		    Rs:    2 x 1206 
+		           3 x 0603  1.6 x 0.8 x 0.8  mm (thermistors)
+	]
+
+...........................................................................
+# "TOB side rail active stereo" "TOB_sid_rail1st"         2.856   35.7 
+* 1 "CF leg"                   "Carbon fibre str."        2.29136  1   SUP   
+* 2 "Bias Kapton"              "T_Kapton"                 0.367    1   ELE
+* 3 "Bias Copper"              "Copper"                   0.0098   1   ELE
+* 4 "HV Wire"                  "Copper"                   0.027    1   ELE
+* 5 "Transparent Sleeve"       "Polyethylene"             0.042    1   ELE
+* 6 "Soldering"                "BGA"                      0.0034   1   ELE
+* 7 "Thermistor Caps"          "T_Kapton"                 0.0071   1   ELE
+* 8 "Thermistor Stiffeners"    "T_G10"                    0.021    1   ELE
+* 9 "Capacitors"               "Barium_Titanate"          0.015    1   ELE
+* 10 "Resistors"               "Ceramic"                  0.0126   1   ELE
+...........................................................................
+=========================================================================== 
+
+o Module side rail II stereo (lighter side)
+  ----------------------------------------
+Volumes from single-sided modules. Also used for double-sided modules
+MCVolume: (1.7 x 21 x 0.08) cm^3
+
+(1) Carbon fiber leg
+	dimensions from EDM file CMSTKOBM0026 version AA
+	{ [ 15.1 x 210 ] + [ 4.0 x 122 ] + 2 x [ 1.5 x 22.5 ] - [ pi x (8.4 / 2)^2 ] - [ pi x ( 2.5 / 2 )^2 ] } mm^2 x 0.625 mm =
+	= 3666.17 x 0.625 mm^3 = 2291.36 mm^3
+    		[WAS 21 x 1.7 x 0.06 cm = 2.14 cm^3]
+
+Data taken from G.Magazzù measurements: http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/Kapton_MB.htm
+EDMS Code EP 680-1174-100-A
+(2-3) DS or SS rphi Insulator (different with respect to rphi)
+	Kapton:	m = 0.389 g
+		density = 1.4 g/cm^3
+		--> volume = 0.278 cm^3
+	Copper:	m = 0.041 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0046 cm^3
+
+	[WAS: 
+		(2) Kapton 
+		    from Bill's table: ~0.45 cm^3
+		(3) Copper: 2 x 20x8 mm^2 x 17 um = 0.00544 cm^3
+	]
+
+
+........................................................................
+# "TOB side rail passive rphi"  "TOB_sid_rail2st"      2.856   35.7 
+* 1 "CF leg"                    "Carbon fibre str."    2.29136  1   SUP   
+* 2 "Insulator Kapton"          "T_Kapton"             0.278    1   ELE
+* 3 "Insulator Copper"          "Copper"               0.0046   1   ELE
+........................................................................
+========================================================================
+
+o  Hybrid for TOB layers 1/2 
+   -------------------------
+		[WAS o  Hybrid for TOB layers 5/6 
+		   -------------------------     ]
+
+These are the hybrids of the double sided layers. 
+Each of the hybrids carries 4 APVs (changed 15/03/02)
+
+Hybrids have 4 APVs
+
+MCVolume: (6 x 2.5 x 0.05) cm^3 = 0.75 cm^3
+
+Dimensions (60 x 25) mm^2 = 15 cm^2
+(1) Hybrid reviewed November 2006 - Central Hybrid (no kapton tail, which is in ICC* material definition, see below)
+	see http://www.fynu.ucl.ac.be/he/cms/activities/tracker/FHITfiles/CCTPHybrides.pdf
+	- Kapton: (25+25) um = 50 um = 0.0050 cm --> 0.075 cm^3
+	- Copper: (18+12+18+18+18+12) um = 96 um = 0.0096 cm --> 0.144 cm^3
+	- Solder Mask: 20 um = 0.0020 cm --> 0.030 cm^3
+	- Glue: (50+50) um = 100 um thickness = 0.0100 cm --> 0.150 cm^3 
+		[WAS (1) new FR4 hybrid
+		Estimate: 300 mu FR4,
+	          3 x 25 mu Cu
+	          ~300 mu Kapton 
+		-Pt-Au layer: tbd  ]
+(2) Hybrid components
+    R: (14 + n_APV)   0402 size  material: carbon   -> 18 
+    C: 2 x 1206 large ones
+       (5 + 2*n_APV)  0402 size    -> 13
+                 0402: (1 x 0.5 x 0.5) mm^3 = 0.25 mm^3 = 0.25 x 10^-3 cm^3
+                 1206: (3 x 1.5 x 1.5) mm^3 = 6.75 mm^3 = 6.75 x 10^-3 cm^3
+    APV25:     (7.1 x 8.1 x 0.3) mm^3 = 17.253 mm^3 = 0.017253 cm^3     4 per hybrid REVIEWED November 2006 OK
+    PLL:       (4.0 x 4.0 x 0.3) mm^3 = 4.8 mm^3 = 0.0048 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/PauloMoreira/PLL25%20User%20Manua2.1.pdf)
+    MUX:       (5.0 x 5.0 x 0.3) mm^3 = 7.5 mm^3 = 0.0075 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/LVDSMUX3_datasheet.pdf)
+    		[WAS PLL+MUX  : 2.0 x 7.1 x 0.3 mm^3     1 per hybrid ]
+http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/manuals.htm
+    DCU  :     (2.0 x 2.0 x 0.3) mm^3 = 1.2 mm^3 = 0.0012 cm^3          1 per hybrid REVIEWED November 2006 OK
+			(see http://cmstrackercontrol.web.cern.ch/CMSTrackerControl/documents/Magazzu/DCUF_User_Manual_v3.0.pdf)
+(3) Wire bonds
+	http://cms.ct.infn.it/bonding/bondspec.htm
+		Al, 1% Si, 25 um diameter, medium hardness
+		tail length visible but short < 50 um
+	1 wire bond: average of 4 mm length diameter 25 um + 1 tail =
+			= { [ pi x (0.025/2)^2 ] mm^2 x 4 mm } + { [ pi x (0.025/2)^2 ] mm^2 x 0.050 mm } =
+			= [1.963x10^-3 mm^3] + [0.0245x10^-3 mm^3] = 2.0x10^-3 mm^3 = 2.0x10^-6 cm^3 [99% Aluminium + 1% Silicon]
+		PA bias line to sensor bias ring: 5 bonds
+		PA to hybrid: nAPV x 128 bonds
+		PA to sensor: nAPV x 128 bonds
+	TOTAL: 2x128xnAPV+5 bonds = 1029 bonds
+......................................................................
+# "TOB Hybrid Layer 1/2"          "TOB_ele12"       0.75       15.0
+Central Hybrid (no tail)
+* 1  "Central Hybrid Kapton"      "T_Kapton"        0.075       1 ELE
+* 2  "Central Hybrid Copper"      "Copper"          0.144       1 ELE
+* 3  "Central Hybrid Solder Mask" "T_Kapton"        0.030       1 ELE
+* 4  "Central Hybrid Glue"        "Epoxy"           0.150       1 ELE
+Components:  Resistors
+* 5  "Resistors"                  "Carbon"          0.25E-3    18 ELE
+* 6  "R metal"                    "SMD_metal"       1.E-4      18 ELE
+Capacitors
+* 7  "Small caps"                 "Alumina"         0.25E-3    13 ELE
+* 8  "C metal"                    "SMD_metal"       1.E-4      13 ELE
+* 9  "Large caps"                 "Alumina"         6.75E-3     2 ELE
+* 10 "C metal large"              "SMD_metal"       1.E-3       2 ELE
+* 11 "APV25"                      "Silicon"         0.017253    4 ELE
+* 12 "PLL"                        "Silicon"         4.8E-3      1 ELE
+* 13 "MUX"                        "Silicon"         7.5E-3      1 ELE
+* 14 "DCU"                        "Silicon"         1.2E-3      1 ELE
+Wire bonds
+* 15 "Wire bonds"                 "Aluminium"       1.98E-6  1029 ELE
+* 16 "Wire bonds"                 "Silicon"         0.02E-6  1029 ELE
+......................................................................
+======================================================================
+
+o  Hybrid for TOB layers 3/4 
+   -------------------------
+		[WAS o  Hybrid for TOB layers 7/8 
+		   -------------------------     ]
+Hybrids have 4 APVs
+
+as above, except: 
+(2) Hybrid components
+    R: (14 + n_APV)   0402 size  material: carbon   -> 18 
+    C: 2 x 1206 large ones
+       (5 + 2*n_APV)  0402 size    -> 13
+(3) Wire bonds
+	see above for details
+	TOTAL: 2x128xnAPV+5 bonds = 1029 bonds
+......................................................................
+# "TOB Hybrid Layer 3/4"          "TOB_ele34"       0.75       15.0
+Central Hybrid (no tail)
+* 1  "Central Hybrid Kapton"      "T_Kapton"        0.075       1 ELE
+* 2  "Central Hybrid Copper"      "Copper"          0.144       1 ELE
+* 3  "Central Hybrid Solder Mask" "T_Kapton"        0.030       1 ELE
+* 4  "Central Hybrid Glue"        "Epoxy"           0.150       1 ELE
+Components:  Resistors
+* 5  "Resistors"                  "Carbon"          0.25E-3    18 ELE
+* 6  "R metal"                    "SMD_metal"       1.E-4      18 ELE
+Capacitors
+* 7  "Small caps"                 "Alumina"         0.25E-3    13 ELE
+* 8  "C metal"                    "SMD_metal"       1.E-4      13 ELE
+* 9  "Large caps"                 "Alumina"         6.75E-3     2 ELE
+* 10 "C metal large"              "SMD_metal"       1.E-3       2 ELE
+* 11 "APV25"                      "Silicon"         0.017253    4 ELE
+* 12 "PLL"                        "Silicon"         4.8E-3      1 ELE
+* 13 "MUX"                        "Silicon"         7.5E-3      1 ELE
+* 14 "DCU"                        "Silicon"         1.2E-3      1 ELE
+Wire bonds
+* 15 "Wire bonds"                 "Aluminium"       1.98E-6  1029 ELE
+* 16 "Wire bonds"                 "Silicon"         0.02E-6  1029 ELE
+......................................................................
+======================================================================
+
+o  Hybrid for TOB layers 5/6 
+   --------------------------
+		[WAS  Hybrid for TOB layers 9/10 
+		   --------------------------    ]
+Hybrids have 6 APVs
+
+as above, except: 
+(2) Hybrid components
+    R: (14 + n_APV)   0402 size  material: carbon   -> 20 
+    C: 2 x 1206 large ones
+       (5 + 2*n_APV)  0402 size    -> 17
+(3) Wire bonds
+	see above for details
+	TOTAL: 2x128xnAPV+5 bonds = 1541 bonds
+......................................................................
+# "TOB Hybrid Layer 5/6"          "TOB_ele56"       0.75       15.0
+Central Hybrid (no tail)
+* 1  "Central Hybrid Kapton"      "T_Kapton"        0.075       1 ELE
+* 2  "Central Hybrid Copper"      "Copper"          0.144       1 ELE
+* 3  "Central Hybrid Solder Mask" "T_Kapton"        0.030       1 ELE
+* 4  "Central Hybrid Glue"        "Epoxy"           0.150       1 ELE
+Components:  Resistors
+* 5  "Resistors"                  "Carbon"          0.25E-3    20 ELE
+* 6  "R metal"                    "SMD_metal"       1.E-4      20 ELE
+Capacitors
+* 7  "Small caps"                 "Alumina"         0.25E-3    17 ELE
+* 8  "C metal"                    "SMD_metal"       1.E-4      17 ELE
+* 9  "Large caps"                 "Alumina"         6.75E-3     2 ELE
+* 10 "C metal large"              "SMD_metal"       1.E-3       2 ELE
+* 11 "APV25"                      "Silicon"         0.017253    6 ELE
+* 12 "PLL"                        "Silicon"         4.8E-3      1 ELE
+* 13 "MUX"                        "Silicon"         7.5E-3      1 ELE
+* 14 "DCU"                        "Silicon"         1.2E-3      1 ELE
+Wire bonds
+* 15 "Wire bonds"                 "Aluminium"       1.98E-6  1541 ELE
+* 16 "Wire bonds"                 "Silicon"         0.02E-6  1541 ELE
+......................................................................
+======================================================================
+
+o TOB Interface between two sensors and sensor-Pitch Adapter
+  -----------------------------------------------------------
+The inactive part between the two sensors and between PA-sensor:
+ Sylgard encapsulant (Silicone) + wire bonds
+
+MCVolume: (9.3696 x 0.55 x 0.2) cm^3 = 1.030656 cm^3
+(1) Silicone encapsulant
+	http://www.vestaweb.com/silicone/silicone_properties.htm
+	http://www.answers.com/topic/silicone
+	http://www.answers.com/topic/dimethyl-polysiloxane
+	Must weight 0.83 g and dens=0.965 g/cm^3 --> volume = 0.80095 cm^3
+(2) Wire bonds
+	see above for details
+		sen-sen bias bonds: 5 bonds
+	TOTAL: 2x128xnAPV+5 bonds = 1029-1541 bonds (average: 1285)
+
+................................................................................
+# "TOB Two-Sensor Interface"  "TOB_Sens_Interface"      1.030656    7.49568
+* 1 "Glue"                    "Silicone_Gel"            0.80095     1 SUP
+Wire bonds
+* 2 "Wire bonds"              "Aluminium"               1.98E-6  1285 ELE
+* 3 "Wire bonds"              "Silicon"                 0.02E-6  1285 ELE
+................................................................................
+================================================================================
+
+
+o TOB Electronics ICC1/2
+Inter Connect Cards
+	ICC1 - serves 1 APV (smaller)
+	ICC2 - serves 2 APVs (bigger)
+ICC1: MCVolume: (11.800 x 4.400 x 0.250) cm^3 = 12.98 cm^3
+ICC2: MCVolume: (11.800 x 6.800 x 0.250) cm^3 = 20.06 cm^3
+Data taken from G.Magazzù measurements: http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/ICCs_MB.htm
+
+
+	Layer 1/2
+	---------
+
+ICC1
+----
+Same as Layer 3/4, except:
+Circuit ICC1 (DS_ICC1)
+EDMS Code EP 680-1174-200-C
+
+(1-2) PCBs
+	FR4:    m = 8.179 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 4.305 cm^3
+	copper: m = 1.575 g
+		density = 8.96 g/cm^3
+		--> volume = 0.176 cm^3
+
+(3-4) Connectors NaiS
+	socket + header
+	2 x ICC-Kapton bias PCB 16 pins (AXN316038S + AXN416330S)
+	THIS GOES IN AOH 2 x ICC-AOH             30 pins (AXN330038S + AXN430330S)
+	2 x ICC-FEH             40 pins (AXN340038S + AXN440330S)
+	1 x ICC-ICB             50 pins (AXN350038S + AXN450330S)
+	copper: m = 2 x (0.0461 + 0.0515) g + NULL x { 2 x (0.0865 + 0.0965) g } + 2 x (0.1153 + 0.1287) g + 1 x (0.1442 + 0.1609) g = 0.9883 g
+		density = 8.96 g/cm^3
+		--> volume = 0.110 cm^3
+	resin:  m = 2 x (0.0882 + 0.1085) g + NULL x { 2 x (0.1445 + 0.1547) g } + 2 x (0.1768 + 0.2013) g + 1 x (0.2329 + 0.2764) g = 1.6589 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 1.276 cm^3
+
+(5) HV stiffener (2 copies)
+	FR4:    m = 0.060 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.032 cm^3
+	
+(6) ICC SMD Resistors, 23 x (0603) + 2 x (0805) + 4 x (1206) resistors, mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+	m = 0.0983 g
+	density = 3.96525 g/cm^3
+	--> volume = 0.025 cm^3
+
+(7) ICC SMD Capacitors, 10 x (0805) + 6 x (1812), mostly BaTiO3, the total mass is computed
+	m = 1.5300 g
+	density = 6.02 g/cm^3
+	--> volume = 0.254 cm^3
+
+(8-9) ICC ASICs: 1 x ("CRT245" 24 pin) + 2 x ("LVDSBUF" 16 pin)
+	epoxy:	m = [ ( 1 x 0.015675 ) + ( 2 x 0.038519 ) ] g = 0.092713 g
+		density = 1.3 g/cm^3
+		--> volume = 0.071 cm^3
+	copper: m = [ ( 1 x 0.040 + 2 x 0.076 ) - 0.092713 ] g = 0.099287 g
+		density = 8.96 g/cm^3
+		--> volume = 0.011 cm^3
+
+(10-13) Hybrid tail (2 copies)
+
+(14) HV pin (2 copies)
+
+.......................................................................
+# "TOB ICC Layer 1/2 (1 APV)"   "TOB_L12_ICC1"    12.98   51.92
+* 1 "PCB board"                 "T_G10"            4.305   1     ELE
+* 2 "PCB copper traces"         "Copper"           0.176   1     ELE	 
+* 3 "NAiS connectors"           "Copper"           0.110   1     ELE
+* 4 "NAiS connectors"           "Epoxy"            1.276   1     ELE
+* 5 "HV Stiffener"              "T_G10"            0.032   2     CAB
+* 6 "ICC Resistors"             "Ceramic"          0.025   1     ELE
+* 7 "ICC Capacitors"            "Barium_Titanate"  0.254   1     ELE
+* 8 "ICC ASICs EMC"             "Epoxy"            0.071   1     ELE
+* 9 "ICC ASICs copper"          "Copper"           0.011   1     ELE
+* 10 "Hybrid Tail Kapton"       "T_Kapton"         0.028   2     ELE
+* 11 "Hybrid Tail Copper"       "Copper"           0.055   2     ELE
+* 12 "Hybrid Tail Solder Mask"  "T_Kapton"         0.011   2     ELE
+* 13 "Hybrid Tail Glue"         "Epoxy"            0.057   2     ELE
+* 14 "HV pin (module)"          "Brass"            0.011   2     ELE
+.......................................................................
+=======================================================================
+
+ICC2
+----
+Same as Layer 3/4, except:
+Circuit ICC2 (DS_ICC2)
+EDMS Code EP 680-1174-210-D
+
+(1-2) PCBs
+	FR4:    m = 12.508 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 6.583 cm^3
+	copper: m = 2.452 g
+		density = 8.96 g/cm^3
+		--> volume = 0.274 cm^3
+
+(3-4) Connectors NaiS
+	socket + header
+	4 x ICC-Kapton bias PCB 16 pins (AXN316038S + AXN416330S)
+	THIS GOES IN AOH 4 x ICC-AOH             30 pins (AXN330038S + AXN430330S)
+	4 x ICC-FEH             40 pins (AXN340038S + AXN440330S)
+	1 x ICC-ICB             50 pins (AXN350038S + AXN450330S)
+	copper: m = 4 x (0.0461 + 0.0515) g + NULL x { 4 x (0.0865 + 0.0965) g } + 4 x (0.1153 + 0.1287) g + 1 x (0.1442 + 0.1609) g = 1.6715 g
+		density = 8.96 g/cm^3
+		--> volume = 0.187 cm^3
+	resin:  m = 4 x (0.0882 + 0.1085) g + NULL x { 4 x (0.1445 + 0.1547) g } + 4 x (0.1768 + 0.2013) g + 1 x (0.2329 + 0.2764) g = 2.8085 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 2.160 cm^3
+
+(5) HV stiffener (4 copies)
+	FR4:    m = 0.060 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.032 cm^3
+	
+(6) ICC SMD Resistors, 46 x (0603) + 4 x (0805) + 4 x (1206) resistors, mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+	m = 0.1575 g
+	density = 3.96525 g/cm^3
+	--> volume = 0.040 cm^3
+
+(7) ICC SMD Capacitors, 18 x (0805) + 12 x (1812), mostly BaTiO3, the total mass is computed
+	m = 3.030 g
+	density = 6.02 g/cm^3
+	--> volume = 0.503 cm^3
+
+(8-9) ICC ASICs: 1 x ("CRT245" 24 pin) + 4 x ("LVDSBUF" 16 pin)
+	epoxy:	m = ( 1 x 0.015675 + 4 x 0.038519 ) g = 0.169751 g
+		density = 1.3 g/cm^3
+		--> volume = 0.131 cm^3
+	copper: m = [ ( 1 x 0.040 + 4 x 0.076 ) - 0.169751 ) g = 0.274249 g
+		density = 8.96 g/cm^3
+		--> volume = 0.031 cm^3
+
+(10-13) Hybrid tail (4 copies)
+
+(14) HV pin (4 copies)
+
+.......................................................................
+# "TOB ICC Layer 1/2 (2 APVs)"  "TOB_L12_ICC2"    20.06   80.24
+* 1 "PCB board"                 "T_G10"            6.583   1     ELE
+* 2 "PCB copper traces"         "Copper"           0.274   1     ELE	 
+* 3 "NAiS connectors"           "Copper"           0.187   1     ELE
+* 4 "NAiS connectors"           "Epoxy"            2.160   1     ELE
+* 5 "HV Stiffener"              "T_G10"            0.032   4     CAB
+* 6 "ICC Resistors"             "Ceramic"          0.040   1     ELE
+* 7 "ICC Capacitors"            "Barium_Titanate"  0.503   1     ELE
+* 8 "ICC ASICs EMC"             "Epoxy"            0.131   1     ELE
+* 9 "ICC ASICs copper"          "Copper"           0.031   1     ELE
+* 10 "Hybrid Tail Kapton"       "T_Kapton"         0.028   4     ELE
+* 11 "Hybrid Tail Copper"       "Copper"           0.055   4     ELE
+* 12 "Hybrid Tail Solder Mask"  "T_Kapton"         0.011   4     ELE
+* 13 "Hybrid Tail Glue"         "Epoxy"            0.057   4     ELE
+* 14 "HV pin (module)"          "Brass"            0.011   4     ELE
+.......................................................................
+=======================================================================
+
+	Layer 3/4
+	---------
+	
+ICC1
+----
+Circuit ICC3 (SS_ICC1)
+EDMS Code EP 680-1174-220-B
+
+MCVolume: ( 11.8 x 4.4 x 0.25 ) cm^3 = 12.98 cm^3
+
+(1-2) PCBs
+	FR4:    m = 5.754 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 3.028 cm^3
+	copper: m = 1.289 g
+		density = 8.96 g/cm^3
+		--> volume = 0.144 cm^3
+
+(3-4) Connectors NaiS
+	socket + header
+	1 x ICC-Kapton bias PCB 16 pins (AXN316038S + AXN416330S)
+	THIS GOES IN AOH 1 x ICC-AOH             30 pins (AXN330038S + AXN430330S)
+	1 x ICC-FEH             40 pins (AXN340038S + AXN440330S)
+	1 x ICC-ICB             50 pins (AXN350038S + AXN450330S)
+	copper: m = 1 x (0.0461 + 0.0515) g + NULL x { 1 x (0.0865 + 0.0965) g } + 1 x (0.1153 + 0.1287) g + 1 x (0.1442 + 0.1609) g = 0.6467 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0722 cm^3
+	resin:  m = 1 x (0.0882 + 0.1085) g + NULL x { 1 x (0.1445 + 0.1547) g } + 1 x (0.1768 + 0.2013) g + 1 x (0.2329 + 0.2764) g = 1.0841 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 0.834 cm^3
+
+(5) HV stiffener
+	FR4:    m = 0.060 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.032 cm^3
+
+(6) ICC SMD Resistors, 14 x (0603) + 1 x (0805) + 4 x (1206) resistors, mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+	m = 0.0741 g
+	density = 3.96525 g/cm^3
+	--> volume = 0.019 cm^3
+
+(7) ICC SMD Capacitors, 7 x (0805) + 4 x (1812), mostly BaTiO3, the total mass is computed
+	m = 1.025 g
+	density = 6.02 g/cm^3
+	--> volume = 0.170 cm^3
+
+(8-9) ICC ASICs: 1 x ("CRT245" 24 pin) + 1 x ("LVDSBUF" 16 pin)
+	epoxy:	m = [ ( 1 x 0.015675 ) + ( 1 x 0.038519 ) ] g = 0.054194 g
+		density = 1.3 g/cm^3
+		--> volume = 0.042 cm^3
+	copper: m = [ ( 1 x 0.040 + 1 x 0.076 ) - 0.054194 ] g = 0.061806 g
+		density = 8.96 g/cm^3
+		--> volume = 0.007 cm^3
+
+(10-13) Hybrid tail
+	see http://www.fynu.ucl.ac.be/he/cms/activities/tracker/FHITfiles/CCTPHybrides.pdf
+	surface: (19 x 30) mm^2 = 570 mm^2 = 5.70 cm^2
+	- Kapton: (25+25) um = 50 um = 0.0050 cm --> 0.0285 cm^3
+	- Copper: (18+12+18+18+18+12) um = 96 um = 0.0096 cm --> 0.05472 cm^3
+	- Solder Mask: 20 um = 0.0020 cm --> 0.0114 cm^3
+	- Glue: (50+50) um = 100 um thickness = 0.0100 cm --> 0.057 cm^3 
+
+(14) HV pin
+	module side:
+		http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/Kapton_MB.htm
+		m = 0.04 g per module
+	ICB side:
+		http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/ICB_MB.htm
+		m = 0.330 g (6 HV wires) --> 0.330 g / 6 = 0.055 g per module
+	HV pin (brass CuZn36Pb3 Sn plated):
+		m = ( 0.04 + 0.055 ) g = 0.095 g
+		density (brass) = 8.5 g/cm^3
+		--> volume = 0.011 cm^3
+
+.......................................................................
+# "TOB ICC Layer 3/4 (1 APV)"   "TOB_L34_ICC1"    12.98   51.92
+* 1 "PCB board"                 "T_G10"            3.028   1     ELE
+* 2 "PCB copper traces"         "Copper"           0.144   1     ELE	 
+* 3 "NAiS connectors"           "Copper"           0.0722  1     ELE
+* 4 "NAiS connectors"           "Epoxy"            0.834   1     ELE
+* 5 "HV Stiffener"              "T_G10"            0.032   1     CAB
+* 6 "ICC Resistors"             "Ceramic"          0.019   1     ELE
+* 7 "ICC Capacitors"            "Barium_Titanate"  0.170   1     ELE
+* 8 "ICC ASICs EMC"             "Epoxy"            0.042   1     ELE
+* 9 "ICC ASICs copper"          "Copper"           0.007   1     ELE
+* 10 "Hybrid Tail Kapton"       "T_Kapton"         0.028   1     ELE
+* 11 "Hybrid Tail Copper"       "Copper"           0.055   1     ELE
+* 12 "Hybrid Tail Solder Mask"  "T_Kapton"         0.011   1     ELE
+* 13 "Hybrid Tail Glue"         "Epoxy"            0.057   1     ELE
+* 14 "HV pin (module)"          "Brass"            0.011   1     ELE
+.......................................................................
+=======================================================================
+
+ICC2
+----
+Circuit ICC4 (SS_ICC2)
+EDMS Code EP 680-1174-230-B
+
+MCVolume: ( 11.8 x 6.8 x 0.25 ) cm^3 = 20.06 cm^3
+
+(1-2) PCBs
+	FR4:    m = 8.175 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 4.302 cm^3
+	copper: m = 1.617 g
+		density = 8.96 g/cm^3
+		--> volume = 0.180 cm^3
+
+(3-4) Connectors NaiS
+	socket + header
+	2 x ICC-Kapton bias PCB 16 pins (AXN316038S + AXN416330S)
+	THIS GOES IN AOH 2 x ICC-AOH             30 pins (AXN330038S + AXN430330S)
+	2 x ICC-FEH             40 pins (AXN340038S + AXN440330S)
+	1 x ICC-ICB             50 pins (AXN350038S + AXN450330S)
+	copper: m = 2 x (0.0461 + 0.0515) g + NULL x { 2 x (0.0865 + 0.0965) g } + 2 x (0.1153 + 0.1287) g + 1 x (0.1442 + 0.1609) g = 0.9883 g
+		density = 8.96 g/cm^3
+		--> volume = 0.110 cm^3
+	resin:  m = 2 x (0.0882 + 0.1085) g + NULL x { 2 x (0.1445 + 0.1547) g } + 2 x (0.1768 + 0.2013) g + 1 x (0.2329 + 0.2764) g = 1.6589 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 1.276 cm^3
+
+(5) HV stiffener (2 copies)
+	FR4:    m = 0.060 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.032 cm^3
+
+(6) ICC SMD Resistors, 28 x (0603) + 2 x (0805) + 4 x (1206) resistors, mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+	m = 0.1090 g
+	density = 3.96525 g/cm^3
+	--> volume = 0.027 cm^3
+
+(7) ICC SMD Capacitors, 12 x (0805) + 8 x (1812), mostly BaTiO3, the total mass is computed
+	m = 2.020 g
+	density = 6.02 g/cm^3
+	--> volume = 0.336 cm^3
+
+(8-9) ICC ASICs: 1 x ("CRT245" 24 pin) + 2 x ("LVDSBUF" 16 pin)
+	epoxy:	m = ( 1 x 0.015675 + 2 x 0.038519 ) g = 0.092713 g
+		density = 1.3 g/cm^3
+		--> volume = 0.0713 cm^3
+	copper: m = [ ( 1 x 0.040 + 2 x 0.076 ) - 0.092713 ) g = 0.099287 g
+		density = 8.96 g/cm^3
+		--> volume = 0.011 cm^3
+
+(10-13) Hybrid tail (2 copies)
+	see http://www.fynu.ucl.ac.be/he/cms/activities/tracker/FHITfiles/CCTPHybrides.pdf
+	surface: (19 x 30) mm^2 = 570 mm^2 = 5.70 cm^2
+	- Kapton: (25+25) um = 50 um = 0.0050 cm --> 0.0285 cm^3
+	- Copper: (18+12+18+18+18+12) um = 96 um = 0.0096 cm --> 0.05472 cm^3
+	- Solder Mask: 20 um = 0.0020 cm --> 0.0114 cm^3
+	- Glue: (50+50) um = 100 um thickness = 0.0100 cm --> 0.057 cm^3 
+	
+(14) HV pin (2 copies)
+	module side:
+		http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/Kapton_MB.htm
+		m = 0.04 g per module
+	ICB side:
+		http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/ICB_MB.htm
+		m = 0.330 g (6 HV wires) --> 0.330 g / 6 = 0.055 per module
+	HV pin (brass CuZn36Pb3 Sn plated):
+		m = ( 0.04 + 0.055 ) g = 0.095 g
+		density (brass) = 8.5 g/cm^3
+		--> volume = 0.011 cm^3
+
+.......................................................................
+# "TOB ICC Layer 3/4 (2 APVs)"  "TOB_L34_ICC2"    20.06   80.24
+* 1 "PCB board"                 "T_G10"            4.302   1     ELE
+* 2 "PCB copper traces"         "Copper"           0.180   1     ELE	 
+* 3 "NAiS connectors"           "Copper"           0.110   1     ELE
+* 4 "NAiS connectors"           "Epoxy"            1.276   1     ELE
+* 5 "HV Stiffener"              "T_G10"            0.032   2     CAB
+* 6 "ICC Resistors"             "Ceramic"          0.027   1     ELE
+* 7 "ICC Capacitors"            "Barium_Titanate"  0.336   1     ELE
+* 8 "ICC ASICs EMC"             "Epoxy"            0.0713  1     ELE
+* 9 "ICC ASICs copper"          "Copper"           0.011   1     ELE
+* 10 "Hybrid Tail Kapton"       "T_Kapton"         0.028   2     ELE
+* 11 "Hybrid Tail Copper"       "Copper"           0.055   2     ELE
+* 12 "Hybrid Tail Solder Mask"  "T_Kapton"         0.011   2     ELE
+* 13 "Hybrid Tail Glue"         "Epoxy"            0.057   2     ELE
+* 14 "HV pin (module)"          "Brass"            0.011   2     ELE
+.......................................................................
+=======================================================================
+
+	Layer 5/6
+	---------
+	
+ICC1
+----
+Same as Layer 3/4.
+
+(15-16) Laser Diodes (1 additional copy for the L56 AOH, AOHs have only 2 copies)
+	MISSING:m = xxx g
+		density = xxx g/cm^3
+		--> volume = xxx cm^3
+	Covers (Al2O3 Aluminiumoxid, ceramic): m = 0.347 g
+		density = 3.96525 g/cm^3
+		--> volume = 0.0875 cm^3
+	
+.......................................................................
+# "TOB ICC Layer 5/6 (1 APV)"   "TOB_L56_ICC1"    12.98   51.92
+* 1 "PCB board"                 "T_G10"            3.028   1     ELE
+* 2 "PCB copper traces"         "Copper"           0.144   1     ELE	 
+* 3 "NAiS connectors"           "Copper"           0.0722  1     ELE
+* 4 "NAiS connectors"           "Epoxy"            0.834   1     ELE
+* 5 "HV Stiffener"              "T_G10"            0.032   1     CAB
+* 6 "ICC Resistors"             "Ceramic"          0.019   1     ELE
+* 7 "ICC Capacitors"            "Barium_Titanate"  0.170   1     ELE
+* 8 "ICC ASICs EMC"             "Epoxy"            0.042   1     ELE
+* 9 "ICC ASICs copper"          "Copper"           0.007   1     ELE
+* 10 "Hybrid Tail Kapton"       "T_Kapton"         0.028   1     ELE
+* 11 "Hybrid Tail Copper"       "Copper"           0.055   1     ELE
+* 12 "Hybrid Tail Solder Mask"  "T_Kapton"         0.011   1     ELE
+* 13 "Hybrid Tail Glue"         "Epoxy"            0.057   1     ELE
+* 14 "HV pin (module)"          "Brass"            0.011   1     ELE
+* 15 "Laser Diode"              "Air"              0.0000  1     ELE
+* 16 "Laser Cover"              "Ceramic"          0.0875  1     ELE
+.......................................................................
+=======================================================================
+
+ICC2
+----
+Same as Layer 3/4.
+	
+(14-15) Laser Diodes (2 additional copies for the L56 AOH, AOHs have only 2 copies)
+	MISSING:m = xxx g
+		density = xxx g/cm^3
+		--> volume = xxx cm^3
+	Covers (Al2O3 Aluminiumoxid, ceramic): m = 0.347 g
+		density = 3.96525 g/cm^3
+		--> volume = 0.0875 cm^3
+
+.......................................................................
+# "TOB ICC Layer 5/6 (2 APVs)"  "TOB_L56_ICC2"    20.06   80.24
+* 1 "PCB board"                 "T_G10"            4.302   1     ELE
+* 2 "PCB copper traces"         "Copper"           0.180   1     ELE	 
+* 3 "NAiS connectors"           "Copper"           0.151   1     ELE
+* 4 "NAiS connectors"           "Epoxy"            1.736   1     ELE
+* 5 "HV Stiffener"              "T_G10"            0.032   2     CAB
+* 6 "ICC Resistors"             "Ceramic"          0.027   1     ELE
+* 7 "ICC Capacitors"            "Barium_Titanate"  0.336   1     ELE
+* 8 "ICC ASICs EMC"             "Epoxy"            0.0713  1     ELE
+* 9 "ICC ASICs copper"          "Copper"           0.011   1     ELE
+* 10 "Hybrid Tail Kapton"       "T_Kapton"         0.028   2     ELE
+* 11 "Hybrid Tail Copper"       "Copper"           0.055   2     ELE
+* 12 "Hybrid Tail Solder Mask"  "T_Kapton"         0.011   2     ELE
+* 13 "Hybrid Tail Glue"         "Epoxy"            0.057   2     ELE
+* 14 "Laser Diode"              "Air"              0.0000  2     ELE
+* 15 "Laser Cover"              "Ceramic"          0.0875  2     ELE
+.......................................................................
+=======================================================================
+
+
+o AOH
+  ---
+
+MCVolume: ( 2.3 x 3.0 x 0.2 ) cm^3 = 1.38 cm^3
+
+(1-2) PCBs
+	FR4:    m = 0.65 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.342 cm^3
+	copper: m = 0.497 g
+		density = 8.96 g/cm^3
+		--> volume = 0.055 cm^3
+
+(3-4) Connectors NaiS
+	socket + header
+	1 x ICC-AOH             30 pins (AXN330038S + AXN430330S)
+	copper: m = 1 x (0.0865 + 0.0965) g = 0.183 g
+		density = 8.96 g/cm^3
+		--> volume = 0.020 cm^3
+	resin:  m = 1 x (0.1445 + 0.1547) g = 0.2992 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 0.230 cm^3
+
+(5) AOH SMD Resistors, 6 x (0603) resistors, mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+	m = 0.0127 g
+	density = 3.96525 g/cm^3
+	--> volume = 0.0032 cm^3
+
+(6) AOH SMD Capacitors, 3 x (0603) + 3 x (0805) mostly BaTiO3, the total mass is computed
+	m = 0.0687 g
+	density = 6.02 g/cm^3
+	--> volume = 0.0114 cm^3
+
+(7-8) AOH ASICs: 1 x ("LLD" 32 pin)
+	epoxy:	m = ( 1 x 0.027098 ) g = 0.027098 g
+		density = 1.3 g/cm^3
+		--> volume = 0.0208 cm^3
+	copper: m = [ ( 1 x 0.070 ) - 0.027098 ) ] g = 0.042902 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0048 cm^3
+
+(9-10) Laser Diodes (2 copies per each AOH + 2 additional copies for the L56 AOH directly in TOB_L56_ICC1/2)
+	MISSING:m = xxx g
+		density = xxx g/cm^3
+		--> volume = xxx cm^3
+	Covers (Al2O3 Aluminiumoxid, ceramic): m = 0.347 g
+		density = 3.96525 g/cm^3
+		--> volume = 0.0875 cm^3
+	
+(11) 3D Label
+	Plastic (kapton): m = 0.020 g
+		density = 1.40 g/cm^3
+		--> volume = 0.0143 cm^3
+	
+
+.......................................................................
+# "TOB AOH"                     "TOB_AOH"          1.38    6.90
+* 1 "PCB board"                 "T_G10"            0.342   1     ELE
+* 2 "PCB copper traces"         "Copper"           0.055   1     ELE	 
+* 3 "NAiS connectors"           "Copper"           0.020   1     ELE
+* 4 "NAiS connectors"           "Epoxy"            0.230   1     ELE
+* 5 "AOH Resistors"             "Ceramic"          0.0032  1     ELE
+* 6 "AOH Capacitors"            "Barium_Titanate"  0.0114  1     ELE
+* 7 "AOH ASICs EMC"             "Epoxy"            0.0208  1     ELE
+* 8 "AOH ASICs copper"          "Copper"           0.0048  1     ELE
+* 9 "Laser Diode"               "Air"              0.0000  2     ELE
+* 10 "Laser Cover"              "Ceramic"          0.0875  2     ELE
+* 11 "AOH 3D Label"             "T_Kapton"         0.0143  1     ELE
+.......................................................................
+=======================================================================
+
+
+
+o TOB_CCUM
+  ---------
+The TOB CCUM board.
+Composition taken from G.Magazzù measurements: http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/CCUM_MB.htm
+MCVolume: (11.8 x 7.0 x 0.25) cm^3 = 20.65 cm^3
+
+	CCUM
+	-----
+(1) CCUM FR4 (G10) EDMS Code EDA-00036-V1
+	m = 13.190 g
+	density = 1.90 g/cm^3
+	--> volume = 6.942 cm^3
+
+(2) CCUM copper traces  EDMS Code EDA-00036-V1
+	m = 2.787 g
+	density = 8.96 g/cm^3
+	--> volume = 0.311 cm^3
+
+(3-4) CCUM NAiS connector EDMS Code EDA-00036-V1, details from http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/Connectors_MB.htm
+	socket + header CCUM-ICB 80 pins (AXN350038S + AXN480330S)
+	copper: m = (0.2306 + 0.2574) g = 0.488 g
+		density = 8.96 g/cm^3
+		--> volume = 0.054 cm^3
+	resin:  m = (0.337 + 0.3882) g = 0.7259 g
+		density (epoxy) = 1.3 g/cm^3
+		--> volume = 0.558 cm^3
+
+(5) CCUM SMD Resistors EDMS Code EDA-00036-V1, 28 x (0603), mostly Al2O3 (Aluminiumoxid, ceramic), the total mass is computed
+	m = 0.060 g
+	density = 3.96525 g/cm^3
+	--> volume = 0.015 cm^3
+
+(6) CCUM SMD Capacitors EDMS Code EDA-00036-V1, 20 x (0805) + 3 x (1210), mostly BaTiO3, the total mass is computed
+	m = 0.570 g
+	density = 6.02 g/cm^3
+	--> volume = 0.095 cm^3
+
+(7-9) CCUM ASICs EDMS Code EDA-00036-V1 IC "CCU" 196 pin
+	BGA196 (Ball Grid Array), Sn/Pb/Ag 62/36/2:
+		m = 0.1131 g
+		density = 8.82 g/cm^3
+		--> volume = 0.013 cm^3
+	epoxy:	m = 0.4269 g
+		density = 1.3 g/cm^3
+		volume = 0.328 cm^3
+	copper: m = (0.678 - 0.1131 - 0.4269) g = 0.138 g
+		density = 8.96 g/cm^3
+		--> volume = 0.015 cm^3
+
+(10) Other components: araldite glue (take epoxy): 1/2 CCUM, (1/4 SCLAC), (1/4 SCACC)
+	m = 1.05 g / 2 = 0.525 g
+	density = 1.3 g/cm^3
+	volume = 0.404 cm^3
+
+The wires are in TOB_Conn[12/34/56]
+
+............................................................................
+# "TOB CCUM board"            "TOB_CCUM"                 20.65    82.6
+* 1 "CCUM board"              "T_G10"                     6.942    1   ELE
+* 2 "CCUM copper traces"      "Copper"                    0.311    1   ELE
+* 3 "CCUM-ICB NAiS connector" "Copper"                    0.054    1   ELE
+* 4 "CCUM-ICB NAiS connector" "Epoxy"                     0.558    1   ELE
+* 5 "CCUM Resistors"          "Ceramic"                   0.015    1   ELE
+* 6 "CCUM Capacitors"         "Barium_Titanate"           0.095    1   ELE
+* 7 "CCUM ASICs BGA"          "BGA"                       0.013    1   ELE
+* 8 "CCUM ASICs EMC"          "Epoxy"                     0.328    1   ELE
+* 9 "CCUM ASICs copper"       "Copper"                    0.015    1   ELE
+* 10 "CCUM glue"              "Epoxy"                     0.404    1   ELE
+............................................................................
+============================================================================
+
+
+o TOB Rod Connectors (inside)
+  ---------------------------
+MCVolume: (11.800 x 7.500 x 0.500) cm^3 = 44.25 cm^3
+All the TOB Connectors are the same (Layers 12/34/56) except the optical part.
+
+Layer 1/2
+----------
+As Layer 3/4, except optical components.
+
+	Optical components
+	------------------
+Different for different layers
+(22-24) Optical fibers
+	masses are per AOH, multiplicity will be given by the number of AOHs
+	AOH x ( #fibers x type ) x length_fraction
+		length_fraction: (total_length-5) cm per each fiber is in TOB_optfib_L12 
+	2 x ( TOB_2_088 ) x 5/88 = 2 x 2 x 88 cm x 5/88 = 20 cm
+	2 x ( TOB_2_070 ) x 5/70 = 2 x 2 x 70 cm x 5/70 = 20 cm
+	4 x ( TOB_2_056 ) x 5/56 = 4 x 2 x 56 cm x 5/56 = 40 cm
+	4 x ( TOB_2_035 ) x 5/35 = 4 x 2 x 35 c mx 5/35 = 40 cm
+	Total optical fibers length: 120 cm
+
+	All here:
+	3D label tags (kapton): m = [ (2 x 2) + (2 x 2) + (4 x 2) + (4 x 2) ] x 0.110 g = 24 x 0.110 g = 2.64 g
+		density = 1.40 g/cm^3
+		--> volume = 1.714 cm^3
+	MU connectors (kapton): m = [ (2 x 2) + (2 x 2) + (4 x 2) + (4 x 2) ] x 0.822 g = 24 x 0.822 g = 19.728 g
+		density = 1.40 g/cm^3
+		--> volume = 14.091 cm^3
+
+(25) Ribbon connectors (2 copies)
+
+(26) Ruggedized ribbon: total length 80 mm 
+
+.....................................................................................
+# "TOB Rod Connections Layer 1/2"          "TOB_CONN12"        44.25       88.5
+* 1 "SCLAC board"                          "T_G10"              0.211       1    ELE
+* 2 "SCLAC copper traces"                  "Copper"             0.007       1    ELE
+* 3 "CCUM wires Cu"                        "Copper"             0.191       2    CAB
+* 4 "CCUM wires Al"                        "Aluminium"          0.123       2    CAB
+* 5 "CCUM wires PEI"                       "Silicone_Gel"       0.203       2    CAB
+* 6 "CCUM wires SILTEM"                    "Polyethylene"       0.788       2    CAB
+* 7 "BUS wires Cu"                         "Copper"             0.740       1    CAB
+* 8 "BUS wires Al"                         "Aluminium"          0.0877      1    CAB
+* 9 "BUS wires PEI"                        "Silicone_Gel"       0.144       1    CAB
+* 10 "BUS wires SILTEM"                    "Polyethylene"       2.365       1    CAB
+* 11 "SCLAC glue"                          "Epoxy"              0.202       1    SUP
+* 12 "Output cable Shield"                 "Aluminium"          0.089       1    CAB
+* 13 "Output cable Sleeve"                 "Polyethylene"       0.642       1    CAB
+* 14 "Input and Output cable Tie"          "T_Kapton"           0.195       1    CAB
+* 15 "Input and Output cable Solder Paste" "BGA"                0.038       1    CAB
+* 16 "ICB,LVLAC,HVLAC glue"                "Epoxy"              0.181       1    SUP
+* 17 "ICB Solder Paste"                    "BGA"                0.005       1    CAB
+* 18 "LVLAC substrate"                     "T_G10"              0.242       1    ELE
+* 19 "LVLAC copper traces"                 "Copper"             0.0126      1    ELE
+* 20 "HVLAC substrate"                     "T_G10"              0.174       1    ELE
+* 21 "HVLAC copper traces"                 "Copper"             0.0036      1    ELE
+* 22 "Optical fibers"                      "Optical_Fiber"      6.362E-3  120    CAB
+* 23 "Optical fibers 3D label tag"         "T_Kapton"           1.714       1    CAB
+* 24 "Optical fibers MU connectors"        "T_Kapton"          14.091       1    CAB
+* 25 "Ribbon Connectors"                   "T_Ribbon12xMUConn" 12.0         2    CAB
+* 26 "Ruggedized ribbons"                  "T_RuggRibbon"       0.086       8    CAB
+.....................................................................................
+=====================================================================================
+
+
+Layer 3/4
+----------
+
+	SCLAC
+	-----
+Ladder Adapter Card
+Composition taken from G.Magazzù measurements: http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/CCUM_MB.htm
+EDMS Code EP 680-1174-510
+
+(1) SCLAC FR4
+	m = 0.400 g
+	density = 1.90 g/cm^3
+	--> volume = 0.211 cm^3
+
+(2) SCLAC copper traces
+	m = 0.061 g
+	density = 8.96 g/cm^3
+	--> volume = 0.007 cm^3
+
+
+	Wires
+	-----
+
+Short tail (to be multiplied by 2, the difference 'long tail'-1x'short tail' will be included outside)
+
+(3-6)  - Connected to CCUM
+	Shielded Twisted pair (112 mm), 9 pairs, total mass of a single wire (number of components to be multiplied by 2)
+	+ shielded twisted pair + 0.5 mm^2 Copper wire, 2 pieces 106 mm 1 piece 100 mm.
+	Tinned copper wire 100% outside the rod.
+	total mass; 2 copies in the mixture
+	Copper:	m = ( 0.3417 + 0.9328 + 0.4400 ) g = 1.7145 g
+		density = 8.96 g/cm^3
+		--> volume = 0.191 cm^3
+	Aluminium:
+	 	m = ( 0.3326 + 0 + 0 ) = 0.3326 g
+		density = 2.7 g/cm^3
+		--> volume = 0.123 cm^3
+	PEI: 	m = ( 0.1956 + 0 + 0 ) = 0.1956 g
+		density (silicone gel) = 0.965 g/cm^3
+		--> volume = 0.203 cm^3
+	SILTEM:	m = ( 0 + 0.5088 + 0.240 ) g = 0.7488 g
+		density (polyethylene) = 0.95 g/cm^3
+		--> volume = 0.788 cm^3
+
+(7-10) - Connected to BUS
+	Shielded Twisted pair (112 mm), 4 pieces
+	+ Shielded Twisted pair (135 mm), 2 pieces
+	+ 1.0 mm^2 Copper wire, 4 pieces 112 mm
+	+ 0.5 mm^2 Copper wire, 1 piece 112 mm, 1 piece 147 mm, 1 piece 149 mm
+	+ 1.0 mm^2 Copper wire, 1 piece 290 mm, only 80 mm here, the rest outside the rod
+	total mass; 1 only copy in the mixture
+	Copper:	m = ( 0.1519 + 0.0915 + 3.8976 + 0.4928 + 0.6468 + 0.6556 + 80/290 x 2.5230 ) g = 6.6322 g
+		density = 8.96 g/cm^3
+		--> volume = 0.740 cm^3
+	Aluminium:
+	 	m = ( 0.1478 + 0.0891 + 0 + 0 + 0 + 0 + 80/290 x 0 ) = 0.2369 g
+		density = 2.7 g/cm^3
+		--> volume = 0.0877 cm^3
+	PEI: 	m = ( 0.0869 + 0.0524 + 0 + 0 + 0 + 0 + 80/290 x 0 ) = 0.1393 g
+		density (silicone gel) = 0.965 g/cm^3
+		--> volume = 0.144 cm^3
+	SILTEM:	m = ( 0 + 0 + 1.0752 + 0.2688 + 0.3528 + 0.3576 + 80/290 x 0.6960 ) g = 2.2464 g
+		density (polyethylene) = 0.95 g/cm^3
+		--> volume = 2.365 cm^3
+
+
+	Other components
+	----------------
+
+(11) Araldite glue (take epoxy): (1/2 CCUM), 1/4 SCLAC, (1/4 SCACC)
+	m = 1.05 g / 4 = 0.2625 g
+	density = 1.3 g/cm^3
+	volume = 0.202 cm^3
+
+(12) Output cable shield Aluminium: 1/2 here, (1/2 outside)
+	m = 0.480 g / 2 = 0.240 g
+	density = 2.7 g/cm^3
+	volume = 0.089 cm^3
+
+(13) Output cable sleeve (l=55 mm, ext diameter=9.5 mm, 1 piece) + (l=10 mm, ext diameter=3.0 mm, 4 pieces) Polyolefin (take polyethylene):
+	total mass, 1/2 here, (1/2 outside)
+	m = ( 0.90 + 0.32 ) g / 2 = 0.61 g
+	density = 0.95 g/cm^3
+	volume = 0.642 cm^3
+
+(14) Input & Output cable tie Kapton: 2/3 here, (1/3 outside)
+	m = 0.41 g * (2/3) = 0.273 g
+	density = 1.40 g/cm^3
+	volume = 0.195 cm^3
+
+(15) Input & Output cable solder paste (BGA): 1/2 here, (1/2 outside)
+	m = 0.67 g / 2 = 0.335 g
+	density = 8.82 g/cm^3
+	volume = 0.038 cm^3
+
+(16) ICB Araldite glue (take epoxy): 1/2 CONN, (1/2 ICB)
+	m = 0.47 g / 2 = 0.235 g
+	density = 1.3 g/cm^3
+	volume = 0.181 cm^3
+
+(17) ICB Solder paste (BGA): (1/2 ICB), 1/2 CONN
+	m = 0.09 g / 2 = 0.045 g
+	density = 8.82 g/cm^3
+	volume = 0.005 cm^3
+
+	LVLAC
+	-----
+(18-19) LVLAC From the ICB
+	FR4:	m = 0.46 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.242 cm^3
+	Copper:	m = 0.113 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0126 cm^3
+
+	HVLAC
+	-----
+(20-21) HVLAC From the ICB
+	FR4:	m = 0.33 g
+		density (T_G10) = 1.90 g/cm^3
+		--> volume = 0.174 cm^3
+	Copper:	m = 0.032 g
+		density = 8.96 g/cm^3
+		--> volume = 0.0036 cm^3
+
+
+	SCCAC
+	-----
+Slow Control Cable Adapter Card
+Composition taken from G.Magazzù measurements: http://test-gmagazzu.web.cern.ch/test%2Dgmagazzu/TOB/MB/CCUM_MB.htm
+2 x short tail
+It will go 100% outside
+
+	Optical components
+	------------------
+Different for different layers
+(22-24) Optical fibers
+	masses are per AOH, multiplicity will be given by the number of AOHs
+	AOH x ( #fibers x type ) x length_fraction
+		length_fraction: (total_length-5) cm per each fiber is in TOB_optfib_L34 
+	1 x ( TOB_2_088 ) x 5/88 = 1 x 2 x 88 cm x 5/88 = 10 cm
+	1 x ( TOB_2_070 ) x 5/70 = 1 x 2 x 70 cm x 5/70 = 10 cm
+	2 x ( TOB_2_056 ) x 5/56 = 2 x 2 x 56 cm x 5/56 = 20 cm
+	2 x ( TOB_2_035 ) x 5/35 = 2 x 2 x 35 c mx 5/35 = 20 cm
+	Total optical fibers length: 60 cm
+
+	All here:
+	3D label tags (kapton): m = [ (1 x 2) + (1 x 2) + (2 x 2) + (2 x 2) ] x 0.110 g = 12 x 0.110 g = 1.32 g
+		density = 1.40 g/cm^3
+		--> volume = 0.943 cm^3
+	MU connectors (kapton): m = [ (1 x 2) + (1 x 2) + (2 x 2) + (2 x 2) ] x 0.822 g = 12 x 0.822 g = 9.864 g
+		density = 1.40 g/cm^3
+		--> volume = 7.046 cm^3
+
+(25) Ribbon connectors (1 copy)
+
+(26) Ruggedized ribbon: total length 40 mm 
+
+.....................................................................................
+# "TOB Rod Connections Layer 3/4"          "TOB_CONN34"        44.25       88.5
+* 1 "SCLAC board"                          "T_G10"              0.211       1    ELE
+* 2 "SCLAC copper traces"                  "Copper"             0.007       1    ELE
+* 3 "CCUM wires Cu"                        "Copper"             0.191       2    CAB
+* 4 "CCUM wires Al"                        "Aluminium"          0.123       2    CAB
+* 5 "CCUM wires PEI"                       "Silicone_Gel"       0.203       2    CAB
+* 6 "CCUM wires SILTEM"                    "Polyethylene"       0.788       2    CAB
+* 7 "BUS wires Cu"                         "Copper"             0.740       1    CAB
+* 8 "BUS wires Al"                         "Aluminium"          0.0877      1    CAB
+* 9 "BUS wires PEI"                        "Silicone_Gel"       0.144       1    CAB
+* 10 "BUS wires SILTEM"                    "Polyethylene"       2.365       1    CAB
+* 11 "SCLAC glue"                          "Epoxy"              0.202       1    SUP
+* 12 "Output cable Shield"                 "Aluminium"          0.089       1    CAB
+* 13 "Output cable Sleeve"                 "Polyethylene"       0.642       1    CAB
+* 14 "Input and Output cable Tie"          "T_Kapton"           0.195       1    CAB
+* 15 "Input and Output cable Solder Paste" "BGA"                0.038       1    CAB
+* 16 "ICB,LVLAC,HVLAC glue"                "Epoxy"              0.181       1    SUP
+* 17 "ICB Solder Paste"                    "BGA"                0.005       1    CAB
+* 18 "LVLAC substrate"                     "T_G10"              0.242       1    ELE
+* 19 "LVLAC copper traces"                 "Copper"             0.0126      1    ELE
+* 20 "HVLAC substrate"                     "T_G10"              0.174       1    ELE
+* 21 "HVLAC copper traces"                 "Copper"             0.0036      1    ELE
+* 22 "Optical fibers"                      "Optical_Fiber"      6.362E-3   60    CAB
+* 23 "Optical fibers 3D label tag"         "T_Kapton"           0.943       1    CAB
+* 24 "Optical fibers MU connectors"        "T_Kapton"           7.046       1    CAB
+* 25 "Ribbon Connectors"                   "T_Ribbon12xMUConn" 12.0         1    CAB
+* 26 "Ruggedized ribbons"                  "T_RuggRibbon"       0.086       4    CAB
+.....................................................................................
+=====================================================================================
+
+
+Layer 5/6
+----------
+As Layer 3/4, except optical components.
+
+	Optical components
+	------------------
+Different for different layers
+(22-24) Optical fibers
+	masses are per AOH, multiplicity will be given by the number of AOHs
+	AOH x ( #fibers x type ) x length_fraction
+		length_fraction: (total_length-5) cm per each fiber is in TOB_optfib_L56 
+	1 x ( TOB_3_088 ) x 5/88 = 1 x 3 x 88 cm x 5/88 = 15 cm
+	1 x ( TOB_3_070 ) x 5/70 = 1 x 3 x 70 cm x 5/70 = 15 cm
+	2 x ( TOB_3_056 ) x 5/56 = 2 x 3 x 56 cm x 5/56 = 30 cm
+	2 x ( TOB_3_035 ) x 5/35 = 2 x 3 x 35 c mx 5/35 = 30 cm
+	Total optical fibers length: 90 cm
+
+	All here:
+	3D label tags (kapton): m = [ (1 x 3) + (1 x 3) + (2 x 3) + (2 x 3) ] x 0.110 g = 18 x 0.110 g = 1.98 g
+		density = 1.40 g/cm^3
+		--> volume = 1.414 cm^3
+	MU connectors (kapton): m = [ (1 x 3) + (1 x 3) + (2 x 3) + (2 x 3) ] x 0.822 g = 18 x 0.822 g = 14.796 g
+		density = 1.40 g/cm^3
+		--> volume = 10.569 cm^3
+
+(25) Ribbon connectors (2 copies)
+
+(26) Ruggedized ribbon: total length 60 mm 
+
+.....................................................................................
+# "TOB Rod Connections Layer 5/6"          "TOB_CONN56"        44.25       88.5
+* 1 "SCLAC board"                          "T_G10"              0.211       1    ELE
+* 2 "SCLAC copper traces"                  "Copper"             0.007       1    ELE
+* 3 "CCUM wires Cu"                        "Copper"             0.191       2    CAB
+* 4 "CCUM wires Al"                        "Aluminium"          0.123       2    CAB
+* 5 "CCUM wires PEI"                       "Silicone_Gel"       0.203       2    CAB
+* 6 "CCUM wires SILTEM"                    "Polyethylene"       0.788       2    CAB
+* 7 "BUS wires Cu"                         "Copper"             0.740       1    CAB
+* 8 "BUS wires Al"                         "Aluminium"          0.0877      1    CAB
+* 9 "BUS wires PEI"                        "Silicone_Gel"       0.144       1    CAB
+* 10 "BUS wires SILTEM"                    "Polyethylene"       2.365       1    CAB
+* 11 "SCLAC glue"                          "Epoxy"              0.202       1    SUP
+* 12 "Output cable Shield"                 "Aluminium"          0.089       1    CAB
+* 13 "Output cable Sleeve"                 "Polyethylene"       0.642       1    CAB
+* 14 "Input and Output cable Tie"          "T_Kapton"           0.195       1    CAB
+* 15 "Input and Output cable Solder Paste" "BGA"                0.038       1    CAB
+* 16 "ICB,LVLAC,HVLAC glue"                "Epoxy"              0.181       1    SUP
+* 17 "ICB Solder Paste"                    "BGA"                0.005       1    CAB
+* 18 "LVLAC substrate"                     "T_G10"              0.242       1    ELE
+* 19 "LVLAC copper traces"                 "Copper"             0.0126      1    ELE
+* 20 "HVLAC substrate"                     "T_G10"              0.174       1    ELE
+* 21 "HVLAC copper traces"                 "Copper"             0.0036      1    ELE
+* 22 "Optical fibers"                      "Optical_Fiber"      6.362E-3   90    CAB
+* 23 "Optical fibers 3D label tag"         "T_Kapton"           1.414       1    CAB
+* 24 "Optical fibers MU connectors"        "T_Kapton"          10.569       1    CAB
+* 25 "Ribbon Connectors"                   "T_Ribbon12xMUConn" 12.0         2    CAB
+* 26 "Ruggedized ribbons"                  "T_RuggRibbon"       0.086       6    CAB
+.....................................................................................
+=====================================================================================
+
+
+
+# "END"  "END"  0.  0.   
+this has to be the last line !
+
+
+[WAS
+	o Aluminium cooling IV 
+	  --------------------
+	Al and locator piece at hybrid sides
+	No screw !
+	MCVolume: 1.5 x 2.8 x 0.03 cm
+	
+	(1) Al heat spreader   
+		dimensions from EDM file CMSTKOBM0024 version 0
+		{ [ 15 x 28 ] - (8 x 8 / 2) - [ pi x (2/2)^2 ] } mm^2 x 0.300 mm
+		= 384.8584 mm^2 x 0.300 mm = 115.4575 mm^3
+			[WAS 0.116 cm^3]
+		[THIS MATERIAL HAS BEEN CREATED APART
+			(2) CF compensator
+				dimensions from EDM file CMSTKOBM0035 version AA
+				{ [ 16 x 26 ] - [ pi x (10 / 2)^2 ] } mm^2 x 0.300 mm =
+				= 337.46 mm^2 x 0.300 mm = 101.238 mm^3
+					[WAS 0.15  cm^3]
+		]
+	(2) CuBe/brass -> take all Cu for now:
+	             0.0044 cm^3 x 3
+	..................................................................
+	# "TOB Module Cooling 4"   "TOB_mod_cool4"      0.126      4.2
+	* 1 "Al heat spreader"     "Aluminium"          0.115475   1  COL
+	* 2 "Cu locator"           "Copper"             0.0044     3  SUP
+	..................................................................
+	==================================================================
+NO MORE NEEDED, ALL THE SPREADER ARE THE SAME
+]
+
+
+
+		[WAS: o TOB_CCUM
+		        ---------
+		Not much know at this stage, so here comes some SciFi !
+		
+		MCVolume: 11.8 x 7 x 0.25 cm 
+		
+		Take the proposal from Marchioro with 3 instead of 2 connectors !
+		
+		G10 32 x 32 x 1 mm  -> 1.02 cm^3
+		4 layer Cu 17 um, 50 % occ
+		CCU in plastic housing, 15 x 15 x 1mm
+		196 solder "balls" diameter 0.5 mm
+		2 more plastic ship carriers, 7 x 7 x 0.3 mm
+		4 caps, half size of 0402
+		8 R     "   
+		For connectors: take Robert's proposal NAIS 80 pin connector.
+		
+		......................................................................
+		"TOB CCUM board"            "TOB_CCUM"        20.65  82.6
+		1 "CCUM board"              "G10"              1.02     1   ELE
+		2 "Copper traces"           "Copper"           0.035    1   ELE
+		3 "CCU in housing"          "T_Kapton"         0.225    1   ELE
+		4 "Solder balls"            "SMD_metal"        0.01     1   ELE
+		5 "Other chips"             "T_Kapton"         0.015    2   ELE
+		6 "Capacitors"              "Alumina"          1.E-4    4   ELE
+		7 "Resistors"               "Carbon"           1.E-4    8   ELE       
+		8 "Solder"                  "SMD_metal"        1.E-4    12  ELE
+		9 "Connector"               "T_Kapton"       9.107E-3   80  ELE 
+		10 "Connector pins"         "Copper"          8.092E-4  80  ELE         
+		.....................................................................
+		=====================================================================  ]
+
+
+
+		[WAS: o TOB Electronics ICC1/2
+		  -----------------------
+		Need 6 different mixtures here !
+		
+		Don't know about cooling !! Left out for the moment
+		
+		$$ Per ICC:
+		(1) CF support piece: 12.5 x 3 x 0.09 cm
+		(2-3) ICC1 card: 11.8 x 4.4 - 2*0.25*2 = 50.92 cm^2 x 0.1 cm = 5.09 cm^3 G10
+		         Cu : 4 layers a 25 um, 50 % occ    => 0.26 cm^3 
+		      ICC2 card: 11.8 x 6.8 - 2*0.25*2 = 79.24 cm^2 x 0.1 cm = 7.92 cm^3 G10
+		         Cu :                                  0.4 cm^3
+		(4-5) Connector pairs: all NAIS 
+		       per pin : Plastic:  0.01275 g -> 9.107E-3 cm^3 Kapton
+		                 Cu     :  7.25E-3 g -> 8.092E-4 cm^3 Cu
+		      Pins: 50 + (40+16+30)*OH
+		
+		(6-10) Optohybrid: dimensions: 23 x 30 mm, 0.5 mm thick FR4
+		      For the rest: take information from TIB OH !!
+		      Cu : 4 layers 50 % occ, 35 um 
+		
+		      Laser driver: 0.0025 cm^3 Si              (1/OH)
+		      Laser diode: 0.02 cm^3 Si            (1 for 2 APVs)
+		      Fiber clamps: 1.4 x 0.3 x 0.15 cm Kapton  (1/OH)
+		
+		Additional components: 
+		      Kapton from hybrid to ICC: 4 x 3 x 0.01 cm   -> 0.12 cm^3
+		                             Cu: 2 layers 50 um 50 % occ -> 0.06 cm^3  
+		      Buffers on ICC & ICB: 0.02 cm^3 Kapton, 3.1E-3 Cu 
+		                            1 + 1*OH
+		
+		      Capacitors large 4x7x2 mm = 0.056 cm^3 
+		                                        2+3*OH 
+		      Capacitors (0805) 2x1.25x1.25 = 3.1E-3 cm^3
+		                                      19*OH+3
+		      Resistors  (0603)  1.15E-3 cm^3
+		                                      12.5*OH+3
+		      Solder: 1.E-3*(large caps) + 2.E-4*(small caps+R) 
+		
+		Layer 5/6 ICC1 (serves 1 double sided module)
+		  => 2 Optohybrids
+		     2 Kapton pigtails, 3 buffers
+		     8 large caps, 41 small caps, 28 R's 
+		
+		.................................................................
+		 "TOB electronics lay 5/6 ICC1"   "TOB_ICC1"    25.96   51.92
+		 1 "CF support"             "Carbon fibre str."  3.375    1    SUP
+		 2 "ICC card"               "G10"                 5.09    1    ELE
+		 3 "ICC traces"             "Copper"              0.254   1	ELE	 
+		 4 "Connectors"             "T_Kapton"         9.107E-3   222  ELE
+		 5 "Connectors pins"        "Copper"           8.092E-4   222  ELE
+		 6 "Optohybrid"             "T_FR4"               0.345   2    ELE
+		 7 "Optohybrid traces"      "Copper"              0.048   2    ELE
+		 8 "Laser drivers"         "Silicon"            0.0025    2    ELE
+		 9 "Laser diode"           "Silicon"              0.02    4    ELE
+		 10 "Fiber clamp"           "T_Kapton"            0.063   2    ELE
+		 11 "Pigtail and buffers"   "T_Kapton"            0.3     1    ELE
+		 12 "Pigtail and buffers"   "Copper"              0.129   1    ELE
+		 13 "Capacitors"            "Alumina"             0.5751  1    ELE
+		 14 "Resistors"             "Carbon"             1.15E-3 28    ELE
+		 15 "Solder"                "SMD_metal"          0.022    1    ELE
+		................................................................
+		
+		
+		Layer 5/6 ICC2 (serves 2 double sided module)
+		  => 4 Optohybrids
+		     4 Kapton pigtails, 5 buffers
+		     14 large caps, 79 small caps, 53 R's 
+		.................................................................
+		 "TOB electronics lay 5/6 ICC2"   "TOB_ICC2"    40.12   80.24
+		 1 "CF support"             "Carbon fibre str."  3.375    1    SUP
+		 2 "ICC card"               "G10"                 7.92    1    ELE
+		 3 "ICC traces"             "Copper"              0.4     1	ELE	
+		 4 "Connectors"             "T_Kapton"         9.107E-3   394  ELE
+		 5 "Connectors pins"        "Copper"           8.092E-4   394  ELE
+		 6 "Optohybrid G10"         "T_FR4"               0.345   4    ELE
+		 7 "Optohybrid traces"      "Copper"              0.048   4    ELE
+		 8 "Laser drivers"         "Silicon"            0.0025    4    ELE
+		 9 "Laser diode"           "Silicon"              0.02    8    ELE
+		 10 "Fiber clamp"           "T_Kapton"            0.063   4    ELE
+		 11 "Pigtail and buffers"   "T_Kapton"            0.58    1    ELE
+		 12 "Pigtail and buffers"   "Copper"              0.256   1    ELE
+		 13 "Capacitors"            "Alumina"             1.029   1    ELE
+		 14 "Resistors"             "Carbon"             1.15E-3 53    ELE
+		 15 "Solder"                "SMD_metal"           0.04    1    ELE
+		.................................................................
+		
+		Layer 7/8 ICC1 (serves 1 single sided module with 4 APVs)
+		  => 1 Optohybrids
+		     1 Kapton pigtails, 2 buffers
+		     5 large caps, 22 small caps, 16 R's 
+		.................................................................
+		"TOB electronics lay 7/8 ICC1"   "TOB_ICC3"    25.96   51.92
+		1 "CF support"             "Carbon fibre str."  3.375    1    SUP
+		2 "ICC card"               "G10"                 5.09    1    ELE
+		3 "ICC traces"             "Copper"              0.254   1	ELE	
+		4 "Connectors"             "T_Kapton"         9.107E-3   136  ELE
+		5 "Connectors pins"        "Copper"           8.092E-4   136  ELE
+		6 "Optohybrid"             "T_FR4"               0.345   1    ELE
+		7 "Optohybrid traces"      "Copper"              0.048   1    ELE
+		8 "Laser drivers"         "Silicon"            0.0025    1    ELE
+		9 "Laser diode"           "Silicon"              0.02    2    ELE
+		10 "Fiber clamp"           "T_Kapton"            0.063   1    ELE
+		11 "Pigtail and buffers"   "T_Kapton"            0.16    1    ELE
+		12 "Pigtail and buffers"   "Copper"              0.0662  1    ELE
+		13 "Capacitors"            "Alumina"             0.348   1    ELE
+		14 "Resistors"             "Carbon"             1.15E-3 16    ELE
+		15 "Solder"                "SMD_metal"          0.0126   1    ELE
+		.................................................................
+		
+		Layer 7/8 ICC2 (serves 2 single sided module with 4 APVs)
+		  => 2 Optohybrids
+		     2 Kapton pigtails, 3 buffers
+		     8 large caps, 41 small caps, 28 R's 
+		.................................................................
+		 "TOB electronics lay 7/8 ICC2"   "TOB_ICC4"    40.12   80.24
+		 1 "CF support"             "Carbon fibre str."  3.375    1    SUP
+		 2 "ICC card"               "G10"                 7.92    1    ELE
+		 3 "ICC traces"             "Copper"              0.4     1	ELE	
+		 4 "Connectors"             "T_Kapton"         9.107E-3   222  ELE
+		 5 "Connectors pins"        "Copper"           8.092E-4   222  ELE
+		 6 "Optohybrid"             "T_FR4"               0.345   2    ELE
+		 7 "Optohybrid traces"      "Copper"              0.048   2    ELE
+		 8 "Laser drivers"         "Silicon"            0.0025    2    ELE
+		 9 "Laser diode"           "Silicon"              0.02    4    ELE
+		 10 "Fiber clamp"           "T_Kapton"            0.063   2    ELE
+		 11 "Pigtail and buffers"   "T_Kapton"              0.3   1    ELE
+		 12 "Pigtail and buffers"   "Copper"              0.129   1    ELE
+		 13 "Capacitors"            "Alumina"             0.5751  1    ELE
+		 14 "Resistors"             "Carbon"             1.15E-3  28   ELE
+		 15 "Solder"                "SMD_metal"           0.022    1   ELE
+		.................................................................
+		
+		Layer 9/10 ICC1 (serves 1 single sided module with 6 APVs)
+		  => 1 Optohybrids
+		     1 Kapton pigtails, 2 buffers
+		     5 large caps, 22 small caps, 16 R's 
+		.................................................................
+		 "TOB electronics lay 9/10 ICC1"   "TOB_ICC5"    25.96   51.92
+		 1 "CF support"             "Carbon fibre str."  3.375    1   SUP
+		 2 "ICC card"               "G10"                 5.09    1   ELE
+		 3 "ICC traces"             "Copper"              0.254   1   ELE	 
+		 4 "Connectors"             "T_Kapton"         9.107E-3   136 ELE
+		 5 "Connectors pins"        "Copper"           8.092E-4   136 ELE
+		 6 "Optohybrid"            "T_FR4"                0.345   1   ELE
+		 7 "Optohybrid traces"      "Copper"              0.048   1   ELE
+		 8 "Laser drivers"         "Silicon"            0.0025    1   ELE
+		 9 "Laser diode"           "Silicon"              0.02    3   ELE
+		 10 "Fiber clamp"           "T_Kapton"            0.063   1   ELE
+		 11 "Pigtail and buffers"   "T_Kapton"            0.16    1   ELE
+		 12 "Pigtail and buffers"   "Copper"              0.0662  1   ELE
+		 13 "Capacitors"            "Alumina"             0.348   1   ELE
+		 14 "Resistors"             "Carbon"             1.15E-3 16   ELE
+		 15 "Solder"                "SMD_metal"          0.0126   1   ELE
+		.................................................................
+		
+		Layer 9/10 ICC2 (serves 2 single sided module with 6 APVs)
+		  => 2 Optohybrids
+		     2 Kapton pigtails, 3 buffers
+		     8 large caps, 41 small caps, 28 R's 
+		.................................................................
+		 "TOB electronics lay 9/10 ICC2"   "TOB_ICC6"    40.12   80.24
+		 1 "CF support"             "Carbon fibre str."  3.375    1    SUP
+		 2 "ICC card"               "G10"                 7.92    1    ELE
+		 3 "ICC traces"             "Copper"              0.4     1	ELE	
+		 4 "Connectors"             "T_Kapton"         9.107E-3   222  ELE
+		 5 "Connectors pins"        "Copper"           8.092E-4   222  ELE
+		 6 "Optohybrid"             "T_FR4"               0.345   2    ELE
+		 7 "Optohybrid traces"      "Copper"              0.048   2    ELE
+		 8 "Laser drivers"         "Silicon"            0.0025    2    ELE
+		 9 "Laser diode"           "Silicon"              0.02    6    ELE
+		 10 "Fiber clamp"           "T_Kapton"            0.063   2    ELE
+		 11 "Pigtail and buffers"   "T_Kapton"              0.3   1    ELE
+		 12 "Pigtail and buffers"   "Copper"              0.129   1    ELE
+		 13 "Capacitors"            "Alumina"             0.5751  1    ELE
+		 14 "Resistors"             "Carbon"             1.15E-3 28    ELE
+		 15 "Solder"                "SMD_metal"           0.022    1   ELE
+		.................................................................
+		=================================================================    ]
+
+		[WAS:
+		o TOB rod connectors (inside)
+		  ---------------------------
+		MCVolume 11.8 x 7.5 x 0.5 cm
+		
+		(1) CF support plate: 12.5 x 12.5 x 0.09 cm = 14.06 cm^3 
+		(2) Loose wires (Robert)
+		        Al xsection 1 mm^2 
+		         For control: 10 cables with l=22cm, 10 with l=12 cm
+		                 LV :  8   "         l=12 cm			             
+		    Forget about the Polyethylene shielding, absorbed in 
+		    optical connector uncertainty !
+		(3) Optical connectors: 2 for layer 5/6, 1 for 7-10
+		   Info from Francois: 46.8 g Plastic, 8.4 g Cu
+		   OVERESTIMATE, don't believe ! take 15 cm^3 plastic
+		.....................................................................
+		 "TOB rod connections 5/6"      "TOB_CONN1"          44.25 88.5
+		 1 "Support plate"          "Carbon fibre str."    14.06   1   SUP
+		 2 "Al wires"               "Aluminium"            0.12    37  CAB
+		 3 "Optoconnector"          "T_Kapton"             15.0     2  CAB
+		 4 "Optoconnector"          "Copper"               0.446    2  CAB
+		....................................................................
+		....................................................................
+		 "TOB rod connections 7-10"      "TOB_CONN2/3"       44.25 88.5
+		 1 "Support plate"          "Carbon fibre str."    14.06   1   SUP
+		 2 "Al wires"               "Aluminium"            0.12    37  CAB
+		 3 "Optoconnector"          "T_Kapton"             15.0     1  CAB
+		 4 "Optoconnector"          "Copper"               0.446    1  CAB
+		....................................................................
+		==================================================================== ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

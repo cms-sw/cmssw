@@ -1,0 +1,9 @@
+trackCountingHighEffBJetTags
+3.99
+PerformancePayloadFromTable
+2
+2
+1001 1002
+5 2
+0 2.4 50 80
+0.683 0.008

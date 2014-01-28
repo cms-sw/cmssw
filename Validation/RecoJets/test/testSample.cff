@@ -1,0 +1,46 @@
+source = PoolSource{
+  untracked vstring fileNames = { }
+  #uncomment to skip some events
+  #untracked uint32 skipEvents=0
+}
+
+#-----------------------------------------------------------------------
+# add here the the sample for validation
+#-----------------------------------------------------------------------
+# include "Calibration/Examples/test/tt0j152_mt70.cff" 
+
+replace PoolSource.fileNames = {
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_1.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_2.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_3.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_4.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_5.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_6.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_7.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_8.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_9.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_10.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_11.root",
+#"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_12.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_13.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_14.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_15.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_16.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_17.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_18.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_19.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_20.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_21.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_22.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_23.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_24.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_25.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_26.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_27.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_28.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_29.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_30.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_31.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_32.root",
+"file:/rdata/cms-data01/select/16x/ttbar/tt0j152_mt70_aodsim_33.root"
+}

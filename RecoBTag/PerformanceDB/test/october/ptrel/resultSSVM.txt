@@ -1,0 +1,8 @@
+simpleSecondaryVertexBJetTags
+2.02
+PerformancePayloadFromTable
+2
+2
+1009 1010
+5 2
+0 2.4 50 200 1.016 0.014
