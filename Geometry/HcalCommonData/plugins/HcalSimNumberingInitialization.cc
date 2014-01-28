@@ -33,7 +33,7 @@
 #include <Geometry/HcalCommonData/interface/HcalDDDSimConstants.h>
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
 
-#define DebugLog
+//#define DebugLog
 
 class HcalSimNumberingInitialization : public edm::ESProducer {
 

@@ -368,11 +368,15 @@ void HcalDDDRecConstants::loadSimConst() {
     if (i < iEtaMax[0]) {
       int laymax0 = (imx > 16) ? layerGroup[i][16] : laymax;
       if (i+1 == iEtaMax[0] && laymax0 > 2) laymax0 = 2;
+#ifdef DebugLog
       std::cout << "HB " << i << " " << imx << " " << laymax << " " << laymax0 << std::endl;
+#endif
       if (maxDepth[0] < laymax0) maxDepth[0] = laymax0;
     }
     if (i >= iEtaMin[1]-1 && i < iEtaMax[1]) {
+#ifdef DebugLog
       std::cout << "HE " << i << " " << imx << " " << laymax << std::endl;
+#endif
       if (maxDepth[1] < laymax) maxDepth[1] = laymax;
     }
   }
