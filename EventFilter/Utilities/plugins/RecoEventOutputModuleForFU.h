@@ -88,7 +88,7 @@ namespace evf {
     baseDir_(ps.getUntrackedParameter<std::string>("baseDir","")),
     processed_(0),
     accepted_(0),
-    filelist_("")
+    filelist_()
   {
     initializeStreams();
     
@@ -98,16 +98,12 @@ namespace evf {
     processed_.setName("Processed");
     accepted_.setName("Accepted");
     filelist_.setName("Filelist");
-    vector<JsonMonitorable*> monParams;
-    monParams.push_back(&processed_);
-    monParams.push_back(&accepted_);
-    monParams.push_back(&filelist_);
     
-    jsonMonitor_.reset(new FastMonitor(jsonDefPath_));
-    jsonMonitor_.registerGlobalMonitorVariable(&processed_,false);
-    jsonMonitor_.registerGlobalMonitorVariable(&accepted_,false);
-    jsonMonitor_.registerGlobalMonitorVariable(&filelist_,false);
-    jsonMonitor_.commit(nullptr);
+    jsonMonitor_.reset(new FastMonitor(jsonDefPath_,false));//TODO:strict?
+    jsonMonitor_->registerGlobalMonitorable(&processed_,false);
+    jsonMonitor_->registerGlobalMonitorable(&accepted_,false);
+    jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
+    jsonMonitor_->commit(nullptr);
   }
   
   template<typename Consumer>
@@ -201,7 +197,7 @@ namespace evf {
 	jsonMonitor_->snap(false, "",ls.luminosityBlock());
 	const std::string outputJsonNameStream =
 	  edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
-	jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock);
+	jsonMonitor_->outputFullJSON(outputJsonNameStream,ls.luminosityBlock());
     }
 
     // reset monitoring params

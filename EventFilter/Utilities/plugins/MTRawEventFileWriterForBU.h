@@ -103,6 +103,6 @@ class MTRawEventFileWriterForBU
   unsigned char * fileHeader_;
 
   std::vector<IntJ*> perFileCounters_;
-  std::vector<sdt::unique_ptr<FastMonitor>> perFileMonitors_;
+  std::vector<std::unique_ptr<FastMonitor>> perFileMonitors_;
 };
 #endif

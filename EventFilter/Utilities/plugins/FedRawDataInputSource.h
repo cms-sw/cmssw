@@ -16,7 +16,10 @@
 class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
-class jsoncollector::DataPointDefinition_;
+
+namespace jsoncollector {
+class DataPointDefinition;
+}
 
 class FedRawDataInputSource: public edm::RawInputSource {
 
@@ -77,7 +80,7 @@ private:
   unsigned char *bufferCursor_;
   uint32_t bufferLeft_;
 
-  jsoncollector::DataPointDefinition_ *dpd_;
+  jsoncollector::DataPointDefinition *dpd_;
 
 };
 

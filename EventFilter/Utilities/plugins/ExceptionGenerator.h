@@ -14,7 +14,7 @@
 #include <string>
 
 namespace evf{
-    class ExceptionGenerator : public edm::stream::EDAnalyzer
+    class ExceptionGenerator : public edm::stream::EDAnalyzer<>
     {
     public:
       static const int menu_items = 14;

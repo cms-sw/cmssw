@@ -54,7 +54,7 @@ class RawEventFileWriterForBU
   std::string fileName_;
   std::string destinationDir_;
 
-  string jsonDefLocation_;
+  std::string jsonDefLocation_;
   int microSleep_;
 
   uint32 adlera_;

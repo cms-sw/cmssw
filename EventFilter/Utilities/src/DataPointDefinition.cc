@@ -6,7 +6,9 @@
  */
 
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
-#include "EvenFilter/Utilities/interfaces/JsonMonitorable"
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
+#include "EventFilter/Utilities/interface/FileIO.h"
+#include "EventFilter/Utilities/interface/JSONSerializer.h"
 
 using namespace jsoncollector;
 
@@ -14,7 +16,7 @@ const std::string DataPointDefinition::SUM = "sum";
 const std::string DataPointDefinition::AVG = "avg";
 const std::string DataPointDefinition::SAME = "same";
 const std::string DataPointDefinition::HISTO = "histo";
-const std::string DatapointDefinition::CAT = "cat";
+const std::string DataPointDefinition::CAT = "cat";
 
 const std::string DataPointDefinition::LEGEND = "legend";
 const std::string DataPointDefinition::PARAM_NAME = "name";
@@ -22,20 +24,17 @@ const std::string DataPointDefinition::OPERATION = "operation";
 
 
 //static member
-bool ObjectMerger::getDataPointDefinitionFor(std::string defFilePath, std::string sourceInfo,
-		DataPointDefinition& dpd) {
-	string dpdString;
+bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition& dpd) {
+	std::string dpdString;
 	bool readOK = FileIO::readStringFromFile(defFilePath, dpdString);
 	// data point definition is bad!
 	if (!readOK) {
-		cout << "Cannot read from JSON definition path: " << defFilePath
-				<< endl;
+		std::cout << "Cannot read from JSON definition path: " << defFilePath << std::endl;
 		return false;
 	}
 	JSONSerializer::deserialize(&dpd, dpdString);
-	dpd.setSourceInfo(sourceInfo);
 	return true;
-
+}
 
 void DataPointDefinition::serialize(Json::Value& root) const {
 	for (unsigned int i = 0; i < varNames_.size(); i++) {
@@ -52,6 +51,8 @@ void DataPointDefinition::deserialize(Json::Value& root) {
 		for (unsigned int i = 0; i < size; i++) {
 			varNames_.push_back(root.get(LEGEND, "")[i].get(PARAM_NAME, "").asString());
 			opNames_.push_back(root.get(LEGEND, "")[i].get(OPERATION, "").asString());
+			//DEBUG
+			std::cout << "opName" << root.get(LEGEND, "")[i].get(OPERATION, "").asString() << std::endl;
 		}
 	}
 }
@@ -72,17 +73,4 @@ OperationType DataPointDefinition::getOperationFor(unsigned int index) {
 	if (opNames_.at(index)== DataPointDefinition::CAT) opType=OPCAT;
 	return opType;
 }
-/*
-   void DataPointDefinition::populateMonitorableConfig(std::vector<JsonMonConfig> & monConfig) {
-   for (unsigned int i = 0; i < varNames_.size(); i++) {
-   OperationType opType=OPUNKNOWN;
-   if (opNames_.at(i)== DataPointDefinition::SUM) opType=OPSUM;
-   if (opNames_.at(i)== DataPointDefinition::AVG) opType=OPAVG;
-   if (opNames_.at(i)== DataPointDefinition::SAME) opType=OPSAME;
-   if (opNames_.at(i)== DataPointDefinition::HISTO) opType=OPHISTO;
-   if (opNames_.at(i)== DataPointDefinition::CAT) opType=OPCAT;
-   JsonMonConfig jmc(TYPEUNDEFINED, opType, varNames_.at(i), const& name, false ,0);
-   monConfig.push_back(jmc);
-   }
-   */
-}
+

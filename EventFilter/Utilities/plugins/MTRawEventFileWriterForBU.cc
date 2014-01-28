@@ -1,6 +1,6 @@
 // $Id: MTRawEventFileWriterForBU.cc,v 1.1.2.7 2013/01/16 17:47:37 aspataru Exp $
 
-#include "MTRawEventFileWriterForBU.h"
+#include "EventFilter/Utilities/plugins/MTRawEventFileWriterForBU.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -81,8 +81,8 @@ MTRawEventFileWriterForBU::MTRawEventFileWriterForBU(edm::ParameterSet const& ps
 	// set names of the variables to be matched with JSON Definition
 	perLumiEventCount_.setName("NEvents");
 
-      	lumiMon_.reset(new FastMonitor("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd"));
-        lumiMon_->registerGlobalMonitorVariable(&perLumiEventCount_,false);
+      	lumiMon_.reset(new FastMonitor("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd",false));
+        lumiMon_->registerGlobalMonitorable(&perLumiEventCount_,false,nullptr);
         lumiMon_->commit(nullptr);
 
 
@@ -175,7 +175,7 @@ void MTRawEventFileWriterForBU::endOfLS(int ls)
 	int outfd_ = open(ostr.str().c_str(), O_WRONLY | O_CREAT,  S_IRWXU);
 	if(outfd_!=0){close(outfd_); outfd_=0;}
 
-	string path = ostr.str();
+	std::string path = ostr.str();
 	// serialize the DataPoint and output it
 	lumiMon_->outputFullJSON(path, ls);
 
@@ -259,8 +259,8 @@ void MTRawEventFileWriterForBU::dispatchThreads(std::string fileBase, unsigned i
 
     // create per-file FastMonitor instances using a path to a JSON Definition file
     std::unique_ptr<FastMonitor> thisMon;
-    thisMon.reset(new FastMonitor("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd");
-    thisMon->registerGlobalMonitorVariable(&perFileCounters_[i],false);
+    thisMon.reset(new FastMonitor("$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd",false);
+    thisMon->registerGlobalMonitorable(&perFileCounters_[i],false,nullptr);
     thisMon->commit(nullptr);
     perFileMonitors_.push_back(std::move(thisMon));
 

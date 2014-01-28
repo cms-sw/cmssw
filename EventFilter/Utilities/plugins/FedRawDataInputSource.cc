@@ -33,15 +33,19 @@
 #include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 #include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 
+#include "EventFilter/Utilities/interface/DataPointDefinition.h"
+
 //JSON file reader
 #include "EventFilter/Utilities/interface/reader.h"
 
 #include <boost/lexical_cast.hpp>
 
+using namespace jsoncollector;
+
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                              edm::InputSourceDescription const& desc) :
   edm::RawInputSource(pset, desc),
-  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", "/tmp/def.jsd")),
+  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", "$CMSSW_BASE/EventFilter/Utilities/plugins/budef.jsd")),
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
@@ -73,7 +77,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 					edm::Timestamp::invalidTimestamp()));
 
   dpd_ = new DataPointDefinition();
-  DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
+  DataPointDefinition::getDataPointDefinitionFor(defPath_, *dpd_);
 }
 
 FedRawDataInputSource::~FedRawDataInputSource()
@@ -335,7 +339,7 @@ int FedRawDataInputSource::searchForNextFile()
 
     edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
 
-    if (fms) fms->stoppedLookingForFile();
+    if (fms) fms->stoppedLookingForFile(currentLumiSection_);//TODO:report to correct ls if updated
 
     boost::filesystem::path jsonFile(nextFile);
     jsonFile.replace_extension(".jsn");
@@ -390,19 +394,20 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
     DataPoint dp;
     dp.deserialize(deserializeRoot);
     bool success = false;
-    for (unsigned int i=0;i<dpd_.getNames.size()) {
-      if (dpd_.getNames.at(i)=="NEvents")
+    for (unsigned int i=0;i<dpd_->getNames().size();i++) {
+      if (dpd_->getNames().at(i)=="NEvents")
 	if (i<dp.getData().size()) {
 	  data = dp.getData()[i];
 	  success=true;
 	}
     }
-    if (!success)
+    if (!success) {
       if (dp.getData().size())
 	data = dp.getData()[0];
       else 
 	throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
 	  " error reading number of events from BU JSON: No input value" << data;
+    }
     try {
       currentInputEventCount_ = boost::lexical_cast<unsigned int>(data);
     }

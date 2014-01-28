@@ -8,6 +8,7 @@
 #ifndef DATAPOINTDEFINITION_H_
 #define DATAPOINTDEFINITION_H_
 
+#include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "EventFilter/Utilities/interface/JsonSerializable.h"
 #include <string>
 #include <vector>
@@ -46,11 +47,10 @@ public:
 	/**
 	 * Loads a DataPointDefinition from a specified reference
 	 */
-	static bool getDataPointDefinitionFor(std::string defFilePath,
-			DataPointDefinition& def);
+	static bool getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition& dpd);
 
-	void setSourceInfo(std::string sourceInfo) {sourceInfo_=sourceInfo;}
-	std::string & getSourceInfo() {return sourceInfo_;}
+	OperationType getOperationFor(unsigned int index);
+
 	std::string & getDefFilePath() {return defFilePath_;}
 	//void populateMonConfig(std::vector<JsonMonConfig>& monConfig);
 
@@ -69,7 +69,6 @@ public:
 private:
 	std::vector<std::string> varNames_;
 	std::vector<std::string> opNames_;
-	std::string sourceInfo_;
 	std::string defFilePath_;
 };
 }

@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <atomic>
 #include <stdint.h>
 #include <assert.h>
 
@@ -27,8 +28,19 @@ public:
 	DataPoint() { }
 
 	DataPoint(std::string const& source, std::string const& definition) :	source_(source), definition_(definition) { }
-
 	//TODO: expected/maxUpdates still useful ? = unsigned int expectedUpdates = 1, unsigned int maxUpdates = 0
+
+	~DataPoint() {
+		//delete buffer used to produce histograms
+		if (buf_) delete buf_;
+		//wipe out any map content
+		for (auto m : streamDataMaps_)
+			for (auto it = m.begin(); it != m.end();it++)
+				delete it->second;
+		for (auto it = globalDataMap_.begin(); it != globalDataMap_.end();it++)
+			delete it->second;
+		//now maps will be deleted without leaks
+	}
 
 	/**
 	 * JSON serialization procedure for this class
@@ -41,9 +53,7 @@ public:
 	 */
 	virtual void deserialize(Json::Value& root);
 
-	std::vector<std::string>& getData() {
-		return data_;
-	}
+	std::vector<std::string>& getData() {return data_;}
 
 	/**
 	 * Functions specific to new monitoring implementation
@@ -60,35 +70,47 @@ public:
 	void trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdates);
 
 	//set to track a vector of variables
-	void trackVectorUInt(std::string const& name, std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates);
+	void trackVectorUInt(std::string const& name, std::vector<unsigned int> *monvec, bool NAifZeroUpdates);
 
 	//set to track a vector of atomic variables with guaranteed collection
-	void trackVectorUIntAtomic(std::string const& name, std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates);
+	void trackVectorUIntAtomic(std::string const& name, std::vector<std::atomic<unsigned int>*> *monvec, bool NAifZeroUpdates);
 
 	//variable not found by the service, but want to output something to JSON
 	void trackDummy(std::string const& name, bool setNAifZeroUpdates)
 	{
+		name_ = name;
 		isDummy_=true;
-		setNAifZeroUpdates_=true;
+		NAifZeroUpdates_=true;
 	}
+
+	void makeStreamLumiMap(unsigned int size);
 
 	//sets which operation is going to be performed on data (specified by JSON def)
-	void setOperation(OperationType opType);
-
-	//only used if per-stream DP
-	void setStreamLumiPtr(std::vector<std::atomic<unsigned int>> *streamLumiPtr) {
-	  streamLumiPtr_=streamLumiPtr;
+        void setOperation(OperationType op) {
+    		opType_=op;
 	}
 
+	//only used if per-stream DP
+	void setStreamLumiPtr(std::vector<std::atomic<unsigned int>*> *streamLumiPtr) {
+	  streamLumisPtr_=streamLumiPtr;
+	}
+
+	//fastpath (not implemented now)
+	std::string fastOutCSV();
+
 	//pointed object should be available until discard
-	JsonMonitorable * mergeAndRetrieve(unsigned int forLumi);
+	JsonMonitorable * mergeAndRetrieveValue(unsigned int forLumi);
 
-	//uses move semantics in C++2011
-	std::string mergeAndSerialize(JsonValue& jsonRoot, bool initRoot);
+	//get everything collected prepared for output
+	void mergeAndSerialize(Json::Value& jsonRoot, unsigned int lumi, bool initJsonValue);
 
+	//cleanup lumi
 	void discardCollected(unsigned int forLumi);
 
+	//this parameter sets location where we can find hwo many bins are needed for histogram 
 	void setNBins(unsigned int *nBins) {nBinsPtr_ = nBins;}
+
+	std::string const& getName() {return name_;}
 
 /*
 	unsigned int getUpdates() {return updates_;}
@@ -106,18 +128,18 @@ protected:
 	std::vector<std::string> data_;
 
 	//per stream queue of pointers to mon collectors
-	std::vector<std::map<unsigned int,JsonMonitorable> streamDataMaps_;
+	std::vector<std::map<unsigned int,JsonMonitorable*>> streamDataMaps_;//todo:cleanup after ls
 //	std::vector<std::queue<std::auto_ptr<JsonMonitorable>>> streamData_;
 	//lumi for each queue entry
 //	std::vector<std::queue<unsigned int>> queuedStreamLumi_;
 
-	std::map<unsigned int,JsonMonitorable> globalDataMap_;
+	std::map<unsigned int,JsonMonitorable*> globalDataMap_;//todo: cleanup after ls
 	//std::queue<std::auto_ptr<JsonMonitorable>> globalData_;
 	//
 	void *tracked_;
 
         //global lumi ptr (not needed)
-	std::vector<std::atomic<unsigned int>> *streamLumisPtr_ = nullptr;
+	std::vector<std::atomic<unsigned int>*> *streamLumisPtr_ = nullptr;
 
 	bool isStream_ = false;
 	bool isAtomic_ = false;

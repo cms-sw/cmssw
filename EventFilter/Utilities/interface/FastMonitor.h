@@ -20,7 +20,7 @@ class FastMonitor {
 
 public:
 
-	FastMonitor(std::string const& defPath, bool strictChecking);
+        FastMonitor(std::string const& defPath, bool strictChecking, bool useSource=true, bool useDefinition=true);
 
 	virtual ~FastMonitor();
 
@@ -32,7 +32,7 @@ public:
 
 	//register per-stream monitores vector (unsigned int)
 	void registerStreamMonitorableUIntVec(std::string const& name, 
-			std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
+			std::vector<unsigned int> *inputs, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
 
 	//NOT implemented yet
 	//void registerStreamMonitorableIntVec(std::string &name, std::vector<unsigned int>,true,0);
@@ -40,11 +40,10 @@ public:
 	//void registerStreamMonitorableStringVec(std::string &name, std::vector<std::string>,true,0);
 
 	void registerStreamMonitorableUIntVecAtomic(std::string const& name,
-		                std::vector<std::atomic<unsigned int>> *inputsRef_, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
-
+		                std::vector<std::atomic<unsigned int>*> *inputs, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
 
 	//take vector used to track stream lumis and finish initialization
-	void commit(std::vector<std::atomic<unsigned int>> *streamLumisPtr);
+	void commit(std::vector<std::atomic<unsigned int>*> *streamLumisPtr);
 
 	// fetches new snapshot and outputs one-line CSV if set (timer based)
         void snap(bool outputCSVFile, std::string const& path, unsigned int forLumi);
@@ -53,16 +52,16 @@ public:
         void snapGlobal(bool outputCSVFile, std::string const& path, unsigned int forLumi);
 
 	//only updates atomic vectors (for certain stream - at stream EOL)
-        void snapStreamAtomic(bool outputCSV, std::string const& path, unsigned int streamID, unsigned int forLumi);
+        void snapStreamAtomic(bool outputCSVFile, std::string const& path, unsigned int streamID, unsigned int forLumi);
 
 	//fastpath CSV
 	void outputCSV(std::string const& path);
 
 	//provide merged variable back to user
-	JsonMonitorable* getMergedIntJforLumi(std::string const& name,unsigned int forLumi);
+	JsonMonitorable* getMergedIntJForLumi(std::string const& name,unsigned int forLumi);
 
 	// merges and outputs everything collected for the given stream to JSON file
-	void outputFullJSON(std::string const& path, unsigned int forLumi, bool addHostAndPID=true);
+        bool outputFullJSON(std::string const& path, unsigned int lumi);
 
 	//discard what was collected for a lumisection
         void discardCollected(unsigned int forLumi);
@@ -73,6 +72,10 @@ public:
 private:
 
 	std::string defPath_;
+	bool strictChecking_;
+	bool useSource_;
+	bool useDefinition_;
+
 	unsigned int nStreams_;
 
 	std::string sourceInfo_;
@@ -81,10 +84,12 @@ private:
 	std::vector<DataPoint*> dataPoints_;
 	std::vector<unsigned int> jsonDpIndex_;
 	std::vector<DataPoint*> orphanedDps_;
-	std::vector<std::string,unsigned int> dpNameMap_;
+	std::map<std::string,unsigned int> dpNameMap_;
 
 	unsigned int recentSnaps_ = 0;
+	unsigned int recentSnapsTimer_ = 0;
 	unsigned int regDpCount_ = 0;
+
 
 };
 

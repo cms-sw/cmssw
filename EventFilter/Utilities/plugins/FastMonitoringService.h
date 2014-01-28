@@ -13,13 +13,14 @@
 #include "boost/filesystem.hpp"
 
 #include "EventFilter/Utilities/interface/MicroStateService.h"
-#include "FastMonitoringThread.h"
+#include "EventFilter/Utilities/plugins/FastMonitoringThread.h"
 
 #include <string>
 #include <vector>
-
+#include <map>
+#include <queue>
 #include <sstream>
-#include <unordered_map>
+//#include <unordered_map>
 
 /*Description
   this is an evolution of the MicroStateService intended to be run standalone in cmsRun or similar
@@ -84,7 +85,7 @@ namespace evf{
 	  decoder_.push_back(add); 
 	  current_++;
 	}
-	void vecsize() {
+	unsigned int vecsize() {
 	  return decoder_.size();
 	}
 	std::map<const void *,int> quickReference_;
@@ -120,9 +121,9 @@ namespace evf{
       void preGlobalEndLumi(edm::GlobalContext const&);
       void postGlobalEndLumi(edm::GlobalContext const&);
 
-      void preStreamBeginLumi(edm::Streamcontext const&);
-      void preStreamEndLumi(edm::Streamcontext const&);
-      void prePathEvent(edm::StreamContext const&, const edm::PathContext const&);
+      void preStreamBeginLumi(edm::StreamContext const&);
+      void preStreamEndLumi(edm::StreamContext const&);
+      void prePathEvent(edm::StreamContext const&, edm::PathContext const&);
       void preEvent(edm::StreamContext const&);
       void postEvent(edm::StreamContext const&);
       void preSourceEvent(edm::StreamID);
@@ -131,8 +132,8 @@ namespace evf{
       void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
       //OBSOLETE
-      void setMicroState(Microstate); // this is still needed for use in special functions like DQM which are in turn framework services.
-      void setMicroState(edm::StreamID, Microstate);
+      void setMicroState(MicroStateService::Microstate); // this is still needed for use in special functions like DQM which are in turn framework services.
+      void setMicroState(edm::StreamID, MicroStateService::Microstate);
 
       void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();
@@ -148,60 +149,19 @@ namespace evf{
 	fmt_.jsonMonitor_->snapStreamAtomic(outputCSV, fastPath_,forLumi,streamID);
       }
 
-      void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID) {
-
-	// update monitored content
-	fmt_.m_data.fastMacrostateJ_ = macrostate_;
-
-	//update following vars unless we are in the middle of lumi transition (todo: we could do this)
-	if (!isGlobalLumiTransition) {
-	  //these are stored maps, try if there's element for last globalLumi
-	  auto itd = throughput_.find(foLumi);
-	  if (itd!=std::map:end) {
-	    fmt_.m_data.fastThroughputJ_ = *it;
-	    else fmt_.m_data.fastThroughputJ_=0.;
-	  }
-
-	  itd = avgLeadTime_.find(forLumi);
-	  if (itd != std::map:end) {
-	    fmt_.m_data.fastAvgLeadTimeJ_ = *it;
-	    else fmt_.m_data.fastAvgLeadTimeJ_=0.;
-	  }
-
-	  auto iti = filesProcessed_.find(forLumi);
-	  if (iti != std::map:end) {
-	    fmt_.m_data.fastFilesProcessedJ_ = *it;
-	    else fmt_.m_data.fastFilesProcessedJ_=0;
-	  }
-	}
-	else return; //skip snapshot if it happens in global lumi transition
-
-	//decode mini/microstate using what is latest stored per stream()
-	for (unsigned int i=0;i<nStreams;i++) {
-//	  fmt_.m_data.ministateDecoded_[i] = 0;//maybe supported now --> 
-	  fmt_.m_data.ministateDecoded_[i] = encPath_.encode(fmt_.m_data.ministate_[i]);
-	  fmt_.m_data.microstateDecoded_[i] = encModule_.encode(fmt_.m_data.microstate_[i]);
-	}
-
-	//do a snapshot, also output fast CSV
-	if (isGlobalEOL) //only update global variables
-	  fmt_.jsonMonitor_->snapGlobal(outputCSV, fastPath_,forLumi);
-	else
-	  fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi);
-      }
+      void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID);
 
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
+	std::atomic_thread_fence(std::memory_order_acquire);
 	while (!fmt_.m_stoprequest) {
-	  std::cout << "Current states: Ms=" << fmt_.m_data.macrostate_;
-	  if (nStreams_==1)//only makes sense for 1 thread
-	    std::cout << " ms=" << encPath_.encode(fmt_.m_data.ministate_)
-	      << " us=" << encModule_.encode(fmt_.m_data.microstate_)
-	  std::cout << std::endl;
+	  std::cout << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
+	   << " ms=" << encPath_.encode(ministate_[0])
+	      << " us=" << encModule_.encode(microstate_[0]) << std::endl;
 
 	  // lock the monitor
 	  fmt_.monlock_.lock();
 	  //do a snapshot, also output fast CSV
-          doSnapshot(true,lastGlobalLumi_,false);
+          doSnapshot(true,lastGlobalLumi_,false,false,0);
 	  fmt_.monlock_.unlock();
 
 	  ::sleep(sleepTime_);
@@ -214,6 +174,7 @@ namespace evf{
       Encoding encPath_;
 
       unsigned int nStreams_;
+      unsigned int nThreads_;
       int sleepTime_;
       std::string /*rootDirectory_,*/ microstateDefPath_, outputDefPath_;
       std::string fastName_, fastPath_, slowName_;
@@ -229,7 +190,7 @@ namespace evf{
       unsigned int lumiFromSource_;//possibly use atomic
 
       //global state
-      Macrostate macrostate_;
+      FastMonitoringThread::Macrostate macrostate_;
 
       //per stream
       std::vector<const void*> ministate_;
@@ -251,10 +212,13 @@ namespace evf{
 
       boost::mutex initPathsLock_;
       unsigned long firstEventId_ = 0;
-      std::atomic<bool> collectedPathList_ = false;
+      std::atomic<bool> collectedPathList_;
       std::vector<bool> pathNamesReady_;
 
       boost::filesystem::path workingDirectory_, runDirectory_;
+
+      //for path name retrieve hack
+      unsigned int eventCountForPathInit_ = 0;
     };
 
 }

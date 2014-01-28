@@ -17,7 +17,8 @@
 
 namespace jsoncollector {
 
-enum MonType  { TYPEINT, TYPEDOUBLE, TYPESTRING, TYPEHISTOINT, TYPEHISTODOUBLE, TYPEUNDEFINED};
+//TODO:move to DataPoint
+enum MonType  { TYPEINT, TYPEUINT, TYPEDOUBLE, TYPESTRING, TYPEUNDEFINED};
 enum OperationType  { OPSUM, OPAVG, OPSAME, OPHISTO, OPCAT, OPUNKNOWN};
 
 //		if (nBins) binBuffer_.reset(new unsigned int[nBins]);
@@ -38,7 +39,18 @@ public:
 	
 	bool getNotSame() {return notSame_;}
 
+	virtual void setName(std::string name) {
+		name_=name;
+	}
+
+	virtual std::string & getName() {
+		return name_;
+	}
+
+
+
 protected:
+	std::string name_;
 	unsigned int updates_;
 	bool notSame_;
 };
@@ -48,6 +60,7 @@ class IntJ: public JsonMonitorable {
 
 public:
 	IntJ() : JsonMonitorable(), theVar_(0) {}
+	IntJ(int val) : JsonMonitorable(), theVar_(val) {}
 
 	virtual ~IntJ() {}
 
@@ -92,6 +105,7 @@ class DoubleJ: public JsonMonitorable {
 
 public:
 	DoubleJ() : JsonMonitorable(), theVar_(0) {}
+	DoubleJ(double val) : JsonMonitorable(), theVar_(val) {}
 
 	virtual ~DoubleJ() {}
 
@@ -147,12 +161,17 @@ public:
 	std::string & value() {
 		return theVar_;
 	}
-	/*
 	void concatenate(std::string const& added) {
-		theVar_+=added;
+		if (!updates_)
+		  theVar_=added;
+		else
+		theVar_+=","+added;
 		updates_++;
 	}
-	*/
+	void update(std::string const& newStr) {
+		theVar_=newStr;
+		updates_=1;
+	}
 
 private:
 	std::string theVar_;
@@ -219,7 +238,7 @@ public:
 		if (expectedSize_>maxUpdates_) expectedSize_=maxUpdates_;
 		//truncate what is over the limit
 		if (maxUpdates_ && histo_.size()>maxUpdates_) {
-			histo_().resize(maxUpdates_);
+			histo_.resize(maxUpdates_);
 		}
 		else histo_.reserve(expectedSize_);
 	}
