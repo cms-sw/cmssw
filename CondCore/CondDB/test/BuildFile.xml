@@ -12,3 +12,5 @@
 <bin   file="testPayloadProxy.cpp" name="testPayloadProxy">
   <lib   name="testCondDBDict"/>
 </bin>
+<bin   file="testFrontier.cpp" name="testFrontier">
+</bin>
