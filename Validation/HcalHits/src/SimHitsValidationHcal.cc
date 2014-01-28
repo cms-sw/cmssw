@@ -160,13 +160,15 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
       entotHB += energy;
       timetotHB += time;
       nHB++;
-      type     = depth-1;
+      if (depth <= 2) type = depth-1;
     } else if (subdet == static_cast<int>(HcalEndcap)) {
       entotHE += energy;
       timetotHE += time;
       nHE++;
-      type     = depth+1;
-      if (eta < 0) type += 3;
+      if (depth > 0 && depth <= 3) {
+	type  = depth+1;
+	if (eta < 0) type += 3;
+      }
     } else if (subdet == static_cast<int>(HcalOuter)) {
       entotHO += energy;
       timetotHO += time;
@@ -176,8 +178,10 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
       entotHF += energy;
       timetotHF += time;
       nHF++;
-      type     = depth+8+2*dep;
-      if (eta < 0) type += 8;
+      if (depth > 0 && depth <= 2 && dep <= 3) {
+	type     = depth+8+2*dep;
+	if (eta < 0) type += 8;
+      }
     }
 
     std::pair<HcalDetId,int> id0(id,type);

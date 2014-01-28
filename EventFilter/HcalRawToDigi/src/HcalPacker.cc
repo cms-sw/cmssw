@@ -58,15 +58,31 @@ int HcalPacker::findSamples(const DetId& did, const Collections& inputs,
   case(HcalGenericDetId::HcalGenBarrel):
   case(HcalGenericDetId::HcalGenEndcap):
     size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did,buffer,presamples,isUS,isMP);
+    if (size == 0) {
+      DetId did1(HcalDetId(did).otherForm());
+      size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did1,buffer,presamples,isUS,isMP);
+    }
     break;
   case(HcalGenericDetId::HcalGenOuter):
     size=process<HODigiCollection,HcalDetId>(inputs.hoCont,did,buffer,presamples,isUS,isMP);
+    if (size == 0) {
+      DetId did1(HcalDetId(did).otherForm());
+      size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did1,buffer,presamples,isUS,isMP);
+    }
     break;
   case(HcalGenericDetId::HcalGenForward):
     size=process<HFDigiCollection,HcalDetId>(inputs.hfCont,did,buffer,presamples,isUS,isMP);
+    if (size == 0) {
+      DetId did1(HcalDetId(did).otherForm());
+      size=process<HBHEDigiCollection,HcalDetId>(inputs.hbhe,did1,buffer,presamples,isUS,isMP);
+    }
     break;
   case(HcalGenericDetId::HcalGenZDC):
     size=process<ZDCDigiCollection,HcalZDCDetId>(inputs.zdcCont,did,buffer,presamples,isUS,isMP);
+    if (size == 0) {
+      DetId did1(HcalZDCDetId(did).otherForm());
+      size=process<ZDCDigiCollection,HcalZDCDetId>(inputs.zdcCont,did1,buffer,presamples,isUS,isMP);
+    }
     break;
   case(HcalGenericDetId::HcalGenCalibration):
     size=process<HcalCalibDigiCollection,HcalCalibDetId>(inputs.calibCont,did,buffer,presamples,isUS,isMP);
