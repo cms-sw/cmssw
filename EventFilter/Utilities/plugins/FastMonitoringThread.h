@@ -44,12 +44,7 @@ namespace evf{
       unsigned int ministateBins_;
       unsigned int microstateBins_;
 
-
       //unsigned int prescaleindex_; // ditto
-
-      //monitored for JSON
-
-      boost::shared_ptr<FastMonitor> jsonMonitor_;//collector
 
       MonitorData() {
 
@@ -64,7 +59,7 @@ namespace evf{
       }
 
       //to be called after fast monitor is constructed
-      void registerVariables(FastMonitor *fm, unsigned int nStreams) {
+      void registerVariables(std::auto_ptr<FastMonitor> fm, unsigned int nStreams) {
 	//tell FM to track these global variables(for fast and slow monitoring)
         fm->registerGlobalMonitorable(&fastMacrostateJ_,true,&microstateBins_);
         fm->registerGlobalMonitorable(&fastThroughputJ_,false);
@@ -81,7 +76,6 @@ namespace evf{
 	ministateDecoded_.resize(nStreams);
 	microstateDecoded_.resize(nStreams);
 
-	fm->setNStreams(nStreams);
 	//tell FM to track these int vectors
         fm->registerStreamMonitorableUIntVec("Ministate", &ministateDecoded_,true,&ministateBins_);
         fm->registerStreamMonitorableUIntVec("Microstate",&microstateDecoded_,true,&microstateBins_);
@@ -96,7 +90,7 @@ namespace evf{
     }
 
     void resetFastMonitor(std::string const& microStateDefPath) {
-      m_data.jsonMonitor_.reset(new FastMonitor(microStateDefPath,false)); //strict checking -> set to true to enable
+      jsonMonitor_.reset(new FastMonitor(microStateDefPath,false)); //strict checking -> set to true to enable
     }
 
     void start(void (FastMonitoringService::*fp)(),FastMonitoringService *cp){

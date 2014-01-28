@@ -172,7 +172,8 @@ namespace evf{
 
     //startup monitoring
     fmt_.resetFastMonitor(microstateDefPath_);
-    fmt_.m_data.registerVariables(&*(fmt_.jsonMonitor_), nStreams_);
+    fmt_.jsonMonitor_->setNStreams(nStreams_);
+    fmt_.m_data.registerVariables(fmt_.jsonMonitor_, nStreams_);
     std::atomic_thread_fence(std::memory_order_acquire);
     fmt_.start(&FastMonitoringService::dowork,this);
   }
@@ -187,6 +188,7 @@ namespace evf{
   //new output module name is stream
   void FastMonitoringService::preModuleBeginJob(const edm::ModuleDescription& desc)
   {
+    std::cout << " Pre module Begin Job module: " << desc.moduleName() << std::endl;
     //build a map of modules keyed by their module description address
     //here we need to treat output modules in a special way so they can be easily singled out
     if(desc.moduleName() == "Stream" || desc.moduleName() == "ShmStreamConsumer" ||
@@ -215,6 +217,7 @@ namespace evf{
   }
 
 
+  //this is gone
   void FastMonitoringService::prePathBeginRun(const std::string& pathName)
   {
     return ;
@@ -305,8 +308,8 @@ namespace evf{
 	  delete lumiProcessedJptr;
 
 	  //full global and stream merge&output for this lumi
-	  fmt_.m_data.jsonMonitor_->outputFullJSON(slow.string(),lumi);//full global and stream merge and JSON write for this lumi
-	  fmt_.m_data.jsonMonitor_->discardCollected(lumi);//we don't do further updates for this lumi
+	  fmt_.jsonMonitor_->outputFullJSON(slow.string(),lumi);//full global and stream merge and JSON write for this lumi
+	  fmt_.jsonMonitor_->discardCollected(lumi);//we don't do further updates for this lumi
 
 	  isGlobalLumiTransition_=true;
 	  fmt_.monlock_.unlock();
@@ -314,13 +317,14 @@ namespace evf{
 
   void FastMonitoringService::postGlobalEndLumi(edm::GlobalContext const& gc)
   {
+    std::cout << "FastMonitoringService: Post-global-end LUMI: " << gc.luminosityBlockID().luminosityBlock() << std::endl;
     //mark closed lumis (still keep map entries until next one)
     lastGlobalLumisClosed_.push(gc.luminosityBlockID().luminosityBlock());
   }
 
   void FastMonitoringService::preStreamBeginLumi(edm::StreamContext const& sc)
   {
-    std::cout << "FastMonitoringService: Pre-stream-begin LUMI: " << sc.luminosityBlockIndex().value() << std::endl;
+    std::cout << "FastMonitoringService: Pre-stream-beginLumi sid:"<< sc.streamID() << " LUMI: " << sc.luminosityBlockIndex().value() << std::endl;
     unsigned int sid = sc.streamID().value();
     fmt_.monlock_.lock();
     *(fmt_.m_data.streamLumi_[sid]) = sc.luminosityBlockIndex().value();
@@ -334,7 +338,7 @@ namespace evf{
 
   void FastMonitoringService::preStreamEndLumi(edm::StreamContext const& sc)
   {
-    std::cout << "FastMonitoringService: Pre-stream-end LUMI: " << sc.luminosityBlockIndex().value() << std::endl;
+    std::cout << "FastMonitoringService: Pre-stream-endLumi sid:"<< sc.streamID() << " LUMI: " << sc.luminosityBlockIndex().value() << std::endl;
     unsigned int sid = sc.streamID().value();
     fmt_.monlock_.lock();
     //update processed count to be complete at this time (event if it's still snapped before global EOL or not)
@@ -348,6 +352,7 @@ namespace evf{
 
   void FastMonitoringService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const& pc)
   {
+    std::cout << "FastMonitoringService: Pre-path-event-stream sid: " << sc.streamID() <<  " LUMI: "<< sc.luminosityBlockIndex().value() << std::endl;
     //make sure that all path names are retrieved before allowing ministate to change
     //TODO:maybe we can just check at decoding step and allow relaxed access
     //hack: assume memory is synchronized after ~50 events seen by 1st stream
@@ -362,6 +367,7 @@ namespace evf{
       if (sc.eventID().event()==firstEventId_)
       {
 	encPath_.update((void*)&pc.pathName());
+	std::cout << " DEBUG: added path " << pc.pathName() << std::endl;
 	initPathsLock_.unlock();
 	return;
       }
@@ -382,11 +388,13 @@ namespace evf{
 
   void FastMonitoringService::preEvent(edm::StreamContext const& sc)
   {
+    std::cout << "FastMonitoringService: Pre-event-stream sid:"<< sc.streamID() <<  " LUMI: " << sc.luminosityBlockIndex().value() << std::endl;
   }
 
   //shoudl be synchronized before
   void FastMonitoringService::postEvent(edm::StreamContext const& sc)
   {
+    std::cout << "FastMonitoringService: Post-event-stream LUMI: sid:"<< sc.streamID() <<" ls:" << sc.luminosityBlockIndex().value() << std::endl;
     //it is possible that mutex is needed for synchronization with endOfLumi depending what CMSSW does between tasks
     //(unless it does full memory fencing between tasks)
 
@@ -401,6 +409,7 @@ namespace evf{
 
   void FastMonitoringService::preSourceEvent(edm::StreamID sid)
   {
+    std::cout << "FastMonitoringService: Pre-source-event-stream LUMI: sid:" << sid << " ls:?" << std::endl;
     microstate_[sid.value()] = &reservedMicroStateNames[mIdle];
   }
 
@@ -454,6 +463,7 @@ namespace evf{
   //this seems to assign the elapsed time to previous lumi if there is a boundary
   //can be improved, especially with threaded input reading
   void FastMonitoringService::startedLookingForFile() {//this should be measured in source, probably (TODO)
+	  std::cout <<" SOURCE started looking for file ls" << std::endl;
 	  gettimeofday(&fileLookStart_, 0);
 	  /*
 	 std::cout << "Started looking for .raw file at: s=" << fileLookStart_.tv_sec << ": ms = "
@@ -462,6 +472,7 @@ namespace evf{
   }
 
   void FastMonitoringService::stoppedLookingForFile(unsigned int lumi) {
+	  std::cout <<" SOURCE stopped looking for file ls:" << lumi << std::endl;
 	  gettimeofday(&fileLookStop_, 0);
 	  /*
 	 std::cout << "Stopped looking for .raw file at: s=" << fileLookStop_.tv_sec << ": ms = "
@@ -508,6 +519,7 @@ namespace evf{
   void FastMonitoringService::doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID)
   {
 
+    std::cout << " do snapshot " << outputCSV << " l:" << forLumi << " glob:" << isGlobalEOL << " stream:" << isStream << " sid:" << streamID << std::endl; 
     // update monitored content
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 

@@ -151,7 +151,7 @@ protected:
 	std::string name_;
 
 	//helpers
-	uint32_t *buf_;
+	uint32_t *buf_ = 0;
 	unsigned int bufLen_ =0;
 
 	unsigned int * nBinsPtr_ = nullptr;
