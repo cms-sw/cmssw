@@ -69,7 +69,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   vvnoise.clear();
 
   for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it){
-    if(n%96 == 0) {
+    if(n%256 == 0) {
       if(n > 0 ){
 	_mapDetIdNoise[temp]= vvnoise;
 	_mapDetIdEff[temp] = veff;
@@ -125,7 +125,11 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   vvnoise.clear();
 
   for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it){
-    if(n%96 == 0) {
+    detId = it->dpid;
+    RPCDetId rpcId = RPCDetId(detId);
+    int n_strips=(*r)->nstrips();
+    int n_strips = detId.nstrips();
+    if(n%256 == 0) {
       if(n > 0 ){
 	_mapDetIdNoise[temp]= vvnoise;
 	_mapDetIdEff[temp] = veff;
@@ -174,7 +178,7 @@ const std::vector<float>& RPCSimSetUp::getEff(uint32_t id)
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - no efficiency information for DetId\t"<<id<< std::endl;
   }
-  if((iter->second).size() != 96){
+  if((iter->second).size() != 256){
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - efficiency information in a wrong format for DetId\t"<<id<< std::endl;
   }
