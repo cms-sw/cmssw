@@ -77,7 +77,7 @@ void FastMonitor::commit(std::vector<std::atomic<unsigned int>*> *streamLumisPtr
 
 	std::vector<std::string> const& jsonNames= dpd_.getNames();
 	regDpCount_ = dataPoints_.size();
-	assert(strictChecking_ && jsonNames.size()==regDpCount_);
+	assert(!(strictChecking_ && jsonNames.size()==regDpCount_));
 
 	std::map<unsigned int,bool> hasJson;
 	for (unsigned int i=0;i<jsonNames.size();i++)

@@ -45,7 +45,7 @@ using namespace jsoncollector;
 FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                              edm::InputSourceDescription const& desc) :
   edm::RawInputSource(pset, desc),
-  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", "$CMSSW_BASE/EventFilter/Utilities/plugins/budef.jsd")),
+  defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", "$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd")),
   eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
@@ -331,7 +331,7 @@ int FedRawDataInputSource::searchForNextFile()
   uint32_t ls;
 
   edm::LogInfo("FedRawDataInputSource") << "Asking for next file... to the DaqDirector";
-  evf::FastMonitoringService*fms = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
+  evf::FastMonitoringService *fms = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
   if (fms) fms->startedLookingForFile();
   bool fileIsOKToGrab = edm::Service<evf::EvFDaqDirector>()->updateFuLock(ls,nextFile,eorFileSeen_);
 
