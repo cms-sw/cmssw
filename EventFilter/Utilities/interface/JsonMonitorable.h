@@ -20,46 +20,7 @@ namespace jsoncollector {
 enum MonType  { TYPEINT, TYPEDOUBLE, TYPESTRING, TYPEHISTOINT, TYPEHISTODOUBLE, TYPEUNDEFINED};
 enum OperationType  { OPSUM, OPAVG, OPSAME, OPHISTO, OPCAT, OPUNKNOWN};
 
-//static configuration class
-class JsonMonConfig {
-
-public:
-	JsonMonConfig(MonType monType, OperationType operationType, std::string const& name, bool NAifZero, unsigned int nBins=0): 
-		monType_(monType), operationType_(operationType), name_(name), NAifZero_(NAifZero),nBins_(nBins),
-		sourceInfoPtr_(nullptr),definitionPtr_(nullptr)
-	{
-		//initialize global histogram buffer (only usable for TYPEHISTOINT and OPHISTO)
-		if (nBins) binBuffer_.reset(new unsigned int[nBins]);
-	}
-
-	std::string const& getName() {return name_;}
-	void setName(std::string const& name) {name_ = name;}
-
-	//histograms
-	unsigned int getNBins() {return nBins_;}
-
-	void setNBins(bool nBins) {
-		nBins_=nBins;
-		binBuffer_.reset(new unsigned int[nBins]);
-	}
-
-	std::auto_ptr<unsigned int> getBinBuffer() {return binBuffer_;}
-/*
-	std::string *getSourceInfoPtr() {return sourceInfoPtr_;}
-	void setSourceInfoPtr(std::string *sPtr) {sourceInfoPtr_=sPtr;}
-
-	std::string *definitionPtr() {return definitionPtr_;}
-	void setDefinitionPtr(std::string *dPtr) {definitionPtr_=dPtr;}
-*/
-
-private:
-	std::string name_;
-	unsigned int nBins_;
-	std::auto_ptr<unsigned int> binBuffer_;//maybe separate this out to be cleaner
-	std::string *sourceInfoPtr_;
-	std::string *definitionPtr_;
-};
-
+//		if (nBins) binBuffer_.reset(new unsigned int[nBins]);
 
 class JsonMonitorable {
 
@@ -108,6 +69,13 @@ public:
 	int & value() {
 		return theVar_;
 	}
+
+	void update(int sth) {
+		theVar_=sth;
+		if (updates_ && theVar_!=sth) notSame_=true;
+		updates_++;
+	}
+
 	/*
 	void add(int added) {
 		theVar_+=added;
@@ -144,6 +112,11 @@ public:
 	}
 	double & value() {
 		return theVar_;
+	}
+	void update(double sth) {
+		theVar_=sth;
+		if (updates_ && theVar_!=sth) notSame_=true;
+		updates_++;
 	}
 
 private:
@@ -198,6 +171,7 @@ public:
 	}
 	virtual ~HistoJ() {}
 
+	//also unused
 	std::string toCSV() const {
 		std::stringstream ss;
 		for (unsigned int i=0;i<updates_;i++) {

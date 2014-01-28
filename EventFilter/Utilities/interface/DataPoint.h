@@ -52,7 +52,9 @@ public:
 	void serialize(Json::Value& root, bool rootInit, std::string const& input) const;
 
 	//take new update for lumi
-	void snap(unsigned int lumi,bool isGlobalUpdate=false);
+	void snap(unsigned int lumi);
+	void snapGlobal(unsigned int lumi);
+	void snapStreamAtomic(unsigned int streamID, unsigned int lumi);
 
 	//set to track a variable
 	void trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdates);
@@ -99,18 +101,33 @@ protected:
 	std::vector<std::string> data_;
 
 	//per stream queue of pointers to mon collectors
-	std::vector<std::queue<std::auto_ptr<JsonMonitorable>>> dataNative_;
+	std::vector<std::map<unsigned int,JsonMonitorable> streamDataMaps_;
+//	std::vector<std::queue<std::auto_ptr<JsonMonitorable>>> streamData_;
 	//lumi for each queue entry
-	std::vector<std::queue<unsigned int>> queuedStreamLumi_;
+//	std::vector<std::queue<unsigned int>> queuedStreamLumi_;
+
+	std::map<unsigned int,JsonMonitorable> globalDataMap_;
+	//std::queue<std::auto_ptr<JsonMonitorable>> globalData_;
+	//
+	void *tracked_;
+
+        //global lumi?
+	std::vector<std::atomic<unsigned int>> *streamLumisPtr_ = nullptr;
 
 	bool isStream_ = false;
 	bool isAtomic_ = false;
 	bool isDummy_ = false;
 	bool NAifZeroUpdates_ = false;
 	
-	MonType varType;
-	OperationType opType;
-	std::vector<std::atomic<unsigned int>> *streamLumiPtr_ = nullptr;
+	MonType monType_;
+	OperationType opType_;
+	std::string name_;
+
+	//helpers
+	unsigned int *buf_;
+	unsigned int bufLen_;
+
+
 
 };
 }

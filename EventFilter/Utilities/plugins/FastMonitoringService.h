@@ -140,33 +140,38 @@ namespace evf{
 
     private:
 
-      void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobal) {
+      void doStreamEOLSnapshot(bool outputCSV,unsigned int forLumi,unsigned int streamID) {
+	//this updates only atomic vector(s)
+	fmt_.jsonMonitor_->snapStreamAtomic(outputCSV, fastPath_,forLumi,streamID);
+      }
+
+      void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID) {
 
 	// update monitored content
 	fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
-	//update following vars unless we are in the middle of lumi transition (todo:be able to collect despite)
+	//update following vars unless we are in the middle of lumi transition (todo: we could do this)
 	if (!isGlobalLumiTransition) {
 	  //these are stored maps, try if there's element for last globalLumi
 	  auto itd = throughput_.find(foLumi);
 	  if (itd!=std::map:end) {
-	    fmt_.m_data.fastThroughputJ_ = *it;//throughput_[lastGlobalLumi_];
+	    fmt_.m_data.fastThroughputJ_ = *it;
 	    else fmt_.m_data.fastThroughputJ_=0.;
 	  }
 
 	  itd = avgLeadTime_.find(forLumi);
 	  if (itd != std::map:end) {
-	    fmt_.m_data.fastAvgLeadTimeJ_ = *it;//avgLeadTime_[lastGlobalLumi_];
+	    fmt_.m_data.fastAvgLeadTimeJ_ = *it;
 	    else fmt_.m_data.fastAvgLeadTimeJ_=0.;
 	  }
 
 	  auto iti = filesProcessed_.find(forLumi);
 	  if (iti != std::map:end) {
-	    fmt_.m_data.fastFilesProcessedJ_ = *it;//filesProcessed_[lastGlobalLumi_];
+	    fmt_.m_data.fastFilesProcessedJ_ = *it;
 	    else fmt_.m_data.fastFilesProcessedJ_=0;
 	  }
 	}
-	else return; //skip snapshot if it happens in lumi transition
+	else return; //skip snapshot if it happens in global lumi transition
 
 	//decode mini/microstate using what is latest stored per stream()
 	for (unsigned int i=0;i<nStreams;i++) {
@@ -176,7 +181,10 @@ namespace evf{
 	}
 
 	//do a snapshot, also output fast CSV
-	fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi,isGlobal);
+	if (isGlobalEOL) //only update global variables
+	  fmt_.jsonMonitor_->snapGlobal(outputCSV, fastPath_,forLumi);
+	else
+	  fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi);
       }
 
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
@@ -209,13 +217,13 @@ namespace evf{
 
       //variables that are used by/monitored by FastMonitoringThread / FastMonitor
 
-      std::map<unsigned int, timeval> lumiStartTime_// ,lumiStopTime_;//needed for multiplexed begin/end lumis
-      timeval fileLookStart_, fileLookStop_;//this stuff should be better calculated by input source
+      std::map<unsigned int, timeval> lumiStartTime_;//needed for multiplexed begin/end lumis
+      timeval fileLookStart_, fileLookStop_;//this should be better calculated in input source
 
       std::atomic<unsigned int> lastGlobalLumi_;
       std::queue<unsigned int> lastGlobalLumisClosed_;
       std::atomic<bool> isGlobalLumiTransition_;
-      unsigned int lumiFromSource_;//possibly atomic
+      unsigned int lumiFromSource_;//possibly use atomic
 
       //global state
       Macrostate macrostate_;
@@ -236,8 +244,8 @@ namespace evf{
       //std::unordered_map<unsigned int, int> processedEventsPerLumi_;
       std::map<unsigned int, int> processedEventsPerLumi_;
 
+      std::map<unsigned int,std::vector<bool>> streamEoLMap_;
 
-      
       boost::mutex initPathsLock_;
       unsigned long firstEventId_ = 0;
       std::atomic<bool> collectedPathList_ = false;

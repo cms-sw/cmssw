@@ -39,20 +39,6 @@ namespace evf{
       //tracking luminosity of a stream
       std::vector<std::atomic<unsigned int>> streamLumi_;
 
-      // Micro, mini, macrostate numbers
-//      std::vector<unsigned int> ministateDecoded_;
-      //std::vector<IntJ> ministateJ_; //stream
-
-//      std::vector<const void*> microstate_;
-//      std::vector<unsigned int> microstateDecoded_;
-      //std::vector<IntJ> microstateJ_; //stream
-
-      // Processed events count
-//      std::vector<unsigned int> processed_;
-      //std::vector<IntJ> processedJ_;
-
-//      std::vector<std::atomic<unsigned int>> streamlumi_; //maybe will need this for updates...?
-      //std::vector<unsigned int> eventnumber_;
       //unsigned int prescaleindex_; // ditto
 
       //monitored for JSON

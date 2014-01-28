@@ -20,36 +20,51 @@ class FastMonitor {
 
 public:
 
-	FastMonitor(const std::vector<JsonMonitorable*>& monitorableVariables, 
-			const std::vector<JsonMonConfig>& varsConfig,
-			std::string const& defPath, unsigned int numberOfStreams = 1, bool startImmediately = true);
+	FastMonitor(std::string const& defPath, bool strictChecking);
 
 	virtual ~FastMonitor();
 
-	void setNStreams(unsigned int nStreams);
+	//1 is default
+	void setNStreams(unsigned int nStreams) {nStreams_=nStreams;}
 
 	//register global monitorable
 	void registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates);
 
 	//register per-stream monitores vector (unsigned int)
-	void registerStreamMonitorableUIntVec(std::string &name, std::vector<unsigned int> *vec, bool NAifZeroUpdates ,unsigned int);
+	void registerStreamMonitorableUIntVec(std::string const& name, std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates);
 
 	//NOT implemented yet
 	//void registerStreamMonitorableIntVec(std::string &name, std::vector<unsigned int>,true,0);
 	//void registerStreamMonitorableDoubleVec(std::string &name, std::vector<unsigned int>,true,0);
 	//void registerStreamMonitorableStringVec(std::string &name, std::vector<std::string>,true,0);
 
-	//take vector used to track stream lumis and finish initialization
-	void commit(std::vector<std::atomic<unsigned int>> *streamLumi);
+	void registerStreamMonitorableUIntVecAtomic(std::string const& name,
+		                std::vector<std::atomic<unsigned int>> *inputsRef_, bool NAifZeroUpdates);
 
-	// fetches new snapshot and outputs one-line CSV if set
-	void snap(bool outputCSVFile, std::string const& path, unsigned int forLumi);
+
+	//take vector used to track stream lumis and finish initialization
+	void commit(std::vector<std::atomic<unsigned int>> *streamLumisPtr);
+
+	// fetches new snapshot and outputs one-line CSV if set (timer based)
+        void snap(bool outputCSVFile, std::string const& path, unsigned int forLumi);
+
+	//only update global variables (invoked at global EOL)
+        void snapGlobal(bool outputCSVFile, std::string const& path, unsigned int forLumi);
+
+	//only updates atomic vectors (for certain stream - at stream EOL)
+        void snapStreamAtomic(bool outputCSV, std::string const& path, unsigned int streamID, unsigned int forLumi);
+
+	//fastpath CSV
+	void outputCSV(std::string const& path);
+
+	//provide merged variable back to user
+	JsonMonitorable* getMergedIntJforLumi(std::string const& name,unsigned int forLumi);
 
 	// merges and outputs everything collected for the given stream to JSON file
 	void outputFullJSON(std::string const& path, unsigned int forLumi, bool addHostAndPID=true);
 
 	//discard what was collected for a lumisection
-        void discardCollected(unsigned int lumi);
+        void discardCollected(unsigned int forLumi);
 
 	//this is added to the JSON file
 	void getHostAndPID(std::string& sHPid);
@@ -69,13 +84,7 @@ private:
 
 	unsigned int recentSnaps_ = 0;
 	unsigned int regDpCount_ = 0;
-//	JsonMonConfig monConfig_;
 
-//	std::vector<DataPoint*> dataPoints_;//each var is one vector entry//rename to DataPointCollector
-
-	//	std::vector<JsonMonitorable*> monitorableVars_;
-//	std::vector<std::vector<JsonMonitorable*>> monitoredVars_; //per stream
-//	std::vector<tbb::concurrent_queue<DataPoint*>> accDpQueues_;//per stream tbb queues
 };
 
 }

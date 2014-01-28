@@ -13,11 +13,14 @@
 #include <algorithm>
 #include <assert.h>
 
-
+//max updates per lumi
+#define MAXUPDATES 200
 
 using namespace jsoncollector;
 
-template class HistoJ<int>;
+//template class HistoJ<int>;
+template class HistoJ<unsigned int>;
+template class HistoJ<std::atomic<unsigned int>>;
 template class HistoJ<double>;
 
 const string DataPoint::SOURCE = "source";
@@ -25,7 +28,7 @@ const string DataPoint::DEFINITION = "definition";
 const string DataPoint::DATA = "data";
 
 
-
+/*
 DataPoint::DataPoint(
 		//unsigned int expectedUpdates, unsigned int maxUpdates):
 		monitored_(&monVars) {
@@ -69,6 +72,8 @@ DataPoint::DataPoint(
 
 DataPoint::~DataPoint() {
 }
+*/
+
 
 /*
  *
@@ -86,16 +91,6 @@ void DataPoint::serialize(Json::Value& root) const {
 }
 
 
-
-void DataPoint::serialize(Json::Value& root, bool rootInit, std::string const&input) const {
-
-	if (rootInit) {
-	  root[SOURCE] = getSource();
-	  root[DEFINITION] = getDefinition();
-	}
-	root[DATA].append(input);
-}
-
 void DataPoint::deserialize(Json::Value& root) {
 	source_ = root.get(SOURCE, "").asString();
 	definition_ = root.get(DEFINITION, "").asString();
@@ -107,12 +102,57 @@ void DataPoint::deserialize(Json::Value& root) {
 	}
 }
 
+
+
 /*
  *
  * Method implementation for new monitoring
  *
  * */
 
+//initialization
+void DataPoint::trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdates)
+{
+    name_=name;
+    tracked_ = (void*)monitorable;
+    if (dynamic_cast<IntJ*>(monitorable)) monType=OPINT;
+    if (dynamic_cast<DoubleJ*>(monitorable)) monType=OPDOUBLE;
+    NAifZeroUpdates_=NAifZeroUpdates;
+
+}
+void DataPoint::trackMonitorableUInt(std::string const& name, std::vector<unsigned int>  monvec, bool NAifZeroUpdates)
+{
+    name_=name;
+    tracked_ = (void*)monvec;
+    isStream_=true;
+    monType_=OPINT;
+    NAifZeroUpdates_=NAifZeroUpdates;
+    makeVector(monvec->size());
+}
+void DataPoint::trackMonitorableUIntAtomic(std::string const& name, std::vector<std::atomic<unsigned int>>  *monvec, bool NAifZeroUpdates)
+{
+    name_=name;
+    tracked_ = (void*)monvec;
+    isStream_=true;
+    isAtomic_=true;
+    monType_=OPINT;
+    NAifZeroUpdates_=NAifZeroUpdates;
+    makeVector(monvec->size());
+}
+
+void trackDummy(std::string const& name)
+{
+    name_ = name;
+}
+
+//TODO:strings and double
+void DataPoint::makeQueue(unsigned int size) {
+    for (unsigned int i=0;i<size;i++) {
+	    streamData_.push_back(std::map<unsigned int,JsonMonitorable> newMap);
+//	    streamData_.push_back(std::queue<JsonMonitorable> q);
+//	    queuedStreamLumi_.push_back(std::queue<unsigned int> q);
+    }
+}
 
 void DataPoint::serialize(Json::Value& root, bool rootInit, std::string const&input) const {
 
@@ -123,104 +163,150 @@ void DataPoint::serialize(Json::Value& root, bool rootInit, std::string const&in
 	root[DATA].append(input);
 }
 
+void DataPoint::setOperation(OperationType op)
+{
+    opType_=op;
+}
 
+void DataPoint::setStreamLumiPtr(std::vector<std::atomic<unsigned int>> *streamLumisPtr)
+{
+  streamLumisPtr_=streamLumisPtr;
+}
 
+void DataPoint::snap(unsigned int lumi)
+{
+  if (isStream_) {
+    if (monType_==TYPEINT)
+    {
+      for (unsigned int i=0; i<streamDataMaps_.size();i++) {
+	//TODO:stream lumis don't need to be atomic, protected by lock
+	unsigned int streamLumi_=streamLumisPtr_[i];//get currently processed stream lumi
+	unsigned int monVal;
+	if (isAtomic_) monVal = ((std::vector<std::atomic<unsigned int>>*)tracked_)->at(i);
+	else monVal = ((std::vector<unsigned int>*)tracked_)->at(i);
 
-//snap and in-place merge: new
-//todo: maybe speed this up very slightly by not using dynamic_cast stuff
-void DataPoint::snap() {
-	assert(dataNative_.size()==monitored_->size());
-	for (unsigned int i=0;i<dataNative_.size();i++) {
-		//if variable is in JSON but not found in the FastMonitor (e.g. loading wrong file...)
-		if (dataNative_[i].get()) {
-			//histo and cat for int are same at this stage
-			//histo is only possible for int
-			JsonMonConfig::OperationType operation = = dpdPtr_->getLegendFor(i).getOperation();
-			if (operation==JsonMonConfig::OPHISTO || operation==JsonMonConfig::OPCAT) {
-				//histo is supported only for ints (they denote bin)
-				auto inputInt = dynamic_cast<IntJ*>(monitored_->at(i));
-				if (inputInt) {
-					HistoJ<int>* toFill = static_cast<HistoJ<int>*>( dataNative_[i].get());
-					if (toFill) {
-						toFill->update(inputInt->value());
-					}
-				}
-			}
-			//cat for double uses histogram class
-			else if (operation==JsonMonConfig::OPCAT) {
-				auto inputDouble = dynamic_cast<DoubleJ*>(monitored_->at(i));
-				if (inputDouble) {
-					HistoJ<double>* toFill = static_cast<HistoJ<double>*>( dataNative_[i].get());
-					if (toFill) {
-						toFill->update(inputDouble->value());
-					}
-				}
-				else {
-					//in-place concatenation only for strings
-					auto inputString = dynamic_cast<StringJ*>(monitored_->at(i));
-					if (inputString) {
-						static_cast<StringJ*>( dataNative_[i].get())->concatenate(inputString->value());
-					}
-				}
-			}
-			//applies to int,double, both operations same at this time
-			else if (operation==JsonMonConfig::OPAVG || operation==JsonMonConfig::OPSUM) {
-				auto inputInt = dynamic_cast<IntJ*>(monitored_->at(i));
-				if (inputInt)
-					static_cast<IntJ*>( dataNative_[i].get())->add(inputInt->value());
-				else {
-					auto inputDouble = dynamic_cast<DoubleJ*>(monitored_->at(i));
-					if (inputDouble)
-						static_cast<DoubleJ*>( dataNative_[i].get())->add(inputDouble->value());
-
-				}
-			}
-			//applies to all types
-			else if (operation==JsonMonConfig::OPSAME) {
-				auto inputInt = dynamic_cast<IntJ*>(monitored_->at(i));
-				if (inputInt)
-					static_cast<IntJ*>( dataNative_[i].get())->compare(inputInt->value());
-				else {
-					auto inputDouble = dynamic_cast<DoubleJ*>(monitored_->at(i));
-					if (inputDouble)
-						static_cast<DoubleJ*>( dataNative_[i].get())->compare(inputDouble->value());
-					else {
-						auto inputString = dynamic_cast<StringJ*>(monitored_->at(i));
-						if (inputString)
-							static_cast<StringJ*>( dataNative_[i].get())->compare(inputString->value());
-					}
-				}
-			}
-		}
+	auto itr =  streamDataMaps_[i].find(streamLumi_);
+	if (itr==std::map::end) //insert
+	{
+	  if (opType_==OPHISTO) {
+	    streamDataMaps_[i][streamLumi_] = HistoJ<unsigned int> hj(1,MAXUPDATES);
+	    streamDataMaps_[i][streamLumi_].update(monVal)
+	  }
+	  else {//all other default to SUM
+	    streamDataMaps_[i][streamLumi_]= IntJ ij;
+	    streamDataMaps_[i][streamLumi_].update(monVal);
+	  }
 	}
-	updates_++;
+	else { 
+	  if (opType_==OPHISTO)
+	    std::static_cast<HistoJ<unsigned int>>(*itr).update(monVal);
+	  else
+	    std::static_cast<IntJ>(*itr)=monVal;
+	}
+      }
+    }
+    else assert(monType_!=TYPEINT);//not yet implemented, application error
+  }
+  else snapGlobal(lumi);
 }
 
-//static members (maybe move elsewhere)
-
-void DataPoint::serialize( tbb::concurrent_vector<DataPoint*> & dataPoints, std::vector<JsonMonitorableConfig>& config) {
-
-	Json::Value root;
-
-	root[SOURCE] = *config[0].getSourceInfoPtr();
-	root[DEFINITION] = *config[0].getDefinitionPtr();
-	for (unsigned int index=0;index<config.size();index++)
-		root[DATA].append(DataPoint::mergeAndSerializeMonitorable(root,dataPoints,config,index);
-
-	Json::StyledWriter writer;
-	output = writer.write(root);
+void DataPoint::snapGlobal(unsigned int lumi)
+{
+  if (isStream_) return;
+  //atomic currently not implemented
+  auto itr = globalDataMap_.find(lumi);
+  if (itr==std::map::end) {
+    if (monType==TYPEINT) {
+      IntJ ij;
+      ij.update(((IntJ*)tracked_)->value());
+      globalDataMap_[lumi]=dj;
+    }
+    if (monType==TYPEDOUBLE) {
+      DoubleJ dj;
+      dj.update(((DoubleJ*)tracked_)->value());
+      globalDataMap_[lumi]=dj;
+    }
+  } else { 
+  if (monType==TYPEINT)
+    ((IntJ)*itr).update(((IntJ*)tracked_)->value());
+  else if (monType==TYPEDOUBLE)
+    ((DoubleJ)*itr).update(((DoubleJ*)tracked_)->value());
+  }
 }
+
+void DataPoint::snapStream(unsigned int streamID, unsigned int lumi)
+{
+  if (!isStream_) return;
+  if (!isAtomic_) return;
+
+  if (monType_==TYPEINT)
+  {
+      unsigned int monVal;
+      if (isAtomic_) monVal = ((std::vector<std::atomic<unsigned int>>*)tracked_)->at(i);
+      else monVal = ((std::vector<unsigned int>*)tracked_)->at(i);
+
+	auto itr =  streamDataMaps_[streamID].find(lumi);
+	if (itr==std::map::end) //insert
+	{
+	  if (opType_==OPHISTO) {
+	    streamDataMaps_[streamID][lumi] = HistoJ<unsigned int> hj(1,MAXUPDATES);
+	    streamDataMaps_[streamID][lumi].update(monVal)
+	  }
+	  else {//all other default to SUM
+	    streamDataMaps_[streamID][lumi]= IntJ ij;
+	    streamDataMaps_[streamID][lumi].update(monVal);
+	  }
+	  else 
+	  { 
+	    if (opType_==OPHISTO)
+	      std::static_cast<HistoJ<unsigned int>>(*itr).update(monVal);
+	    else
+	      std::static_cast<IntJ>(*itr)=monVal;
+	  }
+	}
+      }
+    }
+    else assert(monType_!=TYPEINT);//not yet implemented, application error
+}
+
+std::string DataPoint::fastOutLatest()
+{
+  return std::string("Not implemented");//for now empty
+}
+
+//TODO: implement, cache result etc.
+JsonMonitorable *mergeAndRetrieve(unsigned int lumi)
+{
+  if (varType_==TYPEINT) {
+    IntJ newJ = new IntJ;
+    return newJ;
+  }
+  if (varType_==TYPEDOUBLE) {
+    DoubleJ newJ = new DoubleJ;
+    return newJ;
+  }
+  assert(0);
+  return nullptr;
+}
+
+std::string mergeAndSerialize(Json::Value & root,unsigned int lumi,bool initJsonValue)
+{
+  if (initJsonValue) {
+    root[SOURCE] = source_;
+    root[DEFINITION] = definition_;
+  }
+//TODO:caching
+//  if (cached_==(int)lumi) {
+//}
+//else {
+
+/TODO
+
+		//root[DATA].append(DataPoint::mergeAndSerializeMonitorable(root,dataPoints,config,index);
 
 //TODO: check if we should in some cases return [N/A], not "N/A"
-std::string DataPoint::mergeAndSerializeMonitorable(
-		tbb::concurrent_vector<DataPoint*> & dataPoints,
-		std::vector<JsonMonitorableConfig>& config,
-		unsigned int index) {
 
-	if (!dataPoints.size()) return std::string("N/A");//no measurements - todo: [] if CAT/HISTO is requested ?
-	MonType varType = config[index].getMonType();
-	OperationType operation = config[index].getOperationType();
-	std::stringstream ss;	
+//	if (!dataPoints.size()) return std::string("N/A");//no measurements - todo: [] if CAT/HISTO is requested ?
 	if (operation==OPSUM || operation==OPAVG) {
 		unsigned int totalUpdates=0;
 		if (varType==TYPEINT) {
@@ -300,98 +386,9 @@ std::string DataPoint::mergeAndSerializeMonitorable(
 			ss << notSameValue;
 		}
 		else if (varType==TYPESTRING) {
-			std::string * notSameValue;//pointer to avoid a copy
-			for (unsigned int i=0;i< dataPoints.size();i++) {
-				StringJ * collected = std::static_cast<StringJ*>(dataPoints[i]->monitorableAt(index));
-				if (collected) {
-					int totalUpdatesOld=totalUpdates;
-					totalUpdates+=collected->getUpdates();
-					bool notSame = collected->notSame();
-					if (notSame) return std::string("N/A");
-					if (i==0) { 
-						notSameValue = & collected->value();
-					}
-					//this is N/A only in case previous thread has updated
-					else if (*notSameValue!=collected->value() && totalUpdatesOld) return std::string("N/A");
-				}
-			}
-			if (config[index].NAifZero() && !totalUpdates) return std::string("N/A");
-			ss << *notSameValue;
 		}
 		else if (varType==TYPEHISTOINT || varType==TYPEHISTODOUBLE)
 			return std::string("N/A");//wrong definition
-		else
-			assert(0);//shouldn't be here
-		return ss.str();
-	}
-	else if (operation==OPCAT) {
-		if (varType==TYPESTRING) {
-			//unsigned int totalUpdates=0;
-			bool wasUpdated=false;
-			ss << "[";
-			for (unsigned int i=0;i< dataPoints.size();i++) {
-				StringJ * collected = std::static_cast<StringJ*>(dataPoints[i]->monitorableAt(index));
-				//totalUpdates+=collected->getUpdates();
-				if (collected) {
-					std::string& str = collected->value();
-					if (str.size()) {
-						if (wasUpdated) ss << ",";
-						else wasUpdated=true;
-						ss << str; //todo: what if some/all updates are empty ?
-					}
-				}
-			}
-			ss << "]";
-			if (config[index].NAifZero() && !wasUpdated) return std::string("N/A"); //todo:[] ?
-			return ss.str();
-		}
-		else if (varType==TYPEHISTOINT) {
-			//unsigned int totalUpdates=0;
-			bool wasUpdated=false;
-			ss << "[";
-			for (unsigned int i=0;i< dataPoints.size();i++) {
-				HistoJ<int> * collected = std::static_cast<HistoJ<int> *>(dataPoints[i]->monitorableAt(index));
-				if (collected) {
-					std::vector<int> & histo = collected->value();
-					if (histo.size()) {
-						if (wasUpdated) ss << ",";
-						else wasUpdated=true;
-						for (unsigned int i=0;i<histo.size()-1;i++) {
-							ss << histo[i] << ",";
-						}
-						ss << histo.size()-1;
-					}
-				}
-			}
-			ss << "]";
-			if (config[index].NAifZero() && !wasUpdated) return std::string("N/A"); //todo:[] ?
-			return ss.str();
-		}
-		else if (varType==TYPEHISTODOUBLE) {
-			//unsigned int totalUpdates=0;
-			bool wasUpdated=false;
-			ss << "[";
-			for (unsigned int i=0;i< dataPoints.size();i++) {
-				HistoJ<double> * collected = std::static_cast<HistoJ<double> *>(dataPoints[i]->monitorableAt(index));
-				if (collected) {
-					std::vector<double> & histo = collected->value();
-					if (histo.size()) {
-						if (wasUpdated) ss << ",";
-						else wasUpdated=true;
-						for (unsigned int i=0;i<histo.size()-1;i++) {
-							ss << histo[i] << ",";
-						}
-						ss << histo.size()-1;
-					}
-				}
-			}
-			ss << "]";
-			if (config[index].NAifZero() && !wasUpdated) return std::string("N/A"); //todo:[] ?
-			return ss.str();
-
-		}
-		else if (varType==TYPEINT || varType==TYPEDOUBLE)
-			assert(0);//shouldn't be here
 		else
 			assert(0);//shouldn't be here
 		return ss.str();

@@ -147,7 +147,6 @@ namespace evf{
        fmt_.m_data.streamLumi_.push_back(0);
        ministate_.push_back(&nopath_);
        microstate_.push_back(&reservedMicroStateNames[mInvalid]);
-       pathNamesReady_.push_back(false);
     }
  
     //TODO: we could do fastpath output even before seeing lumi
@@ -216,11 +215,12 @@ namespace evf{
   {
 	  std::cout << "FastMonitoringService: Pre-begin LUMI: " << gc.luminosityBlockID().luminosityBlock() << std::endl;
 
-	  fmt_.monlock_.lock();
-
 	  timeval lumiStartTime;
 	  gettimeofday(&lumiStartTime, 0);
 	  unsigned int newLumi = gc.luminosityBlockID().luminosityBlock();
+
+	  fmt_.monlock_.lock();
+
 
 	  lumiStartTime_[newLumi]=timeval;
 	  while (!lastGlobalLumisClosed_.empty()) {
@@ -230,15 +230,22 @@ namespace evf{
 		  throughput_.erase(oldLumi);
 		  avgLeadTime_.erase(oldLumi);
 		  filesProcessedDuringLumi_.erase(oldLumi);
-		  accuSize_.eraee(oldLumi);
+		  accuSize_.erase(oldLumi);
 		  processedEventsPerLumi_.erase(oldLumi);
+		  streamEolMap_.erase(oldLumi);
 	  }
 	  lastGlobaLumi_= newLumi;
 	  isGlobalLumiTransition_=false;
+
+	  //put a map for streams to report if they had EOL (else we have to update some variables)
+	  std::vector<bool> streamEolVec_;
+	  for (unsigned int i=0;i<nStreams_;i++) streamEolVec_.push_back(false);
+	  streamEoLMap_[newLumi] = streamEolVec_;
+
 	  fmt_.monlock_.unlock();
   }
 
-  //global end lumi
+  //global end lumi (no streams will process this further)
   void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)
   {
 	  unsigned int lumi = gc.luminosityBlockID().luminosityBlock();
@@ -250,16 +257,12 @@ namespace evf{
 	  // Compute throughput
 	  unsigned int secondsForLumi = lumiStopTime.tv_sec - lumiStartTime_[lumi].tv_sec;
 	  unsigned long accuSize = accuSize_[lumi]==map::endl ? 0 : accuSize_[lumi];
-	  double throughput_ = double(accuSize) / double(secondsForLumi) / double(1024*1024);
+	  double throughput = double(accuSize) / double(secondsForLumi) / double(1024*1024);
 	  //store to registered variable
 	  fmt_.m_data.throughputJ_.value() = throughput;
 
-	  std::cout
-			<< ">>> >>> FastMonitoringService: processed event count for this lumi = "
-			<< fmt_.m_data.processedJ_.value() << " time = " << secondsForLumi
-			<< " size = " << accuSize << " thr = " << throughput << std::endl;
-
-	  doSnapshot(true,lumi,true);
+	  //update
+	  doSnapshot(false,lumi,true);
 
 	  // create file name for slow monitoring file
 	  std::stringstream slowFileName;
@@ -272,7 +275,13 @@ namespace evf{
 	  //retrieve one result we need (todo: sanity check if it's found)
 	  IntJ* lumiProcessedJptr = std::dynamic_cast<IntJ*>(fmt_.jsonMonitor->getMergedVarForLumi("Processed",lumi));
           assert(lumiProcessedJpr!=nullptr);
-	  processedEventsPerLumi_[lumi] = lumiProcessedJ->value();
+	  processedEventsPerLumi_[lumi] = lumiProcessedJptr->value();
+
+	  std::cout
+			<< ">>> >>> FastMonitoringService: processed event count for this lumi = "
+			<< fmt_.m_data.lumiProcessedJptr_->value() << " time = " << secondsForLumi
+			<< " size = " << accuSize << " thr = " << throughput << std::endl;
+	  delete lumiProcessedJptr;
 
 	  //full global and stream merge&output for this lumi
 	  fmt_.m_data.jsonMonitor_->outputFullJSON(slow.string(),lumi);//full global and stream merge and JSON write for this lumi
@@ -290,7 +299,7 @@ namespace evf{
 
   void FastMonitoringService::preStreamBeginLumi(edm::Streamcontext const& sc)
   {
-    std::cout << "FastMonitoringService: Pre-begin LUMI: " << iID.luminosityBlock() << std::endl;
+    std::cout << "FastMonitoringService: Pre-stream-begin LUMI: " << iID.luminosityBlock() << std::endl;
     unsigned int sid = sc.streamID().value();
     fmt_.monlock_.lock();
     fmt_.m_data.streamLumi_[sid] = sc.luminosityBlockID().luminosityBlock();
@@ -302,44 +311,42 @@ namespace evf{
     fmt_.monlock_.unlock();
   }
 
-  void FastMonitoringService::preStreamEndLumi(edm::Streamcontext const& gc)
+  void FastMonitoringService::preStreamEndLumi(edm::Streamcontext const& sc)
   {
-    std::cout << "FastMonitoringService: Pre-begin LUMI: " << iID.luminosityBlock() << std::endl;
+    std::cout << "FastMonitoringService: Pre-stream-end LUMI: " << iID.luminosityBlock() << std::endl;
+    unsigned int sid = sc.streamID().value();
     fmt_.monlock_.lock();
-    //no update needed
-    //streamlumi_[sc.streamID().value()] = sc.luminosityBlockID().luminosityBlock();
+    //update processed count to be complete at this time (event if it's still snapped before global EOL or not)
+    doStreamEOLSnapshot(false,forLumi,sid);
+    //reset this in case stream does not get notified of next lumi (we keep processed events only)
+    ministate_[sid]=&nopath_;
+    microstate_[sid]=reservedMicroStateNames[mInvalid];
     fmt_.monlock_.unlock();
   }
 
 
   void FastMonitoringService::prePathEvent(edm::StreamContext const& sc, const edm::PathContext const& pc)
   {
-    //"lock-free" update paths (will see if CMSSW shitches threads, i.e. enforces memory barrier in this case)
-    if (!pathNamesReady_[sc.streamID().value])
-    if (!collectedPathList_) {
-      //if paths are not updated, collect path names from the first stream
-      if (sc.streamID().value()!=0) {
-	pathNamesReady_[sc.streamID().value()]=true;
-	return;//skip update
-      }
+    //use relaxed, as we also check using streamID and eventID
+    if (!collectedPathList_.load(std::memory_order_relaxed))
+    {
+      if (sc.streamID().value()!=0) return;
+      initPathsLock_.lock();
       if (firstEventId_==0) 
 	firstEventId_==sc.eventID().value();
-      initPathsLock_.lock();
       if (sc.eventID().value()==firstEventId_)
       {
-	  encPath_.update((void*)&pc.pathName());
+	encPath_.update((void*)&pc.pathName());
 	initPathsLock_.unlock();
 	return;
       }
       else {
+	collectedPathList_.store(true,std::memory_order_seq_cst);
+	initPathsLock_.unlock();
+	//print paths
 	//finished collecting path names
-        //print paths
 	std::cout << "path legenda*****************" << std::endl;
 	std::cout << makePathLegenda()   << std::endl;
-
-	collectedPathList_=true;//this is not atomic but will propagate through caches eventually
-	initPathsLock_.unlock();
-	pathNamesReady_[0]=true;
       }
     }
     ministate_ = &(pc.pathName());
@@ -350,12 +357,17 @@ namespace evf{
   {
   }
 
+  //shoudl be synchronized before
   void FastMonitoringService::postEvent(edm::StreamContext const& sc)
   {
+    //it is possible that mutex is needed for synchronization with endOfLumi depending what CMSSW does between tasks
+    //(unless it does full memory fencing between tasks)
+
     fmt_.m_data.microstate_ = &reservedMicroStateNames[mFwkOvh];
+    fmt_.m_data.ministate_ = &nopath;
     //fmt_.monlock_.lock();
-    //do atomic "release" - any subsequent "acquire" read should pick this up
-    fmt_.m_data.processed_[sc.streamID()].store(++processed_[sc.streamID()],std::memory_order_release);
+//    fmt_.m_data.processed_[sc.streamID()].fetch_add(1,std::memory_order_release);
+    fmt_.m_data.processed_[sc.streamID()].fetch_add(1,std::memory_order_relaxed);//no ordering required
     //fmt_.monlock_.unlock();
   }
 
@@ -448,10 +460,15 @@ namespace evf{
 
   //needs multithreading-aware output module
   unsigned int FastMonitoringService::getEventsProcessedForLumi(unsigned int lumi) {
-	if (processedEventsPerLumi_.find(lumi)!=std::map::end) {
-	  return processedEventsPerLumi_[lumi];
+	fmt_.monlock_.lock();
+	auto it = processedEventsPerLumi_.find(lumi);
+	if (it!=std::map::end) {
+	  unsigned int proc = *it;
+	  fmt_.monlock_.unlock();
+	  return proc;
 	}
 	else {
+	        fmt_.monlock_.unlock();
 		std::cout << "ERROR: output module wants deleted info " << std::endl;
 		return 0;
 }
