@@ -4,6 +4,7 @@
 // This file should contain the different algorithms used to find jets.
 // Currently the standard is the sliding window method, used by both
 // HI and PP.
+// The sorting of the jets in pT order is handled here.
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
@@ -24,6 +25,10 @@ namespace l1t {
       diff = -diff/std::abs(diff);
     }
     return diff;
+  }
+
+  bool compareJets (l1t::Jet i, l1t::Jet j){
+    return (i.hwPt() < j.hwPt() );
   }
 
   void slidingWindowJetFinder(const std::vector<l1t::CaloRegion> * regions,
@@ -140,5 +145,10 @@ namespace l1t {
 	jets->push_back(theJet);
       }
     }
+
+    //the jets should be sorted, highest pT first.
+    // do not truncate the jet list, GT converter handles that
+    std::sort(jets->begin(), jets->end(), compareJets);
+    std::reverse(jets->begin(), jets->end());
   }
 }

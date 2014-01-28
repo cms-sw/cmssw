@@ -27,8 +27,8 @@ void CaloStage1SingleTrackHI::processEvent(/*const std::vector<l1t::CaloStage1Cl
 void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t)
 {
   int regionETMax = 0;
-  int regionETMaxEta = 0;
-  int regionETMaxPhi = 0;
+  int regionETMaxEta = -1;
+  int regionETMaxPhi = -1;
 
   for(std::vector<CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++)
   {
@@ -44,6 +44,8 @@ void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> 
     = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
   l1t::Tau taucand(*TauLorentz,regionETMax,regionETMaxEta,regionETMaxPhi);
 
-  t->push_back(taucand);
+  //don't push a taucand we didn't actually find
+  if(taucand.hwPt() > 0)
+    t->push_back(taucand);
 
 }
