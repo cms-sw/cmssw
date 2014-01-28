@@ -59,7 +59,7 @@ namespace evf{
       }
 
       //to be called after fast monitor is constructed
-      void registerVariables(std::auto_ptr<FastMonitor> fm, unsigned int nStreams) {
+      void registerVariables(FastMonitor* fm, unsigned int nStreams) {
 	//tell FM to track these global variables(for fast and slow monitoring)
         fm->registerGlobalMonitorable(&fastMacrostateJ_,true,&microstateBins_);
         fm->registerGlobalMonitorable(&fastThroughputJ_,false);

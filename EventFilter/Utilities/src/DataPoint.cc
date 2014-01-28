@@ -279,7 +279,7 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
 	  return;
 	}
 	else {
-		assert(monType_==TYPEINT);//for now only this is supported
+		assert(monType_==TYPEUINT);//for now only this is supported
 		if (isCached_) {
 			std::stringstream ss;
 			ss << cacheI_;

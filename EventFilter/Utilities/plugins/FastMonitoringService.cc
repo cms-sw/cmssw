@@ -173,7 +173,7 @@ namespace evf{
     //startup monitoring
     fmt_.resetFastMonitor(microstateDefPath_);
     fmt_.jsonMonitor_->setNStreams(nStreams_);
-    fmt_.m_data.registerVariables(fmt_.jsonMonitor_, nStreams_);
+    fmt_.m_data.registerVariables(fmt_.jsonMonitor_.get(), nStreams_);
     std::atomic_thread_fence(std::memory_order_acquire);
     fmt_.start(&FastMonitoringService::dowork,this);
   }
@@ -519,7 +519,7 @@ namespace evf{
   void FastMonitoringService::doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID)
   {
 
-    std::cout << " do snapshot " << outputCSV << " l:" << forLumi << " glob:" << isGlobalEOL << " stream:" << isStream << " sid:" << streamID << std::endl; 
+    std::cout << " DBG do snapshot " << outputCSV << " l:" << forLumi << " glob:" << isGlobalEOL << " stream:" << isStream << " sid:" << streamID << std::endl; 
     // update monitored content
     fmt_.m_data.fastMacrostateJ_ = macrostate_;
 
@@ -549,7 +549,8 @@ namespace evf{
       fmt_.m_data.ministateDecoded_[i] = encPath_.encode(ministate_[i]);
       fmt_.m_data.microstateDecoded_[i] = encModule_.encode(microstate_[i]);
     }
-
+    std::cout << " DBG: do snapshot2 " << outputCSV << "  p:" << fastPath_ << " forLumi:" << forLumi << std::endl;
+     std::cout.flush();
     //do a snapshot, also output fast CSV
     if (isGlobalEOL) //only update global variables
       fmt_.jsonMonitor_->snapGlobal(outputCSV, fastPath_,forLumi);

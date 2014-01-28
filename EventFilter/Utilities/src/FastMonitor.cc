@@ -19,7 +19,6 @@ using namespace jsoncollector;
 FastMonitor::FastMonitor(std::string const& defPath, bool strictChecking, bool useSource, bool useDefinition) :
 	defPath_(defPath),strictChecking_(strictChecking),useSource_(useSource),useDefinition_(useDefinition),nStreams_(1)
 {
-
 	//get host and PID info
 	if (useSource)
 	  getHostAndPID(sourceInfo_);
@@ -45,6 +44,7 @@ void FastMonitor::registerGlobalMonitorable(JsonMonitorable *newMonitorable, boo
 	dp->trackMonitorable(newMonitorable,NAifZeroUpdates);
 	dp->setNBins(nBins);
 	dataPoints_.push_back(dp);
+	dpNameMap_[newMonitorable->getName()]=dataPoints_.size()-1;
 }
 
 void FastMonitor::registerStreamMonitorableUIntVec(std::string const& name, 
@@ -54,6 +54,7 @@ void FastMonitor::registerStreamMonitorableUIntVec(std::string const& name,
 	dp->trackVectorUInt(name,inputs,NAifZeroUpdates);
 	dp->setNBins(nBins);
         dataPoints_.push_back(dp);
+	dpNameMap_[name]=dataPoints_.size()-1;
 }
 
 
@@ -67,6 +68,7 @@ void FastMonitor::registerStreamMonitorableUIntVecAtomic(std::string const& name
 	dp->trackVectorUIntAtomic(name,inputs,NAifZeroUpdates);
 	dp->setNBins(nBins);
         dataPoints_.push_back(dp);
+	dpNameMap_[name]=dataPoints_.size()-1;
 }
 
 
@@ -110,7 +112,6 @@ void FastMonitor::commit(std::vector<std::atomic<unsigned int>*> *streamLumisPtr
 
 //update everything
 void FastMonitor::snap(bool outputCSVFile, std::string const& path, unsigned int forLumi) {
-
   recentSnaps_++;
   recentSnapsTimer_++;
   //do this only for real ones, not dummies
@@ -188,6 +189,7 @@ bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
         //serialize to file (todo check for failures)
 	std::string result = writer.write(serializeRoot);
         FileIO::writeStringToFile(path, result);
+	std::cout << " DEBUG:written JSON:" << path << " data: " << result << std::endl;
 	return true;
 }
 
