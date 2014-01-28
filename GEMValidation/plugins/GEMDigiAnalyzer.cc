@@ -446,6 +446,7 @@ void GEMDigiAnalyzer::analyzeRPC()
   for(RPCDigiCollection::DigiRangeIterator cItr = rpc_digis->begin(); cItr != rpc_digis->end(); ++cItr)
   {
     RPCDetId id = (*cItr).first;
+    std::cout << id << std::endl;
 
     if (id.region() == 0) continue; // not interested in barrel
 

@@ -137,8 +137,8 @@ private:
   TTree* me0_sh_tree_;
   TTree* track_tree_;
   
-  const CSCGeometry* csc_geometry;
-  const RPCGeometry* rpc_geometry;
+  const CSCGeometry* csc_geometry_;
+  const RPCGeometry* rpc_geometry_;
   const GEMGeometry* gem_geometry_;
   const ME0Geometry* me0_geometry_;
   
@@ -169,6 +169,11 @@ private:
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
+
+  bool hasGEMGeometry_;
+  bool hasRPCGeometry_;
+  bool hasME0Geometry_;
+  bool hasCSCGeometry_;
 };
 
 // Constructor
@@ -177,6 +182,10 @@ GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& ps)
 , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
 , minPt_(ps.getUntrackedParameter<double>("minPt", 4.5))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
+, hasGEMGeometry_(true)
+, hasRPCGeometry_(true)
+, hasME0Geometry_(true)
+, hasCSCGeometry_(true)
 {
   bookCSCSimHitsTree();
   bookRPCSimHitsTree();
@@ -193,40 +202,67 @@ GEMSimHitAnalyzer::~GEMSimHitAnalyzer()
 
 void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
-  iSetup.get<MuonGeometryRecord>().get(gem_geom);
-  gem_geometry_ = &*gem_geom;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(gem_geom);
+    gem_geometry_ = &*gem_geom;
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    hasGEMGeometry_ = false;
+    edm::LogWarning("GEMDigiAnalyzer") 
+      << "+++ Info: GEM geometry is unavailable. +++\n";
+  }
 
-  iSetup.get<MuonGeometryRecord>().get(me0_geom);
-  me0_geometry_ = &*me0_geom;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(me0_geom);
+    me0_geometry_ = &*me0_geom;
+  } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
+    hasME0Geometry_ = false;
+    edm::LogWarning("GEMDigiAnalyzer") 
+      << "+++ Info: ME0 geometry is unavailable. +++\n";
+  }
 
-  iSetup.get<MuonGeometryRecord>().get(csc_geom);
-  csc_geometry = &*csc_geom;
-  
-  iSetup.get<MuonGeometryRecord>().get(rpc_geom);
-  rpc_geometry = &*rpc_geom;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(csc_geom);
+    csc_geometry_ = &*csc_geom;
+  } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
+    hasCSCGeometry_ = false;
+    edm::LogWarning("GEMDigiAnalyzer") 
+      << "+++ Info: CSC geometry is unavailable. +++\n";
+  }
 
-  // FIXME - when a geometry with different partition numbers will be released, the code will brake!
-  const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
-  const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
-  const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
-  const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
-  const LocalPoint lp_top(0., top_half_striplength, 0.);
-  const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
-  const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
-  const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+  try {
+    iSetup.get<MuonGeometryRecord>().get(rpc_geom);
+    rpc_geometry_ = &*rpc_geom;
+  } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
+    hasRPCGeometry_ = false;
+    edm::LogWarning("GEMDigiAnalyzer") 
+      << "+++ Info: RPC geometry is unavailable. +++\n";
+  }
 
-  radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
-  chamberHeight_ = gp_top.perp() - gp_bottom.perp();
-
-  using namespace std;
-  cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
-  cout<<"r  top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
-  LocalPoint p0(0.,0.,0.);
-  cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
-  cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
-
-  buildLUT();
+  if(hasGEMGeometry_) {
+    
+    // FIXME - when a geometry with different partition numbers will be released, the code will brake!
+    const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
+    const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
+    const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
+    const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
+    const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
+    const LocalPoint lp_top(0., top_half_striplength, 0.);
+    const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
+    const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
+    const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+    
+    radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
+    chamberHeight_ = gp_top.perp() - gp_bottom.perp();
+    
+    using namespace std;
+    cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
+    cout<<"r  top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
+    LocalPoint p0(0.,0.,0.);
+    cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
+    cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
+    
+    buildLUT();
+  }
 }
 
 
@@ -237,16 +273,16 @@ void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   analyzeTracks(iEvent,iSetup);
 
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonGEMHits"), GEMHits);
-  if(GEMHits->size()) analyzeGEM( iEvent );
+  if(hasGEMGeometry_ and GEMHits->size()) analyzeGEM( iEvent );
 
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonME0Hits"), ME0Hits);
-  if(ME0Hits->size()) analyzeME0( iEvent );
+  if(hasME0Geometry_ and ME0Hits->size()) analyzeME0( iEvent );
 
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonCSCHits"), CSCHits);
-  if(CSCHits->size()) analyzeCSC( iEvent );
+  if(hasCSCGeometry_ and CSCHits->size()) analyzeCSC( iEvent );
   
   iEvent.getByLabel(edm::InputTag(simInputLabel_,"MuonRPCHits"), RPCHits);
-  if(RPCHits->size()) analyzeRPC( iEvent );
+  if(hasRPCGeometry_ and RPCHits->size()) analyzeRPC( iEvent );
 }
 
 void GEMSimHitAnalyzer::bookCSCSimHitsTree()
@@ -508,7 +544,7 @@ void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
     csc_sh.layer = id.layer();
 
     const LocalPoint p0(0., 0., 0.);
-    const GlobalPoint Gp0(csc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(p0));
+    const GlobalPoint Gp0(csc_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(p0));
     csc_sh.Phi_0 = Gp0.phi();
     csc_sh.R_0 = Gp0.perp();
 
@@ -519,7 +555,7 @@ void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
     if(id.endcap()==2) csc_sh.DeltaPhi = atan(-(itHit->localPosition().x())/(Gp0.perp() + itHit->localPosition().y()));
     
     const LocalPoint hitLP(itHit->localPosition());
-    const GlobalPoint hitGP(csc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
+    const GlobalPoint hitGP(csc_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
     
     csc_sh.globalR = hitGP.perp();
     csc_sh.globalEta = hitGP.eta();
@@ -558,7 +594,7 @@ void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
     rpc_sh.roll = id.roll();
     
     const LocalPoint hitLP(itHit->localPosition());
-    const GlobalPoint hitGP(rpc_geometry->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
+    const GlobalPoint hitGP(rpc_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
 
     rpc_sh.globalR = hitGP.perp();
     rpc_sh.globalEta = hitGP.eta();
@@ -567,7 +603,7 @@ void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
     rpc_sh.globalY = hitGP.y();
     rpc_sh.globalZ = hitGP.z();
     
-    rpc_sh.strip=rpc_geometry->roll(itHit->detUnitId())->strip(hitLP);
+    rpc_sh.strip=rpc_geometry_->roll(itHit->detUnitId())->strip(hitLP);
 
     rpc_sh_tree_->Fill();
   }

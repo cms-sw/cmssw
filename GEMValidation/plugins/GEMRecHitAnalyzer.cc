@@ -141,6 +141,8 @@ private:
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
+
+  bool hasGEMGeometry_;
 };
 
 //
@@ -151,6 +153,7 @@ GEMRecHitAnalyzer::GEMRecHitAnalyzer(const edm::ParameterSet& iConfig)
   , simInputLabel_(iConfig.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
   , minPt_(iConfig.getUntrackedParameter<double>("minPt", 5.))
   , verbose_(iConfig.getUntrackedParameter<int>("verbose", 0))
+  , hasGEMGeometry_(true)
 {
   bookGEMRecHitTree();
   bookGEMSimHitsTree();
@@ -163,31 +166,40 @@ GEMRecHitAnalyzer::~GEMRecHitAnalyzer()
 
 void GEMRecHitAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
-  iSetup.get<MuonGeometryRecord>().get(gem_geom_);
-  gem_geometry_ = &*gem_geom_;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(gem_geom_);
+    gem_geometry_ = &*gem_geom_;
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    hasGEMGeometry_ = false;
+    edm::LogWarning("GEMDigiAnalyzer") 
+      << "+++ Info: GEM geometry is unavailable. +++\n";
+  }
 
-  // FIXME - when a geometry with different partition numbers will be released, the code will brake!
-  const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
-  const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
-  const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
-  const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
-  const LocalPoint lp_top(0., top_half_striplength, 0.);
-  const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
-  const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
-  const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+  if(hasGEMGeometry_) {
 
-  radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
-  chamberHeight_ = gp_top.perp() - gp_bottom.perp();
+    // FIXME - when a geometry with different partition numbers will be released, the code will brake!
+    const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
+    const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
+    const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
+    const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
+    const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
+    const LocalPoint lp_top(0., top_half_striplength, 0.);
+    const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
+    const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
+    const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+    
+    radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
+    chamberHeight_ = gp_top.perp() - gp_bottom.perp();
+    
+    using namespace std;
+    //cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
+    //cout<<"r top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
+    LocalPoint p0(0.,0.,0.);
+    //cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
+    //cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
 
-  using namespace std;
-  //cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
-  //cout<<"r top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
-  LocalPoint p0(0.,0.,0.);
-  //cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
-  //cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
-
-  buildLUT();
+    buildLUT();
+  }
 }
 
 
@@ -201,8 +213,8 @@ void GEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
   iEvent.getByLabel(simInputLabel_, sim_tracks);
   iEvent.getByLabel(simInputLabel_, sim_vertices);
-  analyzeGEM(iEvent);
-  analyzeTracks(cfg_,iEvent,iSetup); 
+  if(hasGEMGeometry_) analyzeGEM(iEvent);
+  if(hasGEMGeometry_) analyzeTracks(cfg_,iEvent,iSetup); 
 }
 
 void GEMRecHitAnalyzer::bookGEMRecHitTree()
