@@ -60,7 +60,10 @@ public:
 	void trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdates);
 
 	//set to track a vector of variables
-	void trackVector(std::string const& name, std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates);
+	void trackVectorUInt(std::string const& name, std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates);
+
+	//set to track a vector of atomic variables with guaranteed collection
+	void trackVectorUIntAtomic(std::string const& name, std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates);
 
 	//variable not found by the service, but want to output something to JSON
 	void trackDummy(std::string const& name, bool setNAifZeroUpdates)
@@ -84,6 +87,8 @@ public:
 	std::string mergeAndSerialize(JsonValue& jsonRoot, bool initRoot);
 
 	void discardCollected(unsigned int forLumi);
+
+	void setNBins(unsigned int *nBins) {nBinsPtr_ = nBins;}
 
 /*
 	unsigned int getUpdates() {return updates_;}
@@ -111,7 +116,7 @@ protected:
 	//
 	void *tracked_;
 
-        //global lumi?
+        //global lumi ptr (not needed)
 	std::vector<std::atomic<unsigned int>> *streamLumisPtr_ = nullptr;
 
 	bool isStream_ = false;
@@ -124,9 +129,12 @@ protected:
 	std::string name_;
 
 	//helpers
-	unsigned int *buf_;
-	unsigned int bufLen_;
+	uint32_t *buf_;
+	unsigned int bufLen_ =0;
 
+	unsigned int * nBinsPtr_ = nullptr;
+	int cacheI_;//int cache
+	bool isCached_=0;
 
 
 };

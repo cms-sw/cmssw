@@ -39,6 +39,12 @@ namespace evf{
       //tracking luminosity of a stream
       std::vector<std::atomic<unsigned int>> streamLumi_;
 
+      //N bins for histograms
+      unsigned int macrostateBins_;
+      unsigned int ministateBins_;
+      unsigned int microstateBins_;
+
+
       //unsigned int prescaleindex_; // ditto
 
       //monitored for JSON
@@ -60,7 +66,7 @@ namespace evf{
       //to be called after fast monitor is constructed
       void registerVariables(FastMonitor &fm, unsigned int nStreams) {
 	//tell FM to track these global variables(for fast and slow monitoring)
-        fm.registerGlobalMonitorable(&fastMacrostateJ_,true);
+        fm.registerGlobalMonitorable(&fastMacrostateJ_,true,&microstateBins_);
         varIndexThroughput_ = fm.registerGlobalMonitorable(&fastThroughputJ_,false);
         fm.registerGlobalMonitorable(&fastAvgLeadTimeJ_,false);
         fm.registerGlobalMonitorable(&fastFilesProcessedJ_,false);
@@ -75,8 +81,8 @@ namespace evf{
 
 	fm.setNStreams(nStreams);
 	//tell FM to track these int vectors
-        fm.registerStreamMonitorableUIntVec("Ministate", &ministateDecoded_,true,0);//what is 0 for ?
-        fm.registerStreamMonitorableUIntVec("Microstate",&microstateDecoded_,true,0);
+        fm.registerStreamMonitorableUIntVec("Ministate", &ministateDecoded_,true,0,&ministateBins_);//what is 0 for ?
+        fm.registerStreamMonitorableUIntVec("Microstate",&microstateDecoded_,true,0,&microstateBins_);
         fm.registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm.commit(&streamLumi_);

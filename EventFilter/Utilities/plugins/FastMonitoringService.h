@@ -84,6 +84,9 @@ namespace evf{
 	  decoder_.push_back(add); 
 	  current_++;
 	}
+	void vecsize() {
+	  return decoder_.size();
+	}
 	std::map<const void *,int> quickReference_;
 	std::vector<const void *> decoder_;
 	unsigned int reserved_;

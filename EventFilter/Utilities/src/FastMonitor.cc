@@ -37,29 +37,33 @@ FastMonitor::FastMonitor(std::string const& defPath, bool strictChecking) : //st
 FastMonitor::~FastMonitor() {
 }
 
-void FastMonitor::registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates)
+void FastMonitor::registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates, unsigned int *nBins)
 {
 	unsigned int jsonIndex;
 	DataPoint *dp = new DataPoint(dpd_,defPath_,sourceInfo_);//(do we need defpath & sourceInfo here?)
 	DataPoint dp->trackMonitorable(newMonitorable,NAifZeroUpdates);
+	dp->setNBinsVec(nBins);
 	dataPoints_.push_back(dp);
 }
 
 void FastMonitor::registerStreamMonitorableUIntVec(std::string const& name, 
-		std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates)
+		std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates, unsigned int *nBins)
 {
 	DataPoint *dp = new DataPoint(dpd_,defPath_,sourceInfo_);
 	DataPoint dp->trackVectorUInt(name,inputsPtr,NAifZeroUpdates);
+	dp->setNBinsVec(nBins);
         dataPoints_.push_back(dp);
 }
 
 
 //atomic variables with guaranteed updates at the time of reading
 void FastMonitor::registerStreamMonitorableUIntVecAtomic(std::string const& name, 
-		std::vector<std::atomic<unsigned int>> *inputsRef_, bool NAifZeroUpdates)
+		std::vector<std::atomic<unsigned int>> *inputsRef_, bool NAifZeroUpdates, unsigned int *nBins)
 {
 	DataPoint *dp = new DataPoint(dpd_,defPath_,sourceInfo_);
-	DataPoint dp->trackVectorUintAtomic(std::string const& name, std::vector<std::atomic<unsigned int>> *inputsRef_,bool NAifZeroUpdates);
+	DataPoint dp->trackVectorUintAtomic(std::string const& name, 
+			std::vector<std::atomic<unsigned int>> *inputsRef_,bool NAifZeroUpdates);
+	dp->setNBinsVec(nBins);//
         dataPoints_.push_back(dp);
 }
 

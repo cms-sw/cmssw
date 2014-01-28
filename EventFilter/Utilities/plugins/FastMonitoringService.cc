@@ -148,6 +148,10 @@ namespace evf{
        ministate_.push_back(&nopath_);
        microstate_.push_back(&reservedMicroStateNames[mInvalid]);
     }
+    //initial size until we detect number of bins
+    fmt_.m_data.macrostateBins_=MCOUNT+1;
+    fmt_.m_data.ministateBins_=1;
+    fmt_.m_data.microstateBins_ = 0; 
  
     //TODO: we could do fastpath output even before seeing lumi
     lastGlobalLumi_=0;//this means no fast path before begingGlobalLumi (for now), 
@@ -186,6 +190,9 @@ namespace evf{
     std::cout << "module legenda***************" << std::endl;
     std::cout << makeModuleLegenda() << std::endl;
     fmt_.m_data.macrostate_ = FastMonitoringThread::sJobReady;
+
+    //update number of entries in module histogram
+    fmt_.m_data.microstateBins_ = encModule_.vecsize(); 
   }
 
   void FastMonitoringService::postEndJob()
@@ -328,7 +335,8 @@ namespace evf{
   void FastMonitoringService::prePathEvent(edm::StreamContext const& sc, const edm::PathContext const& pc)
   {
     //use relaxed, as we also check using streamID and eventID
-    if (!collectedPathList_.load(std::memory_order_relaxed))
+//    if (!collectedPathList_.load(std::memory_order_relaxed))
+    if (unlikely(!collectedPathList_.load(std::memory_order_relaxed)))
     {
       if (sc.streamID().value()!=0) return;
       initPathsLock_.lock();
@@ -342,6 +350,7 @@ namespace evf{
       }
       else {
 	collectedPathList_.store(true,std::memory_order_seq_cst);
+        fmt_.m_data.ministateBins_=encPath_.vecsize();
 	initPathsLock_.unlock();
 	//print paths
 	//finished collecting path names
@@ -367,7 +376,7 @@ namespace evf{
     fmt_.m_data.ministate_ = &nopath;
     //fmt_.monlock_.lock();
 //    fmt_.m_data.processed_[sc.streamID()].fetch_add(1,std::memory_order_release);
-    fmt_.m_data.processed_[sc.streamID()].fetch_add(1,std::memory_order_relaxed);//no ordering required
+    fmt_.m_data.processed_[sc.streamID()].fetch_add(1,std::memory_order_relaxed);//no ordering required (TODO:check if possible to use just UInt)
     //fmt_.monlock_.unlock();
   }
 

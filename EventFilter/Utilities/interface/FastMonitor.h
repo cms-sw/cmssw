@@ -28,10 +28,11 @@ public:
 	void setNStreams(unsigned int nStreams) {nStreams_=nStreams;}
 
 	//register global monitorable
-	void registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates);
+	void registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
 
 	//register per-stream monitores vector (unsigned int)
-	void registerStreamMonitorableUIntVec(std::string const& name, std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates);
+	void registerStreamMonitorableUIntVec(std::string const& name, 
+			std::vector<unsigned int> *inputsPtr, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
 
 	//NOT implemented yet
 	//void registerStreamMonitorableIntVec(std::string &name, std::vector<unsigned int>,true,0);
@@ -39,7 +40,7 @@ public:
 	//void registerStreamMonitorableStringVec(std::string &name, std::vector<std::string>,true,0);
 
 	void registerStreamMonitorableUIntVecAtomic(std::string const& name,
-		                std::vector<std::atomic<unsigned int>> *inputsRef_, bool NAifZeroUpdates);
+		                std::vector<std::atomic<unsigned int>> *inputsRef_, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
 
 
 	//take vector used to track stream lumis and finish initialization

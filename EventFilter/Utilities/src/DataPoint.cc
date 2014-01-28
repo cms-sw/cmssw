@@ -15,6 +15,7 @@
 
 //max updates per lumi
 #define MAXUPDATES 200
+#define MAXBINS
 
 using namespace jsoncollector;
 
@@ -175,6 +176,7 @@ void DataPoint::setStreamLumiPtr(std::vector<std::atomic<unsigned int>> *streamL
 
 void DataPoint::snap(unsigned int lumi)
 {
+  isCached_=false;
   if (isStream_) {
     if (monType_==TYPEINT)
     {
@@ -212,6 +214,7 @@ void DataPoint::snap(unsigned int lumi)
 
 void DataPoint::snapGlobal(unsigned int lumi)
 {
+  isCached_=false;
   if (isStream_) return;
   //atomic currently not implemented
   auto itr = globalDataMap_.find(lumi);
@@ -238,7 +241,7 @@ void DataPoint::snapStream(unsigned int streamID, unsigned int lumi)
 {
   if (!isStream_) return;
   if (!isAtomic_) return;
-
+  isCached_=false;
   if (monType_==TYPEINT)
   {
       unsigned int monVal;
@@ -275,26 +278,114 @@ std::string DataPoint::fastOutLatest()
 }
 
 //TODO: implement, cache result etc.
-JsonMonitorable *mergeAndRetrieve(unsigned int lumi)
+JsonMonitorable *mergeAndRetrieveValue(unsigned int lumi)
 {
-  if (varType_==TYPEINT) {
-    IntJ newJ = new IntJ;
-    return newJ;
+  assert(varType_==TYPEINT && isStream_);//for now only support stream ints, also always do sum
+  IntJ newJ = new IntJ;
+  //histogram expand
+  //unsigned int haveForLumis_=0;
+  for (int i=0;i<streamDataMaps_.size();i++) {
+    //per lumi map find so not that critical
+    auto itr = streamDataMaps[i].find(lumi);
+    //haveForLumis_++;
+    if (itr!=std::map:end) newJ->update(*itr);
   }
-  if (varType_==TYPEDOUBLE) {
-    DoubleJ newJ = new DoubleJ;
-    return newJ;
-  }
-  assert(0);
-  return nullptr;
+  cacheI_=newJ->value();
+  isCached_=true;
+  return newJ;//assume the caller takes care of deleting the object
 }
 
-std::string mergeAndSerialize(Json::Value & root,unsigned int lumi,bool initJsonValue)
+void mergeAndSerialize(Json::Value & root,unsigned int lumi,bool initJsonValue)
 {
-  if (initJsonValue) {
-    root[SOURCE] = source_;
-    root[DEFINITION] = definition_;
-  }
+	if (initJsonValue) {
+		root[SOURCE] = source_;
+		root[DEFINITION] = definition_;
+	}
+
+	if (isDummy_) {
+		root[DATA].append("N/A");
+		return;
+	}
+	if (!isStream_) {
+		//just append latest value
+		//TODO: implement "SAME"!
+		auto itr = globalDataMap_.find(lumi);
+	  if (itr != std::map:end) {
+	    root[DATA].append(*itr.toString);
+	  }
+	  else {
+	    if (NAifZeroUpdates_) root[DATA].append("N/A");
+	    else if (monType==TYPESTRING)  root[DATA].append("");
+	    else  root[DATA].append("0");
+	  }
+	  return;
+	}
+	else {
+		assert(monType==OPINT);//for now only this is supported
+		if (isCached_) {
+			std::stringstream ss;
+			ss << cacheI_;
+			root[DATA].append(ss.str());
+			return;
+		}
+		if (optype==OPSUM) {
+			IntJ tmpJ;
+			std::stringstream ss;
+			unsigned int updates=0;
+			unsigned int sum=0;
+			for (unsigned int i=0;i<streamDataMaps_.size();i++) {
+				//per lumi map find so not that critical
+				auto itr = streamDataMaps[i].find(lumi);
+				if (itr!=std::map:end) {sum+=*itr;updates++;}
+			}
+			if (!updates && NAifZeroUpdates_) ss << "N/A";
+			ss << sum;
+			root[DATA].append(ss.str());
+			return;
+		}
+		if (opType==OPHISTO) {
+			if (nBinsPtr_==nullptr) {
+				root[DATA].append("N/A");
+				return;
+			}
+			if (*nBinsPtr_>bufLen_) {
+				if (buf_) delete buf_;
+				bufLen_=*nBinsPtr_;
+				buf_= new uint32_t[bufLen_];
+				//memset(buf_,0,bufLen_*sizeof(uint32_t));
+			}
+			memset(buf_,0,bufLen_*sizeof(uint32_t));
+			//histogram populate..(& bounds check)
+			unsigned int updates=0;
+			for (unsigned int i=0;i<streamDataMaps_.size();i++) {
+				auto itr = streamDataMaps[i].find(lumi);
+				if (itr!=std::map:end) {
+					updates+=*itr.getUpdates();
+					for (ith : *itr.value()) {
+						unsigned int thisbin=(unsigned int) *ith;
+						if (thisbin<bufLen_ && thisbin>0)
+							buf_[thisbin]++;
+					}
+				}
+			}
+			std::stringstream ss;
+			if (!updates && NAifZeroUpdates_) ss << "N/A";
+			else {
+				std::stringstream ss;
+				ss << "[";
+				if (bufLen_) {
+					for (unsigned int i=0;i<bufLen_-1;i++) {
+						ss << buf_[i] << ",";
+					}
+					ss << buf_[buflen-1];
+				}
+				ss << "]";
+			}
+			root[DATA].append(ss.str());
+			return;
+		}
+	}
+}
 //TODO:caching
 //  if (cached_==(int)lumi) {
 //}
