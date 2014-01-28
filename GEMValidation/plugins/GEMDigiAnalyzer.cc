@@ -205,6 +205,9 @@ private:
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
+
+  bool hasGEMGeometry_;
+  bool hasRPCGeometry_;
 };
 
 //
@@ -215,6 +218,8 @@ GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet& ps)
   , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
   , minPt_(ps.getUntrackedParameter<double>("minPt", 5.))
   , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
+  , hasGEMGeometry_(true)
+  , hasRPCGeometry_(true)
 {
   bookRPCDigiTree();
   bookGEMDigiTree();
@@ -230,55 +235,71 @@ GEMDigiAnalyzer::~GEMDigiAnalyzer()
 // ------------ method called when starting to processes a run  ------------
 void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
-  iSetup.get<MuonGeometryRecord>().get(gem_geo_);
-  gem_geometry_ = &*gem_geo_;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(gem_geo_);
+    gem_geometry_ = &*gem_geo_;
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    hasGEMGeometry_ = false;
+    edm::LogWarning("GEMDigiAnalyzer") 
+      << "+++ Info: GEM geometry is unavailable. +++\n";
+  }
+  
+  try {
+    iSetup.get<MuonGeometryRecord>().get(rpc_geo_);
+    rpc_geometry_ = &*rpc_geo_;
+  } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
+    hasRPCGeometry_ = false;
+    edm::LogWarning("GEMDigiAnalyzer") 
+      << "+++ Info: RPC geometry is unavailable. +++\n";
+  }
 
-  iSetup.get<MuonGeometryRecord>().get(rpc_geo_);
-  rpc_geometry_ = &*rpc_geo_;
 
-  // FIXME - when a geometry with different partition numbers will be released, the code will brake!
-  const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
-  const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
-  const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
-  const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
-  const LocalPoint lp_top(0., top_half_striplength, 0.);
-  const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
-  const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
-  const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
-
-  radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
-  chamberHeight_ = gp_top.perp() - gp_bottom.perp();
-
-  using namespace std;
-  cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
-  cout<<"r  top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
-  LocalPoint p0(0.,0.,0.);
-  cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
-  cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
-
-  buildLUT();
+  if(hasGEMGeometry_) {
+    
+    // FIXME - when a geometry with different partition numbers will be released, the code will brake!
+    const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
+    const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
+    const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
+    const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
+    const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
+    const LocalPoint lp_top(0., top_half_striplength, 0.);
+    const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
+    const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
+    const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+    
+    radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
+    chamberHeight_ = gp_top.perp() - gp_bottom.perp();
+    
+    using namespace std;
+    cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
+    cout<<"r  top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
+    LocalPoint p0(0.,0.,0.);
+    cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
+    cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
+    
+    buildLUT();
+  }
 }
 
 void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   iEvent.getByLabel(edm::InputTag("simMuonRPCDigis"), rpc_digis);
-  analyzeRPC();
+  if (hasRPCGeometry_) analyzeRPC();
 
   iEvent.getByLabel(edm::InputTag("simMuonGEMDigis"), gem_digis);
-  analyzeGEM();
+  if(hasGEMGeometry_) analyzeGEM();
   
   iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis"), gemcscpad_digis);
-  analyzeGEMCSCPad();  
+  if(hasGEMGeometry_) analyzeGEMCSCPad();  
   
   iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis","Coincidence"), gemcsccopad_digis);
-  analyzeGEMCSCCoPad();  
+  if(hasGEMGeometry_) analyzeGEMCSCCoPad();  
 
   iEvent.getByLabel(simInputLabel_, sim_tracks);
 
   iEvent.getByLabel(simInputLabel_, sim_vertices);
 
-  analyzeTracks(cfg_,iEvent,iSetup);  
+  if(hasGEMGeometry_) analyzeTracks(cfg_,iEvent,iSetup);  
 }
 
 void GEMDigiAnalyzer::bookRPCDigiTree()
