@@ -458,7 +458,8 @@ namespace cms
 	      trkUpdated[j]=true;
 	    }else{
 	      // If tracks from both iterations are virtually identical, choose the one with the best quality or with lower algo
-	      if (trackQuals[j]==trackQuals[i]) {
+	      if ((trackQuals[j] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) ) ==
+		  (trackQuals[i] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) )) {
 		//same quality, pick earlier algo
 		if (algo[k1] <= algo[k2]) {
 		  selected[j]=0;
