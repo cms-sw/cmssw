@@ -37,7 +37,7 @@ namespace
 {
   const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName, std::vector<TFile*>& inputFilesToDelete)
   {
-    if ( !inputFileName.isLocal() ) throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA") 
+    if ( inputFileName.location() == edm::FileInPath::Unknown ) throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA") 
       << " Failed to find File = " << inputFileName << " !!\n";
     TFile* inputFile = new TFile(inputFileName.fullPath().data());
   
