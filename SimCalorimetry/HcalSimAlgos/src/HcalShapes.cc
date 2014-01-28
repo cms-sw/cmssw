@@ -8,6 +8,7 @@
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 HcalShapes::HcalShapes()
 : theMCParams(0),
@@ -109,7 +110,7 @@ void HcalShapes::beginRun(edm::EventSetup const & es)
 // here we are making a _copy_ so we need to add a copy of the topology...
   
   edm::ESHandle<HcalTopology> htopo;
-  es.get<IdealGeometryRecord>().get(htopo);
+  es.get<HcalRecNumberingRecord>().get(htopo);
   theTopology=new HcalTopology(*htopo);
   theMCParams->setTopo(theTopology);
 }

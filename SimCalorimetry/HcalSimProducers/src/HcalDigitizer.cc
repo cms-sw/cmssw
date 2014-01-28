@@ -666,7 +666,7 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
     edm::ESHandle<HcalMCParams> p;
     eventSetup.get<HcalMCParamsRcd>().get(p);
     edm::ESHandle<HcalTopology> htopo;
-    eventSetup.get<IdealGeometryRecord>().get(htopo);
+    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
    
     HcalMCParams mcParams(*p.product());
     if (mcParams.topo()==0) {
