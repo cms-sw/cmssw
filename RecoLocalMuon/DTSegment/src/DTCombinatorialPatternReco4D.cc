@@ -37,7 +37,9 @@ DTCombinatorialPatternReco4D::DTCombinatorialPatternReco4D(const ParameterSet& p
 
     //do you want the T0 correction?
     applyT0corr = pset.getParameter<bool>("performT0SegCorrection");
-    computeT0corr = pset.getUntrackedParameter<bool>("computeT0Seg",true);
+
+    computeT0corr = pset.existsAs<bool>("computeT0Seg") ?
+      pset.getParameter<bool>("computeT0Seg") : true;
 
     // the updator
     theUpdator = new DTSegmentUpdator(pset);

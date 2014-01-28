@@ -138,7 +138,9 @@ DTMeantimerPatternReco4D::reconstruct(){
     cout << "Segments in " << theChamber->id() << endl;
     cout << "Reconstructing Phi segments"<<endl;
   }
-  vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates();
+
+  vector<DTHitPairForFit*> pairPhiOwned;
+  vector<DTSegmentCand*> resultPhi = buildPhiSuperSegmentsCandidates(pairPhiOwned);
 
   if (debug) cout << "There are " << resultPhi.size() << " Phi cand" << endl;
 
@@ -162,7 +164,7 @@ DTMeantimerPatternReco4D::reconstruct(){
     hasZed = theSegments2DTheta.size()>0;
     if (debug) cout << "There are " << theSegments2DTheta.size() << " Theta cand" << endl;
   } else {
-    if (debug) cout << "No Theta SL" << endl;
+    if (debug) cout << "No Theta candidates." << endl;
   }
 
   // Now I want to build the concrete DTRecSegment4D.
@@ -171,9 +173,10 @@ DTMeantimerPatternReco4D::reconstruct(){
     for (vector<DTSegmentCand*>::const_iterator phi=resultPhi.begin();
          phi!=resultPhi.end(); ++phi) {
 
-      DTChamberRecSegment2D* superPhi = (**phi);
+      std::auto_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
-      theUpdator->update(superPhi);
+      theUpdator->update(superPhi.get());
+      if(debug) cout << "superPhi: " << *superPhi << endl;
 
       if (hasZed) {
 
@@ -199,7 +202,6 @@ DTMeantimerPatternReco4D::reconstruct(){
           const LocalVector dirZInCh = theChamber->toLocal( zSL->toGlobal(zed->localDirection()));
 
           DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,posZInCh,dirZInCh);
-          //<<
 
           /// 4d segment: I have the pos along the wire => further update!
           theUpdator->update(newSeg);
@@ -251,13 +253,15 @@ DTMeantimerPatternReco4D::reconstruct(){
   // finally delete the candidates!
   for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
        phi!=resultPhi.end(); ++phi) delete *phi;
+  for (vector<DTHitPairForFit*>::iterator phiPair = pairPhiOwned.begin();
+       phiPair!=pairPhiOwned.end(); ++phiPair) delete *phiPair;
 
   return result;
 }
 
 
 
-vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates(){
+vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates(vector<DTHitPairForFit*> &pairPhiOwned){
 
   DTSuperLayerId slId;
 
@@ -280,6 +284,7 @@ vector<DTSegmentCand*> DTMeantimerPatternReco4D::buildPhiSuperSegmentsCandidates
   // copy the pairPhi2 in the pairPhi1 vector 
   copy(pairPhi2.begin(),pairPhi2.end(),back_inserter(pairPhi1));
 
+  pairPhiOwned.swap(pairPhi1);
   // Build the segment candidate
-  return the2DAlgo->buildSegments(sl,pairPhi1);
+  return the2DAlgo->buildSegments(sl,pairPhiOwned);
 }

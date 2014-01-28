@@ -107,8 +107,14 @@ void DTSegmentUpdator::update(DTRecSegment2D* seg) const {
 }
 
 void DTSegmentUpdator::fit(DTRecSegment4D* seg)  const {
-  if(debug) cout << "[DTSegmentUpdator] Fit DTRecSegment4D test:" << endl;
+  if(debug) cout << "[DTSegmentUpdator] Fit DTRecSegment4D:" << endl;
   // after the update must refit the segments
+  
+  if (debug) {
+    if(seg->hasPhi()) cout << "    4D Segment contains a Phi segment. t0= " << seg->phiSegment()->t0()  << "  chi2= " << seg->phiSegment()->chi2() << endl;
+    if(seg->hasZed()) cout << "    4D Segment contains a Zed segment. t0= " << seg->zSegment()->t0()  << "  chi2= " << seg->zSegment()->chi2() << endl;
+  }
+  
   
   // use the 2-par fit UNLESS the 4D segment only has the Phi projection or is out of time by more than 20ns
   // - in these cases use the 3-par fit
@@ -116,14 +122,16 @@ void DTSegmentUpdator::fit(DTRecSegment4D* seg)  const {
     if(seg->hasZed()) {
 
       // fit in-time Phi segments with the 2par fit and out-of-time segments with the 3par fit
-      if (fabs(seg->phiSegment()->t0()<20.)) fit(seg->phiSegment(),0);
-        else fit(seg->phiSegment(),1);        
-
-      // theta segments always with the 2par fit    
-      fit(seg->zSegment(),0);      
+      if (fabs(seg->phiSegment()->t0())<40.) {
+        fit(seg->phiSegment(),0);
+        fit(seg->zSegment(),0);      
+      } else {
+        fit(seg->phiSegment(),1);        
+        fit(seg->zSegment(),1);      
+      }
 
     } else fit(seg->phiSegment(),1);
-  } else fit(seg->zSegment(),0);
+  } else fit(seg->zSegment(),1);
  
   const DTChamber* theChamber = theGeom->chamber(seg->chamberId());
 
@@ -209,9 +217,9 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
 //  if (debug && fitdebug) cout << "[DTSegmentUpdator] Fit DTRecSegment2D" << endl;
   if (!seg->good()) return false;
 
-  DTSuperLayerId DTid = (DTSuperLayerId)seg->superLayer()->id();
-  if (DTid.superlayer()==2)  
-    allow3par = 0;
+//  DTSuperLayerId DTid = (DTSuperLayerId)seg->superLayer()->id();
+//  if (DTid.superlayer()==2)  
+//    allow3par = 0;
 
   vector<float> x;
   vector<float> y;
@@ -284,9 +292,9 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg, bool allow3par) const {
   lfit.reserve(8);
   dist.reserve(8);
 
-  DTSuperLayerId DTid = (DTSuperLayerId)seg->geographicalId();
-  if (DTid.superlayer()==2)  
-    allow3par = 0;
+//  DTSuperLayerId DTid = (DTSuperLayerId)seg->geographicalId();
+//  if (DTid.superlayer()==2)  
+//    allow3par = 0;
 
   vector<DTRecHit1D> hits=seg->specificRecHits();
   for (vector<DTRecHit1D>::const_iterator hit=hits.begin();
@@ -335,6 +343,7 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg, bool allow3par) const {
   seg->setDirection(dir);
   seg->setCovMatrix(covMat);
   seg->setChi2(chi2);
+  seg->setT0(t0_corr);
 }
 
 void DTSegmentUpdator::fit(const vector<float>& x,
@@ -367,10 +376,13 @@ void DTSegmentUpdator::fit(const vector<float>& x,
 
   // If we have at least one left and one right hit we can try the 3 parameter fit (if it is switched on)
   // FIXME: currently the covariance matrix from the 2-par fit is kept
-  if (leftHits && rightHits && allow3par) {
+  if (leftHits && rightHits && (leftHits+rightHits>3)) {
     theFitter->fitNpar(3,x,y,lfit,dist,sigy,slope,intercept,cminf,vminf,chi2,debug);	
-    if (cminf==0)
+    double t0_corr=-cminf/0.00543;
+    if (fabs(t0_corr)<20. && !allow3par) {
       theFitter->fit(x,y,x.size(),sigy,slope,intercept,chi2,covss,covii,covsi);
+      cminf=0;
+    }
   }
   
   // cout << "slope " << slope << endl;
