@@ -38,6 +38,8 @@ CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
   useShowerLibrary  = m_CastorSD.getParameter<bool>("useShowerLibrary");
   energyThresholdSL = m_CastorSD.getParameter<double>("minEnergyInGeVforUsingSLibrary");
   energyThresholdSL = energyThresholdSL*GeV;   //  Convert GeV => MeV 
+
+  non_compensation_factor = m_CastorSD.getParameter<double>("nonCompensationFactor");
   
   if (useShowerLibrary) showerLibrary = new CastorShowerLibrary(name, p);
   
@@ -658,6 +660,14 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
   double E_SLhit = hits.getPrimE() * GeV ;
   double scale = E_track/E_SLhit ;
   
+  //Non compensation                                                      
+  if (isHAD){
+    scale=scale*non_compensation_factor; // if hadronic extend the scale with the non-compensation factor                                          
+  } else {
+    scale=scale; // if electromagnetic, don't do anything           
+  }
+
+
 /*    double theTrackEnergy = theTrack->GetTotalEnergy() ; 
   
   if(fabs(theTrackEnergy-E_track)>10.) {

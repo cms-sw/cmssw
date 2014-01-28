@@ -99,7 +99,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         MinPCut = cms.double(0.04), ## the pt-cut is in GeV (CMS conventions)
         MaxPCut = cms.double(99999.0), ## the ptmax=99.TeV in this case
         ApplyEtaCuts = cms.bool(True),
-        MinEtaCut = cms.double(-5.5),
+        MinEtaCut = cms.double(-7.0),
         MaxEtaCut = cms.double(5.5),
         ApplyPhiCuts = cms.bool(False),
         MinPhiCut = cms.double(-3.14159265359), ## in radians
@@ -286,6 +286,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     CastorSD = cms.PSet(
         useShowerLibrary               = cms.bool(True),
         minEnergyInGeVforUsingSLibrary = cms.double(1.0),
+        nonCompensationFactor          = cms.double(0.77),
         Verbosity                      = cms.untracked.int32(0)
     ),
     CastorShowerLibrary =  cms.PSet(
