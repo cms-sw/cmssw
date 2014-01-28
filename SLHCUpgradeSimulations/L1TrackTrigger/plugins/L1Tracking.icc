@@ -100,44 +100,9 @@
       L1TStub stub=ev.stub(j);
 
       int simtrackid=ev.simtrackid(stub);
-      //int simtrackid=-1;
 
-      //cout << "Simtrack id:"<<simtrackid<<endl;
-
-      /*
-      int isimtrack=ev.getSimtrackFromSimtrackid(simtrackid);
-      double simtrackpt=0.0;
-      double simtrackphi=999.0;
-      double simtracketa=999.0;
-      double simtrackvx=999.0;
-      double simtrackvy=999.0;
-      double simtrackvz=999.0;
-      int simtracktype=999.0;
-      if (isimtrack!=-1) {
-	L1SimTrack simtrack=ev.simtrack(isimtrack);
-        simtrackpt=simtrack.pt();
-	simtrackphi=simtrack.phi();
-	simtracketa=simtrack.eta();
-	simtrackvx=simtrack.vx();      
-	simtrackvy=simtrack.vy();      
-	simtrackvz=simtrack.vz();      
-	simtracktype=simtrack.type();      
-      }
-
-      if (stub.layer()==1){
-        //cout << "stub:"<<stub.x()<<" "<<stub.y()<<" "<<stub.z()
-      	//     <<" "<<simtrackvx<<" "<<simtrackvy<<" "<<simtrackvz
-	//     <<" "<<simtracketa<<" "<<simtracktype<<endl;
-      }
-      */    
-
-      //int simtrackid=ev.simtrackid(aStub);
-      //int simtrackid=-1;
-
-      //cout << "Simtrack id:"<<simtrackid<<endl;
-
-      int layer=stub.layer()+1;
-      int ladder=stub.ladder()+1;
+      int layer=stub.layer();
+      int ladder=stub.ladder();
       int module=stub.module();
 
       double sigmax=0.0029;
@@ -886,11 +851,18 @@
     //cout << "allTracks purgedTracks :"<<allTracks.size()<<" "
 //	 <<purgedTracks.size()<<endl;
 
-    bool printTracks=true;	
+    bool printTracks=false;	
 
-    static ofstream out1("tracks.txt");
+    static ofstream out1;
 
     if (printTracks) {
+
+      static bool first=true;
+  
+      if (first) {			
+	out1.open("tracks.txt");
+	first=false;
+      }
 
       int nsim=ev.nsimtracks();
     

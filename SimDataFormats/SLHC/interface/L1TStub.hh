@@ -142,6 +142,9 @@ public:
   unsigned int iphi() const { return iphi_; }
   unsigned int iz() const { return iz_; }
 
+  void setiphi(int iphi) {iphi_=iphi;}
+  void setiz(int iz) {iz_=iz;}
+
   double sigmax() const {return sigmax_;}
   double sigmaz() const {return sigmaz_;}
 

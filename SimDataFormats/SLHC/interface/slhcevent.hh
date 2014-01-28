@@ -244,7 +244,7 @@ public:
     y-=y_offset;
 
     L1TStub stub(-1,-1,-1,layer, ladder, module, x, y, z, -1.0, -1.0, pt);
-  
+
     for(unsigned int i=0;i<innerStack.size();i++){
       if (innerStack[i]) {
 	stub.AddInnerDigi(iladder[i],imodule[i],irphi[i],iz[i]);
@@ -264,6 +264,10 @@ public:
       }
     }
 
+    stub.setiphi(stub.diphi());
+    stub.setiz(stub.diz());
+
+    
     if (!foundclose) {
       stubs_.push_back(stub);
       return true;
@@ -273,6 +277,9 @@ public:
     
   }
 
+  L1TStub lastStub(){
+    return stubs_.back();
+  }
 
   SLHCEvent(istream& in) {
 
