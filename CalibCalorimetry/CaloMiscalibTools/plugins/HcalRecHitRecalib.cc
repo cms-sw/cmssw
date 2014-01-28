@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,7 +55,7 @@ void
 HcalRecHitRecalib::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
   edm::ESHandle<HcalTopology> topology;
-  iSetup.get<IdealGeometryRecord>().get( topology );
+  iSetup.get<HcalRecNumberingRecord>().get( topology );
   
   mapHcal_.prefillMap(*topology);
 
