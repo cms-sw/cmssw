@@ -2,17 +2,17 @@
 # monitor performance of PFJets
 
 import FWCore.ParameterSet.Config as cms
-  
+
 process = cms.Process("TEST")
 process.load("DQMServices.Core.DQM_cfg")
 
 
 process.source = cms.Source (
-    "PoolSource",    
+    "PoolSource",
     fileNames = cms.untracked.vstring(
     # Fast
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_0.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_1.root', 
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_1.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_2.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_3.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_4.root',
@@ -22,14 +22,14 @@ process.source = cms.Source (
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_8.root',
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_9.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_10.root',
-       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_11.root', 
+       'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_11.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_12.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_13.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_14.root',
        'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Fast_15.root'
        # Full
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_001.root',
-       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_002.root', 
+       #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_002.root',
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_003.root',
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_004.root',
        #'rfio:/castor/cern.ch/user/p/pjanot/CMSSW3110pre3/aod_QCDForPF_Full_005.root',
@@ -37,7 +37,7 @@ process.source = cms.Source (
     secondaryFileNames = cms.untracked.vstring(),
     noEventSort = cms.untracked.bool(True),
     duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
-    
+
     )
 
 process.maxEvents = cms.untracked.PSet(
@@ -46,13 +46,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("Validation.RecoParticleFlow.pfJetBenchmark_cfi")
 process.load("RecoJets.Configuration.GenJetParticles_cff")
-process.load("RecoJets.Configuration.RecoGenJets_cff") 
-process.load("RecoJets.Configuration.RecoPFJets_cff") 
+process.load("RecoJets.Configuration.RecoGenJets_cff")
+process.load("RecoJets.Configuration.RecoPFJets_cff")
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #process.iterativeCone5PFJets.inputEtMin = 0.0
-process.ak5PFJets.inputEtMin = 0.0
+process.ak4PFJets.inputEtMin = 0.0
 
 # should do a cloning
 process.genParticlesForJets.ignoreParticleIDs.append(14)
@@ -73,13 +73,13 @@ process.genParticlesForJets.excludeResonances = False
 process.pfJetBenchmark.OutputFile = cms.untracked.string('JetBenchmark_Fast_3110pre3.root')
 process.pfJetBenchmark.deltaRMax = 0.1
 process.pfJetBenchmark.OnlyTwoJets = cms.bool(True)
-process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak5GenJets')
+process.pfJetBenchmark.InputTruthLabel = cms.InputTag('ak4GenJets')
 
 process.p =cms.Path(
     process.genJetParticles+
-    process.ak5GenJets+
+    process.ak4GenJets+
     #process.iterativeCone5GenJets+
-    #process.ak5PFJets+
+    #process.ak4PFJets+
     process.pfJetBenchmark
     )
 
@@ -92,23 +92,23 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options = cms.untracked.PSet(
     makeTriggerResults = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(True),
-    Rethrow = cms.untracked.vstring('Unknown', 
-        'ProductNotFound', 
-        'DictionaryNotFound', 
-        'InsertFailure', 
-        'Configuration', 
-        'LogicError', 
-        'UnimplementedFeature', 
-        'InvalidReference', 
-        'NullPointerError', 
-        'NoProductSpecified', 
-        'EventTimeout', 
-        'EventCorruption', 
-        'ModuleFailure', 
-        'ScheduleExecutionFailure', 
-        'EventProcessorFailure', 
-        'FileInPathError', 
-        'FatalRootError', 
+    Rethrow = cms.untracked.vstring('Unknown',
+        'ProductNotFound',
+        'DictionaryNotFound',
+        'InsertFailure',
+        'Configuration',
+        'LogicError',
+        'UnimplementedFeature',
+        'InvalidReference',
+        'NullPointerError',
+        'NoProductSpecified',
+        'EventTimeout',
+        'EventCorruption',
+        'ModuleFailure',
+        'ScheduleExecutionFailure',
+        'EventProcessorFailure',
+        'FileInPathError',
+        'FatalRootError',
         'NotFound')
 )
 

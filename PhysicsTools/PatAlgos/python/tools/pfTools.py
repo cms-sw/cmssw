@@ -376,7 +376,7 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
         #getattr(process,'patMETs'+postfix).metSource = jecLabel+'Type1CorMet'+postfix
         #getattr(process,'patMETs'+postfix).addMuonCorrections = False
 
-def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK5', postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative', 'L3Absolute']), type1=False, outputModules=['out']):
+def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', postfix = "", jetCorrections=('AK4PFchs', ['L1FastJet','L2Relative', 'L3Absolute']), type1=False, outputModules=['out']):
 
     print "Switching to PFJets,  ", algo
     print "************************ "
@@ -384,12 +384,12 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK5', pos
 
     if( algo == 'IC5' ):
         genJetCollection = cms.InputTag('iterativeCone5GenJetsNoNu')
-    elif algo == 'AK5':
-        genJetCollection = cms.InputTag('ak5GenJetsNoNu')
+    elif algo == 'AK4':
+        genJetCollection = cms.InputTag('ak4GenJetsNoNu')
     elif algo == 'AK7':
         genJetCollection = cms.InputTag('ak7GenJetsNoNu')
     else:
-        print 'bad jet algorithm:', algo, '! for now, only IC5, AK5 and AK7 are allowed. If you need other algorithms, please contact Colin'
+        print 'bad jet algorithm:', algo, '! for now, only IC5, AK4 and AK7 are allowed. If you need other algorithms, please contact Colin'
         sys.exit(1)
 
     # changing the jet collection in PF2PAT:
@@ -480,7 +480,7 @@ def adaptPVs(process, pvCollection=cms.InputTag('offlinePrimaryVertices'), postf
                     setattr(getattr(process,m),namePvSrc,deepcopy(pvCollection))
 
 
-def usePF2PAT(process,runPF2PAT=True, jetAlgo='ak5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute'],'None'), pvCollection=cms.InputTag('offlinePrimaryVertices',), typeIMetCorrections=False, outputModules=['out'],excludeFromTopProjection=['Tau']):
+def usePF2PAT(process,runPF2PAT=True, jetAlgo='ak4', runOnMC=True, postfix="", jetCorrections=('AK4PFchs', ['L1FastJet','L2Relative','L3Absolute'],'None'), pvCollection=cms.InputTag('offlinePrimaryVertices',), typeIMetCorrections=False, outputModules=['out'],excludeFromTopProjection=['Tau']):
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED.
 

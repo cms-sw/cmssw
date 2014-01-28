@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 DQMExample_Step1 = cms.EDAnalyzer("DQMExample_Step1",
     electronCollection       = cms.InputTag("gsfElectrons"),
-    caloJetCollection        = cms.InputTag("ak5CaloJets"),
+    caloJetCollection        = cms.InputTag("ak4CaloJets"),
     pfMETCollection          = cms.InputTag("pfMet"),
     conversionsCollection    = cms.InputTag("allConversions"),
     PVCollection             = cms.InputTag("offlinePrimaryVerticesWithBS"),
@@ -19,6 +19,6 @@ DQMExample_Step1 = cms.EDAnalyzer("DQMExample_Step1",
     PtThrL2 = cms.untracked.double(10.0),
     PtThrJet = cms.untracked.double(20.0),
     PtThrMet = cms.untracked.double(20.0),
-    
+
 )
 
