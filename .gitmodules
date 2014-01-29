@@ -1,0 +1,3 @@
+[submodule "GEMCode"]
+	path = GEMCode
+	url = git://github.com/gem-sw/GEMCode.git
