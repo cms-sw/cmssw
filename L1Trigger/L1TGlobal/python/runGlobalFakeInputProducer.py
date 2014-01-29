@@ -15,6 +15,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
+process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(1000)
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
     )
@@ -62,11 +64,11 @@ process.fakeL1TGinput  = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
 		       ),
 		       
                        muParams = cms.untracked.PSet(
-		           muBx    = cms.untracked.vint32(),
-			   muHwPt  = cms.untracked.vint32(),
-			   muHwPhi = cms.untracked.vint32(),
-			   muHwEta = cms.untracked.vint32(),
-			   muIso   = cms.untracked.vint32()
+		           muBx    = cms.untracked.vint32(0, -1,  0,  0,  1,  2),
+			   muHwPt  = cms.untracked.vint32(5, 20, 30, 61, 40, 50),
+			   muHwPhi = cms.untracked.vint32(11, 21, 31, 61, 41, 51),
+			   muHwEta = cms.untracked.vint32(12, 22, 32, 62, 42, 52),
+			   muIso   = cms.untracked.vint32( 0,  0,  1,  1,  0,  0)
 		       ),
 
                        tauParams = cms.untracked.PSet(
@@ -91,10 +93,51 @@ process.fakeL1TGinput  = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
 		       )		       		       		       		       
                     )
 
+## Load our L1 menu
+process.load('L1Trigger.L1TGlobal.l1uGtTriggerMenuXml_cfi')
+process.l1uGtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
+process.l1uGtTriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
+
+process.load('L1Trigger.L1TGlobal.L1uGtTriggerMenuConfig_cff')
+process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::L1uGtTriggerMenuXmlProducer','l1uGtTriggerMenuXml')
+
+
+process.simL1uGtDigis = cms.EDProducer("l1t::L1uGtProducer",
+    #TechnicalTriggersUnprescaled = cms.bool(False),
+    ProduceL1GtObjectMapRecord = cms.bool(True),
+    AlgorithmTriggersUnmasked = cms.bool(False),
+    EmulateBxInEvent = cms.int32(5),
+    AlgorithmTriggersUnprescaled = cms.bool(False),
+    ProduceL1GtDaqRecord = cms.bool(True),
+    #ReadTechnicalTriggerRecords = cms.bool(True),
+    RecordLength = cms.vint32(3, 0),
+    #TechnicalTriggersUnmasked = cms.bool(False),
+    #ProduceL1GtEvmRecord = cms.bool(True),
+    #GmtInputTag = cms.InputTag("gtDigis"),
+    GmtInputTag = cms.InputTag("fakeL1TGinput"),
+    #TechnicalTriggersVetoUnmasked = cms.bool(False),
+    #AlternativeNrBxBoardEvm = cms.uint32(0),
+    #TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag("simBscDigis"), cms.InputTag("simRpcTechTrigDigis"), cms.InputTag("simHcalTechTrigDigis")),
+    #CastorInputTag = cms.InputTag("castorL1Digis"),
+    #GctInputTag = cms.InputTag("gctReEmulDigis"),
+    caloInputTag = cms.InputTag("fakeL1TGinput"),
+    AlternativeNrBxBoardDaq = cms.uint32(0),
+    #WritePsbL1GtDaqRecord = cms.bool(True),
+    BstLengthBytes = cms.int32(-1),
+    Verbosity = cms.untracked.int32(1)
+)
+
+process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
+process.l1GtTrigReport.L1GtRecordInputTag = "simL1uGtDigis"
+process.l1GtTrigReport.PrintVerbosity = 2
+process.report = cms.Path(process.l1GtTrigReport)
+
+process.MessageLogger.categories.append("L1uGtMuonConditon")
 
 process.p1 = cms.Path(
     process.fakeL1TGinput
     *process.dumpGT
+    *process.simL1uGtDigis
 #    * process.debug
 #    *process.dumpED
 #    *process.dumpES
@@ -103,8 +146,13 @@ process.p1 = cms.Path(
 process.schedule = cms.Schedule(
     process.p1
     )
-#process.outpath = cms.EndPath(process.output)
-#process.schedule.append(process.outpath)
+process.schedule.append(process.report)
+process.outpath = cms.EndPath(process.output)
+process.schedule.append(process.outpath)
 
 # Spit out filter efficiency at the end.
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+
+outfile = open('dump_runGlobalFakeInputProducer.py','w')
+print >> outfile,process.dumpPython()
+outfile.close()
