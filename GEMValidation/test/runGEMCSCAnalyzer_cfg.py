@@ -21,22 +21,18 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
 process.load('GEMCode.GEMValidation.GEMCSCAnalyzer_cfi')
-#process.GEMCSCAnalyzer.verbose = 2
-#process.GEMCSCAnalyzer.ntupleTrackChamberDelta = False
-#process.GEMCSCAnalyzer.ntupleTrackEff = True
 process.GEMCSCAnalyzer.ntupleTrackChamberDelta = True
 process.GEMCSCAnalyzer.ntupleTrackEff = True
-process.GEMCSCAnalyzer.minPt = 1.5
-#process.GEMCSCAnalyzer.simTrackMatching.verboseSimHit = 1
-#process.GEMCSCAnalyzer.simTrackMatching.verboseGEMDigi = 1
-#process.GEMCSCAnalyzer.simTrackMatching.verboseCSCDigi = 1
-#process.GEMCSCAnalyzer.simTrackMatching.verboseCSCStub = 1
-#process.GEMCSCAnalyzer.simTrackMatching.simMuOnlyGEM = False
-#process.GEMCSCAnalyzer.simTrackMatching.simMuOnlyCSC = False
-#process.GEMCSCAnalyzer.simTrackMatching.discardEleHitsCSC = False
-#process.GEMCSCAnalyzer.simTrackMatching.discardEleHitsGEM = False
-process.GEMCSCAnalyzer.simTrackMatching.gemRecHit.input = ""
-process.GEMCSCAnalyzer.simTrackMatching.minNHitsChamber = 3
+matching = process.GEMCSCAnalyzer.simTrackMatching
+matching.simTrack.minPt = 1.5
+matching.cscSimHit.minNHitsChamber = 3
+matching.cscStripDigi.minNHitsChamber = 3
+matching.cscWireDigi.minNHitsChamber = 3
+matching.cscCLCT.minNHitsChamber = 3
+matching.cscALCT.minNHitsChamber = 3
+matching.cscLCT.minNHitsChamber = 3
+matching.cscMPLCT.minNHitsChamber = 3
+matching.gemRecHit.input = ""
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
