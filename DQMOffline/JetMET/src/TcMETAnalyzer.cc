@@ -25,19 +25,9 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-TcMETAnalyzer::TcMETAnalyzer(const edm::ParameterSet& pSet) {
+TcMETAnalyzer::TcMETAnalyzer(const edm::ParameterSet& pSet, edm::ConsumesCollector&& iC) {
 
   parameters = pSet;
-
-}
-
-// ***********************************************************
-TcMETAnalyzer::~TcMETAnalyzer() { }
-
-void TcMETAnalyzer::beginJob(DQMStore * dbe) {
-
-  evtCounter = 0;
-  metname = "tcMETAnalyzer";
 
   // trigger information
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
@@ -50,13 +40,13 @@ void TcMETAnalyzer::beginJob(DQMStore * dbe) {
   _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
 
   // TcMET information
-  theTcMETCollectionLabel       = parameters.getParameter<edm::InputTag>("TcMETCollectionLabel");
+  theTcMETCollectionToken       = iC.consumes<reco::METCollection> (parameters.getParameter<edm::InputTag>("TcMETCollectionLabel"));
   _source                       = parameters.getParameter<std::string>("Source");
 
   // Other data collections
-  HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
-  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
+  HcalNoiseRBXCollectionToken   = iC.consumes<reco::HcalNoiseRBXCollection> (parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection"));
+  theJetCollectionToken         = iC.consumes<reco::CaloJetCollection> (parameters.getParameter<edm::InputTag>("JetCollectionLabel"));
+  HBHENoiseFilterResultToken    = iC.consumes<bool> (parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel"));
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -71,6 +61,16 @@ void TcMETAnalyzer::beginJob(DQMStore * dbe) {
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+
+}
+
+// ***********************************************************
+TcMETAnalyzer::~TcMETAnalyzer() { }
+
+void TcMETAnalyzer::beginJob(DQMStore * dbe) {
+
+  evtCounter = 0;
+  metname = "tcMETAnalyzer";
 
   // DQStore stuff
   LogTrace(metname)<<"[TcMETAnalyzer] Parameters initialization";
@@ -353,7 +353,7 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   // **** Get the MET container  
   edm::Handle<reco::METCollection> tcmetcoll;
-  iEvent.getByLabel(theTcMETCollectionLabel, tcmetcoll);
+  iEvent.getByToken(theTcMETCollectionToken, tcmetcoll);
   
   if(!tcmetcoll.isValid()) return;
 
@@ -366,7 +366,7 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================
   //
   edm::Handle<HcalNoiseRBXCollection> HRBXCollection;
-  iEvent.getByLabel(HcalNoiseRBXCollectionTag,HRBXCollection);
+  iEvent.getByToken(HcalNoiseRBXCollectionToken,HRBXCollection);
   if (!HRBXCollection.isValid()) {
     LogDebug("") << "TcMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
     if (_verbose) std::cout << "TcMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
@@ -374,7 +374,7 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
-  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  iEvent.getByToken(HBHENoiseFilterResultToken, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
   if (!HBHENoiseFilterResultHandle.isValid()) {
     LogDebug("") << "TcMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
@@ -383,7 +383,7 @@ void TcMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "TcMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "TcMETAnalyzer: Could not find jet product" << std::endl;
@@ -591,7 +591,7 @@ bool TcMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "TcMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "TcMETAnalyzer: Could not find jet product" << std::endl;
@@ -613,7 +613,7 @@ bool TcMETAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "TcMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "TcMETAnalyzer: Could not find jet product" << std::endl;

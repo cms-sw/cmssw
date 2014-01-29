@@ -48,6 +48,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class EgammaHLTTrackIsolation;
 class HLTConfigProvider;
@@ -66,19 +67,19 @@ namespace egHLT {
     std::vector<std::pair<TrigCodes::TrigBitSet,OffEgSel> > trigCuts_;//non sorted vector (for now)
     
     
-    edm::InputTag ecalRecHitsEBTag_;
-    edm::InputTag ecalRecHitsEETag_;
-    edm::InputTag caloJetsTag_;
-    edm::InputTag isolTrkTag_;
-    edm::InputTag hbheHitsTag_;
-    edm::InputTag hfHitsTag_;
-    edm::InputTag triggerSummaryLabel_;
-    edm::InputTag electronsTag_;
-    edm::InputTag photonsTag_;
-    edm::InputTag beamSpotTag_;
-    edm::InputTag caloTowersTag_;
-    edm::InputTag trigResultsTag_;
-    edm::InputTag vertexTag_;
+    edm::EDGetTokenT <EcalRecHitCollection>  ecalRecHitsEBToken;
+    edm::EDGetTokenT <EcalRecHitCollection>  ecalRecHitsEEToken;
+    edm::EDGetTokenT <reco::CaloJetCollection>  caloJetsToken;
+    edm::EDGetTokenT <reco::TrackCollection>  isolTrkToken;
+    edm::EDGetTokenT <HBHERecHitCollection>  hbheHitsToken;
+    edm::EDGetTokenT <HFRecHitCollection>  hfHitsToken;
+    edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
+    edm::EDGetTokenT <reco::GsfElectronCollection>  electronsToken;
+    edm::EDGetTokenT <reco::PhotonCollection>  photonsToken;
+    edm::EDGetTokenT <reco::BeamSpot>  beamSpotToken;
+    edm::EDGetTokenT <CaloTowerCollection>  caloTowersToken;
+    edm::EDGetTokenT <edm::TriggerResults>  trigResultsToken;
+    edm::EDGetTokenT <reco::VertexCollection>  vertexToken;
 
     edm::ESHandle<CaloGeometry> caloGeom_;
     edm::ESHandle<CaloTopology> caloTopology_;
@@ -162,7 +163,7 @@ namespace egHLT {
     OffHelper():eleLooseCuts_(),eleCuts_(),phoLooseCuts_(),phoCuts_(),hltEleTrkIsolAlgo_(NULL),hltPhoTrkIsolAlgo_(NULL){}
     ~OffHelper();
     
-    void setup(const edm::ParameterSet& conf);
+    void setup(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
     void setupTriggers(const HLTConfigProvider& config,const std::vector<std::string>& hltFiltersUsed);
 
     //int is the error code, 0 = no error
@@ -188,15 +189,15 @@ namespace egHLT {
     const std::vector<std::pair<TrigCodes::TrigBitSet,OffEgSel> >& trigCuts()const{return trigCuts_;}
     
     
-    template<class T> static bool getHandle(const edm::Event& event,const edm::InputTag& tag,edm::Handle<T>& handle);
+    template<class T> static bool getHandle(const edm::Event& event,const edm::EDGetTokenT<T>& token,edm::Handle<T>& handle);
     
   };
   
 
-  template<class T> bool OffHelper::getHandle(const edm::Event& event,const edm::InputTag& tag,edm::Handle<T>& handle)
+  template<class T> bool OffHelper::getHandle(const edm::Event& event,const edm::EDGetTokenT<T>& token, edm::Handle<T>& handle)
   {
   
-    bool success=event.getByLabel(tag,handle);
+    bool success=event.getByToken(token,handle);
     return success &&  handle.product();
     
 
