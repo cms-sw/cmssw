@@ -144,12 +144,12 @@ namespace evf{
 
     private:
 
+      void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID);
+
       void doStreamEOLSnapshot(bool outputCSV,unsigned int forLumi,unsigned int streamID) {
 	//this updates only atomic vector(s)
-	fmt_.jsonMonitor_->snapStreamAtomic(outputCSV, fastPath_,forLumi,streamID);
+	fmt_.jsonMonitor_->snapStreamAtomic(outputCSV, fastPath_,streamID,forLumi);
       }
-
-      void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID);
 
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
 	std::atomic_thread_fence(std::memory_order_acquire);
@@ -184,9 +184,9 @@ namespace evf{
       std::map<unsigned int, timeval> lumiStartTime_;//needed for multiplexed begin/end lumis
       timeval fileLookStart_, fileLookStop_;//this should be better calculated in input source
 
-      std::atomic<unsigned int> lastGlobalLumi_;
+      unsigned int lastGlobalLumi_;
       std::queue<unsigned int> lastGlobalLumisClosed_;
-      std::atomic<bool> isGlobalLumiTransition_;
+      bool isGlobalLumiTransition_;
       unsigned int lumiFromSource_;//possibly use atomic
 
       //global state
@@ -207,6 +207,9 @@ namespace evf{
       //for output module
       //std::unordered_map<unsigned int, int> processedEventsPerLumi_;
       std::map<unsigned int, int> processedEventsPerLumi_;
+
+
+      std::vector<std::atomic<bool>*> streamCounterUpdating_;
 
       std::map<unsigned int,std::vector<bool>> streamEoLMap_;
 

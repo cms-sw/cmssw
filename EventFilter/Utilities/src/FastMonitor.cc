@@ -23,30 +23,26 @@ FastMonitor::FastMonitor(std::string const& defPath, bool strictChecking, bool u
 	if (useSource)
 	  getHostAndPID(sourceInfo_);
 
-	//TODO:strict checking
-
-	//first load definition file
+	//load definition file
 	DataPointDefinition::getDataPointDefinitionFor(defPath_, dpd_);
 
-//	for (unsigned int i=0;i<dpd_.getNames().size();i++) {
-//	  jsonPtrAtIndex_.push_back(nullptr);
-//	}
 }
 
-//maybe should destroy datapoints here
 FastMonitor::~FastMonitor() {
   for (auto dp: dataPoints_) delete dp;
 }
 
+//per-process variables
 void FastMonitor::registerGlobalMonitorable(JsonMonitorable *newMonitorable, bool NAifZeroUpdates, unsigned int *nBins)
 {
-	DataPoint *dp = new DataPoint(sourceInfo_,defPath_);//(do we need defpath & sourceInfo here?)
+	DataPoint *dp = new DataPoint(sourceInfo_,defPath_);
 	dp->trackMonitorable(newMonitorable,NAifZeroUpdates);
 	dp->setNBins(nBins);
 	dataPoints_.push_back(dp);
 	dpNameMap_[newMonitorable->getName()]=dataPoints_.size()-1;
 }
 
+//per-stream variables
 void FastMonitor::registerStreamMonitorableUIntVec(std::string const& name, 
 		std::vector<unsigned int> *inputs, bool NAifZeroUpdates, unsigned int *nBins)
 {
@@ -60,7 +56,7 @@ void FastMonitor::registerStreamMonitorableUIntVec(std::string const& name,
 
 //atomic variables with guaranteed updates at the time of reading
 void FastMonitor::registerStreamMonitorableUIntVecAtomic(std::string const& name, 
-		std::vector<std::atomic<unsigned int>*> *inputs, bool NAifZeroUpdates, unsigned int *nBins)
+		std::vector<AtomicMonUInt*> *inputs, bool NAifZeroUpdates, unsigned int *nBins)
 {
 	std::string definitionToPass;
 	if (useDefinition_) definitionToPass=defPath_;
@@ -73,10 +69,8 @@ void FastMonitor::registerStreamMonitorableUIntVecAtomic(std::string const& name
 
 
 
-void FastMonitor::commit(std::vector<std::atomic<unsigned int>*> *streamLumisPtr)
+void FastMonitor::commit(std::vector<unsigned int> *streamLumisPtr)
 {
-	//streamLumi_=streamLumi;
-
 	std::vector<std::string> const& jsonNames= dpd_.getNames();
 	regDpCount_ = dataPoints_.size();
 	assert(!(strictChecking_ && jsonNames.size()==regDpCount_));
@@ -109,24 +103,20 @@ void FastMonitor::commit(std::vector<std::atomic<unsigned int>*> *streamLumisPtr
 	}
 }
 
-
 //update everything
 void FastMonitor::snap(bool outputCSVFile, std::string const& path, unsigned int forLumi) {
   recentSnaps_++;
   recentSnapsTimer_++;
-  //do this only for real ones, not dummies
   for (unsigned int i=0;i<regDpCount_;i++) {
     dataPoints_[i]->snap(forLumi);
   }
   if (outputCSVFile) outputCSV(path);
 }
 
-
 //update for global variables as most of them are correct only at global EOL
 void FastMonitor::snapGlobal(bool outputCSVFile, std::string const& path, unsigned int forLumi) {
 
   recentSnaps_++;
-  //do this only for real ones, not dummies
   for (unsigned int i=0;i<regDpCount_;i++) {
     dataPoints_[i]->snapGlobal(forLumi);
   }
@@ -137,7 +127,6 @@ void FastMonitor::snapGlobal(bool outputCSVFile, std::string const& path, unsign
 void FastMonitor::snapStreamAtomic(bool outputCSVFile, std::string const& path, unsigned int streamID, unsigned int forLumi)
 {
   recentSnaps_++;
-  //do this only for real ones, not dummies
   for (unsigned int i=0;i<regDpCount_;i++) {
     dataPoints_[i]->snapStreamAtomic(streamID, forLumi);
   }
@@ -145,7 +134,6 @@ void FastMonitor::snapStreamAtomic(bool outputCSVFile, std::string const& path, 
 
 }
 
-//todo: check for faliures
 void FastMonitor::outputCSV(std::string const& path)
 {
     //output what was specified in JSON in the same order (including dummies)
@@ -162,10 +150,9 @@ void FastMonitor::outputCSV(std::string const& path)
     outputFile << ss.str();
     outputFile << std::endl;
     outputFile.close();
-
 }
 
-//get one variable - use auto_ptr?
+//get one variable (caller must delete it later)
 JsonMonitorable* FastMonitor::getMergedIntJForLumi(std::string const& name,unsigned int forLumi)
 {
   auto it = dpNameMap_.find(name);
@@ -173,7 +160,6 @@ JsonMonitorable* FastMonitor::getMergedIntJForLumi(std::string const& name,unsig
   return  dataPoints_[it->second]->mergeAndRetrieveValue(forLumi);
 }
 
-//serialization step
 bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
 
 	std::cout << "SNAP updates: " <<  recentSnaps_ << " (by timer: " << recentSnapsTimer_ 
@@ -183,13 +169,11 @@ bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
 
         Json::Value serializeRoot;
         for (unsigned int j=0; j< jsonDpIndex_.size();j++) 
-          dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot,lumi,j==0);//merge and serialize
+          dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot,lumi,j==0);
 
         Json::StyledWriter writer;
-        //serialize to file (todo check for failures)
 	std::string result = writer.write(serializeRoot);
         FileIO::writeStringToFile(path, result);
-	std::cout << " DEBUG:written JSON:" << path << " data: " << result << std::endl;
 	return true;
 }
 

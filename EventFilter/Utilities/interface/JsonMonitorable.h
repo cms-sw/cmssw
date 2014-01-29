@@ -17,11 +17,8 @@
 
 namespace jsoncollector {
 
-//TODO:move to DataPoint
 enum MonType  { TYPEINT, TYPEUINT, TYPEDOUBLE, TYPESTRING, TYPEUNDEFINED};
 enum OperationType  { OPSUM, OPAVG, OPSAME, OPHISTO, OPCAT, OPUNKNOWN};
-
-//		if (nBins) binBuffer_.reset(new unsigned int[nBins]);
 
 class JsonMonitorable {
 
@@ -54,6 +51,22 @@ protected:
 	unsigned int updates_;
 	bool notSame_;
 };
+
+class JsonMonPtr {
+public:
+	JsonMonPtr():ptr_(nullptr){}
+	JsonMonPtr(JsonMonitorable*ptr):ptr_(ptr){}
+	void operator=(JsonMonitorable* ptr ){ptr_=ptr;}
+	~JsonMonPtr() {if (ptr_) delete ptr_;ptr_=nullptr;}
+	JsonMonitorable* operator->() {return ptr_;}
+	JsonMonitorable* get() {return ptr_;}
+	//JsonMonPtr& operator=(JsonMonPtr& ) = delete;
+	//JsonMonPtr& operator=(JsonMonPtr&& other){ptr_=other.ptr_;return *this;}
+private:
+	JsonMonitorable *ptr_;
+};
+
+
 
 
 class IntJ: public JsonMonitorable {
@@ -89,12 +102,10 @@ public:
 		updates_++;
 	}
 
-	/*
-	void add(int added) {
-		theVar_+=added;
+	void add(int sth) {
+		theVar_+=sth;
 		updates_++;
 	}
-	*/
 
 private:
 	int theVar_;
@@ -177,7 +188,7 @@ private:
 	std::string theVar_;
 };
 
-//histograms filled at time intervals (later converted to full histograms or concatenated)
+//histograms filled at time intervals (later converted to full histograms)
 template<class T> class HistoJ: public JsonMonitorable {
 
 public:
@@ -190,7 +201,6 @@ public:
 	}
 	virtual ~HistoJ() {}
 
-	//also unused
 	std::string toCSV() const {
 		std::stringstream ss;
 		for (unsigned int i=0;i<updates_;i++) {
@@ -199,7 +209,7 @@ public:
 		}
 		return ss.str();
 	}
-	//this is only left for debugging
+
 	virtual std::string toString() const {
 		std::stringstream ss;
 		ss << "[";

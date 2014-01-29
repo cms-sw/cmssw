@@ -303,6 +303,7 @@ namespace edm {
       streamContext.setTransition(StreamContext::Transition::kBeginLuminosityBlock);
       streamContext.setEventID(EventID(principal.run(), principal.luminosityBlock(), 0));
       streamContext.setRunIndex(principal.runPrincipal().index());
+      streamContext.setLuminosityBlockID(principal.id());
       streamContext.setLuminosityBlockIndex(principal.index());
       streamContext.setTimestamp(principal.beginTime());
     }

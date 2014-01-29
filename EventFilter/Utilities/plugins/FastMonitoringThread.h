@@ -32,12 +32,13 @@ namespace evf{
       unsigned int varIndexThrougput_;
 
       //per stream
-      std::vector<unsigned int> microstateDecoded_;
-      std::vector<unsigned int> ministateDecoded_;
-      std::vector<std::atomic<unsigned int>*> processed_;
+      std::vector<unsigned int> microstateEncoded_;
+      std::vector<unsigned int> ministateEncoded_;
+      std::vector<AtomicMonUInt*> processed_;
 
       //tracking luminosity of a stream
-      std::vector<std::atomic<unsigned int>*> streamLumi_;
+      //std::vector<std::atomic<unsigned int>*> streamLumi_;
+      std::vector<unsigned int> streamLumi_;
 
       //N bins for histograms
       unsigned int macrostateBins_;
@@ -49,9 +50,9 @@ namespace evf{
       MonitorData() {
 
 	fastMacrostateJ_ = FastMonitoringThread::sInit;
-	DoubleJ fastThroughputJ_(0);
-	DoubleJ fastAvgLeadTimeJ_(0);
-	IntJ fastFilesProcessedJ_(0);
+	fastThroughputJ_ = 0;
+	fastAvgLeadTimeJ_ = 0;
+	fastFilesProcessedJ_ = 0;
         fastMacrostateJ_.setName("Macrostate");
         fastThroughputJ_.setName("Throughput");
         fastAvgLeadTimeJ_.setName("AverageLeadTime");
@@ -61,24 +62,26 @@ namespace evf{
       //to be called after fast monitor is constructed
       void registerVariables(FastMonitor* fm, unsigned int nStreams) {
 	//tell FM to track these global variables(for fast and slow monitoring)
-        fm->registerGlobalMonitorable(&fastMacrostateJ_,true,&microstateBins_);
+        fm->registerGlobalMonitorable(&fastMacrostateJ_,true,&macrostateBins_);
         fm->registerGlobalMonitorable(&fastThroughputJ_,false);
         fm->registerGlobalMonitorable(&fastAvgLeadTimeJ_,false);
         fm->registerGlobalMonitorable(&fastFilesProcessedJ_,false);
 
 	for (unsigned int i=0;i<nStreams;i++) {
-	 std::atomic<unsigned int> * p  = new std::atomic<unsigned int>;
+	 AtomicMonUInt * p  = new AtomicMonUInt;
+	 //std::atomic<unsigned int> * pa  = new std::atomic<unsigned int>;
 	 *p=0;
+	 //*pa=0;
    	  processed_.push_back(p);
-          streamLumi_.push_back(p);
+          streamLumi_.push_back(0);
 	}
 	
-	ministateDecoded_.resize(nStreams);
-	microstateDecoded_.resize(nStreams);
+	ministateEncoded_.resize(nStreams);
+	microstateEncoded_.resize(nStreams);
 
 	//tell FM to track these int vectors
-        fm->registerStreamMonitorableUIntVec("Ministate", &ministateDecoded_,true,&ministateBins_);
-        fm->registerStreamMonitorableUIntVec("Microstate",&microstateDecoded_,true,&microstateBins_);
+        fm->registerStreamMonitorableUIntVec("Ministate", &ministateEncoded_,true,&ministateBins_);
+        fm->registerStreamMonitorableUIntVec("Microstate",&microstateEncoded_,true,&microstateBins_);
         fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm->commit(&streamLumi_);
@@ -111,7 +114,7 @@ namespace evf{
     MonitorData m_data;
     boost::mutex monlock_;
 
-    std::auto_ptr<FastMonitor> jsonMonitor_;
+    std::unique_ptr<FastMonitor> jsonMonitor_;
 
     friend class FastMonitoringService;
   };

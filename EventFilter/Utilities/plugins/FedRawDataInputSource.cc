@@ -274,6 +274,11 @@ int FedRawDataInputSource::openNextFile()
 
 void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) 
 {
+  if (!currentInputEventCount_) {
+    throw cms::Exception("RuntimeError")  << "There are more events than advertised in the input JSON:"
+                                          << currentInputJson_.string();
+  }
+
   currentInputEventCount_--;
   std::auto_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
   edm::Timestamp tstamp = fillFEDRawDataCollection(rawData);
@@ -331,8 +336,17 @@ int FedRawDataInputSource::searchForNextFile()
   uint32_t ls;
 
   edm::LogInfo("FedRawDataInputSource") << "Asking for next file... to the DaqDirector";
-  evf::FastMonitoringService *fms = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
+ 
+  evf::FastMonitoringService *fms = nullptr;
+
+  try {
+     fms = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
+  } catch (...){
+    edm::LogWarning("FedRawDataInputSource") << "FastMonitoringService not found";
+  }
+
   if (fms) fms->startedLookingForFile();
+ 
   bool fileIsOKToGrab = edm::Service<evf::EvFDaqDirector>()->updateFuLock(ls,nextFile,eorFileSeen_);
 
   if (fileIsOKToGrab) {

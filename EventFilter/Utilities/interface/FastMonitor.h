@@ -40,10 +40,10 @@ public:
 	//void registerStreamMonitorableStringVec(std::string &name, std::vector<std::string>,true,0);
 
 	void registerStreamMonitorableUIntVecAtomic(std::string const& name,
-		                std::vector<std::atomic<unsigned int>*> *inputs, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
+		                std::vector<AtomicMonUInt*> *inputs, bool NAifZeroUpdates, unsigned int *nBins=nullptr);
 
 	//take vector used to track stream lumis and finish initialization
-	void commit(std::vector<std::atomic<unsigned int>*> *streamLumisPtr);
+	void commit(std::vector<unsigned int> *streamLumisPtr);
 
 	// fetches new snapshot and outputs one-line CSV if set (timer based)
         void snap(bool outputCSVFile, std::string const& path, unsigned int forLumi);

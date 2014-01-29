@@ -18,9 +18,21 @@
 #include <stdint.h>
 #include <assert.h>
 
-//#include <tbb/concurrent_vector.h>
+//synchronization level between streams/threads for atomic updates
+#define ATOMIC_LEVEL 2 //assume postEvent and postLumi are not synchronized (each invocation can run in different thread)
+//#define ATOMIC_LEVEL 1 //assume postEvent can run in different threads but endLumi still sees all memory writes properly
+//#define ATOMIC_LEVEL 0 //assume a stream always runs in same thread and no atomics/synchronization needed in that context
 
 namespace jsoncollector {
+
+#if ATOMIC_LEVEL>0
+typedef std::atomic<unsigned int> AtomicMonUInt;
+#else
+typedef unsigned int AtomicMonUInt;
+#endif
+
+typedef std::map<unsigned int,JsonMonPtr> MonPtrMap;
+
 class DataPoint: public JsonSerializable {
 
 public:
@@ -30,17 +42,7 @@ public:
 	DataPoint(std::string const& source, std::string const& definition) :	source_(source), definition_(definition) { }
 	//TODO: expected/maxUpdates still useful ? = unsigned int expectedUpdates = 1, unsigned int maxUpdates = 0
 
-	~DataPoint() {
-		//delete buffer used to produce histograms
-		if (buf_) delete buf_;
-		//wipe out any map content
-		for (auto m : streamDataMaps_)
-			for (auto it = m.begin(); it != m.end();it++)
-				delete it->second;
-		for (auto it = globalDataMap_.begin(); it != globalDataMap_.end();it++)
-			delete it->second;
-		//now maps will be deleted without leaks
-	}
+	~DataPoint();
 
 	/**
 	 * JSON serialization procedure for this class
@@ -73,7 +75,8 @@ public:
 	void trackVectorUInt(std::string const& name, std::vector<unsigned int> *monvec, bool NAifZeroUpdates);
 
 	//set to track a vector of atomic variables with guaranteed collection
-	void trackVectorUIntAtomic(std::string const& name, std::vector<std::atomic<unsigned int>*> *monvec, bool NAifZeroUpdates);
+//	void trackVectorUIntAtomic(std::string const& name, std::vector<std::atomic<unsigned int>*> *monvec, bool NAifZeroUpdates);
+	void trackVectorUIntAtomic(std::string const& name, std::vector<AtomicMonUInt*> *monvec, bool NAifZeroUpdates);
 
 	//variable not found by the service, but want to output something to JSON
 	void trackDummy(std::string const& name, bool setNAifZeroUpdates)
@@ -90,8 +93,8 @@ public:
     		opType_=op;
 	}
 
-	//only used if per-stream DP
-	void setStreamLumiPtr(std::vector<std::atomic<unsigned int>*> *streamLumiPtr) {
+	//only used if per-stream DP (should use non-atomic vector here)
+	void setStreamLumiPtr(std::vector<unsigned int> *streamLumiPtr) {
 	  streamLumisPtr_=streamLumiPtr;
 	}
 
@@ -127,19 +130,12 @@ protected:
 	std::string definition_;
 	std::vector<std::string> data_;
 
-	//per stream queue of pointers to mon collectors
-	std::vector<std::map<unsigned int,JsonMonitorable*>> streamDataMaps_;//todo:cleanup after ls
-//	std::vector<std::queue<std::auto_ptr<JsonMonitorable>>> streamData_;
-	//lumi for each queue entry
-//	std::vector<std::queue<unsigned int>> queuedStreamLumi_;
-
-	std::map<unsigned int,JsonMonitorable*> globalDataMap_;//todo: cleanup after ls
-	//std::queue<std::auto_ptr<JsonMonitorable>> globalData_;
-	//
+	std::vector<MonPtrMap> streamDataMaps_;
+	MonPtrMap globalDataMap_;
 	void *tracked_;
 
         //global lumi ptr (not needed)
-	std::vector<std::atomic<unsigned int>*> *streamLumisPtr_ = nullptr;
+	std::vector<unsigned int> *streamLumisPtr_ = nullptr;
 
 	bool isStream_ = false;
 	bool isAtomic_ = false;

@@ -51,8 +51,6 @@ void DataPointDefinition::deserialize(Json::Value& root) {
 		for (unsigned int i = 0; i < size; i++) {
 			varNames_.push_back(root.get(LEGEND, "")[i].get(PARAM_NAME, "").asString());
 			opNames_.push_back(root.get(LEGEND, "")[i].get(OPERATION, "").asString());
-			//DEBUG
-			std::cout << "opName" << root.get(LEGEND, "")[i].get(OPERATION, "").asString() << std::endl;
 		}
 	}
 }
@@ -71,6 +69,7 @@ OperationType DataPointDefinition::getOperationFor(unsigned int index) {
 	if (opNames_.at(index)== DataPointDefinition::SAME) opType=OPSAME;
 	if (opNames_.at(index)== DataPointDefinition::HISTO) opType=OPHISTO;
 	if (opNames_.at(index)== DataPointDefinition::CAT) opType=OPCAT;
+	std::cout << " returnint opType idx:" << index << " "  << opType << std::endl;
 	return opType;
 }
 
