@@ -86,11 +86,11 @@ CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts)
   // only look for stub in chambers that have digis matching to this track
 
   auto cathode_ids = digi_matcher_->chamberIdsStrip(0);
-  int n_4layers = 0;
+  int n_minLayers = 0;
   for (auto id: cathode_ids)
   {
     CSCDetId ch_id(id);
-    if (digi_matcher_->nLayersWithStripInChamber(id) >= 4) ++n_4layers;
+    if (digi_matcher_->nLayersWithStripInChamber(id) >= minNHitsChamber_) ++n_minLayers;
 
     // fill 1 half-strip wide gaps
     auto digi_strips = digi_matcher_->stripsInChamber(id, 1);
@@ -151,7 +151,7 @@ CSCStubMatcher::matchCLCTsToSimTrack(const CSCCLCTDigiCollection& clcts)
     }
   }
 
-  if (verbose() && n_4layers > 0)
+  if (verbose() && n_minLayers > 0)
   {
     if (chamber_to_clct_.size() == 0)
     {
@@ -179,10 +179,10 @@ CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts)
   // only look for stub in chambers that have digis matching to this track
 
   auto anode_ids = digi_matcher_->chamberIdsWire(0);
-  int n_4layers = 0;
+  int n_minLayers = 0;
   for (auto id: anode_ids)
   {
-    if (digi_matcher_->nLayersWithWireInChamber(id) >= 4) ++n_4layers;
+    if (digi_matcher_->nLayersWithWireInChamber(id) >= minNHitsChamber_) ++n_minLayers;
     CSCDetId ch_id(id);
 
     // fill 1 WG wide gaps
@@ -238,7 +238,7 @@ CSCStubMatcher::matchALCTsToSimTrack(const CSCALCTDigiCollection& alcts)
     }
   }
 
-  if (verbose() && n_4layers > 0)
+  if (verbose() && n_minLayers > 0)
   {
     if (chamber_to_alct_.size() == 0)
     {
@@ -274,10 +274,10 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
       std::inserter(cathode_and_anode_ids, cathode_and_anode_ids.end())
   );
 
-  int n_4layers = 0;
+  int n_minLayers = 0;
   for (auto id: cathode_and_anode_ids)
   {
-    if (digi_matcher_->nLayersWithStripInChamber(id) >= 4 && digi_matcher_->nLayersWithWireInChamber(id) >= 4) ++n_4layers;
+    if (digi_matcher_->nLayersWithStripInChamber(id) >= minNHitsChamber_ && digi_matcher_->nLayersWithWireInChamber(id) >= minNHitsChamber_) ++n_minLayers;
     CSCDetId ch_id(id);
 
     auto lcts_in_det = lcts.get(ch_id);
@@ -374,7 +374,7 @@ CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& lcts)
     }
   }
 
-  if (verbose() && n_4layers > 0)
+  if (verbose() && n_minLayers > 0)
   {
     if (chamber_to_lct_.size() == 0)
     {
@@ -411,10 +411,10 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
       std::inserter(cathode_and_anode_ids, cathode_and_anode_ids.end())
   );
 
-  int n_4layers = 0;
+  int n_minLayers = 0;
   for (auto id: cathode_and_anode_ids)
   {
-    if (digi_matcher_->nLayersWithStripInChamber(id) >= 4 && digi_matcher_->nLayersWithWireInChamber(id) >= 4) ++n_4layers;
+    if (digi_matcher_->nLayersWithStripInChamber(id) >= minNHitsChamber_ && digi_matcher_->nLayersWithWireInChamber(id) >= minNHitsChamber_) ++n_minLayers;
     CSCDetId ch_id(id);
 
     auto mplcts_in_det = mplcts.get(ch_id);
@@ -511,7 +511,7 @@ CSCStubMatcher::matchMPLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& mplc
     }
   }
 
-  if (verbose() && n_4layers > 0)
+  if (verbose() && n_minLayers > 0)
   {
     if (chamber_to_lct_.size() == 0)
     {

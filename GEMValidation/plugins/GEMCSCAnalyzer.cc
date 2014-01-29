@@ -6,7 +6,6 @@
  Needed for the GEM-CSC triggering algorithm development.
 
  Original Author:  "Vadim Khotilovich"
- $Id: GEMCSCAnalyzer.cc,v 1.4 2013/03/05 14:02:45 khotilov Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -88,9 +87,9 @@ struct MyTrackEff
   Char_t chamber_odd; // bit1: has GEM pad   bit2: has CSC LCT
   Char_t chamber_even; // bit1: has GEM pad   bit2: has CSC LCT
 
-  Char_t has_csc_sh; // #layers with SimHits > 4    bit1: in odd, bit2: even
-  Char_t has_csc_strips; // #layers with comparator digis > 4    bit1: in odd, bit2: even
-  Char_t has_csc_wires; // #layers with wire digis > 4    bit1: in odd, bit2: even
+  Char_t has_csc_sh; // #layers with SimHits > minHitsChamber    bit1: in odd, bit2: even
+  Char_t has_csc_strips; // #layers with comparator digis > minHitsChamber    bit1: in odd, bit2: even
+  Char_t has_csc_wires; // #layers with wire digis > minHitsChamber    bit1: in odd, bit2: even
 
   Char_t has_clct; // bit1: in odd, bit2: even
   Char_t has_alct; // bit1: in odd, bit2: even
@@ -449,7 +448,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     if (stations_to_use_.count(st) == 0) continue;
 
     int nlayers = match_sh.nLayersWithHitsInSuperChamber(d);
-    if (nlayers < 4) continue;
+    if (nlayers < minNHitsChamber_) continue;
 
     if (id.chamber() & 1) etrk_[st].has_csc_sh |= 1;
     else etrk_[st].has_csc_sh |= 2;
@@ -469,7 +468,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     if (stations_to_use_.count(st) == 0) continue;
 
     int nlayers = match_cd.nLayersWithStripInChamber(d);
-    if (nlayers < 4) continue;
+    if (nlayers < minNHitsChamber_) continue;
 
     if (id.chamber() & 1) etrk_[st].has_csc_strips |= 1;
     else etrk_[st].has_csc_strips |= 2;
@@ -484,7 +483,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
     if (stations_to_use_.count(st) == 0) continue;
 
     int nlayers = match_cd.nLayersWithWireInChamber(d);
-    if (nlayers < 4) continue;
+    if (nlayers < minNHitsChamber_) continue;
 
     if (id.chamber() & 1) etrk_[st].has_csc_wires |= 1;
     else etrk_[st].has_csc_wires |= 2;
@@ -751,7 +750,7 @@ void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int 
     cout<<"n_csh_ids "<<match_sh.detIdsCSC().size()<<endl;
     auto csc_csh_ch_ids = match_sh.chamberIdsCSC();
     cout<<"n_csh_ids_ch "<<csc_csh_ch_ids.size()<<endl;
-    cout<<"n_csh_coch "<<match_sh.nCoincidenceCSCChambers()<<endl;
+    cout<<"n_csh_coch "<<match_sh.nCoincidenceCSCChambers(minNHitsChamber_)<<endl;
     for (auto id: csc_csh_ch_ids)
     {
       auto csc_simhits = match_sh.hitsInChamber(id);
@@ -838,8 +837,8 @@ void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int 
   // fill the information for delta-tree
   // only for tracks with enough hit layers in CSC and at least a pad in GEM
   if ( match_gd.nPads() > 0 &&
-       match_cd.nCoincidenceStripChambers(4) > 0 &&
-       match_cd.nCoincidenceWireChambers(4) > 0 )
+       match_cd.nCoincidenceStripChambers(minNHitsChamber_) > 0 &&
+       match_cd.nCoincidenceWireChambers(minNHitsChamber_) > 0 )
   {
     dtrk_.pt = t.momentum().pt();
     dtrk_.phi = t.momentum().phi();
@@ -854,7 +853,7 @@ void GEMCSCAnalyzer::analyzeTrackChamberDeltas(SimTrackMatchManager& match, int 
       CSCDetId csc_id(csc_d);
 
       // require CSC chamber to have at least 4 layers with comparator digis
-      if (match_cd.nLayersWithStripInChamber(csc_d) < 4) continue;
+      if (match_cd.nLayersWithStripInChamber(csc_d) < minNHitsChamber_) continue;
 
       bool is_odd = csc_id.chamber() & 1;
       int region = (csc_id.endcap() == 1) ? 1 : -1;
