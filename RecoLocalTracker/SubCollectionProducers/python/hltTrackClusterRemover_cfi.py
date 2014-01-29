@@ -11,5 +11,5 @@ hltTrackClusterRemover = cms.EDProducer( "HLTTrackClusterRemover",
       maxChi2            = cms.double( 9.0 ),
       minGoodStripCharge = cms.double(60.0)
    ),
-   doStripChargeCheck = cms.bool(True),
+   doStripChargeCheck = cms.bool(False),
 )
