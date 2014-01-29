@@ -114,19 +114,18 @@ namespace HLTOfflineDQMTopDiLepton {
     }
 
     // and don't forget to do the histogram booking
-    book(cfg.getParameter<std::string>("directory"));
+    folder_=cfg.getParameter<std::string>("directory");
 
     triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","","HLT"));
 
   }
 
   void 
-    MonitorDiLepton::book(std::string directory)
+    MonitorDiLepton::book(DQMStore::IBooker& store_)
     {
       //set up the current directory path
-      std::string current(directory); current+=label_;
-      store_=edm::Service<DQMStore>().operator->();
-      store_->setCurrentFolder(current);
+      std::string current(folder_); current+=label_;
+      store_.setCurrentFolder(current);
 
       // determine number of bins for trigger monitoring
       unsigned int nElecMu=elecMuPaths_.size();
@@ -134,25 +133,25 @@ namespace HLTOfflineDQMTopDiLepton {
       unsigned int nDiElec=diElecPaths_.size();
 
       // invariant mass of opposite charge lepton pair (only filled for same flavor)
-      hists_["invMass_"     ] = store_->book1D("InvMass"     , "M(lep1, lep2)"           ,       80,   0.,     320.); //OK
+      hists_["invMass_"     ] = store_.book1D("InvMass"     , "M(lep1, lep2)"           ,       80,   0.,     320.); //OK
       // invariant mass of same charge lepton pair (only filled for same flavor)
-      hists_["invMassWC_"   ] = store_->book1D("InvMassWC"   , "M_{WC}(L1, L2)"          ,       80,   0.,     320.); //OK
+      hists_["invMassWC_"   ] = store_.book1D("InvMassWC"   , "M_{WC}(L1, L2)"          ,       80,   0.,     320.); //OK
       // decay channel [1]: muon/muon, [2]:elec/elec, [3]:elec/muon 
-      hists_["decayChannel_"] = store_->book1D("DecayChannel", "Decay Channel"           ,        3,    0,        3); //OK
+      hists_["decayChannel_"] = store_.book1D("DecayChannel", "Decay Channel"           ,        3,    0,        3); //OK
       // // trigger efficiency estimates for the electron muon channel
-      // hists_["elecMuEff_"   ] = store_->book1D("ElecMuEff"   , "Eff(e/#mu paths)"        ,  nElecMu,   0.,  nElecMu);
+      // hists_["elecMuEff_"   ] = store_.book1D("ElecMuEff"   , "Eff(e/#mu paths)"        ,  nElecMu,   0.,  nElecMu);
       // monitored trigger occupancy for the electron muon channel
-      hists_["elecMuMon_"   ] = store_->book1D("ElecMuMon"   , "Mon(e/#mu paths)"        ,  nElecMu,   0.,  nElecMu);
+      hists_["elecMuMon_"   ] = store_.book1D("ElecMuMon"   , "Mon(e/#mu paths)"        ,  nElecMu,   0.,  nElecMu);
       // // trigger efficiency estimates for the di muon channel
-      // hists_["diMuonEff_"   ] = store_->book1D("DiMuonEff"   , "Eff(#mu/#mu paths)"      ,  nDiMuon,   0.,  nDiMuon);
+      // hists_["diMuonEff_"   ] = store_.book1D("DiMuonEff"   , "Eff(#mu/#mu paths)"      ,  nDiMuon,   0.,  nDiMuon);
       // monitored trigger occupancy for the di muon channel
-      hists_["diMuonMon_"   ] = store_->book1D("DiMuonMon"   , "Mon(#mu/#mu paths)"      ,  nDiMuon,   0.,  nDiMuon);
+      hists_["diMuonMon_"   ] = store_.book1D("DiMuonMon"   , "Mon(#mu/#mu paths)"      ,  nDiMuon,   0.,  nDiMuon);
       // // trigger efficiency estimates for the di electron channel
-      // hists_["diElecEff_"   ] = store_->book1D("DiElecEff"   , "Eff(e/e paths)"          ,  nDiElec,   0.,  nDiElec);
+      // hists_["diElecEff_"   ] = store_.book1D("DiElecEff"   , "Eff(e/e paths)"          ,  nDiElec,   0.,  nDiElec);
       // monitored trigger occupancy for the di electron channel
-      hists_["diElecMon_"   ] = store_->book1D("DiElecMon"   , "Mon(e/e paths)"          ,  nDiElec,   0.,  nDiElec);
+      hists_["diElecMon_"   ] = store_.book1D("DiElecMon"   , "Mon(e/e paths)"          ,  nDiElec,   0.,  nDiElec);
       // multiplicity of jets with pt>30 (corrected to L2+L3)
-      hists_["jetMult_"     ] = store_->book1D("JetMult"     , "N_{30}(jet)"             ,       21, -0.5,      20.5); //OK
+      hists_["jetMult_"     ] = store_.book1D("JetMult"     , "N_{30}(jet)"             ,       21, -0.5,      20.5); //OK
 
       // set bin labels for trigger monitoring
       triggerBinLabels(std::string("elecMu"), elecMuPaths_);
@@ -164,11 +163,11 @@ namespace HLTOfflineDQMTopDiLepton {
       hists_["decayChannel_"]->setBinLabel( 3, "e e"    , 1);
 
       // selected dimuon events
-      hists_["diMuonLogger_"] = store_->book2D("DiMuonLogger", "Logged DiMuon Events"    ,        8,   0.,       8.,   10,   0.,   10.); //OK
+      hists_["diMuonLogger_"] = store_.book2D("DiMuonLogger", "Logged DiMuon Events"    ,        8,   0.,       8.,   10,   0.,   10.); //OK
       // selected dielec events
-      hists_["diElecLogger_"] = store_->book2D("DiElecLogger", "Logged DiElec Events"    ,        8,   0.,       8.,   10,   0.,   10.); //OK
+      hists_["diElecLogger_"] = store_.book2D("DiElecLogger", "Logged DiElec Events"    ,        8,   0.,       8.,   10,   0.,   10.); //OK
       // selected elemu events
-      hists_["elecMuLogger_"] = store_->book2D("ElecMuLogger", "Logged ElecMu Events"    ,        8,   0.,       8.,   10,   0.,   10.); //OK
+      hists_["elecMuLogger_"] = store_.book2D("ElecMuLogger", "Logged ElecMu Events"    ,        8,   0.,       8.,   10,   0.,   10.); //OK
 
       // set bin labels for trigger monitoring
       loggerBinLabels(std::string("diMuonLogger_")); 
@@ -176,11 +175,11 @@ namespace HLTOfflineDQMTopDiLepton {
       loggerBinLabels(std::string("elecMuLogger_"));
 
       // deltaR min between hlt iso lepton and reco iso lepton wrt eta
-      hists_["leptDeltaREta_"] = store_->book2D("DeltaRMinEtaLepton", "#Delta R_{min}(leptons) wrt #eta", 30, -3, 3, 10, 0., 0.1);   
+      hists_["leptDeltaREta_"] = store_.book2D("DeltaRMinEtaLepton", "#Delta R_{min}(leptons) wrt #eta", 30, -3, 3, 10, 0., 0.1);   
       // resolution in pT for matched isolated leptons
-      hists_["leptResolution_"] = store_->book1D("ResIsoLeptons", "#Delta p_{T}/p_{T}(matched leptons)", 20, 0., 0.1);   
+      hists_["leptResolution_"] = store_.book1D("ResIsoLeptons", "#Delta p_{T}/p_{T}(matched leptons)", 20, 0., 0.1);   
       // matching monitoring
-      hists_["matchingMon_"] = store_->book1D("MatchingMon", "Mon(matching)", 3, 0., 3.);   
+      hists_["matchingMon_"] = store_.book1D("MatchingMon", "Mon(matching)", 3, 0., 3.);   
       // set axes titles for matching monitoring
       hists_["matchingMon_"]->setBinLabel( 1 , "1st lepton" );
       hists_["matchingMon_"]->setBinLabel( 2 , "2nd lepton" );
@@ -747,7 +746,7 @@ TopDiLeptonHLTOfflineDQM::TopDiLeptonHLTOfflineDQM(const edm::ParameterSet& cfg)
 }
 
   void
-TopDiLeptonHLTOfflineDQM::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+TopDiLeptonHLTOfflineDQM::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   using namespace std;
   using namespace edm;
@@ -816,3 +815,10 @@ TopDiLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup
   }
 }
 
+void
+TopDiLeptonHLTOfflineDQM::bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&)
+{
+  for (auto& sel: selection_) {
+    sel.second.second->book(i);
+  }
+}

@@ -53,7 +53,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       ~MonitorSingleLepton(){};
 
       /// book histograms in subdirectory _directory_
-      void book(std::string directory);
+      void book(DQMStore::IBooker& store_);
       /// fill monitor histograms with electronId and jetCorrections
       void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths);
 
@@ -80,6 +80,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       void fill(const std::string histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
 
     private:
+      std::string folder_;
       /// instance label 
       std::string label_;
       /// considers a vector of METs
@@ -146,8 +147,6 @@ namespace HLTOfflineDQMTopSingleLepton {
 
       /// number of logged interesting events
       int logged_;
-      /// storage manager
-      DQMStore* store_;
       /// histogram container  
       std::map<std::string,MonitorElement*> hists_;
 
@@ -165,7 +164,6 @@ namespace HLTOfflineDQMTopSingleLepton {
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         hists_[(channel+"Mon_").c_str()]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
-        //hists_[(channel+"Eff_").c_str()]->setBinLabel( idx+1, "["+selectionPath(labels[idx])+"]|["+monitorPath(labels[idx])+"]", 1);
       }
     }
 
@@ -175,9 +173,6 @@ namespace HLTOfflineDQMTopSingleLepton {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
           fill((channel+"Mon_").c_str(), idx+0.5 );
-          // take care to fill triggerMon_ before evts is being called
-          //	int evts = hists_.find((channel+"Mon_").c_str())->second->getBinContent(idx+1);
-          //	double value = hists_.find((channel+"Eff_").c_str())->second->getBinContent(idx+1);
         }
       }
     }
@@ -187,7 +182,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 #include <utility>
 
 #include "DQMOffline/Trigger/interface/TopHLTOfflineDQMHelper.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -226,7 +221,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 /// define MonitorSingleLepton to be used
 //using HLTOfflineDQMTopSingleLepton::MonitorSingleLepton;
 
-class TopSingleLeptonHLTOfflineDQM : public edm::EDAnalyzer  {
+class TopSingleLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);
@@ -237,8 +232,9 @@ class TopSingleLeptonHLTOfflineDQM : public edm::EDAnalyzer  {
     };
 
     /// do this during the event loop
-    virtual void beginRun(edm::Run const &, edm::EventSetup const&);
+    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c);
     virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+    void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
   private:
     /// deduce object type from ParameterSet label, the label

@@ -58,7 +58,7 @@ namespace HLTOfflineDQMTopDiLepton {
       ~MonitorDiLepton(){};
 
       /// book histograms in subdirectory _directory_
-      void book(std::string directory);
+      void book(DQMStore::IBooker& store_);
       /// fill monitor histograms with electronId and jetCorrections
       void fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths);
 
@@ -87,6 +87,7 @@ namespace HLTOfflineDQMTopDiLepton {
       void fill(const std::string histName, double xValue, double yValue, double zValue) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue); };
 
     private:
+      std::string folder_;
       /// instance label 
       std::string label_;
       /// input sources for monitoring
@@ -144,8 +145,6 @@ namespace HLTOfflineDQMTopDiLepton {
 
       /// number of logged interesting events
       int elecMuLogged_, diMuonLogged_, diElecLogged_;
-      /// storage manager
-      DQMStore* store_;
       /// histogram container  
       std::map<std::string,MonitorElement*> hists_;
 
@@ -188,7 +187,6 @@ namespace HLTOfflineDQMTopDiLepton {
     {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         hists_[(channel+"Mon_").c_str()]->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
-        //hists_[(channel+"Eff_").c_str()]->setBinLabel( idx+1, "["+selectionPath(labels[idx])+"]|["+monitorPath(labels[idx])+"]", 1);
       }
     }
 
@@ -198,10 +196,6 @@ namespace HLTOfflineDQMTopDiLepton {
       for(unsigned int idx=0; idx<labels.size(); ++idx){
         if( acceptHLT(event, triggerTable, monitorPath(labels[idx])) ){
           fill((channel+"Mon_").c_str(), idx+0.5 );
-          //	// take care to fill triggerMon_ before evts is being called
-          //	int evts = hists_.find((channel+"Mon_").c_str())->second->getBinContent(idx+1);
-          //	double value = hists_.find((channel+"Eff_").c_str())->second->getBinContent(idx+1);
-          //	fill((channel+"Eff_").c_str(), idx+0.5, 1./evts*(acceptHLT(event, triggerTable, selectionPath(labels[idx]))-value));
         }
       }
     }
@@ -210,7 +204,7 @@ namespace HLTOfflineDQMTopDiLepton {
 
 #include <utility>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -250,7 +244,7 @@ namespace HLTOfflineDQMTopDiLepton {
 /// define MonitorDiLepton to be used
 //using TopDiLeptonOffline::MonitorDiLepton;
 
-class TopDiLeptonHLTOfflineDQM : public edm::EDAnalyzer  {
+class TopDiLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopDiLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);
@@ -261,8 +255,9 @@ class TopDiLeptonHLTOfflineDQM : public edm::EDAnalyzer  {
     }
 
     /// do this during the event loop
-    virtual void beginRun(edm::Run const &, edm::EventSetup const&);
+    virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c);
     virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+    void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
   private:
     /// deduce object type from ParameterSet label, the label

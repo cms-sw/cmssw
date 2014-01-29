@@ -147,63 +147,62 @@ namespace HLTOfflineDQMTopSingleLepton {
     }
 
     // and don't forget to do the histogram booking
-    book(cfg.getParameter<std::string>("directory"));
+    folder_=cfg.getParameter<std::string>("directory");
 
     triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","","HLT"));
 
   }
 
   void 
-    MonitorSingleLepton::book(std::string directory)
+    MonitorSingleLepton::book(DQMStore::IBooker& store_)
     {
       //set up the current directory path
-      std::string current(directory); current+=label_;
-      store_=edm::Service<DQMStore>().operator->();
-      store_->setCurrentFolder(current);
+      std::string current(folder_); current+=label_;
+      store_.setCurrentFolder(current);
 
       // determine number of bins for trigger monitoring
       unsigned int nPaths=triggerPaths_.size();
 
       // number of selected primary vertices
-      hists_["pvMult_"     ] = store_->book1D("PvMult"     , "N_{pvs}"          ,     100,     0.,    100.);  
+      hists_["pvMult_"     ] = store_.book1D("PvMult"     , "N_{pvs}"          ,     100,     0.,    100.);  
       // multiplicity of jets with pt>20 (corrected to L2+L3)
-      hists_["jetMult_"    ] = store_->book1D("JetMult"    , "N_{20}(jet)"      ,     10,     0.,     10.);   
+      hists_["jetMult_"    ] = store_.book1D("JetMult"    , "N_{20}(jet)"      ,     10,     0.,     10.);   
       // // trigger efficiency estimates for single lepton triggers
-      // hists_["triggerEff_" ] = store_->book1D("TriggerEff" , "Eff(trigger)"     , nPaths,     0.,  nPaths);
+      // hists_["triggerEff_" ] = store_.book1D("TriggerEff" , "Eff(trigger)"     , nPaths,     0.,  nPaths);
       // monitored trigger occupancy for single lepton triggers
-      hists_["triggerMon_" ] = store_->book1D("TriggerMon" , "Mon(trigger)"     , nPaths,     0.,  nPaths);
+      hists_["triggerMon_" ] = store_.book1D("TriggerMon" , "Mon(trigger)"     , nPaths,     0.,  nPaths);
       // W mass estimate
-      hists_["massW_"      ] = store_->book1D("MassW"      , "M(W)"             ,     60,     0.,    300.);   
+      hists_["massW_"      ] = store_.book1D("MassW"      , "M(W)"             ,     60,     0.,    300.);   
       // Top mass estimate
-      hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,     0.,    500.);   
+      hists_["massTop_"    ] = store_.book1D("MassTop"    , "M(Top)"           ,     50,     0.,    500.);   
       // Mlb mu 
-      hists_["mMub_"       ] = store_->book1D("mMub"       , "m_{#mub}"         ,     50,     0.,    500.);
+      hists_["mMub_"       ] = store_.book1D("mMub"       , "m_{#mub}"         ,     50,     0.,    500.);
       // W mass transverse estimate mu
-      hists_["MTWm_"       ] = store_->book1D("MTWm"       , "M_{T}^{W}(#mu)"   ,     60,     0.,    300.);
+      hists_["MTWm_"       ] = store_.book1D("MTWm"       , "M_{T}^{W}(#mu)"   ,     60,     0.,    300.);
       // Top mass transverse estimate mu
-      hists_["mMTT_"       ] = store_->book1D("mMTT"       , "M_{T}^{t}(#mu)"   ,     50,     0.,    500.);
+      hists_["mMTT_"       ] = store_.book1D("mMTT"       , "M_{T}^{t}(#mu)"   ,     50,     0.,    500.);
       // Mlb e 
-      hists_["mEb_"        ] = store_->book1D("mEb"        , "m_{eb}"           ,     50,     0.,    500.);
+      hists_["mEb_"        ] = store_.book1D("mEb"        , "m_{eb}"           ,     50,     0.,    500.);
       // W mass transverse estimate e
-      hists_["MTWe_"       ] = store_->book1D("MTWe"       , "M_{T}^{W}(e)"     ,     60,     0.,    300.);
+      hists_["MTWe_"       ] = store_.book1D("MTWe"       , "M_{T}^{W}(e)"     ,     60,     0.,    300.);
       // Top mass transverse estimate e
-      hists_["eMTT_"       ] = store_->book1D("eMTT"       , "M_{T}^{t}(e)"     ,     50,     0.,    500.);
+      hists_["eMTT_"       ] = store_.book1D("eMTT"       , "M_{T}^{t}(e)"     ,     50,     0.,    500.);
       // set bin labels for trigger monitoring
       triggerBinLabels(std::string("trigger"), triggerPaths_);
       // multiplicity of btagged jets (for track counting high efficiency) with pt(L2L3)>20
-      hists_["jetMultBEff_"] = store_->book1D("JetMultBProb", "N_{20}(b/prob)"    ,     10,     0.,     10.);   
+      hists_["jetMultBEff_"] = store_.book1D("JetMultBProb", "N_{20}(b/prob)"    ,     10,     0.,     10.);   
       // btag discriminator for track counting high efficiency for jets with pt(L2L3)>20
-      hists_["jetBDiscEff_"] = store_->book1D("JetBDiscProb", "Disc_{b/prob}(jet)",     25,     0.,     2.5);   
+      hists_["jetBDiscEff_"] = store_.book1D("JetBDiscProb", "Disc_{b/prob}(jet)",     25,     0.,     2.5);   
       // multiplicity of btagged jets (for track counting high purity) with pt(L2L3)>20
-      hists_["jetMultBPur_"] = store_->book1D("JetMultBPur", "N_{20}(b/pur)"    ,     10,     0.,     10.);   
+      hists_["jetMultBPur_"] = store_.book1D("JetMultBPur", "N_{20}(b/pur)"    ,     10,     0.,     10.);   
       // btag discriminator for track counting high purity
-      hists_["jetBDiscPur_"] = store_->book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
+      hists_["jetBDiscPur_"] = store_.book1D("JetBDiscPur", "Disc_{b/pur}(Jet)",     100,     0.,     10.);   
       // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>20
-      hists_["jetMultBVtx_"] = store_->book1D("JetMultBVtx", "N_{20}(b/vtx)"    ,     10,     0.,     10.);   
+      hists_["jetMultBVtx_"] = store_.book1D("JetMultBVtx", "N_{20}(b/vtx)"    ,     10,     0.,     10.);   
       // btag discriminator for simple secondary vertex
-      hists_["jetBDiscVtx_"] = store_->book1D("JetBDiscVtx", "Disc_{b/vtx}(Jet)",     35,    -1.,      6.);   
+      hists_["jetBDiscVtx_"] = store_.book1D("JetBDiscVtx", "Disc_{b/vtx}(Jet)",     35,    -1.,      6.);   
       // selected events
-      hists_["eventLogger_"] = store_->book2D("EventLogger", "Logged Events"    ,      3,     0.,      3.,   4,   0.,   4.);
+      hists_["eventLogger_"] = store_.book2D("EventLogger", "Logged Events"    ,      3,     0.,      3.,   4,   0.,   4.);
       // set axes titles for selected events
       hists_["eventLogger_"]->getTH1()->SetOption("TEXT");
       hists_["eventLogger_"]->setBinLabel( 1 , "Run"             , 1);
@@ -212,15 +211,15 @@ namespace HLTOfflineDQMTopSingleLepton {
       hists_["eventLogger_"]->setAxisTitle("logged evts"         , 2);
 
       // deltaR min between hlt iso lepton and reco iso lepton wrt eta
-      hists_["leptDeltaREta_"] = store_->book2D("DeltaRMinEtaLepton", "#Delta R_{min}(leptons) wrt #eta", 30, -3, 3, 10, 0., 0.1);   
+      hists_["leptDeltaREta_"] = store_.book2D("DeltaRMinEtaLepton", "#Delta R_{min}(leptons) wrt #eta", 30, -3, 3, 10, 0., 0.1);   
       // deltaR min between hlt jets and reco jets wrt eta
-      hists_["jetDeltaREta_"] = store_->book2D("DeltaRMinEtaJet", "#Delta R_{min}(jets) wrt #eta", 30, -3, 3, 10, 0., 0.1);   
+      hists_["jetDeltaREta_"] = store_.book2D("DeltaRMinEtaJet", "#Delta R_{min}(jets) wrt #eta", 30, -3, 3, 10, 0., 0.1);   
       // resolution in pT for matched isolated leptons
-      hists_["leptResolution_"] = store_->book1D("ResIsoLeptons", "#Delta p_{T}/p_{T}(matched leptons)", 20, 0., 0.1);   
+      hists_["leptResolution_"] = store_.book1D("ResIsoLeptons", "#Delta p_{T}/p_{T}(matched leptons)", 20, 0., 0.1);   
       // resolution in pT for matched jets
-      hists_["jetResolution_"] = store_->book1D("ResIsoJets", "#Delta p_{T}/p_{T}(matched jets)", 20, 0., 0.1);   
+      hists_["jetResolution_"] = store_.book1D("ResIsoJets", "#Delta p_{T}/p_{T}(matched jets)", 20, 0., 0.1);   
       // matching monitoring
-      hists_["matchingMon_"] = store_->book1D("MatchingMon", "Mon(matching)", 5, 0., 5.);   
+      hists_["matchingMon_"] = store_.book1D("MatchingMon", "Mon(matching)", 5, 0., 5.);   
       // set axes titles for matching monitoring
       hists_["matchingMon_"]->setBinLabel( 1 , "iso lepton" );
       hists_["matchingMon_"]->setBinLabel( 2 , "1st jet" );
@@ -704,7 +703,7 @@ TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterS
 }
 
   void
-TopSingleLeptonHLTOfflineDQM::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+TopSingleLeptonHLTOfflineDQM::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   using namespace std;
   using namespace edm;
@@ -773,4 +772,10 @@ TopSingleLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventS
   }
 }
 
-
+void
+TopSingleLeptonHLTOfflineDQM::bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&)
+{
+  for (auto& sel: selection_) {
+    sel.second.second->book(i);
+  }
+}
