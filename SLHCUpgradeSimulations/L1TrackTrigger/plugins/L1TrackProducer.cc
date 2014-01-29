@@ -618,6 +618,17 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 								  track.phi0(), 
 								 fabs(track.pt(mMagneticFieldStrength))*sinh(track.eta())) ) );
     
+    aTrack.setRInv(track.rinv());
+
+    aTrack.setSector(999); //this is currently not retrained by the algorithm
+    aTrack.setWedge(999); //not used by the tracklet implementations
+
+    aTrack.setChi2(track.chisq());
+
+    aTrack.setPOCA(bsPosition);
+
+    aTrack.setFitParNo(4);
+
     
     
     vector<L1TStub> stubs = track.getStubs();

@@ -1,7 +1,7 @@
 //
 // Original Author:  Isabel R Ojalvo
 //         Created:  Tue Jul 22 12:21:36 CEST 2008
-// $Id: CaloTriggerAnalyzerOnDataTrees.h,v 1.2 2013/04/20 03:52:16 dlange Exp $
+// $Id: CaloTriggerAnalyzerOnDataTrees.h,v 1.1 2012/03/18 23:08:02 ojalvo Exp $
 
 // system include files
 #include <memory>

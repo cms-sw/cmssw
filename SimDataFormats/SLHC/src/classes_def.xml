@@ -187,6 +187,11 @@
   <class name="l1slhc::L1CaloClusterCollection" />
   <class name="edm::Wrapper<l1slhc::L1CaloClusterCollection>" />
 
+ <class name="l1slhc::L1CaloClusterWithSeed"/>
+ <class name="std::vector<l1slhc::L1CaloClusterWithSeed>"/>
+ <class name="l1slhc::L1CaloClusterWithSeedCollection"/>
+ <class name="edm::Wrapper<l1slhc::L1CaloClusterWithSeedCollection>"/>
+
   <class name="l1slhc::L1CaloJet" />
   <class name="std::vector<l1slhc::L1CaloJet>" />
   <class name="l1slhc::L1CaloJetCollection" />

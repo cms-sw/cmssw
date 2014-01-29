@@ -46,7 +46,8 @@ class L1ExtraTranslator:public edm::EDProducer
         double calculateTowerEtaPosition( int );
   	virtual void endJob(  );
 
-  edm::InputTag mClusters;
+  edm::InputTag mEGClusters;
+  edm::InputTag mTauClusters;
   edm::InputTag mJets;
   edm::InputTag mTowers;
   std::size_t mNparticles;			// Number of Objects to produce
@@ -59,7 +60,8 @@ class L1ExtraTranslator:public edm::EDProducer
 
 
 L1ExtraTranslator::L1ExtraTranslator( const edm::ParameterSet & iConfig ):
-mClusters( iConfig.getParameter < edm::InputTag > ( "Clusters" ) ),
+mEGClusters( iConfig.getParameter < edm::InputTag > ( "EGClusters" ) ),
+mTauClusters( iConfig.getParameter < edm::InputTag > ( "TauClusters" ) ),
 mJets( iConfig.getParameter < edm::InputTag > ( "Jets" ) ), 
 mTowers( iConfig.getParameter < edm::InputTag > ( "Towers" ) ), 
 mNparticles( iConfig.getParameter < unsigned int >( "NParticles" ) ), 
@@ -85,147 +87,177 @@ L1ExtraTranslator::~L1ExtraTranslator(  )
 
 void L1ExtraTranslator::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
 {
-	edm::Handle < l1slhc::L1CaloClusterCollection > clusters;
-	if ( iEvent.getByLabel( mClusters, clusters ) )
+
+  std::auto_ptr < l1extra::L1EmParticleCollection > l1EGamma( new l1extra::L1EmParticleCollection );
+  std::auto_ptr < l1extra::L1EmParticleCollection > l1IsoEGamma( new l1extra::L1EmParticleCollection );
+  std::auto_ptr < l1extra::L1JetParticleCollection > l1Tau( new l1extra::L1JetParticleCollection );
+  std::auto_ptr < l1extra::L1JetParticleCollection > l1IsoTau( new l1extra::L1JetParticleCollection );
+  
+
+  edm::Handle < l1slhc::L1CaloClusterCollection > egClusters;
+  if ( iEvent.getByLabel( mEGClusters, egClusters ) )
+    {
+      
+      l1slhc::L1CaloClusterCollection finalEGClusters ( *egClusters );
+      finalEGClusters.sort(  );
+      
+      for ( l1slhc::L1CaloClusterCollection::const_iterator i = finalEGClusters.begin(  ); i != finalEGClusters.end(  ); ++i )
 	{
-
-		std::auto_ptr < l1extra::L1EmParticleCollection > l1EGamma( new l1extra::L1EmParticleCollection );
-		std::auto_ptr < l1extra::L1EmParticleCollection > l1IsoEGamma( new l1extra::L1EmParticleCollection );
-		std::auto_ptr < l1extra::L1JetParticleCollection > l1Tau( new l1extra::L1JetParticleCollection );
-		std::auto_ptr < l1extra::L1JetParticleCollection > l1IsoTau( new l1extra::L1JetParticleCollection );
-
-		l1slhc::L1CaloClusterCollection finalClusters ( *clusters );
-		finalClusters.sort(  );
-
-		for ( l1slhc::L1CaloClusterCollection::const_iterator i = finalClusters.begin(  ); i != finalClusters.end(  ); ++i )
+	  // EGamma
+	  if ( l1EGamma->size() != mNparticles )
+	    {
+	      if ( i->isEGamma(  ) )
 		{
-			// EGamma
-			if ( l1EGamma->size() != mNparticles )
-			{
-				if ( i->isEGamma(  ) )
-				{
-					l1EGamma->push_back( l1extra::L1EmParticle( i->p4(  ) ) );
-				}
-			}
-
-			// Isolated EGamma
-			if ( l1IsoEGamma->size() != mNparticles )
-			{
-				if ( i->isIsoEGamma(  ) )
-				{
-					l1IsoEGamma->push_back( l1extra::L1EmParticle( i->p4(  ) ) );
-				}
-			}
-
-			if( abs( i->iEta(  ) ) <= 26 )
-			{
-				// Taus
-				if ( l1Tau->size() != mNparticles )
-				{
-					if ( i->isTau(  ) )
-					{
-						l1Tau->push_back( l1extra::L1JetParticle( i->p4(  ) ) );
-					}
-				}
-
-				// IsoTaus
-				if ( l1IsoTau->size() != mNparticles )
-				{
-					if ( i->isIsoTau(  ) )
-					{
-						l1IsoTau->push_back( l1extra::L1JetParticle( i->p4(  ) ) );
-					}
-				}
-			}
-
+		  l1EGamma->push_back( l1extra::L1EmParticle( i->p4(  ) ) );
 		}
-
-		iEvent.put( l1EGamma, "EGamma" );
-		iEvent.put( l1IsoEGamma, "IsoEGamma" );
-		iEvent.put( l1Tau, "Taus" );
-		iEvent.put( l1IsoTau, "IsoTaus" );
-	}
-
-
-
-	// Jets
-	edm::Handle < l1slhc::L1CaloJetCollection > jets;
-	if ( iEvent.getByLabel( mJets, jets ) )
-	{
-	  LorentzVector Htvec(0,0,0,0);
-	  std::auto_ptr < l1extra::L1JetParticleCollection > l1Jet( new l1extra::L1JetParticleCollection );
-	  std::auto_ptr < l1extra::L1EtMissParticleCollection> l1MHt( new l1extra::L1EtMissParticleCollection );
-	 
-		l1slhc::L1CaloJetCollection lJets = *jets;
-		lJets.sort(  );
-
-		for ( l1slhc::L1CaloJetCollection::const_iterator i = lJets.begin(  ); i != lJets.end(  ) ; ++i )
-		{
-		  
-		  l1Jet->push_back( l1extra::L1JetParticle( i->p4(  ) ) );
-			
-			if ( fabs(i->p4().eta())< maxJetTowerEta ) {
-			LorentzVector jet4v(0,0,0,0);
-			jet4v.SetCoordinates(i->p4().Pt(), 0.0, i->p4().Phi(), 0.0);
-			Htvec += jet4v;
-			}
-			
-			if( l1Jet->size() == mNjets ) break;
-			
-		}
-
-		double Ht = Htvec.Et();
-		Htvec.SetCoordinates(Htvec.Pt(), 0.0, Htvec.Phi(), 0.0);
-		
-		l1MHt->push_back( l1extra::L1EtMissParticle( 
-							    -Htvec,
-							    l1extra::L1EtMissParticle::kMHT,
-							    Ht,
-							    edm::Ref< L1GctEtMissCollection >(),
-							    edm::Ref< L1GctEtTotalCollection >(),
-							    edm::Ref< L1GctHtMissCollection >(),
-							    edm::Ref< L1GctEtHadCollection >(),
-							    0 ) );
-		
-		iEvent.put( l1Jet, "Jets" );
-		iEvent.put( l1MHt, "MHT" );
-	
-	}
-
-	
-	edm::Handle < l1slhc::L1CaloTowerCollection > towers;
-	if ( iEvent.getByLabel( mTowers, towers ) )
-	  {
-	    LorentzVector Etvec(0,0,0,0);
-	    
-	    std::auto_ptr < l1extra::L1EtMissParticleCollection> l1Met( new l1extra::L1EtMissParticleCollection );
-	    
-	    l1slhc::L1CaloTowerCollection lTowers = *towers;
-	    
-	    for( l1slhc::L1CaloTowerCollection::const_iterator i = lTowers.begin() ; i != lTowers.end() ; ++i ){
-	      
-	      //	      if ( fabs(0.087*i->iEta())< maxJetTowerEta ) {
-	      if ( calculateTowerEtaPosition(i->iEta())< maxJetTowerEta ) {
-	      LorentzVector twr4v(0,0,0,0);
-
-	      twr4v.SetCoordinates(i->E()+i->H(), 0.0, 0.087*i->iPhi(), 0.0);
-	      Etvec += twr4v;      
-	      }
 	    }
 
-	    double Et = Etvec.Et();
-	    Etvec.SetCoordinates(Etvec.Pt(), 0.0, Etvec.Phi(), 0.0);
-	    l1Met->push_back( l1extra::L1EtMissParticle(   -Etvec,
-							   l1extra::L1EtMissParticle::kMET,
-							   Et,
-							   edm::Ref< L1GctEtMissCollection >(),
-							   edm::Ref< L1GctEtTotalCollection >(),
-							   edm::Ref< L1GctHtMissCollection >(),
-							   edm::Ref< L1GctEtHadCollection >(),
-							   0 ) );
-	    iEvent.put( l1Met, "MET" );
+	  // Isolated EGamma
+	  if ( l1IsoEGamma->size() != mNparticles )
+	    {
+	      if ( i->isIsoEGamma(  ) )
+		{
+		  l1IsoEGamma->push_back( l1extra::L1EmParticle( i->p4(  ) ) );
+		}
+	    }
+	}
+    }
+  else {
+    edm::LogWarning("MissingProduct") << "Input collection missing : " << mEGClusters << ". Cannot produce output" << std::endl;
+  }
+  
+  edm::Handle < l1slhc::L1CaloClusterCollection > tauClusters;
+  if ( iEvent.getByLabel( mTauClusters, tauClusters ) )
+    {
+      
+      l1slhc::L1CaloClusterCollection finalTauClusters ( *tauClusters );
+      finalTauClusters.sort(  );
+      
+      for ( l1slhc::L1CaloClusterCollection::const_iterator i = finalTauClusters.begin(  ); i != finalTauClusters.end(  ); ++i )
+	{
+	  
+	  if( abs( i->iEta(  ) ) <= 26 )
+	    {
+	      // Taus
+	      if ( l1Tau->size() != mNparticles )
+		{
+		  if ( i->isTau(  ) )
+		    {
+		      l1Tau->push_back( l1extra::L1JetParticle( i->p4(  ) ) );
+		    }
+		}
+	      
+	      // IsoTaus
+	      if ( l1IsoTau->size() != mNparticles )
+		{
+		  if ( i->isIsoTau(  ) )
+		    {
+		      l1IsoTau->push_back( l1extra::L1JetParticle( i->p4(  ) ) );
+		    }
+		}
+	    }
+	  
+	}
+      
+    }
+  else {
+    edm::LogWarning("MissingProduct") << "Input collection missing : " << mTauClusters << ". Cannot produce output" << std::endl;
+  }
+
+  iEvent.put( l1EGamma, "EGamma" );
+  iEvent.put( l1IsoEGamma, "IsoEGamma" );
+  iEvent.put( l1Tau, "Taus" );
+  iEvent.put( l1IsoTau, "IsoTaus" );
+  
+  
+  
+  // Jets
+  std::auto_ptr < l1extra::L1JetParticleCollection > l1Jet( new l1extra::L1JetParticleCollection );
+  std::auto_ptr < l1extra::L1EtMissParticleCollection> l1MHt( new l1extra::L1EtMissParticleCollection );
+
+  edm::Handle < l1slhc::L1CaloJetCollection > jets;
+  if ( iEvent.getByLabel( mJets, jets ) )
+    {
+      LorentzVector Htvec(0,0,0,0);
+      
+      l1slhc::L1CaloJetCollection lJets = *jets;
+      lJets.sort(  );
+      
+      for ( l1slhc::L1CaloJetCollection::const_iterator i = lJets.begin(  ); i != lJets.end(  ) ; ++i )
+	{
+	  
+	  l1Jet->push_back( l1extra::L1JetParticle( i->p4(  ) ) );
+	  
+	  if ( fabs(i->p4().eta())< maxJetTowerEta ) {
+	    LorentzVector jet4v(0,0,0,0);
+	    jet4v.SetCoordinates(i->p4().Pt(), 0.0, i->p4().Phi(), 0.0);
+	    Htvec += jet4v;
 	  }
+	  
+	  if( l1Jet->size() == mNjets ) break;
+	  
+	}
+      
+      double Ht = Htvec.Et();
+      Htvec.SetCoordinates(Htvec.Pt(), 0.0, Htvec.Phi(), 0.0);
+      
+      l1MHt->push_back( l1extra::L1EtMissParticle( 
+						  -Htvec,
+						  l1extra::L1EtMissParticle::kMHT,
+						  Ht,
+						  edm::Ref< L1GctEtMissCollection >(),
+						  edm::Ref< L1GctEtTotalCollection >(),
+						  edm::Ref< L1GctHtMissCollection >(),
+						  edm::Ref< L1GctEtHadCollection >(),
+						  0 ) 
+			);
+      
+    }
+  else {
+    edm::LogWarning("MissingProduct") << "Input collection missing : " << mJets << ". Cannot produce output" << std::endl;
+  }
+ 
+  iEvent.put( l1Jet, "Jets" );
+  iEvent.put( l1MHt, "MHT" );
+  
+  // sums
+  std::auto_ptr < l1extra::L1EtMissParticleCollection> l1Met( new l1extra::L1EtMissParticleCollection );    
+
+  edm::Handle < l1slhc::L1CaloTowerCollection > towers;
+  if ( iEvent.getByLabel( mTowers, towers ) )
+    {
+      LorentzVector Etvec(0,0,0,0);
+      
+      l1slhc::L1CaloTowerCollection lTowers = *towers;
+      
+      for( l1slhc::L1CaloTowerCollection::const_iterator i = lTowers.begin() ; i != lTowers.end() ; ++i ){
 	
+	//	      if ( fabs(0.087*i->iEta())< maxJetTowerEta ) {
+	if ( calculateTowerEtaPosition(i->iEta())< maxJetTowerEta ) {
+	  LorentzVector twr4v(0,0,0,0);
+	  
+	  twr4v.SetCoordinates(i->E()+i->H(), 0.0, 0.087*i->iPhi(), 0.0);
+	  Etvec += twr4v;      
+	}
+      }
+      
+      double Et = Etvec.Et();
+      Etvec.SetCoordinates(Etvec.Pt(), 0.0, Etvec.Phi(), 0.0);
+      l1Met->push_back( l1extra::L1EtMissParticle(   -Etvec,
+						     l1extra::L1EtMissParticle::kMET,
+						     Et,
+						     edm::Ref< L1GctEtMissCollection >(),
+						     edm::Ref< L1GctEtTotalCollection >(),
+						     edm::Ref< L1GctHtMissCollection >(),
+						     edm::Ref< L1GctEtHadCollection >(),
+						     0 ) );
+    }
+  else {
+    edm::LogWarning("MissingProduct") << "Input collection missing : " << mTowers << ". Cannot produce output" << std::endl;
+  }
+
+  iEvent.put( l1Met, "MET" );
+  
 }
 
 

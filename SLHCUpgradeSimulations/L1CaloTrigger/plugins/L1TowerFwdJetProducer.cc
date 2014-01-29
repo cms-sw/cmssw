@@ -1,3 +1,6 @@
+// Original Author:  Robyn Elizabeth Lucas,510 1-002,+41227673823,
+// Modifications  :  Mark Baber Imperial College, London
+
 #include "SLHCUpgradeSimulations/L1CaloTrigger/interface/L1CaloAlgoBase.h"
 
 #include "SimDataFormats/SLHC/interface/L1TowerJet.h"
@@ -72,7 +75,7 @@ void L1TowerFwdJetProducer::algorithm( const int &aEta, const int &aPhi )
   int lTowerIndex = mCaloTriggerSetup->getBin( aEta, aPhi );
   std::pair < int, int > lTowerEtaPhi = mCaloTriggerSetup->getTowerEtaPhi( lTowerIndex );
 
-  l1slhc::L1TowerJet lJet( mJetDiameter, mJetShape , mHFJetShapeMap.size() , lTowerEtaPhi.first , lTowerEtaPhi.second  );
+  l1slhc::L1TowerJet lJet( mJetDiameter, mJetShape , mHFJetShapeMap , lTowerEtaPhi.first , lTowerEtaPhi.second  );
 
 
   if(aEta>=60 || aEta<4){
