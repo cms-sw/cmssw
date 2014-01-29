@@ -10,8 +10,9 @@ process = cms.Process("Demo")
 # from Configuration.AlCa.autoCond import autoCond
 # process.GlobalTag.globaltag = autoCond['mc']
 
-process.load("Configuration.Geometry.GeometryExtended2023RPCEta2Upscope_cff")
-process.load('Configuration.Geometry.GeometryExtended2023RPCEta2UpscopeReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023RPCUpscopeReco_2p1_64_cff')
+process.load("Configuration.Geometry.GeometryExtended2023RPCUpscope_2p1_64_cff")
+
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 #process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')

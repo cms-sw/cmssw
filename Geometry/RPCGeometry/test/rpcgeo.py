@@ -5,8 +5,9 @@ process = cms.Process("Demo")
 # process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 # process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
-process.load("Configuration.Geometry.GeometryExtended2023RPCEtaUpscope_cff")
-process.load('Configuration.Geometry.GeometryExtended2023RPCEtaUpscopeReco_cff')
+process.load("Configuration.Geometry.GeometryExtended2023RPCUpscope_2p4_64_cff")
+process.load('Configuration.Geometry.GeometryExtended2023RPCUpscopeReco_2p4_64_cff')
+
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 #process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
