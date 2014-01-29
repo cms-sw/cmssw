@@ -10,6 +10,8 @@ class SiStripDigi;
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
+
 
 class StripClusterizerAlgorithm {
   
@@ -27,6 +29,7 @@ class StripClusterizerAlgorithm {
 
   //HLT stripByStrip interface
   virtual bool stripByStripBegin(uint32_t id) = 0;
+  virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) {}
   virtual void stripByStripAdd(uint16_t strip, uint16_t adc, std::vector<SiStripCluster>& out) = 0;
   virtual void stripByStripEnd(std::vector<SiStripCluster>& out) = 0;
 
@@ -41,6 +44,7 @@ class StripClusterizerAlgorithm {
   float noise(const uint16_t& strip) const { return SiStripNoises::getNoise( strip, noiseRange ); }
   float gain(const uint16_t& strip)  const { return SiStripGain::getStripGain( strip, gainRange ); }
   bool bad(const uint16_t& strip)    const { return qualityHandle->IsStripBad( qualityRange, strip ); }
+  bool isModuleBad(const uint32_t& id)  const { return qualityHandle->IsModuleBad( id ); }
   bool isModuleUsable(const uint32_t& id)  const { return qualityHandle->IsModuleUsable( id ); }
   bool allBadBetween(uint16_t L, const uint16_t& R) const { while( ++L < R  &&  bad(L) ); return L == R; }
   std::string qualityLabel;
