@@ -478,7 +478,7 @@ void l1t::L1uGtBoard::runGTL(
                     break;
                 case CondCalo: {
 
-                    // BLW Not sure what to do with this for now
+                    // BLW Not sure w hat to do with this for now
 		    const int ifCaloEtaNumberBits = 0;
 
                     L1uGtCaloCondition* caloCondition = new L1uGtCaloCondition(
