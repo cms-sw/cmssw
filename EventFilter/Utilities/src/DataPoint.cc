@@ -222,7 +222,7 @@ void DataPoint::snapStreamAtomic(unsigned int streamID, unsigned int lumi)
 	      }
 	      else {//default to SUM
 
-		      HistoJ<double> *h = new HistoJ<double>(1,MAXUPDATES);
+		      IntJ *h = new IntJ;
 		      h->update(monVal);
 		      streamDataMaps_[streamID][lumi] = h;
 	      }
@@ -249,7 +249,9 @@ JsonMonitorable* DataPoint::mergeAndRetrieveValue(unsigned int lumi)
   IntJ *newJ = new IntJ;
   for (unsigned int i=0;i<streamDataMaps_.size();i++) {
     auto itr = streamDataMaps_[i].find(lumi);
-    if (itr!=streamDataMaps_[i].end()) newJ->add(static_cast<IntJ*>(itr->second.get())->value());
+    if (itr!=streamDataMaps_[i].end()) {
+	    newJ->add(static_cast<IntJ*>(itr->second.get())->value());
+    }
   }
   cacheI_=newJ->value();
   isCached_=true;
@@ -287,7 +289,7 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
 			root[DATA].append(ss.str());
 			return;
 		}
-		if (opType_==OPSUM) {
+		if (opType_!=OPHISTO) {//sum is default
 			std::stringstream ss;
 			unsigned int updates=0;
 			unsigned int sum=0;

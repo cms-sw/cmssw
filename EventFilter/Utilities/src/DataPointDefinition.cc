@@ -27,7 +27,7 @@ const std::string DataPointDefinition::OPERATION = "operation";
 bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, DataPointDefinition& dpd) {
 	std::string dpdString;
 	bool readOK = FileIO::readStringFromFile(defFilePath, dpdString);
-	// data point definition is bad!
+	// data point definition is missing!
 	if (!readOK) {
 		std::cout << "Cannot read from JSON definition path: " << defFilePath << std::endl;
 		return false;
@@ -69,7 +69,6 @@ OperationType DataPointDefinition::getOperationFor(unsigned int index) {
 	if (opNames_.at(index)== DataPointDefinition::SAME) opType=OPSAME;
 	if (opNames_.at(index)== DataPointDefinition::HISTO) opType=OPHISTO;
 	if (opNames_.at(index)== DataPointDefinition::CAT) opType=OPCAT;
-	std::cout << " returnint opType idx:" << index << " "  << opType << std::endl;
 	return opType;
 }
 
