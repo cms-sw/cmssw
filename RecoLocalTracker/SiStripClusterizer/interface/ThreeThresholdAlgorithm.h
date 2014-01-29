@@ -3,7 +3,7 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripApvShotCleaner.h"
 
-class ThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
+class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
 
   friend class StripClusterizerAlgorithmFactory;
 
@@ -15,6 +15,13 @@ class ThreeThresholdAlgorithm : public StripClusterizerAlgorithm {
   bool stripByStripBegin(uint32_t id);
   void stripByStripAdd(uint16_t strip, uint16_t adc, std::vector<SiStripCluster>& out);
   void stripByStripEnd(std::vector<SiStripCluster>& out);
+  void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) {
+    while (unpacker.hasData()) {
+      stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
+      unpacker++;
+    }
+  }
+
 
  private:
 

@@ -131,10 +131,13 @@ namespace sistrip {
 	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
 	    
 	    // unpack
+	    clusterizer_->addFed(unpacker,ipair,record);
+	    /*
 	    while (unpacker.hasData()) {
 	      clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
 	      unpacker++;
 	    }
+            */
           } catch (const cms::Exception& e) {
             if (edm::isDebugEnabled()) {
               std::ostringstream ss;
@@ -152,10 +155,13 @@ namespace sistrip {
             sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
 
             // unpack
+	    clusterizer_->addFed(unpacker,ipair,record);
+	    /*
             while (unpacker.hasData()) {
               clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
               unpacker++;
             }
+	    */
           } catch (const cms::Exception& e) {
             if (edm::isDebugEnabled()) {
               std::ostringstream ss;
