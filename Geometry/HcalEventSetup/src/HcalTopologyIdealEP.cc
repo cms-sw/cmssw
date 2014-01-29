@@ -55,10 +55,10 @@ void
 HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) 
 {
 
-  edm::ParameterSetDescription hcalTopologyConstants;
+  //  edm::ParameterSetDescription hcalTopologyConstants;
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>( "Exclude", "" );
-  desc.addOptional<edm::ParameterSetDescription>( "hcalTopologyConstants", hcalTopologyConstants );
+  //  desc.addOptional<edm::ParameterSetDescription>( "hcalTopologyConstants", hcalTopologyConstants );
   descriptions.add( "hcalTopologyIdeal", desc );
 }
 
