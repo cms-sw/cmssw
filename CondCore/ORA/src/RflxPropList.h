@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 
 #include <string>
-#include "TClassAttributeMap.h"
+#include "TDictAttributeMap.h"
 
 namespace Reflex {
 
@@ -24,7 +24,7 @@ namespace Reflex {
           PropertyList(const PropertyList &other) : m_wp(other.m_wp) { /* NOOP */ }
           PropertyList& operator=(const PropertyList &other) { m_wp = other.getMap(); return *this; }
 
-          TClassAttributeMap * getMap() const { return m_wp; }
+          TDictAttributeMap * getMap() const { return m_wp; }
 
           bool HasProperty (const std::string& key) const { 
               if (m_wp) {
@@ -43,7 +43,7 @@ namespace Reflex {
               return std::string("");
           }
       private:
-          TClassAttributeMap *m_wp;
+          TDictAttributeMap *m_wp;
 
     }; // end class PropertyList
 

@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "TClassAttributeMap.h"
+#include "TDictAttributeMap.h"
 
 #include <cassert>
 #include <cstdio>
@@ -195,7 +195,7 @@ namespace edm {
     setTransient(false);
     setSplitLevel(invalidSplitLevel);
     setBasketSize(invalidBasketSize);
-    TClassAttributeMap* wp = wrappedType().getClass()->GetAttributeMap();
+    TDictAttributeMap* wp = wrappedType().getClass()->GetAttributeMap();
     if (wp && wp->HasKey("persistent") && !strcmp(wp->GetPropertyAsString("persistent"), "false")) {
       // Set transient if persistent == "false".
       setTransient(true);
