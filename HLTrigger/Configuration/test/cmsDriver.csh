@@ -171,7 +171,7 @@ foreach gtag ( STARTUP DATA )
 
     if ( $gtag == DATA ) then
 
-    set auto:com10_$table
+    set RTAG = auto:com10_$table
 
     echo
     echo "Creating HLT+RECO $name"
