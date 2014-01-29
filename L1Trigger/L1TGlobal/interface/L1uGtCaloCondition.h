@@ -100,7 +100,7 @@ public:
 
 private:
 
-    /// copy function for copy constructor and operator=
+    ///  copy function for copy constructor and operator=
     void copy(const L1uGtCaloCondition& cp);
 
     /// load calo candidates
