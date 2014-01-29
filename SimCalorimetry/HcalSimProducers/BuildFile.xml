@@ -5,6 +5,7 @@
 <use   name="SimGeneral/MixingModule"/>
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="DataFormats/HcalCalibObjects"/>
+<use   name="Geometry/HcalCommonData"/>
 <export>
   <lib   name="1"/>
 </export>
