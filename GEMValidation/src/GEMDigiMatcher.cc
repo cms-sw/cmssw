@@ -10,12 +10,24 @@ using namespace matching;
 GEMDigiMatcher::GEMDigiMatcher(SimHitMatcher& sh)
 : DigiMatcher(sh)
 {
-  gemDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("gemDigiInput",
-      edm::InputTag("simMuonGEMDigis"));
-  gemPadDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("gemPadDigiInput",
-      edm::InputTag("simMuonGEMCSCPadDigis"));
-  gemCoPadDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("gemCoPadDigiInput",
-      edm::InputTag("simMuonGEMCSCPadDigis", "Coincidence"));
+  auto gemDigi_= conf().getParameter<edm::ParameterSet>("gemDigi");
+  gemDigiInput_ = gemDigi_.getParameter<edm::InputTag>("input");
+  minBXGEM_ = gemDigi_.getParameter<int>("minBX");
+  maxBXGEM_ = gemDigi_.getParameter<int>("maxBX");
+  matchDeltaStrip_ = gemDigi_.getParameter<int>("matchDeltaStrip");
+  verboseDigi_ = gemDigi_.getParameter<int>("verbose");
+
+  auto gemPad_= conf().getParameter<edm::ParameterSet>("gemPad");
+  gemPadDigiInput_ = gemPad_.getParameter<edm::InputTag>("input");
+  minBXGEM_ = gemPad_.getParameter<int>("minBX");
+  maxBXGEM_ = gemPad_.getParameter<int>("maxBX");
+  verbosePad_ = gemDigi_.getParameter<int>("verbose");
+
+  auto gemCoPad_= conf().getParameter<edm::ParameterSet>("gemCoPad");
+  gemCoPadDigiInput_ = gemCoPad_.getParameter<edm::InputTag>("input");
+  minBXGEM_ = gemCoPad_.getParameter<int>("minBXGEM");
+  maxBXGEM_ = gemCoPad_.getParameter<int>("maxBXGEM");
+  verboseCoPad_ = gemDigi_.getParameter<int>("verbose");
 
   minBXGEM_ = conf().getUntrackedParameter<int>("minBXGEM", -1);
   maxBXGEM_ = conf().getUntrackedParameter<int>("maxBXGEM", 1);

@@ -123,6 +123,11 @@ private:
   std::map<unsigned int, std::set<int> > gem_detids_to_pads_;
   // detids with hits in 2-layer pad coincidences
   std::map<unsigned int, std::set<int> > gem_detids_to_copads_;
+
+  bool verboseGEM_;
+  bool verboseCSC_;
+  edm::InputTag gemSimHitInput_;
+  edm::InputTag cscSimHitInput_;
 };
 
 #endif

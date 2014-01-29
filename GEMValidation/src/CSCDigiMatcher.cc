@@ -10,18 +10,19 @@ using namespace matching;
 CSCDigiMatcher::CSCDigiMatcher(SimHitMatcher& sh)
 : DigiMatcher(sh)
 {
-  cscComparatorDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("cscComparatorDigiInput",
-      edm::InputTag("simMuonCSCDigis", "MuonCSCComparatorDigi"));
-  cscWireDigiInput_ = conf().getUntrackedParameter<edm::InputTag>("cscWireDigiInput",
-      edm::InputTag("simMuonCSCDigis", "MuonCSCWireDigi"));
+  auto cscWireDigi_ = conf().getParameter<edm::ParameterSet>("cscWireDigi");
+  cscWireDigiInput_ = cscWireDigi_.getParameter<edm::InputTag>("input");
+  verboseWG_ = cscWireDigi_.getParameter<int>("verbose");
+  minBXCSCWire_ = cscWireDigi_.getParameter<int>("minBX");
+  maxBXCSCWire_ = cscWireDigi_.getParameter<int>("maxBX");
+  matchDeltaWG_ = cscWireDigi_.getParameter<int>("matchDeltaWG");
 
-  minBXCSCComp_ = conf().getUntrackedParameter<int>("minBXCSCComp", 3);
-  maxBXCSCComp_ = conf().getUntrackedParameter<int>("maxBXCSCComp", 9);
-  minBXCSCWire_ = conf().getUntrackedParameter<int>("minBXCSCWire", 3);
-  maxBXCSCWire_ = conf().getUntrackedParameter<int>("maxBXCSCWire", 8);
-
-  matchDeltaStrip_ = conf().getUntrackedParameter<int>("matchDeltaStripCSC", 1);
-  matchDeltaWG_ = conf().getUntrackedParameter<int>("matchDeltaWireGroupCSC", 1);
+  auto cscComparatorDigi_ = conf().getParameter<edm::ParameterSet>("cscWireDigi");
+  cscComparatorDigiInput_ = cscComparatorDigi_.getParameter<edm::InputTag>("input");
+  verboseStrip_ = cscComparatorDigi_.getParameter<int>("verbose");
+  minBXCSCComp_ = cscComparatorDigi_.getParameter<int>("minBXCSCComp");
+  maxBXCSCComp_ = cscComparatorDigi_.getParameter<int>("maxBXCSCComp");
+  matchDeltaStrip_ = cscComparatorDigi_.getParameter<int>("matchDeltaStrip");
 
   setVerbose(conf().getUntrackedParameter<int>("verboseCSCDigi", 0));
 

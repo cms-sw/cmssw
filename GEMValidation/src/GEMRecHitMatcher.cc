@@ -12,17 +12,13 @@ using namespace matching;
 GEMRecHitMatcher::GEMRecHitMatcher(SimHitMatcher& sh)
   : BaseMatcher(sh.trk(), sh.vtx(), sh.conf(), sh.event(), sh.eventSetup())
   , simhit_matcher_(&sh)
-
 {
-  gemRecHitInput_ = conf().getUntrackedParameter<edm::InputTag>("gemRecHitInput",
-      edm::InputTag("gemRecHits"));
-
-  minBXGEM_ = conf().getUntrackedParameter<int>("minBXGEM", -1);
-  maxBXGEM_ = conf().getUntrackedParameter<int>("maxBXGEM", 1);
-
-  matchDeltaStrip_ = conf().getUntrackedParameter<int>("matchDeltaStripGEM", 1);
-
-  setVerbose(conf().getUntrackedParameter<int>("verboseGEMRecHit", 0));
+  auto gemRecHit_= conf().getParameter<edm::ParameterSet>("gemRecHit");
+  gemRecHitInput_ = gemRecHit_.getParameter<edm::InputTag>("input");
+  minBXGEM_ = gemRecHit_.getParameter<int>("minBX");
+  maxBXGEM_ = gemRecHit_.getParameter<int>("maxBX");
+  matchDeltaStrip_ = gemRecHit_.getParameter<int>("matchDeltaStrip");
+  setVerbose(gemRecHit_.getParameter<int>("verbose"));
 
   if (!(gemRecHitInput_.label().empty()))
   {

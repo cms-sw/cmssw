@@ -89,6 +89,9 @@ private:
   Id2DigiContainer chamber_to_wires_;
 
   std::set<unsigned int> selectDetIds(const Id2DigiContainer &digis, int csc_type) const;
+  
+  int verboseStrip_;
+  int verboseWG_;
 };
 
 #endif

@@ -1,9 +1,91 @@
 import FWCore.ParameterSet.Config as cms
 
 SimTrackMatching = cms.PSet(
+    gemSimHit = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag('g4SimHits','MuonGEMHits'),
+        simMuOnly = cms.untracked.bool(True),
+        discardEleHits = cms.untracked.bool(True),
+    ),
+    gemDigi = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simMuonGEMDigis"),
+        minBX = cms.untracked.int32(-1),
+        maxBX = cms.untracked.int32(1),
+        matchDeltaStrip = cms.untracked.int32(1),
+    ),
+    gemPad = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simMuonGEMCSCPadDigis"),
+        minBX = cms.untracked.int32(-1),
+        maxBX = cms.untracked.int32(1),
+     ),
+    gemCoPad = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simMuonGEMCSCPadDigis", "Coincidence"),
+        minBX = cms.untracked.int32(-1),
+        maxBX = cms.untracked.int32(1),
+    ),
+    gemRecHit = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("gemRecHits"),
+        minBX = cms.untracked.int32(-1),
+        maxBX = cms.untracked.int32(1),
+        matchDeltaStrip = cms.untracked.int32(1),
+    ),
+    cscSimHit = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag('g4SimHits','MuonCSCHits'),
+        simMuOnly = cms.untracked.bool(True),
+        discardEleHits = cms.untracked.bool(True),
+    ),
+    cscStripDigi = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simMuonCSCDigis", "MuonCSCComparatorDigi"),
+        minBX = cms.untracked.int32(3),
+        maxBX = cms.untracked.int32(9),
+        matchDeltaStrip = cms.untracked.int32(1),
+    ),
+    cscWireDigi = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simMuonCSCDigis", "MuonCSCWireDigi"),
+        minBX = cms.untracked.int32(3),
+        maxBX = cms.untracked.int32(8),
+        matchDeltaWG = cms.untracked.int32(1),
+    ),
+    cscCLCT = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
+        minBX = cms.untracked.int32(3),
+        maxBX = cms.untracked.int32(9),
+        minNHitsChamber = cms.untracked.int32(4),
+    ),
+    cscALCT = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
+        minBX = cms.untracked.int32(3),
+        maxBX = cms.untracked.int32(8),
+        minNHitsChamber = cms.untracked.int32(4),
+    ),
+    cscLCT = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
+        minBX = cms.untracked.int32(3),
+        maxBX = cms.untracked.int32(8),
+        minNHitsChamber = cms.untracked.int32(4),
+        addGhosts = cms.untracked.bool(True),
+    ),
+    cscMPLCT = cms.untracked.PSet(
+        verbose = cms.untracked.int32(0),
+        input = cms.untracked.InputTag("simCscTriggerPrimitiveDigis"),
+        minBX = cms.untracked.int32(3),
+        maxBX = cms.untracked.int32(8),
+        minNHitsChamber = cms.untracked.int32(4),
+        addGhosts = cms.untracked.bool(True),
+    ),
     # common
-    useCSCChamberTypes = cms.untracked.vint32( 2, ), # by default, only use simhits from ME1/b (CSC type == 2)
-    # SimHit matching:
+    # SimHit matching
+    useCSCChamberTypes = cms.untracked.vint32(), 
     verboseSimHit = cms.untracked.int32(0),
     simMuOnlyCSC = cms.untracked.bool(True),
     simMuOnlyGEM = cms.untracked.bool(True),
@@ -42,6 +124,7 @@ SimTrackMatching = cms.PSet(
     maxBXLCT = cms.untracked.int32(8),
     minBXMPLCT = cms.untracked.int32(3),
     maxBXMPLCT = cms.untracked.int32(8),
+    minNHitsChamber = cms.untracked.int32(4),
     ## GEM RecHit
     gemRecHitInput = cms.untracked.InputTag("gemRecHits")
 )

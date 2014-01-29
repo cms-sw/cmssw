@@ -103,6 +103,17 @@ private:
 
   bool addGhostLCTs_;
   bool addGhostMPLCTs_;
+
+  int minNHitsChamber_;
+  int minNHitsChamberALCT_;
+  int minNHitsChamberCLCT_;
+  int minNHitsChamberLCT_;
+  int minNHitsChamberMPLCT_;
+  
+  bool verboseALCT_;
+  bool verboseCLCT_;
+  bool verboseLCT_;
+  bool verboseMPLCT_;
 };
 
 

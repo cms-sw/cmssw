@@ -27,6 +27,7 @@ process.load('GEMCode.GEMValidation.GEMCSCAnalyzer_cfi')
 process.GEMCSCAnalyzer.ntupleTrackChamberDelta = True
 process.GEMCSCAnalyzer.ntupleTrackEff = True
 process.GEMCSCAnalyzer.minPt = 1.5
+process.GEMCSCAnalyzer.minNHitsChamber = 4
 #process.GEMCSCAnalyzer.simTrackMatching.verboseSimHit = 1
 #process.GEMCSCAnalyzer.simTrackMatching.verboseGEMDigi = 1
 #process.GEMCSCAnalyzer.simTrackMatching.verboseCSCDigi = 1

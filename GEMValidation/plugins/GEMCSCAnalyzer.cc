@@ -302,6 +302,8 @@ private:
   
   MyTrackEff  etrk_[5];
   MyTrackChamberDelta dtrk_;
+
+  int minNHitsChamber_;
 };
 
 
@@ -314,6 +316,7 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
 , ntupleTrackChamberDelta_(ps.getUntrackedParameter<bool>("ntupleTrackChamberDelta", true))
 , ntupleTrackEff_(ps.getUntrackedParameter<bool>("ntupleTrackEff", true))
+, minNHitsChamber_(ps.getUntrackedParameter<int>("minNHitsChamber", 4))
 {
   if (ntupleTrackChamberDelta_) bookSimTracksDeltaTree();
   if (ntupleTrackEff_)

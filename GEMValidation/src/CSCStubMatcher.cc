@@ -13,21 +13,37 @@ CSCStubMatcher::CSCStubMatcher(SimHitMatcher& sh, CSCDigiMatcher& dg)
 : DigiMatcher(sh)
 , digi_matcher_(&dg)
 {
-  clctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscCLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
-  alctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscALCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
-  lctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis"));
-  mplctInput_ = conf().getUntrackedParameter<edm::InputTag>("cscMPLCTInput", edm::InputTag("simCscTriggerPrimitiveDigis","MPCSORTED"));
+  auto cscCLCT_ = conf().getParameter<edm::ParameterSet>("cscCLCT");
+  clctInput_ = cscCLCT_.getParameter<edm::InputTag>("input");
+  minBXCLCT_ = cscCLCT_.getParameter<int>("minBX");
+  maxBXCLCT_ = cscCLCT_.getParameter<int>("maxBX");
+  verboseCLCT_ = cscCLCT_.getParameter<int>("verbose");
+  minNHitsChamberCLCT_ = cscCLCT_.getParameter<int>("minNHitsChamber");
 
-  minBXCLCT_ = conf().getUntrackedParameter<int>("minBXCLCT", 3);
-  maxBXCLCT_ = conf().getUntrackedParameter<int>("maxBXCLCT", 9);
-  minBXALCT_ = conf().getUntrackedParameter<int>("minBXALCT", 3);
-  maxBXALCT_ = conf().getUntrackedParameter<int>("maxBXALCT", 8);
-  minBXLCT_ = conf().getUntrackedParameter<int>("minBXLCT", 3);
-  maxBXLCT_ = conf().getUntrackedParameter<int>("maxBXLCT", 8);
-  minBXMPLCT_ = conf().getUntrackedParameter<int>("minBXLCT", 3);
-  maxBXMPLCT_ = conf().getUntrackedParameter<int>("maxBXLCT", 8);
-  addGhostLCTs_ = conf().getUntrackedParameter<bool>("addGhostLCTs", true);
-  addGhostMPLCTs_ = conf().getUntrackedParameter<bool>("addGhostMPLCTs", true);
+  auto cscALCT_ = conf().getParameter<edm::ParameterSet>("cscALCT");
+  alctInput_ = cscALCT_.getParameter<edm::InputTag>("input");
+  minBXALCT_ = cscALCT_.getParameter<int>("minBX");
+  maxBXALCT_ = cscALCT_.getParameter<int>("maxBX");
+  verboseALCT_ = cscALCT_.getParameter<int>("verbose");
+  minNHitsChamberALCT_ = cscALCT_.getParameter<int>("minNHitsChamber");
+
+  auto cscLCT_ = conf().getParameter<edm::ParameterSet>("cscLCT");
+  lctInput_ = cscLCT_.getParameter<edm::InputTag>("input");
+  minBXLCT_ = cscLCT_.getParameter<int>("minBX");
+  maxBXLCT_ = cscLCT_.getParameter<int>("maxBX");
+  verboseLCT_ = cscLCT_.getParameter<int>("verbose");
+  minNHitsChamberLCT_ = cscLCT_.getParameter<int>("minNHitsChamber");
+  addGhostLCTs_ = cscLCT_.getParameter<bool>("addGhosts");
+
+  auto cscMPLCT_ = conf().getParameter<edm::ParameterSet>("cscMPLCT");
+  mplctInput_ = cscMPLCT_.getParameter<edm::InputTag>("input");
+  minBXMPLCT_ = cscMPLCT_.getParameter<int>("minBX");
+  maxBXMPLCT_ = cscMPLCT_.getParameter<int>("maxBX");
+  verboseMPLCT_ = cscMPLCT_.getParameter<int>("verbose");
+  minNHitsChamberMPLCT_ = cscMPLCT_.getParameter<int>("minNHitsChamber");
+  addGhostMPLCTs_ = cscMPLCT_.getParameter<bool>("addGhosts");
+
+  minNHitsChamber_ = conf().getUntrackedParameter<int>("minNHitsChamber", 4);
 
   setVerbose(conf().getUntrackedParameter<int>("verboseCSCStub", 0));
 

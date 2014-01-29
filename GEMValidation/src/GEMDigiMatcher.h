@@ -105,6 +105,10 @@ private:
   std::map<unsigned int, DigiContainer> detid_to_copads_;
   std::map<unsigned int, DigiContainer> chamber_to_copads_;
   std::map<unsigned int, DigiContainer> superchamber_to_copads_;
+
+  bool verboseDigi_;
+  bool verbosePad_;
+  bool verboseCoPad_;
 };
 
 #endif

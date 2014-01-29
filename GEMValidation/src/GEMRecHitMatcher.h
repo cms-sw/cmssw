@@ -84,6 +84,8 @@ private:
   std::map<unsigned int, RecHitContainer> superchamber_to_recHits_;
 
   const RecHitContainer no_recHits_;
+
+  bool verbose_;
 };
 
 #endif
