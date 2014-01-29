@@ -87,7 +87,7 @@ namespace sistrip {
 	  // construct FEDBuffer
 	  try {
             buffers_[fedId] = buffer = new sistrip::FEDBuffer(rawData.data(),rawData.size());
-            if (!buffer->doChecks()) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
+            if (!buffer->doChecks(false)) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
           }
 	  catch (const cms::Exception& e) { 
             if (edm::isDebugEnabled()) {
