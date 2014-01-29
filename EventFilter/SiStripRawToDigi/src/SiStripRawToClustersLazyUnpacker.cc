@@ -42,7 +42,7 @@ namespace sistrip {
     for (;idet!=element.end();idet++) {
     
       // If det id is null or invalid continue.
-      if ( !(idet->first) || (idet->first == sistrip::invalid32_) || !clusterizer_->stripByStripBegin(idet->first)) { continue; }
+      if ( ( (!(idet->first)) | (idet->first == sistrip::invalid32_)) || !clusterizer_->stripByStripBegin(idet->first)) { continue; }
     
       // Loop over apv-pairs of det
       std::vector<FedChannelConnection>::const_iterator iconn = idet->second.begin();
