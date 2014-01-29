@@ -238,11 +238,9 @@ void l1t::L1uGtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
 
     XERCES_CPP_NAMESPACE_USE
 
-      std::cout << " ====> parseXmlFile test 1 " << std::endl;
     // resize the vector of condition maps
     // the number of condition chips should be correctly set before calling parseXmlFile
     m_conditionMap.resize(m_numberConditionChips);
-      std::cout << " ====> parseXmlFile test 2 " << std::endl;
 
     m_vecMuonTemplate.resize(m_numberConditionChips);
     m_vecCaloTemplate.resize(m_numberConditionChips);
@@ -258,7 +256,6 @@ void l1t::L1uGtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     m_corMuonTemplate.resize(m_numberConditionChips);
     m_corCaloTemplate.resize(m_numberConditionChips);
     m_corEnergySumTemplate.resize(m_numberConditionChips);
-      std::cout << " ====> parseXmlFile test 3 " << std::endl;
 
     // set the name of the trigger menu name:
     //     defXmlFile, stripped of absolute path and .xml
@@ -268,25 +265,20 @@ void l1t::L1uGtTriggerMenuXmlParser::parseXmlFile(const std::string& defXmlFile,
     size_t xmlPos = m_triggerMenuName.find_last_of("/");
     m_triggerMenuName.erase(m_triggerMenuName.begin(), m_triggerMenuName.begin()
             + xmlPos + 1);
-      std::cout << " ====> parseXmlFile test 4 " << std::endl;
 
     xmlPos = m_triggerMenuName.find_last_of(".");
     m_triggerMenuName.erase(m_triggerMenuName.begin() + xmlPos, m_triggerMenuName.end());
 
     // error handler for xml-parser
     m_xmlErrHandler = 0;
-      std::cout << " ====> parseXmlFile test 5 " << std::endl;
 
     std::auto_ptr<l1t::L1TriggerMenu> tm(l1t::l1TriggerMenu(defXmlFile));
-      std::cout << " ====> parseXmlFile test 6 " << std::endl;
 
     LogTrace("L1uGtTriggerMenuXmlParser") << "\nOpening XML-File: \n  " << defXmlFile << std::endl;
 
     l1t::ConditionList conditions = tm->conditions();
-      std::cout << " ====> parseXmlFile test 7 " << std::endl;
 
     workXML( tm );
-          std::cout << " ====> parseXmlFile test 8 " << std::endl;
 
 //     if ((parser = initXML(defXmlFile)) != 0) {
 //         workXML(parser);
@@ -1537,12 +1529,14 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     if( particle=="mu" ) particle = "muon";
     if( type=="single" ) type = "1_s";
 
-    std::cout << " ****************************************** " << std::endl;
-    std::cout << "      DARRENS TEST OUTPUT (in parseMuon)  " << std::endl;
-    std::cout << " condition = " << condition << std::endl;
-    std::cout << " particle  = " << particle << std::endl;
-    std::cout << " type      = " << type << std::endl;
-    std::cout << " name      = " << name << std::endl;
+    LogDebug("l1t|Global")
+      << "\n ****************************************** "
+      << "\n      parseMuon  "
+      << "\n condition = " << condition
+      << "\n particle  = " << particle
+      << "\n type      = " << type
+      << "\n name      = " << name
+      << std::endl;
 
     if (particle != m_xmlConditionAttrObjectMu) {
         edm::LogError("L1uGtTriggerMenuXmlParser") << "Wrong particle for muon-condition ("
@@ -1615,7 +1609,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
       //tmpValues[i] = (tmpValues[i])/16;
 
     // need this for future DP
-        getXMLHexTextValue("0", dst);
+        getXMLHexTextValue("0a", dst);
 	objParameter[i].ptLowThreshold = dst;//tmpValues[i];
 
         //LogTrace("L1uGtTriggerMenuXmlParser")
@@ -1798,34 +1792,25 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
     muonCond.setConditionParameter(objParameter, corrParameter);
 
-    std::cout << "===> parseMuon test 0" << std::endl;
-    if (edm::isDebugEnabled() || true ) {
+    if (edm::isDebugEnabled()) {
         std::ostringstream myCoutStream;
         muonCond.print(myCoutStream);
         LogTrace("L1uGtTriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
     }
-    std::cout << "===> parseMuon test 1" << std::endl;
 
     // insert condition into the map and into muon template vector
     if ( !insertConditionIntoMap(muonCond, chipNr)) {
-    std::cout << "===> parseMuon test 2" << std::endl;
-
         edm::LogError("L1uGtTriggerMenuXmlParser")
                 << "    Error: duplicate condition (" << name << ")"
                 << std::endl;
         return false;
     }
     else {
-    std::cout << "===> parseMuon test 3" << std::endl;
         if (corrFlag) {
             (m_corMuonTemplate[chipNr]).push_back(muonCond);
-    std::cout << "===> parseMuon test 4" << std::endl;
-
         }
         else {
             (m_vecMuonTemplate[chipNr]).push_back(muonCond);
-    std::cout << "===> parseMuon test 5" << std::endl;
-
         }
 
     }
@@ -1857,12 +1842,14 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
     std::string type = l1t2string( condCalo.type() );
     std::string name = l1t2string( condCalo.name() );
 
-    std::cout << " ****************************************** " << std::endl;
-    std::cout << "      DARRENS TEST OUTPUT (in parseCalo) " << std::endl;
-    std::cout << " condition = " << condition << std::endl;
-    std::cout << " particle  = " << particle << std::endl;
-    std::cout << " type      = " << type << std::endl;
-    std::cout << " name      = " << name << std::endl;
+    LogDebug("l1t|Global")
+      << "\n ****************************************** " 
+      << "\n      DARRENS TEST OUTPUT (in parseCalo) " 
+      << "\n condition = " << condition 
+      << "\n particle  = " << particle 
+      << "\n type      = " << type 
+      << "\n name      = " << name 
+      << std::endl;
 
 
     // determine object type type
@@ -1963,8 +1950,10 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
       for( l1t::CalorimeterObjectParameter::etaRange_const_iterator etaRange =objPar->etaRange().begin();
 	   etaRange != objPar->etaRange().end(); ++etaRange ){
 	
-	std::cout << " etaRange begin = " << etaRange->begin() << std::endl;
-	std::cout << " etaRange end   = " << etaRange->end() << std::endl;
+	LogDebug("l1t|Global")
+	  << "\n etaRange begin = " << etaRange->begin()
+	  << "\n etaRange end   = " << etaRange->end() 
+	  << std::endl;
 	if( cntEta==0 ){      etaRangeBegin = etaRange->begin(); etaRangeEnd = etaRange->end(); }
 	else if( cntEta==1 ){ etaRangeVetoBegin = etaRange->begin(); etaRangeVetoEnd = etaRange->end(); }
 	cntEta++;
@@ -1974,9 +1963,12 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
       int phiRangeBegin=-1, phiRangeEnd=-1, phiRangeVetoBegin=-1, phiRangeVetoEnd=-1;
       for( l1t::CalorimeterObjectParameter::phiRange_const_iterator phiRange =objPar->phiRange().begin();
 	   phiRange != objPar->phiRange().end(); ++phiRange ){
-	
-	std::cout << " phiRange begin = " << phiRange->begin() << std::endl;
-	std::cout << " phiRange end   = " << phiRange->end() << std::endl;
+ 
+	LogDebug("l1t|Global")
+	  << "\n phiRange begin = " << phiRange->begin()
+	  << "\n phiRange end   = " << phiRange->end() 
+	  << std::endl;
+
 	if( cntPhi==0 ){      phiRangeBegin = phiRange->begin(); phiRangeEnd = phiRange->end(); }
 	else if( cntPhi==1 ){ phiRangeVetoBegin = phiRange->begin(); phiRangeVetoEnd = phiRange->end(); }
 	cntPhi++;
@@ -1994,30 +1986,30 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
 
       
       // Output for debugging
-      std::cout << "      Calo ET high threshold (hex) for calo object " << cnt << " = "
-		<< std::hex << objParameter[cnt].etThreshold << std::dec
-		<< std::endl;
+      LogDebug("l1t|Global") << "      Calo ET high threshold (hex) for calo object " << cnt << " = "
+			     << std::hex << objParameter[cnt].etThreshold << std::dec
+			     << std::endl;
 
-      std::cout << "      etaRange (hex) for calo object " << cnt << " = "
-		<< std::hex << objParameter[cnt].etaRange << std::dec
-		<< std::endl;
-      std::cout << "      phiRange (hex) for calo object " << cnt << " = "
-		<< std::hex << objParameter[cnt].phiRange << std::dec
-		<< std::endl;
+      LogDebug("l1t|Global")  << "      etaRange (hex) for calo object " << cnt << " = "
+			      << std::hex << objParameter[cnt].etaRange << std::dec
+			      << std::endl;
+      LogDebug("l1t|Global")  << "      phiRange (hex) for calo object " << cnt << " = "
+			      << std::hex << objParameter[cnt].phiRange << std::dec
+			      << std::endl;
 
-      std::cout << "      etaRangeBegin / End for calo object " << cnt << " = "
-		<< objParameter[cnt].etaRangeBegin << " / " << objParameter[cnt].etaRangeEnd
-		<< std::endl;
-      std::cout << "      etaRangeVetoBegin / End for calo object " << cnt << " = "
-		<< objParameter[cnt].etaRangeVetoBegin << " / " << objParameter[cnt].etaRangeVetoEnd
-		<< std::endl;
+      LogDebug("l1t|Global")  << "      etaRangeBegin / End for calo object " << cnt << " = "
+			      << objParameter[cnt].etaRangeBegin << " / " << objParameter[cnt].etaRangeEnd
+			      << std::endl;
+      LogDebug("l1t|Global")  << "      etaRangeVetoBegin / End for calo object " << cnt << " = "
+			      << objParameter[cnt].etaRangeVetoBegin << " / " << objParameter[cnt].etaRangeVetoEnd
+			      << std::endl;
 
-      std::cout << "      phiRangeBegin / End for calo object " << cnt << " = "
-		<< objParameter[cnt].phiRangeBegin << " / " << objParameter[cnt].phiRangeEnd
-		<< std::endl;
-      std::cout << "      phiRangeVetoBegin / End for calo object " << cnt << " = "
-		<< objParameter[cnt].phiRangeVetoBegin << " / " << objParameter[cnt].phiRangeVetoEnd
-		<< std::endl;
+      LogDebug("l1t|Global")  << "      phiRangeBegin / End for calo object " << cnt << " = "
+			      << objParameter[cnt].phiRangeBegin << " / " << objParameter[cnt].phiRangeEnd
+			      << std::endl;
+      LogDebug("l1t|Global")  << "      phiRangeVetoBegin / End for calo object " << cnt << " = "
+			      << objParameter[cnt].phiRangeVetoBegin << " / " << objParameter[cnt].phiRangeVetoEnd
+			      << std::endl;
 
       cnt++;
     }
@@ -2030,11 +2022,12 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
     if( wscVal ){
 
       xsd::cxx::tree::optional<l1t::DeltaRanges> condRanges = condCalo.deltaRanges();
-      std::cout << "\t condRanges->deltaEtaRange().begin() = " << condRanges->deltaEtaRange().begin() << std::endl;
-      std::cout << "\t condRanges->deltaEtaRange().end()   = " << condRanges->deltaEtaRange().end() << std::endl;
-
-      std::cout << "\t condRanges->deltaPhiRange().begin() = " << condRanges->deltaPhiRange().begin() << std::endl;
-      std::cout << "\t condRanges->deltaPhiRange().end() = " << condRanges->deltaPhiRange().end() << std::endl;
+      LogDebug("l1t|Global") 
+	<< "\t condRanges->deltaEtaRange().begin() = " << condRanges->deltaEtaRange().begin()
+	<< "\n\t condRanges->deltaEtaRange().end()   = " << condRanges->deltaEtaRange().end()
+	<< "\n\t condRanges->deltaPhiRange().begin() = " << condRanges->deltaPhiRange().begin()
+	<< "\n\t condRanges->deltaPhiRange().end() = " << condRanges->deltaPhiRange().end() 
+	<< std::endl;
 
       //
       /// Temporary
@@ -2137,9 +2130,11 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
 
     }
 
-    std::cout << " intGEq  = " << intGEq << std::endl;
-    std::cout << " nrObj   = " << nrObj << std::endl;
-    std::cout << " ****************************************** " << std::endl;
+    LogDebug("l1t|Global") 
+      << "\n intGEq  = " << intGEq
+      << " nrObj   = " << nrObj 
+      << "\n ****************************************** " 
+      << std::endl;
 
 
     //
@@ -3544,9 +3539,11 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseId( l1t::Meta meta ) {
     for( l1t::History::revision_const_iterator revision = meta.history().revision().begin();
 	 revision != meta.history().revision().end(); ++revision ){
 
-      std::cout << "\t Revision " << cnt << std::endl;
-      std::cout << "\t\t author = " << l1t2string( revision->author() ) << std::endl;
-      std::cout << "\t\t datetime = " << l1t2string( revision->datetime() ) << std::endl;
+      LogDebug("l1t|Global")
+	<< "\t Revision " << cnt
+	<< "\t\t author = " << l1t2string( revision->author() )
+	<< "\t\t datetime = " << l1t2string( revision->datetime() ) 
+	<< std::endl;
 
       if( cnt==0 ){
 	m_triggerMenuDate = l1t2string( revision->datetime() );
@@ -3556,18 +3553,19 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseId( l1t::Meta meta ) {
     }
 
     //LogDebug("L1uGtTriggerMenuXmlParser")
-    std::cout << "\n  Parsed values from XML file DRULES"
-    << "\nL1 MenuInterface:                   " << m_triggerMenuInterface
-    << "\nL1 MenuInterface - Creation date:   " << m_triggerMenuInterfaceDate
-    << "\nL1 MenuInterface - Creation author: " << m_triggerMenuInterfaceAuthor
-    << "\nL1 MenuInterface - Description:     " << m_triggerMenuInterfaceDescription
-    << "\n"
-    << "\nAlgorithm implementation tag:       " << m_algorithmImplementation
-    << "\n"
-    << "\nL1 Menu - Creation date:            " << m_triggerMenuDate
-    << "\nL1 Menu - Creation author:          " << m_triggerMenuAuthor
-    << "\nL1 Menu - Description:              " << m_triggerMenuDescription
-    << std::endl;
+    LogDebug("l1t|Global")
+      << "\n  Parsed values from XML file DRULES"
+      << "\nL1 MenuInterface:                   " << m_triggerMenuInterface
+      << "\nL1 MenuInterface - Creation date:   " << m_triggerMenuInterfaceDate
+      << "\nL1 MenuInterface - Creation author: " << m_triggerMenuInterfaceAuthor
+      << "\nL1 MenuInterface - Description:     " << m_triggerMenuInterfaceDescription
+      << "\n"
+      << "\nAlgorithm implementation tag:       " << m_algorithmImplementation
+      << "\n"
+      << "\nL1 Menu - Creation date:            " << m_triggerMenuDate
+      << "\nL1 Menu - Creation author:          " << m_triggerMenuAuthor
+      << "\nL1 Menu - Description:              " << m_triggerMenuDescription
+      << std::endl;
 
 
     // set the trigger menu name
@@ -3624,14 +3622,14 @@ bool l1t::L1uGtTriggerMenuXmlParser::workCondition(XERCES_CPP_NAMESPACE::DOMNode
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
     std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
 
-    std::cout << " ****************************************** " << std::endl;
-    std::cout << "      DARRENS TEST OUTPUT (in workCondition) " << std::endl;
-    std::cout << " condition = " << condition << std::endl;
-    std::cout << " particle  = " << particle << std::endl;
-    std::cout << " type      = " << type << std::endl;
-    std::cout << " name      = " << name << std::endl;
-
-    LogDebug("L1uGtTriggerMenuXmlParser") << " HELLO WORLD " << std::endl;
+    LogDebug("l1t|Global")
+      << "\n ****************************************** "
+      << "\n      workCondition "
+      << "\n condition = " << condition
+      << "\n particle  = " << particle
+      << "\n type      = " << type
+      << "\n name      = " << name 
+      << std::endl;
 
     if (condition.empty() || particle.empty() || type.empty() ) {
 
@@ -3708,30 +3706,32 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseConditions( l1t::ConditionList conditi
     LogTrace("L1uGtTriggerMenuXmlParser") << "\nParsing conditions" << std::endl;
 
     int chipNr = 1;
-    std::cout << " ====> condCalorimeter" << std::endl;
+    LogDebug("l1t|Global") << " ====> condCalorimeter" << std::endl;
     for (l1t::ConditionList::condCalorimeter_const_iterator condCalo = conditions.condCalorimeter().begin();
 	 condCalo != conditions.condCalorimeter().end(); ++condCalo ){
 
-      std::cout << condCalo->name()  << " {"                    << std::endl;
-//       std::cout << "  location: "    << condCalo->location()    << std::endl;
-      std::cout << "  description: " << condCalo->description() << std::endl;
-      std::cout << "  locked: "      << condCalo->locked()      << std::endl;
-      std::cout << "}" << std::endl;
+      LogDebug("l1t|Global")
+	<< condCalo->name()  << " {"                    
+	<< "  description: " << condCalo->description()
+	<< "  locked: "      << condCalo->locked()     
+	<< "}" 
+	<< std::endl;
 
       l1t::CalorimeterCondition condition = (*condCalo);
 
       parseCalo( condition, chipNr );
     }
 
-    std::cout << " ====> condMuon " << std::endl;
+    LogDebug("l1t|Global")  << " ====> condMuon " << std::endl;
     for (l1t::ConditionList::condMuon_const_iterator condMu = conditions.condMuon().begin();
 	 condMu != conditions.condMuon().end(); ++condMu ){
 
-      std::cout << condMu->name()  << " {"                    << std::endl;
-//       std::cout << "  location: "    << condMu->location()    << std::endl;
-      std::cout << "  description: " << condMu->description() << std::endl;
-      std::cout << "  locked: "      << condMu->locked()      << std::endl;
-      std::cout << "}" << std::endl;
+      LogDebug("l1t|Global")
+	<< condMu->name()  << " {"                    
+	<< "  description: " << condMu->description()
+	<< "  locked: "      << condMu->locked()     
+	<< "}" 
+	<< std::endl;
 
       l1t::MuonCondition condition = (*condMu);
 
@@ -3778,21 +3778,19 @@ bool l1t::L1uGtTriggerMenuXmlParser::workAlgorithm( l1t::Algorithm algorithm,
                 << std::endl;
     } else {
       //LogDebug("L1uGtTriggerMenuXmlParser") 
-      std::cout << "\n    Alias defined for algorithm."
-                << "\n    Algorithm name:  " << algName << "\n    Algorithm alias: " << algAlias
-                << std::endl;
+      LogDebug("l1t|Global")  << "\n    Alias defined for algorithm."
+			      << "\n    Algorithm name:  " << algName << "\n    Algorithm alias: " << algAlias
+			      << std::endl;
     }
 
     // get the logical expression from the node
     std::string logExpression = l1t2string( algorithm.equation() );
 
     //LogTrace("L1uGtTriggerMenuXmlParser")
-    std::cout << "      Logical expression: " << logExpression
-	      << std::endl;
-
-    //LogTrace("L1uGtTriggerMenuXmlParser")
-    std::cout << "      Chip number:        " << chipNr
-	      << std::endl;
+    LogDebug("l1t|Global")
+      << "      Logical expression: " << logExpression
+      << "      Chip number:        " << chipNr
+      << std::endl;
 
     // determine output pin
     std::string pinString = l1t2string( algorithm.index() );
@@ -3811,8 +3809,8 @@ bool l1t::L1uGtTriggerMenuXmlParser::workAlgorithm( l1t::Algorithm algorithm,
 
 
     //LogTrace("L1uGtTriggerMenuXmlParser")
-    std::cout << "      Output pin:         " << outputPin
-	      << std::endl;
+    LogDebug("l1t|Global")  << "      Output pin:         " << outputPin
+			    << std::endl;
 
 
     // compute the bit number from chip number, output pin and order of the chips
@@ -3820,8 +3818,8 @@ bool l1t::L1uGtTriggerMenuXmlParser::workAlgorithm( l1t::Algorithm algorithm,
     int bitNumber = outputPin + (m_orderConditionChip[chipNr] -1)*m_pinsOnConditionChip -1;
 
     //LogTrace("L1uGtTriggerMenuXmlParser")
-    std::cout << "      Bit number:         " << bitNumber
-	      << std::endl;
+    LogDebug("l1t|Global")  << "      Bit number:         " << bitNumber
+			    << std::endl;
 
     // create a new algorithm and insert it into algorithm map
     L1GtAlgorithm alg(algName, logExpression, bitNumber);
@@ -3866,18 +3864,19 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseAlgorithms( l1t::AlgorithmList algorit
     LogTrace("L1uGtTriggerMenuXmlParser") << "\nParsing algorithms" << std::endl;
 
     int chipNr = 1;
-    std::cout << " ====> algorithms " << std::endl;
+    LogDebug("l1t|Global")  << " ====> algorithms " << std::endl;
     for( l1t::AlgorithmList::algorithm_const_iterator i = algorithms.algorithm().begin();
          i != algorithms.algorithm().end(); ++i ){
 
       l1t::Algorithm algorithm = (*i);
-      std::cout << algorithm.name()  << " {"                    << std::endl;
-      std::cout << "  index: "       << algorithm.index()       << std::endl;
-      std::cout << "  equation: "    << algorithm.equation()    << std::endl;
-//       std::cout << "  location: "    << algorithm.location()    << std::endl;
-      std::cout << "  description: " << algorithm.description() << std::endl;
-      std::cout << "  locked: "      << algorithm.locked()      << std::endl;
-      std::cout << "}" << std::endl;
+      LogDebug("l1t|Global") 
+	<< algorithm.name()  << " {"                    
+	<< "  index: "       << algorithm.index()       
+	<< "  equation: "    << algorithm.equation()    
+	<< "  description: " << algorithm.description() 
+	<< "  locked: "      << algorithm.locked()      
+	<< "}" 
+	<< std::endl;
 
 
       workAlgorithm( algorithm, chipNr );
@@ -4138,7 +4137,6 @@ bool l1t::L1uGtTriggerMenuXmlParser::workXML( std::auto_ptr<l1t::L1TriggerMenu> 
 
 
     // FIXD add checks of menu
-      std::cout << " ====> test0 " << std::endl;
     // clear possible old maps
     clearMaps();
 
@@ -4146,18 +4144,15 @@ bool l1t::L1uGtTriggerMenuXmlParser::workXML( std::auto_ptr<l1t::L1TriggerMenu> 
     l1t::ConditionList conditions = tm->conditions();
     l1t::AlgorithmList algorithms = tm->algorithms();
 
-      std::cout << " ====> test1 " << std::endl;
     if ( !parseId( meta ) ) {
       clearMaps();
       return false;
     }
 
-      std::cout << " ====> test2 " << std::endl;
     if ( !parseConditions( conditions ) ) {
         clearMaps();
         return false;
     }
-      std::cout << " ====> test3 " << std::endl;
 
     if ( !parseAlgorithms( algorithms ) ) {
         clearMaps();

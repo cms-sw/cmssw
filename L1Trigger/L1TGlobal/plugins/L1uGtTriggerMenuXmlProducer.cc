@@ -119,16 +119,19 @@ boost::shared_ptr<L1GtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTr
     unsigned int numberTechTriggers = stableParameters->gtNumberTechnicalTriggers();
     unsigned int numberL1JetCounts = stableParameters->gtNumberL1JetCounts();
 
-    std::cout << " ==> I am here in L1uGtTriggerMenuXmlProducer::produceGtTriggerMenu" << std::endl;
-    std::cout << "\t numberConditionChips = " << numberConditionChips << std::endl;
-    std::cout << "\t pinsOnConditionChip = " << pinsOnConditionChip << std::endl;
-    std::cout << "\t orderConditionChip.size() = " << orderConditionChip.size()  << std::endl;
+    LogDebug("l1t|Global")
+      << "\n\t numberConditionChips = " << numberConditionChips 
+      << "\n\t pinsOnConditionChip = " << pinsOnConditionChip 
+      << "\n\t orderConditionChip.size() = " << orderConditionChip.size()
+      << std::endl;
     for( int i=0; i<int(orderConditionChip.size()); i++ ){
-      std::cout << "\t\t " << i << "\t" << orderConditionChip[i] << std::endl;
+      LogDebug("l1t|Global") << "\t\t " << i << "\t" << orderConditionChip[i] << std::endl;
     }
-    std::cout << "\t numberPhysTriggers = " << numberPhysTriggers << std::endl;
-    std::cout << "\t numberTechTriggers = " << numberTechTriggers << std::endl;
-    std::cout << "\t numberL1JetCounts = " << numberL1JetCounts << std::endl;
+    LogDebug("l1t|Global")
+      << "\n\t numberPhysTriggers = " << numberPhysTriggers 
+      << "\n\t numberTechTriggers = " << numberTechTriggers 
+      << "\n\t numberL1JetCounts = " << numberL1JetCounts 
+      << std::endl;
 
     l1t::L1uGtTriggerMenuXmlParser gtXmlParser = l1t::L1uGtTriggerMenuXmlParser();
 
