@@ -22,11 +22,10 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -53,27 +52,17 @@
 // class declaration
 //
 
-class TTbar_GenJetAnalyzer : public edm::EDAnalyzer {
+class TTbar_GenJetAnalyzer : public DQMEDAnalyzer {
    public:
       explicit TTbar_GenJetAnalyzer(const edm::ParameterSet&);
       ~TTbar_GenJetAnalyzer();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
+      virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
-      ///ME's "container"
-      DQMStore *dbe;
 
       edm::InputTag jets_;
       edm::InputTag genEventInfoProductTag_;

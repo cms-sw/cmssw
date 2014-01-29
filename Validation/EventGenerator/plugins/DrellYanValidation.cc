@@ -22,59 +22,50 @@ DrellYanValidation::DrellYanValidation(const edm::ParameterSet& iPSet):
   _flavor(iPSet.getParameter<int>("decaysTo")),
   _name(iPSet.getParameter<std::string>("name")) 
 {    
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
 }
 
 DrellYanValidation::~DrellYanValidation() {}
 
-void DrellYanValidation::beginJob()
-{
-  if(dbe){
+void DrellYanValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {
+  c.getData( fPDGTable );
+}
+
+void DrellYanValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
+
     ///Setting the DQM top directories
     std::string folderName = "Generator/DrellYan";
     folderName+=_name;
-    dbe->setCurrentFolder(folderName.c_str());
+    i.setCurrentFolder(folderName.c_str());
     
     // Number of analyzed events
-    nEvt = dbe->book1D("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = i.book1D("nEvt", "n analyzed Events", 1, 0., 1.);
     
     //Kinematics
-    Zmass = dbe->book1D("Zmass","inv. Mass Z", 70 ,0,140);
-    ZmassPeak = dbe->book1D("ZmassPeak","inv. Mass Z", 80 ,80 ,100);
-    Zpt = dbe->book1D("Zpt","Z pt",100,0,200);
-    ZptLog = dbe->book1D("ZptLog","log(Z pt)",100,0.,5.);
-    Zrap = dbe->book1D("Zrap", "Z y", 100, -5, 5);
-    Zdaughters = dbe->book1D("Zdaughters", "Z daughters", 60, -30, 30);
+    Zmass = i.book1D("Zmass","inv. Mass Z", 70 ,0,140);
+    ZmassPeak = i.book1D("ZmassPeak","inv. Mass Z", 80 ,80 ,100);
+    Zpt = i.book1D("Zpt","Z pt",100,0,200);
+    ZptLog = i.book1D("ZptLog","log(Z pt)",100,0.,5.);
+    Zrap = i.book1D("Zrap", "Z y", 100, -5, 5);
+    Zdaughters = i.book1D("Zdaughters", "Z daughters", 60, -30, 30);
 
-    dilep_mass = dbe->book1D("dilep_mass","inv. Mass dilepton", 70 ,0,140);
-    dilep_massPeak = dbe->book1D("dilep_massPeak","inv. Mass dilepton", 80 ,80 ,100);
-    dilep_pt = dbe->book1D("dilep_pt","dilepton pt",100,0,200);
-    dilep_ptLog = dbe->book1D("dilep_ptLog","log(dilepton pt)",100,0.,5.);
-    dilep_rap = dbe->book1D("dilep_rap", "dilepton y", 100, -5, 5);
+    dilep_mass = i.book1D("dilep_mass","inv. Mass dilepton", 70 ,0,140);
+    dilep_massPeak = i.book1D("dilep_massPeak","inv. Mass dilepton", 80 ,80 ,100);
+    dilep_pt = i.book1D("dilep_pt","dilepton pt",100,0,200);
+    dilep_ptLog = i.book1D("dilep_ptLog","log(dilepton pt)",100,0.,5.);
+    dilep_rap = i.book1D("dilep_rap", "dilepton y", 100, -5, 5);
 
-    gamma_energy = dbe->book1D("gamma_energy", "photon energy in Z rest frame", 200, 0., 100.);
-    cos_theta_gamma_lepton = dbe->book1D("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in Z rest frame",      200, -1, 1);
+    gamma_energy = i.book1D("gamma_energy", "photon energy in Z rest frame", 200, 0., 100.);
+    cos_theta_gamma_lepton = i.book1D("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in Z rest frame",      200, -1, 1);
 
-    leadpt = dbe->book1D("leadpt","leading lepton pt", 200, 0., 200.);    
-    secpt  = dbe->book1D("secpt","second lepton pt", 200, 0., 200.);    
-    leadeta = dbe->book1D("leadeta","leading lepton eta", 100, -5., 5.);
-    seceta  = dbe->book1D("seceta","second lepton eta", 100, -5., 5.);
+    leadpt = i.book1D("leadpt","leading lepton pt", 200, 0., 200.);    
+    secpt  = i.book1D("secpt","second lepton pt", 200, 0., 200.);    
+    leadeta = i.book1D("leadeta","leading lepton eta", 100, -5., 5.);
+    seceta  = i.book1D("seceta","second lepton eta", 100, -5., 5.);
 
-  }
   return;
 }
 
-void DrellYanValidation::endJob(){return;}
-void DrellYanValidation::beginRun(const edm::Run& iRun,const edm::EventSetup& iSetup)
-{
-  ///Get PDT Table
-  iSetup.getData( fPDGTable );
-  return;
-}
-void DrellYanValidation::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){return;}
 void DrellYanValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
 { 
   

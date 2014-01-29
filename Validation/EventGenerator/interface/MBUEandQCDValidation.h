@@ -9,7 +9,6 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -25,6 +24,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -35,16 +35,14 @@
 
 #include <vector>
 
-class MBUEandQCDValidation : public edm::EDAnalyzer
-{
+class MBUEandQCDValidation : public DQMEDAnalyzer {
     public:
 	explicit MBUEandQCDValidation(const edm::ParameterSet&);
 	virtual ~MBUEandQCDValidation();
-	virtual void beginJob();
-	virtual void endJob();  
-	virtual void analyze(const edm::Event&, const edm::EventSetup&);
-	virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-	virtual void endRun(const edm::Run&, const edm::EventSetup&);
+
+        virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+        virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
 
     private:
 	WeightManager wmanager_;
@@ -71,9 +69,6 @@ class MBUEandQCDValidation : public edm::EDAnalyzer
     bool isNeutrino(unsigned int i);
 
     std::vector<double> eneInCell;
-
-	///ME's "container"
-	DQMStore *dbe;
 
     MonitorElement* nEvt;
 

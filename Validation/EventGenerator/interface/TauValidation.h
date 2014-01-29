@@ -9,7 +9,7 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -23,6 +23,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -31,7 +32,7 @@
 
 #include "Validation/EventGenerator/interface/WeightManager.h"
 
-class TauValidation : public edm::EDAnalyzer
+class TauValidation : public DQMEDAnalyzer
 {
     public:
 	// tau decays
@@ -63,12 +64,9 @@ class TauValidation : public edm::EDAnalyzer
     public:
 	explicit TauValidation(const edm::ParameterSet&);
 	virtual ~TauValidation();
-	virtual void beginJob();
-	virtual void endJob();  
-	virtual void analyze(const edm::Event&, const edm::EventSetup&);
-	virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-	virtual void endRun(const edm::Run&, const edm::EventSetup&);
-
+	virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+	virtual void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
+	virtual void analyze(edm::Event const&, edm::EventSetup const&);
     private:
 	  WeightManager wmanager_;
 
@@ -100,9 +98,6 @@ class TauValidation : public edm::EDAnalyzer
   	/// PDT table
   	edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
   
-  	///ME's "container"
-  	DQMStore *dbe;
-
         MonitorElement *nTaus, *nPrimeTaus;
   	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
 	  *TauRtauW, *TauRtauHpm,
