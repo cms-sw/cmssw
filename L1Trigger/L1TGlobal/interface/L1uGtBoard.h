@@ -133,20 +133,20 @@ public:
     }
 
     /// pointer to EG data list
-    inline const std::vector<const l1t::L1Candidate*>* getCandL1EG() const
+    inline const BXVector<const l1t::L1Candidate*>* getCandL1EG() const
     {
         return m_candL1EG;
     }
 
     /// pointer to Jet data list
-    inline const std::vector<const l1t::L1Candidate*>* getCandL1Jet() const
+    inline const BXVector<const l1t::L1Candidate*>* getCandL1Jet() const
     {
         return m_candL1Jet;
     }
     
 
     /// pointer to Tau data list
-    inline const std::vector<const l1t::L1Candidate*>* getCandL1Tau() const
+    inline const BXVector<const l1t::L1Candidate*>* getCandL1Tau() const
     {
         return m_candL1Tau;
     }
@@ -221,9 +221,9 @@ private:
 private:
 
     BXVector<const l1t::Muon*>* m_candL1Mu;
-    std::vector<const l1t::L1Candidate*>* m_candL1EG;
-    std::vector<const l1t::L1Candidate*>* m_candL1Tau;
-    std::vector<const l1t::L1Candidate*>* m_candL1Jet;
+    BXVector<const l1t::L1Candidate*>* m_candL1EG;
+    BXVector<const l1t::L1Candidate*>* m_candL1Tau;
+    BXVector<const l1t::L1Candidate*>* m_candL1Jet;
     const l1t::EtSum* m_candETM;
     const l1t::EtSum* m_candETT;
     const l1t::EtSum* m_candHTM;

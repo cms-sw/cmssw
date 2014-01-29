@@ -26,14 +26,15 @@
 // user include files
 //   base classes
 #include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/L1uGtConditionEvaluation.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
+/*#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+*/
 
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
@@ -47,7 +48,7 @@
 // constructors
 //     default
 l1t::L1uGtCaloCondition::L1uGtCaloCondition() :
-    L1GtConditionEvaluation() {
+    L1uGtConditionEvaluation() {
 
     m_ifCaloEtaNumberBits = -1;
     m_corrParDeltaPhiNrBins = 0;
@@ -55,16 +56,14 @@ l1t::L1uGtCaloCondition::L1uGtCaloCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::L1uGtCaloCondition::L1uGtCaloCondition(const L1GtCondition* caloTemplate, const L1uGtBoard* ptrPSB,
-        const int nrL1NoIsoEG,
-        const int nrL1IsoEG,
-        const int nrL1CenJet,
-        const int nrL1ForJet,
-        const int nrL1TauJet,
+l1t::L1uGtCaloCondition::L1uGtCaloCondition(const L1GtCondition* caloTemplate, const L1uGtBoard* ptrGTB,
+        const int nrL1EG,
+        const int nrL1Jet,
+        const int nrL1Tau,
         const int ifCaloEtaNumberBits) :
-    L1GtConditionEvaluation(),
+    L1uGtConditionEvaluation(),
     m_gtCaloTemplate(static_cast<const L1GtCaloTemplate*>(caloTemplate)),
-    m_gtPSB(ptrPSB),
+    m_uGtB(ptrGTB),
     m_ifCaloEtaNumberBits(ifCaloEtaNumberBits)
 {
 
@@ -77,19 +76,21 @@ l1t::L1uGtCaloCondition::L1uGtCaloCondition(const L1GtCondition* caloTemplate, c
 
     switch ((m_gtCaloTemplate->objectType())[0]) {
         case NoIsoEG:
-            m_condMaxNumberObjects = nrL1NoIsoEG;
+            m_condMaxNumberObjects = nrL1EG;
             break;
-        case IsoEG:
+/*        case IsoEG:
             m_condMaxNumberObjects = nrL1IsoEG;
             break;
+*/
         case CenJet:
-            m_condMaxNumberObjects = nrL1CenJet;
+            m_condMaxNumberObjects = nrL1Jet;
             break;
-        case ForJet:
+/*        case ForJet:
             m_condMaxNumberObjects = nrL1ForJet;
             break;
+*/
         case TauJet:
-            m_condMaxNumberObjects = nrL1TauJet;
+            m_condMaxNumberObjects = nrL1Tau;
             break;
         default:
             m_condMaxNumberObjects = 0;
@@ -102,7 +103,7 @@ l1t::L1uGtCaloCondition::L1uGtCaloCondition(const L1GtCondition* caloTemplate, c
 void l1t::L1uGtCaloCondition::copy(const l1t::L1uGtCaloCondition& cp) {
 
     m_gtCaloTemplate = cp.gtCaloTemplate();
-    m_gtPSB = cp.gtPSB();
+    m_uGtB = cp.getuGtB();
 
     m_ifCaloEtaNumberBits = cp.gtIfCaloEtaNumberBits();
     m_corrParDeltaPhiNrBins = cp.m_corrParDeltaPhiNrBins;
@@ -116,7 +117,7 @@ void l1t::L1uGtCaloCondition::copy(const l1t::L1uGtCaloCondition& cp) {
 }
 
 l1t::L1uGtCaloCondition::L1uGtCaloCondition(const l1t::L1uGtCaloCondition& cp) :
-    L1GtConditionEvaluation() {
+    L1uGtConditionEvaluation() {
 
     copy(cp);
 
@@ -142,10 +143,10 @@ void l1t::L1uGtCaloCondition::setGtCaloTemplate(const L1GtCaloTemplate* caloTemp
 
 }
 
-///   set the pointer to PSB
-void l1t::L1uGtCaloCondition::setGtPSB(const L1uGtBoard* ptrPSB) {
+///   set the pointer to uGT Board
+void l1t::L1uGtCaloCondition::setuGtB(const L1uGtBoard* ptrGTB) {
 
-    m_gtPSB = ptrPSB;
+    m_uGtB = ptrGTB;
 
 }
 
@@ -165,7 +166,8 @@ void l1t::L1uGtCaloCondition::setGtCorrParDeltaPhiNrBins(
 }
 
 // try all object permutations and check spatial correlations, if required
-const bool l1t::L1uGtCaloCondition::evaluateCondition() const {
+const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
+
 
     // number of trigger objects in the condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
@@ -178,34 +180,27 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition() const {
     // but in a CondCalo all objects have the same type
     // take type from the type of the first object
 
-    const std::vector<const l1t::L1Candidate*>* candVec;
+    const BXVector<const l1t::L1Candidate*>* candVec;
 
     switch ((m_gtCaloTemplate->objectType())[0]) {
         case NoIsoEG:
-            candVec = m_gtPSB->getCandL1EG();
+            candVec = m_uGtB->getCandL1EG();
             break;
-      /*
-        case IsoEG:
-            candVec = m_gtPSB->getCandL1IsoEG();
-            break;
-      */
+
         case CenJet:
-            candVec = m_gtPSB->getCandL1Jet();
+            candVec = m_uGtB->getCandL1Jet();
             break;
-      /*
-        case ForJet:
-            candVec = m_gtPSB->getCandL1ForJet();
-            break;
-      */
+
         case TauJet:
-            candVec = m_gtPSB->getCandL1Tau();
+            candVec = m_uGtB->getCandL1Tau();
             break;
+
         default:
             return false;
             break;
     }
 
-    int numberObjects = candVec->size();
+    int numberObjects = candVec->size(bxEval);
     //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
@@ -253,7 +248,7 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition() const {
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
 
-            tmpResult &= checkObjectParameter(i, *(*candVec)[index[i]]);
+            tmpResult &= checkObjectParameter(i, *(candVec->at(bxEval,index[i])) );
             objectsInComb.push_back(index[i]);
 
         }
@@ -301,9 +296,9 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition() const {
             int scaleEta = 1 << (m_ifCaloEtaNumberBits - 1);
 
             for (int i = 0; i < ObjInWscComb; ++i) {
-                signBit[i] = ((*candVec)[index[i]]->hwEta() & scaleEta)
+                signBit[i] = ((candVec->at(bxEval,index[i]))->hwEta() & scaleEta)
                     >>(m_ifCaloEtaNumberBits - 1);
-                signedEta[i] = ((*candVec)[index[i]]->hwEta() )%scaleEta;
+                signedEta[i] = ((candVec->at(bxEval,index[i]))->hwEta() )%scaleEta;
 
                 if (signBit[i] == 1) {
                     signedEta[i] = (-1)*signedEta[i];
@@ -322,11 +317,11 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition() const {
             // check candDeltaPhi
 
             // calculate absolute value of candDeltaPhi
-            if ((*candVec)[index[0]]->hwPhi()> (*candVec)[index[1]]->hwPhi()) {
-                candDeltaPhi = (*candVec)[index[0]]->hwPhi() - (*candVec)[index[1]]->hwPhi();
+            if ((candVec->at(bxEval,index[0]))->hwPhi()> (candVec->at(bxEval,index[1]))->hwPhi()) {
+                candDeltaPhi = (candVec->at(bxEval,index[0]))->hwPhi() - (candVec->at(bxEval,index[1]))->hwPhi();
             }
             else {
-                candDeltaPhi = (*candVec)[index[1]]->hwPhi() - (*candVec)[index[0]]->hwPhi();
+                candDeltaPhi = (candVec->at(bxEval,index[1]))->hwPhi() - (candVec->at(bxEval,index[0]))->hwPhi();
             }
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
@@ -387,30 +382,22 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition() const {
 }
 
 // load calo candidates
-const l1t::L1Candidate* l1t::L1uGtCaloCondition::getCandidate(const int indexCand) const {
+const l1t::L1Candidate* l1t::L1uGtCaloCondition::getCandidate(const int bx, const int indexCand) const {
 
     // objectType() gives the type for nrObjects() only,
     // but in a CondCalo all objects have the same type
     // take type from the type of the first object
     switch ((m_gtCaloTemplate->objectType())[0]) {
         case NoIsoEG:
-            return (*(m_gtPSB->getCandL1EG()))[indexCand];
+            return (m_uGtB->getCandL1EG())->at(bx,indexCand);
             break;
-    /*
-        case IsoEG:
-            return (*(m_gtPSB->getCandL1IsoEG()))[indexCand];
-            break;
-    */
+
         case CenJet:
-            return (*(m_gtPSB->getCandL1Jet()))[indexCand];
+            return (m_uGtB->getCandL1Jet())->at(bx,indexCand);
             break;
-    /*
-        case ForJet:
-            return (*(m_gtPSB->getCandL1ForJet()))[indexCand];
-            break;
-    */
-        case TauJet:
-            return (*(m_gtPSB->getCandL1Tau()))[indexCand];
+
+       case TauJet:
+            return (m_uGtB->getCandL1Tau())->at(bx,indexCand);
             break;
         default:
             return 0;
@@ -478,7 +465,7 @@ void l1t::L1uGtCaloCondition::print(std::ostream& myCout) const {
     myCout << "    Maximum number of bins for the delta phi scales = "
             << m_corrParDeltaPhiNrBins << "\n " << std::endl;
 
-    L1GtConditionEvaluation::print(myCout);
+    L1uGtConditionEvaluation::print(myCout);
 
 }
 

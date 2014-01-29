@@ -21,7 +21,7 @@
 
 // user include files
 //   base classes
-#include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/L1uGtConditionEvaluation.h"
 
 // forward declarations
 class L1GtCondition;
@@ -34,7 +34,7 @@ class L1Candidate;
 class L1uGtBoard;
 
 // class declaration
-class L1uGtCaloCondition : public L1GtConditionEvaluation
+class L1uGtCaloCondition : public L1uGtConditionEvaluation
 {
 
 public:
@@ -45,11 +45,9 @@ public:
 
     ///     from base template condition (from event setup usually)
     L1uGtCaloCondition(const L1GtCondition*, const L1uGtBoard*,
-            const int nrL1NoIsoEG,
-            const int nrL1IsoEG,
-            const int nrL1CenJet,
-            const int nrL1ForJet,
-            const int nrL1TauJet,
+            const int nrL1EG,
+            const int nrL1Jet,
+            const int nrL1Tau,
             const int ifCaloEtaNumberBits);
 
     // copy constructor
@@ -64,7 +62,7 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition() const;
+    const bool evaluateCondition(const int bxEval) const;
 
     /// print condition
      void print(std::ostream& myCout) const;
@@ -78,12 +76,12 @@ public:
 
     void setGtCaloTemplate(const L1GtCaloTemplate*);
 
-    ///   get / set the pointer to PSB
-    inline const L1uGtBoard* gtPSB() const {
-        return m_gtPSB;
+    ///   get / set the pointer to uGt Board
+    inline const L1uGtBoard* getuGtB() const {
+        return m_uGtB;
     }
 
-    void setGtPSB(const L1uGtBoard*);
+    void setuGtB(const L1uGtBoard*);
 
 
     ///   get / set the number of bits for eta of calorimeter objects
@@ -106,7 +104,7 @@ private:
     void copy(const L1uGtCaloCondition& cp);
 
     /// load calo candidates
-    const l1t::L1Candidate* getCandidate(const int indexCand) const;
+    const l1t::L1Candidate* getCandidate(const int bx, const int indexCand) const;
 
     /// function to check a single object if it matches a condition
     const bool
@@ -117,8 +115,8 @@ private:
     /// pointer to a L1GtCaloTemplate
     const L1GtCaloTemplate* m_gtCaloTemplate;
 
-    /// pointer to PSB, to be able to get the trigger objects
-    const L1uGtBoard* m_gtPSB;
+    /// pointer to uGt Board, to be able to get the trigger objects
+    const L1uGtBoard* m_uGtB;
 
     /// number of bits for eta of calorimeter objects
     int m_ifCaloEtaNumberBits;

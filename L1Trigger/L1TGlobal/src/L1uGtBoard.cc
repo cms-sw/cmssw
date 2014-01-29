@@ -52,7 +52,7 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
 
 
-#include "L1Trigger/GlobalTrigger/interface/L1GtCaloCondition.h"
+//#include "L1Trigger/GlobalTrigger/interface/L1GtCaloCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtEnergySumCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtHfBitCountsCondition.h"
@@ -65,7 +65,7 @@
 
 // Conditions for uGt
 #include "L1Trigger/L1TGlobal/interface/L1uGtMuonCondition.h"
-
+#include "L1Trigger/L1TGlobal/interface/L1uGtCaloCondition.h"
 
 //   *** Comment out what do we do with this.
 #include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
@@ -83,6 +83,9 @@
 // constructor
 l1t::L1uGtBoard::L1uGtBoard() :
     m_candL1Mu( new BXVector<const l1t::Muon*>),
+    m_candL1EG( new BXVector<const l1t::L1Candidate*>),
+    m_candL1Tau( new BXVector<const l1t::L1Candidate*>),
+    m_candL1Jet( new BXVector<const l1t::L1Candidate*>),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -107,6 +110,9 @@ l1t::L1uGtBoard::~L1uGtBoard() {
 
     reset();
     delete m_candL1Mu;
+    delete m_candL1EG;
+    delete m_candL1Tau;
+    delete m_candL1Jet;
 //    delete m_gtEtaPhiConversions;
 
 }
@@ -115,6 +121,10 @@ l1t::L1uGtBoard::~L1uGtBoard() {
 void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet) {
 
   m_candL1Mu->setBXRange( -2,2 );
+  m_candL1EG->setBXRange( -2,2 );
+  m_candL1Tau->setBXRange( -2,2 );
+  m_candL1Jet->setBXRange( -2,2 );
+  
   //m_candL1Mu->resizeAll(nrL1Mu);
 
     // FIXME move from bitset to std::vector<bool> to be able to use
@@ -145,7 +155,107 @@ void l1t::L1uGtBoard::receiveCaloObjectData(edm::Event& iEvent,
                 << std::endl;
 
     }
-    printf(" L1uGtBoard does not yet implement receiveCaloOjbectData!!!! \n");
+
+    reset();
+    
+    // get data from Calorimeter
+    if (receiveEG) {
+        edm::Handle<BXVector<l1t::EGamma>> egData;
+        iEvent.getByLabel(caloInputTag, egData);
+
+        if (!egData.isValid()) {
+            if (m_verbosity) {
+                edm::LogWarning("l1t|Global")
+                        << "\nWarning: BXVector<l1t::EGamma> with input tag "
+                        << caloInputTag
+                        << "\nrequested in configuration, but not found in the event.\n"
+                        << std::endl;
+            }
+        } else {
+           // bx in EG data
+           for(int i = egData->getFirstBX(); i <= egData->getLastBX(); ++i) {
+  
+              //Loop over EG in this bx
+              for(std::vector<l1t::EGamma>::const_iterator eg = egData->begin(i); eg != egData->end(i); ++eg) {
+
+	        (*m_candL1EG).push_back(i,&(*eg));
+	        LogDebug("l1t|Global") << "EG  Pt " << eg->hwPt() << " Eta  " << eg->hwEta() << " Phi " << eg->hwPhi() << "  Qual " << eg->hwQual() <<"  Iso " << eg->hwIso() << std::endl;
+              } //end loop over EG in bx
+	   } //end loop over bx   
+
+        } //end if over valid EG data
+
+    } //end if ReveiveEG data
+
+
+    if (receiveTau) {
+        edm::Handle<BXVector<l1t::Tau>> tauData;
+        iEvent.getByLabel(caloInputTag, tauData);
+
+        if (!tauData.isValid()) {
+            if (m_verbosity) {
+                edm::LogWarning("l1t|Global")
+                        << "\nWarning: BXVector<l1t::Tau> with input tag "
+                        << caloInputTag
+                        << "\nrequested in configuration, but not found in the event.\n"
+                        << std::endl;
+            }
+        } else {
+           // bx in tau data
+           for(int i = tauData->getFirstBX(); i <= tauData->getLastBX(); ++i) {
+  
+              //Loop over tau in this bx
+              for(std::vector<l1t::Tau>::const_iterator tau = tauData->begin(i); tau != tauData->end(i); ++tau) {
+
+	        (*m_candL1Tau).push_back(i,&(*tau));
+	        LogDebug("l1t|Global") << "tau  Pt " << tau->hwPt() << " Eta  " << tau->hwEta() << " Phi " << tau->hwPhi() << "  Qual " << tau->hwQual() <<"  Iso " << tau->hwIso() << std::endl;
+              } //end loop over tau in bx
+	   } //end loop over bx   
+
+        } //end if over valid tau data
+
+    } //end if ReveiveTau data
+
+
+    if (receiveJet) {
+        edm::Handle<BXVector<l1t::Jet>> jetData;
+        iEvent.getByLabel(caloInputTag, jetData);
+
+        if (!jetData.isValid()) {
+            if (m_verbosity) {
+                edm::LogWarning("l1t|Global")
+                        << "\nWarning: BXVector<l1t::Jet> with input tag "
+                        << caloInputTag
+                        << "\nrequested in configuration, but not found in the event.\n"
+                        << std::endl;
+            }
+        } else {
+           // bx in jet data
+           for(int i = jetData->getFirstBX(); i <= jetData->getLastBX(); ++i) {
+  
+              //Loop over jet in this bx
+              for(std::vector<l1t::Jet>::const_iterator jet = jetData->begin(i); jet != jetData->end(i); ++jet) {
+
+	        (*m_candL1Jet).push_back(i,&(*jet));
+	        LogDebug("l1t|Global") << "Jet  Pt " << jet->hwPt() << " Eta  " << jet->hwEta() << " Phi " << jet->hwPhi() << "  Qual " << jet->hwQual() <<"  Iso " << jet->hwIso() << std::endl;
+              } //end loop over jet in bx
+	   } //end loop over bx   
+
+        } //end if over valid jet data
+
+    } //end if ReveiveJet data
+
+
+    if(receiveETM | receiveETT | receiveHTT | receiveHTM) {
+
+            if (m_verbosity) {
+                edm::LogWarning("l1t|Global")
+                        << "Loading EtSum Objects not yet implemented"
+                        << std::endl;
+            }
+
+      
+    }
 
 }
 
@@ -368,24 +478,27 @@ void l1t::L1uGtBoard::runGTL(
                     break;
                 case CondCalo: {
 
-/*  Don't access conditions for now
-                    L1GtCaloCondition* caloCondition = new L1GtCaloCondition(
+                    // BLW Not sure what to do with this for now
+		    const int ifCaloEtaNumberBits = 0;
+
+                    L1uGtCaloCondition* caloCondition = new L1uGtCaloCondition(
                             itCond->second, this,
-                            nrL1NoIsoEG,
-                            nrL1IsoEG,
-                            nrL1CenJet,
-                            nrL1ForJet,
-                            nrL1TauJet,
+                            nrL1EG,
+                            nrL1Jet,
+                            nrL1Tau,
                             ifCaloEtaNumberBits);
 
                     caloCondition->setVerbosity(m_verbosity);
-                    caloCondition->setGtCorrParDeltaPhiNrBins(
-                            (m_gtEtaPhiConversions->gtObjectNrBinsPhi(
-                                    ((itCond->second)->objectType())[0])) / 2
-                                    + 1);
-                    caloCondition->evaluateConditionStoreResult();
 
-                    cMapResults[itCond->first] = caloCondition;
+                    // BLW COmment out for Now
+                    //caloCondition->setGtCorrParDeltaPhiNrBins(
+                    //        (m_gtEtaPhiConversions->gtObjectNrBinsPhi(
+                    //                ((itCond->second)->objectType())[0])) / 2
+                    //                + 1);
+                    caloCondition->evaluateConditionStoreResult(iBxInEvent);
+                    
+		    // BLW Comment out for now
+                    //cMapResults[itCond->first] = caloCondition;
 
                     if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
@@ -394,7 +507,7 @@ void l1t::L1uGtBoard::runGTL(
                         LogTrace("l1t|Global") << myCout.str() << std::endl;
                     }
                     //                    delete caloCondition;
-*/
+		    
                 }
                     break;
                 case CondEnergySum: {
