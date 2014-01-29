@@ -351,7 +351,7 @@ void l1t::L1uGtBoard::runGTL(
                   //          (m_gtEtaPhiConversions->gtObjectNrBinsPhi(Mu)) / 2
                   //                  + 1);
 		  // BLW Need to pass the bx we are working on.
-                    muCondition->evaluateConditionStoreResult();
+                    muCondition->evaluateConditionStoreResult(iBxInEvent);
 
                    // BLW COmment out for now 
                    // cMapResults[itCond->first] = muCondition;

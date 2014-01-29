@@ -26,7 +26,7 @@
 // user include files
 //   base classes
 #include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/L1uGtConditionEvaluation.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
@@ -41,7 +41,7 @@
 // constructors
 //     default
 l1t::L1uGtMuonCondition::L1uGtMuonCondition() :
-    L1GtConditionEvaluation() {
+    L1uGtConditionEvaluation() {
 
     // empty
 
@@ -51,7 +51,7 @@ l1t::L1uGtMuonCondition::L1uGtMuonCondition() :
 l1t::L1uGtMuonCondition::L1uGtMuonCondition(const L1GtCondition* muonTemplate,
         const L1uGtBoard* ptrGTL, const int nrL1Mu,
         const int ifMuEtaNumberBits) :
-    L1GtConditionEvaluation(),
+    L1uGtConditionEvaluation(),
     m_gtMuonTemplate(static_cast<const L1GtMuonTemplate*>(muonTemplate)),
     m_gtGTL(ptrGTL),
     m_ifMuEtaNumberBits(ifMuEtaNumberBits)
@@ -78,7 +78,7 @@ void l1t::L1uGtMuonCondition::copy(const l1t::L1uGtMuonCondition &cp) {
 }
 
 l1t::L1uGtMuonCondition::L1uGtMuonCondition(const l1t::L1uGtMuonCondition& cp) :
-    L1GtConditionEvaluation() {
+    L1uGtConditionEvaluation() {
     copy(cp);
 }
 
@@ -129,10 +129,10 @@ void l1t::L1uGtMuonCondition::setGtCorrParDeltaPhiNrBins(
 
 
 // try all object permutations and check spatial correlations, if required
-const bool l1t::L1uGtMuonCondition::evaluateCondition() const {  
+const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {  
  
     // BLW Need to pass this as an argument
-    const int bxEval=0;   //BLW Change for BXVector
+    //const int bxEval=0;   //BLW Change for BXVector
 
     // number of trigger objects in the condition
     int nObjInCond = m_gtMuonTemplate->nrObjects();
@@ -574,7 +574,7 @@ void l1t::L1uGtMuonCondition::print(std::ostream& myCout) const {
     myCout << "    Maximum number of bins for the delta phi scales = "
             << m_corrParDeltaPhiNrBins << "\n " << std::endl;
 
-    L1GtConditionEvaluation::print(myCout);
+    L1uGtConditionEvaluation::print(myCout);
 
 }
 

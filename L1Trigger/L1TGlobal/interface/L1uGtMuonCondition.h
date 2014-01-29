@@ -21,7 +21,7 @@
 
 // user include files
 //   base classes
-#include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/L1uGtConditionEvaluation.h"
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
@@ -36,7 +36,7 @@ class L1MuGMTCand;
 class L1uGtBoard;
 
 // class declaration
-class L1uGtMuonCondition : public L1GtConditionEvaluation
+class L1uGtMuonCondition : public L1uGtConditionEvaluation
 {
 
 public:
@@ -62,7 +62,7 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition() const;
+    const bool evaluateCondition(const int bxEval) const;
 
     /// print condition
     void print(std::ostream& myCout) const;
