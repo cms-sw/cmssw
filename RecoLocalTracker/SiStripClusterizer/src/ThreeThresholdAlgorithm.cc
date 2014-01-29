@@ -90,7 +90,7 @@ applyGains() {
   for( std::vector<uint16_t>::iterator adc = ADCs.begin();  adc != ADCs.end();  adc++) {
     if(*adc > 255) throw InvalidChargeException( SiStripDigi(strip,*adc) );
     if(*adc > 253) continue; //saturated, do not scale
-    uint16_t charge = static_cast<uint16_t>( *adc/gain(strip++) + 0.5 ); //adding 0.5 turns truncation into rounding
+    uint16_t charge = static_cast<uint16_t>( float(*adc)/gain(strip++) + 0.5f ); //adding 0.5 turns truncation into rounding
     *adc = ( charge > 1022 ? 255 : 
            ( charge >  253 ? 254 : charge ));
   }

@@ -45,7 +45,8 @@ void SiStripApvGain::getDetIds(std::vector<uint32_t>& DetIds_) const {
   DetIds_.insert(DetIds_.begin(),v_detids.begin(),v_detids.end());
 }
 
-float SiStripApvGain::getStripGain(const uint16_t& strip, const Range& range) const {
+#ifdef EDM_ML_DEBUG
+float SiStripApvGain::getStripGain(const uint16_t& strip, const Range& range) {
   uint16_t apv = (uint16_t) (strip/128);
   if (apv>=range.second-range.first){
     throw cms::Exception("CorruptedData")
@@ -58,7 +59,7 @@ float SiStripApvGain::getStripGain(const uint16_t& strip, const Range& range) co
 
 }
 
-float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) const {
+float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) {
   if (apv>=range.second-range.first){
     throw cms::Exception("CorruptedData")
       << "[SiStripApvGain::getApvGain] looking for SiStripApvGain for an apv out of range: apv " << apv << std::endl;
@@ -68,6 +69,8 @@ float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) const 
 
   return *(range.first+apv);
 }
+#endif
+
 
 void SiStripApvGain::printDebug(std::stringstream & ss) const
 {

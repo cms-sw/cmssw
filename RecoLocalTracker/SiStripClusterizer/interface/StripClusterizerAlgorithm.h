@@ -38,8 +38,8 @@ class StripClusterizerAlgorithm {
 
   uint32_t currentId() {return detId;}
   virtual void setDetId(const uint32_t);
-  float noise(const uint16_t& strip) const { return noiseHandle->getNoise( strip, noiseRange ); }
-  float gain(const uint16_t& strip)  const { return gainHandle->getStripGain( strip, gainRange ); }
+  float noise(const uint16_t& strip) const { return SiStripNoises::getNoise( strip, noiseRange ); }
+  float gain(const uint16_t& strip)  const { return SiStripGain::getStripGain( strip, gainRange ); }
   bool bad(const uint16_t& strip)    const { return qualityHandle->IsStripBad( qualityRange, strip ); }
   bool isModuleUsable(const uint32_t& id)  const { return qualityHandle->IsModuleUsable( id ); }
   bool allBadBetween(uint16_t L, const uint16_t& R) const { while( ++L < R  &&  bad(L) ); return L == R; }

@@ -50,6 +50,7 @@ void SiStripNoises::getDetIds(std::vector<uint32_t>& DetIds_) const {
 	}
 }
 
+#ifdef EDM_ML_DEBUG
 float SiStripNoises::getNoise(uint16_t strip, const Range& range) {
 	if (9*strip>=(range.second-range.first)*8){
 		throw cms::Exception("CorruptedData")
@@ -58,9 +59,12 @@ float SiStripNoises::getNoise(uint16_t strip, const Range& range) {
 	return getNoiseFast(strip,range);
 }
 
+#endif
+
 void SiStripNoises::setData(float noise_, InputVector& v){
 	v.push_back((static_cast<int16_t>  (noise_*10.0 + 0.5) & 0x01FF)) ;
 }
+
 
 void SiStripNoises::encode(const InputVector& Vi, std::vector<unsigned char>& Vo){
   static const uint16_t  BITS_PER_STRIP  = 9;
