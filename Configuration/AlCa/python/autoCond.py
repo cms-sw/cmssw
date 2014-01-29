@@ -74,6 +74,9 @@ conditions_HLT_JECs = (
 autoCond['startup_8E33v2']   = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
+autoCond['startup_2013']     = ( autoCond['startup'], ) \
+                             + conditions_L1_Run2012D
+
 autoCond['startup_GRun']     = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
@@ -88,6 +91,9 @@ autoCond['startup_PIon']     = ( autoCond['startpa'], ) \
 autoCond['hltonline_8E33v2'] = ( autoCond['hltonline'], ) \
                              + conditions_L1_Run2012D
 
+autoCond['hltonline_2013']   = ( autoCond['hltonline'], ) \
+                             + conditions_L1_Run2012D
+
 autoCond['hltonline_GRun']   = ( autoCond['hltonline'], ) \
                              + conditions_L1_Run2012D
 
@@ -99,6 +105,9 @@ autoCond['hltonline_PIon']   = ( autoCond['hltonline'], ) \
 
 # dedicated GlobalTags for running RECO and the frozen HLT menus on data
 autoCond['com10_8E33v2']     = ( autoCond['com10'], ) \
+                             + conditions_L1_Run2012D
+
+autoCond['com10_2013']       = ( autoCond['com10'], ) \
                              + conditions_L1_Run2012D
 
 autoCond['com10_GRun']       = ( autoCond['com10'], ) \
