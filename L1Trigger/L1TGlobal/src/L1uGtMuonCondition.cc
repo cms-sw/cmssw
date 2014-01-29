@@ -185,10 +185,16 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition() const {
 
         bool tmpResult = true;
 
+	bool passCondition = false;
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
 
-            tmpResult &= checkObjectParameter(i,  *(candVec->at(bxEval,index[i]) )); //BLW Change for BXVector
+	    passCondition = checkObjectParameter(i,  *(candVec->at(bxEval,index[i]) )); //BLW Change for BXVector
+	    tmpResult &= passCondition;
+	    if( passCondition ) 
+	      LogDebug("l1t|Global") << "===> L1uGtMuonCondition::evaluateCondition, CONGRATS!! This muon passed the condition." << std::endl;
+	    else 
+	      LogDebug("l1t|Global") << "===> L1uGtMuonCondition::evaluateCondition, FAIL!! This muon failed the condition." << std::endl;
             objectsInComb.push_back(index[i]);
 
         }
@@ -454,15 +460,36 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
     //   value >= high pt threshold & isolated muon:
     //       OK, trigger
 
+    LogDebug("l1t|Global")
+      << "\n L1GtMuonTemplate::ObjectParameter : "
+      << "\n\t ptHighThreshold = " << objPar.ptHighThreshold 
+      << "\n\t ptLowThreshold  = " << objPar.ptLowThreshold
+      << "\n\t requestIso      = " << objPar.requestIso
+      << "\n\t enableIso       = " << objPar.enableIso
+      << "\n\t etaRange        = " << objPar.etaRange
+      << "\n\t phiLow          = " << objPar.phiLow
+      << "\n\t phiHigh         = " << objPar.phiHigh
+      << "\n\t qualityRange    = " << objPar.qualityRange
+      << "\n\t enableMip       = " << objPar.enableMip
+      << std::endl;
+
+    LogDebug("l1t|Global")
+      << "\n l1t::Muon : "
+      << "\n\t hwPt   = " <<  cand.hwPt()
+      << "\n\t hwEta  = " << cand.hwEta()
+      << "\n\t hwPhi  = " << cand.hwPhi()
+      << "\n\t hwQual = " << cand.hwQual()
+      << "\n\t hwIso  = " << cand.hwIso()
+      << "\n\t hwMip  = " << cand.hwMip()
+      << std::endl;
+
 
     if ( !checkThreshold(objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
 
         if ( !checkThreshold(objPar.ptLowThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
-
             return false;
         }
         else {
-
             // check isolation
             if ( !cand.hwIso() ) {
                 if (objPar.requestIso || objPar.enableIso) {
@@ -486,7 +513,6 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
     }
 
     // check eta
-
     if (!checkBit(objPar.etaRange, cand.hwEta())) {
         return false;
     }
@@ -494,18 +520,14 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
     // check phi  - in the requested range (no LUT used - LUT too big for hw chip)
     // for phiLow <= phiHigh takes [phiLow, phiHigh]
     // for phiLow >= phiHigh takes [phiLow, phiHigh] over zero angle!
-
     if (objPar.phiHigh >= objPar.phiLow) {
-
         if (! ( (objPar.phiLow <= (unsigned int)cand.hwPhi()) && ((unsigned int)cand.hwPhi() <= objPar.phiHigh ) )) {
-
             return false;
         }
 
     }
     else { // go over zero angle!!
         if (! ( (objPar.phiLow <= (unsigned int)cand.hwPhi()) || ((unsigned int)cand.hwPhi() <= objPar.phiHigh ) )) {
-
             return false;
         }
     }
@@ -524,7 +546,7 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
         return false;
     }
     else {
-        if (!checkBit(objPar.qualityRange, cand.hwQual())) {
+      if (!checkBit(objPar.qualityRange, cand.hwQual())) {
             return false;
         }
     }
@@ -532,7 +554,6 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
     // check mip
     if (objPar.enableMip) {
         if (!cand.hwMip()) {
-
             return false;
         }
     }

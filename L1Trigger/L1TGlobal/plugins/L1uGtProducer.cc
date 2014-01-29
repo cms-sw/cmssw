@@ -119,13 +119,13 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
 
         LogDebug("l1t|Global") << std::endl;
 
-        LogTrace("lt1|Global")
+        LogTrace("l1t|Global")
                 << "\nInput tag for muon collection from GMT:         " << m_muInputTag
                 << "\nInput tag for calorimeter collections from GCT: " << m_caloInputTag
                 << std::endl;
 
 
-        LogTrace("lt1|Global")
+        LogTrace("l1t|Global")
                 << "\nProduce the L1 GT DAQ readout record:           " << m_produceL1GtDaqRecord
                 << "\nProduce the L1 GT Object Map record:            " << m_produceL1GtObjectMapRecord
                 << " \n"
@@ -247,8 +247,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 {
 
     // process event iEvent
-
-	// get / update the stable parameters from the EventSetup
+    // get / update the stable parameters from the EventSetup
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtStableParCacheID =
@@ -268,6 +267,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
         // number of objects of each type
         m_nrL1Mu = static_cast<int> (m_l1GtStablePar->gtNumberL1Mu());
+        //m_nrL1Mu = static_cast<int> (8);
 	
 // ***** Doe we need to change the StablePar class for generic. EG	
         m_nrL1EG = static_cast<int> (m_l1GtStablePar->gtNumberL1NoIsoEG());
@@ -340,10 +340,9 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     }
 
 
-
     if (m_verbosity) {
 
-        LogDebug("lt1|Global")
+        LogDebug("l1t|Global")
                 << "\nTotal number of BX to emulate in the GT readout record: "
                 << m_emulateBxInEvent << " = " << "[" << minBxInEvent << ", " << maxBxInEvent
                 << "] BX\n"
@@ -453,7 +452,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     // DataFormats/L1Trigger/L1uGtProducerReadoutSetupFwd
 
     //
-    bool receiveMu = false;
+    bool receiveMu = !false;
     bool receiveEG = true;
     bool receiveTau = false;    
     bool receiveJet = true;
@@ -529,13 +528,13 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
         bxCrossHw = 0; // Bx number too large, set to 0!
         if (m_verbosity) {
 
-            LogDebug("lt1|Global")
+            LogDebug("l1t|Global")
                 << "\nBunch cross number [hex] = " << std::hex << bxCross
                 << "\n  larger than 12 bits. Set to 0! \n" << std::dec
                 << std::endl;
         }
     }
-    LogDebug("lt1|Global") << "HW BxCross " << bxCrossHw << std::endl;  
+    LogDebug("l1t|Global") << "HW BxCross " << bxCrossHw << std::endl;  
 
 /*  ** No Record for Now 
     if (m_produceL1GtDaqRecord) {
@@ -621,11 +620,12 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 
     // get the prescale factor set used in the actual luminosity segment
-    int pfAlgoSetIndex = 0; // FIXME
-    const std::vector<int>& prescaleFactorsAlgoTrig =
-        (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
+//     int pfAlgoSetIndex = 0; // FIXME
+  // comment out for now DMP
+//     const std::vector<int>& prescaleFactorsAlgoTrig =
+//         (*m_prescaleFactorsAlgoTrig).at(pfAlgoSetIndex);
     
-    LogDebug("lt1|Global") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
+//     LogDebug("l1t|Global") << "Size of prescale vector" << prescaleFactorsAlgoTrig.size() << std::endl;
     //
 
 
@@ -645,7 +645,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
             ++iBxInEvent) {
 
         //  run GTL
-        LogDebug("lt1|Global")
+        LogDebug("l1t|Global")
          << "\nL1uGtProducer : running GTL  for bx = " << iBxInEvent << "\n"
          << std::endl;
 
@@ -662,22 +662,23 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 
         //  run FDL
-        LogDebug("lt1|Global")
+        LogDebug("l1t|Global")
           << "\nL1uGtProducer : running FDL for bx = " << iBxInEvent << "\n"
           << std::endl;
 
-//  Run the Final Decision Logic for this BX
-        m_uGtBrd->runFDL(iEvent,
-                prescaleFactorsAlgoTrig, 
-                m_triggerMaskAlgoTrig, 
-                m_triggerMaskVetoAlgoTrig,
-                m_emulateBxInEvent, iBxInEvent,
-                m_numberPhysTriggers, 
-                m_numberDaqPartitions,
-                pfAlgoSetIndex,
-                m_algorithmTriggersUnprescaled,
-                m_algorithmTriggersUnmasked
-                );
+  // comment out for now DP
+// //  Run the Final Decision Logic for this BX
+//         m_uGtBrd->runFDL(iEvent,
+//                 prescaleFactorsAlgoTrig, 
+//                 m_triggerMaskAlgoTrig, 
+//                 m_triggerMaskVetoAlgoTrig,
+//                 m_emulateBxInEvent, iBxInEvent,
+//                 m_numberPhysTriggers, 
+//                 m_numberDaqPartitions,
+//                 pfAlgoSetIndex,
+//                 m_algorithmTriggersUnprescaled,
+//                 m_algorithmTriggersUnmasked
+//                 );
 
 
 
@@ -698,7 +699,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
     	std::ostringstream myCoutStream;
         gtDaqReadoutRecord->print(myCoutStream);
-        LogTrace("lt1|Global")
+        LogTrace("l1t|Global")
         << "\n The following L1 GT DAQ readout record was produced:\n"
         << myCoutStream.str() << "\n"
         << std::endl;
@@ -717,7 +718,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
         }
 
 
-        LogDebug("lt1|Global")
+        LogDebug("l1t|Global")
         << "Test gtObjectMapRecord in L1uGtProducer \n\n" << myCoutStream.str() << "\n\n"
         << std::endl;
 
@@ -743,3 +744,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 }
 
+//define this as a plug-in
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(l1t::L1uGtProducer);

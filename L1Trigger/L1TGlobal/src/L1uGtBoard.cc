@@ -114,7 +114,8 @@ l1t::L1uGtBoard::~L1uGtBoard() {
 // operations
 void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet) {
 
-    m_candL1Mu->resizeAll(nrL1Mu);
+  m_candL1Mu->setBXRange( -2,2 );
+  //m_candL1Mu->resizeAll(nrL1Mu);
 
     // FIXME move from bitset to std::vector<bool> to be able to use
     // numberPhysTriggers from EventSetup
@@ -159,14 +160,12 @@ void l1t::L1uGtBoard::receiveMuonObjectData(edm::Event& iEvent,
                 << "\n**** L1uGtBoard receiving muon data = "
                 << "\n     from input tag " << muInputTag << "\n"
                 << std::endl;
-
     }
 
     reset();
 
     // get data from Global Muon Trigger
     if (receiveMu) {
-
         edm::Handle<BXVector<l1t::Muon>> muonData;
         iEvent.getByLabel(muInputTag, muonData);
 
@@ -179,15 +178,14 @@ void l1t::L1uGtBoard::receiveMuonObjectData(edm::Event& iEvent,
                         << std::endl;
             }
         } else {
-
            // bx in muon data
            for(int i = muonData->getFirstBX(); i <= muonData->getLastBX(); ++i) {
   
               //Loop over Muons in this bx
               for(std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
-           
+
 	        (*m_candL1Mu).push_back(i,&(*mu));
-	        LogDebug("l1t|Global") << "Muon  Pt" << mu->hwPt() << "Eta  " << mu->hwPt() << " Phi " << mu->hwPhi() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
+	        LogDebug("l1t|Global") << "Muon  Pt " << mu->hwPt() << " Eta  " << mu->hwEta() << " Phi " << mu->hwPhi() << "  Qual " << mu->hwQual() <<"  Iso " << mu->hwIso() << std::endl;
               } //end loop over muons in bx
 	   } //end loop over bx   
 
@@ -218,7 +216,6 @@ void l1t::L1uGtBoard::runGTL(
 
 	// get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
-
     unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
@@ -226,18 +223,19 @@ void l1t::L1uGtBoard::runGTL(
         edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
         evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
         m_l1GtMenu =  l1GtMenu.product();
-        (const_cast<L1GtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+       (const_cast<L1GtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
-
     }
 
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
+    /*
     const std::vector<std::vector<L1GtMuonTemplate> >& corrMuon =
             m_l1GtMenu->corMuonTemplate();
 
+      // Comment out for now
     const std::vector<std::vector<L1GtCaloTemplate> >& corrCalo =
             m_l1GtMenu->corCaloTemplate();
 
@@ -247,6 +245,7 @@ void l1t::L1uGtBoard::runGTL(
     LogDebug("l1t|Global") << "Size corrMuon " << corrMuon.size() 
                            << "\nSize corrCalo " << corrCalo.size() 
 			   << "\nSize corrSums " << corrEnergySum.size() << std::endl;
+    */
 
     // conversion needed for correlation conditions
     // done in the condition loop when the first correlation template is in the menu
