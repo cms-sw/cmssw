@@ -205,7 +205,7 @@ L1TGlobalFakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
    for(unsigned int it=0; it<fMuBx.size(); it++) {
 
      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *muLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-     l1t::Muon fakeMU(*muLorentz, fMuHwPt.at(it), fMuHwEta.at(it),fMuHwPhi.at(it), 0, 0, 0, fMuIso.at(it)); 
+     l1t::Muon fakeMU(*muLorentz, fMuHwPt.at(it), fMuHwEta.at(it),fMuHwPhi.at(it), 4, 0, 0, fMuIso.at(it)); 
      muons->push_back(fMuBx.at(it), fakeMU);  
 
    }
