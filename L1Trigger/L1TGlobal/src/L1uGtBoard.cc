@@ -118,13 +118,31 @@ l1t::L1uGtBoard::~L1uGtBoard() {
 }
 
 // operations
-void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet) {
+void l1t::L1uGtBoard::setBxFirst(int bx){
 
-  m_candL1Mu->setBXRange( -2,2 );
-  m_candL1EG->setBXRange( -2,2 );
-  m_candL1Tau->setBXRange( -2,2 );
-  m_candL1Jet->setBXRange( -2,2 );
+  m_bxFirst_ = bx;
+
+}
+
+void l1t::L1uGtBoard::setBxLast(int bx){
+
+  m_bxLast_ = bx;
+
+}
+
+void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet,
+			   int bxFirst, int bxLast) {
+
+  setBxFirst(bxFirst);
+  setBxLast(bxLast);
+
+  m_candL1Mu->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_candL1EG->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
   
+  LogDebug("l1t|Global") << "\t Initializing L1uGtBoard with bxFirst = " << m_bxFirst_ << ", bxLast = " << m_bxLast_ << std::endl;
+
   //m_candL1Mu->resizeAll(nrL1Mu);
 
     // FIXME move from bitset to std::vector<bool> to be able to use
@@ -933,8 +951,15 @@ void l1t::L1uGtBoard::runFDL(edm::Event& iEvent,
 // clear GTL
 void l1t::L1uGtBoard::reset() {
 
-//  *******BXVector does not have a clear method
-//    m_candL1Mu->clear();
+    m_candL1Mu->clear();
+    m_candL1EG->clear();
+    m_candL1Tau->clear();
+    m_candL1Jet->clear();
+
+    m_candL1Mu->setBXRange( m_bxFirst_, m_bxLast_ );
+    m_candL1EG->setBXRange( m_bxFirst_, m_bxLast_ );
+    m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
+    m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
 
     m_gtlDecisionWord.reset();
     m_gtlAlgorithmOR.reset();

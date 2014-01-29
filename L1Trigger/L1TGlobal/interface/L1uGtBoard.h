@@ -80,7 +80,8 @@ public:
 
 
     /// initialize the class (mainly reserve)
-    void init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet);
+    void init(const int numberPhysTriggers, const int nrL1Mu, const int nrL1EG, const int nrL1Tau, const int nrL1Jet, 
+	      int bxFirst, int bxLast);
 
     /// run the uGT GTL (Conditions and Algorithms)
     void runGTL(edm::Event& iEvent, const edm::EventSetup& evSetup,
@@ -193,6 +194,8 @@ public:
         return m_candHfRingEtSums;
     }
 
+    void setBxFirst(int bx);
+    void setBxLast(int bx);
 
 public:
 
@@ -232,7 +235,8 @@ private:
     const l1t::EtSum* m_candHfBitCounts;
     const l1t::EtSum* m_candHfRingEtSums;
 
-
+    int m_bxFirst_;
+    int m_bxLast_;
 
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;

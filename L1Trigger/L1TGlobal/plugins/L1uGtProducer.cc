@@ -246,6 +246,39 @@ l1t::L1uGtProducer::~L1uGtProducer()
 void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
 
+    // get / update the parameters from the EventSetup
+    // local cache & check on cacheIdentifier
+
+    unsigned long long l1GtParCacheID = evSetup.get<L1GtParametersRcd>().cacheIdentifier();
+
+    if (m_l1GtParCacheID != l1GtParCacheID) {
+
+        edm::ESHandle< L1GtParameters > l1GtPar;
+        evSetup.get< L1GtParametersRcd >().get( l1GtPar );
+        m_l1GtPar = l1GtPar.product();
+
+        //    total number of Bx's in the event coming from EventSetup
+        m_totalBxInEvent = m_l1GtPar->gtTotalBxInEvent();
+
+        //    active boards in L1 GT DAQ record and in L1 GT EVM record
+        m_activeBoardsGtDaq = m_l1GtPar->gtDaqActiveBoards();
+
+        ///   length of BST message (in bytes) for L1 GT EVM record
+        m_bstLengthBytes = m_l1GtPar->gtBstLengthBytes();
+
+
+        m_l1GtParCacheID = l1GtParCacheID;
+
+    }
+
+    // negative value: emulate TotalBxInEvent as given in EventSetup
+    if (m_emulateBxInEvent < 0) {
+        m_emulateBxInEvent = m_totalBxInEvent;
+    }
+
+    int minBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
+    int maxBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
+
     // process event iEvent
     // get / update the stable parameters from the EventSetup
     // local cache & check on cacheIdentifier
@@ -286,45 +319,12 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 
         // Initialize Board
-        m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet  );
+        m_uGtBrd->init(m_numberPhysTriggers, m_nrL1Mu, m_nrL1EG, m_nrL1Tau, m_nrL1Jet, minBxInEvent, maxBxInEvent );
 
         //
         m_l1GtStableParCacheID = l1GtStableParCacheID;
 
     }
-
-    // get / update the parameters from the EventSetup
-    // local cache & check on cacheIdentifier
-
-    unsigned long long l1GtParCacheID = evSetup.get<L1GtParametersRcd>().cacheIdentifier();
-
-    if (m_l1GtParCacheID != l1GtParCacheID) {
-
-        edm::ESHandle< L1GtParameters > l1GtPar;
-        evSetup.get< L1GtParametersRcd >().get( l1GtPar );
-        m_l1GtPar = l1GtPar.product();
-
-        //    total number of Bx's in the event coming from EventSetup
-        m_totalBxInEvent = m_l1GtPar->gtTotalBxInEvent();
-
-        //    active boards in L1 GT DAQ record and in L1 GT EVM record
-        m_activeBoardsGtDaq = m_l1GtPar->gtDaqActiveBoards();
-
-        ///   length of BST message (in bytes) for L1 GT EVM record
-        m_bstLengthBytes = m_l1GtPar->gtBstLengthBytes();
-
-
-        m_l1GtParCacheID = l1GtParCacheID;
-
-    }
-
-    // negative value: emulate TotalBxInEvent as given in EventSetup
-    if (m_emulateBxInEvent < 0) {
-        m_emulateBxInEvent = m_totalBxInEvent;
-    }
-
-    int minBxInEvent = (m_emulateBxInEvent + 1)/2 - m_emulateBxInEvent;
-    int maxBxInEvent = (m_emulateBxInEvent + 1)/2 - 1;
 
     int recordLength0 = m_recordLength.at(0);
     int recordLength1 = m_recordLength.at(1);
