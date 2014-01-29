@@ -89,6 +89,13 @@ void BXVector<T>::push_back( int bx, T object )
   data_.at(indexFromBX(bx)).push_back(object);
 }
 
+// add clear member
+template < class T >
+void BXVector<T>::clear()
+{
+  data_.clear();
+}
+
 // random access
 template < class T >
 const T& BXVector<T>::at( int bx, int i ) const
