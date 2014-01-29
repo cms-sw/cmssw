@@ -116,18 +116,6 @@ conditions_HLT_JECs = (
 
 
 # dedicated GlobalTags for MC production with the frozen HLT menus
-autoCond['startup_5E33v4']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012A
-
-autoCond['startup_7E33v2']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012B
-
-autoCond['startup_7E33v3']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['startup_7E33v4']   = ( autoCond['startup'], ) \
-                             + conditions_L1_Run2012C
-
 autoCond['startup_8E33v2']   = ( autoCond['startup'], ) \
                              + conditions_L1_Run2012D
 
@@ -142,18 +130,6 @@ autoCond['startup_PIon']     = ( autoCond['startpa'], )
 
 
 # dedicated GlobalTags for running the frozen HLT menus on data
-autoCond['hltonline_5E33v4'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012A
-
-autoCond['hltonline_7E33v2'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012B
-
-autoCond['hltonline_7E33v3'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['hltonline_7E33v4'] = ( autoCond['hltonline'], ) \
-                             + conditions_L1_Run2012C
-
 autoCond['hltonline_8E33v2'] = ( autoCond['hltonline'], ) \
                              + conditions_L1_Run2012D
 
@@ -167,18 +143,6 @@ autoCond['hltonline_PIon']   = ( autoCond['hltonline'], ) \
                              + conditions_L1_PARun2013
 
 # dedicated GlobalTags for running RECO and the frozen HLT menus on data
-autoCond['com10_5E33v4']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012A
-
-autoCond['com10_7E33v2']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012B
-
-autoCond['com10_7E33v3']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012C
-
-autoCond['com10_7E33v4']     = ( autoCond['com10'], ) \
-                             + conditions_L1_Run2012C
-
 autoCond['com10_8E33v2']     = ( autoCond['com10'], ) \
                              + conditions_L1_Run2012D
 
