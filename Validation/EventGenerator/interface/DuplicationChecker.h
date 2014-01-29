@@ -46,7 +46,7 @@ class DuplicationChecker : public DQMEDAnalyzer {
   explicit DuplicationChecker(const edm::ParameterSet&);
   virtual ~DuplicationChecker();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
 
   void findValuesAssociatedWithKey(associationMap &mMap, double &key, itemList &theObjects);  
