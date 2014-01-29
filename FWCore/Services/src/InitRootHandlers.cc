@@ -317,30 +317,30 @@ namespace edm {
       int const kNClasses = gClassTable->Classes();
       knownClassNames.reserve(kNClasses);
       for(int i = 0; i<kNClasses; ++i) {
-	auto const name = gClassTable->At(i);
-	knownClassNames.push_back(name);
+        auto const name = gClassTable->At(i);
+        knownClassNames.push_back(name);
       }
 
       const std::string kFalse("false");
       //Wrappers are required to work
       for(auto name : knownClassNames) {
-	if(strncmp(name,"edm::Wrapper<",13)==0) {
-	  TClass* c=TClass::GetClass(name);
-	  //can't use the name to lookup ReflexType becuase ROOT removes 'std::'
-	  assert(c->GetTypeInfo());
-	  auto t = Reflex::Type::ByTypeInfo(*(c->GetTypeInfo()));
-	  Reflex::PropertyList wp = t.Properties();
-	  if(wp.HasProperty("persistent") and wp.PropertyAsString("persistent") == kFalse) continue;
-	  //std::cout <<"start GetStreamerInfo for "<<name<<std::endl;
-	  c->GetStreamerInfo();
-	}
+        if(strncmp(name,"edm::Wrapper<",13)==0) {
+          TClass* c=TClass::GetClass(name);
+          //can't use the name to lookup ReflexType becuase ROOT removes 'std::'
+          assert(c->GetTypeInfo());
+          auto t = Reflex::Type::ByTypeInfo(*(c->GetTypeInfo()));
+          Reflex::PropertyList wp = t.Properties();
+          if(wp.HasProperty("persistent") and wp.PropertyAsString("persistent") == kFalse) continue;
+          //std::cout <<"start GetStreamerInfo for "<<name<<std::endl;
+          c->GetStreamerInfo();
+        }
       }
 
       const std::vector<const char*> kKnownNames = {"TH2F","TArrayF"};
       for(auto name: kKnownNames) {
-	TClass* c=TClass::GetClass(name);
-	assert(c);
-	c->GetStreamerInfo();
+        TClass* c=TClass::GetClass(name);
+        assert(c);
+        c->GetStreamerInfo();
       }
 
       s_ignoreEverything=true;
@@ -348,25 +348,25 @@ namespace edm {
 
       const Reflex::Type kDefaultType;
       for(auto name : knownClassNames) {
-	if(strncmp(name,"edm::Wrapper<",13)==0) continue;
-	//std::cout <<"look at class "<<name<<std::endl;
-	TClass* c=TClass::GetClass(name);
-	if(c == nullptr) continue;
-	auto id = c->GetTypeInfo();
-	if( nullptr == id) continue;
-	auto t = Reflex::Type::ByTypeInfo(*id);
-	if(t == kDefaultType) continue;
-	Reflex::PropertyList wp = t.Properties();
-	if(wp.HasProperty("persistent") and wp.PropertyAsString("persistent") == kFalse) continue;
-
-	if( (not (c->Property() & kIsAbstract) ) and 
-            c->HasDefaultConstructor() and 
-            (0 != c->GetClassVersion())  and
-	    ( 0 == (gClassTable->GetPragmaBits(name) & TClassTable::kNoStreamer) )
-	    ) {
-	  //std::cout <<"start GetStreamerInfo for "<<name<<" "<<c->GetClassVersion()<<std::endl;
-	  c->GetStreamerInfo();
-	}
+        if(strncmp(name,"edm::Wrapper<",13)==0) continue;
+        //std::cout <<"look at class "<<name<<std::endl;
+        TClass* c=TClass::GetClass(name);
+        if(c == nullptr) continue;
+        auto id = c->GetTypeInfo();
+        if( nullptr == id) continue;
+        auto t = Reflex::Type::ByTypeInfo(*id);
+        if(t == kDefaultType) continue;
+        Reflex::PropertyList wp = t.Properties();
+        if(wp.HasProperty("persistent") and wp.PropertyAsString("persistent") == kFalse) continue;
+        
+        if( (not (c->Property() & kIsAbstract) ) and
+           c->HasDefaultConstructor() and
+           (0 != c->GetClassVersion())  and
+           ( 0 == (gClassTable->GetPragmaBits(name) & TClassTable::kNoStreamer) )
+           ) {
+          //std::cout <<"start GetStreamerInfo for "<<name<<" "<<c->GetClassVersion()<<std::endl;
+          c->GetStreamerInfo();
+        }
       }
     }
     
