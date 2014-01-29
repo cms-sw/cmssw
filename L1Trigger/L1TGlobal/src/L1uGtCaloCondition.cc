@@ -69,7 +69,7 @@ l1t::L1uGtCaloCondition::L1uGtCaloCondition(const L1GtCondition* caloTemplate, c
 
     m_corrParDeltaPhiNrBins = 0;
 
-    // maximum number of objects received for the evaluation of the condition
+    // maximum number of  objects received for the evaluation of the condition
     // retrieved before from event setup
     // for a CondCalo, all objects ar of same type, hence it is enough to get the
     // type for the first object
