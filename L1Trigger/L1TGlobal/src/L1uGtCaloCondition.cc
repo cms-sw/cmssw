@@ -245,12 +245,16 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
 
         bool tmpResult = true;
 
+	bool passCondition = false;
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
 
-            tmpResult &= checkObjectParameter(i, *(candVec->at(bxEval,index[i])) );
-            objectsInComb.push_back(index[i]);
-
+	    passCondition = checkObjectParameter(i,  *(candVec->at(bxEval,index[i]) ));
+	    tmpResult &= passCondition;
+	    if( passCondition ) 
+	      LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, CONGRATS!! This calo obj passed the condition." << std::endl;
+	    else 
+	      LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, FAIL!! This calo obj failed the condition." << std::endl;
         }
 
         // if permutation does not match particle conditions
@@ -431,6 +435,20 @@ const bool l1t::L1uGtCaloCondition::checkObjectParameter(const int iCondition, c
 //     }
 
     const L1GtCaloTemplate::ObjectParameter objPar = ( *(m_gtCaloTemplate->objectParameter()) )[iCondition];
+
+    LogDebug("l1t|Global")
+      << "\n L1GtCaloTemplate::ObjectParameter : "
+      << "\n\t etThreshold = " << objPar.etThreshold
+      << "\n\t etaRange    = " << objPar.etaRange
+      << "\n\t phiRange    = " << objPar.phiRange
+      << std::endl;
+
+    LogDebug("l1t|Global")
+      << "\n l1t::Candidate : "
+      << "\n\t hwPt   = " <<  cand.hwPt()
+      << "\n\t hwEta  = " << cand.hwEta()
+      << "\n\t hwPhi  = " << cand.hwPhi()
+      << std::endl;
 
     // check energy threshold
     if ( !checkThreshold(objPar.etThreshold, cand.hwPt(), m_gtCaloTemplate->condGEq()) ) {
