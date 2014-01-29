@@ -274,8 +274,6 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
 	   std::cout<<" All Info for "<<(int)rpcId<<" = "<<rpcsrv.name()<<" :: striplength = "<<stripl<<"[cm] stripwidth = "<<stripw<<"[cm] strips in this roll = "<<n_strips<<" area roll = "<<stripl*stripw*n_strips<<"[cm^2]"; 
 	   std::cout<<" min stripwidth = "<<stripw_min<<" max stripwidth = "<<stripw_max<<std::endl;
-
-	   // std::cout<<"              "<<" phi pitch = "<<stripa<<" distance beam axis to middle of strip = "<<radius<<"[cm]"<<std::endl;
 	   // std::cout<< area total endcap="<<areaendcap<<std::endl;
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint FirstStripCenterPointInGlobal = RPCSurface.toGlobal(top_->localPosition(s1));
