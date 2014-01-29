@@ -17,11 +17,11 @@ CSCDigiMatcher::CSCDigiMatcher(SimHitMatcher& sh)
   maxBXCSCWire_ = cscWireDigi_.getParameter<int>("maxBX");
   matchDeltaWG_ = cscWireDigi_.getParameter<int>("matchDeltaWG");
 
-  auto cscComparatorDigi_ = conf().getParameter<edm::ParameterSet>("cscWireDigi");
+  auto cscComparatorDigi_ = conf().getParameter<edm::ParameterSet>("cscStripDigi");
   cscComparatorDigiInput_ = cscComparatorDigi_.getParameter<edm::InputTag>("input");
   verboseStrip_ = cscComparatorDigi_.getParameter<int>("verbose");
-  minBXCSCComp_ = cscComparatorDigi_.getParameter<int>("minBXCSCComp");
-  maxBXCSCComp_ = cscComparatorDigi_.getParameter<int>("maxBXCSCComp");
+  minBXCSCComp_ = cscComparatorDigi_.getParameter<int>("minBX");
+  maxBXCSCComp_ = cscComparatorDigi_.getParameter<int>("maxBX");
   matchDeltaStrip_ = cscComparatorDigi_.getParameter<int>("matchDeltaStrip");
 
   setVerbose(conf().getUntrackedParameter<int>("verboseCSCDigi", 0));

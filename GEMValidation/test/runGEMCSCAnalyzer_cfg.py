@@ -27,7 +27,6 @@ process.load('GEMCode.GEMValidation.GEMCSCAnalyzer_cfi')
 process.GEMCSCAnalyzer.ntupleTrackChamberDelta = True
 process.GEMCSCAnalyzer.ntupleTrackEff = True
 process.GEMCSCAnalyzer.minPt = 1.5
-process.GEMCSCAnalyzer.minNHitsChamber = 4
 #process.GEMCSCAnalyzer.simTrackMatching.verboseSimHit = 1
 #process.GEMCSCAnalyzer.simTrackMatching.verboseGEMDigi = 1
 #process.GEMCSCAnalyzer.simTrackMatching.verboseCSCDigi = 1
@@ -36,7 +35,8 @@ process.GEMCSCAnalyzer.minNHitsChamber = 4
 #process.GEMCSCAnalyzer.simTrackMatching.simMuOnlyCSC = False
 #process.GEMCSCAnalyzer.simTrackMatching.discardEleHitsCSC = False
 #process.GEMCSCAnalyzer.simTrackMatching.discardEleHitsGEM = False
-process.GEMCSCAnalyzer.simTrackMatching.gemRecHitInput = ""
+process.GEMCSCAnalyzer.simTrackMatching.gemRecHit.input = ""
+process.GEMCSCAnalyzer.simTrackMatching.minNHitsChamber = 3
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -44,7 +44,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:out_digi.root'
+        'file:out_l1.root'
     )
 )
 
