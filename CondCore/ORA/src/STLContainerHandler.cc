@@ -5,28 +5,51 @@
 // externals
 #include "RVersion.h"
 
-#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "oraHelper.h"
 
-ora::STLContainerIteratorHandler::STLContainerIteratorHandler( const Reflex::Environ<long>& collEnv,
-                                                               Reflex::CollFuncTable& collProxy,
+ora::STLContainerIteratorHandler::STLContainerIteratorHandler( void* address,
+                                                               TVirtualCollectionProxy& collProxy,
                                                                const edm::TypeWithDict& iteratorReturnType ):
   m_returnType(iteratorReturnType),
-  m_collEnv(collEnv),
   m_collProxy(collProxy),
-  m_currentElement(0){
+  m_currentElement(0),
+  m_Iterators(nullptr),
+  m_PtrIterators(nullptr),
+  m_Next()
+{
 
-  // retrieve the first element
-  m_currentElement = m_collProxy.first_func(&m_collEnv);
+  if (m_collProxy.HasPointers()) {
+    m_PtrIterators = new TVirtualCollectionPtrIterators(&m_collProxy);
+  } else {
+    m_Iterators = new TVirtualCollectionIterators(&m_collProxy);
+  }
+  m_Next = m_collProxy.GetFunctionNext();
+
+  if (m_collProxy.HasPointers()) {
+    m_PtrIterators->CreateIterators(address, &m_collProxy);
+  } else {
+    m_Iterators->CreateIterators(address, &m_collProxy);
+  }
+
+  if (m_collProxy.HasPointers()) {
+    m_currentElement = m_Next(m_PtrIterators->fBegin,m_PtrIterators->fEnd);
+  } else {
+    m_currentElement = m_Next(m_Iterators->fBegin,m_Iterators->fEnd); 
+  }
+  //m_currentElement = m_collProxy.first_func(&m_collEnv);
 }
 
 ora::STLContainerIteratorHandler::~STLContainerIteratorHandler(){}
 
 void
 ora::STLContainerIteratorHandler::increment(){
-  // this is required! It sets the number of memory slots (of size sizeof(Class)) to be used for the step
-  m_collEnv.fIdx = 1;
-  m_currentElement = m_collProxy.next_func(&m_collEnv);
+  if (m_collProxy.HasPointers())  {
+    m_currentElement = m_Next(m_PtrIterators->fBegin,m_PtrIterators->fEnd);
+  } else {
+    m_currentElement = m_Next(m_Iterators->fBegin,m_Iterators->fEnd); 
+  }
+  //m_currentElement = m_collProxy.next_func(&m_collEnv);
 }
 
 void*
@@ -46,27 +69,20 @@ ora::STLContainerHandler::STLContainerHandler( const edm::TypeWithDict& dictiona
   m_type( dictionary ),
   m_iteratorReturnType(),
   m_isAssociative( false ),
-  m_collEnv(),
   m_collProxy(){
   m_isAssociative = ClassUtils::isTypeKeyedContainer( m_type );
 
-  edm::FunctionWithDict method = m_type.functionMemberByName("createCollFuncTable");
-  if(method){
-    Reflex::CollFuncTable collProxyPtr;
-    // holds the return ObjectWithDict.
-    edm::ObjectWithDict collProxyPtrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(Reflex::CollFuncTable*)), &collProxyPtr );
-    method.invoke(&collProxyPtrObj);
-    m_collProxy.reset( &collProxyPtr );
-  }
+  TClass* cl = dictionary.getClass();
+  m_collProxy.reset( cl->GetCollectionProxy() );
   if( !m_collProxy.get() ){
-    throwException( "Cannot find \"createCollFuncTable\" function for type \""+m_type.qualifiedName()+"\"",
+    throwException( "Cannot create \"TVirtualCollectionProxy\" for type \""+m_type.qualifiedName()+"\"",
                     "STLContainerHandler::STLContainerHandler");
   }
 
   // find the iterator return type as the member type_value of the containers
   edm::TypeWithDict valueType = ClassUtils::containerValueType( m_type );
   m_iteratorReturnType = ClassUtils::resolvedType( valueType );
-  
+
 }
 
 ora::STLContainerHandler::~STLContainerHandler(){
@@ -74,8 +90,10 @@ ora::STLContainerHandler::~STLContainerHandler(){
 
 size_t
 ora::STLContainerHandler::size( const void* address ){
-  m_collEnv.fObject = const_cast<void*>(address);
-  return *(static_cast<size_t*>(m_collProxy->size_func(&m_collEnv)));
+  //m_collEnv.fObject = const_cast<void*>(address);
+  //return *(static_cast<size_t*>(m_collProxy->size_func(&m_collEnv)));
+  TVirtualCollectionProxy::TPushPop helper(m_collProxy.get(), const_cast<void*>(address));
+  return m_collProxy->Size();
 }
 
 
@@ -86,27 +104,23 @@ ora::STLContainerHandler::iterate( const void* address ){
                     m_type.qualifiedName() + "\"",
                     "STLContainerHandler::iterate" );
   }
-  m_collEnv.fObject = const_cast<void*>(address);
-  return new STLContainerIteratorHandler( m_collEnv,*m_collProxy,m_iteratorReturnType );
+  void *addr = const_cast<void*>(address);
+  return new STLContainerIteratorHandler( addr,*m_collProxy,m_iteratorReturnType );
 }
 
 
 void
 ora::STLContainerHandler::appendNewElement( void* address, void* data ){
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,28,0)
-  m_collEnv.fObject = address;
-  m_collEnv.fSize = 1;
-  m_collEnv.fStart = data;
-  m_collProxy->feed_func(&m_collEnv);
-#else
-  m_collProxy->feed_func(data,address,1);
-#endif
+  // m_collProxy->feed_func(data,address,1);
+  m_collProxy->Insert(data, address, 1);
 }
 
 void
 ora::STLContainerHandler::clear( const void* address ){
-  m_collEnv.fObject = const_cast<void*>(address);
-  m_collProxy->clear_func(&m_collEnv);
+  //m_collEnv.fObject = const_cast<void*>(address);
+  //m_collProxy->clear_func(&m_collEnv);
+  TVirtualCollectionProxy::TPushPop helper(m_collProxy.get(), const_cast<void*>(address));
+  return m_collProxy->Clear();
 }
 
 edm::TypeWithDict&
@@ -119,7 +133,7 @@ ora::SpecialSTLContainerHandler::SpecialSTLContainerHandler( const edm::TypeWith
   m_containerOffset( 0 )
 {
   // update dictionary to include base classes members
-  //-ap ignore for now:  dictionary.UpdateMembers(); 
+  //-ap ignore for now:  dictionary.UpdateMembers();
   for ( unsigned int i=0;i<dictionary.dataMemberSize();i++){
 
     edm::MemberWithDict field = ora::helper::DataMemberAt(dictionary, i);
@@ -168,7 +182,7 @@ ora::SpecialSTLContainerHandler::appendNewElement( void* address, void* data )
   m_containerHandler->appendNewElement( static_cast< char* >( address ) + m_containerOffset, data );
 }
 
-void 
+void
 ora::SpecialSTLContainerHandler::clear( const void* address )
 {
   m_containerHandler->clear( static_cast< const char* >( address ) + m_containerOffset );

@@ -8,15 +8,16 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/FunctionWithDict.h"
 
-#include "RflxCollProxy.h"
+#include "TVirtualCollectionIterators.h"
+#include "TVirtualCollectionProxy.h"
 
 namespace ora {
 
   class STLContainerIteratorHandler : virtual public IArrayIteratorHandler {
     public:
       /// Constructor
-    STLContainerIteratorHandler( const Reflex::Environ<long>& collEnv,
-                                 Reflex::CollFuncTable& collProxy,
+    STLContainerIteratorHandler( void* address,
+                                 TVirtualCollectionProxy& collProxy,
                                  const edm::TypeWithDict& iteratorReturnType );
 
       /// Destructor
@@ -35,18 +36,24 @@ namespace ora {
 
       /// The return type of the iterator dereference method
       edm::TypeWithDict m_returnType;
-      
-      /// Structure containing parameters of the collection instance  
-      Reflex::Environ<long> m_collEnv;
 
       /// Proxy of the generic collection
-      Reflex::CollFuncTable& m_collProxy;
+      TVirtualCollectionProxy& m_collProxy;
 
       /// Current element object pointer
       void* m_currentElement;
+
+      // holds the iterators when the branch is of fType==4.
+      TVirtualCollectionIterators *m_Iterators;
+
+      // holds the iterators when the branch is of fType==4 and it is a split collection of pointers.
+      TVirtualCollectionPtrIterators *m_PtrIterators;
+
+      // See TVirtualCollectionProxy::GetFunctionNext();
+      TVirtualCollectionProxy::Next_t m_Next;
     };
 
- 
+
     class STLContainerHandler : virtual public IArrayHandler {
 
     public:
@@ -67,13 +74,13 @@ namespace ora {
 
       /// Clear the content of the container
       void clear( const void* address );
-      
+
       /// Returns the iterator return type
       edm::TypeWithDict& iteratorReturnType();
 
       /// Returns the associativeness of the container
       bool isAssociative() const { return m_isAssociative; }
-      
+
     private:
       /// The dictionary information
       edm::TypeWithDict m_type;
@@ -84,11 +91,8 @@ namespace ora {
       /// Flag indicating whether the container is associative
       bool m_isAssociative;
 
-      /// Structure containing parameters of the collection instance  
-      Reflex::Environ<long> m_collEnv;
-
       /// Proxy of the generic collection
-      std::auto_ptr<Reflex::CollFuncTable> m_collProxy;
+      std::auto_ptr<TVirtualCollectionProxy> m_collProxy;
 
     };
 
