@@ -237,7 +237,7 @@ private:
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
 
-  // cache of maps
+  // cache  of maps
   std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
   
 
