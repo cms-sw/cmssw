@@ -7,3 +7,4 @@ import FWCore.ParameterSet.Config as cms
 from GeometryReaders.XMLIdealGeometryESSource.cmsGeometryDB_cff import *
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingSLHCGeometryDB_cfi import *
+from Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi import *
