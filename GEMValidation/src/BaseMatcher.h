@@ -6,7 +6,6 @@
   Base for Sim and Trigger info matchers for SimTrack in CSC & GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id: BaseMatcher.h,v 1.1 2013/02/11 07:33:06 khotilov Exp $
 
 */
 

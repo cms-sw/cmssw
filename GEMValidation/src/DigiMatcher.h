@@ -6,7 +6,6 @@
  Description: Base class for matching of CSC or GEM Digis to SimTrack
 
  Original Author:  "Vadim Khotilovich"
- $Id: DigiMatcher.h,v 1.1 2013/02/11 07:33:06 khotilov Exp $
 */
 
 #include "GEMCode/GEMValidation/src/BaseMatcher.h"

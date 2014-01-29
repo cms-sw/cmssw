@@ -1,9 +1,7 @@
 /*
  * GEMSimTracksProcessor.cc
  *
- *  Created on: Dec 13, 2012
- *      Author: khotilov
- * $Id: GEMSimTracksProcessor.cc,v 1.2 2012/12/18 21:58:43 khotilov Exp $
+ * Original Author:  "Vadim Khotilovich"
  */
 
 #include "GEMCode/GEMValidation/interface/GEMSimTracksProcessor.h"

@@ -6,7 +6,6 @@
  Description: Matching of SimHit for SimTrack in CSC & GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id: SimHitMatcher.h,v 1.3 2013/02/17 15:55:16 khotilov Exp $
 */
 
 #include "BaseMatcher.h"

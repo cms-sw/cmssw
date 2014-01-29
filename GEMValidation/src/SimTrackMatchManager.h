@@ -8,8 +8,6 @@
  It's a manager-matcher class, as it uses specialized matching classes to match SimHits, various digis and stubs.
 
  Original Author:  "Vadim Khotilovich"
- $Id: SimTrackMatchManager.h,v 1.1 2013/02/11 07:33:07 khotilov Exp $
-
 */
 
 #include "GEMCode/GEMValidation/src/BaseMatcher.h"

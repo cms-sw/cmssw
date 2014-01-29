@@ -6,7 +6,6 @@
  Description: Matching of RecHits for SimTrack in GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id: GEMRecHitMatcher.h,v 1.1 2013/02/11 07:33:07 khotilov Exp $
 */
 
 #include "GEMCode/GEMValidation/src/BaseMatcher.h"

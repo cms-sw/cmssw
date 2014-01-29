@@ -6,7 +6,6 @@
  Description: Matching of Digis for SimTrack in GEM
 
  Original Author:  "Vadim Khotilovich"
- $Id: GEMDigiMatcher.h,v 1.1 2013/02/11 07:33:07 khotilov Exp $
 */
 
 #include "DigiMatcher.h"
