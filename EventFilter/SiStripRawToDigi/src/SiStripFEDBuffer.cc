@@ -148,14 +148,14 @@ namespace sistrip {
              (this->readoutMode() == sistrip::READOUT_MODE_SCOPE || checkStatusBits(internalFEDChannelNum)) );
   }
 
-  bool FEDBuffer::doChecks() const
+  bool FEDBuffer::doChecks(bool doCRC) const
   {
     //check that all channels were unpacked properly
     if (validChannels_ != FEDCH_PER_FED) return false;
     //do checks from base class
     if (!FEDBufferBase::doChecks()) return false;
     //check CRC
-    if (!checkCRC()) return false;
+    if (doCRC  &&  !checkCRC()) return false;
     return true;
   }
 

@@ -37,7 +37,7 @@ namespace sistrip {
 
       //functions to check buffer. All return true if there is no problem.
       //minimum checks to do before using buffer
-      virtual bool doChecks() const;
+      virtual bool doChecks(bool doCRC=true) const;
   
       //additional checks to check for corrupt buffers
       //check channel lengths fit inside to buffer length
