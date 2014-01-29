@@ -26,10 +26,12 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include <vector>
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 class SiStripDetCabling;
 class SiStripDetInfoFileReader;
 
-class SiStripQuality: public SiStripBadStrip {
+class SiStripQuality GCC11_FINAL : public SiStripBadStrip {
 
  public:
 
