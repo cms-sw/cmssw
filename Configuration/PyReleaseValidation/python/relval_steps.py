@@ -1259,7 +1259,6 @@ steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # to
                    '--conditions':'auto:upgradePLS1', 
                    '--magField'    : '38T_PostLS1',
                    '--mc':'',
-                   '--filein'    :'file:step3_inDQM.root',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
 		   '--geometry' : 'Extended2015'
                    }
