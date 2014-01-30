@@ -2,9 +2,12 @@
 #define SiStripNoises_h
 
 #include<vector>
-#include<map>
+#include<utility>
 #include<iostream>
 #include<boost/cstdint.hpp>
+
+#include<cassert>
+#include<cstring>
 
 /**
  * Stores the noise value for all the strips. <br>
@@ -111,11 +114,19 @@ inline uint16_t SiStripNoises::decode (uint16_t strip, const Range& range) {
 
   uint32_t lowBit        = strip * BITS_PER_STRIP;
   uint8_t firstByteBit   = (lowBit & 7);//module 8
+
+  uint16_t vin = uint16_t(*(data-lowBit/8)) | (uint16_t(*(data-lowBit/8-1))<<8);
+  vin = vin >> firstByteBit; vin &= 0x1FF;
+  return vin;
+
+  /*
   uint8_t firstByteNBits = 8 - firstByteBit;
   uint8_t firstByteMask  = 0xffu << firstByteBit;
   uint8_t secondByteMask = ~(0xffu << (BITS_PER_STRIP - firstByteNBits));
   uint16_t value         =   ((uint16_t(*(data-lowBit/8  )) & firstByteMask) >> firstByteBit) | ((uint16_t(*(data-lowBit/8-1)) & secondByteMask) << firstByteNBits);
   
+  if(vin!=value) std::cout << vin << ',' <<value << std::endl;
+  */
   /*
   if(strip  < 25){
     std::cout       << "***************DECODE*********************"<<"\n"
@@ -133,7 +144,7 @@ inline uint16_t SiStripNoises::decode (uint16_t strip, const Range& range) {
 		    << std::endl;
   }
   */
-  return value;
+  //return value;
 }
 
 
