@@ -22,14 +22,13 @@ void L1Analysis::L1AnalysisGenerator::Set(const edm::Event& e)
    for(size_t i = 0; i < genParticles->size(); ++ i) {
      const GenParticle & p = (*genParticles)[i];
      int id = p.pdgId();
-     int st = p.status();  
+     //int st = p.status();  
 		if (abs(id) == 13) {
  			unsigned int nMo=p.numberOfMothers();
 //			std::cout << "id " << id << "; st " << st 
 //							<< "; nMo " << nMo << std::endl;
 			for(unsigned int i=0;i<nMo;++i){
-				int thisParentID = dynamic_cast
-						<const reco::GenParticle*>(p.mother(i))->pdgId();
+//				int thisParentID = dynamic_cast	<const reco::GenParticle*>(p.mother(i))->pdgId();
 //				std::cout << "   mother ID " << thisParentID << std::endl;
 			}
 		}
