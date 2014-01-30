@@ -439,7 +439,7 @@ private:
     std::string l1t2string( l1t::Label );
     std::string l1t2string( l1t::Description );
     std::string l1t2string( l1t::ConditionName );
-    std::string l1t2string( l1t::CalorimeterConditionType );
+    std::string l1t2string( l1t::ConditionType );
     std::string l1t2string( l1t::ConditionEtComparison );
     std::string l1t2string( l1t::CalorimeterObjectType );
     std::string l1t2string( l1t::AlgorithmName );

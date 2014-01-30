@@ -82,8 +82,8 @@ process.fakeL1TGinput  = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
                        jetParams = cms.untracked.PSet(
 		           jetBx    = cms.untracked.vint32(  0,   0),
 			   jetHwPt  = cms.untracked.vint32(100, 200),
-			   jetHwPhi = cms.untracked.vint32( 10,  20),
-			   jetHwEta = cms.untracked.vint32( 11,  21)
+			   jetHwPhi = cms.untracked.vint32( 10,  10),
+			   jetHwEta = cms.untracked.vint32( 11,  11)
 		       ),
 		       
                        etsumParams = cms.untracked.PSet(
@@ -96,7 +96,8 @@ process.fakeL1TGinput  = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
 ## Load our L1 menu
 process.load('L1Trigger.L1TGlobal.l1uGtTriggerMenuXml_cfi')
 process.l1uGtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
-process.l1uGtTriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
+#process.l1uGtTriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
+process.l1uGtTriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
 
 process.load('L1Trigger.L1TGlobal.L1uGtTriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::L1uGtTriggerMenuXmlProducer','l1uGtTriggerMenuXml')

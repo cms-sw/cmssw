@@ -234,7 +234,7 @@ namespace l1t
   class ConditionEtComparison;
   class RelativeBx;
   class ConditionName;
-  class CalorimeterConditionType;
+  class ConditionType;
   class CalorimeterObjectType;
   class Threshold;
   class AlgorithmName;
@@ -249,7 +249,7 @@ namespace l1t
   class CalorimeterObjectParameters;
   class CalorimeterCondition;
   class MuonCondition;
-  class EnergySumCondition;
+  class EnergySumsCondition;
   class CorrelationCondition;
   class InvariantMassCondition;
   class DeltaRCondition;
@@ -779,7 +779,7 @@ namespace l1t
     ~ConditionName ();
   };
 
-  class CalorimeterConditionType: public ::xml_schema::string
+  class ConditionType: public ::xml_schema::string
   {
     public:
     enum value
@@ -791,51 +791,51 @@ namespace l1t
       double_wsc
     };
 
-    CalorimeterConditionType (value v);
+    ConditionType (value v);
 
-    CalorimeterConditionType (const char* v);
+    ConditionType (const char* v);
 
-    CalorimeterConditionType (const ::std::string& v);
+    ConditionType (const ::std::string& v);
 
-    CalorimeterConditionType (const ::xml_schema::string& v);
+    ConditionType (const ::xml_schema::string& v);
 
-    CalorimeterConditionType (const ::xercesc::DOMElement& e,
-                              ::xml_schema::flags f = 0,
-                              ::xml_schema::container* c = 0);
+    ConditionType (const ::xercesc::DOMElement& e,
+                   ::xml_schema::flags f = 0,
+                   ::xml_schema::container* c = 0);
 
-    CalorimeterConditionType (const ::xercesc::DOMAttr& a,
-                              ::xml_schema::flags f = 0,
-                              ::xml_schema::container* c = 0);
+    ConditionType (const ::xercesc::DOMAttr& a,
+                   ::xml_schema::flags f = 0,
+                   ::xml_schema::container* c = 0);
 
-    CalorimeterConditionType (const ::std::string& s,
-                              const ::xercesc::DOMElement* e,
-                              ::xml_schema::flags f = 0,
-                              ::xml_schema::container* c = 0);
+    ConditionType (const ::std::string& s,
+                   const ::xercesc::DOMElement* e,
+                   ::xml_schema::flags f = 0,
+                   ::xml_schema::container* c = 0);
 
-    CalorimeterConditionType (const CalorimeterConditionType& x,
-                              ::xml_schema::flags f = 0,
-                              ::xml_schema::container* c = 0);
+    ConditionType (const ConditionType& x,
+                   ::xml_schema::flags f = 0,
+                   ::xml_schema::container* c = 0);
 
-    virtual CalorimeterConditionType*
+    virtual ConditionType*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
-    CalorimeterConditionType&
+    ConditionType&
     operator= (value v);
 
     virtual
     operator value () const
     {
-      return _xsd_CalorimeterConditionType_convert ();
+      return _xsd_ConditionType_convert ();
     }
 
     protected:
     value
-    _xsd_CalorimeterConditionType_convert () const;
+    _xsd_ConditionType_convert () const;
 
     public:
-    static const char* const _xsd_CalorimeterConditionType_literals_[5];
-    static const value _xsd_CalorimeterConditionType_indexes_[5];
+    static const char* const _xsd_ConditionType_literals_[5];
+    static const value _xsd_ConditionType_indexes_[5];
   };
 
   class CalorimeterObjectType: public ::xml_schema::string
@@ -1204,22 +1204,22 @@ namespace l1t
     void
     condMuon (const condMuon_sequence& s);
 
-    // condEnergySum
+    // condEnergySums
     // 
-    typedef ::l1t::EnergySumCondition condEnergySum_type;
-    typedef ::xsd::cxx::tree::sequence< condEnergySum_type > condEnergySum_sequence;
-    typedef condEnergySum_sequence::iterator condEnergySum_iterator;
-    typedef condEnergySum_sequence::const_iterator condEnergySum_const_iterator;
-    typedef ::xsd::cxx::tree::traits< condEnergySum_type, char > condEnergySum_traits;
+    typedef ::l1t::EnergySumsCondition condEnergySums_type;
+    typedef ::xsd::cxx::tree::sequence< condEnergySums_type > condEnergySums_sequence;
+    typedef condEnergySums_sequence::iterator condEnergySums_iterator;
+    typedef condEnergySums_sequence::const_iterator condEnergySums_const_iterator;
+    typedef ::xsd::cxx::tree::traits< condEnergySums_type, char > condEnergySums_traits;
 
-    const condEnergySum_sequence&
-    condEnergySum () const;
+    const condEnergySums_sequence&
+    condEnergySums () const;
 
-    condEnergySum_sequence&
-    condEnergySum ();
+    condEnergySums_sequence&
+    condEnergySums ();
 
     void
-    condEnergySum (const condEnergySum_sequence& s);
+    condEnergySums (const condEnergySums_sequence& s);
 
     // condCorrelation
     // 
@@ -1301,7 +1301,7 @@ namespace l1t
     protected:
     condCalorimeter_sequence condCalorimeter_;
     condMuon_sequence condMuon_;
-    condEnergySum_sequence condEnergySum_;
+    condEnergySums_sequence condEnergySums_;
     condCorrelation_sequence condCorrelation_;
     condInvariantMass_sequence condInvariantMass_;
     condDeltaR_sequence condDeltaR_;
@@ -1668,7 +1668,7 @@ namespace l1t
     public:
     // type
     // 
-    typedef ::l1t::CalorimeterConditionType type_type;
+    typedef ::l1t::ConditionType type_type;
     typedef ::xsd::cxx::tree::traits< type_type, char > type_traits;
 
     const type_type&
@@ -1826,11 +1826,65 @@ namespace l1t
   class MuonCondition: public ::l1t::Condition
   {
     public:
+    // type
+    // 
+    typedef ::l1t::ConditionType type_type;
+    typedef ::xsd::cxx::tree::traits< type_type, char > type_traits;
+
+    const type_type&
+    type () const;
+
+    type_type&
+    type ();
+
+    void
+    type (const type_type& x);
+
+    void
+    type (::std::auto_ptr< type_type > p);
+
+    // etComparison
+    // 
+    typedef ::l1t::ConditionEtComparison etComparison_type;
+    typedef ::xsd::cxx::tree::traits< etComparison_type, char > etComparison_traits;
+
+    const etComparison_type&
+    etComparison () const;
+
+    etComparison_type&
+    etComparison ();
+
+    void
+    etComparison (const etComparison_type& x);
+
+    void
+    etComparison (::std::auto_ptr< etComparison_type > p);
+
+    // relativeBx
+    // 
+    typedef ::l1t::RelativeBx relativeBx_type;
+    typedef ::xsd::cxx::tree::traits< relativeBx_type, char > relativeBx_traits;
+
+    const relativeBx_type&
+    relativeBx () const;
+
+    relativeBx_type&
+    relativeBx ();
+
+    void
+    relativeBx (const relativeBx_type& x);
+
+    void
+    relativeBx (::std::auto_ptr< relativeBx_type > p);
+
     // Constructors.
     //
     MuonCondition (const name_type&,
                    const description_type&,
-                   const locked_type&);
+                   const locked_type&,
+                   const type_type&,
+                   const etComparison_type&,
+                   const relativeBx_type&);
 
     MuonCondition (const ::xercesc::DOMElement& e,
                    ::xml_schema::flags f = 0,
@@ -1846,31 +1900,43 @@ namespace l1t
 
     virtual 
     ~MuonCondition ();
+
+    // Implementation.
+    //
+    protected:
+    void
+    parse (::xsd::cxx::xml::dom::parser< char >&,
+           ::xml_schema::flags);
+
+    protected:
+    ::xsd::cxx::tree::one< type_type > type_;
+    ::xsd::cxx::tree::one< etComparison_type > etComparison_;
+    ::xsd::cxx::tree::one< relativeBx_type > relativeBx_;
   };
 
-  class EnergySumCondition: public ::l1t::Condition
+  class EnergySumsCondition: public ::l1t::Condition
   {
     public:
     // Constructors.
     //
-    EnergySumCondition (const name_type&,
-                        const description_type&,
-                        const locked_type&);
+    EnergySumsCondition (const name_type&,
+                         const description_type&,
+                         const locked_type&);
 
-    EnergySumCondition (const ::xercesc::DOMElement& e,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
+    EnergySumsCondition (const ::xercesc::DOMElement& e,
+                         ::xml_schema::flags f = 0,
+                         ::xml_schema::container* c = 0);
 
-    EnergySumCondition (const EnergySumCondition& x,
-                        ::xml_schema::flags f = 0,
-                        ::xml_schema::container* c = 0);
+    EnergySumsCondition (const EnergySumsCondition& x,
+                         ::xml_schema::flags f = 0,
+                         ::xml_schema::container* c = 0);
 
-    virtual EnergySumCondition*
+    virtual EnergySumsCondition*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~EnergySumCondition ();
+    ~EnergySumsCondition ();
   };
 
   class CorrelationCondition: public ::l1t::Condition

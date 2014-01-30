@@ -1466,7 +1466,7 @@ std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::ConditionName data 
   ss << data;
   return ss.str();
 }
-std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::CalorimeterConditionType data ){
+std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::ConditionType data ){
   std::stringstream ss;
   ss << data;
   return ss.str();
@@ -1544,17 +1544,18 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
         return false;
     }
 
+    // get greater equal flag
+    std::string str_etComparison = l1t2string( condMu.etComparison() );
+
     int nrObj = getNumFromType(type);
     if (nrObj < 0) {
-        edm::LogError("L1uGtTriggerMenuXmlParser") << "Unknown type for muon-condition (" << type
+        edm::LogError("L1uGtTriggerMenuXmlParser") << "Unknown type for calo-condition (" << type
             << ")" << "\nCan not determine number of trigger objects. " << std::endl;
         return false;
     }
 
-//     // get greater equal flag
-
-    // temp values DP
-    int intGEq = 1;//getGEqFlag(node, m_xmlTagPtHighThreshold);
+    // get greater equal flag
+    int intGEq = ( str_etComparison=="ge" ) ? 1 : 0;
     if (intGEq < 0) {
         edm::LogError("L1uGtTriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
             << std::endl;
@@ -1876,8 +1877,11 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
         return false;
     }
 
-    if( type=="double_wsc" ) type = "2_wsc";
-    if( type=="single" )     type = "1_s";
+    if( type=="double_wsc" )  type = "2_wsc";
+    else if( type=="single" ) type = "1_s";
+    else if( type=="double" ) type = "2_s";
+    else if( type=="triple" ) type = "3";
+    else if( type=="quad"   ) type = "4";
 
 
     std::string str_etComparison = l1t2string( condCalo.etComparison() );
@@ -1986,30 +1990,22 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
 
       
       // Output for debugging
-      LogDebug("l1t|Global") << "      Calo ET high threshold (hex) for calo object " << cnt << " = "
-			     << std::hex << objParameter[cnt].etThreshold << std::dec
-			     << std::endl;
-
-      LogDebug("l1t|Global")  << "      etaRange (hex) for calo object " << cnt << " = "
-			      << std::hex << objParameter[cnt].etaRange << std::dec
-			      << std::endl;
-      LogDebug("l1t|Global")  << "      phiRange (hex) for calo object " << cnt << " = "
-			      << std::hex << objParameter[cnt].phiRange << std::dec
-			      << std::endl;
-
-      LogDebug("l1t|Global")  << "      etaRangeBegin / End for calo object " << cnt << " = "
-			      << objParameter[cnt].etaRangeBegin << " / " << objParameter[cnt].etaRangeEnd
-			      << std::endl;
-      LogDebug("l1t|Global")  << "      etaRangeVetoBegin / End for calo object " << cnt << " = "
-			      << objParameter[cnt].etaRangeVetoBegin << " / " << objParameter[cnt].etaRangeVetoEnd
-			      << std::endl;
-
-      LogDebug("l1t|Global")  << "      phiRangeBegin / End for calo object " << cnt << " = "
-			      << objParameter[cnt].phiRangeBegin << " / " << objParameter[cnt].phiRangeEnd
-			      << std::endl;
-      LogDebug("l1t|Global")  << "      phiRangeVetoBegin / End for calo object " << cnt << " = "
-			      << objParameter[cnt].phiRangeVetoBegin << " / " << objParameter[cnt].phiRangeVetoEnd
-			      << std::endl;
+      LogDebug("l1t|Global") 
+	<< "\n      Calo ET high threshold (hex) for calo object " << cnt << " = "
+	<< std::hex << objParameter[cnt].etThreshold << std::dec
+	<< "\n      etaRange (hex) for calo object " << cnt << " = "
+	<< std::hex << objParameter[cnt].etaRange << std::dec
+	<< "\n      phiRange (hex) for calo object " << cnt << " = "
+	<< std::hex << objParameter[cnt].phiRange << std::dec
+	<< "\n      etaRangeBegin / End for calo object " << cnt << " = "
+	<< objParameter[cnt].etaRangeBegin << " / " << objParameter[cnt].etaRangeEnd
+	<< "\n      etaRangeVetoBegin / End for calo object " << cnt << " = "
+	<< objParameter[cnt].etaRangeVetoBegin << " / " << objParameter[cnt].etaRangeVetoEnd
+	<< "\n      phiRangeBegin / End for calo object " << cnt << " = "
+	<< objParameter[cnt].phiRangeBegin << " / " << objParameter[cnt].phiRangeEnd
+	<< "\n      phiRangeVetoBegin / End for calo object " << cnt << " = "
+	<< objParameter[cnt].phiRangeVetoBegin << " / " << objParameter[cnt].phiRangeVetoEnd
+	<< std::endl;
 
       cnt++;
     }
@@ -3783,10 +3779,9 @@ bool l1t::L1uGtTriggerMenuXmlParser::workAlgorithm( l1t::Algorithm algorithm,
 			      << std::endl;
     }
 
-    // get the logical expression from the node
+    // get the logical expression
     std::string logExpression = l1t2string( algorithm.equation() );
 
-    //LogTrace("L1uGtTriggerMenuXmlParser")
     LogDebug("l1t|Global")
       << "      Logical expression: " << logExpression
       << "      Chip number:        " << chipNr
@@ -3880,71 +3875,8 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseAlgorithms( l1t::AlgorithmList algorit
 
 
       workAlgorithm( algorithm, chipNr );
-      //workCaloCondition(condoCalo, chipNr);
     }
 
-
-//     DOMNode* doc = parser->getDocument();
-//     DOMNode* node = doc->getFirstChild();
-
-//     DOMNode* chipNode = node->getFirstChild();
-//     if (chipNode == 0) {
-//         edm::LogError("L1uGtTriggerMenuXmlParser") << "  Error: No child found for " << m_xmlTagDef
-//             << std::endl;
-//         return false;
-//     }
-
-//     // find first chip
-//     std::string chipName;
-//     chipNode = findXMLChild(chipNode, m_xmlTagChip, true, &chipName);
-//     if (chipNode == 0) {
-//         edm::LogError("L1uGtTriggerMenuXmlParser") << "  Error: Could not find <" << m_xmlTagChip
-//             << std::endl;
-//         return false;
-//     }
-
-//     unsigned int chipNr = 0;
-//     do {
-
-//         //LogTrace("L1uGtTriggerMenuXmlParser") << std::endl;
-
-//         std::string nodeName = m_xmlTagChip + chipName;
-//         //LogTrace("L1uGtTriggerMenuXmlParser")
-//         //<< "  Chip: " << nodeName << " Name: " << chipName
-//         //<< std::endl;
-
-//         // find algorithms
-//         DOMNode* algNode = chipNode->getFirstChild();
-//         algNode = findXMLChild(algNode, m_xmlTagAlgorithms);
-//         if (algNode == 0) {
-//             edm::LogError("L1uGtTriggerMenuXmlParser") << "    Error: No <" << m_xmlTagAlgorithms
-//                 << "> child found in chip " << chipName << std::endl;
-//             return false;
-//         }
-
-//         // walk through algorithms
-//         DOMNode* algNameNode = algNode->getFirstChild();
-//         std::string algNameNodeName;
-//         algNameNode = findXMLChild(algNameNode, "", true, &algNameNodeName);
-
-//         while (algNameNode != 0) {
-//             //LogTrace("L1uGtTriggerMenuXmlParser")
-//             //<< "    Found an algorithm with name: " << algNameNodeName
-//             //<< std::endl;
-
-//             if ( !workAlgorithm(algNameNode, algNameNodeName, chipNr)) {
-//                 return false;
-//             }
-
-//             algNameNode = findXMLChild(algNameNode->getNextSibling(), "", true, &algNameNodeName);
-
-//         }
-
-//         // next chip
-//         chipNode = findXMLChild(chipNode->getNextSibling(), m_xmlTagChip, true, &chipName);
-//         chipNr++;
-
-//     } while (chipNode != 0 && chipNr < m_numberConditionChips);
 
     return true;
 }
@@ -4110,33 +4042,6 @@ bool l1t::L1uGtTriggerMenuXmlParser::workXML( std::auto_ptr<l1t::L1TriggerMenu> 
     XERCES_CPP_NAMESPACE_USE
 
 
-//     DOMDocument* doc = parser->getDocument();
-//     DOMNode* n1 = doc->getFirstChild();
-
-//     if (n1 == 0) {
-
-//         edm::LogError("L1uGtTriggerMenuXmlParser") << "Error: Found no XML child" << std::endl;
-
-//         return false;
-//     }
-
-//     char* nodeName = XMLString::transcode(n1->getNodeName());
-
-//     if (XMLString::compareIString(nodeName, m_xmlTagDef.c_str())) {
-
-//         edm::LogError("L1uGtTriggerMenuXmlParser") << "Error: First XML child is not \" "
-//             << m_xmlTagDef << "\" " << std::endl;
-
-//         return false;
-//     }
-
-//     LogTrace("L1uGtTriggerMenuXmlParser")
-//     << "\nFirst node name is: " << nodeName
-//     << std::endl;
-//     XMLString::release(&nodeName);
-
-
-    // FIXD add checks of menu
     // clear possible old maps
     clearMaps();
 

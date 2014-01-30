@@ -26,7 +26,7 @@
         │   │   ├── name (l1t:ConditionName)
         │   │   ├── description (l1t:Description)
         │   │   ├── locked (xs:boolean)
-        │   │   ├── type (l1t:CalorimeterConditionType)
+        │   │   ├── type (l1t:ConditionType)
         │   │   ├── etComparison (l1t:ConditionEtComparison)
         │   │   ├── objectType (l1t:CalorimeterObjectType)
         │   │   ├── objectParameters (l1t:CalorimeterObjectParameters)
@@ -49,8 +49,11 @@
         │   ├── condMuon (l1t:MuonCondition) ( to be defined ]
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
-        │   │   └── locked (xs:boolean)
-        │   ├── condEnergySum (l1t:EnergySumCondition) ( to be defined ]
+        │   │   ├── locked (xs:boolean)
+        │   │   ├── type (l1t:ConditionType)
+        │   │   ├── etComparison (l1t:ConditionEtComparison)
+        │   │   └── relativeBx (l1t:RelativeBx)
+        │   ├── condEnergySums (l1t:EnergySumsCondition) ( to be defined ]
         │   │   ├── name (xs:string)
         │   │   ├── description (l1t:Description)
         │   │   └── locked (xs:boolean)
@@ -87,7 +90,7 @@
 
         CalorimeterCondition (l1t:Condition)
         MuonCondition (l1t:Condition)
-        EnergySumCondition (l1t:Condition)
+        EnergySumsCondition (l1t:Condition)
         CorrelationCondition (l1t:Condition)
         InvariantMassCondition (l1t:Condition)
         DeltaRCondition (l1t:Condition)
@@ -137,7 +140,8 @@
     A valid example XML file will look like this:
 
         <?xml version="1.0" encoding="UTF-8"?>
-        <l1t:l1TriggerMenu xmlns:l1t="http://www.cern.ch/l1t"
+        <l1t:l1TriggerMenu version="0.4.2"
+          xmlns:l1t="http://www.cern.ch/l1t"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
           <l1t:meta>
@@ -192,7 +196,8 @@
     A valid example XML of a complete empty (l1t:new created) menu:
 
         <?xml version="1.0" encoding="UTF-8"?>
-        <l1t:l1TriggerMenu xmlns:l1t="http://www.cern.ch/l1t"
+        <l1t:l1TriggerMenu version="0.4.2"
+          xmlns:l1t="http://www.cern.ch/l1t"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
           <l1t:meta>
@@ -356,8 +361,8 @@
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Defines the comparison mode for the transversal energy value.
-         * equal (l1t:==)
-         * greater_equal (l1t:>=)
+         * equal (==)
+         * greater_equal (>=)
       </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
@@ -399,10 +404,10 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="CalorimeterConditionType">
+  <xs:simpleType name="ConditionType">
     <xs:annotation>
       <xs:documentation xml:lang="en">
-        Enumeration of different calorimeter condition types.
+        Enumeration of different condition template types.
          * single object condition
          * double objects condition
          * triple objects condition
@@ -521,7 +526,7 @@
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="condCalorimeter" type="l1t:CalorimeterCondition"/>
       <xs:element name="condMuon" type="l1t:MuonCondition"/>
-      <xs:element name="condEnergySum" type="l1t:EnergySumCondition"/>
+      <xs:element name="condEnergySums" type="l1t:EnergySumsCondition"/>
       <xs:element name="condCorrelation" type="l1t:CorrelationCondition"/>
       <xs:element name="condInvariantMass" type="l1t:InvariantMassCondition"/>
       <xs:element name="condDeltaR" type="l1t:DeltaRCondition"/>
@@ -602,7 +607,7 @@
     <xs:complexContent>
       <xs:extension base="l1t:Condition">
         <xs:sequence>
-          <xs:element name="type" type="l1t:CalorimeterConditionType"/>
+          <xs:element name="type" type="l1t:ConditionType"/>
           <xs:element name="etComparison" type="l1t:ConditionEtComparison"/>
           <xs:element name="objectType" type="l1t:CalorimeterObjectType"/>
           <xs:element name="objectParameters" type="l1t:CalorimeterObjectParameters"/>
@@ -620,11 +625,17 @@
       </xs:documentation>
     </xs:annotation>
     <xs:complexContent>
-      <xs:extension base="l1t:Condition"/>
+      <xs:extension base="l1t:Condition">
+        <xs:sequence>
+          <xs:element name="type" type="l1t:ConditionType"/>
+          <xs:element name="etComparison" type="l1t:ConditionEtComparison"/>
+          <xs:element name="relativeBx" type="l1t:RelativeBx"/>
+        </xs:sequence>
+      </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="EnergySumCondition">
+  <xs:complexType name="EnergySumsCondition">
     <xs:annotation>
       <xs:documentation xml:lang="en">
         Muon condition type.
@@ -708,7 +719,7 @@
       <xs:element name="conditions" type="l1t:ConditionList"/>
       <xs:element name="algorithms" type="l1t:AlgorithmList"/>
     </xs:sequence>
-    <xs:attribute name="version" type="xs:string" fixed="0.4" use="required"/>
+    <xs:attribute name="version" type="xs:string" fixed="0.4.2" use="required"/>
   </xs:complexType>
 
   <!--

@@ -39,7 +39,6 @@
 #include <L1Trigger/L1TGlobal/src/L1TMenuEditor/xsd/cxx/pre.hxx>
 
 #include "L1Trigger/L1TGlobal/src/L1TMenuEditor/L1TriggerMenu.hxx"
-
 namespace l1t
 {
   // DateTime
@@ -253,46 +252,46 @@ namespace l1t
   // 
 
 
-  // CalorimeterConditionType
+  // ConditionType
   // 
 
-  CalorimeterConditionType::
-  CalorimeterConditionType (value v)
-  : ::xml_schema::string (_xsd_CalorimeterConditionType_literals_[v])
+  ConditionType::
+  ConditionType (value v)
+  : ::xml_schema::string (_xsd_ConditionType_literals_[v])
   {
   }
 
-  CalorimeterConditionType::
-  CalorimeterConditionType (const char* v)
+  ConditionType::
+  ConditionType (const char* v)
   : ::xml_schema::string (v)
   {
   }
 
-  CalorimeterConditionType::
-  CalorimeterConditionType (const ::std::string& v)
+  ConditionType::
+  ConditionType (const ::std::string& v)
   : ::xml_schema::string (v)
   {
   }
 
-  CalorimeterConditionType::
-  CalorimeterConditionType (const ::xml_schema::string& v)
+  ConditionType::
+  ConditionType (const ::xml_schema::string& v)
   : ::xml_schema::string (v)
   {
   }
 
-  CalorimeterConditionType::
-  CalorimeterConditionType (const CalorimeterConditionType& v,
-                            ::xml_schema::flags f,
-                            ::xml_schema::container* c)
+  ConditionType::
+  ConditionType (const ConditionType& v,
+                 ::xml_schema::flags f,
+                 ::xml_schema::container* c)
   : ::xml_schema::string (v, f, c)
   {
   }
 
-  CalorimeterConditionType& CalorimeterConditionType::
+  ConditionType& ConditionType::
   operator= (value v)
   {
     static_cast< ::xml_schema::string& > (*this) = 
-    ::xml_schema::string (_xsd_CalorimeterConditionType_literals_[v]);
+    ::xml_schema::string (_xsd_ConditionType_literals_[v]);
 
     return *this;
   }
@@ -522,22 +521,22 @@ namespace l1t
     this->condMuon_ = s;
   }
 
-  const ConditionList::condEnergySum_sequence& ConditionList::
-  condEnergySum () const
+  const ConditionList::condEnergySums_sequence& ConditionList::
+  condEnergySums () const
   {
-    return this->condEnergySum_;
+    return this->condEnergySums_;
   }
 
-  ConditionList::condEnergySum_sequence& ConditionList::
-  condEnergySum ()
+  ConditionList::condEnergySums_sequence& ConditionList::
+  condEnergySums ()
   {
-    return this->condEnergySum_;
+    return this->condEnergySums_;
   }
 
   void ConditionList::
-  condEnergySum (const condEnergySum_sequence& s)
+  condEnergySums (const condEnergySums_sequence& s)
   {
-    this->condEnergySum_ = s;
+    this->condEnergySums_ = s;
   }
 
   const ConditionList::condCorrelation_sequence& ConditionList::
@@ -1000,8 +999,80 @@ namespace l1t
   // MuonCondition
   // 
 
+  const MuonCondition::type_type& MuonCondition::
+  type () const
+  {
+    return this->type_.get ();
+  }
 
-  // EnergySumCondition
+  MuonCondition::type_type& MuonCondition::
+  type ()
+  {
+    return this->type_.get ();
+  }
+
+  void MuonCondition::
+  type (const type_type& x)
+  {
+    this->type_.set (x);
+  }
+
+  void MuonCondition::
+  type (::std::auto_ptr< type_type > x)
+  {
+    this->type_.set (x);
+  }
+
+  const MuonCondition::etComparison_type& MuonCondition::
+  etComparison () const
+  {
+    return this->etComparison_.get ();
+  }
+
+  MuonCondition::etComparison_type& MuonCondition::
+  etComparison ()
+  {
+    return this->etComparison_.get ();
+  }
+
+  void MuonCondition::
+  etComparison (const etComparison_type& x)
+  {
+    this->etComparison_.set (x);
+  }
+
+  void MuonCondition::
+  etComparison (::std::auto_ptr< etComparison_type > x)
+  {
+    this->etComparison_.set (x);
+  }
+
+  const MuonCondition::relativeBx_type& MuonCondition::
+  relativeBx () const
+  {
+    return this->relativeBx_.get ();
+  }
+
+  MuonCondition::relativeBx_type& MuonCondition::
+  relativeBx ()
+  {
+    return this->relativeBx_.get ();
+  }
+
+  void MuonCondition::
+  relativeBx (const relativeBx_type& x)
+  {
+    this->relativeBx_.set (x);
+  }
+
+  void MuonCondition::
+  relativeBx (::std::auto_ptr< relativeBx_type > x)
+  {
+    this->relativeBx_.set (x);
+  }
+
+
+  // EnergySumsCondition
   // 
 
 
@@ -2047,55 +2118,55 @@ namespace l1t
   {
   }
 
-  // CalorimeterConditionType
+  // ConditionType
   //
 
-  CalorimeterConditionType::
-  CalorimeterConditionType (const ::xercesc::DOMElement& e,
-                            ::xml_schema::flags f,
-                            ::xml_schema::container* c)
+  ConditionType::
+  ConditionType (const ::xercesc::DOMElement& e,
+                 ::xml_schema::flags f,
+                 ::xml_schema::container* c)
   : ::xml_schema::string (e, f, c)
   {
-    _xsd_CalorimeterConditionType_convert ();
+    _xsd_ConditionType_convert ();
   }
 
-  CalorimeterConditionType::
-  CalorimeterConditionType (const ::xercesc::DOMAttr& a,
-                            ::xml_schema::flags f,
-                            ::xml_schema::container* c)
+  ConditionType::
+  ConditionType (const ::xercesc::DOMAttr& a,
+                 ::xml_schema::flags f,
+                 ::xml_schema::container* c)
   : ::xml_schema::string (a, f, c)
   {
-    _xsd_CalorimeterConditionType_convert ();
+    _xsd_ConditionType_convert ();
   }
 
-  CalorimeterConditionType::
-  CalorimeterConditionType (const ::std::string& s,
-                            const ::xercesc::DOMElement* e,
-                            ::xml_schema::flags f,
-                            ::xml_schema::container* c)
+  ConditionType::
+  ConditionType (const ::std::string& s,
+                 const ::xercesc::DOMElement* e,
+                 ::xml_schema::flags f,
+                 ::xml_schema::container* c)
   : ::xml_schema::string (s, e, f, c)
   {
-    _xsd_CalorimeterConditionType_convert ();
+    _xsd_ConditionType_convert ();
   }
 
-  CalorimeterConditionType* CalorimeterConditionType::
+  ConditionType* ConditionType::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class CalorimeterConditionType (*this, f, c);
+    return new class ConditionType (*this, f, c);
   }
 
-  CalorimeterConditionType::value CalorimeterConditionType::
-  _xsd_CalorimeterConditionType_convert () const
+  ConditionType::value ConditionType::
+  _xsd_ConditionType_convert () const
   {
-    ::xsd::cxx::tree::enum_comparator< char > c (_xsd_CalorimeterConditionType_literals_);
+    ::xsd::cxx::tree::enum_comparator< char > c (_xsd_ConditionType_literals_);
     const value* i (::std::lower_bound (
-                      _xsd_CalorimeterConditionType_indexes_,
-                      _xsd_CalorimeterConditionType_indexes_ + 5,
+                      _xsd_ConditionType_indexes_,
+                      _xsd_ConditionType_indexes_ + 5,
                       *this,
                       c));
 
-    if (i == _xsd_CalorimeterConditionType_indexes_ + 5 || _xsd_CalorimeterConditionType_literals_[*i] != *this)
+    if (i == _xsd_ConditionType_indexes_ + 5 || _xsd_ConditionType_literals_[*i] != *this)
     {
       throw ::xsd::cxx::tree::unexpected_enumerator < char > (*this);
     }
@@ -2103,8 +2174,8 @@ namespace l1t
     return *i;
   }
 
-  const char* const CalorimeterConditionType::
-  _xsd_CalorimeterConditionType_literals_[5] =
+  const char* const ConditionType::
+  _xsd_ConditionType_literals_[5] =
   {
     "single",
     "double",
@@ -2113,14 +2184,14 @@ namespace l1t
     "double_wsc"
   };
 
-  const CalorimeterConditionType::value CalorimeterConditionType::
-  _xsd_CalorimeterConditionType_indexes_[5] =
+  const ConditionType::value ConditionType::
+  _xsd_ConditionType_indexes_[5] =
   {
-    ::l1t::CalorimeterConditionType::double_,
-    ::l1t::CalorimeterConditionType::double_wsc,
-    ::l1t::CalorimeterConditionType::quad,
-    ::l1t::CalorimeterConditionType::single,
-    ::l1t::CalorimeterConditionType::triple
+    ::l1t::ConditionType::double_,
+    ::l1t::ConditionType::double_wsc,
+    ::l1t::ConditionType::quad,
+    ::l1t::ConditionType::single,
+    ::l1t::ConditionType::triple
   };
 
   // CalorimeterObjectType
@@ -2650,7 +2721,7 @@ namespace l1t
   : ::xml_schema::type (),
     condCalorimeter_ (::xml_schema::flags (), this),
     condMuon_ (::xml_schema::flags (), this),
-    condEnergySum_ (::xml_schema::flags (), this),
+    condEnergySums_ (::xml_schema::flags (), this),
     condCorrelation_ (::xml_schema::flags (), this),
     condInvariantMass_ (::xml_schema::flags (), this),
     condDeltaR_ (::xml_schema::flags (), this)
@@ -2664,7 +2735,7 @@ namespace l1t
   : ::xml_schema::type (x, f, c),
     condCalorimeter_ (x.condCalorimeter_, f, this),
     condMuon_ (x.condMuon_, f, this),
-    condEnergySum_ (x.condEnergySum_, f, this),
+    condEnergySums_ (x.condEnergySums_, f, this),
     condCorrelation_ (x.condCorrelation_, f, this),
     condInvariantMass_ (x.condInvariantMass_, f, this),
     condDeltaR_ (x.condDeltaR_, f, this)
@@ -2678,7 +2749,7 @@ namespace l1t
   : ::xml_schema::type (e, f | ::xml_schema::flags::base, c),
     condCalorimeter_ (f, this),
     condMuon_ (f, this),
-    condEnergySum_ (f, this),
+    condEnergySums_ (f, this),
     condCorrelation_ (f, this),
     condInvariantMass_ (f, this),
     condDeltaR_ (f, this)
@@ -2722,14 +2793,14 @@ namespace l1t
         continue;
       }
 
-      // condEnergySum
+      // condEnergySums
       //
-      if (n.name () == "condEnergySum" && n.namespace_ () == "http://www.cern.ch/l1t")
+      if (n.name () == "condEnergySums" && n.namespace_ () == "http://www.cern.ch/l1t")
       {
-        ::std::auto_ptr< condEnergySum_type > r (
-          condEnergySum_traits::create (i, f, this));
+        ::std::auto_ptr< condEnergySums_type > r (
+          condEnergySums_traits::create (i, f, this));
 
-        this->condEnergySum_.push_back (r);
+        this->condEnergySums_.push_back (r);
         continue;
       }
 
@@ -3531,10 +3602,16 @@ namespace l1t
   MuonCondition::
   MuonCondition (const name_type& name,
                  const description_type& description,
-                 const locked_type& locked)
+                 const locked_type& locked,
+                 const type_type& type,
+                 const etComparison_type& etComparison,
+                 const relativeBx_type& relativeBx)
   : ::l1t::Condition (name,
                       description,
-                      locked)
+                      locked),
+    type_ (type, ::xml_schema::flags (), this),
+    etComparison_ (etComparison, ::xml_schema::flags (), this),
+    relativeBx_ (relativeBx, ::xml_schema::flags (), this)
   {
   }
 
@@ -3542,7 +3619,10 @@ namespace l1t
   MuonCondition (const MuonCondition& x,
                  ::xml_schema::flags f,
                  ::xml_schema::container* c)
-  : ::l1t::Condition (x, f, c)
+  : ::l1t::Condition (x, f, c),
+    type_ (x.type_, f, this),
+    etComparison_ (x.etComparison_, f, this),
+    relativeBx_ (x.relativeBx_, f, this)
   {
   }
 
@@ -3550,8 +3630,95 @@ namespace l1t
   MuonCondition (const ::xercesc::DOMElement& e,
                  ::xml_schema::flags f,
                  ::xml_schema::container* c)
-  : ::l1t::Condition (e, f, c)
+  : ::l1t::Condition (e, f | ::xml_schema::flags::base, c),
+    type_ (f, this),
+    etComparison_ (f, this),
+    relativeBx_ (f, this)
   {
+    if ((f & ::xml_schema::flags::base) == 0)
+    {
+      ::xsd::cxx::xml::dom::parser< char > p (e, true, false);
+      this->parse (p, f);
+    }
+  }
+
+  void MuonCondition::
+  parse (::xsd::cxx::xml::dom::parser< char >& p,
+         ::xml_schema::flags f)
+  {
+    this->::l1t::Condition::parse (p, f);
+
+    for (; p.more_elements (); p.next_element ())
+    {
+      const ::xercesc::DOMElement& i (p.cur_element ());
+      const ::xsd::cxx::xml::qualified_name< char > n (
+        ::xsd::cxx::xml::dom::name< char > (i));
+
+      // type
+      //
+      if (n.name () == "type" && n.namespace_ () == "http://www.cern.ch/l1t")
+      {
+        ::std::auto_ptr< type_type > r (
+          type_traits::create (i, f, this));
+
+        if (!type_.present ())
+        {
+          this->type_.set (r);
+          continue;
+        }
+      }
+
+      // etComparison
+      //
+      if (n.name () == "etComparison" && n.namespace_ () == "http://www.cern.ch/l1t")
+      {
+        ::std::auto_ptr< etComparison_type > r (
+          etComparison_traits::create (i, f, this));
+
+        if (!etComparison_.present ())
+        {
+          this->etComparison_.set (r);
+          continue;
+        }
+      }
+
+      // relativeBx
+      //
+      if (n.name () == "relativeBx" && n.namespace_ () == "http://www.cern.ch/l1t")
+      {
+        ::std::auto_ptr< relativeBx_type > r (
+          relativeBx_traits::create (i, f, this));
+
+        if (!relativeBx_.present ())
+        {
+          this->relativeBx_.set (r);
+          continue;
+        }
+      }
+
+      break;
+    }
+
+    if (!type_.present ())
+    {
+      throw ::xsd::cxx::tree::expected_element< char > (
+        "type",
+        "http://www.cern.ch/l1t");
+    }
+
+    if (!etComparison_.present ())
+    {
+      throw ::xsd::cxx::tree::expected_element< char > (
+        "etComparison",
+        "http://www.cern.ch/l1t");
+    }
+
+    if (!relativeBx_.present ())
+    {
+      throw ::xsd::cxx::tree::expected_element< char > (
+        "relativeBx",
+        "http://www.cern.ch/l1t");
+    }
   }
 
   MuonCondition* MuonCondition::
@@ -3566,44 +3733,44 @@ namespace l1t
   {
   }
 
-  // EnergySumCondition
+  // EnergySumsCondition
   //
 
-  EnergySumCondition::
-  EnergySumCondition (const name_type& name,
-                      const description_type& description,
-                      const locked_type& locked)
+  EnergySumsCondition::
+  EnergySumsCondition (const name_type& name,
+                       const description_type& description,
+                       const locked_type& locked)
   : ::l1t::Condition (name,
                       description,
                       locked)
   {
   }
 
-  EnergySumCondition::
-  EnergySumCondition (const EnergySumCondition& x,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
+  EnergySumsCondition::
+  EnergySumsCondition (const EnergySumsCondition& x,
+                       ::xml_schema::flags f,
+                       ::xml_schema::container* c)
   : ::l1t::Condition (x, f, c)
   {
   }
 
-  EnergySumCondition::
-  EnergySumCondition (const ::xercesc::DOMElement& e,
-                      ::xml_schema::flags f,
-                      ::xml_schema::container* c)
+  EnergySumsCondition::
+  EnergySumsCondition (const ::xercesc::DOMElement& e,
+                       ::xml_schema::flags f,
+                       ::xml_schema::container* c)
   : ::l1t::Condition (e, f, c)
   {
   }
 
-  EnergySumCondition* EnergySumCondition::
+  EnergySumsCondition* EnergySumsCondition::
   _clone (::xml_schema::flags f,
           ::xml_schema::container* c) const
   {
-    return new class EnergySumCondition (*this, f, c);
+    return new class EnergySumsCondition (*this, f, c);
   }
 
-  EnergySumCondition::
-  ~EnergySumCondition ()
+  EnergySumsCondition::
+  ~EnergySumsCondition ()
   {
   }
 
@@ -3981,7 +4148,7 @@ namespace l1t
   //
 
   const L1TriggerMenu::version_type L1TriggerMenu::version_default_value_ (
-    "0.4");
+    "0.4.2");
 
   L1TriggerMenu::
   L1TriggerMenu (const meta_type& meta,
