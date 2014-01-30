@@ -2171,6 +2171,7 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
   clusptr = 
     edm::refToPtr<reco::PFClusterCollection>(RO.ecalclusters.front().
 					     first->clusterRef());
+  new_sc.setCorrectedEnergy(corrSCEnergy);
   new_sc.setSeed(clusptr);
   new_sc.setPreshowerEnergyPlane1(ps1_energy);
   new_sc.setPreshowerEnergyPlane2(ps2_energy);
