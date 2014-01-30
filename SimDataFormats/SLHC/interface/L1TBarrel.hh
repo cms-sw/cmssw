@@ -214,6 +214,16 @@ public:
 	    if (fabs(z0)>30.0) continue;
 	    if (fabs(rinv)>0.0057) continue;
 
+
+	    double pt1=stubs_[iSector][i].pt();
+	    double pt2=D->stubs_[jSector][j].pt();
+	    double pttracklet=0.3*3.8/(rinv*100);
+	    bool pass1=fabs(1.0/pt1-1.0/pttracklet)<0.5;
+	    bool pass2=fabs(1.0/pt2-1.0/pttracklet)<0.5;
+	    bool pass=pass1&&pass2;
+
+	    if (!pass) continue;
+
 	    L1TTracklet tracklet(rinv,phi0,t,z0);
 	    tracklet.addStub(stubs_[iSector][i]);
 	    tracklet.addStub(D->stubs_[jSector][j]);
@@ -297,6 +307,12 @@ public:
 	    }
 	    if (fabs(rdeltaphi)>cutrphi) continue;
 	    if (fabs(deltaz)>cutrz) continue;
+
+	    double pt1=L->stubs_[jSector][j].pt();
+	    double pttracklet=aTracklet.pt(3.8);
+	    bool pass1=fabs(1.0/pt1-1.0/pttracklet)<0.5;
+
+	    if (!pass1) continue; 
 
 	    double dist=hypot(rdeltaphi/cutrphi,deltaz/cutrz);
 
