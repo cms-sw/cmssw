@@ -13,7 +13,6 @@ const double tauMass = 1.77690;
 
 ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet& iConfig)
   : ParticleReplacerBase(iConfig),
-    tauola_(gen::TauolaInterface::getInstance()),
     pythia_(iConfig),
     particleOrigin_(iConfig.getParameter<std::string>("particleOrigin")),
     forceTauPolarization_(iConfig.getParameter<std::string>("forceTauPolarization")),
@@ -23,7 +22,8 @@ ParticleReplacerParticleGun::ParticleReplacerParticleGun(const edm::ParameterSet
     forceTauPlusHelicity_(iConfig.getParameter<int>("forceTauPlusHelicity")),
     forceTauMinusHelicity_(iConfig.getParameter<int>("forceTauMinusHelicity"))
 {
-  tauola_->setPSet(iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola"));
+  tauola_ = (gen::TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp113a",iConfig.getParameter<edm::ParameterSet>("ExternalDecays").getParameter<edm::ParameterSet>("Tauola")));
+  // you must call tauola_->setRandomEngine(RandomNumberGenerator); every event to properly pass the random number with the multi-threading
   srand(time(NULL)); // Should we use RandomNumberGenerator service?
 
   if(forceTauPlusHelicity_ != 0) 
