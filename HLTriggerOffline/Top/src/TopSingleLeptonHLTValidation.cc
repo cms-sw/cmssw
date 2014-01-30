@@ -100,6 +100,7 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
 
   if (nGoodE >= minElectrons_ && nGoodM >= minMuons_ && nGoodJ >= minJets_) isAll_ = true;
 
+
   //Trigger
   Handle<edm::TriggerResults> triggerTable;
   if (!iEvent.getByToken(tokTrigger_,triggerTable))
