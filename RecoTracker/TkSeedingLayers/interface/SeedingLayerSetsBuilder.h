@@ -25,35 +25,39 @@ public:
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC);
   ~SeedingLayerSetsBuilder();
 
-  ctfseeding::SeedingLayerSets layers(const edm::EventSetup& es) const; 
+  ctfseeding::SeedingLayerSets layers(const edm::EventSetup& es); // only for backwards-compatibility
 
   bool check(const edm::EventSetup& es);
+  void updateEventSetup(const edm::EventSetup& es);
 
 private:
   std::vector<std::vector<std::string> > layerNamesInSets(
     const std::vector<std::string> & namesPSet) ;
   edm::ParameterSet layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const;
-  std::map<std::string,int> nameToId;
 
   edm::ESWatcher<TrackerRecoGeometryRecord> geometryWatcher_;
   edm::ESWatcher<TransientRecHitRecord> trhWatcher_;
 
   struct LayerSpec { 
-    LayerSpec();
+    LayerSpec(unsigned short index, const std::string& layerName, const edm::ParameterSet& cfgLayer, edm::ConsumesCollector& iC);
     ~LayerSpec();
-    std::string name; 
+    const unsigned short nameIndex;
     std::string pixelHitProducer;
     bool usePixelHitProducer;
-    std::string hitBuilder;
-    bool useProjection;
+    const std::string hitBuilder;
 
     GeomDetEnumerators::SubDetector subdet;
     ctfseeding::SeedingLayer::Side side;
     int idLayer;
     std::shared_ptr<ctfseeding::HitExtractor> extractor;
 
-    std::string print() const;
+    std::string print(const std::vector<std::string>& names) const;
   }; 
-  std::vector<std::vector<LayerSpec> > theLayersInSets;
+  typedef unsigned short LayerSetIndex;
+  unsigned short theNumberOfLayersInSet;
+  std::vector<LayerSetIndex> theLayerSetIndices; // indices to theLayers to form the layer sets
+  std::vector<std::string> theLayerNames;
+  std::vector<const DetLayer *> theLayerDets;
+  std::vector<LayerSpec> theLayers;
 };
 #endif

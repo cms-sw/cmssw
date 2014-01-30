@@ -100,13 +100,75 @@ namespace {
   }
 }
 
-SeedingLayerSetsBuilder::LayerSpec::LayerSpec() {}
+SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index, const std::string& layerName, const edm::ParameterSet& cfgLayer, edm::ConsumesCollector& iC):
+  nameIndex(index),
+  hitBuilder(cfgLayer.getParameter<string>("TTRHBuilder"))
+{
+  usePixelHitProducer = false;
+  if (cfgLayer.exists("HitProducer")) {
+    pixelHitProducer = cfgLayer.getParameter<string>("HitProducer");
+    usePixelHitProducer = true;
+  }
+
+  bool skipClusters = cfgLayer.exists("skipClusters");
+  if (skipClusters) {
+    LogDebug("SeedingLayerSetsBuilder")<<layerName<<" ready for skipping";
+  }
+  else{
+    LogDebug("SeedingLayerSetsBuilder")<<layerName<<" not skipping ";
+  }
+
+  auto subdetData = nameToEnumId(layerName);
+  subdet = std::get<0>(subdetData);
+  side = std::get<1>(subdetData);
+  idLayer = std::get<2>(subdetData);
+  if(subdet == GeomDetEnumerators::PixelBarrel ||
+     subdet == GeomDetEnumerators::PixelEndcap) {
+    extractor = std::make_shared<HitExtractorPIX>(side, idLayer, pixelHitProducer, iC);
+  }
+  else if(subdet != GeomDetEnumerators::invalidDet) { // strip
+    std::shared_ptr<HitExtractorSTRP> extr = std::make_shared<HitExtractorSTRP>(subdet, side, idLayer);
+    if (cfgLayer.exists("matchedRecHits")) {
+      extr->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
+    }
+    if (cfgLayer.exists("rphiRecHits")) {
+      extr->useRPhiHits(cfgLayer.getParameter<edm::InputTag>("rphiRecHits"), iC);
+    }
+    if (cfgLayer.exists("stereoRecHits")) {
+      extr->useStereoHits(cfgLayer.getParameter<edm::InputTag>("stereoRecHits"), iC);
+    }
+    if (cfgLayer.exists("useRingSlector") && cfgLayer.getParameter<bool>("useRingSlector")) {
+      extr->useRingSelector(cfgLayer.getParameter<int>("minRing"),
+                                 cfgLayer.getParameter<int>("maxRing"));
+    }
+    bool useSimpleRphiHitsCleaner = cfgLayer.exists("useSimpleRphiHitsCleaner") ? cfgLayer.getParameter<bool>("useSimpleRphiHitsCleaner") : true;
+    extr->useSimpleRphiHitsCleaner(useSimpleRphiHitsCleaner);
+
+    double minAbsZ = cfgLayer.exists("MinAbsZ") ? cfgLayer.getParameter<double>("MinAbsZ") : 0.;
+    if(minAbsZ > 0.) {
+      extr->setMinAbsZ(minAbsZ);
+    }
+    if(skipClusters) {
+      bool useProjection = cfgLayer.exists("useProjection") ? cfgLayer.getParameter<bool>("useProjection") : false;
+      if(useProjection) {
+        LogDebug("SeedingLayerSetsBuilder")<<layerName<<" will project partially masked matched rechit";
+      }
+      else {
+        extr->setNoProjection();
+      }
+    }
+    extractor = std::move(extr);
+  }
+  if(extractor && skipClusters) {
+    extractor->useSkipClusters(cfgLayer.getParameter<edm::InputTag>("skipClusters"), iC);
+  }
+}
 SeedingLayerSetsBuilder::LayerSpec::~LayerSpec() {}
 
-std::string SeedingLayerSetsBuilder::LayerSpec::print() const
+std::string SeedingLayerSetsBuilder::LayerSpec::print(const std::vector<std::string>& names) const
 {
   std::ostringstream str;
-  str << "Layer="<<name<<", hitBldr: "<<hitBuilder;
+  str << "Layer="<<names[nameIndex]<<", hitBldr: "<<hitBuilder;
 
   str << ", useRingSelector: ";
   HitExtractorSTRP *ext = nullptr;
@@ -139,97 +201,40 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, 
 //    str << std::endl;
 //  }
 //  std::cout << str.str() << std::endl;
+  if(layerNamesInSets.size() == 0)
+    theNumberOfLayersInSet = 0;
+  else
+    theNumberOfLayersInSet = layerNamesInSets[0].size();
 
-  map<string, std::pair<std::size_t, std::size_t> > mapConfig; // for debug printout only!
 
-  int layerSetId = 0;
   for (IT it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
-    vector<LayerSpec> layersInSet;
-    for (IS is = it->begin(); is != it->end(); is++) {
-      LayerSpec layer;
-
-      layer.name = *is;
-      //std::cout << "layer name in config: " << *is << std::endl;
-      edm::ParameterSet cfgLayer = layerConfig(layer.name, cfg);
-
-      layer.usePixelHitProducer = true;
-      if (cfgLayer.exists("HitProducer")) {
-          layer.pixelHitProducer = cfgLayer.getParameter<string>("HitProducer"); 
-      }else{
-          layer.usePixelHitProducer = false;
+    if(it->size() != theNumberOfLayersInSet)
+      throw cms::Exception("Configuration") << "Assuming all SeedingLayerSets to have same number of layers. LayerSet " << (it-layerNamesInSets.begin()) << " has " << it->size() << " while 0th has " << theNumberOfLayersInSet;
+    for(const std::string& layerName: *it) {
+      auto found = std::find(theLayerNames.begin(), theLayerNames.end(), layerName);
+      unsigned short layerIndex = 0;
+      if(found != theLayerNames.end()) {
+        layerIndex = found-theLayerNames.begin();
       }
-      bool skipClusters = cfgLayer.exists("skipClusters");
-      if (skipClusters) {
-        LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" ready for skipping";
-      }
-      else{
-        LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" not skipping ";
-      }
-      layer.hitBuilder  = cfgLayer.getParameter<string>("TTRHBuilder");
-
-      auto subdetData = nameToEnumId(layer.name);
-      layer.subdet = std::get<0>(subdetData);
-      layer.side = std::get<1>(subdetData);
-      layer.idLayer = std::get<2>(subdetData);
-      if(layer.subdet == GeomDetEnumerators::PixelBarrel ||
-         layer.subdet == GeomDetEnumerators::PixelEndcap) {
-        layer.extractor = std::make_shared<HitExtractorPIX>(layer.side, layer.idLayer, layer.pixelHitProducer, iC);
-      }
-      else if(layer.subdet != GeomDetEnumerators::invalidDet) {
-        std::shared_ptr<HitExtractorSTRP> extractor = std::make_shared<HitExtractorSTRP>(layer.subdet, layer.side, layer.idLayer);
-        if (cfgLayer.exists("matchedRecHits")) {
-          extractor->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
-        }
-        if (cfgLayer.exists("rphiRecHits")) {
-	  extractor->useRPhiHits(cfgLayer.getParameter<edm::InputTag>("rphiRecHits"), iC);
-        }
-        if (cfgLayer.exists("stereoRecHits")) {
-          extractor->useStereoHits(cfgLayer.getParameter<edm::InputTag>("stereoRecHits"), iC);
-        }
-        if (cfgLayer.exists("useRingSlector") && cfgLayer.getParameter<bool>("useRingSlector")) {
-          extractor->useRingSelector(cfgLayer.getParameter<int>("minRing"),
-                                     cfgLayer.getParameter<int>("maxRing"));
-        }
-        bool useSimpleRphiHitsCleaner = cfgLayer.exists("useSimpleRphiHitsCleaner") ? cfgLayer.getParameter<bool>("useSimpleRphiHitsCleaner") : true;
-        extractor->useSimpleRphiHitsCleaner(useSimpleRphiHitsCleaner);
-
-        double minAbsZ = cfgLayer.exists("MinAbsZ") ? cfgLayer.getParameter<double>("MinAbsZ") : 0.;
-        if(minAbsZ > 0.) {
-          extractor->setMinAbsZ(minAbsZ);
-        }
-        if(skipClusters) {
-          bool useProjection = cfgLayer.exists("useProjection") ? cfgLayer.getParameter<bool>("useProjection") : false;
-          if(useProjection) {
-            LogDebug("SeedingLayerSetsBuilder")<<layer.name<<" will project partially masked matched rechit";
-          }
-          else {
-	    extractor->setNoProjection();
-          }
+      else {
+        if(std::numeric_limits<unsigned short>::max() == theLayerNames.size()) {
+          throw cms::Exception("Assert") << "Too many layers in " << __FILE__ << ":" << __LINE__ << ", we may have to enlarge the index type from unsigned short to unsigned int";
         }
 
-        layer.extractor = extractor;
+        layerIndex = theLayers.size();
+        theLayers.emplace_back(theLayerNames.size(), layerName, layerConfig(layerName, cfg), iC);
+        theLayerNames.push_back(layerName);
       }
-      if(layer.extractor && skipClusters) {
-        layer.extractor->useSkipClusters(cfgLayer.getParameter<edm::InputTag>("skipClusters"), iC);
-      }
-
-
-      mapConfig[layer.name]=std::make_pair(theLayersInSets.size(), layersInSet.size());
-      if (nameToId.find(layer.name)==nameToId.end()) {
-	std::string name = layer.name;
-	nameToId.insert( std::pair<std::string,int>(name,layerSetId) );
-	layerSetId++;	
-      }
-      layersInSet.push_back(layer);
+      theLayerSetIndices.push_back(layerIndex);
     }
-    theLayersInSets.push_back(layersInSet);
   }
+  theLayerDets.resize(theLayers.size());
 
   // debug printout
   // The following should not be set to cout
-//  for(const auto& nameIndices: mapConfig) {
-//    std::cout << theLayersInSets[nameIndices.second.first][nameIndices.second.second].print() << std::endl;
-//  }
+  //for(const LayerSpec& layer: theLayers) {
+  //  std::cout << layer.print(theLayerNames) << std::endl;
+  //}
 }
 
 SeedingLayerSetsBuilder::~SeedingLayerSetsBuilder() {}
@@ -242,7 +247,7 @@ edm::ParameterSet SeedingLayerSetsBuilder::layerConfig(const std::string & nameL
     string name = nameLayer.substr(0,iEnd);
     if (cfg.exists(name)) return cfg.getParameter<edm::ParameterSet>(name);
   } 
-  cout <<"configuration for layer: "<<nameLayer<<" not found, job will probably crash!"<<endl;
+  edm::LogError("SeedingLayerSetsBuilder") <<"configuration for layer: "<<nameLayer<<" not found, job will probably crash!";
   return result;
 }
 
@@ -264,88 +269,88 @@ vector<vector<string> > SeedingLayerSetsBuilder::layerNamesInSets( const vector<
   return result;
 }
 
-SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) const
+void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
+  edm::ESHandle<GeometricSearchTracker> htracker;
+  es.get<TrackerRecoGeometryRecord>().get( htracker );
+  const GeometricSearchTracker& tracker = *htracker;
+
+  const std::vector<BarrelDetLayer*>&  bpx  = tracker.barrelLayers();
+  const std::vector<BarrelDetLayer*>&  tib  = tracker.tibLayers();
+  const std::vector<BarrelDetLayer*>&  tob  = tracker.tobLayers();
+
+  const std::vector<ForwardDetLayer*>& fpx_pos = tracker.posForwardLayers();
+  const std::vector<ForwardDetLayer*>& tid_pos = tracker.posTidLayers();
+  const std::vector<ForwardDetLayer*>& tec_pos = tracker.posTecLayers();
+
+  const std::vector<ForwardDetLayer*>& fpx_neg = tracker.negForwardLayers();
+  const std::vector<ForwardDetLayer*>& tid_neg = tracker.negTidLayers();
+  const std::vector<ForwardDetLayer*>& tec_neg = tracker.negTecLayers();
+
+  for(size_t i=0, n=theLayers.size(); i<n; ++i) {
+    const LayerSpec& layer = theLayers[i];
+    const DetLayer * detLayer = nullptr;
+    int index = layer.idLayer-1;
+
+    if (layer.subdet == GeomDetEnumerators::PixelBarrel) {
+      detLayer = bpx[index];
+    }
+    else if (layer.subdet == GeomDetEnumerators::PixelEndcap) {
+      if (layer.side == SeedingLayer::PosEndcap) {
+        detLayer = fpx_pos[index];
+      } else {
+        detLayer = fpx_neg[index];
+      }
+    }
+    else if (layer.subdet == GeomDetEnumerators::TIB) {
+      detLayer = tib[index];
+    }
+    else if (layer.subdet == GeomDetEnumerators::TID) {
+      if (layer.side == SeedingLayer::PosEndcap) {
+        detLayer = tid_pos[index];
+      } else {
+        detLayer = tid_neg[index];
+      }
+    }
+    else if (layer.subdet == GeomDetEnumerators::TOB) {
+      detLayer = tob[index];
+    }
+    else if (layer.subdet == GeomDetEnumerators::TEC) {
+      if (layer.side == SeedingLayer::PosEndcap) {
+        detLayer = tec_pos[index];
+      } else {
+        detLayer = tec_neg[index];
+      }
+    }
+    else {
+      edm::LogError("SeedingLayerSetsBuilder") << "Did not find DetLayer for layer " << theLayerNames[layer.nameIndex];
+    }
+
+    theLayerDets[i] = detLayer;
+  }
+}
+
+SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es)
 {
+  updateEventSetup(es);
+
   typedef std::vector<SeedingLayer> Set;
   SeedingLayerSets  result;
 
-  edm::ESHandle<GeometricSearchTracker> tracker;
-  es.get<TrackerRecoGeometryRecord>().get( tracker );
-
-  std::vector<BarrelDetLayer*>  bpx  = tracker->barrelLayers();
-  std::vector<BarrelDetLayer*>  tib  = tracker->tibLayers();
-  std::vector<BarrelDetLayer*>  tob  = tracker->tobLayers();
-
-  std::vector<ForwardDetLayer*> fpx_pos = tracker->posForwardLayers();
-  std::vector<ForwardDetLayer*> tid_pos = tracker->posTidLayers();
-  std::vector<ForwardDetLayer*> tec_pos = tracker->posTecLayers();
-
-  std::vector<ForwardDetLayer*> fpx_neg = tracker->negForwardLayers();
-  std::vector<ForwardDetLayer*> tid_neg = tracker->negTidLayers();
-  std::vector<ForwardDetLayer*> tec_neg = tracker->negTecLayers();
-  
-  typedef std::vector<std::vector<LayerSpec> >::const_iterator IT;
-  typedef std::vector<LayerSpec>::const_iterator IS;
-
-  for (IT it = theLayersInSets.begin(); it != theLayersInSets.end(); it++) {
+  for(size_t i=0, n=theLayerSetIndices.size(); i<n; i += theNumberOfLayersInSet) {
     Set set;
     bool setOK = true;
-    for (IS is = it->begin(), isEnd = it->end(); is < isEnd; ++is) {
-      const LayerSpec & layer = (*is);
-      const DetLayer * detLayer =0;
-      bool nameOK = true;
-      int index = layer.idLayer-1;
-      
-      if (layer.subdet == GeomDetEnumerators::PixelBarrel) {
-        detLayer = bpx[index]; 
-      }
-      else if (layer.subdet == GeomDetEnumerators::PixelEndcap) {
-        if (layer.side == SeedingLayer::PosEndcap) {
-          detLayer = fpx_pos[index];
-        } else {
-          detLayer = fpx_neg[index];
-        }
-      }
-      else if (layer.subdet == GeomDetEnumerators::TIB) {
-        detLayer = tib[index];
-      }
-      else if (layer.subdet == GeomDetEnumerators::TID) {
-        if (layer.side == SeedingLayer::PosEndcap) {
-          detLayer = tid_pos[index];
-        } else {
-          detLayer = tid_neg[index];
-        }
-      }
-      else if (layer.subdet == GeomDetEnumerators::TOB) {
-        detLayer = tob[index];
-      }
-      else if (layer.subdet == GeomDetEnumerators::TEC) {
-        if (layer.side == SeedingLayer::PosEndcap) {
-          detLayer = tec_pos[index];
-        } else {
-          detLayer = tec_neg[index];
-        }
-      }
-      else {
-        nameOK = false;
+    for(size_t j=0; j<theNumberOfLayersInSet; ++j) {
+      const unsigned short layerIndex = theLayerSetIndices[i+j];
+      const LayerSpec& layer = theLayers[layerIndex];
+      const DetLayer *detLayer = theLayerDets[layerIndex];
+      if(!detLayer) {
         setOK = false;
+        continue;
       }
 
-      if(nameOK) {
-        std::unique_ptr<HitExtractor> extractor(layer.extractor->clone());
-
-        edm::ESHandle<TransientTrackingRecHitBuilder> builder;
-        es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
-
-	auto it = nameToId.find(layer.name);
-	if (it==nameToId.end()) {
-	  edm::LogError("SeedingLayerSetsBuilder")<<"nameToId map mismatch! Could not find: "<<layer.name;
-	  return result;
-	}
-	int layerSetId = it->second;
-        set.push_back( SeedingLayer( layer.name, layerSetId, detLayer, builder.product(), extractor.release()));
-      }
-    
+      edm::ESHandle<TransientTrackingRecHitBuilder> builder;
+      es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
+      set.push_back( SeedingLayer( theLayerNames[layer.nameIndex], layerIndex, detLayer, builder.product(), layer.extractor.get()));
     }
     if(setOK) result.push_back(set);
   }
