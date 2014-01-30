@@ -409,7 +409,7 @@ namespace sistrip {
       void setChannelStatus(const uint8_t internalFEUnitNum, const uint8_t internalFEUnitChannelNum, const FEDChannelStatus status);
     };
 
-  class FEDAPVErrorHeader : public FEDFEHeader
+  class FEDAPVErrorHeader final : public FEDFEHeader
     {
     public:
       explicit FEDAPVErrorHeader(const uint8_t* headerBuffer);
@@ -436,7 +436,7 @@ namespace sistrip {
       uint8_t header_[APV_ERROR_HEADER_SIZE_IN_BYTES];
     };
 
-  class FEDFullDebugHeader : public FEDFEHeader
+  class FEDFullDebugHeader final : public FEDFEHeader
     {
     public:
       explicit FEDFullDebugHeader(const uint8_t* headerBuffer);
