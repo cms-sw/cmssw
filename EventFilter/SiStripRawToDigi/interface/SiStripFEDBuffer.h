@@ -9,6 +9,8 @@
 #include <cstring>
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 namespace sistrip {
 
   //
