@@ -1,0 +1,337 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<!-- 
+
+== CMS Forward Pixels Geometry Phase 1 ==
+
+
+Author:  Pratima Jindal, Purdue University Calumet
+         July 2009
+	 mod. by cc Oct 2012
+
+== Subsystem or component described by the file ==
+
+Pixel Forward Blade
+
+-->
+
+<ConstantsSection label="pixfwdblade9.xml" eval="true">
+ <Constant name="SensitiveW"         value="16.216*mm"/>
+ <Constant name="SensitiveL"         value="64.816*mm"/>
+ <Constant name="SideWidth"          value="1.164*mm"/>
+ <Constant name="SideGap"            value="0.291*mm"/>
+ <Constant name="WedgeAngle"         value="96*mrad"/>
+ <Constant name="WedgeSideL"         value="71.2*mm"/>
+ 
+ <Constant name="DetectorShiftX"     value="0.250*mm"/>
+ 
+ <Constant name="DeltaX"             value="0.5*([ModuleW]-[SensitiveW])"/>
+ <Constant name="DeltaY"             value="[SideWidth]"/>
+ 
+  
+ <Constant name="WedgeThick"         value="2*[ModuleT]+[BladeBaseT]"/>
+ <Constant name="WaferL"             value="[SensitiveL]+2*[SideWidth]"/>
+ <Constant name="WaferW"             value="[SensitiveW]+2*[SideWidth]"/>
+ <Constant name="WaferT"             value="0.250*mm"/>
+<!-- <Constant name="WaferX"         value="0.5*([WedgeBot]+[WaferL]*sin([WedgeAngle])-[WaferW]*cos([WedgeAngle]))-[SideGap]/cos([WedgeAngle])"/>
+ <Constant name="WaferY"             value="0.5*([WaferL]/cos([WedgeAngle])-[WedgeH]+([WaferW]-[WaferL]*tan([WedgeAngle]))*sin([WedgeAngle]))"/>-->
+
+ <Constant name="ROChipL"            value="8.005*mm"/>    <!-- Readout chip length -->
+ <Constant name="ROChipW"            value="10.735*mm"/>   <!-- Readout chip width -->
+ <Constant name="ROChipT"            value="0.150*mm"/>    <!-- Readout chip thickness -->
+ <Constant name="ROChipSpaceL"       value="0.084*mm"/>   <!-- Distance (along width) between adjacent chips -->
+ <Constant name="ROChipSpaceW"       value="0.095*mm"/>   <!-- Distance (along length) between  adjacent chips -->
+ <Constant name="ROChipX"            value="[ROChipW]/2.+[ROChipSpaceW]/2."/>   <!-- Distance (along width) between center of wafer and ROChips -->
+ <Constant name="ROChipZ"            value="[ROChipT]/2.+[WaferT]/2.+0.011*mm"/>   <!-- Distance (along Z) between center of wafer and ROChips -->
+ <Constant name="ModuleL"            value="[SensitiveL]+2*[SideWidth]"/>
+ <Constant name="ModuleW"            value="2*[ROChipW]+[ROChipSpaceW]"/>
+ <Constant name="ModuleT"            value="0.730*mm"/>
+ 
+ <Constant name="SensorCentreX"      value="-0.5*([SensitiveL]*sin([WedgeAngle])-[SensitiveW]*cos([WedgeAngle]))"/> 
+ <Constant name="SensorCentreY"      value="-0.5*([SensitiveL]*cos([WedgeAngle])+[SensitiveW]*sin([WedgeAngle]))"/> 
+ <Constant name="ModuleX"            value="[SensorCentreX]-[DetectorShiftX]"/>
+ <Constant name="ModuleY"            value="[SensorCentreY]+0.5*[WedgeH]-[DeltaX]*sin([WedgeAngle])-[DeltaY]*cos([WedgeAngle])"/>
+ 
+ <Constant name="GlueL"              value="[SensitiveL]+2*[SideWidth]"/>
+ <Constant name="GlueW"              value="2*[ROChipW]+[ROChipSpaceW]"/>
+ <Constant name="GlueT"              value="0.050*mm"/>
+ <Constant name="BumpBondT"          value="0.030*mm"/>
+ <Constant name="BumpROChipT"        value="[ROChipT]+[BumpBondT]"/>
+ <Constant name="HDIT"              value="0.200*mm"/>
+ <Constant name="BladeBaseT"         value="0.8*mm"/>
+ <Constant name="TPGBladeBaseT"      value="0.68*mm"/>
+ <Constant name="CarbonFiberSkinT"   value="0.06*mm"/>
+ <Constant name="ModuleZ"            value="[BladeBaseT]/2+[ModuleT]/2"/>
+ <Constant name="BumpROChipZ"        value="-[ModuleT]/2+[GlueT]+[BumpROChipT]/2"/>
+ <Constant name="HDIZ"              value="-[ModuleT]/2+2*[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[HDIT]/2"/>
+ <Constant name="WaferZ"             value="-[ModuleT]/2+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]/2"/>
+ 
+ <Constant name="WedgeBot1"           value="-[SensitiveL]*sin([WedgeAngle])+[SensitiveW]*cos([WedgeAngle])"/>
+ <Constant name="WedgeBot2"           value="[DeltaX]*cos([WedgeAngle])-[DeltaY]*sin([WedgeAngle])"/>
+ <Constant name="WedgeBot"           value="2*([WedgeBot1]+[WedgeBot2]-[DetectorShiftX])"/>
+ <Constant name="WedgeH1"           value="2*([DeltaX]*sin([WedgeAngle])+[DeltaY]*cos([WedgeAngle]))"/>
+ <Constant name="WedgeH2"           value="[SensitiveL]*cos([WedgeAngle])+[SensitiveW]*sin([WedgeAngle])"/>
+ <Constant name="WedgeH"             value="[WedgeH1]+[WedgeH2]"/>
+ <Constant name="WedgeTop"           value="[WedgeBot]+2*([WedgeH]*tan([WedgeAngle]))"/>
+
+</ConstantsSection>
+
+<SolidSection label="pixfwdblade9.xml">
+  <Trapezoid name="PixelForwardBlade"      dz="[WedgeThick]/2"
+                                           bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
+                                           tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
+                                           alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="PixelForwardBladeBase"  dz="[BladeBaseT]/2"
+                                           bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
+                                           tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
+                                           alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="TPGBladeBase"           dz="[TPGBladeBaseT]/2"
+                                           bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
+                                           tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
+                                           alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Trapezoid name="CarbonFiberSkin"        dz="[CarbonFiberSkinT]/2"
+                                           bl1="[WedgeBot]/2." bl2="[WedgeBot]/2." h1="[WedgeH]/2."
+                                           tl1="[WedgeTop]/2." tl2="[WedgeTop]/2." h2="[WedgeH]/2."
+                                           alp1="0*deg"        alp2="0*deg"        theta="0*deg"   phi="0*deg" />
+  <Box name="PixelForwardModule"        dx="[ModuleW]/2"     dy="[ModuleL]/2" 
+                                        dz="[ModuleT]/2" />
+  <Box name="PixelForwardWafer"         dx="[WaferW]/2"     dy="[WaferL]/2" 
+                                        dz="[WaferT]/2" />
+  <Box name="PixelForwardSensor"        dx="[SensitiveW]/2" dy="[SensitiveL]/2"
+                                        dz="[WaferT]/2" />
+  <Box name="PixelForwardBumpROChip"    dx="[ROChipW]/2" dy="[ROChipL]/2"
+                                        dz="[BumpROChipT]/2" />
+  <Box name="PixelForwardROChip"        dx="[ROChipW]/2" dy="[ROChipL]/2"
+                                        dz="[ROChipT]/2" />
+  <Box name="PixelForwardBumpBond"      dx="[ROChipW]/2" dy="[ROChipL]/2"
+                                        dz="[BumpBondT]/2" />
+  <Box name="PixelForwardAdhesiveFilm"  dx="[GlueW]/2" dy="[GlueL]/2"
+                                        dz="[GlueT]/2" />
+  <Box name="PixelForwardHDI"          dx="[SensitiveW]/2" dy="[SensitiveL]/2"
+                                        dz="[HDIT]/2" />
+
+</SolidSection>
+
+<LogicalPartSection label="pixfwdblade9.xml">
+ <LogicalPart name="PixelForwardBlade" category="unspecified">
+  <rSolid name="PixelForwardBlade"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardBladeBase" category="unspecified">
+  <rSolid name="PixelForwardBladeBase"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="TPGBladeBase" category="support">
+  <rSolid name="TPGBladeBase"/>
+  <rMaterial name="materials:FPix_TPG"/>
+ </LogicalPart>
+ <LogicalPart name="CarbonFiberSkin" category="support">
+  <rSolid name="CarbonFiberSkin"/>
+  <rMaterial name="materials:FPix_CFSkin"/>
+ </LogicalPart>
+
+ <LogicalPart name="PixelForwardModule9" category="unspecified">
+  <rSolid name="PixelForwardModule"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardWafer9" category="unspecified">
+  <rSolid name="PixelForwardWafer"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardSensor9" category="sensitive">
+  <rSolid name="PixelForwardSensor"/>
+  <rMaterial name="materials:Silicon"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardAdhesiveFilm" category="unspecified">
+  <rSolid name="PixelForwardAdhesiveFilm"/>
+  <rMaterial name="materials:FPix_Thermflow"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardHDI" category="support">
+  <rSolid name="PixelForwardHDI"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_HDI"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardBumpROChip" category="envelope">
+  <rSolid name="PixelForwardBumpROChip"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardROChip" category="unspecified">
+  <rSolid name="PixelForwardROChip"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_ROChip"/>
+ </LogicalPart>
+ <LogicalPart name="PixelForwardBumpBond" category="unspecified">
+  <rSolid name="PixelForwardBumpBond"/>
+  <rMaterial name="pixfwdMaterials:Pix_Fwd_Bump"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+
+<RotationSection label="pixfwdblade9.xml">
+  <Rotation name="R100A" thetaX="90*deg"  phiX="180*deg+[WedgeAngle]" 
+                         thetaY="90*deg"  phiY="90*deg+[WedgeAngle]" 
+                         thetaZ="180*deg" phiZ="0*deg"/>
+  <Rotation name="R100C" thetaX="90*deg"  phiX="-[WedgeAngle]" 
+                         thetaY="90*deg"  phiY="90*deg-[WedgeAngle]" 
+                         thetaZ="0*deg"   phiZ="0*deg"/>
+ </RotationSection>
+
+<PosPartSection label="pixfwdblade9.xml">
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardBlade"/>
+  <rChild name="pixfwdblade9:PixelForwardBladeBase"/>
+  <Translation x="0"  y="0"  z="0" />
+ </PosPart>
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardBladeBase"/>
+  <rChild name="pixfwdblade9:TPGBladeBase"/>
+  <Translation x="0"  y="0"  z="0" />
+ </PosPart>
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardBladeBase"/>
+  <rChild name="pixfwdblade9:CarbonFiberSkin"/>
+  <Translation x="0"  y="0"  z="[TPGBladeBaseT]/2+[CarbonFiberSkinT]/2" />
+ </PosPart>
+ <PosPart copyNumber="2">
+  <rParent name="pixfwdblade9:PixelForwardBladeBase"/>
+  <rChild name="pixfwdblade9:CarbonFiberSkin"/>
+  <Translation x="0"  y="0"  z="-[TPGBladeBaseT]/2-[CarbonFiberSkinT]/2" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardBlade"/>
+  <rChild name="pixfwdblade9:PixelForwardModule9"/>
+  <Translation x="[ModuleX]"  y="[ModuleY]"  z="[ModuleZ]" />
+  <rRotation name="pixfwdblade9:R100C"/>
+ </PosPart>
+ <PosPart copyNumber="2">
+  <rParent name="pixfwdblade9:PixelForwardBlade"/>
+  <rChild name="pixfwdblade9:PixelForwardModule9"/>
+  <Translation x="-[ModuleX]" y="[ModuleY]" z="-[ModuleZ]" />
+  <rRotation name="pixfwdblade9:R100A"/>
+ </PosPart>
+
+
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardWafer9"/>
+  <Translation x="0"  y="0"  z="[WaferZ]" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardWafer9"/>
+  <rChild name="pixfwdblade9:PixelForwardSensor9"/>
+ </PosPart>
+
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardAdhesiveFilm"/>
+  <Translation x="0"  y="0"  z="-[ModuleT]/2+[GlueT]/2" />
+ </PosPart>
+
+ <PosPart copyNumber="2">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardAdhesiveFilm"/>
+  <Translation x="0"  y="0"  z="-[ModuleT]/2+[GlueT]+[ROChipT]+[BumpBondT]+[WaferT]+[GlueT]/2" />
+ </PosPart>
+ 
+<PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardHDI"/>
+  <Translation x="0"  y="0"  z="[HDIZ]" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <rChild name="pixfwdblade9:PixelForwardROChip"/>
+  <Translation x="0" y="0" z="-[BumpROChipT]/2+[ROChipT]/2" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpBond"/>
+  <Translation x="0" y="0" z="-[BumpROChipT]/2+[ROChipT]+[BumpBondT]/2" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="-[ROChipX]" y="3.5*([ROChipL]+[ROChipSpaceL])" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="2">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="-[ROChipX]" y="2.5*([ROChipL]+[ROChipSpaceL])" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="3">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="-[ROChipX]" y="1.5*([ROChipL]+[ROChipSpaceL])" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="4">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="-[ROChipX]" y="0.5*([ROChipL]+[ROChipSpaceL])" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="5">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="-[ROChipX]" y="-(0.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="6">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="-[ROChipX]" y="-(1.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="7">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="-[ROChipX]" y="-(2.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="8">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="-[ROChipX]" y="-(3.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="9">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="[ROChipX]" y="3.5*([ROChipL]+[ROChipSpaceL])" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="10">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="[ROChipX]" y="2.5*([ROChipL]+[ROChipSpaceL])" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="11">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="[ROChipX]" y="1.5*([ROChipL]+[ROChipSpaceL])" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="12">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="[ROChipX]" y="0.5*([ROChipL]+[ROChipSpaceL])" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="13">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="[ROChipX]" y="-(0.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="14">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="[ROChipX]" y="-(1.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="15">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="[ROChipX]" y="-(2.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
+ </PosPart>
+ <PosPart copyNumber="16">
+  <rParent name="pixfwdblade9:PixelForwardModule9"/>
+  <rChild name="pixfwdblade9:PixelForwardBumpROChip"/>
+  <Translation x="[ROChipX]" y="-(3.5*([ROChipL]+[ROChipSpaceL]))" z="[BumpROChipZ]" />
+ </PosPart>
+</PosPartSection>
+
+</DDDefinition>
