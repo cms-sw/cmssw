@@ -2,6 +2,6 @@
 #   cmsDiver.py hlt -s HLT:@relval
 
 autoHLT = {
-  'relval'     : '8E33v2',
+  'relval'     : '2013',
   'test'       : 'GRun',
 }
