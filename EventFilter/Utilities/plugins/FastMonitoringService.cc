@@ -331,13 +331,14 @@ namespace evf{
   {
     unsigned int sid = sc.streamID().value();
     fmt_.monlock_.lock();
-    fmt_.m_data.streamLumi_[sid] = sc.luminosityBlockID().luminosityBlock();
+    fmt_.m_data.streamLumi_[sid] = sc.eventID().luminosityBlock();
 
     //reset collected values for this stream
     *(fmt_.m_data.processed_[sid])=0;
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
     fmt_.monlock_.unlock();
+
   }
 
   void FastMonitoringService::preStreamEndLumi(edm::StreamContext const& sc)
@@ -349,7 +350,7 @@ namespace evf{
     while (streamCounterUpdating_[sid]->load(std::memory_order_acquire)) {}
 #endif
     //update processed count to be complete at this time
-    doStreamEOLSnapshot(false,sc.luminosityBlockID().luminosityBlock(),sid);
+    doStreamEOLSnapshot(false,sc.eventID().luminosityBlock(),sid);
     //reset this in case stream does not get notified of next lumi (we keep processed events only)
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];

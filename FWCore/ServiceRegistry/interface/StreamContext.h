@@ -17,7 +17,6 @@
 //         Created: 7/8/2013
 
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
@@ -59,7 +58,6 @@ namespace edm {
     Transition transition() const { return transition_; }
     EventID const& eventID() const { return eventID_; } // event#==0 is a lumi, event#==0&lumi#==0 is a run
     RunIndex const& runIndex() const { return runIndex_; }
-    LuminosityBlockID const& luminosityBlockID() const { return luminosityBlockID_; }
     LuminosityBlockIndex const& luminosityBlockIndex() const { return luminosityBlockIndex_; }
     Timestamp const& timestamp() const { return timestamp_; }
     ProcessContext const* processContext() const { return processContext_; }
@@ -67,7 +65,6 @@ namespace edm {
     void setTransition(Transition v) { transition_ = v; }
     void setEventID(EventID const& v) { eventID_ = v; }
     void setRunIndex(RunIndex const& v) { runIndex_ = v; }
-    void setLuminosityBlockID(LuminosityBlockID const &v) { luminosityBlockID_=v; }
     void setLuminosityBlockIndex(LuminosityBlockIndex const& v) { luminosityBlockIndex_ = v; }
     void setTimestamp(Timestamp const& v) { timestamp_ = v; }
 
@@ -76,7 +73,6 @@ namespace edm {
     Transition transition_;
     EventID eventID_; // event#==0 is a lumi, event#==0&lumi#==0 is a run
     RunIndex runIndex_;
-    LuminosityBlockID luminosityBlockID_; 
     LuminosityBlockIndex luminosityBlockIndex_; 
     Timestamp timestamp_;
     ProcessContext const* processContext_;
