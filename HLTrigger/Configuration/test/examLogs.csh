@@ -7,7 +7,7 @@ foreach gtag ( STARTUP DATA )
   echo
   echo $gtag
 
-  foreach table ( GRun PIon 8E33v2 HIon )
+  foreach table ( GRun PIon 8E33v2 2013 HIon )
 
     echo
     set name = ${table}_${gtag}
