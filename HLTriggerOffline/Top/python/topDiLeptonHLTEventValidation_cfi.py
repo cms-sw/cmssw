@@ -5,7 +5,7 @@ DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLTValidation/Top/DiMuon/'),
         # Electrons
-        sElectrons   = cms.untracked.string('gsfElectrons'),
+        sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
         etaElectrons = cms.untracked.double(2.5),
         isoElectrons = cms.untracked.double(0.15),
@@ -31,7 +31,7 @@ DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLTValidation/Top/DiElectron/'),
         # Electrons
-        sElectrons   = cms.untracked.string('gsfElectrons'),
+        sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
         etaElectrons = cms.untracked.double(2.5),
         isoElectrons = cms.untracked.double(0.15),
@@ -57,7 +57,7 @@ ElecMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLTValidation/Top/ElecMuon/'),
         # Electrons
-        sElectrons   = cms.untracked.string('gsfElectrons'),
+        sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
         etaElectrons = cms.untracked.double(2.5),
         isoElectrons = cms.untracked.double(0.15),

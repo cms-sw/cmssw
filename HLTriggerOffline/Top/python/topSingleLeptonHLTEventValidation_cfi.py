@@ -5,7 +5,7 @@ topSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLTValidation/Top/SemiMuonic/'),
         # Electrons
-        sElectrons   = cms.untracked.string('gsfElectrons'),
+        sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(30.),
         etaElectrons = cms.untracked.double(2.5),
         isoElectrons = cms.untracked.double(0.1),
@@ -31,7 +31,7 @@ topSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         # Directory
         sDir         = cms.untracked.string('HLTValidation/Top/SemiElectronic/'),
         # Electrons
-        sElectrons   = cms.untracked.string('gsfElectrons'),
+        sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(30.),
         etaElectrons = cms.untracked.double(2.5),
         isoElectrons = cms.untracked.double(0.1),
