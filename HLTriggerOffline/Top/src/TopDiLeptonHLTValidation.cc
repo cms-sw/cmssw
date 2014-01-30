@@ -7,10 +7,10 @@
 
 Description: 
 
- Description: compute efficiencies of trigger paths on offline reco selection with respect to pt and eta
+Description: compute efficiencies of trigger paths on offline reco selection with respect to pt and eta
 
 Implementation:
-   harvesting
+harvesting
 
 */
 //
@@ -51,7 +51,8 @@ TopDiLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // Electrons 
   Handle< edm::View<reco::GsfElectron> > electrons;
-  iEvent.getByToken(tokElectrons_,electrons);
+  if (!iEvent.getByToken(tokElectrons_,electrons))
+    edm::LogWarning("TopDiLeptonHLTValidation") << "Electrons collection not found \n";
   unsigned int nGoodE = 0;
   for(edm::View<reco::GsfElectron>::const_iterator e = electrons->begin(); e != electrons->end(); ++e){
     if (e->pt() < ptElectrons_) continue;
@@ -63,7 +64,8 @@ TopDiLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
   // Muons 
   Handle< edm::View<reco::Muon> > muons;
-  iEvent.getByToken(tokMuons_,muons);
+  if (!iEvent.getByToken(tokMuons_,muons))
+    edm::LogWarning("TopDiLeptonHLTValidation") << "Muons collection not found \n";
   unsigned int nGoodM = 0;
   for(edm::View<reco::Muon>::const_iterator m = muons->begin(); m != muons->end(); ++m){
     if (!m->isPFMuon() || (!m->isGlobalMuon() && !m->isTrackerMuon())) continue;
@@ -76,7 +78,8 @@ TopDiLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
   // Jets 
   Handle< edm::View<reco::Jet> > jets;
-  iEvent.getByToken(tokJets_,jets);
+  if (!iEvent.getByToken(tokJets_,jets)) 
+    edm::LogWarning("TopDiLeptonHLTValidation") << "Jets collection not found \n";
   unsigned int nGoodJ = 0;
   for(edm::View<reco::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j){
     if (j->pt() < ptJets_) continue;
@@ -89,7 +92,8 @@ TopDiLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   //Trigger
   Handle<edm::TriggerResults> triggerTable;
-  iEvent.getByToken(tokTrigger_,triggerTable);
+  if (!iEvent.getByToken(tokTrigger_,triggerTable))
+    edm::LogWarning("TopDiLeptonHLTValidation") << "Trigger collection not found \n";
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerTable);
   for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
 
@@ -100,6 +104,7 @@ TopDiLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
     if (isAll_ && isInteresting) isSel_ = true;
+    else isSel_ = false;
 
     //Histos
     if (isAll_) {
@@ -145,89 +150,20 @@ TopDiLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-  void 
-TopDiLeptonHLTValidation::beginJob()
+// ------------ booking histograms -----------
+  void
+TopDiLeptonHLTValidation::bookHistograms(DQMStore::IBooker & dbe, edm::Run const &, edm::EventSetup const &)
 {
+  dbe.setCurrentFolder(sDir_);
+  hDenLeptonPt  = dbe.book1D("PtLeptonAll", "PtLeptonAll", 50, 0., 250.);
+  hDenLeptonEta = dbe.book1D("EtaLeptonAll", "EtaLeptonAll", 30, -3. , 3.);
+  hDenJetPt     = dbe.book1D("PtLastJetAll", "PtLastJetAll", 60, 0., 300.);
+  hDenJetEta    = dbe.book1D("EtaLastJetAll", "EtaLastJetAll", 30, -3., 3.);
+  hNumLeptonPt  = dbe.book1D("PtLeptonSel", "PtLeptonSel", 50, 0., 250.);
+  hNumLeptonEta = dbe.book1D("EtaLeptonSel", "EtaLeptonSel", 30, -3. , 3.);
+  hNumJetPt     = dbe.book1D("PtLastJetSel", "PtLastJetSel", 60, 0., 300.);
+  hNumJetEta    = dbe.book1D("EtaLastJetSel", "EtaLastJetSel", 30, -3., 3.);
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-  void 
-TopDiLeptonHLTValidation::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-   void 
-   TopDiLeptonHLTValidation::beginRun(edm::Run const&, edm::EventSetup const&)
-   {
-   }
-   */
-
-// ------------ method called when ending the processing of a run  ------------
-
-  void 
-TopDiLeptonHLTValidation::endRun(edm::Run const&, edm::EventSetup const&)
-{
-  dbe_->setCurrentFolder(sDir_);
-  hEffLeptonPt  = dbe_->book1D("EfficiencyVsPtLepton", "EfficiencyVsPtLepton", 50, 0., 250.);
-  hEffLeptonEta = dbe_->book1D("EfficiencyVsEtaLepton", "EfficiencyVsEtaLepton", 30, -3. , 3.);
-  hEffJetPt     = dbe_->book1D("EfficiencyVsPtLastJet", "EfficiencyVsPtLastJet", 60, 0., 300.);
-  hEffJetEta    = dbe_->book1D("EfficiencyVsEtaLastJet", "EfficiencyVsEtaLastJet", 30, -3., 3.);
-
-  //------ Efficiency wrt
-  // lepton pt
-  for (int iBin = 1; iBin <= hNumLeptonPt->GetNbinsX(); ++iBin)
-  {
-    if(hDenLeptonPt->GetBinContent(iBin) == 0)
-      hEffLeptonPt->setBinContent(iBin, 0.);
-    else
-      hEffLeptonPt->setBinContent(iBin, hNumLeptonPt->GetBinContent(iBin) / hDenLeptonPt->GetBinContent(iBin));
-  }
-  // lepton eta
-  for (int iBin = 1; iBin <= hNumLeptonEta->GetNbinsX(); ++iBin)
-  {
-    if(hDenLeptonEta->GetBinContent(iBin) == 0)
-      hEffLeptonEta->setBinContent(iBin, 0.);
-    else
-      hEffLeptonEta->setBinContent(iBin, hNumLeptonEta->GetBinContent(iBin) / hDenLeptonEta->GetBinContent(iBin));
-  }
-  // jet pt
-  for (int iBin = 1; iBin <= hNumJetPt->GetNbinsX(); ++iBin)
-  {
-    if(hDenJetPt->GetBinContent(iBin) == 0)
-      hEffJetPt->setBinContent(iBin, 0.);
-    else
-      hEffJetPt->setBinContent(iBin, hNumJetPt->GetBinContent(iBin) / hDenJetPt->GetBinContent(iBin));
-  }
-  // jet eta
-  for (int iBin = 1; iBin <= hNumJetEta->GetNbinsX(); ++iBin)
-  {
-    if(hDenJetEta->GetBinContent(iBin) == 0)
-      hEffJetEta->setBinContent(iBin, 0.);
-    else
-      hEffJetEta->setBinContent(iBin, hNumJetEta->GetBinContent(iBin) / hDenJetEta->GetBinContent(iBin));
-  }
-}
-
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-   void 
-   TopDiLeptonHLTValidation::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-   {
-   }
-   */
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-   void 
-   TopDiLeptonHLTValidation::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-   {
-   }
-   */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void

@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,13 +40,13 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "TH1.h"
+//#include "TH1.h"
 
 //
 // class declaration
 //
 
-class TopSingleLeptonHLTValidation : public edm::EDAnalyzer {
+class TopSingleLeptonHLTValidation : public DQMEDAnalyzer {
    public:
       explicit TopSingleLeptonHLTValidation(const edm::ParameterSet&);
       ~TopSingleLeptonHLTValidation();
@@ -55,23 +55,20 @@ class TopSingleLeptonHLTValidation : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
       // ----------member data ---------------------------
       // DQM
-      DQMStore* dbe_;
       std::string sDir_;
-      MonitorElement* hEffLeptonPt;
-      MonitorElement* hEffLeptonEta;
-      MonitorElement* hEffJetPt;
-      MonitorElement* hEffJetEta;
+      MonitorElement* hNumLeptonPt;
+      MonitorElement* hDenLeptonPt;
+      MonitorElement* hNumLeptonEta;
+      MonitorElement* hDenLeptonEta;
+      MonitorElement* hNumJetPt;
+      MonitorElement* hDenJetPt;
+      MonitorElement* hNumJetEta;
+      MonitorElement* hDenJetEta;
       // Electrons
       const reco::GsfElectron *elec_;
       std::string sElectrons_;
@@ -99,17 +96,9 @@ class TopSingleLeptonHLTValidation : public edm::EDAnalyzer {
       std::string sTrigger_;
       edm::EDGetTokenT<edm::TriggerResults> tokTrigger_;
       std::vector<std::string> vsPaths_;
-      // Histos
+      // Flags
       bool isAll_ = false;
-      TH1F *hDenLeptonPt  = new TH1F("PtLeptonAll", "PtLeptonAll", 50, 0., 250.);
-      TH1F *hDenLeptonEta = new TH1F("EtaLeptonAll", "EtaLeptonAll", 30, -3. , 3.);
-      TH1F *hDenJetPt     = new TH1F("PtLastJetAll", "PtLastJetAll", 60, 0., 300.);
-      TH1F *hDenJetEta    = new TH1F("EtaLastJetAll", "EtaLastJetAll", 30, -3., 3.);
       bool isSel_ = false;
-      TH1F *hNumLeptonPt  = new TH1F("PtLeptonSel", "PtLeptonSel", 50, 0., 250.);
-      TH1F *hNumLeptonEta = new TH1F("EtaLeptonSel", "EtaLeptonSel", 30, -3. , 3.);
-      TH1F *hNumJetPt     = new TH1F("PtLastJetSel", "PtLastJetSel", 60, 0., 300.);
-      TH1F *hNumJetEta    = new TH1F("EtaLastJetSel", "EtaLastJetSel", 30, -3., 3.);
 };
 
 //
@@ -143,7 +132,6 @@ TopSingleLeptonHLTValidation::TopSingleLeptonHLTValidation(const edm::ParameterS
   vsPaths_(iConfig.getUntrackedParameter< std::vector<std::string> >("vsPaths"))
 
 {
-  dbe_ = edm::Service<DQMStore>().operator->();
   // Electrons
   tokElectrons_ = consumes< edm::View<reco::GsfElectron> >(edm::InputTag(sElectrons_));
   // Muons
@@ -151,7 +139,7 @@ TopSingleLeptonHLTValidation::TopSingleLeptonHLTValidation(const edm::ParameterS
   // Jets
   tokJets_ = consumes< edm::View<reco::Jet> >(edm::InputTag(sJets_));
   // Trigger
-  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_));
+  tokTrigger_ = consumes<edm::TriggerResults>(edm::InputTag(sTrigger_, "", "HLT"));
 }
 
 
