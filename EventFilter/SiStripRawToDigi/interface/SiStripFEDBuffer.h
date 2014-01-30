@@ -16,7 +16,7 @@ namespace sistrip {
   //
 
   //class representing standard (non-spy channel) FED buffers
-  class FEDBuffer : public FEDBufferBase
+  class FEDBuffer final : public FEDBufferBase
     {
     public:
       //construct from buffer
