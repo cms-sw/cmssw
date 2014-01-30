@@ -1,6 +1,7 @@
 
-#include "EventFilter/SiStripRawToDigi/plugins/SiStripDigiToRawModule.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
+#include "SiStripDigiToRawModule.h"
+#include "SiStripDigiToRaw.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
