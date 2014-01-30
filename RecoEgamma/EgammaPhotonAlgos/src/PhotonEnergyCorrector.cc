@@ -171,8 +171,8 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   if( gedRegression_ ) {
     gedRegression_->varCalc()->setEvent(evt);
     std::pair<float,float> cor = gedRegression_->getCorrectionWithErrors(*(thePhoton.superCluster()));
-    phoRegr1Energy = cor.first*thePhoton.superCluster()->energy();
-    phoRegr1EnergyError = cor.second*thePhoton.superCluster()->energy();
+    phoRegr1Energy = cor.first*thePhoton.superCluster()->correctedEnergy();
+    phoRegr1EnergyError = cor.second*thePhoton.superCluster()->correctedEnergy();
     // store the value in the Photon.h
     thePhoton.setCorrectedEnergy( reco::Photon::regression1, phoRegr1Energy, phoRegr1EnergyError,  false);
   }

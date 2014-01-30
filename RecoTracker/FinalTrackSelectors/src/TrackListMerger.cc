@@ -321,6 +321,7 @@ namespace cms
     typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
     std::vector<IHit> rh1[ngood];  // an array of vectors!
     //const TrackingRecHit*  fh1[ngood];  // first hit...
+    uint8_t algo[ngood];
     float score[ngood];
 
 
@@ -332,6 +333,7 @@ namespace cms
       unsigned int trackNum=j-trackCollFirsts[collNum];
       const reco::Track *track=&((trackColls[collNum])->at(trackNum));
 
+      algo[i]=track->algo();
       int validHits=track->numberOfValidHits();
       int lostHits=track->numberOfLostHits();
       score[i] = foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
@@ -455,9 +457,21 @@ namespace cms
 	      selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
 	      trkUpdated[j]=true;
 	    }else{
-	      // If tracks from both iterations are virtually identical, choose the one with the best quality
-	      if ((trackQuals[j] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) ) <= 
+	      // If tracks from both iterations are virtually identical, choose the one with the best quality or with lower algo
+	      if ((trackQuals[j] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) ) ==
 		  (trackQuals[i] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) )) {
+		//same quality, pick earlier algo
+		if (algo[k1] <= algo[k2]) {
+		  selected[j]=0;
+		  selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+		  trkUpdated[i]=true;
+		} else {
+		  selected[i]=0;
+		  selected[j]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+		  trkUpdated[j]=true;		  
+		}
+	      } else if ((trackQuals[j] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) ) <
+			 (trackQuals[i] & (1<<reco::TrackBase::loose|1<<reco::TrackBase::tight|1<<reco::TrackBase::highPurity) )) {
 		selected[j]=0;
 		selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 		trkUpdated[i]=true;
@@ -580,11 +594,11 @@ namespace cms
       mvaVec.push_back(trackMVAs[i]);
       if (selected[i]>1 ) {
 	outputTrks->back().setQualityMask(selected[i]-10);
-	if (trkUpdated[i])
+	if (trkUpdated[i]) 
 	  outputTrks->back().setQuality(qualityToSet_);
       }
       //might duplicate things, but doesnt hurt
-      if ( selected[i]==1 )
+      if ( selected[i]==1 ) 
 	outputTrks->back().setQualityMask(trackQuals[i]);
 
       // if ( beVerb ) std::cout << "selected " << outputTrks->back().pt() << " " << outputTrks->back().qualityMask() << " " << selected[i] << std::endl;

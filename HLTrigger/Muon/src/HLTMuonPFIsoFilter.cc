@@ -2,7 +2,6 @@
  *
  * See header file for documentation
  *
- *  \author J. Alcaraz
  *
  */   
 
@@ -25,25 +24,26 @@
 // constructors and destructor
 //
 HLTMuonPFIsoFilter::HLTMuonPFIsoFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-   candTag_ 		  (iConfig.getParameter< edm::InputTag > ("CandTag") ),
-   candToken_         (consumes<reco::RecoChargedCandidateCollection>(candTag_)),
+   candTag_ 	      (iConfig.getParameter< edm::InputTag > ("CandTag") ),
    previousCandTag_   (iConfig.getParameter< edm::InputTag > ("PreviousCandTag")),
-   previousCandToken_ (consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_)),
-   depTag_  		  (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
+   depTag_  	      (iConfig.getParameter< std::vector< edm::InputTag > >("DepTag" ) ),
    depToken_(0),
-   rhoTag_  		  (iConfig.getParameter< edm::InputTag >("RhoTag" ) ),
-   rhoToken_          (consumes<double>(rhoTag_)),
-   maxIso_  		  (iConfig.getParameter<double>("MaxIso" ) ),
-   min_N_   		  (iConfig.getParameter<int> ("MinN")),
-   onlyCharged_		  (iConfig.getParameter<bool> ("onlyCharged")),
-   doRho_		      (iConfig.getParameter<bool> ("applyRhoCorrection")),
-   effArea_		      (iConfig.getParameter<double> ("EffectiveArea"))
+   rhoTag_  	      (iConfig.getParameter< edm::InputTag >("RhoTag" ) ),
+   maxIso_  	      (iConfig.getParameter<double>("MaxIso" ) ),
+   min_N_   	      (iConfig.getParameter<int> ("MinN")),
+   onlyCharged_	      (iConfig.getParameter<bool> ("onlyCharged")),
+   doRho_	      (iConfig.getParameter<bool> ("applyRhoCorrection")),
+   effArea_	      (iConfig.getParameter<double> ("EffectiveArea"))
 {
   std::stringstream tags;
   for (unsigned int i=0;i!=depTag_.size();++i) {
     depToken_.push_back(consumes<edm::ValueMap<double> >(depTag_[i]));
     tags<<" PFIsoTag["<<i<<"] : "<<depTag_[i].encode()<<" \n";
   }
+
+  candToken_            = consumes<reco::RecoChargedCandidateCollection>(candTag_);
+  previousCandToken_    = consumes<trigger::TriggerFilterObjectWithRefs>(previousCandTag_);
+  if (doRho_) rhoToken_ = consumes<double>(rhoTag_);
 
   LogDebug("HLTMuonPFIsoFilter") << " candTag : " << candTag_.encode()
 				<< "\n" << tags 
@@ -107,82 +107,70 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
     std::vector< Handle<edm::ValueMap<double> > > depMap(nDep);
     
     //get hold of rho of the event
-    Handle <double>  RhoCorr;
-	iEvent.getByToken(rhoToken_, RhoCorr);
-	const double Rho = *RhoCorr.product();
+    double Rho = 0;
+    if (doRho_){
+      Handle <double>  RhoCorr;
+      iEvent.getByToken(rhoToken_, RhoCorr);
+      Rho = *RhoCorr.product();
+    }
  
-    for (unsigned int i=0;i!=nDep;++i) iEvent.getByLabel (depTag_[i],depMap[i]);
+    for (unsigned int i=0;i!=nDep;++i) iEvent.getByToken (depToken_[i],depMap[i]);
 
     // look at all mucands,  check cuts and add to filter object
     int nIsolatedMu = 0;
     unsigned int nMu=mucands->size();
     std::vector<bool> isos(nMu, false);
-    double MuonDeposits = 0.;
+
     unsigned int iMu=0;
     for (; iMu<nMu; iMu++) 
     {
-      MuonDeposits = 0;
+      double MuonDeposits = 0;
       RecoChargedCandidateRef candref(mucands,iMu);
       LogDebug("HLTMuonPFIsoFilter") << "candref isNonnull " << candref.isNonnull(); 
 
-     //did this candidate triggered at previous stage.
+      //did this candidate triggered at previous stage.
       if (!triggerdByPreviousLevel(candref,vcands)) continue;
 
-     //reference to the track
+      //reference to the track
       TrackRef tk = candref->get<TrackRef>();
       LogDebug("HLTMuonPFIsoFilter") << "tk isNonNull " << tk.isNonnull();
 
-       //get the deposits and evaluate relIso if noDeltaBeta correction is applied
-	  if (onlyCharged_){
-		for(unsigned int iDep=0;iDep!=nDep;++iDep)
-		{
-		  const edm::ValueMap<double> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
-		  LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << " (" << candref->charge()*candref->pt() << ") " << ", eta= " << tk->eta() << " (" << candref->eta() << ") " << "; has deposit["<<iDep<<"]: " << muonDeposit;
-
-		  std::size_t foundCharged = depTag_[iDep].label().find("Charged");
-		  if (foundCharged!=std::string::npos)  MuonDeposits += muonDeposit; 
-		}
-		MuonDeposits = MuonDeposits/tk->pt();
+      //get the deposits and evaluate relIso if only the charged component is considered
+      if (onlyCharged_){
+	for(unsigned int iDep=0;iDep!=nDep;++iDep)
+	  {
+	    const edm::ValueMap<double> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
+	    LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() 
+					   << " (" << candref->charge()*candref->pt() << ") " 
+					   << ", eta= " << tk->eta() << " (" << candref->eta() << ") " 
+					   << "; has deposit["<<iDep<<"]: " << muonDeposit;
+	    
+	    std::size_t foundCharged = depTag_[iDep].label().find("Charged");
+	    if (foundCharged!=std::string::npos)  MuonDeposits += muonDeposit; 
 	  }
-	  else {
-		if (!doRho_)
-		{
-		  for(unsigned int iDep=0;iDep!=nDep;++iDep)
-		  {
-			const edm::ValueMap<double> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
-			LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << " (" << candref->charge()*candref->pt() << ") " << ", eta= " << tk->eta() << " (" << candref->eta() << ") " << "; has deposit["<<iDep<<"]: " << muonDeposit;
-
-			MuonDeposits += muonDeposit; 
-		  }
-		  MuonDeposits = MuonDeposits/tk->pt();
-		}
-	  
-		//get the deposits and evaluate relIso if rho correction is applied
-		else 
-		{
-		  double neutralDeposits = 0.;
-		  for(unsigned int iDep=0;iDep!=nDep;++iDep)
-		  {
-			const edm::ValueMap<double> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
-			LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << " (" << candref->charge()*candref->pt() << ") " << ", eta= " << tk->eta() << " (" << candref->eta() << ") " << "; has deposit["<<iDep<<"]: " << muonDeposit;
-
-			std::size_t foundCharged = depTag_[iDep].label().find("Charged");
-			if (foundCharged!=std::string::npos)  MuonDeposits += muonDeposit; 
-		  
-			std::size_t foundGamma = depTag_[iDep].label().find("Gamma");
-			if (foundGamma!=std::string::npos) neutralDeposits += muonDeposit;
-
-			std::size_t foundNeutral = depTag_[iDep].label().find("Neutral");
-			if (foundNeutral!=std::string::npos) neutralDeposits += muonDeposit;
-		  }
-		  MuonDeposits = (MuonDeposits + neutralDeposits - effArea_*Rho )/tk->pt();
-		}
+	MuonDeposits = MuonDeposits/tk->pt();
+      }
+      else {
+	//get all the deposits 
+	for(unsigned int iDep=0;iDep!=nDep;++iDep)
+	  {
+	    const edm::ValueMap<double> ::value_type & muonDeposit = (*(depMap[iDep]))[candref];
+	    LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() 
+					   << " (" << candref->charge()*candref->pt() << ") " 
+					   << ", eta= " << tk->eta() << " (" << candref->eta() << ") " 
+					   << "; has deposit["<<iDep<<"]: " << muonDeposit;
+	    MuonDeposits += muonDeposit;
+	  }
+        //apply rho correction 
+	if (doRho_) MuonDeposits -=  effArea_*Rho;
+	MuonDeposits = MuonDeposits/tk->pt();
       }
       
       //get the selection
       if (MuonDeposits < maxIso_) isos[iMu] = true;
 
-      LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; "<<(isos[iMu]?"Is an isolated muon.":"Is NOT an isolated muon.");
+      LogDebug("HLTMuonPFIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() 
+				     << "; "<<(isos[iMu]?"Is an isolated muon.":"Is NOT an isolated muon.");
        
       if (!isos[iMu]) continue;
 
@@ -193,7 +181,7 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
     // filter decision
     const bool accept (nIsolatedMu >= min_N_);
 
-     //put the decision map
+    //put the decision map
     if (nMu!=0)
     {
       edm::ValueMap<bool> ::Filler isoFiller(*PFisoMap);     
@@ -209,13 +197,11 @@ HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& description
  
 
 bool HLTMuonPFIsoFilter::triggerdByPreviousLevel(const reco::RecoChargedCandidateRef & candref, const std::vector<reco::RecoChargedCandidateRef>& vcands){
-  bool ok=false;
   unsigned int i=0;
   unsigned int i_max=vcands.size();
   for (;i!=i_max;++i){
-    if (candref == vcands[i]) { ok=true; break;}
+    if (candref == vcands[i]) return true;
   }
 
-  return ok;
+  return false;
 }
-																						       
