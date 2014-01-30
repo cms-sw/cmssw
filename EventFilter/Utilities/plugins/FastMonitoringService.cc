@@ -354,7 +354,6 @@ namespace evf{
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
     fmt_.monlock_.unlock();
-    std::cout << " got stream " << sid << " endLumi" << std::endl;
   }
 
 
