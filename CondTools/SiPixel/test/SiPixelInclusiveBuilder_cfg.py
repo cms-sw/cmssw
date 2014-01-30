@@ -1,5 +1,6 @@
 import os
 import shlex, subprocess
+import shutil, getpass
 
 import FWCore.ParameterSet.Config as cms
 
@@ -37,8 +38,10 @@ process.maxEvents = cms.untracked.PSet(
 try:
     user = os.environ["USER"]
 except KeyError:
-    user = subprocess.call('whoami')
     # user = commands.getoutput('whoami')
+    # user = subprocess.call('whoami')
+    # faster, "cheaper" (in terms of resources), and more secure
+    user = getpass.getuser()
  
 #file = "/tmp/" + user + "/prova.db"
 file = "prova.db"
@@ -46,7 +49,9 @@ sqlfile = "sqlite_file:" + file
 print '\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile)
 
 #subprocess.call(["/bin/cp", "prova.db", file])
-subprocess.call(["/bin/mv", "prova.db", "prova_old.db"])
+#subprocess.call(["/bin/mv", "prova.db", "prova_old.db"])
+#faster as it doesn't spawn a process
+shutil.move("prova.db", "prova_old.db")
 
 
 ##### DATABASE CONNNECTION AND INPUT TAGS ######

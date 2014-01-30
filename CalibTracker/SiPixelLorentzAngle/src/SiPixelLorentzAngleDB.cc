@@ -86,7 +86,8 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
                         }
 
 		   } else {
-			cout << "method for reading file not implemented yet" << endl;
+//			cout << "method for reading file not implemented yet" << endl;
+  			edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] method for reading file not implemented yet" << std::endl;
 		   }
 			
 		   // fill fpix values for LA 
