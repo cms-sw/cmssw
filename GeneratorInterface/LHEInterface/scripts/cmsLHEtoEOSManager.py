@@ -121,7 +121,7 @@ if __name__ == '__main__':
                       dest='dryRun')
     
     parser.add_option('-c', '--compress',
-                      help='compress the local .lhe file with xc before upload',
+                      help='compress the local .lhe file with xz before upload',
                       action='store_true',
                       default=False,
                       dest='compress')
@@ -162,9 +162,19 @@ if __name__ == '__main__':
             # Check the file name extension
             if not ( f.lower().endswith(".lhe") or f.lower().endswith(".lhe.xz") ):
                 raise Exception('Input file name must have the "lhe" or "lhe.xz" final extension!')
+            if( f.lower().endswith(".lhe.xz") ):
+                print "Important! Input file "+f+" is already zipped: please make sure you verified its integrity with xmllint before zipping it. You can do it with:\n"
+                print "xmllint file.lhe\n"
+                print "Otherwise it is best to pass the unzipped file to this script and let it check its integrity and compress the file with the --compress option\n"
             # Check the local file existence
             if not os.path.exists(f):
                 raise Exception('Input file '+f+' does not exists')
+            if( f.lower().endswith(".lhe") ):
+                theCheckIntegrityCommand = 'xmllint -noout '+f
+                exeCheckIntegrity = subprocess.Popen(["/bin/sh","-c", theCheckIntegrityCommand])
+                intCode = exeCheckIntegrity.wait()
+                if(intCode is not 0):
+                    raise Exception('Input file '+f+ ' is corrupted')
             if reallyDoIt and options.compress:
               print "Compressing file",f
               theCompressionCommand = 'xz '+f
