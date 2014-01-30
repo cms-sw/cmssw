@@ -210,9 +210,21 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
     selTracks_->push_back( Track( trk ) ); // clone and store
     if (ok && setQualityBit_[0]) {
       selTracks_->back().setQuality(qualityToSet_[0]);
+      if (qualityToSet_[0]==TrackBase::tight) {
+	selTracks_->back().setQuality(TrackBase::loose);
+      } 
+      else if (qualityToSet_[0]==TrackBase::highPurity) {
+	selTracks_->back().setQuality(TrackBase::loose);
+	selTracks_->back().setQuality(TrackBase::tight);
+      }
       if (!points.empty()) {
-	if (qualityToSet_[0]==TrackBase::loose) selTracks_->back().setQuality(TrackBase::looseSetWithPV);
-	else if (qualityToSet_[0]==TrackBase::highPurity) selTracks_->back().setQuality(TrackBase::highPuritySetWithPV);
+	if (qualityToSet_[0]==TrackBase::loose) {
+	  selTracks_->back().setQuality(TrackBase::looseSetWithPV);
+	}
+	else if (qualityToSet_[0]==TrackBase::highPurity) {
+	  selTracks_->back().setQuality(TrackBase::looseSetWithPV);
+	  selTracks_->back().setQuality(TrackBase::highPuritySetWithPV);
+	}
       }
     }
     if (copyExtras_) {
