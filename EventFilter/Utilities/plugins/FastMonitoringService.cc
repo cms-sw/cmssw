@@ -338,7 +338,6 @@ namespace evf{
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
     fmt_.monlock_.unlock();
-
   }
 
   void FastMonitoringService::preStreamEndLumi(edm::StreamContext const& sc)
@@ -355,6 +354,7 @@ namespace evf{
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
     fmt_.monlock_.unlock();
+    std::cout << " got stream " << sid << " endLumi" << std::endl;
   }
 
 
@@ -378,7 +378,6 @@ namespace evf{
       else {
 	collectedPathList_.store(true,std::memory_order_seq_cst);
         fmt_.m_data.ministateBins_=encPath_.vecsize();
-	std::cout << " ministatebins " << encPath_.vecsize();
 	initPathsLock_.unlock();
 	//print paths
 	//finished collecting path names

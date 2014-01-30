@@ -168,8 +168,9 @@ bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
         recentSnaps_ = recentSnapsTimer_ = 0;
 
         Json::Value serializeRoot;
-        for (unsigned int j=0; j< jsonDpIndex_.size();j++) 
+        for (unsigned int j=0; j< jsonDpIndex_.size();j++) { 
           dataPoints_[jsonDpIndex_[j]]->mergeAndSerialize(serializeRoot,lumi,j==0);
+	}
 
         Json::StyledWriter writer;
 	std::string result = writer.write(serializeRoot);

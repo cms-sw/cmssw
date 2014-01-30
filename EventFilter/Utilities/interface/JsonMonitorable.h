@@ -13,7 +13,7 @@
 #include <vector>
 #include <memory>
 //#include "EventFilter/Utilities/interface/Utils.h"
-
+#include <iostream>
 
 namespace jsoncollector {
 
@@ -268,7 +268,6 @@ private:
 	unsigned int expectedSize_;
 	unsigned int maxUpdates_;
 };
-
 
 }
 

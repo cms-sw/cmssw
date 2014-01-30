@@ -140,10 +140,12 @@ void DataPoint::snap(unsigned int lumi)
 	auto itr =  streamDataMaps_[i].find(streamLumi_);
 	if (itr==streamDataMaps_[i].end()) //insert
 	{
-	  if (opType_==OPHISTO && *nBinsPtr_) {//skip if bin size is 0
-	    HistoJ<unsigned int> *nh = new HistoJ<unsigned int>(1,MAXUPDATES);
-	    nh->update(monVal);
-	    streamDataMaps_[i][streamLumi_] = nh;
+	  if (opType_==OPHISTO) {
+	    if (*nBinsPtr_) {//only if bins >0
+	    	HistoJ<unsigned int> *nh = new HistoJ<unsigned int>(1,MAXUPDATES);
+	    	nh->update(monVal);
+	    	streamDataMaps_[i][streamLumi_] = nh;
+	    }
 	  }
 	  else {//default to SUM
 	    IntJ *nj = new IntJ;
@@ -152,9 +154,10 @@ void DataPoint::snap(unsigned int lumi)
 	  }
 	}
 	else { 
-	  if (opType_==OPHISTO && *nBinsPtr_) {
-	    IntJ test;
-	    (static_cast<HistoJ<unsigned int> *>(itr->second.get()))->update(monVal);
+	  if (opType_==OPHISTO) {
+	    if (*nBinsPtr_) {//only if bins >0
+	    	(static_cast<HistoJ<unsigned int> *>(itr->second.get()))->update(monVal);
+	    }
 	  }
 	  else {
 	    *(static_cast<IntJ*>(itr->second.get()))=monVal;
@@ -216,9 +219,11 @@ void DataPoint::snapStreamAtomic(unsigned int streamID, unsigned int lumi)
       if (itr==streamDataMaps_[streamID].end()) //insert
       {
 	      if (opType_==OPHISTO) {
-		      HistoJ<unsigned int> *h = new HistoJ<unsigned int>(1,MAXUPDATES);
-		      h->update(monVal);
-		      streamDataMaps_[streamID][lumi] = h;
+		      if (*nBinsPtr_) {
+		      	HistoJ<unsigned int> *h = new HistoJ<unsigned int>(1,MAXUPDATES);
+		      	h->update(monVal);
+		      	streamDataMaps_[streamID][lumi] = h;
+		      }
 	      }
 	      else {//default to SUM
 
@@ -229,8 +234,11 @@ void DataPoint::snapStreamAtomic(unsigned int streamID, unsigned int lumi)
       }
       else 
       { 
-	      if (opType_==OPHISTO)
-		      static_cast<HistoJ<unsigned int>*>(itr->second.get())->update(monVal);
+	      if (opType_==OPHISTO) {
+		      if (*nBinsPtr_) {
+		      	static_cast<HistoJ<unsigned int>*>(itr->second.get())->update(monVal);
+		      }
+	      }
 	      else
 		      *(static_cast<IntJ*>(itr->second.get()))=monVal;
       }
@@ -320,9 +328,11 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
 			for (unsigned int i=0;i<streamDataMaps_.size();i++) {
 				auto itr = streamDataMaps_[i].find(lumi);
 				if (itr!=streamDataMaps_[i].end()) {
-					updates+=static_cast<HistoJ<unsigned int>*>(itr->second.get())->getUpdates();
-					for (auto ith : static_cast<HistoJ<unsigned int>*>(itr->second.get())->value()) {
-						unsigned int thisbin=(unsigned int) ith;
+					HistoJ <unsigned int>* monObj = static_cast<HistoJ<unsigned int>*>(itr->second.get());
+					updates+=monObj->getUpdates();
+					auto &hvec = monObj->value();
+					for (unsigned int i=0;i<hvec.size();i++) {
+						unsigned int thisbin=(unsigned int) hvec[i];
 						if (thisbin<*nBinsPtr_ /*&& thisbin>=0*/) {
 							buf_[thisbin]++;
 						}
