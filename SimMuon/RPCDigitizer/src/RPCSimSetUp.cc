@@ -41,9 +41,13 @@ RPCSimSetUp::RPCSimSetUp(const edm::ParameterSet& ps) {
   _bxmap.clear();
   _clsMap.clear();
 
+  std::cout<<"RPCSimSetup :: RPCSimSetup"<<std::endl;
+
 }
 
 void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoise, const std::vector<float>& vcls){
+
+  std::cout<<"RPCSimSetup :: setRPCSetUp(RPCStripNoises::NoiseItem, float)"<<std::endl;
 
   unsigned int counter = 1;
   unsigned int row = 1;
@@ -62,48 +66,81 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     counter++;
   }
 
-  unsigned int n = 0; 
+  uint32_t  detId;
+  RPCDetId rpcId;
+
+  unsigned int n_tot  = 0;
+  unsigned int n_roll = 0; 
   uint32_t temp = 0; 
   std::vector<float> veff, vvnoise;
   veff.clear();
   vvnoise.clear();
 
   for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it){
-    if(n%256 == 0) {
-      if(n > 0 ){
+
+    detId = it->dpid;
+    // std::cout<<"Looking in theGeometry "<<theGeometry;
+    // std::cout<<" for RPCDetId "<<detId;
+    rpcId = RPCDetId(detId);
+    // std::cout<<" aka "<<rpcId;
+    const RPCRoll* roll = dynamic_cast<const RPCRoll* >(theGeometry->roll(rpcId));
+    // std::cout<<" roll "<<roll;
+
+    if(roll !=0 ) {
+      unsigned int numbStrips = roll->nstrips();
+      // std::cout<<" with "<<numbStrips<<" strips"<<std::endl;
+      // std::cout<<"Got RPCDetId "<<detId<<" aka "<<rpcId<<" with "<<numbStrips<<"strips"<<std::endl;
+
+      // This dirty mess should be cleaned up
+      // such that is is more clear to the reader
+      // what is going on
+      // -----------------------------------------
+      if(n_roll%numbStrips == 0) {
+	if(n_tot > 0 ){
+	  _mapDetIdNoise[temp]= vvnoise;
+	  _mapDetIdEff[temp] = veff;
+	  _bxmap[RPCDetId(it->dpid)] = it->time;
+	  
+	  veff.clear();
+	  vvnoise.clear();
+	  vvnoise.push_back((it->noise));
+	  veff.push_back((it->eff));
+	}
+	else if(n_tot == 0 ){
+	vvnoise.push_back((it->noise));
+	veff.push_back((it->eff));
+	_bxmap[RPCDetId(it->dpid)] = it->time;
+	}
+      } else if (n_tot == vnoise.size()-1 ){
+	temp = it->dpid;
+	vvnoise.push_back((it->noise));
+	veff.push_back((it->eff));
 	_mapDetIdNoise[temp]= vvnoise;
 	_mapDetIdEff[temp] = veff;
-	_bxmap[RPCDetId(it->dpid)] = it->time;
-	
-	veff.clear();
-	vvnoise.clear();
+      } else {
+	temp = it->dpid;
 	vvnoise.push_back((it->noise));
 	veff.push_back((it->eff));
       }
-      else if(n == 0 ){
-	vvnoise.push_back((it->noise));
-	veff.push_back((it->eff));
-	_bxmap[RPCDetId(it->dpid)] = it->time;
-      }
-    } else if (n == vnoise.size()-1 ){
-      temp = it->dpid;
-      vvnoise.push_back((it->noise));
-      veff.push_back((it->eff));
-      _mapDetIdNoise[temp]= vvnoise;
-      _mapDetIdEff[temp] = veff;
-    } else {
-      temp = it->dpid;
-      vvnoise.push_back((it->noise));
-      veff.push_back((it->eff));
+      ++n_tot;
+      if(n_roll<numbStrips-1) ++n_roll;
+      else n_roll = 0;
+      // -----------------------------------------
+
     }
-    n++;
+    // else std::cout<<std::endl;
   }
 }
 
 void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoise, const std::vector<RPCClusterSize::ClusterSizeItem>& vClusterSize){
 
+  std::cout<<"RPCSimSetup :: setRPCSetUp(RPCStripNoises::NoiseItem, RPCClusterSize::ClusterSizeItem)"<<std::endl;
+
   std::vector<RPCClusterSize::ClusterSizeItem>::const_iterator itCls;
+
   uint32_t  detId;
+  RPCDetId rpcId;
+
   int clsCounter(1);
   std::vector<double> clsVect;
 
@@ -118,45 +155,71 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     ++clsCounter;
   }
 
-  unsigned int n = 0; 
+  unsigned int n_tot  = 0; 
+  unsigned int n_roll = 0; 
   uint32_t temp = 0; 
   std::vector<float> veff, vvnoise;
   veff.clear();
   vvnoise.clear();
 
+  std::cout<<"size of vector of noise vectors :: vnoise.size() = "<<vnoise.size()<<std::endl;
+
   for(std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it){
+
     detId = it->dpid;
-    RPCDetId rpcId = RPCDetId(detId);
-    int n_strips=(*r)->nstrips();
-    int n_strips = detId.nstrips();
-    if(n%256 == 0) {
-      if(n > 0 ){
+    // std::cout<<"Loooking in theGeometry "<<theGeometry;
+    // std::cout<<" for RPCDetId "<<detId;
+    rpcId = RPCDetId(detId);
+    // std::cout<<" aka "<<rpcId;
+    const RPCRoll* roll = dynamic_cast<const RPCRoll* >(theGeometry->roll(rpcId));
+    // std::cout<<" roll "<<roll;
+
+    if(roll !=0 ) {
+      unsigned int numbStrips = roll->nstrips();
+      // std::cout<<" with "<<numbStrips<<" strips"<<std::endl;
+      // std::cout<<"Got RPCDetId "<<detId<<" aka "<<rpcId<<" with "<<numbStrips<<"strips"<<std::endl;
+
+      // This dirty mess should be cleaned up
+      // such that is is more clear to the reader
+      // what is going on
+      // -----------------------------------------
+      if(n_roll%numbStrips == 0) {
+	// std::cout<<"Got RPCDetId "<<detId<<" aka "<<rpcId<<" with "<<numbStrips<<"strips || n_tot = "<<n_tot<<" n_roll = "<<n_roll<<" => n_roll%numbStrips == 0"<<std::endl;
+	if(n_tot > 0 ){
+	  _mapDetIdNoise[temp]= vvnoise;
+	  _mapDetIdEff[temp] = veff;
+	  _bxmap[RPCDetId(it->dpid)] = it->time;
+	  
+	  veff.clear();
+	  vvnoise.clear();
+	  vvnoise.push_back((it->noise));
+	  veff.push_back((it->eff));
+	}
+	else if(n_tot == 0 ){
+	  vvnoise.push_back((it->noise));
+	  veff.push_back((it->eff));
+	  _bxmap[RPCDetId(it->dpid)] = it->time;
+	}
+	// std::cout<<" _mapDetIdNoise.size() = "<< _mapDetIdNoise.size() <<" _mapDetIdEff.size() = "<< _mapDetIdEff.size() <<" _bxmap.size() =  "<< _bxmap.size()<<std::endl;
+      } 
+      else if (n_tot == vnoise.size()-1 ){ // last element 
+	temp = it->dpid;
+	vvnoise.push_back((it->noise));
+	veff.push_back((it->eff));
 	_mapDetIdNoise[temp]= vvnoise;
 	_mapDetIdEff[temp] = veff;
-	_bxmap[RPCDetId(it->dpid)] = it->time;
-	
-	veff.clear();
-	vvnoise.clear();
+      } 
+      else {
+	temp = it->dpid;
 	vvnoise.push_back((it->noise));
 	veff.push_back((it->eff));
       }
-      else if(n == 0 ){
-	vvnoise.push_back((it->noise));
-	veff.push_back((it->eff));
-	_bxmap[RPCDetId(it->dpid)] = it->time;
-      }
-    } else if (n == vnoise.size()-1 ){
-      temp = it->dpid;
-      vvnoise.push_back((it->noise));
-      veff.push_back((it->eff));
-      _mapDetIdNoise[temp]= vvnoise;
-      _mapDetIdEff[temp] = veff;
-    } else {
-      temp = it->dpid;
-      vvnoise.push_back((it->noise));
-      veff.push_back((it->eff));
+      n_tot++;
+      if(n_roll<numbStrips-1) ++n_roll;
+      else n_roll = 0;
+      // -----------------------------------------
     }
-    n++;
+    // else std::cout<<std::endl;
   }
 }
 
@@ -174,11 +237,19 @@ const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id)
 const std::vector<float>& RPCSimSetUp::getEff(uint32_t id)
 {
   map<uint32_t,std::vector<float> >::iterator iter = _mapDetIdEff.find(id);
+
   if(iter == _mapDetIdEff.end()){
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - no efficiency information for DetId\t"<<id<< std::endl;
   }
-  if((iter->second).size() != 256){
+
+  RPCDetId rpcId = RPCDetId(id);
+  const RPCRoll* roll = dynamic_cast<const RPCRoll* >(theGeometry->roll(rpcId));
+  unsigned int numbStrips = roll->nstrips();
+
+  if((iter->second).size() < numbStrips){
+    // std::cout<< "Exception comming from RPCSimSetUp - efficiency information in a wrong format for DetId\t"<<id<<" aka "<<RPCDetId(id);
+    // std::cout<<" number of strips in Conditions\t"<<(iter->second).size()<<" number of strips in Geometry\t"<<numbStrips<<std::endl;
     throw cms::Exception("DataCorrupt") 
       << "Exception comming from RPCSimSetUp - efficiency information in a wrong format for DetId\t"<<id<< std::endl;
   }
