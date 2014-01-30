@@ -171,13 +171,11 @@ foreach gtag ( STARTUP DATA )
 
     if ( $gtag == DATA ) then
 
-    set RTAG = $GTAG
+    set RTAG = auto:com10_$table
 
     echo
     echo "Creating HLT+RECO $name"
     cmsDriver.py RelVal                --step=$XHLT,RAW2DIGI,L1Reco,RECO           --conditions=$RTAG --filein=file:RelVal_Raw_$name.root          --custom_conditions=$XL1T  --fileout=RelVal_HLT_RECO_$name.root     --number=$NN $DATAMC --no_exec --datatier 'SIM-RAW-HLT-RECO'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --scenario=$SCEN --python_filename=RelVal_HLT_Reco_$name.py      --processName=$PNAME
-
-    set RTAG = $GTAG
 
     echo
     echo "Creating RECO+DQM $name"
