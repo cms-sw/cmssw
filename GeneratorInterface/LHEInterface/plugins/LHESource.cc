@@ -110,7 +110,9 @@ bool LHESource::produce(edm::Event &event)
 		return false;
 
 	std::auto_ptr<LHEEventProduct> product(
-			new LHEEventProduct(*partonLevel->getHEPEUP()));
+		     new LHEEventProduct(*partonLevel->getHEPEUP(),
+					 partonLevel->originalXWGTUP())
+		     );
 	if (partonLevel->getPDF()) {
 	  product->setPDF(*partonLevel->getPDF());
         }		
