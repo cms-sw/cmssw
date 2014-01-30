@@ -33,6 +33,7 @@ class HLTExclDiJetFilter : public HLTFilter {
       edm::EDGetTokenT<std::vector<T>> m_theJetToken;
       edm::EDGetTokenT<CaloTowerCollection> m_theCaloTowerCollectionToken;
       edm::InputTag inputJetTag_; // input tag identifying jets
+      edm::InputTag caloTowerTag_; // input tag identifying caloTower collection
       double minPtJet_;
       double minHFe_;
       bool   HF_OR_;
