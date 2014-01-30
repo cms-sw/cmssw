@@ -694,6 +694,10 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     } //End Loop over Bx
 
 
+    // Add explicit reset of L1uGtBoard
+    m_uGtBrd->reset();
+
+
 /* *** Debugging Section ***
     if ( m_verbosity && m_isDebugEnabled ) {
 

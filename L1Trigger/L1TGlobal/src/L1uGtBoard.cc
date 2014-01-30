@@ -48,8 +48,9 @@
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
-#include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/L1uGtConditionEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/L1uGtAlgorithmEvaluation.h"
 
 
 //#include "L1Trigger/GlobalTrigger/interface/L1GtCaloCondition.h"
@@ -174,7 +175,7 @@ void l1t::L1uGtBoard::receiveCaloObjectData(edm::Event& iEvent,
 
     }
 
-    reset();
+    resetCalo();
     
     // get data from Calorimeter
     if (receiveEG) {
@@ -290,7 +291,7 @@ void l1t::L1uGtBoard::receiveMuonObjectData(edm::Event& iEvent,
                 << std::endl;
     }
 
-    reset();
+    resetMu();
 
     // get data from Global Muon Trigger
     if (receiveMu) {
@@ -453,11 +454,11 @@ void l1t::L1uGtBoard::runGTL(
         iChip++;
 
 // blw was this commented out before?
-        //L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
-        // L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
+        //L1uGtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
+        // L1uGtAlgorithmEvaluation::ConditionEvaluationMap cMapResults((*itCondOnChip).size()); // hash map
 
-//        L1GtAlgorithmEvaluation::ConditionEvaluationMap& cMapResults =
-//                m_conditionResultMaps[iChip];
+       L1uGtAlgorithmEvaluation::ConditionEvaluationMap& cMapResults =
+               m_conditionResultMaps[iChip];
 
 
 
@@ -482,7 +483,7 @@ void l1t::L1uGtBoard::runGTL(
                     muCondition->evaluateConditionStoreResult(iBxInEvent);
 
                    // BLW COmment out for now 
-                   // cMapResults[itCond->first] = muCondition;
+		    cMapResults[itCond->first] = muCondition;
 
                     if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
@@ -516,7 +517,7 @@ void l1t::L1uGtBoard::runGTL(
                     caloCondition->evaluateConditionStoreResult(iBxInEvent);
                     
 		    // BLW Comment out for now
-                    //cMapResults[itCond->first] = caloCondition;
+                    cMapResults[itCond->first] = caloCondition;
 
                     if (m_verbosity && m_isDebugEnabled) {
                         std::ostringstream myCout;
@@ -845,19 +846,19 @@ void l1t::L1uGtBoard::runGTL(
     }
 
     // loop over algorithm map
-
+    /// DMP Start debugging here
     // empty vector for object maps - filled during loop
     std::vector<L1GlobalTriggerObjectMap> objMapVec;
     if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) objMapVec.reserve(numberPhysTriggers);
 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-
-/*  Comment out Algorithm Evaluation
-        L1GtAlgorithmEvaluation gtAlg(itAlgo->second);
+        L1uGtAlgorithmEvaluation gtAlg(itAlgo->second);
         gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), m_conditionResultMaps);
 
         int algBitNumber = (itAlgo->second).algoBitNumber();
         bool algResult = gtAlg.gtAlgoResult();
+
+	LogDebug("l1t|Global") << " ===> for iBxInEvent = " << iBxInEvent << ":\t algBitName = " << itAlgo->first << ",\t algBitNumber = " << algBitNumber << ",\t algResult = " << algResult << std::endl;
 
         if (algResult) {
             m_gtlAlgorithmOR.set(algBitNumber);
@@ -895,7 +896,7 @@ void l1t::L1uGtBoard::runGTL(
             objMapVec.push_back(objMap);
 
         }
-*/
+
 
     }
 
@@ -907,11 +908,11 @@ void l1t::L1uGtBoard::runGTL(
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
     // delete the conditions created with new, zero pointer, do not clear map, keep the vector as is...
-    for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator
+    for (std::vector<L1uGtAlgorithmEvaluation::ConditionEvaluationMap>::iterator
             itCondOnChip  = m_conditionResultMaps.begin();
             itCondOnChip != m_conditionResultMaps.end(); itCondOnChip++) {
 
-        for (L1GtAlgorithmEvaluation::ItEvalMap
+        for (L1uGtAlgorithmEvaluation::ItEvalMap
                 itCond  = itCondOnChip->begin();
                 itCond != itCondOnChip->end(); itCond++) {
 
@@ -951,18 +952,32 @@ void l1t::L1uGtBoard::runFDL(edm::Event& iEvent,
 // clear GTL
 void l1t::L1uGtBoard::reset() {
 
-    m_candL1Mu->clear();
-    m_candL1EG->clear();
-    m_candL1Tau->clear();
-    m_candL1Jet->clear();
+  resetMu();
+  resetCalo();
 
-    m_candL1Mu->setBXRange( m_bxFirst_, m_bxLast_ );
-    m_candL1EG->setBXRange( m_bxFirst_, m_bxLast_ );
-    m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
-    m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_gtlDecisionWord.reset();
+  m_gtlAlgorithmOR.reset();
 
-    m_gtlDecisionWord.reset();
-    m_gtlAlgorithmOR.reset();
+}
+
+// clear muon
+void l1t::L1uGtBoard::resetMu() {
+
+  m_candL1Mu->clear();
+  m_candL1Mu->setBXRange( m_bxFirst_, m_bxLast_ );
+
+}
+
+// clear calo
+void l1t::L1uGtBoard::resetCalo() {
+
+  m_candL1EG->clear();
+  m_candL1Tau->clear();
+  m_candL1Jet->clear();
+
+  m_candL1EG->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
+  m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
 
 }
 

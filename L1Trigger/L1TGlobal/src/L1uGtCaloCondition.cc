@@ -168,7 +168,6 @@ void l1t::L1uGtCaloCondition::setGtCorrParDeltaPhiNrBins(
 // try all object permutations and check spatial correlations, if required
 const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
 
-
     // number of trigger objects in the condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
     //LogTrace("L1GlobalTrigger") << "  nObjInCond: " << nObjInCond

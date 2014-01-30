@@ -27,6 +27,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
+#include "L1Trigger/L1TGlobal/interface/L1uGtAlgorithmEvaluation.h"
 
 // Trigger Objects
 #include "DataFormats/L1Trigger/interface/EGamma.h"
@@ -111,6 +112,8 @@ public:
 
     /// clear uGT
     void reset();
+    void resetMu();
+    void resetCalo();
 
     /// print received Muon dataWord
     void printGmtData(const int iBxInEvent) const;
@@ -242,7 +245,7 @@ private:
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
 
   // cache  of maps
-  std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
+  std::vector<L1uGtAlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
   
 
 private:
