@@ -28,6 +28,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 
     gedElectronMode = cms.bool(True),
     PreSelectMVA = cms.double(-0.1),	
+    MaxElePtForOnlyMVA = cms.double(50.0),                                
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
@@ -159,7 +160,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
    # Iso Values 
    useIsolationValues = cms.bool(False),
  SoftElecMVAFilesString = cms.vstring(
-    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_9Dec2013.weights.xml"
+    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_27Jan2014.weights.xml"
                                 ),
 )
 
