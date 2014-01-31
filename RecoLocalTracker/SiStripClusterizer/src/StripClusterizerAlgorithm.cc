@@ -115,19 +115,20 @@ setDetId(const uint32_t id) {
   }
   detId = id;
   ind = p-detIds.begin();
-  assert(detIds[ind]==detId); 
 
   gainRange = gainHandle->getRangeByPos(indices[ind].gi);
   noiseRange = noiseHandle->getRangeByPos(indices[ind].ni);
   qualityRange = qualityHandle->getRangeByPos(indices[ind].qi);
 
+#ifdef EDM_ML_DEBUG
+  assert(detIds[ind]==detId); 
   auto oldg =  gainHandle->getRange(id);
   assert(oldg==gainRange);
   auto oldn = noiseHandle->getRange(id);
   assert(oldn==noiseRange);
   auto oldq = qualityHandle->getRange(id);
   assert(oldq==qualityRange);
-
+#endif
 
   return true;
 }
