@@ -57,6 +57,21 @@ struct MyGEMRecHit
   Float_t pull;
 };
 
+struct MyGEMRecHitEvent
+{ 
+  Int_t eventNumber; 
+};
+
+struct MyGEMRecHitNoise
+{ 
+  Int_t detId;
+  Float_t x, y, xErr;
+  Int_t region, ring, station, layer, chamber, roll;
+  Int_t bx, clusterSize, firstClusterStrip;
+  Int_t nStrips;
+  Float_t trArea, trStripArea, striplength, pitch;
+};
+
 struct MyGEMSimHit
 {  
   Int_t eventNumber;
@@ -106,7 +121,9 @@ public:
 
 private:
  
+  void bookGEMEventsTree(); 
   void bookGEMRecHitTree();
+  void bookGEMRecHitNoiseTree();
   void bookGEMSimHitsTree();
   void bookSimTracksTree();
   bool isSimTrackGood(const SimTrack &);
@@ -116,7 +133,9 @@ private:
   void buildLUT();
   std::pair<int,int> getClosestChambers(int region, float phi);
 
+  TTree* gem_events_tree_;
   TTree* gem_tree_;
+  TTree* gem_noise_tree_;
   TTree* gem_sh_tree_;
   TTree* track_tree_;
 
@@ -129,8 +148,11 @@ private:
   const GEMGeometry* gem_geometry_;
 
   MyGEMRecHit gem_recHit_;
+  MyGEMRecHitNoise gem_noise_recHit_;
+  MyGEMRecHitEvent gem_events_;
   MyGEMSimHit gem_sh;
   MySimTrack track_;
+
 
   edm::ParameterSet cfg_;
   std::string simInputLabel_;
@@ -155,7 +177,9 @@ GEMRecHitAnalyzer::GEMRecHitAnalyzer(const edm::ParameterSet& iConfig)
   , verbose_(iConfig.getUntrackedParameter<int>("verbose", 0))
   , hasGEMGeometry_(true)
 {
+  bookGEMEventsTree();
   bookGEMRecHitTree();
+  bookGEMRecHitNoiseTree();
   bookGEMSimHitsTree();
   bookSimTracksTree();
 }
@@ -217,6 +241,13 @@ void GEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(hasGEMGeometry_) analyzeTracks(cfg_,iEvent,iSetup); 
 }
 
+void GEMRecHitAnalyzer::bookGEMEventsTree()
+{
+  edm::Service<TFileService> fs;
+  gem_events_tree_ = fs->make<TTree>("GEMEventsTree", "GEMEventsTree");
+  gem_events_tree_->Branch("eventNumber", &gem_events_.eventNumber);
+}
+
 void GEMRecHitAnalyzer::bookGEMRecHitTree()
 {
   edm::Service<TFileService> fs;
@@ -248,6 +279,32 @@ void GEMRecHitAnalyzer::bookGEMRecHitTree()
   gem_tree_->Branch("globalY_sim", &gem_recHit_.globalY_sim);
   gem_tree_->Branch("globalZ_sim", &gem_recHit_.globalZ_sim);
   gem_tree_->Branch("pull", &gem_recHit_.pull);
+}
+
+void GEMRecHitAnalyzer::bookGEMRecHitNoiseTree()
+{
+  edm::Service<TFileService> fs;
+  gem_noise_tree_ = fs->make<TTree>("GEMRecHitNoiseTree", "GEMRecHitNoiseTree");
+  gem_noise_tree_->Branch("detId", &gem_noise_recHit_.detId);
+  gem_noise_tree_->Branch("region", &gem_noise_recHit_.region);
+  gem_noise_tree_->Branch("ring", &gem_noise_recHit_.ring);
+  gem_noise_tree_->Branch("station", &gem_noise_recHit_.station);
+  gem_noise_tree_->Branch("layer", &gem_noise_recHit_.layer);
+  gem_noise_tree_->Branch("chamber", &gem_noise_recHit_.chamber);
+  gem_noise_tree_->Branch("roll", &gem_noise_recHit_.roll);
+  gem_noise_tree_->Branch("bx", &gem_noise_recHit_.bx);
+  gem_noise_tree_->Branch("clusterSize", &gem_noise_recHit_.clusterSize);
+  gem_noise_tree_->Branch("firstClusterStrip", &gem_noise_recHit_.firstClusterStrip);
+  gem_noise_tree_->Branch("x", &gem_noise_recHit_.x);
+  gem_noise_tree_->Branch("xErr", &gem_noise_recHit_.xErr);
+  gem_noise_tree_->Branch("y", &gem_noise_recHit_.y);
+  gem_noise_tree_->Branch("nStrips", &gem_noise_recHit_.nStrips);
+  gem_noise_tree_->Branch("trArea", &gem_noise_recHit_.trArea);
+  gem_noise_tree_->Branch("trStripArea", &gem_noise_recHit_.trStripArea);
+  gem_noise_tree_->Branch("striplength", &gem_noise_recHit_.striplength);
+  gem_noise_tree_->Branch("pitch", &gem_noise_recHit_.pitch);  
+
+ 
 }
 
 void GEMRecHitAnalyzer::bookGEMSimHitsTree()
@@ -468,8 +525,45 @@ void GEMRecHitAnalyzer::analyzeGEM(const edm::Event& iEvent)
 
    gem_sh.countMatching = count;
    gem_sh_tree_->Fill();
-
+   
   }
+
+    gem_events_.eventNumber = iEvent.id().event();
+    gem_events_tree_->Fill();
+
+for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit != gemRecHits_->end(); ++recHit) 
+   {
+
+    gem_noise_recHit_.x = recHit->localPosition().x();
+    gem_noise_recHit_.xErr = recHit->localPositionError().xx();
+    gem_noise_recHit_.y = recHit->localPosition().y();
+    gem_noise_recHit_.detId = (Short_t) (*recHit).gemId();
+    gem_noise_recHit_.bx = recHit->BunchX();
+    gem_noise_recHit_.clusterSize = recHit->clusterSize();
+    gem_noise_recHit_.firstClusterStrip = recHit->firstClusterStrip();
+   
+    GEMDetId id((*recHit).gemId());
+
+    gem_noise_recHit_.region = (Short_t) id.region();
+    gem_noise_recHit_.ring = (Short_t) id.ring();
+    gem_noise_recHit_.station = (Short_t) id.station();
+    gem_noise_recHit_.layer = (Short_t) id.layer();
+    gem_noise_recHit_.chamber = (Short_t) id.chamber();
+    gem_noise_recHit_.roll = (Short_t) id.roll();
+    
+    const GEMEtaPartition* roll(gem_geom_->etaPartition(id));
+    const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
+    
+    gem_noise_recHit_.nStrips = roll->nstrips();
+    gem_noise_recHit_.striplength = top->stripLength();
+    gem_noise_recHit_.pitch = roll->pitch();
+    gem_noise_recHit_.trStripArea = gem_noise_recHit_.pitch * gem_noise_recHit_.striplength;
+    gem_noise_recHit_.trArea = gem_noise_recHit_.trStripArea * gem_noise_recHit_.nStrips;
+  
+  
+    gem_noise_tree_->Fill();
+    }
+
 
 }
 
