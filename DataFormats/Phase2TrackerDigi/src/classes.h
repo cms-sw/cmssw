@@ -20,4 +20,12 @@ namespace {
   };
 }
 
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerCommissioningDigi.h"
+namespace {
+  struct dictionary4 {
+    edm::Wrapper<Phase2TrackerCommissioningDigi > pcom0;
+    edm::Wrapper<edm::DetSet<Phase2TrackerCommissioningDigi> > pcom1;
+  };
+}
+
 #endif // PHASE2TRACKERDIGI_CLASSES_H
