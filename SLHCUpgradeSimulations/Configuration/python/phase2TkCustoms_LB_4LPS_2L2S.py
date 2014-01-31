@@ -130,20 +130,14 @@ def customise_Reco(process):
     process.stripPairElectronSeedLayers.layerList = cms.vstring('BPix4+BPix5') # Optimize later
     process.stripPairElectronSeedLayers.BPix = cms.PSet(
         HitProducer = cms.string('siPixelRecHits'),
-        hitErrorRZ = cms.double(0.006),
-        useErrorsFromParam = cms.bool(True),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
         skipClusters = cms.InputTag("pixelPairStepClusters"),
-        hitErrorRPhi = cms.double(0.0027)
     )
     process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList  = cms.vstring('BPix10+BPix9')  # Optimize later
     process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.BPix = cms.PSet(
         HitProducer = cms.string('siPixelRecHits'),
-        hitErrorRZ = cms.double(0.006),
-        useErrorsFromParam = cms.bool(True),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
         skipClusters = cms.InputTag("pixelPairStepClusters"),
-        hitErrorRPhi = cms.double(0.0027)
     )
     process.pixelTracks.SeedMergerPSet = cms.PSet(
         layerListName = cms.string('PixelSeedMergerQuadruplets'),

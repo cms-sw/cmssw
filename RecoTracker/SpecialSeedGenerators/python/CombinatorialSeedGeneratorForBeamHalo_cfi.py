@@ -24,11 +24,8 @@ layerInfo = cms.PSet(
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
     FPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0051),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
         HitProducer = cms.string('siPixelRecHits'),
-        hitErrorRZ = cms.double(0.0036)
     ),
     TEC = cms.PSet(
         minRing = cms.int32(5),
