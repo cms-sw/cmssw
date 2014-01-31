@@ -11,4 +11,9 @@
    <class name="edm::Wrapper< edm::DetSetVector<Phase2TrackerDigi> >" splitLevel="0"/>
    <class name="edmNew::DetSetVector<Phase2TrackerDigi>"/>
    <class name="edm::Wrapper< edmNew::DetSetVector<Phase2TrackerDigi> >"/>
+
+   <class name="Phase2TrackerCommissioningDigi" />
+   <class name="std::vector<Phase2TrackerCommissioningDigi>"/>
+   <class name="edm::DetSet<Phase2TrackerCommissioningDigi>"/>
+   <class name="edm::Wrapper<edm::DetSet<Phase2TrackerCommissioningDigi> >" splitLevel="0"/>
 </lcgdict>
