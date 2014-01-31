@@ -8,9 +8,9 @@ siPixelRawData.InputLabel = cms.InputTag("mixData:siPixelDigisDM")
 SiStripDigiToRaw.InputModuleLabel = cms.string('mixData')
 SiStripDigiToRaw.InputDigiLabel = cms.string('siStripDigisDM')
 #
-ecalPacker.Label = 'mixData'
-ecalPacker.InstanceEB = 'EBDigiCollectionDM'
-ecalPacker.InstanceEE = 'EEDigiCollectionDM'
+ecalPacker.Label = 'DMEcalDigis'
+ecalPacker.InstanceEB = 'ebDigis'
+ecalPacker.InstanceEE = 'eeDigis'
 ecalPacker.labelEBSRFlags = "DMEcalDigis:ebSrFlags"
 ecalPacker.labelEESRFlags = "DMEcalDigis:eeSrFlags"
 ecalPacker.labelTT = cms.InputTag('DMEcalTriggerPrimitiveDigis')
