@@ -15,7 +15,7 @@ from FastSimulation.Tracking.IterativePixelLessStep_cff import *
 from FastSimulation.Tracking.IterativeTobTecStep_cff import *
 from FastSimulation.Tracking.MuonSeededStep_cff import *
 
-# this block is to switch between defaul behaviour (MixingMode==1) and new mixing
+# this block is to switch between defaul behaviour (MixingMode=='GenMixing') and new mixing
 from FastSimulation.Configuration.CommonInputs_cff import MixingMode
 if (MixingMode=='DigiRecoMixing'):
 #    generalTracksBeforeMixing = FastSimulation.Tracking.GeneralTracks_cfi.generalTracks.clone()
