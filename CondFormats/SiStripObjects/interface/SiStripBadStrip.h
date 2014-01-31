@@ -61,7 +61,8 @@ class SiStripBadStrip {
 
   bool put(const uint32_t& detID,const InputVector& vect){return put(detID,Range(vect.begin(),vect.end()));}
   bool put(const uint32_t& detID,Range input);
-  const Range getRange(const uint32_t& detID) const;
+  const Range getRange(const uint32_t detID) const;
+  Range getRangeByPos(unsigned short pos) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
   void printSummary(std::stringstream & ss) const;
   void printDebug(std::stringstream & ss) const;

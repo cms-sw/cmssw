@@ -39,8 +39,10 @@ initialize(const edm::EventSetup& es) {
     SiStripDetCabling const * cabling = qualityHandle->cabling();
     auto const & conn = cabling->connected();
     assert(cabling); std::cout << "cabling " << conn.size() << std::endl;
+    detIds.clear();
     detIds.reserve(conn.size());
     for (auto const & c : conn) detIds.push_back(c.first);
+    indices.clear();
     indices.resize(detIds.size());
 
     { // quality
@@ -116,12 +118,17 @@ setDetId(const uint32_t id) {
   assert(detIds[ind]==detId); 
 
   gainRange = gainHandle->getRangeByPos(indices[ind].gi);
-  auto old =  gainHandle->getRange(id);
-  assert(old==gainRange);
+  noiseRange = noiseHandle->getRangeByPos(indices[ind].ni);
+  qualityRange = qualityHandle->getRangeByPos(indices[ind].qi);
 
-  noiseRange = noiseHandle->getRange(id);
-  qualityRange = qualityHandle->getRange(id);
-  detId = id;
+  auto oldg =  gainHandle->getRange(id);
+  assert(oldg==gainRange);
+  auto oldn = noiseHandle->getRange(id);
+  assert(oldn==noiseRange);
+  auto oldq = qualityHandle->getRange(id);
+  assert(oldq==qualityRange);
+
+
   return true;
 }
 

@@ -122,7 +122,7 @@ stripByStripBegin(uint32_t id) {
 #ifdef EDM_ML_DEBUG
   assert(isModuleUsable( id ));
 #endif
-  setDetId( id );
+  if (!setDetId( id )) return false;
   clearCandidate();
   return true;
 }

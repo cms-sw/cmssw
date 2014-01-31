@@ -41,6 +41,7 @@ const SiStripApvGain::Range SiStripApvGain::getRange(const uint32_t DetId) const
 }
 
 SiStripApvGain::Range  SiStripApvGain::getRangeByPos(unsigned short pos) const {
+  if (pos>v_detids.size()) return Range(v_gains.end(),v_gains.end());
     unsigned int ibegin = *(v_ibegin.begin()+pos);
     unsigned int iend   = *(v_iend.begin()+pos);
     __builtin_prefetch((&v_gains.front())+ibegin);
