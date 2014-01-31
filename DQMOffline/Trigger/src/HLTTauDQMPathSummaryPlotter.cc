@@ -10,32 +10,24 @@ HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter(const edm::ParameterSet
 HLTTauDQMPathSummaryPlotter::~HLTTauDQMPathSummaryPlotter() {
 }
 
-void HLTTauDQMPathSummaryPlotter::beginRun(const std::vector<const HLTTauDQMPath *>& pathObjects) {
+void HLTTauDQMPathSummaryPlotter::bookHistograms(DQMStore::IBooker &iBooker, const std::vector<const HLTTauDQMPath *>& pathObjects) {
   if(!configValid_)
     return;
 
   pathObjects_ = pathObjects;
 
-  edm::Service<DQMStore> store;
-  if (store.isAvailable()) {
-    //Create the histograms
-    store->setCurrentFolder(triggerTag()+"/helpers");
-    store->removeContents();
+  //Create the histograms
+  iBooker.setCurrentFolder(triggerTag()+"/helpers");
 
-    all_events = store->book1D("RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size());
-    accepted_events = store->book1D("PathTriggerBits","Accepted Events per Path;;entries", pathObjects_.size(), 0, pathObjects_.size());
-    for(size_t i=0; i<pathObjects_.size(); ++i) {
-      all_events->setBinLabel(i+1, pathObjects_[i]->getPathName());
-      accepted_events->setBinLabel(i+1, pathObjects_[i]->getPathName());
-    }
+  all_events = iBooker.book1D("RefEvents", "All events", pathObjects_.size(), 0, pathObjects_.size());
+  accepted_events = iBooker.book1D("PathTriggerBits","Accepted Events per Path;;entries", pathObjects_.size(), 0, pathObjects_.size());
+  for(size_t i=0; i<pathObjects_.size(); ++i) {
+    all_events->setBinLabel(i+1, pathObjects_[i]->getPathName());
+    accepted_events->setBinLabel(i+1, pathObjects_[i]->getPathName());
+  }
 
-    store->setCurrentFolder(triggerTag());
-    store->removeContents();
-    runValid_ = true;
-  }
-  else {
-    runValid_ = false;
-  }
+  iBooker.setCurrentFolder(triggerTag());
+  runValid_ = true;
 }
 
 void HLTTauDQMPathSummaryPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
