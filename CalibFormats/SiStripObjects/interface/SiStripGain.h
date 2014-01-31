@@ -63,7 +63,8 @@ class SiStripGain
   // getters
   // For the product of all apvGains
   // -------------------------------
-  const SiStripApvGain::Range getRange(const uint32_t& detID) const { return apvgain_->getRange(detID);} 
+  const SiStripApvGain::Range getRange(uint32_t detID) const { return apvgain_->getRange(detID);}
+  SiStripApvGain::Range getRangeByPos(unsigned short pos) const { return apvgain_->getRangeByPos(pos);}
   static float getStripGain(const uint16_t& strip, const SiStripApvGain::Range& range) { return  SiStripApvGain::getStripGain(strip, range);}
   static float getApvGain(const uint16_t& apv, const SiStripApvGain::Range& range) {  return SiStripApvGain::getApvGain(apv, range); }
 

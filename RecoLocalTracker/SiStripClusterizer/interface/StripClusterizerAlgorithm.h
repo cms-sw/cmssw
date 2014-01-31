@@ -11,7 +11,7 @@ class SiStripDigi;
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
-
+#include <limits>
 
 class StripClusterizerAlgorithm {
   
@@ -40,7 +40,7 @@ class StripClusterizerAlgorithm {
   StripClusterizerAlgorithm() : qualityLabel(""), noise_cache_id(0), gain_cache_id(0), quality_cache_id(0) {}
 
   uint32_t currentId() {return detId;}
-  virtual void setDetId(const uint32_t);
+  bool setDetId(const uint32_t);
   float noise(const uint16_t& strip) const { return SiStripNoises::getNoise( strip, noiseRange ); }
   float gain(const uint16_t& strip)  const { return SiStripGain::getStripGain( strip, gainRange ); }
   bool bad(const uint16_t& strip)    const { return qualityHandle->IsStripBad( qualityRange, strip ); }
@@ -60,15 +60,23 @@ class StripClusterizerAlgorithm {
     }	
   }
 
-  std::vector<uint32_t> detIds;
+  static constexpr unsigned short invalidI = std::numeric_limits<unsigned short>::max();
+  struct Index { 
+    unsigned short 
+    gi=invalidI,
+      ni=invalidI,
+      qi=invalidI;
+  };
+  std::vector<uint32_t> detIds; // from cabling (connected)
+  std::vector<Index> indices;
   SiStripApvGain::Range gainRange;
   SiStripNoises::Range  noiseRange;
   SiStripQuality::Range qualityRange;
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripQuality> qualityHandle;
-  uint32_t noise_cache_id, gain_cache_id, quality_cache_id, detId;
-
+  uint32_t noise_cache_id, gain_cache_id, quality_cache_id, detId=0;
+  unsigned short ind=0;
 
 };
 #endif
