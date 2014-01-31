@@ -23,7 +23,7 @@ clusterizeDetUnit_(const digiDetSet& digis, output_t::FastFiller& output) {
   if (!setDetId( digis.detId() )) return;
 
 #ifdef EDM_ML_DEBUG
-  if(isModuleUsable(digis.detId() )) 
+  if(!isModuleUsable(digis.detId() )) 
     LogWarning("ThreeThresholdAlgorithm") << " id " << digis.detId() << " not usable???" << std::endl;
 #endif
 
