@@ -9,6 +9,12 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#ifdef VIDEBUG
+#define COUT std::cout
+#else
+#define COUT LogDebug("StripClusterizerAlgorithm")
+#endif
+
 #include <string>
 #include <algorithm>
 #include <cassert>
@@ -39,7 +45,8 @@ initialize(const edm::EventSetup& es) {
     // redo indexing!
     SiStripDetCabling const * cabling = qualityHandle->cabling();
     auto const & conn = cabling->connected();
-    assert(cabling); std::cout << "cabling " << conn.size() << std::endl;
+    assert(cabling); 
+    COUT << "cabling " << conn.size() << std::endl;
     detIds.clear();
     detIds.reserve(conn.size());
     for (auto const & c : conn) detIds.push_back(c.first);
@@ -60,7 +67,7 @@ initialize(const edm::EventSetup& es) {
       unsigned int  nn=0;
       for(auto k=0U; k<detIds.size();++k) { if (indices[k].qi<invalidI) {++nn; assert(dum[indices[k].qi]==detIds[k]);}}
       assert(nn<=dum.size());
-      std::cout << "quality " << dum.size() << " " <<nn<< std::endl;
+      COUT << "quality " << dum.size() << " " <<nn<< std::endl;
     }
     { //noise
       std::vector<uint32_t> dum; noiseHandle->getDetIds(dum); 
@@ -76,7 +83,7 @@ initialize(const edm::EventSetup& es) {
       unsigned int  nn=0;
       for(auto k=0U; k<detIds.size();++k) { if (indices[k].ni<invalidI) {++nn; assert(dum[indices[k].ni]==detIds[k]);}}
       assert(nn<=dum.size());
-      std::cout << "noise " << dum.size() << " " <<nn<< std::endl;
+      COUT << "noise " << dum.size() << " " <<nn<< std::endl;
     }
     { //gain
       std::vector<uint32_t> dum; gainHandle->getDetIds(dum); 
@@ -92,7 +99,7 @@ initialize(const edm::EventSetup& es) {
       unsigned int  nn=0;
       for(auto k=0U; k<detIds.size();++k) { if (indices[k].gi<invalidI) {++nn; assert(dum[indices[k].gi]==detIds[k]);}}
       assert(nn<=dum.size());
-      std::cout << "gain " << dum.size() << " " <<nn<< std::endl;
+      COUT << "gain " << dum.size() << " " <<nn<< std::endl;
     }
 
 

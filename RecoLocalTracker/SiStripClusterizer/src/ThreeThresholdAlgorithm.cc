@@ -19,8 +19,14 @@ template<class digiDetSet>
 inline
 void ThreeThresholdAlgorithm::
 clusterizeDetUnit_(const digiDetSet& digis, output_t::FastFiller& output) {
-  if( !isModuleUsable( digis.detId() )) return;
-  setDetId( digis.detId() );
+  if(isModuleBad(digis.detId())) return;
+  if (!setDetId( digis.detId() )) return;
+
+#ifdef EDM_ML_DEBUG
+  if(isModuleUsable(digis.detId() )) 
+    LogWarning("ThreeThresholdAlgorithm") << " id " << digis.detId() << " not usable???" << std::endl;
+#endif
+
   
   typename digiDetSet::const_iterator  
     scan( digis.begin() ), 
