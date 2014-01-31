@@ -29,8 +29,12 @@ const SiStripBadStrip::Range SiStripBadStrip::getRange(const uint32_t& DetId) co
   RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripBadStrip::StrictWeakOrdering());
   if (p==indexes.end()|| p->detid!=DetId) 
     return SiStripBadStrip::Range(v_badstrips.end(),v_badstrips.end()); 
-  else 
+  else {
+    __builtin_prefetch((&v_badstrips.front())+p->ibegin);
+    __builtin_prefetch((&v_badstrips.front())+p->ibegin+24);
+    __builtin_prefetch((&v_badstrips.front())+p->iend-24);
     return SiStripBadStrip::Range(v_badstrips.begin()+p->ibegin,v_badstrips.begin()+p->iend);
+  }
 }
 
 

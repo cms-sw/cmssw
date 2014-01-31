@@ -37,14 +37,20 @@ const SiStripNoises::Range SiStripNoises::getRange(const uint32_t& DetId) const 
 	RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripNoises::StrictWeakOrdering());
 	if (p==indexes.end()|| p->detid!=DetId) 
 		return SiStripNoises::Range(v_noises.end(),v_noises.end()); 
-	else 
-		return SiStripNoises::Range(v_noises.begin()+p->ibegin,v_noises.begin()+p->iend);
+	else {
+                __builtin_prefetch((&v_noises.front())+p->ibegin);
+       	       	__builtin_prefetch((&v_noises.front())+p->ibegin+96);
+      	       	__builtin_prefetch((&v_noises.front())+p->iend-96);
+ 		return SiStripNoises::Range(v_noises.begin()+p->ibegin,v_noises.begin()+p->iend);
+
+             }
 }
 
 void SiStripNoises::getDetIds(std::vector<uint32_t>& DetIds_) const {
 	// returns vector of DetIds in map
 	SiStripNoises::RegistryIterator begin = indexes.begin();
 	SiStripNoises::RegistryIterator end   = indexes.end();
+        DetIds_.reserve(indexes.size());
 	for (SiStripNoises::RegistryIterator p=begin; p != end; ++p) {
 		DetIds_.push_back(p->detid);
 	}
