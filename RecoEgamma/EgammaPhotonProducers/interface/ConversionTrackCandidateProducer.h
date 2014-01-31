@@ -28,7 +28,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
+#include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilder.h"
 
 class OutInConversionSeedFinder;
 class InOutConversionSeedFinder;
@@ -92,8 +92,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;  
 
-  std::string                      trajectoryBuilderName_;
-  edm::ESHandle<TrajectoryBuilder> theTrajectoryBuilder_;
+  std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder_;
 
   const NavigationSchool*     theNavigationSchool_;
   OutInConversionSeedFinder*  theOutInSeedFinder_;

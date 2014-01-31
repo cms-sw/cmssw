@@ -16,26 +16,30 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-
-BaseCkfTrajectoryBuilder::
-BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			 const TrajectoryStateUpdator*         updator,
-			 const Propagator*                     propagatorAlong,
-			 const Propagator*                     propagatorOpposite,
-			 const Chi2MeasurementEstimatorBase*   estimator,
-			 const TransientTrackingRecHitBuilder* recHitBuilder,
-			 const TrajectoryFilter*               filter,
-                         const TrajectoryFilter*               inOutFilter):
-  theUpdator(updator),
-  thePropagatorAlong(propagatorAlong),thePropagatorOpposite(propagatorOpposite),
-  theEstimator(estimator),theTTRHBuilder(recHitBuilder),
-  theMeasurementTracker(0),
-  theForwardPropagator(0),theBackwardPropagator(0),
-  theFilter(filter),
-  theInOutFilter(inOutFilter)
+BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf):
+  theUpdator(nullptr),
+  thePropagatorAlong(nullptr),
+  thePropagatorOpposite(nullptr),
+  theEstimator(nullptr),
+  theTTRHBuilder(nullptr),
+  theMeasurementTracker(nullptr),
+  theForwardPropagator(nullptr),theBackwardPropagator(nullptr),
+  theFilter(nullptr),
+  theInOutFilter(nullptr),
+  theUpdatorName(conf.getParameter<std::string>("updator")),
+  thePropagatorAlongName(conf.getParameter<std::string>("propagatorAlong")),
+  thePropagatorOppositeName(conf.getParameter<std::string>("propagatorOpposite")),
+  theEstimatorName(conf.getParameter<std::string>("estimator")),
+  theRecHitBuilderName(conf.getParameter<std::string>("TTRHBuilder")),
+  theFilterName(conf.getParameter<std::string>("trajectoryFilterName"))
 {
   if (conf.exists("clustersToSkip")) std::cerr << "ERROR: " << typeid(*this).name() << " with label " << conf.getParameter<std::string>("@module_label") << " has a clustersToSkip parameter set" << std::endl;
 }
@@ -244,4 +248,30 @@ void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
 void BaseCkfTrajectoryBuilder::unset() const
 {
     std::cerr << "ERROR unSet called on " << typeid(*this).name() << ( theMeasurementTracker ? " with valid " : "witout any ") << "MeasurementTrackerEvent" << std::endl;
+}
+
+void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const MeasurementTrackerEvent *data) {
+  edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
+  edm::ESHandle<Propagator>             propagatorAlongHandle;
+  edm::ESHandle<Propagator>             propagatorOppositeHandle;
+  edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorHandle;
+  edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
+  edm::ESHandle<TrajectoryFilter> filterHandle;
+
+  iSetup.get<TrackingComponentsRecord>().get(theUpdatorName, updatorHandle);
+  iSetup.get<TrackingComponentsRecord>().get(thePropagatorAlongName, propagatorAlongHandle);
+  iSetup.get<TrackingComponentsRecord>().get(thePropagatorOppositeName, propagatorOppositeHandle);
+  iSetup.get<TrackingComponentsRecord>().get(theEstimatorName, estimatorHandle);
+  iSetup.get<TransientRecHitRecord>().get(theRecHitBuilderName, recHitBuilderHandle);
+  iSetup.get<CkfComponentsRecord>().get(theFilterName, filterHandle);
+
+  theUpdator = updatorHandle.product();
+  thePropagatorAlong = propagatorAlongHandle.product();
+  thePropagatorOpposite = propagatorOppositeHandle.product();
+  theEstimator = estimatorHandle.product();
+  theTTRHBuilder = recHitBuilderHandle.product();
+  theFilter = filterHandle.product();
+
+  setData(data);
+  setEvent_(iEvent, iSetup);
 }

@@ -25,16 +25,7 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   
  public:
   /// constructor from ParameterSet
-  GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			      const TrajectoryStateUpdator*         updator,
-			      const Propagator*                     propagatorAlong,
-			      const Propagator*                     propagatorOpposite,
-			      const Chi2MeasurementEstimatorBase*   estimator,
-			      const TransientTrackingRecHitBuilder* RecHitBuilder,
-			      const TrajectoryFilter*               filter,
-			      const TrajectoryFilter*               inOutFilter);
-
-  virtual GroupedCkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const ;
+  GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf);
 
   /// destructor
   virtual ~GroupedCkfTrajectoryBuilder(){}
@@ -102,6 +93,7 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   double mass() {return theMass;}
 
 protected:
+  void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   virtual void analyseSeed(const TrajectorySeed& seed) const{}
 
@@ -211,6 +203,8 @@ private:
 
   mutable TempTrajectoryContainer work_; // Better here than alloc every time
   enum work_MaxSize_Size_ { work_MaxSize_ = 50 };  // if it grows above this number, it is forced to resize to half this amount when cleared
+  const std::string theInOutFilterName;
+  const bool theUseSameTrajFilter;
 };
 
 #endif
