@@ -25,8 +25,6 @@ secondStripRecHits.ClusterProducer = 'secondClusters'
 
 #################################
 # Secondary triplets
-from RecoPixelVertexing.PixelLowPtUtilities.common_cff import BPixError
-from RecoPixelVertexing.PixelLowPtUtilities.common_cff import FPixError
 secondLayerTriplets = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('SecondLayerTriplets'),
     layerList = cms.vstring('BPix1+BPix2+BPix3',
@@ -35,12 +33,10 @@ secondLayerTriplets = cms.ESProducer("SeedingLayersESProducer",
         'BPix1+FPix1_pos+FPix2_pos',
         'BPix1+FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
-        BPixError,
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
         HitProducer = cms.string('secondPixelRecHits')
     ),
     FPix = cms.PSet(
-        FPixError,
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
         HitProducer = cms.string('secondPixelRecHits')
     )

@@ -28,17 +28,11 @@ mixedTripletStepSeedLayersA = cms.ESProducer("SeedingLayersESProducer",
         'FPix1_pos+FPix2_pos+TEC1_pos', 'FPix1_neg+FPix2_neg+TEC1_neg',
         'FPix2_pos+TEC2_pos+TEC3_pos', 'FPix2_neg+TEC2_neg+TEC3_neg'),
     BPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRZ = cms.double(0.006),
-        hitErrorRPhi = cms.double(0.0027),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
     ),
     FPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0051),
-        hitErrorRZ = cms.double(0.0036),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
@@ -79,9 +73,6 @@ mixedTripletStepSeedLayersB = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('mixedTripletStepSeedLayersB'),
     layerList = cms.vstring('BPix2+BPix3+TIB1', 'BPix2+BPix3+TIB2'),
     BPix = cms.PSet(
-        useErrorsFromParam = cms.bool(True),
-        hitErrorRPhi = cms.double(0.0027),
-        hitErrorRZ = cms.double(0.006),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('mixedTripletStepClusters')
