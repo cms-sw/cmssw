@@ -113,8 +113,8 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons, 
     const std::vector<RecoTauPiZero>& piZeros,
     const std::vector<PFCandidatePtr>& regionalExtras) const {
-  std::cout << "<RecoTauBuilderConePlugin::operator()>:" << std::endl;
-  std::cout << " jet: Pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->phi() << std::endl;
+  //std::cout << "<RecoTauBuilderConePlugin::operator()>:" << std::endl;
+  //std::cout << " jet: Pt = " << jet->pt() << ", eta = " << jet->eta() << ", phi = " << jet->phi() << std::endl;
 
   // Get access to our cone tools
   using namespace cone;
@@ -265,12 +265,12 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   int numIsolationPFCHs = 0;
   for ( PFCandPtrDRFilterIter iter = signalPFCHCands_begin; iter != signalPFCHCands_end; ++iter ) {
     if ( numSignalPFCHs < maxSignalConeChargedHadrons_ || maxSignalConeChargedHadrons_ == -1 ) {
-      std::cout << "adding signalPFCH #" << numSignalPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
+      //std::cout << "adding signalPFCH #" << numSignalPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
       signalPFCHs.push_back(*iter);
       ++numSignalPFCHs;
     } else {
-      std::cout << "maxSignalConeChargedHadrons reached" 
-		<< " --> adding isolationPFCH #" << numIsolationPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
+      //std::cout << "maxSignalConeChargedHadrons reached" 
+      //	  << " --> adding isolationPFCH #" << numIsolationPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
       isolationPFCHs.push_back(*iter);
       ++numIsolationPFCHs;
     }
@@ -296,7 +296,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
 	xclean::makePredicateAND(isoConePFCHFilter, pfCandXCleaner),
 	pfchs.end(), pfchs.end()));
   for ( auto iter = isolationPFCHCands_begin; iter != isolationPFCHCands_end; ++iter ) {
-    std::cout << "adding isolationPFCH #" << numIsolationPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
+    //std::cout << "adding isolationPFCH #" << numIsolationPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
     isolationPFCHs.push_back(*iter);
     ++numIsolationPFCHs;
   }
