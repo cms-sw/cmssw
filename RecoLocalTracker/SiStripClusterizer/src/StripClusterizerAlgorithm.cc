@@ -7,6 +7,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 #include <algorithm>
@@ -109,8 +110,9 @@ setDetId(const uint32_t id) {
   else e=b+ind;
   auto p = std::lower_bound(b,e,id);
   if (p==e || id!=(*p)) {
-    std::cout << "id " << id << " not connected. impossible at HLT" << std::endl;
-    std::cout << "old id " << detId << std::endl;
+    edm::LogWarning("StripClusterizerAlgorithm") 
+      <<"id " << id << " not connected. this is impossible on data "
+      << "old id " << detId << std::endl;
     return false;
   }
   detId = id;
