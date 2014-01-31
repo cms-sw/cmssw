@@ -26,7 +26,7 @@ bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
   return true;
 }
 
-const SiStripApvGain::Range SiStripApvGain::getRange(const uint32_t& DetId) const {
+const SiStripApvGain::Range SiStripApvGain::getRange(const uint32_t DetId) const {
   // get SiStripApvGain Range of DetId
   RegistryConstIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),DetId);
   if (p==v_detids.end() || *p!=DetId) 
@@ -39,6 +39,14 @@ const SiStripApvGain::Range SiStripApvGain::getRange(const uint32_t& DetId) cons
     return SiStripApvGain::Range(v_gains.begin()+ibegin,v_gains.begin()+iend);
   }
 }
+
+SiStripApvGain::Range  SiStripApvGain::getRangeByPos(unsigned short pos) const {
+    unsigned int ibegin = *(v_ibegin.begin()+pos);
+    unsigned int iend   = *(v_iend.begin()+pos);
+    __builtin_prefetch((&v_gains.front())+ibegin);
+    return SiStripApvGain::Range(v_gains.begin()+ibegin,v_gains.begin()+iend);
+}
+
 
 void SiStripApvGain::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map

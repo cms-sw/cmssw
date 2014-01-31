@@ -6,7 +6,11 @@
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+
 #include <string>
+#include <algorithm>
+#include <cassert>
 
 void StripClusterizerAlgorithm::
 initialize(const edm::EventSetup& es) {
@@ -14,31 +18,111 @@ initialize(const edm::EventSetup& es) {
   uint32_t g_cache_id = es.get<SiStripGainRcd>().cacheIdentifier();
   uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
 
+  bool mod=false;
   if(g_cache_id != gain_cache_id) {
     es.get<SiStripGainRcd>().get( gainHandle );
     gain_cache_id = g_cache_id;
-    if (detIds.empty()) gainHandle->getDetIds(detIds);
-    std::vector<uint32_t> dum; gainHandle->getDetIds(dum); assert(detIds==dum);
+    mod=true;
   }
   if(n_cache_id != noise_cache_id) {
     es.get<SiStripNoisesRcd>().get( noiseHandle );
     noise_cache_id = n_cache_id;
-    std::vector<uint32_t> dum; noiseHandle->getDetIds(dum); assert(detIds==dum);
+    mod=true;
   }
   if(q_cache_id != quality_cache_id) {
     es.get<SiStripQualityRcd>().get( qualityLabel, qualityHandle );
     quality_cache_id = q_cache_id;
-    std::vector<uint32_t> dum; qualityHandle->getDetIds(dum); assert(detIds==dum);
+    mod=true;
   }
+  if (mod) { 
+    // redo indexing!
+    SiStripDetCabling const * cabling = qualityHandle->cabling();
+    auto const & conn = cabling->connected();
+    assert(cabling); std::cout << "cabling " << conn.size() << std::endl;
+    detIds.reserve(conn.size());
+    for (auto const & c : conn) detIds.push_back(c.first);
+    indices.resize(detIds.size());
+
+    { // quality
+      std::vector<uint32_t> dum; qualityHandle->getDetIds(dum); 
+      assert(dum.size()<invalidI);
+      unsigned short j=0, i=0;
+      while (i<dum.size() && j<detIds.size()) {
+	if (dum[i]<detIds[j]) ++i;
+	else if (detIds[j]<dum[i]) {indices[j].qi=invalidI; ++j;}
+	else {
+	  indices[j].qi=i; ++i; ++j;
+	}
+      }
+      unsigned int  nn=0;
+      for(auto k=0U; k<detIds.size();++k) { if (indices[k].qi<invalidI) {++nn; assert(dum[indices[k].qi]==detIds[k]);}}
+      assert(nn<=dum.size());
+      std::cout << "quality " << dum.size() << " " <<nn<< std::endl;
+    }
+    { //noise
+      std::vector<uint32_t> dum; noiseHandle->getDetIds(dum); 
+      assert(dum.size()<invalidI);
+      unsigned short j=0, i=0;
+      while (i<dum.size() && j<detIds.size()) {
+	if (dum[i]<detIds[j]) ++i;
+	else if (detIds[j]<dum[i]) {indices[j].ni=invalidI; ++j;}
+	else {
+	  indices[j].ni=i; ++i; ++j;
+	}
+      }
+      unsigned int  nn=0;
+      for(auto k=0U; k<detIds.size();++k) { if (indices[k].ni<invalidI) {++nn; assert(dum[indices[k].ni]==detIds[k]);}}
+      assert(nn<=dum.size());
+      std::cout << "noise " << dum.size() << " " <<nn<< std::endl;
+    }
+    { //gain
+      std::vector<uint32_t> dum; gainHandle->getDetIds(dum); 
+      assert(dum.size()<invalidI);
+      unsigned short j=0, i=0;
+      while (i<dum.size() && j<detIds.size()) {
+	if (dum[i]<detIds[j]) ++i;
+	else if (detIds[j]<dum[i]) {indices[j].gi=invalidI; ++j;}
+	else {
+	  indices[j].gi=i; ++i; ++j;
+	}
+      }
+      unsigned int  nn=0;
+      for(auto k=0U; k<detIds.size();++k) { if (indices[k].gi<invalidI) {++nn; assert(dum[indices[k].gi]==detIds[k]);}}
+      assert(nn<=dum.size());
+      std::cout << "gain " << dum.size() << " " <<nn<< std::endl;
+    }
+
+
+  }
+
 }
 
 
-void StripClusterizerAlgorithm::
+bool StripClusterizerAlgorithm::
 setDetId(const uint32_t id) {
-  gainRange =  gainHandle->getRange(id); 
+  if (id==detId) return true; // rare....
+  auto b = detIds.begin();
+  auto e = detIds.end();
+  if (id>detId) b+=ind;
+  else e=b+ind;
+  auto p = std::lower_bound(b,e,id);
+  if (p==e || id!=(*p)) {
+    std::cout << "id " << id << " not connected. impossible at HLT" << std::endl;
+    std::cout << "old id " << detId << std::endl;
+    return false;
+  }
+  detId = id;
+  ind = p-detIds.begin();
+  assert(detIds[ind]==detId); 
+
+  gainRange = gainHandle->getRangeByPos(indices[ind].gi);
+  auto old =  gainHandle->getRange(id);
+  assert(old==gainRange);
+
   noiseRange = noiseHandle->getRange(id);
   qualityRange = qualityHandle->getRange(id);
   detId = id;
+  return true;
 }
 
 void StripClusterizerAlgorithm::clusterize(const   edm::DetSetVector<SiStripDigi>& input,  output_t& output) {clusterize_(input, output);}
