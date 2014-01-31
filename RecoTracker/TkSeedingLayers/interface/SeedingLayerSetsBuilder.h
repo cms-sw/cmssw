@@ -32,7 +32,6 @@ private:
     std::string pixelHitProducer; edm::InputTag matchedRecHits,rphiRecHits,stereoRecHits;  
     bool usePixelHitProducer, useMatchedRecHits, useRPhiRecHits, useStereoRecHits;
     std::string hitBuilder;
-    bool useErrorsFromParam; double hitErrorRPhi; double hitErrorRZ; 
     bool useRingSelector; int minRing; int maxRing;
     bool useSimpleRphiHitsCleaner;
     bool skipClusters; edm::InputTag clustersToSkip;
