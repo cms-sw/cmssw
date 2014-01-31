@@ -92,7 +92,7 @@ namespace ora {
       bool m_isAssociative;
 
       /// Proxy of the generic collection
-      std::auto_ptr<TVirtualCollectionProxy> m_collProxy;
+      TVirtualCollectionProxy* m_collProxy;
 
     };
 
