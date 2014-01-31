@@ -14,17 +14,21 @@ initialize(const edm::EventSetup& es) {
   uint32_t g_cache_id = es.get<SiStripGainRcd>().cacheIdentifier();
   uint32_t q_cache_id = es.get<SiStripQualityRcd>().cacheIdentifier();
 
-  if(n_cache_id != noise_cache_id) {
-    es.get<SiStripNoisesRcd>().get( noiseHandle );
-    noise_cache_id = n_cache_id;
-  }
   if(g_cache_id != gain_cache_id) {
     es.get<SiStripGainRcd>().get( gainHandle );
     gain_cache_id = g_cache_id;
+    if (detIds.empty()) gainHandle->getDetIds(detIds);
+    std::vector<uint32_t> dum; gainHandle->getDetIds(dum); assert(detIds==dum);
+  }
+  if(n_cache_id != noise_cache_id) {
+    es.get<SiStripNoisesRcd>().get( noiseHandle );
+    noise_cache_id = n_cache_id;
+    std::vector<uint32_t> dum; noiseHandle->getDetIds(dum); assert(detIds==dum);
   }
   if(q_cache_id != quality_cache_id) {
     es.get<SiStripQualityRcd>().get( qualityLabel, qualityHandle );
     quality_cache_id = q_cache_id;
+    std::vector<uint32_t> dum; qualityHandle->getDetIds(dum); assert(detIds==dum);
   }
 }
 

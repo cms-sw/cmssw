@@ -60,7 +60,7 @@ class StripClusterizerAlgorithm {
     }	
   }
 
-
+  std::vector<uint32_t> detIds;
   SiStripApvGain::Range gainRange;
   SiStripNoises::Range  noiseRange;
   SiStripQuality::Range qualityRange;
