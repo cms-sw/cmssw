@@ -25,7 +25,7 @@ namespace sistrip {
     cabling_(0),
     cacheId_(0)
   {
-    produces< edm::DetSetVector<PixelDigi> >("ProcessedRaw");
+    produces< edm::DetSetVector<Phase2TrackerDigi> >("ProcessedRaw");
   }
   
   Phase2TrackerDigi_test_producer::~Phase2TrackerDigi_test_producer()
@@ -125,8 +125,8 @@ namespace sistrip {
 	      ss << dec << " with length  : " << (int) channel.length() << endl;
 
               // container for this channel's digis
-              std::vector<PixelDigi> stripsTop;
-              std::vector<PixelDigi> stripsBottom;
+              std::vector<Phase2TrackerDigi> stripsTop;
+              std::vector<Phase2TrackerDigi> stripsBottom;
 
               // unpacking data
 	      Phase2TrackerFEDRawChannelUnpacker unpacker = Phase2TrackerFEDRawChannelUnpacker(channel);
@@ -136,12 +136,12 @@ namespace sistrip {
 		{ 
                   if (unpacker.stripIndex()%2) 
                   {
-		    stripsTop.push_back(PixelDigi( (int) (STRIPS_PER_CBC*icbc + unpacker.stripIndex())/2, 0, 255 ));
+		    stripsTop.push_back(Phase2TrackerDigi( (int) (STRIPS_PER_CBC*icbc + unpacker.stripIndex())/2, 0));
                     ss << "t";
                   }
                   else 
                   {
-                    stripsBottom.push_back(PixelDigi( (int) (STRIPS_PER_CBC*icbc + unpacker.stripIndex())/2, 0, 255 ));
+                    stripsBottom.push_back(Phase2TrackerDigi( (int) (STRIPS_PER_CBC*icbc + unpacker.stripIndex())/2, 0));
                     ss << "b";
                   }
 		} 
@@ -168,15 +168,15 @@ namespace sistrip {
 	} // end loop on channels
         // store digis in edm collections
         std::sort( proc_work_registry_.begin(), proc_work_registry_.end() );
-        std::vector< edm::DetSet<PixelDigi> > sorted_and_merged;
+        std::vector< edm::DetSet<Phase2TrackerDigi> > sorted_and_merged;
 
-        edm::DetSetVector<PixelDigi>* pr = new edm::DetSetVector<PixelDigi>();
+        edm::DetSetVector<Phase2TrackerDigi>* pr = new edm::DetSetVector<Phase2TrackerDigi>();
 
         std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2 = it+1, end = proc_work_registry_.end();
         while (it < end) 
         {
-          sorted_and_merged.push_back( edm::DetSet<PixelDigi>(it->detid) );
-          std::vector<PixelDigi> & digis = sorted_and_merged.back().data;
+          sorted_and_merged.push_back( edm::DetSet<Phase2TrackerDigi>(it->detid) );
+          std::vector<Phase2TrackerDigi> & digis = sorted_and_merged.back().data;
           // first count how many digis we have
           size_t len = it->length;
           for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
@@ -190,9 +190,9 @@ namespace sistrip {
           it = it2;
         }
 
-        edm::DetSetVector<PixelDigi> proc_raw_dsv( sorted_and_merged, true );
+        edm::DetSetVector<Phase2TrackerDigi> proc_raw_dsv( sorted_and_merged, true );
         pr->swap( proc_raw_dsv );
-        std::auto_ptr< edm::DetSetVector<PixelDigi> > pr_dsv(pr);
+        std::auto_ptr< edm::DetSetVector<Phase2TrackerDigi> > pr_dsv(pr);
         event.put( pr_dsv, "ProcessedRaw" );
         delete buffer;
         }

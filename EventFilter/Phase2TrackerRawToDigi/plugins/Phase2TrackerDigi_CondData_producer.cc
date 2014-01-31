@@ -19,7 +19,7 @@ namespace sistrip {
     cabling_(0),
     cacheId_(0)
   {
-    produces< edm::DetSet<SiStripCommissioningDigi> >("ConditionData");
+    produces< edm::DetSet<Phase2TrackerCommissioningDigi> >("ConditionData");
   }
   
   Phase2TrackerDigi_CondData_producer::~Phase2TrackerDigi_CondData_producer()
@@ -70,12 +70,12 @@ namespace sistrip {
         }
         LogTrace("Phase2TrackerDigi_CondData_producer") << "----------------------------" << std::endl;
         // store it into digis
-        edm::DetSet<SiStripCommissioningDigi> *cond_data_digi = new edm::DetSet<SiStripCommissioningDigi>(fedIndex);
+        edm::DetSet<Phase2TrackerCommissioningDigi> *cond_data_digi = new edm::DetSet<Phase2TrackerCommissioningDigi>(fedIndex);
         for(it = cond_data.begin(); it != cond_data.end(); it++)
         {
-          cond_data_digi->push_back(SiStripCommissioningDigi(it->first,it->second));
+          cond_data_digi->push_back(Phase2TrackerCommissioningDigi(it->first,it->second));
         }
-        std::auto_ptr< edm::DetSet<SiStripCommissioningDigi> > cdd(cond_data_digi);
+        std::auto_ptr< edm::DetSet<Phase2TrackerCommissioningDigi> > cdd(cond_data_digi);
         event.put( cdd, "ConditionData" );
       }
     }

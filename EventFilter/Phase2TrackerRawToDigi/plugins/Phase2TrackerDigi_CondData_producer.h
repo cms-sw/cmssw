@@ -14,7 +14,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "DataFormats/SiStripDigi/interface/SiStripCommissioningDigi.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerCommissioningDigi.h"
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
@@ -42,7 +42,7 @@ namespace sistrip {
     DetIdCollection detids_;
 
     std::vector<Registry> proc_work_registry_;
-    std::vector<SiStripCommissioningDigi> cond_data_digis_;
+    std::vector<Phase2TrackerCommissioningDigi> cond_data_digis_;
   };
 }
 #endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerDigi_CondData_producer_H
