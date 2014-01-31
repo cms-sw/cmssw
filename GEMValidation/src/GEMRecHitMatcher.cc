@@ -1,5 +1,5 @@
-#include "GEMRecHitMatcher.h"
-#include "SimHitMatcher.h"
+#include "GEMCode/GEMValidation/src/GEMRecHitMatcher.h"
+#include "GEMCode/GEMValidation/src/SimHitMatcher.h"
 
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
