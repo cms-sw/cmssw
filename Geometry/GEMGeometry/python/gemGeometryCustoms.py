@@ -20,4 +20,3 @@ def custom_GE11_10partitions_v1(process):
     process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v5/gem11.xml')
     process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v3/gem11.xml')
     return process
-
