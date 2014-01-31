@@ -67,22 +67,32 @@ DDShashlikSupermodule::execute( DDCompactView& cpv )
     // 
     //
     // define single-module translation in xyz center-to-center (c2c), using law of sines
-    double offsetXc2c = (sin(m_stepAngle)*(0.5*m_zoffset/sin(0.5*m_stepAngle)))*cos(0.5*m_stepAngle);
-    double offsetYc2c = (sin(m_stepAngle)*(0.5*m_zoffset/sin(0.5*m_stepAngle)))*cos(0.5*m_stepAngle);
-    double offsetZc2c = (sin(m_stepAngle)*(0.5*m_zoffset/sin(0.5*m_stepAngle)))*sin(0.5*m_stepAngle);
- 
+    //
+    // check these and write new ones!...DONE
+    //
+    double dc2c = (sin(CLHEP::pi - m_stepAngle)*(0.5*m_zoffset/sin(0.5*m_stepAngle)));
+    double offsetXc2c = dc2c*cos(0.5*m_stepAngle);
+    double offsetYc2c = dc2c*cos(0.5*m_stepAngle);
+    double offsetZc2c = dc2c*sin(0.5*m_stepAngle);
+
+    double dc2secondc = (sin(CLHEP::pi - m_stepAngle)*(dc2c/sin(0.5*m_stepAngle)));
+    double offsetXc2secondc = dc2secondc*cos(m_stepAngle);
+    double offsetYc2secondc = dc2secondc*cos(m_stepAngle);
+    double offsetZc2secondc = dc2secondc*sin(m_stepAngle);
+
     //  starting point for two-translation scheme
-    double offsetX  = -2.0 * offsetXc2c;
-    double offsetZ1 = -2.0 * offsetZc2c;
+    double offsetX  = -1.0 * offsetXc2secondc;
+    double offsetZ1 = -1.0 * offsetZc2secondc;
 
-    double offsetY  = -2.0 * offsetYc2c;
-    double offsetZ2 = -2.0 * offsetZc2c;
+    double offsetY  = -1.0 * offsetYc2secondc;
+    double offsetZ2 = -1.0 * offsetZc2secondc;
 
 
-//     edm::LogInfo("HGCalGeom") << "*****************";
-//     edm::LogInfo("HGCalGeom") << "*****************";
-//     edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_startAngle = " << m_startAngle/CLHEP::deg << " deg, m_stepAngle = " << m_stepAngle/CLHEP::deg << " deg, m_zoffset = " << m_zoffset; 
-//     edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2c = (" << offsetXc2c << "," << offsetYc2c << "," << offsetZc2c << ")"; 
+     edm::LogInfo("HGCalGeom") << "*****************";
+     edm::LogInfo("HGCalGeom") << "*****************";
+     edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: m_startAngle = " << m_startAngle/CLHEP::deg << " deg, m_stepAngle = " << m_stepAngle/CLHEP::deg << " deg, m_zoffset = " << m_zoffset; 
+     edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2c d= "<< dc2c << " = (" << offsetXc2c << "," << offsetYc2c << "," << offsetZc2c << ")"; 
+     edm::LogInfo("HGCalGeom") << "DDShashlikSuperModule::execute: c2secondc d= "<< dc2secondc << " = (" << offsetXc2secondc << "," << offsetYc2secondc << "," << offsetZc2secondc << ")"; 
 
     for( int iy = 0; iy < 5; ++iy )
     {
@@ -105,20 +115,20 @@ DDShashlikSupermodule::execute( DDCompactView& cpv )
 	if( !rotation )
 	{
 
-// 	  edm::LogInfo("HGCalGeom") << "Module " << copyNo << ": first: (" 
-// 				    << theta/CLHEP::deg << ", " 
-// 				    << phiX/CLHEP::deg << ", "
-// 				    << (theta+phi)/CLHEP::deg << ", " 
-// 				    << phiY/CLHEP::deg << ", "
-// 				    << -1.0*phi/CLHEP::deg << ", " 
-// 				    << phiZ/CLHEP::deg << ")";
-// 	  edm::LogInfo("HGCalGeom") << "Module " << copyNo << ": second: (" 
-// 				    << (theta+xphi)/CLHEP::deg << ", " 
-// 				    << 0.0/CLHEP::deg << ", "
-// 				    << 90. << ", " 
-// 				    << 90. << ", "
-// 				    << xphi/CLHEP::deg << ", " 
-// 				    << 0.0/CLHEP::deg << ")"; 
+	  edm::LogInfo("HGCalGeom") << "Module " << copyNo << ": first: (" 
+				    << theta/CLHEP::deg << ", " 
+				    << phiX/CLHEP::deg << ", "
+				    << (theta+phi)/CLHEP::deg << ", " 
+				    << phiY/CLHEP::deg << ", "
+				    << -1.0*phi/CLHEP::deg << ", " 
+				    << phiZ/CLHEP::deg << ")";
+	  edm::LogInfo("HGCalGeom") << "Module " << copyNo << ": second: (" 
+				    << (theta+xphi)/CLHEP::deg << ", " 
+				    << 0.0/CLHEP::deg << ", "
+				    << 90. << ", " 
+				    << 90. << ", "
+				    << xphi/CLHEP::deg << ", " 
+				    << 0.0/CLHEP::deg << ")"; 
 
 
 	  // why is phi rot in z in second matrix not phiZ instead of 0.0?
@@ -131,19 +141,19 @@ DDShashlikSupermodule::execute( DDCompactView& cpv )
 	//
 	// we will do two translations for each module, one in xz and one in yz
 	
-// 	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ":tran1 ("
-// 				  << offsetX << ","
-// 				  << 0.0 << ","
-// 				  << offsetZ1 << ")";
-// 	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ":tran2 ("
-// 				  << 0.0 << ","
-// 				  << offsetY << ","
-// 				  << offsetZ2 << ")";
+	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ":tran1 ("
+				  << offsetX << ","
+				  << 0.0 << ","
+				  << offsetZ1 << ")";
+	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ":tran2 ("
+				  << 0.0 << ","
+				  << offsetY << ","
+				  << offsetZ2 << ")";
 	
-// 	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ":tran1+2 ("
-// 				  << offsetX << ","
-// 				  << offsetY << ","
-// 				  << offsetZ1+offsetZ2 << ")";
+	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ":tran1+2 ("
+				  << offsetX << ","
+				  << offsetY << ","
+				  << offsetZ1+offsetZ2 << ")" << " (copyNo & 5)=" << (copyNo & 5);
 
 			  
 	DDTranslation tran1( offsetX, 0.0, offsetZ1 );
@@ -152,44 +162,55 @@ DDShashlikSupermodule::execute( DDCompactView& cpv )
 	DDName parentName = parent().name(); 
 	cpv.position( DDName( m_childName ), parentName, copyNo, (tran1+tran2), rotation );
 
+
+
 	// these are hard-coded for now
 	//
 	//
-	if(copyNo%5 <= 2 && copyNo%5 > 0)
-	  offsetZ1 += offsetZc2c;
-	else 
-	  offsetZ1 -= offsetZc2c;
-
-
-	copyNo += m_incrCopyNo;
-	offsetX += offsetXc2c;
-
-	  
+	if((copyNo % 5) == 1){
+	  offsetZ1 = -1.0*offsetZc2c;
+	  offsetX  = -1.0*offsetXc2c; 
+	}else if((copyNo % 5) == 2){
+	  offsetZ1 = 0.0;
+	  offsetX  = 0.0; 
+	}else if((copyNo % 5) == 3){
+	  offsetZ1 = -1.0*offsetZc2c;
+	  offsetX  = offsetXc2c; 
+	}else if((copyNo % 5) == 4){
+	  offsetZ1 = -1.0*offsetZc2secondc;
+	  offsetX  = offsetXc2secondc; 
+	}
 
 	xphi += m_stepAngle;
+	copyNo += m_incrCopyNo;
+
       }
 
       xphi    = - 2* m_stepAngle;
       phi    += m_stepAngle;
  
+      offsetZ1 = -1.0*offsetZc2secondc;
+      offsetX  = -1.0*offsetXc2secondc; 
 
-      offsetX = - 2.0 * offsetXc2c;      
-      offsetY += offsetYc2c;
-      offsetZ1 = -2.0 * offsetZc2c;
-
-
-      // these magic numbers are hard-coded for now
+      // these are hard-coded for now
       //
       //
-      if(copyNo == 6)
-	offsetZ2 += offsetZc2c;
-      if(copyNo == 11)
-	offsetZ2 += offsetZc2c;
-      if(copyNo == 16)
-	offsetZ2 -= offsetZc2c;
-      if(copyNo == 21)
-	offsetZ2 -= offsetZc2c;
-
+      if(copyNo == 6){
+	offsetZ2 = -1.0*offsetZc2c;
+	offsetY = -1.0*offsetYc2c;
+      }
+      if(copyNo == 11){
+	offsetZ2 = 0.0;
+	offsetY = 0.0;
+      }
+      if(copyNo == 16){
+	offsetZ2 = -1.0*offsetZc2c;
+ 	offsetY = offsetYc2c;
+      }
+      if(copyNo == 21){
+	offsetZ2 = -1.0*offsetZc2secondc;
+ 	offsetY = offsetYc2secondc;
+      }
 
     }
 
