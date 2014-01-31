@@ -15,7 +15,7 @@ public:
   /// constructor from TrackingRegion
   explicit RegionalTrajectoryFilter (const edm::ParameterSet &  pset);
   explicit RegionalTrajectoryFilter( const TrackingRegion& region);
-    
+
   virtual bool qualityFilter(const TempTrajectory& traj) const;
   virtual bool qualityFilter(const Trajectory& traj) const;
     
