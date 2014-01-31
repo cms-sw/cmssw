@@ -61,7 +61,7 @@ struct MyGEMRecHitEvent
 { 
   Int_t eventNumber; 
 };
-  
+
 struct MyGEMRecHitNoise
 { 
   Int_t detId;
@@ -82,7 +82,6 @@ struct MyGEMSimHit
   Int_t strip;
   Float_t Phi_0, DeltaPhi, R_0;
   Int_t countMatching;
-  
 };
 
 struct MySimTrack
@@ -121,7 +120,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-
+ 
   void bookGEMEventsTree(); 
   void bookGEMRecHitTree();
   void bookGEMRecHitNoiseTree();
@@ -136,10 +135,10 @@ private:
 
   TTree* gem_events_tree_;
   TTree* gem_tree_;
+  TTree* gem_noise_tree_;
   TTree* gem_sh_tree_;
   TTree* track_tree_;
-  TTree* gem_noise_tree_;
-  
+
   edm::Handle<GEMRecHitCollection> gemRecHits_; 
   edm::Handle<edm::PSimHitContainer> GEMHits;
   edm::Handle<edm::SimTrackContainer> sim_tracks;
@@ -154,6 +153,7 @@ private:
   MyGEMSimHit gem_sh;
   MySimTrack track_;
 
+
   edm::ParameterSet cfg_;
   std::string simInputLabel_;
   float minPt_;
@@ -163,6 +163,8 @@ private:
 
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
+
+  bool hasGEMGeometry_;
 };
 
 //
@@ -173,6 +175,7 @@ GEMRecHitAnalyzer::GEMRecHitAnalyzer(const edm::ParameterSet& iConfig)
   , simInputLabel_(iConfig.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
   , minPt_(iConfig.getUntrackedParameter<double>("minPt", 5.))
   , verbose_(iConfig.getUntrackedParameter<int>("verbose", 0))
+  , hasGEMGeometry_(true)
 {
   bookGEMEventsTree();
   bookGEMRecHitTree();
@@ -187,31 +190,40 @@ GEMRecHitAnalyzer::~GEMRecHitAnalyzer()
 
 void GEMRecHitAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
-  iSetup.get<MuonGeometryRecord>().get(gem_geom_);
-  gem_geometry_ = &*gem_geom_;
+  try {
+    iSetup.get<MuonGeometryRecord>().get(gem_geom_);
+    gem_geometry_ = &*gem_geom_;
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    hasGEMGeometry_ = false;
+    edm::LogWarning("GEMDigiAnalyzer") 
+      << "+++ Info: GEM geometry is unavailable. +++\n";
+  }
 
-  // FIXME - when a geometry with different partition numbers will be released, the code will brake!
-  const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
-  const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
-  const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
-  const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
-  const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
-  const LocalPoint lp_top(0., top_half_striplength, 0.);
-  const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
-  const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
-  const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+  if(hasGEMGeometry_) {
 
-  radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
-  chamberHeight_ = gp_top.perp() - gp_bottom.perp();
+    // FIXME - when a geometry with different partition numbers will be released, the code will brake!
+    const auto top_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,1)));
+    const int nEtaPartitions(gem_geometry_->chamber(GEMDetId(1,1,1,1,1,1))->nEtaPartitions());
+    const auto bottom_chamber = static_cast<const GEMEtaPartition*>(gem_geometry_->idToDetUnit(GEMDetId(1,1,1,1,1,nEtaPartitions)));
+    const float top_half_striplength = top_chamber->specs()->specificTopology().stripLength()/2.;
+    const float bottom_half_striplength = bottom_chamber->specs()->specificTopology().stripLength()/2.;
+    const LocalPoint lp_top(0., top_half_striplength, 0.);
+    const LocalPoint lp_bottom(0., -bottom_half_striplength, 0.);
+    const GlobalPoint gp_top = top_chamber->toGlobal(lp_top);
+    const GlobalPoint gp_bottom = bottom_chamber->toGlobal(lp_bottom);
+    
+    radiusCenter_ = (gp_bottom.perp() + gp_top.perp())/2.;
+    chamberHeight_ = gp_top.perp() - gp_bottom.perp();
+    
+    using namespace std;
+    //cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
+    //cout<<"r top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
+    LocalPoint p0(0.,0.,0.);
+    //cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
+    //cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
 
-  using namespace std;
-  //cout<<"half top "<<top_half_striplength<<" bot "<<lp_bottom<<endl;
-  //cout<<"r top "<<gp_top.perp()<<" bot "<<gp_bottom.perp()<<endl;
-  LocalPoint p0(0.,0.,0.);
-  //cout<<"r0 top "<<top_chamber->toGlobal(p0).perp()<<" bot "<< bottom_chamber->toGlobal(p0).perp()<<endl;
-  //cout<<"rch "<<radiusCenter_<<" hch "<<chamberHeight_<<endl;
-
-  buildLUT();
+    buildLUT();
+  }
 }
 
 
@@ -225,8 +237,8 @@ void GEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
   iEvent.getByLabel(simInputLabel_, sim_tracks);
   iEvent.getByLabel(simInputLabel_, sim_vertices);
-  analyzeGEM(iEvent);
-  analyzeTracks(cfg_,iEvent,iSetup); 
+  if(hasGEMGeometry_) analyzeGEM(iEvent);
+  if(hasGEMGeometry_) analyzeTracks(cfg_,iEvent,iSetup); 
 }
 
 void GEMRecHitAnalyzer::bookGEMEventsTree()
@@ -412,10 +424,9 @@ void GEMRecHitAnalyzer::analyzeGEM(const edm::Event& iEvent)
 
   for (edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit != GEMHits->end(); ++itHit)
   {
-//ho modificato questi due
+
    if(abs(itHit->particleType()) != 13) continue;
    if(std::find(trackIds.begin(), trackIds.end(), itHit->trackId()) == trackIds.end()) continue;
-
 
    //std::cout<<"Size "<<trackIds.size()<<" id1 "<<trackIds[0]<<" type1 "<<trackType[0]<<" id2 "<<trackIds[1]<<" type2 "<<trackType[1]<<std::endl;
 
@@ -502,9 +513,7 @@ void GEMRecHitAnalyzer::analyzeGEM(const edm::Event& iEvent)
     gem_recHit_.pull = (gem_sh.x - gem_recHit_.x) / gem_recHit_.xErr;
 
     if(gem_recHit_.bx != 0) continue;
-    
     if(isGEMRecHitMatched(gem_recHit_, gem_sh)){
-    //if(!(isGEMRecHitMatched(gem_recHit_, gem_sh))){
 
 	//std::cout<<"RecHit: region "<<gem_recHit_.region<<" station "<<gem_recHit_.station<<" layer "<<gem_recHit_.layer<<" chamber "<<gem_recHit_.chamber<<" roll "<<gem_recHit_.roll<<" firstStrip "<<gem_recHit_.firstClusterStrip<<" cls "<<gem_recHit_.clusterSize<<" bx "<<gem_recHit_.bx<<std::endl;
  	gem_tree_->Fill();
@@ -516,7 +525,7 @@ void GEMRecHitAnalyzer::analyzeGEM(const edm::Event& iEvent)
 
    gem_sh.countMatching = count;
    gem_sh_tree_->Fill();
-
+   
   }
 
     gem_events_.eventNumber = iEvent.id().event();
@@ -555,6 +564,7 @@ for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit !
     gem_noise_tree_->Fill();
     }
 
+
 }
 
 bool GEMRecHitAnalyzer::isSimTrackGood(const SimTrack &t)
@@ -565,7 +575,7 @@ bool GEMRecHitAnalyzer::isSimTrackGood(const SimTrack &t)
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
   if (t.momentum().pt() < minPt_) return false;
   float eta = std::abs(t.momentum().eta());
-  if (eta > 2.5 || eta < 1.5) return false; // no GEMs could be in such eta
+  if (eta > 2.2 || eta < 1.5) return false; // no GEMs could be in such eta
   return true;
 }
 
