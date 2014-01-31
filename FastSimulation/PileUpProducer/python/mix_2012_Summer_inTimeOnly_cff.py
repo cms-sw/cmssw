@@ -65,15 +65,11 @@ prob = cms.vdouble(
 
 from FastSimulation.Configuration.CommonInputs_cff import * # CaloMode and MixingMode are defined here
 
-if (MixingMode==2):
+if (MixingMode=='DigiRecoMixing'):
     # mix at SIM and RECO levels:
     from FastSimulation.Configuration.MixingHitsAndTracks_cff import *
     mix.input.nbPileupEvents.probFunctionVariable = npu
     mix.input.nbPileupEvents.probValue = prob
-#    mixSimCaloHits.input.nbPileupEvents.probFunctionVariable = npu
-#    mixSimCaloHits.input.nbPileupEvents.probValue = prob
-#    mixRecoTracks.input.nbPileupEvents.probFunctionVariable = npu
-#    mixRecoTracks.input.nbPileupEvents.probValue = prob
 else:
     # mix at GEN level:
     from FastSimulation.Configuration.MixingFull_cff import *

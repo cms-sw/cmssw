@@ -109,12 +109,6 @@ from SimMuon.Configuration.SimMuon_cff import *
 simMuonCSCDigis.strips.doCorrelatedNoise = False ## Saves a little bit of time
 
 
-#if (MixingMode==2):
-#    simMuonCSCDigis.mixLabel = 'mixSimCaloHits'
-#    simMuonDTDigis.mixLabel = 'mixSimCaloHits'
-#    simMuonRPCDigis.mixLabel = 'mixSimCaloHits'
-#else:
-#if (MixingMode==1):
 simMuonCSCDigis.InputCollection = 'MuonSimHitsMuonCSCHits'
 simMuonDTDigis.InputCollection = 'MuonSimHitsMuonDTHits'
 simMuonRPCDigis.InputCollection = 'MuonSimHitsMuonRPCHits'
@@ -206,7 +200,7 @@ from RecoEgamma.Configuration.RecoEgamma_cff import egammaHighLevelRecoPostPF
 allConversions.src = 'gsfGeneralConversionTrackMerger'
 famosConversionSequence = cms.Sequence(conversionTrackSequenceNoEcalSeeded*allConversionSequence)
 
-if (MixingMode==2):
+if (MixingMode=='DigiRecoMixing'):
     generalConversionTrackProducer.TrackProducer = 'generalTracksBeforeMixing'
     
 from TrackingTools.GsfTracking.CkfElectronCandidateMaker_cff import *
@@ -354,7 +348,7 @@ elif(CaloMode==2):
         caloTowersRec
         )
 elif(CaloMode==3):
-    if(MixingMode==1):
+    if(MixingMode=='GenMixing'):
         simulationSequence = cms.Sequence(
             offlineBeamSpot+
             cms.SequencePlaceholder("famosMixing")+
@@ -401,7 +395,7 @@ elif(CaloMode==3):
         caloRecHits+
         caloTowersRec
         )
-    if(MixingMode==1):
+    if(MixingMode=='GenMixing'):
         famosSimulationSequence = cms.Sequence( 
             simulationSequence+
             digitizationSequence#+ # temporary; eventually it will be a block of its own, but it requires intervention on ConfigBuilder
@@ -419,7 +413,7 @@ famosEcalDrivenElectronSequence = cms.Sequence(
 
 # The reconstruction sequence
 if(CaloMode==3):
-    if(MixingMode==1):
+    if(MixingMode=='GenMixing'):
         reconstructionWithFamos = cms.Sequence(
             digitizationSequence+ # temporary; repetition!
             trackVertexReco+

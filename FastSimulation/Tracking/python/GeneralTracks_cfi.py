@@ -34,7 +34,7 @@ generalTracksBase = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackLis
 
 # this block is to switch between defaul behaviour (MixingMode==1) and new mixing
 from FastSimulation.Configuration.CommonInputs_cff import MixingMode
-if (MixingMode==1):
+if (MixingMode=='GenMixing'):
     generalTracks = generalTracksBase.clone()
 else: 
     generalTracksBeforeMixing = generalTracksBase.clone()
