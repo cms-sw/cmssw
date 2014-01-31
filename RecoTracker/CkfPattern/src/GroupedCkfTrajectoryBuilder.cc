@@ -107,21 +107,10 @@ using namespace std;
 #endif
 =================================== */
 
-
-GroupedCkfTrajectoryBuilder::
-GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			    const TrajectoryStateUpdator*         updator,
-			    const Propagator*                     propagatorAlong,
-			    const Propagator*                     propagatorOpposite,
-			    const Chi2MeasurementEstimatorBase*   estimator,
-			    const TransientTrackingRecHitBuilder* recHitBuilder,
-			    const TrajectoryFilter*               filter,
-			    const TrajectoryFilter*               inOutFilter):
-
-
-  BaseCkfTrajectoryBuilder(conf,
-			   updator, propagatorAlong,propagatorOpposite,
-			   estimator, recHitBuilder, filter, inOutFilter)
+GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf):
+  BaseCkfTrajectoryBuilder(conf),
+  theInOutFilterName(conf.getParameter<std::string>("inOutTrajectoryFilterName")),
+  theUseSameTrajFilter(conf.getParameter<bool>("useSameTrajFilter"))
 {
   // fill data members from parameters (eventually data members could be dropped)
   //
@@ -164,11 +153,15 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 }
 */
 
-GroupedCkfTrajectoryBuilder *
-GroupedCkfTrajectoryBuilder::clone(const MeasurementTrackerEvent *data) const {
-    GroupedCkfTrajectoryBuilder *ret = new GroupedCkfTrajectoryBuilder(*this);
-    ret->setData(data);
-    return ret;
+void GroupedCkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {
+  if(theUseSameTrajFilter) {
+    theInOutFilter = theFilter;
+  }
+  else {
+    edm::ESHandle<TrajectoryFilter> filterHandle;
+    iSetup.get<CkfComponentsRecord>().get(theInOutFilterName, filterHandle);
+    theInOutFilter = filterHandle.product();
+  }
 }
 
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 

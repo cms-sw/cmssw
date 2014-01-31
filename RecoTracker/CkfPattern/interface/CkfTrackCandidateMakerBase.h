@@ -27,6 +27,8 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
+#include <memory>
+
 class TransientInitialStateEstimator;
 
 namespace cms
@@ -55,8 +57,7 @@ namespace cms
 
     unsigned int theMaxNSeeds;
 
-    std::string theTrajectoryBuilderName;
-    const BaseCkfTrajectoryBuilder*  theTrajectoryBuilder;
+    std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder;
 
     std::string theTrajectoryCleanerName;
     const TrajectoryCleaner*               theTrajectoryCleaner;

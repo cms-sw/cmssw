@@ -27,19 +27,8 @@
 
 using namespace std;
 
-
-CkfTrajectoryBuilder::
-  CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-		       const TrajectoryStateUpdator*         updator,
-		       const Propagator*                     propagatorAlong,
-		       const Propagator*                     propagatorOpposite,
-		       const Chi2MeasurementEstimatorBase*   estimator,
-		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const TrajectoryFilter*               filter):
-
-    BaseCkfTrajectoryBuilder(conf,
-			     updator, propagatorAlong,propagatorOpposite,
-			     estimator, recHitBuilder, filter)
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf):
+  BaseCkfTrajectoryBuilder(conf)
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
@@ -60,6 +49,9 @@ CkfTrajectoryBuilder::
   theMeasurementTracker->update(event);
   }
 */
+
+void CkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {  
+}
 
 CkfTrajectoryBuilder::TrajectoryContainer 
 CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
