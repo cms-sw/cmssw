@@ -73,8 +73,8 @@ ora::STLContainerHandler::STLContainerHandler( const edm::TypeWithDict& dictiona
   m_isAssociative = ClassUtils::isTypeKeyedContainer( m_type );
 
   TClass* cl = dictionary.getClass();
-  m_collProxy.reset( cl->GetCollectionProxy() );
-  if( !m_collProxy.get() ){
+  m_collProxy = cl->GetCollectionProxy();
+  if( !m_collProxy ){
     throwException( "Cannot create \"TVirtualCollectionProxy\" for type \""+m_type.qualifiedName()+"\"",
                     "STLContainerHandler::STLContainerHandler");
   }
@@ -92,7 +92,7 @@ size_t
 ora::STLContainerHandler::size( const void* address ){
   //m_collEnv.fObject = const_cast<void*>(address);
   //return *(static_cast<size_t*>(m_collProxy->size_func(&m_collEnv)));
-  TVirtualCollectionProxy::TPushPop helper(m_collProxy.get(), const_cast<void*>(address));
+  TVirtualCollectionProxy::TPushPop helper(m_collProxy, const_cast<void*>(address));
   return m_collProxy->Size();
 }
 
@@ -119,7 +119,7 @@ void
 ora::STLContainerHandler::clear( const void* address ){
   //m_collEnv.fObject = const_cast<void*>(address);
   //m_collProxy->clear_func(&m_collEnv);
-  TVirtualCollectionProxy::TPushPop helper(m_collProxy.get(), const_cast<void*>(address));
+  TVirtualCollectionProxy::TPushPop helper(m_collProxy, const_cast<void*>(address));
   return m_collProxy->Clear();
 }
 
