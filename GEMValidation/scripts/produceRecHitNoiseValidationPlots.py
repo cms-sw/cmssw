@@ -14,7 +14,7 @@ ROOT.gROOT.SetBatch(1)
 
 if __name__ == "__main__":  
 
-  inputFile = '/cmshome/radogna/GEM_Geometry/cesare_rel/CMSSW_6_2_0_SLHC5/src/gem_localrec_ana.root'
+  inputFile = '/cmshome/radogna/GEM_Geometry/cesare_rel_newDIGI/CMSSW_6_2_0_SLHC5/src/GEMCode/GEMValidation/gem_localrec_ana.root'
   outputFile = 'gem_localrec_ana_tmp.root'
   targetDir = './'
   
@@ -141,15 +141,7 @@ if __name__ == "__main__":
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
- 
-  draw_1D(targetDir, "strip_rh_rm1_l1", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer1;strip number;entries", 
-	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rm1,l1))
-  draw_1D(targetDir, "strip_rh_rm1_l2", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer2;strip number;entries", 
-	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rm1,l2))
-  draw_1D(targetDir, "strip_rh_rp1_l1", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer1;strip number;entries", 
-	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rp1,l1))
-  draw_1D(targetDir, "strip_rh_rp1_l2", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer2;strip number;entries", 
-	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rp1,l2))
+
 #-------------------------------------------------------------------------------------------------------------------------------------#
   draw_2D_adv(targetDir, "roll_vs_strip_rh", ext, treeHits, "GEM RecHit occupancy per roll and strip number;strip number;roll", 
 	  "h_", "(768,0.5,768.5,12,0.5,12.5)", "firstClusterStrip:roll", TCut(""), "COLZ")
@@ -172,6 +164,73 @@ if __name__ == "__main__":
 
 #-------------------------------------------------------------------------------------------------------------------------------------#
 
+  draw_occ(targetDir, "localrh_xy_rm1_st1_l1", ext, treeHits, " GEM RecHit occupancy: region-1, station1, layer1;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l1,st1), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rm1_st1_l2", ext, treeHits, " GEM RecHit occupancy: region-1, station1, layer2;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l2,st1), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rp1_st1_l1", ext, treeHits, " GEM RecHit occupancy: region+1, station1, layer1;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-260,260,100,-260,260)", "globalY:globalX", AND(rp1,l1,st1), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rp1_st1_l2", ext, treeHits, " GEM RecHit occupancy: region+1, station1, layer2;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,l2,st1), "COLZ");
+
+  draw_occ(targetDir, "localrh_xy_rm1_st2_l1", ext, treeHits, " GEM RecHit occupancy: region-1, station2, layer1;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-360,360,200,-360,360)", "globalY:globalX", AND(rm1,l1,st2), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rm1_st2_l2", ext, treeHits, " GEM RecHit occupancy: region-1, station2, layer2;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-360,360,200,-360,360)", "globalY:globalX", AND(rm1,l2,st2), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rp1_st2_l1", ext, treeHits, " GEM RecHit occupancy: region+1, station2, layer1;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-360,360,200,-360,360)", "globalY:globalX", AND(rp1,l1,st2), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rp1_st2_l2", ext, treeHits, " GEM RecHit occupancy: region+1, station2, layer2;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-360,360,200,-360,360)", "globalY:globalX", AND(rm1,l2,st2), "COLZ");
+
+  draw_occ(targetDir, "localrh_xy_rm1_st3_l1", ext, treeHits, " GEM RecHit occupancy: region-1, station3, layer1;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-360,360,200,-360,360)", "globalY:globalX", AND(rm1,l1,st3), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rm1_st3_l2", ext, treeHits, " GEM RecHit occupancy: region-1, station3, layer2;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-360,360,200,-360,360)", "globalY:globalX", AND(rm1,l2,st3), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rp1_st3_l1", ext, treeHits, " GEM RecHit occupancy: region+1, station3, layer1;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-360,360,200,-360,360)", "globalY:globalX", AND(rp1,l1,st3), "COLZ");
+  draw_occ(targetDir, "localrh_xy_rp1_st3_l2", ext, treeHits, " GEM RecHit occupancy: region+1, station3, layer2;globalX [cm];globalY [cm]", 
+	   "h_", "(200,-360,360,200,-360,360)", "globalY:globalX", AND(rm1,l2,st3), "COLZ");
+  
+  draw_occ(targetDir, "localrh_zr_rm1_st1", ext, treeHits, " GEM RecHit occupancy: region-1;globalZ [cm];globalR [cm]", 
+	   "h_", "(200,-573,-564,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", rm1, "COLZ");
+  draw_occ(targetDir, "localrh_zr_rp1_st1", ext, treeHits, " GEM RecHit occupancy: region1;globalZ [cm];globalR [cm]", 
+	   "h_", "(200,564,573,110,130,240)", "sqrt(globalX*globalX+globalY*globalY):globalZ", rp1, "COLZ");
+
+  draw_occ(targetDir, "localrh_zr_rm1_st23", ext, treeHits, " GEM RecHit occupancy: region-1;globalZ [cm];globalR [cm]", 
+	   "h_", "(300,-805,-785,220,130,350)", "sqrt(globalX*globalX+globalY*globalY):globalZ", rm1, "COLZ");
+  draw_occ(targetDir, "localrh_zr_rp1_st23", ext, treeHits, " GEM RecHit occupancy: region1;globalZ [cm];globalR [cm]", 
+	   "h_", "(300,785,805,220,130,350)", "sqrt(globalX*globalX+globalY*globalY):globalZ", rp1, "COLZ");
+
+#-------------------------------------------------------------------------------------------------------------------------------------#
+  draw_1D_adv(targetDir, "strip_rh_tot", ext, treeHits, "GEM RecHit occupancy per strip number;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", TCut(""))
+
+  draw_1D_adv(targetDir, "strip_rh_rm1_st1_l1_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer1 station1;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rm1,l1,st1))
+  draw_1D_adv(targetDir, "strip_rh_rm1_st1_l2_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer2 station1;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rm1,l2,st1))
+  draw_1D_adv(targetDir, "strip_rh_rp1_st1_l1_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer1 station1;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rp1,l1,st1))
+  draw_1D_adv(targetDir, "strip_rh_rp1_st1_l2_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer2 station1;strip number;entries", 
+	  "h_", "(384,0.5,384.5)", "firstClusterStrip", AND(rp1,l2,st1))
+
+  draw_1D_adv(targetDir, "strip_rh_rm1_st2_l1_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer1 station2;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "firstClusterStrip", AND(rm1,l1,st2))
+  draw_1D_adv(targetDir, "strip_rh_rm1_st2_l2_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer2 station2;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "firstClusterStrip", AND(rm1,l2,st2))
+  draw_1D_adv(targetDir, "strip_rh_rp1_st2_l1_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer1 station2;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "firstClusterStrip", AND(rp1,l1,st2))
+  draw_1D_adv(targetDir, "strip_rh_rp1_st2_l2_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer2 station2;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "firstClusterStrip", AND(rp1,l2,st2))
+
+  draw_1D_adv(targetDir, "strip_rh_rm1_st3_l1_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer1 station3;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "firstClusterStrip", AND(rm1,l1,st3))
+  draw_1D_adv(targetDir, "strip_rh_rm1_st3_l2_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region-1 layer2 station3;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "firstClusterStrip", AND(rm1,l2,st3))
+  draw_1D_adv(targetDir, "strip_rh_rp1_st3_l1_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer1 station3;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "firstClusterStrip", AND(rp1,l1,st3))
+  draw_1D_adv(targetDir, "strip_rh_rp1_st3_l2_tot", ext, treeHits, "GEM RecHit occupancy per strip number, region1 layer2 station3;strip number;entries", 
+	  "h_", "(768,0.5,768.5)", "firstClusterStrip", AND(rp1,l2,st3))
 
  
   file.Close()
