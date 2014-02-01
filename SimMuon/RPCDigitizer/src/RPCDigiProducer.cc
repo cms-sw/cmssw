@@ -79,11 +79,12 @@ void RPCDigiProducer::beginRun(const edm::Run& r, const edm::EventSetup& eventSe
    edm::ESHandle<RPCClusterSize> clsRcd;
    eventSetup.get<RPCClusterSizeRcd>().get(clsRcd);
 
+   theRPCSimSetUp->setGeometry( pGeom );
    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), clsRcd->getCls());
-//    theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
+   // theRPCSimSetUp->setRPCSetUp(noiseRcd->getVNoise(), noiseRcd->getCls());
   
   theDigitizer->setGeometry( pGeom );
-  theRPCSimSetUp->setGeometry( pGeom );
+  // theRPCSimSetUp->setGeometry( pGeom );
   theDigitizer->setRPCSimSetUp( theRPCSimSetUp );
 }
 
