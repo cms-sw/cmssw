@@ -36,10 +36,5 @@
       <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
       <Parameter name="ReadOutName" value="MuonGEMHits"/>
     </SpecPar>
-    <SpecPar name="me0">
-      <PartSelector path="//ME0L.*"/>
-      <Parameter name="SensitiveDetector" value="MuonSensitiveDetector"/>
-      <Parameter name="ReadOutName" value="MuonME0Hits"/>
-    </SpecPar>
   </SpecParSection>
 </DDDefinition>
