@@ -14,6 +14,10 @@
   <class name="reco::PFCluster::EEtoPSAssociation"/>
   <class name="edm::Wrapper<reco::PFCluster::EEtoPSAssociation>"/>
 
+  <class name="PFLayer" ClassVersion="10">
+   <version ClassVersion="10" checksum="85611"/>
+  </class>
+  <enum name="PFLayer::Layer"/> 
   <class name="reco::PFRecHitFraction" ClassVersion="10">
    <version ClassVersion="10" checksum="3960206"/>
   </class>
