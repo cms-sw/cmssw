@@ -1,4 +1,8 @@
 #include "SiStripRawToClustersLazyUnpacker.h"
+
+
+#include "SiStripRawToDigiUnpacker.h"
+
 #include <sstream>
 #include <iostream>
 
@@ -12,7 +16,6 @@ namespace sistrip {
     clusterizer_(&clustalgo),
     rawAlgos_(&rpAlgos),
     buffers_(),
-    rawToDigi_(0,0,0,0,0,0,0,0),
     dump_(dump),
     doAPVEmulatorCheck_(true)
   {
@@ -102,7 +105,7 @@ namespace sistrip {
 	  // dump of FEDRawData to stdout
 	  if ( dump_ ) {
 	    std::stringstream ss;
-	    rawToDigi_.dumpRawData( fedId, rawData, ss );
+	    RawToDigiUnpacker::dumpRawData( fedId, rawData, ss );
 	    LogTrace(mlRawToDigi_) 
 	      << ss.str();
 	  }
