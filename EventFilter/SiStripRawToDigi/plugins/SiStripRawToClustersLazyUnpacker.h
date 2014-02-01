@@ -9,7 +9,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingAlgorithms.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include <vector>
 #include <list>
@@ -52,9 +51,6 @@ namespace sistrip {
     
     /// FED event cache
     std::vector< sistrip::FEDBuffer* > buffers_;
-    
-    /// raw-to-digi
-    RawToDigiUnpacker rawToDigi_;
     
     /// dump frequency
     bool dump_;

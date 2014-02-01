@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/LazyGetter.h"
 #include "DataFormats/Common/interface/RefGetter.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersLazyUnpacker.h"
+#include "SiStripRawToClustersLazyUnpacker.h"
 #include <string>
 #include <memory>
 #include "boost/bind.hpp"
