@@ -43,9 +43,9 @@ initialize(const edm::EventSetup& es) {
   }
   if (mod) { 
     // redo indexing!
-    SiStripDetCabling const * cabling = qualityHandle->cabling();
-    auto const & conn = cabling->connected();
-    assert(cabling); 
+    SiStripDetCabling const * theCabling = qualityHandle->cabling();
+    assert(theCabling); 
+    auto const & conn = cabling()->connected();
     COUT << "cabling " << conn.size() << std::endl;
     detIds.clear();
     detIds.reserve(conn.size());
@@ -101,9 +101,15 @@ initialize(const edm::EventSetup& es) {
       assert(nn<=dum.size());
       COUT << "gain " << dum.size() << " " <<nn<< std::endl;
     }
-
-
   }
+
+  // initalize first det
+  ind = 0;
+  detId = detIds[ind];
+
+  gainRange = gainHandle->getRangeByPos(indices[ind].gi);
+  noiseRange = noiseHandle->getRangeByPos(indices[ind].ni);
+  qualityRange = qualityHandle->getRangeByPos(indices[ind].qi);
 
 }
 
@@ -111,20 +117,30 @@ initialize(const edm::EventSetup& es) {
 bool StripClusterizerAlgorithm::
 setDetId(const uint32_t id) {
   if (id==detId) return true; // rare....
-  auto b = detIds.begin();
-  auto e = detIds.end();
-  if (id>detId) b+=ind;
-  else e=b+ind;
-  auto p = std::lower_bound(b,e,id);
-  if (p==e || id!=(*p)) {
-    edm::LogWarning("StripClusterizerAlgorithm") 
-      <<"id " << id << " not connected. this is impossible on data "
-      << "old id " << detId << std::endl;
-    return false;
+  // priority to sequential scan
+  if (id==detIds[ind+1]) {
+    ++ind;
+  } else if unlikely( (id>detId) &  (id<detIds[ind+1]) ) {
+      edm::LogWarning("StripClusterizerAlgorithm") 
+	<<"id " << id << " not connected. this is impossible on data "
+	<< "old id " << detId << std::endl;
+      return false; 
+    }   else{
+    auto b = detIds.begin();
+    auto e = detIds.end();
+    if (id>detId) b+=ind;
+    else e=b+ind;
+    auto p = std::lower_bound(b,e,id);
+    if (p==e || id!=(*p)) {
+      edm::LogWarning("StripClusterizerAlgorithm") 
+	<<"id " << id << " not connected. this is impossible on data "
+	<< "old id " << detId << std::endl;
+      return false;
+    }
+    ind = p-detIds.begin();
   }
-  detId = id;
-  ind = p-detIds.begin();
 
+  detId = id;
   gainRange = gainHandle->getRangeByPos(indices[ind].gi);
   noiseRange = noiseHandle->getRangeByPos(indices[ind].ni);
   qualityRange = qualityHandle->getRangeByPos(indices[ind].qi);

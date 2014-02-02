@@ -13,6 +13,8 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
   void clusterizeDetUnit(const edmNew::DetSet<SiStripDigi> &, output_t::FastFiller &);
 
   bool stripByStripBegin(uint32_t id);
+
+  // LazyGetter interface
   void stripByStripAdd(uint16_t strip, uint16_t adc, std::vector<SiStripCluster>& out);
   void stripByStripEnd(std::vector<SiStripCluster>& out);
   void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) {
@@ -21,6 +23,22 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
       unpacker++;
     }
   }
+
+  // detset interface
+  void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) override {
+    while (unpacker.hasData()) {
+      stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),out);
+      unpacker++;
+    }
+  }
+
+  void stripByStripAdd(uint16_t strip, uint16_t adc, output_t::FastFiller & out) override {
+    if(candidateEnded(strip)) endCandidate(out);
+    addToCandidate(SiStripDigi(strip,adc));
+  }
+
+  void stripByStripEnd(output_t::FastFiller & out) override { endCandidate(out);}
+
 
 
  private:

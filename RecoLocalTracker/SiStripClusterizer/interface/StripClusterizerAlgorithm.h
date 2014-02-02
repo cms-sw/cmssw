@@ -29,11 +29,21 @@ class StripClusterizerAlgorithm {
 
   //HLT stripByStrip interface
   virtual bool stripByStripBegin(uint32_t id) = 0;
+
   virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) {}
-  virtual void stripByStripAdd(uint16_t strip, uint16_t adc, std::vector<SiStripCluster>& out) = 0;
-  virtual void stripByStripEnd(std::vector<SiStripCluster>& out) = 0;
+  virtual void stripByStripAdd(uint16_t strip, uint16_t adc, std::vector<SiStripCluster>& out) {}
+  virtual void stripByStripEnd(std::vector<SiStripCluster>& out) {}
+
+  virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) {}
+  virtual void stripByStripAdd(uint16_t strip, uint16_t adc, output_t::FastFiller & out) {}
+  virtual void stripByStripEnd(output_t::FastFiller & out) {}
+
 
   struct InvalidChargeException : public cms::Exception { public: InvalidChargeException(const SiStripDigi&); };
+
+
+  SiStripDetCabling const * cabling() const { return theCabling;} 
+  
 
  protected:
 
@@ -75,8 +85,9 @@ class StripClusterizerAlgorithm {
   edm::ESHandle<SiStripGain> gainHandle;
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripQuality> qualityHandle;
+  SiStripDetCabling const * theCabling = nullptr;
   uint32_t noise_cache_id, gain_cache_id, quality_cache_id, detId=0;
-  unsigned short ind=0;
+  unsigned short ind=invalidI;
 
 };
 #endif
