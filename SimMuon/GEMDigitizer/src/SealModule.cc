@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModelFactory.h"
+#include "SimMuon/GEMDigitizer/interface/ME0DigiModelFactory.h"
 
 
 #include "SimMuon/GEMDigitizer/interface/GEMDigiProducer.h"
@@ -14,3 +15,12 @@ DEFINE_EDM_PLUGIN(GEMDigiModelFactory, GEMSimpleModel, "GEMSimpleModel");
 
 #include "SimMuon/GEMDigitizer/interface/GEMCSCPadDigiProducer.h"
 DEFINE_FWK_MODULE(GEMCSCPadDigiProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0DigiProducer.h"
+DEFINE_FWK_MODULE(ME0DigiProducer);
+
+#include "SimMuon/GEMDigitizer/interface/ME0TrivialModel.h"
+DEFINE_EDM_PLUGIN(ME0DigiModelFactory, ME0TrivialModel, "ME0TrivialModel");
+
+#include "SimMuon/GEMDigitizer/interface/ME0SimpleModel.h"
+DEFINE_EDM_PLUGIN(ME0DigiModelFactory, ME0SimpleModel, "ME0SimpleModel");
