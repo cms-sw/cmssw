@@ -51,6 +51,7 @@ namespace cond {
       bool m_loggingEnabled = false;
       // this one has to be moved!
       cond::CoralServiceManager* m_pluginManager = 0; 
+      std::vector<std::string> m_refreshtablelist;
     };
   }
 }

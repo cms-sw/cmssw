@@ -24,7 +24,7 @@ namespace cond {
       return count;
     }
 
-    std::string makeFrontierConnectionString( const std::string& initialConnection, 
+    std::pair<std::string,std::string> makeFrontierConnectionString( const std::string& initialConnection, 
 					      const std::string& transactionId ){
       std::string realConn = initialConnection;
       std::string proto("frontier://");
@@ -58,18 +58,18 @@ namespace cond {
 	  refreshConnect.insert(0, "http://");
 	}
       }
-      return realConn;
+      return std::make_pair(realConn,refreshConnect);
     }
     
-    std::string getRealConnectionString( const std::string& initialConnection ){
+    std::pair<std::string,std::string> getRealConnectionString( const std::string& initialConnection ){
       return getRealConnectionString( initialConnection, "" );
     }
     
-    std::string getRealConnectionString( const std::string& initialConnection, 
-					 const std::string& transId ){
+    std::pair<std::string,std::string> getRealConnectionString( const std::string& initialConnection, 
+								const std::string& transId ){
       auto connData = parseConnectionString( initialConnection );
       if( std::get<0>(connData) == "frontier" ) return makeFrontierConnectionString(  initialConnection, transId );    
-      return initialConnection;
+      return std::make_pair(initialConnection,"");
     }
 
   }

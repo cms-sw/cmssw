@@ -274,6 +274,7 @@ int cond::IOVProxy::size() const {
 }
 
 cond::IOVSequence const & cond::IOVProxy::iov() const {
+  if( !m_iov->data.get() ) throwException( "No data found.", "IOVProxy::iov" );
   return *(m_iov->data);
 }
 
