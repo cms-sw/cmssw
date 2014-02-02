@@ -74,6 +74,7 @@ class TrackerHitAssociator {
   //  std::vector<SimHitIdpr> associateSimpleRecHit(const SiStripRecHit2D * simplerechit);
   void associateSimpleRecHit(const SiStripRecHit2D * simplerechit,std::vector<SimHitIdpr> & simhitid);
   void associateSiStripRecHit1D(const SiStripRecHit1D * simplerechit,std::vector<SimHitIdpr> & simhitid);
+  /*
   void associateSimpleRecHitCluster(const SiStripCluster* clust,
 				    const uint32_t& detID,
 				    std::vector<SimHitIdpr>& theSimtrackid,
@@ -81,6 +82,7 @@ class TrackerHitAssociator {
   void associateSimpleRecHitCluster(const SiStripCluster* clust,
 				    const uint32_t& detID,
 				    std::vector<PSimHit>& clusterSimHits);
+  */
   void associateSimpleRecHitCluster(const SiStripCluster* clust,
 				    const uint32_t& detID,
 				    std::vector<SimHitIdpr>& simtrackid);

@@ -214,6 +214,9 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   //Save the SimHits in a vector. for the macthed hits both the rphi and stereo simhits are saved. 
   //
   
+  StripHits = false;  // From CMSSW_6_2_0_pre8 simhitCFPos is ill-defined.
+  // It points relative to the PSimHit collection, but we don't know whether High- or LowTof.
+  // Before CMSSW_6_2_0_pre8 it pointed relative to base of the combined TrackerHits.
   if(StripHits){
     //USE THIS FOR STRIPS
 //     std::cout << "NEW SIZE =  " << simhitCFPos.size() << std::endl;
@@ -255,6 +258,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 // 	    	  cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 // 	    	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
 	    result.push_back(ihit);
+	    continue;
 	  }
 	}
       }
@@ -283,6 +287,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	      //	  cout << "GluedDet Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 	      //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
 	      result.push_back(ihit);
+	      continue;
 	    }
 	  }
 	}
@@ -413,6 +418,7 @@ void TrackerHitAssociator::associateSiStripRecHit1D(const SiStripRecHit1D * simp
   associateSimpleRecHitCluster(clust,simplerechit->geographicalId(),simtrackid);
 }
 
+/*
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,
 							const uint32_t& detID,
 							std::vector<SimHitIdpr>& theSimtrackid, std::vector<PSimHit>& clusterSimHits)
@@ -433,12 +439,10 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
   if (it!= SimHitSubdetMap.end()){
     subDetSimHits = it->second;
     for(size_t i=0; i<simhitCFPos.size(); i++){
+//     clusterSimHits.push_back(TrackerHits.getObject(simhitCFPos[i]));
       clusterSimHits.push_back(subDetSimHits[simhitCFPos[i]]);
     }
   }
-//   for(size_t i=0; i<simhitCFPos.size(); i++){
-//     clusterSimHits.push_back(TrackerHits.getObject(simhitCFPos[i]));
-//   }
 }
 
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,
@@ -465,10 +469,8 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
       clusterSimHits.push_back(subDetSimHits[simhitCFPos[i]]);
     }
   }
-//   for(size_t i=0; i<simhitCFPos.size(); i++){
-//     clusterSimHits.push_back(TrackerHits.getObject(simhitCFPos[i]));
-//   }
 }
+*/
 
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,
 							const uint32_t& detID,
@@ -538,21 +540,21 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 	    idcachev.push_back(currentId);
 	    simtrackid.push_back(currentId);
 	  }
-	  
+
+	  /*	  
 	  //create a vector that contains all the position (in the MixCollection) of the SimHits that contributed to the RecHit
 	  //write position only once
 	  int currentCFPos = linkiter->CFposition()-1;
 	  if(find(CFposcachev.begin(),CFposcachev.end(),currentCFPos ) == CFposcachev.end()){
-	    /*
-	      std::cout << "CHECKING CHANNEL  = " << linkiter->channel()   << std::endl;
-	      std::cout << "\tTrackID  = " << linkiter->SimTrackId()  << "\tCFPos = " << currentCFPos  << std::endl;
-	      std::cout << "\tLocal Pos = " << TrackerHits.getObject(currentCFPos).localPosition() 
-	      << "\tProcess = " << TrackerHits.getObject(currentCFPos).processType() << std::endl;
-	    */
+// 	    std::cout << "CHECKING CHANNEL  = " << linkiter->channel()   << std::endl;
+// 	    std::cout << "\tTrackID  = " << linkiter->SimTrackId()  << "\tCFPos = " << currentCFPos  << std::endl;
+// 	    std::cout << "\tLocal Pos = " << TrackerHits.getObject(currentCFPos).localPosition()
+// 		      << "\tProcess = " << TrackerHits.getObject(currentCFPos).processType() << std::endl;
 	    CFposcachev.push_back(currentCFPos);
 	    simhitCFPos.push_back(currentCFPos);
 	    //	  simhitassoc.push_back( TrackerHits.getObject(currentCFPos));
 	  }
+	  */
 	}
       }    
     }
