@@ -66,7 +66,7 @@ public:
   void produce(edm::Event& ev, const edm::EventSetup& es) {
 
     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
-    output->reserve(10000,4*10000);
+    output->reserve(15000,6*10000);
 
     initialize(es);
 
@@ -129,6 +129,7 @@ void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl,
 
 
   std::unique_ptr<sistrip::FEDBuffer> buffers[1024];
+  bool done[1024] = {};  // false is default
 
   // loop over det in cabling
   for ( auto const & elem : cabling_->getDetCabling()) {
@@ -149,9 +150,10 @@ void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl,
       // If fed id is null or connection is invalid continue
       if unlikely( !fedId || !conn->isConnected() ) { continue; }    
 
-	// If Fed hasnt already been initialised, extract data and initialise
-      if (!buffers[fedId]) buffers[fedId].reset(fillBuffer(fedId, rawColl));
+      // If Fed hasnt already been initialised, extract data and initialise
+      if (!done[fedId]) { buffers[fedId].reset(fillBuffer(fedId, rawColl)); done[fedId]=true;}
       auto buffer = buffers[fedId].get();
+      if unlikely(!buffer) continue;
 
       // check channel
       const uint8_t fedCh = conn->fedCh();
