@@ -57,6 +57,7 @@ class StripClusterizerAlgorithm {
   bool isModuleBad(const uint32_t& id)  const { return qualityHandle->IsModuleBad( id ); }
   bool isModuleUsable(const uint32_t& id)  const { return qualityHandle->IsModuleUsable( id ); }
   bool allBadBetween(uint16_t L, const uint16_t& R) const { while( ++L < R  &&  bad(L) ); return L == R; }
+
   std::string qualityLabel;
   bool _setDetId;
 

@@ -9,6 +9,8 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#define VIDEBUG
+
 #ifdef VIDEBUG
 #define COUT std::cout
 #else
@@ -41,9 +43,10 @@ initialize(const edm::EventSetup& es) {
     quality_cache_id = q_cache_id;
     mod=true;
   }
+
   if (mod) { 
     // redo indexing!
-    SiStripDetCabling const * theCabling = qualityHandle->cabling();
+    theCabling = qualityHandle->cabling();
     assert(theCabling); 
     auto const & conn = cabling()->connected();
     COUT << "cabling " << conn.size() << std::endl;
