@@ -21,15 +21,15 @@ void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
       DetId newid = relabel(hcalHits[ii].id());
 #ifdef DebugLog
       std::cout << "Hit " << ii << " out of " << hcalHits.size() << " " << std::hex << newid.rawId() << std::dec << '\n';
-      HcalDetId newcell(newid);
-      if (theGeometry) {
-	const CaloCellGeometry *cellGeometry =
-	  theGeometry->getSubdetectorGeometry(newcell)->getGeometry(newcell);
-	GlobalPoint globalposition =(GlobalPoint)(cellGeometry->getPosition());
-	std::cout << "PCaloHit " << newcell << " position: " << globalposition 
-		  << std::endl;
-      }
-      std::cout.flush();
+//      HcalDetId newcell(newid);
+//      if (theGeometry) {
+//	const CaloCellGeometry *cellGeometry =
+//	  theGeometry->getSubdetectorGeometry(newcell)->getGeometry(newcell);
+//	GlobalPoint globalposition =(GlobalPoint)(cellGeometry->getPosition());
+//	std::cout << "PCaloHit " << newcell << " position: " << globalposition 
+//		  << std::endl;
+//      }
+//      std::cout.flush();
 #endif
       hcalHits[ii].setID(newid.rawId());
 #ifdef DebugLog

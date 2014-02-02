@@ -124,8 +124,17 @@ HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet,int ieta,
   if (subdet == static_cast<int>(HcalBarrel) || 
       subdet == static_cast<int>(HcalEndcap)) {
     eta      = ietaMap[ieta-1];
-    int phi0 = (iphi-1)/phiGroup[eta-1]; ++phi0;
-    int unit = hcons->unitPhi(phibin[eta-1]);
+    int unit = phiUnitS[ieta-1];
+    int phi0 = (iphi-1)/phiGroup[eta-1];
+    if (unit == 2) {
+      phi0   = (iphi+1)/2;
+      phi0   = (phi0-1)/phiGroup[eta-1];
+    } else if (unit == 4) {
+      phi0   = (iphi+5)/4;
+      phi0   = (phi0-1)/phiGroup[eta-1];
+    }
+    ++phi0;
+    unit     = hcons->unitPhi(phibin[eta-1]);
     phi      = hcons->phiNumber(phi0,unit);
     depth    = layerGroup[eta-1][lay-1];
     if (eta == iEtaMin[1]) {
@@ -144,6 +153,11 @@ HcalDDDRecConstants::HcalID HcalDDDRecConstants::getHCID(int subdet,int ieta,
   } else if (subdet == static_cast<int>(HcalOuter)) {
     depth = 4;
   } 
+#ifdef DebugLog
+  std::cout << "getHCID: input " << subdet << ":" << ieta << ":" << iphi
+	    << ":" << idepth << ":" << lay << " output " << eta << ":" << phi
+	    << ":" << depth << std::endl;
+#endif
   return HcalDDDRecConstants::HcalID(eta,phi,depth);
 }
 
@@ -341,11 +355,15 @@ void HcalDDDRecConstants::loadSimConst() {
 
   // Then Phi bins
   ieta = 0;
-  phibin.clear(); 
+  phibin.clear(); phiUnitS.clear();
   for (int i=0; i<nEta; ++i) {
     double dphi = phiGroup[i]*hcons->getPhiBin(ieta);
     phibin.push_back(dphi);
     ieta += etaGroup[i];
+  }
+  for (unsigned int i=1; i<etas.size(); ++i) {
+    int unit = hcons->unitPhi(hcons->getPhiBin(i-1));
+    phiUnitS.push_back(unit);
   }
 #ifdef DebugLog
   std::cout << "Modified eta/deltaphi table for " << nEta << " bins" << std::endl;
@@ -353,6 +371,10 @@ void HcalDDDRecConstants::loadSimConst() {
     std::cout << "Eta[" << i << "] = " << etaTable[i] << ":" << etaTable[i+1]
 	      << ":" << etaSimValu[i].first << ":" << etaSimValu[i].second
 	      << " PhiBin[" << i << "] = " << phibin[i]/CLHEP::deg <<std::endl;
+  std::cout << "PhiUnitS";
+  for (unsigned int i=0; i<phiUnitS.size(); ++i)
+    std::cout << " [" << i << "] = " << phiUnitS[i];
+  std::cout << std::endl;
 #endif
 
   //Phi offsets for barrel and endcap & special constants
