@@ -20,8 +20,8 @@
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class HcalCholeskyMatricesRcd : public edm::eventsetup::DependentRecordImplementation<HcalCholeskyMatricesRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalCholeskyMatricesRcd : public edm::eventsetup::DependentRecordImplementation<HcalCholeskyMatricesRcd, boost::mpl::vector<HcalRecNumberingRecord> > {};
 
 #endif
