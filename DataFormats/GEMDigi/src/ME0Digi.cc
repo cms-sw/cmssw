@@ -4,7 +4,7 @@
  */
 
 
-#include "DataFormats/ME0Digi/interface/ME0Digi.h"
+#include "DataFormats/GEMDigi/interface/ME0Digi.h"
 #include <iostream>
 
 ME0Digi::ME0Digi (int strip, int bx) :
