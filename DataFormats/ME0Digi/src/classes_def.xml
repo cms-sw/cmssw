@@ -1,0 +1,11 @@
+<lcgdict>
+
+<class name="ME0Digi" ClassVersion="10">
+ <version ClassVersion="10" checksum="2054480652"/>
+</class>
+<class name="std::vector<ME0Digi>"/>
+<class name="std::map<ME0DetId,std::vector<ME0Digi> >"/>
+<class name="MuonDigiCollection<ME0DetId,ME0Digi>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<ME0DetId,ME0Digi> >" splitLevel="0"/> 
+
+</lcgdict>
