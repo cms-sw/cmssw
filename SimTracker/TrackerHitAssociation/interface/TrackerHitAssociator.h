@@ -124,6 +124,7 @@ class TrackerHitAssociator {
   bool StripHits;
   
   bool doPixel_, doStrip_, doTrackAssoc_;
+  bool useCFpos_;
   
 };  
 
