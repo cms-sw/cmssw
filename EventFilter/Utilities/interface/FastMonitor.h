@@ -12,7 +12,7 @@
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/DataPoint.h"
 
-#include <tbb/concurrent_queue.h>
+#include <unordered_set>
 
 namespace jsoncollector {
 
@@ -89,6 +89,8 @@ private:
 	unsigned int recentSnaps_ = 0;
 	unsigned int recentSnapsTimer_ = 0;
 	unsigned int regDpCount_ = 0;
+
+	std::unordered_set<std::string> uids_;
 
 
 };

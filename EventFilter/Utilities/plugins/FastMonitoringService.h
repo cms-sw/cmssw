@@ -20,7 +20,7 @@
 #include <map>
 #include <queue>
 #include <sstream>
-//#include <unordered_map>
+#include <unordered_map>
 
 /*Description
   this is an evolution of the MicroStateService intended to be run standalone in cmsRun or similar
@@ -58,7 +58,7 @@ namespace evf{
 	}
 	//trick: only encode state when sending it over (i.e. every sec)
 	int encode(const void *add){
-	  std::map<const void *, int>::const_iterator it=quickReference_.find(add);
+	  std::unordered_map<const void *, int>::const_iterator it=quickReference_.find(add);
 	  return (it!=quickReference_.end()) ? (*it).second : 0;
 	}
 	const void* decode(unsigned int index){return decoder_[index];}
@@ -88,7 +88,7 @@ namespace evf{
 	unsigned int vecsize() {
 	  return decoder_.size();
 	}
-	std::map<const void *,int> quickReference_;
+	std::unordered_map<const void *,int> quickReference_;
 	std::vector<const void *> decoder_;
 	unsigned int reserved_;
 	int current_;
@@ -114,7 +114,7 @@ namespace evf{
       void preModuleBeginJob(edm::ModuleDescription const&);
       void postBeginJob();
       void postEndJob();
-      void prePathBeginRun(const std::string& pathName);//!
+      void prePathBeginRun(const std::string& pathName);//NOT USED
 
       void postGlobalBeginRun(edm::GlobalContext const&);
       void preGlobalBeginLumi(edm::GlobalContext const&);
@@ -131,10 +131,11 @@ namespace evf{
       void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
       void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
-      //OBSOLETE
-      void setMicroState(MicroStateService::Microstate); // this is still needed for use in special functions like DQM which are in turn framework services.
+      //this is still needed for use in special functions like DQM which are in turn framework services
+      void setMicroState(MicroStateService::Microstate);
       void setMicroState(edm::StreamID, MicroStateService::Microstate);
 
+      void reportEventsThisLumiInSource(unsigned int lumi,unsigned int events);
       void accumulateFileSize(unsigned int lumi, unsigned long fileSize);
       void startedLookingForFile();
       void stoppedLookingForFile(unsigned int lumi);
@@ -147,7 +148,7 @@ namespace evf{
       void doSnapshot(bool outputCSV, unsigned int forLumi, bool isGlobalEOL, bool isStream, unsigned int streamID);
 
       void doStreamEOLSnapshot(bool outputCSV,unsigned int forLumi,unsigned int streamID) {
-	//this updates only atomic vector(s)
+	//pick up only event count here
 	fmt_.jsonMonitor_->snapStreamAtomic(outputCSV, fastPath_,streamID,forLumi);
       }
 
@@ -155,12 +156,11 @@ namespace evf{
 	std::atomic_thread_fence(std::memory_order_acquire);
 	while (!fmt_.m_stoprequest) {
 	  std::cout << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
-	   << " ms=" << encPath_.encode(ministate_[0])
+	   << " ms=" << encPath_[0].encode(ministate_[0])
 	      << " us=" << encModule_.encode(microstate_[0]) << std::endl;
 
 	  // lock the monitor
 	  fmt_.monlock_.lock();
-	  //do a snapshot, also output fast CSV
           doSnapshot(true,lastGlobalLumi_,false,false,0);
 	  fmt_.monlock_.unlock();
 
@@ -171,7 +171,7 @@ namespace evf{
       //the actual monitoring thread is held by a separate class object for ease of maintenance
       FastMonitoringThread fmt_;
       Encoding encModule_;
-      Encoding encPath_;
+      std::vector<Encoding> encPath_;
 
       unsigned int nStreams_;
       unsigned int nThreads_;
@@ -182,12 +182,12 @@ namespace evf{
       //variables that are used by/monitored by FastMonitoringThread / FastMonitor
 
       std::map<unsigned int, timeval> lumiStartTime_;//needed for multiplexed begin/end lumis
-      timeval fileLookStart_, fileLookStop_;//this should be better calculated in input source
+      timeval fileLookStart_, fileLookStop_;//this could also be calculated in the input source
 
       unsigned int lastGlobalLumi_;
       std::queue<unsigned int> lastGlobalLumisClosed_;
       bool isGlobalLumiTransition_;
-      unsigned int lumiFromSource_;//possibly use atomic
+      unsigned int lumiFromSource_;
 
       //global state
       FastMonitoringThread::Macrostate macrostate_;
@@ -197,6 +197,7 @@ namespace evf{
       std::vector<const void*> microstate_;
 
       //variables measuring source statistics (global)
+      //unordered_map is not used because of very few elements stored concurrently
       std::map<unsigned int, double> throughput_;
       std::map<unsigned int, double> avgLeadTime_;
       std::map<unsigned int, unsigned int> filesProcessedDuringLumi_;
@@ -205,23 +206,24 @@ namespace evf{
       std::vector<double> leadTimes_;
 
       //for output module
-      //std::unordered_map<unsigned int, int> processedEventsPerLumi_;
-      std::map<unsigned int, int> processedEventsPerLumi_;
+      std::map<unsigned int, unsigned int> processedEventsPerLumi_;
 
-
+      //flag used to block EOL until event count is picked up by caches (not certain that this is really an issue)
+      //to disable this behavior, set #ATOMIC_LEVEL 0 or 1 in DataPoint.h
       std::vector<std::atomic<bool>*> streamCounterUpdating_;
 
-      std::map<unsigned int,std::vector<bool>> streamEoLMap_;
+      //std::map<unsigned int,std::vector<bool>> streamEoLMap_;
 
       boost::mutex initPathsLock_;
-      unsigned long firstEventId_ = 0;
-      std::atomic<bool> collectedPathList_;
+      std::vector<unsigned long> firstEventId_;
+      std::vector<std::atomic<bool>*> collectedPathList_;
+      std::vector<unsigned int> eventCountForPathInit_;
       std::vector<bool> pathNamesReady_;
 
       boost::filesystem::path workingDirectory_, runDirectory_;
 
-      //for path name retrieve hack
-      unsigned int eventCountForPathInit_ = 0;
+
+      std::map<unsigned int,unsigned int> sourceEventsReport_;
     };
 
 }

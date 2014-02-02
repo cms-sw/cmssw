@@ -130,11 +130,13 @@ void DataPoint::snap(unsigned int lumi)
 	unsigned int streamLumi_=streamLumisPtr_->at(i);//get currently processed stream lumi
 	unsigned int monVal;
 
-//#if ATOMIC_LEVEL>0 //no need to do this as we are protected by a lock
-//	if (isAtomic_) monVal = ((std::vector<AtomicMonUInt*>*)tracked_)->at(i)->load(std::memory_order_acquire);
-//#else
-	if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(i)->load(std::memory_order_relaxed);
-//#endif
+//#if ATOMIC_LEVEL>0 //strictest version
+//        if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(i)->load(std::memory_order_acquire);
+#if ATOMIC_LEVEL>0
+        if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(i)->load(std::memory_order_relaxed);
+#else 
+        if (isAtomic_) monVal = *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(i));
+#endif
 	else monVal = (static_cast<std::vector<unsigned int>*>(tracked_))->at(i);
 
 	auto itr =  streamDataMaps_[i].find(streamLumi_);
@@ -208,11 +210,13 @@ void DataPoint::snapStreamAtomic(unsigned int streamID, unsigned int lumi)
   if (monType_==TYPEUINT)
   {
       unsigned int monVal;
-//#if ATOMIC_LEVEL>0 //no need to do this as we are protected by a lock
+//#if ATOMIC_LEVEL>0 //strictest version
 //      if (isAtomic_) monVal = ((std::vector<AtomicMonUInt*>*)tracked_)->at(streamID)->load(std::memory_order_acquire);
-//#else
+#if ATOMIC_LEVEL>0
       if (isAtomic_) monVal = (static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(streamID)->load(std::memory_order_relaxed);
-//#endif
+#else 
+       if (isAtomic_) monVal = *((static_cast<std::vector<AtomicMonUInt*>*>(tracked_))->at(streamID));
+#endif
       else monVal = (static_cast<std::vector<unsigned int>*>(tracked_))->at(streamID);
 
       auto itr =  streamDataMaps_[streamID].find(lumi);
@@ -357,6 +361,8 @@ void DataPoint::mergeAndSerialize(Json::Value & root,unsigned int lumi,bool init
 	}
 }
 
+//wipe out data that will no longer be used
+//should use iterator to erase
 void DataPoint::discardCollected(unsigned int lumi)
 {
 	for (unsigned int i=0;i<streamDataMaps_.size();i++)

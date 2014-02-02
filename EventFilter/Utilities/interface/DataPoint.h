@@ -19,9 +19,9 @@
 #include <assert.h>
 
 //synchronization level between streams/threads for atomic updates
-#define ATOMIC_LEVEL 2 //assume postEvent and postLumi are not synchronized (each invocation can run in different thread)
+//#define ATOMIC_LEVEL 2 //assume postEvent and postLumi are not synchronized (each invocation can run in different thread)
 //#define ATOMIC_LEVEL 1 //assume postEvent can run in different threads but endLumi still sees all memory writes properly
-//#define ATOMIC_LEVEL 0 //assume a stream always runs in same thread and no atomics/synchronization needed in that context
+#define ATOMIC_LEVEL 0 //assume a stream always runs in same thread and no atomics/synchronization needed in that context
 
 namespace jsoncollector {
 
@@ -134,7 +134,7 @@ protected:
 	MonPtrMap globalDataMap_;
 	void *tracked_;
 
-        //global lumi ptr (not needed)
+        //stream lumi block position
 	std::vector<unsigned int> *streamLumisPtr_ = nullptr;
 
 	bool isStream_ = false;

@@ -8,6 +8,7 @@
 #include <vector>
 #include <fstream>
 #include <zlib.h>
+#include <stdio.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -63,7 +64,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   dataBuffer_(new unsigned char[1024 * 1024 * eventChunkSize_]),
   bufferCursor_(dataBuffer_),
   bufferLeft_(0),
-  dpd_(nullptr)
+  dpd_(nullptr),
+  eventsThisLumi_(0)
 {
   char thishost[256];
   gethostname(thishost, 255); 
@@ -105,6 +107,7 @@ bool FedRawDataInputSource::checkNextEvent()
     if (!getLSFromFilename_) {
       //get new lumi from file header
       maybeOpenNewLumiSection( event_->lumi() );
+      if (fms_) fms_->reportEventsThisLumiInSource(event_->lumi(),eventsThisLumi_);
     }
 
     eventID_ = edm::EventID(
@@ -337,15 +340,15 @@ int FedRawDataInputSource::searchForNextFile()
 
   edm::LogInfo("FedRawDataInputSource") << "Asking for next file... to the DaqDirector";
  
-  evf::FastMonitoringService *fms = nullptr;
-
-  try {
-     fms = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
-  } catch (...){
-    edm::LogWarning("FedRawDataInputSource") << "FastMonitoringService not found";
+  if (!fms_) {
+    try {
+       fms_ = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
+    } catch (...){
+      edm::LogWarning("FedRawDataInputSource") << "FastMonitoringService not found";
+    }
   }
 
-  if (fms) fms->startedLookingForFile();
+  if (fms_) fms_->startedLookingForFile();
  
   bool fileIsOKToGrab = edm::Service<evf::EvFDaqDirector>()->updateFuLock(ls,nextFile,eorFileSeen_);
 
@@ -353,7 +356,8 @@ int FedRawDataInputSource::searchForNextFile()
 
     edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
 
-    if (fms) fms->stoppedLookingForFile(currentLumiSection_);//TODO:report to correct ls if updated
+    //report on the new ls
+    if (fms_) fms_->stoppedLookingForFile(ls);
 
     boost::filesystem::path jsonFile(nextFile);
     jsonFile.replace_extension(".jsn");
@@ -368,6 +372,8 @@ int FedRawDataInputSource::searchForNextFile()
     maybeOpenNewLumiSection(ls);
     retval = 1;
   }
+  if (fms_) fms_->reportEventsThisLumiInSource(ls,eventsThisLumi_);
+  eventsThisLumi_=0;
 
   return retval;
 }
@@ -428,8 +434,10 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
     catch( boost::bad_lexical_cast const& ) {
       throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
 	" error reading number of events from BU JSON. Input value is " << data;
-      }
+    }
+    eventsThisLumi_=currentInputEventCount_;
       //currentInputEventCount_=atoi(data.c_str());
+
     return true;
   }
 

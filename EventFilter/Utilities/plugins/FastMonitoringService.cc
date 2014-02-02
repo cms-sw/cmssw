@@ -28,7 +28,6 @@ namespace evf{
 				       edm::ActivityRegistry& reg) : 
     MicroStateService(iPS,reg)
     ,encModule_(33)
-    ,encPath_(0)
     ,nStreams_(0)//until initialized
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
     //,rootDirectory_(iPS.getUntrackedParameter<std::string>("rootDirectory", "/data"))
@@ -36,7 +35,6 @@ namespace evf{
     ,outputDefPath_(iPS.getUntrackedParameter<std::string>("outputDefPath", "/tmp/def.jsd"))
     ,fastName_(iPS.getUntrackedParameter<std::string>("fastName", "states"))
     ,slowName_(iPS.getUntrackedParameter<std::string>("slowName", "lumi"))
-    ,collectedPathList_(false)
   {
     reg.watchPreallocate(this, &FastMonitoringService::preallocate);//receiving information on number of threads
     reg.watchJobFailure(this,&FastMonitoringService::jobFailure);//global
@@ -45,9 +43,7 @@ namespace evf{
     reg.watchPostBeginJob(this,&FastMonitoringService::postBeginJob);
     reg.watchPostEndJob(this,&FastMonitoringService::postEndJob);
 
-    //TODO:
-    //reg.watchPrePathBeginRun(this,&FastMonitoringService::prePathBeginRun);//there is no equivalent of this (will need to get it at first event..)
-    //reg.watchPostGlobalBeginRun(this,&FastMonitoringService::postBeginRun);
+    //reg.watchPrePathBeginRun(this,&FastMonitoringService::prePathBeginRun);//there is no equivalent of this now
 
     reg.watchPreGlobalBeginLumi(this,&FastMonitoringService::preGlobalBeginLumi);//global lumi
     reg.watchPreGlobalEndLumi(this,&FastMonitoringService::preGlobalEndLumi);
@@ -70,7 +66,6 @@ namespace evf{
 
     for(unsigned int i = 0; i < (mCOUNT); i++)
       encModule_.updateReserved((void*)(reservedMicroStateNames+i));
-    encPath_.update((void*)&nopath_);
     encModule_.completeReservedWithDummies();
 
     // The run dir should be set via the configuration
@@ -105,7 +100,7 @@ namespace evf{
     std::cout
 			<< "FastMonitoringService: initializing FastMonitor with microstate def path: "
 			<< microstateDefPath_ << " " << FastMonitoringThread::MCOUNT << " "
-			<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
+			//<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
 			<< std::endl;
   }
 
@@ -117,12 +112,12 @@ namespace evf{
 
 
   std::string FastMonitoringService::makePathLegenda(){
-    
+    //taken from first stream
     std::ostringstream ost;
     for(int i = 0;
-	i < encPath_.current_;
+	i < encPath_[0].current_;
 	i++)
-      ost<<i<<"="<<*((std::string *)(encPath_.decode(i)))<<" ";
+      ost<<i<<"="<<*((std::string *)(encPath_[0].decode(i)))<<" ";
     return ost.str();
   }
 
@@ -161,9 +156,15 @@ namespace evf{
        microstate_.push_back(&reservedMicroStateNames[mInvalid]);
 
        //for synchronization
-       std::atomic<bool> * pa  = new std::atomic<bool>;
-       *pa=0;
-       streamCounterUpdating_.push_back(pa);
+       streamCounterUpdating_.push_back(new std::atomic<bool>(0));
+
+       //path (mini) state
+       encPath_.emplace_back(0);
+       encPath_[i].update((void*)&nopath_);
+       eventCountForPathInit_.push_back(0);
+       firstEventId_.push_back(0);
+       collectedPathList_.push_back(new std::atomic<bool>(0));
+
     }
     //initial size until we detect number of bins
     fmt_.m_data.macrostateBins_=FastMonitoringThread::MCOUNT;
@@ -228,8 +229,8 @@ namespace evf{
     return ;
     //bonus track, now monitoring path execution too...
     // here we are forced to use string keys...
-    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>update path map with " << pathName << std::endl;
-    encPath_.update((void*)&pathName);
+//    std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>update path map with " << pathName << std::endl;
+//    encPath_.update((void*)&pathName);
   }
 
   void FastMonitoringService::postGlobalBeginRun(edm::GlobalContext const& gc)
@@ -261,15 +262,15 @@ namespace evf{
 		  filesProcessedDuringLumi_.erase(oldLumi);
 		  accuSize_.erase(oldLumi);
 		  processedEventsPerLumi_.erase(oldLumi);
-		  streamEoLMap_.erase(oldLumi);
+		  //streamEoLMap_.erase(oldLumi);
 	  }
 	  lastGlobalLumi_= newLumi;
 	  isGlobalLumiTransition_=false;
 
 	  //put a map for streams to report if they had EOL (else we have to update some variables)
-	  std::vector<bool> streamEolVec_;
-	  for (unsigned int i=0;i<nStreams_;i++) streamEolVec_.push_back(false);
-	  streamEoLMap_[newLumi] = streamEolVec_;
+	  //std::vector<bool> streamEolVec_;
+	  //for (unsigned int i=0;i<nStreams_;i++) streamEolVec_.push_back(false);
+	  //streamEoLMap_[newLumi] = streamEolVec_;
 
 	  fmt_.monlock_.unlock();
   }
@@ -306,6 +307,18 @@ namespace evf{
           assert(lumiProcessedJptr!=nullptr);
 	  processedEventsPerLumi_[lumi] = lumiProcessedJptr->value();
 
+	  //cross check (debugging)
+	  {
+	    auto itr = sourceEventsReport_.find(lumi);
+	    if (itr==sourceEventsReport_.end()) std::cout << "ERROR: SOURCE REPORT did not update yet for lumi" << lumi << std::endl;
+	    else {
+	      if (itr->second!=processedEventsPerLumi_[lumi])
+		std::cout << " ERROR: MISMATCH with SOURCE REPORT from lumi" << lumi << "events(processed):" << processedEventsPerLumi_[lumi]
+                          << " events(source):" << itr->second << std::endl;
+	      sourceEventsReport_.erase(itr);
+	    }
+	  }
+
 	  std::cout
 			<< ">>> >>> FastMonitoringService: processed event count for this lumi = "
 			<< lumiProcessedJptr->value() << " time = " << secondsForLumi
@@ -334,7 +347,16 @@ namespace evf{
     fmt_.m_data.streamLumi_[sid] = sc.eventID().luminosityBlock();
 
     //reset collected values for this stream
+
+    //instead of setting to 0, do atomic subtract (for consistent counting in case of data races)
     *(fmt_.m_data.processed_[sid])=0;
+    //assuming the worst: that beginLumi runs in different thread than endLumi and does not yet see postEvent changes
+
+    //unsigned int val = fmt_.m_data.processed_[sid]->load(std::memory_order_consume);
+//    while (streamCounterUpdating_[sid]->load(std::memory_order_acquire)) {}
+//    unsigned int val = fmt_.m_data.processed_[sid]->load(std::memory_order_relaxed);
+
+//    fmt_.m_data.processed_[sid]->fetch_sub(val,std::memory_order_release);
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
     fmt_.monlock_.unlock();
@@ -344,7 +366,7 @@ namespace evf{
   {
     unsigned int sid = sc.streamID().value();
     fmt_.monlock_.lock();
-#if ATOMIC_LEVEL==2
+#if ATOMIC_LEVEL>=2
     //spinlock to make sure we are not still updating event counter somewhere
     while (streamCounterUpdating_[sid]->load(std::memory_order_acquire)) {}
 #endif
@@ -360,23 +382,21 @@ namespace evf{
   void FastMonitoringService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const& pc)
   {
     //make sure that all path names are retrieved before allowing ministate to change
-    //TODO:maybe we can just check at decoding step and allow relaxed access
-    //hack: assume memory is synchronized after ~50 events seen by 1st stream
-    if (unlikely(eventCountForPathInit_<50) && false==collectedPathList_.load(std::memory_order_acquire))
+    //hack: assume memory is synchronized after ~50 events seen by each stream
+    if (unlikely(eventCountForPathInit_[sc.streamID()]<50) && false==collectedPathList_[sc.streamID()]->load(std::memory_order_acquire))
     {
-      if (sc.streamID().value()!=0) return;
       initPathsLock_.lock();
-      if (firstEventId_==0) 
-	firstEventId_=sc.eventID().event();
-      if (sc.eventID().event()==firstEventId_)
+      if (firstEventId_[sc.streamID()]==0) 
+	firstEventId_[sc.streamID()]=sc.eventID().event();
+      if (sc.eventID().event()==firstEventId_[sc.streamID()])
       {
-	encPath_.update((void*)&pc.pathName());
+	encPath_[sc.streamID()].update((void*)&pc.pathName());
 	initPathsLock_.unlock();
 	return;
       }
       else {
-	collectedPathList_.store(true,std::memory_order_seq_cst);
-        fmt_.m_data.ministateBins_=encPath_.vecsize();
+	collectedPathList_[sc.streamID()]->store(true,std::memory_order_seq_cst);
+        fmt_.m_data.ministateBins_=encPath_[sc.streamID()].vecsize();
 	initPathsLock_.unlock();
 	//print paths
 	//finished collecting path names
@@ -400,7 +420,7 @@ namespace evf{
     microstate_[sc.streamID()] = &reservedMicroStateNames[mFwkOvh];
     ministate_[sc.streamID()] = &nopath_;
     //fmt_.monlock_.lock();
-#if ATOMIC_LEVEL==2
+#if ATOMIC_LEVEL>=2
     //use atomic flag to make sure end of lumi sees this
     streamCounterUpdating_[sc.streamID()]->store(true,std::memory_order_release);
     fmt_.m_data.processed_[sc.streamID()]->fetch_add(1,std::memory_order_release);
@@ -409,9 +429,9 @@ namespace evf{
     //writes are atomic, we assume writes propagate to memory before stream EOL snap
     fmt_.m_data.processed_[sc.streamID()]->fetch_add(1,std::memory_order_relaxed);
 #elif ATOMIC_LEVEL==0
-    fmt_.m_data.processed_[sc.streamID()]++;
+    (*(fmt_.m_data.processed_[sc.streamID()]))++;
 #endif
-    if  (!sc.streamID()) eventCountForPathInit_++;
+    eventCountForPathInit_[sc.streamID()]++;
     //fmt_.monlock_.unlock();
   }
 
@@ -541,7 +561,7 @@ namespace evf{
 
     //capture latest mini/microstate of streams
     for (unsigned int i=0;i<nStreams_;i++) {
-      fmt_.m_data.ministateEncoded_[i] = encPath_.encode(ministate_[i]);
+      fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
       fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
     }
     
@@ -553,5 +573,17 @@ namespace evf{
       fmt_.jsonMonitor_->snap(outputCSV, fastPath_,forLumi);
   }
 
+  void FastMonitoringService::reportEventsThisLumiInSource(unsigned int lumi,unsigned int events)
+  {
+
+      fmt_.monlock_.lock();
+      auto itr = sourceEventsReport_.find(lumi);
+      if (itr!=sourceEventsReport_.end())
+        sourceEventsReport_[lumi]+=events;
+      else 
+      sourceEventsReport_[lumi]=events;
+
+      fmt_.monlock_.unlock();
+  }
 } //end namespace evf
 

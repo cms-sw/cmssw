@@ -17,6 +17,10 @@ class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
 
+namespace evf {
+class FastMonitoringService;
+}
+
 namespace jsoncollector {
 class DataPointDefinition;
 }
@@ -81,6 +85,10 @@ private:
   uint32_t bufferLeft_;
 
   jsoncollector::DataPointDefinition *dpd_;
+
+  unsigned int eventsThisLumi_;
+  evf::FastMonitoringService *fms_ = nullptr;
+
 
 };
 

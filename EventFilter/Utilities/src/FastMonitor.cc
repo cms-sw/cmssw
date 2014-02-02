@@ -13,6 +13,8 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 using namespace jsoncollector;
 
@@ -40,6 +42,9 @@ void FastMonitor::registerGlobalMonitorable(JsonMonitorable *newMonitorable, boo
 	dp->setNBins(nBins);
 	dataPoints_.push_back(dp);
 	dpNameMap_[newMonitorable->getName()]=dataPoints_.size()-1;
+
+	//check if same name is registered twice
+	assert(uids_.insert(newMonitorable->getName()).second);
 }
 
 //per-stream variables
@@ -51,6 +56,8 @@ void FastMonitor::registerStreamMonitorableUIntVec(std::string const& name,
 	dp->setNBins(nBins);
         dataPoints_.push_back(dp);
 	dpNameMap_[name]=dataPoints_.size()-1;
+
+	assert (uids_.insert(name).second);
 }
 
 
@@ -65,6 +72,8 @@ void FastMonitor::registerStreamMonitorableUIntVecAtomic(std::string const& name
 	dp->setNBins(nBins);
         dataPoints_.push_back(dp);
 	dpNameMap_[name]=dataPoints_.size()-1;
+
+	assert (uids_.insert(name).second);
 }
 
 
@@ -173,7 +182,7 @@ bool FastMonitor::outputFullJSON(std::string const& path, unsigned int lumi) {
 	}
 
         Json::StyledWriter writer;
-	std::string result = writer.write(serializeRoot);
+	std::string && result = writer.write(serializeRoot);
         FileIO::writeStringToFile(path, result);
 	return true;
 }
