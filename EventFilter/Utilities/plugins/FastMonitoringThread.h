@@ -35,6 +35,7 @@ namespace evf{
       std::vector<unsigned int> microstateEncoded_;
       std::vector<unsigned int> ministateEncoded_;
       std::vector<AtomicMonUInt*> processed_;
+      std::vector<unsigned int> threadMicrostateEncoded_;
 
       //tracking luminosity of a stream
       //std::vector<std::atomic<unsigned int>*> streamLumi_;
@@ -60,7 +61,7 @@ namespace evf{
       }
 
       //to be called after fast monitor is constructed
-      void registerVariables(FastMonitor* fm, unsigned int nStreams) {
+      void registerVariables(FastMonitor* fm, unsigned int nStreams, unsigned int nThreads) {
 	//tell FM to track these global variables(for fast and slow monitoring)
         fm->registerGlobalMonitorable(&fastMacrostateJ_,true,&macrostateBins_);
         fm->registerGlobalMonitorable(&fastThroughputJ_,false);
@@ -69,19 +70,23 @@ namespace evf{
 
 	for (unsigned int i=0;i<nStreams;i++) {
 	 AtomicMonUInt * p  = new AtomicMonUInt;
-	 //std::atomic<unsigned int> * pa  = new std::atomic<unsigned int>;
 	 *p=0;
-	 //*pa=0;
    	  processed_.push_back(p);
           streamLumi_.push_back(0);
 	}
 	
-	ministateEncoded_.resize(nStreams);
 	microstateEncoded_.resize(nStreams);
+	ministateEncoded_.resize(nStreams);
+	threadMicrostateEncoded_.resize(nThreads);
 
 	//tell FM to track these int vectors
         fm->registerStreamMonitorableUIntVec("Ministate", &ministateEncoded_,true,&ministateBins_);
-        fm->registerStreamMonitorableUIntVec("Microstate",&microstateEncoded_,true,&microstateBins_);
+
+	if (nThreads<=nStreams)//no overlapping in module execution per stream
+          fm->registerStreamMonitorableUIntVec("Microstate",&microstateEncoded_,true,&microstateBins_);
+	else
+	  fm->registerStreamMonitorableUIntVec("Microstate",&threadMicrostateEncoded_,true,&microstateBins_);
+
         fm->registerStreamMonitorableUIntVecAtomic("Processed",&processed_,false,0);
 	//provide vector with updated per stream lumis and let it finish initialization
 	fm->commit(&streamLumi_);

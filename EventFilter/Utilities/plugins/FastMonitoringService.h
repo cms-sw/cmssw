@@ -195,6 +195,7 @@ namespace evf{
       //per stream
       std::vector<const void*> ministate_;
       std::vector<const void*> microstate_;
+      std::vector<const void*> threadMicrostate_;
 
       //variables measuring source statistics (global)
       //unordered_map is not used because of very few elements stored concurrently
@@ -222,8 +223,9 @@ namespace evf{
 
       boost::filesystem::path workingDirectory_, runDirectory_;
 
-
       std::map<unsigned int,unsigned int> sourceEventsReport_;
+
+      bool threadIDAvailable_ = false;
     };
 
 }

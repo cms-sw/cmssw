@@ -15,6 +15,8 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+//#include "tbb/compat/thread"
+
 namespace evf{
 
   const std::string FastMonitoringService::macroStateNames[FastMonitoringThread::MCOUNT] = 
@@ -102,6 +104,12 @@ namespace evf{
 			<< microstateDefPath_ << " " << FastMonitoringThread::MCOUNT << " "
 			//<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
 			<< std::endl;
+
+   //#endif
+   //#if TBB_IMPLEMENT_CPP0X
+   ////std::cout << "TBB thread id:" <<  tbb::thread::id() << std::endl;
+   //threadIDAvailable_=true;
+   //#endif
   }
 
 
@@ -166,6 +174,11 @@ namespace evf{
        collectedPathList_.push_back(new std::atomic<bool>(0));
 
     }
+    //#if TBB_IMPLEMENT_CPP0X
+    //for (unsigned int i=0;i<nThreads_;i++)
+    //  threadMicrostate_.push_back(&reservedMicroStateNames[mInvalid]);
+    //#endif
+
     //initial size until we detect number of bins
     fmt_.m_data.macrostateBins_=FastMonitoringThread::MCOUNT;
     fmt_.m_data.ministateBins_=0;
@@ -179,7 +192,7 @@ namespace evf{
     //startup monitoring
     fmt_.resetFastMonitor(microstateDefPath_);
     fmt_.jsonMonitor_->setNStreams(nStreams_);
-    fmt_.m_data.registerVariables(fmt_.jsonMonitor_.get(), nStreams_);
+    fmt_.m_data.registerVariables(fmt_.jsonMonitor_.get(), nStreams_, threadIDAvailable_ ? nThreads_:0);
     std::atomic_thread_fence(std::memory_order_acquire);
     fmt_.start(&FastMonitoringService::dowork,this);
   }
@@ -359,6 +372,9 @@ namespace evf{
 //    fmt_.m_data.processed_[sid]->fetch_sub(val,std::memory_order_release);
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
+    //#if TBB_IMPLEMENT_CPP0X
+    //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
+    //#endif
     fmt_.monlock_.unlock();
   }
 
@@ -375,6 +391,9 @@ namespace evf{
     //reset this in case stream does not get notified of next lumi (we keep processed events only)
     ministate_[sid]=&nopath_;
     microstate_[sid]=&reservedMicroStateNames[mInvalid];
+    //#if TBB_IMPLEMENT_CPP0X
+    //threadMicrostate_[tbb::thread::id()]=&reservedMicroStateNames[mInvalid];
+    //#endif
     fmt_.monlock_.unlock();
   }
 
@@ -418,6 +437,12 @@ namespace evf{
   void FastMonitoringService::postEvent(edm::StreamContext const& sc)
   {
     microstate_[sc.streamID()] = &reservedMicroStateNames[mFwkOvh];
+
+    //#if TBB_IMPLEMENT_CPP0X
+    //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mFwkOvh];
+    //#endif
+
+
     ministate_[sc.streamID()] = &nopath_;
     //fmt_.monlock_.lock();
 #if ATOMIC_LEVEL>=2
@@ -438,21 +463,39 @@ namespace evf{
   void FastMonitoringService::preSourceEvent(edm::StreamID sid)
   {
     microstate_[sid.value()] = &reservedMicroStateNames[mIdle];
+
+    //#if TBB_IMPLEMENT_CPP0X
+    //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mIdle];
+    //#endif
+
   }
 
   void FastMonitoringService::postSourceEvent(edm::StreamID sid)
   {
     microstate_[sid.value()] = &reservedMicroStateNames[mFwkOvh];
+
+    //#if TBB_IMPLEMENT_CPP0X
+    //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[mFwkOvh];
+    //#endif
+
   }
 
   void FastMonitoringService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
   {
     microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
+    //#if TBB_IMPLEMENT_CPP0X
+    //threadMicrostate_[tbb::thread::id()] = (void*)(mcc.moduleDescription());
+    //#endif
   }
 
   void FastMonitoringService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
   {
     microstate_[sc.streamID().value()] = (void*)(mcc.moduleDescription());
+
+    //#if TBB_IMPLEMENT_CPP0X
+    //threadMicrostate_[tbb::thread::id()] = (void*)(mcc.moduleDescription());
+    //#endif
+
     //maybe this should be:
     //microstate_[sc.streamID().value()] = &reservedMicroStateNames[mFwkOvh];
   }
@@ -464,13 +507,20 @@ namespace evf{
   void FastMonitoringService::setMicroState(MicroStateService::Microstate m)
   {
     for (unsigned int i=0;i<nStreams_;i++)
-    microstate_[i] = &reservedMicroStateNames[m];
+      microstate_[i] = &reservedMicroStateNames[m];
+    //#if TBB_IMPLEMENT_CPP0X
+    //for (unsigned int i=0;i<nThreads_;i++)
+    //  threadMicrostate_[i] = &reservedMicroStateNames[m];
+    //#endif
   }
 
   //this is for another service that is thread safe or rarely blocks other streams
   void FastMonitoringService::setMicroState(edm::StreamID sid, MicroStateService::Microstate m)
   {
     microstate_[sid] = &reservedMicroStateNames[m];
+    //#if TBB_IMPLEMENT_CPP0X
+    //threadMicrostate_[tbb::thread::id()] = &reservedMicroStateNames[m];
+    //#endif
   }
 
   //from source - needs changes to source to track per-lumi file processing
@@ -564,6 +614,10 @@ namespace evf{
       fmt_.m_data.ministateEncoded_[i] = encPath_[i].encode(ministate_[i]);
       fmt_.m_data.microstateEncoded_[i] = encModule_.encode(microstate_[i]);
     }
+    //#if TBB_IMPLEMENT_CPP0X
+    //for (unsigned int i=0;i<nThreads_;i++)
+    //  fmt_.m_data.threadMicrostateEncoded_[i] = encModule_.encode(threadMicrostate_[i]);
+    //#endif
     
     if (isGlobalEOL)
     {//only update global variables
