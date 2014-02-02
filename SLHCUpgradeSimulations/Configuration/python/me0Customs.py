@@ -30,7 +30,7 @@ def customise_Digi(process):
     process.mix.mixObjects.mixSH.input.append(cms.InputTag("g4SimHits","MuonME0Hits"))
     process.mix.mixObjects.mixSH.subdets.append('MuonME0Hits')
 
-    process.load('SimMuon.ME0Digitizer.muonME0Digis_cfi')
+    process.load('SimMuon.GEMDigitizer.muonME0Digis_cfi')
     process.muonDigi += process.simMuonME0Digis
 
     process=outputCustoms(process)
