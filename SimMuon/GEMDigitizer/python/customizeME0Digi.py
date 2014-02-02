@@ -96,7 +96,7 @@ def customize_digi_addME0(process):
         process.simMuonCSCDigis +
         process.simMuonDTDigis +
         process.simMuonRPCDigis +
-        process.simMuonME0Digis +
+        process.simMuonME0Digis
     )
     process.doAllDigi = cms.Sequence(
         process.calDigi +
@@ -107,7 +107,8 @@ def customize_digi_addME0(process):
         cms.SequencePlaceholder("mix")*
         process.doAllDigi*
         process.trackingParticles*
-        process.addPileupInfo )
+        process.addPileupInfo
+    )
     return process
 
 
@@ -119,12 +120,13 @@ def customize_digi_addME0_muon_only(process):
         process.simMuonCSCDigis +
         process.simMuonDTDigis +
         process.simMuonRPCDigis +
-        process.simMuonME0Digis +
+        process.simMuonME0Digis
     )
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
-        process.muonDigi )
+        process.muonDigi
+    )
     return process
 
 
@@ -136,11 +138,12 @@ def customize_digi_addME0_me0_only(process):
         process.simMuonCSCDigis +
         process.simMuonDTDigis +
         process.simMuonRPCDigis +
-        process.simMuonME0Digis +
+        process.simMuonME0Digis
     )
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
-        process.simMuonME0Digis*
+        process.simMuonME0Digis
+    )
     return process
 
