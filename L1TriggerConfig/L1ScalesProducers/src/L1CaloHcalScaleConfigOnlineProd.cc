@@ -80,17 +80,10 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
   hcalScale = new L1CaloHcalScale(0);
   caloTPG = new CaloTPGTranscoderULUT();
   
+  // FIXME!!! 
   HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
   int maxDepthHB = 2;
   int maxDepthHE = 3;
-  if( iConfig.exists( "hcalTopologyConstants" ))
-  {
-    const edm::ParameterSet hcalTopoConsts = iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
-    StringToEnumParser<HcalTopologyMode::Mode> parser;
-    mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
-    maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
-    maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
-  }
   
   theTrigTowerGeometry = new HcalTrigTowerGeometry( new HcalTopology( mode, maxDepthHB, maxDepthHE ));
 }

@@ -23,6 +23,7 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -146,9 +147,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   double HOtp = ps.getParameter<double>("HOTuningParameter");
   bool doHBHEUpgrade = ps.getParameter<bool>("HBHEUpgradeQIE");
   bool doHFUpgrade   = ps.getParameter<bool>("HFUpgradeQIE");
-  deliveredLumi     = ps.getParameter<double>("DelivLuminosity");
-  bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
-  bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
+  deliveredLumi      = ps.getParameter<double>("DelivLuminosity");
+  bool agingFlagHE   = ps.getParameter<bool>("HEDarkening");
+  bool agingFlagHF   = ps.getParameter<bool>("HFDarkening");
 
   // need to make copies, because they might get different noise generators
   theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise);
@@ -601,10 +602,12 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   // TODO find a way to avoid doing this every event
   edm::ESHandle<CaloGeometry> geometry;
   eventSetup.get<CaloGeometryRecord>().get(geometry);
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  eventSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
   // See if it's been updated
-  if(&*geometry != theGeometry)
-  {
+   if(&*geometry != theGeometry) {
     theGeometry = &*geometry;
+    theRecNumber= &*pHRNDC;
     updateGeometry(eventSetup);
   }
 }
@@ -617,7 +620,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   if(theHOSiPMResponse) theHOSiPMResponse->setGeometry(theGeometry);
   theHFResponse->setGeometry(theGeometry);
   theZDCResponse->setGeometry(theGeometry);
-  if(theRelabeller) theRelabeller->setGeometry(theGeometry);
+  if(theRelabeller) theRelabeller->setGeometry(theGeometry,theRecNumber);
 
   const std::vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
   const std::vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
@@ -663,7 +666,7 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
     edm::ESHandle<HcalMCParams> p;
     eventSetup.get<HcalMCParamsRcd>().get(p);
     edm::ESHandle<HcalTopology> htopo;
-    eventSetup.get<IdealGeometryRecord>().get(htopo);
+    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
    
     HcalMCParams mcParams(*p.product());
     if (mcParams.topo()==0) {
@@ -705,26 +708,26 @@ void HcalDigitizer::darkening(std::vector<PCaloHit>& hcalHits){
     int det, z, depth, ieta, phi, lay;
     HcalTestNumbering::unpackHcalIndex(tmpId,det,z,depth,ieta,phi,lay);
 	
-	bool darkened = false;
-	float dweight = 1.;
+    bool darkened = false;
+    float dweight = 1.;
 	
-	//HE darkening
-	if(det==int(HcalEndcap) && m_HEDarkening){
-	  dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
-	  darkened = true;
+    //HE darkening
+    if(det==int(HcalEndcap) && m_HEDarkening){
+      dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+      darkened = true;
     }
 	
-	//HF darkening - approximate: invert recalibration factor
-	else if(det==int(HcalForward) && m_HFRecalibration){
-	  dweight = 1.0/m_HFRecalibration->getCorr(ieta,depth,deliveredLumi);
-	  darkened = true;
+    //HF darkening - approximate: invert recalibration factor
+    else if(det==int(HcalForward) && m_HFRecalibration){
+      dweight = 1.0/m_HFRecalibration->getCorr(ieta,depth,deliveredLumi);
+      darkened = true;
     }
 	
     //create new hit with darkened energy
-	//if(darkened) hcalHits[ii] = PCaloHit(hcalHits[ii].energyEM()*dweight,hcalHits[ii].energyHad()*dweight,hcalHits[ii].time(),hcalHits[ii].geantTrackId(),hcalHits[ii].id());
-	
-	//reset hit energy
-	if(darkened) hcalHits[ii].setEnergy(hcalHits[ii].energy()*dweight);	
+    //if(darkened) hcalHits[ii] = PCaloHit(hcalHits[ii].energyEM()*dweight,hcalHits[ii].energyHad()*dweight,hcalHits[ii].time(),hcalHits[ii].geantTrackId(),hcalHits[ii].id());
+    
+    //reset hit energy
+    if(darkened) hcalHits[ii].setEnergy(hcalHits[ii].energy()*dweight);	
   }
   
 }

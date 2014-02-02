@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # Ideal geometry, needed for simulation
 from Geometry.CMSCommonData.cmsPilotIdealGeometryXML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
+from Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi import *
 # Reconstruction geometry services
 #  Tracking Geometry
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
@@ -29,5 +30,6 @@ from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
 CaloGeometryBuilder.SelectedCalos = ['HCAL', 'ZDC', 'EcalBarrel', 'EcalEndcap', 'TOWER']
+from Geometry.HcalCommonData.hcalRecNumberingInitialization_cfi import *
 
 

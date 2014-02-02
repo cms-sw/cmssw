@@ -20,8 +20,8 @@
 //
 
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-class HcalLUTCorrsRcd : public edm::eventsetup::DependentRecordImplementation<HcalLUTCorrsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalLUTCorrsRcd : public edm::eventsetup::DependentRecordImplementation<HcalLUTCorrsRcd, boost::mpl::vector<HcalRecNumberingRecord> > {};
 
 #endif
