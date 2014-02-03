@@ -156,8 +156,23 @@ void PhotonPostprocessing::runPostprocessing()
   convEffEtaOneTrack_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
   histname = "convEffVsROneTrack";
   convEffROneTrack_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
+  histname = "convEffVsZOneTrack";
+  convEffZOneTrack_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
   histname = "convEffVsEtOneTrack";
   convEffEtOneTrack_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
+  histname = "convEffVsPhiOneTrack";
+  convEffPhiOneTrack_ =  dbe_->book1D(histname,histname,phiBin,phiMin,phiMax);
+  //  Total efficiency
+  histname = "convEffVsEtaTotal";
+  convEffEtaTotal_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
+  histname = "convEffVsRTotal";
+  convEffRTotal_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
+  histname = "convEffVsZTotal";
+  convEffZTotal_ =  dbe_->book1D(histname,histname,rBin,rMin, rMax);
+  histname = "convEffVsEtTotal";
+  convEffEtTotal_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
+  histname = "convEffVsPhiTotal";
+  convEffPhiTotal_ =  dbe_->book1D(histname,histname,phiBin,phiMin,phiMax);
   // Fake rate
   histname = "convFakeRateVsEtaTwoTracks";
   convFakeRateEtaTwoTracks_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
@@ -212,8 +227,16 @@ void PhotonPostprocessing::runPostprocessing()
     dividePlots(dbe_->get(effPathName+"convEffVsRTwoTracksAndVtxProbGT0005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksRAndVtxPGT0005"),dbe_->get(simInfoPathName+"h_SimConvTwoMTracksR"),"effic");
     //
     dividePlots(dbe_->get(effPathName+"convEffVsEtaOneTrack"),dbe_->get(simInfoPathName+"h_SimConvOneMTracksEta"),dbe_->get(simInfoPathName+"h_VisSimConvEta"),"effic");
+    dividePlots(dbe_->get(effPathName+"convEffVsPhiOneTrack"),dbe_->get(simInfoPathName+"h_SimConvOneMTracksPhi"),dbe_->get(simInfoPathName+"h_VisSimConvPhi"),"effic");
     dividePlots(dbe_->get(effPathName+"convEffVsROneTrack"),dbe_->get(simInfoPathName+"h_SimConvOneMTracksR"),dbe_->get(simInfoPathName+"h_VisSimConvR"),"effic");
+    dividePlots(dbe_->get(effPathName+"convEffVsZOneTrack"),dbe_->get(simInfoPathName+"h_SimConvOneMTracksZ"),dbe_->get(simInfoPathName+"h_VisSimConvZ"),"effic");
     dividePlots(dbe_->get(effPathName+"convEffVsEtOneTrack"),dbe_->get(simInfoPathName+"h_SimConvOneMTracksEt"),dbe_->get(simInfoPathName+"h_VisSimConvEt"),"effic");
+    //
+    dividePlots(dbe_->get(effPathName+"convEffVsEtaTotal"),dbe_->get(simInfoPathName+"h_SimConvMTotalEta"),dbe_->get(simInfoPathName+"h_VisSimConvEta"),"effic");
+    dividePlots(dbe_->get(effPathName+"convEffVsPhiTotal"),dbe_->get(simInfoPathName+"h_SimConvMTotalPhi"),dbe_->get(simInfoPathName+"h_VisSimConvPhi"),"effic");
+    dividePlots(dbe_->get(effPathName+"convEffVsRTotal"),dbe_->get(simInfoPathName+"h_SimConvMTotalR"),dbe_->get(simInfoPathName+"h_VisSimConvR"),"effic");
+    dividePlots(dbe_->get(effPathName+"convEffVsZTotal"),dbe_->get(simInfoPathName+"h_SimConvMTotalZ"),dbe_->get(simInfoPathName+"h_VisSimConvZ"),"effic");
+    dividePlots(dbe_->get(effPathName+"convEffVsEtTotal"),dbe_->get(simInfoPathName+"h_SimConvMTotalEt"),dbe_->get(simInfoPathName+"h_VisSimConvEt"),"effic");
     // fake rate
     dividePlots(dbe_->get(effPathName+"convFakeRateVsEtaTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksEta"),dbe_->get(convPathName+"h_RecoConvTwoTracksEta"),"fakerate");
     dividePlots(dbe_->get(effPathName+"convFakeRateVsPhiTwoTracks"),dbe_->get(convPathName+"h_RecoConvTwoMTracksPhi"),dbe_->get(convPathName+"h_RecoConvTwoTracksPhi"),"fakerate");
