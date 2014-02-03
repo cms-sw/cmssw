@@ -6,10 +6,10 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/EXOTICATriggerValidation
  *
- *  \author  Thiago R. Fernandez Perez Tomei 
+ *  \author  Thiago R. Fernandez Perez Tomei
  *           Based and adapted from:
- *           J. Duarte Campderros code from HLTriggerOffline/Higgs and 
- *           J. Klukas, M. Vander Donckt and J. Alcaraz code 
+ *           J. Duarte Campderros code from HLTriggerOffline/Higgs and
+ *           J. Klukas, M. Vander Donckt and J. Alcaraz code
  *           from the HLTriggerOffline/Muon package.
  */
 
@@ -19,6 +19,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaSubAnalysis.h"
 
@@ -30,34 +31,34 @@ class EVTColContainer;
 
 /// The HLTExoticaValidator module is the main module of the
 /// package. More discussion to come.
-class HLTExoticaValidator : public edm::EDAnalyzer 
-{
-	public:
-		/// Constructor
-	      	HLTExoticaValidator(const edm::ParameterSet &);
-	      	~HLTExoticaValidator();
+class HLTExoticaValidator : public DQMEDAnalyzer {
+public:
+    /// Constructor
+    HLTExoticaValidator(const edm::ParameterSet &);
+    ~HLTExoticaValidator();
 
-	private:
-		// concrete analyzer methods
-	      	virtual void beginJob();
-	      	virtual void beginRun(const edm::Run &iRun, const edm::EventSetup & iSetup);
-	      	virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup);
-		virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup);
-		virtual void endJob();
+protected:
+    void bookHistograms(DQMStore::IBooker &iBooker, const edm::Run &iRun, const edm::EventSetup &iSetup) override;
+    //void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-		/// Copy (to be modified) of the input ParameterSet from configuration file.
-		edm::ParameterSet _pset;
-		/// The names of the subanalyses
-		std::vector<std::string> _analysisnames;
-		
-		/// The instances of the class which do the real work
-		std::vector<HLTExoticaSubAnalysis> _analyzers;
-				
-		/// The container with all the collections needed
-		EVTColContainer * _collections;
-		
-		// Access to the DQM
-		DQMStore * _dbe;      	
+private:
+    // concrete analyzer methods
+    virtual void beginJob();
+    virtual void dqmBeginRun(const edm::Run &iRun, const edm::EventSetup & iSetup);
+    virtual void analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void endRun(const edm::Run & iRun, const edm::EventSetup & iSetup);
+    virtual void endJob();
+
+    /// Copy (to be modified) of the input ParameterSet from configuration file.
+    edm::ParameterSet _pset;
+    /// The names of the subanalyses
+    std::vector<std::string> _analysisnames;
+
+    /// The instances of the class which do the real work
+    std::vector<HLTExoticaSubAnalysis> _analyzers;
+
+    /// The container with all the collections needed
+    EVTColContainer * _collections;
 };
 
 #endif

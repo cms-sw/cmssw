@@ -6,10 +6,10 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/EXOTICATriggerValidation
  *
- *  \author  Thiago R. Fernandez Perez Tomei 
+ *  \author  Thiago R. Fernandez Perez Tomei
  *           Based and adapted from:
  *           J. Duarte Campderros code from HLTriggerOffline/Higgs
- *           J. Klukas, M. Vander Donckt and J. Alcaraz code 
+ *           J. Klukas, M. Vander Donckt and J. Alcaraz code
  *           from the HLTriggerOffline/Muon package.
  */
 
@@ -50,91 +50,89 @@
 
 class EVTColContainer;
 
-class HLTExoticaSubAnalysis 
-{	
-       	public:
-		enum
-		{
-			GEN,
-			RECO
-		};
+class HLTExoticaSubAnalysis {
+public:
+    enum {
+        GEN,
+        RECO
+    };
 
-		HLTExoticaSubAnalysis(const edm::ParameterSet & pset, 
-				const std::string & analysisname );
-		~HLTExoticaSubAnalysis();
-	      	void beginJob();
-	      	void beginRun(const edm::Run & iRun, const edm::EventSetup & iEventSetup);
-	      	void analyze(const edm::Event & iEvent, const edm::EventSetup & iEventSetup, EVTColContainer * cols);
+    HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
+                          const std::string & analysisname);
+    ~HLTExoticaSubAnalysis();
+    void beginJob();
+    void subAnalysisBookHistos(DQMStore::IBooker &iBooker, const edm::Run & iRun, const edm::EventSetup & iSetup);
+    void beginRun(const edm::Run & iRun, const edm::EventSetup & iEventSetup);
+    void analyze(const edm::Event & iEvent, const edm::EventSetup & iEventSetup, EVTColContainer * cols);
 
-		//! Return the objects (muons,electrons,photons,...) needed by a HLT path.
-		//! Will in general return: 0 for muon, 1 for electron, 2 for photon,
-		//! 3 for PFMET, for for PFTau, 6 for Jet.
-		//! Notice that this function is really based on a parsing of the name of
-		//! the path; any incongruences theremay lead to problems.
-		const std::vector<unsigned int> getObjectsType(const std::string & hltpath) const;
+    /// Return the objects (muons,electrons,photons,...) needed by a HLT path.
+    /// Will in general return: 0 for muon, 1 for electron, 2 for photon,
+    /// 3 for PFMET, for for PFTau, 6 for Jet.
+    /// Notice that this function is really based on a parsing of the name of
+    /// the path; any incongruences theremay lead to problems.
+    const std::vector<unsigned int> getObjectsType(const std::string & hltpath) const;
 
-		
-       	private:
-       	//! Books the maps, telling which collection should come from witch label
-       	void bookobjects(const edm::ParameterSet & anpset);
-       	//! Gets the collections booked
-		void initobjects(const edm::Event & iEvent, EVTColContainer * col);
-		void initSelector(const unsigned int & objtype);
-		void insertCandidates(const unsigned int & objtype, const EVTColContainer * col,
-				std::vector<MatchStruct> * matches);
 
-		void bookHist(const std::string & source, const std::string & objType,
-			       	const std::string & variable);
-		void fillHist(const std::string & source,const std::string & objType, 
-				const std::string & variable, const float & value );
+private:
+    /// Books the maps, telling which collection should come from witch label
+    void bookobjects(const edm::ParameterSet & anpset);
+    /// Gets the collections booked
+    void initobjects(const edm::Event & iEvent, EVTColContainer * col);
+    void initSelector(const unsigned int & objtype);
+    void insertCandidates(const unsigned int & objtype, const EVTColContainer * col,
+                          std::vector<MatchStruct> * matches);
 
-		edm::ParameterSet _pset;
+    void bookHist(DQMStore::IBooker &iBooker, const std::string & source, const std::string & objType,
+                  const std::string & variable);
+    void fillHist(const std::string & source, const std::string & objType,
+                  const std::string & variable, const float & value);
 
-		std::string _analysisname;
+    edm::ParameterSet _pset;
 
-		//! The minimum number of reco/gen candidates needed by the analysis
-		unsigned int _minCandidates;
+    std::string _analysisname;
 
-		std::string _hltProcessName;
-		
-		//! the hlt paths with regular expressions
-		std::vector<std::string> _hltPathsToCheck;
-		//! the hlt paths found in the hltConfig
-		std::set<std::string> _hltPaths;
+    /// The minimum number of reco/gen candidates needed by the analysis
+    unsigned int _minCandidates;
 
-		//! Relation between the short version of a path 
-		std::map<std::string,std::string> _shortpath2long;
+    std::string _hltProcessName;
 
-		// The name of the object collections to be used in this analysis. 
-		std::string _genParticleLabel;
-		std::map<unsigned int,std::string> _recLabels;
-		
-		//! Some kinematical parameters
-		std::vector<double> _parametersEta;
-		std::vector<double> _parametersPhi;
-		std::vector<double> _parametersTurnOn;
-		
-		//! gen/rec objects cuts
-		std::map<unsigned int,std::string> _genCut;
-		std::map<unsigned int,std::string> _recCut;
+    /// the hlt paths with regular expressions
+    std::vector<std::string> _hltPathsToCheck;
+    /// the hlt paths found in the hltConfig
+    std::set<std::string> _hltPaths;
 
-		//! The concrete String selectors (use the string cuts introduced
-		//! via the config python)
-		std::map<unsigned int,StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
-	   	StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
-	   	StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
-	   	StringCutObjectSelector<reco::PFMET>       * _recPFMETSelector;
-	   	StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
-	   	StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
-	   	StringCutObjectSelector<reco::PFJet>       * _recJetSelector;
-		
-		// The plotters: managers of each hlt path where the plots are done
-		std::vector<HLTExoticaPlotter> _analyzers;
-		
-		HLTConfigProvider _hltConfig;
-		
-	   	DQMStore* _dbe;
-	   	std::map<std::string, MonitorElement *> _elements;		
+    /// Relation between the short version of a path
+    std::map<std::string, std::string> _shortpath2long;
+
+    // The name of the object collections to be used in this analysis.
+    std::string _genParticleLabel;
+    std::map<unsigned int, std::string> _recLabels;
+
+    /// Some kinematical parameters
+    std::vector<double> _parametersEta;
+    std::vector<double> _parametersPhi;
+    std::vector<double> _parametersTurnOn;
+
+    /// gen/rec objects cuts
+    std::map<unsigned int, std::string> _genCut;
+    std::map<unsigned int, std::string> _recCut;
+
+    /// The concrete String selectors (use the string cuts introduced
+    /// via the config python)
+    std::map<unsigned int, StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
+    StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
+    StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
+    StringCutObjectSelector<reco::PFMET>       * _recPFMETSelector;
+    StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
+    StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
+    StringCutObjectSelector<reco::PFJet>       * _recJetSelector;
+
+    /// The plotters: managers of each hlt path where the plots are done
+    std::vector<HLTExoticaPlotter> _plotters;
+
+    HLTConfigProvider _hltConfig;
+
+    std::map<std::string, MonitorElement *> _elements;
 };
 
 

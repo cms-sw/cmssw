@@ -6,10 +6,10 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/EXOTICATriggerValidation
  *
- *  \author  Thiago R. Fernandez Perez Tomei 
+ *  \author  Thiago R. Fernandez Perez Tomei
  *           Based and adapted from:
  *           J. Duarte Campderros code from HLTriggerOffline/Higgs
- *           J. Klukas, M. Vander Donckt and J. Alcaraz code 
+ *           J. Klukas, M. Vander Donckt and J. Alcaraz code
  *           from the HLTriggerOffline/Muon package.
  */
 
@@ -38,44 +38,43 @@
 #include <map>
 #include <set>
 
-const unsigned int kNull = (unsigned int) -1;
+//const unsigned int kNull = (unsigned int) - 1;
 
 class EVTColContainer;
 
-class HLTExoticaPlotter 
-{
-       	public:
-	      	HLTExoticaPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
-				//const std::string & lastFilter,
-				const std::vector<unsigned int> & objectsType,
-			       	DQMStore * dbe);
-		~HLTExoticaPlotter();
-	      	void beginJob();
-	      	void beginRun(const edm::Run &, const edm::EventSetup &);
-		void analyze(const bool & isPassTrigger,const std::string & source,
-				const std::vector<MatchStruct> & matches);
-		
-		inline const std::string gethltpath() const { return _hltPath; }
-		
-       	private:
-	      	void bookHist(const std::string & source, const std::string & objType, const std::string & variable);
-	      	void fillHist(const bool & passTrigger, const std::string & source, 
-				const std::string & objType, const std::string & var, 
-				const float & value);
-		
-	      	std::string _hltPath;
-		//std::string _lastFilter;
-		std::string _hltProcessName;
+class HLTExoticaPlotter {
+public:
+    HLTExoticaPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
+                      const std::vector<unsigned int> & objectsType);
+    ~HLTExoticaPlotter();
+    void beginJob();
+    void beginRun(const edm::Run &, const edm::EventSetup &);
+    void plotterBookHistos(DQMStore::IBooker & iBooker, const edm::Run & iRun, const edm::EventSetup & iSetup);
+    void analyze(const bool & isPassTrigger, const std::string & source,
+                 const std::vector<MatchStruct> & matches);
 
-		std::set<unsigned int> _objectsType;
-		// Number of objects (elec,muons, ...) needed in the hlt path
-		unsigned int _nObjects; 
-		
-	      	std::vector<double> _parametersEta;
-	      	std::vector<double> _parametersPhi;
-	      	std::vector<double> _parametersTurnOn;
-		
-	      	DQMStore* _dbe;
-	      	std::map<std::string, MonitorElement *> _elements;		
+    inline const std::string gethltpath() const
+    {
+        return _hltPath;
+    }
+
+private:
+    void bookHist(DQMStore::IBooker & iBooker, const std::string & source, const std::string & objType, const std::string & variable);
+    void fillHist(const bool & passTrigger, const std::string & source,
+                  const std::string & objType, const std::string & var,
+                  const float & value);
+
+    std::string _hltPath;
+    std::string _hltProcessName;
+
+    std::set<unsigned int> _objectsType;
+    // Number of objects (elec,muons, ...) needed in the hlt path
+    unsigned int _nObjects;
+
+    std::vector<double> _parametersEta;
+    std::vector<double> _parametersPhi;
+    std::vector<double> _parametersTurnOn;
+
+    std::map<std::string, MonitorElement *> _elements;
 };
 #endif
