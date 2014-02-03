@@ -5,12 +5,9 @@ process = cms.Process("Demo")
 # process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 # process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 
-process.load('Configuration.Geometry.GeometryExtended2023_cff') 
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-
 # process.load('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')
 # process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+# process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # process.load('Configuration.Geometry.GeometryExtended_cff')
 # process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -20,9 +17,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # from Configuration.AlCa.autoCond import autoCond
 # process.GlobalTag.globaltag = autoCond['mc']
 
-process.load('Configuration.Geometry.GeometryExtended2023RPCUpscopeReco_2p1_64_cff')
-process.load("Configuration.Geometry.GeometryExtended2023RPCUpscope_2p1_64_cff")
 
+process.load('Configuration.Geometry.GeometryExtended2023_cff') 
+process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+
+# process.load('Configuration.Geometry.GeometryExtended2023RPCUpscopeReco_2p4_192_cff')
+# process.load("Configuration.Geometry.GeometryExtended2023RPCUpscope_2p4_192_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 #process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
