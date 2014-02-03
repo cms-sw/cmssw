@@ -44,9 +44,12 @@ HcalCholeskyMatrices::getValues(DetId fId, bool throwOnFail) const
   
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   //  if (cell->rawId() == emptyHcalCholeskyMatrix.rawId() ) 
-  if ((!cell) || (cell->rawId() != fId ) ) {
+  if ((!cell) ||
+      (fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) != HcalDetId(fId)) ||
+      (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) != HcalZDCDetId(fId)) ||
+      (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() != fId))) {
     if (throwOnFail) {
-    throw cms::Exception ("Conditions not found") 
+      throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << fId.rawId();
     } else {
       cell=0;
@@ -63,8 +66,9 @@ HcalCholeskyMatrices::exists(DetId fId) const
   
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   if (cell)
-    //    if (cell->rawId() != emptyHcalCholeskyMatrix.rawId() ) 
-    if (cell->rawId() == fId ) 
+    if ((fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) == HcalDetId(fId)) ||
+	(fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) == HcalZDCDetId(fId)) ||
+	(fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() == fId)))
       return true;
 
   return false;

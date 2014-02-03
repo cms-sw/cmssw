@@ -4,6 +4,9 @@
 #include <DataFormats/GEMDigi/interface/GEMCSCPadDigi.h>
 #include <DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h>
 
+#include <DataFormats/GEMDigi/interface/ME0Digi.h>
+#include <DataFormats/GEMDigi/interface/ME0DigiCollection.h>
+
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
 
@@ -21,5 +24,11 @@ namespace{
     std::vector<std::vector<GEMCSCPadDigi> >  vvgc;
     GEMCSCPadDigiCollection gccol;
     edm::Wrapper<GEMCSCPadDigiCollection> wgc;
+
+    ME0Digi m;
+    std::vector<ME0Digi>  vm;
+    std::vector<std::vector<ME0Digi> >  vvm;
+    ME0DigiCollection mcol;
+    edm::Wrapper<ME0DigiCollection> wm;
   };
 }

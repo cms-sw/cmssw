@@ -12,6 +12,7 @@ from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCr
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
+from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 as fastCustomisePhase2
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
@@ -27,8 +28,8 @@ def cust_phase2_BE5D(process):
 
 def cust_phase2_BE(process):
     process=customisePostLS1(process)
-    process=customise_HcalPhase1(process)
     process=customiseBE(process)
+    process=customise_HcalPhase1(process)
     process=customise_ev_BE(process)
     return process
 

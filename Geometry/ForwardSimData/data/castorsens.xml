@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="castorsens" eval="true">
+  <SpecPar name="castor_fibre">
+   <PartSelector path="//C3EF"/>
+   <PartSelector path="//C4EF"/>
+   <PartSelector path="//C3HF"/>
+   <PartSelector path="//C4HF"/>
+   <PartSelector path="//CAST"/>
+   <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="CastorFI" eval="false"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>
