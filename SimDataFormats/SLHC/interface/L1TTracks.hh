@@ -61,12 +61,39 @@ public:
       for(unsigned int j=i+1;j<tracks_.size();j++){
 	if (deleted[j]) continue;
 	if (tracks_[i].overlap(tracks_[j])) {
-	  double fractioni=0.0;
-	  tracks_[i].simtrackid(fractioni);
-	  double fractionj=0.0;
-	  tracks_[j].simtrackid(fractionj);
+	  //double fractioni=0.0;
+	  //tracks_[i].simtrackid(fractioni);
+	  //double fractionj=0.0;
+	  //tracks_[j].simtrackid(fractionj);
 	  //if (fabs(tracks_[i].rinv())>fabs(tracks_[j].rinv())) {
 	  //if (fractioni<fractionj) {
+	  if ((tracks_[i].npixelstrip()<2)&&(tracks_[j].npixelstrip()>=2)){
+	    deleted[i]=true;
+	    continue;
+	  }
+	  if ((tracks_[j].npixelstrip()<2)&&(tracks_[i].npixelstrip()>=2)){
+	    deleted[j]=true;
+	    continue;
+	  }
+	  if ((tracks_[i].npixelstrip()<3)&&(tracks_[j].npixelstrip()>=3)){
+	    deleted[i]=true;
+	    continue;
+	  }
+	  if ((tracks_[j].npixelstrip()<3)&&(tracks_[i].npixelstrip()>=3)){
+	    deleted[j]=true;
+	    continue;
+	  }
+	  if ((tracks_[i].npixelstrip()<4)&&(tracks_[j].npixelstrip()>=4)){
+	    deleted[i]=true;
+	    continue;
+	  }
+	  if ((tracks_[j].npixelstrip()<4)&&(tracks_[i].npixelstrip()>=4)){
+	    deleted[j]=true;
+	    continue;
+	  }
+
+
+
 	  if (tracks_[i].chisqdof()>tracks_[j].chisqdof()) {
 	    deleted[i]=true;
 	  } else {

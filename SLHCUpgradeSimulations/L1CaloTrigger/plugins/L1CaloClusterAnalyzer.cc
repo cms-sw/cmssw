@@ -15,6 +15,8 @@
 //         Created:  Mon Feb 13 05:35:01 CST 2012
 
 
+//    dummy comment 
+
 #include "SLHCUpgradeSimulations/L1CaloTrigger/plugins/L1CaloClusterAnalyzer.h"
 
 #include "Math/GenVector/VectorUtil.h"
@@ -83,7 +85,7 @@ L1CaloClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	 coneE = clusters->at(j).isoEnergyEG();
 	 centralPt = clusters->at(j).p4().pt();
 
-	 CentralIso = (float) (clusters->at(j).LeadTowerE())/(clusters->at(j).E());
+	 CentralIso = (float) (clusters->at(j).LeadTowerE())/(clusters->at(j).Et());
 
 	 TowerEnergy1 = clusters->at(j).LeadTowerE();
 	 TowerEnergy2 = clusters->at(j).SecondTowerE();
@@ -94,7 +96,7 @@ L1CaloClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	 Ring3E = clusters->at(j).Ring3E();
 	 Ring4E = clusters->at(j).Ring4E();
 
-	 ClusterEnergy = clusters->at(j).E();
+	 ClusterEnergy = clusters->at(j).Et();
 
 	 //printf("CentralIso: %f\n",CentralIso);
 
