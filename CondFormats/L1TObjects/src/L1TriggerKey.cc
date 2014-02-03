@@ -25,6 +25,6 @@
 // static data member definitions
 //
 
-const std::string L1TriggerKey::kNullKey = "NULL" ;
-const std::string L1TriggerKey::kEmptyKey = "" ;
+std::string L1TriggerKey::kNullKey = "NULL" ;
+std::string L1TriggerKey::kEmptyKey = "" ;
 

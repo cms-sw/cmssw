@@ -23,8 +23,7 @@ namespace l1t {
   public:
     CaloStage2EGammaAlgorithmFirmwareImp1(); //const CaloMainProcessorParams & dbPars);
     virtual ~CaloStage2EGammaAlgorithmFirmwareImp1();
-    virtual void processEvent(const std::vector<CaloCluster> & clusters, 
-			      const std::vector<CaloTower>& towers,
+    virtual void processEvent(const std::vector<CaloCluster> & clusters,
 			      std::vector<EGamma> & egammas);
     
   private:

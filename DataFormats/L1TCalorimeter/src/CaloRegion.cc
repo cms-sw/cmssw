@@ -45,22 +45,22 @@ void l1t::CaloRegion::setHwEtHad(int et)
 }
 
 
-double l1t::CaloRegion::etEm()const
+double l1t::CaloRegion::etEm()
 {
   return etEm_;
 }
 
-double l1t::CaloRegion::etHad()const
+double l1t::CaloRegion::etHad()
 {
   return etHad_;
 }
 
-int l1t::CaloRegion::hwEtEm()const
+int l1t::CaloRegion::hwEtEm()
 {
   return hwEtEm_;
 }
 
-int l1t::CaloRegion::hwEtHad()const
+int l1t::CaloRegion::hwEtHad()
 {
   return hwEtHad_;
 }

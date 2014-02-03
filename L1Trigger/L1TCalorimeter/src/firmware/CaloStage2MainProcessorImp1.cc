@@ -50,7 +50,7 @@ void l1t::CaloStage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1
   std::vector<l1t::EtSum> jetsums;
   
   m_egClusterAlgo->processEvent( towers, egClusters );
-  m_egAlgo->processEvent( egClusters,towers, egammas );
+  m_egAlgo->processEvent( egClusters, egammas );
   m_egClusterAlgo->processEvent( towers, tauClusters );
   m_tauAlgo->processEvent( tauClusters, taus );
   m_jetAlgo->processEvent( towers, jets );

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<MVATrainer>
+	<general>
+		<!--
+			called with arguments
+				1. name
+				2. additional name info
+				3. file suffix
+			%n$s retrieves the n'th argument
+		-->
+		<option name="trainfiles">train_RecoVertex_B_C_%1$s%2$s.%3$s</option>
+		<option name="id">CombinedSVRecoVertex</option>
+	</general>
+	<input id="input">
+		<var name="jetPt" multiple="false" optional="false"/>
+		<var name="jetEta" multiple="false" optional="false"/>
+		<var name="vertexCategory" multiple="false" optional="false"/>
+		<var name="trackSip2dSig" multiple="true" optional="true"/>
+		<var name="trackSip3dSig" multiple="true" optional="true"/>
+		<var name="trackSip2dVal" multiple="true" optional="true"/>
+		<var name="trackSip3dVal" multiple="true" optional="true"/>
+		<var name="trackMomentum" multiple="true" optional="true"/>
+		<var name="trackEta" multiple="true" optional="true"/>
+		<var name="trackPtRel" multiple="true" optional="true"/>
+		<var name="trackPPar" multiple="true" optional="true"/>
+		<var name="trackEtaRel" multiple="true" optional="true"/>
+		<var name="trackDeltaR" multiple="true" optional="true"/>
+		<var name="trackPtRatio" multiple="true" optional="true"/>
+		<var name="trackPParRatio" multiple="true" optional="true"/>
+		<var name="trackJetDist" multiple="true" optional="true"/>
+		<var name="trackFirstTrackDist" multiple="true" optional="true"/>
+		<var name="trackDecayLenVal" multiple="true" optional="true"/>
+		<var name="vertexMass" multiple="false" optional="false"/>
+		<var name="vertexNTracks" multiple="false" optional="false"/>
+		<var name="vertexEnergyRatio" multiple="false" optional="false"/>
+		<var name="trackSip2dSigAboveCharm" multiple="false" optional="false"/>
+		<var name="trackSip3dSigAboveCharm" multiple="false" optional="false"/>
+		<var name="flightDistance2dSig" multiple="false" optional="false"/>
+		<var name="flightDistance3dSig" multiple="false" optional="false"/>
+		<var name="flightDistance2dVal" multiple="false" optional="false"/>
+		<var name="flightDistance3dVal" multiple="false" optional="false"/>
+		<var name="trackSumJetEtRatio" multiple="false" optional="false"/>
+		<var name="jetNSecondaryVertices" multiple="false" optional="false"/>
+		<var name="vertexJetDeltaR" multiple="false" optional="false"/>
+		<var name="trackSumJetDeltaR" multiple="false" optional="false"/>
+	</input>
+	<processor id="category" name="ProcCategory">
+		<input>
+			<var source="input" name="jetPt"/>
+			<var source="input" name="jetEta"/>
+		</input>
+		<config>
+			<group><box><range max="40"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range max="40"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range max="40"/><range/></box></group>
+			<group><box><range max="60"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range max="60"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range max="60"/><range/></box></group>
+			<group><box><range max="90"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range max="90"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range max="90"/><range/></box></group>
+			<group><box><range max="150"/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range max="150"/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range max="150"/><range/></box></group>
+			<group><box><range/><range min="-1.2" max="1.2"/></box></group>
+			<group><box><range/><range min="-2.1" max="2.1"/></box></group>
+			<group><box><range/><range/></box></group>
+		</config>
+		<output>
+			<var name="category"/>
+		</output>
+	</processor>
+	<processor id="count" name="ProcCount">
+		<input>
+			<var source="input" name="trackSip2dSig"/>
+		</input>
+		<config/>
+		<output>
+			<var name="nTracks"/>
+		</output>
+	</processor>
+	<processor id="save" name="TreeSaver">
+		<input>
+			<var source="input" name="jetPt"/>
+			<var source="input" name="jetEta"/>
+			<var source="input" name="trackSip2dSig"/>
+			<var source="input" name="trackSip3dSig"/>
+			<var source="input" name="trackSip2dVal"/>
+			<var source="input" name="trackSip3dVal"/>
+			<var source="input" name="trackMomentum"/>
+			<var source="input" name="trackEta"/>
+			<var source="input" name="trackPtRel"/>
+			<var source="input" name="trackPPar"/>
+			<var source="input" name="trackEtaRel"/>
+			<var source="input" name="trackDeltaR"/>
+			<var source="input" name="trackPtRatio"/>
+			<var source="input" name="trackPParRatio"/>
+			<var source="input" name="trackJetDist"/>
+			<var source="input" name="trackFirstTrackDist"/>
+			<var source="input" name="trackDecayLenVal"/>
+			<var source="input" name="vertexMass"/>
+			<var source="input" name="vertexNTracks"/>
+			<var source="input" name="vertexEnergyRatio"/>
+			<var source="input" name="trackSip2dSigAboveCharm"/>
+			<var source="input" name="trackSip3dSigAboveCharm"/>
+			<var source="input" name="flightDistance2dSig"/>
+			<var source="input" name="flightDistance3dSig"/>
+			<var source="input" name="flightDistance2dVal"/>
+			<var source="input" name="flightDistance3dVal"/>
+			<var source="input" name="trackSumJetEtRatio"/>
+			<var source="input" name="jetNSecondaryVertices"/>
+			<var source="input" name="vertexJetDeltaR"/>
+			<var source="input" name="trackSumJetDeltaR"/>
+			<var source="category" name="category"/>
+			<var source="count" name="nTracks"/>
+			</input>
+		<config/>
+		<output/>
+	</processor>
+	<output>
+		<var source="count" name="nTracks"/>
+	</output>
+</MVATrainer>
+

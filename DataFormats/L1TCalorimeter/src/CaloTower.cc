@@ -45,22 +45,22 @@ void l1t::CaloTower::setHwEtHad(int et)
 }
 
 
-double l1t::CaloTower::etEm()const
+double l1t::CaloTower::etEm()
 {
   return etEm_;
 }
 
-double l1t::CaloTower::etHad()const
+double l1t::CaloTower::etHad()
 {
   return etHad_;
 }
 
-int l1t::CaloTower::hwEtEm()const
+int l1t::CaloTower::hwEtEm()
 {
   return hwEtEm_;
 }
 
-int l1t::CaloTower::hwEtHad()const
+int l1t::CaloTower::hwEtHad()
 {
   return hwEtHad_;
 }

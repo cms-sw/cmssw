@@ -20,10 +20,10 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V1-v1/00000/262AA156-744A-E311-9829-002618943945.root")
+    fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V1-v1/00000/262AA156-744A-E311-9829-002618943945.root")
     #fileNames = cms.untracked.vstring("/store/RelVal/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
-    fileNames = cms.untracked.vstring("file:22610530-FC24-E311-AF35-003048FFD7C2.root")
+    #fileNames = cms.untracked.vstring("file:22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("file:test.root")
     )
 
@@ -52,8 +52,8 @@ process.RCTConverter = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
     regionTag = cms.InputTag("gctDigis"),
     emTag = cms.InputTag("gctDigis"),
-    preSamples = cms.uint32(1),
-    postSamples = cms.uint32(1))
+    preSamples = cms.uint32(0),
+    postSamples = cms.uint32(0))
 
 process.caloTowers = cms.EDProducer("l1t::L1TCaloTowerProducer")
 process.caloStage1 = cms.EDProducer(

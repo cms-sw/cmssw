@@ -28,10 +28,10 @@ namespace l1t {
     void setHwEtEm( int et );
     void setHwEtHad( int et );
 
-    double etEm()const;
-    double etHad()const;
-    int hwEtEm()const;
-    int hwEtHad()const;
+    double etEm();
+    double etHad();
+    int hwEtEm();
+    int hwEtHad();
 
   private:
     

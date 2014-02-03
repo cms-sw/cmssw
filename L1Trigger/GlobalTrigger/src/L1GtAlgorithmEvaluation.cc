@@ -78,7 +78,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     // stack containing temporary results
     // FIXME we shall find a better solution than static
-    std::stack<bool, std::vector<bool> > resultStack;
+    static  std::stack<bool, std::vector<bool> > resultStack;
     bool b1, b2;
 
     int opNumber = 0;
@@ -175,7 +175,8 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     m_algoResult = resultStack.top();
 
-    // clear resultStack not needed since it is now a function temporary
+    // clear resultStack
+    while(!resultStack.empty()) resultStack.pop();
 
 }
 
