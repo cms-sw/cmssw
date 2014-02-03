@@ -27,7 +27,8 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
   myEvent_(e), 
   doPixel_( true ),
   doStrip_( true ), 
-  doTrackAssoc_( false ) {
+  doTrackAssoc_( false ),
+  useCFpos_( false ) {
   trackerContainers.clear();
   //
   // Take by default all tracker SimHits
@@ -56,14 +57,19 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
   }
   
   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
-  TrackerHits = (*allTrackerHits);
+  // TrackerHits = (*allTrackerHits);
 
  //Loop on PSimHit
   SimHitMap.clear();
+  SimHitSubdetMap.clear();
   
   MixCollection<PSimHit>::iterator isim;
   for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
     SimHitMap[(*isim).detUnitId()].push_back((*isim));
+    if (useCFpos_) {
+      DetId theDet((*isim).detUnitId());
+      SimHitSubdetMap[theDet.subdetId()].push_back((*isim));
+    }
   }
   
   if(doStrip_) e.getByLabel("simSiStripDigis", stripdigisimlink);
@@ -78,7 +84,8 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
   myEvent_(e), 
   doPixel_( conf.getParameter<bool>("associatePixel") ),
   doStrip_( conf.getParameter<bool>("associateStrip") ),
-  doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ){
+  doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
+  useCFpos_( false ) {
   
   //if track association there is no need to acces the CrossingFrame
   if(!doTrackAssoc_) {
@@ -94,20 +101,25 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
       cf_simhitvec.push_back(cf_simhit.product());
     }
 
-    //  std::cout << "SIMHITVEC SIZE = " <<  cf_simhitvec.size() << std::endl;
+//      std::cout << "SIMHITVEC SIZE = " <<  cf_simhitvec.size() << std::endl;
     
     //    TrackerHits = new MixCollection<PSimHit>(cf_simhitvec);
     //std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(TrackerHits);
     //   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
     std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf_simhitvec));
-    TrackerHits = (*allTrackerHits);
+    // TrackerHits = (*allTrackerHits);
     
     //Loop on PSimHit
     SimHitMap.clear();
+    SimHitSubdetMap.clear();
     
     MixCollection<PSimHit>::iterator isim;
     for (isim=allTrackerHits->begin(); isim!= allTrackerHits->end();isim++) {
       SimHitMap[(*isim).detUnitId()].push_back((*isim));
+      if (useCFpos_) {
+	DetId theDet((*isim).detUnitId());
+	SimHitSubdetMap[theDet.subdetId()].push_back((*isim));
+      }
     }
     
   }
@@ -184,7 +196,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
     {
       if(const SiPixelRecHit * rechit = dynamic_cast<const SiPixelRecHit *>(&thit))
 	{	  
-	  //std::cout << "associate to pixelHit" << std::endl;
+// 	  std::cout << "associate to pixelHit" << std::endl;
 	  associatePixelRecHit(rechit,simtrackid );
 	}
     }
@@ -208,14 +220,29 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   //Save the SimHits in a vector. for the macthed hits both the rphi and stereo simhits are saved. 
   //
   
-  if(StripHits){
+  // From CMSSW_6_2_0_pre8 simhitCFPos is ill-defined.
+  // It points relative to the PSimHit collection, but we don't know whether High- or LowTof.
+  // Before CMSSW_6_2_0_pre8 it pointed relative to base of the combined TrackerHits.
+  if(useCFpos_ && StripHits){
     //USE THIS FOR STRIPS
-    //  std::cout << "NEW SIZE =  " << simhitCFPos.size() << std::endl;
+//     std::cout << "NEW SIZE =  " << simhitCFPos.size() << std::endl;
     
-    for(size_t i=0; i<simhitCFPos.size(); i++){
-      //std::cout << "NEW CFPOS " << simhitCFPos[i] << endl;
-      //std::cout << "NEW LOCALPOS " <<  TrackerHits.getObject(simhitCFPos[i]).localPosition()  << endl;
-      result.push_back( TrackerHits.getObject(simhitCFPos[i]));
+//     for(size_t i=0; i<simhitCFPos.size(); i++){
+//       //std::cout << "NEW CFPOS " << simhitCFPos[i] << endl;
+//       //std::cout << "NEW LOCALPOS " <<  TrackerHits.getObject(simhitCFPos[i]).localPosition()  << endl;
+//       result.push_back( TrackerHits.getObject(simhitCFPos[i]));
+//     }
+    std::vector<PSimHit> simHit;
+    std::map<unsigned int, std::vector<PSimHit> >::const_iterator it = SimHitSubdetMap.find(detid.subdetId());
+    simHit.clear();
+    if (it!= SimHitSubdetMap.end()){
+      simHit = it->second;
+
+      // std::cout << "NEW SIZE = " << simhitCFPos.size() << std::endl; 
+      for(size_t i=0; i<simhitCFPos.size(); i++){
+//         std::cout << "NEW CFPOS " << simhitCFPos[i] << endl;
+        result.push_back(simHit[simhitCFPos[i]]);
+      }
     }
   }else {
     
@@ -234,9 +261,10 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	
 	for(size_t i=0; i<simtrackid.size();i++){
 	  if(simHitid == simtrackid[i].first && simHiteid == simtrackid[i].second){ 
-	    //	  cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
-	    //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
+// 	    	  cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
+// 	    	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
 	    result.push_back(ihit);
+	    continue;
 	  }
 	}
       }
@@ -265,6 +293,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	      //	  cout << "GluedDet Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 	      //	       << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
 	      result.push_back(ihit);
+	      continue;
 	    }
 	  }
 	}
@@ -395,11 +424,12 @@ void TrackerHitAssociator::associateSiStripRecHit1D(const SiStripRecHit1D * simp
   associateSimpleRecHitCluster(clust,simplerechit->geographicalId(),simtrackid);
 }
 
+/*
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,
 							const uint32_t& detID,
-							std::vector<SimHitIdpr>& theSimtrackid, std::vector<PSimHit>& simhit)
+							std::vector<SimHitIdpr>& theSimtrackid, std::vector<PSimHit>& clusterSimHits)
 {
-// Caller needs to clear simhit before calling this function
+// Caller needs to clear clusterSimHits before calling this function
 
   //initialize vector
   theSimtrackid.clear();
@@ -408,16 +438,24 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 
   associateSimpleRecHitCluster(clust, detID, theSimtrackid);
 
-  for(size_t i=0; i<simhitCFPos.size(); i++){
-    simhit.push_back(TrackerHits.getObject(simhitCFPos[i]));
+  DetId theDet(detID);
+  std::vector<PSimHit> subDetSimHits;
+  std::map<unsigned int, std::vector<PSimHit> >::const_iterator it = SimHitSubdetMap.find(theDet.subdetId());
+  subDetSimHits.clear();
+  if (it!= SimHitSubdetMap.end()){
+    subDetSimHits = it->second;
+    for(size_t i=0; i<simhitCFPos.size(); i++){
+//     clusterSimHits.push_back(TrackerHits.getObject(simhitCFPos[i]));
+      clusterSimHits.push_back(subDetSimHits[simhitCFPos[i]]);
+    }
   }
 }
 
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,
 							const uint32_t& detID,
-							std::vector<PSimHit>& simhit)
+							std::vector<PSimHit>& clusterSimHits)
 {
-// Caller needs to clear simhit before calling this function
+// Caller needs to clear clusterSimHits before calling this function
 
   //initialize class vectors
   simtrackid.clear();
@@ -425,10 +463,20 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 
   associateSimpleRecHitCluster(clust, detID, simtrackid);
 
-  for(size_t i=0; i<simhitCFPos.size(); i++){
-    simhit.push_back(TrackerHits.getObject(simhitCFPos[i]));
+
+  DetId theDet(detID);
+  std::vector<PSimHit> subDetSimHits;
+  std::map<unsigned int, std::vector<PSimHit> >::const_iterator it = SimHitSubdetMap.find(theDet.subdetId());
+  subDetSimHits.clear();
+  if (it!= SimHitSubdetMap.end()){
+    subDetSimHits = it->second;
+    for(size_t i=0; i<simhitCFPos.size(); i++){
+//     clusterSimHits.push_back(TrackerHits.getObject(simhitCFPos[i]));
+      clusterSimHits.push_back(subDetSimHits[simhitCFPos[i]]);
+    }
   }
 }
+*/
 
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,
 							const uint32_t& detID,
@@ -498,17 +546,16 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
 	    idcachev.push_back(currentId);
 	    simtrackid.push_back(currentId);
 	  }
-	  
+
+	  	  
 	  //create a vector that contains all the position (in the MixCollection) of the SimHits that contributed to the RecHit
 	  //write position only once
 	  int currentCFPos = linkiter->CFposition()-1;
-	  if(find(CFposcachev.begin(),CFposcachev.end(),currentCFPos ) == CFposcachev.end()){
-	    /*
-	      std::cout << "CHECKING CHANNEL  = " << linkiter->channel()   << std::endl;
-	      std::cout << "\tTrackID  = " << linkiter->SimTrackId()  << "\tCFPos = " << currentCFPos  << std::endl;
-	      std::cout << "\tLocal Pos = " << TrackerHits.getObject(currentCFPos).localPosition() 
-	      << "\tProcess = " << TrackerHits.getObject(currentCFPos).processType() << std::endl;
-	    */
+	  if(useCFpos_ && find(CFposcachev.begin(),CFposcachev.end(),currentCFPos ) == CFposcachev.end()){
+// 	    std::cout << "CHECKING CHANNEL  = " << linkiter->channel()   << std::endl;
+// 	    std::cout << "\tTrackID  = " << linkiter->SimTrackId()  << "\tCFPos = " << currentCFPos  << std::endl;
+// 	    std::cout << "\tLocal Pos = " << TrackerHits.getObject(currentCFPos).localPosition()
+// 		      << "\tProcess = " << TrackerHits.getObject(currentCFPos).processType() << std::endl;
 	    CFposcachev.push_back(currentCFPos);
 	    simhitCFPos.push_back(currentCFPos);
 	    //	  simhitassoc.push_back( TrackerHits.getObject(currentCFPos));
