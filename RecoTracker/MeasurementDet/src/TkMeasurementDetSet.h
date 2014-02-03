@@ -147,6 +147,7 @@ public:
     empty_(cond.nDet(), true),
     activeThisEvent_(cond.nDet(), true),
     detSet_(!cond.isRegional() ? cond.nDet() : 0),
+    detIndex_(!cond.isRegional() ? cond.nDet() : 0),
     clusterI_(cond.isRegional() ? 2*cond.nDet() : 0),
     refGetter_(0),
     theRawInactiveStripDetIds_(),
