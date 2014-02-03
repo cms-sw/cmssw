@@ -110,6 +110,8 @@ RPCGeomServ::name( void )
 	os << "_C";
       else if( roll == 4 )
 	os << "_D";
+      else if( roll == 5 )
+	os << "_E";
     }
     _n = os.str();
   }
