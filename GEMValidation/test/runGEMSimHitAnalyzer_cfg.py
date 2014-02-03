@@ -23,15 +23,15 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
 process.load('GEMCode.GEMValidation.GEMSimHitAnalyzer_cfi')
-process.GEMSimHitAnalyzer.simTrackMatching.gemDigiInput = ""
-process.GEMSimHitAnalyzer.simTrackMatching.gemPadDigiInput = ""
-process.GEMSimHitAnalyzer.simTrackMatching.gemCoPadDigiInput = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscComparatorDigiInput = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscWireDigiInput = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscCLCTInput = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscALCTInput = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscLCTInput = ""
-process.GEMSimHitAnalyzer.simTrackMatching.gemRecHitInput = ""
+process.GEMSimHitAnalyzer.simTrackMatching.gemDigi.input = ""
+process.GEMSimHitAnalyzer.simTrackMatching.gemPadDigi.input = ""
+process.GEMSimHitAnalyzer.simTrackMatching.gemCoPadDigi.input = ""
+process.GEMSimHitAnalyzer.simTrackMatching.cscComparatorDigi.input = ""
+process.GEMSimHitAnalyzer.simTrackMatching.cscWireDigi.input = ""
+process.GEMSimHitAnalyzer.simTrackMatching.cscCLCT.input = ""
+process.GEMSimHitAnalyzer.simTrackMatching.cscALCT.input = ""
+process.GEMSimHitAnalyzer.simTrackMatching.cscLCT.input = ""
+process.GEMSimHitAnalyzer.simTrackMatching.gemRecHit.input = ""
  
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
