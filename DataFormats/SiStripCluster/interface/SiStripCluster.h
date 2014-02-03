@@ -20,10 +20,17 @@ public:
 
   SiStripCluster( uint32_t detid, const SiStripDigiRange& range);
 
+  template<typename Iter>
   SiStripCluster(const uint32_t& detid, 
 		 const uint16_t& firstStrip, 
-		 std::vector<uint16_t>::const_iterator begin, 
-		 std::vector<uint16_t>::const_iterator end );
+		 Iter begin, Iter end ):
+	  detId_(0), firstStrip_(firstStrip), amplitudes_(begin,end),
+  // ggiurgiu@fnal.gov, 01/05/12
+  // Initialize the split cluster errors to un-physical values.
+  // The CPE will check these errors and if they are not un-physical,
+  // it will recognize the clusters as split and assign these (increased)
+  // errors to the corresponding rechit.
+  error_x(-99999.9){}
 
   /** The number of the first strip in the cluster
    */
