@@ -31,11 +31,11 @@ class StripClusterizerAlgorithm {
   virtual bool stripByStripBegin(uint32_t id) = 0;
 
   virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, std::vector<SiStripCluster>& out) {}
-  virtual void stripByStripAdd(uint16_t strip, uint16_t adc, std::vector<SiStripCluster>& out) {}
+  virtual void stripByStripAdd(uint16_t strip, uint8_t adc, std::vector<SiStripCluster>& out) {}
   virtual void stripByStripEnd(std::vector<SiStripCluster>& out) {}
 
   virtual void addFed(sistrip::FEDZSChannelUnpacker & unpacker, uint16_t ipair, output_t::FastFiller & out) {}
-  virtual void stripByStripAdd(uint16_t strip, uint16_t adc, output_t::FastFiller & out) {}
+  virtual void stripByStripAdd(uint16_t strip, uint8_t adc, output_t::FastFiller & out) {}
   virtual void stripByStripEnd(output_t::FastFiller & out) {}
 
 
@@ -43,7 +43,7 @@ class StripClusterizerAlgorithm {
 
 
   SiStripDetCabling const * cabling() const { return theCabling;} 
-  
+  std::vector<uint32_t> const & allDetIds() const { return detIds;}
 
  protected:
 
@@ -78,7 +78,7 @@ class StripClusterizerAlgorithm {
       ni=invalidI,
       qi=invalidI;
   };
-  std::vector<uint32_t> detIds; // from cabling (connected)
+  std::vector<uint32_t> detIds; // from cabling (connected and not bad)
   std::vector<Index> indices;
   SiStripApvGain::Range gainRange;
   SiStripNoises::Range  noiseRange;
