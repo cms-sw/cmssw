@@ -132,13 +132,5 @@
       <!-- B1,2,3 -->
       <Parameter name="nStrips" value="32"/>
     </SpecPar>
-    <SpecPar name="nStrips192" eval="true">
-      <PartSelector path="//RED."/>
-      <!-- D1,2,3,4; G1,2; H1,2 -->
-      <PartSelector path="//REG."/>
-      <PartSelector path="//REH."/>
-      <Parameter name="nStrips" value="192"/>
-    </SpecPar>
-    </SpecPar>
   </SpecParSection>
 </DDDefinition>
