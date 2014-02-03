@@ -3,6 +3,7 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="FWCore/Utilities"/>
 <use   name="rootrflx"/>
+<use   name="boost_serialization"/>
 <export>
   <lib   name="1"/>
 </export>

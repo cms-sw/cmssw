@@ -29,7 +29,7 @@ struct PixelDCSObject
 
     Type value;
 
-    COND_SERIALIZABLE_MANUAL;
+    COND_SERIALIZABLE;
   };
 
   std::vector<Item> items;

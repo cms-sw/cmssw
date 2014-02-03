@@ -4,5 +4,4 @@
 </bin>
 
 <bin file="testSerializationEcalCorrections.cpp">
-    <use   name="CondFormats/External"/>
 </bin>

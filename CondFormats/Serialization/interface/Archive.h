@@ -1,5 +1,4 @@
-#ifndef CondFormats_Serialization_Archive_H
-#define CondFormats_Serialization_Archive_H
+#pragma once
 
 // Missing in EOS' portable archive
 #include <cassert>
@@ -16,4 +15,3 @@ namespace serialization {
 }
 }
 
-#endif

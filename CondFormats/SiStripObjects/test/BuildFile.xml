@@ -8,5 +8,4 @@
 </bin>
 
 <bin file="testSerializationSiStripObjects.cpp">
-    <use   name="CondFormats/External"/>
 </bin>

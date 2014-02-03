@@ -1,6 +1,12 @@
-#include "CondFormats/Serialization/interface/SerializationTest.h"
+#include "CondFormats/Serialization/interface/Test.h"
 
-#include "CondFormats/External/interface/Serialization.h"
+#include "CondFormats/External/interface/CLHEP.h"
+#include "CondFormats/External/interface/DetID.h"
+#include "CondFormats/External/interface/EcalDetID.h"
+#include "CondFormats/External/interface/HLTPrescaleTable.h"
+#include "CondFormats/External/interface/L1GtLogicParser.h"
+#include "CondFormats/External/interface/SMatrix.h"
+#include "CondFormats/External/interface/Timestamp.h"
 
 int main()
 {

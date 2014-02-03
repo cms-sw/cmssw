@@ -1,9 +1,4 @@
-
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/Serialization/interface/SerializationTest.h"
-#include "CondFormats/External/interface/Serialization.h"
-
-#include "CondFormats/SiPixelObjects/interface/Serialization.h"
+#include "CondFormats/Serialization/interface/Test.h"
 
 #include "../src/headers.h"
 

@@ -44,9 +44,6 @@
 #include "CondFormats/RPCObjects/interface/RBCBoardSpecs.h"
 #include "CondFormats/RPCObjects/interface/TTUBoardSpecs.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/RPCObjects/interface/Serialization.h"
-
 REGISTER_PLUGIN(RPCReadOutMappingRcd,RPCReadOutMapping);
 REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
 REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);

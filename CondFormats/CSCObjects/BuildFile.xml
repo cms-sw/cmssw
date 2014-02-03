@@ -3,6 +3,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="rootrflx"/>
+<use   name="boost_serialization"/>
 <export>
   <lib   name="1"/>
 </export>

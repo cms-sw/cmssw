@@ -8,7 +8,7 @@
     payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); \
     if ( checkEqual ) { \
         auto newObj = destination.fetchPayload<TYPENAME>(payloadId); \
-        if ( not cond::serialization::equal(obj, *newObj) ) \
+        if ( false /*not cond::serialization::equal(obj, *newObj)*/ ) \
             throwException("Original object and stored object differ.", "import"); \
     } \
   } 
@@ -29,42 +29,12 @@
   }
 
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/External/interface/DetID.h"
 #include "CondFormats/External/interface/EcalDetID.h"
 #include "CondFormats/External/interface/SMatrix.h"
 #include "CondFormats/External/interface/L1GtLogicParser.h"
 #include "CondFormats/External/interface/Timestamp.h"
 #include "CondFormats/External/interface/HLTPrescaleTable.h"
-
-// Serialization (serialize() and equal())
-#include "CondFormats/Serialization/interface/SerializationEqual.h"
-#include "CondFormats/Alignment/interface/Serialization.h"
-#include "CondFormats/BTauObjects/interface/Serialization.h"
-#include "CondFormats/BeamSpotObjects/interface/Serialization.h"
-#include "CondFormats/CSCObjects/interface/Serialization.h"
-#include "CondFormats/Calibration/interface/Serialization.h"
-#include "CondFormats/CastorObjects/interface/Serialization.h"
-#include "CondFormats/DQMObjects/interface/Serialization.h"
-#include "CondFormats/DTObjects/interface/Serialization.h"
-#include "CondFormats/ESObjects/interface/Serialization.h"
-#include "CondFormats/EcalCorrections/interface/Serialization.h"
-#include "CondFormats/EcalObjects/interface/Serialization.h"
-#include "CondFormats/EgammaObjects/interface/Serialization.h"
-#include "CondFormats/GeometryObjects/interface/Serialization.h"
-#include "CondFormats/HIObjects/interface/Serialization.h"
-#include "CondFormats/HLTObjects/interface/Serialization.h"
-#include "CondFormats/HcalObjects/interface/Serialization.h"
-#include "CondFormats/JetMETObjects/interface/Serialization.h"
-#include "CondFormats/L1TObjects/interface/Serialization.h"
-#include "CondFormats/Luminosity/interface/Serialization.h"
-#include "CondFormats/OptAlignObjects/interface/Serialization.h"
-#include "CondFormats/PhysicsToolsObjects/interface/Serialization.h"
-#include "CondFormats/RPCObjects/interface/Serialization.h"
-#include "CondFormats/RecoMuonObjects/interface/Serialization.h"
-#include "CondFormats/RunInfo/interface/Serialization.h"
-#include "CondFormats/SiPixelObjects/interface/Serialization.h"
-#include "CondFormats/SiStripObjects/interface/Serialization.h"
 
 #include "CondCore/Utilities/interface/CondDBImport.h"
 #include "CondCore/CondDB/interface/Exception.h"

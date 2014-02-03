@@ -1,7 +1,7 @@
-#include "CondFormats/Serialization/interface/SerializationTest.h"
+#include "CondFormats/Serialization/interface/Test.h"
 
-#include "CondFormats/EgammaObjects/interface/Serialization.h"
-#include "CondFormats/PhysicsToolsObjects/interface/Serialization.h"
+#include "../src/headers.h"
+
 
 int main()
 {

@@ -61,26 +61,4 @@ void serialize(Archive & ar, trigger::HLTPrescaleTable & obj, const unsigned int
 } // namespace serialization
 } // namespace boost
 
-namespace cond {
-namespace serialization {
-
-
-// DataFormats/HLTReco/interface/HLTPrescaleTable.h
-template <>
-struct access<trigger::HLTPrescaleTable>
-{
-    static bool equal_(const trigger::HLTPrescaleTable & first, const trigger::HLTPrescaleTable & second)
-    {
-        return true
-            and (equal(first.set(), second.set()))
-            and (equal(first.labels(), second.labels()))
-            and (equal(first.table(), second.table()))
-        ;
-    }
-};
-
-
-} // namespace serialization
-} // namespace cond
-
 #endif

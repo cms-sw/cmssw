@@ -1,8 +1,6 @@
-#include "CondFormats/Serialization/interface/SerializationTest.h"
+#include "CondFormats/Serialization/interface/Test.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/External/interface/HLTPrescaleTable.h"
-#include "CondFormats/HLTObjects/interface/Serialization.h"
+#include "../src/headers.h"
 
 int main()
 {

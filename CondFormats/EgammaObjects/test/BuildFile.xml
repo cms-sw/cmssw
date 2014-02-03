@@ -1,5 +1,3 @@
-<use   name="CondFormats/EgammaObjects"/>
-
 <bin file="testSerializationEgammaObjects.cpp">
-    <use   name="CondFormats/External"/>
+    <use   name="CondFormats/EgammaObjects"/>
 </bin>

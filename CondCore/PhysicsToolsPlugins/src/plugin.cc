@@ -20,9 +20,7 @@
 #include "CondFormats/DataRecord/interface/DropBoxMetadataRcd.h"
 #include "CondFormats/Common/interface/DropBoxMetadata.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/PhysicsToolsObjects/interface/Serialization.h"
 
 REGISTER_PLUGIN(DropBoxMetadataRcd,DropBoxMetadata);
 

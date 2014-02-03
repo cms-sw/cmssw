@@ -49,22 +49,4 @@ void serialize(Archive & ar, edm::Timestamp & obj, const unsigned int v)
 } // namespace serialization
 } // namespace boost
 
-namespace cond {
-namespace serialization {
-
-// DataFormats/Provenance/interface/Timestamp.h
-template <>
-struct access<edm::Timestamp>
-{
-    static bool equal_(const edm::Timestamp & first, const edm::Timestamp & second)
-    {
-        return true
-            and (equal(first.value(), second.value()))
-        ;
-    }
-};
-
-} // namespace serialization
-} // namespace cond
-
 #endif

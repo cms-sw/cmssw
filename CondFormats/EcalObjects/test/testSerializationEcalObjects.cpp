@@ -1,12 +1,6 @@
+#include "CondFormats/Serialization/interface/Test.h"
 
-#include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/External/interface/EcalDetID.h"
-#include "CondFormats/External/interface/Timestamp.h"
-#include "CondFormats/External/interface/SMatrix.h"
-#include "CondFormats/EcalObjects/interface/Serialization.h"
-
-#include "CondFormats/Serialization/interface/SerializationTest.h"
+#include "../src/headers.h"
 
 int main()
 {

@@ -89,40 +89,4 @@ void serialize(Archive & ar, CLHEP::HepEulerAngles & obj, const unsigned int v)
 } // namespace serialization
 } // namespace boost
 
-namespace cond {
-namespace serialization {
-
-// CLHEP/Vector/ThreeVector.h
-template <>
-struct access<CLHEP::Hep3Vector>
-{
-    static bool equal_(const CLHEP::Hep3Vector & first, const CLHEP::Hep3Vector & second)
-    {
-        return true
-            and (equal(first.x(), second.x()))
-            and (equal(first.y(), second.y()))
-            and (equal(first.z(), second.z()))
-        ;
-    }
-};
-
-// CLHEP/Vector/EulerAngles.h
-template <>
-struct access<CLHEP::HepEulerAngles>
-{
-    static bool equal_(const CLHEP::HepEulerAngles & first, const CLHEP::HepEulerAngles & second)
-    {
-        return true
-            and (equal(first.phi(), second.phi()))
-            and (equal(first.theta(), second.theta()))
-            and (equal(first.psi(), second.psi()))
-        ;
-    }
-};
-
-
-} // namespace serialization
-} // namespace cond
-
-
 #endif

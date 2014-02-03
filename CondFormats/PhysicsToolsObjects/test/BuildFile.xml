@@ -12,5 +12,4 @@
 </library>
 
 <bin file="testSerializationPhysicsToolsObjects.cpp">
-    <use   name="CondFormats/External"/>
 </bin>
