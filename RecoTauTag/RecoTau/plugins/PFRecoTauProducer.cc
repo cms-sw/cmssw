@@ -46,7 +46,6 @@ class PFRecoTauProducer : public EDProducer {
   double smearedPVsigmaZ_;
   double JetMinPt_;
   PFRecoTauAlgorithmBase* PFRecoTauAlgo_;
-
 };
 
 PFRecoTauProducer::PFRecoTauProducer(const edm::ParameterSet& iConfig){

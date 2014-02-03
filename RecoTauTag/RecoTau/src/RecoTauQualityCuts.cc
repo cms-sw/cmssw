@@ -10,12 +10,6 @@ namespace reco { namespace tau {
 
 namespace {
   // Get the KF track if it exists.  Otherwise, see if PFCandidate has a GSF track.
-  //reco::Track const* getTrack(const PFCandidate& cand) 
-  //{
-  //  if ( cand.trackRef().isNonnull() ) return cand.trackRef().get();
-  //  else if ( cand.gsfTrackRef().isNonnull() ) return cand.gsfTrackRef().get();
-  //  else return 0;
-  //}
   const reco::TrackBaseRef getTrackRef(const PFCandidate& cand) 
   {
     if ( cand.trackRef().isNonnull() ) return reco::TrackBaseRef(cand.trackRef());
@@ -241,25 +235,27 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
   // Build all the QCuts for tracks
   if ( qcuts.exists("minTrackPt") ) {
     trackQCuts_.push_back(boost::bind(qcuts::ptMin, _1, qcuts.getParameter<double>("minTrackPt")));
-    //chargedHadronCuts.push_back(boost::bind(qcuts::ptMin_cand, _1, qcuts.getParameter<double>("minTrackPt")));
     passedOptionSet.erase("minTrackPt");
   }
 
   if ( qcuts.exists("maxTrackChi2") ) {
     trackQCuts_.push_back(boost::bind(qcuts::trkChi2, _1, qcuts.getParameter<double>("maxTrackChi2")));
-    //chargedHadronCuts.push_back(boost::bind(qcuts::trkChi2_cand, _1, qcuts.getParameter<double>("maxTrackChi2")));
     passedOptionSet.erase("maxTrackChi2");
   }
 
   if ( qcuts.exists("minTrackPixelHits") ) {
-    trackQCuts_.push_back(boost::bind(qcuts::trkPixelHits, _1, qcuts.getParameter<uint32_t>("minTrackPixelHits")));
-    //chargedHadronCuts.push_back(boost::bind(qcuts::trkPixelHits_cand, _1, qcuts.getParameter<uint32_t>("minTrackPixelHits")));
+    uint32_t minTrackPixelHits = qcuts.getParameter<uint32_t>("minTrackPixelHits");
+    if ( minTrackPixelHits >= 1 ) {
+      trackQCuts_.push_back(boost::bind(qcuts::trkPixelHits, _1, minTrackPixelHits));
+    }
     passedOptionSet.erase("minTrackPixelHits");
   }
 
   if ( qcuts.exists("minTrackHits") ) {
-    trackQCuts_.push_back(boost::bind(qcuts::trkTrackerHits, _1, qcuts.getParameter<uint32_t>("minTrackHits")));
-    //chargedHadronCuts.push_back(boost::bind(qcuts::trkTrackerHits_cand, _1, qcuts.getParameter<uint32_t>("minTrackHits")));
+    uint32_t minTrackHits = qcuts.getParameter<uint32_t>("minTrackHits");
+    if ( minTrackHits >= 1 ) {
+      trackQCuts_.push_back(boost::bind(qcuts::trkTrackerHits, _1, minTrackHits));
+    }
     passedOptionSet.erase("minTrackHits");
   }
 
@@ -267,26 +263,25 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
   // need it to compute the discriminant value.
   if ( qcuts.exists("maxTransverseImpactParameter") ) {
     trackQCuts_.push_back(boost::bind(qcuts::trkTransverseImpactParameter, _1, &pv_, qcuts.getParameter<double>("maxTransverseImpactParameter")));
-    //chargedHadronCuts.push_back(boost::bind(qcuts::trkTransverseImpactParameter_cand, _1, &pv_, qcuts.getParameter<double>("maxTransverseImpactParameter")));
     passedOptionSet.erase("maxTransverseImpactParameter");
   }
 
   if ( qcuts.exists("maxDeltaZ") ) {
     trackQCuts_.push_back(boost::bind(qcuts::trkLongitudinalImpactParameter, _1, &pv_, qcuts.getParameter<double>("maxDeltaZ")));
-    //chargedHadronCuts.push_back(boost::bind(qcuts::trkLongitudinalImpactParameter_cand, _1, &pv_, qcuts.getParameter<double>("maxDeltaZ")));
     passedOptionSet.erase("maxDeltaZ");
   }
 
   if ( qcuts.exists("maxDeltaZToLeadTrack") ) {
     trackQCuts_.push_back(boost::bind(qcuts::trkLongitudinalImpactParameterWrtTrack, _1, &leadTrack_, &pv_, qcuts.getParameter<double>("maxDeltaZToLeadTrack")));
-    //chargedHadronCuts.push_back(boost::bind(qcuts::trkLongitudinalImpactParameterWrtTrack_cand, _1, &leadTrack_, &pv_, qcuts.getParameter<double>("maxDeltaZToLeadTrack")));
     passedOptionSet.erase("maxDeltaZToLeadTrack");
   }
 
   // Require tracks to contribute a minimum weight to the associated vertex.
   if ( qcuts.exists("minTrackVertexWeight") ) {
-    trackQCuts_.push_back(boost::bind(qcuts::minTrackVertexWeight, _1, &pv_, qcuts.getParameter<double>("minTrackVertexWeight")));
-    //chargedHadronCuts.push_back(boost::bind(qcuts::minTrackVertexWeight_cand, _1, &pv_, qcuts.getParameter<double>("minTrackVertexWeight")));
+    double minTrackVertexWeight = qcuts.getParameter<double>("minTrackVertexWeight");
+    if ( minTrackVertexWeight > -1. ) {
+      trackQCuts_.push_back(boost::bind(qcuts::minTrackVertexWeight, _1, &pv_, minTrackVertexWeight));
+    }
     passedOptionSet.erase("minTrackVertexWeight");
   }
 

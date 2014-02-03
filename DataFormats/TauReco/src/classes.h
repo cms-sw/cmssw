@@ -262,25 +262,24 @@ namespace {
     reco::PFTauTIPAssociationRefProd                  pftautipass_rp;
     reco::PFTauTIPAssociationRefVector                pftautipass_rv;
     edm::Wrapper<reco::PFTauTIPAssociation>           pftautipass_w;
-
-    std::pair<reco::PFTauRef, std::vector<reco::PFTauTransverseImpactParameterRef> >                pftaupairtip_o;
-    std::vector<std::pair<reco::PFTauRef, std::vector<reco::PFTauTransverseImpactParameterRef> > >  pftaupairtip_v;
+    std::pair<reco::PFTauRef, reco::PFTauTransverseImpactParameterRef >                pftaupairtip_o;
+    std::vector<std::pair<reco::PFTauRef, reco::PFTauTransverseImpactParameterRef > >  pftaupairtip_v;
 
     reco::PFTauVertexAssociation                      pftauvertexass_o;
     reco::PFTauVertexAssociationRef                   pftauvertexass_r;
     reco::PFTauVertexAssociationRefProd               pftauvertexass_rp;
     reco::PFTauVertexAssociationRefVector             pftauvertexass_rv;
     edm::Wrapper<reco::PFTauVertexAssociation>        pftauvertexass_w;
-    std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >                 pftaupairvertex_o;
-    std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >   pftaupairvertex_v;
+    std::pair<reco::PFTauRef, reco::VertexRef >                 pftaupairvertex_o;
+    std::vector<std::pair<reco::PFTauRef, reco::VertexRef > >   pftaupairvertex_v;
 
     reco::PFTauVertexVAssociation                     pftauvertexvass_o;
     reco::PFTauVertexVAssociationRef                  pftauvertexvass_r;
     reco::PFTauVertexVAssociationRefProd              pftauvertexvass_rp;
     reco::PFTauVertexVAssociationRefVector            pftauvertexvass_rv;
     edm::Wrapper<reco::PFTauVertexVAssociation>       pftauvertexvass_w;
-    std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > >                pftaupairvertexv_o;
-    std::vector<std::pair<reco::PFTauRef, std::vector<std::vector<reco::VertexRef> > > >  pftaupairvertexv_v;
+    std::pair<reco::PFTauRef, std::vector<reco::VertexRef> >                pftaupairvertexv_o;
+    std::vector<std::pair<reco::PFTauRef, std::vector<reco::VertexRef> > >  pftaupairvertexv_v;
 
     reco::PFTau3ProngSummary                                                        pftau3prong_o;
     std::vector<reco::PFTau3ProngSummary>                                           pftau3prong_v;
@@ -323,11 +322,5 @@ namespace {
 
     std::vector<std::vector<TLorentzVector> > vlv_o;
 
-    // jet -> PFCandidate associations, needed for boosted tau reconstruction
-    edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>,std::vector<reco::PFCandidate>,unsigned int> > jetPFCandidateAssociation_o;
-    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::PFJet>,std::vector<reco::PFCandidate>,unsigned int> > > jetPFCandidateAssociation_w;
-    edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFJet> >,edm::RefProd<std::vector<reco::PFCandidate> > > jetPFCandidateAssociation_kv;
-    edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > jetPFCandidateAssociation_kv2;
-    std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > jetPFCandidateAssociation_mkv;
   };
 }

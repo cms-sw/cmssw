@@ -1,28 +1,33 @@
+#ifndef RecoTauTag_ImpactParameter_TrackParticle_h
+#define RecoTauTag_ImpactParameter_TrackParticle_h
+
 /* From SimpleFits Package
  * Designed an written by
  * author: Ian M. Nugent
  * Humboldt Foundations
  */
-#ifndef TrackParticle_h
-#define TrackParticle_h
 
 #include "RecoTauTag/ImpactParameter/interface/Particle.h"
 #include "TString.h"
+
+namespace tauImpactParameter {
 
 class TrackParticle : public Particle {
  public:
   enum {kappa=0,lambda,phi,dxy,dz,NHelixPar};// 5 track helix Parameters
 
-  TrackParticle(TMatrixT<double> par_, TMatrixTSym<double> cov_, int pdgid_, double mass_,double charge_, double b_);
+  TrackParticle(const TVectorT<double>& par, const TMatrixTSym<double>& cov, int pdgid, double mass,double charge, double b);
   virtual ~TrackParticle(){};
 
-  static TString Name(int i);
-  virtual int NParameters(){return NHelixPar;}
-  virtual double Mass(){return mass;}
+  static TString name(int i);
+  virtual int nParameters() const { return NHelixPar; }
+  virtual double mass() const { return mass_; }
   
  private:
-  double mass;
+  double mass_;
 };
+
+}
 #endif
 
 

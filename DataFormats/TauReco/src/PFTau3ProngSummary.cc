@@ -59,17 +59,17 @@ PFTau3ProngSummary* PFTau3ProngSummary::clone() const{
 }
 
 
-bool PFTau3ProngSummary::AddSolution(unsigned int solution,TLorentzVector tau, std::vector<TLorentzVector> daughter_p4,
-			 std::vector<int> daughter_charge,std::vector<int> daughter_PDGID,
-			 bool has3ProngSolution,double solutionChi2,double thetaGJsig){
+bool PFTau3ProngSummary::AddSolution(unsigned int solution, const TLorentzVector& tau, const std::vector<TLorentzVector>& daughter_p4,
+			 const std::vector<int>& daughter_charge, const std::vector<int>& daughter_PDGID,
+			 bool has3ProngSolution, double solutionChi2, double thetaGJsig){
   if(solution<nsolutions){
-    has3ProngSolution_.at(solution)=true;
-    solution_Chi2_.at(solution)=solutionChi2;
-    thetaGJsig_.at(solution)=thetaGJsig;
-    tau_p4_.at(solution)=tau;
-    daughter_PDGID_.at(solution)=daughter_PDGID;
-    daughter_charge_.at(solution)=daughter_charge;
-    daughter_p4_.at(solution)=daughter_p4;
+    has3ProngSolution_[solution]=true;
+    solution_Chi2_[solution]=solutionChi2;
+    thetaGJsig_[solution]=thetaGJsig;
+    tau_p4_[solution]=tau;
+    daughter_PDGID_[solution]=daughter_PDGID;
+    daughter_charge_[solution]=daughter_charge;
+    daughter_p4_[solution]=daughter_p4;
     return true;
   }
   return false;
@@ -78,11 +78,11 @@ bool PFTau3ProngSummary::AddSolution(unsigned int solution,TLorentzVector tau, s
 
 double PFTau3ProngSummary::M_12()const{
   for(unsigned int i=0;i<has3ProngSolution_.size();i++){
-    if(has3ProngSolution_.at(i)==true){
+    if(has3ProngSolution_[i]==true){
       int charge=Tau_Charge();
       TLorentzVector LV;
-      for(unsigned int j=0;j<daughter_p4_.at(i).size();j++){
-	if(daughter_charge_.at(i).at(j)==charge)LV+=daughter_p4_.at(i).at(j);
+      for(unsigned int j=0;j<daughter_p4_[i].size();j++){
+	if(daughter_charge_[i][j]==charge)LV+=daughter_p4_[i][j];
       }
       return LV.M();
     }
@@ -91,17 +91,17 @@ double PFTau3ProngSummary::M_12()const{
 }
 double PFTau3ProngSummary::M_13()const{
   for(unsigned int i=0;i<has3ProngSolution_.size();i++){
-    if(has3ProngSolution_.at(i)==true){
+    if(has3ProngSolution_[i]==true){
       int charge=Tau_Charge();
       TLorentzVector LV_opp;
-      for(unsigned int j=0;j<daughter_p4_.at(i).size();j++){
-        if(daughter_charge_.at(i).at(j)==-1*charge)LV_opp=daughter_p4_.at(i).at(j);
+      for(unsigned int j=0;j<daughter_p4_[i].size();j++){
+        if(daughter_charge_[i][j]==-1*charge)LV_opp=daughter_p4_[i][j];
       }
       TLorentzVector LV_pair;
       bool found(false);
-      for(unsigned int j=0;j<daughter_p4_.at(i).size();j++){
-        if(daughter_charge_.at(i).at(j)==charge){
-	  TLorentzVector LV=daughter_p4_.at(i).at(j);
+      for(unsigned int j=0;j<daughter_p4_[i].size();j++){
+        if(daughter_charge_[i][j]==charge){
+	  TLorentzVector LV=daughter_p4_[i][j];
 	  LV+=LV_opp;
 	  if(!found)LV_pair=LV;
 	  else if(LV_pair.M()>LV.M())LV_pair=LV;
@@ -116,17 +116,17 @@ double PFTau3ProngSummary::M_13()const{
 
 double PFTau3ProngSummary::M_23()const{
   for(unsigned int i=0;i<has3ProngSolution_.size();i++){
-    if(has3ProngSolution_.at(i)==true){
+    if(has3ProngSolution_[i]==true){
       int charge=Tau_Charge();
       TLorentzVector LV_opp;
-      for(unsigned int j=0;j<daughter_p4_.at(i).size();j++){
-        if(daughter_charge_.at(i).at(j)==-1*charge)LV_opp=daughter_p4_.at(i).at(j);
+      for(unsigned int j=0;j<daughter_p4_[i].size();j++){
+        if(daughter_charge_[i][j]==-1*charge)LV_opp=daughter_p4_[i][j];
       }
       TLorentzVector LV_pair;
       bool found(false);
-      for(unsigned int j=0;j<daughter_p4_.at(i).size();j++){
-        if(daughter_charge_.at(i).at(j)==charge){
-          TLorentzVector LV=daughter_p4_.at(i).at(j);
+      for(unsigned int j=0;j<daughter_p4_[i].size();j++){
+        if(daughter_charge_[i][j]==charge){
+          TLorentzVector LV=daughter_p4_[i][j];
           LV+=LV_opp;
           if(!found)LV_pair=LV;
           else if(LV_pair.M()<LV.M())LV_pair=LV;
@@ -141,9 +141,9 @@ double PFTau3ProngSummary::M_23()const{
 
 int PFTau3ProngSummary::Tau_Charge()const{
   for(unsigned int i=0;i<has3ProngSolution_.size();i++){
-    if(has3ProngSolution_.at(i)==true){
+    if(has3ProngSolution_[i]==true){
       int charge;
-      for(unsigned int j=0;j<daughter_p4_.at(i).size();j++)charge+=daughter_charge_.at(i).at(j);
+      for(unsigned int j=0;j<daughter_p4_[i].size();j++)charge+=daughter_charge_[i][j];
       return charge;
     }
   }

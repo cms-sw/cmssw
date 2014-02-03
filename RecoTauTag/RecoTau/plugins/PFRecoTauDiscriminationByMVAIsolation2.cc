@@ -5,10 +5,6 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1.2.1 $
- *
- * $Id: PFRecoTauDiscriminationByMVAIsolation2.cc,v 1.1.2.1 2013/07/10 16:37:20 veelken Exp $
- *
  */
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
@@ -41,7 +37,7 @@ namespace
 {
   const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName, std::vector<TFile*>& inputFilesToDelete)
   {
-    if ( !inputFileName.isLocal() ) throw cms::Exception("PFRecoTauDiscriminationByIsolationMVA2::loadMVA") 
+    if ( inputFileName.location() == edm::FileInPath::Unknown ) throw cms::Exception("PFRecoTauDiscriminationByIsolationMVA2::loadMVA") 
       << " Failed to find File = " << inputFileName << " !!\n";
     TFile* inputFile = new TFile(inputFileName.fullPath().data());
   

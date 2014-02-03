@@ -6,28 +6,30 @@
 #include "RecoTauTag/ImpactParameter/interface/ErrorMatrixPropagator.h"
 #include "RecoTauTag/ImpactParameter/interface/TrackHelixVertexFitter.h"
 #include "RecoTauTag/ImpactParameter/interface/ParticleBuilder.h"
-#include "RecoTauTag/ImpactParameter/interface/ParticleMassHelper.h"
+#include "RecoTauTag/ImpactParameter/interface/PDGInfo.h"
 #include "Validation/EventGenerator/interface/PdtPdgMini.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
 #include "RecoTauTag/ImpactParameter/interface/TrackHelixVertexFitter.h"
 #include <TVector3.h>
 
-LorentzVectorParticle ParticleBuilder::CreateLorentzVectorParticle(reco::TransientTrack &transTrk, edm::ESHandle<TransientTrackBuilder>  &transTrackBuilder,reco::Vertex &V, bool fromPerigee,bool useTrackHelixPropogation){
+using namespace tauImpactParameter;
+
+LorentzVectorParticle ParticleBuilder::createLorentzVectorParticle(const reco::TransientTrack& transTrk, 
+								   const reco::Vertex& V, bool fromPerigee,bool useTrackHelixPropagation){
   GlobalPoint p(V.position().x(),V.position().y(),V.position().z());
-  TrackParticle tp=CreateTrackParticle(transTrk,transTrackBuilder,p,fromPerigee,useTrackHelixPropogation);
+  TrackParticle tp=createTrackParticle(transTrk,p,fromPerigee,useTrackHelixPropagation);
 
   int N=TrackHelixVertexFitter::NFreeTrackPar+TrackHelixVertexFitter::NExtraPar+TrackHelixVertexFitter::MassOffSet;
-  TMatrixT<double> par(N,1);
-  par(TrackHelixVertexFitter::x0,0)=V.position().x();
-  par(TrackHelixVertexFitter::y0,0)=V.position().y();
-  par(TrackHelixVertexFitter::z0,0)=V.position().z();
-  par(TrackHelixVertexFitter::kappa0,0)=tp.Parameter(TrackParticle::kappa);
-  par(TrackHelixVertexFitter::lambda0,0)=tp.Parameter(TrackParticle::lambda);
-  par(TrackHelixVertexFitter::phi0,0)=tp.Parameter(TrackParticle::phi);
-  par(TrackHelixVertexFitter::NFreeTrackPar+TrackHelixVertexFitter::MassOffSet,0)=tp.Mass();
-  par(TrackHelixVertexFitter::NFreeTrackPar+TrackHelixVertexFitter::BField0,0)=tp.BField();
+  TVectorT<double> par(N);
+  par(TrackHelixVertexFitter::x0)=V.position().x();
+  par(TrackHelixVertexFitter::y0)=V.position().y();
+  par(TrackHelixVertexFitter::z0)=V.position().z();
+  par(TrackHelixVertexFitter::kappa0)=tp.parameter(TrackParticle::kappa);
+  par(TrackHelixVertexFitter::lambda0)=tp.parameter(TrackParticle::lambda);
+  par(TrackHelixVertexFitter::phi0)=tp.parameter(TrackParticle::phi);
+  par(TrackHelixVertexFitter::NFreeTrackPar+TrackHelixVertexFitter::MassOffSet)=tp.mass();
+  par(TrackHelixVertexFitter::NFreeTrackPar+TrackHelixVertexFitter::BField0)=tp.bField();
 
   TMatrixTSym<double> parcov(N);
   for(int i=0;i<TrackHelixVertexFitter::NFreeVertexPar;i++){
@@ -35,81 +37,81 @@ LorentzVectorParticle ParticleBuilder::CreateLorentzVectorParticle(reco::Transie
       parcov(i,j)=V.covariance(i,j);
     }
   }
-  parcov(TrackHelixVertexFitter::kappa0,TrackHelixVertexFitter::kappa0)   = tp.Covariance(TrackParticle::kappa,TrackParticle::kappa);
-  parcov(TrackHelixVertexFitter::lambda0,TrackHelixVertexFitter::lambda0) = tp.Covariance(TrackParticle::lambda,TrackParticle::lambda);
-  parcov(TrackHelixVertexFitter::phi0,TrackHelixVertexFitter::phi0)       = tp.Covariance(TrackParticle::phi,TrackParticle::phi);
+  parcov(TrackHelixVertexFitter::kappa0,TrackHelixVertexFitter::kappa0)   = tp.covariance(TrackParticle::kappa,TrackParticle::kappa);
+  parcov(TrackHelixVertexFitter::lambda0,TrackHelixVertexFitter::lambda0) = tp.covariance(TrackParticle::lambda,TrackParticle::lambda);
+  parcov(TrackHelixVertexFitter::phi0,TrackHelixVertexFitter::phi0)       = tp.covariance(TrackParticle::phi,TrackParticle::phi);
 
-  TMatrixT<double>    LVPar=TrackHelixVertexFitter::ComputeLorentzVectorPar(par);
-  TMatrixTSym<double> LVCov=ErrorMatrixPropagator::PropogateError(&TrackHelixVertexFitter::ComputeLorentzVectorPar,par,parcov);
-  return LorentzVectorParticle(LVPar,LVCov,tp.PDGID(),tp.Charge(),tp.BField());
+  TVectorT<double>    LVPar=TrackHelixVertexFitter::computeLorentzVectorPar(par);
+  TMatrixTSym<double> LVCov=ErrorMatrixPropagator::propagateError(&TrackHelixVertexFitter::computeLorentzVectorPar,par,parcov);
+  return LorentzVectorParticle(LVPar,LVCov,tp.pdgId(),tp.charge(),tp.bField());
 }
 
-
-TrackParticle ParticleBuilder::CreateTrackParticle(reco::TransientTrack &transTrk, edm::ESHandle<TransientTrackBuilder>  &transTrackBuilder, const GlobalPoint p, bool fromPerigee,bool useTrackHelixPropogation){
+TrackParticle ParticleBuilder::createTrackParticle(const reco::TransientTrack& transTrk, 
+						   const GlobalPoint& p, bool fromPerigee, bool useTrackHelixPropagation ){
   // Configured for CMSSW Tracks only
-  TMatrixT<double>    par(TrackParticle::NHelixPar+1,1);
+  TVectorT<double>    par(TrackParticle::NHelixPar+1);
   TMatrixTSym<double> cov(TrackParticle::NHelixPar+1);
-  TMatrixT<double>    SFpar(TrackParticle::NHelixPar,1);
+  TVectorT<double>    SFpar(TrackParticle::NHelixPar);
   TMatrixTSym<double> SFcov(TrackParticle::NHelixPar);
   if(!fromPerigee){
     for(int i=0;i<TrackParticle::NHelixPar;i++){
-      par(i,0)=transTrk.track().parameter(i);
+      par(i)=transTrk.track().parameter(i);
       for(int j=0;j<TrackParticle::NHelixPar;j++){
 	cov(i,j)=transTrk.track().covariance(i,j);
       }
     }
-    par(TrackParticle::NHelixPar,0)=transTrackBuilder->field()->inInverseGeV(p).z();
-    SFpar=ConvertCMSSWTrackParToSFTrackPar(par);
-    SFcov=ErrorMatrixPropagator::PropogateError(&ParticleBuilder::ConvertCMSSWTrackParToSFTrackPar,par,cov);
+    par(TrackParticle::NHelixPar)=transTrk.field()->inInverseGeV(p).z();
+    SFpar=convertCMSSWTrackParToSFTrackPar(par);
+    SFcov=ErrorMatrixPropagator::propagateError(&ParticleBuilder::convertCMSSWTrackParToSFTrackPar,par,cov);
   }
   else{
     GlobalPoint TrackIPPos=transTrk.impactPointTSCP().position();
     //GlobalPoint TrackIPOrigin=transTrk.impactPointTSCP().referencePoint();
     GlobalPoint origin(0.0,0.0,0.0);
     for(int i=0;i<TrackParticle::NHelixPar;i++){
-      par(i,0)=transTrk.trajectoryStateClosestToPoint(origin).perigeeParameters().vector()(i);
+      par(i)=transTrk.trajectoryStateClosestToPoint(origin).perigeeParameters().vector()(i);
       for(int j=0;j<TrackParticle::NHelixPar;j++){
         cov(i,j)=transTrk.trajectoryStateClosestToPoint(origin).perigeeError().covarianceMatrix()(i,j);
       }
     }
-    par(TrackParticle::NHelixPar,0)=transTrackBuilder->field()->inInverseGeV(p).z();
-    SFpar=ConvertCMSSWTrackPerigeeToSFTrackPar(par);
-    SFcov=ErrorMatrixPropagator::PropogateError(&ParticleBuilder::ConvertCMSSWTrackPerigeeToSFTrackPar,par,cov);
-    if(useTrackHelixPropogation){
+    par(TrackParticle::NHelixPar)=transTrk.field()->inInverseGeV(p).z();
+    SFpar=convertCMSSWTrackPerigeeToSFTrackPar(par);
+    SFcov=ErrorMatrixPropagator::propagateError(&ParticleBuilder::convertCMSSWTrackPerigeeToSFTrackPar,par,cov);
+    if(useTrackHelixPropagation){
       /////////////////////////////////////////////////////////////////
       // correct dxy dz neglecting material and radiative corrections
       /*
-      std::cout << "Offical CMS dxy - " << par(TrackParticle::dxy,0) << " dz " << par(TrackParticle::dz,0) 
-		<< " kappa " <<  track->qoverp() << " " << par(reco::TrackBase::i_qoverp,0) <<  std::endl;
-      std::cout << "Offical CMS dxy - SimpleFits Format" << SFpar(TrackParticle::dxy,0) << " dz " << SFpar(TrackParticle::dz,0) 
-		<< " kappa " <<  track->qoverp() << " " << SFpar(reco::TrackBase::i_qoverp,0) <<  std::endl;
+      std::cout << "Offical CMS dxy - " << par(TrackParticle::dxy) << " dz " << par(TrackParticle::dz) 
+		<< " kappa " <<  track->qoverp() << " " << par(reco::TrackBase::i_qoverp) <<  std::endl;
+      std::cout << "Offical CMS dxy - SimpleFits Format" << SFpar(TrackParticle::dxy) << " dz " << SFpar(TrackParticle::dz) 
+		<< " kappa " <<  track->qoverp() << " " << SFpar(reco::TrackBase::i_qoverp) <<  std::endl;
       std::cout << "x " << TrackIPOrigin.x() << " y " <<  TrackIPOrigin.y() << " z " <<  TrackIPOrigin.z() << std::endl;
       */
       double x,y,z,dxy,dz,s,kappa,lambda,phi;
-      TMatrixT<double>    freehelix(TrackHelixVertexFitter::NFreeTrackPar,1);
-      freehelix(TrackHelixVertexFitter::x0,0)=TrackIPPos.x();
-      freehelix(TrackHelixVertexFitter::y0,0)=TrackIPPos.y();
-      freehelix(TrackHelixVertexFitter::z0,0)=TrackIPPos.z();
-      freehelix(TrackHelixVertexFitter::kappa0,0)=SFpar(TrackParticle::kappa,0);
-      freehelix(TrackHelixVertexFitter::lambda0,0)=SFpar(TrackParticle::lambda,0);
-      freehelix(TrackHelixVertexFitter::phi0,0)=SFpar(TrackParticle::phi,0);
-      TrackHelixVertexFitter::Computedxydz(freehelix,0,kappa,lambda,phi,x,y,z,s,dxy,dz);
-      SFpar(TrackParticle::dxy,0) = dxy;
-      SFpar(TrackParticle::dz,0)  = dz;
+      TVectorT<double> freehelix(TrackHelixVertexFitter::NFreeTrackPar);
+      freehelix(TrackHelixVertexFitter::x0)=TrackIPPos.x();
+      freehelix(TrackHelixVertexFitter::y0)=TrackIPPos.y();
+      freehelix(TrackHelixVertexFitter::z0)=TrackIPPos.z();
+      freehelix(TrackHelixVertexFitter::kappa0)=SFpar(TrackParticle::kappa);
+      freehelix(TrackHelixVertexFitter::lambda0)=SFpar(TrackParticle::lambda);
+      freehelix(TrackHelixVertexFitter::phi0)=SFpar(TrackParticle::phi);
+      TrackHelixVertexFitter::computedxydz(freehelix,0,kappa,lambda,phi,x,y,z,s,dxy,dz);
+      SFpar(TrackParticle::dxy) = dxy;
+      SFpar(TrackParticle::dz)  = dz;
       //std::cout << "Found values dxy " << dxy << " dz " << dz << std::endl; 
       //exit(0);
       ////////////////////////////////////////////////////////////////
     }
   }
 
-  ParticleMassHelper PMH;
+  PDGInfo pdgInfo;
   double c=transTrk.charge();
-  return  TrackParticle(SFpar,SFcov,abs(PdtPdgMini::pi_plus)*c,PMH.Get_piMass(),c,transTrackBuilder->field()->inInverseGeV(p).z());
+  return TrackParticle(SFpar,SFcov,abs(PdtPdgMini::pi_plus)*c,pdgInfo.pi_mass(),c,transTrk.field()->inInverseGeV(p).z());
 }
 
-reco::Vertex ParticleBuilder::GetVertex(LorentzVectorParticle p){
-  TVector3 v=p.Vertex();
-  TMatrixTSym<double> vcov=p.VertexCov();
+reco::Vertex ParticleBuilder::getVertex(const LorentzVectorParticle& p){
+  TVector3 v=p.vertex();
+  TMatrixTSym<double> vcov=p.vertexCov();
   reco::Vertex::Point vp(v.X(),v.Y(),v.Z());
   reco::Vertex::Error ve;
   for(int i=0;i<vcov.GetNrows();i++){
@@ -118,25 +120,23 @@ reco::Vertex ParticleBuilder::GetVertex(LorentzVectorParticle p){
   return reco::Vertex(vp,ve);
 }
 
-
-TMatrixT<double> ParticleBuilder::ConvertCMSSWTrackParToSFTrackPar(TMatrixT<double> &inpar){
-  TMatrixT<double> par(TrackParticle::NHelixPar,1);
-  par(TrackParticle::kappa,0)  = -1.0*inpar(TrackParticle::NHelixPar,0)*inpar(reco::TrackBase::i_qoverp,0)/fabs(cos(inpar(reco::TrackBase::i_lambda,0)));
-  par(TrackParticle::lambda,0) = inpar(reco::TrackBase::i_lambda,0);
-  par(TrackParticle::phi,0)    = inpar(reco::TrackBase::i_phi,0);
-  par(TrackParticle::dz,0)     = inpar(reco::TrackBase::i_dsz,0)/fabs(cos(inpar(reco::TrackBase::i_lambda,0)));
-  par(TrackParticle::dxy,0)    = inpar(reco::TrackBase::i_dxy,0);
+TVectorT<double> ParticleBuilder::convertCMSSWTrackParToSFTrackPar(const TVectorT<double>& inpar){
+  TVectorT<double> par(TrackParticle::NHelixPar);
+  par(TrackParticle::kappa)  = -1.0*inpar(TrackParticle::NHelixPar)*inpar(reco::TrackBase::i_qoverp)/fabs(cos(inpar(reco::TrackBase::i_lambda)));
+  par(TrackParticle::lambda) = inpar(reco::TrackBase::i_lambda);
+  par(TrackParticle::phi)    = inpar(reco::TrackBase::i_phi);
+  par(TrackParticle::dz)     = inpar(reco::TrackBase::i_dsz)/fabs(cos(inpar(reco::TrackBase::i_lambda)));
+  par(TrackParticle::dxy)    = inpar(reco::TrackBase::i_dxy);
   return par;
 }
 
-
-TMatrixT<double> ParticleBuilder::ConvertCMSSWTrackPerigeeToSFTrackPar(TMatrixT<double> &inpar){
-  TMatrixT<double> par(TrackParticle::NHelixPar,1);
-  par(TrackParticle::kappa,0)  = inpar(aCurv,0); 
-  par(TrackParticle::lambda,0) = TMath::Pi()/2-inpar(aTheta,0); 
-  par(TrackParticle::phi,0)    = inpar(aPhi,0);
-  par(TrackParticle::dxy,0)    = -inpar(aTip,0);
-  par(TrackParticle::dz,0)     = inpar(aLip,0);
+TVectorT<double> ParticleBuilder::convertCMSSWTrackPerigeeToSFTrackPar(const TVectorT<double>& inpar){
+  TVectorT<double> par(TrackParticle::NHelixPar);
+  par(TrackParticle::kappa)  = inpar(aCurv); 
+  par(TrackParticle::lambda) = TMath::Pi()/2-inpar(aTheta); 
+  par(TrackParticle::phi)    = inpar(aPhi);
+  par(TrackParticle::dxy)    = -inpar(aTip);
+  par(TrackParticle::dz)     = inpar(aLip);
   return par;
 }
 

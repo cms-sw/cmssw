@@ -220,7 +220,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       reco::Candidate::LorentzVector diffP4;
       size_t numChargedHadrons = chargedHadrons.size();
       for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
-	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons.at(iChargedHadron);
+	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
 	if ( chargedHadron.getNeutralPFCandidates().size() >= 1 ) {
 	  PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	  setChargedHadronP4(chargedHadron_modified, scaleFactor);
@@ -265,15 +265,15 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       reco::Candidate::LorentzVector diffP4;
       size_t numChargedHadrons = chargedHadrons.size();
       for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
-	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons.at(iChargedHadron);
+	const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
 	if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kPFNeutralHadron) ) {
 	  PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	  chargedHadron_modified.neutralPFCandidates_.clear();
 	  const PFCandidatePtr& chargedPFCand = chargedHadron.getChargedPFCandidate();
-	  double chargedHadronP_modified     = scaleFactor*chargedPFCand->p();
-	  double chargedHadronTheta_modified = chargedPFCand->theta();
-	  double chargedHadronPhi_modified   = chargedPFCand->phi();	
-	  reco::Candidate::LorentzVector chargedHadronP4_modified = compChargedHadronP4(chargedHadronP_modified, chargedHadronTheta_modified, chargedHadronPhi_modified);	  
+	  double chargedHadronPx_modified = scaleFactor*chargedPFCand->px();
+	  double chargedHadronPy_modified = scaleFactor*chargedPFCand->py();
+	  double chargedHadronPz_modified = scaleFactor*chargedPFCand->pz();
+	  reco::Candidate::LorentzVector chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);	  
 	  chargedHadron_modified.setP4(chargedHadronP4_modified);
 	  tau.signalTauChargedHadronCandidates_[iChargedHadron] = chargedHadron_modified;
 	  diffP4 += (chargedHadron.p4() - chargedHadron_modified.p4());
@@ -332,7 +332,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	// Adjust momenta of neutral PFCandidates merged into ChargedHadrons
 	size_t numChargedHadrons = chargedHadrons.size();
 	for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
-	  const PFRecoTauChargedHadron& chargedHadron = chargedHadrons.at(iChargedHadron);
+	  const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
 	  if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) ) {
 	    PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	    chargedHadron_modified.neutralPFCandidates_.clear();
@@ -345,12 +345,12 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	    PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	    chargedHadron_modified.neutralPFCandidates_.clear();
 	    reco::Candidate::LorentzVector chargedHadronP4_modified(0.,0.,0.,0.);
-	    const edm::Ptr<Track>& chargedHadronTrack = chargedHadron.getTrack();
-	    if ( chargedHadronTrack.isNonnull() ) { 
-	      double chargedHadronP_modified     = chargedHadronTrack->p();
-	      double chargedHadronTheta_modified = chargedHadronTrack->theta();
-	      double chargedHadronPhi_modified   = chargedHadronTrack->phi();
-	      chargedHadronP4_modified = compChargedHadronP4(chargedHadronP_modified, chargedHadronTheta_modified, chargedHadronPhi_modified);
+	    if ( (chargedHadron.getTrack()).isNonnull() ) {
+	      const Track& chargedHadronTrack = *(chargedHadron.getTrack());
+	      double chargedHadronPx_modified     = chargedHadronTrack.px();
+	      double chargedHadronPy_modified = chargedHadronTrack.py();
+	      double chargedHadronPz_modified   = chargedHadronTrack.pz();
+	      chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
 	    } else {
 	      edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
 		<< "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
@@ -376,7 +376,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	  // Adjust momenta of ChargedHadrons build from reco::Tracks to match sum of energy deposits in ECAL + HCAL + HO
 	  size_t numChargedHadrons = chargedHadrons.size();
 	  for ( size_t iChargedHadron = 0; iChargedHadron < numChargedHadrons; ++iChargedHadron ) {
-	    const PFRecoTauChargedHadron& chargedHadron = chargedHadrons.at(iChargedHadron);
+	    const PFRecoTauChargedHadron& chargedHadron = chargedHadrons[iChargedHadron];
 	    if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) ) {
 	      PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	      chargedHadron_modified.neutralPFCandidates_.clear();
@@ -408,10 +408,10 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 		  killTau(tau);
 		  return;
 		}
-		double chargedHadronP_modified     = scaleFactor*chargedHadronTrack->p();
-		double chargedHadronTheta_modified = chargedHadronTrack->theta();
-		double chargedHadronPhi_modified   = chargedHadronTrack->phi();
-		chargedHadronP4_modified = compChargedHadronP4(chargedHadronP_modified, chargedHadronTheta_modified, chargedHadronPhi_modified);
+		double chargedHadronPx_modified = scaleFactor*chargedHadronTrack->px();
+		double chargedHadronPy_modified = scaleFactor*chargedHadronTrack->py();
+		double chargedHadronPz_modified = scaleFactor*chargedHadronTrack->pz();
+		chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
 	      } else {
 		edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
 		  << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;

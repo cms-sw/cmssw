@@ -189,7 +189,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  if(useSelectedTaus_ || iPFTau==jPFTau){
 	    reco::PFTauRef RefPFTau(Tau, jPFTau);
 	    ///////////////////////////////////////////////////////////////////////////////////////////////
-	    // Get tracks form PFTau daugthers
+	    // Get tracks from PFTau daugthers
 	    const std::vector<edm::Ptr<reco::PFCandidate> > cands = RefPFTau->signalPFChargedHadrCands(); 
 	    for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
 	      if(iter->get()->trackRef().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(iter->get()->trackRef()));
@@ -199,6 +199,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	}
 	// Get Muon tracks
 	if(RemoveMuonTracks_){
+
 	  if(Mu.isValid()) {
 	    for(reco::MuonCollection::size_type iMuon = 0; iMuon< Mu->size(); iMuon++){
 	      reco::MuonRef RefMuon(Mu, iMuon);
@@ -216,27 +217,30 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  }
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////////
-	// Get Non-Tau tracks 
+	// Get Non-Tau tracks
 	reco::TrackCollection nonTauTracks;
-	if (trackCollection.isValid()) {
-	  // remove tau tracks and only tracks associated with the vertex
-	  unsigned int idx = 0;
-	  for (reco::TrackCollection::const_iterator iTrk = trackCollection->begin(); iTrk != trackCollection->end(); ++iTrk, idx++) {
-	    reco::TrackRef tmpRef(trackCollection, idx);
-	    reco::TrackRef tmpRefForBase=tmpRef;
-	    bool isSigTrk = false;
-	    bool fromVertex=false;
-	    for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
-	      if (reco::TrackBaseRef(tmpRefForBase)==SignalTracks.at(sigTrk)){isSigTrk = true; break;}
+// 	if (trackCollection.isValid()) {
+// 	  // remove tau tracks and only tracks associated with the vertex
+// 	  unsigned int idx = 0;
+// 	  for (reco::TrackCollection::const_iterator iTrk = trackCollection->begin(); iTrk != trackCollection->end(); ++iTrk, idx++) {
+// 	    reco::TrackRef tmpRef(trackCollection, idx);
+// 	    reco::TrackRef tmpRefForBase=tmpRef;
+// 	    bool isSigTrk = false;
+// 	    bool fromVertex=false;
+// 	    for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
+// 	      if (reco::TrackBaseRef(tmpRefForBase)==SignalTracks.at(sigTrk)){isSigTrk = true; break;}
+// 	    }
+// 	  if (!isSigTrk) nonSigTracks.push_back(*iTrk);
+// 	  }
+// 	}
+	
+	for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
+	  for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
+	    if((*vtxTrkRef)!=SignalTracks[sigTrk] ){
+	      nonTauTracks.push_back(**vtxTrkRef);
 	    }
-	    for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
-	      if(thePV.trackWeight(*vtxTrkRef)>0 ){
-		if((*vtxTrkRef)==reco::TrackBaseRef(tmpRefForBase)){fromVertex=true; break;}
-	      }
-	    }
-	    if (!isSigTrk && fromVertex) nonTauTracks.push_back(*iTrk);
-	  }
-	}
+          }
+	}   
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Refit the vertex
 	TransientVertex transVtx;
@@ -245,15 +249,20 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  transTracks.push_back(transTrackBuilder->build(*iter));
 	}
 	bool FitOk(true);
-	AdaptiveVertexFitter avf;
-	avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
-	try{
-	  if(!useBeamSpot_){transVtx = avf.vertex(transTracks);}
-	  else{transVtx = avf.vertex(transTracks,*beamSpot);}
-	}catch(...){
-	  FitOk=false;
-	}
-	if(FitOk)thePV=transVtx;
+	if ( transTracks.size() >= 3 ) {
+	  AdaptiveVertexFitter avf;
+	  avf.setWeightThreshold(0.1); //weight per track. allow almost every fit, else --> exception
+	  try {
+	    if ( !useBeamSpot_ ){
+	      transVtx = avf.vertex(transTracks);
+	    } else {
+	      transVtx = avf.vertex(transTracks, *beamSpot);
+	    }
+	  } catch (...) {
+	    FitOk = false;
+	  }
+	} else FitOk = false;
+	if ( FitOk ) thePV = transVtx;
       }
       VertexRef VRef = reco::VertexRef(VertexRefProd_out, VertexCollection_out->size());
       VertexCollection_out->push_back(thePV);

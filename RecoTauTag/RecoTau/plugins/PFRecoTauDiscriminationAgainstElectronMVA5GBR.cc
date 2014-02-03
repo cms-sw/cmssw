@@ -35,7 +35,7 @@ public:
   {
     method_  = iConfig.getParameter<std::string>("method");
     gbrFile_ = iConfig.getParameter<edm::FileInPath>("gbrFile");
-    if ( !gbrFile_.isLocal() ) 
+    if ( gbrFile_.location() == edm::FileInPath::Unknown) 
       throw cms::Exception("PFRecoTauDiscriminationAgainstElectronMVA5GBR") 
 	<< " Failed to find File = " << gbrFile_ << " !!\n";
 

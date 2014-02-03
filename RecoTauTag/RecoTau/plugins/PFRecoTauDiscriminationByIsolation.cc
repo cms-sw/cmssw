@@ -182,6 +182,9 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   // Keep track of how many vertices are in the event
   edm::InputTag vertexSrc_;
   std::vector<reco::PFCandidatePtr> chargedPFCandidatesInEvent_;
+  std::vector<PFCandidatePtr> isoCharged_;
+  std::vector<PFCandidatePtr> isoNeutral_;
+  std::vector<PFCandidatePtr> isoPU_;
   // Size of cone used to collect PU tracks
   double deltaBetaCollectionCone_;
   std::auto_ptr<TFormula> deltaBetaFormula_;
@@ -209,13 +212,14 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event, con
 
   // If we are applying the delta beta correction, we need to get the PF
   // candidates from the event so we can find the PU tracks.
-  chargedPFCandidatesInEvent_.clear();
   if ( applyDeltaBeta_ ) {
     // Collect all the PF pile up tracks
     edm::Handle<reco::PFCandidateCollection> pfCandHandle_;
     event.getByLabel(pfCandSrc_, pfCandHandle_);
+    chargedPFCandidatesInEvent_.clear();
     chargedPFCandidatesInEvent_.reserve(pfCandHandle_->size());
-    for ( size_t i = 0; i < pfCandHandle_->size(); ++i ) {
+    size_t numPFCandidates = pfCandHandle_->size();
+    for ( size_t i = 0; i < numPFCandidates; ++i ) {
       reco::PFCandidatePtr pfCand(pfCandHandle_, i);
       if ( pfCand->charge() != 0 ) {
         chargedPFCandidatesInEvent_.push_back(pfCand);
@@ -241,15 +245,17 @@ double
 PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) 
 {
   if ( verbosity_ ) {
-    std::cout << "<PFRecoTauDiscriminationByIsolation::discriminate>:" << std::endl;
-    std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
+    std::cout << "<PFRecoTauDiscriminationByIsolation::discriminate (moduleLabel = " << moduleLabel_ <<")>:" << std::endl;
     std::cout << " tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() << std::endl;
   }
 
   // collect the objects we are working with (ie tracks, tracks+gammas, etc)
-  std::vector<PFCandidatePtr> isoCharged;
-  std::vector<PFCandidatePtr> isoNeutral;
-  std::vector<PFCandidatePtr> isoPU;
+  isoCharged_.clear();
+  isoCharged_.reserve(pfTau->isolationPFChargedHadrCands().size());
+  isoNeutral_.clear();
+  isoNeutral_.reserve(pfTau->isolationPFGammaCands().size());
+  isoPU_.clear();
+  isoPU_.reserve(chargedPFCandidatesInEvent_.size());
 
   // Get the primary vertex associated to this tau
   reco::VertexRef pv = vertexAssociator_->associatedVertex(*pfTau);
@@ -288,14 +294,14 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
   if ( includeTracks_ ) {
     BOOST_FOREACH( const reco::PFCandidatePtr& cand, pfTau->isolationPFChargedHadrCands() ) {
       if ( qcuts_->filterCandRef(cand) ) {
-        isoCharged.push_back(cand);
+        isoCharged_.push_back(cand);
       }
     }
   }
   if ( includeGammas_ ) {
     BOOST_FOREACH( const reco::PFCandidatePtr& cand, pfTau->isolationPFGammaCands() ) {
       if ( qcuts_->filterCandRef(cand) ) {
-        isoNeutral.push_back(cand);
+        isoNeutral_.push_back(cand);
       }
     }
   }
@@ -327,7 +333,7 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
     DRFilter deltaBetaFilter(pfTau->p4(), 0, deltaBetaCollectionCone_);
     BOOST_FOREACH(const reco::PFCandidatePtr& cand, cleanPU) {
       if ( deltaBetaFilter(cand) ) {
-        isoPU.push_back(cand);
+        isoPU_.push_back(cand);
       }
     }
     //if ( verbosity_ ) {
@@ -337,21 +343,22 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
 
   // Check if we want a custom iso cone
   if ( customIsoCone_ >= 0. ) {
+    if(verbosity_){
+      std::cout << "<PFRecoTauDiscriminationByIsolation::discriminate (moduleLabel = " << moduleLabel_ <<")>:" << std::endl;
+      std::cout << " customIsoCone = " << customIsoCone_ << std::endl;
+    }
     DRFilter filter(pfTau->p4(), 0, customIsoCone_);
     std::vector<PFCandidatePtr> isoCharged_filter;
     std::vector<PFCandidatePtr> isoNeutral_filter;
     // Remove all the objects not in our iso cone
-    BOOST_FOREACH( const PFCandidatePtr& isoObject, isoCharged ) {
+    BOOST_FOREACH( const PFCandidatePtr& isoObject, isoCharged_ ) {
       if ( filter(isoObject) ) isoCharged_filter.push_back(isoObject);
     }
-    BOOST_FOREACH( const PFCandidatePtr& isoObject, isoNeutral ) {
+    BOOST_FOREACH( const PFCandidatePtr& isoObject, isoNeutral_ ) {
       if ( filter(isoObject) ) isoNeutral_filter.push_back(isoObject);
     }
-
-    isoCharged.clear();
-    isoCharged = isoCharged_filter;
-    isoNeutral.clear();
-    isoNeutral = isoNeutral_filter;
+    isoCharged_ = isoCharged_filter;
+    isoNeutral_ = isoNeutral_filter;
   }
 
   bool failsOccupancyCut     = false;
@@ -359,16 +366,16 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
   bool failsRelativeSumPtCut = false;
 
 //--- nObjects requirement
-  int neutrals = isoNeutral.size();
+  int neutrals = isoNeutral_.size();
 
   if ( applyDeltaBeta_ ) {
-    neutrals -= TMath::Nint(deltaBetaFactorThisEvent_*isoPU.size());
+    neutrals -= TMath::Nint(deltaBetaFactorThisEvent_*isoPU_.size());
   }
   if ( neutrals < 0 ) {
     neutrals = 0;
   }
 
-  size_t nOccupants = isoCharged.size() + neutrals;
+  size_t nOccupants = isoCharged_.size() + neutrals;
 
   failsOccupancyCut = ( nOccupants > maximumOccupancy_ );
 
@@ -378,13 +385,13 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
   if ( applySumPtCut_ || applyRelativeSumPtCut_ || storeRawSumPt_ || storeRawPUsumPt_ ) {
     double chargedPt = 0.0;
     double neutralPt = 0.0;
-    BOOST_FOREACH ( const PFCandidatePtr& isoObject, isoCharged ) {
+    BOOST_FOREACH ( const PFCandidatePtr& isoObject, isoCharged_ ) {
       chargedPt += isoObject->pt();
     }
-    BOOST_FOREACH ( const PFCandidatePtr& isoObject, isoNeutral ) {
+    BOOST_FOREACH ( const PFCandidatePtr& isoObject, isoNeutral_ ) {
       neutralPt += isoObject->pt();
     }
-    BOOST_FOREACH ( const PFCandidatePtr& isoObject, isoPU ) {
+    BOOST_FOREACH ( const PFCandidatePtr& isoObject, isoPU_ ) {
       puPt += isoObject->pt();
     }
     if ( verbosity_ ) {

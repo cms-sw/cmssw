@@ -75,7 +75,7 @@ namespace
   template <typename T>
   const T* loadObjectFromFile(const edm::FileInPath& inputFileName, const std::string& objectName, std::vector<TFile*>& inputFilesToDelete)
   {
-    if ( !inputFileName.isLocal() ) throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadObjectFromFile") 
+    if ( inputFileName.location() == edm::FileInPath::Unknown) throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadObjectFromFile") 
       << " Failed to find File = " << inputFileName << " !!\n";
     TFile* inputFile = new TFile(inputFileName.fullPath().data());
   

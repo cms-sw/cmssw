@@ -9,7 +9,6 @@
  * via the input list of PFRecoTauChargedHadronQualityPlugins, which form a
  * lexicograpical ranking.
  *
- * $Id $
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -220,9 +219,11 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       // discard candidate in case its track is "used" by any ChargedHadron in the clean collection
       bool isTrack_overlap = false;
       if ( track ) {
+	double track_eta = track->eta();
+	double track_phi = track->phi();
 	for ( std::list<etaPhiPair>::const_iterator trackInCleanCollection = tracksInCleanCollection.begin();
 	      trackInCleanCollection != tracksInCleanCollection.end(); ++trackInCleanCollection ) {
-	  double dR = deltaR(track->eta(), track->phi(), trackInCleanCollection->first, trackInCleanCollection->second);
+	  double dR = deltaR(track_eta, track_phi, trackInCleanCollection->first, trackInCleanCollection->second);
 	  if ( dR < 1.e-4 ) isTrack_overlap = true;
 	}
       }

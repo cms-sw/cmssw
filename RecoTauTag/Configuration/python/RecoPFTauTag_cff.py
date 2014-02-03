@@ -23,13 +23,13 @@ from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
 
 # Collection PFCandidates from a DR=0.8 cone about the jet axis and make new
 # faux jets with this collection
-recoTauAK5PFJets08Region = cms.EDProducer(
-    "RecoTauJetRegionProducer",
-    deltaR = cms.double(0.8),
-    src = cms.InputTag("ak5PFJets"),
-    pfCandSrc = cms.InputTag("particleFlow"),
-    pfCandAssocMapSrc = cms.InputTag("")
-)
+
+from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import \
+             RecoTauJetRegionProducer
+recoTauAK5PFJets08Region=RecoTauJetRegionProducer.clone(
+        src = cms.InputTag("ak5PFJets")
+      )
+
 
 # The computation of the lead track signed transverse impact parameter depends
 # on the transient tracks
