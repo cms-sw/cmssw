@@ -137,6 +137,12 @@ class PhotonPostprocessing : public edm::EDAnalyzer
   MonitorElement*  convEffZOneTrack_;
   MonitorElement*  convEffEtOneTrack_;
 
+  MonitorElement*  h_simConvEtaMTotal_;
+  MonitorElement*  h_simConvPhiMTotal_;
+  MonitorElement*  h_simConvRMTotal_;
+  MonitorElement*  h_simConvZMTotal_;
+  MonitorElement*  h_simConvEtMTotal_;
+
   MonitorElement*  convEffEtaTotal_;
   MonitorElement*  convEffPhiTotal_;
   MonitorElement*  convEffRTotal_;

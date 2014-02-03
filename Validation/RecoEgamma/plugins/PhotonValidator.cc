@@ -390,29 +390,6 @@ void PhotonValidator::bookHistograms(void) {
     histname = "h_SimConvTwoMTracksEtAndVtxPGT0";
     h_SimConvTwoMTracksAndVtxPGT0_[4] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated Et",etBin,etMin, etMax);
     //
-    // temporary
-    th1f_SimConvMTotal_[0] =  new TH1F("tmp1"," All vis conversions (double+single leg)  matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
-    th1f_SimConvMTotal_[1] =  new TH1F("tmp2"," All vis conversions (double+single leg)  matching tracks: simulated #phi",phiBin,phiMin, phiMax);
-    th1f_SimConvMTotal_[2] =  new TH1F("tmp3"," All vis conversions (double+single leg) matching tracks: simulated R",rBin,rMin, rMax);
-    th1f_SimConvMTotal_[3] =  new TH1F("tmp4"," All vis conversions (double+single leg) matching tracks: simulated Z",zBin,zMin, zMax);
-    th1f_SimConvMTotal_[4] =  new TH1F("tmp5"," All vis conversions (double+single leg) matching tracks: simulated Et",etBin,etMin, etMax);
-    //
-    histname = "h_SimConvMTotalEta";
-    //    h_SimConvMTotal_[0] =  dbe_->book1D(histname," All vis conversions (double+single leg)  matching tracks: simulated #eta",etaBin2,etaMin, etaMax);
-    h_SimConvMTotal_[0] =  dbe_->book1D(histname,  th1f_SimConvMTotal_[0]);
-    histname = "h_SimConvMTotalPhi";
-    //h_SimConvMTotal_[1] =  dbe_->book1D(histname," All vis conversions (double+single leg)  matching tracks: simulated #phi",phiBin,phiMin, phiMax);
-    h_SimConvMTotal_[1] =  dbe_->book1D(histname,  th1f_SimConvMTotal_[1]);
-    histname = "h_SimConvMTotalR";
-    // h_SimConvMTotal_[2] =  dbe_->book1D(histname," All vis conversions (double+single leg) matching tracks: simulated R",rBin,rMin, rMax);
-    h_SimConvMTotal_[2] =  dbe_->book1D(histname,  th1f_SimConvMTotal_[2]);
-    histname = "h_SimConvMTotalZ";
-    //h_SimConvMTotal_[3] =  dbe_->book1D(histname," All vis conversions (double+single leg) matching tracks: simulated Z",zBin,zMin, zMax);
-    h_SimConvMTotal_[3] =  dbe_->book1D(histname,  th1f_SimConvMTotal_[3]);
-    histname = "h_SimConvMTotalEt";
-    h_SimConvMTotal_[4] =  dbe_->book1D(histname,  th1f_SimConvMTotal_[4]);
-    // h_SimConvMTotal_[4] =  dbe_->book1D(histname," All vis conversions (double+single leg) matching tracks: simulated Et",etBin,etMin, etMax);
-    //
     histname = "h_SimConvTwoMTracksEtaAndVtxPGT0005";
     h_SimConvTwoMTracksAndVtxPGT0005_[0] =  dbe_->book1D(histname," All vis conversions with 2 reco-matching tracks + vertex: simulated #eta",etaBin2,etaMin, etaMax);
     histname = "h_SimConvTwoMTracksPhiAndVtxPGT0005";
@@ -1487,7 +1464,7 @@ void PhotonValidator::bookHistograms(void) {
     histname="tkChi2";
     h_tkChi2_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 100, chi2Min, chi2Max);
     histname="tkChi2SL";
-    h_tkChi2SL_[0] = dbe_->book1D(histname+"AssTracks","Photons:Tracks from single leg conversions: #chi^{2} of associated  tracks", 100, chi2Min, chi2Max);
+    h_tkChi2SL_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from single leg conversions: #chi^{2} of associated  tracks", 100, chi2Min, chi2Max);
     histname="tkChi2Large";
     h_tkChi2Large_[0] = dbe_->book1D(histname+"AllTracks","Photons:Tracks from conversions: #chi^{2} of all tracks", 1000, 0., 5000.0);
 
@@ -1551,7 +1528,7 @@ void PhotonValidator::bookHistograms(void) {
     h_trkProv_[1] = dbe_->book1D("assTrkProv"," Track pair provenance ",4, 0., 4.);
     //
     h_trkAlgo_ = dbe_->book1D("allTrackAlgo"," Track Algo ",30, -0.5, 29.5);
-    h_convAlgo_ = dbe_->book1D("allConvAlgo"," Conv Algo ",5, -0.5, 5.);
+    h_convAlgo_ = dbe_->book1D("allConvAlgo"," Conv Algo ",5, -0.5, 4.5);
     h_convQuality_ = dbe_->book1D("allConvQuality","Conv quality ",11,-0.5,11.);
 
 
@@ -2141,7 +2118,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_AllSimConv_[4]->Fill(  (*mcPho).fourMomentum().et());
 
 	if ( ! isRunCentrally_ ) {
-	  if ( mcConvR_ <15) h_SimConvEtaPix_[0]->Fill( mcEta_ ) ;
+	  if ( mcConvR_ <51) h_SimConvEtaPix_[0]->Fill( mcEta_ ) ;
 	}
 
 	if ( ( fabs(mcEta_) <= BARL && mcConvR_ <85 )  ||
@@ -2921,9 +2898,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
             h_trkAlgo_->Fill (  tracks[1]->algo() );
             h_convAlgo_->Fill ( aConv->algo() );
 
-
-
-
 	    ////////// Numerators for conversion efficiencies: both tracks are associated
 	    if ( nAssT2 ==2 ) {
 
@@ -3314,18 +3288,19 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
             h_trkAlgo_->Fill (  tracks[0]->algo() );
             h_convAlgo_->Fill ( aConv->algo() );
-            
 	    
 	    int nAssT=0;
 	    std::map<const reco::Track*,TrackingParticleRef> myAss;
 	    for (unsigned int i=0; i<tracks.size(); i++) {
-	      
+	    
+	   
 	      p_nHitsVsEtaSL_[0] ->Fill (mcEta_,   float(tracks[0]->numberOfValidHits()-0.0001) );
 	      p_nHitsVsRSL_[0] ->Fill (mcConvR_,   float(tracks[0]->numberOfValidHits()-0.0001) );
 	      h_tkChi2SL_[0] ->Fill (tracks[0]->normalizedChi2() );
 
 
 	      float eoverp = photonE/tracks[0]->p();
+	      //	      std::cout << " Tracks quantities " << float(tracks[0]->numberOfValidHits()-0.0001) << " " <<   tracks[0]->normalizedChi2() << " " << eoverp <<std::endl; 
 	      h_EoverP_SL_[0]->Fill ( eoverp );
 	      if ( phoIsInBarrel ) {
 		h_EoverP_SL_[1]->Fill ( eoverp );
@@ -3376,15 +3351,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     }  // End loop over generated particles
   } // End loop over simulated Photons
 
-  // sum double leg and single leg histograms for total efficiency
-
-  th1f_SimConvMTotal_[0]->Add(h_SimConvOneMTracks_[0]->getTH1F(),h_SimConvTwoMTracks_[0]->getTH1F());
-  th1f_SimConvMTotal_[1]->Add(h_SimConvOneMTracks_[1]->getTH1F(),h_SimConvTwoMTracks_[1]->getTH1F());
-  th1f_SimConvMTotal_[2]->Add(h_SimConvOneMTracks_[2]->getTH1F(),h_SimConvTwoMTracks_[2]->getTH1F());
-  th1f_SimConvMTotal_[3]->Add(h_SimConvOneMTracks_[3]->getTH1F(),h_SimConvTwoMTracks_[3]->getTH1F());
-  th1f_SimConvMTotal_[4]->Add(h_SimConvOneMTracks_[4]->getTH1F(),h_SimConvTwoMTracks_[4]->getTH1F());
-
-    
 
   if ( ! isRunCentrally_ ) {
     h_nSimPho_[0]->Fill(float(nSimPho_[0]));
