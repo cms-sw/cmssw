@@ -2,7 +2,7 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
+ 
 CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
 
   tok_towers_ = consumes<CaloTowerCollection>(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"));
@@ -36,17 +36,8 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
   }
   
-//  dbe_ = 0;
-  // get hold of back-end interface
-//  dbe_ = edm::Service<DQMStore>().operator->();
-   
-  // const char * sub = hcalselector_.c_str();
-
   Char_t histo[100];
 
-//  if ( dbe_ ) {
-//    ibooker.setCurrentFolder("CaloTowersD/CaloTowersTask");
-//  }
   
   ibooker.setCurrentFolder("CaloTowersD/CaloTowersTask") ;
   
@@ -408,7 +399,6 @@ CaloTowersAnalyzer::~CaloTowersAnalyzer() {
 }
 
 void CaloTowersAnalyzer::endJob() {
-//  if ( outputFile_.size() != 0 ) ibooker.save(outputFile_);
 }
 
 void CaloTowersAnalyzer::beginJob(){ nevent = 0; }
