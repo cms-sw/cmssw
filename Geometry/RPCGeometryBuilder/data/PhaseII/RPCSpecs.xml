@@ -139,6 +139,5 @@
       <PartSelector path="//REH."/>
       <Parameter name="nStrips" value="192"/>
     </SpecPar>
-    </SpecPar>
   </SpecParSection>
 </DDDefinition>
