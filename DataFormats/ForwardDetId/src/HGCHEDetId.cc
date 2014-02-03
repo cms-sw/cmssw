@@ -10,11 +10,17 @@ HGCHEDetId::HGCHEDetId() : DetId() {
 HGCHEDetId::HGCHEDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-HGCHEDetId::HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int mod,
-		       int cellx, int celly) : DetId(Forward,subdet) {
-  // (no checking at this point!)
-  id_ |= (((zp>0) ? 0x1000000 : 0) | ((lay&0x3F)<<18) | ((mod&0x3F)<12) |
-	  ((cellx&0x3F)<<6) | (celly&0x3F));
+HGCHEDetId::HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int mod, int subsec, int cell) : DetId(Forward,subdet) 
+{  
+  uint32_t rawid=0;
+  rawid |= ((cell   & 0xffff) << 0 );
+  rawid |= ((mod    & 0x1f)   << 16);
+  rawid |= ((subsec & 0x1)    << 21);
+  rawid |= ((lay    & 0x1f)   << 22);
+  if(zp>0) rawid |= ((zp     & 0x1)    << 27);
+  //rawid |= (0                 << 28);
+  rawid |= ((Forward & 0x7)   << 29);
+  id_=rawid;
 }
 
 HGCHEDetId::HGCHEDetId(const DetId& gen) {

@@ -3,6 +3,8 @@
 // Description: Sensitive Detector class for Combined Forward Calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "DataFormats/Math/interface/FastMath.h"
+
 #include "SimG4CMS/Calo/interface/HGCSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -18,6 +20,7 @@
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
 #include "G4VProcess.hh"
+#include "G4Trap.hh"
 
 #include <iostream>
 #include <fstream>
@@ -102,15 +105,44 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
+
+  //determine the exact position in global coordinates in the mass geometry 
   G4ThreeVector hitPoint    = preStepPoint->GetPosition();
 
+  //convert to local coordinates (=local to the current volume): 
   G4ThreeVector localpos = touch->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
-  int iz     = (hitPoint.z() > 0) ? 1 : -1;
-  int subdet = (touch->GetReplicaNumber(4));
-  int module = (touch->GetReplicaNumber(3));
-  int layer  = (touch->GetReplicaNumber(2));
 
-  return setDetUnitId (subdet, localpos, iz, module, layer);
+  //the solid of this detector
+  G4VSolid *solid = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSolid();
+  G4Trap *layerSolid=(G4Trap *)solid;
+    
+  //FIXME urgently! no string parsing if possible
+  G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
+  ForwardSubdetector fwdSubdet(ForwardSubdetector::HGCEE);
+  if(nameVolume.find("HE")!=std::string::npos) fwdSubdet=ForwardSubdetector::HGCHE;
+  size_t pos=nameVolume.find("_")+1;
+  G4String layerStr=nameVolume.substr(pos,nameVolume.size()-1);
+  G4int copyNb=preStepPoint->GetPhysicalVolume()->GetCopyNo();
+
+  
+  float dz(0), bl1(0),tl1(0),h1(0);
+  if(layerSolid){
+    dz =layerSolid->GetZHalfLength();   //half width of the layer
+    bl1=layerSolid->GetXHalfLength1();  //half x length of the side at -h1
+    tl1=layerSolid->GetXHalfLength2();  //half x length of the side at +h1
+    h1=layerSolid->GetYHalfLength1();   //half height of the side
+  }
+  else{
+    edm::LogError("HGCSim") << "[HGCSD] Failed to cast sensitive volume to trapezoid!! The DetIds will be missing lateral segmentation";
+    //throw cms::Exception("Unknown", "HGCSD") <<  "[HGCSD] Failed to cast sensitive volume to trapezoid!! The DetIds will be missing lateral segmentation\n";
+  }
+
+  //get the det unit id with 
+  ForwardSubdetector subdet =  fwdSubdet;
+  int layer  = atoi(layerStr.c_str());
+  int module = copyNb;
+  int iz     = (hitPoint.z() > 0) ? 1 : -1;
+  return setDetUnitId (subdet, layer, module, iz, localpos, dz, bl1, tl1, h1);
 }
 
 void HGCSD::initRun() {
@@ -129,15 +161,13 @@ bool HGCSD::filterHit(CaloG4Hit* aHit, double time) {
 }
 
 
-uint32_t HGCSD::setDetUnitId (int subdet, G4ThreeVector pos, int iz, int mod, 
-			      int layer) {
-  uint32_t id = 0;
-  //get the ID
-  if (numberingScheme) id = numberingScheme->getUnitID(subdet, pos, iz, mod, 
-						       layer);
-  return id;
+//
+uint32_t HGCSD::setDetUnitId (ForwardSubdetector &subdet, int &layer, int &module, int &iz, G4ThreeVector &pos, float &dz, float &bl1, float &tl1, float &h1)
+{  
+  return (numberingScheme ? numberingScheme->getUnitID(subdet, layer, module, iz, pos, dz, bl1, tl1, h1) : 0);
 }
 
+//
 std::vector<double> HGCSD::getDDDArray(const std::string & str,
                                         const DDsvalues_type & sv) {
 #ifdef DebugLog
