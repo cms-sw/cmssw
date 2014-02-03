@@ -245,54 +245,55 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           }
         } /// Stub accepted
         else
+        {
           tempRejected->push_back( tempTTStub );
-
+        } /// Stub rejected
       } /// End of nested loop
     } /// End of loop over pairs of Clusters
 
     /// If we are working with max no. stub/ROC, then clean the temporary output
     /// and store only the selected stubs
-    if ( moduleStubs.empty() ) /// NOTE: this includes "if ( maxStubs == 0 )"
-      continue;
-
-    /// Loop over ROC's
-    /// the ROC ID is not important
-    for ( auto const & is : moduleStubs )
+    if ( moduleStubs.empty() == false )
     {
-      /// Put the stubs into the output
-      if ( is.second.size() <= maxStubs )
+      /// Loop over ROC's
+      /// the ROC ID is not important
+      for ( auto const & is : moduleStubs )
       {
-        for ( auto const & ts: is.second )
+        /// Put the stubs into the output
+        if ( is.second.size() <= maxStubs )
         {
-          tempInner->push_back( *(ts.getClusterRef(0)) );
-          tempOuter->push_back( *(ts.getClusterRef(1)) );
-          tempOutput->push_back( ts );
+          for ( auto const & ts: is.second )
+          {
+            tempInner->push_back( *(ts.getClusterRef(0)) );
+            tempOuter->push_back( *(ts.getClusterRef(1)) );
+            tempOutput->push_back( ts );
+          }
         }
-      }
-      else
-      {
-        /// Sort them and pick up only the first N.
-        std::vector< std::pair< unsigned int, double > > bendMap;
-        for ( unsigned int i = 0; i < is.second.size(); ++i )
+        else
         {
-          bendMap.push_back( std::pair< unsigned int, double >( i, is.second[i].getTriggerBend() ) );
-        }
-        std::sort( bendMap.begin(), bendMap.end(), TTStubBuilder< T >::SortStubBendPairs );
+          /// Sort them and pick up only the first N.
+          std::vector< std::pair< unsigned int, double > > bendMap;
+          for ( unsigned int i = 0; i < is.second.size(); ++i )
+          {
+            bendMap.push_back( std::pair< unsigned int, double >( i, is.second[i].getTriggerBend() ) );
+          }
+          std::sort( bendMap.begin(), bendMap.end(), TTStubBuilder< T >::SortStubBendPairs );
 
-        for ( unsigned int i = 0; i < maxStubs; ++i )
-        {
-          /// Put the highest momenta (lowest bend) stubs into the event
-          tempInner->push_back( *(is.second[bendMap[i].first].getClusterRef(0)) );
-          tempOuter->push_back( *(is.second[bendMap[i].first].getClusterRef(1)) );
-          tempOutput->push_back( is.second[bendMap[i].first] );
+          for ( unsigned int i = 0; i < maxStubs; ++i )
+          {
+            /// Put the highest momenta (lowest bend) stubs into the event
+            tempInner->push_back( *(is.second[bendMap[i].first].getClusterRef(0)) );
+            tempOuter->push_back( *(is.second[bendMap[i].first].getClusterRef(1)) );
+            tempOutput->push_back( is.second[bendMap[i].first] );
+          }
+          for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
+          {
+            /// Reject the rest
+            tempRejected->push_back( is.second[bendMap[i].first] );
+          }
         }
-        for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
-        {
-          /// Reject the rest
-          tempRejected->push_back( is.second[bendMap[i].first] );
-        }
-      }
-    } /// End of loop over temp output
+      } /// End of loop over temp output
+    } /// End store only the selected stubs if max no. stub/ROC is set
 
     /// Create the FastFillers
     if ( tempInner->size() > 0 )
@@ -346,14 +347,14 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
   edm::OrphanHandle< edmNew::DetSetVector< TTCluster< T > > > TTClusterAcceptedHandle = iEvent.put( TTClusterDSVForOutput, "ClusterAccepted" );
 
   /// Now, correctly reset the output
-  typename edmNew::DetSetVector< TTStub< T > >::const_iterator stubIter;
+  typename edmNew::DetSetVector< TTStub< T > >::const_iterator stubDetIter;
 
-  for ( stubIter = TTStubDSVForOutputTemp->begin();
-        stubIter != TTStubDSVForOutputTemp->end();
-        ++stubIter )
+  for ( stubDetIter = TTStubDSVForOutputTemp->begin();
+        stubDetIter != TTStubDSVForOutputTemp->end();
+        ++stubDetIter )
   {
     /// Get the DetId and prepare the FastFiller
-    DetId thisStackedDetId = stubIter->id();
+    DetId thisStackedDetId = stubDetIter->id();
     typename edmNew::DetSetVector< TTStub< T > >::FastFiller acceptedOutputFiller( *TTStubDSVForOutputAccepted, thisStackedDetId );
 
     /// Get its DetUnit

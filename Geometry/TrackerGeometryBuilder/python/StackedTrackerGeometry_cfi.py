@@ -8,7 +8,7 @@ StackedTrackerGeometryESModule = cms.ESProducer( "StackedTrackerGeometryESModule
                                                  make_debug_file = cms.bool(True),
 
 # Extras for CBC3 chip
-                                                 partitionsPerRoc = cms.int32(4),
+#                                                 partitionsPerRoc = cms.int32(4),
                                                  CBC3_MaxStubs = cms.uint32(3),
 # Double tab2013 table as CBC3 chip uses full width -- this table for 7-ring design
 #   BarrelCut = cms.vdouble( 0, 5, 5, 6, 9, 11, 14 ), #Use 0 as dummy to have direct access using DetId to the correct element
@@ -24,17 +24,27 @@ StackedTrackerGeometryESModule = cms.ESProducer( "StackedTrackerGeometryESModule
                                                 # missing rings are not taken into account in numbering, so everything
                                                 # always starts from 1 to N, with increasing r
 
-# Double tab2013 table as CBC3 chip uses full width -- this table for 5-ring design
+# Double tab2013 table as CBC3 chip uses full width -- this table for 5-ring design up to 6_2_0_SLHC5
+#   BarrelCut = cms.vdouble( 0, 5, 5, 6, 9, 11, 13 ), #Use 0 as dummy to have direct access using DetId to the correct element
+#   EndcapCutSet = cms.VPSet(
+#     cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
+#     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 4, 4, 4, 5, 6, 6, 7, 5, 6, 7, 8, 10, 11 ) ), #D1
+#     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 3, 4, 4, 5, 5, 6, 6, 4, 5, 6, 7, 8, 9 ) ), #D2 ...
+#     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 4, 4, 4, 4, 5, 5, 4, 4, 6, 6, 7, 8, 9 ) ),
+#     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 5, 6, 4, 4, 5, 6, 7, 7, 8, 9 ) ),
+#     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 6, 6, 4, 4, 5, 6, 7, 7, 8, 9 ) ) ),
+                                                # missing rings are not taken into account in numbering, so everything
+                                                # always starts from 1 to N, with increasing r
+
+# Double tab2013 table as CBC3 chip uses full width -- this table for 5-ring design since 6_2_0_SLHC5
    BarrelCut = cms.vdouble( 0, 5, 5, 6, 9, 11, 13 ), #Use 0 as dummy to have direct access using DetId to the correct element
    EndcapCutSet = cms.VPSet(
      cms.PSet( EndcapCut = cms.vdouble( 0 ) ), #Use 0 as dummy to have direct access using DetId to the correct element
-     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 4, 4, 4, 5, 6, 6, 7, 5, 6, 7, 8, 10, 11 ) ), #D1
-     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 3, 4, 4, 5, 5, 6, 6, 4, 5, 6, 7, 8, 9 ) ), #D2 ...
-     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 4, 4, 4, 4, 5, 5, 4, 4, 6, 6, 7, 8, 9 ) ),
-     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 5, 6, 4, 4, 5, 6, 7, 7, 8, 9 ) ),
-     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 6, 6, 4, 4, 5, 6, 7, 7, 8, 9 ) ) ),
-                                                # missing rings are not taken into account in numbering, so everything
-                                                # always starts from 1 to N, with increasing r
+     cms.PSet( EndcapCut = cms.vdouble( 0, 4, 4, 4, 4, 5, 5, 5, 6, 7, 9, 6, 7, 8, 9, 10 ) ), #D1
+     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 5, 5, 5, 6, 8, 5, 6, 7, 8, 9 ) ), #D2 ...
+     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 4, 4, 4, 4, 4, 5, 5, 5, 7, 8, 5, 6, 7, 8 ) ),
+     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 3, 4, 4, 4, 4, 5, 5, 6, 7, 5, 5, 6, 7 ) ),
+     cms.PSet( EndcapCut = cms.vdouble( 0, 3, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 7, 5, 5, 6 ) ) ),
 
 )
 
