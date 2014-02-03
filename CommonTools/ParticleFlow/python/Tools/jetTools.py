@@ -10,7 +10,7 @@ def jetAlgo( algo ):
     if algo == 'IC5':
 #allPfJets = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
         jetAlgo = RecoJets.JetProducers.ic5PFJets_cfi.iterativeCone5PFJets.clone()
-    elif algo == 'AK5':
+    elif algo == 'AK4':
         jetAlgo = RecoJets.JetProducers.ak4PFJets_cfi.ak4PFJets.clone()
     elif algo == 'AK7':
         jetAlgo = RecoJets.JetProducers.ak4PFJets_cfi.ak4PFJets.clone()
