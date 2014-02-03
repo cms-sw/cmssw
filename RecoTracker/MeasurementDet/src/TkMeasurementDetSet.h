@@ -147,7 +147,7 @@ public:
     empty_(cond.nDet(), true),
     activeThisEvent_(cond.nDet(), true),
     detSet_(!cond.isRegional() ? cond.nDet() : 0),
-    detIndex_(!cond.isRegional() ? cond.nDet() : 0),
+    detIndex_(!cond.isRegional() ? cond.nDet() : 0,-1),
     clusterI_(cond.isRegional() ? 2*cond.nDet() : 0),
     refGetter_(0),
     theRawInactiveStripDetIds_(),
@@ -195,6 +195,7 @@ public:
   
   void setEmpty() {
     std::fill(empty_.begin(),empty_.end(),true);
+    std::fill(detIndex_.begin(),detIndex_.end(),-1);
     std::fill(activeThisEvent_.begin(), activeThisEvent_.end(),true);
   }
   
@@ -219,7 +220,7 @@ public:
   std::vector<uint32_t> & rawInactiveStripDetIds() { return theRawInactiveStripDetIds_; } 
   const std::vector<uint32_t> & rawInactiveStripDetIds() const { return theRawInactiveStripDetIds_; } 
 
-  void resetOnDemandStrips() { std::fill(stripDefined_.begin(), stripDefined_.end(), false); std::fill(stripDefined_.begin(), stripDefined_.end(), false); }
+  void resetOnDemandStrips() { std::fill(stripDefined_.begin(), stripDefined_.end(), false); std::fill(stripUpdated_.begin(), stripDefined_.end(), false); }
   const bool stripDefined(int i) const { return stripDefined_[i]; }
   const bool stripUpdated(int i) const { return stripUpdated_[i]; }
   void defineStrip(int i, std::pair<unsigned int, unsigned int> range) {
@@ -233,7 +234,9 @@ public:
 private:
 
   void getDetSet(int i) {
-      detSet_[i].set(*handle_,handle_->item(detIndex_[i]));
+      if(detIndex_[i]>=0)
+        detSet_[i].set(*handle_,handle_->item(detIndex_[i]));
+      else detSet_[i] = StripDetset();
       empty_[i]=false;
   }
 
