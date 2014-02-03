@@ -15,6 +15,7 @@
 #include "GEMCode/GEMValidation/src/GEMDigiMatcher.h"
 #include "GEMCode/GEMValidation/src/CSCDigiMatcher.h"
 #include "GEMCode/GEMValidation/src/CSCStubMatcher.h"
+#include "GEMCode/GEMValidation/src/TrackMatcher.h"
 #include "GEMCode/GEMValidation/src/GEMRecHitMatcher.h"
 
 class SimTrackMatchManager
@@ -30,6 +31,7 @@ public:
   const GEMDigiMatcher& gemDigis() const {return gem_digis_;}
   const CSCDigiMatcher& cscDigis() const {return csc_digis_;}
   const CSCStubMatcher& cscStubs() const {return stubs_;}
+  const TrackMatcher& tracks() const {return tracks_;}
   const GEMRecHitMatcher& gemRecHits() const {return gem_rechits_;}
   
 private:
@@ -38,6 +40,7 @@ private:
   GEMDigiMatcher gem_digis_;
   CSCDigiMatcher csc_digis_;
   CSCStubMatcher stubs_;
+  TrackMatcher tracks_;
   GEMRecHitMatcher gem_rechits_;
 };
 
