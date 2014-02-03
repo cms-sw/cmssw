@@ -164,7 +164,11 @@ public:
     detSet_[i] = detSet;     
     empty_[i] = false;
   }
-  
+
+  void update(int i, int j ) {
+   detIndex_[i] = j;
+  }
+
   void update(int i, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end) { 
     clusterI_[2*i] = begin - regionalHandle_->begin_record();
     clusterI_[2*i+1] = end - regionalHandle_->begin_record();
@@ -199,8 +203,8 @@ public:
   
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() {  return handle_; }
   const edm::Handle<edmNew::DetSetVector<SiStripCluster> > & handle() const {  return handle_; }
-  StripDetset & detSet(int i) { return detSet_[i]; }
-  const StripDetset & detSet(int i) const { return detSet_[i]; }
+  // StripDetset & detSet(int i) { return detSet_[i]; }
+  const StripDetset & detSet(int i) const { if (empty(i)) const_cast<StMeasurementDetSet*>(this)->getDetSet(i);     return detSet_[i]; }
   
   edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() { return regionalHandle_; }
   const edm::Handle<edm::LazyGetter<SiStripCluster> > & regionalHandle() const { return regionalHandle_; }
@@ -226,6 +230,13 @@ public:
   const std::pair<unsigned int,unsigned int> & regionRange(int i) const { return stripRegions_[i]; }
 
 private:
+
+  void getDetSet(int i) {
+      detSet_[i].set(*handle_,handle_->item(detIndex_[i]));
+      empty_[i]=false;
+  }
+
+
   friend class  MeasurementTrackerImpl;
   friend class  MeasurementTrackerSiStripRefGetterProducer;
 
@@ -239,6 +250,7 @@ private:
   
   // full reco
   std::vector<StripDetset> detSet_;
+  std::vector<int> detIndex_;
   
   // --- regional unpacking
   // begin,end "pairs"
