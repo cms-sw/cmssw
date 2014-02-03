@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="l1t::CaloEmCand" />
+  <class name="l1t::CaloEmCandBxCollection"/>
+  <class name="edm::Wrapper<l1t::CaloEmCandBxCollection>"/>
+
+  <class name="l1t::CaloRegion" />
+  <class name="l1t::CaloRegionBxCollection"/>
+  <class name="edm::Wrapper<l1t::CaloRegionBxCollection>"/>
+</lcgdict>
