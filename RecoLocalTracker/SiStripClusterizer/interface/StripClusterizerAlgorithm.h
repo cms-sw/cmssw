@@ -13,6 +13,9 @@ class SiStripDigi;
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include <limits>
 
+
+class FedChannelConnection;
+
 class StripClusterizerAlgorithm {
   
  public:
@@ -44,6 +47,7 @@ class StripClusterizerAlgorithm {
 
   SiStripDetCabling const * cabling() const { return theCabling;} 
   std::vector<uint32_t> const & allDetIds() const { return detIds;}
+  std::vector<const FedChannelConnection *> const & currentConnection() const { return connections[ind]; }
 
  protected:
 
@@ -79,6 +83,7 @@ class StripClusterizerAlgorithm {
       qi=invalidI;
   };
   std::vector<uint32_t> detIds; // from cabling (connected and not bad)
+  std::vector<std::vector<const FedChannelConnection *> > connections;
   std::vector<Index> indices;
   SiStripApvGain::Range gainRange;
   SiStripNoises::Range  noiseRange;
