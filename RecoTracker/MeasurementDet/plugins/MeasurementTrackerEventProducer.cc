@@ -190,12 +190,10 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
     
     theStDets.handle() = clusterHandle;
     int i=0;
-    edmNew::DetSetVector<SiStripCluster>::const_iterator it = (*clusterCollection).begin();
-    edmNew::DetSetVector<SiStripCluster>::const_iterator endColl = (*clusterCollection).end();
     // cluster and det and in order (both) and unique so let's use set intersection
-    for (;it!=endColl; ++it) {
-      StripDetSet detSet = *it;
-      unsigned int id = detSet.id();
+    auto j = 0U; auto endColl = (*clusterCollection).size();
+    while (j++<endColl) {
+      unsigned int id = (*clusterCollection).id(j);
       while ( id != theStDets.id(i)) { // eventually change to lower_bound
 	++i;
 	if (endDet==i) throw "we have a problem!!!!";
@@ -203,7 +201,7 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
       
       // push cluster range in det
       if ( theStDets.isActive(i) )
-	theStDets.update(i,detSet);
+	theStDets.update(i,j);
     }
 
   }else{   // regional

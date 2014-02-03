@@ -44,9 +44,9 @@ public:
 
   void setIndex(int i) { index_=i;}
   
-  void update( StMeasurementDetSet & theDets, const detset &detSet ) const { 
-    theDets.update(index(),detSet);
-  }
+  // void update( StMeasurementDetSet & theDets, const detset &detSet ) const { 
+  //  theDets.update(index(),detSet);
+  // }
   void update( StMeasurementDetSet & theDets, std::vector<SiStripCluster>::const_iterator begin ,std::vector<SiStripCluster>::const_iterator end ) const { 
     theDets.update(index(), begin, end);
   }
@@ -65,7 +65,7 @@ public:
   
   const detset & theSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
   const detset & detSet(const StMeasurementDetSet & theDets) const {return theDets.detSet(index());}
-  detset & detSet(StMeasurementDetSet & theDets) const { return theDets.detSet(index());}
+  // detset & detSet(StMeasurementDetSet & theDets) const { return theDets.detSet(index());}
   unsigned int beginClusterI(const StMeasurementDetSet & theDets) const {return theDets.beginClusterI(index());}
   unsigned int endClusterI(const StMeasurementDetSet & theDets) const {return theDets.endClusterI(index());}
   
