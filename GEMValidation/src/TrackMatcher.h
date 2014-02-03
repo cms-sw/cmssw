@@ -16,12 +16,12 @@
 #include "GEMCode/GEMValidation/src/GMTCand.h"
 #include "GEMCode/GEMValidation/src/L1Extra.h"
 
-class TrackMatcher : public CSCStubMatcher
+class TrackMatcher
 {
  public:
-  TrackMatcher();
-  ~TrackMatcher();
-
+  TrackMatcher() {}
+  ~TrackMatcher() {}
+  
   //  std::vector<TFTrack>& tfTrack();
   //  TFTrack* bestTFTrack(bool sortPtFirst=1);
   //  std::vector<TFCand>& tfCand();

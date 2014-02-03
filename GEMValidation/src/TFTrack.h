@@ -1,98 +1,98 @@
 #ifndef GEMValidation_TFTrack_h
 #define GEMValidation_TFTrack_h
 
-#include "GEMCode/GEMValidation/src/BaseMatcher.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/Math/interface/normalizedPhi.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+/* #include "GEMCode/GEMValidation/src/BaseMatcher.h" */
+/* #include "DataFormats/HepMCCandidate/interface/GenParticle.h" */
+/* #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" */
+/* #include "DataFormats/L1Trigger/interface/L1MuonParticle.h" */
+/* #include "DataFormats/MuonDetId/interface/CSCDetId.h" */
+/* #include "DataFormats/Math/interface/normalizedPhi.h" */
+/* #include "DataFormats/Math/interface/deltaPhi.h" */
+/* #include "DataFormats/Math/interface/deltaR.h" */
+/* #include "DataFormats/GeometrySurface/interface/BoundCylinder.h" */
+/* #include "DataFormats/MuonDetId/interface/GEMDetId.h" */
 
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
+/* #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" */
+/* #include "TrackingTools/DetLayers/interface/DetLayer.h" */
 
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
-#include "L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h"
-#include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h"
-#include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
-#include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h>
+/* #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h> */
+/* #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h" */
+/* #include "L1Trigger/CSCTrackFinder/interface/CSCTFSectorProcessor.h" */
+/* #include "L1Trigger/CSCTrackFinder/interface/CSCSectorReceiverLUT.h" */
+/* #include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h" */
+/* #include <L1Trigger/CSCTrackFinder/src/CSCTFDTReceiver.h> */
 
-#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+/* #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h" */
+/* #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h" */
 
-#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
-#include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
+/* #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h" */
+/* #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h" */
 
-#include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
+/* #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h" */
 
-#include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+/* #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h> */
+/* #include "Geometry/GEMGeometry/interface/GEMGeometry.h" */
 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-// system include files
-#include <memory>
-#include <cmath>
+/* #include "DataFormats/GeometryVector/interface/GlobalPoint.h" */
+/* // system include files */
+/* #include <memory> */
+/* #include <cmath> */
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+/* // user include files */
+/* #include "FWCore/Framework/interface/Frameworkfwd.h" */
+/* #include "FWCore/Framework/interface/EDAnalyzer.h" */
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+/* #include "FWCore/Framework/interface/Event.h" */
+/* #include "FWCore/Framework/interface/MakerMacros.h" */
+/* #include "FWCore/Framework/interface/ESHandle.h" */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+/* #include "FWCore/ParameterSet/interface/ParameterSet.h" */
+/* #include "FWCore/Utilities/interface/InputTag.h" */
+/* #include "FWCore/ServiceRegistry/interface/Service.h" */
+/* #include "CommonTools/UtilAlgos/interface/TFileService.h" */
 
-#include "TH1.h"
-#include "TH2.h"
-#include "TTree.h"
+/* #include "TH1.h" */
+/* #include "TH2.h" */
+/* #include "TTree.h" */
 
-//#include "TLorentzVector.h"
-//#include "DataFormats/Math/interface/LorentzVector.h"
-//#include <CLHEP/Vector/LorentzVector.h>
+/* //#include "TLorentzVector.h" */
+/* //#include "DataFormats/Math/interface/LorentzVector.h" */
+/* //#include <CLHEP/Vector/LorentzVector.h> */
 
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-//#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+/* #include "Geometry/Records/interface/MuonGeometryRecord.h" */
+/* #include "Geometry/CSCGeometry/interface/CSCGeometry.h" */
+/* //#include <Geometry/CSCGeometry/interface/CSCLayer.h> */
+/* #include "Geometry/DTGeometry/interface/DTGeometry.h" */
+/* #include "Geometry/RPCGeometry/interface/RPCGeometry.h" */
 
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+/* #include "TrackingTools/GeomPropagators/interface/Propagator.h" */
+/* #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" */
 
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-//#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
+/* #include "DataFormats/MuonDetId/interface/CSCDetId.h" */
+/* //#include <DataFormats/L1CSCTrackFinder/interface/CSCTFConstants.h> */
+/* #include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h> */
+/* #include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h> */
+/* #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h" */
+/* #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h> */
+/* #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h> */
 
-#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
-#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
+/* #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h> */
+/* #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h" */
 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+/* #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h" */
 
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+/* #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h" */
+/* #include "DataFormats/L1Trigger/interface/L1MuonParticle.h" */
 
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
-#include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
+/* #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h> */
+/* #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h> */
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+/* #include "SimDataFormats/Track/interface/SimTrackContainer.h" */
+/* #include "SimDataFormats/Vertex/interface/SimVertexContainer.h" */
 
-#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
-#include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
+/* #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h" */
+/* #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h" */
 
 #include <vector>
 #include <tuple>
@@ -108,6 +108,7 @@ class TFTrack
   /// destructor
   ~TFTrack();  
 
+  /*
   /// L1 track
   const csc::L1Track* getL1Track() const {return l1track_;}
   /// collection of trigger digis
@@ -164,6 +165,7 @@ class TFTrack
     double dr_;
     std::vector<bool> deltaOk_;
     bool debug_;
+  */
 };
 
 #endif
