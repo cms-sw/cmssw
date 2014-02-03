@@ -8,79 +8,46 @@ tobTecStepSeedLayersTripl = cms.ESProducer("SeedingLayersESProducer",
     layerList = cms.vstring(
     #TOB
     'TOB1+TOB2+MTOB3',
-    #TOB+TEC
+    #TOB+MTEC
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
-    #'ITOB1+TEC1_pos+MTEC2_pos','ITOB1+TEC1_neg+MTEC2_neg',
-    #TEC
-    #'TEC1_pos+TEC2_pos+MTEC3_pos','TEC1_neg+TEC2_neg+MTEC3_neg',
-    #'TEC2_pos+TEC3_pos+MTEC4_pos','TEC2_neg+TEC3_neg+MTEC4_neg',
-    #'TEC3_pos+TEC4_pos+MTEC5_pos','TEC3_neg+TEC4_neg+MTEC5_neg',
-    #'TEC4_pos+TEC5_pos+MTEC6_pos','TEC4_neg+TEC5_neg+MTEC6_neg',
-    #'TEC5_pos+TEC6_pos+MTEC7_pos','TEC5_neg+TEC6_neg+MTEC7_neg',
-    #'TEC6_pos+TEC7_pos+MTEC8_pos','TEC6_neg+TEC7_neg+MTEC8_neg',
-    #'TEC7_pos+TEC8_pos+MTEC9_pos','TEC7_neg+TEC8_neg+MTEC9_neg' 
     ),
     TOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
          skipClusters   = cms.InputTag('tobTecStepSeedClusters')
     ),
-    #ITOB = cms.PSet(
-    #     TTRHBuilder    = cms.string('WithTrackAngle'),
-    #     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-    #     skipClusters   = cms.InputTag('tobTecStepSeedClusters'),
-    #     MinAbsZ = cms.double(85.0)
-    #),
     MTOB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
          skipClusters   = cms.InputTag('tobTecStepSeedClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
-    #TEC = cms.PSet(
-    #    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-    #    skipClusters = cms.InputTag('tobTecStepSeedClusters'),
-    #    useRingSlector = cms.bool(True),
-    #    TTRHBuilder = cms.string('WithTrackAngle'),
-    #    minRing = cms.int32(5),
-    #    maxRing = cms.int32(5)
-    #),
     MTEC = cms.PSet(
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('tobTecStepSeedClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(6),
-        maxRing = cms.int32(6)
+        maxRing = cms.int32(7)
     )
 )
 # TRIPLET SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 tobTecStepSeedsTripl = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
+#OrderedHitsFactory
 tobTecStepSeedsTripl.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayersTripl'
 tobTecStepSeedsTripl.OrderedHitsFactoryPSet.ComponentName = 'StandardMultiHitGenerator'
-tobTecStepSeedsTripl.OrderedHitsFactoryPSet.GeneratorPSet = cms.PSet(
-    useFixedPreFiltering = cms.bool(False),
-    maxElement = cms.uint32(100000),
-    ComponentName = cms.string('MultiHitGeneratorFromChi2'),
-    extraHitRPhitolerance = cms.double(0.2),
-    phiPreFiltering = cms.double(0.3),
-    extraHitRZtolerance = cms.double(0.),
-    fnSigmaRZ = cms.double(2.0),
-    chi2VsPtCut = cms.bool(True),
-    maxChi2 = cms.double(5.0),
-    pt_interv = cms.vdouble(0.7,1.0,2.0,5.0),
-    chi2_cuts = cms.vdouble(),#2.5,3.5,3.5,3.5,3.5
-    refitHits = cms.bool(True),
-    extraPhiKDBox = cms.double(0.),
-    ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
-    debug = cms.bool(False),
-    detIdsToDebug = cms.vint32(0,0,0)
-)
-tobTecStepSeedsTripl.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
-tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.ptMin = 0.5
-tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
-tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originRadius = 6.0
+import RecoTracker.TkSeedGenerator.MultiHitGeneratorFromChi2_cfi
+tobTecStepSeedsTripl.OrderedHitsFactoryPSet.GeneratorPSet = RecoTracker.TkSeedGenerator.MultiHitGeneratorFromChi2_cfi.MultiHitGeneratorFromChi2.clone(
+    extraPhiKDBox = 0.01
+    )
+#RegionFactory
+tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.ptMin = 0.55
+tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originHalfLength = 20.0
+tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originRadius = 3.5
+#SeedCreator
+tobTecStepSeedsTripl.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsCreator' #empirically better than 'SeedFromConsecutiveHitsTripletOnlyCreator'
 tobTecStepSeedsTripl.SeedCreatorPSet.OriginTransverseErrorMultiplier = 1.0
+#SeedComparitor
 tobTecStepSeedsTripl.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
@@ -115,12 +82,16 @@ tobTecStepSeedLayersPair = cms.ESProducer("SeedingLayersESProducer",
 # PAIR SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
 tobTecStepSeedsPair = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
+#OrderedHitsFactory
 tobTecStepSeedsPair.OrderedHitsFactoryPSet.ComponentName = cms.string('StandardHitPairGenerator')
 tobTecStepSeedsPair.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayersPair'
+#RegionFactory
 tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originRadius = 6.0
-tobTecStepSeedsPair.SeedCreatorPSet.OriginTransverseErrorMultiplier = 2.0
+#SeedCreator
+tobTecStepSeedsPair.SeedCreatorPSet.OriginTransverseErrorMultiplier = 1.0
+#SeedComparitor
 tobTecStepSeedsPair.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),

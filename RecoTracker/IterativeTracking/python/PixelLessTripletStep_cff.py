@@ -87,8 +87,9 @@ pixelLessStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet = RecoTracker.TkSeedGene
 pixelLessStepSeeds.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsTripletOnlyCreator'
 #RegionFactory
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.4
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 15.0
-pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.5
+pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0 #15 def, 12 pls1
+pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.0 #2.5 def, 1.0 pls1
+
 #SeedComparitor
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),

@@ -38,10 +38,15 @@ public:
   const Layer & innerLayer() const { return theInnerLayer; }
   const Layer & outerLayer() const { return theOuterLayer; }
 
+  void setDebug(unsigned int myIdIn, unsigned int myIdOut) {debug=true;idIn=myIdIn;idOut=myIdOut;}
+
 private:
   LayerCacheType & theLayerCache;
   Layer const theOuterLayer;  
   Layer const theInnerLayer; 
+  bool debug;
+  unsigned int idOut;
+  unsigned int idIn;
 };
 
 #endif

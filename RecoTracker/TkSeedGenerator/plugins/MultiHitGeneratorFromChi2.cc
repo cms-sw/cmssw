@@ -127,12 +127,20 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //es.get<IdealGeometryRecord>().get(tTopoHand);
   //const TrackerTopology *tTopo=tTopoHand.product();
 
+  unsigned int debug_Id0 = detIdsToDebug[0];
+  unsigned int debug_Id1 = detIdsToDebug[1];
+  unsigned int debug_Id2 = detIdsToDebug[2];
+
   if (debug) cout << "pair: " << ((HitPairGeneratorFromLayerPair*) thePairGenerator)->innerLayer().name() << "+" <<  ((HitPairGeneratorFromLayerPair*) thePairGenerator)->outerLayer().name() << " 3rd lay size: " << theLayers.size() << endl;
 
   //gc: first get the pairs
   OrderedHitPairs pairs;
   pairs.reserve(30000);
+  if (debug) {
+    ((HitPairGeneratorFromLayerPair*) thePairGenerator)->setDebug(debug_Id0,debug_Id1);
+  }
   thePairGenerator->hitPairs(region,pairs,ev,es);
+  if (debug) cout << endl;
   if (pairs.empty()) {
     //cout << "empy pairs" << endl;
     return;
@@ -141,9 +149,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //gc: these are all the layers compatible with the layer pairs (as defined in the config file)
   int size = theLayers.size();
 
-  unsigned int debug_Id0 = detIdsToDebug[0];
-  unsigned int debug_Id1 = detIdsToDebug[1];
-  unsigned int debug_Id2 = detIdsToDebug[2];
 
   //gc: initialize a KDTree per each 3rd layer
   std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
@@ -391,7 +396,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 		       rzRange.max()+fnSigmaRZ*rzError[il]+extraZKDBox);
 	hitTree[il].search(phiZ, foundNodes);
 
-	if (debugPair) cout << "kd tree box bounds, phi: " << prmin <<","<< prmax
+	if (debugPair) cout << "kd tree box bounds, phi: " << prmin-extraPhiKDBox <<","<< prmax+extraPhiKDBox
 			    << " z: "<< rzRange.min()-fnSigmaRZ*rzError[il]-extraZKDBox <<","<<rzRange.max()+fnSigmaRZ*rzError[il]+extraZKDBox
 			    << " rzRange: " << rzRange.min() <<","<<rzRange.max()
 			    << endl;
@@ -402,7 +407,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 		       rzRange.max()+fnSigmaRZ*rzError[il]+extraRKDBox);
 	hitTree[il].search(phiR, foundNodes);
 
-	if (debugPair) cout << "kd tree box bounds, phi: " << prmin <<","<< prmax
+	if (debugPair) cout << "kd tree box bounds, phi: " << prmin-extraPhiKDBox <<","<< prmax+extraPhiKDBox
 			    << " r: "<< rzRange.min()-fnSigmaRZ*rzError[il]-extraRKDBox <<","<<rzRange.max()+fnSigmaRZ*rzError[il]+extraRKDBox
 			    << " rzRange: " << rzRange.min() <<","<<rzRange.max()
 			    << endl;
@@ -579,6 +584,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     if (foundTripletsFromPair==0) continue;
 
     //push back only (max) once per pair
+    if (debugPair) std::cout << "Done seed #" << result.size() << std::endl;
     if (usePair) result.push_back(SeedingHitSet(ip->inner(), ip->outer())); 
     else result.push_back(triplet); 
 
