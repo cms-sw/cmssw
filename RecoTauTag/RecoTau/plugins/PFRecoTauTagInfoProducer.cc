@@ -75,9 +75,9 @@ void PFRecoTauTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup
   // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet
   edm::Handle<PFCandidateCollection> thePFCandidateCollection;
   iEvent.getByToken(PFCandidate_token,thePFCandidateCollection);
-  PFCandidateRefVector thePFCandsInTheEvent;
+  vector<PFCandidatePtr> thePFCandsInTheEvent;
   for(unsigned int i_PFCand=0;i_PFCand!=thePFCandidateCollection->size();i_PFCand++) { 
-        thePFCandsInTheEvent.push_back(PFCandidateRef(thePFCandidateCollection,i_PFCand));
+        thePFCandsInTheEvent.push_back(PFCandidatePtr(thePFCandidateCollection,i_PFCand));
   }
   // ***
   // query a rec/sim PV

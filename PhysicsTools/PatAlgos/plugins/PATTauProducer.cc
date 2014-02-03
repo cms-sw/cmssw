@@ -18,6 +18,10 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
+#include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
+
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -33,7 +37,9 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
 {
   // initialize the configurables
   baseTauToken_ = consumes<edm::View<reco::BaseTau> >(iConfig.getParameter<edm::InputTag>( "tauSource" ));
-  pfTauToken_ = mayConsume<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
+  tauTransverseImpactParameterSrc_ = iConfig.getParameter<edm::InputTag>( "tauTransverseImpactParameterSource" );
+  tauTransverseImpactParameterToken_ = consumes<PFTauTIPAssociationByRef>( tauTransverseImpactParameterSrc_);
+  pfTauToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   caloTauToken_ = mayConsume<reco::CaloTauCollection>(iConfig.getParameter<edm::InputTag>( "tauSource" ));
   embedIsolationTracks_ = iConfig.getParameter<bool>( "embedIsolationTracks" );
   embedLeadTrack_ = iConfig.getParameter<bool>( "embedLeadTrack" );
@@ -316,12 +322,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if ( addTauID_ ) {
       std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
       for ( size_t i = 0; i < tauIDSrcs_.size(); ++i ) {
-	edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
-	iEvent.getByToken(caloTauIDTokens_[i], caloTauIdDiscr);
-
-	edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
-	iEvent.getByToken(pfTauIDTokens_[i], pfTauIdDiscr);
-
 	if ( typeid(*tausRef) == typeid(reco::PFTau) ) {
 	  //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
 	  edm::Handle<reco::PFTauCollection> pfTauCollection;
@@ -359,6 +359,31 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       reco::PFTauRef pfTauRef(pfTaus, idx);
 
       aTau.setDecayMode(pfTauRef->decayMode());
+    }
+
+    // extraction of tau lifetime information
+    // (only available for PFTaus)
+    if ( aTau.isPFTau() && tauTransverseImpactParameterSrc_.label() != "" ) {
+      edm::Handle<reco::PFTauCollection> pfTaus;
+      iEvent.getByToken(pfTauToken_, pfTaus);
+      reco::PFTauRef pfTauRef(pfTaus, idx);
+
+      edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
+      iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
+      const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
+      pat::tau::TauPFSpecific& aTauPFSpecific = aTau.pfSpecific_[0];
+      aTauPFSpecific.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
+      aTauPFSpecific.dxy_ = tauLifetimeInfo.dxy();
+      aTauPFSpecific.dxy_error_ = tauLifetimeInfo.dxy_error();
+      aTauPFSpecific.pv_ = tauLifetimeInfo.primaryVertex();
+      aTauPFSpecific.pvPos_ = tauLifetimeInfo.primaryVertexPos();
+      aTauPFSpecific.pvCov_ = tauLifetimeInfo.primaryVertexCov();
+      aTauPFSpecific.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
+      aTauPFSpecific.flightLength_ = tauLifetimeInfo.flightLength();
+      aTauPFSpecific.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
+      aTauPFSpecific.sv_ = tauLifetimeInfo.secondaryVertex();
+      aTauPFSpecific.svPos_ = tauLifetimeInfo.secondaryVertexPos();
+      aTauPFSpecific.svCov_ = tauLifetimeInfo.secondaryVertexCov();
     }
 
     // Isolation
