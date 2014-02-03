@@ -3,13 +3,28 @@ import FWCore.ParameterSet.Config as cms
 def customise_HcalPhase0(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
 
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
+        process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta1  = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta16 = cms.untracked.vint32(1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta17 = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta18 = cms.untracked.vint32(1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta19 = cms.untracked.vint32(1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2)
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta27 = cms.untracked.vint32(1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3)	
+	
+    process.es_hardcode.HcalReLabel.RelabelHits = cms.untracked.bool(True)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta1  = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta16 = cms.untracked.vint32(1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta17 = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta18 = cms.untracked.vint32(1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta19 = cms.untracked.vint32(1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2)
+    process.es_hardcode.HcalReLabel.RelabelRules.Eta27 = cms.untracked.vint32(1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3)
     process.es_hardcode.HEreCalibCutoff = cms.double(20.) #for aging
 
     process.es_hardcode.toGet = cms.untracked.vstring(
         'GainWidths',
         'RespCorrs'
         )
-
 
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
