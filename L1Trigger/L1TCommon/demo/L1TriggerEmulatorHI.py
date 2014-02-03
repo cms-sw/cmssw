@@ -51,17 +51,18 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-# process.rctDigis = cms.EDProducer("L1RCTProducer",
-#     hcalDigis = cms.VInputTag(cms.InputTag("hcalTriggerPrimitiveDigis")),
-#     useEcal = cms.bool(True),
-#     useHcal = cms.bool(True),
-#     ecalDigis = cms.VInputTag(cms.InputTag("ecalTriggerPrimitiveDigis")),
-#     BunchCrossings = cms.vint32(0),
-#     getFedsFromOmds = cms.bool(False),
-# #    getFedsFromOmds = cms.bool(True), # ONLY for online DQM!
-#     queryDelayInLS = cms.uint32(10),
-#     queryIntervalInLS = cms.uint32(100)#,
-# )
+process.rctDigis = cms.EDProducer("L1RCTProducer",
+    #hcalDigis = cms.VInputTag(cms.InputTag("hcalTriggerPrimitiveDigis")),
+    hcalDigis = cms.VInputTag(cms.InputTag("gibberish")),
+    useEcal = cms.bool(True),
+    useHcal = cms.bool(True),
+    ecalDigis = cms.VInputTag(cms.InputTag("ecalTriggerPrimitiveDigis")),
+    BunchCrossings = cms.vint32(0),
+    getFedsFromOmds = cms.bool(False),
+#    getFedsFromOmds = cms.bool(True), # ONLY for online DQM!
+    queryDelayInLS = cms.uint32(10),
+    queryIntervalInLS = cms.uint32(100)#,
+)
 
 process.RCTConverter = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
@@ -82,9 +83,9 @@ process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgrateToGCTConverter",
     InputCollection = cms.InputTag("caloStage1")
     )
 
-
-
 process.digiStep = cms.Sequence(
+    #process.hcalDigis
+    #*process.ecalDigis
     process.gctDigis
     *process.RCTConverter
     #        *process.caloTowers

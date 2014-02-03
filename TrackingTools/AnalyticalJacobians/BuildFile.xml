@@ -1,7 +1,0 @@
-<export>
-  <lib   name="1"/>
-</export>
-<use   name="TrackingTools/TrajectoryParametrization"/>
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="DataFormats/Math"/>
-<use   name="rootmath"/>

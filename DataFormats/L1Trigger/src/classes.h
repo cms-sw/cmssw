@@ -29,7 +29,7 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 
-namespace {
+namespace DataFormats_L1Trigger {
   struct dictionary {
 
     l1t::L1CandidateBxCollection l1CandidateBxColl;

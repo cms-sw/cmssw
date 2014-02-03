@@ -37,9 +37,9 @@ public:
       } ;
 
     // Empty strings cannot be stored in the CondDB, so define a null key string.
-    static std::string kNullKey ;
+    const static std::string kNullKey ;
 
-    static std::string kEmptyKey ;
+    const static std::string kEmptyKey ;
 
     // Constructors
     L1TriggerKey ()

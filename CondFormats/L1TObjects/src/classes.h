@@ -44,7 +44,7 @@
 #include "CondFormats/L1TObjects/interface/L1RPCHsbConfig.h"
 
 
-namespace {
+namespace CondFormats_L1TObjects {
   struct dictionary {
     std::vector<L1MuDTExtLut::LUT> dummy3 ;
     std::vector<L1GtMuonTemplate> dummy4 ;
