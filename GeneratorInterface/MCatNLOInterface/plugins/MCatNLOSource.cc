@@ -40,7 +40,7 @@ using namespace lhef;
 MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	ProducerSourceFromFiles(params, desc, false),
-        gen::Herwig6Instance(0),
+        gen::Herwig6Instance(),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
         nEvents(0),
         ihpro(0),
