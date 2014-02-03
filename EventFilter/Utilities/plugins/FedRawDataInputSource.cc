@@ -47,7 +47,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
                                              edm::InputSourceDescription const& desc) :
   edm::RawInputSource(pset, desc),
   defPath_(pset.getUntrackedParameter<std::string> ("buDefPath", "$CMSSW_BASE/src/EventFilter/Utilities/plugins/budef.jsd")),
-  eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)),
+  eventChunkSize_(pset.getUntrackedParameter<unsigned int> ("eventChunkSize",16)*1048576),
+  eventChunkBlock_(pset.getUntrackedParameter<unsigned int> ("eventChunkBlock",eventChunkSize_/1048576)*1048576),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
   testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
@@ -55,13 +56,12 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   buInputDir_(edm::Service<evf::EvFDaqDirector>()->buBaseDir()),
   fuOutputDir_(edm::Service<evf::EvFDaqDirector>()->fuBaseDir()),
   daqProvenanceHelper_(edm::TypeID(typeid(FEDRawDataCollection))),
-  fileStream_(0),
   eventID_(),
   currentLumiSection_(0),
   currentInputJson_(""),
   currentInputEventCount_(0),
   eorFileSeen_(false),
-  dataBuffer_(new unsigned char[1024 * 1024 * eventChunkSize_]),
+  dataBuffer_(new unsigned char[eventChunkSize_]),
   bufferCursor_(dataBuffer_),
   bufferLeft_(0),
   dpd_(nullptr),
@@ -70,8 +70,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   char thishost[256];
   gethostname(thishost, 255); 
   edm::LogInfo("FedRawDataInputSource") << "test mode: "
-                                        << testModeNoBuilderUnit_ << ", read-ahead chunk size: " << eventChunkSize_
-                                        << " on host " << thishost;
+                                        << testModeNoBuilderUnit_ << ", read-ahead chunk size: " << (eventChunkSize_/1048576)
+                                        << " MB on host " << thishost;
 
   daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
   setNewRun();
@@ -80,13 +80,19 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 
   dpd_ = new DataPointDefinition();
   DataPointDefinition::getDataPointDefinitionFor(defPath_, *dpd_);
+
+  //make sure that chunk size is N * block size
+  assert(eventChunkSize_>=eventChunkBlock_);
+  readBlocks_ = eventChunkSize_/eventChunkBlock_;
+  if (readBlocks_*eventChunkBlock_ != eventChunkSize_)
+	  eventChunkSize_=readBlocks_*eventChunkBlock_;
 }
 
 FedRawDataInputSource::~FedRawDataInputSource()
 {
-  if (fileStream_)
-    fclose(fileStream_);
-  fileStream_ = 0;
+  if (fileDescriptor_!=-1)
+    close(fileDescriptor_);
+  fileDescriptor_=-1;
 }
 
 bool FedRawDataInputSource::checkNextEvent()
@@ -166,11 +172,9 @@ int FedRawDataInputSource::cacheNextEvent()
     if ( check ==-1) return  0;
     if ( check ==-100) return -1;
   }
-
   event_.reset( new FRDEventMsgView(bufferCursor_) );
 
   const uint32_t msgSize = event_->size();
-
   if ( bufferLeft_ < msgSize )
   {
     if ( readNextChunkIntoBuffer()<0 || bufferLeft_ < msgSize )
@@ -214,15 +218,31 @@ int FedRawDataInputSource::readNextChunkIntoBuffer()
   }
   if(fileStatus==100){ //either file was not over or a new one was opened
     if (bufferLeft_ == 0) { //in the rare case the last byte barely fit
-      uint32_t chunksize = 1024 * 1024 * eventChunkSize_;
-      bufferLeft_ = fread((void*) dataBuffer_, sizeof(unsigned char),
-                          chunksize, fileStream_); //reads a maximum of chunksize bytes from file into buffer
-    } else { //refill the buffer after having moved the bufferLeft_ bytes at the head
-      uint32_t chunksize = 1024 * 1024 * eventChunkSize_ - bufferLeft_;
-      memcpy((void*) dataBuffer_, bufferCursor_, bufferLeft_); //this copy could be avoided
-      bufferLeft_ += fread((void*) (dataBuffer_ + bufferLeft_),
-                           sizeof(unsigned char), chunksize, fileStream_);
+	    for (unsigned int i=0;i<readBlocks_;i++)
+	    {
+		    uint32_t last = ::read(fileDescriptor_,( void*) (dataBuffer_+bufferLeft_), eventChunkBlock_);
+		    bufferLeft_+=last;
+		    if (last<eventChunkBlock_) {fileIsOver_=true;break;}//file is over
+	    }
     }
+    else {
+	    uint32_t chunksize = eventChunkSize_ - bufferLeft_;
+	    uint32_t blockcount=chunksize/eventChunkBlock_;
+	    uint32_t leftsize = chunksize%eventChunkBlock_;
+	    memcpy((void*) dataBuffer_, bufferCursor_, bufferLeft_); //this copy could be avoided
+
+	    for (unsigned int i=0;i<blockcount;i++) {
+		uint32_t last = ::read(fileDescriptor_,( void*) (dataBuffer_+bufferLeft_), eventChunkBlock_);
+		bufferLeft_ += last;
+		if (last<eventChunkBlock_) {leftsize=0;fileIsOver_=true;break;}//file is over
+	    }
+	    if (leftsize) {
+		    uint32_t last = ::read(fileDescriptor_,( void*)( dataBuffer_+bufferLeft_), leftsize);
+		    bufferLeft_+=last;
+		    if (last<leftsize) {fileIsOver_=true;}//file is over
+	    }
+    }
+
     bufferCursor_ = dataBuffer_; // reset the cursor at the beginning of the buffer
     return bufferLeft_;
   }
@@ -234,24 +254,24 @@ int FedRawDataInputSource::readNextChunkIntoBuffer()
 
 bool FedRawDataInputSource::eofReached() const
 {
-  if (fileStream_ == 0)
-    return true;
-
+  if (fileIsOver_) return true;
+  else return false;
+  /*
   int c;
   c = fgetc(fileStream_);
   ungetc(c, fileStream_);
-
   return (c == EOF);
+  */
 }
 
 void FedRawDataInputSource::closeCurrentFile()
 {
-  if (fileStream_) {
+  if (fileDescriptor_!=-1) {
 
     edm::LogInfo("FedRawDataInputSource") << "Closing input file " << openFile_.string();
 
-    fclose(fileStream_);
-    fileStream_ = 0;
+    close(fileDescriptor_);
+    fileDescriptor_=-1;
 
     if (!testModeNoBuilderUnit_) {
       boost::filesystem::remove(openFile_); // won't work in case of forked children
@@ -356,7 +376,6 @@ int FedRawDataInputSource::searchForNextFile()
 
     edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
 
-    //report on the new ls
     if (fms_) fms_->stoppedLookingForFile(ls);
 
     boost::filesystem::path jsonFile(nextFile);
@@ -464,16 +483,16 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
 
 void FedRawDataInputSource::openDataFile(std::string const& nextFile)
 {
-  const int fileDescriptor = open(nextFile.c_str(), O_RDONLY);
-  if (fileDescriptor != -1) {
-    fileStream_ = fdopen(fileDescriptor, "rb");
+  fileDescriptor_ = open(nextFile.c_str(), O_RDONLY);
+  if (fileDescriptor_ != -1) {
+    fileIsOver_=false;
     openFile_ = nextFile;
     edm::LogInfo("FedRawDataInputSource") << " opened file " << nextFile;
   }
   else
   {
     throw cms::Exception("FedRawDataInputSource::openDataFile") <<
-      " failed to open file " << nextFile << " fd:" << fileDescriptor;
+      " failed to open file " << nextFile << " fd:" << fileDescriptor_;
   }
 }
 

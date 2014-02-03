@@ -54,7 +54,9 @@ private:
 
   std::string defPath_;
 
-  const unsigned int eventChunkSize_; // for buffered read-ahead
+  unsigned int eventChunkSize_; // for buffered read-ahead
+  unsigned int eventChunkBlock_; // how much read(2) asks at the time
+  unsigned int readBlocks_;
 
   // get LS from filename instead of event header
   const bool getLSFromFilename_;
@@ -71,7 +73,6 @@ private:
   std::unique_ptr<FRDEventMsgView> event_;
 
   boost::filesystem::path openFile_;
-  FILE* fileStream_;
   edm::EventID eventID_;
 
   unsigned int currentLumiSection_;
@@ -89,6 +90,8 @@ private:
   unsigned int eventsThisLumi_;
   evf::FastMonitoringService *fms_ = nullptr;
 
+  bool fileIsOver_ = true;
+  int fileDescriptor_ = -1;
 
 };
 
