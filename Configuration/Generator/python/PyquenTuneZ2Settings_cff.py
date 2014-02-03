@@ -24,7 +24,7 @@ qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial tem
                          numQuarkFlavor = cms.int32(0) ## to be removed
                          )
 
-pyquenParameters  = cms.PSet(doIsospin = cms.bool(True),
+pyquenParameters  = cms.PSet(
                              angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
                              embeddingMode = cms.bool(False),
                              backgroundLabel = cms.InputTag("generator") ## ineffective in no mixing
