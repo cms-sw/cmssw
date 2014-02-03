@@ -21,7 +21,7 @@ ZmumuEvtSelEffCorrWeightProducer::ZmumuEvtSelEffCorrWeightProducer(const edm::Pa
   srcSelectedMuons_ = cfg.getParameter<edm::InputTag>("selectedMuons");
 
   edm::FileInPath inputFileName = cfg.getParameter<edm::FileInPath>("inputFileName");
-  if ( !inputFileName.isLocal()) 
+  if ( inputFileName.location() == edm::FileInPath::Unknown) 
     throw cms::Exception("MuonRadiationCorrWeightProducer") 
       << " Failed to find File = " << inputFileName << " !!\n";
   std::auto_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));

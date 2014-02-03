@@ -53,7 +53,7 @@ ak4PFJetsLegacyTaNCPiZeros = cms.EDProducer(
 ak4PFJetsLegacyHPSPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
     jetSrc = cms.InputTag("ak4PFJets"),
-    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
+    jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 0'),
     builders = cms.VPSet(

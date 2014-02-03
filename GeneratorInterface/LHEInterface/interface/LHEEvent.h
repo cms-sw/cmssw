@@ -49,6 +49,7 @@ class LHEEvent {
 	void addWeight(const WGT& wgt) { weights_.push_back(wgt); }
 	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
 
+	double originalXWGTUP() const { return originalXWGTUP_; }
 	const std::vector<WGT>& weights() const { return weights_; }
 
 	void addComment(const std::string &line) { comments.push_back(line); }
@@ -83,6 +84,7 @@ class LHEEvent {
 	std::vector<std::string>		comments;
 	bool					counted;
 	int                                     readAttemptCounter;
+	double                                  originalXWGTUP_;
 };
 
 } // namespace lhef

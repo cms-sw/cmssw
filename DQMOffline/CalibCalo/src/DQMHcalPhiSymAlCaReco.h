@@ -14,6 +14,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+
 class DQMStore;
 class MonitorElement;
 
@@ -87,15 +91,15 @@ private:
 
   /// object to monitor
   
-  edm::InputTag  hbherecoMB;
+  edm::EDGetTokenT<HBHERecHitCollection>  hbherecoMB;
   edm::InputTag  horecoMB;
-  edm::InputTag  hfrecoMB;
+  edm::EDGetTokenT<HFRecHitCollection>  hfrecoMB;
   
-  edm::InputTag  hbherecoNoise;
+  edm::EDGetTokenT<HBHERecHitCollection>  hbherecoNoise;
   edm::InputTag  horecoNoise;
-  edm::InputTag  hfrecoNoise;
+  edm::EDGetTokenT<HFRecHitCollection>  hfrecoNoise;
 
-  edm::InputTag rawInLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> rawInLabel_;
   
   /// DQM folder name
   std::string folderName_; 

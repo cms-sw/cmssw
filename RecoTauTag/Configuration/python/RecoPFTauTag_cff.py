@@ -26,8 +26,11 @@ recoTauAK5PFJets08Region=RecoTauJetRegionProducer.clone(
 
 # Reconstruct the pi zeros in our pre-selected jets.
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
-         ak4PFJetsLegacyHPSPiZeros
+         ak5PFJetsLegacyHPSPiZeros
 ak4PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
+# import charged hadrons
+from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
+          ak4PFJetsRecoTauChargedHadrons
 
 
 #-------------------------------------------------------------------------------
@@ -90,6 +93,7 @@ recoTauCommonSequence = cms.Sequence(
 # Produce only classic HPS taus
 recoTauClassicHPSSequence = cms.Sequence(
     ak4PFJetsLegacyHPSPiZeros *
+    ak4PFJetsRecoTauChargedHadrons *
     combinatoricRecoTaus *
     produceAndDiscriminateHPSPFTaus
 )

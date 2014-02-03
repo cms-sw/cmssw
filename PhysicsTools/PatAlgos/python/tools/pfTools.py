@@ -300,7 +300,7 @@ def adaptPFTaus(process,tauType = 'shrinkingConePFTau', postfix = ""):
         reconfigurePF2PATTaus(process, tauType, postfix=postfix)
     else:
         reconfigurePF2PATTaus(process, tauType,
-                              ["DiscriminationByLooseCombinedIsolationDBSumPtCorr"],
+                              ["DiscriminationByDecayModeFinding"],
                               ["DiscriminationByDecayModeFinding"],
                               postfix=postfix)
     # new default use unselected taus (selected only for jet cleaning)

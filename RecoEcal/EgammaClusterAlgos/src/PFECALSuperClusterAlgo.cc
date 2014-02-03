@@ -472,7 +472,7 @@ buildSuperCluster(CalibClusterPtr& seed,
   //apply regression energy corrections
   if( useRegression_ ) {    
     double cor = regr_->getCorrection(new_sc);
-    new_sc.setEnergy(cor*new_sc.energy());
+    new_sc.setEnergy(cor*new_sc.correctedEnergy());
   }
   
   // save the super cluster to the appropriate list (if it passes the final
