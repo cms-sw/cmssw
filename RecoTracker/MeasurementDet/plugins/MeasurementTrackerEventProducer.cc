@@ -191,12 +191,11 @@ MeasurementTrackerEventProducer::updateStrips( const edm::Event& event, StMeasur
     theStDets.handle() = clusterHandle;
     int i=0;
     // cluster and det and in order (both) and unique so let's use set intersection
-    auto j = 0U; auto endColl = (*clusterCollection).size();
-    while (j++<endColl) {
+    for ( auto j = 0U; j< (*clusterCollection).size(); ++j) {
       unsigned int id = (*clusterCollection).id(j);
       while ( id != theStDets.id(i)) { // eventually change to lower_bound
 	++i;
-	if (endDet==i) throw "we have a problem!!!!";
+	if (endDet==i) throw "we have a problem in strips!!!!";
       }
       
       // push cluster range in det
