@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "fastjet/tools/GridMedianBackgroundEstimator.hh"
 
 
@@ -19,6 +20,9 @@ class FixedGridRhoProducerFastjet : public edm::EDProducer {
 
   edm::InputTag pfCandidatesTag_;
   fastjet::GridMedianBackgroundEstimator bge_;
+
+  edm::EDGetTokenT<edm::View<reco::Candidate> > input_pfcoll_token_;
+
 };
 
 

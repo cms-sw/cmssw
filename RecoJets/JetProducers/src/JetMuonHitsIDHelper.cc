@@ -1,6 +1,5 @@
 #include "RecoJets/JetProducers/interface/JetMuonHitsIDHelper.h"
 
-#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -30,7 +29,7 @@
 using namespace std;
 
 
-reco::helper::JetMuonHitsIDHelper::JetMuonHitsIDHelper( edm::ParameterSet const & pset )
+reco::helper::JetMuonHitsIDHelper::JetMuonHitsIDHelper( edm::ParameterSet const & pset, edm::ConsumesCollector&& iC )
 {
   isRECO_ = true; // This will be "true" initially, then if the product isn't found, set to false once
   numberOfHits1RPC_ = 0;
@@ -39,6 +38,8 @@ reco::helper::JetMuonHitsIDHelper::JetMuonHitsIDHelper( edm::ParameterSet const 
   numberOfHits4RPC_ = 0;
   numberOfHitsRPC_ = 0;
   rpcRecHits_ = pset.getParameter<edm::InputTag>("rpcRecHits");
+
+  input_rpchits_token_ = iC.consumes<RPCRecHitCollection>(rpcRecHits_);
  
 }
 
@@ -66,7 +67,7 @@ void reco::helper::JetMuonHitsIDHelper::calculate( const edm::Event& event, cons
     //####READ RPC RecHits Collection########
     //#In config: RpcRecHits     = cms.InputTag("rpcRecHits")
     edm::Handle<RPCRecHitCollection> rpcRecHits_handle;
-    event.getByLabel(rpcRecHits_, rpcRecHits_handle);
+    event.getByToken(input_rpchits_token_, rpcRecHits_handle);
 
 
     if ( ! rpcRecHits_handle.isValid()  ) {
