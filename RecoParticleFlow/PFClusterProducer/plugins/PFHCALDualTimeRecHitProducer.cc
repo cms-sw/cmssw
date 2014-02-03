@@ -145,7 +145,7 @@ void PFHCALDualTimeRecHitProducer::createRecHits(vector<reco::PFRecHit>& rechits
 
   // get the hcal topology
   edm::ESHandle<HcalTopology> hcalTopology;
-  iSetup.get<IdealGeometryRecord>().get( hcalTopology );
+  iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
 
 
   //--ab

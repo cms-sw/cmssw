@@ -165,7 +165,7 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
       CaloMiscalibMapHcal mapHcal;
   
       edm::ESHandle<HcalTopology> topo;
-      es.get<IdealGeometryRecord>().get( topo );
+      es.get<HcalRecNumberingRecord>().get( topo );
       mapHcal.prefillMap(*topo);
   
       edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);      
@@ -545,7 +545,7 @@ unsigned HcalRecHitsMaker::createVectorsOfCells(const edm::EventSetup &es)
     edm::ESHandle<CaloGeometry> pG;
     es.get<CaloGeometryRecord>().get(pG);     
     edm::ESHandle<HcalTopology> topo;
-    es.get<IdealGeometryRecord>().get( topo );
+    es.get<HcalRecNumberingRecord>().get( topo );
 
     nhbcells_ = createVectorOfSubdetectorCells(*pG, *topo, HcalBarrel,  hbhi_);    
     nhecells_ = createVectorOfSubdetectorCells(*pG, *topo, HcalEndcap,  hehi_);

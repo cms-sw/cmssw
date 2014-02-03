@@ -123,7 +123,7 @@ HcalCalibrator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<CaloGeometryRecord>().get(pG);
    mTheCaloGeometry = pG.product();
    edm::ESHandle<HcalTopology> pT;
-   iSetup.get<IdealGeometryRecord>().get(pT);
+   iSetup.get<HcalRecNumberingRecord>().get(pT);
    mTheHcalTopology = pT.product();
 }
 
