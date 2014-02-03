@@ -56,6 +56,20 @@ initialize(const edm::EventSetup& es) {
     indices.clear();
     indices.resize(detIds.size());
 
+    {
+      connections.clear();
+      connections.resize(detIds.size());
+      //connections (slow, not a big deal)
+      auto const & conns = cabling()->getDetCabling();
+      for (auto i=0U; i<detIds.size(); ++i) {
+	auto c = conns.find(detIds[i]);
+	if (c!=conns.end()) connections[i]=(*c).second;
+      }
+      
+
+    }
+
+
     { // quality
       std::vector<uint32_t> dum; qualityHandle->getDetIds(dum); 
       assert(dum.size()<invalidI);

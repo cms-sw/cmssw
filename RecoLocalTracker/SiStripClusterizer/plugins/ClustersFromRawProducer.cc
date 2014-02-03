@@ -41,11 +41,111 @@
 #endif
 
 
+namespace {
+  sistrip::FEDBuffer*fillBuffer(int fedId, const FEDRawDataCollection& rawColl) {
+    sistrip::FEDBuffer* buffer=nullptr;
+
+    // Retrieve FED raw data for given FED
+    const FEDRawData& rawData = rawColl.FEDData(fedId);
+    
+    // Check on FEDRawData pointer
+    if unlikely( !rawData.data() ) {
+	if (edm::isDebugEnabled()) {
+	  edm::LogWarning(sistrip::mlRawToCluster_)
+	    << "[sistrip::RawToClustersLazyGetter::" 
+	    << __func__ 
+	    << "]"
+	    << " NULL pointer to FEDRawData for FED id " 
+	    << fedId;
+	}
+	return buffer;
+      }	
+    
+    // Check on FEDRawData size
+    if unlikely( !rawData.size() ) {
+	if (edm::isDebugEnabled()) {
+	  edm::LogWarning(sistrip::mlRawToCluster_)
+	    << "[sistrip::RawToClustersLazyGetter::" 
+	    << __func__ << "]"
+	    << " FEDRawData has zero size for FED id " 
+	    << fedId;
+	}
+	return buffer;
+      }
+    
+    // construct FEDBuffer
+    try {
+      buffer = new sistrip::FEDBuffer(rawData.data(),rawData.size());
+      if unlikely(!buffer->doChecks(false)) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
+    }
+    catch (const cms::Exception& e) { 
+      if (edm::isDebugEnabled()) {
+	edm::LogWarning(sistrip::mlRawToCluster_) 
+	  << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << e.what();
+      }
+      delete buffer; buffer=nullptr;
+    }
+    
+    /*
+    // dump of FEDRawData to stdout
+    if ( dump_ ) {
+    std::stringstream ss;
+    RawToDigiUnpacker::dumpRawData( fedId, rawData, ss );
+    LogTrace(mlRawToDigi_) 
+    << ss.str();
+    }
+    */
+
+    return buffer;
+    
+  }
+
+
+  class ClusterFiller final : public StripClusterizerAlgorithm::output_t::Getter {
+  public:
+    ClusterFiller(const FEDRawDataCollection& irawColl,
+		  StripClusterizerAlgorithm & iclusterizer,
+		  SiStripRawProcessingAlgorithms & irawAlgos,
+		  bool idoAPVEmulatorCheck):
+      rawColl(irawColl),
+      clusterizer(iclusterizer),
+      rawAlgos(irawAlgos),
+      doAPVEmulatorCheck(idoAPVEmulatorCheck){}
+
+
+    void fill(StripClusterizerAlgorithm::output_t::FastFiller & record);
+
+  private:
+
+
+    std::unique_ptr<sistrip::FEDBuffer> buffers[1024];
+    bool done[1024] = {};  // false is default
+    
+    
+    const FEDRawDataCollection& rawColl;
+    
+    StripClusterizerAlgorithm & clusterizer;
+    SiStripRawProcessingAlgorithms & rawAlgos;
+    
+        
+    // March 2012: add flag for disabling APVe check in configuration
+    bool doAPVEmulatorCheck; 
+
+
+  };
+
+
+
+} // namespace
+
+
+
 class SiStripClusterizerFromRaw final : public edm::EDProducer  {
 
 public:
 
   explicit SiStripClusterizerFromRaw(const edm::ParameterSet& conf) :
+    onDemand(conf.getParameter<bool>("onDemand")),
     productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(nullptr),
     clusterizer_(StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer"))),
@@ -65,9 +165,6 @@ public:
 
   void produce(edm::Event& ev, const edm::EventSetup& es) {
 
-    std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
-    output->reserve(15000,6*10000);
-
     initialize(es);
 
     // get raw data
@@ -75,12 +172,23 @@ public:
     ev.getByLabel( productLabel_, rawData); 
 
 
-    run(*rawData, *output);
+    std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > 
+      output( onDemand ?
+	      new edmNew::DetSetVector<SiStripCluster>(boost::shared_ptr<ClusterFiller>(new ClusterFiller(*rawData, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_)), 
+						       clusterizer_->allDetIds()) 
+	      : new edmNew::DetSetVector<SiStripCluster>());
 
-    COUT << output->dataSize() << " clusters from " 
-	 << output->size()     << " modules" 
-	 << std::endl;
+    output->reserve(15000,6*10000);
 
+
+
+    if (!onDemand) {
+      run(*rawData, *output);
+      
+      COUT << output->dataSize() << " clusters from " 
+	   << output->size()     << " modules" 
+	   << std::endl;
+    }
 
     ev.put(output);
 
@@ -92,9 +200,10 @@ private:
 
   void run(const FEDRawDataCollection& rawColl, edmNew::DetSetVector<SiStripCluster> & output);
 
-  sistrip::FEDBuffer* fillBuffer(int fedId, const FEDRawDataCollection& rawColl);
 
  private:
+
+  bool  onDemand;
 
   edm::InputTag productLabel_;
   
@@ -125,222 +234,169 @@ void SiStripClusterizerFromRaw::initialize(const edm::EventSetup& es) {
 
 void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl,
 				     edmNew::DetSetVector<SiStripCluster> & output) {
-
-
-
-  std::unique_ptr<sistrip::FEDBuffer> buffers[1024];
-  bool done[1024] = {};  // false is default
-
-  // loop over det in cabling
-  for ( auto const & elem : cabling_->getDetCabling()) {
-    auto idet = elem.first;
-    assert(idet); assert(idet!=sistrip::invalid32_);
-
-    if (!clusterizer_->stripByStripBegin(idet)) { continue; }
+  
+  ClusterFiller filler(rawColl, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_);
+  
+  // loop over good det in cabling
+  for ( auto idet : clusterizer_->allDetIds()) {
 
     StripClusterizerAlgorithm::output_t::FastFiller record(output, idet);	
-
-
-     // Loop over apv-pairs of det
-    for (auto const conn : elem.second) {
-      if unlikely(!conn) continue;
     
-      const uint16_t fedId = conn->fedId();
-      
-      // If fed id is null or connection is invalid continue
-      if unlikely( !fedId || !conn->isConnected() ) { continue; }    
-
-      // If Fed hasnt already been initialised, extract data and initialise
-      if (!done[fedId]) { buffers[fedId].reset(fillBuffer(fedId, rawColl)); done[fedId]=true;}
-      auto buffer = buffers[fedId].get();
-      if unlikely(!buffer) continue;
-
-      // check channel
-      const uint8_t fedCh = conn->fedCh();
-
-      if unlikely(!buffer->channelGood(fedCh,doAPVEmulatorCheck_)) {
-          if (edm::isDebugEnabled()) {
-            std::ostringstream ss;
-            ss << "Problem unpacking channel " << fedCh << " on FED " << fedId;
-            edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
-          }
-          continue;
-        }
-      
-      // Determine APV std::pair number
-      uint16_t ipair = conn->apvPairNumber();
-
-
-      const sistrip::FEDReadoutMode mode = buffer->readoutMode();
-
-
-      if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
-	
-          try {
-            // create unpacker
-            sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
-
-            // unpack
-	    clusterizer_->addFed(unpacker,ipair,record);
-	    /*
-            while (unpacker.hasData()) {
-              clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
-              unpacker++;
-            }
-	    */
-          } catch (const cms::Exception& e) {
-            if (edm::isDebugEnabled()) {
-              std::ostringstream ss;
-              ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
-              edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
-            }                                               
-            continue;
-          }
-	} else {
-	
-	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
-	  try {
-	    // create unpacker
-	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
-	    
-	    // unpack
-	    clusterizer_->addFed(unpacker,ipair,record);
-	    /*
-	      while (unpacker.hasData()) {
-	      clusterizer_->stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
-	      unpacker++;
-	      }
-	    */
-	  } catch (const cms::Exception& e) {
-	    if (edm::isDebugEnabled()) {
-	      std::ostringstream ss;
-	      ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
-	      edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
-	    }
-	    continue;
-	  }
-	} else if (mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {
-
-	  // create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(fedCh));
-
-	  // unpack
-	  std::vector<int16_t> digis;
-	  while (unpacker.hasData()) {
-	    digis.push_back(unpacker.adc());
-	    unpacker++;
-	  }
-	  
-	  //process raw
-	  uint32_t id = conn->detId();
-          edm::DetSet<SiStripDigi> zsdigis(id);
-	  //rawAlgos_->subtractorPed->subtract( id, ipair*256, digis);
-	  //rawAlgos_->subtractorCMN->subtract( id, digis);
-	  //rawAlgos_->suppressor->suppress( digis, zsdigis);
-	  uint16_t firstAPV = ipair*2;
-	  rawAlgos_->SuppressVirginRawData(id, firstAPV,digis, zsdigis);  
-	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
-	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
-	  }
-	}
-	
-	else if (mode == sistrip::READOUT_MODE_PROC_RAW ) {
-	  
-	  // create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer->channel(fedCh));
-	  
-	  // unpack
-	  std::vector<int16_t> digis;
-	  while (unpacker.hasData()) {
-	    digis.push_back(unpacker.adc());
-	    unpacker++;
-	  }
-	  
-	  //process raw
-	  uint32_t id = conn->detId();
-          edm::DetSet<SiStripDigi> zsdigis(id);
-	  //rawAlgos_->subtractorCMN->subtract( id, digis);
-	  //rawAlgos_->suppressor->suppress( digis, zsdigis);
-	  uint16_t firstAPV = ipair*2;
-          rawAlgos_->SuppressProcessedRawData(id, firstAPV,digis, zsdigis); 
-	  for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
-	    clusterizer_->stripByStripAdd( it->strip(), it->adc(), record);
-	  }
-	} else {
-	  edm::LogWarning(sistrip::mlRawToCluster_)
-	    << "[sistrip::RawToClustersLazyGetter::" 
-	    << __func__ << "]"
-	    << " FEDRawData readout mode "
-	    << mode
-	    << " from FED id "
-	    << fedId 
-	    << " not supported."; 
-	  continue;
-	}
-      }
-      
-    } // end loop over conn
-
-    clusterizer_->stripByStripEnd(record);
+    filler.fill(record);
+    
     if(record.empty()) record.abort();
 
   } // end loop over dets
 }
 
+void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & record) {
 
-sistrip::FEDBuffer* SiStripClusterizerFromRaw::fillBuffer(int fedId, const FEDRawDataCollection& rawColl) {
-  sistrip::FEDBuffer* buffer=nullptr;
+  auto idet= record.id();
 
-  // Retrieve FED raw data for given FED
-  const FEDRawData& rawData = rawColl.FEDData(fedId);
-  
-  // Check on FEDRawData pointer
-  if unlikely( !rawData.data() ) {
-      if (edm::isDebugEnabled()) {
-	edm::LogWarning(sistrip::mlRawToCluster_)
-	  << "[sistrip::RawToClustersLazyGetter::" 
-	  << __func__ 
-	  << "]"
-	  << " NULL pointer to FEDRawData for FED id " 
-	  << fedId;
+  if (!clusterizer.stripByStripBegin(idet)) { return; }
+ 
+  // Loop over apv-pairs of det
+  for (auto const conn : clusterizer.currentConnection()) {
+    if unlikely(!conn) continue;
+    
+    const uint16_t fedId = conn->fedId();
+    
+    // If fed id is null or connection is invalid continue
+    if unlikely( !fedId || !conn->isConnected() ) { continue; }    
+    
+    // If Fed hasnt already been initialised, extract data and initialise
+    if (!done[fedId]) { buffers[fedId].reset(fillBuffer(fedId, rawColl)); done[fedId]=true;}
+    auto buffer = buffers[fedId].get();
+    if unlikely(!buffer) continue;
+    
+    // check channel
+    const uint8_t fedCh = conn->fedCh();
+    
+    if unlikely(!buffer->channelGood(fedCh,doAPVEmulatorCheck)) {
+	if (edm::isDebugEnabled()) {
+	  std::ostringstream ss;
+	  ss << "Problem unpacking channel " << fedCh << " on FED " << fedId;
+	  edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
+	}
+	continue;
       }
-      return buffer;
-    }	
+    
+    // Determine APV std::pair number
+    uint16_t ipair = conn->apvPairNumber();
+    
+    
+    const sistrip::FEDReadoutMode mode = buffer->readoutMode();
+    
+    
+    if likely(mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
 	
-  // Check on FEDRawData size
-  if unlikely( !rawData.size() ) {
-      if (edm::isDebugEnabled()) {
+	try {
+	  // create unpacker
+	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(fedCh));
+	  
+	  // unpack
+	  clusterizer.addFed(unpacker,ipair,record);
+	  /*
+            while (unpacker.hasData()) {
+	    clusterizer.stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
+	    unpacker++;
+            }
+	  */
+	} catch (const cms::Exception& e) {
+	  if (edm::isDebugEnabled()) {
+	    std::ostringstream ss;
+	    ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
+	    edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
+	  }                                               
+	  continue;
+	}
+      } else {
+      
+      if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
+	try {
+	  // create unpacker
+	  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(fedCh));
+	  
+	  // unpack
+	  clusterizer.addFed(unpacker,ipair,record);
+	  /*
+	    while (unpacker.hasData()) {
+	    clusterizer.stripByStripAdd(unpacker.sampleNumber()+ipair*256,unpacker.adc(),record);
+	    unpacker++;
+	    }
+	  */
+	} catch (const cms::Exception& e) {
+	  if (edm::isDebugEnabled()) {
+	    std::ostringstream ss;
+	    ss << "Unordered clusters for channel " << fedCh << " on FED " << fedId << ": " << e.what();
+	    edm::LogWarning(sistrip::mlRawToCluster_) << ss.str();
+	  }
+	  continue;
+	}
+      } else if (mode == sistrip::READOUT_MODE_VIRGIN_RAW ) {
+	
+	// create unpacker
+	sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(fedCh));
+	
+	// unpack
+	std::vector<int16_t> digis;
+	while (unpacker.hasData()) {
+	  digis.push_back(unpacker.adc());
+	  unpacker++;
+	}
+	
+	//process raw
+	uint32_t id = conn->detId();
+	edm::DetSet<SiStripDigi> zsdigis(id);
+	//rawAlgos_->subtractorPed->subtract( id, ipair*256, digis);
+	//rawAlgos_->subtractorCMN->subtract( id, digis);
+	//rawAlgos_->suppressor->suppress( digis, zsdigis);
+	uint16_t firstAPV = ipair*2;
+	rawAlgos.SuppressVirginRawData(id, firstAPV,digis, zsdigis);  
+	for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
+	  clusterizer.stripByStripAdd( it->strip(), it->adc(), record);
+	}
+      }
+      
+      else if (mode == sistrip::READOUT_MODE_PROC_RAW ) {
+	
+	// create unpacker
+	sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::procRawModeUnpacker(buffer->channel(fedCh));
+	
+	// unpack
+	std::vector<int16_t> digis;
+	while (unpacker.hasData()) {
+	  digis.push_back(unpacker.adc());
+	  unpacker++;
+	}
+	
+	//process raw
+	uint32_t id = conn->detId();
+	edm::DetSet<SiStripDigi> zsdigis(id);
+	//rawAlgos_->subtractorCMN->subtract( id, digis);
+	//rawAlgos_->suppressor->suppress( digis, zsdigis);
+	uint16_t firstAPV = ipair*2;
+	rawAlgos.SuppressProcessedRawData(id, firstAPV,digis, zsdigis); 
+	for( edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it!=zsdigis.end(); it++) {
+	  clusterizer.stripByStripAdd( it->strip(), it->adc(), record);
+	}
+      } else {
 	edm::LogWarning(sistrip::mlRawToCluster_)
 	  << "[sistrip::RawToClustersLazyGetter::" 
 	  << __func__ << "]"
-	  << " FEDRawData has zero size for FED id " 
-	  << fedId;
+	  << " FEDRawData readout mode "
+	  << mode
+	  << " from FED id "
+	  << fedId 
+	  << " not supported."; 
+	continue;
       }
-      return buffer;
     }
-	
-	  // construct FEDBuffer
-  try {
-    buffer = new sistrip::FEDBuffer(rawData.data(),rawData.size());
-    if unlikely(!buffer->doChecks(false)) throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID" << fedId << ".";
-  }
-  catch (const cms::Exception& e) { 
-    if (edm::isDebugEnabled()) {
-      edm::LogWarning(sistrip::mlRawToCluster_) 
-	<< "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << e.what();
-    }
-    delete buffer; buffer=nullptr;
-  }
-
-  /*
-  // dump of FEDRawData to stdout
-  if ( dump_ ) {
-    std::stringstream ss;
-    RawToDigiUnpacker::dumpRawData( fedId, rawData, ss );
-    LogTrace(mlRawToDigi_) 
-      << ss.str();
-  }
-  */
-  return buffer;
-
+    
+  } // end loop over conn
+  
+  clusterizer.stripByStripEnd(record);
+  
 }
+
+
