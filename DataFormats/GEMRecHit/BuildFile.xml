@@ -1,4 +1,5 @@
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="rootrflx"/>
