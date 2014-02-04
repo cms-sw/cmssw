@@ -61,7 +61,39 @@ def dumpPython(process,name):
         else:
                 return "process."+name+" = " + theObject.dumpPython()+"\n"
 
-
+def filesFromDASQuery(query,s=None):
+	import os
+	import FWCore.ParameterSet.Config as cms
+	prim=[]
+	sec=[]
+	print "the query is",query
+	for line in os.popen('das_client.py --query "%s"'%(query)):
+		if line.count(".root")>=2:
+			#two files solution...
+			entries=line.replace("\n","").split()
+			if not entries[0] in prim:
+				prim.append(entries[0])
+			if not entries[1] in sec:
+				sec.append(entries[1])
+		elif (line.find(".root")!=-1):
+			entry=line.replace("\n","")
+			if not entry in prim:
+				prim.append(entry)
+	if s:
+		if not hasattr(s,"fileNames"):
+			s.fileNames=cms.untracked.vstring(prim)
+		else:
+			s.fileNames.extend(prim)
+		if len(sec)!=0:
+			if not hasattr(s,"secondaryFileNames"):
+				s.secondaryFileNames=cms.untracked.vstring(sec)
+			else:
+				s.secondaryFileNames.extend(sec)
+	print "found files: ",prim
+	if len(sec)!=0:
+		print "found parent files:",sec
+	return (prim,sec)
+	
 class ConfigBuilder(object):
     """The main building routines """
 
@@ -165,15 +197,33 @@ class ConfigBuilder(object):
     def addSource(self):
         """Here the source is built. Priority: file, generator"""
         self.addedObjects.append(("Input source","source"))
+
+	def filesFromOption(self):
+		for entry in self._options.filein.split(','):
+			print "entry",entry
+			if entry.startswith("filelist:"):
+				filesFromList(entry[9:],self.process.source)
+			elif entry.startswith("dbs:") or entry.startswith("das:"):
+				filesFromDASQuery('file dataset = %s'%(entry[4:]),self.process.source)
+			else:
+				self.process.source.fileNames.append(self._options.dirin+entry)
+		if self._options.secondfilein:
+			if not hasattr(self.process.source,"secondaryFileNames"):
+				raise Exception("--secondfilein not compatible with "+self._options.filetype+"input type")
+			for entry in self._options.secondfilein.split(','):
+				print "entry",entry
+				if entry.startswith("filelist:"):
+					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
+				elif entry.startswith("dbs:") or entry.startswith("das:"):
+					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:])))[0])
+				else:
+					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
+
         if self._options.filein:
            if self._options.filetype == "EDM":
-               self.process.source=cms.Source("PoolSource",
-                                              fileNames = cms.untracked.vstring())
-	       for entry in self._options.filein.split(','):
-		       self.process.source.fileNames.append(entry)
-               if self._options.secondfilein:
-		       for entry in self._options.secondfilein.split(','):
-			       self.process.source.secondaryFileNames = cms.untracked.vstring(entry)
+               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(), source.secondaryFileNames = cms.untracked.vstring())
+	       filesFromOption(self)
+	       
            elif self._options.filetype == "LHE":
                self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring(self._options.filein))
            elif self._options.filetype == "MCDB":
@@ -182,26 +232,9 @@ class ConfigBuilder(object):
            if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
-	if self._options.dbsquery!='':
+	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
-               import os
-               print "the query is",self._options.dbsquery
-               for line in os.popen('dbs search --query "%s"'%(self._options.dbsquery,)):
-                       if line.count(".root")>=2:
-                               #two files solution...
-                               entries=line.replace("\n","").split()
-			       if not entries[0] in self.process.source.fileNames.value():
-				       self.process.source.fileNames.append(entries[0])
-			       if not entries[1] in self.process.source.secondaryFileNames.value():
-				       self.process.source.secondaryFileNames.append(entries[1])
-				       
-                       elif (line.find(".root")!=-1):
-			       entry=line.replace("\n","")
-			       if not entry in self.process.source.fileNames.value():
-				       self.process.source.fileNames.append(entry)
-               print "found files: ",self.process.source.fileNames.value()
-               if self.process.source.secondaryFileNames.__len__()!=0:
-                       print "found parent files:",self.process.source.secondaryFileNames.value()
+	       filesFromDASQuery(self._options.dasquery,self.process.source)
 
 	if self._options.inputCommands:
 		self.process.source.inputCommands = cms.untracked.vstring()
@@ -390,7 +423,10 @@ class ConfigBuilder(object):
 		self.loadAndRemember(mixingDict['file'])
 		mixingDict.pop('file')
 		if self._options.pileup_input:
-			mixingDict['F']=self._options.pileup_input.split(',')
+			if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
+				mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+			else:
+				mixingDict['F']=self._options.pileup_input.split(',')
 		specialization=defineMixing(mixingDict,'FASTSIM' in self.stepMap)
 		for command in specialization:
 			self.executeAndRemember(command)
