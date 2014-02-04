@@ -4,7 +4,6 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParHistos.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
-using namespace std;
 
 //--------------------------------------
 //  TEcnaParHistos.cc
@@ -1866,7 +1865,7 @@ Color_t TEcnaParHistos::SetColorsForNumbers(const TString& chtype_number)
 //===========================================================================
 
 TPaveText* TEcnaParHistos::SetPaveDee(const TString& chopt,   const Int_t&  DeeNumber,
-				     const TString& DeeType)
+				      const TString& DeeType)
 {
 // Dee pav. Called only once.
   

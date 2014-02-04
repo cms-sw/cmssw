@@ -1,9 +1,8 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 30/06/2011
+//----------Modified: 30/01/2014
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaWrite.h"
-using namespace std;
 
 //--------------------------------------
 //  TEcnaWrite.cc
@@ -108,6 +107,7 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
     {fCnaParPaths = (TEcnaParPaths*)pCnaParPaths;}
 
   //................. Get paths from ECNA directory
+
   fCnaParPaths->GetPathForResultsRootFiles();
   fCnaParPaths->GetPathForResultsAsciiFiles();
 

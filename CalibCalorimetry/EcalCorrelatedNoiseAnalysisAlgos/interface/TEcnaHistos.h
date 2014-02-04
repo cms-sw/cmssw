@@ -32,14 +32,14 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaHistos.h
-///   Update: 05/07/2011
+///   Update: 05/10/2012
 ///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
 ///
 ///   ECNA web page:
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///-----------------------------------------------------------
 ///
 ///==============> INTRODUCTION
@@ -310,7 +310,8 @@
 ///
 ///   ECNA web page:
 ///
-///   http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///     http://cms-fabbro.web.cern.ch/cms-fabbro/
+///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///
 ///   For questions or comments, please send e-mail to: bernard.fabbro@cea.fr 
 ///
@@ -380,7 +381,7 @@ class TEcnaHistos : public TObject {
   TVectorD        fReadHistoDummy;
   TMatrixD        fReadMatrixDummy;
 
-  std::ifstream fFcin_f;
+  ifstream fFcin_f;
 
   TString fFapAnaType;             // Type of analysis
   Int_t   fFapNbOfSamples;         // Nb of required samples
@@ -1233,11 +1234,11 @@ class TEcnaHistos : public TObject {
   void ViewDeeGrid(const Int_t&, const TString&);   // specific EE
 
   void ViewStasGrid(const Int_t&);
-  void ViewEBGrid();
-  void ViewEEGrid(const Int_t&);
+  void ViewEBGrid();               // specific EB
+  void ViewEEGrid(const Int_t&);   // specific EE
 
-  void EEDataSectors(const Float_t&,  const Float_t&, const Int_t&, const TString&);
-  void EEGridAxis(const Float_t&,  const Float_t&, const Int_t&, const TString&, const TString&);
+  void EEDataSectors(const Float_t&,  const Float_t&, const Int_t&, const TString&);                // specific EE
+  void EEGridAxis(const Int_t&, const TString&, const TString&);   // specific EE
 
   void SqrtContourLevels(const Int_t&, Double_t*);
 
