@@ -44,7 +44,7 @@
 namespace {
   sistrip::FEDBuffer*fillBuffer(int fedId, const FEDRawDataCollection& rawColl) {
     sistrip::FEDBuffer* buffer=nullptr;
-
+    
     // Retrieve FED raw data for given FED
     const FEDRawData& rawData = rawColl.FEDData(fedId);
     
@@ -95,12 +95,12 @@ namespace {
     << ss.str();
     }
     */
-
+    
     return buffer;
     
   }
-
-
+  
+  
   class ClusterFiller final : public StripClusterizerAlgorithm::output_t::Getter {
   public:
     ClusterFiller(const FEDRawDataCollection& irawColl,
@@ -110,14 +110,18 @@ namespace {
       rawColl(irawColl),
       clusterizer(iclusterizer),
       rawAlgos(irawAlgos),
-      doAPVEmulatorCheck(idoAPVEmulatorCheck){}
-
-
-    void fill(StripClusterizerAlgorithm::output_t::FastFiller & record);
-
+      doAPVEmulatorCheck(idoAPVEmulatorCheck){
+	incTot(clusterizer.allDetIds().size());
+      }
+    
+    
+    ~ClusterFiller() { printStat();}
+    
+    void fill(StripClusterizerAlgorithm::output_t::FastFiller & record) override;
+    
   private:
-
-
+    
+    
     std::unique_ptr<sistrip::FEDBuffer> buffers[1024];
     bool done[1024] = {};  // false is default
     
@@ -127,23 +131,51 @@ namespace {
     StripClusterizerAlgorithm & clusterizer;
     SiStripRawProcessingAlgorithms & rawAlgos;
     
-        
+    
     // March 2012: add flag for disabling APVe check in configuration
     bool doAPVEmulatorCheck; 
-
-
+    
+    
+#ifdef VIDEBUG
+    struct Stat {
+      int totDet=0; // all dets
+      int detReady=0; // dets "updated"
+      int detSet=0;  // det actually set not empty
+      int detAct=0;  // det actually set with content
+      int detNoZ=0;  // det actually set with content
+    };
+    
+    mutable Stat stat;
+    void zeroStat() const { stat = Stat(); }
+    void incTot(int n) const { stat.totDet=n;}
+    void incReady() const { stat.detReady++;}
+    void incSet() const { stat.detSet++;}
+    void incAct() const { stat.detAct++;}
+    void incNoZ() const { stat.detNoZ++;}
+    void printStat() const {
+      COUT << "VI clusters " << stat.totDet <<','<< stat.detReady <<','<< stat.detSet <<','<< stat.detAct<<','<< stat.detNoZ  << std::endl;
+    }
+    
+#else
+    static void zeroStat(){}
+    static void incReady() {}
+    static void incSet() {}
+    static void incAct() {}
+    static void incNoZ() {}
+    static void printStat(){}
+#endif
+    
   };
-
-
-
+  
+  
 } // namespace
 
 
 
 class SiStripClusterizerFromRaw final : public edm::EDProducer  {
-
-public:
-
+  
+ public:
+  
   explicit SiStripClusterizerFromRaw(const edm::ParameterSet& conf) :
     onDemand(conf.getParameter<bool>("onDemand")),
     productLabel_(conf.getParameter<edm::InputTag>("ProductLabel")),
@@ -156,27 +188,31 @@ public:
 	assert(clusterizer_.get());
 	assert(rawAlgos_.get());
       }
-
+  
 
   void beginRun( const edm::Run&, const edm::EventSetup& es) {
     initialize(es);
   }
-
-
+  
+  
   void produce(edm::Event& ev, const edm::EventSetup& es) {
-
+    
     initialize(es);
-
+    
     // get raw data
     edm::Handle<FEDRawDataCollection> rawData;
     ev.getByLabel( productLabel_, rawData); 
-
-
+    
+    
     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > 
       output( onDemand ?
-	      new edmNew::DetSetVector<SiStripCluster>(boost::shared_ptr<ClusterFiller>(new ClusterFiller(*rawData, *clusterizer_, *rawAlgos_, doAPVEmulatorCheck_)), 
-						       clusterizer_->allDetIds()) 
+	      new edmNew::DetSetVector<SiStripCluster>(boost::shared_ptr<edmNew::DetSetVector<SiStripCluster>::Getter>(new ClusterFiller(*rawData, *clusterizer_, 
+																	 *rawAlgos_, doAPVEmulatorCheck_)
+														       ), 
+						       clusterizer_->allDetIds())
 	      : new edmNew::DetSetVector<SiStripCluster>());
+    
+    if(onDemand) assert(output->onDemand());
 
     output->reserve(15000,6*10000);
 
@@ -251,10 +287,15 @@ void SiStripClusterizerFromRaw::run(const FEDRawDataCollection& rawColl,
 
 void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & record) {
 
+  incReady();
+
   auto idet= record.id();
+
 
   if (!clusterizer.stripByStripBegin(idet)) { return; }
  
+  incSet();
+
   // Loop over apv-pairs of det
   for (auto const conn : clusterizer.currentConnection()) {
     if unlikely(!conn) continue;
@@ -264,6 +305,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & recor
     // If fed id is null or connection is invalid continue
     if unlikely( !fedId || !conn->isConnected() ) { continue; }    
     
+
     // If Fed hasnt already been initialised, extract data and initialise
     if (!done[fedId]) { buffers[fedId].reset(fillBuffer(fedId, rawColl)); done[fedId]=true;}
     auto buffer = buffers[fedId].get();
@@ -396,7 +438,9 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & recor
   } // end loop over conn
   
   clusterizer.stripByStripEnd(record);
-  
+  incAct();
+  if(!record.empty()) incNoZ();
+
 }
 
 

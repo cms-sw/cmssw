@@ -36,6 +36,12 @@ namespace edmNew {
       bool filling;
       boost::any getter;
 
+
+      void swap(DetSetVectorTrans& rh) {
+	std::swap(filling,rh.filling);
+	std::swap(getter,rh.getter);
+      }
+
       typedef unsigned int size_type; // for persistency
       typedef unsigned int id_type;
 
@@ -49,6 +55,7 @@ namespace edmNew {
       };
 
     };
+
     void errorFilling();
     void errorIdExists(det_id_type iid);
     void throw_range(det_id_type iid);
@@ -167,7 +174,6 @@ namespace edmNew {
         v.m_data.push_back(std::move(d));
         item.size++;
       }
-
 #endif
 
       data_type & back() { return v.m_data.back();}
@@ -199,7 +205,11 @@ namespace edmNew {
       // delete content if T is pointer...
     }
     
+
+    bool onDemand() const { return !getter.empty();}
+
     void swap(DetSetVector & rh) {
+      DetSetVectorTrans::swap(rh);
       std::swap(m_subdetId,rh.m_subdetId);
       std::swap(m_ids,rh.m_ids);
       std::swap(m_data,rh.m_data);
@@ -396,7 +406,7 @@ namespace edmNew {
     
 
   template<typename T>
-  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, 
+  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<Getter> iGetter, 
 				       const std::vector<det_id_type>& iDets,
 				       int isubdet):  
     m_subdetId(isubdet) {
@@ -423,21 +433,16 @@ namespace edmNew {
   }
 
 
-  template<typename T>
-  inline DetSet<T>::DetSet(DetSetVector<T> const & icont,
-			   typename DetSetVector<T>::Item const & item ) :
-    m_id(0), m_data(0), m_size(0){
-    icont.update(item);
-    set(icont,item);
-  }
-  
+ 
   
   template<typename T>
   inline void DetSet<T>::set(DetSetVector<T> const & icont,
 			     typename Container::Item const & item) {
     icont.update(item);
+    assert(item.offset>=0);
     m_id=item.id; 
-    m_data=&icont.data()[item.offset]; 
+    m_data=&icont.data();
+    m_offset = item.offset; 
     m_size=item.size;
   }
   
