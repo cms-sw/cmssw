@@ -5,22 +5,19 @@
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandFlat.h"
-
-#include "boost/scoped_ptr.hpp"
-
 #include <map>
 #include <string>
 #include <vector>
 #include <math.h>
 
-boost::scoped_ptr<CLHEP::RandFlat> gFlatDistribution_; // yes, this must be global...
-
 namespace HepMC {
   class GenEvent;
   class GenParticle;
   class GenVertex;
+}
+
+namespace CLHEP {
+  class HepRandomEngine;
 }
 
 extern "C"
@@ -221,6 +218,9 @@ namespace gen
     const char* classname() const;
 
   private:
+
+    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+
     edm::ParameterSet pset_;
     double  m_BeamMomentum;
     double  m_TargetMomentum;
@@ -242,6 +242,8 @@ namespace gen
     double  m_PartEnergy[nmxhep];
     double  m_PartMass[nmxhep];
     int     m_PartStatus[nmxhep];
+
+    bool m_IsInitialized;
   };
 
 } /*end namespace*/

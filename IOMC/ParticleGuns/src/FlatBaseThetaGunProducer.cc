@@ -17,27 +17,8 @@
 
 using namespace edm;
 
-namespace {
-
-  CLHEP::HepRandomEngine& getEngineReference() {
-
-    edm::Service<edm::RandomNumberGenerator> rng;
-    if(!rng.isAvailable()) {
-      throw cms::Exception("Configuration")
-	<< "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-	"which appears to be absent.  Please add that service to your configuration\n"
-	"or remove the modules that require it.";
-    }
-
-    // The Service has already instantiated an engine.  Make contact with it.
-    return (rng->getEngine());
-  }
-}
-
 FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset) :
-   fEvt(0),
-   fRandomEngine(getEngineReference()),
-   fRandomGenerator(0) {
+   fEvt(0) {
 
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters") ;
   
@@ -48,15 +29,21 @@ FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset
   fMaxPhi   = pgun_params.getParameter<double>("MaxPhi");
   fVerbosity = pset.getUntrackedParameter<int>( "Verbosity",0 ) ;
 
-  // The Service has already instantiated an engine.  Use it.
-   fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-   fAddAntiParticle = pset.getParameter<bool>("AddAntiParticle") ;
+  fAddAntiParticle = pset.getParameter<bool>("AddAntiParticle") ;
 
-   produces<GenRunInfoProduct, InRun>();
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The module inheriting from FlatBaseThetaGunProducer requires the\n"
+         "RandomNumberGeneratorService, which appears to be absent.  Please\n"
+         "add that service to your configuration or remove the modules that"
+         "require it.";
+  }
+
+  produces<GenRunInfoProduct, InRun>();
 }
 
 FlatBaseThetaGunProducer::~FlatBaseThetaGunProducer() {
-//  if ( fRandomGenerator != NULL ) delete fRandomGenerator;
 }
 
 

@@ -1,14 +1,14 @@
 #ifndef gen_PTYDISTRIBUTOR_H
 #define gen_PTYDISTRIBUTOR_H
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
+namespace edm {
+  class FileInPath;
+}
 
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandGeneral.h"
-
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+namespace CLHEP {
+  class RandGeneral;
+  class HepRandomEngine;
+}
 
 namespace gen
 {
@@ -16,16 +16,16 @@ namespace gen
   public:
     PtYDistributor() {};
     //PtYDistributor(std::string inputfile, CLHEP::HepRandomEngine& fRandomEngine, double ptmax, double ptmin, double ymax, double ymin, int ptbins, int ybins);
-    PtYDistributor(const edm::FileInPath& fip, CLHEP::HepRandomEngine& fRandomEngine, 
+    PtYDistributor(const edm::FileInPath& fip,
                    double ptmax, double ptmin, double ymax, double ymin, 
 		   int ptbins, int ybins);
     virtual ~PtYDistributor() {};
 
-    double fireY();
-    double firePt();
-    double fireY(double ymin, double ymax);
-    double firePt(double ptmin, double ptmax);
-    
+    double fireY(CLHEP::HepRandomEngine*);
+    double firePt(CLHEP::HepRandomEngine*);
+    double fireY(double ymin, double ymax, CLHEP::HepRandomEngine*);
+    double firePt(double ptmin, double ptmax, CLHEP::HepRandomEngine*);
+
   private:
     double ptmax_;
     double ptmin_;
@@ -37,9 +37,6 @@ namespace gen
 
     CLHEP::RandGeneral* fYGenerator;
     CLHEP::RandGeneral* fPtGenerator;
-
   };
 }
-
 #endif
-
