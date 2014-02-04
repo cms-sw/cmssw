@@ -7,6 +7,7 @@
 #include "boost/filesystem.hpp"
 
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
@@ -41,15 +42,14 @@ private:
   virtual void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
-  int cacheNextEvent();
+  evf::EvFDaqDirector::FileStatus cacheNextEvent();
   edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
   void closeCurrentFile();
-  int openNextFile();
-  int searchForNextFile();
+  evf::EvFDaqDirector::FileStatus openNextFile();
+  evf::EvFDaqDirector::FileStatus searchForNextFile();
   bool grabNextJsonFile(boost::filesystem::path const&);
   void openDataFile(std::string const&);
-  bool eofReached() const;
-  int readNextChunkIntoBuffer();
+  evf::EvFDaqDirector::FileStatus readNextChunkIntoBuffer();
   void renameToNextFree() const;
 
   std::string defPath_;
@@ -62,7 +62,7 @@ private:
   const bool getLSFromFilename_;
   const bool verifyAdler32_;
   const bool testModeNoBuilderUnit_;
-  
+
   const edm::RunNumber_t runNumber_;
 
   const std::string buInputDir_;

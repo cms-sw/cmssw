@@ -24,11 +24,13 @@
 class GlobalContext;
 
 namespace evf{
-  class EvFDaqDirector 
+  class EvFDaqDirector
     {
     public:
-      
-      explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg ); 
+
+      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded };
+
+      explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector(){}
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
@@ -61,7 +63,7 @@ namespace evf{
       int readBuLock();
       // DEPRECATED
       //int updateFuLock(unsigned int &ls);
-      bool updateFuLock(unsigned int& ls, std::string& nextFile, bool& eorSeen);
+      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile);
       void writeLsStatisticsBU(unsigned int, unsigned int, unsigned long long, long long);
       void writeLsStatisticsFU(unsigned int ls, unsigned int events, timeval completion_time){}
       void writeDiskAndThrottleStat(double, int, int);
