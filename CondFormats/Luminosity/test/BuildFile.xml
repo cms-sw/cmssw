@@ -1,5 +1,3 @@
-<use   name="CondFormats/Luminosity"/>
-
 <bin file="testSerializationLuminosity.cpp">
-    <use   name="CondFormats/External"/>
+    <use   name="CondFormats/Luminosity"/>
 </bin>

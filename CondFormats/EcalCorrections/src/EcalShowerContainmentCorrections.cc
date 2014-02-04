@@ -8,9 +8,7 @@
 //#include <iostream>
 
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/External/interface/EcalDetID.h"
-#include "CondFormats/EcalCorrections/interface/Serialization.h"
 
 const EcalShowerContainmentCorrections::Coefficients
 EcalShowerContainmentCorrections::correctionCoefficients(const EBDetId& centerxtal) const 

@@ -1,5 +1,3 @@
-<use   name="CondFormats/DQMObjects"/>
-
 <bin file="testSerializationDQMObjects.cpp">
-    <use   name="CondFormats/External"/>
+    <use   name="CondFormats/DQMObjects"/>
 </bin>

@@ -17,5 +17,4 @@
 </environment>
 
 <bin file="testSerializationRPCObjects.cpp">
-    <use   name="CondFormats/External"/>
 </bin>

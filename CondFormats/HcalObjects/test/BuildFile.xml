@@ -1,5 +1,3 @@
-<use   name="CondFormats/HcalObjects"/>
-
 <bin file="testSerializationHcalObjects.cpp">
-    <use   name="CondFormats/External"/>
+    <use   name="CondFormats/HcalObjects"/>
 </bin>

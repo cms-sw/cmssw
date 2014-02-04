@@ -15,10 +15,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/External/interface/Serialization.h"
-#include "CondFormats/SiPixelObjects/interface/Serialization.h"
-
 class EventSetup;
 class Event;
 

@@ -69,48 +69,4 @@ void serialize(Archive & ar, EcalContainer<DetIdT, T> & obj, const unsigned int 
 } // namespace serialization
 } // namespace boost
 
-namespace cond {
-namespace serialization {
-
-// DataFormats/EcalDetId/interface/EBDetId.h
-template <>
-struct access<EBDetId>
-{
-    static bool equal_(const EBDetId & first, const EBDetId & second)
-    {
-        return true
-            and (equal(static_cast<const DetId &>(first), static_cast<const DetId &>(second)))
-        ;
-    }
-};
-  
-// DataFormats/EcalDetId/interface/EEDetId.h
-template <>
-struct access<EEDetId>
-{
-    static bool equal_(const EEDetId & first, const EEDetId & second)
-    {
-        return true
-            and (equal(static_cast<const DetId &>(first), static_cast<const DetId &>(second)))
-        ;
-    }
-};
-  
-// DataFormats/EcalDetId/interface/EcalContainer.h
-template <typename DetIdT, typename T>
-struct access<EcalContainer<DetIdT, T>>
-{
-    static bool equal_(const EcalContainer<DetIdT, T> & first, const EcalContainer<DetIdT, T> & second)
-    {
-        return true
-	  and (equal(first.items(), second.items()))
-        ;
-    }
-};
-
-
-
-} // namespace serialization
-} // namespace cond
-
 #endif

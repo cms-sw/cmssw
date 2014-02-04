@@ -36,25 +36,4 @@ void serialize(Archive & ar, L1GtLogicParser::TokenRPN & obj, const unsigned int
 } // namespace serialization
 } // namespace boost
 
-namespace cond {
-namespace serialization {
-
-// DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h
-template <>
-struct access<L1GtLogicParser::TokenRPN>
-{
-    static bool equal_(const L1GtLogicParser::TokenRPN & first, const L1GtLogicParser::TokenRPN & second)
-    {
-        return true
-            and (equal(first.operation, second.operation))
-            and (equal(first.operand, second.operand))
-        ;
-    }
-};
-
-
-
-} // namespace serialization
-} // namespace cond
-
 #endif

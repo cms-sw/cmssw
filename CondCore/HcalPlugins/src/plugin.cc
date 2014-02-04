@@ -12,8 +12,6 @@
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/HcalObjects/interface/Serialization.h"
 
 // required for compiling ( the only available constructor in this class ). Can't be used in persistency without this...
 namespace cond {

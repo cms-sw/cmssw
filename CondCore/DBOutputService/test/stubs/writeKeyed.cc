@@ -7,9 +7,6 @@
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
 #include "CondFormats/Calibration/interface/Conf.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/Calibration/interface/Serialization.h"
-
 class writeKeyed : public edm::EDAnalyzer {
  public:
   explicit writeKeyed(const edm::ParameterSet& iConfig );

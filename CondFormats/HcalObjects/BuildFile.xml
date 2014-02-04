@@ -5,6 +5,7 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="boost_serialization"/>
 <use   name="rootrflx"/>
 <export>
   <lib   name="1"/>

@@ -7,5 +7,4 @@
 </library>
 
 <bin file="testSerializationSiPixelObjects.cpp">
-    <use   name="CondFormats/External"/>
 </bin>

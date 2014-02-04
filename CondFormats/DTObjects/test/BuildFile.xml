@@ -13,5 +13,4 @@
 </library>
 
 <bin file="testSerializationDTObjects.cpp">
-    <use   name="CondFormats/External"/>
 </bin>

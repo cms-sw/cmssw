@@ -1,5 +1,8 @@
-#ifndef CondFormats_Serialization_Serializable_H
-#define CondFormats_Serialization_Serializable_H
+#pragma once
+
+// The archives must be listed before any boost/serialization header.
+// Otherwise, in some cases the export macros trigger compilation errors.
+#include "CondFormats/Serialization/interface/Archive.h"
 
 #include <boost/serialization/access.hpp>
 
@@ -11,9 +14,10 @@
 #include <boost/serialization/bitset.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
+// We cannot include Equal.h here since it is C++11
 namespace cond {
 namespace serialization {
-    template <typename CondSerializationT, typename Enabled>
+    template <typename CondSerializationT, typename Enabled = void>
     struct access;
 }
 }
@@ -34,6 +38,10 @@ namespace serialization {
     COND_SERIALIZABLE; \
     void cond_serialization_manual();
 
+// Polymorphic classes must be tagged as such
+#define COND_SERIALIZABLE_POLYMORPHIC(T) \
+   BOOST_CLASS_EXPORT_KEY(T);
+
 // Marks a member as transient, i.e. not included in the automatically
 // generated serialization code. All variables in the same 'statement'
 // (up to the ';') will be marked as transient, so please avoid declaring
@@ -41,6 +49,4 @@ namespace serialization {
 // avoid that, in the future we may be able to use custom C++11 attributes
 // like [[cond::serialization::transient]]
 #define COND_TRANSIENT
-
-#endif
 

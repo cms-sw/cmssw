@@ -39,24 +39,4 @@ void serialize(Archive & ar, ROOT::Math::SMatrix<T, D1, D2, R> & obj, const unsi
 } // namespace serialization
 } // namespace boost
 
-namespace cond {
-namespace serialization {
-
-// Math/SMatrix.h
-template <typename T, unsigned int D1, unsigned int D2, class R>
-struct access<ROOT::Math::SMatrix<T, D1, D2, R>>
-{
-    static bool equal_(const ROOT::Math::SMatrix<T, D1, D2, R> & first, const ROOT::Math::SMatrix<T, D1, D2, R> & second)
-    {
-        return std::equal(first.begin(), first.end(), second.begin(),
-            [](decltype(*first.begin()) a, decltype(a) b) -> bool {
-                return equal(a, b);
-            }
-        );
-    }
-};
-
-} // namespace serialization
-} // namespace cond
-
 #endif

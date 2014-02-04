@@ -1,6 +1,6 @@
-#include "CondFormats/Serialization/interface/SerializationTest.h"
+#include "CondFormats/Serialization/interface/Test.h"
 
-#include "CondFormats/DQMObjects/interface/Serialization.h"
+#include "../src/headers.h"
 
 int main()
 {

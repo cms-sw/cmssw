@@ -42,9 +42,7 @@
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/External/interface/DetID.h"
-#include "CondFormats/DTObjects/interface/Serialization.h"
 
 namespace cond {
 

@@ -17,14 +17,10 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 
-#include "CondFormats/Serialization/interface/SerializationEqual.h"
-
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
 #include "CondFormats/External/interface/EcalDetID.h"
 #include "CondFormats/External/interface/SMatrix.h"
 #include "CondFormats/External/interface/Timestamp.h"
-#include "CondFormats/EcalObjects/interface/Serialization.h"
 
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 

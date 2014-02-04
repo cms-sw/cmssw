@@ -50,23 +50,4 @@ void serialize(Archive & ar, DetId & obj, const unsigned int v)
 } // namespace serialization
 } // namespace boost
 
-
-namespace cond {
-namespace serialization {
-
-// DataFormats/DetId/interface/DetId.h
-template <>
-struct access<DetId>
-{
-    static bool equal_(const DetId & first, const DetId & second)
-    {
-        return true
-            and (equal(first.rawId(), second.rawId()))
-        ;
-    }
-};
-
-} // namespace serialization
-} // namespace cond
-
 #endif
