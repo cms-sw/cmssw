@@ -35,14 +35,11 @@ ME0DigiPreReco::ME0DigiPreReco ():
 // Comparison
 bool ME0DigiPreReco::operator == (const ME0DigiPreReco& digi) const
 {
-  return x_ == digi.x() and y_ == digi.y() and tof_ == digi.tof();
-}
-
-
-// Comparison
-bool ME0DigiPreReco::operator != (const ME0DigiPreReco& digi) const
-{
-  return x_ != digi.x() or y_ != digi.y() or tof_ != digi.tof();
+  if ( x_ != digi.x() ||
+       y_ != digi.y() || 
+       tof_ != digi.tof()
+       ) return false;
+  return true;
 }
 
 

@@ -29,7 +29,7 @@ public:
   float ey() const { return ey_; }
   float corr() const { return corr_; }
   float tof() const { return tof_;}
-//cesare changes
+  //cesare changes
   int pdgid() const { return pdgid_;}
   void print() const;
 
@@ -40,7 +40,7 @@ private:
   float ey_;
   float corr_;
   float tof_;
-//cesare changes
+  //cesare changes
   int pdgid_;
 };
 
