@@ -19,6 +19,7 @@ GeometryConf={
     'Extended2023RPCUpscope'   : 'Extended2023RPCUpscope,Extended2023RPCUpscopeReco',
     'ExtendedPhase2TkBE'   : 'ExtendedPhase2TkBE,ExtendedPhase2TkBEReco',
     'ExtendedPhase2TkBE5D'   : 'ExtendedPhase2TkBE5D,ExtendedPhase2TkBE5DReco',
+    'ExtendedPhase2TkBE5DPixel10D'   : 'ExtendedPhase2TkBE5DPixel10D,ExtendedPhase2TkBE5DPixel10DReco',
     'ExtendedPhase2TkLB_6PS'   : 'ExtendedPhase2TkLB6PS,ExtendedPhase2TkLB6PSReco',
     'ExtendedPhase2TkLB_4LPS_2L2S'   : 'ExtendedPhase2TkLB4LPS_2L2S,ExtendedPhase2TkLB4LPS_2L2SReco',
     'ExtendedGFlash' : 'ExtendedGFlash,ExtendedGFlashReco',
