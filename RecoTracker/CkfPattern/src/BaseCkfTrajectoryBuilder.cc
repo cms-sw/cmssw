@@ -41,7 +41,7 @@ BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf
   theRecHitBuilderName(conf.getParameter<std::string>("TTRHBuilder")),
   theFilterName(conf.getParameter<std::string>("trajectoryFilterName"))
 {
-  if (conf.exists("clustersToSkip")) std::cerr << "ERROR: " << typeid(*this).name() << " with label " << conf.getParameter<std::string>("@module_label") << " has a clustersToSkip parameter set" << std::endl;
+  if (conf.exists("clustersToSkip")) edm::LogError("BaseCkfTrajectoryBuilder") << "ERROR: " << typeid(*this).name() << " has a clustersToSkip parameter set";
 }
 
 
