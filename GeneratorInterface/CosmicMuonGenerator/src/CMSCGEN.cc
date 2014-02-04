@@ -20,6 +20,13 @@ CMSCGEN::~CMSCGEN()
     delete RanGen2;
 }
 
+void CMSCGEN::setRandomEngine(CLHEP::HepRandomEngine* v) {
+  if (delRanGen)
+    delete RanGen2;
+  RanGen2 = v;
+  delRanGen = false;
+}
+
 int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, double thetamax_in, CLHEP::HepRandomEngine *rnd, bool TIFOnly_constant, bool TIFOnly_linear)  
 {
   if (delRanGen)
