@@ -126,7 +126,7 @@ double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const e
   EBremOverDeltaP       	=(etot-eEcal)/dP;
   logSigmaEtaEta        	=log(myElectron.sigmaEtaEta());
   DeltaEtaTrackEcalSeed 	=myElectron.deltaEtaEleClusterTrackAtCalo();
-  HoE                   	=myElectron.hadronicOverEm();
+  HoE                   	=myElectron.hcalOverEcalBc();
 
   bool validKF= false;
   reco::TrackRef myTrackRef     = myElectron.closestCtfTrackRef();
