@@ -14,19 +14,19 @@ namespace sipixelobjects {
       /// row and collumn in ROC representation 
       struct RocRowCol { 
         int rocRow, rocCol; 
-        bool valid() const { return    0 <= rocRow && rocRow < numRowsInRoc  
-                                    && 0 <= rocCol && rocCol < numColsInRoc; }
+        bool valid() const { return    (0 <= rocRow) & (rocRow < numRowsInRoc)  
+	    & (0 <= rocCol) & (rocCol < numColsInRoc); }
       };
 
       /// double collumn and pixel ID in double collumn representation
       struct DcolPxid { 
         int dcol, pxid; 
-        bool valid() const { return (0 <= dcol && dcol < 26 &&  2 <= pxid && pxid < 162 ); }
+        bool valid() const { return ( (0 <= dcol) & (dcol < 26) &  (2 <= pxid) & (pxid < 162) ); }
       }; 
 
       LocalPixel( const DcolPxid & pixel) {
-        thePixel.rocCol = pixel.dcol*2 + pixel.pxid%2;
         thePixel.rocRow = numRowsInRoc - pixel.pxid/2;
+	thePixel.rocCol = pixel.dcol*2 + pixel.pxid%2;
       }
 
       LocalPixel( const RocRowCol & pixel) : thePixel(pixel) {} 
