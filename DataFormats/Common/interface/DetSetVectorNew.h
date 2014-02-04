@@ -426,9 +426,10 @@ namespace edmNew {
   template<typename T>
   inline void DetSetVector<T>::updateImpl(Item & item)  {
     // no getter or already updated
-    if (getter.empty() || item.offset!=-1) return;
+    if (getter.empty()) assert(item.offset>=0);
+    if (item.offset!=-1 || getter.empty() ) return;
     item.offset = int(m_data.size());
-    FastFiller ff(*this,item);
+    FastFiller ff(*this,item,true);
     (*boost::any_cast<boost::shared_ptr<Getter> >(&getter))->fill(ff);
   }
 

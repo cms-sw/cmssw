@@ -291,6 +291,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & recor
 
   auto idet= record.id();
 
+  // COUT << "filling " << idet << std::endl;
 
   if (!clusterizer.stripByStripBegin(idet)) { return; }
  
@@ -440,6 +441,9 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::FastFiller & recor
   clusterizer.stripByStripEnd(record);
   incAct();
   if(!record.empty()) incNoZ();
+
+  // COUT << "filled " << record.size() << std::endl;
+  
 
 }
 
