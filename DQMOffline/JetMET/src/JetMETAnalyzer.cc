@@ -38,13 +38,19 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
   // Jet Collection Label
-  theAKJetCollectionLabel       = parameters.getParameter<edm::InputTag>("AKJetsCollectionLabel");
-  theSCJetCollectionLabel       = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
-  theICJetCollectionLabel       = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
-  theJPTJetCollectionLabel      = parameters.getParameter<edm::InputTag>("JPTJetsCollectionLabel");
-  thePFJetCollectionLabel       = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
+  //theAKJetCollectionLabel       = parameters.getParameter<edm::InputTag>("AKJetsCollectionLabel");
+  //theSCJetCollectionLabel       = parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel");
+  //theICJetCollectionLabel       = parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel");
+  //theJPTJetCollectionLabel      = parameters.getParameter<edm::InputTag>("JPTJetsCollectionLabel");
+  //thePFJetCollectionLabel       = parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel");
+  //
+  theAKJetCollectionLabel       = consumes<std::vector<reco::CaloJet> > (parameters.getParameter<edm::InputTag>("AKJetsCollectionLabel"));
+  theSCJetCollectionLabel       = consumes<std::vector<reco::CaloJet> > (parameters.getParameter<edm::InputTag>("SCJetsCollectionLabel"));
+  theICJetCollectionLabel       = consumes<std::vector<reco::CaloJet> > (parameters.getParameter<edm::InputTag>("ICJetsCollectionLabel"));
+  theJPTJetCollectionLabel      = consumes<std::vector<reco::JPTJet> >  (parameters.getParameter<edm::InputTag>("JPTJetsCollectionLabel"));
+  thePFJetCollectionLabel       = consumes<std::vector<reco::PFJet> >   (parameters.getParameter<edm::InputTag>("PFJetsCollectionLabel"));
 
-  theTriggerResultsLabel        = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
+  theTriggerResultsLabel        = consumes<TriggerResults> (parameters.getParameter<edm::InputTag>("TriggerResultsLabel"));
 
   theJetAnalyzerFlag            = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
   theJetCleaningFlag            = parameters.getUntrackedParameter<bool>("DoJetCleaning",    true);
@@ -68,10 +74,11 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   // ==========================================================
   //DCS information
   // ==========================================================
-  DCSFilterCalo = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterCalo"));
-  DCSFilterPF   = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterPF"));
-  DCSFilterJPT  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterJPT"));
-  DCSFilterAll  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterAll"));
+  edm::ConsumesCollector iC  = consumesCollector();
+  DCSFilterCalo = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterCalo"), iC);
+  DCSFilterPF   = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterPF"),   iC);
+  DCSFilterJPT  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterJPT"),  iC);
+  DCSFilterAll  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterAll"),  iC);
   // Used for Jet DQM - For MET DQM, DCS selection applied in ***METAnalyzer
 
   // --- do the analysis on the Jets
@@ -206,8 +213,9 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
 
   _tightBHFiltering   = theCleaningParameters.getParameter<bool>("tightBHFiltering");
 
-  _theVertexLabel     = theCleaningParameters.getParameter<edm::InputTag>("vertexLabel");
-  _theGTLabel         = theCleaningParameters.getParameter<edm::InputTag>("gtLabel");
+  //_theVertexLabel     = theCleaningParameters.getParameter<edm::InputTag>("vertexLabel");
+  _theVertexLabel     = consumes<reco::VertexCollection> (theCleaningParameters.getParameter<edm::InputTag>("vertexLabel"));
+  _theGTLabel         = consumes<L1GlobalTriggerReadoutRecord> (theCleaningParameters.getParameter<edm::InputTag>("gtLabel"));
 
   //Vertex requirements
   if (_doPVCheck) {
@@ -441,7 +449,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the TriggerResults container
   edm::Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(theTriggerResultsLabel, triggerResults);
+  iEvent.getByToken(theTriggerResultsLabel, triggerResults);
 
   bool bPhysicsDeclared = false;
   if(!_doHLTPhysicsOn) bPhysicsDeclared = true;
@@ -479,7 +487,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   }
 
-  if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
+  //if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
 
   /*
     if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
@@ -504,7 +512,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     bPrimaryVertex = false;
     Handle<reco::VertexCollection> vertexHandle;
 
-    iEvent.getByLabel(_theVertexLabel, vertexHandle);
+    iEvent.getByToken(_theVertexLabel, vertexHandle);
 
     if (!vertexHandle.isValid()) {
       LogInfo("JetMETAnalyzer") << "JetMETAnalyzer: Could not find vertex collection" << std::endl;
@@ -536,7 +544,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // ==========================================================
 
   edm::Handle< L1GlobalTriggerReadoutRecord > gtReadoutRecord;
-  iEvent.getByLabel( _theGTLabel, gtReadoutRecord);
+  iEvent.getByToken( _theGTLabel, gtReadoutRecord);
 
   if (!gtReadoutRecord.isValid()) {
     LogInfo("JetMETAnalyzer") << "JetMETAnalyzer: Could not find GT readout record" << std::endl;
@@ -605,7 +613,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
   // **** Get the AntiKt Jet container
-  iEvent.getByLabel(theAKJetCollectionLabel, caloJets);
+  iEvent.getByToken(theAKJetCollectionLabel, caloJets);
   if(caloJets.isValid()) {
 
   if(theJetAnalyzerFlag){
@@ -660,7 +668,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   } // caloJets.isValid()
 
   // **** Get the SISCone Jet container
-  iEvent.getByLabel(theSCJetCollectionLabel, caloJets);
+  iEvent.getByToken(theSCJetCollectionLabel, caloJets);
   if(theSConeJetAnalyzerFlag){
     if(caloJets.isValid()){
       if(theJetAnalyzerFlag){
@@ -689,7 +697,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     } // caloJets.isValid()
   }
   // **** Get the Iterative Cone Jet container
-  iEvent.getByLabel(theICJetCollectionLabel, caloJets);
+  iEvent.getByToken(theICJetCollectionLabel, caloJets);
   if(theIConeJetAnalyzerFlag) {
     if(caloJets.isValid()){
       if(theJetAnalyzerFlag){
@@ -720,7 +728,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the JPT Jet container
   edm::Handle<reco::JPTJetCollection> jptJets;
-  iEvent.getByLabel(theJPTJetCollectionLabel, jptJets);
+  iEvent.getByToken(theJPTJetCollectionLabel, jptJets);
   if(jptJets.isValid() && theJPTJetAnalyzerFlag){
     //theJPTJetAnalyzer->setJetHiPass(JetHiPass);
     //theJPTJetAnalyzer->setJetLoPass(JetLoPass);
@@ -737,7 +745,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   // **** Get the PFlow Jet container
   edm::Handle<reco::PFJetCollection> pfJets;
-  iEvent.getByLabel(thePFJetCollectionLabel, pfJets);
+  iEvent.getByToken(thePFJetCollectionLabel, pfJets);
 
   if(pfJets.isValid()){
     if(thePFJetAnalyzerFlag){

@@ -25,19 +25,9 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-MuCorrMETAnalyzer::MuCorrMETAnalyzer(const edm::ParameterSet& pSet) {
+MuCorrMETAnalyzer::MuCorrMETAnalyzer(const edm::ParameterSet& pSet, edm::ConsumesCollector&& iC) {
 
   parameters = pSet;
-
-}
-
-// ***********************************************************
-MuCorrMETAnalyzer::~MuCorrMETAnalyzer() { }
-
-void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
-
-  evtCounter = 0;
-  metname = "muonMETAnalyzer";
 
   // trigger information
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
@@ -50,13 +40,14 @@ void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
   _hlt_Muon      = parameters.getParameter<std::string>("HLT_Muon");
 
   // MuCorrMET information
-  theMuCorrMETCollectionLabel       = parameters.getParameter<edm::InputTag>("MuCorrMETCollectionLabel");
+  //theMuCorrMETCollectionToken   = iC.consumes<reco::CaloMETCollection> (parameters.getParameter<edm::InputTag>("MuCorrMETCollectionLabel"));
+  theMuCorrMETCollectionToken   = iC.consumes<reco::CaloMETCollection> (std::string("corMetGlobalMuons"));
   _source                       = parameters.getParameter<std::string>("Source");
 
   // Other data collections
-  HcalNoiseRBXCollectionTag   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  theJetCollectionLabel       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
-  HBHENoiseFilterResultTag    = parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel");
+  HcalNoiseRBXCollectionToken   = iC.consumes<reco::HcalNoiseRBXCollection> (parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection"));
+  theJetCollectionToken         = iC.consumes<reco::CaloJetCollection> (parameters.getParameter<edm::InputTag>("JetCollectionLabel"));
+  HBHENoiseFilterResultToken    = iC.consumes<bool> (parameters.getParameter<edm::InputTag>("HBHENoiseFilterResultLabel"));
 
   // misc
   _verbose     = parameters.getParameter<int>("verbose");
@@ -71,6 +62,16 @@ void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
 
   //
   jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
+
+}
+
+// ***********************************************************
+MuCorrMETAnalyzer::~MuCorrMETAnalyzer() { }
+
+void MuCorrMETAnalyzer::beginJob(DQMStore * dbe) {
+
+  evtCounter = 0;
+  metname = "muonMETAnalyzer";
 
   // DQStore stuff
   LogTrace(metname)<<"[MuCorrMETAnalyzer] Parameters initialization";
@@ -347,7 +348,7 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   // **** Get the MET container  
   edm::Handle<reco::CaloMETCollection> muCorrmetcoll;
-  iEvent.getByLabel("corMetGlobalMuons", muCorrmetcoll);
+  iEvent.getByToken(theMuCorrMETCollectionToken, muCorrmetcoll);
   
   if(!muCorrmetcoll.isValid()) return;
 
@@ -360,7 +361,7 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // ==========================================================
   //
   edm::Handle<HcalNoiseRBXCollection> HRBXCollection;
-  iEvent.getByLabel(HcalNoiseRBXCollectionTag,HRBXCollection);
+  iEvent.getByToken(HcalNoiseRBXCollectionToken,HRBXCollection);
   if (!HRBXCollection.isValid()) {
     LogDebug("") << "MuCorrMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
     if (_verbose) std::cout << "MuCorrMETAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
@@ -368,7 +369,7 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
-  iEvent.getByLabel(HBHENoiseFilterResultTag, HBHENoiseFilterResultHandle);
+  iEvent.getByToken(HBHENoiseFilterResultToken, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
   if (!HBHENoiseFilterResultHandle.isValid()) {
     LogDebug("") << "MuCorrMETAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
@@ -377,7 +378,7 @@ void MuCorrMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "MuCorrMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "MuCorrMETAnalyzer: Could not find jet product" << std::endl;
@@ -584,7 +585,7 @@ bool MuCorrMETAnalyzer::selectHighPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "MuCorrMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "MuCorrMETAnalyzer: Could not find jet product" << std::endl;
@@ -606,7 +607,7 @@ bool MuCorrMETAnalyzer::selectLowPtJetEvent(const edm::Event& iEvent){
   bool return_value=false;
 
   edm::Handle<reco::CaloJetCollection> caloJets;
-  iEvent.getByLabel(theJetCollectionLabel, caloJets);
+  iEvent.getByToken(theJetCollectionToken, caloJets);
   if (!caloJets.isValid()) {
     LogDebug("") << "MuCorrMETAnalyzer: Could not find jet product" << std::endl;
     if (_verbose) std::cout << "MuCorrMETAnalyzer: Could not find jet product" << std::endl;

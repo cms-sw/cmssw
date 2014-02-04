@@ -17,6 +17,7 @@ public:
   /// Construct from  half width (extension in local X),
   /// half length (Y) and half thickness (Z)
   RectangularPlaneBounds( float w, float h, float t);
+  ~RectangularPlaneBounds();
 
   /// Lenght along local Y
   virtual float length()    const { return 2*halfLength;}
@@ -26,11 +27,25 @@ public:
   virtual float thickness() const { return 2*halfThickness;}
 
   // basic bounds function
-  virtual bool inside( const Local2DPoint& p) const;
+  virtual bool inside( const Local2DPoint& p) const {
+    return
+     (std::abs(p.x()) < halfWidth) &
+     (std::abs(p.y()) < halfLength);
+  }
 
-  virtual bool inside( const Local3DPoint& p) const;
+  virtual bool inside( const Local3DPoint& p) const {
+    return
+     (std::abs(p.x()) < halfWidth) &
+     (std::abs(p.y()) < halfLength) &
+     (std::abs(p.z()) < halfThickness);
+  }
 
-  virtual bool inside(const Local2DPoint& p, float tollerance) const;
+
+
+  virtual bool inside(const Local2DPoint& p, float tollerance) const {
+    return (std::abs(p.x()) < (halfWidth  + tollerance) ) &
+           (std::abs(p.y()) < (halfLength + tollerance) );
+  }
 
 
   virtual bool inside( const Local3DPoint& p, const LocalError& err,

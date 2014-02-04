@@ -12,7 +12,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSearchDetWithGroups {
+class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer {
  public:
   PixelForwardLayer(std::vector<const PixelBlade*>& blades);
   ~PixelForwardLayer();
@@ -21,12 +21,12 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
   
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
   
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const;
+			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
   // DetLayer interface
   virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
@@ -34,10 +34,10 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
 
  private:  
   // methods for groupedCompatibleDets implementation
-  int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade) const;
+  static int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade);
 
   struct SubTurbineCrossings {
-    SubTurbineCrossings(): isValid(false){};
+    SubTurbineCrossings(): isValid(false){}
     SubTurbineCrossings( int ci, int ni, float nd) : 
       isValid(true),closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
     
@@ -52,18 +52,18 @@ class PixelForwardLayer GCC11_FINAL : public ForwardDetLayer, public GeometricSe
 			const MeasurementEstimator& est,
 			const SubTurbineCrossings& crossings,
 			float window, 
-			std::vector<DetGroup>& result) const;
+			std::vector<DetGroup>& result) const __attribute__ ((hot));
   
   SubTurbineCrossings 
     computeCrossings( const TrajectoryStateOnSurface& startingState,
-		      PropagationDirection propDir) const;
+		      PropagationDirection propDir) const __attribute__ ((hot));
 
-  float computeWindowSize( const GeomDet* det, 
-			   const TrajectoryStateOnSurface& tsos, 
-			   const MeasurementEstimator& est) const;
+  static  float computeWindowSize( const GeomDet* det, 
+				   const TrajectoryStateOnSurface& tsos, 
+				   const MeasurementEstimator& est);
   
  private:
-  typedef PeriodicBinFinderInPhi<double>   BinFinderType;
+  typedef PeriodicBinFinderInPhi<float>   BinFinderType;
   BinFinderType    theBinFinder;
 
   std::vector<const GeometricSearchDet*> theComps;

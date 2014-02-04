@@ -1,0 +1,8 @@
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="TrackingTools/AnalyticalJacobians"/>
+<use   name="TrackingTools/TrajectoryParametrization"/>
+<use   name="MagneticField/Engine"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="boost"/>
+
+<bin   file="HelixPropagators_t.cpp"/>

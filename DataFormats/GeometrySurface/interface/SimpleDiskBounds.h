@@ -20,7 +20,10 @@ public:
   virtual float width()     const { return 2*theRmax;}
   virtual float thickness() const { return theZmax-theZmin;}
 
-  virtual bool inside( const Local3DPoint& p) const;
+  virtual bool inside( const Local3DPoint& p) const {
+    return  ((p.z() > theZmin) & (p.z() < theZmax)) &&
+    ( (p.perp2() > theRmin*theRmin) & (p.perp2() < theRmax*theRmax) );
+  }
     
   virtual bool inside( const Local3DPoint& p, const LocalError& err, float scale) const;
 
@@ -31,6 +34,9 @@ public:
   /// Extension of the Bounds interface
   float innerRadius() const {return theRmin;}
   float outerRadius() const {return theRmax;}
+
+  float minZ() const { return theZmin;}
+  float        maxZ() const { return theZmax;}
 
 private:
   float theRmin;

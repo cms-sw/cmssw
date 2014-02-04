@@ -11,6 +11,9 @@
 class ForwardDetRing : public GeometricSearchDet {
  public:
 
+  using GeometricSearchDet::GeometricSearchDet;
+
+
   virtual ~ForwardDetRing();
 
   

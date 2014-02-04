@@ -27,7 +27,9 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
-#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaFactory.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "TauAnalysis/MCEmbeddingTools/interface/GenMuonRadiationAlgorithm.h"
 
@@ -78,7 +80,7 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
                            // (used to "place" simulated leptons in a detector region different from reconstructed muons,
                            //  while preserving Z/W-boson momentum and spin effects)
 
-  gen::TauolaInterface* tauola_;
+  gen::TauolaInterfaceBase* tauola_;
   // keep track if TAUOLA interface has already been initialized.
   // Needed to avoid multiple initializations of TAUOLA interface,
   // which makes TAUOLA crash.
@@ -130,6 +132,9 @@ class ParticleReplacerZtautau : public ParticleReplacerBase
   int targetParticle2AbsPdgID_;
 	
   int maxNumberOfAttempts_;
+
+  static CLHEP::HepRandomEngine* decayRandomEngine;
+
 };
 
 #endif
