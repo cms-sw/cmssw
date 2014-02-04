@@ -5,7 +5,7 @@ me0RecHits = cms.EDProducer("ME0RecHitProducer",
 
     ),
     recAlgo = cms.string('ME0RecHitStandardAlgo'),
-    me0DigiLabel = cms.InputTag("muonME0Digis"),
+    me0DigiLabel = cms.InputTag("simMuonME0Digis"),
 )
 
 
