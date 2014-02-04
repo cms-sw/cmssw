@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -16,16 +17,20 @@
 
 namespace edm
 {
-  class CosMuoGenProducer : public one::EDProducer<EndRunProducer> {
+  class CosMuoGenProducer : public one::EDProducer<EndRunProducer, one::WatchLuminosityBlocks> {
   public:
     CosMuoGenProducer(const ParameterSet& );
     virtual ~CosMuoGenProducer();
 
-  private: 
-    virtual void produce(Event & e, const EventSetup& es);
-    
-    virtual void endRunProduce(Run & r, const EventSetup & es);
-    
+  private:
+
+    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override { }
+
+    virtual void produce(Event & e, const EventSetup& es) override;
+
+    virtual void endRunProduce(Run & r, const EventSetup & es) override;
+
     void clear();
     // define the configurable generator parameters
     int32_t      RanS; // seed of random number generator (from Framework)
@@ -80,6 +85,8 @@ namespace edm
     // the event format itself
     HepMC::GenEvent* fEvt;
     bool cmVerbosity_;
+
+    bool isInitialized_;
   };
 } 
 
