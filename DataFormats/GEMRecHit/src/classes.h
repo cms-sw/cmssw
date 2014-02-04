@@ -2,6 +2,8 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0Segment.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace { 
@@ -22,6 +24,11 @@ namespace {
     std::vector<ME0RecHit> vmrh;
     ME0RecHitCollection mc;
     edm::Wrapper<ME0RecHitCollection> mw;
+
+    ME0Segment ms;
+    ME0SegmentCollection seg;    
+    edm::Wrapper<ME0SegmentCollection> dwc1;
+    ME0SegmentRef ref;    
   };
 }
 
