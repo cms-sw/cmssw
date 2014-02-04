@@ -203,8 +203,6 @@ private:
 
   mutable TempTrajectoryContainer work_; // Better here than alloc every time
   enum work_MaxSize_Size_ { work_MaxSize_ = 50 };  // if it grows above this number, it is forced to resize to half this amount when cleared
-  const std::string theInOutFilterName;
-  const bool theUseSameTrajFilter;
 };
 
 #endif

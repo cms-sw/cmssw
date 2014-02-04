@@ -28,7 +28,12 @@
 using namespace std;
 
 CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf):
-  BaseCkfTrajectoryBuilder(conf)
+  CkfTrajectoryBuilder(conf,
+                       BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter")))
+{}
+
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter):
+  BaseCkfTrajectoryBuilder(conf, filter)
 {
   theMaxCand              = conf.getParameter<int>("maxCand");
   theLostHitPenalty       = conf.getParameter<double>("lostHitPenalty");
