@@ -192,7 +192,7 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
 
   // Let's get the channel status quality
   edm::ESHandle<HcalTopology> topo;
-  c.get<IdealGeometryRecord>().get(topo);
+  c.get<HcalRecNumberingRecord>().get(topo);
 
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);

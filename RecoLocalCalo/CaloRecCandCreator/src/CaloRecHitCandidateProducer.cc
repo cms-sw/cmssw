@@ -94,13 +94,13 @@ CaloRecHitCandidateProducer::CaloRecHitCandidateProducer ( const edm::ParameterS
 
 void CaloRecHitCandidateProducer::produce( edm::Event & fEvent, const edm::EventSetup & fSetup) {
   // get geometry
-  //  const IdealGeometryRecord& record = fSetup.template get<IdealGeometryRecord>();
-  const CaloGeometryRecord& caloRecord = fSetup.get<CaloGeometryRecord>();
+
   ESHandle<CaloGeometry> geometry;
-  caloRecord.get (geometry);
-  const IdealGeometryRecord& record = fSetup.get<IdealGeometryRecord>();
+  fSetup.get<CaloGeometryRecord>().get (geometry);
+
   ESHandle<HcalTopology> topology;
-  record.get (topology);
+  fSetup.get<HcalRecNumberingRecord>().get(topology);     
+
   // set Output
   auto_ptr<CandidateCollection> output ( new CandidateCollection );
   // get and process Inputs

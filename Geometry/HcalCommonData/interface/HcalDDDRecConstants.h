@@ -81,6 +81,7 @@ private:
   int                 nEta;       // Number of bins in eta for HB and HE
   std::vector<int>    phiGroup;   // Eta Grouping
   std::vector<double> phibin;     // Phi step for all eta bins
+  std::vector<int>    phiUnitS;   // Phi unit at SIM stage
   std::vector<int>    layerGroup[nEtaMax];
   std::vector<int>    nOff;     // Speical eta bin #'s in barrel and endcap
   std::vector<std::pair<double,double> > gconsHB; // Geometry constatnts HB

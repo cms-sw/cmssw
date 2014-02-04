@@ -183,7 +183,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   //  const CaloSubdetectorTopology* theEETopology   = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
   
   edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<IdealGeometryRecord>().get(htopo);
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
   
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
