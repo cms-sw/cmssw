@@ -11,10 +11,10 @@
  *  implement the minimal P_t cut.
  */
 
-class ChargeSignificanceTrajectoryFilter : public TrajectoryFilter {
+class ChargeSignificanceTrajectoryFilter final : public TrajectoryFilter {
 public:
 
-  explicit ChargeSignificanceTrajectoryFilter( double qsig):  theChargeSignificance(qsig) {}
+  explicit ChargeSignificanceTrajectoryFilter(float qsig):  theChargeSignificance(qsig) {}
 
   explicit ChargeSignificanceTrajectoryFilter( const edm::ParameterSet & pset):
     theChargeSignificance(pset.getParameter<double>("chargeSignificance")) {}
@@ -33,37 +33,40 @@ protected:
     const typename T::DataContainer & tms = traj.measurements();
     // Check flip in q-significance. The loop over all TMs could be 
     // avoided by storing the current significant q in the trajectory
-    if ( theChargeSignificance>0. ) {
-      int qSig(0);
+
+    if ( theChargeSignificance>0. ) {      
+
+      float qSig = 0;
+
       // skip first two hits (don't rely on significance of q/p)
       for( typename T::DataContainer::size_type itm=2; itm<tms.size(); ++itm ) {
-	TrajectoryStateOnSurface tsos = tms[itm].updatedState();
+	TrajectoryStateOnSurface const & tsos = tms[itm].updatedState();
 	if ( !tsos.isValid() )  continue;
-	double significance = tsos.localParameters().vector()(0) /
-	  sqrt(tsos.localError().matrix()(0,0));
+
+        auto significance = tsos.localParameters().vector()(0) /
+	  std::sqrt(float(tsos.localError().matrix()(0,0)));
+
 	// don't deal with measurements compatible with 0
-	if ( fabs(significance)<theChargeSignificance )  continue;
+	if ( std::abs(significance)<theChargeSignificance )  continue;
+
 	//
 	// if charge not yet defined: store first significant Q
 	//
-	if ( qSig==0 ) {
-	  qSig = significance>0 ? 1 : -1;
-	}
+	if ( qSig==0 ) qSig = significance;
+    
 	//
-	// else: invalidate and terminate in case of a change of sign
+	//  invalidate and terminate in case of a change of sign
 	//
-	else {
-	  if ( (significance<0.&&qSig>0) || (significance>0.&&qSig<0) ) {
+	if (significance*qSig<0) {
 	    traj.invalidate();
 	    return false;
-	  }
 	}
       }
     }
     return true;
   }
 
-  double theChargeSignificance;
+  float theChargeSignificance;
 
 };
 

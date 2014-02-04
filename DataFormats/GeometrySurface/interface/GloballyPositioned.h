@@ -59,6 +59,14 @@ public:
     ToLocal(GloballyPositioned const & frame) :
       thePos(frame.position()), theRot(frame.rotation().transposed()){}
     
+    LocalPoint operator()(const GlobalPoint& gp) const {
+         return toLocal(gp);
+    }
+
+    LocalVector operator()(const GlobalVector& gv) const {
+       	 return	toLocal(gv);
+    }
+
     LocalPoint toLocal( const GlobalPoint& gp) const {
       return LocalPoint( theRot.multiplyInverse( gp.basicVector() -
 			 thePos.basicVector()) 
@@ -69,7 +77,7 @@ public:
       return LocalVector(theRot.multiplyInverse(gv.basicVector()));
     } 
     
-  private:
+  // private:
     PositionType  thePos;
     RotationType  theRot;
     

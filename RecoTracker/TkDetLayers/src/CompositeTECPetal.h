@@ -3,8 +3,11 @@
 
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "TECPetal.h"
+
 #include "TECWedge.h"
+
+#include "BoundDiskSector.h"
+
 #include "SubLayerCrossings.h"
 
 #include "FWCore/Utilities/interface/Visibility.h"
@@ -14,37 +17,46 @@
  */
 
 #pragma GCC visibility push(hidden)
-class CompositeTECPetal GCC11_FINAL : public TECPetal{
+class CompositeTECPetal GCC11_FINAL : public GeometricSearchDet {
  public:
   struct WedgePar { float theR, thetaMin, thetaMax;};
 
   CompositeTECPetal(std::vector<const TECWedge*>& innerWedges,
-		    std::vector<const TECWedge*>& outerWedges);
+		    std::vector<const TECWedge*>& outerWedges)  __attribute__ ((cold));
   
-  ~CompositeTECPetal();
+  ~CompositeTECPetal()  __attribute__ ((cold));
+
+  // GeometricSearchDet interface  
+  virtual const BoundSurface& surface() const final {return *theDiskSector;}
+  //Extension of the interface
+  virtual const BoundDiskSector& specificSurface() const final {return *theDiskSector;}
+
+
   
   // GeometricSearchDet interface  
   virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
   
-  virtual const std::vector<const GeometricSearchDet*>& components() const {return theComps;}
+  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
   
   virtual std::pair<bool, TrajectoryStateOnSurface>
     compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-		const MeasurementEstimator&) const;
+		const MeasurementEstimator&) const __attribute__((cold));
   
   virtual void
     groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
 			    const Propagator& prop,
 			    const MeasurementEstimator& est,
-			    std::vector<DetGroup> & result) const;
+			    std::vector<DetGroup> & result) const __attribute__ ((hot));
   
   
  private:
-  
-  
+
+  ReferenceCountingPointer<BoundDiskSector> theDiskSector;
+
+    
   // private methods for the implementation of groupedCompatibleDets()
   SubLayerCrossings computeCrossings(const TrajectoryStateOnSurface& tsos,
-				     PropagationDirection propDir) const dso_internal;
+				     PropagationDirection propDir) const  __attribute__ ((hot)) dso_internal;
   
   
   
@@ -52,7 +64,7 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 		   const Propagator& prop,
 		   const MeasurementEstimator& est,
 		   const SubLayerCrossing& crossing,
-		   std::vector<DetGroup>& result) const dso_internal;
+		   std::vector<DetGroup>& result) const __attribute__ ((hot)) dso_internal;
   
   void searchNeighbors( const TrajectoryStateOnSurface& tsos,
 			const Propagator& prop,
@@ -60,13 +72,13 @@ class CompositeTECPetal GCC11_FINAL : public TECPetal{
 			const SubLayerCrossing& crossing,
 			float window, 
 			std::vector<DetGroup>& result,
-			bool checkClosest) const dso_internal;
+			bool checkClosest) const __attribute__ ((hot)) dso_internal;
   
   
   static
     float computeWindowSize( const GeomDet* det, 
 			     const TrajectoryStateOnSurface& tsos, 
-			     const MeasurementEstimator& est) dso_internal;
+			     const MeasurementEstimator& est)  __attribute__ ((hot)) dso_internal;
   
   int findBin( float R,int layer) const dso_internal;
   

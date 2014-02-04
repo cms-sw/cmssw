@@ -23,7 +23,7 @@
 class BarrelDetLayer : public DetLayer {
  public:
 
-  BarrelDetLayer() : DetLayer(true),
+  BarrelDetLayer(bool doHaveGroup) : DetLayer(doHaveGroup,true),
     theCylinder(0){}
   
   virtual ~BarrelDetLayer();
@@ -47,11 +47,13 @@ class BarrelDetLayer : public DetLayer {
 
 
 protected:
-  void setSurface( BoundCylinder* cp);
 
   virtual void initialize();
 
+  void setSurface( BoundCylinder* cp);
   virtual BoundCylinder* computeSurface();
+
+  SimpleCylinderBounds const & bounds() const { return static_cast<SimpleCylinderBounds const &>(theCylinder->bounds());} 
 
 
 private:
