@@ -208,7 +208,7 @@ RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     const DetLayer* REP3L = RPCEndcapLayers[5];
 
     // Get RPC recHits by MuonDetLayerMeasurements, while CSC and DT is set to false and with empty InputTag
-    MuonDetLayerMeasurements muonMeasurements(edm::InputTag(), edm::InputTag(), theRPCRecHits, false, false, true);
+    MuonDetLayerMeasurements muonMeasurements(edm::InputTag(), edm::InputTag(), theRPCRecHits, edm::InputTag(), false, false, true, false);
 
     // Dispatch RPC recHits to the corresponding DetLayer, 6 layers for barrel and 3 layers for each endcap
     MuonRecHitContainer recHitsRPC[RPCLayerNumber];
