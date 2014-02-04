@@ -10,7 +10,7 @@ namespace l1t {
   class CaloRegion : public L1Candidate {
     
   public:
-    CaloRegion(){}
+    CaloRegion():etEm_(0.),etHad_(0.),hwEtEm_(0),hwEtHad_(0){}
     CaloRegion( const LorentzVector& p4,
 	   double etEm=0.,
 	   double etHad=0.,
@@ -28,10 +28,10 @@ namespace l1t {
     void setHwEtEm( int et );
     void setHwEtHad( int et );
 
-    double etEm();
-    double etHad();
-    int hwEtEm();
-    int hwEtHad();
+    double etEm()const;
+    double etHad()const;
+    int hwEtEm()const;
+    int hwEtHad()const;
 
   private:
     
