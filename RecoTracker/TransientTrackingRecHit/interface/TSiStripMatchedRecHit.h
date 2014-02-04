@@ -3,12 +3,13 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include<memory>
 
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+class SiStripRecHitMatcher;
+class StripClusterParameterEstimator;
 
 class TSiStripMatchedRecHit GCC11_FINAL : public GenericTransientTrackingRecHit{
 public:

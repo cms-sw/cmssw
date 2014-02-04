@@ -186,6 +186,64 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, const 
 
 
 
+std::tuple<TkStripRecHitIter,TkStripRecHitIter>
+TkStripMeasurementDet::hitRange( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data) const
+{
+  if (isEmpty(data.stripData()) || !isActive(data)) return std::tuple<TkStripRecHitIter,TkStripRecHitIter>();
+   if(!isRegional()){//old implemetation with DetSet
+     const detset & detSet = data.stripData().detSet(index()); 
+     return std::make_tuple(TkStripRecHitIter(detSet.begin(),detSet.end(),*this,ts,data),
+			    TkStripRecHitIter(detSet.end(),detSet.end(),*this,ts,data)
+			    );
+   } else {
+     unsigned int ci = beginClusterI(data.stripData()), ce = endClusterI(data.stripData());
+     return std::make_tuple(TkStripRecHitIter(ci,ce,*this,ts,data),
+			    TkStripRecHitIter(ce,ce,*this,ts,data)
+			    );
+ 
+   }
+}
+
+void TkStripMeasurementDet::advance(TkStripRecHitIter & hi ) const {
+  if(!isRegional()){
+    while (!hi.empty()) {
+      auto ci = hi.clusterI;
+      auto const & data = *hi.data;
+      if (isMasked(*ci)) continue;
+      SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
+      if (accept(cluster, data.stripClustersToSkip())) return;
+      ++hi.clusterI;
+    }
+  } else {
+    while (!hi.empty()) {
+      auto ci = hi.clusterIreg;
+      auto const & data = *hi.data;
+      SiStripRegionalClusterRef cluster = edm::makeRefToLazyGetter(data.stripData().regionalHandle(),ci);
+      if (isMasked(*cluster)) continue;
+      if (accept(cluster, data.stripClustersToSkip())) return;
+      ++hi.clusterIreg;
+    }
+  }
+}
+
+SiStripRecHit2D TkStripMeasurementDet::hit(TkStripRecHitIter const & hi ) const {
+  const GeomDetUnit& gdu( specificGeomDet());
+  auto ci = hi.clusterI;
+  auto ciR = hi.clusterIreg;
+  auto const & data = *hi.data;
+  auto const & ltp = *hi.tsos;
+  
+  if(!isRegional()){
+    SiStripClusterRef  cluster = edmNew::makeRefTo( data.stripData().handle(), ci ); 
+    LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
+    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), cluster);
+  } else {
+    SiStripRegionalClusterRef cluster = edm::makeRefToLazyGetter(data.stripData().regionalHandle(),ciR);
+    LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
+    return SiStripRecHit2D(lv.first,lv.second, TSiStripRecHit2DLocalPos::sigmaPitch(lv.first, lv.second,gdu), rawId(), cluster);
+  } 
+}
+
 bool
 TkStripMeasurementDet::testStrips(float utraj, float uerr) const {
     int16_t start = (int16_t) std::max<float>(utraj - 3.f*uerr, 0);

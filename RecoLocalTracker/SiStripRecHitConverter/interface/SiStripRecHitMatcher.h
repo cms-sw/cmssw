@@ -47,41 +47,21 @@ public:
 		   CollectorHelper & collectorHelper) const;
   
   
-  
+ //match a single hit
   SiStripMatchedRecHit2D * match(const SiStripRecHit2D *monoRH, 
 				 const SiStripRecHit2D *stereoRH,
 				 const GluedGeomDet* gluedDet,
 				 LocalVector trackdirection) const;
+
   
-  SiStripMatchedRecHit2D*  match(const SiStripMatchedRecHit2D *originalRH, 
-				 const GluedGeomDet* gluedDet,
-				 LocalVector trackdirection) const;
-  
-  edm::OwnVector<SiStripMatchedRecHit2D> 
-  match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator begin, RecHitIterator end, 
-	 const GluedGeomDet* gluedDet) const {
-    return match(monoRH,begin, end, gluedDet,LocalVector(0.,0.,0.));
-  }
-  
-  edm::OwnVector<SiStripMatchedRecHit2D> 
-  match( const SiStripRecHit2D *monoRH,
-	 RecHitIterator begin, RecHitIterator end,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  edm::OwnVector<SiStripMatchedRecHit2D> 
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
+// this is the one used by the RecHitConverter
   void
   match( const SiStripRecHit2D *monoRH,
 	 RecHitIterator begin, RecHitIterator end,
 	 CollectorMatched & collector,
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
+
   
   void
   match( const SiStripRecHit2D *monoRH,
@@ -98,27 +78,17 @@ public:
   StripPosition project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection) const;
   
   
-  //private:
-  
-  
-  void
-  match( const SiStripRecHit2D *monoRH,
-	 SimpleHitIterator begin, SimpleHitIterator end,
-	 edm::OwnVector<SiStripMatchedRecHit2D> & collector, 
-	 const GluedGeomDet* gluedDet,
-	 LocalVector trackdirection) const;
-  
-  
+
   void
   match( const SiStripRecHit2D *monoRH,
 	 SimpleHitIterator begin, SimpleHitIterator end,
 	 std::vector<SiStripMatchedRecHit2D*> & collector, 
 	 const GluedGeomDet* gluedDet,
 	 LocalVector trackdirection) const;
-  
+   
+ 
   
   /// the actual implementation
-  
   void
   match( const SiStripRecHit2D *monoRH,
 	 SimpleHitIterator begin, SimpleHitIterator end,
@@ -172,7 +142,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
   
   // hits in both mono and stero
   // match
-  bool notk = trdir.mag2()<FLT_MIN;
+  bool notk = trdir.mag2()<float(FLT_MIN);
   // FIXME we shall find a faster approximation for trdir: not useful to compute it each time for each strip
   
   // stripdet = mono
@@ -198,19 +168,11 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     const SiStripRecHit2D & secondHit = CollectorHelper::stereoHit(seconditer);
     
     float sigmap22 =secondHit.sigmaPitch();
-    if (sigmap22<0) {
-      LocalError tmpError( secondHit.localPositionErrorFast());
-      HelpertRecHit2DLocalPos::updateWithAPE(tmpError, *partnerstripdet);
-      MeasurementError errorstereoRH=partnertopol.measurementError(secondHit.localPositionFast(),tmpError);
-      
-      double pitch=partnertopol.localPitch(secondHit.localPositionFast());
-      secondHit.setSigmaPitch(sigmap22=errorstereoRH.uu()*pitch*pitch);
-    }
+    // assert (sigmap22>=0);
     
-    
-    double STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
-    MeasurementPoint STEREOpointini(STEREOpointX,-0.5);
-    MeasurementPoint STEREOpointend(STEREOpointX,0.5);
+    auto STEREOpointX=partnertopol.measurementPosition( secondHit.localPositionFast()).x();
+    MeasurementPoint STEREOpointini(STEREOpointX,-0.5f);
+    MeasurementPoint STEREOpointend(STEREOpointX,0.5f);
     
     LocalPoint locp1 = partnertopol.localPosition(STEREOpointini);
     LocalPoint locp2 = partnertopol.localPosition(STEREOpointend);
@@ -255,9 +217,9 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     SiStripRecHit2D const & monoRH = CollectorHelper::monoHit(monoRHiter);
     
     // position of the initial and final point of the strip (RPHI cluster) in local strip coordinates
-    double RPHIpointX = topol.measurementPosition(monoRH.localPositionFast()).x();
-    MeasurementPoint RPHIpointini(RPHIpointX,-0.5);
-    MeasurementPoint RPHIpointend(RPHIpointX,0.5);
+    auto RPHIpointX = topol.measurementPosition(monoRH.localPositionFast()).x();
+    MeasurementPoint RPHIpointini(RPHIpointX,-0.5f);
+    MeasurementPoint RPHIpointend(RPHIpointX,0.5f);
     
     // position of the initial and final point of the strip in local coordinates (mono det)
     //StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
@@ -308,15 +270,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
     
     // FIXME: here for test...
     float sigmap12 = monoRH.sigmaPitch();
-    if (sigmap12<0) {
-      
-      LocalError tmpError(monoRH.localPositionErrorFast());
-      HelpertRecHit2DLocalPos::updateWithAPE(tmpError,*stripdet);
-      MeasurementError errormonoRH=topol.measurementError(monoRH.localPositionFast(),tmpError);
-      
-      double pitch=topol.localPitch(monoRH.localPositionFast());
-      monoRH.setSigmaPitch(sigmap12=errormonoRH.uu()*pitch*pitch);
-    }
+    // assert(sigmap12>=0); 
 
     //float code
     float fc1(c1), fs1(s1);

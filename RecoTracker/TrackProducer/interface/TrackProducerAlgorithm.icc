@@ -23,6 +23,8 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit5DParamConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"

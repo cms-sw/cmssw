@@ -20,10 +20,6 @@ TSiStripRecHit2DLocalPos::clone (const TrajectoryStateOnSurface& ts) const
   else return clone();
 }
 
-const GeomDetUnit* TSiStripRecHit2DLocalPos::detUnit() const
-{
-  return static_cast<const GeomDetUnit*>(det());
-}
 
 TransientTrackingRecHit::ConstRecHitContainer 	
 TSiStripRecHit2DLocalPos::transientHits () const {
