@@ -102,8 +102,12 @@ bool FedRawDataInputSource::checkNextEvent()
       closeCurrentFile();
       return false;
     }
+    case evf::EvFDaqDirector::noFile: {
+      edm::LogInfo("FedRawDataInputSource") << "No rawdata files at this time";
+      return true;
+    }
     case evf::EvFDaqDirector::newLumi: {
-      edm::LogInfo("FedRawDataInputSource") << "No Event files at this time, but a new lumisection was detected : " << currentLumiSection_;
+      edm::LogInfo("FedRawDataInputSource") << "New lumisection was detected: " << currentLumiSection_;
       return true;
     }
     default: {
@@ -153,19 +157,21 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
         edm::Timestamp::invalidTimestamp());
 
     setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
-
-    edm::LogInfo("FedRawDataInputSource") << "New lumi section " << lumiSection << " opened";
   }
 }
 
 evf::EvFDaqDirector::FileStatus FedRawDataInputSource::cacheNextEvent()
 {
-  //return values or cachenext -1 :== run ended, 0:== LS ended, 1 :== cache good
-  if ( bufferLeft_ < (4 + 1024) * sizeof(uint32) ) //minimal size to fit any version of FRDEventHeader
+  const size_t headerSize = (4 + 1024) * sizeof(uint32); //minimal size to fit any version of FRDEventHeader
+  if ( bufferLeft_ < headerSize )
   {
     const evf::EvFDaqDirector::FileStatus status = readNextChunkIntoBuffer();
-    if ( status == evf::EvFDaqDirector::newLumi || status == evf::EvFDaqDirector::runEnded )
-      return status;
+    if ( bufferLeft_ == 0 ) return status;
+    if ( bufferLeft_ < headerSize )
+    {
+      throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
+        "Premature end of input file while reading event header";
+    }
   }
   event_.reset( new FRDEventMsgView(bufferCursor_) );
 
@@ -204,8 +210,9 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::readNextChunkIntoBuffer()
   if (bufferLeft_ == 0) { //in the rare case the last byte barely fit
     for (unsigned int i=0;i<readBlocks_;i++)
     {
-      const uint32_t last = ::read(fileDescriptor_,( void*) (dataBuffer_+bufferLeft_), eventChunkBlock_);
-      bufferLeft_+=last;
+      const ssize_t last = ::read(fileDescriptor_,( void*) (dataBuffer_+bufferLeft_), eventChunkBlock_);
+      if ( last > 0 )
+        bufferLeft_+=last;
     }
   }
   else {
@@ -215,12 +222,14 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::readNextChunkIntoBuffer()
     memcpy((void*) dataBuffer_, bufferCursor_, bufferLeft_);
 
     for (uint32_t i=0;i<blockcount;i++) {
-      const uint32_t last = ::read(fileDescriptor_,( void*) (dataBuffer_+bufferLeft_), eventChunkBlock_);
-      bufferLeft_ += last;
+      const ssize_t last = ::read(fileDescriptor_,( void*) (dataBuffer_+bufferLeft_), eventChunkBlock_);
+      if ( last > 0 )
+        bufferLeft_ += last;
     }
     if (leftsize) {
-      const uint32_t last = ::read(fileDescriptor_,( void*)( dataBuffer_+bufferLeft_), leftsize);
-      bufferLeft_+=last;
+      const ssize_t last = ::read(fileDescriptor_,( void*)( dataBuffer_+bufferLeft_), leftsize);
+      if ( last > 0 )
+        bufferLeft_+=last;
     }
   }
 
@@ -347,29 +356,20 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::searchForNextFile()
 
   evf::EvFDaqDirector::FileStatus status =
     edm::Service<evf::EvFDaqDirector>()->updateFuLock(ls,nextFile);
-  switch (status) {
-    case evf::EvFDaqDirector::newFile: {
-      edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
+  if ( status == evf::EvFDaqDirector::newFile ) {
+    edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
 
-      if (fms_) fms_->stoppedLookingForFile(ls);
+    if (fms_) fms_->stoppedLookingForFile(ls);
 
-      boost::filesystem::path jsonFile(nextFile);
-      jsonFile.replace_extension(".jsn");
-      assert( grabNextJsonFile(jsonFile) );
-      openDataFile(nextFile);
-      break;
-    }
-    case evf::EvFDaqDirector::noFile: {
-      edm::LogInfo("FedRawDataInputSource") << "The DAQ Director has nothing for me! ";
-      break;
-    }
-    default: {}
+    boost::filesystem::path jsonFile(nextFile);
+    jsonFile.replace_extension(".jsn");
+    assert( grabNextJsonFile(jsonFile) );
+    openDataFile(nextFile);
   }
   while( getLSFromFilename_ && ls > currentLumiSection_ ) {
     maybeOpenNewLumiSection(ls);
     status = evf::EvFDaqDirector::newLumi;
   }
-  // REMI: shouldn't the following 2 lines be inside the while loop?
   if (fms_) fms_->reportEventsThisLumiInSource(ls,eventsThisLumi_);
   eventsThisLumi_=0;
 
