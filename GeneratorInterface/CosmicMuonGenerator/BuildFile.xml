@@ -1,5 +1,6 @@
 <use   name="boost"/>
 <use   name="FWCore/Framework"/>
+<use   name="FWCore/ServiceRegistry"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="GeneratorInterface/Core"/>
 <use   name="clhep"/>

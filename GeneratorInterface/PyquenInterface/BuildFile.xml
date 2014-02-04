@@ -1,4 +1,5 @@
 <use   name="boost"/>
+<use   name="FWCore/Concurrency"/>
 <use   name="FWCore/Framework"/>
 <use   name="GeneratorInterface/Core"/>
 <use   name="GeneratorInterface/HiGenCommon"/>

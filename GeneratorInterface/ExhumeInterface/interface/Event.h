@@ -20,6 +20,12 @@ namespace Exhume{
     
     Event(CrossSection&, CLHEP::HepRandomEngine*);
     ~Event();
+
+    inline void SetRandomEngine(CLHEP::HepRandomEngine* engine){
+      randomEngine = engine;
+      Process->SetRandomEngine(engine);
+    }
+
     void Generate();
     inline void Setx1Max(const double &xx_){
       x1Max = xx_;

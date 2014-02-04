@@ -1,14 +1,12 @@
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
+#include "GeneratorInterface/Core/interface/FortranInstance.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaFactory.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "HepMC/GenEvent.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
@@ -23,8 +21,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
      fEvtGenInterface(0),
      fPhotosInterface(0)
 {
-    
-  std::vector<std::string> extGenNames =
+    std::vector<std::string> extGenNames =
     pset.getParameter< std::vector<std::string> >("parameterSets");
   
   for (unsigned int ip=0; ip<extGenNames.size(); ++ip ){
@@ -33,6 +30,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGenLHC91", pset.getUntrackedParameter< ParameterSet >(curSet)));
       exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
       exSharedResources.emplace_back(edm::SharedResourceNames::kPythia6);
+      exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
     }
     else if ( curSet == "Tauola" || curSet == "Tauolapp113a" ){
       // this is for old tauola27 (+pretauola)
