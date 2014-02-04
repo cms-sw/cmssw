@@ -31,7 +31,7 @@
 // base class
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtCondition.h"
+#include "CondFormats/L1TObjects/interface/L1uGtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -132,13 +132,13 @@ void l1t::L1uGtTriggerMenuXmlParser::setGtScaleDbKey(const std::string& scaleKey
 
 // set the vectors containing the conditions
 void l1t::L1uGtTriggerMenuXmlParser::setVecMuonTemplate(
-        const std::vector<std::vector<L1GtMuonTemplate> >& vecMuonTempl) {
+        const std::vector<std::vector<L1uGtMuonTemplate> >& vecMuonTempl) {
 
     m_vecMuonTemplate = vecMuonTempl;
 }
 
 void l1t::L1uGtTriggerMenuXmlParser::setVecCaloTemplate(
-        const std::vector<std::vector<L1GtCaloTemplate> >& vecCaloTempl) {
+        const std::vector<std::vector<L1uGtCaloTemplate> >& vecCaloTempl) {
 
     m_vecCaloTemplate = vecCaloTempl;
 }
@@ -186,7 +186,7 @@ void l1t::L1uGtTriggerMenuXmlParser::setVecExternalTemplate(
 }
 
 void l1t::L1uGtTriggerMenuXmlParser::setVecCorrelationTemplate(
-        const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTempl) {
+        const std::vector<std::vector<L1uGtCorrelationTemplate> >& vecCorrelationTempl) {
 
     m_vecCorrelationTemplate = vecCorrelationTempl;
 }
@@ -194,13 +194,13 @@ void l1t::L1uGtTriggerMenuXmlParser::setVecCorrelationTemplate(
 // set the vectors containing the conditions for correlation templates
 //
 void l1t::L1uGtTriggerMenuXmlParser::setCorMuonTemplate(
-        const std::vector<std::vector<L1GtMuonTemplate> >& corMuonTempl) {
+        const std::vector<std::vector<L1uGtMuonTemplate> >& corMuonTempl) {
 
     m_corMuonTemplate = corMuonTempl;
 }
 
 void l1t::L1uGtTriggerMenuXmlParser::setCorCaloTemplate(
-        const std::vector<std::vector<L1GtCaloTemplate> >& corCaloTempl) {
+        const std::vector<std::vector<L1uGtCaloTemplate> >& corCaloTempl) {
 
     m_corCaloTemplate = corCaloTempl;
 }
@@ -988,20 +988,20 @@ void l1t::L1uGtTriggerMenuXmlParser::clearMaps() {
     for (std::vector<ConditionMap>::iterator itCondOnChip = m_conditionMap.begin(); itCondOnChip
         != m_conditionMap.end(); itCondOnChip++) {
 
-        // the conditions in the maps are deleted in L1GtTriggerMenu, not here
+        // the conditions in the maps are deleted in L1uGtTriggerMenu, not here
 
         itCondOnChip->clear();
 
     }
 
-    // the algorithms in the maps are deleted in L1GtTriggerMenu, not here
+    // the algorithms in the maps are deleted in L1uGtTriggerMenu, not here
     m_algorithmMap.clear();
 
 }
 
 // insertConditionIntoMap - safe insert of condition into condition map.
 // if the condition name already exists, do not insert it and return false
-bool l1t::L1uGtTriggerMenuXmlParser::insertConditionIntoMap(L1GtCondition& cond, const int chipNr) {
+bool l1t::L1uGtTriggerMenuXmlParser::insertConditionIntoMap(L1uGtCondition& cond, const int chipNr) {
 
     std::string cName = cond.condName();
     //LogTrace("L1uGtTriggerMenuXmlParser")
@@ -1184,33 +1184,33 @@ bool l1t::L1uGtTriggerMenuXmlParser::insertTechTriggerIntoMap(const L1GtAlgorith
 
 // get the type of the condition, as defined in enum, from the condition type
 // as defined in the XML file
-L1GtConditionType l1t::L1uGtTriggerMenuXmlParser::getTypeFromType(const std::string& type) {
+l1t::L1uGtConditionType l1t::L1uGtTriggerMenuXmlParser::getTypeFromType(const std::string& type) {
 
     if (type == m_xmlConditionAttrType1s) {
-        return Type1s;
+        return l1t::Type1s;
     }
 
     if (type == m_xmlConditionAttrType2s) {
-        return Type2s;
+        return l1t::Type2s;
     }
 
     if (type == m_xmlConditionAttrType3s) {
-        return Type3s;
+        return l1t::Type3s;
     }
 
     if (type == m_xmlConditionAttrType4s) {
-        return Type4s;
+        return l1t::Type4s;
     }
 
     if (type == m_xmlConditionAttrType2wsc) {
-        return Type2wsc;
+        return l1t::Type2wsc;
     }
 
     if (type == m_xmlConditionAttrType2cor) {
-        return Type2cor;
+        return l1t::Type2cor;
     }
 
-    return TypeNull;
+    return l1t::TypeNull;
 }
 
 /**
@@ -1501,6 +1501,13 @@ std::string l1t::L1uGtTriggerMenuXmlParser::l1t2string( l1t::Threshold data ){
   ss << data;
   return ss.str();
 }
+int l1t::L1uGtTriggerMenuXmlParser::l1t2int( l1t::RelativeBx data ){
+  std::stringstream ss;
+  ss << data;
+  int value;
+  ss >> value;
+  return value;
+}
 
 
 
@@ -1567,8 +1574,8 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 //     // get values
 
     // temporary storage of the parameters
-    std::vector<L1GtMuonTemplate::ObjectParameter> objParameter(nrObj);
-    L1GtMuonTemplate::CorrelationParameter corrParameter;
+    std::vector<L1uGtMuonTemplate::ObjectParameter> objParameter(nrObj);
+    L1uGtMuonTemplate::CorrelationParameter corrParameter;
 
     // need at least two values for deltaPhi
     std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
@@ -1767,14 +1774,14 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
     // get the type of the condition, as defined in enum, from the condition type
     // as defined in the XML file
-    L1GtConditionType cType = getTypeFromType(type);
+    L1uGtConditionType cType = getTypeFromType(type);
     //LogTrace("L1uGtTriggerMenuXmlParser")
     //<< "      Condition type (enum value) = " << cType
     //<< std::endl;
 
-    if (cType == TypeNull) {
+    if (cType == l1t::TypeNull) {
         edm::LogError("L1uGtTriggerMenuXmlParser")
-            << "Type for muon condition id TypeNull - it means not defined in the XML file."
+            << "Type for muon condition id l1t::TypeNull - it means not defined in the XML file."
             << "\nNumber of trigger objects is set to zero. " << std::endl;
         return false;
     }
@@ -1782,14 +1789,21 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     // object types - all muons
     std::vector<L1GtObject> objType(nrObj, Mu);
 
+    //////
+
+    int relativeBx = l1t2int( condMu.relativeBx() );
+    std::cout << "\t mu relativeBx = " << relativeBx << std::endl;
+
+    //////
     // now create a new CondMuonition
 
-    L1GtMuonTemplate muonCond(name);
+    L1uGtMuonTemplate muonCond(name);
 
     muonCond.setCondType(cType);
     muonCond.setObjectType(objType);
     muonCond.setCondGEq(gEq);
     muonCond.setCondChipNr(chipNr);
+    muonCond.setCondRelativeBx(chipNr);
 
     muonCond.setConditionParameter(objParameter, corrParameter);
 
@@ -1906,8 +1920,8 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
     // get values
 
     // temporary storage of the parameters
-    std::vector<L1GtCaloTemplate::ObjectParameter> objParameter(nrObj);
-    L1GtCaloTemplate::CorrelationParameter corrParameter;
+    std::vector<L1uGtCaloTemplate::ObjectParameter> objParameter(nrObj);
+    L1uGtCaloTemplate::CorrelationParameter corrParameter;
 
     // need at least one value for deltaPhiRange
     std::vector<boost::uint64_t> tmpValues((nrObj > 1) ? nrObj : 1);
@@ -2035,7 +2049,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
 	return false;
       }
       if( tempUIntH != 0 ){
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Too large hex-value!" << std::endl;
+        edm::LogError("L1uGtTriggerMenuXmlParser") << "Too large hex-value!" << std::endl;
         return false;
       }
       corrParameter.deltaEtaRange = tempUIntL;
@@ -2046,7 +2060,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
 	return false;
       }
       if( tempUIntH != 0 ){
-        edm::LogError("L1GtTriggerMenuXmlParser") << "Too large hex-value!" << std::endl;
+        edm::LogError("L1uGtTriggerMenuXmlParser") << "Too large hex-value!" << std::endl;
         return false;
       }
       corrParameter.deltaPhiRange = tempUIntL;
@@ -2072,14 +2086,14 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
 
     // get the type of the condition, as defined in enum, from the condition type
     // as defined in the XML file
-    L1GtConditionType cType = getTypeFromType(type);
+    L1uGtConditionType cType = getTypeFromType(type);
     LogTrace("L1uGtTriggerMenuXmlParser")
       << "      Condition type (enum value) = " << cType
       << std::endl;
 
-    if (cType == TypeNull) {
+    if (cType == l1t::TypeNull) {
         edm::LogError("L1uGtTriggerMenuXmlParser")
-            << "Type for calo condition id TypeNull - it means not defined in the XML file."
+            << "Type for calo condition id l1t::TypeNull - it means not defined in the XML file."
             << "\nNumber of trigger objects is set to zero. " << std::endl;
         return false;
     }
@@ -2087,14 +2101,17 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCal
     // object types - all same caloObjType
     std::vector<L1GtObject> objType(nrObj, caloObjType);
 
-    // now create a new calo condition
 
-    L1GtCaloTemplate caloCond(name);
+    int relativeBx = l1t2int( condCalo.relativeBx() );
+
+    // now create a new calo condition
+    L1uGtCaloTemplate caloCond(name);
 
     caloCond.setCondType(cType);
     caloCond.setObjectType(objType);
     caloCond.setCondGEq(gEq);
     caloCond.setCondChipNr(chipNr);
+    caloCond.setCondRelativeBx(relativeBx);
 
     caloCond.setConditionParameter(objParameter, corrParameter);
 
@@ -2154,6 +2171,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseEnergySum(
 
     XERCES_CPP_NAMESPACE_USE
 
+      /*
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
@@ -2161,7 +2179,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseEnergySum(
 
     // determine object type type
     L1GtObject energySumObjType;
-    L1GtConditionType cType;
+    L1uGtConditionType cType;
 
     if ((particle == m_xmlConditionAttrObjectETM) && (type == m_xmlConditionAttrObjectETM)) {
 
@@ -2339,7 +2357,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseEnergySum(
         }
 
     }
-
+      */
 
     //
     return true;
@@ -2362,6 +2380,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNod
 
     XERCES_CPP_NAMESPACE_USE
 
+      /*
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
@@ -2375,7 +2394,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNod
 
     // object type and condition type
     L1GtObject jetCountsObjType = JetCounts;
-    L1GtConditionType cType = TypeJetCounts;
+    L1uGtConditionType cType = TypeJetCounts;
 
     // global object
     int nrObj = 1;
@@ -2513,7 +2532,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNod
 
     }
 
-
+      */
     //
     return true;
 }
@@ -2535,6 +2554,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* 
 
     XERCES_CPP_NAMESPACE_USE
 
+      /*
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
@@ -2549,7 +2569,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* 
 
     // object type and condition type
     // object type - irrelevant for CASTOR conditions
-    L1GtConditionType cType = TypeCastor;
+    L1uGtConditionType cType = TypeCastor;
 
     // no objects for CASTOR conditions
 
@@ -2586,7 +2606,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCastor(XERCES_CPP_NAMESPACE::DOMNode* 
         (m_vecCastorTemplate[chipNr]).push_back(castorCond);
 
     }
-
+      */
 
     //
     return true;
@@ -2610,6 +2630,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMN
 
     XERCES_CPP_NAMESPACE_USE
 
+      /*
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
@@ -2623,7 +2644,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMN
 
     // object type and condition type
     L1GtObject hfBitCountsObjType = HfBitCounts;
-    L1GtConditionType cType = TypeHfBitCounts;
+    L1uGtConditionType cType = TypeHfBitCounts;
 
     // global object
     int nrObj = 1;
@@ -2719,7 +2740,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMN
 
     }
 
-
+      */
     //
     return true;
 }
@@ -2742,6 +2763,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOM
 
     XERCES_CPP_NAMESPACE_USE
 
+      /*
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
@@ -2755,7 +2777,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOM
 
     // object type and condition type
     L1GtObject hfRingEtSumsObjType = HfRingEtSums;
-    L1GtConditionType cType = TypeHfRingEtSums;
+    L1uGtConditionType cType = TypeHfRingEtSums;
 
     // global object
     int nrObj = 1;
@@ -2850,7 +2872,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOM
         (m_vecHfRingEtSumsTemplate[chipNr]).push_back(hfRingEtSumsCond);
 
     }
-
+      */
 
     //
     return true;
@@ -2873,6 +2895,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseBptx(XERCES_CPP_NAMESPACE::DOMNode* no
 
     XERCES_CPP_NAMESPACE_USE
 
+      /*
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
@@ -2887,7 +2910,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseBptx(XERCES_CPP_NAMESPACE::DOMNode* no
 
     // object type and condition type
     // object type - irrelevant for BPTX conditions
-    L1GtConditionType cType = TypeBptx;
+    L1uGtConditionType cType = TypeBptx;
 
     // no objects for BPTX conditions
 
@@ -2917,7 +2940,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseBptx(XERCES_CPP_NAMESPACE::DOMNode* no
         (m_vecBptxTemplate[chipNr]).push_back(bptxCond);
 
     }
-
+      */
 
     //
     return true;
@@ -2941,6 +2964,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseExternal(XERCES_CPP_NAMESPACE::DOMNode
 
     XERCES_CPP_NAMESPACE_USE
 
+      /*
     // get condition, particle name and type name
     std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
     std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
@@ -2955,7 +2979,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseExternal(XERCES_CPP_NAMESPACE::DOMNode
 
     // object type and condition type
     // object type - irrelevant for External conditions
-    L1GtConditionType cType = TypeExternal;
+    L1uGtConditionType cType = TypeExternal;
 
     // no objects for External conditions
 
@@ -2985,7 +3009,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseExternal(XERCES_CPP_NAMESPACE::DOMNode
         (m_vecExternalTemplate[chipNr]).push_back(externalCond);
 
     }
-
+      */
 
     //
     return true;
@@ -3011,7 +3035,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCorrelation(
     XERCES_CPP_NAMESPACE_USE
 
     // create a new correlation condition
-    L1GtCorrelationTemplate correlationCond(name);
+    L1uGtCorrelationTemplate correlationCond(name);
 
     // check that the condition does not exist already in the map
     if ( !insertConditionIntoMap(correlationCond, chipNr)) {
@@ -3041,7 +3065,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCorrelation(
             << "\n" << std::endl;
 
     // condition type
-    L1GtConditionType cType = Type2cor;
+    L1uGtConditionType cType = l1t::Type2cor;
 
     // two objects (for sure)
     const int nrObj = 2;
@@ -3049,7 +3073,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCorrelation(
     // object types and greater equal flag - filled in the loop
     int intGEq[nrObj] = { -1, -1 };
     std::vector<L1GtObject> objType(nrObj);
-    std::vector<L1GtConditionCategory> condCateg(nrObj);
+    std::vector<L1uGtConditionCategory> condCateg(nrObj);
 
     // correlation flag and index in the cor*vector
     const bool corrFlag = true;
@@ -3230,7 +3254,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseCorrelation(
     // correlation parameters
 
     // temporary storage of the parameters
-    L1GtCorrelationTemplate::CorrelationParameter corrParameter;
+    L1uGtCorrelationTemplate::CorrelationParameter corrParameter;
     std::vector<boost::uint64_t> tmpValues(nrObj);
 
     // get deltaEtaRange
