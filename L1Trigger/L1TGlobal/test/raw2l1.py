@@ -184,11 +184,12 @@ if legacy:
     process.l1GtTriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2012_v3_L1T_Scales_20101224_Imp0_0x102b.xml'
 
     process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
-    process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
+    process.es_prefer_l1GtParameters = cms.ESPrefer('L1uGtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
 else:
     process.load('L1Trigger.L1TGlobal.l1uGtTriggerMenuXml_cfi')
     process.l1uGtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
-    process.l1uGtTriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
+    #process.l1uGtTriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
+    process.l1uGtTriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
 
     process.load('L1Trigger.L1TGlobal.L1uGtTriggerMenuConfig_cff')
     process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::L1uGtTriggerMenuXmlProducer','l1uGtTriggerMenuXml')

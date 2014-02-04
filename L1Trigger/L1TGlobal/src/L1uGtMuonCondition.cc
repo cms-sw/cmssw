@@ -25,7 +25,7 @@
 
 // user include files
 //   base classes
-#include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1uGtMuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/L1uGtConditionEvaluation.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -48,11 +48,11 @@ l1t::L1uGtMuonCondition::L1uGtMuonCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::L1uGtMuonCondition::L1uGtMuonCondition(const L1GtCondition* muonTemplate,
+l1t::L1uGtMuonCondition::L1uGtMuonCondition(const L1uGtCondition* muonTemplate,
         const L1uGtBoard* ptrGTL, const int nrL1Mu,
         const int ifMuEtaNumberBits) :
     L1uGtConditionEvaluation(),
-    m_gtMuonTemplate(static_cast<const L1GtMuonTemplate*>(muonTemplate)),
+    m_gtMuonTemplate(static_cast<const L1uGtMuonTemplate*>(muonTemplate)),
     m_gtGTL(ptrGTL),
     m_ifMuEtaNumberBits(ifMuEtaNumberBits)
 {
@@ -97,7 +97,7 @@ l1t::L1uGtMuonCondition& l1t::L1uGtMuonCondition::operator= (const l1t::L1uGtMuo
 }
 
 // methods
-void l1t::L1uGtMuonCondition::setGtMuonTemplate(const L1GtMuonTemplate* muonTempl) {
+void l1t::L1uGtMuonCondition::setGtMuonTemplate(const L1uGtMuonTemplate* muonTempl) {
 
     m_gtMuonTemplate = muonTempl;
 
@@ -140,7 +140,16 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
     // the candidates
     const BXVector<const l1t::Muon*>* candVec = m_gtGTL->getCandL1Mu();  //BLW Change for BXVector
 
-    int numberObjects = candVec->size(bxEval);  //BLW Change for BXVector
+    // Look at objects in bx = bx + relativeBx
+    int useBx = bxEval + m_gtMuonTemplate->condRelativeBx();
+
+    // Fail condition if attempting to get Bx outside of range
+    if( ( useBx < candVec->getFirstBX() ) ||
+	( useBx > candVec->getLastBX() ) ) {
+      return false;
+    }
+
+    int numberObjects = candVec->size(useBx);  //BLW Change for BXVector
     //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
@@ -189,7 +198,7 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
 
-	    passCondition = checkObjectParameter(i,  *(candVec->at(bxEval,index[i]) )); //BLW Change for BXVector
+	    passCondition = checkObjectParameter(i,  *(candVec->at(useBx,index[i]) )); //BLW Change for BXVector
 	    tmpResult &= passCondition;
 	    if( passCondition ) 
 	      LogDebug("l1t|Global") << "===> L1uGtMuonCondition::evaluateCondition, CONGRATS!! This muon passed the condition." << std::endl;
@@ -208,7 +217,7 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
         }
 
         // get the correlation parameters (chargeCorrelation included here also)
-        L1GtMuonTemplate::CorrelationParameter corrPar =
+        L1uGtMuonTemplate::CorrelationParameter corrPar =
             *(m_gtMuonTemplate->correlationParameter());
 
         // charge_correlation consists of 3 relevant bits (D2, D1, D0)
@@ -219,7 +228,7 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
 
             for (int i = 0; i < nObjInCond; i++) {
                 // check valid charge - skip if invalid charge
-                int chargeValid = (candVec->at(bxEval,index[i]))->hwChargeValid(); //BLW Change for BXVector
+                int chargeValid = (candVec->at(useBx,index[i]))->hwChargeValid(); //BLW Change for BXVector
                 tmpResult &= chargeValid;
 
                 if ( chargeValid==0) { //BLW type change for New Muon Class
@@ -234,8 +243,8 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
             if (nObjInCond == 1) { // one object condition
 
                 // D2..enable pos, D1..enable neg
-                if ( ! ( ( (chargeCorr & 4) != 0 && (candVec->at(bxEval,index[0]))->charge()> 0 )   //BLW Change for BXVector
-                    || ( (chargeCorr & 2) != 0 &&   (candVec->at(bxEval,index[0]))->charge() < 0 ) )) {       //BLW Change for BXVector
+                if ( ! ( ( (chargeCorr & 4) != 0 && (candVec->at(useBx,index[0]))->charge()> 0 )   //BLW Change for BXVector
+                    || ( (chargeCorr & 2) != 0 &&   (candVec->at(useBx,index[0]))->charge() < 0 ) )) {       //BLW Change for BXVector
 
                     continue;
                 }
@@ -246,7 +255,7 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
                 // find out if signs are equal
                 bool equalSigns = true;
                 for (int i = 0; i < nObjInCond-1; i++) {
-                    if ((candVec->at(bxEval,index[i]))->charge() != (candVec->at(bxEval,index[i+1]))->charge()) { //BLW Change for BXVector
+                    if ((candVec->at(useBx,index[i]))->charge() != (candVec->at(useBx,index[i+1]))->charge()) { //BLW Change for BXVector
                         equalSigns = false;
                         break;
                     }
@@ -268,7 +277,7 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
                     unsigned int posCount = 0;
 
                     for (int i = 0; i < nObjInCond; i++) {
-                        if ((candVec->at(bxEval,index[i]))->charge()> 0) {  //BLW Change for BXVector
+                        if ((candVec->at(useBx,index[i]))->charge()> 0) {  //BLW Change for BXVector
                             posCount++;
                         }
                     }
@@ -313,8 +322,8 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
             int scaleEta = 1 << (m_ifMuEtaNumberBits - 1);
 
             for (int i = 0; i < ObjInWscComb; ++i) {
-                signBit[i] = ((candVec->at(bxEval,index[i]))->hwEta() & scaleEta)>>(m_ifMuEtaNumberBits - 1);  //BLW Change for BXVector
-                signedEta[i] = ((candVec->at(bxEval,index[i]))->hwEta() )%scaleEta;      //BLW Change for BXVector
+                signBit[i] = ((candVec->at(useBx,index[i]))->hwEta() & scaleEta)>>(m_ifMuEtaNumberBits - 1);  //BLW Change for BXVector
+                signedEta[i] = ((candVec->at(useBx,index[i]))->hwEta() )%scaleEta;      //BLW Change for BXVector
 
                 if (signBit[i] == 1) {
                     signedEta[i] = (-1)*signedEta[i];
@@ -333,11 +342,11 @@ const bool l1t::L1uGtMuonCondition::evaluateCondition(const int bxEval) const {
             // check candDeltaPhi
 
             // calculate absolute value of candDeltaPhi
-            if ((candVec->at(bxEval,index[0]))->hwPhi()> (candVec->at(bxEval,index[1]))->hwPhi()) {     //BLW Change for BXVector
-                candDeltaPhi = (candVec->at(bxEval,index[0]))->hwPhi() - (candVec->at(bxEval,index[1]))->hwPhi();  //BLW Change for BXVector
+            if ((candVec->at(useBx,index[0]))->hwPhi()> (candVec->at(useBx,index[1]))->hwPhi()) {     //BLW Change for BXVector
+                candDeltaPhi = (candVec->at(useBx,index[0]))->hwPhi() - (candVec->at(useBx,index[1]))->hwPhi();  //BLW Change for BXVector
             }
             else {
-                candDeltaPhi = (candVec->at(bxEval,index[1]))->hwPhi() - (candVec->at(bxEval,index[0]))->hwPhi();   //BLW Change for BXVector
+                candDeltaPhi = (candVec->at(useBx,index[1]))->hwPhi() - (candVec->at(useBx,index[0]))->hwPhi();   //BLW Change for BXVector
             }
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
@@ -432,7 +441,7 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
 //         return false;
 //     }
 
-    const L1GtMuonTemplate::ObjectParameter objPar =
+    const L1uGtMuonTemplate::ObjectParameter objPar =
         ( *(m_gtMuonTemplate->objectParameter()) )[iCondition];
 
     // using the logic table from GTL-9U-module.pdf
@@ -461,7 +470,7 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
     //       OK, trigger
 
     LogDebug("l1t|Global")
-      << "\n L1GtMuonTemplate::ObjectParameter : "
+      << "\n L1uGtMuonTemplate::ObjectParameter : "
       << "\n\t ptHighThreshold = " << objPar.ptHighThreshold 
       << "\n\t ptLowThreshold  = " << objPar.ptLowThreshold
       << "\n\t requestIso      = " << objPar.requestIso

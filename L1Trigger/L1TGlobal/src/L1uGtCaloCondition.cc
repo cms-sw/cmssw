@@ -25,7 +25,7 @@
 
 // user include files
 //   base classes
-#include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1uGtCaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/L1uGtConditionEvaluation.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -56,13 +56,13 @@ l1t::L1uGtCaloCondition::L1uGtCaloCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::L1uGtCaloCondition::L1uGtCaloCondition(const L1GtCondition* caloTemplate, const L1uGtBoard* ptrGTB,
+l1t::L1uGtCaloCondition::L1uGtCaloCondition(const L1uGtCondition* caloTemplate, const L1uGtBoard* ptrGTB,
         const int nrL1EG,
         const int nrL1Jet,
         const int nrL1Tau,
         const int ifCaloEtaNumberBits) :
     L1uGtConditionEvaluation(),
-    m_gtCaloTemplate(static_cast<const L1GtCaloTemplate*>(caloTemplate)),
+    m_gtCaloTemplate(static_cast<const L1uGtCaloTemplate*>(caloTemplate)),
     m_uGtB(ptrGTB),
     m_ifCaloEtaNumberBits(ifCaloEtaNumberBits)
 {
@@ -137,7 +137,7 @@ l1t::L1uGtCaloCondition& l1t::L1uGtCaloCondition::operator=(const l1t::L1uGtCalo
 }
 
 // methods
-void l1t::L1uGtCaloCondition::setGtCaloTemplate(const L1GtCaloTemplate* caloTempl) {
+void l1t::L1uGtCaloCondition::setGtCaloTemplate(const L1uGtCaloTemplate* caloTempl) {
 
     m_gtCaloTemplate = caloTempl;
 
@@ -199,7 +199,17 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
             break;
     }
 
-    int numberObjects = candVec->size(bxEval);
+    // Look at objects in bx = bx + relativeBx
+    int useBx = bxEval + m_gtCaloTemplate->condRelativeBx();
+
+    // Fail condition if attempting to get Bx outside of range
+    if( ( useBx < candVec->getFirstBX() ) ||
+	( useBx > candVec->getLastBX() ) ) {
+      return false;
+    }
+
+
+    int numberObjects = candVec->size(useBx);
     //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
@@ -248,7 +258,7 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
 
-	    passCondition = checkObjectParameter(i,  *(candVec->at(bxEval,index[i]) ));
+	  passCondition = checkObjectParameter(i, *(candVec->at(useBx,index[i]) ));
 	    tmpResult &= passCondition;
 	    if( passCondition ) 
 	      LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, CONGRATS!! This calo obj passed the condition." << std::endl;
@@ -283,7 +293,7 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
                 continue;
             }
 
-            L1GtCaloTemplate::CorrelationParameter corrPar =
+            L1uGtCaloTemplate::CorrelationParameter corrPar =
                 *(m_gtCaloTemplate->correlationParameter());
 
             unsigned int candDeltaEta;
@@ -299,9 +309,9 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
             int scaleEta = 1 << (m_ifCaloEtaNumberBits - 1);
 
             for (int i = 0; i < ObjInWscComb; ++i) {
-                signBit[i] = ((candVec->at(bxEval,index[i]))->hwEta() & scaleEta)
+                signBit[i] = ((candVec->at(useBx,index[i]))->hwEta() & scaleEta)
                     >>(m_ifCaloEtaNumberBits - 1);
-                signedEta[i] = ((candVec->at(bxEval,index[i]))->hwEta() )%scaleEta;
+                signedEta[i] = ((candVec->at(useBx,index[i]))->hwEta() )%scaleEta;
 
                 if (signBit[i] == 1) {
                     signedEta[i] = (-1)*signedEta[i];
@@ -320,11 +330,11 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
             // check candDeltaPhi
 
             // calculate absolute value of candDeltaPhi
-            if ((candVec->at(bxEval,index[0]))->hwPhi()> (candVec->at(bxEval,index[1]))->hwPhi()) {
-                candDeltaPhi = (candVec->at(bxEval,index[0]))->hwPhi() - (candVec->at(bxEval,index[1]))->hwPhi();
+            if ((candVec->at(useBx,index[0]))->hwPhi()> (candVec->at(useBx,index[1]))->hwPhi()) {
+                candDeltaPhi = (candVec->at(useBx,index[0]))->hwPhi() - (candVec->at(useBx,index[1]))->hwPhi();
             }
             else {
-                candDeltaPhi = (candVec->at(bxEval,index[1]))->hwPhi() - (candVec->at(bxEval,index[0]))->hwPhi();
+                candDeltaPhi = (candVec->at(useBx,index[1]))->hwPhi() - (candVec->at(useBx,index[0]))->hwPhi();
             }
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
@@ -433,10 +443,12 @@ const bool l1t::L1uGtCaloCondition::checkObjectParameter(const int iCondition, c
 //         return false;
 //     }
 
-    const L1GtCaloTemplate::ObjectParameter objPar = ( *(m_gtCaloTemplate->objectParameter()) )[iCondition];
+    const L1uGtCaloTemplate::ObjectParameter objPar = ( *(m_gtCaloTemplate->objectParameter()) )[iCondition];
 
     LogDebug("l1t|Global")
-      << "\n L1GtCaloTemplate::ObjectParameter : "
+      << "\n L1uGtCaloTemplate: "
+      << "\n\t condRelativeBx = " << m_gtCaloTemplate->condRelativeBx()
+      << "\n ObjectParameter : "
       << "\n\t etThreshold = " << objPar.etThreshold
       << "\n\t etaRange    = " << objPar.etaRange
       << "\n\t phiRange    = " << objPar.phiRange
@@ -449,21 +461,29 @@ const bool l1t::L1uGtCaloCondition::checkObjectParameter(const int iCondition, c
       << "\n\t hwPhi  = " << cand.hwPhi()
       << std::endl;
 
+
     // check energy threshold
     if ( !checkThreshold(objPar.etThreshold, cand.hwPt(), m_gtCaloTemplate->condGEq()) ) {
         return false;
     }
 
     // check eta
-    if (!checkBit(objPar.etaRange, cand.hwEta())) {
-        return false;
+    if( !checkRange(cand.hwEta(), objPar.etaRangeBegin, objPar.etaRangeEnd, objPar.etaRangeVetoBegin, objPar.etaRangeVetoEnd) ){
+      return false;
     }
+
+//     if (!checkBit(objPar.etaRange, cand.hwEta())) {
+//         return false;
+//     }
 
     // check phi
-
-    if (!checkBit(objPar.phiRange, cand.hwPhi())) {
-        return false;
+    if( !checkRange(cand.hwPhi(), objPar.phiRangeBegin, objPar.phiRangeEnd, objPar.phiRangeVetoBegin, objPar.phiRangeVetoEnd) ){
+      return false;
     }
+
+//     if (!checkBit(objPar.phiRange, cand.hwPhi())) {
+//         return false;
+//     }
 
     // particle matches if we get here
     //LogTrace("L1GlobalTrigger")

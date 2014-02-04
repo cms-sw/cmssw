@@ -33,16 +33,16 @@
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtXmlParserTags.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1uGtTriggerMenuFwd.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1uGtMuonTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1uGtCaloTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtCastorTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCorrelationTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1uGtCorrelationTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtBptxTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtExternalTemplate.h"
 
@@ -50,7 +50,7 @@
 
 
 // forward declarations
-class L1GtCondition;
+class L1uGtCondition;
 class L1GtAlgorithm;
 
 namespace l1t {
@@ -151,17 +151,17 @@ public:
     void setGtScaleDbKey(const std::string&);
 
     /// get / set the vectors containing the conditions
-    inline const std::vector<std::vector<L1GtMuonTemplate> >& vecMuonTemplate() const {
+    inline const std::vector<std::vector<L1uGtMuonTemplate> >& vecMuonTemplate() const {
         return m_vecMuonTemplate;
     }
-    void setVecMuonTemplate(const std::vector<std::vector<L1GtMuonTemplate> >&);
+    void setVecMuonTemplate(const std::vector<std::vector<L1uGtMuonTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtCaloTemplate> >& vecCaloTemplate() const {
+    inline const std::vector<std::vector<L1uGtCaloTemplate> >& vecCaloTemplate() const {
         return m_vecCaloTemplate;
     }
 
-    void setVecCaloTemplate(const std::vector<std::vector<L1GtCaloTemplate> >&);
+    void setVecCaloTemplate(const std::vector<std::vector<L1uGtCaloTemplate> >&);
 
     //
     inline const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTemplate() const {
@@ -231,28 +231,28 @@ public:
             const std::vector<std::vector<L1GtExternalTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtCorrelationTemplate> >& vecCorrelationTemplate() const {
+    inline const std::vector<std::vector<L1uGtCorrelationTemplate> >& vecCorrelationTemplate() const {
 
         return m_vecCorrelationTemplate;
     }
 
     void setVecCorrelationTemplate(
-            const std::vector<std::vector<L1GtCorrelationTemplate> >&);
+            const std::vector<std::vector<L1uGtCorrelationTemplate> >&);
 
     // get / set the vectors containing the conditions for correlation templates
     //
-    inline const std::vector<std::vector<L1GtMuonTemplate> >& corMuonTemplate() const {
+    inline const std::vector<std::vector<L1uGtMuonTemplate> >& corMuonTemplate() const {
         return m_corMuonTemplate;
     }
 
-    void setCorMuonTemplate(const std::vector<std::vector<L1GtMuonTemplate> >&);
+    void setCorMuonTemplate(const std::vector<std::vector<L1uGtMuonTemplate> >&);
 
     //
-    inline const std::vector<std::vector<L1GtCaloTemplate> >& corCaloTemplate() const {
+    inline const std::vector<std::vector<L1uGtCaloTemplate> >& corCaloTemplate() const {
         return m_corCaloTemplate;
     }
 
-    void setCorCaloTemplate(const std::vector<std::vector<L1GtCaloTemplate> >&);
+    void setCorCaloTemplate(const std::vector<std::vector<L1uGtCaloTemplate> >&);
 
     //
     inline const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTemplate() const {
@@ -405,7 +405,7 @@ private:
 
     /// insertConditionIntoMap - safe insert of condition into condition map.
     /// if the condition name already exists, do not insert it and return false
-    bool insertConditionIntoMap(L1GtCondition& cond, const int chipNr);
+    bool insertConditionIntoMap(L1uGtCondition& cond, const int chipNr);
 
     /// insert an algorithm into algorithm map
     bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
@@ -415,7 +415,7 @@ private:
 
     /// get the type of the condition, as defined in enum, from the condition type
     /// as defined in the XML file
-    L1GtConditionType getTypeFromType(const std::string& type);
+    l1t::L1uGtConditionType getTypeFromType(const std::string& type);
 
     /// get number of particles from condition type
     int getNumFromType(const std::string& type);
@@ -445,8 +445,8 @@ private:
     std::string l1t2string( l1t::AlgorithmName );
     std::string l1t2string( l1t::AlgorithmIndex );
     std::string l1t2string( l1t::AlgorithmEquation );
-
     std::string l1t2string( l1t::Threshold );
+    int l1t2int( l1t::RelativeBx );
 
     /// parse a muon condition
 /*     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node, */
@@ -589,8 +589,8 @@ private:
 
     /// vectors containing the conditions
     /// explicit, due to persistency...
-    std::vector<std::vector<L1GtMuonTemplate> > m_vecMuonTemplate;
-    std::vector<std::vector<L1GtCaloTemplate> > m_vecCaloTemplate;
+    std::vector<std::vector<L1uGtMuonTemplate> > m_vecMuonTemplate;
+    std::vector<std::vector<L1uGtCaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<L1GtJetCountsTemplate> > m_vecJetCountsTemplate;
     std::vector<std::vector<L1GtCastorTemplate> > m_vecCastorTemplate;
@@ -599,9 +599,9 @@ private:
     std::vector<std::vector<L1GtBptxTemplate> > m_vecBptxTemplate;
     std::vector<std::vector<L1GtExternalTemplate> > m_vecExternalTemplate;
 
-    std::vector<std::vector<L1GtCorrelationTemplate> > m_vecCorrelationTemplate;
-    std::vector<std::vector<L1GtMuonTemplate> > m_corMuonTemplate;
-    std::vector<std::vector<L1GtCaloTemplate> > m_corCaloTemplate;
+    std::vector<std::vector<L1uGtCorrelationTemplate> > m_vecCorrelationTemplate;
+    std::vector<std::vector<L1uGtMuonTemplate> > m_corMuonTemplate;
+    std::vector<std::vector<L1uGtCaloTemplate> > m_corCaloTemplate;
     std::vector<std::vector<L1GtEnergySumTemplate> > m_corEnergySumTemplate;
 
     /// map containing the physics algorithms (by name)

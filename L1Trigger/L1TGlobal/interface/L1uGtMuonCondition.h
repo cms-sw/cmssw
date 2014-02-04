@@ -26,8 +26,8 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
 // forward declarations
-class L1GtCondition;
-class L1GtMuonTemplate;
+class L1uGtCondition;
+class L1uGtMuonTemplate;
 
 namespace l1t {
 
@@ -46,7 +46,7 @@ public:
     L1uGtMuonCondition();
 
     ///     from base template condition (from event setup usually)
-    L1uGtMuonCondition(const L1GtCondition*, const L1uGtBoard*,
+    L1uGtMuonCondition(const L1uGtCondition*, const L1uGtBoard*,
             const int nrL1Mu,
             const int ifMuEtaNumberBits);
 
@@ -69,12 +69,12 @@ public:
 
 public:
 
-    ///   get / set the pointer to a L1GtCondition
-    inline const L1GtMuonTemplate* gtMuonTemplate() const {
+    ///   get / set the pointer to a L1uGtCondition
+    inline const L1uGtMuonTemplate* gtMuonTemplate() const {
         return m_gtMuonTemplate;
     }
 
-    void setGtMuonTemplate(const L1GtMuonTemplate*);
+    void setGtMuonTemplate(const L1uGtMuonTemplate*);
 
     ///   get / set the pointer to GTL
     inline const L1uGtBoard* gtGTL() const {
@@ -114,8 +114,8 @@ private:
 
 private:
 
-    /// pointer to a L1GtMuonTemplate
-    const L1GtMuonTemplate* m_gtMuonTemplate;
+    /// pointer to a L1uGtMuonTemplate
+    const L1uGtMuonTemplate* m_gtMuonTemplate;
 
     /// pointer to GTL, to be able to get the trigger objects
     const L1uGtBoard* m_gtGTL;

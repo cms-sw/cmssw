@@ -111,8 +111,14 @@ protected:
     template<class Type1, class Type2> const bool checkThreshold(const Type1& threshold,
         const Type2& value, const bool condGEqValue) const;
 
-    ///check if a bit with a given number is set in a mask
+    /// check if a bit with a given number is set in a mask
     template<class Type1> const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
+
+    /// check if a value is in a given range and outside of a veto range
+    template<class Type1> const bool checkRange(const unsigned int bitNumber, 
+						const Type1& beginR, const Type1& endR, 
+						const Type1& beginVetoR, const Type1& endVetoR ) const;
+
 
 protected:
 
@@ -200,6 +206,93 @@ template<class Type1> const bool L1uGtConditionEvaluation::checkBit(const Type1&
 
     return (mask & oneBit);
 }
+
+
+/// check if a value is in a given range and outside of a veto range
+template<class Type1> const bool L1uGtConditionEvaluation::checkRange(const unsigned int bitNumber, 
+								      const Type1& beginR, const Type1& endR, 
+								      const Type1& beginVetoR, const Type1& endVetoR ) const {
+
+  // set condtion to true if beginR==endR = default -1
+  if( beginR==endR && beginR==-1 ){
+    return true;
+  }
+
+  // check if value is in range
+  // for begin <= end takes [begin, end]
+  // for begin >= end takes [begin, end] over zero angle!
+  if( endR >= beginR ){
+    if( !( bitNumber>=beginR && bitNumber<=endR ) ){
+      return false;
+    }
+    else if( beginVetoR==endVetoR ){
+      return true;
+    }
+    else {
+      if( endVetoR >= beginVetoR ){
+	if( !( bitNumber<=beginVetoR && bitNumber>=endVetoR ) ){
+	  return false;
+	}
+	else{
+	  return true;
+	}
+      }
+      else{ // go over zero angle!!
+      	if( !( bitNumber<=beginVetoR || bitNumber>=endVetoR ) ){
+	  return false;
+	}
+	else{
+	  return true;
+	}
+      }
+    }
+  }
+  else { // go over zero angle!!
+    if( !( bitNumber>=beginR || bitNumber<=endR ) ){
+      return false;
+    }
+    else if( beginVetoR==endVetoR ){
+      return true;
+    }
+    else {
+      if( endVetoR >= beginVetoR ){
+	if( !( bitNumber<=beginVetoR && bitNumber>=endVetoR ) ){
+	  return false;
+	}
+	else{
+	  return true;
+	}
+      }
+      else{ // go over zero angle!!
+      	if( !( bitNumber<=beginVetoR || bitNumber>=endVetoR ) ){
+	  return false;
+	}
+	else{
+	  return true;
+	}
+      }
+    }
+  }
+
+
+
+/*   // DMP Not sure about this, will check with hardware */
+/*   // check to make sure beginRange comes before endRange */
+/*   if( beginR>endR ){ */
+/*     LogTrace("l1t|Global") << " ====> WARNING: range begin = " << beginR << " < end = " << endR << std::endl; */
+/*     return false; */
+/*   } */
+
+/*   // DMP Not sure about this, will check with hardware */
+/*   // check to make sure beginVetoRange comes before endVetoRange */
+/*   if( beginVetoR>endVetoR ){ */
+/*     LogTrace("l1t|Global") << " ====> WARNING: range veto begin = " << beginR << " < end = " << endR << std::endl; */
+/*     return false; */
+/*   } */
+   
+}
+
+
 
 }
 #endif

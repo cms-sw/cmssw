@@ -43,7 +43,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
-class L1GtTriggerMenu;
+class L1uGtTriggerMenu;
 class L1CaloGeometry;
 class L1MuTriggerScales;
 class L1GtEtaPhiConversions;
@@ -211,7 +211,7 @@ private:
     // cached stuff
 
     // trigger menu
-    const L1GtTriggerMenu* m_l1GtMenu;
+    const L1uGtTriggerMenu* m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
     // L1 scales (phi, eta) for Mu, Calo and EnergySum objects
