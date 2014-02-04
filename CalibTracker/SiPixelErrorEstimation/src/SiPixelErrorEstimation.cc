@@ -25,6 +25,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
