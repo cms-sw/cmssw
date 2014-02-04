@@ -52,7 +52,7 @@ void SeedFromProtoTrack::init(const reco::Track & proto, const edm::EventSetup& 
   const Propagator*  propagator = &(*propagatorHandle);
 
   edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field);
+  es.get<IdealMagneticFieldRecord>().get(field);//fixme
 
   reco::TrackBase::Point  vtx = proto.referencePoint();
   reco::TrackBase::Vector mom = proto.momentum();
