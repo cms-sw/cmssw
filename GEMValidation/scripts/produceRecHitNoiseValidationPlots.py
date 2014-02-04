@@ -27,7 +27,7 @@ if __name__ == "__main__":
   npart = 8
   bx_times_25ns = 9*0.000000025
   nchambers_ge11=144
-  nchambers_ge21=77
+  nchambers_ge21=72
   
   ## Trees
   analyzer = "GEMRecHitAnalyzer"
