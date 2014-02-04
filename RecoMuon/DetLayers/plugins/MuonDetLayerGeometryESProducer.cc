@@ -1,8 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/18 15:12:01 $
- *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
+ *  \modified by R. Radogna & C. Calabria
  */
 
 #include <RecoMuon/DetLayers/plugins/MuonDetLayerGeometryESProducer.h>
@@ -11,9 +10,11 @@
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 
 #include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
+#include <RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.h>
 #include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -62,6 +63,18 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
   } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
     // No CSC geo available: trap the exception.
     LogInfo(metname) << "No CSC geometry is available.";
+  }
+
+  // Build GEM layers
+  try {
+    edm::ESHandle<GEMGeometry> gem;
+    record.getRecord<MuonGeometryRecord>().get(gem);
+    if (gem.isValid()) {
+      muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(*gem));
+    }
+  } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
+    // No GEM geo available: trap the exception.
+    LogInfo(metname) << "No GEM geometry is available.";
   }
   
   // Build RPC layers

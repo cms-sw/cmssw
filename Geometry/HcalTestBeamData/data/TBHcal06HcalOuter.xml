@@ -1,0 +1,485 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="TBHcal06HcalOuter.xml" eval="true">
+		<Constant name="motherDx2" value="54.0*cm"/>
+		<Constant name="motherDy2" value="1.20*m"/>
+		<Constant name="motherDz2Old" value="3.305*m"/>
+		<Constant name="motherDzExtra" value="1.0*m"/>
+		<Constant name="motherDz2" value="([motherDz2Old]+0.5*[motherDzExtra])"/>
+		<Constant name="motherZoff" value="([motherDzExtra]-[motherDz2])"/>
+		<Constant name="coilDx2" value="15.5*cm"/>
+		<Constant name="coilDz2" value="0.50*m"/>
+		<Constant name="yokeDx2" value="5.00*cm"/>
+		<Constant name="yokeDz2" value="3.27*m"/>
+		<Constant name="tailDx2" value="9.75*cm"/>
+		<Constant name="layerDx2" value="25.50*mm"/>
+		<Constant name="layerDy2" value="1.08*m"/>
+		<Constant name="layer0Dz2" value="63.40*cm"/>
+		<Constant name="layer2Dz2" value="1.268*m"/>
+		<Constant name="trayDx2" value="12.50*mm"/>
+		<Constant name="layer0trayDy2" value="18.30*cm"/>
+		<Constant name="layer1trayDy2" value="19.30*cm"/>
+		<Constant name="layer2trayDy2" value="19.40*cm"/>
+		<Constant name="packDx2" value="6.5*mm"/>
+		<Constant name="layer0packDy2" value="16.53*cm"/>
+		<Constant name="layer1packDy2" value="17.53*cm"/>
+		<Constant name="layer2packDy2" value="17.63*cm"/>
+		<Constant name="thkAl" value="1.00*mm"/>
+		<Constant name="thkScnt" value="10.0*mm"/>
+		<Constant name="thkFront" value="2.0*mm"/>
+		<Constant name="motherXFront" value="3.06*m"/>
+		<Constant name="motherY" value="12.4*cm"/>
+		<Constant name="motherZ" value="([motherDz2Old]-0.5*[motherDzExtra])"/>
+		<Constant name="coilX" value="16.0*cm"/>
+		<Constant name="yokeX" value="48.0*cm"/>
+		<Constant name="tailX" value="77.0*cm"/>
+		<Constant name="layer0X" value="65.55*cm"/>
+		<Constant name="layer1X" value="101.75*cm"/>
+		<Constant name="layer2X" value="101.75*cm"/>
+		<Constant name="layer3X" value="101.75*cm"/>
+		<Constant name="layer0Z" value="0.0*cm"/>
+		<Constant name="layer1Z" value="0.0*cm"/>
+		<Constant name="layer2Z" value="1.418*m"/>
+		<Constant name="layer3Z" value="4.074*m"/>
+		<Constant name="trayX" value="[layerDx2]-[trayDx2]"/>
+		<Constant name="layer0tray1Y" value="39.71*cm"/>
+		<Constant name="layer0tray2Y" value="72.77*cm"/>
+		<Constant name="layer0tray3Y" value="105.83*cm"/>
+		<Constant name="layer0tray4Y" value="138.89*cm"/>
+		<Constant name="layer0tray5Y" value="171.95*cm"/>
+		<Constant name="layer1tray1Y" value="35.71*cm"/>
+		<Constant name="layer1tray2Y" value="70.77*cm"/>
+		<Constant name="layer1tray3Y" value="105.83*cm"/>
+		<Constant name="layer1tray4Y" value="140.89*cm"/>
+		<Constant name="layer1tray5Y" value="175.95*cm"/>
+		<Constant name="layer2tray0Y" value="0.050*cm"/>
+		<Constant name="layer2tray1Y" value="35.31*cm"/>
+		<Constant name="layer2tray2Y" value="70.57*cm"/>
+		<Constant name="layer2tray3Y" value="105.83*cm"/>
+		<Constant name="layer2tray4Y" value="141.09*cm"/>
+		<Constant name="layer2tray5Y" value="176.35*cm"/>
+		<Constant name="layer3tray0Y" value="0.050*cm"/>
+		<Constant name="layer3tray1Y" value="35.31*cm"/>
+		<Constant name="layer3tray2Y" value="70.57*cm"/>
+		<Constant name="layer3tray3Y" value="105.83*cm"/>
+		<Constant name="layer3tray4Y" value="141.09*cm"/>
+		<Constant name="layer3tray5Y" value="176.35*cm"/>
+		<Constant name="scntX" value="(-[packDx2]+([thkScnt]/2)+[thkFront])"/>
+		<Constant name="zero" value="0*fm"/>
+		<Constant name="vmWallL" value="100*cm"/>
+		<Constant name="vmWallW" value="30*cm"/>
+		<Constant name="vmWallT" value="1*cm"/>
+		<Constant name="vmWallXFront" value="3.0*m"/>
+		<Constant name="vmWallShift" value="(2*[vmWallW]+0.6*mm)"/>
+	</ConstantsSection>
+	<SolidSection label="TBHcal06HcalOuter.xml">
+		<Box name="HadronOuter" dx="[motherDx2]" dy="[motherDy2]" dz="[motherDz2]"/>
+		<Box name="HadronOuterCoil" dx="[coilDx2]" dy="[motherDy2]" dz="[coilDz2]"/>
+		<Box name="HadronOuterYoke" dx="[yokeDx2]" dy="[motherDy2]" dz="[yokeDz2]"/>
+		<Box name="HadronOuterTail" dx="[tailDx2]" dy="[layerDy2]" dz="[layer0Dz2]"/>
+		<Box name="HadronOuterLayer0" dx="[layerDx2]" dy="[layerDy2]" dz="[layer0Dz2]"/>
+		<Box name="HadronOuterLayer1" dx="[layerDx2]" dy="[layerDy2]" dz="[layer0Dz2]"/>
+		<Box name="HadronOuterLayer2" dx="[layerDx2]" dy="[layerDy2]" dz="[layer2Dz2]"/>
+		<Box name="HadronOuterLayer3" dx="[layerDx2]" dy="[layerDy2]" dz="[layer2Dz2]"/>
+		<Box name="HadronOuterLayer0Tray" dx="[trayDx2]" dy="[layer0trayDy2]" dz="[layer0Dz2]"/>
+		<Box name="HadronOuterLayer0Box" dx="([trayDx2]-[thkAl])" dy="([layer0trayDy2]-[thkAl])" dz="([layer0Dz2]-[thkAl])"/>
+		<Box name="HadronOuterLayer0Pack" dx="[packDx2]" dy="[layer0packDy2]" dz="([layer0Dz2]-[thkAl])"/>
+		<Box name="HTSensLayer0" dx="[thkScnt]/2" dy="[layer0packDy2]" dz="([layer0Dz2]-[thkAl])"/>
+		<Box name="HadronOuterLayer1Tray" dx="[trayDx2]" dy="[layer1trayDy2]" dz="[layer0Dz2]"/>
+		<Box name="HadronOuterLayer1Box" dx="([trayDx2]-[thkAl])" dy="([layer1trayDy2]-[thkAl])" dz="([layer0Dz2]-[thkAl])"/>
+		<Box name="HadronOuterLayer1Pack" dx="[packDx2]" dy="[layer1packDy2]" dz="([layer0Dz2]-[thkAl])"/>
+		<Box name="HTSensLayer1" dx="[thkScnt]/2" dy="[layer1packDy2]" dz="([layer0Dz2]-[thkAl])"/>
+		<Box name="HadronOuterLayer2Tray" dx="[trayDx2]" dy="[layer2trayDy2]" dz="[layer2Dz2]"/>
+		<Box name="HadronOuterLayer2Box" dx="([trayDx2]-[thkAl])" dy="([layer2trayDy2]-[thkAl])" dz="([layer2Dz2]-[thkAl])"/>
+		<Box name="HadronOuterLayer2Pack" dx="[packDx2]" dy="[layer2packDy2]" dz="([layer2Dz2]-[thkAl])"/>
+		<Box name="HTSensLayer2" dx="[thkScnt]/2" dy="[layer2packDy2]" dz="([layer2Dz2]-[thkAl])"/>
+		<Box name="HadronOuterLayer3Tray" dx="[trayDx2]" dy="[layer2trayDy2]" dz="[layer2Dz2]"/>
+		<Box name="HadronOuterLayer3Box" dx="([trayDx2]-[thkAl])" dy="([layer2trayDy2]-[thkAl])" dz="([layer2Dz2]-[thkAl])"/>
+		<Box name="HadronOuterLayer3Pack" dx="[packDx2]" dy="[layer2packDy2]" dz="([layer2Dz2]-[thkAl])"/>
+		<Box name="HTSensLayer3" dx="[thkScnt]/2" dy="[layer2packDy2]" dz="([layer2Dz2]-[thkAl])"/>
+		<Box name="VMWall" dx="[vmWallT]/2" dy="2*[vmWallW]" dz="[vmWallL]/2"/>
+		<Box name="VMWallCounter" dx="[vmWallT]/2" dy="[vmWallW]/2" dz="[vmWallL]/2"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal06HcalOuter.xml">
+		<LogicalPart name="HadronOuter" category="unspecified">
+			<rSolid name="HadronOuter"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterCoil" category="unspecified">
+			<rSolid name="HadronOuterCoil"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterYoke" category="unspecified">
+			<rSolid name="HadronOuterYoke"/>
+			<rMaterial name="materials:Iron"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterTail" category="unspecified">
+			<rSolid name="HadronOuterTail"/>
+			<rMaterial name="materials:Iron"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer0" category="unspecified">
+			<rSolid name="HadronOuterLayer0"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer1" category="unspecified">
+			<rSolid name="HadronOuterLayer1"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer2" category="unspecified">
+			<rSolid name="HadronOuterLayer2"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer3" category="unspecified">
+			<rSolid name="HadronOuterLayer3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer0Tray" category="unspecified">
+			<rSolid name="HadronOuterLayer0Tray"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer0Box" category="unspecified">
+			<rSolid name="HadronOuterLayer0Box"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer0Pack" category="unspecified">
+			<rSolid name="HadronOuterLayer0Pack"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTSensLayer0" category="sensitive">
+			<rSolid name="HTSensLayer0"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer1Tray" category="unspecified">
+			<rSolid name="HadronOuterLayer1Tray"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer1Box" category="unspecified">
+			<rSolid name="HadronOuterLayer1Box"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer1Pack" category="unspecified">
+			<rSolid name="HadronOuterLayer1Pack"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTSensLayer1" category="sensitive">
+			<rSolid name="HTSensLayer1"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer2Tray" category="unspecified">
+			<rSolid name="HadronOuterLayer2Tray"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer2Box" category="unspecified">
+			<rSolid name="HadronOuterLayer2Box"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer2Pack" category="unspecified">
+			<rSolid name="HadronOuterLayer2Pack"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTSensLayer2" category="sensitive">
+			<rSolid name="HTSensLayer2"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer3Tray" category="unspecified">
+			<rSolid name="HadronOuterLayer3Tray"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer3Box" category="unspecified">
+			<rSolid name="HadronOuterLayer3Box"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronOuterLayer3Pack" category="unspecified">
+			<rSolid name="HadronOuterLayer3Pack"/>
+			<rMaterial name="materials:Polystyrene"/>
+		</LogicalPart>
+		<LogicalPart name="HTSensLayer3" category="sensitive">
+			<rSolid name="HTSensLayer3"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+		<LogicalPart name="VMWall1" category="unspecified">
+			<rSolid name="VMWall"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="VMWall2" category="unspecified">
+			<rSolid name="VMWall"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="VMWallCounter" category="sensitive">
+			<rSolid name="VMWallCounter"/>
+			<rMaterial name="materials:Scintillator"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="TBHcal06HcalOuter.xml">
+		<PosPart copyNumber="0">
+			<rParent name="TBHcal:TBHCal"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuter"/>
+			<Translation x="([motherXFront]+[motherDx2])" y="[motherY]" z="[motherZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuter"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterYoke"/>
+			<Translation x="(-[motherDx2]+[yokeDx2]+[yokeX])" y="[zero]" z="([motherZoff]+[yokeDz2])"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuter"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterTail"/>
+			<Translation x="(-[motherDx2]+[tailDx2]+[tailX])" y="(-[motherDy2]+[layerDy2])" z="([motherZoff]+[layer0Dz2])"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuter"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer0"/>
+			<Translation x="(-[motherDx2]+[layerDx2]+[layer0X])" y="(-[motherDy2]+[layerDy2])" z="([motherZoff]+[layer0Dz2]+[layer0Z])"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuter"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer1"/>
+			<Translation x="(-[motherDx2]+[layerDx2]+[layer1X])" y="(-[motherDy2]+[layerDy2])" z="([motherZoff]+[layer0Dz2]+[layer1Z])"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuter"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2"/>
+			<Translation x="(-[motherDx2]+[layerDx2]+[layer2X])" y="(-[motherDy2]+[layerDy2])" z="([motherZoff]+[layer2Dz2]+[layer2Z])"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuter"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3"/>
+			<Translation x="(-[motherDx2]+[layerDx2]+[layer3X])" y="(-[motherDy2]+[layerDy2])" z="([motherZoff]+[layer2Dz2]+[layer3Z])"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer0"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer0Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer0trayDy2]+[layer0tray1Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer0"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer0Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer0trayDy2]+[layer0tray2Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer0"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer0Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer0trayDy2]+[layer0tray3Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer0"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer0Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer0trayDy2]+[layer0tray4Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer0"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer0Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer0trayDy2]+[layer0tray5Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer1"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer1Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer1trayDy2]+[layer1tray1Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer1"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer1Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer1trayDy2]+[layer1tray2Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer1"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer1Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer1trayDy2]+[layer1tray3Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer1"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer1Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer1trayDy2]+[layer1tray4Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer1"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer1Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer1trayDy2]+[layer1tray5Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer2tray0Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer2tray1Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer2tray2Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer2tray3Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer2tray4Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer2tray5Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer3tray0Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer3tray1Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer3tray2Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer3tray3Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3Tray"/>
+			<Translation x="[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer3tray4Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3Tray"/>
+			<Translation x="-[trayX]" y="(-[layerDy2]+[layer2trayDy2]+[layer3tray5Y])" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer0Tray"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer0Box"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer0Box"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer0Pack"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer1Tray"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer1Box"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer1Box"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer1Pack"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2Tray"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2Box"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2Box"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer2Pack"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3Tray"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3Box"/>
+		</PosPart>
+		<PosPart copyNumber="3001">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3Box"/>
+			<rChild name="TBHcal06HcalOuter:HadronOuterLayer3Pack"/>
+		</PosPart>
+		<PosPart copyNumber="173">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer0Pack"/>
+			<rChild name="TBHcal06HcalOuter:HTSensLayer0"/>
+			<Translation x="[scntX]" y="[zero]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer1Pack"/>
+			<rChild name="TBHcal06HcalOuter:HTSensLayer1"/>
+			<Translation x="[scntX]" y="[zero]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer2Pack"/>
+			<rChild name="TBHcal06HcalOuter:HTSensLayer2"/>
+			<Translation x="[scntX]" y="[zero]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="183">
+			<rParent name="TBHcal06HcalOuter:HadronOuterLayer3Pack"/>
+			<rChild name="TBHcal06HcalOuter:HTSensLayer3"/>
+			<Translation x="[scntX]" y="[zero]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="21">
+			<rParent name="TBHcal06HcalOuter:VMWall1"/>
+			<rChild name="TBHcal06HcalOuter:VMWallCounter"/>
+			<Translation x="[zero]" y="1.5*[vmWallW]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="22">
+			<rParent name="TBHcal06HcalOuter:VMWall1"/>
+			<rChild name="TBHcal06HcalOuter:VMWallCounter"/>
+			<Translation x="[zero]" y="0.5*[vmWallW]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="23">
+			<rParent name="TBHcal06HcalOuter:VMWall1"/>
+			<rChild name="TBHcal06HcalOuter:VMWallCounter"/>
+			<Translation x="[zero]" y="-0.5*[vmWallW]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="24">
+			<rParent name="TBHcal06HcalOuter:VMWall1"/>
+			<rChild name="TBHcal06HcalOuter:VMWallCounter"/>
+			<Translation x="[zero]" y="-1.5*[vmWallW]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="25">
+			<rParent name="TBHcal06HcalOuter:VMWall2"/>
+			<rChild name="TBHcal06HcalOuter:VMWallCounter"/>
+			<Translation x="[zero]" y="1.5*[vmWallW]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="26">
+			<rParent name="TBHcal06HcalOuter:VMWall2"/>
+			<rChild name="TBHcal06HcalOuter:VMWallCounter"/>
+			<Translation x="[zero]" y="0.5*[vmWallW]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="27">
+			<rParent name="TBHcal06HcalOuter:VMWall2"/>
+			<rChild name="TBHcal06HcalOuter:VMWallCounter"/>
+			<Translation x="[zero]" y="-0.5*[vmWallW]" z="[zero]"/>
+		</PosPart>
+		<PosPart copyNumber="28">
+			<rParent name="TBHcal06HcalOuter:VMWall2"/>
+			<rChild name="TBHcal06HcalOuter:VMWallCounter"/>
+			<Translation x="[zero]" y="-1.5*[vmWallW]" z="[zero]"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="hcal:DDHCalTBZposAlgo">
+		<rParent name="TBHcal06HcalOuter:HadronOuter"/>
+		<String name="ChildName" value="TBHcal06HcalOuter:HadronOuterCoil"/>
+		<Numeric name="Eta" value="[TBHcal:Eta]"/>
+		<Numeric name="ShiftX" value="(-[motherDx2]+[coilDx2]+[coilX])"/>
+		<Numeric name="ShiftY" value="[zero]"/>
+		<Numeric name="Zoffset" value="[motherZoff]"/>
+		<Numeric name="Distance" value="([motherXFront]+[coilDx2]+[coilX])"/>
+		<Numeric name="TiltAngle" value="0.0*deg"/>
+		<Numeric name="Number" value="1"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalTBZposAlgo">
+		<rParent name="TBHcal:TBHCal"/>
+		<String name="ChildName" value="TBHcal06HcalOuter:VMWall1"/>
+		<Numeric name="Eta" value="[TBHcal:Eta]"/>
+		<Numeric name="ShiftX" value="([vmWallXFront]+[vmWallT]/2)"/>
+		<Numeric name="ShiftY" value="[vmWallShift]"/>
+		<Numeric name="Zoffset" value="[zero]"/>
+		<Numeric name="Distance" value="([vmWallXFront]+[vmWallT]/2)"/>
+		<Numeric name="TiltAngle" value="10.0*deg"/>
+		<Numeric name="Number" value="1"/>
+	</Algorithm>
+	<Algorithm name="hcal:DDHCalTBZposAlgo">
+		<rParent name="TBHcal:TBHCal"/>
+		<String name="ChildName" value="TBHcal06HcalOuter:VMWall2"/>
+		<Numeric name="Eta" value="[TBHcal:Eta]"/>
+		<Numeric name="ShiftX" value="([vmWallXFront]+[vmWallT]/2)"/>
+		<Numeric name="ShiftY" value="-[vmWallShift]"/>
+		<Numeric name="Zoffset" value="[zero]"/>
+		<Numeric name="Distance" value="([vmWallXFront]+[vmWallT]/2)"/>
+		<Numeric name="TiltAngle" value="-10.0*deg"/>
+		<Numeric name="Number" value="1"/>
+	</Algorithm>
+</DDDefinition>

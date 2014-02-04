@@ -2,7 +2,7 @@
 #define Geometry_HcalTowerAlgo_HcalDDDGeometryLoader_H 1
 
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
-#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
@@ -20,17 +20,17 @@ class HcalDetId;
  * \author S. Banerjee
 */
 
-class HcalDDDGeometryLoader // : public CaloVGeometryLoader {
-{
-   public:
+class HcalDDDGeometryLoader {
 
-      explicit HcalDDDGeometryLoader(const DDCompactView & cpv);
-      virtual ~HcalDDDGeometryLoader();
+public:
+
+  explicit HcalDDDGeometryLoader(const DDCompactView & cpv);
+  virtual ~HcalDDDGeometryLoader();
   
-      typedef CaloSubdetectorGeometry* ReturnType ;
-      ReturnType load(const HcalTopology& topo, DetId::Detector , int );
-      /// Load all of HCAL
-      ReturnType load(const HcalTopology& topo);
+  typedef CaloSubdetectorGeometry* ReturnType ;
+  ReturnType load(const HcalTopology& topo, DetId::Detector , int );
+  /// Load all of HCAL
+  ReturnType load(const HcalTopology& topo);
   
 private:
 
@@ -44,7 +44,7 @@ private:
 		 HcalCellType, double, 
 		 double, CaloSubdetectorGeometry* geom) const;
   
-  HcalNumberingFromDDD* numberingFromDDD;
+  HcalDDDSimConstants* hcalConstants;
 
   HcalTopology* dummyTopology_;
 

@@ -74,11 +74,12 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
   }
 
   // Now geometry parameters
-  attribute = "ReadOutName";
-  value     = name;
+  attribute = "OnlyForHcalSimNumbering"; 
+  value     = "any";
+  DDValue val(attribute, value, 0.0);
   DDSpecificsFilter filter2;
-  DDValue           ddv2(attribute,value,0);
-  filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
+  filter2.setCriteria(val, DDSpecificsFilter::not_equals,
+		      DDSpecificsFilter::AND, true, true);
   DDFilteredView fv2(cpv);
   fv2.addFilter(filter2);
   dodet     = fv2.firstChild();

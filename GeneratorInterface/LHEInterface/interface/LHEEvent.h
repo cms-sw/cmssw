@@ -37,6 +37,7 @@ class LHEEvent {
 	~LHEEvent();
 
 	typedef LHEEventProduct::PDF PDF;
+	typedef LHEEventProduct::WGT WGT;
 
 	const boost::shared_ptr<LHERunInfo> &getRunInfo() const { return runInfo; }
 	const HEPEUP *getHEPEUP() const { return &hepeup; }
@@ -45,7 +46,11 @@ class LHEEvent {
 	const std::vector<std::string> &getComments() const { return comments; }
 	const int getReadAttempts() { return readAttemptCounter; }
 
+	void addWeight(const WGT& wgt) { weights_.push_back(wgt); }
 	void setPDF(std::auto_ptr<PDF> pdf) { this->pdf = pdf; }
+
+	double originalXWGTUP() const { return originalXWGTUP_; }
+	const std::vector<WGT>& weights() const { return weights_; }
 
 	void addComment(const std::string &line) { comments.push_back(line); }
 
@@ -75,9 +80,11 @@ class LHEEvent {
 
 	HEPEUP					hepeup;
 	std::auto_ptr<PDF>			pdf;
+	std::vector<WGT>	          	weights_;
 	std::vector<std::string>		comments;
 	bool					counted;
 	int                                     readAttemptCounter;
+	double                                  originalXWGTUP_;
 };
 
 } // namespace lhef

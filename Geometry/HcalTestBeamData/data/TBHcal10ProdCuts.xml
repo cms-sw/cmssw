@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="regions.xml" eval="true">
+  <SpecPar name="All">
+   <PartSelector path="//TBHCal"/>
+   <Parameter name="CMSCutsRegion" value="AllRegion" eval="false"/>
+   <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+   <Parameter name="ProdCutsForGamma" value="1*mm"/>
+  </SpecPar>
+  <SpecPar name="Calo">
+   <PartSelector path="//HCal"/>
+   <Parameter name="CMSCutsRegion" value="HcalRegion" eval="false"/>
+   <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="1*mm"/>
+   <Parameter name="ProdCutsForGamma" value="1*mm"/>
+  </SpecPar>
+  <SpecPar name="ebapd">
+   <PartSelector path="//EAPD.*"/>
+   <PartSelector path="//EATJ.*"/>
+   <Parameter name="CMSCutsRegion" value="APDRegion" eval="false"/>
+   <Parameter name="ProdCutsForElectrons" value="0.005*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="0.005*mm"/>
+   <Parameter name="ProdCutsForGamma" value="0.005*mm"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>
