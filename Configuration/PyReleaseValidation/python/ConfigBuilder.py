@@ -221,7 +221,7 @@ class ConfigBuilder(object):
 
         if self._options.filein:
            if self._options.filetype == "EDM":
-               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(), source.secondaryFileNames = cms.untracked.vstring())
+               self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(), secondaryFileNames = cms.untracked.vstring())
 	       filesFromOption(self)
 	       
            elif self._options.filetype == "LHE":
