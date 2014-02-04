@@ -140,10 +140,10 @@ namespace cond {
       // TO BE REMOVED in the long term. The new code will use coralSession().
       coral::ISchema& nominalSchema();
       
-    private:
-      cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime );
       bool isOraSession(); 
       
+    private:
+      cond::Hash storePayloadData( const std::string& payloadObjectType, const cond::Binary& payloadData, const boost::posix_time::ptime& creationTime );
     private:
       
       std::shared_ptr<SessionImpl> m_session;
