@@ -7,6 +7,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 ## load photon sequencesup to selectedPatPhotons
 process.load("PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi")
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_selectedPat*_*_*']
