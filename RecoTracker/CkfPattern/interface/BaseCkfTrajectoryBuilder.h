@@ -61,7 +61,9 @@ public:
   typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
 
-  BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf);
+  BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                           TrajectoryFilter *filter,
+                           TrajectoryFilter *inOutFilter=nullptr);
   BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &) = delete;
   BaseCkfTrajectoryBuilder& operator=(const BaseCkfTrajectoryBuilder&) = delete;
   virtual ~BaseCkfTrajectoryBuilder();
@@ -93,6 +95,8 @@ public:
   const TransientTrackingRecHitBuilder* hitBuilder() const { return theTTRHBuilder;}
 
  protected:    
+  static TrajectoryFilter *createTrajectoryFilter(const edm::ParameterSet& pset);
+
   virtual void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 
   //methods for dubugging 
@@ -157,10 +161,8 @@ public:
 
   //  TrajectoryFilter*              theMinPtCondition;
   //  TrajectoryFilter*              theMaxHitsCondition;
-protected:
-  const TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
-  const TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
-private:
+  TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
+  TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
 
   // for EventSetup
   const std::string theUpdatorName;
@@ -168,7 +170,6 @@ private:
   const std::string thePropagatorOppositeName;
   const std::string theEstimatorName;
   const std::string theRecHitBuilderName;
-  const std::string theFilterName;
 };
 
 

@@ -108,9 +108,12 @@ using namespace std;
 =================================== */
 
 GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf):
-  BaseCkfTrajectoryBuilder(conf),
-  theInOutFilterName(conf.getParameter<std::string>("inOutTrajectoryFilterName")),
-  theUseSameTrajFilter(conf.getParameter<bool>("useSameTrajFilter"))
+  BaseCkfTrajectoryBuilder(conf,
+                           BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter")),
+                           conf.getParameter<bool>("useSameTrajFilter") ?
+                             BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter")) :
+                             BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("inOutTrajectoryFilter"))
+                           )
 {
   // fill data members from parameters (eventually data members could be dropped)
   //
@@ -154,14 +157,6 @@ GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet
 */
 
 void GroupedCkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {
-  if(theUseSameTrajFilter) {
-    theInOutFilter = theFilter;
-  }
-  else {
-    edm::ESHandle<TrajectoryFilter> filterHandle;
-    iSetup.get<CkfComponentsRecord>().get(theInOutFilterName, filterHandle);
-    theInOutFilter = filterHandle.product();
-  }
 }
 
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 

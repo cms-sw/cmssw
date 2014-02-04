@@ -39,6 +39,7 @@ public:
   typedef std::vector<TempTrajectory>     TempTrajectoryContainer;
 
   CkfTrajectoryBuilder(const edm::ParameterSet& conf);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter);
 
   ~CkfTrajectoryBuilder() {}
 

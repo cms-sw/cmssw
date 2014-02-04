@@ -9,7 +9,7 @@
 class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
  public:
   CkfDebugTrajectoryBuilder(const edm::ParameterSet& conf):
-    CkfTrajectoryBuilder(conf)
+    CkfTrajectoryBuilder(conf, nullptr)
     {
       //edm::LogVerbatim("CkfDebugger") <<"CkfDebugTrajectoryBuilder::CkfDebugTrajectoryBuilder";
     }

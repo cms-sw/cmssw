@@ -12,6 +12,7 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
@@ -24,7 +25,9 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf):
+BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                                                   TrajectoryFilter *filter,
+                                                   TrajectoryFilter *inOutFilter):
   theUpdator(nullptr),
   thePropagatorAlong(nullptr),
   thePropagatorOpposite(nullptr),
@@ -32,14 +35,13 @@ BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf
   theTTRHBuilder(nullptr),
   theMeasurementTracker(nullptr),
   theForwardPropagator(nullptr),theBackwardPropagator(nullptr),
-  theFilter(nullptr),
-  theInOutFilter(nullptr),
+  theFilter(filter),
+  theInOutFilter(inOutFilter),
   theUpdatorName(conf.getParameter<std::string>("updator")),
   thePropagatorAlongName(conf.getParameter<std::string>("propagatorAlong")),
   thePropagatorOppositeName(conf.getParameter<std::string>("propagatorOpposite")),
   theEstimatorName(conf.getParameter<std::string>("estimator")),
-  theRecHitBuilderName(conf.getParameter<std::string>("TTRHBuilder")),
-  theFilterName(conf.getParameter<std::string>("trajectoryFilterName"))
+  theRecHitBuilderName(conf.getParameter<std::string>("TTRHBuilder"))
 {
   if (conf.exists("clustersToSkip")) edm::LogError("BaseCkfTrajectoryBuilder") << "ERROR: " << typeid(*this).name() << " has a clustersToSkip parameter set";
 }
@@ -48,6 +50,9 @@ BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
 }
 
+TrajectoryFilter *BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset) {
+  return TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset);
+}
 
 void
 BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTrajectory & result) const
@@ -256,22 +261,21 @@ void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& iEvent, const edm::Eve
   edm::ESHandle<Propagator>             propagatorOppositeHandle;
   edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorHandle;
   edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
-  edm::ESHandle<TrajectoryFilter> filterHandle;
 
   iSetup.get<TrackingComponentsRecord>().get(theUpdatorName, updatorHandle);
   iSetup.get<TrackingComponentsRecord>().get(thePropagatorAlongName, propagatorAlongHandle);
   iSetup.get<TrackingComponentsRecord>().get(thePropagatorOppositeName, propagatorOppositeHandle);
   iSetup.get<TrackingComponentsRecord>().get(theEstimatorName, estimatorHandle);
   iSetup.get<TransientRecHitRecord>().get(theRecHitBuilderName, recHitBuilderHandle);
-  iSetup.get<CkfComponentsRecord>().get(theFilterName, filterHandle);
 
   theUpdator = updatorHandle.product();
   thePropagatorAlong = propagatorAlongHandle.product();
   thePropagatorOpposite = propagatorOppositeHandle.product();
   theEstimator = estimatorHandle.product();
   theTTRHBuilder = recHitBuilderHandle.product();
-  theFilter = filterHandle.product();
 
   setData(data);
+  if(theFilter) theFilter->setEvent(iEvent, iSetup);
+  if(theInOutFilter) theInOutFilter->setEvent(iEvent, iSetup);
   setEvent_(iEvent, iSetup);
 }
