@@ -239,7 +239,7 @@ public:
   std::vector<uint32_t> & rawInactiveStripDetIds() { return theRawInactiveStripDetIds_; } 
   const std::vector<uint32_t> & rawInactiveStripDetIds() const { return theRawInactiveStripDetIds_; } 
 
-  void resetOnDemandStrips() { std::fill(stripDefined_.begin(), stripDefined_.end(), false); std::fill(stripUpdated_.begin(), stripDefined_.end(), false); }
+  void resetOnDemandStrips() { std::fill(stripDefined_.begin(), stripDefined_.end(), false); std::fill(stripUpdated_.begin(), stripUpdated_.end(), false); }
   const bool stripDefined(int i) const { return stripDefined_[i]; }
   const bool stripUpdated(int i) const { return stripUpdated_[i]; }
   void defineStrip(int i, std::pair<unsigned int, unsigned int> range) {
