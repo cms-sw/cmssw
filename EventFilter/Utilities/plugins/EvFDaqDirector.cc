@@ -324,7 +324,7 @@ namespace evf {
     fcntl(bu_writelock_fd_, F_SETLKW, &bu_w_fulk);
   }
 
-  EvFDaqDirector::FileStatus EvFDaqDirector::updateFuLock(unsigned int& ls, std::string& nextFile) {
+  EvFDaqDirector::FileStatus EvFDaqDirector::updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
 
     int retval = -1;
@@ -355,7 +355,7 @@ namespace evf {
 	  fscanf(fu_rw_lock_stream, "%u %u", &readLs, &readIndex);
 
 	// try to bump
-	bool bumpedOk = bumpFile(readLs, readIndex, nextFile);
+	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize);
 	ls = readLs;
 	// there is a new file to grab or lumisection ended
 	if (bumpedOk) {
@@ -516,7 +516,7 @@ namespace evf {
 
   }
 
-  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile) {
+  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize) {
 
     if (previousFileSize_ != 0) {
       FastMonitoringService *mss = 0;
@@ -538,6 +538,7 @@ namespace evf {
     nextFile = getRawFilePath(ls,index);
     if (stat(nextFile.c_str(), &buf) == 0) {
       previousFileSize_ = buf.st_size;
+      fsize = buf.st_size;
       return true;
     }
     // 2. No file -> lumi ended? (and how many?)
@@ -548,6 +549,7 @@ namespace evf {
         // recheck that no raw file appeared in the meantime
         if (stat(nextFile.c_str(), &buf) == 0) {
           previousFileSize_ = buf.st_size;
+          fsize = buf.st_size;
           return true;
         }
 	// this lumi ended, check for files
@@ -557,6 +559,7 @@ namespace evf {
 	  // a new file was found at new lumisection, index 0
 	  index = 0;
 	  previousFileSize_ = buf.st_size;
+          fsize = buf.st_size;
 
 	  if (testModeNoBuilderUnit_) {
 	    // rename ended lumi to + 2

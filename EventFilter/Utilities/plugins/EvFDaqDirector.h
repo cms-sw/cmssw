@@ -63,7 +63,7 @@ namespace evf{
       int readBuLock();
       // DEPRECATED
       //int updateFuLock(unsigned int &ls);
-      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile);
+      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize);
       void writeLsStatisticsBU(unsigned int, unsigned int, unsigned long long, long long);
       void writeLsStatisticsFU(unsigned int ls, unsigned int events, timeval completion_time){}
       void writeDiskAndThrottleStat(double, int, int);
@@ -85,7 +85,7 @@ namespace evf{
       bool mkFuRunDir();
       // This functionality is for emulator running only
       bool createOutputDirectory();
-      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile);
+      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize);
       bool findHighestActiveLS(unsigned int& startingLS) const;
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
