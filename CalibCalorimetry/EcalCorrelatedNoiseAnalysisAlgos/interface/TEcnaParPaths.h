@@ -36,11 +36,11 @@ class TEcnaParPaths : public TObject {
 
   Int_t   fCnaCommand,  fCnaError;
 
-  ifstream fFcin_rr;          // stream for results root files 
-  ifstream fFcin_ra;          // stream for results ascii files 
-  ifstream fFcin_lor;         // stream for list of runs files
-  //  ifstream fFcin_anapar;      // stream for EcnaAnalyzer parameters files
-  ifstream fFcin_cmssw;       // stream for cmssw version and subsystem 
+  std::ifstream fFcin_rr;          // stream for results root files 
+  std::ifstream fFcin_ra;          // stream for results ascii files 
+  std::ifstream fFcin_lor;         // stream for list of runs files
+  //  std::ifstream fFcin_anapar;      // stream for EcnaAnalyzer parameters files
+  std::ifstream fFcin_cmssw;       // stream for cmssw version and subsystem 
 
   TString fCfgResultsRootFilePath;     // absolute path for the results .root files (/afs/etc...)
   TString fFileForResultsRootFilePath; // name of the file containing the results .root  file path
