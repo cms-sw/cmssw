@@ -347,7 +347,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                     #print '%s DEBUG: Querying dataset \'%s\' with'%( self._label, dataset )
                     #print '    \'%s\''%( dbsQuery )
                 #foundSE = False
-                #for line in os.popen( 'dbs search --query="%s"'%( dbsQuery ) ):
+                #for line in os.popen( 'dbs search --query="%s"'%( dbsQuery ) ).readlines():
                     #if line.find( '.root' ) != -1:
                         #if validVersion != version:
                             #if not foundSE:
@@ -355,7 +355,7 @@ class PickRelValInputFiles( ConfigToolBase ):
                                 #if debug:
                                     #print '%s DEBUG: Querying site \'%s\' with'%( self._label, domainSE )
                                     #print '    \'%s\''%( dbsSiteQuery )
-                                #for lineSite in os.popen( 'dbs search --query="%s"'%( dbsSiteQuery ) ):
+                                #for lineSite in os.popen( 'dbs search --query="%s"'%( dbsSiteQuery ) ).readlines():
                                     #if lineSite.find( dataset ) != -1:
                                         #foundSE = True
                                         #break
