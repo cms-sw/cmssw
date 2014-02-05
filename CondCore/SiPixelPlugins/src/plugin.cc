@@ -31,8 +31,11 @@
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTSimRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleSimRcd.h"
 
+namespace {
+ struct InitRocs {void operator()(SiPixelFedCablingMap& m){ m.initializeRocs();}};
+}
 
-REGISTER_PLUGIN(SiPixelFedCablingMapRcd,SiPixelFedCablingMap);
+REGISTER_PLUGIN_INIT(SiPixelFedCablingMapRcd,SiPixelFedCablingMap, InitRocs);
 REGISTER_PLUGIN(SiPixelGainCalibrationRcd,SiPixelGainCalibration);
 REGISTER_PLUGIN(SiPixelGainCalibrationForHLTRcd,SiPixelGainCalibrationForHLT);
 REGISTER_PLUGIN(SiPixelGainCalibrationOfflineRcd,SiPixelGainCalibrationOffline);
