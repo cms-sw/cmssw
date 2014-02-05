@@ -38,14 +38,14 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaGui.h
-///   Update: 14/02/2011
+///   Update: 05/10/2012
 ///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
 ///
 ///   ECNA web page:
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///-----------------------------------------------------------
 ///
 /// This class provides a dialog box for ECNA (Ecal Correlated Noise Analysis)
@@ -204,7 +204,8 @@
 ///
 ///   Location of the ECNA web page:
 ///
-///   http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///   http://cms-fabbro.web.cern.ch/cms-fabbro/
+///   cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///
 ///   For questions or comments, please send e-mail to: bernard.fabbro@cea.fr 
 ///
@@ -877,7 +878,7 @@ class TEcnaGui : public TGMainFrame {
 
   //==================================================== Miscellaneous parameters
 
-  //std::ofstream fFcout_f;
+  //ofstream fFcout_f;
 
   TString  fKeyAnaType;           // Type of analysis
 
@@ -972,6 +973,7 @@ class TEcnaGui : public TGMainFrame {
   virtual  ~TEcnaGui();
 
   void Init();
+  void InitGuiParameters();
   void DialogBox();
 
   void InitKeys();
