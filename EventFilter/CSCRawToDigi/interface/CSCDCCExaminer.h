@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <iostream>
+#include <ostream>
 
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
 
@@ -30,34 +30,6 @@ private:
 	std::map<DDUIdType,ExaminerStatusType> bDDU_ERR;       // ddu     <-> errors in bits
 	std::map<DDUIdType,ExaminerStatusType> bDDU_WRN;       // ddu     <-> errors in bits
 
-	class OStream : public std::ostream {
-	private:
-		class buffer : public std::streambuf{};
-		buffer     buff;
-		std::streambuf *stream;
-		std::streambuf *null;
-		std::string     name;
-
-	public:
-		void show(void){ rdbuf(stream); }
-		void hide(void){ rdbuf(null);   }
-		void sign(std::string nm)     { name=nm; }
-		void sign(const char *nm){ name=nm; }
-
-		void redirect(std::ostream &str){
-			stream = str.rdbuf(); tie(&str);
-			if( rdbuf() != null ) rdbuf(stream);
-		}
-
-		template<class T> std::ostream& operator<<(const T& val){
-			return (*(std::ostream*)this)<<name<<val;
-		}
-
-		OStream(void):std::ostream(std::cout.rdbuf()),buff(),stream(std::cout.rdbuf()),null(&buff),name(""){}
-		OStream(std::ostream &str):std::ostream(str.rdbuf()),buff(),stream(str.rdbuf()),null(&buff),name(""){}
-	};
-
-	OStream cout, cerr;
 
 	CSCIdType currentChamber;       // ( (CrateNumber<<4) + DMBslot ) specifies chamber
 
@@ -145,8 +117,6 @@ private:
 	const uint16_t *buffer_start;
 
 public:
-	OStream& output1(void){ return cout; }
-	OStream& output2(void){ return cerr; }
 
 	int32_t check(const uint16_t* &buffer, int32_t length);
 

@@ -22,12 +22,16 @@ class CSCStripData
    *
    * Note that _raw_ pulseheights are int.
    */
-  CSCStripData() : istrip_(-1), phmax_(0.), tmax_(-1), phRaw_( ntbins_ ), ph_( ntbins_ ) {};
-  CSCStripData( int istrip,  float phmax,  int tmax, const std::vector<int>& phRaw, const std::vector<float>& ph ) :
-      istrip_(istrip), phmax_(phmax), tmax_(tmax), phRaw_(phRaw), ph_(ph) {};
-   
-  /// strip to which these data belong (counts from 1)
-  int   strip() const {return istrip_;}
+  CSCStripData() : phmax_(0.f), tmax_(-1), phRaw_(ntbins_), ph_(ntbins_)  {}
+  CSCStripData( float phmax,  int tmax, const std::vector<int>& phRaw, const std::vector<float>& ph ) :
+    phmax_(phmax), tmax_(tmax), phRaw_(phRaw), ph_(ph) {}
+
+  CSCStripData( float phmax,  int tmax, std::vector<int> && phRaw, std::vector<float> && ph ) :
+    phmax_(phmax), tmax_(tmax), phRaw_(std::move(phRaw)), ph_(std::move(ph)) {}
+
+  void reset() { phmax_=0.f;tmax_= -1;}
+  bool valid() const { return tmax_>=0;}
+
   /// maximum pulseheight in one SCA time bin
   float phmax() const {return phmax_;}
   /// the time bin in which the maximum pulseheight occurs (counts from 0)
@@ -58,10 +62,9 @@ class CSCStripData
   /// for debugging purposes
   friend std::ostream & operator<<(std::ostream &, const CSCStripData &);
 
- private:
+  // private:
 
-  static const int ntbins_ = 8; //@@ Number of time bins & hence length of ph vectors
-  int istrip_;
+  static constexpr int ntbins_ = 8; //@@ Number of time bins & hence length of ph vectors
   float phmax_;
   int tmax_;
   std::vector<int> phRaw_;
