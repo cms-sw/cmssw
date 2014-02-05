@@ -23,7 +23,7 @@ zMuMuSubskimOutputModule = cms.OutputModule("PoolOutputModule",
       'keep *_offlinePrimaryVerticesWithBS_*_*',
       ### to save jet information
       #'keep *_sisCone5CaloJets_*_*',
-      #'keep *_ak5CaloJets_*_*',
+      #'keep *_ak4CaloJets_*_*',
       ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring(

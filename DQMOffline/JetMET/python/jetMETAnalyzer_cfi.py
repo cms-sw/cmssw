@@ -21,7 +21,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_highptjet' ),
-        hltPaths       = cms.vstring( 'HLT_Jet300_v','HLT_Jet300_v6','HLT_Jet300_v7','HLT_Jet300_v8' ), 
+        hltPaths       = cms.vstring( 'HLT_Jet300_v','HLT_Jet300_v6','HLT_Jet300_v7','HLT_Jet300_v8' ),
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -30,7 +30,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_lowptjet' ),
-        hltPaths       = cms.vstring( 'HLT_Jet60_v','HLT_Jet60_v6','HLT_Jet60_v7','HLT_Jet60_v8' ), 
+        hltPaths       = cms.vstring( 'HLT_Jet60_v','HLT_Jet60_v6','HLT_Jet60_v7','HLT_Jet60_v8' ),
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -40,7 +40,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
     # Jet-related
-    #                                                                   
+    #
     DoPFJetAnalysis            = cms.untracked.bool(False),
     DoPFJetCleaning            = cms.untracked.bool(True),
 
@@ -50,21 +50,21 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     DoJetAnalysis              = cms.untracked.bool(True),
     DoJetCleaning              = cms.untracked.bool(True),
     DoIterativeCone            = cms.untracked.bool(False),
-    DoSisCone                  = cms.untracked.bool(False),                               
+    DoSisCone                  = cms.untracked.bool(False),
 
-    DoJetPtAnalysis            = cms.untracked.bool(False),                           
-    DoJetPtCleaning            = cms.untracked.bool(False),                           
+    DoJetPtAnalysis            = cms.untracked.bool(False),
+    DoJetPtCleaning            = cms.untracked.bool(False),
     DoDiJetSelection           = cms.untracked.bool(True),
 
-    PFJetsCollectionLabel      = cms.InputTag("ak5PFJets"),
+    PFJetsCollectionLabel      = cms.InputTag("ak4PFJets"),
     JPTJetsCollectionLabel     = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
     SCJetsCollectionLabel      = cms.InputTag("sisCone5CaloJets"),
-    AKJetsCollectionLabel      = cms.InputTag("ak5CaloJets"),
+    AKJetsCollectionLabel      = cms.InputTag("ak4CaloJets"),
     ICJetsCollectionLabel      = cms.InputTag("iterativeCone5CaloJets"),
 
     #
     # MET-related
-    #                                                                   
+    #
     DoCaloMETAnalysis            = cms.untracked.bool(True),
     DoTcMETAnalysis              = cms.untracked.bool(True),
     DoMuCorrMETAnalysis          = cms.untracked.bool(False),
@@ -75,11 +75,11 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     #
     #
     LSBegin = cms.int32(0),
-    LSEnd   = cms.int32(-1),                                
-                                
+    LSEnd   = cms.int32(-1),
+
     #Cleanup parameters
     CleaningParameters = cleaningParameters.clone(),
-                                
+
     #
     # For caloMETAnalysis "met"
     #
@@ -94,7 +94,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
          METCollectionLabel = cms.InputTag("metNoHF"),
          Source             = cms.string("CaloMETNoHF")
      ),
- 
+
      #
      # For caloMETAnalysis "metHO"
      #
@@ -118,7 +118,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
            Filter = cms.untracked.bool(True)
          )
      ),
- 
+
      #
      # For pfMETAnalysis
      #
@@ -133,7 +133,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
            Filter = cms.untracked.bool(True)
          )
      ),
- 
+
      #
      # For tcMETAnalysis
      #
@@ -187,7 +187,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
     # For jetcleaning Analysis
     #
     CleanedjetAnalysis = cleanedJetDQMParameters.clone(),
-                                
+
     #
     # For dijet Analysis
     #
@@ -253,7 +253,7 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
 
     #
     # DCS
-    #                             
+    #
     DCSFilterCalo = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
       #DebugOn = cms.untracked.bool(True),
