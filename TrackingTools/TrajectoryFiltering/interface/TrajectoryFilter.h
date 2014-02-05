@@ -6,6 +6,7 @@
 namespace edm {
   class Event;
   class EventSetup;
+  class ConsumesCollector;
 }
 
 class Trajectory;

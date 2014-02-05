@@ -16,16 +16,16 @@
 class CkfBaseTrajectoryFilter : public TrajectoryFilter {
 public:
 
-  explicit CkfBaseTrajectoryFilter( const edm::ParameterSet & pset):
+  explicit CkfBaseTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
     //define the filters by default in the BaseCkfTrajectoryBuilder
-    theChargeSignificanceTrajectoryFilter(new ChargeSignificanceTrajectoryFilter(pset)),
-    theMaxConsecLostHitsTrajectoryFilter(new MaxConsecLostHitsTrajectoryFilter(pset)),
-    theMaxHitsTrajectoryFilter(new MaxHitsTrajectoryFilter(pset)),
-    theMaxLostHitsTrajectoryFilter(new MaxLostHitsTrajectoryFilter(pset)),
-    theLostHitsFractionTrajectoryFilter(new LostHitsFractionTrajectoryFilter(pset)),
-    theMinHitsTrajectoryFilter(new MinHitsTrajectoryFilter(pset)),
-    theMinPtTrajectoryFilter(new MinPtTrajectoryFilter(pset)),
-    theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset))
+    theChargeSignificanceTrajectoryFilter(new ChargeSignificanceTrajectoryFilter(pset, iC)),
+    theMaxConsecLostHitsTrajectoryFilter(new MaxConsecLostHitsTrajectoryFilter(pset, iC)),
+    theMaxHitsTrajectoryFilter(new MaxHitsTrajectoryFilter(pset, iC)),
+    theMaxLostHitsTrajectoryFilter(new MaxLostHitsTrajectoryFilter(pset, iC)),
+    theLostHitsFractionTrajectoryFilter(new LostHitsFractionTrajectoryFilter(pset, iC)),
+    theMinHitsTrajectoryFilter(new MinHitsTrajectoryFilter(pset, iC)),
+    theMinPtTrajectoryFilter(new MinPtTrajectoryFilter(pset, iC)),
+    theLooperTrajectoryFilter(new LooperTrajectoryFilter(pset, iC))
   {}
 
   void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
