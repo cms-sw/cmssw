@@ -107,12 +107,12 @@ using namespace std;
 #endif
 =================================== */
 
-GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf):
+GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
   BaseCkfTrajectoryBuilder(conf,
-                           BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter")),
+                           BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC),
                            conf.getParameter<bool>("useSameTrajFilter") ?
-                             BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter")) :
-                             BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("inOutTrajectoryFilter"))
+                             BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC) :
+                             BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("inOutTrajectoryFilter"), iC)
                            )
 {
   // fill data members from parameters (eventually data members could be dropped)

@@ -27,9 +27,9 @@
 
 using namespace std;
 
-CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf):
+CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
   CkfTrajectoryBuilder(conf,
-                       BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter")))
+                       BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC))
 {}
 
 CkfTrajectoryBuilder::CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter):

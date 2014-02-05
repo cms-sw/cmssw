@@ -14,8 +14,8 @@
 #include "RecoMuon/L3TrackFinder/src/EtaPhiEstimator.h"
 #include <sstream>
 
-MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf):
-  CkfTrajectoryBuilder(conf),
+MuonCkfTrajectoryBuilder::MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
+  CkfTrajectoryBuilder(conf, iC),
   theDeltaEta(conf.getParameter<double>("deltaEta")),
   theDeltaPhi(conf.getParameter<double>("deltaPhi")),
   theProximityPropagatorName(conf.getParameter<std::string>("propagatorProximity")),

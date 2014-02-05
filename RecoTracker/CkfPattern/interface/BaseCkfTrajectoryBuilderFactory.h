@@ -6,8 +6,9 @@
 
 namespace edm {
   class ParameterSet;
+  class ConsumesCollector;
 }
 
-typedef edmplugin::PluginFactory< BaseCkfTrajectoryBuilder* (const edm::ParameterSet&) > BaseCkfTrajectoryBuilderFactory;
+typedef edmplugin::PluginFactory< BaseCkfTrajectoryBuilder* (const edm::ParameterSet&, edm::ConsumesCollector& iC) > BaseCkfTrajectoryBuilderFactory;
 
 #endif

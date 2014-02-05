@@ -6,7 +6,7 @@
 
 class MuonCkfTrajectoryBuilder : public CkfTrajectoryBuilder {
  public:
-  MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf);
+  MuonCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
   virtual ~MuonCkfTrajectoryBuilder();
 
  protected:

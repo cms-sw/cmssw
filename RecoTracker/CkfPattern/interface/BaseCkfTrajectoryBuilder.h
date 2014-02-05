@@ -34,6 +34,9 @@ class TrackingRegion;
 class TrajectoryMeasurementGroup;
 class TrajectoryCleaner;
 class TrackingComponentsRecord;
+namespace edm {
+  class ConsumesCollector;
+}
 
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
@@ -96,7 +99,7 @@ public:
   const TransientTrackingRecHitBuilder* hitBuilder() const { return theTTRHBuilder;}
 
  protected:    
-  static TrajectoryFilter *createTrajectoryFilter(const edm::ParameterSet& pset);
+  static TrajectoryFilter *createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
 
   virtual void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
 

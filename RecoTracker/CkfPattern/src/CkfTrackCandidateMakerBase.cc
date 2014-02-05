@@ -47,8 +47,8 @@ using namespace edm;
 using namespace std;
 
 namespace {
-  BaseCkfTrajectoryBuilder *createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset) {
-    return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset);
+  BaseCkfTrajectoryBuilder *createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
+    return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
   }
 }
 
@@ -63,7 +63,7 @@ namespace cms{
     cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
     reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") && conf.getParameter<bool>("reverseTrajectories")),
     theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
-    theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilder"))),
+    theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilder"), iC)),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
     theTrajectoryCleaner(0),
     theInitialState(0),

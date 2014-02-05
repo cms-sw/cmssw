@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 //
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCandidateSuperClusterAssociation.h"
@@ -46,14 +47,14 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 namespace {
-  BaseCkfTrajectoryBuilder *createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset) {
-    return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset);
+  BaseCkfTrajectoryBuilder *createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC) {
+    return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
   }
 }
 
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
   conf_(config), 
-  theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(config.getParameter<edm::ParameterSet>("TrajectoryBuilder"))),
+  theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(config.getParameter<edm::ParameterSet>("TrajectoryBuilder"), consumesCollector())),
   theNavigationSchool_(0), 
   theOutInSeedFinder_(0), 
   theOutInTrackFinder_(0), 
