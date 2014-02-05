@@ -53,7 +53,7 @@ largeD0step4StripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHit
 )
 #SEEDING LAYERS
 import RecoTracker.TkSeedingLayers.PixelLessLayerPairs_cfi
-largeD0step4LayerPairs = RecoTracker.TkSeedingLayers.PixelLessLayerPairs_cfi.pixellesslayerpairs.clone()
+largeD0step4LayerPairs = RecoTracker.TkSeedingLayers.PixelLessLayerPairs_cfi.PixelLessLayerPairs.clone()
 largeD0step4LayerPairs.TIB.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
 largeD0step4LayerPairs.TID.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
 largeD0step4LayerPairs.TEC.matchedRecHits = 'largeD0step4StripRecHits:matchedRecHit'
