@@ -1,21 +1,12 @@
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-<<<<<<< HEAD
 #include "GeneratorInterface/Core/interface/FortranInstance.h"
-=======
->>>>>>> rappoccio/rappoccio_AK5_To_AK4_710
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaFactory.h"
 #include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
-<<<<<<< HEAD
-=======
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
->>>>>>> rappoccio/rappoccio_AK5_To_AK4_710
 #include "HepMC/GenEvent.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
