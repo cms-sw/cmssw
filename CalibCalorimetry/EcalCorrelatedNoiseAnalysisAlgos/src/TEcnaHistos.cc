@@ -1,9 +1,8 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//---------Modified: 04/07/2011
+//---------Modified: 30/01/2014
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHistos.h"
-using namespace std;
 
 //--------------------------------------
 //  TEcnaHistos.cc
@@ -206,7 +205,7 @@ void TEcnaHistos::Init()
   fCnaCommand  = 0;
   fCnaError    = 0;
 
-  fgMaxCar = 512;
+  fgMaxCar = (Int_t)512;
   Int_t MaxCar = fgMaxCar;
 
   //------------------------------ initialisations ----------------------
@@ -3111,7 +3110,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       if (HistoCode == "D_LFN_ChNb") {sprintf(f_in_mat_tit, "Low frequency noise");}
       if (HistoCode == "D_HFN_ChNb") {sprintf(f_in_mat_tit, "High frequency noise");}
       if (HistoCode == "D_SCs_ChNb") {sprintf(f_in_mat_tit, "Sigma of cor(s,s')");}
-      
+
       //................................. Axis parameters
       Int_t  GeoBidSizeHoco = fEcal->MaxStinHocoInStex()*fEcal->MaxCrysHocoInStin();
       Int_t  GeoBidSizeVeco = fEcal->MaxStinVecoInStex()*fEcal->MaxCrysVecoInStin();
@@ -3707,7 +3706,10 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
       //............. matrices reading and histogram filling
       char* f_in_mat_tit = new char[fgMaxCar];                           fCnew++;
 
-      sprintf(f_in_mat_tit, "SM tower numbering");
+      if( SMNumber <= fEcal->MaxSMPhiInEB() )
+	{sprintf(f_in_mat_tit, "               SM tower numbering");}
+      if( SMNumber >  fEcal->MaxSMPhiInEB() )
+	{sprintf(f_in_mat_tit, "          SM tower numbering     ");}
 
       // il faut tracer un bidim vide pour pouvoir tracer la grille et les axes
 
@@ -4148,6 +4150,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       TString axis_y_var_name = "  IY  ";
 
       //------------------------------------------------------------------- DeeSCNumbering
+
       //........................................... empty histogram filling
       char* f_in_mat_tit = new char[fgMaxCar];                           fCnew++;
 
@@ -4158,8 +4161,11 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       TH2D* h_empty_bid = new TH2D("grid_bidim_IX_IY", f_in_mat_tit,
 				   nb_binx, xinf_bid,  xsup_bid,
 				   nb_biny, yinf_bid,  ysup_bid);     fCnewRoot++;
-      h_empty_bid->Reset();
   
+      delete [] f_in_mat_tit;  f_in_mat_tit = 0;         fCdelete++;
+
+      h_empty_bid->Reset();
+
       h_empty_bid->GetXaxis()->SetTitle(axis_x_var_name);
       h_empty_bid->GetYaxis()->SetTitle(axis_y_var_name);
 
@@ -4171,7 +4177,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
   
       UInt_t canv_h = fCnaParHistos->CanvasFormatH("IXIYDee");
       UInt_t canv_w = fCnaParHistos->CanvasFormatW("IXIYDee");
-  
+
       //............................................... options generales
       fFapStexType = fEcalNumbering->GetEEDeeType(DeeNumber);
 
@@ -4207,11 +4213,13 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       gPad->cd(1);
       TVirtualPad* main_subpad = gPad;
       main_subpad->SetPad(x_low, y_low, x_up, y_up);
-  
+
       h_empty_bid->DrawCopy("COL");   // il faut tracer un bidim vide pour pouvoir tracer la grille et les axes
+
       ViewDeeSCNumberingPad(DeeNumber);
+
       gPad->Update();   // prend beaucoup de temps...
-  
+
       //..................... retour aux options standard
       Bool_t b_true = 1;
       h_empty_bid->SetStats(b_true);    
@@ -4219,8 +4227,6 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       h_empty_bid->Delete(); h_empty_bid = 0;             fCdeleteRoot++;      
 
       //      delete MainCanvas;              fCdeleteRoot++;
-  
-      delete [] f_in_mat_tit;  f_in_mat_tit = 0;         fCdelete++;
     }
   else
     {
@@ -4591,8 +4597,8 @@ void TEcnaHistos::ViewDeeGrid(const Int_t& DeeNumber, const TString& c_option)
 
   //= SURLIGNAGES (unite de coordonnees: le cristal ou 5 fois le cristal si option corcc)
   //........................... multplicative coefficient for corcc option
-  Int_t coefcc_x = 1;
-  Int_t coefcc_y = 1;
+  Int_t coefcc_x = (Int_t)1;
+  Int_t coefcc_y = (Int_t)1;
   if ( c_option == "corcc"){coefcc_x = fEcal->MaxCrysIXInSC(); coefcc_y = fEcal->MaxCrysIYInSC();}
 
   //............................. lignes horizontales
@@ -4657,7 +4663,7 @@ void TEcnaHistos::ViewDeeGrid(const Int_t& DeeNumber, const TString& c_option)
       //lin->Delete();   // => si on delete, pas de trace de la ligne
       // delete lin;             fCdeleteRoot++;
     }
-
+  
   //.......................... lignes verticales
   Double_t xline = (Double_t)xinf_bid - (Double_t)size_IX;
   
@@ -4701,8 +4707,12 @@ void TEcnaHistos::ViewDeeGrid(const Int_t& DeeNumber, const TString& c_option)
       // delete lin_bas;             fCdeleteRoot++;
     }
 
-  EEDataSectors(coefcc_x, coefcc_y, DeeNumber, "Dee");
-  EEGridAxis(coefcc_x, coefcc_y, DeeNumber, "Dee", c_option);
+ 
+  Float_t fcoefcc_x = (Float_t)coefcc_x;
+  Float_t fcoefcc_y = (Float_t)coefcc_y;
+
+  EEDataSectors(fcoefcc_x, fcoefcc_y, DeeNumber, "Dee");
+  EEGridAxis(DeeNumber, "Dee", c_option);
 
 } // end of ViewDeeGrid
 
@@ -5426,15 +5436,15 @@ void TEcnaHistos::ViewEEGrid(const Int_t& vertic_empty_strips)
   for( Int_t DeeNumber = 1; DeeNumber <= 4; DeeNumber++)
     {
       EEDataSectors(coefcc_x, coefcc_y, DeeNumber, "EE");
-      EEGridAxis(coefcc_x, coefcc_y, DeeNumber, "EE", " "); 
+      EEGridAxis(DeeNumber, "EE", " "); 
     }
 
   // vertical line between the two endcaps
-  Double_t xline = coefcc_x*( 2*fEcal->MaxCrysIXInDee()
-			      + ((Double_t)vertic_empty_strips)/2.*fEcal->MaxCrysIXInSC() );
+  Double_t xline = (Double_t)coefcc_x*( (Double_t)2.*fEcal->MaxCrysIXInDee()
+			      + ((Double_t)vertic_empty_strips)/(Double_t)2.*fEcal->MaxCrysIXInSC() );
   
-  Double_t yline_bot = coefcc_y*(Double_t)0.;
-  Double_t yline_top = coefcc_y*(Double_t)fEcal->MaxCrysIYInDee();
+  Double_t yline_bot = (Double_t)coefcc_y*(Double_t)0.;
+  Double_t yline_top = (Double_t)coefcc_y*(Double_t)fEcal->MaxCrysIYInDee();
 
   TLine *lin;
   lin = new TLine(xline, yline_bot, xline, yline_top); fCnewRoot++;
@@ -5442,14 +5452,14 @@ void TEcnaHistos::ViewEEGrid(const Int_t& vertic_empty_strips)
 
   // vertical line in the midles of the two endcaps
   //  xline = xline + coefcc_x*( fEcal->MaxCrysIXInDee()+ 0.5*fEcal->MaxCrysIXInSC() );
-  xline = coefcc_x*(3*fEcal->MaxCrysIXInDee()
+  xline = (Double_t)coefcc_x*(3*fEcal->MaxCrysIXInDee()
 		    + ((Double_t)vertic_empty_strips-1.)*fEcal->MaxCrysIXInSC() );
   TLine *lin12;
   lin12 = new TLine(xline, yline_bot, xline, yline_top); fCnewRoot++;
   lin12->SetLineStyle(2);
   lin12->Draw();
 
-  xline = coefcc_x*(fEcal->MaxCrysIXInDee()
+  xline = (Double_t)coefcc_x*(fEcal->MaxCrysIXInDee()
 		     + ((Double_t)vertic_empty_strips)/3.*fEcal->MaxCrysIXInSC() );
   TLine *lin34;
   lin34 = new TLine(xline, yline_bot, xline, yline_top); fCnewRoot++;
@@ -5457,8 +5467,8 @@ void TEcnaHistos::ViewEEGrid(const Int_t& vertic_empty_strips)
   lin34->Draw();
 
   // horizontal line at IY = 50
-  Double_t xline_end = coefcc_x*( 4*fEcal->MaxCrysIXInDee() + vertic_empty_strips*fEcal->MaxCrysIXInSC());
-  Double_t yline_mid = coefcc_x*fEcal->MaxCrysIYInDee()/2;
+  Double_t xline_end = (Double_t)coefcc_x*( 4*fEcal->MaxCrysIXInDee() + vertic_empty_strips*fEcal->MaxCrysIXInSC());
+  Double_t yline_mid = (Double_t)coefcc_x*fEcal->MaxCrysIYInDee()/2;
 
   TLine *linh;
   linh = new TLine( 0., yline_mid, xline_end, yline_mid); fCnewRoot++;
@@ -5482,10 +5492,11 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
   ngmax = 13;
   Float_t xg_dee_int_bot[13] = { 0, 5, 5, 7, 7, 8, 8, 9, 9,10,10,11,11};
   Float_t yg_dee_int_bot[13] = {39,39,40,40,41,41,42,42,43,43,45,45,50};
+  
   for(Int_t i=0;i<ngmax;i++){
     xg_dee_int_bot[i] = coefcc_x*xg_dee_int_bot[i];
     yg_dee_int_bot[i] = coefcc_y*yg_dee_int_bot[i];}
-  
+
   Float_t XgDeeIntBotRight[13]; Float_t YgDeeIntBotRight[13];
   Float_t XgDeeIntTopRight[13]; Float_t YgDeeIntTopRight[13];
   
@@ -5506,11 +5517,11 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 
   TGraph *BDeeIntBotRight = new TGraph(ngmax, XgDeeIntBotRight, YgDeeIntBotRight);
   BDeeIntBotRight->SetLineWidth(LineWidth);
-  BDeeIntBotRight->Draw();
+  BDeeIntBotRight->DrawGraph(ngmax, XgDeeIntBotRight, YgDeeIntBotRight);
   
   TGraph *BDeeIntTopRight = new TGraph(ngmax, XgDeeIntTopRight, YgDeeIntTopRight);
   BDeeIntTopRight->SetLineWidth(LineWidth);
-  BDeeIntTopRight->Draw();
+  BDeeIntTopRight->DrawGraph(ngmax, XgDeeIntTopRight, YgDeeIntTopRight);
 
   // surlignage du bord externe du Dee  (unite de coordonnees: le cristal)
   ngmax = 21;
@@ -5540,11 +5551,11 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
   
   TGraph *BDeeExtBotRight = new TGraph(ngmax, XgDeeExtBotRight, YgDeeExtBotRight);
   BDeeExtBotRight->SetLineWidth(LineWidth);
-  BDeeExtBotRight->Draw();
+  BDeeExtBotRight->DrawGraph(ngmax, XgDeeExtBotRight, YgDeeExtBotRight);
   
   TGraph *BDeeExtTopRight = new TGraph(ngmax, XgDeeExtTopRight, YgDeeExtTopRight);
   BDeeExtTopRight->SetLineWidth(LineWidth);
-  BDeeExtTopRight->Draw();
+  BDeeExtTopRight->DrawGraph(ngmax, XgDeeExtTopRight, YgDeeExtTopRight);
 
   char* f_in = new char[fgMaxCar];                           fCnew++;
   
@@ -5572,7 +5583,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 	}      
       TGraph *BDeeDataSec9 = new TGraph(ngmax, XgDeeDataSec9, YgDeeDataSec9);
       BDeeDataSec9->SetLineWidth(LineWidth);
-      BDeeDataSec9->Draw();      
+      BDeeDataSec9->DrawGraph(ngmax, XgDeeDataSec9, YgDeeDataSec9);      
     }
 
   //================= S1->S2(EE-)
@@ -5596,7 +5607,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 
   TGraph *BDeeDataSec1 = new TGraph(ngmax, XgDeeDataSec1, YgDeeDataSec1);
   BDeeDataSec1->SetLineWidth(LineWidth);
-  BDeeDataSec1->Draw();
+  BDeeDataSec1->DrawGraph(ngmax, XgDeeDataSec1, YgDeeDataSec1);
 
   //================= S2->S3(EE-)
   ngmax = 6;
@@ -5618,7 +5629,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
     }
   TGraph *BDeeDataSec2 = new TGraph(ngmax, XgDeeDataSec2, YgDeeDataSec2);
   BDeeDataSec2->SetLineWidth(LineWidth);
-  BDeeDataSec2->Draw();
+  BDeeDataSec2->DrawGraph(ngmax, XgDeeDataSec2, YgDeeDataSec2);
  
   //================= S3->S4(EE-)
   ngmax = 10;
@@ -5640,7 +5651,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
     }
   TGraph *BDeeDataSec3 = new TGraph(ngmax, XgDeeDataSec3, YgDeeDataSec3);
   BDeeDataSec3->SetLineWidth(LineWidth);
-  BDeeDataSec3->Draw();
+  BDeeDataSec3->DrawGraph(ngmax, XgDeeDataSec3, YgDeeDataSec3);
  
   //================= S4->S5(EE-)
   ngmax = 6;
@@ -5662,7 +5673,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
     }
   TGraph *BDeeDataSec4 = new TGraph(ngmax, XgDeeDataSec4, YgDeeDataSec4);
   BDeeDataSec4->SetLineWidth(LineWidth);
-  BDeeDataSec4->Draw();
+  BDeeDataSec4->DrawGraph(ngmax, XgDeeDataSec4, YgDeeDataSec4);
   
 
   //..................................... Numeros des secteurs S_i (option "Dee" seulement)
@@ -5826,8 +5837,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
 
 //==========================================================================================
 
-void TEcnaHistos::EEGridAxis(const Float_t& coefcc_x,  const Float_t& coefcc_y,
-			     const Int_t&   DeeNumber, const TString& opt_plot,  const TString& c_option)
+void TEcnaHistos::EEGridAxis( const Int_t&   DeeNumber, const TString& opt_plot,  const TString& c_option)
 {
   //------------------ trace axes en IX et IY --------------- EEGridAxis
   //=============================================================================== Axe IX

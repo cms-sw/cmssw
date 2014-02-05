@@ -8,14 +8,14 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaResultType.h
-///   Update: 16/02/2011
+///   Update: 05/10/2012
 ///   Authors:   FX Gentit, B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
 ///
 ///   ECNA web page:
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///-----------------------------------------------------------
 ///
 ///  Set the results types and dimensions 
