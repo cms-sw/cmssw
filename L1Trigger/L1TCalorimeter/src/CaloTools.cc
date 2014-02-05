@@ -42,11 +42,11 @@ size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
 }
 
 int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
-			      int etaMin,int etaMax,int phiMin,int phiMax,SubDet etMode)
+			      int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,SubDet etMode)
 {
   int hwEtSum=0;
-  for(int etaNr=etaMin;etaNr<=etaMax;etaNr++){
-    for(int phiNr=phiMin;phiNr<=phiMax;phiNr++){
+  for(int etaNr=localEtaMin;etaNr<=localEtaMax;etaNr++){
+    for(int phiNr=localPhiMin;phiNr<=localPhiMax;phiNr++){
       
       int towerIEta = l1t::CaloStage2Nav::offsetIEta(iEta,etaNr);
       int towerIPhi = l1t::CaloStage2Nav::offsetIEta(iPhi,phiNr);
@@ -60,3 +60,21 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
 }
 
 
+size_t l1t::CaloTools::calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiMax,const std::vector<l1t::CaloTower>& towers,int minHwEt,int maxHwEt,SubDet etMode)
+{
+  size_t nrTowers=0;
+  l1t::CaloStage2Nav nav(iEtaMin,iPhiMin);
+  while(nav.currIEta()<=iEtaMax){
+    while(nav.currIPhi()<=iPhiMax){
+      nav.north();
+      const l1t::CaloTower& tower = l1t::CaloTools::getTower(towers,nav.currIEta(),nav.currIPhi());
+      int towerHwEt =0;
+      if(etMode&ECAL) towerHwEt+=tower.hwEtEm();
+      if(etMode&HCAL) towerHwEt+=tower.hwEtHad();
+      if(towerHwEt>=minHwEt && towerHwEt<=maxHwEt) nrTowers++;
+    }
+    nav.east();
+    nav.resetIPhi();
+  }
+  return nrTowers;
+}
