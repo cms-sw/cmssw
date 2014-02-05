@@ -42,9 +42,6 @@ HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(
     theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner)
 {
   theMaxElement=max;
-  debug=false;
-  idIn=0;
-  idOut=0;
 }
 
 
@@ -119,31 +116,12 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
   constexpr float nSigmaPhi = 3.f;
   for (int io = 0; io!=int(outerHitsMap.theHits.size()); ++io) { 
     Hit const & ohit =  outerHitsMap.theHits[io].hit();
-    if (debug) {
-      unsigned int theIdOut = ohit->rawId();
-      if (idOut==theIdOut) {
-	cout << "processing hit with id=" << idOut << " and position=" << ohit->globalPosition() 
-		   << " phi=" << ohit->globalPosition().phi() 
-		   << " z=" << ohit->globalPosition().z() 
-		   << " r=" << ohit->globalPosition().perp() 
-		   << " trans: " << (ohit->transientHits().size()>1 ? ohit->transientHits()[0]->globalPosition() : GlobalPoint(0,0,0)) << " "
-		   << (ohit->transientHits().size()>1 ? ohit->transientHits()[1]->globalPosition() : GlobalPoint(0,0,0))
-	     << endl;
-      }
-    }
     PixelRecoRange<float> phiRange = deltaPhi(outerHitsMap.x[io], 
 					      outerHitsMap.y[io], 
 					      outerHitsMap.z[io], 
 					      nSigmaPhi*outerHitsMap.drphi[io]
 					      );    
 
-
-    if (debug) {
-      unsigned int theIdOut = ohit->rawId();
-      if (idOut==theIdOut) {
-	cout << "phiRange=" << phiRange.first << "," << phiRange.second << endl;
-      }
-    }
     if (phiRange.empty()) continue;
 
     const HitRZCompatibility *checkRZ = region.checkRZ(theInnerLayer.detLayer(), ohit, iSetup,theOuterLayer.detLayer(), 
@@ -151,15 +129,7 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
 						       outerHitsMap.isBarrel ? outerHitsMap.du[io] :  outerHitsMap.dv[io],
 						       outerHitsMap.isBarrel ? outerHitsMap.dv[io] :  outerHitsMap.du[io]
 						       );
-    if(!checkRZ) {
-      if (debug) {
-	unsigned int theIdOut = ohit->rawId();
-	if (idOut==theIdOut) {
-	  cout << "did not pass checkRZ" << endl;
-	}
-      }
-      continue;
-    }
+    if(!checkRZ) continue;
 
     Kernels<HitZCheck,HitRCheck,HitEtaCheck> kernels;
 
@@ -186,20 +156,6 @@ HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& regio
       }
       for (int i=0; i!=e-b; ++i) {
 	if (!ok[i]) continue;
-	if (debug) {
-	  unsigned int theIdOut = ohit->rawId();
-	  Hit const & ihit =  innerHitsMap.theHits[b+i].hit();
-	  unsigned int theIdIn = ihit->rawId();
-	  if (idOut==theIdOut&&idIn==theIdIn) {
-	    cout << "found inner hit with id=" << idOut << " and position=" << ihit->globalPosition() 
-		 << " phi=" << ihit->globalPosition().phi() 
-		 << " z=" << ihit->globalPosition().z() 
-		 << " r=" << ihit->globalPosition().perp() 
-		 << " trans: " << (ihit->transientHits().size()>1 ? ihit->transientHits()[0]->globalPosition() : GlobalPoint(0,0,0)) << " "
-		 << (ihit->transientHits().size()>1 ? ihit->transientHits()[1]->globalPosition() : GlobalPoint(0,0,0))
-		 << endl;
-	  }
-	}
 	if (theMaxElement!=0 && result.size() >= theMaxElement){
 	  result.clear();
 	  edm::LogError("TooManyPairs")<<"number of pairs exceed maximum, no pairs produced";
