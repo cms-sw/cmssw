@@ -30,7 +30,9 @@ public:
   virtual ~MultiHitGeneratorFromChi2() { delete thePairGenerator; }
 
   virtual void init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
+		     const std::vector<ctfseeding::SeedingLayer> & layers, 
+		     LayerCacheType* layerCache,
+		     const edm::EventSetup& es);
 
   virtual void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
       const edm::Event & ev, const edm::EventSetup& es);

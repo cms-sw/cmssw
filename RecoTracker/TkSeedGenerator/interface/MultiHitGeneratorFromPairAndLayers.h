@@ -13,6 +13,8 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 
+namespace edm { class EventSetup; }
+
 class MultiHitGeneratorFromPairAndLayers : public MultiHitGenerator {
 
 public:
@@ -20,7 +22,9 @@ public:
 
   virtual ~MultiHitGeneratorFromPairAndLayers() {}
   virtual void init( const HitPairGenerator & pairs, 
-    const std::vector<ctfseeding::SeedingLayer>& layers, LayerCacheType* layerCache) = 0; 
+		     const std::vector<ctfseeding::SeedingLayer>& layers, 
+		     LayerCacheType* layerCache,  
+		     const edm::EventSetup& es) = 0; 
 };
 #endif
 

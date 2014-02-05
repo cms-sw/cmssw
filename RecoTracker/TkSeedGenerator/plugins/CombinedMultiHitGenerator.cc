@@ -45,7 +45,7 @@ void CombinedMultiHitGenerator::init(const edm::ParameterSet & cfg, const edm::E
         MultiHitGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
 
     aGen->init( HitPairGeneratorFromLayerPair( first, second, &theLayerCache),
-		thirds, &theLayerCache);
+		thirds, &theLayerCache, es);
 
     theGenerators.push_back( aGen);
   }

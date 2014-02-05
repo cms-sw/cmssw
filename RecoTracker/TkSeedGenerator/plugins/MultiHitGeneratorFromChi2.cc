@@ -79,12 +79,23 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
 }
 
 void MultiHitGeneratorFromChi2::init(const HitPairGenerator & pairs,
-					 const std::vector<SeedingLayer> &layers,
-					 LayerCacheType *layerCache)
+				     const std::vector<SeedingLayer> &layers,
+				     LayerCacheType *layerCache,
+				     const edm::EventSetup& es)
 {
   thePairGenerator = pairs.clone();
   theLayers = layers;
   theLayerCache = layerCache;
+
+  edm::ESHandle<MagneticField> bfield_h;
+  es.get<IdealMagneticFieldRecord>().get(bfield_h);
+  bfield = bfield_h.product();
+  nomField = bfield->nominalValue();
+
+  edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
+  es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
+  filter = filterHandle_.product();
+
 }
 
 
@@ -108,25 +119,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 					const edm::EventSetup& es)
 { 
 
-  //gc: why is this here and not in some initialization???
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-  if (nomField<0 && bfield == 0) {
-    edm::ESHandle<MagneticField> bfield_h;
-    es.get<IdealMagneticFieldRecord>().get(bfield_h);
-    bfield = bfield_h.product();
-    nomField = bfield->nominalValue();
-  }
-
-  edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
-  es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
-  filter = filterHandle_.product();
-
-  //Retrieve tracker topology from geometry
-  //edm::ESHandle<TrackerTopology> tTopoHand;
-  //es.get<IdealGeometryRecord>().get(tTopoHand);
-  //const TrackerTopology *tTopo=tTopoHand.product();
-
   unsigned int debug_Id0 = detIdsToDebug[0];
   unsigned int debug_Id1 = detIdsToDebug[1];
   unsigned int debug_Id2 = detIdsToDebug[2];
@@ -136,9 +128,6 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //gc: first get the pairs
   OrderedHitPairs pairs;
   pairs.reserve(30000);
-  if (debug) {
-    ((HitPairGeneratorFromLayerPair*) thePairGenerator)->setDebug(debug_Id0,debug_Id1);
-  }
   thePairGenerator->hitPairs(region,pairs,ev,es);
   if (debug) cout << endl;
   if (pairs.empty()) {
@@ -444,14 +433,14 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	    const std::type_info &tid = typeid(*hit2->hit());
 	    if (tid == typeid(SiStripMatchedRecHit2D)) {
 	      const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit2->hit());
-	      if (filterHandle_->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), initMomentum)==0 ||
-		  filterHandle_->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), initMomentum)==0) passFilterHit2 = false;
+	      if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), initMomentum)==0 ||
+		  filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), initMomentum)==0) passFilterHit2 = false;
 	    } else if (tid == typeid(SiStripRecHit2D)) {
 	      const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit2->hit());
-	      if (filterHandle_->isCompatible(*recHit, initMomentum)==0) passFilterHit2 = false;
+	      if (filter->isCompatible(*recHit, initMomentum)==0) passFilterHit2 = false;
 	    } else if (tid == typeid(ProjectedSiStripRecHit2D)) {
 	      const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit2->hit());
-	      if (filterHandle_->isCompatible(precHit->originalHit(), initMomentum)==0) passFilterHit2 = false;
+	      if (filter->isCompatible(precHit->originalHit(), initMomentum)==0) passFilterHit2 = false;
 	    }
 	  }
 	  if (debugPair&&!passFilterHit2)  cout << "hit2 did not pass cluster shape filter" << endl;
@@ -468,14 +457,14 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  //   const std::type_info &tid = typeid(*hit2->hit());
 	  //   if (tid == typeid(SiStripMatchedRecHit2D)) {
 	  //     const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit2->hit());
-	  //     if (filterHandle_->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos2.localMomentum())==0 ||
-	  // 	      filterHandle_->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos2.localMomentum())==0) continue;
+	  //     if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos2.localMomentum())==0 ||
+	  // 	      filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos2.localMomentum())==0) continue;
 	  //   } else if (tid == typeid(SiStripRecHit2D)) {
 	  //     const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit2->hit());
-	  //     if (filterHandle_->isCompatible(*recHit, tsos2.localMomentum())==0) continue;
+	  //     if (filter->isCompatible(*recHit, tsos2.localMomentum())==0) continue;
 	  //   } else if (tid == typeid(ProjectedSiStripRecHit2D)) {
 	  //     const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit2->hit());
-	  //     if (filterHandle_->isCompatible(precHit->originalHit(), tsos2.localMomentum())==0) continue;;
+	  //     if (filter->isCompatible(precHit->originalHit(), tsos2.localMomentum())==0) continue;;
 	  //   }
 	  // }
 
