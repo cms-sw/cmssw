@@ -1,10 +1,9 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 13/04/2011
+//----------Modified: 28/01/2014
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
 #include <cstdlib>
-using namespace std;
 
 //--------------------------------------
 //  TEcnaGui.cc
@@ -632,6 +631,8 @@ TGMainFrame(p, w, h)
   // cout << "TEcnaGui> Entering constructor with arguments" << endl;
   // cout << "            fCnew = " << fCnew << ", fCdelete = " << fCdelete << endl;
 
+  Init();
+
   fObjectManager = (TEcnaObject*)pObjectManager;
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaGui", i_this);
@@ -711,7 +712,7 @@ TGMainFrame(p, w, h)
 
   //fMyRootFile = 0;
 
-  Init();
+  InitGuiParameters();
 }
 
 void TEcnaGui::Init()
@@ -722,10 +723,13 @@ void TEcnaGui::Init()
   fCnewRoot    = 0;
   fCdeleteRoot = 0;
 
-
-  Int_t fgMaxCar = (Int_t)512;
+  fgMaxCar = (Int_t)512;
   fTTBELL = '\007';
 
+}
+
+void TEcnaGui::InitGuiParameters()
+{
   //........................ init View and Cna parameters
 
   //............................................................................
@@ -4151,7 +4155,7 @@ void TEcnaGui::DoButtonHelp()
   fCnaCommand++;
   cout << "   *TEcnaGui [" << fCnaCommand
        << "]> HELP: for documentation, see the ECNA web page: " << endl
-       << "    http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_analysis/ECNA_main_page.htm"
+       << "    http://cms-fabbro.web.cern.ch/cms-fabbro/cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm"
        << endl;
 }
 
