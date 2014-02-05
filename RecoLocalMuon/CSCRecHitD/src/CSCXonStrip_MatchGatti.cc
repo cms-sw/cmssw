@@ -91,10 +91,10 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   // Initialize output parameters  
   xWithinStrip = xWithinChamber;  
 
-  CSCStripHit::ChannelContainer strips = stripHit.strips();
+  CSCStripHit::ChannelContainer const & strips = stripHit.strips();
   int nStrips = strips.size();
   int centStrip = nStrips/2 + 1;   
-  std::vector<float> adcs = stripHit.s_adc();
+  std::vector<float> const & adcs  = stripHit.s_adc();
   int tmax = stripHit.tmax();
 
   //// Fit peaking time only if using calibrations
@@ -140,15 +140,15 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   if ( useCalib ) {
     std::vector<float> xtalks;
     recoConditions_->crossTalk( id, centralStrip, xtalks );
-    float dt = 50. * tmax - tpeak;
+    float dt = 50.f * tmax - tpeak;
     // XTalks; l,r are for left, right XTalk; lr0,1,2 are for what charge "remains" in the strip 
     for ( int t = 0; t < 3; ++t ) {
-      xt_l[0][t] = xtalks[0] * (50.* (t-1) + dt) + xtalks[1] + xtalksOffset;
-      xt_r[0][t] = xtalks[2] * (50.* (t-1) + dt) + xtalks[3] + xtalksOffset;
-      xt_l[1][t] = xtalks[4] * (50.* (t-1) + dt) + xtalks[5] + xtalksOffset;
-      xt_r[1][t] = xtalks[6] * (50.* (t-1) + dt) + xtalks[7] + xtalksOffset;
-      xt_l[2][t] = xtalks[8] * (50.* (t-1) + dt) + xtalks[9] + xtalksOffset;
-      xt_r[2][t] = xtalks[10]* (50.* (t-1) + dt) + xtalks[11]+ xtalksOffset;
+      xt_l[0][t] = xtalks[0] * (50.f* (t-1) + dt) + xtalks[1] + xtalksOffset;
+      xt_r[0][t] = xtalks[2] * (50.f* (t-1) + dt) + xtalks[3] + xtalksOffset;
+      xt_l[1][t] = xtalks[4] * (50.f* (t-1) + dt) + xtalks[5] + xtalksOffset;
+      xt_r[1][t] = xtalks[6] * (50.f* (t-1) + dt) + xtalks[7] + xtalksOffset;
+      xt_l[2][t] = xtalks[8] * (50.f* (t-1) + dt) + xtalks[9] + xtalksOffset;
+      xt_r[2][t] = xtalks[10]* (50.f* (t-1) + dt) + xtalks[11]+ xtalksOffset;
 
       xt_lr0[t] = (1. - xt_l[0][t] - xt_r[0][t]);
       xt_lr1[t] = (1. - xt_l[1][t] - xt_r[1][t]);
@@ -207,10 +207,12 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   //---- Set up noise, XTalk matrices 
   setupMatrix();
   //---- Calculate the coordinate within the strip and associate uncertainty
-  bool ME1_1 = false;
-  if("ME1/a" == specs_->chamberTypeName() || "ME1/b" == specs_->chamberTypeName()){
-    ME1_1 = true;
-  } 
+
+  static const std::string ME1a("ME1/a");
+  static const std::string ME1b("ME1/b");
+
+  bool ME1_1 = (ME1a == specs_->chamberTypeName() || ME1b == specs_->chamberTypeName());
+
 
   // due to cross talks and 3 time bin sum it is in principe possible that the center strip is not the maximum strip
   // in some cases the consequences could be quite extreme
@@ -252,31 +254,37 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
   }
   xWithinChamber = xWithinChamber + (xWithinStrip * stripWidth);
   if(peakMismatch){
-    sigma = stripWidth/sqrt(12);
+    sigma = stripWidth/std::sqrt(12.f);
   }
   else{
     
     //---- error estimation
-    int factorStripWidth = int( sqrt(stripWidth/0.38) );
+    int factorStripWidth = int( std::sqrt(stripWidth/0.38f) );
     int maxConsecutiveStrips = 8;
     if(factorStripWidth){
       maxConsecutiveStrips /=  factorStripWidth ;
     }
     maxConsecutiveStrips++;
-    
+
+    struct ChamberTypes {
     std::map <std::string, int> chamberTypes;
-    chamberTypes["ME1/a"] = 1;
-    chamberTypes["ME1/b"] = 2;
-    chamberTypes["ME1/2"] = 3;
-    chamberTypes["ME1/3"] = 4;
-    chamberTypes["ME2/1"] = 5;
-    chamberTypes["ME2/2"] = 6;
-    chamberTypes["ME3/1"] = 7;
-    chamberTypes["ME3/2"] = 8;
-    chamberTypes["ME4/1"] = 9;
-    chamberTypes["ME4/2"] = 8;
+      int  operator()(std::string const & s) const { auto p = chamberTypes.find(s);  return p!=chamberTypes.end() ? (*p).second : 0; }
+      ChamberTypes() {
+	chamberTypes["ME1/a"] = 1;
+	chamberTypes["ME1/b"] = 2;
+	chamberTypes["ME1/2"] = 3;
+	chamberTypes["ME1/3"] = 4;
+	chamberTypes["ME2/1"] = 5;
+	chamberTypes["ME2/2"] = 6;
+	chamberTypes["ME3/1"] = 7;
+	chamberTypes["ME3/2"] = 8;
+	chamberTypes["ME4/1"] = 9;
+	chamberTypes["ME4/2"] = 8;
+      }
+    };
+    static const ChamberTypes chamberTypes;
     
-    switch(chamberTypes[specs_->chamberTypeName()]){
+    switch(chamberTypes(specs_->chamberTypeName())){
     case 1:
       noise_level  = noise_level_ME1a;
       xt_asymmetry = xt_asymmetry_ME1a;
@@ -342,7 +350,7 @@ void CSCXonStrip_MatchGatti::findXOnStrip( const CSCDetId& id, const CSCLayer* l
       sigma =  float(calculateXonStripError(stripWidth, ME1_1));
     }
     else{ //---- near dead strip or too close maxima or too wide strip cluster
-      sigma = stripWidth/sqrt(12);
+      sigma = stripWidth/std::sqrt(12.f);
     }
   }
   quality_flag = 1;
@@ -414,22 +422,21 @@ void CSCXonStrip_MatchGatti::setupMatrix() {
 */
   //---- Find the inverted XTalk matrix and apply it to the charge (3x3)
   //---- Thus the charge before the XTalk is obtained
-  CLHEP::HepMatrix cross_talks(3,3);
   CLHEP::HepMatrix cross_talks_inv(3,3);
   int err = 0;
   //---- q_sum is 3 time bins summed; L, C, R - left, central, right strips
   q_sum = q_sumL = q_sumC = q_sumR = 0.;
   double charge = 0.;
   for(int iTime=0;iTime<3;iTime++){
-    cross_talks_inv(1,1) = cross_talks(1,1) = xt_lr0[iTime];
-    cross_talks_inv(1,2) = cross_talks(1,2) = xt_l[1][iTime];
-    cross_talks_inv(1,3) = cross_talks(1,3) = 0.;
-    cross_talks_inv(2,1) = cross_talks(2,1) =  xt_r[0][iTime];
-    cross_talks_inv(2,2) = cross_talks(2,2) = xt_lr1[iTime];
-    cross_talks_inv(2,3) = cross_talks(2,3) = xt_l[2][iTime];
-    cross_talks_inv(3,1) = cross_talks(3,1) = 0.;
-    cross_talks_inv(3,2) = cross_talks(3,2) = xt_r[1][iTime];
-    cross_talks_inv(3,3) = cross_talks(3,3) = xt_lr2[iTime];
+    cross_talks_inv(1,1) = xt_lr0[iTime];
+    cross_talks_inv(1,2) = xt_l[1][iTime];
+    cross_talks_inv(1,3) = 0.;
+    cross_talks_inv(2,1) =  xt_r[0][iTime];
+    cross_talks_inv(2,2) = xt_lr1[iTime];
+    cross_talks_inv(2,3)  = xt_l[2][iTime];
+    cross_talks_inv(3,1) = 0.;
+    cross_talks_inv(3,2) = xt_r[1][iTime];
+    cross_talks_inv(3,3) = xt_lr2[iTime];
     cross_talks_inv.invert(err);
     if (err != 0) {
       edm::LogWarning("FailedXTalkiInversionNoCrosstalkCorrection") <<"Failed to invert XTalks matrix. No cross-talk correction for this rechit."; 
@@ -488,10 +495,10 @@ void CSCXonStrip_MatchGatti::initChamberSpecs() {
   k_3 = ( parm[0]*wspace/h + parm[1] )
       * ( parm[2]*wspace/wradius + parm[3] + parm[4]*(wspace/wradius)*(wspace/wradius) );
 
-  sqrt_k_3 = sqrt( k_3 );
-  norm     = r * (0.5 / atan( sqrt_k_3 )); // changed from norm to r * norm
+  sqrt_k_3 = std::sqrt( k_3 );
+  norm     = r * (0.5 / std::atan( sqrt_k_3 )); // changed from norm to r * norm
   k_2      = M_PI_2 * ( 1. - sqrt_k_3 /2. );
-  k_1      = 0.25 * k_2 * sqrt_k_3 / atan( sqrt_k_3 );
+  k_1      = 0.25 * k_2 * sqrt_k_3 / std::atan( sqrt_k_3 );
 }
 
 
@@ -608,7 +615,7 @@ double CSCXonStrip_MatchGatti::xfError_Noise(double noise){
   double dr_L2 = pow(q_sumR-q_sumL,2);
   double dr_C2 = pow(q_sumC-min,2);
   double dr_R2 = pow(q_sumC-max,2);
-  double error = sqrt(dr_L2 + dr_C2 + dr_R2)*noise/pow(q_sumC-min,2)/2;
+  double error = std::sqrt(dr_L2 + dr_C2 + dr_R2)*noise/std::pow(q_sumC-min,2)/2;
 
   return error;
 }
@@ -623,9 +630,9 @@ double CSCXonStrip_MatchGatti::xfError_XTasym(double xt_asym){
     min = q_sumR;
   }
   //---- Error propagation
-  double dXTL = (pow(q_sumC,2)+pow(q_sumR,2)-q_sumL*q_sumR-q_sumR*q_sumC);
-  double dXTR = (pow(q_sumC,2)+pow(q_sumL,2)-q_sumL*q_sumR-q_sumL*q_sumC);
-  double dXT = sqrt(pow(dXTL,2) + pow(dXTR,2))/pow((q_sumC-min),2)/2;
+  double dXTL = (std::pow(q_sumC,2)+std::pow(q_sumR,2)-q_sumL*q_sumR-q_sumR*q_sumC);
+  double dXTR = (std::pow(q_sumC,2)+std::pow(q_sumL,2)-q_sumL*q_sumR-q_sumL*q_sumC);
+  double dXT = std::sqrt(std::pow(dXTL,2) + std::pow(dXTR,2))/std::pow((q_sumC-min),2)/2;
   double error = dXT * xt_asym;
 
   return error;
@@ -646,13 +653,13 @@ double CSCXonStrip_MatchGatti::calculateXonStripError(float stripWidth, bool ME1
   double xf_ErrorXTasym = xfError_XTasym(xt_asymmetry);
   // x_G = x_F + correction_functon(x_F)
   // as these are correlated the error should be simply d(x_G) = |d(x_F)| + [correction_functon(x_F+|d(x_F)|) - correction_functon(x_F)]
-  double d_xf = sqrt( pow( xf_ErrorNoise, 2) + pow( xf_ErrorXTasym, 2));
-	double d_corr = estimated2GattiCorrection(xf+d_xf, stripWidth, ME1_1) - estimated2GattiCorrection(xf, stripWidth, ME1_1);
+  double d_xf = std::sqrt( std::pow( xf_ErrorNoise, 2) + std::pow( xf_ErrorXTasym, 2));
+  double d_corr = estimated2GattiCorrection(xf+d_xf, stripWidth, ME1_1) - estimated2GattiCorrection(xf, stripWidth, ME1_1);
   double x_shift = d_xf + d_corr;
   //  double x_shift = sqrt( pow( xf_ErrorNoise, 2) + pow( xf_ErrorXTasym, 2)) * 
   //(1 + (estimated2GattiCorrection(xf+0.001, stripWidth, ME1_1) -
   //  estimated2GattiCorrection(xf, stripWidth, ME1_1))*1000.);
-  double x_error =   sqrt( pow( fabs(x_shift)*stripWidth, 2) + pow(const_syst, 2) );
+  double x_error =   std::sqrt( std::pow( fabs(x_shift)*stripWidth, 2) + std::pow(const_syst, 2) );
   return  x_error; 
 }
 
