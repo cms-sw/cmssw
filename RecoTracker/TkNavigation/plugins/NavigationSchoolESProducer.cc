@@ -38,7 +38,10 @@ NavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord)
 
    // get the field
    edm::ESHandle<MagneticField>                field;
-   iRecord.getRecord<IdealMagneticFieldRecord>().get(field);
+   if (theNavigationPSet.exists("SimpleMagneticField"))
+     iRecord.getRecord<IdealMagneticFieldRecord>().get(theNavigationPSet.getParameter<std::string>("SimpleMagneticField"), field);
+   else 
+     iRecord.getRecord<IdealMagneticFieldRecord>().get(field);
 
    //get the geometricsearch tracker geometry
    edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;

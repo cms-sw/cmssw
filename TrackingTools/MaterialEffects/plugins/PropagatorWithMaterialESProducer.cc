@@ -28,9 +28,6 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
 //     delete _propagator;
 //     _propagator = 0;
 //   }
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
-
 
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
   double mass      = pset_.getParameter<double>("Mass");
@@ -39,6 +36,13 @@ PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iReco
   bool useOldAnalPropLogic = pset_.existsAs<bool>("useOldAnalPropLogic") ? 
     pset_.getParameter<bool>("useOldAnalPropLogic") : true;
   double ptMin     = pset_.existsAs<double>("ptMin") ? pset_.getParameter<double>("ptMin") : -1.0;
+
+  ESHandle<MagneticField> magfield;
+  if (pset_.exists("SimpleMagneticField"))
+    iRecord.getRecord<IdealMagneticFieldRecord>().get(pset_.getParameter<std::string>("SimpleMagneticField"), magfield);
+  else 
+    iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
+  //fixme check that useRK is false when using SimpleMagneticField 
 
   PropagationDirection dir = alongMomentum;
   

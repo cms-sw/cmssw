@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 CfgNavigationSchoolESProducer = cms.ESProducer("CfgNavigationSchoolESProducer",
-                                               ComponentName = cms.string('CfgNavigationSchool'))
+                                               ComponentName = cms.string('CfgNavigationSchool'),
+                                               SimpleMagneticField = cms.string('ParabolicMf'),
+                                               )
 
 _defaultPSetWithIn=cms.PSet(IN = cms.vstring(''),OUT = cms.vstring(''))
 _defaultPSetInverseRelation=cms.PSet(OUT = cms.vstring(''))
