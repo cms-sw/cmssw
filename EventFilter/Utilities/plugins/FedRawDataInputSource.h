@@ -51,10 +51,11 @@ private:
   void closeCurrentFile();
   evf::EvFDaqDirector::FileStatus openNextFile();
   evf::EvFDaqDirector::FileStatus searchForNextFile();
-  bool grabNextJsonFile(boost::filesystem::path const&);
+  int grabNextJsonFile(boost::filesystem::path const&);
   void openDataFile(std::string const&);
   evf::EvFDaqDirector::FileStatus readNextChunkIntoBuffer();
-  void renameToNextFree() const;
+  void renameToNextFree(std::string& fileName) const;
+  void purgeOldFiles(bool checkAll);
 
   //thread functions
   void readSupervisor();
@@ -119,15 +120,17 @@ private:
     uint32_t usedSize_ = 0;
     unsigned int index_;
     unsigned int offset_;
+    unsigned int fileIndex_;
     std::atomic<bool> readComplete_;
 
     InputChunk(unsigned int index, uint32_t size): size_(size),index_(index) {
 	    dataBuffer_ = new unsigned char[size_];
 	    reset(0,0);
     }
-    void reset(unsigned int newOffset, unsigned int toRead) {
+    void reset(unsigned int newOffset, unsigned int toRead, unsigned int fileIndex) {
 	    offset_=newOffset;
 	    usedSize_=toRead;
+	    fileIndex_=fileIndex;
 	    readComplete_=false;
     }
 
@@ -142,6 +145,8 @@ private:
       uint32_t fileSize_;
       uint32_t nChunks_;
       unsigned int nEvents_;
+      unsigned int nProcessed_;
+      CompletitionCounter cc_;
 
       std::concurrent_vector<InputChunk*> chunks_;
 
@@ -149,29 +154,47 @@ private:
       uint32_t  chunkPosition_ = 0;
       unsigned int currentChunk_ = 0;
 
-      std::atomic<bool> created_;
+      bool fileExists_ = false;
+      //std::atomic<unsigned int> completedChunks_=0;
       //bool deleted_ = false;
 
       //maybe make a few constructors
       InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
-	  uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0):
+	  uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0, CompletitionCounter * cc = nullptr):
 	status_(status),
 	lumi_(lumi),
 	fileName_(name),
 	fileSize_(fileSize),
 	nChunks_(nChunks),
-	nEvents_(nEvents)
+	nEvents_(nEvents),
+	nProcessed_(0),
+	cc_(cc)
       {
-        created_=true;
+	for (unsigned int i=0;i<nChunks;i++)
+	  chunks_.push_back(nullptr);
+        completedChunks_=0;
       }
 
-      void addChunk(InputChunk* chunk) {
-	chunks_.push_back(chunk);
+      bool waitForChunk(unsigned int chunkid) {
+	//some atomics to make sure everything is cache synchronized for the main thread
+        return chunks_[chunkid]!=nullptr && chunks_[chunkid]->readComplete_;
       }
   };
 
+  struct CompletitionCounter {
+	  std::string name_;
+	  unsigned int nChunks_;
+	  std::atomic<unsigned int> chunksComplete_; 
+	  CompletitionCounter(std::string & name, unsigned int nChunks):
+		  name_(name),
+		  nChunks_(nChunks),
+		  chunksComplete_(0)
+	  {}
+  }
+
   typedef<std::pair<InputFile*,InputChunk*> ReaderInfo;
 
+  std::unique_ptr<std::thread> readSupervisorThread_;
   std::vector<std::thread*> workerThreads_;//kept for joining threads in destructor
   //std::vector<InputChunk*> allChunks_;
 
@@ -184,7 +207,11 @@ private:
   std::mutex mReader_;
   std::vector<std::condition_variable> cvReader_;
 
-  bool quit_workers_;//atomic?
+  std::queue<CompletitionCounter*> openFileTracker_;
+
+  bool quit_threads_=false;
+
+  bool setExceptionState_ = false;
 
   //file is queued to the as soon as there's raw, EOL or EOR file found (FU locking and all that remains the same)
   //if it is raw file, threads are spawned to read blocks of the file in parallel (from the pool).
