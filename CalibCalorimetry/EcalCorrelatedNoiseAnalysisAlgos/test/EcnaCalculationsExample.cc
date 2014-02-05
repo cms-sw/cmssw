@@ -31,7 +31,12 @@ int main ( int argc, char **argv )
   Int_t   fKeyNbOfSamples =    10;      // Number of required samples
 
   TEcnaObject* myTEcnaManager = new TEcnaObject();
+  
+  cout << "!EcnaCalculationsExample> CONTROLE 1" << endl;
+
   TEcnaRun* MyRunEB = new TEcnaRun(myTEcnaManager, "EB", fKeyNbOfSamples);       xCnew++;
+  
+  cout << "!EcnaCalculationsExample> CONTROLE 2" << endl;
 
   //.............. Declarations and default values
 
@@ -42,11 +47,14 @@ int main ( int argc, char **argv )
   Int_t   fKeyLastEvt     =      0;      // Last Event number  (to be analyzed)
   Int_t   fKeyNbOfEvts    =    150;      // Number of events (events to be analyzed)
   Int_t   fKeySuMoNumber  =     18;      // Super-module number (EB)
-  
+
+
   MyRunEB->GetReadyToReadData(fKeyAnaType.Data(),  fKeyRunNumber,
 			      fKeyFirstEvt,        fKeyLastEvt,  fKeyNbOfEvts, fKeySuMoNumber);
 
   Bool_t ok_read = MyRunEB->ReadSampleAdcValues();
+
+
   
   if( ok_read == kTRUE )
     {
