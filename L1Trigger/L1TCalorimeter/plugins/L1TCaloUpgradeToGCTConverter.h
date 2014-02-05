@@ -98,6 +98,3 @@ namespace l1t {
 };
 }
 #endif
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(l1t::L1TCaloUpgradeToGCTConverter);

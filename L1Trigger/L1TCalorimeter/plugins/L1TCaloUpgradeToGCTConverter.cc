@@ -7,6 +7,9 @@
 #include "L1Trigger/L1TCalorimeter/plugins/L1TCaloUpgradeToGCTConverter.h"
 #include <boost/shared_ptr.hpp>
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig)
 {
@@ -58,6 +61,9 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   Handle<L1TEtSumCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
+
+  edm::ESHandle< L1CaloEtScale > etScale ;
+  es.get< L1JetEtScaleRcd >().get( etScale ) ;
 
 
   // create the em and jet collections
@@ -113,28 +119,48 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     }
 
     //looping over Tau elments with a specific BX
+    int tauCount = 0; //max 4
     for(L1TTauCollection::const_iterator itTau = Tau->begin(itBX);
 	itTau != Tau->end(itBX); ++itTau){
       bool forward= (itTau->hwEta() < 4 || itTau->hwEta() > 17);
+      int hackPt = itTau->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      if(hackPt > 0x3f) hackPt = 0x3f;
       L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(),
 			   true, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
-      tauJetResult->push_back(TauCand);
+      if(tauCount != 4){
+	tauJetResult->push_back(TauCand);
+	tauCount++;
+      }
     }
 
     //looping over Jet elments with a specific BX
+    int forCount = 0; //max 4
+    int cenCount = 0; //max 4
     for(L1TJetCollection::const_iterator itJet = Jet->begin(itBX);
 	itJet != Jet->end(itBX); ++itJet){
       bool forward=(itJet->hwEta() < 4 || itJet->hwEta() > 17);
-      int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      //int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      double hackPt = static_cast<double>(itJet->hwPt()) * etScale->linearLsb();
+      hackPt = etScale->rank(hackPt);
       if(hackPt > 0x3f) hackPt = 0x3f;
       L1GctJetCand JetCand(hackPt, itJet->hwPhi(), itJet->hwEta(),
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
-      if(forward) forJetResult->push_back(JetCand);
-      else cenJetResult->push_back(JetCand);
+      if(forward) {
+	if(forCount !=4 ){
+	  forJetResult->push_back(JetCand);
+	  forCount++;
+	}
+      }
+      else {
+	if(cenCount != 4){
+	  cenJetResult->push_back(JetCand);
+	  cenCount++;
+	}
+      }
     }
   }
 
@@ -220,3 +246,6 @@ l1t::L1TCaloUpgradeToGCTConverter::fillDescriptions(ConfigurationDescriptions& d
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(l1t::L1TCaloUpgradeToGCTConverter);
