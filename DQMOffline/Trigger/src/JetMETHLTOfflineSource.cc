@@ -59,6 +59,10 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   processname_         = iConfig.getParameter<std::string>("processname");
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  triggerSummaryToken  = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
+  triggerResultsToken  = consumes <edm::TriggerResults>   (triggerResultsLabel_);
+  triggerSummaryFUToken= consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
+  triggerResultsFUToken= consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
   //
   verbose_             = iConfig.getUntrackedParameter< bool >("verbose", false);
   runStandalone_       = iConfig.getUntrackedParameter< bool >("runStandalone", false);
@@ -72,17 +76,19 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   MuonTrigPaths_       = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMuon");
   MBTrigPaths_         = iConfig.getUntrackedParameter<vector<std::string> >("pathnameMB");
   //CaloJet, CaloMET
-  caloJetsTag_         = iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel");
-  caloMETTag_          = iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel");
+  caloJetsToken        = consumes<reco::CaloJetCollection> (iConfig.getParameter<edm::InputTag>("CaloJetCollectionLabel"));
+  caloMetToken         = consumes<reco::CaloMETCollection> (iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"));
   //PFJet, PFMET
-  pfJetsTag_           = iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel");
-  pfMETTag_            = iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel");
+  pfJetsToken          = consumes<reco::PFJetCollection>   (iConfig.getParameter<edm::InputTag>("PFJetCollectionLabel"));
+  pfMetToken           = consumes<reco::PFMETCollection>   (iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel"));
   //pfmhtTag_       = iConfig.getParameter<edm::InputTag>("PFMHTCollectionLabel");
+  //Vertex info
+  vertexToken          = consumes<reco::VertexCollection> (std::string("offlinePrimaryVertices"));
   //
   CaloJetCorService_   = iConfig.getParameter<std::string>("CaloJetCorService");
   PFJetCorService_     = iConfig.getParameter<std::string>("PFJetCorService");
   //JetID
-  jetID                = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"));
+  jetID                = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
   _fEMF                = iConfig.getUntrackedParameter< double >("fEMF", 0.01);
   _feta                = iConfig.getUntrackedParameter< double >("feta", 2.60);
   _fHPD                = iConfig.getUntrackedParameter< double >("fHPD", 0.98);
@@ -120,10 +126,9 @@ void
 JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
   //---------- triggerResults ----------
-  iEvent.getByLabel(triggerResultsLabel_, triggerResults_);
+  iEvent.getByToken(triggerResultsToken, triggerResults_);
   if(!triggerResults_.isValid()) {
-    edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerResultsLabelFU,triggerResults_);
+    iEvent.getByToken(triggerResultsFUToken,triggerResults_);
     if(!triggerResults_.isValid()) {
       edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
 	"skipping event";
@@ -145,10 +150,9 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   } 
   
   //---------- triggerSummary ----------
-  iEvent.getByLabel(triggerSummaryLabel_,triggerObj_);
+  iEvent.getByToken(triggerSummaryToken,triggerObj_);
   if(!triggerObj_.isValid()) {
-    edm::InputTag triggerSummaryLabelFU(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(), "FU");
-    iEvent.getByLabel(triggerSummaryLabelFU,triggerObj_);
+    iEvent.getByToken(triggerSummaryFUToken,triggerObj_);
     if(!triggerObj_.isValid()) {
       edm::LogInfo("FourVectorHLTOffline") << "TriggerEvent not found, "
 	"skipping event";
@@ -157,21 +161,21 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   } 
   
   //------------ Offline Objects -------
-  bool ValidJetColl_ = iEvent.getByLabel(caloJetsTag_,calojetColl_);
-  if(!ValidJetColl_) return;
+  iEvent.getByToken(caloJetsToken,calojetColl_);
+  if(!calojetColl_.isValid()) return;
   calojet = *calojetColl_; 
   //std::stable_sort( calojet.begin(), calojet.end(), PtSorter() ); 
   
-  bool ValidPFJetColl_ = iEvent.getByLabel(pfJetsTag_,pfjetColl_);
-  if(!ValidPFJetColl_) return;
+  iEvent.getByToken(pfJetsToken,pfjetColl_);
+  if(!pfjetColl_.isValid()) return;
   pfjet = *pfjetColl_; 
   //std::stable_sort( pfjet.begin(), pfjet.end(), PtSorter() );
   
-  bool ValidMETColl_ = iEvent.getByLabel(caloMETTag_, calometColl_);
-  if(!ValidMETColl_) return;
+  iEvent.getByToken(caloMetToken, calometColl_);
+  if(!calometColl_.isValid()) return;
   
-  bool ValidPFMETColl_ = iEvent.getByLabel(pfMETTag_, pfmetColl_);
-  if(!ValidPFMETColl_) return; 
+  iEvent.getByToken(pfMetToken, pfmetColl_);
+  if(!pfmetColl_.isValid()) return; 
   
   //---------- Event counting (DEBUG) ----------
   if(verbose_ && iEvent.id().event()%10000==0)
@@ -375,7 +379,7 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
 
   //Vertex
   edm::Handle<VertexCollection> Vtx;
-  iEvent.getByLabel ("offlinePrimaryVertices",Vtx);
+  iEvent.getByToken (vertexToken,Vtx);
   int vtxcnt=0;
   for (VertexCollection::const_iterator itv=Vtx->begin(); itv!=Vtx->end(); itv++){
     //if(vtxcnt>=20) break;

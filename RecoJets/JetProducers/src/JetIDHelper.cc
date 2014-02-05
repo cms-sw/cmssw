@@ -1,10 +1,14 @@
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitFwd.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
 // JetIDHelper needs a much more detailed description that the one in HcalTopology, 
@@ -37,7 +41,7 @@ namespace reco {
   }
 }
 
-reco::helper::JetIDHelper::JetIDHelper( edm::ParameterSet const & pset )
+reco::helper::JetIDHelper::JetIDHelper( edm::ParameterSet const & pset, edm::ConsumesCollector&& iC )
 {
   useRecHits_ = pset.getParameter<bool>("useRecHits");
   if( useRecHits_ ) {
@@ -48,6 +52,14 @@ reco::helper::JetIDHelper::JetIDHelper( edm::ParameterSet const & pset )
     eeRecHitsColl_   = pset.getParameter<edm::InputTag>("eeRecHitsColl");   
   }
   initValues();
+
+  input_HBHERecHits_token_ = iC.consumes<HBHERecHitCollection>(hbheRecHitsColl_); 
+  input_HORecHits_token_ = iC.consumes<HORecHitCollection>(hoRecHitsColl_);   
+  input_HFRecHits_token_ = iC.consumes<HFRecHitCollection>(hfRecHitsColl_);   
+  input_EBRecHits_token_ = iC.consumes<EBRecHitCollection>(ebRecHitsColl_);   
+  input_EERecHits_token_ = iC.consumes<EERecHitCollection>(eeRecHitsColl_);   
+
+
 }
   
 void reco::helper::JetIDHelper::initValues()
@@ -244,11 +256,11 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
   edm::Handle<EBRecHitCollection> EBRecHits;
   edm::Handle<EERecHitCollection> EERecHits;
   // the jet only contains DetIds, so first read recHit collection
-  event.getByLabel( hbheRecHitsColl_, HBHERecHits );
-  event.getByLabel( hoRecHitsColl_, HORecHits );
-  event.getByLabel( hfRecHitsColl_, HFRecHits );
-  event.getByLabel( ebRecHitsColl_, EBRecHits );
-  event.getByLabel( eeRecHitsColl_, EERecHits );
+  event.getByToken(input_HBHERecHits_token_, HBHERecHits );
+  event.getByToken(input_HORecHits_token_, HORecHits );
+  event.getByToken(input_HFRecHits_token_, HFRecHits );
+  event.getByToken(input_EBRecHits_token_, EBRecHits );
+  event.getByToken(input_EERecHits_token_, EERecHits );
   if( iDbg > 2 ) cout<<"# of rechits found - HBHE: "<<HBHERecHits->size()
 		     <<", HO: "<<HORecHits->size()<<", HF: "<<HFRecHits->size()
 		     <<", EB: "<<EBRecHits->size()<<", EE: "<<EERecHits->size()<<endl;

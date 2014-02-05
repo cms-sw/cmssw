@@ -17,7 +17,7 @@
 using namespace edm;
 
 // ***********************************************************
-JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
+JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet, edm::ConsumesCollector&& iC){
   
   parameters   = pSet;
   _leadJetFlag = 0;
@@ -38,6 +38,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   _sigmaEtaMinTight=-999.;
   _sigmaPhiMinTight=-999.;
 
+  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"), std::move(iC));
+
 } 
   
 // ***********************************************************
@@ -54,10 +56,6 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
 
   jetME = dbe->book1D("jetReco", "jetReco", 3, 1, 4);
   jetME->setBinLabel(1,"CaloJets",1);
-
-  //
-  jetID = new reco::helper::JetIDHelper(parameters.getParameter<ParameterSet>("JetIDParams"));
-  //
 
   fillJIDPassFrac = parameters.getParameter<int>("fillJIDPassFrac");
   makedijetselection = parameters.getParameter<int>("makedijetselection");

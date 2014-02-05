@@ -50,8 +50,10 @@ class CastorJetIDProducer : public edm::EDProducer {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
-  edm::InputTag                 src_;         // input jet source
-  reco::helper::CastorJetIDHelper     helper_;      // castor jet id helper algorithm
+      edm::InputTag                 src_;          // input jet source
+      reco::helper::CastorJetIDHelper     helper_; // castor jet id helper algorithm
+
+      edm::EDGetTokenT<edm::View<reco::BasicJet> > input_jet_token_;
 };
 
 
