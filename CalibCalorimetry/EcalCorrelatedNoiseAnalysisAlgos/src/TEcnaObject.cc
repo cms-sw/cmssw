@@ -17,7 +17,7 @@ ClassImp(TEcnaObject)
 {
 //destructor
 
-//  cout << "[Info Management] CLASS: TEcnaObject.      DESTROY OBJECT: this = " << this << endl;
+//  std::cout << "[Info Management] CLASS: TEcnaObject.      DESTROY OBJECT: this = " << this << std::endl;
 }
 
 //===================================================================
@@ -29,7 +29,7 @@ TEcnaObject::TEcnaObject()
 {
 // Constructor without argument
 
-//  cout << "[Info Management] CLASS: TEcnaObject.      CREATE OBJECT: this = " << this << endl;
+//  std::cout << "[Info Management] CLASS: TEcnaObject.      CREATE OBJECT: this = " << this << std::endl;
 
   Long_t PointerValue = (Long_t)this;
   Int_t un = 1;
@@ -221,8 +221,8 @@ Bool_t TEcnaObject::RegisterPointer(const TString& ClassName, const Long_t& Poin
   //.........................................................................................
   if( ClassFound == kFALSE )
     {
-      cout << "!TEcnaObject::RegisterPointer(...)> Class " << ClassName
-	   << " not found." << fTTBELL << endl;
+      std::cout << "!TEcnaObject::RegisterPointer(...)> Class " << ClassName
+	   << " not found." << fTTBELL << std::endl;
     }
 
   return ClassFound;
@@ -338,12 +338,12 @@ void TEcnaObject::NumberCreateObjectMessage(const TString& ClassName, const Long
 {
 #define NOCM
 #ifndef NOCM
-  cout << "*TEcnaObject::NumberCreateObjectMessage(...)> New ECNA object (pointer = "
+  std::cout << "*TEcnaObject::NumberCreateObjectMessage(...)> New ECNA object (pointer = "
        << PointerValue << ") from TEcnaObject " << this 
-       << ". Object# = " << setw(8) << NbOfObjects
+       << ". Object# = " << std::setw(8) << NbOfObjects
        << ", Class: " << ClassName;
-  if( NbOfObjects > 1 ){cout << " (INFO: more than 1 object)";}
-  cout << endl;
+  if( NbOfObjects > 1 ){std::cout << " (INFO: more than 1 object)";}
+  std::cout << std::endl;
 #endif // NOCM
 }
 
@@ -353,10 +353,10 @@ void TEcnaObject::NumberReuseObjectMessage(const TString& ClassName, const Long_
 #ifndef NOCR
   if( PointerValue != (Long_t)0 )
     {
-      cout << "*TEcnaObject::NumberReuseObjectMessage(...)> INFO: pointer " << PointerValue
+      std::cout << "*TEcnaObject::NumberReuseObjectMessage(...)> INFO: pointer " << PointerValue
 	   << " used again from TEcnaObject " << this
-	   << ". " << setw(8) << NbOfObjects << " times, class: " << ClassName;
+	   << ". " << std::setw(8) << NbOfObjects << " times, class: " << ClassName;
     }
-  cout << endl;
+  std::cout << std::endl;
 #endif // NOCR
 }

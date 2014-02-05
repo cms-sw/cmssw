@@ -179,20 +179,20 @@
 ///       TEcnaParPaths* pCnaParPaths = new TEcnaParPaths(MyEcnaObjectManager);
 ///       if( pCnaParPaths->GetPaths() == kTRUE )
 ///         {
-///           cout << "*EcnaGuiEB> Starting ROOT session" << endl;
+///           std::cout << "*EcnaGuiEB> Starting ROOT session" << std::endl;
 ///           TRint theApp("App", &argc, argv);
 ///           
-///           cout << "*EcnaGuiEB> Starting ECNA session" << endl;
+///           std::cout << "*EcnaGuiEB> Starting ECNA session" << std::endl;
 ///           TEcnaGui* mainWin = new TEcnaGui(MyEcnaObjectManager, "EB", gClient->GetRoot(), 395, 710);
 ///           mainWin->DialogBox();
 ///           Bool_t retVal = kTRUE;
 ///           theApp.Run(retVal);
-///           cout << "*EcnaGuiEB> End of ECNA session." << endl;
+///           std::cout << "*EcnaGuiEB> End of ECNA session." << std::endl;
 ///           delete mainWin;
 ///     
-///           cout << "*EcnaGuiEB> End of ROOT session." << endl;
+///           std::cout << "*EcnaGuiEB> End of ROOT session." << std::endl;
 ///           theApp.Terminate(0);
-///           cout << "*EcnaGuiEB> Exiting main program." << endl;
+///           std::cout << "*EcnaGuiEB> Exiting main program." << std::endl;
 ///           exit(0);
 ///         }
 ///     }
@@ -878,7 +878,7 @@ class TEcnaGui : public TGMainFrame {
 
   //==================================================== Miscellaneous parameters
 
-  //ofstream fFcout_f;
+  //std::ofstream fFcout_f;
 
   TString  fKeyAnaType;           // Type of analysis
 

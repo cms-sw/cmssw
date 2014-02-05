@@ -19,7 +19,7 @@ ClassImp(TEcnaParPaths)
 {
 //destructor
 
- // cout << "[Info Management] CLASS: TEcnaParPaths.      DESTROY OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaParPaths.      DESTROY OBJECT: this = " << this << std::endl;
 }
 
 //===================================================================
@@ -30,14 +30,14 @@ ClassImp(TEcnaParPaths)
 TEcnaParPaths::TEcnaParPaths()
 {
 // Constructor without argument
- // cout << "[Info Management] CLASS: TEcnaParPaths.      CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaParPaths.      CREATE OBJECT: this = " << this << std::endl;
   Init();
 }
 
 TEcnaParPaths::TEcnaParPaths(TEcnaObject* pObjectManager)
 {
 // Constructor without argument
- // cout << "[Info Management] CLASS: TEcnaParPaths.      CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaParPaths.      CREATE OBJECT: this = " << this << std::endl;
   Init();
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaParPaths", i_this);
@@ -99,7 +99,7 @@ Bool_t TEcnaParPaths::GetPathForResultsRootFiles(const TString& argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "ECNA/path_results_root";     // config file name
+      std::string cFileNameForCnaPaths = "ECNA/path_results_root";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
       const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
@@ -121,7 +121,7 @@ Bool_t TEcnaParPaths::GetPathForResultsRootFiles(const TString& argFileName)
   if(fFcin_rr.fail() == kFALSE)
     {
       fFcin_rr.clear();
-      string xResultsFileP;
+      std::string xResultsFileP;
       fFcin_rr >> xResultsFileP;
       fCfgResultsRootFilePath = xResultsFileP.c_str();
       fFcin_rr.close();
@@ -131,20 +131,20 @@ Bool_t TEcnaParPaths::GetPathForResultsRootFiles(const TString& argFileName)
     {
       fFcin_rr.clear();
       fCnaError++;
-      cout << fTTBELL << endl
-	   << " ***************************************************************************************** " << endl;
-      cout << "   !CNA(TEcnaParPaths) (" << fCnaError << ") *** ERROR *** " << endl << endl
-	   << "     " << fFileForResultsRootFilePath.Data() << ": file not found. " << endl << endl
-	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << endl
-	   << "     and create a file named path_results_root in the subdirectory ECNA." << endl << endl
-           << "     The file " << fFileForResultsRootFilePath.Data() << " is a configuration file" << endl
-	   << "     for ECNA and must contain one line with the following syntax:" << endl << endl
-	   << "        PATH_FOR_THE_RESULTS_ROOT_FILE (without slash at the end of line)" << endl
+      std::cout << fTTBELL << std::endl
+	   << " ***************************************************************************************** " << std::endl;
+      std::cout << "   !CNA(TEcnaParPaths) (" << fCnaError << ") *** ERROR *** " << std::endl << std::endl
+	   << "     " << fFileForResultsRootFilePath.Data() << ": file not found. " << std::endl << std::endl
+	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << std::endl
+	   << "     and create a file named path_results_root in the subdirectory ECNA." << std::endl << std::endl
+           << "     The file " << fFileForResultsRootFilePath.Data() << " is a configuration file" << std::endl
+	   << "     for ECNA and must contain one line with the following syntax:" << std::endl << std::endl
+	   << "        PATH_FOR_THE_RESULTS_ROOT_FILE (without slash at the end of line)" << std::endl
 	   << "                                        ================================"
-	   << endl << endl
-	   << "     Example: $HOME/scratch0/ecna/results_root" << endl << endl
+	   << std::endl << std::endl
+	   << "     Example: $HOME/scratch0/ecna/results_root" << std::endl << std::endl
 	   << " ***************************************************************************************** "
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       fFcin_rr.close();
       FileHere = kFALSE;
@@ -178,7 +178,7 @@ Bool_t TEcnaParPaths::GetPathForResultsAsciiFiles(const TString& argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "ECNA/path_results_ascii";     // config file name
+      std::string cFileNameForCnaPaths = "ECNA/path_results_ascii";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
       const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
@@ -199,7 +199,7 @@ Bool_t TEcnaParPaths::GetPathForResultsAsciiFiles(const TString& argFileName)
   if(fFcin_ra.fail() == kFALSE)
     {
       fFcin_ra.clear();
-      string xResultsFileP;
+      std::string xResultsFileP;
       fFcin_ra >> xResultsFileP;
       fCfgResultsAsciiFilePath = xResultsFileP.c_str();
       fFcin_ra.close();
@@ -209,20 +209,20 @@ Bool_t TEcnaParPaths::GetPathForResultsAsciiFiles(const TString& argFileName)
     {
       fFcin_ra.clear();
       fCnaError++;
-      cout << fTTBELL << endl
-	   << " ***************************************************************************************** " << endl;
-      cout << "   !CNA(TEcnaParPaths) (" << fCnaError << ") *** ERROR *** " << endl << endl
-	   << "     " << fFileForResultsAsciiFilePath.Data() << ": file not found. " << endl << endl
-	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << endl
-	   << "     and create a file named path_results_ascii in the subdirectory ECNA." << endl << endl
-           << "     The file " << fFileForResultsAsciiFilePath.Data() << " is a configuration file" << endl
-	   << "     for ECNA and must contain one line with the following syntax:" << endl << endl
-	   << "        PATH_FOR_THE_RESULTS_ASCII_FILE (without slash at the end of line)" << endl
+      std::cout << fTTBELL << std::endl
+	   << " ***************************************************************************************** " << std::endl;
+      std::cout << "   !CNA(TEcnaParPaths) (" << fCnaError << ") *** ERROR *** " << std::endl << std::endl
+	   << "     " << fFileForResultsAsciiFilePath.Data() << ": file not found. " << std::endl << std::endl
+	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << std::endl
+	   << "     and create a file named path_results_ascii in the subdirectory ECNA." << std::endl << std::endl
+           << "     The file " << fFileForResultsAsciiFilePath.Data() << " is a configuration file" << std::endl
+	   << "     for ECNA and must contain one line with the following syntax:" << std::endl << std::endl
+	   << "        PATH_FOR_THE_RESULTS_ASCII_FILE (without slash at the end of line)" << std::endl
 	   << "                                         ================================"
-	   << endl << endl
-	   << "     Example: $HOME/scratch0/ecna/results_ascii" << endl << endl
+	   << std::endl << std::endl
+	   << "     Example: $HOME/scratch0/ecna/results_ascii" << std::endl << std::endl
 	   << " ***************************************************************************************** "
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       fFcin_ra.close();
       FileHere = kFALSE;
@@ -256,7 +256,7 @@ Bool_t TEcnaParPaths::GetPathForHistoryRunListFiles(const TString& argFileName)
 
   if ( argFileName == "" )
     {
-      string cFileNameForCnaPaths = "ECNA/path_runlist_history_plots";     // config file name
+      std::string cFileNameForCnaPaths = "ECNA/path_runlist_history_plots";     // config file name
       TString s_file_name = cFileNameForCnaPaths.c_str();
       const Text_t *t_file_name = (const Text_t *)s_file_name.Data();
       
@@ -277,7 +277,7 @@ Bool_t TEcnaParPaths::GetPathForHistoryRunListFiles(const TString& argFileName)
   if(fFcin_lor.fail() == kFALSE)
     {
       fFcin_lor.clear();
-      string xHistoryRunListP;
+      std::string xHistoryRunListP;
       fFcin_lor >> xHistoryRunListP;
       fCfgHistoryRunListFilePath = xHistoryRunListP.c_str();
       fFcin_lor.close();
@@ -287,20 +287,20 @@ Bool_t TEcnaParPaths::GetPathForHistoryRunListFiles(const TString& argFileName)
     {
       fFcin_lor.clear();
       fCnaError++;
-      cout << fTTBELL << endl
-	   << " ******************************************************************************************************** " << endl;
-      cout << "   !CNA(TEcnaParPaths) (" << fCnaError << ") *** ERROR *** " << endl << endl
-	   << "     " << fFileForHistoryRunListFilePath.Data() << ": file not found. " << endl << endl
-	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << endl
-	   << "     and create a file named path_runlist_history_plots in the subdirectory ECNA." << endl << endl
-           << "     The file " << fFileForHistoryRunListFilePath.Data() << " is a configuration file" << endl
-	   << "     for ECNA and must contain one line with the following syntax:" << endl << endl
-	   << "        PATH_FOR_THE_LIST_OF_RUNS_FOR_HISTORY_PLOTS_FILE (without slash at the end of line)" << endl
+      std::cout << fTTBELL << std::endl
+	   << " ******************************************************************************************************** " << std::endl;
+      std::cout << "   !CNA(TEcnaParPaths) (" << fCnaError << ") *** ERROR *** " << std::endl << std::endl
+	   << "     " << fFileForHistoryRunListFilePath.Data() << ": file not found. " << std::endl << std::endl
+	   << "     Please create a subdirectory named ECNA in your HOME directory (if not already done)" << std::endl
+	   << "     and create a file named path_runlist_history_plots in the subdirectory ECNA." << std::endl << std::endl
+           << "     The file " << fFileForHistoryRunListFilePath.Data() << " is a configuration file" << std::endl
+	   << "     for ECNA and must contain one line with the following syntax:" << std::endl << std::endl
+	   << "        PATH_FOR_THE_LIST_OF_RUNS_FOR_HISTORY_PLOTS_FILE (without slash at the end of line)" << std::endl
 	   << "                                                          ================================"
-	   << endl << endl
-	   << "     Example: $HOME/scratch0/ecna/runlist_history_plots" << endl << endl
+	   << std::endl << std::endl
+	   << "     Example: $HOME/scratch0/ecna/runlist_history_plots" << std::endl << std::endl
 	   << " ******************************************************************************************************** "
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
 
       fFcin_lor.close();
       FileHere = kFALSE;
@@ -330,9 +330,9 @@ void TEcnaParPaths::GetCMSSWParameters()
   char* ch_cmssw_base = getenv("CMSSW_BASE");
   if( ch_cmssw_base == 0 )
     {
-      cout << "*TEcnaParPaths::GetCMSSWParameters()> CMSSW_BASE not defined."
+      std::cout << "*TEcnaParPaths::GetCMSSWParameters()> CMSSW_BASE not defined."
 	   << " Please, set up the environment (command: eval `scramv1 runtime -csh`)"
-	   << fTTBELL << endl; 
+	   << fTTBELL << std::endl; 
     }
   else
     {
@@ -344,9 +344,9 @@ void TEcnaParPaths::GetCMSSWParameters()
   char* ch_scram_arch = getenv("SCRAM_ARCH");
   if( ch_scram_arch == 0 )
     {
-      cout << "*TEcnaParPaths::GetCMSSWParameters()> SCRAM_ARCH not defined."
+      std::cout << "*TEcnaParPaths::GetCMSSWParameters()> SCRAM_ARCH not defined."
 	   << " Please, set up the environment (command: eval `scramv1 runtime -csh`)"
-	   << fTTBELL << endl; 
+	   << fTTBELL << std::endl; 
     }
   else
     {
