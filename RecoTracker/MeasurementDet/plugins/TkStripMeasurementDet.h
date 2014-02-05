@@ -200,8 +200,10 @@ private:
 public:
   inline bool accept(SiStripClusterRef const & r, const std::vector<bool> & skipClusters) const {
     if(skipClusters.empty()) return true;
-    if (r.key()>=skipClusters.size()){
-      edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done";
+   if (r.key()>=skipClusters.size()){
+      LogDebug("TkStripMeasurementDet")<<r.key()<<" is larger than: "<<skipClusters.size()
+				       <<"\n This must be a new cluster, and therefore should not be skiped most likely.";
+      // edm::LogError("WrongStripMasking")<<r.key()<<" is larger than: "<<skipClusters.size()<<" no skipping done"; // protect for on demand???
       return true;
     }
     return (not (skipClusters[r.key()]));
