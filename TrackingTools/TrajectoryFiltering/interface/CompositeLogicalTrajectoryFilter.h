@@ -13,7 +13,7 @@ public:
   enum logic { OR, AND };
   explicit CompositeLogicalTrajectoryFilter() {filters.clear();}
 
-  explicit CompositeLogicalTrajectoryFilter( const edm::ParameterSet & pset)
+  explicit CompositeLogicalTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC)
   {
   //look for VPSet of filters
   std::vector<edm::ParameterSet> vpset=pset.getParameter<std::vector<edm::ParameterSet> >("filters");
@@ -27,7 +27,7 @@ public:
 	edm::LogError("CompositeLogicalTrajectoryFilter")<<"I don't understand the logic: "<<ls
 	  ;
       }
-      filters.emplace_back(l, std::unique_ptr<TrajectoryFilter>(TrajectoryFilterFactory::get()->create(vpset[i].getParameter<std::string>("ComponentName"), vpset[i])));
+      filters.emplace_back(l, std::unique_ptr<TrajectoryFilter>(TrajectoryFilterFactory::get()->create(vpset[i].getParameter<std::string>("ComponentName"), vpset[i], iC)));
     
     }
   }
