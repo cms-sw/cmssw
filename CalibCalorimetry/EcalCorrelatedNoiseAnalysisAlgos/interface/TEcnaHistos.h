@@ -4,7 +4,8 @@
 #include "TObject.h"
 #include <TQObject.h>
 #include <RQ_OBJECT.h>
-#include <Riostream.h>
+//#include <Riostream.h>
+#include <iostream>
 #include "TSystem.h"
 #include <time.h>
 #include "TString.h"
@@ -381,7 +382,7 @@ class TEcnaHistos : public TObject {
   TVectorD        fReadHistoDummy;
   TMatrixD        fReadMatrixDummy;
 
-  ifstream fFcin_f;
+  std::ifstream fFcin_f;
 
   TString fFapAnaType;             // Type of analysis
   Int_t   fFapNbOfSamples;         // Nb of required samples
