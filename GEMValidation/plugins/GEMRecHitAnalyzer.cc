@@ -67,6 +67,7 @@ struct MyGEMRecHitNoise
   Int_t detId;
   Float_t x, y, xErr;
   Int_t region, ring, station, layer, chamber, roll;
+  Float_t globalR, globalEta, globalPhi, globalX, globalY, globalZ;
   Int_t bx, clusterSize, firstClusterStrip;
   Int_t nStrips;
   Float_t trArea, trStripArea, striplength, pitch;
@@ -298,6 +299,12 @@ void GEMRecHitAnalyzer::bookGEMRecHitNoiseTree()
   gem_noise_tree_->Branch("x", &gem_noise_recHit_.x);
   gem_noise_tree_->Branch("xErr", &gem_noise_recHit_.xErr);
   gem_noise_tree_->Branch("y", &gem_noise_recHit_.y);
+  gem_noise_tree_->Branch("globalR", &gem_noise_recHit_.globalR);
+  gem_noise_tree_->Branch("globalEta", &gem_noise_recHit_.globalEta);
+  gem_noise_tree_->Branch("globalPhi", &gem_noise_recHit_.globalPhi);
+  gem_noise_tree_->Branch("globalX", &gem_noise_recHit_.globalX);
+  gem_noise_tree_->Branch("globalY", &gem_noise_recHit_.globalY);
+  gem_noise_tree_->Branch("globalZ", &gem_noise_recHit_.globalZ);
   gem_noise_tree_->Branch("nStrips", &gem_noise_recHit_.nStrips);
   gem_noise_tree_->Branch("trArea", &gem_noise_recHit_.trArea);
   gem_noise_tree_->Branch("trStripArea", &gem_noise_recHit_.trStripArea);
@@ -550,6 +557,16 @@ for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit !
     gem_noise_recHit_.layer = (Short_t) id.layer();
     gem_noise_recHit_.chamber = (Short_t) id.chamber();
     gem_noise_recHit_.roll = (Short_t) id.roll();
+    
+    LocalPoint hitLP = recHit->localPosition();
+    GlobalPoint hitGP = gem_geometry_->idToDet((*recHit).gemId())->surface().toGlobal(hitLP);
+   
+    gem_noise_recHit_.globalR = hitGP.perp();
+    gem_noise_recHit_.globalEta = hitGP.eta();
+    gem_noise_recHit_.globalPhi = hitGP.phi();
+    gem_noise_recHit_.globalX = hitGP.x();
+    gem_noise_recHit_.globalY = hitGP.y();
+    gem_noise_recHit_.globalZ = hitGP.z();
     
     const GEMEtaPartition* roll(gem_geom_->etaPartition(id));
     const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
