@@ -61,6 +61,7 @@ public:
   typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
 
+  // Claims ownership of TrajectoryFilter pointers
   BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
                            TrajectoryFilter *filter,
                            TrajectoryFilter *inOutFilter=nullptr);
@@ -161,8 +162,8 @@ public:
 
   //  TrajectoryFilter*              theMinPtCondition;
   //  TrajectoryFilter*              theMaxHitsCondition;
-  TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
-  TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
+  std::unique_ptr<TrajectoryFilter> theFilter; /** Filter used at end of complete tracking */
+  std::unique_ptr<TrajectoryFilter> theInOutFilter; /** Filter used at end of in-out tracking */
 
   // for EventSetup
   const std::string theUpdatorName;
