@@ -1,10 +1,9 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 24/03/2011
+//----------Modified: 30/01/2014
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
 #include <cstdlib>
-using namespace std;
 
 //--------------------------------------
 //  TEcnaParPaths.cc
@@ -48,11 +47,12 @@ TEcnaParPaths::TEcnaParPaths(TEcnaObject* pObjectManager)
 void  TEcnaParPaths::Init()
 {
   fgMaxCar = (Int_t)512;              // max number of characters in TStrings
+
   fTTBELL = '\007';
 
   //................ Init CNA Command and error numbering
-  fCnaCommand = 0;
-  fCnaError   = 0;
+  fCnaCommand = (Int_t)0;
+  fCnaError   = (Int_t)0;
 
 }// end of Init()
 
@@ -90,7 +90,6 @@ Bool_t TEcnaParPaths::GetPathForResultsRootFiles(const TString& argFileName)
   // if string is empty, file name = "ECNA/path_results_root" (located in $HOME user's directory - default - )
 
   Bool_t FileHere = kFALSE;
-
   Int_t MaxCar = fgMaxCar;
   fCfgResultsRootFilePath.Resize(MaxCar);
   fCfgResultsRootFilePath = "?";
@@ -118,6 +117,7 @@ Bool_t TEcnaParPaths::GetPathForResultsRootFiles(const TString& argFileName)
   //........ Reading of the paths in the file named fFileForResultsRootFilePath.Data()
   //
   fFcin_rr.open(fFileForResultsRootFilePath.Data());
+
   if(fFcin_rr.fail() == kFALSE)
     {
       fFcin_rr.clear();

@@ -1,0 +1,1 @@
+Flag file for ECNA python file management. Used by TCnaGui. Can be removed by user (with option Clean in TCnaGui or directly) ONLY AFTER all submitted jobs have been finished.
