@@ -148,8 +148,8 @@ namespace reco {
       float hcalDepth2OverEcalBc;
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
       ShowerShape()
-	: sigmaEtaEta(std::numeric_limits<float>::infinity()),
-	   sigmaIetaIeta(std::numeric_limits<float>::infinity()),
+	: sigmaEtaEta(std::numeric_limits<float>::max()),
+	   sigmaIetaIeta(std::numeric_limits<float>::max()),
 	   e1x5(0), 
 	   e2x5(0), 
 	   e3x3(0), 
