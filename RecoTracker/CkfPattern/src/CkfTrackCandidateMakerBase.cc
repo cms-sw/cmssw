@@ -119,7 +119,10 @@ namespace cms{
 
     //services
     es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-    es.get<IdealMagneticFieldRecord>().get( theMagField );
+    if (conf_.exists("SimpleMagneticField"))
+      es.get<IdealMagneticFieldRecord>().get(conf_.getParameter<std::string>("SimpleMagneticField"), theMagField );
+    else 
+      es.get<IdealMagneticFieldRecord>().get(theMagField );
 
     if (!theInitialState){
       // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
