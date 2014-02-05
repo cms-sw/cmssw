@@ -13,6 +13,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "TH1F.h"
 #include "TF1.h"
@@ -44,13 +45,13 @@ public:
   ~HcalPedestalAnalysis();
 
   void setup(const std::string& m_outputFileROOT);
-
+  void setTopology(const HcalTopology* topo) {fTopology = (HcalTopology*)(topo);}
   void SampleAnalysis();
 
   int done(const HcalPedestals* fInputPedestals, 
-	    const HcalPedestalWidths* fInputWidths,
-	    HcalPedestals* fOutputPedestals, 
-	    HcalPedestalWidths* fOutputWidths);
+	   const HcalPedestalWidths* fInputWidths,
+	   HcalPedestals* fOutputPedestals, 
+	   HcalPedestalWidths* fOutputWidths);
 
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
@@ -62,11 +63,11 @@ public:
 //                                  N>0 : mod(N,100000) drifts + width changes
 //                                        int(N/100000) missing channels
   static int HcalPedVal(int nstat[4], const HcalPedestals* fRefPedestals,
-            const HcalPedestalWidths* fRefPedestalWidths,
-            HcalPedestals* fRawPedestals,
-            HcalPedestalWidths* fRawPedestalWidths,
-            HcalPedestals* fValPedestals,
-            HcalPedestalWidths* fValPedestalWidths);
+			const HcalPedestalWidths* fRefPedestalWidths,
+			HcalPedestals* fRawPedestals,
+			HcalPedestalWidths* fRawPedestalWidths,
+			HcalPedestals* fValPedestals,
+			HcalPedestalWidths* fValPedestalWidths);
 
 protected:
   
