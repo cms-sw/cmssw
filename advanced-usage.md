@@ -257,6 +257,16 @@ particular once you are familiar with the concept you might want to look at
 more flexibility when you want to do more that simply merge a set of commits
 into one.
 
+### How do I pick up a commit from a branch and apply it to another branch?
+
+Have a look at the `git-cherry-pick` command. E.g.:
+
+    git cherry-pick <hash-of-commit-on-another-branch>
+
+will take `<hash-of-commit-on-another-branch>` and apply it on the current
+branch. Notice that the new commit will have a different hash, because the
+history is different.
+
 ### I need to checkout a file from the old CVS HEAD / a release tag, how can I do it?
 
 The _CVS HEAD_ at the time of the migration is available in the git branch
