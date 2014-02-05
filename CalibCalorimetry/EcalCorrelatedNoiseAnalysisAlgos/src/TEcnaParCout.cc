@@ -17,7 +17,7 @@ ClassImp(TEcnaParCout)
   TEcnaParCout::~TEcnaParCout()
 {
 //destructor
- // cout << "[Info Management] CLASS: TEcnaParCout.       DESTROY OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaParCout.       DESTROY OBJECT: this = " << this << std::endl;
 }
 //===================================================================
 //
@@ -28,7 +28,7 @@ TEcnaParCout::TEcnaParCout()
 {
 // Constructor without argument
 
- // cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << std::endl;
 
   Init();
 }
@@ -37,7 +37,7 @@ TEcnaParCout::TEcnaParCout(TEcnaObject* pObjectManager)
 {
 // Constructor with argument
 
- // cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaParCout.       CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   Long_t i_this = (Long_t)this;
