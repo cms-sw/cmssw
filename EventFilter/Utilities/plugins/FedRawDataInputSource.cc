@@ -139,7 +139,7 @@ bool FedRawDataInputSource::checkNextEvent()
     default: {
       if (!getLSFromFilename_) {
         //get new lumi from file header
-        maybeOpenNewLumiSection( event_->lumi() );
+        maybeOpenNewLumiSection( event_->lumi() );//TODO:put this also in a loop to create all intermediate EOL files
         if (fms_) fms_->reportEventsThisLumiInSource(event_->lumi(),eventsThisLumi_);//?????
       }
 
@@ -152,7 +152,7 @@ bool FedRawDataInputSource::checkNextEvent()
   }
 }
 
-//TODO: do part of this at supervisor thread, and new lumiblockAux and timestamp later
+//not touching this
 void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
 {
   if (!luminosityBlockAuxiliary()
@@ -187,7 +187,6 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
   }
 }
 
-//TODO: handle new buffers
 evf::EvFDaqDirector::FileStatus FedRawDataInputSource::cacheNextEvent()
 {
   const size_t headerSize = (4 + 1024) * sizeof(uint32); //minimal size to fit any version of FRDEventHeader
@@ -212,8 +211,11 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::cacheNextEvent()
 
     if (status = currentFile_->status_ == evf::EvFDaqDirector::newLumi) 
     {
-      if (getLSFromFilename_)
-      	maybeOpenNewLumiSection(currentFile_->lumi_);
+      if (getLSFromFilename_) {
+	while (currentFile_->lumi_ > currentLumiSection_)  //TODO:check if we always get this from supervisor
+      	  maybeOpenNewLumiSection(currentLumiSection_+1);
+	 //TODO: count to FMS
+      }
       else 
         status = evf::EvFDaqDirector::noFile;
       delete currentFile_;
@@ -353,7 +355,7 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::cacheNextEvent()
     chunkPosition_+=msgSize;
      bufferPosition_+=msgSize;
   }
-  //now read..
+
   if ( verifyAdler32_ && event_->version() >= 3 )
   {
     uint32_t adler = adler32(0L,Z_NULL,0);
@@ -369,12 +371,6 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::cacheNextEvent()
 
   return evf::EvFDaqDirector::sameFile;
 }
-//obsolete
-/*
-evf::EvFDaqDirector::FileStatus FedRawDataInputSource::readNextChunkIntoBuffer()
-{
-}
-*/
 
 /*
  * should be called by the main thread after file is fully processed, maybe delete it after buffering
@@ -447,12 +443,6 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
 
   return tstamp;
 }
-
-/* obsolete
-evf::EvFDaqDirector::FileStatus FedRawDataInputSource::searchForNextFile()
-{
-
-*/
 
 /* OK */
 int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath)
@@ -534,9 +524,6 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
 
   return -1;
 }
-/* obsolete
-int FedRawDataInputSource::openDataFile(std::string const& nextFile)
-*/
 
 //OK
 void FedRawDataInputSource::renameToNextFree(std::string& fileName) const
@@ -620,10 +607,10 @@ void FedRawDataInputSource::readSupervisor() {
       }
 
       if (status == evf::EvFDaqDirector::noFile) {
-	      edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again..." << std::endl;
-	      usleep(100000);
-    	      if (quit_threads_) break;
-	      purgeOldFiles(false);
+	edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again..." << std::endl;
+	usleep(100000);
+	if (quit_threads_) break;
+	purgeOldFiles(false);
       }
     }
     if ( status == evf::EvFDaqDirector::newFile ) {
@@ -635,10 +622,6 @@ void FedRawDataInputSource::readSupervisor() {
       jsonFile.replace_extension(".jsn");
       int eventsInNewFile = grabNextJsonFile(jsonFile);
       assert( eventsInNewFile>=0 );
-
-      //not done here
-//      int fileDescriptor = openDataFile(nextFile);
-//      close(fileDescriptor);
 
       //if (fms_) fms_->reportEventsThisLumiInSource(ls,eventsThisLumi_);//TODO
       //eventsThisLumi_=0;
@@ -796,6 +779,7 @@ void FedRawDataInputSource::threadError() {
 
 }
 //TODO: fix event counter for reporting to the fastmonitoring service
+//      EOL file create (decide what to do with the "maybe" function)
 
 // define this class as an input source
 DEFINE_FWK_INPUT_SOURCE( FedRawDataInputSource);

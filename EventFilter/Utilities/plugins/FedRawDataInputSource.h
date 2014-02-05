@@ -49,11 +49,7 @@ private:
   evf::EvFDaqDirector::FileStatus cacheNextEvent();
   edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
   void closeCurrentFile();
-  evf::EvFDaqDirector::FileStatus openNextFile();
-  evf::EvFDaqDirector::FileStatus searchForNextFile();
   int grabNextJsonFile(boost::filesystem::path const&);
-  void openDataFile(std::string const&);
-  evf::EvFDaqDirector::FileStatus readNextChunkIntoBuffer();
   void renameToNextFree(std::string& fileName) const;
   void purgeOldFiles(bool checkAll);
 
