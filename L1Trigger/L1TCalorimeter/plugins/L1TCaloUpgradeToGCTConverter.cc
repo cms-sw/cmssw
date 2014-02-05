@@ -110,7 +110,6 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
       if(iso) isoEmResult->push_back(EmCand);
       else nonIsoEmResult->push_back(EmCand);
-      cout << "pushed  Egamma bx " << itBX << endl;
     }
 
     //looping over Tau elments with a specific BX
@@ -128,7 +127,9 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     for(L1TJetCollection::const_iterator itJet = Jet->begin(itBX);
 	itJet != Jet->end(itBX); ++itJet){
       bool forward=(itJet->hwEta() < 4 || itJet->hwEta() > 17);
-      L1GctJetCand JetCand(itJet->hwPt(), itJet->hwPhi(), itJet->hwEta(),
+      int hackPt = itJet->hwPt()/8; //hack convert from LSB 0.5GeV for regions to LSB 4GeV jets
+      if(hackPt > 0x3f) hackPt = 0x3f;
+      L1GctJetCand JetCand(hackPt, itJet->hwPhi(), itJet->hwEta(),
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
