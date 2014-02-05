@@ -217,16 +217,10 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   stubMapType stubMap;
 
   /// Geometry handles etc
-  edm::ESHandle<TrackerGeometry>                               geometryHandle;
-  const TrackerGeometry*                                       theGeometry;
   edm::ESHandle<StackedTrackerGeometry>           stackedGeometryHandle;
   const StackedTrackerGeometry*                   theStackedGeometry;
   StackedTrackerGeometry::StackContainerIterator  StackedTrackerIterator;
 
-  /// Geometry setup
-  /// Set pointers to Geometry
-  iSetup.get<TrackerDigiGeometryRecord>().get(geometryHandle);
-  theGeometry = &(*geometryHandle);
   /// Set pointers to Stacked Modules
   iSetup.get<StackedTrackerGeometryRecord>().get(stackedGeometryHandle);
   theStackedGeometry = stackedGeometryHandle.product(); /// Note this is different 
@@ -272,15 +266,6 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::GenParticleCollection> genpHandle;
   iEvent.getByLabel( "genParticles", genpHandle );
 
-  //cout << "Get pixel digis"<<endl;
-
-  /////////////////////
-  // GET PIXEL DIGIS //
-  edm::Handle<edm::DetSetVector<PixelDigi> >         pixelDigiHandle;
-  edm::Handle<edm::DetSetVector<PixelDigiSimLink> >  pixelDigiSimLinkHandle;
-  iEvent.getByLabel("simSiPixelDigis", pixelDigiHandle);
-  iEvent.getByLabel("simSiPixelDigis", pixelDigiSimLinkHandle);
-
   //cout << "Get stubs and clusters"<<endl;
 
   ////////////////////////
@@ -324,140 +309,6 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } /// End of Loop over SimTracks
 
 
-  //std::cout << "Will loop over digis:"<<std::endl;
-
-  DetSetVector<PixelDigi>::const_iterator iterDet;
-  for ( iterDet = pixelDigiHandle->begin();
-        iterDet != pixelDigiHandle->end();
-        iterDet++ ) {
-
-    /// Build Detector Id
-    DetId tkId( iterDet->id );
-    StackedTrackerDetId stdetid(tkId);
-    /// Check if it is Pixel
-    if ( tkId.subdetId() == 2 ) {
-
-      PXFDetId pxfId(tkId);
-      DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink1=pixelDigiSimLinkHandle->find(pxfId.rawId());
-      if (itDigiSimLink1!=pixelDigiSimLinkHandle->end()){
-	DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink1;
-	//DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxfId.rawId() ];
-	DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
-	/// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
-
-	int disk = pxfId.disk();
-	
-	if (disk<4) {
-	  continue;
-	}
-
-	disk-=3;
-	
-	// Layer 0-20
-	//DetId digiDetId = iterDet->id;
-	//int sensorLayer = 0.5*(2*PXFDetId(digiDetId).layer() + (PXFDetId(digiDetId).ladder() + 1)%2 - 8);
-	
-	/// Loop over PixelDigis within Module and select those above threshold
-	DetSet<PixelDigi>::const_iterator iterDigi;
-	for ( iterDigi = iterDet->data.begin();
-	      iterDigi != iterDet->data.end();
-	      iterDigi++ ) {
-      
-	  /// Threshold (here it is NOT redundant)
-	  if ( iterDigi->adc() <= 30 ) continue;
-	    
-	  /// Try to learn something from PixelDigi position
-	  const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
-	  MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
-	  GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
-	    
-	  int offset=1000;
-
-	  if (pxfId.side()==1) {
-	    offset=2000;
-	  }
-
-	  assert(pxfId.panel()==1);
-
-	  vector<int> simtrackids;
-	  /// Loop over PixelDigiSimLink to find the
-	  /// correct link to the SimTrack collection
-	  for ( iterSimLink = digiSimLink.data.begin();
-		iterSimLink != digiSimLink.data.end();
-		iterSimLink++) {
-	        
-	    /// When the channel is the same, the link is found
-	    if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
-	            
-	      /// Map wrt SimTrack Id
-	      unsigned int simTrackId = iterSimLink->SimTrackId();
-	      simtrackids.push_back(simTrackId); 
-	    }
-	  }
-	ev.addDigi(offset+disk,iterDigi->row(),iterDigi->column(),
-		   pxfId.blade(),pxfId.panel(),pxfId.module(),
-		   pdPos.x(),pdPos.y(),pdPos.z(),simtrackids);
-	}
-      }
-    }
-
-    if ( tkId.subdetId() == 1 ) {
-      /// Get the PixelDigiSimLink corresponding to this one
-      PXBDetId pxbId(tkId);
-      DetSetVector<PixelDigiSimLink>::const_iterator itDigiSimLink=pixelDigiSimLinkHandle->find(pxbId.rawId());
-      if (itDigiSimLink==pixelDigiSimLinkHandle->end()){
-	continue;
-      }
-      DetSet<PixelDigiSimLink> digiSimLink = *itDigiSimLink;
-      //DetSet<PixelDigiSimLink> digiSimLink = (*pixelDigiSimLinkHandle)[ pxbId.rawId() ];
-      DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
-      /// Renormalize layer number from 5-14 to 0-9 and skip if inner pixels
-      if ( pxbId.layer() < 5 ) {
-	continue;
-	
-      }
-
-      // Layer 0-20
-      DetId digiDetId = iterDet->id;
-      int sensorLayer = 0.5*(2*PXBDetId(digiDetId).layer() + (PXBDetId(digiDetId).ladder() + 1)%2 - 8);
-      
-      /// Loop over PixelDigis within Module and select those above threshold
-      DetSet<PixelDigi>::const_iterator iterDigi;
-      for ( iterDigi = iterDet->data.begin();
-	    iterDigi != iterDet->data.end();
-	    iterDigi++ ) {
-	
-	/// Threshold (here it is NOT redundant)
-	if ( iterDigi->adc() <= 30 ) continue;
-	
-	/// Try to learn something from PixelDigi position
-	const GeomDetUnit* gDetUnit = theGeometry->idToDetUnit( tkId );
-	MeasurementPoint mp( iterDigi->row() + 0.5, iterDigi->column() + 0.5 );
-	GlobalPoint pdPos = gDetUnit->surface().toGlobal( gDetUnit->topology().localPosition( mp ) ) ;
-	
-	/// Loop over PixelDigiSimLink to find the
-	/// correct link to the SimTrack collection
-	vector<int > simtrackids;
-	for ( iterSimLink = digiSimLink.data.begin();
-	      iterSimLink != digiSimLink.data.end();
-	      iterSimLink++) {
-	    
-	  /// When the channel is the same, the link is found
-	  if ( (int)iterSimLink->channel() == iterDigi->channel() ) {
-	        
-	    /// Map wrt SimTrack Id
-	    unsigned int simTrackId = iterSimLink->SimTrackId();
-	    simtrackids.push_back(simTrackId);
-	  }
-	}
-	ev.addDigi(sensorLayer,iterDigi->row(),iterDigi->column(),
-		   pxbId.layer(),pxbId.ladder(),pxbId.module(),
-		   pdPos.x(),pdPos.y(),pdPos.z(),simtrackids);
-      }
-    }
-  }    
-
-
   //cout << "Will loop over stubs" << endl;
 
   /// Loop over L1TkStubs
@@ -474,7 +325,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const TTStub<Ref_PixelDigi_>* stub=iterTTStub;
 
       double stubPt = theStackedGeometry->findRoughPt(mMagneticFieldStrength,stub);
-        
+
       if (stubPt>10000.0) stubPt=9999.99;
       GlobalPoint stubPosition = theStackedGeometry->findGlobalPosition(stub);
 
@@ -505,23 +356,22 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       const DetId innerDetId = innerClusters->getDetId();
 
-      std::vector<Ref_PixelDigi_> hits=innerClusters->getHits();
+      std::vector< int > rows= innerClusters->getRows();
+      std::vector< int > cols= innerClusters->getCols();
 
-      for (unsigned int ihit=0;ihit<hits.size();ihit++){
+      for (unsigned int ihit=0;ihit<rows.size();ihit++){
 
-	std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(hits[ihit]->channel());
-	    
 	if (iStack<1000) {
 	  innerStack.push_back(true);
-	  irphi.push_back(rowcol.first);
-	  iz.push_back(rowcol.second);
+	  irphi.push_back(rows[ihit]);
+	  iz.push_back(cols[ihit]);
 	  iladder.push_back(PXBDetId(innerDetId).ladder());
 	  imodule.push_back(PXBDetId(innerDetId).module());
 	}
 	else {
 	  innerStack.push_back(true);
-	  irphi.push_back(rowcol.first);
-	  iz.push_back(rowcol.second);
+	  irphi.push_back(rows[ihit]);
+	  iz.push_back(cols[ihit]);
 	  iladder.push_back(PXFDetId(innerDetId).disk());
 	  imodule.push_back(PXFDetId(innerDetId).module());
 	}    
@@ -531,24 +381,22 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       const DetId outerDetId =outerClusters->getDetId();
 
-      hits=outerClusters->getHits();
+      rows= outerClusters->getRows();
+      cols= outerClusters->getCols();
 
-      for (unsigned int ihit=0;ihit<hits.size();ihit++){
+      for (unsigned int ihit=0;ihit<rows.size();ihit++){
 
-	std::pair<int,int> rowcol=PixelChannelIdentifier::channelToPixel(hits[ihit]->channel());
-
-    
 	if (iStack<1000) {
 	  innerStack.push_back(false);
-	  irphi.push_back(rowcol.first);
-	  iz.push_back(rowcol.second);
+	  irphi.push_back(rows[ihit]);
+	  iz.push_back(cols[ihit]);
 	  iladder.push_back(PXBDetId(outerDetId).ladder());
 	  imodule.push_back(PXBDetId(outerDetId).module());
 	}
 	else {
 	  innerStack.push_back(false);
-	  irphi.push_back(rowcol.first);
-	  iz.push_back(rowcol.second);
+	  irphi.push_back(rows[ihit]);
+	  iz.push_back(cols[ihit]);
 	  iladder.push_back(PXFDetId(outerDetId).disk());
 	  imodule.push_back(PXFDetId(outerDetId).module());
 	}    
