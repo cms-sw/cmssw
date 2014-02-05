@@ -14,11 +14,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-  class RandFlat;
-}
-
 class GaussianZBeamSpotFilter : public edm::EDFilter 
 {
   public:
@@ -35,9 +30,6 @@ class GaussianZBeamSpotFilter : public edm::EDFilter
   double baseZ0_;
   double newSZ_;
   double newZ0_;
-
-  CLHEP::RandFlat*  fRandom ;
-
 };
 
 #endif

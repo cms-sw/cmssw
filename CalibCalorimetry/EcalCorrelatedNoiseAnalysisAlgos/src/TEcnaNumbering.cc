@@ -1,9 +1,8 @@
 //----------Author's Name: B.Fabbro, F.X.Gentit + EB table from P.Jarry  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:30/06/2011
+//----------Modified:28/01/2014
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
-using namespace std;
 
 //--------------------------------------
 //  TEcnaNumbering.cc
@@ -113,7 +112,7 @@ void TEcnaNumbering::Init()
 
   //.............................. Initialisations
   fTTBELL  = '\007';
-  fgMaxCar = 512;
+  fgMaxCar = (Int_t)512;
 
   //....................... Barrel
   fT2dSMCrys  = 0;

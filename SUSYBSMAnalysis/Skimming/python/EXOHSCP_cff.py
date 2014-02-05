@@ -1,4 +1,4 @@
-TRACK_PT = 20.0  
+TRACK_PT = 20.0
 import FWCore.ParameterSet.Config as cms
 import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 
@@ -109,7 +109,7 @@ reducedHSCPhbhereco = cms.EDProducer("ReduceHcalRecHitCollectionProducer",
 									 recHitsLabel = cms.InputTag("hbhereco",""),
 									 TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									 inputCollection = cms.InputTag("generalTracksSkim"),
-									 TrackPt=cms.double(TRACK_PT),					   
+									 TrackPt=cms.double(TRACK_PT),
 									 reducedHitsCollection = cms.string('')
 )
 
@@ -161,7 +161,7 @@ exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
   trackIsoOffsetEB = cms.double(2.),
   trackIsoSlopeEB =  cms.double(0.001),
   etaWidthEB  = cms.double(0.013),
-                                  
+
   ecalisoOffsetEE = cms.double(4.2),
   ecalisoSlopeEE = cms.double(0.006),
   hcalisoOffsetEE = cms.double(2.2),
@@ -171,9 +171,9 @@ exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
   trackIsoOffsetEE = cms.double(2.),
   trackIsoSlopeEE =  cms.double(0.001),
   etaWidthEE  = cms.double(0.03),
-                                  
 
- 
+
+
 )
 
 
@@ -211,7 +211,7 @@ EXOHSCPSkim_EventContent=cms.PSet(
       'keep *_HSCPIsolation01__*',
       'keep *_HSCPIsolation03__*',
       'keep *_HSCPIsolation05__*',
-      'keep recoPFJets_ak5PFJets__*', 
+      'keep recoPFJets_ak4PFJets__*',
       'keep recoPFMETs_pfMet__*',
       'keep recoBeamSpot_offlineBeamSpot__*',
       )

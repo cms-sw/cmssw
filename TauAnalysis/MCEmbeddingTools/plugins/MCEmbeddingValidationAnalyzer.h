@@ -768,7 +768,7 @@ class MCEmbeddingValidationAnalyzer : public edm::EDAnalyzer
 	for ( std::vector<std::string>::const_iterator mvaWeightFile = mvaWeightFiles.begin();
 	      mvaWeightFile != mvaWeightFiles.end(); ++mvaWeightFile ) {
 	  edm::FileInPath mvaWeightFile_full(*mvaWeightFile);
-	  if ( !mvaWeightFile_full.isLocal() ) 
+	  if ( mvaWeightFile_full.location() == edm::FileInPath::Unknown ) 
 	    throw cms::Exception("MCEmbeddingValidationAnalyzer")
 	      << " Failed to find File = " << (*mvaWeightFile) << " !!\n";
 	  mvaWeightFiles_full.push_back(mvaWeightFile_full.fullPath());

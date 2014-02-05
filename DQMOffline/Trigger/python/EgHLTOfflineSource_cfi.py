@@ -23,13 +23,13 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                  #CaloJetCollection = cms.InputTag("sisCone5CaloJets"),
                                  #--------Morse
-                                 CaloJetCollection = cms.InputTag("ak5CaloJets"),
+                                 CaloJetCollection = cms.InputTag("ak4CaloJets"),
                                  #--------
                                  IsolTrackCollection = cms.InputTag("generalTracks"),
                                  HBHERecHitCollection = cms.InputTag("hbhereco"),
                                  HFRecHitCollection = cms.InputTag("hfreco"),
                                  DQMDirName=cms.string("HLT/EgOffline"),
-                                 
+
                                  BeamSpotProducer = cms.InputTag("offlineBeamSpot"),
                                  CaloTowers = cms.InputTag("towerMaker"),
 
@@ -39,7 +39,7 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  calHLTEmIsol = cms.bool(True),
                                  calHLTEleTrkIsol = cms.bool(True),
                                  calHLTPhoTrkIsol = cms.bool(False),
-                                 #actual settings for hlt isolation 
+                                 #actual settings for hlt isolation
                                  hltEMIsolOuterCone = cms.double(0.4),
                                  hltEMIsolInnerConeEB = cms.double(0.045),
                                  hltEMIsolEtaSliceEB = cms.double(0.02),
@@ -64,9 +64,9 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  hltHadIsolInnerCone = cms.double(0.0),
                                  hltHadIsolEtMin = cms.double(0.),
                                  hltHadIsolDepth = cms.int32(-1),
-                                            
 
-                                 
+
+
                                  #setting up selection
                                  cutMasks = cms.PSet(
                                     stdEle = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:sigmaIEtaIEta:hltIsolTrksEle:hltIsolHad:hltIsolEm"),
@@ -77,16 +77,16 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                     trigTPPho = cms.string("hadem:sigmaIEtaIEta:isolEm:isolHad:isolPtTrks"),
                                     stdPho = cms.string("et:detEta:dEtaIn:dPhiIn:hadem:isolEm:isolHad:isolPtTrks"),
                                  ),
-                                 eleCuts = cms.PSet (egHLTOffEleCuts,),    
+                                 eleCuts = cms.PSet (egHLTOffEleCuts,),
                                  eleLooseCuts = cms.PSet(egHLTOffEleLooseCuts,),
                                  phoCuts = cms.PSet(egHLTOffPhoCuts,),
-                                 phoLooseCuts = cms.PSet(egHLTOffPhoLooseCuts,),          
+                                 phoLooseCuts = cms.PSet(egHLTOffPhoLooseCuts,),
                                  triggerCuts = cms.VPSet (
 
                                    #cms.PSet (egHLTOffEleEt10LWCuts), #8E29
                                    #cms.PSet (egHLTOffEleEt15LWCuts),
                                    #cms.PSet (egHLTOffEleEt10LWEleIdCuts),
-                                   #cms.PSet (egHLTOffDoubleEleEt5Cuts), 
+                                   #cms.PSet (egHLTOffDoubleEleEt5Cuts),
                                    #cms.PSet (egHLTOffEleEt10SWCuts), #1E31
                                    #cms.PSet (egHLTOffEleEt15SWCuts),
                                    #cms.PSet (egHLTOffEleEt20SWCuts),
@@ -127,9 +127,9 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                    #cms.PSet (egHLTOffPhotonEt32_CaloIdL_PhotonEt26_CaloIdL_v1Cuts),
                                    #cms.PSet (egHLTOffEleEt17_CaloIdL_CaloIsoVL_EleEt8_CaloIdL_CaloIsoVL_v1Cuts)
                                    #-------------
-                                   
+
                                  )
-                                 
+
 )
 
 

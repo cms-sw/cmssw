@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Flavour byReference
 AK5byRef = cms.EDProducer("JetPartonMatcher",
-    jets = cms.InputTag("ak5CaloJets"),
+    jets = cms.InputTag("ak4CaloJets"),
     coneSizeToAssociate = cms.double(0.3),
     partons = cms.InputTag("myPartons")
 )

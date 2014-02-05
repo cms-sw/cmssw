@@ -40,7 +40,7 @@ using namespace lhef;
 MCatNLOSource::MCatNLOSource(const edm::ParameterSet &params,
                      const edm::InputSourceDescription &desc) :
 	ProducerSourceFromFiles(params, desc, false),
-        gen::Herwig6Instance(0),
+        gen::Herwig6Instance(),
 	skipEvents(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
         nEvents(0),
         ihpro(0),
@@ -186,7 +186,7 @@ void MCatNLOSource::produce(edm::Event &event)
   lhef::CommonBlocks::readHEPRUP(&heprup);
   lhef::CommonBlocks::readHEPEUP(&hepeup);
   hepeup.IDPRUP = heprup.LPRUP[0];
-  std::auto_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup));
+  std::auto_ptr<LHEEventProduct> lhEvent(new LHEEventProduct(hepeup,hepeup.XWGTUP));
   lhEvent->addComment(makeConfigLine("#IHPRO", ihpro));
   event.put(lhEvent);
 }

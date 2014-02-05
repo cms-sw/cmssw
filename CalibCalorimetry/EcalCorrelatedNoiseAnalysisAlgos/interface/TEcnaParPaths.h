@@ -11,14 +11,14 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaParPaths.h
-///   Update: 15/02/2011
+///   Update: 05/10/2012
 ///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
 ///
 ///   ECNA web page:
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///-----------------------------------------------------------
 
 class TEcnaParPaths : public TObject {
@@ -27,20 +27,20 @@ class TEcnaParPaths : public TObject {
 
   //..... Attributes
 
-  Int_t   fgMaxCar;   // Max nb of caracters for char*
-
   Int_t   fCnew,        fCdelete;
   Int_t   fCnewRoot,    fCdeleteRoot;
+
+  Int_t   fgMaxCar;  // Max nb of caracters for char*
 
   TString fTTBELL;
 
   Int_t   fCnaCommand,  fCnaError;
 
-  std::ifstream fFcin_rr;          // stream for results root files 
-  std::ifstream fFcin_ra;          // stream for results ascii files 
-  std::ifstream fFcin_lor;         // stream for list of runs files
-  //  std::ifstream fFcin_anapar;      // stream for EcnaAnalyzer parameters files
-  std::ifstream fFcin_cmssw;       // stream for cmssw version and subsystem 
+  ifstream fFcin_rr;          // stream for results root files 
+  ifstream fFcin_ra;          // stream for results ascii files 
+  ifstream fFcin_lor;         // stream for list of runs files
+  //  ifstream fFcin_anapar;      // stream for EcnaAnalyzer parameters files
+  ifstream fFcin_cmssw;       // stream for cmssw version and subsystem 
 
   TString fCfgResultsRootFilePath;     // absolute path for the results .root files (/afs/etc...)
   TString fFileForResultsRootFilePath; // name of the file containing the results .root  file path

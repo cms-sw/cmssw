@@ -37,6 +37,7 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   my_builder = 0 ;
   produces<L1CSCTrackCollection>();
   produces<CSCTriggerContainer<csctf::TrackStub> >();
+  usesResource("CSCTFTrackProducer");
 }
 
 CSCTFTrackProducer::~CSCTFTrackProducer()

@@ -26,10 +26,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -55,27 +54,17 @@
 // class declaration
 //
 
-class TTbar_Kinematics : public edm::EDAnalyzer {
+class TTbar_Kinematics : public DQMEDAnalyzer {
    public:
       explicit TTbar_Kinematics(const edm::ParameterSet&);
       ~TTbar_Kinematics();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-
       // ----------member data ---------------------------
-      ///ME's "container"
-      DQMStore *dbe;
 
   edm::InputTag hepmcCollection_;
   edm::InputTag genEventInfoProductTag_,genEvt_;
@@ -121,7 +110,7 @@ class TTbar_Kinematics : public edm::EDAnalyzer {
       MonitorElement* hBottomMassDeltaY      ;
 
   edm::EDGetTokenT<GenEventInfoProduct> genEventInfoProductTagToken_;
-  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 
 };
 

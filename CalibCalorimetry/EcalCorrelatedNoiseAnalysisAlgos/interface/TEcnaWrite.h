@@ -21,14 +21,14 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaWrite.h
-///   Update: 06/04/2011
+///   Update: 05/10/2012
 ///   Authors:   B.Fabbro (bernard.fabbro@cea.fr), FX Gentit
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
 ///
 ///   ECNA web page:
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///-----------------------------------------------------------
 
 class TEcnaWrite : public TObject {
@@ -37,9 +37,10 @@ class TEcnaWrite : public TObject {
 
   //..... Attributes
 
-  Int_t fgMaxCar;   // Max nb of caracters for char*
   Int_t fCnew,     fCdelete;
   Int_t fCnewRoot, fCdeleteRoot;
+
+  Int_t fgMaxCar;   // Max nb of caracters for char*
 
   TString fTTBELL;
 
@@ -57,7 +58,7 @@ class TEcnaWrite : public TObject {
   TEcnaParPaths  *fCnaParPaths;
   TEcnaParCout   *fCnaParCout;
 
-  std::ofstream fFcout_f;
+  ofstream fFcout_f;
 
   //...................................... Codes for file names
   Int_t fCodeHeaderAscii;
