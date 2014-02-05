@@ -24,8 +24,8 @@
 #include "L1Trigger/L1TGlobal/interface/L1uGtConditionEvaluation.h"
 
 // forward declarations
-class L1GtCondition;
-class L1GtCaloTemplate;
+class L1uGtCondition;
+class L1uGtCaloTemplate;
 
 namespace l1t {
 
@@ -44,7 +44,7 @@ public:
     L1uGtCaloCondition();
 
     ///     from base template condition (from event setup usually)
-    L1uGtCaloCondition(const L1GtCondition*, const L1uGtBoard*,
+    L1uGtCaloCondition(const L1uGtCondition*, const L1uGtBoard*,
             const int nrL1EG,
             const int nrL1Jet,
             const int nrL1Tau,
@@ -69,12 +69,12 @@ public:
 
 public:
 
-    ///   get / set the pointer to a L1GtCondition
-    inline const L1GtCaloTemplate* gtCaloTemplate() const {
+    ///   get / set the pointer to a L1uGtCondition
+    inline const L1uGtCaloTemplate* gtCaloTemplate() const {
         return m_gtCaloTemplate;
     }
 
-    void setGtCaloTemplate(const L1GtCaloTemplate*);
+    void setGtCaloTemplate(const L1uGtCaloTemplate*);
 
     ///   get / set the pointer to uGt Board
     inline const L1uGtBoard* getuGtB() const {
@@ -112,8 +112,8 @@ private:
 
 private:
 
-    /// pointer to a L1GtCaloTemplate
-    const L1GtCaloTemplate* m_gtCaloTemplate;
+    /// pointer to a L1uGtCaloTemplate
+    const L1uGtCaloTemplate* m_gtCaloTemplate;
 
     /// pointer to uGt Board, to be able to get the trigger objects
     const L1uGtBoard* m_uGtB;

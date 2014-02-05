@@ -26,14 +26,14 @@
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1uGtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtMuonTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtCaloTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1uGtMuonTemplate.h"
+#include "CondFormats/L1TObjects/interface/L1uGtCaloTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
@@ -349,10 +349,10 @@ void l1t::L1uGtBoard::runGTL(
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
-        edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
+        edm::ESHandle< L1uGtTriggerMenu> l1GtMenu;
         evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
         m_l1GtMenu =  l1GtMenu.product();
-       (const_cast<L1GtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+       (const_cast<L1uGtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
     }
@@ -361,11 +361,11 @@ void l1t::L1uGtBoard::runGTL(
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
     /*
-    const std::vector<std::vector<L1GtMuonTemplate> >& corrMuon =
+    const std::vector<std::vector<L1uGtMuonTemplate> >& corrMuon =
             m_l1GtMenu->corMuonTemplate();
 
       // Comment out for now
-    const std::vector<std::vector<L1GtCaloTemplate> >& corrCalo =
+    const std::vector<std::vector<L1uGtCaloTemplate> >& corrCalo =
             m_l1GtMenu->corCaloTemplate();
 
     const std::vector<std::vector<L1GtEnergySumTemplate> >& corrEnergySum =
@@ -707,7 +707,7 @@ void l1t::L1uGtBoard::runGTL(
                     const L1GtCondition* cond0Condition = 0;
                     const L1GtCondition* cond1Condition = 0;
 
-                    // maximum number of objects received for evaluation of Type1s condition
+                    // maximum number of objects received for evaluation of l1t::Type1s condition
                     int cond0NrL1Objects = 0;
                     int cond1NrL1Objects = 0;
 

@@ -91,22 +91,22 @@
         <l1t:objectParameter>
           <l1t:etThreshold>19</l1t:etThreshold>
           <l1t:phiRange>
-            <l1t:begin>140</l1t:begin>
-            <l1t:end>4</l1t:end>
+            <l1t:begin>4</l1t:begin>
+            <l1t:end>140</l1t:end>
           </l1t:phiRange>
           <l1t:etaRange>
-            <l1t:begin>252</l1t:begin>
-            <l1t:end>3</l1t:end>
+            <l1t:begin>3</l1t:begin>
+            <l1t:end>252</l1t:end>
           </l1t:etaRange>
         </l1t:objectParameter>
         <l1t:objectParameter>
           <l1t:etThreshold>32</l1t:etThreshold>
           <l1t:phiRange>
-            <l1t:begin>64</l1t:begin>
+            <l1t:begin>4</l1t:begin>
             <l1t:end>79</l1t:end>
           </l1t:phiRange>
           <l1t:etaRange>
-            <l1t:begin>16</l1t:begin>
+            <l1t:begin>6</l1t:begin>
             <l1t:end>20</l1t:end>
           </l1t:etaRange>
         </l1t:objectParameter>
@@ -125,22 +125,22 @@
         <l1t:objectParameter>
           <l1t:etThreshold>19</l1t:etThreshold>
           <l1t:phiRange>
-            <l1t:begin>140</l1t:begin>
-            <l1t:end>4</l1t:end>
+            <l1t:begin>4</l1t:begin>
+            <l1t:end>140</l1t:end>
           </l1t:phiRange>
           <l1t:etaRange>
-            <l1t:begin>252</l1t:begin>
-            <l1t:end>3</l1t:end>
+            <l1t:begin>3</l1t:begin>
+            <l1t:end>252</l1t:end>
           </l1t:etaRange>
         </l1t:objectParameter>
         <l1t:objectParameter>
           <l1t:etThreshold>32</l1t:etThreshold>
           <l1t:phiRange>
-            <l1t:begin>64</l1t:begin>
+            <l1t:begin>4</l1t:begin>
             <l1t:end>79</l1t:end>
           </l1t:phiRange>
           <l1t:etaRange>
-            <l1t:begin>16</l1t:begin>
+            <l1t:begin>6</l1t:begin>
             <l1t:end>20</l1t:end>
           </l1t:etaRange>
         </l1t:objectParameter>
@@ -199,8 +199,8 @@
         <l1t:objectParameter>
           <l1t:etThreshold>80</l1t:etThreshold>
           <l1t:phiRange>
-            <l1t:begin>142</l1t:begin>
-            <l1t:end>1</l1t:end>
+            <l1t:begin>1</l1t:begin>
+            <l1t:end>142</l1t:end>
           </l1t:phiRange>
           <l1t:etaRange>
             <l1t:begin>0</l1t:begin>

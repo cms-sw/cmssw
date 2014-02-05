@@ -31,7 +31,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1uGtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 // forward declarations
@@ -54,7 +54,7 @@ public:
     /// public methods
 
     /// L1 GT parameters
-    boost::shared_ptr<L1GtTriggerMenu> produceGtTriggerMenu(
+    boost::shared_ptr<L1uGtTriggerMenu> produceGtTriggerMenu(
         const L1GtTriggerMenuRcd&);
 
 private:

@@ -17,6 +17,7 @@
  */
 
 #include "CondFormats/L1TObjects/interface/L1GtDefinitions.h"
+#include "CondFormats/L1TObjects/interface/L1uGtDefinitions.h"
 
 
 #endif /*CondFormats_L1TObjects_L1GtBoardMaps_h*/

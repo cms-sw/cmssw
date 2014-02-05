@@ -33,7 +33,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1uGtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
@@ -101,7 +101,7 @@ l1t::L1uGtTriggerMenuXmlProducer::~L1uGtTriggerMenuXmlProducer()
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<L1GtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTriggerMenu(
+boost::shared_ptr<L1uGtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTriggerMenu(
     const L1GtTriggerMenuRcd& l1MenuRecord)
 {
 
@@ -144,10 +144,10 @@ boost::shared_ptr<L1GtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTr
 
     gtXmlParser.parseXmlFile(m_defXmlFile, m_vmeXmlFile);
 
-    // transfer the condition map and algorithm map from parser to L1GtTriggerMenu
+    // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
 
-    boost::shared_ptr<L1GtTriggerMenu> pL1GtTriggerMenu = boost::shared_ptr<L1GtTriggerMenu>(
-                new L1GtTriggerMenu(gtXmlParser.gtTriggerMenuName(), numberConditionChips,
+    boost::shared_ptr<L1uGtTriggerMenu> pL1uGtTriggerMenu = boost::shared_ptr<L1uGtTriggerMenu>(
+                new L1uGtTriggerMenu(gtXmlParser.gtTriggerMenuName(), numberConditionChips,
                         gtXmlParser.vecMuonTemplate(),
                         gtXmlParser.vecCaloTemplate(),
                         gtXmlParser.vecEnergySumTemplate(),
@@ -163,20 +163,20 @@ boost::shared_ptr<L1GtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTr
                         gtXmlParser.corEnergySumTemplate()) );
 
 
-    pL1GtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());
-    pL1GtTriggerMenu->setGtTriggerMenuImplementation(gtXmlParser.gtTriggerMenuImplementation());
-    pL1GtTriggerMenu->setGtScaleDbKey(gtXmlParser.gtScaleDbKey());
+    pL1uGtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());
+    pL1uGtTriggerMenu->setGtTriggerMenuImplementation(gtXmlParser.gtTriggerMenuImplementation());
+    pL1uGtTriggerMenu->setGtScaleDbKey(gtXmlParser.gtScaleDbKey());
 
-    pL1GtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
-    pL1GtTriggerMenu->setGtAlgorithmAliasMap(gtXmlParser.gtAlgorithmAliasMap());
-    pL1GtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
+    pL1uGtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
+    pL1uGtTriggerMenu->setGtAlgorithmAliasMap(gtXmlParser.gtAlgorithmAliasMap());
+    pL1uGtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
 
     //LogDebug("L1TGlobalConfig")
     //<< "\n\nReturning L1 Trigger Menu!"
     //<< "\n\n"
     //<< std::endl;
 
-    return pL1GtTriggerMenu ;
+    return pL1uGtTriggerMenu ;
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

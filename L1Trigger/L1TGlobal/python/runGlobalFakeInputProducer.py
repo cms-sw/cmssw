@@ -80,10 +80,10 @@ process.fakeL1TGinput  = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
 		       ),
 		       
                        jetParams = cms.untracked.PSet(
-		           jetBx    = cms.untracked.vint32(  0,   0),
-			   jetHwPt  = cms.untracked.vint32(100, 200),
-			   jetHwPhi = cms.untracked.vint32( 10,  10),
-			   jetHwEta = cms.untracked.vint32( 11,  11)
+		           jetBx    = cms.untracked.vint32(  0,   0,  2, -1, 2),
+			   jetHwPt  = cms.untracked.vint32(100, 200,130,170,145),
+			   jetHwPhi = cms.untracked.vint32( 10,  10, 10, 10, 10),
+			   jetHwEta = cms.untracked.vint32( 11,  11, 11, 11, 11)
 		       ),
 		       
                        etsumParams = cms.untracked.PSet(
@@ -147,7 +147,7 @@ process.p1 = cms.Path(
 process.schedule = cms.Schedule(
     process.p1
     )
-process.schedule.append(process.report)
+#process.schedule.append(process.report)
 process.outpath = cms.EndPath(process.output)
 process.schedule.append(process.outpath)
 
