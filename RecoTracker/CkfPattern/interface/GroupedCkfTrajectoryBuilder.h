@@ -25,7 +25,7 @@ class GroupedCkfTrajectoryBuilder : public BaseCkfTrajectoryBuilder {
   
  public:
   /// constructor from ParameterSet
-  GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf);
+  GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
   /// destructor
   virtual ~GroupedCkfTrajectoryBuilder(){}
