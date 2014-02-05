@@ -9,7 +9,7 @@ def custom_GE11_6partitions_v1(process):
     process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v2/gem11.xml')
     return process
     
-def custom_GE11_8partitions_v1(process):
+def custom_GE11_9and10partitions_v1(process):
     mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v5/gem11.xml')
     process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v5/gem11.xml')
     process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v4/gem11.xml')
