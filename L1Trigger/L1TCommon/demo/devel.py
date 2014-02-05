@@ -62,7 +62,7 @@ process.caloStage1 = cms.EDProducer(
     CaloEmCands = cms.InputTag("RCTConverter")
     )
 
-process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgrateToGCTConverter",
+process.GCTConverter=cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
     InputCollection = cms.InputTag("caloStage1")
     )
 

@@ -1,8 +1,8 @@
-#ifndef L1TCaloUpgrateToGCTConverter_h
-#define L1TCaloUpgrateToGCTConverter_h
+#ifndef L1TCaloUpgradeToGCTConverter_h
+#define L1TCaloUpgradeToGCTConverter_h
 
 ///
-/// \class l1t::L1TCaloUpgrateToGCTConverter
+/// \class l1t::L1TCaloUpgradeToGCTConverter
 ///
 /// Description: Emulator for the stage 1 jet algorithms.
 ///
@@ -56,10 +56,10 @@ namespace l1t {
 // class declaration
 //
 
-  class L1TCaloUpgrateToGCTConverter : public EDProducer {
+  class L1TCaloUpgradeToGCTConverter : public EDProducer {
   public:
-    explicit L1TCaloUpgrateToGCTConverter(const ParameterSet&);
-    ~L1TCaloUpgrateToGCTConverter();
+    explicit L1TCaloUpgradeToGCTConverter(const ParameterSet&);
+    ~L1TCaloUpgradeToGCTConverter();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -71,33 +71,33 @@ namespace l1t {
     virtual void endRun(Run const& iR, EventSetup const& iE);
 
       L1GctEmCandCollection ConvertToIsoEmCand(L1TEGammaCollection::const_iterator);
-    
-      
+
+
     L1GctEmCandCollection ConvertToNonIsoEmCand(const L1TEGammaCollection&);
     L1GctJetCandCollection ConvertToCenJetCand(const L1TJetCollection&);
     L1GctJetCandCollection ConvertToForJetCand(const L1TJetCollection&);
     L1GctJetCandCollection ConvertToTauJetCand(const L1TTauCollection&);
-      
+
     L1GctEtTotalCollection ConvertToEtTotal(const L1TEtSumCollection&);
     L1GctEtHadCollection ConvertToEtHad(const L1TEtSumCollection&);
     L1GctEtMissCollection ConvertToEtMiss(const L1TEtSumCollection&);
     L1GctHtMissCollection ConvertToHtMiss(const L1TEtSumCollection&);
     L1GctHFBitCountsCollection ConvertToHFBitCounts(const L1TEtSumCollection&);
     L1GctHFRingEtSumsCollection ConvertToHFRingEtSums(const L1TEtSumCollection&);
-      
+
     L1GctInternJetDataCollection ConvertToIntJet(const L1TJetCollection&);
     L1GctInternEtSumCollection ConvertToIntEtSum(const L1TEtSumCollection&);
     L1GctInternHtMissCollection ConvertToIntHtMiss(const L1TEtSumCollection&);
-      
+
     EDGetToken EGammaToken_;
     EDGetToken TauToken_;
     EDGetToken JetToken_;
     EDGetToken EtSumToken_;
-      
-     
+
+
 };
 }
 #endif
- 
+
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::L1TCaloUpgrateToGCTConverter);
+DEFINE_FWK_MODULE(l1t::L1TCaloUpgradeToGCTConverter);
