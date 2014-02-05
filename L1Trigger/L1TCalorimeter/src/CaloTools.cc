@@ -18,7 +18,7 @@ const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>
 //this implimentation has not all the necessary info yet, we need to check the exact HF numbering
 //(iEta=-28,iPhi=1)=index 0 to (iEta=28,iPhi=72)=index 28*72*2-1
 //HF then runs after that so -32,1 = 28*72*2
-size_t caloTowerHash(int iEta,int iPhi)
+size_t l1t::CaloTools::caloTowerHash(int iEta,int iPhi)
 {
   //these constants will be either moved to be class members or read in from a database once a decision on this has been made
   const int kHBHEEnd=28;

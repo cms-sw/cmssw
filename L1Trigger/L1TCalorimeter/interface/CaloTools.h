@@ -31,8 +31,10 @@ namespace l1t {
 
     static const l1t::CaloTower& getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi);
     
-    static int caloTowerHash(int iEta,int iPhi){return (iEta-1)*72+iPhi-1;}
+    //returns a hash suitable for indexing a vector (note does not check for 
+    static size_t caloTowerHash(int iEta,int iPhi);
     
+    //return 
     static int calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
 			  int etaMin,int etaMax,int phiMin,int phiMax,SubDet etMode=CALO);
 
