@@ -19,7 +19,7 @@ ClassImp(TEcnaRead)
 TEcnaRead::TEcnaRead()
 {
   Init();
-  // cout << "[Info Management] CLASS: TEcnaRead.          CREATE OBJECT: this = " << this << endl;
+  // std::cout << "[Info Management] CLASS: TEcnaRead.          CREATE OBJECT: this = " << this << std::endl;
 }
 //Constructor without argument
 
@@ -104,7 +104,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString& SubDet)
   Init();
   SetEcalSubDetector(SubDet.Data());
 
- // cout << "[Info Management] CLASS: TEcnaRead.          CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaRead.          CREATE OBJECT: this = " << this << std::endl;
 }
 
 void TEcnaRead::Init()
@@ -186,8 +186,8 @@ void TEcnaRead::Anew(const TString& VarName)
   // allocation survey for new
   
   fCnew++;
-  // cout << "TEcnaRead::Anew---> new " << setw(4) << fCnew << " --------------> " << setw(25)
-  //      << VarName.Data() << " / object(this): " << this << endl;
+  // std::cout << "TEcnaRead::Anew---> new " << std::setw(4) << fCnew << " --------------> " << std::setw(25)
+  //      << VarName.Data() << " / object(this): " << this << std::endl;
 }
 
 void TEcnaRead::Adelete(const TString& VarName)
@@ -195,8 +195,8 @@ void TEcnaRead::Adelete(const TString& VarName)
   // allocation survey for delete
   
   fCdelete++;
-  // cout << "TEcnaRead::Adelete> ========== delete" << setw(4) << fCdelete << " -> " << setw(25)
-  //      << VarName.Data() << " / object(this): " << this << endl;
+  // std::cout << "TEcnaRead::Adelete> ========== delete" << std::setw(4) << fCdelete << " -> " << std::setw(25)
+  //      << VarName.Data() << " / object(this): " << this << std::endl;
 }
 
 //=========================================== private copy ==========
@@ -233,9 +233,9 @@ void  TEcnaRead::fCopy(const TEcnaRead& rund)
 
 TEcnaRead::TEcnaRead(const TEcnaRead& dcop)
 {
-  cout << "*TEcnaRead::TEcnaRead(const TEcnaRead& dcop)> "
+  std::cout << "*TEcnaRead::TEcnaRead(const TEcnaRead& dcop)> "
        << " It is time to write a copy constructor"
-       << endl;
+       << std::endl;
   
   // { Int_t cintoto;  cin >> cintoto; }
   
@@ -265,10 +265,10 @@ TEcnaRead::~TEcnaRead()
 {
 //Destructor
   
-  // cout << "[Info Management] CLASS: TEcnaRead.          DESTROY OBJECT: this = " << this << endl;
+  // std::cout << "[Info Management] CLASS: TEcnaRead.          DESTROY OBJECT: this = " << this << std::endl;
 
   if(fFlagPrint == fCodePrintAllComments || fFlagPrint == fCodePrintComments){
-    cout << "*TEcnaRead::~TEcnaRead()> Entering destructor" << endl;}
+    std::cout << "*TEcnaRead::~TEcnaRead()> Entering destructor" << std::endl;}
   
   //if (fFileHeader    != 0){delete fFileHeader;    Adelete("fFileHeader");}
   //if (fEcal          != 0){delete fEcal;          Adelete("fEcal");}
@@ -286,17 +286,17 @@ TEcnaRead::~TEcnaRead()
 
   if ( fCnew != fCdelete )
     {
-      cout << "!TEcnaRead/destructor> WRONG MANAGEMENT OF ALLOCATIONS: fCnew = "
-	   << fCnew << ", fCdelete = " << fCdelete << fTTBELL << endl;
+      std::cout << "!TEcnaRead/destructor> WRONG MANAGEMENT OF ALLOCATIONS: fCnew = "
+	   << fCnew << ", fCdelete = " << fCdelete << fTTBELL << std::endl;
     }
   else
     {
-      // cout << "*TEcnaRead/destructor> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: fCnew = "
-      //      << fCnew << ", fCdelete = " << fCdelete << endl;
+      // std::cout << "*TEcnaRead/destructor> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: fCnew = "
+      //      << fCnew << ", fCdelete = " << fCdelete << std::endl;
     }
   
   if(fFlagPrint == fCodePrintAllComments || fFlagPrint == fCodePrintComments){
-    cout << "*TEcnaRead::~TEcnaRead()> End of destructor " << endl;}
+    std::cout << "*TEcnaRead::~TEcnaRead()> End of destructor " << std::endl;}
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -330,18 +330,18 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim,     const TString& UserQuan
       else
 	{
 	  for(Int_t i=0; i<VecDim; i++){vec(i) = (double_t)0.;}
-	  cout <<"!TEcnaRead::Read1DHisto(...)>  UserQuantity = " << UserQuantity
+	  std::cout <<"!TEcnaRead::Read1DHisto(...)>  UserQuantity = " << UserQuantity
 	       << "(StandardQuantity = " << StandardQuantity
-	       << "). Wrong code, no file reading." << fTTBELL << endl;
+	       << "). Wrong code, no file reading." << fTTBELL << std::endl;
 	}
       return vec;
     }
   else
     {
       TVectorD vec(VecDim); for(Int_t i=0; i<VecDim; i++){vec(i) = (double_t)0.;}
-      cout <<"!TEcnaRead::Read1DHisto(...)> UserQuantity = " << UserQuantity
+      std::cout <<"!TEcnaRead::Read1DHisto(...)> UserQuantity = " << UserQuantity
 	   << ", VecDim = " << VecDim << "(VecDimTest = " << VecDimTest << ")"
-	   << ". Wrong code or array dimension. No file reading." << fTTBELL << endl;
+	   << ". Wrong code or array dimension. No file reading." << fTTBELL << std::endl;
       return vec;
     }
 }  // end of Read1DHisto / ReadSampleAdcValues
@@ -364,18 +364,18 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString& UserQuantity
       else
 	{
 	  for(Int_t i=0; i<VecDim; i++){vec(i) = (double_t)0.;}
-	  cout <<"!TEcnaRead::Read1DHisto(...)>  UserQuantity = " << UserQuantity
+	  std::cout <<"!TEcnaRead::Read1DHisto(...)>  UserQuantity = " << UserQuantity
 	       << ", StandardQuantity = " << StandardQuantity
-	       << ". Wrong code, no file reading." << fTTBELL << endl;
+	       << ". Wrong code, no file reading." << fTTBELL << std::endl;
 	}
       return vec;
     }
   else
     {
       TVectorD vec(VecDim); for(Int_t i=0; i<VecDim; i++){vec(i) = (double_t)0.;}
-      cout <<"!TEcnaRead::Read1DHisto(...)> UserQuantity = " << UserQuantity
+      std::cout <<"!TEcnaRead::Read1DHisto(...)> UserQuantity = " << UserQuantity
 	   << ", VecDim = " << VecDim << "(VecDimTest = " << VecDimTest << ")"
-	   << ". Wrong code or array dimension. No file reading." << fTTBELL << endl; 
+	   << ". Wrong code or array dimension. No file reading." << fTTBELL << std::endl; 
       return vec;
     }
 }  // end of Read1DHisto / ReadSampleMeans , ReadSampleSigmas
@@ -468,8 +468,8 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString& UserQuantity
 		    }
 		  else
 		    {
-		      cout  << "!TEcnaRead::Read1DHisto(const TString&, const TString&)> *ERROR* =====> "
-			    << " ROOT file not found" << fTTBELL << endl;
+		      std::cout  << "!TEcnaRead::Read1DHisto(const TString&, const TString&)> *ERROR* =====> "
+			    << " ROOT file not found" << fTTBELL << std::endl;
 		    }
 		}
 	    }
@@ -477,18 +477,18 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString& UserQuantity
       else
 	{
 	  for(Int_t i=0; i<VecDim; i++){vec(i) = (double_t)0.;}
-	  cout <<"!TEcnaRead::Read1DHisto(...)> UserQuantity = " << UserQuantity
+	  std::cout <<"!TEcnaRead::Read1DHisto(...)> UserQuantity = " << UserQuantity
 	       << ", UserDetector = " << UserDetector
-	       << ". Wrong code(s). No file reading." << fTTBELL << endl;
+	       << ". Wrong code(s). No file reading." << fTTBELL << std::endl;
 	}
       return vec;
     }
   else
     {
       TVectorD vec(VecDim); for(Int_t i=0; i<VecDim; i++){vec(i) = (double_t)0.;}
-      cout <<"!TEcnaRead::Read1DHisto(...)> UserQuantity = " << UserQuantity
+      std::cout <<"!TEcnaRead::Read1DHisto(...)> UserQuantity = " << UserQuantity
 	   << ", UserDetector = " << UserDetector << ", VecDim = " << VecDim
-	   << ". Wrong code(s) or array dimension. No file reading." << fTTBELL << endl; 
+	   << ". Wrong code(s) or array dimension. No file reading." << fTTBELL << std::endl; 
       return vec;
     }
 }  // end of Read1DHisto / Stex and Stas histos
@@ -546,9 +546,9 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString& UserCorOrCo
       for(Int_t i=0; i-MatDim<0; i++)
 	{for(Int_t j=0; j-MatDim<0; j++)
 	    {mat(i,j) = (double_t)0.;}}
-      cout <<"!TEcnaRead::ReadMatrix(...)> UserCorOrCov = " << UserCorOrCov
+      std::cout <<"!TEcnaRead::ReadMatrix(...)> UserCorOrCov = " << UserCorOrCov
 	   << ", UserBetweenWhat = " << UserBetweenWhat
-	   << ". Wrong code(s), no file reading." << fTTBELL << endl;
+	   << ". Wrong code(s), no file reading." << fTTBELL << std::endl;
     }
   return mat;
 }
@@ -591,9 +591,9 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString& UserCorOrCov,
       for(Int_t i=0; i-MatDim<0; i++)
 	{for(Int_t j=0; j-MatDim<0; j++)
 	    {mat(i,j) = (double_t)0.;}}
-      cout <<"!TEcnaRead::ReadMatrix(...)> UserCorOrCov = " << UserCorOrCov
+      std::cout <<"!TEcnaRead::ReadMatrix(...)> UserCorOrCov = " << UserCorOrCov
 	   << ", UserBetweenWhat = " << UserBetweenWhat
-	   << ". Wrong code(s), no file reading." << fTTBELL << endl;
+	   << ". Wrong code(s), no file reading." << fTTBELL << std::endl;
     }
   return mat;
 }
@@ -609,9 +609,9 @@ TString TEcnaRead::GetTechReadCode(const TString& StandardQuantity, const TStrin
 
   if( dTechDetector == "?")
     {
-      cout << "!TEcnaRead::GetTechReadCode(...)> *** ERROR: wrong standard code *** dTechDetector = "
+      std::cout << "!TEcnaRead::GetTechReadCode(...)> *** ERROR: wrong standard code *** dTechDetector = "
 	   << dTechDetector << ", StandardDetector = " << StandardDetector
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
     }
   else
     {
@@ -633,9 +633,9 @@ TString TEcnaRead::GetTechReadCode(const TString& StandardQuantity, const TStrin
 
   if( rTechReadCode == "?")
     {
-      cout << "!TEcnaRead::GetTechReadCode(...)> *** ERROR: wrong standard code *** rTechReadCode = " << rTechReadCode
+      std::cout << "!TEcnaRead::GetTechReadCode(...)> *** ERROR: wrong standard code *** rTechReadCode = " << rTechReadCode
 	   << ", StandardQuantity = " << StandardQuantity
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
     }
 
   return rTechReadCode;
@@ -707,26 +707,26 @@ void TEcnaRead::FileParameters(const TString&      typ_ana,    const Int_t& nb_o
 
   if( fFlagPrint == fCodePrintAllComments || fFlagPrint == fCodePrintComments )
     {
-      cout << endl;
-      cout << "*TEcnaRead::FileParameters(...)>" << endl
-	   << "          The method has been called with the following argument values:" << endl
+      std::cout << std::endl;
+      std::cout << "*TEcnaRead::FileParameters(...)>" << std::endl
+	   << "          The method has been called with the following argument values:" << std::endl
 	   << "          Analysis name                = "
-	   << fFileHeader->fTypAna << endl
+	   << fFileHeader->fTypAna << std::endl
 	   << "          Nb of required samples       = "
-	   << fFileHeader->fNbOfSamples << endl
+	   << fFileHeader->fNbOfSamples << std::endl
 	   << "          Run number                   = "
-	   << fFileHeader->fRunNumber << endl
+	   << fFileHeader->fRunNumber << std::endl
 	   << "          First requested event number = "
-	   << fFileHeader->fFirstReqEvtNumber << endl
+	   << fFileHeader->fFirstReqEvtNumber << std::endl
 	   << "          Last requested event number  = "
-	   << fFileHeader->fLastReqEvtNumber << endl
+	   << fFileHeader->fLastReqEvtNumber << std::endl
 	   << "          Requested number of events   = "
-	   << fFileHeader->fReqNbOfEvts << endl
+	   << fFileHeader->fReqNbOfEvts << std::endl
 	   << "          Stex number                  = "
-	   << fFileHeader->fStex << endl
+	   << fFileHeader->fStex << std::endl
 	   << "          Path for the ROOT file       = "
-	   << fPathRoot << endl
-	   << endl;
+	   << fPathRoot << std::endl
+	   << std::endl;
     }
   
   fReadyToReadRootFile = 1;           // set flag
@@ -817,8 +817,8 @@ Bool_t TEcnaRead::OpenRootFile(const Text_t *name, const TString& status) {
   // if( gCnaRootFile != 0 )
   //  {
   //    Int_t iPointer = (Int_t)gCnaRootFile;
-  //   cout << "*TEcnaRead::OpenRootFile(...)> RootFile pointer not (re)initialized to 0. gCnaRootFile = "
-  //	   << gCnaRootFile << ", pointer =  " << iPointer << fTTBELL << endl;
+  //   std::cout << "*TEcnaRead::OpenRootFile(...)> RootFile pointer not (re)initialized to 0. gCnaRootFile = "
+  //	   << gCnaRootFile << ", pointer =  " << iPointer << fTTBELL << std::endl;
   //
   //   delete gCnaRootFile; gCnaRootFile = 0;  Adelete("gCnaRootFile");
   //  }
@@ -845,7 +845,7 @@ Bool_t TEcnaRead::OpenRootFile(const Text_t *name, const TString& status) {
 
   if ( ok_open == kFALSE )
     {
-      cout << "!TEcnaRead::OpenRootFile> " << s_name.Data() << ": file not found." << endl;
+      std::cout << "!TEcnaRead::OpenRootFile> " << s_name.Data() << ": file not found." << std::endl;
       //if( gCnaRootFile != 0 )
       //  {delete gCnaRootFile; gCnaRootFile = 0;  Adelete("gCnaRootFile");}
     }
@@ -853,15 +853,15 @@ Bool_t TEcnaRead::OpenRootFile(const Text_t *name, const TString& status) {
     {
       if(fFlagPrint == fCodePrintAllComments)
 	{
-	  cout << "*TEcnaRead::OpenRootFile> Open ROOT file " << s_name.Data() << " OK "
-	       << ", gCnaRootFile = " << gCnaRootFile << endl;
+	  std::cout << "*TEcnaRead::OpenRootFile> Open ROOT file " << s_name.Data() << " OK "
+	       << ", gCnaRootFile = " << gCnaRootFile << std::endl;
 	}      
       fOpenRootFile = kTRUE;
       fCurrentlyOpenFileName = s_name;
       if(fFlagPrint == fCodePrintAllComments)
 	{
-	  cout << "*TEcnaRead::OpenRootFile> Open ROOT file: " << fCurrentlyOpenFileName.Data() << " => OK "
-	       << ", gCnaRootFile = " << gCnaRootFile << endl << endl;
+	  std::cout << "*TEcnaRead::OpenRootFile> Open ROOT file: " << fCurrentlyOpenFileName.Data() << " => OK "
+	       << ", gCnaRootFile = " << gCnaRootFile << std::endl << std::endl;
 	}
     }
   return ok_open;
@@ -885,11 +885,11 @@ Bool_t TEcnaRead::CloseRootFile(const Text_t *name) {
 	  
 	  if(fFlagPrint == fCodePrintAllComments){
 	    TString e_path;  e_path.Append(name);
-	    cout << "*TEcnaRead::CloseRootFile> Close ROOT file " << e_path.Data() << " OK " << endl;}
+	    std::cout << "*TEcnaRead::CloseRootFile> Close ROOT file " << e_path.Data() << " OK " << std::endl;}
 	  if(fFlagPrint == fCodePrintAllComments){
 	    Long_t pointer_value = (Long_t)gCnaRootFile;
-	    cout << "*TEcnaRead::CloseRootFile(...)> going to delete gCnaRootFile, gCnaRootFile = " << gCnaRootFile
-		 << ", pointer = " << pointer_value << endl;}
+	    std::cout << "*TEcnaRead::CloseRootFile(...)> going to delete gCnaRootFile, gCnaRootFile = " << gCnaRootFile
+		 << ", pointer = " << pointer_value << std::endl;}
 
 	  //delete gCnaRootFile;   gCnaRootFile = 0;  Adelete("gCnaRootFile");
 	  
@@ -900,15 +900,15 @@ Bool_t TEcnaRead::CloseRootFile(const Text_t *name) {
 	}
       else
 	{
-	  cout << "*TEcnaRead::CloseRootFile(...)> RootFile pointer equal to zero. Close not possible. gCnaRootFile = "
+	  std::cout << "*TEcnaRead::CloseRootFile(...)> RootFile pointer equal to zero. Close not possible. gCnaRootFile = "
 	       << gCnaRootFile
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
     }
   else
     {
-      cout << "*TEcnaRead::CloseRootFile(...)> no close since no file is open. fOpenRootFile = " << fOpenRootFile
-	   << endl;
+      std::cout << "*TEcnaRead::CloseRootFile(...)> no close since no file is open. fOpenRootFile = " << fOpenRootFile
+	   << std::endl;
     }
   return ok_close;
 }
@@ -953,15 +953,15 @@ Bool_t TEcnaRead::LookAtRootFile()
 	}
       else
 	{
-	  cout << "!TEcnaRead::LookAtRootFile()> *** ERROR ***>"
-	       << " ROOT file not found " << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::LookAtRootFile()> *** ERROR ***>"
+	       << " ROOT file not found " << fTTBELL << std::endl;
 	  return kFALSE; 
 	}
     }
   else
     {
-      cout << "!TEcnaRead::LookAtRootFile()> *** ERROR ***>"
-	   << " FileParameters not called " << fTTBELL << endl;
+      std::cout << "!TEcnaRead::LookAtRootFile()> *** ERROR ***>"
+	   << " FileParameters not called " << fTTBELL << std::endl;
       return kFALSE;      
     }
   return kFALSE;
@@ -992,8 +992,8 @@ Bool_t TEcnaRead::ReadRootFileHeader(const Int_t& i_print)
   const Text_t *file_name = (const Text_t *)fCnaWrite->fRootFileNameShort.Data();
   const Text_t *current_file_name = (const Text_t *)fCurrentlyOpenFileName.Data();
 
-  if( i_print == 1 ){cout << "*TEcnaRead::ReadRootFileHeader> file_name = "
-			 << fCnaWrite->fRootFileNameShort.Data() << endl;}
+  if( i_print == 1 ){std::cout << "*TEcnaRead::ReadRootFileHeader> file_name = "
+			 << fCnaWrite->fRootFileNameShort.Data() << std::endl;}
 
   Bool_t ok_open = kFALSE;
  
@@ -1002,8 +1002,8 @@ Bool_t TEcnaRead::ReadRootFileHeader(const Int_t& i_print)
 
   //  if( fOpenRootFile )
   //    {
-  //      cout << "!TEcnaRead::ReadRootFileHeader(...)*** ERROR ***> "
-  //	   << "Reading header on file already open." << endl;
+  //      std::cout << "!TEcnaRead::ReadRootFileHeader(...)*** ERROR ***> "
+  //	   << "Reading header on file already open." << std::endl;
   //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -1020,8 +1020,8 @@ Bool_t TEcnaRead::ReadRootFileHeader(const Int_t& i_print)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadRootFileHeader(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadRootFileHeader(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	}
     }
@@ -1080,19 +1080,19 @@ void  TEcnaRead::TestArrayDimH1(const TString& CallingMethod, const TString& Max
 
   if( MaxValue != VecDim)
     {
-      cout << "!TEcnaRead::TestArrayDimH1(...)> No matching for array dimension: CallingMethod: " << CallingMethod.Data()
+      std::cout << "!TEcnaRead::TestArrayDimH1(...)> No matching for array dimension: CallingMethod: " << CallingMethod.Data()
 	   << ", MaxName: " << MaxName.Data()
 	   << ", Maxvalue = " << MaxValue
-	   << ", VecDim = " << VecDim << fTTBELL << endl;
+	   << ", VecDim = " << VecDim << fTTBELL << std::endl;
     }
 #define NOPM
 #ifndef NOPM
   else
     {
-      cout << "!TEcnaRead::TestArrayDimH1(...)> matching array dimension: OK. CallingMethod: " << CallingMethod.Data()
+      std::cout << "!TEcnaRead::TestArrayDimH1(...)> matching array dimension: OK. CallingMethod: " << CallingMethod.Data()
 	   << ", MaxName: " << MaxName.Data()
 	   << ", Maxvalue = " << MaxValue
-	   << ", VecDim = " << VecDim << endl;
+	   << ", VecDim = " << VecDim << std::endl;
     }
 #endif // NOPM
 }
@@ -1104,19 +1104,19 @@ void  TEcnaRead::TestArrayDimH2(const TString& CallingMethod, const TString& Max
 
   if( MaxValue != MatDim)
     {
-      cout << "!TEcnaRead::TestArrayDimH2(...)> No matching for array dimension: CallingMethod: " << CallingMethod.Data()
+      std::cout << "!TEcnaRead::TestArrayDimH2(...)> No matching for array dimension: CallingMethod: " << CallingMethod.Data()
 	   << ", MaxName: " << MaxName.Data()
 	   << ", Maxvalue = " << MaxValue
-	   << ", MatDim = " << MatDim << fTTBELL << endl;
+	   << ", MatDim = " << MatDim << fTTBELL << std::endl;
     }
 #define NOPN
 #ifndef NOPN
   else
     {
-      cout << "!TEcnaRead::TestArrayDimH2(...)> matching array dimension: OK. CallingMethod: " << CallingMethod.Data()
+      std::cout << "!TEcnaRead::TestArrayDimH2(...)> matching array dimension: OK. CallingMethod: " << CallingMethod.Data()
 	   << ", MaxName: " << MaxName.Data()
 	   << ", Maxvalue = " << MaxValue
-	   << ", MatDim = " << MatDim << endl;
+	   << ", MatDim = " << MatDim << std::endl;
     }
 #endif // NOPN
 }
@@ -1158,8 +1158,8 @@ TVectorD TEcnaRead::ReadStinNumbers(const Int_t& VecDim)
 
 //      if ( fOpenRootFile )
 //	{
-//	  cout << "!TEcnaRead::ReadStinNumbers(...) *** ERROR ***> Reading on file already open."
-//	       << fTTBELL << endl;
+//	  std::cout << "!TEcnaRead::ReadStinNumbers(...) *** ERROR ***> Reading on file already open."
+//	       << fTTBELL << std::endl;
 //	}
 
       if( FileNameLong == fCurrentlyOpenFileName )
@@ -1177,8 +1177,8 @@ TVectorD TEcnaRead::ReadStinNumbers(const Int_t& VecDim)
 	    }
 	  else
 	    {
-	      cout << "!TEcnaRead::ReadStinNumbers(...) *** ERROR ***> Open .root file failed for file: "
-		   << file_name << fTTBELL << endl;
+	      std::cout << "!TEcnaRead::ReadStinNumbers(...) *** ERROR ***> Open .root file failed for file: "
+		   << file_name << fTTBELL << std::endl;
 	      allowed_to_read = kFALSE;
 	      ok_read = kFALSE;
 	    }
@@ -1203,11 +1203,11 @@ TVectorD TEcnaRead::ReadStinNumbers(const Int_t& VecDim)
 	  else
 	    {
 	      fDataExist = kFALSE;
-	      cout << "!TEcnaRead::ReadStinNumbers(...) *** ERROR ***> "
-		   << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	      std::cout << "!TEcnaRead::ReadStinNumbers(...) *** ERROR ***> "
+		   << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 		   << "                                                -> quantity: <"
 		   << GetTypeOfQuantity(typ) << "> not available in file."
-		   << fTTBELL << endl;
+		   << fTTBELL << std::endl;
 	    }
 	  CloseRootFile(file_name);
 	}
@@ -1219,8 +1219,8 @@ TVectorD TEcnaRead::ReadStinNumbers(const Int_t& VecDim)
 	    {
 	      for(Int_t i=0; i < VecDim; i++)
 		{
-		  cout << "*TEcnaRead::ReadStinNumbers(...)> StinNumber[" << i << "] = "
-		       << vec[i] << endl;
+		  std::cout << "*TEcnaRead::ReadStinNumbers(...)> StinNumber[" << i << "] = "
+		       << vec[i] << std::endl;
 		}
 	    }
 	}
@@ -1273,8 +1273,8 @@ TVectorD TEcnaRead::ReadSampleAdcValues(const Int_t& n1StexStin, const Int_t& i0
   
   //  if ( fOpenRootFile )
   //   {
-  //     cout << "!TEcnaRead::ReadSampleAdcValues(...) *** ERROR ***> "
-  // 	   << "Reading on file already open." << fTTBELL << endl;
+  //     std::cout << "!TEcnaRead::ReadSampleAdcValues(...) *** ERROR ***> "
+  // 	   << "Reading on file already open." << fTTBELL << std::endl;
   //   }
   
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -1292,8 +1292,8 @@ TVectorD TEcnaRead::ReadSampleAdcValues(const Int_t& n1StexStin, const Int_t& i0
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadSampleAdcValues(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadSampleAdcValues(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -1314,11 +1314,11 @@ TVectorD TEcnaRead::ReadSampleAdcValues(const Int_t& n1StexStin, const Int_t& i0
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadSampleAdcValues(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadSampleAdcValues(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                 -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -1361,8 +1361,8 @@ TVectorD TEcnaRead::ReadSampleMeans(const Int_t & n1StexStin, const Int_t & i0St
     
   // if ( fOpenRootFile )
   //  {
-  //    cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> "
-  // 	   << " Reading on file already open." << fTTBELL << endl;
+  //    std::cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> "
+  // 	   << " Reading on file already open." << fTTBELL << std::endl;
   //  }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -1379,8 +1379,8 @@ TVectorD TEcnaRead::ReadSampleMeans(const Int_t & n1StexStin, const Int_t & i0St
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -1402,11 +1402,11 @@ TVectorD TEcnaRead::ReadSampleMeans(const Int_t & n1StexStin, const Int_t & i0St
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -1440,8 +1440,8 @@ TVectorD TEcnaRead::ReadSampleMeans(const Int_t & n1StexStin, const Int_t & VecD
       
   //if ( fOpenRootFile )
   //  {
-  //    cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> "
-  //	   << " Reading on file already open." << fTTBELL << endl;
+  //    std::cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> "
+  //	   << " Reading on file already open." << fTTBELL << std::endl;
   //  }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -1459,8 +1459,8 @@ TVectorD TEcnaRead::ReadSampleMeans(const Int_t & n1StexStin, const Int_t & VecD
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -1488,11 +1488,11 @@ TVectorD TEcnaRead::ReadSampleMeans(const Int_t & n1StexStin, const Int_t & VecD
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -1529,8 +1529,8 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t & n1StexStin, const Int_t & i0S
      
   //if ( fOpenRootFile )
   //  {
-  //    cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
-  //	   << "Reading on file already open." << fTTBELL << endl;
+  //    std::cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
+  //	   << "Reading on file already open." << fTTBELL << std::endl;
   //  }
 
   if (FileNameLong != fCurrentlyOpenFileName)
@@ -1540,8 +1540,8 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t & n1StexStin, const Int_t & i0S
 
       if(!(OpenRootFile(file_name, "READ")))
 	{
-	  cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
           return vec;
 	}
     }
@@ -1559,11 +1559,11 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t & n1StexStin, const Int_t & i0S
   else
     {
       fDataExist = kFALSE;
-      cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
-           << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+      std::cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
+           << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
            << "                                                 -> quantity: <"
            << GetTypeOfQuantity(typ) << "> not available in file."
-           << fTTBELL << endl;
+           << fTTBELL << std::endl;
     }
   CloseRootFile(file_name);
   return vec;
@@ -1595,8 +1595,8 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t & n1StexStin, const Int_t & Vec
        
   //if ( fOpenRootFile )
   //  {
-  //    cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
-  //	   << "Reading on file already open." << fTTBELL << endl;
+  //    std::cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
+  //	   << "Reading on file already open." << fTTBELL << std::endl;
   // }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -1614,8 +1614,8 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t & n1StexStin, const Int_t & Vec
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -1643,11 +1643,11 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t & n1StexStin, const Int_t & Vec
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                 -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -1735,8 +1735,8 @@ TMatrixD TEcnaRead::ReadNumberOfEventsForSamples(const Int_t& n1StexStin,
 	  
 	  //	  if ( fOpenRootFile )
 	  //	    {
-	  //	      cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> "
-	  //		   << " Reading on file already open." << fTTBELL << endl;
+	  //	      std::cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> "
+	  //		   << " Reading on file already open." << fTTBELL << std::endl;
 	  //	    }
 
 	  if( FileNameLong == fCurrentlyOpenFileName  )
@@ -1753,8 +1753,8 @@ TMatrixD TEcnaRead::ReadNumberOfEventsForSamples(const Int_t& n1StexStin,
 		}
 	      else
 		{
-		  cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> Open .root file failed for file: "
-		       << file_name << fTTBELL << endl;
+		  std::cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> Open .root file failed for file: "
+		       << file_name << fTTBELL << std::endl;
 		  allowed_to_read = kFALSE;
 		  ok_read = kFALSE;
 		}
@@ -1780,20 +1780,20 @@ TMatrixD TEcnaRead::ReadNumberOfEventsForSamples(const Int_t& n1StexStin,
 	      else
 		{
 		  fDataExist = kFALSE;
-		  cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> "
-		       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+		  std::cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> "
+		       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 		       << "                                                                 -> quantity: <"
 		       << GetTypeOfQuantity(typ) << "> not available in file."
-		       << fTTBELL << endl;
+		       << fTTBELL << std::endl;
 		}
 	    }
 	  CloseRootFile(file_name);
 	}  // end of if (fLookAtRootFile == 1)
       else
 	{
-	  cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> "
+	  std::cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> "
 	       << "It is not possible to access the number of found events: the ROOT file has not been read."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
     }  // end of if (Stin_index >= 0)
   return mat;
@@ -1829,8 +1829,8 @@ TVectorD TEcnaRead::ReadPedestals(const Int_t& VecDim)
   
 //    if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadPedestals(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadPedestals(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -1847,8 +1847,8 @@ TVectorD TEcnaRead::ReadPedestals(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadPedestals(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadPedestals(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -1870,11 +1870,11 @@ TVectorD TEcnaRead::ReadPedestals(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadPedestals(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadPedestals(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                              -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -1909,8 +1909,8 @@ TVectorD TEcnaRead::ReadTotalNoise(const Int_t& VecDim)
   
   //  if ( fOpenRootFile )
   //  {
-  //    cout << "!TEcnaRead::ReadTotalNoise(...) *** ERROR ***> "
-  //	   << "Reading on file already open." << fTTBELL << endl;
+  //    std::cout << "!TEcnaRead::ReadTotalNoise(...) *** ERROR ***> "
+  //	   << "Reading on file already open." << fTTBELL << std::endl;
   //  }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -1927,8 +1927,8 @@ TVectorD TEcnaRead::ReadTotalNoise(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadTotalNoise(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadTotalNoise(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -1950,11 +1950,11 @@ TVectorD TEcnaRead::ReadTotalNoise(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadTotalNoise(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadTotalNoise(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                               -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -1989,8 +1989,8 @@ TVectorD TEcnaRead::ReadMeanCorrelationsBetweenSamples(const Int_t& VecDim)
    
   //if ( fOpenRootFile )
   //  {
-  //    cout << "!TEcnaRead::ReadMeanCorrelationsBetweenSamples(...) *** ERROR ***> "
-  //	   << "Reading on file already open." << fTTBELL << endl;
+  //    std::cout << "!TEcnaRead::ReadMeanCorrelationsBetweenSamples(...) *** ERROR ***> "
+  //	   << "Reading on file already open." << fTTBELL << std::endl;
   //  }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2007,8 +2007,8 @@ TVectorD TEcnaRead::ReadMeanCorrelationsBetweenSamples(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadMeanCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadMeanCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2030,11 +2030,11 @@ TVectorD TEcnaRead::ReadMeanCorrelationsBetweenSamples(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadMeanCorrelationsBetweenSamples(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadMeanCorrelationsBetweenSamples(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                   ->  quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2069,8 +2069,8 @@ TVectorD TEcnaRead::ReadLowFrequencyNoise(const Int_t& VecDim)
     
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadLowFrequencyNoise(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadLowFrequencyNoise(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2088,8 +2088,8 @@ TVectorD TEcnaRead::ReadLowFrequencyNoise(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadLowFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadLowFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2111,11 +2111,11 @@ TVectorD TEcnaRead::ReadLowFrequencyNoise(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadLowFrequencyNoise(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadLowFrequencyNoise(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                      -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2150,8 +2150,8 @@ TVectorD TEcnaRead::ReadHighFrequencyNoise(const Int_t& VecDim)
 
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadHighFrequencyNoise(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadHighFrequencyNoise(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2169,8 +2169,8 @@ TVectorD TEcnaRead::ReadHighFrequencyNoise(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadHighFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadHighFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2192,11 +2192,11 @@ TVectorD TEcnaRead::ReadHighFrequencyNoise(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadHighFrequencyNoise(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadHighFrequencyNoise(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                       -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2232,8 +2232,8 @@ TVectorD TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(const Int_t& VecDim)
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2251,8 +2251,8 @@ TVectorD TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2274,11 +2274,11 @@ TVectorD TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                      -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2383,8 +2383,8 @@ TVectorD TEcnaRead::ReadAveragePedestals(const Int_t& VecDim)
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadAveragePedestals(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadAveragePedestals(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2402,8 +2402,8 @@ TVectorD TEcnaRead::ReadAveragePedestals(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadAveragePedestals(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadAveragePedestals(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2425,11 +2425,11 @@ TVectorD TEcnaRead::ReadAveragePedestals(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadAveragePedestals(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadAveragePedestals(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                     -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2466,8 +2466,8 @@ TVectorD TEcnaRead::ReadAverageTotalNoise(const Int_t& VecDim)
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadAverageTotalNoise(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadAverageTotalNoise(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2485,8 +2485,8 @@ TVectorD TEcnaRead::ReadAverageTotalNoise(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadAverageTotalNoise(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadAverageTotalNoise(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2508,11 +2508,11 @@ TVectorD TEcnaRead::ReadAverageTotalNoise(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadAverageTotalNoise(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadAverageTotalNoise(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                      -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2549,8 +2549,8 @@ TVectorD TEcnaRead::ReadAverageLowFrequencyNoise(const Int_t& VecDim)
 
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadAverageLowFrequencyNoise(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadAverageLowFrequencyNoise(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2568,8 +2568,8 @@ TVectorD TEcnaRead::ReadAverageLowFrequencyNoise(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadAverageLowFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadAverageLowFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2591,11 +2591,11 @@ TVectorD TEcnaRead::ReadAverageLowFrequencyNoise(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadAverageLowFrequencyNoise(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadAverageLowFrequencyNoise(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                             -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2632,8 +2632,8 @@ TVectorD TEcnaRead::ReadAverageHighFrequencyNoise(const Int_t& VecDim)
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadAverageHighFrequencyNoise(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadAverageHighFrequencyNoise(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2651,8 +2651,8 @@ TVectorD TEcnaRead::ReadAverageHighFrequencyNoise(const Int_t& VecDim)
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadAverageHighFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadAverageHighFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2674,11 +2674,11 @@ TVectorD TEcnaRead::ReadAverageHighFrequencyNoise(const Int_t& VecDim)
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadAverageHighFrequencyNoise(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadAverageHighFrequencyNoise(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                              -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2716,8 +2716,8 @@ TVectorD TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(const Int_t& VecDi
     
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2735,8 +2735,8 @@ TVectorD TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(const Int_t& VecDi
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2758,11 +2758,11 @@ TVectorD TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(const Int_t& VecDi
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                          -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2800,8 +2800,8 @@ TVectorD TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(const Int_t& Ve
       
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2819,8 +2819,8 @@ TVectorD TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(const Int_t& Ve
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2842,11 +2842,11 @@ TVectorD TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(const Int_t& Ve
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                             -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2893,8 +2893,8 @@ TMatrixD TEcnaRead::ReadCovariancesBetweenSamples(const Int_t & n1StexStin, cons
       
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadCovariancesBetweenSamples(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadCovariancesBetweenSamples(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2912,8 +2912,8 @@ TMatrixD TEcnaRead::ReadCovariancesBetweenSamples(const Int_t & n1StexStin, cons
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadCovariancesBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadCovariancesBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -2937,11 +2937,11 @@ TMatrixD TEcnaRead::ReadCovariancesBetweenSamples(const Int_t & n1StexStin, cons
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadCovariancesBetweenSamples() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadCovariancesBetweenSamples() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                           -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -2980,8 +2980,8 @@ TMatrixD TEcnaRead::ReadCorrelationsBetweenSamples(const Int_t & n1StexStin, con
       
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadCorrelationsBetweenSamples(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadCorrelationsBetweenSamples(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -2999,8 +2999,8 @@ TMatrixD TEcnaRead::ReadCorrelationsBetweenSamples(const Int_t & n1StexStin, con
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3020,11 +3020,11 @@ TMatrixD TEcnaRead::ReadCorrelationsBetweenSamples(const Int_t & n1StexStin, con
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadCorrelationsBetweenSamples() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadCorrelationsBetweenSamples() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                            -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3063,8 +3063,8 @@ TVectorD TEcnaRead::ReadRelevantCorrelationsBetweenSamples(const Int_t & n1StexS
 
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadRelevantCorrelationsBetweenSamples(...) *** ERROR ***> "
-//	   << "Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadRelevantCorrelationsBetweenSamples(...) *** ERROR ***> "
+//	   << "Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3082,8 +3082,8 @@ TVectorD TEcnaRead::ReadRelevantCorrelationsBetweenSamples(const Int_t & n1StexS
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadRelevantCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadRelevantCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3105,11 +3105,11 @@ TVectorD TEcnaRead::ReadRelevantCorrelationsBetweenSamples(const Int_t & n1StexS
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadRelevantCorrelationsBetweenSamples() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadRelevantCorrelationsBetweenSamples() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                    -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3154,8 +3154,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& n1St
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(...) *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(...) *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3173,8 +3173,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& n1St
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3201,11 +3201,11 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& n1St
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                           -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3249,8 +3249,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t & n1
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(...) *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(...) *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3268,8 +3268,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t & n1
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3297,11 +3297,11 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t & n1
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                            -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3346,8 +3346,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t & n1
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(...) *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(...) *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3365,8 +3365,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t & n1
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3393,11 +3393,11 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t & n1
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                            -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3442,8 +3442,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t & n
     
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(...) *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(...) *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3461,8 +3461,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t & n
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3490,11 +3490,11 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t & n
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                             -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3538,8 +3538,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& MatD
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels() *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels() *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3557,8 +3557,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& MatD
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3600,11 +3600,11 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& MatD
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                        -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3648,8 +3648,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t& Mat
     
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels() *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels() *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3667,8 +3667,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t& Mat
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3710,11 +3710,11 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t& Mat
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                         ->  quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3758,8 +3758,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t& Mat
 
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels() *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels() *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3777,8 +3777,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t& Mat
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3820,11 +3820,11 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t& Mat
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                         -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3868,8 +3868,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t& Ma
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels() *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels() *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3887,8 +3887,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t& Ma
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -3930,11 +3930,11 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t& Ma
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                          -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -3979,8 +3979,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins(const Int_t& Ma
     
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins() *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins() *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -3998,8 +3998,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins(const Int_t& Ma
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -4033,11 +4033,11 @@ TMatrixD TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins(const Int_t& Ma
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                          -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -4081,8 +4081,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins(const Int_t& M
   
 //  if ( fOpenRootFile )
 //    {
-//      cout << "!TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins() *** ERROR ***>"
-//	   << " Reading on file already open." << fTTBELL << endl;
+//      std::cout << "!TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins() *** ERROR ***>"
+//	   << " Reading on file already open." << fTTBELL << std::endl;
 //    }
 
   if( FileNameLong == fCurrentlyOpenFileName )
@@ -4100,8 +4100,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins(const Int_t& M
 	}
       else
 	{
-	  cout << "!TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins(...) *** ERROR ***> Open .root file failed for file: "
-	       << file_name << fTTBELL << endl;
+	  std::cout << "!TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins(...) *** ERROR ***> Open .root file failed for file: "
+	       << file_name << fTTBELL << std::endl;
 	  allowed_to_read = kFALSE;
 	  ok_read = kFALSE;
 	}
@@ -4135,11 +4135,11 @@ TMatrixD TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins(const Int_t& M
       else
 	{
 	  fDataExist = kFALSE;
-	  cout << "!TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins() *** ERROR ***> "
-	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+	  std::cout << "!TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins() *** ERROR ***> "
+	       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 	       << "                                                                           -> quantity: <"
 	       << GetTypeOfQuantity(typ) << "> not available in file."
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	}
       CloseRootFile(file_name);
     }
@@ -4236,11 +4236,11 @@ Double_t*** TEcnaRead::ReadSampleAdcValuesSameFile(const Int_t& DimX, const Int_
 	      else                                                        //  (ReadSampleAdcValuesSameFile)
 		{
 		  fDataExist = kFALSE;
-		  cout << "!TEcnaRead::ReadSampleAdcValuesSameFile(...) *** ERROR ***> "
-		       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << endl
+		  std::cout << "!TEcnaRead::ReadSampleAdcValuesSameFile(...) *** ERROR ***> "
+		       << fCnaWrite->fRootFileNameShort.Data() << ": .root file failed" << std::endl
 		       << "                                                         -> quantity: <"
 		       << GetTypeOfQuantity(typ) << "> not available in file."
-		       << fTTBELL << endl;
+		       << fTTBELL << std::endl;
 		}
 	    }
 	  else
@@ -4252,15 +4252,15 @@ Double_t*** TEcnaRead::ReadSampleAdcValuesSameFile(const Int_t& DimX, const Int_
     }
   else
     {
-      cout  << "*TEcnaRead::ReadSampleAdcValuesSameFile(...)> *ERROR* =====> "
-	    << " ROOT file not found" << fTTBELL << endl;
+      std::cout  << "*TEcnaRead::ReadSampleAdcValuesSameFile(...)> *ERROR* =====> "
+	    << " ROOT file not found" << fTTBELL << std::endl;
     }
 
   if(i_entry_fail > 0 )
     {
-      cout  << "*TEcnaRead::ReadSampleAdcValuesSameFile(...)> *ERROR* =====> "
+      std::cout  << "*TEcnaRead::ReadSampleAdcValuesSameFile(...)> *ERROR* =====> "
 	    << " Entry reading failure(s). i_entry_fail = "
-	    << i_entry_fail << fTTBELL << endl;
+	    << i_entry_fail << fTTBELL << std::endl;
     }
   return fT3d_AdcValues;
 }
@@ -4387,10 +4387,10 @@ Int_t  TEcnaRead::GetStinIndex(const Int_t & n1StexStin)
 //Get the index of the Stin from its number in Stex
 
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "*TEcnaRead::GetStinIndex(...)> fEcal->MaxStinEcnaInStex() = "
-	 << fEcal->MaxStinEcnaInStex() << endl
+    std::cout << "*TEcnaRead::GetStinIndex(...)> fEcal->MaxStinEcnaInStex() = "
+	 << fEcal->MaxStinEcnaInStex() << std::endl
 	 << "                              n1StexStin = " << n1StexStin
-	 << endl << endl;}
+	 << std::endl << std::endl;}
 
   Int_t Stin_index = n1StexStin-1;    // suppose les 68 tours 
 
@@ -4406,23 +4406,23 @@ Int_t  TEcnaRead::GetStinIndex(const Int_t & n1StexStin)
   for(Int_t i=0; i < fEcal->MaxStinEcnaInStex(); i++)
     {
       if(fFlagPrint == fCodePrintAllComments){
-        cout << "*TEcnaRead::GetStinIndex(...)> StinNumber[" << i << "] = "
-             << vec[i] << endl;}
+        std::cout << "*TEcnaRead::GetStinIndex(...)> StinNumber[" << i << "] = "
+             << vec[i] << std::endl;}
       if ( vec[i] == n1StexStin ){Stin_index = i;}
     }
 
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-" << endl;
-    cout << "*TEcnaRead::GetStinIndex> Stin number: " << n1StexStin  << endl
-         << "                          Stin index : " << Stin_index << endl;
-    cout << "~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-" << endl;}
+    std::cout << "~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-" << std::endl;
+    std::cout << "*TEcnaRead::GetStinIndex> Stin number: " << n1StexStin  << std::endl
+         << "                          Stin index : " << Stin_index << std::endl;
+    std::cout << "~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-" << std::endl;}
 
   if ( Stin_index < 0 )
     {
       if(fFlagPrint == fCodePrintAllComments){
-	cout << "!TEcnaRead::GetStinIndex *** WARNING ***> n1StexStin" << n1StexStin << " : "
+	std::cout << "!TEcnaRead::GetStinIndex *** WARNING ***> n1StexStin" << n1StexStin << " : "
 	     << "index Stin not found"
-	     << fTTBELL << endl;}
+	     << fTTBELL << std::endl;}
     }
 #endif // NOGT
 
@@ -4440,7 +4440,7 @@ void  TEcnaRead::PrintComments()
 // Set flags to authorize printing of some comments concerning initialisations (default)
 
   fFlagPrint = fCodePrintComments;
-  cout << "*TEcnaRead::PrintComments()> Warnings and some comments on init will be printed" << endl;
+  std::cout << "*TEcnaRead::PrintComments()> Warnings and some comments on init will be printed" << std::endl;
 }
 
 void  TEcnaRead::PrintWarnings()
@@ -4448,7 +4448,7 @@ void  TEcnaRead::PrintWarnings()
 // Set flags to authorize printing of warnings
 
   fFlagPrint = fCodePrintWarnings;
-  cout << "*TEcnaRead::PrintWarnings()> Warnings will be printed" << endl;
+  std::cout << "*TEcnaRead::PrintWarnings()> Warnings will be printed" << std::endl;
 }
 
 void  TEcnaRead::PrintAllComments()
@@ -4456,7 +4456,7 @@ void  TEcnaRead::PrintAllComments()
 // Set flags to authorize printing of the comments of all the methods
 
   fFlagPrint = fCodePrintAllComments;
-  cout << "*TEcnaRead::PrintAllComments()> All the comments will be printed" << endl;
+  std::cout << "*TEcnaRead::PrintAllComments()> All the comments will be printed" << std::endl;
 }
 
 void  TEcnaRead::PrintNoComment()

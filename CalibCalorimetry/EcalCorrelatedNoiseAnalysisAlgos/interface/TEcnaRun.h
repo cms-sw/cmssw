@@ -504,7 +504,7 @@ class TEcnaRun: public TObject {
   Int_t**     fT2dCrysNumbersTable;
   Int_t*      fT1dCrysNumbersTable;
 
-  ofstream    fFcout_f;
+  std::ofstream    fFcout_f;
 
   Int_t       fFlagPrint;
   Int_t       fCodePrintComments, fCodePrintWarnings, fCodePrintAllComments, fCodePrintNoComment;
