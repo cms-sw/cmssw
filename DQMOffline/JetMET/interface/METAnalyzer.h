@@ -101,8 +101,8 @@ class METAnalyzer : public edm::EDAnalyzer{
   void beginRun(const edm::Run&,  const edm::EventSetup&);
 
   /// Finish up a run
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe);
-
+  //void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe);
+  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
   void fillMESet(const edm::Event&, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET&);
   void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const reco::PFMET&, const reco::CaloMET& ,bool);

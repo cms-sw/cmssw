@@ -195,7 +195,7 @@ void METAnalyzer::beginJob(){
   // DQStore stuff
   dbe_ = edm::Service<DQMStore>().operator->();
   LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
-  std::string DirName = "JetMET/MET/"+metCollectionLabel_.label();
+  std::string DirName = FolderName_+metCollectionLabel_.label();
   dbe_->setCurrentFolder(DirName);
 
   folderNames_.push_back("Uncleaned");
@@ -210,6 +210,7 @@ void METAnalyzer::beginJob(){
 
 // ***********************************************************
 void METAnalyzer::endJob() {
+
   delete DCSFilter_;
 
  if(outputMEsInRootFile){
@@ -511,19 +512,16 @@ void METAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 }
 
 // ***********************************************************
-void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQMStore * dbe)
+void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
-
   //
   //--- Check the time length of the Run from the lumi section plots
 
-  std::string dirName = FolderName_+metCollectionLabel_.label()+"/";
-  dbe->setCurrentFolder(dirName);
 
   TH1F* tlumisec;
 
-  MonitorElement *meLumiSec = dbe->get("aaa");
-  meLumiSec = dbe->get("JetMET/lumisec");
+  MonitorElement *meLumiSec = dbe_->get("aaa");
+  meLumiSec = dbe_->get("JetMET/lumisec");
 
   int totlsec=0;
   double totltime=0.;
@@ -535,18 +533,20 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup, DQ
     totltime = double(totlsec*90); // one lumi sec ~ 90 (sec)
   }
 
+  std::string dirName = FolderName_+metCollectionLabel_.label()+"/";
+  dbe_->setCurrentFolder(dirName);
+
   if (totltime==0.) totltime=1.;
 
   //below is the original METAnalyzer formulation
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
     std::string DirName;
     DirName = dirName+*ic;
-
     makeRatePlot(DirName,totltime);
     for ( std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
       int pos = it - triggerFolderEventFlag_.begin();
       if ((*it)->on()) {
-        makeRatePlot(DirName+"/"+triggerFolderLabels_[pos],totltime);
+	makeRatePlot(DirName+"/"+triggerFolderLabels_[pos],totltime);
       }
     }
 //      if ( highPtJetEventFlag_->on() )
@@ -577,7 +577,7 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
   TH1F* tMET;
   TH1F* tMETRate;
 
-  if ( meMET )
+  if ( meMET ){
     if ( meMET->getRootObject() ) {
       tMET     = meMET->getTH1F();
 
@@ -594,15 +594,16 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
       tMETRate->SetTitle("METRate");
       hMETRate      = dbe_->book1D("METRate",tMETRate);
     }
+  }
 }
-
+  
 // ***********************************************************
 void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+  
   if (verbose_) std::cout << "METAnalyzer analyze" << std::endl;
 
   std::string DirName = FolderName_+metCollectionLabel_.label();
-
+  
 
   // ==========================================================
   // Trigger information
@@ -730,7 +731,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     met=&(calometcoll->front());
     calomet=&(calometcoll->front());
   }
-
+  
   LogTrace(metname)<<"[METAnalyzer] Call to the MET analyzer";
 
   // ==========================================================
@@ -1284,6 +1285,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       }
     }
   } // et threshold cut
+
 }
 
 //// ***********************************************************
