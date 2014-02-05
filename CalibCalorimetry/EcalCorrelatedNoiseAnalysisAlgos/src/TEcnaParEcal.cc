@@ -17,7 +17,7 @@ ClassImp(TEcnaParEcal)
 TEcnaParEcal::TEcnaParEcal(){
 // Constructor without argument. Call to Init()
 
- // cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << std::endl;
 
   Init();
 }
@@ -25,7 +25,7 @@ TEcnaParEcal::TEcnaParEcal(){
 TEcnaParEcal::TEcnaParEcal(TEcnaObject* pObjectManager, const TString& SubDet){
 // Constructor with argument. Call to Init() and set the subdetector flag
 
-  //cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
+  //std::cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   Long_t i_this = (Long_t)this;
@@ -37,7 +37,7 @@ TEcnaParEcal::TEcnaParEcal(TEcnaObject* pObjectManager, const TString& SubDet){
 TEcnaParEcal::TEcnaParEcal(const TString& SubDet){
 // Constructor with argument. Call to Init() and set the subdetector flag
 
-  //cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << endl;
+  //std::cout << "[Info Management] CLASS: TEcnaParEcal.   CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   SetEcalSubDetector(SubDet.Data());
@@ -47,7 +47,7 @@ TEcnaParEcal::TEcnaParEcal(const TString& SubDet){
 TEcnaParEcal::~TEcnaParEcal() {
 //destructor
 
-  //cout << "[Info Management] CLASS: TEcnaParEcal.   DESTROY OBJECT: this = " << this << endl;
+  //std::cout << "[Info Management] CLASS: TEcnaParEcal.   DESTROY OBJECT: this = " << this << std::endl;
 }
 
 void TEcnaParEcal::Init()
@@ -201,8 +201,8 @@ void TEcnaParEcal::SetEcalSubDetector(const TString& SubDet){
 
   if( SubDet != fCodeEB && SubDet != fCodeEE )
     {
-      cout << "!TEcnaParEcal::SetEcalSubDetector(...)> " << SubDet
-	   << " : unknown subdetector code (requested: EB or EE)" << fTTBELL << endl;
+      std::cout << "!TEcnaParEcal::SetEcalSubDetector(...)> " << SubDet
+	   << " : unknown subdetector code (requested: EB or EE)" << fTTBELL << std::endl;
     }
   else
     {
@@ -212,8 +212,8 @@ void TEcnaParEcal::SetEcalSubDetector(const TString& SubDet){
 
       if( fFlagSubDet != fCodeEB && fFlagSubDet != fCodeEE )
 	{
-	  cout << "!TEcnaParEcal::SetEcalSubDetector(...)> fFlagSubDet = " << fFlagSubDet
-	       << " : CODE PROBLEM, subdetector flag not initialized." << fTTBELL << endl;
+	  std::cout << "!TEcnaParEcal::SetEcalSubDetector(...)> fFlagSubDet = " << fFlagSubDet
+	       << " : CODE PROBLEM, subdetector flag not initialized." << fTTBELL << std::endl;
 	}
 
       if(fFlagSubDet == fCodeEB)

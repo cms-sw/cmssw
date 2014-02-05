@@ -25,7 +25,7 @@ int main ( int argc, char **argv )
 
   if( fEcnaParPathsEB->GetPaths() == kTRUE && fEcnaParPathsEE->GetPaths() == kTRUE )
     {
-      cout << "*EcnaHistosExample> Starting ROOT session" << endl;
+      std::cout << "*EcnaHistosExample> Starting ROOT session" << std::endl;
       TRint theApp("App", &argc, argv);
 
       //--------------------------------------------------------------------
@@ -109,13 +109,13 @@ int main ( int argc, char **argv )
       MyHistosEB->SetHistoMax(2.5);  MyHistosEB->SetHistoScaleY("LOG");
       //MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtals", "SM", "SAME");
 
-      cout << "*EcnaHistosExample1> *** TEST OF WRONG CODE (BEGINNING)."
-	   << " MESSAGE: < code not found > (and lists after) ARE THERE ON PURPOSE."  << endl << endl;
+      std::cout << "*EcnaHistosExample1> *** TEST OF WRONG CODE (BEGINNING)."
+	   << " MESSAGE: < code not found > (and lists after) ARE THERE ON PURPOSE."  << std::endl << std::endl;
 
       MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtal", "SM", "SAME");
-      cout << endl <<
+      std::cout << std::endl <<
         "*EcnaHistosExample1> *** TEST OF WRONG CODE (END)."
-	   << " MESSAGE: < code not found > (and lists after) WERE THERE ON PURPOSE."  << endl;
+	   << " MESSAGE: < code not found > (and lists after) WERE THERE ON PURPOSE."  << std::endl;
 
       //.................................
       fKeySuMoNumber = 4;
@@ -273,14 +273,14 @@ int main ( int argc, char **argv )
 #endif // SIGE
       //.......................................................................
 
-      cout << "*EcnaHistosExample1> End of the example. You can quit ROOT (.q)"  << endl;
+      std::cout << "*EcnaHistosExample1> End of the example. You can quit ROOT (.q)"  << std::endl;
 
       Bool_t retVal = kTRUE;
       theApp.Run(retVal);
-      cout << endl
-	   << "*EcnaHistosExample> Terminating ROOT session." << endl;
+      std::cout << std::endl
+	   << "*EcnaHistosExample> Terminating ROOT session." << std::endl;
       theApp.Terminate(0);
-      cout << "*EcnaHistosExample> Exiting main program." << endl;
+      std::cout << "*EcnaHistosExample> Exiting main program." << std::endl;
       exit(0);
 
       delete MyHistosEB;                          xCdelete++;
@@ -288,13 +288,13 @@ int main ( int argc, char **argv )
 
       if ( xCnew != xCdelete )
 	{
-	  cout << "!EcnaHistosExample1> WRONG MANAGEMENT OF ALLOCATIONS: xCnew = "
-	       << xCnew << ", xCdelete = " << xCdelete << '\007' << endl;
+	  std::cout << "!EcnaHistosExample1> WRONG MANAGEMENT OF ALLOCATIONS: xCnew = "
+	       << xCnew << ", xCdelete = " << xCdelete << '\007' << std::endl;
 	}
       else
 	{
-	  //  cout << "*EcnaHistosExample1> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: xCnew = "
-	  //      << xCnew << ", xCdelete = " << xCdelete << endl;
+	  //  std::cout << "*EcnaHistosExample1> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: xCnew = "
+	  //      << xCnew << ", xCdelete = " << xCdelete << std::endl;
 	}
     }
 }
