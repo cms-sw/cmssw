@@ -1,9 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="8E33v2 2013"
+TABLES="8E33v2 8E33v2"
 HLT_8E33v2="/online/collisions/2012/8e33/v2.3/HLT"
-HLT_2013="/online/collisions/2012/8e33/v3.0/HLT"
 
 # print extra messages ?
 VERBOSE=false
