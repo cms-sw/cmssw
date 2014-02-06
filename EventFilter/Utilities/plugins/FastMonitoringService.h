@@ -199,7 +199,7 @@ namespace evf{
 
       //variables measuring source statistics (global)
       //unordered_map is not used because of very few elements stored concurrently
-      std::map<unsigned int, double> throughput_;
+      //std::map<unsigned int, double> throughput_;
       std::map<unsigned int, double> avgLeadTime_;
       std::map<unsigned int, unsigned int> filesProcessedDuringLumi_;
       //helpers for source statistics:

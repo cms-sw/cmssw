@@ -55,7 +55,7 @@ private:
   void renameToNextFree(std::string const& fileName) const;
 
   void readSupervisor();
-  void readWorker(unsigned int tid, std::atomic<bool> *started);
+  void readWorker(unsigned int tid);
   void threadError();
   bool exceptionState() {return setExceptionState_;}
 
@@ -182,6 +182,8 @@ private:
   bool quit_threads_=false;
   std::vector<bool> thread_quit_signal;
   bool setExceptionState_ = false;
+  std::mutex startupLock_;
+  std::condition_variable startupCv_;
 
 };
 

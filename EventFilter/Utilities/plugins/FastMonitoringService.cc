@@ -15,7 +15,8 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
-//#include "tbb/compat/thread"
+
+constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
 namespace evf{
 
@@ -270,7 +271,7 @@ namespace evf{
 		  unsigned int oldLumi = lastGlobalLumisClosed_.back();
 		  lastGlobalLumisClosed_.pop();
 		  lumiStartTime_.erase(oldLumi);
-		  throughput_.erase(oldLumi);
+		  //throughput_.erase(oldLumi);
 		  avgLeadTime_.erase(oldLumi);
 		  filesProcessedDuringLumi_.erase(oldLumi);
 		  accuSize_.erase(oldLumi);
@@ -298,9 +299,11 @@ namespace evf{
 
 	  fmt_.monlock_.lock();
 	  // Compute throughput
-	  unsigned int secondsForLumi = lumiStopTime.tv_sec - lumiStartTime_[lumi].tv_sec;
+	  timeval stt = lumiStartTime_[lumi];
+	  unsigned long usecondsForLumi = (lumiStopTime.tv_sec - stt.tv_sec)*1000000
+		                  + (lumiStopTime.tv_usec - stt.tv_usec);
 	  unsigned long accuSize = accuSize_.find(lumi)==accuSize_.end() ? 0 : accuSize_[lumi];
-	  double throughput = double(accuSize) / double(secondsForLumi) / double(1024*1024);
+	  double throughput = throughputFactor()* double(accuSize) / double(usecondsForLumi);
 	  //store to registered variable
 	  fmt_.m_data.fastThroughputJ_.value() = throughput;
 
@@ -323,18 +326,22 @@ namespace evf{
 	  //cross check (debugging)
 	  {
 	    auto itr = sourceEventsReport_.find(lumi);
-	    if (itr==sourceEventsReport_.end()) std::cout << "ERROR: SOURCE REPORT did not update yet for lumi" << lumi << std::endl;
+	    if (itr==sourceEventsReport_.end()) {
+              std::cout << "ERROR: SOURCE REPORT did not update yet for lumi" << lumi << std::endl;
+	    }
 	    else {
-	      if (itr->second!=processedEventsPerLumi_[lumi])
+	      if (itr->second!=processedEventsPerLumi_[lumi]) {
 		std::cout << " ERROR: MISMATCH with SOURCE REPORT from lumi" << lumi << "events(processed):" << processedEventsPerLumi_[lumi]
                           << " events(source):" << itr->second << std::endl;
+		assert(0);//DEBUG!
+	      }
 	      sourceEventsReport_.erase(itr);
 	    }
 	  }
 
 	  std::cout
 			<< ">>> >>> FastMonitoringService: processed event count for this lumi = "
-			<< lumiProcessedJptr->value() << " time = " << secondsForLumi
+			<< lumiProcessedJptr->value() << " time = " << usecondsForLumi/1000000
 			<< " size = " << accuSize << " thr = " << throughput << std::endl;
 	  delete lumiProcessedJptr;
 
@@ -556,17 +563,18 @@ namespace evf{
 		  lumiFromSource_=lumi;
 		  leadTimes_.clear();
 	  }
-	  double elapsedTime = (fileLookStop_.tv_sec - fileLookStart_.tv_sec) * 1000.0; // sec to ms
-	  elapsedTime += (fileLookStop_.tv_usec - fileLookStart_.tv_usec) / 1000.0; // us to ms
+	  //TODO:improve precision?
+	  unsigned long elapsedTime = (fileLookStop_.tv_sec - fileLookStart_.tv_sec) * 1000000 // sec to us
+	                              + (fileLookStop_.tv_usec - fileLookStart_.tv_usec); // us
 	  // add this to lead times for this lumi
-	  leadTimes_.push_back(elapsedTime);
+	  leadTimes_.push_back((double)elapsedTime);
 
 	  // recompute average lead time for this lumi
 	  if (leadTimes_.size() == 1) avgLeadTime_[lumi] = leadTimes_[0];
 	  else {
 		  double totTime = 0;
 		  for (unsigned int i = 0; i < leadTimes_.size(); i++) totTime += leadTimes_[i];
-		  avgLeadTime_[lumi] = totTime / leadTimes_.size();
+		  avgLeadTime_[lumi] = 0.001*(totTime / leadTimes_.size());
 	  }
 	  fmt_.monlock_.unlock();
   }
@@ -583,6 +591,7 @@ namespace evf{
 	  else {
 		  fmt_.monlock_.unlock();
 		  std::cout << "ERROR: output module wants deleted info " << std::endl;
+		  assert(0);//DEBUG!
 		  return 0;
 	  }
   }
