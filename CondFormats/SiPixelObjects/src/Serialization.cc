@@ -81,13 +81,6 @@ void SiPixelDbItem::serialize(Archive & ar, const unsigned int)
 COND_SERIALIZATION_INSTANTIATE(SiPixelDbItem);
 
 template <class Archive>
-void SiPixelDisabledModules::serialize(Archive & ar, const unsigned int)
-{
-    ar & BOOST_SERIALIZATION_NVP(theDisabledModules);
-}
-COND_SERIALIZATION_INSTANTIATE(SiPixelDisabledModules);
-
-template <class Archive>
 void SiPixelFedCabling::serialize(Archive & ar, const unsigned int)
 {
 }

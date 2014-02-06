@@ -8,8 +8,6 @@
 #ifndef SiPixelDisabledModules_H
 #define SiPixelDisabledModules_H
 
-#include "CondFormats/Serialization/interface/Serializable.h"
-
 #include <vector>
 #include <utility>
 
@@ -54,8 +52,6 @@ class SiPixelDisabledModules {
  private:
   disabledModuleListType theDisabledModules;
 
-
- COND_SERIALIZABLE;
 }; // class SiPixelDisabledModules
 
 
