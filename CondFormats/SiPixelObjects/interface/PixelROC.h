@@ -70,7 +70,7 @@ public:
 private:
   uint32_t theDetUnit;
   unsigned int theIdDU, theIdLk;
-  mutable const FrameConversion * theFrameConverter COND_TRANSIENT;
+  FrameConversion theFrameConverter COND_TRANSIENT;
 
 
   COND_SERIALIZABLE;

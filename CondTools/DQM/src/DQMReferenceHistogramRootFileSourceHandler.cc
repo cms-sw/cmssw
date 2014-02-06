@@ -6,8 +6,6 @@
 #include <sstream>
 #include <vector>
 
-#include "CondFormats/Common/interface/Serialization.h"
-
 namespace popcon {
   DQMReferenceHistogramRootFileSourceHandler::DQMReferenceHistogramRootFileSourceHandler(const edm::ParameterSet & pset):
     m_name(pset.getUntrackedParameter<std::string>("name","DQMReferenceHistogramRootFileSourceHandler")),

@@ -5,11 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/External/interface/CLHEP.h"
-#include "CondFormats/Alignment/interface/Serialization.h"
 
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"

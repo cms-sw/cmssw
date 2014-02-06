@@ -31,9 +31,6 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListRcd.h"
 
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/External/interface/L1GtLogicParser.h"
-#include "CondFormats/L1TObjects/interface/Serialization.h"
 
 //
 // class declaration

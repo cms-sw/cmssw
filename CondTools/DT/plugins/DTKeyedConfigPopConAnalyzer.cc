@@ -7,9 +7,6 @@
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/DTObjects/interface/Serialization.h"
-
 //typedef popcon::PopConAnalyzer<DTKeyedConfigHandler> DTKeyedConfigPopConAnalyzer;
 class DTKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTKeyedConfigHandler> {
  public:

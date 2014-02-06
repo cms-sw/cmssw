@@ -2,9 +2,6 @@
 #include "CondTools/DT/interface/DTTPGParametersHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/DTObjects/interface/Serialization.h"
-
 typedef popcon::PopConAnalyzer<DTTPGParametersHandler> DTTPGParametersPopConAnalyzer;
 
 
