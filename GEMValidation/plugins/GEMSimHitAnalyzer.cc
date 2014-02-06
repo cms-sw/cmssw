@@ -207,7 +207,7 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
     gem_geometry_ = &*gem_geom;
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     hasGEMGeometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
+    edm::LogWarning("GEMSimHitAnalyzer")
       << "+++ Info: GEM geometry is unavailable. +++\n";
   }
 
@@ -216,7 +216,7 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
     me0_geometry_ = &*me0_geom;
   } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
     hasME0Geometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
+    edm::LogWarning("GEMSimHitAnalyzer")
       << "+++ Info: ME0 geometry is unavailable. +++\n";
   }
 
@@ -225,7 +225,7 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
     csc_geometry_ = &*csc_geom;
   } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
     hasCSCGeometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
+    edm::LogWarning("GEMSimHitAnalyzer")
       << "+++ Info: CSC geometry is unavailable. +++\n";
   }
 
@@ -234,7 +234,7 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
     rpc_geometry_ = &*rpc_geom;
   } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
     hasRPCGeometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
+    edm::LogWarning("GEMSimHitAnalyzer")
       << "+++ Info: RPC geometry is unavailable. +++\n";
   }
 
@@ -618,7 +618,7 @@ bool GEMSimHitAnalyzer::isSimTrackGood(const SimTrack &t)
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
   if (t.momentum().pt() < minPt_) return false;
   const float eta(std::abs(t.momentum().eta()));
-  if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
+  if (eta > 2.5 || eta < 1.45) return false; // no GEMs could be in such eta
   return true;
 }
 

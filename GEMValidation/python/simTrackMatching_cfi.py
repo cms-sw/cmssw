@@ -24,20 +24,20 @@ SimTrackMatching = cms.PSet(
         simMuOnly = cms.bool(True),
         discardEleHits = cms.bool(True),
     ),
-    gemDigi = cms.PSet(
+    gemStripDigi = cms.PSet(
         verbose = cms.int32(0),
         input = cms.InputTag("simMuonGEMDigis"),
         minBX = cms.int32(-1),
         maxBX = cms.int32(1),
         matchDeltaStrip = cms.int32(1),
     ),
-    gemPad = cms.PSet(
+    gemPadDigi = cms.PSet(
         verbose = cms.int32(0),
         input = cms.InputTag("simMuonGEMCSCPadDigis"),
         minBX = cms.int32(-1),
         maxBX = cms.int32(1),
      ),
-    gemCoPad = cms.PSet(
+    gemCoPadDigi = cms.PSet(
         verbose = cms.int32(0),
         input = cms.InputTag("simMuonGEMCSCPadDigis", "Coincidence"),
         minBX = cms.int32(-1),
