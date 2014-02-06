@@ -89,7 +89,11 @@ l1t::L1uGtBoard::L1uGtBoard() :
     m_candL1Jet( new BXVector<const l1t::L1Candidate*>),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
-
+  
+    m_uGtRecBlk.reset();
+    m_uGtAlgBlk.reset();
+    m_uGtExtBlk.reset();
+    
     m_gtlAlgorithmOR.reset();
     m_gtlDecisionWord.reset();
 
@@ -114,6 +118,7 @@ l1t::L1uGtBoard::~L1uGtBoard() {
     delete m_candL1EG;
     delete m_candL1Tau;
     delete m_candL1Jet;
+
 //    delete m_gtEtaPhiConversions;
 
 }
@@ -141,6 +146,10 @@ void l1t::L1uGtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const
   m_candL1EG->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
+  
+  m_uGtRecBlk.reset();
+  m_uGtAlgBlk.reset();
+  m_uGtExtBlk.reset();
   
   LogDebug("l1t|Global") << "\t Initializing L1uGtBoard with bxFirst = " << m_bxFirst_ << ", bxLast = " << m_bxLast_ << std::endl;
 
@@ -360,6 +369,14 @@ void l1t::L1uGtBoard::runGTL(
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
+    // Reset AlgBlk for this bx
+     m_uGtAlgBlk.reset();
+     m_uGtExtBlk.reset();
+     m_algInitialOr=false;
+     m_algPrescaledOr=false;
+     m_algFinalOr=false;
+     
+     
     /*
     const std::vector<std::vector<L1uGtMuonTemplate> >& corrMuon =
             m_l1GtMenu->corMuonTemplate();
@@ -861,7 +878,9 @@ void l1t::L1uGtBoard::runGTL(
 	LogDebug("l1t|Global") << " ===> for iBxInEvent = " << iBxInEvent << ":\t algBitName = " << itAlgo->first << ",\t algBitNumber = " << algBitNumber << ",\t algResult = " << algResult << std::endl;
 
         if (algResult) {
-            m_gtlAlgorithmOR.set(algBitNumber);
+//            m_gtlAlgorithmOR.set(algBitNumber);
+              m_uGtAlgBlk.setAlgoDecisionInitial(algBitNumber,algResult);
+	      m_algInitialOr = true;	    
         }
 
         if (m_verbosity && m_isDebugEnabled) {
@@ -926,14 +945,7 @@ void l1t::L1uGtBoard::runGTL(
 
 // run GTL
 void l1t::L1uGtBoard::runFDL(edm::Event& iEvent, 
-        const std::vector<int>& prescaleFactorsAlgoTrig,
-        const std::vector<unsigned int>& triggerMaskAlgoTrig,
-        const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
-        const int totalBxInEvent,
         const int iBxInEvent,
-        const unsigned int numberPhysTriggers,
-        const unsigned int numberDaqPartitions,
-        const int pfAlgoSetIndex,
         const bool algorithmTriggersUnprescaled,
         const bool algorithmTriggersUnmasked ){
 
@@ -945,9 +957,149 @@ void l1t::L1uGtBoard::runFDL(edm::Event& iEvent,
 
     }
 
+/* Nothing with prescales right now.
+    // prescale counters are reset at the beginning of the luminosity segment
+    if (m_firstEv) {
+
+        m_firstEv = false;
+    }
+
+    // TODO FIXME find the beginning of the luminosity segment
+    if (m_firstEvLumiSegment) {
+
+        m_firstEvLumiSegment = false;
+
+    }
+*/
+
+    // Copy Algorithm bits to Prescaled word 
+    // Prescaling and Masking done below if requested.
+    m_uGtAlgBlk.copyInitialToPrescaled();
+    
+
+    // -------------------------------------------
+    //      Apply Prescales or skip if turned off
+    // -------------------------------------------
+    if (!algorithmTriggersUnprescaled){
+/*
+	for (unsigned int iBit = 0; iBit < numberPhysTriggers; ++iBit) {
+
+            if (prescaleFactorsAlgoTrig.at(iBit) != 1) {
+
+        	bool bitValue = algoDecisionWord.at( iBit );
+        	if (bitValue) {
+
+                    (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit))--;
+                    if (m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) == 0) {
+
+                	// bit already true in algoDecisionWord, just reset counter
+                	m_prescaleCounterAlgoTrig.at(inBxInEvent).at(iBit) =
+                            prescaleFactorsAlgoTrig.at(iBit);
+                    } else {
+
+                	// change bit to false in prescaled word and final decision word
+                	algoDecisionWord[iBit] = false;
+
+                    } //if Prescale counter reached zero
+        	} //if algo bit is set true
+            } //if prescale factor is not 1 (ie. no prescale)
+	} //loop over alg bits
+*/
+	m_algPrescaledOr = m_algInitialOr; //temp
+	 
+    } else {
+        
+	// Since not Prescaling just take OR of Initial Work
+	m_algPrescaledOr = m_algInitialOr;
+	
+    }//if we are going to apply prescales.
+      
+      
+      
+    // Copy Algorithm bits fron Prescaled word to Final Word 
+    // Masking done below if requested.
+    m_uGtAlgBlk.copyPrescaledToFinal();
+    
+    if(!algorithmTriggersUnmasked) {
+    
+ 
+/*
+       masking the bits goes here.
+*/       
+        m_algFinalOr = m_algPrescaledOr;
+	
+    } else {
+      
+         m_algFinalOr = m_algPrescaledOr;
+     
+    } ///if we are masking.	
+
 
 
 }
+
+// Fill DAQ Record
+void l1t::L1uGtBoard::fillGtRecord( std::auto_ptr<L1uGtRecBxCollection>& uGtRecord ) 
+{
+
+    if (m_verbosity) {
+        LogDebug("l1t|Global")
+                << "\n**** L1uGtBoard fill DAQ Records for bx= " 
+                << std::endl;
+
+    }
+
+    // Create Block for this bx (should we make this a standing member of this class?)
+    m_uGtRecBlk.setFirmwareVer(10);
+    
+    uGtRecord->push_back(m_uGtRecBlk);
+
+}    
+
+// Fill DAQ Record
+void l1t::L1uGtBoard::fillAlgRecord(int iBxInEvent, 
+				    std::auto_ptr<L1uGtAlgBxCollection>& uGtAlgRecord
+				    ) 
+{
+
+    if (m_verbosity) {
+        LogDebug("l1t|Global")
+                << "\n**** L1uGtBoard fill DAQ Records for bx= " << iBxInEvent
+                << std::endl;
+
+    }
+
+
+// Set the header information and Final OR
+    int finalOR = 0x8; //bit for this being the final board: NEEDS to be set elsewhere
+    if(m_algFinalOr) finalOR  = (finalOR | 0x3);  //set both bits (one for this board and the other for the OR of all boards (only 1 right now))
+    m_uGtAlgBlk.setFinalOR(finalOR);
+    
+
+    uGtAlgRecord->push_back(iBxInEvent, m_uGtAlgBlk);
+
+}
+
+// Fill DAQ Record
+void l1t::L1uGtBoard::fillExtRecord(int iBxInEvent, 
+				    std::auto_ptr<L1uGtExtBxCollection>& uGtExtRecord
+				    ) 
+{
+
+    if (m_verbosity) {
+        LogDebug("l1t|Global")
+                << "\n**** L1uGtBoard fill DAQ Records for bx= " << iBxInEvent
+                << std::endl;
+
+    }
+
+    
+    if(iBxInEvent==0) m_uGtExtBlk.setExternalDecision(100,true);
+
+    uGtExtRecord->push_back(iBxInEvent, m_uGtExtBlk);
+
+}
+
 
 // clear GTL
 void l1t::L1uGtBoard::reset() {

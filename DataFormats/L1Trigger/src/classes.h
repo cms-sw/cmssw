@@ -28,6 +28,10 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/L1uGtAlgBlk.h"
+#include "DataFormats/L1Trigger/interface/L1uGtExtBlk.h"
+#include "DataFormats/L1Trigger/interface/L1uGtRecBlk.h"
+
 
 namespace {
   struct dictionary {
@@ -38,6 +42,9 @@ namespace {
     l1t::JetBxCollection    jetBxColl;
     l1t::MuonBxCollection   muonBxColl;
     l1t::TauBxCollection    tauBxColl;
+    L1uGtAlgBxCollection    uGtAlgBxColl;
+    L1uGtExtBxCollection    uGtExtBxColl;
+    L1uGtRecBxCollection    uGtRecBxColl;    
 
     edm::Wrapper<l1t::L1CandidateBxCollection> w_l1CandidateBxColl;
     edm::Wrapper<l1t::EGammaBxCollection> w_eGammaBxColl;
@@ -45,7 +52,10 @@ namespace {
     edm::Wrapper<l1t::JetBxCollection>    w_jetBxColl;
     edm::Wrapper<l1t::MuonBxCollection>   w_muonBxColl;
     edm::Wrapper<l1t::TauBxCollection>    w_tauBxColl;
-
+    edm::Wrapper<L1uGtAlgBxCollection>    w_uGtAlgBxColl;
+    edm::Wrapper<L1uGtExtBxCollection>    w_uGtExtBxColl;
+    edm::Wrapper<L1uGtRecBxCollection>    w_uGtRecBxColl;
+   
     l1extra::L1EmParticleCollection emColl ;
     l1extra::L1JetParticleCollection jetColl ;
     l1extra::L1MuonParticleCollection muonColl ;

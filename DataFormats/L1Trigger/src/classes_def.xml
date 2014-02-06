@@ -35,6 +35,24 @@
   <class name="l1t::MuonBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonBxCollection>"/>
 
+  <class name="L1uGtAlgBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="3874108871"/>
+  </class>
+  <class name="L1uGtAlgBxCollection"/>
+  <class name="edm::Wrapper<L1uGtAlgBxCollection>"/>
+
+  <class name="L1uGtExtBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="3176004013"/>
+  </class>
+  <class name="L1uGtExtBxCollection"/>
+  <class name="edm::Wrapper<L1uGtExtBxCollection>"/>
+
+  <class name="L1uGtRecBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="4178309288"/>
+  </class>
+  <class name="L1uGtRecBxCollection"/>
+  <class name="edm::Wrapper<L1uGtRecBxCollection>"/>
+
 
   <class name="l1extra::L1EmParticle" ClassVersion="10">
    <version ClassVersion="10" checksum="2019457791"/>

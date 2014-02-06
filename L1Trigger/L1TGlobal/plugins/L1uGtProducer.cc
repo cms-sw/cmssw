@@ -41,6 +41,12 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 */
 
+// Objects to produce for the output record.
+#include "DataFormats/L1Trigger/interface/L1uGtRecBlk.h"
+#include "DataFormats/L1Trigger/interface/L1uGtAlgBlk.h"
+#include "DataFormats/L1Trigger/interface/L1uGtExtBlk.h"
+
+
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
 /*
@@ -176,12 +182,17 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
 
     }
 
-/*  **** Needs Modifying ***
+    
+
+  
     // register products
     if (m_produceL1GtDaqRecord) {
-        produces<L1uGtProducerReadoutRecord>();
+        produces<L1uGtRecBxCollection>();
+	produces<L1uGtAlgBxCollection>();
+	produces<L1uGtExtBxCollection>();
     }
 
+/*  **** Needs Modifying ***
     if (m_produceL1GtObjectMapRecord) {
         produces<L1uGtProducerObjectMapRecord>();
     }
@@ -509,6 +520,13 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
             m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
 
 */
+
+    // Produce the Output Records for the GT
+    std::auto_ptr<L1uGtRecBxCollection> uGtRecord( new L1uGtRecBxCollection());
+    std::auto_ptr<L1uGtAlgBxCollection> uGtAlgRecord( new L1uGtAlgBxCollection(0,minBxInEvent,maxBxInEvent));
+    std::auto_ptr<L1uGtExtBxCollection> uGtExtRecord( new L1uGtExtBxCollection(0,minBxInEvent,maxBxInEvent));
+   
+
     // * produce the L1GlobalTriggerObjectMapRecord
     std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
         new L1GlobalTriggerObjectMapRecord() );
@@ -640,6 +658,11 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
                                      receiveMu, m_nrL1Mu  );
 
 
+// Fill the Gt Record (Main Header of GT Payload)
+    if (m_produceL1GtDaqRecord) {
+	m_uGtBrd->fillGtRecord(uGtRecord);
+    }
+
     // loop over BxInEvent
     for (int iBxInEvent = minBxInEvent; iBxInEvent <= maxBxInEvent;
             ++iBxInEvent) {
@@ -666,29 +689,22 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
           << "\nL1uGtProducer : running FDL for bx = " << iBxInEvent << "\n"
           << std::endl;
 
-  // comment out for now DP
-// //  Run the Final Decision Logic for this BX
-//         m_uGtBrd->runFDL(iEvent,
-//                 prescaleFactorsAlgoTrig, 
-//                 m_triggerMaskAlgoTrig, 
-//                 m_triggerMaskVetoAlgoTrig,
-//                 m_emulateBxInEvent, iBxInEvent,
-//                 m_numberPhysTriggers, 
-//                 m_numberDaqPartitions,
-//                 pfAlgoSetIndex,
-//                 m_algorithmTriggersUnprescaled,
-//                 m_algorithmTriggersUnmasked
-//                 );
+ 
+//  Run the Final Decision Logic for this BX
+	 m_uGtBrd->runFDL(iEvent,
+		          iBxInEvent,
+		          m_algorithmTriggersUnprescaled,
+		          m_algorithmTriggersUnmasked
+		          );
 
 
 
-/* *** OUTPUT RECORD
-        if (m_produceL1GtDaqRecord) {
-            m_uGtBrd->fillDaqFdlBlock(iBxInEvent,
-                    m_activeBoardsGtDaq, recordLength0, recordLength1, m_alternativeNrBxBoardDaq,
-                    boardMaps, gtDaqReadoutRecord);
+// Fill in the DAQ Records
+        if (m_produceL1GtDaqRecord) {	    
+            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord);
+	    m_uGtBrd->fillExtRecord(iBxInEvent, uGtExtRecord);
         }
-*/
+
 
 
     } //End Loop over Bx
@@ -698,11 +714,20 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     m_uGtBrd->reset();
 
 
-/* *** Debugging Section ***
+
     if ( m_verbosity && m_isDebugEnabled ) {
 
     	std::ostringstream myCoutStream;
-        gtDaqReadoutRecord->print(myCoutStream);
+
+       for(int bx=minBxInEvent; bx<maxBxInEvent; bx++) {
+        
+	   /// Needs error checking that something exists at this bx.
+	   (uGtRecord->at(0)).print(myCoutStream); 
+	   (uGtAlgRecord->at(bx,0)).print(myCoutStream); 
+	   (uGtExtRecord->at(bx,0)).print(myCoutStream);   
+                
+       }
+
         LogTrace("l1t|Global")
         << "\n The following L1 GT DAQ readout record was produced:\n"
         << myCoutStream.str() << "\n"
@@ -710,7 +735,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
         myCoutStream.str("");
         myCoutStream.clear();
-
+/*
         const std::vector<L1GlobalTriggerObjectMap> objMapVec =
             gtObjectMapRecord->gtObjectMap();
 
@@ -728,18 +753,20 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
         myCoutStream.str("");
         myCoutStream.clear();
-
-    }
 */
+    }
 
+
+
+    
+    // register products
+    if (m_produceL1GtDaqRecord) {    
+        iEvent.put( uGtRecord );
+	iEvent.put( uGtAlgRecord );
+	iEvent.put( uGtExtRecord );
+    }
 
 /**  OUTPUT RECORD
-    // **
-    // register products
-    if (m_produceL1GtDaqRecord) {
-        iEvent.put( gtDaqReadoutRecord );
-    }
-
     if (m_produceL1GtObjectMapRecord) {
         iEvent.put( gtObjectMapRecord );
     }

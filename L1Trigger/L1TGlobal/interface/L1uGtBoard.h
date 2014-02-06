@@ -36,6 +36,11 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
+// Objects to produce for the output record.
+#include "DataFormats/L1Trigger/interface/L1uGtRecBlk.h"
+#include "DataFormats/L1Trigger/interface/L1uGtAlgBlk.h"
+#include "DataFormats/L1Trigger/interface/L1uGtExtBlk.h"
+
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -97,17 +102,16 @@ public:
 
     /// run the uGT FDL (Apply Prescales and Veto)
     void runFDL(edm::Event& iEvent, 
-        const std::vector<int>& prescaleFactorsAlgoTrig,
-        const std::vector<unsigned int>& triggerMaskAlgoTrig,
-        const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
-        const int totalBxInEvent,
         const int iBxInEvent,
-        const unsigned int numberPhysTriggers,
-        const unsigned int numberDaqPartitions,
-        const int pfAlgoSetIndex,
         const bool algorithmTriggersUnprescaled,
-        const bool algorithmTriggersUnmasked
-        );
+        const bool algorithmTriggersUnmasked );
+
+
+     /// Fill the DaqRecord
+     void fillGtRecord(std::auto_ptr<L1uGtRecBxCollection>& uGtRecord);
+     void fillAlgRecord(int iBxInEvent, std::auto_ptr<L1uGtAlgBxCollection>& uGtAlgRecord );
+     void fillExtRecord(int iBxInEvent, std::auto_ptr<L1uGtExtBxCollection>& uGtExtRecord );
+
 
 
     /// clear uGT
@@ -243,6 +247,10 @@ private:
 
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
+    
+    L1uGtRecBlk m_uGtRecBlk;
+    L1uGtAlgBlk m_uGtAlgBlk;
+    L1uGtExtBlk m_uGtExtBlk;
 
   // cache  of maps
   std::vector<L1uGtAlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
@@ -254,6 +262,10 @@ private:
     int m_verbosity;
     bool m_isDebugEnabled;
 
+    // Flags for the OR of all algorithms at various stages. (Single bx)
+    bool m_algInitialOr;
+    bool m_algPrescaledOr;
+    bool m_algFinalOr;
 
 };
 

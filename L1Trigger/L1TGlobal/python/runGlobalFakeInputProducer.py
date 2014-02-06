@@ -19,7 +19,7 @@ process.load('L1Trigger/L1TGlobal/l1tGt_debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(2)
     )
 
 # Input source
@@ -144,6 +144,19 @@ process.simL1uGtDigis = cms.EDProducer("l1t::L1uGtProducer",
     Verbosity = cms.untracked.int32(1)
 )
 
+process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
+                egInputTag    = cms.InputTag("gtInput"),
+		muInputTag    = cms.InputTag("gtInput"),
+		tauInputTag   = cms.InputTag("gtInput"),
+		jetInputTag   = cms.InputTag("gtInput"),
+		etsumInputTag = cms.InputTag("gtInput"),
+		uGtRecInputTag = cms.InputTag("simL1uGtDigis"),
+		uGtAlgInputTag = cms.InputTag("simL1uGtDigis"),
+		uGtExtInputTag = cms.InputTag("simL1uGtDigis") 
+		 )
+
+
+
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
 process.l1GtTrigReport.L1GtRecordInputTag = "simL1uGtDigis"
 process.l1GtTrigReport.PrintVerbosity = 2
@@ -160,6 +173,7 @@ process.p1 = cms.Path(
     process.gtInput
 #    *process.dumpGT
     *process.simL1uGtDigis
+    *process.dumpGTRecord
 #    * process.debug
 #    *process.dumpED
 #    *process.dumpES
