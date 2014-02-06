@@ -24,6 +24,9 @@ HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
     _analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
     _collections(0)
 {
+
+    LogDebug("ExoticaValidation") << "In HLTExoticaValidator::constructor()";
+
     // Prepare the event collections to be used.
     _collections = new EVTColContainer;
 
@@ -48,10 +51,13 @@ HLTExoticaValidator::~HLTExoticaValidator()
 // 2014-02-03 -- Thiago                                                      
 // Due to the fact that the DQM has to be thread safe now, we have to do things differently:                                                         
 // 1) Implement the bookHistograms method in this class
-// 2) Split beginRun() into subAnalysisBookHistos() and dqmBeginRun()                                                                                
-// 3) Make the iBooker from above be known to this class                     
+// 2) Split beginRun() into bookHistograms() and dqmBeginRun()                                                                                
+// 3) Call subAnalysisBookHistos() for each subAnalysis from inside bookHistograms()
+// *** IMPORTANT *** notice that bookHistograms() runs BEFORE dqmBeginRun()
 void HLTExoticaValidator::dqmBeginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaValidator::dqmBeginRun()";
+
     // Call the Plotter beginRun (which stores the triggers paths..:)
     for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin();
          iter != _analyzers.end(); ++iter) {
@@ -61,6 +67,8 @@ void HLTExoticaValidator::dqmBeginRun(const edm::Run & iRun, const edm::EventSet
 
 void HLTExoticaValidator::bookHistograms(DQMStore::IBooker &iBooker, const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
+
+    LogDebug("ExoticaValidation") << "In HLTExoticaValidator::bookHistograms()";
 
     // Loop over all sub-analyses and book histograms for all of them.
     // For this to work, I think we have to pass the iBooker to each of them.
@@ -75,9 +83,11 @@ void HLTExoticaValidator::bookHistograms(DQMStore::IBooker &iBooker, const edm::
 
 void HLTExoticaValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaValidator::analyze()";
+
     static int eventNumber = 0;
     eventNumber++;
-    LogTrace("ExoticaValidation") << "In HLTExoticaSubAnalysis::analyze,  "
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::analyze,  "
                                   << "Event: " << eventNumber;
 
     // Initialize the event collections
@@ -93,6 +103,7 @@ void HLTExoticaValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 void HLTExoticaValidator::beginJob()
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaValidator::beginJob()";
 }
 
 void HLTExoticaValidator::endRun(const edm::Run & iRun, const edm::EventSetup& iSetup)

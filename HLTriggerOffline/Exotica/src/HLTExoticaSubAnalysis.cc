@@ -28,7 +28,9 @@
 #include <algorithm>
 
 /// Constructor
-HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
+HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::Run &iRun, 
+					     const edm::EventSetup & iSetup,
+					     const edm::ParameterSet & pset,
                                              const std::string & analysisname) :
     _pset(pset),
     _analysisname(analysisname),
@@ -45,6 +47,8 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     _recPhotonSelector(0),
     _recJetSelector(0)
 {
+
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::constructor()";
 
     // Specific parameters for this analysis
     edm::ParameterSet anpset = pset.getParameter<edm::ParameterSet>(analysisname);
@@ -95,107 +99,44 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
     /// Get the minimum candidates, for this particular analysis.
     _minCandidates = anpset.getParameter<unsigned int>("minCandidates");
 
-} /// End Constructor
-
-HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis()
-{
-    for (std::map<unsigned int, StringCutObjectSelector<reco::GenParticle>* >::iterator it = _genSelectorMap.begin();
-         it != _genSelectorMap.end(); ++it) {
-        delete it->second;
-        it->second = 0;
-    }
-    delete _recMuonSelector;
-    _recMuonSelector = 0;
-    delete _recElecSelector;
-    _recElecSelector = 0;
-    delete _recPhotonSelector;
-    _recPhotonSelector = 0;
-    delete _recPFMETSelector;
-    _recPFMETSelector = 0;
-    delete _recPFTauSelector;
-    _recPFTauSelector = 0;
-    delete _recJetSelector;
-    _recJetSelector = 0;
-}
-
-
-void HLTExoticaSubAnalysis::beginJob()
-{
-}
-
-
-// 2014-02-03 -- Thiago
-// Due to the fact that the DQM has to be thread safe now, we have to do things differently:
-// 1) Implement the bookHistograms method in the container class
-// 2) Split beginRun() into subAnalysisBookHistos() and dqmBeginRun()
-// 3) Make the iBooker from above be known to this class
-void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
-                                                  const edm::Run & iRun,
-                                                  const edm::EventSetup & iSetup)
-{
-    
-    // Create the folder structure inside HLT/Exotica
-    std::string baseDir = "HLT/Exotica/" + _analysisname + "/";
-    iBooker.setCurrentFolder(baseDir);
-
-    // Book the gen/reco analysis-dependent histograms (denominators)
-    for (std::map<unsigned int, std::string>::const_iterator it = _recLabels.begin();
-         it != _recLabels.end(); ++it) {
-        const std::string objStr = EVTColContainer::getTypeString(it->first);
-        std::vector<std::string> sources(2);
-        sources[0] = "gen";
-        sources[1] = "rec";
-	
-        for (size_t i = 0; i < sources.size(); i++) {
-            std::string source = sources[i];
-            bookHist(iBooker, source, objStr, "Eta");
-            bookHist(iBooker, source, objStr, "Phi");
-            bookHist(iBooker, source, objStr, "MaxPt1");
-            bookHist(iBooker, source, objStr, "MaxPt2");
-        }
-    } // closes loop in _recLabels
-
-    // Call the beginRun (which books all the path dependent histograms)
-    for (std::vector<HLTExoticaPlotter>::iterator it = _plotters.begin();
-         it != _plotters.end(); ++it) {
-	it->plotterBookHistos(iBooker, iRun, iSetup);
-    }
-}
-
-void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
-{
+    /// Finally, construct the plotters right here.
+    /// For that we need to create the _hltPaths vector.
 
     // Initialize the HLT config.
     bool changedConfig;
     if (!_hltConfig.init(iRun, iSetup, _hltProcessName, changedConfig)) {
-        edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::beginRun: "
+        edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::constructor(): "
                                            << "Initialization of HLTConfigProvider failed!";
     }
 
-    // Parse the input paths to get them if there are in the table and associate
+    // Parse the input paths to get them if they are in the table and associate
     // them to the last filter of the path (in order to extract the objects).
     _hltPaths.clear();
     for (size_t i = 0; i < _hltPathsToCheck.size(); ++i) {
         bool found = false;
         TPRegexp pattern(_hltPathsToCheck[i]);
-        for (size_t j = 0 ; j < _hltConfig.triggerNames().size(); ++j) {
+	
+	// Loop over triggerNames from _hltConfig
+	for (size_t j = 0 ; j < _hltConfig.triggerNames().size(); ++j) {
             std::string thetriggername = _hltConfig.triggerNames()[j];
             if (TString(thetriggername).Contains(pattern)) {
                 _hltPaths.insert(thetriggername);
                 found = true;
             }
         }
+	
+	// Oh dear, the path we wanted seems to not be available
         if (! found) {
-            edm::LogWarning("ExoticaValidation") << "HLTExoticaSubAnalysis::beginRun, In "
+            edm::LogWarning("ExoticaValidation") << "HLTExoticaSubAnalysis::constructor(): In "
                                                  << _analysisname << " subfolder NOT found the path: '"
                                                  << _hltPathsToCheck[i] << "*'" ;
         }
-    }
+    } // Close loop over paths fo check.
     
-    // At this point, _hltpaths contains the names of the paths.
-    // Let's log it at trace level.
-    LogTrace("ExoticaValidation") << "SubAnalysis: " << _analysisname
-                                  << "\nHLT Trigger Paths found >>>";
+    // At this point, _hltpaths contains the names of the paths to check
+    // that were found. Let's log it at trace level.
+    LogTrace("ExoticaValidation") << "SubAnalysis: " << _analysisname 
+				  << "\nHLT Trigger Paths found >>>";
     for (std::set<std::string>::const_iterator iter = _hltPaths.begin();
 	 iter != _hltPaths.end(); ++iter) {
         LogTrace("ExoticaValidation") << (*iter) << "\n";
@@ -242,7 +183,82 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
         // needed to evaluate the path are the argumens of the plotter
         HLTExoticaPlotter analyzer(_pset, shortpath, objsNeedHLT);
         _plotters.push_back(analyzer);
-    } // Okay, at this point we have prepared all the plotters.
+    }// Okay, at this point we have prepared all the plotters.
+
+} /// End Constructor
+
+HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis()
+{
+    for (std::map<unsigned int, StringCutObjectSelector<reco::GenParticle>* >::iterator it = _genSelectorMap.begin();
+         it != _genSelectorMap.end(); ++it) {
+        delete it->second;
+        it->second = 0;
+    }
+    delete _recMuonSelector;
+    _recMuonSelector = 0;
+    delete _recElecSelector;
+    _recElecSelector = 0;
+    delete _recPhotonSelector;
+    _recPhotonSelector = 0;
+    delete _recPFMETSelector;
+    _recPFMETSelector = 0;
+    delete _recPFTauSelector;
+    _recPFTauSelector = 0;
+    delete _recJetSelector;
+    _recJetSelector = 0;
+}
+
+
+void HLTExoticaSubAnalysis::beginJob()
+{
+}
+
+
+// 2014-02-03 -- Thiago
+// Due to the fact that the DQM has to be thread safe now, we have to do things differently:
+// 1) Implement the bookHistograms method in the container class
+// 2) Split beginRun() into subAnalysisBookHistos() and dqmBeginRun()
+// 3) Make the iBooker from above be known to this class
+void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
+                                                  const edm::Run & iRun,
+                                                  const edm::EventSetup & iSetup)
+{
+    
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::subAnalysisBookHistos()";
+
+    // Create the folder structure inside HLT/Exotica
+    std::string baseDir = "HLT/Exotica/" + _analysisname + "/";
+    iBooker.setCurrentFolder(baseDir);
+
+    // Book the gen/reco analysis-dependent histograms (denominators)
+    for (std::map<unsigned int, std::string>::const_iterator it = _recLabels.begin();
+         it != _recLabels.end(); ++it) {
+        const std::string objStr = EVTColContainer::getTypeString(it->first);
+        std::vector<std::string> sources(2);
+        sources[0] = "gen";
+        sources[1] = "rec";
+	
+        for (size_t i = 0; i < sources.size(); i++) {
+            std::string source = sources[i];
+            bookHist(iBooker, source, objStr, "Eta");
+            bookHist(iBooker, source, objStr, "Phi");
+            bookHist(iBooker, source, objStr, "MaxPt1");
+            bookHist(iBooker, source, objStr, "MaxPt2");
+        }
+    } // closes loop in _recLabels
+
+    // Call the beginRun (which books all the path dependent histograms)
+    LogDebug("ExoticaValidation") << "                        number of plotters = " << _plotters.size();
+    for (std::vector<HLTExoticaPlotter>::iterator it = _plotters.begin();
+         it != _plotters.end(); ++it) {
+	it->plotterBookHistos(iBooker, iRun, iSetup);
+    }
+}
+
+void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
+{
+
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::beginRun()";
 
 }
 
@@ -250,6 +266,8 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetu
 
 void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSetup & iSetup, EVTColContainer * cols)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::analyze()";
+
     // Initialize the collection (the ones which hasn't been initialiazed yet)
     this->initobjects(iEvent, cols);
 
@@ -357,7 +375,9 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
                 }
             }
         }
-        delete countobjects;
+
+	LogDebug("ExoticaValidation") << "                        deleting countobjects";
+	delete countobjects;
 
         // Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
         const std::string source = u2str[it->first];
@@ -365,14 +385,19 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
              an != _plotters.end(); ++an) {
             const std::string hltPath = _shortpath2long[an->gethltpath()];
             const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
-            an->analyze(ispassTrigger, source, it->second);
-        }
+	    LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
+	    an->analyze(ispassTrigger, source, it->second);
+	    LogDebug("ExoticaValidation") << "                        called the plotter";
+	}
+	
     }
 }
 
 // Return the objects (muons,electrons,photons,...) needed by a hlt path.
 const std::vector<unsigned int> HLTExoticaSubAnalysis::getObjectsType(const std::string & hltPath) const
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::getObjectsType()";
+
     static const unsigned int objSize = 6;
     static const unsigned int objtriggernames[] = {
         EVTColContainer::MUON,
@@ -401,6 +426,8 @@ const std::vector<unsigned int> HLTExoticaSubAnalysis::getObjectsType(const std:
 // Booking the maps: recLabels and genParticle selectors
 void HLTExoticaSubAnalysis::bookobjects(const edm::ParameterSet & anpset)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::bookobjects()";
+
     if (anpset.exists("recMuonLabel")) {
         _recLabels[EVTColContainer::MUON] = anpset.getParameter<std::string>("recMuonLabel");
         _genSelectorMap[EVTColContainer::MUON] = 0 ;
@@ -437,6 +464,7 @@ void HLTExoticaSubAnalysis::bookobjects(const edm::ParameterSet & anpset)
 // Setting the collections of objects in EVTColContainer
 void HLTExoticaSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer * col)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::initobjects()";
 
     if (! col->isCommonInit()) {
         // Extract the trigger results (path info, pass,...)
@@ -494,6 +522,8 @@ void HLTExoticaSubAnalysis::bookHist(DQMStore::IBooker & iBooker,
                                      const std::string & objType, 
 				     const std::string & variable)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::bookHist()";
+
     std::string sourceUpper = source;
     sourceUpper[0] = std::toupper(sourceUpper[0]);
     std::string name = source + objType + variable ;
@@ -537,12 +567,19 @@ void HLTExoticaSubAnalysis::fillHist(const std::string & source,
     sourceUpper[0] = toupper(sourceUpper[0]);
     std::string name = source + objType + variable ;
 
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::fillHist() " << name << " " << value;
+
     _elements[name]->Fill(value);
+
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::fillHist() " << name << " worked";
 }
 
 // Initialize the selectors
 void HLTExoticaSubAnalysis::initSelector(const unsigned int & objtype)
 {
+
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::initSelector()";
+
     if (objtype == EVTColContainer::MUON && _recMuonSelector == 0) {
         _recMuonSelector = new StringCutObjectSelector<reco::Muon>(_recCut[objtype]);
     } else if (objtype == EVTColContainer::ELEC && _recElecSelector == 0) {
@@ -565,40 +602,49 @@ void HLTExoticaSubAnalysis::initSelector(const unsigned int & objtype)
 // Insert the HLT candidates
 void HLTExoticaSubAnalysis::insertCandidates(const unsigned int & objType, const EVTColContainer * cols, std::vector<MatchStruct> * matches)
 {
+    
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::insertCandidates()";
+
     if (objType == EVTColContainer::MUON) {
         for (size_t i = 0; i < cols->muons->size(); i++) {
             if (_recMuonSelector->operator()(cols->muons->at(i))) {
                 matches->push_back(MatchStruct(&cols->muons->at(i), objType));
+		LogDebug("ExoticaValidation") << "Inserting muon";
             }
         }
     } else if (objType == EVTColContainer::ELEC) {
         for (size_t i = 0; i < cols->electrons->size(); i++) {
             if (_recElecSelector->operator()(cols->electrons->at(i))) {
                 matches->push_back(MatchStruct(&cols->electrons->at(i), objType));
+		LogDebug("ExoticaValidation") << "Inserting electron";
             }
         }
     } else if (objType == EVTColContainer::PHOTON) {
         for (size_t i = 0; i < cols->photons->size(); i++) {
             if (_recPhotonSelector->operator()(cols->photons->at(i))) {
                 matches->push_back(MatchStruct(&cols->photons->at(i), objType));
+		LogDebug("ExoticaValidation") << "Inserting photon";
             }
         }
     } else if (objType == EVTColContainer::PFMET) {
         for (size_t i = 0; i < cols->pfMETs->size(); i++) {
             if (_recPFMETSelector->operator()(cols->pfMETs->at(i))) {
                 matches->push_back(MatchStruct(&cols->pfMETs->at(i), objType));
+		LogDebug("ExoticaValidation") << "Inserting PFMET";
             }
         }
     } else if (objType == EVTColContainer::PFTAU) {
         for (size_t i = 0; i < cols->pfTaus->size(); i++) {
             if (_recPFTauSelector->operator()(cols->pfTaus->at(i))) {
                 matches->push_back(MatchStruct(&cols->pfTaus->at(i), objType));
+		LogDebug("ExoticaValidation") << "Inserting PFtau";
             }
         }
     } else if (objType == EVTColContainer::JET) {
         for (size_t i = 0; i < cols->jets->size(); i++) {
             if (_recJetSelector->operator()(cols->jets->at(i))) {
                 matches->push_back(MatchStruct(&cols->jets->at(i), objType));
+		LogDebug("ExoticaValidation") << "Inserting jet";
             }
         }
     }

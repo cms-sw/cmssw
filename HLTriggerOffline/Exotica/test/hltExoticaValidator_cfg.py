@@ -30,13 +30,14 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #'/store/relval/CMSSW_7_0_0_pre9/RelValZMM/GEN-SIM-RECO/START70_V2-v4/00000/CAD227AF-9E5D-E311-B8EE-0025905A608E.root',
-        '/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-RECO/START70_V2-v4/00000/40D06C04-965D-E311-A0A6-0025905A6090.root',
+        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-RECO/START70_V2-v4/00000/40D06C04-965D-E311-A0A6-0025905A6090.root',
+        '/store/relval/CMSSW_7_1_0_pre1/RelValZMM_13/GEN-SIM-RECO/POSTLS170_V1-v1/00000/98CCC248-5B86-E311-B20C-02163E00EB5A.root'
         ),
     secondaryFileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/1800D9BB-795D-E311-BE4B-0025905A60F4.root',
-        '/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/1A9C0FD0-775D-E311-9FFC-0025905A607A.root',
-        '/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/743D862C-775D-E311-91AF-0025905A60B4.root',
-        '/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/AE8D1115-795D-E311-96FD-0025905A611C.root',
+        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/1800D9BB-795D-E311-BE4B-0025905A60F4.root',
+        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/1A9C0FD0-775D-E311-9FFC-0025905A607A.root',
+        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/743D862C-775D-E311-91AF-0025905A60B4.root',
+        #'/store/relval/CMSSW_7_0_0_pre9/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/AE8D1115-795D-E311-96FD-0025905A611C.root',
         #'/store/relval/CMSSW_7_0_0_pre9/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/46A2C2A4-6D5D-E311-AF34-0025905A6126.root',
         #'/store/relval/CMSSW_7_0_0_pre9/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/7225FB21-775D-E311-A071-0025905A6118.root',
         #'/store/relval/CMSSW_7_0_0_pre9/RelValZMM/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2-v4/00000/B4DEC9EF-7A5D-E311-A90C-0025905A60A0.root',
@@ -50,7 +51,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.destinations += ['ExoticaValidationMessages']
 process.MessageLogger.categories   += ['ExoticaValidation']
-process.MessageLogger.debugModules += ['*']#HLTExoticaValidator','HLTExoticaSubAnalysis','HLTExoticaPlotter']
+#process.MessageLogger.debugModules += ['HLTExoticaValidator','HLTExoticaSubAnalysis','HLTExoticaPlotter']
+process.MessageLogger.debugModules += ['*']
 process.MessageLogger.ExoticaValidationMessages = cms.untracked.PSet(
     threshold       = cms.untracked.string('DEBUG'),
     default         = cms.untracked.PSet(limit = cms.untracked.int32(0)),

@@ -33,6 +33,7 @@ HLTExoticaPlotter::HLTExoticaPlotter(const edm::ParameterSet & pset,
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn"))
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::constructor()";
 }
 
 HLTExoticaPlotter::~HLTExoticaPlotter()
@@ -50,6 +51,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
 					  const edm::Run & iRun,
 					  const edm::EventSetup & iSetup)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::plotterBookHistos()";
     for (std::set<unsigned int>::iterator it = _objectsType.begin();
          it != _objectsType.end(); ++it) {
         std::vector<std::string> sources(2);
@@ -72,9 +74,11 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
                                 const std::string & source,
                                 const std::vector<MatchStruct> & matches)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaPlotter:analyze()";
     if (!isPassTrigger) {
         return;
     }
+
     std::map<unsigned int, int> countobjects;
     // Initializing the count of the used object
     for (std::set<unsigned int>::iterator co = _objectsType.begin();
@@ -123,6 +127,7 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
                                  const std::string & objType,
                                  const std::string & variable)
 {
+    LogDebug("ExoticaValidation") << "In HLTExoticaPlotter:bookHist()";
     std::string sourceUpper = source;
     sourceUpper[0] = std::toupper(sourceUpper[0]);
     std::string name = source + objType + variable + "_" + _hltPath;
@@ -151,7 +156,10 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
         h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
     }
     h->Sumw2();
+    LogDebug("ExoticaValidation") << "                       booking histo " << name;
     _elements[name] = iBooker.book1D(name, h);
+    LogDebug("ExoticaValidation") << "                       booked histo with name " << name
+				  << "                       at location" << (unsigned long int)_elements[name];
     delete h;
 }
 
@@ -165,7 +173,13 @@ void HLTExoticaPlotter::fillHist(const bool & passTrigger,
     sourceUpper[0] = toupper(sourceUpper[0]);
     std::string name = source + objType + variable + "_" + _hltPath;
 
+    LogDebug("ExoticaValidation") << "In HLTExoticaPlotter:fillHist()" << name << " " << value;
+    // Gonna make a random fill here
+    LogDebug("ExoticaValidation") << "In HLTExoticaPlotter:fillHist()" << name << " " << 1.0;
+    _elements[name]->Fill(1.000);
+    LogDebug("ExoticaValidation") << "In HLTExoticaPlotter:fillHist()" << name << " worked";
     _elements[name]->Fill(value);
+    LogDebug("ExoticaValidation") << "In HLTExoticaPlotter:fillHist()" << name << " worked";
 }
 
 
