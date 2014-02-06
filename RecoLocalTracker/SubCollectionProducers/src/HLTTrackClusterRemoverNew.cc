@@ -390,44 +390,49 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
       }
     }
     
-
+    
     //    std::cout << " => collectedRegStrips_: " << collectedRegStrips_.size() << std::endl;
     //    std::cout << " total strip to skip (before charge check): "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true) << std::endl;
     if (doStripChargeCheck_) {
-      int i = -1;
       //      std::cout << "[HLTTrackClusterRemoverNew::produce] doStripChargeCheck_: " << (doStripChargeCheck_ ? "true" : "false") << " stripClusters: " << stripClusters->size() << std::endl;
-
-      for (auto const & icluster : stripClusters->data() ){
-	++i;
-
-	DetId detid = icluster.geographicalId(); // this will not work anymore !
+      
+      
+      auto const & clusters = stripClusters->data();
+      for (auto const & item : stripClusters->ids()) {
+	
+	if (!item.isValid()) continue;  // not umpacked
+	
+	DetId detid = item.id;
 	uint32_t subdet = detid.subdetId();
+	if (!pblocks_[subdet-1].cutOnStripCharge_) continue;
+	
 	//	std::cout << " i: " << i << " --> detid: " << detid << " --> subdet: " << subdet << std::endl;
 	
-	int clusCharge=0;
-	for ( auto cAmp : icluster.amplitudes() ) clusCharge+=cAmp;
+	for (auto i = item.offset; i<item.offset+int(item.size); ++i) {
+	  int clusCharge=0;
+	  for ( auto cAmp : clusters[i].amplitudes() ) clusCharge+=cAmp;
+	  
+	  //	if (clusCharge < pblocks_[subdet-1].minGoodStripCharge_) std::cout << " clusCharge: " << clusCharge << std::endl;
+	  if(clusCharge < pblocks_[subdet-1].minGoodStripCharge_) collectedRegStrips_[i] = true; // (|= does not work!)
+	}
 	
-	//	if (clusCharge < pblocks_[subdet-1].minGoodStripCharge_) std::cout << " clusCharge: " << clusCharge << std::endl;
-	if (pblocks_[subdet-1].cutOnStripCharge_ && clusCharge > pblocks_[subdet-1].minGoodStripCharge_) continue;
-
-	collectedRegStrips_[i]=true; 
       }
     }
     
     //    std::cout << " => collectedRegStrips_: " << collectedRegStrips_.size() << std::endl;
     //    std::cout << " total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true) << std::endl;
     std::auto_ptr<StripMaskContainer> removedStripClusterMask(
-       new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedRegStrips_));
+							      new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedRegStrips_));
     LogDebug("TrackClusterRemover")<<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true);
     std::cout << "TrackClusterRemover" <<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true)<<std::endl;
     iEvent.put( removedStripClusterMask );
-
+    
     std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
-       new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      
+							      new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      
     LogDebug("TrackClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
     iEvent.put( removedPixelClusterMask );
-
-
+    
+    
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

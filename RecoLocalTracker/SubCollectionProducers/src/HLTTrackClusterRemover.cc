@@ -403,12 +403,13 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 	DetId detid = icluster->geographicalId(); 
 	uint32_t subdet = detid.subdetId();
 	//	std::cout << " i: " << i << " --> detid: " << detid << " --> subdet: " << subdet << std::endl;
+	if (!pblocks_[subdet-1].cutOnStripCharge_) continue;
 
 	int clusCharge=0;
 	for ( auto cAmp : icluster->amplitudes() ) clusCharge+=cAmp;
 	  
 	//	if (clusCharge < pblocks_[subdet-1].minGoodStripCharge_) std::cout << " clusCharge: " << clusCharge << std::endl;
-	if (pblocks_[subdet-1].cutOnStripCharge_ && clusCharge > pblocks_[subdet-1].minGoodStripCharge_) continue;
+	if(clusCharge > pblocks_[subdet-1].minGoodStripCharge_) continue;
 
 	collectedRegStrips_[i]=true;
       }
