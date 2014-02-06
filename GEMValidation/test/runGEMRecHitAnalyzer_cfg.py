@@ -1,4 +1,4 @@
-mport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMRECOANA")
 
@@ -21,7 +21,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
 from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
-GEMRecHitAnalyzer = cms.EDAnalyzer("GEMRecHitAnalyzer",
+process.GEMRecHitAnalyzer = cms.EDAnalyzer("GEMRecHitAnalyzer",
     simTrackMatching = SimTrackMatching
 )
 process.GEMRecHitAnalyzer.simTrackMatching.gemStripDigi.input = ""

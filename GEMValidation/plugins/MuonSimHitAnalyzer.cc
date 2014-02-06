@@ -1,8 +1,8 @@
 //
-// Package:    GEMSimHitAnalyzer
-// Class:      GEMSimHitAnalyzer
+// Package:    MuonSimHitAnalyzer
+// Class:      MuonSimHitAnalyzer
 // 
-// \class GEMSimHitAnalyzer
+// \class MuonSimHitAnalyzer
 //
 // Description: Analyzer GEM SimHit information
 // To be used for GEM algorithm development.
@@ -100,13 +100,13 @@ struct MySimTrack
 };
 
 
-class GEMSimHitAnalyzer : public edm::EDAnalyzer
+class MuonSimHitAnalyzer : public edm::EDAnalyzer
 {
 public:
  /// Constructor
-  explicit GEMSimHitAnalyzer(const edm::ParameterSet& iConfig);
+  explicit MuonSimHitAnalyzer(const edm::ParameterSet& iConfig);
   /// Destructor
-  ~GEMSimHitAnalyzer();
+  ~MuonSimHitAnalyzer();
   
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
 
@@ -186,7 +186,7 @@ private:
 };
 
 // Constructor
-GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& ps)
+MuonSimHitAnalyzer::MuonSimHitAnalyzer(const edm::ParameterSet& ps)
 : hasGEMGeometry_(true)
 , hasRPCGeometry_(true)
 , hasME0Geometry_(true)
@@ -221,19 +221,19 @@ GEMSimHitAnalyzer::GEMSimHitAnalyzer(const edm::ParameterSet& ps)
 }
 
 
-GEMSimHitAnalyzer::~GEMSimHitAnalyzer()
+MuonSimHitAnalyzer::~MuonSimHitAnalyzer()
 {
 }
 
 
-void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
+void MuonSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
   try {
     iSetup.get<MuonGeometryRecord>().get(gem_geom);
     gem_geometry_ = &*gem_geom;
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     hasGEMGeometry_ = false;
-    edm::LogWarning("GEMSimHitAnalyzer") << "+++ Info: GEM geometry is unavailable. +++\n";
+    edm::LogWarning("MuonSimHitAnalyzer") << "+++ Info: GEM geometry is unavailable. +++\n";
   }
 
   try {
@@ -241,7 +241,7 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
     me0_geometry_ = &*me0_geom;
   } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
     hasME0Geometry_ = false;
-    edm::LogWarning("GEMSimHitAnalyzer") << "+++ Info: ME0 geometry is unavailable. +++\n";
+    edm::LogWarning("MuonSimHitAnalyzer") << "+++ Info: ME0 geometry is unavailable. +++\n";
   }
 
   try {
@@ -249,7 +249,7 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
     csc_geometry_ = &*csc_geom;
   } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
     hasCSCGeometry_ = false;
-    edm::LogWarning("GEMSimHitAnalyzer") << "+++ Info: CSC geometry is unavailable. +++\n";
+    edm::LogWarning("MuonSimHitAnalyzer") << "+++ Info: CSC geometry is unavailable. +++\n";
   }
 
   try {
@@ -257,7 +257,7 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
     rpc_geometry_ = &*rpc_geom;
   } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
     hasRPCGeometry_ = false;
-    edm::LogWarning("GEMSimHitAnalyzer") << "+++ Info: RPC geometry is unavailable. +++\n";
+    edm::LogWarning("MuonSimHitAnalyzer") << "+++ Info: RPC geometry is unavailable. +++\n";
   }
 
   if(hasGEMGeometry_) {
@@ -288,7 +288,7 @@ void GEMSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &iS
 }
 
 
-void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   iEvent.getByLabel(simTrackInput_, simVertices);
   iEvent.getByLabel(simTrackInput_, simTracks);
@@ -307,7 +307,7 @@ void GEMSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(hasRPCGeometry_ and RPCHits->size()) analyzeRPC(iEvent);
 }
 
-void GEMSimHitAnalyzer::bookCSCSimHitsTree()
+void MuonSimHitAnalyzer::bookCSCSimHitsTree()
 {  
   edm::Service<TFileService> fs;
   csc_sh_tree_ = fs->make<TTree>("CSCSimHits", "CSCSimHits");
@@ -337,7 +337,7 @@ void GEMSimHitAnalyzer::bookCSCSimHitsTree()
 }
 
 
-void GEMSimHitAnalyzer::bookRPCSimHitsTree()
+void MuonSimHitAnalyzer::bookRPCSimHitsTree()
 {
   edm::Service< TFileService > fs;
   rpc_sh_tree_ = fs->make< TTree >("RPCSimHits", "RPCSimHits");
@@ -363,7 +363,7 @@ void GEMSimHitAnalyzer::bookRPCSimHitsTree()
 }
 
 
-void GEMSimHitAnalyzer::bookGEMSimHitsTree()
+void MuonSimHitAnalyzer::bookGEMSimHitsTree()
 {
   edm::Service< TFileService > fs;
   gem_sh_tree_ = fs->make< TTree >("GEMSimHits", "GEMSimHits");
@@ -394,7 +394,7 @@ void GEMSimHitAnalyzer::bookGEMSimHitsTree()
 }
 
 
-void GEMSimHitAnalyzer::bookME0SimHitsTree()
+void MuonSimHitAnalyzer::bookME0SimHitsTree()
 {
   edm::Service< TFileService > fs;
   me0_sh_tree_ = fs->make< TTree >("ME0SimHits", "ME0SimHits");
@@ -423,7 +423,7 @@ void GEMSimHitAnalyzer::bookME0SimHitsTree()
 }
 
 
-void GEMSimHitAnalyzer::bookSimTracksTree()
+void MuonSimHitAnalyzer::bookSimTracksTree()
 {
   edm::Service< TFileService > fs;
   track_tree_ = fs->make< TTree >("Tracks", "Tracks");
@@ -448,7 +448,7 @@ void GEMSimHitAnalyzer::bookSimTracksTree()
 }
 
 
-void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
+void MuonSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
 {
   for (edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit != GEMHits->end(); ++itHit)
   {
@@ -496,7 +496,7 @@ void GEMSimHitAnalyzer::analyzeGEM( const edm::Event& iEvent )
   }
 }
 
-void GEMSimHitAnalyzer::analyzeME0( const edm::Event& iEvent )
+void MuonSimHitAnalyzer::analyzeME0( const edm::Event& iEvent )
 {
   for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit)
   {
@@ -543,7 +543,7 @@ void GEMSimHitAnalyzer::analyzeME0( const edm::Event& iEvent )
 }
 
 
-void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
+void MuonSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
 {
   for (edm::PSimHitContainer::const_iterator itHit = CSCHits->begin(); itHit != CSCHits->end(); ++itHit)
   {
@@ -591,7 +591,7 @@ void GEMSimHitAnalyzer::analyzeCSC( const edm::Event& iEvent )
 }
 
 
-void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
+void MuonSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
 {
   for (edm::PSimHitContainer::const_iterator itHit = RPCHits->begin(); itHit != RPCHits->end(); ++itHit)
   {
@@ -632,7 +632,7 @@ void GEMSimHitAnalyzer::analyzeRPC( const edm::Event& iEvent )
 }
 
 
-bool GEMSimHitAnalyzer::isSimTrackGood(const SimTrack &t)
+bool MuonSimHitAnalyzer::isSimTrackGood(const SimTrack &t)
 {
   // SimTrack selection
   if (t.noVertex()) return false;
@@ -647,7 +647,7 @@ bool GEMSimHitAnalyzer::isSimTrackGood(const SimTrack &t)
   return true;
 }
 
-void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   const edm::SimVertexContainer & sim_vert(*simVertices.product());
   
@@ -780,7 +780,7 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void GEMSimHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MuonSimHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -788,7 +788,7 @@ void GEMSimHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.addDefault(desc);
 }
 
-void GEMSimHitAnalyzer::buildLUT()
+void MuonSimHitAnalyzer::buildLUT()
 {
   std::vector<int> pos_ids;
   pos_ids.push_back(GEMDetId(1,1,1,1,36,1).rawId());
@@ -809,7 +809,7 @@ void GEMSimHitAnalyzer::buildLUT()
 }
 
 std::pair<int,int>
-GEMSimHitAnalyzer::getClosestChambers(int region, float phi)
+MuonSimHitAnalyzer::getClosestChambers(int region, float phi)
 {
   auto& phis(positiveLUT_.first);
   auto upper = std::upper_bound(phis.begin(), phis.end(), phi);
@@ -820,5 +820,5 @@ GEMSimHitAnalyzer::getClosestChambers(int region, float phi)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GEMSimHitAnalyzer);
+DEFINE_FWK_MODULE(MuonSimHitAnalyzer);
 

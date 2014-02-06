@@ -315,9 +315,10 @@ private:
 GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
-, ntupleTrackChamberDelta_(ps.getUntrackedParameter<bool>("ntupleTrackChamberDelta", true))
-, ntupleTrackEff_(ps.getUntrackedParameter<bool>("ntupleTrackEff", true))
 {
+  ntupleTrackChamberDelta_ = cfg_.getParameter<bool>("ntupleTrackChamberDelta");
+  ntupleTrackEff_ = cfg_.getParameter<bool>("ntupleTrackEff");
+
   auto simTrack_ = cfg_.getParameter<edm::ParameterSet>("simTrack");
   simInputLabel_ = simTrack_.getParameter<edm::InputTag>("input");
   minPt_ = simTrack_.getParameter<double>("minPt");
