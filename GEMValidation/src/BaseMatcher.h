@@ -86,6 +86,11 @@ public:
   const RPCGeometry* rpcGeometry_;
   const GEMGeometry* gemGeometry_;
   const ME0Geometry* me0Geometry_;
+
+  bool hasGEMGeometry_;
+  bool hasRPCGeometry_;
+  bool hasME0Geometry_;
+  bool hasCSCGeometry_;
   
  private:
 
