@@ -36,7 +36,11 @@ process.MuonSimHitAnalyzer.simTrackMatching.cscALCT.input = ""
 process.MuonSimHitAnalyzer.simTrackMatching.cscLCT.input = ""
 process.MuonSimHitAnalyzer.simTrackMatching.cscMPLCT.input = ""
 process.MuonSimHitAnalyzer.simTrackMatching.gemRecHit.input = ""
- 
+process.MuonSimHitAnalyzer.simTrackMatching.tfTrack.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.tfCand.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.gmtCand.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.l1Extra.input = ""
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

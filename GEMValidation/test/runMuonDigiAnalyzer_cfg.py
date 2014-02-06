@@ -30,6 +30,10 @@ process.MuonDigiAnalyzer.simTrackMatching.cscCLCTInput = ""
 process.MuonDigiAnalyzer.simTrackMatching.cscALCTInput = ""
 process.MuonDigiAnalyzer.simTrackMatching.cscLCTInput = ""
 process.MuonDigiAnalyzer.simTrackMatching.gemRecHitInput = ""
+process.MuonDigiAnalyzer.simTrackMatching.tfTrack.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.tfCand.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.gmtCand.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.l1Extra.input = ""
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 

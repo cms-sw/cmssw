@@ -33,6 +33,10 @@ matching.cscALCT.minNHitsChamber = 3
 matching.cscLCT.minNHitsChamber = 3
 matching.cscMPLCT.minNHitsChamber = 3
 matching.gemRecHit.input = ""
+matching.tfTrack.input = ""
+matching.tfCand.input = ""
+matching.gmtCand.input = ""
+matching.l1Extra.input = ""
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
