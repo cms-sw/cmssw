@@ -30,7 +30,6 @@ generalTracks = cms.EDAlias(
                               toProductInstance = cms.string('') ) )
     )
 
-
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 import SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff
 ecal_digi_parameters =SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff.ecal_digi_parameters.clone()
