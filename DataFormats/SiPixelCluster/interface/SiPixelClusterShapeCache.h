@@ -57,6 +57,12 @@ public:
     sizeData_.reserve(size);
   }
 
+  void swap(SiPixelClusterShapeCache& other) {
+    data_.swap(other.data_);
+    sizeData_.swap(other.sizeData_);
+    std::swap(productId_, other.productId_);
+  }
+
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   void shrink_to_fit() {
     data_.shrink_to_fit();
