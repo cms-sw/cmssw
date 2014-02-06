@@ -7,6 +7,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 ## load tau sequences up to selectedPatElectrons
 process.load("PhysicsTools.PatAlgos.producersLayer1.electronProducer_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi")
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_selectedPat*_*_*']
