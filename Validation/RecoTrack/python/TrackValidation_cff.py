@@ -9,10 +9,12 @@ from Validation.RecoTrack.PostProcessorTracker_cfi import *
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 
 from SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi import *
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import *
 
 TrackAssociatorByHitsRecoDenom= SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone(
     ComponentName = cms.string('TrackAssociatorByHitsRecoDenom'),  
-    )
+    )#actually not used but needed to have proper folder names
+
 # Validation iterative steps
 cutsRecoTracksZero = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
 cutsRecoTracksZero.algorithm=cms.vstring("iter0")
@@ -81,7 +83,7 @@ cutsRecoTracksTenthHp = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSe
 cutsRecoTracksTenthHp.algorithm=cms.vstring("iter10")
 cutsRecoTracksTenthHp.quality=cms.vstring("highPurity")
 
-trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone()
+trackValidator= Validation.RecoTrack.MultiTrackValidator_cfi.multiTrackValidator.clone(UseAssociators = cms.bool(False))
 
 trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    cms.InputTag("cutsRecoTracksHp"),
@@ -132,6 +134,6 @@ tracksValidationSelectors = cms.Sequence( cutsRecoTracksHp*
                                 cutsRecoTracksTenthHp )
 
 # selectors go into separate "prevalidation" sequence
-tracksValidation = cms.Sequence( tpClusterProducer * trackValidator)
+tracksValidation = cms.Sequence( tpClusterProducer * trackingParticleRecoTrackAsssociation * trackValidator)
 tracksValidationFS = cms.Sequence( trackValidator )
 
