@@ -47,6 +47,7 @@ namespace edmNew {
 
       struct Item {
 	Item(id_type i=0, int io=-1, size_type is=0) : id(i), offset(io), size(is){}
+	bool isValid() const { return offset>=0;}
 	id_type id;
 	int offset;
 	size_type size;
@@ -369,7 +370,7 @@ namespace edmNew {
 
     //------------------------------
 
-    // IdContainer const & ids() const { return m_ids;}
+    IdContainer const & ids() const { return m_ids;}
     DataContainer const & data() const { return  m_data;}
 
 
