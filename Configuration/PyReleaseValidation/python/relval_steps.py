@@ -619,7 +619,6 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 steps['RECO_ID']=merge([{'--hltProcess':'HLT2'},steps['RECO']])
 
 steps['RECOHI']=merge([hiDefaults,step3Defaults])
-steps['DIGIHISt3']=steps['DIGIHI']
 steps['DIGIHIMIXSt3']=merge([{'--himix':''}, steps['DIGIHI']])
 
 steps['RECOHID11St3']=merge([{
