@@ -57,9 +57,7 @@ public:
         RECO
     };
 
-    HLTExoticaSubAnalysis(const edm::Run & iRun, 
-			  const edm::EventSetup & iEventSetup,
-			  const edm::ParameterSet & pset,
+    HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
                           const std::string & analysisname);
     ~HLTExoticaSubAnalysis();
     void beginJob();

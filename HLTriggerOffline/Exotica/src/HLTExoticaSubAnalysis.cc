@@ -28,9 +28,7 @@
 #include <algorithm>
 
 /// Constructor
-HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::Run &iRun, 
-					     const edm::EventSetup & iSetup,
-					     const edm::ParameterSet & pset,
+HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
                                              const std::string & analysisname) :
     _pset(pset),
     _analysisname(analysisname),
@@ -99,11 +97,87 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::Run &iRun,
     /// Get the minimum candidates, for this particular analysis.
     _minCandidates = anpset.getParameter<unsigned int>("minCandidates");
 
-    /// Finally, construct the plotters right here.
+} /// End Constructor
+
+HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis()
+{
+    for (std::map<unsigned int, StringCutObjectSelector<reco::GenParticle>* >::iterator it = _genSelectorMap.begin();
+         it != _genSelectorMap.end(); ++it) {
+        delete it->second;
+        it->second = 0;
+    }
+    delete _recMuonSelector;
+    _recMuonSelector = 0;
+    delete _recElecSelector;
+    _recElecSelector = 0;
+    delete _recPhotonSelector;
+    _recPhotonSelector = 0;
+    delete _recPFMETSelector;
+    _recPFMETSelector = 0;
+    delete _recPFTauSelector;
+    _recPFTauSelector = 0;
+    delete _recJetSelector;
+    _recJetSelector = 0;
+}
+
+
+void HLTExoticaSubAnalysis::beginJob()
+{
+}
+
+
+// 2014-02-03 -- Thiago
+// Due to the fact that the DQM has to be thread safe now, we have to do things differently:
+// 1) Implement the bookHistograms() method in the container class
+// 2) Make the iBooker from above be known to this class
+// 3) Separate all booking histograms routines in this and any auxiliary classe to be called
+// from bookHistograms() in the container class
+void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
+                                                  const edm::Run & iRun,
+                                                  const edm::EventSetup & iSetup)
+{
+    
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::subAnalysisBookHistos()";
+
+    // Create the folder structure inside HLT/Exotica
+    std::string baseDir = "HLT/Exotica/" + _analysisname + "/";
+    iBooker.setCurrentFolder(baseDir);
+
+    // Book the gen/reco analysis-dependent histograms (denominators)
+    for (std::map<unsigned int, std::string>::const_iterator it = _recLabels.begin();
+         it != _recLabels.end(); ++it) {
+        const std::string objStr = EVTColContainer::getTypeString(it->first);
+        std::vector<std::string> sources(2);
+        sources[0] = "gen";
+        sources[1] = "rec";
+	
+        for (size_t i = 0; i < sources.size(); i++) {
+            std::string source = sources[i];
+            bookHist(iBooker, source, objStr, "Eta");
+            bookHist(iBooker, source, objStr, "Phi");
+            bookHist(iBooker, source, objStr, "MaxPt1");
+            bookHist(iBooker, source, objStr, "MaxPt2");
+        }
+    } // closes loop in _recLabels
+
+    // Call the plotterBookHistos() (which books all the path dependent histograms)
+    LogDebug("ExoticaValidation") << "                        number of plotters = " << _plotters.size();
+    for (std::vector<HLTExoticaPlotter>::iterator it = _plotters.begin();
+         it != _plotters.end(); ++it) {
+	it->plotterBookHistos(iBooker, iRun, iSetup);
+    }
+}
+
+void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
+{
+
+    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::beginRun()";
+    
+    /// Construct the plotters right here.
     /// For that we need to create the _hltPaths vector.
 
     // Initialize the HLT config.
-    bool changedConfig;
+    bool changedConfig(true);
     if (!_hltConfig.init(iRun, iSetup, _hltProcessName, changedConfig)) {
         edm::LogError("ExoticaValidation") << "HLTExoticaSubAnalysis::constructor(): "
                                            << "Initialization of HLTConfigProvider failed!";
@@ -131,7 +205,7 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::Run &iRun,
                                                  << _analysisname << " subfolder NOT found the path: '"
                                                  << _hltPathsToCheck[i] << "*'" ;
         }
-    } // Close loop over paths fo check.
+    } // Close loop over paths to check.
     
     // At this point, _hltpaths contains the names of the paths to check
     // that were found. Let's log it at trace level.
@@ -184,81 +258,6 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::Run &iRun,
         HLTExoticaPlotter analyzer(_pset, shortpath, objsNeedHLT);
         _plotters.push_back(analyzer);
     }// Okay, at this point we have prepared all the plotters.
-
-} /// End Constructor
-
-HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis()
-{
-    for (std::map<unsigned int, StringCutObjectSelector<reco::GenParticle>* >::iterator it = _genSelectorMap.begin();
-         it != _genSelectorMap.end(); ++it) {
-        delete it->second;
-        it->second = 0;
-    }
-    delete _recMuonSelector;
-    _recMuonSelector = 0;
-    delete _recElecSelector;
-    _recElecSelector = 0;
-    delete _recPhotonSelector;
-    _recPhotonSelector = 0;
-    delete _recPFMETSelector;
-    _recPFMETSelector = 0;
-    delete _recPFTauSelector;
-    _recPFTauSelector = 0;
-    delete _recJetSelector;
-    _recJetSelector = 0;
-}
-
-
-void HLTExoticaSubAnalysis::beginJob()
-{
-}
-
-
-// 2014-02-03 -- Thiago
-// Due to the fact that the DQM has to be thread safe now, we have to do things differently:
-// 1) Implement the bookHistograms method in the container class
-// 2) Split beginRun() into subAnalysisBookHistos() and dqmBeginRun()
-// 3) Make the iBooker from above be known to this class
-void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
-                                                  const edm::Run & iRun,
-                                                  const edm::EventSetup & iSetup)
-{
-    
-    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::subAnalysisBookHistos()";
-
-    // Create the folder structure inside HLT/Exotica
-    std::string baseDir = "HLT/Exotica/" + _analysisname + "/";
-    iBooker.setCurrentFolder(baseDir);
-
-    // Book the gen/reco analysis-dependent histograms (denominators)
-    for (std::map<unsigned int, std::string>::const_iterator it = _recLabels.begin();
-         it != _recLabels.end(); ++it) {
-        const std::string objStr = EVTColContainer::getTypeString(it->first);
-        std::vector<std::string> sources(2);
-        sources[0] = "gen";
-        sources[1] = "rec";
-	
-        for (size_t i = 0; i < sources.size(); i++) {
-            std::string source = sources[i];
-            bookHist(iBooker, source, objStr, "Eta");
-            bookHist(iBooker, source, objStr, "Phi");
-            bookHist(iBooker, source, objStr, "MaxPt1");
-            bookHist(iBooker, source, objStr, "MaxPt2");
-        }
-    } // closes loop in _recLabels
-
-    // Call the beginRun (which books all the path dependent histograms)
-    LogDebug("ExoticaValidation") << "                        number of plotters = " << _plotters.size();
-    for (std::vector<HLTExoticaPlotter>::iterator it = _plotters.begin();
-         it != _plotters.end(); ++it) {
-	it->plotterBookHistos(iBooker, iRun, iSetup);
-    }
-}
-
-void HLTExoticaSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
-{
-
-    LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::beginRun()";
 
 }
 

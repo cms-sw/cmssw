@@ -4,7 +4,7 @@ HighPtDielectronPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v",
         ),
-    recElecLabel  = cms.string("gsfElectrons"),
+    recElecLabel  = cms.string("gedGsfElectrons"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(2),
     # -- Analysis specific binnings
