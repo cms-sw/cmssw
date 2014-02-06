@@ -45,9 +45,6 @@ namespace cms
     virtual void produceBase(edm::Event& e, const edm::EventSetup& es);
 
   protected:
-
-    edm::ParameterSet conf_;
-
     bool theTrackCandidateOutput;
     bool theTrajectoryOutput;
     bool useSplitting;
@@ -64,6 +61,7 @@ namespace cms
 
     std::unique_ptr<TransientInitialStateEstimator> theInitialState;
     
+    const std::string theMagFieldName;
     edm::ESHandle<MagneticField>                theMagField;
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
 
