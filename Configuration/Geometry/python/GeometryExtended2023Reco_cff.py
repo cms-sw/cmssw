@@ -36,6 +36,10 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
 )
 
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
+
+## Include EE and ES back temporarily
+from Geometry.CaloEventSetup.CaloGeometry_cff import *
+
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalTopology_cfi import *
