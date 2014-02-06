@@ -20,7 +20,19 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
-process.load('GEMCode.GEMValidation.GEMRecHitAnalyzer_cfi')
+from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
+GEMRecHitAnalyzer = cms.EDAnalyzer("GEMRecHitAnalyzer",
+    simTrackMatching = SimTrackMatching
+)
+process.GEMRecHitAnalyzer.simTrackMatching.gemStripDigi.input = ""
+process.GEMRecHitAnalyzer.simTrackMatching.gemPadDigi.input = ""
+process.GEMRecHitAnalyzer.simTrackMatching.gemCoPadDigi.input = ""
+process.GEMRecHitAnalyzer.simTrackMatching.cscStripDigi.input = ""
+process.GEMRecHitAnalyzer.simTrackMatching.cscWireDigi.input = ""
+process.GEMRecHitAnalyzer.simTrackMatching.cscCLCT.input = ""
+process.GEMRecHitAnalyzer.simTrackMatching.cscALCT.input = ""
+process.GEMRecHitAnalyzer.simTrackMatching.cscLCT.input = ""
+process.GEMRecHitAnalyzer.simTrackMatching.cscMPLCT.input = ""
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 

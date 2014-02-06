@@ -9,11 +9,12 @@ SimTrackMatching = cms.PSet(
     minNHitsChamber = cms.untracked.int32(4),
     ## per collection params
     simTrack = cms.PSet(
+        verbose = cms.int32(0),
         input = cms.InputTag('g4SimHits'),
         minPt = cms.double(1.5),
         maxPt = cms.double(999.),
-        minEta = cms.double(1.5),
-        maxEta = cms.double(2.5),
+        minEta = cms.double(1.45),
+        maxEta = cms.double(4.0),
         onlyMuon = cms.bool(True),
         requireVertex = cms.bool(True),
         requireGenPart = cms.bool(True),

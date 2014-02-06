@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GEMSIMANA")
+process = cms.Process("MUONSIMANA")
 
 ## Standard sequence
 process.load('Configuration.StandardSequences.Services_cff')
@@ -22,17 +22,20 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
-process.load('GEMCode.GEMValidation.GEMSimHitAnalyzer_cfi')
-process.GEMSimHitAnalyzer.simTrackMatching.gemStripDigi.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.gemPadDigi.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.gemCoPadDigi.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscStripDigi.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscWireDigi.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscCLCT.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscALCT.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscLCT.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.cscMPLCT.input = ""
-process.GEMSimHitAnalyzer.simTrackMatching.gemRecHit.input = ""
+from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
+MuonSimHitAnalyzer = cms.EDAnalyzer("MuonSimHitAnalyzer",
+    simTrackMatching = SimTrackMatching
+)
+process.MuonSimHitAnalyzer.simTrackMatching.gemStripDigi.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.gemPadDigi.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.gemCoPadDigi.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.cscStripDigi.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.cscWireDigi.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.cscCLCT.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.cscALCT.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.cscLCT.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.cscMPLCT.input = ""
+process.MuonSimHitAnalyzer.simTrackMatching.gemRecHit.input = ""
  
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -46,5 +49,5 @@ process.TFileService = cms.Service("TFileService",
   fileName = cms.string("gem_sh_ana.root")
 )
 
-process.p = cms.Path(process.GEMSimHitAnalyzer)
+process.p = cms.Path(process.MuonSimHitAnalyzer)
 
