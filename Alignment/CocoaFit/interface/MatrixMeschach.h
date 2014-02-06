@@ -26,6 +26,7 @@ extern "C" {
 #undef max
 #undef min
 #undef catch
+#undef Real
 
 class MatrixMeschach
 {
