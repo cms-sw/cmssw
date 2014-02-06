@@ -96,7 +96,7 @@
 ///
 ///     if( MyCnaRead->LookAtRootFile() == kFALSE )
 ///        {
-///          cout << "*** ERROR: ROOT file not found" << endl;
+///          std::cout << "*** ERROR: ROOT file not found" << std::endl;
 ///        }
 ///      else
 ///        {
@@ -122,7 +122,7 @@
 ///             }
 ///           else
 ///             {
-///               cout << "problem while reading file. data not available. " << endl;
+///               std::cout << "problem while reading file. data not available. " << std::endl;
 ////            }
 ///
 ///        }
