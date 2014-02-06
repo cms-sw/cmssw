@@ -49,6 +49,18 @@ SimHitMatcher::SimHitMatcher(const SimTrack& t, const SimVertex& v,
   simMuOnlyCSC_ = cscSimHit_.getParameter<bool>("simMuOnly");
   discardEleHitsCSC_ = cscSimHit_.getParameter<bool>("discardEleHits");
 
+  auto me0SimHit_ = conf().getParameter<edm::ParameterSet>("me0SimHit");
+  verboseME0_ = me0SimHit_.getParameter<int>("verbose");
+  me0SimHitInput_ = me0SimHit_.getParameter<edm::InputTag>("input");
+  simMuOnlyME0_ = me0SimHit_.getParameter<bool>("simMuOnly");
+  discardEleHitsME0_ = me0SimHit_.getParameter<bool>("discardEleHits");
+
+  auto rpcSimHit_ = conf().getParameter<edm::ParameterSet>("rpcSimHit");
+  verboseRPC_ = rpcSimHit_.getParameter<int>("verbose");
+  rpcSimHitInput_ = rpcSimHit_.getParameter<edm::InputTag>("input");
+  simMuOnlyRPC_ = rpcSimHit_.getParameter<bool>("simMuOnly");
+  discardEleHitsRPC_ = rpcSimHit_.getParameter<bool>("discardEleHits");
+
   simInputLabel_ = conf().getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
 
   setVerbose(conf().getUntrackedParameter<int>("verboseSimHit", 0));
