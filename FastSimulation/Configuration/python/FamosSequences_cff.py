@@ -377,7 +377,7 @@ elif(CaloMode==3):
             iterativeTracking
             )
         digitizationSequence = cms.Sequence(
-            cms.SequencePlaceholder("mix")+ # mixHitsAndTracks ?
+            cms.SequencePlaceholder("mixHitsAndTracks")+
             muonDigi+
             caloDigis
             )
