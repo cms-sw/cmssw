@@ -4,7 +4,6 @@ from RecoTracker.IterativeTracking.TobTecStep_cff import *
 
 # TRIPLET SEEDING LAYERS
 tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
-    ComponentName = cms.string('tobTecStepSeedLayersTripl'),
     layerList = cms.vstring(
     #TOB
     'TOB1+TOB2+MTOB3',

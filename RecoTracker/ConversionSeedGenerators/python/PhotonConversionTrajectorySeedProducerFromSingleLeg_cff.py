@@ -29,7 +29,6 @@ convStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverte
     )
 
 convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
-                                ComponentName = cms.string('convLayerPairs'),
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 

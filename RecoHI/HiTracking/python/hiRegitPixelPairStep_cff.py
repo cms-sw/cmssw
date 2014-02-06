@@ -30,9 +30,7 @@ hiRegitPixelPairStepClusters = cms.EDProducer("TrackClusterRemover",
 
 
 # SEEDING LAYERS
-hiRegitPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone(
-    ComponentName = 'hiRegitPixelPairStepSeedLayers'
-    )
+hiRegitPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone()
 hiRegitPixelPairStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitPixelPairStepClusters')
 hiRegitPixelPairStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitPixelPairStepClusters')
 
@@ -101,6 +99,7 @@ hiRegitPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
     ) #end of clone  
 
 hiRegitPixelPairStep = cms.Sequence(hiRegitPixelPairStepClusters*
+                                    hiRegitPixelPairStepSeedLayers*
                                     hiRegitPixelPairStepSeeds*
                                     hiRegitPixelPairStepTrackCandidates*
                                     hiRegitPixelPairStepTracks*
