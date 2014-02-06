@@ -21,7 +21,7 @@
 
 #include "RecoTracker/ConversionSeedGenerators/interface/CombinedHitPairGeneratorForPhotonConversion.h"
 
-#include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
+#include "RecoTracker/TkSeedGenerator/interface/ClusterChecker.h"
 #include "RecoTracker/TkTrackingRegions/plugins/GlobalTrackingRegionProducerFromBeamSpot.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 

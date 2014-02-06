@@ -8,6 +8,11 @@
 
 ClusterChecker::ClusterChecker(const edm::ParameterSet & conf,
 	edm::ConsumesCollector && iC):
+  ClusterChecker(conf, iC)
+{}
+
+ClusterChecker::ClusterChecker(const edm::ParameterSet & conf,
+	edm::ConsumesCollector & iC):
     doACheck_(conf.getParameter<bool>("doClusterCheck")),
     selector_(conf.getParameter<bool>("doClusterCheck") && conf.existsAs<std::string>("cut") ?
                 conf.getParameter<std::string>("cut") : 

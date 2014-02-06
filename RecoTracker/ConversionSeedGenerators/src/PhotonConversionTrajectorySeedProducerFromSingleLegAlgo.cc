@@ -19,7 +19,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
    hitsfactoryPSet(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet")),   
    creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
    regfactoryPSet(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet")),
-   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), std::move(iC)),
+   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
    theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)),
    _vtxMinDoF(conf.getParameter<double>("vtxMinDoF")),
    _maxDZSigmas(conf.getParameter<double>("maxDZSigmas")),
@@ -33,7 +33,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
   token_bs          = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
   token_refitter    = iC.consumes<reco::TrackCollection>(_conf.getParameter<edm::InputTag>("TrackRefitter"));
   theHitsGenerator.reset(new CombinedHitPairGeneratorForPhotonConversion(hitsfactoryPSet, iC));
-  theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, std::move(iC));
+  theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, iC);
   init();  
 }
 
