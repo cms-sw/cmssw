@@ -31,14 +31,14 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaRun.h
-///   Update: 16/02/2011
+///   Update: 05/10/2012
 ///   Authors:   B.Fabbro (bernard.fabbro@cea.fr), FX Gentit
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
 ///
 ///   ECNA web page:
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
+///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///-----------------------------------------------------------
 ///
 /// TEcnaRun + ECNA (Ecal Correlated Noise Analysis) instructions for use 
@@ -504,7 +504,7 @@ class TEcnaRun: public TObject {
   Int_t**     fT2dCrysNumbersTable;
   Int_t*      fT1dCrysNumbersTable;
 
-  std::ofstream    fFcout_f;
+  ofstream    fFcout_f;
 
   Int_t       fFlagPrint;
   Int_t       fCodePrintComments, fCodePrintWarnings, fCodePrintAllComments, fCodePrintNoComment;

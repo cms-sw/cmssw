@@ -149,7 +149,7 @@ ca15PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
     )
 
 cmsTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
-hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
+hepTopTagPFJetsCHS.src = cms.InputTag("pfNoPileUpJME")
 
 recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            iterativeCone5PFJets+
@@ -160,7 +160,7 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            fixedGridRhoFastjetAll+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
-                           ak5PFJets+ak8PFJets+
+                           ak4PFJets+ak5PFJets+ak8PFJets+
                            pfNoPileUpJMESequence+
                            ak5PFJetsCHS+
                            ak4PFJetsCHS+                           

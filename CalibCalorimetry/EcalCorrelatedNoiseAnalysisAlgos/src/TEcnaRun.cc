@@ -1,9 +1,8 @@
 //----------Author's Names: B.Fabbro, FX Gentit DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 24/03/2011
+//----------Modified: 30/01/2014
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRun.h"
-using namespace std;
 
 //--------------------------------------
 //  TEcnaRun.cc
@@ -128,6 +127,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet, const Int
 	   << fTTBELL << endl;
       fNbSampForFic = fEcal->MaxSampADC(); // DEFAULT Number of samples for file reading
     }
+
 }
 
 //.... return true or false according to the existence of the path. The path itself is in an attribute of fCnaParPaths.
@@ -280,9 +280,11 @@ void  TEcnaRun::SetEcalSubDetector(const TString& SubDet)
   fFlagSubDet.Resize(MaxCar);
   fFlagSubDet = SubDet.Data();
 
+
   fEcal          = 0; fEcal          = new TEcnaParEcal(fFlagSubDet.Data());           //fCnew++;
   fEcalNumbering = 0; fEcalNumbering = new TEcnaNumbering(fFlagSubDet.Data(), fEcal);  //fCnew++;
   fCnaWrite      = 0;
+
   fCnaWrite =
     new TEcnaWrite(fFlagSubDet.Data(), fCnaParPaths, fCnaParCout, fEcal, fEcalNumbering); //fCnew++;
 
