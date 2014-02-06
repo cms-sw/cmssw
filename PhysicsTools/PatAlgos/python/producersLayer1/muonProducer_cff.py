@@ -4,11 +4,10 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 
+from PhysicsTools.PatAlgos.recoLayer0.pfParticleSelectionForIso_cff import *
 from CommonTools.ParticleFlow.Isolation.pfMuonIsolation_cff import *
 
-sourceMuons = 'muons'
-
-patMuons.muonSource = sourceMuons
+sourceMuons = patMuons.muonSource
 
 muPFIsoDepositCharged.src = sourceMuons
 muPFIsoDepositChargedAll.src = sourceMuons
@@ -34,6 +33,7 @@ patMuons.isolationValues = cms.PSet(
 
 ## for scheduled mode
 makePatMuons = cms.Sequence(
+    pfParticleSelectionForIsoSequence *
     pfMuonIsolationSequence *
     muonMatch *
     patMuons

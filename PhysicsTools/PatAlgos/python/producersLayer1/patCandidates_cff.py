@@ -6,7 +6,6 @@ from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.photonProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cff import *
-from PhysicsTools.PatAlgos.recoLayer0.pileUpSubtraction_cff import *
 
 ## module to count objects
 patCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
@@ -23,7 +22,6 @@ patCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
 
 ## for scheduled mode
 patCandidates = cms.Sequence(
-    PATPileUpSubtractionSequence +
     makePatElectrons +
     makePatMuons     +
     makePatTaus      +
