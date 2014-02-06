@@ -1,4 +1,4 @@
-<library   name="DPGAnalysisSiStripToolsMacros" file="*.cc">
+<library   name="ValidationRecoVertexMacros" file="*.cc">
 <use   name="DPGAnalysis/SiStripTools"/>
 <use   name="root"/>
 <use   name="rootcintex"/>

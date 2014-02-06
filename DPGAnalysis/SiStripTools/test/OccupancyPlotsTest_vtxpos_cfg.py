@@ -94,6 +94,20 @@ process.spclusmultprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
                                         wantedSubDets = cms.VPSet()
                                         )
 process.spclusmultprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
+process.spclusmultprod.wantedSubDets.extend(cms.VPSet(
+    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("Pixel")),
+    cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("BPIX")),
+    cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("FPIX")),
+    cms.PSet(detSelection=cms.uint32(11),detLabel=cms.string("BPIX_L1"),selection=cms.untracked.vstring("0x1e0f0000-0x12010000")),
+    cms.PSet(detSelection=cms.uint32(12),detLabel=cms.string("BPIX_L2"),selection=cms.untracked.vstring("0x1e0f0000-0x12020000")),
+    cms.PSet(detSelection=cms.uint32(13),detLabel=cms.string("BPIX_L3"),selection=cms.untracked.vstring("0x1e0f0000-0x12030000")),
+    cms.PSet(detSelection=cms.uint32(21),detLabel=cms.string("FPIX_m"),selection=cms.untracked.vstring("0x1f800000-0x14800000")),
+    cms.PSet(detSelection=cms.uint32(22),detLabel=cms.string("FPIX_p"),selection=cms.untracked.vstring("0x1f800000-0x15000000")),
+    cms.PSet(detSelection=cms.uint32(99),detLabel=cms.string("Lumi"),selection=cms.untracked.vstring("0x1e0f0000-0x12020000",
+                                                                                                     "0x1e0f0000-0x12030000",
+                                                                                                     "0x1f800000-0x14800000",
+                                                                                                     "0x1f800000-0x15000000"))
+))
 
 process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
                                         clusterdigiCollection = cms.InputTag("siPixelClusters"),
@@ -121,8 +135,31 @@ process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
 process.alloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"),cms.InputTag("ssclusmultprod"))
 process.alloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"),cms.InputTag("ssclusoccuprod"))
 
+process.load("DPGAnalysis.SiStripTools.spclusmultvtxposcorr_cfi")
+process.spclusmultvtxposcorr.multiplicityMap = cms.InputTag("spclusmultprod")
+process.spclusmultvtxposcorr.digiVtxPosCorrConfig.wantedSubDets = cms.untracked.VPSet(    
+    cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("Pixel"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("BPIX"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(11),detLabel = cms.string("BPIX_L1"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(12),detLabel = cms.string("BPIX_L2"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(13),detLabel = cms.string("BPIX_L3"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(2),detLabel = cms.string("FPIX"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(21),detLabel = cms.string("FPIX_m"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(22),detLabel = cms.string("FPIX_p"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(99),detLabel = cms.string("Lumi"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(111),detLabel = cms.string("BPIX_L1_mod_1"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(112),detLabel = cms.string("BPIX_L1_mod_2"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(113),detLabel = cms.string("BPIX_L1_mod_3"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(114),detLabel = cms.string("BPIX_L1_mod_4"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(115),detLabel = cms.string("BPIX_L1_mod_5"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(116),detLabel = cms.string("BPIX_L1_mod_6"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(117),detLabel = cms.string("BPIX_L1_mod_7"), binMax = cms.int32(200000)),
+    cms.PSet(detSelection = cms.uint32(118),detLabel = cms.string("BPIX_L1_mod_8"), binMax = cms.int32(200000))
+    )
+
 
 process.load("TrackingPFG.Utilities.bxlumianalyzer_cfi")
+process.load("Validation.RecoVertex.mcverticesanalyzer_cfi")
 
 process.goodVertices = cms.EDFilter("VertexSelector",
    src = cms.InputTag("offlinePrimaryVertices"),
@@ -137,7 +174,8 @@ process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoProfile=cms.untracked.
 process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile=cms.untracked.bool(False)
 
 process.seqAnalyzers = cms.Sequence(process.bxlumianalyzer + process.goodVertices + process.primaryvertexanalyzer +
-                                    process.occupancyplots + process.pixeloccupancyplots + process.alloccupancyplots) 
+                                    process.occupancyplots + process.pixeloccupancyplots + process.alloccupancyplots +
+                                    process.spclusmultvtxposcorr + process.mcverticesanalyzer ) 
 
 #-------------------------------------------------------------------------------------------
 
@@ -172,7 +210,7 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.TFileService = cms.Service('TFileService',
 #                                   fileName = cms.string('OccupancyPlotsTest_newschema.root')
-                                   fileName = cms.string('OccupancyPlotsTest_simplified_newschema_corrected.root')
+                                   fileName = cms.string('OccupancyPlotsTest_vtxpos.root')
                                    )
 
 
