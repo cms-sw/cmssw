@@ -33,11 +33,14 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
 
   moduleName = cfg.getParameter<std::string>("@module_label");
 
+  edm::ParameterSet creatorPSet =
+      theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+
   // seed merger & its settings
   edm::ConsumesCollector iC = consumesCollector();
   if ( cfg.exists("SeedMergerPSet")) {
     edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
-    theMerger_=new QuadrupletSeedMerger(mergerPSet.getParameter<edm::ParameterSet>( "layerList" ), iC);
+    theMerger_=new QuadrupletSeedMerger(mergerPSet.getParameter<edm::ParameterSet>( "layerList" ), creatorPSet, iC);
     theMerger_->setTTRHBuilderLabel( mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" ) );
     theMerger_->setMergeTriplets( mergerPSet.getParameter<bool>( "mergeTriplets" ) );
     theMerger_->setAddRemainingTriplets( mergerPSet.getParameter<bool>( "addRemainingTriplets" ) );
@@ -60,8 +63,6 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   SeedComparitor * aComparitor = (comparitorName == "none") ?
       0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet, iC);
 
-  edm::ParameterSet creatorPSet =
-      theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string creatorName = creatorPSet.getParameter<std::string>("ComponentName");
   SeedCreator * aCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet);
 
@@ -113,7 +114,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
     // make quadruplets
     // (TODO: can partly be propagated to the merger)
     if ( theMerger_ !=0 ) {
-      TrajectorySeedCollection const& tempQuads = theMerger_->mergeTriplets( *triplets, region, es, theConfig ); //@@
+      TrajectorySeedCollection const& tempQuads = theMerger_->mergeTriplets( *triplets, region, es); //@@
       for( TrajectorySeedCollection::const_iterator qIt = tempQuads.begin(); qIt < tempQuads.end(); ++qIt ) {
 	quadruplets->push_back( *qIt );
       }
