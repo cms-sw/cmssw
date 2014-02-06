@@ -93,7 +93,7 @@ RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface &tsos,
   } else { // different alignable => transform into correct frame
     const AlgebraicMatrix deriv = KarimakiAlignmentDerivatives()(tsos);
     FrameToFrameDerivative ftfd;
-    return ftfd.frameToFrameDerivative(alidet, ali) * deriv;
+    return ftfd.frameToFrameDerivative(alidet, ali).T() * deriv;
   }
 }
 
