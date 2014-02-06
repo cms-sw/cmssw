@@ -21,9 +21,11 @@ if (MixingMode=='DigiRecoMixing'):
 #    generalTracksBeforeMixing = FastSimulation.Tracking.GeneralTracks_cfi.generalTracks.clone()
     trackExtrapolator.trackSrc = cms.InputTag("generalTracksBeforeMixing")
     lastTrackingSteps = cms.Sequence(generalTracksBeforeMixing+trackExtrapolator)
-else:
+elif (MixingMode=='GenMixing'):
     lastTrackingSteps = cms.Sequence(generalTracks+trackExtrapolator)
-
+else:
+    print 'unsupported MixingMode label'
+        
 import RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi
 MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi.MeasurementTrackerEvent.clone(
     pixelClusterProducer = '',

@@ -36,5 +36,7 @@ generalTracksBase = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackLis
 from FastSimulation.Configuration.CommonInputs_cff import MixingMode
 if (MixingMode=='GenMixing'):
     generalTracks = generalTracksBase.clone()
-else: 
+elif (MixingMode=='DigiRecoMixing'):
     generalTracksBeforeMixing = generalTracksBase.clone()
+else: 
+    print 'unsupported MixingMode label'
