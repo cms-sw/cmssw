@@ -7,9 +7,6 @@
 #include <string>
 #include <vector>
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/DQMObjects/interface/Serialization.h"
-
 namespace popcon {
   DQMSummarySourceHandler::DQMSummarySourceHandler(const edm::ParameterSet & pset):
     m_name(pset.getUntrackedParameter<std::string>("name","DQMSummarySourceHandler")),

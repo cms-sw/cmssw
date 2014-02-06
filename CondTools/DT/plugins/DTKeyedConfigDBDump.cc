@@ -21,9 +21,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/DTObjects/interface/Serialization.h"
-
 //---------------
 // C++ Headers --
 //---------------

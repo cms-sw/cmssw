@@ -29,9 +29,6 @@
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralBase/Attribute.h"
 
-#include "CondFormats/Common/interface/Serialization.h"
-#include "CondFormats/DTObjects/interface/Serialization.h"
-
 //---------------
 // C++ Headers --
 //---------------
