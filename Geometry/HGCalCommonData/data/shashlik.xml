@@ -8,6 +8,7 @@
   <Constant name="rMinSHCal2" value="[etaMax:slope]*[zSHCal2]"/>
   <Constant name="rMaxSHCal1" value="159.0*cm"/>
   <Constant name="rMaxSHCal2" value="181.2*cm"/>
+  <Constant name="deltaZ"     value="2*cm"/>
 </ConstantsSection>
 
 <SolidSection label="shashlik.xml">
@@ -36,4 +37,19 @@
     <rRotation name="rotations:180D"/>
   </PosPart>
 </PosPartSection>
+
+ <Algorithm name="shashlik:DDShashlikEndcap">
+  <rParent name="SHCalEE"/>
+  <String name="ChildName" value="shashliksupermodule:ShashlikSupermodule"/>
+  <Numeric name="n" value="25"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo"  value="1"/>
+  <Numeric name="invert"      value="1"/>
+  <Numeric name="stepAngle"   value="atan((2.5*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]) ) / [shashlikmodule:moduleThickness] )"/>
+  <Numeric name="startAngle"  value="0*deg"/>
+  <Numeric name="rPosition"   value="[rMinSHCal1]"/>
+  <Numeric name="xyoffset"    value="2.5*([shashlikmodule:widthFront]+[shashlikmodule:widthBack])"/>
+  <Numeric name="zoffset"     value="[zSHCal1] + [shashlikmodule:moduleThickness] + [deltaZ]"/>
+ </Algorithm>
+
 </DDDefinition>
