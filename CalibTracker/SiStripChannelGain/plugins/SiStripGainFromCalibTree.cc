@@ -141,7 +141,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       edm::Service<TFileService> tfs;
 
   DQMStore* dbe;
-  
+  bool harvestingMode;
 
       double       MinNrEntries;
       double       MaxMPVError;
@@ -186,6 +186,8 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       unsigned int GOOD;
       unsigned int BAD;
 
+  
+
    private :
       class isEqual{
          public:
@@ -223,7 +225,7 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
    useCalibration      = iConfig.getUntrackedParameter<bool>("UseCalibration", false);
    m_calibrationPath   = iConfig.getUntrackedParameter<string>("calibrationPath");
-
+   harvestingMode      = iConfig.getUntrackedParameter<bool>("harvestingMode", false);
 
    dbe = edm::Service<DQMStore>().operator->();
 
@@ -233,21 +235,35 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 //void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
   
-  // FIXME: add a swithc: if the histos are not booked should be just retrieved from DQMStore so that tehy can be used in the fit
+  if(!harvestingMode) {
+    // FIXME: decide what should be the folder name following the convention already there for ALCARECOS
+    dbe->setCurrentFolder("AlCaReco/SiStripGains/");
 
-  // FIXME: decide what should be the folder name following the convention already there for ALCARECOS
-  dbe->setCurrentFolder("AlCaReco/SiStripGains/");
+    Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
+    Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
+    Charge_Vs_PathlengthTIB   = dbe->book2D("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTOB   = dbe->book2D("Charge_Vs_PathlengthTOB"  , "Charge_Vs_PathlengthTOB"  , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTIDP  = dbe->book2D("Charge_Vs_PathlengthTIDP" , "Charge_Vs_PathlengthTIDP" , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTIDM  = dbe->book2D("Charge_Vs_PathlengthTIDM" , "Charge_Vs_PathlengthTIDM" , 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECP1 = dbe->book2D("Charge_Vs_PathlengthTECP1", "Charge_Vs_PathlengthTECP1", 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECP2 = dbe->book2D("Charge_Vs_PathlengthTECP2", "Charge_Vs_PathlengthTECP2", 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECM1 = dbe->book2D("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
+    Charge_Vs_PathlengthTECM2 = dbe->book2D("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
+  } else {
+    // When running in AlCaHarvesting mode the histos are already booked and should be just retrieved from
+    // DQMStore so that they can be used in the fit
+    Charge_Vs_Index           = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index");
+    Charge_Vs_Index_Absolute  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_Index_Absolute");
+    Charge_Vs_PathlengthTIB   = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIB");
+    Charge_Vs_PathlengthTOB   = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTOB");
+    Charge_Vs_PathlengthTIDP  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIDP");
+    Charge_Vs_PathlengthTIDM  = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTIDM");
+    Charge_Vs_PathlengthTECP1 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP1");
+    Charge_Vs_PathlengthTECP2 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECP2");
+    Charge_Vs_PathlengthTECM1 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM1");
+    Charge_Vs_PathlengthTECM2 = dbe->get("AlCaReco/SiStripGains/Charge_Vs_PathlengthTECM2");
 
-   Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
-   Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
-   Charge_Vs_PathlengthTIB   = dbe->book2D("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTOB   = dbe->book2D("Charge_Vs_PathlengthTOB"  , "Charge_Vs_PathlengthTOB"  , 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTIDP  = dbe->book2D("Charge_Vs_PathlengthTIDP" , "Charge_Vs_PathlengthTIDP" , 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTIDM  = dbe->book2D("Charge_Vs_PathlengthTIDM" , "Charge_Vs_PathlengthTIDM" , 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTECP1 = dbe->book2D("Charge_Vs_PathlengthTECP1", "Charge_Vs_PathlengthTECP1", 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTECP2 = dbe->book2D("Charge_Vs_PathlengthTECP2", "Charge_Vs_PathlengthTECP2", 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTECM1 = dbe->book2D("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTECM2 = dbe->book2D("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
+  }
 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
@@ -339,9 +355,14 @@ void
 SiStripGainFromCalibTree::algoEndJob() {
    printf("EndJob\n");
    if(AlgoMode=="CalibTree")algoAnalyzeTheTree();
-   algoComputeMPVandGain();
-   storeOnTree();
-
+   // FIXME: here put the switch to run the harvesting mode
+   
+   if(harvestingMode) {
+     // these methods are run only in "AlCaHarvesting" mode once the full statistics out of the parallel jobs is
+     // harvested and available in the MEs
+     algoComputeMPVandGain();
+     storeOnTree();
+   }
 }
 
 
@@ -754,6 +775,9 @@ void SiStripGainFromCalibTree::MakeCalibrationMap(){
 void
 SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // in AlCaHarvesting mode we just need to run the logic in the endJob step
+  if(harvestingMode) return;
+  
    if(AlgoMode=="CalibTree")return;
 
    if(NEvent==0){
