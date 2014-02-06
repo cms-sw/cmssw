@@ -25,7 +25,7 @@ process.options = cms.untracked.PSet(
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10_7E33v4')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10_8E33v2')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #-------------------------------------------------
