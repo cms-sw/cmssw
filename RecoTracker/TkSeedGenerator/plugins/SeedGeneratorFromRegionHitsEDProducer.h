@@ -17,9 +17,6 @@ public:
   SeedGeneratorFromRegionHitsEDProducer(const edm::ParameterSet& cfg);
   ~SeedGeneratorFromRegionHitsEDProducer();
 
-  virtual void beginRun(edm::Run const&run, const edm::EventSetup& es) override;
-  virtual void endRun(edm::Run const&run, const edm::EventSetup& es) override;
-
   virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
