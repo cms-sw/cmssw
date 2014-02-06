@@ -24,9 +24,9 @@ public:
 
 private:
   std::unique_ptr<SeedGeneratorFromRegionHits> theGenerator;
-  TrackingRegionProducer* theRegionProducer;
+  std::unique_ptr<TrackingRegionProducer> theRegionProducer;
   ClusterChecker theClusterCheck;
-  QuadrupletSeedMerger *theMerger_;
+  std::unique_ptr<QuadrupletSeedMerger> theMerger_;
 
   std::string moduleName;
 
