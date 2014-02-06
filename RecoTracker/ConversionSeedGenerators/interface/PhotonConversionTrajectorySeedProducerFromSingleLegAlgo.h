@@ -64,10 +64,10 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   TrajectorySeedCollection *seedCollectionOfSourceTracks;
   std::unique_ptr<CombinedHitPairGeneratorForPhotonConversion> theHitsGenerator;
   SeedForPhotonConversion1Leg *theSeedCreator;
-  GlobalTrackingRegionProducerFromBeamSpot* theRegionProducer;
+  std::unique_ptr<GlobalTrackingRegionProducerFromBeamSpot> theRegionProducer;
 
 
-  edm::ParameterSet hitsfactoryPSet,creatorPSet,regfactoryPSet;
+  edm::ParameterSet creatorPSet;
 
   ClusterChecker theClusterCheck;
   bool theSilentOnClusterCheck;
