@@ -196,7 +196,7 @@ expertSettings.add_option("--himix",
                  action="store_true",
                  default=defaultOptions.himix,
                  dest="himix")
-                                                    
+
 expertSettings.add_option("--python_filename",
                           help="Change the name of the created config file ",
                           default='',

@@ -69,7 +69,7 @@ defaultOptions.io=None
 defaultOptions.lumiToProcess=None
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
-
+ 
 # some helper routines
 def dumpPython(process,name):
         theObject = getattr(process,name)
@@ -923,10 +923,7 @@ class ConfigBuilder(object):
 	    if not self._options.beamspot:
 		    self._options.beamspot=VtxSmearedHIDefaultKey
             self.HLTDefaultSeq = 'HIon'
-            if not self._options.himix:
-                    self.GENDefaultSeq='pgen_hi'
-            else:
-                    self.GENDefaultSeq='pgen_himix'
+	    self.GENDefaultSeq='pgen_hi'
             self.VALIDATIONDefaultCFF="Configuration/StandardSequences/ValidationHeavyIons_cff"
             self.VALIDATIONDefaultSeq=''
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
@@ -1316,9 +1313,9 @@ class ConfigBuilder(object):
         if self._options.gflash==True:
                 self.loadAndRemember("Configuration/StandardSequences/GFlashDIGI_cff")
 
-        if self._options.himix==True:
-            self.loadAndRemember("SimGeneral/MixingModule/himixDIGI_cff")
-
+	if self._options.himix==True:
+		self.loadAndRemember("Configuration/StandardSequences/DigiHiMix_cff")
+			  
 	if self._options.restoreRNDSeeds:
 		self.executeAndRemember("process.mix.playback = True")
 
