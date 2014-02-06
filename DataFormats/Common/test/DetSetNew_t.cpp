@@ -439,6 +439,20 @@ void TestDetSet::onDemand() {
   catch (edm::Exception const &) {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
   }
+  // no onDemand!
+  int i=0;
+  for (auto di = detsets.begin(false); di!=detsets.end(false); ++di) {
+    ++i;
+    auto ds = *di;
+    auto id = ds.id();
+    CPPUNIT_ASSERT(id>20&&id<28&& id%2==1);
+    if (21==id || 25==id) CPPUNIT_ASSERT(ds.isValid());
+    else CPPUNIT_ASSERT(!ds.isValid());
+  }
+  CPPUNIT_ASSERT(4==i);
+  CPPUNIT_ASSERT(g.ntot==1+5);
+
+  CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
 
   CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
   CPPUNIT_ASSERT(g.ntot==1+3+5+7);
