@@ -51,7 +51,6 @@ class ConversionTrackFinder {
 
  protected: 
   
-  edm::ParameterSet conf_;
   const MagneticField* theMF_;
 
   std::string theMeasurementTrackerName_;

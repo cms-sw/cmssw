@@ -13,7 +13,6 @@
 
 
 ConversionTrackFinder::ConversionTrackFinder(const edm::ParameterSet& conf ) :
-  conf_(conf), 
   theCkfTrajectoryBuilder_(0), 
   theInitialState_(new TransientInitialStateEstimator(conf.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters"))),
   theTrackerGeom_(0),
@@ -21,7 +20,7 @@ ConversionTrackFinder::ConversionTrackFinder(const edm::ParameterSet& conf ) :
   thePropagator_(0) 
 {
   //  std::cout << " ConversionTrackFinder base CTOR " << std::endl;
-  useSplitHits_ =  conf_.getParameter<bool>("useHitsSplitting");
+  useSplitHits_ =  conf.getParameter<bool>("useHitsSplitting");
 
   theMeasurementTrackerName_ = conf.getParameter<std::string>("MeasurementTrackerName");
 

@@ -27,7 +27,7 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::ParameterSet& 
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
 
  // get the seed cleaner
- std::string cleaner = conf_.getParameter<std::string>("InOutRedundantSeedCleaner");
+ std::string cleaner = conf.getParameter<std::string>("InOutRedundantSeedCleaner");
  if (cleaner == "SeedCleanerByHitPosition") {
    theSeedCleaner_ = new SeedCleanerByHitPosition();
  } else if (cleaner == "CachingSeedCleanerByHitPosition") {
