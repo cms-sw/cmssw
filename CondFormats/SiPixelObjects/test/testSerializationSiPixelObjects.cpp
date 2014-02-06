@@ -12,6 +12,7 @@ int main()
     testSerialization<SiPixelCPEGenericErrorParm::DbEntryBinSize>();
     testSerialization<SiPixelCalibConfiguration>();
     testSerialization<SiPixelDbItem>();
+    testSerialization<SiPixelDisabledModules>();
     //testSerialization<SiPixelFedCabling>(); abstract
     testSerialization<SiPixelFedCablingMap>();
     testSerialization<SiPixelFedCablingMap::Key>();
