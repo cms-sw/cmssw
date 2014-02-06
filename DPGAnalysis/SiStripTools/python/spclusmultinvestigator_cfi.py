@@ -6,12 +6,7 @@ spclusmultinvestigator = cms.EDAnalyzer('MultiplicityInvestigator',
                                         wantVtxCorrHist = cms.bool(False),
                                         wantLumiCorrHist = cms.bool(False),
                                         wantPileupCorrHist = cms.bool(False),
-                                        digiVtxCorrConfig = cms.PSet(),
-                                        digiLumiCorrConfig = cms.PSet(lumiProducer=cms.InputTag("")),
-                                        digiPileupCorrConfig = cms.PSet(
-                                                                        pileupSummaryCollection=cms.InputTag(""),
-                                                                        useVisibleVertices = cms.bool(False)
-                                                                        ),
+                                        wantVtxPosCorrHist = cms.bool(False),
                                         wantedSubDets = cms.untracked.VPSet(    
                                cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("Pixel"), binMax = cms.int32(200000)),
                                cms.PSet(detSelection = cms.uint32(1),detLabel = cms.string("BPIX"), binMax = cms.int32(100000)),
