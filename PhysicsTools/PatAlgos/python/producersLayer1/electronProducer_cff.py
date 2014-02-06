@@ -4,11 +4,10 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.electronMatch_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import *
 
+from PhysicsTools.PatAlgos.recoLayer0.pfParticleSelectionForIso_cff import *
 from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
 
-sourceElectrons = 'gedGsfElectrons'
-
-patElectrons.electronSource = sourceElectrons
+sourceElectrons = patElectrons.electronSource
 
 elPFIsoDepositCharged.src = sourceElectrons
 elPFIsoDepositChargedAll.src = sourceElectrons
@@ -42,6 +41,7 @@ patElectrons.isolationValuesNoPFId = cms.PSet(
 
 ## for scheduled mode
 makePatElectrons = cms.Sequence(
+    pfParticleSelectionForIsoSequence *
     pfElectronIsolationSequence *
     electronMatch *
     patElectrons
