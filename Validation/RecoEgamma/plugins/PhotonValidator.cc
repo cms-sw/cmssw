@@ -2687,7 +2687,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    }
 	    if( type == reco::PFCandidate::h0 ) {
 	      SumPtIsoValCleanNh += pfCandRef->pt();
-	      h_dRPhoPFcand_ChHad_Cleaned_[0]->Fill(dR);
+	      h_dRPhoPFcand_NeuHad_Cleaned_[0]->Fill(dR);
 	      if( phoIsInBarrel)
 		h_dRPhoPFcand_NeuHad_Cleaned_[1]->Fill(dR);
 	      else 
@@ -2695,7 +2695,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	    }
 	    if( type == reco::PFCandidate::gamma ) {
 	      SumPtIsoValCleanPh += pfCandRef->pt();
-	      h_dRPhoPFcand_ChHad_Cleaned_[0]->Fill(dR);
+	      h_dRPhoPFcand_Pho_Cleaned_[0]->Fill(dR);
 	      if( phoIsInBarrel)
 		h_dRPhoPFcand_Pho_Cleaned_[1]->Fill(dR);
 	      else 
