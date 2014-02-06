@@ -66,7 +66,7 @@ private:
       ModuleCallingContext const& mcc_;
     };
 
-    cms::Exception& exceptionContext(ModuleDescription const& iMD,
+    inline cms::Exception& exceptionContext(ModuleDescription const& iMD,
                                      cms::Exception& iEx) {
       iEx << iMD.moduleName() << "/" << iMD.moduleLabel() << "\n";
       return iEx;
