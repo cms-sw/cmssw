@@ -167,16 +167,16 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       std::string  OutputGains;
       vector<string> VInputFiles;
 
-      TH2F*        Charge_Vs_Index;
-      TH2F*        Charge_Vs_Index_Absolute;
-      TH2F*        Charge_Vs_PathlengthTIB;
-      TH2F*        Charge_Vs_PathlengthTOB;
-      TH2F*        Charge_Vs_PathlengthTIDP;
-      TH2F*        Charge_Vs_PathlengthTIDM;
-      TH2F*        Charge_Vs_PathlengthTECP1;
-      TH2F*        Charge_Vs_PathlengthTECP2;
-      TH2F*        Charge_Vs_PathlengthTECM1;
-      TH2F*        Charge_Vs_PathlengthTECM2;
+      MonitorElement*        Charge_Vs_Index;
+      MonitorElement*        Charge_Vs_Index_Absolute;
+      MonitorElement*        Charge_Vs_PathlengthTIB;
+      MonitorElement*        Charge_Vs_PathlengthTOB;
+      MonitorElement*        Charge_Vs_PathlengthTIDP;
+      MonitorElement*        Charge_Vs_PathlengthTIDM;
+      MonitorElement*        Charge_Vs_PathlengthTECP1;
+      MonitorElement*        Charge_Vs_PathlengthTECP2;
+      MonitorElement*        Charge_Vs_PathlengthTECM1;
+      MonitorElement*        Charge_Vs_PathlengthTECM2;
 
       unsigned int NEvent;    
       unsigned int NTrack;
@@ -237,17 +237,17 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 
   // FIXME: decide what should be the folder name following the convention already there for ALCARECOS
   dbe->setCurrentFolder("AlCaReco/SiStripGains/");
-  //dbe->book1D(histoName,histoTitle, maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
-   Charge_Vs_Index           = tfs->make<TH2F>("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
-   Charge_Vs_Index_Absolute  = tfs->make<TH2F>("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
-   Charge_Vs_PathlengthTIB   = tfs->make<TH2F>("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTOB   = tfs->make<TH2F>("Charge_Vs_PathlengthTOB"  , "Charge_Vs_PathlengthTOB"  , 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTIDP  = tfs->make<TH2F>("Charge_Vs_PathlengthTIDP" , "Charge_Vs_PathlengthTIDP" , 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTIDM  = tfs->make<TH2F>("Charge_Vs_PathlengthTIDM" , "Charge_Vs_PathlengthTIDM" , 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTECP1 = tfs->make<TH2F>("Charge_Vs_PathlengthTECP1", "Charge_Vs_PathlengthTECP1", 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTECP2 = tfs->make<TH2F>("Charge_Vs_PathlengthTECP2", "Charge_Vs_PathlengthTECP2", 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTECM1 = tfs->make<TH2F>("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
-   Charge_Vs_PathlengthTECM2 = tfs->make<TH2F>("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
+
+   Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 72785, 0   , 72784,1000,0,2000);
+   Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 72785, 0   , 72784, 500,0,2000);
+   Charge_Vs_PathlengthTIB   = dbe->book2D("Charge_Vs_PathlengthTIB"  , "Charge_Vs_PathlengthTIB"  , 20   , 0.3 , 1.3  , 250,0,2000);
+   Charge_Vs_PathlengthTOB   = dbe->book2D("Charge_Vs_PathlengthTOB"  , "Charge_Vs_PathlengthTOB"  , 20   , 0.3 , 1.3  , 250,0,2000);
+   Charge_Vs_PathlengthTIDP  = dbe->book2D("Charge_Vs_PathlengthTIDP" , "Charge_Vs_PathlengthTIDP" , 20   , 0.3 , 1.3  , 250,0,2000);
+   Charge_Vs_PathlengthTIDM  = dbe->book2D("Charge_Vs_PathlengthTIDM" , "Charge_Vs_PathlengthTIDM" , 20   , 0.3 , 1.3  , 250,0,2000);
+   Charge_Vs_PathlengthTECP1 = dbe->book2D("Charge_Vs_PathlengthTECP1", "Charge_Vs_PathlengthTECP1", 20   , 0.3 , 1.3  , 250,0,2000);
+   Charge_Vs_PathlengthTECP2 = dbe->book2D("Charge_Vs_PathlengthTECP2", "Charge_Vs_PathlengthTECP2", 20   , 0.3 , 1.3  , 250,0,2000);
+   Charge_Vs_PathlengthTECM1 = dbe->book2D("Charge_Vs_PathlengthTECM1", "Charge_Vs_PathlengthTECM1", 20   , 0.3 , 1.3  , 250,0,2000);
+   Charge_Vs_PathlengthTECM2 = dbe->book2D("Charge_Vs_PathlengthTECM2", "Charge_Vs_PathlengthTECM2", 20   , 0.3 , 1.3  , 250,0,2000);
 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
@@ -283,7 +283,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
           for(unsigned int j=0;j<NAPV;j++){
                 stAPVGain* APV = new stAPVGain;
                 APV->Index         = Index;
-                APV->Bin           = Charge_Vs_Index->GetXaxis()->FindBin(APV->Index);
+                APV->Bin           = Charge_Vs_Index->getRefTH2D()->GetXaxis()->FindBin(APV->Index);
                 APV->DetId         = Detid.rawId();
                 APV->APVId         = j;
                 APV->SubDet        = SubDet;
@@ -541,7 +541,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
    //if(I>1000)break;
       stAPVGain* APV = it->second;
 
-      Proj = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV->Bin,APV->Bin,"e"));
+      Proj = (TH1D*)(Charge_Vs_Index->getRefTH2D()->ProjectionY("",APV->Bin,APV->Bin,"e"));
       if(!Proj)continue;
 
       if(CalibrationLevel==0){
@@ -549,7 +549,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
          int SecondAPVId = APV->APVId;
          if(SecondAPVId%2==0){    SecondAPVId = SecondAPVId+1; }else{ SecondAPVId = SecondAPVId-1; }
 	 stAPVGain* APV2 = APVsColl[(APV->DetId<<3) | SecondAPVId];
-         TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
+         TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->getRefTH2D()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
          if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
       }else if(CalibrationLevel==2){
           for(unsigned int i=0;i<6;i++){
@@ -558,7 +558,7 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
             if(tmpit==APVsColl.end())continue;
             stAPVGain* APV2 = tmpit->second;
 	    if(APV2->DetId != APV->DetId || APV2->APVId == APV->APVId)continue;            
-            TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
+            TH1D* Proj2 = (TH1D*)(Charge_Vs_Index->getRefTH2D()->ProjectionY("",APV2->Bin,APV2->Bin,"e"));
 //            if(Proj2 && APV->DetId==369171124)printf("B) DetId %6i APVId %1i --> NEntries = %f\n",APV2->DetId, APV2->APVId, Proj2->GetEntries());
             if(Proj2){Proj->Add(Proj2,1);delete Proj2;}
           }          
