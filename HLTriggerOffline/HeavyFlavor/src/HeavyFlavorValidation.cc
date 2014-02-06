@@ -55,6 +55,7 @@ class HeavyFlavorValidation : public DQMEDAnalyzer {
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
     ~HeavyFlavorValidation();
   protected:
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   private:
@@ -128,10 +129,7 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
   genParticlesTag = consumes<GenParticleCollection>(pset.getParameter<InputTag>("GenParticles"));
 }
 
-void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
-                                edm::Run const & iRun,
-                                edm::EventSetup const & iSetup) {
-
+void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup & iSetup ) {
 	//discover HLT configuration
 	HLTConfigProvider hltConfig;
 	bool isChanged;
@@ -171,13 +169,19 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 		return;
 	}else{
 		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Trigger Path: "<<triggerPathName<<" has filters:"<<os.str();
-	}
-	
-  ibooker.cd();
-  ibooker.setCurrentFolder((dqmFolder+"/")+triggerProcessName+"/"+triggerPathName);
+	}  
+}
 
-	//create Monitor Elements
-//	 Eta Pt Single  
+
+
+void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
+                                edm::Run const & iRun,
+                                edm::EventSetup const & iSetup) {
+          ibooker.cd();
+          ibooker.setCurrentFolder((dqmFolder+"/")+triggerProcessName+"/"+triggerPathName);
+
+	// create Monitor Elements
+	// Eta Pt Single  
 	  myBook2D(ibooker, "genMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
 	  myBook2D(ibooker, "globMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
 	  myBook2D(ibooker, "globMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
