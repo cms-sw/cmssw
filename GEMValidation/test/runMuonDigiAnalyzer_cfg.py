@@ -21,7 +21,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
 from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
-MuonDigiAnalyzer = cms.EDAnalyzer("MuonDigiAnalyzer",
+process.MuonDigiAnalyzer = cms.EDAnalyzer("MuonDigiAnalyzer",
     simTrackMatching = SimTrackMatching
 )
 process.MuonDigiAnalyzer.simTrackMatching.cscComparatorDigiInput = ""
@@ -30,6 +30,10 @@ process.MuonDigiAnalyzer.simTrackMatching.cscCLCTInput = ""
 process.MuonDigiAnalyzer.simTrackMatching.cscALCTInput = ""
 process.MuonDigiAnalyzer.simTrackMatching.cscLCTInput = ""
 process.MuonDigiAnalyzer.simTrackMatching.gemRecHitInput = ""
+process.MuonDigiAnalyzer.simTrackMatching.tfTrack.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.tfCand.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.gmtCand.input = ""
+process.MuonDigiAnalyzer.simTrackMatching.l1Extra.input = ""
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 

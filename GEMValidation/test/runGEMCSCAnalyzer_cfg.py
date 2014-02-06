@@ -20,9 +20,12 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
-process.load('GEMCode.GEMValidation.GEMCSCAnalyzer_cfi')
-process.GEMCSCAnalyzer.ntupleTrackChamberDelta = True
-process.GEMCSCAnalyzer.ntupleTrackEff = True
+from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
+process.GEMCSCAnalyzer = cms.EDAnalyzer("GEMCSCAnalyzer",
+    verbose = cms.untracked.int32(0),
+    stationsToUse = cms.vint32(1,2,3,4),
+    simTrackMatching = simTrackMatching
+)
 matching = process.GEMCSCAnalyzer.simTrackMatching
 matching.simTrack.minPt = 1.5
 matching.cscSimHit.minNHitsChamber = 3
@@ -33,6 +36,10 @@ matching.cscALCT.minNHitsChamber = 3
 matching.cscLCT.minNHitsChamber = 3
 matching.cscMPLCT.minNHitsChamber = 3
 matching.gemRecHit.input = ""
+matching.tfTrack.input = ""
+matching.tfCand.input = ""
+matching.gmtCand.input = ""
+matching.l1Extra.input = ""
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 

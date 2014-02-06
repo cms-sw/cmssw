@@ -116,4 +116,20 @@ SimTrackMatching = cms.PSet(
         minNHitsChamber = cms.int32(4),
         addGhosts = cms.bool(True),
     ),
+    tfTrack = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("simCsctfTrackDigis"),
+    ),
+    tfCand = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("simCsctfDigis", "CSC"),
+    ),
+    gmtCand = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("simGmtDigis"),
+    ),
+    l1Extra = cms.PSet(
+        verbose = cms.int32(0),
+        input = cms.InputTag("l1extraParticles"),
+    ),
 )

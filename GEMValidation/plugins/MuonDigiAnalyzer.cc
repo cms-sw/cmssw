@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    GEMDigiAnalyzer
-// Class:      GEMDigiAnalyzer
+// Package:    MuonDigiAnalyzer
+// Class:      MuonDigiAnalyzer
 // 
-/**\class GEMDigiAnalyzer GEMDigiAnalyzer.cc MyAnalyzers/GEMDigiAnalyzer/src/GEMDigiAnalyzer.cc
+/**\class MuonDigiAnalyzer MuonDigiAnalyzer.cc MyAnalyzers/MuonDigiAnalyzer/src/MuonDigiAnalyzer.cc
 
  Description: [one line class summary]
 
@@ -11,7 +11,7 @@
      [Notes on implementation]
 */
 //
-// $Id: GEMDigiAnalyzer.cc,v 1.9 2013/04/23 07:40:17 dildick Exp $
+// $Id: MuonDigiAnalyzer.cc,v 1.9 2013/04/23 07:40:17 dildick Exp $
 //
 //
 
@@ -132,13 +132,13 @@ struct MySimTrack
   Float_t gem_trk_eta, gem_trk_phi, gem_trk_rho;
 };
 
-class GEMDigiAnalyzer : public edm::EDAnalyzer 
+class MuonDigiAnalyzer : public edm::EDAnalyzer 
 {
 public:
   /// constructor
-  explicit GEMDigiAnalyzer(const edm::ParameterSet&);
+  explicit MuonDigiAnalyzer(const edm::ParameterSet&);
   /// destructor
-  ~GEMDigiAnalyzer();
+  ~MuonDigiAnalyzer();
 
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
@@ -220,7 +220,7 @@ private:
 //
 // constructors and destructor
 //
-GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet& ps)
+MuonDigiAnalyzer::MuonDigiAnalyzer(const edm::ParameterSet& ps)
 : hasGEMGeometry_(true)
 , hasRPCGeometry_(true)
 , hasME0Geometry_(true)
@@ -254,19 +254,19 @@ GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet& ps)
   bookSimTracksTree();
 }
 
-GEMDigiAnalyzer::~GEMDigiAnalyzer() 
+MuonDigiAnalyzer::~MuonDigiAnalyzer() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
-void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
+void MuonDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
   try {
     iSetup.get<MuonGeometryRecord>().get(gem_geo_);
     gem_geometry_ = &*gem_geo_;
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     hasGEMGeometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
+    edm::LogWarning("MuonDigiAnalyzer") 
       << "+++ Info: GEM geometry is unavailable. +++\n";
   }
   
@@ -275,7 +275,7 @@ void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     rpc_geometry_ = &*rpc_geo_;
   } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
     hasRPCGeometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
+    edm::LogWarning("MuonDigiAnalyzer") 
       << "+++ Info: RPC geometry is unavailable. +++\n";
   }
 
@@ -307,7 +307,7 @@ void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   }
 }
 
-void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   iEvent.getByLabel(rpcDigiInput_, rpc_digis);
   if (hasRPCGeometry_) analyzeRPC();
@@ -327,7 +327,7 @@ void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   if(hasGEMGeometry_) analyzeTracks(cfg_,iEvent,iSetup);  
 }
 
-void GEMDigiAnalyzer::bookRPCDigiTree()
+void MuonDigiAnalyzer::bookRPCDigiTree()
 {
   edm::Service<TFileService> fs;
   rpc_tree_ = fs->make<TTree>("RPCDigiTree", "RPCDigiTree");
@@ -351,7 +351,7 @@ void GEMDigiAnalyzer::bookRPCDigiTree()
   rpc_tree_->Branch("g_z", &rpc_digi_.g_z);
 }
 
-void GEMDigiAnalyzer::bookGEMDigiTree()
+void MuonDigiAnalyzer::bookGEMDigiTree()
 {
   edm::Service<TFileService> fs;
   gem_tree_ = fs->make<TTree>("GEMDigiTree", "GEMDigiTree");
@@ -374,7 +374,7 @@ void GEMDigiAnalyzer::bookGEMDigiTree()
   gem_tree_->Branch("g_z", &gem_digi_.g_z);
 }
 
-void GEMDigiAnalyzer::bookGEMCSCPadDigiTree()
+void MuonDigiAnalyzer::bookGEMCSCPadDigiTree()
 {
   edm::Service<TFileService> fs;
   gemcscpad_tree_ = fs->make<TTree>("GEMCSCPadDigiTree", "GEMCSCPadDigiTree");
@@ -397,7 +397,7 @@ void GEMDigiAnalyzer::bookGEMCSCPadDigiTree()
   gemcscpad_tree_->Branch("g_z", &gemcscpad_digi_.g_z);
 }
 
-void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
+void MuonDigiAnalyzer::bookGEMCSCCoPadDigiTree()
 {
   edm::Service<TFileService> fs;
   gemcsccopad_tree_ = fs->make<TTree>("GEMCSCCoPadDigiTree", "GEMCSCCoPadDigiTree");
@@ -420,7 +420,7 @@ void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
   gemcsccopad_tree_->Branch("g_z", &gemcsccopad_digi_.g_z);
 }
 
- void GEMDigiAnalyzer::bookSimTracksTree()
+ void MuonDigiAnalyzer::bookSimTracksTree()
  {
    edm::Service< TFileService > fs;
    track_tree_ = fs->make<TTree>("TrackTree", "TrackTree");
@@ -456,16 +456,16 @@ void GEMDigiAnalyzer::bookGEMCSCCoPadDigiTree()
  }
 
 // ------------ method called for each event  ------------
-void GEMDigiAnalyzer::beginJob()
+void MuonDigiAnalyzer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void GEMDigiAnalyzer::endJob() 
+void MuonDigiAnalyzer::endJob() 
 {
 }
 // ======= RPC ========
-void GEMDigiAnalyzer::analyzeRPC()
+void MuonDigiAnalyzer::analyzeRPC()
 {
   //Loop over RPC digi collection
   for(RPCDigiCollection::DigiRangeIterator cItr = rpc_digis->begin(); cItr != rpc_digis->end(); ++cItr)
@@ -514,7 +514,7 @@ void GEMDigiAnalyzer::analyzeRPC()
 
 
 // ======= GEM ========
-void GEMDigiAnalyzer::analyzeGEM()
+void MuonDigiAnalyzer::analyzeGEM()
 {
   //Loop over GEM digi collection
   for(GEMDigiCollection::DigiRangeIterator cItr = gem_digis->begin(); cItr != gem_digis->end(); ++cItr)
@@ -560,7 +560,7 @@ void GEMDigiAnalyzer::analyzeGEM()
 
 
 // ======= GEMCSCPad ========
-void GEMDigiAnalyzer::analyzeGEMCSCPad()
+void MuonDigiAnalyzer::analyzeGEMCSCPad()
 {
   //Loop over GEMCSCPad digi collection
   for(GEMCSCPadDigiCollection::DigiRangeIterator cItr = gemcscpad_digis->begin(); cItr != gemcscpad_digis->end(); ++cItr)
@@ -606,7 +606,7 @@ void GEMDigiAnalyzer::analyzeGEMCSCPad()
 
 
 // ======= GEMCSCCoPad ========
-void GEMDigiAnalyzer::analyzeGEMCSCCoPad()
+void MuonDigiAnalyzer::analyzeGEMCSCCoPad()
 {
   //Loop over GEMCSCPad digi collection
   for(GEMCSCPadDigiCollection::DigiRangeIterator cItr = gemcsccopad_digis->begin(); cItr != gemcsccopad_digis->end(); ++cItr)
@@ -650,7 +650,7 @@ void GEMDigiAnalyzer::analyzeGEMCSCCoPad()
   }
 }
 
-bool GEMDigiAnalyzer::isSimTrackGood(const SimTrack &t)
+bool MuonDigiAnalyzer::isSimTrackGood(const SimTrack &t)
 {
   // SimTrack selection
   if (t.noVertex()) return false;
@@ -666,7 +666,7 @@ bool GEMDigiAnalyzer::isSimTrackGood(const SimTrack &t)
 }
 
 // ======= GEM Matching ========
-void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void MuonDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
@@ -879,7 +879,7 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void GEMDigiAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
+void MuonDigiAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
@@ -888,7 +888,7 @@ void GEMDigiAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   descriptions.addDefault(desc);
 }
 
-void GEMDigiAnalyzer::buildLUT()
+void MuonDigiAnalyzer::buildLUT()
 {
   std::vector<int> pos_ids;
   pos_ids.push_back(GEMDetId(1,1,1,1,36,1).rawId());
@@ -911,7 +911,7 @@ void GEMDigiAnalyzer::buildLUT()
 }
 
 std::pair<int,int>
-GEMDigiAnalyzer::getClosestChambers(int region, float phi)
+MuonDigiAnalyzer::getClosestChambers(int region, float phi)
 {
   auto& phis(positiveLUT_.first);
   auto upper = std::upper_bound(phis.begin(), phis.end(), phi);
@@ -922,4 +922,4 @@ GEMDigiAnalyzer::getClosestChambers(int region, float phi)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(GEMDigiAnalyzer);
+DEFINE_FWK_MODULE(MuonDigiAnalyzer);

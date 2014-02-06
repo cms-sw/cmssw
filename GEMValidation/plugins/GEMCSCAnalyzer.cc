@@ -315,9 +315,10 @@ private:
 GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 : cfg_(ps.getParameterSet("simTrackMatching"))
 , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
-, ntupleTrackChamberDelta_(ps.getUntrackedParameter<bool>("ntupleTrackChamberDelta", true))
-, ntupleTrackEff_(ps.getUntrackedParameter<bool>("ntupleTrackEff", true))
 {
+  ntupleTrackChamberDelta_ = cfg_.getParameter<bool>("ntupleTrackChamberDelta");
+  ntupleTrackEff_ = cfg_.getParameter<bool>("ntupleTrackEff");
+
   auto simTrack_ = cfg_.getParameter<edm::ParameterSet>("simTrack");
   simInputLabel_ = simTrack_.getParameter<edm::InputTag>("input");
   minPt_ = simTrack_.getParameter<double>("minPt");
@@ -344,6 +345,12 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
 
   auto cscMPLCT_ = cfg_.getParameter<edm::ParameterSet>("cscMPLCT");
   minNHitsChamberMPLCT_ = cscMPLCT_.getParameter<int>("minNHitsChamber");
+
+  auto tfTrack_ = cfg_.getParameter<edm::ParameterSet>("tfTrack");
+  auto tfCand_ = cfg_.getParameter<edm::ParameterSet>("tfCand");
+  auto gmtCand_ = cfg_.getParameter<edm::ParameterSet>("gmtCand");
+  auto gmtRegCand_ = cfg_.getParameter<edm::ParameterSet>("gmtRegCand");
+  auto l1Extra_ = cfg_.getParameter<edm::ParameterSet>("l1Extra");
 
   if (ntupleTrackChamberDelta_) bookSimTracksDeltaTree();
   if (ntupleTrackEff_)
@@ -453,6 +460,7 @@ void GEMCSCAnalyzer::analyzeTrackEff(SimTrackMatchManager& match, int trk_no)
   const GEMDigiMatcher& match_gd = match.gemDigis();
   const CSCDigiMatcher& match_cd = match.cscDigis();
   const CSCStubMatcher& match_lct = match.cscStubs();
+  //  const TrackMatcher& match_track = match.tracks();
   const SimTrack &t = match_sh.trk();
 
 
