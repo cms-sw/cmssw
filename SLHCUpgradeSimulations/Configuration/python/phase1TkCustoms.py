@@ -236,11 +236,12 @@ def customise_Reco(process,pileup):
     process.reconstruction.remove(process.ak7CastorJetID)
 
     #the quadruplet merger configuration     
-    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
-    process.pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.BPix.HitProducer = cms.string("siPixelRecHits" )
-    process.pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )    
+    # from this PSet the quadruplet merger uses only the layer list so these could probably be removed
+    from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
+    PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
+    PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )
     
     # Need these until pixel templates are used
     process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
@@ -265,7 +266,6 @@ def customise_Reco(process,pileup):
     # End of pixel template needed section
     
     # Make pixelTracks use quadruplets
-    from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import PixelSeedMergerQuadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
         layerList = PixelSeedMergerQuadruplets,
         addRemainingTriplets = cms.bool(False),

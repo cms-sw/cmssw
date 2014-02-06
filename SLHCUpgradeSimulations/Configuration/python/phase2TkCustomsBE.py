@@ -200,11 +200,11 @@ def customise_Reco(process,pileup):
     process.PixelCPEGenericESProducer.DoCosmics = False
     process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
     #the quadruplet merger configuration     
-    process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
-    process.pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.BPix.HitProducer = cms.string("siPixelRecHits" )
-    process.pixelseedmergerlayers.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
-    process.pixelseedmergerlayers.FPix.HitProducer = cms.string("siPixelRecHits" )
+    # from this PSet the quadruplet merger uses only the layer list so these could probably be removed
+    PixelSeedMergerQuadruplets.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    PixelSeedMergerQuadruplets.BPix.HitProducer = cms.string("siPixelRecHits" )
+    PixelSeedMergerQuadruplets.FPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
+    PixelSeedMergerQuadruplets.FPix.HitProducer = cms.string("siPixelRecHits" )
 
     process.highPtTripletStepTracks.TTRHBuilder=cms.string('WithTrackAngle')
     process.detachedTripletStepTracks.TTRHBuilder=cms.string('WithTrackAngle')
