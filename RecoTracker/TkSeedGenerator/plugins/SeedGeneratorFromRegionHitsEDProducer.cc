@@ -75,13 +75,6 @@ SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
 {
 }
 
-void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
-}
-
-void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const edm::EventSetup& es)
-{
-}
- 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<TrajectorySeedCollection> triplets(new TrajectorySeedCollection());
