@@ -1792,7 +1792,6 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     //////
 
     int relativeBx = l1t2int( condMu.relativeBx() );
-    std::cout << "\t mu relativeBx = " << relativeBx << std::endl;
 
     //////
     // now create a new CondMuonition
@@ -1803,7 +1802,7 @@ bool l1t::L1uGtTriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     muonCond.setObjectType(objType);
     muonCond.setCondGEq(gEq);
     muonCond.setCondChipNr(chipNr);
-    muonCond.setCondRelativeBx(chipNr);
+    muonCond.setCondRelativeBx(relativeBx);
 
     muonCond.setConditionParameter(objParameter, corrParameter);
 

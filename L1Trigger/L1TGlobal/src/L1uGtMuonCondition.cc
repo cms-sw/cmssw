@@ -495,51 +495,62 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
 
     if ( !checkThreshold(objPar.ptHighThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
 
-        if ( !checkThreshold(objPar.ptLowThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
-            return false;
-        }
-        else {
-            // check isolation
-            if ( !cand.hwIso() ) {
-                if (objPar.requestIso || objPar.enableIso) {
-
-                    return false;
-                }
-            }
-
-        }
-
+      if ( !checkThreshold(objPar.ptLowThreshold, cand.hwPt(), m_gtMuonTemplate->condGEq()) ) {
+	LogDebug("l1t|Global") << "\t\t Muon Failed checkThreshold " << std::endl;
+	return false;
+      }
+      else {
+	// check isolation
+	if ( !cand.hwIso() ) {
+	  if (objPar.requestIso || objPar.enableIso) {
+	    LogDebug("l1t|Global") << "\t\t Muon Failed hwIso " << std::endl;
+	    return false;
+	  }
+	}
+      }
     }
     else {
 
-        if ( !cand.hwIso() ) {
-            if (objPar.requestIso) {
-
-                return false;
-            }
-        }
-
+      if ( !cand.hwIso() ) {
+	if (objPar.requestIso) {
+	  LogDebug("l1t|Global") << "\t\t Muon Failed hwIso " << std::endl;
+	  return false;
+	}
+      }
     }
 
     // check eta
-    if (!checkBit(objPar.etaRange, cand.hwEta())) {
-        return false;
-    }
+    // DP - Enable once muon conditions mature
+//     if( !checkRange(cand.hwEta(), objPar.etaRangeBegin, objPar.etaRangeEnd, objPar.etaRangeVetoBegin, objPar.etaRangeVetoEnd) ){
+//       return false;
+//     }
 
-    // check phi  - in the requested range (no LUT used - LUT too big for hw chip)
-    // for phiLow <= phiHigh takes [phiLow, phiHigh]
-    // for phiLow >= phiHigh takes [phiLow, phiHigh] over zero angle!
-    if (objPar.phiHigh >= objPar.phiLow) {
-        if (! ( (objPar.phiLow <= (unsigned int)cand.hwPhi()) && ((unsigned int)cand.hwPhi() <= objPar.phiHigh ) )) {
-            return false;
-        }
+//     // check phi
+//     if( !checkRange(cand.hwPhi(), objPar.phiRangeBegin, objPar.phiRangeEnd, objPar.phiRangeVetoBegin, objPar.phiRangeVetoEnd) ){
+//       return false;
+//     }
 
-    }
-    else { // go over zero angle!!
-        if (! ( (objPar.phiLow <= (unsigned int)cand.hwPhi()) || ((unsigned int)cand.hwPhi() <= objPar.phiHigh ) )) {
-            return false;
-        }
-    }
+///// DP OLD Legacy
+//     if (!checkBit(objPar.etaRange, cand.hwEta())) {
+//       LogDebug("l1t|Global") << "\t\t Muon Failed checkBit(etaRange) " << std::endl;
+//       return false;
+//     }
+
+//     // check phi  - in the requested range (no LUT used - LUT too big for hw chip)
+//     // for phiLow <= phiHigh takes [phiLow, phiHigh]
+//     // for phiLow >= phiHigh takes [phiLow, phiHigh] over zero angle!
+//     if (objPar.phiHigh >= objPar.phiLow) {
+//       if (! ( (objPar.phiLow <= (unsigned int)cand.hwPhi()) && ((unsigned int)cand.hwPhi() <= objPar.phiHigh ) )) {
+// 	LogDebug("l1t|Global") << "\t\t Muon Failed checkBit(phiRange) " << std::endl;
+// 	return false;
+//       }
+//     }
+//     else { // go over zero angle!!
+//       if (! ( (objPar.phiLow <= (unsigned int)cand.hwPhi()) || ((unsigned int)cand.hwPhi() <= objPar.phiHigh ) )) {
+// 	LogDebug("l1t|Global") << "\t\t Muon Failed checkBit(phiRange) " << std::endl;
+// 	return false;
+//       }
+//     }
 
     // check quality ( bit check )
 
@@ -548,14 +559,17 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
     // Qual = 000 means then NO MUON (GTL module)
 
     if (cand.hwQual() == 0) {
+	LogDebug("l1t|Global") << "\t\t Muon Failed hwQual() == 0" << std::endl;
         return false;
     }
 
     if (objPar.qualityRange == 0) {
+	LogDebug("l1t|Global") << "\t\t Muon Failed qualityRange == 0" << std::endl;
         return false;
     }
     else {
       if (!checkBit(objPar.qualityRange, cand.hwQual())) {
+	LogDebug("l1t|Global") << "\t\t Muon Failed checkBit(qualityRange) " << std::endl;
             return false;
         }
     }
@@ -563,6 +577,7 @@ const bool l1t::L1uGtMuonCondition::checkObjectParameter(const int iCondition, c
     // check mip
     if (objPar.enableMip) {
         if (!cand.hwMip()) {
+	  LogDebug("l1t|Global") << "\t\t Muon Failed enableMip" << std::endl;
             return false;
         }
     }

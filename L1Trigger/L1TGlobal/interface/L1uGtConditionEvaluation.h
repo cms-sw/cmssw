@@ -275,6 +275,7 @@ template<class Type1> const bool L1uGtConditionEvaluation::checkRange(const unsi
   }
 
 
+  LogDebug("l1t|Global") << "=====> HELP!! I'm trapped and I cannot escape! AHHHHHH" << std::endl;
 
 /*   // DMP Not sure about this, will check with hardware */
 /*   // check to make sure beginRange comes before endRange */

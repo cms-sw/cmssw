@@ -257,13 +257,12 @@ const bool l1t::L1uGtCaloCondition::evaluateCondition(const int bxEval) const {
 	bool passCondition = false;
         // check if there is a permutation that matches object-parameter requirements
         for (int i = 0; i < nObjInCond; i++) {
-
 	  passCondition = checkObjectParameter(i, *(candVec->at(useBx,index[i]) ));
-	    tmpResult &= passCondition;
-	    if( passCondition ) 
-	      LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, CONGRATS!! This calo obj passed the condition." << std::endl;
-	    else 
-	      LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, FAIL!! This calo obj failed the condition." << std::endl;
+	  tmpResult &= passCondition;
+	  if( passCondition ) 
+	    LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, CONGRATS!! This calo obj passed the condition." << std::endl;
+	  else 
+	    LogDebug("l1t|Global") << "===> L1uGtCaloCondition::evaluateCondition, FAIL!! This calo obj failed the condition." << std::endl;
         }
 
         // if permutation does not match particle conditions
