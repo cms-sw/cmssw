@@ -20,31 +20,35 @@
 setenv RUNTYPE Central
 #setenv RUNTYPE Local
 setenv STARTUP True
-setenv FASTSIM True
-setenv UPGRADE False
+setenv FASTSIM False
+setenv UPGRADE True
 ## TYPE options: Photons, GEDPhotons
 ## ANALYZERNAME options: PhotonValidator, oldpfPhotonValidator, pfPhotonValidator
-setenv TYPE Photons
-setenv ANALYZERNAME PhotonValidator
-#setenv TYPE GEDPhotons
-#setenv ANALYZERNAME pfPhotonValidator
+#setenv TYPE Photons
+#setenv ANALYZERNAME PhotonValidator
+setenv TYPE GEDPhotons
+setenv ANALYZERNAME pfPhotonValidator
 
 
 setenv CMSSWver1 7_0_0
 setenv CMSSWver2 7_0_0
 setenv OLDRELEASE 7_0_0
 setenv NEWRELEASE 7_0_0
-setenv OLDPRERELEASE pre8
-setenv NEWPRERELEASE pre9
+setenv OLDPRERELEASE pre11
+setenv NEWPRERELEASE pre12
 setenv UPGRADEVER  UPG2017
-setenv LHCENERGY   14
+setenv LHCENERGY   13
+setenv PU True
+setenv PUlevel 25ns
 
-
-if ( $STARTUP == True &&  $FASTSIM == False) then
-setenv OLDGLOBALTAG PU_START70_V2_amend-v4
-setenv NEWGLOBALTAG PU_START70_V2-v4
+if ( $STARTUP == True &&  $FASTSIM == False && $PU == False && $UPGRADE == True ) then
+setenv OLDGLOBALTAG POSTLS162_V4-v1
+setenv NEWGLOBALTAG POSTLS170_V1-v1
+else if ( $UPGRADE == True && $PU == True &&  $FASTSIM == False ) then
+setenv OLDGLOBALTAG PU${PUlevel}_POSTLS162_V4-v1
+setenv NEWGLOBALTAG PU${PUlevel}_POSTLS170_V1-v1
 else if (  $STARTUP == True  && $FASTSIM == True) then
-setenv OLDGLOBALTAG START70_V2_amend_FastSim-v6 
+setenv OLDGLOBALTAG START70_V2_amend_FastSim
 setenv NEWGLOBALTAG START70_V2_FastSim-v4
  endif
 
@@ -70,7 +74,7 @@ setenv WorkDir2   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver
 
 #Name of sample (affects output directory name and htmldescription only) 
 
-setenv PU True
+
 #setenv SAMPLE SingleGammaPt10
 #setenv SAMPLE SingleGammaPt35
 ##setenv SAMPLE SingleGammaFlatPt10_100
@@ -106,11 +110,12 @@ if ( $RUNTYPE == Local ) then
 setenv OLDFILE ${WorkDir1}/PhotonValidationRelVal${OLDRELEASE}_SingleGammaPt10.root
 setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_SingleGammaPt10.root
 else if ( $RUNTYPE == Central ) then
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValSingleGammaPt10_UP15__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
 if ( $UPGRADE == True ) then
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10_${UPGRADEVER}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10_UP15__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+#setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10_${UPGRADEVER}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 else 
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValSingleGammaPt10_UP15__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 endif
 endif
 
@@ -149,10 +154,13 @@ setenv NEWFILE ${WorkDir2}/PhotonValidationRelVal${NEWRELEASE}_H130GGgluonfusion
 else if ( $RUNTYPE == Central ) then
 
 #setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-DIGI-RECO.root
-setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+#setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
 #setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${UPGRADEVER}_${LHCENERGY}__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+
 if ( $UPGRADE == True ) then
-setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${UPGRADEVER}_${LHCENERGY}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
+
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${LHCENERGY}__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${LHCENERGY}__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 else
 setenv NEWFILE ${WorkDir2}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${NEWRELEASE}-${NEWGLOBALTAG}__DQM.root
 endif
@@ -196,6 +204,9 @@ endif
 setenv CURRENTDIR $PWD
 setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
 cd $OUTPATH
+setenv NEWRELEASE {$NEWRELEASE}
+setenv OLDRELEASE {$OLDRELEASE}
+
 if (! -d $NEWRELEASE) then
   mkdir $NEWRELEASE
 endif
@@ -216,10 +227,12 @@ setenv OUTPATH $OUTPATH/vs${OLDRELEASE}
 
 if ( $FASTSIM == True) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}FastSim
-else if ( $FASTSIM == False && $PU == True ) then 
+else if ( $FASTSIM == False && $UPGRADE == False && $PU == True ) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}PU
 else if ( $FASTSIM == False && $PU == False && $UPGRADE == False ) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}
+else if ( $SAMPLE == H130GGgluonfusion  && $UPGRADE == True && $PU == True ) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV_PU${PUlevel}
 else if ( $SAMPLE == H130GGgluonfusion  && $UPGRADE == True ) then
 setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
 else if ( $SAMPLE ==  PhotonJets_Pt_10  && $UPGRADE == True ) then
@@ -404,6 +417,18 @@ cat > scaledhistosGEDspecific <<EOF
   pfMVAEndcap
   nCluOutMustacheBarrel
   nCluOutMustacheEndcap
+  SumPtOverPhoPt_Pho_unCleanedBarrel
+  SumPtOverPhoPt_Pho_unCleanedEndcap
+  SumPtOverPhoPt_Pho_CleanedBarrel
+  SumPtOverPhoPt_Pho_CleanedEndcap
+  SumPtOverPhoPt_ChHad_unCleanedBarrel
+  SumPtOverPhoPt_ChHad_unCleanedEndcap
+  SumPtOverPhoPt_ChHad_CleanedBarrel
+  SumPtOverPhoPt_ChHad_CleanedEndcap
+  SumPtOverPhoPt_NeuHad_unCleanedBarrel
+  SumPtOverPhoPt_NeuHad_unCleanedEndcap
+  SumPtOverPhoPt_NeuHad_CleanedBarrel
+  SumPtOverPhoPt_NeuHad_CleanedEndcap
 EOF
 
 
@@ -522,11 +547,6 @@ hTkPtPullBarrel
 hTkPtPullEndcap
 hDPhiTracksAtVtxAll
 hDCotTracksAll
-hDEtaTracksAtEcalAll
-hDPhiTracksAtEcalAll
-eBcOverTkPoutAll
-eBcOverTkPoutBarrel
-eBcOverTkPoutEndcap
 zPVFromTracksAll
 zPVFromTracksBarrel
 zPVFromTracksEndcap
@@ -543,8 +563,6 @@ pChi2VsEtaAll
 pChi2VsRAll
 pDCotTracksVsEtaAll
 pDCotTracksVsRAll
-pDPhiTracksAtEcalVsEtaAll
-pDPhiTracksAtEcalVsRAll
 pdzPVVsR
 
 
@@ -1212,7 +1230,7 @@ end
 
 
 
-if ($ANALYZERNAME == pfPhotonValidator)  goto skippingHistosForTracks
+###if ($ANALYZERNAME == pfPhotonValidator)  goto skippingHistosForTracks
 foreach i (`cat scaledhistosForTracks`)
   cat > temp$N.C <<EOF
 TCanvas *c$i = new TCanvas("c$i");
@@ -1301,8 +1319,8 @@ EOF
   setenv N `expr $N + 1`
 end
 
-skippingHistosForTracks:
-  echo "Skipping histograms which are not defined for pfPhotons"
+#skippingHistosForTracks:
+#  echo "Skipping histograms which are not defined for pfPhotons"
 
 
 
@@ -1335,6 +1353,8 @@ else if ( $PU == False && $FASTSIM == True) then
 setenv SAMPLE ${SAMPLE}FastSim
 else if ( $SAMPLE == H130GGgluonfusion && $UPGRADE == True ) then
 setenv SAMPLE ${SAMPLE}_${LHCENERGY}TeV
+else if ( $SAMPLE == H130GGgluonfusion && $UPGRADE == True &&  $PU == True ) then
+setenv SAMPLE ${SAMPLE}_${LHCENERGY}TeV_PU${PUlevel}
 endif
 
 
