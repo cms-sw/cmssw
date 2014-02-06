@@ -47,6 +47,7 @@ private:
   virtual void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
+  evf::EvFDaqDirector::FileStatus getNextEvent();
   evf::EvFDaqDirector::FileStatus cacheNextEvent();
   edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
   void deleteFile(std::string const&);
@@ -57,6 +58,9 @@ private:
   void readWorker(unsigned int tid, std::atomic<bool> *started);
   void threadError();
   bool exceptionState() {return setExceptionState_;}
+
+  evf::FastMonitoringService* fms_=nullptr;
+  evf::EvFDaqDirector* daqDirector_=nullptr;
 
   std::string defPath_;
 
@@ -87,8 +91,6 @@ private:
   unsigned int eventsThisLumi_;
 
   jsoncollector::DataPointDefinition *dpd_;
-
-  evf::FastMonitoringService *fms_ = nullptr;
 
   /*
    *
@@ -178,6 +180,7 @@ private:
   std::vector<std::condition_variable*> cvReader_;
 
   bool quit_threads_=false;
+  std::vector<bool> thread_quit_signal;
   bool setExceptionState_ = false;
 
 };

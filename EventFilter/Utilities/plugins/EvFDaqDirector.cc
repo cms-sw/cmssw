@@ -519,13 +519,14 @@ namespace evf {
   bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize) {
 
     if (previousFileSize_ != 0) {
-      FastMonitoringService *mss = 0;
-      try {
-        mss = (FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
-      } catch (...) {
-	      edm::LogError("EvFDaqDirector") <<" FastMonitoringService not found ";
+      if (!fms_) {
+        try {
+          fms_ = (FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
+        } catch (...) {
+	        edm::LogError("EvFDaqDirector") <<" FastMonitoringService not found ";
+        }
       }
-      if (mss) mss->accumulateFileSize(ls, previousFileSize_);
+      if (fms_) fms_->accumulateFileSize(ls, previousFileSize_);
       previousFileSize_ = 0;
     }
 

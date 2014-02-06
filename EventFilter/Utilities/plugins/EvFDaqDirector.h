@@ -23,7 +23,11 @@
 
 class GlobalContext;
 
+
 namespace evf{
+
+  class FastMonitoringService;
+
   class EvFDaqDirector
     {
     public:
@@ -75,6 +79,7 @@ namespace evf{
       bool getTestModeNoBuilderUnit() { return testModeNoBuilderUnit_;}
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
+      void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
 
     private:
       bool bulock();
@@ -134,6 +139,8 @@ namespace evf{
       struct flock fu_rw_fulk;
       struct flock data_rw_flk;
       struct flock data_rw_fulk;
+
+      evf::FastMonitoringService * fms_ = nullptr;
 
   };
 }
