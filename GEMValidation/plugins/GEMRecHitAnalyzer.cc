@@ -154,11 +154,17 @@ private:
   MyGEMSimHit gem_sh;
   MySimTrack track_;
 
-
   edm::ParameterSet cfg_;
-  std::string simInputLabel_;
-  float minPt_;
-  int verbose_;
+
+  edm::InputTag simTrackInput_;
+  edm::InputTag gemSimHitInput_;
+  edm::InputTag gemRecHitInput_;
+
+  double simTrackMinPt_;
+  double simTrackMaxPt_;
+  double simTrackMinEta_;
+  double simTrackMaxEta_;
+  double simTrackOnlyMuon_;
   float radiusCenter_;
   float chamberHeight_;
 
@@ -172,12 +178,23 @@ private:
 // constructors and destructor
 //
 GEMRecHitAnalyzer::GEMRecHitAnalyzer(const edm::ParameterSet& iConfig)
-  : cfg_(iConfig.getParameterSet("simTrackMatching"))
-  , simInputLabel_(iConfig.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
-  , minPt_(iConfig.getUntrackedParameter<double>("minPt", 5.))
-  , verbose_(iConfig.getUntrackedParameter<int>("verbose", 0))
-  , hasGEMGeometry_(true)
+  : hasGEMGeometry_(true)
 {
+  auto cfg_ = iConfig.getParameter<edm::ParameterSet>("simTrackMatching");
+  auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
+  simTrackInput_ = simTrack.getParameter<edm::InputTag>("input");
+  simTrackMinPt_ = simTrack.getParameter<double>("minPt");
+  simTrackMaxPt_ = simTrack.getParameter<double>("maxPt");
+  simTrackMinEta_ = simTrack.getParameter<double>("minEta");
+  simTrackMaxEta_ = simTrack.getParameter<double>("maxEta");
+  simTrackOnlyMuon_ = simTrack.getParameter<bool>("onlyMuon");
+
+  auto gemSimHit = cfg_.getParameter<edm::ParameterSet>("gemSimHit");
+  gemSimHitInput_ = gemSimHit.getParameter<edm::InputTag>("input");
+
+  auto gemRecHit = cfg_.getParameter<edm::ParameterSet>("gemRecHit");
+  gemRecHitInput_ = gemRecHit.getParameter<edm::InputTag>("input");
+
   bookGEMEventsTree();
   bookGEMRecHitTree();
   bookGEMRecHitNoiseTree();
@@ -196,8 +213,7 @@ void GEMRecHitAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iS
     gem_geometry_ = &*gem_geom_;
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     hasGEMGeometry_ = false;
-    edm::LogWarning("GEMDigiAnalyzer") 
-      << "+++ Info: GEM geometry is unavailable. +++\n";
+    edm::LogWarning("GEMRecHitAnalyzer") << "+++ Info: GEM geometry is unavailable. +++\n";
   }
 
   if(hasGEMGeometry_) {
@@ -234,10 +250,10 @@ void GEMRecHitAnalyzer::beginJob()
 
 void GEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  iEvent.getByLabel("gemRecHits","",gemRecHits_);
-  iEvent.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
-  iEvent.getByLabel(simInputLabel_, sim_tracks);
-  iEvent.getByLabel(simInputLabel_, sim_vertices);
+  iEvent.getByLabel(gemRecHitInput_, gemRecHits_);
+  iEvent.getByLabel(gemSimHitInput_, GEMHits);
+  iEvent.getByLabel(simTrackInput_, sim_tracks);
+  iEvent.getByLabel(simTrackInput_, sim_vertices);
   if(hasGEMGeometry_) analyzeGEM(iEvent);
   if(hasGEMGeometry_) analyzeTracks(cfg_,iEvent,iSetup); 
 }
@@ -415,132 +431,127 @@ bool GEMRecHitAnalyzer::isGEMRecHitMatched(MyGEMRecHit gem_recHit_, MyGEMSimHit 
 // ======= GEM RecHits =======
 void GEMRecHitAnalyzer::analyzeGEM(const edm::Event& iEvent)
 {
-
   std::vector<int> trackIds;
   std::vector<int> trackType;
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
-
+  
   for (auto& t: sim_trks)
   {
-
     if (!isSimTrackGood(t)) continue;
     trackType.push_back(t.type());
     trackIds.push_back(t.trackId());
-
   }
 
   for (edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit != GEMHits->end(); ++itHit)
   {
+    if(abs(itHit->particleType()) != 13) continue;
+    if(std::find(trackIds.begin(), trackIds.end(), itHit->trackId()) == trackIds.end()) continue;
 
-   if(abs(itHit->particleType()) != 13) continue;
-   if(std::find(trackIds.begin(), trackIds.end(), itHit->trackId()) == trackIds.end()) continue;
-
-   //std::cout<<"Size "<<trackIds.size()<<" id1 "<<trackIds[0]<<" type1 "<<trackType[0]<<" id2 "<<trackIds[1]<<" type2 "<<trackType[1]<<std::endl;
-
-   gem_sh.eventNumber = iEvent.id().event();
-   gem_sh.detUnitId = itHit->detUnitId();
-   gem_sh.particleType = itHit->particleType();
-   gem_sh.x = itHit->localPosition().x();
-   gem_sh.y = itHit->localPosition().y();
-   gem_sh.energyLoss = itHit->energyLoss();
-   gem_sh.pabs = itHit->pabs();
-   gem_sh.timeOfFlight = itHit->timeOfFlight();
-   
-   const GEMDetId id(itHit->detUnitId());
-   
-   gem_sh.region = id.region();
-   gem_sh.ring = id.ring();
-   gem_sh.station = id.station();
-   gem_sh.layer = id.layer();
-   gem_sh.chamber = id.chamber();
-   gem_sh.roll = id.roll();
-
-   const LocalPoint p0(0., 0., 0.);
-   const GlobalPoint Gp0(gem_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(p0));
-
-   gem_sh.Phi_0 = Gp0.phi();
-   gem_sh.R_0 = Gp0.perp();
-   gem_sh.DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
- 
-   const LocalPoint hitLP(itHit->localPosition());
-   const GlobalPoint hitGP(gem_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
-   gem_sh.globalR = hitGP.perp();
-   gem_sh.globalEta = hitGP.eta();
-   gem_sh.globalPhi = hitGP.phi();
-   gem_sh.globalX = hitGP.x();
-   gem_sh.globalY = hitGP.y();
-   gem_sh.globalZ = hitGP.z();
-
-   //  Now filling strip info using entry point rather than local position to be
-   //  consistent with digi strips. To change back, just switch the comments - WHF
-   //  gem_sh.strip=gem_geometry_->etaPartition(itHit->detUnitId())->strip(hitLP);
-   const LocalPoint hitEP(itHit->entryPoint());
-   gem_sh.strip = gem_geometry_->etaPartition(itHit->detUnitId())->strip(hitEP);
-
-   int count = 0;
-   //std::cout<<"SimHit: region "<<gem_sh.region<<" station "<<gem_sh.station<<" layer "<<gem_sh.layer<<" chamber "<<gem_sh.chamber<<" roll "<<gem_sh.roll<<" strip "<<gem_sh.strip<<" type "<<itHit->particleType()<<" id "<<itHit->trackId()<<std::endl;
-
-   for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit != gemRecHits_->end(); ++recHit) 
-   {
-
-    gem_recHit_.x = recHit->localPosition().x();
-    gem_recHit_.xErr = recHit->localPositionError().xx();
-    gem_recHit_.y = recHit->localPosition().y();
-    gem_recHit_.detId = (Short_t) (*recHit).gemId();
-    gem_recHit_.bx = recHit->BunchX();
-    gem_recHit_.clusterSize = recHit->clusterSize();
-    gem_recHit_.firstClusterStrip = recHit->firstClusterStrip();
-   
-    GEMDetId id((*recHit).gemId());
-
-    gem_recHit_.region = (Short_t) id.region();
-    gem_recHit_.ring = (Short_t) id.ring();
-    gem_recHit_.station = (Short_t) id.station();
-    gem_recHit_.layer = (Short_t) id.layer();
-    gem_recHit_.chamber = (Short_t) id.chamber();
-    gem_recHit_.roll = (Short_t) id.roll();
-
-    LocalPoint hitLP = recHit->localPosition();
-    GlobalPoint hitGP = gem_geometry_->idToDet((*recHit).gemId())->surface().toGlobal(hitLP);
-   
-    gem_recHit_.globalR = hitGP.perp();
-    gem_recHit_.globalEta = hitGP.eta();
-    gem_recHit_.globalPhi = hitGP.phi();
-    gem_recHit_.globalX = hitGP.x();
-    gem_recHit_.globalY = hitGP.y();
-    gem_recHit_.globalZ = hitGP.z();
-
-    gem_recHit_.x_sim = gem_sh.x;
-    gem_recHit_.y_sim = gem_sh.y;
-    gem_recHit_.globalEta_sim = gem_sh.globalEta;
-    gem_recHit_.globalPhi_sim = gem_sh.globalPhi;
-    gem_recHit_.globalX_sim = gem_sh.globalX;
-    gem_recHit_.globalY_sim = gem_sh.globalY;
-    gem_recHit_.globalZ_sim = gem_sh.globalZ;
-    gem_recHit_.pull = (gem_sh.x - gem_recHit_.x) / gem_recHit_.xErr;
-
-    if(gem_recHit_.bx != 0) continue;
-    if(isGEMRecHitMatched(gem_recHit_, gem_sh)){
-
-	//std::cout<<"RecHit: region "<<gem_recHit_.region<<" station "<<gem_recHit_.station<<" layer "<<gem_recHit_.layer<<" chamber "<<gem_recHit_.chamber<<" roll "<<gem_recHit_.roll<<" firstStrip "<<gem_recHit_.firstClusterStrip<<" cls "<<gem_recHit_.clusterSize<<" bx "<<gem_recHit_.bx<<std::endl;
- 	gem_tree_->Fill();
+    //std::cout<<"Size "<<trackIds.size()<<" id1 "<<trackIds[0]<<" type1 "<<trackType[0]<<" id2 "<<trackIds[1]<<" type2 "<<trackType[1]<<std::endl;
+    
+    gem_sh.eventNumber = iEvent.id().event();
+    gem_sh.detUnitId = itHit->detUnitId();
+    gem_sh.particleType = itHit->particleType();
+    gem_sh.x = itHit->localPosition().x();
+    gem_sh.y = itHit->localPosition().y();
+    gem_sh.energyLoss = itHit->energyLoss();
+    gem_sh.pabs = itHit->pabs();
+    gem_sh.timeOfFlight = itHit->timeOfFlight();
+    
+    const GEMDetId id(itHit->detUnitId());
+    
+    gem_sh.region = id.region();
+    gem_sh.ring = id.ring();
+    gem_sh.station = id.station();
+    gem_sh.layer = id.layer();
+    gem_sh.chamber = id.chamber();
+    gem_sh.roll = id.roll();
+    
+    const LocalPoint p0(0., 0., 0.);
+    const GlobalPoint Gp0(gem_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(p0));
+    
+    gem_sh.Phi_0 = Gp0.phi();
+    gem_sh.R_0 = Gp0.perp();
+    gem_sh.DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
+    
+    const LocalPoint hitLP(itHit->localPosition());
+    const GlobalPoint hitGP(gem_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
+    gem_sh.globalR = hitGP.perp();
+    gem_sh.globalEta = hitGP.eta();
+    gem_sh.globalPhi = hitGP.phi();
+    gem_sh.globalX = hitGP.x();
+    gem_sh.globalY = hitGP.y();
+    gem_sh.globalZ = hitGP.z();
+    
+    //  Now filling strip info using entry point rather than local position to be
+    //  consistent with digi strips. To change back, just switch the comments - WHF
+    //  gem_sh.strip=gem_geometry_->etaPartition(itHit->detUnitId())->strip(hitLP);
+    const LocalPoint hitEP(itHit->entryPoint());
+    gem_sh.strip = gem_geometry_->etaPartition(itHit->detUnitId())->strip(hitEP);
+    
+    int count = 0;
+    //std::cout<<"SimHit: region "<<gem_sh.region<<" station "<<gem_sh.station<<" layer "<<gem_sh.layer<<" chamber "<<gem_sh.chamber<<" roll "<<gem_sh.roll<<" strip "<<gem_sh.strip<<" type "<<itHit->particleType()<<" id "<<itHit->trackId()<<std::endl;
+    
+    for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit != gemRecHits_->end(); ++recHit) 
+    {
+      gem_recHit_.x = recHit->localPosition().x();
+      gem_recHit_.xErr = recHit->localPositionError().xx();
+      gem_recHit_.y = recHit->localPosition().y();
+      gem_recHit_.detId = (Short_t) (*recHit).gemId();
+      gem_recHit_.bx = recHit->BunchX();
+      gem_recHit_.clusterSize = recHit->clusterSize();
+      gem_recHit_.firstClusterStrip = recHit->firstClusterStrip();
+      
+      GEMDetId id((*recHit).gemId());
+      
+      gem_recHit_.region = (Short_t) id.region();
+      gem_recHit_.ring = (Short_t) id.ring();
+      gem_recHit_.station = (Short_t) id.station();
+      gem_recHit_.layer = (Short_t) id.layer();
+      gem_recHit_.chamber = (Short_t) id.chamber();
+      gem_recHit_.roll = (Short_t) id.roll();
+      
+      LocalPoint hitLP = recHit->localPosition();
+      GlobalPoint hitGP = gem_geometry_->idToDet((*recHit).gemId())->surface().toGlobal(hitLP);
+      
+      gem_recHit_.globalR = hitGP.perp();
+      gem_recHit_.globalEta = hitGP.eta();
+      gem_recHit_.globalPhi = hitGP.phi();
+      gem_recHit_.globalX = hitGP.x();
+      gem_recHit_.globalY = hitGP.y();
+      gem_recHit_.globalZ = hitGP.z();
+      
+      gem_recHit_.x_sim = gem_sh.x;
+      gem_recHit_.y_sim = gem_sh.y;
+      gem_recHit_.globalEta_sim = gem_sh.globalEta;
+      gem_recHit_.globalPhi_sim = gem_sh.globalPhi;
+      gem_recHit_.globalX_sim = gem_sh.globalX;
+      gem_recHit_.globalY_sim = gem_sh.globalY;
+      gem_recHit_.globalZ_sim = gem_sh.globalZ;
+      gem_recHit_.pull = (gem_sh.x - gem_recHit_.x) / gem_recHit_.xErr;
+      
+      if(gem_recHit_.bx != 0) continue;
+      if(isGEMRecHitMatched(gem_recHit_, gem_sh)) 
+      {
+	bool verbose(false);
+	if (verbose)
+	  std::cout<<"RecHit: region "<<gem_recHit_.region<<" station "<<gem_recHit_.station
+		   <<" layer "<<gem_recHit_.layer<<" chamber "<<gem_recHit_.chamber
+		   <<" roll "<<gem_recHit_.roll<<" firstStrip "<<gem_recHit_.firstClusterStrip
+		   <<" cls "<<gem_recHit_.clusterSize<<" bx "<<gem_recHit_.bx<<std::endl;
+	gem_tree_->Fill();
 	count++;
-
+      }
     }
-
-   }
-
-   gem_sh.countMatching = count;
-   gem_sh_tree_->Fill();
-   
+    gem_sh.countMatching = count;
+    gem_sh_tree_->Fill();
   }
 
-    gem_events_.eventNumber = iEvent.id().event();
-    gem_events_tree_->Fill();
+  gem_events_.eventNumber = iEvent.id().event();
+  gem_events_tree_->Fill();
 
-for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit != gemRecHits_->end(); ++recHit) 
-   {
-
+  for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit != gemRecHits_->end(); ++recHit) 
+  {
     gem_noise_recHit_.x = recHit->localPosition().x();
     gem_noise_recHit_.xErr = recHit->localPositionError().xx();
     gem_noise_recHit_.y = recHit->localPosition().y();
@@ -577,11 +588,8 @@ for (GEMRecHitCollection::const_iterator recHit = gemRecHits_->begin(); recHit !
     gem_noise_recHit_.trStripArea = gem_noise_recHit_.pitch * gem_noise_recHit_.striplength;
     gem_noise_recHit_.trArea = gem_noise_recHit_.trStripArea * gem_noise_recHit_.nStrips;
   
-  
     gem_noise_tree_->Fill();
-    }
-
-
+  }
 }
 
 bool GEMRecHitAnalyzer::isSimTrackGood(const SimTrack &t)
@@ -589,10 +597,13 @@ bool GEMRecHitAnalyzer::isSimTrackGood(const SimTrack &t)
   // SimTrack selection
   if (t.noVertex()) return false;
   if (t.noGenpart()) return false;
-  if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
-  if (t.momentum().pt() < minPt_) return false;
-  float eta = std::abs(t.momentum().eta());
-  if (eta > 2.2 || eta < 1.5) return false; // no GEMs could be in such eta
+  // only muons 
+  if (std::abs(t.type()) != 13 and simTrackOnlyMuon_) return false;
+  // pt selection
+  if (t.momentum().pt() < simTrackMinPt_) return false;
+  // eta selection
+  const float eta(std::abs(t.momentum().eta()));
+  if (eta > simTrackMaxEta_ || eta < simTrackMinEta_) return false; 
   return true;
 }
 
@@ -611,8 +622,7 @@ void GEMRecHitAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& 
     
     const SimHitMatcher& match_sh = match.simhits();
     const GEMRecHitMatcher& match_rh = match.gemRecHits();
-    // const SimTrack &t = match_sh.trk();
-    
+
     track_.pt = t.momentum().pt();
     track_.phi = t.momentum().phi();
     track_.eta = t.momentum().eta();

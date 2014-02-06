@@ -182,24 +182,29 @@ private:
   edm::ESHandle<GEMGeometry> gem_geo_;
   edm::ESHandle<RPCGeometry> rpc_geo_;
 
+  edm::ParameterSet cfg_;
+
+  edm::InputTag simTrackInput_;
+  edm::InputTag gemDigiInput_;
+  edm::InputTag rpcDigiInput_;
+  edm::InputTag gemPadDigiInput_;
+  edm::InputTag gemCoPadDigiInput_;
+
+  double simTrackMinPt_;
+  double simTrackMaxPt_;
+  double simTrackMinEta_;
+  double simTrackMaxEta_;
+  double simTrackOnlyMuon_;
+
   const GEMGeometry* gem_geometry_;
   const RPCGeometry* rpc_geometry_;
 
-  edm::InputTag input_tag_rpc_;
-  edm::InputTag input_tag_gem_;
-  edm::InputTag input_tag_gemcscpad_;
-  edm::InputTag input_tag_gemcsccopad_;
-  
   MyRPCDigi rpc_digi_;
   MyGEMDigi gem_digi_;
   MyGEMCSCPadDigis gemcscpad_digi_;
   MyGEMCSCCoPadDigis gemcsccopad_digi_;
   MySimTrack track_;
 
-  edm::ParameterSet cfg_;
-  std::string simInputLabel_;
-  float minPt_;
-  int verbose_;
   float radiusCenter_;
   float chamberHeight_;
 
@@ -208,19 +213,40 @@ private:
 
   bool hasGEMGeometry_;
   bool hasRPCGeometry_;
+  bool hasME0Geometry_;
+  bool hasCSCGeometry_;
 };
 
 //
 // constructors and destructor
 //
 GEMDigiAnalyzer::GEMDigiAnalyzer(const edm::ParameterSet& ps)
-  : cfg_(ps.getParameterSet("simTrackMatching"))
-  , simInputLabel_(ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits"))
-  , minPt_(ps.getUntrackedParameter<double>("minPt", 5.))
-  , verbose_(ps.getUntrackedParameter<int>("verbose", 0))
-  , hasGEMGeometry_(true)
-  , hasRPCGeometry_(true)
+: hasGEMGeometry_(true)
+, hasRPCGeometry_(true)
+, hasME0Geometry_(true)
+, hasCSCGeometry_(true)
 {
+  auto cfg_ = ps.getParameter<edm::ParameterSet>("simTrackMatching");
+  auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
+  simTrackInput_ = simTrack.getParameter<edm::InputTag>("input");
+  simTrackMinPt_ = simTrack.getParameter<double>("minPt");
+  simTrackMaxPt_ = simTrack.getParameter<double>("maxPt");
+  simTrackMinEta_ = simTrack.getParameter<double>("minEta");
+  simTrackMaxEta_ = simTrack.getParameter<double>("maxEta");
+  simTrackOnlyMuon_ = simTrack.getParameter<bool>("onlyMuon");
+
+  auto gemDigi = cfg_.getParameter<edm::ParameterSet>("gemDigi");
+  gemDigiInput_ = gemDigi.getParameter<edm::InputTag>("input");
+  
+  auto rpcDigi = cfg_.getParameter<edm::ParameterSet>("rpcDigi");
+  rpcDigiInput_ = rpcDigi.getParameter<edm::InputTag>("input");
+
+  auto gemPadDigi= cfg_.getParameter<edm::ParameterSet>("gemPadDigi");
+  gemPadDigiInput_ = gemPadDigi.getParameter<edm::InputTag>("input");
+  
+  auto gemCoPadDigi= cfg_.getParameter<edm::ParameterSet>("gemCoPadDigi");
+  gemCoPadDigiInput_ = gemCoPadDigi.getParameter<edm::InputTag>("input");
+
   bookRPCDigiTree();
   bookGEMDigiTree();
   bookGEMCSCPadDigiTree();
@@ -283,21 +309,20 @@ void GEMDigiAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 
 void GEMDigiAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  iEvent.getByLabel(edm::InputTag("simMuonRPCDigis"), rpc_digis);
+  iEvent.getByLabel(rpcDigiInput_, rpc_digis);
   if (hasRPCGeometry_) analyzeRPC();
 
-  iEvent.getByLabel(edm::InputTag("simMuonGEMDigis"), gem_digis);
+  iEvent.getByLabel(gemDigiInput_, gem_digis);
   if(hasGEMGeometry_) analyzeGEM();
   
-  iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis"), gemcscpad_digis);
+  iEvent.getByLabel(gemPadDigiInput_, gemcscpad_digis);
   if(hasGEMGeometry_) analyzeGEMCSCPad();  
   
-  iEvent.getByLabel(edm::InputTag("simMuonGEMCSCPadDigis","Coincidence"), gemcsccopad_digis);
+  iEvent.getByLabel(gemCoPadDigiInput_, gemcsccopad_digis);
   if(hasGEMGeometry_) analyzeGEMCSCCoPad();  
 
-  iEvent.getByLabel(simInputLabel_, sim_tracks);
-
-  iEvent.getByLabel(simInputLabel_, sim_vertices);
+  iEvent.getByLabel(simTrackInput_, sim_tracks);
+  iEvent.getByLabel(simTrackInput_, sim_vertices);
 
   if(hasGEMGeometry_) analyzeTracks(cfg_,iEvent,iSetup);  
 }
@@ -446,7 +471,6 @@ void GEMDigiAnalyzer::analyzeRPC()
   for(RPCDigiCollection::DigiRangeIterator cItr = rpc_digis->begin(); cItr != rpc_digis->end(); ++cItr)
   {
     RPCDetId id = (*cItr).first;
-    std::cout << id << std::endl;
 
     if (id.region() == 0) continue; // not interested in barrel
 
@@ -631,10 +655,13 @@ bool GEMDigiAnalyzer::isSimTrackGood(const SimTrack &t)
   // SimTrack selection
   if (t.noVertex()) return false;
   if (t.noGenpart()) return false;
-  if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
-  if (t.momentum().pt() < minPt_) return false;
-  float eta = std::abs(t.momentum().eta());
-  if (eta > 2.18 || eta < 1.55) return false; // no GEMs could be in such eta
+  // only muons 
+  if (std::abs(t.type()) != 13 and simTrackOnlyMuon_) return false;
+  // pt selection
+  if (t.momentum().pt() < simTrackMinPt_) return false;
+  // eta selection
+  const float eta(std::abs(t.momentum().eta()));
+  if (eta > simTrackMaxEta_ || eta < simTrackMinEta_) return false; 
   return true;
 }
 
@@ -653,7 +680,6 @@ void GEMDigiAnalyzer::analyzeTracks(edm::ParameterSet cfg_, const edm::Event& iE
     
     const SimHitMatcher&  match_sh = match.simhits();
     const GEMDigiMatcher& match_gd = match.gemDigis();
-    //    const SimTrack &t = match_sh.trk();
     
     track_.pt = t.momentum().pt();
     track_.phi = t.momentum().phi();

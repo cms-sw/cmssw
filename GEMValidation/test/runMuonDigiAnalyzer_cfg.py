@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GEMDIGIANA")
+process = cms.Process("MUONDIGIANA")
 
 ## Standard sequence
 process.load('Configuration.StandardSequences.Services_cff')
@@ -20,13 +20,16 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 # the analyzer configuration
-process.load('GEMCode.GEMValidation.GEMDigiAnalyzer_cfi')
-process.GEMDigiAnalyzer.simTrackMatching.cscComparatorDigiInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.cscWireDigiInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.cscCLCTInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.cscALCTInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.cscLCTInput = ""
-process.GEMDigiAnalyzer.simTrackMatching.gemRecHitInput = ""
+from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
+MuonDigiAnalyzer = cms.EDAnalyzer("MuonDigiAnalyzer",
+    simTrackMatching = SimTrackMatching
+)
+process.MuonDigiAnalyzer.simTrackMatching.cscComparatorDigiInput = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscWireDigiInput = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscCLCTInput = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscALCTInput = ""
+process.MuonDigiAnalyzer.simTrackMatching.cscLCTInput = ""
+process.MuonDigiAnalyzer.simTrackMatching.gemRecHitInput = ""
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -40,5 +43,5 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string("gem_digi_ana.root")
 )
 
-process.p = cms.Path(process.GEMDigiAnalyzer)
+process.p = cms.Path(process.MuonDigiAnalyzer)
 
