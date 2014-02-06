@@ -54,7 +54,7 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets                                            
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
@@ -163,7 +163,7 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
@@ -241,21 +241,21 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step2"),
 #      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(1),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step3"),
 #      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(2),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step4"),
 #      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(3),                                                
 #    ), 
@@ -263,7 +263,7 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
 #      label  = cms.string("jets/pf:step5"),
       label  = cms.string("jets/pf:step2"),
       src  = cms.InputTag("PFJetsFilter"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string("pt>20 & abs(eta)<2.5"),
       min = cms.int32(4),                                                
     ),
@@ -315,7 +315,7 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets 
@@ -394,21 +394,21 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step2"),
 #      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(1),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step3"),
 #      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(2),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step4"),
 #      src  = cms.InputTag("PFJetsFilter"),
-#      jetCorrector = cms.string("ak5PFL2L3"),
+#      jetCorrector = cms.string("ak4PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(3),                                                
 #    ), 
@@ -416,7 +416,7 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
 #      label  = cms.string("jets/pf:step5"),
       label  = cms.string("jets/pf:step2"),
       src  = cms.InputTag("PFJetsFilter"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      jetCorrector = cms.string("ak4PFL2L3"),
       select = cms.string("pt>20 & abs(eta)<2.5"),
       min = cms.int32(4),                                                
     ),

@@ -75,11 +75,11 @@ process.source.inputCommands = cms.untracked.vstring("keep *","drop *_MEtoEDMCon
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 ak5CaloJetsCor = cms.InputTag("ak5CaloJetsL2L3")
 ak5PFJetsCor = cms.InputTag("ak5PFJetsL2L3")
-ak5JPTJetsCor = cms.InputTag("ak5JPTJetsL2L3")
+ak4JPTJetsCor = cms.InputTag("ak4JPTJetsL2L3")
 if not isMC:
     ak5CaloJetsCor = cms.InputTag("ak5CaloJetsL2L3Residual")
     ak5PFJetsCor = cms.InputTag("ak5PFJetsL2L3Residual")
-    ak5JPTJetsCor = cms.InputTag("ak5JPTJetsL2L3Residual")
+    ak4JPTJetsCor = cms.InputTag("ak4JPTJetsL2L3Residual")
 
 
 ##  ____       _           _   _             
@@ -99,8 +99,8 @@ process.ak5PFJetsSel = cms.EDFilter("PFJetSelector",
     cut = cms.string('pt > 20.0 && eta<3.0 && eta>-3.0')
 )
 
-process.ak5JPTJetsSel = cms.EDFilter("JPTJetSelector",  
-    src = ak5JPTJetsCor,
+process.ak4JPTJetsSel = cms.EDFilter("JPTJetSelector",  
+    src = ak4JPTJetsCor,
     cut = cms.string('pt > 20.0 && eta<3.0 && eta>-3.0')
 )
 
@@ -125,7 +125,7 @@ process.correctedAK5PF = cms.EDAnalyzer("PFJetPlotsExample",
     )
 #############   User analyzer (corrected jpt jets) #####
 process.correctedAK5JPT = cms.EDAnalyzer("JPTJetPlotsExample",
-    JetAlgorithm    = cms.string("ak5JPTJetsSel"),
+    JetAlgorithm    = cms.string("ak4JPTJetsSel"),
     HistoFileName   = cms.string('CorJetHisto_AK5JPT.root'),
     NJets           = cms.int32(NJetsToKeep)
     )
@@ -148,9 +148,9 @@ process.p = cms.Path( process.ak5CaloJetsL2L3 +
                       process.ak5PFJetsL2L3Residual +
                       process.ak5PFJetsSel +
                       process.correctedAK5PF  +                      
-                      process.ak5JPTJetsL2L3 +
-                      process.ak5JPTJetsL2L3Residual +                      
-                      process.ak5JPTJetsSel +
+                      process.ak4JPTJetsL2L3 +
+                      process.ak4JPTJetsL2L3Residual +                      
+                      process.ak4JPTJetsSel +
                       process.correctedAK5JPT
                       )
 #############   Format MessageLogger #################
