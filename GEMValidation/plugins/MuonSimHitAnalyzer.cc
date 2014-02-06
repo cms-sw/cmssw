@@ -618,7 +618,7 @@ bool GEMSimHitAnalyzer::isSimTrackGood(const SimTrack &t)
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
   if (t.momentum().pt() < minPt_) return false;
   const float eta(std::abs(t.momentum().eta()));
-  if (eta > 2.5 || eta < 1.45) return false; // no GEMs could be in such eta
+  if (eta > 4.0 || eta < 1.45) return false; // no GEMs could be in such eta
   return true;
 }
 
@@ -633,6 +633,11 @@ void GEMSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Event
     // match hits and digis to this SimTrack
     const SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
     const SimHitMatcher& match_sh = match.simhits();
+
+    //    match_sh.setGEMGeometry(gem_geometry_);
+    //    match_sh.setRPCGeometry(rpc_geometry_);
+    //    match_sh.setCSCGeometry(csc_geometry_);
+    //    match_sh.setME0Geometry(me0_geometry_);
    
     track.pt = t.momentum().pt();
     track.phi = t.momentum().phi();

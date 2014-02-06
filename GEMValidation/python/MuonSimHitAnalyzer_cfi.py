@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 
-GEMSimHitAnalyzer = cms.EDAnalyzer("GEMSimHitAnalyzer",
+MuonSimHitAnalyzer = cms.EDAnalyzer("MuonSimHitAnalyzer",
     verbose = cms.untracked.int32(0),
     simInputLabel = cms.untracked.string("g4SimHits"),
     minPt = cms.untracked.double(4.5),

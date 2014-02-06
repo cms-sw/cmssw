@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from GEMCode.GEMValidation.simTrackMatching_cfi import SimTrackMatching
 
-GEMDigiAnalyzer = cms.EDAnalyzer("GEMDigiAnalyzer",
+MuonDigiAnalyzer = cms.EDAnalyzer("MuonDigiAnalyzer",
     verbose = cms.untracked.int32(5),
     inputTagRPC = cms.untracked.InputTag("simMuonRPCDigis"),
     inputTagGEM = cms.untracked.InputTag("simMuonGEMDigis"),
