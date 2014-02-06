@@ -18,8 +18,8 @@ class SurfaceDeformation;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2010/10/29 12:16:28 $
- *  $Revision: 1.34 $
+ *  $Date: 2011/05/23 20:53:16 $
+ *  $Revision: 1.35 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -198,7 +198,7 @@ public:
   /// cache the current position, rotation and other parameters (e.g. surface deformations)
   virtual void cacheTransformation();
 
-  /// restore the previously cached transformation, also for possible components
+  /// restore the previously cached transformation
   virtual void restoreCachedTransformation();
 
   /// Return survey info
