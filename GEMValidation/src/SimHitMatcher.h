@@ -99,8 +99,14 @@ private:
 
   bool simMuOnlyCSC_;
   bool simMuOnlyGEM_;
+  bool simMuOnlyRPC_;
+  bool simMuOnlyME0_;
+
   bool discardEleHitsCSC_;
   bool discardEleHitsGEM_;
+  bool discardEleHitsRPC_;
+  bool discardEleHitsME0_;
+
   std::string simInputLabel_;
 
   const CSCGeometry* csc_geo_;
@@ -126,8 +132,13 @@ private:
 
   bool verboseGEM_;
   bool verboseCSC_;
+  bool verboseRPC_;
+  bool verboseME0_;
+
   edm::InputTag gemSimHitInput_;
   edm::InputTag cscSimHitInput_;
+  edm::InputTag rpcSimHitInput_;
+  edm::InputTag me0SimHitInput_;
 };
 
 #endif
