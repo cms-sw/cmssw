@@ -5,7 +5,7 @@ pfJets = 'ak4PFJets'
 
 pfJetBenchmark = cms.EDAnalyzer("PFJetBenchmarkAnalyzer",
     OutputFile = cms.untracked.string('JetBenchmark.root'),
-    InputTruthLabel = cms.InputTag('ak5GenJets'),
+    InputTruthLabel = cms.InputTag('ak4GenJets'),
     maxEta = cms.double(5.0),
     recPt = cms.double(10.0),
     pfjBenchmarkDebug = cms.bool(False),

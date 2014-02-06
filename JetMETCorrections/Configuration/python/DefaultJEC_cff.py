@@ -88,16 +88,16 @@ kt6PFJetsL1FastL2L3Residual = ak4PFJetsL2L3.clone(src = 'kt6PFJets', correctors 
 ic5PFJetsL1FastL2L3Residual = ak4PFJetsL2L3.clone(src = 'iterativeCone5PFJets', correctors = ['ic5PFL1FastL2L3Residual'])
 
 ##------------------  JPT JETS ----------------------------------
-ak5JPTJetsL2L3   = cms.EDProducer('JPTJetCorrectionProducer',
+ak4JPTJetsL2L3   = cms.EDProducer('JPTJetCorrectionProducer',
     src         = cms.InputTag('JetPlusTrackZSPCorJetAntiKt5'),
-    correctors  = cms.vstring('ak5JPTL2L3')
+    correctors  = cms.vstring('ak4JPTL2L3')
     )
 
-ak5JPTJetsL1L2L3 = ak5JPTJetsL2L3.clone(correctors = ['ak5JPTL1L2L3'])
-ak5JPTJetsL1FastL2L3 = ak5JPTJetsL2L3.clone(correctors = ['ak5JPTL1FastL2L3'])
-ak5JPTJetsL2L3Residual = ak5JPTJetsL2L3.clone(correctors = ['ak5JPTL2L3Residual'])
-ak5JPTJetsL1L2L3Residual = ak5JPTJetsL2L3.clone(correctors = ['ak5JPTL1L2L3Residual'])
-ak5JPTJetsL1FastL2L3Residual = ak5JPTJetsL2L3.clone(correctors = ['ak5JPTL1FastL2L3Residual'])
+ak4JPTJetsL1L2L3 = ak4JPTJetsL2L3.clone(correctors = ['ak4JPTL1L2L3'])
+ak4JPTJetsL1FastL2L3 = ak4JPTJetsL2L3.clone(correctors = ['ak4JPTL1FastL2L3'])
+ak4JPTJetsL2L3Residual = ak4JPTJetsL2L3.clone(correctors = ['ak4JPTL2L3Residual'])
+ak4JPTJetsL1L2L3Residual = ak4JPTJetsL2L3.clone(correctors = ['ak4JPTL1L2L3Residual'])
+ak4JPTJetsL1FastL2L3Residual = ak4JPTJetsL2L3.clone(correctors = ['ak4JPTL1FastL2L3Residual'])
 
 ##------------------  TRK JETS ----------------------------------
 ak4TrackJetsL2L3   = cms.EDProducer('TrackJetCorrectionProducer',

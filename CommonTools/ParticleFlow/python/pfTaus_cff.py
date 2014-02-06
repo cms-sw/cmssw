@@ -33,14 +33,14 @@ pfJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
 
 pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
 
-pfTauPFJets08Region = recoTauAK5PFJets08Region.clone()
+pfTauPFJets08Region = recoTauAK4PFJets08Region.clone()
 pfTauPFJets08Region.src = cms.InputTag("ak4PFJets")
 pfTauPFJetsRecoTauChargedHadrons = ak4PFJetsRecoTauChargedHadrons.clone()
 pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
 pfTauPFJetsRecoTauChargedHadrons.jetRegionSrc = 'pfTauPFJets08Region'
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = ak5PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 # Clone tau producer

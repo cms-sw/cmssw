@@ -28,7 +28,7 @@ kt4PFJetsL2 = kt4PFJetsL1.clone(correctors = ['kt4PFL2Relative'])
 kt6PFJetsL2 = kt6PFJetsL1.clone(correctors = ['kt6PFL2Relative'])
 ic5PFJetsL2 = ic5PFJetsL1.clone(correctors = ['ic5PFL2Relative'])
 
-ak5JPTJetsL2 = ak5JPTJetsL1.clone(correctors = ['ak5JPTL2Relative'])
+ak4JPTJetsL2 = ak4JPTJetsL1.clone(correctors = ['ak4JPTL2Relative'])
 ak4TrackJetsL2 = ak4TrackJetsL1.clone(correctors = ['ak5TRKL2Relative'])
 
 # L2L3 Correction Producers
@@ -43,7 +43,7 @@ kt4PFJetsL2L3 = kt4PFJetsL1.clone(correctors = ['kt4PFL2L3'])
 kt6PFJetsL2L3 = kt6PFJetsL1.clone(correctors = ['kt6PFL2L3'])
 ic5PFJetsL2L3 = ic5PFJetsL1.clone(correctors = ['ic5PFL2L3'])
 
-ak5JPTJetsL2L3 = ak5JPTJetsL1.clone(correctors = ['ak5JPTL2L3'])
+ak4JPTJetsL2L3 = ak4JPTJetsL1.clone(correctors = ['ak4JPTL2L3'])
 ak4TrackJetsL2L3 = ak4TrackJetsL1.clone(correctors = ['ak5TRKL2L3'])
 
 # L1L2L3 Correction Producers
@@ -58,7 +58,7 @@ kt4PFJetsL1L2L3 = kt4PFJetsL1.clone(correctors = ['kt4PFL1L2L3'])
 kt6PFJetsL1L2L3 = kt6PFJetsL1.clone(correctors = ['kt6PFL1L2L3'])
 ic5PFJetsL1L2L3 = ic5PFJetsL1.clone(correctors = ['ic5PFL1L2L3'])
 
-ak5JPTJetsL1L2L3 = ak5JPTJetsL1.clone(correctors = ['ak5JPTL1L2L3'])
+ak4JPTJetsL1L2L3 = ak4JPTJetsL1.clone(correctors = ['ak4JPTL1L2L3'])
 ak4TrackJetsL1L2L3 = ak4TrackJetsL1.clone(correctors = ['ak5TRKL1L2L3'])
 
 # L2L3L6 CORRECTION PRODUCERS

@@ -108,7 +108,7 @@ process.source = cms.Source("PoolSource",
 
 ### AntiKt5 JPT jets
 #JetAnalyzerAk5JPT = cms.EDFilter("CaloJetTester",
-#    src = cms.InputTag("ak5JPTJetsL2L3"),
+#    src = cms.InputTag("ak4JPTJetsL2L3"),
 #    srcGen = cms.InputTag("ak5GenJets"),
 ##    TurnOnEverything = cms.untracked.string('yes'),
 ##    TurnOnEverything = cms.untracked.string('no'),

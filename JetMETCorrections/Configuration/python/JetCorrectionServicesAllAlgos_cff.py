@@ -33,7 +33,7 @@ kt4PFL1Fastjet   = ak4PFL1Fastjet.clone()
 kt6PFL1Fastjet   = ak4PFL1Fastjet.clone()
 ic5PFL1Fastjet   = ak4PFL1Fastjet.clone()
 
-ak7JPTL1Fastjet  = ak5JPTL1Fastjet.clone()
+ak7JPTL1Fastjet  = ak4JPTL1Fastjet.clone()
 
 # SPECIAL L1JPTOffset
 ak7L1JPTOffset = ak5L1JPTOffset.clone()
