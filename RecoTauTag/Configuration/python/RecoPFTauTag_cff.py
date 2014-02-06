@@ -18,7 +18,7 @@ import FWCore.ParameterSet.Config as cms
 # faux jets with this collection
 from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import \
       RecoTauJetRegionProducer
-recoTauAK5PFJets08Region=RecoTauJetRegionProducer.clone(
+recoTauAK4PFJets08Region=RecoTauJetRegionProducer.clone(
     src = cms.InputTag("ak4PFJets")
 )
 
@@ -26,7 +26,7 @@ recoTauAK5PFJets08Region=RecoTauJetRegionProducer.clone(
 
 # Reconstruct the pi zeros in our pre-selected jets.
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
-         ak5PFJetsLegacyHPSPiZeros
+         ak4PFJetsLegacyHPSPiZeros
 ak4PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
 # import charged hadrons
 from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
@@ -83,7 +83,7 @@ recoTauPileUpVertices = cms.EDFilter(
 
 recoTauCommonSequence = cms.Sequence(
     ak4PFJetTracksAssociatorAtVertex *
-    recoTauAK5PFJets08Region*
+    recoTauAK4PFJets08Region*
     recoTauPileUpVertices*
     pfRecoTauTagInfoProducer
 )
