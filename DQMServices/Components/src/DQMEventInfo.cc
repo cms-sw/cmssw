@@ -46,14 +46,14 @@ DQMEventInfo::~DQMEventInfo(){
 }
 
 void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
-                                  edm::Run const & /* iRun*/,
+                                  edm::Run const & iRun,
                                   edm::EventSetup const & /* iSetup */)
 {
   ibooker.setCurrentFolder(eventInfoFolder_) ;
 
   //Event specific contents
   runId_     = ibooker.bookInt("iRun");
-  runId_->Fill(-1);
+  runId_->Fill(iRun.id().run());
   lumisecId_ = ibooker.bookInt("iLumiSection");
   lumisecId_->Fill(-1);
   eventId_   = ibooker.bookInt("iEvent");
@@ -79,6 +79,7 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
   processStartTimeStamp_ = ibooker.bookFloat("processStartTimeStamp");
   processStartTimeStamp_->Fill(currentTime_);
   runStartTimeStamp_ = ibooker.bookFloat("runStartTimeStamp");
+  runStartTimeStamp_->Fill(stampToReal(iRun.beginTime()));
   hostName_= ibooker.bookString("hostName",gSystem->HostName());
   processName_= ibooker.bookString("processName",subsystemname_);
   workingDir_= ibooker.bookString("workingDir",gSystem->pwd());
@@ -103,13 +104,9 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
     ibooker.bookString("eventSelection",evSelection);
   }
 
+
 }
 
-void DQMEventInfo::dqmBeginRun(const edm::Run& r, const edm::EventSetup &c )
-{
-  runId_->Fill(r.id().run());
-  runStartTimeStamp_->Fill(stampToReal(r.beginTime()));
-}
 
 void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c)
 {
