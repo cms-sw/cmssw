@@ -34,22 +34,25 @@ namespace edmNew {
     
     
     inline
-    DetSet() : m_id(0), m_data(0), m_offset(0), m_size(0){}
+    DetSet() : m_id(0), m_data(0), m_offset(-1), m_size(0){}
     inline
     DetSet(id_type i, DataContainer const & idata, size_type ioffset, size_type isize) :
       m_id(i), m_data(&idata), m_offset(ioffset), m_size(isize) {}
     
     inline
     DetSet(Container const & icont,
-	   typename Container::Item const & item) :
-      m_id(0), m_data(0), m_offset(0), m_size(0){
-      set(icont,item);
+	   typename Container::Item const & item, bool update) :
+      m_id(0), m_data(0), m_offset(-1), m_size(0){
+      set(icont,item, update);
     }
 
     //FIXME (it may confuse users as size_type is same type as id_type...)
     inline
     void set(Container const & icont,
-	     typename Container::Item const & item);
+	     typename Container::Item const & item, bool update=true);
+
+    bool isValid() const { return m_offset>=0;}
+
     inline
     data_type & operator[](size_type i) {
       return data()[i];
@@ -98,7 +101,7 @@ namespace edmNew {
     
     id_type m_id;
     DataContainer const * m_data;
-    size_type m_offset;
+    int m_offset;
     size_type m_size;
   };
 }
