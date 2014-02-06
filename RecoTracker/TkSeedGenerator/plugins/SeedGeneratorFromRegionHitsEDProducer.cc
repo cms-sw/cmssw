@@ -25,9 +25,9 @@
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
-  : theRegionProducer(0),
+  : theRegionProducer(nullptr),
     theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet"),consumesCollector()),
-    theMerger_(0)
+    theMerger_(nullptr)
 {
   theSilentOnClusterCheck = cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false);
 
@@ -40,7 +40,7 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   edm::ConsumesCollector iC = consumesCollector();
   if ( cfg.exists("SeedMergerPSet")) {
     edm::ParameterSet mergerPSet = cfg.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
-    theMerger_=new QuadrupletSeedMerger(mergerPSet.getParameter<edm::ParameterSet>( "layerList" ), creatorPSet, iC);
+    theMerger_.reset(new QuadrupletSeedMerger(mergerPSet.getParameter<edm::ParameterSet>( "layerList" ), creatorPSet, iC));
     theMerger_->setTTRHBuilderLabel( mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" ) );
     theMerger_->setMergeTriplets( mergerPSet.getParameter<bool>( "mergeTriplets" ) );
     theMerger_->setAddRemainingTriplets( mergerPSet.getParameter<bool>( "addRemainingTriplets" ) );
@@ -49,7 +49,7 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   edm::ParameterSet regfactoryPSet = 
       cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
+  theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
 
   edm::ParameterSet hitsfactoryPSet =
       cfg.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -73,7 +73,6 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
 
 SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
 {
-  delete theRegionProducer; theRegionProducer = nullptr;
 }
 
 void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
@@ -100,7 +99,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
   typedef std::vector<TrackingRegion* > Regions;
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(ev,es);
-  if (theMerger_!=0)
+  if (theMerger_)
     theMerger_->update(es);
 
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
@@ -113,7 +112,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
 
     // make quadruplets
     // (TODO: can partly be propagated to the merger)
-    if ( theMerger_ !=0 ) {
+    if ( theMerger_ ) {
       TrajectorySeedCollection const& tempQuads = theMerger_->mergeTriplets( *triplets, region, es); //@@
       for( TrajectorySeedCollection::const_iterator qIt = tempQuads.begin(); qIt < tempQuads.end(); ++qIt ) {
 	quadruplets->push_back( *qIt );
@@ -125,7 +124,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 
   // put to event
-  if ( theMerger_!=0)
+  if ( theMerger_)
     ev.put(quadruplets);
   else
     ev.put(triplets);
