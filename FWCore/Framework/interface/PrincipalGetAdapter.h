@@ -334,12 +334,12 @@ namespace edm {
     // for this function, since it is *not* to be used by EDProducers?
     std::vector<Handle<PROD> > products;
 
-    typename BasicHandleVec::const_iterator it = bhv.begin();
-    typename BasicHandleVec::const_iterator end = bhv.end();
+    typename BasicHandleVec::iterator it = bhv.begin();
+    typename BasicHandleVec::iterator end = bhv.end();
 
     while (it != end) {
       Handle<PROD> result;
-      convert_handle(*it, result);  // throws on conversion error
+      convert_handle(std::move(*it), result);  // throws on conversion error
       products.push_back(result);
       ++it;
     }

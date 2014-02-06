@@ -11,15 +11,14 @@
 #include "SiStripGaussianSmearingRecHitConverterAlgorithm.h"
 
 // Famos
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 // STL
 
 // #define FAMOS_DEBUG
 
-SiStripGaussianSmearingRecHitConverterAlgorithm::SiStripGaussianSmearingRecHitConverterAlgorithm
-(const RandomEngine* engine) : random(engine) {}
-
+SiStripGaussianSmearingRecHitConverterAlgorithm::SiStripGaussianSmearingRecHitConverterAlgorithm()
+{ }
 
 void 
 SiStripGaussianSmearingRecHitConverterAlgorithm::smearHit(const PSimHit& simHit, 
@@ -27,7 +26,8 @@ SiStripGaussianSmearingRecHitConverterAlgorithm::smearHit(const PSimHit& simHit,
 							  double localPositionResolutionY,	
 							  double localPositionResolutionZ,
                                                           double boundX,
-                                                          double boundY) 
+                                                          double boundY,
+                                                          RandomEngineAndDistribution const* random)
 {
 
   // Gaussian Smearing

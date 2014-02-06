@@ -35,7 +35,8 @@ PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& con
     _xcheckSeedCandidates(conf.getParameter<std::string>( "xcheckSeedCandidates") ),
     _DoxcheckSeedCandidates( conf.getParameter<bool>( "DoxcheckSeedCandidates") )
 {
-  _theFinder = new PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(conf);
+  _theFinder = new PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(conf,
+  	consumesCollector());
   produces<TrajectorySeedCollection>(_newSeedCandidates);
   if(_DoxcheckSeedCandidates)
     produces<TrajectorySeedCollection>(_xcheckSeedCandidates);

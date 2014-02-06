@@ -7,7 +7,7 @@ class MultiTrajectoryStateMode ;
 class EcalClusterFunctionBaseClass ;
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-
+#include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
@@ -33,6 +33,7 @@ class EcalClusterFunctionBaseClass ;
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
@@ -41,9 +42,13 @@ class EcalClusterFunctionBaseClass ;
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
 
+
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
+
+#include "RecoEgamma/ElectronIdentification/interface/SoftElectronMVAEstimator.h"
+
 
 #include <list>
 #include <string>
@@ -69,6 +74,7 @@ class GsfElectronAlgo {
        edm::EDGetTokenT<reco::TrackCollection> ctfTracks ;
        edm::EDGetTokenT<reco::BeamSpot> beamSpotTag ;
        edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag ;
+       edm::EDGetTokenT<reco::VertexCollection> vtxCollectionTag;
 
       //IsoVals (PF and EcalDriven)
       edm::ParameterSet pfIsoVals;
@@ -94,6 +100,11 @@ class GsfElectronAlgo {
       bool addPflowElectrons ;
       // for backward compatibility
       bool ctfTracksCheck ;
+      bool gedElectronMode;
+      float PreSelectMVA;		
+      // GED-Regression (ECAL and combination)
+      bool useEcalRegression;
+      bool useCombinationRegression;  
      } ;
 
     struct CutsConfiguration
@@ -191,8 +202,10 @@ class GsfElectronAlgo {
       const IsolationConfiguration &,
       const EcalRecHitsConfiguration &,
       EcalClusterFunctionBaseClass * superClusterErrorFunction,
-      EcalClusterFunctionBaseClass * crackCorrectionFunction
-     ) ;
+      EcalClusterFunctionBaseClass * crackCorrectionFunction,
+      const SoftElectronMVAEstimator::Configuration & mvaCfg,	
+      const RegressionHelper::Configuration & regCfg
+      ) ;
 
     ~GsfElectronAlgo() ;
 
@@ -228,6 +241,7 @@ class GsfElectronAlgo {
 
     void createElectron() ;
 
+    void setMVAepiBasedPreselectionFlag(reco::GsfElectron * ele);
     void setCutBasedPreselectionFlag( reco::GsfElectron * ele, const reco::BeamSpot & ) ;
     void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;

@@ -50,12 +50,7 @@ public:
   { }
 
   // explicit c'tor from a ParameterSet
-  explicit Data(const edm::ParameterSet & config, edm::ConsumesCollector && iC) : Data(config) {
-      if (not m_hltResultsTag.label().empty()) iC.consumes<edm::TriggerResults>(m_hltResultsTag);
-      if (not m_l1tResultsTag.label().empty()) iC.consumes<L1GlobalTriggerReadoutRecord>(m_hltResultsTag);
-  }
-
-  explicit Data(const edm::ParameterSet & config) :
+  explicit Data(const edm::ParameterSet & config, edm::ConsumesCollector && iC) :
     // configuration
     m_hltResultsTag(config.getParameter<edm::InputTag>("hltResults")),
     m_hltResultsToken(),
@@ -79,7 +74,10 @@ public:
     m_hltUpdated(false),
     // event values
     m_eventNumber()
-  { }
+      {
+	if (not m_hltResultsTag.label().empty()) m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
+	if (not m_l1tResultsTag.label().empty()) m_l1tResultsToken = iC.consumes<L1GlobalTriggerReadoutRecord>(m_l1tResultsTag);
+      }
 
   // explicit c'tor from single arguments
   Data(
@@ -88,8 +86,8 @@ public:
     unsigned int          daqPartitions,
     bool                  l1tIgnoreMask,
     bool                  l1techIgnorePrescales,
-    bool                  doThrow
-  ) :
+    bool                  doThrow,
+    edm::ConsumesCollector && iC  ) :
     // configuration
     m_hltResultsTag(hltResultsTag),
     m_hltResultsToken(),
@@ -113,7 +111,10 @@ public:
     m_hltUpdated(false),
     // event values
     m_eventNumber()
-  { }
+      {
+	if (not m_hltResultsTag.label().empty()) m_hltResultsToken = iC.consumes<edm::TriggerResults>(m_hltResultsTag);
+	if (not m_l1tResultsTag.label().empty()) m_l1tResultsToken = iC.consumes<L1GlobalTriggerReadoutRecord>(m_l1tResultsTag);
+      }
 
   // set the new event
   bool setEvent(const edm::Event & event, const edm::EventSetup & setup);

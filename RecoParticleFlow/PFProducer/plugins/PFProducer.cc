@@ -213,7 +213,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
     ele_iso_combIso_barrel(0.0), ele_iso_combIso_endcap(0.0), 
     ele_noniso_mva(0.0);
   unsigned int ele_missinghits(0);
-  double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0);
+  double ph_MinEt(0.0), ph_combIso(0.0), ph_HoE(0.0), 
+    ph_sietaieta_eb(0.0),ph_sietaieta_ee(0.0);
   string ele_iso_mvaWeightFile(""), ele_iso_path_mvaWeightFile("");
   edm::ParameterSet ele_protectionsForJetMET,ph_protectionsForJetMET;
 
@@ -234,6 +235,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
    ph_MinEt  = iConfig.getParameter<double>("photon_MinEt");
    ph_combIso  = iConfig.getParameter<double>("photon_combIso");
    ph_HoE = iConfig.getParameter<double>("photon_HoE");
+   ph_sietaieta_eb = iConfig.getParameter<double>("photon_SigmaiEtaiEta_barrel");
+   ph_sietaieta_ee = iConfig.getParameter<double>("photon_SigmaiEtaiEta_endcap");
    useProtectionsForJetMET = 
      iConfig.getParameter<bool>("useProtectionsForJetMET");
    ele_protectionsForJetMET = 
@@ -336,6 +339,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 				ph_MinEt,
 				ph_combIso,
 				ph_HoE,
+				ph_sietaieta_eb,
+				ph_sietaieta_ee,
 				ph_protectionsForJetMET);
 
   //Secondary tracks and displaced vertices parameters

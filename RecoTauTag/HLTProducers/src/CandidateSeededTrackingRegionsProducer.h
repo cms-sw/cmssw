@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -46,7 +47,8 @@ public:
 
   typedef enum {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
 
-  explicit CandidateSeededTrackingRegionsProducer(const edm::ParameterSet& conf)
+  explicit CandidateSeededTrackingRegionsProducer(const edm::ParameterSet& conf,
+	edm::ConsumesCollector && iC)
   {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
@@ -59,14 +61,13 @@ public:
     else  edm::LogError ("CandidateSeededTrackingRegionsProducer")<<"Unknown mode string: "<<modeString;
 
     // basic inputs
-    m_input            = regPSet.getParameter<edm::InputTag>("input");
+    token_input        = iC.consumes<reco::CandidateView>(regPSet.getParameter<edm::InputTag>("input"));
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
-    m_beamSpot         = regPSet.getParameter<edm::InputTag>("beamSpot");
-    m_vertexCollection = edm::InputTag();
+    token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
     if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA)
     {
-      m_vertexCollection = regPSet.getParameter<edm::InputTag>("vertexCollection");
+      token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
       m_maxNVertices     = regPSet.getParameter<int>("maxNVertices");
     }
 
@@ -109,13 +110,13 @@ public:
 
     // pick up the candidate objects of interest
     edm::Handle< reco::CandidateView > objects;
-    e.getByLabel( m_input, objects );
+    e.getByToken( token_input, objects );
     size_t n_objects = objects->size();
     if (n_objects == 0) return result;
 
     // always need the beam spot (as a fall back strategy for vertex modes)
     edm::Handle< reco::BeamSpot > bs;
-    e.getByLabel( m_beamSpot, bs );
+    e.getByToken( token_beamSpot, bs );
     if( !bs.isValid() ) return result;
 
     // this is a default origin for all modes
@@ -135,7 +136,7 @@ public:
     else if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA)
     {
       edm::Handle< reco::VertexCollection > vertices;
-      e.getByLabel( m_vertexCollection, vertices );
+      e.getByToken( token_vertex, vertices );
       int n_vert = 0;
       for (reco::VertexCollection::const_iterator v = vertices->begin(); v != vertices->end() && n_vert < m_maxNVertices; ++v)
       {
@@ -193,10 +194,10 @@ private:
 
   Mode m_mode;
 
-  edm::InputTag m_input;
   int m_maxNRegions;
-  edm::InputTag m_beamSpot;
-  edm::InputTag m_vertexCollection;
+  edm::EDGetTokenT<reco::VertexCollection> token_vertex; 
+  edm::EDGetTokenT<reco::BeamSpot> token_beamSpot; 
+  edm::EDGetTokenT<reco::CandidateView> token_input; 
   int m_maxNVertices;
 
   float m_ptMin;

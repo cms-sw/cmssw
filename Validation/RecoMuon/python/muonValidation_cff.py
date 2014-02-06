@@ -111,6 +111,14 @@ staMuonTrackVMuonAssoc.label = ('standAloneMuons',)
 staMuonTrackVMuonAssoc.usetracker = False
 staMuonTrackVMuonAssoc.usemuon = True
 
+staSeedTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+staSeedTrackVMuonAssoc.associatormap = 'tpToStaSeedAssociation'
+staSeedTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
+staSeedTrackVMuonAssoc.label = ('seedsOfSTAmuons',)
+staSeedTrackVMuonAssoc.usetracker = False
+staSeedTrackVMuonAssoc.usemuon = True
+
+
 staUpdMuonTrackVMuonAssoc = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
 staUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaUpdMuonAssociation'
 staUpdMuonTrackVMuonAssoc.associators = ('MuonAssociationByHits',)
@@ -241,6 +249,18 @@ recoMuonVMuAssoc_sta.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalone'
 recoMuonVMuAssoc_sta.trackType = 'outer'
 recoMuonVMuAssoc_sta.selection = "isStandAloneMuon"
 
+#seed of StandAlone
+muonAssociatorByHitsESProducerNoSimHits_Seedsta = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
+muonAssociatorByHitsESProducerNoSimHits_Seedsta.ComponentName = 'muonAssociatorByHits_NoSimHits_seedOfStandalone'
+muonAssociatorByHitsESProducerNoSimHits_Seedsta.UseTracker = False
+muonAssociatorByHitsESProducerNoSimHits_Seedsta.UseMuon  = True
+recoMuonVMuAssoc_seedSta = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
+recoMuonVMuAssoc_seedSta.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_SeedSta'
+recoMuonVMuAssoc_seedSta.simLabel = 'mix:MergedTrackTruth'
+recoMuonVMuAssoc_seedSta.muAssocLabel = 'muonAssociatorByHits_NoSimHits_standalone'
+recoMuonVMuAssoc_seedSta.trackType = 'outer'
+recoMuonVMuAssoc_seedSta.selection = ""
+
 #standalone and PF
 muonAssociatorByHitsESProducerNoSimHits_staPF = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
 muonAssociatorByHitsESProducerNoSimHits_staPF.ComponentName = 'muonAssociatorByHits_NoSimHits_standalonePF'
@@ -300,7 +320,7 @@ muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
                                   +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt)
 
 muonValidationTest_seq = cms.Sequence(trkMuonTrackVMuonTrackAssoc
-                                 +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
+                                 +staMuonTrackVMuonAssoc+staSeedTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
                                   +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt)
                                   
 muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc+tevMuonDytTrackVMuonAssoc)

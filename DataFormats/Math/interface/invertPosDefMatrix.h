@@ -4,6 +4,7 @@
 #include "Math/SMatrix.h"
 #include "Math/CholeskyDecomp.h"
 // #include "DataFormats/Math/interface/CholeskyDecomp.h"
+#include "SIMDVec.h"
 
 template<typename T,unsigned int N>
 inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T,N> > & m) {
@@ -31,51 +32,55 @@ inline bool invertPosDefMatrix(ROOT::Math::SMatrix<T,N,N,ROOT::Math::MatRepSym<T
 
 }
 
+
 // here for a test
-#if defined(__SSE3__)
-#include <pmmintrin.h>
+#ifdef NEVER
+// #if defined(USE_EXTVECT)
 
 namespace mathSSE {
   struct M2 {
+    using Vec=Vec4<double>;
     // the matrix is shuffed
-    struct M {double m00,m01,m11,m10;};
-    union {
-      double m[4];
-      __m128d r[2];
-      M mm;
-    };
+    Vec mm[2];
+
+    double m00() const { return mm[0][0];}
+    double m01() const { return mm[0][1];}
+    double m11() const { return mm[1][0];}
+    double m10() const { return mm[1][1];}
+
+    double & m00() { return mm[0][0];}
+    double & m01() { return mm[0][1];}
+    double & m11() { return mm[1][0];}
+    double & m10() { return mm[1][1];}
     
 
     // load shuffled
     inline M2(double i00, double i01, double i10, double i11) {
-      mm.m00=i00; mm.m01=i01; mm.m11=i11; mm.m10=i10; }
+      m00()=i00; m01()=i01; m11()=i11; m10()=i10; }
 
-    double & operator[](int i) { return m[i];}
-    __m128d & r0() { return r[0]; }
-    __m128d & r1() { return r[1]; }
+    Vec & r0() { return mm[0]; }
+    Vec & r1() { return mm[1]; }
     
-    double  operator[](int i) const { return m[i];}
-    __m128d const & r0() const { return r[0]; }
-    __m128d const & r1() const { return r[1]; }
+    Vec const & r0() const { return mm[0]; }
+    Vec const & r1() const { return mm[1]; }
     
     
     // assume second row is already shuffled
     inline bool invert() {
-      __m128d tmp = r1();
+      Vec tmp = r1();
       // mult and sub
-      __m128d det  = _mm_mul_pd(r0(),tmp);
-      __m128d det2 = _mm_shuffle_pd(det,det,1);
+      Vec det  = r0()*tmp;
+      Vec det2{det[1],det[0]};
       // det  and -det 
-      det = _mm_sub_pd(det,det2);
+      det -= det2;
       // m0 /det, m1/-det -> m3, m2
-      r1() = _mm_div_pd(r0(),det);
+      r1() = r0()/det;
       // m3/det, m2/-det -> m0 m1
-      r0() = _mm_div_pd(tmp,det);
-      double d; _mm_store_sd(&d,det);
-      return !(0.==d);
+      r0() = tmp/det;
+      return (0.!=det[0]);
     } 
   
-  }  __attribute__ ((aligned (16))) ;
+  };
 }
 
 template<>
@@ -84,9 +89,9 @@ inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Ma
 
   bool ok = mm.invert();
   if (ok) {
-    m.Array()[0] = mm[0];
-    m.Array()[1] = mm[1];
-    m.Array()[2] = mm[2];
+    m.Array()[0] = mm.m00();
+    m.Array()[1] = mm.m01();
+    m.Array()[2] = mm.m11();
   }
   return ok;
 }
@@ -98,12 +103,15 @@ inline bool invertPosDefMatrix<double,2>(ROOT::Math::SMatrix<double,2,2,ROOT::Ma
   mathSSE::M2 mm(mIn.Array()[0], mIn.Array()[1], mIn.Array()[1], mIn.Array()[2]);
 
   bool ok = mm.invert();
-  mOut.Array()[0] = mm[0];
-  mOut.Array()[1] = mm[1];
-  mOut.Array()[2] = mm[2];
+  mOut.Array()[0] = mm.m00();
+  mOut.Array()[1] = mm.m01();
+  mOut.Array()[2] = mm.m11();
 
   return ok;
 }
+
+
+
 
 #endif
 

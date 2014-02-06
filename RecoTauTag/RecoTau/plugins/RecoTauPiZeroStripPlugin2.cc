@@ -50,7 +50,7 @@ namespace {
 class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin 
 {
  public:
-  explicit RecoTauPiZeroStripPlugin2(const edm::ParameterSet&);
+  explicit RecoTauPiZeroStripPlugin2(const edm::ParameterSet&,edm::ConsumesCollector &&iC);
   virtual ~RecoTauPiZeroStripPlugin2();
   // Return type is auto_ptr<PiZeroVector>
   return_type operator()(const reco::PFJet&) const override;
@@ -85,9 +85,9 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
   AddFourMomenta p4Builder_;
 };
 
-RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& pset)
-  : RecoTauPiZeroBuilderPlugin(pset),
-    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
+  RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
+    : RecoTauPiZeroBuilderPlugin(pset,std::move(iC)),
+      vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)),
     qcuts_(0)
 {
   LogTrace("RecoTauPiZeroStripPlugin2") << "<RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2>:" ;
@@ -185,7 +185,7 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 
   // Get the candidates passing our quality cuts
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
-  PFCandPtrs candsVector = qcuts_->filterRefs(pfCandidates(jet, inputPdgIds_));
+  PFCandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputPdgIds_));
 
   // Convert to stl::list to allow fast deletions
   PFCandPtrs seedCands;

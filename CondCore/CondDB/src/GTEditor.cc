@@ -1,6 +1,5 @@
 #include "CondCore/CondDB/interface/GTEditor.h"
 #include "SessionImpl.h"
-#include "GTSchema.h"
 //
 
 namespace cond {
@@ -52,10 +51,10 @@ namespace cond {
     }
     
     void GTEditor::load( const std::string& gtName ){
-      checkSession( "GTEditor::load" );
+      checkTransaction( "GTEditor::load" );
       
       // loads the current header data in memory
-      if( !GLOBAL_TAG::select( gtName, m_data->validity, m_data->description, m_data->release, m_data->snapshotTime, *m_session ) ){
+      if( !m_session->gtSchema().gtTable().select( gtName, m_data->validity, m_data->description, m_data->release, m_data->snapshotTime ) ){
 	throwException( "Global Tag \""+gtName+"\" has not been found in the database.","GTEditor::load");
       }
       m_data->name = gtName;
@@ -117,7 +116,8 @@ namespace cond {
     
     void GTEditor::insert( const std::string& recordName, const std::string& recordLabel, const std::string& tagName, bool ){
       if( m_data.get() ){
-	// here the type check could be added                                                                                                                
+	// here the type check could be added                                                                                              
+        
 	std::string rlabel = recordLabel;
 	if( rlabel.empty() ){
 	  rlabel = "-";
@@ -128,18 +128,18 @@ namespace cond {
     
     bool GTEditor::flush( const boost::posix_time::ptime& operationTime ){
       bool ret = false;
-      checkSession( "GTEditor::flush" );
+      checkTransaction( "GTEditor::flush" );
       if( m_data->change ){
 	if( m_data->description.empty() ) throwException( "A non-empty Description string is mandatory.","GTEditor::flush" );
 	if( m_data->release.empty() ) throwException( "A non-empty Release string is mandatory.","GTEditor::flush" );
 	if( !m_data->exists ){
-	  GLOBAL_TAG::insert( m_data->name, m_data->validity, m_data->description, m_data->release, 
-			      m_data->snapshotTime, operationTime, *m_session );
+	  m_session->gtSchema().gtTable().insert( m_data->name, m_data->validity, m_data->description, 
+						  m_data->release, m_data->snapshotTime, operationTime );
 	  ret = true;
 	  m_data->exists = true;
 	} else {
-	  GLOBAL_TAG::update( m_data->name,  m_data->validity, m_data->description, m_data->release,
-			      m_data->snapshotTime, operationTime, *m_session );
+	  m_session->gtSchema().gtTable().update( m_data->name,  m_data->validity, m_data->description, 
+						  m_data->release,m_data->snapshotTime, operationTime );
 	  ret = true;
 	}
 	m_data->change = false;  
@@ -147,7 +147,7 @@ namespace cond {
       if( m_data->tagListBuffer.size() ) {
 	
 	// insert the new iovs
-	GLOBAL_TAG_MAP::insert( m_data->name, m_data->tagListBuffer, *m_session );
+	m_session->gtSchema().gtMapTable().insert( m_data->name, m_data->tagListBuffer );
 	m_data->tagListBuffer.clear();
 	ret = true;
       }
@@ -159,8 +159,9 @@ namespace cond {
     }
     
     
-    void GTEditor::checkSession( const std::string& ctx ){
+    void GTEditor::checkTransaction( const std::string& ctx ){
       if( !m_session.get() ) throwException("The session is not active.",ctx );
+      if( !m_session->isTransactionActive( false ) ) throwException("The transaction is not active.",ctx );
     }
     
   }

@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetSignalVertexCompatibilityAlgo.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class JetSignalVertexCompatibility : public edm::EDProducer {
     public:
@@ -19,8 +20,9 @@ class JetSignalVertexCompatibility : public edm::EDProducer {
     private:
 	reco::JetSignalVertexCompatibilityAlgo	algo;
 
-	const edm::InputTag			jetTracksAssocLabel;
-	const edm::InputTag			primaryVerticesLabel;
+	edm::EDGetTokenT<reco::JetTracksAssociationCollection> jetTracksAssocToken;
+	edm::EDGetTokenT<reco::VertexCollection> primaryVerticesToken;
+
 };
 
 #endif // JetSignalVertexCompatibility_h

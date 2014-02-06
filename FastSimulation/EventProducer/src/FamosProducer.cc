@@ -21,6 +21,7 @@
 #include "FastSimulation/Event/interface/PrimaryVertexGenerator.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -72,7 +73,9 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
    using namespace edm;
 
-  //  // The beam spot position
+   RandomEngineAndDistribution random(iEvent.streamID());
+
+   //  // The beam spot position
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
    iEvent.getByLabel(theBeamSpotLabel,recoBeamSpotHandle); 
    math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
@@ -149,9 +152,9 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 
    // pass the event to the Famos Manager for propagation and simulation
    if (myGenParticlesXF) {
-     famosManager_->reconstruct(myGenParticlesXF,tTopo);
+     famosManager_->reconstruct(myGenParticlesXF,tTopo, &random);
    } else {
-     famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents,tTopo);
+     famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents,tTopo, &random);
    }
 
    // Set the vertex back to the HepMCProduct (except if it was smeared already)
@@ -211,4 +214,3 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 }
 
 DEFINE_FWK_MODULE(FamosProducer);
-

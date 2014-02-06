@@ -82,6 +82,7 @@ class GlobalDigisHistogrammer : public edm::EDAnalyzer
 
   edm::InputTag GlobalDigisSrc_;
   //edm::InputTag srcGlobalDigis;
+  edm::EDGetTokenT<PGlobalDigi> GlobalDigisSrc_Token_;
 
   // Electromagnetic info
   // ECal info

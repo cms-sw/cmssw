@@ -1,21 +1,16 @@
 #include "FastSimulation/MaterialEffects/interface/PairProductionSimulator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <cmath>
 
-PairProductionSimulator::PairProductionSimulator(double photonEnergyCut,
-					     const RandomEngine* engine) :
-  MaterialEffectsSimulator(engine) 
+PairProductionSimulator::PairProductionSimulator(double photonEnergyCut)
 {
-
   // Set the minimal photon energy for possible conversion 
   photonEnergy = std::max(0.100,photonEnergyCut);  
-
 }
 
-
 void 
-PairProductionSimulator::compute(ParticlePropagator& Particle)
+PairProductionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDistribution const* random)
 {
 
   double eGamma = Particle.e(); 
@@ -56,13 +51,13 @@ PairProductionSimulator::compute(ParticlePropagator& Particle)
       double stheta1, stheta2, ctheta1, ctheta2;
 
       if ( eElectron > ePositron ) {
-	double theta1  = gbteth(eElectron,eMass(),xe)*eMass()/eElectron;
+	double theta1  = gbteth(eElectron,eMass(),xe,random)*eMass()/eElectron;
 	stheta1 = std::sin(theta1);
 	ctheta1 = std::cos(theta1);
 	stheta2 = stheta1*pElectron/pPositron;
 	ctheta2 = std::sqrt(std::max(0.,1.0-(stheta2*stheta2)));
       } else {
-	double theta2  = gbteth(ePositron,eMass(),xe)*eMass()/ePositron;
+	double theta2  = gbteth(ePositron,eMass(),xe,random)*eMass()/ePositron;
 	stheta2 = std::sin(theta2);
 	ctheta2 = std::cos(theta2);
 	stheta1 = stheta2*pPositron/pElectron;
@@ -100,7 +95,7 @@ PairProductionSimulator::compute(ParticlePropagator& Particle)
 }
 
 double 
-PairProductionSimulator::gbteth(double ener,double partm,double efrac)
+PairProductionSimulator::gbteth(double ener,double partm,double efrac, RandomEngineAndDistribution const* random)
 {
   const double alfa = 0.625;
 

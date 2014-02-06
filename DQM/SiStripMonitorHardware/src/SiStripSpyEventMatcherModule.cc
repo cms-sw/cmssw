@@ -111,7 +111,7 @@ namespace sistrip {
     //    event.getByLabel(primaryStreamRawDataTag_,fedRawDataHandle);
     event.getByToken(primaryStreamRawDataToken_,fedRawDataHandle);
     const FEDRawDataCollection& fedRawData = *fedRawDataHandle;
-    for (std::vector<uint16_t>::const_iterator iFedId = cabling.feds().begin(); iFedId != cabling.feds().end(); ++iFedId) {
+    for (auto iFedId = cabling.fedIds().begin(); iFedId != cabling.fedIds().end(); ++iFedId) {
       const FEDRawData& data = fedRawData.FEDData(*iFedId);
       if ( (!data.data()) || (!data.size()) ) {
         LogDebug(messageLabel_) << "Failed to get FED data for FED ID " << *iFedId;
@@ -137,8 +137,8 @@ namespace sistrip {
           continue;
         }
         const FEDFullDebugHeader* header = dynamic_cast<const FEDFullDebugHeader*>(buffer->feHeader());
-        const std::vector<FedChannelConnection>& connections = cabling.connections(*iFedId);
-        for (std::vector<FedChannelConnection>::const_iterator iConn = connections.begin(); iConn != connections.end(); ++iConn) {
+        auto connections = cabling.fedConnections(*iFedId);
+        for (auto iConn = connections.begin(); iConn != connections.end(); ++iConn) {
           if (!iConn->isConnected()) {
             continue;
           }

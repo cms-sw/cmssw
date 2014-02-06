@@ -289,6 +289,7 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     //cout << " Updating Summary " << endl;
     //sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
     //sipixelWebInterface_->performAction();
+    sipixelActionExecutor_->createSummary(bei_);
      //cout << " Updating efficiency plots" << endl;
     if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_);
     //cout << " Checking QTest results " << endl;

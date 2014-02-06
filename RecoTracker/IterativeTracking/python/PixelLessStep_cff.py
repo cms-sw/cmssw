@@ -19,6 +19,15 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
     )
 )
 
+pixelLessStepSeedClusters = pixelLessStepClusters.clone(
+    doStripChargeCheck = cms.bool(True),
+    stripRecHits = cms.string('siStripMatchedRecHits'),
+    Common = cms.PSet(
+        maxChi2 = cms.double(9.0),
+        minGoodStripCharge = cms.double(70.0)
+    )
+)
+
 # SEEDING LAYERS
 pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     ComponentName = cms.string('pixelLessStepSeedLayers'),
@@ -30,11 +39,11 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     TIB = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepClusters')
+        skipClusters = cms.InputTag('pixelLessStepSeedClusters')
     ),
     TID = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
+        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -42,7 +51,7 @@ pixelLessStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
     ),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepClusters'),
+        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -96,7 +105,7 @@ pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     alwaysUseInvalidHits = False,
     estimator = cms.string('pixelLessStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxPtForLooperReconstruction = cms.double(0.7)
     )
 
 # MAKING OF TRACK CANDIDATES
@@ -128,6 +137,7 @@ pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepSelector
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelLessStepTracks',
     useAnyMVA = cms.bool(True),
@@ -173,12 +183,39 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             d0_par2 = ( 0.7, 4.0 ),
             dz_par2 = ( 0.7, 4.0 )
             ),
+        mixedTripletStepSelector.trackSelectors[4].clone(
+            name = 'pixelLessStepVtx',
+            preFilterName=cms.string(''),
+            keepAllTracks = cms.bool(False)
+            ),
+        mixedTripletStepSelector.trackSelectors[5].clone(
+            name = 'pixelLessStepTrk',
+            preFilterName=cms.string(''),
+            keepAllTracks = cms.bool(False)
+            )
         ) #end of vpset
     ) #end of clone
 
+# need to merge the three sets
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+pixelLessStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag("pixelLessStepTracks"),
+                                   cms.InputTag("pixelLessStepTracks"),
+                                   cms.InputTag("pixelLessStepTracks")),
+    hasSelector=cms.vint32(1,1,1),
+    shareFrac=cms.double(0.11),
+    indivShareFrac=cms.vdouble(0.11,0.11,0.11),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("pixelLessStepSelector","pixelLessStep"),
+                                       cms.InputTag("pixelLessStepSelector","pixelLessStepVtx"),
+                                       cms.InputTag("pixelLessStepSelector","pixelLessStepTrk")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2), pQual=cms.bool(True) )),
+    writeOnlyTrkQuals=cms.bool(True)
+)                        
 
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
+                             pixelLessStepSeedClusters*
                              pixelLessStepSeeds*
                              pixelLessStepTrackCandidates*
                              pixelLessStepTracks*
-                             pixelLessStepSelector)
+                             pixelLessStepSelector*
+                             pixelLessStep)

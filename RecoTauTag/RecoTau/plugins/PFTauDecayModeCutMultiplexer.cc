@@ -46,9 +46,11 @@ class PFTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
    private:
       // PFTau discriminator continaing the decaymode index of the tau collection
       edm::InputTag                  pfTauDecayModeIndexSrc_;
+      edm::EDGetTokenT<PFTauDiscriminator> pfTauDecayModeIndex_token;
 
       // Discriminant to multiplex cut on
       edm::InputTag                  discriminantToMultiplex_;
+      edm::EDGetTokenT<PFTauDiscriminator> discriminant_token;
 
       DecayModeToCutMap         computerMap_;      //Maps decay mode to MVA implementation
       CutList                   computers_;
@@ -61,7 +63,8 @@ PFTauDecayModeCutMultiplexer::PFTauDecayModeCutMultiplexer(const edm::ParameterS
 {
    pfTauDecayModeIndexSrc_  = iConfig.getParameter<edm::InputTag>("PFTauDecayModeSrc");
    discriminantToMultiplex_ = iConfig.getParameter<edm::InputTag>("PFTauDiscriminantToMultiplex");
-
+   pfTauDecayModeIndex_token = consumes<PFTauDiscriminator>(pfTauDecayModeIndexSrc_);
+   discriminant_token = consumes<PFTauDiscriminator>(discriminantToMultiplex_);
    //get the computer/decay mode map
    std::vector<edm::ParameterSet> decayModeMap = iConfig.getParameter<std::vector<edm::ParameterSet> >("computers");
    computers_.reserve(decayModeMap.size());
@@ -100,8 +103,8 @@ void
 PFTauDecayModeCutMultiplexer::beginEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-   iEvent.getByLabel(pfTauDecayModeIndexSrc_, pfTauDecayModeIndices);
-   iEvent.getByLabel(discriminantToMultiplex_, targetDiscriminant);
+   iEvent.getByToken(pfTauDecayModeIndex_token, pfTauDecayModeIndices);
+   iEvent.getByToken(discriminant_token, targetDiscriminant);
 }
 
 double PFTauDecayModeCutMultiplexer::discriminate(const PFTauRef& pfTau)

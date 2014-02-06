@@ -5,14 +5,67 @@ from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
+
+from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
+gedphotonGBRESSource = cms.ESSource(
+    "PoolDBESSource",
+    CondDBCommon,
+    DumpStat=cms.untracked.bool(False),
+    toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedphoton_EBCorrection_offline_v1'),
+    label = cms.untracked.string('gedphoton_EBCorrection_offline_v1')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedphoton_EECorrection_offline_v1'),
+    label = cms.untracked.string('gedphoton_EECorrection_offline_v1')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedphoton_EBUncertainty_offline_v1'),
+    label = cms.untracked.string('gedphoton_EBUncertainty_offline_v1')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedphoton_EEUncertainty_offline_v1'),
+    label = cms.untracked.string('gedphoton_EEUncertainty_offline_v1')
+    ),
+    )
+)
+gedphotonGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
+
+gedphotonPrefer = cms.ESPrefer(
+    'PoolDBESSource',
+    'gedphotonGBRESSource',
+    GBRWrapperRcd = cms.vstring('GBRForest/gedphoton_EBCorrection_offline_v1',
+                                'GBRForest/gedphoton_EECorrection_offline_v1',
+                                'GBRForest/gedphoton_EBUncertainty_offline_v1',
+                                'GBRForest/gedphoton_EEUncertainty_offline_v1')
+)
+
 #
 # producer for photons
 #
 gedPhotons = cms.EDProducer("GEDPhotonProducer",
-    photonProducer = cms.InputTag("tmpGedPhoton"),                        
+    photonProducer = cms.InputTag("gedPhotonsTmp"),                        
+    reconstructionStep = cms.string("tmp"),
+    #old regression <<<<<< >>>>>> do not use
     regressionWeightsFromDB =   cms.bool(True),                    
     energyRegressionWeightsFileLocation = cms.string('/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root'),
-    energyRegressionWeightsDBLocation = cms.string('wgbrph'), 
+    energyRegressionWeightsDBLocation = cms.string('wgbrph'),
+    # refined SC regression setup
+    useRegression = cms.bool(True),
+    regressionConfig = cms.PSet(
+       regressionKeyEB = cms.string('gedphoton_EBCorrection_offline_v1'),
+       regressionKeyEE = cms.string('gedphoton_EECorrection_offline_v1'),
+       uncertaintyKeyEB = cms.string('gedphoton_EBUncertainty_offline_v1'),
+       uncertaintyKeyEE = cms.string('gedphoton_EEUncertainty_offline_v1'),
+       vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+       ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ),
     superClusterEnergyCorrFunction =  cms.string("EcalClusterEnergyCorrection"),                  
     superClusterEnergyErrorFunction = cms.string("EcalClusterEnergyUncertainty"),
     superClusterCrackEnergyCorrFunction =  cms.string("EcalClusterCrackCorrection"),                                       
@@ -22,7 +75,7 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     outputPhotonCollection = cms.string(""),                         
     valueMapPhotons = cms.string("valMapPFEgammaCandToPhoton"),             
     #candidateP4type = cms.string("fromRegression"),
-    candidateP4type = cms.string("fromEcalEnergy"),                     
+    candidateP4type = cms.string("fromRefinedSCRegression"),
     isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
     PFIsolationCalculatorSet = cms.PSet(pfIsolationCalculator),                        
     mipVariableSet = cms.PSet(mipVariable), 

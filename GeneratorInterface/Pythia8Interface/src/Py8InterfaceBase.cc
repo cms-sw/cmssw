@@ -1,12 +1,4 @@
-//#include <iostream>
-//#include <sstream>
-//#include <string>
-//#include <memory>
-//#include <stdint.h>
-
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
-#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -16,18 +8,14 @@ namespace gen {
 
 Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
 {
-
-  randomEngine = &getEngineReference();
-
   fMasterGen.reset(new Pythia);
   fDecayer.reset(new Pythia);
 
   fMasterGen->readString("Next:numberShowEvent = 0");
   fDecayer->readString("Next:numberShowEvent = 0");
 
-  // RandomP8* RP8 = new RandomP8();
-  fMasterGen->setRndmEnginePtr( new RandomP8() );
-  fDecayer->setRndmEnginePtr( new RandomP8() );
+  fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
+  fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
   
   fParameters = ps.getParameter<edm::ParameterSet>("PythiaParameters");
   

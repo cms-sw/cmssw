@@ -1,12 +1,11 @@
 #include "FastSimulation/Utilities/interface/SimpleHistogramGenerator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <cmath>
 #include "TH1.h"
 // #include <iostream>
 
-SimpleHistogramGenerator::SimpleHistogramGenerator(TH1 * histo, const RandomEngine* engine) :
-  random(engine), 
+SimpleHistogramGenerator::SimpleHistogramGenerator(TH1 * histo) :
   myHisto(histo),
   theXaxis(histo->GetXaxis()),
   nBins(theXaxis->GetNbins()),
@@ -26,7 +25,7 @@ SimpleHistogramGenerator::SimpleHistogramGenerator(TH1 * histo, const RandomEngi
 
 
 double 
-SimpleHistogramGenerator::generate() const {
+SimpleHistogramGenerator::generate(RandomEngineAndDistribution const* random) const {
 
   // return a random number distributed according the histogram bin contents.
   // NB Only valid for 1-d histograms, with fixed bin width.

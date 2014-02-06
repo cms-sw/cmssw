@@ -48,6 +48,29 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet) :
 
   conf_ = iPSet;
 
+  // fix for consumes
+  ECalUncalEBSrc_Token_ = consumes<EBUncalibratedRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalUncalEBSrc"));
+  ECalUncalEESrc_Token_ = consumes<EEUncalibratedRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalUncalEESrc"));
+  ECalEBSrc_Token_ = consumes<EBRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
+  ECalEESrc_Token_ = consumes<EERecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalEESrc"));
+  ECalESSrc_Token_ = consumes<ESRecHitCollection>(iPSet.getParameter<edm::InputTag>("ECalESSrc"));
+  HCalSrc_Token_ = consumes<edm::PCaloHitContainer>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  SiStripSrc_Token_ = consumes<SiStripMatchedRecHit2DCollection>(iPSet.getParameter<edm::InputTag>("SiStripSrc"));
+  SiPxlSrc_Token_ = consumes<SiPixelRecHitCollection>(iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
+
+  MuDTSrc_Token_ = consumes<DTRecHitCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
+  MuDTSimSrc_Token_ = consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("MuDTSimSrc"));
+
+  MuCSCSrc_Token_ = consumes<CSCRecHit2DCollection>(iPSet.getParameter<edm::InputTag>("MuCSCSrc"));
+  MuCSCHits_Token_ = consumes<CrossingFrame<PSimHit>>(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("MuonCSCHits")));
+
+  MuRPCSrc_Token_ = consumes<RPCRecHitCollection>(iPSet.getParameter<edm::InputTag>("MuRPCSrc"));
+  MuRPCSimSrc_Token_ = consumes<edm::PSimHitContainer>(iPSet.getParameter<edm::InputTag>("MuRPCSimSrc"));
+
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), iPSet.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
+
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -384,7 +407,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   //extract EB information
   ////////////////////////
   edm::Handle<EBUncalibratedRecHitCollection> EcalUncalibRecHitEB;
-  iEvent.getByLabel(ECalUncalEBSrc_, EcalUncalibRecHitEB);
+  iEvent.getByToken(ECalUncalEBSrc_Token_, EcalUncalibRecHitEB);
   bool validUncalibRecHitEB = true;
   if (!EcalUncalibRecHitEB.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -393,7 +416,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   }  
   
   edm::Handle<EBRecHitCollection> EcalRecHitEB;
-  iEvent.getByLabel(ECalEBSrc_, EcalRecHitEB);
+  iEvent.getByToken(ECalEBSrc_Token_, EcalRecHitEB);
   bool validRecHitEB = true;
   if (!EcalRecHitEB.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -402,8 +425,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   }  
 
   // loop over simhits
-  const std::string barrelHitsName(hitsProducer+"EcalHitsEB");
-  iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
+  iEvent.getByToken(EBHits_Token_,crossingFrame);
   bool validXFrame = true;
   if (!crossingFrame.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -462,7 +484,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   //extract EE information
   ////////////////////////
   edm::Handle<EEUncalibratedRecHitCollection> EcalUncalibRecHitEE;
-  iEvent.getByLabel(ECalUncalEESrc_, EcalUncalibRecHitEE);
+  iEvent.getByToken(ECalUncalEESrc_Token_, EcalUncalibRecHitEE);
   bool validuncalibRecHitEE = true;
   if (!EcalUncalibRecHitEE.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -471,7 +493,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   }  
   
   edm::Handle<EERecHitCollection> EcalRecHitEE;
-  iEvent.getByLabel(ECalEESrc_, EcalRecHitEE);
+  iEvent.getByToken(ECalEESrc_Token_, EcalRecHitEE);
   bool validRecHitEE = true;
   if (!EcalRecHitEE.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -480,8 +502,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   }  
   
   // loop over simhits
-  const std::string endcapHitsName(hitsProducer+"EcalHitsEE");
-  iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
+  iEvent.getByToken(EEHits_Token_,crossingFrame);
   validXFrame = true;
   if (!crossingFrame.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -540,7 +561,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   //extract ES information
   ////////////////////////
   edm::Handle<ESRecHitCollection> EcalRecHitES;
-  iEvent.getByLabel(ECalESSrc_, EcalRecHitES);
+  iEvent.getByToken(ECalESSrc_Token_, EcalRecHitES);
   bool validRecHitES = true;
   if (!EcalRecHitES.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -549,8 +570,7 @@ void GlobalRecHitsAnalyzer::fillECal(const edm::Event& iEvent,
   }  
 
   // loop over simhits
-  const std::string preshowerHitsName(hitsProducer+"EcalHitsES");
-  iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
+  iEvent.getByToken(ESHits_Token_,crossingFrame);
   validXFrame = true;
   if (!crossingFrame.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -629,7 +649,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent,
   // extract simhit info
   //////////////////////
   edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByLabel(HCalSrc_,hcalHits);
+  iEvent.getByToken(HCalSrc_Token_,hcalHits);
   bool validhcalHits = true;
   if (!hcalHits.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -913,7 +933,7 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   
   // get strip information
   edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
-  iEvent.getByLabel(SiStripSrc_, rechitsmatched);
+  iEvent.getByToken(SiStripSrc_Token_, rechitsmatched);
   bool validstrip = true;
   if (!rechitsmatched.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1131,7 +1151,7 @@ void GlobalRecHitsAnalyzer::fillTrk(const edm::Event& iEvent,
   // get pixel information
   //Get RecHits
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  iEvent.getByLabel(SiPxlSrc_, recHitColl);
+  iEvent.getByToken(SiPxlSrc_Token_, recHitColl);
   bool validpixel = true;
   if (!recHitColl.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1305,7 +1325,7 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   }  
 
   edm::Handle<edm::PSimHitContainer> dtsimHits;
-  iEvent.getByLabel(MuDTSimSrc_, dtsimHits);
+  iEvent.getByToken(MuDTSimSrc_Token_, dtsimHits);
   bool validdtsim = true;
   if (!dtsimHits.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1314,7 +1334,7 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   } 
 
   edm::Handle<DTRecHitCollection> dtRecHits;
-  iEvent.getByLabel(MuDTSrc_, dtRecHits);
+  iEvent.getByToken(MuDTSrc_Token_, dtRecHits);
   bool validdtrec = true;
   if (!dtRecHits.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1344,7 +1364,7 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   theMap.clear();
   edm::Handle<CrossingFrame<PSimHit> > cf;
 
-  iEvent.getByLabel("mix",hitsProducer+"MuonCSCHits",cf);
+  iEvent.getByToken(MuCSCHits_Token_,cf);
   bool validXFrame = true;
   if (!cf.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1373,7 +1393,7 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
 
   // get rechits
   edm::Handle<CSCRecHit2DCollection> hRecHits;
-  iEvent.getByLabel(MuCSCSrc_, hRecHits);
+  iEvent.getByToken(MuCSCSrc_Token_, hRecHits);
   bool validCSC = true;
   if (!hRecHits.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1429,7 +1449,7 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   }  
 
   edm::Handle<edm::PSimHitContainer> simHit;
-  iEvent.getByLabel(MuRPCSimSrc_, simHit);
+  iEvent.getByToken(MuRPCSimSrc_Token_, simHit);
   bool validrpcsim = true;
   if (!simHit.isValid()) {
     LogDebug(MsgLoggerCat)
@@ -1438,7 +1458,7 @@ void GlobalRecHitsAnalyzer::fillMuon(const edm::Event& iEvent,
   }    
 
   edm::Handle<RPCRecHitCollection> recHit;
-  iEvent.getByLabel(MuRPCSrc_, recHit);
+  iEvent.getByToken(MuRPCSrc_Token_, recHit);
   bool validrpc = true;
   if (!simHit.isValid()) {
     LogDebug(MsgLoggerCat)

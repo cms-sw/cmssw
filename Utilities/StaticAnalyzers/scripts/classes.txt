@@ -1,40 +1,187 @@
+base class <anonymous namespace>::Dummy
+base class BaseMETv0
+base class BaseTrackerRecHit
+base class CSCChannelMapperBase
+base class CSCCorrelatedLCTDigi
+base class CSCIndexerBase
+base class CSCReadoutMapping
+base class CSCTriggerMapping
+base class CaloRecHit
+base class CaloSubdetectorGeometry
+base class CaloSubdetectorTopology
+base class CaloTPGTranscoder
+base class CastorCondObjectContainer
+base class Chi2MeasurementEstimatorBase
+base class ClusterParameterEstimator
+base class CoreSimTrack
+base class CoreSimVertex
+base class DTChamberId
+base class DTRecSegment2D
+base class DTSuperLayerId
+base class DetId
+base class DetIdAssociator
+base class DetLayerGeometry
+base class DistanceBetweenComponents
+base class EcalDigiCollection
+base class EcalSrFlag
+base class EcalTPGGroups
+base class EcalUnpackerWorkerBase
+base class Empty
+base class GSSiTrackerRecHit2DLocalPos
+base class GloballyPositioned
+base class GsfMaterialEffectsUpdator
+base class HcalCondObjectContainer
+base class HcalCondObjectContainerBase
+base class HcalTPGCoder
+base class JetCorrector
+base class JetTagComputer
+base class KinematicResolutionProvider
+base class L1GctCand
+base class L1GtfeWord
+base class L1MuRegionalCand
+base class MagneticField
+base class MeasurementDetSystem
+base class MeasurementEstimator
+base class MeasurementTracker
+base class MultiGaussianStateMerger
+base class NavigationSchool
+base class OrderedSeedingHits
+base class PV3DBase
+base class ParametersDefinerForTP
+base class PerformancePayload
+base class PhysicsTools::Calibration::MVAComputer
+base class PhysicsTools::Calibration::MVAComputerContainer
+base class PixelClusterParameterEstimator
+base class PixelToFEDAssociate
+base class Propagator
+base class ProxyBase
+base class RBCBoardSpecs
+base class RPCReadOutMapping
+base class RecHit1D
+base class RecHit2DLocalPos
+base class RecSegment
+base class RooDirItem
+base class RooPrintable
+base class SiPixelFedCabling
+base class SiStripBadStrip
+base class StripClusterParameterEstimator
+base class TArrayC
+base class TArrayD
+base class TArrayF
+base class TArrayI
+base class TArrayS
+base class TAtt3D
+base class TAttAxis
+base class TAttBBox
+base class TAttFill
+base class TAttLine
+base class TAttMarker
+base class TAttText
+base class TEveElement
+base class TEveProjectable
+base class TEveSecondarySelectable
+base class TGeoAtt
+base class TGeoShape
+base class TH1
+base class TH1D
+base class TH2
+base class TH2D
+base class TH3
+base class TH3D
+base class TNamed
+base class TObjArray
+base class TQObject
+base class TTUBoardSpecs
+base class TinyEvent
+base class TkLasBeam
+base class TopGenEvent
+base class TrackAssociatorBase
+base class TrackerSingleRecHit
+base class TrackingGeometry
+base class TrajectoryBuilder
+base class TrajectoryCleaner
+base class TrajectoryFilter
+base class TrajectoryFitter
+base class TrajectorySeed
+base class TrajectorySmoother
+base class TrajectoryStateClosestToBeamLineBuilder
+base class TrajectoryStateUpdator
+base class TransientTrackingRecHitBuilder
+base class TtEvent
+base class VertexAssociatorBase
+base class __gnu_cxx::new_allocator
+base class cond::BaseKeyed
+base class condex::Efficiency
+base class edmNew::dstvdetails::DetSetVectorTrans
+base class edmtest::Simple
+base class npstat::AbsMultivariateFunctor
+base class npstat::StorableMultivariateFunctor
+base class pat::Lepton
+base class pat::PATObject
+base class pat::TriggerObject
+base class reco::BaseTagInfo
+base class reco::BaseTau
+base class reco::BaseTauTagInfo
+base class reco::BasicJet
+base class reco::CaloCluster
+base class reco::CaloJet
+base class reco::Candidate
+base class reco::CastorCluster
+base class reco::CompositeCandidate
+base class reco::CompositePtrCandidate
+base class reco::CompositeRefBaseCandidate
+base class reco::CompositeRefCandidateT
+base class reco::GenJet
+base class reco::JPTJet
+base class reco::JTATagInfo
+base class reco::Jet
+base class reco::JetTagInfo
+base class reco::LeafCandidate
+base class reco::LeafRefCandidateT
+base class reco::MET
+base class reco::PFBlockElement
+base class reco::PFCandidate
+base class reco::PFCluster
+base class reco::PFJet
+base class reco::PFRecTrack
+base class reco::PFTrack
+base class reco::RecoCandidate
+base class reco::Track
+base class reco::TrackBase
+base class reco::TrackExtraBase
+base class reco::TrackJet
+base class reco::Vertex
+base class test_with_dictionaries::IntValue
+base class testreftobase::Base
+base class trigger::TriggerRefsCollections
 class <anonymous namespace>::Dummy
 class <anonymous namespace>::Dummy2
 class <anonymous namespace>::IntValue
 class <anonymous namespace>::M5T
 class APVCyclePhaseCollection
-class AbsFFTJetAdjuster
-class AbsFFTJetScaleCalculator
 class AlCaRecoTriggerBits
 class AlCaRecoTriggerBitsRcd
-class AlignTransform
-class AlignTransformError
 class AlignmentClusterFlag
 class AlignmentErrors
 class AlignmentSurfaceDeformations
-class AlignmentSurfaceDeformations::Item
 class Alignments
 class AnalyticalPropagator
 class AnomalousECALVariables
+class BTagHLTOfflineSource::PathInfoCollection
 class BTagPerformanceRecord
 class BTagTrackProbability2DRcd
 class BTagTrackProbability3DRcd
 class BTauGenericMVAJetTagComputerRcd
-class BarrelDetLayer
+class BarrelMeasurementEstimator
 class BaseCkfTrajectoryBuilder
 class BaseMETv0
-class BaseTrackerRecHit
 class BeamHaloPropagator
 class BeamSpotObjects
 class BeamSpotObjectsRcd
 class BeamSpotOnline
-class BoundSpan
 class BoundaryInformation
-class Bounds
+class BscAnalysisHistManager
 class BtagPerformance
-class CLHEP::Hep3Vector
-class CLHEP::HepEulerAngles
-class CLHEP::HepSymMatrix
 class CSCALCTDigi
 class CSCALCTStatusDigi
 class CSCAlignmentErrorRcd
@@ -68,7 +215,6 @@ class CSCDBCrosstalkRcd
 class CSCDBGains
 class CSCDBGainsRcd
 class CSCDBGasGainCorrection
-class CSCDBGasGainCorrection::Item
 class CSCDBGasGainCorrectionRcd
 class CSCDBL1TPParameters
 class CSCDBL1TPParametersRcd
@@ -85,11 +231,9 @@ class CSCDDUStatusDigi
 class CSCDMBStatusDigi
 class CSCDetId
 class CSCGains
-class CSCGains::Item
 class CSCGainsRcd
 class CSCGeometry
 class CSCIdentifier
-class CSCIdentifier::Item
 class CSCIdentifierRcd
 class CSCIndexerBase
 class CSCIndexerPostls1
@@ -97,15 +241,11 @@ class CSCIndexerRecord
 class CSCIndexerStartup
 class CSCL1TPParameters
 class CSCL1TPParametersRcd
-class CSCMapItem::MapItem
 class CSCNoiseMatrix
-class CSCNoiseMatrix::Item
 class CSCNoiseMatrixRcd
 class CSCPedestals
-class CSCPedestals::Item
 class CSCPedestalsRcd
 class CSCRPCDigi
-class CSCRSensorData
 class CSCRSensors
 class CSCRSensorsRcd
 class CSCReadoutMapping
@@ -120,19 +260,15 @@ class CSCStripDigi
 class CSCSurveyErrorRcd
 class CSCSurveyRcd
 class CSCTMBStatusDigi
-class CSCTriggerContainer
 class CSCTriggerElectronicsMapping
 class CSCTriggerMapping
 class CSCTriggerSimpleMapping
 class CSCWireDigi
-class CSCZSensorData
 class CSCZSensors
 class CSCZSensorsRcd
 class CSCcrosstalk
-class CSCcrosstalk::Item
 class CSCcrosstalkRcd
 class CaenChannel
-class CalibratedHistogramXML
 class CaloDetIdAssociator
 class CaloGenericDetId
 class CaloGeometry
@@ -156,20 +292,12 @@ class CaloTowerTopology
 class CastorAlignmentErrorRcd
 class CastorAlignmentRcd
 class CastorCalibrationQIEData
-class CastorCalibrationWidths
-class CastorCalibrationWidthsSet
-class CastorCalibrationWidthsSet::CalibWidthSetObject
-class CastorCalibrations
-class CastorCalibrationsSet
-class CastorCalibrationsSet::CalibSetObject
 class CastorChannelQuality
 class CastorChannelQualityRcd
 class CastorDataFrame
 class CastorDbRecord
 class CastorDbService
 class CastorElectronicsMap
-class CastorElectronicsMap::PrecisionItem
-class CastorElectronicsMap::TriggerItem
 class CastorElectronicsMapRcd
 class CastorGainWidths
 class CastorGainWidthsRcd
@@ -193,8 +321,8 @@ class CastorTPGCoder
 class CastorTPGRecord
 class CastorTopology
 class CastorTriggerPrimitiveDigi
+class CentralityBins
 class CentralityTable
-class CentralityTable::CBin
 class ChainedJetCorrector
 class ChargeSignificanceTrajectoryFilter
 class Chi2MeasurementEstimator
@@ -204,83 +332,62 @@ class Chi2Strip1DEstimator
 class Chi2Switching1DEstimator
 class CkfBaseTrajectoryFilter
 class CkfComponentsRecord
-class CloseComponentsMerger
 class ClusterCollectionFP420
 class ClusterFP420
 class ClusterShapeHitFilter
-class ClusterShapeHitFilter::PixelData
 class ClusterShapeTrajectoryFilter
 class ClusterSummary
+class CmsShowNavigator::FileQueue_t
 class CombinedSVCalibration
-class CombinedSVCalibration::Entry
 class CombinedSVCategoryData
 class CombinedTauTagCalibration
-class CombinedTauTagCalibration::Entry
 class CombinedTauTagCategoryData
 class CombinedTauTagRcd
 class CommonMETData
-class CommonMETv0Data
 class CompositeLogicalTrajectoryFilter
 class CompositeTrajectoryFilter
 class ConfObject
 class ConfObjectRcd
 class ConstMagneticField
-class ConstReferenceCountingPointer
+class ConversionBarrelEstimator
+class ConversionForwardEstimator
 class CopyNoSwappy
 class CorrMETData
 class CosmicMuonSmoother
 class CosmicParametersDefinerForTP
-class CrossingFrame
 class CrossingFramePlaybackInfo
 class CrossingFramePlaybackInfoExtended
 class CurrentAlignmentKFUpdator
-class CurvilinearTrajectoryError
-class Cylinder
 class DDCompactView
-class DDExpandedNode
-class DDI::Store
-class DDLogicalPart
-class DDName
+class DDNodes
+class DDPartSelection
 class DIPLumiDetail
 class DIPLumiSummary
 class DIPLuminosityRcd
 class DQMReferenceHistogramRootFileRcd
+class DQMStoreStatsSubsystem
+class DQMStoreStatsTopLevel
 class DQMSummary
 class DQMSummaryRcd
 class DQMXMLFileRcd
 class DTAlignmentErrorRcd
 class DTAlignmentRcd
-class DTBtiId
 class DTCCBConfig
 class DTCCBConfigRcd
 class DTChamberId
-class DTConfigBti
-class DTConfigLUTs
 class DTConfigManager
 class DTConfigManagerRcd
-class DTConfigPedestals
-class DTConfigSectColl
-class DTConfigTSPhi
-class DTConfigTSTheta
-class DTConfigTraco
-class DTConfigTrigUnit
 class DTDeadFlag
-class DTDeadFlagData
-class DTDeadFlagId
 class DTDeadFlagRcd
 class DTDigi
 class DTDigiSimLink
 class DTGeometry
 class DTHVStatus
-class DTHVStatusData
-class DTHVStatusId
 class DTHVStatusRcd
 class DTKeyedConfig
 class DTKeyedConfigContainerRcd
 class DTKeyedConfigListRcd
 class DTLVStatus
-class DTLVStatusData
-class DTLVStatusId
 class DTLVStatusRcd
 class DTLayerId
 class DTLocalTrigger
@@ -289,22 +396,15 @@ class DTMtimeRcd
 class DTPerformance
 class DTPerformanceRcd
 class DTRangeT0
-class DTRangeT0Data
-class DTRangeT0Id
 class DTRangeT0Rcd
-class DTReadOutGeometryLink
 class DTReadOutMapping
 class DTReadOutMappingRcd
-class DTRecHit1D
 class DTRecHit1DPair
 class DTRecSegment4D
 class DTRecoGeometryRcd
 class DTSLRecCluster
 class DTSLRecSegment2D
-class DTSectCollId
 class DTStatusFlag
-class DTStatusFlagData
-class DTStatusFlagId
 class DTStatusFlagRcd
 class DTSuperLayerId
 class DTSurveyErrorRcd
@@ -315,25 +415,19 @@ class DTT0Rcd
 class DTT0RefRcd
 class DTTPGParameters
 class DTTPGParametersRcd
-class DTTracoId
 class DTTtrig
 class DTTtrigRcd
-class DTWireId
-class DccSpec
 class DcsStatus
-class DeepCopyPointerByClone
 class DepOn2Record
 class DepRecord
+class DetGroup
 class DetId
 class DetIdAssociator
 class DetIdAssociatorRecord
 class DetLayerGeometry
 class DigiCollectionFP420
-class Disk
 class DisplayGeomRecord
-class DistanceBetweenComponents
 class DropBoxMetadata
-class DropBoxMetadata::Parameters
 class DropBoxMetadataRcd
 class Dummy
 class Dummy2Record
@@ -355,7 +449,6 @@ class ESAlignmentRcd
 class ESAngleCorrectionFactorsRcd
 class ESChannelStatusCode
 class ESChannelStatusRcd
-class ESCondObjectContainer
 class ESDCCHeaderBlock
 class ESDataFrame
 class ESDetId
@@ -395,9 +488,7 @@ class ESThresholdsRcd
 class ESTimeSampleWeights
 class ESTimeSampleWeightsRcd
 class ESUnpackerWorker
-class ESWeightSet
 class ESWeightStripGroupsRcd
-class EZArrayFL
 class EcalADCToGeVConstant
 class EcalADCToGeVConstantRcd
 class EcalBarrelGeometry
@@ -411,9 +502,6 @@ class EcalClusterEnergyCorrectionObjectSpecificParametersRcd
 class EcalClusterEnergyCorrectionParametersRcd
 class EcalClusterEnergyUncertaintyParametersRcd
 class EcalClusterLocalContCorrParametersRcd
-class EcalCondObjectContainer
-class EcalCondTowerObjectContainer
-class EcalContainer
 class EcalDAQStatusCode
 class EcalDAQTowerStatusRcd
 class EcalDCCHeaderBlock
@@ -425,7 +513,6 @@ class EcalDQMTowerStatusRcd
 class EcalDigiCollection
 class EcalElectronicsId
 class EcalElectronicsMapping
-class EcalElectronicsMapping::MapItem
 class EcalEndcapGeometry
 class EcalEndcapGeometryRecord
 class EcalEndcapHardcodedTopology
@@ -434,14 +521,11 @@ class EcalFunParams
 class EcalGainRatiosRcd
 class EcalGeometryDescriptionRcd
 class EcalGlobalShowerContainmentCorrectionsVsEta
-class EcalGlobalShowerContainmentCorrectionsVsEta::Coefficients
 class EcalGlobalShowerContainmentCorrectionsVsEtaRcd
 class EcalIntercalibConstantsMCRcd
 class EcalIntercalibConstantsRcd
 class EcalIntercalibErrorsRcd
 class EcalLaserAPDPNRatios
-class EcalLaserAPDPNRatios::EcalLaserAPDPNpair
-class EcalLaserAPDPNRatios::EcalLaserTimeStamp
 class EcalLaserAPDPNRatiosRcd
 class EcalLaserAPDPNRatiosRefRcd
 class EcalLaserAlphasRcd
@@ -475,36 +559,29 @@ class EcalScDetId
 class EcalSeverityLevelAlgo
 class EcalSeverityLevelAlgoRcd
 class EcalShowerContainmentCorrections
-class EcalShowerContainmentCorrections::Coefficients
 class EcalShowerContainmentCorrectionsLogE2E1Rcd
 class EcalShowerContainmentCorrectionsRcd
 class EcalTBEventHeader
 class EcalTBHodoscopeGeometry
-class EcalTBHodoscopePlaneRawHits
 class EcalTBHodoscopeRawInfo
 class EcalTBHodoscopeRecInfo
 class EcalTBTDCRawInfo
 class EcalTBTDCRecInfo
-class EcalTBTDCSample
 class EcalTBWeights
 class EcalTBWeightsRcd
-class EcalTPGCompressor
 class EcalTPGCrystalStatusCode
 class EcalTPGCrystalStatusRcd
-class EcalTPGFineGrainConstEB
 class EcalTPGFineGrainEBGroup
 class EcalTPGFineGrainEBGroupRcd
 class EcalTPGFineGrainEBIdMap
 class EcalTPGFineGrainEBIdMapRcd
 class EcalTPGFineGrainStripEE
-class EcalTPGFineGrainStripEE::Item
 class EcalTPGFineGrainStripEERcd
 class EcalTPGFineGrainTowerEE
 class EcalTPGFineGrainTowerEERcd
 class EcalTPGGroupsRcd
 class EcalTPGLinearizationConstRcd
 class EcalTPGLinearizationConstant
-class EcalTPGLut
 class EcalTPGLutGroup
 class EcalTPGLutGroupRcd
 class EcalTPGLutIdMap
@@ -512,7 +589,6 @@ class EcalTPGLutIdMapRcd
 class EcalTPGPedestal
 class EcalTPGPedestalsRcd
 class EcalTPGPhysicsConst
-class EcalTPGPhysicsConst::Item
 class EcalTPGPhysicsConstRcd
 class EcalTPGScale
 class EcalTPGSlidingWindow
@@ -527,17 +603,15 @@ class EcalTPGWeightGroup
 class EcalTPGWeightGroupRcd
 class EcalTPGWeightIdMap
 class EcalTPGWeightIdMapRcd
-class EcalTPGWeights
+class EcalTimeBiasCorrections
+class EcalTimeBiasCorrectionsRcd
 class EcalTimeCalibConstantsRcd
 class EcalTimeCalibErrorsRcd
 class EcalTimeDependentCorrections
-class EcalTimeDependentCorrections::Times
-class EcalTimeDependentCorrections::Values
 class EcalTimeOffsetConstant
 class EcalTimeOffsetConstantRcd
 class EcalTrigPrimCompactColl
 class EcalTrigTowerConstituentsMap
-class EcalTrigTowerConstituentsMap::MapItem
 class EcalTrigTowerDetId
 class EcalTriggerElectronicsId
 class EcalTriggerPrimitiveDigi
@@ -545,18 +619,14 @@ class EcalUncalibratedRecHit
 class EcalUnpackerWorker
 class EcalUnpackerWorkerBase
 class EcalUnpackerWorkerRecord
-class EcalWeightSet
 class EcalWeightXtalGroupsRcd
 class EcalXtalGroupId
 class ElectronLikelihood
 class ElectronLikelihoodCalibration
-class ElectronLikelihoodCalibration::Entry
-class ElectronLikelihoodCategoryData
 class ElectronLikelihoodPdfsRcd
 class ElectronLikelihoodRcd
 class ElectronTagger
 class Empty
-class EncodedEventId
 class ErrorMatrixTag
 class EtaPhiEstimator
 class EtaPhiMeasurementEstimator
@@ -564,38 +634,28 @@ class EventWithHistory
 class ExDwarfListRcd
 class ExDwarfRcd
 class ExEfficiencyRcd
-class FEDRawData
 class FEDRawDataCollection
-class FFTJetCorrector
 class FFTJetCorrectorParameters
-class FFTJetCorrectorParametersRcd
-class FFTJetCorrectorResultFromTransient
-class FFTJetCorrectorSequence
-class FFTJetCorrectorSequenceRcd
-class FFTJetCorrectorTransient
-class FFTJetCorrectorTransientFromJet
-class FFTJetDict
-class FFTJetLookupTableRcd
 class FSimDisplacedVertex
 class FSimVertexType
-class FWRecoGeom::Info
+class FWOverlapTableManager::QuadId
 class FWRecoGeometry
 class FWRecoGeometryRecord
 class FWTGeoRecoGeometry
-class FWTGeoRecoGeometry::Info
 class FWTGeoRecoGeometryRecord
 class FastL1BitInfo
 class FastPixelCPE
 class FastStripCPE
 class FastTrackerCluster
-class FedChannelConnection
 class FileBlob
 class FillInfo
 class FillInfoRcd
 class FlexibleKFFittingSmoother
-class ForwardDetLayer
-class FreeTrajectoryState
-class FullConvolutionWithMaterial
+class ForwardMeasurementEstimator
+class FourVectorHLT::PathInfoCollection
+class FourVectorHLTOffline::PathInfoCollection
+class FourVectorHLTOnline::PathInfoCollection
+class Fp420AnalysisHistManager
 class GBRForest
 class GBRWrapperRcd
 class GEMCSCPadDigi
@@ -609,22 +669,16 @@ class Geant4ePropagator
 class GenEventInfoProduct
 class GenFilterInfo
 class GenRunInfoProduct
-class GenRunInfoProduct::XSec
-class GenericMVAComputer
-class GenericMVAComputerCache
-class GenericMVAComputerCache::IndividualComputer
 class GenericMVAJetTagComputer
 class GeometricDet
 class GeometricDetExtra
 class GeometricSearchTracker
 class GeometryFileRcd
 class GlobalDetLayerGeometry
-class GlobalErrorBase
 class GlobalPositionRcd
 class GlobalTag
 class GlobalTrackingGeometry
 class GlobalTrackingGeometryRecord
-class GlobalTrajectoryParameters
 class GsfBetheHeitlerUpdator
 class GsfChi2MeasurementEstimator
 class GsfCombinedMaterialEffectsUpdator
@@ -641,7 +695,6 @@ class HBAlignmentRcd
 class HBHEDataFrame
 class HBHERecHit
 class HDQMSummary
-class HDQMSummary::DetRegistry
 class HDQMSummaryRcd
 class HDigiFP420
 class HEAlignmentErrorRcd
@@ -652,9 +705,10 @@ class HFDataFrame
 class HFRecHit
 class HFShowerLibraryEventInfo
 class HFShowerPhoton
+class HLTInclusiveVBFSource::PathInfoCollection
+class HLTJetMETDQMSource::PathInfoCollection
+class HLTMonSimpleBTag::PathInfoCollection
 class HLTPerformanceInfo
-class HLTPerformanceInfo::Module
-class HLTPerformanceInfo::Path
 class HLTPrescaleTableRcd
 class HOAlignmentErrorRcd
 class HOAlignmentRcd
@@ -665,34 +719,26 @@ class HOTriggerPrimitiveDigi
 class HcalAlignmentErrorRcd
 class HcalAlignmentRcd
 class HcalCalibDataFrame
-class HcalCalibDetId
 class HcalCalibRecHit
 class HcalCalibrationQIEData
 class HcalCalibrationQIEDataRcd
 class HcalCastorDetId
-class HcalCellType
 class HcalChannelQuality
 class HcalChannelQualityRcd
 class HcalCholeskyMatrices
 class HcalCholeskyMatricesRcd
-class HcalCholeskyMatrix
+class HcalCondObjectContainer
 class HcalCovarianceMatrices
 class HcalCovarianceMatricesRcd
-class HcalCovarianceMatrix
 class HcalDDDGeometry
 class HcalDbRecord
 class HcalDbService
 class HcalDcsMap
-class HcalDcsMap::Item
 class HcalDcsMapRcd
 class HcalDcsRcd
-class HcalDcsValue
 class HcalDcsValues
 class HcalDetId
-class HcalElectronicsId
 class HcalElectronicsMap
-class HcalElectronicsMap::PrecisionItem
-class HcalElectronicsMap::TriggerItem
 class HcalElectronicsMapRcd
 class HcalFlagHFDigiTimeParams
 class HcalFlagHFDigiTimeParamsRcd
@@ -712,7 +758,6 @@ class HcalLaserDigi
 class HcalLongRecoParams
 class HcalLongRecoParamsRcd
 class HcalLutMetadata
-class HcalLutMetadata::NonChannelData
 class HcalLutMetadataRcd
 class HcalMCParams
 class HcalMCParamsRcd
@@ -732,7 +777,6 @@ class HcalRecoParamsRcd
 class HcalRespCorrs
 class HcalRespCorrsRcd
 class HcalSeverityLevelComputer
-class HcalSeverityLevelComputer::HcalSeverityDefinition
 class HcalSeverityLevelComputerRcd
 class HcalSourcePositionData
 class HcalTB02HistoClass
@@ -743,7 +787,6 @@ class HcalTBRunData
 class HcalTBTiming
 class HcalTBTriggerData
 class HcalTPGCoder
-class HcalTPGCompressor
 class HcalTPGRecord
 class HcalTPGScale
 class HcalTTPDigi
@@ -765,28 +808,20 @@ class HcalZSThresholdsRcd
 class HcaluLUTTPGCoder
 class HeavyIonRPRcd
 class HeavyIonRcd
-class HepPDT::ParticleData
 class HepPDT::ParticleDataTable
-class HepPDT::ParticleDataTableComparison
-class HepPDT::ParticleID
 class IdealGeometryRecord
 class IdealMagneticFieldRecord
-class IdealObliquePrism
-class IdealZPrism
 class Inclinometers
-class Inclinometers::Item
 class InclinometersRcd
+class InsideBoundsMeasurementEstimator
 class IntProductRecord
-class InvalidTrackingRecHit
-class InvalidTransientRecHit
 class JetBProbabilityComputer
 class JetCorrectionsRecord
 class JetCorrector
 class JetCorrectorParameters
-class JetCorrectorParameters::Definitions
-class JetCorrectorParameters::Record
 class JetCorrectorParametersCollection
 class JetCorrectorParametersRecord
+class JetMETHLTOfflineSource::PathInfoCollection
 class JetPartonCorrector
 class JetProbabilityComputer
 class JetTagComputer
@@ -800,7 +835,6 @@ class KFTrajectorySmoother
 class KFUpdator
 class KinematicResolutionProvider
 class KinematicResolutionRcd
-class KullbackLeiblerDistance
 class L1AcceptBunchCrossing
 class L1CSCSPStatusDigi
 class L1CaloEcalScale
@@ -839,41 +873,17 @@ class L1GlobalTriggerEvmReadoutRecord
 class L1GlobalTriggerObjectMap
 class L1GlobalTriggerObjectMapRecord
 class L1GlobalTriggerObjectMaps
-class L1GlobalTriggerObjectMaps::AlgorithmResult
-class L1GlobalTriggerObjectMaps::ConditionResult
 class L1GlobalTriggerReadoutRecord
 class L1GlobalTriggerReadoutSetup
 class L1GlobalTriggerRecord
-class L1GtAlgorithm
-class L1GtBoard
 class L1GtBoardMaps
 class L1GtBoardMapsRcd
-class L1GtBptxTemplate
-class L1GtCaloTemplate
-class L1GtCaloTemplate::CorrelationParameter
-class L1GtCaloTemplate::ObjectParameter
-class L1GtCastorTemplate
-class L1GtCorrelationTemplate
-class L1GtEnergySumTemplate
-class L1GtEnergySumTemplate::ObjectParameter
-class L1GtExternalTemplate
 class L1GtFdlWord
-class L1GtHfBitCountsTemplate
-class L1GtHfBitCountsTemplate::ObjectParameter
-class L1GtHfRingEtSumsTemplate
-class L1GtHfRingEtSumsTemplate::ObjectParameter
-class L1GtJetCountsTemplate
-class L1GtJetCountsTemplate::ObjectParameter
-class L1GtLogicParser::TokenRPN
-class L1GtMuonTemplate
-class L1GtMuonTemplate::CorrelationParameter
-class L1GtMuonTemplate::ObjectParameter
 class L1GtParameters
 class L1GtParametersRcd
 class L1GtPrescaleFactors
 class L1GtPrescaleFactorsAlgoTrigRcd
 class L1GtPrescaleFactorsTechTrigRcd
-class L1GtPsbConfig
 class L1GtPsbSetup
 class L1GtPsbSetupRcd
 class L1GtPsbWord
@@ -895,7 +905,6 @@ class L1HfRingEtScaleRcd
 class L1HtMissScaleRcd
 class L1JPTOffsetCorrector
 class L1JetEtScaleRcd
-class L1MuBinnedScale
 class L1MuCSCPtLut
 class L1MuCSCPtLutRcd
 class L1MuCSCTFAlignment
@@ -903,14 +912,10 @@ class L1MuCSCTFAlignmentRcd
 class L1MuCSCTFConfiguration
 class L1MuCSCTFConfigurationRcd
 class L1MuDTChambPhContainer
-class L1MuDTChambPhDigi
 class L1MuDTChambThContainer
-class L1MuDTChambThDigi
-class L1MuDTEtaPattern
 class L1MuDTEtaPatternLut
 class L1MuDTEtaPatternLutRcd
 class L1MuDTExtLut
-class L1MuDTExtLut::LUT
 class L1MuDTExtLutRcd
 class L1MuDTPhiLut
 class L1MuDTPhiLutRcd
@@ -922,15 +927,15 @@ class L1MuDTTFMasks
 class L1MuDTTFMasksRcd
 class L1MuDTTFParameters
 class L1MuDTTFParametersRcd
-class L1MuDTTrackCand
 class L1MuDTTrackContainer
 class L1MuGMTCand
 class L1MuGMTChannelMask
 class L1MuGMTChannelMaskRcd
+class L1MuGMTLUT::PortDecoder
+class L1MuGMTLUTHelpers::Tokenizer
 class L1MuGMTParameters
 class L1MuGMTParametersRcd
 class L1MuGMTReadoutCollection
-class L1MuGMTReadoutRecord
 class L1MuGMTScales
 class L1MuGMTScalesRcd
 class L1MuRegionalCand
@@ -953,7 +958,6 @@ class L1RPCConeDefinition
 class L1RPCConeDefinitionRcd
 class L1RPCConfig
 class L1RPCConfigRcd
-class L1RPCDevCoords
 class L1RPCHsbConfig
 class L1RPCHsbConfigRcd
 class L1RPCHwConfig
@@ -966,16 +970,15 @@ class L1TriggerKeyListRcd
 class L1TriggerKeyRcd
 class L1TriggerRates
 class L1TriggerScaler
-class L1TriggerScaler::Lumi
 class L1TriggerScalerRcd
 class L1TriggerScalers
 class L2MuonTrajectorySeed
 class L3MuonTrajectorySeed
 class L6SLBCorrector
+class LASGlobalData
 class LHCTransportLink
 class LHEEventProduct
 class LHERunInfoProduct
-class LHERunInfoProduct::Header
 class LHEXMLStringProduct
 class LTCDigi
 class LXXXCorrector
@@ -984,12 +987,8 @@ class LeptonTaggerByPt
 class LeptonTaggerDistance
 class Level1TriggerRates
 class Level1TriggerScalers
-class LikelihoodSwitches
 class LinkBoardElectronicIndex
-class LocalError
 class LocalMagneticField
-class LocalTag
-class LocalTrajectoryParameters
 class LooperTrajectoryFilter
 class LostHitsFractionTrajectoryFilter
 class LumiCorrectionParam
@@ -1000,26 +999,10 @@ class LumiSectionDataRcd
 class LumiSummary
 class LumiSummaryRunHeader
 class MBAChBenchCalPlate
-class MBAChBenchCalPlateData
 class MBAChBenchCalPlateRcd
 class MBAChBenchSurveyPlate
-class MBAChBenchSurveyPlateData
 class MBAChBenchSurveyPlateRcd
 class METv0
-class MEtoEDM
-class MEtoEDM<TH1D>::MEtoEDMObject
-class MEtoEDM<TH1F>::MEtoEDMObject
-class MEtoEDM<TH1S>::MEtoEDMObject
-class MEtoEDM<TH2D>::MEtoEDMObject
-class MEtoEDM<TH2F>::MEtoEDMObject
-class MEtoEDM<TH2S>::MEtoEDMObject
-class MEtoEDM<TH3F>::MEtoEDMObject
-class MEtoEDM<TProfile2D>::MEtoEDMObject
-class MEtoEDM<TProfile>::MEtoEDMObject
-class MEtoEDM<TString>::MEtoEDMObject
-class MEtoEDM<double>::MEtoEDMObject
-class MEtoEDM<int>::MEtoEDMObject
-class MEtoEDM<long long>::MEtoEDMObject
 class MRHChi2MeasurementEstimator
 class MVAComputerRecord
 class MVADemoRcd
@@ -1030,41 +1013,27 @@ class MagneticFieldMapRecord
 class MaterialAccountingDetector
 class MaterialAccountingStep
 class MaterialAccountingTrack
-class MaterialEffectsUpdator
 class MaxConsecLostHitsTrajectoryFilter
 class MaxHitsTrajectoryFilter
 class MaxLostHitsTrajectoryFilter
-class Measurement1D
 class Measurement1DFloat
-class MeasurementCOPS
-class MeasurementDiffEntry
-class MeasurementDistancemeter
-class MeasurementDistancemeter3dim
-class MeasurementSensor2D
-class MeasurementTiltmeter
 class MeasurementTracker
 class MeasurementTrackerEvent
 class MeasurementTrackerImpl
-class MediumProperties
 class MinHitsTrajectoryFilter
 class MinPtTrajectoryFilter
-class MixingInputConfig
 class MixingModuleConfig
 class MixingRcd
 class MomentumConstraint
 class MuScleFitDBobject
 class MuScleFitDBobjectRcd
-class MultiGaussianStateMerger
 class MultiRecHitRecord
 class MultiTrajectoryStateMerger
 class MuonAssociatorByHits
 class MuonChi2MeasurementEstimator
 class MuonDDDConstants
 class MuonDetIdAssociator
-class MuonDetLayerComp
 class MuonDetLayerGeometry
-class MuonDigiCollection
-class MuonEtaRange
 class MuonGeometryRecord
 class MuonNavigationSchool
 class MuonNumberingRecord
@@ -1081,17 +1050,18 @@ class OAE85lParametrizedMagneticField
 class OAEParametrizedMagneticField
 class OmniClusterRef
 class OneIntRcd
-class OpticalAlignInfo
-class OpticalAlignMeasurementInfo
 class OpticalAlignMeasurements
-class OpticalAlignParam
 class OpticalAlignments
 class OpticalAlignmentsRcd
+class OrderedHitPairs
+class OrderedHitSeeds
+class OrderedHitTriplets
+class OrderedMultiHits
+class OuterEstimator
 class PCaloGeometry
 class PCaloHit
 class PCaloTowerRcd
 class PCastorRcd
-class PCrossingFrame
 class PDTRecord
 class PEcalBarrelRcd
 class PEcalEndcapRcd
@@ -1100,9 +1070,7 @@ class PEcalTBInfo
 class PEcalValidInfo
 class PFCalibrationRcd
 class PGeometricDet
-class PGeometricDet::Item
 class PGeometricDetExtra
-class PGeometricDetExtra::Item
 class PGeometricDetExtraRcd
 class PGlobalDigi
 class PGlobalRecHit
@@ -1115,17 +1083,16 @@ class PHcalValidInfoLayer
 class PHcalValidInfoNxN
 class PMuonSimHit
 class PSimHit
+class PTStatistics
 class PTrackerSimHit
-class PTrajectoryStateOnDet
 class PXBDetId
 class PXFDetId
 class PXsensors
-class PXsensors::Item
 class PXsensorsRcd
 class PZdcRcd
+class ParabolicParametrizedMagneticField
 class ParametersDefinerForTP
 class Pedestals
-class Pedestals::Item
 class PedestalsRcd
 class PerformancePayload
 class PerformancePayloadFromBinnedTFormula
@@ -1134,18 +1101,11 @@ class PerformancePayloadFromTable
 class PerformancePayloadRecord
 class PerformanceWPRecord
 class PerformanceWorkingPoint
-class PerigeeTrajectoryParameters
 class PhotonConversionMVAComputerRcd
 class PhysicsPerformancePayload
-class PhysicsTFormulaPayload
-class PhysicsTools::Calibration::Histogram
-class PhysicsTools::Calibration::Histogram2D
-class PhysicsTools::Calibration::Histogram3D
 class PhysicsTools::Calibration::MVAComputer
 class PhysicsTools::Calibration::MVAComputerContainer
-class PhysicsTools::Calibration::Range
 class PhysicsTools::Calibration::VHistogramD2D
-class PhysicsTools::Calibration::Variable
 class PhysicsTools::MVATrainerContainer
 class PhysicsTools::MVATrainerLooper::UntrainedMVAComputer
 class PhysicsTools::MVATrainerLooper::UntrainedMVAComputerContainer
@@ -1158,155 +1118,98 @@ class PixelCaenChannelIMonRcd
 class PixelCaenChannelIsOnRcd
 class PixelCaenChannelRcd
 class PixelClusterParameterEstimator
-class PixelDCSObject
-class PixelDCSObject<CaenChannel>::Item
-class PixelDCSObject<bool>::Item
-class PixelDCSObject<float>::Item
 class PixelDigi
 class PixelDigiCollection
 class PixelDigiSimLink
 class PixelToFEDAssociate
-class PixelToFEDAssociate::CablingRocId
-class PixelToFEDAssociate::DetectorRocId
 class PixelToFEDAssociateFromAscii
 class PixelToLNKAssociateFromAscii
-class Point3DBase
 class PolyFit2DParametrizedMagneticField
 class PolyFit3DParametrizedMagneticField
-class PreshowerStrip
 class PrimaryVertexGenerator
 class PromptTrackCountingComputer
 class Propagator
 class PropagatorWithMaterial
-class PxMeasurementConditionSet
 class QuickTrackAssociatorByHits
 class RBCBoardSpecs
-class RBCBoardSpecs::RBCBoardConfig
 class RBCBoardSpecsIO
 class RBCBoardSpecsRcd
 class RKPropagatorInR
 class RKPropagatorInS
 class RKPropagatorInZ
 class RKTestField
-class ROOT::Math::Cartesian3D
-class ROOT::Math::CylindricalEta3D
 class ROOT::Math::DefaultCoordinateSystemTag
-class ROOT::Math::DisplacementVector3D
-class ROOT::Math::LorentzVector
-class ROOT::Math::MatRepStd
-class ROOT::Math::MatRepSym
-class ROOT::Math::PositionVector3D
-class ROOT::Math::PtEtaPhiE4D
-class ROOT::Math::PtEtaPhiM4D
-class ROOT::Math::PxPyPzE4D
-class ROOT::Math::Rotation3D
-class ROOT::Math::SMatrix
-class ROOT::Math::SVector
 class RPCClusterSize
-class RPCClusterSize::ClusterSizeItem
 class RPCClusterSizeRcd
 class RPCCompDetId
 class RPCDQMObject
 class RPCDQMObjectRcd
 class RPCDeadStrips
-class RPCDeadStrips::DeadItem
 class RPCDeadStripsRcd
 class RPCDetId
 class RPCDigi
 class RPCDigiL1Link
 class RPCDigiSimLink
 class RPCEMap
-class RPCEMap::dccItem
-class RPCEMap::febItem
-class RPCEMap::lbItem
-class RPCEMap::linkItem
-class RPCEMap::tbItem
 class RPCEMapRcd
 class RPCGeometry
 class RPCMaskedStrips
-class RPCMaskedStrips::MaskItem
 class RPCMaskedStripsRcd
 class RPCNoiseObjectRcd
 class RPCNoiseStripsObjectRcd
 class RPCObAlignment
-class RPCObAlignment::Alignment_Item
 class RPCObAlignmentRcd
 class RPCObFebAssmap
-class RPCObFebAssmap::FebAssmap_Item
 class RPCObFebAssmapRcd
 class RPCObFebmap
-class RPCObFebmap::Feb_Item
 class RPCObFebmapRcd
 class RPCObGas
-class RPCObGas::Item
 class RPCObGasHum
-class RPCObGasHum::Item
 class RPCObGasHumRcd
 class RPCObGasMix
-class RPCObGasMix::Item
 class RPCObGasMixRcd
 class RPCObGasRcd
 class RPCObGasmap
-class RPCObGasmap::GasMap_Item
 class RPCObGasmapRcd
 class RPCObImon
-class RPCObImon::I_Item
 class RPCObImonRcd
 class RPCObPVSSmap
-class RPCObPVSSmap::Item
 class RPCObPVSSmapRcd
 class RPCObStatus
-class RPCObStatus::S_Item
 class RPCObStatusRcd
 class RPCObTemp
-class RPCObTemp::T_Item
 class RPCObTempRcd
 class RPCObUXC
-class RPCObUXC::Item
 class RPCObUXCRcd
 class RPCObVmon
-class RPCObVmon::V_Item
 class RPCObVmonRcd
-class RPCPattern
-class RPCPattern::TQuality
 class RPCRawDataCounts
 class RPCReadOutMapping
 class RPCReadOutMappingRcd
 class RPCReadOutMappingWithFastSearch
-class RPCReadOutMappingWithFastSearch::lessMap
 class RPCRecHit
 class RPCRecoGeometryRcd
 class RPCRunIOV
-class RPCRunIOV::RunIOV_Item
 class RPCRunIOVRcd
 class RPCStripNoises
-class RPCStripNoises::NoiseItem
 class RPCStripNoisesRcd
+class RPCStripsRing
 class RPFlatParams
-class RPFlatParams::EP
 class RandomEngineState
-class RawParticle
-class RecHit1D
-class RecHit2DLocalPos
-class RecSegment
 class RecoCollectionFP420
 class RecoFP420
 class RecoGeometryRecord
 class RecoIdealGeometry
 class RecoTracktoTP
-class ReferenceCountingPointer
 class RegionalTrajectoryFilter
-class RemoteFile
+class RooFitResult
 class RunInfo
 class RunInfoRcd
 class RunNumberRcd
 class RunSummary
 class RunSummaryRcd
 class SeedingLayerSetsBuilder
-class SeedingLayerSetsBuilder::LayerSpec
 class SiPixelCPEGenericErrorParm
-class SiPixelCPEGenericErrorParm::DbEntry
-class SiPixelCPEGenericErrorParm::DbEntryBinSize
 class SiPixelCPEGenericErrorParmRcd
 class SiPixelCalibConfiguration
 class SiPixelCalibConfigurationRcd
@@ -1314,22 +1217,17 @@ class SiPixelCalibDigi
 class SiPixelCalibDigi::datacontainer
 class SiPixelCalibDigiError
 class SiPixelCluster
-class SiPixelDbItem
 class SiPixelDetVOffRcd
 class SiPixelDisabledModules
 class SiPixelDisabledModulesRcd
 class SiPixelFedCablingMap
-class SiPixelFedCablingMap::Key
 class SiPixelFedCablingMapRcd
 class SiPixelFedCablingTree
 class SiPixelGainCalibration
-class SiPixelGainCalibration::DetRegistry
 class SiPixelGainCalibrationForHLT
-class SiPixelGainCalibrationForHLT::DetRegistry
 class SiPixelGainCalibrationForHLTRcd
 class SiPixelGainCalibrationForHLTSimRcd
 class SiPixelGainCalibrationOffline
-class SiPixelGainCalibrationOffline::DetRegistry
 class SiPixelGainCalibrationOfflineRcd
 class SiPixelGainCalibrationOfflineSimRcd
 class SiPixelGainCalibrationRcd
@@ -1340,7 +1238,6 @@ class SiPixelPedestals
 class SiPixelPerformanceSummary
 class SiPixelPerformanceSummaryRcd
 class SiPixelQuality
-class SiPixelQuality::disabledModuleType
 class SiPixelQualityFromDbRcd
 class SiPixelQualityRcd
 class SiPixelRawDataError
@@ -1363,10 +1260,8 @@ class SiStripBadChannelRcd
 class SiStripBadFiberRcd
 class SiStripBadModuleRcd
 class SiStripBadStrip
-class SiStripBadStrip::DetRegistry
 class SiStripBadStripRcd
 class SiStripBaseDelay
-class SiStripBaseDelay::Delay
 class SiStripBaseDelayRcd
 class SiStripCluster
 class SiStripClusterCollection
@@ -1395,7 +1290,6 @@ class SiStripDigi
 class SiStripEventSummary
 class SiStripFecCabling
 class SiStripFecCablingRcd
-class SiStripFecCrate
 class SiStripFedCabling
 class SiStripFedCablingRcd
 class SiStripGain
@@ -1404,7 +1298,6 @@ class SiStripGainSimRcd
 class SiStripHashedDetId
 class SiStripHashedDetIdRcd
 class SiStripLatency
-class SiStripLatency::Latency
 class SiStripLatencyRcd
 class SiStripLorentzAngle
 class SiStripLorentzAngleDepRcd
@@ -1412,10 +1305,8 @@ class SiStripLorentzAngleRcd
 class SiStripLorentzAngleSimRcd
 class SiStripMatchedRecHit2D
 class SiStripNoises
-class SiStripNoises::DetRegistry
 class SiStripNoisesRcd
 class SiStripPedestals
-class SiStripPedestals::DetRegistry
 class SiStripPedestalsRcd
 class SiStripProcessedRawDigi
 class SiStripQuality
@@ -1429,11 +1320,8 @@ class SiStripRegionCablingRcd
 class SiStripRunSummary
 class SiStripRunSummaryRcd
 class SiStripSummary
-class SiStripSummary::DetRegistry
 class SiStripSummaryRcd
 class SiStripThreshold
-class SiStripThreshold::Data
-class SiStripThreshold::DetRegistry
 class SiStripThresholdRcd
 class SiTrackerGSMatchedRecHit2D
 class SiTrackerGSRecHit2D
@@ -1445,32 +1333,50 @@ class SimpleNavigationSchool
 class SimpleSecondaryVertexComputer
 class SmartPropagator
 class SoftLeptonBTagRecord
-class SpecificCaloMETData
-class SpecificGenMETData
-class SpecificPFMETData
 class StEvtSolution
 class StGenEvent
-class StMeasurementConditionSet
 class StackedTrackerGeometryRecord
+class StatisticalPlot
 class SteppingHelixPropagator
 class StoredPileupJetIdentifier
 class StraightLinePropagator
+class StringMap
 class StringResolutionProvider
 class StripCPE
 class StripClusterParameterEstimator
 class StripCompactDigiSimLinks
-class StripCompactDigiSimLinks::HitRecord
-class StripCompactDigiSimLinks::TrackRecord
 class StripDigiSimLink
 class StripSubdetector
-class Surface
-class SurveyError
 class SurveyErrors
 class SwappyNoCopy
-class T
-class TArrayD
+class TAbsFitConstraint
+class TAbsFitParticle
+class TAxis
+class TBranch
 class TCTauCorrector
+class TClonesArray
+class TCut
+class TDirectory
+class TEcnaHeader
+class TEcnaParEcal
+class TEveCaloData
+class TEveCaloViz
+class TEveDigitSet
+class TEveElementList
+class TEveProjectionAxes
+class TEveStraightLineSet
+class TEventList
+class TGeoBBox
 class TGeoManager
+class TGeoMaterial
+class TGeoMatrix
+class TGeoMedium
+class TGeoNode
+class TGeoOverlap
+class TGeoShape
+class TGeoVolume
+class TGraph
+class TH1
 class TH1C
 class TH1D
 class TH1F
@@ -1486,41 +1392,34 @@ class TH3D
 class TH3F
 class TH3I
 class TH3S
+class TKinFitter
+class TMultiGraph
 class TObject
 class TProfile
 class TProfile2D
 class TProfile3D
 class TPtoRecoTrack
-class TRecHit1DMomConstraint
-class TRecHit2DPosConstraint
-class TRecHit5DParamConstraint
 class TSCBLBuilderNoMaterial
 class TSCBLBuilderWithPropagator
-class TSCPBuilderNoMaterial
+class TSocket
+class TSpectrum
 class TString
-class TString::LongStr_t
-class TString::RawStr_t
-class TString::Rep_t
-class TString::Rep_t::<anonymous>
-class TString::ShortStr_t
+class TStyle
 class TTUBoardSpecs
-class TTUBoardSpecs::TTUBoardConfig
 class TTUBoardSpecsIO
 class TTUBoardSpecsRcd
-class TValidTrackingRecHit
-class TagInfoMVACategorySelector
+class TThread
+class TTree
 class TauJetCorrector
 class TauTagMVAComputerRcd
 class ThresholdPtTrajectoryFilter
 class TinyEvent
 class TkFittedLasBeam
-class TkGluedMeasurementDet
 class TkLasBeam
 class TkPixelCPERecord
-class TkPixelMeasurementDet
 class TkStripCPERecord
-class TkStripMeasurementDet
 class TkTransientTrackingRecHitBuilder
+class Tokenizer
 class TopGenEvent
 class TotemTestHistoClass
 class TowerMETv0
@@ -1535,7 +1434,6 @@ class TrackCollectionFP420
 class TrackCountingComputer
 class TrackFP420
 class TrackProbabilityCalibration
-class TrackProbabilityCalibration::Entry
 class TrackProbabilityCategoryData
 class TrackerAlignmentErrorRcd
 class TrackerAlignmentRcd
@@ -1544,19 +1442,12 @@ class TrackerDigiGeometryRecord
 class TrackerGeometry
 class TrackerInteractionGeometry
 class TrackerInteractionGeometryRecord
-class TrackerLayer
 class TrackerPedestalsRcd
 class TrackerRecoGeometryRecord
 class TrackerSurfaceDeformationRcd
 class TrackerSurveyErrorRcd
 class TrackerSurveyRcd
 class TrackerTopology
-class TrackerTopology::PixelBarrelValues
-class TrackerTopology::PixelEndcapValues
-class TrackerTopology::TECValues
-class TrackerTopology::TIBValues
-class TrackerTopology::TIDValues
-class TrackerTopology::TOBValues
 class TrackingComponentsRecord
 class TrackingGeometry
 class TrackingParticle
@@ -1572,19 +1463,16 @@ class TrajectoryCleanerBySharedSeeds
 class TrajectoryFilter
 class TrajectoryFitter
 class TrajectoryFitterRecord
-class TrajectoryMeasurement
 class TrajectorySeed
 class TrajectorySmoother
-class TrajectoryStateClosestToBeamLine
 class TrajectoryStateClosestToBeamLineBuilder
-class TrajectoryStateClosestToPoint
 class TrajectoryStateOnSurface
 class TrajectoryStateUpdator
 class TransientRecHitRecord
 class TransientTrackBuilder
 class TransientTrackRecord
-class TransientTrackingRecHit
 class TransientTrackingRecHitBuilder
+class TrigResRateMon::PathInfoCollection
 class TtDilepEvtSolution
 class TtFullHadSignalSelMVARcd
 class TtFullHadronicEvent
@@ -1596,15 +1484,11 @@ class TtSemiLepJetCombMVARcd
 class TtSemiLepSignalSelMVARcd
 class TtSemiLeptonicEvent
 class UniformMagneticField
-class UpdatablePSimHit
-class ValueT
-class Vector3DBase
 class VertexAssociatorBase
 class VertexAssociatorByTracks
 class VertexAssociatorRecord
 class VertexCategories
 class VolumeBasedMagneticField
-class VolumeSide
 class ZDCAlignmentErrorRcd
 class ZDCAlignmentRcd
 class ZDCDataFrame
@@ -1612,144 +1496,39 @@ class ZDCGeometryRecord
 class ZDCRecHit
 class ZdcGeometry
 class ZdcTopology
-class __gnu_cxx::_Hashtable_node
-class __gnu_cxx::__normal_iterator
-class __gnu_cxx::hash
-class __gnu_cxx::hash_map
-class __gnu_cxx::hashtable
 class anotherPedestalsRcd
-class boost::detail::shared_count
-class boost::hash
-class boost::multi_index::composite_key
-class boost::multi_index::const_mem_fun
-class boost::multi_index::indexed_by
-class boost::multi_index::member
-class boost::multi_index::multi_index_container
-class boost::multi_index::ordered_non_unique
-class boost::multi_index::ordered_unique
-class boost::shared_ptr
-class boost::tuples::null_type
-class boost::unordered::detail::map
-class boost::unordered::detail::table_impl
-class boost::unordered::unordered_map
-class btag::LeptonSelector
 class cond::BaseKeyed
-class cond::DbSession
-class cond::IOVElement
-class cond::IOVProxy
-class cond::IOVProxyData
-class cond::IOVSequence
 class cond::KeyList
-class cond::SessionImpl
 class condex::ConfF
 class condex::ConfI
 class condex::Efficiency
 class condex::ParametricEfficiencyInEta
 class condex::ParametricEfficiencyInPt
 class csc::L1Track
-class cscdqm::DCSAddressType
 class cscdqm::DCSData
-class cscdqm::HVVMeasType
-class cscdqm::LVIMeasType
-class cscdqm::LVVMeasType
-class cscdqm::TempMeasType
 class csctf::TrackStub
 class datakey_t::Dummy
 class datakey_t::Dummy2
-class defaultRKPropagator::Product
-class defaultRKPropagator::RKMagVolume
-class defaultRKPropagator::TrivialFieldProvider
-class edm::Association
-class edm::AssociationMap
 class edm::AssociationMap<edm::OneToOne<std::vector<reco::CaloCluster, std::allocator<reco::CaloCluster> >, std::vector<reco::ClusterShape, std::allocator<reco::ClusterShape> >, unsigned int> >::Find
 class edm::AssociationMap<edm::OneToOne<std::vector<reco::SuperCluster, std::allocator<reco::SuperCluster> >, std::vector<reco::HFEMClusterShape, std::allocator<reco::HFEMClusterShape> >, unsigned int> >::Find
-class edm::AssociationVector
-class edm::BoolCache
-class edm::BranchID
-class edm::ClonePolicy
 class edm::ConditionsInEventBlock
 class edm::ConditionsInLumiBlock
 class edm::ConditionsInRunBlock
-class edm::ContainerMask
 class edm::DataFrameContainer
-class edm::DetSet
-class edm::DetSetVector
 class edm::DummyEventSetupData
 class edm::DummyEventSetupRecord
-class edm::EDCollection
-class edm::ELseverityLevel
-class edm::ESHandle
-class edm::Entry
 class edm::ErrorSummaryEntry
 class edm::EventAuxiliary
-class edm::EventID
 class edm::EventTime
-class edm::FindRegion
-class edm::FindValue
-class edm::FwdPtr
-class edm::FwdRef
 class edm::GenHIEvent
 class edm::HLTGlobalStatus
 class edm::HLTPathStatus
-class edm::Handle
-class edm::Hash
 class edm::HepMCProduct
-class edm::InputTag
-class edm::LazyGetter
-class edm::LazyUnpacker
 class edm::MergeableCounter
-class edm::ModuleDescription
-class edm::ModuleTime
-class edm::OneToMany
-class edm::OneToManyWithQuality
-class edm::OneToManyWithQualityGeneric
-class edm::OneToOne
-class edm::OneToOneGeneric
-class edm::OneToValue
-class edm::OwnVector
-class edm::ParameterSet
-class edm::ParameterSetEntry
-class edm::Prescaler
-class edm::ProductID
-class edm::Ptr
-class edm::PtrVector
 class edm::RandomEngineStates
-class edm::RangeMap
-class edm::Ref
-class edm::RefCore
-class edm::RefCoreWithIndex
-class edm::RefGetter
-class edm::RefProd
-class edm::RefToBase
-class edm::RefToBaseProd
-class edm::RefToBaseVector
-class edm::RefVector
-class edm::RefVectorBase
-class edm::RegionIndex
-class edm::SortedCollection
-class edm::StrictWeakOrdering
-class edm::Timestamp
-class edm::TriggerResultInserter
 class edm::TriggerResults
-class edm::TypeID
-class edm::VParameterSetEntry
-class edm::ValueMap
-class edm::View
 class edm::eventsetup::test::DummyData
-class edm::global::EDAnalyzer
-class edm::global::EDFilter
-class edm::global::EDFilterBase
-class edm::global::EDProducer
-class edm::global::EDProducerBase
-class edm::global::impl::BeginLuminosityBlockProducer
-class edm::global::impl::BeginRunProducer
-class edm::global::impl::EndLuminosityBlockProducer
-class edm::global::impl::EndRunProducer
 class edm::helper::AssociationIdenticalKeyReference
-class edm::helpers::Key
-class edm::helpers::KeyVal
-class edm::refhelper::FindUsingAdvance
-class edmNew::DetSetVector
 class edmNew::DetSetVector<SiPixelCluster>::FindForDetSetVector
 class edmNew::DetSetVector<SiStripCluster>::FindForDetSetVector
 class edmtest::DeleteEarly
@@ -1783,38 +1562,12 @@ class edmtest::TransientIntProduct
 class edmtest::Unsortable
 class edmtest::WhatsIt
 class edmtest::global::<anonymous namespace>::Cache
-class edmtest::global::LumiIntAnalyzer
-class edmtest::global::LumiIntFilter
-class edmtest::global::LumiIntProducer
-class edmtest::global::LumiSummaryIntAnalyzer
-class edmtest::global::LumiSummaryIntFilter
-class edmtest::global::LumiSummaryIntProducer
-class edmtest::global::RunIntAnalyzer
-class edmtest::global::RunIntFilter
-class edmtest::global::RunIntProducer
-class edmtest::global::RunSummaryIntAnalyzer
-class edmtest::global::RunSummaryIntFilter
-class edmtest::global::RunSummaryIntProducer
-class edmtest::global::StreamIntAnalyzer
-class edmtest::global::StreamIntFilter
-class edmtest::global::StreamIntProducer
-class edmtest::global::TestBeginLumiBlockFilter
-class edmtest::global::TestBeginLumiBlockProducer
-class edmtest::global::TestBeginRunFilter
-class edmtest::global::TestBeginRunProducer
-class edmtest::global::TestEndLumiBlockFilter
-class edmtest::global::TestEndLumiBlockProducer
-class edmtest::global::TestEndRunFilter
-class edmtest::global::TestEndRunProducer
 class edmtest::stream::<anonymous namespace>::Cache
-class edmtestprod::Ord
 class edmtestprod::Simple
 class edmtestprod::StreamTestThing
-class edmtestprod::StreamTestTmpl
 class edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901
 class eventsetuprecord_t::Dummy
 class eventsetuprecord_t::DummyRecord
-class extstd::clone_ptr
 class fftcorrtypes::BasicJet
 class fftcorrtypes::BasicJetSys
 class fftcorrtypes::CHS0Sys
@@ -1898,33 +1651,24 @@ class fftluttypes::LUT8
 class fftluttypes::LUT9
 class fftluttypes::PileupRhoCalibration
 class fftluttypes::PileupRhoEtaDependence
-class gen::PdfInfo
-class gen::WeightsInfo
+class fwlite::EventSelector
 class l1extra::L1EmParticle
 class l1extra::L1EtMissParticle
 class l1extra::L1HFRings
 class l1extra::L1JetParticle
 class l1extra::L1MuonParticle
 class l1extra::L1ParticleMap
-class lhef::HEPEUP
-class lhef::HEPRUP
-class lumi::BunchCrossingInfo
 class lumi::LumiSectionData
-class magfieldparam::BCycl
-class magfieldparam::BCylParam
-class magfieldparam::TkBfield
 class metsig::SigInputObj
-class mpl_::na
 class mySiStripNoises
-class mySiStripNoises::DetRegistry
 class mySiStripNoisesRcd
-class npstat::AbsMultivariateFunctor
 class npstat::CoordinateSelector
+class npstat::EquidistantInLinearSpace
+class npstat::EquidistantInLogSpace
 class npstat::StorableHistoNDFunctor
 class npstat::StorableInterpolationFunctor
 class npstat::StorableMultivariateFunctor
-class ora::PVector
-class ora::QueryableVector
+class pat::CandKinResolution
 class pat::CompositeCandidate
 class pat::Conversion
 class pat::Electron
@@ -1953,20 +1697,24 @@ class pat::TriggerPath
 class pat::UserData
 class pat::VertexAssociation
 class pat::strbitset
+class pftools::Calibratable
+class pftools::ParticleFiltrationDecision
 class reco::BaseTagInfo
+class reco::BaseTau
+class reco::BaseTauTagInfo
 class reco::BasicJet
 class reco::BeamHaloSummary
 class reco::BeamSpot
-class reco::CATopJetProperties
 class reco::CATopJetTagInfo
 class reco::CSCHaloData
 class reco::CaloCluster
 class reco::CaloJet
-class reco::CaloJet::Specific
 class reco::CaloMET
 class reco::CaloMuon
 class reco::CaloTau
 class reco::CaloTauDiscriminator
+class reco::CaloTauDiscriminatorAgainstElectron
+class reco::CaloTauDiscriminatorByIsolation
 class reco::CaloTauTagInfo
 class reco::Candidate
 class reco::CastorCell
@@ -1984,7 +1732,6 @@ class reco::ConvBremSeed
 class reco::Conversion
 class reco::ConversionTrack
 class reco::DeDxData
-class reco::DeDxHit
 class reco::DiscretizedEnergyFlow
 class reco::EMIsolatedTauTagInfo
 class reco::EcalHaloData
@@ -1994,30 +1741,17 @@ class reco::Electron
 class reco::ElectronID
 class reco::ElectronSeed
 class reco::EvtPlane
-class reco::FFTAnyJet
-class reco::FFTJet
 class reco::FFTJetPileupSummary
 class reco::FFTJetProducerSummary
 class reco::FitQuality
 class reco::FlavorHistory
 class reco::FlavorHistoryEvent
 class reco::GenJet
-class reco::GenJet::Specific
 class reco::GenMET
 class reco::GenParticle
+class reco::GenericJet
 class reco::GlobalHaloData
-class reco::GsfComponent5D
 class reco::GsfElectron
-class reco::GsfElectron::ChargeInfo
-class reco::GsfElectron::ConversionRejection
-class reco::GsfElectron::FiducialFlags
-class reco::GsfElectron::IsolationVariables
-class reco::GsfElectron::MvaInput
-class reco::GsfElectron::MvaOutput
-class reco::GsfElectron::PflowIsolationVariables
-class reco::GsfElectron::ShowerShape
-class reco::GsfElectron::TrackClusterMatching
-class reco::GsfElectron::TrackExtrapolations
 class reco::GsfElectronCore
 class reco::GsfPFRecTrack
 class reco::GsfTrack
@@ -2028,12 +1762,10 @@ class reco::HcalHaloData
 class reco::HcalNoiseHPD
 class reco::HcalNoiseRBX
 class reco::IsoDeposit
-class reco::IsoDeposit::Veto
 class reco::IsolatedPFCandidate
 class reco::IsolatedPixelTrackCandidate
 class reco::IsolatedTauTagInfo
 class reco::JPTJet
-class reco::JPTJet::Specific
 class reco::JTATagInfo
 class reco::Jet
 class reco::JetCrystalsAssociation
@@ -2050,7 +1782,6 @@ class reco::MVAMEtJetInfo
 class reco::MVAMEtPFCandInfo
 class reco::Muon
 class reco::MuonCosmicCompatibility
-class reco::MuonEnergy
 class reco::MuonMETCorrectionData
 class reco::MuonQuality
 class reco::MuonShower
@@ -2059,9 +1790,8 @@ class reco::MuonTrackLinks
 class reco::NamedCompositeCandidate
 class reco::NuclearInteraction
 class reco::PFBlock
-class reco::PFBlock::Link
 class reco::PFBlockElement
-class reco::PFBrem
+class reco::PFBlockElementSuperCluster
 class reco::PFCandidate
 class reco::PFCandidateEGammaExtra
 class reco::PFCandidateElectronExtra
@@ -2073,13 +1803,10 @@ class reco::PFConversion
 class reco::PFDisplacedTrackerVertex
 class reco::PFDisplacedVertex
 class reco::PFDisplacedVertexCandidate
-class reco::PFDisplacedVertexCandidate::VertexLink
 class reco::PFJet
-class reco::PFJet::Specific
 class reco::PFMET
 class reco::PFNuclearInteraction
 class reco::PFRecHit
-class reco::PFRecHitFraction
 class reco::PFRecTrack
 class reco::PFSimParticle
 class reco::PFSuperCluster
@@ -2088,11 +1815,9 @@ class reco::PFTauDecayMode
 class reco::PFTauDiscriminator
 class reco::PFTauDiscriminatorByIsolation
 class reco::PFTauTagInfo
+class reco::PFTrajectoryPoint
 class reco::PFV0
 class reco::Particle
-class reco::PattRecoNode
-class reco::PattRecoPeak
-class reco::PattRecoTree
 class reco::PdfInfo
 class reco::PhiWedge
 class reco::Photon
@@ -2108,60 +1833,399 @@ class reco::RecoEcalCandidate
 class reco::RecoPFClusterRefCandidate
 class reco::RecoStandAloneMuonCandidate
 class reco::RecoTauPiZero
-class reco::SecondaryVertex
 class reco::SecondaryVertexTagInfo
-class reco::SecondaryVertexTagInfo::TrackData
-class reco::SecondaryVertexTagInfo::VertexData
 class reco::SiStripElectron
-class reco::SoftLeptonProperties
 class reco::SoftLeptonTagInfo
 class reco::SuperCluster
 class reco::TaggingVariableList
 class reco::TauImpactParameterInfo
-class reco::TauImpactParameterTrackData
 class reco::TauMassTagInfo
 class reco::Track
 class reco::TrackCountingTagInfo
 class reco::TrackExtra
 class reco::TrackExtrapolation
 class reco::TrackIPTagInfo
-class reco::TrackIPTagInfo::TrackIPData
 class reco::TrackInfo
 class reco::TrackJet
 class reco::TrackProbabilityTagInfo
-class reco::TrackTransientTrack
-class reco::TrackingRecHitInfo
 class reco::V0Candidate
 class reco::VZero
-class reco::VZeroData
 class reco::Vertex
 class reco::VertexCompositeCandidate
 class reco::WMuNuCandidate
 class reco::WMuNuCandidatePtr
-class reco::isodeposit::Direction
 class runinfo_test::RunNumber
-class runinfo_test::RunNumber::Item
-class sipixelobjects::PixelFEDCabling
-class sipixelobjects::PixelROC
 class susybsm::HSCPCaloInfo
 class susybsm::HSCPDeDxInfo
 class susybsm::HSCPIsolation
 class susybsm::HSCParticle
 class susybsm::MuonSegment
-class susybsm::RPCBetaMeasurement
-class tbb::interface5::concurrent_unordered_set
-class tbb::tbb_allocator
-class tbb::tbb_hash
 class test_with_dictionaries::IntValue
 class test_with_dictionaries::IntValue2
 class testdetsetrefvector::Value
 class testreftobase::Inherit1
 class testreftobase::Inherit2
+class trigger::Efficiency
 class trigger::HLTPrescaleTable
 class trigger::HLTPrescaleTableCond
 class trigger::TriggerEvent
-class trigger::TriggerEvent::TriggerFilterObject
 class trigger::TriggerEventWithRefs
-class trigger::TriggerEventWithRefs::TriggerFilterObject
 class trigger::TriggerFilterObjectWithRefs
 class trigger::TriggerObject
+member data class AlignableNavigator
+member data class AnalyticalPropagator
+member data class CLHEP::HepLorentzVector
+member data class CLHEP::HepMatrix
+member data class CLHEP::HepSymMatrix
+member data class CSCBadChambers
+member data class CaloGeometry
+member data class CaloTowerDetId
+member data class CastorCalibrationWidthsSet
+member data class CastorCalibrationsSet
+member data class CastorChannelQuality
+member data class CastorElectronicsMap
+member data class CastorGainWidths
+member data class CastorGains
+member data class CastorPedestalWidths
+member data class CastorPedestals
+member data class CastorQIEData
+member data class CastorTopology
+member data class ChargeSignificanceTrajectoryFilter
+member data class Chi2MeasurementEstimator
+member data class Chi2MeasurementEstimatorBase
+member data class Chi2Strip1DEstimator
+member data class ClusterShapeHitFilter
+member data class CommonMETv0Data
+member data class CosmicMuonUtilities
+member data class DCCDataUnpacker
+member data class DDCompactViewImpl
+member data class DDI::Store
+member data class DDName
+member data class DTBufferTree
+member data class DTChamberRecSegment2D
+member data class DTConfigPedestals
+member data class DTRecHit1D
+member data class DTSLRecSegment2D
+member data class DTSuperLayerId
+member data class DeepCopyPointerByClone
+member data class DetId
+member data class DetLayerGeometry
+member data class ESDetId
+member data class ESElectronicsMapper
+member data class ESRecHitWorkerBaseClass
+member data class ESUnpacker
+member data class EZMgrFL
+member data class EcalCondObjectContainer
+member data class EcalContainer
+member data class EcalDCCHeaderBlock::EcalDCCEventSettings
+member data class EcalElectronicsMapper
+member data class EcalElectronicsMapping
+member data class EcalGlobalShowerContainmentCorrectionsVsEta::Coefficients
+member data class EcalLaserAPDPNRatios
+member data class EcalPnDiodeDetId
+member data class EcalRecHitWorkerBaseClass
+member data class EcalScDetId
+member data class EcalTimeDependentCorrections
+member data class EcalTrigTowerDetId
+member data class EcalTriggerElectronicsId
+member data class EcalUncalibRecHitWorkerBaseClass
+member data class EncodedEventId
+member data class FFTJetCorrectorResultFromTransient
+member data class FFTJetCorrectorTransientFromJet
+member data class FFTJetDict
+member data class FactorizedJetCorrector
+member data class FiducialVolume
+member data class FullConvolutionWithMaterial
+member data class G4ErrorPropagatorManager
+member data class G4VPhysicalVolume
+member data class GEMDetId
+member data class Geant4eSteppingAction
+member data class GenRunInfoProduct::XSec
+member data class GenericMVAComputerCache
+member data class GeometricDet
+member data class GeometricSearchTracker
+member data class GlobalErrorBase
+member data class GlobalTrackingGeometry
+member data class GltDEDigi
+member data class GsfPropagatorAdapter
+member data class GsfPropagatorWithMaterial
+member data class HcalCalibDetId
+member data class HcalCastorDetId
+member data class HcalChannelQuality
+member data class HcalDetId
+member data class HcalElectronicsId
+member data class HcalElectronicsMap
+member data class HcalGainWidths
+member data class HcalGains
+member data class HcalL1TriggerObjects
+member data class HcalLUTCorrs
+member data class HcalLutMetadata
+member data class HcalLutMetadata::NonChannelData
+member data class HcalPFCorrs
+member data class HcalPedestalWidths
+member data class HcalPedestals
+member data class HcalQIEData
+member data class HcalRespCorrs
+member data class HcalSeverityLevelComputer::HcalSeverityDefinition
+member data class HcalTimeCorrs
+member data class HcalTopology
+member data class HcalTrigTowerDetId
+member data class HcalZDCDetId
+member data class HcalZSThresholds
+member data class HepMC::GenEvent
+member data class HepPDT::ProcessUnknownID
+member data class JetCorrectorParameters::Definitions
+member data class KFStrip1DUpdator
+member data class KFTrajectoryFitter
+member data class KFTrajectorySmoother
+member data class KFUpdator
+member data class L1CaloRegionDetId
+member data class L1GtfeExtWord
+member data class L1GtfeWord
+member data class L1MuBinnedScale
+member data class L1MuGMTExtendedCand
+member data class L1MuSymmetricBinnedScale
+member data class L1TcsWord
+member data class LikelihoodPdfProduct
+member data class LikelihoodSwitches
+member data class LinkBoardElectronicIndex
+member data class LocalError
+member data class LocalTrajectoryParameters
+member data class LooperTrajectoryFilter
+member data class LostHitsFractionTrajectoryFilter
+member data class MagGeometry
+member data class MagVolume
+member data class MagneticField
+member data class MagneticFieldProvider
+member data class MaterialAccountingDetector
+member data class MaterialAccountingStep
+member data class MaxConsecLostHitsTrajectoryFilter
+member data class MaxHitsTrajectoryFilter
+member data class MaxLostHitsTrajectoryFilter
+member data class Measurement1DFloat
+member data class MeasurementEstimator
+member data class MeasurementTracker
+member data class MeasurementTrackerEvent
+member data class MediumProperties
+member data class MinHitsTrajectoryFilter
+member data class MinPtTrajectoryFilter
+member data class MultiTrajectoryStateMerger
+member data class MuonDetLayerGeometry
+member data class MuonDigiCollection
+member data class MuonServiceProxy
+member data class OmniClusterRef
+member data class OuterDetCompatibility
+member data class OuterHitCompatibility
+member data class PTrajectoryStateOnDet
+member data class PerformancePayload
+member data class PerformanceWorkingPoint
+member data class PhysicsPerformancePayload
+member data class PhysicsTFormulaPayload
+member data class PhysicsTools::Calibration::Range
+member data class PixelCPEBase::Param
+member data class PixelClusterParameterEstimator
+member data class PixelGeomDetUnit
+member data class PixelTopology
+member data class Point3DBase
+member data class Propagator
+member data class PxMeasurementConditionSet
+member data class PxMeasurementDetSet
+member data class ROOT::Math::Cartesian3D
+member data class ROOT::Math::CylindricalEta3D
+member data class ROOT::Math::DisplacementVector3D
+member data class ROOT::Math::LorentzVector
+member data class ROOT::Math::MatRepSym
+member data class ROOT::Math::PositionVector3D
+member data class ROOT::Math::PtEtaPhiE4D
+member data class ROOT::Math::PtEtaPhiM4D
+member data class ROOT::Math::PxPyPzE4D
+member data class ROOT::Math::Rotation3D
+member data class ROOT::Math::RowOffsets
+member data class ROOT::Math::SMatrix
+member data class RPCDetId
+member data class RPCReadOutMapping
+member data class RectangularPixelTopology
+member data class ReferenceCountingPointer
+member data class SiPixelCPEGenericErrorParm
+member data class SiPixelFedCabling
+member data class SiPixelLorentzAngle
+member data class SiPixelTemplateDBObject
+member data class SiStripApvGain
+member data class SiStripBackPlaneCorrection
+member data class SiStripDetCabling
+member data class SiStripDetInfoFileReader
+member data class SiStripFedCabling
+member data class SiStripLorentzAngle
+member data class SiStripRecHitMatcher
+member data class SiTrackerGSRecHit2D
+member data class SimVertex
+member data class SpecificCaloMETData
+member data class SpecificGenMETData
+member data class SpecificPFMETData
+member data class StMeasurementConditionSet
+member data class StMeasurementDetSet
+member data class SteppingHelixStateInfo
+member data class StripClusterParameterEstimator
+member data class TArrayD
+member data class TCTauAlgorithm
+member data class TCanvas
+member data class TGeoElementTable
+member data class TGeoHMatrix
+member data class TGeoManager
+member data class TGeoNavigator
+member data class TGeoNode
+member data class TGeoOverlap
+member data class TGeoShape
+member data class TGeoVolume
+member data class THashList
+member data class TList
+member data class TLorentzVector
+member data class TMatrixT
+member data class TObjArray
+member data class TString
+member data class TString::Rep_t
+member data class TVector3
+member data class TVirtualGeoPainter
+member data class TVirtualGeoTrack
+member data class TimeSpec
+member data class Topology::LocalTrackPred
+member data class TrackCandidate
+member data class TrackerGeometry
+member data class TrackerHitAssociator
+member data class TrackerInteractionGeometry
+member data class TrackerTopology::PixelBarrelValues
+member data class TrackerTopology::PixelEndcapValues
+member data class TrackerTopology::TECValues
+member data class TrackerTopology::TIBValues
+member data class TrackerTopology::TIDValues
+member data class TrackerTopology::TOBValues
+member data class TrackingGeometry
+member data class TrackingParticleSelector
+member data class TrajectoryFilter
+member data class TrajectoryFitter
+member data class TrajectorySeed
+member data class TrajectorySmoother
+member data class TrajectoryStateUpdator
+member data class TrajectoryStateWithArbitraryError
+member data class TransientTrackingRecHitBuilder
+member data class Vector3DBase
+member data class VolumeBasedMagneticField
+member data class ZdcTopology
+member data class __gnu_cxx::__normal_iterator
+member data class __gnu_cxx::hash_map
+member data class boost::detail::shared_count
+member data class boost::multi_index::multi_index_container
+member data class boost::shared_ptr
+member data class boost::unordered::unordered_map
+member data class btag::LeptonSelector
+member data class cond::IOVKeysDescription
+member data class cond::IOVProxy
+member data class csc::L1Track
+member data class defaultRKPropagator::Product
+member data class edm::AssociationMap
+member data class edm::AtomicPtrCache
+member data class edm::BoolCache
+member data class edm::EDProductGetter
+member data class edm::ELseverityLevel
+member data class edm::ESHandle
+member data class edm::Event
+member data class edm::EventID
+member data class edm::FileInPath
+member data class edm::FwdRef
+member data class edm::Handle
+member data class edm::Hash
+member data class edm::InputTag
+member data class edm::LazyGetter
+member data class edm::OwnVector
+member data class edm::ParameterSet
+member data class edm::Ptr
+member data class edm::PtrVector
+member data class edm::Ref
+member data class edm::RefCore
+member data class edm::RefCoreWithIndex
+member data class edm::RefProd
+member data class edm::RefToBase
+member data class edm::RefToBaseProd
+member data class edm::RefToBaseVector
+member data class edm::RefVector
+member data class edm::RefVectorBase
+member data class edm::SortedCollection
+member data class edm::Timestamp
+member data class edm::ValueMap
+member data class edm::helpers::Key
+member data class edm::helpers::KeyVal
+member data class edm::reftobase::BaseHolder
+member data class edm::reftobase::BaseVectorHolder
+member data class edmtest::ProductWithNoDictionary
+member data class edmtestprod::Ord
+member data class edmtestprod::Simple
+member data class lhef::HEPEUP
+member data class lhef::HEPRUP
+member data class magfieldparam::BFit
+member data class magfieldparam::BFit3D
+member data class magfieldparam::TkBfield
+member data class metsig::SigInputObj
+member data class npstat::StorableMultivariateFunctor
+member data class pftools::CalibratableElement
+member data class pftools::CaloWindow
+member data class pftools::CandidateWrapper
+member data class reco::CATopJetProperties
+member data class reco::CaloID
+member data class reco::CaloJet::Specific
+member data class reco::CompositeCandidate
+member data class reco::FFTJet
+member data class reco::GenJet::Specific
+member data class reco::GsfElectron::ChargeInfo
+member data class reco::GsfElectron::ClassificationVariables
+member data class reco::GsfElectron::ConversionRejection
+member data class reco::GsfElectron::Corrections
+member data class reco::GsfElectron::FiducialFlags
+member data class reco::GsfElectron::IsolationVariables
+member data class reco::GsfElectron::MvaInput
+member data class reco::GsfElectron::MvaOutput
+member data class reco::GsfElectron::PflowIsolationVariables
+member data class reco::GsfElectron::ShowerShape
+member data class reco::GsfElectron::TrackClusterMatching
+member data class reco::GsfElectron::TrackExtrapolations
+member data class reco::IsoDeposit::Veto
+member data class reco::JPTJet::Specific
+member data class reco::JetID
+member data class reco::MuonEnergy
+member data class reco::MuonIsolation
+member data class reco::MuonPFIsolation
+member data class reco::MuonQuality
+member data class reco::MuonTime
+member data class reco::PFJet::Specific
+member data class reco::PFMultiLinksTC
+member data class reco::Photon::EnergyCorrections
+member data class reco::Photon::FiducialFlags
+member data class reco::Photon::IsolationVariables
+member data class reco::Photon::MIPVariables
+member data class reco::Photon::PflowIDVariables
+member data class reco::Photon::PflowIsolationVariables
+member data class reco::Photon::ShowerShape
+member data class reco::ShallowClonePtrCandidate
+member data class reco::Track
+member data class reco::TrackIPTagInfo::variableJTAParameters
+member data class reco::TrackResiduals
+member data class reco::VZeroData
+member data class reco::Vertex
+member data class reco::VertexCompositeCandidate
+member data class reco::castor::QieShape
+member data class reco::isodeposit::Direction
+member data class std::_Rb_tree
+member data class std::atomic
+member data class std::auto_ptr
+member data class std::basic_string
+member data class std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Alloc_hider
+member data class std::bitset
+member data class std::list
+member data class std::map
+member data class std::multimap
+member data class std::pair
+member data class std::set
+member data class std::unordered_map
+member data class std::vector
+member data class susybsm::RPCBetaMeasurement
+member data class tbb::interface5::concurrent_unordered_set
+member data class trigger::HLTPrescaleTable

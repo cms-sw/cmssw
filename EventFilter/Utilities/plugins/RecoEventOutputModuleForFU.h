@@ -70,6 +70,7 @@ namespace evf {
     std::string baseDir_;
     std::string smpath_;
     std::string jsonDefPath_;
+    boost::filesystem::path openDatFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
     StringJ filelist_;
@@ -114,14 +115,12 @@ namespace evf {
   {
     std::cout << "RecoEventOutputModuleForFU: start() method " << std::endl;
     
-    std::string init_filename_ = smpath_+"/"+stream_label_+".ini"; 
-    std::string eof_filename_ = smpath_+"/"+stream_label_+".eof";
+    const std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(stream_label_);
     
-    std::string first =  events_base_filename_ + "000001.dat";
     std::cout << "RecoEventOutputModuleForFU, initializing streams. init stream: " 
-	      <<init_filename_ << " eof stream " << eof_filename_ << " event stream " << first << std::endl;
+	      << initFileName << std::endl;
 
-    c_->setOutputFiles(init_filename_,eof_filename_);
+    c_->setInitMessageFile(initFileName);
     c_->start();
   }
   
@@ -165,57 +164,45 @@ namespace evf {
   template<typename Consumer>
   void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*){
     std::cout << "RecoEventOutputModuleForFU : begin lumi " << std::endl;
-	std::ostringstream ost;
-	string runDirName = fms_->getRunDirName();
-	ost << runDirName << "_ls" << std::setfill('0') << std::setw(4)
-			<< ls.luminosityBlock() << "_" << stream_label_ << "_pid"
-			<< std::setfill('0') << std::setw(5) << getpid() << ".dat";
-	std::string filenameFull = smpath_ + "/open/" + ost.str();
-	std::string filenameJson = ost.str();
-	c_->setOutputFile(filenameFull);
-
-	filelist_ = filenameJson;
+	openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
+	c_->setOutputFile(openDatFilePath_.string());
+	filelist_ = openDatFilePath_.filename().string();
   }
 
   template<typename Consumer>
   void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*){
     std::cout << "RecoEventOutputModuleForFU : end lumi " << std::endl;
-    int b;
-    // move dat file to one level up - this is VERRRRRY inefficient, come up with a smarter idea
-    std::string fullDataOutputPath = smpath_ + "/open/" + filelist_.value();
-    FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
-    FILE *src = fopen(fullDataOutputPath.c_str(),"r");
-    if(des != 0 && src !=0){
-      while((b=fgetc(src))!= EOF){
-	fputc((unsigned char)b,des);
+    c_->closeOutputFile();
+    processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
+    if(processed_.value()!=0){
+      int b;
+      // move dat file to one level up - this is VERRRRRY inefficient, come up with a smarter idea
+
+      FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
+      FILE *src = fopen(openDatFilePath_.string().c_str(),"r");
+      if(des != 0 && src !=0){
+	while((b=fgetc(src))!= EOF){
+	  fputc((unsigned char)b,des);
+	}
       }
+
+      edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
+      fclose(src);
     }
-    edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
-    fclose(src);
     //remove file
-    remove(fullDataOutputPath.c_str());
+    remove(openDatFilePath_.string().c_str());
 
-/* 	boost::filesystem::path openDatPath(fullDataOutputPath); */
-/* 	boost::filesystem::path closedDatPath( */
-/* 			openDatPath.parent_path().parent_path()); */
-/* 	closedDatPath /= openDatPath.filename(); */
-/* 	boost::filesystem::rename(openDatPath, closedDatPath); */
-
-	// output jsn file
-	processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
+    // output jsn file
+    if(processed_.value()!=0){
 	jsonMonitor_->snap(false, "");
-	std::stringstream outputJsonNameStream;
-	string runDirName = fms_->getRunDirName();
-	outputJsonNameStream << smpath_ << "/";
-	outputJsonNameStream << runDirName << "_ls" << std::setfill('0')
-			<< std::setw(4) << ls.luminosityBlock() << "_" << stream_label_
-			<< "_pid" << std::setfill('0') << std::setw(5) << getpid()
-			<< ".jsn";
-	jsonMonitor_->outputFullHistoDataPoint(outputJsonNameStream.str());
+	const std::string outputJsonNameStream =
+	  edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(ls.luminosityBlock(),stream_label_);
+	jsonMonitor_->outputFullHistoDataPoint(outputJsonNameStream);
+    }
 
-	// reset monitoring params
-	accepted_.value() = 0;
-	filelist_ = "";
+    // reset monitoring params
+    accepted_.value() = 0;
+    filelist_ = "";
   }
 
 } // end of namespace-edm

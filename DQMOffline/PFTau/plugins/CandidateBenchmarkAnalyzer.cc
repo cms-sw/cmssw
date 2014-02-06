@@ -45,7 +45,6 @@ CandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   
   
   Handle< View<Candidate> > collection; 
-  //iEvent.getByLabel( inputLabel_, collection); 
   iEvent.getByToken(myColl_, collection);
 
   fill( *collection );

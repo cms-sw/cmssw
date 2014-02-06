@@ -14,6 +14,10 @@
 #include <memory>
 #include <boost/shared_ptr.hpp>
 
+namespace coral {
+  class ISessionProxy;
+}
+
 namespace ora {
 
   class ConnectionPool;
@@ -57,6 +61,9 @@ namespace ora {
     
     /// 
     bool connect( const std::string& connectionString, const std::string& asRole, bool readOnly=false );
+
+    /// 
+    bool connect( boost::shared_ptr<coral::ISessionProxy>& coralSession, const std::string& connectionString, const std::string& schemaName="" );
 
     /// 
     void disconnect();

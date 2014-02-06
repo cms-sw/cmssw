@@ -16,16 +16,15 @@
 #include "JetTracksAssociatorAtVertex.h"
 
 JetTracksAssociatorAtVertex::JetTracksAssociatorAtVertex(const edm::ParameterSet& fConfig)
-  : mJets (fConfig.getParameter<edm::InputTag> ("jets")),
-    mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
-    mAssociator (fConfig.getParameter<double> ("coneSize")),
+  : mAssociator (fConfig.getParameter<double> ("coneSize")),
     mAssociatorAssigned (fConfig.getParameter<double> ("coneSize")),
     useAssigned(false), pvSrc()
 {
-
+  mJets = consumes<edm::View <reco::Jet> >(fConfig.getParameter<edm::InputTag> ("jets"));
+  mTracks = consumes<reco::TrackCollection>(fConfig.getParameter<edm::InputTag>("tracks"));
   if ( fConfig.exists("useAssigned") ) {
     useAssigned = fConfig.getParameter<bool> ("useAssigned");
-    pvSrc = fConfig.getParameter<edm::InputTag> ("pvSrc");
+    pvSrc = consumes<reco::VertexCollection>(fConfig.getParameter<edm::InputTag> ("pvSrc"));
   }
 
   produces<reco::JetTracksAssociation::Container> ();
@@ -35,9 +34,9 @@ JetTracksAssociatorAtVertex::~JetTracksAssociatorAtVertex() {}
 
 void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   edm::Handle <edm::View <reco::Jet> > jets_h;
-  fEvent.getByLabel (mJets, jets_h);
+  fEvent.getByToken (mJets, jets_h);
   edm::Handle <reco::TrackCollection> tracks_h;
-  fEvent.getByLabel (mTracks, tracks_h);
+  fEvent.getByToken (mTracks, tracks_h);
   
   std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
 
@@ -55,7 +54,7 @@ void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSe
     mAssociator.produce (&*jetTracks, allJets, allTracks);
   } else {
     edm::Handle<reco::VertexCollection> pvHandle;
-    fEvent.getByLabel(pvSrc,pvHandle);
+    fEvent.getByToken(pvSrc,pvHandle);
     const reco::VertexCollection & vertices = *pvHandle.product();     
     mAssociatorAssigned.produce (&*jetTracks, allJets, allTracks,vertices);
   }

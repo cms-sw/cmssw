@@ -67,7 +67,7 @@ class TrackExtrapolator : public edm::EDProducer {
       
       // ----------member data ---------------------------
 
-      edm::InputTag tracksSrc_;    /// Input tracks
+      edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;    /// Input tracks
       reco::TrackBase::TrackQuality trackQuality_; /// track quality of the tracks we care about
 
 

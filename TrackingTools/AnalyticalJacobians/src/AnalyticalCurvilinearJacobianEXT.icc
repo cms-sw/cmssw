@@ -32,7 +32,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   //   double q = -h.mag()*qbp;
   double q = qp*qbp;
 
-  double theta = q*absS; double sint = sin(theta); double cost = cos(theta);
+  double theta = q*absS; double sint,cost;   vdt::fast_sincos(theta,sint,cost);
 
   Vec3D t1;
   Vec3D t2;

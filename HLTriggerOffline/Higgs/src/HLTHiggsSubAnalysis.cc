@@ -30,15 +30,17 @@
 
 
 HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
-		const std::string & analysisname) :
+					 const std::string & analysisname,
+					 edm::ConsumesCollector&& iC) :
 	_pset(pset),
 	_analysisname(analysisname),
 	_minCandidates(0),
 	_hltProcessName(pset.getParameter<std::string>("hltProcessName")),
-	_genParticleLabel(pset.getParameter<std::string>("genParticleLabel")),
+	_genParticleLabel(iC.consumes<reco::GenParticleCollection>(pset.getParameter<std::string>("genParticleLabel"))),
       	_parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
   	_parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
   	_parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
+	_trigResultsTag(iC.consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",_hltProcessName))),
 	_recMuonSelector(0),
 	_recElecSelector(0),
 	_recCaloMETSelector(0),
@@ -51,7 +53,7 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	edm::ParameterSet anpset = pset.getParameter<edm::ParameterSet>(analysisname);
 	// Collections labels (but genparticles already initialized) 
 	// initializing _recLabels data member)
-	this->bookobjects( anpset );
+	this->bookobjects( anpset, iC );
 
 	// Generic objects: Initialization of cuts
 	for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();
@@ -68,6 +70,7 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
+
 		const std::string objStr = EVTColContainer::getTypeString(it->first);
 		try
 		{
@@ -427,31 +430,36 @@ const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::s
 
 
 // Booking the maps: recLabels and genParticle selectors
-void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset )
+void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset, edm::ConsumesCollector& iC )
 {
 	if( anpset.exists("recMuonLabel") )
 	{
-		_recLabels[EVTColContainer::MUON] = anpset.getParameter<std::string>("recMuonLabel");
+	        _recLabels[EVTColContainer::MUON] = anpset.getParameter<std::string>("recMuonLabel");
+	        _recLabelsMuon = iC.consumes<reco::MuonCollection>(anpset.getParameter<std::string>("recMuonLabel"));
 		_genSelectorMap[EVTColContainer::MUON] = 0 ;
 	}
 	if( anpset.exists("recElecLabel") )
 	{
-		_recLabels[EVTColContainer::ELEC] = anpset.getParameter<std::string>("recElecLabel");
+	        _recLabels[EVTColContainer::ELEC] = anpset.getParameter<std::string>("recElecLabel");
+	        _recLabelsElec = iC.consumes<reco::GsfElectronCollection>(anpset.getParameter<std::string>("recElecLabel"));
 		_genSelectorMap[EVTColContainer::ELEC] = 0 ;
 	}
 	if( anpset.exists("recPhotonLabel") )
 	{
-		_recLabels[EVTColContainer::PHOTON] = anpset.getParameter<std::string>("recPhotonLabel");
+	        _recLabels[EVTColContainer::PHOTON] = anpset.getParameter<std::string>("recPhotonLabel");
+	        _recLabelsPhoton = iC.consumes<reco::PhotonCollection>(anpset.getParameter<std::string>("recPhotonLabel"));
 		_genSelectorMap[EVTColContainer::PHOTON] = 0 ;
 	}
 	if( anpset.exists("recCaloMETLabel") )
 	{
-		_recLabels[EVTColContainer::CALOMET] = anpset.getParameter<std::string>("recCaloMETLabel");
+	        _recLabels[EVTColContainer::CALOMET] = anpset.getParameter<std::string>("recCaloMETLabel");
+	        _recLabelsCaloMET = iC.consumes<reco::CaloMETCollection>(anpset.getParameter<std::string>("recCaloMETLabel"));
 		_genSelectorMap[EVTColContainer::CALOMET] = 0 ;
 	}
 	if( anpset.exists("recPFTauLabel") )
 	{
-		_recLabels[EVTColContainer::PFTAU] = anpset.getParameter<std::string>("recPFTauLabel");
+	        _recLabels[EVTColContainer::PFTAU] = anpset.getParameter<std::string>("recPFTauLabel");
+	        _recLabelsPFTau = iC.consumes<reco::PFTauCollection>(anpset.getParameter<std::string>("recPFTauLabel"));
 		_genSelectorMap[EVTColContainer::PFTAU] = 0 ;
 	}
 	/*if( anpset.exists("recTrackLabel") )
@@ -478,23 +486,9 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 	}*/
 	if( ! col->isCommonInit() )
 	{
-		// TO BE DEPRECATED AS we don't need it anymore.
-		// There is no match with HLT candidates... Use, then TriggerResults
-		/*edm::Handle<trigger::TriggerEventWithRefs> rawTEH;
-		iEvent.getByLabel("hltTriggerSummaryRAW",rawTEH);
-		if(rawTEH.failedToGet())
-		{
-			edm::LogError("HiggsValidation") << "HLTHiggsSubAnalysis::initobjecst, "
-				<< "No trigger summary found"; 
-			return;
-		}
-		col->rawTriggerEvent = rawTEH.product();*/
-		// END-- TO BE DEPRECATED
-	
 		// extract the trigger results (path info, pass,...)
 		edm::Handle<edm::TriggerResults> trigResults;
-		edm::InputTag trigResultsTag("TriggerResults","",_hltProcessName);
-		iEvent.getByLabel(trigResultsTag,trigResults);
+		iEvent.getByToken(_trigResultsTag,trigResults);
 		if( trigResults.isValid() )
 		{
 			col->triggerResults = trigResults.product();
@@ -502,7 +496,7 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 
 		// GenParticle collection if is there
 		edm::Handle<reco::GenParticleCollection> genPart;
-		iEvent.getByLabel(_genParticleLabel,genPart);
+		iEvent.getByToken(_genParticleLabel,genPart);
 		if( genPart.isValid() )
 		{
 			col->genParticles = genPart.product();
@@ -515,39 +509,33 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 		if( it->first == EVTColContainer::MUON )
 		{
 			edm::Handle<reco::MuonCollection> theHandle;
-			iEvent.getByLabel(it->second, theHandle);
+			iEvent.getByToken(_recLabelsMuon, theHandle);
 			col->set(theHandle.product());
 		}
 		else if( it->first == EVTColContainer::ELEC )
 		{
 			edm::Handle<reco::GsfElectronCollection> theHandle;
-			iEvent.getByLabel(it->second, theHandle);
+			iEvent.getByToken(_recLabelsElec, theHandle);
 			col->set(theHandle.product());
 		}
 		else if( it->first == EVTColContainer::PHOTON )
 		{
 			edm::Handle<reco::PhotonCollection> theHandle;
-			iEvent.getByLabel(it->second, theHandle);
+			iEvent.getByToken(_recLabelsPhoton, theHandle);
 			col->set(theHandle.product());
 		}
 		else if( it->first == EVTColContainer::CALOMET )
 		{
 			edm::Handle<reco::CaloMETCollection> theHandle;
-			iEvent.getByLabel(it->second, theHandle);
+			iEvent.getByToken(_recLabelsCaloMET, theHandle);
 			col->set(theHandle.product());
 		}
 		else if( it->first == EVTColContainer::PFTAU )
 		{
 			edm::Handle<reco::PFTauCollection> theHandle;
-			iEvent.getByLabel(it->second, theHandle);
+			iEvent.getByToken(_recLabelsPFTau, theHandle);
 			col->set(theHandle.product());
 		}
-/*		else if( it->first == EVTColContainer::TRACK )
-		{
-			edm::Handle<reco::TrackCollection> theHandle;
-			iEvent.getByLabel(it->second, theHandle);
-			col->set(theHandle.product());
-		}*/
 		else
 		{
 			edm::LogError("HiggsValidation") << "HLTHiggsSubAnalysis::initobjects " 

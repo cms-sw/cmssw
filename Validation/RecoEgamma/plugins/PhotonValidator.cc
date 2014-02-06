@@ -22,6 +22,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 //
+#include "DataFormats/Math/interface/deltaR.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
@@ -36,6 +37,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -56,7 +58,7 @@
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruth.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
+
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
@@ -82,6 +84,7 @@ using namespace std;
 
 
 PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
+
 {
   fName_     = pset.getParameter<std::string>("analyzerName");
   verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
@@ -109,6 +112,11 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
       edm::InputTag(conversionOITrackProducer_));
   conversionIOTrackPr_Token_ = consumes<edm::View<reco::Track> >(
       edm::InputTag(conversionIOTrackProducer_));
+
+  pfCandidates_  = consumes<reco::PFCandidateCollection>(pset.getParameter<edm::InputTag>("pfCandidates"));
+  //  valueMapPhoPFCandIso_ = consumes <edm::ValueMap<std::vector<std::pair<reco::PFCandidateRef, bool> > > > (pset.getParameter<edm::InputTag>("valueMapPhoToParticleBasedIso"));
+  valueMapPhoPFCandIso_ = pset.getParameter<std::string>("valueMapPhoToParticleBasedIso");
+
 
   minPhoEtCut_ = pset.getParameter<double>("minPhoEtCut");
   convTrackMinPtCut_ = pset.getParameter<double>("convTrackMinPtCut");
@@ -145,7 +153,6 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
   genjets_Token_ = consumes<reco::GenJetCollection>(
       edm::InputTag("iterativeCone5GenJets"));
 }
-
 
 
 
@@ -684,11 +691,6 @@ void PhotonValidator::bookHistograms(void) {
     histname = "psE";
     h_psE_ = dbe_->book1D(histname+"Endcap"," ES Energy  ",eBin,eMin, 50.);
 
-    histname = "diffSCpfSC";
-    h_dSCpfSC_[0][0] = dbe_->book1D(histname+"All"," SC Energy: All Ecal  ",eBin,-0.04,0.04);
-    h_dSCpfSC_[0][1] = dbe_->book1D(histname+"Barrel"," E(SC)-E(pfSC): Barrel ",eBin,-0.04, 0.04);
-    h_dSCpfSC_[0][2] = dbe_->book1D(histname+"Endcap"," E(SC)-E(pfSC): Endcap ",eBin,-0.04, 0.04);
-
 
     histname = "scEt";
     h_scEt_[0][0] = dbe_->book1D(histname+"All"," SC Et: All Ecal ",etBin,etMin, etMax) ;
@@ -1028,6 +1030,59 @@ void PhotonValidator::bookHistograms(void) {
     h_pfMva_[0]= dbe_->book1D(histname+"All",   "PF MVA output:  All Ecal",50,-1.,2.);
     h_pfMva_[1]= dbe_->book1D(histname+"Barrel",   "PF MVA output:  Barrel",50,-1.,2.);
     h_pfMva_[2]= dbe_->book1D(histname+"Endcap",   "PF MVA output:  Endcap",50,-1,2.);
+    ////////// particle based isolation from value map
+    histname = "SumPtOverPhoPt_ChHad_Cleaned";
+    h_SumPtOverPhoPt_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
+    histname = "SumPtOverPhoPt_NeuHad_Cleaned";
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
+    histname = "SumPtOverPhoPt_Pho_Cleaned";
+    h_SumPtOverPhoPt_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons Hadrons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons Hadrons:  Endcap",etBin,etMin,2.);
+
+    histname = "dRPhoPFcand_ChHad_Cleaned";
+    h_dRPhoPFcand_ChHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
+    histname = "dRPhoPFcand_NeuHad_Cleaned";
+    h_dRPhoPFcand_NeuHad_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
+    histname = "dRPhoPFcand_Pho_Cleaned";
+    h_dRPhoPFcand_Pho_Cleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons : All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_Cleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_Cleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons :  Endcap",etBin,etMin,0.7);
+ 
+   //
+    histname = "SumPtOverPhoPt_ChHad_unCleaned";
+    h_SumPtOverPhoPt_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Charged Hadrons :  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Charged Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Charged Hadrons:  Endcap",etBin,etMin,2.);
+    histname = "SumPtOverPhoPt_NeuHad_unCleaned";
+    h_SumPtOverPhoPt_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Neutral Hadrons :  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Neutral Hadrons:  Endcap",etBin,etMin,2.);
+    histname = "SumPtOverPhoPt_Pho_unCleaned";
+    h_SumPtOverPhoPt_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "Pf Cand Sum Pt Over photon pt Photons:  All Ecal",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","PF Cand Sum Pt Over photon pt Photons:  Barrel",etBin,etMin,2.);
+    h_SumPtOverPhoPt_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","PF Cand Sum Pt Over photon pt Photons:  Endcap",etBin,etMin,2.);
+    histname = "dRPhoPFcand_ChHad_unCleaned";
+    h_dRPhoPFcand_ChHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Charged Hadrons :  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Charged Hadrons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_ChHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Charged Hadrons :  Endcap",etBin,etMin,0.7);
+    histname = "dRPhoPFcand_NeuHad_unCleaned";
+    h_dRPhoPFcand_NeuHad_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Neutral Hadrons :  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Neutral Hadrons :  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_NeuHad_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Neutral Hadrons :  Endcap",etBin,etMin,0.7);
+    histname = "dRPhoPFcand_Pho_unCleaned";
+    h_dRPhoPFcand_Pho_unCleaned_[0]=  dbe_->book1D(histname+"All",   "dR(pho,cand) Photons:  All Ecal",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_unCleaned_[1]=  dbe_->book1D(histname+"Barrel","dR(pho,cand) Photons:  Barrel",etBin,etMin,0.7);
+    h_dRPhoPFcand_Pho_unCleaned_[2]=  dbe_->book1D(histname+"Endcap","dR(pho,cand) Photons:  Endcap",etBin,etMin,0.7);
+
 
 
     //    if ( ! isRunCentrally_ ) {
@@ -1539,6 +1594,43 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     return;
   }
 
+  // Get the  PF refined cluster  collection
+  Handle<reco::PFCandidateCollection> pfCandidateHandle;
+  e.getByToken(pfCandidates_,pfCandidateHandle);
+  if (!pfCandidateHandle.isValid()) {
+    edm::LogError("PhotonValidator") << "Error! Can't get the product pfCandidates "<< std::endl ;
+  }
+
+  edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef> > > phoToParticleBasedIsoMapHandle;
+  edm::ValueMap<std::vector<reco::PFCandidateRef> > phoToParticleBasedIsoMap;
+  if ( fName_ == "pfPhotonValidator") {
+    e.getByLabel("particleBasedIsolation",valueMapPhoPFCandIso_,phoToParticleBasedIsoMapHandle);
+    if ( ! phoToParticleBasedIsoMapHandle.isValid()) {
+      edm::LogInfo("PhotonValidator") << "Error! Can't get the product: valueMap photons to particle based iso " << std::endl;
+      
+    }
+    phoToParticleBasedIsoMap = *(phoToParticleBasedIsoMapHandle.product());
+  }
+  ///// debug
+  unsigned nObj=photonHandle->size();
+  if ( fName_ == "pfPhotonValidator") {
+    //std::cout << "    photonHandle->size() " << photonHandle->size() << std::endl;
+    for(unsigned int lCand=0; lCand < nObj; lCand++) { 
+      //std::cout << "  I am in the loop " << std::endl;
+      reco::PhotonRef photonRef (reco::PhotonRef( photonHandle,lCand));
+      //std::cout << "  photon SC energy " << photonRef->superCluster()->energy() << " " <<  phoToParticleBasedIsoMap[photonRef].size() <<  std::endl;
+      for( std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[photonRef].begin(); i != phoToParticleBasedIsoMap[photonRef].end(); ++i ) {
+	//if ( (*i).isNonnull() ) {
+	// float dR= deltaR(photonRef->eta(),  photonRef->phi(), (*i)->eta(),  (*i)->phi() );
+	//  std::cout << " Debugging  Candidate dR " << dR << " type " << (*i)->particleId() << " pt " << (*i)->pt() <<  std::endl;
+	  //	}
+       }
+    }
+  }
+
+
+
+
   Handle< edm::View<reco::Track> > outInTrkHandle;
   Handle< edm::View<reco::Track> > inOutTrkHandle;
   if ( !fastSim_) {
@@ -1553,17 +1645,17 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     // Loop over Out In Tracks
     int iTrk=0;
     int nHits=0;
-    for( View<reco::Track>::const_iterator    iTk =  (*outInTrkHandle).begin(); iTk !=  (*outInTrkHandle).end(); iTk++) {
+    for( View<reco::Track>::const_iterator    iTk = outInTrkHandle->begin(); iTk !=  outInTrkHandle->end(); iTk++) {
       //    std::cout  << " Barrel  Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2() ) << "\n";
       // std::cout  << " Barrel Out In Track Extra inner momentum  " << sqrt(iTk->extra()->innerMomentum().Mag2()) <<  " inner position R " <<  sqrt( iTk->innerPosition().Perp2() ) << "\n";
       h_OIinnermostHitR_ ->Fill ( sqrt( iTk->innerPosition().Perp2() ) );
       for (  trackingRecHit_iterator itHits=iTk->extra()->recHitsBegin();  itHits!=iTk->extra()->recHitsEnd(); ++itHits ) {
-	if ( (*itHits)->isValid() ) {
-	  nHits++;
-	  //	cout <<nHits <<") RecHit in GP " <<  trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()) << " R "<< trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).perp() << " Z " << trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).z() << "\n";
-	}
+		if ( (*itHits)->isValid() ) {
+		    nHits++;
+		    //	cout <<nHits <<") RecHit in GP " <<  trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()) << " R "<< trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).perp() << " Z " << trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).z() << "\n";
+		}
 
-
+		
       }
 
       iTrk++;
@@ -1573,21 +1665,18 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     // Loop over In Out Tracks Barrel
     iTrk=0;
-    for( View<reco::Track>::const_iterator    iTk =  (*inOutTrkHandle).begin(); iTk !=  (*inOutTrkHandle).end(); iTk++) {
+    for( View<reco::Track>::const_iterator    iTk =  inOutTrkHandle->begin(); iTk !=  inOutTrkHandle->end(); iTk++) {
       //std::cout  << " Barrel In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << sqrt( iTk->innerMomentum().Mag2())  << "\n";
       // std::cout   << " Barrel In Out  Track Extra inner momentum  " << sqrt(iTk->extra()->innerMomentum().Mag2()) << "\n";
       h_IOinnermostHitR_ ->Fill ( sqrt( iTk->innerPosition().Perp2() ) );
       nHits=0;
       for (  trackingRecHit_iterator itHits=iTk->extra()->recHitsBegin();  itHits!=iTk->extra()->recHitsEnd(); ++itHits ) {
-	if ( (*itHits)->isValid() ) {
-	  nHits++;
+    	if ( (*itHits)->isValid() ) {
+    	  nHits++;
 	  //cout <<nHits <<") RecHit in GP " << trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition())  << " R "<< trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).perp() << " Z " << trackerGeom->idToDet((*itHits)->geographicalId())->surface().toGlobal((*itHits)->localPosition()).z() << "\n";
 
-	}
+      	}
       }
-
-
-
       iTrk++;
     }
 
@@ -1671,20 +1760,23 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     nSimConv_[i]=0;
 
 
-  std::vector<reco::Photon> myPhotons;
-  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
-    if ( fabs(iPho->eta()) > 2.5 ) continue;
-    myPhotons.push_back(*iPho);
+  std::vector<reco::PhotonRef> myPhotons;
+
+  for(unsigned int iPho=0; iPho < photonHandle->size(); iPho++) {
+    reco::PhotonRef phoRef(reco::PhotonRef(photonHandle, iPho));
+  //  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+    if ( fabs(phoRef->eta()) > 2.5 ) continue;
+    myPhotons.push_back(phoRef);
   }
 
   std::sort(myPhotons.begin(), myPhotons.end(), sortPhotons());
   // if ( ! isRunCentrally_ ) {
   if ( myPhotons.size() >=2 ) {
-    if ( myPhotons[0].et() > 40 && myPhotons[1].et() > 25 ) {
+    if ( myPhotons[0]->et() > 40 && myPhotons[1]->et() > 25 ) {
 
-      math::XYZTLorentzVector p12 = myPhotons[0].p4()+myPhotons[1].p4();
-      math::XYZTLorentzVector p12_regr1 = myPhotons[0].p4(reco::Photon::regression1)+myPhotons[1].p4(reco::Photon::regression1);
-      math::XYZTLorentzVector p12_regr2 = myPhotons[0].p4(reco::Photon::regression2)+myPhotons[1].p4(reco::Photon::regression2);
+      math::XYZTLorentzVector p12 = myPhotons[0]->p4()+myPhotons[1]->p4();
+      math::XYZTLorentzVector p12_regr1 = myPhotons[0]->p4(reco::Photon::regression1)+myPhotons[1]->p4(reco::Photon::regression1);
+      math::XYZTLorentzVector p12_regr2 = myPhotons[0]->p4(reco::Photon::regression2)+myPhotons[1]->p4(reco::Photon::regression2);
       float gamgamMass2 = p12.Dot(p12);
       float gamgamMass2_regr1 = p12_regr1.Dot(p12_regr1);
       float gamgamMass2_regr2 = p12_regr2.Dot(p12_regr2);
@@ -1693,61 +1785,61 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if (  gamgamMass2 > 0 ) {
         // total
         h_gamgamMass_[0][0] -> Fill(sqrt( gamgamMass2 ));
-        if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+        if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() )
           h_gamgamMass_[0][1] -> Fill(sqrt( gamgamMass2 ));
-        if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-             (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-             (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+        if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+             (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+             (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
           h_gamgamMass_[0][2] -> Fill(sqrt( gamgamMass2 ));
         // Golden photons
-        if (  myPhotons[0].r9() > 0.94 &&  myPhotons[1].r9() > 0.94 ) {
+        if (  myPhotons[0]->r9() > 0.94 &&  myPhotons[1]->r9() > 0.94 ) {
           h_gamgamMass_[1][0] -> Fill(sqrt( gamgamMass2 ));
-          if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+          if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() )
             h_gamgamMass_[1][1] -> Fill(sqrt( gamgamMass2 ));
-          if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-               (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-               (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+          if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+               (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+               (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
             h_gamgamMass_[1][2] -> Fill(sqrt( gamgamMass2 ));
         }
         // both photons converted
-        if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() >0 ) {
-          if ( myPhotons[0].conversions()[0]->nTracks() ==2 &&  myPhotons[1].conversions()[0]->nTracks() ==2  ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
-            float chi2Prob2 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+        if ( myPhotons[0]->conversions().size() > 0 && myPhotons[1]->conversions().size() >0 ) {
+          if ( myPhotons[0]->conversions()[0]->nTracks() ==2 &&  myPhotons[1]->conversions()[0]->nTracks() ==2  ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[0]->conversions()[0]->conversionVertex().chi2(),  myPhotons[0]->conversions()[0]->conversionVertex().ndof() );
+            float chi2Prob2 = ChiSquaredProbability( myPhotons[1]->conversions()[0]->conversionVertex().chi2(),  myPhotons[1]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 &&  chi2Prob2 > 0.0005 ) {
               h_gamgamMass_[2][0] -> Fill(sqrt( gamgamMass2 ));
-              if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() ) {
                 h_gamgamMass_[2][1] -> Fill(sqrt( gamgamMass2 ));
               }
-              if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-                   (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-                   (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+              if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+                   (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
                 h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 )); {
               }
             }
           }
-        } else if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() ==0 && myPhotons[1].r9() > 0.93  )  { 	// one photon converted
-          if ( myPhotons[0].conversions()[0]->nTracks() ==2 ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+        } else if ( myPhotons[0]->conversions().size() > 0 && myPhotons[1]->conversions().size() ==0 && myPhotons[1]->r9() > 0.93  )  { 	// one photon converted
+          if ( myPhotons[0]->conversions()[0]->nTracks() ==2 ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[0]->conversions()[0]->conversionVertex().chi2(),  myPhotons[0]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 ) {
               h_gamgamMass_[2][0] -> Fill(sqrt( gamgamMass2 ));
-              if (  myPhotons[0].isEB() &&  myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() &&  myPhotons[1]->isEB() ) {
                 h_gamgamMass_[2][1] -> Fill(sqrt( gamgamMass2 ));
               }
-              if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+              if (  myPhotons[0]->isEE() ||  myPhotons[1]->isEE() ) {
                 h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 ));
               }
             }
           }
-        } else if ( myPhotons[1].conversions().size() > 0 && myPhotons[0].conversions().size() ==0 &&  myPhotons[0].r9() > 0.93 )  { 	// one photon converted
-          if ( myPhotons[1].conversions()[0]->nTracks() ==2 ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+        } else if ( myPhotons[1]->conversions().size() > 0 && myPhotons[0]->conversions().size() ==0 &&  myPhotons[0]->r9() > 0.93 )  { 	// one photon converted
+          if ( myPhotons[1]->conversions()[0]->nTracks() ==2 ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[1]->conversions()[0]->conversionVertex().chi2(),  myPhotons[1]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 ) {
               h_gamgamMass_[2][0] -> Fill(sqrt( gamgamMass2 ));
-              if (  myPhotons[0].isEB() && myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() && myPhotons[1]->isEB() ) {
                 h_gamgamMass_[2][1] -> Fill(sqrt( gamgamMass2 ));
               }
-              if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+              if (  myPhotons[0]->isEE() ||  myPhotons[1]->isEE() ) {
                 h_gamgamMass_[2][2] -> Fill(sqrt( gamgamMass2 ));
               }
             }
@@ -1759,63 +1851,63 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if (  gamgamMass2_regr1 > 0 ) {
         // total
         h_gamgamMassRegr1_[0][0] -> Fill(sqrt( gamgamMass2_regr1 ));
-        if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+        if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() )
           h_gamgamMassRegr1_[0][1] -> Fill(sqrt( gamgamMass2_regr1 ));
-        if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-             (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-             (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+        if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+             (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+             (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
           h_gamgamMassRegr1_[0][2] -> Fill(sqrt( gamgamMass2_regr1 ));
         // Golden photons
-        if (  myPhotons[0].r9() > 0.94 &&  myPhotons[1].r9() > 0.94 ) {
+        if (  myPhotons[0]->r9() > 0.94 &&  myPhotons[1]->r9() > 0.94 ) {
           h_gamgamMassRegr1_[1][0] -> Fill(sqrt( gamgamMass2_regr1 ));
-          if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+          if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() )
             h_gamgamMassRegr1_[1][1] -> Fill(sqrt( gamgamMass2_regr1 ));
-          if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-               (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-               (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+          if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+               (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+               (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
             h_gamgamMassRegr1_[1][2] -> Fill(sqrt( gamgamMass2_regr1 ));
         }
 
 
         // both photons converted
-        if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() >0 ) {
-          if ( myPhotons[0].conversions()[0]->nTracks() ==2 &&  myPhotons[1].conversions()[0]->nTracks() ==2  ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
-            float chi2Prob2 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+        if ( myPhotons[0]->conversions().size() > 0 && myPhotons[1]->conversions().size() >0 ) {
+          if ( myPhotons[0]->conversions()[0]->nTracks() ==2 &&  myPhotons[1]->conversions()[0]->nTracks() ==2  ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[0]->conversions()[0]->conversionVertex().chi2(),  myPhotons[0]->conversions()[0]->conversionVertex().ndof() );
+            float chi2Prob2 = ChiSquaredProbability( myPhotons[1]->conversions()[0]->conversionVertex().chi2(),  myPhotons[1]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 &&  chi2Prob2 > 0.0005 ) {
               h_gamgamMassRegr1_[2][0] -> Fill(sqrt( gamgamMass2_regr1 ));
-              if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() ) {
                 h_gamgamMassRegr1_[2][1] -> Fill(sqrt( gamgamMass2_regr1 ));
               }
-              if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-                   (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-                   (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+              if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+                   (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
                 h_gamgamMassRegr1_[2][2] -> Fill(sqrt( gamgamMass2_regr1 )); {
               }
             }
           }
-        } else if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() ==0 && myPhotons[1].r9() > 0.93  )  { 	// one photon converted
-          if ( myPhotons[0].conversions()[0]->nTracks() ==2 ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+        } else if ( myPhotons[0]->conversions().size() > 0 && myPhotons[1]->conversions().size() ==0 && myPhotons[1]->r9() > 0.93  )  { 	// one photon converted
+          if ( myPhotons[0]->conversions()[0]->nTracks() ==2 ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[0]->conversions()[0]->conversionVertex().chi2(),  myPhotons[0]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 ) {
               h_gamgamMassRegr1_[2][0] -> Fill(sqrt( gamgamMass2_regr1 ));
-              if (  myPhotons[0].isEB() &&  myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() &&  myPhotons[1]->isEB() ) {
                 h_gamgamMassRegr1_[2][1] -> Fill(sqrt( gamgamMass2_regr1 ));
               }
-              if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+              if (  myPhotons[0]->isEE() ||  myPhotons[1]->isEE() ) {
                 h_gamgamMassRegr1_[2][2] -> Fill(sqrt( gamgamMass2_regr1 ));
               }
             }
           }
-        } else if ( myPhotons[1].conversions().size() > 0 && myPhotons[0].conversions().size() ==0 &&  myPhotons[0].r9() > 0.93 )  { 	// one photon converted
-          if ( myPhotons[1].conversions()[0]->nTracks() ==2 ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+        } else if ( myPhotons[1]->conversions().size() > 0 && myPhotons[0]->conversions().size() ==0 &&  myPhotons[0]->r9() > 0.93 )  { 	// one photon converted
+          if ( myPhotons[1]->conversions()[0]->nTracks() ==2 ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[1]->conversions()[0]->conversionVertex().chi2(),  myPhotons[1]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 ) {
               h_gamgamMassRegr1_[2][0] -> Fill(sqrt( gamgamMass2_regr1 ));
-              if (  myPhotons[0].isEB() && myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() && myPhotons[1]->isEB() ) {
                 h_gamgamMassRegr1_[2][1] -> Fill(sqrt( gamgamMass2_regr1 ));
               }
-              if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+              if (  myPhotons[0]->isEE() ||  myPhotons[1]->isEE() ) {
                 h_gamgamMassRegr1_[2][2] -> Fill(sqrt( gamgamMass2_regr1 ));
               }
             }
@@ -1828,63 +1920,63 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if (  gamgamMass2_regr2 > 0 ) {
         // total
         h_gamgamMassRegr2_[0][0] -> Fill(sqrt( gamgamMass2_regr2 ));
-        if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+        if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() )
           h_gamgamMassRegr2_[0][1] -> Fill(sqrt( gamgamMass2_regr2 ));
-        if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-             (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-             (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+        if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+             (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+             (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
           h_gamgamMassRegr2_[0][2] -> Fill(sqrt( gamgamMass2_regr2 ));
         // Golden photons
-        if (  myPhotons[0].r9() > 0.94 &&  myPhotons[1].r9() > 0.94 ) {
+        if (  myPhotons[0]->r9() > 0.94 &&  myPhotons[1]->r9() > 0.94 ) {
           h_gamgamMassRegr2_[1][0] -> Fill(sqrt( gamgamMass2_regr2 ));
-          if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() )
+          if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() )
             h_gamgamMassRegr2_[1][1] -> Fill(sqrt( gamgamMass2_regr2 ));
-          if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-               (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-               (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+          if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+               (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+               (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
             h_gamgamMassRegr2_[1][2] -> Fill(sqrt( gamgamMass2_regr2 ));
         }
 
 
         // both photons converted
-        if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() >0 ) {
-          if ( myPhotons[0].conversions()[0]->nTracks() ==2 &&  myPhotons[1].conversions()[0]->nTracks() ==2  ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
-            float chi2Prob2 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+        if ( myPhotons[0]->conversions().size() > 0 && myPhotons[1]->conversions().size() >0 ) {
+          if ( myPhotons[0]->conversions()[0]->nTracks() ==2 &&  myPhotons[1]->conversions()[0]->nTracks() ==2  ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[0]->conversions()[0]->conversionVertex().chi2(),  myPhotons[0]->conversions()[0]->conversionVertex().ndof() );
+            float chi2Prob2 = ChiSquaredProbability( myPhotons[1]->conversions()[0]->conversionVertex().chi2(),  myPhotons[1]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 &&  chi2Prob2 > 0.0005 ) {
               h_gamgamMassRegr2_[2][0] -> Fill(sqrt( gamgamMass2_regr2 ));
-              if (  myPhotons[0].isEB() && 	 myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEB() ) {
                 h_gamgamMassRegr2_[2][1] -> Fill(sqrt( gamgamMass2_regr2 ));
               }
-              if ( (  myPhotons[0].isEE() && 	 myPhotons[1].isEE() )  ||
-                   (  myPhotons[0].isEE() && 	 myPhotons[1].isEB() ) ||
-                   (  myPhotons[0].isEB() && 	 myPhotons[1].isEE() ) )
+              if ( (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEE() )  ||
+                   (  myPhotons[0]->isEE() && 	 myPhotons[1]->isEB() ) ||
+                   (  myPhotons[0]->isEB() && 	 myPhotons[1]->isEE() ) )
                 h_gamgamMassRegr2_[2][2] -> Fill(sqrt( gamgamMass2_regr2 )); {
               }
             }
           }
-        } else if ( myPhotons[0].conversions().size() > 0 && myPhotons[1].conversions().size() ==0 && myPhotons[1].r9() > 0.93  )  { 	// one photon converted
-          if ( myPhotons[0].conversions()[0]->nTracks() ==2 ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[0].conversions()[0]->conversionVertex().chi2(),  myPhotons[0].conversions()[0]->conversionVertex().ndof() );
+        } else if ( myPhotons[0]->conversions().size() > 0 && myPhotons[1]->conversions().size() ==0 && myPhotons[1]->r9() > 0.93  )  { 	// one photon converted
+          if ( myPhotons[0]->conversions()[0]->nTracks() ==2 ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[0]->conversions()[0]->conversionVertex().chi2(),  myPhotons[0]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 ) {
               h_gamgamMassRegr2_[2][0] -> Fill(sqrt( gamgamMass2_regr2 ));
-              if (  myPhotons[0].isEB() &&  myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() &&  myPhotons[1]->isEB() ) {
                 h_gamgamMassRegr2_[2][1] -> Fill(sqrt( gamgamMass2_regr2 ));
               }
-              if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+              if (  myPhotons[0]->isEE() ||  myPhotons[1]->isEE() ) {
                 h_gamgamMassRegr2_[2][2] -> Fill(sqrt( gamgamMass2_regr2 ));
               }
             }
           }
-        } else if ( myPhotons[1].conversions().size() > 0 && myPhotons[0].conversions().size() ==0 &&  myPhotons[0].r9() > 0.93 )  { 	// one photon converted
-          if ( myPhotons[1].conversions()[0]->nTracks() ==2 ) {
-            float chi2Prob1 = ChiSquaredProbability( myPhotons[1].conversions()[0]->conversionVertex().chi2(),  myPhotons[1].conversions()[0]->conversionVertex().ndof() );
+        } else if ( myPhotons[1]->conversions().size() > 0 && myPhotons[0]->conversions().size() ==0 &&  myPhotons[0]->r9() > 0.93 )  { 	// one photon converted
+          if ( myPhotons[1]->conversions()[0]->nTracks() ==2 ) {
+            float chi2Prob1 = ChiSquaredProbability( myPhotons[1]->conversions()[0]->conversionVertex().chi2(),  myPhotons[1]->conversions()[0]->conversionVertex().ndof() );
             if ( chi2Prob1 > 0.0005 ) {
               h_gamgamMassRegr2_[2][0] -> Fill(sqrt( gamgamMass2_regr2 ));
-              if (  myPhotons[0].isEB() && myPhotons[1].isEB() ) {
+              if (  myPhotons[0]->isEB() && myPhotons[1]->isEB() ) {
                 h_gamgamMassRegr2_[2][1] -> Fill(sqrt( gamgamMass2_regr2 ));
               }
-              if (  myPhotons[0].isEE() ||  myPhotons[1].isEE() ) {
+              if (  myPhotons[0]->isEE() ||  myPhotons[1]->isEE() ) {
                 h_gamgamMassRegr2_[2][2] -> Fill(sqrt( gamgamMass2_regr2 ));
               }
             }
@@ -1908,7 +2000,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   // }
 
 
-  //  cout << " PhotonValidator mcPhotons.size() " << mcPhotons.size() << endl;
   for ( std::vector<PhotonMCTruth>::const_iterator mcPho=mcPhotons.begin(); mcPho !=mcPhotons.end(); mcPho++) {
     if ( (*mcPho).fourMomentum().et() < minPhoEtCut_ ) continue;
 
@@ -2051,17 +2142,17 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
       float minDelta=10000.;
-      std::vector<reco::Photon> thePhotons;
+      std::vector<reco::PhotonRef> thePhotons;
       int index=0;
       int iMatch=-1;
       bool matched=false;
 
       //std::cout << " Reco photon size " <<  photonCollection.size() << std::endl;
-      for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
-	reco::Photon aPho = reco::Photon(*iPho);
+      for(unsigned int iPho=0; iPho < photonHandle->size(); iPho++) {
+	reco::PhotonRef aPho(reco::PhotonRef(photonHandle, iPho));
 	thePhotons.push_back(aPho);
-	float phiPho=aPho.phi();
-	float etaPho=aPho.eta();
+	float phiPho=aPho->phi();
+	float etaPho=aPho->eta();
 	float deltaPhi = phiPho-mcPhi_;
 	float deltaEta = etaPho-mcEta_;
 	if ( deltaPhi > pi )  deltaPhi -= twopi;
@@ -2101,14 +2192,14 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       bool  phoIsInEndcapP=false;
       bool  phoIsInEndcapM=false;
 
-      reco::Photon matchingPho = thePhotons[iMatch];
+      reco::PhotonRef matchingPho = thePhotons[iMatch];
 
-      if ( fabs(matchingPho.superCluster()->position().eta() ) < 1.479 ) {
+      if ( fabs(matchingPho->superCluster()->position().eta() ) < 1.479 ) {
 	phoIsInBarrel=true;
       } else {
 	phoIsInEndcap=true;
-        if ( matchingPho.superCluster()->position().eta() > 0) phoIsInEndcapP=true;
-	if ( matchingPho.superCluster()->position().eta() < 0) phoIsInEndcapM=true;
+        if ( matchingPho->superCluster()->position().eta() > 0) phoIsInEndcapP=true;
+	if ( matchingPho->superCluster()->position().eta() < 0) phoIsInEndcapM=true;
 
       }
       //std::cout << " Debug 1.1 " << std::endl;
@@ -2143,35 +2234,35 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       int type=0;
       const EcalRecHitCollection ecalRecHitCollection = *(ecalRecHitHandle.product());
-      float photonE = matchingPho.energy();
-      float photonEt= matchingPho.energy()/cosh( matchingPho.eta()) ;
-      float photonERegr1 = matchingPho.getCorrectedEnergy(reco::Photon::regression1);
-      float photonERegr2 = matchingPho.getCorrectedEnergy(reco::Photon::regression2);
-      float r9 = matchingPho.r9();
-      float r1 = matchingPho.r1x5();
-      float r2 = matchingPho.r2x5();
-      float sigmaIetaIeta =  matchingPho.sigmaIetaIeta();
-      float hOverE = matchingPho.hadronicOverEm();
-      float newhOverE = matchingPho.hadTowOverEm();
-      float ecalIso = matchingPho.ecalRecHitSumEtConeDR04();
-      float hcalIso = matchingPho.hcalTowerSumEtConeDR04();
-      float newhcalIso = matchingPho.hcalTowerSumEtBcConeDR04();
-      float trkIso =  matchingPho.trkSumPtSolidConeDR04();
-      float nIsoTrk   =  matchingPho.nTrkSolidConeDR04();
+      float photonE = matchingPho->energy();
+      float photonEt= matchingPho->energy()/cosh( matchingPho->eta()) ;
+      float photonERegr1 = matchingPho->getCorrectedEnergy(reco::Photon::regression1);
+      float photonERegr2 = matchingPho->getCorrectedEnergy(reco::Photon::regression2);
+      float r9 = matchingPho->r9();
+      float r1 = matchingPho->r1x5();
+      float r2 = matchingPho->r2x5();
+      float sigmaIetaIeta =  matchingPho->sigmaIetaIeta();
+      float hOverE = matchingPho->hadronicOverEm();
+      float newhOverE = matchingPho->hadTowOverEm();
+      float ecalIso = matchingPho->ecalRecHitSumEtConeDR04();
+      float hcalIso = matchingPho->hcalTowerSumEtConeDR04();
+      float newhcalIso = matchingPho->hcalTowerSumEtBcConeDR04();
+      float trkIso =  matchingPho->trkSumPtSolidConeDR04();
+      float nIsoTrk   =  matchingPho->nTrkSolidConeDR04();
       // PF related quantities
-      float chargedHadIso =  matchingPho.chargedHadronIso();
-      float neutralHadIso =  matchingPho.neutralHadronIso();
-      float photonIso     =  matchingPho.photonIso();
-      float etOutsideMustache = matchingPho.etOutsideMustache();
-      int   nClusterOutsideMustache = matchingPho.nClusterOutsideMustache();
-      float pfMVA = matchingPho.pfMVA();
+      float chargedHadIso =  matchingPho->chargedHadronIso();
+      float neutralHadIso =  matchingPho->neutralHadronIso();
+      float photonIso     =  matchingPho->photonIso();
+      float etOutsideMustache = matchingPho->etOutsideMustache();
+      int   nClusterOutsideMustache = matchingPho->nClusterOutsideMustache();
+      float pfMVA = matchingPho->pfMVA();
 
       ///
 
       //std::cout << " Debug 1.2 " << std::endl;
       std::vector< std::pair<DetId, float> >::const_iterator rhIt;
       bool atLeastOneDeadChannel=false;
-      for(reco::CaloCluster_iterator bcIt = matchingPho.superCluster()->clustersBegin();bcIt != matchingPho.superCluster()->clustersEnd(); ++bcIt) {
+      for(reco::CaloCluster_iterator bcIt = matchingPho->superCluster()->clustersBegin();bcIt != matchingPho->superCluster()->clustersEnd(); ++bcIt) {
 	for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
 
 	  for(EcalRecHitCollection::const_iterator it =  ecalRecHitCollection.begin(); it !=  ecalRecHitCollection.end(); ++it) {
@@ -2194,16 +2285,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
 
 
-      h_scEta_[type]->Fill( matchingPho.superCluster()->eta() );
-      h_scPhi_[type]->Fill( matchingPho.superCluster()->phi() );
+      h_scEta_[type]->Fill( matchingPho->superCluster()->eta() );
+      h_scPhi_[type]->Fill( matchingPho->superCluster()->phi() );
       if ( ! isRunCentrally_ ) {
-	h_scEtaWidth_[type]->Fill( matchingPho.superCluster()->etaWidth() );
-	h_scPhiWidth_[type]->Fill( matchingPho.superCluster()->phiWidth() );
+	h_scEtaWidth_[type]->Fill( matchingPho->superCluster()->etaWidth() );
+	h_scPhiWidth_[type]->Fill( matchingPho->superCluster()->phiWidth() );
       }
-      h_scE_[type][0]->Fill( matchingPho.superCluster()->energy() );
-      h_scEt_[type][0]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
-      if ( matchingPho.pfSuperCluster().isNonnull() ) h_dSCpfSC_[type][0]->Fill( matchingPho.superCluster()->energy()-matchingPho.pfSuperCluster()->energy());
-      if ( phoIsInEndcap ) h_psE_->Fill( matchingPho.superCluster()->preshowerEnergy() ) ;
+      h_scE_[type][0]->Fill( matchingPho->superCluster()->energy() );
+      h_scEt_[type][0]->Fill( matchingPho->superCluster()->energy()/cosh( matchingPho->superCluster()->eta()) );
+      if ( phoIsInEndcap ) h_psE_->Fill( matchingPho->superCluster()->preshowerEnergy() ) ;
       //
       h_r9_[type][0]->Fill( r9 );
       //
@@ -2271,10 +2361,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_etOutsideMustache_[0]->Fill(etOutsideMustache);
       h_pfMva_[0]->Fill(pfMVA);
       //
-      h_phoEta_[type]->Fill( matchingPho.eta() );
-      h_phoPhi_[type]->Fill( matchingPho.phi() );
-      h_phoDEta_[0]->Fill (  matchingPho.eta() - (*mcPho).fourMomentum().eta() );
-      h_phoDPhi_[0]->Fill (  matchingPho.phi() - mcPhi_ );
+      h_phoEta_[type]->Fill( matchingPho->eta() );
+      h_phoPhi_[type]->Fill( matchingPho->phi() );
+      h_phoDEta_[0]->Fill (  matchingPho->eta() - (*mcPho).fourMomentum().eta() );
+      h_phoDPhi_[0]->Fill (  matchingPho->phi() - mcPhi_ );
       h_phoE_[type][0]->Fill( photonE );
       h_phoEt_[type][0]->Fill( photonEt);
       //
@@ -2288,9 +2378,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       if ( ! isRunCentrally_ ) h2_eResVsEta_[0]->Fill (mcEta_, photonE/(*mcPho).fourMomentum().e()  ) ;
       if ( ! isRunCentrally_ ) h2_eResVsEt_[0][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
       if ( ! isRunCentrally_ ) h2_eResVsR9_[0]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
-      if ( ! isRunCentrally_ ) h2_sceResVsR9_[0]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+      if ( ! isRunCentrally_ ) h2_sceResVsR9_[0]->Fill (r9,  matchingPho->superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
       if ( ! isRunCentrally_ ) p_eResVsR9_[0]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
-      if ( ! isRunCentrally_ ) p_sceResVsR9_[0]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+      if ( ! isRunCentrally_ ) p_sceResVsR9_[0]->Fill (r9,  matchingPho->superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
       //
       //std::cout << " Debug 1.6 " << std::endl;
       if (  (*mcPho).isAConversion() == 0 ) {
@@ -2334,7 +2424,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
       if ( photonE/(*mcPho).fourMomentum().e()  < 0.3 &&   photonE/(*mcPho).fourMomentum().e() > 0.1 ) {
-	//      std::cout << " Eta sim " << mcEta_ << " sc eta " << matchingPho.superCluster()->eta() << " pho eta " << matchingPho.eta() << std::endl;
+	//      std::cout << " Eta sim " << mcEta_ << " sc eta " << matchingPho->superCluster()->eta() << " pho eta " << matchingPho->eta() << std::endl;
 
       }
 
@@ -2363,9 +2453,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       //std::cout << " Debug 1.9 " << std::endl;
 
       if ( phoIsInBarrel ) {
-	h_scE_[type][1]->Fill( matchingPho.superCluster()->energy() );
-	h_scEt_[type][1]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
-	if ( matchingPho.pfSuperCluster().isNonnull() ) h_dSCpfSC_[type][1]->Fill( matchingPho.superCluster()->energy()-matchingPho.pfSuperCluster()->energy());
+	h_scE_[type][1]->Fill( matchingPho->superCluster()->energy() );
+	h_scEt_[type][1]->Fill( matchingPho->superCluster()->energy()/cosh( matchingPho->superCluster()->eta()) );
 	h_r9_[type][1]->Fill( r9 );
 	h_r1_[type][1]->Fill( r1 );
 	h_r2_[type][1]->Fill( r2 );
@@ -2388,15 +2477,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_pfMva_[1]->Fill(pfMVA);
 	h_phoE_[type][1]->Fill( photonE );
 	h_phoEt_[type][1]->Fill( photonEt );
-	h_nConv_[type][1]->Fill(float( matchingPho.conversions().size()));
+	h_nConv_[type][1]->Fill(float( matchingPho->conversions().size()));
 	h_phoERes_[0][1]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	h_phoEResRegr1_[0][1]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	h_phoEResRegr2_[0][1]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	p_eResVsR9_[1]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
-	p_sceResVsR9_[1]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+	p_sceResVsR9_[1]->Fill (r9,  matchingPho->superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
 	if ( ! isRunCentrally_ ) {
 	  h2_eResVsR9_[1]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
-	  h2_sceResVsR9_[1]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+	  h2_sceResVsR9_[1]->Fill (r9,  matchingPho->superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
 	  h2_ecalRecHitSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);
 	  h2_hcalTowerSumEtConeDR04VsEt_[1] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);
 	  h2_eResVsEt_[1][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
@@ -2425,9 +2514,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       }
       if ( phoIsInEndcap ) {
 	//std::cout << " Looking for troubles 1 " << std::endl;
-	h_scE_[type][2]->Fill( matchingPho.superCluster()->energy() );
-	h_scEt_[type][2]->Fill( matchingPho.superCluster()->energy()/cosh( matchingPho.superCluster()->eta()) );
-	if ( matchingPho.pfSuperCluster().isNonnull() ) h_dSCpfSC_[type][2]->Fill( matchingPho.superCluster()->energy()-matchingPho.pfSuperCluster()->energy());
+	h_scE_[type][2]->Fill( matchingPho->superCluster()->energy() );
+	h_scEt_[type][2]->Fill( matchingPho->superCluster()->energy()/cosh( matchingPho->superCluster()->eta()) );
 	h_r9_[type][2]->Fill( r9 );
 	h_r1_[type][2]->Fill( r1 );
 	h_r2_[type][2]->Fill( r2 );
@@ -2454,17 +2542,17 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	h_pfMva_[2]->Fill(pfMVA);
 	h_phoE_[type][2]->Fill( photonE );
 	h_phoEt_[type][2]->Fill( photonEt );
-	h_nConv_[type][2]->Fill(float( matchingPho.conversions().size()));
+	h_nConv_[type][2]->Fill(float( matchingPho->conversions().size()));
 	h_phoERes_[0][2]->Fill( photonE / (*mcPho).fourMomentum().e() );
 	//std::cout << " Looking for troubles 6 " << std::endl;
 	h_phoEResRegr1_[0][2]->Fill( photonERegr1 / (*mcPho).fourMomentum().e() );
 	h_phoEResRegr2_[0][2]->Fill( photonERegr2 / (*mcPho).fourMomentum().e() );
 	//std::cout << " Looking for troubles 7 " << std::endl;
         p_eResVsR9_[2]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
-	p_sceResVsR9_[2]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+	p_sceResVsR9_[2]->Fill (r9,  matchingPho->superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
 	if ( ! isRunCentrally_ ) {
 	  h2_eResVsR9_[2]->Fill (r9, photonE/(*mcPho).fourMomentum().e()  ) ;
-	  h2_sceResVsR9_[2]->Fill (r9,  matchingPho.superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
+	  h2_sceResVsR9_[2]->Fill (r9,  matchingPho->superCluster()->energy()/(*mcPho).fourMomentum().e()  ) ;
 	  h2_ecalRecHitSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), ecalIso);
 	  h2_hcalTowerSumEtConeDR04VsEt_[2] -> Fill ((*mcPho).fourMomentum().et(), hcalIso);
 	  h2_eResVsEt_[2][0]->Fill ((*mcPho).fourMomentum().et(), photonE/(*mcPho).fourMomentum().e()  ) ;
@@ -2494,11 +2582,107 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	//	std::cout << " Debug 1.13 " << std::endl;
       }
 
+      ///////////////////////   Particle based isolation
+      if ( fName_ == "pfPhotonValidator") {
+	
+	float SumPtIsoValCh = 0.;	
+	float SumPtIsoValNh = 0.;
+	float SumPtIsoValPh = 0.;
+	
+	float SumPtIsoValCleanCh = 0.;	
+	float SumPtIsoValCleanNh = 0.;
+	float SumPtIsoValCleanPh = 0.;
 
+	for(unsigned int lCand=0; lCand < pfCandidateHandle->size(); lCand++) {
+	  reco::PFCandidateRef pfCandRef(reco::PFCandidateRef(pfCandidateHandle,lCand));
+	  float dR= deltaR(matchingPho->eta(),  matchingPho->phi(),pfCandRef->eta(),  pfCandRef->phi()); 
+	  if ( dR<0.4) {
+	    /// uncleaned    
+	    reco::PFCandidate::ParticleType type = pfCandRef->particleId();
+	    if ( type == reco::PFCandidate::e ) continue; 
+	    if ( type == reco::PFCandidate::gamma && pfCandRef->mva_nothing_gamma() > 0.) continue;
+	    
+	    if( type == reco::PFCandidate::h ) {
+	      SumPtIsoValCh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_ChHad_unCleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_ChHad_unCleaned_[2]->Fill(dR);
+	    }
+	    if( type == reco::PFCandidate::h0 ) {
+	      SumPtIsoValNh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_NeuHad_unCleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_NeuHad_unCleaned_[2]->Fill(dR);
+	    }
+	    if( type == reco::PFCandidate::gamma ) {
+	      SumPtIsoValPh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_Pho_unCleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_Pho_unCleaned_[2]->Fill(dR);
+	    }
+	    ////////// acces the value map to access the PFCandidates in overlap with the photon which need to be excluded from the isolation
+            bool skip=false;
+	    for( std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[matchingPho].begin(); i != phoToParticleBasedIsoMap[matchingPho].end(); ++i ) {
+	      //	      std::cout << " PhotonValidator PfCand pt " << pfCandRef->pt() << " id " <<pfCandRef->particleId() <<  " and in the map " << (*i)->pt() << " type " << (*i)->particleId() << std::endl;
+	      if ( (*i) == pfCandRef ) {
+		skip=true;
+	      }
+	    } // loop over the PFCandidates flagged as overlapping with the photon
+
+            if ( skip ) continue;
+	    if( type == reco::PFCandidate::h ) {
+	      SumPtIsoValCleanCh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_ChHad_Cleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_ChHad_Cleaned_[2]->Fill(dR);
+	    }
+	    if( type == reco::PFCandidate::h0 ) {
+	      SumPtIsoValCleanNh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_NeuHad_Cleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
+	    }
+	    if( type == reco::PFCandidate::gamma ) {
+	      SumPtIsoValCleanPh += pfCandRef->pt();
+	      if( phoIsInBarrel)
+		h_dRPhoPFcand_Pho_Cleaned_[1]->Fill(dR);
+	      else 
+		h_dRPhoPFcand_Pho_Cleaned_[2]->Fill(dR);
+	    }
+	    
+	    
+	    
+	    
+	  }  // dr=0.4          
+	}  // loop over all PF Candidates
+
+	if( phoIsInBarrel) {
+	  h_SumPtOverPhoPt_ChHad_Cleaned_[1]->Fill(SumPtIsoValCleanCh/matchingPho->pt());
+	  h_SumPtOverPhoPt_NeuHad_Cleaned_[1]->Fill(SumPtIsoValCleanNh/matchingPho->pt());
+	  h_SumPtOverPhoPt_Pho_Cleaned_[1]->Fill(SumPtIsoValCleanPh/matchingPho->pt());
+	  h_SumPtOverPhoPt_ChHad_unCleaned_[1]->Fill(SumPtIsoValCh/matchingPho->pt());
+	  h_SumPtOverPhoPt_NeuHad_unCleaned_[1]->Fill(SumPtIsoValNh/matchingPho->pt());
+	  h_SumPtOverPhoPt_Pho_unCleaned_[1]->Fill(SumPtIsoValPh/matchingPho->pt());
+	} else {
+	  h_SumPtOverPhoPt_ChHad_Cleaned_[2]->Fill(SumPtIsoValCleanCh/matchingPho->pt());
+	  h_SumPtOverPhoPt_NeuHad_Cleaned_[2]->Fill(SumPtIsoValCleanNh/matchingPho->pt());
+	  h_SumPtOverPhoPt_Pho_Cleaned_[2]->Fill(SumPtIsoValCleanPh/matchingPho->pt());
+	  h_SumPtOverPhoPt_ChHad_unCleaned_[2]->Fill(SumPtIsoValCh/matchingPho->pt());
+	  h_SumPtOverPhoPt_NeuHad_unCleaned_[2]->Fill(SumPtIsoValNh/matchingPho->pt());
+	  h_SumPtOverPhoPt_Pho_unCleaned_[2]->Fill(SumPtIsoValPh/matchingPho->pt());
+
+	}
+	
+      } // only for pfPhotonValidator 
 
 
       if ( ! (visibleConversion &&  visibleConversionsWithTwoSimTracks ) ) continue;
-
+      
       //      std::cout << " Debug 1.14 " << std::endl;
 
       if ( ! isRunCentrally_ ) {
@@ -2517,18 +2701,18 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 
       if ( ! fastSim_) {
-	h_nConv_[type][0]->Fill(float( matchingPho.conversions().size()));
-	//std::cout << " Conversion size " <<  matchingPho.conversions().size() << std::endl;
+	h_nConv_[type][0]->Fill(float( matchingPho->conversions().size()));
+	//std::cout << " Conversion size " <<  matchingPho->conversions().size() << std::endl;
 	////////////////// plot quantities related to conversions
-	reco::ConversionRefVector conversions = matchingPho.conversions();
+	reco::ConversionRefVector conversions = matchingPho->conversions();
 
 	for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
 	  reco::ConversionRef aConv=conversions[iConv];
 	  double like = aConv->MVAout();
 	  if ( like < likelihoodCut_ ) continue;
 
-	  if ( ! isRunCentrally_ ) h2_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
-	  p_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+	  if ( ! isRunCentrally_ ) h2_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+	  p_EoverEtrueVsEta_[1]->Fill (mcEta_,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 
 
 	  //std::vector<reco::TrackRef> tracks = aConv->tracks();
@@ -2763,7 +2947,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		h_convPtRes_[type][0]->Fill( refPt / (*mcPho).fourMomentum().et() );
 		h_EoverPTracks_[type][0] ->Fill( eoverp ) ;
 		h_PoverETracks_[type][0] ->Fill( 1./eoverp ) ;
-		if ( ! isRunCentrally_ ) h2_EoverEtrueVsEoverP_[0] ->Fill( eoverp,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+		if ( ! isRunCentrally_ ) h2_EoverEtrueVsEoverP_[0] ->Fill( eoverp,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 		if ( ! isRunCentrally_ ) h2_PoverPtrueVsEoverP_[0] ->Fill( eoverp, refP/ (*mcPho).fourMomentum().e()  ) ;
 		if ( ! isRunCentrally_ ) h2_EoverPVsEta_[0]->Fill (mcEta_, eoverp);
 		if ( ! isRunCentrally_ ) h2_EoverPVsR_[0]->Fill (mcConvR_, eoverp);
@@ -2777,10 +2961,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	      }
 
 	      //std::cout << " Debug 3 " << std::endl;
-	      if ( ! isRunCentrally_ )  h2_EoverEtrueVsEta_[0]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
-	      if ( ! isRunCentrally_ )  h2_EoverEtrueVsR_[0]->Fill (mcConvR_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
-	      p_EoverEtrueVsEta_[0]->Fill (mcEta_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
-	      p_EoverEtrueVsR_[0]->Fill (mcConvR_,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+	      if ( ! isRunCentrally_ )  h2_EoverEtrueVsEta_[0]->Fill (mcEta_,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+	      if ( ! isRunCentrally_ )  h2_EoverEtrueVsR_[0]->Fill (mcConvR_,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+	      p_EoverEtrueVsEta_[0]->Fill (mcEta_,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+	      p_EoverEtrueVsR_[0]->Fill (mcConvR_,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 
 
 	      if ( ! isRunCentrally_ ) h2_etaVsRsim_[0]->Fill (mcEta_,mcConvR_);
@@ -2826,7 +3010,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		  if (  mcConvR_ > 15 && mcConvR_< 58 ) h_EoverPTracks_[0][1] ->Fill( eoverp ) ;
 		  if (  mcConvR_ > 58 )                 h_EoverPTracks_[0][2] ->Fill( eoverp ) ;
 		  h_PoverETracks_[type][1] ->Fill( 1./eoverp ) ;
-		  if ( ! isRunCentrally_ ) h2_EoverEtrueVsEoverP_[1] ->Fill( eoverp,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+		  if ( ! isRunCentrally_ ) h2_EoverEtrueVsEoverP_[1] ->Fill( eoverp,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 		  if ( ! isRunCentrally_ ) h2_PoverPtrueVsEoverP_[1] ->Fill( eoverp, refP/ (*mcPho).fourMomentum().e()  ) ;
 		}
 		h_DPhiTracksAtVtx_[type][1]->Fill( dPhiTracksAtVtx);
@@ -2843,7 +3027,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 		  h_convPtRes_[type][2]->Fill( refPt / (*mcPho).fourMomentum().et() );
 		  h_EoverPTracks_[type][2] ->Fill( eoverp ) ;
 		  h_PoverETracks_[type][2] ->Fill( 1./eoverp ) ;
-		  if ( ! isRunCentrally_ ) h2_EoverEtrueVsEoverP_[2] ->Fill( eoverp,matchingPho.superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
+		  if ( ! isRunCentrally_ ) h2_EoverEtrueVsEoverP_[2] ->Fill( eoverp,matchingPho->superCluster()->energy()/ (*mcPho).fourMomentum().e()  ) ;
 		  if ( ! isRunCentrally_ ) h2_PoverPtrueVsEoverP_[2] ->Fill( eoverp, refP/ (*mcPho).fourMomentum().e()  ) ;
 		}
 		h_DPhiTracksAtVtx_[type][2]->Fill( dPhiTracksAtVtx);
@@ -2892,10 +3076,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 		//float zPV = aConv->zOfPrimaryVertexFromTracks();
 		float thetaConv=aConv->refittedPairMomentum().Theta();
-                float thetaSC=matchingPho.superCluster()->position().theta();
-                float rSC=sqrt(matchingPho.superCluster()->position().x()*matchingPho.superCluster()->position().x() +
-			       matchingPho.superCluster()->position().y()*matchingPho.superCluster()->position().y() );
-                float zSC=matchingPho.superCluster()->position().z();
+                float thetaSC=matchingPho->superCluster()->position().theta();
+                float rSC=sqrt(matchingPho->superCluster()->position().x()*matchingPho->superCluster()->position().x() +
+			       matchingPho->superCluster()->position().y()*matchingPho->superCluster()->position().y() );
+                float zSC=matchingPho->superCluster()->position().z();
                 float zPV = sqrt(rSC*rSC+zSC*zSC)*sin( thetaConv - thetaSC)/sin(thetaConv);
 
 		h_zPVFromTracks_[0]->Fill (  zPV );

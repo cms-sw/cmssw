@@ -25,6 +25,8 @@ unpackCastorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.
 
 import L1Trigger.GlobalTrigger.gtDigis_cfi
 simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone(
+    AlgorithmTriggersUnprescaled= cms.bool(True),
+    TechnicalTriggersUnprescaled= cms.bool(True),
     GmtInputTag                 = cms.InputTag( 'unpackGtDigis' ),
     GctInputTag                 = cms.InputTag( 'unpackGctDigis' ),
     CastorInputTag              = cms.InputTag( 'unpackCastorDigis' ),

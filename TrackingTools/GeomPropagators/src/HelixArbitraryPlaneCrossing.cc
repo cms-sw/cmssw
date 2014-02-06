@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
+#include <vdt/vdtMath.h>
 #include <iostream>
 #include "FWCore/Utilities/interface/Likely.h"
 
@@ -134,8 +135,7 @@ HelixArbitraryPlaneCrossing::positionInDouble (double s) const {
   if unlikely( s!=theCachedS ) {
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
-    theCachedSDPhi = sin(theCachedDPhi);
-    theCachedCDPhi = cos(theCachedDPhi);
+    vdt::fast_sincos(theCachedDPhi,theCachedSDPhi,theCachedCDPhi);
   }
   //
   // Calculate with appropriate formulation of full helix formula or with 

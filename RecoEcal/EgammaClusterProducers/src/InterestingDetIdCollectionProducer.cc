@@ -80,76 +80,79 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
   std::vector<DetId> xtalsToStore;
   xtalsToStore.reserve(50);
   for (clusIt=pClusters->begin(); clusIt!=pClusters->end(); clusIt++) {
-    //PG barrel
+    const std::vector<std::pair<DetId,float> > &clusterDetIds = clusIt->hitsAndFractions();
+    for (const auto &detidpair : clusterDetIds) {
+      indexToStore.push_back(detidpair.first);
+    }
     
-    float eMax=0.;
-    DetId eMaxId(0);
+    //below checks and additional code are only relevant for EB/EE, not for ES
+    if (clusterDetIds.front().first.subdetId()==EcalBarrel || clusterDetIds.front().first.subdetId()==EcalEndcap) {
+      std::vector<std::pair<DetId,float> >::const_iterator posCurrent;
+      
+      float eMax=0.;
+      DetId eMaxId(0);        
 
-    std::vector<std::pair<DetId,float> > clusterDetIds = (*clusIt).hitsAndFractions();
-    std::vector<std::pair<DetId,float> >::iterator posCurrent;
+      EcalRecHit testEcalRecHit;
+      
+      for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
+        {
+          EcalRecHitCollection::const_iterator itt = recHitsHandle->find((*posCurrent).first);
+          if ((!((*posCurrent).first.null())) && (itt != recHitsHandle->end()) && ((*itt).energy() > eMax) )
+            {
+              eMax = (*itt).energy();
+              eMaxId = (*itt).id();
+            }
+        }
+      
+      if (eMaxId.null())
+      continue;
+      
+      const CaloSubdetectorTopology* topology  = caloTopology_->getSubdetectorTopology(eMaxId.det(),eMaxId.subdetId());
 
-    EcalRecHit testEcalRecHit;
-    
-    for(posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++)
-      {
-	EcalRecHitCollection::const_iterator itt = recHitsHandle->find((*posCurrent).first);
-	if ((!((*posCurrent).first.null())) && (itt != recHitsHandle->end()) && ((*itt).energy() > eMax) )
-	  {
-	    eMax = (*itt).energy();
-	    eMaxId = (*itt).id();
-	  }
+      xtalsToStore=topology->getWindow(eMaxId,minimalEtaSize_,minimalPhiSize_);
+      
+      for (const auto &detid : xtalsToStore) {
+        indexToStore.push_back(detid);
       }
-    
-    if (eMaxId.null())
-    continue;
-    
-    const CaloSubdetectorTopology* topology  = caloTopology_->getSubdetectorTopology(eMaxId.det(),eMaxId.subdetId());
-
-    xtalsToStore=topology->getWindow(eMaxId,minimalEtaSize_,minimalPhiSize_);
-    std::vector<std::pair<DetId,float > > xtalsInClus=(*clusIt).hitsAndFractions();
-    
-    for (unsigned int ii=0;ii<xtalsInClus.size();ii++)
-      {
-	  xtalsToStore.push_back(xtalsInClus[ii].first);
-      }
-    
-    indexToStore.insert(indexToStore.end(),xtalsToStore.begin(),xtalsToStore.end());
+      
+    }
   }
 
 
- 
-  for (EcalRecHitCollection::const_iterator it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
-    // also add recHits of dead TT if the corresponding TP is saturated
-    if ( it->checkFlag(EcalRecHit::kTPSaturated) ) {
-      indexToStore.push_back(it->id());
-    }
-    // add hits for severities above a threshold
-    if ( severityLevel_>=0 && 
-	 severity_->severityLevel(*it) >=severityLevel_){
+  if (severityLevel_>=0 || keepNextToDead_ || keepNextToBoundary_) {
+    for (EcalRecHitCollection::const_iterator it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
+      // also add recHits of dead TT if the corresponding TP is saturated
+      if ( it->checkFlag(EcalRecHit::kTPSaturated) ) {
+        indexToStore.push_back(it->id());
+      }
+      // add hits for severities above a threshold
+      if ( severityLevel_>=0 && 
+          severity_->severityLevel(*it) >=severityLevel_){
+        
+        indexToStore.push_back(it->id());
+      } 
+      if (keepNextToDead_) {
+        // also keep channels next to dead ones
+        if (EcalTools::isNextToDead(it->id(), iSetup)) {
+          indexToStore.push_back(it->id());
+        }
+      } 
+
+      if (keepNextToBoundary_){
+        // keep channels around EB/EE boundary
+        if (it->id().subdetId() == EcalBarrel){
+          EBDetId ebid(it->id());
+          if (abs(ebid.ieta())== 85)
+            indexToStore.push_back(it->id());
+        } else {
       
-      indexToStore.push_back(it->id());
-    } 
-    if (keepNextToDead_) {
-      // also keep channels next to dead ones
-      if (EcalTools::isNextToDead(it->id(), iSetup)) {
-	indexToStore.push_back(it->id());
-      }
-    } 
+          if (EEDetId::isNextToRingBoundary(it->id()))
+            indexToStore.push_back(it->id());
+        }
 
-    if (keepNextToBoundary_){
-      // keep channels around EB/EE boundary
-      if (it->id().subdetId() == EcalBarrel){
-	EBDetId ebid(it->id());
-	if (abs(ebid.ieta())== 85)
-	  indexToStore.push_back(it->id());
-      } else {
-     
-	if (EEDetId::isNextToRingBoundary(it->id()))
-	  indexToStore.push_back(it->id());
       }
-
+      
     }
-    
   }
 
   //unify the vector

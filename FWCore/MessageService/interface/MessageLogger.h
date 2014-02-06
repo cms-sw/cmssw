@@ -160,10 +160,10 @@ private:
   std::set<std::string> debugEnabledModules_;
   std::map<std::string,ELseverityLevel> suppression_levels_;
   bool debugEnabled_;
-  static bool   anyDebugEnabled_;
-  static bool everyDebugEnabled_;
+  [[cms::thread_safe]] static bool   anyDebugEnabled_;
+  [[cms::thread_safe]] static bool everyDebugEnabled_;
 
-  static bool fjrSummaryRequested_;
+  [[cms::thread_safe]] static bool fjrSummaryRequested_;
   bool messageServicePSetHasBeenValidated_;
   std::string  messageServicePSetValidatationResults_;
 

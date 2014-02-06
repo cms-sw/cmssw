@@ -15,15 +15,15 @@
  * $Date 8-Jan-2004
  */
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class LandauFluctuationGenerator : public BaseNumericalRandomGenerator
 {
  public:
 
   /// Constructor : initialization of the Random Generator
-  LandauFluctuationGenerator(const RandomEngine* engine) : 
-    BaseNumericalRandomGenerator(engine,-3.5,25.) {
+  LandauFluctuationGenerator() :
+    BaseNumericalRandomGenerator(-3.5,25.) {
     initialize();
   }
 
@@ -31,7 +31,7 @@ class LandauFluctuationGenerator : public BaseNumericalRandomGenerator
   virtual ~LandauFluctuationGenerator() {}
 
   /// Random generator of the dE/dX spread (Landau function)  
-  double landau() const { return generate(); }
+  double landau(RandomEngineAndDistribution const* random) const { return generate(random); }
   
   /// The probability density function implementation
   virtual double function(double x) { return ersatzt(x); }

@@ -32,7 +32,8 @@ PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& c
   : _conf(conf),
     _newSeedCandidates(conf.getParameter<std::string>( "newSeedCandidates"))
 {
-  _theFinder = new PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(conf);
+  _theFinder = new PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(conf,
+	consumesCollector());
   produces<TrajectorySeedCollection>(_newSeedCandidates);
 
 }

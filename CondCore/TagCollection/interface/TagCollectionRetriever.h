@@ -26,6 +26,13 @@ namespace cond{
 			    std::string const & postfix);
     /// destructor
     ~TagCollectionRetriever();
+
+    bool existsTagDatabase();
+
+    bool existsTagCollection( const std::string& globaltag );
+
+    bool selectTagCollection( const std::string& globaltag,
+			      std::set<cond::TagMetadata>& result);
     /**
        given global tag return the basic tag collection. The global tag has the format TreeName::NodeName
     */

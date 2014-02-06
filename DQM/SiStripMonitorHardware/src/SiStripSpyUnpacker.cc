@@ -63,7 +63,7 @@ namespace sistrip {
         
     //check if FEDs found in cabling map and event data
     if ( edm::isDebugEnabled() ) {
-      if ( cabling.feds().empty() ) {
+      if ( cabling.fedIds().empty() ) {
 	edm::LogWarning("SiStripSpyUnpacker")
 	  << "[sistrip::SpyUnpacker::" << __func__ << "]"
 	  << " No FEDs found in cabling map!";
@@ -121,7 +121,7 @@ namespace sistrip {
       }
           
       //get the cabling connections for this FED
-      const std::vector<FedChannelConnection>& conns = cabling.connections(lFedId);
+      auto conns = cabling.fedConnections(lFedId);
           
       //construct FEDBuffer
       std::auto_ptr<sistrip::FEDSpyBuffer> buffer;

@@ -17,7 +17,7 @@ elements = c.createElements()
 readRunElements = c.createReadRunElements()
 readLumiElements = c.createReadLumiElements()
 
-process.filler = cms.EDAnalyzer("DummyBookFillDQMStore",
+process.filler = cms.EDAnalyzer("DummyBookFillDQMStore" + b.mt_postfix(),
                                 folder = cms.untracked.string("TestFolder/"),
                                 elements=cms.untracked.VPSet(*elements),
                                 fillRuns = cms.untracked.bool(True),
@@ -39,7 +39,13 @@ process.out = cms.OutputModule("DQMRootOutputModule",
 process.p = cms.Path(process.filler)
 process.o = cms.EndPath(process.out+process.reader)
 
+process.add_(cms.Service("DQMStore"))
+
+if b.multithread():
+    process.out.enableMultiThread = cms.untracked.bool(True)
+    process.DQMStore.enableMultiThread = cms.untracked.bool(True)
+    process.o.remove(process.reader)
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
-process.add_(cms.Service("DQMStore"))
 

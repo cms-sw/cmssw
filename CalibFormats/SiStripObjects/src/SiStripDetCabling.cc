@@ -24,12 +24,10 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
   // --- CONNECTED = have fedid and i2cAddr
   // create fullcabling_, loop over vector of FedChannelConnection, either make new element of map, or add to appropriate vector of existing map element
   // get feds list (vector) from fedcabling object - these are the active FEDs
-  const std::vector<uint16_t>& feds = fedcabling.feds();
-  std::vector<uint16_t>::const_iterator ifed;
-  for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) { // iterate over active feds, get all their FedChannelConnection-s
+  auto feds = fedcabling.fedIds();
+  for ( auto ifed = feds.begin(); ifed != feds.end(); ifed++ ) { // iterate over active feds, get all their FedChannelConnection-s
     SiStripFedCabling::ConnsConstIterRange conns = fedcabling.fedConnections( *ifed );
-    std::vector<FedChannelConnection>::const_iterator iconn;
-    for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) { // loop over FedChannelConnection objects
+    for ( auto iconn = conns.begin(); iconn != conns.end(); iconn++ ) { // loop over FedChannelConnection objects
       addDevices(*iconn, fullcabling_); // leave separate method, in case you will need to add devices also after constructing
       bool have_fed_id = iconn->fedId();
       std::vector<int> vector_of_connected_apvs;

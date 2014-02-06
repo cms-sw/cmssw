@@ -52,14 +52,10 @@ void PFCandidateDQMAnalyzer::analyze(edm::Event const& iEvent,
   edm::Handle< edm::View<reco::Candidate> > candCollection;
   edm::Handle< edm::View<reco::Candidate> > matchedCandCollection;
   if ( !createEfficiencyHistos_ ) {
-    //iEvent.getByLabel( inputLabel_, candCollection);
     iEvent.getByToken( myCand_, candCollection);   
-    //iEvent.getByLabel( matchLabel_, matchedCandCollection);
     iEvent.getByToken( myMatchedCand_, matchedCandCollection);
   } else {
-    //iEvent.getByLabel( matchLabel_, candCollection);
     iEvent.getByToken( myMatchedCand_, candCollection);
-    //iEvent.getByLabel( inputLabel_, matchedCandCollection);
     iEvent.getByToken( myCand_, matchedCandCollection);
   }
   

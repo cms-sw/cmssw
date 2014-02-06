@@ -77,36 +77,33 @@ FedRawDataInputSource::~FedRawDataInputSource()
 
 bool FedRawDataInputSource::checkNextEvent()
 {
-  if ( ! cacheNextEvent() ) {
+  int eventAvailable = cacheNextEvent();
+  if (eventAvailable < 0) {
     // run has ended
     resetLuminosityBlockAuxiliary();
-
-    if (fileStream_) {
-      edm::LogInfo("FedRawDataInputSource") << "Closing input stream ";
-      fclose(fileStream_);
-      fileStream_ = 0;
-      if (!testModeNoBuilderUnit_) {
-        edm::LogInfo("FedRawDataInputSource") << "Removing last input file used : " << openFile_.string();
-        boost::filesystem::remove(openFile_); // won't work in case of forked children
-      }
-    }
+    closeCurrentFile();
     return false;
   }
-
-  if (!getLSFromFilename_) {
-    //get new lumi from file header
-    maybeOpenNewLumiSection( event_->lumi() );
+  else if(eventAvailable == 0) {
+    edm::LogInfo("FedRawDataInputSource") << "No Event files at this time, but a new lumisection was detected : " << currentLumiSection_;
+    
+    return true;
   }
+  else {
+    if (!getLSFromFilename_) {
+      //get new lumi from file header
+      maybeOpenNewLumiSection( event_->lumi() );
+    }
 
-  eventID_ = edm::EventID(
-    event_->run(),
-    currentLumiSection_,
-    event_->event());
-
-  setEventCached();
-
-  return true;
-
+    eventID_ = edm::EventID(
+                            event_->run(),
+                            currentLumiSection_,
+                            event_->event());
+    
+    setEventCached();
+    
+    return true;
+  }
 }
 
 void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
@@ -116,7 +113,7 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
 
     if ( currentLumiSection_ > 0 ) {
       const string fuEoLS =
-        edm::Service<evf::EvFDaqDirector>()->formatEndOfLSSlave(currentLumiSection_);
+        edm::Service<evf::EvFDaqDirector>()->getEoLSFilePathOnFU(currentLumiSection_);
       struct stat buf;
       bool found = (stat(fuEoLS.c_str(), &buf) == 0);
       if ( !found ) {
@@ -145,11 +142,14 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
   }
 }
 
-bool FedRawDataInputSource::cacheNextEvent()
+int FedRawDataInputSource::cacheNextEvent()
 {
+  //return values or cachenext -1 :== run ended, 0:== LS ended, 1 :== cache good
   if ( bufferLeft_ < (4 + 1024) * sizeof(uint32) ) //minimal size to fit any version of FRDEventHeader
   {
-    if ( !readNextChunkIntoBuffer() ) return false;
+    int check = readNextChunkIntoBuffer();
+    if ( check ==-1) return  0;
+    if ( check ==-100) return -1;
   }
 
   event_.reset( new FRDEventMsgView(bufferCursor_) );
@@ -158,7 +158,7 @@ bool FedRawDataInputSource::cacheNextEvent()
 
   if ( bufferLeft_ < msgSize )
   {
-    if ( !readNextChunkIntoBuffer() || bufferLeft_ < msgSize )
+    if ( readNextChunkIntoBuffer()<0 || bufferLeft_ < msgSize )
     {
       throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
         "Premature end of input file while reading event data";
@@ -181,26 +181,40 @@ bool FedRawDataInputSource::cacheNextEvent()
   bufferLeft_ -= msgSize;
   bufferCursor_ += msgSize;
 
-  return true;
+  return 1;
 }
 
-bool FedRawDataInputSource::readNextChunkIntoBuffer()
+int FedRawDataInputSource::readNextChunkIntoBuffer()
 {
   //this function is called when we reach the end of the buffer (i.e. bytes to read are more than bytes left in buffer)
-  if (eofReached() && !openNextFile())
-    return false; //should only happen when requesting the next event header and the run is over
-  if (bufferLeft_ == 0) { //in the rare case the last byte barely fit
-    uint32_t chunksize = 1024 * 1024 * eventChunkSize_;
-    bufferLeft_ = fread((void*) dataBuffer_, sizeof(unsigned char),
-                        chunksize, fileStream_); //reads a maximum of chunksize bytes from file into buffer
-  } else { //refill the buffer after having moved the bufferLeft_ bytes at the head
-    uint32_t chunksize = 1024 * 1024 * eventChunkSize_ - bufferLeft_;
-    memcpy((void*) dataBuffer_, bufferCursor_, bufferLeft_); //this copy could be avoided
-    bufferLeft_ += fread((void*) (dataBuffer_ + bufferLeft_),
-                         sizeof(unsigned char), chunksize, fileStream_);
+  // NOTA BENE: A positive or 0 value is returned if data are buffered
+  // a value of -1 indicates no data can be buffered but there is a new 
+  // lumi section to account for 
+  int fileStatus = 100; //file is healthy for now 
+  if (eofReached()){
+    closeCurrentFile();
+    fileStatus = openNextFile(); // this can now return even if there is 
+                                 //no file only temporarily
+    if(fileStatus==0) return -100; //should only happen when requesting the next event header and the run is over
   }
-  bufferCursor_ = dataBuffer_; // reset the cursor at the beginning of the buffer
-  return (bufferLeft_ > 0);
+  if(fileStatus==100){ //either file was not over or a new one was opened
+    if (bufferLeft_ == 0) { //in the rare case the last byte barely fit
+      uint32_t chunksize = 1024 * 1024 * eventChunkSize_;
+      bufferLeft_ = fread((void*) dataBuffer_, sizeof(unsigned char),
+                          chunksize, fileStream_); //reads a maximum of chunksize bytes from file into buffer
+    } else { //refill the buffer after having moved the bufferLeft_ bytes at the head
+      uint32_t chunksize = 1024 * 1024 * eventChunkSize_ - bufferLeft_;
+      memcpy((void*) dataBuffer_, bufferCursor_, bufferLeft_); //this copy could be avoided
+      bufferLeft_ += fread((void*) (dataBuffer_ + bufferLeft_),
+                           sizeof(unsigned char), chunksize, fileStream_);
+    }
+    bufferCursor_ = dataBuffer_; // reset the cursor at the beginning of the buffer
+    return bufferLeft_;
+  }
+  else{
+    // no file to read but a new lumi section has been cached 
+    return -1;
+  }
 }
 
 bool FedRawDataInputSource::eofReached() const
@@ -215,14 +229,35 @@ bool FedRawDataInputSource::eofReached() const
   return (c == EOF);
 }
 
-bool FedRawDataInputSource::openNextFile()
+void FedRawDataInputSource::closeCurrentFile()
 {
-  while (!searchForNextFile() && !eorFileSeen_) {
-    edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again..." << std::endl;
-    usleep(100000);
-  }
+  if (fileStream_) {
 
-  return (fileStream_ != 0 || !eorFileSeen_);
+    edm::LogInfo("FedRawDataInputSource") << "Closing input file " << openFile_.string();
+
+    fclose(fileStream_);
+    fileStream_ = 0;
+
+    if (!testModeNoBuilderUnit_) {
+      boost::filesystem::remove(openFile_); // won't work in case of forked children
+    } else {
+      renameToNextFree();
+    }
+  }
+}
+
+int FedRawDataInputSource::openNextFile()
+{
+  int nextfile = -1;
+  while((nextfile = searchForNextFile())<0){
+    if(eorFileSeen_)
+      return 0;
+    else{
+      edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again..." << std::endl;
+      usleep(100000);
+    }
+  }
+  return nextfile;
 }
 
 void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) 
@@ -272,8 +307,9 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
   return tstamp;
 }
 
-bool FedRawDataInputSource::searchForNextFile()
+int FedRawDataInputSource::searchForNextFile()
 {
+  int retval = -1;
   if(currentInputEventCount_!=0){
     throw cms::Exception("RuntimeError") << "Went to search for next file but according to BU more events in " 
                                          << currentInputJson_.string();
@@ -297,16 +333,17 @@ bool FedRawDataInputSource::searchForNextFile()
     jsonFile.replace_extension(".jsn");
     assert( grabNextJsonFile(jsonFile) );
     openDataFile(nextFile);
-
+    retval = 100;
   } else {
     edm::LogInfo("FedRawDataInputSource") << "The DAQ Director has nothing for me! ";
   }
 
-  while ( getLSFromFilename_ && ls > currentLumiSection_ ) {
+  while( getLSFromFilename_ && ls > currentLumiSection_ ) {
     maybeOpenNewLumiSection(ls);
+    retval = 1;
   }
 
-  return fileIsOKToGrab;
+  return retval;
 }
 
 bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath)
@@ -371,17 +408,6 @@ bool FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& json
 
 void FedRawDataInputSource::openDataFile(std::string const& nextFile)
 {
-  if (fileStream_) {
-    fclose(fileStream_);
-    fileStream_ = 0;
-
-    if (!testModeNoBuilderUnit_) {
-      boost::filesystem::remove(openFile_); // won't work in case of forked children
-    } else {
-      renameToNextFree();
-    }
-  }
-
   const int fileDescriptor = open(nextFile.c_str(), O_RDONLY);
   if (fileDescriptor != -1) {
     fileStream_ = fdopen(fileDescriptor, "rb");

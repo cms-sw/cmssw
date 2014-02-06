@@ -1,7 +1,7 @@
 //updated by Reza Goldouzian
 //FastSimulation headers
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/DoubleCrystalBallGenerator.h"
 
 // CMSSW Headers
@@ -15,7 +15,7 @@
 
 using namespace edm;
 
-HCALResponse::HCALResponse(const edm::ParameterSet& pset, const RandomEngine* engine) :  random(engine), cball(random) {
+HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
   //switches
   debug = pset.getParameter<bool>("debug");
   usemip = pset.getParameter<bool>("usemip");
@@ -55,9 +55,12 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset, const RandomEngine* en
   maxHDe[0] = pset.getParameter<int>("maxHBe");
   maxHDe[1] = pset.getParameter<int>("maxHEe");
   maxHDe[2] = pset.getParameter<int>("maxHFe");
+  maxHDe[3] = pset.getParameter<int>("maxHFlowe");
+
   eGridHD[0] = pset.getParameter<vec1>("eGridHB");
   eGridHD[1] = pset.getParameter<vec1>("eGridHE");
   eGridHD[2] = pset.getParameter<vec1>("eGridHF");
+  eGridHD[3] = pset.getParameter<vec1>("loweGridHF");
   
   //region eta indices calculated from eta values
   etaStep = pset.getParameter<double>("etaStep");
@@ -101,6 +104,21 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset, const RandomEngine* en
 	  }
 	}
   }
+//set up Poisson parameters for low energy Hadrons in HF
+//----------------------------------------------------------------------
+  PoissonParameters= vec3(4);
+  std::string PoissonParName[] = {"mean_overall","shift_overall","mean_between","shift_between"};
+    for(int d = 0; d < 4; d++){ //loop over Poisson parameteres
+     vec1 tmp1 = pset.getParameter<vec1>(PoissonParName[d]);
+        for(int i = 0; i < maxHDe[3]; i++){ //loop over energy for low HF energy points
+        PoissonParameters[d].resize(maxHDe[3]);
+           for(int j = 0; j < maxHDetas[2]; j++){ //loop over HF eta points
+           PoissonParameters[d][i].resize(maxHDetas[2]);
+           PoissonParameters[d][i][j]= tmp1[i*maxHDetas[2] + j];
+           }
+        }
+     }
+
 
 //MIP fraction fill in 3d vector
 ////--------------------------------------------------------------------
@@ -217,7 +235,7 @@ double HCALResponse::getMIPfraction(double energy, double eta){
   return mean;
   }
 
-double HCALResponse::responseHCAL(int _mip, double energy, double eta, int partype){
+double HCALResponse::responseHCAL(int _mip, double energy, double eta, int partype, RandomEngineAndDistribution const* random) {
   int ieta = abs((int)(eta / etaStep)) ;
   int ie = -1;
 
@@ -246,7 +264,7 @@ double HCALResponse::responseHCAL(int _mip, double energy, double eta, int party
     if(ie == -1) ie = maxEMe - 2; // more than maximum - extrapolation with last interval
 	
 	//do smearing
-    mean = interEM(energy, ie, ieta);
+    mean = interEM(energy, ie, ieta, random);
   }
   
   // hadrons
@@ -267,8 +285,18 @@ double HCALResponse::responseHCAL(int _mip, double energy, double eta, int party
       }
       if(ie == -1) ie = maxHDe[det] - 2; // more than maximum - extrapolation with last interval
       
+//different energy smearing for low energy hadrons in HF
+      if(det==2 && energy <20 && deta>5){
+      for (int i = 0; i < maxHDe[3]; i++) {
+      if(energy < eGridHD[3][i])  {
+            if(i == 0) ie = 0; // less than minimal - back extrapolation with the 1st interval
+            else  ie = i-1;
+            break;
+            }
+      }
+    }
 	  //do smearing
-      mean = interHD(mip, energy, ie, deta, det);
+      mean = interHD(mip, energy, ie, deta, det, random);
   }
 
   
@@ -296,7 +324,7 @@ double HCALResponse::responseHCAL(int _mip, double energy, double eta, int party
 	  if(ie == -1) ie = maxMUe - 2; // more than maximum - extrapolation with last interval
 	  
 	  //do smearing
-      mean = interMU(energy, ie, ieta);
+          mean = interMU(energy, ie, ieta, random);
 	  if(mean > energy) mean = energy;
     }
   }
@@ -313,7 +341,7 @@ double HCALResponse::responseHCAL(int _mip, double energy, double eta, int party
   return mean;
 }
 
-double HCALResponse::interMU(double e, int ie, int ieta) {
+double HCALResponse::interMU(double e, int ie, int ieta, RandomEngineAndDistribution const* random) {
   double x = random->flatShoot();
 
   int bin1 = maxMUbin;
@@ -359,15 +387,31 @@ double HCALResponse::interMU(double e, int ie, int ieta) {
   return mean;
 }
 
-double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det) {
+double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const* random) {
+  double x1, x2;
   double y1, y2;
   if(det==2) mip=2; //ignore mip status for HF 
-
-  double x1 = eGridHD[det][ie];
-  double x2 = eGridHD[det][ie+1];
-  
+  double mean = 0;
   vec1 pars(nPar,0);
 
+  if (det==2 && ieta>5 && e<20){
+
+  x1 = eGridHD[det+1][ie];
+  x2 = eGridHD[det+1][ie+1];
+          for(int p = 0; p < 4; p++){
+          y1=PoissonParameters[p][ie][ieta];
+          y2=PoissonParameters[p][ie+1][ieta];
+                if(e>5)pars[p] = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
+                else pars[p] = y1;
+          }
+	  mean =random->poissonShoot((int (PoissonShootNoNegative(pars[0],pars[1],random))+(int (PoissonShootNoNegative(pars[2],pars[3],random)))/4+random->flatShoot()/4) *6)/(0.3755*6);
+  }
+
+  else{
+
+  x1 = eGridHD[det][ie];
+  x2 = eGridHD[det][ie+1];
+  
   //calculate all parameters
   for(int p = 0; p < nPar; p++){
 	y1 = parameters[p][mip][det][ie][ieta];
@@ -404,15 +448,14 @@ double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det) {
   }
   
   //random smearing
-  double mean = 0;
-  if(nPar==6) mean = cballShootNoNegative(pars[0],pars[1],pars[2],pars[3],pars[4],pars[5]);
-  else if(nPar==2) mean = gaussShootNoNegative(pars[0],pars[1]); //gaussian fallback
-
+  if(nPar==6) mean = cballShootNoNegative(pars[0],pars[1],pars[2],pars[3],pars[4],pars[5], random);
+  else if(nPar==2) mean = gaussShootNoNegative(pars[0],pars[1], random); //gaussian fallback
+  }
   return mean;
 }
 
 
-double HCALResponse::interEM(double e, int ie, int ieta) {
+double HCALResponse::interEM(double e, int ie, int ieta, RandomEngineAndDistribution const* random) {
   double y1 = meanEM[ie][ieta]; 
   double y2 = meanEM[ie+1][ieta]; 
   double x1 = eGridEM[ie];
@@ -444,13 +487,13 @@ double HCALResponse::interEM(double e, int ie, int ieta) {
   double sigma = (y1*(x2-e) + y2*(e-x1))/(x2-x1);
   
   //random smearing
-  double rndm = gaussShootNoNegative(mean,sigma);
+  double rndm = gaussShootNoNegative(mean, sigma, random);
   
   return rndm;
 }
 
 // Old parameterization of the calo response to hadrons
-double HCALResponse::getHCALEnergyResponse(double e, int hit){
+double HCALResponse::getHCALEnergyResponse(double e, int hit, RandomEngineAndDistribution const* random){
   //response
   double s = eResponseScale[hit];
   double n = eResponseExponent;
@@ -469,7 +512,7 @@ double HCALResponse::getHCALEnergyResponse(double e, int hit){
     resolution = e * sqrt( RespPar[HCAL][hit][0]*RespPar[HCAL][hit][0]/(e) + RespPar[HCAL][hit][1]*RespPar[HCAL][hit][1] );   
   
   //random smearing
-  double rndm = gaussShootNoNegative(response,resolution);
+  double rndm = gaussShootNoNegative(response, resolution, random);
   
   return rndm;
 }
@@ -486,7 +529,7 @@ int HCALResponse::getDet(int ieta){
 }
 
 // Remove (most) hits with negative energies
-double HCALResponse::gaussShootNoNegative(double e, double sigma) {
+double HCALResponse::gaussShootNoNegative(double e, double sigma, RandomEngineAndDistribution const* random) {
   double out = random->gaussShoot(e,sigma);
   if (e >= 0.) {
     while (out < 0.) out = random->gaussShoot(e,sigma);
@@ -497,12 +540,23 @@ double HCALResponse::gaussShootNoNegative(double e, double sigma) {
 }
 
 // Remove (most) hits with negative energies
-double HCALResponse::cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR) {
-  double out = cball.shoot(mu,sigma,aL,nL,aR,nR);
+double HCALResponse::cballShootNoNegative(double mu, double sigma, double aL, double nL, double aR, double nR,
+                                          RandomEngineAndDistribution const* random) {
+  double out = cball.shoot(mu,sigma,aL,nL,aR,nR, random);
   if (mu >= 0.) {
-    while (out < 0.) out = cball.shoot(mu,sigma,aL,nL,aR,nR);
+    while (out < 0.) out = cball.shoot(mu,sigma,aL,nL,aR,nR, random);
   }
   //else give up on re-trying, otherwise too much time can be lost before emeas comes out positive
 
   return out;
 }
+ double HCALResponse::PoissonShootNoNegative(double e, double sigma,RandomEngineAndDistribution const* random) {
+  double out = -1;
+  while (out < 0.) {
+    out = random->poissonShoot(e);
+    out = out + sigma;
+  }
+  return out;
+
+}
+

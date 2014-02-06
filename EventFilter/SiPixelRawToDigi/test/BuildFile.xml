@@ -10,6 +10,9 @@
 <library   file="SiPixelRawDumper.cc" name="SiPixelRawDumper">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="FedErrorDumper.cc" name="FedErrorDumper">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="findHotPixels.cc" name="findHotPixels">
   <flags   EDM_PLUGIN="1"/>
 </library>

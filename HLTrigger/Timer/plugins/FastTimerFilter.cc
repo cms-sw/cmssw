@@ -4,7 +4,7 @@
 
 // CMSSW headers
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -15,7 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HLTrigger/Timer/interface/FastTimerService.h"
 
-class FastTimerFilter : public edm::EDFilter {
+class FastTimerFilter : public edm::global::EDFilter<> {
 public:
   explicit FastTimerFilter(edm::ParameterSet const &);
   ~FastTimerFilter();
@@ -23,11 +23,11 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  double m_time_limit_event;
-  double m_time_limit_path;
-  double m_time_limit_allpaths;
+  const double m_time_limit_event;
+  const double m_time_limit_path;
+  const double m_time_limit_allpaths;
 
-  bool filter(edm::Event & event, const edm::EventSetup & setup) override;
+  bool filter(edm::StreamID sid, edm::Event & event, const edm::EventSetup & setup) const override;
 };
 
 FastTimerFilter::FastTimerFilter(edm::ParameterSet const & config) :
@@ -42,18 +42,20 @@ FastTimerFilter::~FastTimerFilter()
 }
 
 bool
-FastTimerFilter::filter(edm::Event & event, edm::EventSetup const & setup) 
+FastTimerFilter::filter(edm::StreamID sid, edm::Event & event, edm::EventSetup const & setup) const
 {
   if (not edm::Service<FastTimerService>().isAvailable())
     return false;
 
+  /* FIXME re-enable
   FastTimerService const & fts = * edm::Service<FastTimerService>();
-  if (m_time_limit_allpaths > 0. and fts.queryPathsTime()   > m_time_limit_allpaths)
+  if (m_time_limit_allpaths > 0. and fts.queryPathsTime(sid)   > m_time_limit_allpaths)
     return true;
-  if (m_time_limit_event    > 0. and fts.currentEventTime() > m_time_limit_event)
+  if (m_time_limit_event    > 0. and fts.currentEventTime(sid) > m_time_limit_event)
     return true;
-  if (m_time_limit_path     > 0. and fts.currentPathTime()  > m_time_limit_path)
+  if (m_time_limit_path     > 0. and fts.currentPathTime(sid)  > m_time_limit_path)
     return true;
+  */
 
   return false;
 }

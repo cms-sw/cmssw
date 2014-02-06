@@ -36,12 +36,16 @@ TopValidation::TopValidation(const edm::ParameterSet& iConfig)
      outputFileName      = iConfig.getParameter<std::string>("OutputFileName");
      outputMEsInRootFile = iConfig.getParameter<bool>("OutputMEsInRootFile");
      FolderName_ = iConfig.getParameter<std::string>("FolderName");
-     offlineElectrons = 
-       iConfig.getParameter<edm::InputTag>("offlineElectrons");
+     offlineElectrons = iConfig.getParameter<edm::InputTag>("offlineElectrons");
    
-      topFolder << FolderName_ ;  
+     topFolder << FolderName_ ;  
 
- 
+     muonsToken_ = consumes<reco::MuonCollection>(std::string("muons"));
+     ctfWithMaterialTracksToken_ = consumes<reco::TrackCollection>(std::string("ctfWithMaterialTracks"));
+     iterativeCone5CaloJetsToken_ = consumes<reco::CaloJetCollection>(std::string("iterativeCone5CaloJets"));
+     offlineElectronsToken_ = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("offlineElectrons"));
+     inputTagToken_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultsCollection"));
+     genParticlesToken_ = consumes<reco::GenParticleCollection>(std::string("genParticles"));
       
 }
 
@@ -69,26 +73,25 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  
   // muon collection
   Handle<reco::MuonCollection> muonsH;
-  iEvent.getByLabel("muons", muonsH);
-  
+  iEvent.getByToken(muonsToken_, muonsH);
+
   // tracks collection
   Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel("ctfWithMaterialTracks", tracks);
+  iEvent.getByToken(ctfWithMaterialTracksToken_, tracks);
     
      
   // get calo jet collection
   Handle<reco::CaloJetCollection> jetsHandle;
-  iEvent.getByLabel("iterativeCone5CaloJets", jetsHandle);
+  iEvent.getByToken(iterativeCone5CaloJetsToken_, jetsHandle);
 
   
   // electron collection
   Handle<reco::GsfElectronCollection> electronsH;
-  //  iEvent.getByLabel("pixelMatchGsfElectrons",electronsH);
-  iEvent.getByLabel(offlineElectrons,electronsH);
+  iEvent.getByToken(offlineElectronsToken_,electronsH);
 
   // Trigger 
   Handle<TriggerResults> trh;
-  iEvent.getByLabel(inputTag_,trh);
+  iEvent.getByToken(inputTagToken_,trh);
   if( ! trh.isValid() ) {
     LogDebug("") << "HL TriggerResults with label ["+inputTag_.encode()+"] not found!";
     return;
@@ -114,7 +117,7 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
  
   // Gen Particles Collection
   Handle <reco::GenParticleCollection> genParticles;
-   iEvent.getByLabel("genParticles", genParticles);
+   iEvent.getByToken(genParticlesToken_, genParticles);
   
    for (size_t i=0; i < genParticles->size(); ++i){
      const reco::Candidate & p = (*genParticles)[i];

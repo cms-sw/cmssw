@@ -54,11 +54,9 @@ PFCandidateManagerAnalyzer::analyze(const edm::Event& iEvent,
 
   
   Handle< PFCandidateCollection > collection; 
-  //iEvent.getByLabel( inputLabel_, collection);
   iEvent.getByToken(myColl_, collection);
 
   Handle< View<Candidate> >  matchCollection;
-  //iEvent.getByLabel( matchLabel_, matchCollection);
   iEvent.getByToken(myMatchColl_, matchCollection);
 
   fill( *collection, *matchCollection );

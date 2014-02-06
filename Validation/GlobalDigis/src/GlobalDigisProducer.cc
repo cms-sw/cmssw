@@ -39,6 +39,26 @@ GlobalDigisProducer::GlobalDigisProducer(const edm::ParameterSet& iPSet) :
   MuDTSrc_ = iPSet.getParameter<edm::InputTag>("MuDTSrc");
   MuCSCStripSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCStripSrc");
   MuCSCWireSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCWireSrc");
+  // fix for consumes
+  ECalEBSrc_Token_ = consumes<EBDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEBSrc"));
+  ECalEESrc_Token_ = consumes<EEDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalEESrc"));
+  ECalESSrc_Token_ = consumes<ESDigiCollection>(iPSet.getParameter<edm::InputTag>("ECalESSrc"));
+  HCalSrc_Token_ = consumes<edm::PCaloHitContainer>(iPSet.getParameter<edm::InputTag>("HCalSrc"));
+  HBHEDigi_Token_ = consumes<edm::SortedCollection<HBHEDataFrame> >(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  HODigi_Token_ = consumes<edm::SortedCollection<HODataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  HFDigi_Token_ = consumes<edm::SortedCollection<HFDataFrame>>(iPSet.getParameter<edm::InputTag>("HCalDigi"));  
+  SiStripSrc_Token_ = consumes<edm::DetSetVector<SiStripDigi> >(iPSet.getParameter<edm::InputTag>("SiStripSrc")); 
+  SiPxlSrc_Token_ = consumes<edm::DetSetVector<PixelDigi> >(iPSet.getParameter<edm::InputTag>("SiPxlSrc"));
+  MuDTSrc_Token_ = consumes<DTDigiCollection>(iPSet.getParameter<edm::InputTag>("MuDTSrc"));
+  MuCSCStripSrc_Token_ = consumes<CSCStripDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCStripSrc"));
+  MuCSCWireSrc_Token_ = consumes<CSCWireDigiCollection>(iPSet.getParameter<edm::InputTag>("MuCSCWireSrc"));
+  //
+  const std::string barrelHitsName("EcalHitsEB");
+  const std::string endcapHitsName("EcalHitsEE");
+  const std::string preshowerHitsName("EcalHitsES");
+  EBHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("barrelHitsName")));
+  EEHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("endcapHitsName")));
+  ESHits_Token_ = consumes<CrossingFrame<PCaloHit> >(edm::InputTag(std::string("mix"), std::string("preshowerHitsName")));
 
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
@@ -282,7 +302,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   ////////////////////////
   bool isBarrel = true;
   edm::Handle<EBDigiCollection> EcalDigiEB;  
-  iEvent.getByLabel(ECalEBSrc_, EcalDigiEB);
+  iEvent.getByToken(ECalEBSrc_Token_, EcalDigiEB);
   if (!EcalDigiEB.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiEB in event!";
@@ -293,8 +313,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   if (isBarrel) {
     
     // loop over simhits
-    const std::string barrelHitsName("EcalHitsEB");
-    iEvent.getByLabel("mix",barrelHitsName,crossingFrame);
+    iEvent.getByToken(EBHits_Token_,crossingFrame);
     if (!crossingFrame.isValid()) {
       edm::LogWarning(MsgLoggerCat)
 	<< "Unable to find cal barrel crossingFrame in event!";
@@ -403,7 +422,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   ////////////////////////
   bool isEndCap = true;
   edm::Handle<EEDigiCollection> EcalDigiEE;  
-  iEvent.getByLabel(ECalEESrc_, EcalDigiEE);
+  iEvent.getByToken(ECalEESrc_Token_, EcalDigiEE);
   if (!EcalDigiEE.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiEE in event!";
@@ -414,8 +433,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   if (isEndCap) {
 
     // loop over simhits
-    const std::string endcapHitsName("EcalHitsEE");
-    iEvent.getByLabel("mix",endcapHitsName,crossingFrame);
+    iEvent.getByToken(EEHits_Token_, crossingFrame);
     if (!crossingFrame.isValid()) {
       edm::LogWarning(MsgLoggerCat)
 	<< "Unable to find cal endcap crossingFrame in event!";
@@ -524,7 +542,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   ////////////////////////
   bool isPreshower = true;
   edm::Handle<ESDigiCollection> EcalDigiES;  
-  iEvent.getByLabel(ECalESSrc_, EcalDigiES);
+  iEvent.getByToken(ECalESSrc_Token_, EcalDigiES);
   if (!EcalDigiES.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find EcalDigiES in event!";
@@ -535,8 +553,7 @@ void GlobalDigisProducer::fillECal(edm::Event& iEvent,
   if (isPreshower) {
 
     // loop over simhits
-    const std::string preshowerHitsName("EcalHitsES");
-    iEvent.getByLabel("mix",preshowerHitsName,crossingFrame);
+    iEvent.getByToken(ESHits_Token_,crossingFrame);
     if (!crossingFrame.isValid()) {
       edm::LogWarning(MsgLoggerCat)
 	<< "Unable to find cal preshower crossingFrame in event!";
@@ -688,7 +705,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // extract simhit info
   //////////////////////
   edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByLabel(HCalSrc_,hcalHits);
+  iEvent.getByToken(HCalSrc_Token_,hcalHits);
   if (!hcalHits.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find hcalHits in event!";
@@ -725,7 +742,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HBHE information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HBHEDataFrame> > hbhe;
-  iEvent.getByLabel(HCalDigi_,hbhe);
+  iEvent.getByToken(HBHEDigi_Token_,hbhe);
   if (!hbhe.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HBHEDataFrame in event!";
@@ -794,7 +811,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HO information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HODataFrame> > ho;
-  iEvent.getByLabel(HCalDigi_,ho);
+  iEvent.getByToken(HODigi_Token_,ho);
   if (!ho.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HODataFrame in event!";
@@ -839,7 +856,7 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   // get HF information
   ///////////////////////
   edm::Handle<edm::SortedCollection<HFDataFrame> > hf;
-  iEvent.getByLabel(HCalDigi_,hf);
+  iEvent.getByToken(HFDigi_Token_,hf);
   if (!hf.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find HFDataFrame in event!";
@@ -956,7 +973,7 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 
   // get strip information
   edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;  
-  iEvent.getByLabel(SiStripSrc_, stripDigis);
+  iEvent.getByToken(SiStripSrc_Token_, stripDigis);
   if (!stripDigis.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find stripDigis in event!";
@@ -1094,7 +1111,7 @@ void GlobalDigisProducer::fillTrk(edm::Event& iEvent,
 
   // get pixel information
   edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;  
-  iEvent.getByLabel(SiPxlSrc_, pixelDigis);
+  iEvent.getByToken(SiPxlSrc_Token_, pixelDigis);
   if (!pixelDigis.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find pixelDigis in event!";
@@ -1488,7 +1505,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
 
   // get DT information
   edm::Handle<DTDigiCollection> dtDigis;  
-  iEvent.getByLabel(MuDTSrc_, dtDigis);
+  iEvent.getByToken(MuDTSrc_Token_, dtDigis);
   if (!dtDigis.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find dtDigis in event!";
@@ -1540,7 +1557,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
 
   // get CSC Strip information
   edm::Handle<CSCStripDigiCollection> strips;  
-  iEvent.getByLabel(MuCSCStripSrc_, strips);
+  iEvent.getByToken(MuCSCStripSrc_Token_, strips);
   if (!strips.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find muon strips in event!";
@@ -1580,7 +1597,7 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
 
   // get CSC Wire information
   edm::Handle<CSCWireDigiCollection> wires;  
-  iEvent.getByLabel(MuCSCWireSrc_, wires);
+  iEvent.getByToken(MuCSCWireSrc_Token_, wires);
   if (!wires.isValid()) {
     edm::LogWarning(MsgLoggerCat)
       << "Unable to find muon wires in event!";

@@ -2,6 +2,7 @@
 #define RecoHI_HiTracking_HITrackingRegionProducer_H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
@@ -20,7 +21,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
   
  public:
   
-  HITrackingRegionProducer(const edm::ParameterSet& cfg) { 
+  HITrackingRegionProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) { 
     
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
     
@@ -34,7 +35,8 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     double yDir         = regionPSet.getParameter<double>("directionYCoord");
     double zDir         = regionPSet.getParameter<double>("directionZCoord");
     thePrecise          = regionPSet.getParameter<bool>("precise"); 
-    theSiPixelRecHits   = regionPSet.getParameter<std::string>("siPixelRecHits");
+    theSiPixelRecHits   = regionPSet.getParameter<edm::InputTag>("siPixelRecHits");
+    theSiPixelRecHitsToken = iC.consumes<SiPixelRecHitCollection> (theSiPixelRecHits);
     theOrigin = GlobalPoint(xPos,yPos,zPos);
     theDirection = GlobalVector(xDir, yDir, zDir);
   }   
@@ -46,7 +48,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
   {
     //rechits
     edm::Handle<SiPixelRecHitCollection> recHitColl;
-    ev.getByLabel(theSiPixelRecHits, recHitColl);
+    ev.getByToken(theSiPixelRecHitsToken, recHitColl);
     
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopo;
@@ -113,7 +115,8 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
   }
   
  private:
-  std::string theSiPixelRecHits;
+  edm::InputTag theSiPixelRecHits;
+  edm::EDGetTokenT<SiPixelRecHitCollection> theSiPixelRecHitsToken;
   double thePtMin; 
   GlobalPoint theOrigin;
   double theOriginRadius; 

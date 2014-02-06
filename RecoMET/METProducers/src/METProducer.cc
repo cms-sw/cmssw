@@ -32,6 +32,7 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/GenMETFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/METReco/interface/PFClusterMETFwd.h"
 #include "DataFormats/METReco/interface/CommonMETData.h"
@@ -44,6 +45,7 @@
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
+#include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
 
 #include <memory>
 
@@ -148,7 +150,7 @@ namespace cms
     event.getByToken(inputToken_, input);
 
     METAlgo algo;
-    CommonMETData commonMETdata = algo.run(input, globalThreshold);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
 
     CaloSpecificAlgo calospecalgo;
     reco::CaloMET calomet = calospecalgo.addInfo(input, commonMETdata, noHF, globalThreshold);
@@ -181,21 +183,32 @@ namespace cms
     event.getByToken(inputToken_, input);
 
     METAlgo algo;
-    CommonMETData commonMETdata = algo.run(input, globalThreshold);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
+
+    const math::XYZTLorentzVector p4(commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
+    const math::XYZPoint vtx(0.0, 0.0, 0.0);
 
     PFSpecificAlgo pf;
-	
-    if( calculateSignificance_ )
+    SpecificPFMETData specific = pf.run(*input.product());
+
+    reco::PFMET pfmet(specific, commonMETdata.sumet, p4, vtx);
+
+    if(calculateSignificance_)
       {
+	metsig::SignPFSpecificAlgo pfsignalgo;
+	pfsignalgo.setResolutions(resolutions_);
+
 	edm::Handle<edm::View<reco::PFJet> > jets;
 	event.getByToken(jetToken_, jets);
-	pf.runSignificance(*resolutions_, jets);
+	pfsignalgo.addPFJets(jets.product());
+	pfmet.setSignificanceMatrix(pfsignalgo.mkSignifMatrix(input));
       }
 
     std::auto_ptr<reco::PFMETCollection> pfmetcoll;
     pfmetcoll.reset(new reco::PFMETCollection);
-    pfmetcoll->push_back( pf.addInfo(input, commonMETdata) );
-    event.put( pfmetcoll );
+
+    pfmetcoll->push_back(pfmet);
+    event.put(pfmetcoll);
   }
 
   void METProducer::produce_PFClusterMET(edm::Event& event)
@@ -204,7 +217,7 @@ namespace cms
     event.getByToken(inputToken_, input);
 
     METAlgo algo;
-    CommonMETData commonMETdata = algo.run(input, globalThreshold);
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
 
     PFClusterSpecificAlgo pfcluster;
     std::auto_ptr<reco::PFClusterMETCollection> pfclustermetcoll;
@@ -233,10 +246,8 @@ namespace cms
     edm::Handle<edm::View<reco::Candidate> > input;
     event.getByToken(inputToken_, input);
 
-    CommonMETData commonMETdata;
-
     METAlgo algo;
-    algo.run(input, &commonMETdata, globalThreshold); 
+    CommonMETData commonMETdata = algo.run(*input.product(), globalThreshold);
 
     math::XYZTLorentzVector p4( commonMETdata.mex, commonMETdata.mey, 0.0, commonMETdata.met);
     math::XYZPoint vtx(0,0,0);

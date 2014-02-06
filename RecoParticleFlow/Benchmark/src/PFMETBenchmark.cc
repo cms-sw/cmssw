@@ -1,8 +1,6 @@
 #include "RecoParticleFlow/Benchmark/interface/PFMETBenchmark.h"
-//#include "TCanvas.h"
-#include "TProfile.h"
-#include "TF1.h"
-#include "TH1F.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 // preprocessor macro for booking 1d histos with DQMStore -or- bare Root
 #define BOOK1D(name,title,nbinsx,lowx,highx) \
@@ -28,8 +26,6 @@
 
 using namespace reco;
 using namespace std;
-
-class MonitorElement;
 
 PFMETBenchmark::PFMETBenchmark() : file_(0) {}
 

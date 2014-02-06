@@ -13,7 +13,6 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -74,10 +73,20 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
   theParameters["topmb21"] = 0.21;
   theParameters["bottommb21"] = 0.31;
 
+
+  edm::ConsumesCollector iC = consumesCollector();
+  muonMeasurements = new MuonDetLayerMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel,
+					    InputTag(),iC,
+					    theEnableDTFlag,theEnableCSCFlag,false);
+
+
+
 }
 
 // Destructor
 CosmicMuonSeedGenerator::~CosmicMuonSeedGenerator(){
+  if (muonMeasurements)
+    delete muonMeasurements;
 }
 
 
@@ -101,12 +110,10 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   // get the CSC layers
   vector<DetLayer*> cscForwardLayers = theMuonLayers->forwardCSCLayers();
   vector<DetLayer*> cscBackwardLayers = theMuonLayers->backwardCSCLayers();
-     
-  MuonDetLayerMeasurements muonMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel,
-					    InputTag(),
-					    theEnableDTFlag,theEnableCSCFlag,false);
 
-  muonMeasurements.setEvent(event);
+
+
+  muonMeasurements->setEvent(event);
 
   MuonRecHitContainer allHits;
 
@@ -119,7 +126,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   for (vector<DetLayer*>::reverse_iterator icsclayer = cscForwardLayers.rbegin();
        icsclayer != cscForwardLayers.rend() - 1; ++icsclayer) {
        
-       MuonRecHitContainer RHMF = muonMeasurements.recHits(*icsclayer);
+       MuonRecHitContainer RHMF = muonMeasurements->recHits(*icsclayer);
        allHits.insert(allHits.end(),RHMF.begin(),RHMF.end());
 
   }
@@ -127,7 +134,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   for (vector<DetLayer*>::reverse_iterator icsclayer = cscBackwardLayers.rbegin();
        icsclayer != cscBackwardLayers.rend() - 1; ++icsclayer) {
 
-       MuonRecHitContainer RHMF = muonMeasurements.recHits(*icsclayer);
+       MuonRecHitContainer RHMF = muonMeasurements->recHits(*icsclayer);
        allHits.insert(allHits.end(),RHMF.begin(),RHMF.end());
 
   }
@@ -135,7 +142,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   for (vector<DetLayer*>::reverse_iterator idtlayer = dtLayers.rbegin();
        idtlayer != dtLayers.rend(); ++idtlayer) {
 
-       MuonRecHitContainer RHMB = muonMeasurements.recHits(*idtlayer);
+       MuonRecHitContainer RHMB = muonMeasurements->recHits(*idtlayer);
        RHMBs.push_back(RHMB);
 
        if ( idtlayer != dtLayers.rbegin() ) allHits.insert(allHits.end(),RHMB.begin(),RHMB.end());

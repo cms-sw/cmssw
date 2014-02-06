@@ -12,6 +12,9 @@
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 class JetExtender : public edm::EDProducer {
    public:
@@ -21,6 +24,9 @@ class JetExtender : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
+     edm::EDGetTokenT<edm::View <reco::Jet>> token_mJets;
+     edm::EDGetTokenT<reco::JetTracksAssociation::Container > token_mJet2TracksAtVX;
+     edm::EDGetTokenT<reco::JetTracksAssociation::Container > token_mJet2TracksAtCALO;
      edm::InputTag mJets;
      edm::InputTag mJet2TracksAtVX;
      edm::InputTag mJet2TracksAtCALO;

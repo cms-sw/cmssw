@@ -257,7 +257,7 @@ namespace TopDiLeptonOffline {
   {
     // fetch trigger event if configured such 
     edm::Handle<edm::TriggerResults> triggerTable;
-    if(!triggerTable_.isUnitialized()) {
+    if(!triggerTable_.isUninitialized()) {
 	if( !event.getByToken(triggerTable_, triggerTable) ) return;
      }
     /*
@@ -316,7 +316,7 @@ namespace TopDiLeptonOffline {
     // buffer isolated electronss
     std::vector<const reco::GsfElectron*> isoElecs;
     edm::Handle<edm::ValueMap<float> > electronId; 
-    if(!electronId_.isUnitialized()) {
+    if(!electronId_.isUninitialized()) {
 	if( !event.getByToken(electronId_, electronId) ) return;
     }
     edm::Handle<edm::View<reco::GsfElectron> > elecs;
@@ -325,7 +325,7 @@ namespace TopDiLeptonOffline {
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       // restrict to electrons with good electronId
       int idx = elec-elecs->begin();
-      if( electronId_.isUnitialized() ? true : ((int)(*electronId)[elecs->refAt(idx)] & eidPattern_) ){
+      if( electronId_.isUninitialized() ? true : ((int)(*electronId)[elecs->refAt(idx)] & eidPattern_) ){
 	// apply preselection
 	if(!elecSelect_ || (*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
@@ -503,7 +503,7 @@ namespace TopDiLeptonOffline {
 	fill("lep1Pt_", isoElecs[0]->pt()>isoMuons[0]->pt() ? isoElecs[0]->pt() : isoMuons[0]->pt());
 	fill("lep2Pt_", isoElecs[0]->pt()>isoMuons[0]->pt() ? isoMuons[0]->pt() : isoElecs[0]->pt());
 	// fill plots for trigger monitoring
-	if(!triggerTable_.isUnitialized()) fill(event, *triggerTable, "elecMu", elecMuPaths_);
+	if(!triggerTable_.isUninitialized()) fill(event, *triggerTable, "elecMu", elecMuPaths_);
 	if(elecMuLogged_<=hists_.find("elecMuLogger_")->second->getNbinsY()){
 	  // log runnumber, lumi block, event number & some
 	  // more pysics infomation for interesting events
@@ -535,7 +535,7 @@ namespace TopDiLeptonOffline {
 	fill("muonPt_", isoMuons[0]->pt()); fill("muonPt_", isoMuons[1]->pt()); 
 	fill("lep1Pt_", isoMuons[0]->pt()); fill("lep2Pt_", isoMuons[1]->pt()); 
 	// fill plots for trigger monitoring
-	if(!triggerTable_.isUnitialized()) fill(event, *triggerTable, "diMuon", diMuonPaths_);
+	if(!triggerTable_.isUninitialized()) fill(event, *triggerTable, "diMuon", diMuonPaths_);
 	if(diMuonLogged_<=hists_.find("diMuonLogger_")->second->getNbinsY()){
 	  // log runnumber, lumi block, event number & some
 	  // more pysics infomation for interesting events
@@ -645,17 +645,17 @@ TopDiLeptonOfflineDQM::TopDiLeptonOfflineDQM(const edm::ParameterSet& cfg): vert
 void 
 TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup& setup)
 { 
-  if(!triggerTable_.isUnitialized()){
+  if(!triggerTable_.isUninitialized()){
     edm::Handle<edm::TriggerResults> triggerTable;
     if( !event.getByToken(triggerTable_, triggerTable) ) return;
     if(!accept(event, *triggerTable, triggerPaths_)) return;
   }
-  if(!vertex_.isUnitialized()){
+  if(!vertex_.isUninitialized()){
     edm::Handle<std::vector<reco::Vertex> > vertex;
     if( !event.getByToken(vertex_, vertex) ) return;
     if(vertex->empty() || !(*vertexSelect_)(vertex->front())) return;
   }
-  if(!beamspot_.isUnitialized()){
+  if(!beamspot_.isUninitialized()){
     edm::Handle<reco::BeamSpot> beamspot;
     if( !event.getByToken(beamspot_, beamspot) ) return;
     if(!(*beamspotSelect_)(*beamspot)) return;

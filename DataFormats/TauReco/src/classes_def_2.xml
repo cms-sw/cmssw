@@ -1,9 +1,14 @@
 <lcgdict>
   
-  <class name="reco::PFTau" ClassVersion="11">
+  <class name="reco::PFTau" ClassVersion="14">
+    <version ClassVersion="14" checksum="3087106015"/>
+    <version ClassVersion="13" checksum="1088944403"/>
+    <version ClassVersion="12" checksum="3369965409"/>
     <version ClassVersion="11" checksum="2334259986"/>
      <field name="signalPiZeroCandidates_" transient="true"/>
      <field name="isolationPiZeroCandidates_" transient="true"/>
+     <field name="signalTauChargedHadronCandidates_" transient="true"/>
+     <field name="isolationTauChargedHadronCandidates_" transient="true"/>
     <version ClassVersion="10" checksum="2369119060"/>
   </class>
 
@@ -27,6 +32,175 @@
   <class name="edm::reftobase::BaseVectorHolder<reco::PFTau>"/>
   <class name="edm::reftobase::Holder<reco::PFTau, reco::PFTauRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFTauRef>" />
+
+ <ioread sourceClass="reco::PFTau" version="[-11]" source="reco::PFCandidateRef leadPFChargedHadrCand_;" targetClass="reco::PFTau" target="leadPFChargedHadrCand_" include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[leadPFChargedHadrCand_ = edm::refToPtr(onfile.leadPFChargedHadrCand_);]]>
+  </ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]" source="reco::PFCandidateRef leadPFNeutralCand_;" targetClass="reco::PFTau" target="leadPFNeutralCand_" include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[leadPFNeutralCand_ = edm::refToPtr(onfile.leadPFNeutralCand_);]]>
+  </ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]" source="reco::PFCandidateRef leadPFCand_;" targetClass="reco::PFTau" target="leadPFCand_" include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[leadPFCand_ = edm::refToPtr(onfile.leadPFCand_);]]>
+  </ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]"
+source="reco::PFCandidateRefVector selectedSignalPFCands_;"
+ targetClass="reco::PFTau"
+target="selectedSignalPFCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+   selectedSignalPFCands_.reserve(onfile.selectedSignalPFCands_.size());
+for(auto const& ref : onfile.selectedSignalPFCands_) { 
+   selectedSignalPFCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]"
+source="reco::PFCandidateRefVector selectedSignalPFChargedHadrCands_;"
+ targetClass="reco::PFTau"
+target="selectedSignalPFChargedHadrCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+selectedSignalPFChargedHadrCands_.reserve(onfile.selectedSignalPFChargedHadrCands_.size());
+for(auto const& ref : onfile.selectedSignalPFChargedHadrCands_) { 
+   selectedSignalPFChargedHadrCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]"
+source="reco::PFCandidateRefVector selectedSignalPFNeutrHadrCands_;"
+ targetClass="reco::PFTau"
+target="selectedSignalPFNeutrHadrCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+selectedSignalPFNeutrHadrCands_.reserve(onfile.selectedSignalPFNeutrHadrCands_.size());
+for(auto const& ref : onfile.selectedSignalPFNeutrHadrCands_) { 
+   selectedSignalPFNeutrHadrCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]"
+source="reco::PFCandidateRefVector selectedSignalPFGammaCands_;"
+ targetClass="reco::PFTau"
+target="selectedSignalPFGammaCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+selectedSignalPFGammaCands_.reserve(onfile.selectedSignalPFGammaCands_.size());
+for(auto const& ref : onfile.selectedSignalPFGammaCands_) { 
+   selectedSignalPFGammaCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]"
+source="reco::PFCandidateRefVector selectedIsolationPFCands_;"
+ targetClass="reco::PFTau"
+target="selectedIsolationPFCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+   selectedIsolationPFCands_.reserve(onfile.selectedIsolationPFCands_.size());
+for(auto const& ref : onfile.selectedIsolationPFCands_) { 
+   selectedIsolationPFCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]"
+source="reco::PFCandidateRefVector selectedIsolationPFChargedHadrCands_;"
+ targetClass="reco::PFTau"
+target="selectedIsolationPFChargedHadrCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+selectedIsolationPFChargedHadrCands_.reserve(onfile.selectedIsolationPFChargedHadrCands_.size());
+for(auto const& ref : onfile.selectedIsolationPFChargedHadrCands_) { 
+   selectedIsolationPFChargedHadrCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]"
+source="reco::PFCandidateRefVector selectedIsolationPFNeutrHadrCands_;"
+ targetClass="reco::PFTau"
+target="selectedIsolationPFNeutrHadrCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+selectedIsolationPFNeutrHadrCands_.reserve(onfile.selectedIsolationPFNeutrHadrCands_.size());
+for(auto const& ref : onfile.selectedIsolationPFNeutrHadrCands_) { 
+   selectedIsolationPFNeutrHadrCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+<ioread sourceClass="reco::PFTau" version="[-11]"
+source="reco::PFCandidateRefVector selectedIsolationPFGammaCands_;"
+ targetClass="reco::PFTau"
+target="selectedIsolationPFGammaCands_"
+include="DataFormats/Common/interface/RefToPtr.h">
+    <![CDATA[
+selectedIsolationPFGammaCands_.reserve(onfile.selectedIsolationPFGammaCands_.size());
+for(auto const& ref : onfile.selectedIsolationPFGammaCands_) { 
+   selectedIsolationPFGammaCands_.push_back(edm::refToPtr(ref));
+}
+]]>
+</ioread>
+
+
+
+
+<!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
+<!-- source="reco::PFCandidateRefVector selectedIsolationPFCands_;" -->
+<!--  targetClass="reco::PFTau" -->
+<!-- target="selectedIsolationPFCands_" -->
+<!-- include="DataFormats/Common/interface/RefToPtr.h"> -->
+<!--     <![CDATA[ -->
+<!-- for(size_t it=0; it<onfile.selectedIsolationPFCands_.size();it++) -->
+<!--  selectedIsolationPFCands_.at(it) = -->
+<!--  edm::refToPtr(onfile.selectedIsolationPFCands_.at(it)); -->
+<!-- ]]> -->
+<!-- </ioread> -->
+
+<!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
+<!-- source="reco::PFCandidateRefVector selectedIsolationPFChargedHadrCands_;" -->
+<!--  targetClass="reco::PFTau" -->
+<!-- target="selectedIsolationPFChargedHadrCands_" -->
+<!-- include="DataFormats/Common/interface/RefToPtr.h"> -->
+<!--     <![CDATA[ -->
+<!-- for(size_t it=0; -->
+<!--  it<onfile.selectedIsolationPFChargedHadrCands_.size();it++) -->
+<!--  selectedIsolationPFChargedHadrCands_.at(it) = -->
+<!--  edm::refToPtr(onfile.selectedIsolationPFChargedHadrCands_.at(it)); -->
+<!-- ]]> -->
+<!-- </ioread> -->
+
+<!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
+<!-- source="reco::PFCandidateRefVector selectedIsolationPFNeutrHadrCands_;" -->
+<!--  targetClass="reco::PFTau" -->
+<!-- target="selectedIsolationPFNeutrHadrCands_" -->
+<!-- include="DataFormats/Common/interface/RefToPtr.h"> -->
+<!--     <![CDATA[ -->
+<!-- for(size_t it=0; -->
+<!--  it<onfile.selectedIsolationPFNeutrHadrCands_.size();it++) -->
+<!--  selectedIsolationPFNeutrHadrCands_.at(it) = -->
+<!--  edm::refToPtr(onfile.selectedIsolationPFNeutrHadrCands_.at(it)); -->
+<!-- ]]> -->
+<!-- </ioread> -->
+
+<!-- <ioread sourceClass="reco::PFTau" version="[-11]" -->
+<!-- source="reco::PFCandidateRefVector selectedIsolationPFGammaCands_;" -->
+<!--  targetClass="reco::PFTau" -->
+<!-- target="selectedIsolationPFGammaCands_" -->
+<!-- include="DataFormats/Common/interface/RefToPtr.h"> -->
+<!--     <![CDATA[ -->
+<!-- for(size_t it=0; it<onfile.selectedIsolationPFGammaCands_.size();it++) -->
+<!--  selectedIsolationPFGammaCands_.at(it) = -->
+<!--  edm::refToPtr(onfile.selectedIsolationPFGammaCands_.at(it)); -->
+<!-- ]]> -->
+<!-- </ioread> -->
 
 
   <class name="reco::PFTauDecayMode" ClassVersion="10">
@@ -53,14 +227,25 @@
   <class name="edm::RefProd<std::vector<reco::RecoTauPiZero> >"/>
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
-  
+
+  <class name="reco::PFRecoTauChargedHadron" ClassVersion="11">
+   <version ClassVersion="11" checksum="858406271" />
+   <version ClassVersion="10" checksum="4027987990"/>
+  </class>
+  <class name="std::vector<reco::PFRecoTauChargedHadron>"/>
+     <class name="std::vector<std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::Wrapper<std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::RefVector<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> > >" />
+
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::CaloTauDiscriminatorByIsolation" ClassVersion="10">
    <version ClassVersion="10" checksum="2968502385"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::CaloTauDiscriminatorByIsolationRef"/>
   <class name="reco::CaloTauDiscriminatorByIsolationRefProd"/>
@@ -73,7 +258,6 @@
   <class name="reco::CaloTauDiscriminator" ClassVersion="10">
    <version ClassVersion="10" checksum="1989330711"/>
     <!-- <field name="transientVector_" transient="true"/> -->
-    <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::CaloTauDiscriminatorRef"/>
   <class name="reco::CaloTauDiscriminatorRefProd"/>

@@ -29,7 +29,7 @@ const unsigned int HLTPrescaler::prescaleSeed_ = 65537;
 ///////////////////////////////////////////////////////////////////////////////
 
 //_____________________________________________________________________________
-HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig) :
+HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Efficiency* efficiency) :
   prescaleSet_(0)
   , prescaleFactor_(1)
   , eventCount_(0)
@@ -52,7 +52,6 @@ HLTPrescaler::~HLTPrescaler()
 {
   
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
@@ -127,12 +126,27 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
 
 
 //_____________________________________________________________________________
-void HLTPrescaler::endJob()
+void HLTPrescaler::endStream()
 {
+  //since these are std::atomic, it is safe to increment them
+  // even if multiple endStreams are being called.
+  globalCache()->eventCount_ += eventCount_;
+  globalCache()->acceptCount_ += acceptCount_; 
+  return;
+}
+
+//_____________________________________________________________________________
+void HLTPrescaler::globalEndJob(const trigger::Efficiency* efficiency)
+{
+  unsigned int accept(efficiency->acceptCount_);
+  unsigned int event (efficiency->eventCount_);
   edm::LogInfo("PrescaleSummary")
-    << acceptCount_<< "/" <<eventCount_
+    << accept << "/" << event
     << " ("
-    << 100.*acceptCount_/static_cast<double>(std::max(1u,eventCount_))
+    << 100.*accept/static_cast<double>(std::max(1u,event))
     << "% of events accepted).";
   return;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTPrescaler);

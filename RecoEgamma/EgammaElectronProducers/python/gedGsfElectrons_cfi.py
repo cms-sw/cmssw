@@ -3,6 +3,53 @@ import FWCore.ParameterSet.Config as cms
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
+from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
+gedelectronGBRESSource = cms.ESSource(
+    "PoolDBESSource",
+    CondDBCommon,
+    DumpStat=cms.untracked.bool(False),
+    toGet = cms.VPSet(
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_EBCorrection_offline_v1'),
+    label = cms.untracked.string('gedelectron_EBCorrection_offline_v1')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_EECorrection_offline_v1'),
+    label = cms.untracked.string('gedelectron_EECorrection_offline_v1')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_EBUncertainty_offline_v1'),
+    label = cms.untracked.string('gedelectron_EBUncertainty_offline_v1')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_EEUncertainty_offline_v1'),
+    label = cms.untracked.string('gedelectron_EEUncertainty_offline_v1')
+    ),
+    cms.PSet(
+    record = cms.string('GBRWrapperRcd'),
+    tag = cms.string('gedelectron_p4combination_offline'),
+    label = cms.untracked.string('gedelectron_p4combination_offline')
+    ),
+    )
+)
+gedelectronGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000')
+
+gedelectronPrefer = cms.ESPrefer(
+    'PoolDBESSource',
+    'gedelectronGBRESSource',
+    GBRWrapperRcd = cms.vstring('GBRForest/gedelectron_EBCorrection_offline_v1',
+                                'GBRForest/gedelectron_EECorrection_offline_v1',
+                                'GBRForest/gedelectron_EBUncertainty_offline_v1',
+                                'GBRForest/gedelectron_EEUncertainty_offline_v1',
+                                'GBRForest/gedelectron_p4combination_offline')
+)
+
+
+
 gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 
     # input collections
@@ -17,17 +64,21 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     beamSpotTag = cms.InputTag("offlineBeamSpot"),
     gsfPfRecTracksTag = cms.InputTag("pfTrackElec"),
     egmPFCandidatesTag = cms.InputTag('particleFlowEGamma'),
-   
+    vtxTag = cms.InputTag('offlinePrimaryVertices'),
+                                
     #output collections    
     outputEGMPFValueMap = cms.string(''),
 
     # backward compatibility mechanism for ctf tracks
     ctfTracksCheck = cms.bool(True),
     ctfTracksTag = cms.InputTag("generalTracks"),
+
+    gedElectronMode = cms.bool(True),
+    PreSelectMVA = cms.double(-0.1),	
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
-    applyPreselection = cms.bool(False),
+    applyPreselection = cms.bool(True),
     ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(False),
     ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(False),
     pureTrackerDrivenEcalErrorFromSimpleParameterization = cms.bool(True),
@@ -35,6 +86,8 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     ambSortingStrategy = cms.uint32(1),
     ambClustersOverlapStrategy = cms.uint32(1),
     addPflowElectrons = cms.bool(True), # this one should be transfered to the "core" level
+    useEcalRegression = cms.bool(True),
+    useCombinationRegression = cms.bool(True),                                    
     
     # preselection parameters (ecal driven electrons)
     minSCEtBarrel = cms.double(4.0),
@@ -136,8 +189,25 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     superClusterErrorFunction = cms.string("EcalClusterEnergyUncertaintyObjectSpecific"),
     crackCorrectionFunction = cms.string("EcalClusterCrackCorrection"),
 
+   # regression. The labels are needed in all cases
+   ecalRefinedRegressionWeightLabels = cms.vstring('gedelectron_EBCorrection_offline_v1',
+                                                   'gedelectron_EECorrection_offline_v1',
+                                                   'gedelectron_EBUncertainty_offline_v1',
+                                                   'gedelectron_EEUncertainty_offline_v1'),
+   combinationRegressionWeightLabels = cms.vstring('gedelectron_p4combination_offline'),
+   
+   ecalWeightsFromDB = cms.bool(True),
+   # if not from DB. Otherwise, keep empty
+   ecalRefinedRegressionWeightFiles = cms.vstring(),
+   combinationWeightsFromDB = cms.bool(True),
+   # if not from DB. Otherwise, keep empty
+   combinationRegressionWeightFile = cms.vstring(),                              
+ 
    # Iso Values 
-   useIsolationValues = cms.bool(False)
+   useIsolationValues = cms.bool(False),
+ SoftElecMVAFilesString = cms.vstring(
+    "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_9Dec2013.weights.xml"
+                                ),
 )
 
 

@@ -292,7 +292,7 @@ FEVTDEBUGEventContent = cms.PSet(
 FEVTDEBUGHLTEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+    eventAutoFlushCompressedSize=cms.untracked.int32(1*1024*1024)
 )
 
 #

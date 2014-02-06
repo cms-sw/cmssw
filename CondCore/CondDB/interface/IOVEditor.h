@@ -71,7 +71,7 @@ namespace cond {
       bool flush( const boost::posix_time::ptime& operationTime );
       
     private:
-      void checkSession( const std::string& ctx );
+      void checkTransaction( const std::string& ctx );
       
     private:
       std::shared_ptr<IOVEditorData> m_data;

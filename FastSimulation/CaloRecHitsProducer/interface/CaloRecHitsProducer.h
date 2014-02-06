@@ -15,7 +15,6 @@ class HcalRecHitsMaker;
 class EcalBarrelRecHitsMaker;
 class EcalEndcapRecHitsMaker;
 class EcalPreshowerRecHitsMaker;
-class RandomEngine;
 class ParameterSet;
 class Event;
 class EventSetup;
@@ -42,10 +41,6 @@ class CaloRecHitsProducer : public edm::EDProducer
 
   std::vector<std::string> theOutputRecHitCollections; 
   std::vector<unsigned int> theInputRecHitCollectionTypes;
-
-   // The random engine
-  const RandomEngine* random;
-  
 };
 
 #endif

@@ -20,6 +20,7 @@ protected:
   virtual void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
   virtual void endRun(const edm::Run &, const edm::EventSetup &);
   virtual void endJob(void);
+  virtual void postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren);
 
 private:
   void saveForOffline(const std::string &workflow, int run, int lumi);
@@ -36,8 +37,10 @@ private:
   std::string	workflow_;
   std::string	producer_;
   std::string	dirName_;
+  std::string   child_;
   int        	version_;
   bool		runIsComplete_;
+  bool          enableMultiThread_;
 
   int		saveByLumiSection_;
   int		saveByEvent_;

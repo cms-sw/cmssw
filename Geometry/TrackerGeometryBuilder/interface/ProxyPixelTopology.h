@@ -78,10 +78,10 @@ public:
   virtual bool isItBigPixelInY(const int iybin) const {
     return specificTopology().isItBigPixelInY(iybin);
   }
-  virtual bool containsBigPixelInX(const int& ixmin, const int& ixmax) const {
+  virtual bool containsBigPixelInX(int ixmin, int ixmax) const {
     return specificTopology().containsBigPixelInX(ixmin, ixmax);
   }
-  virtual bool containsBigPixelInY(const int& iymin, const int& iymax) const {
+  virtual bool containsBigPixelInY(int iymin, int iymax) const {
     return specificTopology().containsBigPixelInY(iymin, iymax);
   }
 

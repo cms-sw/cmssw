@@ -68,14 +68,12 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
   uint32_t ndigis = 0;
 
   // Retrieve fed ids
-  const std::vector<uint16_t>& fed_ids = cabling->feds(); 
+  auto fed_ids = cabling->fedIds(); 
 
   // Iterate through fed ids and channels
-  std::vector<uint16_t>::const_iterator ifed;
-  for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
-    const std::vector<FedChannelConnection>& conns = cabling->connections(*ifed);
-    std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
-    for ( ; iconn != conns.end(); iconn++ ) {
+  for ( auto ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
+    auto conns = cabling->fedConnections(*ifed);
+    for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
     
       // Build FED key
       uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );

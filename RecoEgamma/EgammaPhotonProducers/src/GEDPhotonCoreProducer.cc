@@ -102,7 +102,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     // Retrieve stuff from the pfPhoton
     reco::PFCandidateEGammaExtraRef pfPhoRef =  candRef->egammaExtraRef();
     reco::SuperClusterRef  refinedSC= pfPhoRef->superClusterRef();
-    reco::SuperClusterRef  boxSC= pfPhoRef->superClusterBoxRef();
+    reco::SuperClusterRef  boxSC= pfPhoRef->superClusterPFECALRef();
     const reco::ConversionRefVector & doubleLegConv = pfPhoRef->conversionRef();
     reco::CaloClusterPtr refinedSCPtr= edm::refToPtr(refinedSC);
 
@@ -114,7 +114,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     newCandidate.setPFlowPhoton(true);
     newCandidate.setStandardPhoton(false);
     newCandidate.setSuperCluster(refinedSC);
-    newCandidate.setPflowSuperCluster(boxSC);
+    newCandidate.setParentSuperCluster(boxSC);
     // fill conversion infos
     
 
@@ -123,14 +123,15 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     } 
 
     //    std::cout << "newCandidate pf refined SC energy="<< newCandidate.superCluster()->energy()<<std::endl;
-    //std::cout << "newCandidate pf SC energy="<< newCandidate.pfSuperCluster()->energy()<<std::endl;
+    //std::cout << "newCandidate pf SC energy="<< newCandidate.parentSuperCluster()->energy()<<std::endl;
     //std::cout << "newCandidate  nconv2leg="<<newCandidate.conversions().size()<< std::endl;
 
     if ( validPixelSeeds_) {
       for( unsigned int icp = 0;  icp < pixelSeedHandle->size(); icp++) {
-        reco::ElectronSeedRef cpRef(reco::ElectronSeedRef(pixelSeedHandle,icp));
-        if (!( refinedSC.id() == cpRef->caloCluster().id() && refinedSC.key() == cpRef->caloCluster().key() )) continue; 
-        newCandidate.addElectronPixelSeed(cpRef);     
+        reco::ElectronSeedRef cpRef(pixelSeedHandle,icp);
+        if ( boxSC.isNonnull() && boxSC.id() == cpRef->caloCluster().id() && boxSC.key() == cpRef->caloCluster().key() ) {
+          newCandidate.addElectronPixelSeed(cpRef);     
+        }
       } 
     }
 
@@ -160,7 +161,7 @@ void GEDPhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup&
     }
     // debug
     //    std::cout << "PhotonCoreCollection i="<<ipho<<" pf refined SC energy="<<gamIter->superCluster()->energy()<<std::endl;
-    //std::cout << "PhotonCoreCollection i="<<ipho<<" pf SC energy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    //std::cout << "PhotonCoreCollection i="<<ipho<<" pf SC energy="<<gamIter->parentSuperCluster()->energy()<<std::endl;
     //std::cout << "PhotonCoreCollection i="<<ipho<<" nconv2leg="<<gamIter->conversions().size()<<" nconv1leg="<<gamIter->conversionsOneLeg().size()<<std::endl;
     ipho++;
   }
@@ -183,7 +184,7 @@ void GEDPhotonCoreProducer::createSingleLegConversions(reco::CaloClusterPtr sc, 
 
   math::Error<3>::type error;
   for (unsigned int itk=0; itk<conv.size(); itk++){
-    const reco::Vertex  * convVtx = new reco::Vertex(conv[itk]->innerPosition(), error);
+    const reco::Vertex convVtx(conv[itk]->innerPosition(), error);
     std::vector<reco::TrackRef> OneLegConvVector;
     OneLegConvVector.push_back(conv[itk]);
     std::vector< float > OneLegMvaVector;
@@ -213,7 +214,7 @@ void GEDPhotonCoreProducer::createSingleLegConversions(reco::CaloClusterPtr sc, 
     reco::Conversion singleLegConvCandidate(scPtrVec, 
 					OneLegConvVector,
 					trackPositionAtEcalVec,
-					*convVtx,
+					convVtx,
 					dummymatchingBC,
 					DCA,
 					innPointVec,

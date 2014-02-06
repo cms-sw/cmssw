@@ -12,20 +12,14 @@
 namespace cond {
 
   struct CintexIntializer {
-    static bool init;
     CintexIntializer(){
-      if (!init) {
-	ROOT::Cintex::Cintex::Enable();
-	init = true;
-      }      
+      ROOT::Cintex::Cintex::Enable();
     }
   };
 
-  bool CintexIntializer::init = false;
-
   // initialize Cintex and load dictionary when required
   TClass* lookUpDictionary( const std::type_info& sourceType ){
-    static CintexIntializer initializer;
+    static const CintexIntializer initializer;
     TClass* rc = TClass::GetClass(sourceType);
     if( !rc ){
       static std::string const prefix("LCGReflex/");

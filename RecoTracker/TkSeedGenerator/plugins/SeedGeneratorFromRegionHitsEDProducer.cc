@@ -25,7 +25,7 @@
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
   : theConfig(cfg), theGenerator(0), theRegionProducer(0),
-    theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+    theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet"),consumesCollector()),
     theMerger_(0)
 {
   theSilentOnClusterCheck = cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false);
@@ -42,25 +42,25 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     theMerger_->setLayerListName( mergerPSet.getParameter<std::string>( "layerListName" ) );
   }
 
+  edm::ParameterSet regfactoryPSet = 
+      theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
+
   produces<TrajectorySeedCollection>();
 }
 
 SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
 {
+  delete theRegionProducer; theRegionProducer = nullptr;
 }
 
 void SeedGeneratorFromRegionHitsEDProducer::endRun(edm::Run const&run, const edm::EventSetup& es) {
-  delete theRegionProducer;
   delete theGenerator;
 }
 
 void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const edm::EventSetup& es)
 {
-  edm::ParameterSet regfactoryPSet = 
-      theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
-  std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
-
   edm::ParameterSet hitsfactoryPSet = 
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
@@ -79,9 +79,8 @@ void SeedGeneratorFromRegionHitsEDProducer::beginRun(edm::Run const&run, const e
   SeedCreator * aCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet);
 
   theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, aComparitor, aCreator); 
- 
 }
-
+ 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<TrajectorySeedCollection> triplets(new TrajectorySeedCollection());
@@ -119,7 +118,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
       }
     }
   }
- 
+
   // clear memory
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 

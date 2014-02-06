@@ -325,8 +325,8 @@ namespace sistrip {
       }
       if (inputVirginRawDigis) {
         std::set<uint32_t> fedDetIds;
-        const std::vector<FedChannelConnection>& conns = cabling.connections(fedId);
-        for (std::vector<FedChannelConnection>::const_iterator iConn = conns.begin(); iConn != conns.end(); ++iConn) {
+        auto conns = cabling.fedConnections(fedId);
+        for (auto iConn = conns.begin(); iConn != conns.end(); ++iConn) {
           if (!iConn->isConnected()) continue;
           const uint32_t detId = iConn->detId();
           if (usedDetIds.find(detId) != usedDetIds.end()) {

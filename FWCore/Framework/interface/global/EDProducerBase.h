@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/ProducerBase.h"
@@ -33,6 +34,7 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class StreamID;
+  class GlobalSchedule;
   
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -47,6 +49,8 @@ namespace edm {
       template <typename T> friend class edm::maker::ModuleHolderT;
       template <typename T> friend class edm::WorkerT;
       typedef EDProducerBase ModuleType;
+      
+      friend class edm::GlobalSchedule;
 
       EDProducerBase();
       virtual ~EDProducerBase();
@@ -139,8 +143,8 @@ namespace edm {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
-      std::vector<BranchID> previousParentage_; //Per stream in the future?
-      ParentageID previousParentageId_;
+      std::unique_ptr<std::vector<BranchID>[]> previousParentages_;
+      std::unique_ptr<ParentageID[]> previousParentageIds_;
     };
 
   }

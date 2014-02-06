@@ -1,4 +1,4 @@
-#include "RecoTracker/TkTrackingRegions/interface/OuterHitCompatibility.h"
+#include "OuterHitCompatibility.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -15,12 +15,12 @@ bool OuterHitCompatibility::operator() ( const TransientTrackingRecHit * hit) co
   float hitR = hitPos.perp();
   float hitPhi = hitPos.phi();
 
-  if ( !checkPhi(hitPhi, hitR) ) return 0;
+  if ( !checkPhi(hitPhi, hitR) ) return false;
 
   float hitZ = hitPos.z();
-  if ( !(*theRZCompatibility)(hitR,hitZ) ) return 0;
+  if ( !(*theRZCompatibility)(hitR,hitZ) ) return false;
 
-  return 1;
+  return true;
 }
 
 
@@ -33,19 +33,11 @@ bool OuterHitCompatibility::operator() ( const TrackingRecHit* hit,  const edm::
   float hitR = hitPos.perp();
   float hitPhi = hitPos.phi();
 
-  if ( !checkPhi(hitPhi, hitR) ) return 0;
+  if ( !checkPhi(hitPhi, hitR) ) return false;
  
   float hitZ = hitPos.z();
-  if ( !(*theRZCompatibility)(hitR,hitZ) ) return 0;
+  if ( !(*theRZCompatibility)(hitR,hitZ) ) return false;
 
-  return 1;
-}
-
-bool OuterHitCompatibility::checkPhi(const float & phi, const float & r) const 
-{
-  OuterHitPhiPrediction::Range hitPhiRange = thePhiPrediction(r);
-  PhiLess less;
-  bool phiOK = less(hitPhiRange.min(),phi) && less(phi,hitPhiRange.max());
-  return phiOK;
+  return true;
 }
 

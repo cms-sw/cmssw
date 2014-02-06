@@ -38,14 +38,15 @@ private:
   virtual void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
-  bool cacheNextEvent();
+  int cacheNextEvent();
   edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
-  bool openNextFile();
-  bool searchForNextFile();
+  void closeCurrentFile();
+  int openNextFile();
+  int searchForNextFile();
   bool grabNextJsonFile(boost::filesystem::path const&);
   void openDataFile(std::string const&);
   bool eofReached() const;
-  bool readNextChunkIntoBuffer();
+  int readNextChunkIntoBuffer();
   void renameToNextFree() const;
 
   const unsigned int eventChunkSize_; // for buffered read-ahead

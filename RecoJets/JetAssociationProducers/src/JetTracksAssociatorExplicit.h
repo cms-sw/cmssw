@@ -24,8 +24,8 @@ class JetTracksAssociatorExplicit : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
-     edm::InputTag mJets;
-     edm::InputTag mTracks;
+     edm::EDGetTokenT<edm::View <reco::Jet>> mJets;
+     edm::EDGetTokenT<reco::TrackCollection> mTracks;
      JetTracksAssociationExplicit mAssociatorExplicit;
 };
 

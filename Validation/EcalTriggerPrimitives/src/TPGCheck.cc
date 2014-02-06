@@ -62,6 +62,8 @@ class TPGCheck : public edm::EDAnalyzer {
       std::string label_;
       std::string producer_;
       std::vector<std::string> ecal_parts_;
+  // fix for consumes
+      edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecal_tp_token_;
 };
 
 //
@@ -94,7 +96,7 @@ TPGCheck::TPGCheck(const edm::ParameterSet& iConfig)
   
   label_= iConfig.getParameter<std::string>("Label");
   producer_= iConfig.getParameter<std::string>("Producer");
-  
+  ecal_tp_token_ = consumes<EcalTrigPrimDigiCollection> (edm::InputTag(label_,producer_));
 }
 
 
@@ -121,7 +123,7 @@ TPGCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // Get input
   edm::Handle<EcalTrigPrimDigiCollection> tp;
-  iEvent.getByLabel(label_,producer_,tp);
+  iEvent.getByToken(ecal_tp_token_,tp);
   for (unsigned int i=0;i<tp.product()->size();i++) {  
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i]; 
     int subdet=d.id().subDet()-1;

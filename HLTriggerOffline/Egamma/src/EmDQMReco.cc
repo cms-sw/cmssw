@@ -127,7 +127,11 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
   triggerNameRecoMonPath = pset.getUntrackedParameter<std::string>("triggerNameRecoMonPath","HLT_MinBias");
   processNameRecoMonPath = pset.getUntrackedParameter<std::string>("processNameRecoMonPath","HLT");
 
-  recoElectronsInputTag  = pset.getUntrackedParameter<edm::InputTag>("recoElectrons",edm::InputTag("gsfElectrons"));
+  recoElectronsInput = consumes<reco::GsfElectronCollection>(pset.getUntrackedParameter<edm::InputTag>("recoElectrons",edm::InputTag("gsfElectrons")));
+  recoObjectsEBT = consumes<std::vector<reco::SuperCluster>>(edm::InputTag("correctedHybridSuperClusters"));
+  recoObjectsEET = consumes<std::vector<reco::SuperCluster>>(edm::InputTag("correctedMulti5x5SuperClustersWithPreshower"));
+  hltResultsT    = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",processNameRecoMonPath));
+  triggerObjT    = consumes<trigger::TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryRAW"));
 
   // preselction cuts
   // recocutCollection_= pset.getParameter<edm::InputTag>("cutcollection");
@@ -160,6 +164,29 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet& pset)
     assert(bounds.size() == 2);
     plotBounds.push_back(std::pair<double,double>(bounds[0],bounds[1]));
     isoNames.push_back(filterconf->getParameter<std::vector<edm::InputTag> >("IsoCollections"));
+    
+    for (unsigned int i=0; i<isoNames.back().size(); i++) {
+      switch(theHLTOutputTypes.back())  {
+      case trigger::TriggerL1NoIsoEG: 
+	histoFillerL1NonIso->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<l1extra::L1EmParticleCollection , float>>>(isoNames.back()[i]));
+	break;
+      case trigger::TriggerL1IsoEG: // Isolated Level 1
+	histoFillerL1Iso->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<l1extra::L1EmParticleCollection , float>>>(isoNames.back()[i]));
+	break;
+      case trigger::TriggerPhoton: // Photon 
+	histoFillerPho->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<reco::RecoEcalCandidateCollection , float>>>(isoNames.back()[i]));
+	break;
+      case trigger::TriggerElectron: // Electron 
+	histoFillerEle->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<reco::ElectronCollection , float>>>(isoNames.back()[i]));
+	break;
+      case trigger::TriggerCluster: // TriggerCluster
+	histoFillerClu->isoNameTokens_.push_back(consumes<edm::AssociationMap<edm::OneToValue<reco::RecoEcalCandidateCollection , float>>>(isoNames.back()[i]));
+	break;
+      default: 
+	throw(cms::Exception("Release Validation Error") << "HLT output type not implemented: theHLTOutputTypes[n]" );
+      }
+    }
+    
     // If the size of the isoNames vector is not greater than zero, abort
     assert(isoNames.back().size()>0);
     if (isoNames.back().at(0).label()=="none") {
@@ -309,9 +336,9 @@ EmDQMReco::beginJob()
 //    phiHist.push_back(tmphisto);
 
     standardHist.push_back(new FourVectorMonitorElements(this,
-        theHLTCollectionLabels[i].label()+"%s_all", // histogram name
-        HltHistTitle[i]+" %s (ALL)"                 // histogram title
-        ));
+							 theHLTCollectionLabels[i].label()+"%s_all", // histogram name
+							 HltHistTitle[i]+" %s (ALL)"                 // histogram title
+							 ));
 
     //--------------------
     // distributions of reco object matching HLT object passing filter i
@@ -511,7 +538,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
 
   if (pdgGen == 11) {
 
-    event.getByLabel(recoElectronsInputTag, recoObjects);
+    event.getByToken(recoElectronsInput, recoObjects);
 
     if (recoObjects->size() < (unsigned int)recocut_) {
       // edm::LogWarning("EmDQMReco") << "Less than "<< recocut_ <<" Reco particles with pdgId=" << pdgGen << ".  Only " << cutRecoCounter->size() << " particles.";
@@ -519,8 +546,8 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
     }
   } else if (pdgGen == 22) {
 
-    event.getByLabel("correctedHybridSuperClusters", recoObjectsEB);
-    event.getByLabel("correctedMulti5x5SuperClustersWithPreshower", recoObjectsEE);
+    event.getByToken(recoObjectsEBT, recoObjectsEB);
+    event.getByToken(recoObjectsEET, recoObjectsEE);
 
     if (recoObjectsEB->size() + recoObjectsEE->size() < (unsigned int)recocut_) {
       // edm::LogWarning("EmDQMReco") << "Less than "<< recocut_ <<" Reco particles with pdgId=" << pdgGen << ".  Only " << cutRecoCounter.size() << " particles.";
@@ -529,7 +556,7 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   }
 
   edm::Handle<edm::TriggerResults> HLTR;
-  event.getByLabel(edm::InputTag("TriggerResults","",processNameRecoMonPath), HLTR);
+  event.getByToken(hltResultsT, HLTR);
 
   ///
   /// NOTE:
@@ -558,7 +585,8 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
   // fill L1 and HLT info
   // get objects possed by each filter
   edm::Handle<trigger::TriggerEventWithRefs> triggerObj;
-  event.getByLabel("hltTriggerSummaryRAW",triggerObj);
+  event.getByToken(triggerObjT, triggerObj);
+
   if(!triggerObj.isValid()) {
     edm::LogWarning("EmDQMReco") << "RAW-type HLT results not found, skipping event";
     return;
@@ -671,15 +699,20 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
     switch(theHLTOutputTypes[n])
     {
       case trigger::TriggerL1NoIsoEG: // Non-isolated Level 1
-        fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n, sortedReco, plotReco, plotMonpath);break;
+        histoFillerL1NonIso->fillHistos(triggerObj,event,n, sortedReco, plotReco, plotMonpath);
+	break;
       case trigger::TriggerL1IsoEG: // Isolated Level 1
-        fillHistos<l1extra::L1EmParticleCollection>(triggerObj,event,n, sortedReco, plotReco, plotMonpath);break;
+        histoFillerL1Iso->fillHistos(triggerObj,event,n, sortedReco, plotReco, plotMonpath);
+	break;
       case trigger::TriggerPhoton: // Photon
-        fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,n, sortedReco, plotReco, plotMonpath);break;
+        histoFillerPho->fillHistos(triggerObj,event,n, sortedReco, plotReco, plotMonpath);
+	break;
       case trigger::TriggerElectron: // Electron
-        fillHistos<reco::ElectronCollection>(triggerObj,event,n, sortedReco, plotReco, plotMonpath);break;
+        histoFillerEle->fillHistos(triggerObj,event,n, sortedReco, plotReco, plotMonpath);
+	break;
       case trigger::TriggerCluster: // TriggerCluster
-        fillHistos<reco::RecoEcalCandidateCollection>(triggerObj,event,n, sortedReco, plotReco, plotMonpath);break;
+        histoFillerClu->fillHistos(triggerObj,event,n, sortedReco, plotReco, plotMonpath);
+	break;
       default:
         throw(cms::Exception("Release Validation Error") << "HLT output type not implemented: theHLTOutputTypes[n]" );
     }
@@ -691,22 +724,22 @@ EmDQMReco::analyze(const edm::Event & event , const edm::EventSetup& setup)
 // fillHistos                                                                 //
 //   Called by analyze method.                                                //
 ////////////////////////////////////////////////////////////////////////////////
-template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int n, std::vector<reco::Particle>& sortedReco, bool plotReco, bool plotMonpath)
+template <class T> void HistoFillerReco<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs>& triggerObj,const edm::Event& iEvent ,unsigned int n, std::vector<reco::Particle>& sortedReco, bool plotReco, bool plotMonpath)
 {
   std::vector<edm::Ref<T> > recoecalcands;
-  if ( ( triggerObj->filterIndex(theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if available
+  if ( ( triggerObj->filterIndex(dqm->theHLTCollectionLabels[n])>=triggerObj->size() )){ // only process if available
     return;
   }
 
   ////////////////////////////////////////////////////////////
   //      Retrieve saved filter objects                     //
   ////////////////////////////////////////////////////////////
-  triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),theHLTOutputTypes[n],recoecalcands);
+  triggerObj->getObjects(triggerObj->filterIndex(dqm->theHLTCollectionLabels[n]),dqm->theHLTOutputTypes[n],recoecalcands);
   //Danger: special case, L1 non-isolated
   // needs to be merged with L1 iso
-  if (theHLTOutputTypes[n] == trigger::TriggerL1NoIsoEG){
+  if (dqm->theHLTOutputTypes[n] == trigger::TriggerL1NoIsoEG){
     std::vector<edm::Ref<T> > isocands;
-    triggerObj->getObjects(triggerObj->filterIndex(theHLTCollectionLabels[n]),trigger::TriggerL1IsoEG,isocands);
+    triggerObj->getObjects(triggerObj->filterIndex(dqm->theHLTCollectionLabels[n]),trigger::TriggerL1IsoEG,isocands);
     if (isocands.size()>0)
       {
         for (unsigned int i=0; i < isocands.size(); i++)
@@ -720,8 +753,8 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
   }
 
 
-  if (recoecalcands.size() >= reqNum )
-    totalreco->Fill(n+0.5);
+  if (recoecalcands.size() >= dqm->reqNum )
+    dqm->totalreco->Fill(n+0.5);
 
 
   ///////////////////////////////////////////////////
@@ -730,7 +763,7 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
   ///////////////////////////////////////////////////
   for (unsigned int j=0; j<recoecalcands.size(); j++){
     if(!( recoecalcands.at(j).isAvailable())){
-      edm::LogError("EmDQMReco") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs" << std::endl << "invalid refs for: " << theHLTCollectionLabels[n].label();
+      edm::LogError("EmDQMReco") << "Event content inconsistent: TriggerEventWithRefs contains invalid Refs" << std::endl << "invalid refs for: " << dqm->theHLTCollectionLabels[n].label();
       return;
     }
   }
@@ -743,23 +776,23 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
   //  unsigned int numOfHLTobjectsMatched = 0;
   for (unsigned int i=0; i<recoecalcands.size(); i++) {
 
-    standardHist[n].fill(recoecalcands[i]->p4());
+    dqm->standardHist[n].fill(recoecalcands[i]->p4());
 
     ////////////////////////////////////////////////////////////
     //  Plot isolation variables (show the not-yet-cut        //
     //  isolation, i.e. associated to next filter)            //
     ////////////////////////////////////////////////////////////
-    if ( n+1 < numOfHLTCollectionLabels ) { // can't plot beyond last
-      if (plotiso[n+1]) {
-        for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+    if ( n+1 < dqm->numOfHLTCollectionLabels ) { // can't plot beyond last
+      if (dqm->plotiso[n+1]) {
+        for (unsigned int j =  0 ; j < isoNameTokens_.size() ;j++  ){
           edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap;
-          iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+          iEvent.getByToken(isoNameTokens_.at(j),depMap);
           if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
             typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[i]);
             if (mapi!=depMap->end()){  // found candidate in isolation map!
-              etahistiso[n+1]->Fill(recoecalcands[i]->eta(),mapi->val);
-              ethistiso[n+1]->Fill(recoecalcands[i]->et()  ,mapi->val);
-              phiHistIso[n+1]->Fill(recoecalcands[i]->phi(),mapi->val);
+              dqm->etahistiso[n+1]->Fill(recoecalcands[i]->eta(),mapi->val);
+              dqm->ethistiso[n+1]->Fill(recoecalcands[i]->et()  ,mapi->val);
+              dqm->phiHistIso[n+1]->Fill(recoecalcands[i]->phi(),mapi->val);
       }
     }
   }
@@ -772,7 +805,7 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
   // closest HLT object match.                              //
   ////////////////////////////////////////////////////////////
   if (plotReco == true) {
-    for (unsigned int i=0; i < recocut_; i++) {
+    for (unsigned int i=0; i < dqm->recocut_; i++) {
       math::XYZVector currentRecoParticleMomentum = sortedReco[i].momentum();
 
       // float closestRecoDeltaR = 0.5;
@@ -794,20 +827,20 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
 //        histEtaOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta() );
 //        histPhiOfHltObjMatchToReco[n]->Fill( recoecalcands[closestRecoEcalCandIndex]->phi() );
 
-          histHltObjMatchToReco[n].fill(recoecalcands[closestRecoEcalCandIndex]->p4());
+          dqm->histHltObjMatchToReco[n].fill(recoecalcands[closestRecoEcalCandIndex]->p4());
 
         // Also store isolation info
-        if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
-          if (plotiso[n+1] ){  // only plot if requested in config
-            for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+        if (n+1 < dqm->numOfHLTCollectionLabels){ // can't plot beyond last
+          if (dqm->plotiso[n+1] ){  // only plot if requested in config
+            for (unsigned int j =  0 ; j < isoNameTokens_.size() ;j++  ){
               edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMap;
-              iEvent.getByLabel(isoNames[n+1].at(j),depMap);
+              iEvent.getByToken(isoNameTokens_.at(j),depMap);
               if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
                 typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closestRecoEcalCandIndex]);
                 if (mapi!=depMap->end()) {  // found candidate in isolation map!
-                  histEtaIsoOfHltObjMatchToReco[n+1]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta(),mapi->val);
-                  histEtIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et(), mapi->val);
-                  histPhiIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->phi(), mapi->val);
+                  dqm->histEtaIsoOfHltObjMatchToReco[n+1]->Fill( recoecalcands[closestRecoEcalCandIndex]->eta(),mapi->val);
+                  dqm->histEtIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->et(), mapi->val);
+                  dqm->histPhiIsoOfHltObjMatchToReco[n+1] ->Fill( recoecalcands[closestRecoEcalCandIndex]->phi(), mapi->val);
                 }
               }
             }
@@ -822,7 +855,7 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
     unsigned int mtachedRecoParts = 0;
     float minrecodist=0.3;
     if(n==0) minrecodist=0.5; //low L1-resolution => allow wider matching
-    for(unsigned int i =0; i < recocut_; i++){
+    for(unsigned int i =0; i < dqm->recocut_; i++){
       //match generator candidate
       bool matchThis= false;
       math::XYZVector candDir=sortedReco[i].momentum();
@@ -846,30 +879,30 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
 //      ethistmatchreco[n] ->Fill( sortedReco[i].et()  );
 //      etahistmatchreco[n]->Fill( sortedReco[i].eta() );
 //      phiHistMatchReco[n]->Fill( sortedReco[i].phi() );
-      histMatchReco[n].fill(sortedReco[i].p4());
+      dqm->histMatchReco[n].fill(sortedReco[i].p4());
 
       if (plotMonpath) {
 //        ethistmatchrecomonpath[n]->Fill( sortedReco[i].et() );
 //        etahistmatchrecomonpath[n]->Fill( sortedReco[i].eta() );
 //        phiHistMatchRecoMonPath[n]->Fill( sortedReco[i].phi() );
-          histMatchRecoMonPath[n].fill(sortedReco[i].p4());
+          dqm->histMatchRecoMonPath[n].fill(sortedReco[i].p4());
 
       }
       ////////////////////////////////////////////////////////////
       //  Plot isolation variables (show the not-yet-cut        //
       //  isolation, i.e. associated to next filter)            //
       ////////////////////////////////////////////////////////////
-      if (n+1 < numOfHLTCollectionLabels){ // can't plot beyond last
-        if (plotiso[n+1] ){  // only plot if requested in config
-          for (unsigned int j =  0 ; j < isoNames[n+1].size() ;j++  ){
+      if (n+1 < dqm->numOfHLTCollectionLabels){ // can't plot beyond last
+        if (dqm->plotiso[n+1] ){  // only plot if requested in config
+          for (unsigned int j =  0 ; j < isoNameTokens_.size() ;j++  ){
             edm::Handle<edm::AssociationMap<edm::OneToValue< T , float > > > depMapReco;
-            iEvent.getByLabel(isoNames[n+1].at(j),depMapReco);
+            iEvent.getByToken(isoNameTokens_.at(j),depMapReco);
             if (depMapReco.isValid()){ //Map may not exist if only one candidate passes a double filter
               typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMapReco->find(recoecalcands[closest]);
               if (mapi!=depMapReco->end()){  // found candidate in isolation map!
-                etahistisomatchreco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
-                ethistisomatchreco[n+1]->Fill(sortedReco[i].et(),mapi->val);
-                phiHistIsoMatchReco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
+                dqm->etahistisomatchreco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
+                dqm->ethistisomatchreco[n+1]->Fill(sortedReco[i].et(),mapi->val);
+                dqm->phiHistIsoMatchReco[n+1]->Fill(sortedReco[i].eta(),mapi->val);
               }
             }
           }
@@ -877,8 +910,8 @@ template <class T> void EmDQMReco::fillHistos(edm::Handle<trigger::TriggerEventW
       } // END of if n+1 < then the number of hlt collections
     }
     // fill total reco matched efficiency
-    if (mtachedRecoParts >= reqNum )
-      totalmatchreco->Fill(n+0.5);
+    if (mtachedRecoParts >= dqm->reqNum )
+     dqm-> totalmatchreco->Fill(n+0.5);
   }
 
 }

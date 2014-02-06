@@ -1,6 +1,6 @@
 //FAMOS headers
 #include "FastSimulation/Utilities/interface/DoubleCrystalBallGenerator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 //ROOT headers
 #include "TMath.h"
@@ -8,9 +8,10 @@
 
 using namespace TMath;
 
-double DoubleCrystalBallGenerator::shoot(double mu, double sigma, double aL, double nL, double aR, double nR){
+double DoubleCrystalBallGenerator::shoot(double mu, double sigma, double aL, double nL, double aR, double nR,
+                                         RandomEngineAndDistribution const* random){
 	if(nL<=1 || nR<=1) return 0; //n>1 required
-	
+
 	double dL = nL/aL;
 	double dR = nR/aR;
 	double N = 1/(sigma*(nL/aL*1/(nL-1)*Exp(-aL*aL/2) + Sqrt(Pi()/2)*(Erf(aL/Sqrt(2))+Erf(aR/Sqrt(2))) + nR/aR*1/(nR-1)*Exp(-aR*aR/2)));
@@ -20,7 +21,7 @@ double DoubleCrystalBallGenerator::shoot(double mu, double sigma, double aL, dou
 	while(!Finite(x)){
 		//shoot a flat random number
 		double y = random->flatShoot();
-		
+
 		//check range
 		//crystal ball CDF changes at (x-mu)/sigma = -aL && (x-mu)/sigma = aR
 		//compute this in pieces because it is awful
@@ -37,12 +38,10 @@ double DoubleCrystalBallGenerator::shoot(double mu, double sigma, double aL, dou
 			double D = (y/(sigma*N)-AL-CL-CR-AR)/BR;
 			x = mu + sigma*(dR*Power(D,1/(-nR+1)) + aR - dR);
 		}
-		else{//between boundaries, use gaussian CDF with proper normalization (in terms of erfc)		
+		else{//between boundaries, use gaussian CDF with proper normalization (in terms of erfc)
 			double D = 1 - Sqrt(2/Pi())*(y/(sigma*N)-AL-CL);
 			x = mu + sigma*Sqrt(2)*ErfcInverse(D);
 		}
 	}
-	
 	return x;
-	
 }

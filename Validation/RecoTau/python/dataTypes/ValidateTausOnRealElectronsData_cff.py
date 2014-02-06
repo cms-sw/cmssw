@@ -19,7 +19,7 @@ ElBestPV = cms.EDProducer(
 
 selectedElectrons = cms.EDFilter(
     "TauValElectronSelector",
-    src = cms.InputTag('gsfElectrons'),
+    src = cms.InputTag('gedGsfElectrons'),
     cut = cms.string("pt > 25.0 && abs(eta) < 2.4 && isElectron"),
     filter = cms.bool(False)
 	)

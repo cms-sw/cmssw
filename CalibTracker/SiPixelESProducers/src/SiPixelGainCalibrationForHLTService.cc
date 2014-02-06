@@ -15,6 +15,36 @@
  */
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
+#include<tuple>
+
+void SiPixelGainCalibrationForHLTService::calibrate(uint32_t detID, DigiIterator b, DigiIterator e, float conversionFactor, float offset, int * electron) {
+  SiPixelGainCalibrationForHLT::Range range;
+  int cols;
+  std::tie(range,cols) = ped->getRangeAndNCols(detID);
+  float pedestal=0,gain=0;
+  int i=0;
+  bool isDeadColumn=false, isNoisyColumn=false;
+  int oldCol=-1, oldAveragedBlock=-1;
+  for(DigiIterator di = b; di != e; ++di)  {
+    int row = di->row();
+    int col = di->column();
+    int averagedBlock = row / numberOfRowsAveragedOver_;
+    if ( (col!=oldCol) | ( averagedBlock != oldAveragedBlock) ) {
+      oldCol=col; oldAveragedBlock= averagedBlock;
+      std::tie(pedestal,gain) = ped->getPedAndGain(col, row, range, cols, isDeadColumn, isNoisyColumn);
+    }
+    if ( isDeadColumn | isNoisyColumn ) electron[i++] =0;
+    else {
+      float vcal = di->adc() * gain  - pedestal*gain;
+      //    float vcal = (di->adc()  - DBpedestal) * DBgain;
+      electron[i++] = int( vcal * conversionFactor + offset); 
+    }
+  }
+  assert(i==(e-b));
+}
+
+
+
 
 float SiPixelGainCalibrationForHLTService::getPedestal( const uint32_t& detID,const int& col, const int& row)
 {

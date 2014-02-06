@@ -121,7 +121,7 @@ class TTbar_Kinematics : public edm::EDAnalyzer {
       MonitorElement* hBottomMassDeltaY      ;
 
   edm::EDGetTokenT<GenEventInfoProduct> genEventInfoProductTagToken_;
-  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
 
 };
 

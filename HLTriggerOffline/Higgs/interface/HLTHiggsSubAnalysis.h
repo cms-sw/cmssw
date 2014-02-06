@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -60,7 +61,8 @@ class HLTHiggsSubAnalysis
 		};
 
 		HLTHiggsSubAnalysis(const edm::ParameterSet & pset, 
-				const std::string & analysisname );
+				    const std::string & analysisname,
+				    edm::ConsumesCollector&& iC);
 		~HLTHiggsSubAnalysis();
 	      	void beginJob();
 	      	void beginRun(const edm::Run & iRun, const edm::EventSetup & iEventSetup);
@@ -71,7 +73,7 @@ class HLTHiggsSubAnalysis
 
 		
        	private:
-		void bookobjects(const edm::ParameterSet & anpset);
+		void bookobjects(const edm::ParameterSet & anpset, edm::ConsumesCollector& iC);
 		void initobjects(const edm::Event & iEvent, EVTColContainer * col);
 		void InitSelector(const unsigned int & objtype);
 		void insertcandidates(const unsigned int & objtype, const EVTColContainer * col,
@@ -83,7 +85,7 @@ class HLTHiggsSubAnalysis
 				const std::string & variable, const float & value );
 
 		edm::ParameterSet _pset;
-
+		
 		std::string _analysisname;
 
 		//! The minimum number of reco/gen candidates needed by the analysis
@@ -101,13 +103,22 @@ class HLTHiggsSubAnalysis
 
 		// The name of the object collections to be used in this
 		// analysis. 
-	      	std::string _genParticleLabel;
+		edm::EDGetTokenT<reco::GenParticleCollection> _genParticleLabel;
+
 		std::map<unsigned int,std::string> _recLabels;
+		edm::EDGetTokenT<reco::MuonCollection> _recLabelsMuon;
+		edm::EDGetTokenT<reco::GsfElectronCollection> _recLabelsElec;
+		edm::EDGetTokenT<reco::PhotonCollection> _recLabelsPhoton;
+		edm::EDGetTokenT<reco::CaloMETCollection> _recLabelsCaloMET;
+		edm::EDGetTokenT<reco::PFTauCollection> _recLabelsPFTau;
+
 		
 		//! Some kinematical parameters
 	      	std::vector<double> _parametersEta;
 	      	std::vector<double> _parametersPhi;
 	      	std::vector<double> _parametersTurnOn;
+		edm::EDGetTokenT<edm::TriggerResults> _trigResultsTag;
+
 		
 		std::map<unsigned int,double> _cutMinPt;   
 		std::map<unsigned int,double> _cutMaxEta;
@@ -127,6 +138,7 @@ class HLTHiggsSubAnalysis
 	      	StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
 	      	StringCutObjectSelector<reco::Track>       * _recTrackSelector;
 		
+
 		// The plotters: managers of each hlt path where the plots are done
 		std::vector<HLTHiggsPlotter> _analyzers;
 		

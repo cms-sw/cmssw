@@ -303,7 +303,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	}
 	// Get Hardware information, and check output of PtLUT
 	//////////////////////////////////////////////////////
-	if( !dataTrackProducer.isUnitialized())
+	if( !dataTrackProducer.isUninitialized())
 	{
 		Handle<L1CSCTrackCollection> tracks;
 		e.getByToken(dataTrackProducer,tracks);
@@ -341,7 +341,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	}
 	// Get Emulator information
 	///////////////////////////
-	if( !emulTrackProducer.isUnitialized() )
+	if( !emulTrackProducer.isUninitialized() )
 	{
 		Handle<L1CSCTrackCollection> tracks;
 		e.getByToken(emulTrackProducer,tracks);
@@ -501,7 +501,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	}
 	
 	// Get Daq Recorded Stub Information
-	if( !dataStubProducer.isUnitialized() )
+	if( !dataStubProducer.isUninitialized() )
 	{
 		Handle<CSCTriggerContainer<csctf::TrackStub> > dtTrig;
 		e.getByToken(dataStubProducer,dtTrig);
@@ -535,7 +535,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	}
 	
 	// Get Daq Recorded Stub Information
-	if( !emulStubProducer.isUnitialized() )
+	if( !emulStubProducer.isUninitialized() )
 	{
 		// Get Emulated Stub Information
 		Handle<L1MuDTChambPhContainer> pCon;

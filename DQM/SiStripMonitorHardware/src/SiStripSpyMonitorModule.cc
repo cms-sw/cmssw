@@ -238,7 +238,7 @@ SiStripSpyMonitorModule::analyze(const edm::Event& iEvent,
     lOutCabling.open("trackerDetId_FEDIdChNum_list.txt",std::ios::out);
     for (uint16_t lFedId = sistrip::FED_ID_MIN; lFedId <= sistrip::FED_ID_MAX; ++lFedId) {//loop on feds
       for (uint16_t lFedChannel = 0; lFedChannel < sistrip::FEDCH_PER_FED; lFedChannel++){//loop on channels
-	const FedChannelConnection & lConnection = lCabling->connection(lFedId,lFedChannel);
+	const FedChannelConnection & lConnection = lCabling->fedConnection(lFedId,lFedChannel);
 	if (!lConnection.isConnected()) continue;
 	uint32_t lDetId = lConnection.detId();
 	lOutCabling << "FED ID = " << lFedId 
@@ -358,7 +358,7 @@ SiStripSpyMonitorModule::analyze(const edm::Event& iEvent,
       
       uint32_t lFedIndex = sistrip::FEDCH_PER_FED*lFedId + lFedChannel;
       
-      const FedChannelConnection & lConnection = lCabling->connection(lFedId,lFedChannel);
+      const FedChannelConnection & lConnection = lCabling->fedConnection(lFedId,lFedChannel);
 
       if (!lConnection.isConnected()) continue;
 

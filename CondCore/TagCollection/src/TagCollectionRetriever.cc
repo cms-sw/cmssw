@@ -13,10 +13,8 @@
 #include "CoralBase/AttributeList.h"
 #include "CoralBase/Attribute.h"
 #include "RelationalAccess/SchemaException.h"
-//#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/TagCollection/interface/Exception.h"
 
-//#include <iostream>
 cond::TagCollectionRetriever::TagCollectionRetriever( cond::DbSession& coraldb ):
   m_coraldb(coraldb)
 {}
@@ -32,11 +30,40 @@ cond::TagCollectionRetriever::TagCollectionRetriever( cond::DbSession& coraldb,
 
 cond::TagCollectionRetriever::~TagCollectionRetriever(){}
 
+bool cond::TagCollectionRetriever::existsTagDatabase(){
+  return m_coraldb.nominalSchema().existsTable(cond::tagInventoryTable);
+}
+
+bool cond::TagCollectionRetriever::existsTagCollection( const std::string& globaltag ){
+  if(!existsTagDatabase()){
+    throw cond::nonExistentGlobalTagInventoryException("TagCollectionRetriever::selectTagCollection");
+  }
+  std::pair<std::string,std::string> treenodepair=parseglobaltag(globaltag);
+  std::string treename=treenodepair.first;
+  std::string nodename=treenodepair.second;
+  std::string treetablename(cond::tagTreeTablePrefix);
+  if( !treename.empty() ){
+    for(unsigned int i=0; i<treename.size(); ++i){
+      treename[i]=std::toupper(treename[i]);	
+    }
+    treetablename+="_";
+    treetablename+=treename;
+  }
+  return m_coraldb.nominalSchema().existsTable(treetablename);
+}
+
 void 
 cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
                                                 std::set<cond::TagMetadata >& result){
+  if(!selectTagCollection( globaltag, result ) )
+    throw cond::nonExistentGlobalTagException("TagCollectionRetriever::getTagCollection",globaltag);
+}
+
+bool 
+cond::TagCollectionRetriever::selectTagCollection( const std::string& globaltag,
+						   std::set<cond::TagMetadata >& result){
   if(!m_coraldb.nominalSchema().existsTable(cond::tagInventoryTable)){
-    throw cond::nonExistentGlobalTagInventoryException("TagCollectionRetriever::getTagCollection");
+    throw cond::nonExistentGlobalTagInventoryException("TagCollectionRetriever::selectTagCollection");
   }
   std::pair<std::string,std::string> treenodepair=parseglobaltag(globaltag);
   std::string treename=treenodepair.first;
@@ -51,9 +78,8 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
     treetablename+="_";
     treetablename+=treename;
   }
-  if( !m_coraldb.nominalSchema().existsTable(treetablename) ){
-    throw cond::nonExistentGlobalTagException("TagCollectionRetriever::getTagCollection",globaltag);
-  }
+  if( !m_coraldb.nominalSchema().existsTable(treetablename) ) return false;
+
   coral::IQuery* query=m_coraldb.nominalSchema().newQuery();
   //std::cout<<"treetablename "<<treetablename<<std::endl;
   query->addToTableList( treetablename, "p1" );
@@ -118,6 +144,7 @@ cond::TagCollectionRetriever::getTagCollection( const std::string& globaltag,
     cursor2.close();
     delete leaftagquery;
   }
+  return true;
 }
 
 std::pair<std::string,std::string>

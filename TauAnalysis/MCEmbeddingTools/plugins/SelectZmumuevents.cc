@@ -13,6 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Fri Dec 18 14:29:14 CET 2009
+// $Id: SelectZmumuevents.cc,v 1.1 2010/03/17 16:14:10 fruboes Exp $
 //
 //
 
@@ -41,9 +42,9 @@ class SelectZmumuevents : public edm::EDFilter {
       ~SelectZmumuevents();
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void beginJob() ;
+      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual void endJob() ;
       
       // ----------member data ---------------------------
       double _etaMax;

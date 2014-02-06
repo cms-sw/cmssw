@@ -237,6 +237,23 @@ class GlobalDigisProducer : public edm::EDProducer
   // private statistics information
   unsigned int count;
 
+  //fix for consumes
+  edm::EDGetTokenT<EBDigiCollection> ECalEBSrc_Token_;
+  edm::EDGetTokenT<EEDigiCollection> ECalEESrc_Token_;
+  edm::EDGetTokenT<ESDigiCollection> ECalESSrc_Token_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HCalSrc_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > HBHEDigi_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HODataFrame> > HODigi_Token_;
+  edm::EDGetTokenT<edm::SortedCollection<HFDataFrame> > HFDigi_Token_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > SiStripSrc_Token_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > SiPxlSrc_Token_;
+  edm::EDGetTokenT<DTDigiCollection> MuDTSrc_Token_;
+  edm::EDGetTokenT<CSCStripDigiCollection> MuCSCStripSrc_Token_;
+  edm::EDGetTokenT<CSCWireDigiCollection> MuCSCWireSrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
+
 }; // end class declaration
 
 #endif

@@ -26,7 +26,7 @@ namespace reco { namespace tau {
     LogDebug("VxTrkAssocInfo") << " No tracks at this jet! Returning empty reference.";
     return reco::TrackBaseRef();
   }
-  if(vxTrkFiltering) tracks = qcuts_.filterRefs(allTracks);
+  if(vxTrkFiltering) tracks = qcuts_.filterCandRefs(allTracks);
   else{ 
     tracks = allTracks;
     LogDebug("VxTrkAssocInfo") << " No quality cuts applied. All tracks passing.";
@@ -82,7 +82,7 @@ class TrackWeightInVertex : public std::unary_function<double, reco::VertexRef>
   }
 
 RecoTauVertexAssociator::RecoTauVertexAssociator(
-						 const edm::ParameterSet& pset):  qcuts_(pset.exists("vxAssocQualityCuts") ? pset.getParameterSet("vxAssocQualityCuts") : pset.getParameterSet("signalQualityCuts"))
+						 const edm::ParameterSet& pset, edm::ConsumesCollector && iC):  qcuts_(pset.exists("vxAssocQualityCuts") ? pset.getParameterSet("vxAssocQualityCuts") : pset.getParameterSet("signalQualityCuts"))
 {
   //   qcuts_ = pset.exists("vxAssocQualityCuts") ? pset.getParameterSet("vxAssocQualityCuts") : pset.getParameterSet("signalQualityCuts");
   vertexTag_ = edm::InputTag("offlinePrimaryVertices", "");
@@ -127,6 +127,7 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
       <<  "highestWeightForLeadTrack, "
       <<  " or combined." << std::endl;
   }
+  vx_token = iC.consumes<reco::VertexCollection>(vertexTag_);
   recoverLeadingTrk = pset.exists("recoverLeadingTrk") ? pset.getParameter<bool>("recoverLeadingTrk") : false;
   // containers for holding vertices associated to jets
   JetToVertexAssociation=0;
@@ -137,7 +138,7 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
 
 void RecoTauVertexAssociator::setEvent(const edm::Event& evt) {
   edm::Handle<reco::VertexCollection> verticesH_;
-  evt.getByLabel(vertexTag_, verticesH_);
+  evt.getByToken(vx_token, verticesH_);
   vertices_.clear();
   vertices_.reserve(verticesH_->size());
   for(size_t i = 0; i < verticesH_->size(); ++i) {

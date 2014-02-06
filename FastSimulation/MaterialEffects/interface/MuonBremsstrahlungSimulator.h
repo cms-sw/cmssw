@@ -26,15 +26,14 @@
 class TF1; 
 
 class ParticlePropagator;
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class MuonBremsstrahlungSimulator : public MaterialEffectsSimulator
 {
  public:
 
   /// Constructor
-  MuonBremsstrahlungSimulator(const RandomEngine* engine,
-                              double A, double Z, double density,
+  MuonBremsstrahlungSimulator(double A, double Z, double density,
                               double radLen,double photonEnergyCut,double photonFractECut); 
 
   /// Default destructor
@@ -68,22 +67,20 @@ class MuonBremsstrahlungSimulator : public MaterialEffectsSimulator
   unsigned int poisson(double ymu);
 
   /// Generate Bremsstrahlung photons
-  void compute(ParticlePropagator &Particle);
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*);
 
   /// Compute Brem photon energy and angles, if any.
-  XYZTLorentzVector brem(ParticlePropagator& p)const;
+  XYZTLorentzVector brem(ParticlePropagator& p, RandomEngineAndDistribution const*)const;
 
   /// A universal angular distribution - still from GEANT.
   double gbteth(const double ener,
 		const double partm,
-		const double efrac) const;
+		const double efrac,
+                RandomEngineAndDistribution const*) const;
 
   // The actual Muon Brem
    XYZTLorentzVector deltaPMuon;
    //The photon brem
    XYZTLorentzVector brem_photon;
-
-
-
 };
 #endif

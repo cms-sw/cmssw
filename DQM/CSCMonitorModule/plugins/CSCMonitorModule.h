@@ -36,6 +36,11 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 
+#ifdef DQMGLOBAL
+#include <FWCore/Utilities/interface/InputTag.h>
+#include <FWCore/Framework/interface/ConsumesCollector.h>
+#endif
+
 /// CSC Framework stuff
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "CondFormats/CSCObjects/interface/CSCCrateMap.h"
@@ -88,6 +93,10 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
+
+#ifdef DQMGLOBAL
+    edm::EDGetTokenT<DcsStatusCollection> dcstoken;
+#endif
 
   /**
    * MonitorObjectProvider Implementation

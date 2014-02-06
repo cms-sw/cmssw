@@ -65,7 +65,7 @@ namespace sistrip {
   
     // Check if FEDs found in cabling map and event data
     if ( edm::isDebugEnabled() ) {
-      if ( cabling.feds().empty() ) {
+      if ( cabling.fedIds().empty() ) {
 	edm::LogWarning(sistrip::mlRawToDigi_)
 	  << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
 	  << " No FEDs found in cabling map!";
@@ -89,8 +89,8 @@ namespace sistrip {
     bool first_fed = true;
   
     // Retrieve FED ids from cabling map and iterate through 
-    std::vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
-    for ( ; ifed != cabling.feds().end(); ifed++ ) {
+    std::vector<uint16_t>::const_iterator ifed = cabling.fedIds().begin();
+    for ( ; ifed != cabling.fedIds().end(); ifed++ ) {
 
       // ignore trigger FED
       if ( *ifed == triggerFedId_ ) { continue;  }
@@ -128,7 +128,7 @@ namespace sistrip {
       }
       
       // get the cabling connections for this FED
-      const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
+      auto conns = cabling.fedConnections(*ifed);
     
       // Check on FEDRawData pointer
       if ( !input.data() ) {

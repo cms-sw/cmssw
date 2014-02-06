@@ -19,13 +19,13 @@
 // STL
 #include <string>
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class SiStripGaussianSmearingRecHitConverterAlgorithm {
 
 public:
   //--- Constructor, virtual destructor (just in case)
-  explicit SiStripGaussianSmearingRecHitConverterAlgorithm(const RandomEngine* engine);
+  explicit SiStripGaussianSmearingRecHitConverterAlgorithm();
   virtual ~SiStripGaussianSmearingRecHitConverterAlgorithm() {;}
   
   // return results
@@ -43,7 +43,8 @@ public:
 		 double localPositionResolutionY,
 		 double localPositionResolutionZ,
                  double boundX,
-                 double boundY);
+                 double boundY,
+                 RandomEngineAndDistribution const*);
   
 private:
 
@@ -56,12 +57,5 @@ private:
   double       theErrorX;
   double       theErrorY;
   double       theErrorZ;
-  //
-
-  // The random engine
-  const RandomEngine* random;
-  
 };
-
-
 #endif

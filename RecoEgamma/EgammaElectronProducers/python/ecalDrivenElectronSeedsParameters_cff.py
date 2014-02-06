@@ -17,7 +17,7 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     measurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
 
     # SC filtering
-    SCEtCut = cms.double(4.0),
+    SCEtCut = cms.double(0.0),
 
     # H/E
     applyHOverECut = cms.bool(True),

@@ -1,7 +1,11 @@
 #ifndef CondCore_CondDB_KeyList_h
 #define CondCore_CondDB_KeyList_h
 
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/IOVProxy.h"
+#include "CondCore/CondDB/interface/Binary.h"
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondCore/CondDB/interface/Exception.h"
+#include "CondFormats/Common/interface/BaseKeyed.h"
 //
 #include<map>
 #include<vector>
@@ -23,18 +27,16 @@
 namespace cond {
 
   namespace persistency {
-   
+
     class KeyList {
     public:
       
-      explicit KeyList( Session& session );
-
-      void init( const std::string& tag );
+      void init( IOVProxy iovProxy );
       
       void load( const std::vector<unsigned long long>& keys );
       
       template<typename T> 
-      T const * get(size_t n) const {
+      boost::shared_ptr<T> get(size_t n) const {
 	if( n> (size()-1) ) throwException( "Index outside the bounds of the key array.",
 					    "KeyList::get");
 	if( !m_objects[n] ){
@@ -53,13 +55,11 @@ namespace cond {
       int size() const { return m_objects.size();}
 
     private:
-      // the tag of the full key collection
-      std::string m_tag;
       // the db session
-      Session m_session;
+      IOVProxy m_proxy;
       // the key selection
       mutable std::map<size_t,std::pair<std::string,cond::Binary> > m_data;
-      std::vector<boost::shared_ptr<void> > m_objects;
+      mutable std::vector<boost::shared_ptr<void> > m_objects;
       
     };
 

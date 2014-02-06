@@ -2,15 +2,7 @@
 
   /// Default constructor
 PrimaryVertexGenerator::PrimaryVertexGenerator() : 
-  math::XYZVector(), 
-  random(0),
-  boost_(0)
-{
-}
-
-PrimaryVertexGenerator::PrimaryVertexGenerator(const RandomEngine* engine) : 
-  math::XYZVector(), 
-  random(engine),
+  math::XYZVector(),
   boost_(0)
 {
 }

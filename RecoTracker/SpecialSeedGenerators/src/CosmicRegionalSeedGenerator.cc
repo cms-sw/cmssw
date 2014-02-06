@@ -7,14 +7,8 @@
 
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-
-
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicRegionalSeedGenerator.h"
 
@@ -25,7 +19,8 @@ using namespace trigger;
 using namespace reco;
 using namespace edm;
 
-CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const& conf) : 
+CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const& conf,
+	   edm::ConsumesCollector && iC) : 
   conf_(conf)
 {
   edm::LogInfo ("CosmicRegionalSeedGenerator") << "Begin Run:: Constructing  CosmicRegionalSeedGenerator";
@@ -51,6 +46,10 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
   deltaRExclusionSize_          = regionInJetsCheckPSet.getParameter<double>("deltaRExclusionSize");
   jetsPtMin_                    = regionInJetsCheckPSet.getParameter<double>("jetsPtMin");
   recoCaloJetsCollection_       = regionInJetsCheckPSet.getParameter<edm::InputTag>("recoCaloJetsCollection");
+  recoCaloJetsToken_            = iC.consumes<reco::CaloJetCollection>(recoCaloJetsCollection_);
+  recoMuonsToken_     	        = iC.consumes<reco::MuonCollection>(recoMuonsCollection_);
+  recoTrackMuonsToken_	        = iC.consumes<reco::TrackCollection>(recoTrackMuonsCollection_);
+  recoL2MuonsToken_   	        = iC.consumes<reco::RecoChargedCandidateCollection>(recoL2MuonsCollection_);
 
 
   edm::LogInfo ("CosmicRegionalSeedGenerator") << "Reco muons collection: "        << recoMuonsCollection_ << "\n"
@@ -79,7 +78,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     //get the muon collection
     edm::Handle<reco::MuonCollection> muonsHandle;
-    event.getByLabel(recoMuonsCollection_,muonsHandle);
+    event.getByToken(recoMuonsToken_,muonsHandle);
     if (!muonsHandle.isValid())
       {
 	edm::LogError("CollectionNotFound") << "Error::No reco muons collection (" << recoMuonsCollection_ << ") in the event - Please verify the name of the muon collection";
@@ -90,7 +89,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     //get the jet collection
     edm::Handle<CaloJetCollection> caloJetsHandle;
-    event.getByLabel(recoCaloJetsCollection_,caloJetsHandle);
+    event.getByToken(recoCaloJetsToken_,caloJetsHandle);
 
     //get the propagator 
     edm::ESHandle<Propagator> thePropagator;
@@ -244,7 +243,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     //get the muon collection
     edm::Handle<reco::TrackCollection> cosmicMuonsHandle;
-    event.getByLabel(recoTrackMuonsCollection_,cosmicMuonsHandle);
+    event.getByToken(recoTrackMuonsToken_,cosmicMuonsHandle);
     if (!cosmicMuonsHandle.isValid())
       {
 	edm::LogError("CollectionNotFound") << "Error::No cosmic muons collection (" << recoTrackMuonsCollection_ << ") in the event - Please verify the name of the muon reco track collection";
@@ -255,7 +254,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     //get the jet collection
     edm::Handle<CaloJetCollection> caloJetsHandle;
-    event.getByLabel(recoCaloJetsCollection_,caloJetsHandle);
+    event.getByToken(recoCaloJetsToken_,caloJetsHandle);
 
     //get the propagator 
     edm::ESHandle<Propagator> thePropagator;
@@ -392,7 +391,7 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 
     //get the muon collection
     edm::Handle<reco::RecoChargedCandidateCollection> L2MuonsHandle;
-    event.getByLabel(recoL2MuonsCollection_,L2MuonsHandle);
+    event.getByToken(recoL2MuonsToken_,L2MuonsHandle);
 
     if (!L2MuonsHandle.isValid())
       {

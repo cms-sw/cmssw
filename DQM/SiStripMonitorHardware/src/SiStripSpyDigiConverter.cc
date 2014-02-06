@@ -214,13 +214,13 @@ namespace sistrip {
 
     RawDigiDetSetVectorFiller dsvFiller(nFeds*FEDCH_PER_FED/2, nFeds*FEDCH_PER_FED*STRIPS_PER_FEDCH);
     // Loop over FEDs in cabling
-    std::vector<uint16_t>::const_iterator iFed = cabling.feds().begin();
-    const std::vector<uint16_t>::const_iterator endFeds = cabling.feds().end();
+    auto iFed = cabling.fedIds().begin();
+    auto endFeds = cabling.fedIds().end();
     for (; iFed != endFeds; ++iFed) {
       // Loop over cabled channels
-      const std::vector<FedChannelConnection>& conns = cabling.connections(*iFed);
-      std::vector<FedChannelConnection>::const_iterator iConn = conns.begin();
-      const std::vector<FedChannelConnection>::const_iterator endConns = conns.end();
+      auto conns = cabling.fedConnections(*iFed);
+      auto iConn = conns.begin();
+      auto endConns = conns.end();
       for (; iConn != endConns; ++iConn) {
 	// Skip channels not connected to a detector.
 	if (!iConn->isConnected()) continue;

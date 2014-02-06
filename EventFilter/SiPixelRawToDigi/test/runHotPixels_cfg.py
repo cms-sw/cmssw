@@ -82,14 +82,14 @@ process.source = cms.Source("PoolSource",
 # "rfio:/castor/cern.ch/cms/store/data/Commissioning12/Commissioning/RAW/v1/000/186/996/006860ED-D068-E111-8327-001D09F24303.root",
 
 # 187361
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/483A4D50-566A-E111-AE98-001D09F2AF96.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/5630B3CF-6C6A-E111-BA18-001D09F28F25.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/6CD5D083-806A-E111-BEDD-001D09F2906A.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/70C71F71-856A-E111-839E-001D09F2983F.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/A6868F2F-676A-E111-AD64-001D09F2305C.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/B465D505-5E6A-E111-952C-001D09F29114.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/F6994FC3-786A-E111-99FA-001D09F25267.root",
- "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/F6BA5695-746A-E111-B8EF-001D09F2910A.root",
+# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/483A4D50-566A-E111-AE98-001D09F2AF96.root",
+# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/5630B3CF-6C6A-E111-BA18-001D09F28F25.root",
+# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/6CD5D083-806A-E111-BEDD-001D09F2906A.root",
+# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/70C71F71-856A-E111-839E-001D09F2983F.root",
+# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/A6868F2F-676A-E111-AD64-001D09F2305C.root",
+# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/B465D505-5E6A-E111-952C-001D09F29114.root",
+# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/F6994FC3-786A-E111-99FA-001D09F25267.root",
+# "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/361/F6BA5695-746A-E111-B8EF-001D09F2910A.root",
 
 # 187446
 # "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/02CC6857-376B-E111-ADC2-001D09F28E80.root",
@@ -103,10 +103,24 @@ process.source = cms.Source("PoolSource",
 # "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/1883852F-4D6B-E111-ACF5-001D09F241F0.root",
 # "rfio:/castor/cern.ch/cms/store/data/Commissioning12/MinimumBias/RAW/v1/000/187/446/24FCE29B-1C6B-E111-928D-001D09F2910A.root",
  
+  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/2EF61B7D-F216-E211-98C3-001D09F28D54.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/6825CA93-0017-E211-8B46-001D09F25267.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/6C8D4EB2-F116-E211-A7CD-0019B9F70468.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/96B95E6C-FE16-E211-823E-001D09F295FB.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/AEF11AB6-FD16-E211-AA6B-001D09F24399.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/CA8B57D2-F316-E211-8DB2-003048D373F6.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/DA71CB04-FD16-E211-8254-0019B9F4A1D7.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/F859580F-F116-E211-B759-485B39897227.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/FC46615A-F716-E211-924F-001D09F276CF.root",
+
 
     )
 
 )
+
+process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('205217:0-205217:323')
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('205718:49-205718:734')
+
 
 #process.out = cms.OutputModule("PoolOutputModule",
 #    fileName =  cms.untracked.string('file:histos.root')
@@ -115,7 +129,7 @@ process.source = cms.Source("PoolSource",
 process.dumper = cms.EDAnalyzer("findHotPixels", 
     Timing = cms.untracked.bool(False),
     IncludeErrors = cms.untracked.bool(True),
-#    InputLabel = cms.untracked.string('rawDataCollector'),
+#    InputLabel = cms.untracked.string('source'),
 #   In 2012, extension = _LHC                                
     InputLabel = cms.untracked.string('rawDataCollector'),
 #    InputLabel = cms.untracked.string('siPixelRawData'),

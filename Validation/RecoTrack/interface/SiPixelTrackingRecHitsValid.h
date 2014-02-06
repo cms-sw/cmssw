@@ -33,6 +33,8 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 //#include "Validation/RecoTrack/interface/TrackLocalAngle.h"
 #include <TROOT.h>
 #include <TTree.h>
@@ -86,8 +88,9 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
   DQMStore* dbe_;
   std::string outputFile_;
   std::string debugNtuple_;
-  std::string src_;
   std::string builderName_;
+  edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionToken_;
+  edm::EDGetTokenT<reco::TrackCollection> recoTrackCollectionToken_;
   bool MTCCtrack_;
 
   bool checkType_; // do we check that the simHit associated with recHit is of the expected particle type ?

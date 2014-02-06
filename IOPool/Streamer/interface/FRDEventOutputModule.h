@@ -71,7 +71,7 @@ void FRDEventOutputModule<Consumer>::write(edm::EventPrincipal const& e, edm::Mo
                                     emptyString,
                                     nullptr,
                                     mcc);
-  convert_handle(h, fedBuffers);
+  convert_handle(std::move(h), fedBuffers);
 
   // determine the expected size of the FRDEvent
   int expectedSize = (4 + 1024) * sizeof(uint32);

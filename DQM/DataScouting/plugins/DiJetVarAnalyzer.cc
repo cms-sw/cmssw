@@ -38,7 +38,7 @@ DiJetVarAnalyzer::DiJetVarAnalyzer( const edm::ParameterSet & conf ):
   maxHADfraction_          (conf.getParameter<double>("maxHADfraction")),
   HLTpathMain_             (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMain") )),
   HLTpathMonitor_          (triggerExpression::parse( conf.getParameter<std::string>("HLTpathMonitor") )),
-  triggerConfiguration_           (conf.getParameterSet("triggerConfiguration"))
+  triggerConfiguration_    (conf.getParameterSet("triggerConfiguration"),consumesCollector())
 {
   //set Token(-s)
   jetCollectionTagToken_ = consumes<reco::CaloJetCollection>(conf.getUntrackedParameter<edm::InputTag>("jetCollectionTag"));

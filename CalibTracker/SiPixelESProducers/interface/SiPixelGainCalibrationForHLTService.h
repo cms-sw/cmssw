@@ -18,12 +18,15 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h" 
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTRcd.h"
 
-class SiPixelGainCalibrationForHLTService : public SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationForHLT,SiPixelGainCalibrationForHLTRcd>
+class SiPixelGainCalibrationForHLTService final : public SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationForHLT,SiPixelGainCalibrationForHLTRcd>
 {
 
  public:
   explicit SiPixelGainCalibrationForHLTService(const edm::ParameterSet& conf) : SiPixelGainCalibrationServicePayloadGetter<SiPixelGainCalibrationForHLT,SiPixelGainCalibrationForHLTRcd>(conf){};
   ~SiPixelGainCalibrationForHLTService(){};
+
+  void calibrate(uint32_t detID, DigiIterator b, DigiIterator e, float conversionFactor, float offset, int * electron);
+
 
   // column granularity
   float   getPedestal  ( const uint32_t& detID,const int& col, const int& row);

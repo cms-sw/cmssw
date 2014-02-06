@@ -17,13 +17,13 @@
 
 class EcalHitMaker;
 class HcalHitMaker;
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 class HDRShower 
 {
  public:
 
-  HDRShower(const RandomEngine* engine,
+  HDRShower(const RandomEngineAndDistribution* engine,
 	    HDShowerParametrization* myParam,
 	    EcalHitMaker* myGrid, 
 	    HcalHitMaker* myHcalHitMaker,
@@ -74,7 +74,7 @@ class HDRShower
   float ThetaLam21Sig[NEnergyScan];
 
   // The famos random engine
-  const RandomEngine* random;
+  const RandomEngineAndDistribution* random;
 
 };
 

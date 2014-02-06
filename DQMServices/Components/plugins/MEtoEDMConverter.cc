@@ -1,7 +1,7 @@
 
 
 /** \file MEtoEDMConverter.cc
- *  
+ *
  *  See header file for description of class
  *
  *  \author M. Strang SUNY-Buffalo
@@ -24,16 +24,16 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   fName = iPSet.getUntrackedParameter<std::string>("Name","MEtoEDMConverter");
   verbosity = iPSet.getUntrackedParameter<int>("Verbosity",0);
   frequency = iPSet.getUntrackedParameter<int>("Frequency",50);
-  path = iPSet.getUntrackedParameter<std::string>("MEPathToSave");  
-  deleteAfterCopy = iPSet.getUntrackedParameter<bool>("deleteAfterCopy",false);  
-  
+  path = iPSet.getUntrackedParameter<std::string>("MEPathToSave");
+  deleteAfterCopy = iPSet.getUntrackedParameter<bool>("deleteAfterCopy",false);
+  enableMultiThread_ = iPSet.getUntrackedParameter<bool>("enableMultiThread",false);
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
-  
+
   // print out Parameter Set information being used
   if (verbosity >= 0) {
-    edm::LogInfo(MsgLoggerCat) 
+    edm::LogInfo(MsgLoggerCat)
       << "\n===============================\n"
       << "Initialized as EDProducer with parameter values:\n"
       << "    Name          = " << fName << "\n"
@@ -85,7 +85,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
 
 }
 
-MEtoEDMConverter::~MEtoEDMConverter() 
+MEtoEDMConverter::~MEtoEDMConverter()
 {
 }
 
@@ -220,8 +220,8 @@ MEtoEDMConverter::endJob(void)
     // list unique packages
     std::cout << "Packages accessing DQM:" << std::endl;
     std::map<std::string,int>::iterator pkgIter;
-    for (pkgIter = packages.begin(); pkgIter != packages.end(); ++pkgIter) 
-      std::cout << "  " << pkgIter->first << ": " << pkgIter->second 
+    for (pkgIter = packages.begin(); pkgIter != packages.end(); ++pkgIter)
+      std::cout << "  " << pkgIter->first << ": " << pkgIter->second
 		<< std::endl;
 
     std::cout << "We have " << nTH1F << " TH1F objects" << std::endl;
@@ -242,7 +242,7 @@ MEtoEDMConverter::endJob(void)
   }
 
   if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat) 
+    edm::LogInfo(MsgLoggerCat)
       << "Terminating having processed " << iCount.size() << " runs.";
 
 }
@@ -251,9 +251,15 @@ void
 MEtoEDMConverter::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_beginRun";
-    
+
+  // No need to do any reset in the MultiThread DQM, since we will
+  // index each and every MonitorElement by Run and Lumi.
+
+  if (enableMultiThread_)
+    return;
+
   int nrun = iRun.run();
-  
+
   // keep track of number of runs processed
   ++iCount[nrun];
 
@@ -341,27 +347,32 @@ void
 MEtoEDMConverter::endRunProduce(edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   dbe->scaleElements();
-  putData(iRun, false);
+  putData(iRun, false, iRun.run(), 0);
 }
 
 void
 MEtoEDMConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
 {
-  putData(iLumi, true);
+  putData(iLumi, true, iLumi.run(), iLumi.id().luminosityBlock());
 }
 
 template <class T>
 void
-MEtoEDMConverter::putData(T& iPutTo, bool iLumiOnly)
+MEtoEDMConverter::putData(T& iPutTo,
+                          bool iLumiOnly,
+                          uint32_t run,
+                          uint32_t lumi)
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_putData";
-  
+
   if (verbosity > 0)
     edm::LogInfo (MsgLoggerCat) << "\nStoring MEtoEDM dataformat histograms.";
 
   // extract ME information into vectors
   std::vector<MonitorElement *>::iterator mmi, mme;
-  std::vector<MonitorElement *> items(dbe->getAllContents(path));
+  std::vector<MonitorElement *> items(dbe->getAllContents(path,
+                                                          enableMultiThread_ ? run : 0,
+                                                          enableMultiThread_ ? lumi : 0));
 
   unsigned int n1F=0;
   unsigned int n1S=0;

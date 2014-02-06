@@ -21,14 +21,16 @@ PreshowerHitMaker::PreshowerHitMaker(
     const XYZVector& layer1dir, 
     const XYZPoint& layer2entrance, 
     const XYZVector& layer2dir,
-    const LandauFluctuationGenerator* aGenerator):
+    const LandauFluctuationGenerator* aGenerator,
+    const RandomEngineAndDistribution* engine):
   CaloHitMaker(calo,DetId::Ecal,EcalPreshower,2),
   psLayer1Entrance_(layer1entrance),
   psLayer1Dir_(layer1dir),
   psLayer2Entrance_(layer2entrance),
   psLayer2Dir_(layer2dir),
   totalLayer1_(0.),totalLayer2_(0.),
-  theGenerator(aGenerator)
+  theGenerator(aGenerator),
+  random(engine)
 {
   double dummyt;
   anglecorrection1_ = 0.;
@@ -101,7 +103,7 @@ PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
   DetId strip = myCalorimeter->getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(point.x(),point.y(),point.z()),layer);
 
   float meanspot=(layer==1) ? mip1_ : mip2_; 
-  float spote = meanspot + 0.000021*theGenerator->landau();
+  float spote = meanspot + 0.000021*theGenerator->landau(random);
   spote *= ( (layer==1) ? anglecorrection1_ : anglecorrection2_ );
 
   if(!strip.null())

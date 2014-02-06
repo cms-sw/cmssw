@@ -14,6 +14,10 @@
   <class name="reco::PFCluster::EEtoPSAssociation"/>
   <class name="edm::Wrapper<reco::PFCluster::EEtoPSAssociation>"/>
 
+  <class name="PFLayer" ClassVersion="10">
+   <version ClassVersion="10" checksum="85611"/>
+  </class>
+  <enum name="PFLayer::Layer"/> 
   <class name="reco::PFRecHitFraction" ClassVersion="10">
    <version ClassVersion="10" checksum="3960206"/>
   </class>
@@ -228,8 +232,9 @@
   <class name="edm::Wrapper<edm::ValueMap<reco::PreIdRef> >"/>
   <class name="edm::Ref<std::vector<reco::PreId>,reco::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::PreId>,reco::PreId> >" />
 
-  <class name="reco::PFBlockElementSuperCluster" ClassVersion="10">
+  <class name="reco::PFBlockElementSuperCluster" ClassVersion="11">
    <version ClassVersion="10" checksum="456156271"/>
+   <version ClassVersion="11" checksum="3584097231"/>
   </class>
   <class name="std::vector<reco::PFBlockElementSuperCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> >"/>

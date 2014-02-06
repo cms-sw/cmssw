@@ -9,26 +9,21 @@
  */
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
-#include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
-//#include "CommonDet/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
-#include "RecoTracker/TkTrackingRegions/interface/OuterHitPhiPrediction.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include <vector>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class OuterEstimator;
-class BarrelDetLayer;
-class ForwardDetLayer;
+
 typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 
 class CosmicTrackingRegion : public TrackingRegionBase {
 public:
-  
-  //  typedef TkTrackingRegionsMargin<float> Margin;
+
 
  virtual ~CosmicTrackingRegion() { }
+
  /** constructor (symmetric eta and phi margins). <BR>
   * dir        - the direction around which region is constructed <BR>
   *              the initial direction of the momentum of the particle 

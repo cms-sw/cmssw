@@ -24,22 +24,22 @@ namespace reco{
     virtual PFTauTagInfo* clone()const;
     
     //get the PFCandidates which compose the PF jet and were filtered by RecoTauTag/TauTagTools/ TauTagTools::filteredPFChargedHadrCands(.,...), filteredPFNeutrHadrCands(.), filteredPFGammaCands(.) functions through RecoTauTag/RecoTauTag/ PFRecoTauTagInfoProducer EDProducer
-    PFCandidateRefVector PFCands()const;
-    const PFCandidateRefVector& PFChargedHadrCands()const;
-    void  setPFChargedHadrCands(const PFCandidateRefVector&);
-    const PFCandidateRefVector& PFNeutrHadrCands()const;
-    void  setPFNeutrHadrCands(const PFCandidateRefVector&);
-    const PFCandidateRefVector& PFGammaCands()const;
-    void  setPFGammaCands(const PFCandidateRefVector&);
+    std::vector<reco::PFCandidatePtr> PFCands()const;
+    const std::vector<reco::PFCandidatePtr>& PFChargedHadrCands()const;
+    void  setPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>&);
+    const std::vector<reco::PFCandidatePtr>& PFNeutrHadrCands()const;
+    void  setPFNeutrHadrCands(const std::vector<reco::PFCandidatePtr>&);
+    const std::vector<reco::PFCandidatePtr>& PFGammaCands()const;
+    void  setPFGammaCands(const std::vector<reco::PFCandidatePtr>&);
     
     //the reference to the PFJet
     const PFJetRef& pfjetRef()const;
     void setpfjetRef(const PFJetRef);
   private:
     PFJetRef PFJetRef_;
-    PFCandidateRefVector PFChargedHadrCands_;
-    PFCandidateRefVector PFNeutrHadrCands_;
-    PFCandidateRefVector PFGammaCands_;
+    std::vector<reco::PFCandidatePtr> PFChargedHadrCands_;
+    std::vector<reco::PFCandidatePtr> PFNeutrHadrCands_;
+    std::vector<reco::PFCandidatePtr> PFGammaCands_;
   };
 }
 #endif

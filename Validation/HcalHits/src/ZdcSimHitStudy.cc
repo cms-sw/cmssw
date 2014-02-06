@@ -491,10 +491,6 @@ void ZdcSimHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    
 
    //Handle<edm::PCaloHitContainer> zdcsimhandle;
-   //iEvent.getByLabel("g4SimHits_ZDCHITS",zdcsimhandle);
- 
- 
-   
 
  
    ////////////////////////////////////GEN PARTICLE HISTOS///////////////////////////////////
@@ -583,7 +579,6 @@ void ZdcSimHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bool getHits = false;
   if (checkHit_) {
     iEvent.getByToken(tok_hits_,hitsZdc);
-//    e.getByLabel(g4Label,zdcHits,hitsZdc); 
     if (hitsZdc.isValid()) getHits = true;
   }
 

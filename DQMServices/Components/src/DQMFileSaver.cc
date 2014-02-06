@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <iostream>
 #include <vector>
@@ -47,8 +48,8 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   wflow = workflow;
   while ((pos = wflow.find('/', pos)) != std::string::npos)
     wflow.replace(pos++, 1, "__");
-    
-  std::string filename = fileBaseName_ + suffix + wflow + ".root";
+
+  std::string filename = fileBaseName_ + suffix + wflow + child_ + ".root";
 
   if (lumi == 0) // save for run
   {
@@ -72,12 +73,13 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
     }
 
     dbe_->save(filename,
-             "", 
-	     "^(Reference/)?([^/]+)", 
-	     rewrite,
-	     (DQMStore::SaveReferenceTag) saveReference_,
-	     saveReferenceQMin_,
-	     fileUpdate_);
+               "",
+               "^(Reference/)?([^/]+)",
+               rewrite,
+               enableMultiThread_ ? run : 0,
+               (DQMStore::SaveReferenceTag) saveReference_,
+               saveReferenceQMin_,
+               fileUpdate_);
   }
   else // save EventInfo folders for luminosity sections
   {
@@ -91,10 +93,12 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
         dbe_->cd();
 	std::cout << systems[i] << "  " ;
         dbe_->save(filename,
-	   systems[i]+"/EventInfo", "^(Reference/)?([^/]+)", rewrite,
-	   DQMStore::SaveWithoutReference,
-	   dqm::qstatus::STATUS_OK,
-	   fileUpdate_);
+                   systems[i]+"/EventInfo", "^(Reference/)?([^/]+)",
+                   rewrite,
+                   enableMultiThread_ ? run : 0,
+                   DQMStore::SaveWithoutReference,
+                   dqm::qstatus::STATUS_OK,
+                   fileUpdate_);
 	// from now on update newly created file
 	if (fileUpdate_=="RECREATE") fileUpdate_="UPDATE";
       }
@@ -122,8 +126,15 @@ doSaveForOnline(std::list<std::string> &pastSavedFiles,
 		DQMStore::SaveReferenceTag saveref,
 		int saveRefQMin)
 {
-  store->save(filename, directory , rxpat, 
-         rewrite, saveref, saveRefQMin);
+  // TODO(rovere): fix the online case. so far we simply rely on the
+  // fact that we assume we will not run multithreaded in online.
+  store->save(filename,
+              directory ,
+              rxpat,
+              rewrite,
+              0,
+              saveref,
+              saveRefQMin);
   pastSavedFiles.push_back(filename);
   if (pastSavedFiles.size() > numKeepSavedFiles)
   {
@@ -145,7 +156,7 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
       if (MonitorElement* me = dbe_->get(systems[i] + "/EventInfo/processName"))
       {
 	doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
-			fileBaseName_ + me->getStringValue() + suffix + ".root",
+			fileBaseName_ + me->getStringValue() + suffix + child_ + ".root",
 			"", "^(Reference/)?([^/]+)", rewrite,
 	                (DQMStore::SaveReferenceTag) saveReference_,
 	                saveReferenceQMin_);
@@ -162,7 +173,7 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
       std::vector<MonitorElement*> pNamesVector = dbe_->getMatchingContents("^" + systems[i] + "/.*/EventInfo/processName",lat::Regexp::Perl);
       if (pNamesVector.size() > 0){
         doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
-                        fileBaseName_ + systems[i] + suffix + ".root",
+                        fileBaseName_ + systems[i] + suffix + child_ + ".root",
                         "", "^(Reference/)?([^/]+)", rewrite,
                         (DQMStore::SaveReferenceTag) saveReference_,
                         saveReferenceQMin_);
@@ -175,7 +186,7 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
   for (size_t i = 0, e = systems.size(); i != e; ++i)
     if (systems[i] != "Reference")
       doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
-                      fileBaseName_ + systems[i] + suffix + ".root",
+                      fileBaseName_ + systems[i] + suffix + child_ + ".root",
 	              systems[i], "^(Reference/)?([^/]+)", rewrite,
 	              (DQMStore::SaveReferenceTag) saveReference_,
 	              saveReferenceQMin_);
@@ -203,8 +214,10 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     workflow_ (""),
     producer_ ("DQM"),
     dirName_ ("."),
+    child_ (""),
     version_ (1),
     runIsComplete_ (false),
+    enableMultiThread_(ps.getUntrackedParameter<bool>("enableMultiThread", false)),
     saveByLumiSection_ (-1),
     saveByEvent_ (-1),
     saveByMinute_ (-1),
@@ -504,4 +517,23 @@ DQMFileSaver::endJob(void)
 	<< " job in Offline mode with run number overridden.";
   }
     
+}
+
+void
+DQMFileSaver::postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren)
+{
+  // this is copied from IOPool/Output/src/PoolOutputModule.cc, for consistency
+  unsigned int digits = 0;
+  while (numberOfChildren != 0) {
+    ++digits;
+    numberOfChildren /= 10;
+  }
+  // protect against zero numberOfChildren
+  if (digits == 0) {
+    digits = 3;
+  }
+
+  char buffer[digits + 2];
+  snprintf(buffer, digits + 2, "_%0*d", digits, childIndex);
+  child_ = std::string(buffer);
 }

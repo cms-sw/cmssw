@@ -14,7 +14,7 @@
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "CLHEP/GenericFunctions/Erf.hh"
 #include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
@@ -31,33 +31,10 @@
 #include <fstream>
 #include <iostream>
 
-class RandomEngine;
-
-bool HcalRecHitsMaker::initialized_ = false; 
-bool HcalRecHitsMaker::initializedHB_ = false; 
-bool HcalRecHitsMaker::initializedHE_ = false; 
-bool HcalRecHitsMaker::initializedHO_ = false; 
-bool HcalRecHitsMaker::initializedHF_ = false; 
-std::vector<float> HcalRecHitsMaker::peds_;
-std::vector<int> HcalRecHitsMaker::fctoadc_;
-std::vector<float> HcalRecHitsMaker::sat_;
-std::vector<float> HcalRecHitsMaker::gains_;
-std::vector<float> HcalRecHitsMaker::noisesigma_;
-std::vector<float> HcalRecHitsMaker::TPGFactor_;
-std::vector<float> HcalRecHitsMaker::miscalib_;
-std::vector<HcalDetId> HcalRecHitsMaker::theDetIds_;
-std::vector<int> HcalRecHitsMaker::hbhi_;
-std::vector<int> HcalRecHitsMaker::hehi_;
-std::vector<int> HcalRecHitsMaker::hohi_;
-std::vector<int> HcalRecHitsMaker::hfhi_;
-unsigned HcalRecHitsMaker::maxIndex_  = 0 ; 
-
-HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
-				   const RandomEngine * myrandom)
+HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det)
   :
   det_(det),
-  doDigis_(false),
-  random_(myrandom)
+  doDigis_(false)
 {
   edm::ParameterSet RecHitsParameters=p.getParameter<edm::ParameterSet>("HCAL");
   noise_ = RecHitsParameters.getParameter<std::vector<double> >("Noise");
@@ -70,6 +47,13 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
   hcalfileinpath_= RecHitsParameters.getParameter<std::string> ("fileNameHcal");  
   inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
   nhbcells_=nhecells_=nhocells_=nhfcells_=0;
+
+  initialized_ = false;
+  initializedHB_ = false;
+  initializedHE_ = false;
+  initializedHO_ = false;
+  initializedHF_ = false;
+  maxIndex_  = 0 ;
 
   if(det_==4)
     {
@@ -108,7 +92,7 @@ HcalRecHitsMaker::HcalRecHitsMaker(edm::ParameterSet const & p, int det,
 	    continue;
 	  } else {
 	    hcalHotFraction_[inoise] = 0.5-0.5*myErf(threshold_[inoise]/noise_[inoise]/sqrt(2.));
-	    myGaussianTailGenerators_[inoise]=new GaussianTail(random_,noise_[inoise],threshold_[inoise]);
+	    myGaussianTailGenerators_[inoise]=new GaussianTail(noise_[inoise],threshold_[inoise]);
 	  }
 	}   
     }  
@@ -352,7 +336,8 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 
 // Get the PCaloHits from the event. They have to be stored in a map, because when
 // the pile-up is added thanks to the Mixing Module, the same cell can be present several times
-void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, const HcalTopology& topo)
+void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, const HcalTopology& topo,
+                                     RandomEngineAndDistribution const* random)
 {
   clean();
 
@@ -379,25 +364,25 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, const HcalTopolo
 	case HcalBarrel: 
 	  {
 	    if(det_==4)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0],corrfac_[0]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0],corrfac_[0], random);
 	  }
 	  break;
 	case HcalEndcap: 
 	  {	  
 	    if(det_==4)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[1],corrfac_[1]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[1],corrfac_[1], random);
 	  }
 	  break;
 	case HcalOuter: 
 	  {
 	    if(det_==5)
-	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0],corrfac_[0]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0],corrfac_[0], random);
 	  }
 	  break;		     
 	case HcalForward: 
 	  {
 	    if(det_==6 && time_slice==0) // skip the HF hit if out-of-time
-	      Fill(hashedindex,it->energy(),firedCells_,noise_[0],corrfac_[0]);
+	      Fill(hashedindex,it->energy(),firedCells_,noise_[0],corrfac_[0], random);
 	  }
 	  break;
 	default:
@@ -409,10 +394,11 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, const HcalTopolo
 }
 
 // Fills the collections. 
-void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo, HBHERecHitCollection& hbheHits, HBHEDigiCollection& hbheDigis)
+void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo, HBHERecHitCollection& hbheHits, HBHEDigiCollection& hbheDigis,
+                                       RandomEngineAndDistribution const* random)
 {
-  loadPCaloHits(iEvent,topo);
-  noisify();
+  loadPCaloHits(iEvent,topo, random);
+  noisify(random);
   hbheHits.reserve(firedCells_.size());
   if(doDigis_)
     {
@@ -458,10 +444,11 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& to
 
 
 // Fills the collections. 
-void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo, HORecHitCollection &hoHits, HODigiCollection & hoDigis)
+void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo, HORecHitCollection &hoHits, HODigiCollection & hoDigis,
+                                       RandomEngineAndDistribution const* random)
 {
-  loadPCaloHits(iEvent,topo);
-  noisify();
+  loadPCaloHits(iEvent,topo, random);
+  noisify(random);
   hoHits.reserve(firedCells_.size());
   if(doDigis_)
     {
@@ -496,10 +483,11 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& to
 }
 
 // Fills the collections. 
-void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo,HFRecHitCollection &hfHits, HFDigiCollection& hfDigis)
+void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,const HcalTopology& topo,HFRecHitCollection &hfHits, HFDigiCollection& hfDigis,
+                                       RandomEngineAndDistribution const* random)
 {
-  loadPCaloHits(iEvent,topo);
-  noisify();
+  loadPCaloHits(iEvent,topo, random);
+  noisify(random);
   hfHits.reserve(firedCells_.size());
   if(doDigis_)
     {
@@ -579,7 +567,8 @@ unsigned HcalRecHitsMaker::createVectorOfSubdetectorCells(const CaloGeometry& cg
 }
 
 // Takes a hit (from a PSimHit) and fills a map 
-void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,float noise,float correctionfactor)
+void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,float noise,float correctionfactor,
+                            RandomEngineAndDistribution const* random)
 {
   if(doMiscalib_) 
     energy*=miscalib_[id];
@@ -593,12 +582,12 @@ void HcalRecHitsMaker::Fill(int id, float energy, std::vector<int>& theHits,floa
   else
     {
       // the noise is injected only the first time
-      hcalRecHits_[id]=energy + random_->gaussShoot(0.,noise);
+      hcalRecHits_[id]=energy + random->gaussShoot(0.,noise);
       theHits.push_back(id);
     }
 }
 
-void HcalRecHitsMaker::noisify()
+void HcalRecHitsMaker::noisify(RandomEngineAndDistribution const* random)
 {
   unsigned total=0;
   switch(det_)
@@ -607,11 +596,11 @@ void HcalRecHitsMaker::noisify()
       {
 	// do the HB
 	if(noise_[0] != 0.) {
-	  total+=noisifySubdet(hcalRecHits_,firedCells_,hbhi_,nhbcells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0]);
+	  total+=noisifySubdet(hcalRecHits_,firedCells_,hbhi_,nhbcells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0], random);
 	}
 	// do the HE
 	if(noise_[1] != 0.) {
-	  total+=noisifySubdet(hcalRecHits_,firedCells_,hehi_,nhecells_,hcalHotFraction_[1],myGaussianTailGenerators_[1],noise_[1],threshold_[1],corrfac_[1]);
+	  total+=noisifySubdet(hcalRecHits_,firedCells_,hehi_,nhecells_,hcalHotFraction_[1],myGaussianTailGenerators_[1],noise_[1],threshold_[1],corrfac_[1], random);
 	}
       }
       break;
@@ -619,7 +608,7 @@ void HcalRecHitsMaker::noisify()
       {
 	// do the HO
 	if(noise_[0] != 0.) {
-	  total+=noisifySubdet(hcalRecHits_,firedCells_,hohi_,nhocells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0]);
+	  total+=noisifySubdet(hcalRecHits_,firedCells_,hohi_,nhocells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0], random);
 	}
       }
       break;
@@ -627,7 +616,7 @@ void HcalRecHitsMaker::noisify()
       {
 	// do the HF
 	if(noise_[0] != 0.) {
-	  total+=noisifySubdet(hcalRecHits_,firedCells_,hfhi_,nhfcells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0]);
+	  total+=noisifySubdet(hcalRecHits_,firedCells_,hfhi_,nhfcells_,hcalHotFraction_[0],myGaussianTailGenerators_[0],noise_[0],threshold_[0],corrfac_[0], random);
 	}
       }
       break;
@@ -637,14 +626,15 @@ void HcalRecHitsMaker::noisify()
   edm::LogInfo("CaloRecHitsProducer") << "CaloRecHitsProducer : added noise in "<<  total << " HCAL cells "  << std::endl;
 }
 
-unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector<int>& theHits, const std::vector<int>& thecells, unsigned ncells, double hcalHotFraction,const GaussianTail *myGT,double noise_,double threshold,double correctionfactor)
+unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector<int>& theHits, const std::vector<int>& thecells, unsigned ncells, double hcalHotFraction,const GaussianTail *myGT,double noise_,double threshold,double correctionfactor,
+                                         RandomEngineAndDistribution const* random)
 {
  // If the fraction of "hot " is small, use an optimized method to inject noise only in noisy cells. The 30% has not been tuned
   if(noise_!=-1 && hcalHotFraction==0.) return 0;
   if(hcalHotFraction<0.3 && noise_!=-1)
     {
       double mean = (double)(ncells-theHits.size())*hcalHotFraction;
-      unsigned nhcal = random_->poissonShoot(mean);
+      unsigned nhcal = random->poissonShoot(mean);
   
       unsigned ncell=0;
       unsigned cellindex=0;
@@ -652,12 +642,12 @@ unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector
       
       while(ncell < nhcal)
 	{
-	  cellindex = (unsigned)(random_->flatShoot()*ncells);
+	  cellindex = (unsigned)(random->flatShoot()*ncells);
 	  cellhashedindex = thecells[cellindex];
 
 	  if(hcalRecHits_[cellhashedindex]==0.) // new cell
 	    {
-	      hcalRecHits_[cellhashedindex]=myGT->shoot();
+	      hcalRecHits_[cellhashedindex]=myGT->shoot(random);
 	      theHits.push_back(cellhashedindex);
 	      ++ncell;
 	    }
@@ -679,7 +669,7 @@ unsigned HcalRecHitsMaker::noisifySubdet(std::vector<float>& theMap, std::vector
 		  //otherwise, leave sigma alone (default is user input value)
 	      if(noise_==-1) sigma=noisesigma_[cellhashedindex]*correctionfactor;
 
-	      double noise =random_->gaussShoot(0.,sigma);
+	      double noise =random->gaussShoot(0.,sigma);
 	      if(noise>threshold)
 		{
 		  hcalRecHits_[cellhashedindex]=noise;		    

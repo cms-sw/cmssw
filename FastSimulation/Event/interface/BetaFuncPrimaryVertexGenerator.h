@@ -6,7 +6,7 @@
 
 /** A class that generates a primary vertex with a realistic profile, in cm*/ 
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 
 namespace edm { 
   class ParameterSet;
@@ -17,14 +17,13 @@ class BetaFuncPrimaryVertexGenerator : public PrimaryVertexGenerator {
 
 public:
   /// Default constructor
-  BetaFuncPrimaryVertexGenerator(const edm::ParameterSet& vtx,
-				 const RandomEngine* engine);
+  BetaFuncPrimaryVertexGenerator(const edm::ParameterSet& vtx);
 
   /// Destructor
   ~BetaFuncPrimaryVertexGenerator() {;}
   
   /// Generation process (to be implemented)
-  virtual void generate();
+  virtual void generate(RandomEngineAndDistribution const*);
 
   /// set resolution in Z in cm
   /// set mean in X in cm

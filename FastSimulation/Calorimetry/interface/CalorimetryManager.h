@@ -25,10 +25,10 @@ class RawParticle;
 class CaloGeometryHelper;
 class Histos;
 class HSParameters;
-class RandomEngine;
 class LandauFluctuationGenerator;
 class GammaFunctionGenerator;
 class MaterialEffects;
+class RandomEngineAndDistribution;
 //Gflash
 class GflashHadronShowerProfile;
 class GflashPiKShowerProfile;
@@ -49,12 +49,11 @@ class CalorimetryManager{
 		     const edm::ParameterSet& fastCalo,
 		     const edm::ParameterSet& MuonECALPars,
 		     const edm::ParameterSet& MuonHCALPars,
-                     const edm::ParameterSet& fastGflash,
-		     const RandomEngine* engine);
+                     const edm::ParameterSet& fastGflash);
   ~CalorimetryManager();
 
   // Does the real job
-  void reconstruct();
+  void reconstruct(RandomEngineAndDistribution const*);
 
     // Return the address of the Calorimeter 
   CaloGeometryHelper * getCalorimeter() const {return myCalorimeter_;}
@@ -72,14 +71,14 @@ class CalorimetryManager{
 
  private:
   // Simulation of electromagnetic showers in PS, ECAL, HCAL
-  void EMShowerSimulation(const FSimTrack& myTrack);
+  void EMShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
   
-  void reconstructHCAL(const FSimTrack& myTrack);
+  void reconstructHCAL(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
 
-  void MuonMipSimulation(const FSimTrack & myTrack);
+  void MuonMipSimulation(const FSimTrack & myTrack, RandomEngineAndDistribution const*);
  
   /// Hadronic Shower Simulation
-  void HDShowerSimulation(const FSimTrack& myTrack);
+  void HDShowerSimulation(const FSimTrack& myTrack, RandomEngineAndDistribution const*);
 
   // Read the parameters 
   void readParameters(const edm::ParameterSet& fastCalo);
@@ -149,8 +148,6 @@ class CalorimetryManager{
   bool simulatePreshower_;
   //RF 
 
-  // Famos Random Engine
-  const RandomEngine* random;
   const LandauFluctuationGenerator* aLandauGenerator;
   GammaFunctionGenerator* aGammaGenerator;
 

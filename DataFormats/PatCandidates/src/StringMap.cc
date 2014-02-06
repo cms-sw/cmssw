@@ -18,7 +18,7 @@ int32_t StringMap::operator[](const std::string &string) const {
 }
 
 const std::string & StringMap::operator[](int32_t number) const {
-    static std::string empty_;
+    static const std::string empty_;
     vector_type::const_iterator match = find(number);
     return (match == end() ? empty_ : match->first);
 }

@@ -204,8 +204,8 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), label, productInstanceName, emptyString_, moduleCallingContext_);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (result.failedToGet()) {
       return false;
     }
     return true;
@@ -220,8 +220,8 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByLabel_(TypeID(typeid(PROD)), tag, moduleCallingContext_);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (result.failedToGet()) {
       return false;
     }
     return true;
@@ -235,8 +235,8 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (result.failedToGet()) {
       return false;
     }
     return true;
@@ -250,8 +250,8 @@ namespace edm {
     }
     result.clear();
     BasicHandle bh = provRecorder_.getByToken_(TypeID(typeid(PROD)),PRODUCT_TYPE, token, moduleCallingContext_);
-    convert_handle(bh, result);  // throws on conversion error
-    if (bh.failedToGet()) {
+    convert_handle(std::move(bh), result);  // throws on conversion error
+    if (result.failedToGet()) {
       return false;
     }
     return true;

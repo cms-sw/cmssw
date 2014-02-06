@@ -6,33 +6,16 @@
 
 
 #include "CmsException.h"
+#include "CmsSupport.h"
 
 namespace clangcms {
 
 bool CmsException::reportGeneral( clang::ento::PathDiagnosticLocation const& path,
 				clang::ento::BugReporter & BR ) const
 {
-	  clang::SourceLocation SL = path.asLocation();
-	  if ( SL.isMacroID() ) {return false;}	
-
-      const clang::SourceManager &SM = BR.getSourceManager();
-	  clang::PresumedLoc PL = SM.getPresumedLoc(SL);
-
-	  llvm::StringRef FN = llvm::StringRef((PL.getFilename()));
-	  size_t found = 0;
-	  found += FN.count("xr.cc");
-	  found += FN.count("xi.cc");
-	  found += FN.count("LinkDef.cc");
-	  found += FN.count("/external/");
-	  found += FN.count("/lcg/");
-	  found += FN.count("/cms/cmssw/"); 
-	  found += FN.count("/test/"); 
-//	  found += FN.count("/FWCore/"); 
-	  if ( found!=0 )  {return false;}
-
-	  if (SM.isInSystemHeader(SL) || SM.isInExternCSystemHeader(SL)) {return false;}
- 	  return true;
-
+  const char *sfile=BR.getSourceManager().getPresumedLoc(path.asLocation()).getFilename();
+  if ((!sfile) || (!support::isCmsLocalFile(sfile))) return false;
+  return true;
 }
 
 bool CmsException::reportConstCast( const clang::ento::BugReport &R,

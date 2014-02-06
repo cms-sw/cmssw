@@ -21,13 +21,11 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 
 
-MuonDetLayerMeasurements::MuonDetLayerMeasurements(const edm::InputTag& dtlabel, 
-						   const edm::InputTag& csclabel, 
-						   const edm::InputTag& rpclabel,
+MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel, 
+						   edm::InputTag csclabel, 
+						   edm::InputTag rpclabel,
+						   edm::ConsumesCollector& iC,
 						   bool enableDT, bool enableCSC, bool enableRPC): 
-  theDTRecHitLabel(dtlabel),
-  theCSCRecHitLabel(csclabel),
-  theRPCRecHitLabel(rpclabel),
   enableDTMeasurement(enableDT),
   enableCSCMeasurement(enableCSC),
   enableRPCMeasurement(enableRPC),
@@ -39,6 +37,23 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(const edm::InputTag& dtlabel,
   theRPCEventCacheID(0),
   theEvent(0)
 {
+
+  dtToken_ = iC.consumes<DTRecSegment4DCollection>(dtlabel);
+  cscToken_ = iC.consumes<CSCSegmentCollection>(csclabel);
+  rpcToken_ = iC.consumes<RPCRecHitCollection>(rpclabel);
+
+
+  static int procInstance(0);
+  std::ostringstream sDT;
+  sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << procInstance;
+  //  theDTCheckName = sDT.str();
+  std::ostringstream sRPC;
+  sRPC<<"MuonDetLayerMeasurements::checkRPCRecHits::" << procInstance;
+  //theRPCCheckName = sRPC.str();
+  std::ostringstream sCSC;
+  sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << procInstance;
+  //theCSCCheckName = sCSC.str();
+  procInstance++;
 }
 
 MuonDetLayerMeasurements::~MuonDetLayerMeasurements(){}
@@ -121,8 +136,7 @@ void MuonDetLayerMeasurements::checkDTRecHits()
   if (cacheID == theDTEventCacheID) return;
 
   {
-    theEvent->getByLabel(theDTRecHitLabel, theDTRecHits);
-    theDTEventCacheID = cacheID;
+    theEvent->getByToken(dtToken_, theDTRecHits);
   }
   if(!theDTRecHits.isValid())
   {
@@ -138,7 +152,7 @@ void MuonDetLayerMeasurements::checkCSCRecHits()
   if (cacheID == theCSCEventCacheID) return;
 
   {
-    theEvent->getByLabel(theCSCRecHitLabel, theCSCRecHits);
+    theEvent->getByToken(cscToken_, theCSCRecHits);
     theCSCEventCacheID = cacheID;
   }
   if(!theCSCRecHits.isValid())
@@ -155,7 +169,7 @@ void MuonDetLayerMeasurements::checkRPCRecHits()
   if (cacheID == theRPCEventCacheID) return;
 
   {
-    theEvent->getByLabel(theRPCRecHitLabel, theRPCRecHits);
+    theEvent->getByToken(rpcToken_, theRPCRecHits);
     theRPCEventCacheID = cacheID;
   }
   if(!theRPCRecHits.isValid())

@@ -22,7 +22,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
 // Famos
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/SimpleHistogramGenerator.h"
 
 // STL
@@ -40,12 +40,10 @@ using namespace std;
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitConverterAlgorithm(
   const edm::ParameterSet& pset,
-  GeomDetType::SubDetector pixelPart,
-  const RandomEngine* engine)
+  GeomDetType::SubDetector pixelPart)
 :
   pset_(pset),
-  thePixelPart(pixelPart),
-  random(engine)
+  thePixelPart(pixelPart)
 {
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   useCMSSWPixelParameterization = pset.getParameter<bool>("UseCMSSWPixelParametrization");
@@ -105,7 +103,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   const PSimHit& simHit,
   const PixelGeomDetUnit* detUnit,
   const double boundX,
-  const double boundY)
+  const double boundY,
+  RandomEngineAndDistribution const* random)
 {
 
 #ifdef FAMOS_DEBUG
@@ -428,8 +427,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   do {
     //
     // Smear the hit Position
-    thePositionX = theXHistos[theXHistN]->generate();
-    thePositionY = theYHistos[theYHistN]->generate();
+    thePositionX = theXHistos[theXHistN]->generate(random);
+    thePositionY = theYHistos[theYHistN]->generate(random);
     if( isForward ) thePositionY *= sign;
     thePositionZ = 0.0; // set at the centre of the active area
     //protect from empty resolution histograms
@@ -502,46 +501,40 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeBarrel()
                                         + cotalphaHistBin * 100
                                         + cotbetaHistBin ;
          theXHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singleBigPixelHistN ) ),
-              random);
+              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singleBigPixelHistN ) ) );
          theYHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singleBigPixelHistN ) ),
-              random);
+              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singleBigPixelHistN ) ) );
          unsigned int singlePixelHistN = 1 * 100000 + 1 * 1000
                                         + cotalphaHistBin * 100
                                         + cotbetaHistBin ;
          theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singlePixelHistN ) ),
-              random);
+              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singlePixelHistN ) ) );
          theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singlePixelHistN ) ),
-              random);
+              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singlePixelHistN ) ) );
          for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
              unsigned int edgePixelHistN = cotalphaHistBin * 1000
                                         +  cotbetaHistBin * 10
                                         +  qbinBin;
              theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hx0%u" ,edgePixelHistN ) ), random );
+              (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hx0%u" ,edgePixelHistN ) ) );
              theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hy0%u" ,edgePixelHistN ) ), random );
+              (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hy0%u" ,edgePixelHistN ) ) );
              unsigned int multiPixelBigHistN = 1 * 1000000 + 1 * 100000
                                            + cotalphaHistBin * 1000
                                            + cotbetaHistBin * 10
                                            + qbinBin;
              theXHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" ,multiPixelBigHistN ) ), random );
+              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" ,multiPixelBigHistN ) ) );
              theYHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" ,multiPixelBigHistN ) ), random );
+              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" ,multiPixelBigHistN ) ) );
              unsigned int multiPixelHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000
                                            + cotalphaHistBin * 1000
                                            + cotbetaHistBin * 10
                                            + qbinBin;
              theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
-             (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , multiPixelHistN ) ),
-             random);
+             (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , multiPixelHistN ) ) );
              theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
-             (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , multiPixelHistN ) ),
-             random);
+             (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , multiPixelHistN ) ) );
           } //end for qbinBin
      }//end for cotalphaHistBin, cotbetaHistBin
 }
@@ -565,14 +558,14 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeForward()
          for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
 	    unsigned int edgePixelHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
 	    theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx0%u" ,edgePixelHistN ) ), random );
+	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx0%u" ,edgePixelHistN ) ) );
 	    theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy0%u" ,edgePixelHistN ) ), random );
+	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy0%u" ,edgePixelHistN ) ) );
 	    unsigned int PixelHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
 	    theXHistos[PixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,PixelHistN ) ), random );
+	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,PixelHistN ) ) );
 	    theYHistos[PixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,PixelHistN ) ), random );	   	
+	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,PixelHistN ) ) );
 	 }//end cotalphaHistBin, cotbetaHistBin, qbinBin
 
   for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
@@ -580,14 +573,14 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeForward()
     {
       unsigned int SingleBigPixelHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
       theXHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SingleBigPixelHistN ) ), random );
+      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SingleBigPixelHistN ) ) );
       theYHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SingleBigPixelHistN ) ), random );
+      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SingleBigPixelHistN ) ) );
       unsigned int SinglePixelHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
       theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SinglePixelHistN ) ), random );
+      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SinglePixelHistN ) ) );
       theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SinglePixelHistN ) ), random );
+      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SinglePixelHistN ) ) );
 
     }
 }

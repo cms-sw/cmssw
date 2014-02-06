@@ -3,12 +3,11 @@
 
 //Famos Headers
 #include "FastSimulation/Event/interface/GaussianPrimaryVertexGenerator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
   /// Default constructor
 GaussianPrimaryVertexGenerator::GaussianPrimaryVertexGenerator(
-  const edm::ParameterSet& vtx, const RandomEngine* engine) : 
-  PrimaryVertexGenerator(engine),
+  const edm::ParameterSet& vtx) :
   meanX(vtx.getParameter<double>("MeanX")),
   meanY(vtx.getParameter<double>("MeanY")),
   meanZ(vtx.getParameter<double>("MeanZ")),
@@ -20,7 +19,7 @@ GaussianPrimaryVertexGenerator::GaussianPrimaryVertexGenerator(
 }
   
 void
-GaussianPrimaryVertexGenerator::generate() {
+GaussianPrimaryVertexGenerator::generate(RandomEngineAndDistribution const* random) {
 
   this->SetX(random->gaussShoot(meanX,sigmaX));
   this->SetY(random->gaussShoot(meanY,sigmaY));

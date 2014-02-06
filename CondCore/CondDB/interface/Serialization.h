@@ -26,6 +26,14 @@ class TBufferFile;
 
 namespace cond {
 
+  // default payload factory
+  template <typename T> T* createPayload( const std::string& payloadTypeName ){
+    if( demangledName( typeid(T) )!= payloadTypeName ) 
+      throwException(std::string("Type mismatch, target object is type \"")+payloadTypeName+"\"",
+		     "createPayload" );
+    return new T;
+  }
+
   // Archives for the streaming based on ROOT.
 
   // output
@@ -74,28 +82,39 @@ namespace cond {
   typedef RootInputArchive CondInputArchive;
   typedef RootOutputArchive CondOutputArchive;
 
-  template <typename T> Binary serialize( const T& payload ){
-    // save data to buffer
-    std::ostringstream buffer;
-    CondOutputArchive oa( buffer );
-    oa << payload;
+  // call for the serialization. Setting packingOnly = TRUE the data will stay in the original memory layout 
+  // ( no serialization in this case ). This option is used by the ORA backend - will be dropped after the changeover
+  template <typename T> Binary serialize( const T& payload, bool packingOnly = false ){
     Binary ret;
-    //TODO: avoid (2!!) copies
-    ret.copy( buffer.str() );
+    if( !packingOnly ){
+      // save data to buffer
+      std::ostringstream buffer;
+      CondOutputArchive oa( buffer );
+      oa << payload;
+      //TODO: avoid (2!!) copies
+      ret.copy( buffer.str() );
+    } else {
+      ret = Binary( payload );
+    }
     return ret;
   }
 
-  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, const Binary& payloadData){
+  // generates an instance of T from the binary serialized data. With unpackingOnly = true the memory is already storing the object in the final 
+  // format. Only a cast is required in this case - Used by the ORA backed, will be dropped in the future.
+  template <typename T> boost::shared_ptr<T> deserialize( const std::string& payloadType, const Binary& payloadData, bool unpackingOnly = false){
     // for the moment we fail if types don't match... later we will check for base types...
-    if( demangledName( typeid(T) )!= payloadType ) throwException(std::string("Type mismatch, target object is type \"")+payloadType+"\"",
-								  "deserialize" );
-    std::stringbuf sbuf;
-    sbuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
+    boost::shared_ptr<T> payload;
+    if( !unpackingOnly ){
+      std::stringbuf sbuf;
+      sbuf.pubsetbuf( static_cast<char*>(const_cast<void*>(payloadData.data())), payloadData.size() );
 
-    std::istream buffer( &sbuf );
-    CondInputArchive ia(buffer);
-    boost::shared_ptr<T> payload( new T );
-    ia >> (*payload);
+      std::istream buffer( &sbuf );
+      CondInputArchive ia(buffer);
+      payload.reset( createPayload<T>(payloadType) );
+      ia >> (*payload);
+    } else {
+      payload = boost::static_pointer_cast<T>(payloadData.share());
+    }
     return payload;
   }
 

@@ -28,14 +28,12 @@ void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) 
     << " Building FEC cabling...";
 
   // Retrieve and iterate through FED ids
-  const std::vector<uint16_t>& feds = fed_cabling.feds();
-  std::vector<uint16_t>::const_iterator ifed;
-  for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+  auto feds = fed_cabling.fedIds();
+  for ( auto ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
 
     // Retrieve and iterate through FED channel connections
-    const std::vector<FedChannelConnection>& conns = fed_cabling.connections( *ifed ); 
-    std::vector<FedChannelConnection>::const_iterator iconn;
-    for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
+    auto conns = fed_cabling.fedConnections( *ifed ); 
+    for ( auto iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
 
       // Check that FED id is not invalid and add devices
       if ( iconn->fedId() != sistrip::invalid_ ) { addDevices( *iconn ); } 
@@ -158,8 +156,7 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
   }
 
   if ( !ss.str().empty() ) { edm::LogWarning(mlCabling_) << ss.str(); }
-  static FedChannelConnection temp;
-  static const SiStripModule module(temp);
+  static const SiStripModule module{FedChannelConnection{}};
   return module;
 }
 
@@ -177,8 +174,7 @@ const SiStripModule& SiStripFecCabling::module( const uint32_t& dcu_id ) const {
       }
     }
   }
-  static const FedChannelConnection temp;
-  static const SiStripModule module(temp);
+  static const SiStripModule module{FedChannelConnection{}};
   return module;
 }
 

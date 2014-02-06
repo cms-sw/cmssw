@@ -2,8 +2,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -18,24 +16,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // Random engine
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 //#include <iostream>
 
 CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
   : EcalPreshowerRecHitsMaker_(NULL),EcalBarrelRecHitsMaker_(NULL),  EcalEndcapRecHitsMaker_(NULL), HcalRecHitsMaker_(NULL)
 {    
-
-  // Initialize the random number generator service
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable() ) {
-    throw cms::Exception("Configuration")
-      << "CaloRecHitsProducer requires the RandomGeneratorService\n"
-         "which is not present in the configuration file.\n"
-         "You must add the service in the configuration file\n"
-         "or remove the module that requires it";
-  }
-  random = new RandomEngine(&(*rng));
   theInputRecHitCollectionTypes = p.getParameter<std::vector<unsigned> >("InputRecHitCollectionTypes");
   theOutputRecHitCollections = p.getParameter<std::vector<std::string> >("OutputRecHitCollections");
   doDigis_ = p.getParameter<bool>("doDigis");
@@ -57,7 +44,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 	if (doDigis_) 
 	  std::cout << " The digitization of the preshower is not implemented " << std::endl;
 	
-	EcalPreshowerRecHitsMaker_ =  new EcalPreshowerRecHitsMaker(RecHitsParameters,random);  
+	EcalPreshowerRecHitsMaker_ =  new EcalPreshowerRecHitsMaker(RecHitsParameters);
       }
       break;
       
@@ -70,7 +57,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 	  produces<EBRecHitCollection>();
 	
 	if (doDigis_)  produces<EBDigiCollection>();
-	EcalBarrelRecHitsMaker_ =  new EcalBarrelRecHitsMaker(RecHitsParameters,random);
+	EcalBarrelRecHitsMaker_ =  new EcalBarrelRecHitsMaker(RecHitsParameters);
       }
       break;
       
@@ -82,7 +69,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 	else
 	  produces<EERecHitCollection>();
 	if (doDigis_) produces<EEDigiCollection>();
-	EcalEndcapRecHitsMaker_ =  new EcalEndcapRecHitsMaker(RecHitsParameters,random);
+	EcalEndcapRecHitsMaker_ =  new EcalEndcapRecHitsMaker(RecHitsParameters);
       }
       break;
       
@@ -95,7 +82,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 	    produces<HBHERecHitCollection>();
 	
 	if (doDigis_) produces<HBHEDigiCollection>();
-	HcalRecHitsMaker_ =  new HcalRecHitsMaker(RecHitsParameters,4,random);
+	HcalRecHitsMaker_ =  new HcalRecHitsMaker(RecHitsParameters,4);
       }
       break;
       
@@ -109,7 +96,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 
 	if (doDigis_)  produces<HODigiCollection>();
 
-	HcalRecHitsMaker_ =  new HcalRecHitsMaker(RecHitsParameters,5,random);
+	HcalRecHitsMaker_ =  new HcalRecHitsMaker(RecHitsParameters,5);
       }
       break;
       
@@ -122,7 +109,7 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 	  produces<HFRecHitCollection>();	
 	if(doDigis_)   produces<HFDigiCollection>();
 
-	HcalRecHitsMaker_ =  new HcalRecHitsMaker(RecHitsParameters,6,random);
+	HcalRecHitsMaker_ =  new HcalRecHitsMaker(RecHitsParameters,6);
       }
       break;
       
@@ -138,9 +125,6 @@ CaloRecHitsProducer::CaloRecHitsProducer(edm::ParameterSet const & p)
 
 CaloRecHitsProducer::~CaloRecHitsProducer() 
 { 
-  if ( random ) { 
-    delete random;
-  }
 }
 
 void 
@@ -193,6 +177,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
    edm::ESHandle<HcalTopology> topo;
    es.get<IdealGeometryRecord>().get( topo );
 
+   RandomEngineAndDistribution random(iEvent.streamID());
 
   // create empty outputs for HCAL 
   // see RecoLocalCalo/HcalRecProducers/src/HcalSimpleReconstructor.cc
@@ -202,7 +187,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
       {
 	// preshower
 	std::auto_ptr<ESRecHitCollection> reces(new ESRecHitCollection);  // ECAL pre-shower
-	EcalPreshowerRecHitsMaker_->loadEcalPreshowerRecHits(iEvent,*reces);
+	EcalPreshowerRecHitsMaker_->loadEcalPreshowerRecHits(iEvent,*reces, &random);
 	if ( theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size()) 
 	  iEvent.put(reces,theOutputRecHitCollections[input]);
 	else
@@ -215,7 +200,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 	// ecal barrel
 	std::auto_ptr<EBRecHitCollection> receb(new EBRecHitCollection);  // ECAL Barrel
 	std::auto_ptr<EBDigiCollection> digieb(new EBDigiCollection(1));
-	EcalBarrelRecHitsMaker_->loadEcalBarrelRecHits(iEvent,*receb,*digieb);
+	EcalBarrelRecHitsMaker_->loadEcalBarrelRecHits(iEvent,*receb,*digieb, &random);
 	//	std::cout << " ECALBarrel " << receb->size() << std::endl;
 	if ( theOutputRecHitCollections.size()&&theOutputRecHitCollections[input].size())
 	  iEvent.put(receb,theOutputRecHitCollections[input]);
@@ -231,7 +216,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 	// ecal endcap
 	std::auto_ptr<EERecHitCollection> recee(new EERecHitCollection);  // ECAL Endcap
 	std::auto_ptr<EEDigiCollection> digiee(new EEDigiCollection(1));
-	EcalEndcapRecHitsMaker_->loadEcalEndcapRecHits(iEvent,*recee,*digiee);
+	EcalEndcapRecHitsMaker_->loadEcalEndcapRecHits(iEvent,*recee,*digiee, &random);
 	//	std::cout << " ECALEndcap " << recee->size() << std::endl;
 	if ( theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size())
 	  iEvent.put(recee,theOutputRecHitCollections[input]);
@@ -247,7 +232,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 	// hbhe
 	std::auto_ptr<HBHERecHitCollection> rec1(new HBHERecHitCollection); // Barrel+Endcap
 	std::auto_ptr<HBHEDigiCollection> digihbhe(new HBHEDigiCollection);
-	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec1,*digihbhe);
+	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec1,*digihbhe, &random);
 	if ( theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size())		    
 	  iEvent.put(rec1,theOutputRecHitCollections[input]);
 	else
@@ -263,7 +248,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 	std::auto_ptr<HORecHitCollection> rec2(new HORecHitCollection);     // Outer
 	std::auto_ptr<HODigiCollection> digiho(new HODigiCollection);
 
-	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec2,*digiho);
+	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec2,*digiho, &random);
 	if(theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size())	  
 	  iEvent.put(rec2,theOutputRecHitCollections[input]);
 	else
@@ -277,7 +262,7 @@ void CaloRecHitsProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
 	//hf 
 	std::auto_ptr<HFRecHitCollection> rec3(new HFRecHitCollection);     // Forward
 	std::auto_ptr<HFDigiCollection> digihf(new HFDigiCollection);
-	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec3,*digihf);
+	HcalRecHitsMaker_->loadHcalRecHits(iEvent,(*topo),*rec3,*digihf, &random);
 	if(theOutputRecHitCollections.size()&& theOutputRecHitCollections[input].size())
 	  iEvent.put(rec3,theOutputRecHitCollections[input]);
 	else

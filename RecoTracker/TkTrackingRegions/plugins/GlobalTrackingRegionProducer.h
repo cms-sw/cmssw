@@ -4,12 +4,14 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class GlobalTrackingRegionProducer : public TrackingRegionProducer {
 
 public:
 
-  GlobalTrackingRegionProducer(const edm::ParameterSet& cfg) { 
+  GlobalTrackingRegionProducer(const edm::ParameterSet& cfg,
+	   edm::ConsumesCollector && iC) { 
 
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
 

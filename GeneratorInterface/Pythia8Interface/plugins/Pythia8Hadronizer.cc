@@ -3,12 +3,13 @@
 #include <string>
 #include <memory>
 #include <stdint.h>
+#include <vector>
 
-#include <HepMC/GenEvent.h>
-#include <HepMC/GenParticle.h>
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
-#include <Pythia.h>
-#include <HepMCInterface.h>
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -24,6 +25,7 @@
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -41,6 +43,10 @@
 #include "HepPID/ParticleIDTranslations.hh"
 
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 using namespace gen;
 using namespace Pythia8;
@@ -64,6 +70,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     const char *classname() const override { return "Pythia8Hadronizer"; }
 
   private:
+
+    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
+    virtual std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
 
     /// Center-of-Mass energy
     double       comEnergy;
@@ -99,8 +108,12 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     int  EV1_pTdefMode;
     bool EV1_MPIvetoOn;
 
+    static const std::vector<std::string> p8SharedResources;
+    
+    std::string slhafile_;
 };
 
+const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
 
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params), Py8InterfaceBase(params),
@@ -156,8 +169,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if( params.exists( "SLHAFileForPythia8" ) ) {
     std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
-    std::string slhafilename = f1.fullPath();
-    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafilename;
+    slhafile_ = f1.fullPath();
+    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafile_;
     fMasterGen->readString(pythiacommandslha);
     for ( ParameterCollector::const_iterator line = fParameters.begin();
           line != fParameters.end(); ++line ) {
@@ -323,7 +336,35 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
        fJetMatchingHook->init ( lheRunInfo() );
     }
     
+    //pythia 8 doesn't currently support reading SLHA table from lhe header in memory
+    //so dump it to a temp file and set the appropriate pythia parameters to read it
+    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
+    const char *fname = std::tmpnam(NULL);
+    //read slha header from lhe only if header is present AND no slha header was specified
+    //for manual loading.
+    bool doslha = !slha.empty() && slhafile_.empty();
+    
+    if (doslha) {
+      std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
+      std::string block;
+      for(std::vector<std::string>::const_iterator iter = slha.begin();
+        iter != slha.end(); ++iter) {
+              file << *iter;
+      }
+      file.close();
+
+      std::string lhareadcmd = "SLHA:readFrom = 2";    
+      std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
+
+      fMasterGen->readString(lhareadcmd);    
+      fMasterGen->readString(lhafilecmd); 
+    }
+    
     fMasterGen->init(lhaUP.get());
+    
+    if (doslha) {
+      std::remove( fname );
+    }
 
   }
   
@@ -436,7 +477,6 @@ void Pythia8Hadronizer::finalizeEvent()
     }
   }
 }
-
 
 typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
 DEFINE_FWK_MODULE(Pythia8GeneratorFilter);

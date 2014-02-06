@@ -32,7 +32,7 @@ BPhysicsOniaDQM::BPhysicsOniaDQM(const ParameterSet& parameters) {
     parameters.getParameter<InputTag>("vertex"));
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(
     parameters.getParameter<InputTag>("MuonCollection"));
-  lumiSummaryToken_ = consumes<LumiSummary>(
+  lumiSummaryToken_ = consumes<LumiSummary,edm::InLumi>(
     parameters.getParameter<InputTag>("lumiSummary"));
 
   global_background = NULL;

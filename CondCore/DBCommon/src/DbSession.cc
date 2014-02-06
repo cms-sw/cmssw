@@ -102,6 +102,21 @@ namespace cond {
         }
       }
 
+      void open( boost::shared_ptr<coral::ISessionProxy>& coralSession, 
+		 const std::string& connectionString, 
+		 const std::string& schemaName ){
+        close();
+	database.reset( new ora::Database );
+	
+	ora::IBlobStreamingService* blobStreamer = cond::BlobStreamerPluginFactory::get()->create(  blobStreamingService );
+	if(!blobStreamer) throw cond::Exception("DbSession::open: cannot find required plugin. No instance of ora::IBlobStreamingService has been loaded..");
+	database->configuration().setBlobStreamingService( blobStreamer );
+	database->configuration().properties().setFlag( ora::Configuration::automaticContainerCreation() );
+	database->connect( coralSession, connectionString, schemaName );
+	transaction.reset( new cond::DbTransaction( database->transaction(), false ) );
+	isOpen = true;
+      }
+
       void close(){
         transaction.reset();
         database.reset();
@@ -155,6 +170,10 @@ void cond::DbSession::open( const std::string& connectionString, const std::stri
 void cond::DbSession::openReadOnly( const std::string& connectionString, const std::string& id )
 {
   m_implementation->openReadOnly( connectionString, id );
+}
+
+void cond::DbSession::open( boost::shared_ptr<coral::ISessionProxy>& coralSession, const std::string& connectionString, const std::string& schemaName ){
+  m_implementation->open( coralSession, connectionString, schemaName  );
 }
 
 void cond::DbSession::close()

@@ -7,10 +7,9 @@
 
   class template that implements an interface to Selector utilities. This
   allows the user to access individual cuts based on a string index.
-  The user can then turn individual cuts on and off at will. 
+  The user can then turn individual cuts on and off at will.
 
   \author Salvatore Rappoccio
-  \version  $Id: Selector.h,v 1.12 2010/07/27 17:59:30 srappocc Exp $
 */
 
 
@@ -23,7 +22,7 @@
 /// Functor that operates on <T>
 template<class T>
 class Selector : public std::binary_function<T, pat::strbitset, bool>  {
-  
+
  public:
   typedef T                                            data_type;
   typedef std::binary_function<T,pat::strbitset,bool>  base_type;
@@ -34,9 +33,9 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
   typedef std::map<index_type, double>                 double_map;
 
   /// Constructor clears the bits
-  Selector( ) { 
-    bits_.clear(); 
-    intCuts_.clear(); 
+  Selector( ) {
+    bits_.clear();
+    intCuts_.clear();
     doubleCuts_.clear();
     cutFlow_.clear();
     retInternal_ = getBitTemplate();
@@ -46,7 +45,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
   /// This is the registration of an individual cut string
   virtual void push_back( std::string const & s) {
     bits_.push_back(s);
-    index_type i(&bits_,s);    
+    index_type i(&bits_,s);
     // don't need to check to see if the key is already there,
     // bits_ does that.
     cutFlow_.push_back( cut_flow_item(i, 0) );
@@ -84,7 +83,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
     setIgnored(retInternal_);
     return (bool)retInternal_;
   }
-  
+
 
   /// This provides an alternative signature that includes extra information
   virtual bool operator()( T const & t, edm::EventBase const & e, pat::strbitset & ret)
@@ -128,7 +127,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
     doubleCuts_[i] = cut;
   }
 
-  /// Turn off a given selection cut. 
+  /// Turn off a given selection cut.
   void clear(std::string const & s) {
     clear(index_type(&bits_,s));
   }
@@ -210,14 +209,14 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
   };
 
   /// Get an empty bitset with the proper names
-  pat::strbitset getBitTemplate() const { 
-    pat::strbitset ret = bits_; 
+  pat::strbitset getBitTemplate() const {
+    pat::strbitset ret = bits_;
     ret.set(false);
     for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
 	  icut != cutsEnd; ++icut ) {
       if ( ignoreCut(icut->first) ) ret[icut->first] = true;
-    }     
+    }
     return ret;
   }
 
@@ -227,32 +226,32 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
 	  icut != cutsEnd; ++icut ) {
       if ( ignoreCut(icut->first) ) ret[icut->first] = true;
-    } 
+    }
   }
 
   /// Print the cut flow
-  void print(std::ostream & out) const { 
+  void print(std::ostream & out) const {
     for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
 	  icut != cutsEnd; ++icut ) {
       char buff[1000];
       if ( considerCut( icut->first ) ) {
-	sprintf(buff, "%6lu : %20s %10lu", 
+	sprintf(buff, "%6lu : %20s %10lu",
 		static_cast<unsigned long>(icut - cutsBegin),
 		icut->first.str().c_str(),
 		static_cast<unsigned long>(icut->second) );
       } else {
-	sprintf(buff, "%6lu : %20s %10s", 
+	sprintf(buff, "%6lu : %20s %10s",
 		static_cast<unsigned long>(icut - cutsBegin),
 		icut->first.str().c_str(),
 		"off" );
       }
       out << buff << std::endl;
-    } 
+    }
   }
 
   /// Print the cuts being considered
-  void printActiveCuts(std::ostream & out) const { 
+  void printActiveCuts(std::ostream & out) const {
     bool already_printed_one = false;
     for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
 	    cutsEnd = cutFlow_.end(), icut = cutsBegin;
@@ -262,17 +261,17 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
 	out << icut->first;
 	already_printed_one = true;
       }
-    } 
+    }
     out << std::endl;
   }
 
-  /// Return the number of passing cases 
+  /// Return the number of passing cases
   double getPasses( std::string const & s ) const {
     return getPasses( index_type(&bits_,s) );
   }
   double getPasses( index_type const &i ) const {
-    cut_flow_map::iterator found = cutFlow_.end();
-    for ( cut_flow_map::iterator cutsBegin = cutFlow_.begin(),
+    cut_flow_map::const_iterator found = cutFlow_.end();
+    for ( cut_flow_map::const_iterator cutsBegin = cutFlow_.begin(),
             cutsEnd = cutFlow_.end(), icut = cutsBegin;
           icut != cutsEnd && found == cutsEnd; ++icut ) {
       if ( icut->first == i ) {

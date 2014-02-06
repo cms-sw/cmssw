@@ -37,8 +37,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   nSimVertices(0),
   nGenParticles(0),
   nChargedParticleTracks(0),
-  initialSize(5000),
-  random(0)
+  initialSize(5000)
 {
 
   theVertexGenerator = new NoPrimaryVertexGenerator();
@@ -70,26 +69,24 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
 }
 
 FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
-			     const edm::ParameterSet& kine,
-			     const RandomEngine* engine) 
+			     const edm::ParameterSet& kine)
   :
   nSimTracks(0),
   nSimVertices(0),
   nGenParticles(0),
   nChargedParticleTracks(0), 
   initialSize(5000),
-  theVertexGenerator(0), 
-  random(engine)
+  theVertexGenerator(0)
 {
 
   // Initialize the vertex generator
   std::string vtxType = vtx.getParameter<std::string>("type");
   if ( vtxType == "Gaussian" ) 
-    theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx,random);
+    theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx);
   else if ( vtxType == "Flat" ) 
-    theVertexGenerator = new FlatPrimaryVertexGenerator(vtx,random);
+    theVertexGenerator = new FlatPrimaryVertexGenerator(vtx);
   else if ( vtxType == "BetaFunc" )
-    theVertexGenerator = new BetaFuncPrimaryVertexGenerator(vtx,random);
+    theVertexGenerator = new BetaFuncPrimaryVertexGenerator(vtx);
   else
     theVertexGenerator = new NoPrimaryVertexGenerator();
   // Initialize the beam spot, if not read from the DataBase
@@ -159,13 +156,13 @@ FBaseSimEvent::theTable() const {
 */
 
 void
-FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
+FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent, RandomEngineAndDistribution const* random) {
   
   // Clear old vectors
   clear();
 
   // Add the particles in the FSimEvent
-  addParticles(myGenEvent);
+  addParticles(myGenEvent, random);
 
   /*
   std::cout << "The MC truth! " << std::endl;
@@ -178,13 +175,13 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
 }
 
 void
-FBaseSimEvent::fill(const reco::GenParticleCollection& myGenParticles) {
+FBaseSimEvent::fill(const reco::GenParticleCollection& myGenParticles, RandomEngineAndDistribution const* random) {
   
   // Clear old vectors
   clear();
 
   // Add the particles in the FSimEvent
-  addParticles(myGenParticles);
+  addParticles(myGenParticles, random);
 
 }
 
@@ -426,7 +423,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
 
 void
-FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
+FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent, RandomEngineAndDistribution const* random) {
 
   /// Some internal array to work with.
   int genEventSize = myGenEvent.particles_size();
@@ -461,7 +458,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   // Now takes the origin from the database
   XYZTLorentzVector smearedVertex; 
   if ( primaryVertexPosition.Vect().Mag2() < 1E-16 ) {
-    theVertexGenerator->generate();
+    theVertexGenerator->generate(random);
     smearedVertex = XYZTLorentzVector(
       theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.X(),
       theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+theBeamSpot.Y(),
@@ -639,7 +636,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 }
 
 void
-FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
+FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles, RandomEngineAndDistribution const* random) {
 
   // If no particles, no work to be done !
   unsigned int nParticles = myGenParticles.size();
@@ -672,7 +669,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
   // Smear the main vertex if needed
   XYZTLorentzVector smearedVertex;
   if ( primaryVertex.mag() < 1E-8 ) {
-    theVertexGenerator->generate();
+    theVertexGenerator->generate(random);
     smearedVertex = XYZTLorentzVector(
       theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+theBeamSpot.X(),
       theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+theBeamSpot.Y(),

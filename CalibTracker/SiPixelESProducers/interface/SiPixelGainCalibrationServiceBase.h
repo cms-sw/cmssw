@@ -14,32 +14,42 @@
 // ************************************************************************
 // ************************************************************************
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <iostream>
-#include <utility>
 
 // Abstract base class provides common interface to different payload getters 
 class SiPixelGainCalibrationServiceBase {
    public:
-      SiPixelGainCalibrationServiceBase(){};
-      virtual ~SiPixelGainCalibrationServiceBase(){};
-      virtual float getGain      ( const uint32_t& detID , const int& col , const int& row)=0;
-      virtual float getPedestal  ( const uint32_t& detID , const int& col , const int& row)=0;
-      virtual bool  isDead       ( const uint32_t& detID , const int& col , const int& row)=0;
-      virtual bool  isDeadColumn ( const uint32_t& detID , const int& col , const int& row)=0;
-      virtual bool  isNoisy       ( const uint32_t& detID , const int& col , const int& row)=0;
-      virtual bool  isNoisyColumn ( const uint32_t& detID , const int& col , const int& row)=0;
-      virtual void  setESObjects(const edm::EventSetup& es )=0;
-      virtual std::vector<uint32_t> getDetIds()=0;
-      virtual double getGainLow()=0;
-      virtual double getGainHigh()=0;
-      virtual double getPedLow()=0;
-      virtual double getPedHigh()=0;
+
+  typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
+
+
+  SiPixelGainCalibrationServiceBase(){};
+  virtual ~SiPixelGainCalibrationServiceBase(){};
+  
+  // default inplementation from PixelThresholdClusterizer 
+  virtual void calibrate(uint32_t detID, DigiIterator b, DigiIterator e, float conversionFactor, float offset, int * electron);
+  
+  virtual float getGain      ( const uint32_t& detID , const int& col , const int& row)=0;
+  virtual float getPedestal  ( const uint32_t& detID , const int& col , const int& row)=0;
+  virtual bool  isDead       ( const uint32_t& detID , const int& col , const int& row)=0;
+  virtual bool  isDeadColumn ( const uint32_t& detID , const int& col , const int& row)=0;
+  virtual bool  isNoisy       ( const uint32_t& detID , const int& col , const int& row)=0;
+  virtual bool  isNoisyColumn ( const uint32_t& detID , const int& col , const int& row)=0;
+  virtual void  setESObjects(const edm::EventSetup& es )=0;
+  virtual std::vector<uint32_t> getDetIds()=0;
+  virtual double getGainLow()=0;
+  virtual double getGainHigh()=0;
+  virtual double getPedLow()=0;
+  virtual double getPedHigh()=0;
+
 };
 
 
@@ -80,7 +90,6 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
 
   void    throwExepctionForBadRead(std::string payload, const uint32_t& detID, const int& col, const int& row, double value = -1) const;
 
- private:
 
   edm::ParameterSet conf_;
   bool ESetupInit_;
@@ -138,6 +147,7 @@ template<class thePayloadObject, class theDBRecordType>
 void SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordType>::setESObjects( const edm::EventSetup& es ) {
 
     es.get<theDBRecordType>().get(ped);
+    ped->initialize();
     numberOfRowsAveragedOver_ = ped->getNumberOfRowsToAverageOver();
     ESetupInit_ = true;
 
@@ -187,6 +197,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
         std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
 	old_range = rangeAndNCols.first;
 	old_cols  = rangeAndNCols.second;
+	oldColumnIndexGain_ = -1;
       }
       //std::cout<<" Pedestal "<<ped->getPed(col, row, old_range, old_cols)<<std::endl;
       return  ped->getPed(col, row, old_range, old_cols, isDead, isNoisy);
@@ -206,6 +217,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
       std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
       old_range = rangeAndNCols.first;
       old_cols  = rangeAndNCols.second;
+      return oldColumnValuePed_;
     }
     return ped->getGain(col, row, old_range, old_cols, isDead, isNoisy);
   } else throw cms::Exception("NullPointer")
@@ -229,6 +241,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
         std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
 	old_range = rangeAndNCols.first;
 	old_cols  = rangeAndNCols.second;
+	oldColumnIndexGain_ = -1;
       } 
       else if (col == oldColumnIndexPed_ && inTheSameAveragedDataBlock) // same DetID, same column, same data block
       {
@@ -265,6 +278,7 @@ float SiPixelGainCalibrationServicePayloadGetter<thePayloadObject,theDBRecordTyp
       std::pair<const typename thePayloadObject::Range, const int> rangeAndNCols = ped->getRangeAndNCols(detID);
       old_range = rangeAndNCols.first;
       old_cols  = rangeAndNCols.second;
+      oldColumnIndexPed_ = -1;
     }
     else if (col == oldColumnIndexGain_ && inTheSameAveragedDataBlock) // same DetID, same column
     {

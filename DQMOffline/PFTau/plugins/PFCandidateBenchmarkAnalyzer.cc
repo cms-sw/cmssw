@@ -49,7 +49,6 @@ PFCandidateBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   
   
   Handle<PFCandidateCollection> collection; 
-  //iEvent.getByLabel( inputLabel_, collection); 
   iEvent.getByToken(myColl_, collection);
 
   fill( *collection );

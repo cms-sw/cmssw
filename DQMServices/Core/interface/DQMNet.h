@@ -97,6 +97,10 @@ public:
     uint32_t		flags;
     uint32_t 		tag;
     uint64_t		version;
+    uint32_t            run;
+    uint32_t            lumi;
+    uint32_t            streamId;
+    uint32_t            moduleId;
     const std::string	*dirname;
     std::string		objname;
     QReports		qreports;
@@ -173,10 +177,22 @@ public:
 
   static bool setOrder(const CoreObject &a, const CoreObject &b)
     {
-      int diff = a.dirname->compare(*b.dirname);
-      return (diff < 0 ? true
-	      : diff == 0 ? a.objname < b.objname
-	      : false);
+      if (a.run == b.run) {
+        if (a.lumi == b.lumi) {
+          if (a.streamId == b.streamId) {
+            if (a.moduleId == b.moduleId) {
+              if (*a.dirname == *b.dirname) {
+                return a.objname < b.objname;
+              }
+              return *a.dirname < *b.dirname;
+            }
+            return a.moduleId < b.moduleId;
+          }
+          return a.streamId < b.streamId;
+        }
+        return a.lumi < b.lumi;
+      }
+      return a.run < b.run;
     }
 
   struct HashOp

@@ -16,9 +16,8 @@ class HistogramGenerator : public BaseNumericalRandomGenerator
  public:
 
   /// Constructor : initialization of the Random Generator
-   HistogramGenerator(TH1 * histo, const RandomEngine* engine) : 
-     BaseNumericalRandomGenerator(engine,
-				  histo->GetXaxis()->GetXmin(),
+   HistogramGenerator(TH1 * histo) :
+     BaseNumericalRandomGenerator(histo->GetXaxis()->GetXmin(),
 				  histo->GetXaxis()->GetXmax(),
 				  100000,
 				  3),
@@ -62,8 +61,5 @@ class HistogramGenerator : public BaseNumericalRandomGenerator
 
   /// Gamma Function
    double ersatzt(double x);
-
-   
 };
-
 #endif

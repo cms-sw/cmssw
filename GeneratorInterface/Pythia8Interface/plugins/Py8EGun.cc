@@ -3,7 +3,6 @@
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
-#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
 namespace gen {
 
@@ -55,17 +54,12 @@ bool Py8EGun::generatePartonsAndHadronize()
 
       int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
 
-      // FIXME !!!
-      // Ouch, it's using bare randomEngine pointer - that's NOT safe.
-      // Need to hold a pointer somewhere properly !!!
-      //
-      double phi = (fMaxPhi-fMinPhi) * randomEngine->flat() + fMinPhi;
-      double ee   = (fMaxE-fMinE) * randomEngine->flat() + fMinE;
-      double eta  = (fMaxEta-fMinEta) * randomEngine->flat() + fMinEta;                                                      
-      double the  = 2.*atan(exp(-eta));                                                                          
-      
-      double mass = (fMasterGen->particleData).mass( particleID );
-//      double mass = (pythia->particleData).m0( particleID );
+      double phi = (fMaxPhi-fMinPhi) * randomEngine().flat() + fMinPhi;
+      double ee   = (fMaxE-fMinE) * randomEngine().flat() + fMinE;
+      double eta  = (fMaxEta-fMinEta) * randomEngine().flat() + fMinEta;
+      double the  = 2.*atan(exp(-eta));
+
+      double mass = (fMasterGen->particleData).m0( particleID );
 
       double pp = sqrt( ee*ee - mass*mass );
       double px = pp * sin(the) * cos(phi);
@@ -99,9 +93,7 @@ bool Py8EGun::generatePartonsAndHadronize()
    if ( !fMasterGen->next() ) return false;
    
    event().reset(new HepMC::GenEvent);
-   toHepMC.fill_next_event( fMasterGen->event, event().get() );
-      
-   return true;   
+   return toHepMC.fill_next_event( fMasterGen->event, event().get() );
   
 }
 

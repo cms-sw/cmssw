@@ -1,3 +1,4 @@
+
 /*
  * =====================================================================================
  *
@@ -123,6 +124,11 @@ namespace cscdqm {
 
       Dispatcher(Configuration* const p_config, MonitorObjectProvider* const p_provider);
 
+#ifdef DQMGLOBAL
+      Dispatcher(Configuration* const p_config, MonitorObjectProvider* const p_provider,
+		 const edm::InputTag& itag, edm::ConsumesCollector&& coco);
+#endif
+
       /**
        * @brief  Destructor. Joins and waits to complete all threads.
        */
@@ -139,6 +145,9 @@ namespace cscdqm {
       void processStandby(HWStandbyType& standby);
 
     private:
+
+      // Old content of ctor into separate function so it can be called by both ctors
+      void commonConstruct(Configuration* const p_config, MonitorObjectProvider* const p_provider);
 
       void updateFractionAndEfficiencyHistosAuto();
 

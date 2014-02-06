@@ -285,10 +285,8 @@ ecalEndcapClusterTask.EcalRawDataCollection = 'ecalDigis:'
 ecalEndcapClusterTask.BasicClusterCollection = 'cosmicBasicClusters:CosmicEndcapBasicClusters'
 ecalEndcapClusterTask.SuperClusterCollection = 'cosmicSuperClusters:CosmicEndcapSuperClusters'
 
-ecalBarrelClusterTaskExtras.BasicClusterCollection = 'cosmicBasicClusters:CosmicBarrelBasicClusters'
 ecalBarrelClusterTaskExtras.SuperClusterCollection = 'cosmicSuperClusters:CosmicBarrelSuperClusters'
 
-ecalEndcapClusterTaskExtras.BasicClusterCollection = 'cosmicBasicClusters:CosmicEndcapBasicClusters'
 ecalEndcapClusterTaskExtras.SuperClusterCollection = 'cosmicSuperClusters:CosmicEndcapSuperClusters'
 
 ecalBarrelHltTask.EBDetIdCollection0 = 'ecalDigis:EcalIntegrityDCCSizeErrors'

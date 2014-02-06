@@ -8,10 +8,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetExtendedAssociation.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
 #include "JetExtender.h"
 
@@ -20,6 +17,10 @@ JetExtender::JetExtender(const edm::ParameterSet& fConfig)
     mJet2TracksAtVX (fConfig.getParameter<edm::InputTag> ("jet2TracksAtVX")),
     mJet2TracksAtCALO (fConfig.getParameter<edm::InputTag> ("jet2TracksAtCALO"))
 {
+  token_mJets = consumes<edm::View <reco::Jet> >(mJets);
+  if (!(mJet2TracksAtVX.label().empty())) token_mJet2TracksAtVX = consumes<reco::JetTracksAssociation::Container> (mJet2TracksAtVX);
+  if (!(mJet2TracksAtCALO.label().empty())) token_mJet2TracksAtCALO = consumes<reco::JetTracksAssociation::Container> (mJet2TracksAtCALO);
+
   produces<reco::JetExtendedAssociation::Container> ();
 }
 
@@ -28,11 +29,11 @@ JetExtender::~JetExtender() {}
 void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   // get stuff from Event
   edm::Handle <edm::View <reco::Jet> > jets_h;
-  fEvent.getByLabel (mJets, jets_h);
+  fEvent.getByToken (token_mJets, jets_h);
   edm::Handle <reco::JetTracksAssociation::Container> j2tVX_h;
-  if (!(mJet2TracksAtVX.label().empty())) fEvent.getByLabel (mJet2TracksAtVX, j2tVX_h);
+  if (!(mJet2TracksAtVX.label().empty())) fEvent.getByToken (token_mJet2TracksAtVX, j2tVX_h);
   edm::Handle <reco::JetTracksAssociation::Container> j2tCALO_h;
-  if (!(mJet2TracksAtCALO.label().empty())) fEvent.getByLabel (mJet2TracksAtCALO, j2tCALO_h);
+  if (!(mJet2TracksAtCALO.label().empty())) fEvent.getByToken (token_mJet2TracksAtCALO, j2tCALO_h);
   
   std::auto_ptr<reco::JetExtendedAssociation::Container> 
     jetExtender (new reco::JetExtendedAssociation::Container (reco::JetRefBaseProd(jets_h)));

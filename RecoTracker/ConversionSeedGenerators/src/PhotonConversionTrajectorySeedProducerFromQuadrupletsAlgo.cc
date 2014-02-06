@@ -19,34 +19,41 @@ assign the parameters to some data member to avoid search at every event
 //#define mydebug_knuenz
 
 PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
-PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSet & conf)
+PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSet & conf,
+	edm::ConsumesCollector && iC)
   :_conf(conf),seedCollection(0),
    hitsfactoryPSet(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet")),   
    creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
    regfactoryPSet(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet")),
-   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet")),
+   theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), std::move(iC)),
    SeedComparitorPSet(conf.getParameter<edm::ParameterSet>("SeedComparitorPSet")),
    QuadCutPSet(conf.getParameter<edm::ParameterSet>("QuadCutPSet")),
    theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)){
 
+  theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet, std::move(iC));
+  
+  token_vertex      = iC.consumes<reco::VertexCollection>(_conf.getParameter<edm::InputTag>("primaryVerticesTag"));
+
   init();  
 }
      
+PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::~PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo() {
+  if(theRegionProducer!=NULL)
+    delete theRegionProducer;
+}
+
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 clear(){
   if(theHitsGenerator!=NULL)
     delete theHitsGenerator;
   if(theSeedCreator!=NULL)
     delete theSeedCreator;
-  if(theRegionProducer!=NULL)
-    delete theRegionProducer;
 }
 
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 init(){
   theHitsGenerator  = new CombinedHitQuadrupletGeneratorForPhotonConversion(hitsfactoryPSet);
   theSeedCreator    = new SeedForPhotonConversionFromQuadruplets(creatorPSet);
-  theRegionProducer = new GlobalTrackingRegionProducerFromBeamSpot(regfactoryPSet);
 }
 
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
@@ -69,7 +76,7 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
 
   regions = theRegionProducer->regions(event,setup);
 
-  event.getByLabel(_conf.getParameter<edm::InputTag>("primaryVerticesTag"), vertexHandle);
+  event.getByToken(token_vertex, vertexHandle);
   if (!vertexHandle.isValid()){ 
     edm::LogError("PhotonConversionFinderFromTracks") << "Error! Can't get the product primary Vertex Collection "<< _conf.getParameter<edm::InputTag>("primaryVerticesTag") <<  "\n";
     return;

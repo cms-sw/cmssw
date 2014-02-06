@@ -1,16 +1,16 @@
 #include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <cmath>
 
 MultipleScatteringSimulator::MultipleScatteringSimulator(
-  const RandomEngine* engine, double A, double Z, double density, double radLen) :
-    MaterialEffectsSimulator(engine,A,Z,density,radLen)
+  double A, double Z, double density, double radLen) :
+    MaterialEffectsSimulator(A,Z,density,radLen)
 {
   sqr12 = std::sqrt(12.);
 }
 
-void MultipleScatteringSimulator::compute(ParticlePropagator &Particle)
+void MultipleScatteringSimulator::compute(ParticlePropagator &Particle, RandomEngineAndDistribution const* random)
 {
 
   double p2 = Particle.Vect().Mag2();

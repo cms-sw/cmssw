@@ -1,22 +1,21 @@
-
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-#include "GeneratorInterface/ExternalDecays/interface/EvtGenInterface.h"
-#include "GeneratorInterface/ExternalDecays/interface/TauolaInterface.h"
-#include "GeneratorInterface/ExternalDecays/interface/PhotosInterface.h"
-
-#include "GeneratorInterface/ExternalDecays/interface/DecayRandomEngine.h"
-
-#include "HepMC/GenEvent.h"
-
+#include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
+#include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterfaceBase.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaFactory.h"
+#include "GeneratorInterface/TauolaInterface/interface/TauolaInterfaceBase.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosInterfaceBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "HepMC/GenEvent.h"
+#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
 using namespace gen;
 using namespace edm;
 
-CLHEP::HepRandomEngine* decayRandomEngine;
+CLHEP::HepRandomEngine* decayRandomEngine = nullptr;
 
 ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
    : fIsInitialized(false),
@@ -25,46 +24,37 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
      fPhotosInterface(0)
 {
     
-    std::vector<std::string> extGenNames =
-       pset.getParameter< std::vector<std::string> >("parameterSets");
-
-    Service<RandomNumberGenerator> rng;
-    if(!rng.isAvailable()) {
-       throw cms::Exception("Configuration")
-       << "The RandomNumberProducer module requires the RandomNumberGeneratorService\n"
-          "which appears to be absent.  Please add that service to your configuration\n"
-          "or remove the modules that require it." << std::endl;
-    } 
-    decayRandomEngine = &rng->getEngine();   
-    
-    for (unsigned int ip=0; ip<extGenNames.size(); ++ip )
-    {
-      std::string curSet = extGenNames[ip];
-      if ( curSet == "EvtGen" )
-      {
-         fEvtGenInterface = new gen::EvtGenInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
-      }
-      else if ( curSet == "Tauola" )
-      {
-         // this is for old tauola27 (+pretauola)
-	 //
-	 // --> fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
-	 //
-	 // for tauola++, here it should be something like:
-	 //
-	 fTauolaInterface = TauolaInterface::getInstance();
-	 fTauolaInterface->setPSet( pset.getUntrackedParameter< ParameterSet >(curSet) );
-	 fPhotosInterface = new gen::PhotosInterface();
-	 fPhotosInterface->configureOnlyFor( 15 );
-	 fPhotosInterface->avoidTauLeptonicDecays();
-      }
-      else if ( curSet == "Photos" )
-      {
-         if ( !fPhotosInterface ) fPhotosInterface = new gen::PhotosInterface();
-      }
-
+  std::vector<std::string> extGenNames =
+    pset.getParameter< std::vector<std::string> >("parameterSets");
+  
+  for (unsigned int ip=0; ip<extGenNames.size(); ++ip ){
+    std::string curSet = extGenNames[ip];
+    if ( curSet == "EvtGen" || curSet == "EvtGenLHC91"){
+      fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGenLHC91", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPythia6);
     }
-
+    else if ( curSet == "Tauola" || curSet == "Tauolapp113a" ){
+      // this is for old tauola27 (+pretauola)
+      //
+      // --> fTauolaInterface = new gen::TauolaInterface(pset.getUntrackedParameter< ParameterSet >(curSet));
+      //
+      // for tauola++, here it should be something like:
+      //
+      fTauolaInterface = (TauolaInterfaceBase*)(TauolaFactory::get()->create("Tauolapp113a", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      fPhotosInterface->configureOnlyFor( 15 );
+      fPhotosInterface->avoidTauLeptonicDecays();
+      exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
+    }
+    else if ( curSet == "Photos" || curSet == "Photos2155" ){
+      if ( !fPhotosInterface ){
+	fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter< ParameterSet>(curSet)));
+	exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
+      }
+    }
+  }
 }
 
 ExternalDecayDriver::~ExternalDecayDriver()
@@ -155,4 +145,12 @@ void ExternalDecayDriver::statistics() const
    if ( fTauolaInterface ) fTauolaInterface->statistics();
    // similar for EvtGen and/or Photos, if needs be
    return;
+}
+
+void ExternalDecayDriver::setRandomEngine(CLHEP::HepRandomEngine* v)
+{
+   decayRandomEngine = v;
+   if ( fTauolaInterface ) fTauolaInterface->setRandomEngine(v);
+   if ( fEvtGenInterface ) fEvtGenInterface->setRandomEngine(v);
+   if ( fPhotosInterface ) fPhotosInterface->setRandomEngine(v);
 }

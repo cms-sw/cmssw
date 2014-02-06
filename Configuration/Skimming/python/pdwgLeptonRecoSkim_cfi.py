@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 PdwgLeptonRecoSkim = cms.EDFilter('LeptonRecoSkim',
   HltLabel = cms.InputTag("TriggerResults","","HLT"),
-  electronCollection      = cms.InputTag("gsfElectrons"),
+  electronCollection      = cms.InputTag("gedGsfElectrons"),
   pfElectronCollection    = cms.InputTag("particleFlow"),
   muonCollection          = cms.InputTag("muons"),
   caloJetCollection       = cms.InputTag("ak5CaloJetsL2L3"),

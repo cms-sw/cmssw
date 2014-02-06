@@ -17,31 +17,6 @@
 
 namespace evf
 {
-  struct RecoEventWriterForFUHeaderParams
-  {
-    uint32 runNumber;
-    uint32 hltCount;
-    const char* headerPtr;
-    uint32 headerSize;
-
-    uint32 fragmentIndex;
-    uint32 fragmentCount;
-    const char* dataPtr;
-    uint32 dataSize;
-  };
-
-  struct RecoEventWriterForFUEventParams
-  {
-    std::vector<unsigned char> hltBits;
-    const char* headerPtr;
-    uint32 headerSize;
-
-    uint32 fragmentIndex;
-    uint32 fragmentCount;
-    const char* dataPtr;
-    uint32 dataSize;
-  };
-
   class ParameterSetDescription;
   class RecoEventWriterForFU 
   {
@@ -52,25 +27,25 @@ namespace evf
 
     static void fillDescription(edm::ParameterSetDescription& desc);
 
-    void setOutputFiles(std::string &, std::string &);
-    void setOutputFile(std::string &);
+    void setInitMessageFile(std::string const&);
+    void setOutputFile(std::string const&);
+    void closeOutputFile();
+
     void doOutputHeader(InitMsgBuilder const& init_message);    
     void doOutputHeader(InitMsgView const& init_message);    
-    void doOutputHeaderFragment(RecoEventWriterForFUHeaderParams const&);
 
     void doOutputEvent(EventMsgBuilder const& msg);
     void doOutputEvent(EventMsgView const& msg);
-    void doOutputEventFragment(RecoEventWriterForFUEventParams const&);
 
-    void start(){}
+    void start(){};
     void stop(){};
 
     uint32 get_adler32() const { return stream_writer_events_->adler32();}
 
   private:
 
-    std::auto_ptr<StreamerOutputFile> stream_writer_preamble_;
-    std::auto_ptr<StreamerOutputFile> stream_writer_events_;
+    boost::shared_ptr<StreamerOutputFile> stream_writer_preamble_;
+    boost::shared_ptr<StreamerOutputFile> stream_writer_events_;
 
   };
 }

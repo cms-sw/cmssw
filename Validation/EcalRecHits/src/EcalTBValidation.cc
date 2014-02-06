@@ -30,6 +30,11 @@ EcalTBValidation::EcalTBValidation( const edm::ParameterSet& config ) {
   eventHeaderCollection_ = config.getParameter<std::string>("eventHeaderCollection");
   eventHeaderProducer_   = config.getParameter<std::string>("eventHeaderProducer");
 
+  digi_Token_ = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, digiCollection_));
+  hit_Token_ = consumes<EBUncalibratedRecHitCollection>(edm::InputTag(hitProducer_, hitCollection_));
+  hodoRec_Token_ = consumes<EcalTBHodoscopeRecInfo>(edm::InputTag(hodoRecInfoProducer_, hodoRecInfoCollection_));
+  tdcRec_Token_ = consumes<EcalTBTDCRecInfo>(edm::InputTag(tdcRecInfoProducer_, tdcRecInfoCollection_));
+  eventHeader_Token_ = consumes<EcalTBEventHeader>(edm::InputTag(eventHeaderProducer_));
   //rootfile_              = config.getUntrackedParameter<std::string>("rootfile","EcalTBValidation.root");
 
   // verbosity...
@@ -137,7 +142,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // digis
   const EBDigiCollection* theDigis=0;
   Handle<EBDigiCollection> pdigis;
-  event.getByLabel(digiProducer_, digiCollection_, pdigis);
+  event.getByToken(digi_Token_, pdigis);
   if(pdigis.isValid()){
     theDigis = pdigis.product(); 
   } 
@@ -149,7 +154,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // rechits
   const EBUncalibratedRecHitCollection* theHits=0;  
   Handle<EBUncalibratedRecHitCollection> phits;
-  event.getByLabel(hitProducer_, hitCollection_, phits);
+  event.getByToken(hit_Token_, phits);
   if(phits.isValid()){
     theHits = phits.product(); 
   } 
@@ -161,7 +166,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // hodoscopes
   const EcalTBHodoscopeRecInfo* theHodo=0;  
   Handle<EcalTBHodoscopeRecInfo> pHodo;
-  event.getByLabel(hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
+  event.getByToken(hodoRec_Token_, pHodo);
   if(pHodo.isValid()){ 
     theHodo = pHodo.product(); 
   }
@@ -173,7 +178,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // tdc
   const EcalTBTDCRecInfo* theTDC=0;
   Handle<EcalTBTDCRecInfo> pTDC;
-  event.getByLabel(tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
+  event.getByToken(tdcRec_Token_, pTDC);
   if(pTDC.isValid()){
     theTDC = pTDC.product(); 
   }
@@ -185,7 +190,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   // event header
   const EcalTBEventHeader* evtHeader=0;
   Handle<EcalTBEventHeader> pEventHeader;
-  event.getByLabel(eventHeaderProducer_ , pEventHeader);
+  event.getByToken(eventHeader_Token_ , pEventHeader);
   if(pEventHeader.isValid()){
     evtHeader = pEventHeader.product(); 
   }

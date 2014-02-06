@@ -105,12 +105,10 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiSt
 
     std::vector<FedChannelConnection> conns;
   
-    const std::vector<uint16_t>& feds=iobj->feds();
-    std::vector<uint16_t>::const_iterator ifeds=feds.begin();  
-    for(;ifeds!=feds.end();ifeds++){
-      const std::vector<FedChannelConnection>& conns_per_fed =iobj->connections( *ifeds );
-      std::vector<FedChannelConnection>::const_iterator iconn=conns_per_fed.begin();
-      for(;iconn!=conns_per_fed.end();++iconn){
+    auto feds=iobj->fedIds();
+    for(auto ifeds=feds.begin();ifeds!=feds.end();ifeds++){
+      auto conns_per_fed =iobj->fedConnections( *ifeds );
+      for(auto iconn=conns_per_fed.begin();iconn!=conns_per_fed.end();++iconn){
 	std::map<uint32_t, std::pair<uint32_t, uint32_t> >::const_iterator it=dcuDetIdMap.find(iconn->dcuId());
 	if(it!=dcuDetIdMap.end() && it->second.first==iconn->detId()){
 	  edm::LogInfo("SiStripFedCablingManipulator")<< "::manipulate - fedid "<< *ifeds << " dcuid " <<  iconn->dcuId() << " oldDet " << iconn->detId() << " newDetID " << it->second.second ;

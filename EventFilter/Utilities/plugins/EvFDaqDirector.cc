@@ -31,8 +31,7 @@ namespace evf {
 							     false)
 			   ),
     base_dir_(
-	      pset.getUntrackedParameter<std::string> ("baseDir",
-						       "/data")
+	      pset.getUntrackedParameter<std::string> ("baseDir", "/data")
 	      ),
     bu_base_dir_(
 		 pset.getUntrackedParameter<std::string> ("buBaseDir", "/data")
@@ -78,11 +77,11 @@ namespace evf {
   {
     reg.watchPreBeginRun(this, &EvFDaqDirector::preBeginRun);
     reg.watchPostEndRun(this, &EvFDaqDirector::postEndRun);
-    char srunno[7];
-    sprintf(srunno,"%06d",run_);
-    run_dir_name_ = "run";
-    run_dir_name_ += srunno;
-    run_dir_ = base_dir_+"/"+run_dir_name_;
+
+    std::stringstream ss;
+    ss << "run" << std::setfill('0') << std::setw(6) << run_;
+    run_string_ = ss.str();
+    run_dir_ = base_dir_+"/"+run_string_;
 
     //save hostname for later 
     char hostname[33];
@@ -101,7 +100,7 @@ namespace evf {
 
     if (directorBu_) 
       {
-	bu_run_dir_ = base_dir_ + "/" + run_dir_name_;
+	bu_run_dir_ = bu_base_dir_ + "/" + run_string_;
 	std::string bulockfile = bu_run_dir_ + "/bu.lock";
 	std::string fulockfile = bu_run_dir_ + "/fu.lock";
 
@@ -173,7 +172,7 @@ namespace evf {
 					      << base_dir_ << " mkdir error:" << strerror(errno) << "\n";
 	}
 
-	bu_run_dir_ = bu_base_dir_ + "/" + run_dir_name_;
+	bu_run_dir_ = bu_base_dir_ + "/" + run_string_;
 	std::string fulockfile = bu_run_dir_ + "/fu.lock";
 	openFULockfileStream(fulockfile, false);
       }
@@ -222,7 +221,7 @@ namespace evf {
 					  << sm_base_dir_ << " mkdir error:" << strerror(errno) << "\n";
       return false;
     }
-    std::string mergedRunDir = sm_base_dir_ + "/" + run_dir_name_;
+    std::string mergedRunDir = sm_base_dir_ + "/" + run_string_;
     std::string mergedDataDir = mergedRunDir + "/data";
     std::string mergedMonDir = mergedRunDir + "/mon";
     retval = mkdir(mergedRunDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -251,15 +250,43 @@ namespace evf {
     return true;
   }
 
-  std::string EvFDaqDirector::getRawFilePath(unsigned int ls, unsigned int index) {
-    return formatRawFilePath(ls, index);
+  std::string EvFDaqDirector::getRawFilePath(const unsigned int ls, const unsigned int index) const {
+    return bu_run_dir_ + "/" + inputFileNameStem(ls, index) + ".raw";
   }
 
-  std::string EvFDaqDirector::getOpenRawFilePath(unsigned int ls,unsigned int index){
-    return formatOpenRawFilePath(ls, index);
+  std::string EvFDaqDirector::getOpenRawFilePath(const unsigned int ls, const unsigned int index) const {
+    return bu_run_dir_ + "/open/" + inputFileNameStem(ls, index) + ".raw";
   }
 
-  std::string EvFDaqDirector::getPathForFU() {
+  std::string EvFDaqDirector::getOpenDatFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/open/" + outputFileNameStem(ls,stream) + ".dat";
+  }
+
+  std::string EvFDaqDirector::getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + outputFileNameStem(ls,stream) + ".jsn";
+  }
+
+  std::string EvFDaqDirector::getMergedDatFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + mergedFileNameStem(ls,stream) + ".dat";
+  }
+
+  std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
+    return run_dir_ + "/" + initFileName(stream);
+  }
+
+  std::string EvFDaqDirector::getEoLSFilePathOnBU(const unsigned int ls) const {
+    return bu_run_dir_ + "/" + eolsFileName(ls);
+  }
+
+  std::string EvFDaqDirector::getEoLSFilePathOnFU(const unsigned int ls) const {
+    return run_dir_ + "/" + eolsFileName(ls);
+  }
+
+  std::string EvFDaqDirector::getEoRFilePath() const {
+    return bu_run_dir_ + "/" + eorFileName();
+  }
+
+  std::string EvFDaqDirector::getPathForFU() const {
     return sm_base_dir_;
   }
 
@@ -296,7 +323,7 @@ namespace evf {
     // close and reopen the stream / fd
     close(fu_readwritelock_fd_);
     std::string fulockfile = bu_run_dir_ + "/fu.lock";
-    fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR, S_IRWXU);
+    fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR | O_NONBLOCK, S_IRWXU);
     if (fu_readwritelock_fd_ == -1)
       edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock "
 		<< strerror(errno);
@@ -307,14 +334,13 @@ namespace evf {
     edm::LogInfo("EvFDaqDirector") << "Reopened the fw FD & STREAM";
 
     // obtain lock on the fulock file - this call will block if the lock is held by another process
-    fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_flk);
+    int retval = fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_flk);
+    //if locking fails just return here 
+    if(retval!=0) return false;
 
     eorSeen = false;
     struct stat buf;
-    stringstream ss;
-    ss << bu_run_dir_ << "/EoR_"<< std::setw(6) 
-       << std::setfill('0') << run_<<".jsn";
-    eorSeen = (stat(ss.str().c_str(), &buf) == 0);
+    eorSeen = (stat(getEoRFilePath().c_str(), &buf) == 0);
     bool valid = false;
 
     // if the stream is readable
@@ -491,7 +517,7 @@ namespace evf {
     nextIndex++;
 
     // 1. Check suggested file
-    nextFile = formatRawFilePath(ls,index);
+    nextFile = getRawFilePath(ls,index);
     bool found = (stat(nextFile.c_str(), &buf) == 0);
     // if found
     if (found) {
@@ -501,12 +527,12 @@ namespace evf {
     }
     // 2. No file -> lumi ended? (and how many?)
     else {
-      bool eolFound = (stat(formatEndOfLS(ls).c_str(), &buf) == 0);
+      bool eolFound = (stat(getEoLSFilePathOnBU(ls).c_str(), &buf) == 0);
       unsigned int startingLumi = ls;
       while (eolFound) {
 	// this lumi ended, check for files
 	++ls;
-	nextFile = formatRawFilePath(ls,0);
+	nextFile = getRawFilePath(ls,0);
 	found = (stat(nextFile.c_str(), &buf) == 0);
 	// update highest ls even if there is no file
 	// input source can now end its' LS when an EoL jsn file is seen
@@ -518,9 +544,9 @@ namespace evf {
 	  
 	  if (testModeNoBuilderUnit_) {
 	    // rename ended lumi to + 2
-	    string sourceEol = formatEndOfLS(startingLumi);
+	    string sourceEol = getEoLSFilePathOnBU(startingLumi);
 	    
-	    string destEol = formatEndOfLS(startingLumi+2);
+	    string destEol = getEoLSFilePathOnBU(startingLumi+2);
 	    
 	    string cpCmd = "cp " + sourceEol + " " + destEol;
 	    edm::LogInfo("EvFDaqDirector") << " testmode: Running copy cmd = " << cpCmd;
@@ -532,7 +558,7 @@ namespace evf {
 	  
 	  return true;
 	}
-	eolFound = (stat(formatEndOfLS(ls).c_str(), &buf) == 0);
+	eolFound = (stat(getEoLSFilePathOnBU(ls).c_str(), &buf) == 0);
       }
     }
     // no new file found
@@ -578,7 +604,7 @@ namespace evf {
 
   //create if does not exist then lock the merge destination file
   FILE *EvFDaqDirector::maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream) {
-    data_rw_stream = fopen(formatMergeFilePath(ls,stream).c_str(), "a"); //open stream for appending
+    data_rw_stream = fopen(getMergedDatFilePath(ls,stream).c_str(), "a"); //open stream for appending
     data_readwrite_fd_ = fileno(data_rw_stream);
     if (data_readwrite_fd_ == -1)
       edm::LogError("EvFDaqDirector") << "problem with creating filedesc for datamerge "
@@ -592,44 +618,55 @@ namespace evf {
   }
   
   void EvFDaqDirector::unlockAndCloseMergeStream() {
+    fflush(data_rw_stream);
     fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_fulk);
     fclose(data_rw_stream);
   }
 
-  std::string EvFDaqDirector::formatRawFilePath(unsigned int ls, unsigned int index) const {
+  std::string EvFDaqDirector::inputFileNameStem(const unsigned int ls, const unsigned int index) const {
     std::stringstream ss;
-    ss << bu_run_dir_ << "/run" << std::setfill('0') << std::setw(6) << run_ 
+    ss << run_string_
        << "_ls" << std::setfill('0') << std::setw(4) << ls
-       << "_index" << std::setfill('0') << std::setw(6) << index 
-       << ".raw";
-    return ss.str();
-  }
-  std::string EvFDaqDirector::formatOpenRawFilePath(unsigned int ls, unsigned int index) const {
-    std::stringstream ss;
-    ss << bu_run_dir_ << "/open/run" << std::setfill('0') << std::setw(6) << run_ 
-       << "_ls" << std::setfill('0') << std::setw(4) << ls
-       << "_index" << std::setfill('0') << std::setw(6) << index 
-       << ".raw";
-    return ss.str();
-  }
-  std::string EvFDaqDirector::formatMergeFilePath(unsigned int ls, std::string &stream) const {
-    std::stringstream ss;
-    ss << run_dir_ << "/run" << std::setfill('0') << std::setw(6) << run_ 
-       << "_ls" << std::setfill('0') << std::setw(4) << ls
-       << "_" << stream << "_"<< hostname_ << ".dat";
-    return ss.str();
-  }
-  std::string EvFDaqDirector::formatEndOfLS(unsigned int ls) const {
-    std::stringstream ss;
-    ss << bu_run_dir_ << "/EoLS_" << std::setfill('0') << std::setw(4)
-       << ls << ".jsn";
+       << "_index" << std::setfill('0') << std::setw(6) << index;
     return ss.str();
   }
 
-  std::string EvFDaqDirector::formatEndOfLSSlave(unsigned int ls) const {
+  std::string EvFDaqDirector::outputFileNameStem(const unsigned int ls, std::string const& stream) const {
     std::stringstream ss;
-    ss << run_dir_ << "/EoLS_" << std::setfill('0') << std::setw(4)
-       << ls << ".jsn";
+    ss << run_string_
+       << "_ls" << std::setfill('0') << std::setw(4) << ls
+       << "_" << stream
+       << "_pid" << std::setfill('0') << std::setw(5) << getpid();
+    return ss.str();
+  }
+
+  std::string EvFDaqDirector::mergedFileNameStem(const unsigned int ls, std::string const& stream) const {
+    std::stringstream ss;
+    ss << run_string_
+       << "_ls" << std::setfill('0') << std::setw(4) << ls
+       << "_" << stream
+       << "_" << hostname_;
+    return ss.str();
+  }
+
+  std::string EvFDaqDirector::initFileName(std::string const& stream) const {
+    std::stringstream ss;
+    ss << run_string_
+       << "_" << stream
+       << "_pid" << std::setfill('0') << std::setw(5) << getpid()
+       << ".ini";
+    return ss.str();
+  }
+
+  std::string EvFDaqDirector::eolsFileName(const unsigned int ls) const {
+    std::stringstream ss;
+    ss << "EoLS_" << std::setfill('0') << std::setw(4) << ls << ".jsn";
+    return ss.str();
+  }
+
+  std::string EvFDaqDirector::eorFileName() const {
+    std::stringstream ss;
+    ss << "EoR_" << std::setfill('0') << std::setw(6) << run_ << ".jsn";
     return ss.str();
   }
 }

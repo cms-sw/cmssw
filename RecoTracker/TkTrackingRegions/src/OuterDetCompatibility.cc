@@ -1,4 +1,4 @@
-#include "RecoTracker/TkTrackingRegions/interface/OuterDetCompatibility.h"
+#include "OuterDetCompatibility.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeRPhi.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"

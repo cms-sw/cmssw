@@ -12,9 +12,10 @@
  *  \author Philipp Schieferdecker
  */
 
+#include <atomic>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PrescaleService/interface/PrescaleService.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -22,15 +23,27 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
+namespace trigger {
+  struct Efficiency {
+    Efficiency(): eventCount_(0),acceptCount_(0) { }
+    mutable std::atomic<unsigned int> eventCount_;
+    mutable std::atomic<unsigned int> acceptCount_;
+  };
+}
 
-class HLTPrescaler : public edm::EDFilter
+class HLTPrescaler : public edm::stream::EDFilter<edm::GlobalCache<trigger::Efficiency> >
 {
 public:
   //
   // construction/destruction
   //
-  explicit HLTPrescaler(edm::ParameterSet const& iConfig);
+  explicit HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Efficiency* efficiency);
   virtual ~HLTPrescaler();
+
+  static std::unique_ptr<trigger::Efficiency> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::unique_ptr<trigger::Efficiency>(new trigger::Efficiency());
+  }
+
 
 
   //
@@ -40,7 +53,8 @@ public:
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&lb,
 				    edm::EventSetup const& iSetup) override;
   virtual bool filter(edm::Event& iEvent,edm::EventSetup const& iSetup) override;
-  virtual void endJob() override;
+  virtual void endStream() override;
+  static  void globalEndJob(const trigger::Efficiency* efficiency);
   
   
 private:

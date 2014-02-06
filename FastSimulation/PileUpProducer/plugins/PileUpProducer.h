@@ -19,7 +19,6 @@ class TBranch;
 class PUEvent;
 
 class PrimaryVertexGenerator;
-class RandomEngine;
 
 class PileUpProducer : public edm::EDProducer
 {
@@ -45,7 +44,6 @@ class PileUpProducer : public edm::EDProducer
   PrimaryVertexGenerator* theVertexGenerator;
 
   double averageNumber_;
-  const RandomEngine* random;
   std::vector<std::string> theFileNames;
   std::string inputFile;
   unsigned theNumberOfFiles;

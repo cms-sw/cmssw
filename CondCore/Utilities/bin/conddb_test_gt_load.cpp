@@ -1,16 +1,13 @@
-#include "CondCore/CondDB/interface/Session.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondCore/CondDB/interface/IOVProxy.h"
 #include "CondCore/CondDB/interface/GTProxy.h"
-#include "CondCore/CondDB/interface/Configuration.h"
 
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
 
 namespace cond {
 
-  using Session = persistency::Session;
-  using IOVProxy = persistency::IOVProxy;
-  using GTProxy = persistency::GTProxy;
+  using namespace persistency;
 
   class UntypedPayloadProxy {
   public:
@@ -174,9 +171,9 @@ int cond::TestGTLoad::execute(){
 
   initializePluginManager();
 
-  Session session;
-  if( hasDebug() ) session.configuration().setMessageVerbosity( coral::Debug );
-  session.open( connect, true );
+  ConnectionPool connPool;
+  if( hasDebug() ) connPool.setMessageVerbosity( coral::Debug );
+  Session session = connPool.createSession( connect );
   session.transaction().start();
   
   std::cout <<"Loading Global Tag "<<gtag<<std::endl;

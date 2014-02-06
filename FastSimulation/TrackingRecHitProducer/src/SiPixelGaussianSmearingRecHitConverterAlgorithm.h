@@ -30,7 +30,7 @@
 #include <string>
 
 class TFile;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class SimpleHistogramGenerator;
 
 class SiPixelGaussianSmearingRecHitConverterAlgorithm {
@@ -38,8 +38,7 @@ public:
   //--- Constructor, virtual destructor (just in case)
   explicit SiPixelGaussianSmearingRecHitConverterAlgorithm(		   
    const edm::ParameterSet& pset,
-   GeomDetType::SubDetector pixelPart,
-   const RandomEngine* engine);
+   GeomDetType::SubDetector pixelPart);
 
   // destructor
   virtual ~SiPixelGaussianSmearingRecHitConverterAlgorithm();
@@ -58,7 +57,8 @@ public:
   //
   
   //
-  void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, const double boundX, const double boundY);
+  void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, const double boundX, const double boundY,
+                 RandomEngineAndDistribution const*);
 
 private:
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
@@ -107,10 +107,5 @@ private:
   double       theErrorZ;
   unsigned int theClslenx;
   unsigned int theClsleny;
-  //
-  // The random engine
-  const RandomEngine* random;
-
 };
-
 #endif

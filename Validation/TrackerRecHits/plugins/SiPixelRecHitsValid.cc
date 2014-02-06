@@ -9,38 +9,62 @@
 
 #include "Validation/TrackerRecHits/interface/SiPixelRecHitsValid.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 #include <math.h>
-#include "DQMServices/Core/interface/DQMStore.h"
 
-using namespace std;
-using namespace edm;
+SiPixelRecHitsValid::SiPixelRecHitsValid(const edm::ParameterSet& ps)
+  : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixelrechitshisto.root" ) )
+  , dbe_(0) 
+  , conf_(ps)
+  , siPixelRecHitCollectionToken_( consumes<SiPixelRecHitCollection>( ps.getParameter<edm::InputTag>( "src" ) ) ) {
 
+}
 
-SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps): 
-  dbe_(0), 
-  conf_(ps),
-  src_( ps.getParameter<edm::InputTag>( "src" ) ) 
-{
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
-  dbe_ = Service<DQMStore>().operator->();
+SiPixelRecHitsValid::~SiPixelRecHitsValid() {
+}
+
+void SiPixelRecHitsValid::beginJob() {
+  
+}
+
+void SiPixelRecHitsValid::beginRun( const edm::Run& r, const edm::EventSetup& c ) {
+  dbe_ = edm::Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
   dbe_->setCurrentFolder("TrackerRecHitsV/TrackerRecHits/Pixel/clustBPIX");
   
@@ -238,14 +262,6 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
       sprintf(histo, "RecHit_YPull_Disk2_Plaquette%d", i+1);
       recHitYPullDisk2Plaquettes[i] = dbe_->book1D(histo, "RecHit YPull Disk2 by plaquette", 100, -10.0, 10.0);
     }
-
-}
-
-SiPixelRecHitsValid::~SiPixelRecHitsValid() {
-}
-
-void SiPixelRecHitsValid::beginJob() {
-  
 }
 
 void SiPixelRecHitsValid::endJob() {
@@ -260,13 +276,13 @@ void SiPixelRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   es.get<IdealGeometryRecord>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
-  LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
+  edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   if ( (int) e.id().event() % 1000 == 0 )
-    cout << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;
+    std::cout << " Run = " << e.id().run() << " Event = " << e.id().event() << std::endl;
   
   //Get RecHits
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  e.getByLabel( src_, recHitColl);
+  e.getByToken( siPixelRecHitCollectionToken_, recHitColl );
   
   //Get event setup
   edm::ESHandle<TrackerGeometry> geom;

@@ -1,7 +1,7 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalBarrelRecHitsMaker.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
@@ -28,9 +28,7 @@
 #include "CLHEP/GenericFunctions/Erf.hh"
 //#include <algorithm>
 
-EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
-					       const RandomEngine* myrandom)
-  : random_(myrandom)
+EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p)
 {
   edm::ParameterSet RecHitsParameters=p.getParameter<edm::ParameterSet>("ECALBarrel");
   inputCol_=RecHitsParameters.getParameter<edm::InputTag>("MixedSimHits");
@@ -61,7 +59,7 @@ EcalBarrelRecHitsMaker::EcalBarrelRecHitsMaker(edm::ParameterSet const & p,
   Genfun::Erf myErf; 
   if(  noise_>0. ) {
     EBHotFraction_ = 0.5-0.5*myErf(threshold_/noise_/sqrt(2.));
-    myGaussianTailGenerator_ = new GaussianTail(random_, noise_, threshold_);
+    myGaussianTailGenerator_ = new GaussianTail(noise_, threshold_);
     edm::LogInfo("CaloRecHitsProducer") <<"Uniform noise simulation selected in the barrel";
   } else if (noise_==-1 && doCustomHighNoise_)
     {
@@ -124,11 +122,12 @@ void EcalBarrelRecHitsMaker::clean()
   
 }
 
-void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCollection & ecalHits,EBDigiCollection & ecalDigis)
+void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCollection & ecalHits,EBDigiCollection & ecalDigis,
+                                                   RandomEngineAndDistribution const* random)
 {
 
   clean();
-  loadPCaloHits(iEvent);
+  loadPCaloHits(iEvent, random);
   
   unsigned nhit=theFiredCells_.size();
   //  std::cout << " loadEcalBarrelRecHits " << nhit << std::endl;
@@ -186,7 +185,7 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
 
 }
 
-void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
+void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent, RandomEngineAndDistribution const* random)
 {
 
   edm::Handle<CrossingFrame<PCaloHit> > cf;
@@ -210,7 +209,7 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
 	{
 	  theFiredCells_.push_back(hashedindex);
 	  float noise=(noise_==-1.) ? noisesigma_[hashedindex] : noise_ ;
-	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random_->gaussShoot(0.,noise*calib); 
+	  if (!noisified_ )  theCalorimeterHits_[hashedindex] += random->gaussShoot(0.,noise*calib);
 	}
 
 
@@ -234,11 +233,11 @@ void EcalBarrelRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
        TTTEnergy_[TThashedindex]+=energy*sinTheta_[myDetId.ietaAbs()];
        //       std::cout << " TT " << TThashedindex  << " updated, now contains " << TTTEnergy_[TThashedindex] << std::endl;
     }
-  noisifyTriggerTowers();  
+  noisifyTriggerTowers(random);
   noisified_ = true;
 }
 
-void EcalBarrelRecHitsMaker::noisifyTriggerTowers()
+void EcalBarrelRecHitsMaker::noisifyTriggerTowers(RandomEngineAndDistribution const* random)
 {
   if(noise_==0.) return;
 //  std::cout << " List of TT before" << std::endl;
@@ -251,7 +250,7 @@ void EcalBarrelRecHitsMaker::noisifyTriggerTowers()
     {      
       //      std::cout << "Treating " << theFiredTTs_[itt] << " " << theTTDetIds_[theFiredTTs_[itt]].ieta() << " " <<  theTTDetIds_[theFiredTTs_[itt]].iphi() << " " << TTTEnergy_[theFiredTTs_[itt]] << std::endl;
       // shoot noise in the trigger tower 
-      noisifyTriggerTower(theFiredTTs_[itt]);
+      noisifyTriggerTower(theFiredTTs_[itt], random);
       // get the neighboring TTs
       const std::vector<int>& neighbors=neighboringTTs_[theFiredTTs_[itt]];
       unsigned nneighbors=neighbors.size();
@@ -262,7 +261,7 @@ void EcalBarrelRecHitsMaker::noisifyTriggerTowers()
 	  //	  std::cout << " TT " << neighbors[in] << " " << theTTDetIds_[neighbors[in]] << " has been treated " << treatedTTs_[neighbors[in]] << std::endl;
 	  if(!treatedTTs_[neighbors[in]])
 	    {
-	      noisifyTriggerTower(neighbors[in]);
+	      noisifyTriggerTower(neighbors[in], random);
 	      if(TTTEnergy_[neighbors[in]]==0.)
 		theFiredTTs_.push_back(neighbors[in]);
 	      //	      std::cout << " Added " << neighbors[in] << " in theFiredTTs_ " << std::endl;;
@@ -278,10 +277,10 @@ void EcalBarrelRecHitsMaker::noisifyTriggerTowers()
 //	std::cout << EBDetId::unhashIndex(xtals[ic]) << " " << theCalorimeterHits_[xtals[ic]] << std::endl;
 //    }
 
-  randomNoisifier();
+  randomNoisifier(random);
 }
 
-bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi)
+bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi, RandomEngineAndDistribution const* random)
 {
   // check if the TT has already been treated or not
   if(treatedTTs_[tthi]) return false;
@@ -300,7 +299,7 @@ bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi)
 	{
 	  float calib = (doMisCalib_) ? calibfactor_*theCalibConstants_[hashedindex]:calibfactor_;
 	  float noise = (noise_==-1.) ? noisesigma_[hashedindex]:noise_;
-	  float energy = calib*random_->gaussShoot(0.,noise);
+	  float energy = calib*random->gaussShoot(0.,noise);
 	  theCalorimeterHits_[hashedindex]=energy;
 	  //	  std::cout << " Updating with noise " << tthi << " " << energy << " " << sinTheta_[EBDetId(barrelRawId_[hashedindex]).ietaAbs()] << std::endl;
 	  if(TTTEnergy_[tthi]==0.)
@@ -321,11 +320,11 @@ bool EcalBarrelRecHitsMaker::noisifyTriggerTower(unsigned tthi)
 
 // injects high noise fluctuations cells. It is assumed that these cells cannot 
 // make of the tower a high interest one
-void EcalBarrelRecHitsMaker::randomNoisifier()
+void EcalBarrelRecHitsMaker::randomNoisifier(RandomEngineAndDistribution const* random)
 {
   // first number of cells where some noise will be injected
   double mean = (double)(EBDetId::kSizeForDenseIndexing-theFiredCells_.size())*EBHotFraction_;
-  unsigned ncells= random_->poissonShoot(mean);
+  unsigned ncells= random->poissonShoot(mean);
 
  // if hot fraction is high (for example, no ZS, inject everywhere)
   bool fullInjection=(noise_==-1. && !doCustomHighNoise_);
@@ -339,21 +338,21 @@ void EcalBarrelRecHitsMaker::randomNoisifier()
   while(icell < ncells)
     {
       unsigned cellindex= (!fullInjection) ? 
-	(unsigned)(floor(random_->flatShoot()*EBDetId::kSizeForDenseIndexing)): icell ;
+	(unsigned)(floor(random->flatShoot()*EBDetId::kSizeForDenseIndexing)): icell ;
 
       if(theCalorimeterHits_[cellindex]==0.)
 	{
 	  float energy=0.;
 	  if(noise_>0.) 
-	    energy=myGaussianTailGenerator_->shoot();
+	    energy=myGaussianTailGenerator_->shoot(random);
 	  if(noise_==-1.) 
 	    {
 	      // in this case the generated noise might be below the threshold but it 
 	      // does not matter, the threshold will be applied anyway
 	      //	      energy/=sinTheta_[(cellindex<EEDetId::kEEhalf)?cellindex : cellindex-EEDetId::kEEhalf];	 
 	      float noisemean  = (doCustomHighNoise_)? highNoiseParameters_[0]*(*ICMC_)[cellindex]*adcToGeV_: 0.;
-	      float noisesigma = (doCustomHighNoise_)? highNoiseParameters_[1]*(*ICMC_)[cellindex]*adcToGeV_ : noisesigma_[cellindex]; 
-	      energy=random_->gaussShoot(noisemean,noisesigma); 
+	      float noisesigma = (doCustomHighNoise_)? highNoiseParameters_[1]*(*ICMC_)[cellindex]*adcToGeV_ : noisesigma_[cellindex];
+	      energy=random->gaussShoot(noisemean,noisesigma);
 	      
 	      // in the case of high noise fluctuation, the ZS should not be applied later 
 	      if(doCustomHighNoise_) applyZSCells_[cellindex]=false;

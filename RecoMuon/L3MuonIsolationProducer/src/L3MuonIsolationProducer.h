@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 
@@ -34,6 +36,7 @@ private:
 
   // Muon track Collection Label
   edm::InputTag theMuonCollectionLabel;
+  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> theMuonCollectionToken;
 
   // Isolation cuts
   muonisolation::Cuts theCuts;

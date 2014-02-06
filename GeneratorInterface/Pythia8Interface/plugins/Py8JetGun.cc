@@ -3,7 +3,6 @@
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
-#include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
 namespace gen {
 
@@ -64,19 +63,14 @@ bool Py8JetGun::generatePartonsAndHadronize()
 
       int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
 
-      // FIXME !!!
-      // Ouch, it's using bare randomEngine pointer - that's NOT safe.
-      // Need to hold a pointer somewhere properly !!!
-      //
-      phi = 2. * M_PI * randomEngine->flat() ;
-      the = acos( -1. + 2.*randomEngine->flat() );
+      phi = 2. * M_PI * randomEngine().flat() ;
+      the = acos( -1. + 2.*randomEngine().flat() );
 
       // from input
       //
-      ee   = (fMaxE-fMinE)*randomEngine->flat() + fMinE;
+      ee   = (fMaxE-fMinE)*randomEngine().flat() + fMinE;
             
-      double mass = (fMasterGen->particleData).mass( particleID );
-//      double mass = (pythia->particleData).m0( particleID );
+      double mass = (fMasterGen->particleData).m0( particleID );
 
       pp = sqrt( ee*ee - mass*mass );
       
@@ -103,14 +97,14 @@ bool Py8JetGun::generatePartonsAndHadronize()
 
    //now the boost (from input params)
    //
-   pp = (fMaxP-fMinP)*randomEngine->flat() + fMinP; 
+   pp = (fMaxP-fMinP)*randomEngine().flat() + fMinP;
    ee = sqrt( totM*totM + pp*pp );	 
 
    //the boost direction (from input params)
    //
-   phi = (fMaxPhi-fMinPhi)*randomEngine->flat() + fMinPhi;
-   eta  = (fMaxEta-fMinEta)*randomEngine->flat() + fMinEta;                                                      
-   the  = 2.*atan(exp(-eta));  
+   phi = (fMaxPhi-fMinPhi)*randomEngine().flat() + fMinPhi;
+   eta  = (fMaxEta-fMinEta)*randomEngine().flat() + fMinEta;
+   the  = 2.*atan(exp(-eta));
 
    double betaX = pp/ee * std::sin(the) * std::cos(phi);
    double betaY = pp/ee * std::sin(the) * std::sin(phi);
@@ -123,9 +117,7 @@ bool Py8JetGun::generatePartonsAndHadronize()
    if ( !fMasterGen->next() ) return false;
    
    event().reset(new HepMC::GenEvent);
-   toHepMC.fill_next_event( fMasterGen->event, event().get() );
-      
-   return true;   
+   return toHepMC.fill_next_event( fMasterGen->event, event().get() );
   
 }
 

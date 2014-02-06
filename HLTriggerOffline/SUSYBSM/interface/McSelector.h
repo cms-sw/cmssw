@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -34,7 +35,7 @@ class McSelector {
  public:
   
   //Constructor
-  McSelector(const edm::ParameterSet& userCut_params);
+  McSelector(const edm::ParameterSet& userCut_params, edm::ConsumesCollector&& iC);
   //Destructor
   virtual ~McSelector(){};
 
@@ -47,9 +48,9 @@ class McSelector {
   
   // Define the parameters
   std::string name;
-  std::string m_genSrc;
-  std::string m_genJetSrc;
-  std::string m_genMetSrc;
+  edm::EDGetTokenT<reco::GenParticleCollection> m_genSrc;
+  edm::EDGetTokenT<reco::GenJetCollection> m_genJetSrc;
+  edm::EDGetTokenT<reco::GenMETCollection> m_genMetSrc;
   double mc_ptElecMin;
   double mc_ptMuonMin;
   double mc_ptTauMin;

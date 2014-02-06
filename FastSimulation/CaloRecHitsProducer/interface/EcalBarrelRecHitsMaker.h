@@ -7,7 +7,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 //#include <boost/cstdint.hpp>
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 class EcalTrigTowerConstituentsMap;
 class GaussianTail;
 
@@ -20,19 +20,20 @@ namespace edm {
 class EcalBarrelRecHitsMaker
 {
  public:
-  EcalBarrelRecHitsMaker(edm::ParameterSet const & p, const RandomEngine* );
+  EcalBarrelRecHitsMaker(edm::ParameterSet const & p);
   ~EcalBarrelRecHitsMaker();
 
-  void loadEcalBarrelRecHits(edm::Event &iEvent, EBRecHitCollection & ecalHits,EBDigiCollection & ecaldigis);
+  void loadEcalBarrelRecHits(edm::Event &iEvent, EBRecHitCollection & ecalHits,EBDigiCollection & ecaldigis,
+                             RandomEngineAndDistribution const*);
   void init(const edm::EventSetup &es,bool dodigis,bool doMiscalib);
 
  private:
   void clean();
-  void loadPCaloHits(const edm::Event & iEvent);
+  void loadPCaloHits(const edm::Event & iEvent, RandomEngineAndDistribution const*);
   void geVtoGainAdc(float e,unsigned& gain,unsigned &adc) const;
-  void noisifyTriggerTowers();
-  bool noisifyTriggerTower(unsigned tthi);
-  void randomNoisifier();
+  void noisifyTriggerTowers(RandomEngineAndDistribution const*);
+  bool noisifyTriggerTower(unsigned tthi, RandomEngineAndDistribution const*);
+  void randomNoisifier(RandomEngineAndDistribution const*);
   bool isHighInterest(int tthi);
 
 
@@ -46,7 +47,6 @@ class EcalBarrelRecHitsMaker
   double noise_;
   double calibfactor_;
   double EBHotFraction_ ;
-  const RandomEngine* random_;
   const GaussianTail* myGaussianTailGenerator_;
 
   bool noisified_;

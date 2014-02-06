@@ -75,7 +75,7 @@ namespace pat {
       /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
       reco::SuperClusterRef superCluster() const;
       /// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the pflowSuperCluster
-      reco::SuperClusterRef pflowSuperCluster() const;
+      reco::SuperClusterRef parentSuperCluster() const;
       /// returns nothing. Use either gsfTrack or closestCtfTrack
       reco::TrackRef track() const;
       /// override the reco::GsfElectron::closestCtfTrackRef method, to access the internal storage of the track

@@ -579,7 +579,7 @@ void testEvent::getByLabel() {
   }
 
   BasicHandle bh = principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE",nullptr, nullptr);
-  convert_handle(bh, h);
+  convert_handle(std::move(bh), h);
   CPPUNIT_ASSERT(h->value == 100);
   BasicHandle bh2(principal_->getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch",nullptr, nullptr));
   CPPUNIT_ASSERT(!bh2.isValid());
@@ -730,7 +730,7 @@ void testEvent::deleteProduct() {
       id = iDesc.branchID();
     }});
 
-  const ProductHolderBase* phb = principal_->getProductHolder(id,false,false,nullptr);
+  const ProductHolderBase* phb = principal_->getProductHolder(id);
   CPPUNIT_ASSERT(phb != nullptr);
   
   CPPUNIT_ASSERT(!phb->productWasDeleted());  

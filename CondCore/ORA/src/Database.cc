@@ -98,6 +98,10 @@ bool ora::Database::connect( const std::string& connectionString,
   return m_impl->m_session->connect( connectionString, asRole, readOnly );
 }
 
+bool ora::Database::connect( boost::shared_ptr<coral::ISessionProxy>& coralSession, const std::string& connectionString, const std::string& schemaName ){
+  return m_impl->m_session->connect( coralSession, connectionString, schemaName );
+}
+
 void ora::Database::disconnect(){
   m_impl->m_session->disconnect();
 }
