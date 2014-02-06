@@ -20,6 +20,11 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+
 //static const float AVERAGE_GEM_Z(587.5); // [cm]
 static const float AVERAGE_GEM_Z(568.6); // [cm]
 
@@ -40,7 +45,6 @@ public:
   // non-copyable
   BaseMatcher(const BaseMatcher&) = delete;
   BaseMatcher& operator=(const BaseMatcher&) = delete;
-
 
   const SimTrack& trk() const {return trk_;}
   const SimVertex& vtx() const {return vtx_;}
@@ -65,7 +69,25 @@ public:
   /// propagate the track to average GEM z-position                                                                            
   GlobalPoint propagatedPositionGEM() const;
 
-private:
+  /// geometry
+  void setGEMGeometry(const GEMGeometry *geom) {gemGeometry_ = geom;}
+  void setRPCGeometry(const RPCGeometry *geom) {rpcGeometry_ = geom;}
+  void setME0Geometry(const ME0Geometry *geom) {me0Geometry_ = geom;}
+  void setCSCGeometry(const CSCGeometry *geom) {cscGeometry_ = geom;}
+
+  const GEMGeometry* getGEMGeometry() const {return gemGeometry_;}
+  const RPCGeometry* getRPCGeometry() const {return rpcGeometry_;}
+  const ME0Geometry* getME0Geometry() const {return me0Geometry_;}
+  const CSCGeometry* getCSCGeometry() const {return cscGeometry_;}
+
+ protected:
+  
+  const CSCGeometry* cscGeometry_;
+  const RPCGeometry* rpcGeometry_;
+  const GEMGeometry* gemGeometry_;
+  const ME0Geometry* me0Geometry_;
+  
+ private:
 
   const SimTrack& trk_;
   const SimVertex& vtx_;
