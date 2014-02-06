@@ -20,14 +20,14 @@ TEcnaRun::TEcnaRun()
 {
 //Constructor without argument: nothing special done
 
- // cout << "[Info Management] CLASS: TEcnaRun.           CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaRun.           CREATE OBJECT: this = " << this << std::endl;
 }
 
 TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet)
 {
 //Constructor with argument: call to Init() and declare fEcal according to SubDet value ("EB" or "EE")
 
- // cout << "[Info Management] CLASS: TEcnaRun.           CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaRun.           CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   fObjectManager = (TEcnaObject*)pObjectManager;
@@ -122,9 +122,9 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString& SubDet, const Int
     }
   else
     {
-      cout << "TEcnaRun/CONSTRUCTOR> Number of required samples = " << NbOfSamples
+      std::cout << "TEcnaRun/CONSTRUCTOR> Number of required samples = " << NbOfSamples
 	   << ": OUT OF RANGE. Set to the default value (= " << fEcal->MaxSampADC() << ")."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
       fNbSampForFic = fEcal->MaxSampADC(); // DEFAULT Number of samples for file reading
     }
 
@@ -299,9 +299,9 @@ void  TEcnaRun::SetEcalSubDetector(const TString& SubDet)
 
 TEcnaRun::TEcnaRun(const TEcnaRun& dcop)
 {
-  cout << "*TEcnaRun::TEcnaRun(const TEcnaRun& dcop)> "
+  std::cout << "*TEcnaRun::TEcnaRun(const TEcnaRun& dcop)> "
        << " Now is the time to write a copy constructor" 
-       << endl;
+       << std::endl;
   
   //{ Int_t cintoto;  cin >> cintoto; }
   
@@ -332,19 +332,19 @@ TEcnaRun::~TEcnaRun()
   
   if(fFlagPrint == fCodePrintAllComments)
     {
-      cout << "*TEcnaRun::~TEcnaRun()> Entering destructor." << endl;
+      std::cout << "*TEcnaRun::~TEcnaRun()> Entering destructor." << std::endl;
     }
 
   if(fFlagPrint != fCodePrintNoComment || fFlagPrint == fCodePrintWarnings )
     {
       if( fBuildEvtNotSkipped > 0 )
 	{
-	  cout << "************************************************************************************* "
-	       << endl;
-	  cout << "*TEcnaRun::~TEcnaRun()> Nb of calls to GetSampleAdcValues by cmsRun: "
-	       << fBuildEvtNotSkipped << endl;
-	  cout << "************************************************************************************* "
-	       << endl;
+	  std::cout << "************************************************************************************* "
+	       << std::endl;
+	  std::cout << "*TEcnaRun::~TEcnaRun()> Nb of calls to GetSampleAdcValues by cmsRun: "
+	       << fBuildEvtNotSkipped << std::endl;
+	  std::cout << "************************************************************************************* "
+	       << std::endl;
 	}
     }
 
@@ -355,18 +355,18 @@ TEcnaRun::~TEcnaRun()
 	{
 	  if( fMiscDiag[i] != 0 )
 	    {
-	      cout << "                          fMiscDiag Counter "
-		   << setw(3) << i << " = " << setw(9) << fMiscDiag[i]
-		   << " (INFO: alloc on non zero freed zone) " << endl;
+	      std::cout << "                          fMiscDiag Counter "
+		   << std::setw(3) << i << " = " << std::setw(9) << fMiscDiag[i]
+		   << " (INFO: alloc on non zero freed zone) " << std::endl;
 	    }
 	  else
 	    {
 	      misc_czero++;
 	    }
 	}
-      cout << "                          Nb of fMiscDiag counters at zero: "
+      std::cout << "                          Nb of fMiscDiag counters at zero: "
 	   << misc_czero << " (total nb of counters: "
-	   << fNbOfMiscDiagCounters << ")" << endl;
+	   << fNbOfMiscDiagCounters << ")" << std::endl;
     }
   
   if (fMiscDiag                != 0){delete [] fMiscDiag;                 fCdelete++;}
@@ -470,23 +470,23 @@ TEcnaRun::~TEcnaRun()
 
   if ( fCnew != fCdelete )
     {
-      cout << "!TEcnaRun::~TEcnaRun()> WRONG MANAGEMENT OF MEMORY ALLOCATIONS: fCnew = "
-	   << fCnew << ", fCdelete = " << fCdelete << fTTBELL << endl;
+      std::cout << "!TEcnaRun::~TEcnaRun()> WRONG MANAGEMENT OF MEMORY ALLOCATIONS: fCnew = "
+	   << fCnew << ", fCdelete = " << fCdelete << fTTBELL << std::endl;
     }
   else
     {
-      // cout << "*TEcnaRun::~TEcnaRun()> Management of memory allocations: OK. fCnew = "
-      //   << fCnew << ", fCdelete = " << fCdelete << endl;
+      // std::cout << "*TEcnaRun::~TEcnaRun()> Management of memory allocations: OK. fCnew = "
+      //   << fCnew << ", fCdelete = " << fCdelete << std::endl;
     }
 
   if(fFlagPrint == fCodePrintAllComments)
     {
-      cout << "*TEcnaRun::~TEcnaRun()> Exiting destructor (this = " << this << ")." << endl
+      std::cout << "*TEcnaRun::~TEcnaRun()> Exiting destructor (this = " << this << ")." << std::endl
 	   << "~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#"
-	   << endl;
+	   << std::endl;
     }
 
- // cout << "[Info Management] CLASS: TEcnaRun.           DESTROY OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaRun.           DESTROY OBJECT: this = " << this << std::endl;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -529,17 +529,17 @@ void TEcnaRun::GetReadyToReadData( const TString&       typ_ana, const Int_t& ru
     {
       if( nlast >= nfirst )
 	{
-	  cout << "*TEcnaRun::GetReadyToReadData(...)> --- WARNING ---> number of events = " << nbevts
-	       << ", out of range (range = " << nfirst << "," << nlast << ")" << endl
-	       << "                                    The number of found events will be less " << endl
-	       << "                                    than the number of requested events." << endl;
+	  std::cout << "*TEcnaRun::GetReadyToReadData(...)> --- WARNING ---> number of events = " << nbevts
+	       << ", out of range (range = " << nfirst << "," << nlast << ")" << std::endl
+	       << "                                    The number of found events will be less " << std::endl
+	       << "                                    than the number of requested events." << std::endl;
 	}
       if( nlast < nfirst )
 	{
-	  cout << "*TEcnaRun::GetReadyToReadData(...)> --- INFO ---> last requested event number = " << nlast
-	       << ", less than first requested event number (= " << nfirst << ")" << endl
-	       << "                                    File will be read until EOF if the number of found events" << endl
-	       << "                                    remains less than the number of requested events." << endl;
+	  std::cout << "*TEcnaRun::GetReadyToReadData(...)> --- INFO ---> last requested event number = " << nlast
+	       << ", less than first requested event number (= " << nfirst << ")" << std::endl
+	       << "                                    File will be read until EOF if the number of found events" << std::endl
+	       << "                                    remains less than the number of requested events." << std::endl;
 	}
 
     }
@@ -586,7 +586,7 @@ void TEcnaRun::GetReadyToReadData( const TString&       typ_ana, const Int_t& ru
 		  
 		  // fFileHeader->Print();
 		  
-		  // {Int_t cintoto; cout << "taper 0 pour continuer" << endl; cin >> cintoto;}
+		  // {Int_t cintoto; std::cout << "taper 0 pour continuer" << std::endl; cin >> cintoto;}
 		  
 		  //  fFileHeader->SetName("CnaHeader");              *======> voir FXG
 		  //  fFileHeader->SetTitle("CnaHeader");
@@ -660,10 +660,10 @@ void TEcnaRun::GetReadyToReadData( const TString&       typ_ana, const Int_t& ru
 		  if(fT3d_AdcValues == 0)
 		    {
 		      //............ Allocation for the 3d array 
-		      cout << "*TEcnaRun::GetReadyToReadData(...)> Allocation of 3D array for ADC distributions."
-			   << " Nb of requested evts = " << fFileHeader->fReqNbOfEvts << endl
+		      std::cout << "*TEcnaRun::GetReadyToReadData(...)> Allocation of 3D array for ADC distributions."
+			   << " Nb of requested evts = " << fFileHeader->fReqNbOfEvts << std::endl
 			   << "                                    This number must not be too large"
-			   << " (no failure after this message means alloc OK)." << endl;
+			   << " (no failure after this message means alloc OK)." << std::endl;
 
 		      fT3d_AdcValues = new Double_t**[fEcal->MaxCrysEcnaInStex()];        fCnew++;  
 
@@ -728,86 +728,86 @@ void TEcnaRun::GetReadyToReadData( const TString&       typ_ana, const Int_t& ru
 		    }
 		  else
 		    {
-		      cerr << "!TEcnaRun::GetReadyToReadData(...)> *** ERROR *** No allocation for fT2d_NbOfEvts!"
-			   << " Pointer already not NULL " << fTTBELL << endl;
-		      // {Int_t cintoto; cout << "Enter: 0 and RETURN to continue or: CTRL C to exit"
-		      //		   << endl; cin >> cintoto;}
+		      std::cerr << "!TEcnaRun::GetReadyToReadData(...)> *** ERROR *** No allocation for fT2d_NbOfEvts!"
+			   << " Pointer already not NULL " << fTTBELL << std::endl;
+		      // {Int_t cintoto; std::cout << "Enter: 0 and RETURN to continue or: CTRL C to exit"
+		      //		   << std::endl; std::cin >> cintoto;}
 		    }
 		}
 	      else
 		{
-		  cerr << endl
+		  std::cerr << std::endl
 		       << "!TEcnaRun::GetReadyToReadData(...)> "
-		       << " *** ERROR *** " << endl
+		       << " *** ERROR *** " << std::endl
 		       << " --------------------------------------------------"
-		       << endl
-		       << " NULL or NEGATIVE values for arguments" << endl
-		       << " with expected positive values:"        << endl
-		       << " Number of Stins in Stex = " << fEcal->MaxStinEcnaInStex()  << endl
-		       << " Number of crystals in Stin     = " << fEcal->MaxCrysInStin() << endl
-		       << " Number of samples by channel    = " << fNbSampForFic << endl
-		       << endl
-		       << endl
-		       << " hence, no memory allocation for array member has been performed." << endl;
+		       << std::endl
+		       << " NULL or NEGATIVE values for arguments" << std::endl
+		       << " with expected positive values:"        << std::endl
+		       << " Number of Stins in Stex = " << fEcal->MaxStinEcnaInStex()  << std::endl
+		       << " Number of crystals in Stin     = " << fEcal->MaxCrysInStin() << std::endl
+		       << " Number of samples by channel    = " << fNbSampForFic << std::endl
+		       << std::endl
+		       << std::endl
+		       << " hence, no memory allocation for array member has been performed." << std::endl;
 		  
-		  cout << "Enter: 0 and RETURN to continue or: CTRL C to exit";
+		  std::cout << "Enter: 0 and RETURN to continue or: CTRL C to exit";
 		  Int_t toto;
-		  cin >> toto;
+		  std::cin >> toto;
 		}
 	      //----------------------------------------------------------- (GetReadyToReadData)
 	      if(fFlagPrint == fCodePrintAllComments ){
-		cout << endl;
-		cout << "*TEcnaRun::GetReadyToReadData(...)>" << endl
-		     << "          The method has been called with the following argument values:"  << endl
+		std::cout << std::endl;
+		std::cout << "*TEcnaRun::GetReadyToReadData(...)>" << std::endl
+		     << "          The method has been called with the following argument values:"  << std::endl
 		     << "          Analysis name                = "
-		     << fFileHeader->fTypAna << endl
+		     << fFileHeader->fTypAna << std::endl
 		     << "          Run number                   = "
-		     << fFileHeader->fRunNumber << endl
+		     << fFileHeader->fRunNumber << std::endl
 		     << "          Run type                     = "
-		     << fFileHeader->fRunType << endl
+		     << fFileHeader->fRunType << std::endl
 		     << "          First requested event number = "
-		     << fFileHeader->fFirstReqEvtNumber << endl
+		     << fFileHeader->fFirstReqEvtNumber << std::endl
 		     << "          Last requested event number  = "
-		     << fFileHeader->fLastReqEvtNumber << endl
+		     << fFileHeader->fLastReqEvtNumber << std::endl
 		     << "          " << fStexName.Data() << " number                  = "
-		     << fFileHeader->fStex << endl
+		     << fFileHeader->fStex << std::endl
 		     << "          Number of " << fStinName.Data()
 		     << " in " << fStexName.Data() << "       = "
-		     << fEcal->MaxStinEcnaInStex()  << endl
+		     << fEcal->MaxStinEcnaInStex()  << std::endl
 		     << "          Number of crystals in " << fStinName.Data() << "  = "
-		     << fEcal->MaxCrysInStin()  << endl
+		     << fEcal->MaxCrysInStin()  << std::endl
 		     << "          Number of samples by channel = "
-		     << fNbSampForFic  << endl
-		     << endl;}
+		     << fNbSampForFic  << std::endl
+		     << std::endl;}
 	      
 	      fReadyToReadData = 1;                        // set flag
 	    }
 	  else
 	    {
 	      if (fFlagPrint != fCodePrintNoComment){
-		cout << "!TEcnaRun::GetReadyToReadData(...) > WARNING/CORRECTION:" << endl
+		std::cout << "!TEcnaRun::GetReadyToReadData(...) > WARNING/CORRECTION:" << std::endl
 		     << "! The fisrt requested event number is not positive (nfirst = " << nfirst << ") "
-		     << fTTBELL << endl;}
+		     << fTTBELL << std::endl;}
 	    }
 	}
       else
 	{
 	  if (fFlagPrint != fCodePrintNoComment){
-	    cout << endl << "!TEcnaRun::GetReadyToReadData(...)> WARNING/CORRECTION:" << endl
-		 << "! The number of requested events (nbevts = " << nbevts << ") is too large." << endl
+	    std::cout << std::endl << "!TEcnaRun::GetReadyToReadData(...)> WARNING/CORRECTION:" << std::endl
+		 << "! The number of requested events (nbevts = " << nbevts << ") is too large." << std::endl
 		 << "! Last event number = " << nlast << " > number of entries = " << nentries << ". "
-		 << fTTBELL << endl << endl;}
+		 << fTTBELL << std::endl << std::endl;}
 	}
     }
   else
     {
-      cout << "!TEcnaRun::GetReadyToReadData(...) *** ERROR ***> "
+      std::cout << "!TEcnaRun::GetReadyToReadData(...) *** ERROR ***> "
 	   << " The first requested event number is greater than the number of entries."
-	   << fTTBELL << endl;
+	   << fTTBELL << std::endl;
     }
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "*TEcnaRun::GetReadyToReadData(...)> Leaving the method. fReadyToReadData = "
-	 << fReadyToReadData << endl; }
+    std::cout << "*TEcnaRun::GetReadyToReadData(...)> Leaving the method. fReadyToReadData = "
+	 << fReadyToReadData << std::endl; }
 
 } // end of GetReadyToReadData
 
@@ -880,33 +880,33 @@ Bool_t TEcnaRun::GetSampleAdcValues(const Int_t&    n1EventNumber, const Int_t& 
 				{
 				  if( fStinIndexBuilt == 1 )
 				    {
-				      cout << endl << "*TEcnaRun::GetSampleAdcValues(...)> event " << n1EventNumber
+				      std::cout << std::endl << "*TEcnaRun::GetSampleAdcValues(...)> event " << n1EventNumber
 					   << " : first event for " << fStexName.Data() << " " << fFileHeader->fStex
 					   << "; " << fStinName.Data() << "s : ";
 				    }
 				  if( fFlagSubDet == "EB" )
-				    {cout << fT1d_StexStinFromIndex[i0StexStinEcna] << ", ";}
+				    {std::cout << fT1d_StexStinFromIndex[i0StexStinEcna] << ", ";}
 				  if( fFlagSubDet == "EE" )
-				    {cout << fEcalNumbering->
+				    {std::cout << fEcalNumbering->
 				       GetDeeSCConsFrom1DeeSCEcna(fFileHeader->fStex, fT1d_StexStinFromIndex[i0StexStinEcna])
 					  << ", ";}
 				}
 			      //.................................................... (GetSampleAdcValues)
 			      if(fFlagPrint == fCodePrintAllComments)
 				{
-				  cout << " (" << fStinIndexBuilt << " " << fStinName.Data()
-				       << " found), channel " << i0StinEcha << ", i0Sample " << i0Sample << endl;
+				  std::cout << " (" << fStinIndexBuilt << " " << fStinName.Data()
+				       << " found), channel " << i0StinEcha << ", i0Sample " << i0Sample << std::endl;
 				}
 			      ret_code = kTRUE;
 			    } // if ( fT1d_StexStinFromIndex[i0StexStinEcna] == fSpecialStexStinNotIndexed )
 			  else
 			    {
-			      cout << "!TEcnaRun::GetSampleAdcValues(...)> *** ERROR ***> NOT ALLOWED if RESULT. " 
+			      std::cout << "!TEcnaRun::GetSampleAdcValues(...)> *** ERROR ***> NOT ALLOWED if RESULT. " 
 				   << " n1StexStin = " << n1StexStin << ", fT1d_StexStinFromIndex["
 				   << i0StexStinEcna << "] = "
 				   << fT1d_StexStinFromIndex[i0StexStinEcna]
 				   << ", fStinIndexBuilt = " << fStinIndexBuilt
-				   << fTTBELL << endl;
+				   << fTTBELL << std::endl;
 			      ret_code = kFALSE;
 			    }
 			}  //  if (i_trouve != 1 )
@@ -914,9 +914,9 @@ Bool_t TEcnaRun::GetSampleAdcValues(const Int_t&    n1EventNumber, const Int_t& 
 		    } //  if( fT1d_StexStinFromIndex != 0 ) 
 		  else
 		    {
-		      cout << "!TEcnaRun, GetSampleAdcValues *** ERROR ***> "
+		      std::cout << "!TEcnaRun, GetSampleAdcValues *** ERROR ***> "
 			   << " fT1d_StexStinFromIndex = " << fT1d_StexStinFromIndex
-			   << " fT1d_StexStinFromIndex[] ALLOCATION NOT DONE" << fTTBELL << endl;
+			   << " fT1d_StexStinFromIndex[] ALLOCATION NOT DONE" << fTTBELL << std::endl;
 		      ret_code = kFALSE;
 		    } //.................................................................. (GetSampleAdcValues)
 		} // end of if( i0Sample >= 0 && i0Sample < fNbSampForFic )
@@ -926,10 +926,10 @@ Bool_t TEcnaRun::GetSampleAdcValues(const Int_t&    n1EventNumber, const Int_t& 
 		  //       (not fNbSampForFic, the later is used only for calculations)
 		  if( i0Sample >= fEcal->MaxSampADC() )
 		    {
-		      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+		      std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
 			   << " sample number = " << i0Sample << ". OUT OF BOUNDS"
 			   << " (max = " << fNbSampForFic << ")"
-			   << fTTBELL << endl;
+			   << fTTBELL << std::endl;
 		      ret_code = kFALSE;
 		    }
 		  else
@@ -940,19 +940,19 @@ Bool_t TEcnaRun::GetSampleAdcValues(const Int_t&    n1EventNumber, const Int_t& 
 	    } // end of if( i0StinEcha >= 0 && i0StinEcha < fEcal->MaxCrysInStin() )
 	  else
 	    {
-	      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+	      std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
 		   << " channel number in " << fStinName.Data() << " = " << i0StinEcha << ". OUT OF BOUNDS"
 		   << " (max = " << fEcal->MaxCrysInStin() << ")" 
-		   << fTTBELL << endl;
+		   << fTTBELL << std::endl;
 	      ret_code = kFALSE;
 	    } // else of if( i0StinEcha >= 0 && i0StinEcha < fEcal->MaxCrysInStin() )
 	}
       else
 	{
-	  cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+	  std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
 	       << fStinName.Data() << " number in " << fStexName.Data() << " = " << n1StexStin << ". OUT OF BOUNDS"
 	       << " (max = " << fEcal->MaxStinEcnaInStex() << ")"
-	       << fTTBELL << endl;
+	       << fTTBELL << std::endl;
 	  ret_code = kFALSE;
 	}
 
@@ -995,56 +995,56 @@ Bool_t TEcnaRun::GetSampleAdcValues(const Int_t&    n1EventNumber, const Int_t& 
 		    }
 		  else
 		    {
-		      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+		      std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
 			   << " sample index = " << i0Sample << ". OUT OF BOUNDS"
 			   << " (max = " << fNbSampForFic << ")"
-			   << fTTBELL << endl;
+			   << fTTBELL << std::endl;
 		    }
 		}
 	      else
 		{
-		  cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+		  std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
 		       << " event number = " << n1EventNumber << ". OUT OF BOUNDS"
 		       << " (max = " << fFileHeader->fReqNbOfEvts << ")"
-		       << fTTBELL << endl;
+		       << fTTBELL << std::endl;
 		  ret_code = kFALSE;
 		}
 	    }
 	  else
 	    {
-	      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
-		   << " CHANNEL NUMBER OUT OF BOUNDS" << endl
+	      std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> "
+		   << " CHANNEL NUMBER OUT OF BOUNDS" << std::endl
 		   << " i0StexEcha number = " << i0StexEcha
 		   << " , n1StexStin = " << n1StexStin
 		   << " , i0StinEcha = " << i0StinEcha
 		   << " , fEcal->MaxCrysEcnaInStex() = " << fEcal->MaxCrysEcnaInStex() 
-		   << fTTBELL << endl; 
+		   << fTTBELL << std::endl; 
 	      ret_code = kFALSE;
-	      // {Int_t cintoto; cout << "TAPER 0 POUR CONTINUER" << endl; cin >> cintoto;}
+	      // {Int_t cintoto; std::cout << "TAPER 0 POUR CONTINUER" << std::endl; cin >> cintoto;}
 	    }
 	} // end of if( ret_code == kTRUE )
       else
 	{
-	  cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> ret_code = kFALSE "
-	       << fTTBELL << endl;
+	  std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> ret_code = kFALSE "
+	       << fTTBELL << std::endl;
 	}
     } // end of if(fReadyToReadData == 1)
   else
     {
-      cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> GetReadyToReadData(...) not called."
-	   << fTTBELL << endl;
+      std::cout << "!TEcnaRun::GetSampleAdcValues(...) *** ERROR ***> GetReadyToReadData(...) not called."
+	   << fTTBELL << std::endl;
       ret_code = kFALSE;
     }
   //.................................................................. (GetSampleAdcValues)
   if (ret_code == kFALSE)
     {
-      cout << "!TEcnaRun::GetSampleAdcValues(...)> *** ERROR ***> ret_code = " << ret_code
+      std::cout << "!TEcnaRun::GetSampleAdcValues(...)> *** ERROR ***> ret_code = " << ret_code
 	   << " (FALSE). Event: " << n1EventNumber
 	   << ", " << fStexName.Data() << ": " << fFileHeader->fStex
 	   << ", " << fStinName.Data() << ": " << n1StexStin
 	   << ", channel: " << i0StinEcha
 	   << ", Sample: "   << i0Sample
-	   << ", ADC value: " << adcvalue << endl;
+	   << ", ADC value: " << adcvalue << std::endl;
     } 
   return ret_code;
 }
@@ -1089,8 +1089,8 @@ Bool_t TEcnaRun::ReadSampleAdcValues(const Int_t& nb_samp_for_calc)
     {
       fRootFileName      = MyRootFile->GetRootFileName();
       fRootFileNameShort = MyRootFile->GetRootFileNameShort();
-      cout << "*TEcnaRun::ReadSampleAdcValues> Reading sample ADC values from file: " << endl
-	   << "           " << fRootFileName << endl;
+      std::cout << "*TEcnaRun::ReadSampleAdcValues> Reading sample ADC values from file: " << std::endl
+	   << "           " << fRootFileName << std::endl;
       
       size_t i_no_data = 0;
 
@@ -1164,14 +1164,14 @@ Bool_t TEcnaRun::ReadSampleAdcValues(const Int_t& nb_samp_for_calc)
 	}
       if(i_no_data)
 	{
-	  cout << "!TEcnaRun::ReadSampleAdcValues(...)> *ERROR* =====> "
-	       << " Read failure. i_no_data = " << i_no_data << fTTBELL << endl;  
+	  std::cout << "!TEcnaRun::ReadSampleAdcValues(...)> *ERROR* =====> "
+	       << " Read failure. i_no_data = " << i_no_data << fTTBELL << std::endl;  
 	}
     }
   else
     {
-      cout << "!TEcnaRun::ReadSampleAdcValues(...)> *ERROR* =====> "
-	   << " ROOT file not found" << fTTBELL << endl;     
+      std::cout << "!TEcnaRun::ReadSampleAdcValues(...)> *ERROR* =====> "
+	   << " ROOT file not found" << fTTBELL << std::endl;     
     }
   delete MyRootFile;        //  fCdelete++;
   return ok_read;
@@ -1241,7 +1241,7 @@ void TEcnaRun::GetReadyToCompute()
     }
   else
     {
-      cout << "*TEcnaRun::GetReadyToCompute()> no data? fT2d_NbOfEvts = " << fT2d_NbOfEvts << endl;
+      std::cout << "*TEcnaRun::GetReadyToCompute()> no data? fT2d_NbOfEvts = " << fT2d_NbOfEvts << std::endl;
     }
 }  
 //  end of GetReadyToCompute()
@@ -1331,10 +1331,10 @@ void TEcnaRun::SampleMeans()
 // Calculation of the expectation values over events
 // for the samples 0 to fNbSampForCalc and for all the StexEchas
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::SampleMeans() " << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::SampleMeans() " << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout  << "           Calculation: sample expectation values over the events"
-	  << " for each channel." << endl;}
+    std::cout  << "           Calculation: sample expectation values over the events"
+	  << " for each channel." << std::endl;}
   
   //................... Allocation fT2d_ev
   if ( fT2d_ev == 0 ){
@@ -1382,10 +1382,10 @@ void TEcnaRun::SampleSigmas()
 {
 //Calculation of the sigmas of the samples for all the StexEchas
   
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::SampleSigmas()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::SampleSigmas()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation: sample ADC sigmas over the events "
-	 << " for each channel." << endl;}
+    std::cout << "           Calculation: sample ADC sigmas over the events "
+	 << " for each channel." << std::endl;}
   
   //... preliminary calculation of the expectation values if not done yet.
   //    The tag is set to 1 after call to the method. It is reset to 0
@@ -1450,10 +1450,10 @@ void TEcnaRun::CovariancesBetweenSamples()
 {
   //Calculation of the covariances between samples for all the StexEchas
   
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::CovariancesBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::CovariancesBetweenSamples()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation: covariances between samples"
-         << " for each channel." << endl;}
+    std::cout << "           Calculation: covariances between samples"
+         << " for each channel." << std::endl;}
   
   //................... Allocations cov_ss
   if( fT3d_cov_ss == 0 ){
@@ -1518,10 +1518,10 @@ void TEcnaRun::CorrelationsBetweenSamples()
   for (Int_t j0StexEcha = 0 ; j0StexEcha < fEcal->MaxCrysEcnaInStex() ; j0StexEcha++)
     {fTagCovCss[j0StexEcha] = 0;}}
   
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::CorrelationsBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::CorrelationsBetweenSamples()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation: correlations between samples"
-	 << " for each channel." << endl;}
+    std::cout << "           Calculation: correlations between samples"
+	 << " for each channel." << std::endl;}
 
   //................... Allocations cor_ss
   if( fT3d_cor_ss == 0){
@@ -1596,11 +1596,11 @@ void TEcnaRun::Pedestals()
       {fMiscDiag[11]++; fT1d_ev_ev[i0StexEcha] = (Double_t)0;}}
   
   //..................... Calculation
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::Pedestals()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::Pedestals()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the channels, of the expectation values (over the samples 1 to "
-	 << fNbSampForCalc << ")" << endl
-	 << "          of the ADC expectation values (over the events)." << endl;}
+    std::cout << "           Calculation, for all the channels, of the expectation values (over the samples 1 to "
+	 << fNbSampForCalc << ")" << std::endl
+	 << "          of the ADC expectation values (over the events)." << std::endl;}
   
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {     
@@ -1641,11 +1641,11 @@ void TEcnaRun::TotalNoise()
       {fMiscDiag[12]++; fT1d_evsamp_of_sigevt[i0StexEcha] = (Double_t)0;}}
   
   //..................... Calculation
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::TotalNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::TotalNoise()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the channels, of the expectation values (over the samples 1 to "
-	 << fNbSampForCalc << ")" << endl
-	 << "          of the ADC expectation values (over the events)." << endl;}
+    std::cout << "           Calculation, for all the channels, of the expectation values (over the samples 1 to "
+	 << fNbSampForCalc << ")" << std::endl
+	 << "          of the ADC expectation values (over the events)." << std::endl;}
 
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {     
@@ -1653,8 +1653,8 @@ void TEcnaRun::TotalNoise()
 	{
 	  if( fT2d_sig[i0StexEcha][i0Sample] < 0)
 	    {
-	      cout << "!TEcnaRun::TotalNoise() *** ERROR ***> Negative sigma!"
-		   << fTTBELL << endl;
+	      std::cout << "!TEcnaRun::TotalNoise() *** ERROR ***> Negative sigma!"
+		   << fTTBELL << std::endl;
 	    }
 	  else
 	    {
@@ -1698,11 +1698,11 @@ void TEcnaRun::LowFrequencyNoise()
   for(Int_t i=0; i<fNumberOfEvents; i++){mean_over_samples(i)=(Double_t)0.;}
 
   //..................... Calculation
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::LowFrequencyNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::LowFrequencyNoise()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for each channel, of the sigma (over the events)" << endl
+    std::cout << "           Calculation, for each channel, of the sigma (over the events)" << std::endl
 	 << "           of the ADC expectation values (over the samples 1 to "
-	 <<  fNbSampForCalc << ")." << endl;}
+	 <<  fNbSampForCalc << ")." << std::endl;}
 
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {
@@ -1770,11 +1770,11 @@ void TEcnaRun::HighFrequencyNoise()
   for(Int_t i=0; i<fNumberOfEvents; i++){sigma_over_samples(i)=(Double_t)0.;}
 
   //..................... Calculation
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::HighFrequencyNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::HighFrequencyNoise()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for each channel, of the sigma (over the events)" << endl
+    std::cout << "           Calculation, for each channel, of the sigma (over the events)" << std::endl
 	 << "           of the ADC expectation values (over the samples 1 to "
-	 <<  fNbSampForCalc << ")." << endl;}
+	 <<  fNbSampForCalc << ")." << std::endl;}
 
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {
@@ -1795,7 +1795,7 @@ void TEcnaRun::HighFrequencyNoise()
 	  var_over_samples /= (Double_t)fNbSampForCalc;
 	  
 	  if( var_over_samples < 0)
-	    {cout << "!TEcnaRun::HighFrequencyNoise() *** ERROR ***> Negative variance! " << fTTBELL << endl;}
+	    {std::cout << "!TEcnaRun::HighFrequencyNoise() *** ERROR ***> Negative variance! " << fTTBELL << std::endl;}
 	  else
 	    {sigma_over_samples(n_event) = sqrt(var_over_samples);}
 	}
@@ -1847,10 +1847,10 @@ void TEcnaRun::MeanCorrelationsBetweenSamples()
   TVectorD  half_cor_ss(ndim); for(Int_t i=0; i<ndim; i++){half_cor_ss(i)=(Double_t)0.;}
 
   //..................... Calculation
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::MeanCorrelationsBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::MeanCorrelationsBetweenSamples()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the channels, of the expectation values of the" << endl
-	 << "           correlations between the first " << fNbSampForCalc << " samples." << endl;}
+    std::cout << "           Calculation, for all the channels, of the expectation values of the" << std::endl
+	 << "           correlations between the first " << fNbSampForCalc << " samples." << std::endl;}
 
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {
@@ -1906,10 +1906,10 @@ void  TEcnaRun::SigmaOfCorrelationsBetweenSamples()
 	{fMiscDiag[16]++; fT1d_sig_cor_ss[i0StexEcha] = (Double_t)0;}
     }
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::SigmasOfCorrelationsBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::SigmasOfCorrelationsBetweenSamples()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation of the sigmas of the (sample,sample)" << endl
-	 << "           correlations for all the channels." << endl;}
+    std::cout << "           Calculation of the sigmas of the (sample,sample)" << std::endl
+	 << "           correlations for all the channels." << std::endl;}
 
   //.......... 1D array half_cor_ss[N(N-1)/2] to put the N (sample,sample) correlations
   //           (half of them minus the diagonal)
@@ -1964,10 +1964,10 @@ void TEcnaRun::AveragePedestals()
     {if( fT1d_av_mped[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[41]++; fT1d_av_mped[i0StexStinEcna] = (Double_t)0;}}
  
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AveragePedestals()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::AveragePedestals()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average Pedestals" << endl;}
+    std::cout << "           Calculation, for all the "
+	 << fStinName.Data() << "s, of the average Pedestals" << std::endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2025,10 +2025,10 @@ void TEcnaRun::AverageTotalNoise()
     {if( fT1d_av_totn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[42]++; fT1d_av_totn[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageTotalNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::AverageTotalNoise()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average total Noise" << endl;}
+    std::cout << "           Calculation, for all the "
+	 << fStinName.Data() << "s, of the average total Noise" << std::endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2085,10 +2085,10 @@ void TEcnaRun::AverageLowFrequencyNoise()
     {if( fT1d_av_lofn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[43]++; fT1d_av_lofn[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageLowFrequencyNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::AverageLowFrequencyNoise()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average Low Frequency Noise" << endl;}
+    std::cout << "           Calculation, for all the "
+	 << fStinName.Data() << "s, of the average Low Frequency Noise" << std::endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2145,10 +2145,10 @@ void TEcnaRun::AverageHighFrequencyNoise()
     {if( fT1d_av_hifn[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[44]++; fT1d_av_hifn[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageHighFrequencyNoise()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::AverageHighFrequencyNoise()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average High Frequency Noise" << endl;}
+    std::cout << "           Calculation, for all the "
+	 << fStinName.Data() << "s, of the average High Frequency Noise" << std::endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2205,10 +2205,10 @@ void TEcnaRun::AverageMeanCorrelationsBetweenSamples()
     {if( fT1d_av_ev_corss[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[45]++; fT1d_av_ev_corss[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageMeanCorrelationsBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::AverageMeanCorrelationsBetweenSamples()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average mean cor(s,s)" << endl;}
+    std::cout << "           Calculation, for all the "
+	 << fStinName.Data() << "s, of the average mean cor(s,s)" << std::endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2265,10 +2265,10 @@ void TEcnaRun::AverageSigmaOfCorrelationsBetweenSamples()
     {if( fT1d_av_sig_corss[i0StexStinEcna] != (Double_t)0 )
       {fMiscDiag[46]++; fT1d_av_sig_corss[i0StexStinEcna] = (Double_t)0;}}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::AverageSigmaOfCorrelationsBetweenSamples()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::AverageSigmaOfCorrelationsBetweenSamples()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for all the "
-	 << fStinName.Data() << "s, of the average sigma of cor(s,s)" << endl;}
+    std::cout << "           Calculation, for all the "
+	 << fStinName.Data() << "s, of the average sigma of cor(s,s)" << std::endl;}
 
   //................... Calculation
   for(Int_t i0StexStinEcna = 0; i0StexStinEcna < fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2336,9 +2336,9 @@ void TEcnaRun::LowFrequencyCovariancesBetweenChannels()
 {
 //Calculation of the Low Frequency Covariances between channels
   
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::LowFrequencyCovariancesBetweenChannels()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::LowFrequencyCovariancesBetweenChannels()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation of the Low Frequency Covariances between channels" << endl;}
+    std::cout << "           Calculation of the Low Frequency Covariances between channels" << std::endl;}
 
   //................. allocation fT2d_lf_cov + init to zero (mandatory)
   if( fT2d_lf_cov == 0 ){
@@ -2369,11 +2369,11 @@ void TEcnaRun::LowFrequencyCovariancesBetweenChannels()
 
   //................... Calculation  
   if(fFlagPrint != fCodePrintNoComment){
-    cout << "          Calculation, for each pair of channels, of the covariance (over the events)" << endl
+    std::cout << "          Calculation, for each pair of channels, of the covariance (over the events)" << std::endl
 	 << "          between the ADC expectation values (over the samples 1 to "
-	 <<  fNbSampForCalc << ")." << endl;}
+	 <<  fNbSampForCalc << ")." << std::endl;}
 
-  cout << " Please, wait (end at i= " << fEcal->MaxCrysEcnaInStex() << "): " << endl;
+  std::cout << " Please, wait (end at i= " << fEcal->MaxCrysEcnaInStex() << "): " << std::endl;
 
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {
@@ -2422,10 +2422,10 @@ void TEcnaRun::LowFrequencyCovariancesBetweenChannels()
 		  fT2d_lf_cov[j0StexEcha][i0StexEcha] = fT2d_lf_cov[i0StexEcha][j0StexEcha];
 		}
 	    }
-	  if( i0StexEcha%100 == 0 ){cout << i0StexEcha << "[LFN Cov], ";}
+	  if( i0StexEcha%100 == 0 ){std::cout << i0StexEcha << "[LFN Cov], ";}
 	}
     }
-  cout << endl;
+  std::cout << std::endl;
   fTagLfCov[0] = 1;    fFileHeader->fLfCovCalc++;
 }
 //---------- (end of LowFrequencyCovariancesBetweenChannels ) --------------------
@@ -2445,11 +2445,11 @@ void TEcnaRun::LowFrequencyCorrelationsBetweenChannels()
   if ( fTagLfCov[0] != 1 )
     {LowFrequencyCovariancesBetweenChannels(); fTagLfCov[0] = 0;}
   
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::LowFrequencyCorrelationsBetweenChannels()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::LowFrequencyCorrelationsBetweenChannels()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "          Calculation of the Low Frequency Correlations between channels" << endl
+    std::cout << "          Calculation of the Low Frequency Correlations between channels" << std::endl
 	 << "          Starting allocation. "
-	 << endl;}
+	 << std::endl;}
 
   //................. allocation fT2d_lf_cor + init to zero (mandatory)
   if( fT2d_lf_cor == 0 ){
@@ -2497,9 +2497,9 @@ void TEcnaRun::LowFrequencyCorrelationsBetweenChannels()
 		}
 	    }
 	}
-      if( i0StexEcha%100 == 0 ){cout << i0StexEcha << "[LFN Cor], ";}
+      if( i0StexEcha%100 == 0 ){std::cout << i0StexEcha << "[LFN Cor], ";}
     }
-  cout << endl;
+  std::cout << std::endl;
   
   fTagLfCor[0] = 1;    fFileHeader->fLfCorCalc++;
 }
@@ -2524,9 +2524,9 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
 {
 //Calculation of the High Frequency Covariances between channels
   
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::HighFrequencyCovariancesBetweenChannels()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::HighFrequencyCovariancesBetweenChannels()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation of the High Frequency Covariances between channels" << endl;}
+    std::cout << "           Calculation of the High Frequency Covariances between channels" << std::endl;}
 
   //................. allocation fT2d_hf_cov + init to zero (mandatory)
   if( fT2d_hf_cov == 0 ){
@@ -2559,11 +2559,11 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
 
   //........................................... Calculation    (HighFrequencyCovariancesBetweenChannels)
   if(fFlagPrint != fCodePrintNoComment){
-    cout << "          Calculation of the mean (over the events)" << endl
+    std::cout << "          Calculation of the mean (over the events)" << std::endl
 	 << "          of the covariances between the channels (over the samples 1 to "
-	 <<  fNbSampForCalc << ")." << endl;}
+	 <<  fNbSampForCalc << ")." << std::endl;}
 
-  cout << " Please, wait (end at i= " << fEcal->MaxCrysEcnaInStex() << "): " << endl;
+  std::cout << " Please, wait (end at i= " << fEcal->MaxCrysEcnaInStex() << "): " << std::endl;
 
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
     {
@@ -2579,11 +2579,11 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
 	      mean_over_samples(i0StexEcha, n_event) /= (Double_t)fNbSampForCalc;
 	    }
 	}
-      if( i0StexEcha%100 == 0 ){cout << i0StexEcha << "[HFNa Cov], ";}
+      if( i0StexEcha%100 == 0 ){std::cout << i0StexEcha << "[HFNa Cov], ";}
     }
-  cout << endl;
+  std::cout << std::endl;
 
-  cout << " Please, wait (end at i= " << fEcal->MaxCrysEcnaInStex() << "): " << endl;
+  std::cout << " Please, wait (end at i= " << fEcal->MaxCrysEcnaInStex() << "): " << std::endl;
 
   //... Calculation of half of the matrix, diagonal included    (HighFrequencyCovariancesBetweenChannels)
   for(Int_t i0StexEcha = 0; i0StexEcha < fEcal->MaxCrysEcnaInStex(); i0StexEcha++)
@@ -2622,9 +2622,9 @@ void TEcnaRun::HighFrequencyCovariancesBetweenChannels()
 		}
 	    }
 	}
-      if( i0StexEcha%100 == 0 ){cout << i0StexEcha << "[HFNb Cov], ";}
+      if( i0StexEcha%100 == 0 ){std::cout << i0StexEcha << "[HFNb Cov], ";}
     }
-  cout << endl;
+  std::cout << std::endl;
 
   fTagHfCov[0] = 1;    fFileHeader->fHfCovCalc++;
 }
@@ -2645,11 +2645,11 @@ void TEcnaRun::HighFrequencyCorrelationsBetweenChannels()
   if ( fTagHfCov[0] != 1 )
     {HighFrequencyCovariancesBetweenChannels(); fTagHfCov[0] = 0;}
   
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::HighFrequencyCorrelationsBetweenChannels()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::HighFrequencyCorrelationsBetweenChannels()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation of the High Frequency Correlations between channels" << endl
+    std::cout << "           Calculation of the High Frequency Correlations between channels" << std::endl
 	 << "          Starting allocation. "
-	 << endl;}
+	 << std::endl;}
 
   //................. allocation fT2d_hf_cor + init to zero (mandatory)
   if( fT2d_hf_cor == 0 ){
@@ -2699,9 +2699,9 @@ void TEcnaRun::HighFrequencyCorrelationsBetweenChannels()
 		}
 	    }
 	}
-      if( i0StexEcha%100 == 0 ){cout << i0StexEcha << "[HFN Cor], ";}
+      if( i0StexEcha%100 == 0 ){std::cout << i0StexEcha << "[HFN Cor], ";}
     }
-  cout << endl;  
+  std::cout << std::endl;  
   
   fTagHfCor[0] = 1;    fFileHeader->fHfCorCalc++;
 }
@@ -2733,11 +2733,11 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
   if(fTagLfCor[0] != 1){LowFrequencyCorrelationsBetweenChannels(); fTagLfCor[0]=0;}
 
   //..... mean fT2d_lfcc_mostins for each pair (Stin_X,Stin_Y)
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation of the mean, for each "
-	 << fStinName.Data() << ", of the" << endl
-	 << "           Low Frequency Correlations between channels." << endl;}
+    std::cout << "           Calculation of the mean, for each "
+	 << fStinName.Data() << ", of the" << std::endl
+	 << "           Low Frequency Correlations between channels." << std::endl;}
   
   //................. allocation fT2d_lfcc_mostins + init to zero (mandatory)
   if( fT2d_lfcc_mostins == 0 ){
@@ -2771,11 +2771,11 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
   TVectorD  half_LFccMos(ndim); for(Int_t i=0; i<ndim; i++){half_LFccMos(i)=(Double_t)0.;}
 
   //..................... Calculation
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for each "
-	 << fStinName.Data() << ", of the mean " << endl
-	 << "           Low Frequency cor(c,c)." << endl;}
+    std::cout << "           Calculation, for each "
+	 << fStinName.Data() << ", of the mean " << std::endl
+	 << "           Low Frequency cor(c,c)." << std::endl;}
 
   for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
     {
@@ -2793,8 +2793,8 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
 		       (j0StexEcha>= 0 && j0StexEcha < fEcal->MaxCrysEcnaInStex())  )
 		  {half_LFccMos(i_count) = fT2d_lf_cor[i0StexEcha][j0StexEcha]; i_count++;}
 		  else
-		    {cout << "!TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()> Channel number out of range."
-			  << "i0StexEcha = " << i0StexEcha <<", j0StexEcha = " << j0StexEcha << fTTBELL << endl; }
+		    {std::cout << "!TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()> Channel number out of range."
+			  << "i0StexEcha = " << i0StexEcha <<", j0StexEcha = " << j0StexEcha << fTTBELL << std::endl; }
 		}
 	    }
 	  //...... Calculation of the mean absolute values of the LF mean Correlations(c,c')
@@ -2805,9 +2805,9 @@ void TEcnaRun::LowFrequencyMeanCorrelationsBetweenStins()
 	    }
 	  fT2d_lfcc_mostins[i0StexStinEcna][j0StexStinEcna] /= (Double_t)ndim;
 	}
-      if( i0StexStinEcna%10 == 0 ){cout << i0StexStinEcna << "[LFN MCtt], ";}
+      if( i0StexStinEcna%10 == 0 ){std::cout << i0StexStinEcna << "[LFN MCtt], ";}
     }
-  cout << endl;
+  std::cout << std::endl;
 
   fTagLFccMoStins[0] = 1;           fFileHeader->fLFccMoStinsCalc++;
 } // ------- end of LowFrequencyMeanCorrelationsBetweenStins() -------
@@ -2831,11 +2831,11 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
   if(fTagHfCor[0] != 1){HighFrequencyCorrelationsBetweenChannels();fTagHfCor[0]=0;}
 
   //..... mean fT2d_hfcc_mostins for each pair (Stin_X,Stin_Y)
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation of the mean, for each "
-	 << fFlagSubDet.Data() << ", of the" << endl
-         << "           High Frequency Correlations between channels." << endl;}
+    std::cout << "           Calculation of the mean, for each "
+	 << fFlagSubDet.Data() << ", of the" << std::endl
+         << "           High Frequency Correlations between channels." << std::endl;}
 
   //................. allocation fT2d_hfcc_mostins + init to zero (mandatory)
   if( fT2d_hfcc_mostins == 0 ){
@@ -2868,11 +2868,11 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
 
   TVectorD half_HFccMos(ndim); for(Int_t i=0; i<ndim; i++){half_HFccMos(i)=(Double_t)0.;}
 
-  if(fFlagPrint != fCodePrintNoComment){cout << "*TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()" << endl;}
+  if(fFlagPrint != fCodePrintNoComment){std::cout << "*TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()" << std::endl;}
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "           Calculation, for each "
-	 << fFlagSubDet.Data()  << ", of the mean " << endl
-	 << "           High Frequency cor(c,c)." << endl;}
+    std::cout << "           Calculation, for each "
+	 << fFlagSubDet.Data()  << ", of the mean " << std::endl
+	 << "           High Frequency cor(c,c)." << std::endl;}
 
   //..................... Calculation
   for(Int_t i0StexStinEcna=0; i0StexStinEcna<fEcal->MaxStinEcnaInStex(); i0StexStinEcna++)
@@ -2891,8 +2891,8 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
 		       (j0StexEcha>= 0 && j0StexEcha < fEcal->MaxCrysEcnaInStex())  )
 		    {half_HFccMos(i_count) = fT2d_hf_cor[i0StexEcha][j0StexEcha]; i_count++;}
 		  else
-		    {cout << "!TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()> Channel number out of range."
-			  << "i0StexEcha = " << i0StexEcha <<", j0StexEcha = " << j0StexEcha << fTTBELL << endl; }
+		    {std::cout << "!TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()> Channel number out of range."
+			  << "i0StexEcha = " << i0StexEcha <<", j0StexEcha = " << j0StexEcha << fTTBELL << std::endl; }
 		}
 	    }
 	  //..... Calculation of the mean absolute values of the HF mean Correlations(c,c')
@@ -2903,9 +2903,9 @@ void TEcnaRun::HighFrequencyMeanCorrelationsBetweenStins()
 	    }
 	  fT2d_hfcc_mostins[i0StexStinEcna][j0StexStinEcna] /= (Double_t)ndim;
 	}
-      if( i0StexStinEcna%10 == 0 ){cout << i0StexStinEcna << "[HFN MCtt], ";}
+      if( i0StexStinEcna%10 == 0 ){std::cout << i0StexStinEcna << "[HFN MCtt], ";}
     }
-  cout << endl;
+  std::cout << std::endl;
 
   fTagHFccMoStins[0] = 1;                   fFileHeader->fHFccMoStinsCalc++;
 } // ------- end of HighFrequencyMeanCorrelationsBetweenStins() -------
@@ -2954,12 +2954,12 @@ Bool_t TEcnaRun::OpenRootFile(const Text_t *name, const TString& status) {
 
   if (!ok_open) // unable to open file
     {
-      cout << "TEcnaRun::OpenRootFile> Cannot open file " << s_name.Data() << endl;
+      std::cout << "TEcnaRun::OpenRootFile> Cannot open file " << s_name.Data() << std::endl;
     }
   else
     {
       if(fFlagPrint == fCodePrintAllComments)
-	{cout << "*TEcnaRun::OpenRootFile> Open ROOT file OK for file " << s_name.Data() << endl;}  
+	{std::cout << "*TEcnaRun::OpenRootFile> Open ROOT file OK for file " << s_name.Data() << std::endl;}  
       fOpenRootFile  = kTRUE;
     }
   return ok_open;
@@ -2984,7 +2984,7 @@ Bool_t TEcnaRun::CloseRootFile(const Text_t *name) {
       gCnaRootFile->CloseFile();
 
       if(fFlagPrint != fCodePrintAllComments){
-	cout << "*TEcnaRun::CloseRootFile> ROOT file " << s_name.Data() << " closed." << endl;}
+	std::cout << "*TEcnaRun::CloseRootFile> ROOT file " << s_name.Data() << " closed." << std::endl;}
 
       //     delete gCnaRootFile;     gCnaRootFile = 0;          fCdelete++;
 
@@ -2993,8 +2993,8 @@ Bool_t TEcnaRun::CloseRootFile(const Text_t *name) {
     }
   else
     {
-      cout << "*TEcnaRun::CloseRootFile(...)> No close since no file is open."
-	   << fTTBELL << endl;
+      std::cout << "*TEcnaRun::CloseRootFile(...)> No close since no file is open."
+	   << fTTBELL << std::endl;
     }
   return ok_close;
 }
@@ -3032,15 +3032,15 @@ Bool_t TEcnaRun::WriteRootFile(){
   if ( nCountEvts <= 0 )
     {
       //============== no write if no event found
-      cout << "!TEcnaRun::WriteRootFile()> No event found for file " << fCnaWrite->GetRootFileNameShort().Data()
-	   << ". File will not be written." << endl;
+      std::cout << "!TEcnaRun::WriteRootFile()> No event found for file " << fCnaWrite->GetRootFileNameShort().Data()
+	   << ". File will not be written." << std::endl;
       ok_write = kTRUE;
     }
   else
     {    
       if(fFlagPrint == fCodePrintAllComments){
-	cout << "*TEcnaRun::WriteRootFile()> Results are going to be written in the ROOT file: " << endl
-	     << "                           " << fCnaWrite->GetRootFileName().Data() << endl;}
+	std::cout << "*TEcnaRun::WriteRootFile()> Results are going to be written in the ROOT file: " << std::endl
+	     << "                           " << fCnaWrite->GetRootFileName().Data() << std::endl;}
 
       const Text_t *FileShortName = (const Text_t *)fCnaWrite->GetRootFileNameShort().Data();
       ok_write = WriteRootFile(FileShortName, fFileHeader->fNbOfSamples);
@@ -3048,13 +3048,13 @@ Bool_t TEcnaRun::WriteRootFile(){
       if( ok_write == kTRUE )
 	{
 	  if(fFlagPrint != fCodePrintNoComment)
-	    {cout << "*TEcnaRun::WriteRootFile()> Writing OK for file " << fCnaWrite->GetRootFileName().Data()
-		  << endl;}
+	    {std::cout << "*TEcnaRun::WriteRootFile()> Writing OK for file " << fCnaWrite->GetRootFileName().Data()
+		  << std::endl;}
 	}
       else
 	{
-	  cout << "!TEcnaRun::WriteRootFile()> Writing FAILLED for file " << fCnaWrite->GetRootFileName().Data()
-	       << fTTBELL << endl;
+	  std::cout << "!TEcnaRun::WriteRootFile()> Writing FAILLED for file " << fCnaWrite->GetRootFileName().Data()
+	       << fTTBELL << std::endl;
 	}
     }
   return ok_write;
@@ -3086,8 +3086,8 @@ Bool_t TEcnaRun::WriteNewRootFile(const TString& TypAna){
   const Text_t *FileShortName = (const Text_t *)fNewRootFileNameShort.Data();
 
   if(fFlagPrint == fCodePrintAllComments){
-    cout << "*TEcnaRun::WriteNewRootFile()> Results are going to be written in the ROOT file: " << endl
-	 << "                              " << fNewRootFileNameShort.Data() << endl;}
+    std::cout << "*TEcnaRun::WriteNewRootFile()> Results are going to be written in the ROOT file: " << std::endl
+	 << "                              " << fNewRootFileNameShort.Data() << std::endl;}
 
   ok_write = WriteRootFile(FileShortName, fNbSampForCalc);
 
@@ -3118,8 +3118,8 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 
   if ( fOpenRootFile )
     {
-      cout << "!TEcnaRun::WriteRootFile(...) *** ERROR ***> Writing on file already open."
-	   << fTTBELL << endl;
+      std::cout << "!TEcnaRun::WriteRootFile(...) *** ERROR ***> Writing on file already open."
+	   << fTTBELL << std::endl;
     }
   else
     {
@@ -3199,9 +3199,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3213,10 +3213,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootStinNumbers();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- Average Pedestals (1 value per Stin)
       //       1   fMatHis(1, StexStin)   (12)  cTypAvPed      1*(1,  68) =     68
@@ -3231,9 +3231,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3245,10 +3245,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootAvPed();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- Average Total noise
       // StexEcha   fMatHis(1, StexStin)     ( 3)  cTypAvTno      1*(1,  68) =     68
@@ -3263,9 +3263,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3277,10 +3277,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootAvTno();
 	      gCnaRootFile->fCnaResultsTree->Fill(); 
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- Average Low frequency noise
       //       1   fMatHis(1, StexStin)   ( 4)  cTypAvLfn      1*(1,  68) =     68
@@ -3295,9 +3295,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
       
       for (Int_t i = 0; i < v_nb_times; i++)
       	{
@@ -3309,10 +3309,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootAvLfn();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
       	    }
       	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //-------------------------- Average High frequency noise
       //       1   fMatHis(1, StexStin)   ( 5)  cTypAvHfn      1*(1,  68) =     68
@@ -3327,9 +3327,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
       
       for (Int_t i = 0; i < v_nb_times; i++)
      	{
@@ -3341,10 +3341,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootAvHfn();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
       	    }
       	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- Average mean cor(s,s)
       //       1   fMatHis(1, StexStin)   (13)  cTypAvMeanCorss      1*(1,  68) =     68
@@ -3359,9 +3359,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3373,10 +3373,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootAvEvCorss();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //--------------------------  Average sigma of cor(s,s)
       //       1   fMatHis(1, StexStin)    (14)  cTypAvSigCorss      1*(1,  68) =     68
@@ -3391,9 +3391,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3405,10 +3405,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootAvSigCorss();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- Expectation values of the expectation values of the samples (pedestals)
       //       1   fMatHis(1,StexEcha)         (16)  cTypPed                1*(   1,1700) =      1 700
@@ -3423,9 +3423,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3437,10 +3437,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootPed();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
                   
       //-------------------------- Expectation values of the sigmas the samples
       //       1   fMatHis(1,StexEcha)         (17)  cTypTno               1*(   1,1700) =      1 700
@@ -3455,9 +3455,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3469,10 +3469,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootTno();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
                                      
       //-------------------------- Expectation values of the correlations between the samples
       //       1   fMatHis(1,StexEcha)         (10)  cTypMeanCorss            1*(   1,1700) =      1 700
@@ -3487,9 +3487,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3501,10 +3501,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootMeanCorss();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	} 
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //-------------------------- Sigmas of the expectation values of the samples  
       //       1   fMatHis(1,StexEcha)         (18)  cTypLfn               1*(   1,1700) =      1 700
@@ -3519,9 +3519,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3533,10 +3533,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootLfn();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	} 
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //-------------------------- Sigmas of the sigmas of the samples  
       //       1   fMatHis(1,StexEcha)         (19)  cTypHfn              1*(   1,1700) =      1 700
@@ -3551,9 +3551,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
  
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3565,10 +3565,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootHfn();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
                     
       //-------------------------- Sigmas of the correlations between the samples  
       //       1   fMatHis(1,StexEcha)         (11)  cTypSigCorss           1*(   1,1700) =      1 700
@@ -3583,9 +3583,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
    
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3597,10 +3597,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootSigCorss();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //----- Mean Covariances between StexEchas (averaged over samples) for all (Stin_X,Stin_Y)
       //       1   fMatMat(Stin,Stin)       (23)  cTypLFccMoStins         1*(  68,  68) =      4 624
@@ -3615,9 +3615,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3629,10 +3629,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatHis.ReSet(1,1);
 	      TRootLFccMoStins();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	} 
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
             
       //----- Mean Correlations between StexEchas (averaged over samples) for all (Stin_X,Stin_Y)
       //       1   fMatMat(Stin,Stin)       (24)  cTypHFccMoStins         1*(  68,  68) =      4 624
@@ -3647,9 +3647,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3661,10 +3661,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatHis.ReSet(1,1);
 	      TRootHFccMoStins();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //-------------------------- Numbers of found events (NbOfEvts)
       //       1   fMatHis(StexEcha, sample)   (15)  cTypNbOfEvts       1*(1700,  10) =     17 000
@@ -3679,9 +3679,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3693,10 +3693,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootNbOfEvts(argNbSampWrite);
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
                   
       //-------------------------- Expectation values of the samples
       //       1   fMatHis(StexEcha, sample)   ( 1)  cTypMSp                  1*(1700,  10) =     17 000
@@ -3711,9 +3711,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3725,10 +3725,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootMSp(argNbSampWrite);
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //-------------------------- Sigmas of the samples     
       //       1   fMatHis(StexEcha, sample)   ( 2)  cTypSSp                 1*(1700,  10) =     17 000
@@ -3743,9 +3743,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3757,10 +3757,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatMat.ReSet(1,1);
 	      TRootSSp(argNbSampWrite);
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- Covariances between samples
 
@@ -3776,9 +3776,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i0StexEcha = 0; i0StexEcha < v_nb_times; i0StexEcha++)
 	{
@@ -3791,10 +3791,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      TRootCovCss(i0StexEcha, argNbSampWrite);
 	      gCnaRootFile->fCnaResultsTree->Fill();
 	      if( i0StexEcha == 0  && fFlagPrint == fCodePrintAllComments)
-		{cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+		{std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //-------------------------- Correlations between samples   
       // StexEcha   fMatMat(sample,  sample)   ( 9)  cTypCorCss           1700*(  10,  10) =    170 000
@@ -3809,9 +3809,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
  
       for (Int_t i0StexEcha = 0; i0StexEcha < v_nb_times; i0StexEcha++)
 	{
@@ -3824,10 +3824,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      TRootCorCss(i0StexEcha, argNbSampWrite);
 	      gCnaRootFile->fCnaResultsTree->Fill();
 	      if( i0StexEcha == 0  && fFlagPrint == fCodePrintAllComments)
-		{cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+		{std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }	  
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- Samples as a function of event = events distributions
       // StexEcha   fMatHis(sample,  bins)     (20)  cTypAdcEvt,        1700*(  10, 150) =  2 550 000
@@ -3842,9 +3842,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i0StexEcha = 0; i0StexEcha < v_nb_times; i0StexEcha++)
 	{
@@ -3857,10 +3857,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      TRootAdcEvt(i0StexEcha, argNbSampWrite);
 	      gCnaRootFile->fCnaResultsTree->Fill();
 	      if( i0StexEcha == 0  && fFlagPrint == fCodePrintAllComments )
-		{cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+		{std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- Low Frequency Covariances between StexEchas
       //  sample   fMatMat(StexEcha, StexEcha)  (21)  cTypLfCov           1*(1700,1700) =  2 890 000
@@ -3875,9 +3875,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{      //=================================== Record type EB
@@ -3889,10 +3889,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatHis.ReSet(1,1);
 	      TRootLfCov();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //-------------------------- Low Frequency Correlations between StexEchas
       //  sample   fMatMat(StexEcha, StexEcha)  (22)  cTypLfCor           1*(1700,1700) =  2 890 000
@@ -3907,9 +3907,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3921,10 +3921,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatHis.ReSet(1,1);
 	      TRootLfCor();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //-------------------------- High Frequency Covariances between StexEchas
       //  sample   fMatMat(StexEcha, StexEcha)  (6)  cTypHfCov           1*(1700,1700) =  2 890 000
@@ -3939,9 +3939,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
  
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3953,10 +3953,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatHis.ReSet(1,1);
 	      TRootHfCov();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
       
       //-------------------------- High Frequency Correlations between StexEchas
       //  sample   fMatMat(StexEcha, StexEcha)  (7)  cTypHfCor           1*(1700,1700) =  2 890 000
@@ -3971,9 +3971,9 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
       v_tot     += v_size;
 
       if(fFlagPrint == fCodePrintAllComments){
-      cout << "*TEcnaRun::WriteRootFile(...)> " << setw(18) << typ_name << ": " << setw(4) << v_nb_times
-	   << " * ("  << setw(4) << v_dim_one << ","  << setw(4) << v_dim_two  << ") = "
-	   << setw(9) << v_size;}
+      std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(18) << typ_name << ": " << std::setw(4) << v_nb_times
+	   << " * ("  << std::setw(4) << v_dim_one << ","  << std::setw(4) << v_dim_two  << ") = "
+	   << std::setw(9) << v_size;}
 
       for (Int_t i = 0; i < v_nb_times; i++)
 	{
@@ -3985,10 +3985,10 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 	      gCnaRootFile->fCnaIndivResult->fMatHis.ReSet(1,1);
 	      TRootHfCor();
 	      gCnaRootFile->fCnaResultsTree->Fill();
-	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
+	      if( i == 0 && fFlagPrint == fCodePrintAllComments ){std::cout << " => WRITTEN ON FILE "; v_tot_writ += v_size;}
 	    }
 	}
-      if(fFlagPrint == fCodePrintAllComments){cout << endl;}
+      if(fFlagPrint == fCodePrintAllComments){std::cout << std::endl;}
 
       //---------------------------------------------- WRITING 
       //...................................... file 
@@ -3998,14 +3998,14 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 
       //...................................... status message
       if(fFlagPrint == fCodePrintAllComments){
-	cout << "*TEcnaRun::WriteRootFile(...)> " << setw(20) << "TOTAL: "
-	     << setw(21) << "CALCULATED = " << setw(9) <<  v_tot
-	     << " => WRITTEN ON FILE = "    << setw(9) << v_tot_writ << endl;}
+	std::cout << "*TEcnaRun::WriteRootFile(...)> " << std::setw(20) << "TOTAL: "
+	     << std::setw(21) << "CALCULATED = " << std::setw(9) <<  v_tot
+	     << " => WRITTEN ON FILE = "    << std::setw(9) << v_tot_writ << std::endl;}
 
       if(fFlagPrint == fCodePrintAllComments){
-	cout << "*TEcnaRun::WriteRootFile(...)> Write OK in file " << file_name << " in directory:" << endl
+	std::cout << "*TEcnaRun::WriteRootFile(...)> Write OK in file " << file_name << " in directory:" << std::endl
 	     << "                           " << fCnaParPaths->ResultsRootFilePath().Data()
-	     << endl;}
+	     << std::endl;}
 
       ok_write = kTRUE;
 
@@ -4530,7 +4530,7 @@ void TEcnaRun::PrintComments()
 // Set flags to authorize printing of some comments concerning initialisations (default)
 
   fFlagPrint = fCodePrintComments;
-  cout << "*TEcnaRun::PrintComments()> Warnings and some comments on init will be printed" << endl;
+  std::cout << "*TEcnaRun::PrintComments()> Warnings and some comments on init will be printed" << std::endl;
 }
 
 void TEcnaRun::PrintWarnings()
@@ -4538,7 +4538,7 @@ void TEcnaRun::PrintWarnings()
 // Set flags to authorize printing of warnings
 
   fFlagPrint = fCodePrintWarnings;
-  cout << "*TEcnaRun::PrintWarnings()> Warnings will be printed" << endl;
+  std::cout << "*TEcnaRun::PrintWarnings()> Warnings will be printed" << std::endl;
 }
 
 void TEcnaRun::PrintAllComments()
@@ -4546,7 +4546,7 @@ void TEcnaRun::PrintAllComments()
 // Set flags to authorize printing of the comments of all the methods
 
   fFlagPrint = fCodePrintAllComments;
-  cout << "*TEcnaRun::PrintAllComments()> All the comments will be printed" << endl;
+  std::cout << "*TEcnaRun::PrintAllComments()> All the comments will be printed" << std::endl;
 }
 
 void  TEcnaRun::PrintNoComment()

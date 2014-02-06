@@ -58,7 +58,7 @@ class TEcnaWrite : public TObject {
   TEcnaParPaths  *fCnaParPaths;
   TEcnaParCout   *fCnaParCout;
 
-  ofstream fFcout_f;
+  std::ofstream fFcout_f;
 
   //...................................... Codes for file names
   Int_t fCodeHeaderAscii;

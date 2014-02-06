@@ -21,7 +21,7 @@ ClassImp(TEcnaRootFile)
 TEcnaRootFile::TEcnaRootFile() {
 //constructor without arguments
 
-  // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
+  // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
 
   Init();
 }
@@ -29,7 +29,7 @@ TEcnaRootFile::TEcnaRootFile() {
 TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name, const TString& status) {
 //constructor
 
- // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   Long_t i_this = (Long_t)this;
@@ -42,7 +42,7 @@ TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name, co
 TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name) {
 //constructor
 
- // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   Long_t i_this = (Long_t)this;
@@ -55,7 +55,7 @@ TEcnaRootFile::TEcnaRootFile(TEcnaObject* pObjectManager, const Text_t *name) {
 TEcnaRootFile::TEcnaRootFile(const Text_t *name, const TString& status) {
 //constructor
 
- // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   fRootFileName   = name;
@@ -65,7 +65,7 @@ TEcnaRootFile::TEcnaRootFile(const Text_t *name, const TString& status) {
 TEcnaRootFile::TEcnaRootFile(const Text_t *name) {
 //constructor
 
- // cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaRootFile.      CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   fRootFileName = name;
@@ -75,7 +75,7 @@ TEcnaRootFile::TEcnaRootFile(const Text_t *name) {
 TEcnaRootFile::~TEcnaRootFile() {
 //destructor
 
-  //cout << "[Info Management] CLASS: TEcnaRootFile.      DESTROY OBJECT: this = " << this << endl;
+  //std::cout << "[Info Management] CLASS: TEcnaRootFile.      DESTROY OBJECT: this = " << this << std::endl;
 
   if( fCnaIndivResult != 0 ){delete fCnaIndivResult;}
 }
