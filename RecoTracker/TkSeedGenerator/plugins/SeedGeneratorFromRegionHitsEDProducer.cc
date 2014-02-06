@@ -25,7 +25,7 @@
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
-  : theConfig(cfg), theRegionProducer(0),
+  : theRegionProducer(0),
     theClusterCheck(cfg.getParameter<edm::ParameterSet>("ClusterCheckPSet"),consumesCollector()),
     theMerger_(0)
 {
@@ -34,12 +34,12 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   moduleName = cfg.getParameter<std::string>("@module_label");
 
   edm::ParameterSet creatorPSet =
-      theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+      cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet");
 
   // seed merger & its settings
   edm::ConsumesCollector iC = consumesCollector();
   if ( cfg.exists("SeedMergerPSet")) {
-    edm::ParameterSet mergerPSet = theConfig.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
+    edm::ParameterSet mergerPSet = cfg.getParameter<edm::ParameterSet>( "SeedMergerPSet" );
     theMerger_=new QuadrupletSeedMerger(mergerPSet.getParameter<edm::ParameterSet>( "layerList" ), creatorPSet, iC);
     theMerger_->setTTRHBuilderLabel( mergerPSet.getParameter<std::string>( "ttrhBuilderLabel" ) );
     theMerger_->setMergeTriplets( mergerPSet.getParameter<bool>( "mergeTriplets" ) );
@@ -47,18 +47,18 @@ SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
   }
 
   edm::ParameterSet regfactoryPSet = 
-      theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+      cfg.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector());
 
   edm::ParameterSet hitsfactoryPSet =
-      theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+      cfg.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
   OrderedHitsGenerator*  hitsGenerator =
     OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
 
   edm::ParameterSet comparitorPSet =
-      theConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
+      cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
   SeedComparitor * aComparitor = (comparitorName == "none") ?
       0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet, iC);
