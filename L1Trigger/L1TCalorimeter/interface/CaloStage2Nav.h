@@ -57,8 +57,12 @@ namespace l1t{
     std::pair<int,int> west(){return move(0,-1);}
 
     std::pair<int,int> currPos()const{return currPos_;}
+    int currIEta()const{return currPos().first;}
+    int currIPhi()const{return currPos().second;}
 
     void resetPos(){currPos_=homePos_;}
+    void resetIEta(){currPos_.first=homePos_.first;}
+    void resetIPhi(){currPos_.second=homePos_.second;}
     void setHomePos(int iEta,int iPhi){homePos_.first=iEta;homePos_.second=iPhi;}
     void setHomePos(std::pair<int,int> pos){setHomePos(pos.first,pos.second);}
 
