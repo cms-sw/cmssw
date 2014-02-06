@@ -543,7 +543,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
   const reco::PFBlock& block = *blockref;
 
   typedef std::multimap<double, unsigned>::iterator IE;
-  typedef std::multimap<double, std::pair<unsigned,math::XYZVector> >::iterator IS;
+  typedef std::multimap<double, std::pair<unsigned,::math::XYZVector> >::iterator IS;
   typedef std::multimap<double, std::pair<unsigned,bool> >::iterator IT;
   typedef std::multimap< unsigned, std::pair<double, unsigned> >::iterator II;
 
@@ -762,7 +762,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  myPFPhoton.setParticleType(particleType);
 	  myPFPhoton.setCharge(0);
 	  myPFPhoton.set_mva_nothing_gamma(1.);
-	  math::XYZPoint v(primaryVertex_.x(), primaryVertex_.y(), primaryVertex_.z());
+	  ::math::XYZPoint v(primaryVertex_.x(), primaryVertex_.y(), primaryVertex_.z());
 	  myPFPhoton.setVertex( v  );  
 	  myPFPhoton.setP4(gedPhoRef->p4());
 	  if(egmLocalDebug) {
@@ -1394,7 +1394,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpe].addElementInBlock( blockref, assTracks.begin()->second );
 	    
 	    // Assign the position of the track at the ECAL entrance
-	    const math::XYZPointF& chargedPosition = 
+	    const ::math::XYZPointF& chargedPosition = 
 	      dynamic_cast<const reco::PFBlockElementTrack*>(&elements[assTracks.begin()->second])->positionAtECALEntrance();
 	    (*pfCandidates_)[tmpe].setPositionAtECALEntrance(chargedPosition);
 	  }
@@ -1693,8 +1693,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     std::multimap<double, std::pair<unsigned,bool> > associatedTracks;
     
     // A temporary maps for ECAL satellite clusters
-    std::multimap<double,std::pair<unsigned,math::XYZVector> > ecalSatellites;
-    std::pair<unsigned,math::XYZVector> fakeSatellite = make_pair(iHcal,math::XYZVector(0.,0.,0.));
+    std::multimap<double,std::pair<unsigned,::math::XYZVector> > ecalSatellites;
+    std::pair<unsigned,::math::XYZVector> fakeSatellite = make_pair(iHcal,::math::XYZVector(0.,0.,0.));
     ecalSatellites.insert( make_pair(-1., fakeSatellite) );
 
     std::multimap< unsigned, std::pair<double, unsigned> > associatedHOs;
@@ -1749,12 +1749,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     unsigned nMuons = 0; 
 
 
-    math::XYZVector photonAtECAL(0.,0.,0.);
-    math::XYZVector hadronDirection(hclusterref->position().X(),
+    ::math::XYZVector photonAtECAL(0.,0.,0.);
+    ::math::XYZVector hadronDirection(hclusterref->position().X(),
 				    hclusterref->position().Y(),
 				    hclusterref->position().Z());
     hadronDirection = hadronDirection.Unit();
-    math::XYZVector hadronAtECAL = totalHcal * hadronDirection;
+    ::math::XYZVector hadronAtECAL = totalHcal * hadronDirection;
 
     // Loop over all tracks associated to this HCAL cluster
     for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
@@ -1771,9 +1771,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       assert( !trackRef.isNull() ); 
 
       // The direction at ECAL entrance
-      const math::XYZPointF& chargedPosition = 
+      const ::math::XYZPointF& chargedPosition = 
 	dynamic_cast<const reco::PFBlockElementTrack*>(&elements[iTrack])->positionAtECALEntrance();
-      math::XYZVector chargedDirection(chargedPosition.X(),chargedPosition.Y(),chargedPosition.Z());
+      ::math::XYZVector chargedDirection(chargedPosition.X(),chargedPosition.Y(),chargedPosition.Z());
       chargedDirection = chargedDirection.Unit();
 
       // look for ECAL elements associated to iTrack (associated to iHcal)
@@ -2027,7 +2027,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    // Calibrate the ECAL energy for photons
 	    bool crackCorrection = false;
 	    float ecalEnergyCalibrated = calibration_->energyEm(*eclusterref,ps1Ene,ps2Ene,crackCorrection);
-	    math::XYZVector photonDirection(eclusterref->position().X(),
+	    ::math::XYZVector photonDirection(eclusterref->position().X(),
 					    eclusterref->position().Y(),
 					    eclusterref->position().Z());
 	    photonDirection = photonDirection.Unit();
@@ -2041,13 +2041,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	      // PJ 1st-April-09 : To be done somewhere !!! (Had to comment it, but it is needed)
 	      // currentChargedHadron.addElementInBlock( blockref, iEcal );
        
-	      std::pair<unsigned,math::XYZVector> satellite = 
+	      std::pair<unsigned,::math::XYZVector> satellite = 
 		make_pair(iEcal,ecalEnergyCalibrated*photonDirection);
 	      ecalSatellites.insert( make_pair(-1., satellite) );
 
 	    } else { // Keep satellite clusters for later
 	      
-	      std::pair<unsigned,math::XYZVector> satellite = 
+	      std::pair<unsigned,::math::XYZVector> satellite = 
 		make_pair(iEcal,ecalEnergyCalibrated*photonDirection);
 	      ecalSatellites.insert( make_pair(dist, satellite) );
 	      
@@ -2127,8 +2127,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     Caloresolution = std::sqrt(Caloresolution*Caloresolution + muonHCALError + muonECALError);
     totalEcal -= std::min(totalEcal,muonECALEnergy);
     totalHcal -= std::min(totalHcal,muonHCALEnergy);
-    if ( totalEcal < 1E-9 ) photonAtECAL = math::XYZVector(0.,0.,0.);
-    if ( totalHcal < 1E-9 ) hadronAtECAL = math::XYZVector(0.,0.,0.);
+    if ( totalEcal < 1E-9 ) photonAtECAL = ::math::XYZVector(0.,0.,0.);
+    if ( totalHcal < 1E-9 ) hadronAtECAL = ::math::XYZVector(0.,0.,0.);
 
     // Loop over all ECAL satellites, starting for the closest to the various tracks
     // and adding other satellites until saturation of the total track momentum
@@ -2141,7 +2141,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       double previousCalibHcal = calibHcal;
       double previousCaloEnergy = caloEnergy;
       double previousSlopeEcal = slopeEcal;
-      math::XYZVector previousHadronAtECAL = hadronAtECAL;
+      ::math::XYZVector previousHadronAtECAL = hadronAtECAL;
       //
       totalEcal += sqrt(is->second.second.Mag2());
       photonAtECAL += is->second.second;
@@ -2258,9 +2258,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpi].setHoEnergy(hoclusterref->energy(),muonHO);
 	  }
 	  // Remove it from the block
-	  const math::XYZPointF& chargedPosition = 
+	  const ::math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();	  
-	  math::XYZVector chargedDirection(chargedPosition.X(), chargedPosition.Y(), chargedPosition.Z());
+	  ::math::XYZVector chargedDirection(chargedPosition.X(), chargedPosition.Y(), chargedPosition.Z());
 	  chargedDirection = chargedDirection.Unit();
 	  totalChargedMomentum -= trackMomentum;
 	  // Update the calo energies
@@ -2648,7 +2648,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       std::vector<reco::PFClusterRef> pivotalClusterRef;
       std::vector<unsigned> iPivotal;
       std::vector<double> particleEnergy, ecalEnergy, hcalEnergy, rawecalEnergy, rawhcalEnergy;
-      std::vector<math::XYZVector> particleDirection;
+      std::vector<::math::XYZVector> particleDirection;
 
       // If the excess is smaller than the ecal energy, assign the whole 
       // excess to a photon
@@ -2736,7 +2736,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  unsigned iTrack = chargedHadronsInBlock[ich];
 	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
 	  // Assign the position of the track at the ECAL entrance
-	  const math::XYZPointF& chargedPosition = 
+	  const ::math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[iTrack])->positionAtECALEntrance();
 	  (*pfCandidates_)[tmpi].setPositionAtECALEntrance(chargedPosition);
 
@@ -3171,7 +3171,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
   double energy = sqrt(track.p()*track.p() + 0.13957*0.13957);
 
   // Create a PF Candidate
-  math::XYZTLorentzVector momentum(px,py,pz,energy);
+  ::math::XYZTLorentzVector momentum(px,py,pz,energy);
   reco::PFCandidate::ParticleType particleType 
     = reco::PFCandidate::h;
 
@@ -3206,7 +3206,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
       reco::PFDisplacedVertexRef vRef = eltTrack->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP)->displacedVertexRef();
       reco::Track trackRefit = vRef->refittedTrack(trackRef);
       //change the momentum with the refitted track
-      math::XYZTLorentzVector momentum(trackRefit.px(),
+      ::math::XYZTLorentzVector momentum(trackRefit.px(),
 				       trackRefit.py(),
 				       trackRefit.pz(),
 				       sqrt(trackRefit.p()*trackRefit.p() + 0.13957*0.13957));
@@ -3237,7 +3237,7 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   
   reco::PFCandidate::ParticleType particleType = reco::PFCandidate::X;
 
-  // need to convert the math::XYZPoint data member of the PFCluster class=
+  // need to convert the ::math::XYZPoint data member of the PFCluster class=
   // to a displacement vector: 
 
   // Transform particleX,Y,Z to a position at ECAL/HCAL entrance
@@ -3259,22 +3259,22 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
     }
   }
   //MIKE First of all let's check if we have vertex.
-  math::XYZPoint vertexPos; 
+  ::math::XYZPoint vertexPos; 
   if(useVertices_)
-    vertexPos = math::XYZPoint(primaryVertex_.x(),primaryVertex_.y(),primaryVertex_.z());
+    vertexPos = ::math::XYZPoint(primaryVertex_.x(),primaryVertex_.y(),primaryVertex_.z());
   else
-    vertexPos = math::XYZPoint(0.0,0.0,0.0);
+    vertexPos = ::math::XYZPoint(0.0,0.0,0.0);
 
 
-  math::XYZVector clusterPos( cluster.position().X()-vertexPos.X(), 
+  ::math::XYZVector clusterPos( cluster.position().X()-vertexPos.X(), 
 			      cluster.position().Y()-vertexPos.Y(),
 			      cluster.position().Z()-vertexPos.Z());
-  math::XYZVector particleDirection ( particleX*factor-vertexPos.X(), 
+  ::math::XYZVector particleDirection ( particleX*factor-vertexPos.X(), 
 				      particleY*factor-vertexPos.Y(), 
 				      particleZ*factor-vertexPos.Z() );
 
-  //math::XYZVector clusterPos( cluster.position().X(), cluster.position().Y(),cluster.position().Z() );
-  //math::XYZVector particleDirection ( particleX, particleY, particleZ );
+  //::math::XYZVector clusterPos( cluster.position().X(), cluster.position().Y(),cluster.position().Z() );
+  //::math::XYZVector particleDirection ( particleX, particleY, particleZ );
 
   clusterPos = useDirection ? particleDirection.Unit() : clusterPos.Unit();
   clusterPos *= particleEnergy;
@@ -3286,7 +3286,7 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > 
     momentum( clusterPos.X(), clusterPos.Y(), clusterPos.Z(), mass); 
   // mathcore is a piece of #$%
-  math::XYZTLorentzVector  tmp;
+  ::math::XYZTLorentzVector  tmp;
   // implicit constructor not allowed
   tmp = momentum;
 
@@ -3321,7 +3321,7 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   // The position at ECAL entrance (well: watch out, it is not true
   // for HCAL clusters... to be fixed)
   pfCandidates_->back().
-    setPositionAtECALEntrance(math::XYZPointF(cluster.position().X(),
+    setPositionAtECALEntrance(::math::XYZPointF(cluster.position().X(),
 					      cluster.position().Y(),
 					      cluster.position().Z()));
 
