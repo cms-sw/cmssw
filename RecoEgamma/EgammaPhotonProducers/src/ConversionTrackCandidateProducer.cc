@@ -163,7 +163,7 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run const& r , edm::Event
   theOutInSeedFinder_ = new OutInConversionSeedFinder (  conf_ );
   
   // get the Out In Track Finder
-  theOutInTrackFinder_ = new OutInConversionTrackFinder ( theEventSetup, conf_  );
+  theOutInTrackFinder_ = new OutInConversionTrackFinder ( conf_  );
 
   
   // get the In Out Seed Finder  
@@ -171,7 +171,7 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run const& r , edm::Event
   
   
   // get the In Out Track Finder
-  theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_  );
+  theInOutTrackFinder_ = new InOutConversionTrackFinder ( conf_  );
 }
 
 
@@ -202,6 +202,8 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   theOutInSeedFinder_->setEvent(theEvent);
   theInOutSeedFinder_->setEvent(theEvent);
+  theOutInTrackFinder_->setEventSetup(theEventSetup);
+  theInOutTrackFinder_->setEventSetup(theEventSetup);
   theOutInTrackFinder_->setTrajectoryBuilder(*theTrajectoryBuilder_);
   theInOutTrackFinder_->setTrajectoryBuilder(*theTrajectoryBuilder_);
 

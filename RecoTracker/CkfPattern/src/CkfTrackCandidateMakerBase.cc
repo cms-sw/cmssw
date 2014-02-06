@@ -66,7 +66,7 @@ namespace cms{
     theTrajectoryBuilder(createBaseCkfTrajectoryBuilder(conf.getParameter<edm::ParameterSet>("TrajectoryBuilder"), iC)),
     theTrajectoryCleanerName(conf.getParameter<std::string>("TrajectoryCleaner")), 
     theTrajectoryCleaner(0),
-    theInitialState(0),
+    theInitialState(new TransientInitialStateEstimator(conf.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters"))),
     theNavigationSchoolName(conf.getParameter<std::string>("NavigationSchool")),
     theNavigationSchool(0),
     theSeedCleaner(0),
@@ -114,7 +114,6 @@ namespace cms{
   
   // Virtual destructor needed.
   CkfTrackCandidateMakerBase::~CkfTrackCandidateMakerBase() {
-    delete theInitialState;  
     if (theSeedCleaner) delete theSeedCleaner;
   }  
 
@@ -133,13 +132,6 @@ namespace cms{
     es.get<IdealMagneticFieldRecord>().get(mfName,theMagField );
     //    edm::ESInputTag mfESInputTag(mfName);
     //    es.get<IdealMagneticFieldRecord>().get(mfESInputTag,theMagField );
-
-    if (!theInitialState){
-      // constructor uses the EventSetup, it must be in the setEventSetup were it has a proper value.
-      // get nested parameter set for the TransientInitialStateEstimator
-      ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
-      theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    }
 
     theInitialState->setEventSetup( es );
 

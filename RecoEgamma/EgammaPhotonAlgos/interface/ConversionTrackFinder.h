@@ -30,8 +30,7 @@ class ConversionTrackFinder {
 
  public:
   
-  ConversionTrackFinder( const edm::EventSetup& es,
-			 const edm::ParameterSet& config );
+  ConversionTrackFinder( const edm::ParameterSet& config );
                        
   
   virtual ~ConversionTrackFinder();
@@ -59,7 +58,7 @@ class ConversionTrackFinder {
   const MeasurementTracker*     theMeasurementTracker_;
   const BaseCkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
 
-  TransientInitialStateEstimator* theInitialState_;  
+  std::unique_ptr<TransientInitialStateEstimator> theInitialState_;
   const TrackerGeometry* theTrackerGeom_;
   KFUpdator*                          theUpdator_;
 
