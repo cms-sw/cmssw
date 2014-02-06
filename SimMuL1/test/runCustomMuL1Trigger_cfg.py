@@ -2,7 +2,7 @@
 import os
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("MUTRG")
+process = cms.Process("TAO")
 
 ## Standard sequence
 process.load('Configuration.StandardSequences.Services_cff')
@@ -76,9 +76,9 @@ process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
 ## GEM geometry customization
 use6part = True
 if use6part:
-    mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v4/gemf.xml')
-    process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v4/gemf.xml')
-    process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v2/gemf.xml')
+     mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v5/gem11.xml')
+     process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v5/gem11.xml')
+     process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v2/gem11.xml')
 
 ## upgrade CSC geometry customizations
 from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry, digitizer_timing_pre3_median
