@@ -523,7 +523,7 @@ namespace evf {
       try {
         mss = (FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
       } catch (...) {
-	      std::cout <<" EvFDaqDirector: FastMonitoringService not found " << std::endl;
+	      edm::LogError("EvFDaqDirector") <<" FastMonitoringService not found ";
       }
       if (mss) mss->accumulateFileSize(ls, previousFileSize_);
       previousFileSize_ = 0;

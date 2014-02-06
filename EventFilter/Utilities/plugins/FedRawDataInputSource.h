@@ -6,7 +6,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
-#include <ttb/concurrent_queue>
+#include "tbb/concurrent_queue.h"
+#include "tbb/concurrent_vector.h"
 
 #include "boost/filesystem.hpp"
 
@@ -48,14 +49,16 @@ private:
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
   evf::EvFDaqDirector::FileStatus cacheNextEvent();
   edm::Timestamp fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>&) const;
-  void closeCurrentFile();
+  void deleteFile(std::string const&);
   int grabNextJsonFile(boost::filesystem::path const&);
-  void renameToNextFree(std::string& fileName) const;
-  void purgeOldFiles(bool checkAll);
+  void renameToNextFree(std::string const& fileName) const;
+  //void purgeOldFiles(bool checkAll);
 
   //thread functions
   void readSupervisor();
-  void readWorker();
+  void readWorker(unsigned int tid, std::atomic<bool> *started);
+  void threadError();
+  bool exceptionState() {return setExceptionState_;}
 
   std::string defPath_;
 
@@ -83,24 +86,11 @@ private:
   edm::EventID eventID_;
 
   unsigned int currentLumiSection_;
-  boost::filesystem::path currentInputJson_;
-  unsigned int currentInputEventCount_;
-
-  bool eorFileSeen_;
-
-  /*
-  unsigned char *dataBuffer_; // temporarily hold multiple event data
-  unsigned char *bufferCursor_;
-  uint32_t bufferLeft_;
-  */
+  unsigned int eventsThisLumi_;
 
   jsoncollector::DataPointDefinition *dpd_;
 
-  unsigned int eventsThisLumi_;
   evf::FastMonitoringService *fms_ = nullptr;
-
-  //bool fileIsOver_ = true;
-  //int fileDescriptor_ = -1;
 
   /*
    *
@@ -109,8 +99,7 @@ private:
    **/
 
   struct InputChunk {
-    //alignas(uint64_t) unsigned char * dataBuffer_;
-    unsigned char * dataBuffer_;
+    unsigned char * buf_;
     InputChunk *next_ = nullptr;
     uint32_t size_;
     uint32_t usedSize_ = 0;
@@ -120,8 +109,8 @@ private:
     std::atomic<bool> readComplete_;
 
     InputChunk(unsigned int index, uint32_t size): size_(size),index_(index) {
-	    dataBuffer_ = new unsigned char[size_];
-	    reset(0,0);
+	    buf_ = new unsigned char[size_];
+	    reset(0,0,0);
     }
     void reset(unsigned int newOffset, unsigned int toRead, unsigned int fileIndex) {
 	    offset_=newOffset;
@@ -130,11 +119,12 @@ private:
 	    readComplete_=false;
     }
 
-    ~InputChunk() {delete dataBuffer_;}
+    ~InputChunk() {delete buf_;}
   };
 
   struct InputFile {
 //    public:
+      FedRawDataInputSource *parent_;
       evf::EvFDaqDirector::FileStatus status_;
       unsigned int lumi_;
       std::string fileName_;
@@ -142,41 +132,43 @@ private:
       uint32_t nChunks_;
       unsigned int nEvents_;
       unsigned int nProcessed_;
-      CompletitionCounter cc_;
+      //CompletitionCounter cc_;
 
-      std::concurrent_vector<InputChunk*> chunks_;
+      tbb::concurrent_vector<InputChunk*> chunks_;
 
       uint32_t  bufferPosition_ = 0;
       uint32_t  chunkPosition_ = 0;
       unsigned int currentChunk_ = 0;
 
       bool fileExists_ = false;
-      //std::atomic<unsigned int> completedChunks_=0;
       //bool deleted_ = false;
 
       //maybe make a few constructors
       InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
-	  uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0, CompletitionCounter * cc = nullptr):
+	  uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0, FedRawDataInputSource *parent = nullptr): // CompletitionCounter * cc = nullptr):
+	parent_(parent),
 	status_(status),
 	lumi_(lumi),
 	fileName_(name),
 	fileSize_(fileSize),
 	nChunks_(nChunks),
 	nEvents_(nEvents),
-	nProcessed_(0),
-	cc_(cc)
+	nProcessed_(0)
+	//cc_(cc)
       {
 	for (unsigned int i=0;i<nChunks;i++)
 	  chunks_.push_back(nullptr);
-        completedChunks_=0;
       }
 
       bool waitForChunk(unsigned int chunkid) {
 	//some atomics to make sure everything is cache synchronized for the main thread
         return chunks_[chunkid]!=nullptr && chunks_[chunkid]->readComplete_;
       }
+      bool advance(unsigned char* & dataPosition, const size_t size);
+      void moveToPreviousChunk(const size_t size, const size_t offset);
+      void rewindChunk(const size_t size);
   };
-
+/*
   struct CompletitionCounter {
 	  std::string name_;
 	  unsigned int nChunks_;
@@ -187,44 +179,29 @@ private:
 		  chunksComplete_(0)
 	  {}
   }
+*/
+  typedef std::pair<InputFile*,InputChunk*> ReaderInfo;
 
-  typedef<std::pair<InputFile*,InputChunk*> ReaderInfo;
+  InputFile *currentFile_ = nullptr;
+  bool chunkIsFree_=false;
 
   std::unique_ptr<std::thread> readSupervisorThread_;
-  std::vector<std::thread*> workerThreads_;//kept for joining threads in destructor
-  //std::vector<InputChunk*> allChunks_;
+  std::vector<std::thread*> workerThreads_;
 
   tbb::concurrent_queue<unsigned int> workerPool_;
-  std::vector<std::pair<ReaderInfo> workerJob_;
+  std::vector<ReaderInfo> workerJob_;
 
   tbb::concurrent_queue<InputChunk*> freeChunks_;
   tbb::concurrent_queue<InputFile*> fileQueue_;
 
   std::mutex mReader_;
-  std::vector<std::condition_variable> cvReader_;
+  std::vector<std::condition_variable*> cvReader_;
 
-  std::queue<CompletitionCounter*> openFileTracker_;
+//  std::queue<CompletitionCounter*> openFileTracker_;
 
+  //communication with threads
   bool quit_threads_=false;
-
   bool setExceptionState_ = false;
-
-  //file is queued to the as soon as there's raw, EOL or EOR file found (FU locking and all that remains the same)
-  //if it is raw file, threads are spawned to read blocks of the file in parallel (from the pool).
-  //if more threads available than needed for the file, there are free threads in the pool, so new file is searched for
-  //as threads finish reading, they return to the pool and also a new file is searched for
-  //file searching only happens if there are free threads.
-  //I think locking/file searching should be another thread to not have CMSSW thread waiting for the lock
-  //(use some wakeup mechanism, e.g. condition variables to return threads to the pool)
-  //alternative, wake it up at each event request, even run all that in main thread
-
-  //reading (main CMSSW thread) goes through the file queue. as it reads raw data from buffers,
-  //blocks concurrently become available for processing.
-  //the main process is responsible in waiting for that to happen before it processes the next event)
-  //if it gets to the end of file, goes over to the next object
-  //EOL or EOR file objects trigger the corresponding action
-  //
-  //If event is on the boundary of two blocks, it is copied into beginning of the first one (FRD must me contiguous currently)
 
 };
 
