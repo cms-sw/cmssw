@@ -12,7 +12,7 @@ process = cms.Process('GEMCSCTRGANA')
 cmssw = os.getenv( "CMSSW_VERSION" )
 
 ## steering
-events = 20000
+events = 20
 defaultEmu = False
 pileup='000'
 sample='dimu'
@@ -121,7 +121,8 @@ process.GEMCSCTriggerEfficiency.maxBxMPLCT = readout_windows[3][1]
 process.GEMCSCTriggerEfficiency.minNHitsChamber = cms.untracked.int32(4)
 process.GEMCSCTriggerEfficiency.requireME1WithMinNHitsChambers = cms.untracked.bool(True)
 process.GEMCSCTriggerEfficiency.minSimTrPt = cms.untracked.double(2)
-process.GEMCSCTriggerEfficiency.simTrackMatching.gemRecHitInput = ""
+GEMmatching = process.GEMCSCTriggerEfficiency.simTrackMatching
+GEMmatching.gemRecHit.input = ""
 #SimTrackMatching.verboseSimHit = 1
 #SimTrackMatching.verboseGEMDigi = 1
 #SimTrackMatching.verboseCSCDigi = 1
