@@ -23,7 +23,6 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
-  edm::ParameterSet theConfig;
   std::unique_ptr<SeedGeneratorFromRegionHits> theGenerator;
   TrackingRegionProducer* theRegionProducer;
   ClusterChecker theClusterCheck;
