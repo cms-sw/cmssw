@@ -20,8 +20,7 @@
 #include <sstream>
 
 
-InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, 
-						       const edm::ParameterSet& conf ) : ConversionTrackFinder (es,  conf ) 
+InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::ParameterSet& conf ) : ConversionTrackFinder ( conf )
 { 
 
  

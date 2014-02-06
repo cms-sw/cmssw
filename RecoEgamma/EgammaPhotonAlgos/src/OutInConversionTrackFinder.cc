@@ -21,8 +21,7 @@
 
 
 
-OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es, 
-						       const edm::ParameterSet& conf ) :  ConversionTrackFinder( es, conf )
+OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::ParameterSet& conf ) :  ConversionTrackFinder( conf )
 {
 
 
