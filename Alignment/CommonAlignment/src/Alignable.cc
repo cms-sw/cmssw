@@ -1,8 +1,5 @@
 /** \file Alignable.cc
  *
- *  $Date: 2010/10/29 12:20:22 $
- *  $Revision: 1.21 $
- *  (last update by $Author: mussgill $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
