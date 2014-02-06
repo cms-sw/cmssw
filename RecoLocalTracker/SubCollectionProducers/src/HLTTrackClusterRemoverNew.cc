@@ -31,10 +31,10 @@
 // class decleration
 //
 
-class HLTTrackClusterRemover : public edm::EDProducer {
+class HLTTrackClusterRemoverNew final : public edm::EDProducer {
     public:
-        HLTTrackClusterRemover(const edm::ParameterSet& iConfig) ;
-        ~HLTTrackClusterRemover() ;
+        HLTTrackClusterRemoverNew(const edm::ParameterSet& iConfig) ;
+        ~HLTTrackClusterRemoverNew() ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
@@ -61,9 +61,9 @@ class HLTTrackClusterRemover : public edm::EDProducer {
         bool mergeOld_;
 
 	typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelMaskContainer;
-	typedef edm::ContainerMask<edm::LazyGetter<SiStripCluster> > StripMaskContainer;
+	typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripMaskContainer;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
-	edm::EDGetTokenT<edm::LazyGetter<SiStripCluster> > stripClusters_;
+	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
 	edm::EDGetTokenT<PixelMaskContainer> oldPxlMaskToken_;
 	edm::EDGetTokenT<StripMaskContainer> oldStrMaskToken_;
 	edm::EDGetTokenT<std::vector<Trajectory> > trajectories_;
@@ -100,7 +100,7 @@ using namespace edm;
 using namespace reco;
 
 void
-HLTTrackClusterRemover::readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
+HLTTrackClusterRemoverNew::readPSet(const edm::ParameterSet& iConfig, const std::string &name, 
     int id1, int id2, int id3, int id4, int id5, int id6) 
 {
     if (iConfig.exists(name)) {
@@ -118,7 +118,7 @@ HLTTrackClusterRemover::readPSet(const edm::ParameterSet& iConfig, const std::st
     }
 }
 
-HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig)
+HLTTrackClusterRemoverNew::HLTTrackClusterRemoverNew(const ParameterSet& iConfig)
   : doTracks_(iConfig.exists("trajectories"))
   , doStrip_ (iConfig.existsAs<bool>("doStrip") ? iConfig.getParameter<bool>("doStrip") : true)
   , doPixel_ (iConfig.existsAs<bool>("doPixel") ? iConfig.getParameter<bool>("doPixel") : true)
@@ -137,9 +137,9 @@ HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig)
     }
 
   if ((doPixelChargeCheck_ && !doPixel_) || (doStripChargeCheck_ && !doStrip_))
-    throw cms::Exception("Configuration Error") << "HLTTrackClusterRemover: Charge check asked without cluster collection ";
+    throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Charge check asked without cluster collection ";
   if (doPixelChargeCheck_)
-    throw cms::Exception("Configuration Error") << "HLTTrackClusterRemover: Pixel cluster charge check not yet implemented";
+    throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Pixel cluster charge check not yet implemented";
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
@@ -160,16 +160,16 @@ HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig)
 
     bool usingCharge = false;
     for (size_t i = 0; i < NumberOfParamBlocks; ++i) {
-        if (!pblocks_[i].isSet_) throw cms::Exception("Configuration Error") << "HLTTrackClusterRemover: Missing configuration for detector with subDetID = " << (i+1);
+        if (!pblocks_[i].isSet_) throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Missing configuration for detector with subDetID = " << (i+1);
         if (pblocks_[i].usesCharge_ && !usingCharge) {
-	  throw cms::Exception("Configuration Error") << "HLTTrackClusterRemover: Configuration for subDetID = " << (i+1) << " uses cluster charge, which is not enabled.";
+	  throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Configuration for subDetID = " << (i+1) << " uses cluster charge, which is not enabled.";
         }
     }
     
     //    trajectories_ = consumes<vector<Trajectory> >(iConfig.getParameter<InputTag>("trajectories"));
     if (doTracks_) trajectories_ = consumes<vector<Trajectory> >                  (iConfig.getParameter<InputTag>("trajectories") );
     if (doPixel_) pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<InputTag>("pixelClusters"));
-    if (doStrip_) stripClusters_ = consumes<edm::LazyGetter<SiStripCluster> >     (iConfig.getParameter<InputTag>("stripClusters"));
+    if (doStrip_) stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >     (iConfig.getParameter<InputTag>("stripClusters"));
     if (mergeOld_) {
       oldPxlMaskToken_ = consumes<PixelMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
       oldStrMaskToken_ = consumes<StripMaskContainer>(iConfig.getParameter<InputTag>("oldClusterRemovalInfo"));
@@ -179,16 +179,16 @@ HLTTrackClusterRemover::HLTTrackClusterRemover(const ParameterSet& iConfig)
     //produces<edmNew::DetSetVector<SiStripRecHit1D::ClusterRegionalRef> >();
     
     produces< edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
-    produces< edm::ContainerMask<edm::LazyGetter<SiStripCluster> > >();
+    produces< edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
 
 }
 
 
-HLTTrackClusterRemover::~HLTTrackClusterRemover()
+HLTTrackClusterRemoverNew::~HLTTrackClusterRemoverNew()
 {
 }
 
-void HLTTrackClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
+void HLTTrackClusterRemoverNew::mergeOld(ClusterRemovalInfo::Indices &refs,
 				      const ClusterRemovalInfo::Indices &oldRefs) 
 {
         for (size_t i = 0, n = refs.size(); i < n; ++i) {
@@ -199,7 +199,7 @@ void HLTTrackClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
  
 template<typename T> 
 auto_ptr<edmNew::DetSetVector<T> >
-HLTTrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
+HLTTrackClusterRemoverNew::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
 			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
     typedef typename edmNew::DetSetVector<T>             DSV;
     typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
@@ -227,7 +227,7 @@ HLTTrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, cons
                 outds.push_back(*it);
 		countNew++;
                 refs.push_back(index); 
-                //std::cout << "HLTTrackClusterRemover::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1) << std::endl;
+                //std::cout << "HLTTrackClusterRemoverNew::cleanup " << typeid(T).name() << " reference " << index << " to " << (refs.size() - 1) << std::endl;
             }
 
 	}
@@ -239,10 +239,10 @@ HLTTrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, cons
     return output;
 }
 
-void HLTTrackClusterRemover::process(OmniClusterRef const & clusterReg, uint32_t subdet) {
+void HLTTrackClusterRemoverNew::process(OmniClusterRef const & clusterReg, uint32_t subdet) {
 
   if (clusterReg.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
-    "HLTTrackClusterRemover: strip cluster ref from Product ID = " << clusterReg.id() <<
+    "HLTTrackClusterRemoverNew: strip cluster ref from Product ID = " << clusterReg.id() <<
     " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
 
   if (collectedRegStrips_.size()<=clusterReg.key()){
@@ -255,7 +255,7 @@ void HLTTrackClusterRemover::process(OmniClusterRef const & clusterReg, uint32_t
 
 
 
-void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
+void HLTTrackClusterRemoverNew::process(const TrackingRecHit *hit, float chi2) {
     DetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
 
@@ -273,7 +273,7 @@ void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
       
       SiPixelRecHit::ClusterRef cluster = pixelHit->cluster();
       if (cluster.id() != pixelSourceProdID) throw cms::Exception("Inconsistent Data") << 
-	"HLTTrackClusterRemover: pixel cluster ref from Product ID = " << cluster.id() << 
+	"HLTTrackClusterRemoverNew: pixel cluster ref from Product ID = " << cluster.id() << 
 	" does not match with source cluster collection (ID = " << pixelSourceProdID << ")\n.";
       
       assert(cluster.id() == pixelSourceProdID);
@@ -295,25 +295,25 @@ void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
 	process(stripHit->omniClusterRef(),subdet);
 	//	  int clusCharge=0;
 	//	  for ( auto cAmp : stripHit->omniClusterRef().stripCluster().amplitudes() ) clusCharge+=cAmp;
-	//	  std::cout << "[HLTTrackClusterRemover::process (SiStripRecHit2D) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
+	//	  std::cout << "[HLTTrackClusterRemoverNew::process (SiStripRecHit2D) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
       } else if (hitType == typeid(SiStripRecHit1D)) {
 	const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
 	process(hit1D->omniClusterRef(),subdet);
 	//	  int clusCharge=0;
 	//	  for ( auto cAmp : hit1D->omniClusterRef().stripCluster().amplitudes() ) clusCharge+=cAmp;
-	//	  std::cout << "[HLTTrackClusterRemover::process (SiStripRecHit1D) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
+	//	  std::cout << "[HLTTrackClusterRemoverNew::process (SiStripRecHit1D) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
       } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
 	const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
 	//DBG//     cout << "Matched RecHit 2D: " << endl;
 	process(matchHit->monoClusterRef(),  subdet);
 	//	    int clusCharge=0;
 	//	    for ( auto cAmp : matchHit->monoClusterRef().stripCluster().amplitudes() ) clusCharge+=cAmp;
-	//	    std::cout << "[HLTTrackClusterRemover::process (SiStripMatchedRecHit2D:mono) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
+	//	    std::cout << "[HLTTrackClusterRemoverNew::process (SiStripMatchedRecHit2D:mono) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
 	
 	process(matchHit->stereoClusterRef(),subdet);
 	//	    clusCharge=0;
 	//	    for ( auto cAmp : matchHit->stereoClusterRef().stripCluster().amplitudes() ) clusCharge+=cAmp;
-	//	    std::cout << "[HLTTrackClusterRemover::process (SiStripMatchedRecHit2D:stereo) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
+	//	    std::cout << "[HLTTrackClusterRemoverNew::process (SiStripMatchedRecHit2D:stereo) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
 	
       } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
 	const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
@@ -321,7 +321,7 @@ void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
 	process(projHit->originalHit().omniClusterRef(),subdet);
 	//	    int clusCharge=0;
 	//	    for ( auto cAmp : projHit->originalHit().omniClusterRef().stripCluster().amplitudes() ) clusCharge+=cAmp;
-	//	    std::cout << "[HLTTrackClusterRemover::process (ProjectedSiStripRecHit2D) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
+	//	    std::cout << "[HLTTrackClusterRemoverNew::process (ProjectedSiStripRecHit2D) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
       } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << hitType.name() << " on detid " << detid.rawId() << "\n";
     }
 }
@@ -338,7 +338,7 @@ void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
 
 
 void
-HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
+HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
 {
     ProductID pixelOldProdID, stripOldProdID;
 
@@ -348,7 +348,7 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
         pixelSourceProdID = pixelClusters.id();
     }
 
-    edm::Handle<edm::LazyGetter<SiStripCluster> > stripClusters;
+    edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
     if (doStrip_) {
         iEvent.getByToken(stripClusters_, stripClusters);
         stripSourceProdID = stripClusters.id();
@@ -366,9 +366,9 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       LogDebug("TrackClusterRemover")<<"to merge in, "<<oldStrMask->size()<<" strp and "<<oldPxlMask->size()<<" pxl";
       oldStrMask->copyMaskTo(collectedRegStrips_);
       oldPxlMask->copyMaskTo(collectedPixels_);
-      collectedRegStrips_.resize(stripClusters->size());
+      collectedRegStrips_.resize(stripClusters->dataSize());
     }else {
-      collectedRegStrips_.resize(stripClusters->size()); fill(collectedRegStrips_.begin(), collectedRegStrips_.end(), false);
+      collectedRegStrips_.resize(stripClusters->dataSize()); fill(collectedRegStrips_.begin(), collectedRegStrips_.end(), false);
       collectedPixels_.resize(pixelClusters->dataSize()); fill(collectedPixels_.begin(), collectedPixels_.end(), false);
     } 
 
@@ -394,32 +394,32 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     //    std::cout << " => collectedRegStrips_: " << collectedRegStrips_.size() << std::endl;
     //    std::cout << " total strip to skip (before charge check): "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true) << std::endl;
     if (doStripChargeCheck_) {
-      int i = 0;
-      //      std::cout << "[HLTTrackClusterRemover::produce] doStripChargeCheck_: " << (doStripChargeCheck_ ? "true" : "false") << " stripClusters: " << stripClusters->size() << std::endl;
+      int i = -1;
+      //      std::cout << "[HLTTrackClusterRemoverNew::produce] doStripChargeCheck_: " << (doStripChargeCheck_ ? "true" : "false") << " stripClusters: " << stripClusters->size() << std::endl;
 
-      for (std::vector<SiStripCluster>::const_iterator icluster = stripClusters->begin_record(), ecluster = stripClusters->end_record();
-      	   icluster!=ecluster; ++icluster, i++){
+      for (auto const & icluster : stripClusters->data() ){
+	++i;
 
-	DetId detid = icluster->geographicalId(); 
+	DetId detid = icluster.geographicalId(); // this will not work anymore !
 	uint32_t subdet = detid.subdetId();
 	//	std::cout << " i: " << i << " --> detid: " << detid << " --> subdet: " << subdet << std::endl;
-
+	
 	int clusCharge=0;
-	for ( auto cAmp : icluster->amplitudes() ) clusCharge+=cAmp;
-	  
+	for ( auto cAmp : icluster.amplitudes() ) clusCharge+=cAmp;
+	
 	//	if (clusCharge < pblocks_[subdet-1].minGoodStripCharge_) std::cout << " clusCharge: " << clusCharge << std::endl;
 	if (pblocks_[subdet-1].cutOnStripCharge_ && clusCharge > pblocks_[subdet-1].minGoodStripCharge_) continue;
 
-	collectedRegStrips_[i]=true;
+	collectedRegStrips_[i]=true; 
       }
     }
     
     //    std::cout << " => collectedRegStrips_: " << collectedRegStrips_.size() << std::endl;
     //    std::cout << " total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true) << std::endl;
     std::auto_ptr<StripMaskContainer> removedStripClusterMask(
-       new StripMaskContainer(edm::RefProd<edm::LazyGetter<SiStripCluster> >(stripClusters),collectedRegStrips_));
-    std::cout << "TrackClusterRemover" <<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true)<<std::endl;
+       new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedRegStrips_));
     LogDebug("TrackClusterRemover")<<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true);
+    std::cout << "TrackClusterRemover" <<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true)<<std::endl;
     iEvent.put( removedStripClusterMask );
 
     std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
@@ -432,4 +432,4 @@ HLTTrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(HLTTrackClusterRemover);
+DEFINE_FWK_MODULE(HLTTrackClusterRemoverNew);
