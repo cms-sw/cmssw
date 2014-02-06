@@ -52,9 +52,7 @@ private:
   void deleteFile(std::string const&);
   int grabNextJsonFile(boost::filesystem::path const&);
   void renameToNextFree(std::string const& fileName) const;
-  //void purgeOldFiles(bool checkAll);
 
-  //thread functions
   void readSupervisor();
   void readWorker(unsigned int tid, std::atomic<bool> *started);
   void threadError();
@@ -109,77 +107,59 @@ private:
     std::atomic<bool> readComplete_;
 
     InputChunk(unsigned int index, uint32_t size): size_(size),index_(index) {
-	    buf_ = new unsigned char[size_];
-	    reset(0,0,0);
+      buf_ = new unsigned char[size_];
+      reset(0,0,0);
     }
     void reset(unsigned int newOffset, unsigned int toRead, unsigned int fileIndex) {
-	    offset_=newOffset;
-	    usedSize_=toRead;
-	    fileIndex_=fileIndex;
-	    readComplete_=false;
+      offset_=newOffset;
+      usedSize_=toRead;
+      fileIndex_=fileIndex;
+      readComplete_=false;
     }
 
     ~InputChunk() {delete buf_;}
   };
 
   struct InputFile {
-//    public:
-      FedRawDataInputSource *parent_;
-      evf::EvFDaqDirector::FileStatus status_;
-      unsigned int lumi_;
-      std::string fileName_;
-      uint32_t fileSize_;
-      uint32_t nChunks_;
-      unsigned int nEvents_;
-      unsigned int nProcessed_;
-      //CompletitionCounter cc_;
+    FedRawDataInputSource *parent_;
+    evf::EvFDaqDirector::FileStatus status_;
+    unsigned int lumi_;
+    std::string fileName_;
+    uint32_t fileSize_;
+    uint32_t nChunks_;
+    unsigned int nEvents_;
+    unsigned int nProcessed_;
 
-      tbb::concurrent_vector<InputChunk*> chunks_;
+    tbb::concurrent_vector<InputChunk*> chunks_;
 
-      uint32_t  bufferPosition_ = 0;
-      uint32_t  chunkPosition_ = 0;
-      unsigned int currentChunk_ = 0;
+    uint32_t  bufferPosition_ = 0;
+    uint32_t  chunkPosition_ = 0;
+    unsigned int currentChunk_ = 0;
 
-      bool fileExists_ = false;
-      //bool deleted_ = false;
+    InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
+	uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0, FedRawDataInputSource *parent = nullptr):
+      parent_(parent),
+      status_(status),
+      lumi_(lumi),
+      fileName_(name),
+      fileSize_(fileSize),
+      nChunks_(nChunks),
+      nEvents_(nEvents),
+      nProcessed_(0)
+    {
+      for (unsigned int i=0;i<nChunks;i++)
+	chunks_.push_back(nullptr);
+    }
 
-      //maybe make a few constructors
-      InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
-	  uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0, FedRawDataInputSource *parent = nullptr): // CompletitionCounter * cc = nullptr):
-	parent_(parent),
-	status_(status),
-	lumi_(lumi),
-	fileName_(name),
-	fileSize_(fileSize),
-	nChunks_(nChunks),
-	nEvents_(nEvents),
-	nProcessed_(0)
-	//cc_(cc)
-      {
-	for (unsigned int i=0;i<nChunks;i++)
-	  chunks_.push_back(nullptr);
-      }
-
-      bool waitForChunk(unsigned int chunkid) {
-	//some atomics to make sure everything is cache synchronized for the main thread
-        return chunks_[chunkid]!=nullptr && chunks_[chunkid]->readComplete_;
-      }
-      bool advance(unsigned char* & dataPosition, const size_t size);
-      void moveToPreviousChunk(const size_t size, const size_t offset);
-      void rewindChunk(const size_t size);
+    bool waitForChunk(unsigned int chunkid) {
+      //some atomics to make sure everything is cache synchronized for the main thread
+      return chunks_[chunkid]!=nullptr && chunks_[chunkid]->readComplete_;
+    }
+    bool advance(unsigned char* & dataPosition, const size_t size);
+    void moveToPreviousChunk(const size_t size, const size_t offset);
+    void rewindChunk(const size_t size);
   };
-/*
-  struct CompletitionCounter {
-	  std::string name_;
-	  unsigned int nChunks_;
-	  std::atomic<unsigned int> chunksComplete_; 
-	  CompletitionCounter(std::string & name, unsigned int nChunks):
-		  name_(name),
-		  nChunks_(nChunks),
-		  chunksComplete_(0)
-	  {}
-  }
-*/
+
   typedef std::pair<InputFile*,InputChunk*> ReaderInfo;
 
   InputFile *currentFile_ = nullptr;
@@ -197,9 +177,6 @@ private:
   std::mutex mReader_;
   std::vector<std::condition_variable*> cvReader_;
 
-//  std::queue<CompletitionCounter*> openFileTracker_;
-
-  //communication with threads
   bool quit_threads_=false;
   bool setExceptionState_ = false;
 
