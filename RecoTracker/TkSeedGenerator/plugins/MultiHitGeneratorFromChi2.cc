@@ -47,18 +47,20 @@ namespace {
 }
 
 MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg)
-  : thePairGenerator(0),
-    theLayerCache(0),
-    useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
-    extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
-    extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
-    extraPhiKDBox(cfg.getParameter<double>("extraPhiKDBox")),
-    fnSigmaRZ(cfg.getParameter<double>("fnSigmaRZ")),
-    chi2VsPtCut(cfg.getParameter<bool>("chi2VsPtCut")),
-    maxChi2(cfg.getParameter<double>("maxChi2")),
-    refitHits(cfg.getParameter<bool>("refitHits")),
-    debug(cfg.getParameter<bool>("debug")),
-    filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName"))
+  : thePairGenerator(0)
+  , theLayerCache(0)
+  , useFixedPreFiltering (cfg.getParameter<bool>  ("useFixedPreFiltering")          )
+  , extraHitRZtolerance  (cfg.getParameter<double>("extraHitRZtolerance")           )
+  , extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")         )
+  , extraPhiKDBox        (cfg.getParameter<double>("extraPhiKDBox")                 )
+  , fnSigmaRZ            (cfg.getParameter<double>("fnSigmaRZ")                     )
+  , chi2VsPtCut          (cfg.getParameter<bool>  ("chi2VsPtCut")                   )
+  , maxChi2              (cfg.getParameter<double>("maxChi2")                       )
+  , refitHits            (cfg.getParameter<bool>  ("refitHits")                     )
+  , debug                (cfg.getParameter<bool>  ("debug")                         )
+  , filterName_          (cfg.getParameter<std::string>("ClusterShapeHitFilterName"))
+  , useSimpleMF_         (false)
+  , mfName_              ("")
 {    
   theMaxElement=cfg.getParameter<unsigned int>("maxElement");
   if (useFixedPreFiltering)
@@ -76,7 +78,7 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     detIdsToDebug.push_back(0);
   }
   if (cfg.exists("SimpleMagneticField")) {
-    useSimpleMF = true;
+    useSimpleMF_ = true;
     mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
   }
   bfield = 0;
@@ -118,7 +120,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   es.get<TrackerDigiGeometryRecord>().get(tracker);
   if (nomField<0 && bfield == 0) {
     edm::ESHandle<MagneticField> bfield_h;
-    if (useSimpleMF) 
+    if (useSimpleMF_) 
       es.get<IdealMagneticFieldRecord>().get(mfName_, bfield_h);
     else
       es.get<IdealMagneticFieldRecord>().get(bfield_h);

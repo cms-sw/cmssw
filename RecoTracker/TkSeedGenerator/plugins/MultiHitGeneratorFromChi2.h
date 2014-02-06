@@ -67,7 +67,7 @@ private:
   bool debug;
   std::string filterName_;
   std::vector<int> detIdsToDebug;
-  bool useSimpleMF;
+  bool useSimpleMF_;
   std::string mfName_;  
 };
 #endif
