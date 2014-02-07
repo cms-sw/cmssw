@@ -36,7 +36,7 @@ void
 HcalGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
     edm::ESHandle<HcalTopology> topologyHandle;
-    iSetup.get<IdealGeometryRecord>().get( topologyHandle );
+    iSetup.get<HcalRecNumberingRecord>().get( topologyHandle );
     const HcalTopology* topology ( topologyHandle.product() ) ;
 
     edm::ESHandle<CaloSubdetectorGeometry> pG;

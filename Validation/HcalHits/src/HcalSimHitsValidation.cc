@@ -185,7 +185,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     double pt   = (*p)->momentum().perp();
     if(pt > maxPt) {npart++; maxPt = pt; phi_MC = phip; eta_MC = etap; }
   }
-
+//std::cout << "Tracks " << npart << " pt|eta|phi " << maxPt << ":" << eta_MC << ":" << phi_MC << std::endl;
   double partR   = 0.3;
 
 
@@ -206,7 +206,7 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   int ietaMax = 0;
 
   double HcalCone = 0;
-
+//int khit(0);
   c.get<CaloGeometryRecord>().get (geometry);
     
   for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin () ; SimHits != SimHitResult->end(); ++SimHits) {
@@ -214,8 +214,11 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     const CaloCellGeometry* cellGeometry = geometry->getSubdetectorGeometry (cell)->getGeometry (cell);
     double etaS = cellGeometry->getPosition().eta () ;
     double phiS = cellGeometry->getPosition().phi () ;
-    double en   = SimHits->energy();    
-    
+    double en   = SimHits->energy();
+    /*
+    khit++;
+    std::cout << "Hit [" << khit << "] " << cell << " en|eta|phi " << en << ":" << etaS << ":" << phiS << std::endl;
+    */
     int sub     = cell.subdet();
     int depth   = cell.depth();
     double ieta = cell.ieta();
@@ -240,49 +243,51 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     if (ieta > 0) ieta--;
 
     //HB
-    if (sub == 1){
-      meSimHitsEnergyHB->Fill(en);
-      if (depth == 1){
-	emean_vs_ieta_HB1->Fill(double(ieta), en);
-	occupancy_vs_ieta_HB1->Fill(double(ieta));
+    if ( dbe_ ) {
+      if (sub == 1){
+	meSimHitsEnergyHB->Fill(en);
+	if (depth == 1){
+	  emean_vs_ieta_HB1->Fill(double(ieta), en);
+	  occupancy_vs_ieta_HB1->Fill(double(ieta));
+	}
+	if (depth == 2){
+	  emean_vs_ieta_HB2->Fill(double(ieta), en);
+	  occupancy_vs_ieta_HB2->Fill(double(ieta));
+	}
       }
-      if (depth == 2){
-	emean_vs_ieta_HB2->Fill(double(ieta), en);
-	occupancy_vs_ieta_HB2->Fill(double(ieta));
+      //HE
+      if (sub == 2){
+	meSimHitsEnergyHE->Fill(en);
+	if (depth == 1){
+	  emean_vs_ieta_HE1->Fill(double(ieta), en);
+	  occupancy_vs_ieta_HE1->Fill(double(ieta));
+	}
+	if (depth == 2){
+	  emean_vs_ieta_HE2->Fill(double(ieta), en);
+	  occupancy_vs_ieta_HE2->Fill(double(ieta));
+	}
+	if (depth == 3){
+	  emean_vs_ieta_HE3->Fill(double(ieta), en);
+	  occupancy_vs_ieta_HE3->Fill(double(ieta));
+	}
       }
-    }
-    //HE
-    if (sub == 2){
-      meSimHitsEnergyHE->Fill(en);
-      if (depth == 1){
-	emean_vs_ieta_HE1->Fill(double(ieta), en);
-	occupancy_vs_ieta_HE1->Fill(double(ieta));
+      //HO
+      if (sub == 3){
+	meSimHitsEnergyHO->Fill(en);
+	emean_vs_ieta_HO->Fill(double(ieta), en);
+	occupancy_vs_ieta_HO->Fill(double(ieta));
       }
-      if (depth == 2){
-	emean_vs_ieta_HE2->Fill(double(ieta), en);
-	occupancy_vs_ieta_HE2->Fill(double(ieta));
-      }
-      if (depth == 3){
-	emean_vs_ieta_HE3->Fill(double(ieta), en);
-	occupancy_vs_ieta_HE3->Fill(double(ieta));
-      }
-    }
-    //HO
-    if (sub == 3){
-      meSimHitsEnergyHO->Fill(en);
-      emean_vs_ieta_HO->Fill(double(ieta), en);
-      occupancy_vs_ieta_HO->Fill(double(ieta));
-    }
-    //HF
-    if (sub == 4){
-      meSimHitsEnergyHF->Fill(en);
-      if (depth == 1){
-	emean_vs_ieta_HF1->Fill(double(ieta), en);
-	occupancy_vs_ieta_HF1->Fill(double(ieta));
-      }
-      if (depth == 2){
-	emean_vs_ieta_HF2->Fill(double(ieta), en);
-	occupancy_vs_ieta_HF2->Fill(double(ieta));
+      //HF
+      if (sub == 4){
+	meSimHitsEnergyHF->Fill(en);
+	if (depth == 1){
+	  emean_vs_ieta_HF1->Fill(double(ieta), en);
+	  occupancy_vs_ieta_HF1->Fill(double(ieta));
+	}
+	if (depth == 2){
+	  emean_vs_ieta_HF2->Fill(double(ieta), en);
+	  occupancy_vs_ieta_HF2->Fill(double(ieta));
+	}
       }
     }     
   }
@@ -329,10 +334,12 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
 
   if (ietaMax != 0){            //If ietaMax == 0, there were no good HCAL SimHits 
     if (ietaMax > 0) ietaMax--; //Account for lack of ieta = 0
-    
-    meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
-    meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
-    meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+EcalCone); 
+
+    if ( dbe_ ) {
+      meEnConeEtaProfile       ->Fill(double(ietaMax), HcalCone);    
+      meEnConeEtaProfile_E     ->Fill(double(ietaMax), EcalCone);
+      meEnConeEtaProfile_EH    ->Fill(double(ietaMax), HcalCone+EcalCone); 
+    }
   }
   
   nevtot++;

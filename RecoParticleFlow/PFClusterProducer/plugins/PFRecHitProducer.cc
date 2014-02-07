@@ -13,7 +13,7 @@
 #include "CondFormats/DataRecord/interface/HcalPFCorrsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 using namespace std;
 using namespace edm;
 
@@ -83,7 +83,7 @@ PFRecHitProducer::beginRun(const edm::Run& run,
   theEcalChStatus = ecalChStatus.product();
 
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  es.get<IdealGeometryRecord>().get(cttopo);
+  es.get<HcalRecNumberingRecord>().get(cttopo);
   theTowerConstituentsMap = cttopo.product();
 }
 

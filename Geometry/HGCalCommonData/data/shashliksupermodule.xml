@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <SolidSection label="shashliksupermodule.xml">
+   <Trapezoid name="ShashlikSupermodule" dz="0.75*[shashlikmodule:moduleThickness]" alp1="0*deg" 
+    bl1="2.75*[shashlikmodule:widthFront]" tl1="2.75*[shashlikmodule:widthFront]" h1="2.75*[shashlikmodule:widthFront]"
+    alp2="0*deg" bl2="2.75*[shashlikmodule:widthBack]" tl2="2.75*[shashlikmodule:widthBack]" 
+    h2="2.75*[shashlikmodule:widthBack]" phi="0*deg" theta="0*deg"/>
+ </SolidSection>
+ 
+ <LogicalPartSection label="shashliksupermodule.xml">
+  <LogicalPart name="ShashlikSupermodule" category="unspecified">
+    <rSolid name="ShashlikSupermodule"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+ </LogicalPartSection>
+
+ <Algorithm name="shashlik:DDShashlikSupermodule">
+  <rParent name="shashliksupermodule:ShashlikSupermodule"/>
+  <String name="ChildName" value="shashlikmodule:ShashlikModule"/>
+  <Numeric name="n" value="5"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo"  value="1"/>
+  <Numeric name="invert"      value="1"/>
+  <Numeric name="stepAngle"   value="atan(([shashlikmodule:widthBack]-[shashlikmodule:widthFront] ) / [shashlikmodule:moduleThickness] )"/>
+  <Numeric name="startAngle"  value="0*deg"/>
+  <Numeric name="rPosition"   value="0*cm"/>
+  <Numeric name="zoffset"     value="0.5*([shashlikmodule:widthFront]+[shashlikmodule:widthBack])"/>
+ </Algorithm>
+
+</DDDefinition>

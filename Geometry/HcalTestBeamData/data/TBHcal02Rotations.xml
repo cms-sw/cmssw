@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<RotationSection label="TBHcal02Rotations.xml">
+		<Rotation name="R1" phiX="-10*deg" thetaX="90*deg" phiY="80*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+		<Rotation name="R2" phiX="20*deg" thetaX="90*deg" phiY="110*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0*deg"/>
+		<Rotation name="R3" phiX="-91.943353253*deg" thetaX="91.572999395*deg" phiY="5.5746466058e-15*deg" thetaY="141*deg" phiZ="-3.2155617067*deg" thetaZ="51.044146093*deg"/>
+		<Rotation name="R4" phiX="0*deg" thetaX="87.413095555*deg" phiY="90*deg" thetaY="90*deg" phiZ="180*deg" thetaZ="2.586904445*deg"/>
+		<Rotation name="R5" phiX="0*deg" thetaX="88.275397037*deg" phiY="90*deg" thetaY="90*deg" phiZ="180*deg" thetaZ="1.7246029633*deg"/>
+		<Rotation name="R6" phiX="0*deg" thetaX="89.137698518*deg" phiY="90*deg" thetaY="90*deg" phiZ="180*deg" thetaZ="0.86230148167*deg"/>
+		<Rotation name="R7" phiX="0*deg" thetaX="90.862301482*deg" phiY="90*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="0.86230148167*deg"/>
+		<Rotation name="R8" phiX="0*deg" thetaX="91.724602963*deg" phiY="90*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="1.7246029633*deg"/>
+		<Rotation name="R9" phiX="0*deg" thetaX="92.586904445*deg" phiY="90*deg" thetaY="90*deg" phiZ="0*deg" thetaZ="2.586904445*deg"/>
+		<Rotation name="R10" phiX="0*deg" thetaX="90*deg" phiY="90*deg" thetaY="87.413095555*deg" phiZ="-90*deg" thetaZ="2.586904445*deg"/>
+		<Rotation name="R11" phiX="0*deg" thetaX="90*deg" phiY="90*deg" thetaY="88.275397037*deg" phiZ="-90*deg" thetaZ="1.7246029633*deg"/>
+		<Rotation name="R12" phiX="0*deg" thetaX="90*deg" phiY="90*deg" thetaY="89.137698518*deg" phiZ="-90*deg" thetaZ="0.86230148167*deg"/>
+		<Rotation name="R13" phiX="0*deg" thetaX="90*deg" phiY="90*deg" thetaY="90.862301482*deg" phiZ="90*deg" thetaZ="0.86230148167*deg"/>
+		<Rotation name="R14" phiX="0*deg" thetaX="90*deg" phiY="90*deg" thetaY="91.724602963*deg" phiZ="90*deg" thetaZ="1.7246029633*deg"/>
+		<Rotation name="R15" phiX="0*deg" thetaX="90*deg" phiY="90*deg" thetaY="92.586904445*deg" phiZ="90*deg" thetaZ="2.586904445*deg"/>
+		<Rotation name="R16" phiX="-91.943353253*deg" thetaX="91.572999395*deg" phiY="5.5746466058e-15*deg" thetaY="141*deg" phiZ="-3.2155617067*deg" thetaZ="51.044146093*deg"/>
+	</RotationSection>
+</DDDefinition>

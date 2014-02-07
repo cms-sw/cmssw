@@ -12,6 +12,7 @@
 
 // class declarations
 class CaloSubdetectorGeometry;
+class HcalRecNumberingRecord;
 class IdealGeometryRecord;
 class HcalGeometryRecord;
 
@@ -24,10 +25,10 @@ public:
 
   typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
 
-  ReturnType produceIdeal(   const IdealGeometryRecord&);
+  ReturnType produceIdeal(   const HcalRecNumberingRecord&);
   ReturnType produceAligned( const HcalGeometryRecord& );
 
-  void       idealRecordCallBack( const IdealGeometryRecord& );
+  void       idealRecordCallBack( const HcalRecNumberingRecord& ) {}
 
 private:
   edm::ParameterSet ps0;

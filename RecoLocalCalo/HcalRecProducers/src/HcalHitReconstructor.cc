@@ -13,7 +13,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include <iostream>
 #include <fstream>
 
@@ -224,7 +224,7 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
       paramTS = new HcalRecoParams(*p.product());
 
       edm::ESHandle<HcalTopology> htopo;
-      es.get<IdealGeometryRecord>().get(htopo);
+      es.get<HcalRecNumberingRecord>().get(htopo);
       theTopology=new HcalTopology(*htopo);
       paramTS->setTopo(theTopology);
       
@@ -243,7 +243,7 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
 
       if (theTopology==0) {
 	edm::ESHandle<HcalTopology> htopo;
-	es.get<IdealGeometryRecord>().get(htopo);
+	es.get<HcalRecNumberingRecord>().get(htopo);
 	theTopology=new HcalTopology(*htopo);
       }
       HFDigiTimeParams->setTopo(theTopology);
@@ -269,7 +269,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
   // get conditions
   edm::ESHandle<HcalTopology> topo;
-  eventSetup.get<IdealGeometryRecord>().get(topo);
+  eventSetup.get<HcalRecNumberingRecord>().get(topo);
 
 
   edm::ESHandle<HcalDbService> conditions;
