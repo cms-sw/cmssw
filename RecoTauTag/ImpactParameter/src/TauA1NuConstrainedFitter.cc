@@ -147,7 +147,7 @@ void TauA1NuConstrainedFitter::UpdateExpandedPar(){
   }
 }
 
-std::vector<LorentzVectorParticle> TauA1NuConstrainedFitter::GetReFitDaughters(){
+std::vector<LorentzVectorParticle> TauA1NuConstrainedFitter::getRefitDaughters(){
   std::vector<LorentzVectorParticle> refitParticles;
   UpdateExpandedPar();
   double c(0),b(0);
@@ -161,7 +161,7 @@ std::vector<LorentzVectorParticle> TauA1NuConstrainedFitter::GetReFitDaughters()
   return refitParticles;
 }
 
-LorentzVectorParticle TauA1NuConstrainedFitter::GetMother(){
+LorentzVectorParticle TauA1NuConstrainedFitter::getMother(){
   UpdateExpandedPar();
   double c(0),b(0);
   for(unsigned int i=0;i<particles_.size();i++){c+=particles_.at(i).charge();b=particles_.at(i).bField();}
@@ -179,7 +179,7 @@ void TauA1NuConstrainedFitter::CovertParToObjects(const TVectorD &v,TLorentzVect
   TauDir.SetMagThetaPhi(1.0,theta,phi);
 }
 
-bool TauA1NuConstrainedFitter::Fit(){
+bool TauA1NuConstrainedFitter::fit(){
   /////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Check if Tau Direction is unphysical and if nessicary set the starting point to Theta_{GJ-Max}
   TLorentzVector a1(par(a1_px),par(a1_py),par(a1_pz),sqrt(par(a1_m)*par(a1_m)+par(a1_px)*par(a1_px)+par(a1_py)*par(a1_py)+par(a1_pz)*par(a1_pz)));
@@ -250,7 +250,7 @@ TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(con
 }
 
 // Return the significance of the rotation when the tau direction is in the unphysical region
-double TauA1NuConstrainedFitter::GetTauRotationSignificance(){
+double TauA1NuConstrainedFitter::getTauRotationSignificance(){
   TVectorT<double> par_tmp=TauA1NuConstrainedFitter::TauRot(par);
   TMatrixTSym<double> cov_tmp=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::TauRot,par,cov_0);
   if(!(cov_tmp(0,0)>0)) return -999; // return invalid value if the covariance is unphysical

@@ -27,11 +27,11 @@ class TauA1NuConstrainedFitter : public MultiProngTauSolver{
   enum ExpandedPars{a1_vx=9,a1_vy,a1_vz,nexpandedpar};
   enum OrignialPars{norigpar=13};
 
-  std::vector<LorentzVectorParticle> GetReFitDaughters();
-  LorentzVectorParticle GetMother();
-  double GetTauRotationSignificance();
+  std::vector<LorentzVectorParticle> getRefitDaughters();
+  LorentzVectorParticle getMother();
+  double getTauRotationSignificance();
 
-  bool Fit();
+  bool fit();
 
  private:
   static TVectorT<double> ComputeInitalExpPar(const TVectorT<double> &inpar);
