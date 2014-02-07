@@ -7,6 +7,7 @@ SimTrackMatching = cms.PSet(
     ntupleTrackEff = cms.bool(True),
     overrideminNHitsChamber = cms.bool(False),
     minNHitsChamber = cms.untracked.int32(4),
+    verbose = cms.bool(False),
     ## per collection params
     simTrack = cms.PSet(
         verbose = cms.int32(0),

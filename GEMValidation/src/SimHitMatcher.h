@@ -10,8 +10,6 @@
 
 #include "GEMCode/GEMValidation/src/BaseMatcher.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -108,9 +106,6 @@ private:
   bool discardEleHitsME0_;
 
   std::string simInputLabel_;
-
-  const CSCGeometry* csc_geo_;
-  const GEMGeometry* gem_geo_;
 
   std::map<unsigned int, unsigned int> trkid_to_index_;
 

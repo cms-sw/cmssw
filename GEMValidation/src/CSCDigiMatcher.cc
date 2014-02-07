@@ -1,8 +1,6 @@
 #include "GEMCode/GEMValidation/src/CSCDigiMatcher.h"
 #include "GEMCode/GEMValidation/src/SimHitMatcher.h"
 
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
-
 using namespace std;
 using namespace matching;
 

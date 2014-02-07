@@ -14,9 +14,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class SimHitMatcher;
-class CSCGeometry;
-class GEMGeometry;
-class CSCLayerGeometry;
 
 class DigiMatcher : public BaseMatcher
 {
@@ -54,9 +51,6 @@ public:
 protected:
 
   const SimHitMatcher* simhit_matcher_;
-
-  const CSCGeometry* csc_geo_;
-  const GEMGeometry* gem_geo_;
 
   const DigiContainer no_digis_;
 };

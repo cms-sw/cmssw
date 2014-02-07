@@ -161,6 +161,7 @@ private:
   edm::ESHandle<ME0Geometry> me0_geom;
  
   edm::ParameterSet cfg_;
+  bool verbose_;
 
   edm::InputTag simTrackInput_;
   edm::InputTag gemSimHitInput_;
@@ -192,7 +193,9 @@ MuonSimHitAnalyzer::MuonSimHitAnalyzer(const edm::ParameterSet& ps)
 , hasME0Geometry_(true)
 , hasCSCGeometry_(true)
 {
-  auto cfg_ = ps.getParameter<edm::ParameterSet>("simTrackMatching");
+  cfg_ = ps.getParameter<edm::ParameterSet>("simTrackMatching");
+  verbose_ = cfg_.getParameter<bool>("verbose");
+
   auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
   simTrackInput_ = simTrack.getParameter<edm::InputTag>("input");
   simTrackMinPt_ = simTrack.getParameter<double>("minPt");
@@ -204,7 +207,7 @@ MuonSimHitAnalyzer::MuonSimHitAnalyzer(const edm::ParameterSet& ps)
   auto gemSimHit = cfg_.getParameter<edm::ParameterSet>("gemSimHit");
   gemSimHitInput_ = gemSimHit.getParameter<edm::InputTag>("input");
   
-  auto cscSimHit= cfg_.getParameter<edm::ParameterSet>("cscSimHit");
+  auto cscSimHit = cfg_.getParameter<edm::ParameterSet>("cscSimHit");
   cscSimHitInput_ = cscSimHit.getParameter<edm::InputTag>("input");
   
   auto me0SimHit = cfg_.getParameter<edm::ParameterSet>("me0SimHit");
@@ -212,7 +215,7 @@ MuonSimHitAnalyzer::MuonSimHitAnalyzer(const edm::ParameterSet& ps)
   
   auto rpcSimHit = cfg_.getParameter<edm::ParameterSet>("rpcSimHit");
   rpcSimHitInput_ = rpcSimHit.getParameter<edm::InputTag>("input");
-  
+
   bookCSCSimHitsTree();
   bookRPCSimHitsTree();
   bookGEMSimHitsTree();
@@ -233,7 +236,7 @@ void MuonSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &i
     gem_geometry_ = &*gem_geom;
   } catch (edm::eventsetup::NoProxyException<GEMGeometry>& e) {
     hasGEMGeometry_ = false;
-    edm::LogWarning("MuonSimHitAnalyzer") << "+++ Info: GEM geometry is unavailable. +++\n";
+    LogDebug("MuonSimHitAnalyzer") << "+++ Info: GEM geometry is unavailable. +++\n";
   }
 
   try {
@@ -241,7 +244,7 @@ void MuonSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &i
     me0_geometry_ = &*me0_geom;
   } catch (edm::eventsetup::NoProxyException<ME0Geometry>& e) {
     hasME0Geometry_ = false;
-    edm::LogWarning("MuonSimHitAnalyzer") << "+++ Info: ME0 geometry is unavailable. +++\n";
+    LogDebug("MuonSimHitAnalyzer") << "+++ Info: ME0 geometry is unavailable. +++\n";
   }
 
   try {
@@ -249,7 +252,7 @@ void MuonSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &i
     csc_geometry_ = &*csc_geom;
   } catch (edm::eventsetup::NoProxyException<CSCGeometry>& e) {
     hasCSCGeometry_ = false;
-    edm::LogWarning("MuonSimHitAnalyzer") << "+++ Info: CSC geometry is unavailable. +++\n";
+    LogDebug("MuonSimHitAnalyzer") << "+++ Info: CSC geometry is unavailable. +++\n";
   }
 
   try {
@@ -257,7 +260,7 @@ void MuonSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &i
     rpc_geometry_ = &*rpc_geom;
   } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
     hasRPCGeometry_ = false;
-    edm::LogWarning("MuonSimHitAnalyzer") << "+++ Info: RPC geometry is unavailable. +++\n";
+    LogDebug("MuonSimHitAnalyzer") << "+++ Info: RPC geometry is unavailable. +++\n";
   }
 
   if(hasGEMGeometry_) {
@@ -290,10 +293,6 @@ void MuonSimHitAnalyzer::beginRun(const edm::Run &iRun, const edm::EventSetup &i
 
 void MuonSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  iEvent.getByLabel(simTrackInput_, simVertices);
-  iEvent.getByLabel(simTrackInput_, simTracks);
-  analyzeTracks(iEvent,iSetup);
-
   iEvent.getByLabel(gemSimHitInput_, GEMHits);
   if(hasGEMGeometry_ and GEMHits->size()) analyzeGEM(iEvent);
 
@@ -305,6 +304,10 @@ void MuonSimHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   iEvent.getByLabel(rpcSimHitInput_, RPCHits);
   if(hasRPCGeometry_ and RPCHits->size()) analyzeRPC(iEvent);
+
+  iEvent.getByLabel(simTrackInput_, simVertices);
+  iEvent.getByLabel(simTrackInput_, simTracks);
+  if(hasGEMGeometry_ and GEMHits->size()) analyzeTracks(iEvent,iSetup);
 }
 
 void MuonSimHitAnalyzer::bookCSCSimHitsTree()
@@ -659,11 +662,6 @@ void MuonSimHitAnalyzer::analyzeTracks(const edm::Event& iEvent, const edm::Even
     const SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
     const SimHitMatcher& match_sh = match.simhits();
 
-    //    match_sh.setGEMGeometry(gem_geometry_);
-    //    match_sh.setRPCGeometry(rpc_geometry_);
-    //    match_sh.setCSCGeometry(csc_geometry_);
-    //    match_sh.setME0Geometry(me0_geometry_);
-   
     track.pt = t.momentum().pt();
     track.phi = t.momentum().phi();
     track.eta = t.momentum().eta();
