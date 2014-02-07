@@ -16,12 +16,9 @@ class PhotonConversionTrajectorySeedProducerFromSingleLeg : public edm::EDProduc
 public:
   PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& );
   ~PhotonConversionTrajectorySeedProducerFromSingleLeg(){}
-  void beginRun(edm::Run const&run, const edm::EventSetup& es) override;
-  void endRun(edm::Run const&run, const edm::EventSetup& es) override;
   void produce(edm::Event& , const edm::EventSetup& ) override;
 
 private:
-  edm::ParameterSet _conf;
   std::string _newSeedCandidates, _xcheckSeedCandidates;
   bool _DoxcheckSeedCandidates;
   PhotonConversionTrajectorySeedProducerFromSingleLegAlgo *_theFinder;
@@ -30,8 +27,7 @@ private:
 
 PhotonConversionTrajectorySeedProducerFromSingleLeg::
 PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& conf)
-  : _conf(conf),
-    _newSeedCandidates(conf.getParameter<std::string>( "newSeedCandidates")),
+  : _newSeedCandidates(conf.getParameter<std::string>( "newSeedCandidates")),
     _xcheckSeedCandidates(conf.getParameter<std::string>( "xcheckSeedCandidates") ),
     _DoxcheckSeedCandidates( conf.getParameter<bool>( "DoxcheckSeedCandidates") )
 {
@@ -40,18 +36,6 @@ PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& con
   produces<TrajectorySeedCollection>(_newSeedCandidates);
   if(_DoxcheckSeedCandidates)
     produces<TrajectorySeedCollection>(_xcheckSeedCandidates);
-}
-
-
-void PhotonConversionTrajectorySeedProducerFromSingleLeg::
-endRun(edm::Run const&run, const edm::EventSetup& es) {
-  _theFinder->clear();
-}
-
-void PhotonConversionTrajectorySeedProducerFromSingleLeg::
-beginRun(edm::Run const&run, const edm::EventSetup& es)
-{
-  _theFinder->init();
 }
 
 

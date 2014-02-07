@@ -17,8 +17,8 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
 	edm::ConsumesCollector && iC)
   :_conf(conf),seedCollection(0),seedCollectionOfSourceTracks(0),
    theHitsGenerator(new CombinedHitPairGeneratorForPhotonConversion(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet"), iC)),
+   theSeedCreator(new SeedForPhotonConversion1Leg(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet"))),
    theRegionProducer(new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)),
-   creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
    theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
    theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)),
    _vtxMinDoF(conf.getParameter<double>("vtxMinDoF")),
@@ -32,21 +32,9 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo(const edm::ParameterSet 
   token_vertex      = iC.consumes<reco::VertexCollection>(_primaryVtxInputTag);
   token_bs          = iC.consumes<reco::BeamSpot>(_beamSpotInputTag);
   token_refitter    = iC.consumes<reco::TrackCollection>(_conf.getParameter<edm::InputTag>("TrackRefitter"));
-  init();  
 }
 
 PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo() {
-}
-
-void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-clear(){
-  if(theSeedCreator!=NULL)
-    delete theSeedCreator;
-}
-
-void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
-init(){
-  theSeedCreator    = new SeedForPhotonConversion1Leg(creatorPSet);
 }
 
 void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
