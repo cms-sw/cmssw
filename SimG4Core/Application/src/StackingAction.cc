@@ -1,5 +1,4 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
-#include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -18,8 +17,7 @@
 
 //#define DebugLog
 
-StackingAction::StackingAction(EventAction* e, const edm::ParameterSet & p) 
-  : eventAction_(e)
+StackingAction::StackingAction(const edm::ParameterSet & p) 
 {
   trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
   killHeavy      = p.getParameter<bool>("KillHeavy");
@@ -81,15 +79,18 @@ StackingAction::StackingAction(EventAction* e, const edm::ParameterSet & p)
   gRRactive = false;
   nRRactive = false;
   pRRactive = false;
-  if(gRusRoEcal < 1.0 || gRusRoHcal < 1.0 || 
-     gRusRoMuonIron < 1.0 || gRusRoPreShower < 1.0 || gRusRoCastor < 1.0 ||
-     gRusRoWorld < 1.0) { gRRactive = true; }
-  if(nRusRoEcal < 1.0 || nRusRoHcal < 1.0 || 
-     nRusRoMuonIron < 1.0 || nRusRoPreShower < 1.0 || nRusRoCastor < 1.0 ||
-     nRusRoWorld < 1.0) { nRRactive = true; }
-  if(pRusRoEcal < 1.0 || pRusRoHcal < 1.0 || 
-     pRusRoMuonIron < 1.0 || pRusRoPreShower < 1.0 || pRusRoCastor < 1.0 ||
-     pRusRoWorld < 1.0) { pRRactive = true; }
+  if(gRusRoEnerLim > 0.0 && 
+     (gRusRoEcal < 1.0 || gRusRoHcal < 1.0 || 
+      gRusRoMuonIron < 1.0 || gRusRoPreShower < 1.0 || gRusRoCastor < 1.0 ||
+      gRusRoWorld < 1.0)) { gRRactive = true; }
+  if(nRusRoEnerLim > 0.0 && 
+     (nRusRoEcal < 1.0 || nRusRoHcal < 1.0 || 
+      nRusRoMuonIron < 1.0 || nRusRoPreShower < 1.0 || nRusRoCastor < 1.0 ||
+      nRusRoWorld < 1.0)) { nRRactive = true; }
+  if(pRusRoEnerLim > 0.0 && 
+     (pRusRoEcal < 1.0 || pRusRoHcal < 1.0 || 
+      pRusRoMuonIron < 1.0 || pRusRoPreShower < 1.0 || pRusRoCastor < 1.0 ||
+      pRusRoWorld < 1.0)) { pRRactive = true; }
 
   if ( p.exists("TestKillingOptions") ) {
 
@@ -97,8 +98,9 @@ StackingAction::StackingAction(EventAction* e, const edm::ParameterSet & p)
     killInCaloEfH = (p.getParameter<edm::ParameterSet>("TestKillingOptions")).getParameter<bool>("KillInCaloEfH");
     edm::LogWarning("SimG4CoreApplication") 
       << " *** Activating special test killing options in StackingAction \n"
-                                            << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
-                                            << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume = " << killInCaloEfH;
+      << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
+      << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume = " 
+      << killInCaloEfH;
 
   }
 

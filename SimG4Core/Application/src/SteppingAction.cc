@@ -78,9 +78,6 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
   if (ok && killBeamPipe && kinEnergy < theCriticalEnergyForVacuum
       && theTrack->GetDefinition()->GetPDGCharge() != 0.0 && kinEnergy > 0.0) {
     ok = catchLowEnergyInVacuum(theTrack, kinEnergy);
-
-    //ok = catchLowEnergyInVacuumHere(theTrack);
-    //if(ok) { ok = catchLowEnergyInVacuumNext(aStep); }
   }
 
   if(ok && aStep->GetPostStepPoint()->GetPhysicalVolume() != 0) {
