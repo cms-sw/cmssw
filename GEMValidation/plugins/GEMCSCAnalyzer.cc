@@ -288,9 +288,10 @@ private:
 
   edm::ParameterSet cfg_;
   edm::InputTag simInputLabel_;
-  float minPt_;
-  float minEta_;
-  float maxEta_;
+  double simTrackMinPt_;
+  double simTrackMinEta_;
+  double simTrackMaxEta_;
+  double simTrackOnlyMuon_;
   int verbose_;
   bool ntupleTrackChamberDelta_;
   bool ntupleTrackEff_;
@@ -319,38 +320,39 @@ GEMCSCAnalyzer::GEMCSCAnalyzer(const edm::ParameterSet& ps)
   ntupleTrackChamberDelta_ = cfg_.getParameter<bool>("ntupleTrackChamberDelta");
   ntupleTrackEff_ = cfg_.getParameter<bool>("ntupleTrackEff");
 
-  auto simTrack_ = cfg_.getParameter<edm::ParameterSet>("simTrack");
-  simInputLabel_ = simTrack_.getParameter<edm::InputTag>("input");
-  minPt_ = simTrack_.getParameter<double>("minPt");
-  minEta_ = simTrack_.getParameter<double>("minEta");
-  maxEta_ = simTrack_.getParameter<double>("maxEta");
+  auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
+  simInputLabel_ = simTrack.getParameter<edm::InputTag>("input");
+  simTrackMinPt_ = simTrack.getParameter<double>("minPt");
+  simTrackMinEta_ = simTrack.getParameter<double>("minEta");
+  simTrackMaxEta_ = simTrack.getParameter<double>("maxEta");
+  simTrackOnlyMuon_ = simTrack.getParameter<bool>("onlyMuon");
     
-  auto cscSimHit_ = cfg_.getParameter<edm::ParameterSet>("cscSimHit");
-  minNHitsChamberCSCSimHit_ = cscSimHit_.getParameter<int>("minNHitsChamber");
+  auto cscSimHit = cfg_.getParameter<edm::ParameterSet>("cscSimHit");
+  minNHitsChamberCSCSimHit_ = cscSimHit.getParameter<int>("minNHitsChamber");
 
-  auto cscWireDigi_ = cfg_.getParameter<edm::ParameterSet>("cscWireDigi");
-  minNHitsChamberCSCWireDigi_ = cscWireDigi_.getParameter<int>("minNHitsChamber");
+  auto cscWireDigi = cfg_.getParameter<edm::ParameterSet>("cscWireDigi");
+  minNHitsChamberCSCWireDigi_ = cscWireDigi.getParameter<int>("minNHitsChamber");
 
-  auto cscComparatorDigi_ = cfg_.getParameter<edm::ParameterSet>("cscStripDigi");
-  minNHitsChamberCSCStripDigi_ = cscComparatorDigi_.getParameter<int>("minNHitsChamber");
+  auto cscComparatorDigi = cfg_.getParameter<edm::ParameterSet>("cscStripDigi");
+  minNHitsChamberCSCStripDigi_ = cscComparatorDigi.getParameter<int>("minNHitsChamber");
 
-  auto cscCLCT_ = cfg_.getParameter<edm::ParameterSet>("cscCLCT");
-  minNHitsChamberCLCT_ = cscCLCT_.getParameter<int>("minNHitsChamber");
+  auto cscCLCT = cfg_.getParameter<edm::ParameterSet>("cscCLCT");
+  minNHitsChamberCLCT_ = cscCLCT.getParameter<int>("minNHitsChamber");
 
-  auto cscALCT_ = cfg_.getParameter<edm::ParameterSet>("cscALCT");
-  minNHitsChamberALCT_ = cscALCT_.getParameter<int>("minNHitsChamber");
+  auto cscALCT = cfg_.getParameter<edm::ParameterSet>("cscALCT");
+  minNHitsChamberALCT_ = cscALCT.getParameter<int>("minNHitsChamber");
 
-  auto cscLCT_ = cfg_.getParameter<edm::ParameterSet>("cscLCT");
-  minNHitsChamberLCT_ = cscLCT_.getParameter<int>("minNHitsChamber");
+  auto cscLCT = cfg_.getParameter<edm::ParameterSet>("cscLCT");
+  minNHitsChamberLCT_ = cscLCT.getParameter<int>("minNHitsChamber");
 
-  auto cscMPLCT_ = cfg_.getParameter<edm::ParameterSet>("cscMPLCT");
-  minNHitsChamberMPLCT_ = cscMPLCT_.getParameter<int>("minNHitsChamber");
+  auto cscMPLCT = cfg_.getParameter<edm::ParameterSet>("cscMPLCT");
+  minNHitsChamberMPLCT_ = cscMPLCT.getParameter<int>("minNHitsChamber");
 
-  auto tfTrack_ = cfg_.getParameter<edm::ParameterSet>("tfTrack");
-  auto tfCand_ = cfg_.getParameter<edm::ParameterSet>("tfCand");
-  auto gmtCand_ = cfg_.getParameter<edm::ParameterSet>("gmtCand");
-  auto gmtRegCand_ = cfg_.getParameter<edm::ParameterSet>("gmtRegCand");
-  auto l1Extra_ = cfg_.getParameter<edm::ParameterSet>("l1Extra");
+  auto tfTrack = cfg_.getParameter<edm::ParameterSet>("tfTrack");
+  auto tfCand = cfg_.getParameter<edm::ParameterSet>("tfCand");
+  auto gmtCand = cfg_.getParameter<edm::ParameterSet>("gmtCand");
+  auto gmtRegCand = cfg_.getParameter<edm::ParameterSet>("gmtRegCand");
+  auto l1Extra = cfg_.getParameter<edm::ParameterSet>("l1Extra");
 
   if (ntupleTrackChamberDelta_) bookSimTracksDeltaTree();
   if (ntupleTrackEff_)
@@ -378,10 +380,13 @@ bool GEMCSCAnalyzer::isSimTrackGood(const SimTrack &t)
   // SimTrack selection
   if (t.noVertex()) return false;
   if (t.noGenpart()) return false;
-  if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
-  if (t.momentum().pt() < minPt_) return false;
-  float eta = std::abs(t.momentum().eta());
-  if (eta > maxEta_ || eta < minEta_) return false; // no GEMs could be in such eta
+  // only muons 
+  if (std::abs(t.type()) != 13 and simTrackOnlyMuon_) return false;
+  // pt selection
+  if (t.momentum().pt() < simTrackMinPt_) return false;
+  // eta selection
+  const float eta(std::abs(t.momentum().eta()));
+  if (eta > simTrackMaxEta_ || eta < simTrackMinEta_) return false; 
   return true;
 }
 
