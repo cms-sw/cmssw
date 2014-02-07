@@ -10,16 +10,20 @@
 
 using namespace tauImpactParameter;
 
-TauA1NuConstrainedFitter::TauA1NuConstrainedFitter(unsigned int ambiguity,const LorentzVectorParticle& A1,const TVector3& PVertex, const TMatrixTSym<double>& VertexCov)
-  : LagrangeMultipliersFitter(),
-    MultiProngTauSolver(),
-    ambiguity_(ambiguity)
+unsigned int TauA1NuConstrainedFitter::static_amb;
+
+TauA1NuConstrainedFitter::TauA1NuConstrainedFitter(unsigned int ambiguity,const LorentzVectorParticle& A1,const TVector3& PVertex, const TMatrixTSym<double>& VertexCov):
+  MultiProngTauSolver(),
+  ambiguity_(ambiguity)
 {
   TLorentzVector Tau(0,0,0,0);
-  LorentzVectorParticle Nu=estimateNu(A1,PVertex, ambiguity_,Tau);
+  //dummy substitution not used later
+  TVectorT<double> nu_par(LorentzVectorParticle::NLorentzandVertexPar,1);
+  TMatrixTSym<double> nu_cov(LorentzVectorParticle::NLorentzandVertexPar); 
+  LorentzVectorParticle Nu(nu_par,nu_cov,PDGInfo::nu_tau,0.0,A1.bField()); 
   particles_.push_back(A1);
   particles_.push_back(Nu);
-  isConfigured_=false;
+  
   // setup 13 by 13 matrix
   int size=LorentzVectorParticle::NVertex+particles_.size()*LorentzVectorParticle::NLorentzandVertexPar;
   TVectorT<double>    inpar(size);
@@ -43,64 +47,30 @@ TauA1NuConstrainedFitter::TauA1NuConstrainedFitter(unsigned int ambiguity,const 
       incov(i+Nuoffset,j+Nuoffset)=Nu.covariance(i,j);
     }
   }
-  // store expanded par for computation of final par (assumes fit has neglegible impact on a1 correlations with vertex errors)
-  exppar_.ResizeTo(nexpandedpar);
-  exppar_=computeInitalExpPar(inpar);
-  expcov_.ResizeTo(nexpandedpar,nexpandedpar);
-  expcov_=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::computeInitalExpPar,inpar,incov);
-  // store linearization point
+
+  exppar.ResizeTo(nexpandedpar,1);
+  exppar=ComputeInitalExpPar(inpar);
+  expcov.ResizeTo(nexpandedpar,nexpandedpar);
+  expcov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeInitalExpPar,inpar,incov);
+
   TVectorT<double> PAR_0(npar);
-  par_0_.ResizeTo(npar);
-  cov_0_.ResizeTo(npar,npar);
-  PAR_0=computeExpParToPar(exppar_);
-  for(int i=0; i<npar;i++)par_0_(i)=PAR_0(i);
-  cov_0_=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::computeExpParToPar,exppar_,expcov_);
+  par_0.ResizeTo(npar);
+  cov_0.ResizeTo(npar,npar);
+  PAR_0=ComputeExpParToPar(exppar);
+  for(int i=0; i<npar;i++)par_0(i)=PAR_0(i);
+  cov_0=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeExpParToPar,exppar,expcov);
+
   for(int i=0; i<npar;i++){
-    for(int j=0;j<npar;j++){cov_0_(i,j)=expcov_(i,j);}
+    for(int j=0;j<npar;j++){cov_0(i,j)=expcov(i,j);}
   }
-  // set up inital point for fit (cov handled in Fit() function)
-  par_.ResizeTo(npar);
-  par_=par_0_;
-  /*
-  if(ambiguity_==zero){
-    aolveAmbiguityAnalytically();
-    isConfigured_=true;
-    isFit_=true;
-    return;
-    }*/
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Check if Tau Direction is unphysical and if nessicary set the starting point to Theta_{GJ-Max} 
-  TLorentzVector a1(par_(a1_px),par_(a1_py),par_(a1_pz),sqrt(par_(a1_m)*par_(a1_m)+par_(a1_px)*par_(a1_px)+par_(a1_py)*par_(a1_py)+par_(a1_pz)*par_(a1_pz)));
-  double phi(par_(tau_phi)),theta(par_(tau_theta));
-  double scale=0.999;
-  if(ambiguity==zero)scale=-1.0;
-  if(setTauDirectionatThetaGJMax(a1,theta,phi,scale)){
-    TLorentzVector Tau_plus,Tau_minus,nu_plus,nu_minus;
-    TVector3 TauDir; TauDir.SetMagThetaPhi(1.0,theta,phi);
-    solveByRotation(TauDir,a1,Tau_plus,Tau_minus,nu_plus,nu_minus);
-    par_(tau_phi)=phi;
-    par_(tau_theta)=theta;
-    if(ambiguity_==plus){
-      par_(nu_px)=nu_plus.Px();
-      par_(nu_py)=nu_plus.Py();
-      par_(nu_pz)=nu_plus.Pz();
-    }
-    if(ambiguity_==minus){
-      par_(nu_px)=nu_minus.Px();
-      par_(nu_py)=nu_minus.Py();
-      par_(nu_pz)=nu_minus.Pz();
-    }
-    if(ambiguity_==zero){
-      par_(nu_px)=(nu_minus.Px()+nu_plus.Px())/2;
-      par_(nu_py)=(nu_minus.Py()+nu_plus.Py())/2;
-      par_(nu_pz)=(nu_minus.Pz()+nu_plus.Pz())/2;
-    }
-    if(ambiguity_==zero) par_0_=par_;
-  }
-  isConfigured_=true;  
+
+  par.ResizeTo(npar);
+  par=par_0;
+  cov.ResizeTo(npar,npar);
+  cov=cov_0;
 }
 
-TVectorT<double> TauA1NuConstrainedFitter::computeInitalExpPar(const TVectorT<double>& inpar){
+TVectorT<double> TauA1NuConstrainedFitter::ComputeInitalExpPar(const TVectorT<double>& inpar){
   TVectorT<double> outpar(nexpandedpar);
   int offset=LorentzVectorParticle::NVertex;// for A1
   TVector3 pv(inpar(LorentzVectorParticle::vx),inpar(LorentzVectorParticle::vy),inpar(LorentzVectorParticle::vz));
@@ -122,15 +92,14 @@ TVectorT<double> TauA1NuConstrainedFitter::computeInitalExpPar(const TVectorT<do
   return outpar;
 }
 
-TVectorT<double> TauA1NuConstrainedFitter::computeExpParToPar(const TVectorT<double>& inpar){
-  TVectorT<double> outpar(npar,1);
+TVectorT<double> TauA1NuConstrainedFitter::ComputeExpParToPar(const TVectorT<double>& inpar){
+  TVectorT<double> outpar(npar);
   for(int i=0;i<npar;i++){outpar(i)=inpar(i);}
   return outpar;
 }
 
-
-TVectorT<double> TauA1NuConstrainedFitter::computeNuLorentzVectorPar(const TVectorT<double>& inpar){
-  TVectorT<double> outpar(LorentzVectorParticle::NLorentzandVertexPar,1);
+TVectorT<double> TauA1NuConstrainedFitter::ComputeNuLorentzVectorPar(const TVectorT<double>& inpar){
+  TVectorT<double> outpar(LorentzVectorParticle::NLorentzandVertexPar);
   outpar(LorentzVectorParticle::vx)=inpar(a1_vx);
   outpar(LorentzVectorParticle::vy)=inpar(a1_vy);
   outpar(LorentzVectorParticle::vz)=inpar(a1_vz);
@@ -141,7 +110,7 @@ TVectorT<double> TauA1NuConstrainedFitter::computeNuLorentzVectorPar(const TVect
   return outpar;
 }
 
-TVectorT<double> TauA1NuConstrainedFitter::computeA1LorentzVectorPar(const TVectorT<double>& inpar){
+TVectorT<double> TauA1NuConstrainedFitter::ComputeA1LorentzVectorPar(const TVectorT<double>& inpar){
   TVectorT<double> outpar(LorentzVectorParticle::NLorentzandVertexPar);
   outpar(LorentzVectorParticle::vx)=inpar(a1_vx);
   outpar(LorentzVectorParticle::vy)=inpar(a1_vy);
@@ -153,88 +122,56 @@ TVectorT<double> TauA1NuConstrainedFitter::computeA1LorentzVectorPar(const TVect
   return outpar;
 }
 
-TVectorT<double> TauA1NuConstrainedFitter::computeMotherLorentzVectorPar(const TVectorT<double>& inpar){
+TVectorT<double> TauA1NuConstrainedFitter::ComputeMotherLorentzVectorPar(const TVectorT<double>& inpar){
   TVectorT<double> outpar(LorentzVectorParticle::NLorentzandVertexPar);
-  TVectorT<double> nupar=computeNuLorentzVectorPar(inpar);
-  TVectorT<double> a1par=computeA1LorentzVectorPar(inpar);
+  TVectorT<double> nupar=ComputeNuLorentzVectorPar(inpar);
+  TVectorT<double> a1par=ComputeA1LorentzVectorPar(inpar);
   for(int i=0;i<LorentzVectorParticle::NLorentzandVertexPar;i++){
-    if(i==LorentzVectorParticle::m)continue;
     if(i<LorentzVectorParticle::NVertex){outpar(i)=a1par(i);}
     else{outpar(i)=nupar(i)+a1par(i);}
+    //if(i==LorentzVectorParticle::m) outpar(i,0)=PDGInfo::tau_mass();
   }
-  double nu_px = nupar(LorentzVectorParticle::px);
-  double nu_py = nupar(LorentzVectorParticle::py);
-  double nu_pz = nupar(LorentzVectorParticle::pz); 
-  double Enu2  = nu_px*nu_px + nu_py*nu_py + nu_pz*nu_pz;
-  double a1_px = a1par(LorentzVectorParticle::px);
-  double a1_py = a1par(LorentzVectorParticle::py);
-  double a1_pz = a1par(LorentzVectorParticle::pz);
-  double Ea12  = a1_px*a1_px + a1_py*a1_py + a1_pz*a1_pz;
-  double outpar_px = outpar(LorentzVectorParticle::px);
-  double outpar_py = outpar(LorentzVectorParticle::py);
-  double outpar_pz = outpar(LorentzVectorParticle::pz);
-  double P2=outpar_px*outpar_px + outpar_py*outpar_py + outpar_pz*outpar_pz;
-  outpar(LorentzVectorParticle::m)=sqrt(fabs(Enu2 + Ea12 + 2*sqrt(Enu2*Ea12)-P2));
+  double Enu2=pow(nupar(LorentzVectorParticle::px),2.0)+pow(nupar(LorentzVectorParticle::py),2.0)+pow(nupar(LorentzVectorParticle::pz),2.0);
+  double Ea12=pow(a1par(LorentzVectorParticle::px),2.0)+pow(a1par(LorentzVectorParticle::py),2.0)+pow(a1par(LorentzVectorParticle::pz),2.0)+pow(a1par(LorentzVectorParticle::m),2.0);
+  double P2=pow(outpar(LorentzVectorParticle::px),2.0)+pow(outpar(LorentzVectorParticle::py),2.0)+pow(outpar(LorentzVectorParticle::pz),2.0);
+  outpar(LorentzVectorParticle::m)=sqrt(fabs(pow(sqrt(Enu2)+sqrt(Ea12),2.0)-P2));
   return outpar;
 }
 
-void TauA1NuConstrainedFitter::updateExpandedPar(){
+void TauA1NuConstrainedFitter::UpdateExpandedPar(){
   // assumes changes to a1 correlation to vertex is small
-  if(par_.GetNrows()==npar && cov_.GetNrows() && exppar_.GetNrows()==npar && expcov_.GetNrows()) return;
+  if(par.GetNrows()==npar && cov.GetNrows()==npar && exppar.GetNrows()==npar && expcov.GetNrows()==npar) return;
   for(int i=0; i<npar;i++){
-    exppar_(i)=par_(i);
-    for(int j=0; j<npar;j++){expcov_(i,j)=cov_(i,j);}
+    exppar(i)=par(i);
+    for(int j=0; j<npar;j++){expcov(i,j)=cov(i,j);}
   }
 }
 
-std::vector<LorentzVectorParticle> TauA1NuConstrainedFitter::getRefitDaughters(){
+std::vector<LorentzVectorParticle> TauA1NuConstrainedFitter::GetReFitDaughters(){
   std::vector<LorentzVectorParticle> refitParticles;
-  updateExpandedPar();
+  UpdateExpandedPar();
   double c(0),b(0);
-  for(unsigned int i=0;i<particles_.size();i++){c+=particles_[i].charge();b=particles_[i].bField();}
-  TVectorT<double> a1=computeA1LorentzVectorPar(exppar_);
-  TMatrixTSym<double> a1cov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::computeA1LorentzVectorPar,exppar_,expcov_);
-  refitParticles.push_back(LorentzVectorParticle(a1,a1cov,fabs(PDGInfo::a_1_plus)*c,c,b));
-  TVectorT<double> nu=computeNuLorentzVectorPar(exppar_);
-  TMatrixTSym<double> nucov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::computeNuLorentzVectorPar,exppar_,expcov_);
+  for(unsigned int i=0;i<particles_.size();i++){c+=particles_.at(i).charge();b=particles_.at(i).bField();}
+  TVectorT<double> a1=ComputeA1LorentzVectorPar(exppar);
+  TMatrixTSym<double> a1cov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeA1LorentzVectorPar,exppar,expcov);
+  refitParticles.push_back(LorentzVectorParticle(a1,a1cov,particles_.at(0).pdgId(),c,b));
+  TVectorT<double> nu=ComputeNuLorentzVectorPar(exppar);
+  TMatrixTSym<double> nucov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeNuLorentzVectorPar,exppar,expcov);
   refitParticles.push_back(LorentzVectorParticle(nu,nucov,PDGInfo::nu_tau,0.0,b));
   return refitParticles;
 }
 
-LorentzVectorParticle TauA1NuConstrainedFitter::getMother(){
-  updateExpandedPar();
+LorentzVectorParticle TauA1NuConstrainedFitter::GetMother(){
+  UpdateExpandedPar();
   double c(0),b(0);
-  for(unsigned int i=0;i<particles_.size();i++){c+=particles_[i].charge();b=particles_[i].bField();}
-  TVectorT<double> m=computeMotherLorentzVectorPar(exppar_);
-  TMatrixTSym<double> mcov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::computeMotherLorentzVectorPar,exppar_,expcov_);
-  return LorentzVectorParticle(m,mcov,-1.0*fabs(PDGInfo::tau_minus)*c,c,b);
+  for(unsigned int i=0;i<particles_.size();i++){c+=particles_.at(i).charge();b=particles_.at(i).bField();}
+  TVectorT<double> m=ComputeMotherLorentzVectorPar(exppar);
+  TMatrixTSym<double> mcov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::ComputeMotherLorentzVectorPar,exppar,expcov);
+  LorentzVectorParticle mymother= LorentzVectorParticle(m,mcov,(int)(-1.0*fabs(PDGInfo::tau_minus)*c),c,b);
+  return mymother;
 }
 
-TVectorD TauA1NuConstrainedFitter::value(const TVectorD& v){
-  TLorentzVector a1,nu;
-  double phi(0),theta(0);
-  TVector3 TauDir;
-  covertParToObjects(v,a1,nu,phi,theta,TauDir);
-  TLorentzVector a1_d=a1;
-  TLorentzVector nu_d=nu;
-  TLorentzVector Tau_plus,Tau_minus,nu_plus,nu_minus;
-  solveByRotation(TauDir,a1_d,Tau_plus,Tau_minus,nu_plus,nu_minus,false);
-  a1.RotateZ(-phi);
-  a1.RotateY(-theta);
-  nu.RotateZ(-phi);
-  nu.RotateY(-theta);
-  TLorentzVector nufixed(-a1.Px(),-a1.Py(),nu.Pz(),sqrt(a1.Pt()*a1.Pt()+nu.Pz()*nu.Pz()));
-  TLorentzVector tau=a1+nufixed;
-  TVectorD d(3);
-  if(ambiguity_==minus){    d(0)=sqrt(pow(nu.Pz()-nu_minus.Pz(),4.0)+pow(tau.M2()-PDGInfo::tau_mass()*PDGInfo::tau_mass(),2.0));}
-  else if(ambiguity_==plus){d(0)=sqrt(pow(nu.Pz()-nu_plus.Pz(),4.0)+pow(tau.M2()-PDGInfo::tau_mass()*PDGInfo::tau_mass(),2.0));}
-  else {d(0) = tau.M2()-PDGInfo::tau_mass()*PDGInfo::tau_mass();}
-  d(1) = a1.Px()+nu.Px();
-  d(2) = a1.Py()+nu.Py();
-  return d;
-}
-
-void TauA1NuConstrainedFitter::covertParToObjects(const TVectorD& v, TLorentzVector& a1, TLorentzVector& nu, double& phi,double& theta, TVector3& TauDir){
+void TauA1NuConstrainedFitter::CovertParToObjects(const TVectorD &v,TLorentzVector &a1,TLorentzVector &nu,double &phi,double &theta,TVector3 &TauDir){
   a1=TLorentzVector(v(a1_px),v(a1_py),v(a1_pz),sqrt(v(a1_m)*v(a1_m)+v(a1_px)*v(a1_px)+v(a1_py)*v(a1_py)+v(a1_pz)*v(a1_pz)));
   nu=TLorentzVector(v(nu_px),v(nu_py),v(nu_pz),sqrt(v(nu_px)*v(nu_px)+v(nu_py)*v(nu_py)+v(nu_pz)*v(nu_pz)));
   phi=v(tau_phi);
@@ -242,88 +179,95 @@ void TauA1NuConstrainedFitter::covertParToObjects(const TVectorD& v, TLorentzVec
   TauDir.SetMagThetaPhi(1.0,theta,phi);
 }
 
-bool TauA1NuConstrainedFitter::fit(){
-  ////////////////////////////////////////////
-  // Run Kicker to force +/- solution to avoid solution being stuck in the local minimum
-  if(ambiguity_==minus || ambiguity_==plus){ 
-    TLorentzVector a1,nu;
-    double phi(0),theta(0);
-    TVector3 TauDir;
-    covertParToObjects(par_,a1,nu,phi,theta,TauDir);
-    TLorentzVector Tau_plus,Tau_minus,nu_plus,nu_minus,nu_correct,nu_incorrect;
-    if(ambiguity_==minus) solveByRotation(TauDir,a1,Tau_plus,Tau_minus,nu_incorrect,nu_correct,false);
-    if(ambiguity_==plus) solveByRotation(TauDir,a1,Tau_plus,Tau_minus,nu_correct,nu_incorrect,false);
-    nu.RotateZ(-phi);
-    nu.RotateY(-theta);
-    if(fabs(nu_incorrect.Pz()-nu.Pz())<fabs(nu_correct.Pz()-nu.Pz())){
-      double pzkicked=nu_correct.Pz()-(nu_incorrect.Pz()-nu.Pz()); // minus sign is to make the kick a reflex about the ambiguity point 
-      TLorentzVector nuKicked(nu.Px(),nu.Py(),pzkicked,sqrt(nu.Px()*nu.Px()+nu.Py()*nu.Py()+pzkicked*pzkicked));
-      nuKicked.RotateY(-theta);
-      nuKicked.RotateZ(-phi);
-      par_(nu_px)=nuKicked.Px();
-      par_(nu_py)=nuKicked.Py();
-      par_(nu_pz)=nuKicked.Pz();
-    }
-  }
-  return LagrangeMultipliersFitter::fit();
-}
-
-void TauA1NuConstrainedFitter::solveAmbiguityAnalytically(){
-  if(ambiguity_!=zero) return;
-  TVectorT<double> angles=TauA1NuConstrainedFitter::findThetaGJMax(par_0_);
-  TMatrixTSym<double> anglescov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::findThetaGJMax,par_0_,cov_0_);
-  TVectorT<double> thelpar(par_0_.GetNrows()+2,1);
-  TMatrixTSym<double> thelcov(par_0_.GetNrows()+2);
-  for(int i=0;i<par_0_.GetNrows();i++){
-    thelpar(i)=par_0_(i);
-    for(int j=0;j<par_0_.GetNrows();j++){thelcov(i,j)=cov_0_(i,j);}
-  }
-  thelpar(thelpar.GetNrows()-2)=anglescov(0,0);
-  thelpar(thelpar.GetNrows()-1)=anglescov(1,1);
-  par_=TauA1NuConstrainedFitter::setThetaGJMax(thelpar);
-  cov_.ResizeTo(par_0_.GetNrows(),par_0_.GetNrows());
-  cov_=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::setThetaGJMax,thelpar,thelcov);
-}
-
-TVectorT<double> TauA1NuConstrainedFitter::findThetaGJMax(const TVectorT<double>& inpar){
-  TVectorT<double> outpar(2);
-  TLorentzVector a1,nu;
-  TVector3 TauDir;
-  double phi,theta;
-  covertParToObjects(inpar,a1,nu,phi,theta,TauDir);
-  outpar(0)=thetaGJMax(a1);
-  outpar(1)=TauDir.Dot(a1.Vect());
-  return outpar;
-}
-
-TVectorT<double> TauA1NuConstrainedFitter::setThetaGJMax(const TVectorT<double>& inpar){
-  TVectorT<double> outpar(inpar.GetNrows()-2);
-  TLorentzVector a1,nu;
-  TVector3 TauDir;
-  double phi,theta;
-  double ErrthetaTau=inpar(inpar.GetNrows()-2);
-  double ErrthetaA1=inpar(inpar.GetNrows()-1);
-  covertParToObjects(inpar,a1,nu,phi,theta,TauDir);
-  TVectorT<double> angles=TauA1NuConstrainedFitter::findThetaGJMax(inpar);
-  double delta=1;if(angles(1)!=0)delta=fabs(angles(0)/angles(1));
-  double dtheta=(theta-a1.Theta());
-  double dphi=fmod(fabs(phi-a1.Phi()),2*TMath::Pi());if(phi<a1.Phi())dphi*=-1.0;
-  double scale=dtheta*ErrthetaTau/(ErrthetaTau+ErrthetaA1);
-  outpar(tau_phi)=TauDir.Theta()+dtheta*delta*scale;
-  outpar(tau_theta)=TauDir.Phi()+dphi*delta*scale;
-  scale=dtheta*ErrthetaA1/(ErrthetaTau+ErrthetaA1);
-  double a1theta=a1.Theta()-dtheta*delta*scale;
-  double a1phi=a1.Phi()-dphi*delta*scale;
-  a1.SetTheta(a1theta);
-  a1.SetPhi(a1phi);
-  outpar(a1_px)=a1.Px();
-  outpar(a1_py)=a1.Py();
-  outpar(a1_pz)=a1.Pz();
+bool TauA1NuConstrainedFitter::Fit(){
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Check if Tau Direction is unphysical and if nessicary set the starting point to Theta_{GJ-Max}
+  TLorentzVector a1(par(a1_px),par(a1_py),par(a1_pz),sqrt(par(a1_m)*par(a1_m)+par(a1_px)*par(a1_px)+par(a1_py)*par(a1_py)+par(a1_pz)*par(a1_pz)));
+  double phi(par(tau_phi)),theta(par(tau_theta));
   TLorentzVector Tau_plus,Tau_minus,nu_plus,nu_minus;
-  solveByRotation(TauDir,a1,Tau_plus,Tau_minus,nu_plus,nu_minus);
-  outpar(nu_px)=nu_plus.Px();
-  outpar(nu_py)=nu_plus.Py();
-  outpar(nu_pz)=nu_plus.Pz();
+  TVector3 TauDir(cos(phi)*sin(theta),sin(phi)*sin(theta),cos(theta));
+  bool isReal;
+  solveByRotation(TauDir,a1,Tau_plus,Tau_minus,nu_plus,nu_minus,isReal);
+  static_amb=ambiguity_;
+
+  //case 1: is real then solve analytically
+  if(isReal && (ambiguity_==plus || ambiguity_==minus)){
+    // popogate errors
+    TVectorT<double> par_tmp=TauA1NuConstrainedFitter::SolveAmbiguityAnalytically(par);
+    cov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::SolveAmbiguityAnalytically,par,cov_0);
+    for(int i=0; i<npar;i++) par(i)=par_tmp(i);
+    return true;
+  }
+  // case 2 is in unphsyical region - rotate and substitue \theta_{GJ} with \theta_{GJ}^{Max} and then solve analytically
+  else if(ambiguity_==zero && !isReal){
+    TVectorT<double> par_tmp=TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(par);
+    cov=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot,par,cov_0);
+    for(int i=0; i<npar;i++) par(i)=par_tmp(i);
+    return true;
+  }
+  return false;
+}
+
+TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalytically(const TVectorT<double>& inpar){
+  // Solve equation quadratic equation
+  TVectorT<double> outpar(inpar.GetNrows());
+  TLorentzVector a1,nu;
+  double phi(0),theta(0);
+  TVector3 TauDir;
+  CovertParToObjects(inpar,a1,nu,phi,theta,TauDir);
+  TLorentzVector a1_d=a1;
+  TLorentzVector nu_d=nu;
+  TLorentzVector Tau_plus,Tau_minus,nu_plus,nu_minus;
+  bool isReal;
+  solveByRotation(TauDir,a1_d,Tau_plus,Tau_minus,nu_plus,nu_minus,isReal,true);
+  if(static_amb==plus)nu=nu_plus;
+  else nu=nu_minus;
+  for(int i=0; i<outpar.GetNrows();i++){ outpar(i)=inpar(i);}
+  outpar(nu_px)=nu.Px(); 
+  outpar(nu_py)=nu.Py(); 
+  outpar(nu_pz)=nu.Pz(); 
   return outpar;
 }
 
+TVectorT<double> TauA1NuConstrainedFitter::SolveAmbiguityAnalyticallywithRot(const TVectorT<double>& inpar){
+  // Rotate and subsitute \theta_{GJ} with \theta_{GJ}^{Max} - assumes uncertianty on thata and phi of the a1 or small compared to the tau direction. 
+  TVectorT<double> outpar(inpar.GetNrows());
+  TLorentzVector a1,nu;
+  double phi(0),theta(0);
+  TVector3 TauDir;
+  CovertParToObjects(inpar,a1,nu,phi,theta,TauDir);
+  double theta_a1(a1.Theta()),phi_a1(a1.Phi()),theta_GJMax(thetaGJMax(a1));
+  TauDir.RotateZ(-phi_a1);
+  TauDir.RotateY(-theta_a1);
+  double phiprime(TauDir.Phi());
+  TauDir=TVector3(sin(theta_GJMax)*cos(phiprime),sin(theta_GJMax)*sin(phiprime),cos(theta_GJMax));
+  TauDir.RotateY(theta_a1);
+  TauDir.RotateZ(phi_a1);
+  for(int i=0; i<outpar.GetNrows();i++) outpar(i)=inpar(i);
+  outpar(tau_phi)=TauDir.Phi();
+  outpar(tau_theta)=TauDir.Theta();
+  return SolveAmbiguityAnalytically(outpar);
+}
+
+// Return the significance of the rotation when the tau direction is in the unphysical region
+double TauA1NuConstrainedFitter::GetTauRotationSignificance(){
+  TVectorT<double> par_tmp=TauA1NuConstrainedFitter::TauRot(par);
+  TMatrixTSym<double> cov_tmp=ErrorMatrixPropagator::propagateError(&TauA1NuConstrainedFitter::TauRot,par,cov_0);
+  if(!(cov_tmp(0,0)>0)) return -999; // return invalid value if the covariance is unphysical
+  if(par_tmp(0)>0)    return par_tmp(0)/sqrt(cov_tmp(0,0)); // return the significance if the value is in the unphysical region
+  return 0; // reutrn 0 for the rotation significance if the tau is in the physical region
+}
+
+
+TVectorT<double> TauA1NuConstrainedFitter::TauRot(const TVectorT<double>& inpar){
+  TVectorT<double> outpar(1);
+  TLorentzVector a1,nu;
+  double phi(0),theta(0);
+  TVector3 TauDir;
+  CovertParToObjects(inpar,a1,nu,phi,theta,TauDir);
+  double theta_a1(a1.Theta()),phi_a1(a1.Phi()),theta_GJMax(thetaGJMax(a1));
+  TauDir.RotateZ(-phi_a1);
+  TauDir.RotateY(-theta_a1);
+  outpar(0)=(TauDir.Theta()-theta_GJMax);
+  return outpar;
+}
