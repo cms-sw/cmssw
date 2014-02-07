@@ -32,19 +32,9 @@ PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSe
    theRegionProducer(new GlobalTrackingRegionProducerFromBeamSpot(conf.getParameter<edm::ParameterSet>("RegionFactoryPSet"), iC)) {
 
   token_vertex      = iC.consumes<reco::VertexCollection>(_conf.getParameter<edm::InputTag>("primaryVerticesTag"));
-
-  init();
 }
      
 PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::~PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo() {
-}
-
-void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
-clear(){
-}
-
-void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
-init(){
 }
 
 void PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
