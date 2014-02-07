@@ -102,6 +102,13 @@ l1t::L1uGtBoard::L1uGtBoard() :
     m_l1CaloGeometryCacheID = 0ULL;
     m_l1MuTriggerScalesCacheID = 0ULL;
 
+    // Counter for number of events board sees
+    m_boardEventCount=0;
+    
+    // Need to expand use with more than one uGt Board for now assume 1
+    m_uGtBoardNumber = 0;
+    m_uGtFinalBoard = true;
+   
 /*   Do we need this?
     // pointer to conversion - actually done in the event loop (cached)
     m_gtEtaPhiConversions = new L1GtEtaPhiConversions();
@@ -587,102 +594,6 @@ void l1t::L1uGtBoard::runGTL(
 */
                 }
                     break;
-                case CondHfBitCounts: {
-		
-/*  Don't access conditions for now		
-                    L1GtHfBitCountsCondition* bcCondition = new L1GtHfBitCountsCondition(
-                            itCond->second, this);
-
-                    bcCondition->setVerbosity(m_verbosity);
-                    bcCondition->evaluateConditionStoreResult();
-
-                    cMapResults[itCond->first] = bcCondition;
-
-                    if (m_isDebugEnabled ) {
-                        std::ostringstream myCout;
-                        bcCondition->print(myCout);
-
-                        LogTrace("l1t|Global") << myCout.str() << std::endl;
-                    }
-
-                    //                  delete bcCondition;
-*/
-                }
-                    break;
-                case CondHfRingEtSums: {
- 
- /*  Don't access conditions for now
-                    L1GtHfRingEtSumsCondition* etCondition = new L1GtHfRingEtSumsCondition(
-                            itCond->second, this);
-
-                    etCondition->setVerbosity(m_verbosity);
-                    etCondition->evaluateConditionStoreResult();
-
-                    cMapResults[itCond->first] = etCondition;
-
-                    if (m_verbosity && m_isDebugEnabled) {
-                        std::ostringstream myCout;
-                        etCondition->print(myCout);
-
-                        LogTrace("l1t|Global") << myCout.str() << std::endl;
-                    }
-
-                    //                  delete etCondition;
-
-                }
-                    break;
-                case CondCastor: {
-                    bool castorCondResult = false;
-
-                    // FIXME need a solution to read CASTOR
-                    //if (castorConditionFlag) {
-                    //    castorCondResult = castorData->conditionResult(itCond->first);
-                    //}
-
-                    L1GtCastorCondition* castorCondition = new L1GtCastorCondition(
-                            itCond->second, castorCondResult);
-
-                    castorCondition->setVerbosity(m_verbosity);
-                    castorCondition->evaluateConditionStoreResult();
-
-                    cMapResults[itCond->first] = castorCondition;
-
-                    if (m_verbosity && m_isDebugEnabled) {
-                        std::ostringstream myCout;
-                        castorCondition->print(myCout);
-
-                        LogTrace("l1t|Global") << myCout.str() << std::endl;
-                    }
-
-                    //                  delete castorCondition;
-*/
-                }
-                    break;
-                case CondBptx: {
-/*  Don't access conditions for now
-                    bool bptxCondResult = true;
-
-                    // FIXME need a solution to read BPTX with real value
-
-                    L1GtBptxCondition* bptxCondition = new L1GtBptxCondition(
-                            itCond->second, bptxCondResult);
-
-                    bptxCondition->setVerbosity(m_verbosity);
-                    bptxCondition->evaluateConditionStoreResult();
-
-                    cMapResults[itCond->first] = bptxCondition;
-
-                    if (m_verbosity && m_isDebugEnabled) {
-                        std::ostringstream myCout;
-                        bptxCondition->print(myCout);
-
-                        LogTrace("l1t|Global") << myCout.str() << std::endl;
-                    }
-
-                    //                  delete bptxCondition;
-*/
-                }
-                    break;
                 case CondExternal: {
   
  /*  Don't access conditions for now 
@@ -1039,7 +950,9 @@ void l1t::L1uGtBoard::runFDL(edm::Event& iEvent,
 }
 
 // Fill DAQ Record
-void l1t::L1uGtBoard::fillGtRecord( std::auto_ptr<L1uGtRecBxCollection>& uGtRecord ) 
+void l1t::L1uGtBoard::fillGtRecord( std::auto_ptr<L1uGtRecBxCollection>& uGtRecord,
+		      int ver, int algBx, int extBx, int muBx, int calBx, int psInd,
+		      cms_uint64_t trgNr, cms_uint64_t orbNr, int abBx, int lumSec ) 
 {
 
     if (m_verbosity) {
@@ -1049,16 +962,32 @@ void l1t::L1uGtBoard::fillGtRecord( std::auto_ptr<L1uGtRecBxCollection>& uGtReco
 
     }
 
-    // Create Block for this bx (should we make this a standing member of this class?)
-    m_uGtRecBlk.setFirmwareVer(10);
+
+    // Fill information into the Record 
+    m_uGtRecBlk.setFirmwareVer(ver);  
+    m_uGtRecBlk.setTotBxAlg(algBx);
+    m_uGtRecBlk.setTotBxExt(extBx);
+    m_uGtRecBlk.setTotBxMuData(muBx);
+    m_uGtRecBlk.setTotBxCalData(calBx);
+    m_uGtRecBlk.setPreScIndex(psInd);
+    m_uGtRecBlk.setTrigNr(trgNr);
+    m_uGtRecBlk.setOrbitNr(orbNr);
+    m_uGtRecBlk.setbxNr(abBx);
+    m_uGtRecBlk.setLumiSec(lumSec);
+    m_uGtRecBlk.setuGtNr(m_boardEventCount);
     
     uGtRecord->push_back(m_uGtRecBlk);
+
+    // gt Event counter for Record
+    m_boardEventCount++;
 
 }    
 
 // Fill DAQ Record
 void l1t::L1uGtBoard::fillAlgRecord(int iBxInEvent, 
-				    std::auto_ptr<L1uGtAlgBxCollection>& uGtAlgRecord
+				    std::auto_ptr<L1uGtAlgBxCollection>& uGtAlgRecord,
+				    cms_uint64_t orbNr,
+				    int bxNr
 				    ) 
 {
 
@@ -1069,10 +998,18 @@ void l1t::L1uGtBoard::fillAlgRecord(int iBxInEvent,
 
     }
 
+// Set header information
+    m_uGtAlgBlk.setOrbitNr((unsigned int)(orbNr & 0xFFFFFFFF));
+    m_uGtAlgBlk.setbxNr((bxNr & 0xFFFF));
+    m_uGtAlgBlk.setbxInEventNr((iBxInEvent & 0xF));
 
 // Set the header information and Final OR
-    int finalOR = 0x8; //bit for this being the final board: NEEDS to be set elsewhere
-    if(m_algFinalOr) finalOR  = (finalOR | 0x3);  //set both bits (one for this board and the other for the OR of all boards (only 1 right now))
+    int finalOR = 0x0;     
+    if(m_algFinalOr) finalOR  = (finalOR | 0x2);  
+    if(m_uGtFinalBoard) {
+       finalOR = (finalOR | 0x8);
+       if( (finalOR >>1) & 0x1 ) finalOR = (finalOR | 0x1);
+    }
     m_uGtAlgBlk.setFinalOR(finalOR);
     
 
@@ -1082,7 +1019,9 @@ void l1t::L1uGtBoard::fillAlgRecord(int iBxInEvent,
 
 // Fill DAQ Record
 void l1t::L1uGtBoard::fillExtRecord(int iBxInEvent, 
-				    std::auto_ptr<L1uGtExtBxCollection>& uGtExtRecord
+				    std::auto_ptr<L1uGtExtBxCollection>& uGtExtRecord,
+				    cms_uint64_t orbNr,
+				    int bxNr
 				    ) 
 {
 
@@ -1092,9 +1031,10 @@ void l1t::L1uGtBoard::fillExtRecord(int iBxInEvent,
                 << std::endl;
 
     }
-
-    
-    if(iBxInEvent==0) m_uGtExtBlk.setExternalDecision(100,true);
+// Set header information
+    m_uGtExtBlk.setOrbitNr((unsigned int)(orbNr & 0xFFFFFFFF));
+    m_uGtExtBlk.setbxNr((bxNr & 0xFFFF));
+    m_uGtExtBlk.setbxInEventNr((iBxInEvent & 0xF));
 
     uGtExtRecord->push_back(iBxInEvent, m_uGtExtBlk);
 
@@ -1106,9 +1046,15 @@ void l1t::L1uGtBoard::reset() {
 
   resetMu();
   resetCalo();
+  
+  m_uGtRecBlk.reset();
+  m_uGtAlgBlk.reset();
+  m_uGtExtBlk.reset();
 
   m_gtlDecisionWord.reset();
   m_gtlAlgorithmOR.reset();
+  
+   
 
 }
 

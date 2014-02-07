@@ -28,6 +28,7 @@
 #include <boost/cstdint.hpp>
 
 // user include files
+#include "FWCore/Utilities/interface/typedefs.h"
 
 /* *** MODIFY LOCATION *****
 //#include "DataFormats/L1uGtProducer/interface/L1uGtProducerReadoutSetupFwd.h"
@@ -660,7 +661,22 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 // Fill the Gt Record (Main Header of GT Payload)
     if (m_produceL1GtDaqRecord) {
-	m_uGtBrd->fillGtRecord(uGtRecord);
+    
+        // These need to be defined elsewhere
+	int ver =   0;
+	int algBx = 5;
+	int extBx = 5;
+	int muBx  = 1;
+	int calBx = 1;
+	int psInd = 0;
+	cms_uint64_t trgNr = iEvent.id().event();
+	cms_uint64_t orbNr = iEvent.orbitNumber();
+	int abBx = iEvent.bunchCrossing();
+	int lumSec = iEvent.luminosityBlock();
+	printf("Orbit Nr %i  Bx Nr %i \n",iEvent.orbitNumber(),iEvent.bunchCrossing());
+	m_uGtBrd->fillGtRecord(uGtRecord,
+		               ver, algBx, extBx, muBx, calBx, psInd,
+		               trgNr, orbNr, abBx, lumSec );
     }
 
     // loop over BxInEvent
@@ -700,9 +716,13 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
 
 // Fill in the DAQ Records
-        if (m_produceL1GtDaqRecord) {	    
-            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord);
-	    m_uGtBrd->fillExtRecord(iBxInEvent, uGtExtRecord);
+        if (m_produceL1GtDaqRecord) {
+
+            // These need to be defined elsewhere
+	    cms_uint64_t orbNr = iEvent.orbitNumber();
+	    int abBx = iEvent.bunchCrossing();
+            m_uGtBrd->fillAlgRecord(iBxInEvent, uGtAlgRecord, orbNr, abBx);
+	    m_uGtBrd->fillExtRecord(iBxInEvent, uGtExtRecord, orbNr, abBx);
         }
 
 

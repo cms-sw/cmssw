@@ -23,6 +23,7 @@
 #include <vector>
 
 // user include files
+#include "FWCore/Utilities/interface/typedefs.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
@@ -107,10 +108,20 @@ public:
         const bool algorithmTriggersUnmasked );
 
 
-     /// Fill the DaqRecord
-     void fillGtRecord(std::auto_ptr<L1uGtRecBxCollection>& uGtRecord);
-     void fillAlgRecord(int iBxInEvent, std::auto_ptr<L1uGtAlgBxCollection>& uGtAlgRecord );
-     void fillExtRecord(int iBxInEvent, std::auto_ptr<L1uGtExtBxCollection>& uGtExtRecord );
+     /// Fill the Daq Records
+     void fillGtRecord(std::auto_ptr<L1uGtRecBxCollection>& uGtRecord,
+		      int ver, int algBx, int extBx, int muBx, int calBx, int psInd,
+		      cms_uint64_t trgNr, cms_uint64_t orbNr, int abBx, int lumSec ); 
+
+     void fillAlgRecord(int iBxInEvent, 
+                        std::auto_ptr<L1uGtAlgBxCollection>& uGtAlgRecord,
+			cms_uint64_t orbNr,
+			int bxNr);
+			
+     void fillExtRecord(int iBxInEvent,
+     		        std::auto_ptr<L1uGtExtBxCollection>& uGtExtRecord,
+			cms_uint64_t orbNr,
+			int bxNr);
 
 
 
@@ -266,6 +277,14 @@ private:
     bool m_algInitialOr;
     bool m_algPrescaledOr;
     bool m_algFinalOr;
+    
+    // Counter for number of events seen by this board
+    unsigned int m_boardEventCount;
+    
+    // Information about board
+    int  m_uGtBoardNumber;
+    bool m_uGtFinalBoard;
+    
 
 };
 

@@ -117,6 +117,12 @@ namespace l1t {
     printf("\n -------------------------------------- \n");
     printf(" ***********  New Event  ************** \n");
     printf(" -------------------------------------- \n"); 
+ 
+   // Dump the output record	  
+    for(std::vector<L1uGtRecBlk>::const_iterator recBlk = uGtRec->begin(); recBlk != uGtRec->end(); ++recBlk) {
+        recBlk->print(std::cout);
+    }    
+ 
  //Loop over BX
     for(int i = egammas->getFirstBX(); i <= egammas->getLastBX(); ++i) {
     
@@ -149,13 +155,7 @@ namespace l1t {
 	printf("\n ------ EtSums ----------\n");	  
        for(std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
             printf("   Pt %i Eta %i Phi %i Qual %i \n",etsum->hwPt(),etsum->hwEta(),etsum->hwPhi(),etsum->hwQual());
-       }        
-
-  // Dump the output record
- 	printf("\n ------ uGtRec ----------\n");	  
-       for(std::vector<L1uGtRecBlk>::const_iterator recBlk = uGtRec->begin(); recBlk != uGtRec->end(); ++recBlk) {
-           recBlk->print(std::cout);
-       }        
+       }            
         
   // Dump the output record
  	printf("\n ------ uGtAlg ----------\n");	  

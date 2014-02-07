@@ -19,7 +19,7 @@ process.load('L1Trigger/L1TGlobal/l1tGt_debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(100)
     )
 
 # Input source
