@@ -91,15 +91,18 @@ STAMuonAnalyzer::STAMuonAnalyzer(const ParameterSet& pset):
 {
 
   staTrackLabel_ = pset.getUntrackedParameter<edm::InputTag>("StandAloneTrackCollectionLabel");
-  theSeedCollectionLabel = pset.getUntrackedParameter<string>("MuonSeedCollectionLabel");
+  muonLabel_ = pset.getUntrackedParameter<edm::InputTag>("MuonCollectionLabel");
+
+  noGEMCase_ = pset.getUntrackedParameter<bool>("NoGEMCase");
+  isGlobalMuon_ = pset.getUntrackedParameter<bool>("isGlobalMuon",false);
+
+  minEta_ = pset.getUntrackedParameter<double>("minEta",1.64);
+  maxEta_ = pset.getUntrackedParameter<double>("maxEta",2.1);
 
   theDataType = pset.getUntrackedParameter<string>("DataType");
   
   if(theDataType != "RealData" && theDataType != "SimData")
     cout<<"Error in Data Type!!"<<endl;
-
-  noGEMCase_ = pset.getUntrackedParameter<bool>("NoGEMCase");
-  isGlobalMuon_ = pset.getUntrackedParameter<bool>("isGlobalMuon",false);
 
   numberOfSimTracks = 0;
   numberOfRecTracks = 0;
@@ -118,9 +121,9 @@ void STAMuonAnalyzer::beginJob(){
 
   if(isGlobalMuon_){
 
-	bins = 400;
-	min = -3;
-	max = +3;
+	bins = 800;
+	min = -4;
+	max = +4;
 
   }
 
@@ -162,8 +165,11 @@ void STAMuonAnalyzer::beginJob(){
   histContainer_["hNumMuonSimTracks"] = fs->make<TH1F>("NumMuonSimTracks","NumMuonSimTracks",10,0,10);
   histContainer_["hNumRecTracks"] = fs->make<TH1F>("NumRecTracks","NumRecTracks",10,0,10);
 
-  histContainer_["hNumGEMRecHits"] = fs->make<TH1F>("NumGEMRecHits","NumGEMRecHits",10,0,10);
-  histContainer_["hNumGEMRecHitsMuon"] = fs->make<TH1F>("NumGEMRecHitsMuon","NumGEMRecHitsMuon",10,0,10);
+  histContainer_["hNumGEMRecHits"] = fs->make<TH1F>("NumGEMRecHits","NumGEMRecHits",11,-0.5,10.5);
+  histContainer_["hNumGEMRecHitsSt1"] = fs->make<TH1F>("NumGEMRecHitsSt1","NumGEMRecHitsSt1",11,-0.5,10.5);
+  histContainer_["hNumGEMRecHitsSt2"] = fs->make<TH1F>("NumGEMRecHitsSt2","NumGEMRecHitsSt2",11,-0.5,10.5);
+  histContainer_["hNumGEMRecHitsSt3"] = fs->make<TH1F>("NumGEMRecHitsSt3","NumGEMRecHitsSt3",11,-0.5,10.5);
+  histContainer_["hNumGEMRecHitsMuon"] = fs->make<TH1F>("NumGEMRecHitsMuon","NumGEMRecHitsMuon",11,-0.5,10.5);
 
   histContainer2D_["hRecoPtVsSimPt"] = fs->make<TH2F>("RecoPtVsSimPt","p_{T}^{Reco} vs. p_{T}^{Sim}",261,-2.5,1302.5,261,-2.5,1302.5);
   histContainer2D_["hDeltaPtVsSimPt"] = fs->make<TH2F>("DeltaPtVsSimPt","(p_{T}^{Reco} - p_{T}^{Sim}) vs. p_{T}^{Sim}",261,-2.5,1302.5,500,-500,500);
@@ -171,7 +177,12 @@ void STAMuonAnalyzer::beginJob(){
   histContainer2D_["hPtResVsPt"] = fs->make<TH2F>("PtResVsPt","p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
   histContainer2D_["hInvPtResVsPt"] = fs->make<TH2F>("InvPtResVsPt","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
   histContainer2D_["hInvPtResVsPtMuon"] = fs->make<TH2F>("InvPtResVsPtMuon","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
-  histContainer2D_["hInvPtResVsPtSel"] = fs->make<TH2F>("InvPtResVsPtSel","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
+  histContainer2D_["hInvPtResVsPtSelWrong"] = fs->make<TH2F>("InvPtResVsPtSelWrong","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
+  histContainer2D_["hInvPtResVsPtSelCorr"] = fs->make<TH2F>("InvPtResVsPtSelCorr","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
+  histContainer2D_["hInvPtResVsPtSelWrongPicky"] = fs->make<TH2F>("InvPtResVsPtSelWrongPicky","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
+  histContainer2D_["hInvPtResVsPtSelCorrPicky"] = fs->make<TH2F>("InvPtResVsPtSelCorrPicky","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
+  histContainer2D_["hInvPtResVsPtSelWrongTrk"] = fs->make<TH2F>("InvPtResVsPtSelWrongTrk","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
+  histContainer2D_["hInvPtResVsPtSelCorrTrk"] = fs->make<TH2F>("InvPtResVsPtSelCorrTrk","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
 
   histContainer2D_["hPtResVsPtNoCharge"] = fs->make<TH2F>("PtResVsPtNoCharge","p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
   histContainer2D_["hInvPtResVsPtNoCharge"] = fs->make<TH2F>("InvPtResVsPtNoCharge","1/p_{T} Resolution vs. p_{T}",261,-2.5,1302.5,bins,min,max);
@@ -194,6 +205,7 @@ void STAMuonAnalyzer::beginJob(){
   histContainer_["hDenSimEta"] = fs->make<TH1F>("DenSimEta","DenSimEta",100,-2.5,2.5);
   histContainer_["hDenSimPhiPlus"] = fs->make<TH1F>("DenSimPhiPlus","DenSimPhiMinus",360,0,180);
   histContainer_["hDenSimPhiMinus"] = fs->make<TH1F>("DenSimPhiMinus","DenSimPhiMinus",360,0,180);
+
   histContainer_["hNumPt"] = fs->make<TH1F>("NumPt","NumPt",261,-2.5,1302.5);
   histContainer_["hNumEta"] = fs->make<TH1F>("NumEta","NumEta",100,-2.5,2.5);
   histContainer_["hNumPhi"] = fs->make<TH1F>("NumPhi","NumPhi",36,-TMath::Pi(),TMath::Pi());
@@ -204,10 +216,29 @@ void STAMuonAnalyzer::beginJob(){
   histContainer_["hNumSimPhiPlus"] = fs->make<TH1F>("NumSimPhiPlus","NumSimPhiMinus",360,0,180);
   histContainer_["hNumSimPhiMinus"] = fs->make<TH1F>("NumSimPhiMinus","NumSimPhiMinus",360,0,180);
 
+  histContainer_["hNumSimPtSt1"] = fs->make<TH1F>("NumSimPtSt1","NumSimPtSt1",261,-2.5,1302.5);
+  histContainer_["hNumSimEtaSt1"] = fs->make<TH1F>("NumSimEtaSt1","NumSimEtaSt1",100,-2.5,2.5);
+  histContainer_["hNumSimPhiPlusSt1"] = fs->make<TH1F>("NumSimPhiPlusSt1","NumSimPhiMinusSt1",360,0,180);
+  histContainer_["hNumSimPhiMinusSt1"] = fs->make<TH1F>("NumSimPhiMinusSt1","NumSimPhiMinusSt1",360,0,180);
+  histContainer_["hNumSimPtSt2"] = fs->make<TH1F>("NumSimPtSt2","NumSimPtSt2",261,-2.5,1302.5);
+  histContainer_["hNumSimEtaSt2"] = fs->make<TH1F>("NumSimEtaSt2","NumSimEtaSt2",100,-2.5,2.5);
+  histContainer_["hNumSimPhiPlusSt2"] = fs->make<TH1F>("NumSimPhiPlusSt2","NumSimPhiMinusSt2",360,0,180);
+  histContainer_["hNumSimPhiMinusSt2"] = fs->make<TH1F>("NumSimPhiMinusSt2","NumSimPhiMinusSt2",360,0,180);
+  histContainer_["hNumSimPtSt3"] = fs->make<TH1F>("NumSimPtSt3","NumSimPtSt3",261,-2.5,1302.5);
+  histContainer_["hNumSimEtaSt3"] = fs->make<TH1F>("NumSimEtaSt3","NumSimEtaSt3",100,-2.5,2.5);
+  histContainer_["hNumSimPhiPlusSt3"] = fs->make<TH1F>("NumSimPhiPlusSt3","NumSimPhiMinusSt3",360,0,180);
+  histContainer_["hNumSimPhiMinusSt3"] = fs->make<TH1F>("NumSimPhiMinusSt3","NumSimPhiMinusSt3",360,0,180);
+
   histContainer_["hPullGEMx"] = fs->make<TH1F>("PullGEMx", "(x_{mc} - x_{rec}) / #sigma",500,-10.,10.);
   histContainer_["hPullGEMphi"] = fs->make<TH1F>("PullGEMphi", "(#phi_{mc} - #phi_{rec})",500,-0.001,0.001);
 
   histContainer_["hGEMRecHitEta"] = fs->make<TH1F>("GEMRecHitEta","GEM RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hGEMRecHitEtaSt1L1"] = fs->make<TH1F>("hGEMRecHitEtaSt1L1","GEM RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hGEMRecHitEtaSt1L2"] = fs->make<TH1F>("hGEMRecHitEtaSt1L2","GEM RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hGEMRecHitEtaSt2L1"] = fs->make<TH1F>("hGEMRecHitEtaSt2L1","GEM RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hGEMRecHitEtaSt2L2"] = fs->make<TH1F>("hGEMRecHitEtaSt2L2","GEM RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hGEMRecHitEtaSt3L1"] = fs->make<TH1F>("hGEMRecHitEtaSt3L1","GEM RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hGEMRecHitEtaSt3L2"] = fs->make<TH1F>("hGEMRecHitEtaSt3L2","GEM RecHits #eta",10000,-2.5,2.5);
   histContainer_["hGEMRecHitPhi"] = fs->make<TH1F>("GEMRecHitPhi","GEM RecHits #phi",360,-TMath::Pi(),TMath::Pi());
 
   histContainer_["hDR"] = fs->make<TH1F>("DR","#Delta R (SIM-RECO)",300,0,1);
@@ -231,6 +262,7 @@ void STAMuonAnalyzer::beginJob(){
   histContainer2D_["hDeltaQvsDeltaPt"] = fs->make<TH2F>("DeltaQvsDeltaPt","DeltaQvsDeltaPt",100,-2,2,7,-3.5,3.5);
   histContainer2D_["hCheckGlobalTracksVsPt"] = fs->make<TH2F>("CheckGlobalTracksVsPt","CheckGlobalTracksVsPt",261,-2.5,1302.5,4,0,4);
   histContainer2D_["hCheckTracksVsPt"] = fs->make<TH2F>("CheckTracksVsPt","CheckTracksVsPt",261,-2.5,1302.5,8,0,8);
+  histContainer2D_["hCheckChargeVsPt"] = fs->make<TH2F>("CheckChargeVsPt","CheckChargeVsPt",261,-2.5,1302.5,8,0,8);
 
   histContainer2D_["hPtResVsPtRes"] = fs->make<TH2F>("PtResVsPtRes","PtResVsPtRes",400,-2,2,400,-2,2);
   histContainer_["hDeltaPtRes"] = fs->make<TH1F>("DeltaPtRes","DeltaPtRes",400,-2,2);
@@ -411,7 +443,7 @@ bool isRecHitMatched(edm::PSimHitContainer selGEMSimHits, TrackingRecHitRef recH
 
 }
 
-int countDrMatching(SimTrackContainer::const_iterator simTrack, Handle<reco::TrackCollection> staTracks){
+int countDrMatching(SimTrackContainer::const_iterator simTrack, Handle<reco::TrackCollection> staTracks, float minEta_, float maxEta_){
 
 	int countMatchingTmp = 0;
 
@@ -427,7 +459,7 @@ int countDrMatching(SimTrackContainer::const_iterator simTrack, Handle<reco::Tra
 		double recPhiTmp = staTrackTmp->momentum().phi();
 		double dRTmp = sqrt(pow((simEtaTmp-recEtaTmp),2) + pow((simPhiTmp-recPhiTmp),2));
 
-	    	if(!(recPtTmp && abs(recEtaTmp) > 1.64 && abs(recEtaTmp) < 2.1)) continue;
+	    	if(!(recPtTmp && abs(recEtaTmp) > minEta_ && abs(recEtaTmp) < maxEta_)) continue;
 		if(dRTmp > 0.1) continue;
 		countMatchingTmp++;
 
@@ -450,7 +482,7 @@ struct MyMuon{
 
 };
 
-MyMuon muonMatching(const Event & event, SimTrackContainer::const_iterator simTrack, bool NoGem){
+MyMuon muonMatching(const Event & event, SimTrackContainer::const_iterator simTrack, bool NoGem, float minEta_, float maxEta_, edm::InputTag muonLabel_){
 
 	int numMatch = 0;
 
@@ -479,14 +511,14 @@ MyMuon muonMatching(const Event & event, SimTrackContainer::const_iterator simTr
 	tmpMuon.tpfmsPt = -999;
 
   	Handle<reco::MuonCollection> muons;
-  	event.getByLabel("muons", muons);
+  	event.getByLabel(muonLabel_, muons);
   	reco::MuonCollection::const_iterator muon;
 	for (muon = muons->begin(); muon != muons->end(); ++muon){
 
 		int numGEMRecHits = 0;
 
 		if(!(muon->pt())) continue;
-		if(!(abs(muon->eta()) > 1.64 && abs(muon->eta()) < 2.1)) continue;
+		if(!(abs(muon->eta()) > minEta_ && abs(muon->eta()) < maxEta_)) continue;
 		double dR = sqrt(pow((simEta-muon->eta()),2) + pow((simPhi-muon->phi()),2));
 		if(dR > 0.1) continue;
 
@@ -544,7 +576,7 @@ MyMuon muonMatching(const Event & event, SimTrackContainer::const_iterator simTr
 
 }
 
-MyMuon muonTrackMatching(const Event & event, SimTrackContainer::const_iterator simTrack, bool NoGem){
+MyMuon muonTrackMatching(const Event & event, SimTrackContainer::const_iterator simTrack, bool NoGem, float minEta_, float maxEta_){
 
 	int numMatch = 0;
 
@@ -581,7 +613,7 @@ MyMuon muonTrackMatching(const Event & event, SimTrackContainer::const_iterator 
 		int numGEMRecHits = 0;
 
 		if(!(muon->pt())) continue;
-		if(!(abs(muon->eta()) > 1.64 && abs(muon->eta()) < 2.1)) continue;
+		if(!(abs(muon->eta()) > minEta_ && abs(muon->eta()) < maxEta_)) continue;
 		double dR = sqrt(pow((simEta-muon->eta()),2) + pow((simPhi-muon->phi()),2));
 		if(dR > 0.1) continue;
 
@@ -701,7 +733,7 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 	simPhi = (*simTrack).momentum().phi();
 	int qGen = simTrack->charge();
 
-	if (abs(simEta) > 2.1 || abs(simEta) < 1.64) continue;
+	if (abs(simEta) > maxEta_ || abs(simEta) < minEta_) continue;
 
 	//std::cout<<"SimEta "<<simEta<<" SimPhi "<<simPhi<<std::endl;
 
@@ -709,14 +741,15 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 	int size = selGEMSimHits.size();
 	histContainer_["hMatchedSimHits"]->Fill(size);
 	histContainer_["hSimTrackMatch"]->Fill(size > 0 ? 1 : 0);
-	if(size == 0 && noGEMCase_) continue;
+	if(noGEMCase_) size = 1;
+	if(size == 0) continue;
 
-	int drMatching = countDrMatching(simTrack, staTracks);
+	int drMatching = countDrMatching(simTrack, staTracks, minEta_, maxEta_);
 	//std::cout<<"Matching with: "<<drMatching<<" reco tracks"<<std::endl;
 	if(drMatching > 1) continue;
 
 	MyMuon muon;
-	muon = muonMatching(event, simTrack, noGEMCase_);
+	muon = muonMatching(event, simTrack, noGEMCase_, minEta_, maxEta_, muonLabel_);
 
 	bool muonType = isGlobalMuon_? muon.isGlobal : muon.isStandAlone;
 	double muPt = isGlobalMuon_? muon.pt : muon.standAlonePt;
@@ -793,7 +826,7 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 	    	histContainer_["hPtRec"]->Fill(recPt);
 	    	histContainer_["hDeltaPtRec"]->Fill(recPt - recPtIP);
 	    
-	    	if(!(recPt && theDataType == "SimData" && abs(recEta) > 1.64 && abs(recEta) < 2.1)) continue;
+	    	if(!(recPt && theDataType == "SimData" && abs(recEta) > minEta_ && abs(recEta) < maxEta_)) continue;
 
 		//std::cout<<"SimEta: "<<simEta<<" SimPhi: "<<simPhi<<" SimPt: "<<simPt<<std::endl;
 		//std::cout<<"Eta: "<<recEta<<" Phi: "<<recPhi<<" Pt: "<<recPt<<std::endl;
@@ -801,7 +834,7 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 		countMatching++;
 
 		bool hasGemRecHits = false;
-		int numGEMRecHits = 0;
+		int numGEMRecHits = 0, numGEMRecHitsSt1 = 0, numGEMRecHitsSt2 = 0, numGEMRecHitsSt3 = 0;
 
 		std::vector<bool> collectResults;
 
@@ -828,9 +861,21 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 				bool status = isRecHitMatched(selGEMSimHits, tRH, gemGeom, sh, rh);
 				collectResults.push_back(status);
 
+				if(rh.station == 1) numGEMRecHitsSt1++;
+				if(rh.station == 2) numGEMRecHitsSt2++;
+				if(rh.station == 3) numGEMRecHitsSt3++;
+
 				if(!isGlobalMuon_ & status){
 				
 					histContainer_["hGEMRecHitEta"]->Fill(rh.globalEta);
+
+					if(rh.station == 1 && rh.layer == 1) histContainer_["hGEMRecHitEtaSt1L1"]->Fill(rh.globalEta);
+					if(rh.station == 1 && rh.layer == 2) histContainer_["hGEMRecHitEtaSt1L2"]->Fill(rh.globalEta);
+					if(rh.station == 2 && rh.layer == 1) histContainer_["hGEMRecHitEtaSt2L1"]->Fill(rh.globalEta);
+					if(rh.station == 2 && rh.layer == 2) histContainer_["hGEMRecHitEtaSt2L2"]->Fill(rh.globalEta);
+					if(rh.station == 3 && rh.layer == 1) histContainer_["hGEMRecHitEtaSt3L1"]->Fill(rh.globalEta);
+					if(rh.station == 3 && rh.layer == 2) histContainer_["hGEMRecHitEtaSt3L2"]->Fill(rh.globalEta);
+
 					histContainer_["hGEMRecHitPhi"]->Fill(rh.globalPhi);
 					if(rh.region > 0 && rh.layer == 1) histContainer2D_["hRecPhi2DPlusLayer1"]->Fill(rh.globalPhi, rh.chamber);
 					else if(rh.region > 0 && rh.layer == 2) histContainer2D_["hRecPhi2DPlusLayer2"]->Fill(rh.globalPhi, rh.chamber);
@@ -863,6 +908,9 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 		}
 
 		histContainer_["hNumGEMRecHits"]->Fill(numGEMRecHits);
+		histContainer_["hNumGEMRecHitsSt1"]->Fill(numGEMRecHitsSt1);
+		histContainer_["hNumGEMRecHitsSt2"]->Fill(numGEMRecHitsSt2);
+		histContainer_["hNumGEMRecHitsSt3"]->Fill(numGEMRecHitsSt3);
 
 		int sizeRH = 0;
 		bool matchingHit = true;
@@ -879,6 +927,8 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 		histContainer_["hRecHitParMatching"]->Fill(matchingParHit);
 		histContainer2D_["hRecoTracksWithMatchedRecHits"]->Fill(collectResults.size(),sizeRH);
 		//std::cout<<"Result "<<matchingHit<<std::endl;
+
+		if(noGEMCase_) hasGemRecHits = true;
 
 		if(hasGemRecHits /*& matchingHit*/){
 
@@ -953,7 +1003,32 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 			if(simEta > 0) histContainer_["hNumSimPhiPlus"]->Fill(phiDegSim);
 			else if(simEta < 0) histContainer_["hNumSimPhiMinus"]->Fill(phiDegSim);
 
-			if(muon.pt != -999 && muon.matchedTracks == 1 && muon.pt > 0 && muon.recHits > 0){
+			if(numGEMRecHitsSt1 > 0){
+
+				histContainer_["hNumSimPtSt1"]->Fill(simPt);
+				histContainer_["hNumSimEtaSt1"]->Fill(simEta);
+				if(simEta > 0) histContainer_["hNumSimPhiPlusSt1"]->Fill(phiDegSim);
+				else if(simEta < 0) histContainer_["hNumSimPhiMinusSt1"]->Fill(phiDegSim);
+
+			}
+			if(numGEMRecHitsSt2 > 0){
+
+				histContainer_["hNumSimPtSt2"]->Fill(simPt);
+				histContainer_["hNumSimEtaSt2"]->Fill(simEta);
+				if(simEta > 0) histContainer_["hNumSimPhiPlusSt2"]->Fill(phiDegSim);
+				else if(simEta < 0) histContainer_["hNumSimPhiMinusSt2"]->Fill(phiDegSim);
+
+			}
+			if(numGEMRecHitsSt3 > 0){
+
+				histContainer_["hNumSimPtSt3"]->Fill(simPt);
+				histContainer_["hNumSimEtaSt3"]->Fill(simEta);
+				if(simEta > 0) histContainer_["hNumSimPhiPlusSt3"]->Fill(phiDegSim);
+				else if(simEta < 0) histContainer_["hNumSimPhiMinusSt3"]->Fill(phiDegSim);
+
+			}
+
+			if(muon.matchedTracks == 1 && muon.pt > 0 && muon.recHits > 0){
 
 				histContainer_["hCountPresence"]->Fill(1);
 				double res1 = abs((recPt-simPt)/simPt);
@@ -1012,12 +1087,16 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 			it = min_element(residuals.begin(), residuals.end());
 			int idx = it - residuals.begin();
 
-			if(idx == 0){
+			if(idx == 0 && muQ*qGen < 0) histContainer2D_["hInvPtResVsPtSelWrong"]->Fill(simPt,(muQ/muPt - qGen/simPt)/(qGen/simPt));
+			else if(idx == 0 && muQ*qGen > 0) histContainer2D_["hInvPtResVsPtSelCorr"]->Fill(simPt,(muQ/muPt - qGen/simPt)/(qGen/simPt));
 
-				histContainer2D_["hCheckTracksVsPt"]->Fill(simPt, 0.5);
-				histContainer2D_["hInvPtResVsPtSel"]->Fill(simPt,(muQ/muPt - qGen/simPt)/(qGen/simPt));
+			if(idx == 3 && muQ*qGen < 0) histContainer2D_["hInvPtResVsPtSelWrongPicky"]->Fill(simPt,(muQ/muPt - qGen/simPt)/(qGen/simPt));
+			else if(idx == 3 && muQ*qGen > 0) histContainer2D_["hInvPtResVsPtSelCorrPicky"]->Fill(simPt,(muQ/muPt - qGen/simPt)/(qGen/simPt));
 
-			}
+			if(idx == 2 && muQ*qGen < 0) histContainer2D_["hInvPtResVsPtSelWrongTrk"]->Fill(simPt,(muQ/muPt - qGen/simPt)/(qGen/simPt));
+			else if(idx == 2 && muQ*qGen > 0) histContainer2D_["hInvPtResVsPtSelCorrTrk"]->Fill(simPt,(muQ/muPt - qGen/simPt)/(qGen/simPt));
+
+			if(idx == 0) histContainer2D_["hCheckTracksVsPt"]->Fill(simPt, 0.5);
 			else if(idx == 1) histContainer2D_["hCheckTracksVsPt"]->Fill(simPt, 1.5);
 			else if(idx == 2) histContainer2D_["hCheckTracksVsPt"]->Fill(simPt, 2.5);
 			else if(idx == 3) histContainer2D_["hCheckTracksVsPt"]->Fill(simPt, 3.5);
@@ -1025,13 +1104,20 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 			else if(idx == 5) histContainer2D_["hCheckTracksVsPt"]->Fill(simPt, 5.5);
 			else histContainer2D_["hCheckTracksVsPt"]->Fill(simPt, 6.5);
 
+			if(idx == 0 && muQ*qGen < 0) histContainer2D_["hCheckChargeVsPt"]->Fill(simPt, 0.5);
+			else if(idx == 1 && muQ*qGen < 0) histContainer2D_["hCheckChargeVsPt"]->Fill(simPt, 1.5);
+			else if(idx == 2 && muQ*qGen < 0) histContainer2D_["hCheckChargeVsPt"]->Fill(simPt, 2.5);
+			else if(idx == 3 && muQ*qGen < 0) histContainer2D_["hCheckChargeVsPt"]->Fill(simPt, 3.5);
+			else if(idx == 4 && muQ*qGen < 0) histContainer2D_["hCheckChargeVsPt"]->Fill(simPt, 4.5);
+			else if(idx == 5 && muQ*qGen < 0) histContainer2D_["hCheckChargeVsPt"]->Fill(simPt, 5.5);
+			//else histContainer2D_["hCheckChargeVsPt"]->Fill(simPt, 6.5);
+
 		}
 
 	}
 
   }//Fine loop sulle SimTrack
 
-  //cout<<"---"<<endl;  
 }
 
 DEFINE_FWK_MODULE(STAMuonAnalyzer);

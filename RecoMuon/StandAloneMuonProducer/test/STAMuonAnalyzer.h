@@ -43,17 +43,18 @@ public:
   virtual void beginJob() ;
   virtual void endJob() ;
 
-protected:
-
 private:
 
   std::map<std::string,TH1F*> histContainer_;
   std::map<std::string,TH2F*> histContainer2D_; 
 
   edm::InputTag staTrackLabel_;
-  std::string theSeedCollectionLabel;
+  edm::InputTag muonLabel_;
   bool noGEMCase_;
   bool isGlobalMuon_;
+
+  double minEta_;
+  double maxEta_;
 
   // Counters
   int numberOfSimTracks;
