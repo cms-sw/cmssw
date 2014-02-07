@@ -93,7 +93,7 @@ bool GEMTrackMatch::isSimTrackGood(const SimTrack &t)
   if (t.noVertex())   return false; 
   if (t.noGenpart()) return false;
   if (std::abs(t.type()) != 13) return false; // only interested in direct muon simtracks
-  if (t.momentum().pt() < 5 ) return false;
+  if (t.momentum().pt() < minPt_ ) return false;
   float eta = fabs(t.momentum().eta());
   if (eta > maxEta_ || eta < minEta_ ) return false; // no GEMs could be in such eta
 

@@ -27,10 +27,10 @@ public:
 
  private:
 
-  MonitorElement* gem_sh_xy_rm1_l1[3];
-  MonitorElement* gem_sh_xy_rm1_l2[3];
-  MonitorElement* gem_sh_xy_rp1_l1[3];
-  MonitorElement* gem_sh_xy_rp1_l2[3];
+  MonitorElement* gem_sh_xy[2][3][2][3];
+  //MonitorElement* gem_sh_xy_rm1_l2[3];
+  //MonitorElement* gem_sh_xy_rp1_l1[3];
+  //MonitorElement* gem_sh_xy_rp1_l2[3];
 
   MonitorElement* gem_sh_zr_rm1[3];
   MonitorElement* gem_sh_zr_rp1[3];
