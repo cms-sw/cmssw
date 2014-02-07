@@ -74,8 +74,15 @@ namespace edm {
       size_ = 0;
     }
 
-    // Undefined behaviour if size()==N
+    // Throws if size()==N
     void push_back(const T& value) {
+      if(size_ >= N)
+        throw std::length_error("push_back on already-full VecArray (N="+std::to_string(N)+")");
+      push_back_unchecked(value);
+    }
+
+    // Undefined behaviour if size()==N
+    void push_back_unchecked(const T& value) {
       data_[size_] = value;
       ++size_;
     }
