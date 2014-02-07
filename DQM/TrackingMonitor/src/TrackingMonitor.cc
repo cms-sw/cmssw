@@ -523,9 +523,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       double frac = -1.;
       if (numberOfAllTracks > 0) frac = static_cast<double>(numberOfTracks)/static_cast<double>(numberOfAllTracks);
-      std::cout << "old frac: " << frac << std::endl;
+      //      std::cout << "old frac: " << frac << std::endl;
       if (numberOfTracks_den > 0) frac = static_cast<double>(numberOfTracks_num)/static_cast<double>(numberOfTracks_den);
-      std::cout << "new frac: " << frac << std::endl;
+      //      std::cout << "new frac: " << frac << std::endl;
       
       if (doGeneralPropertiesPlots_ || doAllPlots){
 	NumberOfTracks       -> Fill(numberOfTracks);
