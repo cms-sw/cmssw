@@ -76,6 +76,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         delta = cms.double(1.0)
     ),
     Physics = cms.PSet(
+        common_maximum_time,
         # NOTE : if you want EM Physics only,
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
