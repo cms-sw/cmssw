@@ -61,9 +61,9 @@ if __name__ == "__main__":
   c = TCanvas("c","c",800,800)
   c.Clear()
      
-  h1 = TH1F("h1", "GEM RecHit noise rate per roll number,station1;roll number;rate [Hz/cm^{-2}]",13,0.,13.)
-  h2 = TH1F("h2", "GEM RecHit noise rate per roll number,station2;roll number;rate [Hz/cm^{-2}]",13,0.,13.)
-  h3 = TH1F("h3", "GEM RecHit noise rate per roll number,station3;roll number;rate [Hz/cm^{-2}]",13,0.,13.)
+  h1 = TH1F("h1", "GEM RecHit noise rate per roll number,station1;roll number;rate [Hz/cm^{2}]",13,0.,13.)
+  h2 = TH1F("h2", "GEM RecHit noise rate per roll number,station2;roll number;rate [Hz/cm^{2}]",13,0.,13.)
+  h3 = TH1F("h3", "GEM RecHit noise rate per roll number,station3;roll number;rate [Hz/cm^{2}]",13,0.,13.)
   
   print "Making plots for noise rate: ",
   entries = treeHits.GetEntriesFast()
@@ -85,19 +85,19 @@ if __name__ == "__main__":
             sys.stdout.write("."); sys.stdout.flush()
   print " done."
 
-  h1.SetTitle("GEM RecHit noise rate per roll number,station1;roll number;rate [Hz/cm^{-2}]")
+  h1.SetTitle("GEM RecHit noise rate per roll number,station1;roll number;rate [Hz/cm^{2}]")
   h1.SetStats(0)
   h1.SetLineWidth(2)
   h1.SetLineColor(kBlue)
   h1.Draw("HIST TEXT")
   c.SaveAs(targetDir + "noise_rate_s1" + ext)
-  h2.SetTitle("GEM RecHit noise rate per roll number,station2;roll number;rate [Hz/cm^{-2}]")
+  h2.SetTitle("GEM RecHit noise rate per roll number,station2;roll number;rate [Hz/cm^{2}]")
   h2.SetStats(0)
   h2.SetLineWidth(2)
   h2.SetLineColor(kBlue)
   h2.Draw("HIST TEXT")
   c.SaveAs(targetDir + "noise_rate_s2" + ext)
-  h3.SetTitle("GEM RecHit noise rate per roll number,station3;roll number;rate [Hz/cm^{-2}]")
+  h3.SetTitle("GEM RecHit noise rate per roll number,station3;roll number;rate [Hz/cm^{2}]")
   h3.SetStats(0)
   h3.SetLineWidth(2)
   h3.SetLineColor(kBlue)
