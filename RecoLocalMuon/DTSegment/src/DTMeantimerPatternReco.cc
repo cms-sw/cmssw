@@ -77,6 +77,9 @@ DTMeantimerPatternReco::reconstruct(const DTSuperLayer* sl,
     delete *(cand++); // delete the candidate!
   }
 
+  for (vector<DTHitPairForFit*>::iterator it = hitsForFit.begin(), ed = hitsForFit.end(); 
+        it != ed; ++it) delete *it;
+
   return result;
 }
 
