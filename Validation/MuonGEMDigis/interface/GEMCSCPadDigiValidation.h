@@ -25,28 +25,13 @@ public:
 
  private:
 
-  MonitorElement* theCSCPad_xy_rm1_l1;
-  MonitorElement* theCSCPad_xy_rm1_l2;
-  MonitorElement* theCSCPad_xy_rp1_l1;
-  MonitorElement* theCSCPad_xy_rp1_l2;
+  MonitorElement* theCSCPad_xy[2][3][2];
 
-  MonitorElement* theCSCPad_phipad_rm1_l1;
-  MonitorElement* theCSCPad_phipad_rm1_l2;
-  MonitorElement* theCSCPad_phipad_rp1_l1;
-  MonitorElement* theCSCPad_phipad_rp1_l2;
+  MonitorElement* theCSCPad_phipad[2][3][2];
 
+  MonitorElement* theCSCPad[2][3][2];
 
-  MonitorElement* theCSCPad_rm1_l1;
-  MonitorElement* theCSCPad_rm1_l2;
-  MonitorElement* theCSCPad_rp1_l1;
-  MonitorElement* theCSCPad_rp1_l2;
-
-
-  MonitorElement* theCSCPad_bx_rm1_l1;
-  MonitorElement* theCSCPad_bx_rm1_l2;
-  MonitorElement* theCSCPad_bx_rp1_l1;
-  MonitorElement* theCSCPad_bx_rp1_l2;
-
+  MonitorElement* theCSCPad_bx[2][3][2];
 
   MonitorElement* theCSCPad_zr_rm1;
   MonitorElement* theCSCPad_zr_rp1;

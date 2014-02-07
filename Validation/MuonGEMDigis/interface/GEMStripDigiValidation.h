@@ -25,28 +25,13 @@ public:
 
  private:
 
-  MonitorElement* theStrip_xy_rm1_l1;
-  MonitorElement* theStrip_xy_rm1_l2;
-  MonitorElement* theStrip_xy_rp1_l1;
-  MonitorElement* theStrip_xy_rp1_l2;
+  MonitorElement* theStrip_xy[2][3][2];
 
-  MonitorElement* theStrip_phistrip_rm1_l1;
-  MonitorElement* theStrip_phistrip_rm1_l2;
-  MonitorElement* theStrip_phistrip_rp1_l1;
-  MonitorElement* theStrip_phistrip_rp1_l2;
+  MonitorElement* theStrip_phistrip[2][3][2];
 
+  MonitorElement* theStrip[2][3][2];
 
-  MonitorElement* theStrip_rm1_l1;
-  MonitorElement* theStrip_rm1_l2;
-  MonitorElement* theStrip_rp1_l1;
-  MonitorElement* theStrip_rp1_l2;
-
-
-  MonitorElement* theStrip_bx_rm1_l1;
-  MonitorElement* theStrip_bx_rm1_l2;
-  MonitorElement* theStrip_bx_rp1_l1;
-  MonitorElement* theStrip_bx_rp1_l2;
-
+  MonitorElement* theStrip_bx[2][3][2];
 
   MonitorElement* theStrip_zr_rm1;
   MonitorElement* theStrip_zr_rp1;
