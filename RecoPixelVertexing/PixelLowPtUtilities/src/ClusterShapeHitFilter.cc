@@ -276,7 +276,7 @@ bool ClusterShapeHitFilter::getSizes
     meas.clear();
     assert(meas.capacity() >= std::distance(sizeRange.first, sizeRange.second));
     for(auto s=sizeRange.first; s != sizeRange.second; ++s) {
-      meas.push_back(*s);
+      meas.push_back_unchecked(*s);
     }
     if(sizeRange.first->second < 0) {
       for(auto& s: meas)

@@ -194,7 +194,7 @@ void ClusterShape::determineShape
       if(odir != 0) dy *= odir;
   
       pair<int,int> s(dx,dy);
-      data.size.push_back(s); 
+      data.size.push_back_unchecked(s);
     }
   }
 }
