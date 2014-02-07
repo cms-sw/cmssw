@@ -9,10 +9,12 @@
 
 */
 
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
 #include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
@@ -20,13 +22,40 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 
-//static const float AVERAGE_GEM_Z(587.5); // [cm]
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+
+inline bool is_gem(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::GEM;
+}
+
+inline bool is_csc(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::CSC;
+}
+
+inline bool is_rpc(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::RPC;
+}
+
+inline bool is_me0(unsigned int detId) {
+  return (DetId(detId)).subdetId() == MuonSubdetId::ME0;
+}
+
 static const float AVERAGE_GEM_Z(568.6); // [cm]
+static const float AVERAGE_GE11_ODD_Z(568.6); // [cm]
+static const float AVERAGE_GE11_EVEN_Z(568.6); // [cm]
+static const float AVERAGE_GE21_LONG_Z(568.6); // [cm]
+static const float AVERAGE_GE21_SHORT_Z(568.6); // [cm]
+static const float AVERAGE_ME0_Z(568.6); // [cm]
 
 class BaseMatcher
 {
@@ -116,6 +145,10 @@ public:
   edm::ESHandle<MagneticField> magfield_;
   edm::ESHandle<Propagator> propagator_;
   edm::ESHandle<Propagator> propagatorOpposite_;
+  edm::ESHandle<CSCGeometry> csc_geom;
+  edm::ESHandle<RPCGeometry> rpc_geom;
+  edm::ESHandle<GEMGeometry> gem_geom;
+  edm::ESHandle<ME0Geometry> me0_geom;
 };
 
 #endif
