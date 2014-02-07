@@ -8,46 +8,52 @@ GEMHitAssociator::GEMHitAssociator(const edm::Event& e, const edm::EventSetup& e
   GEMdigisimlinkTag(conf.getParameter<edm::InputTag>("GEMdigisimlinkTag")),
   // CrossingFrame used or not ?
   crossingframe(conf.getParameter<bool>("crossingframe")),
+  useGEMs_(conf.getParameter<bool>("useGEMs")),
   GEMsimhitsTag(conf.getParameter<edm::InputTag>("GEMsimhitsTag")),
   GEMsimhitsXFTag(conf.getParameter<edm::InputTag>("GEMsimhitsXFTag"))
 
 {
-  if (crossingframe) {
-    
-    edm::Handle<CrossingFrame<PSimHit> > cf;
-    LogTrace("GEMHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<GEMsimhitsXFTag;
-    e.getByLabel(GEMsimhitsXFTag, cf);
-    
-    std::auto_ptr<MixCollection<PSimHit> > 
-      GEMsimhits( new MixCollection<PSimHit>(cf.product()) );
-    LogTrace("GEMHitAssociator") <<"... size = "<<GEMsimhits->size();
 
-    //   MixCollection<PSimHit> & simHits = *hits;
-    
-    for(MixCollection<PSimHit>::MixItr hitItr = GEMsimhits->begin();
-	hitItr != GEMsimhits->end(); ++hitItr) 
-      {
-	_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
-      }
-    
-  } else if (!GEMsimhitsTag.label().empty()) {
-    edm::Handle<edm::PSimHitContainer> GEMsimhits;
-    LogTrace("GEMHitAssociator") <<"getting PSimHit collection - "<<GEMsimhitsTag;
-    e.getByLabel(GEMsimhitsTag, GEMsimhits);    
-    LogTrace("GEMHitAssociator") <<"... size = "<<GEMsimhits->size();
-    
-    // arrange the hits by detUnit
-    for(edm::PSimHitContainer::const_iterator hitItr = GEMsimhits->begin();
-	hitItr != GEMsimhits->end(); ++hitItr)
-      {
-	_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
-      }
+  if(useGEMs_){
+
+	  if (crossingframe) {
+	    
+	    edm::Handle<CrossingFrame<PSimHit> > cf;
+	    LogTrace("GEMHitAssociator") <<"getting CrossingFrame<PSimHit> collection - "<<GEMsimhitsXFTag;
+	    e.getByLabel(GEMsimhitsXFTag, cf);
+	    
+	    std::auto_ptr<MixCollection<PSimHit> > 
+	      GEMsimhits( new MixCollection<PSimHit>(cf.product()) );
+	    LogTrace("GEMHitAssociator") <<"... size = "<<GEMsimhits->size();
+
+	    //   MixCollection<PSimHit> & simHits = *hits;
+	    
+	    for(MixCollection<PSimHit>::MixItr hitItr = GEMsimhits->begin();
+		hitItr != GEMsimhits->end(); ++hitItr) 
+	      {
+		_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+	      }
+	    
+	  } else if (!GEMsimhitsTag.label().empty()) {
+	    edm::Handle<edm::PSimHitContainer> GEMsimhits;
+	    LogTrace("GEMHitAssociator") <<"getting PSimHit collection - "<<GEMsimhitsTag;
+	    e.getByLabel(GEMsimhitsTag, GEMsimhits);    
+	    LogTrace("GEMHitAssociator") <<"... size = "<<GEMsimhits->size();
+	    
+	    // arrange the hits by detUnit
+	    for(edm::PSimHitContainer::const_iterator hitItr = GEMsimhits->begin();
+		hitItr != GEMsimhits->end(); ++hitItr)
+	      {
+		_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+	      }
+	  }
+
+	  edm::Handle<DigiSimLinks> digiSimLinks;
+	  LogTrace("GEMHitAssociator") <<"getting GEM Strip DigiSimLink collection - "<<GEMdigisimlinkTag;
+	  e.getByLabel(GEMdigisimlinkTag, digiSimLinks);
+	  theDigiSimLinks = digiSimLinks.product();
+
   }
-
-  edm::Handle<DigiSimLinks> digiSimLinks;
-  LogTrace("GEMHitAssociator") <<"getting GEM Strip DigiSimLink collection - "<<GEMdigisimlinkTag;
-  e.getByLabel(GEMdigisimlinkTag, digiSimLinks);
-  theDigiSimLinks = digiSimLinks.product();
 
 }
 // end of constructor
@@ -56,39 +62,45 @@ std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(cons
   
   std::vector<SimHitIdpr> matched;
 
-  const TrackingRecHit * hitp = &hit;
-  const GEMRecHit * gemrechit = dynamic_cast<const GEMRecHit *>(hitp);
+  if(useGEMs_){
+	
+	  std::cout<<"gemboo "<<useGEMs_<<std::endl;
 
-  if (gemrechit) {
-    
-    GEMDetId gemDetId = gemrechit->gemId();
-    int fstrip = gemrechit->firstClusterStrip();
-    int cls = gemrechit->clusterSize();
-    //int bx = gemrechit->BunchX();
+	  const TrackingRecHit * hitp = &hit;
+	  const GEMRecHit * gemrechit = dynamic_cast<const GEMRecHit *>(hitp);
 
-    DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(gemDetId);
+	  if (gemrechit) {
+	    
+	    GEMDetId gemDetId = gemrechit->gemId();
+	    int fstrip = gemrechit->firstClusterStrip();
+	    int cls = gemrechit->clusterSize();
+	    //int bx = gemrechit->BunchX();
 
-    if (layerLinks != theDigiSimLinks->end()) {
-    
-	for(int i = fstrip; i < (fstrip+cls); ++i) {
-		      
-		for(LayerLinks::const_iterator itlink = layerLinks->begin(); itlink != layerLinks->end(); ++itlink) {
+	    DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(gemDetId);
 
-	  		int ch = static_cast<int>(itlink->channel());
-			if(ch != i) continue;
+	    if (layerLinks != theDigiSimLinks->end()) {
+	    
+		for(int i = fstrip; i < (fstrip+cls); ++i) {
+			      
+			for(LayerLinks::const_iterator itlink = layerLinks->begin(); itlink != layerLinks->end(); ++itlink) {
 
-			SimHitIdpr currentId(itlink->SimTrackId(), itlink->eventId());
-			if(find(matched.begin(),matched.end(),currentId ) == matched.end())
-				matched.push_back(currentId);
+		  		int ch = static_cast<int>(itlink->channel());
+				if(ch != i) continue;
+
+				SimHitIdpr currentId(itlink->SimTrackId(), itlink->eventId());
+				if(find(matched.begin(),matched.end(),currentId ) == matched.end())
+					matched.push_back(currentId);
+
+			}
 
 		}
 
-	}
+	    }else edm::LogWarning("GEMHitAssociator")
+	      <<"*** WARNING in GEMHitAssociator: GEM layer "<<gemDetId<<" has no DigiSimLinks !"<<std::endl;
+	    
+	  } else edm::LogWarning("GEMHitAssociator")<<"*** WARNING in GEMHitAssociator::associateRecHit, null dynamic_cast !";
 
-    }else edm::LogWarning("GEMHitAssociator")
-      <<"*** WARNING in GEMHitAssociator: GEM layer "<<gemDetId<<" has no DigiSimLinks !"<<std::endl;
-    
-  } else edm::LogWarning("GEMHitAssociator")<<"*** WARNING in GEMHitAssociator::associateRecHit, null dynamic_cast !";
+  }
   
   return  matched;
 

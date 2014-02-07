@@ -26,8 +26,8 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     pdgIdTP = cms.vint32(13,-13),
     minHitTP = cms.int32(0),
     ptMinTP = cms.double(0.9),
-    minRapidityTP = cms.double(1.64),
-    maxRapidityTP = cms.double(2.1),
+    minRapidityTP = cms.double(-2.5),
+    maxRapidityTP = cms.double(2.5),
     tipTP = cms.double(3.5),
     lipTP = cms.double(30.0),
     # collision like tracks
@@ -37,6 +37,7 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     #
     # if *not* uses associators, the TP-RecoTrack maps has to be specified 
     UseAssociators = cms.bool(False),
+    useGEMs = cms.bool(False),
     associators = cms.vstring('a_MuonAssociator'),
     associatormap = cms.InputTag("tpToMuonTrackAssociation"),
     #

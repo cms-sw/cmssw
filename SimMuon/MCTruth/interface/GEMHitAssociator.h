@@ -46,11 +46,12 @@ class GEMHitAssociator {
 
  private:
 
-   const DigiSimLinks  * theDigiSimLinks;
+   const DigiSimLinks * theDigiSimLinks;
 
    edm::InputTag GEMdigisimlinkTag;
  
    bool crossingframe;
+   bool useGEMs_;
    edm::InputTag GEMsimhitsTag;
    edm::InputTag GEMsimhitsXFTag;
 
