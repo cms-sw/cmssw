@@ -34,9 +34,6 @@ class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
 	edm::ConsumesCollector && iC);
   ~PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo();
 
-  void init();
-  void clear();
-
   void analyze(const edm::Event & event, const edm::EventSetup & setup);
   TrajectorySeedCollection* getTrajectorySeedCollection(){return seedCollection;}
 

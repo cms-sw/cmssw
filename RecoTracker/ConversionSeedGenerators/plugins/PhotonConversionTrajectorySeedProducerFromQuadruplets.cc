@@ -17,12 +17,9 @@ class PhotonConversionTrajectorySeedProducerFromQuadruplets : public edm::EDProd
 public:
   PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& );
   ~PhotonConversionTrajectorySeedProducerFromQuadruplets(){}
-  void beginRun(edm::Run const&run, const edm::EventSetup& es) override;
-  void endRun(edm::Run const&run, const edm::EventSetup& es) override;
   void produce(edm::Event& , const edm::EventSetup& ) override;
 
 private:
-  edm::ParameterSet _conf;
   std::string _newSeedCandidates;
   PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo *_theFinder;
 };
@@ -30,27 +27,13 @@ private:
 
 PhotonConversionTrajectorySeedProducerFromQuadruplets::
 PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& conf)
-  : _conf(conf),
-    _newSeedCandidates(conf.getParameter<std::string>( "newSeedCandidates"))
+  : _newSeedCandidates(conf.getParameter<std::string>( "newSeedCandidates"))
 {
   _theFinder = new PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(conf,
 	consumesCollector());
   produces<TrajectorySeedCollection>(_newSeedCandidates);
 
 }
-
-
-void PhotonConversionTrajectorySeedProducerFromQuadruplets::
-endRun(edm::Run const&run, const edm::EventSetup& es) {
-  _theFinder->clear();
-}
-
-void PhotonConversionTrajectorySeedProducerFromQuadruplets::
-beginRun(edm::Run const&run, const edm::EventSetup& es)
-{
-  _theFinder->init();
-}
-
 
 void PhotonConversionTrajectorySeedProducerFromQuadruplets::produce(edm::Event& ev, const edm::EventSetup& es)
 {
