@@ -30,7 +30,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
@@ -129,13 +129,17 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapRecHit_token_;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEvent_token_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpot_token_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  std::string   valueMapPhoPFCandIso_ ;
   
+
   std::string fName_;
   int verbosity_;
 
   bool useTriggerFiltering_;
   bool splitHistosEBEE_;
   bool use2DHistos_;
+  bool makeProfiles_;
   unsigned int prescaleFactor_;
   bool standAlone_;
   std::string outputFileName_;
@@ -175,279 +179,130 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   float maxMumuGammaInvMass_;
 
   float mumuInvMass( const reco::Muon & m1,const reco::Muon & m2 ) ;
-  float mumuGammaInvMass(const reco::Muon & mu1,const reco::Muon & mu2, const reco::Photon& pho );
+  float mumuGammaInvMass(const reco::Muon & mu1,const reco::Muon & mu2, const reco::PhotonRef& pho );
   bool  basicMuonSelection (  const reco::Muon & m );
   bool  muonSelection (  const reco::Muon & m,  const reco::BeamSpot& bs );
-  bool  photonSelection (  const reco::Photon & p );
+  bool  photonSelection (  const reco::PhotonRef & p );
 
 
   ///photon histos
-  MonitorElement* h1_mumuInvMass_;
-  MonitorElement* h1_mumuGammaInvMass_;
+  MonitorElement* h1_mumuInvMass_[3];
+  MonitorElement* h1_mumuGammaInvMass_[3];
 
-  MonitorElement* h_phoE_;
-  MonitorElement* h_phoEt_;
+  MonitorElement* h_phoE_[3];
+  MonitorElement* h_phoEt_[3];
 
-  MonitorElement* h_nPho_;
+  MonitorElement* h_nPho_[3];
 
-  MonitorElement* h_phoEta_;
-  MonitorElement* h_phoPhi_;
-  MonitorElement* h_scEta_;
-  MonitorElement* h_scPhi_;
+  MonitorElement* h_phoEta_[3];
+  MonitorElement* h_phoPhi_[3];
+  MonitorElement* h_scEta_[3];
+  MonitorElement* h_scPhi_[3];
 
-  MonitorElement* h_r9_;
-  MonitorElement* h_r9VsEt_;
-  MonitorElement* p_r9VsEt_;
-  MonitorElement* h_r9VsEta_;
-  MonitorElement* p_r9VsEta_;
+  MonitorElement* h_r9_[3];
+  MonitorElement* h2_r9VsEt_[3];
+  MonitorElement* p_r9VsEt_[3];
+  MonitorElement* h2_r9VsEta_[3];
+  MonitorElement* p_r9VsEta_[3];
 
-  MonitorElement* h_e1x5VsEta_;
-  MonitorElement* p_e1x5VsEta_;
-  MonitorElement* h_e1x5VsEt_;
-  MonitorElement* p_e1x5VsEt_;
+  MonitorElement* h_e1x5_[3];
+  MonitorElement* h2_e1x5VsEta_[3];
+  MonitorElement* p_e1x5VsEta_[3];
+  MonitorElement* h2_e1x5VsEt_[3];
+  MonitorElement* p_e1x5VsEt_[3];
         
-  MonitorElement* h_e2x5VsEta_;
-  MonitorElement* p_e2x5VsEta_;
-  MonitorElement* h_e2x5VsEt_;
-  MonitorElement* p_e2x5VsEt_;
+  MonitorElement* h_e2x5_[3];
+  MonitorElement* h2_e2x5VsEta_[3];
+  MonitorElement* p_e2x5VsEta_[3];
+  MonitorElement* h2_e2x5VsEt_[3];
+  MonitorElement* p_e2x5VsEt_[3];
   
-  MonitorElement* h_r1x5VsEta_;
-  MonitorElement* p_r1x5VsEta_;
-  MonitorElement* h_r1x5VsEt_;
-  MonitorElement* p_r1x5VsEt_;
+  MonitorElement* h_r1x5_[3];
+  MonitorElement* h2_r1x5VsEta_[3];
+  MonitorElement* p_r1x5VsEta_[3];
+  MonitorElement* h2_r1x5VsEt_[3];
+  MonitorElement* p_r1x5VsEt_[3];
         
-  MonitorElement* h_r2x5VsEta_;
-  MonitorElement* p_r2x5VsEta_;
-  MonitorElement* h_r2x5VsEt_;
-  MonitorElement* p_r2x5VsEt_;
+  MonitorElement* h_r2x5_[3];
+  MonitorElement* h2_r2x5VsEta_[3];
+  MonitorElement* p_r2x5VsEta_[3];
+  MonitorElement* h2_r2x5VsEt_[3];
+  MonitorElement* p_r2x5VsEt_[3];
         
-  MonitorElement* h_maxEXtalOver3x3VsEta_;
-  MonitorElement* p_maxEXtalOver3x3VsEta_;
-  MonitorElement* h_maxEXtalOver3x3VsEt_;
-  MonitorElement* p_maxEXtalOver3x3VsEt_;
+  MonitorElement* h_phoSigmaIetaIeta_[3];
+  MonitorElement* h2_sigmaIetaIetaVsEta_[3]; 
+  MonitorElement* p_sigmaIetaIetaVsEta_[3];
 
-  MonitorElement* h_phoSigmaIetaIeta_;
-  MonitorElement* h_sigmaIetaIetaVsEta_; 
-  MonitorElement* p_sigmaIetaIetaVsEta_;
-
-  MonitorElement* h_nTrackIsolSolid_;     
-  MonitorElement* h_nTrackIsolSolidVsEt_; 
-  MonitorElement* p_nTrackIsolSolidVsEt_; 
-  MonitorElement* h_nTrackIsolSolidVsEta_;
-  MonitorElement* p_nTrackIsolSolidVsEta_;
+  MonitorElement* h_nTrackIsolSolid_[3];     
+  MonitorElement* h2_nTrackIsolSolidVsEt_[3]; 
+  MonitorElement* p_nTrackIsolSolidVsEt_[3]; 
+  MonitorElement* h2_nTrackIsolSolidVsEta_[3];
+  MonitorElement* p_nTrackIsolSolidVsEta_[3];
   
-  MonitorElement* h_nTrackIsolHollow_;    
-  MonitorElement* h_nTrackIsolHollowVsEt_; 
-  MonitorElement* p_nTrackIsolHollowVsEt_; 
-  MonitorElement* h_nTrackIsolHollowVsEta_;
-  MonitorElement* p_nTrackIsolHollowVsEta_;
+  MonitorElement* h_nTrackIsolHollow_[3];    
+  MonitorElement* h2_nTrackIsolHollowVsEt_[3]; 
+  MonitorElement* p_nTrackIsolHollowVsEt_[3]; 
+  MonitorElement* h2_nTrackIsolHollowVsEta_[3];
+  MonitorElement* p_nTrackIsolHollowVsEta_[3];
   
-  MonitorElement* h_trackPtSumSolid_;      
-  MonitorElement* h_trackPtSumSolidVsEt_;  
-  MonitorElement* p_trackPtSumSolidVsEt_;  
-  MonitorElement* h_trackPtSumSolidVsEta_; 
-  MonitorElement* p_trackPtSumSolidVsEta_; 
+  MonitorElement* h_trackPtSumSolid_[3];      
+  MonitorElement* h2_trackPtSumSolidVsEt_[3];  
+  MonitorElement* p_trackPtSumSolidVsEt_[3];  
+  MonitorElement* h2_trackPtSumSolidVsEta_[3]; 
+  MonitorElement* p_trackPtSumSolidVsEta_[3]; 
  
-  MonitorElement* h_trackPtSumHollow_;     
-  MonitorElement* h_trackPtSumHollowVsEt_; 
-  MonitorElement* p_trackPtSumHollowVsEt_; 
-  MonitorElement* h_trackPtSumHollowVsEta_; 
-  MonitorElement* p_trackPtSumHollowVsEta_; 
+  MonitorElement* h_trackPtSumHollow_[3];     
+  MonitorElement* h2_trackPtSumHollowVsEt_[3]; 
+  MonitorElement* p_trackPtSumHollowVsEt_[3]; 
+  MonitorElement* h2_trackPtSumHollowVsEta_[3]; 
+  MonitorElement* p_trackPtSumHollowVsEta_[3]; 
 
-  MonitorElement* h_ecalSum_;    
-  MonitorElement* h_ecalSumVsEt_;  
-  MonitorElement* p_ecalSumVsEt_;  
-  MonitorElement* h_ecalSumVsEta_; 
-  MonitorElement* p_ecalSumVsEta_; 
+  MonitorElement* h_ecalSum_[3];    
+  MonitorElement* h2_ecalSumVsEt_[3];  
+  MonitorElement* p_ecalSumVsEt_[3];  
+  MonitorElement* h2_ecalSumVsEta_[3]; 
+  MonitorElement* p_ecalSumVsEta_[3]; 
   
-  MonitorElement* h_hcalSum_;      
-  MonitorElement* h_hcalSumVsEt_;  
-  MonitorElement* p_hcalSumVsEt_;  
-  MonitorElement* h_hcalSumVsEta_; 
-  MonitorElement* p_hcalSumVsEta_; 
+  MonitorElement* h_hcalSum_[3];      
+  MonitorElement* h2_hcalSumVsEt_[3];  
+  MonitorElement* p_hcalSumVsEt_[3];  
+  MonitorElement* h2_hcalSumVsEta_[3]; 
+  MonitorElement* p_hcalSumVsEta_[3]; 
   
-  MonitorElement* h_hOverE_;       
-  MonitorElement* p_hOverEVsEt_;   
-  MonitorElement* p_hOverEVsEta_;  
-  MonitorElement* h_h1OverE_;      
-  MonitorElement* h_h2OverE_;      
+  MonitorElement* h_hOverE_[3];       
+  MonitorElement* p_hOverEVsEt_[3];   
+  MonitorElement* p_hOverEVsEta_[3];  
+  MonitorElement* h_h1OverE_[3];      
+  MonitorElement* h_h2OverE_[3];      
 
-  ///barrel only histos
-  MonitorElement* h_phoEBarrel_;
-  MonitorElement* h_phoEtBarrel_;
+  MonitorElement* h_newhOverE_[3];
+  MonitorElement* p_newhOverEVsEta_[3];
+  MonitorElement* p_newhOverEVsEt_[3];
+  // Information from Particle Flow
+  // Isolation
+  MonitorElement* h_chHadIso_[3];
+  MonitorElement* h_nHadIso_[3];
+  MonitorElement* h_phoIso_[3];
+  // Identification
+  MonitorElement* h_nCluOutsideMustache_[3];
+  MonitorElement* h_etOutsideMustache_[3];
+  MonitorElement* h_pfMva_[3];
+  //// particle based isolation from ValueMap
+  MonitorElement* h_dRPhoPFcand_ChHad_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_NeuHad_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_Pho_Cleaned_[3];
+  MonitorElement* h_dRPhoPFcand_ChHad_unCleaned_[3];
+  MonitorElement* h_dRPhoPFcand_NeuHad_unCleaned_[3];
+  MonitorElement* h_dRPhoPFcand_Pho_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_ChHad_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_NeuHad_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_Pho_Cleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_ChHad_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_NeuHad_unCleaned_[3];
+  MonitorElement* h_SumPtOverPhoPt_Pho_unCleaned_[3];
 
-  MonitorElement* h_nPhoBarrel_;
 
-  MonitorElement* h_phoEtaBarrel_;
-  MonitorElement* h_phoPhiBarrel_;
-  MonitorElement* h_scEtaBarrel_;
-  MonitorElement* h_scPhiBarrel_;
-
-  MonitorElement* h_r9Barrel_;
-  MonitorElement* h_r9VsEtBarrel_;
-  MonitorElement* p_r9VsEtBarrel_;
-  MonitorElement* h_r9VsEtaBarrel_;
-  MonitorElement* p_r9VsEtaBarrel_;
-
-  MonitorElement* h_e1x5VsEtaBarrel_;
-  MonitorElement* p_e1x5VsEtaBarrel_;
-  MonitorElement* h_e1x5VsEtBarrel_;
-  MonitorElement* p_e1x5VsEtBarrel_;
-        
-  MonitorElement* h_e2x5VsEtaBarrel_;
-  MonitorElement* p_e2x5VsEtaBarrel_;
-  MonitorElement* h_e2x5VsEtBarrel_;
-  MonitorElement* p_e2x5VsEtBarrel_;
   
-  MonitorElement* h_r1x5VsEtaBarrel_;
-  MonitorElement* p_r1x5VsEtaBarrel_;
-  MonitorElement* h_r1x5VsEtBarrel_;
-  MonitorElement* p_r1x5VsEtBarrel_;
-        
-  MonitorElement* h_r2x5VsEtaBarrel_;
-  MonitorElement* p_r2x5VsEtaBarrel_;
-  MonitorElement* h_r2x5VsEtBarrel_;
-  MonitorElement* p_r2x5VsEtBarrel_;
-        
-  MonitorElement* h_maxEXtalOver3x3VsEtaBarrel_;
-  MonitorElement* p_maxEXtalOver3x3VsEtaBarrel_;
-  MonitorElement* h_maxEXtalOver3x3VsEtBarrel_;
-  MonitorElement* p_maxEXtalOver3x3VsEtBarrel_;
-
-  MonitorElement* h_phoSigmaIetaIetaBarrel_;
-  MonitorElement* h_sigmaIetaIetaVsEtaBarrel_; 
-  MonitorElement* p_sigmaIetaIetaVsEtaBarrel_;
-
-  MonitorElement* h_nTrackIsolSolidBarrel_;     
-  MonitorElement* h_nTrackIsolSolidVsEtBarrel_; 
-  MonitorElement* p_nTrackIsolSolidVsEtBarrel_; 
-  MonitorElement* h_nTrackIsolSolidVsEtaBarrel_;
-  MonitorElement* p_nTrackIsolSolidVsEtaBarrel_;
-  
-  MonitorElement* h_nTrackIsolHollowBarrel_;    
-  MonitorElement* h_nTrackIsolHollowVsEtBarrel_; 
-  MonitorElement* p_nTrackIsolHollowVsEtBarrel_; 
-  MonitorElement* h_nTrackIsolHollowVsEtaBarrel_;
-  MonitorElement* p_nTrackIsolHollowVsEtaBarrel_;
-  
-  MonitorElement* h_trackPtSumSolidBarrel_;      
-  MonitorElement* h_trackPtSumSolidVsEtBarrel_;  
-  MonitorElement* p_trackPtSumSolidVsEtBarrel_;  
-  MonitorElement* h_trackPtSumSolidVsEtaBarrel_; 
-  MonitorElement* p_trackPtSumSolidVsEtaBarrel_; 
- 
-  MonitorElement* h_trackPtSumHollowBarrel_;     
-  MonitorElement* h_trackPtSumHollowVsEtBarrel_; 
-  MonitorElement* p_trackPtSumHollowVsEtBarrel_; 
-  MonitorElement* h_trackPtSumHollowVsEtaBarrel_; 
-  MonitorElement* p_trackPtSumHollowVsEtaBarrel_; 
-
-  MonitorElement* h_ecalSumBarrel_;    
-  MonitorElement* h_ecalSumVsEtBarrel_;  
-  MonitorElement* p_ecalSumVsEtBarrel_;  
-  MonitorElement* h_ecalSumVsEtaBarrel_; 
-  MonitorElement* p_ecalSumVsEtaBarrel_; 
-  
-  MonitorElement* h_hcalSumBarrel_;      
-  MonitorElement* h_hcalSumVsEtBarrel_;  
-  MonitorElement* p_hcalSumVsEtBarrel_;  
-  MonitorElement* h_hcalSumVsEtaBarrel_; 
-  MonitorElement* p_hcalSumVsEtaBarrel_; 
-  
-  MonitorElement* h_hOverEBarrel_;       
-  MonitorElement* p_hOverEVsEtBarrel_;   
-  MonitorElement* p_hOverEVsEtaBarrel_;  
-  MonitorElement* h_h1OverEBarrel_;      
-  MonitorElement* h_h2OverEBarrel_;      
-
-
-  ///endcap only histos
-  MonitorElement* h_phoEEndcap_;
-  MonitorElement* h_phoEtEndcap_;
-
-  MonitorElement* h_nPhoEndcap_;
-
-  MonitorElement* h_phoEtaEndcap_;
-  MonitorElement* h_phoPhiEndcap_;
-  MonitorElement* h_scEtaEndcap_;
-  MonitorElement* h_scPhiEndcap_;
-
-  MonitorElement* h_r9Endcap_;
-  MonitorElement* h_r9VsEtEndcap_;
-  MonitorElement* p_r9VsEtEndcap_;
-  MonitorElement* h_r9VsEtaEndcap_;
-  MonitorElement* p_r9VsEtaEndcap_;
-
-  MonitorElement* h_e1x5VsEtaEndcap_;
-  MonitorElement* p_e1x5VsEtaEndcap_;
-  MonitorElement* h_e1x5VsEtEndcap_;
-  MonitorElement* p_e1x5VsEtEndcap_;
-        
-  MonitorElement* h_e2x5VsEtaEndcap_;
-  MonitorElement* p_e2x5VsEtaEndcap_;
-  MonitorElement* h_e2x5VsEtEndcap_;
-  MonitorElement* p_e2x5VsEtEndcap_;
-  
-  MonitorElement* h_r1x5VsEtaEndcap_;
-  MonitorElement* p_r1x5VsEtaEndcap_;
-  MonitorElement* h_r1x5VsEtEndcap_;
-  MonitorElement* p_r1x5VsEtEndcap_;
-        
-  MonitorElement* h_r2x5VsEtaEndcap_;
-  MonitorElement* p_r2x5VsEtaEndcap_;
-  MonitorElement* h_r2x5VsEtEndcap_;
-  MonitorElement* p_r2x5VsEtEndcap_;
-        
-  MonitorElement* h_maxEXtalOver3x3VsEtaEndcap_;
-  MonitorElement* p_maxEXtalOver3x3VsEtaEndcap_;
-  MonitorElement* h_maxEXtalOver3x3VsEtEndcap_;
-  MonitorElement* p_maxEXtalOver3x3VsEtEndcap_;
-
-  MonitorElement* h_phoSigmaIetaIetaEndcap_;
-  MonitorElement* h_sigmaIetaIetaVsEtaEndcap_; 
-  MonitorElement* p_sigmaIetaIetaVsEtaEndcap_;
-
-  MonitorElement* h_nTrackIsolSolidEndcap_;     
-  MonitorElement* h_nTrackIsolSolidVsEtEndcap_; 
-  MonitorElement* p_nTrackIsolSolidVsEtEndcap_; 
-  MonitorElement* h_nTrackIsolSolidVsEtaEndcap_;
-  MonitorElement* p_nTrackIsolSolidVsEtaEndcap_;
-  
-  MonitorElement* h_nTrackIsolHollowEndcap_;    
-  MonitorElement* h_nTrackIsolHollowVsEtEndcap_; 
-  MonitorElement* p_nTrackIsolHollowVsEtEndcap_; 
-  MonitorElement* h_nTrackIsolHollowVsEtaEndcap_;
-  MonitorElement* p_nTrackIsolHollowVsEtaEndcap_;
-  
-  MonitorElement* h_trackPtSumSolidEndcap_;      
-  MonitorElement* h_trackPtSumSolidVsEtEndcap_;  
-  MonitorElement* p_trackPtSumSolidVsEtEndcap_;  
-  MonitorElement* h_trackPtSumSolidVsEtaEndcap_; 
-  MonitorElement* p_trackPtSumSolidVsEtaEndcap_; 
- 
-  MonitorElement* h_trackPtSumHollowEndcap_;     
-  MonitorElement* h_trackPtSumHollowVsEtEndcap_; 
-  MonitorElement* p_trackPtSumHollowVsEtEndcap_; 
-  MonitorElement* h_trackPtSumHollowVsEtaEndcap_; 
-  MonitorElement* p_trackPtSumHollowVsEtaEndcap_; 
-
-  MonitorElement* h_ecalSumEndcap_;    
-  MonitorElement* h_ecalSumVsEtEndcap_;  
-  MonitorElement* p_ecalSumVsEtEndcap_;  
-  MonitorElement* h_ecalSumVsEtaEndcap_; 
-  MonitorElement* p_ecalSumVsEtaEndcap_; 
-  
-  MonitorElement* h_hcalSumEndcap_;      
-  MonitorElement* h_hcalSumVsEtEndcap_;  
-  MonitorElement* p_hcalSumVsEtEndcap_;  
-  MonitorElement* h_hcalSumVsEtaEndcap_; 
-  MonitorElement* p_hcalSumVsEtaEndcap_; 
-  
-  MonitorElement* h_hOverEEndcap_;       
-  MonitorElement* p_hOverEVsEtEndcap_;   
-  MonitorElement* p_hOverEVsEtaEndcap_;  
-  MonitorElement* h_h1OverEEndcap_;      
-  MonitorElement* h_h2OverEEndcap_;      
 
 
 };
