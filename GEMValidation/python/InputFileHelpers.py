@@ -23,9 +23,7 @@ def addPileUp(process, pu = 140, filelist = def_filelist):
     return process
 
 ## helper for files on dCache/EOS (LPC)
-def useInputDir(process, suffix, onEOS = True):
-    from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
-    inputDir = files[suffix]
+def useInputDir(process, inputDir, onEOS = True):
     theInputFiles = []
     for d in range(len(inputDir)):
         my_dir = inputDir[d]
@@ -41,4 +39,5 @@ def useInputDir(process, suffix, onEOS = True):
         theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
                                                                                                         
     process.source.fileNames = cms.untracked.vstring(*theInputFiles)
+    print process.source.fileNames
     return process
