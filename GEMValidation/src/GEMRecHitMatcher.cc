@@ -1,11 +1,6 @@
 #include "GEMCode/GEMValidation/src/GEMRecHitMatcher.h"
 #include "GEMCode/GEMValidation/src/SimHitMatcher.h"
 
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-
 using namespace std;
 using namespace matching;
 
@@ -35,10 +30,6 @@ GEMRecHitMatcher::init()
   edm::Handle<GEMRecHitCollection> gem_rechits;
   event().getByLabel(gemRecHitInput_, gem_rechits);
   matchRecHitsToSimTrack(*gem_rechits.product());
-
-  edm::ESHandle<GEMGeometry> gem_g;
-  eventSetup().get<MuonGeometryRecord>().get(gem_g);
-  gem_geo_ = &*gem_g;
 }
 
 
@@ -196,8 +187,8 @@ GEMRecHitMatcher::recHitPosition(const RecHit& rechit) const
   if ( t == GEM_STRIP )
   {
     GEMDetId idd(id);
-    LocalPoint lp = gem_geo_->etaPartition(idd)->centreOfStrip(strip);
-    gp = gem_geo_->idToDet(id)->surface().toGlobal(lp);
+    LocalPoint lp = gemGeometry_->etaPartition(idd)->centreOfStrip(strip);
+    gp = gemGeometry_->idToDet(id)->surface().toGlobal(lp);
   }
 
   return gp;

@@ -73,7 +73,6 @@ private:
   edm::InputTag gemRecHitInput_;
 
   const SimHitMatcher* simhit_matcher_;
-  const GEMGeometry* gem_geo_;
 
   int minBXGEM_, maxBXGEM_;
 
