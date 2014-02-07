@@ -1,8 +1,6 @@
 #include "GEMDigiMatcher.h"
 #include "SimHitMatcher.h"
 
-#include "DataFormats/MuonDetId/interface/GEMDetId.h"
-
 using namespace std;
 using namespace matching;
 
