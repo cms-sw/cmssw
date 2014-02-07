@@ -11,13 +11,12 @@
 #include <string>
 #include <vector>
 
-class EventAction;
 class NewTrackAction;
 
 class StackingAction : public G4UserStackingAction {
 
 public:
-  StackingAction(EventAction* e, const edm::ParameterSet & ps);
+  StackingAction(const edm::ParameterSet & ps);
   virtual ~StackingAction();
 
   virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track * aTrack);
@@ -33,7 +32,7 @@ private:
   bool   isItLongLived(const G4Track*) const;
 
 private:
-  EventAction                   *eventAction_;
+
   bool                          savePDandCinTracker, savePDandCinCalo;
   bool                          savePDandCinMuon, saveFirstSecondary;
   bool                          killInCalo, killInCaloEfH;
