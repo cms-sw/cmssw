@@ -21,12 +21,8 @@ process.load('Configuration.Geometry.GeometryExtended2019_cff')
 ## GEM geometry customization
 use6part = True
 if use6part:
-# mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v5/gemf.xml')
-#   process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v5/gemf.xml')
-#   process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v2/gemf.xml')
-    mynum = process.XMLIdealGeometryESSource.geomXMLFiles.index('Geometry/MuonCommonData/data/v5/gem11.xml')
-    process.XMLIdealGeometryESSource.geomXMLFiles.remove('Geometry/MuonCommonData/data/v5/gem11.xml')
-    process.XMLIdealGeometryESSource.geomXMLFiles.insert(mynum,'Geometry/MuonCommonData/data/v2/gem11.xml')
+  from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
+  process = custom_GE11_6partitions_v1(process)
 
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
