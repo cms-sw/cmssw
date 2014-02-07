@@ -1207,8 +1207,8 @@ steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
 #data
 steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:com10',
-                   '--filetype':'DQM',
                    '--data':'',
+                   '--filetype':'DQM',
                    '--scenario':'pp'}
 
 steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:com10_%s'%menu}, steps['HARVESTD'] ])
@@ -1233,12 +1233,14 @@ steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
 steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:startup',
                    '--mc':'',
+                   '--filetype':'DQM',
                    '--scenario':'pp'}
 steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
                      '--conditions':'auto:startup',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
-                   '--scenario':'cosmics'}
+                     '--filetype':'DQM',
+                     '--scenario':'cosmics'}
 steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--conditions':'auto:upgradePLS1',
                      '--magField'  :'38T_PostLS1',
@@ -1246,23 +1248,27 @@ steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--filein'    :'file:step3_inDQM.root',
                      '--scenario'    :'cosmics',
                      '--filein':'file:step3_inDQM.root',
+                     '--filetype':'DQM',
                      '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                      }
 steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:startup',
                    '--mc':'',
+                    '--filetype':'DQM',
                    '--scenario':'pp'}
 steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:starthi_HIon',
-                   '--mc':'',
-                   '--scenario':'HeavyIons'}
+                    '--conditions':'auto:starthi_HIon',
+                    '--mc':'',
+                    '--filetype':'DQM',
+                    '--scenario':'HeavyIons'}
 
 #for phase1
 steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-		   '--geometry' : 'ExtendedPhaseIPixel'
+		   '--geometry' : 'ExtendedPhaseIPixel',
+                   '--filetype':'DQM'
                    }
 		   
 steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
@@ -1270,17 +1276,20 @@ steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # to
                    '--magField'    : '38T_PostLS1',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-		   '--geometry' : 'Extended2015'
+		   '--geometry' : 'Extended2015',
+                   '--filetype':'DQM',
                    }
 steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvestingFS',
                         '--conditions':'auto:upgradePLS1',
                         '--mc':'',
+                        '--filetype':'DQM',
                         '--scenario':'pp'}
 steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:upgradePLS1', 
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-		   '--geometry' : 'Extended2017'
+                   '--filetype':'DQM',
+                   '--geometry' : 'Extended2017'
                    }
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:com10',
