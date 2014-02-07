@@ -16,7 +16,7 @@ def customise(process):
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
-	n=0
+        n=0
         process=customise_Validation(process,float(n))
 
     return process
