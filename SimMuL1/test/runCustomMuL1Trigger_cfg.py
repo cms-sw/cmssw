@@ -72,12 +72,9 @@ from SimMuon.GEMDigitizer.customizeGEMDigi import *
 process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
 #process = customize_digi_addGEM_gem_only(process)  # only GEM digi
 
-
 ## GEM geometry customization
-use6part = True
-if use6part:
-  from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
-  process = custom_GE11_6partitions_v1(process)
+from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_6partitions_v1
+process = custom_GE11_6partitions_v1(process)
 
 ## upgrade CSC geometry customizations
 from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry, digitizer_timing_pre3_median
@@ -132,23 +129,8 @@ process.l1extraParticles.produceCaloParticles = cms.bool(False)
 process.l1extraParticles.ignoreHtMiss = cms.bool(False)
 
 ## add pile-up to the digi step
-if pu is not 0:
-    # list of MinBias files for pileup has to be provided
-    path = os.getenv( "CMSSW_BASE" ) + "/src/GEMCode/SimMuL1/test/"
-    ff = open('%sfilelist_minbias_61M_good.txt'%(path), "r")
-    pu_files = ff.read().split('\n')
-    ff.close()
-    pu_files = filter(lambda x: x.endswith('.root'),  pu_files)
-
-    process.mix.input = cms.SecSource("PoolSource",
-        nbPileupEvents = cms.PSet(
-             #### THIS IS AVERAGE PILEUP NUMBER THAT YOU NEED TO CHANGE
-            averageNumber = cms.double(pu)
-        ),
-        type = cms.string('poisson'),
-        sequential = cms.untracked.bool(False),
-        fileNames = cms.untracked.vstring(*pu_files)
-    )
+from GEMCode.GEMValidation.InputFileHelpers import addPileUp
+process = addPileUp(process, pu = 140)
 
 ## input commands
 process.source = cms.Source("PoolSource",
@@ -157,32 +139,13 @@ process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring('file:out_sim.root')
 )
 
-## use files given a list of input directories
-from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
-import os
-useInputDir = True
-if useInputDir:
-    suffix = '_pt2-50'
-    inputDir = files[suffix]
-    theInputFiles = []
-    for d in range(len(inputDir)):
-        my_dir = inputDir[d]
-        if not os.path.isdir(my_dir):
-            print "ERROR: This is not a valid directory: ", my_dir
-            if d==len(inputDir)-1:
-                print "ERROR: No input files were selected"
-                exit()
-            continue
-        print "Proceed to next directory"
-        ls = os.listdir(my_dir)
-        ## this works only if you pass the location on pnfs - FIXME for files staring with store/user/... 
-        theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
-    
-print "InputFiles: ", theInputFiles
+process.source.fileNames = cms.untracked.vstring('file:out_sim.root')
 
-process.source.fileNames = cms.untracked.vstring(
-    *theInputFiles
-)
+## input
+from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
+from GEMCode.GEMValidation.InputFileHelpers import useInputDir
+process = useInputDir(process, files['_gem98_pt2-50'], False)
+print "InputFiles: ", process.source.fileNames
 
 physics = True
 if not physics:
