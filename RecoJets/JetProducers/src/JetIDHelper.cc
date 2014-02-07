@@ -135,9 +135,18 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
   nECALTowers_ = it - Ecal_subtowers.begin(); // ignores negative energies from HF!
 
   // energy fractions
+  double max_HPD_energy = 0., max_RBX_energy = 0.;
+  std::vector<double>::const_iterator it_max_HPD_energy = std::max_element( HPD_energies.begin(), HPD_energies.end() );
+  std::vector<double>::const_iterator it_max_RBX_energy = std::max_element( RBX_energies.begin(), RBX_energies.end() );
+  if ( it_max_HPD_energy != HPD_energies.end() ) {
+    max_HPD_energy = *it_max_HPD_energy;
+  }
+  if ( it_max_RBX_energy != RBX_energies.end() ) {
+    max_RBX_energy = *it_max_RBX_energy;
+  }
   if( jet.energy() > 0 ) {
-    if( HPD_energies.size() > 0 ) approximatefHPD_ = HPD_energies.at( 0 ) / jet.energy();
-    if( RBX_energies.size() > 0 ) approximatefRBX_ = RBX_energies.at( 0 ) / jet.energy();
+    if( HPD_energies.size() > 0 ) approximatefHPD_ = max_HPD_energy / jet.energy();
+    if( RBX_energies.size() > 0 ) approximatefRBX_ = max_HPD_energy / jet.energy();
   }
 
   // -----------------------
@@ -155,8 +164,8 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
 
     // energy fractions
     if( jet.energy() > 0 ) {
-      if( HPD_energies.size() > 0 ) fHPD_ = HPD_energies.at( 0 ) / jet.energy();
-      if( RBX_energies.size() > 0 ) fRBX_ = RBX_energies.at( 0 ) / jet.energy();
+      if( HPD_energies.size() > 0 ) fHPD_ = max_HPD_energy / jet.energy();
+      if( RBX_energies.size() > 0 ) fRBX_ = max_RBX_energy / jet.energy();
       if( subdet_energies.size() > 0 ) fSubDetector1_ = subdet_energies.at( 0 ) / jet.energy();
       if( subdet_energies.size() > 1 ) fSubDetector2_ = subdet_energies.at( 1 ) / jet.energy();
       if( subdet_energies.size() > 2 ) fSubDetector3_ = subdet_energies.at( 2 ) / jet.energy();
@@ -164,7 +173,7 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
       fLS_ = LS_bad_energy / jet.energy();
       fHFOOT_ = HF_OOT_energy / jet.energy();
 
-      if( sanity_checks_left_.load(std::memory_order_acquire) > 0 ) {
+      if( iDbg > 0 && sanity_checks_left_.load(std::memory_order_acquire) > 0 ) {
 	--sanity_checks_left_;
 	double EH_sum = accumulate( Ecal_energies.begin(), Ecal_energies.end(), 0. );
 	EH_sum = accumulate( Hcal_energies.begin(), Hcal_energies.end(), EH_sum );
@@ -406,18 +415,18 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
   Ecal_energies.insert( Ecal_energies.end(), EE_energies.begin(), EE_energies.end() );
 
   // sort the energies
-  std::sort( Hcal_energies.begin(), Hcal_energies.end(), greater<double>() );
-  std::sort( Ecal_energies.begin(), Ecal_energies.end(), greater<double>() );
+  // std::sort( Hcal_energies.begin(), Hcal_energies.end(), greater<double>() );
+  // std::sort( Ecal_energies.begin(), Ecal_energies.end(), greater<double>() );
 
   // put the energy sums (the 2nd entry in each pair of the maps) into the output vectors and sort them
   std::transform( HPD_energy_map.begin(), HPD_energy_map.end(), 
 		  std::inserter (HPD_energies, HPD_energies.end()), select2nd ); 
   //		  std::select2nd<std::map<int,double>::value_type>());
-  std::sort( HPD_energies.begin(), HPD_energies.end(), greater<double>() );
+  // std::sort( HPD_energies.begin(), HPD_energies.end(), greater<double>() );
   std::transform( RBX_energy_map.begin(), RBX_energy_map.end(), 
 		  std::inserter (RBX_energies, RBX_energies.end()), select2nd );
   //		  std::select2nd<std::map<int,double>::value_type>());
-  std::sort( RBX_energies.begin(), RBX_energies.end(), greater<double>() );
+  // std::sort( RBX_energies.begin(), RBX_energies.end(), greater<double>() );
 
   energies.insert( energies.end(), Hcal_energies.begin(), Hcal_energies.end() );
   energies.insert( energies.end(), Ecal_energies.begin(), Ecal_energies.end() );
@@ -547,18 +556,18 @@ void reco::helper::JetIDHelper::classifyJetTowers( const edm::Event& event, cons
   } // loop on towers
 
   // sort the subtowers
-  std::sort( Hcal_subtowers.begin(), Hcal_subtowers.end(), subtower_has_greater_E );
-  std::sort( Ecal_subtowers.begin(), Ecal_subtowers.end(), subtower_has_greater_E );
+  // std::sort( Hcal_subtowers.begin(), Hcal_subtowers.end(), subtower_has_greater_E );
+  // std::sort( Ecal_subtowers.begin(), Ecal_subtowers.end(), subtower_has_greater_E );
 
   // put the energy sums (the 2nd entry in each pair of the maps) into the output vectors and sort them
   std::transform( HPD_energy_map.begin(), HPD_energy_map.end(), 
 		  std::inserter (HPD_energies, HPD_energies.end()), select2nd ); 
   //		  std::select2nd<std::map<int,double>::value_type>());
-  std::sort( HPD_energies.begin(), HPD_energies.end(), greater<double>() );
+  // std::sort( HPD_energies.begin(), HPD_energies.end(), greater<double>() );
   std::transform( RBX_energy_map.begin(), RBX_energy_map.end(), 
 		  std::inserter (RBX_energies, RBX_energies.end()), select2nd );
   //		  std::select2nd<std::map<int,double>::value_type>());
-  std::sort( RBX_energies.begin(), RBX_energies.end(), greater<double>() );
+  // std::sort( RBX_energies.begin(), RBX_energies.end(), greater<double>() );
 
   subtowers.insert( subtowers.end(), Hcal_subtowers.begin(), Hcal_subtowers.end() );
   subtowers.insert( subtowers.end(), Ecal_subtowers.begin(), Ecal_subtowers.end() );
