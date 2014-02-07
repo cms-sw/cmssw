@@ -5,6 +5,8 @@ from DQMOffline.EGamma.zmumugammaAnalyzer_cfi import *
 from DQMOffline.EGamma.piZeroAnalyzer_cfi import *
 from DQMOffline.EGamma.electronAnalyzerSequence_cff import *
 
+import DQMOffline.EGamma.zmumugammaAnalyzer_cfi
+
 photonAnalysis.OutputMEsInRootFile = cms.bool(False)
 photonAnalysis.Verbosity = cms.untracked.int32(0)
 photonAnalysis.standAlone = cms.bool(False)
@@ -13,6 +15,15 @@ piZeroAnalysis.OutputMEsInRootFile = cms.bool(False)
 piZeroAnalysis.Verbosity = cms.untracked.int32(0)
 piZeroAnalysis.standAlone = cms.bool(False)
 
-egammaDQMOffline = cms.Sequence(photonAnalysis*zmumugammaAnalysis*piZeroAnalysis*electronAnalyzerSequence)
+
+zmumugammaOldAnalysis = DQMOffline.EGamma.zmumugammaAnalyzer_cfi.zmumugammaAnalysis.clone()
+zmumugammaOldAnalysis.ComponentName = cms.string('zmumugammaOldAnalysis')
+zmumugammaOldAnalysis.analyzerName = cms.string('zmumugammaOldValidation')
+zmumugammaOldAnalysis.phoProducer = cms.InputTag('photons')
+
+
+
+
+egammaDQMOffline = cms.Sequence(photonAnalysis*zmumugammaOldAnalysis*zmumugammaAnalysis*piZeroAnalysis*electronAnalyzerSequence)
 
 
