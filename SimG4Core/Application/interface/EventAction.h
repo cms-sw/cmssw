@@ -17,7 +17,7 @@
 #include <vector>
 #include <map>
  
-class RunManager;
+class SimRunInterface;
 class BeginOfEvent;
 class EndOfEvent;
  
@@ -26,7 +26,7 @@ class EventAction: public G4UserEventAction
 public:
 
     EventAction(const edm::ParameterSet& ps,
-                RunManager*,
+                SimRunInterface*,
 		SimTrackManager*);
     ~EventAction();
 
@@ -47,7 +47,7 @@ public:
 
 private:
     //does not own the manager
-    RunManager*      m_runManager;
+    SimRunInterface* m_runInterface;
     SimTrackManager* m_trackManager;
     std::string m_stopFile;
     bool m_debug;
