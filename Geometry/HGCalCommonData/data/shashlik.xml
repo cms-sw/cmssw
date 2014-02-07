@@ -41,15 +41,18 @@
  <Algorithm name="shashlik:DDShashlikEndcap">
   <rParent name="SHCalEE"/>
   <String name="ChildName" value="shashliksupermodule:ShashlikSupermodule"/>
-  <Numeric name="n" value="25"/>
+  <Numeric name="n" value="19"/>
   <Numeric name="startCopyNo" value="1"/>
   <Numeric name="incrCopyNo"  value="1"/>
   <Numeric name="invert"      value="1"/>
-  <Numeric name="stepAngle"   value="atan((2.5*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]) ) / [shashlikmodule:moduleThickness] )"/>
+  <Numeric name="rMin"	      value="[rMinSHCal1]+[shashlikmodule:widthFront]"/>
+  <Numeric name="rMax"	      value="[rMaxSHCal1]"/>  
+  <Numeric name="stepAngle"   value="30.*deg"/>
+  <Numeric name="tiltAngle"   value="atan((2.5*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]) ) / [shashlikmodule:moduleThickness] )"/>
   <Numeric name="startAngle"  value="0*deg"/>
   <Numeric name="rPosition"   value="[rMinSHCal1]"/>
   <Numeric name="xyoffset"    value="2.5*([shashlikmodule:widthFront]+[shashlikmodule:widthBack])"/>
-  <Numeric name="zoffset"     value="[zSHCal1] + [shashlikmodule:moduleThickness] + [deltaZ]"/>
+  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashlikmodule:moduleThickness]"/>
  </Algorithm>
 
 </DDDefinition>
