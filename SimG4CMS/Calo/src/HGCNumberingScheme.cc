@@ -24,73 +24,75 @@ HGCNumberingScheme::~HGCNumberingScheme() {
 //
 uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, int &module, int &iz, G4ThreeVector &pos, float &dz, float &bl1, float &tl1, float &h1)
 {
-
-  //an ugly way of doing this
-  if(subdet == ForwardSubdetector::HGCEE)
-    {
-      if(layer>=int(gpar[1]) && layer<=int(gpar[2]))      layer = layer-gpar[1];
-      else if(layer>=int(gpar[3]) && layer<=int(gpar[4])) layer = layer-gpar[3]+(gpar[2]-gpar[1]+1);
-      else if(layer>=int(gpar[5]) && layer<=int(gpar[6])) layer = layer-gpar[5]+(gpar[4]-gpar[3]+1)+(gpar[2]-gpar[1]+1);
-      else	                                          edm::LogError("HGCSim") << "[HGCNumberingScheme] can't find EE bounds for layer #" << layer;
-    }
-  else
-    {
-    }
-
   
+  //check which phi sub-sector this hit belongs to
   std::pair<float,float> phi_r=fastmath::atan2r(pos.x(),pos.y());
-  int phiSector( phi_r.first>0 );
+  int phiSector( phi_r.first>0 );  
 
-  int icell(0);
-  float cellSize(gpar[0]);
-  if(h1!=0  && tl1!=bl1){
- 
-    float a=2*h1/(tl1-bl1);
-    float b=-(tl1+bl1)/(tl1-bl1)*h1;   
-    if(phi_r.first<0)  { a*=-1; }
-
-    int M = (int) 2*h1/cellSize;
-    int iM = (int) (fabs(pos.y())-bl1)/cellSize;
-    
-    float xM=fabs((pos.y()-b)/a);
-    int N=(int) xM/cellSize;
-    int iN=(int) fabs(pos.x())/cellSize;
-
-    if((iN>N || iM>M) && subdet == ForwardSubdetector::HGCEE)
-      {
-	edm::LogError("HGCSim") << "[HGCNumberingScheme] hit seems to be out of bounds cell=(" << iN << "," << iM << ")  while max is (" << N << "," << M << ")\n"
-				<< "\tLocal position: (" << pos.x() << "," << pos.y() << "," << pos.z() << ")\n"
-				<< "\tTrapezoid bl=" << bl1 << " tl=" << tl1 << " h=" << h1 << " @ layer " << layer;
-	iN=0;	iM=0;
-      }
-    
-    for(int iyM=0; iyM<iM; iyM++)
-      icell += (int)(cellSize*iyM-b)/(a*cellSize);
-    icell += iN;
-
-    if(icell>0xffff && subdet == ForwardSubdetector::HGCEE)
-      {
-	edm::LogError("HGCSim") << "[HGCNumberingScheme] cell id seems to be out of bounds cell id=" << icell << "\n"
-				<< "\tLocal position: (" << pos.x() << "," << pos.y() << "," << pos.z() << ")\n"
-				<< "\tTrapezoid bl=" << bl1 << " tl=" << tl1 << " h=" << h1 << " @ layer " << layer;
-      }    
-  }
-  else{
-    edm::LogError("HGCSim") << "[HGCNumberingScheme] failed to determine trapezoid bounds...assigning 0 to cell number\n";
-  }
+  //assign a cell number in the positive quadrant
+  int icell=assignCell(fabs(pos.x()), pos.y(), gpar[HGCCellSize], h1, bl1, tl1);
   
+  //check if it fits
+  if(icell>0xffff)
+    {
+      edm::LogError("HGCSim") << "[HGCNumberingScheme] cell id seems to be out of bounds cell id=" << icell << "\n"
+			      << "\tLocal position: (" << pos.x() << "," << pos.y() << "," << pos.z() << ")\n"
+			      << "\tTrapezoid bl=" << bl1 << " tl=" << tl1 << " h=" << h1 << " @ layer " << layer;
+    }    
+  
+  //build the index
   uint32_t index = (subdet == ForwardSubdetector::HGCEE ? 
 		    HGCEEDetId(subdet,iz,layer,module,phiSector,icell).rawId() : 
 		    HGCHEDetId(subdet,iz,layer,module,phiSector,icell).rawId() );
 
-
-// #ifdef DebugLog
-//   edm::LogInfo("HGCSim") << "HGCNumberingScheme det = " << subdet 
-// 			 << " module = " << module << " layer = " << layer
-// 			 << " zside = " << iz << " Cell = " << cellx << ":" 
-// 			 << celly << " packed index = 0x" << std::hex << index 
-// 			 << std::dec;
-// #endif
-
   return index;
+}
+
+//
+int HGCNumberingScheme::assignCell(float x, float y, float cellSize, float h, float bl, float tl)
+{
+  //linear parameterization of the trapezoid
+  float a=2*h/(tl-bl);
+  float b=-h*(tl+bl)/(tl-bl);
+  
+  //this is the cell # in the row and column
+  int kx=floor( fabs(x)/cellSize );
+  int ky=floor((y+h)/cellSize);
+  
+  //find the cell sequentially in the trapezoid
+  //notice the arithmetic sum can't be used as \sum floor(x) != floor( \sum x )
+  int icell(0);
+  for(int iky=0; iky<ky; iky++)
+    icell += floor( (iky*cellSize-h-b)/(a*cellSize) );
+  icell += kx;
+
+  //all done here
+  return icell;
+}
+
+//FIXME:still needs debugging
+std::map<int,std::pair<float,float> > HGCNumberingScheme::getCartesianMapFor(float h, float bl, float tl)
+{
+  std::map<int,std::pair<float,float> > localCoord;
+
+  float cellSize(gpar[HGCCellSize]);
+  int iCell(0);
+  int M = (int) 2*h/cellSize;
+  for(int i=0; i<M; i++)
+    {
+      float iy=i*cellSize;
+
+      float a=2*iy/(tl-bl);
+      float b=-(tl+bl)/(tl-bl)*h; 
+      float xM=a*iy+b;
+      int N=(int) xM/cellSize;
+
+      for(int j=0; j<N; j++, iCell++)
+	{
+	  float ix=a*iy+b;
+	  localCoord[iCell]=std::pair<float,float>(ix,iy);
+	}
+    }
+  
+  return localCoord;
 }

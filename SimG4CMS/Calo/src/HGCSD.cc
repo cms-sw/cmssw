@@ -117,12 +117,12 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
   G4Trap *layerSolid=(G4Trap *)solid;
     
   //FIXME urgently! no string parsing if possible
-  G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
+  //  G4String nameVolume = preStepPoint->GetPhysicalVolume()->GetName();
   ForwardSubdetector fwdSubdet(ForwardSubdetector::HGCEE);
-  if(nameVolume.find("HE")!=std::string::npos) fwdSubdet=ForwardSubdetector::HGCHE;
-  size_t pos=nameVolume.find("_")+1;
-  G4String layerStr=nameVolume.substr(pos,nameVolume.size()-1);
-  G4int copyNb=preStepPoint->GetPhysicalVolume()->GetCopyNo();
+  //  if(nameVolume.find("HE")!=std::string::npos) fwdSubdet=ForwardSubdetector::HGCHE;
+  //  size_t pos=nameVolume.find("_")+1;
+  //  G4String layerStr=nameVolume.substr(pos,nameVolume.size()-1);
+  //  G4int copyNb=preStepPoint->GetPhysicalVolume()->GetCopyNo();
 
   
   float dz(0), bl1(0),tl1(0),h1(0);
@@ -139,9 +139,21 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
 
   //get the det unit id with 
   ForwardSubdetector subdet =  fwdSubdet;
-  int layer  = atoi(layerStr.c_str());
-  int module = copyNb;
-  int iz     = (hitPoint.z() > 0) ? 1 : -1;
+  //  int layer  = atoi(layerStr.c_str());
+  //  int module = copyNb;
+  //  int iz     = (hitPoint.z() > 0) ? 1 : -1;
+
+  int layer  = touch->GetReplicaNumber(0);
+  int module = touch->GetReplicaNumber(1);
+  int iz     = touch->GetReplicaNumber(3)==1 ? 1 : -1;
+  
+  //  std::cout << "layer=" << layer << "=" << touch->GetReplicaNumber(0) << "\t"
+  //  	    << "mod="   << module << "=" << touch->GetReplicaNumber(1) << "\t"
+  //	    << "izplmin=" << iz  << "=" << touch->GetReplicaNumber(3) << std::endl; 
+  //    int layer    = (touch->GetReplicaNumber(0));
+  //  int module = (touch->GetReplicaNumber(1));
+  //  int izplmin = (touch->GetReplicaNumber(3)); 
+
   return setDetUnitId (subdet, layer, module, iz, localpos, dz, bl1, tl1, h1);
 }
 

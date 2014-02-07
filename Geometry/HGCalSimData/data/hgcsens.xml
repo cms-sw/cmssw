@@ -3,7 +3,7 @@
 
 <SpecParSection label="hgcsens.xml" eval="true">
   <SpecPar name="hgcee">
-    <PartSelector path="//EEsens_.*"/>
+    <PartSelector path="//HGCalEESensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
   </SpecPar>
