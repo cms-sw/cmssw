@@ -70,29 +70,27 @@ int HGCNumberingScheme::assignCell(float x, float y, float cellSize, float h, fl
   return icell;
 }
 
-//FIXME:still needs debugging
-std::map<int,std::pair<float,float> > HGCNumberingScheme::getCartesianMapFor(float h, float bl, float tl)
+//
+std::pair<float,float> HGCNumberingScheme::getLocalCoords(int cell, float cellSize, float h, float bl, float tl)
 {
-  std::map<int,std::pair<float,float> > localCoord;
-
-  float cellSize(gpar[HGCCellSize]);
-  int iCell(0);
-  int M = (int) 2*h/cellSize;
-  for(int i=0; i<M; i++)
+  //linear parameterization of the trapezoid
+  float a=2*h/(tl-bl);
+  float b=-h*(tl+bl)/(tl-bl);
+  
+  //find the y-row iteratively
+  int maxKy=floor(2*h/cellSize);
+  int ky(0),testCell(0);
+  for(int iky=0; iky<maxKy; iky++)
     {
-      float iy=i*cellSize;
-
-      float a=2*iy/(tl-bl);
-      float b=-(tl+bl)/(tl-bl)*h; 
-      float xM=a*iy+b;
-      int N=(int) xM/cellSize;
-
-      for(int j=0; j<N; j++, iCell++)
-	{
-	  float ix=a*iy+b;
-	  localCoord[iCell]=std::pair<float,float>(ix,iy);
-	}
+      int deltay( floor( (iky*cellSize-h-b)/(a*cellSize) ) );
+      if(testCell+deltay > cell) break;
+      testCell+=deltay;
+      ky++;
     }
   
-  return localCoord;
+  //find the x-column
+  int kx=cell-testCell;
+
+  //all done here (return centered at cell)
+  return std::pair<float,float>((kx+0.5)*cellSize,(ky+0.5)*cellSize-h);
 }

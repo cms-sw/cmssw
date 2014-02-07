@@ -35,9 +35,14 @@ public:
   int assignCell(float x, float y, float cellSize, float h, float bl, float tl);
 
   /**
-     @short returns a sequential cell to hit position map in a trapezoid surface defined by h,b,t
+     @short inverts the cell number in a trapezoid surface to local coordinates
    */
-  std::map<int,std::pair<float,float> > getCartesianMapFor(float h, float bl, float tl);
+  std::pair<float,float> getLocalCoords(int cell, float cellSize, float h, float bl, float tl);
+
+  /**
+     @short returns the cell size
+   */
+  inline float getCellSize() { return gpar.size()>0 ? gpar[HGCCellSize] : 0; }
 
 private:
   
