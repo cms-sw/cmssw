@@ -3,7 +3,6 @@
 
 #include <memory>
 #include "FWCore/Framework/interface/Event.h"
-// #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,12 +40,19 @@ class SimProducer;
 class G4SimEvent;
 class SimTrackManager;
 
+class RunAction;
+class EventAction;
+class TrackingAction;
+class SteppingAction;
+
 class DDDWorld;
 
 class G4RunManagerKernel;
 class G4Run;
 class G4Event;
-class G4UserRunAction;
+class RunAction;
+
+class SimRunInterface;
 
 class ExceptionHandler ;
 
@@ -73,6 +79,13 @@ public:
     std::vector<boost::shared_ptr<SimProducer> > producers() const {
        return m_producers;
     }
+
+    SimTrackManager* GetSimTrackManager();
+    void             Connect(RunAction*);
+    void             Connect(EventAction*);
+    void             Connect(TrackingAction*);
+    void             Connect(SteppingAction*);
+
 protected:
     G4Event * generateEvent( edm::Event& inpevt );
 
@@ -88,8 +101,6 @@ private:
     std::auto_ptr<PhysicsList> m_physicsList;
     PrimaryTransformer * m_primaryTransformer;
     bool m_managerInitialized;
-    //    bool m_geometryInitialized;
-    //    bool m_physicsInitialized;
     bool m_runInitialized;
     bool m_runTerminated;
     bool m_runAborted;
@@ -98,12 +109,13 @@ private:
     G4Run * m_currentRun;
     G4Event * m_currentEvent;
     G4SimEvent * m_simEvent;
-    G4UserRunAction * m_userRunAction;
+    RunAction * m_userRunAction;
+    SimRunInterface * m_runInterface;
+
     std::string m_PhysicsTablesDir;
     bool m_StorePhysicsTables;
     bool m_RestorePhysicsTables;
     int m_EvtMgrVerbosity;
-    //bool m_Override;
     bool m_check;
     edm::ParameterSet m_pGeometry;
     edm::ParameterSet m_pField;
