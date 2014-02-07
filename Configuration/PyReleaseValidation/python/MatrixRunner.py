@@ -60,7 +60,7 @@ class MatrixRunner(object):
     	    
     	    print '\nPreparing to run %s %s' % (wf.numId, item)
           
-    	    current = WorkFlowRunner(wf,noRun,dryRun,cafVeto)
+            current = WorkFlowRunner(wf,noRun,dryRun,cafVeto, opt.dasOptions)
     	    self.threadList.append(current)
     	    current.start()
             if not dryRun:
