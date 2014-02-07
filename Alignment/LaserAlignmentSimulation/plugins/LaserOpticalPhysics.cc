@@ -34,7 +34,7 @@ LaserOpticalPhysics::LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
 	    << std::endl;
   
   // EM Physics
-  RegisterPhysics( new CMSEmStandardPhysics("standard EM", ver));
+  RegisterPhysics(new CMSEmStandardPhysics(ver));
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics(ver));
   // Decays
