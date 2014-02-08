@@ -789,17 +789,17 @@ void MuonSimHitAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
 void MuonSimHitAnalyzer::buildLUT()
 {
   std::vector<int> pos_ids;
-  pos_ids.push_back(GEMDetId(1,1,1,1,36,1).rawId());
+  pos_ids.push_back(GEMDetId(1,1,1,1,36,2).rawId());
 
   std::vector<int> neg_ids;
-  neg_ids.push_back(GEMDetId(-1,1,1,1,36,1).rawId());
+  neg_ids.push_back(GEMDetId(-1,1,1,1,36,2).rawId());
 
   std::vector<float> phis;
   phis.push_back(0.);
   for(int i=1; i<37; ++i)
   {
-    pos_ids.push_back(GEMDetId(1,1,1,1,i,1).rawId());
-    neg_ids.push_back(GEMDetId(-1,1,1,1,i,1).rawId());
+    pos_ids.push_back(GEMDetId(1,1,1,1,i,2).rawId());
+    neg_ids.push_back(GEMDetId(-1,1,1,1,i,2).rawId());
     phis.push_back(i*10.);
   }
   positiveLUT_ = std::make_pair(phis,pos_ids);

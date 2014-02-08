@@ -31,7 +31,7 @@ if __name__ == "__main__":
   npadsGE21 = 192
 
   ## Trees
-  analyzer = "GEMDigiAnalyzer"
+  analyzer = "MuonDigiAnalyzer"
   simHits = "GEMSimHits"
   digis = "GEMDigiTree"
   pads = "GEMCSCPadDigiTree"
