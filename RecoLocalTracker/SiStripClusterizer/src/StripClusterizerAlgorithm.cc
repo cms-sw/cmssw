@@ -151,9 +151,11 @@ setDetId(const uint32_t id) {
     else e=b+ind;
     auto p = std::lower_bound(b,e,id);
     if (p==e || id!=(*p)) {
+#ifdef NOT_ON_MONTECARLO
       edm::LogWarning("StripClusterizerAlgorithm") 
 	<<"id " << id << " not connected. this is impossible on data "
 	<< "old id " << detId << std::endl;
+#endif
       return false;
     }
     ind = p-detIds.begin();
