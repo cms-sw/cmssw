@@ -26,11 +26,11 @@ if __name__ == "__main__":
   nregion = 2
   nlayer = 2
   npart = 8
-  
+
   ## Trees
-  analyzer = "GEMSimHitAnalyzer"
+  analyzer = "MuonSimHitAnalyzer"
   simHits = "GEMSimHits"
-  simHits = "ME0SimHits"
+#  simHits = "ME0SimHits"
   simTracks = "Tracks"
 
   ## muon selection
@@ -122,6 +122,8 @@ if __name__ == "__main__":
 
     ####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####ME0####
 
+    draw_occ(targetDir, "sh_xy_st1" + suff, ext, treeHits, pre + " SimHit occupancy: station1;globalX [cm];globalY [cm]",
+             "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(st1,sel), "COLZ")
     draw_occ(targetDir, "sh_xy_rm1_st1_l1" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer1;globalX [cm];globalY [cm]",
              "h_", "(100,-260,260,100,-260,260)", "globalY:globalX", AND(rm1,st1,l1,sel), "COLZ")
     draw_occ(targetDir, "sh_xy_rm1_st1_l2" + suff, ext, treeHits, pre + " SimHit occupancy: region-1, station1, layer2;globalX [cm];globalY [cm]",
