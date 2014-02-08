@@ -3,7 +3,7 @@
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
-#include "Qjets.h"
+#include "RecoJets/JetAlgorithms/interface/Qjets.h"
 
 class QjetsPlugin: public fastjet::JetDefinition::Plugin{
  private:
