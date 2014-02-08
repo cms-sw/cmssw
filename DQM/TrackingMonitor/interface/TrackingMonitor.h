@@ -33,6 +33,7 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 class DQMStore;
 class TrackAnalyzer;
@@ -78,7 +79,6 @@ class TrackingMonitor : public edm::EDAnalyzer
 	edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
 
 	edm::EDGetTokenT<reco::TrackCollection> allTrackToken_;
-
 	edm::EDGetTokenT<reco::TrackCollection> trackToken_;
 	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
@@ -156,6 +156,10 @@ class TrackingMonitor : public edm::EDAnalyzer
 	bool doFractionPlot_;
 
         GenericTriggerEventFlag* genTriggerEventFlag_;
+
+	StringCutObjectSelector<reco::Track,true> numSelection_;
+	StringCutObjectSelector<reco::Track,true> denSelection_;
+
 };
 
 #endif //define TrackingMonitor_H

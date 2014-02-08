@@ -1,9 +1,8 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 30/06/2011
+//----------Modified: 30/01/2014
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaWrite.h"
-using namespace std;
 
 //--------------------------------------
 //  TEcnaWrite.cc
@@ -24,7 +23,7 @@ ClassImp(TEcnaWrite)
   //if (fCnaParPaths   != 0){delete fCnaParPaths;   fCdelete++;}
   //if (fCnaParCout    != 0){delete fCnaParCout;    fCdelete++;}
   
-  // cout << "[Info Management] CLASS: TEcnaWrite.         DESTROY OBJECT: this = " << this << endl;
+  // std::cout << "[Info Management] CLASS: TEcnaWrite.         DESTROY OBJECT: this = " << this << std::endl;
 }
 
 //===================================================================
@@ -35,14 +34,14 @@ ClassImp(TEcnaWrite)
 TEcnaWrite::TEcnaWrite()
 {
 
- // cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << std::endl;
 
   Init();
 }
 
 TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString& SubDet)
 {
- // cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << std::endl;
 
   Init();
   Long_t i_this = (Long_t)this;
@@ -96,7 +95,7 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
 		       const TEcnaNumbering* pEcalNumbering)
 {
 
- // cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << endl;
+ // std::cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << std::endl;
 
   Init();
 
@@ -108,6 +107,7 @@ TEcnaWrite::TEcnaWrite(const TString& SubDet,
     {fCnaParPaths = (TEcnaParPaths*)pCnaParPaths;}
 
   //................. Get paths from ECNA directory
+
   fCnaParPaths->GetPathForResultsRootFiles();
   fCnaParPaths->GetPathForResultsAsciiFiles();
 
@@ -455,52 +455,52 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t*       ArrayNbOfEvts, const Int_t
     {
       if( MaxArray == fEcal->MaxCrysInSM() )  // (EB)
 	{
-	  cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *** WARNING *** "
+	  std::cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *** WARNING *** "
 	       << EmptyChannel << " empty channels detected in SM " << StexNumber
-	       << " (EB " << fEcalNumbering->PlusMinusSMNumber(StexNumber) << ")" << endl;
+	       << " (EB " << fEcalNumbering->PlusMinusSMNumber(StexNumber) << ")" << std::endl;
 	}
       if( MaxArray == fEcal->MaxCrysEcnaInDee() )  // (EE)
 	{
 	  EmptyChannel -= fEcal->EmptyChannelsInDeeMatrixIncompleteSCIncluded();
 	  if( EmptyChannel > 0 )
 	    {
-	      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *** WARNING *** "
-		   << EmptyChannel << " empty channels detected in Dee " << StexNumber << endl;
+	      std::cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *** WARNING *** "
+		   << EmptyChannel << " empty channels detected in Dee " << StexNumber << std::endl;
 	    }
 	}
     }
 
   if( DifferentMinusValue > 0 || DifferentPlusValue > 0 )
     {
-      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> " << endl;
+      std::cout << "!TEcnaWrite::NumberOfEventsAnalysis()> " << std::endl;
 
       if( MaxArray == fEcal->MaxCrysInSM() )  // (EB)
 	{
-	  cout << "************** W A R N I N G  :  NUMBER OF EVENTS NOT CONSTANT FOR SM " << StexNumber
+	  std::cout << "************** W A R N I N G  :  NUMBER OF EVENTS NOT CONSTANT FOR SM " << StexNumber
 	       << " (EB " << fEcalNumbering->PlusMinusSMNumber(StexNumber) << ")  *********************";
 	}
 
       if( MaxArray == fEcal->MaxCrysEcnaInDee() )  // (EE)
 	{
-	  cout << "****************** W A R N I N G  :  NUMBER OF EVENTS NOT CONSTANT FOR Dee " << StexNumber
+	  std::cout << "****************** W A R N I N G  :  NUMBER OF EVENTS NOT CONSTANT FOR Dee " << StexNumber
 	       << " **************************";
 	}
 
-      cout << endl
-	   << "  Result ROOT file: " << fRootFileName << endl
-	   << "  The number of events is not the same for all the non-empty channels." << endl	   
+      std::cout << std::endl
+	   << "  Result ROOT file: " << fRootFileName << std::endl
+	   << "  The number of events is not the same for all the non-empty channels." << std::endl	   
 	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number of events for calculations "
-	   << endl	
-	   << "  of pedestals, noises and correlations." << endl
+	   << std::endl	
+	   << "  of pedestals, noises and correlations." << std::endl
 	   << "  Number of channels with 0 < nb of evts < " << rNumberOfEvents << " : " << DifferentMinusValue
-	   << endl
-	// << "  Number of channels with nb of evts > " << rNumberOfEvents << " = " << DifferentPlusValue  << endl
-	   << "  Number of empty channels : " << EmptyChannel << endl
-	   << "  Some values of pedestals, noises and correlations may be wrong for channels" << endl
-	   << "  with number of events different from " << rNumberOfEvents << "." << endl
-	   << "  Please, check the histogram 'Numbers of events'." << endl
+	   << std::endl
+	// << "  Number of channels with nb of evts > " << rNumberOfEvents << " = " << DifferentPlusValue  << std::endl
+	   << "  Number of empty channels : " << EmptyChannel << std::endl
+	   << "  Some values of pedestals, noises and correlations may be wrong for channels" << std::endl
+	   << "  with number of events different from " << rNumberOfEvents << "." << std::endl
+	   << "  Please, check the histogram 'Numbers of events'." << std::endl
 	   << "*******************************************************************************************************"
-	   << endl;
+	   << std::endl;
     }
   else
     {
@@ -508,8 +508,8 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t*       ArrayNbOfEvts, const Int_t
 	{
 	  if( rNumberOfEvents < NbOfReqEvts )
 	    {
-	      cout << "*TEcnaWrite::NumberOfEventsAnalysis()> *** INFO *** Number of events found in data = "
-		   << rNumberOfEvents << ": less than number of requested events ( = " << NbOfReqEvts << ")" << endl;
+	      std::cout << "*TEcnaWrite::NumberOfEventsAnalysis()> *** INFO *** Number of events found in data = "
+		   << rNumberOfEvents << ": less than number of requested events ( = " << NbOfReqEvts << ")" << std::endl;
 	    }
 	}
     }
@@ -562,21 +562,21 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
 
   if( DifferentMinusValue > 0 || DifferentPlusValue > 0 )
     {
-      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> " << endl
+      std::cout << "!TEcnaWrite::NumberOfEventsAnalysis()> " << std::endl
 	   << "****************** W A R N I N G  :  NUMBER OF EVENTS NOT CONSTANT !  *********************************"
-	   << endl
-	   << "  Result ROOT file: " << fRootFileName << endl
-	   << "  The number of events is not the same for all the non-empty channels" << endl	   
-	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number of events " << endl	
-	   << "  for calculations of pedestals, noises and correlations." << endl
-	   << "  Number of channels with 0 < nb of evts < " << rNumberOfEvents << " : " << DifferentMinusValue << endl
-	// << "  Number of channels with nb of evts > " << rNumberOfEvents << " : " << DifferentPlusValue  << endl
-	// << "  Number of empty channels : " << EmptyChannel << endl
-	   << "  Some values of pedestals, noises and correlations may be wrong for channels" << endl
-	   << "  with number of events different from " << rNumberOfEvents << "." << endl
-	   << "  Please, check the histogram 'Numbers of events'." << endl
+	   << std::endl
+	   << "  Result ROOT file: " << fRootFileName << std::endl
+	   << "  The number of events is not the same for all the non-empty channels" << std::endl	   
+	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number of events " << std::endl	
+	   << "  for calculations of pedestals, noises and correlations." << std::endl
+	   << "  Number of channels with 0 < nb of evts < " << rNumberOfEvents << " : " << DifferentMinusValue << std::endl
+	// << "  Number of channels with nb of evts > " << rNumberOfEvents << " : " << DifferentPlusValue  << std::endl
+	// << "  Number of empty channels : " << EmptyChannel << std::endl
+	   << "  Some values of pedestals, noises and correlations may be wrong for channels" << std::endl
+	   << "  with number of events different from " << rNumberOfEvents << "." << std::endl
+	   << "  Please, check the histogram 'Numbers of events'." << std::endl
 	   << "*******************************************************************************************************"
-	   << endl;
+	   << std::endl;
     }
   else
     {
@@ -584,8 +584,8 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
 	{
 	  if( rNumberOfEvents < NbOfReqEvts )
 	    {
-	      cout << "*TEcnaWrite::NumberOfEventsAnalysis()> *** INFO *** Number of events found in data = "
-		   << rNumberOfEvents << ": less than number of requested events ( = " << NbOfReqEvts << ")" << endl;
+	      std::cout << "*TEcnaWrite::NumberOfEventsAnalysis()> *** INFO *** Number of events found in data = "
+		   << rNumberOfEvents << ": less than number of requested events ( = " << NbOfReqEvts << ")" << std::endl;
 	    }
 	}
     }
@@ -690,15 +690,15 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
     {
       if( fCnaParPaths->ResultsRootFilePath().Data() == sPointInterrog.Data() )
 	{
-	  cout << "!TEcnaWrite::fMakeResultsFileName>  * * * W A R N I N G * * * " << endl << endl
-	       << "    Path for results .root file not defined. Default option will be used here:" << endl
-	       << "    your results files will be written in your HOME directory." << endl << endl
-	       << "    In order to write the .root results file in a specific directory," << endl
-               << "    you have to create a file named path_results_root in a subdirectory named ECNA" << endl
-	       << "    previously created in your home directory." << endl 
-	       << "    This file must have only one line containing the path of the directory" << endl 
-	       << "    where must be the .root result files." << endl
-	       << endl;
+	  std::cout << "!TEcnaWrite::fMakeResultsFileName>  * * * W A R N I N G * * * " << std::endl << std::endl
+	       << "    Path for results .root file not defined. Default option will be used here:" << std::endl
+	       << "    your results files will be written in your HOME directory." << std::endl << std::endl
+	       << "    In order to write the .root results file in a specific directory," << std::endl
+               << "    you have to create a file named path_results_root in a subdirectory named ECNA" << std::endl
+	       << "    previously created in your home directory." << std::endl 
+	       << "    This file must have only one line containing the path of the directory" << std::endl 
+	       << "    where must be the .root result files." << std::endl
+	       << std::endl;
 
 	  TString home_path = gSystem->Getenv("HOME");
 	  fCnaParPaths->SetResultsRootFilePath(home_path.Data());  
@@ -730,15 +730,15 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
 	{
 	  if( fCnaParPaths->ResultsAsciiFilePath().Data() == sPointInterrog.Data() )
 	    {
-	      cout << "!TEcnaWrite::fMakeResultsFileName>  * * * W A R N I N G * * * " << endl << endl
-		   << "    Path for results .ascii file not defined. Default option will be used here:" << endl
-		   << "    your results files will be written in your HOME directory." << endl << endl
-		   << "    In order to write the .ascii results file in a specific directory," << endl
-		   << "    you have to create a file named path_results_ascii in a subdirectory named ECNA" << endl
-		   << "    previously created in your home directory." << endl 
-		   << "    This file must have only one line containing the path of the directory" << endl 
-		   << "    where must be the .ascii result files." << endl
-		   << endl;
+	      std::cout << "!TEcnaWrite::fMakeResultsFileName>  * * * W A R N I N G * * * " << std::endl << std::endl
+		   << "    Path for results .ascii file not defined. Default option will be used here:" << std::endl
+		   << "    your results files will be written in your HOME directory." << std::endl << std::endl
+		   << "    In order to write the .ascii results file in a specific directory," << std::endl
+		   << "    you have to create a file named path_results_ascii in a subdirectory named ECNA" << std::endl
+		   << "    previously created in your home directory." << std::endl 
+		   << "    This file must have only one line containing the path of the directory" << std::endl 
+		   << "    where must be the .ascii result files." << std::endl
+		   << std::endl;
 	      
 	      TString home_path = gSystem->Getenv("HOME");
 	      fCnaParPaths->SetResultsAsciiFilePath(home_path.Data());  
@@ -945,8 +945,8 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
   //----------------------------------------------------------- (fMakeResultsFileName)
 
   // default:
-  //    cout << "*TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)> "
-  //	 << "wrong header code , i_code = " << i_code << endl; 
+  //    std::cout << "*TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)> "
+  //	 << "wrong header code , i_code = " << i_code << std::endl; 
   //  }
 
   //======================================= f_name
@@ -986,9 +986,9 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
     }
   else
     {
-      cout << "*TEcnaWrite::fMakeResultsFileName(...)> Name too long (for f_name)."
+      std::cout << "*TEcnaWrite::fMakeResultsFileName(...)> Name too long (for f_name)."
 	   << " No room enough for the extension. (ii = " << ii << ")"
-	   << fTTBELL << endl; 
+	   << fTTBELL << std::endl; 
     }
 
 
@@ -1030,9 +1030,9 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
     }
   else
     {
-      cout << "*TEcnaWrite::fMakeResultsFileName(...)> Name too long (for f_name_short)."
+      std::cout << "*TEcnaWrite::fMakeResultsFileName(...)> Name too long (for f_name_short)."
 	   << " No room enough for the extension. (ii = " << ii << ")"
-	   << fTTBELL  << endl; 
+	   << fTTBELL  << std::endl; 
     }
     delete [] f_name;        f_name       = 0;         fCdelete++;
     delete [] f_name_short;  f_name_short = 0;         fCdelete++;
@@ -1074,20 +1074,20 @@ void TEcnaWrite::fAsciiFileWriteHeader(const Int_t&  i_code)
   fFcout_f.open(fAsciiFileName.Data());
 
   fFcout_f << "*** File: " << fAsciiFileName
-	   << " *** " << endl << endl;
-  fFcout_f << "*Analysis name                : " << fAnaType       << endl;
-  fFcout_f << "*First-Last samples           : 1 - " << fNbOfSamples   << endl; 
-  fFcout_f << "*Run number                   : " << fRunNumber     << endl;
-  fFcout_f << "*First requested event number : " << fFirstReqEvtNumber << endl;
-  fFcout_f << "*Last  requested event number : " << fLastReqEvtNumber << endl;
-  fFcout_f << "*Requested number of events   : " << fReqNbOfEvts << endl;
+	   << " *** " << std::endl << std::endl;
+  fFcout_f << "*Analysis name                : " << fAnaType       << std::endl;
+  fFcout_f << "*First-Last samples           : 1 - " << fNbOfSamples   << std::endl; 
+  fFcout_f << "*Run number                   : " << fRunNumber     << std::endl;
+  fFcout_f << "*First requested event number : " << fFirstReqEvtNumber << std::endl;
+  fFcout_f << "*Last  requested event number : " << fLastReqEvtNumber << std::endl;
+  fFcout_f << "*Requested number of events   : " << fReqNbOfEvts << std::endl;
   if( fFlagSubDet == "EB" )
-    {fFcout_f << "*SuperModule number           : " << fStexNumber   << endl;}
+    {fFcout_f << "*SuperModule number           : " << fStexNumber   << std::endl;}
   if( fFlagSubDet == "EE" )
-    {fFcout_f << "*Dee number                   : " << fStexNumber   << endl;}
+    {fFcout_f << "*Dee number                   : " << fStexNumber   << std::endl;}
   fFcout_f << "*Date first requested event   : " << fStartDate;
-  fFcout_f << "*Date last requested event    : " << fStopDate      << endl;
-  fFcout_f << endl;
+  fFcout_f << "*Date last requested event    : " << fStopDate      << std::endl;
+  fFcout_f << std::endl;
 
   //========================================================================= 
   //   closing of the results file if i_code = fCodeHeaderAscii only.
@@ -1207,19 +1207,19 @@ void TEcnaWrite::WriteAsciiHisto(const TString& HistoCode, const Int_t& HisSize,
   fAsciiFileWriteHeader(i_code);   // => Open of the file associated with stream fFcout_f
 
   //..................................... format numerical values
-  fFcout_f << setiosflags(ios::showpoint | ios::uppercase);
-  fFcout_f << setprecision(3) << setw(6);
-  fFcout_f.setf(ios::dec, ios::basefield);
-  fFcout_f.setf(ios::fixed, ios::floatfield);
-  fFcout_f.setf(ios::left, ios::adjustfield);
-  fFcout_f.setf(ios::right, ios::adjustfield);
+  fFcout_f << std::setiosflags(std::ios::showpoint | std::ios::uppercase);
+  fFcout_f << std::setprecision(3) << std::setw(6);
+  fFcout_f.setf(std::ios::dec, std::ios::basefield);
+  fFcout_f.setf(std::ios::fixed, std::ios::floatfield);
+  fFcout_f.setf(std::ios::left, std::ios::adjustfield);
+  fFcout_f.setf(std::ios::right, std::ios::adjustfield);
   
-  cout << setiosflags(ios::showpoint | ios::uppercase);
-  cout << setprecision(3) << setw(6);
-  cout.setf(ios::dec, ios::basefield);
-  cout.setf(ios::fixed, ios::floatfield);
-  cout.setf(ios::left, ios::adjustfield);
-  cout.setf(ios::right, ios::adjustfield);
+  std::cout << std::setiosflags(std::ios::showpoint | std::ios::uppercase);
+  std::cout << std::setprecision(3) << std::setw(6);
+  std::cout.setf(std::ios::dec, std::ios::basefield);
+  std::cout.setf(std::ios::fixed, std::ios::floatfield);
+  std::cout.setf(std::ios::left, std::ios::adjustfield);
+  std::cout.setf(std::ios::right, std::ios::adjustfield);
 
   //........................................................ WriteAsciiHisto
   TString aStexName;
@@ -1324,7 +1324,7 @@ void TEcnaWrite::WriteAsciiHisto(const TString& HistoCode, const Int_t& HisSize,
 	      if( HistoCode == "D_HFN_ChNb" ){aSpecif1 = "  High Fq"; aSpecif2 = "   noise     ";}
 	      if( HistoCode == "D_SCs_ChNb" ){aSpecif1 = " Sigma of"; aSpecif2 = "   cor(s,s)  ";}
 	      
-	      fFcout_f << endl;
+	      fFcout_f << std::endl;
 	  
 	      fFcout_f << aSpecifa.Data()
 		       << "  " << aStinName.Data() << "#   "
@@ -1332,7 +1332,7 @@ void TEcnaWrite::WriteAsciiHisto(const TString& HistoCode, const Int_t& HisSize,
 		       << aSpecifd.Data()
 		       << aHoco.Data()
 		       << aVeco.Data()
-		       << aSpecif1.Data() << endl;
+		       << aSpecif1.Data() << std::endl;
 	  
 	      fFcout_f << "  in " << aStexName.Data()
 		       << "  in " << aStexName.Data()
@@ -1340,43 +1340,43 @@ void TEcnaWrite::WriteAsciiHisto(const TString& HistoCode, const Int_t& HisSize,
 		       << "  in " << aSpecife.Data()
 		       << "  in " << aStexName.Data()
 		       << "  in " << aStexName.Data()
-		       << aSpecif2.Data()  << endl << endl;
+		       << aSpecif2.Data()  << std::endl << std::endl;
 	    }
  
 	  Double_t value = read_histo(i0StexEcha);
 
 	  if( fFlagSubDet == "EB" )
 	    {
-	      fFcout_f  << setw(7)  << i0StexEcha
-			<< setw(8)  << n1StexStin
-			<< setw(11) << i0StinEcha   // (Electronic channel number in tower)
-			<< setw(10) << n1StexCrys
-			<< setw(10) << (Int_t)fEcalNumbering->GetEta(fStexNumber, StexStinEcna, i0StinEcha)
-			<< setw(10) << (Int_t)fEcalNumbering->GetPhiInSM(fStexNumber, StexStinEcna, i0StinEcha);
+	      fFcout_f  << std::setw(7)  << i0StexEcha
+			<< std::setw(8)  << n1StexStin
+			<< std::setw(11) << i0StinEcha   // (Electronic channel number in tower)
+			<< std::setw(10) << n1StexCrys
+			<< std::setw(10) << (Int_t)fEcalNumbering->GetEta(fStexNumber, StexStinEcna, i0StinEcha)
+			<< std::setw(10) << (Int_t)fEcalNumbering->GetPhiInSM(fStexNumber, StexStinEcna, i0StinEcha);
 	    }
 	  if( fFlagSubDet == "EE" )
 	    {
 	      Int_t n1StinEcha_m = n1StinEcha-1;
-	      fFcout_f  << setw(7)  << n1DataSector
-			<< setw(8)  << n1StexStin
-			<< setw(11) << n1StinEcha   // (Xtal number for construction in SC)
-			<< setw(10) << n1SCinDS
-			<< setw(10) << fEcalNumbering->GetIXCrysInDee(fStexNumber, StexStinEcna, n1StinEcha_m)
-			<< setw(10) << fEcalNumbering->GetJYCrysInDee(fStexNumber, StexStinEcna, n1StinEcha_m);
+	      fFcout_f  << std::setw(7)  << n1DataSector
+			<< std::setw(8)  << n1StexStin
+			<< std::setw(11) << n1StinEcha   // (Xtal number for construction in SC)
+			<< std::setw(10) << n1SCinDS
+			<< std::setw(10) << fEcalNumbering->GetIXCrysInDee(fStexNumber, StexStinEcna, n1StinEcha_m)
+			<< std::setw(10) << fEcalNumbering->GetJYCrysInDee(fStexNumber, StexStinEcna, n1StinEcha_m);
 	    }
 
 	  if( HistoCode == "D_NOE_ChNb")
 	    {
 	      Int_t ivalue = (Int_t)value;
-	      fFcout_f 	<< setw(13) << ivalue;
-	      fFcout_f 	<< setw(4) << "(" << setw(6) << fReqNbOfEvts << ")";
+	      fFcout_f 	<< std::setw(13) << ivalue;
+	      fFcout_f 	<< std::setw(4) << "(" << std::setw(6) << fReqNbOfEvts << ")";
 	    }
 	  else
 	    {
-	      fFcout_f  << setw(13) << value;
+	      fFcout_f  << std::setw(13) << value;
 	    }
 
-	  fFcout_f  << endl;
+	  fFcout_f  << std::endl;
 	}
     } // end of loop:  for (Int_t i0StexEcha=0; i0StexEcha<HisSize; i0StexEcha++)
 
@@ -1384,9 +1384,9 @@ void TEcnaWrite::WriteAsciiHisto(const TString& HistoCode, const Int_t& HisSize,
   
   // if(fFlagPrint != fCodePrintNoComment)
   // {
-      cout << "*TEcnaWrite::WriteAsciiHisto(...)> INFO: "
-	   << "histo has been written in file: " << endl
-	   << "            " << fAsciiFileName.Data() << endl;
+      std::cout << "*TEcnaWrite::WriteAsciiHisto(...)> INFO: "
+	   << "histo has been written in file: " << std::endl
+	   << "            " << fAsciiFileName.Data() << std::endl;
       // }
 } // end of TEcnaWrite::WriteAsciiHisto
 
@@ -1479,19 +1479,19 @@ void  TEcnaWrite::fT2dWriteAscii(const Int_t&    i_code,
   
   //------------ formatage des nombres en faisant appel a la classe ios
   
-  fFcout_f << setiosflags(ios::showpoint | ios::uppercase);
-  fFcout_f.setf(ios::dec, ios::basefield);
-  fFcout_f.setf(ios::fixed, ios::floatfield);
-  fFcout_f.setf(ios::left, ios::adjustfield);
-  fFcout_f.setf(ios::right, ios::adjustfield);
-  fFcout_f << setprecision(3) << setw(6);
+  fFcout_f << std::setiosflags(std::ios::showpoint | std::ios::uppercase);
+  fFcout_f.setf(std::ios::dec, std::ios::basefield);
+  fFcout_f.setf(std::ios::fixed, std::ios::floatfield);
+  fFcout_f.setf(std::ios::left, std::ios::adjustfield);
+  fFcout_f.setf(std::ios::right, std::ios::adjustfield);
+  fFcout_f << std::setprecision(3) << std::setw(6);
   
-  cout << setiosflags(ios::showpoint | ios::uppercase);
-  cout.setf(ios::dec, ios::basefield);
-  cout.setf(ios::fixed, ios::floatfield);
-  cout.setf(ios::left, ios::adjustfield);
-  cout.setf(ios::right, ios::adjustfield);
-  cout << setprecision(3) << setw(6);  
+  std::cout << std::setiosflags(std::ios::showpoint | std::ios::uppercase);
+  std::cout.setf(std::ios::dec, std::ios::basefield);
+  std::cout.setf(std::ios::fixed, std::ios::floatfield);
+  std::cout.setf(std::ios::left, std::ios::adjustfield);
+  std::cout.setf(std::ios::right, std::ios::adjustfield);
+  std::cout << std::setprecision(3) << std::setw(6);  
 
   //--------------------- fin du formatage standard C++ -------------------
 
@@ -1726,7 +1726,7 @@ void  TEcnaWrite::fT2dWriteAscii(const Int_t&    i_code,
       isy_max = justap_samp;
     }
   
-  fFcout_f << endl;
+  fFcout_f << std::endl;
 
   //............... Calcul des nombres de secteurs selon x
   //                i_pasx  = taille secteur en x 
@@ -1767,11 +1767,11 @@ void  TEcnaWrite::fT2dWriteAscii(const Int_t&    i_code,
     {
       fFcout_f << "sector size = " << fSectChanSizeX 
 	       << " , number of sectors = " << n_sctx << " x " << n_scty
-	       << endl;
+	       << std::endl;
     }
 #endif // NBSC
 
-  fFcout_f << endl;
+  fFcout_f << std::endl;
 
   //............... impression matrice par secteurs i_pas x i_pas  
   //........................... boucles pour display des secteurs 
@@ -1808,7 +1808,7 @@ void  TEcnaWrite::fT2dWriteAscii(const Int_t&    i_code,
 		{fFcout_f.width(6);}
 	      fFcout_f << iy_c << "  ";
 	    }	  
-	  fFcout_f << endl << endl;
+	  fFcout_f << std::endl << std::endl;
 	  
 	  for (Int_t ix_c = ix_inf ; ix_c < ix_sup ; ix_c++)
 	    { 
@@ -1843,9 +1843,9 @@ void  TEcnaWrite::fT2dWriteAscii(const Int_t&    i_code,
 		      fFcout_f << fjustap_2d_ss[ix_c][iy_c] << "  ";
 		    }
 		}
-	      fFcout_f << endl;
+	      fFcout_f << std::endl;
 	    }
-	  fFcout_f << endl;
+	  fFcout_f << std::endl;
 	}
     }
 
@@ -1855,9 +1855,9 @@ void  TEcnaWrite::fT2dWriteAscii(const Int_t&    i_code,
   
   if(fFlagPrint != fCodePrintNoComment)
     {
-      cout << "*TEcnaWrite::fT2dWriteAscii(....)> INFO: "
-	   << "matrix has been written in file: " << endl
-	   << "            " << fAsciiFileName.Data() << endl;
+      std::cout << "*TEcnaWrite::fT2dWriteAscii(....)> INFO: "
+	   << "matrix has been written in file: " << std::endl
+	   << "            " << fAsciiFileName.Data() << std::endl;
     }
   
 }// end of TEcnaWrite::fT2dWriteAscii

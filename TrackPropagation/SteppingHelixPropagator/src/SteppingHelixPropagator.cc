@@ -1930,7 +1930,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   int iDistMin = -1;
   
   unsigned int iFDestSorted[6] = {0,0,0,0,0,0};
-  unsigned int nDestSorted =0;
+  int nDestSorted =0;
   unsigned int nearParallels = 0;
 
   double curP = sv.p3.mag();
@@ -2040,21 +2040,21 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 		       <<tanDistToFace[iFace]<<" "<<distToFace[iFace]<<" "<<refDirectionToFace[iFace]<<" "<<dir<<std::endl;
     
   }
-  
-  for (unsigned int i = 0;i<nDestSorted; ++i){
-    unsigned int iMax = nDestSorted-i-1;
-    for (unsigned int j=0;j<nDestSorted-i; ++j){
+   
+  for (int i = 0;i<nDestSorted; ++i){
+    int iMax = nDestSorted-i-1;
+    for (int j=0;j<nDestSorted-i; ++j){
       if (fabs(tanDistToFace[iFDestSorted[j]]) > fabs(tanDistToFace[iFDestSorted[iMax]]) ){
 	iMax = j;
       }
     }
-    unsigned int iTmp = iFDestSorted[nDestSorted-i-1];
+    int iTmp = iFDestSorted[nDestSorted-i-1];
     iFDestSorted[nDestSorted-i-1] = iFDestSorted[iMax];
     iFDestSorted[iMax] = iTmp;
   }
 
   if (debug_){
-    for (unsigned int i=0;i<nDestSorted;++i){
+    for (int i=0;i<nDestSorted;++i){
       LogTrace(metname)<<std::setprecision(17)<<std::setw(20)<<std::scientific<<cVol<<" "<<i<<" "<<iFDestSorted[i]<<" "<<tanDistToFace[iFDestSorted[i]]<<std::endl;
     }
   }
@@ -2062,7 +2062,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   //now go from the shortest to the largest distance hoping to get a point in the volume.
   //other than in case of a near-parallel travel this should stop after the first try
   
-  for (unsigned int i=0; i<nDestSorted;++i){
+  for (int i=0; i<nDestSorted;++i){
     iFDest = iFDestSorted[i];
 
     double sign = dir == alongMomentum ? 1. : -1.;

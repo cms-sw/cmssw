@@ -9,6 +9,13 @@
 
 #include <HepMC/IO_HERWIG.h>
 
+#include <string>
+#include <vector>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 namespace gen
 {
   class PomwigHadronizer : public gen::BaseHadronizer, public gen::Herwig6Instance
@@ -34,8 +41,14 @@ namespace gen
         const char *classname() const { return "PomwigHadronizer"; }
 
     private:
+
+        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+        virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+
         void clear();
         bool initializeDPDF();
+
+        static const std::vector<std::string> theSharedResources;
 
         bool                            needClear;
 

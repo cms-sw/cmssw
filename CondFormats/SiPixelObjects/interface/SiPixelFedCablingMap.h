@@ -17,6 +17,8 @@ public:
 
   SiPixelFedCablingMap(const std::string & version="") : theVersion(version) {}
 
+  void initializeRocs();
+
   virtual ~SiPixelFedCablingMap() {}
 
   SiPixelFedCablingTree * cablingTree() const; 
