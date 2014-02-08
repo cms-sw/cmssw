@@ -57,7 +57,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   bool doAssoc_;
   bool usePFMuon_;
 
-  TrackingParticleSelector tpSelector_, tpSelector2_;
+  TrackingParticleSelector tpSelector_;
 
   // Track to use
   MuonAssociatorByHits::MuonTrackType trackType_;

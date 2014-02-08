@@ -372,7 +372,7 @@ struct RecoMuonValidator::MuonME {
 
     hErrP_vs_P_   ->Fill(simP  , errP  );
     hErrPt_vs_Pt_ ->Fill(simPt , errPt );
-    //hErrQPt_vs_Pt_->Fill(simQPt, errQPt); //Cesare
+    //hErrQPt_vs_Pt_->Fill(simQPt, errQPt);
     hErrQPt_vs_Pt_->Fill(simPt, errQPt);
 
     hErrEta_vs_Eta_->Fill(simEta, errEta);
@@ -564,17 +564,6 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   tpSelector_ = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
                                          tpset.getParameter<double>("minRapidity"),
                                          tpset.getParameter<double>("maxRapidity"),
-                                         tpset.getParameter<double>("tip"),
-                                         tpset.getParameter<double>("lip"),
-                                         tpset.getParameter<int>("minHit"),
-                                         tpset.getParameter<bool>("signalOnly"),
-                                         tpset.getParameter<bool>("chargedOnly"),
-                                         tpset.getParameter<bool>("stableOnly"),
-                                         tpset.getParameter<std::vector<int> >("pdgId"));
-
-  tpSelector2_ = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
-                                         -1*tpset.getParameter<double>("maxRapidity"),
-                                         -1*tpset.getParameter<double>("minRapidity"),
                                          tpset.getParameter<double>("tip"),
                                          tpset.getParameter<double>("lip"),
                                          tpset.getParameter<int>("minHit"),
@@ -891,7 +880,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   for(TrackingParticleCollection::size_type i=0; i<nSim; i++) {
     TrackingParticleRef simRef(simHandle, i);
     const TrackingParticle* simTP = simRef.get();
-    if ( ! (tpSelector_(*simTP) || tpSelector2_(*simTP)) ) continue;
+    if ( ! tpSelector_(*simTP) ) continue;
 
     //denominators for efficiency plots
     const double simP   = simRef->p();

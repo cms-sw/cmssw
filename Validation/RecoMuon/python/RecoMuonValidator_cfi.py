@@ -28,19 +28,19 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     #
     # Histogram dimensions     #
     #
-    nBinP = cms.untracked.uint32(261),
-    minP = cms.untracked.double(-2.5),
-    maxP = cms.untracked.double(1302.5),
+    nBinP = cms.untracked.uint32(100),
+    minP = cms.untracked.double(0.0),
+    maxP = cms.untracked.double(500.0),
 
-    nBinPt = cms.untracked.uint32(261),
-    minPt = cms.untracked.double(-2.5),
-    maxPt = cms.untracked.double(1302.5),
+    nBinPt = cms.untracked.uint32(100),
+    minPt = cms.untracked.double(0.0),
+    maxPt = cms.untracked.double(500.0),
 
     doAbsEta = cms.untracked.bool(False),
 
-    nBinEta = cms.untracked.uint32(100),
+    nBinEta = cms.untracked.uint32(50),
     minEta = cms.untracked.double(-2.5),
-    maxEta = cms.untracked.double(+2.5),
+    maxEta = cms.untracked.double(2.5),
 
     nBinDxy = cms.untracked.uint32(100),
     minDxy = cms.untracked.double(-1.5),
@@ -67,8 +67,8 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     maxErrPt = cms.untracked.double(0.3),
 
     # q/pT resolution     #
-    minErrQPt = cms.untracked.double(-0.3),
-    maxErrQPt = cms.untracked.double(0.3),
+    minErrQPt = cms.untracked.double(-0.1),
+    maxErrQPt = cms.untracked.double(0.1),
 
     # Eta resolution     #
     minErrEta = cms.untracked.double(-0.01),
