@@ -39,5 +39,4 @@ def useInputDir(process, inputDir, onEOS = True):
         theInputFiles.extend([my_dir[16:] + x for x in ls if x.endswith('root')])
                                                                                                         
     process.source.fileNames = cms.untracked.vstring(*theInputFiles)
-    print process.source.fileNames
     return process
