@@ -36,6 +36,10 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectorySeed"/>
+
+<use   name="PhysicsTools/UtilAlgos"/>
+<use   name="FWCore/ServiceRegistry"/>
+
 <library   file="STAMuonAnalyzer.cc" name="STAMuonAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>

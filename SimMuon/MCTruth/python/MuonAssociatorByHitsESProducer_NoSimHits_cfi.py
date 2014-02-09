@@ -12,6 +12,7 @@ muonAssociatorByHitsESProducerNoSimHits = cms.ESProducer("MuonAssociatorESProduc
 muonAssociatorByHitsESProducerNoSimHits.CSCsimHitsTag = ""
 muonAssociatorByHitsESProducerNoSimHits.RPCsimhitsTag = ""
 muonAssociatorByHitsESProducerNoSimHits.DTsimhitsTag  = ""
+muonAssociatorByHitsESProducerNoSimHits.GEMsimhitsTag  = ""
 
 ### The following is useful when running only on RECO
 # don't normalize on the total number of hits (which is unknown, if I don't have simHits)
