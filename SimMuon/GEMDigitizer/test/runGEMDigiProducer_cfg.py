@@ -25,8 +25,6 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
-
 # GEM digitizer
 process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
 # GEM-CSC trigger pad digi producer
