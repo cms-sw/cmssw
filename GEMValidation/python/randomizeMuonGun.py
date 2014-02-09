@@ -16,6 +16,6 @@ def randomizeMuonGun(process):
 
     ## filter sequence
     process.gen_mu_select = cms.Sequence(process.genMuons * process.genMuonsGEM)
-    process.generation_step = process.generation_step * process.gen_mu_select
-    process.simulation_step = process.gen_mu_select * process.simulation_step
+    process.generation_step += process.gen_mu_select
+    process.simulation_step += process.gen_mu_select
     return process
