@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMDIGI")
@@ -39,37 +38,6 @@ from SimMuon.GEMDigitizer.customizeGEMDigi import *
 process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
 #process = customize_digi_addGEM_gem_only(process)  # only GEM digi
 
-runCSCforSLHC = True
-if runCSCforSLHC:
-    # upgrade CSC customizations
-    from SLHCUpgradeSimulations.Configuration.muonCustoms import *
-    process = unganged_me1a_geometry(process)
-    process = digitizer_timing_pre3_median(process)
-
-addCSCstubs = True
-if addCSCstubs:
-    # unganged local stubs emulator:
-    process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi')
-    process.simCscTriggerPrimitiveDigis = process.cscTriggerPrimitiveDigisPostLS1.clone()
-
-addPileUp = False
-if addPileUp:
-    # list of MinBias files for pileup has to be provided
-    ff = open('filelist_pileup.txt', "r")
-    pu_files = ff.read().split('\n')
-    ff.close()
-    pu_files = filter(lambda x: x.endswith('.root'),  pu_files)
-
-    process.mix.input = cms.SecSource("PoolSource",
-        nbPileupEvents = cms.PSet(
-             #### THIS IS AVERAGE PILEUP NUMBER THAT YOU NEED TO CHANGE
-            averageNumber = cms.double(50)
-        ),
-        type = cms.string('poisson'),
-        sequential = cms.untracked.bool(False),
-        fileNames = cms.untracked.vstring(*pu_files)
-    )
-
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:out_sim.root'
@@ -105,13 +73,7 @@ process.output = cms.OutputModule("PoolOutputModule",
     )
 )
 
-
-process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
-
-if addCSCstubs:
-    process.digi_step    = cms.Path(process.pdigi * process.simCscTriggerPrimitiveDigis)
-else:
-    process.digi_step    = cms.Path(process.pdigi)
+process.digi_step    = cms.Path(process.pdigi)
 
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)
