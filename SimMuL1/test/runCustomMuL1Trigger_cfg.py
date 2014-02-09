@@ -24,13 +24,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
 options.register ('pu',
-                  0,
+                  140,
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.float,
                   "PU: 100  default")
 
 options.register ('ptdphi',
-                  "pt05",
+                  'pt0',
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.string,
                   "ptdphi: 5 GeV/c default")
@@ -57,7 +57,7 @@ if hasattr(sys, "argv") == True:
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000) )
 
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -81,40 +81,13 @@ from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geome
 process = unganged_me1a_geometry(process)
 process = digitizer_timing_pre3_median(process)
 
-## upgrade CSC L1 customizations: GEM-CSC emulator
-process.load('L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi')
-process.simCscTriggerPrimitiveDigis = process.cscTriggerPrimitiveDigisPostLS1.clone()
-process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag('simMuonCSCDigis', 'MuonCSCComparatorDigi')
-process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag('simMuonCSCDigis', 'MuonCSCWireDigi')
+## upgrade CSC L1 customizations
+from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Stubs 
+process = customise_csc_L1Stubs(process)
 
-## GEM-CSC bending angle library
-process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
-process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPretrig = 3
-process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
-tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-tmb.gemMatchDeltaEta = cms.untracked.double(0.08)
-tmb.gemMatchDeltaBX = cms.untracked.int32(1)
-tmb.printAvailablePads = cms.untracked.bool(False)
-tmb.dropLowQualityCLCTsNoGEMs = cms.untracked.bool(True)
-
-dphi_lct_pad98 = {
-    'pt05' : { 'odd' :   0.0220351 , 'even' :  0.00930056 },
-    'pt06' : { 'odd' :   0.0182579 , 'even' :  0.00790009 },
-    'pt10' : { 'odd' :     0.01066 , 'even' :  0.00483286 },
-    'pt15' : { 'odd' :  0.00722795 , 'even' :   0.0036323 },
-    'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
-    'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
-    'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
-}
-
-tmb.gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd'])
-tmb.gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even'])
-if ptdphi == 'pt0':
-    tmb.gemClearNomatchLCTs = cms.untracked.bool(False) 
-    tmb.gemMatchDeltaPhiOdd = cms.untracked.double(2.)
-    tmb.gemMatchDeltaPhiEven = cms.untracked.double(2.)
+## GEM-CSC emulator
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise_L1Emulator
+process = customise_L1Emulator(process, 'pt05')
 
 ## upgrade CSC TrackFinder
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1TrackFinder
@@ -139,12 +112,10 @@ process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring('file:out_sim.root')
 )
 
-process.source.fileNames = cms.untracked.vstring('file:out_sim.root')
-
 ## input
 from GEMCode.SimMuL1.GEMCSCTriggerSamplesLib import files
 from GEMCode.GEMValidation.InputFileHelpers import useInputDir
-process = useInputDir(process, files['_gem98_pt2-50'], False)
+process = useInputDir(process, files['_pt2-50'], False)
 print "InputFiles: ", process.source.fileNames
 
 physics = True
@@ -162,6 +133,7 @@ if not physics:
     
 ## output commands 
 theOutDir = ''
+theFileName = 'out_L1_dphi0_preTrig33_noLQCLCTs_recoverALCTGEM.root'
 theFileName = 'out_L1.root'
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string(theOutDir + theFileName),
