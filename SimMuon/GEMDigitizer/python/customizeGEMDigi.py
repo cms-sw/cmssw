@@ -168,7 +168,5 @@ def append_GEMDigi_event(process):
     for a in alist:
         b=a+'output'
         if hasattr(process,b):
-            print b
-            print getattr(process,b)
             getattr(process,b).outputCommands.append('keep *_simMuonGEMDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_simMuonGEMCSCPadDigis_*_*')
