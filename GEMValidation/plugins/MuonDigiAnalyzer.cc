@@ -226,7 +226,7 @@ MuonDigiAnalyzer::MuonDigiAnalyzer(const edm::ParameterSet& ps)
 , hasME0Geometry_(true)
 , hasCSCGeometry_(true)
 {
-  auto cfg_ = ps.getParameter<edm::ParameterSet>("simTrackMatching");
+  cfg_ = ps.getParameter<edm::ParameterSet>("simTrackMatching");
   auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
   simTrackInput_ = simTrack.getParameter<edm::InputTag>("input");
   simTrackMinPt_ = simTrack.getParameter<double>("minPt");
