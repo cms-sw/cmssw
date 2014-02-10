@@ -21,8 +21,9 @@
 #include <string.h>
 #include <stdio.h>
 
+class SystemBounds;
 class GlobalContext;
-
+class StreamID;
 
 namespace evf{
 
@@ -36,8 +37,10 @@ namespace evf{
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector(){}
+      void preallocate(edm::service::SystemBounds const& bounds);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
+      void preSourceEvent(edm::StreamID const& streamID);
       //void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts);
       //void postEndRun(edm::Run const& run, edm::EventSetup const& es);
       std::string &baseDir(){return base_dir_;}
@@ -80,6 +83,9 @@ namespace evf{
       FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
       void unlockAndCloseMergeStream();
       void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
+      void updateFileIndex(int const& fileIndex) {currentFileIndex_=fileIndex;}
+      std::vector<int>* getStreamFileTracker() {return &streamFileTracker_;}
+
 
     private:
       bool bulock();
@@ -141,6 +147,8 @@ namespace evf{
       struct flock data_rw_fulk;
 
       evf::FastMonitoringService * fms_ = nullptr;
+      std::vector<int> streamFileTracker_;
+      int currentFileIndex_ = -1;
 
   };
 }

@@ -1,6 +1,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
@@ -79,8 +81,10 @@ namespace evf {
     data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
+    reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
     reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
     reg.watchPostGlobalEndRun(this, &EvFDaqDirector::postEndRun);
+    reg.watchPreSourceEvent(this, &EvFDaqDirector::preSourceEvent);
 
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run_;
@@ -194,7 +198,13 @@ namespace evf {
     }
   }
 
-//  void EvFDaqDirector::preBeginRun(edm::GlobalContextedm::RunID const& id, edm::Timestamp const& ts) {
+  void EvFDaqDirector::preallocate(edm::service::SystemBounds const& bounds) {
+
+    for (unsigned int i=0;i<bounds.maxNumberOfStreams();i++){
+      streamFileTracker_.push_back(-1);
+    }
+  }
+
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
 
 //    assert(run_ == id.run());
@@ -214,9 +224,10 @@ namespace evf {
 					<< run_dir_ << " this is not the highest run "
 					<< dirManager_.findHighestRunDir();
     }
+  }
 
-
-
+  inline void EvFDaqDirector::preSourceEvent(edm::StreamID const& streamID) {
+    streamFileTracker_[streamID]=currentFileIndex_;
   }
 
   bool EvFDaqDirector::createOutputDirectory() {

@@ -62,8 +62,6 @@ private:
   //functions for single buffered reader
   evf::EvFDaqDirector::FileStatus cacheNextEvent();
   evf::EvFDaqDirector::FileStatus readNextChunkIntoBuffer();
-  void closeCurrentFile();
-  evf::EvFDaqDirector::FileStatus openNextFile();
   evf::EvFDaqDirector::FileStatus searchForNextFile();
 
   //variables
@@ -97,18 +95,9 @@ private:
 
   unsigned int currentLumiSection_;
   unsigned int eventsThisLumi_;
+  unsigned long eventsThisRun_;
 
   jsoncollector::DataPointDefinition *dpd_;
-
-  //variables for the single buffered reader
-  bool singleBufferMode_;
-  unsigned char *dataBuffer_ = nullptr;
-  unsigned char *bufferCursor_ = nullptr;
-  uint32_t bufferLeft_ = 0;
-  int fileDescriptor_ = -1;
-  boost::filesystem::path currentInputJson_;
-  boost::filesystem::path openFile_;
-  int currentInputEventCount_ = 0;
 
   /*
    *
@@ -171,6 +160,8 @@ private:
 	chunks_.push_back(nullptr);
     }
 
+    InputFile(std::string & name):fileName_(name) {}
+
     bool waitForChunk(unsigned int chunkid) {
       //some atomics to make sure everything is cache synchronized for the main thread
       return chunks_[chunkid]!=nullptr && chunks_[chunkid]->readComplete_;
@@ -202,6 +193,27 @@ private:
   bool setExceptionState_ = false;
   std::mutex startupLock_;
   std::condition_variable startupCv_;
+
+  int currentFileIndex_ = -1;
+  std::list<std::pair<int,InputFile*>> filesToDelete_;
+  std::list<std::pair<int,std::string>> fileNamesToDelete_;
+  std::vector<int> *streamFileTrackerPtr_;
+  unsigned int nStreams_ = 0;
+  unsigned int checkEvery_ = 10;
+
+
+
+  //variables for the single buffered reader
+  bool singleBufferMode_;
+  unsigned char *dataBuffer_ = nullptr;
+  unsigned char *bufferCursor_ = nullptr;
+  uint32_t bufferLeft_ = 0;
+  int fileDescriptor_ = -1;
+  boost::filesystem::path currentInputJson_;
+  boost::filesystem::path openFile_;
+  int currentInputEventCount_ = 0;
+
+
 
 };
 

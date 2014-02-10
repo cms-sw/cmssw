@@ -161,7 +161,7 @@ namespace evf{
 
 	  // lock the monitor
 	  fmt_.monlock_.lock();
-          doSnapshot(true,lastGlobalLumi_,false,false,0);
+          doSnapshot(false,lastGlobalLumi_,false,false,0);//fast output disabled for now
 	  fmt_.monlock_.unlock();
 
 	  ::sleep(sleepTime_);
