@@ -9,7 +9,7 @@
   <Constant name="ZminHEsci" value="4410*mm"/>
   <Constant name="ZmaxHEsci" value="5193*mm"/>
   <Constant name="XmaxHEsci" value="2660.83*mm"/>
-  <Constant name="ThetaMin" value="0.0994838*rad"/>
+  <Constant name="ThetaMin" value="0.0366345*rad"/>
   <Constant name="ThetaMax1" value="0.448061*rad"/>
   <Constant name="ThetaMax2" value="0.925025*rad"/>
   <Constant name="demiPhi" value="0.174533*rad"/>
@@ -20,60 +20,60 @@
 </ConstantsSection> 
 
 <SolidSection label="hgcalHEsci.xml" >
- <Trapezoid name="HEsci_1" dz="0.01725*m" alp1="0*deg" bl1="0.0783806*m" tl1="0.448819*m" h1="1.05043*m" alp2="0*deg" bl2="0.0783806*m" tl2="0.448819*m" h2="1.05043*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_2" dz="0.01725*m" alp1="0*deg" bl1="0.0791462*m" tl1="0.458998*m" h1="1.07713*m" alp2="0*deg" bl2="0.0791462*m" tl2="0.458998*m" h2="1.07713*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_3" dz="0.01725*m" alp1="0*deg" bl1="0.0799118*m" tl1="0.469177*m" h1="1.10381*m" alp2="0*deg" bl2="0.0799118*m" tl2="0.469177*m" h2="1.10381*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_4" dz="0.01725*m" alp1="0*deg" bl1="0.0806774*m" tl1="0.469177*m" h1="1.10164*m" alp2="0*deg" bl2="0.0806774*m" tl2="0.469177*m" h2="1.10164*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_5" dz="0.01725*m" alp1="0*deg" bl1="0.0814429*m" tl1="0.469177*m" h1="1.09947*m" alp2="0*deg" bl2="0.0814429*m" tl2="0.469177*m" h2="1.09947*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_6" dz="0.01725*m" alp1="0*deg" bl1="0.0822085*m" tl1="0.469177*m" h1="1.0973*m" alp2="0*deg" bl2="0.0822085*m" tl2="0.469177*m" h2="1.0973*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_7" dz="0.01725*m" alp1="0*deg" bl1="0.0829741*m" tl1="0.469177*m" h1="1.09513*m" alp2="0*deg" bl2="0.0829741*m" tl2="0.469177*m" h2="1.09513*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_8" dz="0.01725*m" alp1="0*deg" bl1="0.0837397*m" tl1="0.469177*m" h1="1.09296*m" alp2="0*deg" bl2="0.0837397*m" tl2="0.469177*m" h2="1.09296*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_9" dz="0.01725*m" alp1="0*deg" bl1="0.0845053*m" tl1="0.469177*m" h1="1.09079*m" alp2="0*deg" bl2="0.0845053*m" tl2="0.469177*m" h2="1.09079*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_10" dz="0.01725*m" alp1="0*deg" bl1="0.0852709*m" tl1="0.469177*m" h1="1.08862*m" alp2="0*deg" bl2="0.0852709*m" tl2="0.469177*m" h2="1.08862*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_11" dz="0.01725*m" alp1="0*deg" bl1="0.0860365*m" tl1="0.469177*m" h1="1.08645*m" alp2="0*deg" bl2="0.0860365*m" tl2="0.469177*m" h2="1.08645*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_12" dz="0.01725*m" alp1="0*deg" bl1="0.0868021*m" tl1="0.469177*m" h1="1.08428*m" alp2="0*deg" bl2="0.0868021*m" tl2="0.469177*m" h2="1.08428*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_13" dz="0.01725*m" alp1="0*deg" bl1="0.0875677*m" tl1="0.469177*m" h1="1.0821*m" alp2="0*deg" bl2="0.0875677*m" tl2="0.469177*m" h2="1.0821*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_14" dz="0.01725*m" alp1="0*deg" bl1="0.0883333*m" tl1="0.469177*m" h1="1.07993*m" alp2="0*deg" bl2="0.0883333*m" tl2="0.469177*m" h2="1.07993*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_15" dz="0.01725*m" alp1="0*deg" bl1="0.0890988*m" tl1="0.469177*m" h1="1.07776*m" alp2="0*deg" bl2="0.0890988*m" tl2="0.469177*m" h2="1.07776*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_16" dz="0.01725*m" alp1="0*deg" bl1="0.0898644*m" tl1="0.469177*m" h1="1.07559*m" alp2="0*deg" bl2="0.0898644*m" tl2="0.469177*m" h2="1.07559*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_17" dz="0.01725*m" alp1="0*deg" bl1="0.09063*m" tl1="0.469177*m" h1="1.07342*m" alp2="0*deg" bl2="0.09063*m" tl2="0.469177*m" h2="1.07342*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_18" dz="0.01725*m" alp1="0*deg" bl1="0.0913956*m" tl1="0.469177*m" h1="1.07125*m" alp2="0*deg" bl2="0.0913956*m" tl2="0.469177*m" h2="1.07125*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_19" dz="0.0045*m" alp1="5.03837*deg" bl1="0.0391903*m" tl1="0.22441*m" h1="1.05043*m" alp2="5.03837*deg" bl2="0.0391903*m" tl2="0.22441*m" h2="1.05043*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_20" dz="0.0045*m" alp1="-5.03836*deg" bl1="0.0395731*m" tl1="0.229499*m" h1="1.07713*m" alp2="-5.03836*deg" bl2="0.0395731*m" tl2="0.229499*m" h2="1.07713*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_21" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0399559*m" tl1="0.234589*m" h1="1.10381*m" alp2="5.03838*deg" bl2="0.0399559*m" tl2="0.234589*m" h2="1.10381*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_22" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0403387*m" tl1="0.234589*m" h1="1.10164*m" alp2="-5.03838*deg" bl2="0.0403387*m" tl2="0.234589*m" h2="1.10164*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_23" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0407214*m" tl1="0.234589*m" h1="1.09947*m" alp2="5.03838*deg" bl2="0.0407214*m" tl2="0.234589*m" h2="1.09947*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_24" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0411043*m" tl1="0.234589*m" h1="1.0973*m" alp2="-5.03838*deg" bl2="0.0411043*m" tl2="0.234589*m" h2="1.0973*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_25" dz="0.0045*m" alp1="5.03838*deg" bl1="0.041487*m" tl1="0.234589*m" h1="1.09513*m" alp2="5.03838*deg" bl2="0.041487*m" tl2="0.234589*m" h2="1.09513*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_26" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0418699*m" tl1="0.234589*m" h1="1.09296*m" alp2="-5.03838*deg" bl2="0.0418699*m" tl2="0.234589*m" h2="1.09296*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_27" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0422527*m" tl1="0.234589*m" h1="1.09079*m" alp2="5.03838*deg" bl2="0.0422527*m" tl2="0.234589*m" h2="1.09079*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_28" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0426354*m" tl1="0.234589*m" h1="1.08862*m" alp2="-5.03838*deg" bl2="0.0426354*m" tl2="0.234589*m" h2="1.08862*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_29" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0430183*m" tl1="0.234589*m" h1="1.08645*m" alp2="5.03838*deg" bl2="0.0430183*m" tl2="0.234589*m" h2="1.08645*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_30" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.043401*m" tl1="0.234589*m" h1="1.08428*m" alp2="-5.03838*deg" bl2="0.043401*m" tl2="0.234589*m" h2="1.08428*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_31" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0437838*m" tl1="0.234589*m" h1="1.0821*m" alp2="5.03838*deg" bl2="0.0437838*m" tl2="0.234589*m" h2="1.0821*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_32" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0441667*m" tl1="0.234589*m" h1="1.07993*m" alp2="-5.03838*deg" bl2="0.0441667*m" tl2="0.234589*m" h2="1.07993*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_33" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0445494*m" tl1="0.234589*m" h1="1.07776*m" alp2="5.03838*deg" bl2="0.0445494*m" tl2="0.234589*m" h2="1.07776*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_34" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0449322*m" tl1="0.234589*m" h1="1.07559*m" alp2="-5.03838*deg" bl2="0.0449322*m" tl2="0.234589*m" h2="1.07559*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_35" dz="0.0045*m" alp1="5.03838*deg" bl1="0.045315*m" tl1="0.234589*m" h1="1.07342*m" alp2="5.03838*deg" bl2="0.045315*m" tl2="0.234589*m" h2="1.07342*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEsci_36" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0456978*m" tl1="0.234589*m" h1="1.07125*m" alp2="-5.03838*deg" bl2="0.0456978*m" tl2="0.234589*m" h2="1.07125*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_37" dz="0.0045*m" alp1="-5.03837*deg" bl1="0.0391903*m" tl1="0.22441*m" h1="1.05043*m" alp2="-5.03837*deg" bl2="0.0391903*m" tl2="0.22441*m" h2="1.05043*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_38" dz="0.0045*m" alp1="5.03836*deg" bl1="0.0395731*m" tl1="0.229499*m" h1="1.07713*m" alp2="5.03836*deg" bl2="0.0395731*m" tl2="0.229499*m" h2="1.07713*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_39" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0399559*m" tl1="0.234589*m" h1="1.10381*m" alp2="-5.03838*deg" bl2="0.0399559*m" tl2="0.234589*m" h2="1.10381*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_40" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0403387*m" tl1="0.234589*m" h1="1.10164*m" alp2="5.03838*deg" bl2="0.0403387*m" tl2="0.234589*m" h2="1.10164*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_41" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0407214*m" tl1="0.234589*m" h1="1.09947*m" alp2="-5.03838*deg" bl2="0.0407214*m" tl2="0.234589*m" h2="1.09947*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_42" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0411043*m" tl1="0.234589*m" h1="1.0973*m" alp2="5.03838*deg" bl2="0.0411043*m" tl2="0.234589*m" h2="1.0973*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_43" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.041487*m" tl1="0.234589*m" h1="1.09513*m" alp2="-5.03838*deg" bl2="0.041487*m" tl2="0.234589*m" h2="1.09513*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_44" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0418699*m" tl1="0.234589*m" h1="1.09296*m" alp2="5.03838*deg" bl2="0.0418699*m" tl2="0.234589*m" h2="1.09296*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_45" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0422527*m" tl1="0.234589*m" h1="1.09079*m" alp2="-5.03838*deg" bl2="0.0422527*m" tl2="0.234589*m" h2="1.09079*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_46" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0426354*m" tl1="0.234589*m" h1="1.08862*m" alp2="5.03838*deg" bl2="0.0426354*m" tl2="0.234589*m" h2="1.08862*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_47" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0430183*m" tl1="0.234589*m" h1="1.08645*m" alp2="-5.03838*deg" bl2="0.0430183*m" tl2="0.234589*m" h2="1.08645*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_48" dz="0.0045*m" alp1="5.03838*deg" bl1="0.043401*m" tl1="0.234589*m" h1="1.08428*m" alp2="5.03838*deg" bl2="0.043401*m" tl2="0.234589*m" h2="1.08428*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_49" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0437838*m" tl1="0.234589*m" h1="1.0821*m" alp2="-5.03838*deg" bl2="0.0437838*m" tl2="0.234589*m" h2="1.0821*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_50" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0441667*m" tl1="0.234589*m" h1="1.07993*m" alp2="5.03838*deg" bl2="0.0441667*m" tl2="0.234589*m" h2="1.07993*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_51" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0445494*m" tl1="0.234589*m" h1="1.07776*m" alp2="-5.03838*deg" bl2="0.0445494*m" tl2="0.234589*m" h2="1.07776*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_52" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0449322*m" tl1="0.234589*m" h1="1.07559*m" alp2="5.03838*deg" bl2="0.0449322*m" tl2="0.234589*m" h2="1.07559*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_53" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.045315*m" tl1="0.234589*m" h1="1.07342*m" alp2="-5.03838*deg" bl2="0.045315*m" tl2="0.234589*m" h2="1.07342*m" phi="0*deg" theta="0*deg"/>
- <Trapezoid name="HEscisens_54" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0456978*m" tl1="0.234589*m" h1="1.07125*m" alp2="5.03838*deg" bl2="0.0456978*m" tl2="0.234589*m" h2="1.07125*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_1" dz="0.01725*m" alp1="0*deg" bl1="0.0287809*m" tl1="0.448819*m" h1="1.19108*m" alp2="0*deg" bl2="0.0287809*m" tl2="0.448819*m" h2="1.19108*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_2" dz="0.01725*m" alp1="0*deg" bl1="0.029062*m" tl1="0.458998*m" h1="1.21915*m" alp2="0*deg" bl2="0.029062*m" tl2="0.458998*m" h2="1.21915*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_3" dz="0.01725*m" alp1="0*deg" bl1="0.0293431*m" tl1="0.469177*m" h1="1.24721*m" alp2="0*deg" bl2="0.0293431*m" tl2="0.469177*m" h2="1.24721*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_4" dz="0.01725*m" alp1="0*deg" bl1="0.0296243*m" tl1="0.469177*m" h1="1.24641*m" alp2="0*deg" bl2="0.0296243*m" tl2="0.469177*m" h2="1.24641*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_5" dz="0.01725*m" alp1="0*deg" bl1="0.0299054*m" tl1="0.469177*m" h1="1.24561*m" alp2="0*deg" bl2="0.0299054*m" tl2="0.469177*m" h2="1.24561*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_6" dz="0.01725*m" alp1="0*deg" bl1="0.0301865*m" tl1="0.469177*m" h1="1.24482*m" alp2="0*deg" bl2="0.0301865*m" tl2="0.469177*m" h2="1.24482*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_7" dz="0.01725*m" alp1="0*deg" bl1="0.0304676*m" tl1="0.469177*m" h1="1.24402*m" alp2="0*deg" bl2="0.0304676*m" tl2="0.469177*m" h2="1.24402*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_8" dz="0.01725*m" alp1="0*deg" bl1="0.0307487*m" tl1="0.469177*m" h1="1.24322*m" alp2="0*deg" bl2="0.0307487*m" tl2="0.469177*m" h2="1.24322*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_9" dz="0.01725*m" alp1="0*deg" bl1="0.0310299*m" tl1="0.469177*m" h1="1.24243*m" alp2="0*deg" bl2="0.0310299*m" tl2="0.469177*m" h2="1.24243*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_10" dz="0.01725*m" alp1="0*deg" bl1="0.031311*m" tl1="0.469177*m" h1="1.24163*m" alp2="0*deg" bl2="0.031311*m" tl2="0.469177*m" h2="1.24163*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_11" dz="0.01725*m" alp1="0*deg" bl1="0.0315921*m" tl1="0.469177*m" h1="1.24083*m" alp2="0*deg" bl2="0.0315921*m" tl2="0.469177*m" h2="1.24083*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_12" dz="0.01725*m" alp1="0*deg" bl1="0.0318732*m" tl1="0.469177*m" h1="1.24003*m" alp2="0*deg" bl2="0.0318732*m" tl2="0.469177*m" h2="1.24003*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_13" dz="0.01725*m" alp1="0*deg" bl1="0.0321543*m" tl1="0.469177*m" h1="1.23924*m" alp2="0*deg" bl2="0.0321543*m" tl2="0.469177*m" h2="1.23924*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_14" dz="0.01725*m" alp1="0*deg" bl1="0.0324355*m" tl1="0.469177*m" h1="1.23844*m" alp2="0*deg" bl2="0.0324355*m" tl2="0.469177*m" h2="1.23844*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_15" dz="0.01725*m" alp1="0*deg" bl1="0.0327166*m" tl1="0.469177*m" h1="1.23764*m" alp2="0*deg" bl2="0.0327166*m" tl2="0.469177*m" h2="1.23764*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_16" dz="0.01725*m" alp1="0*deg" bl1="0.0329977*m" tl1="0.469177*m" h1="1.23685*m" alp2="0*deg" bl2="0.0329977*m" tl2="0.469177*m" h2="1.23685*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_17" dz="0.01725*m" alp1="0*deg" bl1="0.0332788*m" tl1="0.469177*m" h1="1.23605*m" alp2="0*deg" bl2="0.0332788*m" tl2="0.469177*m" h2="1.23605*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_18" dz="0.01725*m" alp1="0*deg" bl1="0.0335599*m" tl1="0.469177*m" h1="1.23525*m" alp2="0*deg" bl2="0.0335599*m" tl2="0.469177*m" h2="1.23525*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_19" dz="0.0045*m" alp1="5.03837*deg" bl1="0.0143905*m" tl1="0.22441*m" h1="1.19108*m" alp2="5.03837*deg" bl2="0.0143905*m" tl2="0.22441*m" h2="1.19108*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_20" dz="0.0045*m" alp1="-5.03836*deg" bl1="0.014531*m" tl1="0.229499*m" h1="1.21915*m" alp2="-5.03836*deg" bl2="0.014531*m" tl2="0.229499*m" h2="1.21915*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_21" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0146716*m" tl1="0.234589*m" h1="1.24721*m" alp2="5.03838*deg" bl2="0.0146716*m" tl2="0.234589*m" h2="1.24721*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_22" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0148121*m" tl1="0.234589*m" h1="1.24641*m" alp2="-5.03838*deg" bl2="0.0148121*m" tl2="0.234589*m" h2="1.24641*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_23" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0149527*m" tl1="0.234589*m" h1="1.24561*m" alp2="5.03838*deg" bl2="0.0149527*m" tl2="0.234589*m" h2="1.24561*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_24" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0150933*m" tl1="0.234589*m" h1="1.24482*m" alp2="-5.03838*deg" bl2="0.0150933*m" tl2="0.234589*m" h2="1.24482*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_25" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0152338*m" tl1="0.234589*m" h1="1.24402*m" alp2="5.03838*deg" bl2="0.0152338*m" tl2="0.234589*m" h2="1.24402*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_26" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0153744*m" tl1="0.234589*m" h1="1.24322*m" alp2="-5.03838*deg" bl2="0.0153744*m" tl2="0.234589*m" h2="1.24322*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_27" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0155149*m" tl1="0.234589*m" h1="1.24243*m" alp2="5.03838*deg" bl2="0.0155149*m" tl2="0.234589*m" h2="1.24243*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_28" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0156555*m" tl1="0.234589*m" h1="1.24163*m" alp2="-5.03838*deg" bl2="0.0156555*m" tl2="0.234589*m" h2="1.24163*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_29" dz="0.0045*m" alp1="5.03838*deg" bl1="0.015796*m" tl1="0.234589*m" h1="1.24083*m" alp2="5.03838*deg" bl2="0.015796*m" tl2="0.234589*m" h2="1.24083*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_30" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0159366*m" tl1="0.234589*m" h1="1.24003*m" alp2="-5.03838*deg" bl2="0.0159366*m" tl2="0.234589*m" h2="1.24003*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_31" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0160771*m" tl1="0.234589*m" h1="1.23924*m" alp2="5.03838*deg" bl2="0.0160771*m" tl2="0.234589*m" h2="1.23924*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_32" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0162177*m" tl1="0.234589*m" h1="1.23844*m" alp2="-5.03838*deg" bl2="0.0162177*m" tl2="0.234589*m" h2="1.23844*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_33" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0163583*m" tl1="0.234589*m" h1="1.23764*m" alp2="5.03838*deg" bl2="0.0163583*m" tl2="0.234589*m" h2="1.23764*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_34" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0164988*m" tl1="0.234589*m" h1="1.23685*m" alp2="-5.03838*deg" bl2="0.0164988*m" tl2="0.234589*m" h2="1.23685*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_35" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0166394*m" tl1="0.234589*m" h1="1.23605*m" alp2="5.03838*deg" bl2="0.0166394*m" tl2="0.234589*m" h2="1.23605*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEsci_36" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0167799*m" tl1="0.234589*m" h1="1.23525*m" alp2="-5.03838*deg" bl2="0.0167799*m" tl2="0.234589*m" h2="1.23525*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_37" dz="0.0045*m" alp1="-5.03837*deg" bl1="0.0143905*m" tl1="0.22441*m" h1="1.19108*m" alp2="-5.03837*deg" bl2="0.0143905*m" tl2="0.22441*m" h2="1.19108*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_38" dz="0.0045*m" alp1="5.03836*deg" bl1="0.014531*m" tl1="0.229499*m" h1="1.21915*m" alp2="5.03836*deg" bl2="0.014531*m" tl2="0.229499*m" h2="1.21915*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_39" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0146716*m" tl1="0.234589*m" h1="1.24721*m" alp2="-5.03838*deg" bl2="0.0146716*m" tl2="0.234589*m" h2="1.24721*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_40" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0148121*m" tl1="0.234589*m" h1="1.24641*m" alp2="5.03838*deg" bl2="0.0148121*m" tl2="0.234589*m" h2="1.24641*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_41" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0149527*m" tl1="0.234589*m" h1="1.24561*m" alp2="-5.03838*deg" bl2="0.0149527*m" tl2="0.234589*m" h2="1.24561*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_42" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0150933*m" tl1="0.234589*m" h1="1.24482*m" alp2="5.03838*deg" bl2="0.0150933*m" tl2="0.234589*m" h2="1.24482*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_43" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0152338*m" tl1="0.234589*m" h1="1.24402*m" alp2="-5.03838*deg" bl2="0.0152338*m" tl2="0.234589*m" h2="1.24402*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_44" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0153744*m" tl1="0.234589*m" h1="1.24322*m" alp2="5.03838*deg" bl2="0.0153744*m" tl2="0.234589*m" h2="1.24322*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_45" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0155149*m" tl1="0.234589*m" h1="1.24243*m" alp2="-5.03838*deg" bl2="0.0155149*m" tl2="0.234589*m" h2="1.24243*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_46" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0156555*m" tl1="0.234589*m" h1="1.24163*m" alp2="5.03838*deg" bl2="0.0156555*m" tl2="0.234589*m" h2="1.24163*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_47" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.015796*m" tl1="0.234589*m" h1="1.24083*m" alp2="-5.03838*deg" bl2="0.015796*m" tl2="0.234589*m" h2="1.24083*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_48" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0159366*m" tl1="0.234589*m" h1="1.24003*m" alp2="5.03838*deg" bl2="0.0159366*m" tl2="0.234589*m" h2="1.24003*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_49" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0160771*m" tl1="0.234589*m" h1="1.23924*m" alp2="-5.03838*deg" bl2="0.0160771*m" tl2="0.234589*m" h2="1.23924*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_50" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0162177*m" tl1="0.234589*m" h1="1.23844*m" alp2="5.03838*deg" bl2="0.0162177*m" tl2="0.234589*m" h2="1.23844*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_51" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0163583*m" tl1="0.234589*m" h1="1.23764*m" alp2="-5.03838*deg" bl2="0.0163583*m" tl2="0.234589*m" h2="1.23764*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_52" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0164988*m" tl1="0.234589*m" h1="1.23685*m" alp2="5.03838*deg" bl2="0.0164988*m" tl2="0.234589*m" h2="1.23685*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_53" dz="0.0045*m" alp1="-5.03838*deg" bl1="0.0166394*m" tl1="0.234589*m" h1="1.23605*m" alp2="-5.03838*deg" bl2="0.0166394*m" tl2="0.234589*m" h2="1.23605*m" phi="0*deg" theta="0*deg"/>
+ <Trapezoid name="HEscisens_54" dz="0.0045*m" alp1="5.03838*deg" bl1="0.0167799*m" tl1="0.234589*m" h1="1.23525*m" alp2="5.03838*deg" bl2="0.0167799*m" tl2="0.234589*m" h2="1.23525*m" phi="0*deg" theta="0*deg"/>
 </SolidSection> 
 
 <LogicalPartSection label="hgcalHEsci.xml">
@@ -304,7 +304,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.49495*m"/>
+  <Numeric name="Radius" value="1.3543*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.42725*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -316,7 +316,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.52598*m"/>
+  <Numeric name="Radius" value="1.38396*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.47075*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -328,7 +328,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.55702*m"/>
+  <Numeric name="Radius" value="1.41362*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.51425*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -340,7 +340,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.55919*m"/>
+  <Numeric name="Radius" value="1.41442*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.55775*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -352,7 +352,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56136*m"/>
+  <Numeric name="Radius" value="1.41522*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.60125*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -364,7 +364,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56353*m"/>
+  <Numeric name="Radius" value="1.41601*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.64475*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -376,7 +376,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.5657*m"/>
+  <Numeric name="Radius" value="1.41681*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.68825*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -388,7 +388,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56787*m"/>
+  <Numeric name="Radius" value="1.41761*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.73175*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -400,7 +400,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57004*m"/>
+  <Numeric name="Radius" value="1.4184*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.77525*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -412,7 +412,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57221*m"/>
+  <Numeric name="Radius" value="1.4192*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.81875*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -424,7 +424,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57438*m"/>
+  <Numeric name="Radius" value="1.42*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.86225*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -436,7 +436,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57655*m"/>
+  <Numeric name="Radius" value="1.4208*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.90575*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -448,7 +448,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57873*m"/>
+  <Numeric name="Radius" value="1.42159*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.94925*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -460,7 +460,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.5809*m"/>
+  <Numeric name="Radius" value="1.42239*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.99275*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -472,7 +472,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58307*m"/>
+  <Numeric name="Radius" value="1.42319*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.03625*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -484,7 +484,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58524*m"/>
+  <Numeric name="Radius" value="1.42398*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.07975*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -496,7 +496,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58741*m"/>
+  <Numeric name="Radius" value="1.42478*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.12325*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -508,7 +508,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="0*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58958*m"/>
+  <Numeric name="Radius" value="1.42558*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.16675*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,90*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -520,7 +520,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03837*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.50075*m"/>
+  <Numeric name="Radius" value="1.35956*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.449*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -532,7 +532,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.5319*m"/>
+  <Numeric name="Radius" value="1.38933*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.4925*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -544,7 +544,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56306*m"/>
+  <Numeric name="Radius" value="1.4191*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.536*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -556,7 +556,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56523*m"/>
+  <Numeric name="Radius" value="1.41991*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.5795*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -568,7 +568,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56741*m"/>
+  <Numeric name="Radius" value="1.42071*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.623*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -580,7 +580,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56959*m"/>
+  <Numeric name="Radius" value="1.42151*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.6665*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -592,7 +592,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57177*m"/>
+  <Numeric name="Radius" value="1.42231*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.71*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -604,7 +604,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57395*m"/>
+  <Numeric name="Radius" value="1.42311*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.7535*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -616,7 +616,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57613*m"/>
+  <Numeric name="Radius" value="1.42391*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.797*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -628,7 +628,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57831*m"/>
+  <Numeric name="Radius" value="1.42471*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.8405*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -640,7 +640,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58049*m"/>
+  <Numeric name="Radius" value="1.42551*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.884*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -652,7 +652,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58267*m"/>
+  <Numeric name="Radius" value="1.42631*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.9275*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -664,7 +664,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58485*m"/>
+  <Numeric name="Radius" value="1.42711*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.971*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -676,7 +676,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58703*m"/>
+  <Numeric name="Radius" value="1.42791*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.0145*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -688,7 +688,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58921*m"/>
+  <Numeric name="Radius" value="1.42871*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.058*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -700,7 +700,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.59139*m"/>
+  <Numeric name="Radius" value="1.42951*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.1015*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -712,7 +712,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.59357*m"/>
+  <Numeric name="Radius" value="1.43031*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.145*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -724,7 +724,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.59575*m"/>
+  <Numeric name="Radius" value="1.43111*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.1885*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -736,7 +736,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.50075*m"/>
+  <Numeric name="Radius" value="1.35956*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.449*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -748,7 +748,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03836*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.5319*m"/>
+  <Numeric name="Radius" value="1.38933*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.4925*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -760,7 +760,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56306*m"/>
+  <Numeric name="Radius" value="1.4191*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.536*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -772,7 +772,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56523*m"/>
+  <Numeric name="Radius" value="1.41991*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.5795*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -784,7 +784,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56741*m"/>
+  <Numeric name="Radius" value="1.42071*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.623*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -796,7 +796,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.56959*m"/>
+  <Numeric name="Radius" value="1.42151*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.6665*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -808,7 +808,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57177*m"/>
+  <Numeric name="Radius" value="1.42231*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.71*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -820,7 +820,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57395*m"/>
+  <Numeric name="Radius" value="1.42311*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.7535*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -832,7 +832,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57613*m"/>
+  <Numeric name="Radius" value="1.42391*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.797*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -844,7 +844,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.57831*m"/>
+  <Numeric name="Radius" value="1.42471*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.8405*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -856,7 +856,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58049*m"/>
+  <Numeric name="Radius" value="1.42551*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.884*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -868,7 +868,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58267*m"/>
+  <Numeric name="Radius" value="1.42631*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.9275*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -880,7 +880,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58485*m"/>
+  <Numeric name="Radius" value="1.42711*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 4.971*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -892,7 +892,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58703*m"/>
+  <Numeric name="Radius" value="1.42791*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.0145*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -904,7 +904,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.58921*m"/>
+  <Numeric name="Radius" value="1.42871*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.058*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -916,7 +916,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.59139*m"/>
+  <Numeric name="Radius" value="1.42951*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.1015*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -928,7 +928,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="354.962*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.59357*m"/>
+  <Numeric name="Radius" value="1.43031*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.145*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,-264.962*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
@@ -940,7 +940,7 @@
   <Numeric name="N" value="18"/>
   <Numeric name="StartAngle" value="5.03838*deg"/>
   <Numeric name="RangeAngle" value="360*deg"/>
-  <Numeric name="Radius" value="1.59575*m"/>
+  <Numeric name="Radius" value="1.43111*m"/>
   <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 5.1885*m </Vector>
   <Vector name="RotateSolid" type="numeric" nEntries="9">90*deg,90*deg,180*deg,0*deg,0*deg,84.9616*deg,0*deg,0*deg,180*deg</Vector>
  </Algorithm>
